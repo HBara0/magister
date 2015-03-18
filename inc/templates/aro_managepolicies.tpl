@@ -67,9 +67,25 @@
                         <td><input type="number" step="any" min="0" name="aropolicy[riskRatioSameCurrCN]" id="aropolicy_riskRatioSameCurrCN" value="{$aropolicy[riskRatioSameCurrCN]}"/> %</td>
                     </tr>
                     <tr>
+                        <td>{$lang->default} {$lang->intermediary}</td><td>{$intermediary_list}</td>
+                    </tr>
+                    <tr>
+                        <td>{$lang->default} {$lang->incoterms}</td><td>{$incoterms_list}</td>
+                    </tr>
+                    <tr>
+                        <td>{$lang->default} {$lang->paymentterms}</td><td>{$paymentterms_list}</td>
+                    </tr>
+                    <tr>
+                        <td>{$lang->default} {$lang->acceptablemargin}</td>
+                        <td><input type="number" step="any" min="0" name="aropolicy[defaultAcceptableMargin]" id="aropolicy_defaultAcceptableMargin" value="{$aropolicy[defaultAcceptableMargin]}"/></td>
+
+                    </tr>
+                    <tr>
+                        <td>{$lang->default} {$lang->currency}</td><td>{$currencies_list}</td>
+                    </tr>
+                    <tr>
                         <td>
                             <input name="aropolicy[isActive]" id="aropolicy_isActive" type="checkbox" value="1" {$checked[isActive]}> {$lang->isactive}</td>
-
                         </td>
                     </tr>
                     <tr>

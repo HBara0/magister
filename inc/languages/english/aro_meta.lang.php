@@ -139,6 +139,9 @@ $lang['globalnetmargin'] = 'Global Net Margin (USD)';
 $lang['totalquantity'] = 'Total Quantity in UOM';
 $lang['totalintermedfees'] = 'Total fees Paid by Intermed in {1}';
 $lang['interestvalue'] = 'Interest Value';
+$lang['default'] = 'Default';
+$lang['acceptablemargin'] = 'Acceptable Margin';
+$lang['intermediary '] = 'Intermediary';
 
 
 
