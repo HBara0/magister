@@ -159,6 +159,10 @@ else if($core->input['action'] == 'ajaxaddmore_forecastlines') {
     $forecastline['inputChecksum'] = generate_checksum('gp');
     $saletypes = SaleTypes::get_data();
     $saletype_selectlist = parse_selectlist("forecastline[".$rowid."][saleType]", "", $saletypes, "");
+
+    for($month = 1; $month <= 12; $month++) {
+        $forecastline['month'.$month] = 0;
+    }
     eval("\$row = \"".$template->get('grouppurchase_fill_forecastlines')."\";");
     output($row);
 }
