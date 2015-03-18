@@ -31,7 +31,7 @@ if(!$core->input['action']) {
 
     /* Perform inline filtering - START */
     $filters_config = array(
-            'parse' => array('filters' => array('title', 'version', 'isPublished', 'lang'),
+            'parse' => array('filters' => array('title', 'version', 'isPublished', 'lang', 'createdBy', 'date', 'hits'),
                     'overwriteField' => array('version' => parse_selectlist('filters[version]', 5, array_combine($version_scale, $version_scale), $core->input['filters']['version'], 1),
                             'isPublished' => parse_selectlist('filters[isPublished]', 2, array('' => '', '1' => $lang->published, '0' => $lang->notpublished), $core->input['filters']['isPublished']),
                             'lang' => parse_selectlist('filters[lang]', 2, array('' => '', 'en' => $lang->english, 'fr' => $lang->french), $core->input['filters']['lang'])
@@ -41,7 +41,7 @@ if(!$core->input['action']) {
                     'filterKey' => 'cmspid',
                     'mainTable' => array(
                             'name' => 'cms_pages',
-                            'filters' => array('title' => 'title', 'version' => 'version', 'isPublished' => 'isPublished', 'lang' => 'lang'),
+                            'filters' => array('title' => 'title', 'version' => 'version', 'isPublished' => 'isPublished', 'lang' => 'lang', 'hits' => 'hits', 'date' => array('operatorType' => 'date', 'name' => 'publishDate')),
                     ),
             )
     );

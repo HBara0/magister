@@ -12,17 +12,15 @@ if(!defined('DIRECT_ACCESS')) {
 }
 
 if(!$core->input['action']) {
-
     /* Perform inline filtering - START */
     $filters_config = array(
-            'parse' => array('filters' => array('title', 'place', 'from', 'to'),
-                    'overwriteField' => array('to' => '', 'from' => '')
+            'parse' => array('filters' => array('title', 'place', 'fromDate', 'toDate')
             ),
             'process' => array(
                     'filterKey' => 'ceid',
                     'mainTable' => array(
                             'name' => 'calendar_events',
-                            'filters' => array('title' => 'title', 'place' => 'place'),
+                            'filters' => array('title' => 'title', 'place' => 'place', 'fromDate' => array('operatorType' => 'date', 'name' => 'fromDate'), 'toDate' => array('operatorType' => 'date', 'name' => 'toDate')),
                     ),
             )
     );
