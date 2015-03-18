@@ -30,19 +30,22 @@
                         <td> {$affiliate_list}</td>
                     </tr>
                     <tr ><td>{$lang->effromdate} </td>
-                        <td> <input type="text" id="pickDate_from"  autocomplete="off" tabindex="2" value="{$chainpolicy[effectiveFrom_output]}" required="required" /> </td>               </td>
-
-                        <td> <input type="hidden" name="chainpolicy[effectiveFrom]" id="altpickDate_from" value="{$chainpolicy[effectiveFrom_formatted]}"/></td>
+                        <td><input type="text" id="pickDate_from"  autocomplete="off" tabindex="2" value="{$chainpolicy[effectiveFrom_output]}" required="required"/>
+                            <input type="hidden" name="chainpolicy[effectiveFrom]" id="altpickDate_from" value="{$chainpolicy[effectiveFrom_formatted]}"/></td>
                     </tr>
-                    <tr><td>{$lang->eftodate}  </td>
-                        <td> <input type="text" id="pickDate_to" autocomplete="off" tabindex="2" value="{$chainpolicy[effectiveTo_output]}" required="required" />  </td>
-                        <td> <input type="hidden" name="chainpolicy[effectiveTo]" id="altpickDate_to" value="{$chainpolicy[effectiveTo_formatted]}"/></td>
+                    <tr><td>{$lang->eftodate}</td>
+                        <td><input type="text" id="pickDate_to" autocomplete="off" tabindex="2" value="{$chainpolicy[effectiveTo_output]}" required="required" />
+                            <input type="hidden" name="chainpolicy[effectiveTo]" id="altpickDate_to" value="{$chainpolicy[effectiveTo_formatted]}"/></td>
 
                     </tr>
                     <tr><td>{$lang->purchasetype}  </td>
                         <td>{$purchasetypelist} </td>
                     </tr>
-
+                    <tr>
+                        <td colspan="2" class="altrow2">
+                            <input name="chainpolicy[informCoordinators]" id="chainpolicy_informCoordinators" type="checkbox" value="1" {$checked[informCoordinators]}> {$lang->informcoordinators}
+                        </td>
+                    </tr>
                 </table>
                 <table class=" datatable-striped">
                     <tbody id="approvers_tbody" style="width:100%;">
