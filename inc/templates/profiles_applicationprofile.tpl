@@ -14,7 +14,6 @@
                     {$application_funtionalproperties_list}
                 </tr>
                 <tr>
-
                     {$application_products_list}
                 </tr>
                 <tr>
@@ -27,10 +26,9 @@
                     {$application_supplier_list}
                 </tr>
                 <tr>{$application_brand_list}</tr>
-        </td></tr>
-        {$footer}
-        {$popup_createbrand}
-        {$popup_marketdata}
-</table>
+            </table>
+        </td>
+    </tr>
+    {$footer}
 </body>
 </html>

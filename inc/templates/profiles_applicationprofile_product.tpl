@@ -1,4 +1,3 @@
-
 <tr>
     <td colspan="2">
         <h3>{$lang->products}</h3>
@@ -12,7 +11,6 @@
                                     <tr class="altrow2">
                                         <th><input class='inlinefilterfield' type='text' style="width: 95%" placeholder="{$lang->products}"/></th>
                                         <th><input class='inlinefilterfield' type='text' style="width: 95%" placeholder="{$lang->suppliers}"/></th>
-
                                     </tr>
                                 </thead>
                                 {$application_productdetails}

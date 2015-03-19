@@ -40,23 +40,6 @@ if(!$core->input['action']) {
             $altrow_class = alt_row($altrow_class);
             $function = $function_obj->get();
             $functionsappseg_objs = $function_obj->get_applications();
-            $segmentappfunction_objs = $function_obj->get_segmentapplicationfunction();
-            //getting each segmentapplication function primary key (safid) and putting it
-            //into a hidden input
-            if(is_array($segmentappfunction_objs)) {
-                foreach($segmentappfunction_objs as $segmentappfunction_obj) {
-                    $segmentappfunction = $segmentappfunction_obj->get();
-                    if(empty($segmentappfunction)) {
-                        $safid = $lang->na;
-                        $segapdescriptions = $lang->na;
-                    }
-                    $safid = $segmentappfunction['safid'];
-                }
-            }
-            else {
-                $safid = $lang->na;
-                $segapdescriptions = $lang->na;
-            }
             if(is_array($functionsappseg_objs)) {
                 foreach($functionsappseg_objs as $safid => $functionsappseg_obj) {
                     $functions_applications = $functionsappseg_obj->get();
@@ -65,7 +48,7 @@ if(!$core->input['action']) {
                     }
                     if(is_array($functions_applications)) {
                         $functions_application .= $functions_applications['title'].' - '.$functionsappseg_obj->get_segment()->get()['title'];
-                        $functions_application.= '<a href="#'.$safid.'" id="segapdescription_'.$safid.'_products/functions_loadpopupbyid" ><img src="'.$core->settings[rootdir].'/images/addnew.png" border="0"></a><br>';
+                        $functions_application.= ' <a href="#'.$safid.'" id="segapdescription_'.$safid.'_products/functions_loadpopupbyid" title="'.$lang->description.'"><img src="'.$core->settings[rootdir].'/images/icons/report.gif" border="0"></a><br>';
                     }
                 }
             }
@@ -74,8 +57,6 @@ if(!$core->input['action']) {
             }
             eval("\$productsapplicationsfunctions_list .= \"".$template->get('admin_products_functions_row')."\";");
             $functions_application = '';
-            $safid = '';
-            $segapdescriptions = '';
         }
     }
     else {
@@ -87,7 +68,7 @@ if(!$core->input['action']) {
 }
 elseif($core->input['action'] == 'do_create') {
     $function_obj = new ChemicalFunctions();
-    $function_obj->create($core->input['chemicalfunctions']);
+    $function_obj->save($core->input['chemicalfunctions']);
     switch($function_obj->get_errorcode()) {
         case 0:
             output_xml('<status>true</status><message>'.$lang->successfullysaved.'</message>');
@@ -101,10 +82,9 @@ elseif($core->input['action'] == 'do_create') {
     }
 }
 elseif($core->input['action'] == 'save_descr') {
-    $segapfuncid = $db->escape_string($core->input['segfuncapp']);
-    $segapfunct_obj = new SegApplicationFunctions($segapfuncid);
+    $segapfunct_obj = new SegApplicationFunctions($core->input['segfuncapp']);
     $fields = array('cfid' => $segapfunct_obj->cfid, 'psaid' => $segapfunct_obj->psaid, 'description' => $core->input['segapdescription']);
-    $segapfunct_obj->update($fields);
+    $segapfunct_obj->save($fields);
     switch($segapfunct_obj->get_errorcode()) {
         case 0:
             output_xml('<status>true</status><message>'.$lang->successfullysaved.'</message>');
@@ -118,8 +98,7 @@ elseif($core->input['action'] == 'save_descr') {
     }
 }
 elseif($core->input['action'] == 'get_segapdescription') {
-    $segapfuncid = $db->escape_string($core->input['id']);
-    $segapfunct_obj = new SegApplicationFunctions($segapfuncid);
+    $segapfunct_obj = new SegApplicationFunctions($core->input['id']);
     $safid = $segapfunct_obj->safid;
     $segapdescriptions = $segapfunct_obj->get_description();
     eval("\$popup_applicationdescription = \"".$template->get('admin_products_popup_applicationdescription')."\";");

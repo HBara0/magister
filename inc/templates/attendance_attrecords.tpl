@@ -1,6 +1,6 @@
 <html>
     <head>
-        <title>{$core->settings[systemtitle]} | {$lang->attendancereport}</title>
+        <title>{$core->settings[systemtitle]} | {$lang->attendancerecords}</title>
         {$headerinc}
     </head>
     <body>
@@ -8,7 +8,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h1>{$lang->attendancereport}</h1>
+            <h1>{$lang->attendancerecords}</h1>
             <form action="#" method="post" id="perform_attendance/attendancerecords_Form" name="perform_attendance/attendancerecords_Form" style="margin-bottom: 0px;">
                 <table class="datatable" width="100%">
                     <thead>
