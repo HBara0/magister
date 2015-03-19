@@ -54,19 +54,28 @@ if(!$core->input['action']) {
             $application_productdetails.='</tr>';
         }
     }
-
-    $suppliers = Entities::get_data(array('eid' => $objectids['spid']), array('returnarray' => true));
-    if(is_object($suppliers)) {
-        $suppliers = array($suppliers);
+    //produt block end
+    //supplier block start
+    if($core->usergroup['canViewAllSupp'] == 0) {
+        $spid_allowed = array_intersect($objectids['spid'], $core->user['suppliers']['eid']);
     }
-    if(is_array($suppliers)) {
-        foreach($suppliers as $supplier) {
-            $supplier_output.='<tr>';
-            $supplier_output.='<td>'.$supplier->parse_link().'</td><td>'.$supplier->get_country()->get_displayname().'</td>';
-            $supplier_output .= '</tr>';
+    else {
+        $spid_allowed = $objectids['spid'];
+    }
+    if(!empty($spid_allowed)) {
+        $suppliers = Entities::get_data(array('eid' => $spid_allowed), array('returnarray' => true));
+        if(is_object($suppliers)) {
+            $suppliers = array($suppliers);
+        }
+        if(is_array($suppliers)) {
+            foreach($suppliers as $supplier) {
+                $supplier_output.='<tr>';
+                $supplier_output.='<td>'.$supplier->parse_link().'</td><td>'.$supplier->get_country()->get_displayname().'</td>';
+                $supplier_output .= '</tr>';
+            }
         }
     }
-    //products block ---End
+    //supplier block ---End
     //Chemical Substances block---Start
     $chemicalfunctchems = ChemFunctionChemicals::get_data(array('safid' => $safids), array('returnarray' => true));
     if(is_object($chemicalfunctchems)) {
@@ -83,7 +92,7 @@ if(!$core->input['action']) {
     //Chemical Substances block---End
     // }//loop over SAFIDs end
 //End product type---Start
-    $endproducttype_objs = EndProducTypes::get_data_byattr('psaid', $psaid);
+    $endproducttype_objs = EndProducTypes::get_data(array('psaid' => $psaid));
     if(is_object($endproducttype_objs)) {
         $endproducttype_objs = array($endproducttype_objs);
     }
@@ -96,31 +105,40 @@ if(!$core->input['action']) {
     }
     //End product type---End
     //looping through all eptids collected in end product type
-    foreach($eptids as $eptid) {
-        //Entity Brand block---Start
-        $entitybrandproduct_objs = EntBrandsProducts::get_data_byattr('eptid', $eptid);
-        if(is_object($entitybrandproduct_objs)) {
-            $entitybrandproduct_objs = array($entitybrandproduct_objs);
+    //Entity Brand block---Start
+    $entitybrandproduct_objs = EntBrandsProducts::get_data(array('eptid' => $eptids));
+    if(is_object($entitybrandproduct_objs)) {
+        $entitybrandproduct_objs = array($entitybrandproduct_objs);
+    }
+    if(is_array($entitybrandproduct_objs)) {
+        foreach($entitybrandproduct_objs as $entitybrandproduct_obj) {
+            $eids[] = $entitybrandproduct_obj->get_entitybrand()->eid;
+            $ebids[] = $entitybrandproduct_obj->get_entitybrand()->ebid;
         }
-        if(is_array($entitybrandproduct_objs)) {
-            foreach($entitybrandproduct_objs as $entitybrandproduct_obj) {
-                $entitybrand_objs = $entitybrandproduct_obj->get_entitybrand();
-                if(is_object($entitybrand_objs)) {
-                    $entitybrand_objs = array($entitybrand_objs);
-                }
-                if(is_array($entitybrand_objs)) {
-                    foreach($entitybrand_objs as $entitybrand_obj) {
-                        $brandlist.='<tr>';
-                        $entitie_obj = $entitybrand_obj->get_entity();
-                        $brandname = $entitybrand_obj->get_displayname();
-                        $entity_country = $entitie_obj->get_country()->get_displayname();
-                        $brandlist .= '<td>'.$brandname.'</td><td>'.$entitie_obj->parse_link().'</td><td>'.$entity_country.'</td>';
-                        $brandlist.='</tr>';
-                    }
-                }
-            }
-        }//Entity Brand block---End
-    }//end of loop through eptids
+        if($core->usergroup['canViewAllCust'] == 0) {
+            $allowed_eid = array_intersect($eids, $core->user['customers']);
+        }
+        else {
+            $allowed_eid = $eids;
+        }
+        if(!empty($allowed_eid)) {
+            $entitybrand_objs = EntitiesBrands::get_data(array('eid' => $allowed_eid, 'ebid' => $ebids));
+        }
+    }
+    if(is_object($entitybrand_objs)) {
+        $entitybrand_objs = array($entitybrand_objs);
+    }
+    if(is_array($entitybrand_objs)) {
+        foreach($entitybrand_objs as $entitybrand_obj) {
+            $brandlist.='<tr>';
+            $entitie_obj = $entitybrand_obj->get_entity();
+            $brandname = $entitybrand_obj->get_displayname();
+            $entity_country = $entitie_obj->get_country()->get_displayname();
+            $brandlist .= '<td>'.$brandname.'</td><td>'.$entitie_obj->parse_link().'</td><td>'.$entity_country.'</td>';
+            $brandlist.='</tr>';
+        }
+    }
+//}//Entity Brand block---End
 
     eval("\$application_brand_list .= \"".$template->get('profiles_applicationprofile_brand')."\";");
     eval("\$application_supplier_list .= \"".$template->get('profiles_applicationprofile_supplier')."\";");
@@ -131,5 +149,3 @@ if(!$core->input['action']) {
     eval("\$applicationprofilepage = \"".$template->get('profiles_applicationprofile')."\";");
     output_page($applicationprofilepage);
 }
-
-
