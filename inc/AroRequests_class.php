@@ -259,11 +259,6 @@ class AroRequests extends AbstractClass {
     }
 
     public function calculate_netmaginparms($data = array()) {
-        $parmsfornetmargin = array('estimatedLocalPayment' => date_create('02-02-2014'), // Add default dates and strtotime()
-                'estimatedImtermedPayment' => date_create('28-02-2014'), //
-                'estimatedManufacturerPayment' => date_create('20-02-2014') //
-        );
-
         $where = 'warehouse='.$data['warehouse'].' AND ('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
         $warehousepolicy = AroManageWarehousesPolicies::get_data($where);
         $currency = new Currencies($warehousepolicy->currency);
@@ -276,18 +271,6 @@ class AroRequests extends AbstractClass {
             output($lang->nopolicy);
             exit;
         }
-        $purchasetype = new PurchaseTypes($data['ptid']);
-        $data['intermedPeriodOfInterest'] = $data['localPeriodOfInterest'] = 0;
-//        $data['intermedPeriodOfInterest'] = date_diff($parmsfornetmargin['estimatedImtermedPayment'], $parmsfornetmargin['estimatedManufacturerPayment']);
-//        $data['intermedPeriodOfInterest'] = $data['intermedPeriodOfInterest']->format("%a");
-        $data['localPeriodOfInterest'] = date_diff($parmsfornetmargin['estimatedLocalPayment'], $parmsfornetmargin['estimatedManufacturerPayment']);
-        $data['localPeriodOfInterest'] = $data['localPeriodOfInterest']->format("%a");
-
-        if($purchasetype->isPurchasedByEndUser == 1) {
-            $data['localPeriodOfInterest'] = date_diff($parmsfornetmargin['estimatedLocalPayment'], $parmsfornetmargin['estimatedImtermedPayment']);
-            $data['localPeriodOfInterest'] = $data['localPeriodOfInterest']->format("%a");
-        }
-
         return $data;
     }
 

@@ -75,7 +75,7 @@ class AroRequestsPartiesInformation extends AbstractClass {
             foreach($fields as $field) {
                 $partiesinfo_data[$field] = $data[$field];
             }
-            //$partiesinfo_data['estDateOfShipment'] = strtotime($data['estDateOfShipment']);
+            $partiesinfo_data['estDateOfShipment'] = strtotime($data['estDateOfShipment']);
             $partiesinfo_data['vendorEstDateOfPayment'] = $this->get_vendordates($data);
             if($data['vendorIsAff'] !== 1) {
                 $additionalfields = array('intermedAff', 'intermedIncoterms', 'intermedIncotermsDesc', 'intermedPaymentTerm', 'intermedPaymentTermDesc', 'ptAcceptableMargin');
@@ -104,9 +104,6 @@ class AroRequestsPartiesInformation extends AbstractClass {
     }
 
     public function get_vendordates(array $data = array()) {
-//        if(empty($data)) {
-//            $data = $this->data;
-//        }
         $partiesinfo_data['estDateOfShipment'] = strtotime($data['estDateOfShipment']);
         $vendor_paymentterm = PaymentTerms::get_data(array('ptid' => $data['vendorPaymentTerm']));
         if(is_object($vendor_paymentterm)) {
