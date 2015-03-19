@@ -67,7 +67,8 @@ if(!($core->input['action'])) {
         $productline['inputChecksum'] = generate_checksum('pl');
         $segments_selectlist = parse_selectlist('productline['.$plrowid.'][psid]', '', $segments, '', null, null, array('id' => "productline_".$plrowid."_psid", 'placeholder' => 'Overwrite Segment', 'width' => '100%'));
         $packaging_list = parse_selectlist('productline['.$plrowid.'][packing]', '', $packaging, '', '', '', array('id' => "productline_".$plrowid."_packing", 'blankstart' => 1));
-        $uom_list = parse_selectlist('productline['.$plrowid.'][uom]', '', $uom, '', '', '', array('id' => "productline_".$plrowid."_uom", 'blankstart' => 1, 'width' => '70px'));
+        $kg = Uom::get_data(array('name' => 'Kilogram'));
+        $uom_list = parse_selectlist('productline['.$plrowid.'][uom]', '', $uom, $kg->uomid, '', '', array('id' => "productline_".$plrowid."_uom", 'blankstart' => 1, 'width' => '70px'));
         eval("\$aroproductlines_rows = \"".$template->get('aro_productlines_row')."\";");
 //
         $aprowid = 0;
@@ -189,7 +190,8 @@ if(!($core->input['action'])) {
                 $productline['inputChecksum'] = generate_checksum('pl');
                 $segments_selectlist = parse_selectlist('productline['.$plrowid.'][psid]', '', $segments, '', null, null, array('id' => "productline_".$plrowid."_psid", 'placeholder' => 'Overwrite Segment', 'width' => '100%'));
                 $packaging_list = parse_selectlist('productline['.$plrowid.'][packing]', '', $packaging, '', '', '', array('id' => "productline_".$plrowid."_packing", 'blankstart' => 1));
-                $uom_list = parse_selectlist('productline['.$plrowid.'][uom]', '', $uom, '', '', '', array('id' => "productline_".$plrowid."_uom", 'blankstart' => 1, 'width' => '70px'));
+                $kg = Uom::get_data(array('name' => 'Kilogram'));
+                $uom_list = parse_selectlist('productline['.$plrowid.'][uom]', '', $uom, $kg->uomid, '', '', array('id' => "productline_".$plrowid."_uom", 'blankstart' => 1, 'width' => '70px'));
                 eval("\$aroproductlines_rows .= \"".$template->get('aro_productlines_row')."\";");
             }
             //********** ARO Product Lines **************//
@@ -395,7 +397,8 @@ else {
         $segments_selectlist = parse_selectlist('productline['.$plrowid.'][psid]', '', $segments, '', null, null, array('id' => "productline_".$plrowid."_psid", 'placeholder' => 'Overwrite Segment', 'width' => '100%'));
         $packaging_list = parse_selectlist('productline['.$plrowid.'][packing]', '', $packaging, '', '', '', array('id' => "productline_".$plrowid."_packing", 'blankstart' => 1));
         $uom = Uom::get_data('name IS NOT NULL');
-        $uom_list = parse_selectlist('productline['.$plrowid.'][uom]', '', $uom, '', '', '', array('id' => "productline_".$plrowid."_uom", 'blankstart' => 1, 'width' => '70px'));
+        $kg = Uom::get_data(array('name' => 'Kilogram'));
+        $uom_list = parse_selectlist('productline['.$plrowid.'][uom]', '', $uom, $kg->uomid, '', '', array('id' => "productline_".$plrowid."_uom", 'blankstart' => 1, 'width' => '70px'));
         eval("\$aroproductlines_rows = \"".$template->get('aro_productlines_row')."\";");
         output($aroproductlines_rows);
     }
@@ -488,7 +491,7 @@ else {
         echo json_encode($intermedpolicy_data);
     }
     if($core->input['action'] == 'ajaxaddmore_actualpurchaserow') {
-        $aprowid = intval($core->input['value']) + 1;
+        $aprowid = intval($core->input['value']);
         eval("\$actualpurchase_rows .= \"".$template->get('aro_actualpurchase_row')."\";");
         output($actualpurchase_rows);
     }
@@ -506,8 +509,8 @@ else {
         }
         $actualpurchase_data['pickDate_stock_'.$rowid] = $actualpurchase[estDateOfStockEntry_output];
         $actualpurchase_data['pickDate_sale_'.$rowid.''] = $actualpurchase[estDateOfSale_output];
-        $actualpurchase_data['pickDate_stock_'.$rowid] = $actualpurchase[estDateOfStockEntry_formatted];
-        $actualpurchase_data['pickDate_sale_'.$rowid.''] = $actualpurchase[estDateOfSale_formatted];
+        $actualpurchase_data['altpickDate_stock_'.$rowid] = $actualpurchase[estDateOfStockEntry_formatted];
+        $actualpurchase_data['altpickDatesale_'.$rowid.''] = $actualpurchase[estDateOfSale_formatted];
         echo json_encode($actualpurchase_data);
     }
     if($core->input['action'] == 'populatepartiesinfofields') {
@@ -525,9 +528,20 @@ else {
                     $partiesinfo[$field.'_formatted'] = date($core->settings['dateformat'], $partiesinfo[$field]);
                 }
             }
+//        $purchasetype = new PurchaseTypes($data['ptid']);
+            $data['localPeriodOfInterest'] = 0;
+            if(isset($partiesinfo['intermedEstDateOfPayment_output']) && !empty($partiesinfo['intermedEstDateOfPayment_output']) && isset($partiesinfo['vendorEstDateOfPayment_output']) && !empty($partiesinfo['vendorEstDateOfPayment_output'])) {
+                $data['localPeriodOfInterest'] = date_diff(date_create($partiesinfo['intermedEstDateOfPayment_output']), date_create($partiesinfo['vendorEstDateOfPayment_output']));
+                $data['localPeriodOfInterest'] = $data['localPeriodOfInterest']->format("%a");
+            }
+//        if($purchasetype->isPurchasedByEndUser == 1) {
+//            $data['localPeriodOfInterest'] = date_diff($parmsfornetmargin['estimatedLocalPayment'], $parmsfornetmargin['estimatedImtermedPayment']);
+//            $data['localPeriodOfInterest'] = $data['localPeriodOfInterest']->format("%a");
+//        }
             $partiesinfo_data = array('pickDate_vendor_estdateofpayment' => $partiesinfo['vendorEstDateOfPayment_formatted'],
                     'pickDate_intermed_estdateofpayment' => $partiesinfo['intermedEstDateOfPayment_formatted'],
-                    'pickDate_intermed_promiseofpayment' => $partiesinfo['promiseOfPayment_formatted']
+                    'pickDate_intermed_promiseofpayment' => $partiesinfo['promiseOfPayment_formatted'],
+                    'parmsfornetmargin_localPeriodOfInterest' => $data['localPeriodOfInterest'],
             );
             echo json_encode($partiesinfo_data);
         }
@@ -541,8 +555,6 @@ else {
         $feeperunit = split('_', $feeperunit);
 
         $i = 0;
-        $lang->totalintermedfees = $lang->sprint($lang->totalintermedfees, $core->input['intermedAff']);
-
         foreach($qtyperunit as $qty) {
             $i++;
             $qty = split(':', $qty);
@@ -557,21 +569,55 @@ else {
             $uom = new Uom($fee[0]);
             $feeperunit_array[$i] = $fee[1]."/".$uom->get_displayname();
             $feeperunit_usdarray[$i] = ($fee[1] * $core->input['exchangeRateToUSD'])."/".$uom->get_displayname();
+            $total_intermedfees +=$fee[1];
         }
         $feeperunit_array = implode("\n", $feeperunit_array);
         $feeperunit_usdarray = implode("\n", $feeperunit_usdarray);
+
+        $localinvoicevalue = $core->input['invoicevalue_local'];
+        $purchaseype = new PurchaseTypes($core->input['ptid']);
+        $localnetmargin = $core->input['local_netMargin'];
+        if($purchaseype->isPurchasedByEndUser == 1) {
+            $localinvoicevalue = $core->input['invoicevalue_local_RIC'];
+            $localnetmargin = 0;
+            $intermedmargin = $core->input['local_netMargin'];
+        }
+        $localinvoicevalue_usd = $localinvoicevalue * $core->input['exchangeRateToUSD'];
+
+        $invoicevalueintermed = $core->input['invoicevalue_intermed'];
+        $invoicevalueintermed_usd = $core->input['invoicevalue_intermed'] * $core->input['exchangeRateToUSD'];
+
+        if($purchaseype->isPurchasedByEndUser == 0) {
+            $intermedmargin = '-';
+            $intermedmargin_perc = '-';
+            if(isset($core->input['ntermedAff']) && !empty($core->input['ntermedAff'])) {
+                $YearDays = 365;
+                $total_intermedfees_usd = $totalfees * $core->input['exchangeRateToUSD'];
+                $intermedmargin = (($localinvoicevalue_usd - $invoicevalueintermed_usd - $total_intermedfees_usd ) - ($invoicevalueintermed_usd + $total_intermedfees_usd) * ($core->input['InterBR'] / $YearDays * $core->input['POIintermed']));
+                $intermedmargin_perc = $intermedmargin / $invoicevalueintermed_usd + $total_intermedfees * $core->input['exchangeRateToUSD'];
+            }
+        }
+        if($purchaseype->isPurchasedByEndUser == 1) {
+            $intermedmargin_perc = $intermedmargin / $localinvoicevalue_usd;
+        }
+//=IF(tNM="","",tNM/(SUMPRODUCT($D$23:$D$31,$M$23:$M$31)*X_USD))
+        $localnetmargin_perc = '';
+        if(!empty($localnetmargin)) {
+            $localnetmargin_perc = $localnetmargin / ($core->input['sellingpriceqty_product'] * $core->input['exchangeRateToUSD']);
+        }
         $data = array('ordersummary_intermedaff' => $intermedaffiliate->get_displayname(),
                 'ordersummary_localaff' => $affiliate->get_displayname(),
-                'ordersummary_totalintermedfees' => $core->input['totalfees'],
-                'ordersummary_totalintermedfees_usd' => ($core->input['totalfees'] * $core->input['exchangeRateToUSD']),
                 'ordersummary_totalquantity' => $quantityperuom,
                 'ordersummary_totalfees' => $feeperunit_array,
                 'ordersummary_totalintermedfees_usd' => $feeperunit_usdarray,
-                'ordersummary_invoicevalue_intermed' => $core->input['invoicevalue_intermed'],
-                'ordersummary_invoicevalueusd_intermed' => ($core->input['invoicevalue_intermed'] * $core->input['exchangeRateToUSD']),
-                'ordersummary_invoicevalue_local' => $core->input['invoicevalue_local'],
-                'ordersummary_invoicevalueusd_local' => ($core->input['invoicevalue_local'] * $core->input['invoicevalue_local']),
-                'test' => $lang->totalintermedfees
+                'ordersummary_invoicevalue_intermed' => $invoicevalueintermed,
+                'ordersummary_invoicevalueusd_intermed' => $invoicevalueintermed_usd,
+                'ordersummary_invoicevalue_local' => $localinvoicevalue,
+                'ordersummary_invoicevalueusd_local' => $localinvoicevalue_usd,
+                'ordersummary_netmargin_local' => $localnetmargin,
+                'ordersummary_netmargin_intermed' => $intermedmargin,
+                'ordersummary_netmargin_localperc' => $localnetmargin_perc,
+                'ordersummary_netmargin_intermedperc' => $intermedmargin_perc
         );
         echo json_encode($data);
     }
