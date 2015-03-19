@@ -61,7 +61,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                 'purpose' => $segmentdata['purpose'],
                 'reason' => $segmentdata['reason'],
                 'destinationCity' => $segmentdata['destinationCity'],
-                'apiFlightdata' => base64_decode($segmentdata['apiFlightdata']),
+                'apiFlightdata' => $segmentdata['apiFlightdata'],
                 'createdBy' => $core->user['uid'],
                 'sequence' => $segmentdata['sequence'],
                 'createdOn' => TIME_NOW,
@@ -164,13 +164,11 @@ class TravelManagerPlanSegments extends AbstractClass {
             }
         }
 
-        $finances = $segmentdata['finances'];
+        $finances = $segmentdata['tmpfid'];
         if(is_array($finances)) {
             $financedata['tmpsid'] = $this->data[self::PRIMARY_KEY];
             $financedata['amount'] = $finances['amount'];
             $financedata['currency'] = $finances['currency'];
-            $financedata['paidBy'] = $finances['paidBy'];
-            $financedata['paidById'] = $finances['paidById'];
             $finance_obj = new TravelManagerPlanFinance();
             $finance_obj->set($financedata);
             $finance_obj->save();
@@ -193,7 +191,6 @@ class TravelManagerPlanSegments extends AbstractClass {
 
         $segmentnewdata['modifiedBy'] = $core->user['uid'];
         $segmentnewdata['modifiedOn'] = TIME_NOW;
-        $segmentnewdata['apiFlightdata'] = base64_decode($segmentdata['apiFlightdata']);
         $db->update_query(self::TABLE_NAME, $segmentnewdata, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
 
         $transptdata = $segmentdata['tmtcid'];
@@ -298,10 +295,9 @@ class TravelManagerPlanSegments extends AbstractClass {
         }
         $finances = $segmentdata['tmpfid'];
         if(is_array($finances)) {
+            $financedata['tmpsid'] = $this->data[self::PRIMARY_KEY];
             $financedata['amount'] = $finances['amount'];
             $financedata['currency'] = $finances['currency'];
-            $financedata['paidBy'] = $finances['paidBy'];
-            $financedata['paidById'] = $finances['paidById'];
             $finance_obj = new TravelManagerPlanFinance();
             $finance_obj->update($financedata);
             $this->errorode = 0;
@@ -390,6 +386,10 @@ class TravelManagerPlanSegments extends AbstractClass {
 
     public function get_expenses($config = array()) {
         return Travelmanager_Expenses::get_data(array('tmpsid' => $this->data[self::PRIMARY_KEY]), $config);
+    }
+
+    public function get_finance($config = array()) {
+        return TravelManagerPlanFinance::get_data(array('tmpsid' => $this->data[self::PRIMARY_KEY]), $config);
     }
 
     private function get_allapidata() {

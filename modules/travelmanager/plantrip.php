@@ -234,9 +234,6 @@ else {
         $segmentobj = TravelManagerPlanSegments::get_data(array('originCity' => $origincityid, 'destinationCity' => $destcityid));
         if(is_object($segmentobj)) {
             $approvedhotels = $segmentobj->get_destinationcity()->get_approvedhotels();
-            if(empty($approvedhotels)) {
-                $approvedhotels = array();
-            }
             $hotelssegments_output = $segmentobj->parse_hotels($sequence, $approvedhotels);
         }
         else {
@@ -461,6 +458,19 @@ else {
         $transp = new TravelManagerPlanTransps();
         $transsegments_output = Cities::parse_transportations($transp, array('origincity' => $origintcity, 'destcity' => $destcity, 'transprequirements' => $transp_requirements), $core->input['sequence']);
         echo $transsegments_output;
+    }
+    else if($core->input['action'] == 'ajaxaddmore_finances') {
+        $rowid = $db->escape_string($core->input ['value']) + 1;
+        $sequence = $db->escape_string($core->input['id']);
+        $destcity = new Cities($core->input['ajaxaddmoredata']['destcity']);
+        $mainaffobj = new Affiliates($core->user['mainaffiliate']);
+        $currencies_f[] = $destcity->get_country()->get_maincurrency();
+        $currencies_f[] = new Currencies(840, true);
+        $currencies_f = array_unique($currencies_f);
+        $currencies_listf = parse_selectlist('segment['.$sequence.'][tmpfid][currency]', 4, $currencies_f, 840);
+        $segments_financess_output.=$currencies_listf;
+        eval("\$finance_output = \"".$template->get('travelmanager_plantrip_segmentfinance')."\";");
+        echo $finance_output;
     }
 }
 ?>
