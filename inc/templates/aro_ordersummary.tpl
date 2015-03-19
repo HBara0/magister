@@ -22,19 +22,19 @@
                     </textarea>
             </tr>
             <tr>
-                <td>{$lang->invoicevalue}</td>
+                <td>{$lang->invoicevalueusd}</td>
                 <td><input type="text" id="ordersummary_invoicevalueusd_intermed" value="" style="width:150px;" disabled="disabled"/> </td>
                 <td><input type="text" id="ordersummary_invoicevalueusd_local" value="" style="width:150px;" disabled="disabled"/> </td>
             </tr>
             <tr>
                 <td>{$lang->total} {$lang->netmargin}</td>
-                <td><input type="text" id="" value="" style="width:150px;" disabled="disabled"/> </td>
-                <td><input type="text" id="" value="" style="width:150px;" disabled="disabled"/> </td>
+                <td><input type="text" id="ordersummary_netmargin_intermed" value="" style="width:150px;" disabled="disabled"/> </td>
+                <td><input type="text" id="ordersummary_netmargin_local" value="" style="width:150px;" disabled="disabled"/> </td>
             </tr>
             <tr>
                 <td>{$lang->total} {$lang->netmarginperc}</td>
-                <td><input type="text" id="" value="" style="width:150px;" disabled="disabled"/> </td>
-                <td><input type="text" id="" value="" style="width:150px;" disabled="disabled"/> </td>
+                <td><input type="text" id="ordersummary_netmargin_intermedperc" value="" style="width:150px;" disabled="disabled"/> </td>
+                <td><input type="text" id="ordersummary_netmargin_localperc" value="" style="width:150px;" disabled="disabled"/> </td>
             </tr>
 
             <tr>
@@ -49,7 +49,7 @@
                 </td>
             </tr>
             <tr>
-                <td>{$lang->totalintermedfees}<p id="test"></p><input id="test"/></td>
+                <td>{$lang->totalintermedfees}</td>
                 <td colspan="2">
                     <textarea id="ordersummary_totalfees" value="" disabled="disabled" style="width:300px">
                     </textarea>
