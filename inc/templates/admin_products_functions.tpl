@@ -2,6 +2,11 @@
     <head>
         <title>{$core->settings[systemtitle]} | {$lang->listavailableapplication}</title>
         {$headerinc}
+        <script type="text/javascript">
+            $(function () {
+                $('.redactor_air').css('z-index', (parseInt($('.ui-dialog').css('z-index')) + 1));
+            });
+        </script>
     </head>
     <body>
         {$header}
@@ -17,7 +22,6 @@
                         <th>{$lang->name} <a href="{$sort_url}&amp;sortby=name&amp;order=ASC"><img src="../images/sort_asc.gif" border="0" alt="{$lang->sortasc}"/></a><a href="{$sort_url}&amp;sortby=name&amp;order=DESC"><img src="../images/sort_desc.gif" border="0" alt="{$lang->sortdesc}"/></a></th>
                         <th>{$lang->title} <a href="{$sort_url}&amp;sortby=title&amp;order=ASC"><img src="../images/sort_asc.gif" border="0" alt="{$lang->sortasc}"/></a><a href="{$sort_url}&amp;sortby=title&amp;order=DESC"><img src="../images/sort_desc.gif" border="0" alt="{$lang->sortdesc}"/></a></th>
                         <th>{$lang->appsegment}</th>
-                        <th>{$lang->description}</th>
                     </tr>
                 </thead>
                 <tbody>

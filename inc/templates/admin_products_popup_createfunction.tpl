@@ -1,4 +1,4 @@
-<div id="popup_cretefunction"  title="{$lang->create}">
+<div id="popup_cretefunction" title="{$lang->create}">
     <form action="#" method="post" id="perform_products/functions_Form" name="perform_products/functions_Form">
         <input type="hidden" name="action" value="do_create" />
         <table cellpadding='0' cellspacing='0' width='100%'>
@@ -9,7 +9,7 @@
                 <td><strong>{$lang->applications}</strong></td><td><select name="chemicalfunctions[segapplications][]" multiple="true">{$applications_list}</select></td>
             </tr>
             <tr>
-                <td><strong>{$lang->description}</strong></td><td><textarea rows="5" cols="30" class="redactor_editor" name="chemicalfunctions[description]"></textarea></td>
+                <td><strong>{$lang->description}</strong></td><td><textarea rows="5" cols="30" class="texteditormin" name="chemicalfunctions[description]"></textarea></td>
             </tr>
             <tr>
                 <td colspan="2" align="left">
