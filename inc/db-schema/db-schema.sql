@@ -3712,6 +3712,19 @@ CREATE TABLE `travelmanager_plan_accomodations` (
   `currency` int(10) NOT NULL,
   PRIMARY KEY (`tmpaid`,`tmpsid`,`tmhid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=143 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+DROP TABLE IF EXISTS `travelmanager_plan_finance`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `travelmanager_plan_finance` (
+  `tmpfid` int(10) NOT NULL AUTO_INCREMENT,
+  `tmpsid` int(10) NOT NULL,
+  `currency` int(3) NOT NULL,
+  `amount` int(8) NOT NULL,
+  `paidById` int(10) NOT NULL,
+  `paidBy` varchar(180) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`tmpfid`),
+  UNIQUE KEY `tmpsid` (`tmpsid`)
+) ENGINE=MyISAM AUTO_INCREMENT=20 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `travelmanager_plan_segments`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
