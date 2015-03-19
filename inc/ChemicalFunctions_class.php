@@ -66,7 +66,7 @@ class ChemicalFunctions {
                 $this->chemfunction[self::PRIMARY_KEY] = $data['cfid'] = $db->last_id();
                 if(!empty($data['segapplications']) && isset($data['segapplications'])) {
                     foreach($data['segapplications'] as $psaid) {
-                        $segappfuncquery = $db->insert_query('segapplicationfunctions', array('cfid' => $data['cfid'], 'psaid' => $psaid, 'createdBy' => $core->user['uid'], 'createdOn' => TIME_NOW));
+                        $segappfuncquery = $db->insert_query('segapplicationfunctions', array('cfid' => $data['cfid'], 'psaid' => $psaid, 'description' => $data['description'], 'createdBy' => $core->user['uid'], 'createdOn' => TIME_NOW));
                         if($segappfuncquery) {
                             $data['safid'] = $db->last_id();
                         }

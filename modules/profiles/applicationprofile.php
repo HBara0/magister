@@ -19,7 +19,7 @@ if(!$core->input['action']) {
     $application['title'] = $segmapplication_obj->get_displayname();
     $safids = array();
     $eptids = array();
-    $application['prodsegtitle'] = '<a href="index.php?module=profiles/segmentprofile&id='.$segmapplication_obj->get_segment()->psid.'" target="_blank"><h2>'.$segmapplication_obj->get_segment()->get_displayname().'</h2></a>';
+    $application['prodsegtitle'] = '<a href="index.php?module=profiles/segmentprofile&id='.$segmapplication_obj->get_segment()->psid.'" target="_blank">'.$segmapplication_obj->get_segment()->get_displayname().'</a>';
     //Functional properties block---Start
     $segapfunctions = SegApplicationFunctions::get_data_byattr('psaid', $psaid);
     if(is_object($segapfunctions)) {

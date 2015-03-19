@@ -22,7 +22,7 @@ class SegApplicationFunctions extends AbstractClass {
     const DISPLAY_NAME = '';
     const SIMPLEQ_ATTRS = '*';
     const CLASSNAME = __CLASS__;
-    const UNIQUE_ATTRS = null;
+    const UNIQUE_ATTRS = 'cfid,psaid';
 
     public function __construct($id = '', $simple = true) {
         parent::__construct($id, $simple);
