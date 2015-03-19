@@ -22,7 +22,7 @@ if(!$core->input['action']) {
         $segment_applications = '<div style="display:block;padding:5px; vertical-align: left;"><ul>';
         foreach($segmentapp_objs as $segmentapp_obj) {
             $applications = $segmentapp_obj->get();
-            $segment_applications .= '<li><strong><span>'.$applications['title'].'</span></strong>';
+            $segment_applications .= '<li><strong><span>'.$segmentapp_obj->parse_link().'</span></strong>';
 
             /* Get functions for all the segment applications */
             $segmentappfunc_objs = $segmentapp_obj->get_segappfunctions();

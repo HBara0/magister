@@ -96,7 +96,7 @@ if(!$core->input['action']) {
                 }
 
                 if($affiliates_counter > 2) {
-                    $affiliates = $show_affiliates.", <a href='#affiliate' id='showmore_affiliates_{$supplier[eid]}'>...</a> <br /><span style='display:none;' id='affiliates_{$supplier[eid]}'>{$hidden_affiliates}</span>";
+                    $affiliates = $show_affiliates.", <a href='#affiliate' id='showmore_affiliates_{$supplier[eid]}' title='".$lang->showmore."'>...</a> <br /><span style='display:none;' id='affiliates_{$supplier[eid]}'>{$hidden_affiliates}</span>";
                 }
                 else {
                     $affiliates = $show_affiliates;
@@ -116,7 +116,7 @@ if(!$core->input['action']) {
                 }
 
                 if($segments_counter > 2) {
-                    $segments = $show_segments.", <a href='#segment' id='showmore_segments_{$supplier[eid]}'>...</a><br /> <span style='display:none;' id='segments_{$supplier[eid]}'>{$hidden_segments}</span>";
+                    $segments = $show_segments.", <a href='#segment' id='showmore_segments_{$supplier[eid]}' title='".$lang->showmore."'>...</a><br /> <span style='display:none;' id='segments_{$supplier[eid]}'>{$hidden_segments}</span>";
                 }
                 else {
                     $segments = $show_segments;
