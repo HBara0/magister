@@ -69,12 +69,21 @@ if(!($core->input['action'])) {
                 $market_data[$marketin_obj->get()['mibdid']] = $marketin_obj->get();
                 $customer_obj = new Customers($market_data[$marketin_obj->get()['mibdid']]['cid'], '', false);
                 $market_data[$marketin_obj->get()['mibdid']]['ctype'] = $customer_obj->get()['type'];
-                $market_data[$marketin_obj->get()['mibdid']]['spid'] = $marketin_obj->get_chemfunctionproducts()->get_produt()->get_supplier()->get()['eid'];
-                $market_data[$marketin_obj->get()['mibdid']]['pid'] = $marketin_obj->get_chemfunctionproducts()->get_produt()->pid;
-                $market_data[$marketin_obj->get()['mibdid']]['psid'] = $marketin_obj->get_chemfunctionproducts()->get_segapplicationfunction()->get_segment()->psid;
-                $market_data[$marketin_obj->get()['mibdid']]['psaid'] = $marketin_obj->get_chemfunctionproducts()->get_segapplicationfunction()->get_application()->psaid;
-                if(is_object($marketin_obj->get_chemfunctionschemcials())) {
-                    $market_data[$marketin_obj->get()['mibdid']]['csid'] = $marketin_obj->get_chemfunctionschemcials()->get_chemicalsubstance()->csid;
+                $chmfuncproduct = $marketin_obj->get_chemfunctionproducts();
+                if(is_object($chmfuncproduct)) {
+                    $product = $marketin_obj->get_chemfunctionproducts()->get_produt();
+
+                    $market_data[$marketin_obj->get()['mibdid']]['spid'] = $product->get_supplier()->get()['eid'];
+                    $market_data[$marketin_obj->get()['mibdid']]['pid'] = $product->pid;
+                    $market_data[$marketin_obj->get()['mibdid']]['psid'] = $marketin_obj->get_chemfunctionproducts()->get_segapplicationfunction()->get_segment()->psid;
+                    $market_data[$marketin_obj->get()['mibdid']]['psaid'] = $marketin_obj->get_chemfunctionproducts()->get_segapplicationfunction()->get_application()->psaid;
+                }
+                else {
+                    if(is_object($marketin_obj->get_chemfunctionschemcials())) {
+                        $market_data[$marketin_obj->get()['mibdid']]['csid'] = $marketin_obj->get_chemfunctionschemcials()->get_chemicalsubstance()->csid;
+                        $market_data[$marketin_obj->get()['mibdid']]['psid'] = $marketin_obj->get_chemfunctionschemcials()->get_segapplicationfunction()->get_segment()->psid;
+                        $market_data[$marketin_obj->get()['mibdid']]['psaid'] = $marketin_obj->get_chemfunctionschemcials()->get_segapplicationfunction()->get_application()->psaid;
+                    }
                 }
             }
             $dimensionalize_ob = new DimentionalData();

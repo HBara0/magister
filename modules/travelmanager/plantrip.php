@@ -234,6 +234,9 @@ else {
         $segmentobj = TravelManagerPlanSegments::get_data(array('originCity' => $origincityid, 'destinationCity' => $destcityid));
         if(is_object($segmentobj)) {
             $approvedhotels = $segmentobj->get_destinationcity()->get_approvedhotels();
+            if(empty($approvedhotels)) {
+                $approvedhotels = array();
+            }
             $hotelssegments_output = $segmentobj->parse_hotels($sequence, $approvedhotels);
         }
         else {

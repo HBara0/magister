@@ -12,9 +12,9 @@
 if(!defined('DIRECT_ACCESS')) {
     die('Direct initialization of this file is not allowed.');
 }
-//if($core->usergroup['crm_canGenerateMIRep'] == 0) {
-//	error($lang->sectionpermision);
-//}
+if($core->usergroup['crm_canGenerateMIRep'] == 0) {
+    error($lang->sectionnopermision);
+}
 if(!$core->input['action']) {
     $identifier = substr(md5(microtime(uniqid())), 0, 10);
     // Here we get affiliate for user assigned to, or he can audit
@@ -103,11 +103,13 @@ if(!$core->input['action']) {
     }
     $selected = '';
 
-    foreach($user_segments as $psid => $user_segment) {
-        if(in_array($psid, $core->user['suppliers']['eid'])) {
-            $selected = " selected='selected'";
+    if(is_array($user_segments)) {
+        foreach($user_segments as $psid => $user_segment) {
+            if(in_array($psid, $core->user['suppliers']['eid'])) {
+                $selected = " selected='selected'";
+            }
+            $segmentlist .='<tr><td><input type="checkbox" name="mireport[filter][psid][]"  value="'.$psid.'"/>&nbsp;'.$user_segment.'</td></tr>';
         }
-        $segmentlist .='<tr><td><input type="checkbox" name="mireport[filter][psid][]"  value="'.$psid.'"/>&nbsp;'.$user_segment.'</td></tr>';
     }
 
     // Get business manager that report to the user or are assigned to a main affiliate that the user is auditing

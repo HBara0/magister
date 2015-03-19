@@ -76,7 +76,11 @@ if(!$core->input['action']) {
         }
         $i = 1;
         $visitreports = array();
-        while($visitreports[$i] = $db->fetch_assoc($query)) {
+        while($visitreport_record = $db->fetch_assoc($query)) {
+            if(empty($visitreport_record)) {
+                continue;
+            }
+            $visitreports[$i] = $visitreport_record;
             /* if(!check_permissions($visitreports[$i])) {
               unset($visitreports[$i]);
               continue;
@@ -116,7 +120,6 @@ if(!$core->input['action']) {
                 unset($visitreports[$key]);
                 continue;
             }
-
             $visitreport['customerdetails'] = $db->fetch_assoc($db->query("SELECT e.*, c.name AS countryname
 																	   FROM ".Tprefix."entities e LEFT JOIN ".Tprefix."countries c ON (c.coid=e.country)
 																	   WHERE eid='".$db->escape_string($visitreport['cid'])."'"), "customername");
@@ -256,17 +259,18 @@ if(!$core->input['action']) {
 
         if($core->input['incCommentsCompetition'] != 0 || !isset($core->input['incCommentsCompetition'])) {
             $competitioncomments = '<div class = "subtitle">'.$lang->commentsoncompetition.'</div>';
-
-            foreach($visitreport['spid'] as $k => $v) {
-                if(empty($v) && $v != 0) {
-                    continue;
+            if(is_array($visitreport['spid'])) {
+                foreach($visitreport['spid'] as $k => $v) {
+                    if(empty($v) && $v != 0) {
+                        continue;
+                    }
+                    /* if($core->usergroup['canViewAllSupp'] == 0)  {
+                      if(!in_array($k, $core->user['suppliers']['eid'])) {
+                      continue;
+                      }
+                      } */
+                    eval("\$competitioncomments .= \"".$template->get('crm_visitreport_competitioncomments')."\";");
                 }
-                /* if($core->usergroup['canViewAllSupp'] == 0)  {
-                  if(!in_array($k, $core->user['suppliers']['eid'])) {
-                  continue;
-                  }
-                  } */
-                eval("\$competitioncomments .= \"".$template->get('crm_visitreport_competitioncomments')."\";");
             }
         }
 

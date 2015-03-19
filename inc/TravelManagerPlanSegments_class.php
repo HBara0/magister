@@ -61,7 +61,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                 'purpose' => $segmentdata['purpose'],
                 'reason' => $segmentdata['reason'],
                 'destinationCity' => $segmentdata['destinationCity'],
-                'apiFlightdata' => $segmentdata['apiFlightdata'],
+                'apiFlightdata' => base64_decode($segmentdata['apiFlightdata']),
                 'createdBy' => $core->user['uid'],
                 'sequence' => $segmentdata['sequence'],
                 'createdOn' => TIME_NOW,
@@ -193,7 +193,7 @@ class TravelManagerPlanSegments extends AbstractClass {
 
         $segmentnewdata['modifiedBy'] = $core->user['uid'];
         $segmentnewdata['modifiedOn'] = TIME_NOW;
-
+        $segmentnewdata['apiFlightdata'] = base64_decode($segmentdata['apiFlightdata']);
         $db->update_query(self::TABLE_NAME, $segmentnewdata, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
 
         $transptdata = $segmentdata['tmtcid'];
