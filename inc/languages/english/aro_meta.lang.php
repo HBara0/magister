@@ -133,15 +133,17 @@ $lang['commisionlimit'] = '(At least 250 USD commission)';
 $lang['productlineerror'] = 'Cost price cannot be lower than affiliate buying price in product line number: ';
 $lang['ordersummary'] = 'Order Summary';
 $lang['invoicevalue'] = 'Invoice Value';
+$lang['invoicevalueusd'] = 'Invoice Value (USD)';
 $lang['feespaidbyintermed'] = 'Fees Paid by Intermed (USD)';
 $lang['total'] = 'Total';
 $lang['globalnetmargin'] = 'Global Net Margin (USD)';
 $lang['totalquantity'] = 'Total Quantity in UOM';
-$lang['totalintermedfees'] = 'Total fees Paid by Intermed in {1}';
+$lang['totalintermedfees'] = 'Total fees Paid by Intermed in Buying Curreny';
 $lang['interestvalue'] = 'Interest Value';
 $lang['default'] = 'Default';
 $lang['acceptablemargin'] = 'Acceptable Margin';
 $lang['intermediary '] = 'Intermediary';
+$lang['informcoordinators'] = 'Inform Coordinators';
 
 
 
