@@ -5,21 +5,19 @@
     <div id="content_suggestedtransploader_{$sequence}"></div>
     <div id="content_suggestedtransp_{$sequence}">{$transsegments_output[suggested]}</div>
     <hr>
-
     <div>{$transsegments_output[othertransp]}</div>
     <table width="100%" class="datatable" style="margin-top:-20px;">
         <tbody id="othertranspcat_{$sequence}_tbody">
             {$rows}
         </tbody>
     </table>
-    <div> <img src="./images/add.gif"  id="ajaxaddmore_travelmanager/plantrip_othertranspcat_{$sequence}"  alt="{$lang->add}">Add another transportation
-
+    <div> <img src="./images/add.gif" style="cursor: pointer" id="ajaxaddmore_travelmanager/plantrip_othertranspcat_{$sequence}"  alt="{$lang->add}">Add another transportation
         <input type="hidden" name="ajaxaddmoredata[destcity]" id="ajaxaddmoredata_destcity" value="{$destcityid}"/>
         <input name="numrows_othertranspcat_{$sequence}" type="hidden" id="numrows_othertranspcat_{$sequence}" value="{$rowid}">
     </div>
 </div>
 <h2 class="subtitle" style="padding:8px;width:40%;">{$lang->accomodations}</h2>
-<input type="checkbox" action="no_accomodation" name="segment[{$sequence}][noAccomodation]" {$checked} value="1"<label>{$lang->noaccomodation}</label>
+<input type="checkbox" action="no_accomodation" name="segment[{$sequence}][noAccomodation]" {$checkedaccomodation} value="1"<label>{$lang->noaccomodation}</label>
 <div style="display:block;" id="segment_hotels_{$sequence}">
    <!-- <div class="subtitle">{}Approved Hotels</div>-->
 
@@ -38,7 +36,7 @@
 
         </tbody>
     </table>
-    <span> <img src="./images/add.gif"  id="ajaxaddmore_travelmanager/plantrip_expenses_{$sequence}"  alt="{$lang->add}">{$lang->addexpenses}
+    <span> <img src="./images/add.gif"  style="cursor: pointer" id="ajaxaddmore_travelmanager/plantrip_expenses_{$sequence}"  alt="{$lang->add}">{$lang->addexpenses}
         <input name="numrows_expenses_{$sequence}" type="hidden" id="numrows_expenses_{$sequence}" value="{$rowid}">
         <input type="hidden" name="ajaxaddmoredata[destcity]" id="ajaxaddmoredata_destcity" value="{$destcityid}"/>
 
@@ -49,11 +47,15 @@
     <input name="sequence" type="hidden" id="sequence" value="{$sequence}">
     <h2 class="subtitle" style="padding:8px;width:40%;">{$lang->finance}</h2>
     <table width="100%"cellspacing="0" cellpadding="0" style="margin-left: 8px;" class="datatable">
-        <tbody id="expenses_{$sequence}_tbody">
+        <tbody id="finances_{$sequence}_tbody">
             {$finance_output}
-
         </tbody>
     </table>
-</span>
+    <span>
+        <div>
+            <img src="./images/add.gif" style="cursor: pointer" id="ajaxaddmore_travelmanager/plantrip_finances_{$sequence}"  alt="{$lang->add}">Add amount
+            <input name="numrows_finances_{$sequence}" type="hidden" id="numrows_expenses_{$sequence}" value="{$rowid}">
+        </div>
+    </span>
 
 </div>

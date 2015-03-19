@@ -14,7 +14,7 @@ class TravelManagerPlanFinance extends AbstractClass {
     const PRIMARY_KEY = 'tmpfid';
     const TABLE_NAME = 'travelmanager_plan_finance';
     const SIMPLEQ_ATTRS = 'tmpsid,amount,currency,paidBy,paidById';
-    const UNIQUE_ATTRS = 'tmpfid,tmpsid';
+    const UNIQUE_ATTRS = 'tmpfid';
     const CLASSNAME = __CLASS__;
 
     public function __construct($id = '') {
@@ -32,7 +32,8 @@ class TravelManagerPlanFinance extends AbstractClass {
     public function create(array $data) {
         global $db;
 
-        $tanspdata_array = array('tmpsid' => $data['tmpsid'],
+        $tanspdata_array = array(
+                'tmpsid' => $data['tmpsid'],
                 'amount' => $data['amount'],
                 'currency' => $data['currency'],
                 'paidBy' => $data['paidBy'],
@@ -46,12 +47,13 @@ class TravelManagerPlanFinance extends AbstractClass {
     protected function update(array $data) {
         global $db, $core;
         if(is_array($data)) {
+            $financedata['tmpsid'] = $data['tmpsid'];
             $financedata['amount'] = $data['amount'];
             $financedata['paidBy'] = $data['paidBy'];
             $financedata['paidById'] = $data['paidById'];
             $financedata['currency'] = $data['currency'];
 
-            $db->update_query(self::TABLE_NAME, $financedata, ' tmpfid='.intval($this->data['tmpfid']).' AND tmpsid='.intval($this->data['tmpsid']));
+            $db->update_query(self::TABLE_NAME, $financedata, 'tmpsid='.intval($data['tmpsid']));
         }
     }
 
