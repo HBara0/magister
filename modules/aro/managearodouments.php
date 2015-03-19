@@ -528,16 +528,16 @@ else {
                     $partiesinfo[$field.'_formatted'] = date($core->settings['dateformat'], $partiesinfo[$field]);
                 }
             }
-//        $purchasetype = new PurchaseTypes($data['ptid']);
+            $purchasetype = new PurchaseTypes($data['ptid']);
             $data['localPeriodOfInterest'] = 0;
             if(isset($partiesinfo['intermedEstDateOfPayment_output']) && !empty($partiesinfo['intermedEstDateOfPayment_output']) && isset($partiesinfo['vendorEstDateOfPayment_output']) && !empty($partiesinfo['vendorEstDateOfPayment_output'])) {
                 $data['localPeriodOfInterest'] = date_diff(date_create($partiesinfo['intermedEstDateOfPayment_output']), date_create($partiesinfo['vendorEstDateOfPayment_output']));
                 $data['localPeriodOfInterest'] = $data['localPeriodOfInterest']->format("%a");
             }
-//        if($purchasetype->isPurchasedByEndUser == 1) {
-//            $data['localPeriodOfInterest'] = date_diff($parmsfornetmargin['estimatedLocalPayment'], $parmsfornetmargin['estimatedImtermedPayment']);
+            if($purchasetype->isPurchasedByEndUser == 1) {
+//            $data['localPeriodOfInterest'] = date_diff((date_create($partiesinfo['vendorEstDateOfPayment_output']), date_create($partiesinfo['intermedEstDateOfPayment_output']));
 //            $data['localPeriodOfInterest'] = $data['localPeriodOfInterest']->format("%a");
-//        }
+            }
             $partiesinfo_data = array('pickDate_vendor_estdateofpayment' => $partiesinfo['vendorEstDateOfPayment_formatted'],
                     'pickDate_intermed_estdateofpayment' => $partiesinfo['intermedEstDateOfPayment_formatted'],
                     'pickDate_intermed_promiseofpayment' => $partiesinfo['promiseOfPayment_formatted'],
@@ -602,7 +602,7 @@ else {
         }
 //=IF(tNM="","",tNM/(SUMPRODUCT($D$23:$D$31,$M$23:$M$31)*X_USD))
         $localnetmargin_perc = '';
-        if(!empty($localnetmargin)) {
+        if(!empty($localnetmargin) && ($core->input['sellingpriceqty_product'] * $core->input['exchangeRateToUSD']) != 0) {
             $localnetmargin_perc = $localnetmargin / ($core->input['sellingpriceqty_product'] * $core->input['exchangeRateToUSD']);
         }
         $data = array('ordersummary_intermedaff' => $intermedaffiliate->get_displayname(),
@@ -616,9 +616,19 @@ else {
                 'ordersummary_invoicevalueusd_local' => $localinvoicevalue_usd,
                 'ordersummary_netmargin_local' => $localnetmargin,
                 'ordersummary_netmargin_intermed' => $intermedmargin,
+                'ordersummary_globalnetmargin' => $localnetmargin + $intermedmargin,
                 'ordersummary_netmargin_localperc' => $localnetmargin_perc,
                 'ordersummary_netmargin_intermedperc' => $intermedmargin_perc
         );
         echo json_encode($data);
+    }
+
+    if($core->input['action'] == 'getinterestvalue') {
+        $interestvalue = 0;
+        if(isset($core->input['localBankInterestRate']) && !empty($core->input['localBankInterestRate'])) {
+            $interestvalue = (($core->input['localPeriodOfInterest'] * 365) / $core->input['localBankInterestRate']) / 100;
+        }
+        $interestvalue_data = array('parmsfornetmargin_interestvalue' => $interestvalue);
+        echo json_encode($interestvalue_data);
     }
 }

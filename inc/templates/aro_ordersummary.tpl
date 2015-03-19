@@ -39,7 +39,7 @@
 
             <tr>
                 <td>{$lang->total} {$lang->globalnetmargin}</td>
-                <td colspan="2"><input type="text" id="" value="" style="width:150px;" disabled="disabled"/> </td>
+                <td colspan="2"><input type="text" id="ordersummary_globalnetmargin" value="" style="width:150px;" disabled="disabled"/> </td>
             </tr>
             <tr>
                 <td>{$lang->total} {$lang->totalquantity}</td>
@@ -57,7 +57,7 @@
             </tr>
             <tr>
                 <td>
-                    <input type="button" id="ordersummary_btn"/>
+                    <input type="button" id="ordersummary_btn" style="display:none"/>
                 </td>
             </tr>
 

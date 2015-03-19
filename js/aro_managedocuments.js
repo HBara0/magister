@@ -83,7 +83,6 @@ $(function() {
                     }
                 }
             });
-
             $("select[id='partiesinfo_intermed_aff']").trigger("change");
         }
         /* Loop over all product lines to update the numbers based on the new policy */
@@ -93,6 +92,7 @@ $(function() {
                 $(this).trigger("change");
             }
         });
+        $("input[id='parmsfornetmargin_localBankInterestRate']").trigger("change");
     });
     //-----------------Get Exchang Rate  ------------------------//
     $("#currencies").live('change', function() {
@@ -140,7 +140,6 @@ $(function() {
     var fields_array = ["quantity", "qtyPotentiallySold", "intialPrice", "costPrice", "sellingPrice", "daysInStock"];
     $("input[id^='productline_'],select[id$='packing']").live('change', function() {
         var id = $(this).attr('id').split("_");
-
         var fields = '';
         $.each(fields_array, function(index, value) {
             fields += '&' + value + '=' + $("input[id='productline_" + id[1] + "_" + value + "']").val();
@@ -183,8 +182,8 @@ $(function() {
         {
             var qtyperc = (parseFloat($("input[id='productline_" + id[1] + "_quantity']").val()) / parseFloat(qty[0])) * 100;
         }
-        //  var totalfees = $('input[id=partiesinfo_totalfees]').val();
-        // var qtyperc = getproductline_fees(id[1]);
+//  var totalfees = $('input[id=partiesinfo_totalfees]').val();
+// var qtyperc = getproductline_fees(id[1]);
 
         fees = ((qtyperc / 100) * totalfees).toFixed(3);
         parmsfornetmargin += "&fees=" + fees;
@@ -192,11 +191,11 @@ $(function() {
 
         sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populateproductlinefields&rowid=' + id[1] + fields + '&parmsfornetmargin=' + parmsfornetmargin);
     });
-
     $("input[id^='productline_']").live('blur', function() {
         var id = $(this).attr('id').split("_");
         triggerproductlines(id);
         addactualpurchaselines(id[1]);
+        $("input[id='ordersummary_btn']").trigger("click");
     });
     $("select[id^='productline_'][id$='_uom']").live('change', function() {
         var id = $(this).attr('id').split("_");
@@ -290,14 +289,30 @@ $(function() {
     });
     //----------------------------------------------------------------------------------------------------------------------------//
 
+    $("input[id='parmsfornetmargin_localBankInterestRate'],input[id='parmsfornetmargin_localPeriodOfInterest']").live('change', function() {
+        var localBankInterestRate = $("input[id='parmsfornetmargin_localBankInterestRate']").val();
+        var localPeriodOfInterest = $("input[id='parmsfornetmargin_localPeriodOfInterest']").val();
+        sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=getinterestvalue&localBankInterestRate=' + localBankInterestRate + '&localPeriodOfInterest=' + localPeriodOfInterest);
+
+        var updatetotalfees = setTimeout(function() {
+            $("input[id$='freight']").trigger("change");
+        }, 2000);
+    });
+    //------------------------------------------------
+
     //--------------Populate dates of PartiepickDate_estDateOfShipments Information----------------------------//
     $("input[id='pickDate_estDateOfShipment'],select[id='partiesinfo_intermed_paymentterm'],select[id='partiesinfo_vendor_paymentterm'],input[id='partiesinfo_intermed_ptAcceptableMargin']").live('change', function() {
         var estDateOfShipment = $("input[id='pickDate_estDateOfShipment']").val();
         var ptAcceptableMargin = $("input[id='partiesinfo_intermed_ptAcceptableMargin']").val();
         var intermedPaymentTerm = $("select[id = 'partiesinfo_intermed_paymentterm']").val();
         var vendorPaymentTerm = $("select[id ='partiesinfo_vendor_paymentterm']").val();
-        sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populatepartiesinfofields&intermedPaymentTerm=' + intermedPaymentTerm + '&vendorPaymentTerm=' + vendorPaymentTerm + '&estDateOfShipment=' + estDateOfShipment + '&ptAcceptableMargin=' + ptAcceptableMargin);
+        var ptid = $('select[id=purchasetype]').val();
+        sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populatepartiesinfofields&intermedPaymentTerm=' + intermedPaymentTerm + '&vendorPaymentTerm=' + vendorPaymentTerm + '&estDateOfShipment=' + estDateOfShipment + '&ptAcceptableMargin=' + ptAcceptableMargin + '&ptid=' + ptid);
         $("select[id='partiesinfo_intermed_aff']").trigger("change");
+
+        var update_localPOI = setTimeout(function() {
+            $("input[id='parmsfornetmargin_localPeriodOfInterest']").trigger("change");
+        }, 2000);
     });
     //----------------------------------------------------------------------------------------------------------------------------//
 
@@ -309,6 +324,10 @@ $(function() {
                 total += parseFloat(this.value);
             }
         });
+        var interestvalue = $("input[id='parmsfornetmargin_interestvalue']").val();
+        if(interestvalue.length > 0) {
+            total += parseFloat(interestvalue);
+        }
         $("input[id='partiesinfo_totalfees']").val(total);
         $("input[id$='_intialPrice']").trigger("change");
     });
@@ -323,6 +342,8 @@ $(function() {
         $("input[id$='_intialPrice']").trigger("change");
     });
     //----------------------------------------------------------------------------------------------------------------------------///
+    //note need to check triggers
+    //needs optimization (loop through array for fields
     $("input[id='ordersummary_btn']").click(function() {
         var totalfees = $('input[id=partiesinfo_totalfees]').val();
         var exchangeRateToUSD = $("#exchangeRateToUSD").val();
@@ -337,17 +358,30 @@ $(function() {
         $("tbody[id^='productline_']").find($("select[id$='_uom']")).each(function() {
             var id = $(this).attr('id').split('_');
             totalqty = parseFloat($("input[id='productline_" + id[1] + "_quantity']").val());
-            totalquantity[$(this).val()] = parseFloat(totalquantity[$(this).val()] || 0) + totalqty;
+            if(!isNaN(totalqty)) {
+                totalquantity[$(this).val()] = parseFloat(totalquantity[$(this).val()] || 0) + totalqty;
+            }
             totalfee = parseFloat($("input[id='productline_" + id[1] + "_fees']").val());
-            totalfees[$(this).val()] = parseFloat(totalfees[$(this).val()] || 0) + totalfee;
-            invoicevalue_intermed += (totalqty * parseFloat($("input[id='productline_" + id[1] + "_intialPrice']").val()));
-
+            if(!isNaN(totalfee)) {
+                totalfees[$(this).val()] = parseFloat(totalfees[$(this).val()] || 0) + totalfee;
+            }
+            var intialprice = parseFloat($("input[id='productline_" + id[1] + "_intialPrice']").val());
+            if(!isNaN(totalfee) && !isNaN(intialprice)) {
+                invoicevalue_intermed += (totalqty * intialprice);
+            }
             invoicevalue_parameter = (parseFloat($("input[id='productline_" + id[1] + "_totalBuyingValue']").val()) * (parseFloat($("input[id='productline_" + id[1] + "_sellingPrice']").val())));
-            invoicevalue_local += invoicevalue_parameter;
-            invoicevalue_local_RIC += (totalqty * invoicevalue_parameter);
-            local_netMargin += parseFloat($("input[id='productline_" + id[1] + "_netMargin']").val());
-            sellingpriceqty_product += (parseFloat($("input[id='productline_" + id[1] + "_sellingPrice']").val()) * (parseFloat($("input[id='productline_" + id[1] + "_quantity']").val())));
-
+            if(!isNaN(invoicevalue_parameter)) {
+                invoicevalue_local += invoicevalue_parameter;
+                if(!isNaN(totalqty)) {
+                    invoicevalue_local_RIC += (totalqty * invoicevalue_parameter);
+                }
+            }
+            if(!isNaN(parseFloat($("input[id='productline_" + id[1] + "_netMargin']").val()))) {
+                local_netMargin += parseFloat($("input[id='productline_" + id[1] + "_netMargin']").val());
+            }
+            if(!isNaN((parseFloat($("input[id='productline_" + id[1] + "_sellingPrice']").val()) * totalqty))) {
+                sellingpriceqty_product += (parseFloat($("input[id='productline_" + id[1] + "_sellingPrice']").val()) * totalqty);
+            }
         });
         var i = 0;
         var qtyperunit = '';
@@ -367,13 +401,18 @@ $(function() {
             feeperunit += key + ":" + value.toFixed(3);
             j++;
         });
+//        var ordersummary_fields = ["qtyperunit", "feeperunit", "invoicevalue_intermed", "invoicevalue_local", "invoicevalue_local_RIC", "local_netMargin"];
+//        for(var k = 0; k < ordersummary_fields.length; k++) {
+//attributes = attributes + '&' + ordersummary_fields[k] + '=' +
+//}
+
+//if (isNaN() )
         attributes = attributes + '&qtyperunit=' + qtyperunit + '&feeperunit=' + feeperunit + '&invoicevalue_intermed=' + invoicevalue_intermed + '&invoicevalue_local=' + invoicevalue_local + '&invoicevalue_local_RIC=' + invoicevalue_local_RIC.toFixed(3) + '&local_netMargin=' + local_netMargin.toFixed(3);
         attributes = attributes + '&sellingpriceqty_product=' + sellingpriceqty_product.toFixed(3);
         // Note check if not NaN
 
         //['purchasetype','parmsfornetmargin_intermedBankInterestRate','parmsfornetmargin_intermedPeriodOfInterest'
         attributes = attributes + "&ptid=" + $('select[id=purchasetype]').val();
-
         attributes = attributes + "&InterBR=" + $('input[id=parmsfornetmargin_intermedBankInterestRate]').val();
         attributes = attributes + "&POIintermed=" + $('input[id=parmsfornetmargin_intermedPeriodOfInterest]').val();
         attributes = attributes + "&intermedAff=" + $("select[id='partiesinfo_intermed_aff']").val();
@@ -432,37 +471,6 @@ function addactualpurchaselines(id) {
         }
     }
 }
-
-
-//function getproductline_fees(id) {
-//    var totalquantity = {};
-//    var totalqty = 0;
-//    var refernece = 0;
-//    $("tbody[id^='productline_']").find($("select[id$='_uom']")).each(function() {
-//        var id = $(this).attr('id').split('_');
-//        totalqty = parseFloat($("input[id='productline_" + id[1] + "_quantity']").val());
-//        intialprice = parseFloat($("input[id='productline_" + id[1] + "_intialPrice']").val());
-//        refernece += (totalqty * intialprice);
-//        totalquantity[$(this).val()] = parseFloat(totalquantity[$(this).val()] || 0) + totalqty;
-//    });
-//    var i = 0;
-//    var qty = {};
-//    var qtyperunit = '';
-//    $.each(totalquantity, function(key, value) {
-//        if(i !== 0) {
-//            qtyperunit += "_";
-//        }
-//        qty[i] = value;
-//        qtyperunit += key + ":" + value;
-//        i++;
-//    });
-//    var qtyperc = ((parseFloat($("input[id='productline_" + id + "_quantity']").val()) * parseFloat($("input[id='productline_" + id + "_intialPrice']").val())) / refernece) * 100;
-//    if(i === 1)
-//    {
-//        var qtyperc = (parseFloat($("input[id='productline_" + id + "_quantity']").val()) / parseFloat(qty[0])) * 100;
-//    }
-//    return qtyperc;
-//}
 
 function triggerproductlines(id) {
     var fields_array = ["quantity", "qtyPotentiallySold", "intialPrice", "costPrice", "sellingPrice", "daysInStock", "uom"];
