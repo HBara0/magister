@@ -1,4 +1,4 @@
-<div style="horizontal-align: middle; font-weight: bold;border-bottom: 1px dashed #666;font-size: 14px;padding:5px; background-color: #92D050 ; ">{$lang->otherapprovedhotels}</div>
+<div style="horizontal-align: middle; font-weight: bold;border-bottom: 1px dashed #666;font-size: 14px;padding:5px; background-color: #92D050 ; "><h3>{$lang->otherapprovedhotels}</h3></div>
 <table width="80%">
     <tr style="font-weight:bold;">
         <td width="25%">{$lang->hotel}</td>

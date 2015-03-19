@@ -4,11 +4,13 @@
         {$headerinc}
         <script type="text/javascript">
 
-            $(function() {
-                $('input[id="confirm_finalize"]').live('click', function() {
+            $(function () {
+                $('input[id="confirm_finalize"]').live('click', function () {
                     $('input[type="submit"][id^="perform_travelmanager/viewplan_Button"]').attr("disabled", !this.checked);
                 });
-
+                $('button[id="closepage"]').live('click', function () {
+                    window.close();
+                });
             });
 
         </script>
@@ -32,6 +34,7 @@
 
                     {$checkbox['confirm']}
                     {$finalize_button}
+                    <button id='closepage'>Close</button>
                 </form>
                 <div id="perform_travelmanager/viewplan_Results"></div>
 

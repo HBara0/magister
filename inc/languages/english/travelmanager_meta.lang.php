@@ -104,4 +104,8 @@ $lang['addtranspostation'] = 'Add another transportation';
 $lang['addhotel'] = 'Add new hotel';
 $lang['finance'] = 'Finance';
 $lang['neededamount'] = 'Needed Amount';
+$lang['transportations'] = 'Transportation';
+$lang['accomodation'] = 'Accomodation';
+$lang['additionalexpenses'] = 'Additional Expenses';
+$lang['anticipatedamount'] = 'Anticipated required amount';
 ?>
