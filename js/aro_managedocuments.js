@@ -75,9 +75,11 @@ $(function() {
                     if($("input[id='productline_" + fields[i] + "_disabled']").val() == 0) {
                         $("input[id$='" + fields[i] + "']").attr('value', '0')
                         $("input[id$='" + fields[i] + "']").attr("readonly", "true");
+                         $("input[id$='shelfLife']").attr("readonly", "true");
                     }
                     else {
                         $("input[id$='" + fields[i] + "']").removeAttr("readonly");
+                          $("input[id$='shelfLife']").removeAttr("readonly");
                     }
                 }
                 var warehousing_fields = ["warehouse", "warehousingRate", "warehousingPeriod", "warehousingTotalLoad", "uom"];
