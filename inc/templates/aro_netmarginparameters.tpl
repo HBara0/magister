@@ -32,7 +32,7 @@
             </tr>
             <tr>
                 <td valign="top">{$lang->interestvalue}</td>
-                <td colspan="4"> <input type="text" name="parmsfornetmargin[interestValue]" id="parmsfornetmargin_interestvalue" value="{$netmarginparms->interestvalue}" style="width:150px;" readonly/>
+                <td colspan="4"> <input type="text" name="parmsfornetmargin[interestValue]" id="parmsfornetmargin_interestvalue" value="{$netmarginparms->interestValue}" style="width:150px;" readonly/>
 
             </tr>
             <tr>

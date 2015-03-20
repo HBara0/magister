@@ -89,7 +89,6 @@ if(!($core->input['action'])) {
         eval("\$interm_vendor = \"".$template->get('aro_partiesinfo_intermediary_vendor')."\";");
         eval("\$partiesinfo_shipmentparameters = \"".$template->get('aro_partiesinfo_shipmentparameters')."\";");
         eval("\$partiesinfo_fees = \"".$template->get('aro_partiesinfo_fees')."\";");
-        eval("\$orderummary = \"".$template->get('aro_ordersummary')."\";");
     }
     if(isset($core->input['id'])) {
         $aroorderrequest = AroRequests::get_data(array('aorid' => $core->input['id']), array('simple' => false));
@@ -263,6 +262,7 @@ if(!($core->input['action'])) {
                 foreach($fees as $fee) {
                     $partiesinfo['totalfees'] +=$aropartiesinfo_obj->$fee;
                 }
+                 $partiesinfo['totalfees'] += $netmarginparms->interestValue;
             }
             else {
                 $display = 'style="display:none;"';
@@ -295,6 +295,8 @@ if(!($core->input['action'])) {
     eval("\$aro_netmarginparms= \"".$template->get('aro_netmarginparameters')."\";");
     eval("\$actualpurchase = \"".$template->get('aro_actualpurchase')."\";");
     eval("\$partiesinformation = \"".$template->get('aro_partiesinformation')."\";");
+    eval("\$orderummary = \"".$template->get('aro_ordersummary')."\";");
+
     eval("\$aro_managedocuments= \"".$template->get('aro_managedocuments')."\";");
     output_page($aro_managedocuments);
 }
@@ -464,6 +466,7 @@ else {
             }
             $aropolicy_data = array('parmsfornetmargin_localBankInterestRate' => $localaffpolicy->yearlyInterestRate,
                     'parmsfornetmargin_localRiskRatio' => $localaffpolicy->riskRatio,
+                'partiesinfo_intermed_ptAcceptableMargin' => $localaffpolicy->defaultAcceptableMargin
             );
         }
         echo json_encode($aropolicy_data);
@@ -475,10 +478,11 @@ else {
         if($core->input ['intermedAff'] != ' ' && !empty($core->input['intermedAff']) && !empty($core->input['ptid']) && $core->input['ptid'] != ' ') {
             $intermedpolicy_filter = 'affid='.$core->input['intermedAff'].' AND purchaseType='.$core->input['ptid'].' AND isActive = 1 AND ('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
             $intermedpolicy = AroPolicies::get_data($intermedpolicy_filter);
+            if(is_object($intermedpolicy)){
             if(isset($core->input['estimatedImtermedPayment']) && !empty($core->input['estimatedImtermedPayment']) && isset($core->input['estimatedManufacturerPayment']) && !empty($core->input['estimatedManufacturerPayment'])) {
                 $intermedpolicy->intermedPeriodOfInterest = date_diff(date_create($core->input['estimatedImtermedPayment']), date_create($core->input['estimatedManufacturerPayment']));
                 $intermedpolicy->intermedPeriodOfInterest = $intermedpolicy->intermedPeriodOfInterest->format("%a");
-            }
+            }}
             if(!is_object($intermedpolicy)) {
                 output($lang->nointermedpolicy);
                 exit;
@@ -509,8 +513,8 @@ else {
         }
         $actualpurchase_data['pickDate_stock_'.$rowid] = $actualpurchase[estDateOfStockEntry_output];
         $actualpurchase_data['pickDate_sale_'.$rowid.''] = $actualpurchase[estDateOfSale_output];
-        $actualpurchase_data['altpickDate_stock_'.$rowid] = $actualpurchase[estDateOfStockEntry_formatted];
-        $actualpurchase_data['altpickDatesale_'.$rowid.''] = $actualpurchase[estDateOfSale_formatted];
+        $actualpurchase_data['altpickDate_stock_'.$rowid] = $actualpurchase[estDateOfStockEntry_output];
+        $actualpurchase_data['altpickDate_sale_'.$rowid.''] = $actualpurchase[estDateOfSale_output];
         echo json_encode($actualpurchase_data);
     }
     if($core->input['action'] == 'populatepartiesinfofields') {
@@ -630,5 +634,21 @@ else {
         }
         $interestvalue_data = array('parmsfornetmargin_interestvalue' => $interestvalue);
         echo json_encode($interestvalue_data);
+    }
+    if($core->input['action']=='popultedefaultaffpolicy'){
+          if($core->input['affid'] != ' ' && !empty($core->input['affid']) && !empty($core->input['ptid']) && $core->input['ptid'] != ' ') {
+            $filter = 'affid = '.$core->input['affid'].' AND purchaseType = '.$core->input['ptid'].' AND isActive = 1 AND ('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
+            $affpolicy = AroPolicies::get_data($filter);
+            if(!is_object($affpolicy)) {
+                output($lang->nopolicy);
+                exit;
+            }
+            $defaultaffpolicy = array('currencies' => $affpolicy->defaultCurrency,
+                'partiesinfo_intermed_aff'=>$affpolicy->defaultIntermed,
+                'partiesinfo_intermed_incoterms'=>$affpolicy->defaultIncoterms,
+                'partiesinfo_intermed_paymentterm'=>$affpolicy->defaultPaymentTerm
+            );
+        }
+        echo json_encode($defaultaffpolicy);
     }
 }
