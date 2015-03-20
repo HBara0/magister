@@ -59,7 +59,7 @@ class AroRequests extends AbstractClass {
                 return $this->errorcode;
             }
 
-            //Save parties Information data
+//Save parties Information data
             $partiesinformation_obj = new AroRequestsPartiesInformation();
             $data['partiesinfo']['aorid'] = $this->data[self::PRIMARY_KEY];
             $partiesinformation_obj->set($data['partiesinfo']);
@@ -89,6 +89,30 @@ class AroRequests extends AbstractClass {
 
             $this->save_linessupervision($data['actualpurchase'], $data['partiesinfo']['transitTime'], $data['partiesinfo']['clearanceTime'], $data['partiesinfo']['estDateOfShipment']);
             $this->create_approvalchain();
+            //sending email section
+            if($this->get_infromcoords == 1) {
+                foreach($arosegments as $key => $value) {
+                    $productsegment_obj = new ProductsSegments($value);
+                    $coordinators_objs[$key] = $productsegment_obj->get_coordinators();
+                    unset($productsegment_obj);
+                }
+                foreach($coordinators_objs as $key => $coord_objs) {
+                    if(is_array($coord_objs)) {
+                        foreach($coord_objs as $coord_obj) {
+                            $users_objs[] = $coord_obj->get_coordinator();
+                        }
+                    }
+                    else {
+                        $users_objs[] = $coord_objs->get_coordinator();
+                    }
+                }
+                foreach($users_objs as $user) {
+                    $sendemail_to[] = $user->get_email();
+                }
+            }
+
+            $sendmail_to = array_merge($this->generate_approvalchain(), $sendemail_to);
+            $this->send_approvalemail($sendemail_to);
         }
     }
 
@@ -126,7 +150,7 @@ class AroRequests extends AbstractClass {
                 return $this->errorcode;
             }
 
-            //Save parties Information data
+//Save parties Information data
             $partiesinformation_obj = new AroRequestsPartiesInformation();
             $data['partiesinfo']['aorid'] = $this->data[self::PRIMARY_KEY];
             $partiesinformation_obj->set($data['partiesinfo']);
@@ -156,6 +180,40 @@ class AroRequests extends AbstractClass {
             }
             $arosegments = $this->save_productlines($data['productline'], $data['parmsfornetmargin']);
             $this->save_linessupervision($data['actualpurchase'], $data['partiesinfo']['transitTime'], $data['partiesinfo']['clearanceTime'], $data['partiesinfo']['estDateOfShipment']);
+            //sending email section
+            if(true) {
+                foreach($arosegments as $key => $value) {
+                    $productsegment_obj = new ProductsSegments($value);
+                    $coordinators_objs[$key] = $productsegment_obj->get_coordinators();
+                    unset($productsegment_obj);
+                }
+                foreach($coordinators_objs as $key => $coord_objs) {
+                    if(is_array($coord_objs)) {
+                        foreach($coord_objs as $coord_obj) {
+                            $users_objs[] = $coord_obj->get_coordinator();
+                        }
+                    }
+                    else {
+                        $users_objs[] = $coord_objs->get_coordinator();
+                    }
+                }
+                foreach($users_objs as $user) {
+                    $sendemail_to_users[] = $user;
+                }
+            }
+            $approvers = $this->generate_approvalchain();
+            //get all user objects through the uid provided from generate_approvalchain() method
+            if(is_array($approvers['uid'])) {
+                foreach($approvers['uid'] as $uid) {
+                    $approvers_objs[] = new Users($app_obj);
+                }
+            }
+            //merge approvls and coordinators arrays
+            $sendmail_to_users = array_merge($approvers_objs, $sendemail_to_users);
+            foreach($sendmail_to_users as $user) {
+                $sendemail_to_emails[] = $user->get_email();
+            }
+            $this->send_approvalemail(array_unique($sendemail_to_emails));
         }
     }
 
@@ -187,7 +245,7 @@ class AroRequests extends AbstractClass {
         }
     }
 
-    //loop through product line for validation
+//loop through product line for validation
     private function validate_productlines($arorequestlines, $parmsfornetmargin) {
         $plrowid = 0;
         if(is_array($arorequestlines)) {
@@ -297,7 +355,7 @@ class AroRequests extends AbstractClass {
             foreach($approvalchain as $key => $val) {
                 switch($val['approver']) {
                     case 'businessManager':
-                        // Aro request businessManager
+// Aro request businessManager
                         $approvers['uid']['businessManager'] = 1; //$this->businessManager;
                         $approvers['sequence']['businessManager'] = $val['sequence'];
 
@@ -371,7 +429,7 @@ class AroRequests extends AbstractClass {
         if(empty($approvers)) {
             $approvers = $this->generate_approvalchain();
         }
-        //  $approve_immediately = $this->should_approveimmediately();
+//  $approve_immediately = $this->should_approveimmediately();
         foreach($approvers['uid'] as $key => $val) {
             $approve_status = $timeapproved = 0;
             if($val == $core->user['uid'] && $approve_immediately == true) {
@@ -380,7 +438,7 @@ class AroRequests extends AbstractClass {
             }
             $sequence = 1;
             if(is_array($approvers[sequence])) {
-                // $sequence = array_search($key, $approvers[sequence]);
+// $sequence = array_search($key, $approvers[sequence]);
                 $sequence = $approvers[sequence][$key];
             }
             $approver = new AroRequestsApprovals();
@@ -390,18 +448,40 @@ class AroRequests extends AbstractClass {
         return true;
     }
 
-    public function send_approvalemail() {
+    public function send_approvalemail($to) {
         $email_data = array(
-                'from_email' => '',
-                'from' => '',
-                'to' => '',
-                'subject' => $lang->leavenotificationsubject,
-                'message' => $lang->leavenotificationmessage
+//                'from_email' => '',
+                'from' => 'ocos@orkila.com',
+//                'to' => '',
+                'subject' => "Aro Needs Approval !",
+                'message' => "Aro Request Needs Verification"
         );
+        $mailer = new Mailer();
+        $mailer = $mailer->get_mailerobj();
+        $mailer->set_type();
+        $mailer->set_from($email_data['from']);
+        $mailer->set_subject($email_data['subject']);
+        $mailer->set_message($email_data['message']);
+        $mailer->set_to($to);
+        $mailer->send();
+        if($mailer->get_status() == true) {
+            return true;
+        }
+        else {
+            return false;
+        }
+//        $mail = new Mailer($email_data, 'php');
+//        if($mail->get_status() === true) {
+//
+//        }
+    }
 
-        $mail = new Mailer($email_data, 'php');
-        if($mail->get_status() === true) {
+    private function get_infromcoords() {
 
+        $filter = 'affid ='.$this->affid.' AND purchaseType = '.$this->orderType.' AND ('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
+        $aroapprovalchain_policies = AroApprovalChainPolicies::get_data($filter);
+        if(is_object($aroapprovalchain_policies)) {
+            return $aroapprovalchain_policies->informCoordinators;
         }
     }
 
