@@ -26,10 +26,11 @@ class AroRequestLines extends AbstractClass {
     protected function create(array $data) {
         global $db, $log;
         $data = $this->calculate_values();
-        if(empty($data['psid'])) {
-            $product = new Products($data['pid']);
-            $data['psid'] = $product->get_segment()['psid'];
-        }
+//        if(empty($data['psid'])) {
+//            $product = new Products($data['pid']);
+//            $data['psid'] = $product->get_segment()['psid'];
+//        }
+        unset($data['ptid']);
         $query = $db->insert_query(self::TABLE_NAME, $data);
         if($query) {
             $log->record(self::TABLE_NAME, $this->data[self::PRIMARY_KEY]);
@@ -39,10 +40,11 @@ class AroRequestLines extends AbstractClass {
     protected function update(array $data) {
         global $db, $log;
         $data = $this->calculate_values();
-        if(empty($data['psid'])) {
-            $product = new Products($data['pid']);
-            $data['psid'] = $product->get_segment()['psid'];
-        }
+//        if(empty($data['psid'])) {
+//            $product = new Products($data['pid']);
+//            $data['psid'] = $product->get_segment()['psid'];
+//        }
+        unset($data['ptid']);
         $query = $db->update_query(self::TABLE_NAME, $data, self::PRIMARY_KEY.' = '.intval($this->data[self::PRIMARY_KEY]));
         if($query) {
             $log->record(self::TABLE_NAME, $this->data[self::PRIMARY_KEY]);
