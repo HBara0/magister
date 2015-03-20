@@ -85,9 +85,10 @@ class AroRequests extends AbstractClass {
             if($this->errorcode != 0) {
                 return $this->errorcode;
             }
-            $this->save_productlines($data['productline'], $data['parmsfornetmargin']);
+            $arosegments = $this->save_productlines($data['productline'], $data['parmsfornetmargin']);
 
             $this->save_linessupervision($data['actualpurchase'], $data['partiesinfo']['transitTime'], $data['partiesinfo']['clearanceTime'], $data['partiesinfo']['estDateOfShipment']);
+            $this->create_approvalchain();
         }
     }
 
@@ -153,7 +154,7 @@ class AroRequests extends AbstractClass {
             if($this->errorcode != 0) {
                 return $this->errorcode;
             }
-            $this->save_productlines($data['productline'], $data['parmsfornetmargin']);
+            $arosegments = $this->save_productlines($data['productline'], $data['parmsfornetmargin']);
             $this->save_linessupervision($data['actualpurchase'], $data['partiesinfo']['transitTime'], $data['partiesinfo']['clearanceTime'], $data['partiesinfo']['estDateOfShipment']);
         }
     }
@@ -217,6 +218,11 @@ class AroRequests extends AbstractClass {
         if(is_array($arorequestlines)) {
             foreach($arorequestlines as $arorequestline) {
                 $arorequestline['aorid'] = $this->data[self::PRIMARY_KEY];
+                if(empty($arorequestline['psid'])) {
+                    $product = new Products($arorequestline['pid']);
+                    $arorequestline['psid'] = $product->get_segment()['psid'];
+                }
+                $arosegments[$arorequestline['psid']] = $arorequestline['psid'];
                 $arorequestline['exchangeRateToUSD'] = $this->data['exchangeRateToUSD'];
                 $arorequestline['parmsfornetmargin'] = $parmsfornetmargin;
                 if(isset($arorequestline['todelete']) && !empty($arorequestline['todelete'])) {
@@ -234,6 +240,7 @@ class AroRequests extends AbstractClass {
                 $requestline->set($arorequestline);
                 $requestline->save();
             }
+            return $arosegments;
         }
     }
 
@@ -280,37 +287,63 @@ class AroRequests extends AbstractClass {
 
     public function generate_approvalchain() {
         global $core;
-        $filter = 'affid = '.$this->affid.' AND purchaseType = '.$this->orderType.' AND ('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
+        $filter = 'affid ='.$this->affid.' AND purchaseType = '.$this->orderType.' AND ('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
         $aroapprovalchain_policies = AroApprovalChainPolicies::get_data($filter);
         if(is_object($aroapprovalchain_policies)) {
             $approvalchain = unserialize($aroapprovalchain_policies->approvalChain);
         }
-        $affiliate = new Affiliate($this->affid);
+        $affiliate = new Affiliates($this->affid);
         if(is_array($approvalchain)) {
             foreach($approvalchain as $key => $val) {
-                switch($val) {
+                switch($val['approver']) {
                     case 'businessManager':
                         // Aro request businessManager
-                        $approvers['generalManager'] = $this->businessManager;
+                        $approvers['uid']['businessManager'] = 1; //$this->businessManager;
+                        $approvers['sequence']['businessManager'] = $val['sequence'];
+
                         break;
                     case 'lolm':
-                        $approvers['lolm'] = $affiliate->get_logisticsmanager()->uid;
+                        $approvers['uid']['lolm'] = $affiliate->get_logisticsmanager()->uid;
+                        $approvers['sequence']['lolm'] = $val['sequence'];
+
                         break;
                     case 'lfinancialManager':
-                        $approvers['lfinancialManager'] = $affiliate->get_financialemanager()->uid;
+                        $approvers['uid']['lfinancialManager'] = $affiliate->get_financialemanager()->uid;
+                        $approvers['sequence']['lfinancialManager'] = $val['sequence'];
+
                         break;
                     case 'generalManager':
-                        $approvers['generalManager'] = $affiliate->get_generalmanager()->uid;
+                        $approvers['uid']['generalManager'] = $affiliate->get_generalmanager()->uid;
+                        $approvers['sequence']['generalManager'] = $val['sequence'];
+
                         break;
                     case 'gfinancialManager':
                         $aropartiesinfo = AroRequestsPartiesInformation::get_data(array('aorid' => $this->data[self::PRIMARY_KEY]));
                         $intermediaryAff = new Affiliates($aropartiesinfo->intermedAff);
-                        $approvers['gfinancialManager'] = $intermediaryAff->get_financialemanager()->uid;
+                        $approvers['uid']['gfinancialManager'] = $intermediaryAff->get_financialemanager()->uid;
+                        $approvers['sequence']['gfinancialManager'] = $val['sequence'];
+
                         break;
                     case 'cfo':
-                        $position = Positions::get_data(array('name' => 'cfo'));
-                        $userposition = UsersPositions::get_data(array('posid' => $position->posid));
-                        $approvers['cfo'] = $userposition->uid;
+//                        $position = Positions::get_data(array('name' => 'cfo'));
+//                        $userposition = UsersPositions::get_data(array('posid' => $position->posid));
+//                        $approvers['uid']['cfo'] = $userposition->uid;
+
+                        $approvers['uid']['cfo'] = $affiliate->get_cfo()->uid;
+                        $approvers['sequence']['cfo'] = $val['sequence'];
+                        break;
+                    case 'coo':
+                        $approvers['uid']['coo'] = $affiliate->get_coo()->uid;
+                        $approvers['sequence']['coo'] = $val['sequence'];
+                        break;
+                        break;
+                    case 'regionalSupervisor':
+                        $approvers['uid']['regionalSupervisor'] = $affiliate->get_regionalsupervisor()->uid;
+                        $approvers['sequence']['regionalSupervisor'] = $val['sequence'];
+                        break;
+                    case 'globalPurchaseManager':
+                        $approvers['uid']['globalPurchaseManager'] = $affiliate->get_globalpurchasemanager()->uid;
+                        $approvers['sequence']['globalPurchaseManager'] = $val['sequence'];
                         break;
                     case 'user':
                         break;
@@ -322,10 +355,10 @@ class AroRequests extends AbstractClass {
                 }
             }
             /* Make list of approvers unique */
-            $approvers = array_unique($approvers);
+            $approvers['uid'] = array_unique($approvers['uid']);
 
             /* Remove the user himself from the approval chain */
-            unset($approvers[array_search($core->user['uid'], $approvers)]);
+            unset($approvers['uid'][array_search($core->user['uid'], $approvers['uid'])]);
 
             return $approvers;
         }
@@ -339,21 +372,37 @@ class AroRequests extends AbstractClass {
             $approvers = $this->generate_approvalchain();
         }
         //  $approve_immediately = $this->should_approveimmediately();
-        foreach($approvers as $key => $val) {
+        foreach($approvers['uid'] as $key => $val) {
             $approve_status = $timeapproved = 0;
             if($val == $core->user['uid'] && $approve_immediately == true) {
                 $approve_status = 1;
                 $timeapproved = TIME_NOW;
             }
             $sequence = 1;
-            if(is_array($approvers)) {
-                $sequence = array_search($key, $approvers);
+            if(is_array($approvers[sequence])) {
+                // $sequence = array_search($key, $approvers[sequence]);
+                $sequence = $approvers[sequence][$key];
             }
             $approver = new AroRequestsApprovals();
-            $approver->set(array('aorid' => $this->aorid, 'uid' => $val, 'isApproved' => $approve_status, 'timeApproved' => $timeapproved, 'sequence' => $sequence));
+            $approver->set(array('aorid' => $this->aorid, 'uid' => $val, 'isApproved' => $approve_status, 'timeApproved' => $timeapproved, 'sequence' => $sequence, 'position' => $key));
             $approver->save();
         }
         return true;
+    }
+
+    public function send_approvalemail() {
+        $email_data = array(
+                'from_email' => '',
+                'from' => '',
+                'to' => '',
+                'subject' => $lang->leavenotificationsubject,
+                'message' => $lang->leavenotificationmessage
+        );
+
+        $mail = new Mailer($email_data, 'php');
+        if($mail->get_status() === true) {
+
+        }
     }
 
 }
