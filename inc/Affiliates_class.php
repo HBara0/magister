@@ -25,7 +25,7 @@ class Affiliates {
     private function read($id, $simple = TRUE) {
         global $db;
 
-        $query_select = 'affid, name, legalName, country, city, integrationOBOrgId, mainCurrency, isIntReinvoiceAffiliate';
+        $query_select = 'affid, name, legalName, country, city, integrationOBOrgId, mainCurrency, isIntReinvoiceAffiliate,generalManager';
         if($simple == false) {
             $query_select = '*';
         }
@@ -213,10 +213,43 @@ class Affiliates {
     }
 
     public function get_logisticsmanager() {
-        $position = Positions::get_data(array('name' => 'logisticsmanager'));
-        $users = AffiliatedEmployees::get_data(array('affid' => $this->affid, 'isMain' => 1), array('returnarray' => true));
-        $userposition = UsersPositions::get_data(array('posid' => $position->posid, 'uid' => array_keys($users)), array('operators' => array('uid' => 'in')));
-        return new Users($userposition->uid);
+//        $position = Positions::get_data(array('name' => 'logisticsmanager'));
+//        $users = AffiliatedEmployees::get_data(array('affid' => $this->affid, 'isMain' => 1), array('returnarray' => true));
+//        $userposition = UsersPositions::get_data(array('posid' => $position->posid, 'uid' => array_keys($users)), array('operators' => array('uid' => 'in')));
+//        return new Users($userposition->uid);
+
+        if(empty($this->affiliate['logisticsManager'])) {
+            return false;
+        }
+        return new Users($this->affiliate['logisticsManager']);
+    }
+
+    public function get_regionalsupervisor() {
+        if(empty($this->affiliate['regionalSupervisor'])) {
+            return false;
+        }
+        return new Users($this->affiliate['regionalSupervisor']);
+    }
+
+    public function get_globalpurchasemanager() {
+        if(empty($this->affiliate['globalPurchaseManager'])) {
+            return false;
+        }
+        return new Users($this->affiliate['globalPurchaseManager']);
+    }
+
+    public function get_coo() {
+        if(empty($this->affiliate['coo'])) {
+            return false;
+        }
+        return new Users($this->affiliate['coo']);
+    }
+
+    public function get_cfo() {
+        if(empty($this->affiliate['cfo'])) {
+            return false;
+        }
+        return new Users($this->affiliate['cfo']);
     }
 
 }
