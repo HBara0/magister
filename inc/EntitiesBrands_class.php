@@ -31,7 +31,7 @@ class EntitiesBrands {
         global $db;
         $query_select = '*';
         if($simple == true) {
-            $query_select = 'ebid, name';
+            $query_select = 'ebid, eid, name';
         }
         $this->entitiesbrands = $db->fetch_assoc($db->query('SELECT '.$query_select.' FROM '.Tprefix.'entitiesbrands WHERE ebid='.intval($id)));
     }
@@ -100,8 +100,8 @@ class EntitiesBrands {
         }
     }
 
-    public function get_entity() {
-        return new Entities($this->entitiesbrands['eid']);
+    public function get_entity($simple = true) {
+        return new Entities($this->entitiesbrands['eid'], null, $simple);
     }
 
     public function get_createdby() {
