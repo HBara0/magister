@@ -43,18 +43,19 @@
     </span>
 
 </div>
-<div style="display:block; width: 100%;" id="segment_expenses_{$sequence}">
+<div style="display:block; width: 100%;" id="segment_finances_{$sequence}">
     <input name="sequence" type="hidden" id="sequence" value="{$sequence}">
+    
     <h2 class="subtitle" style="padding:8px;width:40%;">{$lang->finance}</h2>
     <table width="100%"cellspacing="0" cellpadding="0" style="margin-left: 8px;" class="datatable">
-        <tbody id="finances_{$sequence}_tbody">
+        <tbody id="finances_{$frowid}_tbody">
             {$finance_output}
         </tbody>
     </table>
     <span>
         <div>
-            <img src="./images/add.gif" style="cursor: pointer" id="ajaxaddmore_travelmanager/plantrip_finances_{$sequence}"  alt="{$lang->add}">Add amount
-            <input name="numrows_finances_{$sequence}" type="hidden" id="numrows_expenses_{$sequence}" value="{$rowid}">
+            <img src="./images/add.gif" style="cursor: pointer" id="ajaxaddmore_travelmanager/plantrip_finances_{$frowid}"  alt="{$lang->add}">Add amount
+            <input name="numrows_finances_{$frowid}" type="hidden" id="numrows_finances_{$frowid}" value="{$frowid}">
         </div>
     </span>
 
