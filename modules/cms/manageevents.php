@@ -60,12 +60,15 @@ if(!$core->input['action']) {
 }
 else if($core->input['action'] == 'do_perform_manageevents') {
     unset($core->input['identifier'], $core->input['module'], $core->input['action']);
-    $event = Events::get_data(array('title' => $core->input['event']['title']));
-    if(is_object($event)) {
-        output_xml('<status>false</status><message>Alias used</message>');
-        exit;
+
+    if(empty($core->input['event']['alias'])) {
+        $core->input['event']['alias'] = generate_alias($core->input['event']['title']);
     }
-    $cms_event = new Events();
+
+    $cms_event = Events::get_data(array('alias' => $core->input['event']['alias']));
+    if(!is_object($event)) {
+        $cms_event = new Events();
+    }
     $cms_event->set($core->input['event']);
     $cms_event->save();
     switch($cms_event->get_errorcode()) {
