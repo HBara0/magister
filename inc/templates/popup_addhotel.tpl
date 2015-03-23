@@ -19,12 +19,17 @@
                 </td>
 
             </tr>
-
-            <td colspan="2" align="left">
-                <hr />
-                <input type='submit' id='add_otherhotel_{$core->input[module]}_Button' value='{$lang->savecaps}' class='button'/>
-                <div id="add_otherhotel_{$core->input[module]}_Results"></div>
-            </td>
+            <tr><td>   <div style="display:inline-block;padding:5px;width:15%;">{$lang->address}</div></td><td><div style="display:inline-block;padding:5px;width:20%;"><input name="otherhotel[addressLine1]" type="textarea">{$selectedhotel[$segid][$approved_hotels[tmhid]][address]}</div>
+                </td></tr>
+            <tr><td>
+                    <div style="display:inline-block;padding:5px;width:15%;">{$lang->phone}</div></td><td><div style="display:inline-block;padding:5px;width:20%;"><input name="otherhotel[phone]"  type="number">{$selectedhotel[$segid][$approved_hotels[tmhid]][phone]}</div>
+                </td></tr>
+            <tr>
+                <td colspan="2" align="left">
+                    <hr />
+                    <input type='submit' id='add_otherhotel_{$core->input[module]}_Button' value='{$lang->savecaps}' class='button'/>
+                    <div id="add_otherhotel_{$core->input[module]}_Results"></div>
+                </td>
             </tr>
         </table>
     </form>
