@@ -463,6 +463,9 @@ class AroRequests extends AbstractClass {
         $mailer->set_subject($email_data['subject']);
         $mailer->set_message($email_data['message']);
         $mailer->set_to($to);
+
+        $v = $mailer->debug_info();
+        print_R($mailer->debug_info());
         $mailer->send();
         if($mailer->get_status() == true) {
             return true;
