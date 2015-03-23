@@ -23,7 +23,7 @@
 
     </td>
     <td>
-        <input type="number"  step="any" name="actualpurchase[$aprowid][shelfLife]" id="actualpurchase_{$aprowid}_shelfLife" value="{$actualpurchase->shelfLife}" style="width:100px;" readonly/>
+        <input type="number"  step="any" name="actualpurchase[$aprowid][shelfLife]" id="actualpurchase_{$aprowid}_shelfLife" value="{$actualpurchase->shelfLife}" style="width:100px;"/>
     </td>
     <td>
         <input type="text" id="pickDate_sale_{$aprowid}" autocomplete="off" tabindex="2" value="{$actualpurchase->estDateOfSale_output}"/>

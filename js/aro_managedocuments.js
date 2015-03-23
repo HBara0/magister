@@ -30,6 +30,17 @@ $(function() {
         var ptid = $(this).data('purchasetype');
         sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populatedocnum&affid= ' + affid + '&ptid= ' + ptid);
         sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populateaffpolicy&affid= ' + affid + '&ptid= ' + ptid);
+       
+   $.getJSON(rootdir + 'index.php?module=aro/managearodouments&action=popultedefaultaffpolicy&affid= ' + affid + '&ptid= ' + ptid, function(data) {
+                var jsonStr = JSON.stringify(data);
+                obj = JSON.parse(jsonStr);
+                jQuery.each(obj, function(i, val) {
+                      var id = val.split(" ");
+             $("select[id^='" + i + "'] option[value='"+id[0]+"']").attr("selected", "true");
+           $("select[id^='" + i + "']").trigger("change");
+                });
+            });
+            
         if($(this).attr('id') === 'affid') {
             /*Get Affiliate Warehouses*/
             $.ajax({type: 'post',
@@ -64,9 +75,11 @@ $(function() {
                     if($("input[id='productline_" + fields[i] + "_disabled']").val() == 0) {
                         $("input[id$='" + fields[i] + "']").attr('value', '0')
                         $("input[id$='" + fields[i] + "']").attr("readonly", "true");
+                         $("input[id$='shelfLife']").attr("readonly", "true");
                     }
                     else {
                         $("input[id$='" + fields[i] + "']").removeAttr("readonly");
+                          $("input[id$='shelfLife']").removeAttr("readonly");
                     }
                 }
                 var warehousing_fields = ["warehouse", "warehousingRate", "warehousingPeriod", "warehousingTotalLoad", "uom"];
@@ -200,6 +213,8 @@ $(function() {
     $("select[id^='productline_'][id$='_uom']").live('change', function() {
         var id = $(this).attr('id').split("_");
         triggerproductlines(id);
+        $("input[id='ordersummary_btn']").trigger("click");
+
     });
 //    /*-------------Disable qtyPotentiallySold if daysInStock=0 ------------------*/
     $("input[id$='_daysInStock']").live('change keyup', function() {
