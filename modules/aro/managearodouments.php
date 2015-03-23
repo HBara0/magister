@@ -594,7 +594,7 @@ else {
         if($purchaseype->isPurchasedByEndUser == 0) {
             $intermedmargin = '-';
             $intermedmargin_perc = '-';
-            if(isset($core->input['ntermedAff']) && !empty($core->input['ntermedAff'])) {
+            if(isset($core->input['intermedAff']) && !empty($core->input['intermedAff'])) {
                 $YearDays = 365;
                 $total_intermedfees_usd = $totalfees * $core->input['exchangeRateToUSD'];
                 $intermedmargin = (($localinvoicevalue_usd - $invoicevalueintermed_usd - $total_intermedfees_usd ) - ($invoicevalueintermed_usd + $total_intermedfees_usd) * ($core->input['InterBR'] / $YearDays * $core->input['POIintermed']));
