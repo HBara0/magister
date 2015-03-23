@@ -11,10 +11,6 @@
         <div style="display:inline-block;padding:5px;width:15%;"> <input  size="10" id="numnight_segacc_{$approved_hotels[tmhid]}_{$sequence}" accept="numeric" name="segment[{$sequence}][tmhid][{$otherhotel_checksum}][numNights]" type="text" value="{$selectedhotel[$segid][$approved_hotels[tmhid]][numNights]}"> </div>
         <div style="display:inline-block;padding:2px;  font-weight: bold; width:15%;" id="total_segacc_{$approved_hotels[tmhid]}_{$sequence}" ><span>Sub Total: {$selectedhotel[$segid][$approved_hotels[tmhid]][total]} </span></div>
         <div style="display:inline-block;padding:5px;width:15%;">{$lang->currency}</div> <div style="display:inline-block;padding:5px;width:20%;">{$currencies_list}</div>
-        <div style="display:inline-block;padding:5px;width:15%;">{$lang->address}</div><div style="display:inline-block;padding:5px;width:20%;"><input name="segment[{$sequence}][tmhid][{$otherhotel_checksum}][address]" type="textarea">{$selectedhotel[$segid][$approved_hotels[tmhid]][address]}</div>
-    </div>
-    <div style="display:inline-block;padding:5px;width:15%;">{$lang->phone}</div><div style="display:inline-block;padding:5px;width:20%;"><input name="segment[{$sequence}][tmhid][{$otherhotel_checksum}][phone]"  type="number">{$selectedhotel[$segid][$approved_hotels[tmhid]][phone]}</div>
-    <div>
         <div style="display:inline-block;padding:5px;width:15%">{$lang->paidby}</div>
         <div style="display:inline-block;width:20%;">
             {$paidbyoptions}
