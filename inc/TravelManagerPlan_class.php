@@ -526,9 +526,8 @@ class TravelManagerPlan {
 
             /* parse hotel --START */
             $hotelssegments_objs = $segmentobj->get_accomodations(array('returnarray' => true));
-            if(is_array($hotelssegments_objs)) {
-                foreach($hotelssegments_objs as $segmentacc) {
-
+//            if(is_array($hotelssegments_objs)) {
+//                foreach($hotelssegments_objs as $segmentacc) {
 //                    $accomodation[$segmentid][$segmentacc->tmhid]['hotelsection'] = $section.' '.$lang->hotel;
 //                    $accomodation[$segmentid][$segmentacc->tmhid]['hotelsectioncolor'] = "background-color:".$bgcolor."; ";
 //                    $accomodation[$segmentid][$segmentacc->tmhid]['priceNight'] = $segmentacc->priceNight;
@@ -546,9 +545,9 @@ class TravelManagerPlan {
 //                    $accomodation[$segmentid][$segmentacc->tmhid]['affid'] = $segmentacc->paidById;
 //                    $accomodation[$segmentid][$segmentacc->tmhid]['affiliate'] = $segmentobj->display_paidby($segmentacc->paidBy, $segmentacc->paidById)->name;
 //                    $accomodation[$segmentid][$segmentacc->tmhid]['total'] = ($accomodation[$segmentid][$segmentacc->tmhid]['priceNight']) * ($accomodation [$segmentid][$segmentacc->tmhid]['numNights']);
-//                    $accomodation[$segmentid][$segmentacc->tmhid]['selectedhotel'] = $segmentacc->tmhid;
-                }
-            }
+////                    $accomodation[$segmentid][$segmentacc->tmhid]['selectedhotel'] = $segmentacc->tmhid;
+//                }
+//            }
 
             $city_obj = new Cities($segmentobj->get_destinationcity()->ciid);
             $approvedhotels = $segmentobj->get_destinationcity()->get_approvedhotels();
@@ -624,20 +623,32 @@ class TravelManagerPlan {
 
             /* parse expenses --END */
             //parse finances-START
-            $finance = $segmentobj->get_finance();
+            $finance = $segmentobj->get_finance(array('returnarray' => true));
             $mainaffobj = new Affiliates($core->user['mainaffiliate']);
             $currencies_f[] = $destcity_obj->get_country()->get_maincurrency();
             $currencies_f[] = $mainaffobj->get_country()->get_maincurrency();
             $currencies_f[] = new Currencies(840, true);
             $currencies_f = array_unique($currencies_f);
             $currencies_listf = parse_selectlist('segment['.$sequence.'][tmpfid][currency]', 4, $currencies_f, $finance->currency);
-            $amount_value = $finance->amount;
-            $segments_financess_output.=$currencies_listf;
+
+            if(is_array($finance)) {
+                foreach($finance as $financerow) {
+                    $amount_value = $finance->amount;
+                    $finance_checksum = $finance->inputChecksum;
+                    $segments_financess_output = $currencies_listf;
+                    eval("\$finance_output .= \"".$template->get('travelmanager_plantrip_segmentfinance')."\";");
+                }
+            }
+            else {
+                $finance_checksum = generate_checksum('finance');
+                eval("\$finance_output = \"".$template->get('travelmanager_plantrip_segmentfinance')."\";");
+            }
+
             //parse finnance--end
             if($segmentobj->noAccomodation == '1') {
                 $checkedaccomodation = 'checked="checked"';
             }
-            eval("\$finance_output = \"".$template->get('travelmanager_plantrip_segmentfinance')."\";");            //parse finances-END
+            //parse finances-END
             //  eval("\$transsegments_output.= \"".$template->get('travelmanager_plantrip_segment_transptype')."\";");
             eval("\$plansegmentscontent_output = \"".$template->get('travelmanager_plantrip_segmentcontents')."\";");
             unset($segments_expenses_output, $expensestype, $transsegments_output, $hotelssegments_output, $accomodation, $selectedhotel);

@@ -164,15 +164,19 @@ class TravelManagerPlanSegments extends AbstractClass {
             }
         }
 
-        $finances = $segmentdata['tmpfid'];
-        if(is_array($finances)) {
-            $financedata['tmpsid'] = $this->data[self::PRIMARY_KEY];
-            $financedata['amount'] = $finances['amount'];
-            $financedata['currency'] = $finances['currency'];
-            $finance_obj = new TravelManagerPlanFinance();
-            $finance_obj->set($financedata);
-            $finance_obj->save();
-            $this->errorode = 0;
+        $finances_objs = $segmentdata['tmpfid'];
+        if(is_array($finances_objs)) {
+            foreach($finances_objs as $finances) {
+                $financedata['tmpsid'] = $this->data[self::PRIMARY_KEY];
+                $financedata['amount'] = $finances->amount;
+                $financedata['currency'] = $finances->currency;
+                $financedata['inputChecksum'] = $finances->inputChecksum;
+                $finance_obj = new TravelManagerPlanFinance();
+                $finance_obj = new TravelManagerPlanFinance();
+                $finance_obj->set($financedata);
+                $finance_obj->save();
+                //   $this->errorode = 0;
+            }
         }
     }
 
@@ -293,14 +297,18 @@ class TravelManagerPlanSegments extends AbstractClass {
                 $this->errorode = 0;
             }
         }
-        $finances = $segmentdata['tmpfid'];
-        if(is_array($finances)) {
-            $financedata['tmpsid'] = $this->data[self::PRIMARY_KEY];
-            $financedata['amount'] = $finances['amount'];
-            $financedata['currency'] = $finances['currency'];
-            $finance_obj = new TravelManagerPlanFinance();
-            $finance_obj->update($financedata);
-            $this->errorode = 0;
+        $finances_objs = $segmentdata['tmpfid'];
+        if(is_array($finances_objs)) {
+            foreach($finances_objs as $finances) {
+                $financedata['tmpsid'] = $this->data[self::PRIMARY_KEY];
+                $financedata['amount'] = $finances->amount;
+                $financedata['currency'] = $finances->currency;
+                $financedata['inputChecksum'] = $finances->inputChecksum;
+                $finance_obj = new TravelManagerPlanFinance();
+                $finance_obj->set($financedata);
+                $finance_obj->save();
+                //   $this->errorode = 0;
+            }
         }
     }
 

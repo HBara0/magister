@@ -104,6 +104,7 @@ if(!$core->input['action']) {
             $currencies_f = array_unique($currencies_f);
             $currencies_listf = parse_selectlist('segment['.$sequence.'][tmpfid][currency]', 4, $currencies_f, '840');
             $segments_financess_output.=$currencies_listf;
+            $finance_checksum = generate_checksum('finance');
             eval("\$finance_output = \"".$template->get('travelmanager_plantrip_segmentfinance')."\";");
             //parse Finances---End
             /* parse expenses --START */
@@ -469,6 +470,7 @@ else {
         $currencies_f = array_unique($currencies_f);
         $currencies_listf = parse_selectlist('segment['.$sequence.'][tmpfid][currency]', 4, $currencies_f, 840);
         $segments_financess_output.=$currencies_listf;
+        $finance_checksum = generate_checksum('finance');
         eval("\$finance_output = \"".$template->get('travelmanager_plantrip_segmentfinance')."\";");
         echo $finance_output;
     }

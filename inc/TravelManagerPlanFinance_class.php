@@ -14,19 +14,11 @@ class TravelManagerPlanFinance extends AbstractClass {
     const PRIMARY_KEY = 'tmpfid';
     const TABLE_NAME = 'travelmanager_plan_finance';
     const SIMPLEQ_ATTRS = 'tmpsid,amount,currency,paidBy,paidById';
-    const UNIQUE_ATTRS = 'tmpfid';
+    const UNIQUE_ATTRS = 'tmpsid,currency';
     const CLASSNAME = __CLASS__;
 
-    public function __construct($id = '') {
-        if(empty($id)) {
-            return false;
-        }
-        $this->read($id);
-    }
-
-    protected function read($id = '') {
-        global $db;
-        $this->data = $db->fetch_assoc($db->query('SELECT * FROM '.Tprefix.self::TABLE_NAME.' WHERE '.self::PRIMARY_KEY.'='.intval($id)));
+    public function __construct($id = '', $simple = true) {
+        parent::__construct($id, $simple);
     }
 
     public function create(array $data) {
@@ -38,6 +30,7 @@ class TravelManagerPlanFinance extends AbstractClass {
                 'currency' => $data['currency'],
                 'paidBy' => $data['paidBy'],
                 'paidById' => $data['paidById'],
+                'inputChecksum' => $data['inputChecksum'],
         );
 
         $db->insert_query(self::TABLE_NAME, $data);
@@ -52,70 +45,11 @@ class TravelManagerPlanFinance extends AbstractClass {
             $financedata['paidBy'] = $data['paidBy'];
             $financedata['paidById'] = $data['paidById'];
             $financedata['currency'] = $data['currency'];
+            $financedata['inputChecksum'] = $data['inputChecksum'];
+
 
             $db->update_query(self::TABLE_NAME, $financedata, 'tmpsid='.intval($data['tmpsid']));
         }
-    }
-
-    public static function get_planfina_byattr($attr, $value) {
-        $data = new DataAccessLayer(__CLASS__, self::TABLE_NAME, self::PRIMARY_KEY);
-        return $data->get_objects_byattr($attr, $value);
-    }
-
-    public static function get_data($filters = null, array $configs = array()) {
-        $data = new DataAccessLayer(__CLASS__, self::TABLE_NAME, self::PRIMARY_KEY);
-        return $data->get_objects($filters, $configs);
-    }
-
-    public function get_segment() {
-        return new TravelManagerPlanSegments($this->data['tmpsid']);
-    }
-
-    public function get_currency() {
-        return new Currencies($this->data['currency']);
-    }
-
-    public function parse_paidby() {
-        global $lang;
-
-        $paidby_entities = array(
-                'myaffiliate' => $lang->myaffiliate,
-                'supplier' => $lang->supplier,
-                'client' => $lang->client,
-                'myself' => $lang->myself,
-                'anotheraff' => $lang->anotheraff
-        );
-        foreach($paidby_entities as $val => $paidby) {
-            $selected = '';
-            if($this->data['paidBy'] === $val) {
-                $selected = ' selected="selected"';
-            }
-
-            $paid_options.="<option value=".$val." {$selected}>{$paidby}</option>";
-        }
-
-        return $paid_options;
-    }
-
-    public function get() {
-        return $this->data;
-    }
-
-    public function get_convertedamount(Currencies $tocurrency) {
-        if($this->currency == $tocurrency->numCode) {
-            return $this->amount;
-        }
-        $fromcurrency = new Currencies($this->currency);
-        $exchangerate = $tocurrency->get_latest_fxrate($tocurrency->alphaCode, array(), $fromcurrency->alphaCode);
-
-        if(empty($exchangerate)) {
-            $reverserate = $tocurrency->get_latest_fxrate($fromcurrency->alphaCode, array(), $tocurrency->alphaCode);
-            if(!empty($reverserate)) {
-                $exchangerate = 1 / $reverserate;
-                $tocurrency->set_fx_rate($fromcurrency->numCode, $tocurrency->numCode, $exchangerate);
-            }
-        }
-        return $this->priceNight * $exchangerate;
     }
 
 }
