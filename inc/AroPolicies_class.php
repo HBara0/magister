@@ -26,7 +26,6 @@ class AroPolicies extends AbstractClass {
     protected function create(array $data) {
         global $db, $core, $log;
         if(!$this->validate_requiredfields($data)) {
-            if(!$this->validate_requiredfields($data)) {
                 $data['createdOn'] = TIME_NOW;
                 $data['createdBy'] = $core->user['uid'];
                 $query = $db->insert_query(self::TABLE_NAME, $data);
@@ -35,7 +34,6 @@ class AroPolicies extends AbstractClass {
                     $log->record('aro_policies', $id);
                     return $this;
                 }
-            }
         }
     }
 

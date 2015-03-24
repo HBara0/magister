@@ -243,26 +243,30 @@ DROP TABLE IF EXISTS `aro_requests_curstksupervision`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `aro_requests_curstksupervision` (
   `arcssid` int(10) NOT NULL AUTO_INCREMENT,
+  `aorid` int(10) NOT NULL,
   `pid` int(10) NOT NULL,
   `quantity` float NOT NULL,
   `stockValue` float NOT NULL,
-  `stockEntryDate` bigint(30) NOT NULL,
+  `dateOfStockEntry` bigint(30) NOT NULL,
   `expiryDate` bigint(30) NOT NULL,
   `estDateOfSale` bigint(30) NOT NULL,
+  `inputChecksum` varchar(200) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
   PRIMARY KEY (`arcssid`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=114 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `aro_requests_fundsengaged`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `aro_requests_fundsengaged` (
   `arfeid` int(10) NOT NULL AUTO_INCREMENT,
-  `orderShpInvOverdue` double NOT NULL,
-  `orderShpInvNotDue` double NOT NULL,
-  `ordersAppAwaitingShp` double NOT NULL,
-  `odersWaitingApproval` double NOT NULL,
+  `aorid` int(10) NOT NULL,
+  `orderShpInvOverdue` float NOT NULL,
+  `orderShpInvNotDue` float NOT NULL,
+  `ordersAppAwaitingShp` float NOT NULL,
+  `odersWaitingApproval` float NOT NULL,
+  `totalFunds` float NOT NULL,
   PRIMARY KEY (`arfeid`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `aro_requests_lines`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;

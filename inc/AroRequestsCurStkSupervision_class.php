@@ -17,21 +17,50 @@ class AroRequestsCurStkSupervision extends AbstractClass {
     const DISPLAY_NAME = '';
     const SIMPLEQ_ATTRS = '*';
     const CLASSNAME = __CLASS__;
+    const UNIQUE_ATTRS = 'aorid';
+
 
     public function __construct($id = '', $simple = true) {
         parent::__construct($id, $simple);
     }
 
     protected function create(array $data) {
-
+      global $db, $log;
+        if(!$this->validate_requiredfields($data)) {
+            $currentstock['aorid'] = $data['aorid'];
+        //    unset($actualpurchase['dateOfStockEntry_output'], $actualpurchase['estDateOfSale_output'], $actualpurchase['productName'], $actualpurchase['daysInStock']);
+            $query = $db->insert_query(self::TABLE_NAME, $currentstock);
+            if($query) {
+                $log->record(self::TABLE_NAME, $this->data[self::PRIMARY_KEY]);
+                return $this;
+            }
+        }
     }
 
     protected function update(array $data) {
-
+   global $db, $log;
+        if(!$this->validate_requiredfields($data)) {
+            $currentstock['aorid'] = $data['aorid'];
+           // $actualpurchase = $this->calculate_actualpurchasevalues($data);
+           // unset($actualpurchase['estDateOfStockEntry_output'], $actualpurchase['estDateOfSale_output'], $actualpurchase['productName'], $actualpurchase['daysInStock']);
+            $query = $db->update_query(self::TABLE_NAME, $currentstock, ''.self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
+            if($query) {
+                $log->record(self::TABLE_NAME, $this->data[self::PRIMARY_KEY]);
+                return $this;
+            }
+        }
     }
 
-    public function save(array $data = array()) {
-
+    private function validate_requiredfields(array $data = array()) {
+        if(is_array($data)) {
+            $required_fields = array('pid', 'quantity', 'packing');
+            foreach($required_fields as $field) {
+                if(empty($data[$field]) && $data[$field] != '0') {
+                    $this->errorcode = 2;
+                    return true;
+                }
+            }
+        }
     }
 
 }
