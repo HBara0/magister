@@ -305,50 +305,50 @@ if(!($core->input['action'])) {
             eval("\$partiesinfo_shipmentparameters = \"".$template->get('aro_partiesinfo_shipmentparameters')."\";");
             eval("\$partiesinfo_fees = \"".$template->get('aro_partiesinfo_fees')."\";");
             //*********Aro Parties Information-End *********//
-            $aroapprovalchain=  AroRequestsApprovals::get_data(array('aorid'=>$aroorderrequest->aorid),array('returnarray'=>true,'simple'=>false,'order'=>array('by'=>'timeApproved','sort'=>'ASC')));
+            $aroapprovalchain=  AroRequestsApprovals::get_data(array('aorid'=>$aroorderrequest->aorid),array('returnarray'=>true,'simple'=>false,'order'=>array('by'=>'sequence','sort'=>'ASC')));
             if(is_array($aroapprovalchain)){
                 foreach($aroapprovalchain as $approver){
                     switch($approver->position)
-                    {
+                    {// needs optimization
                         case 'businessManager':
-                            $approver->position='Local Business Manager';
+                            $position='Local Business Manager';
                             break;
                         case 'lolm':
-                            $approver->position='Local Logistics Manager';
+                            $position='Local Logistics Manager';
                             break;
                         case 'lfinancialManager':
-                            $approver->position='Local Finance Manager';
+                            $position='Local Finance Manager';
                             break;
                         case 'generalManager':
-                            $approver->position='General Manager';
+                            $position='General Manager';
                             break;
                         case 'gfinancialManager':
-                            $approver->position='Global Finance Manager';
+                            $position='Global Finance Manager';
                             break;
                         case 'cfo':
-                            $approver->position='Global CFO';
+                            $position='Global CFO';
                             break;
                         case 'coo':
-                            $approver->position='Global COO';
+                            $position='Global COO';
                             break;
                         case 'regionalSupervisor':
-                            $approver->position='Regional supervisor';
+                            $position='Regional supervisor';
                             break;
                         case 'globalPurchaseManager':
-                            $approver->position='Global purchase manager';
+                            $position='Global purchase manager';
                             break;
                         case 'user':
-                            $approver->position='User';
+                            $position='User';
                             break;
                     }
                     $dateofapproval='-';
-                            $user=new Users($approver->uid);
-                             if(is_object($user)){
-                                $username=$user->get_displayname();
-                            }                    if($approver->isApproved==1){
-                            $class='greenbackground';
-                       
-                         $dateofapproval=date($core->settings['dateformat'],$approver->timeApproved);
+                    $user=new Users($approver->uid);
+                    if(is_object($user)){
+                       $username=$user->get_displayname();
+                    }                  
+                    if($approver->isApproved==1){
+                       $class='greenbackground';
+                       $dateofapproval=date($core->settings['dateformat'],$approver->timeApproved);
                      }
                      eval("\$apprs .= \"".$template->get('aro_approvalchain_approver')."\";");
                      unset($class);
@@ -736,74 +736,56 @@ else {
            $arorequest=new AroRequests();
            $arorequest->set($data);
            $aroapprovalchain=$arorequest->generate_approvalchain();
-            //$filter = 'affid = '.$core->input['affid'].' AND purchaseType = '.$core->input['ptid'].' AND ('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
-           // $approvalchain=  AroApprovalChainPolicies::get_data($filter);
-          eval("\$apprs .= \"".$template->get('aro_approvalchain_approver')."\";");
-
-          
             if(is_array($aroapprovalchain)){
-                foreach($aroapprovalchain as $approver){
-                    switch($approver->position)
+                foreach($aroapprovalchain as $key=>$val){
+                    switch($key)
                     {
                         case 'businessManager':
-                            $approver->position='Local Business Manager';
+                            $position='Local Business Manager';
                             break;
                         case 'lolm':
-                            $approver->position='Local Logistics Manager';
+                           $position='Local Logistics Manager';
                             break;
                         case 'lfinancialManager':
-                            $approver->position='Local Finance Manager';
+                           $position='Local Finance Manager';
                             break;
                         case 'generalManager':
-                            $approver->position='General Manager';
+                           $position='General Manager';
                             break;
                         case 'gfinancialManager':
-                            $approver->position='Global Finance Manager';
+                            $position='Global Finance Manager';
                             break;
                         case 'cfo':
-                            $approver->position='Global CFO';
+                           $position='Global CFO';
                             break;
                         case 'coo':
-                            $approver->position='Global COO';
+                           $position='Global COO';
                             break;
                         case 'regionalSupervisor':
-                            $approver->position='Regional supervisor';
+                           $position='Regional supervisor';
                             break;
                         case 'globalPurchaseManager':
-                            $approver->position='Global purchase manager';
+                           $position='Global purchase manager';
                             break;
                         case 'user':
-                            $approver->position='User';
+                            $position='User';
                             break;
                     }
-                    $dateofapproval='-';
-                            $user=new Users($approver->uid);
+                            $user=new Users($val);
                              if(is_object($user)){
                                 $username=$user->get_displayname();
-                            }                    if($approver->isApproved==1){
-                            $class='greenbackground';
-                       
-                         $dateofapproval=date($core->settings['dateformat'],$approver->timeApproved);
-                     }
+                            }                   
                      eval("\$apprs .= \"".$template->get('aro_approvalchain_approver')."\";");
-                     unset($class);
                  }
-                                 output($apprs);
+             output($apprs);
 
             }
             
-//           if(is_array($approvers)){
-//
-//               foreach($approvers['uid'] as $key => $val) {
-//          
-//                   $user=new Users($val);
-//                   if(is_object($user)){$name=$user->get_displayname();}
-//                    eval("\$apprs .= \"".$template->get('aro_approvalchain_approver')."\";");
-//
-//
-//                }
-//                output($apprs);
-//            }
+// if($approver->isApproved==1){
+//                            $class='greenbackground';
+//                       
+//                         $dateofapproval=date($core->settings['dateformat'],$approver->timeApproved);
+//                     }
             
         }
     }
