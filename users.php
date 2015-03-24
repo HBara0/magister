@@ -335,6 +335,9 @@ if($core->input['action']) {
             if(is_object($helpvideo)) {
                 $helplinks['how-to-generate-signature'] = $helpvideo->parse_link();
             }
+
+            $timezones = DateTimeZone::listIdentifiers();
+            $timezoneslist = parse_selectlist('timeZone', 10, array_combine($timezones, $timezones), $core->user['timeZone']);
             eval("\$editprofilepage = \"".$template->get('editprofile')."\";");
             output_page($editprofilepage);
         }

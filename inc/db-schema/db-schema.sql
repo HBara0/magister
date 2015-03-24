@@ -3722,6 +3722,7 @@ CREATE TABLE `users` (
   `profilePicture` varchar(200) DEFAULT NULL,
   `newFilesNotification` tinyint(1) NOT NULL DEFAULT '0',
   `Budget_canFillLocalincome` tinyint(1) NOT NULL,
+  `timeZone` varchar(200) DEFAULT NULL,
   PRIMARY KEY (`uid`),
   KEY `gid` (`gid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=141111112 DEFAULT CHARSET=utf8;
