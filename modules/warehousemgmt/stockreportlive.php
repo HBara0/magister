@@ -829,8 +829,8 @@ else {
             unset($stockevolution_chart, $chart_data, $stockevolution_chart, $overyears_rates);
             $mailer->set_to($recipients);
 
-            print_r($mailer->debug_info());
-            //$mailer->send();
+            // print_r($mailer->debug_info());
+            $mailer->send();
 
             if($mailer->get_status() === true) {
                 unset($core->input['reporttype']);

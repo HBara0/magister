@@ -5,7 +5,7 @@
             <tbody>
                 <tr id="1">
                     <td colspan="2">
-                        <div style="width:100%; height:150px; overflow:auto; display:inline-block; vertical-align:top;">
+                        <div style="width:100%; max-height:150px; overflow:auto; display:inline-block; vertical-align:top;">
                             <table class="datatable" width="100%">
                                 <thead>
                                     <tr class="altrow2">
@@ -18,6 +18,7 @@
                     </td>
                 </tr>
             </tbody>
+            <tfoot><tr><td colspan="4"> <small>({$itemscount[chemsubstances]} {$lang->items})</small></td></tr></tfoot>
         </table>
     </td>
 </tr>

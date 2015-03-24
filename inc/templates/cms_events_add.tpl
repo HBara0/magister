@@ -16,7 +16,7 @@
                 <form name="perform_cms/manageevents_Form" id="perform_cms/manageevents_Form" action="#" method="post">
                     <div style="display:block;">
                         <div style="display: inline-block;width:10%">{$lang->title}</div>
-                        <div style="display: inline-block;padding:5px;"><input name="event[title]" type="text" value="{$event[title]}" required="required" size="30"></div>
+                        <div style="display: inline-block;padding:5px;"><input name="event[title]" type="text" value="{$event[title]}" required="required" size="30"><input type='hidden' value="{$event[alias]}"></div>
                     </div>
 
                     <div style="display:block;">

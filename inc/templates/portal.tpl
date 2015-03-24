@@ -40,19 +40,14 @@
             <span id="currencyconvert_Results"></span>
         </div>
     </div>-->
-            <!--  <div class="portalbox">
+            <div class="portalbox">
                 <div class="portalbox_header">
-            {$lang->usefulshortcuts}
-        </div>
-        <div>
-            <ul>
-                <li><a href='index.php?module=reporting/generatereport'>{$lang->generateqreports}</a></li>
-                <li><a href='index.php?module=reporting/list'>{$lang->listqreports}</a></li>
-                <li><a href='index.php?module=crm/fillvisitreport'>{$lang->fillvreport}</a></li>
-                <li><a href='users.php?action=profile&amp;do=edit'>{$lang->edityourprofile}</a></li>
-            </ul>
-        </div>
-    </div>-->
+                    {$lang->quickintro}Quick Intro
+                </div>
+                <div>
+                    <iframe src="https://docs.google.com/file/d/0B8G025lo12QnZVFVS25iYldzY2s/preview" width="180" height="100"></iframe>
+                </div>
+            </div>
         </td>
         <td class="contentContainer">
             <div style="width: 63%; float:left;">

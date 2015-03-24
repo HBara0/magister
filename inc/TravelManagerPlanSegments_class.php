@@ -165,10 +165,9 @@ class TravelManagerPlanSegments extends AbstractClass {
         if(is_array($finances_objs)) {
             foreach($finances_objs as $finances) {
                 $financedata['tmpsid'] = $this->data[self::PRIMARY_KEY];
-                $financedata['amount'] = $finances->amount;
-                $financedata['currency'] = $finances->currency;
-                $financedata['inputChecksum'] = $finances->inputChecksum;
-                $finance_obj = new TravelManagerPlanFinance();
+                $financedata['amount'] = $finances['amount'];
+                $financedata['currency'] = $finances['currency'];
+                $financedata['inputChecksum'] = $finances['inputChecksum'];
                 $finance_obj = new TravelManagerPlanFinance();
                 $finance_obj->set($financedata);
                 $finance_obj->save();
@@ -298,13 +297,12 @@ class TravelManagerPlanSegments extends AbstractClass {
         if(is_array($finances_objs)) {
             foreach($finances_objs as $finances) {
                 $financedata['tmpsid'] = $this->data[self::PRIMARY_KEY];
-                $financedata['amount'] = $finances->amount;
-                $financedata['currency'] = $finances->currency;
-                $financedata['inputChecksum'] = $finances->inputChecksum;
+                $financedata['amount'] = $finances['amount'];
+                $financedata['currency'] = $finances['currency'];
+                $financedata['inputChecksum'] = $finances['inputChecksum'];
                 $finance_obj = new TravelManagerPlanFinance();
                 $finance_obj->set($financedata);
                 $finance_obj->save();
-                //   $this->errorode = 0;
             }
         }
     }

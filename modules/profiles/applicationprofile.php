@@ -14,22 +14,24 @@ if(!defined('DIRECT_ACCESS')) {
 
 
 if(!$core->input['action']) {
-    $psaid = $db->escape_string($core->input['id']);
-    $segmapplication_obj = new SegmentApplications($psaid);
+    $psaid = $core->input['id'];
+    $segmapplication_obj = new SegmentApplications($core->input['id']);
     $application['title'] = $segmapplication_obj->get_displayname();
     $safids = array();
     $eptids = array();
     $application['prodsegtitle'] = '<a href="index.php?module=profiles/segmentprofile&id='.$segmapplication_obj->get_segment()->psid.'" target="_blank">'.$segmapplication_obj->get_segment()->get_displayname().'</a>';
     //Functional properties block---Start
+
     $segapfunctions = SegApplicationFunctions::get_data_byattr('psaid', $psaid);
     if(is_object($segapfunctions)) {
         $segapfunctions = array($segapfunctions);
     }
     if(is_array($segapfunctions)) {
+        $itemscount['functions'] = count($segapfunctions);
         foreach($segapfunctions as $segapfunction) {
             if(is_object($segapfunction)) {
                 $safids[] = $segapfunction->safid;
-                $application_funtionalproperties.='<tr><td>'.$segapfunction->get_function()->get_displayname().'</td></tr>';
+                $application_funtionalproperties .= '<tr><td>'.$segapfunction->get_function()->get_displayname().'</td></tr>';
             }
         }
     }
@@ -39,20 +41,18 @@ if(!$core->input['action']) {
     //products block ---Start
     if(!empty($safids)) {
         $chemicalprodfunction_objs = ChemFunctionProducts::get_data(array('safid' => $safids), array('returnarray' => true));
-        if(is_object($chemicalprodfunction_objs)) {
-            $chemicalprodfunction_objs = array($chemicalprodfunction_objs);
-        }
         if(is_array($chemicalprodfunction_objs)) {
+            $itemscount['products'] = count($chemicalprodfunction_objs);
             foreach($chemicalprodfunction_objs as $chemicalprodfunction_obj) {
-                $application_productdetails.='<tr>';
+                $application_productdetails .= '<tr>';
 
                 $product_obj = $chemicalprodfunction_obj->get_produt();
                 $supplier = $product_obj->get_supplier();
                 $objectids['spid'][] = $supplier->get_id();
 
                 $application_productdetails .= '<td>'.$product_obj->get_displayname().'</td>';
-                $application_productdetails.='<td>'.$supplier->parse_link().'</td>';
-                $application_productdetails.='</tr>';
+                $application_productdetails .= '<td>'.$supplier->parse_link().'</td>';
+                $application_productdetails .= '</tr>';
             }
         }
     }
@@ -66,13 +66,11 @@ if(!$core->input['action']) {
     }
     if(!empty($spid_allowed)) {
         $suppliers = Entities::get_data(array('eid' => $spid_allowed), array('returnarray' => true));
-        if(is_object($suppliers)) {
-            $suppliers = array($suppliers);
-        }
         if(is_array($suppliers)) {
+            $itemscount['suppliers'] = count($suppliers);
             foreach($suppliers as $supplier) {
-                $supplier_output.='<tr>';
-                $supplier_output.='<td>'.$supplier->parse_link().'</td><td>'.$supplier->get_country()->get_displayname().'</td>';
+                $supplier_output .= '<tr>';
+                $supplier_output .= '<td>'.$supplier->parse_link().'</td><td>'.$supplier->get_country()->get_displayname().'</td>';
                 $supplier_output .= '</tr>';
             }
         }
@@ -81,12 +79,10 @@ if(!$core->input['action']) {
     //Chemical Substances block---Start
     if(!empty($safids)) {
         $chemicalfunctchems = ChemFunctionChemicals::get_data(array('safid' => $safids), array('returnarray' => true));
-        if(is_object($chemicalfunctchems)) {
-            $chemicalfunctchems = array($chemicalfunctchems);
-        }
         if(is_array($chemicalfunctchems)) {
+            $itemscount['chemsubstances'] = count($chemicalfunctchems);
             foreach($chemicalfunctchems as $chemicalfunctchem) {
-                $chemicalsubstancedetails .='<tr>';
+                $chemicalsubstancedetails .= '<tr>';
                 $chemicalsubst = $chemicalfunctchem->get_chemicalsubstance()->get_displayname();
                 $chemicalsubstancedetails .= '<td>'.$chemicalsubst.'</td>';
                 $chemicalsubstancedetails .= '</tr>';
@@ -97,15 +93,12 @@ if(!$core->input['action']) {
     // }//loop over SAFIDs end
 //End product type---Start
     if(!empty($psaid)) {
-        $endproducttype_objs = EndProducTypes::get_data(array('psaid' => $psaid));
-        if(is_object($endproducttype_objs)) {
-            $endproducttype_objs = array($endproducttype_objs);
-        }
+        $endproducttype_objs = EndProducTypes::get_data(array('psaid' => $psaid), array('returnarray' => true));
         if(is_array($endproducttype_objs)) {
+            $itemscount['endproducts'] = count($endproducttype_objs);
             foreach($endproducttype_objs as $endproducttype_obj) {
                 $eptids[] = $endproducttype_obj->get_primarykey();
-                $endproducttype_name = $endproducttype_obj->get_displayname();
-                $endproducttype_output.='<tr><td>'.$endproducttype_name.'</td></tr>';
+                $endproducttype_output .= '<tr><td>'.$endproducttype_obj->get_displayname().'</td></tr>';
             }
         }
     }
@@ -113,36 +106,31 @@ if(!$core->input['action']) {
     //looping through all eptids collected in end product type
     //Entity Brand block---Start
     if(!empty($eptids)) {
-        $entitybrandproduct_objs = EntBrandsProducts::get_data(array('eptid' => $eptids));
-        if(is_object($entitybrandproduct_objs)) {
-            $entitybrandproduct_objs = array($entitybrandproduct_objs);
-        }
+        $entitybrandproduct_objs = EntBrandsProducts::get_data(array('eptid' => $eptids), array('returnarray' => true));
         if(is_array($entitybrandproduct_objs)) {
             foreach($entitybrandproduct_objs as $entitybrandproduct_obj) {
                 $eids[] = $entitybrandproduct_obj->get_entitybrand()->eid;
                 $ebids[] = $entitybrandproduct_obj->get_entitybrand()->ebid;
             }
+
+            $allowed_eid = $eids;
             if($core->usergroup['canViewAllCust'] == 0) {
                 $allowed_eid = array_intersect($eids, $core->user['customers']);
             }
-            else {
-                $allowed_eid = $eids;
-            }
+
             if(!empty($allowed_eid)) {
-                $entitybrand_objs = EntitiesBrands::get_data(array('eid' => $allowed_eid, 'ebid' => $ebids));
+                $allowed_eid = '(eid IN ('.implode(',', $allowed_eid).') OR eid IN (SELECT eid FROM '.Tprefix.'entities WHERE type="pc" AND eid IN (eid IN ('.implode(',', $eids).'))))';
+                $entitybrand_objs = EntitiesBrands::get_data(array('eid' => $allowed_eid, 'ebid' => $ebids), array('operators' => array('eid' => 'CUSTOMSQLSECURE'), 'returnarray' => true));
             }
         }
-        if(is_object($entitybrand_objs)) {
-            $entitybrand_objs = array($entitybrand_objs);
-        }
+
         if(is_array($entitybrand_objs)) {
+            $itemscount['brands'] = count($entitybrand_objs);
             foreach($entitybrand_objs as $entitybrand_obj) {
-                $brandlist.='<tr>';
+                $brandlist.= '<tr>';
                 $entitie_obj = $entitybrand_obj->get_entity();
-                $brandname = $entitybrand_obj->get_displayname();
-                $entity_country = $entitie_obj->get_country()->get_displayname();
-                $brandlist .= '<td>'.$brandname.'</td><td>'.$entitie_obj->parse_link().'</td><td>'.$entity_country.'</td>';
-                $brandlist.='</tr>';
+                $brandlist .= '<td>'.$entitybrand_obj->get_displayname().'</td><td>'.$entitie_obj->parse_link().'</td><td>'.strtoupper($entitie_obj->type).'</td><td>'.$entitie_obj->get_country()->get_displayname().'</td>';
+                $brandlist .= '</tr>';
             }
         }
     }
@@ -157,3 +145,4 @@ if(!$core->input['action']) {
     eval("\$applicationprofilepage = \"".$template->get('profiles_applicationprofile')."\";");
     output_page($applicationprofilepage);
 }
+?>
