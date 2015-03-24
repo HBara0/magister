@@ -34,9 +34,9 @@ $htmllang = $lang->settings['htmllang'];
 $db->set_charset($lang->settings['charset_db']);
 
 $lang->load('global');
-if(!empty($core->user['language'])) {
-    date_default_timezone_set($core->user['language']);
-}
+//if(!empty($core->user['language'])) {
+//    date_default_timezone_set($core->user['language']);
+//}
 eval("\$headerinc = \"".$template->get('headerinc')."\";");
 
 if($session->uid > 0) {
