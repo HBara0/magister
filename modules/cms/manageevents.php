@@ -71,6 +71,31 @@ else if($core->input['action'] == 'do_perform_manageevents') {
     }
     $cms_event->set($core->input['event']);
     $cms_event->save();
+
+    /* Parse Event Logo - START */
+    if(!empty($_FILES['logo']['name'][0])) {
+        $_FILES['logo']['newname'][0] = $core->input['event']['alias'];
+        $upload_param['upload_allowed_types'] = array('image/jpg', 'image/jpeg', 'image/gif', 'image/png');
+        $upload_obj = new Uploader('logo', $_FILES, $upload_param['upload_allowed_types'], 'putfile', 5242880, 1, 1); //5242880 bytes = 5 MB (1024);
+        $logo_path = './uploads/eventslogos';
+        $upload_obj->set_upload_path($logo_path);
+        $upload_obj->process_file();
+        $upload_obj->resize(150, '');
+
+        $logo = $upload_obj->get_filesinfo();
+        $new_event['logo'] = $upload_obj->get_filename();
+        if($upload_obj->get_status() != 4) {
+            ?>
+            <script language="javascript" type="text/javascript">
+                $(function () {
+                    top.$("#upload_Result").html("<span class='red_text'><?php echo $upload_obj->parse_status($upload_obj->get_status());?></span>");
+                });
+            </script>
+            <?php
+            exit;
+        }
+    }
+    /* Parse Event Logo - END */
     switch($cms_event->get_errorcode()) {
         case 0:
             output_xml('<status>true</status><message>'.$lang->successfullysaved.'</message>');
