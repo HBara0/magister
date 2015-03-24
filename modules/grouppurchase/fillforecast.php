@@ -16,6 +16,11 @@ if($core->usergroup['grouppurchase_canUpdateForecast'] == 0) {
 }
 if(!$core->input['action']) {
     $forecast_data = $core->input['forecast'];
+    $uid = $forecast_data['onBehalf'];
+    if($forecast_data['onBehalf'] == 0) {
+        $uid = $core->user['uid'];
+    }
+
     if(empty($forecast_data) || array_search("0", $forecast_data) !== false) {
         redirect('index.php?module=grouppurchase/createforecast');
     }
@@ -80,7 +85,7 @@ if(!$core->input['action']) {
      * Upon opening the forecast page for the 1st time, read data from commercial budgets and parse the rows accordingly */
     else {
         if(isset($budget['bid']) && !empty($budget['bid'])) {
-            $sql = "SELECT businessMgr, pid, psid, saleType, SUM(quantity*s1Perc/100) AS s1quantity, SUM(quantity*s2Perc/100) AS s2quantity FROM budgeting_budgets_lines WHERE businessMgr=".$core->user['uid']." AND bid=".$budget['bid']." AND saletype IN (".implode(', ', array_keys($saletypes)).") GROUP by pid, psid, saleType";
+            $sql = "SELECT businessMgr, pid, psid, saleType, SUM(quantity*s1Perc/100) AS s1quantity, SUM(quantity*s2Perc/100) AS s2quantity FROM budgeting_budgets_lines WHERE businessMgr=".$uid." AND bid=".$budget['bid']." AND saletype IN (".implode(', ', array_keys($saletypes)).") GROUP by pid, psid, saleType";
             $query = $db->query($sql);
             if($db->num_rows($query) > 0) {
                 $fields = array('pid', 'saleType', 's1quantity', 's2quantity');

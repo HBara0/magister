@@ -16,7 +16,7 @@ class Users extends AbstractClass {
     const PRIMARY_KEY = 'uid';
     const TABLE_NAME = 'users';
     const DISPLAY_NAME = 'displayName';
-    const SIMPLEQ_ATTRS = 'uid, username, reportsTo, firstName, middleName, lastName, displayName, displayName AS name, email';
+    const SIMPLEQ_ATTRS = 'uid, username, reportsTo, firstName, middleName, lastName, displayName, displayName AS name, email,gid';
     const CLASSNAME = __CLASS__;
 
     public function __construct($id = '', $simple = true) {
