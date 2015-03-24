@@ -135,12 +135,18 @@ if(!$core->input['action']) {
                 }
             }
             else {
+                for($month = 1; $month <= 12; $month++) {
+                    $forecastline['month'.$month] = 0;
+                }
                 $forecastline['inputChecksum'] = generate_checksum('gp');
                 $saletype_selectlist = parse_selectlist("forecastline[".$rowid."][saleType]", "", $saletypes, "");
                 eval("\$forecastlines = \"".$template->get('grouppurchase_fill_forecastlines')."\";");
             }
         }
         else {
+            for($month = 1; $month <= 12; $month++) {
+                $forecastline['month'.$month] = 0;
+            }
             $forecastline['inputChecksum'] = generate_checksum('gp');
             $saletype_selectlist = parse_selectlist("forecastline[".$rowid."][saleType]", "", $saletypes, "");
             eval("\$forecastlines .= \"".$template->get('grouppurchase_fill_forecastlines')."\";");
