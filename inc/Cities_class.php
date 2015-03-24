@@ -283,7 +283,7 @@ class Cities extends AbstractClass {
                 }
                 else {
                     unset($drivingmode);
-                    $availabletransp[1] = 1; /* Always exclude the airplan cateory when parsing other categories */
+                    $availabletransp[0] = 0; /* Always exclude the airplan cateory when parsing other categories */
                     $transpdata['transportationdetails'] = $transp->get();
                     $transpdata['inputChecksum'] = $transp->inputChecksum;
                     $othertranspcategories = TravelManagerTranspCategories ::get_data('tmtcid NOT IN ('.implode(', ', $availabletransp).')', array('returnarray' => true));
@@ -301,7 +301,7 @@ class Cities extends AbstractClass {
         }
         unset($drivingmode);
         $transpdata['inputChecksum'] = generate_checksum();
-        $availabletransp[1] = 1;
+        $availabletransp[0] = 0;
         $othertranspcategories = TravelManagerTranspCategories ::get_data('tmtcid NOT IN ('.implode(', ', $availabletransp).')', array('returnarray' => true));
         $transp = new TravelManagerPlanTransps();
         $transp_category_fields = TravelManagerPlan::parse_transportaionfields($transp, array('inputChecksum' => $transpdata['inputChecksum'], 'transportationdetials' => $transpdata['transportationdetails'], 'name' => 'other', 'tmtcid' => $transp->tmtcid, 'othercategories' => $othertranspcategories), array('origincity' => $transpdata['origincity'], 'destcity' => $transpdata['destcity'], 'date' => $transpdata['transprequirements']['departuretime']), $sequence, $rowid);
