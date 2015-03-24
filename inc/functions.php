@@ -883,7 +883,7 @@ function parse_moduleslist($current_module, $modules_dir = 'modules', $is_select
             return '<select name="defaultModule" id="defaultModule"><option value="">&nbsp;<option>'.$list.'</select>';
         }
         else {
-            return '<div id="currentmodule_name">'.$current_module_title.' <br /><div class="moduleslist_container">'.$list.'</div></div>';
+            return '<div id="currentmodule_name"><span class="subtitle">'.$current_module_title.'</span> <br /><div class="moduleslist_container">'.$list.'</div></div>';
         }
     }
     else {

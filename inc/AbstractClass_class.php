@@ -41,9 +41,13 @@ Abstract class AbstractClass {
     }
 
     public function save(array $data = array()) {
+        global $log;
         if(empty($data)) {
             $data = $this->data;
         }
+
+        $log->record($this->data[static::PRIMARY_KEY], $data['inputChecksum']);
+
         if(isset($this->data[static::PRIMARY_KEY]) && !empty($this->data[static::PRIMARY_KEY])) {
             return $this->update($data);
         }
@@ -151,7 +155,7 @@ Abstract class AbstractClass {
 
     public function __toString() {
         if(is_null($this->data[static::DISPLAY_NAME])) {
-            return 'NULL';
+            return '';
         }
         return $this->get_displayname();
     }

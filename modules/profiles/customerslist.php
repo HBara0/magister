@@ -23,7 +23,7 @@ if(!$core->input['action']) {
 
     $sort_url = sort_url();
     $limit_start = 0;
-    $multipage_where = ' type IN ("c", "pc") ';
+
     if(isset($core->input['start'])) {
         $limit_start = $db->escape_string($core->input['start']);
     }
@@ -32,46 +32,57 @@ if(!$core->input['action']) {
         $core->settings['itemsperlist'] = intval($core->input['perpage']);
     }
 
-    if(isset($core->input['filterby'], $core->input['filtervalue'])) {
-        $value_accepted = true;
+    /* Perform inline filtering - START */
+    $filters_config = array(
+            'parse' => array('filters' => array('companyName', 'affid', 'segment', 'type'),
+                    'overwriteField' => array('type' => parse_selectlist('filters[type]', 4, array('' => '', 'c' => $lang->customer, 'pc' => $lang->prospect), $core->input['filters']['type']))
+            ),
+            'process' => array(
+                    'filterKey' => 'eid',
+                    'mainTable' => array(
+                            'name' => 'entities',
+                            'filters' => array('companyName' => 'companyName', 'type' => 'type'),
+                    ),
+                    'secTables' => array(
+                            'affiliatedentities' => array(
+                                    'filters' => array('affid' => array('operatorType' => 'multiple', 'name' => 'affid'))
+                            ),
+                            'entitiessegments' => array(
+                                    'filters' => array('segment' => array('operatorType' => 'multiple', 'name' => 'psid'))
+                            )
+                    )
+            )
+    );
 
-        if($core->input['filterby'] == 'affid') {
-            $table = 'affiliatedentities';
-        }
-        elseif($core->input['filterby'] == 'psid') {
-            $table = 'entitiessegments';
-        }
-        else {
-            $value_accepted = false;
-        }
+    $filter = new Inlinefilters($filters_config);
+    $filter_where_values = $filter->process_multi_filters();
 
-        if($value_accepted == true) {
-            $extra_where = " AND e.eid IN (SELECT eid FROM ".Tprefix.$table." WHERE ".$db->escape_string($core->input['filterby']).'='.$db->escape_string($core->input['filtervalue']).")";
-        }
-        else {
-            if($core->input['filterby'] == 'name') {
-                $extra_where = ' AND (e.companyName LIKE "%'.$db->escape_string($core->input['filtervalue']).'%" OR e.companyNameAbbr LIKE "%'.$db->escape_string($core->input['filtervalue']).'%")';
-            }
-            else {
-                $extra_where = '';
-            }
-        }
-        $multipage_where .= $extra_where;
+    if(empty($core->input['filters']['type'])) {
+        $filter_where .= ' e.type IN ("c", "pc") ';
     }
+    $filters_row_display = 'hide';
+    if(is_array($filter_where_values)) {
+        $filters_row_display = 'show';
+        if(!empty($filter_where)) {
+            $filter_where .= ' AND ';
+        }
+        $filter_where .= 'e.'.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
+    }
+
+    $filters_row = $filter->prase_filtersrows(array('tags' => 'table', 'display' => $filters_row_display));
+    /* Perform inline filtering - END */
 
     $affiliate_filters_cache = $segment_filters_cache = array();
 
     if($core->usergroup['canViewAllCust'] == 0) {
-        $query_string = ' AND (ae.uid='.$core->user['uid'].' AND e.eid IN ('.implode(',', $core->user['customers']).') OR e.createdBy='.$core->user['uid'].')';
-
-        $multipage_where .= $query_string;
+        $filter_where .= ' AND (ae.uid='.$core->user['uid'].' AND e.eid IN ('.implode(',', $core->user['customers']).') OR e.createdBy='.$core->user['uid'].')';
     }
-
+    $multipage_where .= $filter_where;
     $query = $db->query("SELECT DISTINCT(e.eid), e.companyName AS customername, e.companyNameAbbr, e.type
 						FROM ".Tprefix."entities e
 						JOIN ".Tprefix."affiliatedentities a ON (e.eid=a.eid)
 						JOIN ".Tprefix."affiliatedemployees ae ON (a.affid=ae.affid)
-                                                WHERE e.type IN ('c', 'pc'){$extra_where}{$query_string}
+                                                WHERE {$filter_where}
 						ORDER BY {$sort_query}
 						LIMIT {$limit_start}, {$core->settings[itemsperlist]}");
 
@@ -85,29 +96,20 @@ if(!$core->input['action']) {
             }
 
             $query2 = $db->query("SELECT ae.affid, a.name FROM ".Tprefix."affiliatedentities ae JOIN ".Tprefix."affiliates a ON (a.affid=ae.affid) WHERE ae.eid='$customer[eid]'  GROUP BY a.name ORDER BY a.name ASC");
-
             while($affiliate = $db->fetch_assoc($query2)) {
-                if(!in_array($affiliate['affid'], $affiliate_filters_cache)) {
-                    $aff_filter_icon = "<a href='index.php?module=profiles/customerslist&filterby=affid&filtervalue={$affiliate[affid]}'> <img src='./images/icons/search.gif' border='0' alt='{$lang->filterby}'/></a>";
-                }
-                else {
-                    $aff_filter_icon = '';
-                }
 
                 if(++$affiliates_counter > 2) {
                     $hidden_affiliates .= "<a href='index.php?module=profiles/affiliateprofile&affid={$affiliate[affid]}'>{$affiliate['name']}</a> {$aff_filter_icon}<br />";
                 }
                 elseif($affiliates_counter == 2) {
                     $show_affiliates .= "<a href='index.php?module=profiles/affiliateprofile&affid={$affiliate[affid]}'>{$affiliate['name']}</a> {$aff_filter_icon}";
-                    $affiliate_filters_cache[] = $affiliate['affid'];
                 }
                 else {
                     $show_affiliates .= "<a href='index.php?module=profiles/affiliateprofile&affid={$affiliate[affid]}'>{$affiliate['name']}</a> {$aff_filter_icon}<br />";
-                    $affiliate_filters_cache[] = $affiliate['affid'];
                 }
 
                 if($affiliates_counter > 2) {
-                    $affiliates = $show_affiliates.", <a href='#affiliate' id='showmore_affiliates_{$customer[eid]}'>...</a> <br /><span style='display:none;' id='affiliates_{$customer[eid]}'>{$hidden_affiliates}</span>";
+                    $affiliates = $show_affiliates.", <a href='#affiliate' id='showmore_affiliates_{$customer[eid]}' title='".$lang->showmore."'>...</a> <br /><span style='display:none;' id='affiliates_{$customer[eid]}'>{$hidden_affiliates}</span>";
                 }
                 else {
                     $affiliates = $show_affiliates;
@@ -115,29 +117,19 @@ if(!$core->input['action']) {
             }
 
             $query3 = $db->query("SELECT title,es.psid FROM ".Tprefix."productsegments p JOIN  ".Tprefix."entitiessegments es  ON (es.psid=p.psid) WHERE es.eid='$customer[eid]' ");
-
             while($segment = $db->fetch_assoc($query3)) {
-                if(!in_array($segment['psid'], $segment_filters_cache)) {
-                    $seg_filter_icon = "<a href='index.php?module=profiles/customerslist&filterby=psid&filtervalue={$segment[psid]}'><img src='./images/icons/search.gif' border='0' alt='{$lang->filterby}'/></a>";
-                }
-                else {
-                    $seg_filter_icon = '';
-                }
-
                 if(++$segments_counter > 2) {
                     $hidden_segments .= "<li>{$segment[title]}{$seg_filter_icon}</li>";
                 }
                 elseif($segments_counter == 2) {
                     $show_segments .= "<li>{$segment[title]}{$seg_filter_icon}";
-                    $segment_filters_cache[] = $segment['psid'];
                 }
                 else {
                     $show_segments .= "<li>{$segment[title]}{$seg_filter_icon}</li>";
-                    $segment_filters_cache[] = $segment['psid'];
                 }
 
                 if($segments_counter > 2) {
-                    $segments = '<ul style="list-style:none; padding:2px;margin-top:0px;">'.$show_segments.", <a href='#segment' id='showmore_segments_{$customer[eid]}'>...</a></li> <span style='display:none;' id='segments_{$customer[eid]}'>{$hidden_segments}</span></ul>";
+                    $segments = '<ul style="list-style:none; padding:2px;margin-top:0px;">'.$show_segments.", <a href='#segment' id='showmore_segments_{$customer[eid]}' title='".$lang->showmore."'>...</a></li> <span style='display:none;' id='segments_{$customer[eid]}'>{$hidden_segments}</span></ul>";
                 }
                 else {
                     $segments = '<ul style="list-style:none; padding:2px;margin-top:0px;">'.$show_segments.'</ul>';

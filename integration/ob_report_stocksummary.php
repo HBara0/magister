@@ -7,7 +7,7 @@
  * Created:        @zaher.reda    Sep 2, 2013 | 1:04:11 PM
  * Last Update:    @zaher.reda    Sep 2, 2013 | 1:04:11 PM
  */
-
+exit;
 require '../inc/init.php';
 
 define('AUTHCODE', 'X1iIMm7pG06ip6o95HEa');

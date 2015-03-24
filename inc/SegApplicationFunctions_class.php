@@ -13,30 +13,36 @@
  *
  * @author tony.assaad
  */
-class SegApplicationFunctions {
-    private $segapplicationfunction = array();
+class SegApplicationFunctions extends AbstractClass {
+    protected $data = array();
+    protected $errorcode = 0;
 
-    public function __construct($id, $simple = true) {
-        if(isset($id)) {
-            $this->read($id, $simple);
-        }
+    const PRIMARY_KEY = 'safid';
+    const TABLE_NAME = 'segapplicationfunctions';
+    const DISPLAY_NAME = '';
+    const SIMPLEQ_ATTRS = '*';
+    const CLASSNAME = __CLASS__;
+    const UNIQUE_ATTRS = 'cfid,psaid';
+
+    public function __construct($id = '', $simple = true) {
+        parent::__construct($id, $simple);
     }
 
-    private function read($id, $simple) {
-        global $db;
-        $query_select = '*';
-        if($simple == true) {
-            $query_select = 'safid, cfid, psaid';
-        }
-        $this->segapplicationfunction = $db->fetch_assoc($db->query('SELECT '.$query_select.' FROM '.Tprefix.'segapplicationfunctions WHERE safid='.intval($id)));
-    }
+//    private function read($id, $simple) {
+//        global $db;
+//        $query_select = '*';
+//        if($simple == true) {
+//            $query_select = 'safid, cfid, psaid';
+//        }
+//        $this->segapplicationfunction = $db->fetch_assoc($db->query('SELECT '.$query_select.' FROM '.Tprefix.'segapplicationfunctions WHERE safid='.intval($id)));
+//    }
 
     public function get_function() {
-        return new ChemicalFunctions($this->segapplicationfunction['cfid']);
+        return new ChemicalFunctions($this->data['cfid']);
     }
 
     public function get_application() {
-        return new SegmentApplications($this->segapplicationfunction['psaid']);
+        return new SegmentApplications($this->data['psaid']);
     }
 
     public static function get_segmentsapplicationsfunctions(array $filters = array('filterwhere', 'hasitemperlist'), array $configs = array()) {
@@ -78,23 +84,44 @@ class SegApplicationFunctions {
         return $this->get_application()->get_segment();
     }
 
+    public function get_description() {
+        return $this->data['description'];
+    }
+
     public function get_createdby() {
-        return new Users($this->segapplicationfunction['createdBy']);
+        return new Users($this->data['createdBy']);
     }
 
     public function get_modifiedby() {
-        return new Users($this->segapplicationfunction['modifiedBy']);
+        return new Users($this->data['modifiedBy']);
     }
 
     public function __get($attr) {
-        if(isset($this->segapplicationfunction[$attr])) {
-            return $this->segapplicationfunction[$attr];
+        if(isset($this->data[$attr])) {
+            return $this->data[$attr];
         }
         return false;
     }
 
     public function get() {
-        return $this->segapplicationfunction;
+        return $this->data;
+    }
+
+    protected function create(array $data) {
+
+    }
+
+    public function update(array $data) {
+        global $db, $core;
+
+        $valid_fields = array('cfid', 'psaid', 'description');
+        foreach($valid_fields as $attr) {
+            $segappfunct[$attr] = $data[$attr];
+        }
+
+        $segappfunct['modifiedBy'] = $core->user['uid'];
+        $segappfunct['modifiedOn'] = TIME_NOW;
+        $db->update_query(self::TABLE_NAME, $segappfunct, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
     }
 
 }

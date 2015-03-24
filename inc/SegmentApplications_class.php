@@ -13,29 +13,22 @@
  *
  * @author tony.assaad
  */
-class SegmentApplications {
-    private $data = array();
+class SegmentApplications extends AbstractClass {
+    protected $data = array();
+    protected $errorcode = 0;
 
     const PRIMARY_KEY = 'psaid';
     const TABLE_NAME = 'segmentapplications';
     const DISPLAY_NAME = 'title';
+    const SIMPLEQ_ATTRS = 'psaid, name, psid, title';
+    const CLASSNAME = __CLASS__;
+    const UNIQUE_ATTRS = 'name,psid';
 
     public function __construct($id = '', $simple = true) {
-        if(isset($id)) {
-            $this->read($id, $simple);
-        }
+        parent::__construct($id, $simple);
     }
 
-    private function read($id, $simple = true) {
-        global $db;
-        $query_select = '*';
-        if($simple == true) {
-            $query_select = 'psaid, name, psid, title';
-        }
-        $this->data = $db->fetch_assoc($db->query('SELECT '.$query_select.' FROM '.Tprefix.self::TABLE_NAME.' WHERE '.self::PRIMARY_KEY.'='.intval($id)));
-    }
-
-    public function create($data = array()) {
+    protected function create(array $data = array()) {
         global $db, $core, $log;
 
         if(is_array($data)) {
@@ -159,46 +152,17 @@ class SegmentApplications {
         return $data->get_objects_byattr($attr, $value);
     }
 
-    public function save(array $data = array()) {
-        if(value_exists(self::TABLE_NAME, self::PRIMARY_KEY, $this->data[self::PRIMARY_KEY])) {
-            //Update
-        }
-        else {
-            if(empty($data)) {
-                $data = $this->data;
-            }
-            $this->create($data);
-        }
-    }
-
-    public function __get($attr) {
-        if(isset($this->data[$attr])) {
-            return $this->data[$attr];
-        }
-        return false;
-    }
-
-    public function __isset($name) {
-        return isset($this->data[$name]);
-    }
-
-    public function get() {
-        return $this->data;
-    }
-
-    public function get_displayname() {
-        return $this->data[self::DISPLAY_NAME];
-    }
-
-    public function set(array $data) {
-        foreach($data as $name => $value) {
-            $this->data[$name] = $value;
-        }
-    }
-
-    public function __set($name, $value) {
-        $this->data[$name] = $value;
-    }
+//    public function save(array $data = array()) {
+//        if(value_exists(self::TABLE_NAME, self::PRIMARY_KEY, $this->data[self::PRIMARY_KEY])) {
+//            //Update
+//        }
+//        else {
+//            if(empty($data)) {
+//                $data = $this->data;
+//            }
+//            $this->create($data);
+//        }
+//    }
 
     public function get_errorcode() {
         if(is_object($this)) {
@@ -207,6 +171,24 @@ class SegmentApplications {
         else {
             return $errorcode;
         }
+    }
+
+    protected function update(array $data) {
+
+    }
+
+    public function get_link() {
+        global $core;
+        return $core->settings['rootdir'].'/index.php?module=profiles/applicationprofile&amp;id='.$this->data[self::PRIMARY_KEY];
+    }
+
+    public function parse_link($attributes_param = array('target' => '_blank')) {
+        if(is_array($attributes_param)) {
+            foreach($attributes_param as $attr => $val) {
+                $attributes .= $attr.'="'.$val.'"';
+            }
+        }
+        return '<a href="'.$this->get_link().'" '.$attributes.'>'.$this->get_displayname().'</a>';
     }
 
 }

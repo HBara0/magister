@@ -13,7 +13,7 @@ if(!defined('DIRECT_ACCESS')) {
 }
 
 if(!($core->input['action'])) {
-    $segment_obs = ProductsSegments::get_segments($filters);
+    $segment_obs = ProductsSegments::get_segments($filters, array('order' => 'title'));
     if(is_array($segment_obs)) {
         foreach($segment_obs as $segment_ob) {
             $segcoord_objs = $segment_ob->get_coordinators();

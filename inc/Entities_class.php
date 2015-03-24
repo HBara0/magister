@@ -672,7 +672,7 @@ class Entities extends AbstractClass {
         if(!empty($id)) {
             $query_select = '*';
             if($simple == true) {
-                $query_select = 'eid, companyName, companyName AS name, companyNameAbbr, companyNameShort, logo, country';
+                $query_select = 'eid, companyName, companyName AS name, companyNameAbbr, companyNameShort, logo, country, type';
             }
             return $db->fetch_assoc($db->query("SELECT ".$query_select." FROM ".Tprefix."entities WHERE eid='".$db->escape_string($id)."'"));
         }

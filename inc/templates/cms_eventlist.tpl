@@ -1,6 +1,6 @@
 <html>
     <head>
-        <title>{$core->settings[systemtitle]} | {$lang->eventlist}</title>
+        <title>{$core->settings[systemtitle]} | {$lang->events}</title>
         {$headerinc}
     </head>
     <body>

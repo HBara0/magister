@@ -47,17 +47,17 @@ if(!$core->input['action']) {
     /* Perform inline filtering - START */
     $userobjs = Users::get_data(array('uid' => $users), array('operators' => array('uid' => 'IN')));
     $filters_config = array(
-            'parse' => array('filters' => array('uid', 'fromDate', 'toDate', 'operation'),
+            'parse' => array('filters' => array('uid', 'time', 'operation'),
                     'overwriteField' => array('uid' => parse_selectlist('filters[uid][]', 1, $userobjs, $core->input['filters']['uid'], 1, '', array('blankstart' => true, 'width' => 250, 'multiplesize' => 3)),
                             'operation' => parse_selectlist('filters[operation]', 4, array('' => '', 'checkin' => $lang->checkin, 'checkout' => $lang->checkout), $core->input['filters']['operation']),
                     ),
-                    'fieldsSequence' => array('uid' => 1, 'fromDate' => 2, 'toDate' => 3, 'operation' => 4)
+                    'fieldsSequence' => array('uid' => 1, 'time' => 2, 'operation' => 3)
             ),
             'process' => array(
-                    'filterKey' => 'uid',
+                    'filterKey' => 'aarid',
                     'mainTable' => array(
                             'name' => 'attendance_attrecords',
-                            'filters' => array('uid' => array('operatorType' => 'multiple', 'name' => 'uid'), 'fromDate' => array('operatorType' => 'date', 'name' => 'time'), 'toDate', 'operation' => array('operatorType' => 'equal', 'name' => 'operation')),
+                            'filters' => array('uid' => array('operatorType' => 'multiple', 'name' => 'uid'), 'time' => array('operatorType' => 'date', 'name' => 'time'), 'operation' => array('operatorType' => 'equal', 'name' => 'operation')),
                     )
             )
     );
@@ -72,13 +72,14 @@ if(!$core->input['action']) {
         if(empty($uid_where)) {
             //  $filter_where = ' WHERE ';
         }
-        print_r($filter_where_values); // intersect with filteruserwehre
-        $filter_where .= $filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
+        // $filter_where .= $filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
+        $filters[$filters_config['process']['filterKey']] = $filter_where_values;
+        $configs['operators'][$filters_config['process']['filterKey']] = 'IN';
         $multipage_filter_where = ' '.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
     }
 
     $filters_row = $filter->prase_filtersrows(array('tags' => 'table', 'display' => $filters_row_display));
- 
+
     $configs['order'] = array('by' => array('time', 'uid'), 'sort' => 'DESC');
     if(isset($core->input['sortby'], $core->input['order'])) {
         $configs['order'] = array('by' => $db->escape_string($core->input['sortby']), 'sort' => $db->escape_string($core->input['order']));
@@ -89,10 +90,12 @@ if(!$core->input['action']) {
     $configs['operators']['uid'] = CUSTOMSQL;
     if(empty($filter_where)) {
         $filter_where = $usersfilter_where;
+        $filters['uid'] = $usersfilter_where;
     }
 
+
     $configs['returnarray'] = true;
-    $records = AttendanceAttRecords::get_data(array('uid' => $filter_where), $configs);
+    $records = AttendanceAttRecords::get_data($filters, $configs);
     if(is_array($records)) {
         foreach($records as $record) {
             $user = $record->get_user();

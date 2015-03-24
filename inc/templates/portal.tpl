@@ -42,15 +42,10 @@
     </div>-->
             <div class="portalbox">
                 <div class="portalbox_header">
-                    {$lang->usefulshortcuts}
+                    {$lang->quickintro}Quick Intro
                 </div>
                 <div>
-                    <ul>
-                        <li><a href='index.php?module=reporting/generatereport'>{$lang->generateqreports}</a></li>
-                        <li><a href='index.php?module=reporting/list'>{$lang->listqreports}</a></li>
-                        <li><a href='index.php?module=crm/fillvisitreport'>{$lang->fillvreport}</a></li>
-                        <li><a href='users.php?action=profile&amp;do=edit'>{$lang->edityourprofile}</a></li>
-                    </ul>
+                    <iframe src="https://docs.google.com/file/d/0B8G025lo12QnZVFVS25iYldzY2s/preview" width="180" height="100"></iframe>
                 </div>
             </div>
         </td>
@@ -60,7 +55,7 @@
                 {$lang->mainmessage}
 
                 <p>
-                    <strong>{$lang->goto}:</strong><br />
+                    <strong>{$lang->featuredmodules}:</strong><br />
                 <div>
                     {$portalicons}
                     <span style="display:inline-block; width: 100px; height:100px; text-align:center; vertical-align:top;">

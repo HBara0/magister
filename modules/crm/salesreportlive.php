@@ -386,15 +386,23 @@ else {
                 if(!is_array(${$array})) {
                     continue;
                 }
-                $salesreport .= '<h3>'.ucwords($array).'</h3><table class="datatable"><tr class="thead">';
+                $salesreport .= '<h3>'.ucwords($array).'</h3><table class="datatable">';
+                $salesreport .= '<thead><tr class="thead">';
+                $tablefilters = '';
                 foreach($cols as $col) {
                     if(!isset($lang->{$col})) {
                         $lang->{$col} = ucwords($col);
                     }
                     $salesreport .= '<th>'.$lang->{$col}.'</th>';
+                    $tablefilters .= '<th><input class="inlinefilterfield" type="text" style="width: 95%;"/></th>';
                 }
                 $salesreport .= '</tr>';
 
+                if($core->input['reporttype'] != 'email') {
+                    $salesreport .= '<tr>'.$tablefilters.'</tr>';
+                }
+                $salesreport .= '</thead>';
+                unset($tablefilters);
                 if(is_array(${$array})) {
                     foreach(${$array} as $iol => $row) {
                         $salesreport .= '<tr>';

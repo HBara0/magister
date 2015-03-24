@@ -13,29 +13,40 @@
  *
  * @author tony.assaad
  */
-class EndProducTypes {
-    private $endproduct = array();
+class EndProducTypes extends AbstractClass {
+    protected $data = array();
 
     const PRIMARY_KEY = 'eptid';
     const TABLE_NAME = 'endproducttypes';
     const DISPLAY_NAME = 'title';
+    const SIMPLEQ_ATTRS = '';
+    const CLASSNAME = __CLASS__;
+    const UNIQUE_ATTRS = null;
 
-    public function __construct($id = '', $simple = false) {
-        if(isset($id)) {
-            $this->read($id, $simple);
-        }
+    public function __construct($id = '', $simple = true) {
+        parent::__construct($id, $simple);
     }
 
-    private function read($id, $simple) {
+    protected function read($id, $simple) {
         global $db;
         $query_select = '*';
         if($simple == true) {
             $query_select = 'eptid, name, title';
         }
-        $this->endproduct = $db->fetch_assoc($db->query('SELECT '.$query_select.' FROM '.Tprefix.'endproducttypes WHERE eptid='.intval($id)));
+        $this->data = $db->fetch_assoc($db->query('SELECT '.$query_select.' FROM '.Tprefix.'endproducttypes WHERE eptid='.intval($id)));
     }
 
-    public function create($data = array()) {
+    public function update(array $data) {
+
+    }
+
+//
+//    protected function create(array $data) {
+//
+////    }
+
+
+    public function create(array $data) {
         global $db, $core, $log;
         if(empty($data['title'])) {
             $this->errorcode = 1;
@@ -64,15 +75,15 @@ class EndProducTypes {
     }
 
     public function get_application() {
-        return new SegmentApplications($this->endproduct['psaid']);
+        return new SegmentApplications($this->data['psaid']);
     }
 
     public function get_createdby() {
-        return new Users($this->endproduct['createdBy']);
+        return new Users($this->data['createdBy']);
     }
 
     public function get_modifiedby() {
-        return new Users($this->endproduct['modifiedBy']);
+        return new Users($this->data['modifiedBy']);
     }
 
     public static function get_producttype_byname($name) {
@@ -112,18 +123,22 @@ class EndProducTypes {
     }
 
     public function __get($name) {
-        if(isset($this->endproduct[$name])) {
-            return $this->endproduct[$name];
+        if(isset($this->data[$name])) {
+            return $this->data[$name];
         }
         return false;
     }
 
     public function get_displayname() {
-        return $this->endproduct[self::DISPLAY_NAME];
+        return $this->data[self::DISPLAY_NAME];
+    }
+
+    public function get_primarykey() {
+        return $this->data[self::PRIMARY_KEY];
     }
 
     public function get() {
-        return $this->endproduct;
+        return $this->data;
     }
 
     public function get_errorcode() {

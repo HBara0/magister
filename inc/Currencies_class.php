@@ -11,12 +11,12 @@
 
 class Currencies extends AbstractClass {
     protected $base_currency = 'USD';
-    protected $data;
+    protected $data = array();
     protected $error_handler = NULL;
 
-    const DISPLAY_NAME = 'name';
     const TABLE_NAME = 'currencies';
     const PRIMARY_KEY = 'numCode';
+    const DISPLAY_NAME = 'alphaCode';
     const SIMPLEQ_ATTRS = 'numCode, alphaCode, name';
     const CLASSNAME = __CLASS__;
 
@@ -50,11 +50,6 @@ class Currencies extends AbstractClass {
 
     public function get_displayname() {
         return $this->data[self::DISPLAY_NAME];
-    }
-
-    protected function read($id) {
-        global $db;
-        $this->data = $db->fetch_assoc($db->query('SELECT * FROM '.Tprefix.'currencies WHERE numCode='.intval($id)));
     }
 
     private function read_byalphacode($id) {

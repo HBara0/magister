@@ -16,6 +16,11 @@ if($core->usergroup['grouppurchase_canUpdateForecast'] == 0) {
 }
 if(!$core->input['action']) {
     $forecast_data = $core->input['forecast'];
+    $uid = $forecast_data['onBehalf'];
+    if($forecast_data['onBehalf'] == 0) {
+        $uid = $core->user['uid'];
+    }
+
     if(empty($forecast_data) || array_search("0", $forecast_data) !== false) {
         redirect('index.php?module=grouppurchase/createforecast');
     }
@@ -80,7 +85,7 @@ if(!$core->input['action']) {
      * Upon opening the forecast page for the 1st time, read data from commercial budgets and parse the rows accordingly */
     else {
         if(isset($budget['bid']) && !empty($budget['bid'])) {
-            $sql = "SELECT businessMgr, pid, psid, saleType, SUM(quantity*s1Perc/100) AS s1quantity, SUM(quantity*s2Perc/100) AS s2quantity FROM budgeting_budgets_lines WHERE businessMgr=".$core->user['uid']." AND bid=".$budget['bid']." AND saletype IN (".implode(', ', array_keys($saletypes)).") GROUP by pid, psid, saleType";
+            $sql = "SELECT businessMgr, pid, psid, saleType, SUM(quantity*s1Perc/100) AS s1quantity, SUM(quantity*s2Perc/100) AS s2quantity FROM budgeting_budgets_lines WHERE businessMgr=".$uid." AND bid=".$budget['bid']." AND saletype IN (".implode(', ', array_keys($saletypes)).") GROUP by pid, psid, saleType";
             $query = $db->query($sql);
             if($db->num_rows($query) > 0) {
                 $fields = array('pid', 'saleType', 's1quantity', 's2quantity');
@@ -113,7 +118,10 @@ if(!$core->input['action']) {
                             case 'pid':
                                 $product = new Products($line['pid']);
                                 $forecastline['pid'] = $line['pid'];
-                                $forecastline['psid'] = $product->get_genericproduct()->get_segment()->psid;
+                                $forecastline['psid'] = $line['psid'];
+                                if(empty($forecastline['psid'])) {
+                                    $forecastline['psid'] = $product->get_genericproduct()->get_segment()->psid;
+                                }
                                 $forecastline['productName'] = $product->name;
                         }
                     }
@@ -132,12 +140,18 @@ if(!$core->input['action']) {
                 }
             }
             else {
+                for($month = 1; $month <= 12; $month++) {
+                    $forecastline['month'.$month] = 0;
+                }
                 $forecastline['inputChecksum'] = generate_checksum('gp');
                 $saletype_selectlist = parse_selectlist("forecastline[".$rowid."][saleType]", "", $saletypes, "");
                 eval("\$forecastlines = \"".$template->get('grouppurchase_fill_forecastlines')."\";");
             }
         }
         else {
+            for($month = 1; $month <= 12; $month++) {
+                $forecastline['month'.$month] = 0;
+            }
             $forecastline['inputChecksum'] = generate_checksum('gp');
             $saletype_selectlist = parse_selectlist("forecastline[".$rowid."][saleType]", "", $saletypes, "");
             eval("\$forecastlines .= \"".$template->get('grouppurchase_fill_forecastlines')."\";");
@@ -156,6 +170,10 @@ else if($core->input['action'] == 'ajaxaddmore_forecastlines') {
     $forecastline['inputChecksum'] = generate_checksum('gp');
     $saletypes = SaleTypes::get_data();
     $saletype_selectlist = parse_selectlist("forecastline[".$rowid."][saleType]", "", $saletypes, "");
+
+    for($month = 1; $month <= 12; $month++) {
+        $forecastline['month'.$month] = 0;
+    }
     eval("\$row = \"".$template->get('grouppurchase_fill_forecastlines')."\";");
     output($row);
 }

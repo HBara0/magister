@@ -102,6 +102,10 @@
                         <td colspan="2">{$lang->defaultlanguage}</td>
                         <td>{$languageslist}</td>
                     </tr>
+                    <!--<tr>
+                        <td colspan="2">{$lang->timezone}</td>
+                        <td>{$timezoneslist}</td>
+                    </tr>-->
                     <tr>
                         <td colspan="2">{$lang->newfilenotification}</td>
                         <td><input type='checkbox' name='newFilesNotification' id='newFilesNotification' value='1'{$checkedboxes[newFilesNotification]}></td>

@@ -41,18 +41,20 @@ if(!$core->input['action']) {
             $function = $function_obj->get();
             $functionsappseg_objs = $function_obj->get_applications();
             if(is_array($functionsappseg_objs)) {
-                foreach($functionsappseg_objs as $functionsappseg_obj) {
+                foreach($functionsappseg_objs as $safid => $functionsappseg_obj) {
                     $functions_applications = $functionsappseg_obj->get();
                     if(empty($functions_applications)) {
                         $functions_application = $lang->na;
                     }
-                    $functions_application .= $functions_applications['title'].' - '.$functionsappseg_obj->get_segment()->get()['title'].'</br>';
+                    if(is_array($functions_applications)) {
+                        $functions_application .= $functions_applications['title'].' - '.$functionsappseg_obj->get_segment()->get()['title'];
+                        $functions_application.= ' <a href="#'.$safid.'" id="segapdescription_'.$safid.'_products/functions_loadpopupbyid" title="'.$lang->description.'"><img src="'.$core->settings[rootdir].'/images/icons/report.gif" border="0"></a><br>';
+                    }
                 }
             }
             else {
                 $functions_application = $lang->na;
             }
-
             eval("\$productsapplicationsfunctions_list .= \"".$template->get('admin_products_functions_row')."\";");
             $functions_application = '';
         }
@@ -66,7 +68,7 @@ if(!$core->input['action']) {
 }
 elseif($core->input['action'] == 'do_create') {
     $function_obj = new ChemicalFunctions();
-    $function_obj->create($core->input['chemicalfunctions']);
+    $function_obj->save($core->input['chemicalfunctions']);
     switch($function_obj->get_errorcode()) {
         case 0:
             output_xml('<status>true</status><message>'.$lang->successfullysaved.'</message>');
@@ -78,5 +80,28 @@ elseif($core->input['action'] == 'do_create') {
             output_xml('<status>false</status><message>'.$lang->entryexist.'</message>');
             break;
     }
+}
+elseif($core->input['action'] == 'save_descr') {
+    $segapfunct_obj = new SegApplicationFunctions($core->input['segfuncapp']);
+    $fields = array('cfid' => $segapfunct_obj->cfid, 'psaid' => $segapfunct_obj->psaid, 'description' => $core->input['segapdescription']);
+    $segapfunct_obj->save($fields);
+    switch($segapfunct_obj->get_errorcode()) {
+        case 0:
+            output_xml('<status>true</status><message>'.$lang->successfullysaved.'</message>');
+            break;
+        case 1:
+            output_xml('<status>false</status><message>'.$lang->fillallrequiredfields.'</message>');
+            break;
+        case 2:
+            output_xml('<status>false</status><message>'.$lang->entryexist.'</message>');
+            break;
+    }
+}
+elseif($core->input['action'] == 'get_segapdescription') {
+    $segapfunct_obj = new SegApplicationFunctions($core->input['id']);
+    $safid = $segapfunct_obj->safid;
+    $segapdescriptions = $segapfunct_obj->get_description();
+    eval("\$popup_applicationdescription = \"".$template->get('admin_products_popup_applicationdescription')."\";");
+    output($popup_applicationdescription);
 }
 ?>

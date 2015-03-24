@@ -30,7 +30,7 @@ class ChemicalFunctions {
         global $db;
         $query_select = '*';
         if($simple == true) {
-            $query_select = 'cfid, name, title';
+            $query_select = 'cfid, name, title,description';
         }
         $this->chemfunction = $db->fetch_assoc($db->query('SELECT '.$query_select.' FROM '.Tprefix.'chemicalfunctions WHERE cfid='.intval($id)));
     }
@@ -57,6 +57,7 @@ class ChemicalFunctions {
             $chemicalfunctions_data = array(
                     'name' => $data['name'],
                     'title' => $data['title'],
+                    'description' => $data['description'],
                     'createdBy' => $core->user['uid'],
                     'createdOn' => TIME_NOW
             );
@@ -65,7 +66,7 @@ class ChemicalFunctions {
                 $this->chemfunction[self::PRIMARY_KEY] = $data['cfid'] = $db->last_id();
                 if(!empty($data['segapplications']) && isset($data['segapplications'])) {
                     foreach($data['segapplications'] as $psaid) {
-                        $segappfuncquery = $db->insert_query('segapplicationfunctions', array('cfid' => $data['cfid'], 'psaid' => $psaid, 'createdBy' => $core->user['uid'], 'createdOn' => TIME_NOW));
+                        $segappfuncquery = $db->insert_query('segapplicationfunctions', array('cfid' => $data['cfid'], 'psaid' => $psaid, 'description' => $data['description'], 'createdBy' => $core->user['uid'], 'createdOn' => TIME_NOW));
                         if($segappfuncquery) {
                             $data['safid'] = $db->last_id();
                         }
@@ -131,6 +132,20 @@ class ChemicalFunctions {
                 $applications[$application['safid']] = new SegmentApplications($application['psaid']);
             }
             return $applications;
+        }
+        else {
+            return false;
+        }
+    }
+
+    public function get_segmentapplicationfunction() {
+        global $db;
+        $query = $db->query('SELECT safid FROM '.Tprefix.'segapplicationfunctions WHERE cfid='.$this->chemfunction['cfid']);
+        if($db->num_rows($query) > 0) {
+            while($applicationfunction = $db->fetch_assoc($query)) {
+                $applicationfunctions[$applicationfunction['safid']] = new SegApplicationFunctions($applicationfunction['safid']);
+            }
+            return $applicationfunctions;
         }
         else {
             return false;

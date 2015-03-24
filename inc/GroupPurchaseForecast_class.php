@@ -78,7 +78,12 @@ class GroupPurchaseForecast extends AbstractClass {
                 $forecastdata['year'] = $data['year'];
                 $forecastdata['spid'] = $data['spid'];
                 $forecastdata['modifiedOn'] = TIME_NOW;
-                $forecastdata['modifiedBy'] = $core->user['uid'];
+                if($data['uid'] != 0) {
+                    $forecastdata['modifiedBy'] = $data['uid'];
+                }
+                else {
+                    $forecastdata['modifiedBy'] = $core->user['uid'];
+                }
                 $query = $db->update_query(self::TABLE_NAME, $forecastdata, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
                 if(!query) {
                     $this->errorcode = 601;

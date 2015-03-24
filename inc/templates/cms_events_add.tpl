@@ -13,10 +13,11 @@
         <td class="contentContainer">
             <h1>{$lang->manageevents}</h1>
             <div>
-                <form name="perform_cms/manageevents_Form" id="perform_cms/manageevents_Form" action="#" method="post">
+                <iframe id='uploadFrame' name='uploadFrame' src='#'></iframe>
+                <form method="post" enctype="multipart/form-data" action="index.php?module=cms/manageevents&amp;action=do_perform_manageevents" target="uploadFrame">
                     <div style="display:block;">
                         <div style="display: inline-block;width:10%">{$lang->title}</div>
-                        <div style="display: inline-block;padding:5px;"><input name="event[title]" type="text" value="{$event[title]}" required="required" size="30"></div>
+                        <div style="display: inline-block;padding:5px;"><input name="event[title]" type="text" value="{$event[title]}" required="required" size="30"><input type='hidden' name='event[alias]' value="{$event[alias]}"></div>
                     </div>
 
                     <div style="display:block;">
@@ -30,6 +31,8 @@
 
         <!--   <input type="time" name="event[fromTime]" pattern="(20|21|22|23|[01]\d|\d)(([:][0-5]\d){1,2})" placeholder="{$current_date[hours]}:{$current_date[minutes]}" required="required">-->
                         </div>
+                        <div style="display:inline-block;width:10%">{$lang->fromtime}</div>
+                        <input type="time" name="event[fromTime]" value="{$event[fromTime_output]}"pattern="(20|21|22|23|[01]\d|\d)(([:][0-5]\d){1,2})" placeholder="{$current_date[hours]}:{$current_date[minutes]}">
                     </div>
                     <div>
                         <div style="width:10%; display:inline-block;">{$lang->todate}</div>
@@ -38,21 +41,28 @@
 
                      <!-- <input type="time" name="event[toTime]" pattern="(20|21|22|23|[01]\d|\d)(([:][0-5]\d){1,2})" placeholder="{$current_date[hours]}:{$current_date[minutes]}" required="required">-->
                         </div>
+                        <div style="display:inline-block;width:10%">{$lang->totime}</div>
+                        <input type="time" name="event[toTime]" value="{$event['toTime_output']}" pattern="(20|21|22|23|[01]\d|\d)(([:][0-5]\d){1,2})" placeholder="{$current_date[hours]}:{$current_date[minutes]}">
                     </div>
                     <div style="display:block;">
                         <div style="display:inline-block;width:10%">{$lang->location}</div>
                         <div style="display:inline-block;padding:5px;"><input name="event[place]" type="text" value="{$event[place]}" size="30"></div>
                     </div>
+                    <div>
+                        <input name="event[isPublic]" type='checkbox' value='1' checked='checked' style="display:none">
+                    </div>
+                    <div style="display:block;">
+                        <div style="display: inline-block;width:10%">{$lang->featureevents}</div>
+                        <div style="display: inline-block; padding:10px;"><input name="event[isFeatured]" type="checkbox" value="1" {$checkedbox[isFeatured]}></div>
+                    </div>
                     <div style="display:block;" class="thead">{$lang->description}</div>
                     <div style="display:block;"><textarea name="event[description]" cols="100"rows="6" class="texteditor">{$event[description]}</textarea></div>
-
-                    {$ispublic_checkbox}
-                    {$restriction_selectlist}
-                    {$notifyevent_checkbox}
+                        {$restriction_selectlist}
+                        {$notifyevent_checkbox}
 
                     <div style="display:block;padding-top:5px;">
                         <div style="width:15%; display:inline-block;">{$lang->publishonwebsite}</div>
-                        <div style="width:70%; display:inline-block;"><input name="event[publishOnWebsite]" type="checkbox" value="1" {$checkbox_checked['publishOnWebsite']}/></div>
+                        <div style="width:70%; display:inline-block;"><input name="event[publishOnWebsite]" type="checkbox" value="1" checked='checked'/></div>
                     </div>
 
                     <div style="display:block;padding-top:10px;width:100%;" class="thead">{$lang->inviteemployees}</div>
@@ -82,14 +92,14 @@
                         <div style="display:block;" class="thead">{$lang->attacheventlogo}</div>
                         <div style="display:block;">
                             <fieldset class="altrow2" style="border:1px solid #DDDDDD">
-                                <input type="file" id="attachments" name="event[attachments][]" multiple="true"></fieldset>
+                                <input type="file" id="attachments" name="event[logo][]" multiple="true"></fieldset>
                         </div>
 
                     </div>
 
                     <div style="display:block;padding-top:10px;">
                         <div style="display:inline-block;">
-                            <input type="submit" id="perform_cms/manageevents_Button" value="{$lang->savecaps}" class="button" onclick="$('#upload_Result').show()"/>
+                            <input type="submit" value="{$lang->savecaps}" class="button" onclick="$('#upload_Result').show()"/>
                             <input type="reset" class="button" value="{$lang->reset}"/>
                         </div>
                     </div>

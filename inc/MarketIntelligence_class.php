@@ -225,6 +225,7 @@ class MarketIntelligence {
         $altrow_class = alt_row($altrow_class);
         foreach($round_fields as $round_field) {
             if($data[$round_field] < 1) {
+                $data[$round_field] = round($data[$round_field], 3);
                 continue;
             }
             $data[$round_field] = round($data[$round_field]);

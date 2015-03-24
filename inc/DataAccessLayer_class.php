@@ -18,6 +18,7 @@ class DataAccessLayer {
     private $table_name = null;
     private $class = null;
     private $data = array();
+    public $num_rows = 0;
 
     public function __construct($class, $table, $primary_key) {
         $this->table_name = $table;
@@ -40,8 +41,8 @@ class DataAccessLayer {
         $sql .= $this->construct_limitclause($configs['limit']);
         //  echo $sql.'<br>';
         $query = $db->query($sql);
-        $numrows = $db->num_rows($query);
-        if($numrows > 1) {
+        $this->numrows = $db->num_rows($query);
+        if($this->numrows > 1) {
             while($item = $db->fetch_assoc($query)) {
                 $items[$item[$this->primary_key]] = new $this->class($item[$this->primary_key], $configs['simple']);
             }
@@ -49,11 +50,11 @@ class DataAccessLayer {
             return $items;
         }
         else {
-            if($numrows == 1 && $configs['returnarray'] == true) {
+            if($this->numrows == 1 && $configs['returnarray'] == true) {
                 $pk = $db->fetch_field($query, $this->primary_key);
                 return array($pk => new $this->class($pk, $configs['simple']));
             }
-            elseif($numrows == 1) {
+            elseif($this->numrows == 1) {
                 return new $this->class($db->fetch_field($query, $this->primary_key), $configs['simple']);
             }
             return false;

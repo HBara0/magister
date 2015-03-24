@@ -43,7 +43,7 @@ if(!$core->input['action']) {
     $chemicals_obj = ChemicalFunctions::get_functions();
     if(is_array($chemicals_obj)) {
         /* for best preformance loop over the returned ChemicalFunctions objects and get their related data */
-        $checmicalfunctions_list = '<option value="" selected="selected" > </option>';
+        $checmicalfunctions_list = '<option value="" selected="selected"> </option>';
         foreach($chemicals_obj as $chemical_obj) {
             $chemical = $chemical_obj->get();
             $checmicalfunctions_list .= '<option value='.$chemical['cfid'].'>'.$chemical['title'].'</option>';
@@ -57,7 +57,7 @@ if(!$core->input['action']) {
 else {
     if($core->input['action'] == 'do_create') {
         $segmentapplications_obj = new SegmentApplications();
-        $segmentapplications_obj->create($core->input['segmentapplications']);
+        $segmentapplications_obj->save($core->input['segmentapplications']);
         switch($segmentapplications_obj->get_errorcode()) {
             case 0:
                 output_xml('<status>true</status><message>'.$lang->successfullysaved.'</message>');

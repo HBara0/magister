@@ -234,9 +234,10 @@ class Uploader {
         if(empty($connection)) {
             $connection = $this->ftpconnection;
         }
-
-        if(ftp_close($connection) === TRUE) {
-            return true;
+        if(is_object($connection)) {
+            if(ftp_close($connection) === TRUE) {
+                return true;
+            }
         }
         return false;
     }

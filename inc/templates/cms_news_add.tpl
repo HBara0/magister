@@ -3,7 +3,7 @@
         <title>{$core->settings[systemtitle]} | {$lang->modifysitesettings}</title>
         {$headerinc}
         <script type="text/javascript">
-            $(document).ready(function() {
+            $(document).ready(function () {
                 $('.texteditor').redactor({imageUpload: rootdir + '/index.php?module=cms/managenews&action=do_uploadtmpimage', imageUploadCallback: function(obj, json) { $('#uploadedImages').val(json.filelink + ';' + $('#uploadedImages').val());} });
             });
         </script>
@@ -20,11 +20,7 @@
                     <input type="hidden" value="do_{$actiontype}news" name="action" id="action" />
                     <div style="display:block;">
                         <div style="display: inline-block;width:10%">{$lang->newstitle}</div>
-                        <div style="display: inline-block; padding:10px;"><input name="news[title]" type="text" value="{$news[title]}" required="required" size="30"></div>
-                    </div>
-                    <div style="display:block;">
-                        <div style="display:inline-block;width:10%">{$lang->alias}</div>
-                        <div style="display: inline-block; padding:10px;"><input name="news[alias]" type="text" value="{$news[alias]}" required="required"  size="30"></div>
+                        <div style="display: inline-block; padding:10px;"><input name="news[title]" type="text" value="{$news[title]}" required="required" size="30"><input name="news[alias]" type="hidden" value="{$news[alias]}" size="30"></div>
                     </div>
                     <div style="display:block;">
                         <div style="display:inline-block;width:10%">{$lang->tags}</div>

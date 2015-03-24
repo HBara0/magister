@@ -115,7 +115,8 @@ class Sessions {
         $this->authenticate_cookie();
 
         $session_data = array(
-                'uid' => $this->uid
+                'uid' => $this->uid,
+                'time' => TIME_NOW
         );
 
         $session_information = $db->fetch_assoc($db->query("SELECT uid, time, ip FROM ".Tprefix."sessions WHERE sid='".$this->sid."' ORDER BY time DESC LIMIT 0,1"));
