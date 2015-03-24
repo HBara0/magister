@@ -26,6 +26,10 @@
                     <div style="display:inline-block;padding:8px; margin-left:20px;"><select name="forecast[year]" title="year" id="year">{$gp_year}</select></div>
                     <div id="years_Loading" style="display:inline-block;padding:8px;"></div>
                 </div>
+                <div>
+                    <div style="display:inline-block;padding:8px;">{$lang->onbehalf}</div>
+                    <div style="display:inline-block;padding:8px; margin-left:20px;"><select style="width:150px" name="forecast[onBehalf]" title="year" id="">{$gp_onbehalf}</select></div>
+                </div>
                 <!--  <div  id="buttons_row" style=" display: none;clear:left;"><input type="submit" value="Proceed" class="button"  /></div>-->
                 <div>
                     <hr />

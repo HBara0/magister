@@ -3,18 +3,18 @@
         <title>{$core->settings[systemtitle]} | {$lang->quantitiesforecast}</title>
         {$headerinc}
         <script type="text/javascript">
-            $(function() {
-                $("input[id^='forecastline_']").live('change keyup live', function() {
+            $(function () {
+                $("input[id^='forecastline_']").live('change keyup live', function () {
                     var id = $(this).attr('id').split("_");
                     var total = 0;
                     var monthtotal = 0;
-                    $('input[id^=forecastline_' + id[1] + '_month]').each(function() {
+                    $('input[id^=forecastline_' + id[1] + '_month]').each(function () {
                         if(!jQuery.isEmptyObject(this.value)) {
                             total += parseFloat(this.value);
                         }
                     });
                     $('span[id=total_' + id[1] + ']').text(total.toFixed(2));
-                    $('input[id^=forecastline_][id$=_month_' + id[3] + ']').each(function() {
+                    $('input[id^=forecastline_][id$=_month_' + id[3] + ']').each(function () {
                         if(!jQuery.isEmptyObject(this.value)) {
                             monthtotal += parseFloat(this.value);
                         }
@@ -34,6 +34,7 @@
                 <input type="hidden" id='spid' name="spid" value="{$forecast_data[spid]}"/>
                 <input type="hidden" id='affid' name="affid" value="{$forecast_data[affid]}"/>
                 <input type="hidden" id='year' name="year" value="{$forecast_data[year]}"/>
+                <input type="hidden" id='uid' name="uid" value="{$uid}"/>
                 <table width="100%" border="0" cellspacing="0" cellpadding="2">
                     <thead>
                         <tr>

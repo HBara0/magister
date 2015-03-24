@@ -79,19 +79,17 @@ class Events extends AbstractClass {
 
     protected function update(array $data) {
         global $db, $core;
-        $fields = array('title', 'description', 'place', 'type', 'isPublic', 'publishOnWebsite', 'isFeatured', 'fromTime', 'toTime');
+        $fields = array('title', 'description', 'place', 'type', 'isPublic', 'publishOnWebsite', 'isFeatured');
         foreach($fields as $field) {
             $event_data[$field] = $data[$field];
         }
         $event_data['description'] = ucfirst(strtolower($event_data['description']));
-        $event_data['fromDate'] = strtotime($data['fromDate']);
-        $event_data['toDate'] = strtotime($data['toDate']);
+        $event_data['fromDate'] = strtotime($data['fromDate'].' '.$data['fromTime']);
+        $event_data['toDate'] = strtotime($data['toDate'].' '.$data['toTime']);
         $event_data['editedOn'] = TIME_NOW;
         $event_data['editedBy'] = $core->user['uid'];
         $event_data['isFeatured'] = $date['isFeatured'];
         $event_data['isPublic'] = $data['isPublic'];
-        $event_date['fromTime'] = $data['fromTime'];
-        $event_date['toTime'] = $data['toTime'];
         unset($event_data['restrictto']);
         //'affid' => $core->input['event']['affid'],
         //'spid' => $core->input['event']['spid'],

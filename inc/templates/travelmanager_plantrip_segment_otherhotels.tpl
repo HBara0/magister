@@ -6,8 +6,8 @@
         <span> <a style="cursor: pointer;"  rel="{$destcity[ciid]}" id="addnewhotel_{$sequence}_travelmanager/plantrip_loadpopupbyid"><img src="images/addnew.png"  title="{$lang->addotherhotel}" alt="Add" border="0">{$lang->addhotel}</a> </span>
         <br/>
         <div style="display:inline-block;padding:5px;width:15%;">{$lang->pricenight}</div>
-        <div style="display:inline-block;padding:5px;width:20%;"><input  id="pricenight_segacc_{$approved_hotels[tmhid]}_{$sequence}" accept="numeric" name="segment[{$sequence}][tmhid][{$otherhotel_checksum}][priceNight]" type="text" value="{$selectedhotel[$segid][$approved_hotels[tmhid]][priceNight]}"> </div>
-        <div style="display:inline-block;padding:5px;width:20%; ">{$lang->numnight}</div>
+        <div style="display:inline-block;padding:5px;width:100px;"><input  style="width:100px"id="pricenight_segacc_{$approved_hotels[tmhid]}_{$sequence}" accept="numeric" name="segment[{$sequence}][tmhid][{$otherhotel_checksum}][priceNight]" type="text" value="{$selectedhotel[$segid][$approved_hotels[tmhid]][priceNight]}"> </div>
+        <div style="display:inline-block;padding:5px;width:150px; ">{$lang->numnight}</div>
         <div style="display:inline-block;padding:5px;width:15%;"> <input  size="10" id="numnight_segacc_{$approved_hotels[tmhid]}_{$sequence}" accept="numeric" name="segment[{$sequence}][tmhid][{$otherhotel_checksum}][numNights]" type="text" value="{$selectedhotel[$segid][$approved_hotels[tmhid]][numNights]}"> </div>
         <div style="display:inline-block;padding:2px;  font-weight: bold; width:15%;" id="total_segacc_{$approved_hotels[tmhid]}_{$sequence}" ><span>Sub Total: {$selectedhotel[$segid][$approved_hotels[tmhid]][total]} </span></div>
         <div style="display:inline-block;padding:5px;width:15%;">{$lang->currency}</div> <div style="display:inline-block;padding:5px;width:20%;">{$currencies_list}</div>

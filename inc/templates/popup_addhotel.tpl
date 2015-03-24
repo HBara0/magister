@@ -21,9 +21,14 @@
             </tr>
             <tr><td>   <div style="display:inline-block;padding:5px;width:15%;">{$lang->address}</div></td><td><div style="display:inline-block;padding:5px;width:20%;"><input name="otherhotel[addressLine1]" type="textarea">{$selectedhotel[$segid][$approved_hotels[tmhid]][address]}</div>
                 </td></tr>
-            <tr><td>
-                    <div style="display:inline-block;padding:5px;width:15%;">{$lang->phone}</div></td><td><div style="display:inline-block;padding:5px;width:20%;"><input name="otherhotel[phone]"  type="number">{$selectedhotel[$segid][$approved_hotels[tmhid]][phone]}</div>
-                </td></tr>
+            <tr>
+                <td>
+                    <div style="display:inline-block;padding:5px;width:15%;">{$lang->phone}</div>
+                </td>
+                <td>
+                    <div style="display:inline-block;padding:5px;width:40%;">  <input type="text" id="telephone_intcode" name="telephone_intcode" size="3" maxlength="3" accept="numeric"  tabindex="17"/> <input type="text" id="telephone_areacode" name="telephone_areacode" size='4' maxlength="4" accept="numeric" value="{$telephone[1][areacode]}" tabindex="18"/> <input type="text" id="telephone_number" name="telephone_number" accept="numeric" value="{$telephone[1][number]}" tabindex="19" /><br />
+                </td>
+            </tr>
             <tr>
                 <td colspan="2" align="left">
                     <hr />
