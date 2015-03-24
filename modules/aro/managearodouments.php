@@ -72,6 +72,7 @@ if(!($core->input['action'])) {
         eval("\$aroproductlines_rows = \"".$template->get('aro_productlines_row')."\";");
 //
         $aprowid = 0;
+        $csrowid = 0;
 
         //Net Margin Parameters
         $netmarginparms_uomlist = parse_selectlist('parmsfornetmargin[uom]', '', $uom, '', '', '', array('id' => "parmsfornetmargin_uom", 'blankstart' => 1, 'width' => '70px'));
@@ -212,8 +213,29 @@ if(!($core->input['action'])) {
                 }
             }
             //*********Aro Actual Purchase-End *********//
+          //********Current Stock -Start *********//
+               $arocurrentstock= AroRequestsCurStkSupervision::get_data(array('aorid' => $aroorderrequest->aorid), array('returnarray' => true, 'order' => array('by' => 'inputChecksum', 'sort' => 'ASC')));
+               $csrowid = 0;
+            if(is_array($arocurrentstock)) {
+                foreach($arocurrentstock as $arocurrentstockrow) {
+                    $csrowid++;
+                    $products = new Products($arocurrentstockrow->pid);
+                    $arocurrentstockrow->productName = $products->get_displayname();
+                    $arocurrentstockrow->dateOfStockEntry_output = date($core->settings['dateformat'], $arocurrentstockrow->dateOfStockEntry);
+                    $arocurrentstockrow->estDateOfSale_output = date($core->settings['dateformat'], $arocurrentstockrow->estDateOfSale);
+                    $packing = new Packaging($arocurrentstockrow->packing);
+                    $arocurrentstockrow->packingTitle = $packing->get_displayname();
+                    eval("\$currentstock_rows .= \"".$template->get('aro_currentstock_row')."\";");
+                }
+            }
+            //*********Current Stock -End *********//
+            //*********Total Funds Engaged -Start *********//
+            $totalfunds=  AroRequestsFundsEngaged::get_data(array('aorid'=>$aroorderrequest->aorid));
+//            if(is_object($totalfunds)){
+//                
+//            }
+            //*********Total Funds Engaged -End   *********//
             //*********Aro Audit Trail -Start *********//
-
             $aroorderrequest->createdOn_output = date($core->settings['dateformat'], $aroorderrequest->createdOn);
             $aroorderrequest->modifiedOn_output = date($core->settings['dateformat'], $aroorderrequest->modifiedOn);
             $createdby_username = new Users($aroorderrequest->createdBy);
@@ -283,6 +305,57 @@ if(!($core->input['action'])) {
             eval("\$partiesinfo_shipmentparameters = \"".$template->get('aro_partiesinfo_shipmentparameters')."\";");
             eval("\$partiesinfo_fees = \"".$template->get('aro_partiesinfo_fees')."\";");
             //*********Aro Parties Information-End *********//
+            $aroapprovalchain=  AroRequestsApprovals::get_data(array('aorid'=>$aroorderrequest->aorid),array('returnarray'=>true,'simple'=>false,'order'=>array('by'=>'timeApproved','sort'=>'ASC')));
+            if(is_array($aroapprovalchain)){
+                foreach($aroapprovalchain as $approver){
+                    switch($approver->position)
+                    {
+                        case 'businessManager':
+                            $approver->position='Local Business Manager';
+                            break;
+                        case 'lolm':
+                            $approver->position='Local Logistics Manager';
+                            break;
+                        case 'lfinancialManager':
+                            $approver->position='Local Finance Manager';
+                            break;
+                        case 'generalManager':
+                            $approver->position='General Manager';
+                            break;
+                        case 'gfinancialManager':
+                            $approver->position='Global Finance Manager';
+                            break;
+                        case 'cfo':
+                            $approver->position='Global CFO';
+                            break;
+                        case 'coo':
+                            $approver->position='Global COO';
+                            break;
+                        case 'regionalSupervisor':
+                            $approver->position='Regional supervisor';
+                            break;
+                        case 'globalPurchaseManager':
+                            $approver->position='Global purchase manager';
+                            break;
+                        case 'user':
+                            $approver->position='User';
+                            break;
+                    }
+                    $dateofapproval='-';
+                            $user=new Users($approver->uid);
+                             if(is_object($user)){
+                                $username=$user->get_displayname();
+                            }                    if($approver->isApproved==1){
+                            $class='greenbackground';
+                       
+                         $dateofapproval=date($core->settings['dateformat'],$approver->timeApproved);
+                     }
+                     eval("\$apprs .= \"".$template->get('aro_approvalchain_approver')."\";");
+                     unset($class);
+                 }
+            }
+            
+            
         }
         else {
             redirect($_SERVER['HTTP_REFERER'], 2, $lang->nomatchfound);
@@ -291,11 +364,14 @@ if(!($core->input['action'])) {
     eval("\$aro_productlines = \"".$template->get('aro_fillproductlines')."\";");
     eval("\$aro_managedocuments_orderident= \"".$template->get('aro_managedocuments_orderidentification')."\";");
     eval("\$aro_ordercustomers= \"".$template->get('aro_managedocuments_ordercustomers')."\";");
+    eval("\$partiesinformation = \"".$template->get('aro_partiesinformation')."\";");
 
     eval("\$aro_netmarginparms= \"".$template->get('aro_netmarginparameters')."\";");
     eval("\$actualpurchase = \"".$template->get('aro_actualpurchase')."\";");
-    eval("\$partiesinformation = \"".$template->get('aro_partiesinformation')."\";");
+    eval("\$currentstock = \"".$template->get('aro_currentstock')."\";");
     eval("\$orderummary = \"".$template->get('aro_ordersummary')."\";");
+    eval("\$totalfunds = \"".$template->get('aro_totalfunds')."\";");
+    eval("\$approvalchain= \"".$template->get('aro_approvalchain')."\";");
 
     eval("\$aro_managedocuments= \"".$template->get('aro_managedocuments')."\";");
     output_page($aro_managedocuments);
@@ -598,7 +674,8 @@ else {
                 $YearDays = 365;
                 $total_intermedfees_usd = $totalfees * $core->input['exchangeRateToUSD'];
                 $intermedmargin = (($localinvoicevalue_usd - $invoicevalueintermed_usd - $total_intermedfees_usd ) - ($invoicevalueintermed_usd + $total_intermedfees_usd) * ($core->input['InterBR'] / $YearDays * $core->input['POIintermed']));
-                $intermedmargin_perc = $intermedmargin / $invoicevalueintermed_usd + $total_intermedfees * $core->input['exchangeRateToUSD'];
+               if($invoicevalueintermed_usd !=0){
+               $intermedmargin_perc = $intermedmargin / $invoicevalueintermed_usd + $total_intermedfees * $core->input['exchangeRateToUSD'];}
             }
         }
         if($purchaseype->isPurchasedByEndUser == 1) {
@@ -635,7 +712,7 @@ else {
         $interestvalue_data = array('parmsfornetmargin_interestvalue' => $interestvalue);
         echo json_encode($interestvalue_data);
     }
-    if($core->input['action']=='popultedefaultaffpolicy'){
+    if($core->input['action'] == 'popultedefaultaffpolicy'){
           if($core->input['affid'] != ' ' && !empty($core->input['affid']) && !empty($core->input['ptid']) && $core->input['ptid'] != ' ') {
             $filter = 'affid = '.$core->input['affid'].' AND purchaseType = '.$core->input['ptid'].' AND isActive = 1 AND ('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
             $affpolicy = AroPolicies::get_data($filter);
@@ -650,5 +727,109 @@ else {
             );
         }
         echo json_encode($defaultaffpolicy);
+    }
+    if($core->input['action'] == 'generateapprovalchain'){
+
+        if(isset($core->input['affid']) && !empty($core->input['affid']) && isset($core->input['ptid']) && !empty($core->input['ptid'])){
+           $data['affid']=$core->input['affid'];
+           $data['orderType']=$core->input['ptid'];
+           $arorequest=new AroRequests();
+           $arorequest->set($data);
+           $aroapprovalchain=$arorequest->generate_approvalchain();
+            //$filter = 'affid = '.$core->input['affid'].' AND purchaseType = '.$core->input['ptid'].' AND ('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
+           // $approvalchain=  AroApprovalChainPolicies::get_data($filter);
+          eval("\$apprs .= \"".$template->get('aro_approvalchain_approver')."\";");
+
+          
+            if(is_array($aroapprovalchain)){
+                foreach($aroapprovalchain as $approver){
+                    switch($approver->position)
+                    {
+                        case 'businessManager':
+                            $approver->position='Local Business Manager';
+                            break;
+                        case 'lolm':
+                            $approver->position='Local Logistics Manager';
+                            break;
+                        case 'lfinancialManager':
+                            $approver->position='Local Finance Manager';
+                            break;
+                        case 'generalManager':
+                            $approver->position='General Manager';
+                            break;
+                        case 'gfinancialManager':
+                            $approver->position='Global Finance Manager';
+                            break;
+                        case 'cfo':
+                            $approver->position='Global CFO';
+                            break;
+                        case 'coo':
+                            $approver->position='Global COO';
+                            break;
+                        case 'regionalSupervisor':
+                            $approver->position='Regional supervisor';
+                            break;
+                        case 'globalPurchaseManager':
+                            $approver->position='Global purchase manager';
+                            break;
+                        case 'user':
+                            $approver->position='User';
+                            break;
+                    }
+                    $dateofapproval='-';
+                            $user=new Users($approver->uid);
+                             if(is_object($user)){
+                                $username=$user->get_displayname();
+                            }                    if($approver->isApproved==1){
+                            $class='greenbackground';
+                       
+                         $dateofapproval=date($core->settings['dateformat'],$approver->timeApproved);
+                     }
+                     eval("\$apprs .= \"".$template->get('aro_approvalchain_approver')."\";");
+                     unset($class);
+                 }
+                                 output($apprs);
+
+            }
+            
+//           if(is_array($approvers)){
+//
+//               foreach($approvers['uid'] as $key => $val) {
+//          
+//                   $user=new Users($val);
+//                   if(is_object($user)){$name=$user->get_displayname();}
+//                    eval("\$apprs .= \"".$template->get('aro_approvalchain_approver')."\";");
+//
+//
+//                }
+//                output($apprs);
+//            }
+            
+        }
+    }
+    
+    if($core->input['action'] == 'populatecurrentstockrow'){
+        $rowid = $core->input['rowid'];
+       //$core->input['totalValue'] = $core->input['totalBuyingValue'];
+        unset($core->input['action'], $core->input['module'], $core->input['totalBuyingValue']);
+        $currentstock_obj = new AroRequestsCurStkSupervision();
+       $currentstock =$core->input; 
+       //$currentstock_obj->calculate_cuurentstockvalues($core->input);
+      $packing = new Packaging($currentstock['packing']);
+        $currentstock['packingTitle'] = $packing->get_displayname();
+        $fields = array('productName', 'pid', 'quantity', 'packing', 'packingTitle', 'stockValue', 'expiryDate', 'inputChecksum');
+        foreach($fields as $field) {
+            $currentstock_data['currentstock_'.$rowid.'_'.$field] = $currentstock[$field];
+        }
+        $currentstock_data['pickDate_stock_'.$rowid] = $currentstock[dateOfStockEntry_output];
+        $currentstock_data['pickDate_sale_'.$rowid.''] = $currentstock[estDateOfSale_output];
+        $currentstock_data['altpickDate_stock_'.$rowid] = $currentstock[dateOfStockEntry_output];
+        $currentstock_data['altpickDate_sale_'.$rowid.''] = $currentstock[estDateOfSale_output];
+        echo json_encode($currentstock_data);
+    }
+    if($core->input['action'] == 'ajaxaddmore_currentstockrow') {
+        $csrowid = intval($core->input['value']);
+        eval("\$curentstock_rows .= \"".$template->get('aro_currentstock_row')."\";");
+        output($curentstock_rows);
     }
 }
