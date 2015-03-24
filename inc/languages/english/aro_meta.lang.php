@@ -144,6 +144,14 @@ $lang['default'] = 'Default';
 $lang['acceptablemargin'] = 'Acceptable Margin';
 $lang['intermediary '] = 'Intermediary';
 $lang['informcoordinators'] = 'Inform Coordinators';
-
-
-
+$lang['approvalchain']='Approval Chain';
+$lang['currentstock']='Current Stock';
+$lang['expirydate']='Expiry Date';
+$lang['dateofstockentry']='Date of Stock Entry';
+$lang['stockvalue']='Stock Value (USD)';
+$lang['totalfunds']='Total Funds Engaged';
+$lang['ordershpinvoverdue']='Orders Shipped, Invoiced & Overdue for Payment';
+$lang['ordersappawaitingshp']='Orders Approved & Awaiting Shipment';
+$lang['ordershpinvnotdue']='Orders Shipped, Invoiced & Not Yet Due for Payment';
+$lang['oderswaitingapproval']='Orders Waiting for Approval (including this one)';
+$lang['totalfundseng']='Total Funds Engaged to Date in USD (RE-INVOICEE/INVOICEE wise)';

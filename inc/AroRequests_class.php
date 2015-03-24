@@ -54,7 +54,7 @@ class AroRequests extends AbstractClass {
             }
             /* update the docuent conf with the next number */
             $log->record(self::TABLE_NAME, $this->data[self::PRIMARY_KEY]);
-            $this->save_ordercustomers($data['customeroder']);
+             $this->save_ordercustomers($data['customeroder']);
             if($this->errorcode != 0) {
                 return $this->errorcode;
             }
@@ -86,10 +86,17 @@ class AroRequests extends AbstractClass {
                 return $this->errorcode;
             }
             $arosegments = $this->save_productlines($data['productline'], $data['parmsfornetmargin']);
-
+                    
             $this->save_linessupervision($data['actualpurchase'], $data['partiesinfo']['transitTime'], $data['partiesinfo']['clearanceTime'], $data['partiesinfo']['estDateOfShipment']);
-            $this->create_approvalchain();
-        }
+            $this->save_currentstocklines($data['currentstock']);
+             
+            $fundsengaged_obj = new AroRequestsFundsEngaged();
+            $data['totalfunds']['aorid'] = $this->data[self::PRIMARY_KEY];
+            $fundsengaged_obj->set($data['totalfunds']);
+            $fundsengaged_obj->save();
+            }
+            //$this->create_approvalchain();
+
     }
 
     private function set_documentsequencenumber($doc_sequencedata) {
@@ -156,7 +163,14 @@ class AroRequests extends AbstractClass {
             }
             $arosegments = $this->save_productlines($data['productline'], $data['parmsfornetmargin']);
             $this->save_linessupervision($data['actualpurchase'], $data['partiesinfo']['transitTime'], $data['partiesinfo']['clearanceTime'], $data['partiesinfo']['estDateOfShipment']);
-        }
+            $this->save_currentstocklines($data['currentstock']);
+            
+            
+            $fundsengaged_obj = new AroRequestsFundsEngaged();
+            $data['totalfunds']['aorid'] = $this->data[self::PRIMARY_KEY];
+            $fundsengaged_obj->set(  $data['totalfunds']);
+            $fundsengaged_obj->save();
+            }
     }
 
     private function save_ordercustomers($customersdetails) {
@@ -264,6 +278,26 @@ class AroRequests extends AbstractClass {
             }
         }
     }
+    private function save_currentstocklines($currentstocklines) {
+        if(is_array($currentstocklines)) {
+            foreach($currentstocklines as $currentstockline) {
+                $currentstockline['aorid'] = $this->data[self::PRIMARY_KEY];
+                $currentstockline['transitTime'] = $transittime;
+                $currentstockline['clearanceTime'] = $clearancetime;
+                $currentstockline['dateOfStockEntry'] = $dateOfStockEntry;
+                $currentstocksupervision_obj = new AroRequestsCurStkSupervision();
+                $currentstocksupervision_obj->set($currentstockline);
+                $currentstocksupervision_obj->save();
+                $this->errorcode = $currentstocksupervision_obj->errorcode;
+                switch($this->get_errorcode()) {
+                    case 0:
+                        continue;
+                    case 2:
+                        return;
+                }
+            }
+        }
+    }
 
     public function calculate_netmaginparms($data = array()) {
         $where = 'warehouse='.$data['warehouse'].' AND ('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
@@ -295,6 +329,11 @@ class AroRequests extends AbstractClass {
         $affiliate = new Affiliates($this->affid);
         if(is_array($approvalchain)) {
             foreach($approvalchain as $key => $val) {
+                $sortedapprovalchain[$val['sequence']]=$val;
+            }
+        ksort($sortedapprovalchain); // Sort by sequece ASC
+         foreach($sortedapprovalchain as $key => $val) {
+                    
                 switch($val['approver']) {
                     case 'businessManager':
                         // Aro request businessManager
@@ -359,7 +398,6 @@ class AroRequests extends AbstractClass {
 
             /* Remove the user himself from the approval chain */
             unset($approvers['uid'][array_search($core->user['uid'], $approvers['uid'])]);
-
             return $approvers;
         }
         return null;
