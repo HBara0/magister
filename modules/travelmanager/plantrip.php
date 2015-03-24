@@ -403,6 +403,7 @@ else {
         output($addhotel);
     }
     elseif($core->input ['action'] == 'do_add_otherhotel') {
+        $core->input['otherhotel']['phone'] = $core->input['telephone_intcode'].'-'.$core->input['telephone_areacode'].'-'.$core->input['telephone_number'];
         $hotelobj = new TravelManagerHotels();
         $hotelobj->set($core->input['otherhotel']);
         $hotelobj->save();

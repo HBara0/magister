@@ -21,11 +21,8 @@ class TravelManagerPlanSegments extends AbstractClass {
     const CLASSNAME = __CLASS__;
     const UNIQUE_ATTRS = 'tmpid,sequence,fromDate';
 
-    public function __construct($id = '') {
-        if(empty($id)) {
-            return false;
-        }
-        $this->read($id);
+    public function __construct($id = '', $simple = true) {
+        parent::__construct($id, $simple);
     }
 
     protected function read($id = '') {
@@ -456,30 +453,33 @@ class TravelManagerPlanSegments extends AbstractClass {
                 $flight_details = '';
             }
         }
-        $accomd_objs = TravelManagerPlanaccomodations::get_data(array('tmpsid' => $this->data[self::PRIMARY_KEY]), array('returnarray' => true));
-
-        if(is_array($accomd_objs)) {
-            foreach($accomd_objs as $accomdation) {
-                $paidby = $this->display_paidby($accomdation->paidBy, $accomdation->paidById);
-                if(is_object($paidby)) {
-                    $paidby = $paidby->get_displayname();
-                }
-                $tocurr = new Currencies(840);
-                $pricenight = $accomdation->get_convertedamount($tocurr);
-                $fromcurr = new Currencies($accomdation->currency);
-                if($accomdation->priceNight != 0 && $pricenight == 0) {
-                    $tocurr->save_fx_rate_fromsource('http://rate-exchange.appspot.com/currency?from='.$fromcurr->alphaCode.'&to='.$tocurr->alphaCode.'', $fromcurr->numCode, $tocurr->numCode);
-                    $pricenight = $accomdation->get_convertedamount($fromcurr);
-                }
-                if($fromcurr != $tocurr) {
-                    $priceinbasecurr .='<br/><small>'.$numfmt->formatCurrency($accomdation->numNights * $accomdation->priceNight, $fromcurr->alphaCode).'</small>';
-                }
-                $segment_hotel .= '<div style = "width:70%; display: inline-block;"> '.$lang->checkin.' '.$accomdation->get_hotel()->get()['name'].'<span style = "margin-bottom:10px;display:block;"><em>'.$accomdation->numNights.' '.$lang->night.' x $'.$pricenight.' </em></span></div>'; // fix the html parse multiple hotl
+        if($this->noAccomodation == 0) {
+            $accomd_objs = TravelManagerPlanaccomodations::get_data(array('tmpsid' => $this->data[self::PRIMARY_KEY]), array('returnarray' => true));
+            if(is_array($accomd_objs)) {
+                foreach($accomd_objs as $accomdation) {
+                    $paidby = $this->display_paidby($accomdation->paidBy, $accomdation->paidById);
+                    if(is_object($paidby)) {
+                        $paidby = $paidby->get_displayname();
+                    }
+                    $tocurr = new Currencies(840);
+                    $pricenight = $accomdation->get_convertedamount($tocurr);
+                    $fromcurr = new Currencies($accomdation->currency);
+                    if($accomdation->priceNight != 0 && $pricenight == 0) {
+                        $tocurr->save_fx_rate_fromsource('http://rate-exchange.appspot.com/currency?from='.$fromcurr->alphaCode.'&to='.$tocurr->alphaCode.'', $fromcurr->numCode, $tocurr->numCode);
+                        $pricenight = $accomdation->get_convertedamount($fromcurr);
+                    }
+                    if($fromcurr != $tocurr) {
+                        $priceinbasecurr .='<br/><small>'.$numfmt->formatCurrency($accomdation->numNights * $accomdation->priceNight, $fromcurr->alphaCode).'</small>';
+                    }
+                    $segment_hotel .= '<div style = "width:70%; display: inline-block;"> '.$lang->checkin.' '.$accomdation->get_hotel()->get()['name'].'<span style = "margin-bottom:10px;display:block;"><em>'.$accomdation->numNights.' '.$lang->night.' x $'.$pricenight.' </em></span></div>'; // fix the html parse multiple hotl
 //    $segment_hotel .= '<div style = " width:30%; display: inline-block;"> <span> '.$lang->night.' '.$accomdation->numNights.' at $ '.$accomdation->priceNight.' '.$lang->night.'</span></div>'; // fix the html parse multiple hotl
-                $segment_hotel .= '<div style = "width:25%; display: inline-block;font-size:14px; font-weight:bold;text-align:right;margin-left:5px;vertical-align:top;"><span>  '.$numfmt->formatCurrency(($accomdation->numNights * $pricenight), "USD").$priceinbasecurr.'</span> <br/> <small style="font-weight:normal;">[paid by: '.$paidby.' ]</small></div>'; // fix the html parse multiple hotl
+                    $segment_hotel .= '<div style = "width:25%; display: inline-block;font-size:14px; font-weight:bold;text-align:right;margin-left:5px;vertical-align:top;"><span>  '.$numfmt->formatCurrency(($accomdation->numNights * $pricenight), "USD").$priceinbasecurr.'</span> <br/> <small style="font-weight:normal;">[paid by: '.$paidby.' ]</small></div>'; // fix the html parse multiple hotl
 //   $segment_hotelprice .='<div style = " width:45%; display: block;"> Nights '.$accomdation->numNights.' at $ '.$accomdation->priceNight.'/Night</div>';
+                }
             }
         }
+        else
+            $noaccomodation = 'No Accomodations';
         $additional_expenses = Travelmanager_Expenses::get_data(array('tmpsid' => $this->tmpsid), array('simple' => false, 'returnarray' => true));
         if(is_array($additional_expenses)) {
             foreach($additional_expenses as $additionalexp) {
