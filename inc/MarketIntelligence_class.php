@@ -49,6 +49,14 @@ class MarketIntelligence {
         return $data->get_objects_byattr($attr, $value);
     }
 
+    public function get_affiliate() {
+        return new Affiliates($this->affid);
+    }
+
+    public function get_endproducttype() {
+        return new EndProducTypes($this->eptid);
+    }
+
     public function create($data = array()) {
         global $db, $core;
         if(is_array($data)) {
@@ -294,7 +302,7 @@ class MarketIntelligence {
          * Check if user can see the affid, spid, cid etc...
          * Check if user can see the affid, spid, cid etc... */
 
-        //Validate market data is less then or equalthe visit report date when exist
+//Validate market data is less then or equalthe visit report date when exist
         if(isset($filterby[date])) {
             $filterdate = $filterby[date];
             unset($filterby[date]);
