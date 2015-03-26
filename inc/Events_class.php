@@ -30,13 +30,18 @@ class Events extends AbstractClass {
 
     protected function create(array $data) {
         global $db, $core;
+
+        if($this->validate_requiredfields($data)) {
+            $this->errorcode = 1;
+            return false;
+        }
         $fields = array('title', 'description', 'place', 'type', 'isPublic', 'publishOnWebsite', 'isFeatured');
         foreach($fields as $field) {
             $event_data[$field] = $data[$field];
         }
         $event_data['alias'] = generate_alias($data['title']);
         $event_data['identifier'] = substr(md5(uniqid(microtime())), 0, 10);
-        $event_data['description'] = ucfirst(strtolower($event_data['description']));
+        $event_data['description'] = $event_data['description'];
         $event_data['fromDate'] = strtotime($data['fromDate'].' '.$data['fromTime']);
         $event_data['toDate'] = strtotime($data['toDate'].' '.$data['toTime']);
         $event_data['createdOn'] = TIME_NOW;
@@ -79,11 +84,16 @@ class Events extends AbstractClass {
 
     protected function update(array $data) {
         global $db, $core;
+
+        if($this->validate_requiredfields($data)) {
+            $this->errorcode = 1;
+            return false;
+        }
         $fields = array('title', 'description', 'place', 'type', 'isPublic', 'publishOnWebsite', 'isFeatured');
         foreach($fields as $field) {
             $event_data[$field] = $data[$field];
         }
-        $event_data['description'] = ucfirst(strtolower($event_data['description']));
+        $event_data['description'] = $event_data['description'];
         $event_data['fromDate'] = strtotime($data['fromDate'].' '.$data['fromTime']);
         $event_data['toDate'] = strtotime($data['toDate'].' '.$data['toTime']);
         $event_data['editedOn'] = TIME_NOW;
@@ -150,6 +160,19 @@ class Events extends AbstractClass {
 
     public function get() {
         return $this->data;
+    }
+
+    private function validate_requiredfields(array $data = array()) {
+        global $core, $db;
+        if(is_array($data)) {
+            $required_fields = array('title', 'description', 'fromDate', 'toDate');
+            foreach($required_fields as $field) {
+                if(empty($data[$field]) && $data[$field] != '0') {
+                    $this->errorcode = 2;
+                    return true;
+                }
+            }
+        }
     }
 
 }
