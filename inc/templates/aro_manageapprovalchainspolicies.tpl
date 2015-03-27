@@ -42,8 +42,13 @@
                         <td>{$purchasetypelist} </td>
                     </tr>
                     <tr>
-                        <td colspan="2" class="altrow2">
+                        <td colspan="2">
                             <input name="chainpolicy[informCoordinators]" id="chainpolicy_informCoordinators" type="checkbox" value="1" {$checked[informCoordinators]}> {$lang->informcoordinators}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2" class="altrow2">
+                            <input name="chainpolicy[informGlobalCFO]" id="chainpolicy_informGlobalCFO" type="checkbox" value="1" {$checked[informGlobalCFO]}> {$lang->informglobalcfo}
                         </td>
                     </tr>
                 </table>
