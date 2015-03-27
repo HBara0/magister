@@ -3817,6 +3817,8 @@ CREATE TABLE `uom` (
   `symbol` varchar(3) COLLATE utf8_unicode_ci NOT NULL,
   `ediCode` varchar(3) COLLATE utf8_unicode_ci NOT NULL,
   `precision` tinyint(2) NOT NULL,
+  `isWeight` tinyint(1) NOT NULL,
+  `isTime` tinyint(1) NOT NULL,
   PRIMARY KEY (`uomid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=14 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
