@@ -56,6 +56,10 @@
                 </td>
             </tr>
             <tr>
+                <td>Unit Fee</td>
+                <td><input id="ordersummary_unitfee"/></td>
+            </tr>
+            <tr>
                 <td>
                     <input type="button" id="ordersummary_btn" style="display:none"/>
                 </td>

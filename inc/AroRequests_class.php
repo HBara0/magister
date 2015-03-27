@@ -80,11 +80,12 @@ class AroRequests extends AbstractClass {
 
             $data['parmsfornetmargin']['fees'] = $data['partiesinfo']['totalfees'];
             $data['parmsfornetmargin']['commission'] = $data['partiesinfo']['commission'];
-
-            $this->validate_productlines($data['productline'], $data['parmsfornetmargin']);
+           
+            $unitfees=$this->validate_productlines($data['productline'], $data['parmsfornetmargin']);
             if($this->errorcode != 0) {
                 return $this->errorcode;
             }
+            $data['parmsfornetmargin']['unitfees']=$unitfees;
             $arosegments = $this->save_productlines($data['productline'], $data['parmsfornetmargin']);
                     
             $this->save_linessupervision($data['actualpurchase'], $data['partiesinfo']['transitTime'], $data['partiesinfo']['clearanceTime'], $data['partiesinfo']['estDateOfShipment']);
@@ -186,11 +187,11 @@ class AroRequests extends AbstractClass {
             $data['parmsfornetmargin']['fees'] = $data['partiesinfo']['totalfees'];
             $data['parmsfornetmargin']['commission'] = $data['partiesinfo']['commission'];
 
-            $this->validate_productlines($data['productline'], $data['parmsfornetmargin']);
-            $x = $this->errorcode;
+            $unitfees=$this->validate_productlines($data['productline'], $data['parmsfornetmargin']);
             if($this->errorcode != 0) {
                 return $this->errorcode;
             }
+            $data['parmsfornetmargin']['unitfees']=$unitfees;
             //save product lines and return array of product segments involved
             $arosegments = $this->save_productlines($data['productline'], $data['parmsfornetmargin']);
             $this->save_linessupervision($data['actualpurchase'], $data['partiesinfo']['transitTime'], $data['partiesinfo']['clearanceTime'], $data['partiesinfo']['estDateOfShipment']);
@@ -288,6 +289,7 @@ class AroRequests extends AbstractClass {
                 $arorequestline['aorid'] = $this->data[self::PRIMARY_KEY];
                 $arorequestline['exchangeRateToUSD'] = $this->data['exchangeRateToUSD'];
                 $arorequestline['parmsfornetmargin'] = $parmsfornetmargin;
+                $unitfees += $arorequestline['fees']/$arorequestline['quantity'];
                 $requestline = new AroRequestLines();
                 $requestline->set($arorequestline);
                 $requestline->validate_requiredfields();
@@ -302,6 +304,7 @@ class AroRequests extends AbstractClass {
                         return;
                 }
             }
+            return $unitfees/$plrowid;
         }
     }
 

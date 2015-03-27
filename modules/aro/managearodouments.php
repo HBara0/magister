@@ -39,7 +39,7 @@ if(!($core->input['action'])) {
     $payment_terms = PaymentTerms::get_data('', $dal_config);
     $segments = ProductsSegments::get_segments('');
     $packaging = Packaging::get_data('name IS NOT NULL', $dal_config);
-    $uom = Uom::get_data('name IS NOT NULL', $dal_config);
+    $uom = Uom::get_data(array('isWeight'=>1), $dal_config);
     $mainaffobj = new Affiliates($core->user['mainaffiliate']);
     $currencies = Currencies::get_data('');
     $incoterms = Incoterms::get_data('name IS NOT NULL', $dal_config);
@@ -92,6 +92,9 @@ if(!($core->input['action'])) {
         eval("\$partiesinfo_fees = \"".$template->get('aro_partiesinfo_fees')."\";");
     }
     if(isset($core->input['id'])) {
+        if(isset($core->input['referrer']) && $core->input['referrer']= 'toapprove'){
+            $approve_btn[$core->user['uid']]='<input type="submit" class="button" id="approve_aro/managearodouments_Button" value="'.$lang->approve.'"/>';
+        }
         $aroorderrequest = AroRequests::get_data(array('aorid' => $core->input['id']), array('simple' => false));
         $purchasetype = new PurchaseTypes($aroorderrequest->orderType);
         if(is_object($aroorderrequest)) {
@@ -231,9 +234,7 @@ if(!($core->input['action'])) {
             //*********Current Stock -End *********//
             //*********Total Funds Engaged -Start *********//
             $totalfunds=  AroRequestsFundsEngaged::get_data(array('aorid'=>$aroorderrequest->aorid));
-//            if(is_object($totalfunds)){
-//                
-//            }
+
             //*********Total Funds Engaged -End   *********//
             //*********Aro Audit Trail -Start *********//
             $aroorderrequest->createdOn_output = date($core->settings['dateformat'], $aroorderrequest->createdOn);
@@ -350,8 +351,13 @@ if(!($core->input['action'])) {
                        $class='greenbackground';
                        $dateofapproval=date($core->settings['dateformat'],$approver->timeApproved);
                      }
+                     else{
+                         if($approver->uid == $core->user['uid']){
+                         $approve=$approve_btn[$core->user['uid']];
+                         }
+                     }
                      eval("\$apprs .= \"".$template->get('aro_approvalchain_approver')."\";");
-                     unset($class);
+                     unset($class,$approve);
                  }
             }
             
@@ -384,10 +390,10 @@ else {
         }
         $rateusd = $currencyobj->get_latest_fxrate($tocurrency->alphaCode, null);
         if(!empty($rateusd)) {
-            $exchangerate = array('exchangeRateToUSD' => round(1 / $rateusd, 2));
+            $exchangerate = array('exchangeRateToUSD' => round(1 / $rateusd, 2),'exchangeRateToUSD_disabled'=>1);
         }
         else {
-            $exchangerate = array('exchangeRateToUSD' => '');
+            $exchangerate = array('exchangeRateToUSD' => '', 'exchangeRateToUSD_disabled'=>0);
         }
         echo json_encode($exchangerate);
     }
@@ -421,8 +427,7 @@ else {
             $core->input['nextnumid']['nextnum'] = $nextsequence_number;
         }
         $orderident_obj->set($core->input);
-        $errorcode = $orderident_obj->save();
-        $x = $orderident_obj->get_errorcode();
+        $errorcode = $orderident_obj->save();//  $x = $orderident_obj->get_errorcode();
         switch($errorcode) {
             case 0:
             case 1:
@@ -474,7 +479,7 @@ else {
         $segments = ProductsSegments::get_segments('');
         $segments_selectlist = parse_selectlist('productline['.$plrowid.'][psid]', '', $segments, '', null, null, array('id' => "productline_".$plrowid."_psid", 'placeholder' => 'Overwrite Segment', 'width' => '100%'));
         $packaging_list = parse_selectlist('productline['.$plrowid.'][packing]', '', $packaging, '', '', '', array('id' => "productline_".$plrowid."_packing", 'blankstart' => 1));
-        $uom = Uom::get_data('name IS NOT NULL');
+        $uom = Uom::get_data(array('isWeight'=>1));
         $kg = Uom::get_data(array('name' => 'Kilogram'));
         $uom_list = parse_selectlist('productline['.$plrowid.'][uom]', '', $uom, $kg->uomid, '', '', array('id' => "productline_".$plrowid."_uom", 'blankstart' => 1, 'width' => '70px'));
         eval("\$aroproductlines_rows = \"".$template->get('aro_productlines_row')."\";");
@@ -500,7 +505,7 @@ else {
         $productline_obj = new AroRequestLines();
         $rowid = $core->input['rowid'];
         unset($core->input['action'], $core->input['module'], $core->input['rowid']);
-        $parmsfornetmargin = array('localPeriodOfInterest', 'localBankInterestRate', 'warehousingPeriod', 'warehousingTotalLoad', 'warehousingRate', 'intermedBankInterestRate', 'intermedPeriodOfInterest', 'fees', 'commission');
+        $parmsfornetmargin = array('localPeriodOfInterest', 'localBankInterestRate', 'warehousingPeriod', 'warehousingTotalLoad', 'warehousingRate', 'intermedBankInterestRate', 'intermedPeriodOfInterest', 'fees','unitfees', 'commission');
         foreach($parmsfornetmargin as $parm) {
             $core->input['parmsfornetmargin'][$parm] = $core->input[$parm];
         }
@@ -549,23 +554,16 @@ else {
     }
     if($core->input['action'] == 'populateintermedaffpolicy') {
         $intermedpolicy_data = array('parmsfornetmargin_intermedBankInterestRate' => '',
-                'parmsfornetmargin_intermedRiskRatio' => '',
-                'parmsfornetmargin_intermedPeriodOfInterest' => '');
+                'parmsfornetmargin_intermedRiskRatio' => '');
         if($core->input ['intermedAff'] != ' ' && !empty($core->input['intermedAff']) && !empty($core->input['ptid']) && $core->input['ptid'] != ' ') {
             $intermedpolicy_filter = 'affid='.$core->input['intermedAff'].' AND purchaseType='.$core->input['ptid'].' AND isActive = 1 AND ('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
             $intermedpolicy = AroPolicies::get_data($intermedpolicy_filter);
-            if(is_object($intermedpolicy)){
-            if(isset($core->input['estimatedImtermedPayment']) && !empty($core->input['estimatedImtermedPayment']) && isset($core->input['estimatedManufacturerPayment']) && !empty($core->input['estimatedManufacturerPayment'])) {
-                $intermedpolicy->intermedPeriodOfInterest = date_diff(date_create($core->input['estimatedImtermedPayment']), date_create($core->input['estimatedManufacturerPayment']));
-                $intermedpolicy->intermedPeriodOfInterest = $intermedpolicy->intermedPeriodOfInterest->format("%a");
-            }}
             if(!is_object($intermedpolicy)) {
                 output($lang->nointermedpolicy);
                 exit;
             }
             $intermedpolicy_data = array('parmsfornetmargin_intermedBankInterestRate' => $intermedpolicy->yearlyInterestRate,
                     'parmsfornetmargin_intermedRiskRatio' => $intermedpolicy->riskRatio,
-                    'parmsfornetmargin_intermedPeriodOfInterest' => $intermedpolicy->intermedPeriodOfInterest,
                     'partiesinfo_commission' => $intermedpolicy->commissionCharged);
         }
         echo json_encode($intermedpolicy_data);
@@ -607,24 +605,38 @@ else {
                     $partiesinfo[$field.'_output'] = date('d-m-Y', $partiesinfo[$field]);
                     $partiesinfo[$field.'_formatted'] = date($core->settings['dateformat'], $partiesinfo[$field]);
                 }
+        }}
+        if(isset($partiesinfo['intermedEstDateOfPayment_output']) && !empty($partiesinfo['intermedEstDateOfPayment_output']) && isset($partiesinfo['vendorEstDateOfPayment_output']) && !empty($partiesinfo['vendorEstDateOfPayment_output'])) {
+            $data['intermedPeriodOfInterest'] = date_diff(date_create($partiesinfo['vendorEstDateOfPayment_output']),date_create($partiesinfo['intermedEstDateOfPayment_output']));
+            $data['intermedPeriodOfInterest'] = $data['intermedPeriodOfInterest']->format("%r%a");
+            $data['diffbetweendates']= $data['intermedPeriodOfInterest'];// difference between payment days
+            if($data['intermedPeriodOfInterest'] < 0){
+               $data['intermedPeriodOfInterest']=0;
             }
-            $purchasetype = new PurchaseTypes($data['ptid']);
-            $data['localPeriodOfInterest'] = 0;
-            if(isset($partiesinfo['intermedEstDateOfPayment_output']) && !empty($partiesinfo['intermedEstDateOfPayment_output']) && isset($partiesinfo['vendorEstDateOfPayment_output']) && !empty($partiesinfo['vendorEstDateOfPayment_output'])) {
-                $data['localPeriodOfInterest'] = date_diff(date_create($partiesinfo['intermedEstDateOfPayment_output']), date_create($partiesinfo['vendorEstDateOfPayment_output']));
-                $data['localPeriodOfInterest'] = $data['localPeriodOfInterest']->format("%a");
+             
+        if(isset($core->input['est_local_pay']) && !empty($core->input['est_local_pay'])){ 
+            $data['localPeriodOfInterest'] = date_diff(date_create($partiesinfo['intermedEstDateOfPayment_output']),date_create($core->input['est_local_pay']));
+            $data['localPeriodOfInterest'] = $data['localPeriodOfInterest']->format("%r%a");
+                if($data['localPeriodOfInterest'] < 0){
+                    $data['localPeriodOfInterest']=0;
+                 }
+        }
+        }
+        $purchasetype = new PurchaseTypes($core->input['ptid']);
+            if(is_object($purchasetype)){
+                if($purchasetype->isPurchasedByEndUser == 1) {
+                      $data['localPeriodOfInterest']=0;;
+                }
             }
-            if($purchasetype->isPurchasedByEndUser == 1) {
-//            $data['localPeriodOfInterest'] = date_diff((date_create($partiesinfo['vendorEstDateOfPayment_output']), date_create($partiesinfo['intermedEstDateOfPayment_output']));
-//            $data['localPeriodOfInterest'] = $data['localPeriodOfInterest']->format("%a");
-            }
-            $partiesinfo_data = array('pickDate_vendor_estdateofpayment' => $partiesinfo['vendorEstDateOfPayment_formatted'],
+        $partiesinfo_data = array('pickDate_vendor_estdateofpayment' => $partiesinfo['vendorEstDateOfPayment_formatted'],
                     'pickDate_intermed_estdateofpayment' => $partiesinfo['intermedEstDateOfPayment_formatted'],
                     'pickDate_intermed_promiseofpayment' => $partiesinfo['promiseOfPayment_formatted'],
                     'parmsfornetmargin_localPeriodOfInterest' => $data['localPeriodOfInterest'],
+                    'partiesinfo_diffbtwpaymentdates'=>$data['diffbetweendates'],
+                    'parmsfornetmargin_intermedPeriodOfInterest' => $data['intermedPeriodOfInterest'],
             );
-            echo json_encode($partiesinfo_data);
-        }
+        
+        echo json_encode($partiesinfo_data);
     }
     if($core->input['action'] == 'populateordersummary') {
         $intermedaffiliate = new Affiliates($core->input['intermedAff']);
@@ -640,9 +652,10 @@ else {
             $qty = split(':', $qty);
             $uom = new Uom($qty[0]);
             $qtyperunit_array[$i] = $qty[1]."/".$uom->get_displayname();
+            $avgqty[$i]=$qty[1];
         }
         $quantityperuom = implode("\n", $qtyperunit_array);
-
+        $i=0;
         foreach($feeperunit as $fee) {
             $i++;
             $fee = split(':', $fee);
@@ -650,7 +663,14 @@ else {
             $feeperunit_array[$i] = $fee[1]."/".$uom->get_displayname();
             $feeperunit_usdarray[$i] = ($fee[1] * $core->input['exchangeRateToUSD'])."/".$uom->get_displayname();
             $total_intermedfees +=$fee[1];
+            $avgfee[$i]=$fee[1];
         }
+
+        for($j=1;$j<=$i;$j++){ ///Calculate unit fee
+            if($avgqty[$j] !=0){
+            $unitfee +=$avgfee[$j]/$avgqty[$j];
+        }}
+        $unitfee=$unitfee/$i;
         $feeperunit_array = implode("\n", $feeperunit_array);
         $feeperunit_usdarray = implode("\n", $feeperunit_usdarray);
 
@@ -699,7 +719,8 @@ else {
                 'ordersummary_netmargin_intermed' => $intermedmargin,
                 'ordersummary_globalnetmargin' => $localnetmargin + $intermedmargin,
                 'ordersummary_netmargin_localperc' => $localnetmargin_perc,
-                'ordersummary_netmargin_intermedperc' => $intermedmargin_perc
+                'ordersummary_netmargin_intermedperc' => $intermedmargin_perc,
+                'ordersummary_unitfee'=>round($unitfee,2)
         );
         echo json_encode($data);
     }
@@ -778,35 +799,25 @@ else {
                      eval("\$apprs .= \"".$template->get('aro_approvalchain_approver')."\";");
                  }
              output($apprs);
-
             }
-            
-// if($approver->isApproved==1){
-//                            $class='greenbackground';
-//                       
-//                         $dateofapproval=date($core->settings['dateformat'],$approver->timeApproved);
-//                     }
-            
-        }
-    }
+    }}
     
     if($core->input['action'] == 'populatecurrentstockrow'){
-        $rowid = $core->input['rowid'];
-       //$core->input['totalValue'] = $core->input['totalBuyingValue'];
-        unset($core->input['action'], $core->input['module'], $core->input['totalBuyingValue']);
-        $currentstock_obj = new AroRequestsCurStkSupervision();
+       $rowid = $core->input['rowid'];
+      
+       unset($core->input['action'], $core->input['module'], $core->input['totalBuyingValue']);
+       $currentstock_obj = new AroRequestsCurStkSupervision();
        $currentstock =$core->input; 
-       //$currentstock_obj->calculate_cuurentstockvalues($core->input);
-      $packing = new Packaging($currentstock['packing']);
+       $packing = new Packaging($currentstock['packing']);
         $currentstock['packingTitle'] = $packing->get_displayname();
-        $fields = array('productName', 'pid', 'quantity', 'packing', 'packingTitle', 'stockValue', 'expiryDate', 'inputChecksum');
+        $fields = array('productName','pid','packing','packingTitle','inputChecksum'); // 'quantity', 'stockValue', 'expiryDate');
         foreach($fields as $field) {
             $currentstock_data['currentstock_'.$rowid.'_'.$field] = $currentstock[$field];
         }
-        $currentstock_data['pickDate_stock_'.$rowid] = $currentstock[dateOfStockEntry_output];
-        $currentstock_data['pickDate_sale_'.$rowid.''] = $currentstock[estDateOfSale_output];
-        $currentstock_data['altpickDate_stock_'.$rowid] = $currentstock[dateOfStockEntry_output];
-        $currentstock_data['altpickDate_sale_'.$rowid.''] = $currentstock[estDateOfSale_output];
+//        $currentstock_data['pickDate_stock_'.$rowid] = $currentstock[dateOfStockEntry_output];
+//        $currentstock_data['pickDate_sale_'.$rowid.''] = $currentstock[estDateOfSale_output];
+//        $currentstock_data['altpickDate_stock_'.$rowid] = $currentstock[dateOfStockEntry_output];
+//        $currentstock_data['altpickDate_sale_'.$rowid.''] = $currentstock[estDateOfSale_output];
         echo json_encode($currentstock_data);
     }
     if($core->input['action'] == 'ajaxaddmore_currentstockrow') {

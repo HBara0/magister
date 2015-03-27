@@ -30,7 +30,7 @@ class AroRequestLines extends AbstractClass {
 //            $product = new Products($data['pid']);
 //            $data['psid'] = $product->get_segment()['psid'];
 //        }
-        unset($data['ptid']);
+        unset($data['fees'],$data['ptid']);
         $query = $db->insert_query(self::TABLE_NAME, $data);
         if($query) {
             $log->record(self::TABLE_NAME, $this->data[self::PRIMARY_KEY]);
@@ -44,7 +44,7 @@ class AroRequestLines extends AbstractClass {
 //            $product = new Products($data['pid']);
 //            $data['psid'] = $product->get_segment()['psid'];
 //        }
-        unset($data['ptid']);
+        unset($data['fees'],$data['ptid']);
         $query = $db->update_query(self::TABLE_NAME, $data, self::PRIMARY_KEY.' = '.intval($this->data[self::PRIMARY_KEY]));
         if($query) {
             $log->record(self::TABLE_NAME, $this->data[self::PRIMARY_KEY]);
@@ -78,7 +78,7 @@ class AroRequestLines extends AbstractClass {
 
         if(isset($data['quantity']) && !empty($data['quantity'])) {
             if(isset($data['qtyPotentiallySold']) && !empty($data['qtyPotentiallySold'])) {
-                $data['qtyPotentiallySoldPerc'] = round(($data['qtyPotentiallySold'] / $data['quantity']) * 100, 2);
+                $data['qtyPotentiallySoldPerc'] = round(($data['qtyPotentiallySold'] / $data['quantity']) * 100, 3);
             }
             else {
                 $data['qtyPotentiallySold'] = (($data['qtyPotentiallySoldPerc'] * $data['quantity']) / 100);
@@ -89,7 +89,7 @@ class AroRequestLines extends AbstractClass {
         }
 
         if(is_object($purchasetype)) {
-            $data['affBuyingPrice'] = round((($data['intialPrice'] + $parmsfornetmargin['fees']) + ($data['intialPrice'] * $parmsfornetmargin['commission'])), 2);
+            $data['affBuyingPrice'] = round((($data['intialPrice'] + $parmsfornetmargin['unitfees']) + ($data['intialPrice'] * $parmsfornetmargin['commission'])), 2);
             $data['totalBuyingValue'] = round($data['quantity'] * $data['affBuyingPrice'], 2);
             if($purchasetype->isPurchasedByEndUser == 1) {
                 $data['affBuyingPrice'] = '-';
@@ -97,9 +97,9 @@ class AroRequestLines extends AbstractClass {
             }
         }
         if(isset($data['quantity']) && !empty($data['quantity'])) {
-            $data['costPriceAtRiskRatio'] = ceil(($data['costPrice'] + (($data['totalBuyingValue'] * $parmsfornetmargin['riskRatio']) / $data['quantity'])));
+            $data['costPriceAtRiskRatio'] = ceil((($data['costPrice'] + ($data['totalBuyingValue'] * $parmsfornetmargin['riskRatio'])) / $data['quantity']));
         }
-        $data['grossMarginAtRiskRatio'] = floor((($data['sellingPrice'] - $data['costPriceAtRiskRatio']) * $data['quantity']));
+        $data['grossMarginAtRiskRatio'] = floor(round((($data['sellingPrice'] - $data['costPriceAtRiskRatio']) * $data['quantity']),2));
 
         if($purchasetype->isPurchasedByEndUser == 1) {
             $data['daysInStock'] = 0;

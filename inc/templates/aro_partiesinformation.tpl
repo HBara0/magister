@@ -29,7 +29,7 @@
                   <td><input type="number" step="any" name="partiesinfo[ptAcceptableMargin]" id="partiesinfo_intermed_ptAcceptableMargin" value="{$aropartiesinfo_obj->ptAcceptableMargin}" {$is_disabled}/></td>
              </tr>
            <tr><td colspan="2">{$lang->promiseofpayment}</td>
-                     <td><input type="text" id="pickDate_intermed_promiseofpayment" autocomplete="off" tabindex="2" value="{$partiesinfo[promiseOfPayment_formatted]}" required="required" style="width:150px;" disabled="disabled"/>
+                     <td><input type="text" id="pickDate_intermed_promiseofpayment" autocomplete="off" tabindex="2" value="{$partiesinfo[promiseOfPayment_formatted]}" required="required" style="width:150px;"/>
                      <input type="hidden" name="partiesinfo[promiseOfPayment]" id="altpickDate_intermed_promiseOfPayment" value="{$partiesinfo[promiseOfPayment_output]}"/>
                      </td>
           </tr>
