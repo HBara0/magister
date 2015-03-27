@@ -154,7 +154,7 @@ class GroupPurchaseForecast extends AbstractClass {
         }
         $affiliates_where = '(affid IN ('.implode(',', $core->user['affiliates']).') AND(generalManager='.$core->user['uid'].' OR supervisor='.$core->user['uid'].'))';
         $affiliates_filter = Affiliates::get_affiliates(array('affid' => $affiliates_where), array('returnarray' => true, 'simple' => false, 'operators' => array('affid' => 'CUSTOMSQL')));
-        if(is_array($affiliates_filter)) {
+        if(is_array($affiliates_filter) && is_array($groupdata['affiliates'])) {
             $intersection = array_intersect(array_keys($affiliates_filter), $groupdata['affiliates']);
         }
         if(!empty($intersection)) {
