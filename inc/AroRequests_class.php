@@ -95,7 +95,37 @@ class AroRequests extends AbstractClass {
             $fundsengaged_obj->set($data['totalfunds']);
             $fundsengaged_obj->save();
             
-        $this->create_approvalchain();}
+     //   $this->create_approvalchain();
+       
+        //////////////////////////////////////////////////
+          //sending email section
+            if($this->get_infromcoords()==1) {
+                foreach($arosegments as $key => $value) {
+                    $productsegment_obj = new ProductsSegments($value);
+                    $coordinators_objs[$key] = $productsegment_obj->get_coordinators();
+                    unset($productsegment_obj);
+                }
+                foreach($coordinators_objs as $key => $coord_objs) {
+                    if(is_array($coord_objs)) {
+                        foreach($coord_objs as $coord_obj) {
+                            $users_objs[] = $coord_obj->get_coordinator();
+                        }
+                    }
+                    else {
+                        $users_objs[] = $coord_objs->get_coordinator();
+                    }
+                }
+                foreach($users_objs as $user) {
+                    $sendemail_to['coorinators'][] = $user->get_email();
+                }
+            }
+            
+            $sendemail_to['approvers']=$this->generate_approvalchain();
+            $this->send_approvalemail($sendemail_to);
+            
+            ///////////////////////////////
+        
+            }
 
     }
 
@@ -161,6 +191,7 @@ class AroRequests extends AbstractClass {
             if($this->errorcode != 0) {
                 return $this->errorcode;
             }
+            //save product lines and return array of product segments involved
             $arosegments = $this->save_productlines($data['productline'], $data['parmsfornetmargin']);
             $this->save_linessupervision($data['actualpurchase'], $data['partiesinfo']['transitTime'], $data['partiesinfo']['clearanceTime'], $data['partiesinfo']['estDateOfShipment']);
             $this->save_currentstocklines($data['currentstock']);
@@ -170,6 +201,53 @@ class AroRequests extends AbstractClass {
             $data['totalfunds']['aorid'] = $this->data[self::PRIMARY_KEY];
             $fundsengaged_obj->set(  $data['totalfunds']);
             $fundsengaged_obj->save();
+            
+            /////////////////////////////////////////////
+            // //sending email section
+            if(true) {
+                foreach($arosegments as $key => $value) {
+                    $productsegment_obj = new ProductsSegments($value);
+                    $coordinators_objs[$key] = $productsegment_obj->get_coordinators();
+                    unset($productsegment_obj);
+                }
+                foreach($coordinators_objs as $key => $coord_objs) {
+                    if(is_array($coord_objs)) {
+                        foreach($coord_objs as $coord_obj) {
+                            $users_objs[] = $coord_obj->get_coordinator();
+                        }
+                    }
+                    else {
+                        if(is_object($coord_objs)) {
+                        $users_objs[] = $coord_objs->get_coordinator();
+                        }
+                    }
+                }
+                $sendemail_to_users=$users_objs;
+            }
+            $approvers=$this->get_approvers();
+            if(is_array($approvers)){
+                  foreach($approvers as $approver) {
+                    $approvers_objs[] = new Users($approver->uid);
+                }
+            }
+          //  $approvers = $this->generate_approvalchain();
+            //get all user objects through the uid provided from generate_approvalchain() method
+//            if(is_array($approvers['uid'])) {
+//                foreach($approvers['uid'] as $uid) {
+//                    $approvers_objs[] = new Users($app_obj);
+//                }
+//            }
+//            
+            //merge approvls and coordinators arrays
+            IF(is_array($approvers_objs) && is_array($sendemail_to_users)){
+            $sendmail_to_users = array_merge($approvers_objs, $sendemail_to_users);
+            foreach($sendmail_to_users as $user) {
+                $sendemail_to_emails[] = $user->get_email();
+            }
+            $this->send_approvalemail(array_unique($sendemail_to_emails));
+            exit;
+            }
+            ////////////////////////////////////////////
             }
     }
 
@@ -378,7 +456,7 @@ class AroRequests extends AbstractClass {
             $approvers = array_unique($approvers);
 
             /* Remove the user himself from the approval chain */
-            unset($approvers[array_search($core->user['uid'], $approvers)]);
+        //    unset($approvers[array_search($core->user['uid'], $approvers)]);
             return $approvers;
         }
         return null;
@@ -414,19 +492,156 @@ class AroRequests extends AbstractClass {
         return true;
     }
     
-    public function send_approvalemail() {
-        $email_data = array(
-                'from_email' => '',
-                'from' => '',
-                'to' => '',
-                'subject' => $lang->leavenotificationsubject,
-                'message' => $lang->leavenotificationmessage
+    public function send_approvalemail($to) {
+        
+        if(is_array($to['approvers'])){
+            foreach($to['approvers'] as $approver_id){
+                $approver=new Users($approver_id);
+                $approvers_mailinglist[$approver_id]=$approver->get_email();  
+            }
+        }
+        $approve_link="http://127.0.0.1/ocos/index.php?module=aro/managearodouments&id=".$this->data[self::PRIMARY_KEY]."&referrer=toapprove";
+        $aroapprovalemail_subject='Aro Needs Approval !';
+   
+        $approval_email_data = array(
+                'from' => 'ocos@orkila.com',
+                'to' => $approvers_mailinglist,
+                'subject' => $aronotiicationemail_subject ,
+                'message' => "Aro Request Needs Verification:".$approve_link,
         );
+        $mailer = new Mailer();
+        $mailer = $mailer->get_mailerobj();
+        $mailer->set_type();
+        $mailer->set_from($approval_email_data['from']);
+        $mailer->set_subject($$approval_email_data['subject']);
+        $mailer->set_message($approval_email_data['message']);
+        $mailer->set_to($approval_email_data['to']);
 
-        $mail = new Mailer($email_data, 'php');
-        if($mail->get_status() === true) {
+        $x=$mailer->debug_info();
+        print_R($x);
+        exit;
+        
+       $aronotiicationemail_subject='Aro Notification';
+        $notification_email_data = array(
+                //'from_email' => '',
+                'from' => 'ocos@orkila.com',
+                'to' => $to['coorinators'],
+                'subject' => $aronotiicationemail_subject ,
+                'message' => "Aro Request Needs Verification ",
+        );
+        $mailer = new Mailer();
+        $mailer = $mailer->get_mailerobj();
+        $mailer->set_type();
+        $mailer->set_from($notification_email_data['from']);
+        $mailer->set_subject($notification_email_data['subject']);
+        $mailer->set_message($notification_email_data['message']);
+        $mailer->set_to($notification_email_data['to']);
 
+       
+     //   $v = $mailer->debug_info();
+     //   print_R($mailer->debug_info());
+        $mailer->send();
+//        if($mailer->get_status() == true) {
+//            return true;
+//        }
+//        else {
+//            return false;
+//        }
+//        $mail = new Mailer($email_data, 'php');
+//        if($mail->get_status() === true) {
+//
+//        }
+    }
+
+    private function get_infromcoords() {
+        $filter = 'affid ='.$this->affid.' AND purchaseType = '.$this->orderType.' AND ('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
+        $aroapprovalchain_policies = AroApprovalChainPolicies::get_data($filter);
+        if(is_object($aroapprovalchain_policies)) {
+            return $aroapprovalchain_policies->informCoordinators;
         }
     }
+    
+    
+    public function get_approvers() {
+      $config= array('returnarray'=>true,'simple'=>false,'order'=>array('by'=>'sequence','sort'=>'ASC'));
+      return  AroRequestsApprovals::get_data(array('aorid'=>$this->data[self::PRIMARY_KEY]),$config);
+    }
+    
+    public function approve($from) {
+        global $db;
+        $id = $db->escape_string($id);
+        if($this->can_apporve($from)) {
+            $db->update_query(self::TABLE_NAME, array('isApproved' => 1, 'approvedOn' => TIME_NOW), ''.self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
+            return true;
+        }
+        else {
+            return false;
+        }
+   }
+        
+    public function can_apporve($from) {
+        $approvers = $this->get_approvers();
+        if(is_array($approvers)){
+            foreach($approvers as $approver) {
+                $can_approve[$approver->uid] = $approver->uid;
+            }
+        }
+        else
+            {
+            $can_approve=$this->generate_approvalchain();
+        }
+        if(in_array($from,$can_approve)) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+    
+    public function notifyapprove() {
+        global $lang, $log;
+//        if($this->additionaldays['isApproved'] == 1) {
+//            $user = new Users($this->additionaldays['uid']);
+//            $requester_details = $user->get();
+//            $lang->adddaysapprovedmessage = $lang->sprint($lang->adddaysapprovedmessage, $requester_details['displayName'], $this->additionaldays['numDays']);
+//            $email_data = array(
+//                    'from_email' => 'attendance@ocos.orkila.com',
+//                    'from' => 'Orkila Attendance System',
+//                    'to' => $requester_details['email'],
+//                    'subject' => $lang->additionadaysapprovedsubject,
+//                    'message' => $lang->adddaysapprovedmessage
+//            );
+//            $mail = new Mailer($email_data, 'php');
+//            if($mail->get_status() === true) {
+//                $log->record('notifyrequester', $user->get_reportsto()->get()['uid']);
+//            }
+//        }
+    }
+
+    public function update_requeststatus() {
+        global $db, $log;
+
+//        if($this->additionaldays['correspondToDate'] == 1) {
+//            $period = $this->additionaldays['date'];
+//        }
+//        else {
+//            $period = TIME_NOW;
+//        }
+//
+//        $leavestats_query = $db->query("SELECT lsid, additionalDays 
+//										FROM ".Tprefix."leavesstats 
+//										WHERE uid={$this->additionaldays['uid']} AND ltid=1 AND {$period} BETWEEN periodStart AND periodEnd");
+//        if($db->num_rows($leavestats_query) > 0) {
+//            while($leavestat = $db->fetch_array($leavestats_query)) {
+//                $additionalDays = $leavestat['additionalDays'];
+//                $lsid = $leavestat['lsid'];
+//            }
+//            $additionalDays += $this->additionaldays['numDays'];
+//            $db->update_query('leavesstats', array('additionalDays' => $additionalDays), "lsid={$lsid}");
+//            $log->record('updateleavebalance', $this->additionaldays['adid']);
+//        }
+    }
+
+    
 
 }
