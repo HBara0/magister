@@ -118,12 +118,12 @@ CREATE TABLE `aro_approvalchain_policies` (
   `effectiveTo` bigint(30) NOT NULL,
   `approvalChain` text COLLATE utf8_unicode_ci NOT NULL,
   `informCoordinators` tinyint(1) NOT NULL,
+  `informGlobalCFO` tinyint(1) NOT NULL,
   `createdBy` int(10) NOT NULL,
   `createdOn` bigint(30) NOT NULL,
   `modifiedOn` bigint(30) NOT NULL,
   `modifiedBy` int(10) NOT NULL,
   PRIMARY KEY (`aapcid`)
-) ENGINE=MyISAM AUTO_INCREMENT=49 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `aro_documentsequences`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
