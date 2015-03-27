@@ -18,7 +18,8 @@
                 <td>{$lang->orderreference}</td>
                 <td><input type="text"  readonly="readonly" name="orderReference" id="orderreference" value="{$aroorderrequest->orderReference}"/></td>
                 <td>Exchange rate to usd</td>
-                <td><input type="number"  step="any" name="exchangeRateToUSD" id="exchangeRateToUSD" value="{$aroorderrequest->exchangeRateToUSD}"/></td>
+                <td><input type="number"  step="any" name="exchangeRateToUSD" id="exchangeRateToUSD" value="{$aroorderrequest->exchangeRateToUSD}" readonly/>
+                    <input type="hidden" id="exchangeRateToUSD_disabled" value="1"/></td>
             </tr>
 
             <tr>

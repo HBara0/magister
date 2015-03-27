@@ -49,7 +49,7 @@ if(!$core->input['action']) {
         }
     }
     $currencies_list = parse_selectlist('warehousepolicy[currency]', '', $currencies, $warehouse['currency'], '', '', array('width' => '50%'));
-    $uoms = Uom::get_data('name IS NOT NULL');
+    $uoms = Uom::get_data(array('isWeight'=>1));
 
     $reateuom = parse_selectlist('warehousepolicy[rate_uom]', '', $uoms, $warehouse['rate_uom'], '', '', array('width' => '50%'));
     eval("\$aro_managewarehousespolicies = \"".$template->get('aro_managewarehouses_policies')."\";");

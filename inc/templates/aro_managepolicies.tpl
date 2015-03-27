@@ -60,7 +60,8 @@
                     </tr>
                     <tr>
                         <td width="40%">{$lang->riskratiomonthlyincrease}</td>
-                        <td><input type="number" step="any" min="0" name="aropolicy[riskRatioMonthlyIncreaseDiffCurrCN]" id="aropolicy_riskRatioMonthlyIncreaseDiffCurrCN" value="{$aropolicy[riskRatioMonthlyIncreaseDiffCurrCN]}"/> %</td>
+                        <td><input type="number" step="any" min="0" name="aropolicy[riskRatioIncreaseDiffCurrCN]" id="aropolicy_riskRatioMonthlyIncreaseDiffCurrCN" value="{$aropolicy[riskRatioIncreaseDiffCurrCN]}"/> % {$lang->each}
+                        <input type="number" step="any" min="0" name="aropolicy[riskRatioDays]" id="aropolicy_riskRatioDays" value="{$aropolicy[riskRatioDays]}"/> {$lang->days}</td>
                     </tr>
                     <tr>
                         <td>{$lang->riskratiosamecurrcn}</td>

@@ -30,6 +30,9 @@ if(!$core->input['action']) {
         if($chainpolicy['informCoordinators'] == 1) {
             $checked['informCoordinators'] = 'checked="checked"';
         }
+        if($chainpolicy['informGlobalCFO'] == 1) {
+            $checked['informGlobalCFO'] = 'checked="checked"';
+        }
     }
     foreach($inaffiliates as $affid) {
         $affiliate[$affid] = new Affiliates($affid);
