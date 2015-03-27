@@ -33,6 +33,9 @@ class GroupPurchaseForecast extends AbstractClass {
                 $forecastdata['spid'] = $data['spid'];
                 $forecastdata['createdOn'] = TIME_NOW;
                 $forecastdata['createdBy'] = $core->user['uid'];
+                if($data['uid'] != 0) {
+                    $forecastdata['createdBy'] = $data['uid'];
+                }
                 $query = $db->insert_query(self::TABLE_NAME, $forecastdata);
                 $this->data[self::PRIMARY_KEY] = $db->last_id();
 
@@ -44,6 +47,9 @@ class GroupPurchaseForecast extends AbstractClass {
                     foreach($forecastlines as $forecastline) {
                         $forecastline['gpfid'] = $this->data[self::PRIMARY_KEY];
                         $forecastline['businessMgr'] = $core->user['uid'];
+                          if($data['uid'] != 0) {
+                             $forecastline['businessMgr']= $data['uid'];
+                             }
                         $gpforecastline = new GroupPurchaseForecastLines($forecastline[GroupPurchaseForecastLines::PRIMARY_KEY]);
                         if(empty($forecastline['psid'])) {
                             $product = new Products($forecastline['pid']);
@@ -78,11 +84,9 @@ class GroupPurchaseForecast extends AbstractClass {
                 $forecastdata['year'] = $data['year'];
                 $forecastdata['spid'] = $data['spid'];
                 $forecastdata['modifiedOn'] = TIME_NOW;
+                $forecastdata['modifiedBy'] = $core->user['uid'];
                 if($data['uid'] != 0) {
                     $forecastdata['modifiedBy'] = $data['uid'];
-                }
-                else {
-                    $forecastdata['modifiedBy'] = $core->user['uid'];
                 }
                 $query = $db->update_query(self::TABLE_NAME, $forecastdata, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
                 if(!query) {
@@ -94,6 +98,9 @@ class GroupPurchaseForecast extends AbstractClass {
                     foreach($forecastlines as $forecastline) {
                         $forecastline['gpfid'] = $this->data[self::PRIMARY_KEY];
                         $forecastline['businessMgr'] = $core->user['uid'];
+                          if($data['uid'] != 0) {
+                             $forecastline['businessMgr']= $data['uid'];
+                          }
                         $gpforecastline = new GroupPurchaseForecastLines($forecastline[GroupPurchaseForecastLines::PRIMARY_KEY]);
                         if(empty($forecastline['psid'])) {
                             $product = new Products($forecastline['pid']);
@@ -120,9 +127,13 @@ class GroupPurchaseForecast extends AbstractClass {
         }
     }
 
-    public function get_forecastlines() {
+    public function get_forecastlines($uid) {
         global $core;
-        return GroupPurchaseForecastLines::get_data(array('gpfid' => $this->data[self::PRIMARY_KEY], 'businessMgr' => $core->user['uid']), array('returnarray' => true, 'simple' => false));
+        $businessMgr=$core->user['uid'];
+        if(isset($uid) && !empty($uid)){
+             $businessMgr = $uid;
+        }
+        return GroupPurchaseForecastLines::get_data(array('gpfid' => $this->data[self::PRIMARY_KEY], 'businessMgr' => $businessMgr), array('returnarray' => true, 'simple' => false));
     }
 
     private function validate_requiredfields(array $data = array()) {
