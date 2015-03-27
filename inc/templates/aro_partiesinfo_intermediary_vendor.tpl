@@ -33,15 +33,6 @@
                     <tr class="altrow2"><td>{$lang->paymenttermsdesc}</td>
                         <td><input type="text"  name="partiesinfo[intermedPaymentTermDesc]" id="partiesinfo_intermed_PaymentTermDesc" value="{$aropartiesinfo_obj->intermedPaymentTermDesc}" placeholder="" required='required' style="width:150px;" {$is_disabled}/></td>
                         <td><input type="text"  name="partiesinfo[vendorPaymentTermDesc]" id="partiesinfo_vendor_PaymentTermDesc" value="{$aropartiesinfo_obj->vendorPaymentTermDesc}" placeholder="" required='required' style="width:150px;"/></td>
-
-                    </tr>
-                    <tr><td>{$lang->ptacceptablemargin}</td>
-                        <td><input type="number" step="any" name="partiesinfo[ptAcceptableMargin]" id="partiesinfo_intermed_ptAcceptableMargin" value="{$aropartiesinfo_obj->ptAcceptableMargin}" {$is_disabled}/></td>
-                    </tr>
-                    <tr class="altrow2"><td>{$lang->promiseofpayment}</td>
-                        <td><input type="text" id="pickDate_intermed_promiseofpayment" autocomplete="off" tabindex="2" value="{$partiesinfo[promiseOfPayment_formatted]}" required="required" style="width:150px;" disabled="disabled"/>
-                            <input type="hidden" name="partiesinfo[promiseOfPayment]" id="altpickDate_intermed_promiseOfPayment" value="{$partiesinfo[promiseOfPayment_output]}"/>
-                        </td>
                     </tr>
                     <tr><td>{$lang->commission} <small>{$lang->commisionlimit}</small></td>
                         <td><input type="number" step="any" name="partiesinfo[commission]" id="partiesinfo_commission" value="{$aropartiesinfo_obj->commission}" /></td>
