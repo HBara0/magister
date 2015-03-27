@@ -41,6 +41,7 @@ class AroPolicies extends AbstractClass {
         global $db, $core, $log;
         if(!$this->validate_requiredfields($data)) {
             $data['modifiedOn'] = TIME_NOW;
+
             $data['modifiedBy'] = $core->user['uid'];
             if(!isset($data['isActive'])) {
                 $data['isActive'] = 0;

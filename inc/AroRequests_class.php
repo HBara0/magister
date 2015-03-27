@@ -59,7 +59,7 @@ class AroRequests extends AbstractClass {
                 return $this->errorcode;
             }
 
-            //Save parties Information data
+//Save parties Information data
             $partiesinformation_obj = new AroRequestsPartiesInformation();
             $data['partiesinfo']['aorid'] = $this->data[self::PRIMARY_KEY];
             $partiesinformation_obj->set($data['partiesinfo']);
@@ -163,7 +163,7 @@ class AroRequests extends AbstractClass {
                 return $this->errorcode;
             }
 
-            //Save parties Information data
+//Save parties Information data
             $partiesinformation_obj = new AroRequestsPartiesInformation();
             $data['partiesinfo']['aorid'] = $this->data[self::PRIMARY_KEY];
             $partiesinformation_obj->set($data['partiesinfo']);
@@ -279,7 +279,7 @@ class AroRequests extends AbstractClass {
         }
     }
 
-    //loop through product line for validation
+//loop through product line for validation
     private function validate_productlines($arorequestlines, $parmsfornetmargin) {
         $plrowid = 0;
         if(is_array($arorequestlines)) {
@@ -468,7 +468,7 @@ class AroRequests extends AbstractClass {
         if(empty($approvers)) {
             $approvers = $this->generate_approvalchain();
         }
-        //  $approve_immediately = $this->should_approveimmediately();
+//  $approve_immediately = $this->should_approveimmediately();
         
         $sequence = 1;
         foreach($approvers as $key => $val) {
