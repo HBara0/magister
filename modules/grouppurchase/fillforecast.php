@@ -38,10 +38,10 @@ if(!$core->input['action']) {
 
     $grouppurchaseforecast = GroupPurchaseForecast::get_data(array('affid' => $forecast_data['affid'], 'year' => $forecast_data['year'], 'spid' => $forecast_data['spid']));
     if(is_object($grouppurchaseforecast)) {
-        $gpforecastlines = $grouppurchaseforecast->get_forecastlines();
+        $gpforecastlines = $grouppurchaseforecast->get_forecastlines($uid);
     }
     $budget = Budgets::get_budget_bydata($forecast_data);
-
+    
     /* Read data from existing forecast lines. */
     if(is_array($gpforecastlines)) {
         foreach($gpforecastlines AS $gpforecastline) {

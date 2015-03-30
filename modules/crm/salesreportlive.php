@@ -23,6 +23,12 @@ if(!$core->input['action']) {
     $affiliates_list = parse_selectlist('affids[]', 2, $affiliates, '');
 
     $fxtypes_selectlist = parse_selectlist('fxtype', 9, array('lastm' => $lang->lastmonthrate, 'ylast' => $lang->yearlatestrate, 'yavg' => $lang->yearaveragerate, 'mavg' => $lang->monthaveragerate, 'real' => $lang->realrate), '', 0);
+    
+    $dimensions = array('spid' => $lang->supplier,'cid'=>$lang->customer,'pid' => $lang->product, 'psid' => $lang->segment,'salesrepresentative'=>$lang->salesrepresentative ,'wid' => $lang->warehouse,);
+    foreach($dimensions as $dimensionid => $dimension) {
+        $dimension_item.='<li class="ui-state-default" id='.$dimensionid.' title="Click and Hold to move the '.$dimension.'">'.$dimension.'</li>';
+    }
+    
     eval("\$generatepage = \"".$template->get('crm_generatesalesreport_live')."\";");
     output_page($generatepage);
 }
@@ -75,8 +81,8 @@ else {
         }
 
         $filters = "c_invoice.ad_org_id IN ('".implode("','", $orgs)."') AND docstatus NOT IN ('VO', 'CL') AND (dateinvoiced BETWEEN '".date('Y-m-d 00:00:00', $period['from'])."' AND '".date('Y-m-d 00:00:00', $period['to'])."')";
-        $integration = new IntegrationOB($intgconfig['openbravo']['database'], $intgconfig['openbravo']['entmodel']['client']);
-        $invoices = $integration->get_saleinvoices($filters);
+       $integration = new IntegrationOB($intgconfig['openbravo']['database'], $intgconfig['openbravo']['entmodel']['client']);
+       $invoices = $integration->get_saleinvoices($filters);
         $cols = array('month', 'week', 'documentno', 'salesrep', 'customername', 'suppliername', 'productname', 'segment', 'uom', 'qtyinvoiced', 'priceactual', 'linenetamt', 'purchaseprice', 'unitcostlocal', 'costlocal', 'costusd', 'grossmargin', 'grossmarginusd', 'netmargin', 'netmarginusd', 'marginperc');
         if(is_array($invoices)) {
             foreach($invoices as $invoice) {
@@ -192,7 +198,7 @@ else {
             }
         }
         else {
-            redirect($url, $delay, $redirect_message);
+         redirect($url, $delay, $redirect_message);
         }
 
         $salesreport = '<h1>'.$lang->salesreport.'<small><br />'.$lang->{$core->input['type']}.'</small></h1>';
@@ -357,6 +363,8 @@ else {
             elseif($core->input['type'] == 'dimensional') {
                 $required_tables = array('detailed' => array('month', 'week', 'salesrep', 'suppliername', 'customername', 'productname'));
             }
+            
+            //$dimensions = explode(',', $core->input['salereport']['dimension'][0]);
             foreach($required_tables as $tabledesc => $dimensions) {
                 $rawdata = $data;
                 $dimensionalreport = new DimentionalData();
@@ -376,7 +384,7 @@ else {
                 $salesreport .= $dimensionalreport->get_output(array('outputtype' => 'table', 'noenclosingtags' => true, 'formats' => $formats, 'overwritecalculation' => $overwrite));
                 $salesreport .= '</table>';
 
-                $chart_data = $dimensionalreport->get_data();
+                 $chart_data = $dimensionalreport->get_data();
                 //$chart = new Charts(array('x' => array($previous_year => $previous_year, $current_year => $current_year), 'y' => $barchart_quantities_values), 'bar');
             }
         }
