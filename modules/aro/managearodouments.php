@@ -43,8 +43,7 @@ if(!($core->input['action'])) {
     $mainaffobj = new Affiliates($core->user['mainaffiliate']);
     $currencies = Currencies::get_data('');
     $incoterms = Incoterms::get_data('name IS NOT NULL', $dal_config);
-    $countries = Countries::get_data('', $dal_config);
-
+    $countries = Countries::get_data('', $dal_config);    
     if(!isset($core->input['id'])) {
         //order identification
         $affiliate_list = parse_selectlist('affid', 1, $affiliate, $orderid[affid], '', '', array('blankstart' => true, 'id' => "affid", 'required' => 'required'));
@@ -281,6 +280,8 @@ if(!($core->input['action'])) {
                         $partiesinfo[$field.'_formatted'] = date($core->settings['dateformat'], $aropartiesinfo_obj->$field);
                     }
                 }
+                $partiesinfo['diffbtwpaymentdates']= date_diff(date_create($partiesinfo['vendorEstDateOfPayment_output']),date_create($partiesinfo['intermedEstDateOfPayment_output']));
+                $partiesinfo['diffbtwpaymentdates']=$partiesinfo['diffbtwpaymentdates']->format("%r%a");
                 $fees = array('freight', 'bankFees', 'insurance', 'otherFees', 'legalization', 'courier');
                 foreach($fees as $fee) {
                     $partiesinfo['totalfees'] +=$aropartiesinfo_obj->$fee;
@@ -349,7 +350,8 @@ if(!($core->input['action'])) {
                     }                  
                     if($approver->isApproved==1){
                        $class='greenbackground';
-                       $dateofapproval=date($core->settings['dateformat'],$approver->timeApproved);
+                       $dateofapproval=gmdate("H:i:s",($approver->timeApproved)).'<br/>';
+                       $dateofapproval .=date($core->settings['dateformat'],$approver->timeApproved);
                      }
                      else{
                          if($approver->uid == $core->user['uid']){
@@ -359,9 +361,7 @@ if(!($core->input['action'])) {
                      eval("\$apprs .= \"".$template->get('aro_approvalchain_approver')."\";");
                      unset($class,$approve);
                  }
-            }
-            
-            
+            }     
         }
         else {
             redirect($_SERVER['HTTP_REFERER'], 2, $lang->nomatchfound);
@@ -505,7 +505,7 @@ else {
         $productline_obj = new AroRequestLines();
         $rowid = $core->input['rowid'];
         unset($core->input['action'], $core->input['module'], $core->input['rowid']);
-        $parmsfornetmargin = array('localPeriodOfInterest', 'localBankInterestRate', 'warehousingPeriod', 'warehousingTotalLoad', 'warehousingRate', 'intermedBankInterestRate', 'intermedPeriodOfInterest', 'fees','unitfees', 'commission');
+        $parmsfornetmargin = array('localPeriodOfInterest', 'localBankInterestRate', 'warehousingPeriod', 'warehousingTotalLoad', 'warehousingRate', 'intermedBankInterestRate', 'intermedPeriodOfInterest', 'fees','unitfees', 'commission','totalQty','riskRatio');
         foreach($parmsfornetmargin as $parm) {
             $core->input['parmsfornetmargin'][$parm] = $core->input[$parm];
         }
@@ -824,5 +824,15 @@ else {
         $csrowid = intval($core->input['value']);
         eval("\$curentstock_rows .= \"".$template->get('aro_currentstock_row')."\";");
         output($curentstock_rows);
+    }
+    if($core->input['action'] == 'viewonly' ){
+       $aroorderrequest = AroRequests::get_data(array('aorid' => $core->input['id']), array('simple' => false));
+//        if($core->usergroup['aro_canUseAro'] == 0) {
+//            }
+       if($aroorderrequest->isApproved==1){
+       $viewonly = array('disable' => 1);
+          echo json_encode($viewonly);
+       }
+        
     }
 }

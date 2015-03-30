@@ -26,8 +26,25 @@ $(function() {
     var referrer=url[2].split("=");
     if(referrer[1]=='toapprove'){
     $("form[id='perform_aro/managearodouments_Form'] :input:not([id^='approve_aro'])").attr("disabled", true);
-    }
-    }
+    }}
+    var id=url[1].split("=");
+        if(typeof url[1] !== 'undefined'){
+        $.ajax({type: 'post',
+                url: rootdir + "index.php?module=aro/managearodouments&action=viewonly",
+                data: "id=" + id[1],
+                beforeSend: function() {
+                },
+                complete: function() {
+                 //   $("#modal-loading").dialog("close").remove();
+                },
+                success: function(returnedData) {
+                     var json = eval("(" + returnedData + ");");
+                        if(json['disable'] ==1){
+                            $("form[id='perform_aro/managearodouments_Form'] :input:not([id^='approve_aro'])").attr("disabled", true);
+                    }
+                }
+            });
+            }
     /////-----------------------------------------------------------
 //
     $("select[id$='purchasetype'],select[id$='affid']").live('change', function() {
@@ -190,9 +207,7 @@ $(function() {
         $.each(fields_array, function(index, value) {
             fields += '&' + value + '=' + $("input[id='productline_" + id[1] + "_" + value + "']").val();
         });
-        var ptid = $("#purchasetype").val();
-        var exchangeRateToUSD = $("#exchangeRateToUSD").val();
-        fields += '&ptid=' + ptid + '&exchangeRateToUSD=' + exchangeRateToUSD;
+        fields += '&ptid=' + $("#purchasetype").val() + '&exchangeRateToUSD=' + $("#exchangeRateToUSD").val();
         var parmsfornetmargin_fields = new Array('localPeriodOfInterest', 'localBankInterestRate', 'warehousingPeriod', 'warehousingTotalLoad', 'intermedBankInterestRate', 'intermedPeriodOfInterest');
         var parmsfornetmargin = '';
         $.each(parmsfornetmargin_fields, function(index, value) {
@@ -203,34 +218,36 @@ $(function() {
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         var totalquantity = {};
         var totalqty = 0;
-        var refernece = 0;
+        var refernece = 0;//quantity*initialprice
         $("tbody[id^='productline_']").find($("select[id$='_uom']")).each(function() {
             var id = $(this).attr('id').split('_');
             totalqty = parseFloat($("input[id='productline_" + id[1] + "_quantity']").val());
             intialprice = parseFloat($("input[id='productline_" + id[1] + "_intialPrice']").val());
             refernece += (totalqty * intialprice);
-            totalquantity[$(this).val()] = parseFloat(totalquantity[$(this).val()] || 0) + totalqty;
+            totalquantity[$(this).val()] = parseFloat(totalquantity[$(this).val()] || 0) + totalqty; //Fill array of qty per uom
         });
+        //alert(totalquantity[4]);
         var i = 0;
-        var qty = {};
+        var qty =totalqtyperuom={};
         var qtyperunit = '';
         $.each(totalquantity, function(key, value) {
             if(i !== 0) {
                 qtyperunit += "_";
             }
             qty[i] = value;
+            totalqtyperuom[key]=value;
             qtyperunit += key + ":" + value;
             i++;
         });
         var totalfees = $('input[id=partiesinfo_totalfees]').val();
         var qtyperc = ((parseFloat($("input[id='productline_" + id[1] + "_quantity']").val()) * parseFloat($("input[id='productline_" + id[1] + "_intialPrice']").val())) / refernece) * 100;
-        if(i === 1)
-        {
-          var qtyperc = (parseFloat($("input[id='productline_" + id[1] + "_quantity']").val()) / parseFloat(qty[0])) * 100;
-        }
+        if(i === 1)// if only one product line
+        {var qtyperc = (parseFloat($("input[id='productline_" + id[1] + "_quantity']").val()) / parseFloat(qty[0])) * 100;}
         fees = ((qtyperc / 100) * totalfees).toFixed(3);
         var unitfees=$("input[id='ordersummary_unitfee']").val();
-        parmsfornetmargin += "&fees=" + fees+'&unitfees='+unitfees;
+        var totalQtyPerUom=totalqtyperuom[$("select[id$='"+id[1]+"_uom']").val()];
+        parmsfornetmargin += "&fees=" + fees+'&unitfees='+unitfees+"&totalQty="+totalQtyPerUom+"&riskRatio=" +$("input[id='parmsfornetmargin_localRiskRatio']").val();
+        alert(parmsfornetmargin);
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populateproductlinefields&rowid=' + id[1] + fields + '&parmsfornetmargin=' + parmsfornetmargin);

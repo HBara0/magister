@@ -21,7 +21,7 @@
                     <input type="hidden" name="partiesinfo[vendorEstDateOfPayment]" id="altpickDate_vendor_estdateofpayment" value="{$partiesinfo['vendorEstDateOfPayment_output']}"/>
                 </td>
                 <td colspan="2"> {$lang->diffbetweenpaymentdays}
-                <input type="number" name="partiesinfo[]" id="partiesinfo_diffbtwpaymentdates" value="{$partiesinfo['']}" style="width:100px" readonly/>
+                <input type="number"  id="partiesinfo_diffbtwpaymentdates" value="{$partiesinfo[diffbtwpaymentdates]}" style="width:100px" readonly/>
 
                 </td>
             </tr>

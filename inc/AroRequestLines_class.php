@@ -59,8 +59,7 @@ class AroRequestLines extends AbstractClass {
         $parmsfornetmargin['localBankInterestRate'] = $parmsfornetmargin['localBankInterestRate'] / 100;
         $parmsfornetmargin['intermedBankInterestRate'] = $parmsfornetmargin['intermedBankInterestRate'] / 100;
         $parmsfornetmargin['commission'] = $parmsfornetmargin['commission'] / 100;
-        $parmsfornetmargin['riskRatio'] = 3 / 100;
-        $parmsfornetmargin['totalQty'] = 37;
+        $parmsfornetmargin['riskRatio'] = $parmsfornetmargin['riskRatio']/ 100;
 
         $parmsfornetmargin['YearDays'] = 365;
         unset($data['parmsfornetmargin']);
