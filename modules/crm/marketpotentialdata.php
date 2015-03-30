@@ -10,10 +10,9 @@
 if(!defined('DIRECT_ACCESS')) {
     die('Direct initialization of this file is not allowed.');
 }
-
-//if($core->usergroup['profiles_canUseMktIntel']==0) {
-//$echo('Unauthorised');
-//}
+if($core->usergroup['profiles_canUseMktIntel']==0) {
+ //error($lang->sectionnopermission);
+}
 if(!$core->input['action']) {
     $marketintel_objs = MarketIntelligence::get_marketdata();
     foreach($marketintel_objs as $marketintel_obj) {
@@ -34,7 +33,7 @@ if(!$core->input['action']) {
             $prod = $marketintel_obj->get_chemfunctionproducts()->get_produt();
             $marketintel['product'] = $prod->get_displayname();
             $supid = isAllowed($core, 'canViewAllSupp', 'suppliers', $prod->get_supplier()->eid);
-            if($custid == false) {
+            if($supid == false) {
                 $marketintel['supplier'] = '-';
             }
             else {
@@ -164,6 +163,67 @@ else {
                 output_xml('<status>false</status><message>eeee'.$lang->itemalreadyexist.'</message>');
                 break;
         }
+    }
+       elseif($core->input['action'] == 'get_updatemktintldtls') {
+        if($core->usergroup['profiles_canAddMkIntlData'] == 0) {
+            exit;
+        }
+        $midata = new MarketIntelligence($core->input['id']);
+        $customer = $midata->get_customer();
+        $brandsproducts = $customer->get_brandsproducts();
+        $output = '';
+        if(is_array($brandsproducts)) {
+            foreach($brandsproducts as $brandproduct) {
+                $brandproduct_brand = $brandproduct->get_entitybrand();
+                $brandproduct_productype = $brandproduct->get_endproduct();
+                $options[$brandproduct->ebpid] = $brandproduct_brand->name;
+                if(!is_object($brandproduct_productype)) {
+                    $brandproduct_productype = new EntBrandsProducts();
+                    $brandproduct_productype->title = $lang->unspecified;
+                }
+                else {
+                    $options[$brandproduct->ebpid] .= ' - '.$brandproduct_productype->title;
+                }
+                eval("\$brandsendproducts .= \"".$template->get('profiles_entityprofile_brandsproducts')."\";");
+            }
+
+            $entitiesbrandsproducts_list = parse_selectlist('marketdata[ebpid]', 7, $options, $midata->ebpid);
+        }
+
+        $endproducttypes = EndProducTypes::get_endproductypes();
+        if(is_array($endproducttypes)) {
+            foreach($endproducttypes as $endproducttype) {
+                $endproducttypes_list .= '<option value="'.$endproducttype->eptid.'">'.$endproducttype->title.' - '.$endproducttype->get_application()->title.'</option>';
+            }
+        }
+        unset($endproducttypes);
+
+        $chemfuncchemical = $midata->get_chemfunctionschemcials();
+        if(is_object($chemfuncchemical)) {
+            $chemsubstance = $chemfuncchemical->get_chemicalsubstance();
+            $css['display']['chemsubfield'] = 'block';
+            eval("\$profiles_michemfuncproductentry = \"".$template->get('profiles_michemfuncsubstancentry')."\";");
+        }
+
+        $chemfuncproduct = $midata->get_chemfunctionproducts();
+        if(is_object($chemfuncproduct)) {
+            $product = $chemfuncproduct->get_produt();
+            eval("\$profiles_minproductentry= \"".$template->get('profiles_michemfuncproductentry')."\";");
+        }
+
+        list($module, $modulefile) = explode('/', $core->input['module']);
+        $elementname = 'marketdata[cid]';
+        $action = 'do_addmartkerdata';
+        $elemtentid = $customer->get_eid();
+
+        $packaging_list = parse_selectlist('marketdata[competitor]['.$rowid.'][packaging]', 7, Packaging::get_data('name IS NOT NULL'), '', '', '', array('blankstart' => 1));
+        $incoterms_list = parse_selectlist('marketdata[competitor]['.$rowid.'][incoterms]', 8, Incoterms::get_data('titleAbbr IS NOT NULL'), '', '', '', array('blankstart' => 1));
+        $saletype_list = parse_selectlist('marketdata[competitor]['.$rowid.'][saletype]', 8, SaleTypes::get_data('stid IN (1,4)'), '', '', '', array('blankstart' => 1));
+        $samplacquire = parse_radiobutton('marketdata[competitor]['.$rowid.'][isSampleacquire]', array(1 => 'yes', 0 => 'no'), '', true);
+        /* parse incoterms and packaging */
+
+        eval("\$popup_marketdata = \"".$template->get('popup_profiles_marketdata')."\";");
+        output($popup_marketdata);
     }
 }
 //function to check if user is allowed to see the affiliates/customers/suppliers
