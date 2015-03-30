@@ -128,6 +128,20 @@ class SegmentApplications extends AbstractClass {
         }
     }
 
+    public function get_segappfunctionsobjs() {
+        global $db;
+        $query = $db->query('SELECT cfid, safid FROM '.Tprefix.'segapplicationfunctions WHERE psaid="'.intval($this->data['psaid']).'"');
+        if($db->num_rows($query) > 0) {
+            while($rowsegmentappfunc = $db->fetch_assoc($query)) {
+                $segmentsappfunc[$rowsegmentappfunc['safid']] = new SegApplicationFunctions($rowsegmentappfunc['safid']);
+            }
+            return $segmentsappfunc;
+        }
+        else {
+            return false;
+        }
+    }
+
     public function get_endproduct() {
         global $db;
 
