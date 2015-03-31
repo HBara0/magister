@@ -128,6 +128,11 @@ class Inlinefilters {
                         case 'usersuppliers':
                             $filters[$filter] = '';
                             break;
+                        case 'pid':
+                           $product = new Products($core->input['filters'][$filter]);
+                            $filters[$filter] = '<input type="text" autocomplete="off" tabindex="1"  id="product_noexception_cache_autocomplete" value="'.$product->name.'"/><input type="hidden" id="products_cache_id" name="filters['.$filter.']"/><input type="hidden" id="product_noexception_cache_id" name="filters['.$filter.']"/>';
+
+                            break;
                         case 'psid': //all segments
                         case 'segment': //all segments
                         case 'usersegments': //user assigned segments
@@ -154,6 +159,10 @@ class Inlinefilters {
                         case 'effectiveTo':
                             $filters[$filter] = '<input type="text" id="pickDate_'.$filter.'_from" autocomplete="off" tabindex="'.$tabindex.'" value="'.$core->input['filters'][$filter]['from'].'" /><input type="hidden" name="filters['.$filter.'][from]" id="altpickDate_'.$filter.'_from" value="'.$core->input['filters'][$filter]['from'].'" /><br />';
                             $filters[$filter] .= '<input type="text" id="pickDate_'.$filter.'_to" autocomplete="off" tabindex="'.($tabindex + 1).'" value="'.$core->input['filters'][$filter]['to'].'" /><input type="hidden" name="filters['.$filter.'][to]" id="altpickDate_'.$filter.'_to" value="'.$core->input['filters'][$filter]['to'].'" />';
+                            break;
+                        case 'cid':
+                            $customer= new Entities($core->input['filters'][$filter]);
+                            $filters[$filter] ='<input type="text" id="customer_1_autocomplete" value="'.$customer->get_displayname().'"/><input type="hidden" id="customer_1_id" name="filters['.$filter.']"/>';
                             break;
                         default:
                             $filters[$filter] = '<input type="text" width="100%" name="filters['.$filter.']" tabindex="'.$tabindex.'" value="'.$core->input['filters'][$filter].'" id="filers_'.$filter.'" title="'.$this->config['parse']['filterTitles'][$filter].'">';

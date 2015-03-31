@@ -15,6 +15,47 @@ if($core->usergroup['profiles_canUseMktIntel'] == 0) {
 }
 if(!$core->input['action']) {
     $marketintel_objs = MarketIntelligence::get_marketdata();
+    
+            /* Perform inline filtering - START */
+        $filters_config = array(
+                'parse' => array('filters' => array('affid', 'cid', 'coid', 'suppliers', 'chemicalsubstance', 'functionalproperty', 'application', 'segment', 'brand', 'endproducttype', 'potential', 'mktShareQty', 'unitPrice')
+                ),
+                'process' => array(
+                        'filterKey' => 'mibdid',
+                        'mainTable' => array(
+                                'name' => 'marketintelligence_basicdata',
+                                'filters' => array('affid' => array('operatorType' => 'multiple', 'name' => 'affid'),'cid' => array('operatorType' => 'equal', 'name' => 'cid'), 'potential' => 'portential', 'mktShareQty' => 'mktShareQty', 'unitPrice' => 'unitPrice'),
+                        ),
+                        'secTables' => array(
+                                'entities' => array(
+                                        'filters' => array('coid' => array('operatorType' => 'multiple', 'name' => 'country')),'keyAttr'=>'eid','joinKeyAttr'=>'cid','joinWith'=>'marketintelligence_basicdata'
+                                ),
+                                'entitiessegments' => array(
+                                        'filters' => array('segment' => array('operatorType' => 'multiple', 'name' => 'psid'))
+                                ),
+                        
+                        )
+                )
+        );
+
+        $filter = new Inlinefilters($filters_config);
+        $filter_where_values = $filter->process_multi_filters();
+
+        $filters_row_display = 'hide';
+        if(is_array($filter_where_values)) {
+            $filters_row_display = 'show';
+            $filter_where = ' '.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
+            $multipage_where .= ' AND '.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
+        }
+
+        $filters_row = $filter->prase_filtersrows(array('tags' => 'table', 'display' => $filters_row_display));
+        
+        
+         if(!empty($filter_where)) {
+                 $marketintel_objs = MarketIntelligence::get_marketdata_dal($filter_where,array('returnarray' => true,'simple'=>false));
+         }
+        /* Perform inline filtering - END */
+    if(is_array(($marketintel_objs))){
     foreach($marketintel_objs as $marketintel_obj) {
         $mibdid = $marketintel_obj->mibdid;
         $affid = isAllowed($core, 'canViewAllAff', 'affiliates', $marketintel_obj->get_affiliate()->affid);
@@ -94,6 +135,10 @@ if(!$core->input['action']) {
         eval("\$marketpotdata_list .= \"".$template->get('crm_marketpotentialdata_rows')."\";");
         unset($marketintel);
     }
+    }
+     else {
+        $marketpotdata_list = '<tr><td colspan="6">'.$lang->na.'</td></tr>';
+    }
     if($core->usergroup['profiles_canAddMkIntlData'] == 1) {
         $midata = new MarketIntelligence($mibdid);
         $addmarketdata_link = '<div style="float: right;" title="'.$lang->addmarketdata.'"><a href="#popup_profilesmarketdata" id="showpopup_profilesmarketdata" class="showpopup"><img alt="Add Market" src="'.$core->settings['rootdir'].'/images/icons/edit.gif" /></a></div>';
@@ -114,39 +159,6 @@ if(!$core->input['action']) {
         else {
             $endproducttypes_list = '<option value="0">'.$lang->na.'</option>';
         }
-        /* Perform inline filtering - START */
-        $filters_config = array(
-                'parse' => array('filters' => array('affid', 'customer', 'coid', 'products', 'suppliers', 'chemicalsubstance', 'functionalproperty', 'application', 'segment', 'brand', 'endproducttype', 'potential', 'mktShareQty', 'unitPrice')
-                ),
-                'process' => array(
-                        'filterKey' => 'mibdid',
-                        'mainTable' => array(
-                                'name' => 'marketintelligence_basicdata',
-                                'filters' => array('affid' => 'affid', 'potential' => 'portential', 'mktShareQty' => 'mktShareQty', 'unitPrice' => 'unitPrice'),
-                        ),
-                        'secTables' => array(
-                                'countries' => array(
-                                        'filters' => array('country' => array('operatorType' => 'multiple', 'name' => 'coid'))
-                                ),
-                                'entitiessegments' => array(
-                                        'filters' => array('segment' => array('operatorType' => 'multiple', 'name' => 'psid'))
-                                ),
-                        )
-                )
-        );
-
-        $filter = new Inlinefilters($filters_config);
-        $filter_where_values = $filter->process_multi_filters();
-
-        $filters_row_display = 'hide';
-        if(is_array($filter_where_values)) {
-            $filters_row_display = 'show';
-            $filter_where = 'AND '.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
-            $multipage_where .= ' AND '.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
-        }
-
-        $filters_row = $filter->prase_filtersrows(array('tags' => 'table', 'display' => $filters_row_display));
-        /* Perform inline filtering - END */
         eval("\$profiles_michemfuncproductentry = \"".$template->get('profiles_michemfuncsubstancentry')."\";");
         eval("\$profiles_minproductentry = \"".$template->get('profiles_michemfuncproductentry')."\";");
         eval("\$popup_marketdata= \"".$template->get('popup_profiles_marketdata')."\";");
