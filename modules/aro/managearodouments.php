@@ -443,7 +443,10 @@ else {
     }
     if($core->input['action'] == 'getestimatedate') {
         if(is_array($core->input[paymentermdays])) {
-            $paymentermdays = explode(', ', $core->input[paymentermdays][0]);
+            $paymentermdays = explode(',', $core->input[paymentermdays][0]);
+        }
+        if(is_array($core->input[salesdates])) {
+            $salesdates= explode(',', $core->input[salesdates][0]);
         }
 
         $purchasetype = new PurchaseTypes($core->input['ptid']);
@@ -452,7 +455,6 @@ else {
             exit;
         }
         if(is_array($paymentermdays)) {
-
             foreach($paymentermdays as $paymenterm) {
                 $paymentermobjs = new PaymentTerms($paymenterm, false);
                 $intervalspayment_terms[] = $paymentermobjs->overduePaymentDays; //get days
@@ -464,9 +466,20 @@ else {
                 }
             }
         }
-        $avgesdateofsale = strtotime($core->input['avgesdateofsale']);  // arraysum later
+         if(is_array($salesdates)) {
+            foreach($salesdates as $salesdate) {
+                $salesdateobjs[] = strtotime($salesdate);
+                $intervalsales_dates = array_unique($salesdateobjs);
+                if(!empty($intervalsales_dates)) {
+                    $countintervalsales_dates = count($intervalsales_dates);
+                    $sumintervalsales_dates  = array_sum($intervalsales_dates);
+                    $avgsaledate = ($sumintervalsales_dates / $countintervalsales_dates);
+                }
+            }
+        }
+        $avgesdateofsale_output=date($core->settings['dateformat'],$avgsaledate);
         /* convert the average days of the paymentterms to days in order to sum them with the average date of sale */
-        $est_averagedate = $avgpaymentterms * (86400) + $avgesdateofsale;
+        $est_averagedate = $avgpaymentterms * (86400) + $avgsaledate;
         $conv = date($core->settings['dateformat'], ($est_averagedate));
         echo json_encode(array('avgeliduedate' => $conv)); //return json to the ajax request to populate in the form
     }
@@ -587,8 +600,8 @@ else {
         }
         $actualpurchase_data['pickDate_stock_'.$rowid] = $actualpurchase[estDateOfStockEntry_output];
         $actualpurchase_data['pickDate_sale_'.$rowid.''] = $actualpurchase[estDateOfSale_output];
-        $actualpurchase_data['altpickDate_stock_'.$rowid] = $actualpurchase[estDateOfStockEntry_output];
-        $actualpurchase_data['altpickDate_sale_'.$rowid.''] = $actualpurchase[estDateOfSale_output];
+        $actualpurchase_data['altpickDate_stock_'.$rowid] = $actualpurchase[estDateOfStockEntry_formatted];
+        $actualpurchase_data['altpickDate_sale_'.$rowid.''] = $actualpurchase[estDateOfSale_formatted];
         echo json_encode($actualpurchase_data);
     }
     if($core->input['action'] == 'populatepartiesinfofields') {
@@ -812,12 +825,11 @@ else {
         $currentstock['packingTitle'] = $packing->get_displayname();
         $fields = array('productName','pid','packing','packingTitle','inputChecksum'); // 'quantity', 'stockValue', 'expiryDate');
         foreach($fields as $field) {
-            $currentstock_data['currentstock_'.$rowid.'_'.$field] = $currentstock[$field];
-        }
-//        $currentstock_data['pickDate_stock_'.$rowid] = $currentstock[dateOfStockEntry_output];
-//        $currentstock_data['pickDate_sale_'.$rowid.''] = $currentstock[estDateOfSale_output];
-//        $currentstock_data['altpickDate_stock_'.$rowid] = $currentstock[dateOfStockEntry_output];
-//        $currentstock_data['altpickDate_sale_'.$rowid.''] = $currentstock[estDateOfSale_output];
+        $currentstock_data['currentstock_'.$rowid.'_'.$field] = $currentstock[$field];}
+        $currentstock_data['pickDate_currentstock_'.$rowid] = '';
+        $currentstock_data['pickDate_currentsale_'.$rowid] = '';
+        $currentstock_data['altpickDate_currentstock_'.$rowid] = '';
+        $currentstock_data['altpickDate_currentsale_'.$rowid.''] = '';
         echo json_encode($currentstock_data);
     }
     if($core->input['action'] == 'ajaxaddmore_currentstockrow') {

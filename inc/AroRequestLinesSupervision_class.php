@@ -42,7 +42,7 @@ class AroRequestLinesSupervision extends AbstractClass {
         if(!$this->validate_requiredfields($data)) {
             $actualpurchase['aorid'] = $data['aorid'];
             $actualpurchase = $this->calculate_actualpurchasevalues($data);
-            unset($actualpurchase['estDateOfStockEntry_output'], $actualpurchase['estDateOfSale_output'], $actualpurchase['productName'], $actualpurchase['daysInStock']);
+            unset($actualpurchase['estDateOfStockEntry_formatted'], $actualpurchase['estDateOfSale_formatted'],$actualpurchase['estDateOfStockEntry_output'], $actualpurchase['estDateOfSale_output'], $actualpurchase['productName'], $actualpurchase['daysInStock']);
             $query = $db->update_query(self::TABLE_NAME, $actualpurchase, ''.self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
             if($query) {
                 $log->record(self::TABLE_NAME, $this->data[self::PRIMARY_KEY]);
@@ -90,8 +90,8 @@ class AroRequestLinesSupervision extends AbstractClass {
         }
         $actualpurchase['estDateOfStockEntry_output'] = date($core->settings['dateformat'], $actualpurchase['estDateOfStockEntry']);
         $actualpurchase['estDateOfSale_output'] = date($core->settings['dateformat'], $actualpurchase['estDateOfSale']);
-//           $actualpurchase['estDateOfStockEntry_output'] = date($core->settings['dateformat'], $actualpurchase['estDateOfStockEntry']);
-//        $actualpurchase['estDateOfSale_output'] = date($core->settings['dateformat'], $actualpurchase['estDateOfSale']);
+        $actualpurchase['estDateOfStockEntry_formatted'] = date('d-m-Y', $actualpurchase['estDateOfStockEntry']);
+       $actualpurchase['estDateOfSale_formatted'] = date('d-m-Y', $actualpurchase['estDateOfSale']);
 
         $actualpurchase['shelfLife'] = 2;
         if($purchasetype->qtyIsNotStored == 1) {

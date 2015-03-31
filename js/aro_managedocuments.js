@@ -27,8 +27,8 @@ $(function() {
     if(referrer[1]=='toapprove'){
     $("form[id='perform_aro/managearodouments_Form'] :input:not([id^='approve_aro'])").attr("disabled", true);
     }}
+    if(typeof url[1] !== 'undefined'){
     var id=url[1].split("=");
-        if(typeof url[1] !== 'undefined'){
         $.ajax({type: 'post',
                 url: rootdir + "index.php?module=aro/managearodouments&action=viewonly",
                 data: "id=" + id[1],
@@ -179,9 +179,9 @@ $(function() {
     //-----------------------------------------------------------------------------------
     $("select[id^='paymentermdays_']").live('change', function() {
         var id = $(this).attr('id').split('_');
-        var avgesdateofsale = '11-02-2015';
         var parentContainer = $(this).closest('div');
         var paymentdays = [];
+        var salesdates=[];
         parentContainer.children('table').find('tr').each(function() {
             /*check if the customer is selected */
             if($(this).find("input[id^='customer_']").val() !== '') {
@@ -192,8 +192,13 @@ $(function() {
                 });
             }
         });
+         $("tbody[id^='actualpurchaserow_']").find("input[id^='altpickDate_sale_']").each(function() {
+                    if($(this).val() !== '') {
+                        salesdates.push($(this).val());
+                    }
+                });
         var purchasetype = $("input[id^='cpurchasetype']").val();
-        sharedFunctions.populateForm('perform_aro/managearodouments_Form', 'http://127.0.0.1/ocos/index.php?module=aro/managearodouments&action=getestimatedate&avgesdateofsale= ' + avgesdateofsale + '&paymentermdays[]= ' + paymentdays + '&ptid= ' + purchasetype);
+        sharedFunctions.populateForm('perform_aro/managearodouments_Form', 'http://127.0.0.1/ocos/index.php?module=aro/managearodouments&action=getestimatedate&paymentermdays[]= ' + paymentdays + '&ptid= ' + purchasetype +'&salesdates[]='+salesdates);
     });
     $(window).load(function() {
         $("select[id^='paymentermdays_']").trigger("change");
@@ -247,7 +252,6 @@ $(function() {
         var unitfees=$("input[id='ordersummary_unitfee']").val();
         var totalQtyPerUom=totalqtyperuom[$("select[id$='"+id[1]+"_uom']").val()];
         parmsfornetmargin += "&fees=" + fees+'&unitfees='+unitfees+"&totalQty="+totalQtyPerUom+"&riskRatio=" +$("input[id='parmsfornetmargin_localRiskRatio']").val();
-        alert(parmsfornetmargin);
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populateproductlinefields&rowid=' + id[1] + fields + '&parmsfornetmargin=' + parmsfornetmargin);
