@@ -16,15 +16,15 @@
         <input type="number"  step="1" name="currentstock[$csrowid][stockValue]" id="currentstock_{$csrowid}_stockValue" value="{$currentstock->stockValue}" style="width:100px;" readonly/>
     </td>
     <td>
-        <input type="text" id="pickDate_stock_{$csrowid}" autocomplete="off" tabindex="2" value="{$currentstock->dateOfStockEntry_output}"/>
-        <input type="hidden" name="currentstock[$csrowid][dateOfStockEntry]" id="altpickDate_stock_{$csrowid}" value="{$currentstock->dateOfStockEntry_formatted}"/>
+        <input type="text" id="pickDate_currentstock_{$csrowid}" autocomplete="off" tabindex="2" value="{$currentstock->dateOfStockEntry_output}"/>
+        <input type="hidden" name="currentstock[$csrowid][dateOfStockEntry]" id="altpickDate_currentstock_{$csrowid}" value="{$currentstock->dateOfStockEntry_formatted}"/>
 
     </td>
     <td>
         <input type="number"  step="any" name="currentstock[$csrowid][expiryDate]" id="currentstock_{$csrowid}_expiryDate" value="{$currentstock->expiryDate}" style="width:100px;"/>
     </td>
     <td>
-        <input type="text" id="pickDate_sale_{$csrowid}" autocomplete="off" tabindex="2" value="{$currentstock->estDateOfSale_output}"/>
-        <input type="hidden" name="currentstock[$csrowid][estDateOfSale]" id="altpickDate_sale_{$csrowid}" value="{$currentstock->estDateOfSale_formatted}"/>
+        <input type="text" id="pickDate_currentsale_{$csrowid}" autocomplete="off" tabindex="2" value="{$currentstock->estDateOfSale_output}"/>
+        <input type="hidden" name="currentstock[$csrowid][estDateOfSale]" id="altpickDate_currentsale_{$csrowid}" value="{$currentstock->estDateOfSale_formatted}"/>
     </td>
 </tr>
