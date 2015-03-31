@@ -12,7 +12,7 @@ if(!defined("DIRECT_ACCESS")) {
     die("Direct initialization of this file is not allowed.");
 }
 if($core->usergroup['grouppurchase_canGenerateReports'] == 0) {
-    //   error($lang->sectionnopermission);
+    error($lang->sectionnopermission);
 }
 if(!($core->input['action'])) {
     $report_type = $core->input['forecast']['reporttype'];
