@@ -13,7 +13,8 @@
     <td ><div style="width:150px">{$marketintel[potqty]}</div></td>
     <td ><div style="width:150px">{$marketintel[marketshare]}</div></td>
     <td ><div style="width:150px">{$marketintel[price]}</div></td>
-    <td ><div style="width:150px"></div>  
-        <a style="cursor: pointer;" title="'.$lang->update.'" id="updatemktintldtls_{$mibdid}_{$core->input['module']}_loadpopupbyid" rel="mktdetail_{$mibdid}"><img src="{$core->settings[rootdir]}/images/icons/update.png"/></a>
-    </td>
+    <td ><div style="width:150px"></div>
+        <a style="cursor: pointer;" title="$lang->update" id="updatemktintldtls_{$mibdid}_{$core->input['module']}_loadpopupbyid" rel="mktdetail_{$mibdid}"><img src="{$core->settings[rootdir]}/images/icons/update.png"/></a>
+        <a style="cursor: pointer;" title="View Market Box" id="mktintldetails_{$mibdid}_{$core->input['module']}_loadpopupbyid" rel="mktdetail_{$mibdid}"><img src="{$core->settings[rootdir]}/images/icons/search.gif"/></a></div>
+</td>
 </tr>

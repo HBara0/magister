@@ -29,8 +29,9 @@
                             <th width="150px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->price}</th>
                             <th width="150px" class=" border_right" rowspan="2" valign="top" align="center">{$addmarketdata_link}</th>
                             <th>&nbsp;</th>
+                        </tr><tr>
+                            {$filters_row}
                         </tr>
-                        {$filters_row}
                     </thead>
                     <tbody>
                         {$marketpotdata_list}

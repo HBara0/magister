@@ -10,8 +10,8 @@
 if(!defined('DIRECT_ACCESS')) {
     die('Direct initialization of this file is not allowed.');
 }
-if($core->usergroup['profiles_canUseMktIntel']==0) {
- //error($lang->sectionnopermission);
+if($core->usergroup['profiles_canUseMktIntel'] == 0) {
+    //error($lang->sectionnopermission);
 }
 if(!$core->input['action']) {
     $marketintel_objs = MarketIntelligence::get_marketdata();
@@ -114,6 +114,39 @@ if(!$core->input['action']) {
         else {
             $endproducttypes_list = '<option value="0">'.$lang->na.'</option>';
         }
+        /* Perform inline filtering - START */
+        $filters_config = array(
+                'parse' => array('filters' => array('affid', 'customer', 'coid', 'products', 'suppliers', 'chemicalsubstance', 'functionalproperty', 'application', 'segment', 'brand', 'endproducttype', 'potential', 'mktShareQty', 'unitPrice')
+                ),
+                'process' => array(
+                        'filterKey' => 'mibdid',
+                        'mainTable' => array(
+                                'name' => 'marketintelligence_basicdata',
+                                'filters' => array('affid' => 'affid', 'potential' => 'portential', 'mktShareQty' => 'mktShareQty', 'unitPrice' => 'unitPrice'),
+                        ),
+                        'secTables' => array(
+                                'countries' => array(
+                                        'filters' => array('country' => array('operatorType' => 'multiple', 'name' => 'coid'))
+                                ),
+                                'entitiessegments' => array(
+                                        'filters' => array('segment' => array('operatorType' => 'multiple', 'name' => 'psid'))
+                                ),
+                        )
+                )
+        );
+
+        $filter = new Inlinefilters($filters_config);
+        $filter_where_values = $filter->process_multi_filters();
+
+        $filters_row_display = 'hide';
+        if(is_array($filter_where_values)) {
+            $filters_row_display = 'show';
+            $filter_where = 'AND '.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
+            $multipage_where .= ' AND '.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
+        }
+
+        $filters_row = $filter->prase_filtersrows(array('tags' => 'table', 'display' => $filters_row_display));
+        /* Perform inline filtering - END */
         eval("\$profiles_michemfuncproductentry = \"".$template->get('profiles_michemfuncsubstancentry')."\";");
         eval("\$profiles_minproductentry = \"".$template->get('profiles_michemfuncproductentry')."\";");
         eval("\$popup_marketdata= \"".$template->get('popup_profiles_marketdata')."\";");
@@ -164,7 +197,7 @@ else {
                 break;
         }
     }
-       elseif($core->input['action'] == 'get_updatemktintldtls') {
+    elseif($core->input['action'] == 'get_updatemktintldtls') {
         if($core->usergroup['profiles_canAddMkIntlData'] == 0) {
             exit;
         }
@@ -224,6 +257,55 @@ else {
 
         eval("\$popup_marketdata = \"".$template->get('popup_profiles_marketdata')."\";");
         output($popup_marketdata);
+    }
+    elseif($core->input['action'] == 'get_mktintldetails') {
+        if($core->usergroup['profiles_canAddMkIntlData'] == 0) {
+            exit;
+        }
+
+        $mkintentry = new MarketIntelligence($core->input['id']);
+        $round_fields = array('potential', 'mktSharePerc', 'mktShareQty', 'unitPrice');
+        foreach($round_fields as $round_field) {
+            $mkintentry->{$round_field} = round($mkintentry->{$round_field});
+        }
+
+        $mkintentry_customer = $mkintentry->get_customer();
+        $mkintentry_brand = $mkintentry->get_entitiesbrandsproducts()->get_entitybrand();
+        $mkintentry_endproducttype = $mkintentry->get_entitiesbrandsproducts()->get_endproduct();
+        if(!is_object($mkintentry_endproducttype)) {
+            $mkintentry_endproducttype = new EntBrandsProducts();
+            $mkintentry_endproducttype->title = $lang->unspecified;
+        }
+        /* Parse competitors related market Data */
+        $mrktcompetitor_objs = $mkintentry->get_competitors();
+        if(is_array($mrktcompetitor_objs)) {
+            foreach($mrktcompetitor_objs as $mrktcompetitor_obj) {
+                $mrktintl_detials['competitors'] = $mrktcompetitor_obj->get();
+                if(is_array($mrktintl_detials['competitors'])) {
+                    $marketintelligencedetail_competitors = ' <div class="thead">'.$lang->competitor.'</div>';
+                    $mrktintl_detials['competitors']['unitPrice'] = round($mrktintl_detials['competitors']['unitPrice']);
+
+                    /* Get competitor suppliers objects */
+                    $competitorsentities_objs = $mrktcompetitor_obj->get_entities();
+                    if(is_array($competitorsentities_objs)) {
+                        foreach($competitorsentities_objs as $competitorsentities_obj) {
+                            $mrktintl_detials_competitorsuppliers .= '<li>'.$competitorsentities_obj->get()['companyName'].'</li>';
+                        }
+                    }
+                    /* Get competitor suppliers prodcuts */
+                    $competitorsproducts_objs = $mrktcompetitor_obj->get_products();
+                    if(is_array($competitorsproducts_objs)) {
+                        foreach($competitorsproducts_objs as $competitorsproducts_obj) {
+                            $mrktintl_detials_competitorproducts.= '<li>'.$competitorsproducts_obj->get()['name'].'</li>';
+                        }
+                    }
+                }
+            }
+            eval("\$marketintelligencedetail_competitors .= \"".$template->get('profiles_entityprofile_marketintelligence_competitors')."\";");
+        }
+
+        eval("\$marketintelligencedetail = \"".$template->get('popup_marketintelligencedetails')."\";");
+        output($marketintelligencedetail);
     }
 }
 //function to check if user is allowed to see the affiliates/customers/suppliers
