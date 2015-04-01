@@ -99,9 +99,9 @@ class AroRequests extends AbstractClass {
             $fundsengaged_obj->save();
             $this->create_approvalchain();
           //sending email section
-           $sendemail_to['coorinators'][] = $this->get_segoordinators($arosegments);
+           // $sendemail_to['coorinators'][] = $this->get_segoordinators($arosegments);
            $sendemail_to['approvers']=$this->generate_approvalchain();
-            $this->send_approvalemail($sendemail_to['approvers'],$sendemail_to['coorinators']);
+            $this->send_approvalemail($sendemail_to['approvers']); //,$sendemail_to['coorinators']);
             ///////////////////////////////
           }
     }
@@ -181,16 +181,16 @@ class AroRequests extends AbstractClass {
             $fundsengaged_obj->save();
             $this->create_approvalchain();
             // //sending email section
-            if($this->check_infromcoords()==1) {
-              $sendemail_to['coorinators'][] = $this->get_segoordinators($arosegments);
-            }
+//            if($this->check_infromcoords()==1) {
+//              $sendemail_to['coorinators'][] = $this->get_segoordinators($arosegments);
+//            }
             $approvers_objs=$this->get_approvers();
             if(is_array($approvers_objs)){
                   foreach($approvers_objs as $approver) {
                     $approvers[] =$approver->uid;
                 }
             }
-            $this->send_approvalemail($sendemail_to['approvers'],$sendemail_to['coorinators']);
+            $this->send_approvalemail($sendemail_to['approvers']);
             ////////////////////////////////////////////
             }
     }
@@ -452,8 +452,21 @@ class AroRequests extends AbstractClass {
             return $aroapprovalchain_policies->informCoordinators;
         }
     }
+    private function check_informglobalcfo(){
+         $filter = 'affid ='.$this->affid.' AND purchaseType = '.$this->orderType.' AND ('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
+        $aroapprovalchain_policies = AroApprovalChainPolicies::get_data($filter);
+        if(is_object($aroapprovalchain_policies)) {
+            return $aroapprovalchain_policies->informGlobalCFO;
+        }
+    }
     
-    private function get_segoordinators($arosegments){            
+    private function get_segoordinators(){    
+        $arorequestlines=AroRequestLines::get_data(array('aorid'=>1));
+        if(is_array($arorequestlines)){
+            foreach($arorequestlines as $arorequestline){
+                 $arosegments['psid']=$arorequestline->psid;
+            }
+        }
         if(is_array($arosegments)){
                foreach($arosegments as $key => $value) {
                     $productsegment_obj = new ProductsSegments($value);
@@ -462,16 +475,13 @@ class AroRequests extends AbstractClass {
                 foreach($coordinators_objs as $key => $coord_objs) {
                     if(is_array($coord_objs)) {
                         foreach($coord_objs as $coord_obj) {
-                            $users_objs[] = $coord_obj->get_coordinator();
+                            $coordinators[] = $coord_obj->get_coordinator();
                         }
                     }
                     else if(is_object($coord_objs)) {
-                        $users_objs[] = $coord_objs->get_coordinator();
+                        $coordinators[] = $coord_objs->get_coordinator();
                         }
                     }
-                foreach($users_objs as $user) {
-                    $coordinators[] = $user->get_email(); //mailing list of segments coordinators
-                }  
         }
         return $coordinators;
     }
@@ -487,7 +497,7 @@ class AroRequests extends AbstractClass {
         return $this->get_approvers(array('order' => array('sort' => 'ASC', 'by' => 'sequence'), 'limit' => '0, 1'));
     }
     
-    public function send_approvalemail($approvers, $segcoordinators) {
+    public function send_approvalemail($approvers) {
         $firstapprover=$this->get_firstapprover();
         if(is_array($approvers)){
             foreach($approvers as $approver_id){
@@ -506,9 +516,9 @@ class AroRequests extends AbstractClass {
                 'subject' => $aroapprovalemail_subject ,
                 'message' => "Aro Request Needs Approval:".$approve_link,
         );
-        if(is_array($segcoordinators)){
-                   $email_data['cc']=$segcoordinators;
-        }
+    //   if(is_array($segcoordinators)){
+//                   $email_data['cc']=$segcoordinators;
+//        }
         $mailer = new Mailer();
         $mailer = $mailer->get_mailerobj();
         $mailer->set_type();
@@ -607,13 +617,25 @@ class AroRequests extends AbstractClass {
         global $lang, $log;
         if($this->data['isApproved'] == 1) {
             $approvers=$this->get_approvers();
-             if(is_array($approvers)){
-            foreach($approvers as $approver_id){
-                $approver=new Users($approver_id);
-                $mailinglist[$approver_id]=$approver->get_email();
+            if(is_array($approvers)){
+                foreach($approvers as $approver_id){
+                    $approver=new Users($approver_id);
+                    $mailinglist[$approver_id]=$approver->get_email();
                 }
             }
-           // $segcoords=$this->get_segoordinators();
+            
+            if($this->check_infromcoords()==1) {
+                $segcoords=$this->get_segoordinators();
+                 if(is_array($segcoords)){
+                      foreach($segcoords as $coord) {
+                          $mailinglist[$coord->id]=$coord->get_email();
+                      }
+                }
+             }
+             if($this->check_informglobalcfo()==1){
+                 
+             }
+            
             $email_data = array(
                     'from_email' => '..@ocos.orkila.com',
                     'from' => 'Orkila Attendance System',
