@@ -30,7 +30,7 @@ class AroRequestLines extends AbstractClass {
 //            $product = new Products($data['pid']);
 //            $data['psid'] = $product->get_segment()['psid'];
 //        }
-        unset($data['fees'],$data['ptid']);
+        unset($data['ptid']);
         $query = $db->insert_query(self::TABLE_NAME, $data);
         if($query) {
             $log->record(self::TABLE_NAME, $this->data[self::PRIMARY_KEY]);
@@ -44,7 +44,7 @@ class AroRequestLines extends AbstractClass {
 //            $product = new Products($data['pid']);
 //            $data['psid'] = $product->get_segment()['psid'];
 //        }
-        unset($data['fees'],$data['ptid']);
+        unset($data['ptid']);
         $query = $db->update_query(self::TABLE_NAME, $data, self::PRIMARY_KEY.' = '.intval($this->data[self::PRIMARY_KEY]));
         if($query) {
             $log->record(self::TABLE_NAME, $this->data[self::PRIMARY_KEY]);
@@ -111,14 +111,14 @@ class AroRequestLines extends AbstractClass {
             $data['netMarginPerc'] = round($data['netMargin'] / (( $data['sellingPrice'] * $data['quantity']) * $data['exchangeRateToUSD']), 2);
         }
         unset($data['exchangeRateToUSD']);
-        $data['fees'] = $parmsfornetmargin['fees'];
+        $data['fees'] = $data['fees'];
         return $data;
     }
 
     private function calculate_netmargin($purchasetype, $data = array(), $parms = array()) {
         $parmsfornetmargin['YearDays'] = 365;
 
-        if($parms['localPeriodOfInterest'] != 0 && $parms['warehousingPeriod'] != 0) {
+        if($parms['localPeriodOfInterest'] != 0 && $parms['warehousingPeriod'] != 0 && $parms['warehousingRate']!=0 && $parms['totalQty']!=0) {
             $netmargin = (($data['grossMarginAtRiskRatio'] - (($data['quantity'] * $data['affBuyingPrice'] * $parms['localBankInterestRate']) / ( $parmsfornetmargin['YearDays'] * $parms['localPeriodOfInterest']))) * $data['exchangeRateToUSD']);
             $netmargin -= ((($parms['warehousingTotalLoad'] * $data['quantity']) / $parms['totalQty']) * ($data['daysInStock'] / $parms['warehousingPeriod']) * $parms['warehousingRate']);
         }

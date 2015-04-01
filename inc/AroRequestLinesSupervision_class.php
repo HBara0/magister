@@ -17,7 +17,7 @@ class AroRequestLinesSupervision extends AbstractClass {
     const DISPLAY_NAME = '';
     const SIMPLEQ_ATTRS = '*';
     const CLASSNAME = __CLASS__;
-    const UNIQUE_ATTRS = 'pid,packing';
+    const UNIQUE_ATTRS = 'aorid,pid,packing';
 
     public function __construct($id = '', $simple = true) {
         parent::__construct($id, $simple);
@@ -29,7 +29,7 @@ class AroRequestLinesSupervision extends AbstractClass {
             $aorid = $data['aorid'];
             $actualpurchase = $this->calculate_actualpurchasevalues($data);
             $actualpurchase['aorid'] = $aorid;
-            unset($actualpurchase['estDateOfStockEntry_output'], $actualpurchase['estDateOfSale_output'], $actualpurchase['productName'], $actualpurchase['daysInStock']);
+            unset($actualpurchase['estDateOfStockEntry_formatted'], $actualpurchase['estDateOfSale_formatted'],$actualpurchase['estDateOfStockEntry_output'], $actualpurchase['estDateOfSale_output'], $actualpurchase['productName'], $actualpurchase['daysInStock']);
             $query = $db->insert_query(self::TABLE_NAME, $actualpurchase);
             if($query) {
                 $log->record(self::TABLE_NAME, $this->data[self::PRIMARY_KEY]);
@@ -93,7 +93,6 @@ class AroRequestLinesSupervision extends AbstractClass {
         $actualpurchase['estDateOfStockEntry_formatted'] = date('d-m-Y', $actualpurchase['estDateOfStockEntry']);
        $actualpurchase['estDateOfSale_formatted'] = date('d-m-Y', $actualpurchase['estDateOfSale']);
 
-        $actualpurchase['shelfLife'] = 2;
         if($purchasetype->qtyIsNotStored == 1) {
             $actualpurchase['estDateOfSale'] = $actualpurchase['shelfLife'] = $actualpurchase['estDateOfStockEntry'] = '-';
         }

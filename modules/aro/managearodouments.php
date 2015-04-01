@@ -107,8 +107,10 @@ if(!($core->input['action'])) {
             if(is_array($requestcustomers)) {
                 foreach($requestcustomers as $customer) {
                     $customeroder = $customer->get();
-                    $customeroder['paymenttermbasedate_output'] = date($core->settings['dateformat'], $customeroder['paymentTermBaseDate']);
-                    $customeroder['paymenttermbasedate_formatted'] = date('d-m-Y', $customeroder['paymentTermBaseDate']);
+                    if($customeroder['paymentTermBaseDate'] !=0){
+                    $customeroder['paymenttermbasedate_output'] = date($core->settings['dateformat'], $customeroder['paymentTermBaseDate']);}
+                    if($customeroder['paymentTermBaseDate'] !=0){
+                    $customeroder['paymenttermbasedate_formatted'] = date('d-m-Y', $customeroder['paymentTermBaseDate']);}
                     if($customeroder['cid'] == 0) {
                         $unspecifiedcust = $customeroder;
                         continue;
@@ -124,10 +126,9 @@ if(!($core->input['action'])) {
                 //Always parse the unspecified customer row
                 unset($customeroder);
                 if(isset($unspecifiedcust) && !empty($unspecifiedcust)) {
-                    $checked['unsepcifiedCustomer'] = 'checked = "checked"';
                     $customeroder = $unspecifiedcust;
                 }
-                $customeroder['inputChecksum'] = generate_checksum('ucl');
+              else{$customeroder['inputChecksum'] = generate_checksum('ucl');}
                 $altpayment_term = parse_selectlist('customeroder['.$rowid.'][ptid]', 4, $payment_terms, $unspecifiedcust['ptid'], '', '', array('blankstart' => 1, 'id' => "paymentermdays_".$rowid));
                 eval("\$unspecified_customer_row = \"".$template->get('aro_unspecifiedcustomer_row')."\";");
                 $rowid = $clrowid;
@@ -208,25 +209,30 @@ if(!($core->input['action'])) {
                     $actualpurchase->productName = $products->get_displayname();
                     $actualpurchase->estDateOfStockEntry_output = date($core->settings['dateformat'], $actualpurchase->estDateOfStockEntry);
                     $actualpurchase->estDateOfSale_output = date($core->settings['dateformat'], $actualpurchase->estDateOfSale);
+                    $actualpurchase->estDateOfStockEntry_formatted =   date('d-m-Y', $actualpurchase->estDateOfStockEntry);
+                    $actualpurchase->estDateOfSale_formatted =  date('d-m-Y', $actualpurchase->estDateOfSale);
                     $packing = new Packaging($actualpurchase->packing);
                     $actualpurchase->packingTitle = $packing->get_displayname();
                     //  $packaging_selected_list = parse_selectlist('productline['.$plrowid.'][packing]', '', $packaging, $actualpurchase->packing, '', '', array('id' => "productline_".$plrowid."_packing", 'blankstart' => 1));
                     eval("\$actualpurchase_rows .= \"".$template->get('aro_actualpurchase_row')."\";");
                 }
             }
-            //*********Aro Actual Purchase-End *********//
+           //*********Aro Actual Purchase-End *********//
           //********Current Stock -Start *********//
-               $arocurrentstock= AroRequestsCurStkSupervision::get_data(array('aorid' => $aroorderrequest->aorid), array('returnarray' => true, 'order' => array('by' => 'inputChecksum', 'sort' => 'ASC')));
+               $arocurrentstockrows= AroRequestsCurStkSupervision::get_data(array('aorid' => $aroorderrequest->aorid), array('returnarray' => true, 'order' => array('by' => 'inputChecksum', 'sort' => 'ASC')));
                $csrowid = 0;
-            if(is_array($arocurrentstock)) {
-                foreach($arocurrentstock as $arocurrentstockrow) {
+            if(is_array($arocurrentstockrows)) {
+                foreach($arocurrentstockrows as $currentstock) {
                     $csrowid++;
-                    $products = new Products($arocurrentstockrow->pid);
-                    $arocurrentstockrow->productName = $products->get_displayname();
-                    $arocurrentstockrow->dateOfStockEntry_output = date($core->settings['dateformat'], $arocurrentstockrow->dateOfStockEntry);
-                    $arocurrentstockrow->estDateOfSale_output = date($core->settings['dateformat'], $arocurrentstockrow->estDateOfSale);
-                    $packing = new Packaging($arocurrentstockrow->packing);
-                    $arocurrentstockrow->packingTitle = $packing->get_displayname();
+                    $products = new Products($currentstock->pid);
+                    $currentstock->productName = $products->get_displayname();
+                    if($currentstock->dateOfStockEntry !=0){
+                    $currentstock->dateOfStockEntry_output = date($core->settings['dateformat'], $currentstock->dateOfStockEntry);}
+                    if($currentstock->estDateOfSale !=0){
+                    $currentstock->estDateOfSale_output = date($core->settings['dateformat'], $currentstock->estDateOfSale);
+                    }
+                    $packing = new Packaging($currentstock->packing);
+                    $currentstock->packingTitle = $packing->get_displayname();
                     eval("\$currentstock_rows .= \"".$template->get('aro_currentstock_row')."\";");
                 }
             }
@@ -477,10 +483,12 @@ else {
                 }
             }
         }
+        $conv='';
         $avgesdateofsale_output=date($core->settings['dateformat'],$avgsaledate);
         /* convert the average days of the paymentterms to days in order to sum them with the average date of sale */
         $est_averagedate = $avgpaymentterms * (86400) + $avgsaledate;
-        $conv = date($core->settings['dateformat'], ($est_averagedate));
+        if(!empty($avgpaymentterms) && !empty($avgsaledate)){
+        $conv = date($core->settings['dateformat'], ($est_averagedate));}
         echo json_encode(array('avgeliduedate' => $conv)); //return json to the ajax request to populate in the form
     }
     if($core->input['action'] == 'ajaxaddmore_productline') {
@@ -518,7 +526,7 @@ else {
         $productline_obj = new AroRequestLines();
         $rowid = $core->input['rowid'];
         unset($core->input['action'], $core->input['module'], $core->input['rowid']);
-        $parmsfornetmargin = array('localPeriodOfInterest', 'localBankInterestRate', 'warehousingPeriod', 'warehousingTotalLoad', 'warehousingRate', 'intermedBankInterestRate', 'intermedPeriodOfInterest', 'fees','unitfees', 'commission','totalQty','riskRatio');
+        $parmsfornetmargin = array('localPeriodOfInterest', 'localBankInterestRate', 'warehousingPeriod', 'warehousingTotalLoad', 'warehousingRate', 'intermedBankInterestRate', 'intermedPeriodOfInterest','unitfees', 'commission','totalQty','riskRatio');
         foreach($parmsfornetmargin as $parm) {
             $core->input['parmsfornetmargin'][$parm] = $core->input[$parm];
         }
@@ -536,6 +544,10 @@ else {
         unset($core->input['action'], $core->input['module']);
         $aroorderrequest = new AroRequests();
         $netmarginparms_data = $aroorderrequest->calculate_netmaginparms($core->input);
+        if($netmarginparms_data == false){
+              output($lang->nopolicy);
+                exit;
+        }
         foreach($netmarginparms_data as $key => $value) {
             $parmsfornetmargin['parmsfornetmargin_'.$key] = $value;
         }
@@ -681,9 +693,9 @@ else {
 
         for($j=1;$j<=$i;$j++){ ///Calculate unit fee
             if($avgqty[$j] !=0){
-            $unitfee +=$avgfee[$j]/$avgqty[$j];
+            $unitfee +=$avgfee[$j]/$avgqty[$j];  //(total Fee per unit /total qty per unit)
         }}
-        $unitfee=$unitfee/$i;
+        $unitfee=$unitfee/$i; // unit fee=avg. of unit fees = $unitfee/(number of units)
         $feeperunit_array = implode("\n", $feeperunit_array);
         $feeperunit_usdarray = implode("\n", $feeperunit_usdarray);
 
@@ -714,7 +726,7 @@ else {
         if($purchaseype->isPurchasedByEndUser == 1) {
             $intermedmargin_perc = $intermedmargin / $localinvoicevalue_usd;
         }
-//=IF(tNM="","",tNM/(SUMPRODUCT($D$23:$D$31,$M$23:$M$31)*X_USD))
+
         $localnetmargin_perc = '';
         if(!empty($localnetmargin) && ($core->input['sellingpriceqty_product'] * $core->input['exchangeRateToUSD']) != 0) {
             $localnetmargin_perc = $localnetmargin / ($core->input['sellingpriceqty_product'] * $core->input['exchangeRateToUSD']);
@@ -724,15 +736,15 @@ else {
                 'ordersummary_totalquantity' => $quantityperuom,
                 'ordersummary_totalfees' => $feeperunit_array,
                 'ordersummary_totalintermedfees_usd' => $feeperunit_usdarray,
-                'ordersummary_invoicevalue_intermed' => $invoicevalueintermed,
-                'ordersummary_invoicevalueusd_intermed' => $invoicevalueintermed_usd,
-                'ordersummary_invoicevalue_local' => $localinvoicevalue,
-                'ordersummary_invoicevalueusd_local' => $localinvoicevalue_usd,
-                'ordersummary_netmargin_local' => $localnetmargin,
-                'ordersummary_netmargin_intermed' => $intermedmargin,
-                'ordersummary_globalnetmargin' => $localnetmargin + $intermedmargin,
-                'ordersummary_netmargin_localperc' => $localnetmargin_perc,
-                'ordersummary_netmargin_intermedperc' => $intermedmargin_perc,
+                'ordersummary_invoicevalue_intermed' => round($invoicevalueintermed,2),
+                'ordersummary_invoicevalueusd_intermed' => round($invoicevalueintermed_usd,2),
+                'ordersummary_invoicevalue_local' => round($localinvoicevalue,2),
+                'ordersummary_invoicevalueusd_local' => round($localinvoicevalue_usd,2),
+                'ordersummary_netmargin_local' => round($localnetmargin,2),
+                'ordersummary_netmargin_intermed' => round($intermedmargin,2),
+                'ordersummary_globalnetmargin' => round($localnetmargin + $intermedmargin,2),
+                'ordersummary_netmargin_localperc' =>round($localnetmargin_perc,2),
+                'ordersummary_netmargin_intermedperc' => round($intermedmargin_perc,2),
                 'ordersummary_unitfee'=>round($unitfee,2)
         );
         echo json_encode($data);

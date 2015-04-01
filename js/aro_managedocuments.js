@@ -20,6 +20,7 @@ $(function() {
     //
     //--------------------------------------------------------------
     //
+
     var url= window.location.href;   
     var url = url.split('&');
     if(typeof url[2] !== 'undefined'){
@@ -46,7 +47,6 @@ $(function() {
             });
             }
     /////-----------------------------------------------------------
-//
     $("select[id$='purchasetype'],select[id$='affid']").live('change', function() {
         if(sharedFunctions.checkSession() == false) {
             return;
@@ -467,8 +467,8 @@ $(function() {
         });
 
 
-        attributes = attributes + '&qtyperunit=' + qtyperunit + '&feeperunit=' + feeperunit + '&invoicevalue_intermed=' + invoicevalue_intermed + '&invoicevalue_local=' + invoicevalue_local + '&invoicevalue_local_RIC=' + invoicevalue_local_RIC.toFixed(3) + '&local_netMargin=' + local_netMargin.toFixed(3);
-        attributes = attributes + '&sellingpriceqty_product=' + sellingpriceqty_product.toFixed(3);
+        attributes = attributes + '&qtyperunit=' + qtyperunit + '&feeperunit=' + feeperunit + '&invoicevalue_intermed=' + invoicevalue_intermed + '&invoicevalue_local=' + invoicevalue_local + '&invoicevalue_local_RIC=' + invoicevalue_local_RIC + '&local_netMargin=' + local_netMargin;
+        attributes = attributes + '&sellingpriceqty_product=' + sellingpriceqty_product;
         // Note check if not NaN
 
         //['purchasetype','parmsfornetmargin_intermedBankInterestRate','parmsfornetmargin_intermedPeriodOfInterest'
@@ -491,7 +491,11 @@ $(function() {
         });
          $("input[id='totalfunds_total']").val(totalfunds);
         });
-    //-------------------------------
+    //-------------on change of est date of sales (current stock) Trigger est. local invoice date------------------
+    $("input[id^='pickDate_currentsale_']").live('change', function() {
+        $("select[id^='paymentermdays_']").trigger('change');
+    });
+    //-------------------------------------
 });
 var rowid = '';
 function addactualpurchaserow(id) {
@@ -562,3 +566,8 @@ function triggerproductlines(id) {
         });
     }
 }
+
+window.onload = function() {
+     $("select[id^='paymentermdays_']").trigger("change");
+      $("input[id='ordersummary_btn']").trigger("click");
+};

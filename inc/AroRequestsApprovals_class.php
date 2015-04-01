@@ -17,6 +17,7 @@ class AroRequestsApprovals extends AbstractClass {
     const DISPLAY_NAME = '';
     const SIMPLEQ_ATTRS = '*';
     const CLASSNAME = __CLASS__;
+    const UNIQUE_ATTRS = 'aorid,uid';
 
     public function __construct($id = '', $simple = true) {
         parent::__construct($id, $simple);

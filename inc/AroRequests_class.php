@@ -78,16 +78,18 @@ class AroRequests extends AbstractClass {
                 return $this->errorcode;
             }
 
-            $data['parmsfornetmargin']['fees'] = $data['partiesinfo']['totalfees'];
+           // $data['parmsfornetmargin']['fees'] = $data['partiesinfo']['totalfees'];
             $data['parmsfornetmargin']['commission'] = $data['partiesinfo']['commission'];
            
-            $unitfees=$this->validate_productlines($data['productline'], $data['parmsfornetmargin']);
+            
+            $parms=$this->validate_productlines($data['productline'], $data['parmsfornetmargin']);
             if($this->errorcode != 0) {
                 return $this->errorcode;
             }
-            $data['parmsfornetmargin']['unitfees']=$unitfees;
-            $arosegments = $this->save_productlines($data['productline'], $data['parmsfornetmargin']);
-                    
+            $data['parmsfornetmargin']['unitfees']=$parms['unitfees'];
+            $totalQtyperuom=$parms['totalQty'];
+            //save product lines and return array of product segments involved
+            $arosegments = $this->save_productlines($data['productline'], $data['parmsfornetmargin'],$totalQtyperuom);
             $this->save_linessupervision($data['actualpurchase'], $data['partiesinfo']['transitTime'], $data['partiesinfo']['clearanceTime'], $data['partiesinfo']['estDateOfShipment']);
             $this->save_currentstocklines($data['currentstock']);
              
@@ -158,16 +160,17 @@ class AroRequests extends AbstractClass {
                 return $this->errorcode;
             }
 
-            $data['parmsfornetmargin']['fees'] = $data['partiesinfo']['totalfees'];
+            //$data['parmsfornetmargin']['fees'] = $data['partiesinfo']['totalfees'];
             $data['parmsfornetmargin']['commission'] = $data['partiesinfo']['commission'];
 
-            $unitfees=$this->validate_productlines($data['productline'], $data['parmsfornetmargin']);
+            $parms=$this->validate_productlines($data['productline'], $data['parmsfornetmargin']);
             if($this->errorcode != 0) {
                 return $this->errorcode;
             }
-            $data['parmsfornetmargin']['unitfees']=$unitfees;
+            $data['parmsfornetmargin']['unitfees']=$parms['unitfees'];
+            $totalQtyperuom=$parms['totalQty'];
             //save product lines and return array of product segments involved
-            $arosegments = $this->save_productlines($data['productline'], $data['parmsfornetmargin']);
+            $arosegments = $this->save_productlines($data['productline'], $data['parmsfornetmargin'],$totalQtyperuom);
             $this->save_linessupervision($data['actualpurchase'], $data['partiesinfo']['transitTime'], $data['partiesinfo']['clearanceTime'], $data['partiesinfo']['estDateOfShipment']);
             $this->save_currentstocklines($data['currentstock']);
             
@@ -229,7 +232,10 @@ class AroRequests extends AbstractClass {
                 $arorequestline['aorid'] = $this->data[self::PRIMARY_KEY];
                 $arorequestline['exchangeRateToUSD'] = $this->data['exchangeRateToUSD'];
                 $arorequestline['parmsfornetmargin'] = $parmsfornetmargin;
-                $unitfees += $arorequestline['fees']/$arorequestline['quantity'];
+                if(!empty($arorequestline['quantity'])){
+                $parms['unitfees'] += $arorequestline['fees']/$arorequestline['quantity'];
+                }
+                $parms['totalQty'][$arorequestline['uom']] +=$arorequestline['quantity'];
                 $requestline = new AroRequestLines();
                 $requestline->set($arorequestline);
                 $requestline->validate_requiredfields();
@@ -244,11 +250,12 @@ class AroRequests extends AbstractClass {
                         return;
                 }
             }
-            return $unitfees/$plrowid;
+            $parms['unitfees']=$parms['unitfees']/$plrowid;
+            return $parms;
         }
     }
 
-    private function save_productlines($arorequestlines, $parmsfornetmargin) {  //$netmarginparms
+    private function save_productlines($arorequestlines, $parmsfornetmargin,$totalQtyperuom) {  //$netmarginparms
         global $db;
         if(is_array($arorequestlines)) {
             foreach($arorequestlines as $arorequestline) {
@@ -260,6 +267,7 @@ class AroRequests extends AbstractClass {
                 $arosegments[$arorequestline['psid']] = $arorequestline['psid'];
                 $arorequestline['exchangeRateToUSD'] = $this->data['exchangeRateToUSD'];
                 $arorequestline['parmsfornetmargin'] = $parmsfornetmargin;
+                 $arorequestline['parmsfornetmargin']['totalQty']=$totalQtyperuom[$arorequestline['uom']];
                 if(isset($arorequestline['todelete']) && !empty($arorequestline['todelete'])) {
                     $requestline = AroRequestLines::get_data(array('inputChecksum' => $arorequestline['inputChecksum']));
                     if(is_object($requestline)) {
@@ -304,9 +312,6 @@ class AroRequests extends AbstractClass {
         if(is_array($currentstocklines)) {
             foreach($currentstocklines as $currentstockline) {
                 $currentstockline['aorid'] = $this->data[self::PRIMARY_KEY];
-                $currentstockline['transitTime'] = $transittime;
-                $currentstockline['clearanceTime'] = $clearancetime;
-                $currentstockline['dateOfStockEntry'] = $dateOfStockEntry;
                 $currentstocksupervision_obj = new AroRequestsCurStkSupervision();
                 $currentstocksupervision_obj->set($currentstockline);
                 $currentstocksupervision_obj->save();
@@ -324,6 +329,9 @@ class AroRequests extends AbstractClass {
     public function calculate_netmaginparms($data = array()) {
         $where = 'warehouse='.$data['warehouse'].' AND ('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
         $warehousepolicy = AroManageWarehousesPolicies::get_data($where);
+        if(!is_object($warehousepolicy)){
+            return false;
+        }
         $currency = new Currencies($warehousepolicy->currency);
         $uom = new Uom($warehousepolicy->rate_uom);
         if(is_object($warehousepolicy)) {
@@ -415,6 +423,7 @@ class AroRequests extends AbstractClass {
     //  $approve_immediately = $this->should_approveimmediately();
         
         $sequence = 1;
+        if(is_array($approvers)){
         foreach($approvers as $key => $val) {
             $approve_status = $timeapproved = 0;
             if($val == $core->user['uid'] && $approve_immediately == true) {
@@ -432,7 +441,7 @@ class AroRequests extends AbstractClass {
             $approver->set(array('aorid' => $this->data[self::PRIMARY_KEY], 'uid' => $val, 'isApproved' => $approve_status, 'timeApproved' => $timeapproved, 'sequence' => $sequence, 'position' => $key));
             $approver->save();
             $sequence++;
-        }
+    }}
         return true;
     }
     
@@ -467,7 +476,7 @@ class AroRequests extends AbstractClass {
         return $coordinators;
     }
 
-    public function get_approvers($config) {
+    public function get_approvers(array $config=array()) {
      if(empty($config)){
       $config= array('returnarray'=>true,'simple'=>false,'order'=>array('by'=>'sequence','sort'=>'ASC'));
       }
