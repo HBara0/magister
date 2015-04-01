@@ -91,10 +91,11 @@ if(!($core->input['action'])) {
         eval("\$partiesinfo_fees = \"".$template->get('aro_partiesinfo_fees')."\";");
     }
     if(isset($core->input['id'])) {
-        if(isset($core->input['referrer']) && $core->input['referrer']= 'toapprove'){
-            $approve_btn[$core->user['uid']]='<input type="submit" class="button" id="approve_aro/managearodouments_Button" value="'.$lang->approve.'"/>';
-        }
         $aroorderrequest = AroRequests::get_data(array('aorid' => $core->input['id']), array('simple' => false));
+        if(isset($core->input['referrer']) && $core->input['referrer']= 'toapprove'){
+            $approve_btn[$core->user['uid']]='<input type="button" class="button" id="approvearo" value="'.$lang->approve.'"/>'
+                    . '<input type="hidden" id="approvearo_id" value="'.$aroorderrequest->aorid.'"/>';
+        }
         $purchasetype = new PurchaseTypes($aroorderrequest->orderType);
         if(is_object($aroorderrequest)) {
             $affiliate_list = parse_selectlist('affid', 1, $affiliate, $aroorderrequest->affid, '', '', array('blankstart' => true, 'id' => 'affid', 'required' => 'required'));
@@ -589,7 +590,8 @@ else {
             }
             $intermedpolicy_data = array('parmsfornetmargin_intermedBankInterestRate' => $intermedpolicy->yearlyInterestRate,
                     'parmsfornetmargin_intermedRiskRatio' => $intermedpolicy->riskRatio,
-                    'partiesinfo_commission' => $intermedpolicy->commissionCharged);
+                    'partiesinfo_commission' => $intermedpolicy->commissionCharged,
+                    'partiesinfo_defaultcommission' => $intermedpolicy->commissionCharged);
         }
         echo json_encode($intermedpolicy_data);
     }
@@ -731,6 +733,11 @@ else {
         if(!empty($localnetmargin) && ($core->input['sellingpriceqty_product'] * $core->input['exchangeRateToUSD']) != 0) {
             $localnetmargin_perc = $localnetmargin / ($core->input['sellingpriceqty_product'] * $core->input['exchangeRateToUSD']);
         }
+        $comm=$core->input['defaultcomm'];
+        if($core->input['totalcommision'] <250){
+            if(!empty($core->input['totalamount']) && $core->input['totalamount']!=0){
+            $comm=(250*100)/$core->input['totalamount'];
+        }}
         $data = array('ordersummary_intermedaff' => $intermedaffiliate->get_displayname(),
                 'ordersummary_localaff' => $affiliate->get_displayname(),
                 'ordersummary_totalquantity' => $quantityperuom,
@@ -745,7 +752,10 @@ else {
                 'ordersummary_globalnetmargin' => round($localnetmargin + $intermedmargin,2),
                 'ordersummary_netmargin_localperc' =>round($localnetmargin_perc,2),
                 'ordersummary_netmargin_intermedperc' => round($intermedmargin_perc,2),
-                'ordersummary_unitfee'=>round($unitfee,2)
+                'ordersummary_unitfee'=>round($unitfee,2),
+                'ordersummary_totalcomm'=>round($core->input['totalcommision'],2),
+                'ordersummary_totalamount'=>round($core->input['totalamount'],2),
+                'partiesinfo_commission'=>round($core->$comm,3),
         );
         echo json_encode($data);
     }
@@ -859,4 +869,14 @@ else {
        }
         
     }
+     if($core->input['action'] == 'approvearo'){
+        $approval['isApproved']=1;
+        $approval['timeApproved']=TIME_NOW;
+        $query = $db->update_query('aro_requests_approvals', $approval, 'aorid='.intval($core->input['id']).' AND uid='.$core->user['uid']);  
+        if($query){
+            $log->record('aro_requests_approvals','araid');
+            output("Successfully Approved");
+
+        }
+     }
 }

@@ -160,3 +160,5 @@ $lang['days']='Days';
 $lang['each']='each';
 $lang['diffbetweenpaymentdays']='Difference between two payment dates';
 $lang['approve']='Approve';
+$lang['unitfee']='Unit Fee';
+$lang['totalcomm']='Total commision';

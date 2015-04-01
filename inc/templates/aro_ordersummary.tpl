@@ -42,7 +42,7 @@
                 <td colspan="2"><input type="text" id="ordersummary_globalnetmargin" value="" style="width:150px;" disabled="disabled"/> </td>
             </tr>
             <tr>
-                <td>{$lang->total} {$lang->totalquantity}</td>
+                <td>{$lang->totalquantity}</td>
                 <td colspan="2">
                     <textarea id="ordersummary_totalquantity" value="" disabled="disabled" style="width:300px">
                     </textarea>
@@ -56,8 +56,12 @@
                 </td>
             </tr>
             <tr>
-                <td>Unit Fee</td>
-                <td><input id="ordersummary_unitfee"/></td>
+                <td>{$lang->unitfee}</td>
+                <td><input type="text" id="ordersummary_unitfee"/></td>
+            </tr
+             <tr>
+                <td>{$lang->totalcomm}</td>
+                <td><input type="text" id="ordersummary_totalcomm"/><input type="hidden" id="ordersummary_totalamount"</td>
             </tr>
             <tr>
                 <td>

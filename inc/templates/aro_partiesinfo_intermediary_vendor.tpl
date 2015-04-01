@@ -35,7 +35,8 @@
                         <td><input type="text"  name="partiesinfo[vendorPaymentTermDesc]" id="partiesinfo_vendor_PaymentTermDesc" value="{$aropartiesinfo_obj->vendorPaymentTermDesc}" required='required' style="width:150px;" placeholder="Ex: days from B/L"/></td>
                     </tr>
                     <tr><td>{$lang->commission} <small>{$lang->commisionlimit}</small></td>
-                        <td><input type="number" step="any" name="partiesinfo[commission]" id="partiesinfo_commission" value="{$aropartiesinfo_obj->commission}" /></td>
+                        <td><input type="number" step="any" name="partiesinfo[commission]" id="partiesinfo_commission" value="{$aropartiesinfo_obj->commission}" />
+                        <input type="hidden"  id="partiesinfo_defaultcommission"/></td>
                     </tr>
                     <tr class="altrow2"><td>{$lang->totaldiscount}</td>
                         <td><input type="number" step="any" name="partiesinfo[totalDiscount]" id="partiesinfo_totaldiscount" value="{$aropartiesinfo_obj->totalDiscount}"/></td>
