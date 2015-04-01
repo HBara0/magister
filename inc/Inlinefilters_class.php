@@ -166,18 +166,18 @@ class Inlinefilters {
                             $customer = new Entities($core->input['filters'][$filter]);
                             $filters[$filter] = '<input type="text" id="customer_1_autocomplete" value="'.$customer->get_displayname().'"/><input type="hidden" id="customer_1_id" name="filters['.$filter.']"/>';
                             break;
-                        case 'spid':
-                        case 'supplier':
-                            $supplier = new Entities($core->input['filters'][$filter]);
-                            $filters[$filter] = '<input type="text" id="supplier_1_autocomplete" value="'.$supplier->get_displayname().'"/><input type="hidden" id="supplier_1_id" name="filters['.$filter.']"/>';
-                            break;
-                        case 'csid':
-                        case 'chemical':
-                        case 'chemicals':
-                        case 'chemicalsubstance':
-                            $chemical = new Chemicalsubstances($core->input['filters'][$filter]);
-                            $filters[$filter] = '<input type="text" autocomplete="off" tabindex="1"  id="chemfunctionchecmical_noexception_cache_autocomplete" value="'.$chemical->get_displayname().'"/><input type="hidden" id="chemfunctionchecmical_cache_id" name="filters['.$filter.']"/><input type="hidden" id="chemfunctionchecmical_noexception_cache_id" name="filters['.$filter.']"/>';
-                            break;
+//                        case 'spid':
+//                        case 'supplier':
+//                            $supplier = new Entities($core->input['filters'][$filter]);
+//                            $filters[$filter] = '<input type="text" id="supplier_1_autocomplete" value="'.$supplier->get_displayname().'"/><input type="hidden" id="supplier_1_id" name="filters['.$filter.']"/>';
+//                            break;
+//                        case 'csid':
+//                        case 'chemical':
+//                        case 'chemicals':
+//                        case 'chemicalsubstance':
+//                            $chemical = new Chemicalsubstances($core->input['filters'][$filter]);
+//                            $filters[$filter] = '<input type="text" autocomplete="off" tabindex="1"  id="chemfunctionchecmical_noexception_cache_autocomplete" value="'.$chemical->get_displayname().'"/><input type="hidden" id="chemfunctionchecmical_cache_id" name="filters['.$filter.']"/><input type="hidden" id="chemfunctionchecmical_noexception_cache_id" name="filters['.$filter.']"/>';
+//                            break;
                         default:
                             $filters[$filter] = '<input type="text" width="100%" name="filters['.$filter.']" tabindex="'.$tabindex.'" value="'.$core->input['filters'][$filter].'" id="filers_'.$filter.'" title="'.$this->config['parse']['filterTitles'][$filter].'">';
                             break;
