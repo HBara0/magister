@@ -3638,7 +3638,13 @@ CREATE TABLE `usergroups` (
   `budgeting_cangenerateFinBudgets` int(1) NOT NULL,
   `budgeting_canFillLocalIncome` int(1) NOT NULL,
   `grouppurchase_canUpdateForecast` tinyint(1) NOT NULL DEFAULT '0',
-  `canUseFinance` tinyint(1) NOT NULL DEFAULT '0',
+  `contents_canManageWarehouses` tinyint(1) NOT NULL,
+  `aro_canManagePolicies` tinyint(1) NOT NULL,
+  `aro_canManageWarehousePolicies` tinyint(1) NOT NULL,
+  `canUseAro` tinyint(1) NOT NULL,
+  `aro_canFillAro` tinyint(1) NOT NULL,
+  `profiles_canUseMktIntel` tinyint(1) NOT NULL DEFAULT '0',
+  `grouppurchase_canGenerateReports` tinyint(1) NOT NULL,
   PRIMARY KEY (`gid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=20 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
