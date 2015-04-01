@@ -95,10 +95,10 @@ foreach($original as $row => $keys) {
             }
             foreach($assignedemp_objs as $assignedemp_obj) {
                 $userid = $assignedemp_obj->uid;
-                $output_2[$userid][$keys['cid']][$keys['eptid']]['cfpid'][] = $key_2['cfpid'];
-                $output_2[$userid][$keys['cid']][$keys['eptid']]['cfcid'][] = $key_2['cfcid'];
-                $output_2[$userid][$keys['cid']][$keys['eptid']]['cfcid'] = array_unique($output_2[$userid][$keys['cid']][$keys['eptid']]['cfcid']);
-                $output_2[$userid][$keys['cid']][$keys['eptid']]['cfpid'] = array_unique($output_2[$userid][$keys['cid']][$keys['eptid']]['cfpid']);
+                $output_2[$userid][$key_2['cid']][$keys['eptid']]['cfpid'][] = $keys['cfpid'];
+                $output_2[$userid][$key_2['cid']][$keys['eptid']]['cfcid'][] = $keys['cfcid'];
+                $output_2[$userid][$key_2['cid']][$keys['eptid']]['cfcid'] = array_unique($output_2[$userid][$key_2['cid']][$keys['eptid']]['cfcid']);
+                $output_2[$userid][$key_2['cid']][$keys['eptid']]['cfpid'] = array_unique($output_2[$userid][$key_2['cid']][$keys['eptid']]['cfpid']);
             }
         }
         else {
@@ -135,7 +135,7 @@ function send_email($content) {
                             }
                         }
                     }
-                    $message.='<br>Products: '.implode(',', $prods);
+                    $message.='Products: '.implode(',', $prods).'<br>';
                     $message.='<br>Chemical Substances: '.implode(',', $chemsubstances).'<br>';
                     unset($prods);
                     unset($chemsubstances);
@@ -148,6 +148,7 @@ function send_email($content) {
                     'subject' => 'Possible Products/Chemicals Clients Might Be Interested In',
                     'message' => $message,
             );
+            echo('<br>'.$email);
             echo($message);
             $mail = new Mailer($email_data, 'php');
             if($mail->get_status() === true) {
