@@ -61,30 +61,46 @@ if($_REQUEST['authkey'] == 'odsfaddkjj!hre23jh4k2_3h49g3jh') {
             }
         }
     }
+    if(is_null($data_array) || is_empty($data_array)) {
+        exit;
+    }
     send_mail($data_array);
 //$email_content should be a three dimensional array:1st uid 2cnd:grouppurchsse forecast primary 3rd: the data(affid,spid,year)
     function send_mail($email_content) {
         foreach($email_content as $uid => $rest) {
             $user_obj = new Users($uid);
             $email = $user_obj->email;
-            $forecast['reporttype'] = 'basic';
+            $stuffings['reporttype'] = 'basic';
             foreach($rest as $gpfid => $values) {
                 foreach($values as $key => $value) {
                     if($key == 'affid') {
-                        $forecast['affiliates'][] = $value;
+                        $stuffings['affiliates'][] = $value;
                     }
                     elseif($key == 'supplier') {
-                        $forecast['suppliers'][] = $value;
+                        $stuffings['suppliers'][] = $value;
                     }
                     elseif($key == 'year') {
-                        $forecast['years'][] = $value;
+                        $stuffings['years'][] = $value;
                     }
                 }
             }
-            $forecast['affiliates'] = array_unique($forecast['affiliates']);
-            $forecast['suppliers'] = array_unique($forecast['suppliers']);
-            $forecast['years'] = array_unique($forecast['years']);
-            $sent_query = http_build_query(array('forecast' => $forecast));
+            $stuffings['affiliates'] = array_unique($stuffings['affiliates']);
+            $stuffings['suppliers'] = array_unique($stuffings['suppliers']);
+            $stuffings['years'] = array_unique($stuffings['years']);
+            foreach($stuffings as $key => $value) {
+                if(!is_array($value)) {
+                    $key = base64_encode($key);
+                    $forecast[$key] = base64_encode($value);
+                }
+                else {
+                    $key = base64_encode($key);
+                    foreach($value as $key_2 => $value_2) {
+                        $key_2 = base64_encode($key_2);
+                        $forecast[$key][$key_2] = base64_encode($value_2);
+                    }
+                }
+            }
+            $sent_query = http_build_query(array('stuffings' => $forecast));
             $url = "http://127.0.0.1/ocos/index.php?module=grouppurchase/previewforecast&".$sent_query;
             $url2 = "http://127.0.0.1/ocos/index.php?module=grouppurchase/generateforecast";
             $email_message = "<h3>Kindly check that your forecasts are valid, otherwise please update them</h3>";
