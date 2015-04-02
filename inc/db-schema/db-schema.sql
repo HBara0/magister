@@ -209,6 +209,7 @@ DROP TABLE IF EXISTS `aro_requests`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `aro_requests` (
   `aorid` int(10) NOT NULL AUTO_INCREMENT,
+  `identifier` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
   `affid` int(10) NOT NULL,
   `orderType` int(10) NOT NULL,
   `orderReference` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
