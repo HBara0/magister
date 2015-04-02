@@ -67,7 +67,7 @@ $(function() {
 
     $.ajax({type: 'post',
                 url: rootdir + "index.php?module=aro/managearodouments&action=generateapprovalchain",
-                data: "affid=" + affid+ "&ptid=" + ptid,
+                data: "affid=" + affid+ "&ptid=" + ptid ,
                 beforeSend: function() {
 //                    $("body").append("<div id='modal-loading'></div>");
 //                    $("#modal-loading").dialog({height: 150, modal: true, closeOnEscape: false, title: 'Loading...', resizable: false, minHeight: 0
@@ -389,6 +389,8 @@ $(function() {
         var est_local_pay=$("input[id='avgeliduedate']").val();
         sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populatepartiesinfofields&intermedPaymentTerm=' + intermedPaymentTerm + '&vendorPaymentTerm=' + vendorPaymentTerm + '&estDateOfShipment=' + estDateOfShipment + '&ptAcceptableMargin=' + ptAcceptableMargin + '&ptid=' + ptid +'&est_local_pay=' +est_local_pay);
         $("select[id='partiesinfo_intermed_aff']").trigger("change");
+        $("input[id='parmsfornetmargin_localPeriodOfInterest']").trigger("change");
+        
     });
     //----------------------------------------------------------------------------------------------------------------------------//
 
@@ -568,7 +570,9 @@ function addactualpurchaselines(id) {
                 }, 3000);
             }
         }
+          var y = setTimeout(function() {
         $("input[id^='pickDate_sale_']").trigger('change');
+          }, 3000)
     }
 }
 

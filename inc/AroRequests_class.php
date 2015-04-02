@@ -356,6 +356,8 @@ class AroRequests extends AbstractClass {
         if(is_object($aroapprovalchain_policies)) {
             $approvalchain = unserialize($aroapprovalchain_policies->approvalChain);
         }
+        $localaffpolicy = AroPolicies::get_data($filter);
+            
         $affiliate = new Affiliates($this->affid);
         if(is_array($approvalchain)) {
             foreach($approvalchain as $key => $val) {
@@ -380,8 +382,15 @@ class AroRequests extends AbstractClass {
                         break;
                     case 'gfinancialManager':
                         $aropartiesinfo = AroRequestsPartiesInformation::get_data(array('aorid' => $this->data[self::PRIMARY_KEY]));
-                        $intermediaryAff = new Affiliates($aropartiesinfo->intermedAff);
+                        if(is_object($aropartiesinfo)){
+                        $intermediaryAff = new Affiliates($aropartiesinfo->intermedAff);}
+                        else{
+                           if(is_object($localaffpolicy)){
+                               $intermediaryAff = new Affiliates($localaffpolicy->defaultIntermed);}
+                        }
+                        if(is_object($intermediaryAff)){
                         $approvers['gfinancialManager'] = $intermediaryAff->get_financialemanager()->uid;
+                        }
                         break;
                     case 'cfo':
                      $approvers['cfo'] = $affiliate->get_cfo()->uid;

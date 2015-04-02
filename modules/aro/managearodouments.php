@@ -800,6 +800,7 @@ else {
         if(isset($core->input['affid']) && !empty($core->input['affid']) && isset($core->input['ptid']) && !empty($core->input['ptid'])){
            $data['affid']=$core->input['affid'];
            $data['orderType']=$core->input['ptid'];
+           $data['orderreference']=$core->input['orderreference'];
            $arorequest=new AroRequests();
            $arorequest->set($data);
            $aroapprovalchain=$arorequest->generate_approvalchain();
