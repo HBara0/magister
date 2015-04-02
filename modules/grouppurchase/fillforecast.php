@@ -16,7 +16,7 @@ if($core->usergroup['grouppurchase_canUpdateForecast'] == 0) {
 }
 if(!$core->input['action']) {
     $forecast_data = $core->input['forecast'];
-    $uid = $forecast_data['onBehalf'];
+    $uid = intval($forecast_data['onBehalf']);
     if($forecast_data['onBehalf'] == 0) {
         $uid = $core->user['uid'];
     }

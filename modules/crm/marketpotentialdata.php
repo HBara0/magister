@@ -75,7 +75,7 @@ if(!$core->input['action']) {
                 continue;
             }
             $cust = $marketintel_obj->get_customer();
-            $marketintel['customer'] = $cust->get_displayname();
+            $marketintel['customer'] = $cust->parse_link();
             $marketintel['country'] = $cust->get_country()->get_displayname();
             if($marketintel_obj->cfpid != 0) {
                 $prod = $marketintel_obj->get_chemfunctionproducts()->get_produt();
