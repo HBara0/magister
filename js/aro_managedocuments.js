@@ -205,6 +205,9 @@ $(function() {
                 });
         var purchasetype = $("input[id^='cpurchasetype']").val();
         sharedFunctions.populateForm('perform_aro/managearodouments_Form', 'http://127.0.0.1/ocos/index.php?module=aro/managearodouments&action=getestimatedate&paymentermdays[]= ' + paymentdays + '&ptid= ' + purchasetype +'&salesdates[]='+salesdates);
+        var updatetotalfees = setTimeout(function() {
+            $("select[id='partiesinfo_intermed_paymentterm']").trigger('change');
+        }, 2000);
     });
     //-----------------------------------------------------------------------------------
 
@@ -362,7 +365,13 @@ $(function() {
     $("input[id='parmsfornetmargin_localBankInterestRate'],input[id='parmsfornetmargin_localPeriodOfInterest']").live('change', function() {
         var localBankInterestRate = $("input[id='parmsfornetmargin_localBankInterestRate']").val();
         var localPeriodOfInterest = $("input[id='parmsfornetmargin_localPeriodOfInterest']").val();
-        sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=getinterestvalue&localBankInterestRate=' + localBankInterestRate + '&localPeriodOfInterest=' + localPeriodOfInterest);
+        var totalbuyingvalue_total=0;
+         $("tbody[id^='productline_']").find($("input[id$='_totalBuyingValue']")).each(function() {
+             if($(this).val() !== 0 && $(this).val()!==''){
+                 totalbuyingvalue_total += parseFloat($(this).val());
+             }
+        });
+        sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=getinterestvalue&localBankInterestRate=' + localBankInterestRate + '&localPeriodOfInterest=' + localPeriodOfInterest+'&totalbuyingvalue_total='+totalbuyingvalue_total);
 
         var updatetotalfees = setTimeout(function() {
             $("input[id$='freight']").trigger("change");
@@ -498,8 +507,8 @@ $(function() {
         });
          $("input[id='totalfunds_total']").val(totalfunds);
         });
-    //-------------on change of est date of sales (current stock) Trigger est. local invoice date------------------
-    $("input[id^='pickDate_currentsale_']").live('change', function() {
+    //-------------on change of est date of sales (actual purchase) Trigger est. local invoice date------------------
+    $("input[id^='pickDate_sale_']").live('change', function() {
         $("select[id^='paymentermdays_']").trigger('change');
     });
     //-------------------------------------
@@ -559,6 +568,7 @@ function addactualpurchaselines(id) {
                 }, 3000);
             }
         }
+        $("input[id^='pickDate_sale_']").trigger('change');
     }
 }
 
