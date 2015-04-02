@@ -539,11 +539,10 @@ class AroRequests extends AbstractClass {
          $mailer->send();
     }
      
-    public function approve($from,$uid) {
+    public function approve($user) {
         global $db;
-      //  $id = $db->escape_string($id);
-        if($this->can_apporve($from)) {
-            $db->update_query('aro_requests_approvals', array('isApproved' => 1, 'approvedOn' => TIME_NOW), ''.self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]). 'AND uid='.intval($uid));
+        if($this->can_apporve($user)) {
+            $db->update_query('aro_requests_approvals', array('isApproved' => 1, 'approvedOn' => TIME_NOW), ''.self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]). 'AND uid='.$user->uid);
             return true;
         }
         else {
@@ -552,7 +551,7 @@ class AroRequests extends AbstractClass {
    }
         
     public function inform_nextapprover(){
-        $approval = AroRequestsApprovals::get_data(array('isApproved'=>1,'aorid'=>$this->data[self::PRIMARY_KEY]),array('order' => array('sort' => 'DESC', 'by' => 'sequence'), 'limit' => '0, 1'));
+        $approval = AroRequestsApprovals::get_data(array('isApproved'=>0,'aorid'=>$this->data[self::PRIMARY_KEY]),array('order' => array('sort' => 'DESC', 'by' => 'sequence'), 'limit' => '0, 1'));
         if(is_object($approval)){
         $user=new Users($approval->uid);
         $approve_link="http://127.0.0.1/ocos/index.php?module=aro/managearodouments&id=".$this->data[self::PRIMARY_KEY]."&referrer=toapprove";
@@ -575,25 +574,21 @@ class AroRequests extends AbstractClass {
         }
     }
    
-    public function can_apporve($from) {
+    public function can_apporve($user) {
         $approvers = $this->get_approvers();
         if(is_array($approvers)){
             foreach($approvers as $approver) {
-                $can_approve[$approver->uid] = $approver->uid;
-                $user=new Users($approver->uid);
-                $can_approve_mailinglist[$approver->uid]=$user->get_email();
+                if($approver == $user){
+                    return true;
+                }
             }
-        }
-        if(in_array($from,$can_approve_mailinglist)) {
-            return true;
-        }
-        else {
             return false;
         }
     }
 
     public function update_arorequeststatus() {
-              $db->update_query(self::TABLE_NAME, array('isApproved' => 1), self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
+        global $db;
+        $db->update_query(self::TABLE_NAME, array('isApproved' => 1), self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
     }
     
     public function get_approvals($isapproved = 1) {
@@ -623,7 +618,6 @@ class AroRequests extends AbstractClass {
     }
     
     public function notifyapprove() {
-        global $lang, $log;
         if($this->data['isApproved'] == 1) {
             $approvers=$this->get_approvers();
             if(is_array($approvers)){
@@ -633,16 +627,18 @@ class AroRequests extends AbstractClass {
                 }
             }
             
-            if($this->check_infromcoords()==1) {
+            if($this->check_infromcoords()== 1) {
                 $segcoords=$this->get_segoordinators();
                  if(is_array($segcoords)){
                       foreach($segcoords as $coord) {
-                          $mailinglist[$coord->id]=$coord->get_email();
+                          $mailinglist[$coord->uid]=$coord->get_email();
                       }
                 }
              }
              if($this->check_informglobalcfo()==1){
-                 
+                  $affiliate=new Affiliate($this->data['affid']);
+                  $cfo=new Users($affiliate->globalCfo);
+                  $mailinglist[$cfo->uid]=$cfo->get_email();
              }
             
             $email_data = array(

@@ -19,10 +19,10 @@ if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject)) {
     if(strstr(strtolower($data['subject']), 'auto')) {
         exit;
     }
-    $request_key = $db->escape_string($subject[1]);
-    //    $attendanceadddays = new AttendanceAddDays(array('identifier' => $request_key));
-    $arorequest = new AroRequests();
-    $approve=$arorequest->approve($data['from'],$core->user['uid']);
+    $request_key = $db->escape_string($request['requestkey']);
+    $arorequest = new AroRequests(array('identifier' => $request_key));
+    $user=Users::get_data(array('email'=>$data['from']));
+    $approve= $arorequest->approve($user);
     if($approve){
     $arorequest->inform_nextapprover();
     }
