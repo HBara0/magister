@@ -27,6 +27,7 @@
                             <th width="250px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->potentialqty}</th>
                             <th width="150px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->marketshare}</th>
                             <th width="150px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->price}</th>
+                            <th width="150px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->date}</th>
                             <th width="150px" class=" border_right" rowspan="2" valign="top" align="center">{$addmarketdata_link}</th>
                             <th>&nbsp;</th>
                         </tr><tr>

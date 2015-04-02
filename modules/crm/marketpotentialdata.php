@@ -14,7 +14,7 @@ if($core->usergroup['profiles_canUseMktIntel'] == 0) {
     //error($lang->sectionnopermission);
 }
 if(!$core->input['action']) {
-    $marketintel_objs = MarketIntelligence::get_marketdata();
+    $marketintel_objs = MarketIntelligence::get_marketdata_dal(null, array('order' => 'createdOn', 'simple' => false));
 
     /* Perform inline filtering - START */
     $filters_config = array(
@@ -69,13 +69,14 @@ if(!$core->input['action']) {
             if($affid == false) {
                 continue;
             }
+            $marketintel['date'] = date($core->settings['dateformat'], $marketintel_obj->createdOn);
             $marketintel['aff'] = $marketintel_obj->get_affiliate()->get_displayname();
             $custid = isAllowed($core, 'canViewAllCust', 'customers', $marketintel_obj->get_customer()->eid);
             if($custid == false) {
                 continue;
             }
             $cust = $marketintel_obj->get_customer();
-            $marketintel['customer'] = $cust->get_displayname();
+            $marketintel['customer'] = $cust->parse_link();
             $marketintel['country'] = $cust->get_country()->get_displayname();
             if($marketintel_obj->cfpid != 0) {
                 $prod = $marketintel_obj->get_chemfunctionproducts()->get_produt();
@@ -139,6 +140,11 @@ if(!$core->input['action']) {
             else {
                 $marketintel['endprod'] = '-';
             }
+            eval("\$profiles_michemfuncproductentry = \"".$template->get('profiles_michemfuncsubstancentry')."\";");
+            eval("\$profiles_minproductentry = \"".$template->get('profiles_michemfuncproductentry')."\";");
+            eval("\$mkintl_section = \"".$template->get('profiles_mktintelsection')."\";");
+            eval("\$popup_marketdata= \"".$template->get('popup_profiles_marketdata')."\";");
+            eval("\$popup_createbrand = \"".$template->get('popup_createbrand')."\";");
             eval("\$marketpotdata_list .= \"".$template->get('crm_marketpotentialdata_rows')."\";");
             unset($marketintel);
         }
@@ -166,11 +172,6 @@ if(!$core->input['action']) {
         else {
             $endproducttypes_list = '<option value="0">'.$lang->na.'</option>';
         }
-        eval("\$profiles_michemfuncproductentry = \"".$template->get('profiles_michemfuncsubstancentry')."\";");
-        eval("\$profiles_minproductentry = \"".$template->get('profiles_michemfuncproductentry')."\";");
-        eval("\$popup_marketdata= \"".$template->get('popup_profiles_marketdata')."\";");
-        eval("\$popup_createbrand = \"".$template->get('popup_createbrand')."\";");
-        eval("\$mkintl_section = \"".$template->get('profiles_mktintelsection')."\";");
     }
 
     eval("\$marketpotentialdata = \"".$template->get('crm_marketpotentialdata')."\";");
