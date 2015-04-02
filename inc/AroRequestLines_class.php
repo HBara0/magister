@@ -96,7 +96,7 @@ class AroRequestLines extends AbstractClass {
             }
         }
         if(isset($data['quantity']) && !empty($data['quantity'])) {
-            $data['costPriceAtRiskRatio'] = ceil((($data['costPrice'] + ($data['totalBuyingValue'] * $parmsfornetmargin['riskRatio'])) / $data['quantity']));
+            $data['costPriceAtRiskRatio'] = ceil( $data['costPrice'] +(($data['totalBuyingValue'] * $parmsfornetmargin['riskRatio']) / $data['quantity']));
         }
         $data['grossMarginAtRiskRatio'] = floor(round((($data['sellingPrice'] - $data['costPriceAtRiskRatio']) * $data['quantity']),2));
 
@@ -108,7 +108,7 @@ class AroRequestLines extends AbstractClass {
         $data['netMargin'] = round($this->calculate_netmargin($purchasetype, $data, $parmsfornetmargin), 2);
 
         if((($data['sellingPrice'] * $data['quantity']) * $data['exchangeRateToUSD']) != 0) {
-            $data['netMarginPerc'] = round($data['netMargin'] / (( $data['sellingPrice'] * $data['quantity']) * $data['exchangeRateToUSD']), 2);
+            $data['netMarginPerc'] = round(($data['netMargin'] / (( $data['sellingPrice'] * $data['quantity']) * $data['exchangeRateToUSD']))*100, 2);
         }
         unset($data['exchangeRateToUSD']);
         $data['fees'] = $data['fees'];

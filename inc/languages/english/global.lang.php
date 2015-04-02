@@ -149,4 +149,5 @@ $lang['welcomeuser'] = 'Welcome {1}!';
 $lang['year'] = 'Year';
 $lang['yes'] = 'Yes';
 $lang['successfullydeleted'] = 'Successfully Deleted';
+$lang['aro']='Aro';
 ?>

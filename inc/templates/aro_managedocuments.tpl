@@ -24,7 +24,7 @@
                     {$orderummary}
                     {$totalfunds}
                     {$approvalchain}
-                    <input type="submit" class="button" id="perform_aro/managearodouments_Button" value="{$lang->save}"/>
+                    <input type="submit" class="button" id="perform_aro/managearodouments_Button" value="{$lang->savecaps}"/>
                 </form>
                 <div id="perform_aro/managearodouments_Results"></div>
             </div>

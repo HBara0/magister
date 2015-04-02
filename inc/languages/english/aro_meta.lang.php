@@ -21,6 +21,7 @@ $lang['warehousespolicieslist'] = 'Warehouse Policies List';
 $lang['sureredelete'] = 'Are you sure you want to delete this policy';
 $lang['deletepolicy'] = 'Delete Warehouse policy';
 $lang['manageapprovalchainspolicies'] = 'Manage Approval Chains Policies';
+$lang['approvalchainspolicieslist']='Approval Chain Policies List';
 $lang['managepolicies'] = 'Manage Aro Policies';
 $lang['aropolicieslist'] = 'Aro Policies List';
 $lang['affiliate'] = 'Affiliate';
