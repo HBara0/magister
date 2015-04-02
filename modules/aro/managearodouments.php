@@ -534,6 +534,10 @@ else {
         $data = $core->input;
         $productline_data = $productline_obj->calculate_values($data);
         foreach($productline_data as $key => $value) {
+            if($key=='qtyPotentiallySoldPerc'){
+                  $productline['productline_'.$rowid.'_'.$key] = $value;
+                  continue;
+            }
             if($value != $data[$key]) {
                 $productline['productline_'.$rowid.'_'.$key] = $value;
             }
@@ -571,9 +575,15 @@ else {
                 output($lang->nopolicy);
                 exit;
             }
+            /*Complete to apply risk ratio for different currencies case*/
+//            $arorequest=  AroRequests::get_data(array('aorid'=>$core->input['aorid']));
+//            if($arorequset->isSameCurr==1){
+//                $increaseperday=$localaffpolicy->riskRatioIncreaseDiffCurrCN/$localaffpolicy->riskRatioDays;
+//                               // riskRatioDiffCurrCP
+//            }
             $aropolicy_data = array('parmsfornetmargin_localBankInterestRate' => $localaffpolicy->yearlyInterestRate,
-                    'parmsfornetmargin_localRiskRatio' => $localaffpolicy->riskRatio,
-                'partiesinfo_intermed_ptAcceptableMargin' => $localaffpolicy->defaultAcceptableMargin
+                             'parmsfornetmargin_localRiskRatio' => $localaffpolicy->riskRatioSameCurrCN,
+                             'partiesinfo_intermed_ptAcceptableMargin' => $localaffpolicy->defaultAcceptableMargin
             );
         }
         echo json_encode($aropolicy_data);
@@ -588,8 +598,9 @@ else {
                 output($lang->nointermedpolicy);
                 exit;
             }
+            
             $intermedpolicy_data = array('parmsfornetmargin_intermedBankInterestRate' => $intermedpolicy->yearlyInterestRate,
-                    'parmsfornetmargin_intermedRiskRatio' => $intermedpolicy->riskRatio,
+                    'parmsfornetmargin_intermedRiskRatio' => $intermedpolicy->riskRatioSameCurrCN,
                     'partiesinfo_commission' => $intermedpolicy->commissionCharged,
                     'partiesinfo_defaultcommission' => $intermedpolicy->commissionCharged);
         }
@@ -755,7 +766,7 @@ else {
                 'ordersummary_unitfee'=>round($unitfee,2),
                 'ordersummary_totalcomm'=>round($core->input['totalcommision'],2),
                 'ordersummary_totalamount'=>round($core->input['totalamount'],2),
-                'partiesinfo_commission'=>round($core->$comm,3),
+                'partiesinfo_commission'=>round($comm,3),
         );
         echo json_encode($data);
     }
@@ -763,9 +774,9 @@ else {
     if($core->input['action'] == 'getinterestvalue') {
         $interestvalue = 0;
         if(isset($core->input['localBankInterestRate']) && !empty($core->input['localBankInterestRate'])) {
-            $interestvalue = (($core->input['localPeriodOfInterest'] * 365) / $core->input['localBankInterestRate']) / 100;
+            $interestvalue = (($core->input['localBankInterestRate']/365)/ 100) * $core->input['localPeriodOfInterest'] * $core->input['totalbuyingvalue_total'] ;
         }
-        $interestvalue_data = array('parmsfornetmargin_interestvalue' => $interestvalue);
+        $interestvalue_data = array('parmsfornetmargin_interestvalue' => round($interestvalue,3));
         echo json_encode($interestvalue_data);
     }
     if($core->input['action'] == 'popultedefaultaffpolicy'){
