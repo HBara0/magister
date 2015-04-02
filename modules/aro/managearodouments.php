@@ -39,7 +39,7 @@ if(!($core->input['action'])) {
     $payment_terms = PaymentTerms::get_data('', $dal_config);
     $segments = ProductsSegments::get_segments('');
     $packaging = Packaging::get_data('name IS NOT NULL', $dal_config);
-    $uom = Uom::get_data(array('isWeight'=>1), $dal_config);
+    $uom = Uom::get_data('name is not null', $dal_config);
     $mainaffobj = new Affiliates($core->user['mainaffiliate']);
     $currencies = Currencies::get_data('');
     $incoterms = Incoterms::get_data('name IS NOT NULL', $dal_config);
@@ -501,7 +501,7 @@ else {
         $segments = ProductsSegments::get_segments('');
         $segments_selectlist = parse_selectlist('productline['.$plrowid.'][psid]', '', $segments, '', null, null, array('id' => "productline_".$plrowid."_psid", 'placeholder' => 'Overwrite Segment', 'width' => '100%'));
         $packaging_list = parse_selectlist('productline['.$plrowid.'][packing]', '', $packaging, '', '', '', array('id' => "productline_".$plrowid."_packing", 'blankstart' => 1));
-        $uom = Uom::get_data(array('isWeight'=>1));
+        $uom = Uom::get_data();
         $kg = Uom::get_data(array('name' => 'Kilogram'));
         $uom_list = parse_selectlist('productline['.$plrowid.'][uom]', '', $uom, $kg->uomid, '', '', array('id' => "productline_".$plrowid."_uom", 'blankstart' => 1, 'width' => '70px'));
         eval("\$aroproductlines_rows = \"".$template->get('aro_productlines_row')."\";");
