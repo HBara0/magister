@@ -14,7 +14,7 @@ if(!defined('DIRECT_ACCESS')) {
 
 if(!$core->input['action']) {
     if(!isset($core->input['eptid'])) {
-        redirect($_SERVER['HTTP_REFERER']);
+        redirect('index.php?module=profiles/segmentslist');
     }
 
     $eptid = $db->escape_string($core->input['eptid']);
