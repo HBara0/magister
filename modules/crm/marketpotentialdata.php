@@ -130,10 +130,10 @@ if(!$core->input['action']) {
             else {
                 $marketintel['brand'] = '-';
             }
-            $marketintel['potqty'] = $marketintel_obj->potential;
+            $marketintel['potqty'] = number_format($marketintel_obj->potential, 3);
 
-            $marketintel['marketshare'] = $marketintel_obj->mktShareQty;
-            $marketintel['price'] = $marketintel_obj->unitPrice;
+            $marketintel['marketshare'] = number_format($marketintel_obj->mktShareQty, 3);
+            $marketintel['price'] = number_format($marketintel_obj->unitPrice, 3);
             if($marketintel_obj->eptid != 0) {
                 $marketintel['endprod'] = $marketintel_obj->get_endproducttype()->get_displayname();
             }
