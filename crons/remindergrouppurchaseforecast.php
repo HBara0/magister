@@ -40,7 +40,7 @@ if($_REQUEST['authkey'] == 'odsfaddkjj!hre23jh4k2_3h49g3jh') {
                     $user = new Users($uid);
                     $usergroup = new UserGroups($user->gid);
                     if($usergroup->canUseGroupPurchase == 0) {
-                        //  continue;
+                        continue;
                     }
 //
 //                $affiliate = new Affiliates($gpforecasts_obj->affid);
@@ -87,7 +87,7 @@ if($_REQUEST['authkey'] == 'odsfaddkjj!hre23jh4k2_3h49g3jh') {
             $user_obj = new Users($uid);
             $email = $user_obj->email;
             if($email == false) {
-                continue;
+                // continue;
             }
             $stuffings['reporttype'] = 'basic';
             foreach($rest as $gpfid => $values) {
@@ -107,6 +107,10 @@ if($_REQUEST['authkey'] == 'odsfaddkjj!hre23jh4k2_3h49g3jh') {
             $stuffings['suppliers'] = array_unique($stuffings['suppliers']);
             $stuffings['years'] = array_unique($stuffings['years']);
             $forecast = base64_encode(serialize($stuffings));
+            if($stuffings['affiliates'][0] == 0) {
+                $forecast = 0;
+            }
+            unset($stuffings);
 //        foreach($stuffings as $key => $value) {
 //            if(!is_array($value)) {
 //                $key = base64_encode($key);
@@ -121,10 +125,15 @@ if($_REQUEST['authkey'] == 'odsfaddkjj!hre23jh4k2_3h49g3jh') {
 //            }
 //        }
             $sent_query = http_build_query(array('stuffings' => $forecast));
+
             $url = DOMAIN."/index.php?module=grouppurchase/previewforecast&".$sent_query;
             $url2 = DOMAIN."/index.php?module=grouppurchase/generateforecast";
+            $check_link = '<a target="_blank" href='.$url.'>'.$lang->check.'</a><br>';
+            if($forecast == 0 && !is_string($forecast)) {
+                $check_link = '';
+            }
             $email_message = "<h3>".$lang->checkforecast."</h3>";
-            $email_message.= '<a target="_blank" href='.$url.'>'.$lang->check.'</a><br>';
+            $email_message.=$check_link;
             $email_message.= '<a target="_blank" href='.$url2.'>'.$lang->update.'</a>';
             $email_data = array(
                     'from_email' => 'admin@ocos.orkila.com',
@@ -141,6 +150,7 @@ if($_REQUEST['authkey'] == 'odsfaddkjj!hre23jh4k2_3h49g3jh') {
             else {
                 continue;
             }
+            unset($email_message);
         }
     }
 
