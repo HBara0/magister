@@ -16,7 +16,7 @@
                 <td><input type="number"  step="1" name="totalfunds[odersWaitingApproval]" id="totalfunds_odersWaitingApproval" value="{$totalfunds->odersWaitingApproval}" style="width:100px;"/></td>
             </tr>
             <tr class="altrow">
-                <td>{$lang->totalfundseng}</td>
+                <td style="font-weight:bold;">{$lang->totalfundseng}</td>
                 <td><input type="number"  step="1" name="totalfunds[totalFunds]" id="totalfunds_total" value="{$totalfunds->totalFunds}" style="width:100px;"/></td>
             </tr>
         </tbody>
