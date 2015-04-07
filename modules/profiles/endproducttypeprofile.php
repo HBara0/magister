@@ -14,18 +14,18 @@ if(!defined('DIRECT_ACCESS')) {
 
 if(!$core->input['action']) {
     if(!isset($core->input['eptid'])) {
-        redirect($_SERVER['HTTP_REFERER']);
+        redirect('index.php?module=profiles/segmentslist');
     }
 
-    $eptid = $db->escape_string($core->input['eptid']);
+    $eptid = intval($core->input['eptid']);
     $filter_where = 'eptid IN ('.$eptid.')';
     $endprodtype_obj = new EndProducTypes($eptid, false);
     $profile = $endprodtype_obj->get();
     $application_obj = $endprodtype_obj->get_application();
     $application = $application_obj->parse_link();
-    $segment = $application_obj->get_segment()->parselink();
+    //$segment = $application_obj->get_segment()->parse_link();
     //start selecting all eptid in marketintelligence-basicdata
-    $marketintel_objs = MarketIntelligence::get_marketdata_dal(array('eptid' => $eptid), array(simple => false));
+    $marketintel_objs = MarketIntelligence::get_marketdata_dal(array('eptid' => $eptid), array('simple' => false));
     //selecting all cfpids and cfcids in the marketintel objects
     if(is_array($marketintel_objs)) {
         foreach($marketintel_objs as $marketintel_obj) {
@@ -68,4 +68,3 @@ if(!$core->input['action']) {
     eval("\$profilepage = \"".$template->get('profiles_endproducttype')."\";");
     output_page($profilepage);
 }
-
