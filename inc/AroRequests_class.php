@@ -20,7 +20,7 @@ class AroRequests extends AbstractClass {
     const PRIMARY_KEY = 'aorid';
     const TABLE_NAME = 'aro_requests';
     const DISPLAY_NAME = '';
-    const SIMPLEQ_ATTRS = 'aorid,affid,orderType';
+    const SIMPLEQ_ATTRS = 'aorid,affid,orderType,identifier';
     const CLASSNAME = __CLASS__;
     const UNIQUE_ATTRS = 'affid,orderType,orderReference';
 
@@ -45,6 +45,7 @@ class AroRequests extends AbstractClass {
         }
         $orderrequest_array['createdBy'] = $core->user['uid'];
         $orderrequest_array['createdOn'] = TIME_NOW;
+        $orderrequest_array['identifier'] = substr(md5(uniqid(microtime())), 1, 10);
         $query = $db->insert_query(self::TABLE_NAME, $orderrequest_array);
         if($query) {
             $this->data[self::PRIMARY_KEY] = $db->last_id();
@@ -54,7 +55,7 @@ class AroRequests extends AbstractClass {
             }
             /* update the docuent conf with the next number */
             $log->record(self::TABLE_NAME, $this->data[self::PRIMARY_KEY]);
-             $this->save_ordercustomers($data['customeroder']);
+            $this->save_ordercustomers($data['customeroder']);
             if($this->errorcode != 0) {
                 return $this->errorcode;
             }
@@ -78,32 +79,30 @@ class AroRequests extends AbstractClass {
                 return $this->errorcode;
             }
 
-           // $data['parmsfornetmargin']['fees'] = $data['partiesinfo']['totalfees'];
+            // $data['parmsfornetmargin']['fees'] = $data['partiesinfo']['totalfees'];
             $data['parmsfornetmargin']['commission'] = $data['partiesinfo']['commission'];
-           
-            
-            $parms=$this->validate_productlines($data['productline'], $data['parmsfornetmargin']);
+
+
+            $parms = $this->validate_productlines($data['productline'], $data['parmsfornetmargin']);
             if($this->errorcode != 0) {
                 return $this->errorcode;
             }
-            $data['parmsfornetmargin']['unitfees']=$parms['unitfees'];
-            $totalQtyperuom=$parms['totalQty'];
+            $data['parmsfornetmargin']['unitfees'] = $parms['unitfees'];
+            $totalQtyperuom = $parms['totalQty'];
             //save product lines and return array of product segments involved
-            $arosegments = $this->save_productlines($data['productline'], $data['parmsfornetmargin'],$totalQtyperuom);
+            $arosegments = $this->save_productlines($data['productline'], $data['parmsfornetmargin'], $totalQtyperuom);
             $this->save_linessupervision($data['actualpurchase'], $data['partiesinfo']['transitTime'], $data['partiesinfo']['clearanceTime'], $data['partiesinfo']['estDateOfShipment']);
             $this->save_currentstocklines($data['currentstock']);
-             
+
             $fundsengaged_obj = new AroRequestsFundsEngaged();
             $data['totalfunds']['aorid'] = $this->data[self::PRIMARY_KEY];
             $fundsengaged_obj->set($data['totalfunds']);
             $fundsengaged_obj->save();
             $this->create_approvalchain();
-          //sending email section
-           // $sendemail_to['coorinators'][] = $this->get_segoordinators($arosegments);
-           $sendemail_to['approvers']=$this->generate_approvalchain();
-            $this->send_approvalemail($sendemail_to['approvers']); //,$sendemail_to['coorinators']);
+            //$sendemail_to['approvers'] = $this->generate_approvalchain();
+            $this->send_approvalemail();
             ///////////////////////////////
-          }
+        }
     }
 
     private function set_documentsequencenumber($doc_sequencedata) {
@@ -163,36 +162,32 @@ class AroRequests extends AbstractClass {
             //$data['parmsfornetmargin']['fees'] = $data['partiesinfo']['totalfees'];
             $data['parmsfornetmargin']['commission'] = $data['partiesinfo']['commission'];
 
-            $parms=$this->validate_productlines($data['productline'], $data['parmsfornetmargin']);
+            $parms = $this->validate_productlines($data['productline'], $data['parmsfornetmargin']);
             if($this->errorcode != 0) {
                 return $this->errorcode;
             }
-            $data['parmsfornetmargin']['unitfees']=$parms['unitfees'];
-            $totalQtyperuom=$parms['totalQty'];
+            $data['parmsfornetmargin']['unitfees'] = $parms['unitfees'];
+            $totalQtyperuom = $parms['totalQty'];
             //save product lines and return array of product segments involved
-            $arosegments = $this->save_productlines($data['productline'], $data['parmsfornetmargin'],$totalQtyperuom);
+            $arosegments = $this->save_productlines($data['productline'], $data['parmsfornetmargin'], $totalQtyperuom);
             $this->save_linessupervision($data['actualpurchase'], $data['partiesinfo']['transitTime'], $data['partiesinfo']['clearanceTime'], $data['partiesinfo']['estDateOfShipment']);
             $this->save_currentstocklines($data['currentstock']);
-            
-            
+
+
             $fundsengaged_obj = new AroRequestsFundsEngaged();
             $data['totalfunds']['aorid'] = $this->data[self::PRIMARY_KEY];
-            $fundsengaged_obj->set(  $data['totalfunds']);
+            $fundsengaged_obj->set($data['totalfunds']);
             $fundsengaged_obj->save();
             $this->create_approvalchain();
-            // //sending email section
-//            if($this->check_infromcoords()==1) {
-//              $sendemail_to['coorinators'][] = $this->get_segoordinators($arosegments);
+            $approvers_objs = $this->get_approvers();
+//            if(is_array($approvers_objs)) {
+//                foreach($approvers_objs as $approver) {
+//                    $approvers[] = $approver->uid;
+//                }
 //            }
-            $approvers_objs=$this->get_approvers();
-            if(is_array($approvers_objs)){
-                  foreach($approvers_objs as $approver) {
-                    $approvers[] =$approver->uid;
-                }
-            }
-            $this->send_approvalemail($sendemail_to['approvers']);
+            $this->send_approvalemail();
             ////////////////////////////////////////////
-            }
+        }
     }
 
     private function save_ordercustomers($customersdetails) {
@@ -232,8 +227,8 @@ class AroRequests extends AbstractClass {
                 $arorequestline['aorid'] = $this->data[self::PRIMARY_KEY];
                 $arorequestline['exchangeRateToUSD'] = $this->data['exchangeRateToUSD'];
                 $arorequestline['parmsfornetmargin'] = $parmsfornetmargin;
-                if(!empty($arorequestline['quantity'])){
-                $parms['unitfees'] += $arorequestline['fees']/$arorequestline['quantity'];
+                if(!empty($arorequestline['quantity'])) {
+                    $parms['unitfees'] += $arorequestline['fees'] / $arorequestline['quantity'];
                 }
                 $parms['totalQty'][$arorequestline['uom']] +=$arorequestline['quantity'];
                 $requestline = new AroRequestLines();
@@ -250,12 +245,12 @@ class AroRequests extends AbstractClass {
                         return;
                 }
             }
-            $parms['unitfees']=$parms['unitfees']/$plrowid;
+            $parms['unitfees'] = $parms['unitfees'] / $plrowid;
             return $parms;
         }
     }
 
-    private function save_productlines($arorequestlines, $parmsfornetmargin,$totalQtyperuom) {  //$netmarginparms
+    private function save_productlines($arorequestlines, $parmsfornetmargin, $totalQtyperuom) {  //$netmarginparms
         global $db;
         if(is_array($arorequestlines)) {
             foreach($arorequestlines as $arorequestline) {
@@ -267,7 +262,7 @@ class AroRequests extends AbstractClass {
                 $arosegments[$arorequestline['psid']] = $arorequestline['psid'];
                 $arorequestline['exchangeRateToUSD'] = $this->data['exchangeRateToUSD'];
                 $arorequestline['parmsfornetmargin'] = $parmsfornetmargin;
-                 $arorequestline['parmsfornetmargin']['totalQty']=$totalQtyperuom[$arorequestline['uom']];
+                $arorequestline['parmsfornetmargin']['totalQty'] = $totalQtyperuom[$arorequestline['uom']];
                 if(isset($arorequestline['todelete']) && !empty($arorequestline['todelete'])) {
                     $requestline = AroRequestLines::get_data(array('inputChecksum' => $arorequestline['inputChecksum']));
                     if(is_object($requestline)) {
@@ -307,7 +302,7 @@ class AroRequests extends AbstractClass {
             }
         }
     }
-   
+
     private function save_currentstocklines($currentstocklines) {
         if(is_array($currentstocklines)) {
             foreach($currentstocklines as $currentstockline) {
@@ -329,7 +324,7 @@ class AroRequests extends AbstractClass {
     public function calculate_netmaginparms($data = array()) {
         $where = 'warehouse='.$data['warehouse'].' AND ('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
         $warehousepolicy = AroManageWarehousesPolicies::get_data($where);
-        if(!is_object($warehousepolicy)){
+        if(!is_object($warehousepolicy)) {
             return false;
         }
         $currency = new Currencies($warehousepolicy->currency);
@@ -357,17 +352,17 @@ class AroRequests extends AbstractClass {
             $approvalchain = unserialize($aroapprovalchain_policies->approvalChain);
         }
         $localaffpolicy = AroPolicies::get_data($filter);
-            
+
         $affiliate = new Affiliates($this->affid);
         if(is_array($approvalchain)) {
             foreach($approvalchain as $key => $val) {
-                $sortedapprovalchain[$val['sequence']]=$val;
+                $sortedapprovalchain[$val['sequence']] = $val;
             }
-          ksort($sortedapprovalchain); // Sort by sequece ASC
-         foreach($sortedapprovalchain as $key => $val) {
+            ksort($sortedapprovalchain); // Sort by sequece ASC
+            foreach($sortedapprovalchain as $key => $val) {
                 switch($val['approver']) {
                     case 'businessManager':
-                         $approvers['businessManager'] = 1;
+                        $approvers['businessManager'] = 1;
 
                         break;
                     case 'lolm':
@@ -378,34 +373,36 @@ class AroRequests extends AbstractClass {
 
                         break;
                     case 'generalManager':
-                         $approvers['generalManager'] = $affiliate->get_generalmanager()->uid;
+                        $approvers['generalManager'] = $affiliate->get_generalmanager()->uid;
                         break;
                     case 'gfinancialManager':
                         $aropartiesinfo = AroRequestsPartiesInformation::get_data(array('aorid' => $this->data[self::PRIMARY_KEY]));
-                        if(is_object($aropartiesinfo)){
-                        $intermediaryAff = new Affiliates($aropartiesinfo->intermedAff);}
-                        else{
-                           if(is_object($localaffpolicy)){
-                               $intermediaryAff = new Affiliates($localaffpolicy->defaultIntermed);}
+                        if(is_object($aropartiesinfo)) {
+                            $intermediaryAff = new Affiliates($aropartiesinfo->intermedAff);
                         }
-                        if(is_object($intermediaryAff)){
-                        $approvers['gfinancialManager'] = $intermediaryAff->get_financialemanager()->uid;
+                        else {
+                            if(is_object($localaffpolicy)) {
+                                $intermediaryAff = new Affiliates($localaffpolicy->defaultIntermed);
+                            }
+                        }
+                        if(is_object($intermediaryAff)) {
+                            $approvers['gfinancialManager'] = $intermediaryAff->get_financialemanager()->uid;
                         }
                         break;
                     case 'cfo':
-                     $approvers['cfo'] = $affiliate->get_cfo()->uid;
+                        $approvers['cfo'] = $affiliate->get_cfo()->uid;
                         break;
                     case 'coo':
-                          $approvers['coo'] = $affiliate->get_coo()->uid;
+                        $approvers['coo'] = $affiliate->get_coo()->uid;
                         break;
                     case 'regionalSupervisor':
                         $approvers['regionalSupervisor'] = $affiliate->get_regionalsupervisor()->uid;
                         break;
                     case 'globalPurchaseManager':
-                          $approvers['globalPurchaseManager'] = $affiliate->get_globalpurchasemanager()->uid;
+                        $approvers['globalPurchaseManager'] = $affiliate->get_globalpurchasemanager()->uid;
                         break;
-                    case 'user':
-                        break;
+                    //  case 'user':
+                    //      break;
                     default:
                         if(is_int($val)) {
                             $approvers[$val] = $val;
@@ -413,11 +410,11 @@ class AroRequests extends AbstractClass {
                         break;
                 }
             }
-       /* Make list of approvers unique */
+            /* Make list of approvers unique */
             $approvers = array_unique($approvers);
 
             /* Remove the user himself from the approval chain */
-        //    unset($approvers[array_search($core->user['uid'], $approvers)]);
+            //    unset($approvers[array_search($core->user['uid'], $approvers)]);
             return $approvers;
         }
         return null;
@@ -429,31 +426,31 @@ class AroRequests extends AbstractClass {
         if(empty($approvers)) {
             $approvers = $this->generate_approvalchain();
         }
-    //  $approve_immediately = $this->should_approveimmediately();
-        
+        //  $approve_immediately = $this->should_approveimmediately();
         $sequence = 1;
-        if(is_array($approvers)){
-        foreach($approvers as $key => $val) {
-            $approve_status = $timeapproved = 0;
-            if($val == $core->user['uid'] && $approve_immediately == true) {
+        if(is_array($approvers)) {
+            foreach($approvers as $key => $val) {
+                $approve_status = $timeapproved = 0;
+                if($val == $core->user['uid'] && $approve_immediately == true) {
 //                 if($val == $core->user['uid']) {
 //                    $approve_immediately = true;
 //                }
-                $approve_status = 1;
-                $timeapproved = TIME_NOW;
+                    $approve_status = 1;
+                    $timeapproved = TIME_NOW;
+                }
+
+                if(is_array($approvers)) {
+                    $position = array_search($val, $approvers);
+                }
+                $approver = new AroRequestsApprovals();
+                $approver->set(array('aorid' => $this->data[self::PRIMARY_KEY], 'uid' => $val, 'isApproved' => $approve_status, 'timeApproved' => $timeapproved, 'sequence' => $sequence, 'position' => $key));
+                $approver->save();
+                $sequence++;
             }
-       
-            if(is_array($approvers)) {
-             $position = array_search($val, $approvers);
-            }
-            $approver = new AroRequestsApprovals();
-            $approver->set(array('aorid' => $this->data[self::PRIMARY_KEY], 'uid' => $val, 'isApproved' => $approve_status, 'timeApproved' => $timeapproved, 'sequence' => $sequence, 'position' => $key));
-            $approver->save();
-            $sequence++;
-    }}
+        }
         return true;
     }
-    
+
     private function check_infromcoords() {
         $filter = 'affid ='.$this->affid.' AND purchaseType = '.$this->orderType.' AND ('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
         $aroapprovalchain_policies = AroApprovalChainPolicies::get_data($filter);
@@ -461,73 +458,65 @@ class AroRequests extends AbstractClass {
             return $aroapprovalchain_policies->informCoordinators;
         }
     }
-    private function check_informglobalcfo(){
-         $filter = 'affid ='.$this->affid.' AND purchaseType = '.$this->orderType.' AND ('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
+
+    private function check_informglobalcfo() {
+        $filter = 'affid ='.$this->affid.' AND purchaseType = '.$this->orderType.' AND ('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
         $aroapprovalchain_policies = AroApprovalChainPolicies::get_data($filter);
         if(is_object($aroapprovalchain_policies)) {
             return $aroapprovalchain_policies->informGlobalCFO;
         }
     }
-    
-    private function get_segoordinators(){    
-        $arorequestlines=AroRequestLines::get_data(array('aorid'=>1));
-        if(is_array($arorequestlines)){
-            foreach($arorequestlines as $arorequestline){
-                 $arosegments['psid']=$arorequestline->psid;
+
+    private function get_segoordinators() {
+        $arorequestlines = AroRequestLines::get_data(array('aorid' => 1));
+        if(is_array($arorequestlines)) {
+            foreach($arorequestlines as $arorequestline) {
+                $arosegments['psid'] = $arorequestline->psid;
             }
         }
-        if(is_array($arosegments)){
-               foreach($arosegments as $key => $value) {
-                    $productsegment_obj = new ProductsSegments($value);
-                    $coordinators_objs[$key] = $productsegment_obj->get_coordinators();
-                    unset($productsegment_obj); }
-                foreach($coordinators_objs as $key => $coord_objs) {
-                    if(is_array($coord_objs)) {
-                        foreach($coord_objs as $coord_obj) {
-                            $coordinators[] = $coord_obj->get_coordinator();
-                        }
+        if(is_array($arosegments)) {
+            foreach($arosegments as $key => $value) {
+                $productsegment_obj = new ProductsSegments($value);
+                $coordinators_objs[$key] = $productsegment_obj->get_coordinators();
+                unset($productsegment_obj);
+            }
+            foreach($coordinators_objs as $key => $coord_objs) {
+                if(is_array($coord_objs)) {
+                    foreach($coord_objs as $coord_obj) {
+                        $coordinators[] = $coord_obj->get_coordinator();
                     }
-                    else if(is_object($coord_objs)) {
-                        $coordinators[] = $coord_objs->get_coordinator();
-                        }
-                    }
+                }
+                else if(is_object($coord_objs)) {
+                    $coordinators[] = $coord_objs->get_coordinator();
+                }
+            }
         }
         return $coordinators;
     }
 
-    public function get_approvers(array $config=array()) {
-     if(empty($config)){
-      $config= array('returnarray'=>true,'simple'=>false,'order'=>array('by'=>'sequence','sort'=>'ASC'));
-      }
-      return  AroRequestsApprovals::get_data(array('aorid'=>$this->data[self::PRIMARY_KEY]),$config);
+    public function get_approvers(array $config = array()) {
+        if(empty($config)) {
+            $config = array('returnarray' => true, 'simple' => false, 'order' => array('by' => 'sequence', 'sort' => 'ASC'));
+        }
+        return AroRequestsApprovals::get_data(array('aorid' => $this->data[self::PRIMARY_KEY]), $config);
     }
-    
+
     public function get_firstapprover() {
         return $this->get_approvers(array('order' => array('sort' => 'ASC', 'by' => 'sequence'), 'limit' => '0, 1'));
     }
-    
-    public function send_approvalemail($approvers) {
-        $firstapprover=$this->get_firstapprover();
-        if(is_array($approvers)){
-            foreach($approvers as $approver_id){
-                $approver=new Users($approver_id);
-               // $approvers_mailinglist[$approver_id]=$approver->get_email();
-                if($firstapprover->uid ==$approver_id){
-                    $to=$approver->get_email();
-                }
-            }
-        }
-        $approve_link="http://127.0.0.1/ocos/index.php?module=aro/managearodouments&id=".$this->data[self::PRIMARY_KEY]."&referrer=toapprove";
-        $aroapprovalemail_subject='Aro Needs Approval !';
+
+    public function send_approvalemail() {
+        global $core;
+        $firstapprover = $this->get_firstapprover();
+        $to = $firstapprover->get_email();
+        $approve_link = $core->settings['rootdir']."/index.php?module=aro/managearodouments&referrer=toapprove&requestKey=".base64_encode($this->data['identifier'])."&id=".$this->data[self::PRIMARY_KEY];
+        $aroapprovalemail_subject = 'Aro Needs Approval !';
         $email_data = array(
                 'from' => 'ocos@orkila.com',
-                'to' =>  $to, // $approvers_mailinglist,
-                'subject' => $aroapprovalemail_subject ,
+                'to' => $to, // $approvers_mailinglist,
+                'subject' => $aroapprovalemail_subject,
                 'message' => "Aro Request Needs Approval:".$approve_link,
         );
-    //   if(is_array($segcoordinators)){
-//                   $email_data['cc']=$segcoordinators;
-//        }
         $mailer = new Mailer();
         $mailer = $mailer->get_mailerobj();
         $mailer->set_type();
@@ -536,49 +525,58 @@ class AroRequests extends AbstractClass {
         $mailer->set_message($email_data['message']);
         $mailer->set_to($email_data['to']);
         // $x=$mailer->debug_info();  print_R($x); exit;
-         $mailer->send();
+        $mailer->send();
     }
-     
+
     public function approve($user) {
         global $db;
         if($this->can_apporve($user)) {
-            $db->update_query('aro_requests_approvals', array('isApproved' => 1, 'approvedOn' => TIME_NOW), ''.self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]). 'AND uid='.$user->uid);
-            return true;
+            $query = $db->update_query('aro_requests_approvals', array('isApproved' => 1, 'timeApproved' => TIME_NOW), ''.self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]).' AND uid='.$user->uid);
+            if($query) {
+                return true;
+            }
         }
         else {
             return false;
         }
-   }
-        
-    public function inform_nextapprover(){
-        $approval = AroRequestsApprovals::get_data(array('isApproved'=>0,'aorid'=>$this->data[self::PRIMARY_KEY]),array('order' => array('sort' => 'DESC', 'by' => 'sequence'), 'limit' => '0, 1'));
-        if(is_object($approval)){
-        $user=new Users($approval->uid);
-        $approve_link="http://127.0.0.1/ocos/index.php?module=aro/managearodouments&id=".$this->data[self::PRIMARY_KEY]."&referrer=toapprove";
-        $aroapprovalemail_subject='Aro Needs Approval';
-        $email_data = array(
-                'from' => 'ocos@orkila.com',
-                'to' =>  $user->get_email(),
-                'subject' => $aroapprovalemail_subject ,
-                'message' => "Aro Request Needs Approval: ".$approve_link,
-        );
-        $mailer = new Mailer();
-        $mailer = $mailer->get_mailerobj();
-        $mailer->set_type();
-        $mailer->set_from($email_data['from']);
-        $mailer->set_subject($email_data['subject']);
-        $mailer->set_message($email_data['message']);
-        $mailer->set_to($email_data['to']);
-        // $x=$mailer->debug_info();  print_R($x); exit;
-         $mailer->send();
+    }
+
+    public function get_nextapprover() {
+        return AroRequestsApprovals::get_data(array('isApproved' => 0, 'aorid' => $this->data[self::PRIMARY_KEY]), array('order' => array('sort' => 'DESC', 'by' => 'sequence'), 'limit' => '0, 1'));
+    }
+
+    public function inform_nextapprover() {
+        global $core;
+        $approval = $this->get_nextapprover();
+        if(is_object($approval)) {
+            $user = new Users($approval->uid);
+            $approve_link = $core->settings['rootdir']."/index.php?module=aro/managearodouments&requestKey=".base64_encode($this->data['identifier'])."&id=".$this->data[self::PRIMARY_KEY]."&referrer=toapprove";
+            $approve_link = '<a href="'.$approve_link.'">Approve Link</a>';
+            $aroapprovalemail_subject = 'Aro Needs Approval';
+            $email_data = array(
+                    'from' => 'ocos@orkila.com',
+                    'to' => $user->get_email(),
+                    'subject' => $aroapprovalemail_subject,
+                    'message' => "Aro Request Needs Approval:".$approve_link,
+            );
+            $mailer = new Mailer();
+            $mailer = $mailer->get_mailerobj();
+            $mailer->set_type();
+            $mailer->set_from($email_data['from']);
+            $mailer->set_subject($email_data['subject']);
+            $mailer->set_message($email_data['message']);
+            $mailer->set_to($email_data['to']);
+            //$x = $mailer->debug_info();
+            //print_R($x);
+            exit;
         }
     }
-   
+
     public function can_apporve($user) {
         $approvers = $this->get_approvers();
-        if(is_array($approvers)){
+        if(is_array($approvers)) {
             foreach($approvers as $approver) {
-                if($approver == $user){
+                if($approver->uid == $user->uid) {
                     return true;
                 }
             }
@@ -590,7 +588,7 @@ class AroRequests extends AbstractClass {
         global $db;
         $db->update_query(self::TABLE_NAME, array('isApproved' => 1), self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
     }
-    
+
     public function get_approvals($isapproved = 1) {
         global $db;
         if($isapproved == 1) {
@@ -599,7 +597,7 @@ class AroRequests extends AbstractClass {
         else {
             $where_isapproved = ' WHERE isApproved=0';
         }
-        $query = $db->query('SELECT * FROM '.Tprefix.'aro_requests_approvals '.$where_isapproved.' AND aorid='. $this->data[self::PRIMARY_KEY]);
+        $query = $db->query('SELECT * FROM '.Tprefix.'aro_requests_approvals '.$where_isapproved.' AND aorid='.$this->data[self::PRIMARY_KEY]);
         if($db->num_rows($query) > 0) {
             while($approver = $db->fetch_assoc($query)) {
                 $approvers[$approver['uid']] = new Users($approver['uid']);
@@ -608,7 +606,7 @@ class AroRequests extends AbstractClass {
         }
         return false;
     }
-    
+
     public function is_approved() {
         $approvals = $this->get_approvals(0);
         if(count($approvals) == 0 || $approvals == false) {
@@ -616,31 +614,30 @@ class AroRequests extends AbstractClass {
         }
         return false;
     }
-    
+
     public function notifyapprove() {
         if($this->data['isApproved'] == 1) {
-            $approvers=$this->get_approvers();
-            if(is_array($approvers)){
-                foreach($approvers as $approver_id){
-                    $approver=new Users($approver_id);
-                    $mailinglist[$approver_id]=$approver->get_email();
+            $approvers = $this->get_approvers();
+            if(is_array($approvers)) {
+                foreach($approvers as $approver_id) {
+                    $approver = new Users($approver_id);
+                    $mailinglist[$approver_id] = $approver->get_email();
                 }
             }
-            
-            if($this->check_infromcoords()== 1) {
-                $segcoords=$this->get_segoordinators();
-                 if(is_array($segcoords)){
-                      foreach($segcoords as $coord) {
-                          $mailinglist[$coord->uid]=$coord->get_email();
-                      }
+            if($this->check_infromcoords() == 1) {
+                $segcoords = $this->get_segoordinators();
+                if(is_array($segcoords)) {
+                    foreach($segcoords as $coord) {
+                        $mailinglist[$coord->uid] = $coord->get_email();
+                    }
                 }
-             }
-             if($this->check_informglobalcfo()==1){
-                  $affiliate=new Affiliate($this->data['affid']);
-                  $cfo=new Users($affiliate->globalCfo);
-                  $mailinglist[$cfo->uid]=$cfo->get_email();
-             }
-            
+            }
+            if($this->check_informglobalcfo() == 1) {
+                $affiliate = new Affiliate($this->data['affid']);
+                $cfo = new Users($affiliate->cfo);
+                $mailinglist[$cfo->uid] = $cfo->get_email();
+            }
+
             $email_data = array(
                     'from_email' => '..@ocos.orkila.com',
                     'from' => 'Orkila Attendance System',
