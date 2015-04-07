@@ -21,18 +21,16 @@ $(function() {
     //--------------------------------------------------------------
     //
 
-    var url= window.location.href;   
-    var url = url.split('&');
-    if(typeof url[2] !== 'undefined'){
-    var referrer=url[2].split("=");
-    if(referrer[1]=='toapprove' || referrer[1]=='toapprove#'){
+   if(typeof getUrlParameter('referrer') !== 'undefined'){
+    if(getUrlParameter('referrer')=='toapprove' || getUrlParameter('referrer')=='toapprove#' || (myUrl.substring(myUrl.length-1)=='#' && getUrlParameter('referrer')=='toapprove')){
     $("form[id='perform_aro/managearodouments_Form'] :input:not([id^='approvearo'])").attr("disabled", true);
-    }}else{
-    if(typeof url[1] !== 'undefined'){
-    var id=url[1].split("=");
+    }
+}
+else{
+    if(typeof getUrlParameter('id') !== 'undefined'){
         $.ajax({type: 'post',
                 url: rootdir + "index.php?module=aro/managearodouments&action=viewonly",
-                data: "id=" + id[1],
+                data: "id=" + getUrlParameter('id'),
                 beforeSend: function() {
                 },
                 complete: function() {
@@ -204,7 +202,7 @@ $(function() {
                     }
                 });
         var purchasetype = $("input[id^='cpurchasetype']").val();
-        sharedFunctions.populateForm('perform_aro/managearodouments_Form', 'http://127.0.0.1/ocos/index.php?module=aro/managearodouments&action=getestimatedate&paymentermdays[]= ' + paymentdays + '&ptid= ' + purchasetype +'&salesdates[]='+salesdates);
+        sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir+'index.php?module=aro/managearodouments&action=getestimatedate&paymentermdays[]= ' + paymentdays + '&ptid= ' + purchasetype +'&salesdates[]='+salesdates);
         var updatetotalfees = setTimeout(function() {
             $("select[id='partiesinfo_intermed_paymentterm']").trigger('change');
         }, 2000);
@@ -593,3 +591,18 @@ window.onload = function() {
      $("select[id^='paymentermdays_']").trigger("change");
       $("input[id='ordersummary_btn']").trigger("click");
 };
+
+
+function getUrlParameter(sParam)
+{
+    var sPageURL = window.location.search.substring(1);
+    var sURLVariables = sPageURL.split('&');
+    for (var i = 0; i < sURLVariables.length; i++) 
+    {
+        var sParameterName = sURLVariables[i].split('=');
+        if (sParameterName[0] == sParam) 
+        {
+            return sParameterName[1];
+        }
+    }
+}  
