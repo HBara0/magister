@@ -96,7 +96,7 @@ $lang['otherapprovedhotels'] = 'Other Approved Hotels';
 $lang['hotelname'] = 'Hotel';
 $lang['avgprice'] = 'Average Price';
 $lang['iscontracted'] = 'Is Contracted';
-$lang['noaccomodation'] = 'No Accomodation';
+$lang['noaccomodation'] = 'No Accomodation Needed';
 $lang['address'] = 'Address';
 $lang['phone'] = 'Phone';
 $lang['addexpenses'] = 'Add more expenses';
@@ -107,5 +107,5 @@ $lang['neededamount'] = 'Needed Amount';
 $lang['transportations'] = 'Transportation';
 $lang['accomodation'] = 'Accomodation';
 $lang['additionalexpenses'] = 'Additional Expenses';
-$lang['anticipatedamount'] = 'Anticipated required amount';
+$lang['anticipatedamount'] = 'Anticipated required amount needed in advance';
 ?>

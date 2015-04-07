@@ -13,10 +13,11 @@
         <td class="contentContainer">
             <h1>{$lang->manageevents}</h1>
             <div>
-                <form name="perform_cms/manageevents_Form" id="perform_cms/manageevents_Form" action="#" method="post">
+                <iframe id='uploadFrame' name='uploadFrame' src='#'></iframe>
+                <form method="post" enctype="multipart/form-data" action="index.php?module=cms/manageevents&amp;action=do_perform_manageevents" target="uploadFrame">
                     <div style="display:block;">
                         <div style="display: inline-block;width:10%">{$lang->title}</div>
-                        <div style="display: inline-block;padding:5px;"><input name="event[title]" type="text" value="{$event[title]}" required="required" size="30"><input type='hidden' value="{$event[alias]}"></div>
+                        <div style="display: inline-block;padding:5px;"><input name="event[title]" type="text" value="{$event[title]}" required="required" size="30"><input type='hidden' name='event[alias]' value="{$event[alias]}"></div>
                     </div>
 
                     <div style="display:block;">
@@ -91,14 +92,14 @@
                         <div style="display:block;" class="thead">{$lang->attacheventlogo}</div>
                         <div style="display:block;">
                             <fieldset class="altrow2" style="border:1px solid #DDDDDD">
-                                <input type="file" id="attachments" name="event[attachments][]" multiple="true"></fieldset>
+                                <input type="file" id="attachments" name="event[logo][]" multiple="true"></fieldset>
                         </div>
 
                     </div>
 
                     <div style="display:block;padding-top:10px;">
                         <div style="display:inline-block;">
-                            <input type="submit" id="perform_cms/manageevents_Button" value="{$lang->savecaps}" class="button" onclick="$('#upload_Result').show()"/>
+                            <input type="submit" value="{$lang->savecaps}" class="button" onclick="$('#upload_Result').show()"/>
                             <input type="reset" class="button" value="{$lang->reset}"/>
                         </div>
                     </div>

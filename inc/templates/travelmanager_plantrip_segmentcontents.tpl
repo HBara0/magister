@@ -11,13 +11,13 @@
             {$rows}
         </tbody>
     </table>
-    <div> <img src="./images/add.gif" style="cursor: pointer" id="ajaxaddmore_travelmanager/plantrip_othertranspcat_{$sequence}"  alt="{$lang->add}">Add another transportation
+    <div> <img src="./images/add.gif" style="cursor: pointer" id="ajaxaddmore_travelmanager/plantrip_othertranspcat_{$sequence}"  alt="{$lang->add}"> Add another transportation
         <input type="hidden" name="ajaxaddmoredata[destcity]" id="ajaxaddmoredata_destcity" value="{$destcityid}"/>
         <input name="numrows_othertranspcat_{$sequence}" type="hidden" id="numrows_othertranspcat_{$sequence}" value="{$rowid}">
     </div>
 </div>
 <h2 class="subtitle" style="padding:8px;width:40%;">{$lang->accomodations}</h2>
-<input type="checkbox" action="no_accomodation" name="segment[{$sequence}][noAccomodation]" {$checkedaccomodation} value="1"<label>{$lang->noaccomodation}</label>
+<input type="checkbox" id="noAccomodation_{$sequence}" name="segment[{$sequence}][noAccomodation]" {$checkedaccomodation} value="1"> {$lang->noaccomodation}
 <div style="display:block;" id="segment_hotels_{$sequence}">
    <!-- <div class="subtitle">{}Approved Hotels</div>-->
 
@@ -36,17 +36,16 @@
 
         </tbody>
     </table>
-    <span> <img src="./images/add.gif"  style="cursor: pointer" id="ajaxaddmore_travelmanager/plantrip_expenses_{$sequence}"  alt="{$lang->add}">{$lang->addexpenses}
+    <span> <img src="./images/add.gif"  style="cursor: pointer" id="ajaxaddmore_travelmanager/plantrip_expenses_{$sequence}"  alt="{$lang->add}"> {$lang->addexpenses}
         <input name="numrows_expenses_{$sequence}" type="hidden" id="numrows_expenses_{$sequence}" value="{$rowid}">
         <input type="hidden" name="ajaxaddmoredata[destcity]" id="ajaxaddmoredata_destcity" value="{$destcityid}"/>
 
     </span>
 
 </div>
-<div style="display:block; width: 100%;" id="segment_finances_{$sequence}">
+<div style="display:block; width: 100%; margin-top: 10px;" id="segment_finances_{$sequence}">
     <input name="sequence" type="hidden" id="sequence" value="{$sequence}">
-    
-    <h2 class="subtitle" style="padding:8px;width:40%;">{$lang->finance}</h2>
+    <h2 class="subtitle" style="padding:8px;width:100%;">{$lang->finance} ({$lang->anticipatedamount})</h2>
     <table width="100%"cellspacing="0" cellpadding="0" style="margin-left: 8px;" class="datatable">
         <tbody id="finances_{$frowid}_tbody">
             {$finance_output}
@@ -54,7 +53,7 @@
     </table>
     <span>
         <div>
-            <img src="./images/add.gif" style="cursor: pointer" id="ajaxaddmore_travelmanager/plantrip_finances_{$frowid}"  alt="{$lang->add}">Add amount
+            <img src="./images/add.gif" style="cursor: pointer" id="ajaxaddmore_travelmanager/plantrip_finances_{$frowid}" alt="{$lang->add}"> Add Amount
             <input name="numrows_finances_{$frowid}" type="hidden" id="numrows_finances_{$frowid}" value="{$frowid}">
         </div>
     </span>

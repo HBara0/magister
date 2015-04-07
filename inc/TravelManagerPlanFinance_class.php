@@ -30,22 +30,23 @@ class TravelManagerPlanFinance extends AbstractClass {
                 'currency' => $data['currency'],
                 'inputChecksum' => $data['inputChecksum'],
         );
-        $query=$db->insert_query(self::TABLE_NAME, $tanspdata_array);
-        if($query){
-        $this->data[self::PRIMARY_KEY] = $db->last_id();
+        $query = $db->insert_query(self::TABLE_NAME, $tanspdata_array);
+        if($query) {
+            $this->data[self::PRIMARY_KEY] = $db->last_id();
         }
+        return $this;
     }
 
     protected function update(array $data) {
-        global $db, $core;
+        global $db;
         if(is_array($data)) {
             $financedata['tmpsid'] = $data['tmpsid'];
             $financedata['amount'] = $data['amount'];
             $financedata['currency'] = $data['currency'];
             $financedata['inputChecksum'] = $data['inputChecksum'];
         }
-        $db->update_query(self::TABLE_NAME, $financedata, self::PRIMARY_KEY.' = '.intval($this->data[self::PRIMARY_KEY]));
-        
+        $db->update_query(self::TABLE_NAME, $financedata, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
+        return $this;
     }
 
 }

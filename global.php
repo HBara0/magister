@@ -17,7 +17,7 @@ if(!$dir) {
 require $dir.'/inc/init.php';
 set_headers();
 
-define('SYSTEMVERSION', 18.1);
+define('SYSTEMVERSION', 18.2);
 
 if(strpos(strtolower($_SERVER['PHP_SELF']), ADMIN_DIR) !== false) {
     define('IN_AREA', 'admin');
@@ -34,7 +34,9 @@ $htmllang = $lang->settings['htmllang'];
 $db->set_charset($lang->settings['charset_db']);
 
 $lang->load('global');
-
+if(!empty($core->user['language'])) {
+    date_default_timezone_set($core->user['language']);
+}
 eval("\$headerinc = \"".$template->get('headerinc')."\";");
 
 if($session->uid > 0) {
@@ -71,7 +73,7 @@ if($session->uid > 0) {
         $lang->lastvisit = $lang->firstvisit;
     }
     else {
-        $lang->lastvisit = $lang->sprint($lang->lastvisit, date($core->settings['dateformat'], $core->user['lastVisit']), date($core->settings['timeformat'], $core->user['lastVisit']));
+        $lang->lastvisit = $lang->sprint($lang->lastvisit, date($core->settings['dateformat'], $core->user['lastVisit']), date($core->settings['timeformat'], $core->user['lastVisit'])).' UTC';
     }
 
     eval("\$header = \"".$template->get('header')."\";");

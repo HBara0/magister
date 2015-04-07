@@ -144,6 +144,11 @@
                         // $('input[id^="destinationcity_' + nextsegid + '"]').trigger('change');
                     }
                 });
+
+                $('input[id^="noAccomodation_"]').live('click', function () {
+                    var id = $(this).attr("id").split("_");
+                    $('#segment_hotels_' + id[1] + ', #other_hotels_' + id[1]).toggle(!$(this).is(':checked')).find('input').val("");
+                });
             });
 
         </script>
