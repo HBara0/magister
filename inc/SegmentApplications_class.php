@@ -52,6 +52,7 @@ class SegmentApplications extends AbstractClass {
                     'psid' => $data['psid'],
                     'title' => $data['title'],
                     'name' => $data['name'],
+                    'description' => $core->sanitize_inputs($data['description'], array('method' => 'striponly', 'allowable_tags' => '<span><div><a><br><p><b><i><del><strike><img><video><audio><embed><param><blockquote><mark><cite><small><ul><ol><li><hr><dl><dt><dd><sup><sub><big><pre><figure><figcaption><strong><em><table><tr><td><th><tbody><thead><tfoot><h1><h2><h3><h4><h5><h6>', 'removetags' => true)),
                     'createdBy' => $core->user['uid'],
                     'createdOn' => TIME_NOW
             );
@@ -174,7 +175,18 @@ class SegmentApplications extends AbstractClass {
     }
 
     protected function update(array $data) {
+        global $db, $core;
 
+        $valid_fields = array('title', 'psid', 'description');
+        foreach($valid_fields as $attr) {
+            $valid_data[$attr] = $data[$attr];
+        }
+
+        $valid_data['description'] = $core->sanitize_inputs($valid_data['description'], array('method' => 'striponly', 'allowable_tags' => '<span><div><a><br><p><b><i><del><strike><img><video><audio><embed><param><blockquote><mark><cite><small><ul><ol><li><hr><dl><dt><dd><sup><sub><big><pre><figure><figcaption><strong><em><table><tr><td><th><tbody><thead><tfoot><h1><h2><h3><h4><h5><h6>', 'removetags' => true));
+        $valid_data['name'] = generate_alias($valid_data['title']);
+        $valid_data['modifiedBy'] = $core->user['uid'];
+        $valid_data['modifiedOn'] = TIME_NOW;
+        $db->update_query(self::TABLE_NAME, $valid_data, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
     }
 
     public function get_link() {
