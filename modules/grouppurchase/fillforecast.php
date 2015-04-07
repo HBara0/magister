@@ -16,7 +16,7 @@ if($core->usergroup['grouppurchase_canUpdateForecast'] == 0) {
 }
 if(!$core->input['action']) {
     $forecast_data = $core->input['forecast'];
-    $uid = $forecast_data['onBehalf'];
+    $uid = intval($forecast_data['onBehalf']);
     if($forecast_data['onBehalf'] == 0) {
         $uid = $core->user['uid'];
     }
@@ -38,10 +38,10 @@ if(!$core->input['action']) {
 
     $grouppurchaseforecast = GroupPurchaseForecast::get_data(array('affid' => $forecast_data['affid'], 'year' => $forecast_data['year'], 'spid' => $forecast_data['spid']));
     if(is_object($grouppurchaseforecast)) {
-        $gpforecastlines = $grouppurchaseforecast->get_forecastlines();
+        $gpforecastlines = $grouppurchaseforecast->get_forecastlines($uid);
     }
     $budget = Budgets::get_budget_bydata($forecast_data);
-
+    
     /* Read data from existing forecast lines. */
     if(is_array($gpforecastlines)) {
         foreach($gpforecastlines AS $gpforecastline) {

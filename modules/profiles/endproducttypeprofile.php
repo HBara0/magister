@@ -22,8 +22,11 @@ if(!$core->input['action']) {
     $endprodtype_obj = new EndProducTypes($eptid, false);
     $profile = $endprodtype_obj->get();
     $application_obj = $endprodtype_obj->get_application();
-    $application = $application_obj->parse_link();
-    //$segment = $application_obj->get_segment()->parse_link();
+    $application = $application_obj->get_displayname();
+    $segment_obj = $application_obj->get_segment();
+    if(is_object($segment_obj)) {
+        $segment = $segment_obj->get_displayname();
+    }
     //start selecting all eptid in marketintelligence-basicdata
     $marketintel_objs = MarketIntelligence::get_marketdata_dal(array('eptid' => $eptid), array('simple' => false));
     //selecting all cfpids and cfcids in the marketintel objects
@@ -37,7 +40,7 @@ if(!$core->input['action']) {
             foreach($cfpids as $cfpid) {
                 $chemfuncprod = new ChemFunctionProducts($cfpid);
                 $product_obj = $chemfuncprod->get_produt();
-                $product = $product_obj->parse_link();
+                $product = $product_obj->get_displayname();
                 $pid = $product_obj->pid;
                 eval("\$products_rows .= \"".$template->get('profiles_endproducttype_productlist_rows')."\";");
                 $prodchemsubs = ProductsChemicalSubstances::get_data(array('pid' => $pid), array('returnarray' => true));

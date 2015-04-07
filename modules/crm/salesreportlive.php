@@ -23,6 +23,12 @@ if(!$core->input['action']) {
     $affiliates_list = parse_selectlist('affids[]', 2, $affiliates, '');
 
     $fxtypes_selectlist = parse_selectlist('fxtype', 9, array('lastm' => $lang->lastmonthrate, 'ylast' => $lang->yearlatestrate, 'yavg' => $lang->yearaveragerate, 'mavg' => $lang->monthaveragerate, 'real' => $lang->realrate), '', 0);
+
+    $dimensions = array('spid' => $lang->supplier, 'cid' => $lang->customer, 'pid' => $lang->product, 'psid' => $lang->segment, 'salesrepresentative' => $lang->salesrepresentative, 'wid' => $lang->warehouse,);
+    foreach($dimensions as $dimensionid => $dimension) {
+        $dimension_item.='<li class="ui-state-default" id='.$dimensionid.' title="Click and Hold to move the '.$dimension.'">'.$dimension.'</li>';
+    }
+
     eval("\$generatepage = \"".$template->get('crm_generatesalesreport_live')."\";");
     output_page($generatepage);
 }
@@ -355,8 +361,11 @@ else {
                 }
             }
             elseif($core->input['type'] == 'dimensional') {
-                $required_tables = array('detailed' => array('month', 'week', 'salesrep', 'suppliername', 'customername', 'productname'));
+                $required_tables = array('detailed' => explode(',', $core->input['salereport']['dimension'][0]));
+                // $required_tables = ;
             }
+
+
             foreach($required_tables as $tabledesc => $dimensions) {
                 $rawdata = $data;
                 $dimensionalreport = new DimentionalData();

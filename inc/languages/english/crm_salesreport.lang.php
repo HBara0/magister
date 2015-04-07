@@ -59,4 +59,6 @@ $lang['uptototal'] = 'Up to Total';
 $lang['weektotal'] = 'Week Total';
 $lang['yearaveragerate'] = 'Year Average';
 $lang['yearlatestrate'] = 'Year\'s Latest';
+$lang['salesrepresentative']='Sales Representative';
+$lang['warehouse']='Warehouse';
 ?>
