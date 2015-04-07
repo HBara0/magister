@@ -14,7 +14,7 @@ if($core->usergroup['profiles_canUseMktIntel'] == 0) {
     //error($lang->sectionnopermission);
 }
 if(!$core->input['action']) {
-    $marketintel_objs = MarketIntelligence::get_marketdata_dal(null, array('order' => 'createdOn', 'simple' => false));
+    $marketintel_objs = MarketIntelligence::get_marketdata_dal(null, array('order' => array('by' => 'createdOn', 'sort' => 'DESC'), 'simple' => false));
 
     /* Perform inline filtering - START */
     $filters_config = array(
@@ -130,21 +130,16 @@ if(!$core->input['action']) {
             else {
                 $marketintel['brand'] = '-';
             }
-            $marketintel['potqty'] = $marketintel_obj->potential;
+            $marketintel['potqty'] = number_format($marketintel_obj->potential, 3);
 
-            $marketintel['marketshare'] = $marketintel_obj->mktShareQty;
-            $marketintel['price'] = $marketintel_obj->unitPrice;
+            $marketintel['marketshare'] = number_format($marketintel_obj->mktShareQty, 3);
+            $marketintel['price'] = number_format($marketintel_obj->unitPrice, 3);
             if($marketintel_obj->eptid != 0) {
                 $marketintel['endprod'] = $marketintel_obj->get_endproducttype()->get_displayname();
             }
             else {
                 $marketintel['endprod'] = '-';
             }
-            eval("\$profiles_michemfuncproductentry = \"".$template->get('profiles_michemfuncsubstancentry')."\";");
-            eval("\$profiles_minproductentry = \"".$template->get('profiles_michemfuncproductentry')."\";");
-            eval("\$mkintl_section = \"".$template->get('profiles_mktintelsection')."\";");
-            eval("\$popup_marketdata= \"".$template->get('popup_profiles_marketdata')."\";");
-            eval("\$popup_createbrand = \"".$template->get('popup_createbrand')."\";");
             eval("\$marketpotdata_list .= \"".$template->get('crm_marketpotentialdata_rows')."\";");
             unset($marketintel);
         }
@@ -153,9 +148,9 @@ if(!$core->input['action']) {
         $marketpotdata_list = '<tr><td colspan="6">'.$lang->na.'</td></tr>';
     }
     if($core->usergroup['profiles_canAddMkIntlData'] == 1) {
-        $midata = new MarketIntelligence($mibdid);
+        $midata = new MarketIntelligence();
         $addmarketdata_link = '<div style="float: right;" title="'.$lang->addmarketdata.'"><a href="#popup_profilesmarketdata" id="showpopup_profilesmarketdata" class="showpopup"><img alt="Add Market" src="'.$core->settings['rootdir'].'/images/icons/edit.gif" /></a></div>';
-        $array_data = array('module' => 'profiles', 'elemtentid' => $affid, 'fieldlabel' => $lang->product, 'action' => 'do_addmartkerdata', 'modulefile' => 'entityprofile');
+        $array_data = array('module' => 'proiles', 'elemtentid' => $affid, 'fieldlabel' => $lang->product, 'action' => 'do_addmartkerdata', 'modulefile' => 'entityprofile');
         eval("\$profiles_entityprofile_micustomerentry = \"".$template->get('profiles_micustomerentry')."\";");
         $module = 'crm';
         $action = 'do_addmartkerdata';
@@ -172,6 +167,11 @@ if(!$core->input['action']) {
         else {
             $endproducttypes_list = '<option value="0">'.$lang->na.'</option>';
         }
+        eval("\$profiles_michemfuncproductentry = \"".$template->get('profiles_michemfuncsubstancentry')."\";");
+        eval("\$profiles_minproductentry = \"".$template->get('profiles_michemfuncproductentry')."\";");
+        eval("\$popup_marketdata= \"".$template->get('popup_profiles_marketdata')."\";");
+        eval("\$popup_createbrand = \"".$template->get('popup_createbrand')."\";");
+        eval("\$mkintl_section = \"".$template->get('profiles_mktintelsection')."\";");
     }
 
     eval("\$marketpotentialdata = \"".$template->get('crm_marketpotentialdata')."\";");
