@@ -131,14 +131,13 @@ class TravelManagerPlan {
                     'myself' => $lang->myself,
                     'anotheraff' => $lang->anotheraff
             );
-            $tmsegmentplan = TravelManagerPlanSegments::get_data(array('tmpid' => $core->input['id']));
-            $tmplantranps = TravelManagerPlanTransps::get_data(array('tmpsid' => $tmsegmentplan->tmpsid));
-            if($tmplantranps->isRoundTrip == '1') {
+
+            if($transportation->isRoundTrip == '1') {
                 $checkroundtrip = 'checked="checked"';
-                $transportaion_fields_output = '<input type="checkbox" '.$checkroundtrip.' name="segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].'][isRoundTrip]" value="1">Round-Trip';
+                $transportaion_fields_output = '<input type="checkbox" '.$checkroundtrip.' name="segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].'][isRoundTrip]" value="1">'.$lang->roundtrip;
             }
             else {
-                $transportaion_fields_output = '<input type="checkbox" name="segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].'][isRoundTrip]" {'.$checkroundtrip.'}value="1">Round-Trip';
+                $transportaion_fields_output = '<input type="checkbox" name="segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].'][isRoundTrip]" '.$checkroundtrip.' value="1">'.$lang->roundtrip;
             }
 
             switch($category['name']) {
@@ -218,6 +217,8 @@ class TravelManagerPlan {
                     $transportaion_fields .= '<div style = "display:inline-block;padding:10px;width:15%;">'.$lang->currency.'</div><div style = "display:inline-block;width:20%;">'.$currencies_list.'</div></div>';
                     $transportaion_fields .='<div><div style="display:inline-block;padding:10px;width:25%;">'.$lang->seatingdescription.'</div><div style = "display:inline-block;width:25%;"><textarea name="segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].'][seatingDescription]" id="segment_'.$sequence.'_tmtcid_'.$category['tmtcid'].'_seatingdescription" style="width:100%;">'.$transportation->seatingDescription.'</textarea></div>';
                     $transportaion_fields.='<div style="padding:10px; display:inline-block; width:15%;">'.$transportaion_fields_output.'</div></div>';
+                    $classes = TravelManagerPlanTranspClass::get_data('name is not null', array('returnarray' => true));
+                    $transportaion_fields .='<div><div style="display:inline-block;padding:10px;width:25%;">'.$lang->class.'</div><div style="display:inline-block;width:25%;">'.parse_selectlist('segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].'][class]', '', $classes, $transportation->class, '', '', array('width' => '100%', 'id' => 'segment_'.$sequence.'_tmtcid_'.$category['inputChecksum'].'_class')).'</div></div>';
                     $selectlists['paidby'] = self::parse_paidby($sequence, $category['inputChecksum'], $transportation->paidBy);
                     $transportaion_fields .= '<input type="hidden" name="segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].'][isUserSuggested]" value="1"/>';
 
@@ -500,7 +501,13 @@ class TravelManagerPlan {
             if(isset($segmentobj->isNoneBusiness) && !empty($segmentobj->isNoneBusiness)) {
                 $checkbox_checked['isNoneBusiness'] = ' checked="checked"';
             }
-            $segment_purposlist = parse_selectlist('segment['.$sequence.'][purpose]', 5, $leave_purposes, $segmentobj->purpose, '', '', array('blankstart' => true));
+            $segmentpurposes = TravelManagerPlanSegPurposes::get_data(array('tmpsid' => $segmentobj->tmpsid), array('returnarray' => true));
+            if(is_array($segmentpurposes)) {
+                foreach($segmentpurposes as $segmentpurpose) {
+                    $selectedpurpose[$segmentpurpose->purpose] = $segmentpurpose->purpose;
+                }
+            }
+            $segment_purposlist = parse_selectlist('segment['.$sequence.'][purpose][]', 5, $leave_purposes, $selectedpurpose, 1, '', array('blankstart' => true));
 
             //get transp cat send to  parse_transportaionfields
 //            $transportation_obj = $segmentobj->get_transportationscat();
@@ -630,7 +637,7 @@ class TravelManagerPlan {
             $currencies_listf = parse_selectlist('segment['.$sequence.'][tmpfid][currency]', 4, $currencies_f, $finance->currency);
 
             if(is_array($finance)) {
-                $frowid=1;
+                $frowid = 1;
                 foreach($finance as $financerow) {
                     $amount_value = $finance->amount;
                     $finance_checksum = $finance->inputChecksum;
@@ -640,7 +647,7 @@ class TravelManagerPlan {
                 }
             }
             else {
-                $frowid=1;
+                $frowid = 1;
                 $finance_checksum = generate_checksum('finance');
                 eval("\$finance_output = \"".$template->get('travelmanager_plantrip_segmentfinance')."\";");
             }
