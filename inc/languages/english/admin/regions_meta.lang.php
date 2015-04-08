@@ -1,6 +1,6 @@
 <?php
 $lang['countries'] = "Countries";
-$lang['name'] = "Name";  
+$lang['name'] = "Name";
 
 $lang['listavailableaffiliates'] = "List of Available Affiliates";
 $lang['addaffiliate'] = "Add an Affiliate";
@@ -27,4 +27,8 @@ $lang['countryalreadyexists'] = "A country with the same name already exists";
 
 $lang['listavailablecountries'] = "List of Available Countries";
 $lang['addcountry'] = "Add a Country";
+$lang['acronym'] = "Acronym";
+$lang['update'] = "Update";
+$lang['successfullysaved'] = "Successfully Saved";
+$lang['fillallrequiredfields'] = "Fill All Required Fields";
 ?>

@@ -16,6 +16,7 @@ class Countries extends AbstractClass {
     const TABLE_NAME = 'countries';
     const DISPLAY_NAME = 'name';
     const SIMPLEQ_ATTRS = '*';
+    const UNIQUE_ATTRS = 'name,acronym';
     const CLASSNAME = __CLASS__;
 
     public function __construct($id = '', $simple = true) {
@@ -58,18 +59,22 @@ class Countries extends AbstractClass {
         return false;
     }
 
-    public function save(array $data = array()) {
-        global $db;
-        /* Add validations */
-        $db->update_query('countries', $this->data, 'coid='.intval($this->data['coid']));
-    }
+//    public function save(array $data = array()) {
+//        global $db;
+//        /* Add validations */
+//        $db->update_query('countries', $this->data, 'coid='.intval($this->data['coid']));
+//    }
 
     protected function create(array $data) {
+        global $db;
 
+        $db->insert_query(self::TABLE_NAME, $data);
     }
 
     protected function update(array $data) {
+        global $db;
 
+        $db->update_query(self::TABLE_NAME, $data, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
     }
 
 }
