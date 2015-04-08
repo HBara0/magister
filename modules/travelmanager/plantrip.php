@@ -71,7 +71,7 @@ if(!$core->input['action']) {
 //            }
             $leave_purposes = LeaveTypesPurposes::get_data(null);
             //$leave_purposes = array($leave_obj->get_purpose()->get()['ltpid'] => $leave_obj->get_purpose()->get()['name']);
-            $segment_purposlist = parse_selectlist('segment['.$sequence.'][purpose]', 5, $leave_purposes, '', '', '', array('blankstart' => true));
+            $segment_purposlist = parse_selectlist('segment['.$sequence.'][purpose][]', 5, $leave_purposes, '', 1, '', array('blankstart' => true));
 
             //   $origincity_obj = $leave_obj->get_sourcecity(false);
             $origintcity = $origincity_obj->get();
@@ -94,7 +94,7 @@ if(!$core->input['action']) {
             $hotelssegments_output = $segmentobj->parse_hotels($sequence, $approvedhotels);
             // $transpmode_apimaplink = 'https://www.google.com/maps/dir/'.$origintcity['name'].',+'.$origintcity['country'].'/'.$destcity['name'].',+'.$destcity['country'].'/';
             //parse Finances---Start
-            $frowid=1;
+            $frowid = 1;
             $finance_obj = new TravelManagerPlanFinance();
             $destcity_obj = new Cities($destcity);
             $mainaffobj = new Affiliates($core->user['mainaffiliate']);
@@ -194,7 +194,7 @@ else {
             $segment[$sequence]['fromDate_formatted'] = $core->input['toDate'];
             //   $leave_purposes = array($leave_obj->get_purpose()->get()['ltpid'] => $leave_obj->get_purpose()->get()['name']);
             $leave_purposes = LeaveTypesPurposes::get_data('');
-            $segment_purposlist = parse_selectlist('segment['.$sequence.'][purpose]', 5, $leave_purposes, '', '', '', array('blankstart' => true));
+            $segment_purposlist = parse_selectlist('segment['.$sequence.'][purpose][]', 5, $leave_purposes, '', 1, '', array('blankstart' => true));
 
             /* Popuplate basic information from the leave based on the lid passed via ajax */
 
