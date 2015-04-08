@@ -652,4 +652,93 @@ class AroRequests extends AbstractClass {
         }
     }
 
+    public function parse_messages(array $options = array()) {
+        global $template, $core;
+        $takeactionpage_conversation = null;
+
+        $initialmsgs = AroRequestsMessages::get_data('aorid='.$this->data[self::PRIMARY_KEY].' AND inReplyTo=0', array('simple' => false, 'returnarray' => true));
+        if(!is_array($initialmsgs)) {
+            return false;
+        }
+
+        $show_replyicon = 'display:block;';
+//        if(isset($options['viewsource']) && ($options['viewsource'] == 'viewleave')) {
+//            $show_replyicon = 'display:none;';
+//        }
+
+        if(empty($options['uid'])) {
+            $options['uid'] = $core->user['uid'];
+        }
+
+        foreach($initialmsgs as $initialmsg) {
+            if(!is_object($initialmsg)) {
+                continue;
+            }
+            //  Check if user is allowed to see the message /
+            if(!$initialmsg->can_seemessage($options['uid'])) {
+                continue;
+            }
+            $message = $initialmsg->get();
+            $message['user'] = $initialmsg->get_user($message['uid'])->get();  //Get the user of  who set the message conversation /
+            $message['message_date'] = date($core->settings['dateformat'], $message['createdOn']);
+
+            if(isset($options['viewmode']) && ($options['viewmode'] == 'textonly')) {
+                $takeactionpage_conversation .= '<span style="font-weight: bold;"> '.$message['user']['displayName'].'</span> <span style="font-size: 9px;">'.date($core->settings['dateformat'].' '.$core->settings['timeformat'], $message['createdOn']).'</span>:';
+                $takeactionpage_conversation .= '<div>'.$message['message'].'</div><br />';
+            }
+            else {
+                eval("\$takeactionpage_conversation .= \"".$template->get('aro_managearodocuments_takeaction_convmsg')."\";");
+            }
+
+            $replies_objs = $initialmsg->get_replies();
+            if(is_array($replies_objs)) {
+                $takeactionpage_conversation .= $this->parse_replies($replies_objs, 1, $options);
+            }
+        }
+        return $takeactionpage_conversation;
+    }
+
+    private function parse_replies($replies, $depth = 1, array $options = array()) {
+        global $template, $core;
+
+//        $show_replyicon = 'display:block;';
+//        if(isset($options['viewsource']) && ($options['viewsource'] == 'viewleave')) {
+//            $show_replyicon = 'display:none;';
+//        }
+
+        if(is_array($replies)) {
+            foreach($replies as $reply) {
+                if(!$reply->can_seemessage($options['uid'])) {
+                    continue;
+                }
+                $bgcolor = alt_row($bgcolor);
+                $inline_style = 'margin-left:'.($depth * 8).'px;';
+                $message = $reply->get();
+                $message['user'] = $reply->get_user($message['uid'])->get();
+                $message['message_date'] = date($core->settings['dateformat'], $message['createdOn']);
+
+                if(isset($options['viewmode']) && ($options['viewmode'] == 'textonly')) {
+                    $takeactionpage_conversation .= '<span style="font-weight: bold;"> '.$message['user']['displayName'].'</span> <span style="font-size: 9px;">'.date($core->settings['dateformat'].' '.$core->settings['timeformat'], $message['createdOn']).'</span>:';
+                    $takeactionpage_conversation .= '<div>'.$message['message'].'</div><br />';
+                }
+                else {
+                    eval("\$takeactionpage_conversation .= \"".$template->get('attendance_listleaves_takeaction_convmsg')."\";");
+                }
+                $reply_replies = $reply->get_replies();
+                if(is_array($reply_replies)) {
+                    $takeactionpage_conversation .= $this->parse_replies($reply_replies, $depth + 1, $options);
+                }
+            }
+            return $takeactionpage_conversation;
+        }
+    }
+
+    public function get_toapprove() {
+        return $this->get_approvers();
+    }
+
+    public function get_approval_byappover($approver) {
+        return AroRequestsApprovals::get_data('aorid='.$this->data[self::PRIMARY_KEY].' AND uid='.intval($approver));
+    }
+
 }
