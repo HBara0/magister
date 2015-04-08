@@ -79,8 +79,13 @@ if(!$core->input['action']) {
             $marketintel['customer'] = $cust->parse_link();
             $marketintel['country'] = $cust->get_country()->get_displayname();
             if($marketintel_obj->cfpid != 0) {
-                $prod = $marketintel_obj->get_chemfunctionproducts()->get_produt();
-                $marketintel['product'] = $prod->get_displayname();
+
+                $chemfunctprod = new ChemFunctionProducts($marketintel_obj->cfpid);
+                $prod = $chemfunctprod->get_produt();
+                $marketintel['product'] = $chemfunctprod->get_produt()->get_displayname();
+                $marketintel['application'] = $chemfunctprod->get_segmentapplication()->get_displayname();
+                $marketintel['segment'] = $chemfunctprod->get_segment()->get_displayname();
+                $marketintel['functprop'] = $chemfunctprod->get_segapplicationfunction()->get_function()->get_displayname();
                 $supid = isAllowed($core, 'canViewAllSupp', 'suppliers', $prod->get_supplier()->eid);
                 if($supid == false) {
                     $marketintel['supplier'] = '-';
@@ -88,41 +93,54 @@ if(!$core->input['action']) {
                 else {
                     $marketintel['supplier'] = $prod->get_supplier()->get_displayname();
                 }
+                if($marketintel_obj->cfcid != 0) {
+                    $chemfunchem = $marketintel_obj->get_chemfunctionschemcials();
+                    $chemsub = $chemfunchem->get_chemicalsubstance();
+                    if(!is_object($chemsub)) {
+                        $marketintel['chemic'] = '-';
+                    }
+                    else {
+                        $marketintel['chemic'] = $chemsub->get_displayname();
+                    }
+                }
+                else {
+                    $marketintel['chemic'] = '-';
+                }
             }
             else {
                 $marketintel['product'] = '-';
                 $marketintel['supplier'] = '-';
-            }
-            if($marketintel_obj->cfcid != 0) {
-                $chemfunchem = $marketintel_obj->get_chemfunctionschemcials();
-                $chemsub = $chemfunchem->get_chemicalsubstance();
-                if(!is_object($chemsub)) {
+                if($marketintel_obj->cfcid != 0) {
+                    $chemfunchem = $marketintel_obj->get_chemfunctionschemcials();
+                    $chemsub = $chemfunchem->get_chemicalsubstance();
+                    if(!is_object($chemsub)) {
+                        $marketintel['chemic'] = '-';
+                        $marketintel['functprop'] = '-';
+                        $marketintel['application'] = '-';
+                        $marketintel['segment'] = '-';
+                    }
+                    else {
+                        $marketintel['chemic'] = $chemsub->get_displayname();
+                        if($chemfunchem->safid != 0) {
+                            $segapfunct = $chemfunchem->get_segapplicationfunction();
+                            $marketintel['functprop'] = $segapfunct->get_function()->get_displayname();
+                            $application = $segapfunct->get_application();
+                            $marketintel['application'] = $application->get_displayname();
+                            $marketintel['segment'] = $application->get_segment()->get_displayname();
+                        }
+                        else {
+                            $marketintel['functprop'] = '-';
+                            $marketintel['application'] = '-';
+                            $marketintel['segment'] = '-';
+                        }
+                    }
+                }
+                else {
                     $marketintel['chemic'] = '-';
                     $marketintel['functprop'] = '-';
                     $marketintel['application'] = '-';
                     $marketintel['segment'] = '-';
                 }
-                else {
-                    $marketintel['chemic'] = $chemsub->get_displayname();
-                    if($chemfunchem->safid != 0) {
-                        $segapfunct = $chemfunchem->get_segapplicationfunction();
-                        $marketintel['functprop'] = $segapfunct->get_function()->get_displayname();
-                        $application = $segapfunct->get_application();
-                        $marketintel['application'] = $application->get_displayname();
-                        $marketintel['segment'] = $application->get_segment()->get_displayname();
-                    }
-                    else {
-                        $marketintel['functprop'] = '-';
-                        $marketintel['application'] = '-';
-                        $marketintel['segment'] = '-';
-                    }
-                }
-            }
-            else {
-                $marketintel['chemic'] = '-';
-                $marketintel['functprop'] = '-';
-                $marketintel['application'] = '-';
-                $marketintel['segment'] = '-';
             }
             if($marketintel_obj->ebpid != 0) {
                 $marketintel['brand'] = $marketintel_obj->get_entitiesbrandsproducts()->get_entitybrand()->get_displayname();
