@@ -97,8 +97,9 @@ if(!($core->input['action'])) {
             $approve_btn[$core->user['uid']] = '<input type="button" class="button" id="approvearo" value="'.$lang->approve.'"/>'
                     .'<input type="hidden" id="approvearo_id" value="'.$aroorderrequest->aorid.'"/>';
         }
-        $purchasetype = new PurchaseTypes($aroorderrequest->orderType);
         if(is_object($aroorderrequest)) {
+            $purchasetype = new PurchaseTypes($aroorderrequest->orderType);
+
             $affiliate_list = parse_selectlist('affid', 1, $affiliate, $aroorderrequest->affid, '', '', array('blankstart' => true, 'id' => 'affid', 'required' => 'required'));
             $purchasetypelist = parse_selectlist('orderType', 4, $purchasetypes, $aroorderrequest->orderType, '', '', array('blankstart' => true, 'id' => 'purchasetype', 'required' => 'required'));
             $currencies_list = parse_selectlist('currency', 4, $currencies, $aroorderrequest->currency, '', '', array('blankstart' => 1, 'id' => 'currencies', 'required' => 'required'));
@@ -376,6 +377,20 @@ if(!($core->input['action'])) {
                     unset($class, $approve);
                 }
             }
+
+
+
+            $aff_obj = new Affiliates($aroorderrequest->affid);
+            $arorequest['affiliate'] = $aff_obj->get_displayname();
+            $arorequest['purchasetype'] = $purchasetype->get_displayname();
+            $currency = new Currencies($aro_request['currency']);
+            $arorequest['currency'] = $currency->get_displayname();
+
+            /* Conversation message --START */
+            $takeactionpage_conversation = $aroorderrequest->parse_messages(array('uid' => $core->user['uid']));
+            /* Conversation  message --END */
+            eval("\$takeactionpage = \"".$template->get('aro_managearodocuments_takeaction')."\";");
+            $takeactionpage = '<a class="header" href="#"><h2>'.$lang->aromessages.'</h2></a><div style="margin-top:10px;">'.$takeactionpage.'</div>';
         }
         else {
             redirect($_SERVER['HTTP_REFERER'], 2, $lang->nomatchfound);
@@ -911,5 +926,56 @@ else {
                 }
             }
         }
+    }
+
+    if($core->input['action'] == 'takeactionpage') {
+
+        if(isset($core->input['id'], $core->input['requestKey'])) {
+            $core->input['id'] = base64_decode($core->input['id']);
+            $arorequest_obj = new AroRequests($core->input['id'], false);
+            $aro_request = $arorequest_obj->get();
+            $affiliate = new Affiliates($aro_request['affid']);
+            $arorequest['affiliate'] = $affiliate->get_displayname();
+            $purchasetype = new PurchaseTypes($aro_request['orderType']);
+            $arorequest['purchasetype'] = $purchasetype->get_displayname();
+            $currency = new Currencies($aro_request['currency']);
+            $arorequest['currency'] = $currency->get_displayname();
+            /* Conversation message --START */
+            //  $arorequest_obj = new AroRequests();
+            $takeactionpage_conversation = $arorequest_obj->parse_messages(array('uid' => $core->user['uid']));
+            /* Conversation  message --END */
+            $id = "errorbox";
+            $align = 'align="center"';
+            eval("\$takeactionpage = \"".$template->get('aro_managearodocuments_takeaction')."\";");
+            output_page($takeactionpage);
+        }
+    }
+    elseif($core->input['action'] == 'perform_sendmessage') {
+        $arorequestmessage_obj = new AroRequestsMessages();
+        $arorequestmessage_obj->create_message($core->input['arorequestmessage'], $core->input['aorid'], array('source' => 'emaillink'));
+        /* Errors Should be handled Here */
+        switch($arorequestmessage_obj->get_errorcode()) {
+            case 0:
+                $arorequestmessage_obj->send_message();
+                switch($arorequestmessage_obj->get_errorcode()) {
+                    case 0:
+                        output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
+                        break;
+                    case 5:
+                        output_xml("<status>false</status><message>{$lang->successfullysaved} - {$lang->errorsendingemail}".$arorequestmessage_obj->get_errorcode()."</message>");
+                        break;
+                }
+                break;
+            case 1:
+                output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
+                break;
+            case 2:
+                output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
+                break;
+            case 3:
+                output_xml("<status>false</status><message>{$lang->entryexists}</message>");
+                break;
+        }
+        /* Need to have feedback message */
     }
 }

@@ -168,3 +168,4 @@ $lang['conversation'] = 'Conversation';
 $lang['reply'] = 'Reply';
 $lang['writeyourmsghere'] = 'Write your message here';
 $lang['newrequestmsgsubject'] = 'New message to Aro request';
+$lang['aromessages'] = 'Aro Messages';

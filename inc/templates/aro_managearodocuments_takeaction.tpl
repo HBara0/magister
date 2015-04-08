@@ -14,9 +14,9 @@
             });
         </script>
     </head>
-    <body style="color:#ffffff;">
-        <div align="center">
-            <table width="100%" border="0" cellpadding="0" cellspacing="0" id="errorbox">
+    <body>
+        <div {$align}>
+            <table width="100%" border="0" cellpadding="0" cellspacing="0" id={$id}>
                 <tr>
                     <td class="content" style="color:#333333;">
                         {$lang->affiliate}: {$arorequest[affiliate]}<br />
