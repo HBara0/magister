@@ -2,5 +2,5 @@
     <td>{$application[name]}</td>
     <td>{$application[title]}</td>
     <td>{$application[segment]}</td>
-    <td>{$application[description]}</td>
+    <td><a href="#{$application[psaid]}" id="editbox_{$application[psaid]}_products/applications_loadpopupbyid"><img src="{$core->settings[rootdir]}/images/icons/report.gif" border="0"></a></td>
 </tr>
