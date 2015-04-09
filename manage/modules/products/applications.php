@@ -32,14 +32,9 @@ if(!$core->input['action']) {
         }
     }
 
-    $segments_obj = ProductsSegments::get_segments();
-    if(is_array($segments_obj)) {
-        /* for best preformance loop over the returned segments objects and get their related data */
-        foreach($segments_obj as $segment_obj) {
-            $segment = $segment_obj->get();
-            $segments_list .= '<option value='.$segment['psid'].'>'.$segment['title'].'</option>';
-        }
-    }
+    $segments = ProductsSegments::get_segments();
+    $segments_list = parse_selectlist('segmentapplications[psid]', 2, $segments, $application->psid);
+
     $chemicals_obj = ChemicalFunctions::get_functions();
     if(is_array($chemicals_obj)) {
         /* for best preformance loop over the returned ChemicalFunctions objects and get their related data */
@@ -51,12 +46,14 @@ if(!$core->input['action']) {
     }
     $multipages = new Multipages("segmentapplications", $core->settings['itemsperlist']);
     $productsapplications_list .= "<tr><td colspan='5'>".$multipages->parse_multipages()."</td></tr>";
+
+    eval("\$dialog_managerapplication = \"".$template->get("admin_popup_manageapplication")."\";");
     eval("\$applicationpage = \"".$template->get("admin_products_applications")."\";");
     output_page($applicationpage);
 }
 else {
     if($core->input['action'] == 'do_create') {
-        $segmentapplications_obj = new SegmentApplications();
+        $segmentapplications_obj = new SegmentApplications($core->input['segmentapplications'][SegmentApplications::PRIMARY_KEY]);
         $segmentapplications_obj->save($core->input['segmentapplications']);
         switch($segmentapplications_obj->get_errorcode()) {
             case 0:
@@ -69,6 +66,15 @@ else {
                 output_xml('<status>false</status><message>'.$lang->entryexist.'</message>');
                 break;
         }
+    }
+    elseif($core->input['action'] == 'get_editbox') {
+        $application = new SegmentApplications($core->input['id'], false);
+        $segments = ProductsSegments::get_segments();
+        $segments_list = parse_selectlist('segmentapplications[psid]', 2, $segments, $application->psid);
+
+        //$dialog_managerapplication = $headerinc;
+        eval("\$dialog_managerapplication = \"".$template->get('admin_popup_manageapplication')."\";");
+        output($dialog_managerapplication);
     }
 }
 ?>

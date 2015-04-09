@@ -199,37 +199,37 @@
                     <div style="display:table-row;">
                         <div style="display: table-cell; vertical-align:middle;">{$lang->commentstoshare}</div>
                         <div style="display: table-cell; padding:5px; vertical-align:top;">
-                            <textarea tabindex="25" class="texteditormin" cols="35" rows="5" name="supplier[commentsToShare]">{$supplier[details][commentsToShare]}</textarea>
+                            <textarea tabindex="25" class="txteditadv" cols="35" rows="5" name="supplier[commentsToShare]" id="commentsToShare">{$supplier[details][commentsToShare]}</textarea>
                         </div>
                     </div>
                     <div style="display:table-row;">
                         <div style="display: table-cell; vertical-align:middle;">{$lang->marketingrecords}</div>
                         <div style="display: table-cell; padding:5px; vertical-align:top;">
-                            <textarea  tabindex="26" class="texteditormin"  cols="35" rows="5" name="supplier[marketingRecords]">{$supplier[details][marketingRecords]}</textarea>
+                            <textarea  tabindex="26" class="txteditadv"  cols="35" rows="5" name="supplier[marketingRecords]" id='marketingRecords'>{$supplier[details][marketingRecords]}</textarea>
                         </div>
                     </div>
                     <div style="display:table-row;">
                         <div style="display: table-cell; vertical-align:middle;">{$lang->cobriefing}</div>
                         <div style="display: table-cell; padding:5px; vertical-align:top;">
-                            <textarea tabindex="27" class="texteditormin" cols="35" rows="5" name="supplier[coBriefing]">{$supplier[details][coBriefing]}</textarea>
+                            <textarea tabindex="27" class="txteditadv" cols="35" rows="5" name="supplier[coBriefing]" id='coBriefing'>{$supplier[details][coBriefing]}</textarea>
                         </div>
                     </div>
                     <div style="display:table-row;">
                         <div style="display: table-cell; vertical-align:middle;">{$lang->historical}</div>
                         <div style="display: table-cell; padding:5px; vertical-align:top;">
-                            <textarea tabindex="28" class="texteditormin" cols="35" rows="5" name="supplier[historical]">{$supplier[details][historical]}</textarea>
+                            <textarea tabindex="28" class="txteditadv" cols="35" rows="5" name="supplier[historical]" id='historical'>{$supplier[details][historical]}</textarea>
                         </div>
                     </div>
                     <div style="display:table-row;">
                         <div style="display: table-cell; vertical-align:middle;">{$lang->sourcingrecords}</div>
                         <div style="display: table-cell; padding:5px; vertical-align:middle;">
-                            <textarea tabindex="29" class="texteditormin" cols="35" rows="5" name="supplier[sourcingRecords]">{$supplier[details][sourcingRecords]}</textarea>
+                            <textarea tabindex="29" class="txteditadv" cols="35" rows="5" name="supplier[sourcingRecords]" id="sourcingRecords">{$supplier[details][sourcingRecords]}</textarea>
                         </div>
                     </div>
                     <div style="display:table-row;">
                         <div style="display: table-cell; vertical-align:middle;">{$lang->productfunction}</div>
                         <div style="display: table-cell; padding:5px; vertical-align:middle;">
-                            <textarea tabindex="30" class="texteditormin" cols="35" rows="5" name="supplier[productFunction]">{$supplier[details][productFunction]}</textarea>
+                            <textarea tabindex="30" class="txteditadv" cols="35" rows="5" name="supplier[productFunction]" id='productFunction'>{$supplier[details][productFunction]}</textarea>
                         </div>
                     </div>
                     {$blacklist_button}

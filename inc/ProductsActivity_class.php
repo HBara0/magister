@@ -50,6 +50,10 @@ class ProductsActivity extends AbstractClass {
     public function get_relatedbudgetlines() {
         if(class_exists('BudgetLines')) {
             $budget = $this->get_budget();
+            if(!is_object($budget)) {
+                return;
+            }
+
             // get BM of related budgetlines.
             $budgetlines_obs = $budget->get_budgetlines_objs(array('bid' => $budget->bid));
 
@@ -69,7 +73,9 @@ class ProductsActivity extends AbstractClass {
 
     public function aggregate_relatedbudgetlines($config = array()) {
         global $db;
-        $config['aggregatebm'] = true;
+        if(!isset($config['aggregatebm'])) {
+            $config['aggregatebm'] = true;
+        }
         $budget = $this->get_budget();
         $budgetlines = $this->get_relatedbudgetlines();
         $fxrate_query = '(CASE WHEN budgeting_budgets_lines.originalCurrency = 840 THEN 1
@@ -86,7 +92,8 @@ class ProductsActivity extends AbstractClass {
                     $aggregated_lines[$item['businessmgr']] = $item;
                 }
                 else {
-                    $aggregated_lines += $item;
+                    $aggregated_lines['amount'] += $item['amount'];
+                    $aggregated_lines['quantity'] += $item['quantity'];
                 }
             }
             return $aggregated_lines;

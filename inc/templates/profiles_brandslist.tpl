@@ -8,7 +8,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h1>{$lang->brandslist}Brands List</h1>
+            <h1>{$lang->brandslist}</h1>
             <form method='post' action='$_SERVER[REQUEST_URI]'>
                 <table class="datatable" style="display:{$datatable_display};">
                     <thead>

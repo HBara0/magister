@@ -2,7 +2,7 @@
 /*
  * Orkila Central Online System (OCOS)
  * Copyright © 2009 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * Language Class
  * $id: Language_class.php
  * Last Update: @zaher.reda 	July 25, 2012 | 03:31 PM
@@ -68,7 +68,10 @@ class Language {
 
     public function load($file_name) {
         if(!$this->language_file_exists($file_name)) {
-            die("{$file_name} was not found");
+            $this->language = 'english';
+            if(!$this->language_file_exists($file_name)) {
+                die("{$file_name} was not found");
+            }
         }
 
         $language_file = $this->path.'/'.$this->language.'/'.$this->area_path.$file_name.'.lang.php';
@@ -149,8 +152,8 @@ class Language {
                 $mode = 'x';
             }
 
-            $query = $db->query("SELECT name, value 
-			FROM ".Tprefix."system_langvariables slv 
+            $query = $db->query("SELECT name, value
+			FROM ".Tprefix."system_langvariables slv
 			JOIN ".Tprefix."system_languages_varvalues slvv ON (slv.slvid=slvv.variable)
 			WHERE fileName='".$db->escape_string($file)."' AND lang='".$db->escape_string($langid)."'
 			ORDER BY name ASC");

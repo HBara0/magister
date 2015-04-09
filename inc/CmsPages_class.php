@@ -53,16 +53,17 @@ class CmsPages extends Cms {
         $this->page['title'] = $core->sanitize_inputs($this->page['title'], array('removetags' => true));
         $this->page['bodyText'] = $core->sanitize_inputs($this->page['bodyText'], array('method' => 'striponly', 'allowable_tags' => '<span><div><a><br><p><b><i><del><strike><img><video><audio><embed><param><blockquote><mark><cite><small><ul><ol><li><hr><dl><dt><dd><sup><sub><big><pre><figure><figcaption><strong><em><table><tr><td><th><tbody><thead><tfoot><h1><h2><h3><h4><h5><h6>', 'removetags' => true));
         $this->page['createdBy'] = $core->user['uid'];
-        if($core->usergroup['crm_canPublishNews'] == 0) {
+        $this->page['isPublished'] = 1;
+        if($core->usergroup['cms_canPublishNews'] == 0) {
             $this->page['isPublished'] = 0;
         }
 
         /* Set appropriate version - START */
         if($options['operationtype'] == 'updateversion') {
-            $cmspid['cmspid'] = $db->fetch_field($db->query("SELECT MAX(cmspid) as cmspid  FROM ".Tprefix." cms_pages "), 'cmspid');
+            //$cmspid['cmspid'] = $db->fetch_field($db->query("SELECT MAX(cmspid) as cmspid FROM ".Tprefix."cms_pages"), 'cmspid');
             $this->page['dateModified'] = TIME_NOW;
             $this->page['modifiedBy'] = $core->user['uid'];
-            $this->prevversion = $this->get_lastversion_page($this->page['alias'], array('exclude' => array('cmspid' => $cmspid['cmspid'])));
+            $this->prevversion = $this->get_lastversion_page($this->page['alias']);
         }
 
         if(is_array($this->prevversion)) {

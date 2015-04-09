@@ -10,8 +10,8 @@
         {$menu}
         <td class="contentContainer">
             <h1>{$lang->productactivitydetails}<div style="font-style:italic; font-size:12px; color:#888;">Q{$core->input[quarter]} {$core->input[year]} / {$core->input[supplier]} - {$core->input[affiliate]}</div></h1>
-            <div class="ui-state-highlight ui-corner-all" style="padding-left: 5px; margin-bottom:10px;"><p><strong>Important: Do not fill anything in this section and do not finalize the report until you are informed that data has been imported by the IT.</strong><br /><strong>Updates:</strong> <span class="red_text">It is now possible to use currencies other than USD; OCOS will convert them for you.</span><br /><strong>Notice:</strong> Only input <em>purchases</em> amounts and quantities relative to the report quarter, not up-to values.</p></div>
-            <form id="save_productsactivity_reporting/fillreport_Form" name="save_productsactivity_reporting/fillreport_Form" action="index.php?module=reporting/fillreport&amp;stage=keycustomers" method="post">
+            <div class="ui-state-highlight ui-corner-all" style="padding-left: 5px; margin-bottom:10px;"><p><strong>Important: Fields in this stage, except the forecasts, are no longer editable. If you have any consideration about the numbers, please contact the auditor of the report.</strong></div>
+            <form id="save_productsactivity_reporting/fillreport_Form" name="save_productsactivity_reporting/fillreport_Form" action="index.php?module=reporting/fillreport&amp;stage=marketreport" method="post">
                 <input type="hidden" id="rid" name="rid" value="{$rid}">
                 <input type="hidden" id="identifier" name="identifier" value="{$identifier}">
                 <input type="hidden" id="numrows" name="numrows" value="{$productscount}">

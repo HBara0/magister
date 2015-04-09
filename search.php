@@ -46,7 +46,6 @@ if($core->input['type'] == 'quick') {
     }
 
     if(isset($core->input['for'])) {
-
         if($core->input['for'] == 'potentialcustomer') {
             $table = 'entities';
             $attributes = array('companyName', 'companyNameAbbr');
@@ -213,13 +212,13 @@ if($core->input['type'] == 'quick') {
                     else {
                         if($core->usergroup['canViewAllCust'] == 0) {
                             $inentities = implode(',', $core->user['customers']);
-                            $extra_where = 'er.eid IN ('.$inentities.')';
+                            $extra_where = '(er.eid IN ('.$inentities.') OR e.createdBy='.$core->user['uid'].')';
                         }
                     }
                     if(!empty($extra_where)) {
                         $extra_where_and = ' AND ';
                     }
-                    $extra_where .= $extra_where_and.'e.type="c"';
+                    $extra_where .= $extra_where_and.'e.type IN ("pc", "c")';
                 }
             }
 

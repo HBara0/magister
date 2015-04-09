@@ -2,17 +2,6 @@
     <head>
         <title>{$core->settings[systemtitle]} | {$requirement[title]}</title>
         {$headerinc}
-        <script type="text/javascript">
-            $(document).ready(function() {
-                $('.texteditor').redactor({
-                    buttons: ['html', '|', 'formatting', '|', 'bold', 'italic', 'deleted', '|',
-                        'unorderedlist', 'orderedlist', 'outdent', 'indent', '|',
-                        'table', '|', 'alignment', '|', 'horizontalrule'],
-                    fullpage: true
-                });
-            });
-        </script>
-    </head>
     <body>
         {$header}
     <tr>
@@ -40,20 +29,20 @@
                 </div>
                 <div style="display:block; padding:5px">
                     <div style="display:inline-block;width:10%; vertical-align: top;">Description</div>
-                    <div style="display:inline-block;width:70%"><textarea class="texteditor" name="development[description]" cols="90" rows="25"></textarea>    </div>
+                    <div style="display:inline-block;width:70%"><textarea class="txteditadv" name="development[description]" cols="90" rows="25" id='description'></textarea>    </div>
                 </div>
 
                 <div style="display:block; padding:5px">
                     <div style="display:inline-block;width:10%;vertical-align: top;">userInterface </div>
-                    <div style="display:inline-block;width:70%"><textarea cols="90" rows="25" class="texteditor" name="development[userInterface]"></textarea> </div>
+                    <div style="display:inline-block;width:70%"><textarea cols="90" rows="25" class="txteditadv" name="development[userInterface]" id='userInterface'></textarea> </div>
                 </div>
                 <div style="display:block; padding:5px;">
                     <div style="display:inline-block;width:10%;vertical-align: top;">Security</div>
-                    <div style="display:inline-block;width:70%"><textarea cols="90" rows="25" class="texteditor" name="development[security]"></textarea>   </div>
+                    <div style="display:inline-block;width:70%"><textarea cols="90" rows="25" class="txteditadv" name="development[security]" id="security"></textarea>   </div>
                 </div>
                 <div style="display:block; padding:5px">
                     <div style="display:inline-block;width:10%;vertical-align: top;">Performance</div>
-                    <div style="display:inline-block;width:70%"><textarea cols="90" rows="25"class="texteditor" name="development[performance]"></textarea>  </div>
+                    <div style="display:inline-block;width:70%"><textarea cols="90" rows="25"class="txteditadv" name="development[performance]" id="performance"></textarea>  </div>
                 </div>
                 <div style="display:block; padding:5px">
                     <div style="display:inline-block;width:10%">Is Approved </div>

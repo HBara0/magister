@@ -2,11 +2,6 @@
     <head>
         <title>{$core->settings[systemtitle]} | {$lang->listavailableapplication}</title>
         {$headerinc}
-        <script type="text/javascript">
-            $(function () {
-                $('.redactor_air').css('z-index', (parseInt($('.ui-dialog').css('z-index')) + 1));
-            });
-        </script>
     </head>
     <body>
         {$header}

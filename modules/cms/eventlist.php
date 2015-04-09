@@ -59,6 +59,7 @@ if(!$core->input['action']) {
     $dal_config = array(
             'simple' => false,
             'returnarray' => true,
+            'order' => array('by' => 'fromDate', 'sort' => 'DESC')
     );
 
     $event_objs = Events::get_data($filter_where, $dal_config);

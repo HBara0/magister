@@ -74,6 +74,39 @@ $(function() {
         $("#sidedesignImage").height($(window).height());
     }
 
+    initialize_texteditors();
+    function initialize_texteditors() {
+        if($(".inlinetxteditadv").length > 0) {
+            $(".inlinetxteditadv").each(function () {
+                var id = $(this).attr('id');
+                try {
+                    if(CKEDITOR.instances[id]) {
+                        CKEDITOR.instances[id].destroy();
+                    }
+                    CKEDITOR.inline(id);
+                    CKEDITOR.instances[id].config.removePlugins = 'colorbutton,find,flash,font,forms,iframe,image,newpage,removeformat,smiley,specialchar,stylescombo,templates';
+                }
+                catch(e) {
+                    alert(e);
+                }
+            });
+        }
+
+        if($(".txteditadv").length > 0) {
+            $(".txteditadv").each(function () {
+                var id = $(this).attr('id');
+                try {
+                    if(CKEDITOR.instances[id]) {
+                        CKEDITOR.instances[id].destroy();
+                    }
+                    CKEDITOR.replace(id);
+                }
+                catch(e) {
+                    alert(e);
+                }
+            });
+        }
+    }
     if($(".texteditormin, .texteditor").length > 0) {
         //if($('link[id="' + rootdir + 'js/redactor.min.js"') == 'undefined') {
         $('head').append('<script src="' + rootdir + 'js/redactor.min.js" type="text/javascript"></script>');
@@ -382,6 +415,10 @@ $(function() {
             return;
         }
 
+        for(instance in CKEDITOR.instances) {
+            CKEDITOR.instances[instance].updateElement();
+        }
+
         var id = $(this).attr("id").split("_");
 
         var formid = '';
@@ -513,13 +550,13 @@ $(function() {
                 );
     }
 
-    $("a[id$='_loadpopupbyid'],a[id^='mergeanddelete_'][id$='_icon'],a[id^='revokeleave_'][id$='_icon'],a[id^='approveleave_'][id$='_icon']").live('click', function() {
+    $("a[id$='_loadpopupbyid'],a[id^='mergeanddelete_'][id$='_icon'],a[id^='revokeleave_'][id$='_icon'],a[id^='approveleave_'][id$='_icon']").live('click', function () {
         var id = $(this).attr("id").split("_");
-        var rel = $(this).prop("rel");
-        var underscore = '_';
-        if(rel != '' || rel != null) {
-            id[1] = id[1] + underscore + rel;
-        }
+//        var rel = $(this).prop("rel");
+//        var underscore = '_';
+//        if(rel != '' || rel != null) {
+//            id[1] = rel;
+//        }
         popUp(id[2], id[0], id[1]);
     });
 
@@ -570,9 +607,10 @@ $(function() {
         var uniquename = '';
 
         for(i = 0; i < id.length; i++) {
-            uniquename = uniquename + underscore + id[i];
-            underscore = "_";
-
+            if(id[i].length > 1) {
+                uniquename = uniquename + underscore + id[i];
+                underscore = "_";
+            }
         }
         id = uniquename;
 
@@ -616,6 +654,7 @@ $(function() {
             success: function(returnedData) {
                 $(".contentContainer").append(returnedData);
 
+                initialize_texteditors();
                 $("div[id^='popup_']").dialog({
                     bgiframe: true,
                     closeOnEscape: true,
@@ -710,7 +749,7 @@ $(function() {
 
         $.ajax({type: 'post',
             url: rootdir + "index.php?module=" + id[1] + "&action=ajaxaddmore_" + id[2],
-            data: "value=" + num_rows + "&id=" + id[id.length - 1] + "&" + $('input[id^=ajaxaddmoredata_]').serialize(),
+            data: "value=" + num_rows + "&id=" + id[id.length - 1] + "&" + $(this).parent().find($('input[id^=ajaxaddmoredata_]')).serialize(),
             beforeSend: function() {
                 $("body").append("<div id='modal-loading'></div>");
                 $("#modal-loading").dialog({height: 0, modal: true, closeOnEscape: false, title: 'Loading...', resizable: false, minHeight: 0
@@ -724,7 +763,6 @@ $(function() {
                 if($("#numrows_" + uniquename).length != 0) {
                     $("#numrows_" + uniquename).val(num_rows + 1);
                 }
-
                 /*find the offset of the first input in the last tr*/
                 $("html, body").animate({scrollTop: $('#' + uniquename + '_tbody > tr:last').find("input").filter(':visible:first').offset().top}, 1000);
                 $('#' + uniquename + '_tbody > tr:last').effect("highlight", {color: '#D6EAAC'}, 1500).find('input').first().focus();
