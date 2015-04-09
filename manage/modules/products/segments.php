@@ -29,20 +29,8 @@ if(!$core->input['action']) {
     else {
         $segments_list = "<tr><td colspan='3' style='text-align: center;'>{$lang->nosegementsavailable}</td></tr>";
     }
-
-    $aff_obj = new Affiliates($core->user['mainaffiliate']);
-    $affiliates_users = $aff_obj->get_users();
-    //$coordinator_list = '<option value="" selected="selected"></option>';
-    if(is_array($affiliates_users)) {
-        foreach($affiliates_users as $uid => $user) {
-            $users_counter = 1;
-            if($uid == $core->user['uid']) {
-                continue;
-            }
-            eval("\$users_rows  = \"".$template->get('admin_productssegments_userrow')."\";");
-            $users_counter++;
-        }
-    }
+    $segmentcats = SegmentCategories::get_data(array(), array('simple' => false, 'returnarray' => true));
+    $category_selectlist = parse_selectlist("segment[category]", '', $segmentcats, '', '', '', array('blankstart' => true));
     eval("\$addsegment = \"".$template->get('popup_admin_product_addsegment')."\";");
     eval("\$segmentspage = \"".$template->get('admin_products_segments')."\";");
     output_page($segmentspage);
@@ -108,23 +96,15 @@ else {
     }
     elseif($core->input['action'] == 'get_updatesegmentdtls') {
         $segment_obj = new ProductsSegments($core->input['id'], false);
-        $segment['description'] = $segment_obj->description;
-        $segment['title'] = $segment_obj->title;
-        $segment['psid'] = $segment_obj->psid;
-        $aff_obj = new Affiliates($core->user['mainaffiliate']);
-        $affiliates_users = $aff_obj->get_users();
-        //$coordinator_list = '<option value="" selected="selected"></option>';
-        if(is_array($affiliates_users)) {
-            foreach($affiliates_users as $uid => $user) {
-                $users_counter = 1;
-                if($uid == $core->user['uid']) {
-                    continue;
-                }
-                eval("\$users_rows  = \"".$template->get('admin_productssegments_userrow')."\";");
-                $users_counter++;
-            }
+        $segment = $segment_obj->get();
+        if($segment['publishOnWebsite'] == '1') {
+            $checked = 'checked="checked"';
         }
-
+        $segmentcats = SegmentCategories::get_data(array(), array('simple' => false, 'returnarray' => true));
+        $category_selectlist = parse_selectlist("segment[category]", '', $segmentcats, $segment_obj->category, '', '', array('blankstart' => true));
+//        $segment['description'] = $segment_obj->description;
+//        $segment['title'] = $segment_obj->title;
+//        $segment['psid'] = $segment_obj->psid;
         eval("\$addsegment = \"".$template->get('popup_admin_product_addsegment')."\";");
         output_page($addsegment);
     }
