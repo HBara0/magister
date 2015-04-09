@@ -74,6 +74,39 @@ $(function() {
         $("#sidedesignImage").height($(window).height());
     }
 
+    initialize_texteditors();
+    function initialize_texteditors() {
+        if($(".inlinetxteditadv").length > 0) {
+            $(".inlinetxteditadv").each(function () {
+                var id = $(this).attr('id');
+                try {
+                    if(CKEDITOR.instances[id]) {
+                        CKEDITOR.instances[id].destroy();
+                    }
+                    CKEDITOR.inline(id);
+                    CKEDITOR.instances[id].config.removePlugins = 'colorbutton,find,flash,font,forms,iframe,image,newpage,removeformat,smiley,specialchar,stylescombo,templates';
+                }
+                catch(e) {
+                    alert(e);
+                }
+            });
+        }
+
+        if($(".txteditadv").length > 0) {
+            $(".txteditadv").each(function () {
+                var id = $(this).attr('id');
+                try {
+                    if(CKEDITOR.instances[id]) {
+                        CKEDITOR.instances[id].destroy();
+                    }
+                    CKEDITOR.replace(id);
+                }
+                catch(e) {
+                    alert(e);
+                }
+            });
+        }
+    }
     if($(".texteditormin, .texteditor").length > 0) {
         //if($('link[id="' + rootdir + 'js/redactor.min.js"') == 'undefined') {
         $('head').append('<script src="' + rootdir + 'js/redactor.min.js" type="text/javascript"></script>');
@@ -382,6 +415,10 @@ $(function() {
             return;
         }
 
+        for(instance in CKEDITOR.instances) {
+            CKEDITOR.instances[instance].updateElement();
+        }
+
         var id = $(this).attr("id").split("_");
 
         var formid = '';
@@ -616,6 +653,7 @@ $(function() {
             success: function(returnedData) {
                 $(".contentContainer").append(returnedData);
 
+                initialize_texteditors();
                 $("div[id^='popup_']").dialog({
                     bgiframe: true,
                     closeOnEscape: true,

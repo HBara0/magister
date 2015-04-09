@@ -7,8 +7,8 @@
         {$header}
 
         <script>
-            $(function() {
-                $('a[id^=deletefile_]').live('click', function() {
+            $(function () {
+                $('a[id^=deletefile_]').live('click', function () {
                     if(sharedFunctions.checkSession() == false) {
                         return;
                     }
@@ -45,7 +45,7 @@
 
                     <tr>
                         <td>{$lang->description}</td>
-                        <td><textarea class="texteditormin" tabindex="6" name="meeting[description]" cols="20" rows="5">{$meeting[description]}</textarea> </td>
+                        <td><textarea class="txteditadv" tabindex="6" id="description" name="meeting[description]" cols="20" rows="5">{$meeting[description]}</textarea> </td>
                     </tr>
                     <tr>
                         <td>{$lang->location}</td>

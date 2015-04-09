@@ -27,7 +27,7 @@
         <form name="perform_savenote_calendar/eventstasks_Form" id="perform_savenote_calendar/eventstasks_Form" method="post">
             <input type="hidden" id="action" name="action" value="save_tasknote" />
             <input type="hidden" id="id" name="id" value="{$task_details[ctid]}" />
-            <textarea name="note" id="note" cols="55" rows="2" class="texteditormin"></textarea><br />
+            <textarea name="note" id="note" cols="55" rows="2"></textarea><br />
             <input type="button" id='perform_savenote_calendar/eventstasks_Button' value='{$lang->savecaps}' class="button">
         </form>
         <div id="perform_savenote_calendar/eventstasks_Results"></div>
@@ -36,8 +36,8 @@
         </div>
     </div>
     <script type="text/javascript">
-        $(function() {
-            $("#percCompleted").live('change', function() {
+        $(function () {
+            $("#percCompleted").live('change', function () {
                 if(sharedFunctions.checkSession() == false) {
                     return;
                 }

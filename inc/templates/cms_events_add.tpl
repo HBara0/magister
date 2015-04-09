@@ -56,7 +56,7 @@
                         <div style="display: inline-block; padding:10px;"><input name="event[isFeatured]" type="checkbox" value="1" {$checkedbox[isFeatured]}></div>
                     </div>
                     <div style="display:block;" class="thead">{$lang->description}</div>
-                    <div style="display:block;"><textarea name="event[description]" cols="100"rows="6" class="texteditor">{$event[description]}</textarea></div>
+                    <div style="display:block;"><textarea name="event[description]" cols="100"rows="6" id='description' class="txteditadv">{$event[description]}</textarea></div>
                         {$restriction_selectlist}
                         {$notifyevent_checkbox}
 
