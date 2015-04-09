@@ -347,7 +347,16 @@ if(!$core->input['action']) {
         $query = $db->query("SELECT es.psid, ps.title FROM ".Tprefix."entitiessegments es JOIN ".Tprefix."productsegments ps ON (ps.psid=es.psid) WHERE es.eid='{$reportmeta[spid]}'{$filter_segments_query}");
         if($db->num_rows($query) > 0) {
             while($segment = $db->fetch_assoc($query)) {
+                $srowid = $sprowid = 1;
+                $css['display']['chemsubfield'] = 'none';
                 eval("\$markerreport_fields .= \"".$template->get('reporting_fillreports_marketreport_fields')."\";");
+                eval("\$product_row= \"".$template->get('reporting_fillreport_marketreport_suppproducts')."\";");
+
+                eval("\$markerreport_segment_suppliers_row = \"".$template->get('reporting_fillreport_marketreport_suppliers_rows')."\";");
+
+                eval("\$markerreport_segment_suppliers = \"".$template->get('reporting_fillreport_marketreport_suppliers')."\";");
+
+                $markerreport_fields .=$markerreport_segment_suppliers;
             }
             if(isset($marketreport[0])) {
                 $segment['psid'] = 0;
@@ -611,6 +620,7 @@ else {
         }
     }
     elseif($core->input['action'] == 'save_marketreport') {
+        unset($core->input['ajaxaddmoredata']);
         $rid = $db->escape_string($core->input['rid']);
         $identifier = $db->escape_string($core->input['identifier']);
         if(!empty($val['exclude']) && $val['exclude'] == 1) {
@@ -631,6 +641,9 @@ else {
             if($found_one == false) {
                 if(!empty($val)) {
                     foreach($val as $k => $v) {
+                        if($k == 'suppliers') {
+                            continue;
+                        }
                         $v = preg_replace(array('/\s/', '~\x{00a0}~siu'), '', $core->sanitize_inputs($v, array('method' => 'striponly', 'allowable_tags' => '', 'removetags' => true)));
                         if($section_allempty == true) {
                             if(!in_array(strtolower(trim($v)), $emtpy_terms) && !preg_match('/^[n;.,-_+\*]+$/', $v)) {
@@ -672,13 +685,34 @@ else {
 
         foreach($marketreport_data as $val) {
             foreach($val as $k => $v) {
+                if($k == 'suppliers') {
+                    continue;
+                }
                 $val[$k] = $core->sanitize_inputs($v, array('method' => 'striponly', 'allowable_tags' => '<table><tbody><tr><td><th><thead><tfoot><span><div><a><br><p><b><i><del><strike><img><blockquote><mark><cite><small><ul><ol><li><hr><dl><dt><dd><sup><sub><big><pre><figure><figcaption><strong><em><h1><h2><h3><h4><h5><h6>', 'removetags' => true));
             }
 
+            $competitorsuppliers_data = $val['suppliers'];
+            unset($val['suppliers']);
+
             if(value_exists('marketreport', 'rid', $rid, 'psid="'.$val['psid'].'"')) {
                 $query = $db->update_query('marketreport', $val, "rid='{$rid}' AND psid='{$val[psid]}'");
-
                 $mrid = $db->fetch_field($db->query("SELECT mrid FROM ".Tprefix."marketreport WHERE rid='{$rid}' AND psid='{$val[psid]}'"), 'mrid');
+                // Note : need to apply saving of competitor supp on market report create()
+                // and add csid saving 
+                if(is_array($competitorsuppliers_data)) {
+                    foreach($competitorsuppliers_data as $competitorsupplier_data) {
+                        $data['mrid'] = $mrid;
+                        $data['sid'] = $competitorsupplier_data['sid'];
+                        if(is_array($competitorsupplier_data['pid'])) {
+                            foreach($competitorsupplier_data['pid'] as $pid) {
+                                $data['pid'] = $pid;
+                                $marketreportcompetiton = new MarketReportCompetition();
+                                $marketreportcompetiton->set($data);
+                                $marketreportcompetiton->save();
+                            }
+                        }
+                    }
+                }
             }
             else {
                 $query = $db->insert_query('marketreport', $val);
@@ -1051,6 +1085,23 @@ else {
 
         eval("\$addcustomerbox = \"".$template->get('popup_addcustomer')."\";");
         output_page($addcustomerbox);
+    }
+    elseif($core->input ['action'] == 'ajaxaddmore_suppliers') {
+        $srowid = $db->escape_string($core->input ['value']) + 1;
+        $segment['psid'] = $db->escape_string($core->input ['ajaxaddmoredata']['segmentid']);
+        $sprowid = 1;
+        $css['display']['chemsubfield'] = 'none';
+        eval("\$product_row= \"".$template->get('reporting_fillreport_marketreport_suppproducts')."\";");
+        eval("\$markerreport_segment_suppliers_row = \"".$template->get('reporting_fillreport_marketreport_suppliers_rows')."\";");
+        echo $markerreport_segment_suppliers_row;
+    }
+    elseif($core->input ['action'] == 'ajaxaddmore_supplierproducts') {
+        $sprowid = $db->escape_string($core->input ['value']) + 1;
+        $segment['psid'] = $db->escape_string($core->input ['ajaxaddmoredata']['segmentid']);
+        $srowid = $db->escape_string($core->input ['ajaxaddmoredata']['srowid']);
+        $css['display']['chemsubfield'] = 'none';
+        eval("\$markerreport_segment_suppliers_row = \"".$template->get('reporting_fillreport_marketreport_suppproducts')."\";");
+        echo $markerreport_segment_suppliers_row;
     }
 }
 ?>

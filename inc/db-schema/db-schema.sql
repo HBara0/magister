@@ -2042,6 +2042,17 @@ CREATE TABLE `marketreport_authors` (
   PRIMARY KEY (`mkra`),
   KEY `uid` (`uid`,`mrid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+DROP TABLE IF EXISTS `marketreport_competition`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `marketreport_competition` (
+  `mrcid` int(10) NOT NULL AUTO_INCREMENT,
+  `mrid` int(10) NOT NULL,
+  `sid` int(10) NOT NULL,
+  `pid` int(10) NOT NULL,
+  `csid` int(10) NOT NULL,
+  PRIMARY KEY (`mrcid`)
+) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `meetings`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
