@@ -96,6 +96,7 @@ if(!$core->input['action']) {
             //parse Finances---Start
             $frowid = 1;
             $finance_obj = new TravelManagerPlanFinance();
+            //segment[{$sequence}][tmpfid][$frowid][amount]
             $mainaffobj = new Affiliates($core->user['mainaffiliate']);
             $currencies_f[] = $descity_obj->get_country()->get_maincurrency();
             $currencies_f[] = $mainaffobj->get_country()->get_maincurrency();
