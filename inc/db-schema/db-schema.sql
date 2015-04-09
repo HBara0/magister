@@ -665,6 +665,7 @@ CREATE TABLE `calendar_events` (
   `fromDate` bigint(30) NOT NULL,
   `toDate` bigint(30) NOT NULL,
   `place` varchar(300) DEFAULT NULL,
+  `boothNum` varchar(10) DEFAULT NULL,
   `type` smallint(1) NOT NULL,
   `affid` smallint(5) DEFAULT NULL,
   `spid` int(10) DEFAULT NULL,

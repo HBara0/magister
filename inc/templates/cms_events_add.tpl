@@ -13,11 +13,11 @@
         <td class="contentContainer">
             <h1>{$lang->manageevents}</h1>
             <div>
-                <iframe id='uploadFrame' name='uploadFrame' src='#'></iframe>
+
                 <form method="post" enctype="multipart/form-data" action="index.php?module=cms/manageevents&amp;action=do_perform_manageevents" target="uploadFrame">
                     <div style="display:block;">
                         <div style="display: inline-block;width:10%">{$lang->title}</div>
-                        <div style="display: inline-block;padding:5px;"><input name="event[title]" type="text" value="{$event[title]}" required="required" size="30"><input type='hidden' name='event[alias]' value="{$event[alias]}"></div>
+                        <div style="display: inline-block;padding:5px;"><input name="event[title]" type="text" value="{$event[title]}" required="required" size="100"><input type='hidden' name='event[alias]' value="{$event[alias]}"></div>
                     </div>
 
                     <div style="display:block;">
@@ -46,7 +46,7 @@
                     </div>
                     <div style="display:block;">
                         <div style="display:inline-block;width:10%">{$lang->location}</div>
-                        <div style="display:inline-block;padding:5px;"><input name="event[place]" type="text" value="{$event[place]}" size="30"></div>
+                        <div style="display:inline-block;padding:5px;"><input name="event[place]" type="text" value="{$event[place]}" size="80"> {$lang->booth}Booth <input name="event[boothNum]" type="text" value="{$event[boothNum]}" size="10"></div>
                     </div>
                     <div>
                         <input name="event[isPublic]" type='checkbox' value='1' checked='checked' style="display:none">
@@ -59,7 +59,6 @@
                     <div style="display:block;"><textarea name="event[description]" cols="100"rows="6" id='description' class="txteditadv">{$event[description]}</textarea></div>
                         {$restriction_selectlist}
                         {$notifyevent_checkbox}
-
                     <div style="display:block;padding-top:5px;">
                         <div style="width:15%; display:inline-block;">{$lang->publishonwebsite}</div>
                         <div style="width:70%; display:inline-block;"><input name="event[publishOnWebsite]" type="checkbox" value="1" checked='checked'/></div>
@@ -78,25 +77,25 @@
                             </tbody>
                         </table>
                     </div>
+                    <!--
+                                       <div style="display:block;padding-top:5px;">
+                                           <div style="display:block;" class="thead">{$lang->attachfiles}</div>
+                                           <div style="display:block;">
+                                               <fieldset class="altrow2" style="border:1px solid #DDDDDD">
+                                                   <input type="file" id="attachments" name="attachments[]" multiple="true"></fieldset>
+                                           </div>
 
-                    <div style="display:block;padding-top:5px;">
-                        <div style="display:block;" class="thead">{$lang->attachfiles}</div>
-                        <div style="display:block;">
-                            <fieldset class="altrow2" style="border:1px solid #DDDDDD">
-                                <input type="file" id="attachments" name="event[attachments][]" multiple="true"></fieldset>
-                        </div>
-
-                    </div>
-
+                                       </div>
+                    -->
                     <div style="display:block;padding-top:5px;">
                         <div style="display:block;" class="thead">{$lang->attacheventlogo}</div>
                         <div style="display:block;">
+                            {$currentlogo}
+                            <input type='hidden' name='event[logo]' value='{$event[logo]}'>
                             <fieldset class="altrow2" style="border:1px solid #DDDDDD">
-                                <input type="file" id="attachments" name="event[logo][]" multiple="true"></fieldset>
+                                <input type="file" id="logo" name="logo[]" multiple="true"></fieldset>
                         </div>
-
                     </div>
-
                     <div style="display:block;padding-top:10px;">
                         <div style="display:inline-block;">
                             <input type="submit" value="{$lang->savecaps}" class="button" onclick="$('#upload_Result').show()"/>
@@ -105,9 +104,8 @@
                     </div>
                 </form>
                 <hr />
-                <div id="upload_Result" style="display:none;"><img src="{$core->settings[rootdir]}/images/loading.gif" /> {$lang->uploadinprogress}</div>
+                <iframe id='uploadFrame' name='uploadFrame' src='#' frameBorder='0' width="100%" height="100"> <div id="upload_Result" style="display:none;"><img src="{$core->settings[rootdir]}/images/loading.gif" /> {$lang->uploadinprogress}</div></iframe>
                 <div id="perform_cms/manageevents_Results"></div>
-
             </div>
         </td>
     </tr>
