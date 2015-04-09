@@ -298,6 +298,9 @@ class TravelManagerPlanSegments extends AbstractClass {
             foreach($finances_objs as $finances) {
                 $financedata['tmpsid'] = $this->data[self::PRIMARY_KEY];
                 $financedata['amount'] = $finances['amount'];
+                if(is_empty($financedata['amount'])) {
+                    continue;
+                }
                 $financedata['currency'] = $finances['currency'];
                 $financedata['inputChecksum'] = $finances['inputChecksum'];
                 $finance_obj = new TravelManagerPlanFinance();

@@ -131,9 +131,8 @@ class TravelManagerPlan {
                     'myself' => $lang->myself,
                     'anotheraff' => $lang->anotheraff
             );
-            $tmsegmentplan = TravelManagerPlanSegments::get_data(array('tmpid' => $core->input['id']));
-            $tmplantranps = TravelManagerPlanTransps::get_data(array('tmpsid' => $tmsegmentplan->tmpsid));
-            if($tmplantranps->isRoundTrip == '1') {
+
+            if($transportation->isRoundTrip == '1') {
                 $checkroundtrip = 'checked="checked"';
                 $transportaion_fields_output = '<input type="checkbox" '.$checkroundtrip.' name="segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].'][isRoundTrip]" value="1">Round-Trip';
             }
@@ -168,6 +167,7 @@ class TravelManagerPlan {
                     $transportaion_fields .= '<div><div style = "display:inline-block;padding:10px;width:25%;">'.$lang->currency.'</div><div style = "display:inline-block;width:20%;">'.$currencies_list.'</div></div>';
                     $transportaion_fields .='<div><div style="display:inline-block;padding:10px;width:25%;">'.$lang->seatingdescription.'</div><div style = "display:inline-block;width:25%;"><textarea name="segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].'][seatingDescription]" id="segment_'.$sequence.'_tmtcid_'.$category['tmtcid'].'_seatingdescription" style="width:100%;">'.$transportation->seatingDescription.'</textarea></div></div>';
                     $transportaion_fields.='<div style="padding:10px; display:inline-block; width:15%;">'.$transportaion_fields_output.'</div></div>';
+                    $transportaion_fields .='<div><div style="display:inline-block;padding:10px;width:25%;">'.$lang->stopdescription.'</div><div style = "display:inline-block;width:25%;"><textarea name="segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].'][stopDescription]" id="segment_'.$sequence.'_tmtcid_'.$category['tmtcid'].'_stopDescription" style="width:100%;">'.$transportation->stopDescription.'</textarea></div></div>';
                     $selectlists['paidby'] = self::parse_paidby($sequence, $category['inputChecksum'], $category['transportationdetials']['paidBy']);
                     $transportaion_fields .= '<input type="hidden" name="segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].'][tmtcid]" value="'.$category['tmtcid'].'"/>';
 
@@ -188,6 +188,7 @@ class TravelManagerPlan {
                     if(!empty($transportation->transpDetails)) {
                         $transportaion_fields .= '<h2><small>Selected Flight</small></h2>';
                         $transportaion_fields .= TravelManagerAirlines::parse_bestflight($transportation->transpDetails, array('transportationdetails' => $category['transportationdetials'], 'selectedflight' => $transportation->flightNumber, 'name' => $category['name'], 'tmtcid' => $category['tmtcid'], 'inputChecksum' => $category['inputChecksum']), $sequence);
+                        $transportaion_fields .='<div><div style="display:inline-block;padding:10px;width:25%;">'.$lang->stopdescription.'</div><div style = "display:inline-block;width:25%;"><textarea name="segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].'][stopDescription]" id="segment_'.$sequence.'_tmtcid_'.$category['tmtcid'].'_stopDescription" style="width:100%;">'.$transportation->stopDescription.'</textarea></div></div>';
                         $transportaion_fields .= '<br /><hr/><br />';
                     }
                     else {
@@ -195,6 +196,7 @@ class TravelManagerPlan {
                         $transportaion_fields .= '<h2><small>Possible Flights</small></h2>';
                         $flights = TravelManagerAirlines::get_flights(TravelManagerAirlines::build_flightrequestdata(array('origin' => $cityinfo['origincity']['unlocode'], 'destination' => $cityinfo['destcity']['unlocode'], 'maxStops' => 0, 'date' => $cityinfo['date'], 'permittedCarrier' => $permitted_ariliners)));
                         $transportaion_fields .= '<input name="segment['.$sequence.'][apiFlightdata]" id="segment_'.$sequence.'apiFlightdata" type="hidden" value=\''.$flights.'\' />';
+                        $transportaion_fields .='<div><div style="display:inline-block;padding:10px;width:25%;">'.$lang->stopdescription.'</div><div style = "display:inline-block;width:25%;"><textarea name="segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].'][stopDescription]" id="segment_'.$sequence.'_tmtcid_'.$category['tmtcid'].'_stopDescription" style="width:100%;">'.$transportation->stopDescription.'</textarea></div></div>';
                         $transportaion_fields .= TravelManagerAirlines::parse_bestflight($flights, array('transportationdetails' => $category['transportationdetials'], 'selectedflight' => $category['transportationdetials']['flightNumber'], 'name' => $category['name'], 'tmtcid' => $category['tmtcid']), $sequence);
                     }
                     //$transportaion_fields .='<div style="display:block;width:100%;"> <div style="display:inline-block;" id="airlinesoptions"> '.$arilinersroptions.' </div>  </div>';
@@ -208,6 +210,7 @@ class TravelManagerPlan {
                     $transportaion_fields .= '<div style = "display:inline-block;padding:10px;width:15%;">'.$lang->currency.'</div><div style = "display:inline-block;width:20%;">'.$currencies_list.'</div></div>';
                     $transportaion_fields .='<div><div style="display:inline-block;padding:10px;width:25%;">'.$lang->seatingdescription.'</div><div style = "display:inline-block;width:25%;"><textarea name="segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].'][seatingDescription]" id="segment_'.$sequence.'_tmtcid_'.$category['tmtcid'].'_seatingdescription"  style="width:100%;>'.$transportation->seatingDescription.'</textarea></div>';
                     $transportaion_fields.='<div style="padding:10px; display:inline-block; width:15%;">'.$transportaion_fields_output.'</div></div>';
+                    $transportaion_fields .='<div><div style="display:inline-block;padding:10px;width:25%;">'.$lang->stopdescription.'</div><div style = "display:inline-block;width:25%;"><textarea name="segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].'][stopDescription]" id="segment_'.$sequence.'_tmtcid_'.$category['tmtcid'].'_stopDescription" style="width:100%;">'.$transportation->stopDescription.'</textarea></div></div>';
                     $selectlists['paidby'] = self::parse_paidby($sequence, $category['inputChecksum'], $category['transportationdetials']['paidBy']);
                     $transportaion_fields .= '<input type="hidden" name="segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].'][tmtcid]" value="'.$category['tmtcid'].'"/>';
                     break;
@@ -218,19 +221,23 @@ class TravelManagerPlan {
                     $transportaion_fields .= '<div style = "display:inline-block;padding:10px;width:15%;">'.$lang->currency.'</div><div style = "display:inline-block;width:20%;">'.$currencies_list.'</div></div>';
                     $transportaion_fields .='<div><div style="display:inline-block;padding:10px;width:25%;">'.$lang->seatingdescription.'</div><div style = "display:inline-block;width:25%;"><textarea name="segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].'][seatingDescription]" id="segment_'.$sequence.'_tmtcid_'.$category['tmtcid'].'_seatingdescription" style="width:100%;">'.$transportation->seatingDescription.'</textarea></div>';
                     $transportaion_fields.='<div style="padding:10px; display:inline-block; width:15%;">'.$transportaion_fields_output.'</div></div>';
+                    $transportaion_fields .='<div><div style="display:inline-block;padding:10px;width:25%;">'.$lang->stopdescription.'</div><div style = "display:inline-block;width:25%;"><textarea name="segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].'][stopDescription]" id="segment_'.$sequence.'_tmtcid_'.$category['tmtcid'].'_stopDescription" style="width:100%;">'.$transportation->stopDescription.'</textarea></div></div>';
                     $selectlists['paidby'] = self::parse_paidby($sequence, $category['inputChecksum'], $transportation->paidBy);
-                    $transportaion_fields .= '<input type="hidden" name="segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].'][isUserSuggested]" value="1"/>';
+                    $transportaion_fields .= '<input type = "hidden" name = "segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].'][isUserSuggested]" value = "1"/>';
 
                     break;
             }
             if($category['name'] != 'airplane') {
-                $transportaion_fields .= '<div style="position: absolute; top: 1px; right: 1px;"><input type="checkbox" label="'.$lang->delete.'" class="deletecheckbox" title="'.$lang->deletecheckboxnote.'" value = "1" id = "segment_'.$sequence.'_tmtcid_'.$category['inputChecksum'].'_todelete" name = "segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].'][todelete]" /><label for="segment_'.$sequence.'_tmtcid_'.$category['inputChecksum'].'_todelete">&nbsp;</label></div>';
-                $transportaion_fields .= '<input type="hidden" name="segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].'][inputChecksum]" value="'.$category['inputChecksum'].'"/>';
+                $transportaion_fields .= '<div style = "position: absolute; top: 1px; right: 1px;"><input type = "checkbox" label = "'.$lang->delete.'" class = "deletecheckbox" title = "'.$lang->deletecheckboxnote.'" value = "1" id = "segment_'.$sequence.'_tmtcid_'.$category['inputChecksum'].'_todelete" name = "segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].'][todelete]" /><label for = "segment_'.$sequence.'_tmtcid_'.$category['inputChecksum'].'_todelete">&nbsp;
+                    </label></div>';
+                $transportaion_fields .= '<input type = "hidden" name = "segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].'][inputChecksum]" value = "'.$category['inputChecksum'].'"/>';
             }
             if(!empty($selectlists['paidby'])) {
-                $transportation_details[$sequence][$category['inputChecksum']]['display'] = 'display:none;';
+                $transportation_details[$sequence][$category['inputChecksum']]['display'] = 'display:none;
+                    ';
                 if(!empty($transportation->paidById)) {
-                    $transportation_details[$sequence][$category['inputChecksum']]['display'] = 'display:block;';
+                    $transportation_details[$sequence][$category['inputChecksum']]['display'] = 'display:block;
+                    ';
                     $transpseg = new TravelManagerPlanSegments();
                     $transportation_details[$sequence][$category['inputChecksum']]['affiliate'] = $transpseg->display_paidby($transportation->paidBy, $transportation->paidById)->name;
                 }
@@ -627,10 +634,9 @@ class TravelManagerPlan {
             $currencies_f[] = $mainaffobj->get_country()->get_maincurrency();
             $currencies_f[] = new Currencies(840, true);
             $currencies_f = array_unique($currencies_f);
-            $currencies_listf = parse_selectlist('segment['.$sequence.'][tmpfid][currency]', 4, $currencies_f, $finance->currency);
-
+            $currencies_listf = parse_selectlist('segment['.$sequence.'][tmpfid][$frowid][currency]', 4, $currencies_f, $finance->currency);
             if(is_array($finance)) {
-                $frowid=1;
+                $frowid = 1;
                 foreach($finance as $financerow) {
                     $amount_value = $finance->amount;
                     $finance_checksum = $finance->inputChecksum;
@@ -640,11 +646,10 @@ class TravelManagerPlan {
                 }
             }
             else {
-                $frowid=1;
+                $frowid = 1;
                 $finance_checksum = generate_checksum('finance');
                 eval("\$finance_output = \"".$template->get('travelmanager_plantrip_segmentfinance')."\";");
             }
-
             //parse finnance--end
             if($segmentobj->noAccomodation == '1') {
                 $checkedaccomodation = 'checked="checked"';

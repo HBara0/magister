@@ -94,7 +94,7 @@ if(!$core->input['action']) {
             $hotelssegments_output = $segmentobj->parse_hotels($sequence, $approvedhotels);
             // $transpmode_apimaplink = 'https://www.google.com/maps/dir/'.$origintcity['name'].',+'.$origintcity['country'].'/'.$destcity['name'].',+'.$destcity['country'].'/';
             //parse Finances---Start
-            $frowid=1;
+            $frowid = 1;
             $finance_obj = new TravelManagerPlanFinance();
             $destcity_obj = new Cities($destcity);
             $mainaffobj = new Affiliates($core->user['mainaffiliate']);
