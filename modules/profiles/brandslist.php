@@ -22,7 +22,8 @@ if(!$core->input['action']) {
 
     /* Perform inline filtering - START */
     $filters_config = array(
-            'parse' => array('filters' => array('brand', 'entity', 'country', 'endproduct')
+            'parse' => array('filters' => array('brand', 'entity', 'country', 'endproduct'),
+                    'overwriteField' => array('country' => '')
             ),
             'process' => array(
                     'filterKey' => 'ebpid',
