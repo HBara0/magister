@@ -3454,6 +3454,23 @@ CREATE TABLE `travelmanager_plan_segments` (
   `isNoneBusiness` tinyint(1) NOT NULL,
   PRIMARY KEY (`tmpsid`),
   KEY `tmpid` (`tmpid`,`originCity`,`destinationCity`)
+CREATE TABLE `travelmanager_plan_segpurposes` (
+  `tmpspid` int(10) NOT NULL AUTO_INCREMENT,
+  `tmpsid` int(10) NOT NULL,
+  `purpose` int(10) NOT NULL,
+  UNIQUE KEY `tmpspid` (`tmpspid`),
+  UNIQUE KEY `tmpspid_2` (`tmpspid`)
+) ENGINE=MyISAM AUTO_INCREMENT=24 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `travelmanager_plan_transpclass`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `travelmanager_plan_transpclass` (
+  `tmptc` int(10) NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) NOT NULL,
+  `title` varchar(100) NOT NULL,
+  PRIMARY KEY (`tmptc`)
+) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `travelmanager_plan_transportation`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;

@@ -55,7 +55,6 @@ class TravelManagerPlanSegments extends AbstractClass {
                 'fromDate' => $segmentdata['fromDate'],
                 'toDate' => $segmentdata['toDate'],
                 'originCity' => $segmentdata['originCity'],
-                'purpose' => $segmentdata['purpose'],
                 'reason' => $segmentdata['reason'],
                 'destinationCity' => $segmentdata['destinationCity'],
                 'apiFlightdata' => $segmentdata['apiFlightdata'],
@@ -68,6 +67,18 @@ class TravelManagerPlanSegments extends AbstractClass {
 
         $db->insert_query(self::TABLE_NAME, $segmentdata_array);
         $this->data[self::PRIMARY_KEY] = $db->last_id();
+
+        $segpurposes = $segmentdata['purpose'];
+        if(is_array($segpurposes)) {
+            $db->delete_query('travelmanager_plan_segpurposes', "tmpsid='".$this->data[self::PRIMARY_KEY]."'");
+            foreach($segpurposes as $purpose) {
+                $purpose_data['purpose'] = $purpose;
+                $purpose_data['tmpsid'] = $this->data[self::PRIMARY_KEY];
+                $segmentpurpose_obj = new TravelManagerPlanSegPurposes();
+                $segmentpurpose_obj->set($purpose_data);
+                $segmentpurpose_obj->save();
+            }
+        }
 
         if(isset($segmentdata['tmtcid'])) {
             $transptdata['tmpsid'] = $this->data[self::PRIMARY_KEY];
@@ -183,7 +194,7 @@ class TravelManagerPlanSegments extends AbstractClass {
             $segmentdata['fromDate'] = strtotime($segmentdata['fromDate']);
         }
 
-        $valid_fields = array('fromDate', 'toDate', 'originCity', 'destinationCity', 'reason', 'purpose', 'isNoneBusiness', 'noAccomodation');
+        $valid_fields = array('fromDate', 'toDate', 'originCity', 'destinationCity', 'reason', 'isNoneBusiness', 'noAccomodation');
         /* Consider using array intersection */
         foreach($valid_fields as $attr) {
             $segmentnewdata[$attr] = $segmentdata[$attr];
@@ -192,6 +203,17 @@ class TravelManagerPlanSegments extends AbstractClass {
         $segmentnewdata['modifiedBy'] = $core->user['uid'];
         $segmentnewdata['modifiedOn'] = TIME_NOW;
         $db->update_query(self::TABLE_NAME, $segmentnewdata, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
+        $segpurposes = $segmentdata['purpose'];
+        if(is_array($segpurposes)) {
+            $db->delete_query('travelmanager_plan_segpurposes', "tmpsid='".$this->data[self::PRIMARY_KEY]."'");
+            foreach($segpurposes as $purpose) {
+                $purpose_data['purpose'] = $purpose;
+                $purpose_data['tmpsid'] = $this->data[self::PRIMARY_KEY];
+                $segmentpurpose_obj = new TravelManagerPlanSegPurposes();
+                $segmentpurpose_obj->set($purpose_data);
+                $segmentpurpose_obj->save();
+            }
+        }
 
         $transptdata = $segmentdata['tmtcid'];
         if(is_array($transptdata)) {

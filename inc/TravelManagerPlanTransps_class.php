@@ -62,7 +62,7 @@ class TravelManagerPlanTransps extends AbstractClass {
         global $db, $core;
         /* Specify transportation categories As isMain (if suggested by the system) */
 
-        $valid_attrs = array('tmpsid', 'tmtcid', 'fare', 'vehicleNumber', 'flightNumber', 'transpDetails', 'paidBy', 'paidById', 'transpType', 'isUserSuggested', 'inputChecksum', 'currency', 'seatingDescription', 'isRoundTrip', 'stopDescription');
+        $valid_attrs = array('tmpsid', 'tmtcid', 'fare', 'vehicleNumber', 'flightNumber', 'transpDetails', 'paidBy', 'paidById', 'transpType', 'isUserSuggested', 'inputChecksum', 'currency', 'seatingDescription', 'isRoundTrip', 'stopDescription','class');
         $valid_attrs = array_combine($valid_attrs, $valid_attrs);
         $data = array_intersect_key($data, $valid_attrs);
         if($data['paidBy'] != 'anotheraff') {
@@ -97,7 +97,9 @@ class TravelManagerPlanTransps extends AbstractClass {
                 'currency' => $transportdata['currency'],
                 'seatingDescription' => $transportdata['seatingDescription'],
                 'isRoundTrip' => $transportdata['isRoundTrip'],
-                'stopDescription' => $transportdata['stopDescription']
+                'stopDescription' => $transportdata['stopDescription'],
+                'class' => $transportdata['class']
+                
         );
 
         if($tanspdata_array['paidBy'] != 'anotheraff') {
