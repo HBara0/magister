@@ -39,7 +39,7 @@ class AroRequestsMessages extends AbstractClass {
 
     public function get_replies() {
         global $db;
-        $replies = self::get_data('inReplyTo='.$this->data[self::PRIMARY_KEY], array('simple', false, 'returnarray' => true));
+        $replies = self::get_data('inReplyTo='.$this->data[self::PRIMARY_KEY], array('simple' => false, 'returnarray' => true));
         if(is_array($replies)) {
             return $replies;
         }
@@ -85,13 +85,12 @@ class AroRequestsMessages extends AbstractClass {
         $this->data['aorid'] = $aorid;
         $this->data['uid'] = $core->user['uid'];
         $this->data['createdOn'] = TIME_NOW;
-        $this->data['viewPermission'] = 'public'; //Temporary overwrite as per management request
+        $this->data['viewPermission'] = 'public';
         foreach($this->data as $attr => $val) {
             if(!in_array($attr, $valid_fields)) {
                 unset($this->data[$attr]);
             }
         }
-
         $query = $db->insert_query(self::TABLE_NAME, $this->data);
         if($query) {
             $this->data['armid'] = $db->last_id();
@@ -103,7 +102,7 @@ class AroRequestsMessages extends AbstractClass {
     public function send_message() {
         global $lang, $core;
 
-        //$lang->load('attendance_messages');
+        $lang->load('aro_meta');
         $mailer = new Mailer();
         $mailer = $mailer->get_mailerobj();
         $mailer->set_from(array('name' => $core->user['displayName'], 'email' => $core->user['email']));
@@ -117,8 +116,7 @@ class AroRequestsMessages extends AbstractClass {
         // $approvals = $arorequest->parse_approvalsapprovers();
         //
         $mailer->set_subject($lang->newrequestmsgsubject.' ['.$arorequest->requestKey.']');
-//        $leave_details = $lang->sprint($lang->requestleavemessagesupervisor, $leave_details['requester'], strtolower($leavetype->title).$leave->details_crumb, date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave->fromDate), date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave->toDate), $leave->reason, $approvals, $reply_links);
-//
+
         $emailreceivers = $this->get_emailreceivers();
         foreach($emailreceivers as $uid => $emailreceiver) {
             $message = '<p>'.$this->data['message'].' | <a href="'.$reply_links.'">&#x21b6; '.$lang->reply.'</a></p>';

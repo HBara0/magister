@@ -660,12 +660,6 @@ class AroRequests extends AbstractClass {
         if(!is_array($initialmsgs)) {
             return false;
         }
-
-        $show_replyicon = 'display:block;';
-//        if(isset($options['viewsource']) && ($options['viewsource'] == 'viewleave')) {
-//            $show_replyicon = 'display:none;';
-//        }
-
         if(empty($options['uid'])) {
             $options['uid'] = $core->user['uid'];
         }
@@ -700,11 +694,6 @@ class AroRequests extends AbstractClass {
 
     private function parse_replies($replies, $depth = 1, array $options = array()) {
         global $template, $core;
-
-//        $show_replyicon = 'display:block;';
-//        if(isset($options['viewsource']) && ($options['viewsource'] == 'viewleave')) {
-//            $show_replyicon = 'display:none;';
-//        }
 
         if(is_array($replies)) {
             foreach($replies as $reply) {
