@@ -318,11 +318,11 @@ class TravelManagerPlanSegments extends AbstractClass {
         $finances_objs = $segmentdata['tmpfid'];
         if(is_array($finances_objs)) {
             foreach($finances_objs as $finances) {
-                $financedata['tmpsid'] = $this->data[self::PRIMARY_KEY];
                 $financedata['amount'] = $finances['amount'];
                 if(is_empty($financedata['amount'])) {
                     continue;
                 }
+                $financedata['tmpsid'] = $this->data[self::PRIMARY_KEY];
                 $financedata['currency'] = $finances['currency'];
                 $financedata['inputChecksum'] = $finances['inputChecksum'];
                 $finance_obj = new TravelManagerPlanFinance();
