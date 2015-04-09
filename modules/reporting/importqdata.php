@@ -274,8 +274,8 @@ else {
         //						WHERE imso.foreignSystem={$options[foreignSystem]} AND imso.affid={$affid} AND imp.localId!=0 AND (imso.date BETWEEN ".strtotime($options['fromDate'])." AND ".strtotime($options['toDate']).")");
         //}
 
-        echo '<h1>'.$options['quarter'].' '.$options['year'].'</h1>';
         if(is_array($newpurchase)) {
+            echo '<h1>'.$options['quarter'].' '.$options['year'].'</h1>';
             foreach($newpurchase as $rid => $products) {
                 foreach($products as $pid => $activity) {
                     if(empty($activity)) {
@@ -287,7 +287,7 @@ else {
                     }
 
                     if(value_exists('productsactivity', 'rid', $rid, 'pid='.$pid.$pacheck_querywhere)) {
-                        if($options['runtype'] == 'dry' || ($options['operation'] == 'addonly' || $options['operation'] == 'replace')) {
+                        if($options['runtype'] == 'dry' && ($options['operation'] == 'addonly' || $options['operation'] == 'replace')) {
                             if($options['operation'] == 'replace') {
                                 echo 'Skipped Replace: ';
                             }
@@ -320,8 +320,8 @@ else {
                                     /* Implement Budget data integration to acquire forecasts  - START */
                                     $forecasts = $productact->aggregate_relatedbudgetlines(array('aggregatebm' => false));
                                     /* Implement Budget data integration to acquire forecasts   - END */
-                                    $activity['salesForecast'] = $agrregatedbudgetlines['salesForecast'];
-                                    $activity['quantityForecast'] = $agrregatedbudgetlines['quantityForecast'];
+                                    $activity['salesForecast'] = $forecasts['amount'] / 1000;
+                                    $activity['quantityForecast'] = $forecasts['quantity'] / 1000;
                                 }
                                 else {
                                     $forecasts = $db->fetch_assoc($db->query("SELECT pid, SUM(quantity) AS quantityForecast, SUM(turnOver) AS salesForecast
@@ -329,10 +329,11 @@ else {
 							JOIN ".Tprefix."reports r ON (r.rid=pa.rid)
 							WHERE r.quarter<'".$quarter_info['quarter']."' AND r.year='".$quarter_info['year']."' AND r.affid='".$affid."' AND r.spid='".$productact->get_report()->spid."' AND pa.pid='".$productact->pid."'
 							GROUP BY pa.pid"));
-                                    $forecasts['quantityForecast'] += $activity['quantity'];
-                                    $forecasts['salesForecast'] += $activity['turnOver'];
+                                    $activity['quantityForecast'] = $forecasts['quantityForecast'] + $activity['quantity'];
+                                    $activity['salesForecast'] += $forecasts['salesForecast'] + $activity['turnOver'];
                                 }
-                                $db->update_query('productsactivity', array('salesForecast' => $forecasts['salesForecast'], 'quantityForecast' => $forecasts['quantityForecast']), 'paid='.$productact->paid);
+
+                                $db->update_query('productsactivity', array('salesForecast' => $activity['salesForecast'], 'quantityForecast' => $activity['quantityForecast']), 'paid='.$productact->paid);
                             }
                         }
                     }
