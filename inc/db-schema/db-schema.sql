@@ -667,6 +667,8 @@ CREATE TABLE `calendar_events` (
   `place` varchar(300) DEFAULT NULL,
   `boothNum` varchar(10) DEFAULT NULL,
   `type` smallint(1) NOT NULL,
+  `logo` varchar(220) DEFAULT NULL,
+  `refreshLogoOnWebsite` tinyint(1) NOT NULL DEFAULT '0',
   `affid` smallint(5) DEFAULT NULL,
   `spid` int(10) DEFAULT NULL,
   `uid` int(10) NOT NULL,

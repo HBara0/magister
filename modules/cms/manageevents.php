@@ -55,6 +55,10 @@ if(!$core->input['action']) {
             $invitees_list .='<td><input id = "affiliatefilter_check_'.$key.'" name = "event[invitees][]" type = "checkbox"'.$checked.' value = "'.$key.'">'.$value.'</td></tr>';
         }
     }
+
+    if(!empty($event['logo'])) {
+        $currentlogo = '<img src = "./uploads/eventslogos/'.$event['logo'].'">';
+    }
     eval("\$createevent=\"".$template->get('cms_events_add')."\";");
     output_page($createevent);
 }
@@ -83,25 +87,21 @@ else if($core->input['action'] == 'do_perform_manageevents') {
         $upload_obj->resize(150, '');
 
         $logo = $upload_obj->get_filesinfo();
-        $new_event['logo'] = $upload_obj->get_filename();
+        $cms_event->set(array('logo' => $upload_obj->get_filename(), 'refreshLogoOnWebsite' => 1));
+        $cms_event->save();
         if($upload_obj->get_status() != 4) {
-            ?>
-            <script language="javascript" type="text/javascript">
-                $(function () {
-                    top.$("#upload_Result").html("<span class='red_text'><?php echo $upload_obj->parse_status($upload_obj->get_status());?></span>");
-                });
-            </script>
-            <?php
+            echo $upload_obj->parse_status($upload_obj->get_status());
             exit;
         }
     }
-    /* Parse Event Logo - END */
     switch($cms_event->get_errorcode()) {
         case 0:
-            output_xml('<status>true</status><message>'.$lang->successfullysaved.'</message>');
+            echo $lang->successfullysaved;
             break;
         case 1:
-            output_xml('<status>false</status><message>'.$lang->fillrequiredfields.'</message>');
+            echo $lang->fillrequiredfields;
             break;
     }
+    exit;
+    /* Parse Event Logo - END */
 }
