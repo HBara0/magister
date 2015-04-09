@@ -550,13 +550,13 @@ $(function() {
                 );
     }
 
-    $("a[id$='_loadpopupbyid'],a[id^='mergeanddelete_'][id$='_icon'],a[id^='revokeleave_'][id$='_icon'],a[id^='approveleave_'][id$='_icon']").live('click', function() {
+    $("a[id$='_loadpopupbyid'],a[id^='mergeanddelete_'][id$='_icon'],a[id^='revokeleave_'][id$='_icon'],a[id^='approveleave_'][id$='_icon']").live('click', function () {
         var id = $(this).attr("id").split("_");
-        var rel = $(this).prop("rel");
-        var underscore = '_';
-        if(rel != '' || rel != null) {
-            id[1] = id[1] + underscore + rel;
-        }
+//        var rel = $(this).prop("rel");
+//        var underscore = '_';
+//        if(rel != '' || rel != null) {
+//            id[1] = rel;
+//        }
         popUp(id[2], id[0], id[1]);
     });
 
@@ -607,9 +607,10 @@ $(function() {
         var uniquename = '';
 
         for(i = 0; i < id.length; i++) {
-            uniquename = uniquename + underscore + id[i];
-            underscore = "_";
-
+            if(id[i].length > 1) {
+                uniquename = uniquename + underscore + id[i];
+                underscore = "_";
+            }
         }
         id = uniquename;
 
