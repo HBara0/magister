@@ -476,8 +476,9 @@ class TravelManagerPlanSegments extends AbstractClass {
                 }
             }
         }
-        else
+        else {
             $noaccomodation = 'No Accomodations';
+        }
         $additional_expenses = Travelmanager_Expenses::get_data(array('tmpsid' => $this->tmpsid), array('simple' => false, 'returnarray' => true));
         if(is_array($additional_expenses)) {
             foreach($additional_expenses as $additionalexp) {
@@ -644,8 +645,9 @@ class TravelManagerPlanSegments extends AbstractClass {
                 $currencies[] = $destcity_obj->get_country()->get_maincurrency();
                 $currencies[] = $mainaffobj->get_country()->get_maincurrency();
                 $currencies[] = new Currencies(840, true);
+                $currencies[] = new Currencies(978, true);
                 $currencies = array_unique($currencies);
-                $currencies_list .= parse_selectlist('segment['.$sequence.'][tmhid]['.$checksum.'][currency]', 4, $currencies, $rescurrency_id);
+                $currencies_list = parse_selectlist('segment['.$sequence.'][tmhid]['.$checksum.'][currency]', 4, $currencies, $rescurrency_id);
 
                 eval("\$hotelssegments_output  .= \"".$template->get('travelmanager_plantrip_segment_hotels')."\";");
                 $review_tools = $paidby_details = $currencies_list = $currencies = $selected_hotel = $checkbox_hotel = '';

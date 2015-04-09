@@ -94,13 +94,13 @@ if(!$core->input['action']) {
             $hotelssegments_output = $segmentobj->parse_hotels($sequence, $approvedhotels);
             // $transpmode_apimaplink = 'https://www.google.com/maps/dir/'.$origintcity['name'].',+'.$origintcity['country'].'/'.$destcity['name'].',+'.$destcity['country'].'/';
             //parse Finances---Start
-            $frowid=1;
+            $frowid = 1;
             $finance_obj = new TravelManagerPlanFinance();
-            $destcity_obj = new Cities($destcity);
             $mainaffobj = new Affiliates($core->user['mainaffiliate']);
-            $currencies_f[] = $destcity_obj->get_country()->get_maincurrency();
+            $currencies_f[] = $descity_obj->get_country()->get_maincurrency();
             $currencies_f[] = $mainaffobj->get_country()->get_maincurrency();
             $currencies_f[] = new Currencies(840, true);
+            $currencies_f[] = new Currencies(978, true);
             $currencies_f = array_unique($currencies_f);
             $currencies_listf = parse_selectlist('segment['.$sequence.'][tmpfid]['.$frowid.'][currency]', 4, $currencies_f, '840');
             $segments_financess_output.=$currencies_listf;
@@ -124,8 +124,9 @@ if(!$core->input['action']) {
             $currencies[] = $destcity_obj->get_country()->get_maincurrency();
             $currencies[] = $mainaffobj->get_country()->get_maincurrency();
             $currencies[] = new Currencies(840, true);
+            $currencies[] = new Currencies(978, true);
             $currencies = array_unique($currencies);
-            $currencies_list .= parse_selectlist('segment['.$sequence.'][tmhid]['.$otherhotel_checksum.'][currency]', 4, $currencies, '840');
+            $currencies_list = parse_selectlist('segment['.$sequence.'][tmhid]['.$otherhotel_checksum.'][currency]', 4, $currencies, '840');
             $otherhotel['displaystatus'] = "display:none;";
 
 
@@ -270,8 +271,9 @@ else {
         $currencies[] = $destcity_obj->get_country()->get_maincurrency();
         $currencies[] = $mainaffobj->get_country()->get_maincurrency();
         $currencies[] = new Currencies(840, true);
+        $currencies[] = new Currencies(978, true);
         $currencies = array_unique($currencies);
-        $currencies_list .= parse_selectlist('segment['.$sequence.'][tmhid]['.$otherhotel_checksum.'][currency]', 4, $currencies, '840');
+        $currencies_list = parse_selectlist('segment['.$sequence.'][tmhid]['.$otherhotel_checksum.'][currency]', 4, $currencies, '840');
         $otherhotel['displaystatus'] = "display:none;";
         $paidby_onchangeactions = 'if($(this).find(":selected").val()=="anotheraff"){$("#"+$(this).find(":selected").val()+"_otheraccomodations_'.$sequence.'_'.$otherhotel_checksum.'").effect("highlight",{ color: "#D6EAAC"}, 1500).find("input").first().focus().val("");}else{$("#anotheraff_otheraccomodations_'.$sequence.'_'.$otherhotel_checksum.'").hide();}';
         $paidby_entities = array(
@@ -467,7 +469,9 @@ else {
         $destcity = new Cities($core->input['ajaxaddmoredata']['destcity']);
         $mainaffobj = new Affiliates($core->user['mainaffiliate']);
         $currencies_f[] = $destcity->get_country()->get_maincurrency();
+        $currencies_f[] = $mainaffobj->get_country()->get_maincurrency();
         $currencies_f[] = new Currencies(840, true);
+        $currencies_f[] = new Currencies(978, true);
         $currencies_f = array_unique($currencies_f);
         $currencies_listf = parse_selectlist('segment['.$sequence.'][tmpfid]['.$frowid.'][currency]', 4, $currencies_f, 840);
         $segments_financess_output.=$currencies_listf;
