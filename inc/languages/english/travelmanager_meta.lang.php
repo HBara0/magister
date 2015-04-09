@@ -108,4 +108,6 @@ $lang['transportations'] = 'Transportation';
 $lang['accomodation'] = 'Accomodation';
 $lang['additionalexpenses'] = 'Additional Expenses';
 $lang['anticipatedamount'] = 'Anticipated required amount needed in advance';
+$lang['class'] = 'Class';
+$lang['roundtrip'] = 'Round-Trip';
 ?>

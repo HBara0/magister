@@ -279,7 +279,7 @@ class Cities extends AbstractClass {
             $transsegments['title'] = '<h2>'.$lang->selectedtransportations.'</h2>';
 
             foreach($transps as $transp) {
-                if($transp->get_transpcategory()->isAerial == 1) {
+                if($transp->get_transpcategory()->isAerial == 1 && $transp->isUserSuggested == 0) {
                     $aerialtransp = $transp;
                 }
                 else {

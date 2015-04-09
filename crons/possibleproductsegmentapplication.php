@@ -26,7 +26,7 @@ if($db->num_rows($no_midata) > 0) {
 }
 
 //fetch all cid,eptid,cfcid,cfpid where customers are being sold different products or chemicals than other customersOR
-$dif_midata = $db->query("SELECT DISTINCT a.cid,a.eptid,a.cfcid,a.cfpid FROM ".Tprefix."marketintelligence_basicdata AS a INNER JOIN ".Tprefix."marketintelligence_basicdata AS b ON (a.eptid=b.eptid) Where a.cid!=b.cid AND a.eptid!=0 AND (a.cfcid!=b.cfcid OR a.cfpid != b.cfpid) AND a.cfpid!=0 AND a.cfcid!=0");
+$dif_midata = $db->query("SELECT DISTINCT a.cid,a.eptid,a.cfcid,a.cfpid FROM ".Tprefix."marketintelligence_basicdata AS a INNER JOIN ".Tprefix."marketintelligence_basicdata AS b ON (a.eptid=b.eptid) Where a.cid!=b.cid AND a.eptid!=0 AND (a.cfcid!=b.cfcid OR a.cfpid != b.cfpid)");
 if($db->num_rows($dif_midata) > 0) {
     $row = 1;
     while($diff_midata_row = $db->fetch_assoc($dif_midata)) {
@@ -109,9 +109,11 @@ foreach($original as $row => $keys) {
 $emails_contents = array_merge_recursive_replace($output_2, $output);
 $verif = send_email($emails_contents);
 function send_email($content) {
+
     if(is_array($content)) {
 //loop through the array with the first dimension which is the customer
         foreach($content as $uid => $values) {
+            echo '<hr>';
             $user_obj = new Users($uid);
             $email = $user_obj->email;
             $message = "<h1>These products and chemicals may concern the below customers: </h1><br>";

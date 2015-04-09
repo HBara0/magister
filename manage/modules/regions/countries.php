@@ -2,10 +2,10 @@
 /*
  * Orkila Central Online System (OCOS)
  * Copyright � 2009 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * Manage Countries
  * $module: admin/regions
- * $id: countries.php	
+ * $id: countries.php
  * Last Update: @zaher.reda 	Mar 18, 2009 | 03:45 PM
  */
 if(!defined("DIRECT_ACCESS")) {
@@ -27,55 +27,99 @@ if(!$core->input['action']) {
             if(empty($affname)) {
                 $affname = "N/A";
             }
-            $countries_list .= "<tr class='{$class}'><td>{$coid}</td><td>{$name} ({$acronym})</td><td>{$affname}</td></tr>";
+            $countries_list .= "<tr class='{$class}'><td>{$coid}</td><td>{$name} ({$acronym})</td><td>{$affname}</td>";
+            $countries_list .='<td><a style="cursor: pointer;" title="'.$lang->update.'" id="updatecountrydtls_'.$coid.'_'.$core->input['module'].'_loadpopupbyid" rel="countrydetail_'.$coid.'"><img src="'.$core->settings[rootdir].'/images/icons/update.png"/></a></td></tr>';
+
+            $affiliates_attributes = array("affid", "name");
+            $countries_order = array(
+                    "by" => "name",
+                    "sort" => "ASC"
+            );
+
+            $affiliates = get_specificdata("affiliates", $affiliates_attributes, "affid", "name", $countries_order, 1);
+            if(!empty($affiliates)) {
+                $affiliates_list = parse_selectlist("affid", 2, $affiliates, $coid);
+            }
+            else {
+                $affiliates_list = $lang->noaffiliatesavailable;
+            }
         }
     }
     else {
-        $countries_list = "<tr><td colspan='4' style='text-align: center;'>{$lang->nocountriesavailable}</td></tr>";
+        $countries_list = "<tr><td colspan='4' style='text-align: center;
+            '>{$lang->nocountriesavailable}</td></tr>";
     }
-
-    $affiliates_attributes = array("affid", "name");
-    $countries_order = array(
-            "by" => "name",
-            "sort" => "ASC"
-    );
-
-    $affiliates = get_specificdata("affiliates", $affiliates_attributes, "affid", "name", $affiliates_order, 1);
-    if(!empty($affiliates)) {
-        $affiliates_list = parse_selectlist("affid", 2, $affiliates, "");
-    }
-    else {
-        $affiliates_list = $lang->noaffiliatesavailable;
-    }
-
+    eval("\$addcountry = \"".$template->get("popup_addcountry")."\";");
     eval("\$countriespage = \"".$template->get("admin_regions_countries")."\";");
     output_page($countriespage);
 }
 else {
     if($core->input['action'] == "do_add_countries") {
-        if(empty($core->input['name']) || empty($core->input['acronym'])) {
-            output_xml("<status>false</status><message>{$lang->fillrequiredfields}</message>");
-            exit;
+        $country = $core->input['country'];
+        $country['affid'] = $core->input['affid'];
+        $country['name'] = ucfirst($country['name']);
+        $country['acronym'] = substr(strtoupper($country['acronym']), 0, 2);
+        $country_obj = new Countries();
+        $country_obj->set($country);
+        $country_obj->save();
+        switch($country_obj->get_errorcode()) {
+            case 0:
+                output_xml('<status>true</status><message>'.$lang->successfullysaved.'</message>');
+                break;
+            case 1:
+                output_xml('<status>false</status><message>'.$lang->fillallrequiredfields.'</message>');
+                break;
+            case 2:
+            default:
+                output_xml('<status>false</status><message>'.$lang->errorsaving.'</message>');
+                break;
         }
+        exit;
 
-        if(value_exists("countries", "name", $core->input['name'])) {
-            output_xml("<status>false</status><message>{$lang->countryalreadyexists}</message>");
-            exit;
-        }
+//        if(empty($country['name']) || empty($country['acronym'])) {
+//            output_xml("<status>false</status><message>{$lang->fillrequiredfields}</message>");
+//            exit;
+//        }
+//
+//        if(value_exists("countries", "name", $country['name'])) {
+//            output_xml("<status>false</status><message>{$lang->countryalreadyexists}</message>");
+//            exit;
+//        }
+//
+//        log_action($country['name']);
+//        unset($core->input['module'], $core->input['action']);
+//
+//        $country['name'] = ucfirst($country['name']);
+//        $country['acronym'] = strtoupper($country['acronym']);
+//        $query = $db->insert_query("countries", $country);
+//        if($query) {
+//            $lang->countryadded = $lang->sprint($lang->countryadded, "<strong>".$country['name']."</strong>");
+//            output_xml("<status>true</status><message>{$lang->countryadded}</message>");
+//        }
+//        else {
+//            output_xml("<status>false</status><message>{$lang->erroraddingcountry}</message>");
+//        }
+    }
+    elseif($core->input['action'] == 'get_updatecountrydtls') {
+        $country_obj = new Countries($core->input['id']);
+        $country['coid'] = $country_obj->coid;
+        $country['name'] = $country_obj->name;
+        $country['acronym'] = $country_obj->acronym;
+        $affiliates_attributes = array("affid", "name");
+        $countries_order = array(
+                "by" => "name",
+                "sort" => "ASC"
+        );
 
-        log_action($core->input['name']);
-        unset($core->input['module'], $core->input['action']);
-
-        $core->input['name'] = ucfirst($core->input['name']);
-        $core->input['acronym'] = strtoupper($core->input['acronym']);
-        $query = $db->insert_query("countries", $core->input);
-        if($query) {
-            $lang->countryadded = $lang->sprint($lang->countryadded, "<strong>".$core->input['name']."</strong>");
-            output_xml("<status>true</status><message>{$lang->countryadded}</message>");
+        $affiliates = get_specificdata("affiliates", $affiliates_attributes, "affid", "name", $countries_order, 1);
+        if(!empty($affiliates)) {
+            $affiliates_list = parse_selectlist("affid", 2, $affiliates, $country_obj->affid);
         }
         else {
-            output_xml("<status>false</status><message>{$lang->erroraddingcountry}</message>");
+            $affiliates_list = $lang->noaffiliatesavailable;
         }
+        eval("\$addcountry = \"".$template->get("popup_addcountry")."\";");
+        output($addcountry);
     }
 }
 ?>

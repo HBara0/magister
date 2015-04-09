@@ -22,4 +22,8 @@ $lang['total'] = 'Total';
 $lang['unit'] = 'Unit';
 $lang['validthrough'] = 'Valid through';
 $lang['onbehalf'] = 'On Behalf Of';
+$lang['checkforecast'] = 'Kindly check that your forecasts are valid, otherwise please update them';
+$lang['check'] = 'Check';
+$lang['update'] = 'Update';
+$lang['gpreminder'] = 'Update Group Purchase Forcast Reminder'
 ?>

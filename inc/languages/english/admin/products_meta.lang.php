@@ -44,4 +44,6 @@ $lang['mergeexplanation'] = "Merging will consider the selected product a replac
 $lang['successdeletemerge'] = "Successfully deleted or merged";
 $lang['errordeleting'] = "An error occured while deleting the product";
 $lang['selectchemical'] = 'Select Chemical';
+$lang['user'] = 'User';
+$lang['date'] = 'Date';
 ?>

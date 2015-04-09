@@ -71,7 +71,7 @@ if(!$core->input['action']) {
 //            }
             $leave_purposes = LeaveTypesPurposes::get_data(null);
             //$leave_purposes = array($leave_obj->get_purpose()->get()['ltpid'] => $leave_obj->get_purpose()->get()['name']);
-            $segment_purposlist = parse_selectlist('segment['.$sequence.'][purpose]', 5, $leave_purposes, '', '', '', array('blankstart' => true));
+            $segment_purposlist = parse_selectlist('segment['.$sequence.'][purpose][]', 5, $leave_purposes, '', 1, '', array('blankstart' => true));
 
             //   $origincity_obj = $leave_obj->get_sourcecity(false);
             $origintcity = $origincity_obj->get();
@@ -195,7 +195,7 @@ else {
             $segment[$sequence]['fromDate_formatted'] = $core->input['toDate'];
             //   $leave_purposes = array($leave_obj->get_purpose()->get()['ltpid'] => $leave_obj->get_purpose()->get()['name']);
             $leave_purposes = LeaveTypesPurposes::get_data('');
-            $segment_purposlist = parse_selectlist('segment['.$sequence.'][purpose]', 5, $leave_purposes, '', '', '', array('blankstart' => true));
+            $segment_purposlist = parse_selectlist('segment['.$sequence.'][purpose][]', 5, $leave_purposes, '', 1, '', array('blankstart' => true));
 
             /* Popuplate basic information from the leave based on the lid passed via ajax */
 

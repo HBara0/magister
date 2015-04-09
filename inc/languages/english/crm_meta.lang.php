@@ -73,7 +73,7 @@ $lang['name'] = 'Name';
 $lang['endproducttypes'] = 'End Product Types';
 $lang['considerbrandunspecified'] = 'Consider Brand Unspecified';
 $lang['update'] = 'Update';
-
+$lang['date'] = 'Date';
 $lang['saletype'] = 'Sale Type';
 $lang['sampleacquired'] = 'Sample Acquired';
 $lang['packaging'] = 'Packaging';
