@@ -55,7 +55,6 @@
         <div>
             <img src="./images/add.gif" style="cursor: pointer" id="ajaxaddmore_travelmanager/plantrip_finances_{$sequence}" alt="{$lang->add}"> Add Amount
             <input name="numrows_finances_{$sequence}" type="hidden" id="numrows_finances_{$sequence}" value="{$frowid}">
-            <input type='text' name='rowid' value='{$frowid}'>
         </div>
     </span>
 

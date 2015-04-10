@@ -111,5 +111,5 @@ $lang['anticipatedamount'] = 'Anticipated required amount needed in advance';
 $lang['stopdescription'] = 'Stops Description';
 $lang['roundtrip'] = 'Round-Trip';
 $lang['class'] = 'Class';
-
+$lang['saveandopenseg'] = 'Save And Open A New Segment';
 ?>
