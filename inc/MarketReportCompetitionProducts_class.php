@@ -3,20 +3,20 @@
  * Copyright © 2015 Orkila International Offshore, All Rights Reserved
  *
  * [Provide Short Descption Here]
- * $id: MarketReportCompetition_class.php
- * Created:        @rasha.aboushakra    Apr 9, 2015 | 10:09:13 AM
- * Last Update:    @rasha.aboushakra    Apr 9, 2015 | 10:09:13 AM
+ * $id: MarketReportCompetitionProducts_class.php
+ * Created:        @rasha.aboushakra    Apr 10, 2015 | 11:04:03 AM
+ * Last Update:    @rasha.aboushakra    Apr 10, 2015 | 11:04:03 AM
  */
 
-class MarketReportCompetition extends AbstractClass {
+class MarketReportCompetitionProducts extends AbstractClass {
     protected $data = array();
 
-    const PRIMARY_KEY = 'mrcid';
-    const TABLE_NAME = 'marketreport_competition';
+    const PRIMARY_KEY = 'mrcpid';
+    const TABLE_NAME = 'marketreport_competition_products';
     const DISPLAY_NAME = '';
     const SIMPLEQ_ATTRS = '*';
     const CLASSNAME = __CLASS__;
-    const UNIQUE_ATTRS = 'mrid,sid';
+    const UNIQUE_ATTRS = 'mrcid,pid,csid';
 
     public function __construct($id = '', $simple = true) {
         parent::__construct($id, $simple);
@@ -27,7 +27,7 @@ class MarketReportCompetition extends AbstractClass {
         if(empty($data)) {
             $data = $this->data;
         }
-        if(!isset($data['sid'])) {
+        if((empty($data['pid']) && empty($data['csid'])) || empty($data['mrcid'])) {
             return;
         }
         $db->insert_query(self::TABLE_NAME, $data);
@@ -40,14 +40,7 @@ class MarketReportCompetition extends AbstractClass {
         if(empty($data)) {
             $data = $this->data;
         }
-        if(!isset($data['sid'])) {
-            $mrcompetitionproducts = MarketReportCompetitionProducts::get_data(array('mrcid' => $this->data[self::PRIMARY_KEY]), array('returnarray' => true));
-            if(is_array($mrcompetitionproducts)) {
-                foreach($mrcompetitionproducts as $mrcompetitionproduct) {
-                    $mrcompetitionproduct->delete();
-                }
-            }
-            $this->delete();
+        if((empty($data['pid']) && empty($data['csid'])) || empty($data['mrcid'])) {
             return;
         }
         $db->update_query(self::TABLE_NAME, $data, self::PRIMARY_KEY.' = '.intval($this->data[self::PRIMARY_KEY]));
