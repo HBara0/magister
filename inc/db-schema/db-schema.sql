@@ -2052,10 +2052,18 @@ CREATE TABLE `marketreport_competition` (
   `mrcid` int(10) NOT NULL AUTO_INCREMENT,
   `mrid` int(10) NOT NULL,
   `sid` int(10) NOT NULL,
+  `inputChecksum` varchar(150) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`mrcid`)
+) ENGINE=MyISAM AUTO_INCREMENT=51 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+CREATE TABLE `marketreport_competition_products` (
+  `mrcpid` int(10) NOT NULL AUTO_INCREMENT,
+  `mrcid` int(10) NOT NULL,
   `pid` int(10) NOT NULL,
   `csid` int(10) NOT NULL,
-  PRIMARY KEY (`mrcid`)
-) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=latin1;
+  `inputChecksum` varchar(150) NOT NULL,
+  UNIQUE KEY `mrcpid` (`mrcpid`)
+) ENGINE=MyISAM AUTO_INCREMENT=78 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `meetings`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
