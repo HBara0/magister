@@ -14,7 +14,7 @@ class TravelManagerPlanFinance extends AbstractClass {
 
     const PRIMARY_KEY = 'tmpfid';
     const TABLE_NAME = 'travelmanager_plan_finance';
-    const SIMPLEQ_ATTRS = 'tmpfid,tmpsid,amount,currency';
+    const SIMPLEQ_ATTRS = '*';
     const UNIQUE_ATTRS = 'tmpsid,currency';
     const CLASSNAME = __CLASS__;
 

@@ -3,20 +3,15 @@
         <title>{$core->settings[systemtitle]} | {$lang->modifysitesettings}</title>
         {$headerinc}
         <script type="text/javascript">
-            $(function() {
-
-                $('.texteditor').redactor({imageUpload: rootdir + '/index.php?module=cms/managemenu&action=do_uploadtmpimage', imageUploadCallback:
-                function(obj, json) { $('#uploadedImages').val(json.filelink + ';' + $('#uploadedImages').val());}
-                });
-
-                $("input[type='radio'][id$='_type']").live('change', function() {
+            $(function () {
+                $("input[type='radio'][id$='_type']").live('change', function () {
                     var id = $(this).attr("id");
 
                     /*	if($(this).not($("div[id^='" + $(this).val() + "']"))) {
                      alert('hideee');
                      }// hide*/
                     /*go throw each select and input in hte main configuration  div we are hiding and  reset their value */
-                    $("div[id$=_configuration]").not([id ^= '" + $(this).val() + "']).find("select,input").each(function() {
+                    $("div[id$=_configuration]").not([id ^= '" + $(this).val() + "']).find("select,input").each(function () {
                         $(this).val(''), $(this).addClass("thead");
                     });
                     $("div[id$=_configuration]").not([id ^= '" + $(this).val() + "']).hide();
@@ -249,7 +244,7 @@
                     <div style="display:table-row">
                         <div style="display:table-cell;">{$lang->publishedDesc}</div>
                         <div style="display: table-cell; padding:5px;">
-                            <textarea name="menuitem[publishedDesc]" cols="50" class="texteditor" rows="15">{$menuitem[publishedDesc]}</textarea>
+                            <textarea name="menuitem[publishedDesc]" cols="50" class="txteditadv" rows="15" id="publishedDesc">{$menuitem[publishedDesc]}</textarea>
                         </div>
 
                     </div>

@@ -35,7 +35,7 @@ class Events extends AbstractClass {
             $this->errorcode = 1;
             return false;
         }
-        $fields = array('title', 'description', 'place', 'type', 'isPublic', 'publishOnWebsite', 'isFeatured');
+        $fields = array('title', 'description', 'place', 'boothNum', 'type', 'isPublic', 'publishOnWebsite', 'isFeatured');
         foreach($fields as $field) {
             $event_data[$field] = $data[$field];
         }
@@ -89,7 +89,7 @@ class Events extends AbstractClass {
             $this->errorcode = 1;
             return false;
         }
-        $fields = array('title', 'description', 'place', 'type', 'isPublic', 'publishOnWebsite', 'isFeatured');
+        $fields = array('title', 'description', 'place', 'boothNum', 'type', 'isPublic', 'publishOnWebsite', 'isFeatured', 'logo');
         foreach($fields as $field) {
             $event_data[$field] = $data[$field];
         }

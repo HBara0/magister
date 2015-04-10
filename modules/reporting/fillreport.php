@@ -39,6 +39,15 @@ if(!$core->input['action']) {
             }
         }
 
+        $readonly_fields = array('productname' => '', 'turnOver' => '', 'quantity' => '', 'soldQty' => '');
+        if($report_meta['auditor'] != '1') {
+            foreach($readonly_fields as $key => $val) {
+                $readonly_fields[$key] = ' readonly';
+            }
+
+            $selectlists_disabled = true;
+        }
+
         $saletypes = explode(';', $core->settings['saletypes']);
         foreach($saletypes as $key => $val) {
             $saletypes[$val] = ucfirst($val);
@@ -52,7 +61,7 @@ if(!$core->input['action']) {
 												WHERE year='{$core->input[year]}' AND r.quarter='{$core->input[quarter]}' AND r.affid='{$core->input[affid]}' AND r.spid='{$core->input[spid]}'"));
 
         $core->input['rid'] = $rid;
-
+        $qreport = new ReportingQr(array('rid' => $rid));
         /* Instantiate currencies object and get currencies rate of period - START */
         $core->input['baseCurrency'] = 'USD';
         $currency = new Currencies($core->input['baseCurrency']);
@@ -103,8 +112,8 @@ if(!$core->input['action']) {
 
         if(is_array($productsactivity)) {
             foreach($productsactivity as $rowid => $productactivity) {
-                $saletype_selectlist = parse_selectlist('productactivity['.$rowid.'][saleType]', 0, $saletypes, $productactivity['saleType']);
-                $currencyfx_selectlist = parse_selectlist('productactivity['.$rowid.'][fxrate]', 0, $currencies, 1, '', '', array('id' => 'fxrate_'.$rowid));
+                $saletype_selectlist = parse_selectlist('productactivity['.$rowid.'][saleType]', 0, $saletypes, $productactivity['saleType'], 0, null, array('disabled' => $selectlists_disabled));
+                $currencyfx_selectlist = parse_selectlist('productactivity['.$rowid.'][fxrate]', 0, $currencies, 1, '', '', array('id' => 'fxrate_'.$rowid, 'disabled' => $selectlists_disabled));
 
                 if(isset($productactivity['fxrate']) && $productactivity['fxrate'] != 1) {
                     $productactivity['turnOver'] = $productactivity['turnOver'] / $productactivity['fxrate'];
@@ -114,18 +123,20 @@ if(!$core->input['action']) {
                     $paid_field = '<input type="hidden" value="'.$productactivity['paid'].'" id="paid_'.$rowid.'" name="productactivity['.$rowid.'][paid]" />';
                 }
 
-
-                /* Integrate budget data --------START */
-
-                /* Integrate budget data --------END */
-
+                /* Get preview Q data */
+                $prev_productactivity = $db->fetch_assoc($db->query("SELECT pid, (SUM(soldQty) + ".$productactivity['soldQty'].") AS soldQty, (SUM(quantity) + ".$productactivity['soldQty'].") AS quantity, (SUM(turnOver) + ".$productactivity['soldQty'].") AS turnOver
+							FROM ".Tprefix."productsactivity pa
+							JOIN ".Tprefix."reports r ON (r.rid=pa.rid)
+							WHERE r.quarter<'".intval($qreport->quarter)."' AND r.year='".intval($qreport->year)."' AND r.affid='".intval($qreport->affid)."' AND r.spid='".intval($qreport->spid)."' AND pa.pid=".$productactivity['pid'].$query_string."
+                                                        GROUP BY pid"));
+                /* Get preview Q data - END */
                 eval("\$productsrows .= \"".$template->get('reporting_fillreports_productsactivity_productrow')."\";");
             }
         }
         else {
             for($rowid = 1; $rowid < $productscount; $rowid++) {
-                $saletype_selectlist = parse_selectlist('productactivity['.$rowid.'][saleType]', 0, $saletypes, 'distribution');
-                $currencyfx_selectlist = parse_selectlist('productactivity['.$rowid.'][fxrate]', 0, $currencies, 1, '', '', array('id' => 'fxrate_'.$rowid));
+                $saletype_selectlist = parse_selectlist('productactivity['.$rowid.'][saleType]', 0, $saletypes, 'distribution', 0, null, array('disabled' => $selectlists_disabled));
+                $currencyfx_selectlist = parse_selectlist('productactivity['.$rowid.'][fxrate]', 0, $currencies, 1, '', '', array('id' => 'fxrate_'.$rowid, 'disabled' => $selectlists_disabled));
 
                 eval("\$productsrows .= \"".$template->get('reporting_fillreports_productsactivity_productrow')."\";");
             }
@@ -279,14 +290,19 @@ if(!$core->input['action']) {
             }
         }
 
-        if(strpos(strtolower($_SERVER['HTTP_REFERER']), 'reporting/preview') === false) {
-            if($core->input['stage'] == 'marketreport') {
-                $keycustomersdata = serialize($core->input);
-                $session->set_phpsession(array('keycustomersdata_'.$identifier => $keycustomersdata));
-            }
+//        if(strpos(strtolower($_SERVER['HTTP_REFERER']), 'reporting/preview') === false) {
+//            if($core->input['stage'] == 'marketreport') {
+//                $keycustomersdata = serialize($core->input);
+//                $session->set_phpsession(array('keycustomersdata_'.$identifier => $keycustomersdata));
+//            }
+//        }
+
+        if(strpos(strtolower($_SERVER['HTTP_REFERER']), 'productsactivity') !== false) {
+            $productsactivitydata = serialize($core->input);
+            $session->set_phpsession(array('productsactivitydata_'.$identifier => $productsactivitydata));
         }
 
-        $rid = $db->escape_string($core->input['rid']);
+        $rid = intval($core->input['rid']);
         if(value_exists('marketreport', 'rid', $core->input['rid'])) {
             $ischecked = array();
             $query = $db->query("SELECT mr.*, r.quarter, r.year, r.spid, r.affid
@@ -463,7 +479,7 @@ else {
         echo $years_list;
     }
     elseif($core->input['action'] == 'save_productsactivity') {
-        $rid = $db->escape_string($core->input['rid']);
+        $rid = intval($core->input['rid']);
         $identifier = $db->escape_string($core->input['identifier']);
         $numrows = intval($core->input['numrows']);
 
@@ -477,8 +493,10 @@ else {
         if($validation != true || is_array($validation)) {
             $corrections_output = '<table width="100%" class="datatable">';
             $corrections_output .= '<tr><th width="50%">'.$lang->product.'</th><th width="20%">'.$lang->purchaseamount.'</th><th width="20%">'.$lang->quantity.'</th></tr>';
-            foreach($validation as $corrections) {
-                $corrections_output .= '<tr><td>'.$corrections['name'].'</td><td>'.$corrections['sales'].'</td><td>'.$corrections['quantity'].'</td></tr>';
+            if(is_array($validation)) {
+                foreach($validation as $corrections) {
+                    $corrections_output .= '<tr><td>'.$corrections['name'].'</td><td>'.$corrections['sales'].'</td><td>'.$corrections['quantity'].'</td></tr>';
+                }
             }
             $corrections_output .= '</table>';
             output_xml('<status>false</status><message>'.$lang->wrongforecastsexist.' <![CDATA['.$corrections_output.']]></message>');
@@ -620,8 +638,7 @@ else {
         }
     }
     elseif($core->input['action'] == 'save_marketreport') {
-        unset($core->input['ajaxaddmoredata']);
-        $rid = $db->escape_string($core->input['rid']);
+        $rid = intval($core->input['rid']);
         $identifier = $db->escape_string($core->input['identifier']);
         if(!empty($val['exclude']) && $val['exclude'] == 1) {
             $marketreport_data[$key]['exclude'] = $val['exclude'];
@@ -634,6 +651,8 @@ else {
             $section_allempty = true;
 
             if(isset($val['exclude']) && $val['exclude'] == 1) {
+                $db->query('DELETE FROM '.Tprefix.'marketreport_authors WHERE mrid=(SELECT mrid FROM '.Tprefix.'marketreport WHERE rid='.$rid.' AND psid='.$key.')');
+                $db->query('DELETE FROM '.Tprefix.'marketreport WHERE rid='.$rid.' AND psid='.$key);
                 continue;
             }
 
@@ -641,12 +660,9 @@ else {
             if($found_one == false) {
                 if(!empty($val)) {
                     foreach($val as $k => $v) {
-                        if($k == 'suppliers') {
-                            continue;
-                        }
-                        $v = preg_replace(array('/\s/', '~\x{00a0}~siu'), '', $core->sanitize_inputs($v, array('method' => 'striponly', 'allowable_tags' => '', 'removetags' => true)));
+                        $v = $core->sanitize_inputs(preg_replace(array('~\x{00a0}~siu', '/\s/'), '', $v), array('method' => 'striponly', 'allowable_tags' => '', 'removetags' => true));
                         if($section_allempty == true) {
-                            if(!in_array(strtolower(trim($v)), $emtpy_terms) && !preg_match('/^[n;.,-_+\*]+$/', $v)) {
+                            if(!in_array(strtolower($v), $emtpy_terms) && !preg_match('/^[n;.,-_+\*]+$/', $v)) {
                                 $section_allempty = false;
                             }
                         }
@@ -685,10 +701,7 @@ else {
 
         foreach($marketreport_data as $val) {
             foreach($val as $k => $v) {
-                if($k == 'suppliers') {
-                    continue;
-                }
-                $val[$k] = $core->sanitize_inputs($v, array('method' => 'striponly', 'allowable_tags' => '<table><tbody><tr><td><th><thead><tfoot><span><div><a><br><p><b><i><del><strike><img><blockquote><mark><cite><small><ul><ol><li><hr><dl><dt><dd><sup><sub><big><pre><figure><figcaption><strong><em><h1><h2><h3><h4><h5><h6>', 'removetags' => true));
+                $val[$k] = $core->sanitize_inputs(trim($v), array('method' => 'striponly', 'allowable_tags' => '<table><tbody><tr><td><th><thead><tfoot><span><div><a><br><p><b><i><del><strike><img><blockquote><mark><cite><small><ul><ol><li><hr><dl><dt><dd><sup><sub><big><pre><figure><figcaption><strong><em><h1><h2><h3><h4><h5><h6>', 'removetags' => true));
             }
 
             $competitorsuppliers_data = $val['suppliers'];
@@ -810,7 +823,7 @@ else {
 
         $report_meta = unserialize($session->get_phpsession('reportmeta_'.$identifier));
 
-        $report_meta['rid'] = $db->escape_string($report_meta['rid']);
+        $report_meta['rid'] = intval($report_meta['rid']);
 
         $report = new ReportingQr(array('rid' => $report_meta['rid']));
         $currencies = unserialize($session->get_phpsession('reportcurrencies_'.$identifier));
@@ -833,12 +846,12 @@ else {
                 exit;
             }
         }
-        if(empty($report_meta['excludeKeyCustomers'])) {
-            if(empty($rawdata['keycustomersdata'])) {
-                output_xml("<status>false</status><message>{$lang->keycustomersempty}</message>");
-                exit;
-            }
-        }
+//        if(empty($report_meta['excludeKeyCustomers'])) {
+//            if(empty($rawdata['keycustomersdata'])) {
+//                output_xml("<status>false</status><message>{$lang->keycustomersempty}</message>");
+//                exit;
+//            }
+//        }
 
         if($report_meta['auditor'] != '1') {
             $products_deletequery_string = ' AND (uid='.$core->user['uid'].' OR uid=0)';
@@ -901,17 +914,17 @@ else {
             $db->query("DELETE FROM ".Tprefix."productsactivity WHERE rid='{$report_meta[rid]}'".$products_deletequery_string);
         }
 
-        $db->query("DELETE FROM ".Tprefix."keycustomers WHERE rid='{$report_meta[rid]}'");
-        if(empty($report_meta['excludeKeyCustomers'])) {
-            if(is_array($rawdata['keycustomersdata'])) {
-                foreach($rawdata['keycustomersdata'] as $rank => $newdata) {
-                    $newdata['rid'] = $report_meta['rid'];
-                    $newdata['rank'] = $rank;
-                    unset($newdata['companyName']);
-                    $db->insert_query('keycustomers', $newdata);
-                }
-            }
-        }
+//        $db->query("DELETE FROM ".Tprefix."keycustomers WHERE rid='{$report_meta[rid]}'");
+//        if(empty($report_meta['excludeKeyCustomers'])) {
+//            if(is_array($rawdata['keycustomersdata'])) {
+//                foreach($rawdata['keycustomersdata'] as $rank => $newdata) {
+//                    $newdata['rid'] = $report_meta['rid'];
+//                    $newdata['rank'] = $rank;
+//                    unset($newdata['companyName']);
+//                    $db->insert_query('keycustomers', $newdata);
+//                }
+//            }
+//        }
 
         $emtpy_terms = array('na', 'n/a', 'none', 'nothing', 'nothing to mention');
         $marketreport_found_one = false;
@@ -925,7 +938,7 @@ else {
             if($marketreport_found_one == false) {
                 if(!empty($val)) {
                     foreach($val as $k => $v) {
-                        $v = preg_replace(array('/\s/', '~\x{00a0}~siu'), '', $core->sanitize_inputs($v, array('method' => 'striponly', 'allowable_tags' => '', 'removetags' => true)));
+                        $v = $core->sanitize_inputs(preg_replace(array('~\x{00a0}~siu', '/\s/'), '', $v), array('method' => 'striponly', 'allowable_tags' => '', 'removetags' => true));
                         if($section_allempty == true) {
                             if(!in_array(strtolower(trim($v)), $emtpy_terms) && !preg_match('/^[n;.,-_+\*]+$/', $v)) {
                                 $section_allempty = false;
@@ -958,15 +971,17 @@ else {
         //$rawdata['marketreportdata']['rid'] = $rawdata['rid'];
         if(is_array($rawdata['marketreportdata']) && !empty($rawdata['marketreportdata'])) {
             foreach($rawdata['marketreportdata'] as $psid => $val) {
+                $val['psid'] = $psid;
                 if($val['exclude']) {
+                    $db->query('DELETE FROM '.Tprefix.'marketreport_authors WHERE mrid=(SELECT mrid FROM '.Tprefix.'marketreport WHERE rid='.$report_meta['rid'].' AND psid='.$val['psid'].')');
+                    $db->query('DELETE FROM '.Tprefix.'marketreport WHERE rid='.$report_meta['rid'].' AND psid='.$val['psid']);
                     continue;
                 }
 
                 unset($val['segmenttitle'], $val['exclude']);
                 foreach($val as $k => $v) {
-                    $val[$k] = $core->sanitize_inputs($v, array('method' => 'striponly', 'allowable_tags' => '<table><tbody><tr><td><th><thead><tfoot><span><div><a><br><p><b><i><del><strike><img><blockquote><mark><cite><small><ul><ol><li><hr><dl><dt><dd><sup><sub><big><pre><figure><figcaption><strong><em><h1><h2><h3><h4><h5><h6>', 'removetags' => true));
+                    $val[$k] = $core->sanitize_inputs(trim($v), array('method' => 'striponly', 'allowable_tags' => '<table><tbody><tr><td><th><thead><tfoot><span><div><a><br><p><b><i><del><strike><img><blockquote><mark><cite><small><ul><ol><li><hr><dl><dt><dd><sup><sub><big><pre><figure><figcaption><strong><em><h1><h2><h3><h4><h5><h6>', 'removetags' => true));
                 }
-                $val['psid'] = $psid;
 
                 if(value_exists('marketreport', 'rid', $report_meta['rid'], 'psid="'.$val['psid'].'"')) {
                     $db->update_query('marketreport', $val, "rid='{$report_meta[rid]}' AND psid='{$val[psid]}'");
@@ -1008,9 +1023,9 @@ else {
         if(!empty($report_meta['excludeProductsActivity'])) {
             $new_status['prActivityAvailable'] = 0;
         }
-        if(!empty($report_meta['excludeKeyCustomers'])) {
-            $new_status['keyCustAvailable'] = 0;
-        }
+//        if(!empty($report_meta['excludeKeyCustomers'])) {
+//            $new_status['keyCustAvailable'] = 0;
+//        }
 
         $update_status = $db->update_query('reports', $new_status, "rid='{$report_meta[rid]}'");
         if($update_status) {

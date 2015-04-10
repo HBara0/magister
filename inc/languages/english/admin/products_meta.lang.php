@@ -46,4 +46,13 @@ $lang['errordeleting'] = "An error occured while deleting the product";
 $lang['selectchemical'] = 'Select Chemical';
 $lang['user'] = 'User';
 $lang['date'] = 'Date';
+$lang['titleabbreviation'] = 'Title Abbreviation';
+$lang['category'] = 'Category';
+$lang['publishonweb'] = 'Publsih On Website';
+$lang['largebanner'] = 'Large Banner';
+$lang['smallbanner'] = 'Small Banner';
+$lang['mediumbanner'] = 'Medium Banner';
+$lang['slogan'] = 'Slogan';
+$lang['shortdesc'] = 'Short Description';
+$lang['brandingcolor'] = 'Branding Color';
 ?>

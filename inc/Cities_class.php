@@ -175,8 +175,9 @@ class Cities extends AbstractClass {
             $currencies[] = $destcity_obj->get_country()->get_maincurrency();
             $currencies[] = $mainaffobj->get_country()->get_maincurrency();
             $currencies[] = new Currencies(840, true);
+            $currencies[] = new Currencies(978, true);
             $currencies = array_unique($currencies);
-            $currencies_list .= parse_selectlist('segment['.$sequence.'][tmtcid]['.$transpdata['inputChecksum'].'][currency]', 4, $currencies, '840');
+            $currencies_list = parse_selectlist('segment['.$sequence.'][tmtcid]['.$transpdata['inputChecksum'].'][currency]', 4, $currencies, '840');
             eval("\$transcategments_output = \"".$template->get('travelmanager_plantrip_segment_transtypefields')."\";");
             //  eval("\$transsegments_output .= \"".$template->get('travelmanager_plantrip_segment_transptype')."\";");
             return '<tr><td>'.$transcategments_output.'</td></tr>';

@@ -12,7 +12,7 @@
             <div style="float:right;" class="subtitle"><a href="#" id="showpopup_creteapplication" class="showpopup"><img src="{$core->settings[rootdir]}/images/addnew.png" border="0">{$lang->create}</a></div>
             <table class="datatable">
                 <thead>
-                    <tr>   
+                    <tr>
                         <th>{$lang->name} <a href="{$sort_url}&amp;sortby=name&amp;order=ASC"><img src="../images/sort_asc.gif" border="0" alt="{$lang->sortasc}"/></a><a href="{$sort_url}&amp;sortby=name&amp;order=DESC"><img src="../images/sort_desc.gif" border="0"  alt="{$lang->sortdesc}"/></a></th>
                         <th>{$lang->title} <a href="{$sort_url}&amp;sortby=title&amp;order=ASC"><img src="../images/sort_asc.gif" border="0" alt="{$lang->sortasc}"/></a><a href="{$sort_url}&amp;sortby=title&amp;order=DESC"><img src="../images/sort_desc.gif" border="0"  alt="{$lang->sortdesc}"/></a></th>
                         <th>{$lang->segment}  <a href="{$sort_url}&amp;sortby=title&amp;order=ASC"><img src="../images/sort_asc.gif" border="0" alt="{$lang->sortasc}"/></a><a href="{$sort_url}&amp;sortby=title&amp;order=DESC"><img src="../images/sort_desc.gif" border="0"  alt="{$lang->sortdesc}"/></a></th>
@@ -36,30 +36,6 @@
         </td>
     </tr>
     {$footer}
-
-    <div id="popup_creteapplication"  title="{$lang->create}">
-        <form action="#" method="post" id="perform_products/applications_Form" name="perform_products/applications_Form">
-            <input type="hidden" name="action" value="do_create" />
-            <table cellpadding='0' cellspacing='0' width='100%'>
-                <tr>
-                    <td width="40%"><strong>{$lang->name}</strong></td><td> <input name="segmentapplications[title]"  type="text"/></td>
-                </tr>
-                <tr>
-                    <td width="40%"><strong>{$lang->segment}</strong></td><td><select name="segmentapplications[psid]">{$segments_list}</select></td>
-                </tr>
-                <tr><td colspan="2"><hr /></td></tr>
-                <tr>
-                    <td><strong>{$lang->functions}</strong></td><td><select name="segmentapplications[segappfunctions][]" multiple="true">{$checmicalfunctions_list}</select></td>
-                </tr>
-                <tr>
-                    <td colspan="2" align="left">
-                        <hr />
-                        <input type='button' id='perform_products/applications_Button' value='{$lang->savecaps}' class='button'/>
-                        <div id="perform_products/applications_Results"></div>
-                    </td>
-                </tr>
-            </table>
-        </form>
-    </div>
+    {$dialog_managerapplication}
 </body>
 </html>

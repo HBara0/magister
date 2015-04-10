@@ -665,7 +665,10 @@ CREATE TABLE `calendar_events` (
   `fromDate` bigint(30) NOT NULL,
   `toDate` bigint(30) NOT NULL,
   `place` varchar(300) DEFAULT NULL,
+  `boothNum` varchar(10) DEFAULT NULL,
   `type` smallint(1) NOT NULL,
+  `logo` varchar(220) DEFAULT NULL,
+  `refreshLogoOnWebsite` tinyint(1) NOT NULL DEFAULT '0',
   `affid` smallint(5) DEFAULT NULL,
   `spid` int(10) DEFAULT NULL,
   `uid` int(10) NOT NULL,
@@ -3521,11 +3524,14 @@ CREATE TABLE `travelmanager_plan_transps` (
   `modifiedBy` int(10) NOT NULL,
   `currency` int(4) NOT NULL,
   `inputChecksum` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
+  `isRoundTrip` tinyint(1) NOT NULL DEFAULT '0',
+  `stopDescription` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `class` int(10) NOT NULL,
   PRIMARY KEY (`tmpltid`,`tmpsid`,`tmtcid`),
   KEY `tmpltid` (`tmpltid`),
   KEY `tmtcid` (`tmtcid`),
   KEY `tmpltid_2` (`tmpltid`)
-) ENGINE=MyISAM AUTO_INCREMENT=544 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `travelmanager_transpcategories`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;

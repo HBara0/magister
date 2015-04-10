@@ -1,7 +1,7 @@
 <?php
 /*
  * Copyright © 2013 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * Meeting Minutes of Meeting Class
  * $id: MeetingsMOM_class.php
  * Created:        @zaher.reda    Nov 15, 2013 | 12:54:20 PM
@@ -55,7 +55,7 @@ class MeetingsMOM {
 
         $query = $db->update_query('meetings_minsofmeeting', array('meetingDetails' => $mom_data['meetingDetails'], 'followup' => $mom_data['followup'], 'modifiedBy' => $mom_data['modifiedBy'], 'modifiedOn' => $mom_data['modifiedOn']), 'momid='.$db->escape_string($this->mom['momid']).'');
         if($query) {
-            $this->errorcode = 2;
+            $this->errorcode = 0;
             $log->record('updatedmom', $this->mom_data['mtid']);
         }
     }

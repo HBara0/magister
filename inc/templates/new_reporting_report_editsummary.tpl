@@ -4,14 +4,14 @@
     <input type="hidden" value="{$session_identifier}" name="identifier"/>
     <table style="width:100%;">
         <tr><td colspan="2" class="thead">{$lang->reportsummary}</td></tr>
-        <tr><td><textarea name="summary" cols="50" rows="30" class="texteditormin" required="required">{$report[summary][summary]}</textarea></td></tr>
+        <tr><td><textarea name="summary" cols="50" rows="30" class="txteditadv" required="required" id='summary'>{$report[summary][summary]}</textarea></td></tr>
         <tr><td>{$fillsummary_msg}</td></tr>
         <tr>
-            <td>  
-                <input type="submit" value="{$lang->save}" class="button"> <input type="reset" value="{$lang->reset}" class="button">           
-                <div style="display:block;" id="perform_reporting/newpreview_Results"></div>   
+            <td>
+                <input type="submit" value="{$lang->save}" class="button"> <input type="reset" value="{$lang->reset}" class="button">
+                <div style="display:block;" id="perform_reporting/newpreview_Results"></div>
             </td>
-        </tr>    
+        </tr>
     </table>
 </form>
-<hr /> 
+<hr />

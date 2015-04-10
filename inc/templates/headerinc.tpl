@@ -9,9 +9,11 @@
 <link href="{$core->settings[rootdir]}/css/styles.css" rel="stylesheet" type="text/css" />
 <link href='{$core->settings[rootdir]}/css/jqueryuitheme/jquery-ui-current.custom.min.css' rel='stylesheet' type='text/css' />
 <link href='{$core->settings[rootdir]}/css/jquery.qtip.min.css' rel='stylesheet' type='text/css' />
+<script src="{$core->settings[rootdir]}/js/ckeditor/ckeditor.js"></script>
 <script type="text/javascript">
     var loading_text = "{$lang->loading}";
     var imagespath = "{$core->settings[rootdir]}/images/";
     var rootdir = "{$core->settings[rootdir]}/";
+    window.CKEDITOR_BASEPATH = '{$core->settings[rootdir]}/js/ckeditor';
     var cookie_prefix = "{$core->settings[cookie_prefix]}";
 </script>{$additional_inc}

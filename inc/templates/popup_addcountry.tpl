@@ -8,7 +8,7 @@
                 <td width="40%"><strong>{$lang->name}</strong></td><td><input type="text" id="countryName" name="country[name]" value="{$country['name']}" tabindex="1"/></td>
             </tr>
             <tr>
-                <td><strong>{$lang->acronym}</strong></td><td><input type="text" id="acronym" name="country[acronym]" value="{$country['acronym']}" tabindex="1"/></td>
+                <td><strong>{$lang->acronym}</strong></td><td><input type="text" maxlength="2" id="acronym" name="country[acronym]" value="{$country['acronym']}" tabindex="1"/></td>
             </tr>
             <tr>
                 <td><strong>{$lang->affiliate}</strong></td><td>{$affiliates_list}</td>

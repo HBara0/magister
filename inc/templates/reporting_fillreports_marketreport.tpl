@@ -3,11 +3,6 @@
         <title>{$core->settings[systemtitle]} | {$lang->marketreport} - Q{$report_meta[quarter]} {$report_meta[year]} / {$report_meta[supplier]} - {$report_meta[affiliate]}</title>
         {$headerinc}
         <script src="{$core->settings[rootdir]}/js/fillreport.js" type="text/javascript"></script>
-        <style>
-            .redactor_editor {
-                width:550px;
-            }
-        </style>
     </head>
     <body>
         {$header}
@@ -22,10 +17,10 @@
                 <table width="100%" class="datatable">
                     {$markerreport_fields}
                     <tr>
-                        <td colspan="2"><div id="save_marketreport_reporting/fillreport_Results"></div></td>
                         <td style="text-align:right !important;">
-                            <input type="button" value="{$lang->prevcaps}" class="button" onClick="goToURL('index.php?module=reporting/fillreport&amp;stage=keycustomers&amp;identifier={$core->input[identifier]}');" /> <input type="button" id="save_marketreport_reporting/fillreport_Button" value="{$lang->savecaps}" class="button"/> <input type="submit" value="{$lang->nextcaps}" class="button" onClick='$("form:first").unbind("submit").trigger("submit");'/> <br />
+                            <input type="button" value="{$lang->prevcaps}" class="button" onClick="goToURL('index.php?module=reporting/fillreport&amp;stage=productsactivity&amp;identifier={$core->input[identifier]}');" /> <input type="button" id="save_marketreport_reporting/fillreport_Button" value="{$lang->savecaps}" class="button"/> <input type="submit" value="{$lang->nextcaps}" class="button" onClick='$("form:first").unbind("submit").trigger("submit");'/> <br />
                             <div style="text-align:right; font-style:italic;"><input type="checkbox" name="isDone" id="isDone" value="1" title="{$lang->isdone_tip}"> {$lang->finishedmypart}</div>
+                            <div id="save_marketreport_reporting/fillreport_Results"></div>
                         </td>
                     </tr>
                 </table>

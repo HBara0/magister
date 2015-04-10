@@ -2,27 +2,27 @@
     <tr><td colspan="2" class="thead">{$visitdetails[comments][$val][suppliername]}<input type="hidden" value="{$visitdetails[comments][$val][suppliername]}" name="comments[$val][suppliername]"></td></tr>
     <tr>
         <td width="30%">{$lang->productsdiscussed}</td>
-        <td><textarea cols="50" rows="3" name="comments[$val][productsDiscussed]" id="productsDiscussed_{$val}" class="texteditormin">{$visitdetails[comments][$val][productsDiscussed]}</textarea></td>
+        <td><textarea cols="50" rows="3" name="comments[$val][productsDiscussed]" id="productsDiscussed_{$val}" class="txteditadv">{$visitdetails[comments][$val][productsDiscussed]}</textarea></td>
     </tr>
     <tr>
         <td width="30%">{$lang->offersmade}</td>
-        <td><textarea cols="50" rows="3" name="comments[$val][offersMade]" id="offersMade_{$val}" class="texteditormin">{$visitdetails[comments][$val][offersMade]}</textarea></td>
+        <td><textarea cols="50" rows="3" name="comments[$val][offersMade]" id="offersMade_{$val}" class="txteditadv">{$visitdetails[comments][$val][offersMade]}</textarea></td>
     </tr>
     <tr>
         <td width="30%">{$lang->newprojectcustomer}</td>
-        <td><textarea cols="50" rows="3" name="comments[$val][newProjCustomer]" id="newProjCustomer_{$val}" class="texteditormin">{$visitdetails[comments][$val][newProjCustomer]}</textarea></td>
+        <td><textarea cols="50" rows="3" name="comments[$val][newProjCustomer]" id="newProjCustomer_{$val}" class="txteditadv">{$visitdetails[comments][$val][newProjCustomer]}</textarea></td>
     </tr>
     <!--<tr>
         <td>{$lang->opportunitiescustomer}</td>
-        <td><textarea cols="50" rows="3" name="comments[$val][opportunitiesCustomer]" id="opportunitiesCustomer_{$val}" class="texteditormin">{$visitdetails[comments][$val][opportunitiesCustomer]}</textarea></td>
+        <td><textarea cols="50" rows="3" name="comments[$val][opportunitiesCustomer]" id="opportunitiesCustomer_{$val}" class="txteditadv">{$visitdetails[comments][$val][opportunitiesCustomer]}</textarea></td>
     </tr>-->
     <tr>
         <td>{$lang->conclusions}</td>
-        <td><textarea cols="50" rows="3" name="comments[$val][conclusions]" id="conclusions_{$val}" class="texteditormin">{$visitdetails[comments][$val][conclusions]}</textarea></td>
+        <td><textarea cols="50" rows="3" name="comments[$val][conclusions]" id="conclusions_{$val}" class="txteditadv">{$visitdetails[comments][$val][conclusions]}</textarea></td>
     </tr>
     <tr>
         <td>{$lang->followup}</td>
-        <td><textarea cols="50" rows="3" name="comments[$val][followUp]" id="followUp_{$val}" class="texteditormin">{$visitdetails[comments][$val][followUp]}</textarea></td>
+        <td><textarea cols="50" rows="3" name="comments[$val][followUp]" id="followUp_{$val}" class="txteditadv">{$visitdetails[comments][$val][followUp]}</textarea></td>
     </tr>
     <tr>
         <td>{$lang->markastask}</td>
