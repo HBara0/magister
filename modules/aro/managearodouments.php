@@ -35,7 +35,7 @@ if(!($core->input['action'])) {
         error($lang->missingconfigurations.' (Purchase Types)');
     }
     $dal_config = array('returnarray' => true);
-    $inspections = array('inspection1' => 'inspection');
+    $inspections = array('inspection1' => 'inspection', 'Pre-Shipment' => 'Pre-Shipment', ' Post-Shipment' => ' Post-Shipment', 'Pre and Post Shipment' => 'Pre and Post Shipment', ' To Be Advised Later' => ' To Be Advised Later', 'none' => 'none');
     $payment_terms = PaymentTerms::get_data('', $dal_config);
     $segments = ProductsSegments::get_segments('');
     $packaging = Packaging::get_data('name IS NOT NULL', $dal_config);
@@ -675,7 +675,7 @@ else {
             if($data['intermedPeriodOfInterest'] < 0) {
                 $data['intermedPeriodOfInterest'] = 0;
             }
-
+            $data['localPeriodOfInterest'] = 0;
             if(isset($core->input['est_local_pay']) && !empty($core->input['est_local_pay'])) {
                 $data['localPeriodOfInterest'] = date_diff(date_create($partiesinfo['intermedEstDateOfPayment_output']), date_create($core->input['est_local_pay']));
                 $data['localPeriodOfInterest'] = $data['localPeriodOfInterest']->format("%r%a");
@@ -688,7 +688,6 @@ else {
         if(is_object($purchasetype)) {
             if($purchasetype->isPurchasedByEndUser == 1) {
                 $data['localPeriodOfInterest'] = 0;
-                ;
             }
         }
         $partiesinfo_data = array('pickDate_vendor_estdateofpayment' => $partiesinfo['vendorEstDateOfPayment_formatted'],
@@ -711,15 +710,23 @@ else {
 
         $i = 0;
         foreach($qtyperunit as $qty) {
+            if(empty($qty)) {
+                continue;
+            }
             $i++;
             $qty = split(':', $qty);
             $uom = new Uom($qty[0]);
             $qtyperunit_array[$i] = $qty[1]."/".$uom->get_displayname();
             $avgqty[$i] = $qty[1];
         }
-        $quantityperuom = implode("\n", $qtyperunit_array);
+        if(is_array($qtyperunit_array)) {
+            $quantityperuom = implode("\n", $qtyperunit_array);
+        }
         $i = 0;
         foreach($feeperunit as $fee) {
+            if(empty($fee)) {
+                continue;
+            }
             $i++;
             $fee = split(':', $fee);
             $uom = new Uom($fee[0]);
@@ -734,9 +741,15 @@ else {
                 $unitfee +=$avgfee[$j] / $avgqty[$j];  //(total Fee per unit /total qty per unit)
             }
         }
-        $unitfee = $unitfee / $i; // unit fee=avg. of unit fees = $unitfee/(number of units)
-        $feeperunit_array = implode("\n", $feeperunit_array);
-        $feeperunit_usdarray = implode("\n", $feeperunit_usdarray);
+        if($i != 0) {
+            $unitfee = $unitfee / $i; // unit fee=avg. of unit fees = $unitfee/(number of units)
+        }
+        if(is_array($feeperunit_array)) {
+            $feeperunit_array = implode("\n", $feeperunit_array);
+        }
+        if(is_array($feeperunit_usdarray)) {
+            $feeperunit_usdarray = implode("\n", $feeperunit_usdarray);
+        }
 
         $localinvoicevalue = $core->input['invoicevalue_local'];
         $purchaseype = new PurchaseTypes($core->input['ptid']);

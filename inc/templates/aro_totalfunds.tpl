@@ -5,19 +5,19 @@
         <tbody style="width:100%;">
             <tr>
                 <td>{$lang->ordershpinvoverdue}</td>
-                <td><input type="number" step="1" name="totalfunds[orderShpInvOverdue]" id="totalfunds_orderShpInvOverdue" value="{$totalfunds->orderShpInvOverdue}" style="width:100px;"/></td>
+                <td><input type="number" step="any" name="totalfunds[orderShpInvOverdue]" id="totalfunds_orderShpInvOverdue" value="{$totalfunds->orderShpInvOverdue}" style="width:100px;"/></td>
                 <td>{$lang->ordersappawaitingshp}</td>
-                <td><input type="number"  step="1" name="totalfunds[ordersAppAwaitingShp]" id="totalfunds_ordersAppAwaitingShp" value="{$totalfunds->ordersAppAwaitingShp}" style="width:100px;"/></td>
+                <td><input type="number"  step="any" name="totalfunds[ordersAppAwaitingShp]" id="totalfunds_ordersAppAwaitingShp" value="{$totalfunds->ordersAppAwaitingShp}" style="width:100px;"/></td>
             </tr>
             <tr>
                 <td>{$lang->ordershpinvnotdue}</td>
-                <td><input type="number"  step="1" name="totalfunds[orderShpInvNotDue]" id="totalfunds_orderShpInvNotDue" value="{$totalfunds->orderShpInvNotDue}" style="width:100px;"/></td>
+                <td><input type="number"  step="any" name="totalfunds[orderShpInvNotDue]" id="totalfunds_orderShpInvNotDue" value="{$totalfunds->orderShpInvNotDue}" style="width:100px;"/></td>
                 <td>{$lang->oderswaitingapproval}</td>
-                <td><input type="number"  step="1" name="totalfunds[odersWaitingApproval]" id="totalfunds_odersWaitingApproval" value="{$totalfunds->odersWaitingApproval}" style="width:100px;"/></td>
+                <td><input type="number"  step="any" name="totalfunds[odersWaitingApproval]" id="totalfunds_odersWaitingApproval" value="{$totalfunds->odersWaitingApproval}" style="width:100px;"/></td>
             </tr>
             <tr class="altrow">
                 <td style="font-weight:bold;">{$lang->totalfundseng}</td>
-                <td><input type="number"  step="1" name="totalfunds[totalFunds]" id="totalfunds_total" value="{$totalfunds->totalFunds}" style="width:100px;"/></td>
+                <td><input type="number"  step="any" name="totalfunds[totalFunds]" id="totalfunds_total" value="{$totalfunds->totalFunds}" style="width:100px;"/></td>
             </tr>
         </tbody>
 
