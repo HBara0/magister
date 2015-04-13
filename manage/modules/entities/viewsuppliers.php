@@ -83,11 +83,10 @@ elseif($core->input['action'] == 'perform_mergeanddeleteentities') {
         exit;
     }
     $oldid = intval($core->input['todelete']);
-    $supplier_columns = array('ssid', 'spid', 'companyName');
+    $supplier_columns = array('eid', 'ssid', 'spid', 'companyName');
     foreach($supplier_columns as $column) {
         $tables[$column] = $db->get_tables_havingcolumn($column);
     }
-    exit;
     if(is_array($tables)) {
         foreach($tables as $key => $columntables) {
             if(is_array($columntables)) {
