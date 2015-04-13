@@ -145,8 +145,6 @@ class TravelManagerPlanSegments extends AbstractClass {
                 $hoteldata['numNights'] = $hotel['numNights'];
                 $hoteldata['paidBy'] = $hotel['entites'];
                 $hoteldata['paidById'] = $hotel['paidById'];
-                $hoteldata['address'] = $hotel['address'];
-                $hoteldata['phone'] = $hotel['phone'];
                 $accod_obj = new TravelManagerPlanaccomodations();
                 $accod_obj->set($hoteldata);
                 $accod_obj->save();
@@ -287,8 +285,6 @@ class TravelManagerPlanSegments extends AbstractClass {
                     $hoteldata['currency'] = $hotel['currency'];
                     $hoteldata['paidBy'] = $hotel['entites'];
                     $hoteldata['paidById'] = $hotel['paidById'];
-                    $hoteldata['address'] = $hotel['address'];
-                    $hoteldata['phone'] = $hotel['phone'];
                     $accod_obj = new TravelManagerPlanaccomodations();
                     $accod_obj->set($hoteldata);
                     $accod_obj->save();
