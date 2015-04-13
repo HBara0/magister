@@ -20,7 +20,7 @@ if(!$core->input['action']) {
 
             $plan->displayName = $plan->get_leave()->get_type()->name.' - '.$plan->get_leave()->get_country()->get()['name'];
             $employee = $plan->get_createdBy()->get()['displayName'];
-            if(!empty($plan->createdOn)) {
+            if(strlen($plan->createdOn) > 0) {
                 $createdon = date($core->settings['dateformat'], $plan->createdOn);
             }
 

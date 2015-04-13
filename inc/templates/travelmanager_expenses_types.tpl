@@ -1,4 +1,5 @@
 <tr class="{$altrow}"  style="border:1px gainsboro solid;"id="{$sequence}_{$rowid}"><td>
+        <hr>
         <div style="display:inline-block;padding:5px;width:20%;">{$lang->exptype} </div>
         <div style="display:inline-block;width:70%;"><select id="segment_expensestype_{$sequence}_{$rowid}" name='segment[{$sequence}][expenses][{$rowid}][tmetid]'   {$onchange_actions}>{$expenses_options}</select></div>
         <div style="display:block;padding:5px">
