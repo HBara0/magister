@@ -77,7 +77,7 @@ $(function() {
     initialize_texteditors();
     function initialize_texteditors() {
         if($(".inlinetxteditadv").length > 0) {
-            $(".inlinetxteditadv").each(function () {
+            $(".inlinetxteditadv").each(function() {
                 var id = $(this).attr('id');
                 try {
                     if(CKEDITOR.instances[id]) {
@@ -93,7 +93,7 @@ $(function() {
         }
 
         if($(".txteditadv").length > 0) {
-            $(".txteditadv").each(function () {
+            $(".txteditadv").each(function() {
                 var id = $(this).attr('id');
                 try {
                     if(CKEDITOR.instances[id]) {
@@ -550,7 +550,7 @@ $(function() {
                 );
     }
 
-    $("a[id$='_loadpopupbyid'],a[id^='mergeanddelete_'][id$='_icon'],a[id^='revokeleave_'][id$='_icon'],a[id^='approveleave_'][id$='_icon']").live('click', function () {
+    $("a[id$='_loadpopupbyid'],a[id^='mergeanddelete_'][id$='_icon'],a[id^='revokeleave_'][id$='_icon'],a[id^='approveleave_'][id$='_icon']").live('click', function() {
         var id = $(this).attr("id").split("_");
 //        var rel = $(this).prop("rel");
 //        var underscore = '_';
@@ -599,19 +599,25 @@ $(function() {
         if(id === undefined) {
             id = '';
         }
-
         if(id.length > 1) {
             id = id.split("_");
         }
         var underscore = '';
         var uniquename = '';
 
-        for(i = 0; i < id.length; i++) {
-            if(id[i].length > 1) {
-                uniquename = uniquename + underscore + id[i];
-                underscore = "_";
+        if(id.length == 1) {
+            uniquename = id;
+
+        }
+        else {
+            for(i = 0; i < id.length; i++) {
+                if(id[i].length > 1) {
+                    uniquename = uniquename + underscore + id[i];
+                    underscore = "_";
+                }
             }
         }
+
         id = uniquename;
 
         if(id != 'users.php') {
@@ -637,7 +643,6 @@ $(function() {
         if(module == '' && id != '') {
             file = rootdir + id;
         }
-
         /*change ajax call*/
         $.ajax({type: 'post',
             url: file + "?module=" + module + "&action=get_" + template,
