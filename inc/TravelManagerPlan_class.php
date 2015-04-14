@@ -274,7 +274,7 @@ class TravelManagerPlan {
             if($leavetimeframe['leavefromdate'] != $firstsegment_fromdate || $leavetimeframe['leavetodate'] != $lastsegment_todate) {
                 //  echo ' leavefromdate '.$leavetimeframe['leavefromdate'].' firstsegfrom '.$firstsegment_fromdate.' leavetodate '.$leavetimeframe['leavetodate'].' $lastsegment_todate '.$lastsegment_todate;
                 if($leavetimeframe['leavetodate'] > $lastsegment_todate) {
-                    if(!isset($this->saveaddseg) || intval($this->saveaddseg) != $this->sequence) {
+                    if(strlen($this->saveaddseg) < 1 || $this->saveaddseg != $this->sequence) {
                         $this->errorode = 8;
                         return false;
                     }

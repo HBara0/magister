@@ -66,8 +66,6 @@
                     if(sharedFunctions.checkSession() == false) {
                         return;
                     }
-                    alert(sequence);
-
                     var id = $(this).attr('id').split("_");
                     var sequence = id[1];
                     errormessage = '';
