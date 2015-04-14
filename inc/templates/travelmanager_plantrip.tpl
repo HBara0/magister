@@ -45,6 +45,7 @@
                     function click_seg() {
                         $('a[id="createtab"]').click();
                     }
+                    $('input[id="saveaddseg"]').val("{$sequence}");
                     $('input[id="perform_travelmanager/plantrip_Button"]').click();
 
                     setTimeout(click_seg, 2000);
@@ -189,6 +190,7 @@
                 <input type="hidden" value="{$planid}" id="lid" name="planid"/>
                 {$plantript_segmentstabs}
                 <div style="display: inline-block">
+                    <input type="hidden" id="saveaddseg" name="saveaddseg" value="{$sequence}_saveaddseg">
                     <input type='submit' style="cursor: pointer" class='button' value="{$lang->savecaps}" id='perform_travelmanager/plantrip_Button'>
                     <input type="button"  style="cursor: pointer" class="button" value="{$lang->saveandopenseg}" id="save_addsegment"/>
                     <a href="index.php?module=travelmanager/viewplan&id={$planid}&lid={$leaveid}&referrer=plan" target="_blank">
