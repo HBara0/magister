@@ -16,8 +16,10 @@
         <input name="numrows_othertranspcat_{$sequence}" type="hidden" id="numrows_othertranspcat_{$sequence}" value="{$rowid}">
     </div>
 </div>
+
 <h2 class="subtitle" style="padding:8px;width:40%;">{$lang->accomodations}</h2>
-<input type="checkbox" id="noAccomodation_{$sequence}" name="segment[{$sequence}][noAccomodation]" {$checkedaccomodation} value="1"> {$lang->noaccomodation}
+<input type="checkbox" id="noAccomodation_{$sequence}" name="segment[{$sequence}][noAccomodation]" {$checkedaccomodation} value="1" /> {$lang->noaccomodation}
+
 <div style="display:block;" id="segment_hotels_{$sequence}">
    <!-- <div class="subtitle">{}Approved Hotels</div>-->
 
@@ -47,7 +49,7 @@
     <input name="sequence" type="hidden" id="sequence" value="{$sequence}">
     <h2 class="subtitle" style="padding:8px;width:100%;">{$lang->finance} ({$lang->anticipatedamount})</h2>
     <table width="100%"cellspacing="0" cellpadding="0" style="margin-left: 8px;" class="datatable">
-        <tbody id="finances_{$frowid}_tbody">
+        <tbody id="finances_{$sequence}_tbody">
             {$finance_output}
         </tbody>
     </table>
@@ -57,5 +59,4 @@
             <input name="numrows_finances_{$sequence}" type="hidden" id="numrows_finances_{$sequence}" value="{$frowid}">
         </div>
     </span>
-
 </div>
