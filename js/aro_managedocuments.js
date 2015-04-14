@@ -459,7 +459,7 @@ $(function() {
             if(!isNaN(invoicevalue_parameter)) {
                 invoicevalue_local += invoicevalue_parameter;
                 if(!isNaN(totalqty)) {
-                    invoicevalue_local_RIC += (totalqty * (parseFloat($("input[id='productline_" + id[1] + "_sellingPrice']").val())) * invoicevalue_parameter);
+                    invoicevalue_local_RIC += (totalqty * (parseFloat($("input[id='productline_" + id[1] + "_sellingPrice']").val())));
                 }
             }
             if(!isNaN(parseFloat($("input[id='productline_" + id[1] + "_netMargin']").val()))) {

@@ -777,7 +777,12 @@ else {
             }
         }
         if($purchaseype->isPurchasedByEndUser == 1) {
-            $intermedmargin_perc = $intermedmargin / $localinvoicevalue_usd;
+            if($localinvoicevalue_usd != 0) {
+                $intermedmargin_perc = $intermedmargin / $localinvoicevalue_usd;
+            }
+            else {
+                $intermedmargin_perc = '-';
+            }
         }
 
         $localnetmargin_perc = '';
