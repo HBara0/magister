@@ -96,6 +96,7 @@ if(!$core->input['action']) {
             //parse Finances---Start
             $frowid = 1;
             $finance_obj = new TravelManagerPlanFinance();
+            //segment[{$sequence}][tmpfid][$frowid][amount]
             $mainaffobj = new Affiliates($core->user['mainaffiliate']);
             $currencies_f[] = $descity_obj->get_country()->get_maincurrency();
             $currencies_f[] = $mainaffobj->get_country()->get_maincurrency();
@@ -284,6 +285,11 @@ else {
                 'anotheraff' => $lang->anotheraff
         );
         $paidbyoptions = parse_selectlist('segment['.$sequence.'][tmhid]['.$otherhotel_checksum.'][entites]', 5, $paidby_entities, $selectedhotel->paidBy, 0, $paidby_onchangeactions);
+        $currencies_f = $currencies;
+        $frowid = 1;
+        $currencies_listf = parse_selectlist('segment['.$sequence.'][tmpfid]['.$frowid.'][currency]', 4, $currencies_f, $finance->currency);
+        $finance_checksum = generate_checksum('finance');
+        eval("\$finance_output = \"".$template->get('travelmanager_plantrip_segmentfinance')."\";");
 
         eval("\$otherhotels_output = \"".$template->get('travelmanager_plantrip_segment_otherhotels')."\";");
         eval("\$plansegmentscontent_output = \"".$template->get('travelmanager_plantrip_segmentcontents')."\";");

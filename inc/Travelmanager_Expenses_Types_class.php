@@ -105,7 +105,6 @@ class Travelmanager_Expenses_Types extends AbstractClass {
         }
         eval("\$segments_expenses_output = \"".$template->get('travelmanager_expenses_types')."\";");
         $expenses_detailspaidby = '';
-        $segments_expenses_output .='<hr>';
         return $segments_expenses_output;
     }
 

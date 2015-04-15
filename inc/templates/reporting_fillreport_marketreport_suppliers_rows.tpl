@@ -9,9 +9,10 @@
                 <tr>
                     <td>{$lang->supplier}</td>
                     <td>
-                        <input type='text'id='competitorsupp_{$segment[psid]}{$srowid}_QSearch' autocomplete='off'  value=""/>
-                        <input type='hidden' id='competitorsupp_{$segment[psid]}{$srowid}_id' name='marketreport[{$segment[psid]}][suppliers][{$srowid}][sid]' value="" />
-                        <div id='searchQuickResults_competitorsupp_{$segment[psid]}{$srowid}' class='searchQuickResults' style='display:none;'></div
+                        <input type='text'id='competitorsupp_{$segment[psid]}{$srowid}_QSearch' autocomplete='off'  value="{$supplier_name}" size="25"/>
+                        <input type='hidden' id='competitorsupp_{$segment[psid]}{$srowid}_id' name='marketreport[{$segment[psid]}][suppliers][{$srowid}][sid]' value="{$competitionsupplier['sid']}" />
+                        <div id='searchQuickResults_competitorsupp_{$segment[psid]}{$srowid}' class='searchQuickResults' style='display:none;'></div>
+                        <input type="hidden" name="marketreport[{$segment[psid]}][suppliers][{$srowid}][inputChecksum]" value="{$inputchecksum[supplier]}"/>
                     </td>
                 </tr>
                 <tr>

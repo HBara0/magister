@@ -310,6 +310,7 @@ if(!$core->input['action']) {
 								  WHERE mr.rid='{$rid}'");
             while($marketreports_data = $db->fetch_assoc($query)) {
                 $marketreport[$marketreports_data['psid']] = $marketreports_data;
+                $marketreportcompetetion[$marketreports_data['psid']][$marketreports_data['mrid']] = MarketReportCompetition::get_data(array('mrid' => $marketreports_data['mrid']), array('returnarray' => true));
             }
         }
         else {
@@ -363,15 +364,52 @@ if(!$core->input['action']) {
         $query = $db->query("SELECT es.psid, ps.title FROM ".Tprefix."entitiessegments es JOIN ".Tprefix."productsegments ps ON (ps.psid=es.psid) WHERE es.eid='{$reportmeta[spid]}'{$filter_segments_query}");
         if($db->num_rows($query) > 0) {
             while($segment = $db->fetch_assoc($query)) {
+                eval("\$markerreport_fields .= \"".$template->get('reporting_fillreports_marketreport_fields')."\";");
+
+                /* Parse Market report section on modify */
+//                if(is_array($marketreportcompetetion[$segment['psid']])) {
+//                    foreach($marketreportcompetetion[$segment['psid']] as $marketreportid => $mrcompetition) {
+//                        if(is_array($mrcompetition)) {
+//                            foreach($mrcompetition as $mrcid => $competitionsupplier) {
+//                                $competitionsupplier = $competitionsupplier->get();
+//                                $supplier = new Entities($competitionsupplier['sid']);
+//                                if(is_object($supplier)) {
+//                                    $supplier_name = $supplier->get_displayname();
+//                                }
+//                                $inputchecksum['supplier'] = $competitionsupplier['inputChecksum'];
+//                                $mrcompetition_products = MarketReportCompetitionProducts::get_data(array('mrcid' => $mrcid), array('returnarray' => true));
+//                                if(is_array($mrcompetition_products)) {
+//                                    foreach($mrcompetition_products as $mrcompetition_product) {
+//                                        $mrcompetition_product = $mrcompetition_product->get();
+//                                        $product = new Products($mrcompetition_product['pid']);
+//                                        if(is_object($product)) {
+//                                            $product_name = $product->get_displayname();
+//                                        }
+//                                        $chemicalsubstance = new Chemicalsubstances($mrcompetition_product['csid']);
+//                                        if(is_object($chemicalsubstance)) {
+//                                            $chemicalsubstance_name = $chemicalsubstance->get_displayname();
+//                                        }
+//                                        $inputchecksum['product'] = $mrcompetition_product['inputChecksum'];
+//                                        eval("\$product_row= \"".$template->get('reporting_fillreport_marketreport_suppproducts')."\";");
+//                                    }
+//                                }
+//                                eval("\$markerreport_segment_suppliers_row = \"".$template->get('reporting_fillreport_marketreport_suppliers_rows')."\";");
+//                            }
+//                            eval("\$markerreport_segment_suppliers = \"".$template->get('reporting_fillreport_marketreport_suppliers')."\";");
+//                        }
+//                    }
+//                }
+//                else {
                 $srowid = $sprowid = 1;
                 $css['display']['chemsubfield'] = 'none';
-                eval("\$markerreport_fields .= \"".$template->get('reporting_fillreports_marketreport_fields')."\";");
+                $inputchecksum['product'] = generate_checksum('mpl');
                 eval("\$product_row= \"".$template->get('reporting_fillreport_marketreport_suppproducts')."\";");
-
+                $inputchecksum['supplier'] = generate_checksum('msl');
                 eval("\$markerreport_segment_suppliers_row = \"".$template->get('reporting_fillreport_marketreport_suppliers_rows')."\";");
-
+                $inputchecksum['unspecifiedsupp'] = generate_checksum('msl');
+                $inputchecksum['unspecifiedsuppcs'] = generate_checksum('mpl');
                 eval("\$markerreport_segment_suppliers = \"".$template->get('reporting_fillreport_marketreport_suppliers')."\";");
-
+                // }
                 $markerreport_fields .=$markerreport_segment_suppliers;
             }
             if(isset($marketreport[0])) {
@@ -638,6 +676,7 @@ else {
         }
     }
     elseif($core->input['action'] == 'save_marketreport') {
+        unset($core->input['ajaxaddmoredata']);
         $rid = intval($core->input['rid']);
         $identifier = $db->escape_string($core->input['identifier']);
         if(!empty($val['exclude']) && $val['exclude'] == 1) {
@@ -649,7 +688,6 @@ else {
         $found_one = $one_notexcluded = false;
         foreach($core->input['marketreport'] as $key => $val) {
             $section_allempty = true;
-
             if(isset($val['exclude']) && $val['exclude'] == 1) {
                 $db->query('DELETE FROM '.Tprefix.'marketreport_authors WHERE mrid=(SELECT mrid FROM '.Tprefix.'marketreport WHERE rid='.$rid.' AND psid='.$key.')');
                 $db->query('DELETE FROM '.Tprefix.'marketreport WHERE rid='.$rid.' AND psid='.$key);
@@ -660,6 +698,9 @@ else {
             if($found_one == false) {
                 if(!empty($val)) {
                     foreach($val as $k => $v) {
+                        if($k == 'suppliers') {
+                            continue;
+                        }
                         $v = $core->sanitize_inputs(preg_replace(array('~\x{00a0}~siu', '/\s/'), '', $v), array('method' => 'striponly', 'allowable_tags' => '', 'removetags' => true));
                         if($section_allempty == true) {
                             if(!in_array(strtolower($v), $emtpy_terms) && !preg_match('/^[n;.,-_+\*]+$/', $v)) {
@@ -701,6 +742,9 @@ else {
 
         foreach($marketreport_data as $val) {
             foreach($val as $k => $v) {
+                if($k == 'suppliers') {
+                    continue;
+                }
                 $val[$k] = $core->sanitize_inputs(trim($v), array('method' => 'striponly', 'allowable_tags' => '<table><tbody><tr><td><th><thead><tfoot><span><div><a><br><p><b><i><del><strike><img><blockquote><mark><cite><small><ul><ol><li><hr><dl><dt><dd><sup><sub><big><pre><figure><figcaption><strong><em><h1><h2><h3><h4><h5><h6>', 'removetags' => true));
             }
 
@@ -711,26 +755,46 @@ else {
                 $query = $db->update_query('marketreport', $val, "rid='{$rid}' AND psid='{$val[psid]}'");
                 $mrid = $db->fetch_field($db->query("SELECT mrid FROM ".Tprefix."marketreport WHERE rid='{$rid}' AND psid='{$val[psid]}'"), 'mrid');
                 // Note : need to apply saving of competitor supp on market report create()
-                // and add csid saving 
-                if(is_array($competitorsuppliers_data)) {
-                    foreach($competitorsuppliers_data as $competitorsupplier_data) {
-                        $data['mrid'] = $mrid;
-                        $data['sid'] = $competitorsupplier_data['sid'];
-                        if(is_array($competitorsupplier_data['pid'])) {
-                            foreach($competitorsupplier_data['pid'] as $pid) {
-                                $data['pid'] = $pid;
-                                $marketreportcompetiton = new MarketReportCompetition();
-                                $marketreportcompetiton->set($data);
-                                $marketreportcompetiton->save();
-                            }
-                        }
-                    }
-                }
+                // and add csid saving
             }
             else {
                 $query = $db->insert_query('marketreport', $val);
                 $mrid = $db->last_id();
             }
+            /* Save market competition setion data - Start */
+            if(is_array($competitorsuppliers_data)) {
+                foreach($competitorsuppliers_data as $competitorsupplier_data) {
+                    $suppdata['mrid'] = $mrid;
+                    if(isset($competitorsupplier_data['sid']) && !empty($competitorsupplier_data['sid'])) {
+                        $suppdata['sid'] = $competitorsupplier_data['sid'];
+                    }
+                    if(isset($competitorsupplier_data['unspecifiedsupp']) && $competitorsupplier_data['unspecifiedsupp'] == 1) {
+                        $suppdata['sid'] = 0;
+                    }
+                    $suppdata['inputChecksum'] = $competitorsupplier_data['inputChecksum'];
+                    $marketreportcompetiton = new MarketReportCompetition();
+                    $marketreportcompetiton->set($suppdata);
+                    $mrcomp_supplier_obj = $marketreportcompetiton->save();
+                    unset($suppdata);
+                    if(is_object($mrcomp_supplier_obj)) {
+                        if(is_array($competitorsupplier_data['chp'])) {
+                            foreach($competitorsupplier_data['chp'] as $chp) {
+                                if(is_array($chp)) {
+                                    foreach($chp as $k => $val) {
+                                        $data[$k] = $val;
+                                    }
+                                }
+                                $data['mrcid'] = $mrcomp_supplier_obj->mrcid;
+                                $mrcproduct_obj = new MarketReportCompetitionProducts();
+                                $mrcproduct_obj->set($data);
+                                $mrcproduct_obj->save();
+                                unset($data['pid'], $data['csid'], $data['mrcid']);
+                            }
+                        }
+                    }
+                }
+            }
+            /* Save market competition setion data - End */
 
             if($report_meta['transFill'] != '1' || !isset($report_meta['transFill'])) {
                 if($db->fetch_field($db->query("SELECT COUNT(*) AS contributed FROM ".Tprefix."marketreport_authors WHERE mrid='{$mrid}' AND uid='{$core->user[uid]}'"), 'contributed') == 0) {
@@ -1106,7 +1170,9 @@ else {
         $segment['psid'] = $db->escape_string($core->input ['ajaxaddmoredata']['segmentid']);
         $sprowid = 1;
         $css['display']['chemsubfield'] = 'none';
+        $inputchecksum['product'] = generate_checksum('mpl');
         eval("\$product_row= \"".$template->get('reporting_fillreport_marketreport_suppproducts')."\";");
+        $inputchecksum['supplier'] = generate_checksum('msl');
         eval("\$markerreport_segment_suppliers_row = \"".$template->get('reporting_fillreport_marketreport_suppliers_rows')."\";");
         echo $markerreport_segment_suppliers_row;
     }
@@ -1115,6 +1181,7 @@ else {
         $segment['psid'] = $db->escape_string($core->input ['ajaxaddmoredata']['segmentid']);
         $srowid = $db->escape_string($core->input ['ajaxaddmoredata']['srowid']);
         $css['display']['chemsubfield'] = 'none';
+        $inputchecksum['product'] = generate_checksum('mpl');
         eval("\$markerreport_segment_suppliers_row = \"".$template->get('reporting_fillreport_marketreport_suppproducts')."\";");
         echo $markerreport_segment_suppliers_row;
     }

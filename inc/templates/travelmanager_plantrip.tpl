@@ -39,6 +39,18 @@
                     }
 
                 });
+
+                $('input[id="save_addsegment"]').live('click', function() {
+                    //  setTimeout('alert("www")', 2000);
+                    function click_seg() {
+                        $('a[id="createtab"]').click();
+                    }
+                    $('input[id="saveaddseg"]').val("{$sequence}");
+                    $('input[id="perform_travelmanager/plantrip_Button"]').click();
+
+                    setTimeout(click_seg, 2000);
+                    $('input[id="saveaddseg"]').val(0);
+                });
                 // close icon: removing the tab on click
                 tabs.delegate("span.ui-icon-close", "click", function() {
                     /*only send ajax request when segmentid exist on modify*/
@@ -51,7 +63,6 @@
                     tabcounter = tabcounter - 1;
                     tabs.tabs("refresh");
                 });
-
                 $('input[id^=destinationcity_]').live('change', function() {
                     if(sharedFunctions.checkSession() == false) {
                         return;
@@ -145,7 +156,7 @@
                     }
                 });
 
-                $('input[id^="noAccomodation_"]').live('click', function () {
+                $('input[id^="noAccomodation_"]').live('click', function() {
                     var id = $(this).attr("id").split("_");
                     $('#segment_hotels_' + id[1] + ', #other_hotels_' + id[1]).toggle(!$(this).is(':checked')).find('input').val("");
                 });
@@ -179,12 +190,16 @@
                 <input type="hidden" value="{$leaveid}" id="lid" name="lid"/>
                 <input type="hidden" value="{$planid}" id="lid" name="planid"/>
                 {$plantript_segmentstabs}
-                <input type='submit' class='button' value="{$lang->savecaps}" id='perform_travelmanager/plantrip_Button'>
+
+                <input type="hidden" id="saveaddseg" name="saveaddseg" value="{$sequence}_saveaddseg">
+                <input type='submit' style="cursor: pointer" class='button' value="{$lang->savecaps}" id='perform_travelmanager/plantrip_Button'>
+                <input type="button"  style="cursor: pointer" class="button" value="{$lang->saveandopenseg}" id="save_addsegment"/>
                 <a href="index.php?module=travelmanager/viewplan&id={$planid}&lid={$leaveid}&referrer=plan" target="_blank">
-                    <input type="button" class='button' value="{$lang->preview}">
+                    <input type="button" style="cursor: pointer" class='button' value="{$lang->preview}">
                 </a>
-                <input type="button" class='button'  value="{$lang->preview} & {$lang->finish}" id="finalize"/>
+                <input type="button" style="cursor: pointer" class='button'  value="{$lang->preview} & {$lang->finish}" id="finalize"/>
                 <input type="hidden" value="" name="finalizeplan" id="finalizeplan"/>
+
             </form>
 
             <div id="perform_travelmanager/plantrip_Results"></div>
