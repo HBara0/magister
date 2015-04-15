@@ -602,9 +602,12 @@ $(function() {
 
         if(id.length > 1) {
             id = id.split("_");
+            var underscore = '';
+            var uniquename = '';
         }
-        var underscore = '';
-        var uniquename = '';
+        else {
+            uniquename = id;
+        }
 
         for(i = 0; i < id.length; i++) {
             if(id[i].length > 1) {
