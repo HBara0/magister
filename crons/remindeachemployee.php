@@ -60,10 +60,10 @@ while($report = $db->fetch_array($query)) {
                 $report_status_comma = ', ';
             }
 
-            if($report['keyCustAvailable'] == 0) {
-                $report_status .= $report_status_comma.'No key customers';
-                $report_status_comma = ', ';
-            }
+//            if($report['keyCustAvailable'] == 0) {
+//                $report_status .= $report_status_comma.'No key customers';
+//                $report_status_comma = ', ';
+//            }
 
             if($report['mktReportAvailable'] == 0) {
                 $report_status .= $report_status_comma.'No market report';
@@ -98,7 +98,7 @@ else {
 }
 //}
 
-$message_sentence .= '<br /><em>Please not not fill any products activity unless you receive an announcement that they have been imported.</em><br />';
+$message_sentence .= '<br /><em>This is to notify you to start filling the qualitative part of your quarterly reports. You will get a seperate notification once products activity data has been imported into the quarterly reports in order to proceed by verifications and finalization.</em><br />';
 if($is_thedate == true) {
     foreach($users as $key => $val) { //$time_difference days to finalize these reports
         $email_message = "<strong>Hello {$val[firstName]} {$val[lastName]}</strong> <br /> ".floor($time_difference)." {$message_sentence} <ul>{$val[reports]}</ul>";
