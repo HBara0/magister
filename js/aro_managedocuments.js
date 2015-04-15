@@ -46,7 +46,7 @@ $(function() {
         }
     }
 
-    ///------------------------
+///------------------------
     $("input[id='approvearo']").click(function() {
         sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=approvearo&id=' + $("input[id='approvearo_id']").val());
     });
@@ -61,8 +61,6 @@ $(function() {
         var ptid = $(this).data('purchasetype');
         sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populatedocnum&affid= ' + affid + '&ptid= ' + ptid);
         sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populateaffpolicy&affid= ' + affid + '&ptid= ' + ptid);
-
-
         $.ajax({type: 'post',
             url: rootdir + "index.php?module=aro/managearodouments&action=generateapprovalchain",
             data: "affid=" + affid + "&ptid=" + ptid,
@@ -78,7 +76,6 @@ $(function() {
                 $('#aro_approvalcain').html(returnedData);
             }
         });
-
         $.getJSON(rootdir + 'index.php?module=aro/managearodouments&action=popultedefaultaffpolicy&affid= ' + affid + '&ptid= ' + ptid, function(data) {
             var jsonStr = JSON.stringify(data);
             obj = JSON.parse(jsonStr);
@@ -88,7 +85,6 @@ $(function() {
                 $("select[id^='" + i + "']").trigger("change");
             });
         });
-
         if($(this).attr('id') === 'affid') {
             /*Get Affiliate Warehouses*/
             $.ajax({type: 'post',
@@ -227,7 +223,7 @@ $(function() {
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         var totalquantity = {};
         var totalqty = 0;
-        var refernece = 0;//quantity*initialprice
+        var refernece = 0; //quantity*initialprice
         $("tbody[id^='productline_']").find($("select[id$='_uom']")).each(function() {
             var id = $(this).attr('id').split('_');
             totalqty = parseFloat($("input[id='productline_" + id[1] + "_quantity']").val());
@@ -265,14 +261,13 @@ $(function() {
     $("input[id^='productline_']").live('blur', function() {
         var id = $(this).attr('id').split("_");
         triggerproductlines(id);
-        addactualpurchaselines(id[1]);
         $("input[id='ordersummary_btn']").trigger("click");
+        addactualpurchaselines(id[1]);
     });
     $("select[id^='productline_'][id$='_uom']").live('change', function() {
         var id = $(this).attr('id').split("_");
         triggerproductlines(id);
         $("input[id='ordersummary_btn']").trigger("click");
-
     });
 //    /*-------------Disable qtyPotentiallySold if daysInStock=0 ------------------*/
     $("input[id$='_daysInStock']").live('change keyup', function() {
@@ -372,7 +367,6 @@ $(function() {
             }
         });
         sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=getinterestvalue&localBankInterestRate=' + localBankInterestRate + '&localPeriodOfInterest=' + localPeriodOfInterest + '&totalbuyingvalue_total=' + totalbuyingvalue_total);
-
         var updatetotalfees = setTimeout(function() {
             $("input[id$='freight']").trigger("change");
         }, 2000);
@@ -392,7 +386,6 @@ $(function() {
         var updateinterestvalue = setTimeout(function() {
             $("input[id='parmsfornetmargin_localPeriodOfInterest']").trigger("change");
         }, 2000);
-
     });
     //----------------------------------------------------------------------------------------------------------------------------//
 
@@ -486,11 +479,8 @@ $(function() {
             feeperunit += "_";
             j++;
         });
-
-
         attributes = attributes + '&qtyperunit=' + qtyperunit + '&feeperunit=' + feeperunit + '&invoicevalue_intermed=' + invoicevalue_intermed + '&invoicevalue_local=' + invoicevalue_local + '&invoicevalue_local_RIC=' + invoicevalue_local_RIC + '&local_netMargin=' + local_netMargin;
         attributes = attributes + '&sellingpriceqty_product=' + sellingpriceqty_product + '&totalcommision=' + totalcommision + '&totalamount=' + totalamount + '&defaultcomm=' + comm;
-
         //['purchasetype','parmsfornetmargin_intermedBankInterestRate','parmsfornetmargin_intermedPeriodOfInterest'
         attributes = attributes + "&ptid=" + $('select[id=purchasetype]').val();
         attributes = attributes + "&InterBR=" + $('input[id=parmsfornetmargin_intermedBankInterestRate]').val();
@@ -535,19 +525,36 @@ function addactualpurchaserow(id) {
     return true;
 }
 
+
+
+//function pausecomp(ms) {
+//    ms += new Date().getTime();
+//    while(new Date() < ms) {
+//    }
+//}
+
 function addactualpurchaselines(id) {
     var fields = '';
     var operation = 'create';
+//    var d = setTimeout(function() {
+//        value = $("input[id^='productline_" + id + "_totalBuyingValue']").val();
+//        if(value.length > 0) {
+//            fields = fields + "&" + field[2] + "=" + value;
+//        }
+//    }, 1000);
+
+
     $("tbody[id^='productline_']").find($("input[id^='productline_" + id + "'],select[id^='productline_" + id + "']")).each(function() {
         var field = $(this).attr('id').split('_');
-        if(field[2] == 'netMargin' || field[2] == 'netMarginPerc' || field[2] == 'grossMarginAtRiskRatio') {
+        if(field[2] == 'netMargin' || field[2] == 'netMarginPerc' || field[2] == 'grossMarginAtRiskRatio' || field[2] == 'totalBuyingValue') {
             return true;
         }
         if((($(this).val().length == 0) || ($(this).val() == null))) {
             fields = '';
             return false;
         }
-        if(!(($(this).val().length == 0) || ($(this).val() == null))) {
+        if(!(($(this).val().length == 0) || ($(this).val() == null))) {//&& field[2] != 'totalBuyingValue'
+            // if(field[2] != 'totalBuyingValue') {
             var value = $(this).val();
             if(field[2] === 'inputChecksum') {
                 if($("input[id='actualpurchase_" + field[1] + "_inputChecksum']").val() == value) {
@@ -555,8 +562,8 @@ function addactualpurchaselines(id) {
                 }
             }
             fields = fields + "&" + field[2] + "=" + value;
+            // }
         }
-
     });
     if(fields != '') {
         fields = fields + "&productName=" + $("input[id$='product_noexception_" + id + "_autocomplete']").val() + "&pid=" + $("input[id$='product_noexception_" + id + "_id_output']").val();
@@ -565,11 +572,21 @@ function addactualpurchaselines(id) {
         fields = fields + "&clearanceTime=" + $('input[id=partiesinfo_clearanceTime]').val();
         fields = fields + "&dateOfStockEntry=" + $('input[id=pickDate_estDateOfShipment]').val();
         if(operation == 'update') {
-            sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populateactualpurchaserow&rowid=' + id + '&fields=' + fields);
-            sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populatecurrentstockrow&rowid=' + id + '&fields=' + fields);
+            var y = setTimeout(function() {
+                var bvalue = $("input[id^='productline_" + id + "_totalBuyingValue']").val();
+                if(bvalue.length > 0) {
+                    fields = fields + "&totalBuyingValue=" + bvalue;
+                }
+                sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populateactualpurchaserow&rowid=' + id + '&fields=' + fields);
+                sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populatecurrentstockrow&rowid=' + id + '&fields=' + fields);
+            }, 2000);
         } else if(operation == 'create') {
             if(addactualpurchaserow(id) == true) {
                 var x = setTimeout(function() {
+                    var bvalue = $("input[id^='productline_" + id + "_totalBuyingValue']").val();
+                    if(bvalue.length > 0) {
+                        fields = fields + "&totalBuyingValue=" + bvalue;
+                    }
                     sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populateactualpurchaserow&rowid=' + id + '&fields=' + fields);
                     sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populatecurrentstockrow&rowid=' + id + '&fields=' + fields);
                 }, 3000);
@@ -582,6 +599,7 @@ function addactualpurchaselines(id) {
 }
 
 function triggerproductlines(id) {
+
     var fields_array = ["quantity", "qtyPotentiallySold", "intialPrice", "costPrice", "sellingPrice", "daysInStock", "uom"];
     if($.inArray(id[id.length - 1 ], fields_array) != -1) {
         $("tbody[id^='productline_1']").find($("input[id$='_quantity']")).each(function() {
@@ -596,8 +614,6 @@ window.onload = function() {
     $("select[id^='paymentermdays_']").trigger("change");
     $("input[id='ordersummary_btn']").trigger("click");
 };
-
-
 function getUrlParameter(sParam)
 {
     var sPageURL = window.location.search.substring(1);
