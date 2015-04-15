@@ -74,32 +74,38 @@ $(function() {
         $("#sidedesignImage").height($(window).height());
     }
 
+    function destroy_texteditors(parent) {
+        parent.find(".txteditadv,.inlinetxteditadv,.basictxteditadv").each(function () {
+            var id = $(this).attr('id');
+            try {
+                if(CKEDITOR.instances[id]) {
+                    CKEDITOR.instances[id].destroy();
+                }
+            }
+            catch(e) {
+                alert(e);
+            }
+        });
+    }
     initialize_texteditors();
     function initialize_texteditors() {
-        if($(".inlinetxteditadv").length > 0) {
-            $(".inlinetxteditadv").each(function () {
+        if($(".inlinetxteditadv,.txteditadv,.basictxteditadv").length > 0) {
+            $(".inlinetxteditadv,.txteditadv,.basictxteditadv").each(function () {
                 var id = $(this).attr('id');
                 try {
                     if(CKEDITOR.instances[id]) {
                         CKEDITOR.instances[id].destroy();
                     }
-                    CKEDITOR.inline(id);
-                    CKEDITOR.instances[id].config.removePlugins = 'colorbutton,find,flash,font,forms,iframe,image,newpage,removeformat,smiley,specialchar,stylescombo,templates';
-                }
-                catch(e) {
-                    alert(e);
-                }
-            });
-        }
-
-        if($(".txteditadv").length > 0) {
-            $(".txteditadv").each(function () {
-                var id = $(this).attr('id');
-                try {
-                    if(CKEDITOR.instances[id]) {
-                        CKEDITOR.instances[id].destroy();
+                    if($(this).hasClass('inlinetxteditadv')) {
+                        CKEDITOR.inline(id);
+                        CKEDITOR.instances[id].config.removePlugins = 'horizontalrule,pagebreak,table,tabletools,colorbutton,find,flash,font,forms,iframe,image,newpage,removeformat,smiley,specialchar,stylescombo,templates';
                     }
-                    CKEDITOR.replace(id);
+                    else {
+                        CKEDITOR.replace(id);
+                        if($(this).hasClass('basictxteditadv')) {
+                            CKEDITOR.instances[id].config.removePlugins = 'horizontalrule,pagebreak,table,tabletools,colorbutton,find,flash,font,forms,iframe,image,newpage,removeformat,smiley,specialchar,stylescombo,templates';
+                        }
+                    }
                 }
                 catch(e) {
                     alert(e);
@@ -666,8 +672,10 @@ $(function() {
                     minWidth: 600,
                     maxWidth: 800,
                     zIndex: 1000,
-                    close: function() {
-                        $(this).find("form").each(function() {
+                    close: function () {
+                        destroy_texteditors($(this));
+
+                        $(this).find("form").each(function () {
                             this.reset();
                         });
                         $(this).find("span[id$='_Validation']").empty();
