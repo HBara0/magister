@@ -96,9 +96,9 @@ class AroRequestLines extends AbstractClass {
             }
         }
         if(isset($data['quantity']) && !empty($data['quantity'])) {
-            $data['costPriceAtRiskRatio'] = ceil($data['costPrice'] + (($data['totalBuyingValue'] * $parmsfornetmargin['riskRatio']) / $data['quantity']));
+            $data['costPriceAtRiskRatio'] = round(($data['costPrice'] + (($data['totalBuyingValue'] * $parmsfornetmargin['riskRatio']) / $data['quantity'])), 2);
         }
-        $data['grossMarginAtRiskRatio'] = floor(round((($data['sellingPrice'] - $data['costPriceAtRiskRatio']) * $data['quantity']), 2));
+        $data['grossMarginAtRiskRatio'] = round((($data['sellingPrice'] - $data['costPriceAtRiskRatio']) * $data['quantity']), 2);
 
         if($purchasetype->isPurchasedByEndUser == 1) {
             $data['daysInStock'] = 0;
