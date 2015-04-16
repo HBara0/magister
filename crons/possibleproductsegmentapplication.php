@@ -26,7 +26,7 @@ if($db->num_rows($no_midata) > 0) {
 }
 
 //fetch all cid,eptid,cfcid,cfpid where customers are being sold different products or chemicals than other customersOR
-$dif_midata = $db->query("SELECT DISTINCT a.cid,a.eptid,a.cfcid,a.cfpid FROM ".Tprefix."marketintelligence_basicdata AS a INNER JOIN ".Tprefix."marketintelligence_basicdata AS b ON (a.eptid=b.eptid) Where a.cid!=b.cid AND a.eptid!=0 AND (a.cfcid!=b.cfcid OR a.cfpid != b.cfpid)");
+$dif_midata = $db->query("SELECT DISTINCT a.cid,a.eptid,a.cfcid,a.cfpid FROM ".Tprefix."marketintelligence_basicdata AS a INNER JOIN ".Tprefix."marketintelligence_basicdata AS b ON (a.eptid=b.eptid) Where a.cid!=b.cid AND a.eptid!=0 AND a.cfpid != b.cfpid");
 if($db->num_rows($dif_midata) > 0) {
     $row = 1;
     while($diff_midata_row = $db->fetch_assoc($dif_midata)) {
@@ -124,23 +124,39 @@ function send_email($content) {
                     $ept = new EndProducTypes($eptid);
                     $message.='<h5>'.$ept->get_displayname().' :</h5>';
                     foreach($ndata as $key => $value) {
-                        if($key == 'cfcid') {
-                            foreach($value as $cfcid) {
-                                $chemfunchem = new ChemFunctionChemicals($cfcid);
-                                $chemsubstances[] = $chemfunchem->get_chemicalsubstance()->get_displayname();
-                            }
-                        }
                         if($key == 'cfpid') {
                             foreach($value as $cfpid) {
                                 $chemfuncprod = new ChemFunctionProducts($cfpid);
-                                $prods[] = $chemfuncprod->get_produt()->get_displayname();
+                                $prod = $chemfuncprod->get_produt();
+                                $prods[] = $prod->get_displayname();
+                                $chems = ProductsChemicalSubstances::get_data(array('pid' => $prod->pid), array('returnarray' => true, 'simple' => false));
+                                if($chems == false) {
+                                    continue;
+                                }
+                                foreach($chems as $chem) {
+                                    $chemsubstances[] = $chem->get_chemicalsubstance()->get_displayname();
+                                }
+                            }
+                        }
+                        if($key == 'cfcid') {
+                            if(isset($chemsubstances) && !empty($chemsubstances)) {
+
+                            }
+                            else {
+                                foreach($value as $cfcid) {
+                                    $chemfunchem = new ChemFunctionChemicals($cfcid);
+                                    $chemsubstances_sub[] = $chemfunchem->get_chemicalsubstance()->get_displayname();
+                                }
                             }
                         }
                     }
+                    if((empty($chemsubstances) || !isset($chemsubstances)) && !empty($chemsubstances_sub)) {
+                        $chemsubstances = $chemsubstances_sub;
+                    }
+                    $chemsubstances = array_unique($chemsubstances);
                     $message.='Products: '.implode(',', $prods).'<br>';
                     $message.='<br>Chemical Substances: '.implode(',', $chemsubstances).'<br>';
-                    unset($prods);
-                    unset($chemsubstances);
+                    unset($prods, $chemsubstances);
                 }
             }
             $email_data = array(

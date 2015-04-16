@@ -71,96 +71,103 @@ if(!$core->input['action']) {
     eval("\$supplierspage = \"".$template->get('admin_entities_view')."\";");
     output_page($supplierspage);
 }
-elseif($core->input['action'] == 'get_mergeanddeleteentities') {
-    $filename = 'viewsuppliers';
-    $entitytype = 'supplier';
-    eval("\$mergeanddelete = \"".$template->get('popup_mergeanddeleteentities')."\";");
-    output($mergeanddelete);
-}
-elseif($core->input['action'] == 'perform_mergeanddeleteentities') {
-    if($core->usergroup['canAddSuppliers'] == 0) {
-        output_xml("<status>false</status><message>{$lang->errordeleting}</message>");
-        exit;
-    }
-    $oldid = intval($core->input['todelete']);
-    $supplier_columns = array('eid', 'ssid', 'spid', 'companyName');
-    foreach($supplier_columns as $column) {
-        $tables[$column] = $db->get_tables_havingcolumn($column);
-    }
-    if(is_array($tables)) {
-        foreach($tables as $key => $columntables) {
-            if(is_array($columntables)) {
-                $supplier_tables[$key] = array_fill_keys(array_values($columntables), $key);
+else {
+    if($core->input['action'] == "exportexcel") {
+        $sort_query = 's.companyName ASC';
+        if(isset($core->input['sortby'], $core->input['order'])) {
+            $sort_query = $core->input['sortby'].' '.$core->input['order'];
+            $query = $db->query("SELECT s.eid, s.companyName AS entityname, c.name as cname
+						FROM ".Tprefix."entities s, ".Tprefix."countries c
+						WHERE s.country=c.coid AND s.type='s'
+						ORDER BY {$sort_query}");
+            if($db->num_rows($query) > 0) {
+                $suppliers[0]['eid'] = $lang->id;
+                $suppliers[0]['entityname'] = $lang->companyname;
+                $suppliers[0]['cname'] = $lang->country;
+                $suppliers[0]['affiliates'] = $lang->affiliate;
+                $i = 1;
+                while($suppliers[$i] = $db->fetch_assoc($query)) {
+                    $query2 = $db->query("SELECT ae.*, a.name FROM ".Tprefix."affiliatedentities ae LEFT JOIN ".Tprefix."affiliates a ON (a.affid=ae.affid) WHERE ae.eid='{$suppliers[$i][eid]}' ORDER BY a.name ASC");
+                    $comma = $suppliers[$i]['affiliates'] = '';
+                    while($affiliate = $db->fetch_array($query2)) {
+                        $suppliers[$i]['affiliates'] .= "{$comma}{$affiliate[name]}";
+                        $comma = ', ';
+                        $i++;
+                    }
+                    $excelfile = new Excel('array', $suppliers);
+                }
             }
         }
     }
-    if(!empty($core->input['mergeeid'])) {
+    elseif($core->input['action'] == 'get_mergeanddeleteentities') {
+        $filename = 'viewsuppliers';
+        $entitytype = 'supplier';
+        eval("\$mergeanddelete = \"".$template->get('popup_mergeanddeleteentities')."\";");
+        output($mergeanddelete);
+    }
+    elseif($core->input['action'] == 'perform_mergeanddeleteentities') {
+        if($core->usergroup['canAddSuppliers'] == 0) {
+            output_xml("<status>false</status><message>{$lang->errordeleting}</message>");
+            exit;
+        }
+        $oldid = intval($core->input['todelete']);
         $newid = $db->escape_string($core->input['mergeeid']);
+        $oldentity = new Entities($oldid);
+        $merge = $oldentity->mergeanddelete($oldid, $newid);
+        if($merge == true) {
+            output_xml("<status>true</status><message>{$lang->successdeletemerge}</message>");
+        }
+        elseif($merge == false) {
+            output_xml("<status>false</status><message>{$lang->errordeleting}</message>");
+        }
+    }
+    elseif($core->input['action'] == 'perform_deleteentity') {
+        if($core->usergroup['canAddSuppliers'] == 0) {
+            output_xml("<status>false</status><message>{$lang->errordeleting}</message>");
+            exit;
+        }
+        $todeleteid = intval($core->input['todelete']);
+        $supplier_columns = array('eid', 'spid', 'companyName');
+        foreach($supplier_columns as $column) {
+            $tables[$column] = $db->get_tables_havingcolumn($column);
+        }
+        if(is_array($tables)) {
+            foreach($tables as $key => $columntables) {
+                if(is_array($columntables)) {
+                    $supplier_tables[$key] = array_fill_keys(array_values($columntables), $key);
+                }
+            }
+        }
+        $exclude_tables = array('entitiesrepresentatives', 'affiliatedentities', 'assignedemployees'); // sourcingsupliers,sourcing_suppliers_contactpersons,sourcing_suppliers_contactpersons_new
+
         foreach($supplier_tables as $tables) {
             if(is_array($tables)) {
                 foreach($tables as $table => $attr) {
-                    $db->update_query($table, array($attr => $newid), $attr.'='.$oldid);
-                    $results .= $table.': '.$db->affected_rows().'<br />';
+                    if(in_array($table, $exclude_tables)) {
+                        continue;
+                    }
+                    $query = $db->query("SELECT * FROM ".Tprefix.$table." WHERE ".$attr."=".$todeleteid);
+                    if($db->num_rows($query) > 0) {
+                        $usedin_tables[] = $table;
+                    }
                 }
             }
         }
-    }
-    exit;
-    $query = $db->delete_query('entities', "eid='{$oldid}'");
-    if($query) {
-        $log->record($oldid, $newid);
-        output_xml("<status>true</status><message>{$lang->successdeletemerge}<![CDATA[<br />{$results}]]></message>");
-    }
-    else {
-        output_xml("<status>false</status><message>{$lang->errordeleting}</message>");
-    }
-}
-elseif($core->input['action'] == 'perform_deleteentity') {
-    if($core->usergroup['canAddSuppliers'] == 0) {
-        output_xml("<status>false</status><message>{$lang->errordeleting}</message>");
-        exit;
-    }
-    $todeleteid = intval($core->input['todelete']);
-    $supplier_columns = array('eid', 'ssid', 'spid', 'companyName');
-    foreach($supplier_columns as $column) {
-        $tables[$column] = $db->get_tables_havingcolumn($column);
-    }
-    if(is_array($tables)) {
-        foreach($tables as $key => $columntables) {
-            if(is_array($columntables)) {
-                $supplier_tables[$key] = array_fill_keys(array_values($columntables), $key);
-            }
+        if(is_array($usedin_tables)) {
+            $result = implode(",", $usedin_tables);
+            output_xml("<status>false</status><message>{$lang->deleteerror}<![CDATA[<br />{$lang->usedintables}{$result}]]></message>");
+            exit;
         }
-    }
-    $exclude_tables = array('entitiesrepresentatives', 'affiliatedentities', 'assignedemployees'); // sourcingsupliers,sourcing_suppliers_contactpersons,sourcing_suppliers_contactpersons_new
+        /* Delete Entity */
+        $deletequery = $db->delete_query('entities', " eid='{$todeleteid}'");
 
-    foreach($supplier_tables as $tables) {
-        if(is_array($tables)) {
-            foreach($tables as $table => $attr) {
-                if(in_array($table, $exclude_tables)) {
-                    continue;
-                }
-                $query = $db->query("SELECT * FROM ".Tprefix.$table." WHERE ".$attr."=".$todeleteid);
-                if($db->num_rows($query) > 0) {
-                    $usedin_tables[] = $table;
-                }
-            }
+        /* Delete "deleted entity" data from excluded tabes if found ? */
+        if($deletequery) {
+            output_xml("<status>true</status><message>{$lang->successdelete}</message>");
         }
-    }
-    if(is_array($usedin_tables)) {
-        $result = implode(",", $usedin_tables);
-        output_xml("<status>false</status><message>{$lang->deleteerror}<![CDATA[<br />{$lang->usedintables}{$result}]]></message>");
-        exit;
-    }
-    /* Delete Entity */
-    $deletequery = $db->delete_query('entities', "eid='{$todeleteid}'");
-
-    /* Delete "deleted entity" data from excluded tabes if found ? */
-    if($deletequery) {
-        output_xml("<status>true</status><message>{$lang->successdelete}</message>");
-    }
-    else {
-        output_xml("<status>false</status><message>{$lang->errordeleting}</message>");
+        else {
+            output_xml("<status>false</status><message>{$lang->errordeleting}</message>");
+        }
     }
 }
 ?>

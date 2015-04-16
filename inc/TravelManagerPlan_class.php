@@ -621,10 +621,10 @@ class TravelManagerPlan {
                     $expensestype[$segmentid][$rowid]['affid'] = $expenses->paidById;
                     $affid = $segmentobj->display_paidby($expenses->paidBy, $expenses->paidById)->affid;
                     $expensestype[$segmentid][$rowid]['affiliate'] = $segmentobj->display_paidby($expenses->paidBy, $expenses->paidById)->name;
-                    if(!empty($expenses->description)) {
+                    if(!empty($expenses->description) && $expenses->tmetid == '4') {
                         $expensestype[$segmentid][$rowid]['otherdesc'] = $expenses->description;
                     }
-                    $segments_expenses_output .= $expenses->get_types()->parse_expensesfield($expensesoptions, $sequence, $rowid, $expensestype, array('destcity' => $destcity_obj));
+                    $segments_expenses_output .= $expenses->get_types()->parse_expensesfield($expensesoptions, $sequence, $rowid, $expensestype, array('destcity' => $destcity_obj), $segmentid);
                 }
             }
             else {
