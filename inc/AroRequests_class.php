@@ -508,6 +508,9 @@ class AroRequests extends AbstractClass {
     public function send_approvalemail() {
         global $core;
         $firstapprover = $this->get_firstapprover();
+        if(!is_object($firstapprover) && empty($firstapprover)) {
+            return false;
+        }
         $to = $firstapprover->get_email();
         $approve_link = $core->settings['rootdir']."/index.php?module=aro/managearodouments&referrer=toapprove&requestKey=".base64_encode($this->data['identifier'])."&id=".$this->data[self::PRIMARY_KEY];
         $aroapprovalemail_subject = 'Aro Needs Approval !';

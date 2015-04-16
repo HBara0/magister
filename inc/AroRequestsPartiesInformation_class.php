@@ -35,7 +35,7 @@ class AroRequestsPartiesInformation extends AbstractClass {
     }
 
     protected function update(array $data) {
-        global $db, $log;
+        global $db, $log, $core;
         $partiesinfo_data = $this->calculate_partiesinfofields($data);
         if(is_array($partiesinfo_data)) {
             $query = $db->update_query(self::TABLE_NAME, $partiesinfo_data, self::PRIMARY_KEY.' = '.intval($this->data[self::PRIMARY_KEY]));
@@ -46,9 +46,11 @@ class AroRequestsPartiesInformation extends AbstractClass {
     }
 
     private function validate_requiredfields(array $data = array()) {
+        global $core;
         if(is_array($data)) {
             $required_fields = array('estDateOfShipment', 'shipmentCountry', 'originCountry', 'vendorIncoterms', 'vendorIncotermsDesc', 'vendorPaymentTerm', 'vendorPaymentTermDesc', 'commission');
-            if($data['vendorIsAff'] == 0) {
+            $purchtype = new PurchaseTypes($core->input['cpurchasetype']);
+            if($data['vendorIsAff'] == 0 || $purchtype->needsIntermediary == 0) {
                 $additionalfields = array('vendorEid', 'intermedAff', 'intermedIncoterms', 'intermedIncotermsDesc', 'intermedPaymentTerm', 'intermedPaymentTermDesc');
             }
             else {

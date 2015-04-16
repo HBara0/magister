@@ -79,8 +79,8 @@ if(!$core->input['action']) {
 
     if(is_array($arodocumentrequest)) {
         foreach($arodocumentrequest as $documentrequest) {
-            $row_tools = '<a href=index.php?module=aro/managepolicies&id='.$documentrequest->aorid.' title="'.$lang->edit.'"><img src="./images/icons/edit.gif" border=0 alt="'.$lang->edit.'"/></a>';
-            $row_tools .= "<a href='#{$documentrequest->aorid}' id='deletearopolicy_{$documentrequest->aorid}_aro/listpolicies_icon'><img src='{$core->settings[rootdir]}/images/invalid.gif' border='0' alt='{$lang->deletearopolicy}' /></a>";
+            $row_tools = '<a href=index.php?module=aro/managearodouments&id='.$documentrequest->aorid.' title="'.$lang->edit.'"><img src="./images/icons/edit.gif" border=0 alt="'.$lang->edit.'"/></a>';
+            $row_tools .= "<a href='#{$documentrequest->aorid}' id='deletearopolicy_{$documentrequest->aorid}_aro/aroorderrequestlist_icon'><img src='{$core->settings[rootdir]}/images/invalid.gif' border='0' alt='{$lang->deletearopolicy}' /></a>";
             $affiliate = new Affiliates($documentrequest->affid);
             $purchasetype = new PurchaseTypes($documentrequest->orderType);
             $buyingcurr = new Currencies($documentrequest->currency);
