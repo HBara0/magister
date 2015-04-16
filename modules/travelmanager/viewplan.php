@@ -127,7 +127,7 @@ else {
         $mailer = $mailer->get_mailerobj();
         $mailer->set_type();
         $mailer->set_from(array('name' => 'Orkila Attendance System', 'email' => 'attendance@ocos.orkila.com'));
-        $mailer->set_subject($plan_object->get_displayname().' ['.$leave->requestKey.']');
+        $mailer->set_subject($leavetype->title.' - '.$plan_object->get_leave()->get_country()->get_displayname());
         $mailer->set_message($travelmanager_viewplan);
         $mailer->set_to($firstapprover->email);
         print_R($mailer->debug_info());
