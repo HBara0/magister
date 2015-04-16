@@ -29,6 +29,7 @@ if(!$core->input['action']) {
 
     if($core->usergroup['attendance_canViewAllAttendance'] != 1) {
         $usersfilter_where = '(uid = '.$core->user['uid'].' OR uid IN (SELECT uid FROM users WHERE reportsTo='.$core->user['uid'].')) ';
+        $users = get_specificdata('users', array('uid'), 'uid', 'uid', '', 0, $usersfilter_where);
         $and = ' AND ';
     }
     else {
@@ -92,7 +93,6 @@ if(!$core->input['action']) {
         $filter_where = $usersfilter_where;
         $filters['uid'] = $usersfilter_where;
     }
-
 
     $configs['returnarray'] = true;
     $records = AttendanceAttRecords::get_data($filters, $configs);
