@@ -2,13 +2,13 @@
         <table style="width:100%;">
             <thead>
                 <tr class="thead">
-                    <td colspan="2">Supplier</td>
+                    <td colspan="2">{$lang->supplier}</td>
                 </tr>
             </thead>
             <tbody>
                 <tr>
-                    <td>{$lang->supplier}</td>
-                    <td>
+                    <td style="width:30%;">{$lang->supplier} <small>{$lang->compsuppliercomment}</small></td>
+                    <td style="width:70%;">
                         <input type='text'id='competitorsupp_{$segment[psid]}{$srowid}_QSearch' autocomplete='off'  value="{$supplier_name}" size="25"/>
                         <input type='hidden' id='competitorsupp_{$segment[psid]}{$srowid}_id' name='marketreport[{$segment[psid]}][suppliers][{$srowid}][sid]' value="{$competitionsupplier['sid']}" />
                         <div id='searchQuickResults_competitorsupp_{$segment[psid]}{$srowid}' class='searchQuickResults' style='display:none;'></div>
