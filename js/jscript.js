@@ -74,32 +74,38 @@ $(function() {
         $("#sidedesignImage").height($(window).height());
     }
 
+    function destroy_texteditors(parent) {
+        parent.find(".txteditadv,.inlinetxteditadv,.basictxteditadv").each(function () {
+            var id = $(this).attr('id');
+            try {
+                if(CKEDITOR.instances[id]) {
+                    CKEDITOR.instances[id].destroy();
+                }
+            }
+            catch(e) {
+                alert(e);
+            }
+        });
+    }
     initialize_texteditors();
     function initialize_texteditors() {
-        if($(".inlinetxteditadv").length > 0) {
-            $(".inlinetxteditadv").each(function() {
+        if($(".inlinetxteditadv,.txteditadv,.basictxteditadv").length > 0) {
+            $(".inlinetxteditadv,.txteditadv,.basictxteditadv").each(function () {
                 var id = $(this).attr('id');
                 try {
                     if(CKEDITOR.instances[id]) {
                         CKEDITOR.instances[id].destroy();
                     }
-                    CKEDITOR.inline(id);
-                    CKEDITOR.instances[id].config.removePlugins = 'colorbutton,find,flash,font,forms,iframe,image,newpage,removeformat,smiley,specialchar,stylescombo,templates';
-                }
-                catch(e) {
-                    alert(e);
-                }
-            });
-        }
-
-        if($(".txteditadv").length > 0) {
-            $(".txteditadv").each(function() {
-                var id = $(this).attr('id');
-                try {
-                    if(CKEDITOR.instances[id]) {
-                        CKEDITOR.instances[id].destroy();
+                    if($(this).hasClass('inlinetxteditadv')) {
+                        CKEDITOR.inline(id);
+                        CKEDITOR.instances[id].config.removePlugins = 'horizontalrule,pagebreak,table,tabletools,colorbutton,find,flash,font,forms,iframe,image,newpage,removeformat,smiley,specialchar,stylescombo,templates';
                     }
-                    CKEDITOR.replace(id);
+                    else {
+                        CKEDITOR.replace(id);
+                        if($(this).hasClass('basictxteditadv')) {
+                            CKEDITOR.instances[id].config.removePlugins = 'horizontalrule,pagebreak,table,tabletools,colorbutton,find,flash,font,forms,iframe,image,newpage,removeformat,smiley,specialchar,stylescombo,templates';
+                        }
+                    }
                 }
                 catch(e) {
                     alert(e);
@@ -550,7 +556,7 @@ $(function() {
                 );
     }
 
-    $("a[id$='_loadpopupbyid'],a[id^='mergeanddelete_'][id$='_icon'],a[id^='revokeleave_'][id$='_icon'],a[id^='approveleave_'][id$='_icon']").live('click', function() {
+    $("a[id$='_loadpopupbyid'],a[id^='mergeanddelete_'][id$='_icon'],a[id^='revokeleave_'][id$='_icon'],a[id^='approveleave_'][id$='_icon']").live('click', function () {
         var id = $(this).attr("id").split("_");
 //        var rel = $(this).prop("rel");
 //        var underscore = '_';
@@ -599,25 +605,22 @@ $(function() {
         if(id === undefined) {
             id = '';
         }
+
         if(id.length > 1) {
             id = id.split("_");
-        }
-        var underscore = '';
-        var uniquename = '';
-
-        if(id.length == 1) {
-            uniquename = id;
-
+            var underscore = '';
+            var uniquename = '';
         }
         else {
-            for(i = 0; i < id.length; i++) {
-                if(id[i].length > 1) {
-                    uniquename = uniquename + underscore + id[i];
-                    underscore = "_";
-                }
-            }
+            uniquename = id;
         }
 
+        for(i = 0; i < id.length; i++) {
+            if(id[i].length > 1) {
+                uniquename = uniquename + underscore + id[i];
+                underscore = "_";
+            }
+        }
         id = uniquename;
 
         if(id != 'users.php') {
@@ -643,6 +646,7 @@ $(function() {
         if(module == '' && id != '') {
             file = rootdir + id;
         }
+
         /*change ajax call*/
         $.ajax({type: 'post',
             url: file + "?module=" + module + "&action=get_" + template,
@@ -668,8 +672,10 @@ $(function() {
                     minWidth: 600,
                     maxWidth: 800,
                     zIndex: 1000,
-                    close: function() {
-                        $(this).find("form").each(function() {
+                    close: function () {
+                        destroy_texteditors($(this));
+
+                        $(this).find("form").each(function () {
                             this.reset();
                         });
                         $(this).find("span[id$='_Validation']").empty();

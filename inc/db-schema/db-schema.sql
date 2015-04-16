@@ -2473,6 +2473,7 @@ CREATE TABLE `reports` (
   `mktReportAvailable` smallint(1) NOT NULL DEFAULT '0',
   `isApproved` smallint(1) NOT NULL DEFAULT '0',
   `summary` int(10) DEFAULT NULL,
+  `dataIsImported` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`rid`),
   KEY `affid` (`affid`,`spid`),
   KEY `summary` (`summary`)

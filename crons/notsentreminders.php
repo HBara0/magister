@@ -4,13 +4,13 @@ require '../inc/init.php';
 $users = array();
 
 $quarter = currentquarter_info();
-$query = $db->query("SELECT r.*, aff.name AS affiliatename, s.companyName AS suppliername 
+$query = $db->query("SELECT r.*, aff.name AS affiliatename, s.companyName AS suppliername
 					FROM ".Tprefix."reports r JOIN ".Tprefix."affiliates aff ON (r.affid=aff.affid) JOIN ".Tprefix."entities s ON (r.spid=s.eid)
 					WHERE r.type='q' AND year='{$quarter[year]}' AND quarter = '{$quarter[quarter]}' AND r.isSent=0 AND s.noQReportSend=0");
 $audits = $passed_over_rids = $not_to_include = array();
 while($report = $db->fetch_array($query)) {
     if(!in_array($report['spid'], $not_to_include)) {
-        if($report['status'] != 1) {
+        if($report['status'] != 1 || $report['dataIsImported'] != 1) {
             unset($reports[$report['spid']]);
             $not_to_include[] = $report['spid'];
             continue;
@@ -28,7 +28,7 @@ if(!is_array($reports)) {
 }
 
 foreach($reports as $key => $val) {
-    $query2 = $db->query("SELECT u.uid, u.firstName, u.lastName, u.email 
+    $query2 = $db->query("SELECT u.uid, u.firstName, u.lastName, u.email
 						  FROM ".Tprefix."users u JOIN ".Tprefix."suppliersaudits sa ON (u.uid=sa.uid)
 						  WHERE u.gid IN ('5', '1', '13', '2') AND sa.eid='{$val[spid]}'");
 

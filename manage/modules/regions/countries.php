@@ -105,20 +105,16 @@ else {
         $country['coid'] = $country_obj->coid;
         $country['name'] = $country_obj->name;
         $country['acronym'] = $country_obj->acronym;
-        $affiliates_attributes = array("affid", "name");
-        $countries_order = array(
-                "by" => "name",
-                "sort" => "ASC"
-        );
 
-        $affiliates = get_specificdata("affiliates", $affiliates_attributes, "affid", "name", $countries_order, 1);
+        $affiliates[0] = '';
+        $affiliates += Affiliates::get_affiliates(null, array('returnarray' => true, 'order' => array('by' => 'name', 'sort' => 'ASC')));
         if(!empty($affiliates)) {
             $affiliates_list = parse_selectlist("affid", 2, $affiliates, $country_obj->affid);
         }
         else {
             $affiliates_list = $lang->noaffiliatesavailable;
         }
-        eval("\$addcountry = \"".$template->get("popup_addcountry")."\";");
+        eval("\$addcountry = \"".$template->get('popup_addcountry')."\";");
         output($addcountry);
     }
 }
