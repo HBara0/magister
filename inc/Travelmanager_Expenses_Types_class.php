@@ -59,7 +59,7 @@ class Travelmanager_Expenses_Types extends AbstractClass {
         return new Users($this->data['createdBy']);
     }
 
-    public function parse_expensesfield($expensesoptions, $sequence, $rowid, $expensestype = array(), $options = array()) {
+    public function parse_expensesfield($expensesoptions, $sequence, $rowid, $expensestype = array(), $options = array(), $segmentid) {
         global $db, $template, $lang;
         $options['mode'] = 're';
         if(is_array($expensesoptions)) {  // if the object coming from the update mode.
@@ -102,6 +102,10 @@ class Travelmanager_Expenses_Types extends AbstractClass {
         $expensestype[$sequence][$rowid]['display'] = $expensestype[$segid][$rowid]['display'];
         if(empty($expensestype[$sequence][$rowid]['display'])) {
             $expensestype[$sequence][$rowid]['display'] = "display:none;";
+        }
+        $display_exp = 'display:none';
+        if($expensestype[$segmentid][$rowid][selectedtype][0] == '4') {
+            $display_exp = '';
         }
         eval("\$segments_expenses_output = \"".$template->get('travelmanager_expenses_types')."\";");
         $expenses_detailspaidby = '';
