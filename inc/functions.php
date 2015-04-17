@@ -1750,6 +1750,27 @@ function get_classname_bytable($table) {
         case 'keycustomers':
             return KeyCustomers::CLASSNAME;
             break;
+        case 'budgeting_budgets_lines':
+            return BudgetLines::CLASSNAME;
+            break;
+        case 'budgeting_budgets':
+            return Budgets::CLASSNAME;
+            break;
+        case 'grouppurchase_forecast':
+            return GroupPurchaseForecast::CLASSNAME;
+            break;
+        case 'productsegments':
+            return ProductsSegments::CLASSNAME;
+            break;
+        case 'products':
+            return Products::CLASSNAME;
+            break;
+        case 'products':
+            return Products::CLASSNAME;
+            break;
+        case 'suppliersaudits':
+            return SupplierAudits::CLASSNAME;
+            break;
         default:
             return false;
     }
