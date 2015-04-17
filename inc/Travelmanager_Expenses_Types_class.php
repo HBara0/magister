@@ -59,7 +59,7 @@ class Travelmanager_Expenses_Types extends AbstractClass {
         return new Users($this->data['createdBy']);
     }
 
-    public function parse_expensesfield($expensesoptions, $sequence, $rowid, $expensestype = array(), $options = array(), $segmentid) {
+    public function parse_expensesfield($expensesoptions, $sequence, $rowid, $expensestype = array(), $options = array(), $segmentid = '0') {
         global $db, $template, $lang;
         $options['mode'] = 're';
         if(is_array($expensesoptions)) {  // if the object coming from the update mode.
