@@ -9,6 +9,7 @@ class Entities extends AbstractClass {
     const TABLE_NAME = 'entities';
     const DISPLAY_NAME = 'companyName';
     const CLASSNAME = __CLASS__;
+    const UNIQUE_ATTRS = '';
 
     public function __construct($data, $action = '', $simple = true) {
         if(is_array($data)) {
@@ -895,6 +896,9 @@ class Entities extends AbstractClass {
         }
         if(is_array($tables)) {
             foreach($tables as $key => $columntables) {
+                if($columntables == 'entities') {
+                    continue;
+                }
                 if(is_array($columntables)) {
                     $entity_tables[$key] = array_fill_keys(array_values($columntables), $key);
                 }

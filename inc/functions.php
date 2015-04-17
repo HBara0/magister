@@ -1765,9 +1765,6 @@ function get_classname_bytable($table) {
         case 'products':
             return Products::CLASSNAME;
             break;
-        case 'products':
-            return Products::CLASSNAME;
-            break;
         case 'suppliersaudits':
             return SupplierAudits::CLASSNAME;
             break;
