@@ -11,7 +11,7 @@
             </tr>
             <tr>
                 <td>{$lang->titleabbreviation}</td><td><input type="text"  id="titleAbbr" name="segment[titleAbbr]" value="{$segment['titleAbbr']}"/></td>
-                <td>{$lang->category}$category_selectlist</td>
+                <td>{$lang->category}{$category_selectlist}</td>
             </tr>
             <tr>
                 <td>{$lang->largebanner}</td><td><input type="text" cols="30" rows="5" id="largeBanner" name="segment[largeBanner]" value="{$segment['largeBanner']}"/></textarea</td>
