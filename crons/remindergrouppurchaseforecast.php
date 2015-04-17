@@ -24,6 +24,9 @@ if($_REQUEST['authkey'] == 'odsfaddkjj!hre23jh4k2_3h49g3jh') {
             }
         }
     }
+    if(!is_array($userids)) {
+        exit;
+    }
     $userid = array_unique($userids);
     foreach($userid as $uid) {
         $gpforecastslines_objs = GroupPurchaseForecastLines::get_data(array('businessMgr' => $uid), array('returnarray' => true, 'simple' => false));
