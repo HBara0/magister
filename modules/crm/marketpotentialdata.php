@@ -14,7 +14,15 @@ if($core->usergroup['profiles_canUseMktIntel'] == 0) {
     //error($lang->sectionnopermission);
 }
 if(!$core->input['action']) {
-    $marketintel_objs = MarketIntelligence::get_marketdata_dal(null, array('order' => array('by' => 'createdOn', 'sort' => 'DESC'), 'simple' => false));
+    $sort_url = sort_url();
+    $filters_row_display = 'hide';
+    $sort_query['sort'] = 'DESC';
+    $sort_query['by'] = 'createdOn';
+    if(isset($core->input['sortby'], $core->input['order'])) {
+        $sort_query['sort'] = $core->input['order'];
+        $sort_query['by'] = $core->input['sortby'];
+    }
+    $marketintel_objs = MarketIntelligence::get_marketdata_dal(null, array('simple' => false, 'order' => $sort_query));
 
     /* Perform inline filtering - START */
     $filters_config = array(
@@ -48,7 +56,6 @@ if(!$core->input['action']) {
     $filter = new Inlinefilters($filters_config);
     $filter_where_values = $filter->process_multi_filters();
 
-    $filters_row_display = 'hide';
     if(is_array($filter_where_values)) {
         $filters_row_display = 'show';
         $filter_where = ' '.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
@@ -167,7 +174,7 @@ if(!$core->input['action']) {
     }
     if($core->usergroup['profiles_canAddMkIntlData'] == 1) {
         $midata = new MarketIntelligence();
-        $addmarketdata_link = '<div style="float: right;" title="'.$lang->addmarketdata.'"><a href="#popup_profilesmarketdata" id="showpopup_profilesmarketdata" class="showpopup"><img alt="Add Market" src="'.$core->settings['rootdir'].'/images/icons/edit.gif" /></a></div>';
+        $addmarketdata_link = '<div style="float: right;"><a href="#popup_profilesmarketdata" id="showpopup_profilesmarketdata" class="showpopup"><button >'.$lang->addmarketdata.'</button></a></div>';
         $array_data = array('module' => 'proiles', 'elemtentid' => $affid, 'fieldlabel' => $lang->product, 'action' => 'do_addmartkerdata', 'modulefile' => 'entityprofile');
         eval("\$profiles_entityprofile_micustomerentry = \"".$template->get('crm_marketpotentialdata_micustomerentry')."\";");
         $module = 'crm';
