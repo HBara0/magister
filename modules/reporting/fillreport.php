@@ -367,50 +367,101 @@ if(!$core->input['action']) {
                 eval("\$markerreport_fields .= \"".$template->get('reporting_fillreports_marketreport_fields')."\";");
 
                 /* Parse Market report section on modify */
-//                if(is_array($marketreportcompetetion[$segment['psid']])) {
-//                    foreach($marketreportcompetetion[$segment['psid']] as $marketreportid => $mrcompetition) {
-//                        if(is_array($mrcompetition)) {
-//                            foreach($mrcompetition as $mrcid => $competitionsupplier) {
-//                                $competitionsupplier = $competitionsupplier->get();
-//                                $supplier = new Entities($competitionsupplier['sid']);
-//                                if(is_object($supplier)) {
-//                                    $supplier_name = $supplier->get_displayname();
-//                                }
-//                                $inputchecksum['supplier'] = $competitionsupplier['inputChecksum'];
-//                                $mrcompetition_products = MarketReportCompetitionProducts::get_data(array('mrcid' => $mrcid), array('returnarray' => true));
-//                                if(is_array($mrcompetition_products)) {
-//                                    foreach($mrcompetition_products as $mrcompetition_product) {
-//                                        $mrcompetition_product = $mrcompetition_product->get();
-//                                        $product = new Products($mrcompetition_product['pid']);
-//                                        if(is_object($product)) {
-//                                            $product_name = $product->get_displayname();
-//                                        }
-//                                        $chemicalsubstance = new Chemicalsubstances($mrcompetition_product['csid']);
-//                                        if(is_object($chemicalsubstance)) {
-//                                            $chemicalsubstance_name = $chemicalsubstance->get_displayname();
-//                                        }
-//                                        $inputchecksum['product'] = $mrcompetition_product['inputChecksum'];
-//                                        eval("\$product_row= \"".$template->get('reporting_fillreport_marketreport_suppproducts')."\";");
-//                                    }
-//                                }
-//                                eval("\$markerreport_segment_suppliers_row = \"".$template->get('reporting_fillreport_marketreport_suppliers_rows')."\";");
-//                            }
-//                            eval("\$markerreport_segment_suppliers = \"".$template->get('reporting_fillreport_marketreport_suppliers')."\";");
-//                        }
-//                    }
-//                }
-//                else {
-                $srowid = $sprowid = 1;
-                $css['display']['chemsubfield'] = 'none';
-                $inputchecksum['product'] = generate_checksum('mpl');
-                eval("\$product_row= \"".$template->get('reporting_fillreport_marketreport_suppproducts')."\";");
-                $inputchecksum['supplier'] = generate_checksum('msl');
-                eval("\$markerreport_segment_suppliers_row = \"".$template->get('reporting_fillreport_marketreport_suppliers_rows')."\";");
-                $inputchecksum['unspecifiedsupp'] = generate_checksum('msl');
-                $inputchecksum['unspecifiedsuppcs'] = generate_checksum('mpl');
-                eval("\$markerreport_segment_suppliers = \"".$template->get('reporting_fillreport_marketreport_suppliers')."\";");
-                // }
-                $markerreport_fields .=$markerreport_segment_suppliers;
+                if(is_array($marketreportcompetetion[$segment['psid']])) {
+                    foreach($marketreportcompetetion[$segment['psid']] as $marketreportid => $mrcompetition) {
+                        $srowid = $sprowid = 0;
+                        if(is_array($mrcompetition)) {
+                            foreach($mrcompetition as $mrcid => $competitionsupplier) {
+                                $srowid++;
+                                $competitionsupplier = $competitionsupplier->get();
+                                if($competitionsupplier['sid'] == 0) {
+                                    $checked['unspecifiedsupp'] = 'checked="cecked"';
+                                    $inputchecksum['unspecifiedsupp'] = $competitionsupplier['inputChecksum'];
+
+                                    $mrcompetition_products = MarketReportCompetitionProducts::get_data(array('mrcid' => $mrcid), array('returnarray' => true));
+                                    if(is_array($mrcompetition_products)) {
+                                        $sprowid = $tmpsprowid = 0;
+                                        foreach($mrcompetition_products as $mrcompetition_product) {
+                                            $tmpsprowid++;
+                                            if($tmpsprowid != 1) {
+                                                $sprowid++;
+                                            }
+                                            $mrcompetition_product = $mrcompetition_product->get();
+                                            $chemicalfunc = new ChemFunctionChemicals($mrcompetition_product['csid']);
+                                            if(is_object($chemicalfunc)) {
+                                                $chemicalsubstance = new Chemicalsubstances($chemicalfunc->csid);
+                                                $chemicalsubstance_name = $chemicalsubstance->get_displayname();
+                                                $unspecified_chemname = $chemicalsubstance_name;
+                                                $unspecified_id = $chemicalfunc->csid;
+                                            }
+                                            if($tmpsprowid < count($mrcompetition_products)) {
+                                                $unspecifiedsupplierproducts .= '<tr>  <td style="width:30%;"></td>  <td style="width:65%;">'
+                                                        .'<input type="text" size="25" id="chemfunctionchecmical_'.$segment[psid].'0'.$sprowid.'_autocomplete" size="100" autocomplete="off" value="'.$chemicalsubstance_name.'" placeholder="pick chemical substance"/>
+                                        <input type="hidden" id="chemfunctionchecmical_'.$segment[psid].'0'.$sprowid.'_id" name="marketreport['.$segment[psid].'][suppliers][0][chp]['.$sprowid.'][csid]" value="'.$mrcompetition_product['csid'].'"/>
+                                    <div id="searchQuickResults_'.$segment[psid].'0'.$sprowid.'" class="searchQuickResults" style="display:none;"></div>
+                                    <input type="hidden" name="marketreport[{$segment[psid]}][suppliers][0][chp]['.$sprowid.'][inputChecksum]" value="'.$inputchecksum[unspecifiedsuppcs].'"/></td></tr>';
+                                                unset($chemicalsubstance_name, $chemicalsubstance);
+                                            }
+                                            $srowid--;
+                                        }
+                                    }
+                                }
+                                else {
+                                    $sprowid = 0;
+                                    $supplier = new Entities($competitionsupplier['sid']);
+                                    if(is_object($supplier)) {
+                                        $supplier_name = $supplier->get_displayname();
+                                    }
+                                    $inputchecksum['supplier'] = $competitionsupplier['inputChecksum'];
+
+                                    $mrcompetition_products = MarketReportCompetitionProducts::get_data(array('mrcid' => $mrcid), array('returnarray' => true));
+                                    if(is_array($mrcompetition_products)) {
+                                        $sprowid = 0;
+                                        foreach($mrcompetition_products as $mrcompetition_product) {
+                                            $sprowid++;
+                                            $display['chemsubstance'] = $display['product'] = 'style="display:none;"';
+                                            $mrcompetition_product = $mrcompetition_product->get();
+                                            $product = new Products($mrcompetition_product['pid']);
+                                            if(is_object($product)) {
+                                                $product_name = $product->get_displayname();
+                                                if(!empty($product_name)) {
+                                                    $display['product'] = 'style="display:block;"';
+                                                }
+                                            }
+
+                                            $chemicalfunc = new ChemFunctionChemicals($mrcompetition_product['csid']);
+                                            if(is_object($chemicalfunc)) {
+                                                $chemicalsubstance = new Chemicalsubstances($chemicalfunc->csid);
+                                                $chemicalsubstance_name = $chemicalsubstance->get_displayname();
+                                                if(!empty($chemicalsubstance_name)) {
+                                                    $display['chemsubstance'] = 'style="display:block;"';
+                                                }
+                                            }
+                                            $inputchecksum['product'] = $mrcompetition_product['inputChecksum'];
+                                            eval("\$product_row .= \"".$template->get('reporting_fillreport_marketreport_suppproducts')."\";");
+                                        }
+                                    }
+                                    eval("\$markerreport_segment_suppliers_row .= \"".$template->get('reporting_fillreport_marketreport_suppliers_rows')."\";");
+                                    unset($product_row);
+                                }
+                            }
+                            eval("\$markerreport_segment_suppliers = \"".$template->get('reporting_fillreport_marketreport_suppliers')."\";");
+                            unset($chemicalsubstance_name, $product_name, $product_row, $markerreport_segment_suppliers_row, $unspecifiedsupplierproducts, $checked['unspecifiedsupp']);
+                        }
+                        else {
+                            $srowid = $sprowid = 1;
+                            $css['display']['chemsubfield'] = 'none';
+                            $inputchecksum['product'] = generate_checksum('mpl');
+                            eval("\$product_row= \"".$template->get('reporting_fillreport_marketreport_suppproducts')."\";");
+                            $inputchecksum['supplier'] = generate_checksum('msl');
+                            eval("\$markerreport_segment_suppliers_row = \"".$template->get('reporting_fillreport_marketreport_suppliers_rows')."\";");
+                            $inputchecksum['unspecifiedsupp'] = generate_checksum('msl');
+                            $inputchecksum['unspecifiedsuppcs'] = generate_checksum('mpl');
+                            eval("\$markerreport_segment_suppliers = \"".$template->get('reporting_fillreport_marketreport_suppliers')."\";");
+                        }
+                        $markerreport_fields .=$markerreport_segment_suppliers;
+                    }
+                }
             }
             if(isset($marketreport[0])) {
                 $segment['psid'] = 0;
@@ -694,7 +745,7 @@ else {
                 continue;
             }
 
-            unset($val['segmenttitle'], $val['exclude']);
+            unset($val[segmenttitle], $val[exclude]);
             if($found_one == false) {
                 if(!empty($val)) {
                     foreach($val as $k => $v) {
@@ -1184,6 +1235,19 @@ else {
         $inputchecksum['product'] = generate_checksum('mpl');
         eval("\$markerreport_segment_suppliers_row = \"".$template->get('reporting_fillreport_marketreport_suppproducts')."\";");
         echo $markerreport_segment_suppliers_row;
+    }
+    elseif($core->input ['action'] == 'ajaxaddmore_unspecifiedsupplierproducts') {
+        $sprowid = $db->escape_string($core->input ['value']) + 1;
+        $segment['psid'] = $db->escape_string($core->input ['ajaxaddmoredata']['segmentid']);
+        $srowid = $db->escape_string($core->input ['ajaxaddmoredata']['srowid']);
+        $inputchecksum['unspecifiedsuppcs'] = generate_checksum('upl');
+        $unspecifiedsupplierproducts = '<tr>  <td style="width:30%;"></td>  <td style="width:65%;">'
+                .'<input type="text" size="25" id="chemfunctionchecmical_'.$segment[psid].'0'.$sprowid.'_autocomplete" size="100" autocomplete="off" value="" placeholder="pick chemical substance"/>
+                                    <input type="hidden" id="chemfunctionchecmical_'.$segment[psid].'0'.$sprowid.'_id" name="marketreport['.$segment[psid].'][suppliers][0][chp]['.$sprowid.'][csid]" value=""/>
+                                    <div id="searchQuickResults_'.$segment[psid].'0'.$sprowid.'" class="searchQuickResults" style="display:none;"></div>
+                                    <input type="hidden" name="marketreport['.$segment[psid].'][suppliers][0][chp]['.$sprowid.'][inputChecksum]" value="'.$inputchecksum[unspecifiedsuppcs].'"/></td></tr>';
+
+        echo $unspecifiedsupplierproducts;
     }
 }
 ?>
