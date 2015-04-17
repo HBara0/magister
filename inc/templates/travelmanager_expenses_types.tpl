@@ -4,7 +4,7 @@
         <div style="display:inline-block;width:70%;"><select id="segment_expensestype_{$sequence}_{$rowid}" name='segment[{$sequence}][expenses][{$rowid}][tmetid]'   {$onchange_actions}>{$expenses_options}</select></div>
         <div style="display:block;padding:5px">
             <input type="hidden" value="{$expensestype[$segid][$rowid]['tmeid']}" name="segment[{$sequence}][expenses][{$rowid}][tmeid]"/>
-            <div style="display:none;" id="Other_{$sequence}_{$rowid}">
+            <div style="{$display_exp}" id="Other_{$sequence}_{$rowid}">
 
                 <div style="display:inline-block;">{$lang->other} <input name="segment[{$sequence}][expenses][{$rowid}][description]" type="text" value="{$expensestype[$segid][$rowid][otherdesc]}"> </div>
             </div>

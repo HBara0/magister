@@ -1728,6 +1728,54 @@ function get_object_bytype($dim, $id, $simple = true) {
     }
 }
 
+function get_classname_bytable($table) {
+    switch($table) {
+        case 'entities':
+            return Entities::CLASSNAME;
+            break;
+        case 'affiliatedentities':
+            return AffiliatedEntities::CLASSNAME;
+        case 'entitiessegments':
+            return EntitiesSegments::CLASSNAME;
+            break;
+        case 'entitiesrepresentatives':
+            return EntitiesRepresentatives::CLASSNAME;
+            break;
+        case 'visitreports':
+            return VisitReports::CLASSNAME;
+            break;
+        case 'assignedemployees':
+            return AssignedEmployees::CLASSNAME;
+            break;
+        case 'keycustomers':
+            return KeyCustomers::CLASSNAME;
+            break;
+        case 'budgeting_budgets_lines':
+            return BudgetLines::CLASSNAME;
+            break;
+        case 'budgeting_budgets':
+            return Budgets::CLASSNAME;
+            break;
+        case 'grouppurchase_forecast':
+            return GroupPurchaseForecast::CLASSNAME;
+            break;
+        case 'productsegments':
+            return ProductsSegments::CLASSNAME;
+            break;
+        case 'products':
+            return Products::CLASSNAME;
+            break;
+        case 'products':
+            return Products::CLASSNAME;
+            break;
+        case 'suppliersaudits':
+            return SupplierAudits::CLASSNAME;
+            break;
+        default:
+            return false;
+    }
+}
+
 function fix_url($url) {
     if(!preg_match("~^(?:f|ht)tps?://~i", $url)) {
         $url = "http://".$url;

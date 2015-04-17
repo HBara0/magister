@@ -10,7 +10,7 @@
                 <td width="40%"><strong>{$lang->segment}</strong></td><td>{$segments_list}</td>
             </tr>
             <tr>
-                <td colspan="2">{$lang->description}<br /><textarea name="segmentapplications[description]" id='description{$application->psaid}' cols="50" class="txteditadv" rows="25">{$application->description}</textarea></td>
+                <td colspan="2">{$lang->description}<br /><textarea name="segmentapplications[description]" id='description{$application->psaid}' cols="50" class="basictxteditadv" rows="25">{$application->description}</textarea></td>
             </tr>
             <tr><td colspan="2"><hr /></td></tr>
             <tr>
