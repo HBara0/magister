@@ -35,14 +35,6 @@
                     {$lang->perlist}: <input type='text' size='4' id='perpage_field' name='perpage' value='{$core->settings[itemsperlist]}' class="smalltext"/>
                 </form>
             </div>
-            <div style="width:50%; float:right; margin-top:0px; text-align:right;" class="smalltext">
-                <form method='post' action='index.php?module=cms/listwebpages'>
-                    <select id="filterby" name="filterby">
-                        <option value="title">{$lang->title}</option>
-                    </select>
-                    <input type="text" name="filtervalue" id="filtervalue"> <input type="submit" class="button" value="{$lang->filter}">
-                </form>
-            </div>
         </td>
     </tr>
     {$footer}
