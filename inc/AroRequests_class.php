@@ -714,7 +714,7 @@ class AroRequests extends AbstractClass {
                     $takeactionpage_conversation .= '<div>'.$message['message'].'</div><br />';
                 }
                 else {
-                    eval("\$takeactionpage_conversation .= \"".$template->get('attendance_listleaves_takeaction_convmsg')."\";");
+                    eval("\$takeactionpage_conversation .= \"".$template->get('aro_managearodocuments_takeaction_convmsg')."\";");
                 }
                 $reply_replies = $reply->get_replies();
                 if(is_array($reply_replies)) {
