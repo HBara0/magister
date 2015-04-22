@@ -3,6 +3,15 @@
         <title>{$core->settings[systemtitle]} | {$lang->selectareport}</title>
         {$headerinc}
         <script src="{$core->settings[rootdir]}/js/fillreport.js" type="text/javascript"></script>
+        <style type="text/css">
+            .ui-tabs-nav li {
+                width:110px;
+            }
+
+            .ui-icon,.ui-icon-close {
+                cursor: pointer;
+            }
+        </style>
     </head>
     <body>
         {$header}
