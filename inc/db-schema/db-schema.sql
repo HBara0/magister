@@ -2068,16 +2068,19 @@ DROP TABLE IF EXISTS `marketreport_developmentpojects`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `marketreport_developmentpojects` (
-  `mrdpid` int(10) NOT NULL,
-  `mrid` int(10) NOT NULL,
+  `mrdpid` int(10) NOT NULL AUTO_INCREMENT,
+  `rid` int(10) NOT NULL,
   `cid` int(10) NOT NULL,
+  `pid` int(10) NOT NULL,
   `potentialQty` int(11) NOT NULL,
   `successPerc` int(11) NOT NULL,
   `who` varchar(200) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
   `what` varchar(200) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
-  `where` varchar(200) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
-  `inputChecksum` varchar(150) NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  `whenn` varchar(200) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `inputChecksum` varchar(150) NOT NULL,
+  PRIMARY KEY (`mrdpid`),
+  UNIQUE KEY `mrdpid` (`mrdpid`)
+) ENGINE=MyISAM AUTO_INCREMENT=24 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `meetings`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
