@@ -24,6 +24,10 @@ class SystemTables extends AbstractClass {
 
     public function create(array $data) {
         global $db;
+        if(empty($data['tableName']) || !isset($data['tableName'])) {
+            $this->errorcode = 1;
+            return;
+        }
         $table_array = array(
                 'tableName' => $data['tableName'],
                 'className' => $data['className'],
@@ -39,6 +43,10 @@ class SystemTables extends AbstractClass {
     protected function update(array $data) {
         global $db;
         if(is_array($data)) {
+            if(empty($data['tableName']) || !isset($data['tableName'])) {
+                $this->errorcode = 1;
+                return;
+            }
             $table_array['tableName'] = $data['tableName'];
             $table_array['className'] = $data['className'];
             $table_array['nbOfColumns'] = $data['nbOfColumns'];

@@ -9,7 +9,7 @@
  */
 $lang['tableslist'] = 'Tables List';
 $lang['tablename'] = 'Table Name';
-$lang['numberofcolumns'] = 'Number Of Colomuns';
+$lang['numberofcolumns'] = 'Number Of Columns';
 $lang['classname'] = 'Class Name';
 $lang['managetable'] = 'Manage Tables';
 $lang['columnname'] = 'Column Name';
@@ -29,4 +29,6 @@ $lang['successfullysaved'] = 'Successfully Saved';
 $lang['saveandcreateclass'] = 'Save And Create PHP Class';
 $lang['simple'] = 'Simple';
 $lang['displayname'] = 'Display Name';
+$lang['addtable'] = 'Add Table';
+$lang['fillallrequiredfields'] = 'Fill All Required Fields';
 ?>

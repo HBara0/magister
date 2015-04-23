@@ -10,6 +10,7 @@
         <td class="contentContainer" colspan="2">
             <h1>{$lang->tableslist}</h1>
             <form method='post' action='$_SERVER[REQUEST_URI]'>
+                <div style="float:right;" class="subtitle"><a href="#" id="showpopup_addsystable" class="showpopup"><img src="{$core->settings[rootdir]}/images/addnew.png" border="0">{$lang->addtable}</a></div>
                 <table width="100%" border="0" cellspacing="0" cellpadding="2" style="display:table" class="datatable">
                     <thead>
                         <tr>
@@ -30,4 +31,5 @@
         </td>
     </tr>
     {$footer}
+    {$popup_addtable}
 </html>
