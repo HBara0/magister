@@ -9,34 +9,32 @@
                 </tr>
                 <tr>
                     <td>
-                        <div id='prof_mkd_prodfield_{$crowid}{$cprowid}' style="display:inline-block;width:65%;margin-top:15px;">
-                            <input type="text" size="25" id="chemfunctionproducts_{$crowid}{$cprowid}_autocomplete" autocomplete="off"  value="{$product_name}"/>
-                            <input type="hidden" id="chemfunctionproducts_{$crowid}{$cprowid}_id" name="marketreport[customers][{$crowid}][products][{$sprowid}][pid]" value="{}"/>
-                            <div id="searchQuickResults_{$crowid}{$cprowid}" class="searchQuickResults" style="display:none;"></div>
-                            <input type="hidden" name="marketreport[customers][{$crowid}][products][{$cprowid}][inputChecksum]" value="{$inputchecksum[product]}"/>
-
-                            <br />
-                        </div>
+                        <input type='text' name="marketreport[customers][{$crowid}][products][{$cprowid}][productname]" id="product_{$crowid}{$cprowid}_autocomplete" value="{$project[productname]}" autocomplete='off' />
+                        <input type="hidden" value="{$project[pid]}" id="product_{$crowid}{$cprowid}_id" name="marketreport[customers][{$crowid}][products][{$cprowid}][pid]" />
+                        <div id="searchQuickResults_{$crowid}{$cprowid}" class="searchQuickResults" style="display:none;"></div>
+                        <input type="hidden" name="marketreport[customers][{$crowid}][products][{$cprowid}][inputChecksum]" value="{$inputchecksum[custproduct]}"/>
+                        <br />
                     </td>
                     <td>
-                        <input type="number" step="any" name="marketreport[customers][{$crowid}][products][{$cprowid}][potentialQty]" value=""/>
+                        <input type="number" step="any" name="marketreport[customers][{$crowid}][products][{$cprowid}][potentialQty]" value="{$project[potentialQty]}"/>
                     </td>
                     <td>
-                        <input type="number" step="any" name="marketreport[customers][{$crowid}][products][{$cprowid}][successPerc]" value=""/>
+                        <input type="number" step="any" name="marketreport[customers][{$crowid}][products][{$cprowid}][successPerc]" value="{$project[successPerc]}"/>
                     </td>
                 </tr>
+                <tr><td colspan="3" class="subtitle">{$lang->followup}</td></tr>
                 <tr>
                     <td>{$lang->who}</td> <td>{$lang->what} </td> <td>{$lang->when}</td>
                 </tr>
                 <tr>
                     <td>
-                        <textarea name="marketreport[customers][{$crowid}][products][{$cprowid}][when]" cols="18" rows="3"></textarea>
+                        <textarea name="marketreport[customers][{$crowid}][products][{$cprowid}][who]" cols="18" rows="3">{$project[who]}</textarea>
                     </td>
                     <td>
-                        <textarea name="marketreport[customers][{$crowid}][products][{$cprowid}][what]" cols="18" rows="3"></textarea>
+                        <textarea name="marketreport[customers][{$crowid}][products][{$cprowid}][what]" cols="18" rows="3">{$project[what]}</textarea>
                     </td>
                     <td>
-                        <textarea name="marketreport[customers][{$crowid}][products][{$cprowid}][where]" cols="18" rows="3"></textarea>
+                        <textarea name="marketreport[customers][{$crowid}][products][{$cprowid}][when]" cols="18" rows="3">{$project[whenn]}</textarea>
                     </td>
                 </tr>
             </tbody>

@@ -376,18 +376,45 @@ if(!$core->input['action']) {
             eval("\$markerreport_fields = \"".$template->get('reporting_fillreports_marketreport_fields')."\";");
         }
 
+        $marketreportdevelopmentprokjects = MarketReportDevelopmentPojects::get_data(array('rid' => $rid), array('returnarray' => true));
+        if(is_array($marketreportdevelopmentprokjects)) {
+            $crowid = $cprowid = 0;
+            foreach($marketreportdevelopmentprokjects as $developmentprokject) {
+                $devprojects_data[$developmentprokject->cid][] = $developmentprokject;
+            }
+            if(is_array($devprojects_data)) {
+                foreach($devprojects_data as $cid => $projects) {
+                    $crowid++;
+                    $customer['cid'] = $cid;
+                    $customer_obj = new Entities($cid);
+                    $marketreport['customerName'] = $customer_obj->get_displayname();
+                    if(is_array($projects)) {
+                        foreach($projects as $project) {
+                            $cprowid++;
+                            $project = $project->get();
+                            $product = new Products($project['pid']);
+                            if(is_object($product)) {
+                                $project['productname'] = $product->get_displayname();
+                                $inputchecksum[custproduct] = $project['inputChecksum'];
+                            }
+                            eval("\$customer_product_row.= \"".$template->get('reporting_marketreport_devprojects_custproducts')."\";");
+                        }
+                    }
+                    eval("\$markerreport_customer_row .= \"".$template->get('reporting_marketreport_devprojects_custrow')."\";");
+                    unset($customer_product_row);
+                }
+            }
+        }
+        else {
+            $crowid = $cprowid = 1;
+            $inputchecksum['custproduct'] = generate_checksum('cp');
+            eval("\$customer_product_row.= \"".$template->get('reporting_marketreport_devprojects_custproducts')."\";");
+            eval("\$markerreport_customer_row = \"".$template->get('reporting_marketreport_devprojects_custrow')."\";");
+        }
+
         $report_meta = unserialize($session->get_phpsession('reportmeta_'.$identifier));
 
-        $crowid = $cprowid = 1;
-        $inputchecksum['custproduct'] = generate_checksum('cp');
-        eval("\$customer_product_row= \"".$template->get('reporting_marketreport_devprojects_custproducts')."\";");
-        $inputchecksum['customer'] = generate_checksum('cr');
-        eval("\$markerreport_customer_row = \"".$template->get('reporting_marketreport_devprojects_custrow')."\";");
-        // $inputchecksum['unspecifiedsupp'] = generate_checksum('msl');
-        // $inputchecksum['unspecifiedsuppcs'] = generate_checksum('mpl');
-
         eval("\$devprojectssection .= \"".$template->get('reporting_fillreports_marketreport_devprojects')."\";");
-
         eval("\$marketreportpage .= \"".$template->get('reporting_fillreports_marketreport')."\";");
         eval("\$fillreportpage = \"".$template->get('reporting_fillreports_tabs')."\";");
     }
@@ -884,18 +911,18 @@ else {
                     $custproducts = $devprojectcustomer['products'];
                     if(is_array($custproducts)) {
                         foreach($custproducts as $custproduct) {
-                            $data['mrid'] = $mrid;
-                            $data = $devprojectcustomer['cid'];
-                            $data['inputChecksum'] = $devprojectcustomer['inputChecksum'];
-
-                            $data['pid'] = $mrcomp_supplier_obj->mrcid;
-                            $data['when'] = $mrcomp_supplier_obj->mrcid;
-                            $data['who'] = $mrcomp_supplier_obj->mrcid;
-                            $data['what'] = $mrcomp_supplier_obj->mrcid;
-                            $data['potentialQty'] = $mrcomp_supplier_obj->mrcid;
-                            $data['successPerc'] = $mrcomp_supplier_obj->mrcid;
+                            unset($devprojectcustomer['productname']);
+                            $data['rid'] = $rid;
+                            $data['cid'] = $devprojectcustomer['cid'];
+                            $data['pid'] = $custproduct['pid'];
+                            $data['potentialQty'] = $custproduct['potentialQty'];
+                            $data['successPerc'] = $custproduct['successPerc'];
+                            $data['whenn'] = $custproduct['when'];
+                            $data['who'] = $custproduct['who'];
+                            $data['what'] = $custproduct['what'];
+                            $data['inputChecksum'] = $custproduct['inputChecksum'];
                             $marketreportdevproject = new MarketReportDevelopmentPojects();
-                            $marketreportdevproject->set($customerdata);
+                            $marketreportdevproject->set($data);
                             $mrdevprojectcustomer_obj = $marketreportdevproject->save();
                         }
                     }
@@ -1310,14 +1337,13 @@ else {
         $cprowid = 1;
         $inputchecksum['custproduct'] = generate_checksum('cp');
         eval("\$customer_product_row= \"".$template->get('reporting_marketreport_devprojects_custproducts')."\";");
-        $inputchecksum['customer'] = generate_checksum('cr');
         eval("\$markerreport_customer_row = \"".$template->get('reporting_marketreport_devprojects_custrow')."\";");
         echo $markerreport_customer_row;
     }
     elseif($core->input ['action'] == 'ajaxaddmore_customerproducts') {
         $cprowid = $db->escape_string($core->input ['value']) + 1;
         $crowid = $db->escape_string($core->input ['ajaxaddmoredata']['crowid']);
-        $inputchecksum['product'] = generate_checksum('cp');
+        $inputchecksum['custproduct'] = generate_checksum('cp');
         eval("\$customer_product_row= \"".$template->get('reporting_marketreport_devprojects_custproducts')."\";");
         echo $customer_product_row;
     }

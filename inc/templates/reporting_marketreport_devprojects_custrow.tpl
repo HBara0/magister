@@ -7,13 +7,12 @@
             </thead>
             <tbody>
                 <tr>
-                    <td style="width:15%;">{$lang->customer}</td>
+                    <td style="width:15%;" class="subtitle">{$lang->customer}</td>
                     <td style="width:85%;">
-                        <input type='text' id='customer_{$crowid}_autocomplete' name="marketreport[customers][{$crowid}][customerName]" value="{}" autocomplete='off'/>
-                        <input type='text' size='3' id='customer_{$crowid}_id_output' disabled='disabled' value=""/>
+                        <input type='text' id='customer_{$crowid}_autocomplete' name="marketreport[customers][{$crowid}][customerName]" value="{$marketreport[customerName]}" autocomplete='off'/>
+                        <input type='text' size='3' id='customer_{$crowid}_id_output' disabled='disabled' value="$cid"/>
                         <input type='hidden' value="{$customer[cid]}" id='customer_{$crowid}_id' name="marketreport[customers][{$crowid}][cid]" />
                         <div id='searchQuickResults_customer_{$crowid}' class='searchQuickResults' style='display:none;'></div>
-                        <input type="hidden" name="marketreport[{$crowid}][inputChecksum]" value="{$inputchecksum[customer]}"/>
                     </td>
                 </tr>
                 <tr>

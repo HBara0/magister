@@ -16,12 +16,12 @@
 class MarketReportDevelopmentPojects extends AbstractClass {
     protected $data = array();
 
-    const PRIMARY_KEY = 'mrcid';
+    const PRIMARY_KEY = 'mrdpid';
     const TABLE_NAME = 'marketreport_developmentpojects';
     const DISPLAY_NAME = '';
     const SIMPLEQ_ATTRS = '*';
     const CLASSNAME = __CLASS__;
-    const UNIQUE_ATTRS = 'mrid,cid,pid';
+    const UNIQUE_ATTRS = 'rid,cid,pid';
 
     public function __construct($id = '', $simple = true) {
         parent::__construct($id, $simple);
@@ -29,13 +29,13 @@ class MarketReportDevelopmentPojects extends AbstractClass {
 
     public function create(array $data = array()) {
         global $db;
-        unset($data['customerName']);
         if(empty($data)) {
             $data = $this->data;
         }
         if(!isset($data['cid'])) {
             return;
         }
+
         $db->insert_query(self::TABLE_NAME, $data);
         $this->data[self::PRIMARY_KEY] = $db->last_id();
         return $this;
@@ -43,7 +43,6 @@ class MarketReportDevelopmentPojects extends AbstractClass {
 
     public function update(array $data = array()) {
         global $db;
-        unset($data['customerName']);
         if(empty($data)) {
             $data = $this->data;
         }

@@ -179,4 +179,5 @@ $lang['percofsuccess'] = 'Perc of Success';
 $lang['who'] = 'Who';
 $lang['what'] = 'What';
 $lang['when'] = 'When';
+$lang['followup'] = 'Follow Up';
 ?>
