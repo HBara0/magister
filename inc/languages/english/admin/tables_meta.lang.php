@@ -21,4 +21,12 @@ $lang['primarykey'] = 'Primary Key';
 $lang['unique'] = 'Unique';
 $lang['required'] = 'Required';
 $lang['references'] = 'References';
+$lang['gettablecolumns'] = 'Get Tables Columns';
+$lang['reset'] = 'Reset';
+$lang['save'] = 'SAVE';
+$lang['errorsaving'] = 'Error While Saving';
+$lang['successfullysaved'] = 'Successfully Saved';
+$lang['saveandcreateclass'] = 'Save And Create PHP Class';
+$lang['simple'] = 'Simple';
+$lang['displayname'] = 'Display Name';
 ?>

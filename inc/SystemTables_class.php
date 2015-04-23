@@ -47,4 +47,112 @@ class SystemTables extends AbstractClass {
         return $this;
     }
 
+    public function create_class() {
+        global $core;
+        $column_objs = SystemTablesColumns::get_data(array('stid' => $this->stid), array('returnarray' => true));
+        if(!is_array($column_objs) || empty($column_objs)) {
+            return false;
+        }
+        foreach($column_objs as $column_obj) {
+            if($column_obj->isPrimaryKey == 1) {
+                $primarykey[] = $column_obj->columnDbName;
+            }
+            if($column_obj->isUnique == 1) {
+                $uniques[] = $column_obj->columnDbName;
+            }
+            if($column_obj->isDisplayName == 1) {
+                $display = $column_obj->columnDbName;
+            }
+            $column_names[] = $column_obj->columnDbName;
+        }
+        $primary_key = implode(',', $primarykey);
+        $unique_attrs = implode(',', $uniques);
+        $references = '';
+        /* Parse columns for CREATE AND UPDATE-START */
+        if(is_array($column_names)) {
+            foreach($column_names as $column_name) {
+                switch($column_name) {
+                    case('createdOn'):
+                        $parse_cols_create.= "\t'$column_name' => TIME_NOW,\n";
+                        break;
+                    case('createdBy'):
+                        $parse_cols_create.= "\t'$column_name' => \$core->user['id'],\n";
+                        break;
+                    case('modifiedBy'):
+                        $parse_cols_update.="\t\$update_array['$column_name']= \$core->user['id'];\n";
+                        break;
+                    case('createdOn'):
+                        $parse_cols_update.="\t\$update_array['$column_name']=\TIME_NOW;\n";
+                        break;
+                    default:
+                        $parse_cols_create.= "\t'$column_name' => \$data['$column_name'],\n";
+                        $parse_cols_update.="\t\$update_array['$column_name']=\$data['$column_name'];\n";
+                        break;
+                }
+            }
+        }
+        /* Parse columns for CREATE AND UPDATE-END */
+
+
+        /* Class Def-START */
+        $class_definition = <<<EOD
+<?php
+class $this->className extends AbstractClass {
+        protected \$data = array();
+        protected \$errorcode = 0;
+        const PRIMARY_KEY = '$primary_key';
+        const TABLE_NAME = '$this->tableName';
+        const SIMPLEQ_ATTRS = '*';
+        const UNIQUE_ATTRS = '$unique_attrs';
+        const CLASSNAME = __CLASS__;
+        const DISPLAY_NAME = '$display';
+
+
+EOD;
+
+        /* Class Def-END */
+        /* Class Construct-Start */
+        $class_functions = <<<EOD
+
+public function __construct(\$id = '', \$simple = true) {
+        parent::__construct(\$id, \$simple);
+                }
+
+public function create(array \$data) {
+        global \$db,\$core;
+        \$table_array = array(
+ $parse_cols_create
+                );
+        \$query = \$db->insert_query(self::TABLE_NAME, \$table_array);
+        if(\$query) {
+            \$this->data[self::PRIMARY_KEY] = \$db->last_id();
+        }
+        return \$this;
+    }
+
+protected function update(array \$data) {
+        global \$db;
+        if(is_array(\$data)) {
+$parse_cols_update
+                    }
+       \$db->update_query(self::TABLE_NAME, \$table_array, self::PRIMARY_KEY.'='.intval(\$this->data[self::PRIMARY_KEY]));
+        return \$this;
+        }
+}
+EOD;
+        /* Class Update-END */
+        /* Class GET FUNCTIONS-Start */
+        $class_geters = '';
+        /* Class GET FUNCTIONS-END */
+
+        $class = $class_definition.''.$class_functions.''.$class_geters;
+        $path = $core->settings['rootdir'].'/inc/'.$this->className.'_class.php';
+        $path = 'C:\www\development\ocos\inc\\'.$this->className.'_class.php  ';
+        $result = file_put_contents($path, $class);
+        if($result == false) {
+            return false;
+        }
+        return true;
+    }
+
 }

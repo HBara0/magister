@@ -17,13 +17,15 @@ $lang->load('global');
 if(!$core->input['action']) {
 
 
-    $table_objs = SystemTables::get_data('', array('returnarray' => true, 'order' => 'tablename'));
+    $table_objs = SystemTables::get_data('', array('returnarray' => true, 'order' => 'tableName'));
     if(is_array($table_objs) && !empty($table_objs)) {
         foreach($table_objs as $table_obj) {
             $tabledata = $table_obj->get();
+
+            $waddings = base64_encode(serialize($tabledata));
+            eval("\$tableslist_rows .= \"".$template->get('admin_tables_tableslist_rows')."\";");
+            unset($waddings);
         }
-        $waddings = base64_encode(serialize($tabledata));
-        eval("\$tableslist_rows .= \"".$template->get('admin_tables_tableslist_rows')."\";");
     }
     eval("\$tableslist = \"".$template->get('admin_tables_tableslist')."\";");
     output_page($tableslist);
