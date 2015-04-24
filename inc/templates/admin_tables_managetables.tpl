@@ -14,8 +14,23 @@
                 });
                 $('button[id="save_createclass"]').live('click', function () {
                     $('input[id^="perform_"]').click();
+                    var classdef = '';
+                    var classfunc = '';
+                    var overwrite = '';
                     var stid = $('input[id="stid"]').val();
-                    setTimeout((sharedFunctions.requestAjax("post", "index.php?module=tablesdefinition/managetables&action=createclass", "&stid=" + stid, true)), 2000);
+                    if($('input[id="classdef"]').is(':checked')) {
+                        var classdef = "&classdef=1";
+                    }
+                    ;
+                    if($('input[id="classfunc"]').is(':checked')) {
+                        var classfunc = "&classfunc=1";
+                    }
+                    ;
+                    if($('input[id="overwrite"]').is(':checked')) {
+                        var overwrite = "&overwrite=1";
+                    }
+                    ;
+                    setTimeout((sharedFunctions.requestAjax("post", "index.php?module=tablesdefinition/managetables&action=createclass", "&stid=" + stid + classdef + classfunc + overwrite, true)), 2000);
                 });
             });
         </script>
@@ -31,4 +46,5 @@
         </td>
     </tr>
     {$footer}
+    {$filexists}
 </html>

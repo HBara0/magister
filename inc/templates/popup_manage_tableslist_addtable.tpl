@@ -10,7 +10,7 @@
                 <td>{$lang->classname}</td><td><input type="text" name="table_data[className]" value="{$table_data['className']}"></td>
             </tr>
             <tr>
-                <td>{$lang->numberofcolumns}</td><td><input type="text" name="table_data[nbOfColumns]" value="{$table_data['nbOfColumns']}"></td>
+                <td>{$lang->numberofcolumns}</td><td><input disabled="disabled" type="text" name="table_data[nbOfColumns]" value="{$table_data['nbOfColumns']}"></td>
             </tr>
         </table>
         <input type='button' class='button' value='{$lang->save}' id='add_tablesdefinition/tableslist_Button' />

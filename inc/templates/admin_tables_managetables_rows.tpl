@@ -5,7 +5,7 @@
         <input type='hidden' name='column_data[{$column_data['columnDbName']}][extra]' value='{$column_data['extra']}'>
 
     </td>
-    <td><input type="text" id="restricted" name="column_data[{$column_data['columnDbName']}][columnSystemName]" value="{$column_data['columnSystemName']}">
+    <td><input required="required" type="text" id="restricted" name="column_data[{$column_data['columnDbName']}][columnSystemName]" value="{$column_data['columnSystemName']}">
     </td>
     <td><input type="text" name="column_data[{$column_data['columnDbName']}][columnTitle]" value="{$column_data['columnTitle']}">
     </td>

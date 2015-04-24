@@ -21,8 +21,24 @@
         </tbody>
     </table>
     <div style="display:inline-block;"><input type="submit" class="button" value="{$lang->save}" id="perform_tablesdefinition/managetables_Button" /> </div>
-    <div style="display:inline-block;"><button class="button" id="save_createclass" >{$lang->saveandcreateclass}</button></div>
     <div style="display:inline-block;"><input type="reset" class="button" value="{$lang->reset}"/></div>
+    <hr>
+    <div>
+        <table>
+            <th class="header" colspan="3">
+                <span class="subtitle">{$lang->createormodclass}</span>
+            </th>
+            <tr>
+                <td>{$lang->classdefinition}</td><td><input type="checkbox" value="1" id='classdef' name="classdef"></td>
+            </tr>
+            <tr>
+                <td>{$lang->classfunctions}</td><td><input type="checkbox" value="1" id='classfunc' name="classfunc"></td>
+            </tr>
+            <tr>
+                <td>{$lang->overwriteclassif}</td><td><input type="checkbox" value="1" id='overwrite' name="overwrite"></td>
+            </tr>
+        </table>
+        <div style="display:inline-block;"><button class="button" id="save_createclass" >{$lang->saveandcreateclass}</button></div>
+    </div>
 </form>
 <div style="display: inline-block" id="perform_tablesdefinition/managetables_Results"></div>
-<div style="width:40%; float:left; margin-top:0px;" class="smalltext"><form method='post' action='$_SERVER[REQUEST_URI]'>{$lang->perlist}: <input type='text' size='4' id='perpage_field' name='perpage' value='{$core->settings[itemsperlist]}' class="smalltext"/></form></div>

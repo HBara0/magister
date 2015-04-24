@@ -28,7 +28,13 @@ $lang['errorsaving'] = 'Error While Saving';
 $lang['successfullysaved'] = 'Successfully Saved';
 $lang['saveandcreateclass'] = 'Save And Create PHP Class';
 $lang['simple'] = 'Simple';
+$lang['overwriteclassif'] = 'Overwrite Class If It Exists';
+$lang['classfunctions'] = 'Class Get Functions';
 $lang['displayname'] = 'Display Name';
+$lang['classdefinition'] = 'Class Definition';
 $lang['addtable'] = 'Add Table';
 $lang['fillallrequiredfields'] = 'Fill All Required Fields';
+$lang['tablexists'] = 'Table Exists';
+$lang['inputalreadyexists'] = 'Table Already Exists. Do You Wish To Continue?';
+$lang['createormodclass'] = 'Create Or Modify Class';
 ?>

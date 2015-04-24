@@ -22,42 +22,41 @@ if($core->usergroup['admin_canManageSystemDef'] == 0) {
 
 if(!$core->input['action']) {
     if(!empty($core->input['d$@1á'])) {
-        if($core->input['type'] == 'showtabledata') {
-            $columns[] = '';
-            $table_data = unserialize(base64_decode($core->input['d$@1á']));
-            if(is_array($table_data)) {
-                $page_title = ''.$table_data['tableName'].'-'.$table_data['className'];
-                $tablecols_objs = SystemTablesColumns::get_data(array('stid' => $table_data['stid']), array('returnarray' => true));
-                if(!empty($tablecols_objs)) {
-                    foreach($tablecols_objs as $tablecols_obj) {
-                        $column_data = $tablecols_obj->get();
-                        if($column_data['isPrimaryKey'] == '1') {
-                            $primary_check = 'checked="checked"';
-                        }
-                        if($column_data['isRequired'] == '1') {
-                            $required_check = 'checked="checked"';
-                        }
-                        if($column_data['isUnique'] == '1') {
-                            $unique_check = 'checked="checked"';
-                        }
-                        if($column_data['isSimple'] == '1') {
-                            $simple_check = 'checked="checked"';
-                        }
-                        $columns[] = $column_data['columnDbName'];
-                        $type_selectlist = parse_selectlist('column_data['.$column_data['columnDbName'].'][dataType]', '', array('int' => 'INT', 'varchar' => 'VARCHAR', 'text' => 'TEXT', 'date' => 'DATE'), $column_data['dataType']);
+        $columns[] = '';
+        $table_data = unserialize(base64_decode($core->input['d$@1á']));
+        if(is_array($table_data)) {
+            $page_title = ''.$table_data['tableName'].'-'.$table_data['className'];
+            $tablecols_objs = SystemTablesColumns::get_data(array('stid' => $table_data['stid']), array('returnarray' => true));
+            if(!empty($tablecols_objs)) {
+                foreach($tablecols_objs as $tablecols_obj) {
+                    $column_data = $tablecols_obj->get();
+                    if($column_data['isPrimaryKey'] == '1') {
+                        $primary_check = 'checked="checked"';
+                    }
+                    if($column_data['isRequired'] == '1') {
+                        $required_check = 'checked="checked"';
+                    }
+                    if($column_data['isUnique'] == '1') {
+                        $unique_check = 'checked="checked"';
+                    }
+                    if($column_data['isSimple'] == '1') {
+                        $simple_check = 'checked="checked"';
+                    }
+                    $columns[] = $column_data['columnDbName'];
+                    $type_selectlist = parse_selectlist('column_data['.$column_data['columnDbName'].'][dataType]', '', array('int' => 'INT', 'varchar' => 'VARCHAR', 'text' => 'TEXT', 'date' => 'DATE'), $column_data['dataType']);
 //                        if($column_data['stcid']) {
 //                            $filters['stcid'] = $column_data['stcid'];
 //                            $filters['stid'] = $column_data['stid'];
 //                        }
-                        $filters = 'stcid != '.$column_data['stcid'].' AND isPrimaryKey = 1 AND stid !='.$column_data['stid'].'';
+                    $filters = 'stcid != '.$column_data['stcid'].' AND isPrimaryKey = 1 AND stid !='.$column_data['stid'].'';
 //                        $filters['isPrimaryKey'] = 1;
-                        $references = SystemTablesColumns::get_data($filters, array('returnarray' => true));
-                        $reference_selectlist = parse_selectlist('column_data['.$column_data['columnDbName'].'][relatedTo]', 6, $references, $column_data['relatedTo'], '', '', array('blankstart' => true));
-                        eval("\$table_details .= \"".$template->get('admin_tables_managetables_rows')."\";");
-                        unset($column_data, $filters, $type, $primary_check, $required_check, $unique_check, $simple_check);
-                    }//end of foreach
-                }
-                $d = 'SHOW TABLES LIKE "'.$table_data['tableName'].'"';
+                    $references = SystemTablesColumns::get_data($filters, array('returnarray' => true));
+                    $reference_selectlist = parse_selectlist('column_data['.$column_data['columnDbName'].'][relatedTo]', 6, $references, $column_data['relatedTo'], '', '', array('blankstart' => true));
+                    eval("\$table_details .= \"".$template->get('admin_tables_managetables_rows')."\";");
+                    unset($column_data, $filters, $type, $primary_check, $required_check, $unique_check, $simple_check);
+                }//end of foreach
+            }
+            if($core->input['type'] == 'showtabledata') {
                 $result = $db->query('SHOW TABLES LIKE "'.$table_data['tableName'].'"');            //checking if table exists in the database
                 if($result->num_rows > 0) {
                     $table_fields = $db->show_fields_from($table_data['tableName'], MYSQLI_ASSOC);
@@ -112,19 +111,11 @@ if(!$core->input['action']) {
                         }
                     }
                 }
-                eval("\$table_main = \"".$template->get('admin_tables_managetables_table')."\";");
             }
-            eval("\$tabledata = \"".$template->get('admin_tables_managetables')."\";");
-            output_page($tabledata);
+            eval("\$table_main = \"".$template->get('admin_tables_managetables_table')."\";");
         }
-        else {
-            $table_data = unserialize(base64_decode($core->input['d$@1á']));
-            if(is_array($table_data)) {
-                $page_title = ''.$table_data['tableName'].'-'.$table_data['className'];
-            }
-            eval("\$tabledata = \"".$template->get('admin_tables_managetables')."\";");
-            output_page($tabledata);
-        }
+        eval("\$tabledata = \"".$template->get('admin_tables_managetables')."\";");
+        output_page($tabledata);
     }
 }
 else {
@@ -165,12 +156,12 @@ else {
             $table_obj = new SystemTables($core->input['stid']);
             if(is_object($table_obj)) {
                 if(!is_null($table_obj->className)) {
-                    $createclass = $table_obj->create_class();
+                    $createclass = $table_obj->create_class(intval($core->input['classdef']), intval($core->input['classfunc']), intval($core->input['overwrite']));
                 }
             }
         }
         if($createclass == false) {
-            echo('ERROR');
+//            echo('ERROR');
         }
     }
 }

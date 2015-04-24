@@ -16,7 +16,7 @@ class SystemTablesColumns extends AbstractClass {
     const TABLE_NAME = 'system_tables_columns';
     const DISPLAY_NAME = 'columnDbName';
     const SIMPLEQ_ATTRS = '*';
-    const UNIQUE_ATTRS = 'stid,columnDbName';
+    const UNIQUE_ATTRS = 'stid,columnDbName,columnSystemName';
     const CLASSNAME = __CLASS__;
 
     public function __construct($id = '', $simple = true) {
@@ -25,6 +25,10 @@ class SystemTablesColumns extends AbstractClass {
 
     public function create(array $data) {
         global $db;
+        if(empty($data['columnSystemName']) || !isset($data['columnSystemName'])) {
+            $this->errorcode = 1;
+            return;
+        }
         $table_array = array(
                 'stid' => $data['stid'],
                 'columnTitle' => $data['columnTitle'],
@@ -52,6 +56,10 @@ class SystemTablesColumns extends AbstractClass {
     protected function update(array $data) {
         global $db;
         if(is_array($data)) {
+            if(empty($data['columnSystemName']) || !isset($data['columnSystemName'])) {
+                $this->errorcode = 1;
+                return;
+            }
             $table_array['stid'] = $data['stid'];
             $table_array['columnDbName'] = $data['columnDbName'];
             $table_array['columnDefault'] = $data['columnDefault'];
@@ -72,8 +80,13 @@ class SystemTablesColumns extends AbstractClass {
         return $this;
     }
 
+    public function get_table() {
+        return new SystemTables($this->stid);
+    }
+
     public function get_displayname() {
-        return self::TABLE_NAME.' - '.$this->data[self::DISPLAY_NAME];
+        $table = $this->get_table();
+        return $table->get_displayname().' - '.$this->data[self::DISPLAY_NAME];
     }
 
 }
