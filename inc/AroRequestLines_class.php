@@ -82,12 +82,15 @@ class AroRequestLines extends AbstractClass {
         }
 
         if(is_object($purchasetype)) {
-            $data['affBuyingPrice'] = round((($data['intialPrice'] + $parmsfornetmargin['unitfees']) + ($data['intialPrice'] * $parmsfornetmargin['commission'])), 2);
-            $data['totalBuyingValue'] = round($data['quantity'] * $data['affBuyingPrice'], 2);
-            if($purchasetype->isPurchasedByEndUser == 1) {
-                $data['affBuyingPrice'] = '-';
-                $data['totalBuyingValue'] = round($data['intialPrice'] * $data['quantity'], 2);
-            }
+            $affbuyingprice_data = array('intialPrice' => $data['intialPrice'], 'commission' => $data['commission'], 'unitfees' => $parmsfornetmargin['unitfees'], 'commission' => $parmsfornetmargin['commission'], 'isPurchasedByEndUser' => $purchasetype->isPurchasedByEndUser);
+            $data['affBuyingPrice'] = $this->calculate_affbuyingprice($affbuyingprice_data);
+            //  $data['affBuyingPrice'] = round((($data['intialPrice'] + $parmsfornetmargin['unitfees']) + ($data['intialPrice'] * $parmsfornetmargin['commission'])), 2);
+            $data['totalBuyingValue'] = $this->calculate_totalbuyingvalue(array('affBuyingPrice' => $data['affBuyingPrice'], 'quantity' => $data['quantity'], 'intialPrice' => $data['initialPrice'], 'isPurchasedByEndUser' => $purchasetype->isPurchasedByEndUser));
+            // $data['totalBuyingValue'] = round($data['quantity'] * $data['affBuyingPrice'], 2);
+//            if($purchasetype->isPurchasedByEndUser == 1) {
+//                $data['affBuyingPrice'] = '-';
+//                $data['totalBuyingValue'] = round($data['intialPrice'] * $data['quantity'], 2);
+//            }
         }
         if(isset($data['quantity']) && !empty($data['quantity'])) {
             $data['costPriceAtRiskRatio'] = round(($data['costPrice'] + (($data['totalBuyingValue'] * $parmsfornetmargin['riskRatio']) / $data['quantity'])), 2);
@@ -116,7 +119,6 @@ class AroRequestLines extends AbstractClass {
 
     private function calculate_netmargin($purchasetype, $data = array(), $parms = array()) {
         $parmsfornetmargin['YearDays'] = 365;
-
         if($parms['localPeriodOfInterest'] != 0 && $parms['warehousingPeriod'] != 0 && $parms['warehousingRate'] != 0 && $parms['totalQty'] != 0) {
             $netmargin = (($data['grossMarginAtRiskRatio'] - (($data['quantity'] * $data['affBuyingPrice'] * $parms['localBankInterestRate']) / ( $parmsfornetmargin['YearDays'] * $parms['localPeriodOfInterest']))) * $data['exchangeRateToUSD']);
             $netmargin -= ((($parms['warehousingTotalLoad'] * $data['quantity']) / $parms['totalQty']) * ($data['daysInStock'] / $parms['warehousingPeriod']) * $parms['warehousingRate']);
@@ -125,6 +127,22 @@ class AroRequestLines extends AbstractClass {
             $netmargin = ($data['grossMarginAtRiskRatio'] - (($data['quantity'] * $data['costPriceAtRiskRatio']) * ($parms['intermedBankInterestRate'] / $parmsfornetmargin['YearDays']) * $parms['intermedPeriodOfInterest']) * $data['exchangeRateToUSD']);
         }
         return $netmargin;
+    }
+
+    public function calculate_affbuyingprice($data = array()) {
+        if($data['isPurchasedByEndUser'] == 1) {
+            return '-';
+        }
+        return round((($data['intialPrice'] + $data['unitfees']) + ($data['intialPrice'] * $data['commission'])), 2);
+    }
+
+    public function calculate_totalbuyingvalue($data = array()) {
+        if($data['isPurchasedByEndUser'] == 1) {
+            return round($data['intialPrice'] * $data['quantity'], 2);
+        }
+        else {
+            return round($data['quantity'] * $data['affBuyingPrice'], 2);
+        }
     }
 
     public function validate_requiredfields(array $data = array()) {
