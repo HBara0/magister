@@ -40,6 +40,7 @@ class SystemTablesColumns extends AbstractClass {
                 'isSimple' => $data['isSimple'],
                 'columnSystemName' => $data['columnSystemName'],
                 'columnDbName' => $data['columnDbName'],
+                'relatedTo' => $data['relatedTo'],
         );
         $query = $db->insert_query(self::TABLE_NAME, $table_array);
         if($query) {
@@ -65,6 +66,7 @@ class SystemTablesColumns extends AbstractClass {
             $table_array['isSimple'] = $data['isSimple'];
             $table_array['columnTitle'] = $data['columnTitle'];
             $table_array['columnSystemName'] = $data['columnSystemName'];
+            $table_array['relatedTo'] = $data['relatedTo'];
         }
         $db->update_query(self::TABLE_NAME, $table_array, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
         return $this;

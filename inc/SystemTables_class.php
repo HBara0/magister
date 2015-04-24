@@ -71,11 +71,19 @@ class SystemTables extends AbstractClass {
             if($column_obj->isDisplayName == 1) {
                 $display = $column_obj->columnDbName;
             }
+            if($column_obj->relatedTo != 0) {
+                $ref_col_obj = new SystemTablesColumns($column_obj->relatedTo);
+                $ref_table_obj = new SystemTables($ref_col_obj->stid);
+                $reference[$column_obj->stcid]['colname'] = $column_obj->columnDbName;
+                $reference[$column_obj->stcid]['classname'] = $ref_table_obj->className;
+                if(!is_object($ref_col_obj) || !is_object($ref_table_obj)) {
+                    $reference = null;
+                }
+            }
             $column_names[] = $column_obj->columnDbName;
         }
         $primary_key = implode(',', $primarykey);
         $unique_attrs = implode(',', $uniques);
-        $references = '';
         /* Parse columns for CREATE AND UPDATE-START */
         if(is_array($column_names)) {
             foreach($column_names as $column_name) {
@@ -146,14 +154,29 @@ $parse_cols_update
        \$db->update_query(self::TABLE_NAME, \$table_array, self::PRIMARY_KEY.'='.intval(\$this->data[self::PRIMARY_KEY]));
         return \$this;
         }
-}
 EOD;
         /* Class Update-END */
         /* Class GET FUNCTIONS-Start */
-        $class_geters = '';
+        if(is_array($reference) && !empty($reference)) {
+            foreach($reference as $pk => $values) {
+                if(empty($values) || empty($values['classname']) || empty($values['colname'])) {
+                    continue;
+                }
+                $class_geters .= <<<EOD
+public function get_{$values['classname']}(){
+    return new {$values['classname']}(\$this->data['{$values['colname']}']);
+
+   }
+
+EOD;
+            }
+        }
+        else {
+            $class_geters = '';
+        }
         /* Class GET FUNCTIONS-END */
 
-        $class = $class_definition.''.$class_functions.''.$class_geters;
+        $class = $class_definition.''.$class_functions.''.$class_geters.'}';
         $path = $core->settings['rootdir'].'/inc/'.$this->className.'_class.php';
         $path = 'C:\www\development\ocos\inc\\'.$this->className.'_class.php  ';
         $result = file_put_contents($path, $class);
