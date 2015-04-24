@@ -23,6 +23,8 @@
         <td class="contentContainer" colspan="2">
             <h1>{$lang->potentialmarketdata}</h1>
             <form method='post' action='$_SERVER[REQUEST_URI]'>
+                <div style="float: right">{$addmarketdata_link}</div>
+
                 <table width="100%" border="0" cellspacing="0" cellpadding="2" class="datatable">
                     <thead>
                         <tr>
@@ -47,7 +49,6 @@
                                 <a href="{$sort_url}&amp;sortby=createdOn&amp;order=DESC">
                                     <img src="./images/sort_desc.gif" border="0"  alt="{$lang->sortdesc}"/>
                                 </a></th>
-                            <th width="150px" class=" border_right" rowspan="2" valign="top" align="center">{$addmarketdata_link}</th>
                             <th>&nbsp;</th>
                         </tr><tr>
                             {$filters_row}
