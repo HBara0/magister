@@ -79,12 +79,6 @@ class AroRequestLines extends AbstractClass {
             if((isset($data['qtyPotentiallySold']) && !empty($data['qtyPotentiallySold'])) || ($data['qtyPotentiallySold'] == 0)) {
                 $data['qtyPotentiallySoldPerc'] = round(($data['qtyPotentiallySold'] / $data['quantity']) * 100, 3);
             }
-            else {
-                $data['qtyPotentiallySold'] = (($data['qtyPotentiallySoldPerc'] * $data['quantity']) / 100);
-            }
-        }
-        if(empty($data['qtyPotentiallySold'])) {
-            $data['qtyPotentiallySoldPerc'] = 0;
         }
 
         if(is_object($purchasetype)) {
@@ -103,7 +97,12 @@ class AroRequestLines extends AbstractClass {
         if($purchasetype->isPurchasedByEndUser == 1) {
             $data['daysInStock'] = 0;
             $data['qtyPotentiallySold'] = 0;
-            $data['qtyPotentiallySoldPerc'] = 0;
+            $data['qtyPotentiallySoldPerc'] = 100;
+        }
+        else {
+            if(empty($data['qtyPotentiallySold'])) {
+                $data['qtyPotentiallySoldPerc'] = 0;
+            }
         }
         $data['netMargin'] = round($this->calculate_netmargin($purchasetype, $data, $parmsfornetmargin), 2);
 

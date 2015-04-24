@@ -92,6 +92,7 @@ if(!($core->input['action'])) {
     }
     if(isset($core->input['id'])) {
         $aroorderrequest = AroRequests::get_data(array('aorid' => $core->input['id']), array('simple' => false));
+
         if(isset($core->input['referrer']) && $core->input['referrer'] = 'toapprove') {
             $aroapproval = AroRequestsApprovals::get_data(array('aorid' => intval($core->input['id']), 'uid' => $core->user['uid']));
             $approve_btn[$core->user['uid']] = '<input type="button" class="button" id="approvearo" value="'.$lang->approve.'"/>'
@@ -99,7 +100,6 @@ if(!($core->input['action'])) {
         }
         if(is_object($aroorderrequest)) {
             $purchasetype = new PurchaseTypes($aroorderrequest->orderType);
-
             $affiliate_list = parse_selectlist('affid', 1, $affiliate, $aroorderrequest->affid, '', '', array('blankstart' => true, 'id' => 'affid', 'required' => 'required'));
             $purchasetypelist = parse_selectlist('orderType', 4, $purchasetypes, $aroorderrequest->orderType, '', '', array('blankstart' => true, 'id' => 'purchasetype', 'required' => 'required'));
             $currencies_list = parse_selectlist('currency', 4, $currencies, $aroorderrequest->currency, '', '', array('blankstart' => 1, 'id' => 'currencies', 'required' => 'required'));
@@ -107,6 +107,7 @@ if(!($core->input['action'])) {
             //*********Aro Order Customers -Start *********//
             $requestcustomers = AroOrderCustomers::get_data(array('aorid' => $aroorderrequest->aorid), array('returnarray' => true));
             $rowid = 1;
+            $avgeliduedate = date($core->settings['dateformat'], $aroorderrequest->avgLocalInvoiceDueDate);
             if(is_array($requestcustomers)) {
                 foreach($requestcustomers as $customer) {
                     $customeroder = $customer->get();
@@ -370,7 +371,8 @@ if(!($core->input['action'])) {
                     }
                     else {
                         if($approver->uid == $core->user['uid']) {
-                            $approve = $approve_btn[$core->user['uid']];
+                            $approve = '<input type="button" class="button" id="approvearo" value="'.$lang->approve.'"/>'
+                                    .'<input type="hidden" id="approvearo_id" value="'.$aroorderrequest->aorid.'"/>';
                         }
                     }
                     eval("\$apprs .= \"".$template->get('aro_approvalchain_approver')."\";");
@@ -483,6 +485,7 @@ else {
             echo json_encode('error');
             exit;
         }
+        //get average of payment terms
         if(is_array($paymentermdays)) {
             foreach($paymentermdays as $paymenterm) {
                 $paymentermobjs = new PaymentTerms($paymenterm, false);
@@ -495,6 +498,7 @@ else {
                 }
             }
         }
+        // average of actual purchase rows est. date of sale
         if(is_array($salesdates)) {
             foreach($salesdates as $salesdate) {
                 $salesdateobjs[] = strtotime($salesdate);
@@ -547,13 +551,53 @@ else {
         echo json_encode($productline);
     }
     if($core->input['action'] == 'populateproductlinefields') {
+        ///////////////////Unit fee Calculation///////////////////
+        $qtyperunit = split('_', $core->input['qtyperunit']);
+        $feeperunit = split('_', $core->input['feeperunit']);
+        $i = 0;
+        foreach($qtyperunit as $qty) {
+            if(empty($qty)) {
+                continue;
+            }
+            $i++;
+            $qty = split(':', $qty);
+            $uom = new Uom($qty[0]);
+            $qtyperunit_array[$i] = $qty[1]."/".$uom->get_displayname();
+            $avgqty[$i] = $qty[1];
+        }
+        if(is_array($qtyperunit_array)) {
+            $quantityperuom = implode("\n", $qtyperunit_array);
+        }
+        $i = 0;
+        foreach($feeperunit as $fee) {
+            if(empty($fee)) {
+                continue;
+            }
+            $i++;
+            $fee = split(':', $fee);
+            $uom = new Uom($fee[0]);
+            $feeperunit_array[$i] = $fee[1]."/".$uom->get_displayname();
+            $feeperunit_usdarray[$i] = ($fee[1] * $core->input['exchangeRateToUSD'])."/".$uom->get_displayname();
+            $total_intermedfees +=$fee[1];
+            $avgfee[$i] = $fee[1];
+        }
+
+        for($j = 1; $j <= $i; $j++) { ///Calculate unit fee
+            if($avgqty[$j] != 0) {
+                $unitfee +=$avgfee[$j] / $avgqty[$j];  //(total Fee per unit /total qty per unit)
+            }
+        }
+        if($i != 0) {
+            $unitfee = $unitfee / $i; // unit fee=avg. of unit fees = $unitfee/(number of units)
+        }
         $productline_obj = new AroRequestLines();
         $rowid = $core->input['rowid'];
         unset($core->input['action'], $core->input['module'], $core->input['rowid']);
-        $parmsfornetmargin = array('localPeriodOfInterest', 'localBankInterestRate', 'warehousingPeriod', 'warehousingTotalLoad', 'warehousingRate', 'intermedBankInterestRate', 'intermedPeriodOfInterest', 'unitfees', 'commission', 'totalQty', 'riskRatio');
+        $parmsfornetmargin = array('localPeriodOfInterest', 'localBankInterestRate', 'warehousingPeriod', 'warehousingTotalLoad', 'warehousingRate', 'intermedBankInterestRate', 'intermedPeriodOfInterest', 'commission', 'totalQty', 'riskRatio');
         foreach($parmsfornetmargin as $parm) {
             $core->input['parmsfornetmargin'][$parm] = $core->input[$parm];
         }
+        $core->inut['parmsfornetmargin']['unitfees'] = $unitfee;
         $data = $core->input;
         $productline_data = $productline_obj->calculate_values($data);
         foreach($productline_data as $key => $value) {
@@ -566,6 +610,7 @@ else {
             }
         }
         $productline['productline_'.$rowid.'_fees'] = $productline_data['fees'];
+        $productline['ordersummary_unitfee'] = round($unitfee, 2);
         echo json_encode($productline);
     }
     if($core->input['action'] == 'populatewarehousepolicy') {
@@ -646,10 +691,25 @@ else {
         foreach($fields as $field) {
             $actualpurchase_data['actualpurchase_'.$rowid.'_'.$field] = $actualpurchase[$field];
         }
-        $actualpurchase_data['pickDate_stock_'.$rowid] = $actualpurchase[estDateOfStockEntry_output];
-        $actualpurchase_data['pickDate_sale_'.$rowid.''] = $actualpurchase[estDateOfSale_output];
-        $actualpurchase_data['altpickDate_stock_'.$rowid] = $actualpurchase[estDateOfStockEntry_formatted];
-        $actualpurchase_data['altpickDate_sale_'.$rowid.''] = $actualpurchase[estDateOfSale_formatted];
+        $actualpurchase_data['pickDate_stock_'.$rowid] = $actualpurchase['estDateOfStockEntry_output'];
+        $actualpurchase_data['pickDate_sale_'.$rowid] = $actualpurchase['estDateOfSale_output'];
+        $actualpurchase_data['altpickDate_stock_'.$rowid] = $actualpurchase['estDateOfStockEntry_formatted'];
+        $actualpurchase_data['altpickDate_sale_'.$rowid] = $actualpurchase['estDateOfSale_formatted'];
+        echo json_encode($actualpurchase_data);
+    }
+    if($core->input['action'] == 'populateactualpurchase_stockentrydate') {
+        $rowid = $core->input['rowid'];
+        $fields = array('transitTime', 'clearanceTime');
+        foreach($fields as $field) {
+            if(isset($core->input[$field]) && !empty($core->input[$field])) {
+                $data[$field] = $core->input[$field];
+            }
+        }
+        $data['dateOfStockEntry'] = strtotime($core->input['dateOfStockEntry']);
+        $actualpurchase_obj = new AroRequestLinesSupervision();
+        $dates = $actualpurchase_obj->get_stockentryestdate($data);
+        $actualpurchase_data['pickDate_stock_'.$rowid] = $dates['formatted'];
+        $actualpurchase_data['altpickDate_stock_'.$rowid] = $dates['output'];
         echo json_encode($actualpurchase_data);
     }
     if($core->input['action'] == 'populatepartiesinfofields') {
@@ -676,9 +736,9 @@ else {
                 $data['intermedPeriodOfInterest'] = 0;
             }
             $data['localPeriodOfInterest'] = 0;
-            if(isset($core->input['est_local_pay']) && !empty($core->input['est_local_pay'])) {
+            if(isset($core->input['est_local_pay']) && !empty($core->input['est_local_pay'])) { //est_local_pay= Estimated Local Invoice Due date (order customers section)
                 $data['localPeriodOfInterest'] = date_diff(date_create($partiesinfo['intermedEstDateOfPayment_output']), date_create($core->input['est_local_pay']));
-                $data['localPeriodOfInterest'] = $data['localPeriodOfInterest']->format("%r%a");
+                $data['localPeriodOfInterest'] = $data['localPeriodOfInterest']->format("%r%a"); // Check if LSP purchase type vendor-estlocal pay
                 if($data['localPeriodOfInterest'] < 0) {
                     $data['localPeriodOfInterest'] = 0;
                 }
@@ -690,16 +750,75 @@ else {
                 $data['localPeriodOfInterest'] = 0;
             }
         }
+
+        if(isset($core->input['localBankInterestRate']) && !empty($core->input['localBankInterestRate'])) {
+            $interestvalue = (($core->input['localBankInterestRate'] / 365) / 100) * $data['localPeriodOfInterest'] * $core->input['totalbuyingvalue_total'];
+        }
+        $totalintermedfees = $core->input['totalintermedfees'];
+        if(!empty($interestvalue)) {
+            $totalintermedfees = $totalintermedfees + $interestvalue;
+        }
         $partiesinfo_data = array('pickDate_vendor_estdateofpayment' => $partiesinfo['vendorEstDateOfPayment_formatted'],
                 'pickDate_intermed_estdateofpayment' => $partiesinfo['intermedEstDateOfPayment_formatted'],
                 'pickDate_intermed_promiseofpayment' => $partiesinfo['promiseOfPayment_formatted'],
                 'parmsfornetmargin_localPeriodOfInterest' => $data['localPeriodOfInterest'],
                 'partiesinfo_diffbtwpaymentdates' => $data['diffbetweendates'],
                 'parmsfornetmargin_intermedPeriodOfInterest' => $data['intermedPeriodOfInterest'],
+                'parmsfornetmargin_interestvalue' => round($interestvalue, 3),
+                'partiesinfo_totalfees' => round($totalintermedfees, 3)
         );
 
         echo json_encode($partiesinfo_data);
     }
+//    if($core->input['action'] == 'updateunitfee') {
+//        $intermedaffiliate = new Affiliates($core->input['intermedAff']);
+//        $affiliate = new Affiliates($core->input['aff']);
+//        $qtyperunit = $core->input['qtyperunit'];
+//        $feeperunit = $core->input['feeperunit'];
+//        $qtyperunit = split('_', $qtyperunit);
+//        $feeperunit = split('_', $feeperunit);
+//
+//        $i = 0;
+//        foreach($qtyperunit as $qty) {
+//            if(empty($qty)) {
+//                continue;
+//            }
+//            $i++;
+//            $qty = split(':', $qty);
+//            $uom = new Uom($qty[0]);
+//            $qtyperunit_array[$i] = $qty[1]."/".$uom->get_displayname();
+//            $avgqty[$i] = $qty[1];
+//        }
+//        if(is_array($qtyperunit_array)) {
+//            $quantityperuom = implode("\n", $qtyperunit_array);
+//        }
+//        $i = 0;
+//        foreach($feeperunit as $fee) {
+//            if(empty($fee)) {
+//                continue;
+//            }
+//            $i++;
+//            $fee = split(':', $fee);
+//            $uom = new Uom($fee[0]);
+//            $feeperunit_array[$i] = $fee[1]."/".$uom->get_displayname();
+//            $feeperunit_usdarray[$i] = ($fee[1] * $core->input['exchangeRateToUSD'])."/".$uom->get_displayname();
+//            $total_intermedfees +=$fee[1];
+//            $avgfee[$i] = $fee[1];
+//        }
+//
+//        for($j = 1; $j <= $i; $j++) { ///Calculate unit fee
+//            if($avgqty[$j] != 0) {
+//                $unitfee +=$avgfee[$j] / $avgqty[$j];  //(total Fee per unit /total qty per unit)
+//            }
+//        }
+//        if($i != 0) {
+//            $unitfee = $unitfee / $i; // unit fee=avg. of unit fees = $unitfee/(number of units)
+//        }
+//        $data = array(
+//                'ordersummary_unitfee' => round($unitfee, 2),
+//        );
+//        echo json_encode($data);
+//    }
     if($core->input['action'] == 'populateordersummary') {
         $intermedaffiliate = new Affiliates($core->input['intermedAff']);
         $affiliate = new Affiliates($core->input['aff']);
@@ -751,15 +870,15 @@ else {
             $feeperunit_usdarray = implode("\n", $feeperunit_usdarray);
         }
 
-        $localinvoicevalue = $core->input['invoicevalue_local'];
+        //  $localinvoicevalue = $core->input['invoicevalue_local'];
         $purchaseype = new PurchaseTypes($core->input['ptid']);
         $localnetmargin = $core->input['local_netMargin'];
         if($purchaseype->isPurchasedByEndUser == 1) {
-            $localinvoicevalue = $core->input['invoicevalue_local_RIC'];
+            //   $localinvoicevalue = $core->input['invoicevalue_local_RIC'];
             $localnetmargin = 0;
             $intermedmargin = $core->input['local_netMargin'];
         }
-        $localinvoicevalue_usd = $localinvoicevalue * $core->input['exchangeRateToUSD'];
+        // $localinvoicevalue_usd = $localinvoicevalue * $core->input['exchangeRateToUSD'];
 
         $invoicevalueintermed = $core->input['invoicevalue_intermed'];
         $invoicevalueintermed_usd = $core->input['invoicevalue_intermed'] * $core->input['exchangeRateToUSD'];
@@ -802,14 +921,14 @@ else {
                 'ordersummary_totalintermedfees_usd' => $feeperunit_usdarray,
                 'ordersummary_invoicevalue_intermed' => round($invoicevalueintermed, 2),
                 'ordersummary_invoicevalueusd_intermed' => round($invoicevalueintermed_usd, 2),
-                'ordersummary_invoicevalue_local' => round($localinvoicevalue, 2),
-                'ordersummary_invoicevalueusd_local' => round($localinvoicevalue_usd, 2),
+                //   'ordersummary_invoicevalue_local' => round($localinvoicevalue, 2),
+                //   'ordersummary_invoicevalueusd_local' => round($localinvoicevalue_usd, 2),
                 'ordersummary_netmargin_local' => round($localnetmargin, 2),
                 'ordersummary_netmargin_intermed' => round($intermedmargin, 2),
                 'ordersummary_globalnetmargin' => round($localnetmargin + $intermedmargin, 2),
                 'ordersummary_netmargin_localperc' => round($localnetmargin_perc, 2),
                 'ordersummary_netmargin_intermedperc' => round($intermedmargin_perc, 2),
-                'ordersummary_unitfee' => round($unitfee, 2),
+                //   'ordersummary_unitfee' => round($unitfee, 2),
                 'ordersummary_totalcomm' => round($core->input['totalcommision'], 2),
                 'ordersummary_totalamount' => round($core->input['totalamount'], 2),
                 'partiesinfo_commission' => round($comm, 3),
@@ -817,14 +936,14 @@ else {
         echo json_encode($data);
     }
 
-    if($core->input['action'] == 'getinterestvalue') {
-        $interestvalue = 0;
-        if(isset($core->input['localBankInterestRate']) && !empty($core->input['localBankInterestRate'])) {
-            $interestvalue = (($core->input['localBankInterestRate'] / 365) / 100) * $core->input['localPeriodOfInterest'] * $core->input['totalbuyingvalue_total'];
-        }
-        $interestvalue_data = array('parmsfornetmargin_interestvalue' => round($interestvalue, 3));
-        echo json_encode($interestvalue_data);
-    }
+//    if($core->input['action'] == 'getinterestvalue') {
+//        $interestvalue = 0;
+//        if(isset($core->input['localBankInterestRate']) && !empty($core->input['localBankInterestRate'])) {
+//            $interestvalue = (($core->input['localBankInterestRate'] / 365) / 100) * $core->input['localPeriodOfInterest'] * $core->input['totalbuyingvalue_total'];
+//        }
+//        $interestvalue_data = array('parmsfornetmargin_interestvalue' => round($interestvalue, 3));
+//        echo json_encode($interestvalue_data);
+//    }
     if($core->input['action'] == 'popultedefaultaffpolicy') {
         if($core->input['affid'] != ' ' && !empty($core->input['affid']) && !empty($core->input['ptid']) && $core->input['ptid'] != ' ') {
             $filter = 'affid = '.$core->input['affid'].' AND purchaseType = '.$core->input['ptid'].' AND isActive = 1 AND ('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
@@ -842,7 +961,6 @@ else {
         echo json_encode($defaultaffpolicy);
     }
     if($core->input['action'] == 'generateapprovalchain') {
-
         if(isset($core->input['affid']) && !empty($core->input['affid']) && isset($core->input['ptid']) && !empty($core->input['ptid'])) {
             $data['affid'] = $core->input['affid'];
             $data['orderType'] = $core->input['ptid'];
@@ -894,10 +1012,19 @@ else {
             }
         }
     }
-
+    if($core->input['action'] == 'populate_localintersetvalues') {
+        $localinvoicevalue = $core->input['invoicevalue_local'];
+        $purchaseype = new PurchaseTypes($core->input['ptid']);
+        if($purchaseype->isPurchasedByEndUser == 1) {
+            $localinvoicevalue = $core->input['invoicevalue_local_RIC'];
+        }
+        $localinvoicevalue_usd = $localinvoicevalue * $core->input['exchangeRateToUSD'];
+        $data = array('ordersummary_invoicevalue_local' => round($localinvoicevalue, 2),
+                'ordersummary_invoicevalueusd_local' => round($localinvoicevalue_usd, 2));
+        echo json_encode($data);
+    }
     if($core->input['action'] == 'populatecurrentstockrow') {
         $rowid = $core->input['rowid'];
-
         unset($core->input['action'], $core->input['module'], $core->input['totalBuyingValue']);
         $currentstock_obj = new AroRequestsCurStkSupervision();
         $currentstock = $core->input;

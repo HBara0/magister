@@ -128,6 +128,7 @@ class AroRequests extends AbstractClass {
         foreach($orderrequest_fields as $orderrequest_field) {
             $orderrequest_array[$orderrequest_field] = $data[$orderrequest_field];
         }
+        $orderrequest_array['avgLocalInvoiceDueDate'] = strtotime($data['avgeliduedate']);
         $orderrequest_array['modifiedBy'] = $core->user['uid'];
         $orderrequest_array['modifiedOn'] = TIME_NOW;
         $query = $db->update_query(self::TABLE_NAME, $orderrequest_array, ''.self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));

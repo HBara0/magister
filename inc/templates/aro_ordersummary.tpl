@@ -59,13 +59,14 @@
                 <td>{$lang->unitfee}</td>
                 <td><input type="text" id="ordersummary_unitfee"/></td>
             </tr
-             <tr>
+            <tr>
                 <td>{$lang->totalcomm}</td>
                 <td><input type="text" id="ordersummary_totalcomm"/><input type="hidden" id="ordersummary_totalamount"</td>
             </tr>
             <tr>
                 <td>
                     <input type="button" id="ordersummary_btn" style="display:none"/>
+                    <input type="button" id="unitfee_btn" style="display:none"/>
                 </td>
             </tr>
 

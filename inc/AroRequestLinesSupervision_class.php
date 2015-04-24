@@ -29,7 +29,7 @@ class AroRequestLinesSupervision extends AbstractClass {
             $aorid = $data['aorid'];
             $actualpurchase = $this->calculate_actualpurchasevalues($data);
             $actualpurchase['aorid'] = $aorid;
-            unset($actualpurchase['estDateOfStockEntry_formatted'], $actualpurchase['estDateOfSale_formatted'],$actualpurchase['estDateOfStockEntry_output'], $actualpurchase['estDateOfSale_output'], $actualpurchase['productName'], $actualpurchase['daysInStock']);
+            unset($actualpurchase['estDateOfStockEntry_formatted'], $actualpurchase['estDateOfSale_formatted'], $actualpurchase['estDateOfStockEntry_output'], $actualpurchase['estDateOfSale_output'], $actualpurchase['productName'], $actualpurchase['daysInStock']);
             $query = $db->insert_query(self::TABLE_NAME, $actualpurchase);
             if($query) {
                 $log->record(self::TABLE_NAME, $this->data[self::PRIMARY_KEY]);
@@ -42,7 +42,7 @@ class AroRequestLinesSupervision extends AbstractClass {
         if(!$this->validate_requiredfields($data)) {
             $actualpurchase['aorid'] = $data['aorid'];
             $actualpurchase = $this->calculate_actualpurchasevalues($data);
-            unset($actualpurchase['estDateOfStockEntry_formatted'], $actualpurchase['estDateOfSale_formatted'],$actualpurchase['estDateOfStockEntry_output'], $actualpurchase['estDateOfSale_output'], $actualpurchase['productName'], $actualpurchase['daysInStock']);
+            unset($actualpurchase['estDateOfStockEntry_formatted'], $actualpurchase['estDateOfSale_formatted'], $actualpurchase['estDateOfStockEntry_output'], $actualpurchase['estDateOfSale_output'], $actualpurchase['productName'], $actualpurchase['daysInStock']);
             $query = $db->update_query(self::TABLE_NAME, $actualpurchase, ''.self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
             if($query) {
                 $log->record(self::TABLE_NAME, $this->data[self::PRIMARY_KEY]);
@@ -78,26 +78,39 @@ class AroRequestLinesSupervision extends AbstractClass {
             $actualpurchase['estDateOfSale'] = strtotime($actualpurchase['estDateOfSale']);
         }
         else {
-            $transittime = '+'.$actualpurchase['transitTime'].' days';
-            $clearance = '+'.$actualpurchase['clearanceTime'].' days';
-            $actualpurchase['estDateOfStockEntry'] = strtotime($transittime, $actualpurchase['dateOfStockEntry']);
-            $actualpurchase['estDateOfStockEntry'] = strtotime($clearance, $actualpurchase['estDateOfStockEntry']);
+            $estDateOfStockEntry = $this->get_stockentryestdate($actualpurchase);
+            $actualpurchase['estDateOfStockEntry'] = $estDateOfStockEntry['output'];
+            $actualpurchase['estDateOfStockEntry_output'] = $estDateOfStockEntry['formatted'];
+            //  $transittime = '+'.$actualpurchase['transitTime'].' days';
+            //  $clearance = '+'.$actualpurchase['clearanceTime'].' days';
+            //  $actualpurchase['estDateOfStockEntry'] = strtotime($transittime, $actualpurchase['dateOfStockEntry']);
+            //  $actualpurchase['estDateOfStockEntry'] = strtotime($clearance, $actualpurchase['estDateOfStockEntry']);
             $actualpurchase['estDateOfSale'] = strtotime($actualpurchase['estDateOfSale']);
             if(isset($actualpurchase['daysInStock']) && !empty($actualpurchase['daysInStock'])) {
                 $daysinstock = '+'.$actualpurchase['daysInStock'].' days';
                 $actualpurchase['estDateOfSale'] = strtotime($daysinstock, $actualpurchase['estDateOfStockEntry']);
             }
         }
-        $actualpurchase['estDateOfStockEntry_output'] = date($core->settings['dateformat'], $actualpurchase['estDateOfStockEntry']);
         $actualpurchase['estDateOfSale_output'] = date($core->settings['dateformat'], $actualpurchase['estDateOfSale']);
         $actualpurchase['estDateOfStockEntry_formatted'] = date('d-m-Y', $actualpurchase['estDateOfStockEntry']);
-       $actualpurchase['estDateOfSale_formatted'] = date('d-m-Y', $actualpurchase['estDateOfSale']);
+        $actualpurchase['estDateOfSale_formatted'] = date('d-m-Y', $actualpurchase['estDateOfSale']);
 
         if($purchasetype->qtyIsNotStored == 1) {
             $actualpurchase['estDateOfSale'] = $actualpurchase['shelfLife'] = $actualpurchase['estDateOfStockEntry'] = '-';
         }
         unset($actualpurchase['transitTime'], $actualpurchase['clearanceTime'], $actualpurchase['dateOfStockEntry'], $actualpurchase['totalBuyingValue'], $actualpurchase['daysInStock']);
         return $actualpurchase;
+    }
+
+    public function get_stockentryestdate($data = array()) {
+        global $core;
+        $transittime = '+'.$data['transitTime'].' days';
+        $clearance = '+'.$data['clearanceTime'].' days';
+        $data['estDateOfStockEntry'] = strtotime($transittime, $data['dateOfStockEntry']);
+        $estDateOfStockEntry['output'] = strtotime($clearance, $data['estDateOfStockEntry']);
+        $estDateOfStockEntry['formatted'] = date($core->settings['dateformat'], $estDateOfStockEntry['output']);
+
+        return $estDateOfStockEntry;
     }
 
 }
