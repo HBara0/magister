@@ -21,7 +21,7 @@
     </td>
     <td><input type="checkbox" name="column_data[{$column_data['columnDbName']}][isSimple]" {$simple_check} value="1">
     </td>
-    <td><input type="radio" name="displayName" {$required_check} value="{$column_data['columnDbName']}">
+    <td><input type="radio" name="displayName" {$displayname_check} value="{$column_data['columnDbName']}">
     </td>
     <td>{$reference_selectlist}
     </td>

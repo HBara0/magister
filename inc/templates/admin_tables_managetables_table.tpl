@@ -29,10 +29,10 @@
                 <span class="subtitle">{$lang->createormodclass}</span>
             </th>
             <tr>
-                <td>{$lang->classdefinition}</td><td><input type="checkbox" value="1" id='classdef' name="classdef"></td>
+                <td>{$lang->classdefinition}</td><td><input type="checkbox" checked="checked" value="1" id='classdef' name="classdef"></td>
             </tr>
             <tr>
-                <td>{$lang->classfunctions}</td><td><input type="checkbox" value="1" id='classfunc' name="classfunc"></td>
+                <td>{$lang->classfunctions}</td><td><input type="checkbox" checked="checked" value="1" id='classfunc' name="classfunc"></td>
             </tr>
             <tr>
                 <td>{$lang->overwriteclassif}</td><td><input type="checkbox" value="1" id='overwrite' name="overwrite"></td>

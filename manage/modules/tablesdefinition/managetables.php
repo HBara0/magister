@@ -42,6 +42,9 @@ if(!$core->input['action']) {
                     if($column_data['isSimple'] == '1') {
                         $simple_check = 'checked="checked"';
                     }
+                    if($column_data['isDisplayName'] == '1') {
+                        $displayname_check = 'checked="checked"';
+                    }
                     $columns[] = $column_data['columnDbName'];
                     $type_selectlist = parse_selectlist('column_data['.$column_data['columnDbName'].'][dataType]', '', array('int' => 'INT', 'varchar' => 'VARCHAR', 'text' => 'TEXT', 'date' => 'DATE'), $column_data['dataType']);
 //                        if($column_data['stcid']) {
@@ -53,7 +56,7 @@ if(!$core->input['action']) {
                     $references = SystemTablesColumns::get_data($filters, array('returnarray' => true));
                     $reference_selectlist = parse_selectlist('column_data['.$column_data['columnDbName'].'][relatedTo]', 6, $references, $column_data['relatedTo'], '', '', array('blankstart' => true));
                     eval("\$table_details .= \"".$template->get('admin_tables_managetables_rows')."\";");
-                    unset($column_data, $filters, $type, $primary_check, $required_check, $unique_check, $simple_check);
+                    unset($column_data, $filters, $type, $primary_check, $required_check, $unique_check, $simple_check, $displayname_check);
                 }//end of foreach
             }
             if($core->input['type'] == 'showtabledata') {

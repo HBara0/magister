@@ -71,6 +71,9 @@ class SystemTables extends AbstractClass {
 
     public function create_class($class_definition = 1, $class_functions = 1, $class_ovrwrite = 0) {
         global $core;
+//        $class_functions = '';
+//        $class_definition = '';
+//        $class_geters = '';
         //check if file already exists and notify the user
         $path = $core->settings['rootdir'].'/inc/'.$this->className.'_class.php';
         $path = 'C:\www\development\ocos\inc\\'.$this->className.'_class.php  ';
@@ -94,35 +97,31 @@ class SystemTables extends AbstractClass {
 
             /* check if we want the definition */
             if($class_definition == 1) {
-                if($column_obj->relatedTo != 0) {
+                if(isset($column_obj->relatedTo) && $column_obj->relatedTo != 0) {
                     $ref_col_obj = new SystemTablesColumns($column_obj->relatedTo);
                     $ref_table_obj = new SystemTables($ref_col_obj->stid);
-                    $reference[$column_obj->stcid]['colname'] = $column_obj->columnDbName;
-                    $reference[$column_obj->stcid]['classname'] = $ref_table_obj->className;
-                    $reference[$column_obj->stcid]['colsysname'] = $column_obj->columnSystemName;
                     if(!is_object($ref_col_obj) || !is_object($ref_table_obj)) {
-                        $reference = null;
-                    }
-                }
-                /* Class GET FUNCTIONS-Start */
-                if(is_array($reference) && !empty($reference)) {
-                    foreach($reference as $pk => $values) {
-                        if(empty($values) || empty($values['classname']) || empty($values['colname'])) {
-                            continue;
-                        }
-                        $class_geters .=
-                                <<<EOD
 
-public function get_{$values['colsysname']}(){
-    return new {$values['classname']}(\$this->data['{$values['colname']}']);
+                    }
+                    else {
+                        /* Class GET FUNCTIONS-Start */
+
+                        if(empty($column_obj->columnSystemName) || empty($ref_table_obj->className) || empty($column_obj->columnDbName)) {
+
+                        }
+                        else {
+                            $class_geters .=
+                                    <<<EOD
+
+
+public function get_{$column_obj->columnSystemName}(){
+    return new {$ref_table_obj->className}(\$this->data['{$column_obj->columnDbName}']);
 
    }
 
 EOD;
+                        }
                     }
-                }
-                else {
-                    $class_geters = '';
                 }
             }
             /* Class GET FUNCTIONS-END */
@@ -206,7 +205,6 @@ $parse_cols_update
 EOD;
         }
         /* Class Update-END */
-
         $class = $class_definition.''.$class_functions.''.$class_geters.'}';
         $result = file_put_contents($path, $class);
         if($result == false) {

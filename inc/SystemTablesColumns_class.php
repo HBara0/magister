@@ -16,7 +16,7 @@ class SystemTablesColumns extends AbstractClass {
     const TABLE_NAME = 'system_tables_columns';
     const DISPLAY_NAME = 'columnDbName';
     const SIMPLEQ_ATTRS = '*';
-    const UNIQUE_ATTRS = 'stid,columnDbName,columnSystemName';
+    const UNIQUE_ATTRS = 'stid,columnSystemName';
     const CLASSNAME = __CLASS__;
 
     public function __construct($id = '', $simple = true) {
@@ -46,6 +46,12 @@ class SystemTablesColumns extends AbstractClass {
                 'columnDbName' => $data['columnDbName'],
                 'relatedTo' => $data['relatedTo'],
         );
+        if($table_array['isPrimaryKey'] == 1) {
+            $table_array['isSimple'] = 1;
+            $table_array['isRequired'] = 1;
+            $table_array['isUnique'] = 1;
+            $table_array['isNull'] = 0;
+        }
         $query = $db->insert_query(self::TABLE_NAME, $table_array);
         if($query) {
             $this->data[self::PRIMARY_KEY] = $db->last_id();
@@ -75,6 +81,12 @@ class SystemTablesColumns extends AbstractClass {
             $table_array['columnTitle'] = $data['columnTitle'];
             $table_array['columnSystemName'] = $data['columnSystemName'];
             $table_array['relatedTo'] = $data['relatedTo'];
+        }
+        if($table_array['isPrimaryKey'] == 1) {
+            $table_array['isSimple'] = 1;
+            $table_array['isRequired'] = 1;
+            $table_array['isUnique'] = 1;
+            $table_array['isNull'] = 0;
         }
         $db->update_query(self::TABLE_NAME, $table_array, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
         return $this;
