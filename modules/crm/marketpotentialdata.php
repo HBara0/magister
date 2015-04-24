@@ -174,7 +174,7 @@ if(!$core->input['action']) {
     }
     if($core->usergroup['profiles_canAddMkIntlData'] == 1) {
         $midata = new MarketIntelligence();
-        $addmarketdata_link = '<div style="float: right;"><a href="#popup_profilesmarketdata" id="showpopup_profilesmarketdata" class="showpopup"><button >'.$lang->addmarketdata.'</button></a></div>';
+        $addmarketdata_link = '<div style="float: right;"><a href="#popup_profilesmarketdata" id="showpopup_profilesmarketdata" class="showpopup"><button type="button">'.$lang->addmarketdata.'</button></a></div>';
         $array_data = array('module' => 'proiles', 'elemtentid' => $affid, 'fieldlabel' => $lang->product, 'action' => 'do_addmartkerdata', 'modulefile' => 'entityprofile');
         eval("\$profiles_entityprofile_micustomerentry = \"".$template->get('crm_marketpotentialdata_micustomerentry')."\";");
         $module = 'crm';

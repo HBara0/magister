@@ -106,9 +106,10 @@ if(!$core->input['action']) {
                             }
                             //end of switch case
                             $column_data['columnDbName'] = $table_field['Field'];
+                            $column_data['columnSystemName'] = $column_data['columnTitle'] = $column_data['columnDbName'];
                             $type_selectlist = parse_selectlist('column_data['.$column_data['columnDbName'].'][dataType]', '', array('int' => 'INT', 'varchar' => 'VARCHAR', 'text' => 'TEXT', 'date' => 'DATE'), $type, '', '', array('blankstart' => true));
-//                            $references = SystemTablesColumns::get_data(array('isPrimaryKey' => 1), array('returnarray' => true));
-//                            $reference_selectlist = parse_selectlist('references', 6, $references, null);
+                            $references = SystemTablesColumns::get_data(array('isPrimaryKey' => 1), array('returnarray' => true));
+                            $reference_selectlist = parse_selectlist('references', 6, $references, null, '', '', array('blankstart' => true));
                             eval("\$table_details .= \"".$template->get('admin_tables_managetables_rows')."\";");
                             unset($column_data, $type, $primary_check, $required_check, $unique_check, $simple_check);
                         }
