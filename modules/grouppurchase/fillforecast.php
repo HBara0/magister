@@ -20,6 +20,7 @@ if(!$core->input['action']) {
     if($forecast_data['onBehalf'] == 0) {
         $uid = $core->user['uid'];
     }
+    unset($forecast_data['onBehalf']);
 
     if(empty($forecast_data) || array_search("0", $forecast_data) !== false) {
         redirect('index.php?module=grouppurchase/createforecast');
@@ -41,7 +42,7 @@ if(!$core->input['action']) {
         $gpforecastlines = $grouppurchaseforecast->get_forecastlines($uid);
     }
     $budget = Budgets::get_budget_bydata($forecast_data);
-    
+
     /* Read data from existing forecast lines. */
     if(is_array($gpforecastlines)) {
         foreach($gpforecastlines AS $gpforecastline) {
@@ -66,9 +67,9 @@ if(!$core->input['action']) {
                             $forecastline['quantity'] = round($forecastline['quantity'], 2);
                             /* disable input fields on update for past months */
                             $date_str = $forecast_data['year'].'-'.trim($field, 'month');
-//                            if(strtotime("$date_str") < strtotime('first day of '.date('F Y'))) {
-//                                $readonly[$field] = 'readonly="readonly"';
-//                            }
+                            if(strtotime("$date_str") < strtotime('first day of '.date('F Y'))) {
+                                $readonly[$field] = 'readonly="readonly"';
+                            }
                         }
                 }
             }
