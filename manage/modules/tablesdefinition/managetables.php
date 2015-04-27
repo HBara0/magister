@@ -128,6 +128,7 @@ else {
             output_xml("<status>false</status><message>{$lang->errorsaving}</message>");
             exit;
         }
+        $col_count = 0;
         foreach($core->input['column_data'] as $key => $column) {
             if($key == $core->input['displayName']) {
                 $column['isDisplayName'] = 1;
@@ -151,7 +152,10 @@ else {
                 output_xml("<status>false</status><message>{$lang->errorsaving}</message>");
                 exit;
             }
+            $col_count++;
         }
+        $table_obj = new SystemTables($core->input['stid']);
+        $table_obj->save();
         output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
     }
     elseif($core->input['action'] == 'createclass') {
