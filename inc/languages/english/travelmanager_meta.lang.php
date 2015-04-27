@@ -32,7 +32,7 @@ $lang['reservation'] = 'Possible Reservation Resources :';
 $lang['reason'] = 'Reason :';
 $lang['approvedhotels'] = 'Approved Hotels';
 $lang['numnight'] = 'Number Of Nights';
-
+$lang['amount'] = 'Amount';
 $lang['approxfare'] = 'Approxmita fare';
 $lang['traino'] = 'Train Number';
 $lang['agency'] = 'Agency Name ';
@@ -112,4 +112,6 @@ $lang['stopdescription'] = 'Stops Description';
 $lang['roundtrip'] = 'Round-Trip';
 $lang['class'] = 'Class';
 $lang['saveandopenseg'] = 'Save And Open A New Segment';
+$lang['amountpayedinadvance'] = 'Amount Payed In Advance';
+$lang['avgprice'] = 'Average Price';
 ?>

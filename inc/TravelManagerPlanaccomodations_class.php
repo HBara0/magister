@@ -108,7 +108,7 @@ class TravelManagerPlanaccomodations extends AbstractClass {
     }
 
     public function get_hotel() {
-        return new TravelManagerHotels($this->data['tmhid']);
+        return new TravelManagerHotels($this->data['tmhid'], false);
     }
 
     public function get_accomodationtype() {
