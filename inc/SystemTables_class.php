@@ -69,17 +69,20 @@ class SystemTables extends AbstractClass {
         return $this;
     }
 
-    public function create_class($class_definition = 1, $class_functions = 1, $class_ovrwrite = 0) {
+    public function create_class($view_definition = 1, $view_functions = 1, $overwrite = 0) {
         global $core;
 //        $class_functions = '';
 //        $class_definition = '';
-//        $class_geters = '';
+        $class_geters = <<<EOD
+
+Getter functions-Start*/
+EOD;
         //check if file already exists and notify the user
         $path = $core->settings['rootdir'].'/inc/'.$this->className.'_class.php';
         $path = 'C:\www\development\ocos\inc\\'.$this->className.'_class.php  ';
-        if(file_exists($path) && $class_ovrwrite != 1) {
-            return false;
-        }
+//        if(file_exists($path) && $class_overwrite != 1) {
+//            return false;
+//        }
         $column_objs = SystemTablesColumns::get_data(array('stid' => $this->stid), array('returnarray' => true));
         if(!is_array($column_objs) || empty($column_objs)) {
             return false;
@@ -96,7 +99,7 @@ class SystemTables extends AbstractClass {
             }
 
             /* check if we want the definition */
-            if($class_definition == 1) {
+            if($view_functions == 1 || $overwrite == 1) {
                 if(isset($column_obj->relatedTo) && $column_obj->relatedTo != 0) {
                     $ref_col_obj = new SystemTablesColumns($column_obj->relatedTo);
                     $ref_table_obj = new SystemTables($ref_col_obj->stid);
@@ -133,7 +136,7 @@ EOD;
         $primary_key = implode(',', $primarykey);
         $unique_attrs = implode(',', $uniques);
         /* check if we want the definition */
-        if($class_definition == 1) {
+        if($view_definition == 1 || $overwrite == 1) {
             /* Parse columns for CREATE AND UPDATE-START */
             if(is_array($column_names)) {
                 foreach($column_names as $column_name) {
@@ -171,12 +174,13 @@ class $this->className extends AbstractClass {
         const CLASSNAME = __CLASS__;
         const DISPLAY_NAME = '$display';
 
-
 EOD;
 
             /* Class Def-END */
             /* Class Construct-Start */
             $class_functions = <<<EOD
+
+Definition-Start*/
 
 public function __construct(\$id = '', \$simple = true) {
         parent::__construct(\$id, \$simple);
@@ -202,10 +206,30 @@ $parse_cols_update
        \$db->update_query(self::TABLE_NAME, \$update_array, self::PRIMARY_KEY.'='.intval(\$this->data[self::PRIMARY_KEY]));
         return \$this;
         }
+
+////////Definition End\n
 EOD;
         }
         /* Class Update-END */
-        $class = $class_definition.''.$class_functions.''.$class_geters.'}';
+        if($overwrite == 0 && file_exists($path)) {
+            $file_content = file_get_contents($path);
+            if(!empty($file_content) && $file_content) {
+                $class_sections = explode('/*', $file_content);
+                if($view_functions == 1) {
+                    $class_sections[2] = $class_geters.'}';
+                }
+                if($view_definition == 1) {
+                    $class_sections[1] = $class_functions;
+                }
+                $class = implode('/*', $class_sections);
+            }
+            else {
+                return false;
+            }
+        }
+        else {
+            $class = $class_definition.'/*'.$class_functions.'/*'.$class_geters.'}';
+        }
         $result = file_put_contents($path, $class);
         if($result == false) {
             return false;
