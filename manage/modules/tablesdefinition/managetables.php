@@ -11,6 +11,10 @@
 if(!defined("DIRECT_ACCESS")) {
     die("Direct initialization of this file is not allowed.");
 }
+if($core->usergroup['admin_canManageSystemDef'] == 0) {
+    error($lang->sectionnopermission);
+    exit;
+}
 $lang = new Language('english', 'admin');
 $lang->load('tables_meta');
 $lang->load('global');
