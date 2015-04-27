@@ -105,6 +105,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                     }
                     else {
                         if(isset($data['transpType']) && empty($data['transpType']) || (isset($data['fare']) && empty($data['fare']))) {
+                            $transp_errorcode = 2;
                             continue;
                         }
                         $transp_obj = new TravelManagerPlanTransps();
@@ -183,6 +184,12 @@ class TravelManagerPlanSegments extends AbstractClass {
                 //   $this->errorode = 0;
             }
         }
+
+        if(isset($transp_errorcode) && !empty($transp_errorcode)) {
+            $this->errorode = $transp_errorcode;
+        }
+
+        return $this;
     }
 
     public function update(array $segmentdata) {
@@ -215,6 +222,7 @@ class TravelManagerPlanSegments extends AbstractClass {
 
         $transptdata = $segmentdata['tmtcid'];
         if(is_array($transptdata)) {
+            $transp_errorcode = 0;
             foreach($transptdata as $checksum => $data) {
                 $chkdata = $data;
                 rsort($chkdata);
@@ -242,7 +250,11 @@ class TravelManagerPlanSegments extends AbstractClass {
                     }
                 }
                 else {
-                    if(isset($data['transpType']) && empty($data['transpType']) || (isset($data['fare']) && empty($data['fare']))) {
+                    if(isset($data['transpType']) && empty($data['transpType']) || isset($data['tmtcid']) && empty($data['tmtcid']) || (isset($data['fare']) && empty($data['fare']))) {
+                        $transp_errorcode = 2;
+                        if(isset($data['tmtcid']) && empty($data['tmtcid']) && (isset($data['fare']) && empty($data['fare']))) {
+                            unset($transp_errorcode);
+                        }
                         continue;
                     }
                     $transp_obj = new TravelManagerPlanTransps();
@@ -326,6 +338,12 @@ class TravelManagerPlanSegments extends AbstractClass {
                 $finance_obj->save();
             }
         }
+
+        if(isset($transp_errorcode) && !empty($transp_errorcode)) {
+            $this->errorode = $transp_errorcode;
+        }
+
+        return $this;
     }
 
     public function set(array $data) {
