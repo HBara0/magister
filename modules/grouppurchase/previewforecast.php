@@ -42,7 +42,7 @@ if(!($core->input['action'])) {
             'simple' => false,
             'returnarray' => true
     );
-    $purchase_forcastobjs = GroupPurchaseForecast::get_data($filter_where, $dal_config);
+    $purchase_forcastobjs = GroupPurchaseForecast::get_data(array_filter($filter_where), $dal_config);
 
     if($report_type == 'basic') {
         for($i = 1; $i <= 12; $i++) {
