@@ -1,6 +1,6 @@
 <script>
-    $(function () {
-        $('img[id^="replyto_"]').bind('click', function () {
+    $(function() {
+        $('img[id^="replyto_"]').bind('click', function() {
             var id = $(this).attr("id").split("_");
             $("#inreplyto").val(id[1]);
             var permission = id[2];
@@ -24,6 +24,7 @@
 <div class='subtitle'>{$lang->conversation}</div>
 <form name="add_aro/managearodouments_Form" id="add_aro/managearodouments_Form" action="#" method="post">
     <input type="hidden" name="action" value="perform_sendmessage" />
+    <input type="hidden" value="" id="inreplyto" name="arorequestmessage[inReplyTo]"/>
     <input type="hidden" id="messagerequestkey" name="messagerequestkey" value="{$core->input[requestKey]}" />
     <input type="hidden" value="{$core->input[id]}" id="inreplyto" name="aorid"/>
     <div id="messagetoreply" style="display:block; padding: 8px;"><textarea id="message" cols="40" rows="5" name="arorequestmessage[message]" placeholder='{$lang->writeyourmsghere}'></textarea>
