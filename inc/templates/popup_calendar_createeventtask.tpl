@@ -37,7 +37,7 @@
             <div style="width:20%; display:inline-block;"><strong>{$lang->location}</strong></div><div style="width:70%; display:inline-block;">
                 <input type="text" value="{$affiliate_address}" name="event[place]" maxlength="300" required='required' size="50"/>
             </div><br />
-            <div style="width:20%; margin-bottom: 20px; display:inline-block; vertical-align:top;">{$lang->description}</div><div style="width:70%; display:inline-block;"><textarea cols="50" rows="10" name="event[description]"></textarea></div><br />
+            <div style="width:20%; margin-bottom: 20px; display:inline-block; vertical-align:top;">{$lang->description}</div><div style="width:70%; display:inline-block;"><textarea cols="50" rows="10" name="event[description]" class='basictxteditadv' id="eventdescription"></textarea></div><br />
             <br />
             <div class="subtitle">{$lang->announceoptions}</div>
             {$ispublic_checkbox}
@@ -82,7 +82,7 @@
                     <option value="100">100%</option>
                 </select>
             </div><br/>
-            <div style="width:20%; display:inline-block; vertical-align:top;">{$lang->description}</div><div style="width:70%; display:inline-block;"><textarea cols="50" rows="10" name="task[description]" class="txteditadv" id="taskdescription"></textarea></div><br/>
+            <div style="width:20%; display:inline-block; vertical-align:top;">{$lang->description}</div><div style="width:70%; display:inline-block;"><textarea cols="50" rows="10" name="task[description]" class="basictxteditadv" id="taskdescription"></textarea></div><br/>
             <div style="width:20%; display:inline-block; vertical-align:top;">{$lang->reminder}</div><div style="width:70%; display:inline-block;"><input type="text" value="" tabindex="1" autocomplete="off" name="task[reminderStart]"id="pickDate_reminderStart" size="15"/> {$lang->repeat} {$reminderinterval_selectlist}</div>
             <div style="width:20%; display:inline-block; vertical-align:top;">{$lang->notifytask}</div><div style="width:70%; display:inline-block;">{$tasks_notify_radiobutton}</div><br/>
             <br />
