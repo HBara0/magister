@@ -499,6 +499,9 @@ class TravelManagerPlanSegments extends AbstractClass {
                         $paidby = $paidby->get_displayname();
                     }
                     $tocurr = new Currencies(840);
+                    $hotel = $accomdation->get_hotel();
+                    $hotel_cur = new Currencies($hotel->currency);
+                    $cur_dispname = $hotel_cur->get_displayname();
                     $pricenight = $accomdation->get_convertedamount($tocurr);
                     $fromcurr = new Currencies($accomdation->currency);
                     if($accomdation->priceNight != 0 && $pricenight == 0) {
@@ -508,9 +511,10 @@ class TravelManagerPlanSegments extends AbstractClass {
                     if($fromcurr != $tocurr) {
                         $priceinbasecurr .='<br/><small>'.$numfmt->formatCurrency($accomdation->numNights * $accomdation->priceNight, $fromcurr->alphaCode).'</small>';
                     }
-                    $segment_hotel .= '<div style = "width:70%; display: inline-block;"> '.$lang->checkin.' '.$accomdation->get_hotel()->get()['name'].'<span style = "margin-bottom:10px;display:block;"><em>'.$accomdation->numNights.' '.$lang->night.' x $'.$pricenight.' </em></span></div>'; // fix the html parse multiple hotl
+                    $segment_hotel .= '<div style = "width:70%; display: inline-block;"> '.$lang->checkin.' '.$hotel->name.'<br>'.$lang->address.': '.$hotel->addressLine1.'  '.$lang->phone.':'.$hotel->phone.'<span style = "margin-bottom:10px;display:block;"><em>'.$accomdation->numNights.' '.$lang->night.' x $'.$pricenight.' </em></span><br>'.$lang->avgprice.': '.$hotel->avgPrice.'-'.$cur_dispname.'</div>'; // fix the html parse multiple hotl
+                    //$segment_hotel.='<br>'.$lang->address.': '.$hotel->addressLine1.'<br>'.$lang->phone.':'.$hotel->phone.'';
 //    $segment_hotel .= '<div style = " width:30%; display: inline-block;"> <span> '.$lang->night.' '.$accomdation->numNights.' at $ '.$accomdation->priceNight.' '.$lang->night.'</span></div>'; // fix the html parse multiple hotl
-                    $segment_hotel .= '<div style = "width:25%; display: inline-block;font-size:14px; font-weight:bold;text-align:right;margin-left:5px;vertical-align:top;"><span>  '.$numfmt->formatCurrency(($accomdation->numNights * $pricenight), "USD").$priceinbasecurr.'</span> <br/> <small style="font-weight:normal;">[paid by: '.$paidby.' ]</small></div>'; // fix the html parse multiple hotl
+                    $segment_hotel .= '<div style = "width:25%; display: inline-block;font-size:14px; font-weight:bold;text-align:right;margin-left:5px;vertical-align:top;"><span> '.$numfmt->formatCurrency(($accomdation->numNights * $pricenight), "USD").$priceinbasecurr.'</span> <br/> <small style = "font-weight:normal;">[paid by: '.$paidby.']</small></div>'; // fix the html parse multiple hotl
 //   $segment_hotelprice .='<div style = " width:45%; display: block;"> Nights '.$accomdation->numNights.' at $ '.$accomdation->priceNight.'/Night</div>';
                 }
             }
@@ -545,6 +549,21 @@ class TravelManagerPlanSegments extends AbstractClass {
                 $additional_expenses_details .= '<div style = "width:25%;display:inline-block;font-size:14px;font-weight:bold;text-align:right;vertical-align:top;">'.$numfmt->formatCurrency($expectedAmt, "USD").$expectedAmtinbasecurr.'<br/><small style="font-weight:normal;">[paid by: '.$paidby.' ] </small> </div>';
                 $additional_expenses_details .= '</div>';
             }
+        }
+        $finances = TravelManagerPlanFinance::get_data(array('tmpsid' => $this->tmpsid), array('simple' => false, 'returnarray' => true));
+        if(is_array($finances)) {
+            foreach($finances as $finance) {
+                if($finance->amount == 0) {
+                    continue;
+                }
+                $currency_finan = new Currencies($finance->currency);
+                $advanced_payments.='<div style="border-bottom: 1px;border-bottom-style: solid;border-bottom-color: greenyellow">';
+                $advanced_payments.='<div style = "width:70%; display: inline-block;">'.$lang->amount.'</div>';
+                $advanced_payments.='<div style = "width:25%;display:inline-block;font-size:14px;font-weight:bold;text-align:right;vertical-align:top;">'.$finance->amount.'-'.$currency_finan->get_displayname().'</div>';
+                $advanced_payments.='</div>';
+            }
+
+            eval("\$segment_advancedpayments  = \"".$template->get('travelmanager_viewplan_finances')."\";");
         }
         eval("\$segment_accomdetails  = \"".$template->get('travelmanager_viewplan_accomsegments')."\";");
         eval("\$segment_details .= \"".$template->get('travelmanager_viewplan_segments')."\";");
@@ -597,6 +616,29 @@ class TravelManagerPlanSegments extends AbstractClass {
             $additional_expenses_details .='<div style="display:inline-block;width:85%;">'.$lang->additionalexpensestotal.'</div><div style="width:10%; display:inline-block;text-align:right;font-weight:bold;">  '.$numfmt->formatCurrency($expenses['additional'], "USD").'</div></div>';
             $expenses_total += $expenses['additional'];
         }
+        $finances = TravelManagerPlanFinance::get_data(array('tmpsid' => $this->tmpsid), array('simple' => false, 'returnarray' => true));
+        if(is_array($finances)) {
+            foreach($finances as $finance) {
+                if($finance->amount == 0) {
+                    contine;
+                }
+                $tocurr = new Currencies(840);
+                $amount = $finance->get_convertedamount($tocurr);
+                $fromcurr = new Currencies($finance->currency);
+                if($amount == 0) {
+                    $tocurr->save_fx_rate_fromsource('http://rate-exchange.appspot.com/currency?from='.$fromcurr->alphaCode.'&to='.$tocurr->alphaCode.'', $fromcurr->numCode, $tocurr->numCode);
+                    $amount = $finance->get_convertedamount($fromcurr);
+                }
+                $total_fin_amount+=$amount;
+            }
+        }
+        if($total_fin_amount != 0) {
+            $amount_payedinadv.='<div style="border-bottom: 1px;border-bottom-style: solid;border-bottom-color: greenyellow">';
+            $amount_payedinadv.='<div style = "width:85%;display:inline-block;">'.$lang->amountpayedinadvance.'</div>';
+            $amount_payedinadv .= '<div style = "width:10%;display:inline-block;text-align:right;">'.$numfmt->formatCurrency($total_fin_amount, "USD").'</div>';
+            $amount_payedinadv.='</div>';
+            $expenses_total+=$total_fin_amount;
+        }
         $expenses_total = $numfmt->formatCurrency($expenses_total, "USD");
 // $expenses_total = round($expenses_total, 2);
         eval("\$segment_expenses  = \"".$template->get('travelmanager_viewplan_expenses')."\";");
@@ -641,8 +683,11 @@ class TravelManagerPlanSegments extends AbstractClass {
         if(is_array($hotels)) {
             foreach($hotels as $hotel) {
                 $approved_hotels = $hotel->get();
-
-                $selectedhotel = TravelManagerPlanaccomodations::get_data(array(self::PRIMARY_KEY => $this->data[self::PRIMARY_KEY], TravelManagerHotels::PRIMARY_KEY => $hotel->tmhid), array('simple' => false));
+                $currency_obj = new Currencies($approved_hotels['currency']);
+                if(is_object($currency_obj)) {
+                    $currency_dispname = $currency_obj->get_displayname();
+                }
+                $selectedhotel = TravelManagerPlanaccomodations::get_data(array(self::PRIMARY_KEY => $this->data[self ::PRIMARY_KEY], TravelManagerHotels::PRIMARY_KEY => $hotel->tmhid), array('simple' => false));
                 if(is_object($selectedhotel)) {
                     $hotel->isChecked = " checked='checked'";
                     $rescurrency = $selectedhotel->get_currency();
@@ -673,7 +718,6 @@ class TravelManagerPlanSegments extends AbstractClass {
                         'anotheraff' => $lang->anotheraff
                 );
                 $selectlists['paidBy'] = parse_selectlist('segment['.$sequence.'][tmhid]['.$checksum.'][entites]', 5, $paidby_entities, $selectedhotel->paidBy, 0, $paidby_onchangeactions);
-
                 $numfmt = new NumberFormatter($lang->settings['locale'], NumberFormatter::DECIMAL);
                 $numfmt->setPattern("#0.###");
                 if(is_object($selectedhotel)) {

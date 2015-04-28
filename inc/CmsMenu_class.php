@@ -238,7 +238,12 @@ class CmsMenu extends Cms {
                 </a>';
                 }
                 $menus_list .= '</div>';
-                $menus_list .= '<div style = "width: 10%; display:inline-block;">'.count($values['children']).'</div>';
+                if($values['children'] == 0) {
+                    $menus_list .= '<div style = "width: 10%; display:inline-block;">0</div>';
+                }
+                else {
+                    $menus_list .= '<div style = "width: 10%; display:inline-block;">'.count($values['children']).'</div>';
+                }
                 $menus_list .= '<div style = "width: 10%; display:inline-block; text-align: right;">'.$editlink.'</div>';
                 $menus_list .= '</li>';
                 $menus_list .='<hr>';

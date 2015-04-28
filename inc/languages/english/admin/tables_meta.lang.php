@@ -9,7 +9,7 @@
  */
 $lang['tableslist'] = 'Tables List';
 $lang['tablename'] = 'Table Name';
-$lang['numberofcolumns'] = 'Number Of Colomuns';
+$lang['numberofcolumns'] = 'Number Of Columns';
 $lang['classname'] = 'Class Name';
 $lang['managetable'] = 'Manage Tables';
 $lang['columnname'] = 'Column Name';
@@ -21,4 +21,20 @@ $lang['primarykey'] = 'Primary Key';
 $lang['unique'] = 'Unique';
 $lang['required'] = 'Required';
 $lang['references'] = 'References';
+$lang['gettablecolumns'] = 'Get Tables Columns';
+$lang['reset'] = 'Reset';
+$lang['save'] = 'SAVE';
+$lang['errorsaving'] = 'Error While Saving';
+$lang['successfullysaved'] = 'Successfully Saved';
+$lang['saveandcreateclass'] = 'Save And Create PHP Class';
+$lang['simple'] = 'Simple';
+$lang['overwriteclassif'] = 'Overwrite Class If It Exists';
+$lang['classfunctions'] = 'Class Get Functions';
+$lang['displayname'] = 'Display Name';
+$lang['classdefinition'] = 'Class Definition';
+$lang['addtable'] = 'Add Table';
+$lang['fillallrequiredfields'] = 'Fill All Required Fields';
+$lang['tablexists'] = 'Table Exists';
+$lang['inputalreadyexists'] = 'Table Already Exists. Do You Wish To Continue?';
+$lang['createormodclass'] = 'Create Or Modify Class';
 ?>
