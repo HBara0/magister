@@ -31,7 +31,7 @@ class TravelManagerPlanSegments extends AbstractClass {
     }
 
     public function create(array $segmentdata) {
-        global $db, $core;
+        global $db, $core, $lang, $errorhandler;
         if(!is_numeric($segmentdata['toDate'])) {
             $segmentdata['toDate'] = strtotime($segmentdata['toDate']);
             $segmentdata['fromDate'] = strtotime($segmentdata['fromDate']);
@@ -104,8 +104,18 @@ class TravelManagerPlanSegments extends AbstractClass {
                         }
                     }
                     else {
-                        if(isset($data['transpType']) && empty($data['transpType']) || (isset($data['fare']) && empty($data['fare']))) {
+                        if(isset($data['transpType']) && empty($data['transpType']) || isset($data['tmtcid']) && empty($data['tmtcid']) || (isset($data['fare']) && empty($data['fare']))) {
                             $transp_errorcode = 2;
+                            if(empty($data['tmtcid'])) {
+                                $field = $lang->trasptype;
+                            }
+                            else {
+                                $field = $lang->transpfees;
+                            }
+                            $errorhandler->record('requiredfields', $field);
+                            if(isset($data['tmtcid']) && empty($data['tmtcid']) && (isset($data['fare']) && empty($data['fare']))) {
+                                unset($transp_errorcode);
+                            }
                             continue;
                         }
                         $transp_obj = new TravelManagerPlanTransps();
@@ -193,7 +203,7 @@ class TravelManagerPlanSegments extends AbstractClass {
     }
 
     public function update(array $segmentdata) {
-        global $db, $core;
+        global $db, $core, $errorhandler, $lang;
         if(!is_numeric($segmentdata['toDate'])) {
             $segmentdata['toDate'] = strtotime($segmentdata['toDate']);
             $segmentdata['fromDate'] = strtotime($segmentdata['fromDate']);
@@ -252,6 +262,13 @@ class TravelManagerPlanSegments extends AbstractClass {
                 else {
                     if(isset($data['transpType']) && empty($data['transpType']) || isset($data['tmtcid']) && empty($data['tmtcid']) || (isset($data['fare']) && empty($data['fare']))) {
                         $transp_errorcode = 2;
+                        if(empty($data['tmtcid'])) {
+                            $field = $lang->trasptype;
+                        }
+                        else {
+                            $field = $lang->transpfees;
+                        }
+                        $errorhandler->record('requiredfields', $field);
                         if(isset($data['tmtcid']) && empty($data['tmtcid']) && (isset($data['fare']) && empty($data['fare']))) {
                             unset($transp_errorcode);
                         }
@@ -471,7 +488,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                     $paidby = $paidby->get_displayname();
                 }
                 if(!empty($transportation->transpDetails)) {
-                    $flight_details = TravelManagerAirlines::parse_bestflight($transportation->transpDetails, array(), $sequence, email);
+                    $flight_details = TravelManagerAirlines::parse_bestflight($transportation->transpDetails, array(), $sequence, 'selectedflight');
                     //  $transp_flightdetails = json_decode($transportation->flightDetails, true);
                     //  $flight_details = $this->parse_flightdetails($transp_flightdetails);
                 }
