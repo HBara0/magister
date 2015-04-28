@@ -363,6 +363,19 @@ if(!$core->input['action']) {
                         $markerreport_fields .=$markerreport_segment_suppliers;
                     }
                 }
+                else {
+                    $srowid = $sprowid = 1;
+                    $css['display']['chemsubfield'] = 'none';
+                    $inputchecksum['product'] = generate_checksum('mpl');
+                    eval("\$product_row= \"".$template->get('reporting_fillreport_marketreport_suppproducts')."\";");
+                    $inputchecksum['supplier'] = generate_checksum('msl');
+                    eval("\$markerreport_segment_suppliers_row = \"".$template->get('reporting_fillreport_marketreport_suppliers_rows')."\";");
+                    $inputchecksum['unspecifiedsupp'] = generate_checksum('msl');
+                    $inputchecksum['unspecifiedsuppcs'] = generate_checksum('mpl');
+                    eval("\$markerreport_segment_suppliers = \"".$template->get('reporting_fillreport_marketreport_suppliers')."\";");
+
+                    $markerreport_fields .=$markerreport_segment_suppliers;
+                }
             }
             if(isset($marketreport[0])) {
                 $segment['psid'] = 0;
