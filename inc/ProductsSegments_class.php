@@ -14,8 +14,8 @@ class ProductsSegments extends AbstractClass {
     const PRIMARY_KEY = 'psid';
     const TABLE_NAME = 'productsegments';
     const DISPLAY_NAME = 'title';
-    const SIMPLEQ_ATTRS = 'psid,title,titleAbbr';
-    const UNIQUE_ATTRS = '';
+    const SIMPLEQ_ATTRS = 'psid,alias,title,titleAbbr';
+    const UNIQUE_ATTRS = 'alias';
 
     public function __construct($id = '', $simple = true) {
         parent::__construct($id, $simple);
@@ -155,25 +155,6 @@ class ProductsSegments extends AbstractClass {
         else {
             return false;
         }
-    }
-
-    public function __get($attr) {
-        if(isset($this->data[$attr])) {
-            return $this->data[$attr];
-        }
-        return false;
-    }
-
-    public function __isset($name) {
-        return isset($this->data[$name]);
-    }
-
-    public function get_displayname() {
-        return $this->data[self::DISPLAY_NAME];
-    }
-
-    public function get() {
-        return $this->data;
     }
 
 }

@@ -17,19 +17,6 @@ if($core->usergroup['grouppurchase_canGenerateReports'] == 0) {
 if(!($core->input['action'])) {
     if(!is_null($core->input['stuffings'])) {
         $forecast = unserialize(base64_decode($core->input['stuffings']));
-//        foreach($core->input['stuffings'] as $key => $value) {
-//            if(!is_array($value)) {
-//                $key = base64_decode($key);
-//                $forecast[$key] = base64_decode($value);
-//            }
-//            else {
-//                $key = base64_decode($key);
-//                foreach($value as $key_2 => $value_2) {
-//                    $key_2 = base64_decode($key_2);
-//                    $forecast[$key][$key_2] = base64_decode($value_2);
-//                }
-//            }
-//        }
         $core->input['forecast'] = $forecast;
     }
     $report_type = $core->input['forecast']['reporttype'];
@@ -65,15 +52,13 @@ if(!($core->input['action'])) {
                 if(is_array($gpforecastlines)) {
                     foreach($gpforecastlines as $grouppurchasline) {
                         $product_obj = new Products($grouppurchasline->pid);
-                        $slaletype_obj = new SaleTypes($grouppurchasline->saleType);
-                        $salestype = $slaletype_obj->get_displayname();
-                        $product = $product_obj->name;
+                        $salestype = new SaleTypes($grouppurchasline->saleType);
+
                         foreach($groupurchase_months as $monthval) {
-                            // $mon = 'SUM('.$monthval.')';
                             $group_purchase['monthval'] .= '<td class = "smalltext" class = "border_left">'.$numfmt->format($grouppurchasline->$monthval).'</td>';
                         }
                         eval("\$grouppurchase_report_rows .= \"".$template->get('grouppurchase_report_rows')."\";");
-                        unset($group_purchase['monthval'], $salestype, $product);
+                        unset($group_purchase['monthval']);
                     }
                 }
             }

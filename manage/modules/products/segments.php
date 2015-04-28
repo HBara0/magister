@@ -38,6 +38,7 @@ if(!$core->input['action']) {
 else {
     if($core->input['action'] == 'do_add_segments') {
         $segment_obj = new ProductsSegments();
+        $core->input['segment']['alias'] = generate_alias($core->input['segment']['title']);
         $segment_obj->set($core->input['segment']);
         $segment_obj->save();
         switch($segment_obj->get_errorcode()) {

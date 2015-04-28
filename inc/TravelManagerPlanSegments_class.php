@@ -503,6 +503,10 @@ class TravelManagerPlanSegments extends AbstractClass {
                 if($fromcurr != $tocurr) {
                     $fare .='<br/><small>'.$numfmt->formatCurrency($transportation->fare, $fromcurr->alphaCode).'</small>';
                 }
+
+                if($transportation->isRoundTrip) {
+                    $transportation->isRoundTrip_output = $lang->roundtrip;
+                }
                 eval("\$segment_transpdetails .= \"".$template->get('travelmanager_viewplan_transpsegments')."\";");
                 $flight_details = '';
             }
@@ -537,7 +541,7 @@ class TravelManagerPlanSegments extends AbstractClass {
             }
         }
         else {
-            $noaccomodation = 'No Accomodations';
+            $segment_hotel = 'No Accomodations';
         }
         $additional_expenses = Travelmanager_Expenses::get_data(array('tmpsid' => $this->tmpsid), array('simple' => false, 'returnarray' => true));
         if(is_array($additional_expenses)) {

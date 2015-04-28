@@ -39,15 +39,6 @@ if(!$core->input['action']) {
             }
         }
 
-        $readonly_fields = array('productname' => '', 'turnOver' => '', 'quantity' => '', 'soldQty' => '');
-        if($report_meta['auditor'] != '1') {
-            foreach($readonly_fields as $key => $val) {
-                $readonly_fields[$key] = ' readonly';
-            }
-
-            $selectlists_disabled = true;
-        }
-
         $saletypes = explode(';', $core->settings['saletypes']);
         foreach($saletypes as $key => $val) {
             $saletypes[$val] = ucfirst($val);
@@ -79,6 +70,15 @@ if(!$core->input['action']) {
             $core->input['auditor'] = 1;
         }
         /* Check if audit - END */
+
+        $readonly_fields = array('productname' => '', 'turnOver' => '', 'quantity' => '', 'soldQty' => '');
+        if($core->input['auditor'] != '1') {
+            foreach($readonly_fields as $key => $val) {
+                $readonly_fields[$key] = ' readonly';
+            }
+
+            $selectlists_disabled = true;
+        }
 
         unset($core->input['module'], $core->input['stage']);
         //$session->set_phpsession(array('reportmeta_'.$rid => serialize($core->input)));

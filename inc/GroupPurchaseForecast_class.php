@@ -127,13 +127,13 @@ class GroupPurchaseForecast extends AbstractClass {
         }
     }
 
-    public function get_forecastlines($uid) {
+    public function get_forecastlines($uid = null) {
         global $core;
-        $businessMgr = $core->user['uid'];
+        $businessmgr = $core->user['uid'];
         if(isset($uid) && !empty($uid)) {
-            $businessMgr = $uid;
+            $businessmgr = $uid;
         }
-        return GroupPurchaseForecastLines::get_data(array('gpfid' => $this->data[self::PRIMARY_KEY], 'businessMgr' => $businessMgr), array('returnarray' => true, 'simple' => false));
+        return GroupPurchaseForecastLines::get_data(array('gpfid' => $this->data[self::PRIMARY_KEY], 'businessMgr' => $businessmgr), array('returnarray' => true, 'simple' => false));
     }
 
     private function validate_requiredfields(array $data = array()) {
@@ -163,7 +163,7 @@ class GroupPurchaseForecast extends AbstractClass {
         if(is_array($core->user['suppliers']['eid'])) {
             $filter_where['spid'] = array_intersect($groupdata['suppliers'], $core->user['suppliers']['eid']);
         }
-        $affiliates_where = '(affid IN ('.implode(',', $core->user['affiliates']).') OR (generalManager='.$core->user['uid'].' OR supervisor='.$core->user['uid'].'))';
+        $affiliates_where = '(affid IN ('.implode(',', $core->user['affiliates']).') AND(generalManager='.$core->user['uid'].' OR supervisor='.$core->user['uid'].'))';
         $affiliates_filter = Affiliates::get_affiliates(array('affid' => $affiliates_where), array('returnarray' => true, 'simple' => false, 'operators' => array('affid' => 'CUSTOMSQL')));
         if(is_array($affiliates_filter) && is_array($groupdata['affiliates'])) {
             $intersection = array_intersect(array_keys($affiliates_filter), $groupdata['affiliates']);
@@ -172,6 +172,18 @@ class GroupPurchaseForecast extends AbstractClass {
             $filter_where['affid'] = array_intersect(array_keys($affiliates_filter), $groupdata['affiliates']);
         }
         return $filter_where;
+    }
+
+    public function get_supplier() {
+        return new Entities($this->spid);
+    }
+
+    public function get_affiliate() {
+        return new Affiliates($this->affid);
+    }
+
+    public function get_displayname() {
+        return $this->year.' - '.$this->get_affiliate()->name.' - '.$this->get_supplier()->get_displayname();
     }
 
 }
