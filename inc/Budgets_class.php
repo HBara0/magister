@@ -18,6 +18,7 @@ class Budgets extends AbstractClass {
     const SIMPLEQ_ATTRS = 'bid, year, affid, spid';
     const attachments_path = './uploads/budget';
     const CLASSNAME = __CLASS__;
+    const UNIQUE_ATTRS = '';
 
     public function __construct($id = '', $simple = false, $budgetdata = '', $isallbudget = false) {
         if(isset($id) && !empty($id)) {

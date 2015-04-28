@@ -30,7 +30,7 @@ if(!$core->input['action']) {
         $segments_list = "<tr><td colspan='3' style='text-align: center;'>{$lang->nosegementsavailable}</td></tr>";
     }
     $segmentcats = SegmentCategories::get_data(array(), array('simple' => false, 'returnarray' => true));
-    $category_selectlist = parse_selectlist("segment[category]", '', $segmentcats, '', '', '', array('blankstart' => true));
+    $category_selectlist = parse_selectlist("segment[category]", '', $segmentcats, '', '', '');
     eval("\$addsegment = \"".$template->get('popup_admin_product_addsegment')."\";");
     eval("\$segmentspage = \"".$template->get('admin_products_segments')."\";");
     output_page($segmentspage);
@@ -102,7 +102,7 @@ else {
             $checked = 'checked="checked"';
         }
         $segmentcats = SegmentCategories::get_data(array(), array('simple' => false, 'returnarray' => true));
-        $category_selectlist = parse_selectlist("segment[category]", '', $segmentcats, $segment_obj->category, '', '', array('blankstart' => true));
+        $category_selectlist = parse_selectlist("segment[category]", '', $segmentcats, $segment_obj->category, '', '');
 //        $segment['description'] = $segment_obj->description;
 //        $segment['title'] = $segment_obj->title;
 //        $segment['psid'] = $segment_obj->psid;

@@ -23,6 +23,7 @@ class BudgetLines {
     const DISPLAY_NAME = '';
     const SIMPLEQ_ATTRS = '*';
     const CLASSNAME = __CLASS__;
+    const UNIQUE_ATTRS = '';
 
     public function __construct($budgetlineid = '') {
         if(!empty($budgetlineid)) {

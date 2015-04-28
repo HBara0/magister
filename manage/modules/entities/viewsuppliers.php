@@ -155,7 +155,7 @@ else {
         }
         if(is_array($usedin_tables)) {
             $result = implode(",", $usedin_tables);
-            output_xml("<status>false</status><message>{$lang->deleteerror}<![CDATA[<br />{$lang->usedintables}{$result}]]></message>");
+            output_xml("<status>false</status><message>{$lang->deleteerror}</message>");
             exit;
         }
         /* Delete Entity */

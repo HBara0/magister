@@ -2064,6 +2064,23 @@ CREATE TABLE `marketreport_competition_products` (
   `inputChecksum` varchar(150) NOT NULL,
   UNIQUE KEY `mrcpid` (`mrcpid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=78 DEFAULT CHARSET=latin1;
+DROP TABLE IF EXISTS `marketreport_developmentpojects`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `marketreport_developmentpojects` (
+  `mrdpid` int(10) NOT NULL AUTO_INCREMENT,
+  `rid` int(10) NOT NULL,
+  `cid` int(10) NOT NULL,
+  `pid` int(10) NOT NULL,
+  `potentialQty` int(11) NOT NULL,
+  `successPerc` int(11) NOT NULL,
+  `who` varchar(200) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `what` varchar(200) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `whenn` varchar(200) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `inputChecksum` varchar(150) NOT NULL,
+  PRIMARY KEY (`mrdpid`),
+  UNIQUE KEY `mrdpid` (`mrdpid`)
+) ENGINE=MyISAM AUTO_INCREMENT=24 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `meetings`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -3191,6 +3208,40 @@ CREATE TABLE `system_langvariables` (
   PRIMARY KEY (`slvid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1625 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `system_tables`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `system_tables` (
+  `stid` smallint(5) NOT NULL AUTO_INCREMENT,
+  `tableName` varchar(100) NOT NULL,
+  `className` varchar(100) NOT NULL,
+  `nbOfColumns` smallint(3) NOT NULL,
+  PRIMARY KEY (`stid`),
+  UNIQUE KEY `tableName` (`tableName`)
+) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `system_tables_columns`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `system_tables_columns` (
+  `stcid` int(10) NOT NULL AUTO_INCREMENT,
+  `relatedTo` tinyint(10) NOT NULL,
+  `columnDbName` varchar(50) NOT NULL,
+  `columnSystemName` varchar(50) NOT NULL,
+  `columnTitle` varchar(75) NOT NULL,
+  `stid` int(5) NOT NULL,
+  `columnDefault` varchar(20) NOT NULL,
+  `isNull` int(1) NOT NULL,
+  `dataType` varchar(50) NOT NULL,
+  `length` int(5) NOT NULL,
+  `extra` varchar(30) NOT NULL,
+  `isPrimaryKey` tinyint(1) NOT NULL DEFAULT '0',
+  `isRequired` tinyint(1) NOT NULL DEFAULT '0',
+  `isUnique` tinyint(1) DEFAULT '0',
+  `isSimple` tinyint(1) NOT NULL,
+  `isDisplayName` tinyint(1) NOT NULL,
+  PRIMARY KEY (`stcid`)
+) ENGINE=MyISAM AUTO_INCREMENT=38 DEFAULT CHARSET=latin1;
 DROP TABLE IF EXISTS `templates`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;

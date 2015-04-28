@@ -11,6 +11,7 @@
 class Products {
     private $product = array();
 
+    const UNIQUE_ATTRS = '';
     const PRIMARY_KEY = 'pid';
     const TABLE_NAME = 'products';
     const DISPLAY_NAME = 'name';

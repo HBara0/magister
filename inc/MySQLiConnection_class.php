@@ -259,9 +259,9 @@ class MySQLiConnection {
         return $structure['Create Table'];
     }
 
-    public function show_fields_from($table) {
+    public function show_fields_from($table, $type) {
         $query = $this->query("SHOW FIELDS FROM {$this->db['prefix']}{$table}");
-        while($field = $this->fetch_array($query)) {
+        while($field = $this->fetch_array($query, $type)) {
             $field_info[] = $field;
         }
         return $field_info;

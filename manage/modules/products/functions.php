@@ -48,7 +48,8 @@ if(!$core->input['action']) {
                     }
                     if(is_array($functions_applications)) {
                         $functions_application .= $functions_applications['title'].' - '.$functionsappseg_obj->get_segment()->get()['title'];
-                        $functions_application.= ' <a href="#'.$safid.'" id="segapdescription_'.$safid.'_products/functions_loadpopupbyid" title="'.$lang->description.'"><img src="'.$core->settings[rootdir].'/images/icons/report.gif" border="0"></a><br>';
+                        $functions_application.= ' <a href="#'.$safid.'" id="segapdescription_'.$safid.'_products/functions_loadpopupbyid" title="'.$lang->description.'"><img src="'.$core->settings[rootdir].'/images/icons/report.gif" border="0"></a>';
+                        $functions_application .= "<a href='#".$safid."' id='deleteappfunc_".$safid."_products/functions_loadpopupbyid'><img src='".$core->settings[rootdir]."/images/invalid.gif' border='0' /><a/><br>";
                     }
                 }
             }
@@ -97,11 +98,58 @@ elseif($core->input['action'] == 'save_descr') {
             break;
     }
 }
+elseif($core->input['action'] == 'deleteappfunc') {
+    $todeleteid = intval($core->input['safid']);
+    $tables['safid'] = $db->get_tables_havingcolumn('safid');
+    if(is_array($tables)) {
+        foreach($tables as $key => $functables) {
+            if(is_array($functables)) {
+                $func_tables[$key] = array_fill_keys(array_values($functables), $key);
+            }
+        }
+    }
+    $exclude_tables = array('segapplicationfunctions');
+
+    foreach($func_tables as $tables) {
+        if(is_array($tables)) {
+            foreach($tables as $table => $attr) {
+                if(in_array($table, $exclude_tables)) {
+                    continue;
+                }
+                $query = $db->query("SELECT * FROM ".Tprefix.$table." WHERE ".$attr." = ".$todeleteid);
+                if($db->num_rows($query) > 0) {
+                    $usedin_tables[] = $table;
+                }
+            }
+        }
+    }
+    if(is_array($usedin_tables)) {
+        $result = implode(", ", $usedin_tables);
+        output_xml("<status>false</status><message>{$lang->deleteerror}</message>");
+        exit;
+    }
+    /* Delete segappfunc */
+    $deletequery = $db->delete_query('segapplicationfunctions', "safid = '{$todeleteid}'");
+
+    if($deletequery) {
+        output_xml("<status>true</status><message>{$lang->successdelete}</message>");
+    }
+    else {
+        output_xml("<status>false</status><message>{$lang->errordeletingsega}</message>");
+    }
+}
 elseif($core->input['action'] == 'get_segapdescription') {
     $segapfunct_obj = new SegApplicationFunctions($core->input['id']);
     $safid = $segapfunct_obj->safid;
     $segapdescriptions = $segapfunct_obj->get_description();
     eval("\$popup_applicationdescription = \"".$template->get('admin_products_popup_applicationdescription')."\";");
     output($popup_applicationdescription);
+}
+elseif($core->input['action'] == 'get_deleteappfunc') {
+    $segapfunct_obj = new SegApplicationFunctions($core->input['id']);
+    $safid = $segapfunct_obj->safid;
+    eval("\$popup_deleteappfunc = \"".$template->get('popup_admin_product_deletesegappfunction')."\";");
+    output($popup_deleteappfunc);
+    ;
 }
 ?>

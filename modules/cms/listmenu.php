@@ -2,10 +2,10 @@
 /*
  * Orkila Central Online System (OCOS)
  * Copyright © 2009 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * Create Survey
  * $module: addnews
- * $id: listwebpages.php	
+ * $id: listwebpages.php
  * Created By: 		@tony.assaad		Augusst 28, 2012 | 12:30 PM
  * Last Update: 	@tony.assaad		Augusst 28, 2012 | 12:30 PM
  */
@@ -65,23 +65,18 @@ if(!$core->input['action']) {
     else {
         $cms_menuitmes_list_rows = '<tr><td colspan="7">'.$lang->na.'</td></tr>';
     }
+
+    eval("\$menulist = \"".$template->get('cms_menu_list')."\";");
+    output_page($menulist);
 }
 elseif($core->input['action'] == 'viewmenuitem') {
-    $options = 'haschildren';
     $rowclass = alt_row($rowclass);
     $newsid = $db->escape_string($core->input['newsid']);
     $menuitem = new CmsMenu();
-    $menu_item_details = $menuitem->get_menus($options, $newsid);  /* Call  menu items for the menuid passed */
-    if(is_array($menu_item_details)) {
-        foreach($menu_item_details as $menu_item) {
-            echo '<div class="'.$rowclass.'" id="news_'.$menu_item['cmsmiid'].'" style="padding:3px;border: 1px solid #a9a9a9;-moz-border-radius: 6px;-webkit-border-radius: 3px;-khtml-border-radius:3px;">--'.$menu_item['title'].'</div>';
-        }
+    $menus_arrays = $menuitem->read_menus($newsid);
+    $menu_lists = $menuitem->parse_menu_list($menus_arrays);
+    if(!empty($menu_lists)) {
+        echo($menu_lists);
     }
-    exit;
 }
-
-
-eval("\$menulist = \"".$template->get('cms_menu_list')."\";");
-output_page($menulist);
 ?>
-	

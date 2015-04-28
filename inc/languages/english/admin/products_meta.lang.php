@@ -55,4 +55,12 @@ $lang['mediumbanner'] = 'Medium Banner';
 $lang['slogan'] = 'Slogan';
 $lang['shortdesc'] = 'Short Description';
 $lang['brandingcolor'] = 'Branding Color';
+$lang['deletesegapfunc'] = 'Delete Segment Application Function';
+$lang['yes'] = 'Yes';
+$lang['areyousure'] = 'Are you sure you want to delete the segment application function?';
+$lang['no'] = 'No';
+$lang['deleteerror'] = 'You can\'t delete a used entity';
+$lang['usedintables'] = 'Entity Used in the following table/s:';
+$lang['successdelete'] = "Successfully deleted";
+$lang['errordeletingsega'] = 'Error deleting';
 ?>

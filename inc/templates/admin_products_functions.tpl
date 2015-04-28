@@ -39,5 +39,7 @@
 {$footer}
 {$popup_createfunction}
 {$popup_applicationdescription}
+{$popup_deleteappfunc}
+
 </body>
 </html>

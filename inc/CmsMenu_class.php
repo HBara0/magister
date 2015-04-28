@@ -157,5 +157,125 @@ class CmsMenu extends Cms {
         return $this->status;
     }
 
+    public function read_menu_children($id, $simple = false) {
+        global $db;
+
+        $query_select = '*';
+        if($simple == true) {
+            $query_select = 'cmsmiid, parent,sequence';
+        }
+
+        $query = $db->query("SELECT {$query_select} FROM ".Tprefix."cms_menuitems WHERE parent=".$db->escape_string($id).' ORDER BY title ASC');
+        if($db->num_rows($query) > 0) {
+            while($menu = $db->fetch_assoc($query)) {
+                $menus[$menu['cmsmiid']] = $menu;
+                $menus[$menu['cmsmiid']]['children'] = $this->read_menu_children($menu['cmsmiid'], $simple);
+            }
+            return $menus;
+        }
+
+        return false;
+    }
+
+    public function read_menus($menuid, $simple = false) {
+        global $db, $core;
+
+        $query_select = '*';
+        if($simple == true) {
+            $query_select = 'cmsmiid, parent,sequence';
+        }
+
+        $query = $db->query("SELECT {$query_select} FROM ".Tprefix."cms_menuitems WHERE cmsmid=".$menuid." AND parent=0 ORDER BY title ASC");
+        if($db->num_rows($query)) {
+            while($menu = $db->fetch_assoc($query)) {
+                $level = 'parent';
+                if($menu['parent'] != 0) {
+                    $level = 'children';
+                }
+
+                $menus[$menu['cmsmiid']] = $menu;
+                $menus[$menu['cmsmiid']]['children'] = $this->read_menu_children($menu['cmsmiid'], $simple);
+            }
+
+            return $menus;
+        }
+        return false;
+    }
+
+    public function parse_menu_list(array $menus = array(), $highlevel = true, $parsetype = 'list', $config = array()) {
+        global $core;
+        if(empty($menus)) {
+            if(!isset($this->menu)) {
+                return false;
+            }
+
+            if($highlevel == true) {
+                $menus = $this->menu;
+            }
+            else {
+                return false;
+            }
+        }
+
+        if($highlevel == true) {
+            if($parsetype == 'list') {
+                $menus_list = '<ul>';
+            }
+            else {
+                $menus_list = '<select name="'.$config['name'].'" id="'.$config['id'].'">';
+            }
+        }
+
+        foreach($menus as $id => $values) {
+
+            if($parsetype == 'list') {
+                $editlink = '<a href="'.$core->settings['rootdir'].'/index.php?module=cms/managemenu&mitid='.$values['cmsmiid'].'" target="_blank"><img src="'.$core->settings['rootdir'].'/images/edit.gif"></a>';
+                $editlink .='<a href="index.php?module=cms/managemenu&type=addmenuitem&id='.$values['cmsmid'].'&parent='.$values['cmsmiid'].'" target="_blank"  title="{$lang->addmenuitem}"><img src="'.$core->settings['rootdir'].'/images/add.gif" border="0"/></a>';
+                $menus_list .= '<li>';
+                $menus_list .= '<div style = "width: 75%; display:inline-block;">'.$values['title'];
+                if(is_array($values['children']) && !empty($values['children'])) {
+                    $menus_list .= ' <a href = "#menu_'.$values['cmsmiid'].'" id = "showmore_menuchildren_'.$values['cmsmiid'].'">&raquo;
+                </a>';
+                }
+                $menus_list .= '</div>';
+                if($values['children'] == 0) {
+                    $menus_list .= '<div style = "width: 10%; display:inline-block;">0</div>';
+                }
+                else {
+                    $menus_list .= '<div style = "width: 10%; display:inline-block;">'.count($values['children']).'</div>';
+                }
+                $menus_list .= '<div style = "width: 10%; display:inline-block; text-align: right;">'.$editlink.'</div>';
+                $menus_list .= '</li>';
+                $menus_list .='<hr>';
+            }
+            else {
+                $menus_list .= '<option value = "'.$values['cmsmiid'].'"> '.$values['title'].'</option>';
+            }
+
+            if(is_array($values['children']) && !empty($values['children'])) {
+                if($parsetype == 'list') {
+                    $menus_list .= '<ul id = "menuchildren_'.$values['cmsmiid'].'" style = "display:none;">';
+                    $menus_list .= $this->parse_menu_list($values['children'], false);
+                    $menus_list .= '</ul>';
+                }
+                else {
+                    $menus_list .= $this->parse_menu_list($values['children'], false, 'select');
+                }
+            }
+        }
+
+        if($highlevel == true) {
+            if($parsetype == 'list') {
+                $menus_list .= '</ul>';
+            }
+            else {
+                $menus_list .= '</select>';
+            }
+        }
+
+
+        return $menus_list;
+    }
+
 }
 ?>
