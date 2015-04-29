@@ -351,31 +351,6 @@ else {
         eval("\$marketintelligencedetail = \"".$template->get('popup_marketintelligencedetails')."\";");
         output($marketintelligencedetail);
     }
-    elseif($core->input['action'] == 'get_entityendproduct') {
-        if($core->usergroup['profiles_canAddMkIntlData'] == 0) {
-            exit;
-        }
-        /* NOTICE
-         * NEED WORK
-         * Check if user has access to eid */
-        $entity = new Entities($core->input['eid']);
-        $brandsproducts = $entity->get_brandsproducts();
-        $output = '';
-        if(is_array($brandsproducts)) {
-            foreach($brandsproducts as $brandproduct) {
-                $options[$brandproduct->ebpid] = $brandproduct->get_entitybrand()->name;
-                if(!empty($brandproduct->eptid)) {
-                    $options[$brandproduct->ebpid] .= ' - '.$brandproduct->get_endproduct()->title;
-                }
-            }
-
-            $output = parse_selectlist('marketdata[ebpid]', 7, $options, '');
-        }
-        else {
-            $output = $lang->na;
-        }
-        output($output);
-    }
 }
 //function to check if user is allowed to see the affiliates/customers/suppliers
 function isAllowed($core, $fieldusergroupname, $fieldname, $fieldid) {

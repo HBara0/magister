@@ -736,6 +736,28 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                             }
                         }
                         break;
+                    case 'entbrandsproducts':
+                        $entbrandproducts = EntBrandsProducts::get_data('ebid='.$key, array('returnarray' => 1));
+                        if(is_array($entbrandproducts)) {
+                            unset($results_list[$key]);
+                            foreach($entbrandproducts as $entbrandproduct) {
+                                if($options['returnType'] == 'json') {
+                                    $results_list[$entbrandproduct->get_id()]['value'] = $val;
+                                    $results_list[$entbrandproduct->get_id()]['id'] = $entbrandproduct->get_id();
+                                    $results_list[$entbrandproduct->get_id()]['desc'] = $entbrandproduct->get_endproduct()->title;
+                                }
+                                else {
+                                    $details = '<br /><span class="smalltext">'.$entbrandproduct->get_endproduct()->title.'</span>';
+                                    $results_list .= '<li id="'.$entbrandproduct->get_id().'">'.$val.$details.'</li>';
+                                }
+                            }
+                        }
+                        else {
+                            if($options['returnType'] == 'json') {
+                                unset($results_list[$key]);
+                            }
+                        }
+                        break;
                     case 'country':
                         $entity = new Entities($key);
                         if(!empty($entity->country)) {
