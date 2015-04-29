@@ -186,7 +186,7 @@ if(!$core->input['action']) {
         $productypes_objs = EndProducTypes::get_endproductypes();
         if(is_array($productypes_objs)) {
             foreach($productypes_objs as $productype) {
-                $endproducttypes_list .= '<option value="'.$productype->eptid.'">'.$productype->title.' - '.$productype->get_application()->title.'</option>';
+                $endproducttypes_list .= '<option value="'.$productype->eptid.'">'.$productype->title.' - '.$productype->get_application()->get_displayname().'</option>';
             }
         }
         else {
@@ -271,7 +271,7 @@ else {
         $endproducttypes = EndProducTypes::get_endproductypes();
         if(is_array($endproducttypes)) {
             foreach($endproducttypes as $endproducttype) {
-                $endproducttypes_list .= '<option value="'.$endproducttype->eptid.'">'.$endproducttype->title.' - '.$endproducttype->get_application()->title.'</option>';
+                $endproducttypes_list .= '<option value="'.$endproducttype->eptid.'">'.$endproducttype->title.' - '.$endproducttype->get_application()->get_displayname().'</option>';
             }
         }
         unset($endproducttypes);

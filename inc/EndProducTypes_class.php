@@ -19,21 +19,12 @@ class EndProducTypes extends AbstractClass {
     const PRIMARY_KEY = 'eptid';
     const TABLE_NAME = 'endproducttypes';
     const DISPLAY_NAME = 'title';
-    const SIMPLEQ_ATTRS = '';
+    const SIMPLEQ_ATTRS = 'eptid, name, title, psaid';
     const CLASSNAME = __CLASS__;
     const UNIQUE_ATTRS = null;
 
     public function __construct($id = '', $simple = true) {
         parent::__construct($id, $simple);
-    }
-
-    protected function read($id, $simple) {
-        global $db;
-        $query_select = '*';
-        if($simple == true) {
-            $query_select = 'eptid, name, title';
-        }
-        $this->data = $db->fetch_assoc($db->query('SELECT '.$query_select.' FROM '.Tprefix.'endproducttypes WHERE eptid='.intval($id)));
     }
 
     public function update(array $data) {
