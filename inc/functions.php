@@ -710,14 +710,22 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                     case 'checmicalfunction':
                         $chemfunchem_objs = ChemFunctionChemicals::get_data('csid='.$key, array('returnarray' => 1));
                         if(is_array($chemfunchem_objs)) {
+                            unset($results_list[$key]);
+
                             foreach($chemfunchem_objs as $chemfunchem_obj) {
                                 $application_obj = $chemfunchem_obj->get_segapplicationfunction();
+
                                 if($options['returnType'] == 'json') {
-                                    $results_list[$key]['id'] = $chemfunchem_obj->cfcid;
-                                    $results_list[$key]['desc'] = $chemfunchem_obj->get_chemicalfunction()->title.' - '.$application_obj->get_application()->title.' - '.$application_obj->get_segment()->title;
+                                    $results_list[$chemfunchem_obj->cfcid]['value'] = $val;
+                                    $results_list[$chemfunchem_obj->cfcid]['id'] = $chemfunchem_obj->cfcid;
+                                    if(!empty($application_obj->get_application()->title)) {
+                                        $results_list[$chemfunchem_obj->cfcid]['desc'] = $chemfunchem_obj->get_chemicalfunction()->title.' - '.$application_obj->get_application()->title.' - '.$application_obj->get_segment()->title;
+                                    }
                                 }
                                 else {
-                                    $details = '<br /><span class="smalltext">'.$chemfunchem_obj->get_chemicalfunction()->title.' - '.$application_obj->get_application()->title.' - '.$application_obj->get_segment()->title.'</span>';
+                                    if(!empty($application_obj->get_application()->title)) {
+                                        $details = '<br /><span class="smalltext">'.$chemfunchem_obj->get_chemicalfunction()->title.' - '.$application_obj->get_application()->title.' - '.$application_obj->get_segment()->title.'</span>';
+                                    }
                                     $results_list .= '<li id="'.$chemfunchem_obj->cfcid.'">'.$val.$details.'</li>';
                                 }
                             }
