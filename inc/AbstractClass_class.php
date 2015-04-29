@@ -145,6 +145,14 @@ Abstract class AbstractClass {
         return $this->data[static::DISPLAY_NAME];
     }
 
+    public function get_uniqueattributes() {
+        return $this->data[static::UNIQUE_ATTRS];
+    }
+
+    public function get_uniqueattributes_columns() {
+        return $this::UNIQUE_ATTRS;
+    }
+
     public function get() {
         return $this->data;
     }

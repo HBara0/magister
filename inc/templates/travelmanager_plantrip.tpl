@@ -3,13 +3,12 @@
         <title>{$core->settings[systemtitle]} | {$lang->requestleave}</title>
         {$headerinc}
         <script>
-            $(function() {
+            $(function () {
                 var tabs = $("#segmentstabs").tabs();
                 var tabcounter = tabs.find(".ui-tabs-nav").find('li').length + 1; //find the  lenght of li tabs and increment by 1
-                $("#createtab").live('click', function() {
+                $("#createtab").live('click', function () {
                     var templatecontent = errormessage = '';
                     var id = "segmentstabs-" + tabcounter;
-
                     /*User cannot add a new segment if the destination city/to date of the previous segment are not filled*/
                     if($('#pickDate_to_' + (tabcounter - 1)).val() == '' || ($('#destinationcity_' + (tabcounter - 1) + '_cache_id').val() == '')) {
                         var errormessage = ' Please make sure the to Date and Destination city are filled ';
@@ -39,20 +38,34 @@
                     }
 
                 });
+                $('input[id="save_addsegment"]').live('click', function () {
+                    //  setTimeout('alert("www")', 2000);
+                    function click_seg() {
+                        $('a[id="createtab"]').click();
+                    }
+                    $('input[id="saveaddseg"]').val("{$sequence}");
+                    $('input[id="perform_travelmanager/plantrip_Button"]').click();
+                    setTimeout(click_seg, 2000);
+                    $('input[id="saveaddseg"]').val(0);
+                });
                 // close icon: removing the tab on click
-                tabs.delegate("span.ui-icon-close", "click", function() {
+                tabs.delegate("span.ui-icon-close", "click", function () {
                     /*only send ajax request when segmentid exist on modify*/
                     if(typeof $(this).closest("li").find('span').attr('id') !== typeof undefined && $(this).closest("li").find('span').attr('id') !== false) {
                         var segmentid = $(this).closest("li").find('span').attr('id').split("_");
                         sharedFunctions.requestAjax("post", "index.php?module=travelmanager/plantrip&action=deletesegment", "&segmentid=" + segmentid[1], '', '', true);
                     }
+                    if($('#pickDate_to_' + (tabcounter - 1)).val() != '0' || $('#pickDate_to_' + (tabcounter - 1)).val() != '') {
+                        $('#pickDate_to_' + (tabcounter - 2)).val($('#pickDate_to_' + (tabcounter - 1)).val());
+                        $('input[id="altpickDate_to_' + (tabcounter - 2) + '"]').val($('input[id="altpickDate_to_' + (tabcounter - 1) + '"]').val());
+                    }
                     var panelId = $(this).closest("li").remove().attr("aria-controls");
                     $("#" + panelId).remove();
                     tabcounter = tabcounter - 1;
                     tabs.tabs("refresh");
+                    $('input[id="perform_travelmanager/plantrip_Button"]').click();
                 });
-
-                $('input[id^=destinationcity_]').live('change', function() {
+                $('input[id^=destinationcity_]').live('change', function () {
                     if(sharedFunctions.checkSession() == false) {
                         return;
                     }
@@ -66,10 +79,9 @@
                         sharedFunctions.requestAjax("post", "index.php?module=travelmanager/plantrip&action=populatecityprofile", "&sequence=" + sequence + "&destcity=" + ciid, 'segment_city_loader_' + sequence + '', 'segment_city_' + sequence + '', true);
                     }
                 });
-
                 /*var firstcategoryid = $('input[id*=transp_]').attr('id').split("_")[3];*/
 
-                $('input[id*=transp_]').live('click', function() {
+                $('input[id*=transp_]').live('click', function () {
                     var id = $(this).attr('id').split("_");
                     var sequence = id[1];
                     var categoryid = id[3];
@@ -78,8 +90,7 @@
                     //  sharedFunctions.requestAjax("post", "index.php?module=travelmanager/plantrip&action=parsedetailstransp", "&categoryid=" + categoryid + "&sequence=" + sequence + "&catid=" + id[2], 'cat_detailsloader_' + categoryid + '', 'transpcat_content' + categoryid + '', true);
 
                 });
-
-                $('input[id*=pickDate_to_]').live('change', function() {
+                $('input[id*=pickDate_to_]').live('change', function () {
                     if(sharedFunctions.checkSession() == false) {
                         return;
                     }
@@ -92,16 +103,15 @@
                     // $('#numdays_' + (tabcounter - 1)).html(days);
 
                 });
-                $("input[id^='pickDate']").each(function() {
+                $("input[id^='pickDate']").each(function () {
                     //$(this).datepicker("option", "maxDate", new Date($("#pickDate_to_" + (tabcounter - 1)).val()));
 
                 });
-                $("select[id^='show_otherexpenses']").live('change', function() {
+                $("select[id^='show_otherexpenses']").live('change', function () {
                     var id = $(this).attr('id').split("_");
                     $("div[id='" + id[1] + "_" + id[2] + "_" + id[3] + "']").fadeToggle('fast');
                 });
-
-                $("select[id^='segment_expensestype']").live('change', function() {
+                $("select[id^='segment_expensestype']").live('change', function () {
                     var id = $(this).attr('id').split("_");
                     var item = $(this).find(':selected').attr('itemref');
                     $("div[id='Other_" + id[2] + "_" + id[3] + "']").hide();
@@ -110,8 +120,7 @@
                     }
 
                 });
-
-                $('input[id^="numnight_segacc_"]').live('keyup', function() {
+                $('input[id^="numnight_segacc_"]').live('keyup', function () {
                     var id = $(this).attr("id").split("_");
                     if($('input[id="pricenight_' + id[1] + '_' + id[2] + '_' + id[3] + '"]').length < 0) {
                         return;
@@ -119,32 +128,28 @@
 
                     $("div[id=total_" + id[1] + "_" + id[2] + '_' + id[3] + "]").fadeToggle('slow').stop().text($('input[id="pricenight_' + id[1] + '_' + id[2] + '_' + id[3] + '"]').val() * $('input[id="numnight_' + id[1] + '_' + id[2] + '_' + id[3] + '"]').val());
                 });
-                $('input[id=finalize]').live('click', function() {
+                $('input[id=finalize]').live('click', function () {
                     $('input[id="finalizeplan"]').val('1');
                     $('input[id="perform_travelmanager/plantrip_Button"]').click();
                     $('input[id="finalizeplan"]').val('');
                 });
-
-
 //on chagne from date refresh qnd trigger again
-                $('input[id^="pickDate_to"]').live('change', function() {
+                $('input[id^="pickDate_to"]').live('change', function () {
                     var segid = $(this).attr("id").split("_");
                     var nextsegid = ++segid[2];
                     var descity = $('input[id="destinationcity_' + segid[2] + '_cache_id"]').val();
                     var origincity = $('input[id=cities_' + nextsegid + '_cache_id]').val(); /*get  the cityid from the hiiden field*/
-                    $('input[id^="pickDate_from_' + nextsegid + '"]').live('change', function() {
+                    $('input[id^="pickDate_from_' + nextsegid + '"]').live('change', function () {
                         //  $('input[id^="destinationcity_' + nextsegid + '"]').trigger('change');
                         sharedFunctions.requestAjax("post", "index.php?module=travelmanager/plantrip&action=refreshtransp", "&sequence=" + nextsegid + "&destcity=" + descity + "&origincity=" + origincity + "&departuretime=" + $('#altpickDate_to_' + (nextsegid - 1)).val(), 'content_suggestedtransploader_' + nextsegid + '', 'content_suggestedtransp_' + nextsegid + '', true);
                     });
                     $('input[id^="pickDate_from_' + nextsegid + '"]').val($(this).val()) // set fromdate of the next segment to get the value of the previous ssegment
                     $('input[id^="altpickDate_from_' + nextsegid + '"]').val($(this).val());
-
                     $('input[id^="pickDate_from_' + nextsegid + '"]').trigger('change');
                     if((descity != '') && $("#altpickDate_to").val() != '') {
                         // $('input[id^="destinationcity_' + nextsegid + '"]').trigger('change');
                     }
                 });
-
                 $('input[id^="noAccomodation_"]').live('click', function () {
                     var id = $(this).attr("id").split("_");
                     $('#segment_hotels_' + id[1] + ', #other_hotels_' + id[1]).toggle(!$(this).is(':checked')).find('input').val("");
@@ -179,12 +184,16 @@
                 <input type="hidden" value="{$leaveid}" id="lid" name="lid"/>
                 <input type="hidden" value="{$planid}" id="lid" name="planid"/>
                 {$plantript_segmentstabs}
-                <input type='submit' class='button' value="{$lang->savecaps}" id='perform_travelmanager/plantrip_Button'>
+
+                <input type="hidden" id="saveaddseg" name="saveaddseg" value="{$sequence}_saveaddseg">
+                <input type='submit' style="cursor: pointer" class='button' value="{$lang->savecaps}" id='perform_travelmanager/plantrip_Button'>
+                <input type="button"  style="cursor: pointer" class="button" value="{$lang->saveandopenseg}" id="save_addsegment"/>
                 <a href="index.php?module=travelmanager/viewplan&id={$planid}&lid={$leaveid}&referrer=plan" target="_blank">
-                    <input type="button" class='button' value="{$lang->preview}">
+                    <input type="button" style="cursor: pointer" class='button' value="{$lang->preview}">
                 </a>
-                <input type="button" class='button'  value="{$lang->preview} & {$lang->finish}" id="finalize"/>
+                <input type="button" style="cursor: pointer" class='button'  value="{$lang->preview} & {$lang->finish}" id="finalize"/>
                 <input type="hidden" value="" name="finalizeplan" id="finalizeplan"/>
+
             </form>
 
             <div id="perform_travelmanager/plantrip_Results"></div>

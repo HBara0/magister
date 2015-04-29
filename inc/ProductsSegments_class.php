@@ -8,28 +8,29 @@
  * Last Update:    @zaher.reda    Oct 7, 2013 | 3:47:19 PM
  */
 
-class ProductsSegments {
-    private $segment = array();
+class ProductsSegments extends AbstractClass {
+    protected $data = array();
 
     const PRIMARY_KEY = 'psid';
     const TABLE_NAME = 'productsegments';
     const DISPLAY_NAME = 'title';
+    const SIMPLEQ_ATTRS = 'psid,alias,title,titleAbbr';
+    const UNIQUE_ATTRS = 'alias';
 
     public function __construct($id = '', $simple = true) {
-        if(isset($id)) {
-            $this->read($id, $simple);
-        }
+        parent::__construct($id, $simple);
     }
 
-    private function read($id, $simple) {
+    protected function create(array $data) {
         global $db;
 
-        $query_select = '*';
-        if($simple == true) {
-            $query_select = 'psid, title, titleAbbr';
-        }
+        $db->insert_query(self::TABLE_NAME, $data);
+    }
 
-        $this->segment = $db->fetch_assoc($db->query('SELECT '.$query_select.' FROM '.Tprefix.'productsegments WHERE psid='.intval($id)));
+    protected function update(array $data) {
+        global $db;
+
+        $db->update_query(self::TABLE_NAME, $data, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
     }
 
     public static function get_segments($filters = null, $configs = array()) {
@@ -67,7 +68,7 @@ class ProductsSegments {
 
     public function get_applications() {
         global $db;
-        $query = $db->query('SELECT psaid FROM '.Tprefix.'segmentapplications WHERE psid="'.$this->segment['psid'].'"');
+        $query = $db->query('SELECT psaid FROM '.Tprefix.'segmentapplications WHERE psid="'.$this->data['psid'].'"');
         if($db->num_rows($query) > 0) {
             while($rowsegmentapp = $db->fetch_assoc($query)) {
                 $segmentsapp[$rowsegmentapp['psaid']] = new SegmentApplications($rowsegmentapp['psaid']);
@@ -81,7 +82,7 @@ class ProductsSegments {
 
     public function get_coordinators() {
         global $db;
-        $query = $db->query('SELECT pscid FROM '.Tprefix.'productsegmentcoordinators WHERE psid = "'.$this->segment['psid'].'"');
+        $query = $db->query('SELECT pscid FROM '.Tprefix.'productsegmentcoordinators WHERE psid = "'.$this->data['psid'].'"');
         if($db->num_rows($query) > 0) {
             while($segmentcoordinator = $db->fetch_assoc($query)) {
                 $segmentcoordinators[$segmentcoordinator['pscid']] = new ProdSegCoordinators($segmentcoordinator['pscid']);
@@ -98,7 +99,7 @@ class ProductsSegments {
         $query = $db->query('SELECT es.uid, es.emsid
         FROM '.Tprefix.'employeessegments es
         JOIN '.Tprefix.'users u ON (u.uid = es.uid)
-        WHERE u.gid!=7 AND psid = '.intval($this->segment['psid']).'
+        WHERE u.gid!=7 AND psid = '.intval($this->data['psid']).'
         ORDER BY displayName ASC');
         if($db->num_rows($query) > 0) {
             while($rowsegmentemployees = $db->fetch_assoc($query)) {
@@ -125,7 +126,7 @@ class ProductsSegments {
         FROM '.Tprefix.'entities e
         JOIN '.Tprefix.'entitiessegments es ON (es.eid = e.eid)
         JOIN '.Tprefix.'productsegments p ON (p.psid = es.psid)
-        WHERE p.psid = '.intval($this->segment['psid']).''.$query_where);
+        WHERE p.psid = '.intval($this->data['psid']).''.$query_where);
         if($db->num_rows($query) > 0) {
             while($entity = $db->fetch_assoc($query)) {
                 $segmentsemployees[$entity['eid']] = new Entities($entity['eid']);
@@ -144,7 +145,7 @@ class ProductsSegments {
         JOIN '.Tprefix.'affiliatedentities a ON (e.eid = a.eid)
         JOIN '.Tprefix.'affiliatedemployees ae ON (a.affid = ae.affid)
         JOIN '.Tprefix.'assignedemployees ase ON (ase.uid = ae.uid)
-        JOIN '.Tprefix.'productsegments p ON (p.psid = es.psid) WHERE e.type = "c" '.$filterpermission.' AND p.psid = '.intval($this->segment['psid']).'');
+        JOIN '.Tprefix.'productsegments p ON (p.psid = es.psid) WHERE e.type = "c" '.$filterpermission.' AND p.psid = '.intval($this->data['psid']).'');
         if($db->num_rows($query) > 0) {
             while($rowsegmentcustomers = $db->fetch_assoc($query)) {
                 $segmentscustomers[$rowsegmentcustomers['eid']] = new Entities($rowsegmentcustomers['eid']);
@@ -154,25 +155,6 @@ class ProductsSegments {
         else {
             return false;
         }
-    }
-
-    public function __get($attr) {
-        if(isset($this->segment[$attr])) {
-            return $this->segment[$attr];
-        }
-        return false;
-    }
-
-    public function __isset($name) {
-        return isset($this->segment[$name]);
-    }
-
-    public function get_displayname() {
-        return $this->segment[self::DISPLAY_NAME];
-    }
-
-    public function get() {
-        return $this->segment;
     }
 
 }

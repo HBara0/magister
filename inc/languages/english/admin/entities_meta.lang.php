@@ -76,5 +76,14 @@ $lang['selectoption'] = 'Please select an option';
 $lang['centralpurchase'] = "Is Central Purchase";
 $lang['centralpurchasenote'] = "Central Purchase Notes";
 $lang['entitynotifysubject'] = 'New Supplier has been added';
-$lang['entitynotify'] = 'Dears, <br> <strong>{1}</strong> has been created  <br> Click {2} to go the supplier profile '
+$lang['entitynotify'] = 'Dears, <br> <strong>{1}</strong> has been created  <br> Click {2} to go the supplier profile ';
+$lang['suredeleteentity'] = 'Are you sure you want to delete this Entity?';
+$lang['mergeentity'] = 'Merge Entity with';
+$lang['deleteerror'] = 'You can\'t delete a used entity';
+$lang['usedintables'] = 'Entity Used in the following table/s:';
+$lang['successdeletemerge'] = "Successfully deleted or merged";
+$lang['successdelete'] = "Successfully deleted";
+$lang['errordeleting'] = "An error occured while deleting the entity";
+$lang['mergeentity'] = 'Merge Entity';
+$lang['deleteentity'] = 'Delete Entity';
 ?>

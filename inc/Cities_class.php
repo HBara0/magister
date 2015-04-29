@@ -168,16 +168,16 @@ class Cities extends AbstractClass {
         global $template, $lang, $core;
         if($source == 'addmore') {
             $transpdata['inputChecksum'] = generate_checksum();
-            $availabletransp[1] = 1;
-            $othertranspcategories = TravelManagerTranspCategories ::get_data('tmtcid NOT IN ('.implode(', ', $availabletransp).')', array('returnarray' => true));
+            $othertranspcategories = TravelManagerTranspCategories ::get_data('', array('returnarray' => true));
             $transp_category_fields = TravelManagerPlan::parse_transportaionfields($transps, array('inputChecksum' => $transpdata['inputChecksum'], 'transportationdetials' => $transpdata['transportationdetails'], 'name' => 'other', 'tmtcid' => $transp->tmtcid, 'othercategories' => $othertranspcategories), array('origincity' => $transpdata['origincity'], 'destcity' => $transpdata['destcity'], 'date' => $transpdata['transprequirements']['departuretime']), $sequence, $rowid);
             $mainaffobj = new Affiliates($core->user['mainaffiliate']);
             $destcity_obj = new Cities($transpdata['destcity']);
             $currencies[] = $destcity_obj->get_country()->get_maincurrency();
             $currencies[] = $mainaffobj->get_country()->get_maincurrency();
             $currencies[] = new Currencies(840, true);
+            $currencies[] = new Currencies(978, true);
             $currencies = array_unique($currencies);
-            $currencies_list .= parse_selectlist('segment['.$sequence.'][tmtcid]['.$transpdata['inputChecksum'].'][currency]', 4, $currencies, '840');
+            $currencies_list = parse_selectlist('segment['.$sequence.'][tmtcid]['.$transpdata['inputChecksum'].'][currency]', 4, $currencies, '840');
             eval("\$transcategments_output = \"".$template->get('travelmanager_plantrip_segment_transtypefields')."\";");
             //  eval("\$transsegments_output .= \"".$template->get('travelmanager_plantrip_segment_transptype')."\";");
             return '<tr><td>'.$transcategments_output.'</td></tr>';
@@ -278,7 +278,7 @@ class Cities extends AbstractClass {
             $transsegments['title'] = '<h2>'.$lang->selectedtransportations.'</h2>';
 
             foreach($transps as $transp) {
-                if($transp->get_transpcategory()->isAerial == 1) {
+                if($transp->get_transpcategory()->isAerial == 1 && $transp->isUserSuggested == 0) {
                     $aerialtransp = $transp;
                 }
                 else {

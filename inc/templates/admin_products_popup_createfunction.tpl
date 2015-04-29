@@ -9,7 +9,7 @@
                 <td><strong>{$lang->applications}</strong></td><td><select name="chemicalfunctions[segapplications][]" multiple="true">{$applications_list}</select></td>
             </tr>
             <tr>
-                <td><strong>{$lang->description}</strong></td><td><textarea rows="5" cols="30" class="texteditormin" name="chemicalfunctions[description]"></textarea></td>
+                <td><strong>{$lang->description}</strong></td><td><textarea rows="5" cols="30" id='description' class="inlinetxteditadv" name="chemicalfunctions[description]"></textarea></td>
             </tr>
             <tr>
                 <td colspan="2" align="left">

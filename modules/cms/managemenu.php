@@ -23,7 +23,6 @@ if($core->usergroup['cms_canAddMenu'] == 0) {
 
 if(!$core->input['action']) {
     if($core->input['type'] == 'addmenuitem') {
-        $actiontype = 'create';
         if(isset($core->input['id']) && !empty($core->input['id'])) {
             $menu_id = $db->escape_string($core->input['id']);
         }
@@ -33,7 +32,7 @@ if(!$core->input['action']) {
             $parentmenus[$parentmenu['cmsmiid']] = $parentmenu;
         }
         if(isset($parentmenus)) {
-            $parent_list = parse_selectlist('menuitem[parent]', 3, array(0 => '') + get_menuitmes($parentmenus, 1), 0);
+            $parent_list = parse_selectlist('menuitem[parent]', 3, array(0 => '') + get_menuitmes($parentmenus, 1), $core->input['parent']);
         }
 
         //$parent_list =  parse_selectlist('menuid', 1, $parentmenu,  0);
@@ -56,26 +55,43 @@ if(!$core->input['action']) {
         eval("\$createmenuitem =\"".$template->get('cms_menu_create_item')."\";");
         output_page($createmenuitem);
     }
-}
-elseif($core->input['action'] == 'do_createmenuitem') {
-    $cms_menu = new CmsMenu();
-    $core->input['menuitem']['cmsmid'] = $core->input['menuitem']['cmsmid'];
-    $cms_menu->create_menuitem($core->input['menuitem']);
+    else {
+        if(isset($core->input['mitid']) && !empty($core->input['mitid'])) {
+            $menuitem_obj = new CmsMenuItems($core->input['mitid'], false);
+            $menuname = $menuitem_obj->title;
+            $menuitem_id = $menuitem_obj->cmsmiid;
+            $menu_id = $menuitem_obj->cmsmid;
 
-    switch($cms_menu->get_status()) {
-        case 0:
-            /* we hide the dialog Box on succefull Creation */
-            output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
-            break;
-        case 1:
-            output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
-            break;
-        case 2:
-            output_xml("<status>false</status><message>{$lang->menuexists}</message>");
-            break;
-        case 3:
-            output_xml("<status>false</status><message>{$lang->errorsaving}</message>");
-            break;
+            $query = $db->query("SELECT cmsmiid, title, parent FROM ".Tprefix." cms_menuitems WHERE cmsmid =".$menuitem_obj->cmsmid." ORDER BY title ASC");
+            while($parentmenu = $db->fetch_assoc($query)) {
+                $parentmenus[$parentmenu['cmsmiid']] = $parentmenu;
+            }
+
+            if(isset($parentmenus)) {
+                $parent_list = parse_selectlist('menuitem[parent]', 3, array(0 => '') + get_menuitmes($parentmenus, 1), $menuitem_obj->parent);
+            }
+            $menuitem = $menuitem_obj->get();
+            if($menuitem_obj->isPublished) {
+                $ispublished_check = 'checked="checked"';
+            }
+            $affiliates = get_specificdata('affiliates', array('affid', 'name'), 'affid', 'name', array('by' => 'name', 'sort' => 'ASC'));
+            $list_affiliates = parse_selectlist('menuitem[configurations][affiliate][]', 1, array(0 => '') + $affiliates, array(0 => ''), 1);
+
+
+            $list_brancheprofile = parse_selectlist('menuitem[configurations][branchprofile]', 1, array(0 => '') + $affiliates, $core->user['mainaffiliate'], 0);
+
+            $robots_list = parse_selectlist('menuitem[robotsRule]', 1, array("INDEX,FOLLOW" => "INDEX,FOLLOW", "NOINDEX,FOLLOW" => "NOINDEX,FOLLOW", "INDEX,NOFOLLOW" => "INDEX,NOFOLLOW", "NOINDEX,NOFOLLOW" => "NOINDEX,NOFOLLOW"), $menuitem['robotsRule']);
+            $segment_data = get_specificdata('productsegments', array('psid', 'title'), 'psid', 'title', array('by' => 'title', 'sort' => 'ASC'), 0, "publishOnwebsite = 1");
+
+            $list_segments = parse_selectlist('menuitem[configurations][segmentslist][]', 1, array(0 => '') + $segment_data, $core->user['segments'], 1);
+            $single_segment = parse_selectlist('menuitem[configurations][singlesegment]', 6, array(0 => '') + $segment_data, '');
+            $webpages = get_specificdata('cms_pages', array('alias', 'title'), 'alias', 'title', array('by' => 'title', 'sort' => 'ASC'), 0);
+            $list_webpages = parse_selectlist('menuitem[configurations][webpage]', 1, array(0 => '') + $webpages, 0);
+
+
+            eval("\$createmenuitem =\"".$template->get('cms_menu_create_item')."\";");
+            output_page($createmenuitem);
+        }
     }
 }
 else {
@@ -87,6 +103,34 @@ else {
 
         switch($cms_menu->get_status()) {
             case 0:
+                output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
+                break;
+            case 1:
+                output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
+                break;
+            case 2:
+                output_xml("<status>false</status><message>{$lang->menuexists}</message>");
+                break;
+            case 3:
+                output_xml("<status>false</status><message>{$lang->errorsaving}</message>");
+                break;
+        }
+    }
+    elseif($core->input['action'] == 'do_menuitem') {
+        $cms_menuitem = new CmsMenuItems();
+        $core->input['menuitem']['cmsmid'] = $core->input['menuitem']['cmsmid'];
+        foreach($core->input['menuitem'] as $key => $menuitemdata) {
+            if(is_array($menuitemdata)) {
+                continue;
+            }
+            $menuitems[$key] = $menuitemdata;
+        }
+        $cms_menuitem->set($menuitems);
+        $cms_menuitem->save();
+
+        switch($cms_menuitem->get_errorcode()) {
+            case 0:
+                /* we hide the dialog Box on succefull Creation */
                 output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
                 break;
             case 1:

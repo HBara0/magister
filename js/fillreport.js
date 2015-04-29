@@ -203,6 +203,9 @@ $(function() {
             var found_one = false;
 
             if($("form[id='" + id[0] + "_" + id[1] + "_" + id[2] + "_Form']").find("textarea:enabled[value!='']").length > 0) {
+                for(instance in CKEDITOR.instances) {
+                    CKEDITOR.instances[instance].updateElement();
+                }
                 var formData = $("form[id='" + id[0] + "_" + id[1] + "_" + id[2] + "_Form']").serialize();
                 sharedFunctions.requestAjax("post", "index.php?module=" + id[2] + "&action=save_" + id[1], formData, id[0] + "_" + id[1] + "_" + id[2] + "_Results", id[0] + "_" + id[1] + "_" + id[2] + "_Results");
             }
@@ -215,7 +218,9 @@ $(function() {
             return;
         }
         var id = $(this).attr("id").split("_");
-
+        for(instance in CKEDITOR.instances) {
+            CKEDITOR.instances[instance].updateElement();
+        }
         if(validateEmpty(id[1]) == true) {
             var formData = $("form[id='" + id[0] + "_" + id[1] + "_" + id[2] + "_Form']").serialize();
             $("form[id='" + id[0] + "_" + id[1] + "_" + id[2] + "_Form']").submit(function(e) {

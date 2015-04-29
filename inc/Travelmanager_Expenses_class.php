@@ -103,6 +103,7 @@ class Travelmanager_Expenses extends AbstractClass {
         $currencies[] = $destcity->get_country()->get_maincurrency();
         $currencies[] = $mainaffobj->get_country()->get_maincurrency();
         $currencies[] = new Currencies(840, true);
+        $currencies[] = new Currencies(978, true);
         $currencies = array_unique($currencies);
         $currencies_list = parse_selectlist('segment['.$sequence.'][expenses]['.$rowid.'][currency]', 4, $currencies, $expensestype[$segid][$rowid][currency]);
         eval("\$expenses= \"".$template->get('travelmanager_expenses')."\";");

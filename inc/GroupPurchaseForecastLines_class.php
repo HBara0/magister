@@ -132,4 +132,8 @@ class GroupPurchaseForecastLines extends AbstractClass {
         return $filter;
     }
 
+    public function get_gpforecast() {
+        return new GroupPurchaseForecast($this->data[GroupPurchaseForecast::PRIMARY_KEY]);
+    }
+
 }

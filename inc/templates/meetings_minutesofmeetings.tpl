@@ -2,22 +2,7 @@
     <head>
         <title>{$core->settings[systemtitle]} | {$lang->setmof}</title>
         {$headerinc}
-        <script type="text/javascript">
-            $(document).ready(function() {
-                $('.texteditor').redactor({
-                    buttons: ['html', '|', 'formatting', '|', 'bold', 'italic', 'deleted', '|',
-                        'unorderedlist', 'orderedlist', 'outdent', 'indent', '|',
-                        'table', '|', 'alignment', '|', 'horizontalrule'],
-                    fullpage: true
-                });
-            });
-        </script>
     </head>
-    <style>
-        .redactor_editor {
-            width:800px;
-        }
-    </style>
     <body>
         {$header}
     <tr>
@@ -29,9 +14,9 @@
                 <input type="hidden" value="do_{$action}" name="action" id="action" />
                 <div>{$lang->meeting}: {$meeting_list}</div>
                 <div class="subtitle" style="margin-top:10px;">{$lang->discussiondetails}</div>
-                <div><textarea class="texteditor" id="meetingdetails" name="mof[meetingDetails]" cols="90" rows="25">{$mof[meetingDetails]}</textarea></div>
+                <div><textarea class="txteditadv" id="meetingdetails" name="mof[meetingDetails]" cols="90" rows="25">{$mof[meetingDetails]}</textarea></div>
                 <div class="subtitle" style="margin-top:10px;">{$lang->followup}</div>
-                <div><textarea name="mof[followup]" id="followup" class="texteditor" cols="90" rows="25">{$mof[followup]}</textarea></div>
+                <div><textarea name="mof[followup]" id="followup" class="txteditadv" cols="90" rows="25">{$mof[followup]}</textarea></div>
                 <div>
                     <hr />
                     <input type="submit" class="button" value="{$lang->savecaps}" id="perform_meetings/minutesmeeting_Button" />

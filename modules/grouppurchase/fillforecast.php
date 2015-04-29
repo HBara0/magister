@@ -12,16 +12,15 @@ if(!defined('DIRECT_ACCESS')) {
     die('Direct initialization of this file is not allowed.');
 }
 if($core->usergroup['grouppurchase_canUpdateForecast'] == 0) {
-    // error($lang->sectionnopermission);
+    error($lang->sectionnopermission);
 }
 if(!$core->input['action']) {
     $forecast_data = $core->input['forecast'];
-    $uid = $forecast_data['onBehalf'];
     if($forecast_data['onBehalf'] == 0) {
-        $uid = $core->user['uid'];
+        $forecast_data['onBehalf'] = $core->user['uid'];
     }
-
-    if(empty($forecast_data) || array_search("0", $forecast_data) !== false) {
+    $uid = intval($forecast_data['onBehalf']);
+    if(empty($forecast_data) || array_search('0', $forecast_data) !== false) {
         redirect('index.php?module=grouppurchase/createforecast');
     }
     $affiliate = new Affiliates($forecast_data['affid']);
@@ -38,7 +37,7 @@ if(!$core->input['action']) {
 
     $grouppurchaseforecast = GroupPurchaseForecast::get_data(array('affid' => $forecast_data['affid'], 'year' => $forecast_data['year'], 'spid' => $forecast_data['spid']));
     if(is_object($grouppurchaseforecast)) {
-        $gpforecastlines = $grouppurchaseforecast->get_forecastlines();
+        $gpforecastlines = $grouppurchaseforecast->get_forecastlines($uid);
     }
     $budget = Budgets::get_budget_bydata($forecast_data);
 
@@ -66,9 +65,9 @@ if(!$core->input['action']) {
                             $forecastline['quantity'] = round($forecastline['quantity'], 2);
                             /* disable input fields on update for past months */
                             $date_str = $forecast_data['year'].'-'.trim($field, 'month');
-//                            if(strtotime("$date_str") < strtotime('first day of '.date('F Y'))) {
-//                                $readonly[$field] = 'readonly="readonly"';
-//                            }
+                            if(strtotime("$date_str") < strtotime('first day of '.date('F Y'))) {
+                                $readonly[$field] = 'readonly="readonly"';
+                            }
                         }
                 }
             }
@@ -97,9 +96,9 @@ if(!$core->input['action']) {
                                     $forecastline[$months[$i]] = ($line['s1quantity'] / 6 );
                                     $total[$months[$i]] += $forecastline[$months[$i]];
                                     $date_str = $forecast_data[year].'-'.$i;
-//                                    if(strtotime("$date_str") < strtotime('first day of '.date('F Y'))) {
-//                                        $readonly[$months[$i]] = 'readonly = "readonly"';
-//                                    }
+                                    if(strtotime("$date_str") < strtotime('first day of '.date('F Y'))) {
+                                        $readonly[$months[$i]] = 'readonly = "readonly"';
+                                    }
                                 }
                                 break;
                             case 's2quantity':
@@ -107,9 +106,9 @@ if(!$core->input['action']) {
                                     $forecastline[$months[$i]] = $line['s2quantity'] / 6;
                                     $total[$months[$i]] += $forecastline[$months[$i]];
                                     $date_str = $forecast_data[year].'-'.$i;
-//                                    if(strtotime("$date_str") < strtotime('first day of '.date('F Y'))) {
-//                                        $readonly[$months[$i]] = 'readonly = "readonly"';
-//                                    }
+                                    if(strtotime("$date_str") < strtotime('first day of '.date('F Y'))) {
+                                        $readonly[$months[$i]] = 'readonly = "readonly"';
+                                    }
                                 }
                                 break;
                             case 'saleType';
@@ -188,11 +187,10 @@ else if($core->input['action'] == 'do_perform_fillforecast') {
             if(isset($core->input['notify']) && $core->input ['notify'] == 1) {
                 $mailer = new Mailer();
                 $mailer = $mailer->get_mailerobj();
-                $mailer->set_type();
-                $mailer->set_from(array('name' => 'tony.assaad', 'email' => 'tony.assaad@ocos.local'));
-                $mailer->set_subject('');
-                $mailer->set_message('');
-                $mailer->set_to('');
+                $mailer->set_from(array('name' => 'OCOS Mailer', 'email' => $core->settings['maileremail']));
+                $mailer->set_subject('Forecast Update: '.$gpforecast->get_displayname());
+                $mailer->set_message('Forecast for '.$gpforecast->get_displayname().' has been updated by '.$core->user_obj->get_displayname());
+                $mailer->set_to('rima.saad@orkila.com');
                 $mailer->send();
             }
             output_xml('<status>true</status><message>'.$lang->successfullysaved.'</message>');

@@ -9,6 +9,7 @@ class Entities extends AbstractClass {
     const TABLE_NAME = 'entities';
     const DISPLAY_NAME = 'companyName';
     const CLASSNAME = __CLASS__;
+    const UNIQUE_ATTRS = '';
 
     public function __construct($data, $action = '', $simple = true) {
         if(is_array($data)) {
@@ -868,6 +869,128 @@ class Entities extends AbstractClass {
         }
         else {
             return $this->get_displayname();
+        }
+    }
+
+    public function mergeanddelete($oldid, $newid) {
+        global $db;
+        global $log;
+//        $checkattrs = array(
+//                'affiliatedentities' => 'affid',
+//                'entitiessegments' => 'psid',
+//                'entitiesrepresentatives' => 'rpid',
+//                'assignedemployees' => 'uid',
+//        );
+        $type = $this->type;
+        if($type == 'c') {
+            $entity_columns = array('eid', 'cid');
+        }
+        elseif($type == 's') {
+            $entity_columns = array('eid', 'spid');
+        }
+        $old_entity_details = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."entities WHERE eid={$oldid}"));
+        $new_entity_details = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."entities WHERE eid={$newid}"));
+
+        foreach($entity_columns as $column) {
+            $tables[$column] = $db->get_tables_havingcolumn($column);
+        }
+        if(is_array($tables)) {
+            foreach($tables as $key => $columntables) {
+                if($columntables == 'entities') {
+                    continue;
+                }
+                if(is_array($columntables)) {
+                    $entity_tables[$key] = array_fill_keys(array_values($columntables), $key);
+                }
+            }
+        }
+        if(!empty($newid)) {
+            foreach($new_entity_details as $nkey => $nval) {
+                if(empty($new_entity_details[$nkey]) && !empty($old_entity_details[$nkey])) {
+                    $update_details[$nkey] = $old_entity_details[$nkey];
+                }
+            }
+
+            if(is_array($update_details)) {
+                $update_details_query = $db->update_query('entities', $update_details, "eid='{$newid}'");
+            }
+
+            foreach($entity_tables as $tables) {
+                if(is_array($tables)) {
+                    foreach($tables as $table => $attr) {
+                        $classname = get_classname_bytable($table);
+                        if($classname != false && !empty($classname)) {
+                            $unique_attrs = $classname::UNIQUE_ATTRS;
+                            if(!empty($unique_attrs) && !is_null($unique_attrs)) {
+                                $unique_attrib_arr = explode(',', $unique_attrs);
+                                if(!empty($unique_attrib_arr) && is_array($unique_attrib_arr)) {
+                                    foreach($unique_attrib_arr as $attrvalue) {
+                                        if($attrvalue == $attr) {
+                                            continue;
+                                        }
+                                        $unique_attribs_arr[] = $attrvalue;
+                                    }
+                                    if(is_array($unique_attribs_arr) && !empty($unique_attribs_arr)) {
+                                        $unique_attrs = implode(',', $unique_attribs_arr);
+                                        $sql_select = "SELECT ".$unique_attrs." FROM ".Tprefix."".$table." WHERE ".$attr."=".$newid."";
+
+                                        foreach($unique_attribs_arr as $attrs) {
+                                            $sql_where_in .= " AND ".$attrs." IN (SELECT ".$attrs." FROM ".Tprefix."".$table." WHERE ".$attr."=".$oldid.")";
+                                            $sql_where_notin .= " AND ".$attrs." NOT IN (SELECT ".$attrs." FROM ".Tprefix."".$table." WHERE ".$attr."=".$oldid.")";
+                                        }
+                                    }
+                                }
+                                $query_intersect = $sql_select.$sql_where_in;
+                                $query_difference = $sql_select.$sql_where_notin;
+                                $rows_intersect = $db->query($query_intersect);
+                                if($db->num_rows($rows_intersect) > 0) {
+                                    while($rowsdata_int = $db->fetch_assoc($rows_intersect)) {
+                                        foreach($rowsdata_int as $col => $vals) {
+                                            $sql_update_in.=" AND ".$col." =".$vals."";
+                                        }
+                                        $update_query = $db->delete_query($table, "{$attr} = {$oldid} {$sql_update_in}");
+                                        $results .= $table.': '.$db->affected_rows().'<br />';
+                                    }
+                                }
+                                $rows_diff = $db->query($query_difference);
+                                if($db->num_rows($rows_diff) > 0) {
+                                    while($rowsdata_diff = $db->fetch_assoc($rows_diff)) {
+                                        foreach($rowsdata_diff as $col => $vals) {
+                                            $sql_update_notin.=" AND ".$col." =".$vals."";
+                                        }
+                                        $update_query = $db->update_query($table, array($attr => $newid), "{$attr} = {$oldid} {$sql_update_notin}");
+                                        $results .= $table.': '.$db->affected_rows().'<br />';
+                                    }
+                                }
+                            }
+                            else {
+                                if($table != 'entities') {
+                                    $db->update_query($table, array($attr => $newid), $attr.'='.$oldid);
+                                    $results .= $table.': '.$db->affected_rows().'<br />';
+                                }
+                            }
+                            unset($unique_attribs_arr, $sql_where_in, $sql_where_notin, $query_intersect, $query_difference, $query_difference, $sql_update_in, $sql_update_notin);
+                        }
+                        else {
+                            if($table != 'entities') {
+
+                                $db->update_query($table, array($attr => $newid), $attr.'='.$oldid);
+                                $results .= $table.': '.$db->affected_rows().'<br />';
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        $query = $db->delete_query('entities', "eid = '{$oldid}'");
+        if($query) {
+            $log->record($oldid, $newid);
+//            output_xml("<status>true</status><message>{$lang->successdeletemerge}<![ CDATA[<br / >{$results}]]></message>");
+
+            return true;
+        }
+        else {
+            return false;
         }
     }
 

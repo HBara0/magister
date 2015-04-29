@@ -45,8 +45,6 @@ class TravelManagerPlanaccomodations extends AbstractClass {
                 'currency' => $data['currency'],
                 'paidBy' => $data['paidBy'],
                 'paidById' => $data['paidById'],
-                'address' => $data['address'],
-                'phone' => $data['phone']
         );
 
         $db->insert_query(self::TABLE_NAME, $data);
@@ -64,8 +62,6 @@ class TravelManagerPlanaccomodations extends AbstractClass {
             $hoteldata['currency'] = $data['currency'];
             $hoteldata['modifiedBy'] = $core->user['uid'];
             $hoteldata['modifiedOn'] = TIME_NOW;
-            $hoteldata['address'] = $data['address'];
-            $hoteldata['phone'] = $data['phone'];
 
             $db->update_query(self::TABLE_NAME, $hoteldata, ' tmhid='.intval($this->data['tmhid']).' AND tmpsid='.intval($this->data['tmpsid']));
         }
@@ -112,7 +108,7 @@ class TravelManagerPlanaccomodations extends AbstractClass {
     }
 
     public function get_hotel() {
-        return new TravelManagerHotels($this->data['tmhid']);
+        return new TravelManagerHotels($this->data['tmhid'], false);
     }
 
     public function get_accomodationtype() {

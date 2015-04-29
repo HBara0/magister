@@ -3,20 +3,15 @@
         <title>{$core->settings[systemtitle]} | {$lang->modifysitesettings}</title>
         {$headerinc}
         <script type="text/javascript">
-            $(function() {
-
-                $('.texteditor').redactor({imageUpload: rootdir + '/index.php?module=cms/managemenu&action=do_uploadtmpimage', imageUploadCallback:
-                function(obj, json) { $('#uploadedImages').val(json.filelink + ';' + $('#uploadedImages').val());}
-                });
-
-                $("input[type='radio'][id$='_type']").live('change', function() {
+            $(function () {
+                $("input[type='radio'][id$='_type']").live('change', function () {
                     var id = $(this).attr("id");
 
                     /*	if($(this).not($("div[id^='" + $(this).val() + "']"))) {
                      alert('hideee');
                      }// hide*/
                     /*go throw each select and input in hte main configuration  div we are hiding and  reset their value */
-                    $("div[id$=_configuration]").not([id ^= '" + $(this).val() + "']).find("select,input").each(function() {
+                    $("div[id$=_configuration]").not([id ^= '" + $(this).val() + "']).find("select,input").each(function () {
                         $(this).val(''), $(this).addClass("thead");
                     });
                     $("div[id$=_configuration]").not([id ^= '" + $(this).val() + "']).hide();
@@ -38,7 +33,9 @@
                 <form   name="perform_cms/managemenu_Form" method="post"  id="perform_cms/managemenu_Form" >
                     <input type="hidden" value="do_{$actiontype}menuitem" name="action" id="action" />
                     <input type="hidden" value="{$menu_id}" name="menuitem[cmsmid]" id="menuitem[menuid]" />
-                    <input type="hidden" value="{$submenu_id}" name="menuitem[itemid]" />
+                    <input type="hidden" value="{$menuitem_id}" name="menuitem[cmsmiid]" id="menuitem[menuid]" />
+
+                    <input type="hidden" value="{$submenu_id}" name="submenuitem[itemid]" />
                     <div style="display:table-row">
                         <div style="display: table-cell; width:90px;">{$lang->title}</div>
                         <div style="display: table-cell; padding:5px; ">
@@ -76,7 +73,7 @@
 
                     <div style="display:table-row">
                         <div style="display:table-cell;">{$lang->ispublish}</div>
-                        <div  style="display: table-cell; padding:5px;"><input name="menuitem[isPublished]" type="checkbox" value='1'{$checkedboxes[isPublished]}></div>
+                        <div  style="display: table-cell; padding:5px;"><input name="menuitem[isPublished]" type="checkbox" value='1'{$ispublished_check}></div>
                     </div>
 
                     <div class="thead">{$lang->configuration}</div>
@@ -143,7 +140,7 @@
 
                     </div>
 
-                    <div  id="webpage_configuration" style="display:display:block;">
+                    <div  id="webpage_configuration" style="display:block;">
                         <div style="display: table-cell; padding:10px;">
                             <fieldset class="altrow2" style="width:100%;">
                                 <legend class="subtitle">{$lang->webpage}</legend>
@@ -249,7 +246,7 @@
                     <div style="display:table-row">
                         <div style="display:table-cell;">{$lang->publishedDesc}</div>
                         <div style="display: table-cell; padding:5px;">
-                            <textarea name="menuitem[publishedDesc]" cols="50" class="texteditor" rows="15">{$menuitem[publishedDesc]}</textarea>
+                            <textarea name="menuitem[publishedDesc]" cols="50" class="txteditadv" rows="15" id="publishedDesc">{$menuitem[publishedDesc]}</textarea>
                         </div>
 
                     </div>

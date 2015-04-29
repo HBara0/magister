@@ -46,7 +46,6 @@ if($core->input['type'] == 'quick') {
     }
 
     if(isset($core->input['for'])) {
-
         if($core->input['for'] == 'potentialcustomer') {
             $table = 'entities';
             $attributes = array('companyName', 'companyNameAbbr');
@@ -189,6 +188,18 @@ if($core->input['type'] == 'quick') {
             $order = array('by' => 'name', 'sort' => 'ASC');
             $descinfo = 'checmicalfunction';
         }
+        elseif($core->input['for'] == 'entbrandsproducts') {
+            if(isset($core->input['eid']) && !empty($core->input['eid'])) {
+                $extra_where = 'eid='.intval($core->input['eid']);
+            }
+            $table = EntitiesBrands::TABLE_NAME;
+            $attributes = array(EntitiesBrands::DISPLAY_NAME);
+            $key_attribute = EntitiesBrands::PRIMARY_KEY;
+
+            $select_attributes = array(EntitiesBrands::DISPLAY_NAME);
+            $order = array('by' => EntitiesBrands::DISPLAY_NAME, 'sort' => 'ASC');
+            $descinfo = 'entbrandsproducts';
+        }
         elseif($core->input['for'] == 'representative' || $core->input['for'] == 'supprepresentative') {
             if(IN_AREA == 'user') {
                 if($core->input['for'] == 'supprepresentative') {
@@ -213,13 +224,13 @@ if($core->input['type'] == 'quick') {
                     else {
                         if($core->usergroup['canViewAllCust'] == 0) {
                             $inentities = implode(',', $core->user['customers']);
-                            $extra_where = 'er.eid IN ('.$inentities.')';
+                            $extra_where = '(er.eid IN ('.$inentities.') OR e.createdBy='.$core->user['uid'].')';
                         }
                     }
                     if(!empty($extra_where)) {
                         $extra_where_and = ' AND ';
                     }
-                    $extra_where .= $extra_where_and.'e.type="c"';
+                    $extra_where .= $extra_where_and.'e.type IN ("pc", "c")';
                 }
             }
 

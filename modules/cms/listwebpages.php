@@ -82,19 +82,6 @@ if(!$core->input['action']) {
         /* Parse pagination - START */
 
 
-
-        if(isset($core->input['filterby'], $core->input['filtervalue'])) {
-            $attributes_filter_options['title'] = array('title' => 'cp.');
-
-            if($attributes_filter_options['title'][$core->input['filterby']] == 'int') {
-                $filter_value = ' = "'.$db->escape_string($core->input['filtervalue']).'"';
-            }
-            else {
-                $filter_value = ' LIKE "%'.$db->escape_string($core->input['filtervalue']).'%"';
-            }
-            $multipage_where .= $db->escape_string($attributes_filter_options['title'][$core->input['filterby']].$core->input['filterby']).$filter_value;
-        }
-
         $multipages = new Multipages('cms_pages cp', $core->settings['itemsperlist'], $multipage_where);
 
         $cms_pages_list_rows .= '<tr><td colspan="7">'.$multipages->parse_multipages().'</td></tr>';

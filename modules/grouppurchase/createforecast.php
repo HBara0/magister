@@ -50,19 +50,21 @@ if(!$core->input['action']) {
 //get on behalof user ids
     $reportingto_users = Users::get_data(array('reportsTo' => $core->user['uid']), array('returnarray' => true));
     $assistantto_users = Users::get_data(array('assistant' => $core->user['uid']), array('returnarray' => true));
-    if(!is_array($reportingto_users) && !is_array($assistantto_users)) {
+    if(is_array($reportingto_users)) {
+        $onbehalf_users = $reportingto_users;
+    }
+    if(is_array($assistantto_users)) {
+        if(is_array($onbehalf_users)) {
+            $onbehalf_users = array_merge($assistantto_users, $onbehalf_users);
+        }
+        else {
+            $onbehalf_users = $assistantto_users;
+        }
+    }
 
-    }
-    elseif(!is_array($reportingto_users)) {
-        $onbehalf_users = array_unique($assistantto_users);
-    }
-    else {
-        $onbehalf_users = array_unique($reportingto_users);
-    }
-    $onbehalf_users = array_unique(array_merge($reportingto_users, $onbehalf_users));
     if(is_array($onbehalf_users) && !empty($onbehalf_users)) {
+        $onbehalf_users = array_unique($onbehalf_users);
         foreach($onbehalf_users as $onbehalf_user) {
-            $uids[$onbehalf_user->uid] = $onbehalf_user->uid;
             $groupdata[$onbehalf_user->uid] = UserGroups::get_data(array('gid' => $onbehalf_user->gid), array('simple' => false));
         }
         foreach($groupdata as $uid => $usergroup) {
@@ -70,7 +72,7 @@ if(!$core->input['action']) {
                 $allowed_uids[] = $uid;
             }
         }
-        $gp_onbehalf = '<option selected value=0>---select an option---</option>';
+        $gp_onbehalf = '<option selected value=0></option>';
         if(!empty($allowed_uids)) {
             foreach($allowed_uids as $uid) {
                 $user_obj = new Users($uid);

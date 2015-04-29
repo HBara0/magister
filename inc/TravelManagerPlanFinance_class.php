@@ -14,7 +14,7 @@ class TravelManagerPlanFinance extends AbstractClass {
 
     const PRIMARY_KEY = 'tmpfid';
     const TABLE_NAME = 'travelmanager_plan_finance';
-    const SIMPLEQ_ATTRS = 'tmpfid,tmpsid,amount,currency';
+    const SIMPLEQ_ATTRS = '*';
     const UNIQUE_ATTRS = 'tmpsid,currency';
     const CLASSNAME = __CLASS__;
 
@@ -47,6 +47,23 @@ class TravelManagerPlanFinance extends AbstractClass {
         }
         $db->update_query(self::TABLE_NAME, $financedata, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
         return $this;
+    }
+
+    public function get_convertedamount(Currencies $tocurrency) {
+        if($this->currency == $tocurrency->numCode) {
+            return $this->amount;
+        }
+        $fromcurrency = new Currencies($this->currency);
+        $exchangerate = $tocurrency->get_latest_fxrate($tocurrency->alphaCode, array(), $fromcurrency->alphaCode);
+
+        if(empty($exchangerate)) {
+            $reverserate = $tocurrency->get_latest_fxrate($fromcurrency->alphaCode, array(), $tocurrency->alphaCode);
+            if(!empty($reverserate)) {
+                $exchangerate = 1 / $reverserate;
+                $tocurrency->set_fx_rate($fromcurrency->numCode, $tocurrency->numCode, $exchangerate);
+            }
+        }
+        return $this->amount * $exchangerate;
     }
 
 }

@@ -14,18 +14,21 @@ if(!defined('DIRECT_ACCESS')) {
 
 if(!$core->input['action']) {
     if(!isset($core->input['eptid'])) {
-        redirect($_SERVER['HTTP_REFERER']);
+        redirect('index.php?module=profiles/segmentslist');
     }
 
-    $eptid = $db->escape_string($core->input['eptid']);
+    $eptid = intval($core->input['eptid']);
     $filter_where = 'eptid IN ('.$eptid.')';
     $endprodtype_obj = new EndProducTypes($eptid, false);
     $profile = $endprodtype_obj->get();
     $application_obj = $endprodtype_obj->get_application();
-    $application = $application_obj->parse_link();
-    $segment = $application_obj->get_segment()->parselink();
+    $application = $application_obj->get_displayname();
+    $segment_obj = $application_obj->get_segment();
+    if(is_object($segment_obj)) {
+        $segment = $segment_obj->get_displayname();
+    }
     //start selecting all eptid in marketintelligence-basicdata
-    $marketintel_objs = MarketIntelligence::get_marketdata_dal(array('eptid' => $eptid), array(simple => false));
+    $marketintel_objs = MarketIntelligence::get_marketdata_dal(array('eptid' => $eptid), array('simple' => false));
     //selecting all cfpids and cfcids in the marketintel objects
     if(is_array($marketintel_objs)) {
         foreach($marketintel_objs as $marketintel_obj) {
@@ -37,7 +40,7 @@ if(!$core->input['action']) {
             foreach($cfpids as $cfpid) {
                 $chemfuncprod = new ChemFunctionProducts($cfpid);
                 $product_obj = $chemfuncprod->get_produt();
-                $product = $product_obj->parse_link();
+                $product = $product_obj->get_displayname();
                 $pid = $product_obj->pid;
                 eval("\$products_rows .= \"".$template->get('profiles_endproducttype_productlist_rows')."\";");
                 $prodchemsubs = ProductsChemicalSubstances::get_data(array('pid' => $pid), array('returnarray' => true));
@@ -68,4 +71,3 @@ if(!$core->input['action']) {
     eval("\$profilepage = \"".$template->get('profiles_endproducttype')."\";");
     output_page($profilepage);
 }
-

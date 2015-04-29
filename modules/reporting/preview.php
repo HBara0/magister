@@ -414,23 +414,23 @@ if(!$core->input['action']) {
             $item = array();
 
             $keycustomersbox = $keycustomers = '';
-            if(is_array($report['keycustomers'])) {
-                $keycust_count = 0;
-                foreach($report['keycustomers'] as $keycust => $customer) {
-                    /* Limit to 5 customers */
-                    if($keycust_count == 5) {
-                        break;
-                    }
-
-                    if(empty($customer['cid'])) {
-                        continue;
-                    }
-                    $customer['companyName'] = ucwords(strtolower($customer['companyName']));
-                    eval("\$keycustomers .= \"".$template->get('new_reporting_report_keycustomersbox_customerrow')."\";");
-                    $keycust_count++;
-                }
-                eval("\$keycustomersbox = \"".$template->get('new_reporting_report_keycustomersbox')."\";");
-            }
+//            if(is_array($report['keycustomers'])) {
+//                $keycust_count = 0;
+//                foreach($report['keycustomers'] as $keycust => $customer) {
+//                    /* Limit to 5 customers */
+//                    if($keycust_count == 5) {
+//                        break;
+//                    }
+//
+//                    if(empty($customer['cid'])) {
+//                        continue;
+//                    }
+//                    $customer['companyName'] = ucwords(strtolower($customer['companyName']));
+//                    eval("\$keycustomers .= \"".$template->get('new_reporting_report_keycustomersbox_customerrow')."\";");
+//                    $keycust_count++;
+//                }
+//                eval("\$keycustomersbox = \"".$template->get('new_reporting_report_keycustomersbox')."\";");
+//            }
         }
 
         $marketreportbox = '';
