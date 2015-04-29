@@ -245,8 +245,7 @@ if(!$core->input['action']) {
 //													FROM ".Tprefix."marketreport mr LEFT JOIN reports r ON (r.rid=mr.rid)
 //													WHERE r.year='{$lastyear}' AND r.quarter='{$lastquarter}' AND r.spid='{$reportmeta[spid]}' AND r.affid='{$reportmeta[affid]}'"));
 //
-        $query = $db->query("SELECT mr.*
-							FROM ".Tprefix."marketreport mr LEFT JOIN reports r ON (r.rid=mr.rid)
+        $query = $db->query("SELECT mr.* FROM ".Tprefix."marketreport mr LEFT JOIN reports r ON (r.rid=mr.rid)
 							WHERE r.year='{$lastyear}' AND r.quarter='{$lastquarter}' AND r.spid='{$reportmeta[spid]}' AND r.affid='{$reportmeta[affid]}'");
         while($lastmarketreports_data = $db->fetch_assoc($query)) {
             $last_report[$lastmarketreports_data['psid']] = $lastmarketreports_data;
@@ -264,118 +263,6 @@ if(!$core->input['action']) {
         if($db->num_rows($query) > 0) {
             while($segment = $db->fetch_assoc($query)) {
                 eval("\$markerreport_fields .= \"".$template->get('reporting_fillreports_marketreport_fields')."\";");
-
-                /* Parse Market report section on modify */
-                if(is_array($marketreportcompetetion[$segment['psid']])) {
-                    foreach($marketreportcompetetion[$segment['psid']] as $marketreportid => $mrcompetition) {
-                        $srowid = $sprowid = 0;
-                        if(is_array($mrcompetition)) {
-                            foreach($mrcompetition as $mrcid => $competitionsupplier) {
-                                $srowid++;
-                                $competitionsupplier = $competitionsupplier->get();
-                                if($competitionsupplier['sid'] == 0) {
-                                    $checked['unspecifiedsupp'] = 'checked="cecked"';
-                                    $inputchecksum['unspecifiedsupp'] = $competitionsupplier['inputChecksum'];
-
-                                    $mrcompetition_products = MarketReportCompetitionProducts::get_data(array('mrcid' => $mrcid), array('returnarray' => true));
-                                    if(is_array($mrcompetition_products)) {
-                                        $sprowid = $tmpsprowid = 0;
-                                        foreach($mrcompetition_products as $mrcompetition_product) {
-                                            $tmpsprowid++;
-                                            if($tmpsprowid != 1) {
-                                                $sprowid++;
-                                            }
-                                            $mrcompetition_product = $mrcompetition_product->get();
-                                            $chemicalfunc = new ChemFunctionChemicals($mrcompetition_product['csid']);
-                                            if(is_object($chemicalfunc)) {
-                                                $chemicalsubstance = new Chemicalsubstances($chemicalfunc->csid);
-                                                $chemicalsubstance_name = $chemicalsubstance->get_displayname();
-                                                $unspecified_chemname = $chemicalsubstance_name;
-                                                $unspecified_id = $chemicalfunc->csid;
-                                            }
-                                            if($tmpsprowid < count($mrcompetition_products)) {
-                                                if(!empty($chemicalsubstance_name)) {
-                                                    $unspecifiedsupplierproducts .= '<tr>  <td style="width:30%;"></td>  <td style="width:65%;">'
-                                                            .'<input type="text" size="25" id="chemfunctionchecmical_'.$segment[psid].'0'.$sprowid.'_autocomplete" size="100" autocomplete="off" value="'.$chemicalsubstance_name.'" placeholder="pick chemical substance"/>
-                                        <input type="hidden" id="chemfunctionchecmical_'.$segment[psid].'0'.$sprowid.'_id" name="marketreport['.$segment[psid].'][suppliers][0][chp]['.$sprowid.'][csid]" value="'.$mrcompetition_product['csid'].'"/>
-                                    <div id="searchQuickResults_'.$segment[psid].'0'.$sprowid.'" class="searchQuickResults" style="display:none;"></div>
-                                    <input type="hidden" name="marketreport[{$segment[psid]}][suppliers][0][chp]['.$sprowid.'][inputChecksum]" value="'.$inputchecksum[unspecifiedsuppcs].'"/></td></tr>';
-                                                    unset($chemicalsubstance_name, $chemicalsubstance);
-                                                }
-                                            }
-                                            $srowid--;
-                                        }
-                                    }
-                                }
-                                else {
-                                    $sprowid = 0;
-                                    $supplier = new Entities($competitionsupplier['sid']);
-                                    if(is_object($supplier)) {
-                                        $supplier_name = $supplier->get_displayname();
-                                    }
-                                    $inputchecksum['supplier'] = $competitionsupplier['inputChecksum'];
-
-                                    $mrcompetition_products = MarketReportCompetitionProducts::get_data(array('mrcid' => $mrcid), array('returnarray' => true));
-                                    if(is_array($mrcompetition_products)) {
-                                        $sprowid = 0;
-                                        foreach($mrcompetition_products as $mrcompetition_product) {
-                                            $sprowid++;
-                                            $display['chemsubstance'] = $display['product'] = 'style="display:none;"';
-                                            $mrcompetition_product = $mrcompetition_product->get();
-                                            $product = new Products($mrcompetition_product['pid']);
-                                            if(is_object($product)) {
-                                                $product_name = $product->get_displayname();
-                                                if(!empty($product_name)) {
-                                                    $display['product'] = 'style="display:block;"';
-                                                }
-                                            }
-
-                                            $chemicalfunc = new ChemFunctionChemicals($mrcompetition_product['csid']);
-                                            if(is_object($chemicalfunc)) {
-                                                $chemicalsubstance = new Chemicalsubstances($chemicalfunc->csid);
-                                                $chemicalsubstance_name = $chemicalsubstance->get_displayname();
-                                                if(!empty($chemicalsubstance_name)) {
-                                                    $display['chemsubstance'] = 'style="display:block;"';
-                                                }
-                                            }
-                                            $inputchecksum['product'] = $mrcompetition_product['inputChecksum'];
-                                            eval("\$product_row .= \"".$template->get('reporting_fillreport_marketreport_suppproducts')."\";");
-                                        }
-                                    }
-                                    eval("\$markerreport_segment_suppliers_row .= \"".$template->get('reporting_fillreport_marketreport_suppliers_rows')."\";");
-                                    unset($product_row);
-                                }
-                            }
-                            eval("\$markerreport_segment_suppliers = \"".$template->get('reporting_fillreport_marketreport_suppliers')."\";");
-                            unset($chemicalsubstance_name, $product_name, $product_row, $markerreport_segment_suppliers_row, $unspecifiedsupplierproducts, $checked['unspecifiedsupp']);
-                        }
-                        else {
-                            $srowid = $sprowid = 1;
-                            $css['display']['chemsubfield'] = 'none';
-                            $inputchecksum['product'] = generate_checksum('mpl');
-                            eval("\$product_row= \"".$template->get('reporting_fillreport_marketreport_suppproducts')."\";");
-                            $inputchecksum['supplier'] = generate_checksum('msl');
-                            eval("\$markerreport_segment_suppliers_row = \"".$template->get('reporting_fillreport_marketreport_suppliers_rows')."\";");
-                            $inputchecksum['unspecifiedsupp'] = generate_checksum('msl');
-                            $inputchecksum['unspecifiedsuppcs'] = generate_checksum('mpl');
-                            eval("\$markerreport_segment_suppliers = \"".$template->get('reporting_fillreport_marketreport_suppliers')."\";");
-                        }
-                        $markerreport_fields .=$markerreport_segment_suppliers;
-                    }
-                }
-                else {
-                    $srowid = $sprowid = 1;
-                    $css['display']['chemsubfield'] = 'none';
-                    $inputchecksum['product'] = generate_checksum('mpl');
-                    eval("\$product_row= \"".$template->get('reporting_fillreport_marketreport_suppproducts')."\";");
-                    $inputchecksum['supplier'] = generate_checksum('msl');
-                    eval("\$markerreport_segment_suppliers_row = \"".$template->get('reporting_fillreport_marketreport_suppliers_rows')."\";");
-                    $inputchecksum['unspecifiedsupp'] = generate_checksum('msl');
-                    $inputchecksum['unspecifiedsuppcs'] = generate_checksum('mpl');
-                    eval("\$markerreport_segment_suppliers = \"".$template->get('reporting_fillreport_marketreport_suppliers')."\";");
-
-                    $markerreport_fields .=$markerreport_segment_suppliers;
-                }
             }
             if(isset($marketreport[0])) {
                 $segment['psid'] = 0;
@@ -389,45 +276,8 @@ if(!$core->input['action']) {
             eval("\$markerreport_fields = \"".$template->get('reporting_fillreports_marketreport_fields')."\";");
         }
 
-        $marketreportdevelopmentprokjects = MarketReportDevelopmentPojects::get_data(array('rid' => $rid), array('returnarray' => true));
-        if(is_array($marketreportdevelopmentprokjects)) {
-            $crowid = $cprowid = 0;
-            foreach($marketreportdevelopmentprokjects as $developmentprokject) {
-                $devprojects_data[$developmentprokject->cid][] = $developmentprokject;
-            }
-            if(is_array($devprojects_data)) {
-                foreach($devprojects_data as $cid => $projects) {
-                    $crowid++;
-                    $customer['cid'] = $cid;
-                    $customer_obj = new Entities($cid);
-                    $marketreport['customerName'] = $customer_obj->get_displayname();
-                    if(is_array($projects)) {
-                        foreach($projects as $project) {
-                            $cprowid++;
-                            $project = $project->get();
-                            $product = new Products($project['pid']);
-                            if(is_object($product)) {
-                                $project['productname'] = $product->get_displayname();
-                                $inputchecksum[custproduct] = $project['inputChecksum'];
-                            }
-                            eval("\$customer_product_row.= \"".$template->get('reporting_marketreport_devprojects_custproducts')."\";");
-                        }
-                    }
-                    eval("\$markerreport_customer_row .= \"".$template->get('reporting_marketreport_devprojects_custrow')."\";");
-                    unset($customer_product_row);
-                }
-            }
-        }
-        else {
-            $crowid = $cprowid = 1;
-            $inputchecksum['custproduct'] = generate_checksum('cp');
-            eval("\$customer_product_row.= \"".$template->get('reporting_marketreport_devprojects_custproducts')."\";");
-            eval("\$markerreport_customer_row = \"".$template->get('reporting_marketreport_devprojects_custrow')."\";");
-        }
-
         $report_meta = unserialize($session->get_phpsession('reportmeta_'.$identifier));
 
-        eval("\$devprojectssection .= \"".$template->get('reporting_fillreports_marketreport_devprojects')."\";");
         eval("\$marketreportpage .= \"".$template->get('reporting_fillreports_marketreport')."\";");
         eval("\$fillreportpage = \"".$template->get('reporting_fillreports_tabs')."\";");
     }
@@ -961,7 +811,7 @@ else {
 
         $report_meta = unserialize($session->get_phpsession('reportmeta_'.$identifier));
 
-   
+
         $report_meta['rid'] = $db->escape_string($report_meta['rid']);
 
         $report = new ReportingQr(array('rid' => $report_meta['rid']));
@@ -985,12 +835,12 @@ else {
                 exit;
             }
         }
-        if(empty($report_meta['excludeKeyCustomers'])) {
-            if(empty($rawdata['keycustomersdata'])) {
-                output_xml("<status>false</status><message>{$lang->keycustomersempty}</message>");
-                exit;
-            }
-        }
+//        if(empty($report_meta['excludeKeyCustomers'])) {
+//            if(empty($rawdata['keycustomersdata'])) {
+//                output_xml("<status>false</status><message>{$lang->keycustomersempty}</message>");
+//                exit;
+//            }
+//        }
 
         if($report_meta['auditor'] != '1') {
             $products_deletequery_string = ' AND (uid='.$core->user['uid'].' OR uid=0)';
@@ -1077,9 +927,9 @@ else {
             if($marketreport_found_one == false) {
                 if(!empty($val)) {
                     foreach($val as $k => $v) {
-                       $v = preg_replace(array('/\s/', '~\x{00a0}~siu'), '', $core->sanitize_inputs($v, array('method' => 'striponly', 'allowable_tags' => '', 'removetags' => true)));
+                        $v = preg_replace(array('/\s/', '~\x{00a0}~siu'), '', $core->sanitize_inputs($v, array('method' => 'striponly', 'allowable_tags' => '', 'removetags' => true)));
                         if($section_allempty == true) {
-                    if(!in_array(strtolower(trim($v)), $emtpy_terms) && !preg_match('/^[n;.,-_+\*]+$/', $v)) {
+                            if(!in_array(strtolower(trim($v)), $emtpy_terms) && !preg_match('/^[n;.,-_+\*]+$/', $v)) {
                                 $section_allempty = false;
                             }
                         }
@@ -1111,7 +961,7 @@ else {
         if(is_array($rawdata['marketreportdata']) && !empty($rawdata['marketreportdata'])) {
             foreach($rawdata['marketreportdata'] as $psid => $val) {
                 if($val['exclude']) {
-                   continue;
+                    continue;
                 }
 
                 unset($val['segmenttitle'], $val['exclude']);
@@ -1238,8 +1088,5 @@ else {
         eval("\$addcustomerbox = \"".$template->get('popup_addcustomer')."\";");
         output_page($addcustomerbox);
     }
-
- 
-
-
 }
+?>
