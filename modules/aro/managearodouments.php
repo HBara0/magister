@@ -746,8 +746,6 @@ else {
         echo json_encode($partiesinfo_data);
     }
     if($core->input['action'] == 'updateunitfee') {
-        $intermedaffiliate = new Affiliates($core->input['intermedAff']);
-        $affiliate = new Affiliates($core->input['aff']);
         $qtyperunit = $core->input['qtyperunit'];
         $feeperunit = $core->input['feeperunit'];
         $qtyperunit = split('_', $qtyperunit);

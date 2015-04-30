@@ -455,8 +455,14 @@ $(function() {
 
         sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populateproductlinefields&rowid=' + id[1] + fields + '&parmsfornetmargin=' + parmsfornetmargin);
         $.when($.ajax(sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populateproductlinefields&rowid=' + id[1] + fields + '&parmsfornetmargin=' + parmsfornetmargin))).done(function() {
-            $("input[id$='_affBuyingPrice']").trigger("change");
             $("input[id='unitfee_btn']").trigger("change");
+            var attrs = '';
+            attrs = '&intialPrice=' + $("input[id='productline_" + id[1] + "_intialPrice']").val() + '&quantity=' + $("input[id='productline_" + id[1] + "_quantity']").val();
+            attrs += "&commission=" + $('input[id=partiesinfo_commission]').val();
+            attrs += '&unitfees=' + $("input[id='ordersummary_unitfee']").val();
+            attrs += '&rowid=' + id[1] + '&ptid=' + $('select[id=purchasetype]').val();
+            sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populateaffbuyingprice' + attrs);
+            $("input[id$='_affBuyingPrice']").trigger("change");
         });
     });
 
@@ -465,9 +471,9 @@ $(function() {
         triggerproductlines(id);
         addactualpurchaselines(id[1]);
 
-        var xxxxx = setTimeout(function() {
-            $("input[id='ordersummary_btn']").trigger("click");
-        }, 3000);
+//        var xxxxx = setTimeout(function() {
+//            $("input[id='ordersummary_btn']").trigger("click");
+//        }, 3000);
 
     });
 
@@ -576,7 +582,6 @@ $(function() {
         var qtyperc = 0;
         $("tbody[id^='productline_']").find($("select[id$='_uom']")).each(function() {
             var id = $(this).attr('id').split('_');
-            //  alert(id);
             qtyperc = ((parseFloat($("input[id='productline_" + id[1] + "_quantity']").val()) * parseFloat($("input[id='productline_" + id[1] + "_intialPrice']").val())) / refernece) * 100;
             if(i === 1)// if only one product line
             {
@@ -584,12 +589,12 @@ $(function() {
             }
             totalfee = ((qtyperc / 100) * totalfeespaidbyintermed).toFixed(3);
             if(!isNaN(totalfee) && $(this).val() != 0) {
-                totalfees2[$(this).val()] = parseFloat(totalfees2[$(this).val()] || 0) + totalfee;
+                totalfees2[$(this).val()] = parseFloat(totalfees2[$(this).val()] || 0) + parseFloat(totalfee);
             }
-            $.each(totalfees2, function(key, value) {
-                feeperunit += key + ":" + value;
-                feeperunit += "_";
-            });
+        });
+        $.each(totalfees2, function(key, value) {
+            feeperunit += key + ":" + value;
+            feeperunit += "_";
         });
         attributes = '&exchangeRateToUSD=' + $("#exchangeRateToUSD").val() + '&qtyperunit=' + qtyperunit + '&feeperunit=' + feeperunit;
         sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=updateunitfee' + attributes);
@@ -669,7 +674,7 @@ function addactualpurchaselines(id) {
                 }
                 sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populateactualpurchaserow&rowid=' + id + '&fields=' + fields);
                 sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populatecurrentstockrow&rowid=' + id + '&fields=' + fields);
-            }, 2000);
+            }, 3000);
         } else if(operation == 'create') {
             if(addactualpurchaserow(id) == true) {
                 var x = setTimeout(function() {
