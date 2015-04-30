@@ -2052,35 +2052,51 @@ CREATE TABLE `marketreport_competition` (
   `mrcid` int(10) NOT NULL AUTO_INCREMENT,
   `mrid` int(10) NOT NULL,
   `sid` int(10) NOT NULL,
+  `coid` int(10) NOT NULL,
   `inputChecksum` varchar(150) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
   PRIMARY KEY (`mrcid`)
-) ENGINE=MyISAM AUTO_INCREMENT=51 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=87 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `marketreport_competition_products`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `marketreport_competition_products` (
   `mrcpid` int(10) NOT NULL AUTO_INCREMENT,
   `mrcid` int(10) NOT NULL,
   `pid` int(10) NOT NULL,
   `csid` int(10) NOT NULL,
   `inputChecksum` varchar(150) NOT NULL,
+  `howCanWeBeatThem` varchar(150) NOT NULL,
   UNIQUE KEY `mrcpid` (`mrcpid`)
-) ENGINE=MyISAM AUTO_INCREMENT=78 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=18 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `marketreport_developmentpojects`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `marketreport_developmentpojects` (
   `mrdpid` int(10) NOT NULL AUTO_INCREMENT,
-  `rid` int(10) NOT NULL,
+  `mrid` int(10) NOT NULL,
   `cid` int(10) NOT NULL,
+  `inputChecksum` varchar(150) NOT NULL,
+  PRIMARY KEY (`mrdpid`),
+  UNIQUE KEY `mrdpid` (`mrdpid`)
+) ENGINE=MyISAM AUTO_INCREMENT=36 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `marketreport_developmentpojects_products`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `marketreport_developmentpojects_products` (
+  `mrdppid` int(10) NOT NULL AUTO_INCREMENT,
+  `mrdpid` int(10) NOT NULL,
   `pid` int(10) NOT NULL,
   `potentialQty` int(11) NOT NULL,
   `successPerc` int(11) NOT NULL,
   `who` varchar(200) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
   `what` varchar(200) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
-  `whenn` varchar(200) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
-  `inputChecksum` varchar(150) NOT NULL,
-  PRIMARY KEY (`mrdpid`),
-  UNIQUE KEY `mrdpid` (`mrdpid`)
-) ENGINE=MyISAM AUTO_INCREMENT=24 DEFAULT CHARSET=latin1;
+  `whenn` bigint(30) NOT NULL,
+  `inputChecksum` varchar(150) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`mrdppid`)
+) ENGINE=MyISAM AUTO_INCREMENT=16 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `meetings`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
