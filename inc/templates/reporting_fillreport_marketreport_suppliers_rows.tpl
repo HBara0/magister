@@ -13,6 +13,16 @@
                         <input type='hidden' id='competitorsupp_{$segment[psid]}{$srowid}_id' name='marketreport[{$segment[psid]}][suppliers][{$srowid}][sid]' value="{$competitionsupplier['sid']}" />
                         <div id='searchQuickResults_competitorsupp_{$segment[psid]}{$srowid}' class='searchQuickResults' style='display:none;'></div>
                         <input type="hidden" name="marketreport[{$segment[psid]}][suppliers][{$srowid}][inputChecksum]" value="{$inputchecksum[supplier]}"/>
+                        <a href="index.php?module=contents/addentities&amp;type=supplier" target="_blank"><img src="images/addnew.png" border="0" alt="{$lang->add}"></a>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <a style="padding-top:-10px;" {$display[product]} style="color:#91b64f;" onclick="$('#competitorsupp_{$segment[psid]}{$srowid}_QSearch').toggle();
+                                $('#marketreport_{$segment['psid']}_suppliers_{$srowid}_origin').toggle();"> Select Origin </a>
+                    </td>
+                    <td><span id="marketreport_{$segment['psid']}_suppliers_{$srowid}_origin" style="display: {$css[display][origin]};">{$countries_selectlist}</span>
                     </td>
                 </tr>
                 <tr>

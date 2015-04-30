@@ -9,17 +9,17 @@
                 </tr>
                 <tr>
                     <td>
-                        <input type='text' name="marketreport[customers][{$crowid}][products][{$cprowid}][productname]" id="product_{$crowid}{$cprowid}_autocomplete" value="{$project[productname]}" autocomplete='off' />
-                        <input type="hidden" value="{$project[pid]}" id="product_{$crowid}{$cprowid}_id" name="marketreport[customers][{$crowid}][products][{$cprowid}][pid]" />
-                        <div id="searchQuickResults_{$crowid}{$cprowid}" class="searchQuickResults" style="display:none;"></div>
-                        <input type="hidden" name="marketreport[customers][{$crowid}][products][{$cprowid}][inputChecksum]" value="{$inputchecksum[custproduct]}"/>
+                        <input type='text' id="product_{$segment[psid]}{$crowid}{$cprowid}_cust_autocomplete" value="{$customerproduct[productName]}" autocomplete='off' />
+                        <input type="hidden" value="{$customerproduct[pid]}" id="product_{$segment[psid]}{$crowid}{$cprowid}_cust_id" name="marketreport[{$segment[psid]}][customers][{$crowid}][products][{$cprowid}][pid]" />
+                        <div id="searchQuickResults_product_{$segment[psid]}{$crowid}{$cprowid}_cust" class="searchQuickResults" style="display:none;"></div>
+                        <input type="hidden" name="marketreport[{$segment[psid]}][customers][{$crowid}][products][{$cprowid}][inputChecksum]" value="{$inputchecksum[custproduct]}"/>
                         <br />
                     </td>
                     <td>
-                        <input type="number" step="any" name="marketreport[customers][{$crowid}][products][{$cprowid}][potentialQty]" value="{$project[potentialQty]}"/>
+                        <input type="number" step="any" name="marketreport[{$segment[psid]}][customers][{$crowid}][products][{$cprowid}][potentialQty]" value="{$customerproduct[potentialQty]}"/>
                     </td>
                     <td>
-                        <input type="number" step="any" name="marketreport[customers][{$crowid}][products][{$cprowid}][successPerc]" value="{$project[successPerc]}"/>
+                        <input type="number" step="any" name="marketreport[{$segment[psid]}][customers][{$crowid}][products][{$cprowid}][successPerc]" value="{$customerproduct[successPerc]}"/>
                     </td>
                 </tr>
                 <tr><td colspan="3" class="subtitle">{$lang->followup}</td></tr>
@@ -28,13 +28,16 @@
                 </tr>
                 <tr>
                     <td>
-                        <textarea name="marketreport[customers][{$crowid}][products][{$cprowid}][who]" cols="18" rows="3">{$project[who]}</textarea>
+                        <textarea name="marketreport[{$segment[psid]}][customers][{$crowid}][products][{$cprowid}][who]" cols="18" rows="3">{$customerproduct[who]}</textarea>
                     </td>
                     <td>
-                        <textarea name="marketreport[customers][{$crowid}][products][{$cprowid}][what]" cols="18" rows="3">{$project[what]}</textarea>
+                        <textarea name="marketreport[{$segment[psid]}][customers][{$crowid}][products][{$cprowid}][what]" cols="18" rows="3">{$customerproduct[what]}</textarea>
                     </td>
                     <td>
-                        <textarea name="marketreport[customers][{$crowid}][products][{$cprowid}][when]" cols="18" rows="3">{$project[whenn]}</textarea>
+
+
+                        <input type="text" id="pickDate_to_{$segment[psid]}{$crowid}{$cprowid}" autocomplete="off" tabindex="2" value="{$customerproduct[when_formatted]}"/>
+                        <input type="hidden" name="marketreport[{$segment[psid]}][customers][{$crowid}][products][{$cprowid}][whenn]" id="altpickDate_to_{$segment[psid]}{$crowid}{$cprowid}" value="{$customerproduct[when_output]}"/>
                     </td>
                 </tr>
             </tbody>

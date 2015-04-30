@@ -4,7 +4,6 @@
 <input type="hidden" id="identifier" name="identifier" value="{$core->input[identifier]}">
 <table width="100%" class="datatable">
     {$markerreport_fields}
-    {$devprojectssection}
     <tr>
         <td style="text-align:right !important;">
           <!--  <input type="button" value="{$lang->prevcaps}" class="button" onClick="goToURL('index.php?module=reporting/fillreport&amp;stage=productsactivity&amp;identifier={$core->input[identifier]}');" />-->

@@ -6,14 +6,15 @@
                     <td class="subtitle">{$lang->developmentprojects}</td>
                 </tr>
             </thead>
-            <tbody id="customers_tbody">
+            <tbody id="customers_{$segment[psid]}_{$crowid}_tbody">
                 {$markerreport_customer_row}
             </tbody>
         </table>
 
         <span>
-            <img src="./images/add.gif"  style="cursor: pointer" id="ajaxaddmore_reporting/fillreport_customers"  alt="{$lang->addmorecustomers}"> {$lang->addmorecustomers}
-            <input type="hidden" id="numrows_customers" value="{$crowid}">
+            <input type="hidden" name="ajaxaddmoredata[segmentid]" id="ajaxaddmoredata_segmentid"  value="{$segment[psid]}"/>
+            <img src="./images/add.gif"  style="cursor: pointer" id="ajaxaddmore_reporting/fillreport_customers_{$segment[psid]}_{$crowid}"  alt="{$lang->addmorecustomers}"> {$lang->addmorecustomers}
+            <input type="hidden" id="numrows_customers_{$segment[psid]}_{$crowid}" value="{$crowid}">
         </span>
     </td>
 </tr>
