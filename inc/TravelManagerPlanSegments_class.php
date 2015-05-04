@@ -704,9 +704,14 @@ class TravelManagerPlanSegments extends AbstractClass {
         if(is_array($hotels)) {
             foreach($hotels as $hotel) {
                 $approved_hotels = $hotel->get();
-                $currency_obj = new Currencies($approved_hotels['currency']);
-                if(is_object($currency_obj)) {
-                    $currency_dispname = $currency_obj->get_displayname();
+                if(empty($approved_hotels['avgPrice'])) {
+                    $approved_hotels['avgPrice'] = $lang->na;
+                }
+                if($approved_hotels['currency']) {
+                    $currency_obj = new Currencies($approved_hotels['currency']);
+                    if(is_object($currency_obj)) {
+                        $currency_dispname = $currency_obj->get_displayname();
+                    }
                 }
                 $selectedhotel = TravelManagerPlanaccomodations::get_data(array(self::PRIMARY_KEY => $this->data[self ::PRIMARY_KEY], TravelManagerHotels::PRIMARY_KEY => $hotel->tmhid), array('simple' => false));
                 if(is_object($selectedhotel)) {

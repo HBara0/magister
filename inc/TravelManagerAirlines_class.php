@@ -184,14 +184,14 @@ class TravelManagerAirlines {
                 eval("\$flights_records_roundtripsegments_details .= \"".$template->get('travelmanager_plantrip_segment_flight_paidbyfields')."\";");
             }
             if($source == 'selectedflight') {
-                eval("\$flights_records= \"".$template->get('travelmanager_plantrip_segment_catransportation_flightdetails')."\";");
+                eval("\$flights_records = \"".$template->get('travelmanager_plantrip_segment_catransportation_flightdetails')."\";");
                 return $flights_records;
             }
             else {
-                if($hasconnection != true) {
+                if($hasconnection == true) {
                     eval("\$flights_records[hasconnection] .= \"".$template->get('travelmanager_plantrip_segment_catransportation_flightdetails')."\";");
                 }
-                if($hasconnection == true) {
+                else {
                     eval("\$flights_records[direct] .= \"".$template->get('travelmanager_plantrip_segment_catransportation_flightdetails')."\";");
                 }
                 $flights_records_segments = $flights_records_roundtripsegments = $flights_records_roundtripsegments_details = '';
