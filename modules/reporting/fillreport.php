@@ -298,7 +298,7 @@ if(!$core->input['action']) {
                                             }
                                             if($tmpsprowid < count($mrcompetition_products)) {
                                                 if(!empty($chemicalsubstance_name)) {
-
+                                                    $inputchecksum['unspecifiedsuppcs'] = $mrcompetition_product['inputchecksum'];
                                                     $unspecifiedsupplierproducts .= '<tr>  <td style="width:30%;"></td>  <td style="width:65%;">'
                                                             .'<input type="text" size="25" id="chemfunctionchecmical_'.$segment[psid].'0'.$sprowid.'_autocomplete" size="100" autocomplete="off" value="'.$chemicalsubstance_name.'" placeholder="pick chemical substance"/>
                                         <input type="hidden" id="chemfunctionchecmical_'.$segment[psid].'0'.$sprowid.'_id" name="marketreport['.$segment[psid].'][suppliers][0][chp]['.$sprowid.'][csid]" value="'.$mrcompetition_product['csid'].'"/>
@@ -360,9 +360,16 @@ if(!$core->input['action']) {
                                         $inputchecksum['product'] = generate_checksum('mpl');
                                         eval("\$product_row= \"".$template->get('reporting_fillreport_marketreport_suppproducts')."\";");
                                     }
+
                                     eval("\$markerreport_segment_suppliers_row .= \"".$template->get('reporting_fillreport_marketreport_suppliers_rows')."\";");
                                     unset($product_row);
                                 }
+                            }
+                            if(empty($inputchecksum['unspecifiedsupp'])) {
+                                $inputchecksum['unspecifiedsupp'] = generate_checksum('msl');
+                            }
+                            if(empty($inputchecksum['unspecifiedsuppcs'])) {
+                                $inputchecksum['unspecifiedsuppcs'] = generate_checksum('mpl');
                             }
                             eval("\$markerreport_segment_suppliers = \"".$template->get('reporting_fillreport_marketreport_suppliers')."\";");
                             unset($supplier, $supplier_name, $chemicalsubstance_name, $product_name, $product_row, $markerreport_segment_suppliers_row, $unspecifiedsupplierproducts, $checked['unspecifiedsupp']);
