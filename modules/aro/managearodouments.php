@@ -544,11 +544,12 @@ else {
                 $data['parmsfornetmargin_warehousing_disabled'] = 0;
             }
         }
-        $productline = array('productline_qtyPotentiallySold_disabled' => $data['qtyPotentiallySold_disabled'],
+        $productline = array(
+                'productline_qtyPotentiallySold_disabled' => $data['qtyPotentiallySold_disabled'],
                 'productline_daysInStock_disabled' => $data['daysInStock_disabled'],
                 'parmsfornetmargin_warehousing_disabled' => $data['parmsfornetmargin_warehousing_disabled']
         );
-        echo json_encode($productline);
+        output(json_encode($productline));
     }
     if($core->input['action'] == 'populateproductlinefields') {
         $productline_obj = new AroRequestLines();
@@ -1098,7 +1099,8 @@ else {
     else if($core->input['action'] == 'InolveIntermediary') {
         $purchasetype = new PurchaseTypes($core->input['ptid']);
 
-        $needsIntermed = array('needsIntermed' => $purchasetype->needsIntermediary);
-        echo json_encode($needsIntermed);
+        //$needsIntermed = array('needsIntermed' => $purchasetype->needsIntermediary);
+        //echo json_encode($needsIntermed);
+        output($purchasetype->needsIntermediary);
     }
 }
