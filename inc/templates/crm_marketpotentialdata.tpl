@@ -2,19 +2,6 @@
     <head>
         <title>{$core->settings[systemtitle]} | {$lang->potentialmarketdata}</title>
         {$headerinc}
-        <script>
-            $(function () {
-                $("input[id='customer_2_autocomplete']").live("blur", function () {
-                    var b = $('input[id="customer_2_id"]').val();
-                    if(b.length == 0) {
-                        return;
-                    }
-                    var a = "&action=get_entityendproduct&eid=" + b;
-                    sharedFunctions.requestAjax("post", $(location).attr("href"), a, "entitiesbrandsproducts_endproductResult", "entitiesbrandsproducts_endproductResult", "html")
-                });
-            });
-
-        </script>
     </head>
     <body>
         {$header}

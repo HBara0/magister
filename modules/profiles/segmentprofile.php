@@ -37,7 +37,7 @@ if(!$core->input['action']) {
             if(is_array($endproduct_objs)) {
                 $endproduct_types .= '<div style="display:block;padding:5px; vertical-align: left;"><strong>'.$applications['title'].'</strong><br /><ul>';
                 foreach($endproduct_objs as $endproduct_obj) {
-                    $endproduct_types .= '<li><span>'.$endproduct_obj->get()['title'].'</span>';
+                    $endproduct_types .= '<li><span>'.$endproduct_obj->parse_link().'</span>';
                 }
                 $endproduct_types .= '</ul></div>';
             }

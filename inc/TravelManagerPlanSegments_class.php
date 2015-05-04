@@ -31,7 +31,7 @@ class TravelManagerPlanSegments extends AbstractClass {
     }
 
     public function create(array $segmentdata) {
-        global $db, $core;
+        global $db, $core, $lang, $errorhandler;
         if(!is_numeric($segmentdata['toDate'])) {
             $segmentdata['toDate'] = strtotime($segmentdata['toDate']);
             $segmentdata['fromDate'] = strtotime($segmentdata['fromDate']);
@@ -104,7 +104,18 @@ class TravelManagerPlanSegments extends AbstractClass {
                         }
                     }
                     else {
-                        if(isset($data['transpType']) && empty($data['transpType']) || (isset($data['fare']) && empty($data['fare']))) {
+                        if(isset($data['transpType']) && empty($data['transpType']) || isset($data['tmtcid']) && empty($data['tmtcid']) || (isset($data['fare']) && empty($data['fare']))) {
+                            $transp_errorcode = 2;
+                            if(empty($data['tmtcid'])) {
+                                $field = $lang->trasptype;
+                            }
+                            else {
+                                $field = $lang->transpfees;
+                            }
+                            $errorhandler->record('requiredfields', $field);
+                            if(isset($data['tmtcid']) && empty($data['tmtcid']) && (isset($data['fare']) && empty($data['fare']))) {
+                                unset($transp_errorcode);
+                            }
                             continue;
                         }
                         $transp_obj = new TravelManagerPlanTransps();
@@ -183,10 +194,16 @@ class TravelManagerPlanSegments extends AbstractClass {
                 //   $this->errorode = 0;
             }
         }
+
+        if(isset($transp_errorcode) && !empty($transp_errorcode)) {
+            $this->errorode = $transp_errorcode;
+        }
+
+        return $this;
     }
 
     public function update(array $segmentdata) {
-        global $db, $core;
+        global $db, $core, $errorhandler, $lang;
         if(!is_numeric($segmentdata['toDate'])) {
             $segmentdata['toDate'] = strtotime($segmentdata['toDate']);
             $segmentdata['fromDate'] = strtotime($segmentdata['fromDate']);
@@ -215,6 +232,7 @@ class TravelManagerPlanSegments extends AbstractClass {
 
         $transptdata = $segmentdata['tmtcid'];
         if(is_array($transptdata)) {
+            $transp_errorcode = 0;
             foreach($transptdata as $checksum => $data) {
                 $chkdata = $data;
                 rsort($chkdata);
@@ -242,7 +260,18 @@ class TravelManagerPlanSegments extends AbstractClass {
                     }
                 }
                 else {
-                    if(isset($data['transpType']) && empty($data['transpType']) || (isset($data['fare']) && empty($data['fare']))) {
+                    if(isset($data['transpType']) && empty($data['transpType']) || isset($data['tmtcid']) && empty($data['tmtcid']) || (isset($data['fare']) && empty($data['fare']))) {
+                        $transp_errorcode = 2;
+                        if(empty($data['tmtcid'])) {
+                            $field = $lang->trasptype;
+                        }
+                        else {
+                            $field = $lang->transpfees;
+                        }
+                        $errorhandler->record('requiredfields', $field);
+                        if(isset($data['tmtcid']) && empty($data['tmtcid']) && (isset($data['fare']) && empty($data['fare']))) {
+                            unset($transp_errorcode);
+                        }
                         continue;
                     }
                     $transp_obj = new TravelManagerPlanTransps();
@@ -326,6 +355,12 @@ class TravelManagerPlanSegments extends AbstractClass {
                 $finance_obj->save();
             }
         }
+
+        if(isset($transp_errorcode) && !empty($transp_errorcode)) {
+            $this->errorode = $transp_errorcode;
+        }
+
+        return $this;
     }
 
     public function set(array $data) {
@@ -453,7 +488,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                     $paidby = $paidby->get_displayname();
                 }
                 if(!empty($transportation->transpDetails)) {
-                    $flight_details = TravelManagerAirlines::parse_bestflight($transportation->transpDetails, array(), $sequence, email);
+                    $flight_details = TravelManagerAirlines::parse_bestflight($transportation->transpDetails, array(), $sequence, 'selectedflight');
                     //  $transp_flightdetails = json_decode($transportation->flightDetails, true);
                     //  $flight_details = $this->parse_flightdetails($transp_flightdetails);
                 }
@@ -467,6 +502,10 @@ class TravelManagerPlanSegments extends AbstractClass {
                 $fare = $numfmt->formatCurrency(($fare), "USD");
                 if($fromcurr != $tocurr) {
                     $fare .='<br/><small>'.$numfmt->formatCurrency($transportation->fare, $fromcurr->alphaCode).'</small>';
+                }
+
+                if($transportation->isRoundTrip) {
+                    $transportation->isRoundTrip_output = $lang->roundtrip;
                 }
                 eval("\$segment_transpdetails .= \"".$template->get('travelmanager_viewplan_transpsegments')."\";");
                 $flight_details = '';
@@ -502,7 +541,7 @@ class TravelManagerPlanSegments extends AbstractClass {
             }
         }
         else {
-            $noaccomodation = 'No Accomodations';
+            $segment_hotel = 'No Accomodations';
         }
         $additional_expenses = Travelmanager_Expenses::get_data(array('tmpsid' => $this->tmpsid), array('simple' => false, 'returnarray' => true));
         if(is_array($additional_expenses)) {
@@ -665,9 +704,14 @@ class TravelManagerPlanSegments extends AbstractClass {
         if(is_array($hotels)) {
             foreach($hotels as $hotel) {
                 $approved_hotels = $hotel->get();
-                $currency_obj = new Currencies($approved_hotels['currency']);
-                if(is_object($currency_obj)) {
-                    $currency_dispname = $currency_obj->get_displayname();
+                if(empty($approved_hotels['avgPrice'])) {
+                    $approved_hotels['avgPrice'] = $lang->na;
+                }
+                if($approved_hotels['currency']) {
+                    $currency_obj = new Currencies($approved_hotels['currency']);
+                    if(is_object($currency_obj)) {
+                        $currency_dispname = $currency_obj->get_displayname();
+                    }
                 }
                 $selectedhotel = TravelManagerPlanaccomodations::get_data(array(self::PRIMARY_KEY => $this->data[self ::PRIMARY_KEY], TravelManagerHotels::PRIMARY_KEY => $hotel->tmhid), array('simple' => false));
                 if(is_object($selectedhotel)) {

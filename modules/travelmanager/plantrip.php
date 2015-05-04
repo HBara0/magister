@@ -348,7 +348,8 @@ else {
                     output_xml("<status>false</status><message>{$lang->planexist}</message>");
                     exit;
                 case 2:
-                    output_xml("<status>false</status><message>{$lang->fillrequiredfields}</message>");
+                    $error_output = $errorhandler->get_errors_inline();
+                    output_xml("<status>false</status><message>{$lang->fillrequiredfields}<![CDATA[<br/>{$error_output}]]></message>");
                     exit;
                 case 3:
                     output_xml("<status>false</status><message>{$lang->dateexceeded}</message>");

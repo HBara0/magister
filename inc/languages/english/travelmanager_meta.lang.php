@@ -112,6 +112,10 @@ $lang['stopdescription'] = 'Stops Description';
 $lang['roundtrip'] = 'Round-Trip';
 $lang['class'] = 'Class';
 $lang['saveandopenseg'] = 'Save And Open A New Segment';
+$lang['availableflightsnoticemessage'] = 'If you don\'t find the desired flight below, pls put flight details under Other Transportation';
+$lang['acomchecknote'] = 'Please go back and make sure that you picked an hotel';
 $lang['amountpayedinadvance'] = 'Amount Payed In Advance';
 $lang['avgprice'] = 'Average Price';
+$lang['trasptype'] = 'Transportation Type';
+$lang['transpfees'] = 'Transportation Fees';
 ?>

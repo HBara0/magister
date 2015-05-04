@@ -21,7 +21,7 @@ class TravelManagerHotels extends AbstractClass {
     const TABLE_NAME = 'travelmanager_hotels';
     const CLASSNAME = __CLASS__;
     const UNIQUE_ATTRS = 'country,city,alias';
-    const SIMPLEQ_ATTRS = 'tmhid, name,alias,city,isApproved,avgPrice,stars,isContracted';
+    const SIMPLEQ_ATTRS = 'tmhid, name,alias,city,isApproved,avgPrice,stars,isContracted,currency,addressLine1';
 
     public function __construct($id = '', $simple = true) {
         parent::__construct($id, $simple);
@@ -34,14 +34,14 @@ class TravelManagerHotels extends AbstractClass {
 
     public function create(array $data) {
         global $db;
-        if(is_empty($data['name'], $data['city'])) {
-            $this->errorode = 2;
+        if(is_empty($data['name'], $data['city'], $data['phone'], $data['addressLine1'])) {
+            $this->errorcode = 2;
             return false;
         }
         $data['alias'] = generate_alias($data['name']);
         $db->insert_query(self::TABLE_NAME, $data);
         $this->data[self::PRIMARY_KEY] = $db->last_id();
-        $this->errorode = 0;
+        $this->errorcode = 0;
     }
 
     public function update(array $data) {

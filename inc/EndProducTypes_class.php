@@ -19,21 +19,12 @@ class EndProducTypes extends AbstractClass {
     const PRIMARY_KEY = 'eptid';
     const TABLE_NAME = 'endproducttypes';
     const DISPLAY_NAME = 'title';
-    const SIMPLEQ_ATTRS = '';
+    const SIMPLEQ_ATTRS = 'eptid, name, title, psaid';
     const CLASSNAME = __CLASS__;
     const UNIQUE_ATTRS = null;
 
     public function __construct($id = '', $simple = true) {
         parent::__construct($id, $simple);
-    }
-
-    protected function read($id, $simple) {
-        global $db;
-        $query_select = '*';
-        if($simple == true) {
-            $query_select = 'eptid, name, title';
-        }
-        $this->data = $db->fetch_assoc($db->query('SELECT '.$query_select.' FROM '.Tprefix.'endproducttypes WHERE eptid='.intval($id)));
     }
 
     public function update(array $data) {
@@ -122,11 +113,18 @@ class EndProducTypes extends AbstractClass {
         return false;
     }
 
-    public function __get($name) {
-        if(isset($this->data[$name])) {
-            return $this->data[$name];
+    public function get_link() {
+        global $core;
+        return $core->settings['rootdir'].'/index.php?module=profiles/endproducttypeprofile&amp;eptid='.$this->data[self::PRIMARY_KEY];
+    }
+
+    public function parse_link($attributes_param = array('target' => '_blank')) {
+        if(is_array($attributes_param)) {
+            foreach($attributes_param as $attr => $val) {
+                $attributes .= $attr.'="'.$val.'"';
+            }
         }
-        return false;
+        return '<a href="'.$this->get_link().'" '.$attributes.'>'.$this->get_displayname().'</a>';
     }
 
     public function get_displayname() {
@@ -135,10 +133,6 @@ class EndProducTypes extends AbstractClass {
 
     public function get_primarykey() {
         return $this->data[self::PRIMARY_KEY];
-    }
-
-    public function get() {
-        return $this->data;
     }
 
     public function get_errorcode() {

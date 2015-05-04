@@ -259,7 +259,7 @@ class MySQLiConnection {
         return $structure['Create Table'];
     }
 
-    public function show_fields_from($table, $type) {
+    public function show_fields_from($table, $type = MYSQLI_BOTH) {
         $query = $this->query("SHOW FIELDS FROM {$this->db['prefix']}{$table}");
         while($field = $this->fetch_array($query, $type)) {
             $field_info[] = $field;

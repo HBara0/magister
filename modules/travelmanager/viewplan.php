@@ -134,10 +134,67 @@ else {
         $mailer->send();
     }
     elseif($core->input['action'] == 'do_perform_viewplan') {
-        $db->update_query(TravelManagerPlan::TABLE_NAME, array('isFinalized' => 1), TravelManagerPlan::PRIMARY_KEY.'='.$core->input['planid']);
-        $url = 'index.php?module=travelmanager/viewplan&id='.$core->input['planid'].'&action=email';
-        header('Content-type: text/xml+javascript');
-        output_xml('<status>true</status><message><![CDATA[<script>goToURL(\''.$url.'\');</script>]]></message>');
+        $tmplansegments = TravelManagerPlanSegments::get_data(array('tmpid' => $core->input['planid']), array('returnarray' => true));
+        if(is_array($tmplansegments)) {
+            foreach($tmplansegments as $segment) {
+                if($segment->noAccomodation == 1) {
+                    continue;
+                }
+                $travelmanageraccom = TravelManagerPlanaccomodations::get_data(array('tmpsid' => $segment->tmpsid), array('returnarray' => true));
+                if(!is_array($travelmanageraccom)) {
+                    header('Content-type: text/xml+javascript');
+                    output_xml('<status>false</status><message>'.$lang->acomchecknote.'</message>');
+                    exit;
+                }
+            }
+        }
+        $travelplan = new TravelManagerPlan();
+        $travelplanexist = new TravelManagerPlan($core->input[planid]);
+        if($travelplanexist->is_finalized()) {
+            output_xml("<status>false</status><message>{$lang->finalizedplan}</message>");
+            exit;
+        }
+        else {
+            if(is_array($core->input['segment'])) {
+                $travelplan->set($core->input);
+                $travelplan->save();
+            }
+        }
+
+        switch($travelplan->get_errorcode()) {
+            case 0:
+                $db->update_query(TravelManagerPlan::TABLE_NAME, array('isFinalized' => 1), TravelManagerPlan::PRIMARY_KEY.'='.$core->input['planid']);
+                $url = 'index.php?module=travelmanager/viewplan&id='.$core->input['planid'].'&action=email';
+                header('Content-type: text/xml+javascript');
+                output_xml('<status>true</status><message><![CDATA[<script>goToURL(\''.$url.'\');</script>]]></message>');
+
+                // output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
+                break;
+            case 1:
+                output_xml("<status>false</status><message>{$lang->planexist}</message>");
+                exit;
+            case 2:
+                output_xml("<status>false</status><message>{$lang->fillrequiredfields}</message>");
+                exit;
+            case 3:
+                output_xml("<status>false</status><message>{$lang->dateexceeded}</message>");
+                exit;
+            case 4:
+                output_xml("<status>false</status><message>{$lang->segmenexist}</message>");
+                exit;
+            case 5:
+                output_xml("<status>false</status><message>{$lang->oppositedate}</message>");
+                exit;
+            case 6:
+                output_xml("<status>false</status><message> {$lang->errorcity}</message>");
+                exit;
+            case 7:
+                output_xml("<status>false</status><message> {$lang->errordate} </message>");
+                exit;
+            case 8:
+                output_xml("<status>false</status><message> {$lang->erroritinerarydate} </message>");
+                exit;
+        }
     }
 }
 ?>

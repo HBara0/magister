@@ -190,8 +190,8 @@ class TravelManagerPlan {
                     }
                     else {
                         // if(!is_array($cityinfo['flight']) && empty($cityinfo['flight'])) {
-                        $transportaion_fields .= '<h2><small>Possible Flights</small></h2>';
-                        $flights = TravelManagerAirlines::get_flights(TravelManagerAirlines::build_flightrequestdata(array('origin' => $cityinfo['origincity']['unlocode'], 'destination' => $cityinfo['destcity']['unlocode'], 'maxStops' => 0, 'date' => $cityinfo['date'], 'permittedCarrier' => $permitted_ariliners)));
+                        $transportaion_fields .= '<h2><small>Possible Flights</small></h2><div class="ui-state-highlight ui-corner-all" style="padding: 6px; font-weight: bold;">'.$lang->availableflightsnoticemessage.'</div><br/>';
+                        $flights = TravelManagerAirlines::get_flights(TravelManagerAirlines::build_flightrequestdata(array('origin' => $cityinfo['origincity']['unlocode'], 'destination' => $cityinfo['destcity']['unlocode'], 'date' => $cityinfo['date'], 'permittedCarrier' => $permitted_ariliners)));
                         $transportaion_fields .= '<input name="segment['.$sequence.'][apiFlightdata]" id="segment_'.$sequence.'apiFlightdata" type="hidden" value=\''.$flights.'\' />';
                         $transportaion_fields .= TravelManagerAirlines::parse_bestflight($flights, array('transportationdetails' => $category['transportationdetials'], 'selectedflight' => $category['transportationdetials']['flightNumber'], 'name' => $category['name'], 'tmtcid' => $category['tmtcid']), $sequence);
                     }
@@ -399,7 +399,7 @@ class TravelManagerPlan {
                     $segmentdata['sequence'] = $sequence;
                 }
                 $segment_planobj->set($segmentdata);
-                $segment_planobj->save();
+                $segment_planobj = $segment_planobj->save();
                 // $segment_planobj->create($segmentdata);
                 $this->errorode = $segment_planobj->get_errorcode();
             }

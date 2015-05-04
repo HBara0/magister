@@ -186,7 +186,7 @@ if(!$core->input['action']) {
         $productypes_objs = EndProducTypes::get_endproductypes();
         if(is_array($productypes_objs)) {
             foreach($productypes_objs as $productype) {
-                $endproducttypes_list .= '<option value="'.$productype->eptid.'">'.$productype->title.' - '.$productype->get_application()->title.'</option>';
+                $endproducttypes_list .= '<option value="'.$productype->eptid.'">'.$productype->title.' - '.$productype->get_application()->get_displayname().'</option>';
             }
         }
         else {
@@ -271,7 +271,7 @@ else {
         $endproducttypes = EndProducTypes::get_endproductypes();
         if(is_array($endproducttypes)) {
             foreach($endproducttypes as $endproducttype) {
-                $endproducttypes_list .= '<option value="'.$endproducttype->eptid.'">'.$endproducttype->title.' - '.$endproducttype->get_application()->title.'</option>';
+                $endproducttypes_list .= '<option value="'.$endproducttype->eptid.'">'.$endproducttype->title.' - '.$endproducttype->get_application()->get_displayname().'</option>';
             }
         }
         unset($endproducttypes);
@@ -350,31 +350,6 @@ else {
 
         eval("\$marketintelligencedetail = \"".$template->get('popup_marketintelligencedetails')."\";");
         output($marketintelligencedetail);
-    }
-    elseif($core->input['action'] == 'get_entityendproduct') {
-        if($core->usergroup['profiles_canAddMkIntlData'] == 0) {
-            exit;
-        }
-        /* NOTICE
-         * NEED WORK
-         * Check if user has access to eid */
-        $entity = new Entities($core->input['eid']);
-        $brandsproducts = $entity->get_brandsproducts();
-        $output = '';
-        if(is_array($brandsproducts)) {
-            foreach($brandsproducts as $brandproduct) {
-                $options[$brandproduct->ebpid] = $brandproduct->get_entitybrand()->name;
-                if(!empty($brandproduct->eptid)) {
-                    $options[$brandproduct->ebpid] .= ' - '.$brandproduct->get_endproduct()->title;
-                }
-            }
-
-            $output = parse_selectlist('marketdata[ebpid]', 7, $options, '');
-        }
-        else {
-            $output = $lang->na;
-        }
-        output($output);
     }
 }
 //function to check if user is allowed to see the affiliates/customers/suppliers

@@ -106,6 +106,7 @@ class TravelManagerAirlines {
                     $flight['duration'] = sprintf('%2dh %2dm', floor($segment->leg[0]->duration / 60), ($segment->leg[0]->duration % 60));
 
                     if(isset($segment->connectionDuration)) {
+                        $hasconnection = true;
                         $flight['connectionDuration'] = sprintf('%2dh %2dm', floor($segment->connectionDuration / 60), ($segment->connectionDuration % 60));
                         $connectionduration = '<div class="border_top border_bottom" style="padding: 10px; font-style: italic;">Connection: '.$flight['connectionDuration'].'</div>';
                     }
@@ -149,6 +150,7 @@ class TravelManagerAirlines {
                 if(!empty($source) && ($source == 'plan')) {
                     if($category['selectedflight'] == $flight['flightnumber']) {
                         $checkbox['selctedflight'] = "checked='checked'";
+                        $source = 'selectedflight';
                     }
                     $flightnumber_checkbox = ' <input type="checkbox" name="segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].']['.$flight['flightid'].'][flightNumber]" value="'.$flight['flightnumber'].'"'.$checkbox['selctedflight'].'/>';
                     $flightnumber_checkbox .= '<input type="hidden" name="segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].']['.$flight['flightid'].'][tmtcid]" value="'.$category['tmtcid'].'"/>';
@@ -181,10 +183,29 @@ class TravelManagerAirlines {
                 }
                 eval("\$flights_records_roundtripsegments_details .= \"".$template->get('travelmanager_plantrip_segment_flight_paidbyfields')."\";");
             }
-            eval("\$flights_records .= \"".$template->get('travelmanager_plantrip_segment_catransportation_flightdetails')."\";");
-            $flights_records_segments = $flights_records_roundtripsegments = $flights_records_roundtripsegments_details = '';
+            if($source == 'selectedflight') {
+                eval("\$flights_records = \"".$template->get('travelmanager_plantrip_segment_catransportation_flightdetails')."\";");
+                return $flights_records;
+            }
+            else {
+                if($hasconnection == true) {
+                    eval("\$flights_records[hasconnection] .= \"".$template->get('travelmanager_plantrip_segment_catransportation_flightdetails')."\";");
+                }
+                else {
+                    eval("\$flights_records[direct] .= \"".$template->get('travelmanager_plantrip_segment_catransportation_flightdetails')."\";");
+                }
+                $flights_records_segments = $flights_records_roundtripsegments = $flights_records_roundtripsegments_details = '';
+                $hasconnection = false;
+            }
         }
-        return $flights_records;
+        if($source == 'plan') {
+            $width = 'style="width:135%"';
+        }
+        else {
+            $width = 'style="width:100%"';
+        }
+        eval("\$records = \"".$template->get('travelmanager_flights')."\";");
+        return $records;
     }
 
     /*
@@ -208,6 +229,8 @@ class TravelManagerAirlines {
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-type: application/json"));
         $result = curl_exec($ch);
+        //$result = file_get_contents('./modules/travelmanager/jsonflightdetailsPAR.txt');
+
         curl_close($ch);
         return $result;
     }

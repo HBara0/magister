@@ -98,7 +98,7 @@ if(!$core->input['action']) {
             $itemscount['endproducts'] = count($endproducttype_objs);
             foreach($endproducttype_objs as $endproducttype_obj) {
                 $eptids[] = $endproducttype_obj->get_primarykey();
-                $endproducttype_output .= '<tr><td>'.$endproducttype_obj->get_displayname().'</td></tr>';
+                $endproducttype_output .= '<tr><td>'.$endproducttype_obj->parse_link().'</td></tr>';
             }
         }
     }
