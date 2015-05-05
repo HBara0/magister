@@ -132,5 +132,19 @@ class Chemicalsubstances extends AbstractClass {
         return $this->error_code;
     }
 
+    public function parse_link($attributes_param = array('target' => '_blank')) {
+        if(is_array($attributes_param)) {
+            foreach($attributes_param as $attr => $val) {
+                $attributes .= $attr.'="'.$val.'"';
+            }
+        }
+        return '<a href="'.$this->get_link().'" '.$attributes.'>'.$this->get_displayname().'</a>';
+    }
+
+    public function get_link() {
+        global $core;
+        return $core->settings['rootdir'].'/index.php?module=profiles/chemicalsubstanceprofile&amp;csid='.$this->data[self::PRIMARY_KEY];
+    }
+
 }
 ?>
