@@ -1,4 +1,4 @@
-<form name="perform_tablesdefinition/managetables_Form" method="post" id="perform_tablesdefinition/managetables_Form" >
+<form name="perform_managesystem/managetables_Form" method="post" id="perform_managesystem/managetables_Form" >
     <table width="100%" border="0" cellspacing="0" cellpadding="2" style="display:table" class="datatable">
         <input type='hidden' id='stid' value='{$table_data['stid']}' name='stid'>
         <thead>
@@ -20,7 +20,7 @@
             {$table_details}
         </tbody>
     </table>
-    <div style="display:inline-block;"><input type="submit" class="button" value="{$lang->save}" id="perform_tablesdefinition/managetables_Button" /> </div>
+    <div style="display:inline-block;"><input type="submit" class="button" value="{$lang->save}" id="perform_managesystem/managetables_Button" /> </div>
     <div style="display:inline-block;"><input type="reset" class="button" value="{$lang->reset}"/></div>
     <hr>
     <div>
@@ -41,4 +41,4 @@
         <div style="display:inline-block;"><button class="button" id="save_createclass" >{$lang->saveandcreateclass}</button></div>
     </div>
 </form>
-<div style="display: inline-block" id="perform_tablesdefinition/managetables_Results"></div>
+<div style="display: inline-block" id="perform_managesystem/managetables_Results"></div>
