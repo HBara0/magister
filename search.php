@@ -153,6 +153,13 @@ if($core->input['type'] == 'quick') {
             $order = array('by' => 'name', 'sort' => 'ASC');
             $descinfo = 'genericsegment';
         }
+        elseif($core->input['for'] == 'basicingredients') {
+            $table = 'basic_ingredients';
+            $attributes = array('name');
+            $key_attribute = 'biid';
+            $select_attributes = array('title');
+            $order = array('by' => 'name', 'sort' => 'ASC');
+        }
         elseif($core->input['for'] == 'affiliate') {
             $table = 'affiliates';
             $attributes = array('name');
