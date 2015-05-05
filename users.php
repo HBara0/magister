@@ -84,7 +84,7 @@ if($core->input['action']) {
     }
     elseif($core->input['action'] == 'reset_password') {
         $lang->load('messages');
-        $email = $db->escape_string($core->input['email']);
+        $email = $db->escape_string(trim($core->input['email']));
 
         $new_details = $db->fetch_assoc($db->query("SELECT uid, firstName FROM ".Tprefix."users WHERE email='{$email}'"));
 
