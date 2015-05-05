@@ -21,6 +21,7 @@
                             <th width="250px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->product}</th>
                             <th width="250px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->supplier}</th>
                             <th width="250px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->chemicalsubs}</th>
+                            <th width="250px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->basicingredients}</th>
                             <th width="250px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->functionalproperty}</th>
                             <th width="250px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->application}</th>
                             <th width="250px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->segment}</th>
