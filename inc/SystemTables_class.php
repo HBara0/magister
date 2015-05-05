@@ -7,6 +7,7 @@
  * Created:        @hussein.barakat    Apr 21, 2015 | 1:46:17 PM
  * Last Update:    @hussein.barakat    Apr 21, 2015 | 1:46:17 PM
  */
+/* -------Definiton-START-------- */
 
 class SystemTables extends AbstractClass {
     protected $data = array();
@@ -19,6 +20,8 @@ class SystemTables extends AbstractClass {
     const UNIQUE_ATTRS = 'tableName,className';
     const CLASSNAME = __CLASS__;
 
+    /* -------Definiton-END-------- */
+    /* -------FUNCTIONS-START-------- */
     public function __construct($id = '', $simple = true) {
         parent::__construct($id, $simple);
     }
@@ -69,15 +72,11 @@ class SystemTables extends AbstractClass {
         return $this;
     }
 
+    /* -------FUNCTIONS-END-------- */
     public function create_class($view_definition = 1, $view_functions = 1, $overwrite = 0) {
         global $core;
-//        $class_functions = '';
-//        $class_definition = '';
-        $class_geters = <<<EOD
 
-Getter functions-Start*/
-EOD;
-        //check if file already exists and notify the user
+//check if file already exists and notify the user
         $path = $core->settings['rootdir'].'/inc/'.$this->className.'_class.php';
         $path = 'C:\www\development\ocos\inc\\'.$this->className.'_class.php  ';
 //        if(file_exists($path) && $class_overwrite != 1) {
@@ -113,16 +112,8 @@ EOD;
 
                         }
                         else {
-                            $class_geters .=
-                                    <<<EOD
-
-
-public function get_{$column_obj->columnSystemName}(){
-    return new {$ref_table_obj->className}(\$this->data['{$column_obj->columnDbName}']);
-
-   }
-
-EOD;
+                            $geters[$column_obj->columnSystemName]['classname'] = $ref_table_obj->className;
+                            $geters[$column_obj->columnSystemName]['dbname'] = $column_obj->columnDbName;
                         }
                     }
                 }
@@ -163,7 +154,7 @@ EOD;
             /* Parse columns for CREATE AND UPDATE-END */
             /* Class Def-START */
             $class_definition = <<<EOD
-<?php
+/*-------Definiton-START--------*/
 class $this->className extends AbstractClass {
         protected \$data = array();
         protected \$errorcode = 0;
@@ -174,13 +165,13 @@ class $this->className extends AbstractClass {
         const CLASSNAME = __CLASS__;
         const DISPLAY_NAME = '$display';
 
+                    /*-------Definiton-END--------*/
 EOD;
 
             /* Class Def-END */
             /* Class Construct-Start */
             $class_functions = <<<EOD
-
-Definition-Start*/
+/*-------FUNCTIONS-START--------*/
 
 public function __construct(\$id = '', \$simple = true) {
         parent::__construct(\$id, \$simple);
@@ -207,34 +198,78 @@ $parse_cols_update
         return \$this;
         }
 
-////////Definition End\n
+/*-------FUNCTIONS-END--------*/
 EOD;
         }
         /* Class Update-END */
-        if($overwrite == 0 && file_exists($path)) {
-            $file_content = file_get_contents($path);
-            if(!empty($file_content) && $file_content) {
-                $class_sections = explode('/*', $file_content);
-                if($view_functions == 1) {
-                    $class_sections[2] = $class_geters.'}';
+        if(is_array($geters) && !empty($geters)) {
+            $class_geters = $this->parse_getters($geters);
+        }
+        if($overwrite == 0) {
+            if(file_exists($path)) {
+                $file_content = file_get_contents($path);
+                if(!empty($file_content) && $file_content) {
+                    // $class_sections = explode('/*', $file_content);
+                    if($view_functions == 1) {
+                        //  $class_sections[2] = $class_geters.'}';
+                        $file_content = $this->replace_string('/*-------GETTER FUNCTIONS-START--------*/', '/*-------GETTER FUNCTIONS-END--------*/', $class_geters, $file_content);
+                    }
+                    if($view_definition == 1) {
+//                        $class_sections[1] = $class_functions;
+                        $file_content = $this->replace_string('/*-------FUNCTIONS-START--------*/', '/*-------FUNCTIONS-END--------*/', $class_functions, $file_content);
+//                        $class_sections[0] = $class_definition;
+                        $file_content = $this->replace_string('/*-------Definiton-START--------*/', '/*-------Definiton-END--------*/', $class_definition, $file_content);
+                    }
                 }
-                if($view_definition == 1) {
-                    $class_sections[1] = $class_functions;
-                }
-                $class = implode('/*', $class_sections);
             }
             else {
-                return false;
+                $file_content = '<?php'.PHP_EOL.$class_definition.PHP_EOL.$class_functions.PHP_EOL.$class_geters.PHP_EOL.'}';
             }
         }
         else {
-            $class = $class_definition.'/*'.$class_functions.'/*'.$class_geters.'}';
+            $file_content = '<?php'.PHP_EOL.$class_definition.PHP_EOL.$class_functions.PHP_EOL.$class_geters.PHP_EOL.'}';
         }
-        $result = file_put_contents($path, $class);
+        $result = file_put_contents($path, $file_content);
         if($result == false) {
             return false;
         }
         return true;
+    }
+
+    public function replace_string($startpoint, $endpoint, $replacement, $original_string) {
+//        $startPoint = '/* MY START STRING*/ ';
+// $endPoint = '/* MY END STRING */';
+// $string_original='/* MY START STRING*/ Hello Wddorld!/* MY END STRING */ ';
+        $string_formatted = preg_replace('#('.preg_quote($startpoint).')(.*)('.preg_quote($endpoint).')#si', $replacement, $original_string);
+        return $string_formatted;
+    }
+
+    public function parse_getters(array $getters_data) {
+        if(!empty($getters_data)) {
+            $class_geters .=
+                    <<<EOD
+/*-------GETTER FUNCTIONS-START--------*/
+EOD;
+            foreach($getters_data as $sysname => $get_data) {
+                $class_geters .=
+                        <<<EOD
+
+
+public function get_{$sysname}(){
+    return new {$get_data['classname']}(\$this->data['{$get_data['dbname']}']);
+
+   }
+
+EOD;
+            }
+            $class_geters .=
+                    <<<EOD
+/*-------GETTER FUNCTIONS-END--------*/
+EOD;
+            return $class_geters;
+        }
+        else
+            return false;
     }
 
 }
