@@ -11,7 +11,7 @@ if(!defined('DIRECT_ACCESS')) {
     die('Direct initialization of this file is not allowed.');
 }
 if($core->usergroup['profiles_canUseMktIntel'] == 0) {
-    //error($lang->sectionnopermission);
+    error($lang->sectionnopermission);
 }
 if(!$core->input['action']) {
     $sort_url = sort_url();
@@ -26,7 +26,7 @@ if(!$core->input['action']) {
 
     /* Perform inline filtering - START */
     $filters_config = array(
-            'parse' => array('filters' => array('affid', 'cid', 'coid', 'pid', 'supplier', 'csid', 'functionalproperty', 'application', 'segment', 'brand', 'eptid', 'potential', 'mktShareQty', 'unitPrice', 'date'),
+            'parse' => array('filters' => array('affid', 'cid', 'coid', 'pid', 'supplier', 'csid', 'biid', 'functionalproperty', 'application', 'segment', 'brand', 'eptid', 'potential', 'mktShareQty', 'unitPrice', 'date'),
                     'overwriteField' => array('application' => '<input class="inlinefilterfield" type="text" style="width: 95%" placeholder="'.$lang->application.'"/>',
                             'segment' => '<input class="inlinefilterfield" type="text" style="width: 95%" placeholder="'.$lang->segment.'"/>',
                             'functionalproperty' => '<input class="inlinefilterfield" type="text" style="width: 95%" placeholder="'.$lang->functionalproperty.'"/>',
@@ -40,7 +40,7 @@ if(!$core->input['action']) {
                     'filterKey' => 'mibdid',
                     'mainTable' => array(
                             'name' => 'marketintelligence_basicdata',
-                            'filters' => array('affid' => array('operatorType' => 'multiple', 'name' => 'affid'), 'cid' => array('operatorType' => 'equal', 'name' => 'cid'), 'eptid' => array('operatorType' => 'equal', 'name' => 'eptid'), 'potential' => 'potential', 'mktShareQty' => 'mktShareQty', 'unitPrice' => 'unitPrice', 'date' => array('operatorType' => 'date', 'name' => 'createdOn')),
+                            'filters' => array('affid' => array('operatorType' => 'multiple', 'name' => 'affid'), 'biid' => array('operatorType' => 'equal', 'name' => 'biid'), 'cid' => array('operatorType' => 'equal', 'name' => 'cid'), 'eptid' => array('operatorType' => 'equal', 'name' => 'eptid'), 'potential' => 'potential', 'mktShareQty' => 'mktShareQty', 'unitPrice' => 'unitPrice', 'date' => array('operatorType' => 'date', 'name' => 'createdOn')),
                     ),
                     'secTables' => array(
                             'entities' => array(
@@ -113,10 +113,18 @@ if(!$core->input['action']) {
                 else {
                     $marketintel['chemic'] = '-';
                 }
+                $marketintel['basicing'] = '-';
             }
             else {
                 $marketintel['product'] = '-';
                 $marketintel['supplier'] = '-';
+                $marketintel['basicing'] = '-';
+                if($marketintel_obj->biid != 0) {
+                    $basicingredient_obj = BasicIngredients::get_data(array('biid' => $marketintel_obj->biid));
+                    if(is_object($basicingredient_obj)) {
+                        $marketintel['basicing'] = $basicingredient_obj->get_displayname();
+                    }
+                }
                 if($marketintel_obj->cfcid != 0) {
                     $chemfunchem = $marketintel_obj->get_chemfunctionschemcials();
                     $chemsub = $chemfunchem->get_chemicalsubstance();
@@ -165,8 +173,11 @@ if(!$core->input['action']) {
             else {
                 $marketintel['endprod'] = '-';
             }
+            if($marketintel_obj->createdBy == $core->user['uid']) {
+                $deleteicon = "<a title=".$lang->deleteentry." id='deletemientry_".$mibdid."_".$core->input['module']."_loadpopupbyid' rel='mktdetail_".$mibdid."'><img src='".$core->settings[rootdir]."/images/invalid.gif' border='0' rel='mktdetail_".$mibdid."'/></a>";
+            }
             eval("\$marketpotdata_list .= \"".$template->get('crm_marketpotentialdata_rows')."\";");
-            unset($marketintel);
+            unset($marketintel, $deleteicon);
         }
     }
     else {
@@ -181,6 +192,7 @@ if(!$core->input['action']) {
         $action = 'do_addmartkerdata';
         $modulefile = 'marketpotentialdata';
         $css['display']['chemsubfield'] = 'none';
+        $css['display']['basicingsubfield'] = 'none';
         $entitiesbrandsproducts_list = $lang->na;
         /* Filter by segments which the entity works in */
         $productypes_objs = EndProducTypes::get_endproductypes();
@@ -194,6 +206,7 @@ if(!$core->input['action']) {
         }
         eval("\$profiles_michemfuncproductentry = \"".$template->get('profiles_michemfuncsubstancentry')."\";");
         eval("\$profiles_minproductentry = \"".$template->get('profiles_michemfuncproductentry')."\";");
+        eval("\$profiles_mibasicingredientsentry = \"".$template->get('profiles_mibasicingredientsentry')."\";");
         eval("\$popup_marketdata= \"".$template->get('popup_profiles_marketdata')."\";");
         eval("\$popup_createbrand = \"".$template->get('popup_createbrand')."\";");
         eval("\$mkintl_section = \"".$template->get('profiles_mktintelsection')."\";");
@@ -276,12 +289,22 @@ else {
         }
         unset($endproducttypes);
 
+        $basicingredients_obj = $midata->get_basicingredients();
+        if(is_object($basicingredients_obj)) {
+            $basicingredient = $basicingredients_obj->get_displayname();
+            $css['display']['basicingsubfield'] = 'block';
+            eval("\$profiles_michemfuncproductentry = \"".$template->get('profiles_mibasicingredientsentry')."\";");
+            unset($basicingredients_obj, $basicingredient);
+        }
+
         $chemfuncchemical = $midata->get_chemfunctionschemcials();
         if(is_object($chemfuncchemical)) {
             $chemsubstance = $chemfuncchemical->get_chemicalsubstance();
             $css['display']['chemsubfield'] = 'block';
             eval("\$profiles_michemfuncproductentry = \"".$template->get('profiles_michemfuncsubstancentry')."\";");
         }
+
+
 
         $chemfuncproduct = $midata->get_chemfunctionproducts();
         if(is_object($chemfuncproduct)) {
@@ -350,6 +373,29 @@ else {
 
         eval("\$marketintelligencedetail = \"".$template->get('popup_marketintelligencedetails')."\";");
         output($marketintelligencedetail);
+    }
+    elseif($core->input['action'] == 'get_deletemientry') {
+        if($core->usergroup['profiles_canAddMkIntlData'] == 0) {
+            exit;
+        }
+        $id = $db->escape_string($core->input['id']);
+        eval("\$mideleteentry = \"".$template->get('popup_crm_deletemientry')."\";");
+        echo $mideleteentry;
+    }
+    elseif($core->input['action'] == 'perform_delete') {
+        $id = $db->escape_string($core->input['todelete']);
+        $mintentry = new MarketIntelligence($id);
+        if(is_object($mintentry)) {
+            if($core->usergroup['crm_canManageMktInteldata'] == 1) {
+                $query = $db->delete_query('marketintelligence_basicdata', "mibdid='{$id}'");
+                if($query) {
+                    output_xml("<status>true</status><message>{$lang->successfullydeleted}</message>");
+                }
+            }
+            else {
+                output_xml("<status>false</status><message>{$lang->nopermission}</message>");
+            }
+        }
     }
 }
 //function to check if user is allowed to see the affiliates/customers/suppliers
