@@ -8,11 +8,11 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h1>{$lang->listavailabletypes}</h1> 
+            <h1>{$lang->listavailabletypes}</h1>
             <table class="datatable">
                 <div style="float:right;" class="subtitle"> <a href="#" id="showpopup_createtypes" class="showpopup"><img src="{$core->settings[rootdir]}/images/addnew.png" border="0">{$lang->create}</a></div>
                 <thead>
-                    <tr>   
+                    <tr>
                         <th>{$lang->name} <a href="{$sort_url}&amp;sortby=name&amp;order=ASC"><img src="../images/sort_asc.gif" border="0" alt="{$lang->sortasc}"/></a><a href="{$sort_url}&amp;sortby=name&amp;order=DESC"><img src="../images/sort_desc.gif" border="0"  alt="{$lang->sortdesc}"/></a></th>
                         <th>{$lang->title} <a href="{$sort_url}&amp;sortby=title&amp;order=ASC"><img src="../images/sort_asc.gif" border="0" alt="{$lang->sortasc}"/></a><a href="{$sort_url}&amp;sortby=title&amp;order=DESC"><img src="../images/sort_desc.gif" border="0"  alt="{$lang->sortdesc}"/></a></th>
                         <th>{$lang->appsegment}</th>
@@ -42,6 +42,15 @@
         <table cellpadding='0' cellspacing='0' width='100%'>
             <tr>
                 <td width="40%"><strong>{$lang->title}</strong></td><td><input name="productypes[title]" type="text"/></td>
+            </tr>
+            <tr>
+                <td><strong>{$lang->parent}</strong></td>
+                <td>
+                    <input type="text" size="25" id="endproductypes_0_autocomplete" size="100" autocomplete="off" />
+                    <input type="hidden" id="endproductypes_0_id" name="productypes[parent]"/>
+                    <div id="searchQuickResults_0" class="searchQuickResults" style="display:none;"></div>
+
+                </td>
             </tr>
             <tr>
                 <td><strong>{$lang->applications}</strong></td><td><select name="productypes[segapplications]">{$applications_list}</select></td>
