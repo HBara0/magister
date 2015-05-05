@@ -375,6 +375,12 @@ class MarketIntelligence {
         return new ChemFunctionProducts($this->marketintelligence['cfpid']);
     }
 
+    public function get_basicingredients() {
+        if($this->marketintelligence['biid'] != 0) {
+            return new BasicIngredients($this->marketintelligence['biid']);
+        }
+    }
+
     public function get_chemfunctionschemcials() {
         if($this->marketintelligence['cfcid'] != 0) {
             return new ChemFunctionChemicals($this->marketintelligence['cfcid']);

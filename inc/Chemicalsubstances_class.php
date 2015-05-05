@@ -22,19 +22,8 @@ class Chemicalsubstances extends AbstractClass {
     const CLASSNAME = __CLASS__;
     const SIMPLEQ_ATTRS = 'csid, casNum';
 
-    public function __construct($id = '', $simple = false) {
-        if(isset($id)) {
-            $this->read($id, $simple);
-        }
-    }
-
-    protected function read($id, $simple) {
-        global $db;
-        $query_select = '*';
-        if($simple == true) {
-            $query_select = 'csid, casNum';
-        }
-        $this->data = $db->fetch_assoc($db->query('SELECT '.$query_select.' FROM '.Tprefix.'chemicalsubstances WHERE csid='.intval($id)));
+    public function __construct($id = '', $simple = true) {
+        parent::__construct($id, $simple);
     }
 
     public function save(array $data = array()) {

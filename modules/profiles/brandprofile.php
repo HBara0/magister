@@ -43,7 +43,7 @@ if(!$core->input['action']) {
         if(is_array($cfc_ids) && !empty($cfc_ids)) {
             $cfc_ids = array_unique($cfc_ids);
             $zero_cfc = array_search('0', $cfc_ids);
-            if(isset($zero_cfc)) {
+            if(isset($zero_cfc) && $zero_cfc != FALSE) {
                 unset($cfc_ids[$zero_cfc]);
             }
             $itemscount['chemicals'] = 0;
@@ -77,13 +77,13 @@ if(!$core->input['action']) {
             foreach($marketintel_objs as $marketintel_obj) {
                 $cfc_ids[] = $marketintel_obj->cfcid;
                 $cfp_ids[] = $marketintel_obj->cfpid;
-                // $ing_ids[] = $marketintel_obj->get_basicingredients();
+                $ing_ids[] = $marketintel_obj->get_basicingredients();
             }
         }
         if(is_array($cfc_ids) && !empty($cfc_ids)) {
             $cfc_ids = array_unique($cfc_ids);
             $zero_cfc = array_search('0', $cfc_ids);
-            if(isset($zero_cfc)) {
+            if(isset($zero_cfc) && $zero_cfc != FALSE) {
                 unset($cfc_ids[$zero_cfc]);
             }
             $itemscount['chemicals'] = 0;
@@ -100,7 +100,7 @@ if(!$core->input['action']) {
             $itemscount['products'] = 0;
             $cfp_ids = array_unique($cfp_ids);
             $zero_cfp = array_search('0', $cfp_ids);
-            if(isset($zero_cfp)) {
+            if(isset($zero_cfp) && $zero_cfp != FALSE) {
                 unset($cfp_ids[$zero_cfp]);
             }
             foreach($cfp_ids as $cfp_id) {
@@ -115,7 +115,7 @@ if(!$core->input['action']) {
         if(is_array($ing_ids) && !empty($ing_ids)) {
             $ing_ids = array_unique($ing_ids);
             $zero_ing = array_search('0', $ing_ids);
-            if(isset($zero_ing)) {
+            if(isset($zero_ing) && $zero_ing != FALSE) {
                 unset($ing_ids[$zero_ing]);
             }
             $itemscount['ingre'] = 0;
