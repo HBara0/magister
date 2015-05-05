@@ -79,6 +79,20 @@ class ChemicalFunctions {
         }
     }
 
+    public function update($data = array()) {
+        global $db, $core;
+        $db->update_query(self::TABLE_NAME, $data, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
+        if(!empty($data['segapplications']) && isset($data['segapplications'])) {
+            foreach($data['segapplications'] as $psaid) {
+                if(!SegApplicationFunctions::get_data(array(self::PRIMARY_KEY => $this->data[self::PRIMARY_KEY], 'psaid' => $psaid))) {
+                    $db->insert_query('segapplicationfunctions', array(self::PRIMARY_KEY => $this->data[self::PRIMARY_KEY], 'psaid' => $psaid, 'description' => $data['description'], 'createdBy' => $core->user['uid'], 'createdOn' => TIME_NOW));
+                }
+            }
+        }
+
+        return $this;
+    }
+
     public static function get_chemfunction_byattr($attr, $value) {
         $data = new DataAccessLayer(__CLASS__, self::TABLE_NAME, self::PRIMARY_KEY);
         return $data->get_objects_byattr($attr, $value);
