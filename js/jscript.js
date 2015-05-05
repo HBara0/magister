@@ -698,7 +698,7 @@ $(function () {
             if(sharedFunctions.checkSession() == false) {
                 return;
             }
-            alert(object);
+
             var id = object.attr('id').split('_');
             var num_rows = 0;
             var uniquename = '';
@@ -711,17 +711,19 @@ $(function () {
             if($("#numrows_" + uniquename).length != 0) {
                 var num_rows = parseInt($("#numrows_" + uniquename).val());
             }
+            /* Make unique code for dialog */
+            var date = new Date();
+            var msecond = date.getMilliseconds();
+
             $.ajax({type: 'post',
                 url: rootdir + "index.php?module=" + id[1] + "&action=ajaxaddmore_" + id[2],
                 data: "value=" + num_rows + "&id=" + id[id.length - 1] + "&" + $('input[id^=ajaxaddmoredata_]').serialize(),
                 beforeSend: function () {
-
-                    $("body").append("<div id='modal-loading'></div>");
-                    $("#modal-loading").dialog({height: 0, modal: true, closeOnEscape: false, title: 'Loading...', resizable: false, minHeight: 0
-                    });
+                    $("body").append("<div id='modal-loading" + msecond + "'></div>");
+                    $("#modal-loading" + msecond).dialog({height: 0, modal: true, closeOnEscape: false, title: 'Loading...', resizable: false, minHeight: 0});
                 },
                 complete: function () {
-                    $("#modal-loading").dialog("close").remove();
+                    $("#modal-loading" + msecond).dialog("close").remove();
                 },
                 success: function (returnedData) {
                     $('#' + uniquename + '_tbody').append(returnedData);

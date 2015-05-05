@@ -25,7 +25,7 @@ class AroRequestLines extends AbstractClass {
 
     protected function create(array $data) {
         global $db, $log;
-        $data = $this->calculate_values();
+        $data = $this->calculate_values($data, true);
 //        if(empty($data['psid'])) {
 //            $product = new Products($data['pid']);
 //            $data['psid'] = $product->get_segment()['psid'];
@@ -39,7 +39,7 @@ class AroRequestLines extends AbstractClass {
 
     protected function update(array $data) {
         global $db, $log;
-        $data = $this->calculate_values();
+        $data = $this->calculate_values($data, true);
 //        if(empty($data['psid'])) {
 //            $product = new Products($data['pid']);
 //            $data['psid'] = $product->get_segment()['psid'];
@@ -51,7 +51,7 @@ class AroRequestLines extends AbstractClass {
         }
     }
 
-    public function calculate_values(array $data = array()) {
+    public function calculate_values(array $data = array(), $returnall = false) {
         if(empty($data)) {
             $data = $this->data;
         }
@@ -77,15 +77,15 @@ class AroRequestLines extends AbstractClass {
 
         if(isset($data['quantity']) && !empty($data['quantity'])) {
             if((isset($data['qtyPotentiallySold']) && !empty($data['qtyPotentiallySold'])) || ($data['qtyPotentiallySold'] == 0)) {
-                $data['qtyPotentiallySoldPerc'] = round(($data['qtyPotentiallySold'] / $data['quantity']) * 100, 3);
+                $new_data['qtyPotentiallySoldPerc'] = round(($data['qtyPotentiallySold'] / $data['quantity']) * 100, 3);
             }
         }
 
         if(is_object($purchasetype)) {
             $affbuyingprice_data = array('intialPrice' => $data['intialPrice'], 'commission' => $data['commission'], 'unitfees' => $parmsfornetmargin['unitfees'], 'commission' => $parmsfornetmargin['commission'], 'isPurchasedByEndUser' => $purchasetype->isPurchasedByEndUser);
-            $data['affBuyingPrice'] = $this->calculate_affbuyingprice($affbuyingprice_data);
+            $new_data['affBuyingPrice'] = $this->calculate_affbuyingprice($affbuyingprice_data);
             //  $data['affBuyingPrice'] = round((($data['intialPrice'] + $parmsfornetmargin['unitfees']) + ($data['intialPrice'] * $parmsfornetmargin['commission'])), 2);
-            $data['totalBuyingValue'] = $this->calculate_totalbuyingvalue(array('affBuyingPrice' => $data['affBuyingPrice'], 'quantity' => $data['quantity'], 'intialPrice' => $data['initialPrice'], 'isPurchasedByEndUser' => $purchasetype->isPurchasedByEndUser));
+            $new_data['totalBuyingValue'] = $this->calculate_totalbuyingvalue(array('affBuyingPrice' => $new_data['affBuyingPrice'], 'quantity' => $data['quantity'], 'intialPrice' => $data['initialPrice'], 'isPurchasedByEndUser' => $purchasetype->isPurchasedByEndUser));
             // $data['totalBuyingValue'] = round($data['quantity'] * $data['affBuyingPrice'], 2);
 //            if($purchasetype->isPurchasedByEndUser == 1) {
 //                $data['affBuyingPrice'] = '-';
@@ -93,28 +93,31 @@ class AroRequestLines extends AbstractClass {
 //            }
         }
         if(isset($data['quantity']) && !empty($data['quantity'])) {
-            $data['costPriceAtRiskRatio'] = round(($data['costPrice'] + (($data['totalBuyingValue'] * $parmsfornetmargin['riskRatio']) / $data['quantity'])), 2);
+            $new_data['costPriceAtRiskRatio'] = round(($data['costPrice'] + (($new_data['totalBuyingValue'] * $parmsfornetmargin['riskRatio']) / $data['quantity'])), 2);
         }
-        $data['grossMarginAtRiskRatio'] = round((($data['sellingPrice'] - $data['costPriceAtRiskRatio']) * $data['quantity']), 2);
+        $new_data['grossMarginAtRiskRatio'] = round((($data['sellingPrice'] - $data['costPriceAtRiskRatio']) * $data['quantity']), 2);
 
         if($purchasetype->isPurchasedByEndUser == 1) {
-            $data['daysInStock'] = 0;
-            $data['qtyPotentiallySold'] = 0;
-            $data['qtyPotentiallySoldPerc'] = 100;
+            $new_data['daysInStock'] = 0;
+            $new_data['qtyPotentiallySold'] = 0;
+            $new_data['qtyPotentiallySoldPerc'] = 100;
         }
         else {
             if(empty($data['qtyPotentiallySold'])) {
-                $data['qtyPotentiallySoldPerc'] = 0;
+                $new_data['qtyPotentiallySoldPerc'] = 0;
             }
         }
-        $data['netMargin'] = round($this->calculate_netmargin($purchasetype, $data, $parmsfornetmargin), 2);
+        $new_data['netMargin'] = round($this->calculate_netmargin($purchasetype, $data, $parmsfornetmargin), 2);
 
         if((($data['sellingPrice'] * $data['quantity']) * $data['exchangeRateToUSD']) != 0) {
-            $data['netMarginPerc'] = round(($data['netMargin'] / (( $data['sellingPrice'] * $data['quantity']) * $data['exchangeRateToUSD'])) * 100, 2);
+            $new_data['netMarginPerc'] = round(($new_data['netMargin'] / (( $data['sellingPrice'] * $data['quantity']) * $data['exchangeRateToUSD'])) * 100, 2);
         }
         unset($data['exchangeRateToUSD']);
-        $data['fees'] = $data['fees'];
-        return $data;
+
+        if($returnall === true) {
+            $new_data = array_merge($data, $new_data);
+        }
+        return $new_data;
     }
 
     private function calculate_netmargin($purchasetype, $data = array(), $parms = array()) {
