@@ -440,7 +440,6 @@ $(function () {
         if(!formData.match(/action=[A-Za-z0-9]+/)) {
             url += "&action=do_" + id[0] + "_" + details[1];
         }
-
         sharedFunctions.requestAjax("post", url, formData, formid + "Results", formid + "Results");
     });
     $("a[id^='showmore_'][href^='#']").live('click', function () {
@@ -752,13 +751,16 @@ $(function () {
             uniquename = uniquename + underscore + id[i];
             underscore = "_";
         }
-
         if($("#numrows_" + uniquename).length != 0) {
             var num_rows = parseInt($("#numrows_" + uniquename).val());
         }
-
+        var url = rootdir + "index.php?module=" + id[1] + "&action=ajaxaddmore_" + id[2];
+        if($("#moduletype_" + uniquename).length != 0) {
+            var module = $("#moduletype_" + uniquename).val();
+            var url = rootdir + module + "/" + "index.php?module=" + id[1] + "&action=ajaxaddmore_" + id[2];
+        }
         $.ajax({type: 'post',
-            url: rootdir + "index.php?module=" + id[1] + "&action=ajaxaddmore_" + id[2],
+            url: url,
             data: "value=" + num_rows + "&id=" + id[id.length - 1] + "&" + $(this).parent().find($('input[id^=ajaxaddmoredata_]')).serialize(),
             beforeSend: function () {
                 $("body").append("<div id='modal-loading'></div>");
