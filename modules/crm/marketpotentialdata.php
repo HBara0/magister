@@ -397,6 +397,27 @@ else {
             }
         }
     }
+    elseif($core->input['action'] == 'get_addnew_chemical') {
+        $module = "crm";
+        $modulefile = "marketpotentialdata";
+        eval("\$createchemical= \"".$template->get('popup_crm_createchemical')."\";");
+        output_page($createchemical);
+    }
+    elseif($core->input['action'] == 'do_createchemical') {
+        $chemsustance = new Chemicalsubstances();
+        $chemsustance->create($core->input['chemcialsubstances']);
+        switch($chemsustance->get_status()) {
+            case 0:
+                output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
+                break;
+            case 4:
+                output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
+                break;
+            case 5:
+                output_xml("<status>false</status><message>{$lang->chemicalexsist}</message>");
+                break;
+        }
+    }
 }
 //function to check if user is allowed to see the affiliates/customers/suppliers
 function isAllowed($core, $fieldusergroupname, $fieldname, $fieldid) {
