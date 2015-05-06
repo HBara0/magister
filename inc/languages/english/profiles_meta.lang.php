@@ -90,4 +90,5 @@ $lang['endproducttypes'] = 'End Product Types';
 $lang['suppliers'] = 'Suppliers';
 $lang['brands'] = 'Brands';
 $lang['cusomter'] = 'Customers';
+$lang['basicingredients'] = 'Basic Ingredients';
 ?>
