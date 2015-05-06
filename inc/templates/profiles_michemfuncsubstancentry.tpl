@@ -1,4 +1,4 @@
-<div id='prof_mkd_chemsubfield' style="display: {$css[display][chemsubfield]};">
+<div id='prof_mkd_chemsubfield' style="display:{$css[display][chemsubfield]};">
     <div style="width: 30%; display: inline-block;">{$lang->chemicalsubstance}</div>
     <div style="width: 60%; display: inline-block;">
         <input type="text" size="25" id="chemfunctionchecmical_0_autocomplete" size="100" autocomplete="off" value="{$chemsubstance->name}"/>

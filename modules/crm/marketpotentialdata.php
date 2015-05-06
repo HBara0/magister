@@ -193,6 +193,7 @@ if(!$core->input['action']) {
         $modulefile = 'marketpotentialdata';
         $css['display']['chemsubfield'] = 'none';
         $css['display']['basicingsubfield'] = 'none';
+        $css['display']['product'] = 'none';
         $entitiesbrandsproducts_list = $lang->na;
         /* Filter by segments which the entity works in */
         $productypes_objs = EndProducTypes::get_endproductypes();
@@ -217,6 +218,9 @@ if(!$core->input['action']) {
 }
 else {
     if($core->input['action'] == 'do_addmartkerdata') {
+        $css[display]['chemsubfield'] = 'none';
+        $css[display]['basicingsubfield'] = 'none';
+        $css[display]['product'] = 'none';
         if($core->usergroup['profiles_canAddMkIntlData'] == 0) {
             exit;
         }
@@ -256,6 +260,7 @@ else {
         }
     }
     elseif($core->input['action'] == 'get_updatemktintldtls') {
+        $css[display]['radiobuttons'] = 'none';
         if($core->usergroup['profiles_canAddMkIntlData'] == 0) {
             exit;
         }
@@ -309,6 +314,7 @@ else {
         $chemfuncproduct = $midata->get_chemfunctionproducts();
         if(is_object($chemfuncproduct)) {
             $product = $chemfuncproduct->get_produt();
+            $css[display]['product'] = 'block';
             eval("\$profiles_minproductentry= \"".$template->get('profiles_michemfuncproductentry')."\";");
         }
 
