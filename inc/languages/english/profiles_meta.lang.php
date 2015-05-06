@@ -104,4 +104,6 @@ $lang['possiblesuppliers'] = 'Possible Suppliers';
 $lang['custname'] = 'Customer Name';
 $lang['customertype'] = 'Customer Type';
 $lang['relatedapplications'] = 'Related Applications';
+$lang['defaultfunct'] = 'Default Function';
+$lang['description'] = 'Description';
 ?>

@@ -42,19 +42,17 @@ if(!$core->input['action']) {
                         }
                     }
                 }
+                /* Get MI Data-END */
+                /* Get FunctionalProp-START */
+                $segapfunctions_objs = SegApplicationFunctions::get_data(array('safid' => $chemfuncchem->safid), array('returnarray' => true));
+                if(is_array($segapfunctions_objs)) {
+                    foreach($segapfunctions_objs as $segapfunctions_obj) {
+                        $segapfunct[$segapfunctions_obj->cfid] = $segapfunctions_obj->psaid;
+                    }
+                    /* Get FunctionalProp-END */
+                }
             }
         }
-        /* Get MI Data-END */
-        /* Get FunctionalProp-START */
-        $segapfunctions_objs = SegApplicationFunctions::get_data(array('safid' => $chemfuncchem->safid), array('returnarray' => true));
-        if(is_array($segapfunctions_objs)) {
-            foreach($segapfunctions_objs as $segapfunctions_obj) {
-                $segapfunct[$segapfunctions_obj->cfid] = $segapfunctions_obj->psaid;
-            }
-            /* Get FunctionalProp-END */
-        }
-
-
         /* Get Chem Function Chem-END */
         /* Get products and suppliers-START */
         $prodchemsubs_objs = ProductsChemicalSubstances::get_data(array('csid' => $csid), array('returnarray' => true));
