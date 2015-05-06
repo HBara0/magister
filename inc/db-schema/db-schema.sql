@@ -3180,6 +3180,38 @@ CREATE TABLE `system_langvariables` (
   PRIMARY KEY (`slvid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1625 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `system_referencelists`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `system_referencelists` (
+  `srlid` int(5) NOT NULL AUTO_INCREMENT,
+  `name` varchar(75) NOT NULL,
+  `referenceType` varchar(20) NOT NULL,
+  `selectorType` varchar(40) NOT NULL,
+  PRIMARY KEY (`srlid`)
+) ENGINE=MyISAM AUTO_INCREMENT=15 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `system_referencelists_lines`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `system_referencelists_lines` (
+  `srllid` int(5) NOT NULL AUTO_INCREMENT,
+  `inputChecksum` varchar(150) NOT NULL,
+  `srlid` int(5) NOT NULL,
+  `type` varchar(30) NOT NULL,
+  `name` varchar(50) NOT NULL,
+  `title` varchar(50) NOT NULL,
+  `value` varchar(50) NOT NULL,
+  `sequence` int(3) NOT NULL,
+  `description` varchar(150) NOT NULL,
+  `isActive` tinyint(1) NOT NULL,
+  `tableName` varchar(75) NOT NULL,
+  `keyColumn` int(10) NOT NULL,
+  `displayedColumn` int(10) NOT NULL,
+  `whereClause` varchar(200) NOT NULL,
+  PRIMARY KEY (`srllid`)
+) ENGINE=MyISAM AUTO_INCREMENT=33 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `system_tables`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -3190,14 +3222,14 @@ CREATE TABLE `system_tables` (
   `nbOfColumns` smallint(3) NOT NULL,
   PRIMARY KEY (`stid`),
   UNIQUE KEY `tableName` (`tableName`)
-) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=13 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `system_tables_columns`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `system_tables_columns` (
   `stcid` int(10) NOT NULL AUTO_INCREMENT,
-  `relatedTo` tinyint(10) NOT NULL,
+  `relatedTo` int(10) NOT NULL,
   `columnDbName` varchar(50) NOT NULL,
   `columnSystemName` varchar(50) NOT NULL,
   `columnTitle` varchar(75) NOT NULL,
@@ -3213,7 +3245,71 @@ CREATE TABLE `system_tables_columns` (
   `isSimple` tinyint(1) NOT NULL,
   `isDisplayName` tinyint(1) NOT NULL,
   PRIMARY KEY (`stcid`)
-) ENGINE=MyISAM AUTO_INCREMENT=38 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=178 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `system_windows`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `system_windows` (
+  `swid` int(10) NOT NULL AUTO_INCREMENT,
+  `name` varchar(75) NOT NULL,
+  `title` varchar(75) NOT NULL,
+  `type` varchar(20) NOT NULL,
+  `description` varchar(200) NOT NULL,
+  `comment` varchar(200) NOT NULL,
+  `isActive` tinyint(1) NOT NULL,
+  PRIMARY KEY (`swid`)
+) ENGINE=MyISAM AUTO_INCREMENT=14 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `system_windows_sectionfields`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `system_windows_sectionfields` (
+  `swsfid` tinyint(10) NOT NULL AUTO_INCREMENT,
+  `swsid` tinyint(10) NOT NULL,
+  `swstid` int(3) NOT NULL,
+  `inputChecksum` varchar(150) NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `dbColumn` varchar(150) NOT NULL,
+  `isDisplayed` tinyint(1) NOT NULL,
+  `isReadOnly` tinyint(1) NOT NULL,
+  `sequence` int(3) NOT NULL,
+  `displayLogic` varchar(200) NOT NULL,
+  `fieldType` varchar(50) NOT NULL,
+  `srlid` int(10) NOT NULL,
+  `length` int(5) NOT NULL,
+  `description` varchar(200) NOT NULL,
+  `comment` int(200) NOT NULL,
+  `onChangeFunction` varchar(300) NOT NULL,
+  `allowedFileTypes` varchar(100) NOT NULL,
+  PRIMARY KEY (`swsfid`)
+) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `system_windows_sections`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `system_windows_sections` (
+  `swsid` int(10) NOT NULL AUTO_INCREMENT,
+  `swid` int(3) NOT NULL,
+  `swstid` int(3) NOT NULL,
+  `inputChecksum` varchar(150) NOT NULL,
+  `name` varchar(75) NOT NULL,
+  `dbTable` varchar(75) NOT NULL,
+  `type` varchar(20) NOT NULL,
+  `sequence` tinyint(3) NOT NULL,
+  `displayType` varchar(30) NOT NULL,
+  `description` varchar(150) NOT NULL,
+  `comment` varchar(150) NOT NULL,
+  `defaultOrderBy` varchar(200) NOT NULL,
+  `displayLogic` varchar(200) NOT NULL,
+  `saveModuleName` varchar(100) NOT NULL,
+  `saveActionName` varchar(100) NOT NULL,
+  `sqlWhereClause` varchar(250) NOT NULL,
+  `isActive` tinyint(1) NOT NULL,
+  `isMain` tinyint(1) NOT NULL,
+  PRIMARY KEY (`swsid`)
+) ENGINE=MyISAM AUTO_INCREMENT=13 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `templates`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -3235,6 +3331,18 @@ CREATE TABLE `templates_old` (
   `date` int(10) NOT NULL DEFAULT '0',
   PRIMARY KEY (`tid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=122 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `test`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `test` (
+  `testaid` int(10) NOT NULL AUTO_INCREMENT,
+  `a` varchar(50) NOT NULL,
+  `b` int(30) NOT NULL,
+  `c` varchar(100) NOT NULL,
+  `d` smallint(1) NOT NULL,
+  PRIMARY KEY (`testaid`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `travelmanager_accomreviews`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;

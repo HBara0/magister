@@ -87,7 +87,7 @@ class ChemFunctionChemicals extends AbstractClass {
     }
 
     public function get_chemical() {
-        return new Chemicalsubstances($this->data['csid']);
+        return new Chemicalsubstances($this->data['csid'], false);
     }
 
     public function get_createdby() {

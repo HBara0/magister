@@ -50,4 +50,17 @@ class SourcingSuppliers {
         return $this->supplier;
     }
 
+    public function get_displayname() {
+        return $this->companyName;
+    }
+
+    public function get_type() {
+        if($this->type == 'p') {
+            return 'Potential';
+        }
+        if($this->type == 't') {
+            return 'Target';
+        }
+    }
+
 }

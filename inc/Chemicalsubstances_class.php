@@ -22,19 +22,8 @@ class Chemicalsubstances extends AbstractClass {
     const CLASSNAME = __CLASS__;
     const SIMPLEQ_ATTRS = 'csid, casNum';
 
-    public function __construct($id = '', $simple = false) {
-        if(isset($id)) {
-            $this->read($id, $simple);
-        }
-    }
-
-    protected function read($id, $simple) {
-        global $db;
-        $query_select = '*';
-        if($simple == true) {
-            $query_select = 'csid, casNum';
-        }
-        $this->data = $db->fetch_assoc($db->query('SELECT '.$query_select.' FROM '.Tprefix.'chemicalsubstances WHERE csid='.intval($id)));
+    public function __construct($id = '', $simple = true) {
+        parent::__construct($id, $simple);
     }
 
     public function save(array $data = array()) {
@@ -130,6 +119,20 @@ class Chemicalsubstances extends AbstractClass {
 
     public function get_status() {
         return $this->error_code;
+    }
+
+    public function parse_link($attributes_param = array('target' => '_blank')) {
+        if(is_array($attributes_param)) {
+            foreach($attributes_param as $attr => $val) {
+                $attributes .= $attr.'="'.$val.'"';
+            }
+        }
+        return '<a href="'.$this->get_link().'" '.$attributes.'>'.$this->get_displayname().'</a>';
+    }
+
+    public function get_link() {
+        global $core;
+        return $core->settings['rootdir'].'/index.php?module=profiles/chemicalsubstanceprofile&amp;csid='.$this->data[self::PRIMARY_KEY];
     }
 
 }
