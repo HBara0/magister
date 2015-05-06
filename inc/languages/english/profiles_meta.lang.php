@@ -110,4 +110,5 @@ $lang['description'] = 'Description';
 $lang['relatedbrands'] = 'Related Brands';
 $lang['entity'] = 'Entity';
 $lang['items'] = 'Items';
+$lang['chemicalsubs'] = 'Chemical Subustance';
 ?>
