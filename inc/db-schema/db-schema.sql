@@ -1985,6 +1985,7 @@ CREATE TABLE `marketintelligence_basicdata` (
   `cid` int(10) NOT NULL,
   `cfpid` int(10) NOT NULL,
   `cfcid` int(10) NOT NULL,
+  `biid` int(10) NOT NULL,
   `ebpid` int(10) NOT NULL,
   `lid` int(10) NOT NULL,
   `vrid` int(10) NOT NULL,
@@ -2002,7 +2003,7 @@ CREATE TABLE `marketintelligence_basicdata` (
   `turnover` float NOT NULL,
   PRIMARY KEY (`mibdid`),
   KEY `cid` (`cid`,`cfpid`,`ebpid`)
-) ENGINE=MyISAM AUTO_INCREMENT=122 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=146 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `marketintelligence_competitors`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
