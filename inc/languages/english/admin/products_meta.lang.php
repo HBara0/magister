@@ -67,5 +67,6 @@ $lang['errordeletingsega'] = 'Error deleting';
 $lang['managebasicingredients'] = 'Maage Basic Ingredients';
 $lang['description'] = 'Description';
 $lang['createbasicingredient'] = 'Create Basic Ingredient';
-$lang['itemalreadyexist'] = "Item Already Exist";
+$lang['itemalreadyexist'] = "Item with same title already exist";
+$lang['updatebasicingredient'] = 'Update Basic Ingredient';
 ?>

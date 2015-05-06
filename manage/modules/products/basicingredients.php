@@ -41,7 +41,7 @@ if(!$core->input['action']) {
     else {
         $basicingredients_list = '<tr><td colspan="3">'.$lang->na.'</td></tr>';
     }
-
+    $title = $lang->createbasicingredient;
     $module = 'products';
     $modulefile = 'basicingredients';
     eval("\$popup_createbasicingredient = \"".$template->get('popup_createbasicingredient')."\";");
@@ -67,6 +67,20 @@ else {
             case 2:
                 output_xml('<status>false</status><message>'.$lang->fillrequiredfields.'</message>');
                 break;
+            case 3:
+                output_xml('<status>false</status><message>'.$lang->itemalreadyexist.'</message>');
+        }
+    }
+    else if($core->input['action'] == 'get_updatebasicingredient') {
+        $title = $lang->updatebasicingredient;
+        $module = 'products';
+        $modulefile = 'basicingredients';
+        $biid = $core->input['id'];
+        $basicingredient_obj = BasicIngredients::get_data(array('biid' => $biid));
+        if(is_object($basicingredient_obj)) {
+            $basicingredient = $basicingredient_obj->get();
+            eval("\$popup_createbasicingredient = \"".$template->get('popup_createbasicingredient')."\";");
+            output($popup_createbasicingredient);
         }
     }
 }
