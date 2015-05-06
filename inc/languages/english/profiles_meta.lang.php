@@ -105,5 +105,5 @@ $lang['custname'] = 'Customer Name';
 $lang['customertype'] = 'Customer Type';
 $lang['relatedapplications'] = 'Related Applications';
 $lang['basicingredients'] = 'Basic Ingredients';
-
+$lang['basicingredients'] = 'Basic Ingredients';
 ?>

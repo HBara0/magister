@@ -67,7 +67,7 @@ if(!$core->input['action']) {
 }
 else {
     if($core->input['action'] == 'do_addbasicingredient') {
-        if(!isset($core->input['basicingredient']['biid']) && empty($core->input['basicingredient']['biid'])) {
+        if(empty($core->input['basicingredient']['biid'])) {
             $basicingredients_obj = BasicIngredients::get_data(array('title' => $core->input['basicingredient']['title']));
             if(is_object($basicingredients_obj)) {
                 output_xml('<status>false</status><message>'.$lang->itemalreadyexist.'</message>');

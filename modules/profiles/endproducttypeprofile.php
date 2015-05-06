@@ -34,6 +34,7 @@ if(!$core->input['action']) {
         foreach($marketintel_objs as $marketintel_obj) {
             $cfpids[] = $marketintel_obj->cfpid;
             $cfcids[] = $marketintel_obj->cfcid;
+            $biids[] = $marketintel_obj->biid;
         }
         $cfpids = array_filter(array_unique($cfpids));
         if(!empty($cfpids)) {
@@ -51,6 +52,19 @@ if(!$core->input['action']) {
                 }
             }
         }
+
+        $biids = array_filter(array_unique($biids));
+        if(!empty($biids)) {
+            foreach($biids as $biid) {
+                $basicingredient_obj = new BasicIngredients($biid);
+                if(is_object($basicingredient_obj)) {
+                    $basicingredient = $basicingredient_obj->get_displayname();
+                }
+                $biid = $basicingredien_obj->biid;
+                eval("\$basicingredientss_rows .= \"".$template->get('profiles_endproducttype_basicingredientslist_rows')."\";");
+            }
+        }
+
         $cfcids = array_filter(array_unique($cfcids));
         foreach($cfcids as $cfcid) {
             $chemfunchem = new ChemFunctionChemicals($cfcid);
@@ -68,6 +82,8 @@ if(!$core->input['action']) {
 
     eval("\$productslist = \"".$template->get('profiles_endproducttype_productslist')."\";");
     eval("\$chemsubstanceslist = \"".$template->get('profiles_endproducttype_chemicalsubstanceslist')."\";");
+    eval("\$basicingredientlist = \"".$template->get('profiles_endproducttype_basicingredientslist')."\";");
+
     eval("\$profilepage = \"".$template->get('profiles_endproducttype')."\";");
     output_page($profilepage);
 }
