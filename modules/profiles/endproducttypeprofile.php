@@ -35,6 +35,7 @@ if(!$core->input['action']) {
             $cfpids[] = $marketintel_obj->cfpid;
             $cfcids[] = $marketintel_obj->cfcid;
             $biids[] = $marketintel_obj->biid;
+            $eptids[] = $marketintel_obj->eptid;
         }
         $cfpids = array_filter(array_unique($cfpids));
         if(!empty($cfpids)) {
@@ -80,10 +81,32 @@ if(!$core->input['action']) {
         }
     }
 
+    $eptids = array_filter(array_unique($eptids));
+    if(!empty($eptids)) {
+        $itemscount['relatedbrands'] = 0;
+        foreach($eptids as $eptid) {
+            $entitybrandproduct = EntBrandsProducts::get_data(array('eptid' => $eptid));
+            if(is_object($entitybrandproduct)) {
+                $entitybrand = EntitiesBrands::get_data(array('ebid' => $entitybrandproduct->ebid));
+                $entitybrand_link = $entitybrand->parse_link();
+                if(is_object($entitybrand)) {
+                    $entity = new Entities($entitybrand->eid);
+                    if(is_object($entity)) {
+                        $entity_link = $entity->parse_link();
+                    }
+                    eval("\$relatedbrands_rows .= \"".$template->get('profiles_endproducttype_relatedbrandslist_rows')."\";");
+                    $itemscount['relatedbrands'] ++;
+                }
+            }
+        }
+    }
+
+
+
     eval("\$productslist = \"".$template->get('profiles_endproducttype_productslist')."\";");
     eval("\$chemsubstanceslist = \"".$template->get('profiles_endproducttype_chemicalsubstanceslist')."\";");
     eval("\$basicingredientlist = \"".$template->get('profiles_endproducttype_basicingredientslist')."\";");
-
+    eval("\$relatedbrandslist = \"".$template->get('profiles_endproducttype_relatedbrandslist')."\";");
     eval("\$profilepage = \"".$template->get('profiles_endproducttype')."\";");
     output_page($profilepage);
 }

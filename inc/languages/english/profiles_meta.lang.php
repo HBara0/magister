@@ -107,4 +107,7 @@ $lang['relatedapplications'] = 'Related Applications';
 $lang['basicingredients'] = 'Basic Ingredients';
 $lang['defaultfunct'] = 'Default Function';
 $lang['description'] = 'Description';
+$lang['relatedbrands'] = 'Related Brands';
+$lang['entity'] = 'Entity';
+$lang['items'] = 'Items';
 ?>

@@ -49,6 +49,7 @@
                 <tr><td>{$productslist}</td></tr>
                 <tr><td>{$chemsubstanceslist}</td></tr>
                 <tr><td>{$basicingredientlist}</td></tr>
+                <tr><td>{$relatedbrandslist}</td></tr>
             </table>
         </td></tr>
         {$footer}
