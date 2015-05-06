@@ -109,7 +109,7 @@ if(!$core->input['action']) {
                     continue;
                 }
                 $itemscount['products'] ++;
-                $products_rows.='<tr><td>'.$chemfuncprod->get_produt()->get_displayname().'</td></tr>';
+                $products_rows.='<tr><td>'.$chemfuncprod->get_produt()->parse_link().'</td></tr>';
             }
         }
         if(is_array($ing_ids) && !empty($ing_ids)) {

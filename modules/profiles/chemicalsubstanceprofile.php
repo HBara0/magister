@@ -99,7 +99,7 @@ if(!$core->input['action']) {
                 if(isset($product_obj->spid) && !empty($product_obj->spid)) {
                     $suppliers[] = $product_obj->spid;
                 }
-                $products_rows.='<tr><td>'.$product_obj->get_displayname().'</td><td>'.$product_obj->get_supplier()->parse_link().'</td></tr>';
+                $products_rows.='<tr><td>'.$product_obj->parse_link().'</td><td>'.$product_obj->get_supplier()->parse_link().'</td></tr>';
                 $itemscount['products'] ++;
             }
         }
