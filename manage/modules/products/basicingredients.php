@@ -23,30 +23,13 @@ if(!$core->input['action']) {
 
     /* Perform inline filtering - START */
     $filters_config = array(
-            'parse' => array('filters' => array('title')
-            ),
-            'process' => array(
-                    'filterKey' => 'mibdid',
-                    'mainTable' => array(
-                            'name' => 'basic_ingredients',
-                            'filters' => array('title' => array('operatorType' => 'equal', 'name' => 'title'), 'description' => '')
-                    ),
-            )
+            'parse' => array('filters' => array('title'),
+                    'overwriteField' => array('title' => '<input class="inlinefilterfield" type="text" style="width: 95%" placeholder="'.$lang->title.'"/>',
+                    )),
     );
 
     $filter = new Inlinefilters($filters_config);
-    $filter_where_values = $filter->process_multi_filters();
-
-    if(is_array($filter_where_values)) {
-        $filters_row_display = 'show';
-        $filter_where = ' '.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
-        $multipage_where .= ' AND '.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
-    }
-
     $filters_row = $filter->prase_filtersrows(array('tags' => 'table', 'display' => $filters_row_display));
-    if(!empty($filter_where)) {
-        $basicingredients_objs = BasicIngredients::get_data($filter_where, array('returnarray' => true, 'simple' => false));
-    }
 
     $basicingredients_objs = BasicIngredients::get_data(array('name is not null'), array('returnarray' => true));
     if(is_array($basicingredients_objs)) {
