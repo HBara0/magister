@@ -13,29 +13,22 @@
  *
  * @author tony.assaad
  */
-class ChemicalFunctions {
-    private $chemfunction = array();
+class ChemicalFunctions extends AbstractClass {
+    protected $data = array();
+    protected $errorcode = 0;
 
     const PRIMARY_KEY = 'cfid';
     const TABLE_NAME = 'chemicalfunctions';
     const DISPLAY_NAME = 'title';
+    const SIMPLEQ_ATTRS = 'cfid, name, title, description';
+    const CLASSNAME = __CLASS__;
+    const UNIQUE_ATTRS = 'name';
 
     public function __construct($id = '', $simple = true) {
-        if(isset($id)) {
-            $this->read($id, $simple);
-        }
+        parent::__construct($id, $simple);
     }
 
-    private function read($id, $simple) {
-        global $db;
-        $query_select = '*';
-        if($simple == true) {
-            $query_select = 'cfid, name, title,description';
-        }
-        $this->chemfunction = $db->fetch_assoc($db->query('SELECT '.$query_select.' FROM '.Tprefix.'chemicalfunctions WHERE cfid='.intval($id)));
-    }
-
-    public function create($data = array()) {
+    protected function create(array $data = array()) {
         global $db, $core, $log;
         if(empty($data['title'])) {
             $this->errorcode = 1;
@@ -49,7 +42,7 @@ class ChemicalFunctions {
             }
 
             $data['title'] = $core->sanitize_inputs($data['title'], array('removetags' => true, 'method' => 'striponly'));
-            if(empty($data['name']) && !isset($data['name'])) {
+            if(empty($data['name'])) {
                 $data['name'] = strtolower($data['title']);
                 $data['name'] = preg_replace('/\s+/', '', $data['name']);
             }
@@ -63,7 +56,7 @@ class ChemicalFunctions {
             );
             $query = $db->insert_query('chemicalfunctions', $chemicalfunctions_data);
             if($query) {
-                $this->chemfunction[self::PRIMARY_KEY] = $data['cfid'] = $db->last_id();
+                $this->data[self::PRIMARY_KEY] = $data['cfid'] = $db->last_id();
                 if(!empty($data['segapplications']) && isset($data['segapplications'])) {
                     foreach($data['segapplications'] as $psaid) {
                         $segappfuncquery = $db->insert_query('segapplicationfunctions', array('cfid' => $data['cfid'], 'psaid' => $psaid, 'description' => $data['description'], 'createdBy' => $core->user['uid'], 'createdOn' => TIME_NOW));
@@ -77,6 +70,28 @@ class ChemicalFunctions {
                 return true;
             }
         }
+    }
+
+    protected function update(array $data = array()) {
+        global $db, $core;
+
+        $segapplications = $data['segapplications'];
+        unset($data['segapplications']);
+
+        $newalias = generate_alias($data['title']);
+        if(!is_object(ChemicalFunctions::get_data(array('name' => $newalias, self::PRIMARY_KEY => $this->data[self::PRIMARY_KEY]), array('operators' => array(self::PRIMARY_KEY => 'NOT IN'))))) {
+            $data['name'] = $newalias;
+        }
+        $db->update_query(self::TABLE_NAME, $data, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
+        if(!empty($segapplications) && isset($segapplications)) {
+            foreach($segapplications as $psaid) {
+                if(!SegApplicationFunctions::get_data(array(self::PRIMARY_KEY => $this->data[self::PRIMARY_KEY], 'psaid' => $psaid))) {
+                    $db->insert_query('segapplicationfunctions', array(self::PRIMARY_KEY => $this->data[self::PRIMARY_KEY], 'psaid' => $psaid, 'description' => $data['description'], 'createdBy' => $core->user['uid'], 'createdOn' => TIME_NOW));
+                }
+            }
+        }
+
+        return $this;
     }
 
     public static function get_chemfunction_byattr($attr, $value) {
@@ -126,7 +141,7 @@ class ChemicalFunctions {
     /* return multilples SegmentApplications object for the current chemicalfunction */
     public function get_applications() {
         global $db;
-        $query = $db->query('SELECT safid, psaid FROM '.Tprefix.'segapplicationfunctions WHERE cfid='.$this->chemfunction['cfid']);
+        $query = $db->query('SELECT safid, psaid FROM '.Tprefix.'segapplicationfunctions WHERE cfid='.$this->data['cfid']);
         if($db->num_rows($query) > 0) {
             while($application = $db->fetch_assoc($query)) {
                 $applications[$application['safid']] = new SegmentApplications($application['psaid']);
@@ -140,7 +155,7 @@ class ChemicalFunctions {
 
     public function get_segmentapplicationfunction() {
         global $db;
-        $query = $db->query('SELECT safid FROM '.Tprefix.'segapplicationfunctions WHERE cfid='.$this->chemfunction['cfid']);
+        $query = $db->query('SELECT safid FROM '.Tprefix.'segapplicationfunctions WHERE cfid='.$this->data['cfid']);
         if($db->num_rows($query) > 0) {
             while($applicationfunction = $db->fetch_assoc($query)) {
                 $applicationfunctions[$applicationfunction['safid']] = new SegApplicationFunctions($applicationfunction['safid']);
@@ -149,56 +164,6 @@ class ChemicalFunctions {
         }
         else {
             return false;
-        }
-    }
-
-    public function get_createdby() {
-        return new Users($this->chemfunction['createdBy']);
-    }
-
-    public function get_modifiedby() {
-        return new Users($this->chemfunction['modifiedBy']);
-    }
-
-    public function get() {
-        return $this->chemfunction;
-    }
-
-    public function save(array $data = array()) {
-        if(value_exists(self::TABLE_NAME, self::PRIMARY_KEY, $this->segmentapplication[self::PRIMARY_KEY])) {
-            //Update
-        }
-        else {
-            if(empty($data)) {
-                $data = $this->chemfunction;
-            }
-            $this->create($data);
-        }
-    }
-
-    public function set(array $data) {
-        foreach($data as $name => $value) {
-            $this->chemfunction[$name] = $value;
-        }
-    }
-
-    public function __get($name) {
-        if(isset($this->chemfunction[$name])) {
-            return $this->chemfunction[$name];
-        }
-        return false;
-    }
-
-    public function get_displayname() {
-        return $this->chemfunction[self::DISPLAY_NAME];
-    }
-
-    public function get_errorcode() {
-        if(is_object($this)) {
-            return $this->errorcode;
-        }
-        else {
-            return $errorcode;
         }
     }
 

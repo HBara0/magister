@@ -53,6 +53,14 @@ class Chemicalsubstances extends AbstractClass {
         );
         $query = $db->insert_query('chemicalsubstances', $chemical_data);
         if($query) {
+            $this->data[self::PRIMARY_KEY] = $db->last_id();
+            $chemfnctionchemical = new ChemFunctionChemicals();
+            $chem_data['safid'] = 0;
+            $chem_data['csid'] = $this->data[self::PRIMARY_KEY];
+            $chem_data['createdBy'] = $core->user['uid'];
+            $chem_data['createdOn'] = TIME_NOW;
+            $chemfnctionchemical->set($chem_data);
+            $chemfnctionchemical->save();
             $this->status = 0;
             return true;
         }

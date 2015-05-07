@@ -30,6 +30,9 @@ class ProductsSegments extends AbstractClass {
     protected function update(array $data) {
         global $db;
 
+        if(!isset($data['publishOnWebsite'])) {
+            $data['publishOnWebsite'] = 0;
+        }
         $db->update_query(self::TABLE_NAME, $data, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
     }
 

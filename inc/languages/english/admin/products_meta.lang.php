@@ -59,7 +59,7 @@ $lang['deletesegapfunc'] = 'Delete Segment Application Function';
 $lang['yes'] = 'Yes';
 $lang['areyousure'] = 'Are you sure you want to delete the segment application function?';
 $lang['no'] = 'No';
-$lang['deleteerror'] = 'You can\'t delete a used entity';
+$lang['cannotdeleteuseditem'] = 'You cannot delete a used item; it is related to one or more other items on the system.';
 $lang['usedintables'] = 'Entity Used in the following table/s:';
 $lang['successdelete'] = "Successfully deleted";
 $lang['errordeletingsega'] = 'Error deleting';
@@ -67,5 +67,6 @@ $lang['errordeletingsega'] = 'Error deleting';
 $lang['managebasicingredients'] = 'Maage Basic Ingredients';
 $lang['description'] = 'Description';
 $lang['createbasicingredient'] = 'Create Basic Ingredient';
-$lang['itemalreadyexist'] = "Item Already Exist";
+$lang['itemalreadyexist'] = "Item with same title already exist";
+$lang['updatebasicingredient'] = 'Update Basic Ingredient';
 ?>

@@ -198,14 +198,22 @@ class DataAccessLayer {
                     if(is_numeric($value)) {
                         if($operators[$attr] == 'grt') {
                             $operators[$attr] = ' > ';
+                            $value = intval($value);
                         }
                         elseif($operators[$attr] == 'lt') {
                             $operators[$attr] = ' < ';
+                            $value = intval($value);
+                        }
+                        elseif($operators[$attr] == 'IN') {
+                            $value = '('.intval($value).')';
+                        }
+                        elseif($operators[$attr] == 'NOT IN') {
+                            $value = '('.intval($value).')';
                         }
                         else {
                             $operators[$attr] = '=';
+                            $value = intval($value);
                         }
-                        $value = intval($value);
                     }
                     else {
                         if($operators[$attr] == 'like') {
