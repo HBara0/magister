@@ -158,13 +158,19 @@ if(!$core->input['action']) {
                 }
             }
             if($marketintel_obj->ebpid != 0) {
-                $marketintel['brand'] = $marketintel_obj->get_entitiesbrandsproducts()->get_entitybrand()->get_displayname();
+                $ebrandprod_obj = $marketintel_obj->get_entitiesbrandsproducts();
+                $marketintel['brand'] = '-';
+                if(is_object($ebrandprod_obj) && !is_null($ebrandprod_obj->get())) {
+                    $brand_obj = $ebrandprod_obj->get_entitybrand();
+                    $marketintel['brand'] = $brand_obj->get_displayname();
+                    $brandid = $brand_obj->ebid;
+                }
             }
             else {
                 $marketintel['brand'] = '-';
             }
-            $marketintel['potqty'] = number_format($marketintel_obj->potential, 3);
 
+            $marketintel['potqty'] = number_format($marketintel_obj->potential, 3);
             $marketintel['marketshare'] = number_format($marketintel_obj->mktShareQty, 3);
             $marketintel['price'] = number_format($marketintel_obj->unitPrice, 3);
             if($marketintel_obj->eptid != 0) {
@@ -173,11 +179,18 @@ if(!$core->input['action']) {
             else {
                 $marketintel['endprod'] = '-';
             }
+            if($brandid != 0 && isset($brandid) && $marketintel_obj->eptid != 0) {
+                $entbrandprod_obj = EntBrandsProducts::get_data(array('eptid' => $marketintel_obj->eptid, 'ebid' => $brandid));
+                if(is_object($ebrandprod_obj) && !is_null($ebrandprod_obj->get())) {
+                    $marketintel['brand'] = $ebrandprod_obj->get_entitybrand()->get_displayname();
+                    $brandendprod_link = $ebrandprod_obj->parse_link();
+                }
+            }
             if($marketintel_obj->createdBy == $core->user['uid']) {
                 $deleteicon = "<a title=".$lang->deleteentry." id='deletemientry_".$mibdid."_".$core->input['module']."_loadpopupbyid' rel='mktdetail_".$mibdid."'><img src='".$core->settings[rootdir]."/images/invalid.gif' border='0' rel='mktdetail_".$mibdid."'/></a>";
             }
             eval("\$marketpotdata_list .= \"".$template->get('crm_marketpotentialdata_rows')."\";");
-            unset($marketintel, $deleteicon);
+            unset($marketintel, $deleteicon, $brandid, $brandendprod_link);
         }
     }
     else {

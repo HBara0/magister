@@ -26,6 +26,7 @@
                             <th width="250px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->application}</th>
                             <th width="250px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->segment}</th>
                             <th width="250px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->brand}</th>
+                            <th width="250px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->brandendproduct}</th>
                             <th width="250px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->endproducttype}</th>
                             <th width="250px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->potentialqty}</th>
                             <th width="150px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->marketshare}</th>

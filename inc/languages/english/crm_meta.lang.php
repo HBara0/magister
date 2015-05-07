@@ -12,6 +12,7 @@ $lang['ignoredsegments'] = "Following segments were ignored";
 $lang['ignoredaffiliates'] = "Following affiliates were ignored";
 $lang['ignored_entries'] = "Following entries were ignored";
 $lang['possible_conflicting_entries'] = "Following entries are possibly conflicting with existing data";
+$lang['brandendproduct'] = "Brand Product Type";
 
 
 $lang['mireport'] = 'Market Intelligence Report';
