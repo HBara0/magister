@@ -199,7 +199,23 @@ if(!$core->input['action']) {
         $productypes_objs = EndProducTypes::get_endproductypes();
         if(is_array($productypes_objs)) {
             foreach($productypes_objs as $productype) {
-                $endproducttypes_list .= '<option value="'.$productype->eptid.'">'.$productype->title.' - '.$productype->get_application()->get_displayname().'</option>';
+                $value = $productype->title.' - '.$productype->get_application()->get_displayname();
+                $parent = $productype->get_parent();
+                if(!empty($parent)) {
+                    $values[] = $parent.' > '.$value;
+                }
+                else {
+                    $values[] = $value;
+                }
+            }
+            sort($values);
+            foreach($values as $value) {
+                $checked = $rowclass = '';
+                $endproducttypes_list .= ' <tr class="'.$rowclass.'">';
+                $endproducttypes_list .= '<td><input id="producttypefilter_check_'.$productype->eptid.'" name="forecast[suppliers][]" type="checkbox"'.$checked.' value="'.$productype->eptid.'">'.$value.'</td><tr>';
+
+
+                //    $endproducttypes_list .= '<option value="'.$productype->eptid.'">'.$productype->title.' - '.$productype->get_application()->get_displayname().'</option>';
             }
         }
         else {
