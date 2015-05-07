@@ -103,16 +103,16 @@ else {
         echo ($section_fields);
     }
     elseif($core->input['action'] == 'add_section') {
-        $tabnum = $db->escape_string($core->input['sequence']);
+        $tabnum = $swstid = $db->escape_string($core->input['sequence']);
         $swsid = 0;
         $windowid = $db->escape_string($core->input['windowid']);
         $section['inputChecksum'] = generate_checksum('section');
-        $disabled_fields = 'disabled="disabled"';
+        $disable_fieldsave = 'disabled="disabled"';
         $tables_objs = SystemTables::get_data('', array('returnarray' => true));
         if(is_array($tables_objs)) {
             $section_tables_selectlist = parse_selectlist("section[".$section['inputChecksum']."][dbTable]", 1, $tables_objs, '', '', '', array('blankstart' => true));
         }
-        $disable_morerows = 'disabled="disabled"';
+        $disable_morerows = 'style="display:none"';
         $section_type_selectlist = parse_selectlist("section[".$section['inputChecksum']."][type]", 0, array('form' => 'Form', 'list' => 'List', 'record' => 'Record'), '');
         $section_displaytype_selectlist = parse_selectlist("section[".$section['inputChecksum']."][displayType]", 2, array(1 => 'Tab', 2 => 'Inline-Section'), '');
         eval("\$section_table_fields = \"".$template->get('admin_system_windows_section_tablefield')."\";");
@@ -142,7 +142,7 @@ else {
     }
     if($core->input['action'] == 'save_sections_managewindows') {
         foreach($core->input['section'] as $inputchecksum => $section) {
-            if(!isset($section['inputChecksum']) || empty($section['inputChecksum'])) {
+            if(!isset($section['inputChecksum']) || empty($section['inputChecksum']) || empty($section['dbTable']) || empty($section['name'])) {
                 output_xml("<status>false</status><message>".$lang->errorsaving."</message>");
                 return;
             }
@@ -151,7 +151,7 @@ else {
             $window_section->save();
             switch($window_section->get_errorcode()) {
                 case 0:
-                    output_xml('<status>true</status><message>'.$lang->successfullysaved.'<![CDATA[<script>$("input[name=\'ajaxaddmoredata[swsid]\']").val('.$window_section->swsid.');$("input[id^=\'ajaxaddmore_managesystem/managewindows_fields\']").removeAttr("style");$("a[id=\'createtab\']").removeAttr("style")</script>]]></message>');
+                    output_xml('<status>true</status><message>'.$lang->successfullysaved.'<![CDATA[<script>$("input[name=\'ajaxaddmoredata[swsid]\']").val('.$window_section->swsid.');$("input[id^=\'fields_\']").prop("disabled",false);$("div[id=\'addmore_sectionfields_div\']").show();</script>]]></message>');
                     break;
                 case 1:
                     output_xml("<status>false</status><message>".$lang->errorsaving."</message>");

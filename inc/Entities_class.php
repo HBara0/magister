@@ -1013,6 +1013,9 @@ class Entities extends AbstractClass {
         if($this->type == 'p') {
             return 'Producer';
         }
+        if($this->type == 'cs') {
+            return 'Competitor supplier';
+        }
     }
 
 }

@@ -32,5 +32,6 @@
             </tr>
         </table>
     </form>
+    <div id="sections_{$tabnum}_managesystem/managewindows_Results"></div>
     {$section_table_fields}
 </div>
