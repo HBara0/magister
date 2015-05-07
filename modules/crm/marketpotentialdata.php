@@ -77,7 +77,7 @@ if(!$core->input['action']) {
                 continue;
             }
             $marketintel['date'] = date($core->settings['dateformat'], $marketintel_obj->createdOn);
-            $marketintel['aff'] = $marketintel_obj->get_affiliate()->get_displayname();
+            $marketintel['aff'] = $marketintel_obj->get_affiliate()->parse_link();
             $custid = isAllowed($core, 'canViewAllCust', 'customers', $marketintel_obj->get_customer()->eid);
             if($custid == false) {
                 continue;
@@ -89,16 +89,16 @@ if(!$core->input['action']) {
 
                 $chemfunctprod = new ChemFunctionProducts($marketintel_obj->cfpid);
                 $prod = $chemfunctprod->get_produt();
-                $marketintel['product'] = $chemfunctprod->get_produt()->get_displayname();
-                $marketintel['application'] = $chemfunctprod->get_segmentapplication()->get_displayname();
-                $marketintel['segment'] = $chemfunctprod->get_segment()->get_displayname();
+                $marketintel['product'] = $chemfunctprod->get_produt()->parse_link();
+                $marketintel['application'] = $chemfunctprod->get_segmentapplication()->parse_link();
+                $marketintel['segment'] = $chemfunctprod->get_segment()->parse_link();
                 $marketintel['functprop'] = $chemfunctprod->get_segapplicationfunction()->get_function()->get_displayname();
                 $supid = isAllowed($core, 'canViewAllSupp', 'suppliers', $prod->get_supplier()->eid);
                 if($supid == false) {
                     $marketintel['supplier'] = '-';
                 }
                 else {
-                    $marketintel['supplier'] = $prod->get_supplier()->get_displayname();
+                    $marketintel['supplier'] = $prod->get_supplier()->parse_link();
                 }
                 if($marketintel_obj->cfcid != 0) {
                     $chemfunchem = $marketintel_obj->get_chemfunctionschemcials();
@@ -107,7 +107,7 @@ if(!$core->input['action']) {
                         $marketintel['chemic'] = '-';
                     }
                     else {
-                        $marketintel['chemic'] = $chemsub->get_displayname();
+                        $marketintel['chemic'] = $chemsub->parse_link();
                     }
                 }
                 else {
@@ -135,13 +135,13 @@ if(!$core->input['action']) {
                         $marketintel['segment'] = '-';
                     }
                     else {
-                        $marketintel['chemic'] = $chemsub->get_displayname();
+                        $marketintel['chemic'] = $chemsub->parse_link();
                         if($chemfunchem->safid != 0) {
                             $segapfunct = $chemfunchem->get_segapplicationfunction();
                             $marketintel['functprop'] = $segapfunct->get_function()->get_displayname();
                             $application = $segapfunct->get_application();
-                            $marketintel['application'] = $application->get_displayname();
-                            $marketintel['segment'] = $application->get_segment()->get_displayname();
+                            $marketintel['application'] = $application->parse_link();
+                            $marketintel['segment'] = $application->get_segment()->parse_link();
                         }
                         else {
                             $marketintel['functprop'] = '-';
@@ -162,7 +162,7 @@ if(!$core->input['action']) {
                 $marketintel['brand'] = '-';
                 if(is_object($ebrandprod_obj) && !is_null($ebrandprod_obj->get())) {
                     $brand_obj = $ebrandprod_obj->get_entitybrand();
-                    $marketintel['brand'] = $brand_obj->get_displayname();
+                    $marketintel['brand'] = $brand_obj->parse_link();
                     $brandid = $brand_obj->ebid;
                 }
             }
@@ -174,7 +174,7 @@ if(!$core->input['action']) {
             $marketintel['marketshare'] = number_format($marketintel_obj->mktShareQty, 3);
             $marketintel['price'] = number_format($marketintel_obj->unitPrice, 3);
             if($marketintel_obj->eptid != 0) {
-                $marketintel['endprod'] = $marketintel_obj->get_endproducttype()->get_displayname();
+                $marketintel['endprod'] = $marketintel_obj->get_endproducttype()->parse_link();
             }
             else {
                 $marketintel['endprod'] = '-';
@@ -182,7 +182,6 @@ if(!$core->input['action']) {
             if($brandid != 0 && isset($brandid) && $marketintel_obj->eptid != 0) {
                 $entbrandprod_obj = EntBrandsProducts::get_data(array('eptid' => $marketintel_obj->eptid, 'ebid' => $brandid));
                 if(is_object($ebrandprod_obj) && !is_null($ebrandprod_obj->get())) {
-                    $marketintel['brand'] = $ebrandprod_obj->get_entitybrand()->get_displayname();
                     $brandendprod_link = $ebrandprod_obj->parse_link();
                 }
             }
@@ -213,7 +212,7 @@ if(!$core->input['action']) {
         if(is_array($productypes_objs)) {
             foreach($productypes_objs as $productype) {
                 $value = $productype->title;
-                $pplication = $productype->get_application()->get_displayname();
+                $pplication = $productype->get_application()->parse_link();
                 if($pplication !== null) {
                     $value .=' - '.$pplication;
                 }
