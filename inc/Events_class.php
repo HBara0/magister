@@ -48,6 +48,7 @@ class Events extends AbstractClass {
         $event_data['createdBy'] = $data['uid'] = $core->user['uid'];
         $event_data['isFeatured'] = $data['isFeatured'];
         $event_data['isPublic'] = $data['isPublic'];
+        $event_data['refreshLogoOnWebsite'] = $data['refreshLogoOnWebsite'];
         unset($event_data['restrictto']);
         // $data['restricto'] = implode(',', $ $data['restricto']);
         //  'affid' => $core->input['event']['affid'],
@@ -98,8 +99,9 @@ class Events extends AbstractClass {
         $event_data['toDate'] = strtotime($data['toDate'].' '.$data['toTime']);
         $event_data['editedOn'] = TIME_NOW;
         $event_data['editedBy'] = $core->user['uid'];
-        $event_data['isFeatured'] = $date['isFeatured'];
+        $event_data['isFeatured'] = $data['isFeatured'];
         $event_data['isPublic'] = $data['isPublic'];
+        $event_data['refreshLogoOnWebsite'] = $data['refreshLogoOnWebsite'];
         unset($event_data['restrictto']);
         //'affid' => $core->input['event']['affid'],
         //'spid' => $core->input['event']['spid'],
