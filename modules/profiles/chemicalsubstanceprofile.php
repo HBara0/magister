@@ -117,7 +117,7 @@ if(!$core->input['action']) {
             $itemscount['suppliers'] = 0;
             foreach($suppliers as $supplierid) {
                 $supp = new Entities($supplierid);
-                if($supp->isApproved == 1) {
+                if($supp->contractIsEvergreen == 1) {
                     $agree = $core->settings['rootdir'].'images/true.gif';
                 }
                 else {

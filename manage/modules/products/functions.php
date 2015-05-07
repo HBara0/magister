@@ -49,7 +49,7 @@ if(!$core->input['action']) {
                     if(is_array($functions_applications)) {
                         $functions_application .= $functions_applications['title'].' - '.$functionsappseg_obj->get_segment()->get()['title'];
                         $functions_application.= ' <a href="#'.$safid.'" id="segapdescription_'.$safid.'_products/functions_loadpopupbyid" title="'.$lang->description.'"><img src="'.$core->settings[rootdir].'/images/icons/report.gif" border="0"></a>';
-                        $functions_application .= "<a href='#".$safid."' id='deleteappfunc_".$safid."_products/functions_loadpopupbyid'><img src='".$core->settings[rootdir]."/images/invalid.gif' border='0' /><a/><br>";
+                        $functions_application .= "<a href='#".$safid."' id='deleteappfunc_".$safid."_products/functions_loadpopupbyid'><img src='".$core->settings[rootdir]."/images/invalid.gif' border='0' /></a><br>";
                     }
                 }
             }
@@ -124,12 +124,12 @@ elseif($core->input['action'] == 'deleteappfunc') {
         }
     }
     if(is_array($usedin_tables)) {
-        $result = implode(", ", $usedin_tables);
-        output_xml("<status>false</status><message>{$lang->deleteerror}</message>");
+        $result = implode(', ', $usedin_tables);
+        output_xml("<status>false</status><message>{$lang->cannotdeleteuseditem}</message>");
         exit;
     }
     /* Delete segappfunc */
-    $deletequery = $db->delete_query('segapplicationfunctions', "safid = '{$todeleteid}'");
+    $deletequery = $db->delete_query('segapplicationfunctions', "safid='{$todeleteid}'");
 
     if($deletequery) {
         output_xml("<status>true</status><message>{$lang->successdelete}</message>");
@@ -150,6 +150,30 @@ elseif($core->input['action'] == 'get_deleteappfunc') {
     $safid = $segapfunct_obj->safid;
     eval("\$popup_deleteappfunc = \"".$template->get('popup_admin_product_deletesegappfunction')."\";");
     output($popup_deleteappfunc);
-    ;
+}
+elseif($core->input['action'] == 'get_updatefunction') {
+    $function = new ChemicalFunctions($core->input['id']);
+
+    $existing_funcapplications = SegApplicationFunctions::get_data(array(ChemicalFunctions::PRIMARY_KEY => $function->get_id()), array('returnarray' => true));
+    $applicationsfilters = null;
+    if(is_array($existing_funcapplications)) {
+        foreach($existing_funcapplications as $existing_funcapplication) {
+            $applicationids[] = $existing_funcapplication->{SegmentApplications::PRIMARY_KEY};
+        }
+        $applicationsfilters = array(SegmentApplications::PRIMARY_KEY => implode(',', $applicationids));
+    }
+    $applications_obj = SegmentApplications::get_data($applicationsfilters, array('returnarray' => true, 'operators' => array(SegmentApplications::PRIMARY_KEY => 'NOT IN')));
+    if(is_array($applications_obj)) {
+        foreach($applications_obj as $application) {
+            $segment = $application->get_segment();
+
+            if(is_object($application)) {
+                $applications_list .= '<option value='.$application->get_id().'>'.$segment->get_displayname().' - '.$application->title.'</option>';
+                unset($segment);
+            }
+        }
+    }
+    eval("\$popup_updatefunction = \"".$template->get('admin_products_popup_createfunction')."\";");
+    output($popup_updatefunction);
 }
 ?>

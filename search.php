@@ -73,6 +73,20 @@ if($core->input['type'] == 'quick') {
             $extra_where .= ' type IN ("pc", "c")';
             $descinfo = 'country';
         }
+        if($core->input['for'] == 'endproducttypes') {
+            $table = 'endproducttypes';
+            $attributes = array('name', 'title');
+            $key_attribute = 'eptid';
+            $select_attributes = array('title');
+            $order = array('by' => 'title', 'sort' => 'ASC');
+        }
+        if($core->input['for'] == 'brands') {
+            $table = 'entitiesbrands';
+            $attributes = array('name');
+            $key_attribute = 'ebid';
+            $select_attributes = array('name');
+            $order = array('by' => 'name', 'sort' => 'ASC');
+        }
         if($core->input['for'] == 'supplier' || $core->input['for'] == 'customer' || $core->input['for'] == 'competitorsupp' || $core->input['for'] == 'competitortradersupp' || $core->input['for'] == 'competitorproducersupp') {
             if($core->input['for'] == 'supplier') {
                 $type = 's';

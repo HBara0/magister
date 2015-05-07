@@ -92,8 +92,10 @@ if(!$core->input['action']) {
                 if($chemfuncobj->cfcid == NULL) {
                     continue;
                 }
+                $chem = $chemfuncobj->get_chemicalsubstance();
                 $itemscount['chemicals'] ++;
-                $chemfuncobj = $chemicalsubstances_rows.='<tr><td>'.$chemfuncobj->get_chemicalsubstance()->parse_link().'</td></tr>';
+                $chemicalsubstances_rows.='<tr><td>'.$chem->parse_link().'</td></tr>';
+                $chemfuncobj_clone .= '<tr><td><input type="checkbox" checked="checked" name="chemicals['.$chem->csid.']" value="'.$chem->csid.'"></td><td>'.$chem->parse_link().'</td></tr>';
             }
         }
         if(is_array($cfp_ids) && !empty($cfp_ids)) {
@@ -108,8 +110,10 @@ if(!$core->input['action']) {
                 if($chemfuncprod->cfpid == NULL) {
                     continue;
                 }
+                $product = $chemfuncprod->get_produt();
                 $itemscount['products'] ++;
-                $products_rows.='<tr><td>'.$chemfuncprod->get_produt()->get_displayname().'</td></tr>';
+                $products_rows.='<tr><td>'.$product->parse_link().'</td></tr>';
+                $products_clone.='<tr><td><input type="checkbox" checked="checked" name="products['.$product->pid.']" value="'.$product->pid.'"></td><td>'.$product->parse_link().'</td></tr>';
             }
         }
         if(is_array($ing_ids) && !empty($ing_ids)) {
@@ -126,7 +130,12 @@ if(!$core->input['action']) {
                 }
                 $itemscount['ingre'] ++;
                 $ingredients_rows.='<tr><td>'.$ingredient->get_displayname().'</td></tr>';
+                $ingredients_clone.='<tr><td><input type="checkbox" checked="checked" name="ingredients['.$ingredient->biid.']" value="'.$ingredient->biid.'"></td><td>'.$ingredient->get_displayname().'</td></tr>';
             }
+        }
+        if($core->usergroup['canManageProducts'] == 1) {
+            $clone_button = "<span> <a style='cursor: pointer;' class='showpopup' href='#' id='showpopup_clonebrandprod'><img src='".$core->settings['rootdir']."/images/addnew.png' title='".$lang->cloneentitybrand."' alt='Add' border='0'>".$lang->cloneentitybrand."</a> </span>";
+            eval("\$pop_clone = \"".$template->get('popup_clonebrandprod')."\";");
         }
         eval("\$products_list = \"".$template->get('profiles_brands_productslist')."\";");
         eval("\$ingredients_list = \"".$template->get('profiles_brands_ingredientslist')."\";");
@@ -135,4 +144,113 @@ if(!$core->input['action']) {
         output_page($brandsprofile);
     }
 }
+else {
+    if($core->input['action'] = "do_clonebrand") {
+        if(($core->input['brand'] == 0 || empty($core->input['brand'])) && !empty($core->input['newbrand'])) {
+            $brand['name'] = $core->input['newbrand'];
+            $brand['eid'] = $core->input['customer'];
+            $brand_obj = new EntitiesBrands();
+            $brand_obj->set($brand);
+            $brand_obj->save();
+            switch($brand_obj->errorocode) {
+                case 0:
+                    $brandprod['ebid'] = $brand_obj->ebid;
+                    break;
+                case 1:
+                    output_xml("<status>false</status><message>{$lang->errorsaving}</message>");
+                    exit;
+            }
+        }
+        else {
+            $brandprod['ebid'] = $core->input['brand'];
+        }
+        $brandprod['eptid'] = $core->input['endproduct'];
+        $brandprod_obj = EntBrandsProducts::get_data(array('eptid' => $brandprod['eptid'], 'ebid' => $brandprod['ebid']));
+        if(is_object($brandprod_obj)) {
+            $brandprod['ebpid'] = $brandprod_obj->ebpid;
+        }
+        $brandprod_obj = new EntBrandsProducts();
+        $brandprod_obj->set($brandprod);
+        $brandprod_obj->save();
+        switch($brandprod_obj->errorocode) {
+            case 0:
+                $midata['ebpid'] = $brandprod_obj->ebpid;
+                break;
+            case 1:
+                output_xml("<status>false</status><message>{$lang->errorsaving}</message>");
+                exit;
+        }
+        if($midata['ebpid'] == 0 || empty($midata['ebpid'])) {
+            output_xml("<status>false</status><message>{$lang->errorsaving}</message>");
+            exit;
+        }
+        $midata['potential'] = $midata['mktSharePerc'] = $midata['mktShareQty'] = $midata['unitPrice'] = 0;
+        //save midata with products
+        if(verify($core->input['products'])) {
+            foreach($core->input['products'] as $pid) {
+                $product_obj = new Products($pid);
+                $chemfuncprods = $product_obj->get_chemfunctionproducts();
+                if(verify($chemfuncprods)) {
+                    foreach($chemfuncprods as $cfpid => $obj) {
+                        $midata['cfpid'] = $cfpid;
+                        $midata['cid'] = $core->input['customer'];
+                        $midata['eptid'] = $core->input['endproduct'];
+                        $midata_obj = new MarketIntelligence();
+                        $midata_obj->create($midata);
+                        $errors[] = $midata_obj->get_errorcode();
+                    }
+                }
+            }
+        }
+        //end savind midata with products
+        //save midata with chems
+        if(verify($core->input['chemicals'])) {
+            foreach($core->input['chemicals'] as $csid) {
+                $chemsub_obj = new Chemicalsubstances($csid);
+                $chemfuncchem = $chemsub_obj->get_chemfunctionchemicals();
+                if(verify($chemfuncchem)) {
+                    foreach($chemfuncchem as $cfcid => $obj) {
+                        $midata['$cfcid'] = $cfpid;
+                        $midata['cid'] = $core->input['customer'];
+                        $midata['eptid'] = $core->input['endproduct'];
+                        $midata_obj = new MarketIntelligence();
+                        $midata_obj->create($midata);
+                        $errors[] = $midata_obj->get_errorcode();
+                        $errors[] = $midata_obj->errorcode;
+                    }
+                }
+            }
+        }
+        //end savind midata with chems
+        //save midata with ingr
+        if(verify($core->input['ingredients'])) {
+            foreach($core->input['ingredients'] as $biid) {
+                $midata['biid'] = $biid;
+                $midata['cid'] = $core->input['customer'];
+                $midata['eptid'] = $core->input['endproduct'];
+                $midata_obj = new MarketIntelligence();
+                $midata_obj->create($midata);
+                $errors[] = $midata_obj->get_errorcode();
+                $errors[] = $midata_obj->errorcode;
+            }
+        }
+        //end savind midata with ingr
+        if(verify($errors)) {
+            foreach($errors as $error) {
+                if($error) {
+                    output_xml("<status>false</status><message>{$lang->errorsavingduring}</message>");
+                    exit;
+                }
+            }
+        }
+        output_xml("<status>true</status><message>Successfully Saved</message>");
+    }
+}
+function verify($array) {
+    if(empty($array) || !is_array($array)) {
+        return false;
+    }
+    return true;
+}
+
 ?>
