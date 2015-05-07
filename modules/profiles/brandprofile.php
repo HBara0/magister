@@ -210,7 +210,7 @@ else {
                 $chemfuncchem = $chemsub_obj->get_chemfunctionchemicals();
                 if(verify($chemfuncchem)) {
                     foreach($chemfuncchem as $cfcid => $obj) {
-                        $midata['$cfcid'] = $cfpid;
+                        $midata['$cfcid'] = $cfcid;
                         $midata['cid'] = $core->input['customer'];
                         $midata['eptid'] = $core->input['endproduct'];
                         $midata_obj = new MarketIntelligence();
