@@ -89,6 +89,7 @@
                                             <table class="datatable" width="100%">
                                                 <tr class="altrow2">
                                                     <th>{$lang->brand}</th>
+                                                    <th></th>
                                                     <th>{$lang->endproduct}</th>
                                                 </tr>
                                                 {$brandsendproducts}
