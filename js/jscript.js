@@ -270,6 +270,8 @@ $(function () {
                 $(valueIn).val(ui.item.id);
                 if($(valueIn + "_output").length > 0) {
                     $(valueIn + "_output").val(ui.item.id);
+                    $(valueIn + "_output").trigger('change');
+
                 }
             }
         }).data('uiAutocomplete')._renderItem = function (ul, item) {
