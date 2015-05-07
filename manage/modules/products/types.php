@@ -49,6 +49,12 @@ if(!$core->input['action']) {
     output_page($addproductstypes);
 }
 elseif($core->input['action'] == 'do_create') {
+    $parents_objs = EndProducTypes::get_data(array('title' => $core->input['productypes']['title']), array('returnarray' => true));
+    if(is_array($parents_objs)) {
+        output_xml('<status>false</status><message>End Product Type Already Exists</message>');
+        exit;
+    }
+
     $endprod_objs = new EndProducTypes();
     $endprod_objs->create($core->input['productypes']);
     switch($endprod_objs->get_errorcode()) {
@@ -59,7 +65,7 @@ elseif($core->input['action'] == 'do_create') {
             output_xml('<status>false</status><message>'.$lang->fillallrequiredfields.'</message>');
             break;
         case 2:
-            output_xml('<status>false</status><message>'.$lang->fillallrequiredfields.'</message>');
+            output_xml('<status>false</status><message>Error Saving</message>');
             break;
     }
 }

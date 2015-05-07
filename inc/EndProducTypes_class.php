@@ -302,5 +302,27 @@ class EndProducTypes extends AbstractClass {
         return false;
     }
 
+    public function get_parents() {
+        $parents_objs = EndProducTypes::get_data(array('parent' => $this->data['parent']), array('returnarray' => true));
+        if(is_array($parents_objs)) {
+            foreach($parents_objs as $parents_obj) {
+                $parents_array[] = $parents_obj;
+            }
+            return $parents_array;
+        }
+        return false;
+    }
+
+    public function get_parentsids() {
+        $parents_objs = EndProducTypes::get_data(array('parent' => $this->data['parent']), array('returnarray' => true));
+        if(is_array($parents_objs)) {
+            foreach($parents_objs as $parents_obj) {
+                $parents_array[] = $parents_obj->eptid;
+            }
+            return $parents_array;
+        }
+        return false;
+    }
+
 }
 ?>
