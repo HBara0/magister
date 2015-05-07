@@ -19,7 +19,7 @@ class EndProducTypes extends AbstractClass {
     const PRIMARY_KEY = 'eptid';
     const TABLE_NAME = 'endproducttypes';
     const DISPLAY_NAME = 'title';
-    const SIMPLEQ_ATTRS = 'eptid, name, title, psaid,parent';
+    const SIMPLEQ_ATTRS = 'eptid, name, title, psaid, parent';
     const CLASSNAME = __CLASS__;
     const UNIQUE_ATTRS = null;
 
@@ -28,14 +28,28 @@ class EndProducTypes extends AbstractClass {
     }
 
     public function update(array $data) {
+        global $db, $core, $log;
+        if(value_exists('endproducttypes', 'title', $data['title'], self::PRIMARY_KEY.'!='.intval($this->data[self::PRIMARY_KEY]))) {
+            $this->errorcode = 2;
+            return false;
+        }
 
+        $data['title'] = $core->sanitize_inputs($data['title'], array('removetags' => true));
+        if(empty($data['name'])) {
+            $data['name'] = generate_alias($data['title']);
+        }
+        $endproducttypes_data = array(
+                'name' => $data['name'],
+                'title' => $data['title'],
+                'psaid' => $data['segapplications'],
+                'parent' => $data['parent'],
+                'modifiedBy' => $core->user['uid'],
+                'modifiedOn' => TIME_NOW
+        );
+
+        $db->update_query(self::TABLE_NAME, $data, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
+        return $this;
     }
-
-//
-//    protected function create(array $data) {
-//
-////    }
-
 
     public function create(array $data) {
         global $db, $core, $log;
@@ -50,19 +64,19 @@ class EndProducTypes extends AbstractClass {
 
         $data['title'] = $core->sanitize_inputs($data['title'], array('removetags' => true));
         if(empty($data['name'])) {
-            $data['name'] = strtolower($data['title']);
-            $data['name'] = preg_replace('/\s+/', '', $data['name']);
+            $data['name'] = generate_alias($data['title']);
         }
 
         $endproducttypes_data = array(
                 'name' => $data['name'],
                 'title' => $data['title'],
                 'psaid' => $data['segapplications'],
+                'parent' => $data['parent'],
                 'createdBy' => $core->user['uid'],
                 'createdOn' => TIME_NOW
         );
         $query = $db->insert_query('endproducttypes', $endproducttypes_data);
-        $log->record('addendproducttypes');
+        return $this;
     }
 
     public function get_application() {

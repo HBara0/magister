@@ -24,7 +24,9 @@ $currencies = array(
 );
 
 foreach($currencies as $numcode => $alphacode) {
-    $currency->save_fx_rate_fromsource('http://rate-exchange.appspot.com/currency?from=USD&to='.$alphacode, 840, $numcode);
+    $currency->save_fx_rate_fromsource('http://jsonrates.com/get/?from=USD&to='.$alphacode.'&apiKey=jr-8a5871b8ae986bfce12d2b84f89febe0', 840, $numcode);
+
+    //$currency->save_fx_rate_fromsource('http://jsonrates.com/historical/?from=USD&to='.$alphacode.'&apiKey=jr-8a5871b8ae986bfce12d2b84f89febe0&date=2015-04-30', 840, $numcode);
 }
 
 $currency->set_fx_rates('http://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml');

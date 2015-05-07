@@ -46,14 +46,14 @@ if(!$core->input['action']) {
         $affiliates = get_specificdata('affiliates', array('affid', 'name'), 'affid', 'name', array('by' => 'name', 'sort' => 'ASC'));
     }
     else {
-        if(is_array($core->user['hraffids']) && !empty($core->user['hraffids']) && count($core->user['hraffids']) > 1) {
+        if(is_array($core->user['hraffids']) && !empty($core->user['hraffids']) && count($core->user['hraffids']) > 0) {
             $affiliates = get_specificdata('affiliates', array('affid', 'name'), 'affid', 'name', array('by' => 'name', 'sort' => 'ASC'), 0, 'affid IN ('.implode(',', $core->user['hraffids']).')');
         }
     }
 
     if(is_array($affiliates)) {
         if(count($affiliates) == 1) {
-            redirect($_REQUEST['URI'].'&action=selectusers&affid='.key($affiliates));
+            redirect($_SERVER['REQUEST_URI'].'&action=selectusers&affid='.key($affiliates));
         }
         $affid_field = parse_selectlist('affid', 1, $affiliates, $affid, 0);
     }

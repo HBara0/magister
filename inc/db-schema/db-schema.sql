@@ -1228,6 +1228,7 @@ DROP TABLE IF EXISTS `endproducttypes`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `endproducttypes` (
   `eptid` int(10) NOT NULL AUTO_INCREMENT,
+  `parent` int(10) NOT NULL DEFAULT '0',
   `name` varchar(120) COLLATE utf8_unicode_ci NOT NULL,
   `title` varchar(220) COLLATE utf8_unicode_ci NOT NULL,
   `psaid` int(10) NOT NULL,

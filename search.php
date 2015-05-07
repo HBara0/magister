@@ -207,6 +207,14 @@ if($core->input['type'] == 'quick') {
             $order = array('by' => EntitiesBrands::DISPLAY_NAME, 'sort' => 'ASC');
             $descinfo = 'entbrandsproducts';
         }
+        elseif($core->input['for'] == 'endproductypes') {
+            $table = EndProducTypes::TABLE_NAME;
+            $attributes = array(EndProducTypes::DISPLAY_NAME);
+            $key_attribute = EndProducTypes::PRIMARY_KEY;
+
+            $select_attributes = array(EndProducTypes::DISPLAY_NAME);
+            $order = array('by' => EndProducTypes::DISPLAY_NAME, 'sort' => 'ASC');
+        }
         elseif($core->input['for'] == 'representative' || $core->input['for'] == 'supprepresentative') {
             if(IN_AREA == 'user') {
                 if($core->input['for'] == 'supprepresentative') {
