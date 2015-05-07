@@ -77,7 +77,7 @@ if(!$core->input['action']) {
             foreach($marketintel_objs as $marketintel_obj) {
                 $cfc_ids[] = $marketintel_obj->cfcid;
                 $cfp_ids[] = $marketintel_obj->cfpid;
-                $ing_ids[] = $marketintel_obj->get_basicingredients();
+                $ing_ids[] = $marketintel_obj->biid;
             }
         }
         if(is_array($cfc_ids) && !empty($cfc_ids)) {
