@@ -229,8 +229,12 @@ if(!$core->input['action']) {
         $action = 'do_addmartkerdata';
         $modulefile = 'affiliateprofile';
         $css['display']['chemsubfield'] = 'none';
+        $css['display']['basicingsubfield'] = 'none';
+        $css['display']['product'] = 'none';
         eval("\$profiles_michemfuncproductentry = \"".$template->get('profiles_michemfuncsubstancentry')."\";");
         eval("\$profiles_minproductentry = \"".$template->get('profiles_michemfuncproductentry')."\";");
+        eval("\$profiles_mibasicingredientsentry = \"".$template->get('profiles_mibasicingredientsentry')."\";");
+
         /* View detailed market intelligence box --START */
         $maktintl_mainobj = new MarketIntelligence();
         $miprofile = $maktintl_mainobj->get_miprofconfig_byname('latestaggregatebycustomer');
@@ -299,6 +303,10 @@ else {
         echo $entityusers_list_output;
     }
     elseif($core->input['action'] == 'do_addmartkerdata') {
+        $css[display]['chemsubfield'] = 'none';
+        $css[display]['basicingsubfield'] = 'none';
+        $css[display]['product'] = 'none';
+
         if($core->usergroup['profiles_canAddMkIntlData'] == 0) {
             exit;
         }

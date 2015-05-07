@@ -77,4 +77,16 @@ $lang['date'] = 'Date';
 $lang['saletype'] = 'Sale Type';
 $lang['sampleacquired'] = 'Sample Acquired';
 $lang['packaging'] = 'Packaging';
+$lang['marketpotentialdata'] = 'Market potential data';
+$lang['basicingredients'] = 'Basic Ingredients';
+$lang['usebasicingredient'] = 'or use a Basic Ingredient instead';
+$lang['select'] = 'Select a';
+$lang['suredeletemientry'] = 'Are you sure you want to delete this entry?';
+$lang['deleteentry'] = 'Delete Entry';
+$lang['createchemical_notes'] = 'Make sure to use a complete, valid, and existing chemical product name along to its CAS Number. <br />Always verify your chemcial names/CAS Numbers through specialized chemical databases before creating them.';
+$lang['createchemical'] = 'Create Chemical Substances';
+$lang['chemicalname'] = 'Chemical Name';
+$lang['chemicalsynonym'] = 'Chemical Synonymes';
+$lang['casnum'] = 'CAS Number';
+$lang['nopermission'] = 'You don\'t have permission to delete this entry';
 ?>

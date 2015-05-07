@@ -141,6 +141,20 @@ class ProductsSegments extends AbstractClass {
         }
     }
 
+    public function get_link() {
+        global $core;
+        return $core->settings['rootdir'].'/index.php?module=profiles/segmentprofile&amp;id='.$this->data[self::PRIMARY_KEY];
+    }
+
+    public function parse_link($attributes_param = array('target' => '_blank')) {
+        if(is_array($attributes_param)) {
+            foreach($attributes_param as $attr => $val) {
+                $attributes .= $attr.'="'.$val.'"';
+            }
+        }
+        return '<a href="'.$this->get_link().'" '.$attributes.'>'.$this->get_displayname().'</a>';
+    }
+
     public function get_customers($filterpermission = '') {
         global $db;
         $query = $db->query('SELECT e.eid FROM '.Tprefix.'entities e

@@ -579,7 +579,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                 }
                 $currency_finan = new Currencies($finance->currency);
                 $advanced_payments.='<div style="border-bottom: 1px;border-bottom-style: solid;border-bottom-color: greenyellow">';
-                $advanced_payments.='<div style = "width:70%; display: inline-block;">'.$lang->amount.'</div>';
+                $advanced_payments.='<div style = "width:70%; display: inline-block;">'.$lang->amount.' in '.$currency_finan->get_displayname().'</div>';
                 $advanced_payments.='<div style = "width:25%;display:inline-block;font-size:14px;font-weight:bold;text-align:right;vertical-align:top;">'.$finance->amount.'-'.$currency_finan->get_displayname().'</div>';
                 $advanced_payments.='</div>';
             }

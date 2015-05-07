@@ -63,4 +63,10 @@ $lang['deleteerror'] = 'You can\'t delete a used entity';
 $lang['usedintables'] = 'Entity Used in the following table/s:';
 $lang['successdelete'] = "Successfully deleted";
 $lang['errordeletingsega'] = 'Error deleting';
+
+$lang['managebasicingredients'] = 'Maage Basic Ingredients';
+$lang['description'] = 'Description';
+$lang['createbasicingredient'] = 'Create Basic Ingredient';
+$lang['itemalreadyexist'] = "Item with same title already exist";
+$lang['updatebasicingredient'] = 'Update Basic Ingredient';
 ?>

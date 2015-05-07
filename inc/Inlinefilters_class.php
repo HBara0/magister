@@ -166,6 +166,10 @@ class Inlinefilters {
                             $customer = new Entities($core->input['filters'][$filter]);
                             $filters[$filter] = '<input type="text" id="customer_1_autocomplete" value="'.$customer->get_displayname().'"/><input type="hidden" id="customer_1_id" name="filters['.$filter.']"/>';
                             break;
+                        case 'biid':
+                            $basicingredient = new BasicIngredients($core->input['filters'][$filter]);
+                            $filters[$filter] = '<input placeholder="Basic Ingredient" type="text" id="basicingredients_1_autocomplete" value="'.$basicingredient->get_displayname().'"/><input type="hidden" id="basicingredients_1_id" name="filters['.$filter.']"/>';
+                            break;
 //                        case 'spid':
 //                        case 'supplier':
 //                            $supplier = new Entities($core->input['filters'][$filter]);

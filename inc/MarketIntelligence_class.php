@@ -21,12 +21,12 @@ class MarketIntelligence {
     private $customer = null;
     private $brand = null;
     private $endproducttype = null;
-    private $miprofiles = array('latestcustomersumbyproduct' => array('groupby' => array('cfpid', 'cfcid', 'mibdid'), 'aggregateby' => array('cfpid', 'cfcid'), 'displayItem' => ChemFunctionProducts, 'timelevel' => 'latest'), //Main entity profile
+    private $miprofiles = array('latestcustomersumbyproduct' => array('groupby' => array('cfpid', 'cfcid', 'mibdid', 'biid'), 'aggregateby' => array('cfpid', 'cfcid', 'biid'), 'displayItem' => ChemFunctionProducts, 'timelevel' => 'latest'), //Main entity profile
             'allprevious' => array('groupby' => array('createdOn', 'eptid', 'mibdid'), 'aggregateby' => array('mibdid'), 'timelevel' => 'allprevious'), //N Level
-            'latestaggregatecustomersumbyproduct' => array('groupby' => array('cfpid', 'cfcid', 'mibdid'), 'aggregateby' => array('cid', 'cfpid', 'cfcid'), 'displayItem' => ChemFunctionProducts, 'timelevel' => 'latest'),
-            'latestaggregatebycustomer' => array('groupby' => array('cid', 'eptid'), 'aggregateby' => array('cid', 'cfpid', 'cfcid'), 'displayItem' => Customers, 'timelevel' => 'latest'),
-            'latestaggregatebyaffiliate' => array('groupby' => array('affid', 'mibdid'), 'aggregateby' => array('affid', 'cfpid', 'cfcid'), 'displayItem' => Affiliates, 'timelevel' => 'latest'), //Main affililate profile
-            'latestvisitreportdate' => array('groupby' => array('vrid', 'mibdid'), 'aggregateby' => array('vrid', 'cfpid', 'cfcid'), 'displayItem' => Customers, 'timelevel' => 'maxvisitreportdate') //Max visit report date
+            'latestaggregatecustomersumbyproduct' => array('groupby' => array('cfpid', 'cfcid', 'biid', 'mibdid'), 'aggregateby' => array('cid', 'cfpid', 'cfcid', 'biid'), 'displayItem' => ChemFunctionProducts, 'timelevel' => 'latest'),
+            'latestaggregatebycustomer' => array('groupby' => array('cid', 'eptid'), 'aggregateby' => array('cid', 'cfpid', 'cfcid', 'biid'), 'displayItem' => Customers, 'timelevel' => 'latest'),
+            'latestaggregatebyaffiliate' => array('groupby' => array('affid', 'mibdid'), 'aggregateby' => array('affid', 'cfpid', 'cfcid', 'biid'), 'displayItem' => Affiliates, 'timelevel' => 'latest'), //Main affililate profile
+            'latestvisitreportdate' => array('groupby' => array('vrid', 'mibdid'), 'aggregateby' => array('vrid', 'cfpid', 'cfcid', 'biid'), 'displayItem' => Customers, 'timelevel' => 'maxvisitreportdate') //Max visit report date
     );
 
     public function __construct($id = '', $simple = false) {
@@ -62,7 +62,7 @@ class MarketIntelligence {
         if(is_array($data)) {
             $this->marketdata = $data;
 
-            if(empty($this->marketdata['cfpid']) && empty($this->marketdata['cfcid'])) {
+            if(empty($this->marketdata['cfpid']) && empty($this->marketdata['cfcid']) && empty($this->marketdata['biid'])) {
                 $this->errorcode = 1;
                 return false;
             }
@@ -115,6 +115,7 @@ class MarketIntelligence {
                     'cfpid' => $this->marketdata['cfpid'],
                     'affid' => $this->marketdata['affid'],
                     'cfcid' => $this->marketdata['cfcid'],
+                    'biid' => $this->marketdata['biid'],
                     'ebpid' => $this->marketdata['ebpid'],
                     'eptid' => $this->marketdata['eptid'],
                     'vrid' => $this->marketdata['vrid'],
@@ -373,6 +374,12 @@ class MarketIntelligence {
             return false;
         }
         return new ChemFunctionProducts($this->marketintelligence['cfpid']);
+    }
+
+    public function get_basicingredients() {
+        if($this->marketintelligence['biid'] != 0) {
+            return new BasicIngredients($this->marketintelligence['biid']);
+        }
     }
 
     public function get_chemfunctionschemcials() {
