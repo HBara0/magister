@@ -2,6 +2,21 @@
     <head>
         <title>{$core->settings[systemtitle]} | {$lang->listavailabletypes}</title>
         {$headerinc}
+        <script>
+            $(function() {
+                $("input[id='endproductypes_0_autocomplete']").live('blur', function() {
+                    if($(this).val() == '') {
+                        $("select[id='productypes_segapplications']").removeAttr('disabled');
+
+                    }
+                    else {
+                        $("select[id='productypes_segapplications'] option:selected").attr("selected", null);
+                        $("select[id='productypes_segapplications'] option[value='0']").attr("selected", "selected");
+                        $("select[id='productypes_segapplications']").attr('disabled', true);
+                    }
+                });
+            });
+        </script>
     </head>
     <body>
         {$header}
@@ -53,7 +68,7 @@
                 </td>
             </tr>
             <tr>
-                <td><strong>{$lang->applications}</strong></td><td><select name="productypes[segapplications]">{$applications_list}</select></td>
+                <td><strong>{$lang->applications}</strong></td><td><select name="productypes[segapplications]" id="productypes_segapplications">{$applications_list}</select></td>
             </tr>
             <tr>
                 <td colspan="2" align="left">
