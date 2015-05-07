@@ -36,6 +36,7 @@ if(!$core->input['action']) {
         foreach($basicingredients_objs as $basicingredients_obj) {
             $basicingredient = $basicingredients_obj->get();
             eval("\$basicingredients_list .= \"".$template->get('admin_basicingredients_rows')."\";");
+            unset($basicingredient);
         }
     }
     else {
@@ -80,6 +81,7 @@ else {
         if(is_object($basicingredient_obj)) {
             $basicingredient = $basicingredient_obj->get();
             eval("\$popup_createbasicingredient = \"".$template->get('popup_createbasicingredient')."\";");
+            unset($basicingredient);
             output($popup_createbasicingredient);
         }
     }
