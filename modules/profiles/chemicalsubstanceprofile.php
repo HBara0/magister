@@ -99,7 +99,7 @@ if(!$core->input['action']) {
                 if(isset($product_obj->spid) && !empty($product_obj->spid)) {
                     $suppliers[] = $product_obj->spid;
                 }
-                $products_rows.='<tr><td>'.$product_obj->parse_link().'</td><td>'.$product_obj->get_supplier()->parse_link().'</td></tr>';
+                $products_rows.='<tr><td>'.$product_obj->get_displayname().'</td><td>'.$product_obj->get_supplier()->parse_link().'</td></tr>';
                 $itemscount['products'] ++;
             }
         }
@@ -117,7 +117,7 @@ if(!$core->input['action']) {
             $itemscount['suppliers'] = 0;
             foreach($suppliers as $supplierid) {
                 $supp = new Entities($supplierid);
-                if($supp->isApproved == 1) {
+                if($supp->contractIsEvergreen == 1) {
                     $agree = $core->settings['rootdir'].'images/true.gif';
                 }
                 else {

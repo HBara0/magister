@@ -135,5 +135,17 @@ class Chemicalsubstances extends AbstractClass {
         return $core->settings['rootdir'].'/index.php?module=profiles/chemicalsubstanceprofile&amp;csid='.$this->data[self::PRIMARY_KEY];
     }
 
+    public function get_chemfunctionchemicals() {
+        global $db;
+        $query = $db->query("SELECT cfcid FROM ".Tprefix."chemfunctionchemcials WHERE csid=".$db->escape_string($this->data['csid']));
+        if($db->num_rows($query) > 0) {
+            while($chemfunctionchemical = $db->fetch_assoc($query)) {
+                $chemfunctionchemicals[$chemfunctionchemical['cfcid']] = new ChemFunctionChemicals($chemfunctionchemical['cfcid']);
+            }
+            return $chemfunctionchemicals;
+        }
+        return false;
+    }
+
 }
 ?>
