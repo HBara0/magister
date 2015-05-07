@@ -66,7 +66,12 @@ class EndProducTypes extends AbstractClass {
         if(empty($data['name'])) {
             $data['name'] = generate_alias($data['title']);
         }
-
+        if(isset($data['parent']) && !empty($data['parent'])) {
+            $endproducttype_parent = new EndProducTypes($data['parent']);
+            if(is_object($endproducttype_parent)) {
+                $data['segapplications'] = $endproducttype_parent->psaid;
+            }
+        }
         $endproducttypes_data = array(
                 'name' => $data['name'],
                 'title' => $data['title'],
@@ -194,10 +199,12 @@ class EndProducTypes extends AbstractClass {
         foreach($endproducttypes as $id => $values) {
             if($parsetype == 'list') {
                 //   if($exclude['application'] == false) {
-                $endprod_obj = new EndProducTypes($values['eptid']);
-                $values['application'] = $endprod_obj->get_application()->get()['title'];
-                if(!empty($values['application'])) {
-                    $values['application'] = ' - '.$values['application'];
+                if($values['parent'] == 0) {
+                    $endprod_obj = new EndProducTypes($values['eptid']);
+                    $values['application'] = $endprod_obj->get_application()->get()['title'];
+                    if(!empty($values['application'])) {
+                        $values['application'] = ' - '.$values['application'];
+                    }
                 }
                 //   }
                 //<div style = "width:20%; display:inline-block; text-align: left;">'.$values['name'].'</div>'
