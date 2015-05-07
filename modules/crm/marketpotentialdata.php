@@ -199,8 +199,12 @@ if(!$core->input['action']) {
         $productypes_objs = EndProducTypes::get_endproductypes();
         if(is_array($productypes_objs)) {
             foreach($productypes_objs as $productype) {
-                $value = $productype->title.' - '.$productype->get_application()->get_displayname();
-                $parent = $productype->get_parent();
+                $value = $productype->title;
+                $pplication = $productype->get_application()->get_displayname();
+                if($pplication !== null) {
+                    $value .=' - '.$pplication;
+                }
+                $parent = $productype->get_endproducttype_chain();
                 if(!empty($parent)) {
                     $values[] = $parent.' > '.$value;
                 }

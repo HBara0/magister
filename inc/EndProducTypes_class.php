@@ -109,15 +109,15 @@ class EndProducTypes extends AbstractClass {
             $sort_query = $db->escape_string(' ORDER BY '.$core->input['sortby'].' '.$core->input['order']);
         }
 
-        if(isset($core->input['perpage']) && !empty($core->input['perpage'])) {
-            $core->settings['itemsperlist'] = intval($core->input['perpage']);
-        }
-
-        $limit_start = 0;
-        if(isset($core->input['start'])) {
-            $limit_start = intval($core->input['start']);
-        }
-        $query = $db->query("SELECT eptid FROM ".Tprefix."endproducttypes{$sort_query} LIMIT {$limit_start}, {$core->settings['itemsperlist']}");
+//        if(isset($core->input['perpage']) && !empty($core->input['perpage'])) {
+//            $core->settings['itemsperlist'] = intval($core->input['perpage']);
+//        }
+//
+//        $limit_start = 0;
+//        if(isset($core->input['start'])) {
+//            $limit_start = intval($core->input['start']);
+//        }
+        $query = $db->query("SELECT eptid FROM ".Tprefix."endproducttypes{$sort_query}"); // LIMIT {$limit_start}, {$core->settings['itemsperlist']}
         if($db->num_rows($query) > 0) {
             while($producttype = $db->fetch_assoc($query)) {
                 $producttypes[$producttype['eptid']] = new EndProducTypes($producttype['eptid']);
@@ -153,15 +153,15 @@ class EndProducTypes extends AbstractClass {
         return $this->errorcode;
     }
 
-    public function get_parent($v = '') {
+    public function get_endproducttype_chain($value = '') {
         $parent = new EndProducTypes($this->data['parent']);
-        $value = $parent->title.$v;
+        $titlechain = $parent->title.$value;
 
         if($parent->parent != 0) {
-            $value = ' > '.$value;
-            $value = $parent->get_parent($value);
+            $titlechain = ' > '.$titlechain;
+            $titlechain = $parent->get_endproducttype_chain($titlechain);
         }
-        return $value;
+        return $titlechain;
     }
 
     public function parse_endproducttype_list(array $endproducttypes = array(), $highlevel = true, $ref = '', $parsetype = 'list', $config = array()) {
@@ -187,37 +187,49 @@ class EndProducTypes extends AbstractClass {
             }
         }
 
-        $ref_param = $ref;
-
+        //$ref_param = $ref;
+        // if(!isset($config['excludeapplication'])) {
+        //  $config['excludeapplication'] = false;
+        //  }
         foreach($endproducttypes as $id => $values) {
             if($parsetype == 'list') {
-                $requirements_list .= '<li><a href="#">'.$ref.' '.$values['title'].'</a>';
-
-                if(!empty($values['isCompleted']) && !is_array($values['children'])) {
-                    $requirements_list .= ' &#10004;';
+                //   if($exclude['application'] == false) {
+                $endprod_obj = new EndProducTypes($values['eptid']);
+                $values['application'] = $endprod_obj->get_application()->get()['title'];
+                if(!empty($values['application'])) {
+                    $values['application'] = ' - '.$values['application'];
                 }
-                elseif(!empty($values['isCompleted']) && is_array($values['children'])) {
-                    $requirements_list .= ' &#10003;';
-                }
+                //   }
+                //<div style = "width:20%; display:inline-block; text-align: left;">'.$values['name'].'</div>'
 
+                if($values['parent'] == 0) {
+                    $endproducttypes_list.='<br/>';
+                }
+                $endproducttypes_list .= '<li><a href="#">'.$values['title'].$values['application'].' </a>';
+                unset($values['application']);
                 if(is_array($values['children']) && !empty($values['children'])) {
-                    $endproducttypes_list .= ' <a href="#requirement_'.$values['drid'].'" id="showmore_requirementchildren_'.$values['drid'].'">&raquo;</a>';
+                    $endproducttypes_list .= '<a href="#endproducttype_'.$values['eptid'].'" id="showmore_endprofucttypechildren_'.$values['eptid'].'">&raquo;</a>';
                 }
+
 
                 $endproducttypes_list .= '</li>';
             }
             else {
-                $endproducttypes_list .= '<option value="'.$values['drid'].'">'.$ref.' '.$values['title'].'</option>';
+                $endproducttypes_list .= '<option value="'.$values['eptid'].'">'.$ref.' '.$values['title'].'</option>';
             }
 
             if(is_array($values['children']) && !empty($values['children'])) {
+                //    if(!empty($values['application'])) {
+                //       $config['excludeapplication'] = true;
+                //    }
                 if($parsetype == 'list') {
-                    $endproducttypes_list .= '<ul id="requirementchildren_'.$values['drid'].'" style="display:none;">';
-                    $endproducttypes_list .= $this->parse_requirements_list($values['children'], false, $ref);
+                    $endproducttypes_list .= '<ul id="endprofucttypechildren_'.$values['eptid'].'" style="display:none;">';
+                    $endproducttypes_list .= $this->parse_endproducttype_list($values['children'], false, $ref);
+                    unset($values['children']['application']);
                     $endproducttypes_list .= '</ul>';
                 }
                 else {
-                    $endproducttypes_list .= $this->parse_requirements_list($values['children'], false, $ref, 'select');
+                    $endproducttypes_list .= $this->parse_endproducttype_list($values['children'], false, $ref, 'select');
                 }
             }
 
@@ -239,22 +251,15 @@ class EndProducTypes extends AbstractClass {
         return $endproducttypes_list;
     }
 
-    public static function get_endproductypes2() {
+    public static function get_endproductypes_tree() {
         global $db, $core;
         $sort_query = ' ORDER BY title ASC';
         if(isset($core->input['sortby'], $core->input['order'])) {
             $sort_query = $db->escape_string(' ORDER BY '.$core->input['sortby'].' '.$core->input['order']);
         }
 
-        if(isset($core->input['perpage']) && !empty($core->input['perpage'])) {
-            $core->settings['itemsperlist'] = intval($core->input['perpage']);
-        }
 
-        $limit_start = 0;
-        if(isset($core->input['start'])) {
-            $limit_start = intval($core->input['start']);
-        }
-        $query = $db->query("SELECT eptid FROM ".Tprefix."endproducttypes {$sort_query} LIMIT {$limit_start}, {$core->settings['itemsperlist']}");
+        $query = $db->query("SELECT eptid FROM ".Tprefix."endproducttypes WHERE parent=0 {$sort_query}");
         if($db->num_rows($query) > 0) {
             while($producttype = $db->fetch_assoc($query)) {
 
@@ -262,8 +267,8 @@ class EndProducTypes extends AbstractClass {
                 if($menu['parent'] != 0) {
                     $level = 'children';
                 }
-
-                $producttypes[$producttype['eptid']]['obj'] = new EndProducTypes($producttype['eptid']);
+                $endproductobj = new EndProducTypes($producttype['eptid']);
+                $producttypes[$producttype['eptid']] = $endproductobj->get();
                 //$producttypes[$producttype['eptid']] = $producttypes_obj[$producttype['eptid']]->get();
                 $producttypes[$producttype['eptid']]['children'] = EndProducTypes::read_endproducttype_children($producttype['eptid'], $simple);
             }
@@ -279,11 +284,12 @@ class EndProducTypes extends AbstractClass {
 
         $query = $db->query("SELECT {$query_select} FROM ".Tprefix."endproducttypes WHERE parent=".$db->escape_string($id).' ORDER BY title ASC');
         if($db->num_rows($query) > 0) {
-            while($menu = $db->fetch_assoc($query)) {
-                $producttypes[$producttype['eptid']]['obj'] = new EndProducTypes($producttype['eptid']);
+            while($producttype = $db->fetch_assoc($query)) {
+                $producttype_obj = new EndProducTypes($producttype['eptid']);
+                $producttypes[$producttype['eptid']] = $producttype_obj->get();
                 $producttypes[$producttype['eptid']]['children'] = EndProducTypes::read_endproducttype_children($producttype['eptid'], $simple);
             }
-            return $menus;
+            return $producttypes;
         }
 
         return false;
