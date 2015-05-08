@@ -36,6 +36,8 @@ if(!$core->input['action']) {
                 if(is_array($marketintel_objs)) {
                     foreach($marketintel_objs as $marketintel_obj) {
                         $cfc_ids[] = $marketintel_obj->cfcid;
+                        $cfp_ids[] = $marketintel_obj->cfpid;
+                        $ing_ids[] = $marketintel_obj->biid;
                     }
                 }
             }
@@ -43,7 +45,7 @@ if(!$core->input['action']) {
         if(is_array($cfc_ids) && !empty($cfc_ids)) {
             $cfc_ids = array_unique($cfc_ids);
             $zero_cfc = array_search('0', $cfc_ids);
-            if(isset($zero_cfc) && $zero_cfc != FALSE) {
+            if($zero_cfc !== FALSE) {
                 unset($cfc_ids[$zero_cfc]);
             }
             $itemscount['chemicals'] = 0;
@@ -53,11 +55,58 @@ if(!$core->input['action']) {
                     continue;
                 }
                 $itemscount['chemicals'] ++;
-                $chemfuncobj = $chemicalsubstances_rows.='<tr><td>'.$chemfuncobj->get_chemicalsubstance()->parse_link().'</td></tr>';
+                $chemicalsubstances_rows.='<tr><td>'.$chemfuncobj->get_chemicalsubstance()->parse_link().'</td></tr>';
             }
+        }
+        else {
+            $itemscount['chemicals'] = 0;
+            $chemicalsubstances_rows = '<tr><td>N/A</td></tr>';
+        }
+        if(is_array($cfp_ids) && !empty($cfp_ids)) {
+            $cfp_ids = array_unique($cfp_ids);
+            $zero_cfp = array_search('0', $cfp_ids);
+            if($zero_cfp !== FALSE) {
+                unset($cfp_ids[$zero_cfc]);
+            }
+            $itemscount['products'] = 0;
+            foreach($cfp_ids as $cfp_ids) {
+
+                $chemfuncprod = new ChemFunctionProducts($cfp_ids);
+                if($chemfuncprod->cfpid == NULL) {
+                    continue;
+                }
+                $itemscount['products'] ++;
+                $products_rows.='<tr><td>'.$chemfuncprod->get_produt()->parse_link().'</td></tr>';
+            }
+        }
+        else {
+            $itemscount['products'] = 0;
+            $products_rows = '<tr><td>N/A</td></tr>';
+        }
+        if(is_array($ing_ids) && !empty($ing_ids)) {
+            $ing_ids = array_unique($ing_ids);
+            $zero_ing = array_search('0', $ing_ids);
+            if($zero_cfc !== FALSE) {
+                unset($ing_ids[$zero_ing]);
+            }
+            $itemscount['ingre'] = 0;
+            foreach($ing_ids as $ing_id) {
+                $ingredient = new BasicIngredients($ing_id);
+                if($ingredient->biid == NULL) {
+                    continue;
+                }
+                $itemscount['ingre'] ++;
+                $ingredients_rows.='<tr><td>'.$ingredient->get_displayname().'</td></tr>';
+            }
+        }
+        else {
+            $ingredients_rows = '<tr><td colspan="2">N/A</td></tr>';
+            $itemscount['ingre'] = 0;
         }
         eval("\$chemsubstance_list = \"".$template->get('profiles_brands_chemicalsubstanceslist')."\";");
         eval("\$endproducts_list = \"".$template->get('profiles_brand_endproductslist')."\";");
+        eval("\$products_list = \"".$template->get('profiles_brands_productslist')."\";");
+        eval("\$ingredients_list = \"".$template->get('profiles_brands_ingredientslist')."\";");
         eval("\$brandsprofile = \"".$template->get('profiles_brand')."\";");
         output_page($brandsprofile);
     }
