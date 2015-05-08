@@ -72,6 +72,10 @@ if(!$core->input['action']) {
                 $itemscount['brandproducts'] ++;
             }
         }
+        else {
+            $brandproducts_rows = '<tr><td>N/A</td></tr>';
+            $itemscount['brandproducts'] = 0;
+        }
         if(is_array($segapfunct)) {
             $itemscount['functprod'] = 0;
             foreach($segapfunct as $cfid => $psaid) {
@@ -82,7 +86,10 @@ if(!$core->input['action']) {
             }
             $itemscount['functprod'] ++;
         }
-
+        else {
+            $functprod_rows = '<tr><td>N/A</td></tr>';
+            $itemscount['functprod'] = 0;
+        }
         if(is_array($apps)) {
             $itemscount['relatedapplications'] = 0;
             $apps = array_unique($apps, SORT_REGULAR);
@@ -90,6 +97,10 @@ if(!$core->input['action']) {
                 $relatedapplications_rows .= '<tr><td>'.$app->parse_link().'</td><td>'.$app->get_segment()->parse_link().'</td></tr>';
                 $itemscount['relatedapplications'] ++;
             }
+        }
+        else {
+            $relatedapplications_rows = '<tr><td>N/A</td></tr>';
+            $itemscount['relatedapplications'] = 0;
         }
         if(is_array($product_ids)) {
             $itemscount['products'] = 0;
@@ -103,6 +114,10 @@ if(!$core->input['action']) {
                 $itemscount['products'] ++;
             }
         }
+        else {
+            $products_rows = '<tr><td>N/A</td></tr>';
+            $itemscount['products'] = 0;
+        }
         if(is_array($customer_ids)) {
             $itemscount['customers'] = 0;
             $customer_ids = array_unique($customer_ids);
@@ -111,6 +126,10 @@ if(!$core->input['action']) {
                 $customers_rows.='<tr><td>'.$customer_obj->parse_link().'</td><td>'.$customer_obj->get_country()->get_displayname().'</td><td>'.$customer_obj->get_type().'</td></tr>';
                 $itemscount['customers'] ++;
             }
+        }
+        else {
+            $customers_rows = '<tr><td>N/A</td></tr>';
+            $itemscount['customers'] = 0;
         }
         if(is_array($suppliers)) {
             $suppliers = array_unique($suppliers);
@@ -127,14 +146,22 @@ if(!$core->input['action']) {
                 $itemscount['suppliers'] ++;
             }
         }
+        else {
+            $suppliers_rows = '<tr><td>N/A</td></tr>';
+            $itemscount['suppliers'] = 0;
+        }
         if(is_array($sourcingsupp_ids)) {
             $itemscount['possiblesuppliers'] = 0;
             $sourcingsupp_ids = array_unique($sourcingsupp_ids);
             foreach($sourcingsupp_ids as $sourcingsupp_id) {
-                $sourcsupp_obj = new SourcingSuppliers($sourcingsupp_id);
+                $sourcsupp_obj = new SourcingSuppliers($sourcingsupp_id, false);
                 $possiblesuppliers_rows.='<tr><td>'.$sourcsupp_obj->get_displayname().'</td><td>'.$sourcsupp_obj->get_country()->get_displayname().'</td><td>'.$sourcsupp_obj->get_type().'</td></tr>';
                 $itemscount['possiblesuppliers'] ++;
             }
+        }
+        else {
+            $possiblesuppliers_rows = '<tr><td>N/A</td></tr>';
+            $itemscount['possiblesuppliers'] = 0;
         }
         /* END PARSING */
         eval("\$funcprop_list = \"".$template->get('profiles_chemicalsubstance_functionproplist')."\";");
