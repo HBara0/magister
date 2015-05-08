@@ -168,7 +168,7 @@ class Inlinefilters {
                             break;
                         case 'biid':
                             $basicingredient = new BasicIngredients($core->input['filters'][$filter]);
-                            $filters[$filter] = '<input placeholder="Basic Ingredient" type="text" id="basicingredients_1_autocomplete" value="'.$basicingredient->get_displayname().'"/><input type="hidden" id="basicingredients_1_id" name="filters['.$filter.']"/>';
+                            $filters[$filter] = '<input placeholder="Basic Ingredient" type="text" id="basicingredients_'.$filter.'_autocomplete" value="'.$basicingredient->get_displayname().'"/><input type="hidden" id="basicingredients_'.$filter.'_id" name="filters['.$filter.']"/>';
                             break;
 //                        case 'spid':
 //                        case 'supplier':
