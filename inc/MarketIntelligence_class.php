@@ -66,86 +66,103 @@ class MarketIntelligence {
                 $this->errorcode = 1;
                 return false;
             }
-            $required_fields = array('potential', 'mktSharePerc', 'mktShareQty', 'unitPrice'); // check cfcid
-            foreach($required_fields as $field) {
-                if(empty($this->marketdata[$field]) && $this->marketdata[$field] != '0') {
-                    $this->errorcode = 1;
-                    return false;
-                }
-            }
-
-//            if((empty($this->marketdata['cfpid']) && empty($this->marketdata['cfcid'])) || is_empty($this->marketdata['potential'], $this->marketdata['mktSharePerc'], $this->marketdata['mktShareQty'])) {
-//                $this->errorcode = 1;
-//                return false;
-//            }
-
-            /* Santize inputs - START */
-            $sanitize_fields = array('potential', 'mktSharePerc', 'mktShareQty', 'unitPrice', 'ebpid', 'comments');
-            foreach($sanitize_fields as $val) {
-                $this->marketdata[$val] = $core->sanitize_inputs($this->marketdata[$val], array('removetags' => true));
-            }
-
-            /* Get end product type if not specified in input */
-            if(!isset($this->marketdata['eptid']) || empty($this->marketdata['eptid'])) {
-                $brand = new EntBrandsProducts($this->marketdata['ebpid']);
-                if($brand->eptid != 0) {
-                    $this->marketdata['eptid'] = $brand->get_endproduct()->eptid;
-                }
-                unset($brand);
-            }
-
-            /* Get affiliate if not specified in input */
-            if(!isset($this->marketdata['affid']) || empty($this->marketdata['affid'])) {
-                $customer = new Customers($this->marketdata['cid']);
-                $customer_country = $customer->get_country();
-                if(is_object($customer_country)) {
-                    $cust_ctry_affiliate = $customer_country->get_affiliate();
-                    if(is_object($cust_ctry_affiliate)) {
-                        $this->marketdata['affid'] = $cust_ctry_affiliate->affid;
+            $options = array('cfcid', 'cfpid', 'biid');
+            foreach($options as $option) {
+                if(is_array($this->marketdata[$option])) {
+                    if(array_filter($this->marketdata[$option])) {
+                        $values[$option] = $this->marketdata[$option];
+                    }
+                    else {
+                        unset($this->marketdata[$option]);
                     }
                 }
+            }
 
-                if(empty($this->marketdata['affid'])) {
-                    $this->marketdata['affid'] = $core->user['mainaffiliate'];
+            foreach($values as $option => $valuesarray) {
+                foreach($valuesarray as $value) {
+                    $this->marketdata[$option] = $value;
+                    $required_fields = array('potential', 'mktSharePerc', 'mktShareQty', 'unitPrice'); // check cfcid
+                    foreach($required_fields as $field) {
+                        if(empty($this->marketdata[$field]) && $this->marketdata[$field] != '0') {
+                            $this->errorcode = 1;
+                            return false;
+                        }
+                    }
+
+                    if((empty($this->marketdata['cfpid']) && empty($this->marketdata['cfcid']) && empty($this->marketdata['biid'])) || is_empty($this->marketdata['potential'], $this->marketdata['mktSharePerc'], $this->marketdata['mktShareQty'])) {
+                        $this->errorcode = 1;
+                        return false;
+                    }
+
+                    /* Santize inputs - START */
+                    $sanitize_fields = array('potential', 'mktSharePerc', 'mktShareQty', 'unitPrice', 'ebpid', 'comments');
+                    foreach($sanitize_fields as $val) {
+                        $this->marketdata[$val] = $core->sanitize_inputs($this->marketdata[$val], array('removetags' => true));
+                    }
+
+                    /* Get end product type if not specified in input */
+                    if(!isset($this->marketdata['eptid']) || empty($this->marketdata['eptid'])) {
+                        $brand = new EntBrandsProducts($this->marketdata['ebpid']);
+                        if($brand->eptid != 0) {
+                            $this->marketdata['eptid'] = $brand->get_endproduct()->eptid;
+                        }
+                        unset($brand);
+                    }
+
+                    /* Get affiliate if not specified in input */
+                    if(!isset($this->marketdata['affid']) || empty($this->marketdata['affid'])) {
+                        $customer = new Customers($this->marketdata['cid']);
+                        $customer_country = $customer->get_country();
+                        if(is_object($customer_country)) {
+                            $cust_ctry_affiliate = $customer_country->get_affiliate();
+                            if(is_object($cust_ctry_affiliate)) {
+                                $this->marketdata['affid'] = $cust_ctry_affiliate->affid;
+                            }
+                        }
+
+                        if(empty($this->marketdata['affid'])) {
+                            $this->marketdata['affid'] = $core->user['mainaffiliate'];
+                        }
+                        unset($customer, $customer_country, $cust_ctry_affiliate);
+                    }
+
+                    $marketintelligence_data = array('cid' => $this->marketdata['cid'],
+                            'cfpid' => $this->marketdata['cfpid'],
+                            'affid' => $this->marketdata['affid'],
+                            'cfcid' => $this->marketdata['cfcid'],
+                            'biid' => $this->marketdata['biid'],
+                            'ebpid' => $this->marketdata['ebpid'],
+                            'eptid' => $this->marketdata['eptid'],
+                            'vrid' => $this->marketdata['vrid'],
+                            'vridentifier' => $this->marketdata['vridentifier'],
+                            'potential' => $this->marketdata['potential'],
+                            'mktSharePerc' => $this->marketdata['mktSharePerc'],
+                            'mktShareQty' => $this->marketdata['mktShareQty'],
+                            'unitPrice' => $this->marketdata['unitPrice'],
+                            'turnover' => $this->marketdata['unitPrice'] * ($this->marketdata['mktShareQty'] * 1000),
+                            'comments' => $this->marketdata['comments'],
+                            'createdBy' => $core->user['uid'],
+                            'createdOn' => $this->marketdata['visitreportdate']
+                    );
+                    if(empty($this->marketdata['visitreportdate'])) {
+                        $marketintelligence_data['createdOn'] = TIME_NOW;
+                    }
+
+                    if(is_array($marketintelligence_data)) {
+                        $query = $db->insert_query('marketintelligence_basicdata', $marketintelligence_data);
+                    }
+
+                    if($query) {
+                        $this->mibdid = $db->last_id();
+                        $this->marketdata['competitor']['mibdid'] = $db->last_id();
+                        if(is_array($this->marketdata['competitor'])) {
+                            MarketIntelligenceCompetitors::save($this->marketdata['competitor']);
+                        }
+                        $this->errorcode = 0;
+                    }
                 }
-                unset($customer, $customer_country, $cust_ctry_affiliate);
             }
-
-            $marketintelligence_data = array('cid' => $this->marketdata['cid'],
-                    'cfpid' => $this->marketdata['cfpid'],
-                    'affid' => $this->marketdata['affid'],
-                    'cfcid' => $this->marketdata['cfcid'],
-                    'biid' => $this->marketdata['biid'],
-                    'ebpid' => $this->marketdata['ebpid'],
-                    'eptid' => $this->marketdata['eptid'],
-                    'vrid' => $this->marketdata['vrid'],
-                    'vridentifier' => $this->marketdata['vridentifier'],
-                    'potential' => $this->marketdata['potential'],
-                    'mktSharePerc' => $this->marketdata['mktSharePerc'],
-                    'mktShareQty' => $this->marketdata['mktShareQty'],
-                    'unitPrice' => $this->marketdata['unitPrice'],
-                    'turnover' => $this->marketdata['unitPrice'] * ($this->marketdata['mktShareQty'] * 1000),
-                    'comments' => $this->marketdata['comments'],
-                    'createdBy' => $core->user['uid'],
-                    'createdOn' => $this->marketdata['visitreportdate']
-            );
-            if(empty($this->marketdata['visitreportdate'])) {
-                $marketintelligence_data['createdOn'] = TIME_NOW;
-            }
-
-            if(is_array($marketintelligence_data)) {
-                $query = $db->insert_query('marketintelligence_basicdata', $marketintelligence_data);
-            }
-
-            if($query) {
-                $this->mibdid = $db->last_id();
-                $this->marketdata['competitor']['mibdid'] = $db->last_id();
-                if(is_array($this->marketdata['competitor'])) {
-                    MarketIntelligenceCompetitors::save($this->marketdata['competitor']);
-                }
-                $this->errorcode = 0;
-                return true;
-            }
+            return true;
         }
     }
 

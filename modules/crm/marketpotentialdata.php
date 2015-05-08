@@ -218,28 +218,32 @@ if(!$core->input['action']) {
                 }
                 $parent = $productype->get_endproducttype_chain();
                 if(!empty($parent)) {
-                    $values[] = $parent.' > '.$value;
+                    $values[$productype->eptid] = $parent.' > '.$value;
                 }
                 else {
-                    $values[] = $value;
+                    $values[$productype->eptid] = $value;
                 }
             }
-            sort($values);
-            foreach($values as $value) {
+            asort($values);
+            foreach($values as $key => $value) {
                 $checked = $rowclass = '';
                 $endproducttypes_list .= ' <tr class="'.$rowclass.'">';
-                $endproducttypes_list .= '<td><input id="producttypefilter_check_'.$productype->eptid.'" name="forecast[suppliers][]" type="checkbox"'.$checked.' value="'.$productype->eptid.'">'.$value.'</td><tr>';
-
-
-                //    $endproducttypes_list .= '<option value="'.$productype->eptid.'">'.$productype->title.' - '.$productype->get_application()->get_displayname().'</option>';
+                $endproducttypes_list .= '<td><input id="producttypefilter_check_'.$key.'" type="checkbox"'.$checked.' value="'.$key.'" name="entitybrand[endproducttypes]['.$key.']">'.$value.'</td><tr>';
             }
         }
-        else {
-            $endproducttypes_list = '<option value="0">'.$lang->na.'</option>';
-        }
-        eval("\$profiles_michemfuncproductentry = \"".$template->get('profiles_michemfuncsubstancentry')."\";");
-        eval("\$profiles_minproductentry = \"".$template->get('profiles_michemfuncproductentry')."\";");
-        eval("\$profiles_mibasicingredientsentry = \"".$template->get('profiles_mibasicingredientsentry')."\";");
+
+        $mkdchem_rowid = 0;
+        eval("\$profiles_michemfuncproductentry_row = \"".$template->get('profiles_michemfuncsubstancentry')."\";");
+        eval("\$profiles_michemfuncproductentry = \"".$template->get('profiles_michemfuncsubstancentry_rows')."\";");
+
+        $mkdprod_rowid = 0;
+        eval("\$profiles_minproductentry_row = \"".$template->get('profiles_michemfuncproductentry')."\";");
+        eval("\$profiles_minproductentry = \"".$template->get('profiles_michemfuncproductentry_rows')."\";");
+
+        $mkdbing_rowid = 0;
+        eval("\$profiles_mibasicingredientsentry_row = \"".$template->get('profiles_mibasicingredientsentry')."\";");
+        eval("\$profiles_mibasicingredientsentry = \"".$template->get('profiles_mibasicingredientsentry_rows')."\";");
+
         eval("\$popup_marketdata= \"".$template->get('popup_profiles_marketdata')."\";");
         eval("\$popup_createbrand = \"".$template->get('popup_createbrand')."\";");
         eval("\$mkintl_section = \"".$template->get('profiles_mktintelsection')."\";");
@@ -455,6 +459,21 @@ else {
                 output_xml("<status>false</status><message>{$lang->chemicalexsist}</message>");
                 break;
         }
+    }
+    elseif($core->input['action'] == 'ajaxaddmore_profmkdchemical') {
+        $mkdchem_rowid = $db->escape_string($core->input['value']) + 1;
+        eval("\$profiles_michemfuncproductentry_rows = \"".$template->get('profiles_michemfuncsubstancentry')."\";");
+        echo $profiles_michemfuncproductentry_rows;
+    }
+    elseif($core->input['action'] == 'ajaxaddmore_profmkdbasicing') {
+        $mkdbing_rowid = $db->escape_string($core->input['value']) + 1;
+        eval("\$profiles_mibasicingredientsentry_rows = \"".$template->get('profiles_mibasicingredientsentry')."\";");
+        echo $profiles_mibasicingredientsentry_rows;
+    }
+    elseif($core->input['action'] == 'ajaxaddmore_profmkdproduct') {
+        $mkdprod_rowid = $db->escape_string($core->input['value']) + 1;
+        eval("\$profiles_minproductentry_rows = \"".$template->get('profiles_michemfuncproductentry')."\";");
+        echo $profiles_minproductentry_rows;
     }
 }
 //function to check if user is allowed to see the affiliates/customers/suppliers

@@ -213,6 +213,9 @@ if($core->input['type'] == 'quick') {
             if(isset($core->input['eid']) && !empty($core->input['eid'])) {
                 $extra_where = 'eid='.intval($core->input['eid']);
             }
+            if(isset($core->input['cid']) && !empty($core->input['cid'])) {
+                $extra_where = 'eid='.intval($core->input['cid']);
+            }
             $table = EntitiesBrands::TABLE_NAME;
             $attributes = array(EntitiesBrands::DISPLAY_NAME);
             $key_attribute = EntitiesBrands::PRIMARY_KEY;
