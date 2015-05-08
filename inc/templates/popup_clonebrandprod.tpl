@@ -17,8 +17,11 @@
                     <div style="width:100%; height:150px; overflow:auto; vertical-align:top;">
                         <table class="datatable" width="100%">
                             <thead>
-                                <tr class="altrow2">
-                                    <th width="30%">{$lang->chemicalsubs}</th><th><input class='inlinefilterfield' type='text' value='' style="width: 95%"/></th>
+                                <tr class="thead">
+                                    <th>{$lang->chemicalsubs}</th>
+                                </tr>
+                                <tr>
+                                    <th><input class='inlinefilterfield' type='text' value='' style="width: 95%" placeholder="{$lang->chemicalsubs}"/></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -33,9 +36,13 @@
                     <div style="width:100%; height:150px; overflow:auto; vertical-align:top;">
                         <table class="datatable" width="100%">
                             <thead>
-                                <tr class="altrow2">
-                                    <th width="30%">{$lang->products}</th><th><input class='inlinefilterfield' type='text' value='' style="width: 95%"/></th>
+                                <tr class="thead">
+                                    <th>{$lang->products}</th>
                                 </tr>
+                                <tr>
+                                    <th><input class='inlinefilterfield' type='text' value='' style="width: 95%" placeholder="{$lang->products}"/></th>
+                                </tr>
+                            </thead>
                             </thead>
                             <tbody>
                                 {$products_clone}
@@ -49,8 +56,11 @@
                     <div style="width:100%; height:150px; overflow:auto; vertical-align:top;">
                         <table class="datatable" width="100%">
                             <thead>
-                                <tr class="altrow2">
-                                    <th width="30%">{$lang->ingredients}</th><th><input class='inlinefilterfield' type='text' value='' style="width: 95%"/></th>
+                                <tr class="thead">
+                                    <th>{$lang->ingredients}</th>
+                                </tr>
+                                <tr>
+                                    <th><input class='inlinefilterfield' type='text' value='' style="width: 95%" placeholder="{$lang->ingredients}"/></th>
                                 </tr>
                             </thead>
                             <tbody>

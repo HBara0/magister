@@ -758,6 +758,70 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                             }
                         }
                         break;
+                    case 'endproducttypes':
+                        $current_obj = new EndProducTypes($key);
+                        $first_parent = $current_obj->get_parent();
+                        if(is_object($first_parent)) {
+                            $details = $first_parent->get_displayname();
+                            $secondpar_obj = $first_parent->get_parent();
+                            if(is_object($secondpar_obj)) {
+                                $details = $secondpar_obj->get_displayname().'<--'.$details;
+                                $third_par = $secondpar_obj->get_parent();
+                                if(is_object($third_par)) {
+                                    $originalpar_obj = $third_par->get_mother();
+                                    if(is_object($originalpar_obj)) {
+                                        $details = $originalpar_obj->get_displayname().'<-.....<-'.$details;
+                                    }
+                                }
+                            }
+                            if($options['returnType'] == 'json') {
+                                $results_list[$current_obj->eptid]['value'] = $val;
+                                $results_list[$current_obj->eptid]['id'] = $current_obj->eptid;
+                                $results_list[$current_obj->eptid]['desc'] = $details;
+                            }
+                            else {
+                                $details = '<br /><span class="smalltext">'.$details.'</span>';
+                                $results_list .= '<li id="'.$current_obj->eptid.'">'.$val.$details.'</li>';
+                            }
+                        }
+                        else {
+                            if($options['returnType'] == 'json') {
+                                unset($results_list[$key]);
+                            }
+                        }
+                        break;
+                    case 'endproducttype':
+                        $current_obj = new EndProducTypes($key);
+                        $first_parent = $current_obj->get_parent();
+                        if(is_object($first_parent)) {
+                            $details = $first_parent->get_displayname();
+                            $secondpar_obj = $first_parent->get_parent();
+                            if(is_object($secondpar_obj)) {
+                                $details.='-->'.$secondpar_obj->get_displayname();
+                                $third_par = $secondpar_obj->get_parent();
+                                if(is_object($third_par)) {
+                                    $originalpar_obj = $third_par->get_mother();
+                                    if(is_object($originalpar_obj)) {
+                                        $details.='->.....->'.$originalpar_obj->get_displayname();
+                                    }
+                                }
+                            }
+                            if($options['returnType'] == 'json') {
+                                $results_list[$current_obj->eptid]['value'] = $val;
+                                $results_list[$current_obj->eptid]['id'] = $current_obj->eptid;
+                                $results_list[$current_obj->eptid]['desc'] = $details;
+                            }
+                            else {
+                                $details = '<br /><span class="smalltext">'.$details.'</span>';
+                                $results_list .= '<li id="'.$current_obj->eptid.'">'.$val.$details.'</li>';
+                            }
+                        }
+                        else {
+                            if($options['returnType'] == 'json') {
+                                unset($results_list[$key]);
+                            }
+                        }
+                        break;
                     case 'country':
                         $entity = new Entities($key);
                         if(!empty($entity->country)) {
@@ -1192,7 +1256,7 @@ function parse_userentities_data($uid) {
     }
 
     if($usergroup['canViewAllAff'] == 0) {
-        //$affiliates = get_specificdata('affiliatedemployees', 'affid', 'affid', 'affid', '', 0, "uid='{$uid}'");
+//$affiliates = get_specificdata('affiliatedemployees', 'affid', 'affid', 'affid', '', 0, "uid='{$uid}'");
         $affiliates_query = $db->query("SELECT affid, isMain, canAudit FROM ".Tprefix."affiliatedemployees WHERE uid='{$uid}'");
         if($db->num_rows($affiliates_query) > 0) {
             while($affiliate = $db->fetch_assoc($affiliates_query)) {
@@ -1611,7 +1675,7 @@ function getAffiliateList($idsonly = false) {
 }
 
 function encapsulate_in_fieldset($html, $legend = "+", $boolStartClosed = false) {
-    //log_performance(__METHOD__);
+//log_performance(__METHOD__);
 
     $id = md5(rand(9, 99999).time());
 

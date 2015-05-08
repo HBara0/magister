@@ -260,7 +260,7 @@ if(!$core->input['action']) {
                 else {
                     $defaultchemfunc_output = $product->get_genericproduct_legacy()['title'];
                 }
-                $productslist .= '<tr><td style="width:50%;">'.$product->name.'</td><td>'.$defaultchemfunc_output.'</td></tr>';
+                $productslist .= '<tr><td style="width:50%;">'.$product->parse_link().'</td><td>'.$defaultchemfunc_output.'</td></tr>';
                 unset($defaultchemfunc_output);
             }
             eval("\$products_section .= \"".$template->get('profiles_entityprofile_products')."\";");
@@ -472,13 +472,13 @@ if(!$core->input['action']) {
             foreach($brandsproducts as $brandproduct) {
                 $brandproduct_brand = $brandproduct->get_entitybrand();
                 $brandproduct_productype = $brandproduct->get_endproduct();
-                $options[$brandproduct->ebpid] = $brandproduct_brand->name;
+                $options[$brandproduct->ebpid] = $brandproduct_brand->parse_link();
                 if(!is_object($brandproduct_productype)) {
                     $brandproduct_productype = new EntBrandsProducts();
                     $brandproduct_productype->title = $lang->unspecified;
                 }
                 else {
-                    $options[$brandproduct->ebpid] .= ' - '.$brandproduct_productype->title;
+                    $options[$brandproduct->ebpid] .= ' - '.$brandproduct_productype->parse_link();
                 }
 
                 eval("\$brandsendproducts .= \"".$template->get('profiles_entityprofile_brandsproducts')."\";");

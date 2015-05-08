@@ -98,8 +98,12 @@ if(!$core->input['action']) {
                 }
                 $itemscount['chemicals'] ++;
                 $chemicalsubstances_rows.='<tr><td>'.$chem->parse_link().'</td></tr>';
-                $chemfuncobj_clone .= '<tr><td><input type="checkbox" checked="checked" name="chemicals['.$chem->csid.']" value="'.$chem->csid.'"></td><td>'.$chem->parse_link().'</td></tr>';
+                $chemfuncobj_clone .= '<tr><td><input type="checkbox" checked="checked" name="chemicals['.$chem->csid.']" value="'.$chem->csid.'">'.$chem->parse_link().'</td></tr>';
             }
+        }
+        if(!isset($chemfuncobj_clone) || empty($chemfuncobj_clone)) {
+            $chemfuncobj_clone = '<tr><td colspan="2">N/A</td></tr>';
+            $chemicalsubstances_rows = '<tr><td colspan="2">N/A</td></tr>';
         }
         if(is_array($cfp_ids) && !empty($cfp_ids)) {
             $itemscount['products'] = 0;
@@ -116,8 +120,12 @@ if(!$core->input['action']) {
                 $product = $chemfuncprod->get_produt();
                 $itemscount['products'] ++;
                 $products_rows.='<tr><td>'.$product->parse_link().'</td></tr>';
-                $products_clone.='<tr><td><input type="checkbox" checked="checked" name="products['.$product->pid.']" value="'.$product->pid.'"></td><td>'.$product->parse_link().'</td></tr>';
+                $products_clone.='<tr><td><input type="checkbox" checked="checked" name="products['.$product->pid.']" value="'.$product->pid.'">'.$product->parse_link().'</td></tr>';
             }
+        }
+        if(!isset($products_clone) || empty($products_clone)) {
+            $products_clone = '<tr><td colspan="2">N/A</td></tr>';
+            $products_rows = '<tr><td colspan="2">N/A</td></tr>';
         }
         if(is_array($ing_ids) && !empty($ing_ids)) {
             $ing_ids = array_unique($ing_ids);
@@ -133,8 +141,12 @@ if(!$core->input['action']) {
                 }
                 $itemscount['ingre'] ++;
                 $ingredients_rows.='<tr><td>'.$ingredient->get_displayname().'</td></tr>';
-                $ingredients_clone.='<tr><td><input type="checkbox" checked="checked" name="ingredients['.$ingredient->biid.']" value="'.$ingredient->biid.'"></td><td>'.$ingredient->get_displayname().'</td></tr>';
+                $ingredients_clone.='<tr><td><input type="checkbox" checked="checked" name="ingredients['.$ingredient->biid.']" value="'.$ingredient->biid.'">'.$ingredient->get_displayname().'</td></tr>';
             }
+        }
+        if(!isset($ingredients_clone) || empty($ingredients_clone)) {
+            $ingredients_clone = '<tr><td colspan="2">N/A</td></tr>';
+            $ingredients_rows = '<tr><td colspan="2">N/A</td></tr>';
         }
         if($core->usergroup['canManageProducts'] == 1) {
             $clone_button = "<span> <a style='cursor: pointer;' class='showpopup' href='#' id='showpopup_clonebrandprod'><img src='".$core->settings['rootdir']."/images/addnew.png' title='".$lang->cloneentitybrand."' alt='Add' border='0'>".$lang->cloneentitybrand."</a> </span>";
@@ -152,6 +164,7 @@ else {
         if(($core->input['brand'] == 0 || empty($core->input['brand'])) && !empty($core->input['newbrand'])) {
             $brand['name'] = $core->input['newbrand'];
             $brand['eid'] = $core->input['customer'];
+            $cid = $core->input['customer'];
             $brand_obj = new EntitiesBrands();
             $brand_obj->set($brand);
             $brand_obj->save();
@@ -166,6 +179,8 @@ else {
         }
         else {
             $brandprod['ebid'] = $core->input['brand'];
+            $brand_obj = new EntitiesBrands($core->input['brand']);
+            $cid = $brand_obj->eid;
         }
         if(empty($brandprod['ebid']) || !isset($brandprod['ebid'])) {
             output_xml("<status>false</status><message>No Brand Selected</message>");
@@ -200,7 +215,7 @@ else {
                 if(verify($chemfuncprods)) {
                     foreach($chemfuncprods as $cfpid => $obj) {
                         $midata['cfpid'] = $cfpid;
-                        $midata['cid'] = $core->input['customer'];
+                        $midata['cid'] = $cid;
                         $midata['eptid'] = $core->input['endproduct'];
                         $midata_obj = new MarketIntelligence();
                         $midata_obj->create($midata);
@@ -218,7 +233,7 @@ else {
                 if(verify($chemfuncchem)) {
                     foreach($chemfuncchem as $cfcid => $obj) {
                         $midata['cfcid'] = $cfcid;
-                        $midata['cid'] = $core->input['customer'];
+                        $midata['cid'] = $cid;
                         $midata['eptid'] = $core->input['endproduct'];
                         $midata_obj = new MarketIntelligence();
                         $midata_obj->create($midata);
@@ -233,7 +248,7 @@ else {
         if(verify($core->input['ingredients'])) {
             foreach($core->input['ingredients'] as $biid) {
                 $midata['biid'] = $biid;
-                $midata['cid'] = $core->input['customer'];
+                $midata['cid'] = $cid;
                 $midata['eptid'] = $core->input['endproduct'];
                 $midata_obj = new MarketIntelligence();
                 $midata_obj->create($midata);
