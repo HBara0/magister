@@ -164,6 +164,10 @@ else {
         else {
             $brandprod['ebid'] = $core->input['brand'];
         }
+        if(empty($brandprod['ebid']) || !isset($brandprod['ebid'])) {
+            output_xml("<status>false</status><message>No Brand Selected</message>");
+            exit;
+        }
         $brandprod['eptid'] = $core->input['endproduct'];
         $brandprod_obj = EntBrandsProducts::get_data(array('eptid' => $brandprod['eptid'], 'ebid' => $brandprod['ebid']));
         if(is_object($brandprod_obj)) {
@@ -210,7 +214,7 @@ else {
                 $chemfuncchem = $chemsub_obj->get_chemfunctionchemicals();
                 if(verify($chemfuncchem)) {
                     foreach($chemfuncchem as $cfcid => $obj) {
-                        $midata['$cfcid'] = $cfcid;
+                        $midata['cfcid'] = $cfcid;
                         $midata['cid'] = $core->input['customer'];
                         $midata['eptid'] = $core->input['endproduct'];
                         $midata_obj = new MarketIntelligence();
