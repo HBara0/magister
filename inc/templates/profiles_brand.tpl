@@ -15,14 +15,7 @@
                     }
                 });
                 $('input[id ="brands_1_autocomplete"]').live('change', function () {
-                    if($('#brands_1_id_output').val() > 0) {
-                        $('input[id="customer_1_autocomplete"]').attr('disabled', 'disabled');
-                        $('input[id="customer_1_id"]').val('0');
-                        $('input[id="customer_1_autocomplete"]').val('');
-                    }
-                    else {
-                        $('input[id="customer_1_autocomplete"]').removeAttr('disabled');
-                    }
+                    $('input[id="customer_1_autocomplete"]').removeAttr('disabled');
                 });
             });
         </script>

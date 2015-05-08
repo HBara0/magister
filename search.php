@@ -79,6 +79,7 @@ if($core->input['type'] == 'quick') {
             $key_attribute = 'eptid';
             $select_attributes = array('title');
             $order = array('by' => 'title', 'sort' => 'ASC');
+            $descinfo = 'endproducttype';
         }
         if($core->input['for'] == 'brands') {
             $table = 'entitiesbrands';
@@ -225,7 +226,7 @@ if($core->input['type'] == 'quick') {
             $table = EndProducTypes::TABLE_NAME;
             $attributes = array(EndProducTypes::DISPLAY_NAME);
             $key_attribute = EndProducTypes::PRIMARY_KEY;
-
+            $descinfo = 'endproducttypes';
             $select_attributes = array(EndProducTypes::DISPLAY_NAME);
             $order = array('by' => EndProducTypes::DISPLAY_NAME, 'sort' => 'ASC');
         }

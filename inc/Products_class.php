@@ -144,7 +144,12 @@ class Products {
                 $attributes .= $attr.'="'.$val.'"';
             }
         }
-        return '<a href="manage/index.php?module=products/edit&'.self::PRIMARY_KEY.'='.$this->product[self::PRIMARY_KEY].'" '.$attributes.'>'.$this->product[self::DISPLAY_NAME].'</a>';
+        return '<a href="'.$this->get_link().'" '.$attributes.'>'.$this->get_displayname().'</a>';
+    }
+
+    public function get_link() {
+        global $core;
+        return $core->settings['rootdir'].'/index.php?module=profiles/products&amp;pid='.$this->data[self::PRIMARY_KEY];
     }
 
 }

@@ -440,9 +440,9 @@ else {
         $output = '';
         if(is_array($brandsproducts)) {
             foreach($brandsproducts as $brandproduct) {
-                $options[$brandproduct->ebpid] = $brandproduct->get_entitybrand()->name;
+                $options[$brandproduct->ebpid] = $brandproduct->get_entitybrand()->parse_link();
                 if(!empty($brandproduct->eptid)) {
-                    $options[$brandproduct->ebpid] .= ' - '.$brandproduct->get_endproduct()->title;
+                    $options[$brandproduct->ebpid] .= ' - '.$brandproduct->get_endproduct()->parse_link();
                 }
             }
 
