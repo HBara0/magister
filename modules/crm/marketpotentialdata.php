@@ -26,14 +26,15 @@ if(!$core->input['action']) {
 
     /* Perform inline filtering - START */
     $filters_config = array(
-            'parse' => array('filters' => array('affid', 'cid', 'coid', 'pid', 'supplier', 'csid', 'biid', 'functionalproperty', 'application', 'segment', 'brand', 'eptid', 'potential', 'mktShareQty', 'unitPrice', 'date'),
+            'parse' => array('filters' => array('affid', 'cid', 'coid', 'pid', 'supplier', 'csid', 'biid', 'functionalproperty', 'application', 'segment', 'brand', 'icon', 'eptid', 'potential', 'mktShareQty', 'unitPrice', 'date'),
                     'overwriteField' => array('application' => '<input class="inlinefilterfield" type="text" style="width: 95%" placeholder="'.$lang->application.'"/>',
                             'segment' => '<input class="inlinefilterfield" type="text" style="width: 95%" placeholder="'.$lang->segment.'"/>',
                             'functionalproperty' => '<input class="inlinefilterfield" type="text" style="width: 95%" placeholder="'.$lang->functionalproperty.'"/>',
                             'supplier' => '<input class="inlinefilterfield" type="text" style="width: 95%" placeholder="'.$lang->supplier.'"/>',
                             'csid' => '<input class="inlinefilterfield" type="text" style="width: 95%" placeholder="'.$lang->chemicalsubstance.'"/>',
                             'brand' => '<input class="inlinefilterfield" type="text" style="width: 95%" placeholder="'.$lang->brand.'"/>',
-                            'eptid' => '<input class="inlinefilterfield" type="text" style="width: 95%" placeholder="'.$lang->endproducttype.'"/>'
+                            'eptid' => '<input class="inlinefilterfield" type="text" style="width: 95%" placeholder="'.$lang->endproducttype.'"/>',
+                            'icon' => ''
                     )
             ),
             'process' => array(
