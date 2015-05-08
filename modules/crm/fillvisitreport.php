@@ -140,7 +140,10 @@ if(!$core->input['action']) {
                 $endproducttypes = EndProducTypes::get_endproductypes();
                 if(is_array($endproducttypes)) {
                     foreach($endproducttypes as $endproducttype) {
-                        $endproducttypes_list .= '<option value="'.$endproducttype->eptid.'">'.$endproducttype->title.' - '.$endproducttype->get_application()->title.'</option>';
+                        $checked = $rowclass = '';
+                        $endproducttypes_list .= ' <tr class="'.$rowclass.'">';
+                        $endproducttypes_list .= '<td><input id="producttypefilter_check_'.$endproducttype->eptid.'" type="checkbox"'.$checked.' value="'.$endproducttype->eptid.'">'.$endproducttype->title.' - '.$endproducttype->get_application()->title.'</td></tr>';
+                        //$endproducttypes_list .= '<option value="'.$endproducttype->eptid.'">'.$endproducttype->title.' - '.$endproducttype->get_application()->title.'</option>';
                     }
                 }
                 eval("\$popup_createbrand = \"".$template->get('popup_createbrand')."\";");

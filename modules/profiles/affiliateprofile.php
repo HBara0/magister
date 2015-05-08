@@ -252,11 +252,15 @@ if(!$core->input['action']) {
         $productypes_objs = EndProducTypes::get_endproductypes();
         if(is_array($productypes_objs)) {
             foreach($productypes_objs as $productype) {
-                $endproducttypes_list .= '<option value="'.$productype->eptid.'">'.$productype->title.' - '.$productype->get_application()->title.'</option>';
+                $checked = $rowclass = '';
+                $endproducttypes_list .= ' <tr class="'.$rowclass.'">';
+                $endproducttypes_list .= '<td><input id="producttypefilter_check_'.$productype->eptid.'" type="checkbox"'.$checked.' value="'.$productype->eptid.'">'.$productype->title.' - '.$productype->get_application()->title.'</td></tr>';
+
+                //     $endproducttypes_list .= '<option value="'.$productype->eptid.'">'.$productype->title.' - '.$productype->get_application()->title.'</option>';
             }
         }
         else {
-            $endproducttypes_list = '<option value="0">'.$lang->na.'</option>';
+            // $endproducttypes_list = '<option value="0">'.$lang->na.'</option>';
         }
         /* parse visit report */
         $visitreport_objs = CrmVisitReports::get_visitreports(array('uid' => $core->user['uid'], 'affid' => $elemtentid, 'isDraft' => 1), array('order' => array('by' => 'date', 'sort' => 'DESC'), 'returnarray' => 1));
