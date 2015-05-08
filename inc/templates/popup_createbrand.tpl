@@ -15,7 +15,7 @@
         </div>
         <div>
             <div>
-                <br /><strong>{$lang->endproducttypes}</strong></div>
+                <br/><strong>{$lang->endproducttypes}</strong></div>
 
 
             <div style="width:100%; height:150px; overflow:auto; display:inline-block; vertical-align:top; margin-bottom: 10px;">
@@ -25,7 +25,7 @@
                             <th width="100%"><input type="checkbox" id='producttypefilter_checkall'><input class='inlinefilterfield' type='text' tabindex="2"  placeholder="{$lang->search} {$lang->endproducttypes}" style="display:inline-block;width:70%;margin-left:5px;"/></th>
                         </tr>
                     </thead>
-                    <tbody >
+                    <tbody>
                         {$endproducttypes_list}
                     </tbody>
                 </table>
@@ -37,7 +37,7 @@
             <div><input type="checkbox" value="1" onclick="$('#popup_createbrand_endproducttypes').toggle()" name="entitybrand[isGeneral]"> {$lang->considerbrandunspecified}</div>
         </div>
         <div>
-            <hr />
+            <hr/>
             <div><input type='button' id='add_{$module}/{$modulefile}_Button' value='{$lang->savecaps}' class='button'/></div>
             <div style="display:table-row;"> <div style="display:table-cell;"><div id="add_{$module}/{$modulefile}_Results"></div></div></div>
         </div>

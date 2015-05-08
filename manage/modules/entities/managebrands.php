@@ -36,7 +36,10 @@ if(!$core->input['action']) {
     if(is_array($productypes_objs)) {
         foreach($productypes_objs as $productypes_obj) {
             $endproduct_types = $productypes_obj->get();
-            $endproducttypes_list.='<option value="'.$endproduct_types['eptid'].'">'.$endproduct_types['title'].'</option>';
+            $endproducttypes_list .= '<tr class="'.$rowclass.'">';
+            $endproducttypes_list .= '<td><input id="producttypefilter_check_'.$endproduct_types['eptid'].'" type="checkbox"'.$checked.' value="'.$endproduct_types['eptid'].'">'.$endproduct_types['title'].'</td></tr>';
+
+            //$endproducttypes_list.='<option value="'.$endproduct_types['eptid'].'">'.$endproduct_types['title'].'</option>';
         }
     }
     $module = 'entities';
