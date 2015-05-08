@@ -760,6 +760,7 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                         break;
                     case 'endproducttypes':
                         $current_obj = new EndProducTypes($key);
+
                         $first_parent = $current_obj->get_parent();
                         if(is_object($first_parent)) {
                             $details = $first_parent->get_displayname();
@@ -774,21 +775,17 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                                     }
                                 }
                             }
-                            if($options['returnType'] == 'json') {
-                                $results_list[$current_obj->eptid]['value'] = $val;
-                                $results_list[$current_obj->eptid]['id'] = $current_obj->eptid;
-                                $results_list[$current_obj->eptid]['desc'] = $details;
-                            }
-                            else {
-                                $details = '<br /><span class="smalltext">'.$details.'</span>';
-                                $results_list .= '<li id="'.$current_obj->eptid.'">'.$val.$details.'</li>';
-                            }
+                        }
+                        if($options['returnType'] == 'json') {
+                            $results_list[$current_obj->eptid]['value'] = $val;
+                            $results_list[$current_obj->eptid]['id'] = $current_obj->eptid;
+                            $results_list[$current_obj->eptid]['desc'] = $details;
                         }
                         else {
-                            if($options['returnType'] == 'json') {
-                                unset($results_list[$key]);
-                            }
+                            $details = '<br /><span class="smalltext">'.$details.'</span>';
+                            $results_list .= '<li id="'.$current_obj->eptid.'">'.$val.$details.'</li>';
                         }
+
                         break;
                     case 'endproducttype':
                         $current_obj = new EndProducTypes($key);
