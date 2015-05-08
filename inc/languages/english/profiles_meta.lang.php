@@ -119,4 +119,6 @@ $lang['entity'] = 'Entity';
 $lang['items'] = 'Items';
 $lang['errorsavingduring'] = 'Error While Saving A Certain Record';
 $lang['chemicalsubs'] = 'Chemical Subustance';
+$lang['brandprofile'] = 'Brand Profile';
+$lang['brandslist'] = 'Brands List';
 ?>

@@ -23,8 +23,9 @@ if(!$core->input['action']) {
 
     /* Perform inline filtering - START */
     $filters_config = array(
-            'parse' => array('filters' => array('title'),
+            'parse' => array('filters' => array('title', ''),
                     'overwriteField' => array('title' => '<input class="inlinefilterfield" type="text" style="width: 95%" placeholder="'.$lang->title.'"/>',
+                            '' => ''
                     )),
     );
 
