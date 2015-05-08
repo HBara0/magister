@@ -10,7 +10,7 @@
                     <tfoot>
                         <tr>
                             <td colspan="2">
-                                <img src="./images/add.gif" id="ajaxaddmore_crm/marketpotentialdata_profmkdchemical" alt="{$lang->add}">
+                                <img src="./images/add.gif" id="ajaxaddmore_{$module}/{$modulefile}_profmkdchemical" alt="{$lang->add}">
                                 <input id="numrows_profmkdchemical_{$mkdchem_rowid}" name="numrows_profmkdchemical{$mkdchem_rowid}" type="hidden" value="{$mkdchem_rowid}">
                             </td>
                         </tr>

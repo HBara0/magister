@@ -117,8 +117,27 @@ if(!$core->input['action']) {
                 $action = 'do_addmartkerdata';
                 $modulefile = 'entityprofile';
                 $css['display']['chemsubfield'] = 'none';
-                eval("\$profiles_michemfuncproductentry = \"".$template->get('profiles_michemfuncsubstancentry')."\";");
-                eval("\$profiles_minproductentry = \"".$template->get('profiles_michemfuncproductentry')."\";");
+                $css['display']['basicingsubfield'] = 'none';
+                $css['display']['product'] = 'none';
+
+                $mkdchem_rowid = 0;
+                eval("\$profiles_michemfuncproductentry_row = \"".$template->get('profiles_michemfuncsubstancentry')."\";");
+                eval("\$profiles_michemfuncproductentry = \"".$template->get('profiles_michemfuncsubstancentry_rows')."\";");
+
+                $mkdprod_rowid = 0;
+                eval("\$profiles_minproductentry_row = \"".$template->get('profiles_michemfuncproductentry')."\";");
+                eval("\$profiles_minproductentry = \"".$template->get('profiles_michemfuncproductentry_rows')."\";");
+
+                $mkdbing_rowid = 0;
+                eval("\$profiles_mibasicingredientsentry_row = \"".$template->get('profiles_mibasicingredientsentry')."\";");
+                eval("\$profiles_mibasicingredientsentry = \"".$template->get('profiles_mibasicingredientsentry_rows')."\";");
+
+                eval("\$popup_marketdata= \"".$template->get('popup_profiles_marketdata')."\";");
+                eval("\$popup_createbrand = \"".$template->get('popup_createbrand')."\";");
+                eval("\$mkintl_section = \"".$template->get('profiles_mktintelsection')."\";");
+
+                // eval("\$profiles_michemfuncproductentry = \"".$template->get('profiles_michemfuncsubstancentry')."\";");
+                //  eval("\$profiles_minproductentry = \"".$template->get('profiles_michemfuncproductentry')."\";");
                 //get brand related to the customer
                 $entity = new Entities($visitreport_data['cid']);
                 $brandsproducts = $entity->get_brandsproducts();
@@ -540,6 +559,21 @@ else {
             $entity_locations .='<td>'.parse_selectlist('location', 3, $locations, '', 6, '', array('blankstart' => 1)).'</td>';
             output($entity_locations);
         }
+    }
+    elseif($core->input['action'] == 'ajaxaddmore_profmkdchemical') {
+        $mkdchem_rowid = $db->escape_string($core->input['value']) + 1;
+        eval("\$profiles_michemfuncproductentry_rows = \"".$template->get('profiles_michemfuncsubstancentry')."\";");
+        echo $profiles_michemfuncproductentry_rows;
+    }
+    elseif($core->input['action'] == 'ajaxaddmore_profmkdbasicing') {
+        $mkdbing_rowid = $db->escape_string($core->input['value']) + 1;
+        eval("\$profiles_mibasicingredientsentry_rows = \"".$template->get('profiles_mibasicingredientsentry')."\";");
+        echo $profiles_mibasicingredientsentry_rows;
+    }
+    elseif($core->input['action'] == 'ajaxaddmore_profmkdproduct') {
+        $mkdprod_rowid = $db->escape_string($core->input['value']) + 1;
+        eval("\$profiles_minproductentry_rows = \"".$template->get('profiles_michemfuncproductentry')."\";");
+        echo $profiles_minproductentry_rows;
     }
 }
 ?>

@@ -489,14 +489,28 @@ if(!$core->input['action']) {
 
         $endproducttypes = EndProducTypes::get_endproductypes();
         if(is_array($endproducttypes)) {
-            foreach($endproducttypes as $endproducttype) {
+            foreach($endproducttypes as $productype) {
+                $value = $productype->title;
+                $pplication = $productype->get_application()->parse_link();
+                if($pplication !== null) {
+                    $value .=' - '.$pplication;
+                }
+                $parent = $productype->get_endproducttype_chain();
+                if(!empty($parent)) {
+                    $values[$productype->eptid] = $parent.' > '.$value;
+                }
+                else {
+                    $values[$productype->eptid] = $value;
+                }
+            }
+            asort($values);
+            foreach($values as $key => $value) {
                 $checked = $rowclass = '';
                 $endproducttypes_list .= ' <tr class="'.$rowclass.'">';
-                $endproducttypes_list .= '<td><input id="producttypefilter_check_'.$endproducttype->eptid.'" type="checkbox"'.$checked.' value="'.$endproducttype->eptid.'">'.$endproducttype->title.' - '.$endproducttype->get_application()->title.'</td></tr>';
-
-                //$endproducttypes_list .= '<option value="'.$endproducttype->eptid.'">'.$endproducttype->title.' - '.$endproducttype->get_application()->title.'</option>';
+                $endproducttypes_list .= '<td><input id="producttypefilter_check_'.$key.'" type="checkbox"'.$checked.' value="'.$key.'" name="entitybrand[endproducttypes]['.$key.']">'.$value.'</td><tr>';
             }
         }
+
 
         /* parse visit report --START */
         $visitreport_objs = CrmVisitReports::get_visitreports(array('uid' => $core->user['uid'], 'cid' => $eid, 'isDraft' => 1), array('order' => array('by' => 'date', 'sort' => 'DESC'), 'returnarray' => 1));
@@ -512,8 +526,22 @@ if(!$core->input['action']) {
         $saletype_list = parse_selectlist('marketdata[competitor]['.$rowid.'][saletype]', 8, SaleTypes::get_data('stid IN (1,4)'), '', '', '', array('blankstart' => 1));
         $samplacquire = parse_radiobutton('marketdata[competitor]['.$rowid.'][isSampleacquire]', array(1 => 'yes', 0 => 'no'), '', true);
         $css['display']['chemsubfield'] = 'none';
-        eval("\$profiles_michemfuncproductentry = \"".$template->get('profiles_michemfuncsubstancentry')."\";");
-        eval("\$profiles_minproductentry = \"".$template->get('profiles_michemfuncproductentry')."\";");
+        $css['display']['basicingsubfield'] = 'none';
+        $css['display']['product'] = 'none';
+//        eval("\$profiles_michemfuncproductentry = \"".$template->get('profiles_michemfuncsubstancentry')."\";");
+//        eval("\$profiles_minproductentry = \"".$template->get('profiles_michemfuncproductentry')."\";");
+//
+        $mkdchem_rowid = 0;
+        eval("\$profiles_michemfuncproductentry_row = \"".$template->get('profiles_michemfuncsubstancentry')."\";");
+        eval("\$profiles_michemfuncproductentry = \"".$template->get('profiles_michemfuncsubstancentry_rows')."\";");
+
+        $mkdprod_rowid = 0;
+        eval("\$profiles_minproductentry_row = \"".$template->get('profiles_michemfuncproductentry')."\";");
+        eval("\$profiles_minproductentry = \"".$template->get('profiles_michemfuncproductentry_rows')."\";");
+
+        $mkdbing_rowid = 0;
+        eval("\$profiles_mibasicingredientsentry_row = \"".$template->get('profiles_mibasicingredientsentry')."\";");
+        eval("\$profiles_mibasicingredientsentry = \"".$template->get('profiles_mibasicingredientsentry_rows')."\";");
         eval("\$popup_marketdata = \"".$template->get('popup_profiles_marketdata')."\";");
         eval("\$popup_createbrand = \"".$template->get('popup_createbrand')."\";");
     }
@@ -671,7 +699,26 @@ else {
         $endproducttypes = EndProducTypes::get_endproductypes();
         if(is_array($endproducttypes)) {
             foreach($endproducttypes as $endproducttype) {
-                $endproducttypes_list .= '<option value="'.$endproducttype->eptid.'">'.$endproducttype->title.' - '.$endproducttype->get_application()->title.'</option>';
+                $value = $endproducttype->title;
+                $pplication = $endproducttype->get_application()->parse_link();
+                if($pplication !== null) {
+                    $value .=' - '.$pplication;
+                }
+                $parent = $endproducttype->get_endproducttype_chain();
+                if(!empty($parent)) {
+                    $values[$endproducttype->eptid] = $parent.' > '.$value;
+                }
+                else {
+                    $values[$endproducttype->eptid] = $value;
+                }
+
+                // $endproducttypes_list .= '<option value="'.$endproducttype->eptid.'">'.$endproducttype->title.' - '.$endproducttype->get_application()->title.'</option>';
+            }
+            asort($values);
+            foreach($values as $key => $value) {
+                $checked = $rowclass = '';
+                $endproducttypes_list .= ' <tr class="'.$rowclass.'">';
+                $endproducttypes_list .= '<td><input id="producttypefilter_check_'.$key.'" type="checkbox"'.$checked.' value="'.$key.'" name="entitybrand[endproducttypes]['.$key.']">'.$value.'</td><tr>';
             }
         }
         unset($endproducttypes);
@@ -821,6 +868,21 @@ else {
             }
         }
         output($previoustimelinerows);
+    }
+    elseif($core->input['action'] == 'ajaxaddmore_profmkdchemical') {
+        $mkdchem_rowid = $db->escape_string($core->input['value']) + 1;
+        eval("\$profiles_michemfuncproductentry_rows = \"".$template->get('profiles_michemfuncsubstancentry')."\";");
+        echo $profiles_michemfuncproductentry_rows;
+    }
+    elseif($core->input['action'] == 'ajaxaddmore_profmkdbasicing') {
+        $mkdbing_rowid = $db->escape_string($core->input['value']) + 1;
+        eval("\$profiles_mibasicingredientsentry_rows = \"".$template->get('profiles_mibasicingredientsentry')."\";");
+        echo $profiles_mibasicingredientsentry_rows;
+    }
+    elseif($core->input['action'] == 'ajaxaddmore_profmkdproduct') {
+        $mkdprod_rowid = $db->escape_string($core->input['value']) + 1;
+        eval("\$profiles_minproductentry_rows = \"".$template->get('profiles_michemfuncproductentry')."\";");
+        echo $profiles_minproductentry_rows;
     }
 }
 function parse_calltype(&$value) {

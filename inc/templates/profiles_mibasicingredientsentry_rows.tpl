@@ -10,7 +10,7 @@
                     <tfoot>
                         <tr>
                             <td colspan="2">
-                                <img src="./images/add.gif" id="ajaxaddmore_crm/marketpotentialdata_profmkdbasicing" alt="{$lang->add}">
+                                <img src="./images/add.gif" id="ajaxaddmore_{$module}/{$modulefile}_profmkdbasicing" alt="{$lang->add}">
                                 <input id="numrows_profmkdbasicing" name="numrows_profmkdbasicing" type="hidden" value="{$mkdbing_rowid}">
                             </td>
                         </tr>
