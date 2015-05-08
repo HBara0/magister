@@ -140,10 +140,24 @@ if(!$core->input['action']) {
                 $endproducttypes = EndProducTypes::get_endproductypes();
                 if(is_array($endproducttypes)) {
                     foreach($endproducttypes as $endproducttype) {
+                        $value = $endproducttype->title;
+                        $pplication = $endproducttype->get_application()->parse_link();
+                        if($pplication !== null) {
+                            $value .=' - '.$pplication;
+                        }
+                        $parent = $endproducttype->get_endproducttype_chain();
+                        if(!empty($parent)) {
+                            $values[$endproducttype->eptid] = $parent.' > '.$value;
+                        }
+                        else {
+                            $values[$endproducttype->eptid] = $value;
+                        }
+                    }
+                    asort($values);
+                    foreach($values as $key => $value) {
                         $checked = $rowclass = '';
                         $endproducttypes_list .= ' <tr class="'.$rowclass.'">';
-                        $endproducttypes_list .= '<td><input id="producttypefilter_check_'.$endproducttype->eptid.'" type="checkbox"'.$checked.' value="'.$endproducttype->eptid.'">'.$endproducttype->title.' - '.$endproducttype->get_application()->title.'</td></tr>';
-                        //$endproducttypes_list .= '<option value="'.$endproducttype->eptid.'">'.$endproducttype->title.' - '.$endproducttype->get_application()->title.'</option>';
+                        $endproducttypes_list .= '<td><input id="producttypefilter_check_'.$key.'" type="checkbox"'.$checked.' value="'.$key.'" name="entitybrand[endproducttypes]['.$key.']">'.$value.'</td><tr>';
                     }
                 }
                 eval("\$popup_createbrand = \"".$template->get('popup_createbrand')."\";");

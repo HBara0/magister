@@ -3,7 +3,7 @@
         <input type="hidden" name="action" value="do_addbrand" />
         <div>
             <div style="display:inline-block; width: 30%;"><strong>{$lang->name}</strong></div>
-            <div style="display:inline-block; width: 60%;"><input name="entitybrand[name]" type="text"/></div>
+            <div style="display:inline-block; width: 60%;"><input name="entitybrand[title]" type="text"/></div>
         </div>
         <div>
             <div style="display: inline-block; width: 30%;"><strong>{$lang->customer}</strong></div>
