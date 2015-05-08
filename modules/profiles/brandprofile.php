@@ -83,7 +83,7 @@ if(!$core->input['action']) {
         if(is_array($cfc_ids) && !empty($cfc_ids)) {
             $cfc_ids = array_unique($cfc_ids);
             $zero_cfc = array_search('0', $cfc_ids);
-            if(isset($zero_cfc) && $zero_cfc != FALSE) {
+            if(isset($zero_cfc)) { // && $zero_cfc == 0) {
                 unset($cfc_ids[$zero_cfc]);
             }
             $itemscount['chemicals'] = 0;
@@ -93,6 +93,9 @@ if(!$core->input['action']) {
                     continue;
                 }
                 $chem = $chemfuncobj->get_chemicalsubstance();
+                if($chem->csid == null) {
+                    continue;
+                }
                 $itemscount['chemicals'] ++;
                 $chemicalsubstances_rows.='<tr><td>'.$chem->parse_link().'</td></tr>';
                 $chemfuncobj_clone .= '<tr><td><input type="checkbox" checked="checked" name="chemicals['.$chem->csid.']" value="'.$chem->csid.'"></td><td>'.$chem->parse_link().'</td></tr>';
