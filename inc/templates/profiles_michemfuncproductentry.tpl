@@ -6,6 +6,7 @@
                 <input type="hidden" id="chemfunctionproducts_{$mkdprod_rowid}_id" name="marketdata[cfpid][]" value="{$midata->cfpid}"/>
                 <input type="hidden" value="1" id="userproducts" name="userproducts" />
                 <div id="searchQuickResults_{$mkdprod_rowid}" class="searchQuickResults" style="display:none;"></div>
+                <a href='{$core->settings['rootdir']}/manage/index.php?module=products/add' target="_blank"><img src='images/addnew.png' border='0' alt='{$lang->add}' /></a>
                 <br />
             </div>
         </div>

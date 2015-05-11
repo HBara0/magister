@@ -771,7 +771,12 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                                     if(is_object($third_par)) {
                                         $originalpar_obj = $third_par->get_mother();
                                         if(is_object($originalpar_obj)) {
-                                            $details = $originalpar_obj->get_displayname().'<-.....<-'.$details;
+                                            if($originalpar_obj === $third_par) {
+                                                $details = $originalpar_obj->get_displayname().'<--'.$details;
+                                            }
+                                            else {
+                                                $details = $originalpar_obj->get_displayname().'<-.....<-'.$details;
+                                            }
                                         }
                                     }
                                 }
@@ -809,8 +814,11 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                                     $third_par = $secondpar_obj->get_parent();
                                     if(is_object($third_par)) {
                                         $originalpar_obj = $third_par->get_mother();
-                                        if(is_object($originalpar_obj)) {
-                                            $details.='->.....->'.$originalpar_obj->get_displayname();
+                                        if($originalpar_obj === $third_par) {
+                                            $details = $originalpar_obj->get_displayname().'-->'.$details;
+                                        }
+                                        else {
+                                            $details = $originalpar_obj->get_displayname().'->.....->'.$details;
                                         }
                                     }
                                 }
@@ -1914,4 +1922,5 @@ function generate_alias($string) {
     $string = strtolower($string);
     return $string;
 }
+
 ?>

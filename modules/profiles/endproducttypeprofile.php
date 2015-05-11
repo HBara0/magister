@@ -95,14 +95,18 @@ if(!$core->input['action']) {
         }
         if(!empty($chemids)) {
             $chemids = array_filter(array_unique($chemids));
+            $itemscount['chemicalsubstances'] = 0;
+
             foreach($chemids as $chemid) {
                 $chem = new Chemicalsubstances($chemid, false);
                 $chemsubst = $chem->parse_link();
                 eval("\$chemicalsubstances_rows .= \"".$template->get('profiles_endproducttype_chemicalsubstancestlist_rows')."\";");
+                $itemscount['chemicalsubstances'] ++;
             }
         }
         else {
             $chemsubst = 'N/A';
+            $itemscount['chemicalsubstances'] = 0;
             eval("\$chemicalsubstances_rows .= \"".$template->get('profiles_endproducttype_chemicalsubstancestlist_rows')."\";");
         }
     }

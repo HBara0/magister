@@ -135,8 +135,8 @@ class Products {
     }
 
     public function parse_link($attributes_param = array('target' => '_blank')) {
-        if(!empty($this->data['companyNameAbbr'])) {
-            $this->data['companyName'] .= ' ('.$this->data['companyNameAbbr'].')';
+        if(!empty($this->product['companyNameAbbr'])) {
+            $this->product['companyName'] .= ' ('.$this->product['companyNameAbbr'].')';
         }
 
         if(is_array($attributes_param)) {
@@ -149,7 +149,7 @@ class Products {
 
     public function get_link() {
         global $core;
-        return $core->settings['rootdir'].'/index.php?module=profiles/products&amp;pid='.$this->data[self::PRIMARY_KEY];
+        return $core->settings['rootdir'].'/index.php?module=profiles/products&amp;pid='.$this->product[self::PRIMARY_KEY];
     }
 
 }
