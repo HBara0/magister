@@ -18,6 +18,7 @@
                     </td>
                 </tr>
             </tbody>
+            <tfoot><tr><td colspan="4"> <small>({$itemscount['basicingredientss']} {$lang->items})</small></td></tr></tfoot>
         </table>
     </td>
 </tr>

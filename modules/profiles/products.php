@@ -18,8 +18,17 @@ if(!$core->input['action']) {
         if(is_object($prod_obj) && !empty($prod_obj)) {
             $product = $prod_obj->get();
             $supplier_name = $prod_obj->get_supplier()->parse_link();
+            if(empty($supplier_name)) {
+                $supplier_name = 'NA';
+            }
             if(isset($product['defaultFunction']) && !empty($product['defaultFunction'])) {
                 $defaultfunc = $prod_obj->get_defaultchemfunction()->get_segapplicationfunction()->get_function()->get_displayname();
+            }
+            if(empty($defaultfunc)) {
+                $defaultfunc = 'NA';
+            }
+            if(empty($product['description'])) {
+                $product['description'] = 'NA';
             }
             /* Get Chem Function Chem-START */
             $chemfuncprods = ChemFunctionProducts::get_data(array('pid' => $pid), array('returnarray' => true));

@@ -52,6 +52,7 @@ if(!$core->input['action']) {
             }
         }
         if(!empty($pids)) {
+            $itemscount['products'] = 0;
             $pids = array_filter(array_unique($pids));
             foreach($pids as $pid) {
                 $product_obj = new Products($pid);
@@ -59,11 +60,13 @@ if(!$core->input['action']) {
                     $product = $product_obj->parse_link();
                     $pid = $product_obj->pid;
                     eval("\$products_rows .= \"".$template->get('profiles_endproducttype_productlist_rows')."\";");
+                    $itemscount['products'] ++;
                 }
             }
         }
         else {
             $product = 'N/A';
+            $itemscount['products'] = 0;
             eval("\$products_rows .= \"".$template->get('profiles_endproducttype_productlist_rows')."\";");
         }
 
@@ -76,10 +79,12 @@ if(!$core->input['action']) {
                 }
                 $biid = $basicingredien_obj->biid;
                 eval("\$basicingredientss_rows .= \"".$template->get('profiles_endproducttype_basicingredientslist_rows')."\";");
+                $itemscount['basicingredientss'] ++;
             }
         }
         else {
             $basicingredient = 'N/A';
+            $itemscount['basicingredientss'] = 0;
             eval("\$basicingredientss_rows .= \"".$template->get('profiles_endproducttype_basicingredientslist_rows')."\";");
         }
 
@@ -122,7 +127,7 @@ if(!$core->input['action']) {
         }
     }
     else {
-        $chemsubst = 'N/A';
+        $entitybrand_link = 'N/A';
         $itemscount['relatedbrands'] = 0;
         eval("\$relatedbrands_rows .= \"".$template->get('profiles_endproducttype_relatedbrandslist_rows')."\";");
     }
