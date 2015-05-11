@@ -11,7 +11,7 @@
             <h1>{$chemsub['name']}</h1>
             <small>
                 <h2>{$lang->casnum}: {$chemsub['casNum']}</h2>
-                <h2>{$lang->synonym}: </h2>  {$chemsub['synonyms']}
+                <h2>{$lang->synonym}: </h2>  <h2>{$chemsub['synonyms']}</h2>
 
             </small>
             <table width="100%" border="0" cellspacing="0" cellpadding="0">

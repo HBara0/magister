@@ -744,10 +744,22 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                                 if($options['returnType'] == 'json') {
                                     $results_list[$entbrandproduct->get_id()]['value'] = $val;
                                     $results_list[$entbrandproduct->get_id()]['id'] = $entbrandproduct->get_id();
-                                    $results_list[$entbrandproduct->get_id()]['desc'] = $entbrandproduct->get_endproduct()->title;
+                                    $endprod = $entbrandproduct->get_endproduct();
+                                    if(empty($endprod)) {
+                                        $results_list[$entbrandproduct->get_id()]['desc'] = '';
+                                    }
+                                    else {
+                                        $results_list[$entbrandproduct->get_id()]['desc'] = $endprod->title;
+                                    }
                                 }
                                 else {
-                                    $details = '<br /><span class="smalltext">'.$entbrandproduct->get_endproduct()->title.'</span>';
+                                    $endprod = $entbrandproduct->get_endproduct();
+                                    if(empty($endprod)) {
+                                        $details = '';
+                                    }
+                                    else {
+                                        $details = '<br /><span class="smalltext">'.$endprod->title.'</span>';
+                                    }
                                     $results_list .= '<li id="'.$entbrandproduct->get_id().'">'.$val.$details.'</li>';
                                 }
                             }
@@ -771,7 +783,12 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                                     if(is_object($third_par)) {
                                         $originalpar_obj = $third_par->get_mother();
                                         if(is_object($originalpar_obj)) {
-                                            $details = $originalpar_obj->get_displayname().'<-.....<-'.$details;
+                                            if($originalpar_obj === $third_par) {
+                                                $details = $originalpar_obj->get_displayname().'<--'.$details;
+                                            }
+                                            else {
+                                                $details = $originalpar_obj->get_displayname().'<-.....<-'.$details;
+                                            }
                                         }
                                     }
                                 }
@@ -809,8 +826,11 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                                     $third_par = $secondpar_obj->get_parent();
                                     if(is_object($third_par)) {
                                         $originalpar_obj = $third_par->get_mother();
-                                        if(is_object($originalpar_obj)) {
-                                            $details.='->.....->'.$originalpar_obj->get_displayname();
+                                        if($originalpar_obj === $third_par) {
+                                            $details = $originalpar_obj->get_displayname().'-->'.$details;
+                                        }
+                                        else {
+                                            $details = $originalpar_obj->get_displayname().'->.....->'.$details;
                                         }
                                     }
                                 }
@@ -1914,4 +1934,5 @@ function generate_alias($string) {
     $string = strtolower($string);
     return $string;
 }
+
 ?>
