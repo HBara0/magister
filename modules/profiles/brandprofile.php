@@ -29,6 +29,9 @@ if(!$core->input['action']) {
                 $itemscount['endproducts'] ++;
             }
         }
+        else {
+            $endproduct_rows = 'NA';
+        }
         $entitybrandproduct_objs = EntBrandsProducts::get_data(array('ebid' => $brand_obj->ebid), array('returnarray' => true));
         if(is_array($entitybrandproduct_objs)) {
             foreach($entitybrandproduct_objs as $entitybrandproduct_obj) {
@@ -58,7 +61,7 @@ if(!$core->input['action']) {
                 $chemicalsubstances_rows.='<tr><td>'.$chemfuncobj->get_chemicalsubstance()->parse_link().'</td></tr>';
             }
         }
-        else {
+        if(empty($chemicalsubstances_rows)) {
             $itemscount['chemicals'] = 0;
             $chemicalsubstances_rows = '<tr><td>N/A</td></tr>';
         }
@@ -70,7 +73,6 @@ if(!$core->input['action']) {
             }
             $itemscount['products'] = 0;
             foreach($cfp_ids as $cfp_ids) {
-
                 $chemfuncprod = new ChemFunctionProducts($cfp_ids);
                 if($chemfuncprod->cfpid == NULL) {
                     continue;
@@ -79,7 +81,7 @@ if(!$core->input['action']) {
                 $products_rows.='<tr><td>'.$chemfuncprod->get_produt()->parse_link().'</td></tr>';
             }
         }
-        else {
+        if(empty($products_rows)) {
             $itemscount['products'] = 0;
             $products_rows = '<tr><td>N/A</td></tr>';
         }
@@ -99,7 +101,7 @@ if(!$core->input['action']) {
                 $ingredients_rows.='<tr><td>'.$ingredient->get_displayname().'</td></tr>';
             }
         }
-        else {
+        if(empty($ingredients_rows)) {
             $ingredients_rows = '<tr><td colspan="2">N/A</td></tr>';
             $itemscount['ingre'] = 0;
         }
