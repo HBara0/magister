@@ -81,7 +81,7 @@ class MarketIntelligence {
             foreach($values as $option => $valuesarray) {
                 foreach($valuesarray as $value) {
                     $this->marketdata[$option] = $value;
-                    $required_fields = array('potential', 'mktSharePerc', 'mktShareQty', 'unitPrice'); // check cfcid
+                    $required_fields = array('potential', 'mktSharePerc', 'mktShareQty', 'unitPrice', 'ebpid'); // check cfcid
                     foreach($required_fields as $field) {
                         if(empty($this->marketdata[$field]) && $this->marketdata[$field] != '0') {
                             $this->errorcode = 1;
