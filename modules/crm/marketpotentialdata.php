@@ -298,6 +298,10 @@ else {
     }
     elseif($core->input['action'] == 'get_updatemktintldtls') {
         $css[display]['radiobuttons'] = 'none';
+        $mkdchem_rowid = 0;
+        $mkdbing_rowid = 0;
+        $mkdprod_rowid = 0;
+
         if($core->usergroup['profiles_canAddMkIntlData'] == 0) {
             exit;
         }

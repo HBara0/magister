@@ -265,49 +265,56 @@ else {
                 $chemfuncprods = $product_obj->get_chemfunctionproducts();
                 if(verify($chemfuncprods)) {
                     foreach($chemfuncprods as $cfpid => $obj) {
-                        $midata['cfpid'] = $cfpid;
-                        $midata['cid'] = $cid;
-                        $midata['eptid'] = $core->input['endproduct'];
-                        $midata_obj = new MarketIntelligence();
-                        $midata_obj->create($midata);
-                        $errors[] = $midata_obj->get_errorcode();
+                        $midata['cfpid'][] = $cfpid;
                     }
                 }
             }
+            $midata['cid'] = $cid;
+            $midata['eptid'] = $core->input['endproduct'];
+            $midata_obj = new MarketIntelligence();
+            $midata_obj->create($midata);
+            $errors[] = $midata_obj->get_errorcode();
+            //  }
         }
+        //  }
+        // }
         //end savind midata with products
         //save midata with chems
+        unset($midata['cfpid']);
         if(verify($core->input['chemicals'])) {
             foreach($core->input['chemicals'] as $csid) {
                 $chemsub_obj = new Chemicalsubstances($csid);
                 $chemfuncchem = $chemsub_obj->get_chemfunctionchemicals();
                 if(verify($chemfuncchem)) {
                     foreach($chemfuncchem as $cfcid => $obj) {
-                        $midata['cfcid'] = $cfcid;
-                        $midata['cid'] = $cid;
-                        $midata['eptid'] = $core->input['endproduct'];
-                        $midata_obj = new MarketIntelligence();
-                        $midata_obj->create($midata);
-                        $errors[] = $midata_obj->get_errorcode();
-                        $errors[] = $midata_obj->errorcode;
+                        $midata['cfcid'][] = $cfcid;
                     }
+                    //}
                 }
             }
+            $midata['cid'] = $cid;
+            $midata['eptid'] = $core->input['endproduct'];
+            $midata_obj = new MarketIntelligence();
+            $midata_obj->create($midata);
+            $errors[] = $midata_obj->get_errorcode();
+            $errors[] = $midata_obj->errorcode;
         }
         //end savind midata with chems
         //save midata with ingr
+        unset($midata['cfcid']);
         if(verify($core->input['ingredients'])) {
             foreach($core->input['ingredients'] as $biid) {
-                $midata['biid'] = $biid;
-                $midata['cid'] = $cid;
-                $midata['eptid'] = $core->input['endproduct'];
-                $midata_obj = new MarketIntelligence();
-                $midata_obj->create($midata);
-                $errors[] = $midata_obj->get_errorcode();
-                $errors[] = $midata_obj->errorcode;
+                $midata['biid'][] = $biid;
             }
+            $midata['cid'] = $cid;
+            $midata['eptid'] = $core->input['endproduct'];
+            $midata_obj = new MarketIntelligence();
+            $midata_obj->create($midata);
+            $errors[] = $midata_obj->get_errorcode();
+            $errors[] = $midata_obj->errorcode;
+            //  }
         }
-        //end savind midata with ingr
+//end savind midata with ingr
         if(verify($errors)) {
             foreach($errors as $error) {
                 if($error) {
