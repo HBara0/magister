@@ -201,6 +201,10 @@ class MarketIntelligence {
                 $item = new Affiliates($id);
                 return $item;
                 break;
+            case BasicIngredients:
+                $item = new BasicIngredients($id);
+                return $item;
+                break;
         }
     }
 
@@ -270,7 +274,9 @@ class MarketIntelligence {
             if(empty($data[$profile['displayItem']::PRIMARY_KEY]) && $profile['displayItem'] == ChemFunctionProducts) {
                 $profile['displayItem'] = ChemFunctionChemicals;
             }
-
+            if(empty($data[$profile['displayItem']::PRIMARY_KEY]) && $profile['displayItem'] == ChemFunctionChemicals) {
+                $profile['displayItem'] = BasicIngredients;
+            }
             $data['timelineItem'] = $this->parse_timelineentry_item($data[$profile['displayItem']::PRIMARY_KEY], $profile['displayItem']);
             $data['timelineItemId'] = $data[$profile['displayItem']::PRIMARY_KEY];
             $data['tlidentifier']['value'][$profile['displayItem']::PRIMARY_KEY] = $data['timelineItemId'];
