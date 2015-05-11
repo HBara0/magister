@@ -31,21 +31,21 @@ class EntitiesBrands extends AbstractClass {
         global $db, $core;
         if(is_array($data)) {
             $this->data = $data;
-            if(empty($this->data['title'])) {
+            if(empty($this->data['name'])) {
                 $this->errorcode = 1;
                 return false;
             }
 
-            if(value_exists('entitiesbrands', 'name', $this->data['title'], 'eid!='.intval($this->data['eid']))) {
+            if(value_exists('entitiesbrands', 'name', $this->data['name'], 'eid!='.intval($this->data['eid']))) {
                 $this->errorcode = 2;
                 return false;
             }
 
-            $brand = EntitiesBrands::get_data(array('name' => $this->data['title'], 'eid' => $this->data['eid']));
+            $brand = EntitiesBrands::get_data(array('name' => $this->data['name'], 'eid' => $this->data['eid']));
 
             if(!is_object($brand)) {
                 $enttitbrand_data = array(
-                        'name' => $this->data['title'],
+                        'name' => $this->data['name'],
                         'eid' => $this->data['eid'],
                         'createdBy' => $core->user['uid'],
                         'createdOn' => TIME_NOW
@@ -95,7 +95,7 @@ class EntitiesBrands extends AbstractClass {
     protected function update(array $data) {
         global $db, $core;
         if(is_array($data)) {
-            $update_array['name'] = $data['title'];
+            $update_array['name'] = $data['name'];
             $update_array['eid'] = $data['eid'];
             $update_array['modifiedBy'] = $core->user['uid'];
             $update_array['modifiedOn'] = TIME_NOW;
