@@ -16,6 +16,12 @@ if(!$core->input['action']) {
         $csid = $db->escape_string($core->input['csid']);
         $chemsub_obj = new Chemicalsubstances($csid, false);
         $chemsub = $chemsub_obj->get();
+        if(empty($chemsub['casNum'])) {
+            $chemsub['casNum'] = 'NA';
+        }
+        if(empty($chemsub['synonyms'])) {
+            $chemsub['synonyms'] = 'NA';
+        }
         /* Get sourcing supp chem-START */
         $sourcingsupps_objs = SourcingSuppliersChemicals::get_data(array('csid' => $csid), array('returnarray' => true));
         if(is_array($sourcingsupps_objs)) {
@@ -110,7 +116,7 @@ if(!$core->input['action']) {
                 if(isset($product_obj->spid) && !empty($product_obj->spid)) {
                     $suppliers[] = $product_obj->spid;
                 }
-                $products_rows.='<tr><td>'.$product_obj->get_displayname().'</td><td>'.$product_obj->get_supplier()->parse_link().'</td></tr>';
+                $products_rows.='<tr><td>'.$product_obj->parse_link().'</td><td>'.$product_obj->get_supplier()->parse_link().'</td></tr>';
                 $itemscount['products'] ++;
             }
         }
@@ -123,6 +129,9 @@ if(!$core->input['action']) {
             $customer_ids = array_unique($customer_ids);
             foreach($customer_ids as $customer_id) {
                 $customer_obj = new Entities($customer_id);
+                if($customer_obj->eid == 0) {
+                    continue;
+                }
                 $customers_rows.='<tr><td>'.$customer_obj->parse_link().'</td><td>'.$customer_obj->get_country()->get_displayname().'</td><td>'.$customer_obj->get_type().'</td></tr>';
                 $itemscount['customers'] ++;
             }
@@ -136,7 +145,7 @@ if(!$core->input['action']) {
             $itemscount['suppliers'] = 0;
             foreach($suppliers as $supplierid) {
                 $supp = new Entities($supplierid);
-                if($supp->contractIsEvergreen == 1) {
+                if($supp->contractExpiryDate > TIME_NOW) {
                     $agree = $core->settings['rootdir'].'images/true.gif';
                 }
                 else {
