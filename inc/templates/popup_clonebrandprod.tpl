@@ -24,9 +24,18 @@
                                     <th><input class='inlinefilterfield' type='text' value='' style="width: 95%" placeholder="{$lang->chemicalsubs}"/></th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody id="profmkdchemical_tbody"  class="{$altrow_class}">
                                 {$chemfuncobj_clone}
+                                {$profiles_michemfuncproductentry_rows}
                             </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="2">
+                                        <img src="./images/add.gif" id="ajaxaddmore_profiles/brandprofile_profmkdchemical" alt="{$lang->add}">
+                                        <input id="numrows_profmkdchemical" name="numrows_profmkdchemical" type="hidden" value="{$mkdchem_rowid}">
+                                    </td>
+                                </tr>
+                            </tfoot>
                         </table>
                     </div>
                 </td>
@@ -44,9 +53,18 @@
                                 </tr>
                             </thead>
                             </thead>
-                            <tbody>
+                            <tbody id="profmkdproduct_tbody"  class="{$altrow_class}">
                                 {$products_clone}
+                                {$profiles_minproductentry_rows}
                             </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="2">
+                                        <img src="./images/add.gif" id="ajaxaddmore_profiles/brandprofile_profmkdproduct" alt="{$lang->add}">
+                                        <input id="numrows_profmkdproduct" name="numrows_profmkdproduct" type="hidden" value="{$mkdprod_rowid}">
+                                    </td>
+                                </tr>
+                            </tfoot>
                         </table>
                     </div>
                 </td>
@@ -63,9 +81,18 @@
                                     <th><input class='inlinefilterfield' type='text' value='' style="width: 95%" placeholder="{$lang->ingredients}"/></th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody id="profmkdbasicing_tbody"  class="{$altrow_class}">
                                 {$ingredients_clone}
+                                {$profiles_mibasicingredientsentry_rows}
                             </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="2">
+                                        <img src="./images/add.gif" id="ajaxaddmore_profiles/brandprofile_profmkdbasicing" alt="{$lang->add}">
+                                        <input id="numrows_profmkdbasicing" name="numrows_profmkdbasicing" type="hidden" value="{$mkdbing_rowid}">
+                                    </td>
+                                </tr>
+                            </tfoot>
                         </table>
                     </div>
                 </td>
