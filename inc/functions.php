@@ -741,24 +741,33 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                         if(is_array($entbrandproducts)) {
                             unset($results_list[$key]);
                             foreach($entbrandproducts as $entbrandproduct) {
+                                $endprod = $entbrandproduct->get_endproduct();
+                                if(empty($endprod)) {
+                                    $details = '';
+                                }
+                                else {
+                                    $details = $endprod->title;
+                                    $parent_endprod = $endprod->get_parent();
+                                    $mother_obj = $endprod->get_mother();
+                                    if(is_object($parent_endprod)) {
+                                        if(is_object($mother_obj)) {
+                                            if($parent_endprod !== $mother_obj) {
+                                                $details = $mother_obj->title.'<--....'.$details;
+                                            }
+                                        }
+                                        else {
+                                            $details = $parent_endprod->title.'<--'.$details;
+                                        }
+                                    }
+                                }
                                 if($options['returnType'] == 'json') {
                                     $results_list[$entbrandproduct->get_id()]['value'] = $val;
                                     $results_list[$entbrandproduct->get_id()]['id'] = $entbrandproduct->get_id();
-                                    $endprod = $entbrandproduct->get_endproduct();
-                                    if(empty($endprod)) {
-                                        $results_list[$entbrandproduct->get_id()]['desc'] = '';
-                                    }
-                                    else {
-                                        $results_list[$entbrandproduct->get_id()]['desc'] = $endprod->title;
-                                    }
+                                    $results_list[$entbrandproduct->get_id()]['desc'] = $details;
                                 }
                                 else {
-                                    $endprod = $entbrandproduct->get_endproduct();
-                                    if(empty($endprod)) {
-                                        $details = '';
-                                    }
-                                    else {
-                                        $details = '<br /><span class="smalltext">'.$endprod->title.'</span>';
+                                    if(!empty($details)) {
+                                        $details = '<br /><span class="smalltext">'.$details.'</span>';
                                     }
                                     $results_list .= '<li id="'.$entbrandproduct->get_id().'">'.$val.$details.'</li>';
                                 }
