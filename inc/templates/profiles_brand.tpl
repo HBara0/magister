@@ -3,8 +3,8 @@
         <title>{$core->settings[systemtitle]} | {$page_title}</title>
         {$headerinc}
         <script>
-            $(function () {
-                $('#brands_1_id_output').live('change', function () {
+            $(function() {
+                $('#brands_1_id_output').live('change', function() {
                     if($('#brands_1_id_output').val() > 0) {
                         $('input[id="customer_1_autocomplete"]').attr('disabled', 'disabled');
                         $('input[id="customer_1_id"]').val('0');
@@ -14,7 +14,7 @@
                         $('input[id="customer_1_autocomplete"]').removeAttr('disabled');
                     }
                 });
-                $('input[id ="brands_1_autocomplete"]').live('change', function () {
+                $('input[id ="brands_1_autocomplete"]').live('change', function() {
                     $('input[id="customer_1_autocomplete"]').removeAttr('disabled');
                 });
             });
@@ -26,7 +26,15 @@
         {$menu}
         <td class="contentContainer">
             <h1>{$page_title_header}<small><br />{$customername}</small></h1>
-                    {$clone_button}
+            <div style="display:inline-block;width:55%">{$clone_button}</div><div style="width:35%;display:inline-block;">{$reviewed}</div>
+            <div style="display:inline-block;width:55%"></div>
+            <div style="width:40%;display:inline-block;">
+                <div id="perform_profiles/brandprofile_Results"></div>
+                <form action="#" method="post" id="perform_profiles/brandprofile_Form" id="perform_profiles/brandprofile_Form">
+                    <input type="hidden" name="ebpid" value="{$core->input[ebpid]}"/>
+                    {$reviewbtn}
+                </form>
+            </div>
             <table width="100%" border="0" cellspacing="0" cellpadding="0">
                 {$endproducts_list}
                 {$chemsubstance_list}

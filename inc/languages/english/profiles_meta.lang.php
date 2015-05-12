@@ -121,4 +121,7 @@ $lang['errorsavingduring'] = 'Error While Saving A Certain Record';
 $lang['chemicalsubs'] = 'Chemical Subustance';
 $lang['brandprofile'] = 'Brand Profile';
 $lang['brandslist'] = 'Brands List';
+$lang['reviewedon'] = 'Reviewed On';
+$lang['by'] = 'by';
+$lang['notreviwed'] = 'Not Reviewed Yet'
 ?>
