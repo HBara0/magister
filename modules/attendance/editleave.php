@@ -110,7 +110,10 @@ if(!$core->input['action']) {
                 continue;
             }
             $val['key_attribute_value'] = $leave[$key];
-            $val['value_attribute_value'] = implode('', parse_additionaldata($leave, serialize(array($key => $val))));
+            $val['value_attribute_value'] = parse_additionaldata($leave, serialize(array($key => $val)));
+            if(is_array($val['value_attribute_value'])) {
+                $val['value_attribute_value'] = implode('', $val['value_attribute_value']);
+            }
             $val['uid'] = $leave['uid'];
             $additional_fields_output .= $leavetype_obj->parse_additonalfield($key, $val);
             //$additional_fields_output .= parse_additonalfield($key, $val).'<br />';
