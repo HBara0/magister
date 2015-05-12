@@ -551,7 +551,9 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
     if(is_array($attributes)) {
         foreach($attributes as $key => $val) {
             $where_string .= $andor.' '.$val.' LIKE "%'.$value.'%"';
-            $soundex_where_string .= "{$andor}SOUNDEX({$val}) = SOUNDEX('$value')";
+            if($options['soundexCheck'] == 1) {
+                $soundex_where_string .= "{$andor}SOUNDEX({$val}) = SOUNDEX('$value')";
+            }
             $andor = ' '.$andor_param.' ';
         }
     }

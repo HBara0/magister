@@ -118,4 +118,6 @@ $lang['amountpayedinadvance'] = 'Amount Payed In Advance';
 $lang['avgprice'] = 'Average Price';
 $lang['trasptype'] = 'Transportation Type';
 $lang['transpfees'] = 'Transportation Fees';
+$lang['connectionfligts'] = 'Connection Fligts';
+$lang['directflights'] = 'Direct Flights';
 ?>
