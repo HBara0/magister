@@ -80,6 +80,11 @@ class Travelmanager_Expenses_Types extends AbstractClass {
                             $selected = ' selected="selected"';
                         }
                     }
+                    else {
+                        if($expenses->title == 'Food & Beverage') {
+                            $selected = ' selected="selected"';
+                        }
+                    }
                     $expenses_details = Travelmanager_Expenses::parse_expenses($sequence, $rowid, $expensestype, $options['destcity']);
 
                     // $expenses_details.=$this->parse_paidby($sequence, $rowid, $segid, array('selectedpaidby' => $expensestype[$segid][$segmentexptype]['paidby'], 'selectedpaidid' => $expensestype[$segid][$segmentexptype]['paidbyid']));
