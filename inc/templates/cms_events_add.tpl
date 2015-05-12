@@ -56,7 +56,9 @@
                         <div style="display: inline-block; padding:10px;"><input name="event[isFeatured]" type="checkbox" value="1" {$checkedbox[isFeatured]}></div>
                     </div>
                     <div style="display:block;" class="thead">{$lang->description}</div>
-                    <div style="display:block;"><textarea name="event[description]" cols="100"rows="6" id='description' class="txteditadv">{$event[description]}</textarea></div>
+                    <div style="display:block;"><textarea name="event[description]" cols="100" rows="6" id='description' class="txteditadv">{$event[description]}</textarea></div>
+                    <div style="display:block;" class="thead">{$lang->tags}</div>
+                    <div style="display:block;"><textarea name="event[tags]" cols="120" rows="2" id='tags'>{$event[tags]}</textarea><br /><span style="font-style: italic;">Seperate tags by comma. Tags help finding related items.</span><br /></div>
                         {$restriction_selectlist}
                         {$notifyevent_checkbox}
                     <div style="display:block;padding-top:5px;">
