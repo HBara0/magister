@@ -6,6 +6,15 @@
             $(function () {
                 var tabs = $("#sectionstabs").tabs();
                 var tabcounter = tabs.find(".ui-tabs-nav").find('li').length + 1; //find the  lenght of li tabs and increment by 1
+                $('select[id^="field"][id$="[fieldType]"]').live('change', function () {
+                    var id = $(this).attr('id').substring(0, $(this).attr('id').indexOf('[fieldType]')) + '[srliid]';
+                    if($(this).val() == 'list') {
+                        $("div[id='" + id + "']").show();
+                    }
+                    else {
+                        $("div[id='" + id + "']").hide();
+                    }
+                });
                 $("#createtab").live('click', function () {
                     var templatecontent = errormessage = '';
                     var id = "sectionstabs-" + tabcounter;
@@ -80,9 +89,9 @@
                 <form name="windows_1_managesystem/managewindows_Form" id="windows_1_managesystem/managewindows_Form" action="#" method="post">
                     <table>
                         <tr>
-                            <td>{$lang->name}</td><td><input type='text' name='window[name]' value=''></td>
+                            <td>{$lang->name}</td><td><input type='text' name='window[name]' value='{$window['name']}'></td>
                             <td>{$lang->type}</td><td>{$window_type_list}</td>
-                            <td>{$lang->title}</td><td><input type="text" value="" name="window[title]"></td>
+                            <td>{$lang->title}</td><td><input type="text" value="{$window['title']}" name="window[title]"></td>
                             <td>{$lang->isactive}</td><td><input type="checkbox" name='window[isActive]' value="1" {$window_isactive_check}></td>
                         </tr>
                         <tr>

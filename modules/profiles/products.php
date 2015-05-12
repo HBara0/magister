@@ -18,8 +18,17 @@ if(!$core->input['action']) {
         if(is_object($prod_obj) && !empty($prod_obj)) {
             $product = $prod_obj->get();
             $supplier_name = $prod_obj->get_supplier()->parse_link();
+            if(empty($supplier_name)) {
+                $supplier_name = 'NA';
+            }
             if(isset($product['defaultFunction']) && !empty($product['defaultFunction'])) {
                 $defaultfunc = $prod_obj->get_defaultchemfunction()->get_segapplicationfunction()->get_function()->get_displayname();
+            }
+            if(empty($defaultfunc)) {
+                $defaultfunc = 'NA';
+            }
+            if(empty($product['description'])) {
+                $product['description'] = 'NA';
             }
             /* Get Chem Function Chem-START */
             $chemfuncprods = ChemFunctionProducts::get_data(array('pid' => $pid), array('returnarray' => true));
@@ -69,6 +78,10 @@ if(!$core->input['action']) {
                     $itemscount['brandproducts'] ++;
                 }
             }
+            else {
+                $itemscount['brandproducts'] = 0;
+                $brandproducts_rows = '<tr><td colspan="3">N/A</td></tr>';
+            }
             if(is_array($segapfunct)) {
                 $itemscount['functprod'] = 0;
                 foreach($segapfunct as $cfid => $psaid) {
@@ -77,6 +90,10 @@ if(!$core->input['action']) {
                     $functprod_rows.='<tr><td>'.$function_obj->get_displayname().'</td><td>'.$prodsegapp->parse_link().'</td><td>'.$prodsegapp->get_segment()->parse_link().'</td></tr>';
                 }
                 $itemscount['functprod'] ++;
+            }
+            else {
+                $itemscount['functprod'] = 0;
+                $functprod_rows = '<tr><td colspan="3">N/A</td></tr>';
             }
             if(is_array($chemical_ids)) {
                 $itemscount['chemsub'] = 0;
@@ -87,6 +104,10 @@ if(!$core->input['action']) {
                     $itemscount['chemsub'] ++;
                 }
             }
+            else {
+                $itemscount['chemsub'] = 0;
+                $chemsub_rows = '<tr><td colspan="3">N/A</td></tr>';
+            }
             if(is_array($customer_ids)) {
                 $itemscount['customers'] = 0;
                 $customer_ids = array_unique($customer_ids);
@@ -95,6 +116,10 @@ if(!$core->input['action']) {
                     $customers_rows.='<tr><td>'.$customer_obj->parse_link().'</td><td>'.$customer_obj->get_country()->get_displayname().'</td><td>'.$customer_obj->get_type().'</td></tr>';
                     $itemscount['customers'] ++;
                 }
+            }
+            else {
+                $itemscount['customers'] = 0;
+                $customers_rows = '<tr><td colspan="3">N/A</td></tr>';
             }
             /* END PARSING */
         }

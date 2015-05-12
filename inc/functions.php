@@ -551,7 +551,9 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
     if(is_array($attributes)) {
         foreach($attributes as $key => $val) {
             $where_string .= $andor.' '.$val.' LIKE "%'.$value.'%"';
-            $soundex_where_string .= "{$andor}SOUNDEX({$val}) = SOUNDEX('$value')";
+            if($options['soundexCheck'] == 1) {
+                $soundex_where_string .= "{$andor}SOUNDEX({$val}) = SOUNDEX('$value')";
+            }
             $andor = ' '.$andor_param.' ';
         }
     }
@@ -744,12 +746,108 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                                 if($options['returnType'] == 'json') {
                                     $results_list[$entbrandproduct->get_id()]['value'] = $val;
                                     $results_list[$entbrandproduct->get_id()]['id'] = $entbrandproduct->get_id();
-                                    $results_list[$entbrandproduct->get_id()]['desc'] = $entbrandproduct->get_endproduct()->title;
+                                    $endprod = $entbrandproduct->get_endproduct();
+                                    if(empty($endprod)) {
+                                        $results_list[$entbrandproduct->get_id()]['desc'] = '';
+                                    }
+                                    else {
+                                        $results_list[$entbrandproduct->get_id()]['desc'] = $endprod->title;
+                                    }
                                 }
                                 else {
-                                    $details = '<br /><span class="smalltext">'.$entbrandproduct->get_endproduct()->title.'</span>';
+                                    $endprod = $entbrandproduct->get_endproduct();
+                                    if(empty($endprod)) {
+                                        $details = '';
+                                    }
+                                    else {
+                                        $details = '<br /><span class="smalltext">'.$endprod->title.'</span>';
+                                    }
                                     $results_list .= '<li id="'.$entbrandproduct->get_id().'">'.$val.$details.'</li>';
                                 }
+                            }
+                        }
+                        else {
+                            if($options['returnType'] == 'json') {
+                                unset($results_list[$key]);
+                            }
+                        }
+                        break;
+                    case 'endproducttypes':
+                        $current_obj = new EndProducTypes($key);
+                        if(is_object($current_obj) && !is_null($current_obj->eptid)) {
+                            $first_parent = $current_obj->get_parent();
+                            if(is_object($first_parent)) {
+                                $details = $first_parent->get_displayname();
+                                $secondpar_obj = $first_parent->get_parent();
+                                if(is_object($secondpar_obj)) {
+                                    $details = $secondpar_obj->get_displayname().'<--'.$details;
+                                    $third_par = $secondpar_obj->get_parent();
+                                    if(is_object($third_par)) {
+                                        $originalpar_obj = $third_par->get_mother();
+                                        if(is_object($originalpar_obj)) {
+                                            if($originalpar_obj === $third_par) {
+                                                $details = $originalpar_obj->get_displayname().'<--'.$details;
+                                            }
+                                            else {
+                                                $details = $originalpar_obj->get_displayname().'<-.....<-'.$details;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            else {
+                                $details = '';
+                            }
+                            if($options['returnType'] == 'json') {
+                                $results_list[$current_obj->eptid]['value'] = $val;
+                                $results_list[$current_obj->eptid]['id'] = $current_obj->eptid;
+                                $results_list[$current_obj->eptid]['desc'] = $details;
+                            }
+                            else {
+                                $details = '<br /><span class="smalltext">'.$details.'</span>';
+                                $results_list .= '<li id="'.$current_obj->eptid.'">'.$val.$details.'</li>';
+                            }
+                        }
+                        else {
+                            if($options['returnType'] == 'json') {
+                                unset($results_list[$key]);
+                            }
+                        }
+
+
+                        break;
+                    case 'endproducttype':
+                        $current_obj = new EndProducTypes($key);
+                        if(is_object($current_obj) && !is_null($current_obj->eptid)) {
+                            $first_parent = $current_obj->get_parent();
+                            if(is_object($first_parent)) {
+                                $details = $first_parent->get_displayname();
+                                $secondpar_obj = $first_parent->get_parent();
+                                if(is_object($secondpar_obj)) {
+                                    $details.='-->'.$secondpar_obj->get_displayname();
+                                    $third_par = $secondpar_obj->get_parent();
+                                    if(is_object($third_par)) {
+                                        $originalpar_obj = $third_par->get_mother();
+                                        if($originalpar_obj === $third_par) {
+                                            $details = $originalpar_obj->get_displayname().'-->'.$details;
+                                        }
+                                        else {
+                                            $details = $originalpar_obj->get_displayname().'->.....->'.$details;
+                                        }
+                                    }
+                                }
+                            }
+                            else {
+                                $details = '';
+                            }
+                            if($options['returnType'] == 'json') {
+                                $results_list[$current_obj->eptid]['value'] = $val;
+                                $results_list[$current_obj->eptid]['id'] = $current_obj->eptid;
+                                $results_list[$current_obj->eptid]['desc'] = $details;
+                            }
+                            else {
+                                $details = '<br /><span class="smalltext">'.$details.'</span>';
+                                $results_list .= '<li id="'.$current_obj->eptid.'">'.$val.$details.'</li>';
                             }
                         }
                         else {
@@ -1192,7 +1290,7 @@ function parse_userentities_data($uid) {
     }
 
     if($usergroup['canViewAllAff'] == 0) {
-        //$affiliates = get_specificdata('affiliatedemployees', 'affid', 'affid', 'affid', '', 0, "uid='{$uid}'");
+//$affiliates = get_specificdata('affiliatedemployees', 'affid', 'affid', 'affid', '', 0, "uid='{$uid}'");
         $affiliates_query = $db->query("SELECT affid, isMain, canAudit FROM ".Tprefix."affiliatedemployees WHERE uid='{$uid}'");
         if($db->num_rows($affiliates_query) > 0) {
             while($affiliate = $db->fetch_assoc($affiliates_query)) {
@@ -1611,7 +1709,7 @@ function getAffiliateList($idsonly = false) {
 }
 
 function encapsulate_in_fieldset($html, $legend = "+", $boolStartClosed = false) {
-    //log_performance(__METHOD__);
+//log_performance(__METHOD__);
 
     $id = md5(rand(9, 99999).time());
 

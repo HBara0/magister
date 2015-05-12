@@ -26,14 +26,15 @@ if(!$core->input['action']) {
 
     /* Perform inline filtering - START */
     $filters_config = array(
-            'parse' => array('filters' => array('affid', 'cid', 'coid', 'pid', 'supplier', 'csid', 'biid', 'functionalproperty', 'application', 'segment', 'brand', 'eptid', 'potential', 'mktShareQty', 'unitPrice', 'date'),
+            'parse' => array('filters' => array('affid', 'cid', 'coid', 'pid', 'supplier', 'csid', 'biid', 'functionalproperty', 'application', 'segment', 'brand', 'icon', 'eptid', 'potential', 'mktShareQty', 'unitPrice', 'date'),
                     'overwriteField' => array('application' => '<input class="inlinefilterfield" type="text" style="width: 95%" placeholder="'.$lang->application.'"/>',
                             'segment' => '<input class="inlinefilterfield" type="text" style="width: 95%" placeholder="'.$lang->segment.'"/>',
                             'functionalproperty' => '<input class="inlinefilterfield" type="text" style="width: 95%" placeholder="'.$lang->functionalproperty.'"/>',
                             'supplier' => '<input class="inlinefilterfield" type="text" style="width: 95%" placeholder="'.$lang->supplier.'"/>',
                             'csid' => '<input class="inlinefilterfield" type="text" style="width: 95%" placeholder="'.$lang->chemicalsubstance.'"/>',
                             'brand' => '<input class="inlinefilterfield" type="text" style="width: 95%" placeholder="'.$lang->brand.'"/>',
-                            'eptid' => '<input class="inlinefilterfield" type="text" style="width: 95%" placeholder="'.$lang->endproducttype.'"/>'
+                            'eptid' => '<input class="inlinefilterfield" type="text" style="width: 95%" placeholder="'.$lang->endproducttype.'"/>',
+                            'icon' => ''
                     )
             ),
             'process' => array(
@@ -199,6 +200,9 @@ if(!$core->input['action']) {
         $midata = new MarketIntelligence();
         $addmarketdata_link = '<div style="float: right;"><a href="#popup_profilesmarketdata" id="showpopup_profilesmarketdata" class="showpopup"><button type="button">'.$lang->addmarketdata.'</button></a></div>';
         $array_data = array('module' => 'proiles', 'elemtentid' => $affid, 'fieldlabel' => $lang->product, 'action' => 'do_addmartkerdata', 'modulefile' => 'entityprofile');
+        $packaging_list = parse_selectlist('marketdata[competitor]['.$rowid.'][packaging]', 7, Packaging::get_data('name IS NOT NULL'), '', '', '', array('blankstart' => 1));
+        $saletype_list = parse_selectlist('marketdata[competitor]['.$rowid.'][saletype]', 8, SaleTypes::get_data('stid IN (1,4)'), '', '', '', array('blankstart' => 1));
+        $samplacquire = parse_radiobutton('marketdata[competitor]['.$rowid.'][isSampleacquire]', array(1 => 'yes', 0 => 'no'), '', true);
         eval("\$profiles_entityprofile_micustomerentry = \"".$template->get('crm_marketpotentialdata_micustomerentry')."\";");
         $module = 'crm';
         $action = 'do_addmartkerdata';
@@ -218,28 +222,32 @@ if(!$core->input['action']) {
                 }
                 $parent = $productype->get_endproducttype_chain();
                 if(!empty($parent)) {
-                    $values[] = $parent.' > '.$value;
+                    $values[$productype->eptid] = $parent.' > '.$value;
                 }
                 else {
-                    $values[] = $value;
+                    $values[$productype->eptid] = $value;
                 }
             }
-            sort($values);
-            foreach($values as $value) {
+            asort($values);
+            foreach($values as $key => $value) {
                 $checked = $rowclass = '';
                 $endproducttypes_list .= ' <tr class="'.$rowclass.'">';
-                $endproducttypes_list .= '<td><input id="producttypefilter_check_'.$productype->eptid.'" name="forecast[suppliers][]" type="checkbox"'.$checked.' value="'.$productype->eptid.'">'.$value.'</td><tr>';
-
-
-                //    $endproducttypes_list .= '<option value="'.$productype->eptid.'">'.$productype->title.' - '.$productype->get_application()->get_displayname().'</option>';
+                $endproducttypes_list .= '<td><input id="producttypefilter_check_'.$key.'" type="checkbox"'.$checked.' value="'.$key.'" name="entitybrand[endproducttypes]['.$key.']">'.$value.'</td><tr>';
             }
         }
-        else {
-            $endproducttypes_list = '<option value="0">'.$lang->na.'</option>';
-        }
-        eval("\$profiles_michemfuncproductentry = \"".$template->get('profiles_michemfuncsubstancentry')."\";");
-        eval("\$profiles_minproductentry = \"".$template->get('profiles_michemfuncproductentry')."\";");
-        eval("\$profiles_mibasicingredientsentry = \"".$template->get('profiles_mibasicingredientsentry')."\";");
+
+        $mkdchem_rowid = 0;
+        eval("\$profiles_michemfuncproductentry_row = \"".$template->get('profiles_michemfuncsubstancentry')."\";");
+        eval("\$profiles_michemfuncproductentry = \"".$template->get('profiles_michemfuncsubstancentry_rows')."\";");
+
+        $mkdprod_rowid = 0;
+        eval("\$profiles_minproductentry_row = \"".$template->get('profiles_michemfuncproductentry')."\";");
+        eval("\$profiles_minproductentry = \"".$template->get('profiles_michemfuncproductentry_rows')."\";");
+
+        $mkdbing_rowid = 0;
+        eval("\$profiles_mibasicingredientsentry_row = \"".$template->get('profiles_mibasicingredientsentry')."\";");
+        eval("\$profiles_mibasicingredientsentry = \"".$template->get('profiles_mibasicingredientsentry_rows')."\";");
+
         eval("\$popup_marketdata= \"".$template->get('popup_profiles_marketdata')."\";");
         eval("\$popup_createbrand = \"".$template->get('popup_createbrand')."\";");
         eval("\$mkintl_section = \"".$template->get('profiles_mktintelsection')."\";");
@@ -293,6 +301,10 @@ else {
     }
     elseif($core->input['action'] == 'get_updatemktintldtls') {
         $css[display]['radiobuttons'] = 'none';
+        $mkdchem_rowid = 0;
+        $mkdbing_rowid = 0;
+        $mkdprod_rowid = 0;
+
         if($core->usergroup['profiles_canAddMkIntlData'] == 0) {
             exit;
         }
@@ -455,6 +467,21 @@ else {
                 output_xml("<status>false</status><message>{$lang->chemicalexsist}</message>");
                 break;
         }
+    }
+    elseif($core->input['action'] == 'ajaxaddmore_profmkdchemical') {
+        $mkdchem_rowid = $db->escape_string($core->input['value']) + 1;
+        eval("\$profiles_michemfuncproductentry_rows = \"".$template->get('profiles_michemfuncsubstancentry')."\";");
+        echo $profiles_michemfuncproductentry_rows;
+    }
+    elseif($core->input['action'] == 'ajaxaddmore_profmkdbasicing') {
+        $mkdbing_rowid = $db->escape_string($core->input['value']) + 1;
+        eval("\$profiles_mibasicingredientsentry_rows = \"".$template->get('profiles_mibasicingredientsentry')."\";");
+        echo $profiles_mibasicingredientsentry_rows;
+    }
+    elseif($core->input['action'] == 'ajaxaddmore_profmkdproduct') {
+        $mkdprod_rowid = $db->escape_string($core->input['value']) + 1;
+        eval("\$profiles_minproductentry_rows = \"".$template->get('profiles_michemfuncproductentry')."\";");
+        echo $profiles_minproductentry_rows;
     }
 }
 //function to check if user is allowed to see the affiliates/customers/suppliers

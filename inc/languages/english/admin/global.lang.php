@@ -103,4 +103,5 @@ $lang['fillallrequiredfields'] = "Fill All Required Fields";
 $lang['entryexist'] = "Entry Already Exist";
 $lang['entryexists'] = 'Entry with same information already exists';
 $lang['newversionuploaded'] = "New version successfully uploaded";
+$lang['basicingredients'] = 'Manage Basic Ingredients';
 ?>

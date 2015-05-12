@@ -69,4 +69,5 @@ $lang['description'] = 'Description';
 $lang['createbasicingredient'] = 'Create Basic Ingredient';
 $lang['itemalreadyexist'] = "Item with same title already exist";
 $lang['updatebasicingredient'] = 'Update Basic Ingredient';
+$lang['basicingredients'] = 'Basic Ingredients';
 ?>

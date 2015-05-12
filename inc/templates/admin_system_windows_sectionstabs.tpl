@@ -25,7 +25,7 @@
             <tr>
                 <td>{$lang->custsavename}</td><td><input type="text" name='section[{$section['inputChecksum']}][saveModuleName]' value="{$section['saveModuleName']}"></td>
             </tr>
-            <tr><td>{$lang->isactive}</td><td><input type="checkbox" {$section_isactive_check} name='section[isActive]' value="1"></td>
+            <tr><td>{$lang->isactive}</td><td><input type="checkbox" {$section_isactive_check} name='section[{$section['inputChecksum']}][isActive]' value="1"></td>
             </tr>
             <tr>
             <input type='submit' style="cursor: pointer" class='button' form="sections_{$tabnum}_managesystem/managewindows_Form" value="{$lang->savesection}" id="sections_{$tabnum}_managesystem/managewindows_Button">
