@@ -551,9 +551,7 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
     if(is_array($attributes)) {
         foreach($attributes as $key => $val) {
             $where_string .= $andor.' '.$val.' LIKE "%'.$value.'%"';
-            if($options['soundexCheck'] == 1) {
-                $soundex_where_string .= "{$andor}SOUNDEX({$val}) = SOUNDEX('$value')";
-            }
+            $soundex_where_string .= "{$andor}SOUNDEX({$val}) = SOUNDEX('$value')";
             $andor = ' '.$andor_param.' ';
         }
     }
@@ -615,8 +613,8 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
     if(is_array($results)) {
         foreach($results as $key => $val) {
             if($options['returnType'] == 'json') {
-                $results_list[$key]['id'] = $key;
-                $results_list[$key]['value'] = $val;
+                $results_list[' '.$key]['id'] = $key;
+                $results_list[' '.$key]['value'] = $val;
             }
             if(isset($options['descinfo']) && !empty($options['descinfo'])) {
                 switch($options['descinfo']) {
@@ -630,8 +628,8 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
 //                        }
                         $city = new Cities($key);
                         if($options['returnType'] == 'json') {
-                            $results_list[$key]['id'] = $city->ciid;
-                            $results_list[$key]['desc'] = $city->name.' - '.$city->get_country()->name;
+                            $results_list[' '.$key]['id'] = $city->ciid;
+                            $results_list[' '.$key]['desc'] = $city->name.' - '.$city->get_country()->name;
                         }
                         else {
                             $details = '<br /><span class="smalltext">'.$city->name.' - '.$city->get_country()->name.'</span>';
@@ -643,8 +641,8 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                         $hotelsobj = TravelManagerHotels::get_data('tmhid='.$key);
                         $city = new Cities($hotelsobj->city);
                         if($options['returnType'] == 'json') {
-                            $results_list[$key]['id'] = $key;
-                            $results_list[$key]['desc'] = $city->name.' - '.$city->get_country()->name;
+                            $results_list[' '.$key]['id'] = $key;
+                            $results_list[' '.$key]['desc'] = $city->name.' - '.$city->get_country()->name;
                         }
                         else {
                             $details = '<br /><span class="smalltext">'.$city->get_country()->name.'</span>';
@@ -659,8 +657,8 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                             foreach($chemfuncprod_objs as $chemfuncprod_obj) {
                                 $application_obj = $chemfuncprod_obj->get_segapplicationfunction();
                                 if($options['returnType'] == 'json') {
-                                    $results_list[$key]['id'] = $chemfuncprod_obj->cfpid;
-                                    $results_list[$key]['desc'] = $chemfuncprod_obj->get_chemicalfunction()->title.' - '.$application_obj->get_application()->title.' - '.$application_obj->get_segment()->title;
+                                    $results_list[' '.$key]['id'] = $chemfuncprod_obj->cfpid;
+                                    $results_list[' '.$key]['desc'] = $chemfuncprod_obj->get_chemicalfunction()->title.' - '.$application_obj->get_application()->title.' - '.$application_obj->get_segment()->title;
                                 }
                                 else {
                                     $details = '<br /><span class="smalltext">'.$chemfuncprod_obj->get_chemicalfunction()->title.' - '.$application_obj->get_application()->title.' - '.$application_obj->get_segment()->title.'</span>';
@@ -674,8 +672,8 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                                 foreach($chemfuncprod_objs as $chemfuncprod_obj) {
                                     $application_obj = $chemfuncprod_obj->get_segapplicationfunction();
                                     if($options['returnType'] == 'json') {
-                                        $results_list[$key]['id'] = $chemfuncprod_obj->cfpid;
-                                        $results_list[$key]['desc'] = $chemfuncprod_obj->get_chemicalfunction()->title.' - '.$application_obj->get_application()->title.' - '.$application_obj->get_segment()->title;
+                                        $results_list[' '.$key]['id'] = $chemfuncprod_obj->cfpid;
+                                        $results_list[' '.$key]['desc'] = $chemfuncprod_obj->get_chemicalfunction()->title.' - '.$application_obj->get_application()->title.' - '.$application_obj->get_segment()->title;
                                     }
                                     else {
                                         $details = '<br/><span class="smalltext">'.$chemfuncprod_obj->get_chemicalfunction()->title.' - '.$application_obj->get_application()->title.' - '.$application_obj->get_segment()->title.'</span>';
@@ -696,7 +694,7 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                         $generic = $product->get_genericproduct();
                         if(is_object($generic)) {
                             if($options['returnType'] == 'json') {
-                                $results_list[$key]['desc'] = $generic->get_segment()->title;
+                                $results_list[' '.$key]['desc'] = $generic->get_segment()->title;
                             }
                             else {
                                 $details = '<br/><span class="smalltext">'.$generic->get_segment()->title.'</span>';
@@ -743,34 +741,13 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                         if(is_array($entbrandproducts)) {
                             unset($results_list[$key]);
                             foreach($entbrandproducts as $entbrandproduct) {
-                                $endprod = $entbrandproduct->get_endproduct();
-                                if(empty($endprod)) {
-                                    $details = '';
-                                }
-                                else {
-                                    $details = $endprod->title;
-                                    $parent_endprod = $endprod->get_parent();
-                                    $mother_obj = $endprod->get_mother();
-                                    if(is_object($parent_endprod)) {
-                                        if(is_object($mother_obj)) {
-                                            if($parent_endprod !== $mother_obj) {
-                                                $details = $mother_obj->title.'<--....'.$details;
-                                            }
-                                        }
-                                        else {
-                                            $details = $parent_endprod->title.'<--'.$details;
-                                        }
-                                    }
-                                }
                                 if($options['returnType'] == 'json') {
                                     $results_list[$entbrandproduct->get_id()]['value'] = $val;
                                     $results_list[$entbrandproduct->get_id()]['id'] = $entbrandproduct->get_id();
-                                    $results_list[$entbrandproduct->get_id()]['desc'] = $details;
+                                    $results_list[$entbrandproduct->get_id()]['desc'] = $entbrandproduct->get_endproduct()->title;
                                 }
                                 else {
-                                    if(!empty($details)) {
-                                        $details = '<br /><span class="smalltext">'.$details.'</span>';
-                                    }
+                                    $details = '<br /><span class="smalltext">'.$entbrandproduct->get_endproduct()->title.'</span>';
                                     $results_list .= '<li id="'.$entbrandproduct->get_id().'">'.$val.$details.'</li>';
                                 }
                             }
@@ -783,29 +760,19 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                         break;
                     case 'endproducttypes':
                         $current_obj = new EndProducTypes($key);
-                        if(is_object($current_obj) && !is_null($current_obj->eptid)) {
-                            $first_parent = $current_obj->get_parent();
-                            if(is_object($first_parent)) {
-                                $details = $first_parent->get_displayname();
-                                $secondpar_obj = $first_parent->get_parent();
-                                if(is_object($secondpar_obj)) {
-                                    $details = $secondpar_obj->get_displayname().'<--'.$details;
-                                    $third_par = $secondpar_obj->get_parent();
-                                    if(is_object($third_par)) {
-                                        $originalpar_obj = $third_par->get_mother();
-                                        if(is_object($originalpar_obj)) {
-                                            if($originalpar_obj === $third_par) {
-                                                $details = $originalpar_obj->get_displayname().'<--'.$details;
-                                            }
-                                            else {
-                                                $details = $originalpar_obj->get_displayname().'<-.....<-'.$details;
-                                            }
-                                        }
+                        $first_parent = $current_obj->get_parent();
+                        if(is_object($first_parent)) {
+                            $details = $first_parent->get_displayname();
+                            $secondpar_obj = $first_parent->get_parent();
+                            if(is_object($secondpar_obj)) {
+                                $details = $secondpar_obj->get_displayname().'<--'.$details;
+                                $third_par = $secondpar_obj->get_parent();
+                                if(is_object($third_par)) {
+                                    $originalpar_obj = $third_par->get_mother();
+                                    if(is_object($originalpar_obj)) {
+                                        $details = $originalpar_obj->get_displayname().'<-.....<-'.$details;
                                     }
                                 }
-                            }
-                            else {
-                                $details = '';
                             }
                             if($options['returnType'] == 'json') {
                                 $results_list[$current_obj->eptid]['value'] = $val;
@@ -822,32 +789,22 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                                 unset($results_list[$key]);
                             }
                         }
-
-
                         break;
                     case 'endproducttype':
                         $current_obj = new EndProducTypes($key);
-                        if(is_object($current_obj) && !is_null($current_obj->eptid)) {
-                            $first_parent = $current_obj->get_parent();
-                            if(is_object($first_parent)) {
-                                $details = $first_parent->get_displayname();
-                                $secondpar_obj = $first_parent->get_parent();
-                                if(is_object($secondpar_obj)) {
-                                    $details.='-->'.$secondpar_obj->get_displayname();
-                                    $third_par = $secondpar_obj->get_parent();
-                                    if(is_object($third_par)) {
-                                        $originalpar_obj = $third_par->get_mother();
-                                        if($originalpar_obj === $third_par) {
-                                            $details = $originalpar_obj->get_displayname().'-->'.$details;
-                                        }
-                                        else {
-                                            $details = $originalpar_obj->get_displayname().'->.....->'.$details;
-                                        }
+                        $first_parent = $current_obj->get_parent();
+                        if(is_object($first_parent)) {
+                            $details = $first_parent->get_displayname();
+                            $secondpar_obj = $first_parent->get_parent();
+                            if(is_object($secondpar_obj)) {
+                                $details.='-->'.$secondpar_obj->get_displayname();
+                                $third_par = $secondpar_obj->get_parent();
+                                if(is_object($third_par)) {
+                                    $originalpar_obj = $third_par->get_mother();
+                                    if(is_object($originalpar_obj)) {
+                                        $details.='->.....->'.$originalpar_obj->get_displayname();
                                     }
                                 }
-                            }
-                            else {
-                                $details = '';
                             }
                             if($options['returnType'] == 'json') {
                                 $results_list[$current_obj->eptid]['value'] = $val;
@@ -869,7 +826,7 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                         $entity = new Entities($key);
                         if(!empty($entity->country)) {
                             if($options['returnType'] == 'json') {
-                                $results_list[$key]['desc'] = $entity->get_country()->name;
+                                $results_list[' '.$key]['desc'] = $entity->get_country()->name;
                             }
                             else {
                                 $details = '<br /><span class="smalltext">'.$entity->get_country()->name.'</span>';
