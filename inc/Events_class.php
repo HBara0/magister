@@ -49,6 +49,7 @@ class Events extends AbstractClass {
         $event_data['isFeatured'] = $data['isFeatured'];
         $event_data['isPublic'] = $data['isPublic'];
         $event_data['refreshLogoOnWebsite'] = $data['refreshLogoOnWebsite'];
+        $event_data['tags'] = $data['tags'];
         unset($event_data['restrictto']);
         // $data['restricto'] = implode(',', $ $data['restricto']);
         //  'affid' => $core->input['event']['affid'],
@@ -102,6 +103,7 @@ class Events extends AbstractClass {
         $event_data['isFeatured'] = $data['isFeatured'];
         $event_data['isPublic'] = $data['isPublic'];
         $event_data['refreshLogoOnWebsite'] = $data['refreshLogoOnWebsite'];
+        $event_data['tags'] = $data['tags'];
         unset($event_data['restrictto']);
         //'affid' => $core->input['event']['affid'],
         //'spid' => $core->input['event']['spid'],

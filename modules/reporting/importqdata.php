@@ -316,12 +316,14 @@ else {
                                 $db->insert_query('productsactivity', $activity);
 
                                 $productact = new ProductsActivity($db->last_id());
-                                if($quarter_info['quarter'] < 4) {
+                                if($quarter_info['quarter'] == 1) {
                                     /* Implement Budget data integration to acquire forecasts  - START */
-                                    $forecasts = $productact->aggregate_relatedbudgetlines(array('aggregatebm' => false));
+                                    // $forecasts = $productact->aggregate_relatedbudgetlines(array('aggregatebm' => false));
                                     /* Implement Budget data integration to acquire forecasts   - END */
-                                    $activity['salesForecast'] = $forecasts['amount'] / 1000;
-                                    $activity['quantityForecast'] = $forecasts['quantity'] / 1000;
+                                    //$activity['salesForecast'] = $forecasts['amount'] / 1000;
+                                    //$activity['quantityForecast'] = $forecasts['quantity'] / 1000;
+                                    $activity['quantityForecast'] = $activity['quantity'];
+                                    $activity['salesForecast'] = $activity['turnOver'];
                                 }
                                 else {
                                     $forecasts = $db->fetch_assoc($db->query("SELECT pid, SUM(quantity) AS quantityForecast, SUM(turnOver) AS salesForecast

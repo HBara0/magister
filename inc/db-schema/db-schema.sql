@@ -667,13 +667,14 @@ DROP TABLE IF EXISTS `calendar_events`;
 CREATE TABLE `calendar_events` (
   `ceid` int(10) NOT NULL AUTO_INCREMENT,
   `identifier` varchar(10) NOT NULL,
-  `alias` varchar(200) NOT NULL,
-  `title` varchar(220) NOT NULL,
-  `description` text NOT NULL,
+  `alias` varchar(200) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `title` varchar(220) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `description` text CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
   `fromDate` bigint(30) NOT NULL,
   `toDate` bigint(30) NOT NULL,
-  `place` varchar(300) DEFAULT NULL,
-  `boothNum` varchar(10) DEFAULT NULL,
+  `place` varchar(300) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `boothNum` varchar(20) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `tags` text CHARACTER SET utf8 COLLATE utf8_unicode_ci,
   `type` smallint(1) NOT NULL,
   `logo` varchar(220) DEFAULT NULL,
   `refreshLogoOnWebsite` tinyint(1) NOT NULL DEFAULT '0',
@@ -681,6 +682,7 @@ CREATE TABLE `calendar_events` (
   `spid` int(10) DEFAULT NULL,
   `uid` int(10) NOT NULL,
   `isPublic` tinyint(1) NOT NULL,
+  `isFeatured` tinyint(1) NOT NULL DEFAULT '0',
   `publishOnWebsite` tinyint(1) NOT NULL DEFAULT '0',
   `createdBy` int(10) NOT NULL,
   `createdOn` bigint(30) NOT NULL,
@@ -690,8 +692,8 @@ CREATE TABLE `calendar_events` (
   PRIMARY KEY (`ceid`),
   KEY `uid` (`uid`),
   KEY `createdBy` (`createdBy`,`editedBy`),
-  FULLTEXT KEY `title` (`title`,`description`)
-) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=latin1;
+  FULLTEXT KEY `title_2` (`title`,`description`,`tags`),
+  FULLTEXT KEY `tags` (`tags`)
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `calendar_events_invitees`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
