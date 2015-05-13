@@ -568,6 +568,8 @@ $(function () {
     $(".showpopup,input[id^='showpopup_']").on("click", function () {
         var id = $(this).attr("id").split("_");
         $('#popup_' + id[1]).dialog('open');
+        /* Make the parent dialog overflow as visible to completely display the  customer inline search results */
+        $(".ui-dialog, #popup_" + id[1]).css("overflow", "visible");
     });
 
     if($("div[id^='popup_']").length > 0) {
@@ -682,6 +684,8 @@ $(function () {
                         $(this).remove();
                     }
                 });
+                /* Make the parent dialog overflow as visible to completely display the  customer inline search results */
+                $(".ui-dialog,div[id^='popup_']").css("overflow", "visible");
                 //$("#popupBox").html(returnedData).show("slow");
                 //$("#popupBox").draggable();
                 //	$("input[id$='_QSearch']").keyup(QSearch);
