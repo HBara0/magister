@@ -596,6 +596,11 @@ class Users extends AbstractClass {
         return '<a href="users.php?action=profile&amp;uid='.$this->data['uid'].'" '.$attributes.'>'.$this->data[$options['outputvar']].'</a>';
     }
 
+    public function get_link() {
+        global $core;
+        return $core->settings['rootdir'].'/users.php?action=profile&amp;uid='.$this->data['uid'];
+    }
+
     protected function create(array $data) {
 
     }
