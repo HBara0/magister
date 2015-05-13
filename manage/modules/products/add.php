@@ -74,6 +74,8 @@ else {
         unset($core->input['action'], $core->input['module'], $core->input['applicationfunction'], $core->input['chemsubstances']);
         //Temporary hardcode
         $core->input['defaultCurrency'] = 'USD';
+        $core->input['createdBy'] = $core->user['uid'];
+        $core->input['createdOn'] = TIME_NOW;
         $query = $db->insert_query('products', $core->input);
         if($query) {
             $pid = $db->last_id();
