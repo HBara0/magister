@@ -81,14 +81,6 @@ class EntBrandsProducts extends AbstractClass {
         return new EndProducTypes($this->data['eptid']);
     }
 
-    public function get_createdby() {
-        return new Users($this->data['createdBy']);
-    }
-
-    public function get_modifiedby() {
-        return new Users($this->data['modifiedBy']);
-    }
-
     public function create(array $data) {
         global $db, $core;
         $table_array = array(
