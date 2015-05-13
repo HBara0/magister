@@ -555,7 +555,7 @@ else {
         $productline_obj = new AroRequestLines();
         $rowid = $core->input['rowid'];
         unset($core->input['action'], $core->input['module'], $core->input['rowid']);
-        $parmsfornetmargin = array('localPeriodOfInterest', 'localBankInterestRate', 'warehousingPeriod', 'warehousingTotalLoad', 'warehousingRate', 'intermedBankInterestRate', 'intermedPeriodOfInterest', 'commission', 'totalQty', 'riskRatio', 'unitfees');
+        $parmsfornetmargin = array('localPeriodOfInterest', 'localBankInterestRate', 'warehousingPeriod', 'warehousingTotalLoad', 'warehousingRate', 'intermedBankInterestRate', 'intermedPeriodOfInterest', 'commission', 'totalQty', 'localRiskRatio', 'unitfees');
         foreach($parmsfornetmargin as $parm) {
             $core->input['parmsfornetmargin'][$parm] = $core->input[$parm];
         }
@@ -572,8 +572,8 @@ else {
                 $productline['productline_'.$rowid.'_'.$key] = $value;
             }
         }
-        $productline['productline_'.$rowid.'_fees'] = $productline_data['fees'];
-        echo json_encode($productline);
+        //$productline['productline_'.$rowid.'_fees'] = $core->input['fees'];
+        //   echo json_encode($productline);
         output(json_encode($productline));
     }
     if($core->input['action'] == 'populateaffbuyingprice') {
@@ -889,12 +889,12 @@ else {
         if(!empty($localnetmargin) && ($core->input['sellingpriceqty_product'] * $core->input['exchangeRateToUSD'] ) != 0) {
             $localnetmargin_perc = $localnetmargin / ($core->input['sellingpriceqty_product'] * $core->input['exchangeRateToUSD']);
         }
-        $comm = $core->input['defaultcomm'];
-        if($core->input['totalcommision'] < 250) {
-            if(!empty($core->input['totalamount']) && $core->input['totalamount'] != 0) {
-                $comm = (250 * 100 ) / $core->input['totalamount'];
-            }
-        }
+//        $comm = $core->input['defaultcomm'];
+//        if($core->input['totalcommision'] < 250) {
+//            if(!empty($core->input['totalamount']) && $core->input['totalamount'] != 0) {
+//                $comm = (250 * 100 ) / $core->input['totalamount'];
+//            }
+//        }
         $data = array('ordersummary_intermedaff' => $intermedaffiliate->get_displayname(),
                 'ordersummary_localaff' => $affiliate->get_displayname(),
                 'ordersummary_totalquantity' => $quantityperuom,
@@ -909,9 +909,9 @@ else {
                 'ordersummary_globalnetmargin' => round($localnetmargin + $intermedmargin, 2),
                 'ordersummary_netmargin_localperc' => round($localnetmargin_perc, 2),
                 'ordersummary_netmargin_intermedperc' => round($intermedmargin_perc, 2),
-                'ordersummary_totalcomm' => round($core->input['totalcommision'], 2),
+                // 'ordersummary_totalcomm' => round($core->input['totalcommision'], 2),
                 'ordersummary_totalamount' => round($core->input['totalamount'], 2),
-                'partiesinfo_commission' => round($comm, 3),
+                //    'partiesinfo_commission' => round($comm, 3),
         );
         echo json_encode($data);
     }
@@ -1002,7 +1002,7 @@ else {
         $data = array(
                 'ordersummary_invoicevalue_local' => round($localinvoicevalue, 2),
                 'ordersummary_invoicevalueusd_local' => round($localinvoicevalue_usd, 2));
-        output(json_encode($data));
+        echo json_encode($data);
     }
     if($core->input['action'] == 'populatecurrentstockrow') {
         $rowid = $core->input['rowid'];
@@ -1110,5 +1110,19 @@ else {
 //$needsIntermed = array('needsIntermed' => $purchasetype->needsIntermediary);
 //echo json_encode($needsIntermed);
         output($purchasetype->needsIntermediary);
+    }
+    else if($core->input['action'] == 'updatecommission') {
+
+        //  if($core->nput['ptid'])
+        $comm = $core->input['defaultcomm'];
+        if($core->input['totalcommision'] < 250) {
+            if(!empty($core->input['totalamount']) && $core->input['totalamount'] != 0) {
+                $comm = (250 * 100 ) / $core->input['totalamount'];
+            }
+        }
+        $commission_data = array('partiesinfo_commission' => round($comm, 3),
+                'ordersummary_totalcomm' => round($core->input['totalcommision'], 2)
+        );
+        echo json_encode($commission_data);
     }
 }
