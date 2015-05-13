@@ -110,22 +110,23 @@ if(!$core->input['action']) {
             eval("\$chemicalsubstances_rows .= \"".$template->get('profiles_endproducttype_chemicalsubstancestlist_rows')."\";");
         }
     }
-
-    $ebpids = array_filter(array_unique($ebpids));
-    if(!empty($ebpids)) {
-        $itemscount['relatedbrands'] = 0;
-        foreach($ebpids as $ebpid) {
-            $entitybrandproduct = EntBrandsProducts::get_data(array('ebpid' => $ebpid));
-            if(is_object($entitybrandproduct)) {
-                $entitybrand = EntitiesBrands::get_data(array('ebid' => $entitybrandproduct->ebid));
-                $entitybrand_link = $entitybrand->parse_link();
-                if(is_object($entitybrand)) {
-                    $entity = new Entities($entitybrand->eid);
-                    if(is_object($entity)) {
-                        $entity_link = $entity->parse_link();
+    if(is_array($ebpids)) {
+        $ebpids = array_filter(array_unique($ebpids));
+        if(!empty($ebpids)) {
+            $itemscount['relatedbrands'] = 0;
+            foreach($ebpids as $ebpid) {
+                $entitybrandproduct = EntBrandsProducts::get_data(array('ebpid' => $ebpid));
+                if(is_object($entitybrandproduct)) {
+                    $entitybrand = EntitiesBrands::get_data(array('ebid' => $entitybrandproduct->ebid));
+                    $entitybrand_link = $entitybrand->parse_link();
+                    if(is_object($entitybrand)) {
+                        $entity = new Entities($entitybrand->eid);
+                        if(is_object($entity)) {
+                            $entity_link = $entity->parse_link();
+                        }
+                        eval("\$relatedbrands_rows .= \"".$template->get('profiles_endproducttype_relatedbrandslist_rows')."\";");
+                        $itemscount['relatedbrands'] ++;
                     }
-                    eval("\$relatedbrands_rows .= \"".$template->get('profiles_endproducttype_relatedbrandslist_rows')."\";");
-                    $itemscount['relatedbrands'] ++;
                 }
             }
         }
