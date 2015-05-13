@@ -50,7 +50,7 @@ if(!$core->input['action']) {
                 $supplier = $product_obj->get_supplier();
                 $objectids['spid'][] = $supplier->get_id();
 
-                $application_productdetails .= '<td>'.$product_obj->get_displayname().'</td>';
+                $application_productdetails .= '<td>'.$product_obj->parse_link().'</td>';
                 $application_productdetails .= '<td>'.$supplier->parse_link().'</td>';
                 $application_productdetails .= '</tr>';
             }
@@ -83,7 +83,7 @@ if(!$core->input['action']) {
             $itemscount['chemsubstances'] = count($chemicalfunctchems);
             foreach($chemicalfunctchems as $chemicalfunctchem) {
                 $chemicalsubstancedetails .= '<tr>';
-                $chemicalsubst = $chemicalfunctchem->get_chemicalsubstance()->get_displayname();
+                $chemicalsubst = $chemicalfunctchem->get_chemicalsubstance()->parse_link();
                 $chemicalsubstancedetails .= '<td>'.$chemicalsubst.'</td>';
                 $chemicalsubstancedetails .= '</tr>';
             }
@@ -129,7 +129,7 @@ if(!$core->input['action']) {
             foreach($entitybrand_objs as $entitybrand_obj) {
                 $brandlist.= '<tr>';
                 $entitie_obj = $entitybrand_obj->get_entity();
-                $brandlist .= '<td>'.$entitybrand_obj->get_displayname().'</td><td>'.$entitie_obj->parse_link().'</td><td>'.strtoupper($entitie_obj->type).'</td><td>'.$entitie_obj->get_country()->get_displayname().'</td>';
+                $brandlist .= '<td>'.$entitybrand_obj->parse_link().'</td><td>'.$entitie_obj->parse_link().'</td><td>'.strtoupper($entitie_obj->type).'</td><td>'.$entitie_obj->get_country()->get_displayname().'</td>';
                 $brandlist .= '</tr>';
             }
         }

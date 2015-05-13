@@ -13,6 +13,9 @@ if(!defined('DIRECT_ACCESS')) {
 }
 
 if(!$core->input['action']) {
+    if(empty($core->input['ebid']) && empty($core->input['ebpid'])) {
+        redirect('index.php?module=crm/marketpotentialdata');
+    }
     if($core->input['ebid'] && !empty($core->input['ebid'])) {
         $ebid = $db->escape_string($core->input['ebid']);
         $brand_obj = new EntitiesBrands($ebid);
@@ -69,7 +72,7 @@ if(!$core->input['action']) {
             $cfp_ids = array_unique($cfp_ids);
             $zero_cfp = array_search('0', $cfp_ids);
             if($zero_cfp !== FALSE) {
-                unset($cfp_ids[$zero_cfc]);
+                unset($cfp_ids[$zero_cfp]);
             }
             $itemscount['products'] = 0;
             foreach($cfp_ids as $cfp_ids) {
@@ -88,7 +91,7 @@ if(!$core->input['action']) {
         if(is_array($ing_ids) && !empty($ing_ids)) {
             $ing_ids = array_unique($ing_ids);
             $zero_ing = array_search('0', $ing_ids);
-            if($zero_cfc !== FALSE) {
+            if($zero_ing !== FALSE) {
                 unset($ing_ids[$zero_ing]);
             }
             $itemscount['ingre'] = 0;
@@ -114,7 +117,11 @@ if(!$core->input['action']) {
     }
     if($core->input['ebpid'] && !empty($core->input['ebpid'])) {
         $ebpid = $db->escape_string($core->input['ebpid']);
-        $entbrandprod_obj = new EntBrandsProducts($ebpid);
+        $entbrandprod_obj = EntBrandsProducts::get_data(array('ebpid' => $ebpid), array('simple' => false));
+        $reviewed = $entbrandprod_obj->get_status();
+        if($core->usergroup['crm_canManageMktInteldata'] == 1) {
+            $reviewbtn = '<input type="submit" class="button" value="Review" id="perform_profiles/brandprofile_Button"/>';
+        }
         $endproduct_type = $entbrandprod_obj->get_endproduct();
         $entitybrand = $entbrandprod_obj->get_entitybrand();
         $page_title_header = $entitybrand->parse_link().'/'.$endproduct_type->parse_link();
@@ -123,33 +130,39 @@ if(!$core->input['action']) {
         if(is_object($customer)) {
             $customername = $customer->parse_link();
         }
-        $marketintel_objs = MarketIntelligence::get_marketdata_dal(array('ebpid' => $ebpid), array('simple' => false));
-        if(is_array($marketintel_objs)) {
-            foreach($marketintel_objs as $marketintel_obj) {
-                $cfc_ids[] = $marketintel_obj->cfcid;
-                $cfp_ids[] = $marketintel_obj->cfpid;
-                $ing_ids[] = $marketintel_obj->biid;
+        $group = array('cfcid', 'cfpid', 'biid');
+        $query = $db->query("SELECT * FROM (SELECT * FROM ".Tprefix."marketintelligence_basicdata WHERE ebpid='{$ebpid}' ORDER BY createdOn DESC)as sorteddata GROUP BY cfcid,cfpid,biid");
+        if($db->num_rows($query) > 0) {
+            while($marketintel_obj = $db->fetch_assoc($query)) {
+                if($marketintel_obj['cfcid'] != 0) {
+                    $cfc_ids[] = array('cfcid' => $marketintel_obj['cfcid'], 'createdOn' => $marketintel_obj['createdOn']);
+                }
+                if($marketintel_obj['cfpid'] != 0) {
+                    $cfp_ids[] = array('cfpid' => $marketintel_obj['cfpid'], 'createdOn' => $marketintel_obj['createdOn']);
+                }
+                if($marketintel_obj['biid'] != 0) {
+                    $ing_ids[] = array('biid' => $marketintel_obj['biid'], 'createdOn' => $marketintel_obj['createdOn']);
+                }
             }
         }
         if(is_array($cfc_ids) && !empty($cfc_ids)) {
-            $cfc_ids = array_unique($cfc_ids);
-            $zero_cfc = array_search('0', $cfc_ids);
-            if(isset($zero_cfc)) { // && $zero_cfc == 0) {
-                unset($cfc_ids[$zero_cfc]);
-            }
             $itemscount['chemicals'] = 0;
-            foreach($cfc_ids as $cfc_id) {
-                $chemfuncobj = new ChemFunctionChemicals($cfc_id);
+            foreach($cfc_ids as $key => $cfc_data) {
+                $chemfuncobj = new ChemFunctionChemicals($cfc_data['cfcid']);
                 if($chemfuncobj->cfcid == NULL) {
                     continue;
+                }
+                if($cfc_data['createdOn'] < $entbrandprod_obj->reviewedOn) {
+                    $reviewedicon = '<span><img src="'.$core->settings['rootdir'].'/images/valid.gif" border="0"></span>';
                 }
                 $chem = $chemfuncobj->get_chemicalsubstance();
                 if($chem->csid == null) {
                     continue;
                 }
                 $itemscount['chemicals'] ++;
-                $chemicalsubstances_rows.='<tr><td>'.$chem->parse_link().'</td></tr>';
+                $chemicalsubstances_rows.='<tr><td>'.$chem->parse_link().$reviewedicon.'</td></tr>';
                 $chemfuncobj_clone .= '<tr><td><input type="checkbox" checked="checked" name="marketdata[cfcid][]" value="'.$chemfuncobj->cfcid.'">'.$chem->parse_link().'</td></tr>';
+                unset($reviewedicon);
             }
         }
         if(!isset($chemfuncobj_clone) || empty($chemfuncobj_clone)) {
@@ -157,40 +170,38 @@ if(!$core->input['action']) {
         }
         if(is_array($cfp_ids) && !empty($cfp_ids)) {
             $itemscount['products'] = 0;
-            $cfp_ids = array_unique($cfp_ids);
-            $zero_cfp = array_search('0', $cfp_ids);
-            if(isset($zero_cfp) && $zero_cfp != FALSE) {
-                unset($cfp_ids[$zero_cfp]);
-            }
-            foreach($cfp_ids as $cfp_id) {
-                $chemfuncprod = new ChemFunctionProducts($cfp_id);
+            foreach($cfp_ids as $key => $cfp_data) {
+                $chemfuncprod = new ChemFunctionProducts($cfp_data['cfpid']);
                 if($chemfuncprod->cfpid == NULL) {
                     continue;
                 }
+                if($cfp_data['createdOn'] < $entbrandprod_obj->reviewedOn) {
+                    $reviewedicon = '<span><img src="'.$core->settings['rootdir'].'/images/valid.gif" border="0"></span>';
+                }
                 $product = $chemfuncprod->get_produt();
                 $itemscount['products'] ++;
-                $products_rows.='<tr><td>'.$product->parse_link().'</td></tr>';
+                $products_rows.='<tr><td>'.$product->parse_link().$reviewedicon.'</td></tr>';
                 $products_clone.='<tr><td><input type="checkbox" checked="checked" name="marketdata[cfpid][]" value="'.$chemfuncprod->cfpid.'">'.$product->parse_link().'</td></tr>';
+                unset($reviewedicon);
             }
         }
         if(!isset($products_clone) || empty($products_clone)) {
             $products_rows = '<tr><td colspan="2">N/A</td></tr>';
         }
         if(is_array($ing_ids) && !empty($ing_ids)) {
-            $ing_ids = array_unique($ing_ids);
-            $zero_ing = array_search('0', $ing_ids);
-            if(isset($zero_ing) && $zero_ing != FALSE) {
-                unset($ing_ids[$zero_ing]);
-            }
             $itemscount['ingre'] = 0;
-            foreach($ing_ids as $ing_id) {
-                $ingredient = new BasicIngredients($ing_id);
+            foreach($ing_ids as $key => $ing_data) {
+                $ingredient = new BasicIngredients($ing_data['biid']);
                 if($ingredient->biid == NULL) {
                     continue;
                 }
+                if($ing_data['createdOn'] < $entbrandprod_obj->reviewedOn) {
+                    $reviewedicon = '<span><img src="'.$core->settings['rootdir'].'/images/valid.gif" border="0"></span>';
+                }
                 $itemscount['ingre'] ++;
-                $ingredients_rows.='<tr><td>'.$ingredient->get_displayname().'</td></tr>';
+                $ingredients_rows.='<tr><td>'.$ingredient->get_displayname().$reviewedicon.'</td></tr>';
                 $ingredients_clone.='<tr><td><input type="checkbox" checked="checked" name="marketdata[biid][]" value="'.$ingredient->biid.'">'.$ingredient->get_displayname().'</td></tr>';
+                unset($reviewedicon);
             }
         }
         if(!isset($ingredients_clone) || empty($ingredients_clone)) {
@@ -319,6 +330,17 @@ else {
         $mkdprod_rowid = $db->escape_string($core->input['value']) + 1;
         eval("\$profiles_minproductentry_rows = \"".$template->get('profiles_michemfuncproductentry')."\";");
         echo $profiles_minproductentry_rows;
+    }
+    elseif($core->input['action'] == 'do_perform_brandprofile') {
+        /* To set entity brands products as reviwed */
+        $query = $db->update_query('entitiesbrandsproducts', array('reviewedOn' => TIME_NOW, 'reviewedBy' => $core->user['uid']), "ebpid='{$core->input[ebpid]}'");
+        if($query) {
+            $reviewedBy_obj = new Users($core->user['uid']);
+            $reviewedBy = $reviewedBy_obj->parse_link();
+            $reviewed = $lang->reviewedon." ".date($core->settings['dateformat']." ".$core->settings['timeformat'], TIME_NOW)." ".$lang->by." ".$reviewedBy;
+            output_xml("<status>true</status><message>{$reviewed}</message>");
+            exit;
+        }
     }
 }
 function verify($array) {

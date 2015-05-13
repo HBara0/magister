@@ -123,5 +123,28 @@ class EntBrandsProducts extends AbstractClass {
         return $core->settings['rootdir'].'/index.php?module=profiles/brandprofile&amp;ebpid='.$this->data[self::PRIMARY_KEY];
     }
 
+    public function get_status() {
+        global $core, $lang;
+        $reviewed = $lang->notreviwed;
+        if($this->isReviewed()) {
+            $reviewedOn = date($core->settings['dateformat']." ".$core->settings['timeformat'], $this->reviewedOn);
+            $reviewedBy_obj = new Users($this->reviewedBy);
+            if(is_object($reviewedBy_obj)) {
+                $reviewedBy = $reviewedBy_obj->parse_link();
+            }
+            $reviewed = $lang->reviewedon." ".$reviewedOn." ".$lang->by." ".$reviewedBy;
+        }
+        return $reviewed;
+    }
+
+    public function isReviewed() {
+        if($this->reviewedOn != 0) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
 }
 ?>
