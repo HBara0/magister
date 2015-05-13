@@ -8,8 +8,8 @@
  * Created: 	@zaher.reda		Mar 16, 2009 | 09:48 AM
  * Last Update: @zaher.reda 	May 20, 2012 | 09:29 AM
  */
-
-/* Stripslases for a given template and then returns it
+/**
+ * Stripslases for a given template and then returns it
  * @param  String		$template 	String to be striped
  * @return String	 				Striped template
  */
@@ -59,7 +59,8 @@ function output($output) {
     echo $output;
 }
 
-/* GZIP cotents to a certain level
+/**
+ * GZIP cotents to a certain level
  * @param  String		$contents 	Contents to be zipped
  * @param  int			$level	 	Level of compression
  * @return String					Compressed content
@@ -106,7 +107,7 @@ function gzip_compression($contents, $level = 1) {
     return $contents;
 }
 
-/*
+/**
  * Outputs XML
  * @param	string		$xml		XML content
  * @return  String					Formated XML
@@ -120,7 +121,7 @@ function output_xml($xml) {
     echo '<xml>'.$xml.'</xml>';
 }
 
-/*
+/**
  * Prepare and set correct headers
  */
 function set_headers() {
@@ -130,7 +131,7 @@ function set_headers() {
     header("Pragma: no-cache");
 }
 
-/*
+/**
  * Generates a random number
  * @param	int		$length		Length of the random string
  * @return  String	$output		Random string of characters and numbers
@@ -149,7 +150,8 @@ function random_string($length) {
     return $output;
 }
 
-/* Retrive the user's session IP address
+/**
+ * Retrive the user's session IP address
  * @return  String 				The IP Address
  */
 function userip() {
@@ -188,7 +190,8 @@ function userip() {
     return $ip;
 }
 
-/* Redirects to a new page
+/**
+ * Redirects to a new page
  * @param	String		$url		The URL to which should be directed
  * @param	int			$delay		Seconds to deplay redirection
  */
@@ -212,7 +215,7 @@ function redirect($url, $delay = 0, $redirect_message = '') {
     exit;
 }
 
-/*
+/**
  * Validates if an email address structure is valid
  * @param	String		$email			The email address to be checked
  * @return	Boolean						Either valid or not
@@ -230,7 +233,7 @@ function isvalid_email($email) {
     }
 }
 
-/*
+/**
  * Custom htmlspecialchars (for unicode)
  * @param 	String 		$text	The string to format
  */
@@ -243,7 +246,7 @@ function chtmlspecialchars(&$text) {
     }
 }
 
-/*
+/**
  * Parse OCODE [BB Code] into corresponding format
  * @param	String		$text		Text to be parsed
  * @return  String		$text		Parse text
@@ -262,7 +265,7 @@ function fix_newline(&$text) {
     }
 }
 
-/*
+/**
  * Displays a customized error message
  * @param	String		$message		The message to be displayed
  * @param	Boolean		$noexit			Don't stop execution or vice versa
@@ -282,7 +285,8 @@ function error($message, $redirect_url = '', $noexit = false) {
     }
 }
 
-/* Creates a cookie
+/**
+ * Creates a cookie
  * @param  String		$name 		Name of the cookie
  * @param  String		$value	 	Value of the cookie
  * @param  int			$duration	Expiry
@@ -298,7 +302,9 @@ function create_cookie($name, $value, $duration = '', $secure = false, $httponly
     }
 }
 
-/* Parse input fields of various types */
+/**
+ * Parse input fields of various types
+ */
 function parse_textfield($name, $id, $type, $value = '', $options = array(), $config = array()) {
     if(empty($id)) {
         return false;
@@ -323,7 +329,7 @@ function parse_textfield($name, $id, $type, $value = '', $options = array(), $co
     return $text;
 }
 
-/*
+/**
   creates a selection list
  */
 function parse_selectlist($name, $tabindex, $options, $selected_options, $multiple_list = 0, $onchange_actions = '', $config = array()) {
@@ -943,7 +949,8 @@ function record_contribution($rid, $isdone = 0) {
     }
 }
 
-/* Gets the quarter information based on settings
+/**
+ * Gets the quarter information based on settings
  * @param  Boolean		$real		Whether a real current quarter or reporting quarter
  * @return Array					Current quarter and year
  */
@@ -1070,7 +1077,9 @@ function parse_menuitems($module_name, $modules_dir = 'modules') {
     return $items;
 }
 
-/* To replace parse_userentities_data() gradually */
+/**
+ * To replace parse_userentities_data() gradually
+ */
 function get_user_business_assignments($uid) {
     global $db, $core;
     if(empty($uid)) {
@@ -1176,7 +1185,8 @@ function get_user_business_assignments($uid) {
     return $data;
 }
 
-/* Get user entities view permissions and return them is a ready WHERE clause statement
+/**
+ *  Get user entities view permissions and return them is a ready WHERE clause statement
  * @paran	String						Option suppliersbyaffid/suppliersbyspid
  * @param	Int							supplier or affiliate ID
  * @paran	Int							User ID
@@ -1353,7 +1363,8 @@ function parse_userentities_data($uid) {
     return $data;
 }
 
-/* Get user entities view permissions and return them is a ready WHERE clause statement
+/**
+ * Get user entities view permissions and return them is a ready WHERE clause statement
  * @paran	String						Option suppliersbyaffid/suppliersbyspid
  * @param	Int							supplier or affiliate ID
  * @paran	Int							User ID
@@ -1502,8 +1513,8 @@ function getquery_entities_viewpermissions() {
   }
   return $count_off_days;
   } */
-
-/* Gives a different class for alternative rows
+/**
+ * Gives a different class for alternative rows
  * @param  String		$class			Current class
  * @return String		$class			The alternative row other class
  */
@@ -1520,7 +1531,8 @@ function alt_row($class) {
     }
 }
 
-/* Formats the request url to a sortable one
+/**
+ * Formats the request url to a sortable one
  * @return String		$sort_url		Formatted url
  */
 function sort_url() {

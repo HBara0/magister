@@ -9,7 +9,7 @@
  */
 
 /**
- * Description of AbstractClass
+ * The global abstract class that
  *
  * @author zaher.reda
  */
@@ -40,6 +40,12 @@ Abstract class AbstractClass {
         $this->data = $db->fetch_assoc($db->query('SELECT '.$query_select.' FROM '.Tprefix.static::TABLE_NAME.' WHERE '.static::PRIMARY_KEY.'='.intval($id)));
     }
 
+    /**
+     *
+     * @global \Log $log
+     * @param array $data   Data to be saved
+     * @return      Function that will perform the saving
+     */
     public function save(array $data = array()) {
         global $log;
         if(empty($data)) {
@@ -106,7 +112,7 @@ Abstract class AbstractClass {
         return false;
     }
 
-    public static function get_data($filters = '', $configs = array()) {
+    public static function get_data($filters = '', array $configs = array()) {
         $data = new DataAccessLayer(static::CLASSNAME, static::TABLE_NAME, static::PRIMARY_KEY);
         return $data->get_objects($filters, $configs);
     }
@@ -130,6 +136,13 @@ Abstract class AbstractClass {
         $this->data[$name] = $value;
     }
 
+    /**
+     * Returns a specific value from the array of object values.
+     *
+     * @param string $name The index of the array.
+     *
+     * @return string|boolean $this->data The value of that specific index.
+     */
     public function __get($name) {
         if(isset($this->data[$name])) {
             return $this->data[$name];
@@ -137,10 +150,22 @@ Abstract class AbstractClass {
         return false;
     }
 
+    /**
+     * Returns the id of the object.
+     *
+     * @return int|null $this->data The id of the object.
+     */
     public function get_id() {
         return $this->data[static::PRIMARY_KEY];
     }
 
+    /**
+     * Returns the display name of the object.
+     *
+     * @uses AbstractClass::PRIMARY_KEY to specify the requirement attribute.
+     *
+     * @return string|null $this->data The display name of the object.
+     */
     public function get_displayname() {
         return $this->data[static::DISPLAY_NAME];
     }
@@ -149,10 +174,16 @@ Abstract class AbstractClass {
         return $this->data[static::UNIQUE_ATTRS];
     }
 
+    /**
+     * @return string|null The unique attributes of the object
+     */
     public function get_uniqueattributes_columns() {
         return $this::UNIQUE_ATTRS;
     }
 
+    /**
+     * @return array|null The object data
+     */
     public function get() {
         return $this->data;
     }
