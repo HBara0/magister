@@ -72,7 +72,7 @@ if(!$core->input['action']) {
             $cfp_ids = array_unique($cfp_ids);
             $zero_cfp = array_search('0', $cfp_ids);
             if($zero_cfp !== FALSE) {
-                unset($cfp_ids[$zero_cfc]);
+                unset($cfp_ids[$zero_cfp]);
             }
             $itemscount['products'] = 0;
             foreach($cfp_ids as $cfp_ids) {
@@ -91,7 +91,7 @@ if(!$core->input['action']) {
         if(is_array($ing_ids) && !empty($ing_ids)) {
             $ing_ids = array_unique($ing_ids);
             $zero_ing = array_search('0', $ing_ids);
-            if($zero_cfc !== FALSE) {
+            if($zero_ing !== FALSE) {
                 unset($ing_ids[$zero_ing]);
             }
             $itemscount['ingre'] = 0;

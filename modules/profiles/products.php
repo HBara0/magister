@@ -35,11 +35,11 @@ if(!$core->input['action']) {
             if(is_array($chemfuncprods)) {
                 foreach($chemfuncprods as $chemfuncprod) {
                     /* Get MI Data-START */
-                    $marktetintel_objs = MarketIntelligence::get_marketdata_dal(array('cfpid' => $chemfuncprod->cfpid));
+                    $marktetintel_objs = MarketIntelligence::get_marketdata_dal(array('cfpid' => $chemfuncprod->cfpid), array('simple' => false));
                     if(is_array($marktetintel_objs)) {
                         foreach($marktetintel_objs as $marktetintel_obj) {
                             $customer_ids[] = $marktetintel_obj->cid;
-                            $entitybrandprod_objs = EntBrandsProducts::get_data(array('ebpid' => $marktetintel_obj->ebpid), array('returnarray' => true));
+                            $entitybrandprod_objs = EntBrandsProducts::get_data(array('ebpid' => $marktetintel_obj->ebpid), array('returnarray' => true, 'simple' => false));
                             if(is_array($entitybrandprod_objs)) {
                                 foreach($entitybrandprod_objs as $entitybrandprod_obj) {
                                     $ebids[] = $entitybrandprod_obj->ebid;
