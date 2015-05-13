@@ -63,7 +63,7 @@ $lang['cannotdeleteuseditem'] = 'You cannot delete a used item; it is related to
 $lang['usedintables'] = 'Entity Used in the following table/s:';
 $lang['successdelete'] = "Successfully deleted";
 $lang['errordeletingsega'] = 'Error deleting';
-
+$lang['parent'] = 'Parent';
 $lang['managebasicingredients'] = 'Maage Basic Ingredients';
 $lang['description'] = 'Description';
 $lang['createbasicingredient'] = 'Create Basic Ingredient';
