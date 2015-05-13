@@ -551,7 +551,9 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
     if(is_array($attributes)) {
         foreach($attributes as $key => $val) {
             $where_string .= $andor.' '.$val.' LIKE "%'.$value.'%"';
-            $soundex_where_string .= "{$andor}SOUNDEX({$val}) = SOUNDEX('$value')";
+            if($options['disableSoundex'] != 1) {
+                $soundex_where_string .= "{$andor}SOUNDEX({$val}) = SOUNDEX('$value')";
+            }
             $andor = ' '.$andor_param.' ';
         }
     }
@@ -566,7 +568,6 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
     if(!empty($options['extra_where'])) {
         $extra_where_string = ' AND '.$options['extra_where'];
     }
-
     $query = $db->query("SELECT {$select_attributes_string} FROM ".Tprefix."{$table} WHERE ({$where_string}){$extra_where_string} {$order}");
 
     $clean_key_attribute = $key_attribute;
@@ -592,24 +593,25 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
         $space = '';
     }
 
-    if(is_array($foundkeys)) {
-        $notkeys = implode(',', $foundkeys);
-        $notin = ' AND '.$key_attribute.' NOT IN ('.$notkeys.') ';
-    }
-
-    $query2 = $db->query("SELECT {$select_attributes_string} FROM ".Tprefix."{$table} WHERE ({$soundex_where_string}){$notin}{$extra_where_string}{$order}");
-    if($db->num_rows($query2) > 0) {
-        while($result2 = $db->fetch_assoc($query2)) {
-            foreach($select_attributes as $key => $val) {
-                $output .= $space.$result2[$val];
-                $space = ' ';
-            }
-            $results[$result2[$key_attribute]] = $output;
-            $output = '';
+    if($options['disableSoundex'] != 1) {
+        if(is_array($foundkeys)) {
+            $notkeys = implode(',', $foundkeys);
+            $notin = ' AND '.$key_attribute.' NOT IN ('.$notkeys.') ';
         }
-        $db->free_result($query2);
-    }
 
+        $query2 = $db->query("SELECT {$select_attributes_string} FROM ".Tprefix."{$table} WHERE ({$soundex_where_string}){$notin}{$extra_where_string}{$order}");
+        if($db->num_rows($query2) > 0) {
+            while($result2 = $db->fetch_assoc($query2)) {
+                foreach($select_attributes as $key => $val) {
+                    $output .= $space.$result2[$val];
+                    $space = ' ';
+                }
+                $results[$result2[$key_attribute]] = $output;
+                $output = '';
+            }
+            $db->free_result($query2);
+        }
+    }
     if(is_array($results)) {
         foreach($results as $key => $val) {
             if($options['returnType'] == 'json') {
