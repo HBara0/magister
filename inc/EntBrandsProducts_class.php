@@ -130,7 +130,7 @@ class EntBrandsProducts extends AbstractClass {
             $reviewedOn = date($core->settings['dateformat']." ".$core->settings['timeformat'], $this->reviewedOn);
             $reviewedBy_obj = new Users($this->reviewedBy);
             if(is_object($reviewedBy_obj)) {
-                $reviewedBy = $reviewedBy_obj->parse_link();
+                $reviewedBy = '<a href="'.$reviewedBy_obj->get_link().'" style="color:#91B64F;">'.$reviewedBy_obj->get_displayname().'</a>';
             }
             $reviewed = $lang->reviewedon." ".$reviewedOn." ".$lang->by." ".$reviewedBy;
         }

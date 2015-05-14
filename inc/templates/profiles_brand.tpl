@@ -26,9 +26,9 @@
         {$menu}
         <td class="contentContainer">
             <h1>{$page_title_header}<small><br />{$customername}</small></h1>
-            <div style="display:inline-block;width:55%">{$clone_button}</div><div style="width:35%;display:inline-block;">{$reviewed}</div>
-            <div style="display:inline-block;width:55%"></div>
-            <div style="width:40%;display:inline-block;">
+            <div style="display:inline-block;width:45%">{$clone_button}</div><div style="width:50%;display:inline-block;color: #91B64F;">{$reviewed}</div>
+            <div style="display:inline-block;width:45%"></div>
+            <div style="width:50%;display:inline-block;">
                 <div id="perform_profiles/brandprofile_Results"></div>
                 <form action="#" method="post" id="perform_profiles/brandprofile_Form" id="perform_profiles/brandprofile_Form">
                     <input type="hidden" name="ebpid" value="{$core->input[ebpid]}"/>
