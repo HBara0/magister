@@ -743,14 +743,26 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                         if(is_array($entbrandproducts)) {
                             unset($results_list[$key]);
                             foreach($entbrandproducts as $entbrandproduct) {
-                                if($options['returnType'] == 'json') {
-                                    $results_list[$entbrandproduct->get_id()]['value'] = $val;
-                                    $results_list[$entbrandproduct->get_id()]['id'] = $entbrandproduct->get_id();
-                                    $results_list[$entbrandproduct->get_id()]['desc'] = $entbrandproduct->get_endproduct()->title;
+                                $endprod = $entbrandproduct->get_endproduct();
+                                if(is_object($endprod)) {
+                                    if($options['returnType'] == 'json') {
+                                        $results_list[$entbrandproduct->get_id()]['value'] = $val;
+                                        $results_list[$entbrandproduct->get_id()]['id'] = $entbrandproduct->get_id();
+                                        $results_list[$entbrandproduct->get_id()]['desc'] = $endprod->title;
+                                    }
+                                    else {
+                                        $details = '<br /><span class="smalltext">'.$entbrandproduct->get_endproduct()->title.'</span>';
+                                        $results_list .= '<li id="'.$entbrandproduct->get_id().'">'.$val.$details.'</li>';
+                                    }
                                 }
                                 else {
-                                    $details = '<br /><span class="smalltext">'.$entbrandproduct->get_endproduct()->title.'</span>';
-                                    $results_list .= '<li id="'.$entbrandproduct->get_id().'">'.$val.$details.'</li>';
+                                    if($options['returnType'] == 'json') {
+                                        $results_list[$entbrandproduct->get_id()]['value'] = $val;
+                                        $results_list[$entbrandproduct->get_id()]['id'] = $entbrandproduct->get_id();
+                                    }
+                                    else {
+                                        $results_list .= '<li id="'.$entbrandproduct->get_id().'">'.$val.'</li>';
+                                    }
                                 }
                             }
                         }
@@ -791,6 +803,8 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                                 unset($results_list[$key]);
                             }
                         }
+                        unset($details);
+
                         break;
                     case 'endproducttype':
                         $current_obj = new EndProducTypes($key);
@@ -823,6 +837,8 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                                 unset($results_list[$key]);
                             }
                         }
+                        unset($details);
+
                         break;
                     case 'country':
                         $entity = new Entities($key);
