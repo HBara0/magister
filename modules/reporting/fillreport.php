@@ -112,6 +112,16 @@ if(!$core->input['action']) {
 
         if(is_array($productsactivity)) {
             foreach($productsactivity as $rowid => $productactivity) {
+                $product = new Products($productactivity['pid']);
+                $segment = $product->get_segment();
+                $usersegments = array_keys($core->user_obj->get_segments());
+
+                if(is_array($usersegments)) {
+                    if(!in_array($segment['psid'], $usersegments) && $core->input['auditor'] != '1') {
+                        continue;
+                    }
+                }
+                unset($usersegments, $segment, $product);
                 $saletype_selectlist = parse_selectlist('productactivity['.$rowid.'][saleType]', 0, $saletypes, $productactivity['saleType'], 0, null, array('disabled' => $selectlists_disabled));
                 $currencyfx_selectlist = parse_selectlist('productactivity['.$rowid.'][fxrate]', 0, $currencies, 1, '', '', array('id' => 'fxrate_'.$rowid, 'disabled' => $selectlists_disabled));
 
