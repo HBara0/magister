@@ -84,6 +84,12 @@ if(!($core->input['action'])) {
                         $market_data[$marketin_obj->get()['mibdid']]['psid'] = $marketin_obj->get_chemfunctionschemcials()->get_segapplicationfunction()->get_segment()->psid;
                         $market_data[$marketin_obj->get()['mibdid']]['psaid'] = $marketin_obj->get_chemfunctionschemcials()->get_segapplicationfunction()->get_application()->psaid;
                     }
+
+                    if(empty($market_data[$marketin_obj->get()['mibdid']]['psid'])) {
+                        $application = $marketin_obj->get_endproducttype()->get_application();
+                        $market_data[$marketin_obj->get()['mibdid']]['psaid'] = $application->get_id();
+                        $market_data[$marketin_obj->get()['mibdid']]['psid'] = $application->get_segment()->get_id();
+                    }
                 }
             }
             $dimensionalize_ob = new DimentionalData();
