@@ -87,6 +87,7 @@ if($core->input['type'] == 'quick') {
             $key_attribute = 'ebid';
             $select_attributes = array('name');
             $order = array('by' => 'name', 'sort' => 'ASC');
+            $descinfo = 'brands';
         }
         if($core->input['for'] == 'supplier' || $core->input['for'] == 'customer' || $core->input['for'] == 'competitorsupp' || $core->input['for'] == 'competitortradersupp' || $core->input['for'] == 'competitorproducersupp') {
             if($core->input['for'] == 'supplier') {

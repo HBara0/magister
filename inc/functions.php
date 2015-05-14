@@ -846,6 +846,27 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                         unset($details);
 
                         break;
+                    case 'brands':
+                        $brand_obj = new EntitiesBrands($key);
+                        $customer_obj = $brand_obj->get_entity();
+                        if(is_object($customer_obj)) {
+                            if($options['returnType'] == 'json') {
+                                $results_list[' '.$key]['value'] = $val;
+                                $results_list[' '.$key]['id'] = $brand_obj->ebid;
+                                $results_list[' '.$key]['desc'] = $customer_obj->get_displayname();
+                            }
+                            else {
+                                $details = '<br /><span class="smalltext">'.$customer_obj->get_displayname().'</span>';
+                                $results_list .= '<li id="'.$key.'">'.$val.$details.'</li>';
+                            }
+                        }
+                        else {
+                            if($options['returnType'] == 'json') {
+                                unset($results_list[' '.$key]);
+                            }
+                        }
+                        unset($details);
+                        break;
                     case 'country':
                         $entity = new Entities($key);
                         if(!empty($entity->country)) {
