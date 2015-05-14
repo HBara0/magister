@@ -23,6 +23,11 @@ class Cities extends AbstractClass {
         parent::__construct($id, $simple);
     }
 
+    /**
+     * Get the country of the city
+     *
+     * @return \Countries The onbject of the country
+     */
     public function get_country() {
         return new Countries($this->data['coid']);
     }

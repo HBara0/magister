@@ -83,7 +83,7 @@ class EntitiesBrands extends AbstractClass {
                         );
                         $entitybrand_obj = new EntBrandsProducts();
                         $entitybrand_obj->set($entitiesbrandsproducts_data);
-                        $entitybrand_obj->Save();
+                        $entitybrand_obj->save();
                     }
                 }
                 $this->errorcode = 0;

@@ -64,6 +64,8 @@ else {
         //Temporary hardcode
         $core->input['defaultCurrency'] = 'USD';
 
+        $core->input['createdBy'] = $core->user['uid'];
+        $core->input['createdOn'] = TIME_NOW;
         $query = $db->insert_query('products', $core->input);
 
         if($query) {

@@ -17,7 +17,6 @@
             <div>
                 <br/><strong>{$lang->endproducttypes}</strong></div>
 
-
             <div style="width:100%; height:150px; overflow:auto; display:inline-block; vertical-align:top; margin-bottom: 10px;">
                 <table class="datatable" width="100%">
                     <thead>

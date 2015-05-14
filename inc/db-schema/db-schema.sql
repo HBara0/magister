@@ -2236,6 +2236,10 @@ CREATE TABLE `products` (
   `package` varchar(220) DEFAULT NULL,
   `itemWeight` float DEFAULT NULL,
   `standard` varchar(220) DEFAULT NULL,
+  `createdBy` int(10) NOT NULL,
+  `createdOn` bigint(30) NOT NULL,
+  `modifiedBy` int(10) DEFAULT NULL,
+  `modifiedOn` bigint(30) DEFAULT NULL,
   PRIMARY KEY (`pid`),
   KEY `spid` (`spid`,`gpid`,`name`,`code`)
 ) ENGINE=MyISAM AUTO_INCREMENT=2768 DEFAULT CHARSET=utf8;

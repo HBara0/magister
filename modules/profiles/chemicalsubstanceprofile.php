@@ -164,7 +164,7 @@ if(!$core->input['action']) {
             $sourcingsupp_ids = array_unique($sourcingsupp_ids);
             foreach($sourcingsupp_ids as $sourcingsupp_id) {
                 $sourcsupp_obj = new SourcingSuppliers($sourcingsupp_id, false);
-                $possiblesuppliers_rows.='<tr><td>'.$sourcsupp_obj->get_displayname().'</td><td>'.$sourcsupp_obj->get_country()->get_displayname().'</td><td>'.$sourcsupp_obj->get_type().'</td></tr>';
+                $possiblesuppliers_rows .= '<tr><td>'.$sourcsupp_obj->parse_link().'</td><td>'.$sourcsupp_obj->get_country()->get_displayname().'</td><td>'.$sourcsupp_obj->get_type().'</td></tr>';
                 $itemscount['possiblesuppliers'] ++;
             }
         }

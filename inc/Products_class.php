@@ -119,6 +119,10 @@ class Products {
         return $this->product;
     }
 
+    /**
+     *
+     * @return Srtring
+     */
     public function get_displayname() {
         return $this->product[self::DISPLAY_NAME];
     }

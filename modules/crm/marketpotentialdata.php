@@ -22,7 +22,7 @@ if(!$core->input['action']) {
         $sort_query['sort'] = $core->input['order'];
         $sort_query['by'] = $core->input['sortby'];
     }
-    $marketintel_objs = MarketIntelligence::get_marketdata_dal(null, array('simple' => false, 'order' => $sort_query));
+    // $marketintel_objs = MarketIntelligence::get_marketdata_dal(null, array('simple' => false, 'order' => $sort_query));
 
     /* Perform inline filtering - START */
     $filters_config = array(
@@ -56,7 +56,7 @@ if(!$core->input['action']) {
 
     $filter = new Inlinefilters($filters_config);
     $filter_where_values = $filter->process_multi_filters();
-
+    $filter_where = null;
     if(is_array($filter_where_values)) {
         $filters_row_display = 'show';
         $filter_where = ' '.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
@@ -66,9 +66,9 @@ if(!$core->input['action']) {
     $filters_row = $filter->prase_filtersrows(array('tags' => 'table', 'display' => $filters_row_display));
 
 
-    if(!empty($filter_where)) {
-        $marketintel_objs = MarketIntelligence::get_marketdata_dal($filter_where, array('returnarray' => true, 'simple' => false));
-    }
+    //if(!empty($filter_where)) {
+    $marketintel_objs = MarketIntelligence::get_marketdata_dal($filter_where, array('returnarray' => true, 'simple' => false, 'order' => $sort_query));
+    // }
     /* Perform inline filtering - END */
     if(is_array(($marketintel_objs))) {
         foreach($marketintel_objs as $marketintel_obj) {
@@ -87,7 +87,6 @@ if(!$core->input['action']) {
             $marketintel['customer'] = $cust->parse_link();
             $marketintel['country'] = $cust->get_country()->get_displayname();
             if($marketintel_obj->cfpid != 0) {
-
                 $chemfunctprod = new ChemFunctionProducts($marketintel_obj->cfpid);
                 $prod = $chemfunctprod->get_produt();
                 $marketintel['product'] = $chemfunctprod->get_produt()->parse_link();
@@ -175,7 +174,13 @@ if(!$core->input['action']) {
             $marketintel['marketshare'] = number_format($marketintel_obj->mktShareQty, 3);
             $marketintel['price'] = number_format($marketintel_obj->unitPrice, 3);
             if($marketintel_obj->eptid != 0) {
-                $marketintel['endprod'] = $marketintel_obj->get_endproducttype()->parse_link();
+                $endproduct = $marketintel_obj->get_endproducttype();
+                $marketintel['endprod'] = $endproduct->parse_link();
+                if($marketintel['segment'] == '-') {
+                    $application = $endproduct->get_application();
+                    $marketintel['application'] = $application->parse_link();
+                    $marketintel['segment'] = $application->get_segment()->parse_link();
+                }
             }
             else {
                 $marketintel['endprod'] = '-';
