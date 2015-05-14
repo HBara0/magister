@@ -37,11 +37,7 @@ class BasicIngredients extends AbstractClass {
     protected function update(array $data) {
         global $db;
         if(!$this->validate_requiredfields($data)) {
-            $ingredient = Self::get_data(array('title' => $data['title']));
-            if(is_object($ingredient)) {
-                $this->errorcode = 3;
-                return;
-            }
+
             if(is_array($data)) {
                 $update_array['title'] = $data['title'];
                 $update_array['description'] = $data['description'];
