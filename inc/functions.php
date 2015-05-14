@@ -789,9 +789,9 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                                 }
                             }
                             if($options['returnType'] == 'json') {
-                                $results_list[$current_obj->eptid]['value'] = $val;
-                                $results_list[$current_obj->eptid]['id'] = $current_obj->eptid;
-                                $results_list[$current_obj->eptid]['desc'] = $details;
+                                $results_list[' '.$current_obj->eptid]['value'] = $val;
+                                $results_list[' '.$current_obj->eptid]['id'] = $current_obj->eptid;
+                                $results_list[' '.$current_obj->eptid]['desc'] = $details;
                             }
                             else {
                                 $details = '<br /><span class="smalltext">'.$details.'</span>';
