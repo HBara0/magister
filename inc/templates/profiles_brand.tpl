@@ -26,7 +26,7 @@
         {$menu}
         <td class="contentContainer">
             <h1>{$page_title_header}<small><br />{$customername}</small></h1>
-            <div style="display:inline-block;width:45%">{$clone_button}</div><div style="width:50%;display:inline-block;color: #91B64F;">{$reviewed}</div>
+            <div style="display:inline-block;width:45%">{$clone_button}</div><div style="width:50%;display:inline-block; color: #91B64F; text-align: right;">{$reviewed}</div>
             <div style="display:inline-block;width:45%"></div>
             <div style="width:50%;display:inline-block;">
                 <div id="perform_profiles/brandprofile_Results"></div>
