@@ -715,7 +715,7 @@ else {
             $data['localPeriodOfInterest'] = 0;
             if(isset($core->input['est_local_pay']) && !empty($core->input['est_local_pay'])) { //est_local_pay= Estimated Local Invoice Due date (order customers section)
                 $data['localPeriodOfInterest'] = date_diff(date_create($partiesinfo['intermedEstDateOfPayment_output']), date_create($core->input['est_local_pay']));
-                $data['localPeriodOfInterest'] = $data['localPeriodOfInterest']->format("%r%a"); // Check if LSP purchase type vendor-estlocal pay
+                $data['localPeriodOfInterest'] = $data['localPeriodOfInterest']->format("%r%a");
                 if($data['localPeriodOfInterest'] < 0) {
                     $data['localPeriodOfInterest'] = 0;
                 }
@@ -725,6 +725,15 @@ else {
         if(is_object($purchasetype)) {
             if($purchasetype->isPurchasedByEndUser == 1) {
                 $data['localPeriodOfInterest'] = 0;
+            }
+            if($purchasetype->needsIntermediary == 0) {
+                if(isset($core->input['est_local_pay']) && !empty($core->input['est_local_pay'])) { // LSP purchase type (vendor-estlocal pay)
+                    $data['localPeriodOfInterest'] = date_diff(date_create($partiesinfo['vendorEstDateOfPayment_output']), date_create($core->input['est_local_pay']));
+                    $data['localPeriodOfInterest'] = $data['localPeriodOfInterest']->format("%r%a");
+                    if($data['localPeriodOfInterest'] < 0) {
+                        $data['localPeriodOfInterest'] = 0;
+                    }
+                }
             }
         }
 
