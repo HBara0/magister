@@ -513,7 +513,7 @@ $(function() {
     var fields_array = ["quantity", "qtyPotentiallySold", "intialPrice", "costPrice", "sellingPrice", "daysInStock"];
 
     // Trigger(s): 15A, 15B, 19, 18A
-    $("input[id^='productline_'][id$='_quantity'],input[id^='productline_'][id$='_qtyPotentiallySold'],input[id^='productline_'][id$='_costPrice'],input[id$='_sellingPrice'],select[id^='productline_'][id$='packing']").live('change', function() {
+    $("input[id^='productline_'][id$='_quantity'],input[id^='productline_'][id$='_qtyPotentiallySold'],input[id^='productline_'][id$='_costPrice'],input[id$='_sellingPrice']").live('change', function() {
         // $("input[id^='productline_'],select[id$='packing']").live('change', function () {
         //alert($(this).attr('id'));
         var id = $(this).attr('id').split("_");
