@@ -281,7 +281,7 @@ class MarketIntelligence {
                 $profile['displayItem'] = BasicIngredients;
             }
             $data['timelineItem'] = $this->parse_timelineentry_item($data[$profile['displayItem']::PRIMARY_KEY], $profile['displayItem']);
-            $data['timelineItemId'] = $data[$profile['displayItem']::PRIMARY_KEY];
+            $data['timelineItemId'] = $data[$profile['displayItem']::PRIMARY_KEY].'-'.$data['mibdid'].generate_checksum();
             $data['tlidentifier']['value'][$profile['displayItem']::PRIMARY_KEY] = $data['timelineItemId'];
             $tlidentifier['value'] = serialize($data['tlidentifier']['value']);
 

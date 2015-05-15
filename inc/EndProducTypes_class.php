@@ -29,14 +29,15 @@ class EndProducTypes extends AbstractClass {
 
     public function update(array $data) {
         global $db, $core, $log;
-        if(value_exists('endproducttypes', 'title', $data['title'], self::PRIMARY_KEY.'!='.intval($this->data[self::PRIMARY_KEY]))) {
-            $this->errorcode = 2;
-            return false;
-        }
 
         $data['title'] = $core->sanitize_inputs($data['title'], array('removetags' => true));
         if(empty($data['name'])) {
             $data['name'] = generate_alias($data['title']);
+        }
+
+        if(value_exists('endproducttypes', 'name', $data['name'], 'parent='.$data['parent'].' AND '.self::PRIMARY_KEY.'!='.intval($this->data[self::PRIMARY_KEY]))) {
+            $this->errorcode = 2;
+            return false;
         }
         $endproducttypes_data = array(
                 'name' => $data['name'],
@@ -57,15 +58,25 @@ class EndProducTypes extends AbstractClass {
             $this->errorcode = 1;
             return false;
         }
+
         $data['title'] = $core->sanitize_inputs($data['title'], array('removetags' => true));
         if(empty($data['name'])) {
             $data['name'] = generate_alias($data['title']);
         }
+
         if(isset($data['parent']) && !empty($data['parent'])) {
             $endproducttype_parent = new EndProducTypes($data['parent']);
             if(is_object($endproducttype_parent)) {
                 $data['segapplications'] = $endproducttype_parent->psaid;
             }
+        }
+        else {
+            $data['parent'] = 0;
+        }
+
+        if(value_exists('endproducttypes', 'name', $data['name'], 'parent='.intval($data['parent']))) {
+            $this->errorcode = 2;
+            return false;
         }
         $endproducttypes_data = array(
                 'name' => $data['name'],
