@@ -13,8 +13,7 @@ $lang['ignoredaffiliates'] = "Following affiliates were ignored";
 $lang['ignored_entries'] = "Following entries were ignored";
 $lang['possible_conflicting_entries'] = "Following entries are possibly conflicting with existing data";
 $lang['brandendproduct'] = "Brand Product Type";
-
-
+$lang['visitreport'] = "Visit Report";
 $lang['mireport'] = 'Market Intelligence Report';
 $lang['entitynotfound'] = "Entity not found";
 $lang['noentity'] = "Not entity specified";
@@ -68,7 +67,7 @@ $lang['createbrand'] = 'Create Brand';
 $lang['comment'] = "Comment";
 $lang['competition'] = 'Comeptition';
 $lang['competitortrader'] = 'Comptetitor Trader';
-$lang['competitorprod'] = 'Competitor Product';
+$lang['competitorprod'] = 'Competitor Producer';
 $lang['na'] = 'N/A';
 $lang['name'] = 'Name';
 $lang['endproducttypes'] = 'End Product Types';
