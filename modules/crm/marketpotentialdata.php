@@ -332,7 +332,7 @@ else {
         $mainattr = $midata->$main_attr;
         $twelvemonths = 31536000;
         $notcurrent = 'mibdid != '.$midata->mibdid;
-        $mi_pastobjs = MarketIntelligence::get_marketdata_dal(array('cid' => $midata->cid, 'CUSTOMSQL' => $notcurrent, 'ebpid' => $midata->ebpid, 'createdBy' => $core->user['uid'], $main_attr => $mainattr), array('simple' => false, 'operators' => array('CUSTOMSQL' => 'CUSTOMSQL')));
+        $mi_pastobjs = MarketIntelligence::get_marketdata_dal(array('cid' => $mkintentry->cid, 'CUSTOMSQL' => $notcurrent, 'ebpid' => $mkintentry->ebpid, 'createdBy' => $core->user['uid'], $main_attr => $mainattr), array('simple' => false, 'operators' => array('CUSTOMSQL' => 'CUSTOMSQL'), 'order' => array('by' => 'createdOn', 'sort' => 'DESC')));
         if(is_array($mi_pastobjs)) {
             foreach($mi_pastobjs as $mi_pastobj) {
 //                if($mi_pastobj->mibdid == $midata->mibdid) {
@@ -506,7 +506,7 @@ else {
         $mainattr = $mkintentry->$main_attr;
         $twelvemonths = 31536000;
         $notcurrent = 'mibdid != '.$mkintentry->mibdid;
-        $mi_pastobjs = MarketIntelligence::get_marketdata_dal(array('cid' => $mkintentry->cid, 'CUSTOMSQL' => $notcurrent, 'ebpid' => $mkintentry->ebpid, 'createdBy' => $core->user['uid'], $main_attr => $mainattr), array('simple' => false, 'operators' => array('CUSTOMSQL' => 'CUSTOMSQL'), 'order' => array('by' => array('createdOn'), 'sort' => array('DESC'))));
+        $mi_pastobjs = MarketIntelligence::get_marketdata_dal(array('cid' => $mkintentry->cid, 'CUSTOMSQL' => $notcurrent, 'ebpid' => $mkintentry->ebpid, 'createdBy' => $core->user['uid'], $main_attr => $mainattr), array('simple' => false, 'operators' => array('CUSTOMSQL' => 'CUSTOMSQL'), 'order' => array('by' => 'createdOn', 'sort' => 'DESC')));
         if(is_array($mi_pastobjs)) {
             foreach($mi_pastobjs as $mi_pastobj) {
                 if(strlen($mi_pastobj->comments) == 0) {
