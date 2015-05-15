@@ -50,7 +50,7 @@ if(!$core->input['action']) {
 }
 elseif($core->input['action'] == 'do_create') {
     $endprod_objs = new EndProducTypes();
-    $endprod_objs->create($core->input['productypes']);
+    $endprod_objs->save($core->input['productypes']);
     switch($endprod_objs->get_errorcode()) {
         case 0:
             output_xml('<status>true</status><message>'.$lang->successfullysaved.'</message>');
