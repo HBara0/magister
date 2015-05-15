@@ -77,7 +77,10 @@ class MarketIntelligence {
                     }
                 }
             }
-
+            if(!is_array($values)) {
+                $this->errorcode = 2;
+                return false;
+            }
             foreach($values as $option => $valuesarray) {
                 $valuesarray = array_filter($valuesarray);
                 foreach($valuesarray as $value) {

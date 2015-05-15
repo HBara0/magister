@@ -203,6 +203,7 @@ if(!$core->input['action']) {
     }
     if($core->usergroup['profiles_canAddMkIntlData'] == 1) {
         $midata = new MarketIntelligence();
+        $rowid = 2;
         $addmarketdata_link = '<div style="float: right;"><a href="#popup_profilesmarketdata" id="showpopup_profilesmarketdata" class="showpopup"><button type="button">'.$lang->addmarketdata.'</button></a></div>';
         $array_data = array('module' => 'proiles', 'elemtentid' => $affid, 'fieldlabel' => $lang->product, 'action' => 'do_addmartkerdata', 'modulefile' => 'entityprofile');
         $packaging_list = parse_selectlist('marketdata[competitor]['.$rowid.'][packaging]', 7, Packaging::get_data('name IS NOT NULL'), '', '', '', array('blankstart' => 1));
@@ -252,7 +253,6 @@ if(!$core->input['action']) {
         $mkdbing_rowid = 0;
         eval("\$profiles_mibasicingredientsentry_row = \"".$template->get('profiles_mibasicingredientsentry')."\";");
         eval("\$profiles_mibasicingredientsentry = \"".$template->get('profiles_mibasicingredientsentry_rows')."\";");
-
         eval("\$popup_marketdata= \"".$template->get('popup_profiles_marketdata')."\";");
         eval("\$popup_createbrand = \"".$template->get('popup_createbrand')."\";");
         eval("\$mkintl_section = \"".$template->get('profiles_mktintelsection')."\";");
@@ -314,9 +314,44 @@ else {
             exit;
         }
         $midata = new MarketIntelligence($core->input['id']);
+        $mimorerowsid = $midata->mibdid;
         $customer = $midata->get_customer();
         $brandsproducts = $customer->get_brandsproducts();
         $output = '';
+        $main_attr = '';
+        $basic_attrs = array('cfcid', 'cfpid', 'biid');
+        foreach($basic_attrs as $attr) {
+            $at = "'".$attr."'";
+            if($midata->$attr > 0) {
+                $main_attr = $attr;
+            }
+        }
+        if(!isset($main_attr)) {
+            exit;
+        }
+        $mainattr = $midata->$main_attr;
+        $twelvemonths = 31536000;
+        $notcurrent = 'mibdid != '.$midata->mibdid;
+        $mi_pastobjs = MarketIntelligence::get_marketdata_dal(array('cid' => $mkintentry->cid, 'CUSTOMSQL' => $notcurrent, 'ebpid' => $mkintentry->ebpid, 'createdBy' => $core->user['uid'], $main_attr => $mainattr), array('simple' => false, 'operators' => array('CUSTOMSQL' => 'CUSTOMSQL'), 'order' => array('by' => 'createdOn', 'sort' => 'DESC')));
+        if(is_array($mi_pastobjs)) {
+            foreach($mi_pastobjs as $mi_pastobj) {
+//                if($mi_pastobj->mibdid == $midata->mibdid) {
+//                    continue;
+//                }
+                if(strlen($mi_pastobj->comments) == 0) {
+                    continue;
+                }
+                if(TIME_NOW - $mi_pastobj->createdOn > $twelvemonths) {
+                    continue;
+                }
+                $createdby = new Users($mi_pastobj->createdBy);
+                $date = date($core->settings['datetime'], $mi_pastobj->createdOn);
+                $comments.="<br>".$createdby->get_displayname()."   ".$date." :<br>".$mi_pastobj->comments;
+            }
+        }
+        if(!empty($comments)) {
+            $comments = 'Past Comments: <div style="display:block">'.$comments.'</div>';
+        }
         if(is_array($brandsproducts)) {
             foreach($brandsproducts as $brandproduct) {
                 $brandproduct_brand = $brandproduct->get_entitybrand();
@@ -334,8 +369,7 @@ else {
 
             $entitiesbrandsproducts_list = parse_selectlist('marketdata[ebpid]', 7, $options, $midata->ebpid);
         }
-
-        $endproducttypes = EndProducTypes::get_endproductypes();
+        $endproducttypes = EndProducTypes:: get_endproductypes();
         if(is_array($endproducttypes)) {
             foreach($endproducttypes as $endproducttype) {
                 $endproducttypes_list .= '<option value="'.$endproducttype->eptid.'">'.$endproducttype->title.' - '.$endproducttype->get_application()->get_displayname().'</option>';
@@ -358,8 +392,17 @@ else {
             eval("\$profiles_michemfuncproductentry = \"".$template->get('profiles_michemfuncsubstancentry')."\";");
         }
 
-
-
+        $brandedendprod_obj = new EntBrandsProducts($midata->ebpid);
+        if(is_object($brandedendprod_obj)) {
+            $brandname = $brandedendprod_obj->get_entitybrand()->get_displayname();
+        }
+        /* parse visit report --START */
+        $visitreport_objs = CrmVisitReports::get_visitreports(array('uid' => $core->user['uid'], 'cid' => $midata->cid, 'isDraft' => 1), array('order' => array('by' => 'date', 'sort' => 'DESC'), 'returnarray' => 1));
+        if(is_array($visitreport_objs)) {
+            $profiles_mincustomervisit_title = $lang->visitreport;
+            $profiles_mincustomervisit = parse_selectlist('marketdata[vrid]', 7, $visitreport_objs, $midata->vrid, '', '', array('blankstart' => 1));
+        }
+        /* parse visit report --END */
         $chemfuncproduct = $midata->get_chemfunctionproducts();
         if(is_object($chemfuncproduct)) {
             $product = $chemfuncproduct->get_produt();
@@ -371,12 +414,71 @@ else {
         $elementname = 'marketdata[cid]';
         $action = 'do_addmartkerdata';
         $elemtentid = $customer->get_eid();
+        /* Parse competitors related market Data */
+        $mrktcompetitor_objs = $midata->get_competitors();
+        if(is_array($mrktcompetitor_objs)) {
+            end($mrktcompetitor_objs);
+            $lastkey = key($mrktcompetitor_objs);
+            foreach($mrktcompetitor_objs as $mrktcompetitor_obj) {
+                if($mrktcompetitor_obj->micid == $lastkey) {
+                    continue;
+                }
+                $rowid = $i;
+                $traders = $mrktcompetitor_obj->get_entitytrader();
+                if(is_array($traders)) {
+                    $competitor['trader'] = $traders[$mrktcompetitor_obj->trader]->get_displayname();
+                }
+                $producer = $mrktcompetitor_obj->get_entityproducer();
+                if(is_array(producer)) {
+                    $competitor['producer'] = $producer[$mrktcompetitor_obj->producer]->get_displayname();
+                }
+                $product = $mrktcompetitor_obj->get_products();
+                if(is_array($product)) {
+                    $competitor['product'] = $product[$mrktcompetitor_obj->pid]->get_displayname();
+                    $competitor['pid'] = $product[$mrktcompetitor_obj->pid]->pid;
+                }
+                $competitor['uniprice'] = $mrktcompetitor_obj->unitPrice;
+                $packaging_list = parse_selectlist('marketdata[competitor]['.$i.'][packaging]', 7, Packaging::get_data('name IS NOT NULL'), $mrktcompetitor_obj->packaging, '', '', array('blankstart' => 1));
+                $incoterms_list = parse_selectlist('marketdata[competitor]['.$i.'][incoterms]', 8, Incoterms::get_data('titleAbbr IS NOT NULL'), $mrktcompetitor_obj->incoterms, '', '', array('blankstart' => 1));
+                $saletype_list = parse_selectlist('marketdata[competitor]['.$i.'][saletype]', 8, SaleTypes::get_data('stid IN (1,4)'), $mrktcompetitor_obj->saletype, '', '', array('blankstart' => 1));
+                $samplacquire = parse_radiobutton('marketdata[competitor]['.$i.'][isSampleacquire]', array(1 => 'yes', 0 => 'no'), $mrktcompetitor_obj->isSampleacquire, true);
+                eval("\$competitors_rows .= \"".$template->get('crm_marketpotentialdata_comptetitors')."\";");
+                unset($mrktcompetitor_obj, $competitor);
+            }
 
-        $packaging_list = parse_selectlist('marketdata[competitor]['.$rowid.'][packaging]', 7, Packaging::get_data('name IS NOT NULL'), '', '', '', array('blankstart' => 1));
-        $incoterms_list = parse_selectlist('marketdata[competitor]['.$rowid.'][incoterms]', 8, Incoterms::get_data('titleAbbr IS NOT NULL'), '', '', '', array('blankstart' => 1));
-        $saletype_list = parse_selectlist('marketdata[competitor]['.$rowid.'][saletype]', 8, SaleTypes::get_data('stid IN (1,4)'), '', '', '', array('blankstart' => 1));
-        $samplacquire = parse_radiobutton('marketdata[competitor]['.$rowid.'][isSampleacquire]', array(1 => 'yes', 0 => 'no'), '', true);
-        /* parse incoterms and packaging */
+            $rowid = 2;
+            $mrktcompetitor_obj = $mrktcompetitor_objs[$lastkey];
+            $traders = $mrktcompetitor_obj->get_entitytrader();
+            if(is_array($traders)) {
+                $competitor['trader'] = $traders[$mrktcompetitor_obj->trader]->get_displayname();
+            }
+            $producer = $mrktcompetitor_obj->get_entityproducer();
+            if(is_array(producer)) {
+                $competitor['producer'] = $producer[$mrktcompetitor_obj->producer]->get_displayname();
+            }
+            $product = $mrktcompetitor_obj->get_products();
+            if(is_array($product)) {
+                $competitor['product'] = $product[$mrktcompetitor_obj->pid]->get_displayname();
+                $competitor['pid'] = $product[$mrktcompetitor_obj->pid]->pid;
+            }
+            $producer = $mrktcompetitor_obj->get_entityproducer();
+            if(is_array($producer)) {
+                $competitor['producer'] = $producer[$mrktcompetitor_obj->producer]->get_displayname();
+            }
+            $competitor['uniprice'] = $mrktcompetitor_obj->unitPrice;
+            $packaging_list = parse_selectlist('marketdata[competitor][2][packaging]', 7, Packaging::get_data('name IS NOT NULL'), $mrktcompetitor_obj->packaging, '', '', array('blankstart' => 1));
+            $incoterms_list = parse_selectlist('marketdata[competitor][2][incoterms]', 8, Incoterms::get_data('titleAbbr IS NOT NULL'), $mrktcompetitor_obj->incoterms, '', '', array('blankstart' => 1));
+            $saletype_list = parse_selectlist('marketdata[competitor][2][saletype]', 8, SaleTypes::get_data('stid IN (1,4)'), $mrktcompetitor_obj->saletype, '', '', array('blankstart' => 1));
+            $samplacquire = parse_radiobutton('marketdata[competitor][2][isSampleacquire]', array(1 => 'yes', 0 => 'no'), $mrktcompetitor_obj->isSampleacquire, true);
+        }
+        else {
+            $rowid = 2;
+            $packaging_list = parse_selectlist('marketdata[competitor][2][packaging]', 7, Packaging::get_data('name IS NOT NULL'), '', '', '', array('blankstart' => 1));
+            $incoterms_list = parse_selectlist('marketdata[competitor][2][incoterms]', 8, Incoterms::get_data('titleAbbr IS NOT NULL'), '', '', '', array('blankstart' => 1));
+            $saletype_list = parse_selectlist('marketdata[competitor][2][saletype]', 8, SaleTypes::get_data('stid IN (1,4)'), '', '', '', array('blankstart' => 1));
+            $samplacquire = parse_radiobutton('marketdata[competitor][2][isSampleacquire]', array(1 => 'yes', 0 => 'no'), '', true);
+        }
+
         eval("\$popup_marketdata = \"".$template->get('popup_profiles_marketdata')."\";");
         output($popup_marketdata);
     }
@@ -390,7 +492,37 @@ else {
         foreach($round_fields as $round_field) {
             $mkintentry->{$round_field} = round($mkintentry->{$round_field});
         }
+        $basic_attrs = array('cfcid', 'cfpid', 'biid');
 
+        foreach($basic_attrs as $attr) {
+            $at = "'".$attr."'";
+            if($mkintentry->$attr > 0) {
+                $main_attr = $attr;
+            }
+        }
+        if(!isset($main_attr)) {
+            exit;
+        }
+        $mainattr = $mkintentry->$main_attr;
+        $twelvemonths = 31536000;
+        $notcurrent = 'mibdid != '.$mkintentry->mibdid;
+        $mi_pastobjs = MarketIntelligence::get_marketdata_dal(array('cid' => $mkintentry->cid, 'CUSTOMSQL' => $notcurrent, 'ebpid' => $mkintentry->ebpid, 'createdBy' => $core->user['uid'], $main_attr => $mainattr), array('simple' => false, 'operators' => array('CUSTOMSQL' => 'CUSTOMSQL'), 'order' => array('by' => 'createdOn', 'sort' => 'DESC')));
+        if(is_array($mi_pastobjs)) {
+            foreach($mi_pastobjs as $mi_pastobj) {
+                if(strlen($mi_pastobj->comments) == 0) {
+                    continue;
+                }
+                if(TIME_NOW - $mi_pastobj->createdOn > $twelvemonths) {
+                    continue;
+                }
+                $createdby = new Users($mi_pastobj->createdBy);
+                $date = date($core->settings['datetime'], $mi_pastobj->createdOn);
+                $comments.="<br>".$createdby->get_displayname()."   ".$date." :<br>".$mi_pastobj->comments;
+            }
+        }
+        if(!empty($comments)) {
+            $comments = '<td><strong>Past Comments</strong></td><td><div style="width:300px; overflow:auto; height:80px; line-height:20px;">'.$comments.'</div></td>';
+        }
         $mkintentry_customer = $mkintentry->get_customer();
         $mkintentry_brand = $mkintentry->get_entitiesbrandsproducts()->get_entitybrand();
         $mkintentry_endproducttype = $mkintentry->get_entitiesbrandsproducts()->get_endproduct();
@@ -400,7 +532,7 @@ else {
         }
         /* Parse competitors related market Data */
         $mrktcompetitor_objs = $mkintentry->get_competitors();
-        if(is_array($mrktcompetitor_objs)) {
+        if(is_array($mrktcom_petitor_objs)) {
             foreach($mrktcompetitor_objs as $mrktcompetitor_obj) {
                 $mrktintl_detials['competitors'] = $mrktcompetitor_obj->get();
                 if(is_array($mrktintl_detials['competitors'])) {
@@ -418,7 +550,7 @@ else {
                     $competitorsproducts_objs = $mrktcompetitor_obj->get_products();
                     if(is_array($competitorsproducts_objs)) {
                         foreach($competitorsproducts_objs as $competitorsproducts_obj) {
-                            $mrktintl_detials_competitorproducts.= '<li>'.$competitorsproducts_obj->get()['name'].'</li>';
+                            $mrktintl_detials_competitorproducts.='<li>'.$competitorsproducts_obj->get()['name'].'</li>';
                         }
                     }
                 }
@@ -459,11 +591,12 @@ else {
         output_page($createchemical);
     }
     elseif($core->input['action'] == 'do_createchemical') {
-        $chemsustance = new Chemicalsubstances();
+        $chemsustance = new Chemicalsubstances ( );
         $chemsustance->create($core->input['chemcialsubstances']);
         switch($chemsustance->get_status()) {
             case 0:
-                output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
+                output_xml("<status>true</status><message> {
+        $lang->successfullysaved}</message>");
                 break;
             case 4:
                 output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");

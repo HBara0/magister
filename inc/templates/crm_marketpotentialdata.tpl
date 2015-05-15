@@ -2,6 +2,7 @@
     <head>
         <title>{$core->settings[systemtitle]} | {$lang->potentialmarketdata}</title>
         {$headerinc}
+        <script src="{$core->settings[rootdir]}/js/profiles_marketintelligence.min.js" type="text/javascript"></script>
     </head>
     <body>
         {$header}

@@ -312,7 +312,7 @@ function parse_textfield($name, $id, $type, $value = '', $options = array(), $co
 
     if(!empty($options)) {
         foreach($options as $key => $val) {
-            $attributes.= ' '.$key.'="'.$val.'"';
+            $attributes.= $key.'="'.$val.'"';
         }
     }
 
@@ -621,8 +621,8 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
     if(is_array($results)) {
         foreach($results as $key => $val) {
             if($options['returnType'] == 'json') {
-                $results_list[' '.$key]['id'] = $key;
-                $results_list[' '.$key]['value'] = $val;
+                $results_list['"'.$key.'"']['id'] = $key;
+                $results_list['"'.$key.'"']['value'] = $val;
             }
             if(isset($options['descinfo']) && !empty($options['descinfo'])) {
                 switch($options['descinfo']) {
@@ -636,8 +636,8 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
 //                        }
                         $city = new Cities($key);
                         if($options['returnType'] == 'json') {
-                            $results_list[' '.$key]['id'] = $city->ciid;
-                            $results_list[' '.$key]['desc'] = $city->name.' - '.$city->get_country()->name;
+                            $results_list['"'.$key.'"']['id'] = $city->ciid;
+                            $results_list['"'.$key.'"']['desc'] = $city->name.' - '.$city->get_country()->name;
                         }
                         else {
                             $details = '<br /><span class="smalltext">'.$city->name.' - '.$city->get_country()->name.'</span>';
@@ -649,8 +649,8 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                         $hotelsobj = TravelManagerHotels::get_data('tmhid='.$key);
                         $city = new Cities($hotelsobj->city);
                         if($options['returnType'] == 'json') {
-                            $results_list[' '.$key]['id'] = $key;
-                            $results_list[' '.$key]['desc'] = $city->name.' - '.$city->get_country()->name;
+                            $results_list['"'.$key.'"']['id'] = $key;
+                            $results_list['"'.$key.'"']['desc'] = $city->name.' - '.$city->get_country()->name;
                         }
                         else {
                             $details = '<br /><span class="smalltext">'.$city->get_country()->name.'</span>';
@@ -665,8 +665,8 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                             foreach($chemfuncprod_objs as $chemfuncprod_obj) {
                                 $application_obj = $chemfuncprod_obj->get_segapplicationfunction();
                                 if($options['returnType'] == 'json') {
-                                    $results_list[' '.$key]['id'] = $chemfuncprod_obj->cfpid;
-                                    $results_list[' '.$key]['desc'] = $chemfuncprod_obj->get_chemicalfunction()->title.' - '.$application_obj->get_application()->title.' - '.$application_obj->get_segment()->title;
+                                    $results_list['"'.$key.'"']['id'] = $chemfuncprod_obj->cfpid;
+                                    $results_list['"'.$key.'"']['desc'] = $chemfuncprod_obj->get_chemicalfunction()->title.' - '.$application_obj->get_application()->title.' - '.$application_obj->get_segment()->title;
                                 }
                                 else {
                                     $details = '<br /><span class="smalltext">'.$chemfuncprod_obj->get_chemicalfunction()->title.' - '.$application_obj->get_application()->title.' - '.$application_obj->get_segment()->title.'</span>';
@@ -680,8 +680,8 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                                 foreach($chemfuncprod_objs as $chemfuncprod_obj) {
                                     $application_obj = $chemfuncprod_obj->get_segapplicationfunction();
                                     if($options['returnType'] == 'json') {
-                                        $results_list[' '.$key]['id'] = $chemfuncprod_obj->cfpid;
-                                        $results_list[' '.$key]['desc'] = $chemfuncprod_obj->get_chemicalfunction()->title.' - '.$application_obj->get_application()->title.' - '.$application_obj->get_segment()->title;
+                                        $results_list['"'.$key.'"']['id'] = $chemfuncprod_obj->cfpid;
+                                        $results_list['"'.$key.'"']['desc'] = $chemfuncprod_obj->get_chemicalfunction()->title.' - '.$application_obj->get_application()->title.' - '.$application_obj->get_segment()->title;
                                     }
                                     else {
                                         $details = '<br/><span class="smalltext">'.$chemfuncprod_obj->get_chemicalfunction()->title.' - '.$application_obj->get_application()->title.' - '.$application_obj->get_segment()->title.'</span>';
@@ -691,7 +691,7 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                             }
                             else {
                                 if($options['returnType'] == 'json') {
-                                    unset($results_list[' '.$key]);
+                                    unset($results_list['"'.$key.'"']);
                                 }
                             }
                         }
@@ -702,7 +702,7 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                         $generic = $product->get_genericproduct();
                         if(is_object($generic)) {
                             if($options['returnType'] == 'json') {
-                                $results_list[' '.$key]['desc'] = $generic->get_segment()->title;
+                                $results_list['"'.$key.'"']['desc'] = $generic->get_segment()->title;
                             }
                             else {
                                 $details = '<br/><span class="smalltext">'.$generic->get_segment()->title.'</span>';
@@ -711,23 +711,23 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                         }
                         else {
                             if($options['returnType'] == 'json') {
-                                unset($results_list[' '.$key]);
+                                unset($results_list['"'.$key.'"']);
                             }
                         }
                         break;
                     case 'checmicalfunction':
                         $chemfunchem_objs = ChemFunctionChemicals::get_data('csid='.$key, array('returnarray' => 1));
                         if(is_array($chemfunchem_objs)) {
-                            unset($results_list[' '.$key]);
+                            unset($results_list['"'.$key.'"']);
 
                             foreach($chemfunchem_objs as $chemfunchem_obj) {
                                 $application_obj = $chemfunchem_obj->get_segapplicationfunction();
 
                                 if($options['returnType'] == 'json') {
-                                    $results_list[' '.$chemfunchem_obj->cfcid]['value'] = $val;
-                                    $results_list[' '.$chemfunchem_obj->cfcid]['id'] = $chemfunchem_obj->cfcid;
+                                    $results_list['"'.$chemfunchem_obj->cfcid.'"']['value'] = $val;
+                                    $results_list['"'.$chemfunchem_obj->cfcid.'"']['id'] = $chemfunchem_obj->cfcid;
                                     if(!empty($application_obj->get_application()->title)) {
-                                        $results_list[' '.$chemfunchem_obj->cfcid]['desc'] = $chemfunchem_obj->get_chemicalfunction()->title.' - '.$application_obj->get_application()->title.' - '.$application_obj->get_segment()->title;
+                                        $results_list['"'.$chemfunchem_obj->cfcid.'"']['desc'] = $chemfunchem_obj->get_chemicalfunction()->title.' - '.$application_obj->get_application()->title.' - '.$application_obj->get_segment()->title;
                                     }
                                 }
                                 else {
@@ -740,21 +740,21 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                         }
                         else {
                             if($options['returnType'] == 'json') {
-                                unset($results_list[' '.$key]);
+                                unset($results_list['"'.$key.'"']);
                             }
                         }
                         break;
                     case 'entbrandsproducts':
                         $entbrandproducts = EntBrandsProducts::get_data('ebid='.$key, array('returnarray' => 1));
                         if(is_array($entbrandproducts)) {
-                            unset($results_list[' '.$key]);
+                            unset($results_list['"'.$key.'"']);
                             foreach($entbrandproducts as $entbrandproduct) {
                                 $endprod = $entbrandproduct->get_endproduct();
                                 if(is_object($endprod)) {
                                     if($options['returnType'] == 'json') {
-                                        $results_list[' '.$entbrandproduct->get_id()]['value'] = $val;
-                                        $results_list[' '.$entbrandproduct->get_id()]['id'] = $entbrandproduct->get_id();
-                                        $results_list[' '.$entbrandproduct->get_id()]['desc'] = $endprod->title;
+                                        $results_list['"'.$entbrandproduct->get_id().'"']['value'] = $val;
+                                        $results_list['"'.$entbrandproduct->get_id().'"']['id'] = $entbrandproduct->get_id();
+                                        $results_list['"'.$entbrandproduct->get_id().'"']['desc'] = $endprod->title;
                                     }
                                     else {
                                         $details = '<br /><span class="smalltext">'.$entbrandproduct->get_endproduct()->title.'</span>';
@@ -763,8 +763,8 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                                 }
                                 else {
                                     if($options['returnType'] == 'json') {
-                                        $results_list[' '.$entbrandproduct->get_id()]['value'] = $val;
-                                        $results_list[' '.$entbrandproduct->get_id()]['id'] = $entbrandproduct->get_id();
+                                        $results_list['"'.$entbrandproduct->get_id().'"']['value'] = $val;
+                                        $results_list['"'.$entbrandproduct->get_id().'"']['id'] = $entbrandproduct->get_id();
                                     }
                                     else {
                                         $results_list .= '<li id="'.$entbrandproduct->get_id().'">'.$val.'</li>';
@@ -774,7 +774,7 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                         }
                         else {
                             if($options['returnType'] == 'json') {
-                                unset($results_list[' '.$key]);
+                                unset($results_list['"'.$key.'"']);
                             }
                         }
                         break;
@@ -795,9 +795,9 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                                 }
                             }
                             if($options['returnType'] == 'json') {
-                                $results_list[' '.$current_obj->eptid]['value'] = $val;
-                                $results_list[' '.$current_obj->eptid]['id'] = $current_obj->eptid;
-                                $results_list[' '.$current_obj->eptid]['desc'] = $details;
+                                $results_list['"'.$current_obj->eptid.'"']['value'] = $val;
+                                $results_list['"'.$current_obj->eptid.'"']['id'] = $current_obj->eptid;
+                                $results_list['"'.$current_obj->eptid.'"']['desc'] = $details;
                             }
                             else {
                                 $details = '<br /><span class="smalltext">'.$details.'</span>';
@@ -806,7 +806,7 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                         }
                         else {
                             if($options['returnType'] == 'json') {
-                                unset($results_list[' '.$key]);
+                                unset($results_list['"'.$key.'"']);
                             }
                         }
                         unset($details);
@@ -829,9 +829,9 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                                 }
                             }
                             if($options['returnType'] == 'json') {
-                                $results_list[' '.$current_obj->eptid]['value'] = $val;
-                                $results_list[' '.$current_obj->eptid]['id'] = $current_obj->eptid;
-                                $results_list[' '.$current_obj->eptid]['desc'] = $details;
+                                $results_list['"'.$current_obj->eptid.'"']['value'] = $val;
+                                $results_list['"'.$current_obj->eptid.'"']['id'] = $current_obj->eptid;
+                                $results_list['"'.$current_obj->eptid.'"']['desc'] = $details;
                             }
                             else {
                                 $details = '<br /><span class="smalltext">'.$details.'</span>';
@@ -840,7 +840,7 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                         }
                         else {
                             if($options['returnType'] == 'json') {
-                                unset($results_list[' '.$key]);
+                                unset($results_list['"'.$key.'"']);
                             }
                         }
                         unset($details);
@@ -851,9 +851,9 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                         $customer_obj = $brand_obj->get_entity();
                         if(is_object($customer_obj)) {
                             if($options['returnType'] == 'json') {
-                                $results_list[' '.$key]['value'] = $val;
-                                $results_list[' '.$key]['id'] = $brand_obj->ebid;
-                                $results_list[' '.$key]['desc'] = $customer_obj->get_displayname();
+                                $results_list['"'.$key.'"']['value'] = $val;
+                                $results_list['"'.$key.'"']['id'] = $brand_obj->ebid;
+                                $results_list['"'.$key.'"']['desc'] = $customer_obj->get_displayname();
                             }
                             else {
                                 $details = '<br /><span class="smalltext">'.$customer_obj->get_displayname().'</span>';
@@ -862,7 +862,7 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                         }
                         else {
                             if($options['returnType'] == 'json') {
-                                unset($results_list[' '.$key]);
+                                unset($results_list['"'.$key.'"']);
                             }
                         }
                         unset($details);
@@ -871,7 +871,7 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                         $entity = new Entities($key);
                         if(!empty($entity->country)) {
                             if($options['returnType'] == 'json') {
-                                $results_list[' '.$key]['desc'] = $entity->get_country()->name;
+                                $results_list['"'.$key.'"']['desc'] = $entity->get_country()->name;
                             }
                             else {
                                 $details = '<br /><span class="smalltext">'.$entity->get_country()->name.'</span>';

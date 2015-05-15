@@ -15,7 +15,7 @@
             <div style="width: 30%; display: inline-block;">{$lang->marketshareqty}</div><div style="width: 60%; display: inline-block;"><input type="number" size="12" step="any" id="mktshareqty" name="marketdata[mktShareQty]" accept="numeric" required="required" autocomplete="off" min="0" value="{$midata->mktShareQty}"/></div>
             <div style="width: 30%; display: inline-block;">{$lang->price}</div><div style="width: 60%; display: inline-block;"><input type="number" step="any" size="12" name="marketdata[unitPrice]" accept="numeric" autocomplete="off" min="0" value="{$midata->unitPrice}"/> USD/KG {$lang->cif}</div>
             <div style="width: 30%; display: inline-block;">{$lang->endproductbrand}</div>
-            <div style="width: 60%; display: inline-block;"><input onFocus="$('#entbrandsproducts_0_cid').val($('#customer_2_id').val())" type="text" size="25" id="entbrandsproducts_0_autocomplete" size="100" autocomplete="off" value="{$midata->brandname}"/> | <a style="cursor: pointer" id="showpopup_createbrand" class="showpopup"><img src="{$core->settings[rootdir]}/images/addnew.png" border="0" title="{$lang->createbrand}"></a>
+            <div style="width: 60%; display: inline-block;"><input onFocus="$('#entbrandsproducts_0_cid').val($('#customer_2_id').val())" type="text" size="25" id="entbrandsproducts_0_autocomplete" size="100" autocomplete="off" value="{$brandname}"/> | <a style="cursor: pointer" id="showpopup_createbrand" class="showpopup"><img src="{$core->settings[rootdir]}/images/addnew.png" border="0" title="{$lang->createbrand}"></a>
                 <input type="hidden" id="entbrandsproducts_0_id" name="marketdata[ebpid]" value='{$midata->ebpid}'/>
                 <input type="hidden" id="entbrandsproducts_0_cid" name="cid" value='1'/>
                 <div id="searchQuickResults_0" class="searchQuickResults" style="display:none;"></div>
@@ -26,13 +26,14 @@
             </div>
             <div>{$lang->comment}</div>
             <div><textarea cols="60" rows="5" name="marketdata[comments]">{$midata->comments}</textarea></div>
+                {$comments}
             <hr />
             <table cellpadding="0" cellspacing="0" width="100%">
                 <tr><td><strong>{$lang->competition}</strong></td></tr>
                 <tr>
                     <td>
                         <table class="datatable" width="100%">
-                            <tbody id="competitor_tbody">
+                            <tbody id="competitor{$mimorerowsid}_tbody">
                                 <tr id="2">
                                     <td>
                                         <div style="width:100%; display:block;padding:5px">
@@ -72,9 +73,10 @@
                                         </div>
                                     </td>
                                 </tr>
+                                {$competitors_rows}
                             </tbody>
                             <tfoot>
-                                <tr><td><img id="addmore_competitor" src="{$core->settings[rootdir]}/images/add.gif" /></td></tr>
+                                <tr><td><img id="addmore_competitor{$mimorerowsid}" src="{$core->settings[rootdir]}/images/add.gif" /></td></tr>
                             </tfoot>
                         </table>
                     </td>

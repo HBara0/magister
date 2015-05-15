@@ -36,6 +36,8 @@
             <td><strong>{$lang->comment}</strong></td>
             <td><div style="width:300px; overflow:auto; height:80px; line-height:20px;">{$mkintentry->comments}</div></td>
         </tr>
+        <tr>                {$comments}
+        </tr>
     </table>
     {$marketintelligencedetail_competitors}
 </div>

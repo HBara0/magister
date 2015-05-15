@@ -57,11 +57,6 @@ class EndProducTypes extends AbstractClass {
             $this->errorcode = 1;
             return false;
         }
-        if(value_exists('endproducttypes', 'title', $data['title'])) {
-            $this->errorcode = 2;
-            return false;
-        }
-
         $data['title'] = $core->sanitize_inputs($data['title'], array('removetags' => true));
         if(empty($data['name'])) {
             $data['name'] = generate_alias($data['title']);
