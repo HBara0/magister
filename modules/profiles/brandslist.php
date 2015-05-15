@@ -69,7 +69,7 @@ if(!$core->input['action']) {
                 $endproduct = new EndProducTypes();
             }
 
-            $brands_list .= '<tr><td>'.$brand->name.'</td><td>'.$entity->parse_link().'</td><td>'.$entity->get_country()->name.'</td><td>'.$endproduct->get_displayname().'</td></tr>';
+            $brands_list .= '<tr><td>'.$brand->parse_link().'</td><td>'.$entity->parse_link().'</td><td>'.$entity->get_country()->name.'</td><td>'.$endproduct->get_displayname().'</td></tr>';
         }
     }
     eval("\$listpage = \"".$template->get('profiles_brandslist')."\";");
