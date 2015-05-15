@@ -21,7 +21,7 @@ class MarketIntelligence {
     private $customer = null;
     private $brand = null;
     private $endproducttype = null;
-    private $miprofiles = array('latestcustomersumbyproduct' => array('groupby' => array('cfpid', 'cfcid', 'mibdid', 'biid'), 'aggregateby' => array('cfpid', 'cfcid', 'biid'), 'displayItem' => ChemFunctionProducts, 'timelevel' => 'latest'), //Main entity profile
+    private $miprofiles = array('latestcustomersumbyproduct' => array('groupby' => array('cfpid', 'cfcid', 'mibdid', 'biid', 'ebpid'), 'aggregateby' => array('cfpid', 'cfcid', 'biid', 'ebpid'), 'displayItem' => ChemFunctionProducts, 'timelevel' => 'latest'), //Main entity profile
             'allprevious' => array('groupby' => array('createdOn', 'eptid', 'mibdid'), 'aggregateby' => array('mibdid'), 'timelevel' => 'allprevious'), //N Level
             'latestaggregatecustomersumbyproduct' => array('groupby' => array('cfpid', 'cfcid', 'biid', 'mibdid'), 'aggregateby' => array('cid', 'cfpid', 'cfcid', 'biid'), 'displayItem' => ChemFunctionProducts, 'timelevel' => 'latest'),
             'latestaggregatebycustomer' => array('groupby' => array('cid', 'eptid'), 'aggregateby' => array('cid', 'cfpid', 'cfcid', 'biid'), 'displayItem' => Customers, 'timelevel' => 'latest'),

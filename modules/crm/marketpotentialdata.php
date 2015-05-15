@@ -209,6 +209,7 @@ if(!$core->input['action']) {
         $packaging_list = parse_selectlist('marketdata[competitor]['.$rowid.'][packaging]', 7, Packaging::get_data('name IS NOT NULL'), '', '', '', array('blankstart' => 1));
         $saletype_list = parse_selectlist('marketdata[competitor]['.$rowid.'][saletype]', 8, SaleTypes::get_data('stid IN (1,4)'), '', '', '', array('blankstart' => 1));
         $samplacquire = parse_radiobutton('marketdata[competitor]['.$rowid.'][isSampleacquire]', array(1 => 'yes', 0 => 'no'), '', true);
+        $customer_rowid = 2;
         eval("\$profiles_entityprofile_micustomerentry = \"".$template->get('crm_marketpotentialdata_micustomerentry')."\";");
         $module = 'crm';
         $action = 'do_addmartkerdata';
@@ -242,6 +243,7 @@ if(!$core->input['action']) {
             }
         }
 
+        $brandprod_rowid = 0;
         $mkdchem_rowid = 0;
         eval("\$profiles_michemfuncproductentry_row = \"".$template->get('profiles_michemfuncsubstancentry')."\";");
         eval("\$profiles_michemfuncproductentry = \"".$template->get('profiles_michemfuncsubstancentry_rows')."\";");
@@ -306,13 +308,12 @@ else {
     }
     elseif($core->input['action'] == 'get_updatemktintldtls') {
         $css[display]['radiobuttons'] = 'none';
-        $mkdchem_rowid = 0;
-        $mkdbing_rowid = 0;
-        $mkdprod_rowid = 0;
-
         if($core->usergroup['profiles_canAddMkIntlData'] == 0) {
             exit;
         }
+        $brandprod_rowid = $mkdchem_rowid = $core->input['id'];
+        $mkdbing_rowid = $core->input['id'];
+        $mkdprod_rowid = $core->input['id'];
         $midata = new MarketIntelligence($core->input['id']);
         $mimorerowsid = $midata->mibdid;
         $customer = $midata->get_customer();
