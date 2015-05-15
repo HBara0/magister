@@ -932,6 +932,12 @@ else {
                 output($lang->nopolicy);
                 exit;
             }
+            $defaultintermedfields = array('defaultCurrency', 'defaultIntermed', 'defaultIncoterms', 'defaultPaymentTerm');
+            foreach($defaultintermedfields as $defaultintermedfields) {
+                if(empty($affpolicy->$defaultintermedfields)) {
+                    $affpolicy->$defaultintermedfields = 0;
+                }
+            }
             $defaultaffpolicy = array('currencies' => $affpolicy->defaultCurrency,
                     'partiesinfo_intermed_aff' => $affpolicy->defaultIntermed,
                     'partiesinfo_intermed_incoterms' => $affpolicy->defaultIncoterms,
@@ -1112,16 +1118,20 @@ else {
         output($purchasetype->needsIntermediary);
     }
     else if($core->input['action'] == 'updatecommission') {
-
-        //  if($core->nput['ptid'])
-        $comm = $core->input['defaultcomm'];
-        if($core->input['totalcommision'] < 250) {
-            if(!empty($core->input['totalamount']) && $core->input['totalamount'] != 0) {
-                $comm = (250 * 100 ) / $core->input['totalamount'];
+        $totalcomm = $comm = 0;
+        $purcasetype = new PurchaseTypes($core->input['ptid']);
+        if(is_object($purcasetype) && $purcasetype->needsIntermediary == 1) {
+            //  needsIntermediary
+            $totalcomm = $core->input['totalcommision'];
+            $comm = $core->input['defaultcomm'];
+            if($core->input['totalcommision'] < 250) {
+                if(!empty($core->input['totalamount']) && $core->input['totalamount'] != 0) {
+                    $comm = (250 * 100 ) / $core->input['totalamount'];
+                }
             }
         }
         $commission_data = array('partiesinfo_commission' => round($comm, 3),
-                'ordersummary_totalcomm' => round($core->input['totalcommision'], 2)
+                'ordersummary_totalcomm' => round($totalcomm, 2)
         );
         echo json_encode($commission_data);
     }
