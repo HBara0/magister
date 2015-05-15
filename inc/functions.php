@@ -780,28 +780,40 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                         break;
                     case 'endproducttypes':
                         $current_obj = new EndProducTypes($key);
-                        $first_parent = $current_obj->get_parent();
-                        if(is_object($first_parent)) {
-                            $details = $first_parent->get_displayname();
-                            $secondpar_obj = $first_parent->get_parent();
-                            if(is_object($secondpar_obj)) {
-                                $details = $secondpar_obj->get_displayname().'<--'.$details;
-                                $third_par = $secondpar_obj->get_parent();
-                                if(is_object($third_par)) {
-                                    $originalpar_obj = $third_par->get_mother();
-                                    if(is_object($originalpar_obj)) {
-                                        $details = $originalpar_obj->get_displayname().'<-.....<-'.$details;
+
+                        if(is_object($current_obj)) {
+                            $first_parent = $current_obj->get_parent();
+                            if(is_object($first_parent)) {
+                                $details = $first_parent->get_displayname();
+                                $secondpar_obj = $first_parent->get_parent();
+                                if(is_object($secondpar_obj)) {
+                                    $details = $secondpar_obj->get_displayname().'<--'.$details;
+                                    $third_par = $secondpar_obj->get_parent();
+                                    if(is_object($third_par)) {
+                                        $originalpar_obj = $third_par->get_mother();
+                                        if(is_object($originalpar_obj)) {
+                                            $details = $originalpar_obj->get_displayname().'<-.....<-'.$details;
+                                        }
                                     }
                                 }
-                            }
-                            if($options['returnType'] == 'json') {
-                                $results_list['"'.$current_obj->eptid.'"']['value'] = $val;
-                                $results_list['"'.$current_obj->eptid.'"']['id'] = $current_obj->eptid;
-                                $results_list['"'.$current_obj->eptid.'"']['desc'] = $details;
+                                if($options['returnType'] == 'json') {
+                                    $results_list['"'.$current_obj->eptid.'"']['value'] = $val;
+                                    $results_list['"'.$current_obj->eptid.'"']['id'] = $current_obj->eptid;
+                                    $results_list['"'.$current_obj->eptid.'"']['desc'] = $details;
+                                }
+                                else {
+                                    $details = '<br /><span class="smalltext">'.$details.'</span>';
+                                    $results_list .= '<li id="'.$current_obj->eptid.'">'.$val.$details.'</li>';
+                                }
                             }
                             else {
-                                $details = '<br /><span class="smalltext">'.$details.'</span>';
-                                $results_list .= '<li id="'.$current_obj->eptid.'">'.$val.$details.'</li>';
+                                if($options['returnType'] == 'json') {
+                                    $results_list['"'.$current_obj->eptid.'"']['value'] = $val;
+                                    $results_list['"'.$current_obj->eptid.'"']['id'] = $current_obj->eptid;
+                                }
+                                else {
+                                    $results_list .= '<li id="'.$current_obj->eptid.'">'.$val.'</li>';
+                                }
                             }
                         }
                         else {
