@@ -38,10 +38,15 @@ class TravelManagerHotels extends AbstractClass {
             $this->errorcode = 2;
             return false;
         }
+        $city = new Cities($data['city']);
+        if(is_object($city)) {
+            $data['country'] = $city->coid;
+        }
         $data['alias'] = generate_alias($data['name']);
         $db->insert_query(self::TABLE_NAME, $data);
         $this->data[self::PRIMARY_KEY] = $db->last_id();
         $this->errorcode = 0;
+        return $this;
     }
 
     public function update(array $data) {
