@@ -20,6 +20,7 @@ if(!$core->input['action']) {
         $ebid = $db->escape_string($core->input['ebid']);
         $brand_obj = new EntitiesBrands($ebid);
         $page_title = $page_title_header = $brand_obj->get_displayname();
+        $entbrandprod_objs = $brand_obj->get_entbrandproducts();
         $customer = $brand_obj->get_entity();
         if(is_object($customer)) {
             $customername = $customer->parse_link();
@@ -28,7 +29,15 @@ if(!$core->input['action']) {
         if(is_array($endproducts_objs)) {
             $itemscount['endproducts'] = 0;
             foreach($endproducts_objs as $endproducts_obj) {
-                $endproduct_rows.='<tr><td>'.$endproducts_obj->parse_link().'</td></tr>';
+                if(is_array($entbrandprod_objs)) {
+                    $endprod_link = $endproducts_obj->parse_link();
+                    foreach($entbrandprod_objs as $entbrandprod_obj) {
+                        if($entbrandprod_obj->ebid == $ebid) {
+                            $endprod_link .= '&emsp;&emsp;&emsp;&emsp;<a style="vertical-align: top;text-align: left;" target="_blank" title="Branded End Product" href="'.$core->settings['rootdir'].'/index.php?module=profiles/brandprofile&amp;ebpid='.$entbrandprod_obj->ebpid.'"><img src="'.$core->settings['rootdir'].'/images/right_arrow.gif"/></a><small>(Go To Related Branded End Product)</small>';
+                        }
+                    }
+                }
+                $endproduct_rows.='<tr><td>'.$endprod_link.'</td></tr>';
                 $itemscount['endproducts'] ++;
             }
         }
