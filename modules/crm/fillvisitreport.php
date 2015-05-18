@@ -109,6 +109,7 @@ if(!$core->input['action']) {
             }
             /* Parse MI Data Section - START */
             if($core->usergroup['profiles_canAddMkIntlData'] == 1) {
+
                 $lang->load('profiles_meta');
                 $addmarketdata_link = '<div style="float: right;" title="'.$lang->addmarket.'"><a href="#popup_profilesmarketdata" id="showpopup_profilesmarketdata" class="showpopup"><img alt="'.$lang->addmarket.'" src="'.$core->settings['rootdir'].'/images/icons/edit.gif" /></a></div>';
                 $module = 'profiles';
@@ -119,6 +120,10 @@ if(!$core->input['action']) {
                 $css['display']['chemsubfield'] = 'none';
                 $css['display']['basicingsubfield'] = 'none';
                 $css['display']['product'] = 'none';
+
+                $brandprod_rowid = 0;
+                $midata = new MarketIntelligence();
+                $midata->cid = $visitreport_data['cid'];
 
                 $mkdchem_rowid = 0;
                 eval("\$profiles_michemfuncproductentry_row = \"".$template->get('profiles_michemfuncsubstancentry')."\";");

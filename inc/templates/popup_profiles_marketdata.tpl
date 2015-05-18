@@ -15,10 +15,10 @@
             <div style="width: 30%; display: inline-block;">{$lang->marketshareqty}</div><div style="width: 60%; display: inline-block;"><input type="number" size="12" step="any" id="mktshareqty" name="marketdata[mktShareQty]" accept="numeric" required="required" autocomplete="off" min="0" value="{$midata->mktShareQty}"/></div>
             <div style="width: 30%; display: inline-block;">{$lang->price}</div><div style="width: 60%; display: inline-block;"><input type="number" step="any" size="12" name="marketdata[unitPrice]" accept="numeric" autocomplete="off" min="0" value="{$midata->unitPrice}"/> USD/KG {$lang->cif}</div>
             <div style="width: 30%; display: inline-block;">{$lang->endproductbrand}</div>
-            <div style="width: 60%; display: inline-block;"><input onFocus="$('#entbrandsproducts_0_cid').val($('#customer_2_id').val())" type="text" size="25" id="entbrandsproducts_0_autocomplete" size="100" autocomplete="off" value="{$brandname}"/> | <a style="cursor: pointer" id="showpopup_createbrand" class="showpopup"><img src="{$core->settings[rootdir]}/images/addnew.png" border="0" title="{$lang->createbrand}"></a>
-                <input type="hidden" id="entbrandsproducts_0_id" name="marketdata[ebpid]" value='{$midata->ebpid}'/>
-                <input type="hidden" id="entbrandsproducts_0_cid" name="cid" value='1'/>
-                <div id="searchQuickResults_0" class="searchQuickResults" style="display:none;"></div>
+            <div style="width: 60%; display: inline-block;"><input onFocus="getustomerid()" type="text" size="25" id="entbrandsproducts_{$brandprod_rowid}_autocomplete" size="100" autocomplete="off" value="{$brandname}"/> | <a style="cursor: pointer" id="showpopup_createbrand" class="showpopup"><img src="{$core->settings[rootdir]}/images/addnew.png" border="0" title="{$lang->createbrand}"></a>
+                <input type="hidden" id="entbrandsproducts_{$brandprod_rowid}_id" name="marketdata[ebpid]" value='{$midata->ebpid}'/>
+                <input type="hidden" id="entbrandsproducts_{$brandprod_rowid}_cid" name="cid" value='{$midata->cid}'/>
+                <div id="searchQuickResults_{$brandprod_rowid}" class="searchQuickResults" style="display:none;"></div>
             </div>
             <div style="width: 30%; display: inline-block;">{$profiles_mincustomervisit_title}</div>
             <div style="width: 30%; display: inline-block;">
@@ -88,3 +88,13 @@
             </div>
     </form>
 </div>
+
+
+<script>
+    function getustomerid() {
+        var cid = $('#allcustomertypes_{$customer_rowid}_id').val();
+        if(typeof cid != 'undefined') {
+            $('#entbrandsproducts_{$brandprod_rowid}_cid').val(cid);
+        }
+    }
+</script>
