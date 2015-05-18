@@ -1068,6 +1068,7 @@ CREATE TABLE `countries` (
   `mainCurrency` int(3) DEFAULT NULL,
   `capitalCity` int(10) NOT NULL,
   `timeZone` varchar(100) DEFAULT NULL,
+  `phoneCode` int(10) NOT NULL,
   PRIMARY KEY (`coid`),
   KEY `affid` (`affid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=244 DEFAULT CHARSET=utf8;
