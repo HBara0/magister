@@ -232,7 +232,7 @@ $(function() {
     // If Inco terms are different between intermediary and vendor, freight is mandatory
     $("select[id='partiesinfo_intermed_incoterms'],select[id='partiesinfo_vendor_incoterms']").live('change', function() {
         $("input[id='partiesinfo_freight']").removeAttr("required");
-        if($("select[id='partiesinfo_intermed_incoterms']").val() !== '' || $("select[id='partiesinfo_vendor_incoterms']").val() !== '') {
+        if($("select[id='partiesinfo_intermed_incoterms']").val() !== '' && $("select[id='partiesinfo_vendor_incoterms']").val() !== '') {
             if($("select[id='partiesinfo_intermed_incoterms']").val() !== $("select[id='partiesinfo_vendor_incoterms']").val()) {
                 $("input[id='partiesinfo_freight']").attr("required", "true");
             }
