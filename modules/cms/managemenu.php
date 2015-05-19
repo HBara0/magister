@@ -10,7 +10,6 @@
  * Last Update: 	@tony.assaad		August 30, 201 | 12:13 PM
  */
 
-
 if(!defined('DIRECT_ACCESS')) {
     die('Direct initialization of this file is not allowed.');
 }
@@ -19,7 +18,6 @@ if($core->usergroup['cms_canAddMenu'] == 0) {
     //error($lang->sectionnopermission);
     //exit;
 }
-
 
 if(!$core->input['action']) {
     if($core->input['type'] == 'addmenuitem') {
@@ -100,7 +98,6 @@ else {
         $cms_menu = new CmsMenu();
         $cms_menu->create($core->input['menu']);
 
-
         switch($cms_menu->get_status()) {
             case 0:
                 output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
@@ -118,14 +115,14 @@ else {
     }
     elseif($core->input['action'] == 'do_menuitem') {
         $cms_menuitem = new CmsMenuItems();
-        $core->input['menuitem']['cmsmid'] = $core->input['menuitem']['cmsmid'];
-        foreach($core->input['menuitem'] as $key => $menuitemdata) {
-            if(is_array($menuitemdata)) {
-                continue;
-            }
-            $menuitems[$key] = $menuitemdata;
-        }
-        $cms_menuitem->set($menuitems);
+//        $core->input['menuitem']['cmsmid'] = $core->input['menuitem']['cmsmid'];
+//        foreach($core->input['menuitem'] as $key => $menuitemdata) {
+//            if(is_array($menuitemdata)) {
+//                continue;
+//            }
+//            $menuitems[$key] = $menuitemdata;
+//        }
+        $cms_menuitem->set($core->input['menuitem']);
         $cms_menuitem->save();
 
         switch($cms_menuitem->get_errorcode()) {
