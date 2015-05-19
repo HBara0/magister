@@ -49,6 +49,9 @@
     <input name="sequence" type="hidden" id="sequence" value="{$sequence}">
     <h2 class="subtitle" style="padding:8px;width:100%;">{$lang->finance} ({$lang->anticipatedamount})</h2>
     <table width="100%"cellspacing="0" cellpadding="0" style="margin-left: 8px;" class="datatable">
+        <tr id="finance_{$sequence}_suggestionrow" style="display:block">
+            <td><p id="finance_{$sequence}_suggestion"></p></td>
+        </tr>
         <tbody id="finances_{$sequence}_tbody">
             {$finance_output}
         </tbody>
