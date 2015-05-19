@@ -144,7 +144,7 @@ else {
                 $travelmanageraccom = TravelManagerPlanaccomodations::get_data(array('tmpsid' => $segment->tmpsid), array('returnarray' => true));
                 if(!is_array($travelmanageraccom)) {
                     header('Content-type: text/xml+javascript');
-                    output_xml('<status>false</status><message>'.$lang->acomchecknote.'</message>');
+                    output_xml('<status>false</status><message>'.$lang->acomchecknote.' for '.$segment->name.'</message>');
                     exit;
                 }
             }

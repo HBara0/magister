@@ -21,7 +21,7 @@ class EndProducTypes extends AbstractClass {
     const DISPLAY_NAME = 'title';
     const SIMPLEQ_ATTRS = 'eptid, name, title, psaid, parent';
     const CLASSNAME = __CLASS__;
-    const UNIQUE_ATTRS = 'parent,name';
+    const UNIQUE_ATTRS = 'parent,title';
 
     public function __construct($id = '', $simple = true) {
         parent::__construct($id, $simple);
@@ -34,10 +34,11 @@ class EndProducTypes extends AbstractClass {
         if(empty($data['name'])) {
             $data['name'] = generate_alias($data['title']);
         }
-
-        if(value_exists('endproducttypes', 'name', $data['name'], 'parent='.$data['parent'].' AND '.self::PRIMARY_KEY.'!='.intval($this->data[self::PRIMARY_KEY]))) {
-            $this->errorcode = 2;
-            return false;
+        if(isset($data['parent']) && !empty($data['parent'])) {
+            $endproducttype_parent = new EndProducTypes($data['parent']);
+            if(is_object($endproducttype_parent)) {
+                $data['segapplications'] = $endproducttype_parent->psaid;
+            }
         }
         $endproducttypes_data = array(
                 'name' => $data['name'],
@@ -47,36 +48,32 @@ class EndProducTypes extends AbstractClass {
                 'modifiedBy' => $core->user['uid'],
                 'modifiedOn' => TIME_NOW
         );
+        if(sizeof($endproducttypes_data['psaid']) < 1) {
+            $this->errorcode = 2;
+            return $this;
+        }
 
-        $db->update_query(self::TABLE_NAME, $data, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
+        $db->update_query(self::TABLE_NAME, $endproducttypes_data, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
+        //put a custome errorcode to know when the object has been updated
+        $this->errorcode = 5;
         return $this;
     }
 
     public function create(array $data) {
         global $db, $core, $log;
         if(empty($data['title'])) {
-            $this->errorcode = 1;
+            $this->errorcode = 2;
             return false;
         }
-
         $data['title'] = $core->sanitize_inputs($data['title'], array('removetags' => true));
         if(empty($data['name'])) {
             $data['name'] = generate_alias($data['title']);
         }
-
         if(isset($data['parent']) && !empty($data['parent'])) {
             $endproducttype_parent = new EndProducTypes($data['parent']);
             if(is_object($endproducttype_parent)) {
                 $data['segapplications'] = $endproducttype_parent->psaid;
             }
-        }
-        else {
-            $data['parent'] = 0;
-        }
-
-        if(value_exists('endproducttypes', 'name', $data['name'], 'parent='.intval($data['parent']))) {
-            $this->errorcode = 2;
-            return false;
         }
         $endproducttypes_data = array(
                 'name' => $data['name'],
@@ -86,6 +83,10 @@ class EndProducTypes extends AbstractClass {
                 'createdBy' => $core->user['uid'],
                 'createdOn' => TIME_NOW
         );
+        if(empty($endproducttypes_data['psaid'])) {
+            $this->errorcode = 2;
+            return false;
+        }
         $query = $db->insert_query('endproducttypes', $endproducttypes_data);
         return $this;
     }

@@ -249,7 +249,8 @@ if(!$core->input['action']) {
         $mkdprod_rowid = 0;
         eval("\$profiles_minproductentry_row = \"".$template->get('profiles_michemfuncproductentry')."\";");
         eval("\$profiles_minproductentry = \"".$template->get('profiles_michemfuncproductentry_rows')."\";");
-
+        $profiles_mincustomervisit_title = $lang->visitreport;
+        $profiles_mincustomervisit = parse_selectlist('marketdata[vrid]', 7, $visitreport_objs, '', '', '', array('blankstart' => 1));
         $mkdbing_rowid = 0;
         eval("\$profiles_mibasicingredientsentry_row = \"".$template->get('profiles_mibasicingredientsentry')."\";");
         eval("\$profiles_mibasicingredientsentry = \"".$template->get('profiles_mibasicingredientsentry_rows')."\";");
@@ -593,20 +594,23 @@ else {
     elseif($core->input['action'] == 'do_createchemical') {
         $chemsustance = new Chemicalsubstances ( );
         $chemsustance->create($core->input['chemcialsubstances']);
+
         switch($chemsustance->get_status()) {
             case 0:
-                output_xml("<status>true</status><message> {
+                output_xml("<status>true</status>{$lang->successfullysaved}<message> {
         $lang->successfullysaved}</message>");
                 break;
             case 4:
                 output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
                 break;
-            case 5:
-                output_xml("<status>false</status><message>{$lang->chemicalexsist}</message>");
+            case 2:
+                $error_output = $errorhandler->get_errors_inline();
+                output_xml("<status>false</status><message><![CDATA[{$error_output}]]></message>");
                 break;
         }
     }
     elseif($core->input['action'] == 'ajaxaddmore_profmkdchemical') {
+
         $mkdchem_rowid = $db->escape_string($core->input['value']) + 1;
         eval("\$profiles_michemfuncproductentry_rows = \"".$template->get('profiles_michemfuncsubstancentry')."\";");
         echo $profiles_michemfuncproductentry_rows;
@@ -620,6 +624,15 @@ else {
         $mkdprod_rowid = $db->escape_string($core->input['value']) + 1;
         eval("\$profiles_minproductentry_rows = \"".$template->get('profiles_michemfuncproductentry')."\";");
         echo $profiles_minproductentry_rows;
+    }
+    elseif($core->input['action'] == 'enable_visitreports') {
+        $visitreport_objs = CrmVisitReports::get_visitreports(array('uid' => $core->user['uid'], 'cid' => $core->input['cid'], 'isDraft' => 1), array('order' => array('by' => 'date', 'sort' => 'DESC'), 'returnarray' => 1));
+        if(is_array($visitreport_objs)) {
+            foreach($visitreport_objs as $visitreport_obj) {
+                $visitoptions[$visitreport_obj->vrid] = $visitreport_obj->get_displayname();
+            }
+            output(json_encode($visitoptions));
+        }
     }
 }
 //function to check if user is allowed to see the affiliates/customers/suppliers

@@ -119,6 +119,14 @@ if(!$core->input['action']) {
                 if(is_object($entitybrandproduct)) {
                     $entitybrand = EntitiesBrands::get_data(array('ebid' => $entitybrandproduct->ebid));
                     $entitybrand_link = $entitybrand->parse_link();
+                    $entbrandprod_objs = $entitybrand->get_entbrandproducts();
+                    if(is_array($entbrandprod_objs)) {
+                        foreach($entbrandprod_objs as $entbrandprod_obj) {
+                            if($entbrandprod_obj->eptid == $eptid) {
+                                $entitybrand_link .= '&emsp;&emsp;&emsp;&emsp;<a style="vertical-align: top;text-align: left;" target="_blank" title="Branded End Product" href="'.$core->settings['rootdir'].'/index.php?module=profiles/brandprofile&amp;ebpid='.$entbrandprod_obj->ebpid.'"><img src="'.$core->settings['rootdir'].'/images/right_arrow.gif"/></a><small>(Go To Related Branded End Product)</small>';
+                            }
+                        }
+                    }
                     if(is_object($entitybrand)) {
                         $entity = new Entities($entitybrand->eid);
                         if(is_object($entity)) {

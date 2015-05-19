@@ -34,7 +34,7 @@ if(!$core->input['action']) {
     }
 
     /* Parse list for the Create Product Lists popup */
-    $applications_obj = SegmentApplications::get_segmentsapplications();
+    $applications_obj = SegmentApplications::get_segmentsapplications('', array('order' => array('by' => 'name', 'sort' => 'ASC')));
     if(is_array($applications_obj)) {
         $applications_list .= '<option value="0" selected placeholder=="select"></option>';
         foreach($applications_obj as $application_obj) {
@@ -49,9 +49,10 @@ if(!$core->input['action']) {
     output_page($addproductstypes);
 }
 elseif($core->input['action'] == 'do_create') {
-    $endprod_objs = new EndProducTypes();
-    $endprod_objs->save($core->input['productypes']);
-    switch($endprod_objs->get_errorcode()) {
+    $endprod_obj = new EndProducTypes();
+    $endprod_obj->set($core->input['productypes']);
+    $endprod_obj = $endprod_obj->save();
+    switch($endprod_obj->get_errorcode()) {
         case 0:
             output_xml('<status>true</status><message>'.$lang->successfullysaved.'</message>');
             break;
@@ -59,7 +60,10 @@ elseif($core->input['action'] == 'do_create') {
             output_xml('<status>false</status><message>'.$lang->fillallrequiredfields.'</message>');
             break;
         case 2:
-            output_xml('<status>false</status><message>Error Saving - End Product Type Already Exists</message>');
+            output_xml('<status>false</status><message>Fill All Required Fields</message>');
+            break;
+        case 5:
+            output_xml('<status>true</status><message>Entry Has Been Updated</message>');
             break;
     }
 }

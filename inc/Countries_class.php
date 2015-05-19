@@ -72,7 +72,7 @@ class Countries extends AbstractClass {
 
     /**
      * Get a country object by country name
-     * 
+     *
      * @global type $db DB  Connection resource
      * @param String $name  Name of the country to acquire its object
      * @return \Countries|boolean   Object of country
@@ -105,6 +105,16 @@ class Countries extends AbstractClass {
         global $db;
 
         $db->update_query(self::TABLE_NAME, $data, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
+    }
+
+    public function get_phonecodes() {
+        $countries = self::get_countries('name IS NOT NUll');
+        if(is_array($countries)) {
+            foreach($countries as $country) {
+                $phonecodes[$country->phoneCode] = $country->phoneCode;
+            }
+        }
+        return $phonecodes;
     }
 
 }
