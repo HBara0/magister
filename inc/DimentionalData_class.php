@@ -320,6 +320,13 @@ class DimentionalData {
         }
     }
 
+    /**
+     * Formats a number based on predefined format
+     * @global \Language $lang
+     * @param mixed $number  Number to be formatted
+     * @param \NumberFormatter $format  NumberFormatter format
+     * @return mixed Formatted number
+     */
     private function format_number($number, $format) {
         global $lang;
 
