@@ -11,7 +11,7 @@
                         <tr>
                             <td colspan="2">
                                 <img src="./images/add.gif" id="ajaxaddmore_{$module}/{$modulefile}_profmkdchemical" alt="{$lang->add}">
-                                <input id="numrows_profmkdchemical_{$mkdchem_rowid}" name="numrows_profmkdchemical{$mkdchem_rowid}" type="hidden" value="{$mkdchem_rowid}">
+                                <input id="numrows_profmkdchemical" name="numrows_profmkdchemical" type="hidden" value="{$mkdchem_rowid}">
                             </td>
                         </tr>
                     </tfoot>

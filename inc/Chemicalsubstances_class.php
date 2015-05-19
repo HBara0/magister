@@ -35,7 +35,7 @@ class Chemicalsubstances extends AbstractClass {
     }
 
     public function create(array $data) {
-        global $db, $core;
+        global $db, $core, $errorhandler, $lang;
 
         if(is_empty($data['casNum'], $data['name'])) {
             $this->error_code = 1;
@@ -44,6 +44,16 @@ class Chemicalsubstances extends AbstractClass {
 
         if(value_exists('chemicalsubstances', 'casNum', $data['casNum']) || value_exists('chemicalsubstances', 'name', $data['name'])) {
             $this->error_code = 2;
+            if(value_exists('chemicalsubstances', 'casNum', $data['casNum'])) {
+                $field = 'casNum';
+            }
+            if(value_exists('chemicalsubstances', 'name', $data['name'])) {
+                $field = 'name';
+            }
+            if(value_exists('chemicalsubstances', 'casNum', $data['casNum']) && value_exists('chemicalsubstances', 'name', $data['name'])) {
+                $field = 'casNum, name';
+            }
+            $errorhandler->record($lang->chemicalexsist.'<br/>', $field);
             return false;
         }
         $chemical_data = array(

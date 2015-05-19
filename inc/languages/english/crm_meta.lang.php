@@ -89,4 +89,5 @@ $lang['chemicalname'] = 'Chemical Name';
 $lang['chemicalsynonym'] = 'Chemical Synonymes';
 $lang['casnum'] = 'CAS Number';
 $lang['nopermission'] = 'You don\'t have permission to delete this entry';
+$lang['chemicalexsist'] = 'Chemical Data Already Exists';
 ?>
