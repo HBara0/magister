@@ -254,11 +254,12 @@ if(!$core->input['action']) {
         if(is_array($products)) {
             foreach($products as $pid => $product) {
                 $defaultchemfunc = $product->get_defaultchemfunction();
-                if(is_object($defaultchemfunc)) {
+                $defautcfpid = $defaultchemfunc->get_id();
+                if(!empty($defautcfpid)) {
                     $defaultchemfunc_output = $defaultchemfunc->get_chemicalfunction()->title.' - '.$defaultchemfunc->get_segmentapplication()->title.' - '.$defaultchemfunc->get_segment()->title;
                 }
                 else {
-                    $defaultchemfunc_output = $product->get_genericproduct_legacy()['title'];
+                    $defaultchemfunc_output = $product->get_genericproduct_legacy()['title'].' - '.$product->get_productsegment();
                 }
                 $productslist .= '<tr><td style="width:50%;">'.$product->parse_link().'</td><td>'.$defaultchemfunc_output.'</td></tr>';
                 unset($defaultchemfunc_output);
