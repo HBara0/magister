@@ -25,7 +25,7 @@ Abstract class AbstractClass {
     const UNIQUE_ATTRS = null;
 
     public function __construct($id = '', $simple = true) {
-        if(isset($id)) {
+        if(isset($id) && !empty($id)) {
             $this->read($id, $simple);
         }
     }
@@ -93,8 +93,35 @@ Abstract class AbstractClass {
         return $this->create($data);
     }
 
-    abstract protected function create(array $data);
+    /**
+     * Inserts data into specific DB table after performing validation
+     * 
+     * @global type $db
+     * @param array $data   Data to insert
+     * @return boolean
+     */
+    protected function create(array $data) {
+        global $db;
+        if(!$this->validate_data($data)) {
+            return false;
+        }
+        $db->insert_query(static::TABLE_NAME, $data);
+        $this->data = $data;
+        $this->{static::PRIMARY_KEY} = $db->last_id();
+    }
+
     abstract protected function update(array $data);
+    /**
+     * Function to validate data before creating or modifying.
+     * This function have to be overriden in the class where it is required.
+     *
+     * @param array $data   Data to be validated
+     * @return boolean  Boolean to specify if data has issues or not
+     */
+    protected function validate_data(array $data) {
+        return true;
+    }
+
     public function delete() {
         global $db;
         if(empty($this->data[static::PRIMARY_KEY]) && empty($this->data['inputChecksum'])) {
@@ -130,6 +157,7 @@ Abstract class AbstractClass {
         foreach($data as $name => $value) {
             $this->data[$name] = $value;
         }
+        return $this;
     }
 
     public function __set($name, $value) {
@@ -168,17 +196,6 @@ Abstract class AbstractClass {
      */
     public function get_displayname() {
         return $this->data[static::DISPLAY_NAME];
-    }
-
-    public function get_uniqueattributes() {
-        return $this->data[static::UNIQUE_ATTRS];
-    }
-
-    /**
-     * @return string|null The unique attributes of the object
-     */
-    public function get_uniqueattributes_columns() {
-        return $this::UNIQUE_ATTRS;
     }
 
     /**
