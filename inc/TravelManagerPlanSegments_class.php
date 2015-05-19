@@ -63,6 +63,8 @@ class TravelManagerPlanSegments extends AbstractClass {
                 'createdOn' => TIME_NOW,
                 'isNoneBusiness' => $segmentdata['isNoneBusiness'],
                 'noAccomodation' => $segmentdata['noAccomodation'],
+                'affid' => $segmentdata['affid'],
+                'eid' => $segmentdata['eid'],
         );
 
         $db->insert_query(self::TABLE_NAME, $segmentdata_array);
@@ -209,7 +211,7 @@ class TravelManagerPlanSegments extends AbstractClass {
             $segmentdata['fromDate'] = strtotime($segmentdata['fromDate']);
         }
 
-        $valid_fields = array('fromDate', 'toDate', 'originCity', 'destinationCity', 'reason', 'isNoneBusiness', 'noAccomodation');
+        $valid_fields = array('fromDate', 'toDate', 'originCity', 'destinationCity', 'reason', 'isNoneBusiness', 'noAccomodation', 'eid', 'affid');
         /* Consider using array intersection */
         foreach($valid_fields as $attr) {
             $segmentnewdata[$attr] = $segmentdata[$attr];

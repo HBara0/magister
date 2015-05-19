@@ -27,6 +27,16 @@
             <td></td>
         </tr>
         <tr><td>{$lang->purpose}</td><td>{$segment_purposlist}</td></tr>
+        <tr><td>{$lang->specifyentityaff}</td><td><input type="checkbox" id="specifyaffent_{$sequence}_check"  value="{$sequence}" {$checked['specifyentcheck']}/></td></tr>
+        <tr id="specifyaffent_{$sequence}_block" style="display: none">
+            <td>{$lang->affiliates}</td><td>{$affilate_list}</td>
+            <td>{$lang->entities}</td>
+            <td><input type="text" {$disabled}  id="allentities_{$sequence}_cache_autocomplete" autocomplete="off" tabindex="1" value="{$segment[$sequence][entity][name]}" required="required"/>
+                <input type='hidden' id='allentities_{$sequence}_cache_id'  name="segment[{$sequence}][eid]" value="{$segment[$sequence][entity][eid]}"/>
+                <input type='hidden' id='allentities_{$sequence}_cache_id_output' name="segment[{$sequence}][eid]" value="{$segment[$sequence][entity][eid]}" disabled/>
+
+            </td>
+        </tr>
         <tr><td>{$lang->considerleisuretourism}</td><td><input type="checkbox" name="segment[{$sequence}][isNoneBusiness]" value="1" {$checked['isNoneBusiness']}/></td></tr>
         <tr><td>{$lang->reason}</td><td><textarea name="segment[{$sequence}][reason]"  cols="30" rows="3" required="required">{$segment[$sequence][reason_output]}</textarea></td></tr>
     </table>
