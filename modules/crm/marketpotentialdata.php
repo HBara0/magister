@@ -209,7 +209,6 @@ if(!$core->input['action']) {
         $packaging_list = parse_selectlist('marketdata[competitor]['.$rowid.'][packaging]', 7, Packaging::get_data('name IS NOT NULL'), '', '', '', array('blankstart' => 1));
         $saletype_list = parse_selectlist('marketdata[competitor]['.$rowid.'][saletype]', 8, SaleTypes::get_data('stid IN (1,4)'), '', '', '', array('blankstart' => 1));
         $samplacquire = parse_radiobutton('marketdata[competitor]['.$rowid.'][isSampleacquire]', array(1 => 'yes', 0 => 'no'), '', true);
-        $customer_rowid = 2;
         eval("\$profiles_entityprofile_micustomerentry = \"".$template->get('crm_marketpotentialdata_micustomerentry')."\";");
         $module = 'crm';
         $action = 'do_addmartkerdata';
@@ -243,7 +242,6 @@ if(!$core->input['action']) {
             }
         }
 
-        $brandprod_rowid = 0;
         $mkdchem_rowid = 0;
         eval("\$profiles_michemfuncproductentry_row = \"".$template->get('profiles_michemfuncsubstancentry')."\";");
         eval("\$profiles_michemfuncproductentry = \"".$template->get('profiles_michemfuncsubstancentry_rows')."\";");
@@ -251,7 +249,8 @@ if(!$core->input['action']) {
         $mkdprod_rowid = 0;
         eval("\$profiles_minproductentry_row = \"".$template->get('profiles_michemfuncproductentry')."\";");
         eval("\$profiles_minproductentry = \"".$template->get('profiles_michemfuncproductentry_rows')."\";");
-
+        $profiles_mincustomervisit_title = $lang->visitreport;
+        $profiles_mincustomervisit = parse_selectlist('marketdata[vrid]', 7, $visitreport_objs, '', '', '', array('blankstart' => 1));
         $mkdbing_rowid = 0;
         eval("\$profiles_mibasicingredientsentry_row = \"".$template->get('profiles_mibasicingredientsentry')."\";");
         eval("\$profiles_mibasicingredientsentry = \"".$template->get('profiles_mibasicingredientsentry_rows')."\";");
@@ -308,12 +307,13 @@ else {
     }
     elseif($core->input['action'] == 'get_updatemktintldtls') {
         $css[display]['radiobuttons'] = 'none';
+        $mkdchem_rowid = 0;
+        $mkdbing_rowid = 0;
+        $mkdprod_rowid = 0;
+
         if($core->usergroup['profiles_canAddMkIntlData'] == 0) {
             exit;
         }
-        $brandprod_rowid = $mkdchem_rowid = $core->input['id'];
-        $mkdbing_rowid = $core->input['id'];
-        $mkdprod_rowid = $core->input['id'];
         $midata = new MarketIntelligence($core->input['id']);
         $mimorerowsid = $midata->mibdid;
         $customer = $midata->get_customer();
@@ -621,6 +621,15 @@ else {
         $mkdprod_rowid = $db->escape_string($core->input['value']) + 1;
         eval("\$profiles_minproductentry_rows = \"".$template->get('profiles_michemfuncproductentry')."\";");
         echo $profiles_minproductentry_rows;
+    }
+    elseif($core->input['action'] == 'enable_visitreports') {
+        $visitreport_objs = CrmVisitReports::get_visitreports(array('uid' => $core->user['uid'], 'cid' => $core->input['cid'], 'isDraft' => 1), array('order' => array('by' => 'date', 'sort' => 'DESC'), 'returnarray' => 1));
+        if(is_array($visitreport_objs)) {
+            foreach($visitreport_objs as $visitreport_obj) {
+                $visitoptions[$visitreport_obj->vrid] = $visitreport_obj->get_displayname();
+            }
+            output(json_encode($visitoptions));
+        }
     }
 }
 //function to check if user is allowed to see the affiliates/customers/suppliers
