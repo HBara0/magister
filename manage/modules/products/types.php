@@ -34,7 +34,7 @@ if(!$core->input['action']) {
     }
 
     /* Parse list for the Create Product Lists popup */
-    $applications_obj = SegmentApplications::get_segmentsapplications();
+    $applications_obj = SegmentApplications::get_segmentsapplications('', array('order' => array('by' => 'name', 'sort' => 'ASC')));
     if(is_array($applications_obj)) {
         $applications_list .= '<option value="0" selected placeholder=="select"></option>';
         foreach($applications_obj as $application_obj) {
