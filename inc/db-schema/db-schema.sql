@@ -3785,6 +3785,9 @@ CREATE TABLE `travelmanager_plan_segments` (
   `apiFlightdata` longtext COLLATE utf8_unicode_ci NOT NULL,
   `isNoneBusiness` tinyint(1) NOT NULL,
   `noAccomodation` tinyint(1) NOT NULL,
+  `noAccomodation` tinyint(1) NOT NULL DEFAULT '0',
+  `affid` int(5) NOT NULL,
+  `eid` int(10) NOT NULL,
   PRIMARY KEY (`tmpsid`),
   KEY `tmpid` (`tmpid`,`originCity`,`destinationCity`)
 ) ENGINE=MyISAM AUTO_INCREMENT=291 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;

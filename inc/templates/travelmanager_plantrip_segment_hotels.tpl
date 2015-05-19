@@ -16,6 +16,11 @@
     <input type="hidden"  disabled value="{$selectedhotel->total}" id="hotel_{$sequence}_{$checksum}_total}" name="segment[{$sequence}][tmhid][{$checksum}][subtotal]">
     <input type="hidden" disabled value="{$checksum}" id="checksum_{$approved_hotels[tmhid]}_{$sequence}_{$checksum}_tmhid">
     <div>
+        <div style="display:inline-block;padding:5px;width:15%;">{$lang->currency}</div>
+        <div style="display:inline-block;width:20%;">{$currencies_list}</div>
+    </div>
+
+    <div>
         <div style="display:inline-block;padding:5px;width:15%;">{$lang->paidby}</div> <div style="display:inline-block;width:20%;">{$selectlists[paidBy]}</div>
     </div>
     <div id="anotheraff_accomodations_{$sequence}_{$checksum}" style="{$selected_hotel[$sequence][$checksum][displaystatus]} padding: 5px;" class="border_bottom border_left border_right border_top" >
