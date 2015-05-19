@@ -62,6 +62,8 @@ if(!$core->input['action']) {
             $segment[$sequence]['destinationcity']['name'] = $segment[$sequence]['destinationcity']['name'];  /* Will get the capital city of the visited country of leave */
             $segment[$sequence]['destinationcity']['ciid'] = $segment[$sequence]['destinationcity']['ciid'];  /* Will get the capital city of the visited country of leave */
             $segment[$sequence][reason_output] = $leave['reason'];
+            $affiliates = Affiliates::get_affiliates();
+            $affilate_list = parse_selectlist('segment['.$sequence.'][affid]', 1, $affiliates, $segmentobj->affid, '', '', array('blankstart' => true));
             $disabled = 'disabled="true"';
 //$leave_destcity
             $otherhotel_checksum = generate_checksum('accomodation');

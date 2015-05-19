@@ -125,8 +125,9 @@
                     if($('input[id="pricenight_' + id[1] + '_' + id[2] + '_' + id[3] + '"]').length < 0) {
                         return;
                     }
-
+                    var name = $('input[id^="checksum_' + id[2] + '_' + id[3] + '_"][id$="_tmhid"]').attr("id").split("_");
                     $("div[id=total_" + id[1] + "_" + id[2] + '_' + id[3] + "]").fadeToggle('slow').stop().text($('input[id="pricenight_' + id[1] + '_' + id[2] + '_' + id[3] + '"]').val() * $('input[id="numnight_' + id[1] + '_' + id[2] + '_' + id[3] + '"]').val());
+                    $('input[name="segment[' + name[2] + '][tmhid][' + name[3] + '_' + name[4] + '][subtotal]"]').val($('input[id="pricenight_' + id[1] + '_' + id[2] + '_' + id[3] + '"]').val() * $('input[id="numnight_' + id[1] + '_' + id[2] + '_' + id[3] + '"]').val());
                 });
                 $('input[id=finalize]').live('click', function () {
                     $('input[id="finalizeplan"]').val('1');
@@ -154,6 +155,76 @@
                     var id = $(this).attr("id").split("_");
                     $('#segment_hotels_' + id[1] + ', #other_hotels_' + id[1]).toggle(!$(this).is(':checked')).find('input').val("");
                 });
+                if($('input[id^="specifyaffent_"]').is(':checked')) {
+                    var id = $('input[id^="specifyaffent_"]').attr("id").split("_");
+                    $('tr[id="specifyaffent_' + id[1] + '_block"]').show();
+                }
+                $('input[id^="specifyaffent_"]').live('click', function () {
+                    var segvar = $(this).val();
+                    var id = $(this).attr("id").split("_");
+                    var segid = id[1];
+                    if($(this).is(':checked')) {
+                        $('tr[id="specifyaffent_' + segid + '_block"]').show();
+                        $('input[id="allentities_' + segid + '_cache_id"]').removeAttr('disabled');
+                        $('input[name="segment[' + segid + '][affid]"]').removeAttr('disabled');
+                    }
+                    else {
+                        $('tr[id="specifyaffent_' + segid + '_block"]').hide();
+                        $('input[id="allentities_' + segid + '_cache_id"]').attr('disabled', 'disabled');
+                        $('input[name="segment[' + segid + '][affid]"]').attr('disabled', 'disabled');
+                    }
+                });
+                $('input[name^="segment"][name$="[fare]"],input[name^="segment"][name$="[subtotal]"],input[name^="segment"][name$="[currency]"],input[name^="segment"][name$="[expectedAmt]"]').live('change', function () {
+                    var id = $(this).attr("id").split("_");
+                    var total = {
+                    };
+                    $('input[id^="segment_' + id[1] + '_"][id$="_fare"]').each(function (i, obj) {
+                        var fareid = $(obj).attr("name").slice(0, -6);
+                        var farecur = $('select[name="' + fareid + '[currency]"] option:selected').text();
+                        var price = $(obj).val();
+                        if(price > 0) {
+                            if(typeof total[farecur] == "undefined") {
+                                total[farecur] = parseInt(price, 10);
+                            }
+                            else {
+                                total[farecur] = total[farecur] + parseInt(price, 10);
+                            }
+                        }
+                    });
+                    $('input[name^="segment[' + id[1] + ']"][name$="[subtotal]"]').each(function (i, obj) {
+                        var priceid = $(obj).attr("name").slice(0, -10);
+                        var pricecur = $('select[name^="' + priceid + '[currency]"] option:selected').text();
+                        var price = $(obj).val();
+                        if(price > 0) {
+                            if(typeof total[pricecur] == "undefined") {
+                                total[pricecur] = parseInt(price, 10);
+                            }
+                            else {
+                                total[pricecur] = total[pricecur] + parseInt(price, 10);
+                            }
+                        }
+                    });
+                    $('input[name^="segment[' + id[1] + ']"][name$="[expectedAmt]"]').each(function (i, obj) {
+                        var expecid = $(obj).attr("name").slice(0, -13);
+                        var expeccur = $('select[name="' + expecid + '[currency]"] option:selected').text();
+                        var price = $(obj).val();
+                        if(price > 0) {
+                            if(typeof total[expeccur] == "undefined") {
+                                total[expeccur] = parseInt(price, 10);
+                            }
+                            else {
+                                total[expeccur] = total[expeccur] + parseInt(price, 10);
+                            }
+                        }
+                    });
+                    var ptext = '';
+                    $.each(total, function (index, val) {
+                        ptext += 'Total Amount In ' + index + ' is ' + val + '. ';
+                    });
+                    if(ptext.length > 0) {
+                        $('p[id="finance_' + id[1] + '_suggestion"]').text(ptext);
+                    }
+                });
             });
 
         </script>
@@ -174,7 +245,7 @@
         <td class="contentContainer" colspan="2">
             <h1>{$lang->plantrip}</h1>
             {$leave_ouput}
-            <form name="perform_travelmanager/plantrip_Form" id="perform_travelmanager/plantrip_Form" action="#" method="post">
+            <form name="perform_travelmanager/plantrip_Form" id="perform_travelmanager/plantrip_Form" novalidate action="#" method="post">
                 <div style='margin-top: 10px; '>
                     <a id="createtab" class="showpopup" href="#"><img border="0" alt="{$lang->addsegment}" src="images/addnew.png"> {$lang->addsegment}</a>
                 </div>

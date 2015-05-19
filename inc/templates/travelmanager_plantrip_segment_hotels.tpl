@@ -13,6 +13,8 @@
     <div style="display:inline-block;padding:2px;width:20%; font-weight: bold;" id="total_segacc_{$approved_hotels[tmhid]}_{$sequence}" >
         <span>Sub Total: {$selectedhotel->total} </span>
     </div>
+    <input type="hidden"  disabled value="{$selectedhotel->total}" id="hotel_{$sequence}_{$checksum}_total}" name="segment[{$sequence}][tmhid][{$checksum}][subtotal]">
+    <input type="hidden" disabled value="{$checksum}" id="checksum_{$approved_hotels[tmhid]}_{$sequence}_{$checksum}_tmhid">
     <div>
         <div style="display:inline-block;padding:5px;width:15%;">{$lang->paidby}</div> <div style="display:inline-block;width:20%;">{$selectlists[paidBy]}</div>
     </div>

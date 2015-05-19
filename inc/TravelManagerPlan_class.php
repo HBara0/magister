@@ -418,6 +418,9 @@ class TravelManagerPlan {
 
     /* call the Magical function  get to acces the private attributes */
     public function __get($name) {
+        if(!is_array($this->data)) {
+            return false;
+        }
         if(array_key_exists($name, $this->data)) {
             return $this->data[$name];
         }
@@ -504,9 +507,19 @@ class TravelManagerPlan {
             $segment[$sequence]['destinationcity']['name'] = $segmentobj->get_destinationcity()->name;
             $segment[$sequence]['destinationcity']['ciid'] = $segmentobj->get_destinationcity()->ciid;
             $segment[$sequence]['reason_output'] = $segmentobj->reason;
+            if(!empty($segmentobj->affid) || !empty($segmentobj->eid)) {
+                $checked['specifyentcheck'] = 'checked="checked"';
+            }
+            if(!empty($segmentobj->eid)) {
+                $ent = new Entities($segmentobj->eid);
+                $segment[$sequence]['entity']['name'] = $ent->get_displayname();
+                $segment[$sequence]['entity']['eid'] = $segmentobj->eid;
+            }
+            $affiliates = Affiliates::get_affiliates();
+            $affilate_list = parse_selectlist('segment['.$sequence.'][affid]', 1, $affiliates, $segmentobj->affid, '', '', array('blankstart' => true));
             unset($checked['isNoneBusiness']);
             if(isset($segmentobj->isNoneBusiness) && !empty($segmentobj->isNoneBusiness)) {
-                $checked['isNoneBusiness'] = ' checked="checked"';
+                $checked['isNoneBusiness'] = ' checked = "checked"';
             }
             $segmentpurposes = TravelManagerPlanSegPurposes::get_data(array('tmpsid' => $segmentobj->tmpsid), array('returnarray' => true));
             if(is_array($segmentpurposes)) {
@@ -571,7 +584,7 @@ class TravelManagerPlan {
             }
             $hotelssegments_output .= $segmentobj->parse_hotels($sequence, $approvedhotels);
             $hotelssegments_output .= '<br /><h2><small>Other Possible Hotels</small></h2>';
-            $otherhotels = TravelManagerHotels::get_data(array('city' => $segmentobj->get_destinationcity()->get_id(), 'tmhid' => '(SELECT tmhid FROM '.TravelManagerPlanaccomodations::TABLE_NAME.' WHERE '.TravelManagerPlanSegments::PRIMARY_KEY.'='.$segmentobj->get_id().')', 'isApproved' => 0), array('returnarray' => true, 'operators' => array('tmhid' => 'IN')));
+            $otherhotels = TravelManagerHotels::get_data(array('city' => $segmentobj->get_destinationcity()->get_id(), 'tmhid' => '(SELECT tmhid FROM '.TravelManagerPlanaccomodations::TABLE_NAME.' WHERE '.TravelManagerPlanSegments::PRIMARY_KEY.' = '.$segmentobj->get_id().')', 'isApproved' => 0), array('returnarray' => true, 'operators' => array('tmhid' => 'IN')));
             if(is_array($otherhotels)) {
                 $hotelssegments_output .= $segmentobj->parse_hotels($sequence, $otherhotels);
             }
@@ -585,7 +598,11 @@ class TravelManagerPlan {
                     'anotheraff' => $lang->anotheraff
             );
             $otherhotel['displaystatus'] = "display:none;";
-            $paidby_onchangeactions = 'if($(this).find(":selected").val()=="anotheraff"){$("#"+$(this).find(":selected").val()+"_otheraccomodations_'.$sequence.'_'.$otherhotel_checksum.'").effect("highlight",{ color: "#D6EAAC"}, 1500).find("input").first().focus().val("");}else{$("#anotheraff_otheraccomodations_'.$sequence.'_'.$otherhotel_checksum.'").hide();}';
+            $paidby_onchangeactions = 'if($(this).find(":selected").val()=="anotheraff"){$("#"+$(this).find(":selected").val()+"_otheraccomodations_'.$sequence.'_'.$otherhotel_checksum.'").effect("highlight", { color: "#D6EAAC"}, 1500).find("input").first().focus().val("");
+            }
+            else {
+                $("#anotheraff_otheraccomodations_'.$sequence.'_'.$otherhotel_checksum.'").hide();
+            }';
             $paidbyoptions = parse_selectlist('segment['.$sequence.'][tmhid]['.$otherhotel_checksum.'][entites]', 5, $paidby_entities, $selectedhotel->paidBy, 0, $paidby_onchangeactions);
             $mainaffobj = new Affiliates($core->user['mainaffiliate']);
             $destcity_obj = new Cities($destcity['ciid']);
@@ -662,16 +679,16 @@ class TravelManagerPlan {
             }
             //parse finnance--end
             if($segmentobj->noAccomodation == '1') {
-                $checkedaccomodation = 'checked="checked"';
+                $checkedaccomodation = 'checked = "checked"';
             }
             //parse finances-END
             //  eval("\$transsegments_output.= \"".$template->get('travelmanager_plantrip_segment_transptype')."\";");
             eval("\$plansegmentscontent_output = \"".$template->get('travelmanager_plantrip_segmentcontents')."\";");
             unset($segments_expenses_output, $expensestype, $transsegments_output, $hotelssegments_output, $accomodation, $selectedhotel);
             eval("\$plantrip_createsegment = \"".$template->get('travelmanager_plantrip_createsegment')."\";");
-            $segments_output .= '<div id="segmentstabs-'.$segid.'">'.$plantrip_createsegment.'</div>';
+            $segments_output .= '<div id = "segmentstabs-'.$segid.'">'.$plantrip_createsegment.'</div>';
             $segid++;
-            unset($transsegments_output, $finance_output);
+            unset($transsegments_output, $finance_output, $checked);
         }
 
         eval("\$plantript_segmentstabs= \"".$template->get('travelmanager_plantrip_segmentstabs')."\";");

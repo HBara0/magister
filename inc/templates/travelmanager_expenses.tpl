@@ -2,7 +2,7 @@
     <div style="display:inline-block; vertical-align: top;width:20%;"> {$lang->expectedamt} </div>
 
     <div style="display:inline-block; text-align:left;   vertical-align: top;width:70%;">
-        <input tabindex="" accept="numeric"   value="{$expensestype[$segid][$rowid][expectedAmt]}" id="expenses_expectedAmt"  size="20" name="segment[{$sequence}][expenses][{$rowid}][expectedAmt]" type="text"{$expenses_output_requiredattr}/>
+        <input tabindex="" accept="numeric"   value="{$expensestype[$segid][$rowid][expectedAmt]}" id="expenses_{$sequence}_{$rowid}_expamount" size="20" name="segment[{$sequence}][expenses][{$rowid}][expectedAmt]" type="text"{$expenses_output_requiredattr}/>
 
         {$currencies_list}
 
