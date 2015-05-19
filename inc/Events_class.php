@@ -54,8 +54,10 @@ class Events extends AbstractClass {
         // $data['restricto'] = implode(',', $ $data['restricto']);
         //  'affid' => $core->input['event']['affid'],
         //'spid' => $core->input['event']['spid'],
-        $query = $db->insert_query(self::TABLE_NAME, $event_data);
-
+        parent::create($event_data);
+        //$query = $db->insert_query(self::TABLE_NAME, $event_data);
+        //$this->data = $event_data;
+        //$this->data[self::PRIMARY_KEY] = $db->last_id();
 
         /* Parse incoming Attachemtns - START */
         $data['attachments'] = $_FILES['attachments'];
@@ -107,7 +109,9 @@ class Events extends AbstractClass {
         unset($event_data['restrictto']);
         //'affid' => $core->input['event']['affid'],
         //'spid' => $core->input['event']['spid'],
-        $db->update_query(self::TABLE_NAME, $event_data, self::PRIMARY_KEY.' = '.intval($this->data[self::PRIMARY_KEY]));
+        $db->update_query(self::TABLE_NAME, $event_data, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
+        $event_data[self::PRIMARY_KEY] = $this->data[self::PRIMARY_KEY];
+        $this->data = $event_data;
     }
 
     public function get_eventbypriority($attributes = array()) {
@@ -152,7 +156,7 @@ class Events extends AbstractClass {
 
     public function get_invited_users() {
         global $db;
-        $invitess_query = $db->query("SELECT ceiid, uid FROM ".Tprefix."calendar_events_invitees WHERE ceid=".$db->escape_string($this->data['ceid']));
+        $invitess_query = $db->query("SELECT ceiid, uid FROM ".Tprefix."calendar_events_invitees WHERE ceid=".intval($this->data['ceid']));
         if($db->num_rows($invitess_query) > 0) {
             while($invitee = $db->fetch_assoc($invitess_query)) {
                 $invitees[$invitee['ceiid']] = new Users($invitee['uid']);
