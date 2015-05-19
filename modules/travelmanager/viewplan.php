@@ -39,6 +39,7 @@ if(!$core->input['action']) {
 
     $leave = $plan_object->get_leave();
     $approvers = $leave->get_approvers();
+    $approver_chain = array();
     if(is_array($approvers)) {
         foreach($approvers as $approver) {
             $approver_chain[] = $approver->uid;
@@ -60,7 +61,7 @@ if(!$core->input['action']) {
     //$leave_type = unserialize($plan_object->get_leave()->get_type()->get()['toApprove']);
 
     /* parse segment of plan */
-    $segment_objs = TravelManagerPlanSegments::get_segments(array('tmpid' => $planid), array('order' => 'fromDate', 'returnarray' => true));
+    $segment_objs = TravelManagerPlanSegments::get_segments(array('tmpid' => $planid), array('order' => array('by' => 'sequence', 'sort' => 'ASC'), 'returnarray' => true));
     if(is_array($segment_objs)) {
         foreach($segment_objs as $segmentid => $segment) {
             $segment_details .= $segment->parse_segment();
