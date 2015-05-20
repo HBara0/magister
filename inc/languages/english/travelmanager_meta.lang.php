@@ -127,4 +127,6 @@ $lang['transpfees'] = 'Transportation Fees';
 $lang['connectionfligts'] = 'Connection Fligts';
 $lang['directflights'] = 'Direct Flights';
 $lang['lookuptransps'] = 'Look Up Transportation';
+$lang['oneway'] = 'One Way';
+$lang['numnightsexceeded'] = 'Hotel Number of nights exceeds the leave days';
 ?>

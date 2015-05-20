@@ -375,6 +375,10 @@ else {
                 case 8:
                     output_xml("<status>false</status><message> {$lang->erroritinerarydate} </message>");
                     exit;
+                case 9:
+                    $error_output = $errorhandler->get_errors_inline();
+                    output_xml("<status>false</status><message><![CDATA[{$error_output}]]></message>");
+                    break;
             }
         }
     }

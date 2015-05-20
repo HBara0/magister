@@ -10,7 +10,7 @@
         <div style="display:inline-block;padding:5px;width:100px;"><input  style="width:100px"id="pricenight_segacc_{$approved_hotels[tmhid]}_{$sequence}" accept="numeric" name="segment[{$sequence}][tmhid][{$otherhotel_checksum}][priceNight]" type="text" value="{$selectedhotel[$segid][$approved_hotels[tmhid]][priceNight]}"></div>
         <div style="display:inline-block;padding:5px;width:50px;">{$currencies_list}</div>
         <div style="display:inline-block;padding:5px;width:120px; ">{$lang->numnight}</div>
-        <div style="display:inline-block;padding:5px;width:15%;"> <input  size="10" id="numnight_segacc_{$approved_hotels[tmhid]}_{$sequence}" accept="numeric" name="segment[{$sequence}][tmhid][{$otherhotel_checksum}][numNights]" type="text" value="{$selectedhotel[$segid][$approved_hotels[tmhid]][numNights]}" max="{$leavedays}"> </div>
+        <div style="display:inline-block;padding:5px;width:15%;"> <input style="width:100px;" id="numnight_segacc_{$approved_hotels[tmhid]}_{$sequence}" accept="numeric" name="segment[{$sequence}][tmhid][{$otherhotel_checksum}][numNights]" type="number" value="{$selectedhotel[$segid][$approved_hotels[tmhid]][numNights]}" max="{$leavedays}"> </div>
 
         <div style="display:inline-block;padding:2px;  font-weight: bold; width:15%;" id="total_segacc_{$approved_hotels[tmhid]}_{$sequence}" ><span>Sub Total: {$selectedhotel[$segid][$approved_hotels[tmhid]][total]} </span>
         </div>

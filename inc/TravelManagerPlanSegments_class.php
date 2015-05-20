@@ -37,12 +37,12 @@ class TravelManagerPlanSegments extends AbstractClass {
             $segmentdata['fromDate'] = strtotime($segmentdata['fromDate']);
         }
         if(is_empty($segmentdata['fromDate'], $segmentdata['toDate'], $segmentdata['originCity'], $segmentdata['destinationCity'])) {
-            $this->errorode = 2;
+            $this->errorcode = 2;
             return false;
         }
 
         if(value_exists(self::TABLE_NAME, TravelManagerPlan::PRIMARY_KEY, $segmentdata[TravelManagerPlan::PRIMARY_KEY], "(fromDate = {$segmentdata['fromDate']}  OR toDate = {$segmentdata['toDate']}) AND sequence=".$segmentdata['sequence'])) {
-            $this->errorode = 4;
+            $this->errorcode = 4;
             return false;
         }
 
@@ -132,7 +132,9 @@ class TravelManagerPlanSegments extends AbstractClass {
         }
 
         if(isset($segmentdata['tmhid'])) {
-
+            $leave_obj = $this->get_plan()->get_leave();
+            $leavedays = abs($leave_obj->toDate - $leave_obj->fromDate);
+            $leavedays = floor($leavedays / (60 * 60 * 24));
             foreach($segmentdata['tmhid'] as $checksum => $hotel) {
 //                if(!empty($checksum)) {
 //                    $hotelacc = TravelManagerPlanaccomodations::get_data(array('inputChecksum' => $checksum));
@@ -146,9 +148,14 @@ class TravelManagerPlanSegments extends AbstractClass {
 //                    if(empty($hotel[$hotelfield])) {
 //                        return;
 //                    }
-//                }
+//                }//////
                 if(!isset($hotel['tmhid']) || empty($hotel['tmhid'])) {
                     continue;
+                }
+                if($hotel['numNights'] > $leavedays) {
+                    $hotel = new TravelManagerHotels($hotel['tmhid']);
+                    $errorhandler->record($lang->numnightsexceeded.'<br/>', $hotel->name);
+                    return $this;
                 }
                 $hoteldata['tmhid'] = $hotel['tmhid'];
                 $hoteldata['inputChecksum'] = $checksum;
@@ -179,7 +186,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                 $expenses_obj = new Travelmanager_Expenses();
                 $expenses_obj->set($expensestdata);
                 $expenses_obj->save();
-                $this->errorode = 0;
+                $this->errorcode = 0;
             }
         }
 
@@ -193,12 +200,12 @@ class TravelManagerPlanSegments extends AbstractClass {
                 $finance_obj = new TravelManagerPlanFinance();
                 $finance_obj->set($financedata);
                 $finance_obj->save();
-                //   $this->errorode = 0;
+                //   $this->errorcode = 0;
             }
         }
 
         if(isset($transp_errorcode) && !empty($transp_errorcode)) {
-            $this->errorode = $transp_errorcode;
+            $this->errorcode = $transp_errorcode;
         }
 
         return $this;
@@ -298,6 +305,10 @@ class TravelManagerPlanSegments extends AbstractClass {
             $segment_hotels['tmhid'] = $segmentdata['tmhid'];
             if(is_array($segment_hotels['tmhid'])) {
 
+                $leave_obj = $this->get_plan()->get_leave();
+                $leavedays = abs($leave_obj->toDate - $leave_obj->fromDate);
+                $leavedays = floor($leavedays / (60 * 60 * 24));
+
                 $validate_fields = array('priceNight', 'numNights', 'currency');
                 foreach($segment_hotels['tmhid'] as $checksum => $hotel) {
                     $hotelacc = TravelManagerPlanaccomodations::get_data(array('inputChecksum' => $checksum));  //$hotel[tmhid]
@@ -306,6 +317,13 @@ class TravelManagerPlanSegments extends AbstractClass {
                             $hotelacc->delete();
                         }
                         continue;
+                    }
+
+                    if($hotel['numNights'] > $leavedays) {
+                        $hotel = new TravelManagerHotels($hotel['tmhid']);
+                        $this->errorcode = 9;
+                        $errorhandler->record($lang->numnightsexceeded.'<br/>', $hotel->name);
+                        return $this;
                     }
 
                     $hoteldata['tmhid'] = $hotel['tmhid'];
@@ -339,7 +357,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                 $expenses_obj = new Travelmanager_Expenses();
                 $expenses_obj->set($expensestdata);
                 $expenses_obj->save();
-                $this->errorode = 0;
+                $this->errocode = 0;
             }
         }
         $finances_objs = $segmentdata['tmpfid'];
@@ -359,7 +377,7 @@ class TravelManagerPlanSegments extends AbstractClass {
         }
 
         if(isset($transp_errorcode) && !empty($transp_errorcode)) {
-            $this->errorode = $transp_errorcode;
+            $this->errorcode = $transp_errorcode;
         }
 
         return $this;
@@ -429,7 +447,7 @@ class TravelManagerPlanSegments extends AbstractClass {
     }
 
     public function get_errorcode() {
-        return $this->errorode;
+        return $this->errorcode;
     }
 
     public function get_modifiedBy() {
@@ -759,6 +777,10 @@ class TravelManagerPlanSegments extends AbstractClass {
                 $currencies[] = new Currencies(978, true);
                 $currencies = array_unique($currencies);
                 $currencies_list = parse_selectlist('segment['.$sequence.'][tmhid]['.$checksum.'][currency]', 4, $currencies, $rescurrency_id, '', '', array('id' => 'currency_'.$sequence.'_'.$checksum.'_list'));
+
+                $leave_obj = $this->get_plan()->get_leave();
+                $leavedays = abs($leave_obj->toDate - $leave_obj->fromDate);
+                $leavedays = floor($leavedays / (60 * 60 * 24));
 
                 eval("\$hotelssegments_output  .= \"".$template->get('travelmanager_plantrip_segment_hotels')."\";");
                 $review_tools = $paidby_details = $currencies_list = $currencies = $selected_hotel = $checkbox_hotel = '';
