@@ -4,18 +4,18 @@
         <input id="hotels_{$sequence}_cache_hotel_autocomplete" autocomplete="off" tabindex="8" placeholder="{$lang->searchotherhotel}" value="{$selectedhotel[$segid][$approved_hotels[tmhid]][$approved_hotels[tmhid]]}"  type="text" onFocus="getcityid()" >
         <input id="hotels_{$sequence}_cache_hotel_id" name="segment[{$sequence}][tmhid][{$otherhotel_checksum}][tmhid]" value="" type="hidden">
         <input type="hidden" id="hotels_{$sequence}_cache_hotel_city" name="city" value=''/>
-
         <span> <a style="cursor: pointer;"  rel="{$destcity[ciid]}" id="addnewhotel_{$sequence}_travelmanager/plantrip_loadpopupbyid"><img src="images/addnew.png"  title="{$lang->addotherhotel}" alt="Add" border="0">{$lang->addhotel}</a> </span>
         <br/>
         <div style="display:inline-block;padding:5px;width:15%;">{$lang->pricenight}</div>
         <div style="display:inline-block;padding:5px;width:100px;"><input  style="width:100px"id="pricenight_segacc_{$approved_hotels[tmhid]}_{$sequence}" accept="numeric" name="segment[{$sequence}][tmhid][{$otherhotel_checksum}][priceNight]" type="text" value="{$selectedhotel[$segid][$approved_hotels[tmhid]][priceNight]}"></div>
         <div style="display:inline-block;padding:5px;width:50px;">{$currencies_list}</div>
         <div style="display:inline-block;padding:5px;width:120px; ">{$lang->numnight}</div>
+        <div style="display:inline-block;padding:5px;width:15%;"> <input  size="10" id="numnight_segacc_{$approved_hotels[tmhid]}_{$sequence}" accept="numeric" name="segment[{$sequence}][tmhid][{$otherhotel_checksum}][numNights]" type="text" value="{$selectedhotel[$segid][$approved_hotels[tmhid]][numNights]}" max="{$leavedays}"> </div>
+
         <div style="display:inline-block;padding:2px;  font-weight: bold; width:15%;" id="total_segacc_{$approved_hotels[tmhid]}_{$sequence}" ><span>Sub Total: {$selectedhotel[$segid][$approved_hotels[tmhid]][total]} </span>
         </div>
         <input type="hidden"  disabled value="{$selectedhotel->total}" id="hotel_{$sequence}_{$checksum}_total" name="segment[{$sequence}][tmhid][{$checksum}][subtotal]">
         <input type="hidden" disabled value="{$checksum}" id="checksum_{$sequence}_{$checksum}_tmhid">
-        <div style="display:inline-block;padding:5px;width:15%;">{$lang->currency}</div> <div style="display:inline-block;padding:5px;width:20%;">{$currencies_list}</div>
         <div style="display:inline-block;padding:5px;width:15%">{$lang->paidby}</div>
         <div style="display:inline-block;width:20%;">
             {$paidbyoptions}
