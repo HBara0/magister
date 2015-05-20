@@ -12,10 +12,23 @@
             <table width="100%" class="datatable">
                 <thead>
                     <tr>
-                        <th width="30%">{$lang->plan}</th>
-                        <th width="30%">{$lang->employee}</th>
-                        <th width="40%">{$lang->createdon}</th>
+                        <th width="20%">{$lang->employee}</th>
+                        <th width="30%">{$lang->title}</th>
+                        <th width="15%">{$lang->fromdate}</th>
+                        <th width="15%">{$lang->todate}</th>
+                        <th width="15%">{$lang->createdon}
+                            <a href="{$sort_url}&amp;sortby=createdOn&amp;order=ASC">
+                                <img src="./images/sort_asc.gif" border="0" alt="{$lang->sortasc}"/>
+                            </a>
+                            <a href="{$sort_url}&amp;sortby=createdOn&amp;order=DESC">
+                                <img src="./images/sort_desc.gif" border="0"  alt="{$lang->sortdesc}"/>
+                            </a>
+                        </th>
+                        <th width="10%">{$lang->finalized}</th>
                         <th width="1%">&nbsp;</th>
+                    </tr>
+                    <tr>
+                        {$filters_row}
                     </tr>
                 </thead>
                 <tbody>

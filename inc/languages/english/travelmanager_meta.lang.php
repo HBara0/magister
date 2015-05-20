@@ -87,6 +87,7 @@ $lang['preview'] = 'Preview';
 $lang['save'] = 'Save';
 $lang['finish'] = 'Finish';
 $lang['finalize'] = 'Finalize';
+$lang['finalized'] = 'Finalized';
 $lang['accomodations'] = 'Accomodations';
 $lang['selectedtransportations'] = 'Selected Transportations';
 $lang['selectothertransportations'] = 'Select Other Transportations';
@@ -125,4 +126,5 @@ $lang['trasptype'] = 'Transportation Type';
 $lang['transpfees'] = 'Transportation Fees';
 $lang['connectionfligts'] = 'Connection Fligts';
 $lang['directflights'] = 'Direct Flights';
+$lang['lookuptransps'] = 'Look Up Transportation';
 ?>
