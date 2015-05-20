@@ -2496,6 +2496,27 @@ CREATE TABLE `meetings_minsofmeeting` (
   PRIMARY KEY (`momid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `meetings_mom_action_assignees`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `meetings_mom_action_assignees` (
+  `momaaid` int(10) NOT NULL,
+  `momaid` int(10) NOT NULL,
+  `repid` int(11) NOT NULL,
+  `uid` int(11) NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `meetings_mom_actions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `meetings_mom_actions` (
+  `momaid` int(10) NOT NULL,
+  `momid` int(10) NOT NULL,
+  `isTask` tinyint(1) NOT NULL,
+  `when` bigint(30) NOT NULL,
+  `what` varchar(200) NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `meetings_sharedwith`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
