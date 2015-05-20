@@ -73,6 +73,10 @@ class TravelManagerAirlines {
         if(!is_array($response_flightdata->trips->tripOption)) {
             return;
         }
+        $nocon_count = 0;
+        $con_count = 0;
+        $minflight = '';
+        $min_con_flight = '';
         foreach($response_flightdata->trips->tripOption as $tripoptnum => $tripoption) {
             if(empty($category['inputChecksum'])) {
                 $category['inputChecksum'] = generate_checksum();
@@ -93,12 +97,16 @@ class TravelManagerAirlines {
 // for($slicenum = 0; $slicenum < count($response_flightdata->trips->tripOption[$tripoptnum]->slice); $slicenum++) {
                 foreach($slice->segment as $segmentnum => $segment) {
                     //  for($segmentnum = 0; $segmentnum < count($response_flightdata->trips->tripOption[$tripoptnum]->slice[$slicenum]->segment); $segmentnum++) {
-                    $departuretime = strtotime($segment->leg[0]->departureTime);
-                    $arrivaltime = strtotime($segment->leg[0]->arrivalTime);
+                    $departure_obj = new DateTime($segment->leg[0]->departureTime);
+                    $flight['departuretimezone'] = $departure_obj->getTimezone()->getName();
+                    $departuretime = $departure_obj->getTimestamp();
+                    $arrival_obj = new DateTime($segment->leg[0]->arrivalTime);
+                    $flight['arrivaltimezone'] = $arrival_obj->getTimezone()->getName();
+                    $arrivaltime = $arrival_obj->getTimestamp();
                     $flight['departuredate'] = date($core->settings['dateformat'], $departuretime);
-                    $flight['departuretime'] = date($core->settings['timeformat'], $departuretime);
+                    $flight['departuretime'] = date($core->settings['timeformat'], $departuretime - $departure_obj->getOffset());
                     $flight['arrivaldate'] = date($core->settings['dateformat'], $arrivaltime);
-                    $flight['arrivaltime'] = date($core->settings['timeformat'], $arrivaltime);
+                    $flight['arrivaltime'] = date($core->settings['timeformat'], $arrivaltime - $arrival_obj->getOffset());
                     $flight['origin'] = $segment->leg[0]->origin;
                     $flight['cabin'] = $segment->cabin;
                     $flight['destination'] = $segment->leg[0]->destination;
@@ -189,9 +197,17 @@ class TravelManagerAirlines {
             }
             else {
                 if($hasconnection == true) {
+                    if($con_count == 0) {
+                        $flightnumber_checkbox .= '<input type="hidden" name="segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].']['.$flight['flightid'].'][isMinCost]" value="1"/>';
+                        $con_count++;
+                    }
                     eval("\$flights_records[hasconnection] .= \"".$template->get('travelmanager_plantrip_segment_catransportation_flightdetails')."\";");
                 }
                 else {
+                    if($nocon_count == 0) {
+                        $flightnumber_checkbox .= '<input type="hidden" name="segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].']['.$flight['flightid'].'][isMinCost]" value="1"/>';
+                        $nocon_count++;
+                    }
                     eval("\$flights_records[direct] .= \"".$template->get('travelmanager_plantrip_segment_catransportation_flightdetails')."\";");
                 }
                 $flights_records_segments = $flights_records_roundtripsegments = $flights_records_roundtripsegments_details = '';
@@ -228,8 +244,8 @@ class TravelManagerAirlines {
         curl_setopt($ch, CURLOPT_POSTFIELDS, $request);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-type: application/json"));
-        $result = curl_exec($ch);
-        //$result = file_get_contents('./modules/travelmanager/jsonflightdetailsPAR.txt');
+        // $result = curl_exec($ch);
+        $result = file_get_contents('./modules/travelmanager/jsonflightdetailsPAR.txt');
 
         curl_close($ch);
         return $result;

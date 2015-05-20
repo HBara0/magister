@@ -4,12 +4,12 @@
         <table cellpadding='0' cellspacing='0' width='100%'>
             <tr>
             <input type='hidden' value='{$sequence}' name="sequence">
-            <td width="40%"><strong>{$lang->hotel}</strong></td><td><input type='text' required="required"   name="otherhotel[name]"  tabindex="1"/>*</td>
+            <td width="40%"><strong>{$lang->hotel}</strong></td><td><input type='text' required="required"   name="otherhotel[name]"  tabindex="100"/>*</td>
             </tr>
             <tr>
                 <td><strong>{$lang->city}</strong></td>
 
-                <Td><input type="text" autocomplete="off" tabindex="2"  id="cities_cache_{$sequence}_autocomplete" value="{$segmentobj_destcityname}" required="required"/>*</Td>
+                <Td><input type="text" autocomplete="off" tabindex="100"  id="cities_cache_{$sequence}_autocomplete" value="{$segmentobj_destcityname}" required="required"/>*</Td>
             <input type='hidden' id='cities_cache_{$sequence}_id'   name="otherhotel[city]" value="{$destcityid}"/>
             </td>
 
@@ -20,7 +20,7 @@
                 </td>
 
             </tr>
-            <tr><td>   <div style="display:inline-block;padding:5px;width:15%;">{$lang->address}</div></td><td><div style="display:inline-block;padding:5px;width:20%;"><input tabindex="3" name="otherhotel[addressLine1]" type="textarea" required="required">*{$selectedhotel[$segid][$approved_hotels[tmhid]][address]}</div>
+            <tr><td>   <div style="display:inline-block;padding:5px;width:15%;">{$lang->address}</div></td><td><div style="display:inline-block;padding:5px;width:20%;"><input tabindex="100" name="otherhotel[addressLine1]" type="textarea" required="required">*{$selectedhotel[$segid][$approved_hotels[tmhid]][address]}</div>
                 </td></tr>
             <tr>
                 <td>
@@ -28,9 +28,9 @@
                 </td>
                 <td>
                     {$countriescodes_list}
-                    <input type="text" id="telephone_areacode" name="telephone_areacode" size='4' maxlength="4" accept="numeric" value="{$telephone[1][areacode]}" tabindex="5"/>
+                    <input type="text" tabindex="100" id="telephone_areacode" name="telephone_areacode" size='4' maxlength="4" accept="numeric" value="{$telephone[1][areacode]}"/>
                     <br/>
-                    <input type="text" id="telephone_number" name="telephone_number" accept="numeric" value="{$telephone[1][number]}" tabindex="6" required="required"/>*<br />
+                    <input type="text" tabindex="100" id="telephone_number" name="telephone_number" accept="numeric" value="{$telephone[1][number]}" tabindex="6" required="required"/>*<br />
                 </td>
             </tr>
             <tr>

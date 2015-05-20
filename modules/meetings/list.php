@@ -20,14 +20,13 @@ if(!$core->input['action']) {
 
     /* Advanced filter search */
     $filters_config = array(
-            'parse' => array('filters' => array('title', 'description', 'from', 'to', 'location'),
-                    'overwriteField' => array('to' => '', 'from' => '')
+            'parse' => array('filters' => array('title', 'description', 'fromDate', 'toDate', 'location'),
             ),
             'process' => array(
                     'filterKey' => 'mtid',
                     'mainTable' => array(
                             'name' => 'meetings',
-                            'filters' => array('title' => 'title', 'description' => 'description', 'location' => 'location'),
+                            'filters' => array('title' => 'title', 'description' => 'description', 'location' => 'location', 'fromDate' => array('operatorType' => 'date', 'name' => 'fromDate'), 'toDate' => array('operatorType' => 'date', 'name' => 'toDate')),
                     ),
             )
     );

@@ -776,7 +776,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                 $currencies[] = new Currencies(840, true);
                 $currencies[] = new Currencies(978, true);
                 $currencies = array_unique($currencies);
-                $currencies_list = parse_selectlist('segment['.$sequence.'][tmhid]['.$checksum.'][currency]', 4, $currencies, $rescurrency_id, '', '', array('id' => 'currency_'.$sequence.'_'.$checksum.'_list'));
+                $currencies_list = parse_selectlist('segment['.$sequence.'][tmhid]['.$checksum.'][currency]', '3', $currencies, $rescurrency_id, '', '', array('id' => 'currency_'.$sequence.'_'.$checksum.'_list'));
 
                 $leave_obj = $this->get_plan()->get_leave();
                 $leavedays = abs($leave_obj->toDate - $leave_obj->fromDate);
