@@ -758,7 +758,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                 $currencies[] = new Currencies(840, true);
                 $currencies[] = new Currencies(978, true);
                 $currencies = array_unique($currencies);
-                $currencies_list = parse_selectlist('segment['.$sequence.'][tmhid]['.$checksum.'][currency]', 4, $currencies, $rescurrency_id);
+                $currencies_list = parse_selectlist('segment['.$sequence.'][tmhid]['.$checksum.'][currency]', 4, $currencies, $rescurrency_id, '', '', array('id' => 'currency_'.$sequence.'_'.$checksum.'_list'));
 
                 eval("\$hotelssegments_output  .= \"".$template->get('travelmanager_plantrip_segment_hotels')."\";");
                 $review_tools = $paidby_details = $currencies_list = $currencies = $selected_hotel = $checkbox_hotel = '';
