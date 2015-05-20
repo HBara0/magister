@@ -93,12 +93,16 @@ class TravelManagerAirlines {
 // for($slicenum = 0; $slicenum < count($response_flightdata->trips->tripOption[$tripoptnum]->slice); $slicenum++) {
                 foreach($slice->segment as $segmentnum => $segment) {
                     //  for($segmentnum = 0; $segmentnum < count($response_flightdata->trips->tripOption[$tripoptnum]->slice[$slicenum]->segment); $segmentnum++) {
-                    $departuretime = strtotime($segment->leg[0]->departureTime);
-                    $arrivaltime = strtotime($segment->leg[0]->arrivalTime);
+                    $departure_obj = new DateTime($segment->leg[0]->departureTime);
+                    $flight['departuretimezone'] = $departure_obj->getTimezone()->getName();
+                    $departuretime = $departure_obj->getTimestamp();
+                    $arrival_obj = new DateTime($segment->leg[0]->arrivalTime);
+                    $flight['arrivaltimezone'] = $arrival_obj->getTimezone()->getName();
+                    $arrivaltime = $arrival_obj->getTimestamp();
                     $flight['departuredate'] = date($core->settings['dateformat'], $departuretime);
-                    $flight['departuretime'] = date($core->settings['timeformat'], $departuretime);
+                    $flight['departuretime'] = date($core->settings['timeformat'], $departuretime - $departure_obj->getOffset());
                     $flight['arrivaldate'] = date($core->settings['dateformat'], $arrivaltime);
-                    $flight['arrivaltime'] = date($core->settings['timeformat'], $arrivaltime);
+                    $flight['arrivaltime'] = date($core->settings['timeformat'], $arrivaltime - $arrival_obj->getOffset());
                     $flight['origin'] = $segment->leg[0]->origin;
                     $flight['cabin'] = $segment->cabin;
                     $flight['destination'] = $segment->leg[0]->destination;
@@ -228,8 +232,8 @@ class TravelManagerAirlines {
         curl_setopt($ch, CURLOPT_POSTFIELDS, $request);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-type: application/json"));
-        $result = curl_exec($ch);
-        //$result = file_get_contents('./modules/travelmanager/jsonflightdetailsPAR.txt');
+        // $result = curl_exec($ch);
+        $result = file_get_contents('./modules/travelmanager/jsonflightdetailsPAR.txt');
 
         curl_close($ch);
         return $result;
