@@ -2,23 +2,23 @@
     <table>
         <tr>
             <td width="18%">{$lang->fromdate}</td>
-            <td><input type="text" id="pickDate_from_{$sequence}"  disabled="disabled"   autocomplete="off" tabindex="1" value="{$segment[$sequence][fromDate_output]}" required="required"/>
+            <td><input type="text" id="pickDate_from_{$sequence}"  disabled="disabled"   autocomplete="off" tabindex="1" value="{$segment[$sequence][fromDate_output]}" required="required"/>*
                 <input type="hidden" name="segment[{$sequence}][fromDate]" id="altpickDate_from_{$sequence}"  value="{$segment[$sequence][fromDate_formatted]}" /></td>
             </td>
 
             <td>{$lang->todate}</td>
-            <td><input type="text" id="pickDate_to_{$sequence}"    autocomplete="off" tabindex="2" value="{$segment[$sequence][toDate_output]}" required="required" />
+            <td><input type="text" id="pickDate_to_{$sequence}"    autocomplete="off" tabindex="2" value="{$segment[$sequence][toDate_output]}" required="required" />*
                 <input type="hidden" name="segment[{$sequence}][toDate]" id="altpickDate_to_{$sequence}" value="{$segment[$sequence][toDate_formatted]}"/></td>
         <input type="hidden" name="leaveDate" id="leaveDate_to_{$sequence}" value="{$leave[$sequence][toDate]}"/></td>
        <!-- <td> <span id="numdays_{$sequence}">{$segment[$sequence][numberdays]}</span></td>-->
         </tr>
         <tr>  <td>{$lang->origincity}</td>
-            <td><input type="text"  disabled="disabled" autocomplete="off" tabindex="1"  id="cities_{$sequence}_cache_autocomplete"    value="{$segment[$sequence][origincity][name]}" required="required"/>
+            <td><input type="text"  disabled="disabled" autocomplete="off" tabindex="1"  id="cities_{$sequence}_cache_autocomplete"    value="{$segment[$sequence][origincity][name]}" required="required"/>*
                 <input type='hidden' id='cities_{$sequence}_cache_id'   name="segment[{$sequence}][originCity]" value="{$segment[$sequence][origincity][ciid]}"/>
             </td>
 
             <td style="text-align:left;">{$lang->destinationcity}</td>
-            <td><input type="text" {$disabled}  id="destinationcity_{$sequence}_cache_autocomplete" autocomplete="off" tabindex="1" value="{$segment[$sequence][destinationcity][name]}" required="required"/>
+            <td><input type="text" {$disabled}  id="destinationcity_{$sequence}_cache_autocomplete" autocomplete="off" tabindex="1" value="{$segment[$sequence][destinationcity][name]}" required="required"/>*
                 <input type="hidden" id="coid"  value="{$segment[countryleave]}" name="coid"/>
                 <input type='hidden' id='destinationcity_{$sequence}_cache_id'  name="segment[{$sequence}][destinationCity]" value="{$segment[$sequence][destinationcity][ciid]}"/>
                 <input type='hidden' id='destinationcity_{$sequence}_cache_id_output' name="segment[{$sequence}][destinationCity]" value="{$segment[$sequence][destinationcity][ciid]}" disabled/>
@@ -31,7 +31,7 @@
         <tr id="specifyaffent_{$sequence}_block" style="display: none">
             <td>{$lang->affiliates}</td><td>{$affilate_list}</td>
             <td>{$lang->entities}</td>
-            <td><input type="text" {$disabled}  id="allentities_{$sequence}_cache_autocomplete" autocomplete="off" tabindex="1" value="{$segment[$sequence][entity][name]}" required="required"/>
+            <td><input type="text"  id="allentities_{$sequence}_cache_autocomplete" autocomplete="off" tabindex="1" value="{$segment[$sequence][entity][name]}" required="required"/>
                 <input type='hidden' id='allentities_{$sequence}_cache_id'  name="segment[{$sequence}][eid]" value="{$segment[$sequence][entity][eid]}"/>
                 <input type='hidden' id='allentities_{$sequence}_cache_id_output' name="segment[{$sequence}][eid]" value="{$segment[$sequence][entity][eid]}" disabled/>
 
