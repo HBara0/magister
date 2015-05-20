@@ -518,11 +518,11 @@ else {
                 }
                 $createdby = new Users($mi_pastobj->createdBy);
                 $date = date($core->settings['datetime'], $mi_pastobj->createdOn);
-                $comments.="<br>".$createdby->get_displayname()."   ".$date." :<br>".$mi_pastobj->comments;
+                $comments.="<br><br>".$createdby->get_displayname()."   ".$date." :<br>".$mi_pastobj->comments;
             }
         }
         if(!empty($comments)) {
-            $comments = '<td><strong>Past Comments</strong></td><td><div style="width:300px; overflow:auto; height:80px; line-height:20px;">'.$comments.'</div></td>';
+            $comments = '<td><strong>Past Comments</strong></td><td><div style="width:400px; overflow:auto; height:100px; line-height:20px;">'.$comments.'</div></td>';
         }
         $mkintentry_customer = $mkintentry->get_customer();
         $mkintentry_brand = $mkintentry->get_entitiesbrandsproducts()->get_entitybrand();
