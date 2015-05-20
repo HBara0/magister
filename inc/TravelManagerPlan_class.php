@@ -171,6 +171,7 @@ class TravelManagerPlan {
 
                     break;
                 case 'airplane':
+
                     // $availabe_arilinersobjs = TravelManagerAirlines::get_airlines(array('contracted' => '1'));
                     if(is_array($availabe_arilinersobjs)) {
                         foreach($availabe_arilinersobjs as $availabe_arilinersobj) {
@@ -189,10 +190,15 @@ class TravelManagerPlan {
                         $transportaion_fields .= '<br /><hr/><br />';
                     }
                     else {
-                        // if(!is_array($cityinfo['flight']) && empty($cityinfo['flight'])) {
-                        $transportaion_fields .= '<h2><small>Possible Flights</small></h2><div class="ui-state-highlight ui-corner-all" style="padding: 6px; font-weight: bold;">'.$lang->availableflightsnoticemessage.'</div><br/>';
+                        ///$transportaion_fields.='<form name="perform_travelmanager/plantrip_Form" id="perform_travelmanager/plantrip_Form"  action="#" method="post">';
+                        ///  $transportaion_fields .='<input type = "checkbox" value = "{$lang->lookuptransps}" name = "" value = "1">'.$lang->roundtrip;
+                        ///    $transportaion_fields .=' <input type = "checkbox" value = "{$lang->lookuptransps}"/>'.$lang->oneway;
+                        ///   $transportaion_fields .='<br/><br/><input type = "button" class = "Button" value = "'.$lang->lookuptransps.'"/>';
+
+
+                        $transportaion_fields .= '<h2><small>Possible Flights</small></h2><div class = "ui-state-highlight ui-corner-all" style = "padding: 6px; font-weight: bold;">'.$lang->availableflightsnoticemessage.'</div><br/>';
                         $flights = TravelManagerAirlines::get_flights(TravelManagerAirlines::build_flightrequestdata(array('origin' => $cityinfo['origincity']['unlocode'], 'destination' => $cityinfo['destcity']['unlocode'], 'date' => $cityinfo['date'], 'permittedCarrier' => $permitted_ariliners)));
-                        $transportaion_fields .= '<input name="segment['.$sequence.'][apiFlightdata]" id="segment_'.$sequence.'apiFlightdata" type="hidden" value=\''.$flights.'\' />';
+                        $transportaion_fields .= '<input name = "segment['.$sequence.'][apiFlightdata]" id = "segment_'.$sequence.'apiFlightdata" type = "hidden" value = \''.$flights.'\' />';
                         $transportaion_fields .= TravelManagerAirlines::parse_bestflight($flights, array('transportationdetails' => $category['transportationdetials'], 'selectedflight' => $category['transportationdetials']['flightNumber'], 'name' => $category['name'], 'tmtcid' => $category['tmtcid']), $sequence);
                     }
                     //$transportaion_fields .='<div style="display:block;width:100%;"> <div style="display:inline-block;" id="airlinesoptions"> '.$arilinersroptions.' </div>  </div>';
@@ -551,6 +557,10 @@ class TravelManagerPlan {
 
             /* parse hotel --START */
             $hotelssegments_objs = $segmentobj->get_accomodations(array('returnarray' => true));
+
+            // $date1 = date_create(($this->get_leave()->fromDate));
+            // $date2 = date_create(($this->get_leave()->toDate));
+            // $leavedays = date_diff($date1, $date2);
 //            if(is_array($hotelssegments_objs)) {
 //                foreach($hotelssegments_objs as $segmentacc) {
 //                    $accomodation[$segmentid][$segmentacc->tmhid]['hotelsection'] = $section.' '.$lang->hotel;
