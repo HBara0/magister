@@ -8,14 +8,22 @@
         <span> <a style="cursor: pointer;"  rel="{$destcity[ciid]}" id="addnewhotel_{$sequence}_travelmanager/plantrip_loadpopupbyid"><img src="images/addnew.png"  title="{$lang->addotherhotel}" alt="Add" border="0">{$lang->addhotel}</a> </span>
         <br/>
         <div style="display:inline-block;padding:5px;width:15%;">{$lang->pricenight}</div>
+<<<<<<< HEAD
         <div style="display:inline-block;padding:5px;width:100px;"><input  style="width:100px"id="pricenight_segacc_{$approved_hotels[tmhid]}_{$sequence}" accept="numeric" name="segment[{$sequence}][tmhid][{$otherhotel_checksum}][priceNight]" type="text" value="{$selectedhotel[$segid][$approved_hotels[tmhid]][priceNight]}"></div>
         <div style="display:inline-block;padding:5px;width:50px;">{$currencies_list}</div>
         <div style="display:inline-block;padding:5px;width:120px; ">{$lang->numnight}</div>
+        <div style="display:inline-block;padding:5px;width:12%;"> <input  size="10" id="numnight_segacc_{$approved_hotels[tmhid]}_{$sequence}" accept="numeric" name="segment[{$sequence}][tmhid][{$otherhotel_checksum}][numNights]" type="text" value="{$selectedhotel[$segid][$approved_hotels[tmhid]][numNights]}"> </div>
+        <div style="display:inline-block;padding:2px;  font-weight: bold; width:10%;" id="total_segacc_{$approved_hotels[tmhid]}_{$sequence}" ><span>Sub Total: {$selectedhotel[$segid][$approved_hotels[tmhid]][total]} </span></div>
+=======
+        <div style="display:inline-block;padding:5px;width:100px;"><input  style="width:100px"id="pricenight_segacc_{$approved_hotels[tmhid]}_{$sequence}" accept="numeric" name="segment[{$sequence}][tmhid][{$otherhotel_checksum}][priceNight]" type="text" value="{$selectedhotel[$segid][$approved_hotels[tmhid]][priceNight]}"> </div>
+        <div style="display:inline-block;padding:5px;width:150px; ">{$lang->numnight}</div>
+        <div style="display:inline-block;padding:5px;width:15%;"> <input  size="10" id="numnight_segacc_{$approved_hotels[tmhid]}_{$sequence}" accept="numeric" name="segment[{$sequence}][tmhid][{$otherhotel_checksum}][numNights]" type="text" value="{$selectedhotel[$segid][$approved_hotels[tmhid]][numNights]}"> </div>
         <div style="display:inline-block;padding:2px;  font-weight: bold; width:15%;" id="total_segacc_{$approved_hotels[tmhid]}_{$sequence}" ><span>Sub Total: {$selectedhotel[$segid][$approved_hotels[tmhid]][total]} </span>
         </div>
         <input type="hidden"  disabled value="{$selectedhotel->total}" id="hotel_{$sequence}_{$checksum}_total" name="segment[{$sequence}][tmhid][{$checksum}][subtotal]">
         <input type="hidden" disabled value="{$checksum}" id="checksum_{$sequence}_{$checksum}_tmhid">
         <div style="display:inline-block;padding:5px;width:15%;">{$lang->currency}</div> <div style="display:inline-block;padding:5px;width:20%;">{$currencies_list}</div>
+>>>>>>> 549d4b5c0717647ad65e0f41e6ca713831e93227
         <div style="display:inline-block;padding:5px;width:15%">{$lang->paidby}</div>
         <div style="display:inline-block;width:20%;">
             {$paidbyoptions}

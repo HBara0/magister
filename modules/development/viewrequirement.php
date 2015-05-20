@@ -17,6 +17,7 @@ if(!defined('DIRECT_ACCESS')) {
 if(!$core->input['action']) {
     if(!empty($core->input['id'])) {
         $requirementobj = new Requirements($core->input['id']);
+        $requirementobj->read_requirement_full();
         $requirement = $requirementobj->get();
         $parent = $requirementobj->get_parent()->get();
 

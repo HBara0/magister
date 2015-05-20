@@ -61,7 +61,7 @@
                                 <tr>
                                     <td colspan="2">
                                         <img src="./images/add.gif" id="ajaxaddmore_{$module}/{$modulefile}_profmkdproduct" alt="{$lang->add}">
-                                        <input id="numrows_profmkdproduct_{$mkdprod_rowid}" name="numrows_profmkdproduct{$mkdprod_rowid}" type="hidden" value="{$mkdprod_rowid}">
+                                        <input id="numrows_profmkdproduct" name="numrows_profmkdproduct" type="hidden" value="{$mkdprod_rowid}">
                                     </td>
                                 </tr>
                             </tfoot>

@@ -29,7 +29,6 @@
             <h3>{$managemenuitem} <span class="subtitle">{$menuname}</span>
             </h3>
             <div style="display:table;-webkit-box-shadow: inset 2px 2px 5px 2px #F1F1F1;">
-
                 <form   name="perform_cms/managemenu_Form" method="post"  id="perform_cms/managemenu_Form" >
                     <input type="hidden" value="do_{$actiontype}menuitem" name="action" id="action" />
                     <input type="hidden" value="{$menu_id}" name="menuitem[cmsmid]" id="menuitem[menuid]" />
@@ -46,36 +45,29 @@
                     <div style="display:table-row;">
                         <div style="display:table-cell;">{$lang->alias}</div>
                         <div style="display: table-cell; padding:5px;">
-                            <input name="menuitem[alias]" type="text" value="{$menuitem[alias]}" required="required" size="30">
+                            <input name="menuitem[alias]" type="text" value="{$menuitem[alias]}" size="30" readonly="">
                         </div>
                     </div>
-
-
                     <div style="display:table-row ;">
                         <div style="display:table-cell;">{$lang->menuname}</div>
                         <div style="display:table-cell;">{$menuname}</div>
                     </div>
-
                     <div style="display:table-row">
                         <div style="display:table-cell;">{$lang->lang}</div>
                         <div style="display: table-cell; padding:5px;">
-
                             <select name="menuitem[lang]">
                                 <option value="english">{$lang->english}</option>
                                 <option value="french">{$lang->french}</option>
                             </select></div>
                     </div>
-
                     <div style="display:table-row">
                         <div style="display:table-cell;">{$lang->parent}</div>
                         <div  style="display: table-cell; padding:5px;">{$parent_list}</div>
                     </div>
-
                     <div style="display:table-row">
                         <div style="display:table-cell;">{$lang->ispublish}</div>
                         <div  style="display: table-cell; padding:5px;"><input name="menuitem[isPublished]" type="checkbox" value='1'{$ispublished_check}></div>
                     </div>
-
                     <div class="thead">{$lang->configuration}</div>
                     <div  class="altrow2" style="display:table-row; width:100%;">
                         <div style="display:table-cell;">{$lang->menutypes}</div>
@@ -94,11 +86,9 @@
                                 <label>{$lang->listaffiliates}</label>
                             </div>
                             <div style="display:inline-block; margin-left:30px">
-                                <input  id="externalurl_type" name="menuitem[type]" type="radio" value="externalurl"  >
+                                <input id="externalurl_type" name="menuitem[type]" type="radio" value="externalurl"  >
                                 <label>{$lang->externalurl}</label>
                             </div></div>
-
-
                         <div style="display:table-cell; padding:5px; margin:5px;">
                             <div style="display:inline-block; margin-left:30px">
                                 <input id="contact_type" name="menuitem[type]" type="radio" value="contact">
@@ -117,8 +107,6 @@
                                 <label>{$lang->segment}</label>
                             </div>
                         </div><!--end 2st type table cell-->
-
-
                         <div style="display:table-cell; padding:5px; margin:5px;">
                             <div style="display:inline-block; margin-left:30px">
                                 <input  id="listnews_type"name="menuitem[type]" type="radio" value="news">
@@ -164,7 +152,7 @@
                             <fieldset class="altrow2" style="width:100%;">
                                 <legend class="subtitle">{$lang->listaffiliates}</legend>
                                 <div style="display: table-cell; padding:10px;">{$lang->exclude} </div>
-                                <div style="display: table-cell;  margin-left:10px;"id="listaffiliates_content"> {$list_affiliates} </div>
+                                <div style="display: table-cell;  margin-left:10px;"id="listaffiliates_content">{$list_affiliates} </div>
                             </fieldset>
                         </div>
                     </div>
@@ -173,7 +161,7 @@
                             <fieldset class="altrow2" style="width:100%;">
                                 <legend class="subtitle">{$lang->listsegments}</legend>
                                 <div style="display: table-cell; padding:10px;">{$lang->exclude}</div>
-                                <div style="display: table-cell;  margin-left:10px;"id="segmentslist_content"> {$list_segments} </div>
+                                <div style="display: table-cell;  margin-left:10px;"id="segmentslist_content">{$list_segments} </div>
                             </fieldset>
                         </div>
 
@@ -183,7 +171,7 @@
                             <fieldset class="altrow2" style="width:100%;">
                                 <legend class="subtitle">{$lang->listsegments}</legend>
                                 <div style="display: table-cell; padding:10px;">{$lang->singlesegment}</div>
-                                <div style="display: table-cell;  margin-left:10px;"id="singlesegment_content"> {$single_segment} </div>
+                                <div style="display: table-cell;  margin-left:10px;"id="singlesegment_content">{$single_segment} </div>
                             </fieldset>
                         </div>
 
@@ -193,7 +181,7 @@
                             <fieldset class="altrow2" style="width:100%;">
                                 <legend class="subtitle">{$lang->brancheprofile}</legend>
                                 <div style="display: table-cell; padding:10px;">{$lang->affiliate} </div>
-                                <div style="display: table-cell;  margin-left:10px;"id="branchprofile_content"> {$list_brancheprofile} </div>
+                                <div style="display: table-cell;  margin-left:10px;"id="branchprofile_content">{$list_brancheprofile} </div>
                             </fieldset>
                         </div>
                     </div>

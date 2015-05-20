@@ -178,8 +178,12 @@ else {
         $leave = $leave_obj->get();
         /* prevent adding new segment if to date  greater than original  leave end date */
         $leave[$sequence]['toDate'] = $leave['toDate'];
-        $leave[$sequence]['toDate'] = strtotime(date('Y-m-d 00:00:00', $leave[$sequence]['toDate']));
+        $leave[$sequence]['toDate'] = strtotime(date('Y-m-d 23:59:59', $leave[$sequence]['toDate']));
         if(strtotime($core->input['toDate']) >= $leave[$sequence]['toDate'] || $core->input['fromDate'] == 'undefined') {
+            echo'<div style="color:red;">'.$lang->dateexceeded.'</div>';
+            exit;
+        }
+        if(strtotime($core->input['toDate']) == strtotime(date('Y-m-d', $leave['toDate'])) && strtotime($core->input['fromDate']) == strtotime(date('Y-m-d', $leave['toDate']))) {
             echo'<div style="color:red;">'.$lang->dateexceeded.'</div>';
             exit;
         }
@@ -192,7 +196,7 @@ else {
             $segment[$sequence]['origincity']['name'] = $descitydata['name'];
             $segment[$sequence]['origincity']['ciid'] = $descitydata['ciid'];
             /* Overwrite from date of next segment with  TOdate of prev segment */
-            $segment[$sequence]['toDate_output'] = date($core->settings['dateformat'], ( $leave[$sequence]['toDate']));
+            $segment[$sequence]['toDate_output'] = date($core->settings['dateformat'], ($leave[$sequence]['toDate']));
             $segment[$sequence]['toDate_formatted'] = date('d-m-Y', ($leave[$sequence]['toDate'])); // leave to date
             $segment[$sequence]['fromDate_output'] = date($core->settings['dateformat'], strtotime($core->input['toDate']));
             $segment[$sequence]['fromDate_formatted'] = $core->input['toDate'];
@@ -402,25 +406,32 @@ else {
         //eval("\$expenses = \"".$template->get('travelmanager_expenses_types')."\";");
         echo $expenses;
     }
-    elseif($core->input ['action'] == 'get_addnewhotel') {
+    elseif($core->input['action'] == 'get_addnewhotel') {
         $ciy_sequence = explode('_', $db->escape_string($core->input['id']));
         $sequence = $ciy_sequence[0];
         $destcityid = $ciy_sequence[1];
-        $segdescity_obj = new Cities($destcityid);
+        $segdescity_obj = new Cities($destcityid); // fix isuue in getting ciid
         $segdescity_country = $segdescity_obj->get_country()->get_displayname();
         $segdescity_obj_coid = $segdescity_obj->get_country()->coid;
         $segmentobj_destcityname = $segdescity_obj->get()['name'];
+        $country = new Countries(1);
+        $countriescodes = $country->get_phonecodes();
+        $countriescodes_list = parse_selectlist('telephone_intcode', $tabindex, $countriescodes, $selected_options, '', '', array('id' => 'telephone_intcode'));
         eval("\$addhotel= \"".$template->get('popup_addhotel')."\";");
         output($addhotel);
     }
     elseif($core->input ['action'] == 'do_add_otherhotel') {
+        $sequence = $core->input['sequence'];
         $core->input['otherhotel']['phone'] = $core->input['telephone_intcode'].'-'.$core->input['telephone_areacode'].'-'.$core->input['telephone_number'];
         $hotelobj = new TravelManagerHotels();
         $hotelobj->set($core->input['otherhotel']);
         $hotelobj->save();
         switch($hotelobj->get_errorcode()) {
             case 0:
-                output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
+                output_xml("<status>true</status><message>{$lang->successfullysaved}"
+                        ."<![CDATA[<script>$('input[id=\"hotels_".$sequence."_cache_hotel_autocomplete\"]').val('".$hotelobj->name."');"
+                        ."$('input[id=\"hotels_".$sequence."_cache_hotel_id\"]').val('".$hotelobj->tmhid."');</script>]]>"
+                        ."</message>");
                 break;
             case 2:
                 output_xml("<status>false</status><message>{$lang->fillrequiredfields}</message>");
@@ -433,7 +444,7 @@ else {
             $plan_classes = array('TravelManagerPlanSegments', 'TravelManagerPlanTransps', 'TravelManagerPlanaccomodations', 'Travelmanager_Expenses', 'TravelManagerCityReviews');
             if(is_array($plan_classes)) {
                 foreach($plan_classes as $object) {
-                    $data = $object::get_data('tmpsid='.$segmentid.'', array('returnarray' => true));
+                    $data = $object::get_data('tmpsid = '.$segmentid.'', array('returnarray' => true));
                     if(is_array($data)) {
                         foreach($data as $object_todelete) {
                             $object_todelete->delete();

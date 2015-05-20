@@ -594,20 +594,23 @@ else {
     elseif($core->input['action'] == 'do_createchemical') {
         $chemsustance = new Chemicalsubstances ( );
         $chemsustance->create($core->input['chemcialsubstances']);
+
         switch($chemsustance->get_status()) {
             case 0:
-                output_xml("<status>true</status><message> {
+                output_xml("<status>true</status>{$lang->successfullysaved}<message> {
         $lang->successfullysaved}</message>");
                 break;
             case 4:
                 output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
                 break;
-            case 5:
-                output_xml("<status>false</status><message>{$lang->chemicalexsist}</message>");
+            case 2:
+                $error_output = $errorhandler->get_errors_inline();
+                output_xml("<status>false</status><message><![CDATA[{$error_output}]]></message>");
                 break;
         }
     }
     elseif($core->input['action'] == 'ajaxaddmore_profmkdchemical') {
+
         $mkdchem_rowid = $db->escape_string($core->input['value']) + 1;
         eval("\$profiles_michemfuncproductentry_rows = \"".$template->get('profiles_michemfuncsubstancentry')."\";");
         echo $profiles_michemfuncproductentry_rows;

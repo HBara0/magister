@@ -1939,6 +1939,12 @@ function fix_url($url) {
     return $url;
 }
 
+/**
+ * Sorts a multi-dimensional array by a specific column
+ * @param array $data   The array to be sorted, passed by reference
+ * @param type $order_attr
+ * @param type $sort    Sorting flag
+ */
 function array_multisort_bycolumn(&$data, $order_attr, $sort = SORT_DESC) {
     ${$order_attr} = array();
     if(!is_array($data)) {
@@ -1950,6 +1956,11 @@ function array_multisort_bycolumn(&$data, $order_attr, $sort = SORT_DESC) {
     array_multisort(${$order_attr}, $sort, $data);
 }
 
+/**
+ * Generates a random unique string
+ * @param string $prefix A prefix to be prepended to the generated alias
+ * @return string
+ */
 function generate_checksum($prefix = '') {
     $identifier = substr(md5(uniqid(microtime())), 1, 10);
 
@@ -1959,6 +1970,12 @@ function generate_checksum($prefix = '') {
     return $prefix.$identifier;
 }
 
+/**
+ * Converts a string to alias like string where are special characters and spaces are removed
+ * @global \Core $core
+ * @param String $string Text to convert to alias
+ * @return String   Text converted to alias
+ */
 function generate_alias($string) {
     global $core;
     $string = trim(str_replace(' ', '-', $string));

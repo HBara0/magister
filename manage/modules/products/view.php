@@ -8,7 +8,7 @@
  * $id: view.php
  * Last Update: @zaher.reda 	Apr 03, 2009 | 01:38 PM
  */
-if(!defined("DIRECT_ACCESS")) {
+if(!defined('DIRECT_ACCESS')) {
     die("Direct initialization of this file is not allowed.");
 }
 

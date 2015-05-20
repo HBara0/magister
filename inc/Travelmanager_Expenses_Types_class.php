@@ -13,7 +13,7 @@
  *
  * @author tony.assaad
  */
-class Travelmanager_Expenses_Types extends AbstractClass {
+class TravelManager_Expenses_Types extends AbstractClass {
     protected $data = array();
     protected $errorcode = 0;
 

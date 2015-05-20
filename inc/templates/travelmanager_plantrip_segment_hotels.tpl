@@ -6,8 +6,9 @@
     </div>
     <br>
     <div style="display:inline-block;padding:5px;width:15%;">{$lang->pricenight}</div>
-    <div style="display:inline-block;width:20%;"><input id="pricenight_segacc_{$approved_hotels[tmhid]}_{$sequence}" accept="numeric" name="segment[{$sequence}][tmhid][{$checksum}][priceNight]" type="text" value="{$selectedhotel->priceNight}" style="width:100%;"></div>
-    <div style="display:inline-block;padding:10px;width:20%;">{$lang->numnight}</div>
+    <div style="display:inline-block;width:15%;"><input id="pricenight_segacc_{$approved_hotels[tmhid]}_{$sequence}" accept="numeric" name="segment[{$sequence}][tmhid][{$checksum}][priceNight]" type="text" value="{$selectedhotel->priceNight}" style="width:100%;"></div>
+    <div style="display:inline-block;width:6%;">{$currencies_list}</div>
+    <div style="display:inline-block;padding:10px;margin-left:5px;width:16%;">{$lang->numnight}</div>
     <div style="display:inline-block;width:15%;"><input size="10" id="numnight_segacc_{$approved_hotels[tmhid]}_{$sequence}" accept="numeric" name="segment[{$sequence}][tmhid][{$checksum}][numNights]" type="text" value="{$selectedhotel->numNights}"> </div>
     <div style="display:inline-block;padding:2px;width:20%; font-weight: bold;" id="total_segacc_{$approved_hotels[tmhid]}_{$sequence}" >
         <span>Sub Total: {$selectedhotel->total} </span>

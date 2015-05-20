@@ -331,10 +331,10 @@ if($core->input['type'] == 'quick') {
         elseif($core->input['for'] == 'hotels') {
             $extra_where = ' isApproved=0';
             if(isset($core->input['city']) && !empty($core->input['city'])) {
-                // $restrictdest_filter = "city ='".intval($core->input['city'])."'";
+                $restrictdest_filter = "city='".intval($core->input['city'])."'";
             }
             if(!empty($restrictdest_filter)) {
-                // $extra_where .= ' AND '.$restrictdest_filter;
+                $extra_where .= ' AND '.$restrictdest_filter;
             }
             $table = 'travelmanager_hotels';
             $attributes = array('name');

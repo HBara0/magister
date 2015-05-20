@@ -35,7 +35,7 @@ class DevelopmentBugs {
 
         $query_select = '*';
         if($simple == true) {
-            $query_select = self::PRIMARY_KEY.', '.self::DISPLAY_NAME.', module, moduleFile, affectedVersion, severity, priority, status, isFixed';
+            $query_select = self::PRIMARY_KEY.', '.self::DISPLAY_NAME.', module, moduleFile, affectedVersion, severity, priority, reportedOn, status, isFixed';
         }
         elseif(is_string($simple) && !empty($simple)) {
             $query_select = $db->escape_string($simple);
