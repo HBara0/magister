@@ -19,7 +19,7 @@ $(function() {
 
     $("input:checkbox[id$='_checkall']").click(function() {
         var id = $(this).attr('id').split("_");
-        $('input:checkbox[id^="' + id[0] + '"]').not(this).prop('checked', this.checked);
+        $('input:checkbox[id^="' + id[0] + '"]:visible').not(this).prop('checked', this.checked);
     });
 
     $('tr[class*="trowtools"]').hover(function() {

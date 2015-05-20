@@ -9,23 +9,33 @@
  * Last Update: 	@zaher.reda			May 21, 2012 | 09:38 PM
  */
 
-class Requirements {
-    private $requirement = array();
-    private $errorcode = 0;
+class Requirements extends AbstractClass {
+    protected $data = array();
+    protected $errorcode = 0;
 
     const PRIMARY_KEY = 'drid';
     const TABLE_NAME = 'development_requirements';
     const DISPLAY_NAME = 'title';
+    const SIMPLEQ_ATTRS = 'drid, refWord, refKey, title, parent, isCompleted';
+    const CLASSNAME = __CLASS__;
+    const UNIQUE_ATTRS = null;
 
-    public function __construct($id = '', $simple = false) {
-        if(isset($id) && !empty($id)) {
-            $this->requirement = $this->read_requirement($id, $simple);
-        }
+//    public function __construct($id = '', $simple = false) {
+//        if(isset($id) && !empty($id)) {
+//            $this->data = $this->read_requirement($id, $simple);
+//        }
+//    }
+
+    public function __construct($id = '', $simple = true) {
+        parent::__construct($id, $simple);
     }
 
-    public function read_requirement($id, $simple = false) {
+    public function read_requirement_full($id = null, $simple = false) {
         global $db, $core;
 
+        if(empty($id)) {
+            $id = $this->{self::PRIMARY_KEY};
+        }
         $text_fields = array('performance', 'userInterface', 'security', 'description');
 
         $query_select = 'dr1.*, dr2.title AS parentTitle';
@@ -58,7 +68,7 @@ class Requirements {
             }
         }
 
-        return $requirements;
+        $this->data = $requirements;
     }
 
     public function read_requirement_children($id, $simple = false) {
@@ -85,7 +95,7 @@ class Requirements {
         global $db, $core;
 
         if(empty($id)) {
-            $id = $this->requirement['drid'];
+            $id = $this->data['drid'];
         }
 
         $query = $db->query("SELECT drc.*, u.displayName AS createdByName, dr.title AS outcomeReqTitle, dr.refKey AS drRefKey, dr.refWord AS drRefWord
@@ -130,20 +140,20 @@ class Requirements {
     }
 
     public function get() {
-        return $this->requirement;
+        return $this->data;
     }
 
     public function get_parent() {
-        if(!isset($this->requirement['parent'])) {
+        if(!isset($this->data['parent'])) {
             return false;
         }
-        return new Requirements($this->requirement['parent']);
+        return new Requirements($this->data['parent']);
     }
 
     public function get_lastchangekey() {
         global $db;
 
-        return $db->fetch_field($db->query('SELECT refKey FROM '.Tprefix.'development_requirements_changes WHERE drid='.intval($this->requirement['drid']).' ORDER BY refKey DESC LIMIT 0, 1'), 'refKey');
+        return $db->fetch_field($db->query('SELECT refKey FROM '.Tprefix.'development_requirements_changes WHERE drid='.intval($this->data['drid']).' ORDER BY refKey DESC LIMIT 0, 1'), 'refKey');
     }
 
     public function update(array $data = array()) {
@@ -152,7 +162,7 @@ class Requirements {
         $data['modifiedOn'] = TIME_NOW;
         $data['modifiedBy'] = $core->user['uid'];
 
-        $query = $db->update_query(self::TABLE_NAME, $data, self::PRIMARY_KEY.'='.intval($this->requirement[self::PRIMARY_KEY]));
+        $query = $db->update_query(self::TABLE_NAME, $data, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
         if($query) {
             return $this;
         }
@@ -160,31 +170,27 @@ class Requirements {
         return false;
     }
 
-    public function create(array $data = array()) {
-
-    }
-
-    public function save(array $data = array()) {
-        if(empty($data)) {
-            $data = $this->requirement;
-        }
-
-        if(value_exists(self::TABLE_NAME, self::PRIMARY_KEY, $this->requirement[self::PRIMARY_KEY])) {
-            return $this->update($data);
-        }
-        else {
-            return $this->create($data);
-        }
-    }
+//    public function save(array $data = array()) {
+//        if(empty($data)) {
+//            $data = $this->requirement;
+//        }
+//
+//        if(value_exists(self::TABLE_NAME, self::PRIMARY_KEY, $this->requirement[self::PRIMARY_KEY])) {
+//            return $this->update($data);
+//        }
+//        else {
+//            return $this->create($data);
+//        }
+//    }
 
     public function parse_requirements_list(array $requirements = array(), $highlevel = true, $ref = '', $parsetype = 'list', $config = array()) {
         if(empty($requirements)) {
-            if(!isset($this->requirement)) {
+            if(!isset($this->data)) {
                 return false;
             }
 
             if($highlevel == true) {
-                $requirements = $this->requirement;
+                $requirements = $this->data;
             }
             else {
                 return false;
@@ -258,8 +264,21 @@ class Requirements {
         return $requirements_list;
     }
 
+    public function parse_fullreferencekey() {
+        $reference = $this->refKey;
+
+        if(!empty($this->parent)) {
+            $reference = $this->get_parent()->parse_fullreferencekey().'.'.$reference;
+        }
+        return $reference;
+    }
+
     public function get_errorcode() {
         return $this->errorcode;
+    }
+
+    public function get_link() {
+        return 'index.php?module=development/viewrequirement&id='.$this->data[self::PRIMARY_KEY];
     }
 
     public function parse_link($attributes_param = array('target' => '_blank')) {
@@ -268,7 +287,7 @@ class Requirements {
                 $attributes .= $attr.'="'.$val.'"';
             }
         }
-        return '<a href="index.php?module=development/viewrequirement&id='.$this->requirement[self::PRIMARY_KEY].'" '.$attributes.'>'.$this->requirement[self::DISPLAY_NAME].'</a>';
+        return '<a href="'.$this->get_link().'" '.$attributes.'>'.$this->data[self::DISPLAY_NAME].'</a>';
     }
 
 }

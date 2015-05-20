@@ -122,7 +122,7 @@ class TravelManagerPlan {
         $currencies[] = $mainaffobj->get_country()->get_maincurrency();
         $currencies[] = new Currencies(840, true);
         $currencies[] = new Currencies(978, true);
-        $currencies_list = parse_selectlist('segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].'][currency]', '', array_unique($currencies), $transportation->currency, '', '', array('width' => '100%'));
+        $currencies_list = parse_selectlist('segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].'][currency]', '', array_unique($currencies), $transportation->currency, '', '', array('width' => '100%', 'id' => 'currency_'.$sequence.'_'.$category['inputChecksum'].'_list'));
 
 
         if(!empty($category['name'])) {
@@ -621,7 +621,7 @@ class TravelManagerPlan {
             $currencies[] = new Currencies(840, true);
             $currencies[] = new Currencies(978, true);
             $currencies = array_unique($currencies);
-            $currencies_list = parse_selectlist('segment['.$sequence.'][tmhid]['.$otherhotel_checksum.'][currency]', 4, $currencies, '840');
+            $currencies_list = parse_selectlist('segment['.$sequence.'][tmhid]['.$otherhotel_checksum.'][currency]', 4, $currencies, '840', '', '', array('id' => 'currency_'.$sequence.'_'.$otherhotel_checksum.'_list'));
             eval("\$otherhotels_output = \"".$template->get('travelmanager_plantrip_segment_otherhotels')."\";");
             /* parse expenses --START */
             $segexpenses_ojbs = $segmentobj->get_expenses(array('simple' => false, 'returnarray' => true, 'order' => array('by' => 'tmeid', 'sort' => 'ASC')));

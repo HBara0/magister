@@ -13,7 +13,7 @@ if(!defined('DIRECT_ACCESS')) {
 }
 
 if(!$core->input['action']) {
-    $bugs = DevelopmentBugs::get_bugs(null, array('order' => 'isFixed'));
+    $bugs = DevelopmentBugs::get_bugs(null, array('order' => array('by' => array('isFixed', 'reportedOn'), 'sort' => array('ASC', 'DESC'))));
 
     if(is_array($bugs)) {
         foreach($bugs as $bug) {
@@ -21,6 +21,7 @@ if(!$core->input['action']) {
             if($bug->isFixed) {
                 $rowclass = 'success';
             }
+            $bug->reportedOn_output = date($core->settings['dateformat'].' '.$core->settings['timeformat'], $bug->reportedOn);
 
             $bug->link = $bug->parse_link();
             eval("\$bugs_list .= \"".$template->get('development_bugslist_row')."\";");

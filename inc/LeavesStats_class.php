@@ -271,12 +271,16 @@ class LeavesStats extends AbstractClass {
 
     public function calculate_promotion($leavepolicy, $leave_year, $employment_year) {
         $promotion = 0;
+
         if(!empty($leavepolicy->promotionPolicy)) {
             $new_promotion = 0;
             $working_years = $leave_year - $employment_year;
             $promotion_policy = unserialize($leavepolicy->promotionPolicy);
             ksort($promotion_policy);
-
+            /**
+             * Loop over the different available promotions and add them if working years are greater than
+             * the promotion requirement.
+             */
             while($val = current($promotion_policy)) {
                 if($working_years == key($promotion_policy)) {
                     $new_promotion = $val;
@@ -288,6 +292,9 @@ class LeavesStats extends AbstractClass {
                 next($promotion_policy);
             }
 
+            /**
+             * Apply new promotion based on employment date
+             */
             if(array_key_exists($working_years, $promotion_policy)) {
                 /* Calculate promotion based on the date of employment till end of year */
                 $employment_month = date('n', $this->user_hrinfo['joinDate']);

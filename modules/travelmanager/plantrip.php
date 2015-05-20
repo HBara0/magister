@@ -129,7 +129,7 @@ if(!$core->input['action']) {
             $currencies[] = new Currencies(840, true);
             $currencies[] = new Currencies(978, true);
             $currencies = array_unique($currencies);
-            $currencies_list = parse_selectlist('segment['.$sequence.'][tmhid]['.$otherhotel_checksum.'][currency]', 4, $currencies, '840');
+            $currencies_list = parse_selectlist('segment['.$sequence.'][tmhid]['.$otherhotel_checksum.'][currency]', 4, $currencies, '840', '', '', array('id' => 'currency_'.$sequence.'_'.$otherhotel_checksum.'_list'));
             $otherhotel['displaystatus'] = "display:none;";
 
 
