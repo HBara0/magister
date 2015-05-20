@@ -73,6 +73,10 @@ class TravelManagerAirlines {
         if(!is_array($response_flightdata->trips->tripOption)) {
             return;
         }
+        $nocon_count = 0;
+        $con_count = 0;
+        $minflight = '';
+        $min_con_flight = '';
         foreach($response_flightdata->trips->tripOption as $tripoptnum => $tripoption) {
             if(empty($category['inputChecksum'])) {
                 $category['inputChecksum'] = generate_checksum();
@@ -193,9 +197,17 @@ class TravelManagerAirlines {
             }
             else {
                 if($hasconnection == true) {
+                    if($con_count == 0) {
+                        $flightnumber_checkbox .= '<input type="hidden" name="segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].']['.$flight['flightid'].'][isMinCost]" value="1"/>';
+                        $con_count++;
+                    }
                     eval("\$flights_records[hasconnection] .= \"".$template->get('travelmanager_plantrip_segment_catransportation_flightdetails')."\";");
                 }
                 else {
+                    if($nocon_count == 0) {
+                        $flightnumber_checkbox .= '<input type="hidden" name="segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].']['.$flight['flightid'].'][isMinCost]" value="1"/>';
+                        $nocon_count++;
+                    }
                     eval("\$flights_records[direct] .= \"".$template->get('travelmanager_plantrip_segment_catransportation_flightdetails')."\";");
                 }
                 $flights_records_segments = $flights_records_roundtripsegments = $flights_records_roundtripsegments_details = '';
