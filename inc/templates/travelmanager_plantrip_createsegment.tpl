@@ -7,7 +7,7 @@
             </td>
 
             <td>{$lang->todate}</td>
-            <td><input type="text" id="pickDate_to_{$sequence}"    autocomplete="off" tabindex="2" value="{$segment[$sequence][toDate_output]}" required="required" />*
+            <td><input type="text" id="pickDate_to_{$sequence}"    autocomplete="off" tabindex="1" value="{$segment[$sequence][toDate_output]}" required="required" />*
                 <input type="hidden" name="segment[{$sequence}][toDate]" id="altpickDate_to_{$sequence}" value="{$segment[$sequence][toDate_formatted]}"/></td>
         <input type="hidden" name="leaveDate" id="leaveDate_to_{$sequence}" value="{$leave[$sequence][toDate]}"/></td>
        <!-- <td> <span id="numdays_{$sequence}">{$segment[$sequence][numberdays]}</span></td>-->
