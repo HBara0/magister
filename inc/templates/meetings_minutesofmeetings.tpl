@@ -18,6 +18,9 @@
                 <div class="subtitle" style="margin-top:10px;">{$lang->followup}</div>
                 <div><textarea name="mof[followup]" id="followup" class="txteditadv" cols="90" rows="25">{$mof[followup]}</textarea></div>
                 <div>
+                    {$actions}
+                </div>
+                <div>
                     <hr />
                     <input type="submit" class="button" value="{$lang->savecaps}" id="perform_meetings/minutesmeeting_Button" />
                 </div>
