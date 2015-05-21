@@ -151,4 +151,5 @@ $lang['checkout'] = 'checkout';
 $lang['sourcecity'] = 'sourcecity';
 $lang['destinationcity'] = 'destinationcity ';
 $lang['redirecttotmplantrip'] = 'Successfully Saved. You will be redirected to the Travel Manager module to fill your plan';
+$lang['multipledestinations_note'] = 'If multiple destinations trip, please specify your first destination city and input the length of the full trip';
 ?>

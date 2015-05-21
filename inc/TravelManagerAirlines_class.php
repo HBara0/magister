@@ -139,7 +139,7 @@ class TravelManagerAirlines {
                     $flight['flightnumber'] = $segment->flight->carrier.' '.$segment->flight->number;
                     $flight['flightid'] = $response_flightdata->trips->tripOption[$tripoptnum]->id;
                     if($fxrates[$currency['alphaCode']] == 1) {
-                        $flight['pricing'] = round($flight['saleTotal'] / $fxrates[$currency['alphaCode']], 2);
+                        $flight['pricing'] = round($flight['saleTotal'], 2);
                     }
                     else {
                         $flight['pricing'] = round($flight['saleTotal'] / $fxrates[$currency['alphaCode']]['rate'], 2);
@@ -278,7 +278,7 @@ class TravelManagerAirlines {
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-type: application/json"));
         $result = curl_exec($ch);
-        //$result = file_get_contents('./modules/travelmanager/jsonflightdetailsPAR.txt');
+        // $result = file_get_contents('./modules/travelmanager/jsonflightdetailsPAR.txt');
 
         curl_close($ch);
         return $result;
