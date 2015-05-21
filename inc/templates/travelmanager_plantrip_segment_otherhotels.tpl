@@ -1,9 +1,9 @@
 <div style="display:block;width:100%; margin-top:15px;margin-bottom :15px; padding:5px; border:1px solid #FCEFA1;">
     <div style="display:inline-block; " class="subtitle">{$lang->addotherhotel}</div>
     <div style="display:block; ">
-        <input id="hotels_{$sequence}_cache_hotel_autocomplete" autocomplete="off" tabindex="3" placeholder="{$lang->searchotherhotel}" value=""  type="text" onFocus="getcityid()" >
+        <input id="hotels_{$sequence}_cache_hotel_autocomplete" autocomplete="off" tabindex="3" placeholder="{$lang->searchotherhotel}" value=""  type="text"  >
         <input id="hotels_{$sequence}_cache_hotel_id" name="segment[{$sequence}][tmhid][{$otherhotel_checksum}][tmhid]" value="" type="hidden">
-        <input type="hidden" id="hotels_{$sequence}_cache_hotel_city" name="city" value=''/>
+        <input type="hidden" id="hotels_{$sequence}_cache_hotel_countryid" name="countryid" value='{$destcountry_id}'/>
         <span> <a style="cursor: pointer;"  rel="{$destcity[ciid]}" id="addnewhotel_{$sequence}_travelmanager/plantrip_loadpopupbyid"><img src="images/addnew.png"  title="{$lang->addotherhotel}" alt="Add" border="0">{$lang->addhotel}</a> </span>
         <br/>
         <div style="display:inline-block;padding:5px;width:15%;">{$lang->pricenight}</div>
@@ -29,12 +29,3 @@
     </div>
 
 </div>
-
-<script>
-    function getcityid() {
-        var city = $('#destinationcity_{$sequence}_cache_id').val();
-        if(typeof city != 'undefined') {
-            $('#hotels_{$sequence}_cache_hotel_city').val(city);
-        }
-    }
-</script>

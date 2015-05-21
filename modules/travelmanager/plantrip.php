@@ -124,7 +124,9 @@ if(!$core->input['action']) {
 
             $mainaffobj = new Affiliates($core->user['mainaffiliate']);
             $destcity_obj = new Cities($destcity['ciid']);
-            $currencies[] = $destcity_obj->get_country()->get_maincurrency();
+            $dest_country = $destcity_obj->get_country();
+            $destcountry_id = $dest_country->coid;
+            $currencies[] = $dest_country->get_maincurrency();
             $currencies[] = $mainaffobj->get_country()->get_maincurrency();
             $currencies[] = new Currencies(840, true);
             $currencies[] = new Currencies(978, true);
@@ -227,7 +229,9 @@ else {
         $otherhotel_checksum = generate_checksum('accomodation');
         $descity_obj = new Cities($destcityid);
         $destcity = $descity_obj->get();
-        $destcity['country'] = $descity_obj->get_country()->get()['name'];
+        $dest_country = $descity_obj->get_country();
+        $destcountry_id = $dest_country->coid;
+        $destcity['country'] = $dest_country->get()['name'];
         $transp_requirements['drivemode'] = 'transit';
         $transp_requirements['departuretime'] = $db->escape_string(strtotime($core->input['departuretime']));
         $origincity_obj = new Cities($origincityid);
