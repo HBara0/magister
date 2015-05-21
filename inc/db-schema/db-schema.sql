@@ -2500,22 +2500,26 @@ DROP TABLE IF EXISTS `meetings_mom_action_assignees`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `meetings_mom_action_assignees` (
-  `momaaid` int(10) NOT NULL,
+  `momaaid` int(10) NOT NULL AUTO_INCREMENT,
   `momaid` int(10) NOT NULL,
   `repid` int(11) NOT NULL,
-  `uid` int(11) NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  `uid` int(11) NOT NULL,
+  `inputChecksum` varchar(150) NOT NULL,
+  PRIMARY KEY (`momaaid`)
+) ENGINE=MyISAM AUTO_INCREMENT=145 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `meetings_mom_actions`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `meetings_mom_actions` (
-  `momaid` int(10) NOT NULL,
+  `momaid` int(10) NOT NULL AUTO_INCREMENT,
   `momid` int(10) NOT NULL,
   `isTask` tinyint(1) NOT NULL,
-  `when` bigint(30) NOT NULL,
-  `what` varchar(200) NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  `date` bigint(30) NOT NULL,
+  `what` varchar(200) NOT NULL,
+  `inputChecksum` varchar(150) NOT NULL,
+  PRIMARY KEY (`momaid`)
+) ENGINE=MyISAM AUTO_INCREMENT=60 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `meetings_sharedwith`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
