@@ -508,7 +508,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                     $paidby = $paidby->get_displayname();
                 }
                 if(!empty($transportation->transpDetails)) {
-                    $flight_details = TravelManagerAirlines::parse_bestflight($transportation->transpDetails, array(), $sequence, 'selectedflight');
+                    $flight_details = TravelManagerAirlines::parse_bestflight($transportation->transpDetails, array(), $sequence, 'selectedflight', array('isMinCost' => $transportation->isMinCost));
                     //  $transp_flightdetails = json_decode($transportation->flightDetails, true);
                     //  $flight_details = $this->parse_flightdetails($transp_flightdetails);
                 }

@@ -4,6 +4,7 @@
         {$flightnumber_checkbox}
         <input type="hidden" name="segment[{$sequence}][tmtcid][{$category[inputChecksum]}][{$flight[flightid]}][fare]" value="{$flight[pricing]}" />
         <span class="subtitle"><strong>{$flight[pricing]}USD</strong></span>
+        <div style="padding:6px;" class='smalltext'><em>{$cheapest}</em></div>
         <div style="padding:4px;" class='smalltext'><em>{$flight[triptype]}</em></div>
     </div>
     <div style="display:inline-block; width:75%; vertical-align: top;">
