@@ -65,6 +65,9 @@ class TravelManagerPlanTransps extends AbstractClass {
         $valid_attrs = array('tmpsid', 'tmtcid', 'fare', 'vehicleNumber', 'flightNumber', 'transpDetails', 'paidBy', 'paidById', 'transpType', 'isUserSuggested', 'inputChecksum', 'currency', 'seatingDescription', 'isRoundTrip', 'stopDescription', 'class', 'isMinCost');
         $valid_attrs = array_combine($valid_attrs, $valid_attrs);
         $data = array_intersect_key($data, $valid_attrs);
+        if(empty($data['isMinCost'])) {
+            $data['isMinCost'] = 0;
+        }
         if($data['paidBy'] != 'anotheraff') {
             $data['paidById'] = '';
         }

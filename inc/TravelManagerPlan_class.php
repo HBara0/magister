@@ -186,7 +186,7 @@ class TravelManagerPlan {
 
                     if(!empty($transportation->transpDetails)) {
                         $transportaion_fields .= '<h2><small>Selected Flight</small></h2>';
-                        $transportaion_fields .= TravelManagerAirlines::parse_bestflight($transportation->transpDetails, array('transportationdetails' => $category['transportationdetials'], 'selectedflight' => $transportation->flightNumber, 'name' => $category['name'], 'tmtcid' => $category['tmtcid'], 'inputChecksum' => $category['inputChecksum']), $sequence);
+                        $transportaion_fields .= TravelManagerAirlines::parse_bestflight($transportation->transpDetails, array('transportationdetails' => $category['transportationdetials'], 'selectedflight' => $transportation->flightNumber, 'name' => $category['name'], 'tmtcid' => $category['tmtcid'], 'inputChecksum' => $category['inputChecksum']), $sequence, 'plan', array('isMinCost' => $transportation->isMinCost));
                         $transportaion_fields .= '<br /><hr/><br />';
                     }
                     else {

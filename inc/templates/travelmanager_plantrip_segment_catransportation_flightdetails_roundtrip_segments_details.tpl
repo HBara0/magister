@@ -1,6 +1,6 @@
 <div style="margin-bottom:5px;">
     <div>
-        <div style="display: inline-block; width: 75%; padding:2px; font-weight: bold;"><span title='{$flight[departuredate]} {$flight[departuretime]}{$flight[departuretimezone]}'>{$flight[departuredate]} {$flight[departuretime]}{$flight[departuretimezone]}</span> - <span title='{$flight[arrivaldate]} {$flight[arrivaltime]} {$flight[arrivaltimezone]}'>{$flight[arrivaltime]}{$flight[arrivaltimezone]}</span></div><div style="display: inline-block;">{$flight[duration]}</div>
+        <div style="display: inline-block; width: 75%; padding:2px; font-weight: bold;"><span title='{$flight[departuredate]} {$flight[departuretime]} {$flight[departuretimezone]}'>{$flight[departuredate]} {$flight[departuretime]}</span> - <span title='{$flight[arrivaldate]} {$flight[arrivaltime]} {$flight[arrivaltimezone]}'>{$flight[arrivaltime]}</span></div><div style="display: inline-block;">{$flight[duration]}</div>
     </div>
     <div style="padding:2px;">
         <div>{$flight[origin]} - {$flight[destination]}</div>
