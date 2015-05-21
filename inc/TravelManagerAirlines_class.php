@@ -75,6 +75,8 @@ class TravelManagerAirlines {
         }
         $nocon_count = 0;
         $con_count = 0;
+        $con_cheapest = '';
+        $nocon_cheapest = '';
         $minflight = '';
         $min_con_flight = '';
         foreach($response_flightdata->trips->tripOption as $tripoptnum => $tripoption) {
@@ -136,7 +138,12 @@ class TravelManagerAirlines {
                     }
                     $flight['flightnumber'] = $segment->flight->carrier.' '.$segment->flight->number;
                     $flight['flightid'] = $response_flightdata->trips->tripOption[$tripoptnum]->id;
-                    $flight['pricing'] = round($flight['saleTotal'] / $fxrates[$currency['alphaCode']]['rate'], 2);
+                    if($fxrates[$currency['alphaCode']] == 1) {
+                        $flight['pricing'] = round($flight['saleTotal'] / $fxrates[$currency['alphaCode']], 2);
+                    }
+                    else {
+                        $flight['pricing'] = round($flight['saleTotal'] / $fxrates[$currency['alphaCode']]['rate'], 2);
+                    }
                     //  $flight['flightdetails'] = base64_encode(serialize($flight['flightnumber'].$flight['flightid']));
 
                     $flight['flightdetails'] = htmlspecialchars('{ "kind": "qpxExpress#tripsSearch","trips": { "tripOption": ['.json_encode($response_flightdata->trips->tripOption[$tripoptnum]).']}}');
@@ -159,12 +166,15 @@ class TravelManagerAirlines {
                     if($category['selectedflight'] == $flight['flightnumber']) {
                         $checkbox['selctedflight'] = "checked='checked'";
                         $source = 'selectedflight';
+                        if($options['isMinCost'] == 1) {
+                            $min_hidden_input = '<input type="hidden" name="segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].']['.$flight['flightid'].'][isMinCost]" value="1"/>';
+                        }
                     }
                     $flightnumber_checkbox = ' <input type="checkbox" name="segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].']['.$flight['flightid'].'][flightNumber]" value="'.$flight['flightnumber'].'"'.$checkbox['selctedflight'].'/>';
                     $flightnumber_checkbox .= '<input type="hidden" name="segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].']['.$flight['flightid'].'][tmtcid]" value="'.$category['tmtcid'].'"/>';
                     $flightnumber_checkbox .= '<input type="hidden" name="segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].']['.$flight['flightid'].'][inputChecksum]" value="'.$category['inputChecksum'].'"/>';
                     $flightnumber_checkbox .= '<input type="hidden" name="segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].']['.$flight['flightid'].'][currency]" value="840"/>';
-
+                    $flightnumber_checkbox.=$min_hidden_input;
 
                     unset($checkbox['selctedflight']);
                 }
@@ -192,12 +202,10 @@ class TravelManagerAirlines {
                 eval("\$flights_records_roundtripsegments_details .= \"".$template->get('travelmanager_plantrip_segment_flight_paidbyfields')."\";");
             }
             if($source == 'selectedflight') {
+                $cheapest = '<small>Flight Is Not The Cheapest</small>';
                 if(isset($options['isMinCost'])) {
                     if($options['isMinCost'] == 1) {
                         $cheapest = '<small>This Flight Is The Cheapest</small>';
-                    }
-                    elseif($source == 'email') {
-                        $cheapest = '<small>Flight Is Not The Cheapest</small>';
                     }
                 }
                 eval("\$flights_records = \"".$template->get('travelmanager_plantrip_segment_catransportation_flightdetails')."\";");
@@ -208,7 +216,11 @@ class TravelManagerAirlines {
                     if($con_count == 0) {
                         $flightnumber_checkbox .= '<input type="hidden" name="segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].']['.$flight['flightid'].'][isMinCost]" value="1"/>';
                         $cheapest = '<small>This Flight Is The Cheapest</small>';
+                        $con_cheapest = $flight['pricing'];
                         $con_count++;
+                    }
+                    elseif($flight['pricing'] == $con_cheapest) {
+                        $cheapest = '<small>This Flight Is The Cheapest</small>';
                     }
                     elseif($source == 'email') {
                         $cheapest = '<small>Flight Is Not The Cheapest</small>';
@@ -219,7 +231,11 @@ class TravelManagerAirlines {
                     if($nocon_count == 0) {
                         $flightnumber_checkbox .= '<input type="hidden" name="segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].']['.$flight['flightid'].'][isMinCost]" value="1"/>';
                         $cheapest = '<small>This Flight Is The Cheapest</small>';
+                        $nocon_cheapest = $flight['pricing'];
                         $nocon_count++;
+                    }
+                    elseif($flight['pricing'] == $nocon_cheapest) {
+                        $cheapest = '<small>This Flight Is The Cheapest</small>';
                     }
                     elseif($source == 'email') {
                         $cheapest = '<small>Flight Is Not The Cheapest</small>';
