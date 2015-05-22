@@ -617,7 +617,9 @@ class TravelManagerPlan {
             $paidbyoptions = parse_selectlist('segment['.$sequence.'][tmhid]['.$otherhotel_checksum.'][entites]', '3', $paidby_entities, $selectedhotel->paidBy, 0, $paidby_onchangeactions);
             $mainaffobj = new Affiliates($core->user['mainaffiliate']);
             $destcity_obj = new Cities($destcity['ciid']);
-            $currencies[] = $destcity_obj->get_country()->get_maincurrency();
+            $dest_country = $destcity_obj->get_country();
+            $destcountry_id = $dest_country->coid;
+            $currencies[] = $dest_country->get_maincurrency();
             $currencies[] = $mainaffobj->get_country()->get_maincurrency();
             $currencies[] = new Currencies(840, true);
             $currencies[] = new Currencies(978, true);

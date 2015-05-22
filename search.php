@@ -333,6 +333,9 @@ if($core->input['type'] == 'quick') {
             if(isset($core->input['city']) && !empty($core->input['city'])) {
                 $restrictdest_filter = "city='".intval($core->input['city'])."'";
             }
+            if(isset($core->input['countryid']) && !empty($core->input['countryid'])) {
+                $restrictdest_filter = "country='".intval($core->input['countryid'])."'";
+            }
             if(!empty($restrictdest_filter)) {
                 $extra_where .= ' AND '.$restrictdest_filter;
             }
