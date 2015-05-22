@@ -55,10 +55,15 @@ class TravelManagerAirlines {
         }
 
         $requestdata['date'] = date('Y-m-d', $requestdata['date']);
-
-        $requestdata = json_encode(array('request' => array("passengers" => array("adultCount" => 1), "solutions" => 20, 'slice' => array(array('origin' => $requestdata['origin'], 'destination' => $requestdata['destination'], 'date' => $requestdata['date'], 'permittedCarrier' => $requestdata['permittedCarrier'])))));
-//to send the reqeustdata to google api and return the response array.
+        if($cityinfo['isOneway'] == 0) {
+            $slice2 = Self::reversetrip($requestdata);
+        }
+        $requestdata = json_encode(array('request' => array("passengers" => array("adultCount" => 1), "solutions" => 20, 'slice' => array(array('origin' => $requestdata['origin'], 'destination' => $requestdata['destination'], 'date' => $requestdata['date'], 'permittedCarrier' => $requestdata['permittedCarrier']), $slice2)))); //to send the reqeustdata to google api and return the response array.
         return $requestdata;
+    }
+
+    private function reversetrip() {
+        return array('origin' => $requestdata['origin'], 'destination' => $requestdata['destination'], 'date' => $requestdata['date'], 'permittedCarrier' => $requestdata['permittedCarrier']);
     }
 
     private function is_roundtrip($slices) {
@@ -254,17 +259,16 @@ class TravelManagerAirlines {
     }
 
     public static function get_flights($request, $apikey = null) {
-        $ch = curl_init('https://www.googleapis.com/qpxExpress/v1/trips/search?key=AIzaSyDXUgYSlAux8xlE8mA38T0-_HviEPiM5dU');
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $request);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-type: application/json"));
-        $result = curl_exec($ch);
-        //$result = file_get_contents('./modules/travelmanager/jsonflightdetailsPAR.txt');
-
-        curl_close($ch);
+//        $ch = curl_init('https://www.googleapis.com/qpxExpress/v1/trips/search?key=AIzaSyDXUgYSlAux8xlE8mA38T0-_HviEPiM5dU');
+//        curl_setopt($ch, CURLOPT_POST, true);
+//        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+//        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+//        curl_setopt($ch, CURLOPT_POSTFIELDS, $request);
+//        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+//        curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-type: application/json"));
+//        $result = curl_exec($ch);
+        $result = file_get_contents('./modules/travelmanager/jsonflightdetailsPAR.txt');
+        //  curl_close($ch);
         return $result;
     }
 
