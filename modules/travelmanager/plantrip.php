@@ -205,6 +205,8 @@ else {
             //   $leave_purposes = array($leave_obj->get_purpose()->get()['ltpid'] => $leave_obj->get_purpose()->get()['name']);
             $leave_purposes = LeaveTypesPurposes::get_data('');
             $segment_purposlist = parse_selectlist('segment['.$sequence.'][purpose][]', 5, $leave_purposes, '', 1, '', array('blankstart' => true));
+            $affiliates = Affiliates::get_affiliates();
+            $affilate_list = parse_selectlist('segment['.$sequence.'][affid]', 1, $affiliates, $segmentobj->affid, '', '', array('blankstart' => true));
 
             /* Popuplate basic information from the leave based on the lid passed via ajax */
 
