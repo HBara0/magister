@@ -44,57 +44,62 @@ if(!$core->input['action']) {
     if(isset($core->input['wid']) && !empty($core->input['wid'])) {
         if(is_object($window_obj)) {
             $window = $window_obj->get();
-            $swid = $windowid = $window['swid'];
-            $window_type_list = parse_selectlist("window[type]", 0, array('interactive' => 'Interactive', 'readonly' => 'Read-Only'), $window['type']);
-            $sections_objs = SystemWindowsSection::get_data(array('swid' => $window['swid']), array('simple' => false, 'returnarray' => true));
-            if(is_array($sections_objs)) {
+            if($window != null) {
+                $swid = $windowid = $window['swid'];
+                $window_type_list = parse_selectlist("window[type]", 0, array('interactive' => 'Interactive', 'readonly' => 'Read-Only'), $window['type']);
+                $sections_objs = SystemWindowsSection::get_data(array('swid' => $window['swid']), array('simple' => false, 'returnarray' => true));
                 $fieldrow_id = 1;
-                foreach($sections_objs as $sections_obj) {
-                    $section = $sections_obj->get();
-                    $swsid = $sections_obj->swsid;
-                    $tabnum = $swstid = $section['swstid'];
-                    if($section['isMain'] == 1) {
-                        $section_ismain_check = 'checked="checked"';
-                    }
-                    if($section['isActive'] == 1) {
-                        $section_isactive_check = 'checked="checked"';
-                    }
-                    $section_displaytype_selectlist = parse_selectlist("section[".$section['inputChecksum']."][displayType]", 2, array(1 => 'Tab', 2 => 'Inline-Section'), $section['displayType'], '', array('blankstart' => true));
-                    $tables_objs = SystemTables::get_data('', array('returnarray' => true));
-                    if(is_array($tables_objs)) {
-                        $section_tables_selectlist = parse_selectlist("section[".$section['inputChecksum']."][dbTable]", 1, $tables_objs, $section['dbTable'], '', '', array('blankstart' => true));
-                    }
-                    $section_type_selectlist = parse_selectlist("section[".$section['inputChecksum']."][type]", 0, array('form' => 'Form', 'list' => 'List', 'record' => 'Record'), $section['type']);
-                    $fields_objs = SystemWindowsSectionFields::get_data(array('swsid' => $sections_obj->swsid), array('returnarray' => true));
-                    if(is_array($fields_objs)) {
-                        foreach($fields_objs as $fields_obj) {
-                            $field = $fields_obj->get();
-                            if($field['isDisplayed'] == 1) {
-                                $field_isdisplayed_check = 'checked="checked"';
-                            }
-                            if($field['isReadOnly'] == 1) {
-                                $field_isreadonly_check = 'checked="checked"';
-                            }
-                            $field_fieldtype_list = parse_selectlist("field[".$swsid."][".$field['inputChecksum']."][fieldType]", 0, $fieldtypes, $section['type']);
-                            $referencelists_objs = SystemReferenceLists::get_data('', array('returnarray' => true));
-                            if(is_array($referencelists_objs)) {
-                                $field_fieldtypelist_list = parse_selectlist("field[".$swsid."][".$field['inputChecksum']."][srliid]", 0, $referencelists_objs, $section['srliid']);
-                            }
-                            $field_allowedfiletypes_list = parse_selectlist("field[".$swsid."][".$field['allowedFileTypes']."][srliid]", 0, $file_types, $section['allowedFileTypes']);
-                            ;
-                            eval("\$section_fields .= \"".$template->get('admin_system_windows_section_fieldrow')."\";");
-                            $fieldrow_id++;
+                if(is_array($sections_objs)) {
+                    foreach($sections_objs as $sections_obj) {
+                        $section = $sections_obj->get();
+                        $swsid = $sections_obj->swsid;
+                        $tabnum = $swstid = $section['swstid'];
+                        if($section['isMain'] == 1) {
+                            $section_ismain_check = 'checked="checked"';
                         }
+                        if($section['isActive'] == 1) {
+                            $section_isactive_check = 'checked="checked"';
+                        }
+                        $section_displaytype_selectlist = parse_selectlist("section[".$section['inputChecksum']."][displayType]", 2, array(1 => 'Tab', 2 => 'Inline-Section'), $section['displayType'], '', array('blankstart' => true));
+                        $tables_objs = SystemTables::get_data('', array('returnarray' => true));
+                        if(is_array($tables_objs)) {
+                            $section_tables_selectlist = parse_selectlist("section[".$section['inputChecksum']."][dbTable]", 1, $tables_objs, $section['dbTable'], '', '', array('blankstart' => true));
+                        }
+                        $section_type_selectlist = parse_selectlist("section[".$section['inputChecksum']."][type]", 0, array('form' => 'Form', 'list' => 'List', 'record' => 'Record'), $section['type']);
+                        $fields_objs = SystemWindowsSectionFields::get_data(array('swsid' => $sections_obj->swsid), array('returnarray' => true));
+                        if(is_array($fields_objs)) {
+                            foreach($fields_objs as $fields_obj) {
+                                $field = $fields_obj->get();
+                                if($field['isDisplayed'] == 1) {
+                                    $field_isdisplayed_check = 'checked="checked"';
+                                }
+                                if($field['isReadOnly'] == 1) {
+                                    $field_isreadonly_check = 'checked="checked"';
+                                }
+                                $field_fieldtype_list = parse_selectlist("field[".$swsid."][".$field['inputChecksum']."][fieldType]", 0, $fieldtypes, $section['type']);
+                                $referencelists_objs = SystemReferenceLists::get_data('', array('returnarray' => true));
+                                if(is_array($referencelists_objs)) {
+                                    $field_fieldtypelist_list = parse_selectlist("field[".$swsid."][".$field['inputChecksum']."][srlid]", 0, $referencelists_objs, $section['srliid']);
+                                }
+                                $field_allowedfiletypes_list = parse_selectlist("field[".$swsid."][".$field['allowedFileTypes']."][allowedFileTypes]", 0, $file_types, $section['allowedFileTypes'], '', '', array('blankstart' => true));
+                                ;
+                                eval("\$section_fields .= \"".$template->get('admin_system_windows_section_fieldrow')."\";");
+                                $fieldrow_id++;
+                            }
+                        }
+                        eval("\$section_table_fields = \"".$template->get('admin_system_windows_section_tablefield')."\";");
+                        $section_content.= '<div id="sectionstabs-'.$tabnum.'">';
+                        eval("\$section_content .= \"".$template->get('admin_system_windows_sectionstabs')."\";");
+                        $section_content.='</div>';
+                        $delete_tabicon = '<span class = "ui-icon ui-icon-close" id = "deleteseg_'.$tabnum.'"role = "presentation" title = "Close">Remove Tab</span>';
+                        $sectionstabs.='<li><a href = "#sectionstabs-'.$tabnum.'">'.$sections_obj->get_displayname().'</a>'.$delete_tabicon.'</li> ';
+                        unset($section_fields);
                     }
-                    eval("\$section_table_fields = \"".$template->get('admin_system_windows_section_tablefield')."\";");
-                    $section_content.= '<div id="sectionstabs-'.$tabnum.'">';
-                    eval("\$section_content .= \"".$template->get('admin_system_windows_sectionstabs')."\";");
-                    $section_content.='</div>';
-                    $delete_tabicon = '<span class = "ui-icon ui-icon-close" id = "deleteseg_'.$tabnum.'"role = "presentation" title = "Close">Remove Tab</span>';
-                    $sectionstabs.='<li><a href = "#sectionstabs-'.$tabnum.'">'.$sections_obj->get_displayname().'</a>'.$delete_tabicon.'</li> ';
-                    eval("\$sections = \"".$template->get('admin_system_windows_sections')."\";");
-                    unset($section_fields);
                 }
+                eval("\$sections = \"".$template->get('admin_system_windows_sections')."\";");
+            }
+            else {
+                redirect('');
             }
         }
     }
@@ -116,13 +121,15 @@ else {
     if($core->input ['action'] == 'ajaxaddmore_fields') {
         $field['inputChecksum'] = generate_checksum('section_field');
         $fieldrow_id = $core->input['value'] + 1;
+        $swsid = $field['swsid'] = $db->escape_string($core->input['ajaxaddmoredata']['swsid']);
+        $section_obj = new SystemWindowsSection($swsid);
+        $section = $section_obj->get();
         $referencelists_objs = SystemReferenceLists::get_data('', array('returnarray' => true));
         if(is_array($referencelists_objs)) {
-            $field_fieldtypelist_list = parse_selectlist("field[".$swsid."][".$field['inputChecksum']."][srliid]", 0, $referencelists_objs, $section['srliid']);
+            $field_fieldtypelist_list = parse_selectlist("field[".$swsid."][".$field['inputChecksum']."][srlid]", 0, $referencelists_objs, $section['srliid']);
         }
-        $field_allowedfiletypes_list = parse_selectlist("field[".$swsid."][".$field['allowedFileTypes']."][srliid]", 0, $file_types, '');
+        $field_allowedfiletypes_list = parse_selectlist("field[".$swsid."][".$field['inputChecksum']."][allowedFileTypes]", 0, $file_types, '', '', '', array('blankstart' => true));
 
-        $swsid = $field['swsid'] = $db->escape_string($core->input['ajaxaddmoredata']['swsid']);
         $field['swstid'] = $tabnum = $db->escape_string($core->input['ajaxaddmoredata']['swstid']);
         if(empty($swsid)) {
             exit;
@@ -158,7 +165,7 @@ else {
         switch($window_object->get_errorcode()) {
             case 0:
                 $swid = json_encode($window_object->swid);
-                output_xml('<status>true</status><message>'.$lang->successfullysaved.'<![  CDATA[<script>$("a[id=\'createtab\']").removeAttr("style")   ;
+                output_xml('<status>true</status><message>'.$lang->successfullysaved.'<![CDATA[<script>$("a[id=\'createtab\']").removeAttr("style")   ;
                             $("input[id=\'window_id\']").val('.$swid.'); </script>]]></message>');
                 break;
             case 1:
@@ -180,9 +187,7 @@ else {
             $window_section->save();
             switch($window_section->get_errorcode()) {
                 case 0:
-                    output_xml('<status>true</status><message>'.$lang->successfullysaved.'<![CDATA[<script>$("input[name=\'ajaxaddmoredata[swsid]\']").val('.$window_section->swsid.');
-        $("input[id^=\'fields_\']").prop("disabled", false);
-        $("div[id=\'addmore_sectionfields_div\']").show();</script>]]></message>');
+                    output_xml('<status>true</status><message>'.$lang->successfullysaved.'<![CDATA[<script>$("input[name=\'ajaxaddmoredata[swsid]\']").val('.$window_section->swsid.');$("input[id^=\'fields_\']").prop("disabled", false);$("div[id=\'addmore_sectionfields_div\']").show();</script>]]></message>');
                     break;
                 case 1:
                     output_xml("<status>false</status><message>".$lang->errorsaving."</message>");
