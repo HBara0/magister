@@ -38,7 +38,13 @@
             </td>
         </tr>
         <tr><td>{$lang->considerleisuretourism}</td><td><input type="checkbox" name="segment[{$sequence}][isNoneBusiness]" value="1" {$checked['isNoneBusiness']}/></td></tr>
-        <tr><td>{$lang->reason}</td><td><textarea name="segment[{$sequence}][reason]"  cols="30" rows="3" required="required">{$segment[$sequence][reason_output]}</textarea></td></tr>
+        <tr><td>{$lang->reason}</td><td><textarea name="segment[{$sequence}][reason]"  cols="30" rows="3" required="required">{$segment[$sequence][reason_output]}</textarea><br/></td></tr>
+        <tr><td>{$lang->transp}</td>
+            <td>{$lang->oneway}<input type="checkbox" value="1" name="segment[{$sequence}][oneway]" id="oneway_lookuptransps_{$sequence}"/>
+                {$lang->roundtrip}<input type="checkbox" value="1" name="segment[{$sequence}][roundtrip]" id="roundtrip_lookuptransps_{$sequence}"/><br/><br/>
+                <input type="button" class="button" value="{$lang->lookuptransps}" id="lookuptransps_{$sequence}"/>
+            </td>
+        </tr>
     </table>
     <div id="content_detailsloader_{$sequence}"></div>
     <div id="content_details_{$sequence}">

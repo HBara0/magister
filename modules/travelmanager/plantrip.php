@@ -236,12 +236,20 @@ else {
         $destcity['country'] = $dest_country->get()['name'];
         $transp_requirements['drivemode'] = 'transit';
         $transp_requirements['departuretime'] = $db->escape_string(strtotime($core->input['departuretime']));
+        $transp_requirements['arrivaltime'] = $db->escape_string(strtotime($core->input['arrivaltime']));
         $origincity_obj = new Cities($origincityid);
         $origintcity = $origincity_obj->get();
         $origintcity['country'] = $origincity_obj->get_country()->get()['name'];
         $transpmode_apimaplink = 'https://www.google.com/maps/dir/'.$origintcity['name'].',+'.$origintcity['country'].'/'.$destcity['name'].',+'.$destcity['country'].'/';
         /* Load proposed transproration */
         $transp = new TravelManagerPlanTransps();
+        $transp_requirements['oneway'] = 0;
+        if(isset($core->input['oneway']) && $core->input['oneway'] == 1) {
+            $transp_requirements['oneway'] = 1;
+        }
+        else if(isset($core->input['roundtrip']) && $core->input['roundtrip'] == 1) {
+            $transp_requirements['oneway'] = 0;
+        }
         $transsegments_output = Cities::parse_transportations($transp, array('origincity' => $origintcity, 'destcity' => $destcity, 'transprequirements' => $transp_requirements), $sequence);
         /* load approved hotels */
 
@@ -249,7 +257,9 @@ else {
         $segmentobj = TravelManagerPlanSegments::get_data(array('originCity' => $origincityid, 'destinationCity' => $destcityid));
         if(is_object($segmentobj)) {
             $approvedhotels = $segmentobj->get_destinationcity()->get_approvedhotels();
-            $hotelssegments_output = $segmentobj->parse_hotels($sequence, $approvedhotels);
+            if(is_array($approvedhotels)) {
+                $hotelssegments_output = $segmentobj->parse_hotels($sequence, $approvedhotels);
+            }
         }
         else {
             $segmentobj = new TravelManagerPlanSegments();

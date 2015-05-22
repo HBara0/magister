@@ -1,8 +1,9 @@
-<tr id="{$userrowid}" class="{$altrow}">
-    <td>{$lang->employee}</td>
+<tr id="{$userrowid}" width="100%">
     <td>
-        <input type='text'id='user_{$userrowid}_autocomplete' value="" autocomplete='off'/>
-        <input type='hidden' id='user_{$userrowid}_id' name='mof[actions][{$arowid}][users][{$userrowid}][uid]' value="" />
-        <div id='searchQuickResults_user_{$userrowid}' class='searchQuickResults' style='display:none;'></div>
+        <input type='text' id='user_{$arowid}{$userrowid}_autocomplete' value="{$assignee_data[username]}" autocomplete='off' style="width:70%" {$disabled}/>
+        <input type='hidden' id='user_{$arowid}{$userrowid}_id' name='mof[actions][{$arowid}][users][{$userrowid}][uid]' value="{$assignee_data[uid]}" />
+        <div id='searchQuickResults_user_{$arowid}{$userrowid}' class='searchQuickResults' style='display:none;'></div>
+        <input type="hidden" value="[$arowid}{$userrowid}"/>
+
     </td>
 </tr>

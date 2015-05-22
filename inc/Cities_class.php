@@ -331,7 +331,7 @@ class Cities extends AbstractClass {
             if(empty($suggestedtransp['title'])) {
                 $suggestedtransp['title'] .='<h2>'.$lang->suggestedtransportations.'</h2>';
             }
-            $transp_category_fields = TravelManagerPlan::parse_transportaionfields($aerialtransp, array('inputChecksum' => $transpdata['inputChecksum'], 'transportationdetials' => $transpdata['transportationdetails'][$transpdata['segment']->tmpsid][$drivingmode['transpcat']['cateid']], 'name' => $drivingmode['transpcat']['name'], 'tmtcid' => $drivingmode['transpcat'] ['cateid']), array('origincity' => $transpdata['origincity'], 'destcity' => $transpdata['destcity'], 'date' => $transpdata['transprequirements']['departuretime']), $sequence);
+            $transp_category_fields = TravelManagerPlan::parse_transportaionfields($aerialtransp, array('inputChecksum' => $transpdata['inputChecksum'], 'transportationdetials' => $transpdata['transportationdetails'][$transpdata['segment']->tmpsid][$drivingmode['transpcat']['cateid']], 'name' => $drivingmode['transpcat']['name'], 'tmtcid' => $drivingmode['transpcat'] ['cateid']), array('origincity' => $transpdata['origincity'], 'destcity' => $transpdata['destcity'], 'date' => $transpdata['transprequirements']['departuretime'], 'arrivaldate' => $transpdata['transprequirements']['arrivaltime'], 'isOneway' => $transpdata['transprequirements']['oneway']), $sequence);
             if(!empty($transp_category_fields)) {
                 $drivingmode['transpcat']['display'] = 'display:none;';
                 eval("\$suggestedtranscategments_output .= \"".$template->get('travelmanager_plantrip_segment_transtypefields')."\";");

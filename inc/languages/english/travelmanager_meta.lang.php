@@ -39,6 +39,7 @@ $lang['agency'] = 'Agency Name ';
 $lang['numberdays'] = 'Number of Days ';
 $lang['feeday'] = 'Price';
 $lang['transptype'] = 'Transportation Type';
+$lang['transp'] = 'Transportation';
 $lang['viewplan'] = 'View Plan';
 $lang['listplan'] = 'List Plan';
 $lang['leavedetails'] = 'Leave Details';

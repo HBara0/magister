@@ -52,6 +52,7 @@ $lang['addnewrepresentative'] = 'Add New Representative';
 $lang['issuportivedescription'] = 'In case of a customer, he/she might be supportive of competitor supplier</br>In case of a supplier, their representative might be supportive of another agent.';
 $lang['specificactions'] = 'Specific Actions';
 $lang['addasatask'] = 'Add as a task';
+$lang['markedasatask'] = 'Marked as a task';
 $lang['who'] = 'Who';
 $lang['when'] = 'When';
 $lang['what'] = 'What';
