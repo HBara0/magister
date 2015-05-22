@@ -699,7 +699,8 @@ else {
 
             $fields = array('vendorEstDateOfPayment', 'intermedEstDateOfPayment', 'promiseOfPayment');
             foreach($fields as $field) {
-                if($partiesinfo[$field] != 0) {
+                $partiesinfo[$field.'_output'] = $partiesinfo[$field.'_formatted'] = '';
+                if($partiesinfo[$field] != 0 && !empty($partiesinfo[$field])) {
                     $partiesinfo[$field.'_output'] = date('d-m-Y', $partiesinfo[$field]);
                     $partiesinfo[$field.'_formatted'] = date($core->settings['dateformat'], $partiesinfo[$field]);
                 }
@@ -751,6 +752,7 @@ else {
             );
         }
         else {
+            // $partiesinfo['intermedEstDateOfPayment_formatted'] = '';
             $partiesinfo_data = array('pickDate_vendor_estdateofpayment' => $partiesinfo['vendorEstDateOfPayment_formatted'],
                     'pickDate_intermed_estdateofpayment' => $partiesinfo['intermedEstDateOfPayment_formatted'],
                     'pickDate_intermed_promiseofpayment' => $partiesinfo['promiseOfPayment_formatted'],

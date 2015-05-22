@@ -117,7 +117,6 @@ $(function() {
                 var fields = ["aff", "paymentterm", "incoterms", "IncotermsDesc", "PaymentTermDesc", "ptAcceptableMargin", "promiseofpayment"];
 
                 if(data == 0) {
-                    alert(data);
                     for(var i = 0; i < fields.length; i++) {
                         $("input[id='partiesinfo_intermed_" + fields[i] + "']").removeAttr("required");
                         $("select[id='partiesinfo_intermed_" + fields[i] + "']").removeAttr("required");
@@ -239,7 +238,6 @@ $(function() {
         }
     });
     //----------------------------------------------------------------------------------------------------------------------------//
-
     //--------------Populate dates of PartiepickDate_estDateOfShipments Information----------------------------//
     //Trigger(s): 10A, 7, 6, 11
     $("input[id='pickDate_estDateOfShipment'],select[id='partiesinfo_intermed_paymentterm'],select[id='partiesinfo_vendor_paymentterm'],input[id='partiesinfo_intermed_ptAcceptableMargin'],#ordersummary_invoicevalue_local").live('change', function() {
@@ -247,6 +245,10 @@ $(function() {
         var estDateOfShipment = $("input[id='pickDate_estDateOfShipment']").val();
         var ptAcceptableMargin = $("input[id='partiesinfo_intermed_ptAcceptableMargin']").val();
         var intermedPaymentTerm = $("select[id = 'partiesinfo_intermed_paymentterm']").val();
+        $("input[id='pickDate_intermed_estdateofpayment']").attr("disabled", "true");
+        if(!(intermedPaymentTerm.length > 0)) {
+            $("input[id='pickDate_intermed_estdateofpayment']").removeAttr("disabled");
+        }
         var vendorPaymentTerm = $("select[id ='partiesinfo_vendor_paymentterm']").val();
         var ptid = $('select[id=purchasetype]').val();
         var est_local_pay = $("input[id='avgeliduedate']").val();
