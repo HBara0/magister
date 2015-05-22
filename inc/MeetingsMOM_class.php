@@ -100,19 +100,16 @@ class MeetingsMOM extends AbstractClass {
         global $template, $core, $lang;
         $meetingmom = MeetingsMOM::get_mom_bymeeting($core->input['mtid']);
         $momactions = MeetingsMOMActions::get_data(array('momid' => $meetingmom->momid), array('returnarray' => true));
-        $disabled = 'disabled="disabled"';
-        $display = 'style="display:none;"';
         if(is_array($momactions)) {
             $arowid = 0;
             foreach($momactions as $actions) {
                 $actions_data = $actions->get();
-                $checksum['actions'] = $actions_data['inputChecksum'];
                 if($actions_data['date'] != 0) {
                     $actions_data['date_otput'] = date($core->settings['dateformat'], $actions_data['date']);
                     $actions_data['date_formatted'] = date($core->settings['dateformat'], $actions_data['date']);
                 }
                 if($actions_data['isTask'] == 1) {
-                    $checked = 'checked="checked"';
+                    $istask = $lang->markedasatask;
                 }
                 $momactionsassignees = MeetingsMOMActionAssignees::get_data(array('momaid' => $actions->momaid), array('returnarray' => true));
                 $userrowid = 0;
@@ -126,7 +123,8 @@ class MeetingsMOM extends AbstractClass {
                                 $assignee_data['username'] = $user->get_displayname();
                             }
                             $checksum['users'] = $assignee->inputChecksum;
-                            eval("\$actions_users .= \"".$template->get('meetings_mom_actions_users')."\";");
+
+                            $actions_users .= '<tr id="'.$userrowid.'" width="100%"><td><span>'.$assignee_data[username].'</span><td></tr>';
                             $userrowid++;
                         }
                         if(isset($assignee->repid) && !empty($assignee->repid)) {
@@ -135,40 +133,20 @@ class MeetingsMOM extends AbstractClass {
                                 $assignee_data['repname'] = $representative->get_displayname();
                             }
                             $checksum['representatives'] = $assignee->inputChecksum;
-                            eval("\$actions_representatives .= \"".$template->get('meetings_mom_actions_representatives')."\";");
+
+                            $actions_representatives .='<tr><td><span>'.$assignee_data[repname].'</span></td></tr>';
                             $reprowid++;
                         }
                     }
                 }
-                if(empty($actions_users)) {
-                    $checksum['users'] = generate_checksum('mom');
-                    eval("\$actions_users .= \"".$template->get('meetings_mom_actions_users')."\";");
-                }
-                if(empty($actions_representatives)) {
-                    $checksum['representatives'] = generate_checksum('mom');
-                    eval("\$actions_representatives .= \"".$template->get('meetings_mom_actions_representatives')."\";");
-                }
-                eval("\$actions_rows .= \"".$template->get('meetings_mom_actions_rows')."\";");
-                unset($checked, $actions_users, $actions_representatives);
+                eval("\$actions_rows .= \"".$template->get('meetings_mom_actions_rowsdisplay')."\";");
+
+                unset($istask, $actions_users, $actions_representatives);
                 $arowid++;
             }
             $title = '<strong>'.$lang->specificactions.'</strong>';
             $headerclass = "altrow";
             eval("\$actions .= \"".$template->get('meetings_mom_actions')."\";");
-        }
-        else {
-            /* parse Actions ---START */
-            $arowid = 0;
-            $userrowid = 0;
-            $checksum['users'] = generate_checksum('mom');
-            eval("\$actions_users .= \"".$template->get('meetings_mom_actions_users')."\";");
-            $reprowid = 0;
-            $checksum['representatives'] = generate_checksum('mom');
-            eval("\$actions_representatives .= \"".$template->get('meetings_mom_actions_representatives')."\";");
-            $checksum['actions'] = generate_checksum('mom');
-            eval("\$actions_rows .= \"".$template->get('meetings_mom_actions_rows')."\";");
-            eval("\$actions .= \"".$template->get('meetings_mom_actions')."\";");
-            /* parse Attachments ---END */
         }
         return $actions;
     }

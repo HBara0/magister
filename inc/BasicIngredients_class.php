@@ -52,7 +52,7 @@ class BasicIngredients extends AbstractClass {
     /* -------FUNCTIONS-END-------- */
     private function validate_requiredfields(array $data = array()) {
         if(is_array($data)) {
-            $required_fields = array('title'); //'actualPrevYear', 'budgetPrevYear'
+            $required_fields = array('title');
             foreach($required_fields as $field) {
                 if(empty($data[$field]) && $data[$field] != '0') {
                     $this->errorcode = 2;
