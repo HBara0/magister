@@ -1,6 +1,6 @@
 <html>
     <head>
-        <title>{$core->settings[systemtitle]} | {$lang->referencelists}</title>
+        <title>{$core->settings[systemtitle]} | {$lang->windowslist}</title>
         {$headerinc}
     </head>
     <body>
@@ -8,7 +8,7 @@
     <tr>
         {$menu}
         <td class="contentContainer" colspan="2">
-            <h1>{$lang->referencelists}</h1>
+            <h1>{$lang->windowslist}</h1>
             <form method='post' action='$_SERVER[REQUEST_URI]'>
                 <div style="width: 75%">
                     <div style="float:right;" class="subtitle"><a  target="_blank"  href="{$core->settings['rootdir']}/manage/index.php?module=managesystem/managewindows"><img src="{$core->settings[rootdir]}/images/addnew.png" border="0">{$lang->addlist}</a></div>
