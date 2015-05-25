@@ -18,7 +18,6 @@
                 <thead>
                     <tr>
                         <td>{$lang->employee}
-                            <input type="hidden" value="{$checksum[users]}" name="mof[actions][{$arowid}][users][{$userrowid}][inputChecksum]"/>
                         </td>
                     </tr>
                 </thead>
@@ -41,7 +40,6 @@
                 <thead>
                     <tr>
                         <td>{$lang->representative}
-                            <input type="hidden" value="{$checksum[representatives]}" name="mof[actions][{$arowid}][representatives][{$reprowid}][inputChecksum]"/>
                         </td>
                     </tr>
                 </thead>
