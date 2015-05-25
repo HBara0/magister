@@ -47,6 +47,7 @@ $lang['purpose'] = 'Purpose';
 $lang['specifyentityaff'] = 'Specify Entity/Affiliate';
 $lang['segment'] = 'Segment';
 $lang['entities'] = 'Entities';
+$lang['businesspartners'] = 'Business Partner';
 $lang['night'] = 'Night(s)';
 $lang['pricenight'] = 'Price Per Night';
 $lang['checkin'] = 'Check in At';
