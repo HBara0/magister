@@ -240,8 +240,9 @@ class TravelManagerPlanSegments extends AbstractClass {
         }
 
         $transptdata = $segmentdata['tmtcid'];
+        $trasnp_count = $transp_errorcode = 0;
         if(is_array($transptdata)) {
-            $transp_errorcode = 0;
+
             foreach($transptdata as $checksum => $data) {
                 $chkdata = $data;
                 rsort($chkdata);
@@ -250,6 +251,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                         if(!isset($transit['flightNumber'])) {
                             continue;
                         }
+                        $transp_count++;
                         $flightnumber = $transit['flightNumber'];
                         $transit['paidBy'] = $transit['paidBy'];
                         $transit['paidById'] = $transit['paidById'];
@@ -291,6 +293,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                         }
                         continue;
                     }
+                    $transp_count++;
                     // $data['tmtcid'] = $category;
                     $data[self::PRIMARY_KEY] = $this->data[self::PRIMARY_KEY];
                     $transp_obj->set($data);
@@ -299,8 +302,10 @@ class TravelManagerPlanSegments extends AbstractClass {
             }
             unset($chkdata);
         }
-
-
+        if($transp_count == 0) {
+            $transp_errorcode = 2;
+            $errorhandler->record('requiredfields', 'Transportations');
+        }
         if(is_array($segmentdata['tmhid'])) {
             $segment_hotels['tmhid'] = $segmentdata['tmhid'];
             if(is_array($segment_hotels['tmhid'])) {

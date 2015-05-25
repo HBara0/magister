@@ -55,7 +55,7 @@ class TravelManagerAirlines {
         }
 
         $requestdata['date'] = date('Y-m-d', $requestdata['date']);
-        if($cityinfo['isOneway'] == 0) {
+        if($requestdata['isOneway'] == 0) {
             $slice2 = Self::reversetrip($requestdata);
         }
         $requestdata = json_encode(array('request' => array("passengers" => array("adultCount" => 1), "solutions" => 20, 'slice' => array(array('origin' => $requestdata['origin'], 'destination' => $requestdata['destination'], 'date' => $requestdata['date'], 'permittedCarrier' => $requestdata['permittedCarrier']), $slice2)))); //to send the reqeustdata to google api and return the response array.
@@ -63,7 +63,7 @@ class TravelManagerAirlines {
     }
 
     private function reversetrip($requestdata) {
-        return array('origin' => $requestdata['destination'], 'destination' => $requestdata['origin'], 'date' => $requestdata['arrivaldate'], 'permittedCarrier' => $requestdata['permittedCarrier']);
+        return array('origin' => $requestdata['destination'], 'destination' => $requestdata['origin'], 'date' => date('Y-m-d', $requestdata['arrivaldate']), 'permittedCarrier' => $requestdata['permittedCarrier']);
     }
 
     private function is_roundtrip($slices) {
@@ -110,10 +110,10 @@ class TravelManagerAirlines {
                     $arrival_obj = new DateTime($segment->leg[0]->arrivalTime);
                     $flight['arrivaltimezone'] = 'Arrival Time Zone: '.$arrival_obj->getTimezone()->getName();
                     $arrivaltime = $arrival_obj->getTimestamp();
-                    $flight['departuredate'] = date($core->settings['dateformat'], $departuretime);
-                    $flight['departuretime'] = date($core->settings['timeformat'], $departuretime);
-                    $flight['arrivaldate'] = date($core->settings['dateformat'], $arrivaltime);
-                    $flight['arrivaltime'] = date($core->settings['timeformat'], $arrivaltime);
+                    $flight['departuredate'] = $departure_obj->format($core->settings['dateformat']);
+                    $flight['departuretime'] = $departure_obj->format($core->settings['timeformat']);
+                    $flight['departuredate'] = $arrival_obj->format($core->settings['dateformat']);
+                    $flight['arrivaltime'] = $arrival_obj->format($core->settings['timeformat']);
                     $flight['origin'] = $segment->leg[0]->origin;
                     $flight['cabin'] = $segment->cabin;
                     $flight['destination'] = $segment->leg[0]->destination;
@@ -275,16 +275,16 @@ class TravelManagerAirlines {
     }
 
     public static function get_flights($request, $apikey = null) {
-//        $ch = curl_init('https://www.googleapis.com/qpxExpress/v1/trips/search?key=AIzaSyDXUgYSlAux8xlE8mA38T0-_HviEPiM5dU');
-//        curl_setopt($ch, CURLOPT_POST, true);
-//        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-//        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
-//        curl_setopt($ch, CURLOPT_POSTFIELDS, $request);
-//        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-//        curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-type: application/json"));
-//        $result = curl_exec($ch);
-        $result = file_get_contents('./modules/travelmanager/jsonflightdetailsPAR.txt');
-        //    curl_close($ch);
+        $ch = curl_init('https://www.googleapis.com/qpxExpress/v1/trips/search?key=AIzaSyDXUgYSlAux8xlE8mA38T0-_HviEPiM5dU');
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $request);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-type: application/json"));
+        $result = curl_exec($ch);
+//        $result = file_get_contents('./modules/travelmanager/jsonflightdetailsPAR.txt');
+        curl_close($ch);
 
         return $result;
     }

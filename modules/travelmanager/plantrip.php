@@ -43,7 +43,7 @@ if(!$core->input['action']) {
 
         }
         else {
-            $segment['countryleave'] = $leave['coid'];
+            //$segment['countryleave'] = $leave['coid'];
             $segment[$sequence]['fromDate_output'] = date($core->settings['dateformat'], $leave['fromDate']);
             $segment[$sequence]['fromDate_formatted'] = date('d-m-Y', $leave['fromDate']);
             $segment[$sequence]['toDate_output'] = date($core->settings['dateformat'], $leave['toDate']);
@@ -185,72 +185,74 @@ else {
             echo'<div style="color:red;">'.$lang->dateexceeded.'</div>';
             exit;
         }
-        if(strtotime($core->input['toDate']) == strtotime(date('Y-m-d', $leave['toDate'])) && strtotime($core->input['fromDate']) == strtotime(date('Y-m-d', $leave['toDate']))) {
-            echo'<div style="color:red;">'.$lang->dateexceeded.'</div>';
-            exit;
-        }
-        else {
-            /* get prev city name */
-            $city_obj = new Cities($core->input['destcity']);
-            $descitydata = $city_obj->get();
-            /* origin city of the new  segment is destination of previous segment */
-            $segment[$sequence][reason_output] = $segment[$sequence]['reason'];
-            $segment[$sequence]['origincity']['name'] = $descitydata['name'];
-            $segment[$sequence]['origincity']['ciid'] = $descitydata['ciid'];
-            /* Overwrite from date of next segment with  TOdate of prev segment */
-            $segment[$sequence]['toDate_output'] = date($core->settings['dateformat'], ($leave[$sequence]['toDate']));
-            $segment[$sequence]['toDate_formatted'] = date('d-m-Y', ($leave[$sequence]['toDate'])); // leave to date
-            $segment[$sequence]['fromDate_output'] = date($core->settings['dateformat'], strtotime($core->input['toDate']));
-            $segment[$sequence]['fromDate_formatted'] = $core->input['toDate'];
-            //   $leave_purposes = array($leave_obj->get_purpose()->get()['ltpid'] => $leave_obj->get_purpose()->get()['name']);
-            $leave_purposes = LeaveTypesPurposes::get_data('');
-            $segment_purposlist = parse_selectlist('segment['.$sequence.'][purpose][]', 5, $leave_purposes, '', 1, '', array('blankstart' => true));
-            $affiliates = Affiliates::get_affiliates();
-            $affilate_list = parse_selectlist('segment['.$sequence.'][affid]', 1, $affiliates, $segmentobj->affid, '', '', array('blankstart' => true));
+//        if(strtotime($core->input['toDate']) == strtotime(date('Y-m-d', $leave['toDate'])) && strtotime($core->input['fromDate']) == strtotime(date('Y-m-d', $leave['toDate']))) {
+//            echo'<div style="color:red;">'.$lang->dateexceeded.'</div>';
+//            exit;
+//        }
+        /* get prev city name */
+        $city_obj = new Cities($core->input['destcity']);
+        $descitydata = $city_obj->get();
+        /* origin city of the new  segment is destination of previous segment */
+        $segment[$sequence][reason_output] = $segment[$sequence]['reason'];
+        $segment[$sequence]['origincity']['name'] = $descitydata['name'];
+        $segment[$sequence]['origincity']['ciid'] = $descitydata['ciid'];
+        /* Overwrite from date of next segment with  TOdate of prev segment */
+        $segment[$sequence]['toDate_output'] = date($core->settings['dateformat'], ($leave[$sequence]['toDate']));
+        $segment[$sequence]['toDate_formatted'] = date('d-m-Y', ($leave[$sequence]['toDate'])); // leave to date
+        $segment[$sequence]['fromDate_output'] = date($core->settings['dateformat'], strtotime($core->input['toDate']));
+        $segment[$sequence]['fromDate_formatted'] = $core->input['toDate'];
+        //   $leave_purposes = array($leave_obj->get_purpose()->get()['ltpid'] => $leave_obj->get_purpose()->get()['name']);
+        $leave_purposes = LeaveTypesPurposes::get_data('');
+        $segment_purposlist = parse_selectlist('segment['.$sequence.'][purpose][]', 5, $leave_purposes, '', 1, '', array('blankstart' => true));
+        $affiliates = Affiliates::get_affiliates();
+        $affilate_list = parse_selectlist('segment['.$sequence.'][affid]', 1, $affiliates, $segmentobj->affid, '', '', array('blankstart' => true));
 
-            /* Popuplate basic information from the leave based on the lid passed via ajax */
+        /* Popuplate basic information from the leave based on the lid passed via ajax */
 
-            $segment['countryleave'] = $leave['coid'];
-            //if($core->input['toDate']) > leavedate
+        //$segment['countryleave'] = $leave['coid'];
+        //if($core->input['toDate']) > leavedate
 // from date todate origin city loaded via js from the prevsegment
-            $disabled = '';
-            /* parse expenses --START */
+        $disabled = '';
+        /* parse expenses --START */
 //            $rowid = 1;
 //            $expensestype_obj = new Travelmanager_Expenses_Types();
 //            $segments_expenses_output = $expensestype_obj->parse_expensesfield($sequence, $rowid);
-            /* parse expenses --END */
+        /* parse expenses --END */
 
-            eval("\$plantrip_createsegment= \"".$template->get('travelmanager_plantrip_createsegment')."\";");
-            output($plantrip_createsegment);
-        }
+        eval("\$plantrip_createsegment= \"".$template->get('travelmanager_plantrip_createsegment')."\";");
+        output($plantrip_createsegment);
     }
     elseif($core->input['action'] == 'populatecontent') {
         $origincityid = $db->escape_string($core->input['origincity']);
         $destcityid = $db->escape_string($core->input['destcity']);
         $sequence = $db->escape_string($core->input['sequence']); /* get the  sequence to differentiate the content of each */
         $otherhotel_checksum = generate_checksum('accomodation');
+        $transp_dispnone = 'style="display:none"';
         $descity_obj = new Cities($destcityid);
         $destcity = $descity_obj->get();
         $dest_country = $descity_obj->get_country();
         $destcountry_id = $dest_country->coid;
         $destcity['country'] = $dest_country->get()['name'];
-        $transp_requirements['drivemode'] = 'transit';
-        $transp_requirements['departuretime'] = $db->escape_string(strtotime($core->input['departuretime']));
-        $transp_requirements['arrivaltime'] = $db->escape_string(strtotime($core->input['arrivaltime']));
-        $origincity_obj = new Cities($origincityid);
-        $origintcity = $origincity_obj->get();
-        $origintcity['country'] = $origincity_obj->get_country()->get()['name'];
-        $transpmode_apimaplink = 'https://www.google.com/maps/dir/'.$origintcity['name'].',+'.$origintcity['country'].'/'.$destcity['name'].',+'.$destcity['country'].'/';
-        /* Load proposed transproration */
-        $transp = new TravelManagerPlanTransps();
-        $transp_requirements['oneway'] = 0;
-        if(isset($core->input['oneway']) && $core->input['oneway'] == 1) {
-            $transp_requirements['oneway'] = 1;
-        }
-        else if(isset($core->input['roundtrip']) && $core->input['roundtrip'] == 1) {
+        if(isset($core->input['parsetransp']) && $core->input['parsetransp'] == 1) {
+            $transp_dispnone = '';
+            $transp_requirements['drivemode'] = 'transit';
+            $transp_requirements['departuretime'] = $db->escape_string(strtotime($core->input['departuretime']));
+            $transp_requirements['arrivaltime'] = $db->escape_string(strtotime($core->input['arrivaltime']));
+            $origincity_obj = new Cities($origincityid);
+            $origintcity = $origincity_obj->get();
+            $origintcity['country'] = $origincity_obj->get_country()->get()['name'];
+            $transpmode_apimaplink = 'https://www.google.com/maps/dir/'.$origintcity['name'].',+'.$origintcity['country'].'/'.$destcity['name'].',+'.$destcity['country'].'/';
+            /* Load proposed transproration */
+            $transp = new TravelManagerPlanTransps();
             $transp_requirements['oneway'] = 0;
+            if(isset($core->input['oneway']) && $core->input['oneway'] == 1) {
+                $transp_requirements['oneway'] = 1;
+            }
+            else if(isset($core->input['roundtrip']) && $core->input['roundtrip'] == 1) {
+                $transp_requirements['oneway'] = 0;
+            }
+            $transsegments_output = Cities::parse_transportations($transp, array('origincity' => $origintcity, 'destcity' => $destcity, 'transprequirements' => $transp_requirements), $sequence);
         }
-        $transsegments_output = Cities::parse_transportations($transp, array('origincity' => $origintcity, 'destcity' => $destcity, 'transprequirements' => $transp_requirements), $sequence);
         /* load approved hotels */
 
         // $segmentobj = new TravelManagerPlanSegments();
@@ -389,8 +391,13 @@ else {
                     output_xml("<status>false</status><message> {$lang->errordate} </message>");
                     exit;
                 case 8:
-                    output_xml("<status>false</status><message> {$lang->erroritinerarydate} </message>");
-                    exit;
+                    if(isset($core->input['finalizeplan']) && $core->input['finalizeplan'] == 1) {
+                        output_xml("<status>false</status><message> {$lang->erroritinerarydate} </message>");
+                        exit;
+                    }
+                    output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
+                    break;
+
                 case 9:
                     $error_output = $errorhandler->get_errors_inline();
                     output_xml("<status>false</status><message><![CDATA[{$error_output}]]></message>");

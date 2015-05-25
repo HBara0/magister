@@ -1,5 +1,9 @@
 <div style="display:block;" >
     <h2 class="subtitle">Possible Transportations</h2>
+    <div style="display: block">{$lang->oneway}<input type="checkbox" value="1" name="segment[{$sequence}][oneway]" id="oneway_lookuptransps_{$sequence}"/>
+        {$lang->roundtrip}<input type="checkbox" value="1" name="segment[{$sequence}][roundtrip]" id="roundtrip_lookuptransps_{$sequence}"/><br/><br/>
+        <input type="button" class="button" value="{$lang->lookuptransps}" id="lookuptransps_{$sequence}"/>
+    </div>
     <!--able width="100%" cellspacing="0" cellpadding="0" style="margin-left: 8px;" class="datatable">
           <tbody id="othertranspcat_{$sequence}_tbody">-->
     <div id="content_suggestedtransploader_{$sequence}"></div>
@@ -11,7 +15,7 @@
             {$rows}
         </tbody>
     </table>
-    <div> <img src="./images/add.gif" style="cursor: pointer" id="ajaxaddmore_travelmanager/plantrip_othertranspcat_{$sequence}"  alt="{$lang->add}"> Add another transportation
+    <div {$transp_dispnone}> <img src="./images/add.gif" style="cursor: pointer" id="ajaxaddmore_travelmanager/plantrip_othertranspcat_{$sequence}"  alt="{$lang->add}"> Add another transportation
         <input type="hidden" name="ajaxaddmoredata[destcity]" id="ajaxaddmoredata_destcity" value="{$destcityid}"/>
         <input name="numrows_othertranspcat_{$sequence}" type="hidden" id="numrows_othertranspcat_{$sequence}" value="{$rowid}">
     </div>

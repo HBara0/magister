@@ -262,7 +262,7 @@ class TravelManagerPlan {
         }
     }
 
-    private function check_iteneraryconsistency($requiredata = array(), $leavetimeframe = array()) {
+    private function check_iteneraryconsistency($requiredata = array(), $leavetimeframe = array(), $finalize = 0) {
         if(is_array($requiredata)) {
             $this->segmentdata = $requiredata;
             $firstsegment_fromdate = strtotime($this->segmentdata[key($this->segmentdata)]['fromDate']);
@@ -275,20 +275,6 @@ class TravelManagerPlan {
 
             $leavetimeframe['leavetodate'] = strtotime(date('Y-m-d 23:59:59', $leavetimeframe['leavetodate']));
             $lastsegment_todate = strtotime(date('Y-m-d 23:59:59', $lastsegment_todate));
-            if($leavetimeframe['leavefromdate'] != $firstsegment_fromdate || $leavetimeframe['leavetodate'] != $lastsegment_todate) {
-                //  echo ' leavefromdate '.$leavetimeframe['leavefromdate'].' firstsegfrom '.$firstsegment_fromdate.' leavetodate '.$leavetimeframe['leavetodate'].' $lastsegment_todate '.$lastsegment_todate;
-                if($leavetimeframe['leavetodate'] > $lastsegment_todate) {
-                    if(strlen($this->saveaddseg) < 1 || $this->saveaddseg != $this->sequence) {
-                        $this->errorode = 8;
-                        return false;
-                    }
-                }
-                if($leavetimeframe['leavetodate'] < $lastsegment_todate) {
-                    $this->errorode = 7;
-                    return false;
-                }
-            }
-
             foreach($this->segmentdata as $sequence => $segmentdata) {
                 /* if origin city = to "to city" of previous segment n for each segment */
                 if(!empty($this->segmentdata [$sequence - 1]['destinationCity'])) {
@@ -307,6 +293,21 @@ class TravelManagerPlan {
                 if((strtotime($this->segmentdata[$sequence - 1]['toDate']) > $segmentdata['toDate'])) {
                     $this->errorode = 5;
                     return false;
+                }
+            }
+            if($leavetimeframe['leavefromdate'] != $firstsegment_fromdate || $leavetimeframe['leavetodate'] != $lastsegment_todate) {
+                //  echo ' leavefromdate '.$leavetimeframe['leavefromdate'].' firstsegfrom '.$firstsegment_fromdate.' leavetodate '.$leavetimeframe['leavetodate'].' $lastsegment_todate '.$lastsegment_todate;
+                if($leavetimeframe['leavetodate'] < $lastsegment_todate) {
+                    $this->errorode = 7;
+                    return false;
+                }
+                if($leavetimeframe['leavetodate'] > $lastsegment_todate) {
+                    if(strlen($this->saveaddseg) < 1 || $this->saveaddseg != $this->sequence) {
+                        $this->errorode = 8;
+                        if($finalize == 1) {
+                            return false;
+                        }
+                    }
                 }
             }
         }
@@ -384,7 +385,7 @@ class TravelManagerPlan {
         global $db, $core;
         $this->data['lid'] = $plandata['lid'];
         $leave = new Leaves($this->data['lid']);
-        if(!$this->check_iteneraryconsistency($plandata['segment'], array('leavefromdate' => $leave->get()['fromDate'], 'leavetodate' => $leave->get()['toDate']))) {
+        if(!$this->check_iteneraryconsistency($plandata['segment'], array('leavefromdate' => $leave->get()['fromDate'], 'leavetodate' => $leave->get()['toDate']), $this->data['finalizeplan'])) {
             return false;
         }
         $segments = $plandata['segment'];
