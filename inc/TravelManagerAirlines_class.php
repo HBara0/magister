@@ -62,8 +62,8 @@ class TravelManagerAirlines {
         return $requestdata;
     }
 
-    private function reversetrip() {
-        return array('origin' => $requestdata['origin'], 'destination' => $requestdata['destination'], 'date' => $requestdata['date'], 'permittedCarrier' => $requestdata['permittedCarrier']);
+    private function reversetrip($requestdata) {
+        return array('origin' => $requestdata['destination'], 'destination' => $requestdata['origin'], 'date' => $requestdata['arrivaldate'], 'permittedCarrier' => $requestdata['permittedCarrier']);
     }
 
     private function is_roundtrip($slices) {
@@ -284,7 +284,7 @@ class TravelManagerAirlines {
 //        curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-type: application/json"));
 //        $result = curl_exec($ch);
         $result = file_get_contents('./modules/travelmanager/jsonflightdetailsPAR.txt');
-        //  curl_close($ch);
+        //    curl_close($ch);
 
         return $result;
     }
