@@ -979,6 +979,16 @@ $(function () {
             $('#dimensions').val($("#dimensionto").sortable('toArray'));
         }
     });
+    $("input[data-reqparent^='children_']").live('change', function () {
+        var children = $(this).attr('data-reqparent').split('_');
+        alert(children);
+        if(children.length > 1) {
+            for(i = 1; i < children.length; i++) {
+                $('input[id="' + children[i] + '"]').attr("required", true);
+            }
+        }
+    });
+
 }
 );
 function validateEmail(email) {
