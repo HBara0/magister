@@ -142,7 +142,7 @@
                     }
 
                 });
-                $('input[id^="numnight_segacc_"]').live('change', function () {
+                $('input[id^="numnight_segacc_"],input[id^="pricenight_segacc_"]').live('change', function () {
                     var id = $(this).attr("id").split("_");
                     if($('input[id="pricenight_' + id[1] + '_' + id[2] + '_' + id[3] + '"]').length < 0) {
                         return;

@@ -6,7 +6,7 @@
     </div>
     <br>
     <div style="display:inline-block;padding:5px;width:15%;">{$lang->pricenight}</div>
-    <div style="display:inline-block;width:15%;"><input tabindex="3" id="pricenight_segacc_{$approved_hotels[tmhid]}_{$sequence}" accept="numeric" name="segment[{$sequence}][tmhid][{$checksum}][priceNight]" type="text" value="{$selectedhotel->priceNight}" style="width:100%;"></div>
+    <div style="display:inline-block;width:15%;"><input tabindex="3" data-reqparent="children-numnight_segacc_{$approved_hotels[tmhid]}_{$sequence}" id="pricenight_segacc_{$approved_hotels[tmhid]}_{$sequence}" accept="numeric" name="segment[{$sequence}][tmhid][{$checksum}][priceNight]" type="text" value="{$selectedhotel->priceNight}" style="width:100%;"></div>
     <div style="display:inline-block;width:6%;">{$currencies_list}</div>
     <div style="display:inline-block;padding:10px;margin-left:5px;width:16%;">{$lang->numnight}</div>
     <div style="display:inline-block;width:15%;"><input style="width:100px;" tabindex="3" id="numnight_segacc_{$approved_hotels[tmhid]}_{$sequence}" accept="numeric" name="segment[{$sequence}][tmhid][{$checksum}][numNights]" type="number" value="{$selectedhotel->numNights}" max="{$leavedays}"> </div>

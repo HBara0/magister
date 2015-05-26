@@ -979,16 +979,22 @@ $(function () {
             $('#dimensions').val($("#dimensionto").sortable('toArray'));
         }
     });
-    $("input[data-reqparent^='children_']").live('change', function () {
-        var children = $(this).attr('data-reqparent').split('_');
-        alert(children);
+    $("[data-reqparent^='children-']").live('change', function () {
+        var children = $(this).attr('data-reqparent').split('-');
+        alert(1);
         if(children.length > 1) {
-            for(i = 1; i < children.length; i++) {
-                $('input[id="' + children[i] + '"]').attr("required", true);
+            if($(this).val().length < 1) {
+                for(i = 1; i < children.length; i++) {
+                    $('#' + children[i] + '').attr("required", false);
+                }
+            }
+            else {
+                for(i = 1; i < children.length; i++) {
+                    $('#' + children[i] + '').attr("required", true);
+                }
             }
         }
     });
-
 }
 );
 function validateEmail(email) {

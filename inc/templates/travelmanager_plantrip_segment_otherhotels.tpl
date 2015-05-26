@@ -7,7 +7,7 @@
         <span> <a style="cursor: pointer;"  rel="{$destcity[ciid]}" id="addnewhotel_{$sequence}_travelmanager/plantrip_loadpopupbyid"><img src="images/addnew.png"  title="{$lang->addotherhotel}" alt="Add" border="0">{$lang->addhotel}</a> </span>
         <br/>
         <div style="display:inline-block;padding:5px;width:15%;">{$lang->pricenight}</div>
-        <div style="display:inline-block;padding:5px;width:100px;"><input tabindex="3" style="width:100px"id="pricenight_segacc_0_{$sequence}" accept="numeric" name="segment[{$sequence}][tmhid][{$otherhotel_checksum}][priceNight]" type="text" value=""></div>
+        <div style="display:inline-block;padding:5px;width:100px;"><input tabindex="3" style="width:100px"id="pricenight_segacc_0_{$sequence}" data-reqparent="children-numnight_segacc_0_{$sequence}" accept="numeric" name="segment[{$sequence}][tmhid][{$otherhotel_checksum}][priceNight]" type="text" value=""></div>
         <div style="display:inline-block;padding:5px;width:50px;">{$currencies_list}</div>
         <div style="display:inline-block;padding:5px;width:120px; ">{$lang->numnight}</div>
         <div style="display:inline-block;padding:5px;width:15%;"> <input style="width:100px;" tabindex="3" id="numnight_segacc_0_{$sequence}" accept="numeric" name="segment[{$sequence}][tmhid][{$otherhotel_checksum}][numNights]" type="number" value="" max="{$leavedays}"> </div>
