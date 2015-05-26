@@ -780,7 +780,9 @@ $(function () {
                     $("#numrows_" + uniquename).val(num_rows + 1);
                 }
                 /*find the offset of the first input in the last tr*/
-                $("html, body").animate({scrollTop: $('#' + uniquename + '_tbody > tr:last').find("input").filter(':visible:first').offset().top}, 1000);
+                if($('#' + uniquename + '_tbody > tr:last').find("input").filter(':visible:first').length) {
+                    $("html, body").animate({scrollTop: $('#' + uniquename + '_tbody > tr:last').find("input").filter(':visible:first').offset().top}, 1000);
+                }
                 $('#' + uniquename + '_tbody > tr:last').effect("highlight", {color: '#D6EAAC'}, 1500).find('input').first().focus();
             }
         });
