@@ -43,9 +43,13 @@ if(!$core->input['action']) {
 
         $robots_list = parse_selectlist('menuitem[robotsRule]', 1, array("INDEX,FOLLOW" => "INDEX,FOLLOW", "NOINDEX,FOLLOW" => "NOINDEX,FOLLOW", "INDEX,NOFOLLOW" => "INDEX,NOFOLLOW", "NOINDEX,NOFOLLOW" => "NOINDEX,NOFOLLOW"), 0);
         $segment_data = get_specificdata('productsegments', array('psid', 'title'), 'psid', 'title', array('by' => 'title', 'sort' => 'ASC'), 0, "publishOnwebsite = 1");
-
+        $segmentcats_data = SegmentCategories::get_data(null, array('returnarray' => true));
         $list_segments = parse_selectlist('menuitem[configurations][segmentslist][]', 1, array(0 => '') + $segment_data, $core->user['segments'], 1);
+        $list_segmentcats = parse_selectlist('menuitem[configurations][segmentcatslist][]', 1, $segmentcats_data, '', 1);
+
         $single_segment = parse_selectlist('menuitem[configurations][singlesegment]', 6, array(0 => '') + $segment_data, '');
+        $single_segmentcategory = parse_selectlist('menuitem[configurations][singlesegmentcategory]', 6, array(0 => '') + $segmentcats_data, '');
+
         $webpages = get_specificdata('cms_pages', array('alias', 'title'), 'alias', 'title', array('by' => 'title', 'sort' => 'ASC'), 0);
         $list_webpages = parse_selectlist('menuitem[configurations][webpage]', 1, array(0 => '') + $webpages, 0);
 
@@ -80,9 +84,13 @@ if(!$core->input['action']) {
 
             $robots_list = parse_selectlist('menuitem[robotsRule]', 1, array("INDEX,FOLLOW" => "INDEX,FOLLOW", "NOINDEX,FOLLOW" => "NOINDEX,FOLLOW", "INDEX,NOFOLLOW" => "INDEX,NOFOLLOW", "NOINDEX,NOFOLLOW" => "NOINDEX,NOFOLLOW"), $menuitem['robotsRule']);
             $segment_data = get_specificdata('productsegments', array('psid', 'title'), 'psid', 'title', array('by' => 'title', 'sort' => 'ASC'), 0, "publishOnwebsite = 1");
+            $segmentcats_data = SegmentCategories::get_data(null, array('returnarray' => true));
+
+            $list_segmentcats = parse_selectlist('menuitem[configurations][segmentcatslist][]', 1, $segmentcats_data, '', 1);
 
             $list_segments = parse_selectlist('menuitem[configurations][segmentslist][]', 1, array(0 => '') + $segment_data, $core->user['segments'], 1);
             $single_segment = parse_selectlist('menuitem[configurations][singlesegment]', 6, array(0 => '') + $segment_data, '');
+            $single_segmentcategory = parse_selectlist('menuitem[configurations][singlesegmentcategory]', 6, array(0 => '') + $segmentcats_data, '');
             $webpages = get_specificdata('cms_pages', array('alias', 'title'), 'alias', 'title', array('by' => 'title', 'sort' => 'ASC'), 0);
             $list_webpages = parse_selectlist('menuitem[configurations][webpage]', 1, array(0 => '') + $webpages, 0);
 
@@ -122,6 +130,8 @@ else {
 //            }
 //            $menuitems[$key] = $menuitemdata;
 //        }
+
+        $core->input['menuitem']['alias'] = generate_alias($core->input['menuitem']['title']);
         $cms_menuitem->set($core->input['menuitem']);
         $cms_menuitem->save();
 
