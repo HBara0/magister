@@ -592,7 +592,7 @@ else {
         output_page($createchemical);
     }
     elseif($core->input['action'] == 'do_createchemical') {
-        $chemsustance = new Chemicalsubstances ( );
+        $chemsustance = new Chemicalsubstances();
         $chemsustance->create($core->input['chemcialsubstances']);
 
         switch($chemsustance->get_status()) {
