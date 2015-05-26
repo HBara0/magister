@@ -71,10 +71,32 @@ if(!$core->input['action']) {
 //                $cityprofile_output = $descity_obj->parse_cityreviews();
 //                $citybriefings_output = $descity_obj->parse_citybriefing();
 //            }
+            $display_external = $display_intrnal = 'style="display:none"';
             $leave_purposes = LeaveTypesPurposes::get_data(null);
             //$leave_purposes = array($leave_obj->get_purpose()->get()['ltpid'] => $leave_obj->get_purpose()->get()['name']);
-            $segment_purposlist = parse_selectlist('segment['.$sequence.'][purpose][]', 5, $leave_purposes, '', 1, '', array('blankstart' => true));
-
+            if(is_array($leave_purposes)) {
+                foreach($leave_purposes as $leave_purpose) {
+                    if($leave_purpose->category == 'internal') {
+                        $interperp[$leave_purpose->ltpid] = $leave_purpose->title;
+                    }
+                    elseif($leave_purpose->category == 'external') {
+                        $extpurps[$leave_purpose->ltpid] = $leave_purpose->title;
+                    }
+                }
+                if(is_array($extpurps)) {
+                    $extpurposes_checks = parse_checkboxes('segment['.$sequence.'][purpose]', $extpurps, $selectedpurpose, '', 'external purposes', '<br>', 'purposes_checks_external_'.$sequence.'', 1);
+                }
+                if(is_array($interperp)) {
+                    $internalpurposes_checks = parse_checkboxes('segment['.$sequence.'][purpose]', $interperp, $selectedpurpose, '', 'internal purposes', '<br>', 'purposes_checks_internal_'.$sequence.'', 1);
+                }
+            }
+            $affiliates = Affiliates::get_affiliates();
+            $afent_checksum = generate_checksum('affient');
+            $affilate_list = parse_selectlist('segment['.$sequence.'][assign][affid]['.$afent_checksum.']', '1', $affiliates, '', '', '', array('blankstart' => true));
+            $affrowid = $entrowid = 0;
+            eval("\$affiliates_output = \"".$template->get('travelmanager_plantrip_createsegment_affiliates')."\";");
+            $afent_checksum = generate_checksum('affient');
+            eval("\$entities = \"".$template->get('travelmanager_plantrip_createsegment_entities')."\";");
             //   $origincity_obj = $leave_obj->get_sourcecity(false);
             $origintcity = $origincity_obj->get();
             $origintcity['country'] = $origincity_obj->get_country()->get()['name'];
@@ -525,6 +547,22 @@ else {
         $finance_checksum = generate_checksum('finance');
         eval("\$finance_output = \"".$template->get('travelmanager_plantrip_segmentfinance')."\";");
         echo $finance_output;
+    }
+    elseif($core->input['action'] == 'ajaxaddmore_affiliate') {
+        $affrowid = $db->escape_string($core->input['value']) + 1;
+        $afent_checksum = generate_checksum('affient');
+        $sequence = $db->escape_string($core->input['id']);
+        $affiliates = Affiliates::get_affiliates();
+        $affilate_list = parse_selectlist('segment['.$sequence.'][assign][affid]['.$affrowid.']', '1', $affiliates, '', '', '', array('blankstart' => true));
+        eval("\$affiliates_output .= \"".$template->get('travelmanager_plantrip_createsegment_affiliates')."\";");
+        echo $affiliates;
+    }
+    elseif($core->input['action'] == 'ajaxaddmore_entities') {
+        $entrowid = $db->escape_string($core->input['value']) + 1;
+        $afent_checksum = generate_checksum('affient');
+        $sequence = $db->escape_string($core->input['id']);
+        eval("\$entities .= \"".$template->get('travelmanager_plantrip_createsegment_entities')."\";");
+        echo $entities;
     }
 }
 ?>

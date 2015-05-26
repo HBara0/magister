@@ -5,7 +5,8 @@ $lang['maxrate'] = "Max rate";
 $lang['flyto'] = "Flying To";
 $lang['lookupflights'] = "Lookup Flights";
 $lang['lookupresults'] = "Lookup Results";
-
+$lang['internalpurposes'] = "Internal Purposes";
+$lang['externalpurposes'] = "External Purposes";
 $lang['oneway'] = "One Way";
 $lang['roundway'] = "Round Way";
 $lang['hotelslist'] = "Available Hotels";

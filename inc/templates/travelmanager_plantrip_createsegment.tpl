@@ -24,17 +24,41 @@
                 <input type='hidden' id='destinationcity_{$sequence}_cache_id_output' name="segment[{$sequence}][destinationCity]" value="{$segment[$sequence][destinationcity][ciid]}" disabled/>
 
             </td>
-            <td></td>
         </tr>
-        <tr><td>{$lang->purpose}</td><td>{$segment_purposlist}</td></tr>
-        <tr><td>{$lang->specifyentityaff}</td><td><input type="checkbox" id="specifyaffent_{$sequence}_check"  value="{$sequence}" {$checked['specifyentcheck']}/></td></tr>
-        <tr id="specifyaffent_{$sequence}_block" style="display: none">
-            <td>{$lang->affiliates}</td><td>{$affilate_list}</td>
-            <td>{$lang->businesspartners}</td>
-            <td><input type="text"  id="allentities_{$sequence}_cache_autocomplete" autocomplete="off" tabindex="1" value="{$segment[$sequence][entity][name]}" required="required"/>
-                <input type='hidden' id='allentities_{$sequence}_cache_id'  name="segment[{$sequence}][eid]" value="{$segment[$sequence][entity][eid]}"/>
-                <input type='hidden' id='allentities_{$sequence}_cache_id_output' name="segment[{$sequence}][eid]" value="{$segment[$sequence][entity][eid]}" disabled/>
-
+        <tr><td></td><td>{$lang->internalpurposes}</td><td></td><td>{$lang->externalpurposes}</td></tr>
+        <tr  style="outline: #090 solid thin"><td></td><td>{$internalpurposes_checks}</td><td></td><td>{$extpurposes_checks}</td></tr>
+        <tr style="width:100%;">
+            <td></td>
+            <td style="vertical-align: top;width:20%;">
+                <div style="display: inline-block;width:100%">
+                    <table border="0" cellspacing="1" cellpadding="1" width="100%">
+                        <tbody id="affiliate_{$sequence}_tbody">
+                            {$affiliates_output}
+                        </tbody>
+                        <tr>
+                            <td data-purposes="internal_{$sequence}" {$display_internal} >
+                                <input name="numrows_affiliate" type="hidden" id="numrows_affiliate_{$affrowid}" value="{$affrowid}">
+                                <img src="./images/add.gif" id="ajaxaddmore_travelmanager/plantrip_affiliate_{$sequence}" alt="{$lang->add}">
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </td>
+            <td></td>
+            <td style="vertical-align: top;width:20%;">
+                <div style="display: inline-block;width:100%">
+                    <table border="0" cellspacing="1" cellpadding="1" width="100%">
+                        <tbody id="entities_{$sequence}_tbody">
+                            {$entities}
+                        </tbody>
+                        <tr >
+                            <td data-purposes="external_{$sequence}" {$display_external} >
+                                <input name="numrows_entities" type="hidden" id="numrows_entities_{$entityrowid}" value="{$entityrowid}">
+                                <img src="./images/add.gif" id="ajaxaddmore_travelmanager/plantrip_entities_{$sequence}" alt="{$lang->add}">
+                            </td>
+                        </tr>
+                    </table>
+                </div>
             </td>
         </tr>
         <tr><td>{$lang->considerleisuretourism}</td><td><input type="checkbox" name="segment[{$sequence}][isNoneBusiness]" value="1" {$checked['isNoneBusiness']}/></td></tr>

@@ -81,7 +81,28 @@ class TravelManagerPlanSegments extends AbstractClass {
                 $segmentpurpose_obj->save();
             }
         }
-
+        if(is_array($segmentdata['assign'])) {
+            foreach($segmentdata['assign'] as $type) {
+                if(is_array($type)) {
+                    if($type == 'affid') {
+                        $assigned['type'] = 'internal';
+                    }
+                    elseif($type == 'eid') {
+                        $assigned['type'] = 'external';
+                    }
+                    $assigned['tmpsid'] = $this->data[self::PRIMARY_KEY];
+                    foreach($type as $key => $id) {
+                        if(empty($id)) {
+                            continue;
+                        }
+                        $assigned['primaryId'] = $id;
+                        $assign_obj = new TravelManagerPlanAffient();
+                        $assign_obj->set($assigned);
+                        $assign_obj->save();
+                    }
+                }
+            }
+        }
         if(isset($segmentdata['tmtcid'])) {
             $transptdata['tmpsid'] = $this->data[self::PRIMARY_KEY];
 
@@ -238,7 +259,29 @@ class TravelManagerPlanSegments extends AbstractClass {
                 $segmentpurpose_obj->save();
             }
         }
-
+        if(is_array($segmentdata['assign'])) {
+            foreach($segmentdata['assign'] as $type => $none) {
+                if(is_array($none)) {
+                    if($type == 'affid') {
+                        $assigned['type'] = 'affiliate';
+                    }
+                    elseif($type == 'eid') {
+                        $assigned['type'] = 'entity';
+                    }
+                    $assigned['tmpsid'] = $this->data[self::PRIMARY_KEY];
+                    foreach($none as $key => $id) {
+                        if(empty($id)) {
+                            continue;
+                        }
+                        $assigned['primaryId'] = $id;
+                        $assigned['inputChecksum'] = $key;
+                        $assign_obj = new TravelManagerPlanAffient();
+                        $assign_obj->set($assigned);
+                        $assign_obj->save();
+                    }
+                }
+            }
+        }
         $transptdata = $segmentdata['tmtcid'];
         $trasnp_count = $transp_errorcode = 0;
         if(is_array($transptdata)) {

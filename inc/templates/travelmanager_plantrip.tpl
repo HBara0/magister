@@ -201,7 +201,6 @@
                     populate_suggestions(obj);
                     return false;
                 });
-
                 $('input[name^="segment"][name$="[fare]"],input[name^="segment"][name$="[subtotal]"],select[name^="segment"][name$="[currency]"],input[name^="segment"][name$="[expectedAmt]"]').live('change', function () {
                     populate_suggestions(this);
                 });
@@ -247,6 +246,27 @@
                         else {
                             total[expeccur] = total[expeccur] + parseInt(price, 10);
                         }
+                    }
+                });
+                $('input[id^="purposes_checks_"]').live('change', function () {
+                    var id = $(this).attr('id').split('_');
+                    var empty = 1;
+                    $('input[id="' + $(this).attr('id') + '"]').each(function (i, obj) {
+                        if($(obj).is(":checked")) {
+                            empty = 0;
+                        }
+                    });
+                    if(empty == 1) {
+                        $('[data-purposes="' + id[2] + '_' + id[3] + '"]').each(function (i, obj) {
+                            $(obj).find('input').val('');
+                            $(obj).find('select').val('');
+                            $(obj).hide();
+                        });
+                    }
+                    else {
+                        $('[data-purposes="' + id[2] + '_' + id[3] + '"]').each(function (i, obj) {
+                            $(obj).show();
+                        })
                     }
                 });
                 var ptext = '';
