@@ -2268,6 +2268,7 @@ CREATE TABLE `leavetypes_purposes` (
   `ltpid` int(10) NOT NULL AUTO_INCREMENT,
   `name` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
   `title` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `category` varchar(30) COLLATE utf8_unicode_ci NOT NULL,
   `createdBy` int(10) NOT NULL,
   `createdOn` int(10) NOT NULL,
   PRIMARY KEY (`ltpid`)
@@ -3887,6 +3888,17 @@ CREATE TABLE `travelmanager_plan_transps` (
   KEY `tmpltid_2` (`tmpltid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `travelmanager_plantrip_affient`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `travelmanager_plantrip_affient` (
+  `tmpsafid` int(10) NOT NULL AUTO_INCREMENT,
+  `inputChecksum` varchar(150) NOT NULL,
+  `tmpsid` int(5) NOT NULL,
+  `type` varchar(30) NOT NULL,
+  `primaryId` int(10) NOT NULL,
+  PRIMARY KEY (`tmpsafid`)
+) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
 DROP TABLE IF EXISTS `travelmanager_transpcategories`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
