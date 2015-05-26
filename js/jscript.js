@@ -242,7 +242,7 @@ $(function () {
                 }
 
                 filtersQuery = "";
-                var filters = new Array("rid", "spid", "cid", "spid[]", "coid");
+                var filters = new Array("rid", "spid", "cid", "spid[]", "coid", "countryid", "city");
                 for(var i = 0; i < filters.length; i++) {
                     if($("input[name='" + filters[i] + "']").length > 0) {
                         if($("input[name='" + filters[i] + "']").val() != '') {
@@ -647,7 +647,6 @@ $(function () {
         if(module == '' && id != '') {
             file = rootdir + id;
         }
-
         /*change ajax call*/
         $.ajax({type: 'post',
             url: file + "?module=" + module + "&action=get_" + template,
@@ -781,7 +780,9 @@ $(function () {
                     $("#numrows_" + uniquename).val(num_rows + 1);
                 }
                 /*find the offset of the first input in the last tr*/
-                $("html, body").animate({scrollTop: $('#' + uniquename + '_tbody > tr:last').find("input").filter(':visible:first').offset().top}, 1000);
+                if($('#' + uniquename + '_tbody > tr:last').find("input").filter(':visible:first').length) {
+                    $("html, body").animate({scrollTop: $('#' + uniquename + '_tbody > tr:last').find("input").filter(':visible:first').offset().top}, 1000);
+                }
                 $('#' + uniquename + '_tbody > tr:last').effect("highlight", {color: '#D6EAAC'}, 1500).find('input').first().focus();
             }
         });
@@ -978,6 +979,22 @@ $(function () {
         stop: function (event, ui) {
             $("#dimensionto li").css('background', '#92d050');
             $('#dimensions').val($("#dimensionto").sortable('toArray'));
+        }
+    });
+    $("[data-reqparent^='children-']").live('change', function () {
+        var children = $(this).attr('data-reqparent').split('-');
+        alert(1);
+        if(children.length > 1) {
+            if($(this).val().length < 1) {
+                for(i = 1; i < children.length; i++) {
+                    $('#' + children[i] + '').attr("required", false);
+                }
+            }
+            else {
+                for(i = 1; i < children.length; i++) {
+                    $('#' + children[i] + '').attr("required", true);
+                }
+            }
         }
     });
 }

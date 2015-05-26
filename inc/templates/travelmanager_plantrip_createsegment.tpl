@@ -1,44 +1,68 @@
 <div style="display:inline-block; width:70%;">
     <table>
         <tr>
-            <td width="18%">{$lang->fromdate}</td>
+            <td width="18%">{$lang->fromdate}*</td>
             <td><input type="text" id="pickDate_from_{$sequence}"  disabled="disabled"   autocomplete="off" tabindex="1" value="{$segment[$sequence][fromDate_output]}" required="required"/>
                 <input type="hidden" name="segment[{$sequence}][fromDate]" id="altpickDate_from_{$sequence}"  value="{$segment[$sequence][fromDate_formatted]}" /></td>
             </td>
 
-            <td>{$lang->todate}</td>
-            <td><input type="text" id="pickDate_to_{$sequence}"    autocomplete="off" tabindex="2" value="{$segment[$sequence][toDate_output]}" required="required" />
+            <td>{$lang->todate}*</td>
+            <td><input type="text" id="pickDate_to_{$sequence}"    autocomplete="off" tabindex="1" value="{$segment[$sequence][toDate_output]}" required="required" />
                 <input type="hidden" name="segment[{$sequence}][toDate]" id="altpickDate_to_{$sequence}" value="{$segment[$sequence][toDate_formatted]}"/></td>
         <input type="hidden" name="leaveDate" id="leaveDate_to_{$sequence}" value="{$leave[$sequence][toDate]}"/></td>
        <!-- <td> <span id="numdays_{$sequence}">{$segment[$sequence][numberdays]}</span></td>-->
         </tr>
-        <tr>  <td>{$lang->origincity}</td>
+        <tr>  <td>{$lang->origincity}*</td>
             <td><input type="text"  disabled="disabled" autocomplete="off" tabindex="1"  id="cities_{$sequence}_cache_autocomplete"    value="{$segment[$sequence][origincity][name]}" required="required"/>
                 <input type='hidden' id='cities_{$sequence}_cache_id'   name="segment[{$sequence}][originCity]" value="{$segment[$sequence][origincity][ciid]}"/>
             </td>
 
-            <td style="text-align:left;">{$lang->destinationcity}</td>
+            <td style="text-align:left;">{$lang->destinationcity}*</td>
             <td><input type="text" {$disabled}  id="destinationcity_{$sequence}_cache_autocomplete" autocomplete="off" tabindex="1" value="{$segment[$sequence][destinationcity][name]}" required="required"/>
                 <input type="hidden" id="coid"  value="{$segment[countryleave]}" name="coid"/>
                 <input type='hidden' id='destinationcity_{$sequence}_cache_id'  name="segment[{$sequence}][destinationCity]" value="{$segment[$sequence][destinationcity][ciid]}"/>
                 <input type='hidden' id='destinationcity_{$sequence}_cache_id_output' name="segment[{$sequence}][destinationCity]" value="{$segment[$sequence][destinationcity][ciid]}" disabled/>
 
             </td>
-            <td></td>
         </tr>
-        <tr><td>{$lang->purpose}</td><td>{$segment_purposlist}</td></tr>
-        <tr><td>{$lang->specifyentityaff}</td><td><input type="checkbox" id="specifyaffent_{$sequence}_check"  value="{$sequence}" {$checked['specifyentcheck']}/></td></tr>
-        <tr id="specifyaffent_{$sequence}_block" style="display: none">
-            <td>{$lang->affiliates}</td><td>{$affilate_list}</td>
-            <td>{$lang->entities}</td>
-            <td><input type="text" {$disabled}  id="allentities_{$sequence}_cache_autocomplete" autocomplete="off" tabindex="1" value="{$segment[$sequence][entity][name]}" required="required"/>
-                <input type='hidden' id='allentities_{$sequence}_cache_id'  name="segment[{$sequence}][eid]" value="{$segment[$sequence][entity][eid]}"/>
-                <input type='hidden' id='allentities_{$sequence}_cache_id_output' name="segment[{$sequence}][eid]" value="{$segment[$sequence][entity][eid]}" disabled/>
-
+        <tr><td></td><td>{$lang->internalpurposes}</td><td></td><td>{$lang->externalpurposes}</td></tr>
+        <tr  style="outline: #090 solid thin"><td></td><td>{$internalpurposes_checks}</td><td></td><td>{$extpurposes_checks}</td></tr>
+        <tr style="width:100%;">
+            <td></td>
+            <td style="vertical-align: top;width:20%;">
+                <div style="display: inline-block;width:100%">
+                    <table border="0" cellspacing="1" cellpadding="1" width="100%">
+                        <tbody id="affiliate_{$sequence}_tbody">
+                            {$affiliates_output}
+                        </tbody>
+                        <tr>
+                            <td data-purposes="internal_{$sequence}" {$display_internal} >
+                                <input name="numrows_affiliate" type="hidden" id="numrows_affiliate_{$affrowid}" value="{$affrowid}">
+                                <img src="./images/add.gif" id="ajaxaddmore_travelmanager/plantrip_affiliate_{$sequence}" alt="{$lang->add}">
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </td>
+            <td></td>
+            <td style="vertical-align: top;width:20%;">
+                <div style="display: inline-block;width:100%">
+                    <table border="0" cellspacing="1" cellpadding="1" width="100%">
+                        <tbody id="entities_{$sequence}_tbody">
+                            {$entities}
+                        </tbody>
+                        <tr >
+                            <td data-purposes="external_{$sequence}" {$display_external} >
+                                <input name="numrows_entities" type="hidden" id="numrows_entities_{$entityrowid}" value="{$entityrowid}">
+                                <img src="./images/add.gif" id="ajaxaddmore_travelmanager/plantrip_entities_{$sequence}" alt="{$lang->add}">
+                            </td>
+                        </tr>
+                    </table>
+                </div>
             </td>
         </tr>
         <tr><td>{$lang->considerleisuretourism}</td><td><input type="checkbox" name="segment[{$sequence}][isNoneBusiness]" value="1" {$checked['isNoneBusiness']}/></td></tr>
-        <tr><td>{$lang->reason}</td><td><textarea name="segment[{$sequence}][reason]"  cols="30" rows="3" required="required">{$segment[$sequence][reason_output]}</textarea></td></tr>
+        <tr><td>{$lang->reason}*</td><td><textarea name="segment[{$sequence}][reason]"  cols="30" rows="3" required="required">{$segment[$sequence][reason_output]}</textarea><br/></td></tr>
     </table>
     <div id="content_detailsloader_{$sequence}"></div>
     <div id="content_details_{$sequence}">

@@ -105,7 +105,7 @@ class Travelmanager_Expenses extends AbstractClass {
         $currencies[] = new Currencies(840, true);
         $currencies[] = new Currencies(978, true);
         $currencies = array_unique($currencies);
-        $currencies_list = parse_selectlist('segment['.$sequence.'][expenses]['.$rowid.'][currency]', 4, $currencies, $expensestype[$segid][$rowid][currency]);
+        $currencies_list = parse_selectlist('segment['.$sequence.'][expenses]['.$rowid.'][currency]', '6', $currencies, $expensestype[$segid][$rowid][currency], '', '', array('id' => 'currency_'.$sequence.'_'.$rowid.'_list'));
         eval("\$expenses= \"".$template->get('travelmanager_expenses')."\";");
         return $expenses;
     }

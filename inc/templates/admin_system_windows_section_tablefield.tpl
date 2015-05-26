@@ -26,7 +26,7 @@
                 <tr><td>
                         <div id='addmore_sectionfields_div' {$disable_morerows} >
                             <img src="{$core->settings['rootdir']}/images/add.gif" style="cursor: pointer" id="ajaxaddmore_managesystem/managewindows_fields_{$swstid}" alt="Add">Add more fields
-                            <input type="hidden" name="numrows_fields" id="numrows_fields" value="{$fieldrow_id}" >
+                            <input type="hidden" name="numrows_fields" id="numrows_fields_{$tabnum}" value="{$fieldrow_id}" >
                             <input type="hidden" name="ajaxaddmoredata[swsid]" id="ajaxaddmoredata_fields" value="{$swsid}"/>
                             <input type="hidden" name="ajaxaddmoredata[swstid]" id="ajaxaddmoredata_fields" value="{$tabnum}"/>
                             <input type="hidden" name="moduletype_fields" id="moduletype_fields_{$swstid}" value="manage" >

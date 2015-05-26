@@ -371,8 +371,10 @@ function parse_selectlist($name, $tabindex, $options, $selected_options, $multip
     if(isset($config['width'])) {
         $list_style = 'width: '.$config['width'].';';
     }
-
-    $list .= '<select style="'.$list_style.'" id="'.$id.'" name="'.$name.'" '.$disabled.' size="'.$config['size'].'" tabindex="'.$tabindex.'"'.$required.$multiple.$onchange_actions.'>';
+    if(isset($config['data_attribute'])) {
+        $datattr = $config['data_attribute'].';';
+    }
+    $list .= '<select style="'.$list_style.'" id="'.$id.'" name="'.$name.'" '.$disabled.' size="'.$config['size'].'" tabindex="'.$tabindex.'"'.$required.$multiple.$onchange_actions.$datattr.'>';
     if($config['blankstart'] == true && empty($config['placeholder'])) {
         $list .= '<option></option>';
     }
@@ -455,8 +457,15 @@ function parse_radiobutton($name, $items, $checked_option = '', $display_title =
     return false;
 }
 
-function parse_checkboxes($name, $items, $selected_options = array(), $display_title = true, $title = '', $seperator = '') {
+function parse_checkboxes($name, $items, $selected_options = array(), $display_title = true, $title = '', $seperator = '', $id = '', $tabindex = '') {
     if(is_array($items)) {
+        if(!empty($tabindex)) {
+            $tabindex = 'tabindex='.$tabindex;
+        }
+        $ids = $name.'_'.$key;
+        if(!empty($id)) {
+            $ids = $id;
+        }
         foreach($items as $key => $val) {
             $checked = '';
             if($display_title === false) {
@@ -468,7 +477,7 @@ function parse_checkboxes($name, $items, $selected_options = array(), $display_t
                     $checked = ' checked="checked"';
                 }
             }
-            $checkbox .= '<input name="'.$name.'['.$key.']" id="'.$name.'_'.$key.'" type="checkbox"  title="'.$title.'" value="'.$key.'"'.$checked.'/>'.$val.$seperator;
+            $checkbox .= '<input name="'.$name.'['.$key.']" id="'.$ids.'" type="checkbox" '.$tabindex.' title="'.$title.'" value="'.$key.'"'.$checked.'/>'.$val.$seperator;
         }
         return $checkbox;
     }

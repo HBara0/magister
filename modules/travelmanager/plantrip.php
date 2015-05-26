@@ -43,7 +43,7 @@ if(!$core->input['action']) {
 
         }
         else {
-            $segment['countryleave'] = $leave['coid'];
+            //$segment['countryleave'] = $leave['coid'];
             $segment[$sequence]['fromDate_output'] = date($core->settings['dateformat'], $leave['fromDate']);
             $segment[$sequence]['fromDate_formatted'] = date('d-m-Y', $leave['fromDate']);
             $segment[$sequence]['toDate_output'] = date($core->settings['dateformat'], $leave['toDate']);
@@ -71,10 +71,32 @@ if(!$core->input['action']) {
 //                $cityprofile_output = $descity_obj->parse_cityreviews();
 //                $citybriefings_output = $descity_obj->parse_citybriefing();
 //            }
+            $display_external = $display_intrnal = 'style="display:none"';
             $leave_purposes = LeaveTypesPurposes::get_data(null);
             //$leave_purposes = array($leave_obj->get_purpose()->get()['ltpid'] => $leave_obj->get_purpose()->get()['name']);
-            $segment_purposlist = parse_selectlist('segment['.$sequence.'][purpose][]', 5, $leave_purposes, '', 1, '', array('blankstart' => true));
-
+            if(is_array($leave_purposes)) {
+                foreach($leave_purposes as $leave_purpose) {
+                    if($leave_purpose->category == 'internal') {
+                        $interperp[$leave_purpose->ltpid] = $leave_purpose->title;
+                    }
+                    elseif($leave_purpose->category == 'external') {
+                        $extpurps[$leave_purpose->ltpid] = $leave_purpose->title;
+                    }
+                }
+                if(is_array($extpurps)) {
+                    $extpurposes_checks = parse_checkboxes('segment['.$sequence.'][purpose]', $extpurps, $selectedpurpose, '', 'external purposes', '<br>', 'purposes_checks_external_'.$sequence.'', 1);
+                }
+                if(is_array($interperp)) {
+                    $internalpurposes_checks = parse_checkboxes('segment['.$sequence.'][purpose]', $interperp, $selectedpurpose, '', 'internal purposes', '<br>', 'purposes_checks_internal_'.$sequence.'', 1);
+                }
+            }
+            $affiliates = Affiliates::get_affiliates();
+            $afent_checksum = generate_checksum('affient');
+            $affilate_list = parse_selectlist('segment['.$sequence.'][assign][affid]['.$afent_checksum.']', '1', $affiliates, '', '', '', array('blankstart' => true));
+            $affrowid = $entrowid = 0;
+            eval("\$affiliates_output = \"".$template->get('travelmanager_plantrip_createsegment_affiliates')."\";");
+            $afent_checksum = generate_checksum('affient');
+            eval("\$entities = \"".$template->get('travelmanager_plantrip_createsegment_entities')."\";");
             //   $origincity_obj = $leave_obj->get_sourcecity(false);
             $origintcity = $origincity_obj->get();
             $origintcity['country'] = $origincity_obj->get_country()->get()['name'];
@@ -124,12 +146,14 @@ if(!$core->input['action']) {
 
             $mainaffobj = new Affiliates($core->user['mainaffiliate']);
             $destcity_obj = new Cities($destcity['ciid']);
-            $currencies[] = $destcity_obj->get_country()->get_maincurrency();
+            $dest_country = $destcity_obj->get_country();
+            $destcountry_id = $dest_country->coid;
+            $currencies[] = $dest_country->get_maincurrency();
             $currencies[] = $mainaffobj->get_country()->get_maincurrency();
             $currencies[] = new Currencies(840, true);
             $currencies[] = new Currencies(978, true);
             $currencies = array_unique($currencies);
-            $currencies_list = parse_selectlist('segment['.$sequence.'][tmhid]['.$otherhotel_checksum.'][currency]', 4, $currencies, '840');
+            $currencies_list = parse_selectlist('segment['.$sequence.'][tmhid]['.$otherhotel_checksum.'][currency]', 4, $currencies, '840', '', '', array('id' => 'currency_'.$sequence.'_'.$otherhotel_checksum.'_list'));
             $otherhotel['displaystatus'] = "display:none;";
 
 
@@ -183,67 +207,83 @@ else {
             echo'<div style="color:red;">'.$lang->dateexceeded.'</div>';
             exit;
         }
-        if(strtotime($core->input['toDate']) == strtotime(date('Y-m-d', $leave['toDate'])) && strtotime($core->input['fromDate']) == strtotime(date('Y-m-d', $leave['toDate']))) {
-            echo'<div style="color:red;">'.$lang->dateexceeded.'</div>';
-            exit;
-        }
-        else {
-            /* get prev city name */
-            $city_obj = new Cities($core->input['destcity']);
-            $descitydata = $city_obj->get();
-            /* origin city of the new  segment is destination of previous segment */
-            $segment[$sequence][reason_output] = $segment[$sequence]['reason'];
-            $segment[$sequence]['origincity']['name'] = $descitydata['name'];
-            $segment[$sequence]['origincity']['ciid'] = $descitydata['ciid'];
-            /* Overwrite from date of next segment with  TOdate of prev segment */
-            $segment[$sequence]['toDate_output'] = date($core->settings['dateformat'], ($leave[$sequence]['toDate']));
-            $segment[$sequence]['toDate_formatted'] = date('d-m-Y', ($leave[$sequence]['toDate'])); // leave to date
-            $segment[$sequence]['fromDate_output'] = date($core->settings['dateformat'], strtotime($core->input['toDate']));
-            $segment[$sequence]['fromDate_formatted'] = $core->input['toDate'];
-            //   $leave_purposes = array($leave_obj->get_purpose()->get()['ltpid'] => $leave_obj->get_purpose()->get()['name']);
-            $leave_purposes = LeaveTypesPurposes::get_data('');
-            $segment_purposlist = parse_selectlist('segment['.$sequence.'][purpose][]', 5, $leave_purposes, '', 1, '', array('blankstart' => true));
+//        if(strtotime($core->input['toDate']) == strtotime(date('Y-m-d', $leave['toDate'])) && strtotime($core->input['fromDate']) == strtotime(date('Y-m-d', $leave['toDate']))) {
+//            echo'<div style="color:red;">'.$lang->dateexceeded.'</div>';
+//            exit;
+//        }
+        /* get prev city name */
+        $city_obj = new Cities($core->input['destcity']);
+        $descitydata = $city_obj->get();
+        /* origin city of the new  segment is destination of previous segment */
+        $segment[$sequence][reason_output] = $segment[$sequence]['reason'];
+        $segment[$sequence]['origincity']['name'] = $descitydata['name'];
+        $segment[$sequence]['origincity']['ciid'] = $descitydata['ciid'];
+        /* Overwrite from date of next segment with  TOdate of prev segment */
+        $segment[$sequence]['toDate_output'] = date($core->settings['dateformat'], ($leave[$sequence]['toDate']));
+        $segment[$sequence]['toDate_formatted'] = date('d-m-Y', ($leave[$sequence]['toDate'])); // leave to date
+        $segment[$sequence]['fromDate_output'] = date($core->settings['dateformat'], strtotime($core->input['toDate']));
+        $segment[$sequence]['fromDate_formatted'] = $core->input['toDate'];
+        //   $leave_purposes = array($leave_obj->get_purpose()->get()['ltpid'] => $leave_obj->get_purpose()->get()['name']);
+        $leave_purposes = LeaveTypesPurposes::get_data('');
+        $segment_purposlist = parse_selectlist('segment['.$sequence.'][purpose][]', 5, $leave_purposes, '', 1, '', array('blankstart' => true));
+        $affiliates = Affiliates::get_affiliates();
+        $affilate_list = parse_selectlist('segment['.$sequence.'][affid]', 1, $affiliates, $segmentobj->affid, '', '', array('blankstart' => true));
 
-            /* Popuplate basic information from the leave based on the lid passed via ajax */
+        /* Popuplate basic information from the leave based on the lid passed via ajax */
 
-            $segment['countryleave'] = $leave['coid'];
-            //if($core->input['toDate']) > leavedate
+        //$segment['countryleave'] = $leave['coid'];
+        //if($core->input['toDate']) > leavedate
 // from date todate origin city loaded via js from the prevsegment
-            $disabled = '';
-            /* parse expenses --START */
+        $disabled = '';
+        /* parse expenses --START */
 //            $rowid = 1;
 //            $expensestype_obj = new Travelmanager_Expenses_Types();
 //            $segments_expenses_output = $expensestype_obj->parse_expensesfield($sequence, $rowid);
-            /* parse expenses --END */
+        /* parse expenses --END */
 
-            eval("\$plantrip_createsegment= \"".$template->get('travelmanager_plantrip_createsegment')."\";");
-            output($plantrip_createsegment);
-        }
+        eval("\$plantrip_createsegment= \"".$template->get('travelmanager_plantrip_createsegment')."\";");
+        output($plantrip_createsegment);
     }
     elseif($core->input['action'] == 'populatecontent') {
         $origincityid = $db->escape_string($core->input['origincity']);
         $destcityid = $db->escape_string($core->input['destcity']);
         $sequence = $db->escape_string($core->input['sequence']); /* get the  sequence to differentiate the content of each */
         $otherhotel_checksum = generate_checksum('accomodation');
+        $transp_dispnone = 'style="display:none"';
         $descity_obj = new Cities($destcityid);
         $destcity = $descity_obj->get();
-        $destcity['country'] = $descity_obj->get_country()->get()['name'];
-        $transp_requirements['drivemode'] = 'transit';
-        $transp_requirements['departuretime'] = $db->escape_string(strtotime($core->input['departuretime']));
-        $origincity_obj = new Cities($origincityid);
-        $origintcity = $origincity_obj->get();
-        $origintcity['country'] = $origincity_obj->get_country()->get()['name'];
-        $transpmode_apimaplink = 'https://www.google.com/maps/dir/'.$origintcity['name'].',+'.$origintcity['country'].'/'.$destcity['name'].',+'.$destcity['country'].'/';
-        /* Load proposed transproration */
-        $transp = new TravelManagerPlanTransps();
-        $transsegments_output = Cities::parse_transportations($transp, array('origincity' => $origintcity, 'destcity' => $destcity, 'transprequirements' => $transp_requirements), $sequence);
+        $dest_country = $descity_obj->get_country();
+        $destcountry_id = $dest_country->coid;
+        $destcity['country'] = $dest_country->get()['name'];
+        if(isset($core->input['parsetransp']) && $core->input['parsetransp'] == 1) {
+            $transp_dispnone = '';
+            $transp_requirements['drivemode'] = 'transit';
+            $transp_requirements['departuretime'] = $db->escape_string(strtotime($core->input['departuretime']));
+            $transp_requirements['arrivaltime'] = $db->escape_string(strtotime($core->input['arrivaltime']));
+            $origincity_obj = new Cities($origincityid);
+            $origintcity = $origincity_obj->get();
+            $origintcity['country'] = $origincity_obj->get_country()->get()['name'];
+            $transpmode_apimaplink = 'https://www.google.com/maps/dir/'.$origintcity['name'].',+'.$origintcity['country'].'/'.$destcity['name'].',+'.$destcity['country'].'/';
+            /* Load proposed transproration */
+            $transp = new TravelManagerPlanTransps();
+            $transp_requirements['oneway'] = 0;
+            if(isset($core->input['oneway']) && $core->input['oneway'] == 1) {
+                $transp_requirements['oneway'] = 1;
+            }
+            else if(isset($core->input['roundtrip']) && $core->input['roundtrip'] == 1) {
+                $transp_requirements['oneway'] = 0;
+            }
+            $transsegments_output = Cities::parse_transportations($transp, array('origincity' => $origintcity, 'destcity' => $destcity, 'transprequirements' => $transp_requirements), $sequence);
+        }
         /* load approved hotels */
 
         // $segmentobj = new TravelManagerPlanSegments();
         $segmentobj = TravelManagerPlanSegments::get_data(array('originCity' => $origincityid, 'destinationCity' => $destcityid));
         if(is_object($segmentobj)) {
             $approvedhotels = $segmentobj->get_destinationcity()->get_approvedhotels();
-            $hotelssegments_output = $segmentobj->parse_hotels($sequence, $approvedhotels);
+            if(is_array($approvedhotels)) {
+                $hotelssegments_output = $segmentobj->parse_hotels($sequence, $approvedhotels);
+            }
         }
         else {
             $segmentobj = new TravelManagerPlanSegments();
@@ -373,8 +413,17 @@ else {
                     output_xml("<status>false</status><message> {$lang->errordate} </message>");
                     exit;
                 case 8:
-                    output_xml("<status>false</status><message> {$lang->erroritinerarydate} </message>");
-                    exit;
+                    if(isset($core->input['finalizeplan']) && $core->input['finalizeplan'] == 1) {
+                        output_xml("<status>false</status><message> {$lang->erroritinerarydate} </message>");
+                        exit;
+                    }
+                    output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
+                    break;
+
+                case 9:
+                    $error_output = $errorhandler->get_errors_inline();
+                    output_xml("<status>false</status><message><![CDATA[{$error_output}]]></message>");
+                    break;
             }
         }
     }
@@ -498,6 +547,22 @@ else {
         $finance_checksum = generate_checksum('finance');
         eval("\$finance_output = \"".$template->get('travelmanager_plantrip_segmentfinance')."\";");
         echo $finance_output;
+    }
+    elseif($core->input['action'] == 'ajaxaddmore_affiliate') {
+        $affrowid = $db->escape_string($core->input['value']) + 1;
+        $afent_checksum = generate_checksum('affient');
+        $sequence = $db->escape_string($core->input['id']);
+        $affiliates = Affiliates::get_affiliates();
+        $affilate_list = parse_selectlist('segment['.$sequence.'][assign][affid]['.$affrowid.']', '1', $affiliates, '', '', '', array('blankstart' => true));
+        eval("\$affiliates_output .= \"".$template->get('travelmanager_plantrip_createsegment_affiliates')."\";");
+        echo $affiliates;
+    }
+    elseif($core->input['action'] == 'ajaxaddmore_entities') {
+        $entrowid = $db->escape_string($core->input['value']) + 1;
+        $afent_checksum = generate_checksum('affient');
+        $sequence = $db->escape_string($core->input['id']);
+        eval("\$entities .= \"".$template->get('travelmanager_plantrip_createsegment_entities')."\";");
+        echo $entities;
     }
 }
 ?>

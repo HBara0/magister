@@ -209,6 +209,8 @@ if(!$core->input['action']) {
         $packaging_list = parse_selectlist('marketdata[competitor]['.$rowid.'][packaging]', 7, Packaging::get_data('name IS NOT NULL'), '', '', '', array('blankstart' => 1));
         $saletype_list = parse_selectlist('marketdata[competitor]['.$rowid.'][saletype]', 8, SaleTypes::get_data('stid IN (1,4)'), '', '', '', array('blankstart' => 1));
         $samplacquire = parse_radiobutton('marketdata[competitor]['.$rowid.'][isSampleacquire]', array(1 => 'yes', 0 => 'no'), '', true);
+        $brandprod_rowid = 0;
+        $customer_rowid = 0;
         eval("\$profiles_entityprofile_micustomerentry = \"".$template->get('crm_marketpotentialdata_micustomerentry')."\";");
         $module = 'crm';
         $action = 'do_addmartkerdata';
@@ -307,13 +309,14 @@ else {
     }
     elseif($core->input['action'] == 'get_updatemktintldtls') {
         $css[display]['radiobuttons'] = 'none';
-        $mkdchem_rowid = 0;
-        $mkdbing_rowid = 0;
-        $mkdprod_rowid = 0;
+        $mkdchem_rowid = $core->input['id'];
+        $mkdbing_rowid = $core->input['id'];
+        $mkdprod_rowid = $core->input['id'];
 
         if($core->usergroup['profiles_canAddMkIntlData'] == 0) {
             exit;
         }
+        $brandprod_rowid = $core->input['id'];
         $midata = new MarketIntelligence($core->input['id']);
         $mimorerowsid = $midata->mibdid;
         $customer = $midata->get_customer();
@@ -518,11 +521,11 @@ else {
                 }
                 $createdby = new Users($mi_pastobj->createdBy);
                 $date = date($core->settings['datetime'], $mi_pastobj->createdOn);
-                $comments.="<br>".$createdby->get_displayname()."   ".$date." :<br>".$mi_pastobj->comments;
+                $comments.="<br><br>".$createdby->get_displayname()."   ".$date." :<br>".$mi_pastobj->comments;
             }
         }
         if(!empty($comments)) {
-            $comments = '<td><strong>Past Comments</strong></td><td><div style="width:300px; overflow:auto; height:80px; line-height:20px;">'.$comments.'</div></td>';
+            $comments = '<td><strong>Past Comments</strong></td><td><div style="width:400px; overflow:auto; height:100px; line-height:20px;">'.$comments.'</div></td>';
         }
         $mkintentry_customer = $mkintentry->get_customer();
         $mkintentry_brand = $mkintentry->get_entitiesbrandsproducts()->get_entitybrand();

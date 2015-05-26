@@ -10,10 +10,12 @@
 
 $lang['managereferencelist'] = 'Manage Reference List';
 $lang['name'] = 'Name';
+$lang['windowslist'] = 'Windows List';
 $lang['referencetype'] = 'Reference Type';
 $lang['selecttype'] = 'Select Type';
 $lang['referencelists'] = 'Reference Lists';
 $lang['type'] = 'Type';
+$lang['comment'] = 'Comment';
 $lang['title'] = 'Title';
 $lang['update'] = 'Update';
 $lang['isactive'] = 'Is Active';

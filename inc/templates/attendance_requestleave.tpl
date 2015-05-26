@@ -3,8 +3,8 @@
         <title>{$core->settings[systemtitle]} | {$lang->requestleave}</title>
         {$headerinc}
         <script type="text/javascript">
-            $(function() {
-                $("#uid, #type").change(function() {
+            $(function () {
+                $("#uid, #type").change(function () {
                     if(sharedFunctions.checkSession() == false) {
                         return;
                     }
@@ -12,7 +12,7 @@
                     sharedFunctions.requestAjax("post", "index.php?module=attendance/requestleave&action=getaffiliates", "uid=" + $('#uid').val() + "&ltid=" + $('#type').val(), 'to_inform_fields', 'to_inform_fields', true);
                 });
 
-                $("#type, #pickDate_to").live('change', function() {
+                $("#type, #pickDate_to").live('change', function () {
                     if(sharedFunctions.checkSession() == false) {
                         return;
                     }
@@ -28,13 +28,13 @@
                     sharedFunctions.requestAjax("post", "index.php?module=attendance/requestleave&action=getadditionalfields", "ltid=" + $('#type').val() + "&fromDate=" + $("#altpickDate_from").val() + "&toDate=" + $("#altpickDate_to").val() + "&uid=" + $("#uid").val(), 'additionalfields_output', 'additionalfields_output', true);
                 });
 
-                $("#type").live('change', function() {
+                $("#type").live('change', function () {
                     // sharedFunctions.requestAjax("post", "index.php?module=attendance/{$action}&action=parseexpenses", "ltid=" + $('#type').val() + "&lid=" + $('input[id=lid]').val(), 'leaveexpenses_container', 'leaveexpenses_container', true);
                 });
 
-                $('input[id^=expenses_]').live('blur', function() {
+                $('input[id^=expenses_]').live('blur', function () {
                     var sum = 0;
-                    $('input[id^=expenses_]').each(function() {
+                    $('input[id^=expenses_]').each(function () {
                         sum += Number($(this).val());
                     });
                     $('#expensestotal').val(sum);
@@ -67,7 +67,10 @@
                     <tr><td>&nbsp;</td><td style="font-style:italic;"><span id="leavetime_details">{$lang->betweenhours}</span></td></tr>
                     <tr>
                         <td>{$lang->leavetype}</td>
-                        <td>{$leavetypes_list}&nbsp;<span id="additionalfields_output">{$additional_fields_output}</span></td>
+                        <td>{$leavetypes_list}&nbsp;</td>
+                    </tr>
+                    <tr>
+                        <td></td><td><span id="additionalfields_output">{$additional_fields_output}</span></td>
                     </tr>
                     <tr>
                         <td>{$lang->leavereason}</td>

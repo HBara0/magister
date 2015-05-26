@@ -2257,6 +2257,7 @@ CREATE TABLE `leavetypes` (
   `additionalFields` text,
   `countWith` smallint(5) DEFAULT '0',
   `coexistWith` text,
+  `noteLangVar` varchar(50) NOT NULL,
   PRIMARY KEY (`ltid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=13 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -2267,6 +2268,7 @@ CREATE TABLE `leavetypes_purposes` (
   `ltpid` int(10) NOT NULL AUTO_INCREMENT,
   `name` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
   `title` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `category` varchar(30) COLLATE utf8_unicode_ci NOT NULL,
   `createdBy` int(10) NOT NULL,
   `createdOn` int(10) NOT NULL,
   PRIMARY KEY (`ltpid`)
@@ -2495,6 +2497,31 @@ CREATE TABLE `meetings_minsofmeeting` (
   `modifiedOn` bigint(30) NOT NULL,
   PRIMARY KEY (`momid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `meetings_mom_action_assignees`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `meetings_mom_action_assignees` (
+  `momaaid` int(10) NOT NULL AUTO_INCREMENT,
+  `momaid` int(10) NOT NULL,
+  `repid` int(11) NOT NULL,
+  `uid` int(11) NOT NULL,
+  `inputChecksum` varchar(150) NOT NULL,
+  PRIMARY KEY (`momaaid`)
+) ENGINE=MyISAM AUTO_INCREMENT=145 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `meetings_mom_actions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `meetings_mom_actions` (
+  `momaid` int(10) NOT NULL AUTO_INCREMENT,
+  `momid` int(10) NOT NULL,
+  `isTask` tinyint(1) NOT NULL,
+  `date` bigint(30) NOT NULL,
+  `what` varchar(200) NOT NULL,
+  `inputChecksum` varchar(150) NOT NULL,
+  PRIMARY KEY (`momaid`)
+) ENGINE=MyISAM AUTO_INCREMENT=60 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `meetings_sharedwith`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -3838,6 +3865,7 @@ CREATE TABLE `travelmanager_plan_transps` (
   `fare` float(10,0) NOT NULL,
   `vehicleNumber` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
   `flightNumber` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+  `isMinCost` tinyint(1) NOT NULL,
   `transpDetails` text COLLATE utf8_unicode_ci NOT NULL,
   `agencyName` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
   `numDays` decimal(10,0) NOT NULL,
@@ -3851,15 +3879,26 @@ CREATE TABLE `travelmanager_plan_transps` (
   `modifiedBy` int(10) NOT NULL,
   `currency` int(4) NOT NULL,
   `inputChecksum` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
-  `isRoundTrip` tinyint(1) NOT NULL,
-  `class` int(10) NOT NULL,
+  `isRoundTrip` tinyint(1) NOT NULL DEFAULT '0',
   `stopDescription` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `class` int(10) NOT NULL,
   PRIMARY KEY (`tmpltid`,`tmpsid`,`tmtcid`),
   KEY `tmpltid` (`tmpltid`),
   KEY `tmtcid` (`tmtcid`),
   KEY `tmpltid_2` (`tmpltid`)
-) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `travelmanager_plantrip_affient`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `travelmanager_plantrip_affient` (
+  `tmpsafid` int(10) NOT NULL AUTO_INCREMENT,
+  `inputChecksum` varchar(150) NOT NULL,
+  `tmpsid` int(5) NOT NULL,
+  `type` varchar(30) NOT NULL,
+  `primaryId` int(10) NOT NULL,
+  PRIMARY KEY (`tmpsafid`)
+) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
 DROP TABLE IF EXISTS `travelmanager_transpcategories`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;

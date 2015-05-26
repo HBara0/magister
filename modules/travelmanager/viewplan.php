@@ -112,6 +112,7 @@ else {
                         eval("\$otherapprovedhotels .= \"".$template->get('travelmanager_approvedhotel_row')."\";");
                     }
                     eval("\$transportaionsegment_fields .= \"".$template->get('travelmanager_viewplan_approvedhotels')."\";");
+                    unset($otherapprovedhotels);
                 }
             }
             if(!empty($transportaionsegment_fields)) {
@@ -167,9 +168,9 @@ else {
                 $db->update_query(TravelManagerPlan::TABLE_NAME, array('isFinalized' => 1), TravelManagerPlan::PRIMARY_KEY.'='.$core->input['planid']);
                 $url = 'index.php?module=travelmanager/viewplan&id='.$core->input['planid'].'&action=email';
                 header('Content-type: text/xml+javascript');
-                output_xml('<status>true</status><message><![CDATA[<script>goToURL(\''.$url.'\');</script>]]></message>');
+                output_xml('<status>true</status><message>'.$lang->successfullysaved.'<![CDATA[<script>goToURL(\''.$url.'\');</script>]]></message>');
 
-                // output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
+                // output_xml("<status>true</status><message></message>");
                 break;
             case 1:
                 output_xml("<status>false</status><message>{$lang->planexist}</message>");
