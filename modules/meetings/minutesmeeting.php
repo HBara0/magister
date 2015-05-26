@@ -84,7 +84,7 @@ if(!$core->input['action']) {
                 $arowid++;
             }
             $headerclass = 'thead';
-            $title = $lang->specificactions;
+            $title = $lang->specificfollowactions;
             eval("\$actions .= \"".$template->get('meetings_mom_actions')."\";");
         }
         else {
