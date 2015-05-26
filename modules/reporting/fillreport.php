@@ -708,13 +708,16 @@ else {
             $one_notexcluded = true;
         }
 
-        if($found_one == true || $one_notexcluded == false) {
-            output_xml("<status>false</status><message>{$lang->fillonemktreportsection}</message>");
-            exit;
-        }
+//        if($found_one == true || $one_notexcluded == false) {
+//            output_xml("<status>false</status><message>{$lang->fillonemktreportsection}</message>");
+//            exit;
+//        }
 
         $report_meta = unserialize($session->get_phpsession('reportmeta_'.$identifier));
 
+        if(!is_array($marketreport_data)) {
+            exit;
+        }
         foreach($marketreport_data as $val) {
             foreach($val as $k => $v) {
                 $val[$k] = $core->sanitize_inputs(trim($v), array('method' => 'striponly', 'allowable_tags' => '<table><tbody><tr><td><th><thead><tfoot><span><div><a><br><p><b><i><del><strike><img><blockquote><mark><cite><small><ul><ol><li><hr><dl><dt><dd><sup><sub><big><pre><figure><figcaption><strong><em><h1><h2><h3><h4><h5><h6>', 'removetags' => true));
@@ -962,10 +965,10 @@ else {
                 unset($rawdata['marketreportdata'][$key]);
             }
 
-            if($marketreport_found_one == true) {
-                output_xml("<status>false</status><message>{$lang->incompletemarketreport}</message>");
-                exit;
-            }
+//            if($marketreport_found_one == true) {
+//                output_xml("<status>false</status><message>{$lang->incompletemarketreport}</message>");
+//                exit;
+//            }
         }
         //$rawdata['marketreportdata']['rid'] = $rawdata['rid'];
         if(is_array($rawdata['marketreportdata']) && !empty($rawdata['marketreportdata'])) {
@@ -998,8 +1001,8 @@ else {
             }
         }
         else {
-            output_xml("<status>false</status><message>{$lang->incompletemarketreport}</message>");
-            exit;
+//            output_xml("<status>false</status><message>{$lang->incompletemarketreport}</message>");
+//            exit;
         }
 
         if($core->input['savetype'] == 'finalize') {
