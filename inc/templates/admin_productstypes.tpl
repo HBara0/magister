@@ -3,16 +3,17 @@
         <title>{$core->settings[systemtitle]} | {$lang->listavailabletypes}</title>
         {$headerinc}
         <script>
-            $(function() {
-                $("input[id='endproductypes_0_autocomplete']").live('blur', function() {
+            $(function () {
+                $("input[id^='endproductypes_'][id$='_autocomplete']").live('blur', function () {
+                    var id = $(this).attr('id').split('_');
                     if($(this).val() == '') {
-                        $("select[id='productypes_segapplications']").removeAttr('disabled');
+                        $("select[id='productypes_" + id[1] + "_segapplications']").removeAttr('disabled');
 
                     }
                     else {
-                        $("select[id='productypes_segapplications'] option:selected").attr("selected", null);
-                        $("select[id='productypes_segapplications'] option[value='0']").attr("selected", "selected");
-                        $("select[id='productypes_segapplications']").attr('disabled', true);
+                        $("select[id='productypes_" + id[1] + "_segapplications'] option:selected").attr("selected", null);
+                        $("select[id='productypes_" + id[1] + "_segapplications'] option[value='0']").attr("selected", "selected");
+                        $("select[id='productypes_" + id[1] + "_segapplications']").attr('disabled', true);
                     }
                 });
             });
@@ -68,7 +69,7 @@
                 </td>
             </tr>
             <tr>
-                <td><strong>{$lang->applications}</strong></td><td><select name="productypes[segapplications]" id="productypes_segapplications">{$applications_list}</select></td>
+                <td><strong>{$lang->applications}</strong></td><td><select name="productypes[segapplications]" id="productypes_0_segapplications">{$applications_list}</select></td>
             </tr>
             <tr>
                 <td colspan="2" align="left">
