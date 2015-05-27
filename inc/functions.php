@@ -457,14 +457,13 @@ function parse_radiobutton($name, $items, $checked_option = '', $display_title =
     return false;
 }
 
-function parse_checkboxes($name, $items, $selected_options = array(), $display_title = true, $title = '', $seperator = '', $id = '', $tabindex = '') {
+function parse_checkboxes($name, $items, $selected_options = array(), $display_title = true, $title = '', $seperator = '', $ide = '', $tabindex = '') {
     if(is_array($items)) {
         if(!empty($tabindex)) {
             $tabindex = 'tabindex='.$tabindex;
         }
-        $ids = $name.'_'.$key;
-        if(!empty($id)) {
-            $ids = $id;
+        if(!empty($ide)) {
+            $ids = $ide;
         }
         foreach($items as $key => $val) {
             $checked = '';
@@ -477,7 +476,13 @@ function parse_checkboxes($name, $items, $selected_options = array(), $display_t
                     $checked = ' checked="checked"';
                 }
             }
-            $checkbox .= '<input name="'.$name.'['.$key.']" id="'.$ids.'" type="checkbox" '.$tabindex.' title="'.$title.'" value="'.$key.'"'.$checked.'/>'.$val.$seperator;
+            if(isset($ids) && !empty($ids)) {
+                $id = $ids;
+            }
+            else {
+                $id = $name.'_'.$key;
+            }
+            $checkbox .= '<input name="'.$name.'['.$key.']" id="'.$id.'" type="checkbox" '.$tabindex.' title="'.$title.'" value="'.$key.'"'.$checked.'/>'.$val.$seperator;
         }
         return $checkbox;
     }
