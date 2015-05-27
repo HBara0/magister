@@ -67,4 +67,16 @@ elseif($core->input['action'] == 'do_create') {
             break;
     }
 }
+elseif($core->input['action'] == 'get_editendprod') {
+    $endprod_obj = new EndProducTypes($db->escape_string($core->input['id']));
+    $endprod = $endprod_obj->get();
+    if(!empty($endprod['parent'])) {
+        $parent_obj = new EndProducTypes($endprod['parent']);
+        if(is_object($parent_obj)) {
+            $parent = $parent_obj->get();
+        }
+    }
+    eval("\$editpopup=\"".$template->get('popup_editendproducttypes')."\";");
+    output($editpopup);
+}
 ?>
