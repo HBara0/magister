@@ -21,7 +21,7 @@ class EndProducTypes extends AbstractClass {
     const DISPLAY_NAME = 'title';
     const SIMPLEQ_ATTRS = 'eptid, name, title, psaid, parent';
     const CLASSNAME = __CLASS__;
-    const UNIQUE_ATTRS = 'parent,title';
+    const UNIQUE_ATTRS = 'parent,name';
 
     public function __construct($id = '', $simple = true) {
         parent::__construct($id, $simple);

@@ -53,7 +53,7 @@ class Chemicalsubstances extends AbstractClass {
             if(value_exists('chemicalsubstances', 'casNum', $data['casNum']) && value_exists('chemicalsubstances', 'name', $data['name'])) {
                 $field = 'casNum, name';
             }
-            $errorhandler->record($lang->chemicalexsist.'<br/>', $field);
+            $errorhandler->record('entryexists', $field);
             return false;
         }
         $chemical_data = array(

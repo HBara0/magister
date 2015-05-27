@@ -50,6 +50,7 @@ if(!$core->input['action']) {
 }
 elseif($core->input['action'] == 'do_create') {
     $endprod_obj = new EndProducTypes();
+    $core->input['productypes']['name'] = generate_alias($core->input['productypes']['title']);
     $endprod_obj->set($core->input['productypes']);
     $endprod_obj = $endprod_obj->save();
     switch($endprod_obj->get_errorcode()) {

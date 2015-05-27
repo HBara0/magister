@@ -45,8 +45,11 @@ class CmsMenuItems extends AbstractClass {
         );
 
         /* validate configuration against set of defined configuratons */
-        $accepted_configurations = array('webpage' => array('webpage' => 'webpage'), 'singlesegment' => array('singlesegment' => 'singlesegment'), 'newsarchive' => array('newsarchive' => 'newsarchive'), 'eventsarchive' => array('eventsarchive' => 'eventsarchive'), 'listnews' => array('listnews' => 'listnews'), 'branchprofile' => array('branchprofile' => 'branchprofile'), 'affiliate' => array('affiliate'), 'externalurl' => array('link', 'linktitle', 'linkimage'), 'contact' => array('contact'));
+        $accepted_configurations = array('webpage' => array('webpage' => 'webpage'), 'singlesegmentcategory' => array('singlesegmentcategory' => 'singlesegmentcategory'), 'singlesegment' => array('singlesegment' => 'singlesegment'), 'newsarchive' => array('newsarchive' => 'newsarchive'), 'eventsarchive' => array('eventsarchive' => 'eventsarchive'), 'listnews' => array('listnews' => 'listnews'), 'branchprofile' => array('branchprofile' => 'branchprofile'), 'affiliate' => array('affiliate'), 'externalurl' => array('link', 'linktitle', 'linkimage'), 'contact' => array('contact'));
         foreach($accepted_configurations as $key => $val) {
+            if(empty($data['type'])) {
+                break;
+            }
             if(!empty($data['configurations'][$key])) {
                 if(is_array($data['configurations'][$key])) {
                     if(!array_filter($data['configurations'][$key])) {
@@ -73,8 +76,11 @@ class CmsMenuItems extends AbstractClass {
         }
 
         /* validate configuration against set of defined configuratons */
-        $accepted_configurations = array('webpage' => array('webpage' => 'webpage'), 'singlesegment' => array('singlesegment' => 'singlesegment'), 'newsarchive' => array('newsarchive' => 'newsarchive'), 'eventsarchive' => array('eventsarchive' => 'eventsarchive'), 'listnews' => array('listnews' => 'listnews'), 'branchprofile' => array('branchprofile' => 'branchprofile'), 'affiliate' => array('affiliate'), 'externalurl' => array('link', 'linktitle', 'linkimage'), 'contact' => array('contact'));
+        $accepted_configurations = array('webpage' => array('webpage' => 'webpage'), 'singlesegmentcategory' => array('singlesegmentcategory' => 'singlesegmentcategory'), 'singlesegment' => array('singlesegment' => 'singlesegment'), 'newsarchive' => array('newsarchive' => 'newsarchive'), 'eventsarchive' => array('eventsarchive' => 'eventsarchive'), 'listnews' => array('listnews' => 'listnews'), 'branchprofile' => array('branchprofile' => 'branchprofile'), 'affiliate' => array('affiliate'), 'externalurl' => array('link', 'linktitle', 'linkimage'), 'contact' => array('contact'));
         foreach($accepted_configurations as $key => $val) {
+            if(empty($menuitem_array['type'])) {
+                break;
+            }
             if(!empty($menuitem_array['configurations'][$key])) {
                 if(is_array($menuitem_array['configurations'][$key])) {
                     if(!array_filter($menuitem_array['configurations'][$key])) {

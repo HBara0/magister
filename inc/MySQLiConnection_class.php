@@ -303,6 +303,19 @@ class MySQLiConnection {
         return $total;
     }
 
+    /**
+     * Checks if a MySQL function exists
+     * @param string $functionname
+     * @return boolean
+     */
+    public function function_exists($functionname) {
+        $query = $this->query('SHOW FUNCTION STATUS WHERE name="'.$this->escape_string($functionname).'"');
+        if($this->num_rows($query) > 0) {
+            return true;
+        }
+        return false;
+    }
+
     public function __sleep() {
         return array('hostname', 'username', 'password', 'db');
     }

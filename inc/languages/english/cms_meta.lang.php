@@ -62,7 +62,9 @@ $lang['externalurl'] = "External Link";
 $lang['contact'] = "Contact Page";
 $lang['jobs'] = "Job Opportunities";
 $lang['listsegments'] = "Segments List";
+$lang['listsegmentcats'] = "Segment Categories List";
 $lang['segment'] = "Single Segment Page";
+$lang['segmentcategory'] = "Segment Category";
 $lang['listnews'] = "List of News";
 $lang['listevents'] = "List of events";
 $lang['newsarchive'] = "News Archive ";
@@ -111,3 +113,5 @@ $lang['fromdate'] = 'From Date';
 $lang['fromtime'] = 'From Time';
 $lang['todate'] = 'To Date';
 $lang['totime'] = 'To Time';
+$lang['sequence'] = 'Sequence';
+?>
