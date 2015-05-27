@@ -153,8 +153,7 @@ class TravelManagerPlanSegments extends AbstractClass {
         }
 
         if(isset($segmentdata['tmhid'])) {
-            $leave_obj = $this->get_plan()->get_leave();
-            $leavedays = abs($leave_obj->toDate - $leave_obj->fromDate);
+            $leavedays = abs($segmentdata['toDate'] - $segmentdata['fromDate']);
             $leavedays = floor($leavedays / (60 * 60 * 24));
             foreach($segmentdata['tmhid'] as $checksum => $hotel) {
 //                if(!empty($checksum)) {
@@ -353,8 +352,8 @@ class TravelManagerPlanSegments extends AbstractClass {
             $segment_hotels['tmhid'] = $segmentdata['tmhid'];
             if(is_array($segment_hotels['tmhid'])) {
 
-                $leave_obj = $this->get_plan()->get_leave();
-                $leavedays = abs($leave_obj->toDate - $leave_obj->fromDate);
+                // $leave_obj = $this->get_plan()->get_leave();
+                $leavedays = abs($segmentdata['toDate'] - $segmentdata['fromDate']);
                 $leavedays = floor($leavedays / (60 * 60 * 24));
 
                 $validate_fields = array('priceNight', 'numNights', 'currency');
@@ -826,8 +825,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                 $currencies = array_unique($currencies);
                 $currencies_list = parse_selectlist('segment['.$sequence.'][tmhid]['.$checksum.'][currency]', '3', $currencies, $rescurrency_id, '', '', array('id' => 'currency_'.$sequence.'_'.$checksum.'_list'));
 
-                $leave_obj = $this->get_plan()->get_leave();
-                $leavedays = abs($leave_obj->toDate - $leave_obj->fromDate);
+                $leavedays = abs($this->toDate - $this->fromDate);
                 $leavedays = floor($leavedays / (60 * 60 * 24));
 
                 eval("\$hotelssegments_output  .= \"".$template->get('travelmanager_plantrip_segment_hotels')."\";");
