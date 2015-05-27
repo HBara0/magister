@@ -223,11 +223,31 @@ else {
         $segment[$sequence]['toDate_formatted'] = date('d-m-Y', ($leave[$sequence]['toDate'])); // leave to date
         $segment[$sequence]['fromDate_output'] = date($core->settings['dateformat'], strtotime($core->input['toDate']));
         $segment[$sequence]['fromDate_formatted'] = $core->input['toDate'];
-        //   $leave_purposes = array($leave_obj->get_purpose()->get()['ltpid'] => $leave_obj->get_purpose()->get()['name']);
-        $leave_purposes = LeaveTypesPurposes::get_data('');
-        $segment_purposlist = parse_selectlist('segment['.$sequence.'][purpose][]', 5, $leave_purposes, '', 1, '', array('blankstart' => true));
+        $leave_purposes = LeaveTypesPurposes::get_data(null);
+        $display_external = $display_intrnal = 'style="display:none"';
+        if(is_array($leave_purposes)) {
+            foreach($leave_purposes as $leave_purpose) {
+                if($leave_purpose->category == 'internal') {
+                    $interperp[$leave_purpose->ltpid] = $leave_purpose->title;
+                }
+                elseif($leave_purpose->category == 'external') {
+                    $extpurps[$leave_purpose->ltpid] = $leave_purpose->title;
+                }
+            }
+            if(is_array($extpurps)) {
+                $extpurposes_checks = parse_checkboxes('segment['.$sequence.'][purpose]', $extpurps, $selectedpurpose, '', 'external purposes', '<br>', 'purposes_checks_external_'.$sequence.'', 1);
+            }
+            if(is_array($interperp)) {
+                $internalpurposes_checks = parse_checkboxes('segment['.$sequence.'][purpose]', $interperp, $selectedpurpose, '', 'internal purposes', '<br>', 'purposes_checks_internal_'.$sequence.'', 1);
+            }
+        }
         $affiliates = Affiliates::get_affiliates();
-        $affilate_list = parse_selectlist('segment['.$sequence.'][affid]', 1, $affiliates, $segmentobj->affid, '', '', array('blankstart' => true));
+        $afent_checksum = generate_checksum('affient');
+        $affilate_list = parse_selectlist('segment['.$sequence.'][assign][affid]['.$afent_checksum.']', '1', $affiliates, '', '', '', array('blankstart' => true));
+        $affrowid = $entrowid = 0;
+        eval("\$affiliates_output = \"".$template->get('travelmanager_plantrip_createsegment_affiliates')."\";");
+        $afent_checksum = generate_checksum('affient');
+        eval("\$entities = \"".$template->get('travelmanager_plantrip_createsegment_entities')."\";");
 
         /* Popuplate basic information from the leave based on the lid passed via ajax */
 
