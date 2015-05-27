@@ -983,7 +983,6 @@ $(function () {
     });
     $("[data-reqparent^='children-']").live('change', function () {
         var children = $(this).attr('data-reqparent').split('-');
-        alert(1);
         if(children.length > 1) {
             if($(this).val().length < 1) {
                 for(i = 1; i < children.length; i++) {
@@ -994,6 +993,13 @@ $(function () {
                 for(i = 1; i < children.length; i++) {
                     $('#' + children[i] + '').attr("required", true);
                 }
+            }
+        }
+    });
+    $('input[type="number"]').live('keyup', function () {
+        if($(this).attr('max').length > 0) {
+            if(parseInt($(this).val(), 10) > parseInt($(this).attr('max'), 10)) {
+                $(this).val($(this).attr('max'));
             }
         }
     });
