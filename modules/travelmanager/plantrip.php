@@ -286,11 +286,8 @@ else {
             $transpmode_apimaplink = 'https://www.google.com/maps/dir/'.$origintcity['name'].',+'.$origintcity['country'].'/'.$destcity['name'].',+'.$destcity['country'].'/';
             /* Load proposed transproration */
             $transp = new TravelManagerPlanTransps();
-            $transp_requirements['oneway'] = 0;
-            if(isset($core->input['oneway']) && $core->input['oneway'] == 1) {
-                $transp_requirements['oneway'] = 1;
-            }
-            else if(isset($core->input['roundtrip']) && $core->input['roundtrip'] == 1) {
+            $transp_requirements['oneway'] = 1;
+            if(isset($core->input['transp']) && $core->input['transp'] == 1) {
                 $transp_requirements['oneway'] = 0;
             }
             $transsegments_output = Cities::parse_transportations($transp, array('origincity' => $origintcity, 'destcity' => $destcity, 'transprequirements' => $transp_requirements), $sequence);
