@@ -66,8 +66,8 @@ class TravelManagerPlan {
 //key = '.$core->settings['googleapikey'].' &
 
         $googledirection_api = 'http://maps.googleapis.com/maps/api/directions/json?origin='.$directiondata['origincity']['name'].',+'.$directiondata['origincity']['country'].'&destination='.$directiondata['destcity']['name'].',+'.$directiondata['destcity']['country'].'&sensor=false&mode='.$directiondata['drivemode'].'&units=metric&departure_time='.$directiondata['departuretime'];
-        $json = file_get_contents($googledirection_api);
-        $data = json_decode($json);
+        //  $json = file_get_contents($googledirection_api);
+        //  $data = json_decode($json);
         return $data;
     }
 
