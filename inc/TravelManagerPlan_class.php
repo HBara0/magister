@@ -641,14 +641,26 @@ class TravelManagerPlan {
 //            }
 
             $city_obj = new Cities($segmentobj->get_destinationcity()->ciid);
-            $approvedhotels = $segmentobj->get_destinationcity()->get_approvedhotels();
+            $counrty_obj = $city_obj->get_country();
+            //$othercities = $counrty_obj->get_cities($city_obj->ciid);
+            if(is_array($othercities)) {
+                $otherapprovedhotels[] = '';
+                foreach($othercities as $othrcity) {
+                    $cityapprhotels = $othrcity->get_approvedhotels();
+                    if(!is_array($cityapprhotels)) {
+                        continue;
+                    }
+                    $otherapprovedhotels = array_merge($otherapprovedhotels, $cityapprhotels);
+                }
+            }
+            $approvedhotels = $city_obj->get_approvedhotels();
             if(is_array($approvedhotels)) {
                 $hotelssegments_output = '<h2><small>Approved Hotels</small></h2>';
             }
             if(empty($approvedhotels)) {
                 $approvedhotels = array();
             }
-            $hotelssegments_output .= $segmentobj->parse_hotels($sequence, $approvedhotels);
+            $hotelssegments_output .= $segmentobj->parse_hotels($sequence, $approvedhotels, $otherapprovedhotels);
             $hotelssegments_output .= '<br /><h2><small>Other Possible Hotels</small></h2>';
             $otherhotels = TravelManagerHotels::get_data(array('city' => $segmentobj->get_destinationcity()->get_id(), 'tmhid' => '(SELECT tmhid FROM '.TravelManagerPlanaccomodations::TABLE_NAME.' WHERE '.TravelManagerPlanSegments::PRIMARY_KEY.' = '.$segmentobj->get_id().')', 'isApproved' => 0), array('returnarray' => true, 'operators' => array('tmhid' => 'IN')));
             if(is_array($otherhotels)) {
@@ -680,6 +692,8 @@ $("#anotheraff_otheraccomodations_'.$sequence.'_'.$otherhotel_checksum.'").hide(
             $currencies[] = new Currencies(978, true);
             $currencies = array_unique($currencies);
             $currencies_list = parse_selectlist('segment['.$sequence.'][tmhid]['.$otherhotel_checksum.'][currency]', '3', $currencies, '840', '', '', array('id' => 'currency_'.$sequence.'_'.$otherhotel_checksum.'_list'));
+            $leavedays = abs($segmentobj->toDate - $segmentobj->fromDate);
+            $leavedays = floor($leavedays / (60 * 60 * 24));
             eval("\$otherhotels_output = \"".$template->get('travelmanager_plantrip_segment_otherhotels')."\";");
             /* parse expenses --START */
             $segexpenses_ojbs = $segmentobj->get_expenses(array('simple' => false, 'returnarray' => true, 'order' => array('by' => 'tmeid', 'sort' => 'ASC')));

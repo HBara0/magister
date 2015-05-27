@@ -1,7 +1,7 @@
 <div style="display:block;" >
     <h2 class="subtitle">Possible Transportations</h2>
-    <div style="display: block">{$lang->oneway}<input type="checkbox" value="1" name="segment[{$sequence}][oneway]" id="oneway_lookuptransps_{$sequence}"/>
-        {$lang->roundtrip}<input type="checkbox" value="1" name="segment[{$sequence}][roundtrip]" id="roundtrip_lookuptransps_{$sequence}"/><br/><br/>
+    <div style="display: block">{$lang->oneway}<input type="radio" value="2" name="segment[{$sequence}][transp]" id="transp_lookuptransps_{$sequence}"/>
+        {$lang->roundtrip}<input type="radio" value="1" name="segment[{$sequence}][transp]" id="transp_lookuptransps_{$sequence}"/><br/><br/>
         <input type="button" class="button" value="{$lang->lookuptransps}" id="lookuptransps_{$sequence}"/>
     </div>
     <!--able width="100%" cellspacing="0" cellpadding="0" style="margin-left: 8px;" class="datatable">
