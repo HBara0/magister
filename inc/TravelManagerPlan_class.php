@@ -528,7 +528,7 @@ class TravelManagerPlan {
             if(isset($segmentobj->isNoneBusiness) && !empty($segmentobj->isNoneBusiness)) {
                 $checked['isNoneBusiness'] = ' checked = "checked"';
             }
-            $display_external = $display_intrnal = 'style="display:none"';
+            $display_external = $display_internal = 'style="display:none"';
             $segmentpurposes = TravelManagerPlanSegPurposes::get_data(array('tmpsid' => $segmentobj->tmpsid), array('returnarray' => true, 'simple' => false));
             if(is_array($segmentpurposes)) {
                 foreach($segmentpurposes as $segmentpurpose) {
@@ -542,14 +542,7 @@ class TravelManagerPlan {
                     }
                     unset($purpose);
                 }
-                $affiliates = Affiliates::get_affiliates();
-                $afent_checksum = generate_checksum('affient');
-                $affilate_list = parse_selectlist('segment['.$sequence.'][assign][affid]['.$afent_checksum.']', '1', $affiliates, '', '', '', array('blankstart' => true));
-                $affrowid = $entrowid = 0;
-                eval("\$affiliates_output = \"".$template->get('travelmanager_plantrip_createsegment_affiliates')."\";");
-                $afent_checksum = generate_checksum('affient');
-                eval("\$entities = \"".$template->get('travelmanager_plantrip_createsegment_entities')."\";");
-                unset($afent_checksum);
+
                 $affient_objs = TravelManagerPlanAffient::get_data(array('tmpsid' => $segmentobj->tmpsid), array('returnarray' => true));
                 if(is_array($affient_objs)) {
                     $affrowid = $entrowid = 1;
@@ -589,6 +582,14 @@ class TravelManagerPlan {
                     $internalpurposes_checks = parse_checkboxes('segment['.$sequence.'][purpose]', $interperp, $selectedpurpose, '', 'internal purposes', '<br>', 'purposes_checks_internal_'.$sequence.'', 1);
                 }
             }
+            $affiliates = Affiliates::get_affiliates();
+            $afent_checksum = generate_checksum('affient');
+            $affilate_list = parse_selectlist('segment['.$sequence.'][assign][affid]['.$afent_checksum.']', '1', $affiliates, '', '', '', array('blankstart' => true));
+            $affrowid = $entrowid = 0;
+            eval("\$affiliates_output = \"".$template->get('travelmanager_plantrip_createsegment_affiliates')."\";");
+            $afent_checksum = generate_checksum('affient');
+            eval("\$entities = \"".$template->get('travelmanager_plantrip_createsegment_entities')."\";");
+            unset($afent_checksum);
             unset($selectedpurpose);
             //get transp cat send to  parse_transportaionfields
 //            $transportation_obj = $segmentobj->get_transportationscat();
