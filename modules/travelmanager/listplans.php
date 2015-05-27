@@ -26,7 +26,7 @@ if(!$core->input['action']) {
                     )
             ),
             'process' => array(
-                    'createdOn' => 'createdOn',
+                    'filterKey' => 'createdOn',
                     'mainTable' => array(
                             'name' => 'travelmanager_plan',
                             'filters' => array('createdOn' => array('operatorType' => 'date', 'name' => 'createdOn')),

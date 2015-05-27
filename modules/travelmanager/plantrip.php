@@ -71,7 +71,7 @@ if(!$core->input['action']) {
 //                $cityprofile_output = $descity_obj->parse_cityreviews();
 //                $citybriefings_output = $descity_obj->parse_citybriefing();
 //            }
-            $display_external = $display_intrnal = 'style="display:none"';
+            $display_external = $display_internal = 'style="display:none"';
             $leave_purposes = LeaveTypesPurposes::get_data(null);
             //$leave_purposes = array($leave_obj->get_purpose()->get()['ltpid'] => $leave_obj->get_purpose()->get()['name']);
             if(is_array($leave_purposes)) {
@@ -224,7 +224,7 @@ else {
         $segment[$sequence]['fromDate_output'] = date($core->settings['dateformat'], strtotime($core->input['toDate']));
         $segment[$sequence]['fromDate_formatted'] = $core->input['toDate'];
         $leave_purposes = LeaveTypesPurposes::get_data(null);
-        $display_external = $display_intrnal = 'style="display:none"';
+        $display_external = $display_internal = 'style="display:none"';
         if(is_array($leave_purposes)) {
             foreach($leave_purposes as $leave_purpose) {
                 if($leave_purpose->category == 'internal') {
@@ -572,7 +572,7 @@ else {
         $affiliates = Affiliates::get_affiliates();
         $affilate_list = parse_selectlist('segment['.$sequence.'][assign][affid]['.$affrowid.']', '1', $affiliates, '', '', '', array('blankstart' => true));
         eval("\$affiliates_output .= \"".$template->get('travelmanager_plantrip_createsegment_affiliates')."\";");
-        echo $affiliates;
+        echo $affiliates_output;
     }
     elseif($core->input['action'] == 'ajaxaddmore_entities') {
         $entrowid = $db->escape_string($core->input['value']) + 1;
