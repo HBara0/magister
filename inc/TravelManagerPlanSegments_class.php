@@ -766,7 +766,7 @@ class TravelManagerPlanSegments extends AbstractClass {
         }
     }
 
-    public function parse_hotels($sequence, array $hotels) {
+    public function parse_hotels($sequence, array $hotels, $countryhotels = '') {
         global $template, $lang, $core;
 
         if(is_array($hotels)) {
@@ -825,9 +825,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                 $currencies[] = new Currencies(978, true);
                 $currencies = array_unique($currencies);
                 $currencies_list = parse_selectlist('segment['.$sequence.'][tmhid]['.$checksum.'][currency]', '3', $currencies, $rescurrency_id, '', '', array('id' => 'currency_'.$sequence.'_'.$checksum.'_list'));
-
-                $leave_obj = $this->get_plan()->get_leave();
-                $leavedays = abs($leave_obj->toDate - $leave_obj->fromDate);
+                $leavedays = abs($this->toDate - $this->fromDate);
                 $leavedays = floor($leavedays / (60 * 60 * 24));
 
                 eval("\$hotelssegments_output  .= \"".$template->get('travelmanager_plantrip_segment_hotels')."\";");
