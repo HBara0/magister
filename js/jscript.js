@@ -996,6 +996,13 @@ $(function() {
             }
         }
     });
+    $('input[type="number"]').live('keyup', function () {
+        if($(this).attr('max').length > 0) {
+            if(parseInt($(this).val(), 10) > parseInt($(this).attr('max'), 10)) {
+                $(this).val($(this).attr('max'));
+            }
+        }
+    });
 }
 );
 function validateEmail(email) {
