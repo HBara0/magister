@@ -586,9 +586,9 @@ class TravelManagerPlan {
             $afent_checksum = generate_checksum('affient');
             $affilate_list = parse_selectlist('segment['.$sequence.'][assign][affid]['.$afent_checksum.']', '1', $affiliates, '', '', '', array('blankstart' => true));
             $affrowid = $entrowid = 0;
-            eval("\$affiliates_output = \"".$template->get('travelmanager_plantrip_createsegment_affiliates')."\";");
+            eval("\$affiliates_output .= \"".$template->get('travelmanager_plantrip_createsegment_affiliates')."\";");
             $afent_checksum = generate_checksum('affient');
-            eval("\$entities = \"".$template->get('travelmanager_plantrip_createsegment_entities')."\";");
+            eval("\$entities.= \"".$template->get('travelmanager_plantrip_createsegment_entities')."\";");
             unset($afent_checksum);
             unset($selectedpurpose);
             //get transp cat send to  parse_transportaionfields
