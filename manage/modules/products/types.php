@@ -63,6 +63,9 @@ elseif($core->input['action'] == 'do_create') {
         case 2:
             output_xml('<status>false</status><message>Fill All Required Fields</message>');
             break;
+        case 3:
+            output_xml("<status>false</status><message>{$lang->cannotdeleteentry}</message>");
+            break;
         case 5:
             output_xml('<status>true</status><message>Entry Has Been Updated</message>');
             break;
@@ -108,6 +111,23 @@ elseif($core->input['action'] == 'edit_endproduct') {
             break;
         case 5:
             output_xml('<status>true</status><message>Entry Has Been Updated</message>');
+            break;
+    }
+}
+elseif($core->input['action'] == 'get_deleteendproducttype') {
+    $id = $core->input['id'];
+    eval("\$deleteendprodtype = \"".$template->get('popup_deleteendproducttype')."\";");
+    output_page($deleteendprodtype);
+}
+elseif($core->input['action'] == 'delete_endproducttype') {
+    $endprod_obj = new EndProducTypes($core->input['todelete']);
+    $endprod_obj = $endprod_obj->delete_endproducttype();
+    switch($endprod_obj->get_errorcode()) {
+        case 0:
+            output_xml('<status>true</status><message>'.$lang->successfullysaved.'</message>');
+            break;
+        case 3:
+            output_xml("<status>false</status><message>".$lang->cannotdeleteentry."</message>");
             break;
     }
 }
