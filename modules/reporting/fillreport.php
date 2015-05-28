@@ -288,6 +288,23 @@ if(!$core->input['action']) {
 
         $report_meta = unserialize($session->get_phpsession('reportmeta_'.$identifier));
 
+
+        $meetingsassociations = MeetingsAssociations::get_data(array('id' => $reportmeta[spid], 'idAttr' => 'spid'), array('returnarray' => true));
+        if(is_array($meetingsassociations)) {
+            foreach($meetingsassociations as $meetingassociaion) {
+                $x = $meetingassociaion->mtid;
+                $meeting = new Meetings($meetingassociaion->mtid);
+                if(is_object($meeting)) {
+                    $mom_obj = $meeting->get_mom();
+                    if(is_object($mom_obj)) {
+                        $mom_followupactions .= $mom_obj->parse_actions();
+                    }
+                }
+            }
+        }
+
+
+
         eval("\$marketreportpage .= \"".$template->get('reporting_fillreports_marketreport')."\";");
         eval("\$fillreportpage = \"".$template->get('reporting_fillreports_tabs')."\";");
     }
