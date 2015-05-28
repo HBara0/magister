@@ -84,10 +84,10 @@ if(!$core->input['action']) {
                     }
                 }
                 if(is_array($extpurps)) {
-                    $extpurposes_checks = parse_checkboxes('segment['.$sequence.'][purpose]', $extpurps, $selectedpurpose, '', 'external purposes', '<br>', 'purposes_checks_external_'.$sequence.'', 1);
+                    $extpurposes_checks = parse_checkboxes('segment['.$sequence.'][purpose]', $extpurps, '', '', 'external purposes', '<br>', 'purposes_checks_external_'.$sequence.'', 1);
                 }
                 if(is_array($interperp)) {
-                    $internalpurposes_checks = parse_checkboxes('segment['.$sequence.'][purpose]', $interperp, $selectedpurpose, '', 'internal purposes', '<br>', 'purposes_checks_internal_'.$sequence.'', 1);
+                    $internalpurposes_checks = parse_checkboxes('segment['.$sequence.'][purpose]', $interperp, '', '', 'internal purposes', '<br>', 'purposes_checks_internal_'.$sequence.'', 1);
                 }
             }
             $affiliates = Affiliates::get_affiliates();

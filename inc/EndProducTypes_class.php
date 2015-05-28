@@ -221,7 +221,7 @@ class EndProducTypes extends AbstractClass {
                 if($values['parent'] == 0) {
                     $endproducttypes_list.='<br/>';
                 }
-                $editlink = '<div style="float:right"><a href="#'.$values['eptid'].'" id="editendprod_'.$values['eptid'].'_products/types_loadpopupbyid" title="Edit"><img src="'.$core->settings['rootdir'].'/images/edit.gif" border="0"/></a></div>';
+                $editlink = '<div style="float:right"><a href="#'.$values['eptid'].'" id="editendproducts_'.$values['eptid'].'_products/types_loadpopupbyid" title="Edit"><img src="'.$core->settings['rootdir'].'/images/edit.gif" border="0"/></a></div>';
                 $endproducttypes_list .= '<li><a target="_blank" href="'.$endprodtype->get_link().'">'.$values['title'].$values['application'].' </a>';
                 unset($values['application']);
                 if(is_array($values['children']) && !empty($values['children'])) {

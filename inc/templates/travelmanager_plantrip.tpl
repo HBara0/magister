@@ -108,6 +108,12 @@
                     //  sharedFunctions.requestAjax("post", "index.php?module=travelmanager/plantrip&action=parsedetailstransp", "&categoryid=" + categoryid + "&sequence=" + sequence + "&catid=" + id[2], 'cat_detailsloader_' + categoryid + '', 'transpcat_content' + categoryid + '', true);
 
                 });
+                $('input[id^=countryhotels_][id$=_check]').live('click', function () {
+                    var id = $(this).attr('id').split("_");
+                    var sequence = id[1];
+                    $('div[id=countryhotels_' + sequence + '_view]').slideToggle("slow");
+
+                });
                 $('input[id*=pickDate_to_]').live('change', function () {
                     if(sharedFunctions.checkSession() == false) {
                         return;
