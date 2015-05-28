@@ -338,7 +338,7 @@ if($core->input['action']) {
 
             $timezones = DateTimeZone::listIdentifiers();
             $timezoneslist = parse_selectlist('timeZone', 10, array_combine($timezones, $timezones), $core->user['timeZone']);
-            $download_card_button = '<a style="cursor:pointer;" href="'.$core->settings['rootdir'].'/users.php?action=downloadvcard&uid='.$core->user['uid'].'">'.$lang->downloadcontact.'</a>';
+            $download_card_button = '<a style="cursor:pointer;" href="'.$core->settings['rootdir'].'/users.php?action=downloadvcard&uid='.$core->user['uid'].'"><img src="./images/download_vcard.png" title="'.$lang->downloadcontact.'"/></a>';
             eval("\$editprofilepage = \"".$template->get('editprofile')."\";");
             output_page($editprofilepage);
         }
@@ -355,7 +355,7 @@ if($core->input['action']) {
             }
 
             $profile_user = new Users($uid, false);
-            $download_card_button = '<a style="cursor:pointer;" href="'.$core->settings['rootdir'].'/users.php?action=downloadvcard&uid='.$uid.'">'.$lang->downloadcontact.'</a>';
+            $download_card_button = '<a style="cursor:pointer;" href="'.$core->settings['rootdir'].'/users.php?action=downloadvcard&uid='.$uid.'"><img src="./images/download_vcard.png" title="'.$lang->downloadcontact.'"/></a>';
             if($profile_user->get_errorcode() == 1) {
                 redirect($_SERVER['HTTP_REFERER']);
             }
