@@ -86,60 +86,61 @@ class MeetingsMOMActions extends AbstractClass {
                     $task->notify_task();
                 }
             }
+            /* Create task - END */
         }
     }
 
     protected function update(array $data) {
-    global $db;
-    //    if(!$this->validate_requiredfields($data)) {
-    $actions['date'] = strtotime($data['date']);
-    $actions['what'] = $data['what'];
-    $actions['isTask'] = $data['isTask'];
-            $actions['momid'] = $data['momid'];
-            $actions['inputChecksum'] = $data['inputChecksum'];
+        global $db;
+        //    if(!$this->validate_requiredfields($data)) {
+        $actions['date'] = strtotime($data['date']);
+        $actions['what'] = $data['what'];
+        $actions['isTask'] = $data['isTask'];
+        $actions['momid'] = $data['momid'];
+        $actions['inputChecksum'] = $data['inputChecksum'];
 
-    $query = $db->update_query(self::TABLE_NAME, $actions, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
-            if($query) {
-            if (!is_array ($data['users']) &&!is_array($data['representatives'])) {
-            $this->errorcode = 1;
-                    return $this;
-                    }
-                    if(is_array($data['users'])) {
-    foreach($data['users'] as $user) {
+        $query = $db->update_query(self::TABLE_NAME, $actions, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
+        if($query) {
+            if(!is_array($data['users']) && !is_array($data['representatives'])) {
+                $this->errorcode = 1;
+                return $this;
+            }
+            if(is_array($data['users'])) {
+                foreach($data['users'] as $user) {
                     if(!empty($user['uid'])) {
-    $user[self::PRIMARY_KEY] = $this->data[self::PRIMARY_KEY];
-                    $user['repid'] = 0;
-            $action_assignees = new MeetingsMOMActionAssignees();
-    $action_assignees->set($user);
-            $action_assignees->save();
-    }
-    }
+                        $user[self::PRIMARY_KEY] = $this->data[self::PRIMARY_KEY];
+                        $user['repid'] = 0;
+                        $action_assignees = new MeetingsMOMActionAssignees();
+                        $action_assignees->set($user);
+                        $action_assignees->save();
+                    }
+                }
             }
-    if(is_array($data['representatives'])) {
-    foreach($data['representatives'] as $representative) {
-                    if(!empty($representative['repid'])) { $representative[self::PRIMARY_KEY] = $this->data[self::PRIMARY_KEY];
-    $representative['uid'] = 0;
-            $action_assignees = new MeetingsMOMActionAssignees();
-    $action_assignees->set($representative);
-            $action_assignees->save();
-    }
-    }
+            if(is_array($data['representatives'])) {
+                foreach($data['representatives'] as $representative) {
+                    if(!empty($representative['repid'])) {
+                        $representative[self::PRIMARY_KEY] = $this->data[self::PRIMARY_KEY];
+                        $representative['uid'] = 0;
+                        $action_assignees = new MeetingsMOMActionAssignees();
+                        $action_assignees->set($representative);
+                        $action_assignees->save();
+                    }
+                }
             }
-    }
-    return $this;
+        }
+        return $this;
     }
 
     private function validate_requiredfields(array $data = array()) {
-    if(is_array($data)) {
+        if(is_array($data)) {
+            $required_fields = array('momid');
+            foreach($required_fields as $field) {
+                if(empty($data[$field]) && $data[$field] != '0') {
+                    $this->errorcode = 2;
+                    return true;
+                }
+            }
+        }
+    }
 
-    $required_fields = array('momid');
-    foreach($required_fields as $field) {
-    if(empty($data[$field]) && $data[$fi eld] != '0') {
-    $this->errorcode = 2;
-    return true;
-    }
-    }
-    }
-    }
-
-    }
+}

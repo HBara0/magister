@@ -98,7 +98,12 @@ class MeetingsMOM extends AbstractClass {
 
     public function parse_actions() {
         global $template, $core, $lang;
-        $meetingmom = MeetingsMOM::get_mom_bymeeting($core->input['mtid']);
+        if(isset($core->input['mtid']) && !empty($core->input['mtid'])) {
+            $meetingmom = MeetingsMOM::get_mom_bymeeting($core->input['mtid']);
+        }
+        else {
+            $meetingmom = MeetingsMOM::get_mom_bymeeting($this->mtid);
+        }
         $momactions = MeetingsMOMActions::get_data(array('momid' => $meetingmom->momid), array('returnarray' => true));
         if(is_array($momactions)) {
             $arowid = 0;
