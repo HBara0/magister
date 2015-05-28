@@ -20,11 +20,13 @@
                     <thead>
                         <tr>
                             <th style="width:22%;">{$lang->fullname} <a href="{$sort_url}&amp;sortby=name&amp;order=ASC"><img src="./images/sort_asc.gif" border="0" alt="{$lang->sortasc}"/></a><a href="{$sort_url}&amp;sortby=name&amp;order=DESC"><img src="./images/sort_desc.gif" border="0"  alt="{$lang->sortdesc}"/></a></th>
-                            <th style="width:14%;">{$lang->displayname} <a href="{$sort_url}&amp;sortby=displayname&amp;order=ASC"><img src="./images/sort_asc.gif" border="0" alt="{$lang->sortasc}"/></a><a href="{$sort_url}&amp;sortby=displayname&amp;order=DESC"><img src="./images/sort_desc.gif" border="0"  alt="{$lang->sortdesc}"/></a></th>
-                            <th style="width:16%;">{$lang->mainaffiliate} <a href="{$sort_url}&amp;sortby=mainaffiliate&&amp;order=ASC"><img src="./images/sort_asc.gif" border="0" alt="{$lang->sortasc}"/></a><a href="{$sort_url}&amp;sortby=mainaffiliate&amp;order=DESC"><img src="./images/sort_desc.gif" border="0"  alt="{$lang->sortdesc}"/></a></th>
+                            <th style="width:16%;">{$lang->displayname} <a href="{$sort_url}&amp;sortby=displayname&amp;order=ASC"><img src="./images/sort_asc.gif" border="0" alt="{$lang->sortasc}"/></a><a href="{$sort_url}&amp;sortby=displayname&amp;order=DESC"><img src="./images/sort_desc.gif" border="0"  alt="{$lang->sortdesc}"/></a></th>
+                            <th style="width:14%;">{$lang->mainaffiliate} <a href="{$sort_url}&amp;sortby=mainaffiliate&&amp;order=ASC"><img src="./images/sort_asc.gif" border="0" alt="{$lang->sortasc}"/></a><a href="{$sort_url}&amp;sortby=mainaffiliate&amp;order=DESC"><img src="./images/sort_desc.gif" border="0"  alt="{$lang->sortdesc}"/></a></th>
                             <th style="width:28%;">{$lang->position}</th>
                             <th style="width:14%;">{$lang->reportsto} <a href="{$sort_url}&amp;sortby=supervisor&amp;order=ASC"><img src="./images/sort_asc.gif" border="0" alt="{$lang->sortasc}"/></a><a href="{$sort_url}&amp;sortby=supervisor&amp;order=DESC"><img src="./images/sort_desc.gif" border="0"  alt="{$lang->sortdesc}"/></a></th>
-                            <th style="width:6%;"><a href="{$change_view_url}"><img src="./images/icons/{$change_view_icon}" alt="{$lang->changeview}" border="0"/></a></th>
+                            <th style="width:6%;"><a href="{$change_view_url}"><img src="./images/icons/{$change_view_icon}" alt="{$lang->changeview}" border="0"/></a>
+                                <a style="cursor:pointer;" href="{$core->settings['rootdir']}/users.php?action=downloadallempvcard"><img src="./images/download.png" title="{$lang->downloademployeescards}" alt="{$lang->downloademployeescards}" /></a>
+                            </th>
                         </tr>
                         {$filters_row}
                     </thead>
