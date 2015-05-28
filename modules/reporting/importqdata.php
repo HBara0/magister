@@ -303,6 +303,7 @@ else {
                                 echo 'Updated: ';
                                 $paupdate_querywhere = ' AND uid=0';
                             }
+                            $activity['importedOn'] = TIME_NOW;
                             $db->update_query('productsactivity', $activity, 'rid='.$rid.' AND pid='.$pid.$paupdate_querywhere);
                         }
                     }
@@ -343,12 +344,12 @@ else {
                     echo "Done<br />";
                 }
                 if($options['runtype'] != 'dry') {
-                    $db->update_query('reports', array('isLocked' => 0, 'status' => 0, 'prActivityAvailable' => 1, 'dataIsImported' => 1), 'rid='.$rid);
+                    $db->update_query('reports', array('isLocked' => 0, 'status' => 0, 'prActivityAvailable' => 1, 'dataIsImported' => 1, 'dataImportedOn' => TIME_NOW), 'rid='.$rid);
                     $db->update_query('reportcontributors', array('isDone' => 0), 'rid='.$rid);
                 }
             }
             if($options['runtype'] != 'dry') {
-                $db->update_query('reports', array('dataIsImported' => 1), 'affid='.$affid.' AND quarter='.$options['quarter'].' AND year='.$options['year']);
+                $db->update_query('reports', array('dataIsImported' => 1, 'dataImportedOn' => TIME_NOW), 'affid='.$affid.' AND quarter='.$options['quarter'].' AND year='.$options['year']);
             }
 
             if(is_array($errors)) {
