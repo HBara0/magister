@@ -655,7 +655,7 @@ class TravelManagerPlan {
             }
             $hotelssegments_output .= $segmentobj->parse_hotels($sequence, $approvedhotels);
             if(is_array($otherapprovedhotels)) {
-                $hotelssegments_output.='<br /><input type="checkbox" id="countryhotels_'.$sequence.'_check"><h2>Hotels In The Same Country</h2>';
+                $hotelssegments_output.='<br /><a nohref="nohref" style="cursor:pointer;" id="countryhotels_'.$sequence.'_check"><h2>Hotels In The Same Country</h2></a>';
                 $hotelssegments_output.='<div id=countryhotels_'.$sequence.'_view style="display:none">';
                 $hotelssegments_output.=$segmentobj->parse_hotels($sequence, $otherapprovedhotels);
                 $hotelssegments_output.='</div>';
