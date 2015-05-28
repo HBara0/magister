@@ -96,10 +96,12 @@ class MeetingsMOM extends AbstractClass {
 //        return $this->data;
 //    }
 
-    public function parse_actions() {
+    public function parse_actions($source = '', $momactions = array()) {
         global $template, $core, $lang;
-        $meetingmom = MeetingsMOM::get_mom_bymeeting($core->input['mtid']);
-        $momactions = MeetingsMOMActions::get_data(array('momid' => $meetingmom->momid), array('returnarray' => true));
+        if(isset($core->input['mtid']) && !empty($core->input['mtid'])) {
+            $meetingmom = MeetingsMOM::get_mom_bymeeting($core->input['mtid']);
+            $momactions = MeetingsMOMActions::get_data(array('momid' => $meetingmom->momid), array('returnarray' => true));
+        }
         if(is_array($momactions)) {
             $arowid = 0;
             foreach($momactions as $actions) {
@@ -110,6 +112,14 @@ class MeetingsMOM extends AbstractClass {
                 }
                 if($actions_data['isTask'] == 1) {
                     $istask = $lang->markedasatask;
+                    if($source == 'QR') {
+                        $task = Tasks::get_tasks(array('description' => 'Specific follow up actions', 'subject' => $actions_data['what']), array('simple' => false));
+                        if(is_object($task)) {
+                            if($task->isDone == 1) {
+                                $istask .=' (<img src="./images/valid.gif" alt="'.$lang->valid.'" border="0" /><small>completed</small>)';
+                            }
+                        }
+                    }
                 }
                 $momactionsassignees = MeetingsMOMActionAssignees::get_data(array('momaid' => $actions->momaid), array('returnarray' => true));
                 $userrowid = 0;
@@ -144,11 +154,9 @@ class MeetingsMOM extends AbstractClass {
                 unset($istask, $actions_users, $actions_representatives);
                 $arowid++;
             }
-            $title = '<strong>'.$lang->specificactions.'</strong>';
-            $headerclass = "altrow";
-            eval("\$actions .= \"".$template->get('meetings_mom_actions')."\";");
+            $actions_rows = '<table>'.$actions_rows.'</table>';
         }
-        return $actions;
+        return $actions_rows;
     }
 
 }

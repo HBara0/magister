@@ -13,19 +13,25 @@
  *
  * @author tony.assaad
  */
-class MeetingsAssociations {
-    private $meetingassociation = array();
+class MeetingsAssociations extends AbstractClass {
+    protected $data = array();
+    protected $errorcode = 0;
 
-    public function __construct($id = '', $simple = false) {
-        if(isset($id) && !empty($id)) {
-            $this->meetingassociation = $this->read($id, $simple);
-        }
+    const PRIMARY_KEY = 'mtaid';
+    const TABLE_NAME = 'meetings_associations';
+    const DISPLAY_NAME = '';
+    const SIMPLEQ_ATTRS = '*';
+    const CLASSNAME = __CLASS__;
+    const UNIQUE_ATTRS = 'mtid,id,idAttr';
+
+    public function __construct($id = '', $simple = true) {
+        parent::__construct($id, $simple);
     }
 
-    private function read($id, $simple = false) {
-        global $db;
-        return $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."meetings_associations WHERE mtaid=".$db->escape_string($id)));
-    }
+//    private function read($id, $simple = false) {
+//        global $db;
+//        return $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."meetings_associations WHERE mtaid=".$db->escape_string($id)));
+//    }
 
     public static function set_association($association = array()) {
         global $db;
@@ -39,7 +45,11 @@ class MeetingsAssociations {
     }
 
     public function get() {
-        return $this->meetingassociation;
+        return $this->data;
+    }
+
+    protected function update(array $data) {
+
     }
 
 }

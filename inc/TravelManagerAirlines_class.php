@@ -56,7 +56,7 @@ class TravelManagerAirlines {
 
         $requestdata['date'] = date('Y-m-d', $requestdata['date']);
         if($requestdata['isOneway'] == 0) {
-            $slice2 = Self::reversetrip($requestdata);
+            $slice2 = self::reversetrip($requestdata);
         }
         $requestdata = json_encode(array('request' => array("passengers" => array("adultCount" => 1), "solutions" => 20, 'slice' => array(array('origin' => $requestdata['origin'], 'destination' => $requestdata['destination'], 'date' => $requestdata['date'], 'permittedCarrier' => $requestdata['permittedCarrier']), $slice2)))); //to send the reqeustdata to google api and return the response array.
         return $requestdata;

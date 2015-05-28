@@ -5,6 +5,8 @@
 <table width="100%" class="datatable">
     {$markerreport_fields}
     {$devprojectssection}
+    <tr><td><strong>{$lang->specificfollowactions}</strong></td></tr>
+    <tr><td>{$mom_followupactions}</td></tr>
     <tr>
         <td style="text-align:right !important;">
           <!--  <input type="button" value="{$lang->prevcaps}" class="button" onClick="goToURL('index.php?module=reporting/fillreport&amp;stage=productsactivity&amp;identifier={$core->input[identifier]}');" />-->
