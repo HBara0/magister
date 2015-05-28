@@ -19,7 +19,11 @@ if($core->usergroup['meetings_canCreateMeeting'] == 0) {
 if(!$core->input['action']) {
     if(isset($core->input['mtid']) && !empty($core->input['mtid'])) {
         $meeting_obj = new Meetings($core->input['mtid'], false);
+        if(!is_object($meeting_obj)) {
+            redirect('index.php?module=meetings/list');
+        }
         $meeting = $meeting_obj->get();
+
         if($meeting['createdBy'] != $core->user['uid']) {
             error($lang->sectionnopermission);
         }
@@ -32,6 +36,13 @@ if(!$core->input['action']) {
             $action = 'add';
         }
         $meetingmom = MeetingsMOM::get_mom_bymeeting($core->input['mtid']);
+        //////////////////////////////////////////////
+        $meetingassociations = MeetingsAssociations::get_data(array('mtid' => $meeting['mtid'], 'idAttr' => 'spid'));
+        if(is_object($meetingassociations)) {
+            $spid = $meetingassociations->id;
+        }
+        unset($meetingassociations);
+        //////////////////////////////////////////
         $momactions = MeetingsMOMActions::get_data(array('momid' => $meetingmom->momid), array('returnarray' => true));
         if(is_array($momactions)) {
             $arowid = 0;
@@ -43,7 +54,7 @@ if(!$core->input['action']) {
                     $actions_data['date_formatted'] = date($core->settings['dateformat'], $actions_data['date']);
                 }
                 if($actions_data['isTask'] == 1) {
-                    $checked = 'checked="checked"';
+                    $checked = 'checked = "checked"';
                 }
                 $momactionsassignees = MeetingsMOMActionAssignees::get_data(array('momaid' => $actions->momaid), array('returnarray' => true));
                 $userrowid = 0;
@@ -84,7 +95,7 @@ if(!$core->input['action']) {
                 $arowid++;
             }
             $headerclass = 'thead';
-            $title = $lang->specificactions;
+            $title = $lang->specificfollowactions;
             eval("\$actions .= \"".$template->get('meetings_mom_actions')."\";");
         }
         else {
@@ -115,10 +126,10 @@ if(!$core->input['action']) {
         $multiple_meetings = Meetings::get_multiplemeetings(array('hasmom' => 0));
         if(is_array($multiple_meetings)) {
             if(empty($meeting_list)) {
-                $meeting_list = '<select name="mof[mtid]">';
+                $meeting_list = '<select name = "mof[mtid]">';
                 foreach($multiple_meetings as $mid => $meeting) {
                     if(!empty($meeting['title'])) {
-                        $meeting_list .='<option value="'.$meeting['mtid'].'"> '.$meeting['title'].' | '.$meeting['location'].'</option>';
+                        $meeting_list .='<option value = "'.$meeting['mtid'].'"> '.$meeting['title'].' | '.$meeting['location'].'</option>';
                     }
                 }
                 $meeting_list .= '</select>';

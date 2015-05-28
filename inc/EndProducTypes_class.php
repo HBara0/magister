@@ -177,6 +177,7 @@ class EndProducTypes extends AbstractClass {
     }
 
     public function parse_endproducttype_list(array $endproducttypes = array(), $highlevel = true, $ref = '', $parsetype = 'list', $config = array()) {
+        global $core;
         if(empty($endproducttypes)) {
             if(!isset($this->endproducttype)) {
                 return false;
@@ -205,6 +206,7 @@ class EndProducTypes extends AbstractClass {
         //  }
         foreach($endproducttypes as $id => $values) {
             if($parsetype == 'list') {
+                $endprodtype = new EndProducTypes($values['eptid']);
                 //   if($exclude['application'] == false) {
                 if($values['parent'] == 0) {
                     $endprod_obj = new EndProducTypes($values['eptid']);
@@ -219,14 +221,18 @@ class EndProducTypes extends AbstractClass {
                 if($values['parent'] == 0) {
                     $endproducttypes_list.='<br/>';
                 }
-                $endproducttypes_list .= '<li><a href="#">'.$values['title'].$values['application'].' </a>';
+                $editlink = '<div style="float:right"><a href="#'.$values['eptid'].'" id="editendproducts_'.$values['eptid'].'_products/types_loadpopupbyid" title="Edit"><img src="'.$core->settings['rootdir'].'/images/edit.gif" border="0"/></a></div>';
+
+                $delete = '<div style="float:right"><a href="#'.$values['eptid'].'" id="deleteendproducttype_'.$values['eptid'].'_products/types_loadpopupbyid" title="Delete"><img src="'.$core->settings['rootdir'].'/images/invalid.gif" border="0"/></a></div>';
+
+                $endproducttypes_list .= '<li><a target="_blank" href="'.$endprodtype->get_link().'">'.$values['title'].$values['application'].' </a>';
                 unset($values['application']);
                 if(is_array($values['children']) && !empty($values['children'])) {
                     $endproducttypes_list .= '<a href="#endproducttype_'.$values['eptid'].'" id="showmore_endprofucttypechildren_'.$values['eptid'].'">&raquo;</a>';
                 }
 
 
-                $endproducttypes_list .= '</li>';
+                $endproducttypes_list .= $delete.$editlink.'</li>';
             }
             else {
                 $endproducttypes_list .= '<option value="'.$values['eptid'].'">'.$ref.' '.$values['title'].'</option>';
@@ -331,6 +337,34 @@ class EndProducTypes extends AbstractClass {
             return $this;
         }
         return $immediate_parent->get_mother();
+    }
+
+    public function delete_endproducttype() {
+        global $db;
+        $attributes = array('eptid');
+        foreach($attributes as $attribute) {
+            $tables = $db->get_tables_havingcolumn($attribute, 'TABLE_NAME !="endproducttypes"');
+            if(is_array($tables)) {
+                foreach($tables as $table) {
+                    $query = $db->query("SELECT * FROM ".Tprefix.$table." WHERE ".$attribute."=".$this->eptid." ");
+                    if($db->num_rows($query) > 0) {
+                        $this->errorcode = 3;
+                        return $this;
+                    }
+                }
+            }
+        }
+        $endproducttypes = EndProducTypes::get_data(array('parent' => $this->eptid), array('returnarray' => true));
+        if(is_array($endproducttypes)) {
+            foreach($endproducttypes as $endproduct) {
+                $this->delete_endproducttype($this->eptid);
+            }
+        }
+        $delete = $this->delete();
+        if($delete) {
+            $this->errorcode = 0;
+            return $this;
+        }
     }
 
 }

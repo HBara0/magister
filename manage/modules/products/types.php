@@ -63,8 +63,71 @@ elseif($core->input['action'] == 'do_create') {
         case 2:
             output_xml('<status>false</status><message>Fill All Required Fields</message>');
             break;
+        case 3:
+            output_xml("<status>false</status><message>{$lang->cannotdeleteentry}</message>");
+            break;
         case 5:
             output_xml('<status>true</status><message>Entry Has Been Updated</message>');
+            break;
+    }
+}
+elseif($core->input['action'] == 'get_editendproducts') {
+    $endprod_obj = new EndProducTypes($db->escape_string($core->input['id']));
+    $endprod = $endprod_obj->get();
+    if(!empty($endprod['parent'])) {
+        $parent_obj = new EndProducTypes($endprod['parent']);
+        if(is_object($parent_obj)) {
+            $parent = $parent_obj->get();
+            $disabled = 'disabled="disabled"';
+        }
+    }
+    $app_obj = new SegmentApplications($endprod_obj->psaid);
+    $applications_list = '<option value='.$app_obj->psaid.'>'.$app_obj->title.'</option>';
+    $applications_obj = SegmentApplications::get_segmentsapplications('psaid !='.$endprod_obj->psaid, array('order' => array('by' => 'name', 'sort' => 'ASC')));
+    if(is_array($applications_obj)) {
+        foreach($applications_obj as $application_obj) {
+            $applications = $application_obj->get();
+            $applications_list .= '<option value='.$applications['psaid'].'>'.$applications['title'].'</option>';
+            unset($selected);
+        }
+    }
+    eval("\$editpopup = \"".$template->get('popup_editendproducts')."\";");
+    output($editpopup);
+}
+elseif($core->input['action'] == 'edit_endproduct') {
+    $endprod_obj = new EndProducTypes();
+    $core->input['endproduct']['name'] = generate_alias($core->input['endproduct']['title']);
+    $endprod_obj->set($core->input['endproduct']);
+    $endprod_obj = $endprod_obj->save();
+    switch($endprod_obj->get_errorcode()) {
+        case 0:
+            output_xml('<status>true</status><message>'.$lang->successfullysaved.'</message>');
+            break;
+        case 1:
+            output_xml('<status>false</status><message>'.$lang->fillallrequiredfields.'</message>');
+            break;
+        case 2:
+            output_xml('<status>false</status><message>Fill All Required Fields</message>');
+            break;
+        case 5:
+            output_xml('<status>true</status><message>Entry Has Been Updated</message>');
+            break;
+    }
+}
+elseif($core->input['action'] == 'get_deleteendproducttype') {
+    $id = $core->input['id'];
+    eval("\$deleteendprodtype = \"".$template->get('popup_deleteendproducttype')."\";");
+    output_page($deleteendprodtype);
+}
+elseif($core->input['action'] == 'delete_endproducttype') {
+    $endprod_obj = new EndProducTypes($core->input['todelete']);
+    $endprod_obj = $endprod_obj->delete_endproducttype();
+    switch($endprod_obj->get_errorcode()) {
+        case 0:
+            output_xml('<status>true</status><message>'.$lang->successfullysaved.'</message>');
+            break;
+        case 3:
+            output_xml("<status>false</status><message>".$lang->cannotdeleteentry."</message>");
             break;
     }
 }

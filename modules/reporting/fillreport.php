@@ -286,7 +286,43 @@ if(!$core->input['action']) {
             eval("\$markerreport_fields = \"".$template->get('reporting_fillreports_marketreport_fields')."\";");
         }
 
-        $report_meta = unserialize($session->get_phpsession('reportmeta_'.$identifier));
+        //$report_meta = unserialize($session->get_phpsession('reportmeta_'.$identifier));
+
+        /* Parse MOM Specific Follow Up Actions - START */
+        $quarter_start = strtotime($core->settings['q'.$reportmeta['quarter'].'start'].'-'.$reportmeta['year']);
+        $quarter_end = strtotime($core->settings['q'.$reportmeta['quarter'].'end'].'-'.$reportmeta['year']);
+        $momactions_where = '(date BETWEEN '.$quarter_start.' AND '.$quarter_end.') AND momid=(select momid from meetings_minsofmeeting where mtid IN '
+                .'(select mtid from meetings_associations where idAttr="spid" AND id='.$reportmeta[spid].'))';
+        $momactions = MeetingsMOMActions::get_data($momactions_where, array('returnarray' => true));
+        if(is_array($momactions)) {
+            foreach($momactions as $key => $actions) {
+                /* The actions are associated to the QR affiliate (primarily) or its employees are assigned to the actions (secondary) */
+                $meetings_affassociations = MeetingsAssociations::get_data(array('id' => $reportmeta[affid], 'idAttr' => 'affid', 'mtid' => 'mtid=(select mtid from meetings_minsofmeeting where momid='.$actions->momid.')'), array('returnarray' => true, 'operators' => array('mtid' => 'CUSTOMSQL')));
+                //If actions are associated to the QR affiliate -> continue
+                if(is_array($meetings_affassociations)) {
+                    continue;
+                }
+                //Else check if employees of the QR aff are assigned to the actions
+                $employeesassigned = false;
+                $momactionsassignees = MeetingsMOMActionAssignees::get_data(array('momaid' => $actions->momaid), array('returnarray' => true));
+                if(is_array($momactionsassignees)) {
+                    foreach($momactionsassignees as $assignee) {
+                        if(isset($assignee->uid) && !empty($assignee->uid)) {
+                            $user = new Users($assignee->uid);
+                            if(is_object($user) && $user->get_mainaffiliate()->affid == $reportmeta['affid']) {
+                                $employeesassigned = true;
+                            }
+                        }
+                    }
+                }
+                if(!$employeesassigned) {
+                    unset($momactions[$key]); // if no aff or employees associations do not parse actions
+                }
+            }
+            $mom_obj = new MeetingsMOM();
+            $mom_followupactions .= $mom_obj->parse_actions('QR', $momactions);
+        }
+        /* Parse MOM Specific Follow Up Actions - end */
 
         eval("\$marketreportpage .= \"".$template->get('reporting_fillreports_marketreport')."\";");
         eval("\$fillreportpage = \"".$template->get('reporting_fillreports_tabs')."\";");

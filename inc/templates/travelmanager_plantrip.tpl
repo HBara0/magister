@@ -89,15 +89,11 @@
                     var ciid = $('input[id$=destinationcity_' + sequence + '_cache_id]').val(); /*get  the cityid from the hiiden field*/
                     if(typeof ciid !== typeof undefined && ciid !== '') {
                         var origincity = $('input[id=cities_' + sequence + '_cache_id]').val(); /*get  the cityid from the hiiden field*/
-                        var oneway = 0;
-                        var roundtrip = 0;
-                        if($('input[id=oneway_lookuptransps_' + sequence + ']').prop("checked") == true) {
-                            oneway = $('input[id=oneway_lookuptransps_' + sequence + ']').val();
+                        var transp = 0;
+                        if($('input[id=transp_lookuptransps_' + sequence + ']:checked').val().length > 0) {
+                            transp = $('input[id=transp_lookuptransps_' + sequence + ']:checked').val();
                         }
-                        if($('input[id=roundtrip_lookuptransps_' + sequence + ']').prop("checked") == true) {
-                            roundtrip = $('input[id=roundtrip_lookuptransps_' + sequence + ']').val();
-                        }
-                        sharedFunctions.requestAjax("post", "index.php?module=travelmanager/plantrip&action=populatecontent", "&sequence=" + sequence + "&parsetransp=1" + "&destcity=" + ciid + "&origincity=" + origincity + "&departuretime=" + $('#altpickDate_from_' + sequence).val() + "&arrivaltime=" + $('#altpickDate_to_' + sequence).val() + '&oneway=' + oneway + '&roundtrip=' + roundtrip, 'content_detailsloader_' + sequence + '', 'content_details_' + sequence + '', true);
+                        sharedFunctions.requestAjax("post", "index.php?module=travelmanager/plantrip&action=populatecontent", "&sequence=" + sequence + "&parsetransp=1" + "&destcity=" + ciid + "&origincity=" + origincity + "&departuretime=" + $('#altpickDate_from_' + sequence).val() + "&arrivaltime=" + $('#altpickDate_to_' + sequence).val() + '&transp=' + transp, 'content_detailsloader_' + sequence + '', 'content_details_' + sequence + '', true);
                         sharedFunctions.requestAjax("post", "index.php?module=travelmanager/plantrip&action=populatecityprofile", "&sequence=" + sequence + "&destcity=" + ciid, 'segment_city_loader_' + sequence + '', 'segment_city_' + sequence + '', true);
                     }
                 });
@@ -110,6 +106,12 @@
                     $('div[id=cat_content_' + categoryid + '_' + sequence + ']').slideToggle("slow");
                     /*ajax call to parse transpfields*/
                     //  sharedFunctions.requestAjax("post", "index.php?module=travelmanager/plantrip&action=parsedetailstransp", "&categoryid=" + categoryid + "&sequence=" + sequence + "&catid=" + id[2], 'cat_detailsloader_' + categoryid + '', 'transpcat_content' + categoryid + '', true);
+
+                });
+                $('a[id^=countryhotels_][id$=_check]').live('click', function () {
+                    var id = $(this).attr('id').split("_");
+                    var sequence = id[1];
+                    $('div[id=countryhotels_' + sequence + '_view]').slideToggle("slow");
 
                 });
                 $('input[id*=pickDate_to_]').live('change', function () {

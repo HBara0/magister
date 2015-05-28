@@ -37,7 +37,7 @@ $lang['package'] = "Package";
 $lang['defaultcurrency'] = "Default Currency";
 $lang['code'] = "Code";
 $lang['taxrate'] = "Tax Rate";
-
+$lang['editendprod'] = "Edit End Product ";
 $lang['suredeleteproduct'] = "Are you sure you want to delete this product?";
 $lang['mergeproductwith'] = "Merge product with";
 $lang['mergeexplanation'] = "Merging will consider the selected product a replacement for the deleted.<br />All related entries will be changed accordingly.";
@@ -70,4 +70,5 @@ $lang['createbasicingredient'] = 'Create Basic Ingredient';
 $lang['itemalreadyexist'] = "Item with same title already exist";
 $lang['updatebasicingredient'] = 'Update Basic Ingredient';
 $lang['basicingredients'] = 'Basic Ingredients';
+$lang['deleteendproducttype'] = 'Delete Endproduct Type';
 ?>

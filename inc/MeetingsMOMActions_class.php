@@ -23,7 +23,7 @@ class MeetingsMOMActions extends AbstractClass {
     }
 
     public function create(array $data) {
-        global $db, $core;
+        global $db, $core, $lang;
         //if(!$this->validate_requiredfields($data)) {
         $actions['date'] = strtotime($data['date']);
         $actions['what'] = $data['what'];
@@ -46,6 +46,7 @@ class MeetingsMOMActions extends AbstractClass {
                         $action_assignees = new MeetingsMOMActionAssignees();
                         $action_assignees->set($user);
                         $action_assignees->save();
+                        $users[$user['uid']] = $user['uid'];
                     }
                 }
             }
@@ -60,8 +61,33 @@ class MeetingsMOMActions extends AbstractClass {
                     }
                 }
             }
+            /* Create task - START */
+            if($actions['isTask'] == 1) {
+                $task_share = false;
+                foreach($users as $user) {
+                    $new_task = array(
+                            'uid' => $user,
+                            'subject' => $data['what'],
+                            'priority' => 1,
+                            'dueDate' => $data['date'],
+                            'description' => $lang->specificfollowactions,
+                            'reminderInterval' => 604800, //Every 2 days
+                            'reminderStart' => $data['date'],
+                            'createdBy' => $core->user['uid']
+                    );
+                    if(!$task_share) {
+                        $new_task['share'] = array($core->user['uid']);
+                    }
+                    $task = new Tasks();
+                    $createtask = $task->create_task($new_task);
+                    $task_share = true;
+                }
+                if($createtask) {
+                    $task->notify_task();
+                }
+            }
+            /* Create task - END */
         }
-        //}
     }
 
     protected function update(array $data) {

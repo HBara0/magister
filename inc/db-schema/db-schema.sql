@@ -2661,10 +2661,11 @@ CREATE TABLE `productsactivity` (
   `quantityForecast` float unsigned NOT NULL,
   `salesForecast` float unsigned NOT NULL,
   `saleType` varchar(12) NOT NULL,
+  `importedOn` varchar(150) NOT NULL,
   PRIMARY KEY (`paid`),
   KEY `pid` (`pid`,`rid`),
   KEY `uid` (`uid`)
-) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `productsactivity2`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -2871,10 +2872,12 @@ CREATE TABLE `reports` (
   `mktReportAvailable` smallint(1) NOT NULL DEFAULT '0',
   `isApproved` smallint(1) NOT NULL DEFAULT '0',
   `summary` int(10) DEFAULT NULL,
+  `dataImportedOn` varchar(150) NOT NULL,
+  `sentOn` varchar(150) NOT NULL,
   PRIMARY KEY (`rid`),
   KEY `affid` (`affid`,`spid`),
   KEY `summary` (`summary`)
-) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `reports2`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;

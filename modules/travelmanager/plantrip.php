@@ -71,7 +71,7 @@ if(!$core->input['action']) {
 //                $cityprofile_output = $descity_obj->parse_cityreviews();
 //                $citybriefings_output = $descity_obj->parse_citybriefing();
 //            }
-            $display_external = $display_intrnal = 'style="display:none"';
+            $display_external = $display_internal = 'style="display:none"';
             $leave_purposes = LeaveTypesPurposes::get_data(null);
             //$leave_purposes = array($leave_obj->get_purpose()->get()['ltpid'] => $leave_obj->get_purpose()->get()['name']);
             if(is_array($leave_purposes)) {
@@ -84,10 +84,10 @@ if(!$core->input['action']) {
                     }
                 }
                 if(is_array($extpurps)) {
-                    $extpurposes_checks = parse_checkboxes('segment['.$sequence.'][purpose]', $extpurps, $selectedpurpose, '', 'external purposes', '<br>', 'purposes_checks_external_'.$sequence.'', 1);
+                    $extpurposes_checks = parse_checkboxes('segment['.$sequence.'][purpose]', $extpurps, '', '', 'external purposes', '<br>', 'purposes_checks_external_'.$sequence.'', 1);
                 }
                 if(is_array($interperp)) {
-                    $internalpurposes_checks = parse_checkboxes('segment['.$sequence.'][purpose]', $interperp, $selectedpurpose, '', 'internal purposes', '<br>', 'purposes_checks_internal_'.$sequence.'', 1);
+                    $internalpurposes_checks = parse_checkboxes('segment['.$sequence.'][purpose]', $interperp, '', '', 'internal purposes', '<br>', 'purposes_checks_internal_'.$sequence.'', 1);
                 }
             }
             $affiliates = Affiliates::get_affiliates();
@@ -223,11 +223,31 @@ else {
         $segment[$sequence]['toDate_formatted'] = date('d-m-Y', ($leave[$sequence]['toDate'])); // leave to date
         $segment[$sequence]['fromDate_output'] = date($core->settings['dateformat'], strtotime($core->input['toDate']));
         $segment[$sequence]['fromDate_formatted'] = $core->input['toDate'];
-        //   $leave_purposes = array($leave_obj->get_purpose()->get()['ltpid'] => $leave_obj->get_purpose()->get()['name']);
-        $leave_purposes = LeaveTypesPurposes::get_data('');
-        $segment_purposlist = parse_selectlist('segment['.$sequence.'][purpose][]', 5, $leave_purposes, '', 1, '', array('blankstart' => true));
+        $leave_purposes = LeaveTypesPurposes::get_data(null);
+        $display_external = $display_internal = 'style="display:none"';
+        if(is_array($leave_purposes)) {
+            foreach($leave_purposes as $leave_purpose) {
+                if($leave_purpose->category == 'internal') {
+                    $interperp[$leave_purpose->ltpid] = $leave_purpose->title;
+                }
+                elseif($leave_purpose->category == 'external') {
+                    $extpurps[$leave_purpose->ltpid] = $leave_purpose->title;
+                }
+            }
+            if(is_array($extpurps)) {
+                $extpurposes_checks = parse_checkboxes('segment['.$sequence.'][purpose]', $extpurps, $selectedpurpose, '', 'external purposes', '<br>', 'purposes_checks_external_'.$sequence.'', 1);
+            }
+            if(is_array($interperp)) {
+                $internalpurposes_checks = parse_checkboxes('segment['.$sequence.'][purpose]', $interperp, $selectedpurpose, '', 'internal purposes', '<br>', 'purposes_checks_internal_'.$sequence.'', 1);
+            }
+        }
         $affiliates = Affiliates::get_affiliates();
-        $affilate_list = parse_selectlist('segment['.$sequence.'][affid]', 1, $affiliates, $segmentobj->affid, '', '', array('blankstart' => true));
+        $afent_checksum = generate_checksum('affient');
+        $affilate_list = parse_selectlist('segment['.$sequence.'][assign][affid]['.$afent_checksum.']', '1', $affiliates, '', '', '', array('blankstart' => true));
+        $affrowid = $entrowid = 0;
+        eval("\$affiliates_output = \"".$template->get('travelmanager_plantrip_createsegment_affiliates')."\";");
+        $afent_checksum = generate_checksum('affient');
+        eval("\$entities = \"".$template->get('travelmanager_plantrip_createsegment_entities')."\";");
 
         /* Popuplate basic information from the leave based on the lid passed via ajax */
 
@@ -266,11 +286,8 @@ else {
             $transpmode_apimaplink = 'https://www.google.com/maps/dir/'.$origintcity['name'].',+'.$origintcity['country'].'/'.$destcity['name'].',+'.$destcity['country'].'/';
             /* Load proposed transproration */
             $transp = new TravelManagerPlanTransps();
-            $transp_requirements['oneway'] = 0;
-            if(isset($core->input['oneway']) && $core->input['oneway'] == 1) {
-                $transp_requirements['oneway'] = 1;
-            }
-            else if(isset($core->input['roundtrip']) && $core->input['roundtrip'] == 1) {
+            $transp_requirements['oneway'] = 1;
+            if(isset($core->input['transp']) && $core->input['transp'] == 1) {
                 $transp_requirements['oneway'] = 0;
             }
             $transsegments_output = Cities::parse_transportations($transp, array('origincity' => $origintcity, 'destcity' => $destcity, 'transprequirements' => $transp_requirements), $sequence);
@@ -555,7 +572,7 @@ else {
         $affiliates = Affiliates::get_affiliates();
         $affilate_list = parse_selectlist('segment['.$sequence.'][assign][affid]['.$affrowid.']', '1', $affiliates, '', '', '', array('blankstart' => true));
         eval("\$affiliates_output .= \"".$template->get('travelmanager_plantrip_createsegment_affiliates')."\";");
-        echo $affiliates;
+        echo $affiliates_output;
     }
     elseif($core->input['action'] == 'ajaxaddmore_entities') {
         $entrowid = $db->escape_string($core->input['value']) + 1;
