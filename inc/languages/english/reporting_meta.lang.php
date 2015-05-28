@@ -177,4 +177,5 @@ $lang['yearforecasts'] = 'Year End Forecasts';
 $lang['yeargreaterthancurrent'] = 'Specified year is greater than the current';
 $lang['specificfollowactions'] = 'Specific Follow Up Actions';
 $lang['representative'] = 'Representative';
+$lang['markedasatask'] = 'Marked as Task';
 ?>
