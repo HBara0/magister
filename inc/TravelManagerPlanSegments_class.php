@@ -824,8 +824,9 @@ class TravelManagerPlanSegments extends AbstractClass {
                 $currencies[] = new Currencies(978, true);
                 $currencies = array_unique($currencies);
                 $currencies_list = parse_selectlist('segment['.$sequence.'][tmhid]['.$checksum.'][currency]', '3', $currencies, $rescurrency_id, '', '', array('id' => 'currency_'.$sequence.'_'.$checksum.'_list'));
-                $leavedays = abs($this->toDate - $this->fromDate);
-                $leavedays = floor($leavedays / (60 * 60 * 24));
+
+                //      $leavedays = abs($this->toDate - $this->fromDate);
+                //     $leavedays = floor($leavedays / (60 * 60 * 24));
 
                 eval("\$hotelssegments_output  .= \"".$template->get('travelmanager_plantrip_segment_hotels')."\";");
                 $review_tools = $paidby_details = $currencies_list = $currencies = $selected_hotel = $checkbox_hotel = '';
