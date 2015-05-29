@@ -95,7 +95,7 @@ Abstract class AbstractClass {
 
     /**
      * Inserts data into specific DB table after performing validation
-     *
+     * 
      * @global type $db
      * @param array $data   Data to insert
      * @return boolean
@@ -108,7 +108,6 @@ Abstract class AbstractClass {
         $db->insert_query(static::TABLE_NAME, $data);
         $this->data = $data;
         $this->{static::PRIMARY_KEY} = $db->last_id();
-        return $this;
     }
 
     abstract protected function update(array $data);
@@ -140,12 +139,6 @@ Abstract class AbstractClass {
         return false;
     }
 
-    /**
-     *
-     * @param string $filters
-     * @param array $configs
-     * @return
-     */
     public static function get_data($filters = '', array $configs = array()) {
         $data = new DataAccessLayer(static::CLASSNAME, static::TABLE_NAME, static::PRIMARY_KEY);
         return $data->get_objects($filters, $configs);

@@ -272,58 +272,113 @@ if(!$core->input['action']) {
         $query = $db->query("SELECT es.psid, ps.title FROM ".Tprefix."entitiessegments es JOIN ".Tprefix."productsegments ps ON (ps.psid=es.psid) WHERE es.eid='{$reportmeta[spid]}'{$filter_segments_query}");
         if($db->num_rows($query) > 0) {
             while($segment = $db->fetch_assoc($query)) {
+                //parse ratig stars per segment
+                $criteriaandstars .= '<div class="evaluation_criterium" name="'.$segment['psid'].'"><div class="criterium_name" style="display:inline-block; width:30%; padding: 2px;">'.$segment['title'].'</div>';
+                $criteriaandstars .= '<div class="ratebar" style="width:40%; display:inline-block;">';
+                if($reportmeta['auditor'] == 0) {
+                    $criteriaandstars .= '<div class="rateit" data-rateit-starwidth="18" data-rateit-starheight="16" data-rateit-ispreset="true" data-rateit-readonly="true" data-rateit-value="'.$marketreport[$segment['psid']]['rating'].'"></div>';
+                }
+                else {
+                    $criteriaandstars .= '<input type="range" min="0" max="5" value="'.$marketreport[$segment['psid']]['rating'].'" step="1" id="rating_'.$segment['psid'].'" class="ratingscale">';
+                    $criteriaandstars .= '<div class="rateit" data-rateit-starwidth="18" data-rateit-starheight="16" data-rateit-ispreset="true" data-rateit-resetable="false" data-rateit-backingfld="#rating_'.$segment['psid'].'" data-rateit-value="'.$marketreport[$segment['psid']]['rating'].'"></div>';
+                }
+                $criteriaandstars .= '</div></div>';
                 eval("\$markerreport_fields .= \"".$template->get('reporting_fillreports_marketreport_fields')."\";");
+                unset($criteriaandstars);
             }
             if(isset($marketreport[0])) {
                 $segment['psid'] = 0;
                 $segment['title'] = $lang->unspecifiedsegment;
+                if(is_array($marketreport[$segment['psid']])) {
+                    $criteriaandstars .= '<div class="evaluation_criterium" name="'.$marketreport[$segment['psid']]['mrid'].'">';
+                    $criteriaandstars .= '<div class="ratebar" style="width:40%; display:inline-block;">';
+                    if($reportmeta['auditor'] == 0) {
+                        $criteriaandstars .= '<div class="rateit" data-rateit-starwidth="18" data-rateit-starheight="16" data-rateit-ispreset="true" data-rateit-readonly="true" data-rateit-value="'.$marketreport[$segment['psid']]['rating'].'"></div>';
+                    }
+                    else {
+                        $criteriaandstars .= '<input type="range" min="0" max="5" value="'.$marketreport[$segment['psid']]['rating'].'" step="1" id="rating_'.$marketreport[$segment['psid']]['mrid'].'" class="ratingscale">';
+                        $criteriaandstars .= '<div class="rateit" data-rateit-starwidth="18" data-rateit-starheight="16" data-rateit-ispreset="true" data-rateit-resetable="false" data-rateit-backingfld="#rating_'.$marketreport[$segment['psid']]['mrid'].'" data-rateit-value="'.$marketreport[$segment['psid']]['rating'].'"></div>';
+                    }
+                    $criteriaandstars .= '</div></div>';
+                }
                 eval("\$markerreport_fields .= \"".$template->get('reporting_fillreports_marketreport_fields')."\";");
+                unset($criteriaandstars);
             }
         }
         else {
             $segment['psid'] = 0;
             $segment['title'] = $lang->unspecifiedsegment;
+            if(is_array($marketreport[$segment['psid']])) {
+                $criteriaandstars .= '<div class="evaluation_criterium" name="'.$marketreport[$segment['psid']]['mrid'].'">';
+                $criteriaandstars .= '<div class="ratebar" style="width:40%; display:inline-block;">';
+                if($reportmeta['auditor'] == 0) {
+                    $criteriaandstars .= '<div class="rateit" data-rateit-starwidth="18" data-rateit-starheight="16" data-rateit-ispreset="true" data-rateit-readonly="true" data-rateit-value="'.$marketreport[$segment['psid']]['rating'].'"></div>';
+                }
+                else {
+                    $criteriaandstars .= '<input type="range" min="0" max="5" value="'.$marketreport[$segment['psid']]['rating'].'" step="1" id="rating_'.$marketreport[$segment['psid']]['mrid'].'" class="ratingscale">';
+                    $criteriaandstars .= '<div class="rateit" data-rateit-starwidth="18" data-rateit-starheight="16" data-rateit-ispreset="true" data-rateit-resetable="false" data-rateit-backingfld="#rating_'.$marketreport[$segment['psid']]['mrid'].'" data-rateit-value="'.$marketreport[$segment['psid']]['rating'].'"></div>';
+                }
+                $criteriaandstars .= '</div></div>';
+            }
             eval("\$markerreport_fields = \"".$template->get('reporting_fillreports_marketreport_fields')."\";");
+            unset($criteriaandstars);
         }
 
-        //$report_meta = unserialize($session->get_phpsession('reportmeta_'.$identifier));
+        //      $report_meta = unserialize($session->get_phpsession('reportmeta_'.$identifier));
 
-        /* Parse MOM Specific Follow Up Actions - START */
-        $quarter_start = strtotime($core->settings['q'.$reportmeta['quarter'].'start'].'-'.$reportmeta['year']);
-        $quarter_end = strtotime($core->settings['q'.$reportmeta['quarter'].'end'].'-'.$reportmeta['year']);
-        $momactions_where = '(date BETWEEN '.$quarter_start.' AND '.$quarter_end.') AND momid=(select momid from meetings_minsofmeeting where mtid IN '
-                .'(select mtid from meetings_associations where idAttr="spid" AND id='.$reportmeta[spid].'))';
-        $momactions = MeetingsMOMActions::get_data($momactions_where, array('returnarray' => true));
-        if(is_array($momactions)) {
-            foreach($momactions as $key => $actions) {
-                /* The actions are associated to the QR affiliate (primarily) or its employees are assigned to the actions (secondary) */
-                $meetings_affassociations = MeetingsAssociations::get_data(array('id' => $reportmeta[affid], 'idAttr' => 'affid', 'mtid' => 'mtid=(select mtid from meetings_minsofmeeting where momid='.$actions->momid.')'), array('returnarray' => true, 'operators' => array('mtid' => 'CUSTOMSQL')));
-                //If actions are associated to the QR affiliate -> continue
-                if(is_array($meetings_affassociations)) {
-                    continue;
-                }
-                //Else check if employees of the QR aff are assigned to the actions
-                $employeesassigned = false;
-                $momactionsassignees = MeetingsMOMActionAssignees::get_data(array('momaid' => $actions->momaid), array('returnarray' => true));
-                if(is_array($momactionsassignees)) {
-                    foreach($momactionsassignees as $assignee) {
-                        if(isset($assignee->uid) && !empty($assignee->uid)) {
-                            $user = new Users($assignee->uid);
-                            if(is_object($user) && $user->get_mainaffiliate()->affid == $reportmeta['affid']) {
-                                $employeesassigned = true;
+        $meetings_suppassociations = MeetingsAssociations::get_data(array('id' => $reportmeta[spid], 'idAttr' => 'spid'), array('returnarray' => true));
+        if(is_array($meetings_suppassociations)) {
+            foreach($meetings_suppassociations as $meetingassociation) {
+                $meetings[$meetingassociation->mtid] = $meetingassociation->mtid;
+            }
+        }
+        if(is_array($meetings)) {
+            $meetings = array_unique($meetings);
+            foreach($meetings as $mtid) {
+                $meeting = new Meetings($mtid); // meetings associated to the supplier
+                if(is_object($meeting)) {
+                    $mom_obj = $meeting->get_mom();
+                    if(is_object($mom_obj)) {
+                        /* actions dates are within the quarter */
+                        $quarter_start = strtotime($core->settings['q'.$reportmeta['quarter'].'start'].'-'.$reportmeta['year']);
+                        $quarter_end = strtotime($core->settings['q'.$reportmeta['quarter'].'end'].'-'.$reportmeta['year']);
+                        $momactions_where = '(date BETWEEN '.$quarter_start.' AND '.$quarter_end.') AND momid='.$mom_obj->momid;
+                        $momactions = MeetingsMOMActions::get_data($momactions_where, array('returnarray' => true));
+                        if(is_array($momactions)) {
+                            /* The actions are associated to the QR affiliate (primarily) or its employees are assigned to the actions (secondary) */
+                            //actions are associated to the QR affiliate
+                            $meetings_affassociations = MeetingsAssociations::get_data(array('id' => $reportmeta[affid], 'idAttr' => 'affid', 'mtid' => $mtid), array('returnarray' => true));
+                            if(is_array($meetings_affassociations)) {
+                                foreach($meetings_affassociations as $meetingassociation) {
+                                    $meetings[$meetingassociation->mtid] = $meetingassociation->mtid;
+                                }
                             }
+                            if(!in_array($mom_obj->mtid, $meetings)) {
+                                //employees are assigned to the actions
+                                foreach($momactions as $key => $actions) {
+                                    $employeesassigned = false;
+                                    $momactionsassignees = MeetingsMOMActionAssignees::get_data(array('momaid' => $actions->momaid), array('returnarray' => true));
+                                    if(is_array($momactionsassignees)) {
+                                        foreach($momactionsassignees as $assignee) {
+                                            if(isset($assignee->uid) && !empty($assignee->uid)) {
+                                                $user = new Users($assignee->uid);
+                                                if(is_object($user) && $user->get_mainaffiliate()->affid == $reportmeta['affid']) {
+                                                    $employeesassigned = true;
+                                                }
+                                            }
+                                        }
+                                    }
+                                    if(!$employeesassigned) {
+                                        unset($momactions[$key]);
+                                    }
+                                }
+                            }
+                            $mom_followupactions .= $mom_obj->parse_actions('QR', $momactions);
                         }
                     }
                 }
-                if(!$employeesassigned) {
-                    unset($momactions[$key]); // if no aff or employees associations do not parse actions
-                }
             }
-            $mom_obj = new MeetingsMOM();
-            $mom_followupactions .= $mom_obj->parse_actions('QR', $momactions);
         }
-        /* Parse MOM Specific Follow Up Actions - end */
-
         eval("\$marketreportpage .= \"".$template->get('reporting_fillreports_marketreport')."\";");
         eval("\$fillreportpage = \"".$template->get('reporting_fillreports_tabs')."\";");
     }

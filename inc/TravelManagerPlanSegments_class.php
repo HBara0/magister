@@ -82,16 +82,16 @@ class TravelManagerPlanSegments extends AbstractClass {
             }
         }
         if(is_array($segmentdata['assign'])) {
-            foreach($segmentdata['assign'] as $type) {
-                if(is_array($type)) {
+            foreach($segmentdata['assign'] as $type => $assigndata) {
+                if(is_array($assigndata)) {
                     if($type == 'affid') {
-                        $assigned['type'] = 'internal';
+                        $assigned['type'] = 'affiliate';
                     }
                     elseif($type == 'eid') {
-                        $assigned['type'] = 'external';
+                        $assigned['type'] = 'entity';
                     }
                     $assigned['tmpsid'] = $this->data[self::PRIMARY_KEY];
-                    foreach($type as $key => $id) {
+                    foreach($assigndata as $key => $id) {
                         if(empty($id)) {
                             continue;
                         }
@@ -259,8 +259,8 @@ class TravelManagerPlanSegments extends AbstractClass {
             }
         }
         if(is_array($segmentdata['assign'])) {
-            foreach($segmentdata['assign'] as $type => $none) {
-                if(is_array($none)) {
+            foreach($segmentdata['assign'] as $type => $assigndata) {
+                if(is_array($assigndata)) {
                     if($type == 'affid') {
                         $assigned['type'] = 'affiliate';
                     }
@@ -268,7 +268,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                         $assigned['type'] = 'entity';
                     }
                     $assigned['tmpsid'] = $this->data[self::PRIMARY_KEY];
-                    foreach($none as $key => $id) {
+                    foreach($assigndata as $key => $id) {
                         if(empty($id)) {
                             continue;
                         }

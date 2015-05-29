@@ -63,7 +63,7 @@ class EndProducTypes extends AbstractClass {
         global $db, $core, $log;
         if(empty($data['title'])) {
             $this->errorcode = 2;
-            return false;
+            return $this;
         }
         $data['title'] = $core->sanitize_inputs($data['title'], array('removetags' => true));
         if(empty($data['name'])) {
@@ -85,7 +85,7 @@ class EndProducTypes extends AbstractClass {
         );
         if(empty($endproducttypes_data['psaid'])) {
             $this->errorcode = 2;
-            return false;
+            return $this;
         }
         $query = $db->insert_query('endproducttypes', $endproducttypes_data);
         return $this;
@@ -339,31 +339,34 @@ class EndProducTypes extends AbstractClass {
         return $immediate_parent->get_mother();
     }
 
-    public function delete_endproducttype() {
+    public function delete_endproducttype($todelete) {
         global $db;
         $attributes = array('eptid');
         foreach($attributes as $attribute) {
             $tables = $db->get_tables_havingcolumn($attribute, 'TABLE_NAME !="endproducttypes"');
             if(is_array($tables)) {
                 foreach($tables as $table) {
-                    $query = $db->query("SELECT * FROM ".Tprefix.$table." WHERE ".$attribute."=".$this->eptid." ");
+                    $query = $db->query("SELECT * FROM ".Tprefix.$table." WHERE ".$attribute."=".$todelete." ");
                     if($db->num_rows($query) > 0) {
                         $this->errorcode = 3;
-                        return $this;
+                        return false;
                     }
                 }
             }
         }
-        $endproducttypes = EndProducTypes::get_data(array('parent' => $this->eptid), array('returnarray' => true));
+        $endproducttypes = EndProducTypes::get_data(array('parent' => $todelete), array('returnarray' => true));
         if(is_array($endproducttypes)) {
             foreach($endproducttypes as $endproduct) {
-                $this->delete_endproducttype($this->eptid);
+                $endproducttodelete = $endproduct->delete_endproducttype($endproduct->eptid);
+                if(!$endproducttodelete) {
+                    return false;
+                }
             }
         }
         $delete = $this->delete();
         if($delete) {
             $this->errorcode = 0;
-            return $this;
+            return true;
         }
     }
 

@@ -154,12 +154,6 @@ class Affiliates {
         return $data->get_objects($filters, $configs);
     }
 
-    /**
-     * Get an affiliate object by name
-     * @global type $db
-     * @param string $name Affiliate name
-     * @return boolean|\Affiliates
-     */
     public static function get_affiliate_byname($name) {
         global $db;
 
@@ -209,10 +203,6 @@ class Affiliates {
         return '<a href="index.php?module=profiles/affiliateprofile&affid='.$this->affiliate['affid'].'" '.$attributes.'>'.$this->affiliate[$options['outputvar']].'</a>';
     }
 
-    /**
-     * Returns the currency of the affiliate country either by its country or its own currency definition
-     * @return \Currencies Currency of the the country
-     */
     public function get_currency() {
         if(empty($this->affiliate['mainCurrency'])) {
             return $this->get_country()->get_maincurrency();

@@ -347,24 +347,9 @@ else {
                     $db->update_query('reports', array('isLocked' => 0, 'status' => 0, 'prActivityAvailable' => 1, 'dataIsImported' => 1, 'dataImportedOn' => TIME_NOW), 'rid='.$rid);
                     $db->update_query('reportcontributors', array('isDone' => 0), 'rid='.$rid);
                 }
-
-                $rids[] = $rid;
             }
-
             if($options['runtype'] != 'dry') {
                 $db->update_query('reports', array('dataIsImported' => 1, 'dataImportedOn' => TIME_NOW), 'affid='.$affid.' AND quarter='.$options['quarter'].' AND year='.$options['year']);
-
-                /* SET status to finalized for reports which do no require any input anymore and no data was imported */
-                $otherreports = ReportingQReports::get_data(array('affid' => $affid, 'year' => $options['year'], 'quarter' => $options['quarter'], 'rid' => implode(',', $rids)), array('returnarray' => true, 'operators' => array('rid' => 'NOT IN')));
-                if(is_array($otherreports)) {
-                    foreach($otherreports as $otherreport) {
-                        $contributors = ReportContributors::get_data(array('rid' => $otherreport->get_id(), 'isDone' => 0), array('returnarray' => true));
-                        if(!is_array($contributors) || empty($contributors)) {
-                            $otherreport->set(array('status' => 1));
-                            $otherreport->save();
-                        }
-                    }
-                }
             }
 
             if(is_array($errors)) {
