@@ -2,11 +2,14 @@
     <head>
         <title>{$core->settings[systemtitle]} | {$lang->reportdetails} - Q{$core->input[quarter]} {$core->input[year]} / {$core->input[supplier]} - {$core->input[affiliate]}</title>
         {$headerinc}
+        <link href="{$core->settings[rootdir]}/css/rateit.min.css" rel="stylesheet" type="text/css">
         <script src="{$core->settings[rootdir]}/js/fillreport.js" type="text/javascript"></script>
+        <script src="{$core->settings[rootdir]}/js/jquery.rateit.min.js" type="text/javascript"></script>
         <script>
-            $(function() {
+            $(function () {
                 var tabs = $("#reporttabs").tabs();
                 var tabcounter = tabs.find(".ui-tabs-nav").find('li').length + 1; //find the  lenght of li tabs and increment by 1
+            {$header_ratingjs}
             });
         </script>
         <style type="text/css">
