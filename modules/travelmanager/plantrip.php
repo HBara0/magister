@@ -102,8 +102,9 @@ if(!$core->input['action']) {
             $origintcity['country'] = $origincity_obj->get_country()->get()['name'];
 
             // $descity_obj = $leave_obj->get_destinationcity($false);
+            $destcounrty_obj = $descity_obj->get_country();
             $destcity = $descity_obj->get();
-            $destcity['country'] = $descity_obj->get_country()->get()['name'];
+            $destcity['country'] = $destcounrty_obj->get()['name'];
             $transp_requirements['drivemode'] = 'transit';
             $transp_requirements['departuretime'] = $db->escape_string(($leave['fromDate']));
             $transp = new TravelManagerPlanTransps();
@@ -116,6 +117,15 @@ if(!$core->input['action']) {
                 $approvedhotels = array();
             }
             $hotelssegments_output = $segmentobj->parse_hotels($sequence, $approvedhotels);
+            if(is_object($destcounrty_obj)) {
+                $otherapprovedhotels = TravelManagerHotels::get_data('country='.$destcounrty_obj->coid.' AND city != '.$descity_obj->ciid, array('returnarray' => true));
+            }
+            if(is_array($otherapprovedhotels)) {
+                $hotelssegments_output.='<br /><a nohref="nohref" style="cursor:pointer;" id="countryhotels_'.$sequence.'_check"><h2>Hotels In The Same Country</h2></a>';
+                $hotelssegments_output.='<div id=countryhotels_'.$sequence.'_view style="display:none">';
+                $hotelssegments_output.=$segmentobj->parse_hotels($sequence, $otherapprovedhotels);
+                $hotelssegments_output.='</div>';
+            }
             // $transpmode_apimaplink = 'https://www.google.com/maps/dir/'.$origintcity['name'].',+'.$origintcity['country'].'/'.$destcity['name'].',+'.$destcity['country'].'/';
             //parse Finances---Start
             $frowid = 1;
@@ -301,6 +311,16 @@ else {
             if(is_array($approvedhotels)) {
                 $hotelssegments_output = $segmentobj->parse_hotels($sequence, $approvedhotels);
             }
+            $destcounrty_obj = $segmentobj->get_destinationcity()->get_country();
+            if(is_object($destcounrty_obj)) {
+                $otherapprovedhotels = TravelManagerHotels::get_data('country='.$destcounrty_obj->coid.' AND city != '.$segmentobj->get_destinationcity()->ciid, array('returnarray' => true));
+            }
+            if(is_array($otherapprovedhotels)) {
+                $hotelssegments_output.='<br /><a nohref="nohref" style="cursor:pointer;" id="countryhotels_'.$sequence.'_check"><h2>Hotels In The Same Country</h2></a>';
+                $hotelssegments_output.='<div id=countryhotels_'.$sequence.'_view style="display:none">';
+                $hotelssegments_output.=$segmentobj->parse_hotels($sequence, $otherapprovedhotels);
+                $hotelssegments_output.='</div>';
+            }
         }
         else {
             $segmentobj = new TravelManagerPlanSegments();
@@ -309,6 +329,16 @@ else {
                 $approvedhotels = array();
             }
             $hotelssegments_output = $segmentobj->parse_hotels($sequence, $approvedhotels);
+            $destcounrty_obj = $descity_obj->get_country();
+            if(is_object($destcounrty_obj)) {
+                $otherapprovedhotels = TravelManagerHotels::get_data('country='.$destcounrty_obj->coid.' AND city != '.$descity_obj->ciid, array('returnarray' => true));
+            }
+            if(is_array($otherapprovedhotels)) {
+                $hotelssegments_output.='<br /><a nohref="nohref" style="cursor:pointer;" id="countryhotels_'.$sequence.'_check"><h2>Hotels In The Same Country</h2></a>';
+                $hotelssegments_output.='<div id=countryhotels_'.$sequence.'_view style="display:none">';
+                $hotelssegments_output.=$segmentobj->parse_hotels($sequence, $otherapprovedhotels);
+                $hotelssegments_output.='</div>';
+            }
         }
 
 
