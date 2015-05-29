@@ -303,6 +303,7 @@ else {
                                 echo 'Updated: ';
                                 $paupdate_querywhere = ' AND uid=0';
                             }
+                            $activity['importedOn'] = TIME_NOW;
                             $db->update_query('productsactivity', $activity, 'rid='.$rid.' AND pid='.$pid.$paupdate_querywhere);
                         }
                     }
@@ -316,12 +317,14 @@ else {
                                 $db->insert_query('productsactivity', $activity);
 
                                 $productact = new ProductsActivity($db->last_id());
-                                if($quarter_info['quarter'] < 4) {
+                                if($quarter_info['quarter'] == 1) {
                                     /* Implement Budget data integration to acquire forecasts  - START */
-                                    $forecasts = $productact->aggregate_relatedbudgetlines(array('aggregatebm' => false));
+                                    // $forecasts = $productact->aggregate_relatedbudgetlines(array('aggregatebm' => false));
                                     /* Implement Budget data integration to acquire forecasts   - END */
-                                    $activity['salesForecast'] = $forecasts['amount'] / 1000;
-                                    $activity['quantityForecast'] = $forecasts['quantity'] / 1000;
+                                    //$activity['salesForecast'] = $forecasts['amount'] / 1000;
+                                    //$activity['quantityForecast'] = $forecasts['quantity'] / 1000;
+                                    $activity['quantityForecast'] = $activity['quantity'];
+                                    $activity['salesForecast'] = $activity['turnOver'];
                                 }
                                 else {
                                     $forecasts = $db->fetch_assoc($db->query("SELECT pid, SUM(quantity) AS quantityForecast, SUM(turnOver) AS salesForecast
@@ -341,12 +344,12 @@ else {
                     echo "Done<br />";
                 }
                 if($options['runtype'] != 'dry') {
-                    $db->update_query('reports', array('isLocked' => 0, 'status' => 0, 'prActivityAvailable' => 1, 'dataIsImported' => 1), 'rid='.$rid);
+                    $db->update_query('reports', array('isLocked' => 0, 'status' => 0, 'prActivityAvailable' => 1, 'dataIsImported' => 1, 'dataImportedOn' => TIME_NOW), 'rid='.$rid);
                     $db->update_query('reportcontributors', array('isDone' => 0), 'rid='.$rid);
                 }
             }
             if($options['runtype'] != 'dry') {
-                $db->update_query('reports', array('dataIsImported' => 1), 'affid='.$affid.' AND quarter='.$options['quarter'].' AND year='.$options['year']);
+                $db->update_query('reports', array('dataIsImported' => 1, 'dataImportedOn' => TIME_NOW), 'affid='.$affid.' AND quarter='.$options['quarter'].' AND year='.$options['year']);
             }
 
             if(is_array($errors)) {

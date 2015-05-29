@@ -994,5 +994,29 @@ class Entities extends AbstractClass {
         }
     }
 
+    public function get_type() {
+        if($this->type == 's') {
+            return 'Supplier';
+        }
+        if($this->type == 'c') {
+            return 'Customer';
+        }
+        if($this->type == 'pc') {
+            return 'Producer Customer';
+        }
+        if($this->type == 'ps') {
+            return 'Producer Supplier';
+        }
+        if($this->type == 't') {
+            return 'Trader';
+        }
+        if($this->type == 'p') {
+            return 'Producer';
+        }
+        if($this->type == 'cs') {
+            return 'Competitor supplier';
+        }
+    }
+
 }
 ?>

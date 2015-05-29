@@ -84,7 +84,7 @@ if($core->input['action']) {
     }
     elseif($core->input['action'] == 'reset_password') {
         $lang->load('messages');
-        $email = $db->escape_string($core->input['email']);
+        $email = $db->escape_string(trim($core->input['email']));
 
         $new_details = $db->fetch_assoc($db->query("SELECT uid, firstName FROM ".Tprefix."users WHERE email='{$email}'"));
 
@@ -336,8 +336,9 @@ if($core->input['action']) {
                 $helplinks['how-to-generate-signature'] = $helpvideo->parse_link();
             }
 
-//            $timezones = DateTimeZone::listIdentifiers();
-//            $timezoneslist = parse_selectlist('timeZone', 10, array_combine($timezones, $timezones), $core->user['timeZone']);
+            $timezones = DateTimeZone::listIdentifiers();
+            $timezoneslist = parse_selectlist('timeZone', 10, array_combine($timezones, $timezones), $core->user['timeZone']);
+
             eval("\$editprofilepage = \"".$template->get('editprofile')."\";");
             output_page($editprofilepage);
         }
@@ -354,7 +355,7 @@ if($core->input['action']) {
             }
 
             $profile_user = new Users($uid, false);
-
+            $download_card_button = '<a style="cursor:pointer;" href="'.$core->settings['rootdir'].'/users.php?action=downloadvcard&uid='.$uid.'"><img src="./images/download_vcard.png" title="'.$lang->downloadcontact.'"/></a>';
             if($profile_user->get_errorcode() == 1) {
                 redirect($_SERVER['HTTP_REFERER']);
             }
@@ -648,7 +649,6 @@ if($core->input['action']) {
                     }
                 }
             }
-
             eval("\$profilepage = \"".$template->get('userprofile')."\";");
             output_page($profilepage);
         }
@@ -803,6 +803,37 @@ if($core->input['action']) {
     elseif($core->input['action'] == 'get_popup_loginbox') {
         eval("\$loginbox = \"".$template->get('popup_loginbox')."\";");
         echo $loginbox;
+    }
+    elseif($core->input['action'] == 'downloadvcard') {
+        $user_data = vCard::get_userdata($core->input['uid']);
+        if(is_array($user_data) && !is_empty($user_data)) {
+            $vcard = new vCard($user_data);
+            if(is_object($vcard)) {
+                $vcard->download();
+            }
+        }
+    }
+    elseif($core->input['action'] == 'downloadallempvcard') {
+        $users = Users::get_users('', array('returnarray' => true));
+        if(is_array($users)) {
+            $vcard_cont = '';
+            foreach($users as $user) {
+                $user_data = vCard::get_userdata($user->uid);
+                if(is_array($user_data) && !is_empty($user_data)) {
+                    $vcard = new vCard($user_data);
+                    if(is_object($vcard)) {
+                        $vcard_cont.= $vcard->get_vcard();
+                    }
+                }
+            }
+            if(!empty($vcard_cont)) {
+                $glob_vcard = new vCard($vcard_cont);
+                if(is_object($glob_vcard)) {
+                    $glob_vcard->set_vcardname('ORKILA Employees');
+                    $glob_vcard->download();
+                }
+            }
+        }
     }
     else {
         $session->name_phpsession(COOKIE_PREFIX.'login');

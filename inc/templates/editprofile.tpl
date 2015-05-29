@@ -93,6 +93,8 @@
                         <td>{$lang->bbpin}</td>
                         <td><input type="text" id="bbPin" name="bbPin" value="{$core->user[bbPin]}"/></td>
                     </tr>
+                    <tr><td>{$download_card_button}</td>
+                    </tr>
                     <tr><td colspan="3" class="subtitle"><br />{$lang->accountsettings}</td></tr>
                     <tr>
                         <td colspan="2">{$lang->defaultmodule}</td>

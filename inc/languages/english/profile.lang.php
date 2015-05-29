@@ -91,4 +91,6 @@ $lang['uploadinginprogress'] = 'Uploading in progress...';
 $lang['viewyourprofile'] = 'View your Profile';
 $lang['workswith'] = 'Works With';
 $lang['wrongid'] = 'Wrong user ID';
+$lang['downloadcontact'] = 'Download Contact';
+$lang['downloademployeescards'] = 'Download All Employees Contacts';
 ?>

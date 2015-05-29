@@ -1,7 +1,7 @@
 <?php
 /*
  * Copyright © 2013 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * [Provide Short Descption Here]
  * $id: minutesmeeting.php
  * Created:        @tony.assaad    Nov 11, 2013 | 11:42:49 AM
@@ -19,7 +19,11 @@ if($core->usergroup['meetings_canCreateMeeting'] == 0) {
 if(!$core->input['action']) {
     if(isset($core->input['mtid']) && !empty($core->input['mtid'])) {
         $meeting_obj = new Meetings($core->input['mtid'], false);
+        if(!is_object($meeting_obj)) {
+            redirect('index.php?module=meetings/list');
+        }
         $meeting = $meeting_obj->get();
+
         if($meeting['createdBy'] != $core->user['uid']) {
             error($lang->sectionnopermission);
         }
@@ -30,6 +34,85 @@ if(!$core->input['action']) {
         }
         else {
             $action = 'add';
+        }
+        $meetingmom = MeetingsMOM::get_mom_bymeeting($core->input['mtid']);
+        //////////////////////////////////////////////
+        $meetingassociations = MeetingsAssociations::get_data(array('mtid' => $meeting['mtid'], 'idAttr' => 'spid'));
+        if(is_object($meetingassociations)) {
+            $spid = $meetingassociations->id;
+        }
+        unset($meetingassociations);
+        //////////////////////////////////////////
+        $momactions = MeetingsMOMActions::get_data(array('momid' => $meetingmom->momid), array('returnarray' => true));
+        if(is_array($momactions)) {
+            $arowid = 0;
+            foreach($momactions as $actions) {
+                $actions_data = $actions->get();
+                $checksum['actions'] = $actions_data['inputChecksum'];
+                if($actions_data['date'] != 0) {
+                    $actions_data['date_otput'] = date($core->settings['dateformat'], $actions_data['date']);
+                    $actions_data['date_formatted'] = date($core->settings['dateformat'], $actions_data['date']);
+                }
+                if($actions_data['isTask'] == 1) {
+                    $checked = 'checked = "checked"';
+                }
+                $momactionsassignees = MeetingsMOMActionAssignees::get_data(array('momaid' => $actions->momaid), array('returnarray' => true));
+                $userrowid = 0;
+                $reprowid = 0;
+                if(is_array($momactionsassignees)) {
+                    foreach($momactionsassignees as $assignee) {
+                        $assignee_data = $assignee->get();
+                        if(isset($assignee->uid) && !empty($assignee->uid)) {
+                            $user = new Users($assignee->uid);
+                            if(is_object(($user))) {
+                                $assignee_data['username'] = $user->get_displayname();
+                            }
+                            $checksum['users'] = $assignee->inputChecksum;
+                            eval("\$actions_users .= \"".$template->get('meetings_mom_actions_users')."\";");
+                            $userrowid++;
+                        }
+                        if(isset($assignee->repid) && !empty($assignee->repid)) {
+                            $representative = new Representatives($assignee->repid);
+                            if(is_object(($representative))) {
+                                $assignee_data['repname'] = $representative->get_displayname();
+                            }
+                            $checksum['representatives'] = $assignee->inputChecksum;
+                            eval("\$actions_representatives .= \"".$template->get('meetings_mom_actions_representatives')."\";");
+                            $reprowid++;
+                        }
+                    }
+                }
+                if(empty($actions_users)) {
+                    $checksum['users'] = generate_checksum('mom');
+                    eval("\$actions_users .= \"".$template->get('meetings_mom_actions_users')."\";");
+                }
+                if(empty($actions_representatives)) {
+                    $checksum['representatives'] = generate_checksum('mom');
+                    eval("\$actions_representatives .= \"".$template->get('meetings_mom_actions_representatives')."\";");
+                }
+                eval("\$actions_rows .= \"".$template->get('meetings_mom_actions_rows')."\";");
+                unset($checked, $actions_users, $actions_representatives);
+                $arowid++;
+            }
+            $headerclass = 'thead';
+            $title = $lang->specificfollowactions;
+            eval("\$actions .= \"".$template->get('meetings_mom_actions')."\";");
+        }
+        else {
+            /* parse Actions ---START */
+            $arowid = 0;
+            $userrowid = 0;
+            $checksum['users'] = generate_checksum('mom');
+            eval("\$actions_users .= \"".$template->get('meetings_mom_actions_users')."\";");
+            $reprowid = 0;
+            $checksum['representatives'] = generate_checksum('mom');
+            eval("\$actions_representatives .= \"".$template->get('meetings_mom_actions_representatives')."\";");
+            $checksum['actions'] = generate_checksum('mom');
+            eval("\$actions_rows .= \"".$template->get('meetings_mom_actions_rows')."\";");
+            $headerclass = 'thead';
+            $title = $lang->specificactions;
+            eval("\$actions .= \"".$template->get('meetings_mom_actions')."\";");
+            /* parse Attachments ---END */
         }
     }
     else {
@@ -43,10 +126,10 @@ if(!$core->input['action']) {
         $multiple_meetings = Meetings::get_multiplemeetings(array('hasmom' => 0));
         if(is_array($multiple_meetings)) {
             if(empty($meeting_list)) {
-                $meeting_list = '<select name="mof[mtid]">';
+                $meeting_list = '<select name = "mof[mtid]">';
                 foreach($multiple_meetings as $mid => $meeting) {
                     if(!empty($meeting['title'])) {
-                        $meeting_list .='<option value="'.$meeting['mtid'].'"> '.$meeting['title'].' | '.$meeting['location'].'</option>';
+                        $meeting_list .='<option value = "'.$meeting['mtid'].'"> '.$meeting['title'].' | '.$meeting['location'].'</option>';
                     }
                 }
                 $meeting_list .= '</select>';
@@ -55,13 +138,31 @@ if(!$core->input['action']) {
         else {
             $meeting_list = $lang->nomeetingavailable;
         }
+
+
+        /* parse Actions ---START */
+        $arowid = 0;
+        $userrowid = 0;
+        $checksum['users'] = generate_checksum('mom');
+        eval("\$actions_users .= \"".$template->get('meetings_mom_actions_users')."\";");
+        $reprowid = 0;
+        $checksum['representatives'] = generate_checksum('mom');
+        eval("\$actions_representatives .= \"".$template->get('meetings_mom_actions_representatives')."\";");
+        $checksum['actions'] = generate_checksum('mom');
+        eval("\$actions_rows .= \"".$template->get('meetings_mom_actions_rows')."\";");
+        $headerclass = 'thead';
+        $title = $lang->specificactions;
+        eval("\$actions .= \"".$template->get('meetings_mom_actions')."\";");
+        /* parse Attachments ---END */
     }
+
+
     eval("\$setminutesmeeting = \"".$template->get('meetings_minutesofmeetings')."\";");
     output_page($setminutesmeeting);
 }
 elseif($core->input['action'] == 'do_add' || $core->input['action'] == 'do_edit') {
     if(empty($core->input['mof']['momid'])) {
-        if(!empty($core->input['mof']['mtid'])) {
+        if(!empty($core->input ['mof']['mtid'])) {
             $meeting_obj = new Meetings($core->input['mof']['mtid']);
             if($meeting_obj->get_createdby()->get()['uid'] != $core->user['uid']) {
                 output_xml('<status>false</status><message>'.$lang->errorsaving.'</message>');
@@ -73,6 +174,7 @@ elseif($core->input['action'] == 'do_add' || $core->input['action'] == 'do_edit'
                 $action = 'add';
             }
             else {
+                $mom_obj = MeetingsMOM::get_data(array('mtid' => $core->input['mof']['mtid']));
                 $action = 'edit';
             }
         }
@@ -107,5 +209,35 @@ elseif($core->input['action'] == 'do_add' || $core->input['action'] == 'do_edit'
             output_xml('<status>false</status><message>'.$lang->errorsaving.'</message>');
             break;
     }
+}
+elseif($core->input['action'] == 'ajaxaddmore_meetingsactions') {
+    $reprowid = $userrowid = 0;
+    $altrow = alt_row($altrow);
+    $checksum['actions'] = generate_checksum('mom');
+    $checksum['representatives'] = generate_checksum('mom');
+    $checksum['users'] = generate_checksum('mom');
+
+    $arowid = $db->escape_string($core->input['value']) + 1;
+    eval("\$actions_users .= \"".$template->get('meetings_mom_actions_users')."\";");
+    eval("\$actions_representatives .= \"".$template->get('meetings_mom_actions_representatives')."\";");
+    eval("\$actions_rows .= \"".$template->get('meetings_mom_actions_rows')."\";");
+
+    echo $actions_rows;
+}
+elseif($core->input['action'] == 'ajaxaddmore_actionsusers') {
+    $checksum['users'] = generate_checksum('mom');
+    $altrow = alt_row($altrow);
+    $arowid = $core->input['ajaxaddmoredata']['arowid'];
+    $userrowid = $db->escape_string($core->input['value']) + 1;
+    eval("\$actions_users_rows .= \"".$template->get('meetings_mom_actions_users')."\";");
+    echo $actions_users_rows;
+}
+elseif($core->input['action'] == 'ajaxaddmore_actionsrepresentatives') {
+    $altrow = alt_row($altrow);
+    $checksum['representatives'] = generate_checksum('mom');
+    $arowid = $core->input['ajaxaddmoredata']['arowid'];
+    $reprowid = $db->escape_string($core->input['value']) + 1;
+    eval("\$actions_representatives_rows .= \"".$template->get('meetings_mom_actions_representatives')."\";");
+    echo $actions_representatives_rows;
 }
 ?>

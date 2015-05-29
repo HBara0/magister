@@ -13,7 +13,7 @@
  *
  * @author tony.assaad
  */
-class Travelmanager_Expenses_Types extends AbstractClass {
+class TravelManager_Expenses_Types extends AbstractClass {
     protected $data = array();
     protected $errorcode = 0;
 
@@ -77,6 +77,11 @@ class Travelmanager_Expenses_Types extends AbstractClass {
                 if(is_array($expensestype) && $options['mode'] != 'addrows') {
                     if(is_array($expensestype[$segid][$rowid]['selectedtype'])) {
                         if(in_array($expenses->tmetid, $expensestype[$segid][$rowid]['selectedtype'])) {
+                            $selected = ' selected="selected"';
+                        }
+                    }
+                    else {
+                        if($expenses->title == 'Food & Beverage') {
                             $selected = ' selected="selected"';
                         }
                     }

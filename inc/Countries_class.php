@@ -19,10 +19,19 @@ class Countries extends AbstractClass {
     const UNIQUE_ATTRS = 'name,acronym';
     const CLASSNAME = __CLASS__;
 
+    /**
+     *
+     * @param Int $id ID of the object
+     * @param Boolean $simple Where to read all columns or only basics
+     */
     public function __construct($id = '', $simple = true) {
         parent::__construct($id, $simple);
     }
 
+    /**
+     *
+     * @return \Currencies Country main currency
+     */
     public function get_maincurrency() {
         return new Currencies($this->data['mainCurrency']);
     }
@@ -31,11 +40,21 @@ class Countries extends AbstractClass {
         return self::get_countries('affid !=0');
     }
 
-    public static function get_countries($filters = '', $configs = array()) {
+    /**
+     *
+     * @param String|Array $filters Filters to apply.
+     * @param array $configs Configuration that can be passed to DAL.
+     * @return Array    Array of countries.
+     */
+    public static function get_countries($filters = '', array $configs = array()) {
         $data = new DataAccessLayer(__CLASS__, self::TABLE_NAME, self::PRIMARY_KEY);
         return $data->get_objects($filters, $configs);
     }
 
+    /**
+     *
+     * @return \Cities|boolean Capital city of the country
+     */
     public function get_capitalcity() {
         if(!is_empty($this->data['capitalCity'])) {
             return new Cities($this->data['capitalCity']);
@@ -43,10 +62,21 @@ class Countries extends AbstractClass {
         return false;
     }
 
+    /**
+     *
+     * @return \Affiliates
+     */
     public function get_affiliate() {
         return new Affiliates($this->data['affid']);
     }
 
+    /**
+     * Get a country object by country name
+     *
+     * @global type $db DB  Connection resource
+     * @param String $name  Name of the country to acquire its object
+     * @return \Countries|boolean   Object of country
+     */
     public static function get_country_byname($name) {
         global $db;
 
@@ -75,6 +105,16 @@ class Countries extends AbstractClass {
         global $db;
 
         $db->update_query(self::TABLE_NAME, $data, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
+    }
+
+    public function get_phonecodes() {
+        $countries = self::get_countries('name IS NOT NUll');
+        if(is_array($countries)) {
+            foreach($countries as $country) {
+                $phonecodes[$country->phoneCode] = $country->phoneCode;
+            }
+        }
+        return $phonecodes;
     }
 
 }

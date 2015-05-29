@@ -40,6 +40,7 @@
                     <li><span id="products/applications"><a href='index.php?module=products/applications'>{$lang->applications}</a></span></li>
                     <li><span id="products/functions"><a href='index.php?module=products/functions'>{$lang->functions}</a></span> </li>
                     <li><span id="products/types"><a href='index.php?module=products/types'>{$lang->types}</a></span> </li>
+                    <li><span id="products/basicingredients"><a href='index.php?module=products/basicingredients'>{$lang->basicingredients}</a></span> </li>
 
                 </ul>
             </div>

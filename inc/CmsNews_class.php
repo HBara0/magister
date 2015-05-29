@@ -52,16 +52,14 @@ class CmsNews extends Cms {
 
         unset($this->data['categories']);
 
-        /* Closing date can be empty, means news doesn't expire */
         if(isset($this->data['publishDate']) && !empty($this->data['publishDate'])) {
             $this->data['publishDate'] = strtotime($this->data['publishDate']);
         }
-
-        if(empty($this->data['alias'])) {
-            $this->data['alias'] = $this->data['title'];
+        else {
+            $this->data['publishDate'] = TIME_NOW;
         }
 
-        $this->data['alias'] = parent::generate_alias($this->data['alias']);
+        // $this->data['alias'] = parent::generate_alias($this->data['alias']);
         $this->data['title'] = $core->sanitize_inputs($this->data['title'], array('removetags' => true));
         $this->data['bodyText'] = $core->sanitize_inputs($this->data['bodyText'], array('method' => 'striponly', 'allowable_tags' => '<span><div><a><br><p><b><i><del><strike><img><video><audio><embed><param><blockquote><mark><cite><small><ul><ol><li><hr><dl><dt><dd><sup><sub><big><pre><figure><figcaption><strong><em><table><tr><td><th><tbody><thead><tfoot><h1><h2><h3><h4><h5><h6>', 'removetags' => true));
         $this->data['createdBy'] = $core->user['uid'];
@@ -241,7 +239,7 @@ class CmsNews extends Cms {
             $query_select = 'cn.cmsnid, cn.title, cn.summary';
         }
 
-        return $db->fetch_assoc($db->query("SELECT {$query_select} FROM ".Tprefix."cms_news cn JOIN ".Tprefix."cms_news_relatedcategories cnrc ON (cnrc.cmsnid=cn.cmsnid) JOIN ".Tprefix."cms_contentcategories cnc ON(cnc.cmsccid=cnrc.cmsccid) WHERE cn.cmsnid=".$db->escape_string($id)));
+        return $db->fetch_assoc($db->query("SELECT {$query_select} FROM ".Tprefix."cms_news cn LEFT JOIN ".Tprefix."cms_news_relatedcategories cnrc ON (cnrc.cmsnid=cn.cmsnid) LEFT JOIN ".Tprefix."cms_contentcategories cnc ON(cnc.cmsccid=cnrc.cmsccid) WHERE cn.cmsnid=".$db->escape_string($id)));
     }
 
     public function get() {

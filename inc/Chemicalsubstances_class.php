@@ -22,19 +22,8 @@ class Chemicalsubstances extends AbstractClass {
     const CLASSNAME = __CLASS__;
     const SIMPLEQ_ATTRS = 'csid, casNum';
 
-    public function __construct($id = '', $simple = false) {
-        if(isset($id)) {
-            $this->read($id, $simple);
-        }
-    }
-
-    protected function read($id, $simple) {
-        global $db;
-        $query_select = '*';
-        if($simple == true) {
-            $query_select = 'csid, casNum';
-        }
-        $this->data = $db->fetch_assoc($db->query('SELECT '.$query_select.' FROM '.Tprefix.'chemicalsubstances WHERE csid='.intval($id)));
+    public function __construct($id = '', $simple = true) {
+        parent::__construct($id, $simple);
     }
 
     public function save(array $data = array()) {
@@ -46,7 +35,7 @@ class Chemicalsubstances extends AbstractClass {
     }
 
     public function create(array $data) {
-        global $db, $core;
+        global $db, $core, $errorhandler, $lang;
 
         if(is_empty($data['casNum'], $data['name'])) {
             $this->error_code = 1;
@@ -55,6 +44,16 @@ class Chemicalsubstances extends AbstractClass {
 
         if(value_exists('chemicalsubstances', 'casNum', $data['casNum']) || value_exists('chemicalsubstances', 'name', $data['name'])) {
             $this->error_code = 2;
+            if(value_exists('chemicalsubstances', 'casNum', $data['casNum'])) {
+                $field = 'casNum';
+            }
+            if(value_exists('chemicalsubstances', 'name', $data['name'])) {
+                $field = 'name';
+            }
+            if(value_exists('chemicalsubstances', 'casNum', $data['casNum']) && value_exists('chemicalsubstances', 'name', $data['name'])) {
+                $field = 'casNum, name';
+            }
+            $errorhandler->record('entryexists', $field);
             return false;
         }
         $chemical_data = array(
@@ -64,6 +63,14 @@ class Chemicalsubstances extends AbstractClass {
         );
         $query = $db->insert_query('chemicalsubstances', $chemical_data);
         if($query) {
+            $this->data[self::PRIMARY_KEY] = $db->last_id();
+            $chemfnctionchemical = new ChemFunctionChemicals();
+            $chem_data['safid'] = 0;
+            $chem_data['csid'] = $this->data[self::PRIMARY_KEY];
+            $chem_data['createdBy'] = $core->user['uid'];
+            $chem_data['createdOn'] = TIME_NOW;
+            $chemfnctionchemical->set($chem_data);
+            $chemfnctionchemical->save();
             $this->status = 0;
             return true;
         }
@@ -130,6 +137,32 @@ class Chemicalsubstances extends AbstractClass {
 
     public function get_status() {
         return $this->error_code;
+    }
+
+    public function parse_link($attributes_param = array('target' => '_blank')) {
+        if(is_array($attributes_param)) {
+            foreach($attributes_param as $attr => $val) {
+                $attributes .= $attr.'="'.$val.'"';
+            }
+        }
+        return '<a href="'.$this->get_link().'" '.$attributes.'>'.$this->get_displayname().'</a>';
+    }
+
+    public function get_link() {
+        global $core;
+        return $core->settings['rootdir'].'/index.php?module=profiles/chemicalsubstanceprofile&amp;csid='.$this->data[self::PRIMARY_KEY];
+    }
+
+    public function get_chemfunctionchemicals() {
+        global $db;
+        $query = $db->query("SELECT cfcid FROM ".Tprefix."chemfunctionchemcials WHERE csid=".$db->escape_string($this->data['csid']));
+        if($db->num_rows($query) > 0) {
+            while($chemfunctionchemical = $db->fetch_assoc($query)) {
+                $chemfunctionchemicals[$chemfunctionchemical['cfcid']] = new ChemFunctionChemicals($chemfunctionchemical['cfcid']);
+            }
+            return $chemfunctionchemicals;
+        }
+        return false;
     }
 
 }

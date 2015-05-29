@@ -260,7 +260,7 @@ else {
                     $update_query_where = "rid = '{$reports_meta_data[rid]
                             }'";
                 }
-                $db->update_query('reports', array('isSent' => 1, 'isApproved' => 1, 'isLocked' => 1), $update_query_where);
+                $db->update_query('reports', array('isSent' => 1, 'sentOn' => TIME_NOW, 'isApproved' => 1, 'isLocked' => 1), $update_query_where);
 
                 $log->record($valid_emails, $cc_valid_email);
                 if(is_array($core->input['attachment'])) {

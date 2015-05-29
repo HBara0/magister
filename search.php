@@ -73,6 +73,22 @@ if($core->input['type'] == 'quick') {
             $extra_where .= ' type IN ("pc", "c")';
             $descinfo = 'country';
         }
+        if($core->input['for'] == 'endproducttypes') {
+            $table = 'endproducttypes';
+            $attributes = array('name', 'title');
+            $key_attribute = 'eptid';
+            $select_attributes = array('title');
+            $order = array('by' => 'title', 'sort' => 'ASC');
+            $descinfo = 'endproducttype';
+        }
+        if($core->input['for'] == 'brands') {
+            $table = 'entitiesbrands';
+            $attributes = array('name');
+            $key_attribute = 'ebid';
+            $select_attributes = array('name');
+            $order = array('by' => 'name', 'sort' => 'ASC');
+            $descinfo = 'brands';
+        }
         if($core->input['for'] == 'supplier' || $core->input['for'] == 'customer' || $core->input['for'] == 'competitorsupp' || $core->input['for'] == 'competitortradersupp' || $core->input['for'] == 'competitorproducersupp') {
             if($core->input['for'] == 'supplier') {
                 $type = 's';
@@ -153,6 +169,13 @@ if($core->input['type'] == 'quick') {
             $order = array('by' => 'name', 'sort' => 'ASC');
             $descinfo = 'genericsegment';
         }
+        elseif($core->input['for'] == 'basicingredients') {
+            $table = 'basic_ingredients';
+            $attributes = array('name');
+            $key_attribute = 'biid';
+            $select_attributes = array('title');
+            $order = array('by' => 'name', 'sort' => 'ASC');
+        }
         elseif($core->input['for'] == 'affiliate') {
             $table = 'affiliates';
             $attributes = array('name');
@@ -192,6 +215,9 @@ if($core->input['type'] == 'quick') {
             if(isset($core->input['eid']) && !empty($core->input['eid'])) {
                 $extra_where = 'eid='.intval($core->input['eid']);
             }
+            if(isset($core->input['cid']) && !empty($core->input['cid'])) {
+                $extra_where = 'eid='.intval($core->input['cid']);
+            }
             $table = EntitiesBrands::TABLE_NAME;
             $attributes = array(EntitiesBrands::DISPLAY_NAME);
             $key_attribute = EntitiesBrands::PRIMARY_KEY;
@@ -199,6 +225,14 @@ if($core->input['type'] == 'quick') {
             $select_attributes = array(EntitiesBrands::DISPLAY_NAME);
             $order = array('by' => EntitiesBrands::DISPLAY_NAME, 'sort' => 'ASC');
             $descinfo = 'entbrandsproducts';
+        }
+        elseif($core->input['for'] == 'endproductypes') {
+            $table = EndProducTypes::TABLE_NAME;
+            $attributes = array(EndProducTypes::DISPLAY_NAME);
+            $key_attribute = EndProducTypes::PRIMARY_KEY;
+            $descinfo = 'endproducttypes';
+            $select_attributes = array(EndProducTypes::DISPLAY_NAME);
+            $order = array('by' => EndProducTypes::DISPLAY_NAME, 'sort' => 'ASC');
         }
         elseif($core->input['for'] == 'representative' || $core->input['for'] == 'supprepresentative') {
             if(IN_AREA == 'user') {
@@ -297,10 +331,13 @@ if($core->input['type'] == 'quick') {
         elseif($core->input['for'] == 'hotels') {
             $extra_where = ' isApproved=0';
             if(isset($core->input['city']) && !empty($core->input['city'])) {
-                // $restrictdest_filter = "city ='".intval($core->input['city'])."'";
+                $restrictdest_filter = "city='".intval($core->input['city'])."'";
+            }
+            if(isset($core->input['countryid']) && !empty($core->input['countryid'])) {
+                $restrictdest_filter = "country='".intval($core->input['countryid'])."'";
             }
             if(!empty($restrictdest_filter)) {
-                // $extra_where .= ' AND '.$restrictdest_filter;
+                $extra_where .= ' AND '.$restrictdest_filter;
             }
             $table = 'travelmanager_hotels';
             $attributes = array('name');

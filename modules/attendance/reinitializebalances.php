@@ -46,14 +46,14 @@ if(!$core->input['action']) {
         $affiliates = get_specificdata('affiliates', array('affid', 'name'), 'affid', 'name', array('by' => 'name', 'sort' => 'ASC'));
     }
     else {
-        if(is_array($core->user['hraffids']) && !empty($core->user['hraffids']) && count($core->user['hraffids']) > 1) {
+        if(is_array($core->user['hraffids']) && !empty($core->user['hraffids']) && count($core->user['hraffids']) > 0) {
             $affiliates = get_specificdata('affiliates', array('affid', 'name'), 'affid', 'name', array('by' => 'name', 'sort' => 'ASC'), 0, 'affid IN ('.implode(',', $core->user['hraffids']).')');
         }
     }
 
     if(is_array($affiliates)) {
         if(count($affiliates) == 1) {
-            redirect($_REQUEST['URI'].'&action=selectusers&affid='.key($affiliates));
+            redirect($_SERVER['REQUEST_URI'].'&action=selectusers&affid='.key($affiliates));
         }
         $affid_field = parse_selectlist('affid', 1, $affiliates, $affid, 0);
     }
@@ -120,7 +120,7 @@ else {
                 continue;
             }
 
-            $leaves_objs = Leaves::get_data('uid='.$user->uid.' AND (type='.intval($core->input['type']).' OR type IN (SELECT ltid FROM leavetypes WHERE countWith='.intval($core->input['type']).'))', array('returnarray' => true));
+            $leaves_objs = Leaves::get_data('uid='.$user->uid.' AND (type='.intval($core->input['type']).' OR type IN (SELECT ltid FROM leavetypes WHERE countWith='.intval($core->input['type']).'))', array('order' => array('by' => 'fromDate', 'sort' => 'ASC'), 'returnarray' => true));
             if(is_array($leaves_objs)) {
                 foreach($leaves_objs as $leave) {
                     //$existing_stats = LeavesStats::get_data('uid='.$user->uid.' AND ltid='.$leave->get_type()->ltid.' AND (('.$leave->fromDate.' BETWEEN periodStart AND periodEnd) OR ('.$leave->toDate.' BETWEEN periodStart AND periodEnd))', array('returnarray' => true));
@@ -140,21 +140,30 @@ else {
                         $existing_stat->delete();
                     }
                 }
+                $prevbalanceset = false;
                 foreach($leaves as $leave) {
                     $stat = new LeavesStats();
                     $stat->generate_periodbased($leave);
-                }
+                    /* Update the first stat with prev balance */
+                    if($prevbalanceset == false) {
+                        $existing_stat = LeavesStats::get_data(array('uid' => $user->get_id(), 'ltid' => $core->input['type']), array('order' => array('sort' => 'ASC', 'by' => 'periodStart'), 'limit' => '0, 1'));
+                        if(is_object($existing_stat)) {
+                            $leavepolicy = AffiliatesLeavesPolicies::get_data(array('affid' => $affiliate->affid, 'ltid' => $leavetype->ltid));
+                            if(is_object($leavepolicy)) {
+                                if(!empty($core->input['prevBalance'][$user->get_id()])) {
+                                    if($core->input['prevBalance'][$user->get_id()] > $leavepolicy->maxAccumulateDays) {
+                                        $remainprevyear = $core->input['prevBalance'][$user->get_id()] - $leavepolicy->maxAccumulateDays;
+                                    }
+                                    else {
+                                        $remainprevyear = $core->input['prevBalance'][$user->get_id()];
+                                    }
 
-                /* Update the first stat with prev balance */
-                $existing_stat = LeavesStats::get_data(array('uid' => $user->get_id(), 'ltid' => $core->input['type']), array('order' => array('sort' => 'DESC', 'by' => 'periodStart'), 'limit' => '0, 1'));
-                if(is_object($existing_stat)) {
-                    $leavepolicy = AffiliatesLeavesPolicies::get_data(array('affid' => $affiliate->affid, 'ltid' => $leavetype->ltid));
-                    if(is_object($leavepolicy)) {
-                        if(!empty($core->input['prevBalance'][$user->get_id()])) {
-                            $remainprevyear = $core->input['prevBalance'][$user->get_id()] - $leavepolicy->maxAccumulateDays;
-                            $existing_stat->set(array('remainPrevYear' => $remainprevyear, 'canTake' => $existing_stat->canTake + $remainprevyear));
-                            $existing_stat->save();
-                            unset($remainprevyear);
+                                    $existing_stat->set(array('remainPrevYear' => $remainprevyear, 'canTake' => $existing_stat->canTake + $remainprevyear));
+                                    $existing_stat->save();
+                                    unset($remainprevyear);
+                                }
+                                $prevbalanceset = true;
+                            }
                         }
                     }
                 }

@@ -60,16 +60,14 @@ if(!$core->input['action']) {
     if(empty($core->input['filters']['type'])) {
         $filter_where .= ' e.type IN ("c", "pc") ';
     }
-    $filters_row_display = 'hide';
     if(is_array($filter_where_values)) {
-        $filters_row_display = 'show';
         if(!empty($filter_where)) {
             $filter_where .= ' AND ';
         }
         $filter_where .= 'e.'.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
     }
 
-    $filters_row = $filter->prase_filtersrows(array('tags' => 'table', 'display' => $filters_row_display));
+    $filters_row = $filter->prase_filtersrows(array('tags' => 'table'));
     /* Perform inline filtering - END */
 
     $affiliate_filters_cache = $segment_filters_cache = array();

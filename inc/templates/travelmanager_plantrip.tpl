@@ -65,7 +65,29 @@
                     tabs.tabs("refresh");
                     $('input[id="perform_travelmanager/plantrip_Button"]').click();
                 });
-                $('input[id^=destinationcity_]').live('change', function () {
+                $('input[id^=destinationcity_],input[id^=pickDate_to_]').live('change', function () {
+                    if(sharedFunctions.checkSession() == false) {
+                        return;
+                    }
+                    var id = $(this).attr('id').split("_");
+                    if(id[0] == 'destinationcity') {
+                        var sequence = id[1];
+                    }
+                    else if(id[0] == 'pickDate') {
+                        var sequence = id[2];
+                    }
+                    errormessage = '';
+                    var ciid = $('input[id$=destinationcity_' + sequence + '_cache_id]').val(); /*get  the cityid from the hiiden field*/
+                    if(typeof ciid !== typeof undefined && ciid !== '') {
+                        var origincity = $('input[id=cities_' + sequence + '_cache_id]').val(); /*get  the cityid from the hiiden field*/
+                        sharedFunctions.requestAjax("post", "index.php?module=travelmanager/plantrip&action=populatecontent", "&sequence=" + sequence + "&destcity=" + ciid + "&origincity=" + origincity + "&departuretime=" + $('#altpickDate_from_' + sequence).val() + "&arrivaltime=" + $('#altpickDate_to_' + sequence).val(), 'content_detailsloader_' + sequence + '', 'content_details_' + sequence + '', true);
+                        sharedFunctions.requestAjax("post", "index.php?module=travelmanager/plantrip&action=populatecityprofile", "&sequence=" + sequence + "&destcity=" + ciid, 'segment_city_loader_' + sequence + '', 'segment_city_' + sequence + '', true);
+
+                    }
+
+                });
+
+                $('input[id^=lookuptransps_]').live('click', function () {
                     if(sharedFunctions.checkSession() == false) {
                         return;
                     }
@@ -75,7 +97,11 @@
                     var ciid = $('input[id$=destinationcity_' + sequence + '_cache_id]').val(); /*get  the cityid from the hiiden field*/
                     if(typeof ciid !== typeof undefined && ciid !== '') {
                         var origincity = $('input[id=cities_' + sequence + '_cache_id]').val(); /*get  the cityid from the hiiden field*/
-                        sharedFunctions.requestAjax("post", "index.php?module=travelmanager/plantrip&action=populatecontent", "&sequence=" + sequence + "&destcity=" + ciid + "&origincity=" + origincity + "&departuretime=" + $('#altpickDate_to_' + (sequence - 1)).val(), 'content_detailsloader_' + sequence + '', 'content_details_' + sequence + '', true);
+                        var transp = 0;
+                        if($('input[id=transp_lookuptransps_' + sequence + ']:checked').val().length > 0) {
+                            transp = $('input[id=transp_lookuptransps_' + sequence + ']:checked').val();
+                        }
+                        sharedFunctions.requestAjax("post", "index.php?module=travelmanager/plantrip&action=populatecontent", "&sequence=" + sequence + "&parsetransp=1" + "&destcity=" + ciid + "&origincity=" + origincity + "&departuretime=" + $('#altpickDate_from_' + sequence).val() + "&arrivaltime=" + $('#altpickDate_to_' + sequence).val() + '&transp=' + transp, 'content_detailsloader_' + sequence + '', 'content_details_' + sequence + '', true);
                         sharedFunctions.requestAjax("post", "index.php?module=travelmanager/plantrip&action=populatecityprofile", "&sequence=" + sequence + "&destcity=" + ciid, 'segment_city_loader_' + sequence + '', 'segment_city_' + sequence + '', true);
                     }
                 });
@@ -89,6 +115,11 @@
                     /*ajax call to parse transpfields*/
                     //  sharedFunctions.requestAjax("post", "index.php?module=travelmanager/plantrip&action=parsedetailstransp", "&categoryid=" + categoryid + "&sequence=" + sequence + "&catid=" + id[2], 'cat_detailsloader_' + categoryid + '', 'transpcat_content' + categoryid + '', true);
 
+                });
+                $('a[id^=countryhotels_][id$=_check]').live('click', function () {
+                    var id = $(this).attr('id').split("_");
+                    var sequence = id[1];
+                    $('div[id=countryhotels_' + sequence + '_view]').slideToggle("slow");
                 });
                 $('input[id*=pickDate_to_]').live('change', function () {
                     if(sharedFunctions.checkSession() == false) {
@@ -120,13 +151,15 @@
                     }
 
                 });
-                $('input[id^="numnight_segacc_"]').live('keyup', function () {
+                $('input[id^="numnight_segacc_"],input[id^="pricenight_segacc_"]').live('change', function () {
                     var id = $(this).attr("id").split("_");
                     if($('input[id="pricenight_' + id[1] + '_' + id[2] + '_' + id[3] + '"]').length < 0) {
                         return;
                     }
-
+                    var name = $('input[id^="checksum_' + id[2] + '_' + id[3] + '_"][id$="_tmhid"]').attr("id").split("_");
                     $("div[id=total_" + id[1] + "_" + id[2] + '_' + id[3] + "]").fadeToggle('slow').stop().text($('input[id="pricenight_' + id[1] + '_' + id[2] + '_' + id[3] + '"]').val() * $('input[id="numnight_' + id[1] + '_' + id[2] + '_' + id[3] + '"]').val());
+                    $('input[name="segment[' + name[2] + '][tmhid][' + name[3] + '_' + name[4] + '][subtotal]"]').val($('input[id="pricenight_' + id[1] + '_' + id[2] + '_' + id[3] + '"]').val() * $('input[id="numnight_' + id[1] + '_' + id[2] + '_' + id[3] + '"]').val());
+                    $('input[name="segment[' + name[2] + '][tmhid][' + name[3] + '_' + name[4] + '][subtotal]"]').trigger('change');
                 });
                 $('input[id=finalize]').live('click', function () {
                     $('input[id="finalizeplan"]').val('1');
@@ -154,8 +187,105 @@
                     var id = $(this).attr("id").split("_");
                     $('#segment_hotels_' + id[1] + ', #other_hotels_' + id[1]).toggle(!$(this).is(':checked')).find('input').val("");
                 });
+                if($('input[id^="specifyaffent_"]').is(':checked')) {
+                    var id = $('input[id^="specifyaffent_"]').attr("id").split("_");
+                    $('tr[id="specifyaffent_' + id[1] + '_block"]').show();
+                }
+                $('input[id^="specifyaffent_"]').live('click', function () {
+                    var segvar = $(this).val();
+                    var id = $(this).attr("id").split("_");
+                    var segid = id[1];
+                    if($(this).is(':checked')) {
+                        $('tr[id="specifyaffent_' + segid + '_block"]').show();
+                        $('input[id="allentities_' + segid + '_cache_id"]').removeAttr('disabled');
+                        $('input[name="segment[' + segid + '][affid]"]').removeAttr('disabled');
+                    }
+                    else {
+                        $('tr[id="specifyaffent_' + segid + '_block"]').hide();
+                        $('input[id="allentities_' + segid + '_cache_id"]').attr('disabled', 'disabled');
+                        $('input[name="segment[' + segid + '][affid]"]').attr('disabled', 'disabled');
+                    }
+                });
+                $('input[id^=segment_1_tmtcid_][id$="fare"]').each(function (i, obj) {
+                    populate_suggestions(obj);
+                    return false;
+                });
+                $('input[name^="segment"][name$="[fare]"],input[name^="segment"][name$="[subtotal]"],select[name^="segment"][name$="[currency]"],input[name^="segment"][name$="[expectedAmt]"]').live('change', function () {
+                    populate_suggestions(this);
+                });
             });
-
+            function populate_suggestions(obj) {
+                var id = $(obj).attr("id").split("_");
+                var total = {
+                };
+                $('input[id^="segment_' + id[1] + '_"][id$="_fare"]').each(function (i, obj) {
+                    var fareid = $(obj).attr("name").slice(0, -6);
+                    var farecur = $('select[name="' + fareid + '[currency]"] option:selected').text();
+                    var price = $(obj).val();
+                    if(price > 0) {
+                        if(typeof total[farecur] == "undefined") {
+                            total[farecur] = parseInt(price, 10);
+                        }
+                        else {
+                            total[farecur] = total[farecur] + parseInt(price, 10);
+                        }
+                    }
+                });
+                $('input[name^="segment[' + id[1] + ']"][name$="[subtotal]"]').each(function (i, obj) {
+                    var priceid = $(obj).attr("name").slice(0, -10);
+                    var pricecur = $('select[name^="' + priceid + '[currency]"] option:selected').text();
+                    var price = $(obj).val();
+                    if(price > 0) {
+                        if(typeof total[pricecur] == "undefined") {
+                            total[pricecur] = parseInt(price, 10);
+                        }
+                        else {
+                            total[pricecur] = total[pricecur] + parseInt(price, 10);
+                        }
+                    }
+                });
+                $('input[name^="segment[' + id[1] + ']"][name$="[expectedAmt]"]').each(function (i, obj) {
+                    var expecid = $(obj).attr("name").slice(0, -13);
+                    var expeccur = $('select[name="' + expecid + '[currency]"] option:selected').text();
+                    var price = $(obj).val();
+                    if(price > 0) {
+                        if(typeof total[expeccur] == "undefined") {
+                            total[expeccur] = parseInt(price, 10);
+                        }
+                        else {
+                            total[expeccur] = total[expeccur] + parseInt(price, 10);
+                        }
+                    }
+                });
+                $('input[id^="purposes_checks_"]').live('change', function () {
+                    var id = $(this).attr('id').split('_');
+                    var empty = 1;
+                    $('input[id="' + $(this).attr('id') + '"]').each(function (i, obj) {
+                        if($(obj).is(":checked")) {
+                            empty = 0;
+                        }
+                    });
+                    if(empty == 1) {
+                        $('[data-purposes="' + id[2] + '_' + id[3] + '"]').each(function (i, obj) {
+                            $(obj).find('input').val('');
+                            $(obj).find('select').val('');
+                            $(obj).hide();
+                        });
+                    }
+                    else {
+                        $('[data-purposes="' + id[2] + '_' + id[3] + '"]').each(function (i, obj) {
+                            $(obj).show();
+                        })
+                    }
+                });
+                var ptext = '';
+                $.each(total, function (index, val) {
+                    ptext += 'Total Amount In ' + index + ' is ' + val + '. ';
+                });
+                if(ptext.length > 0) {
+                    $('p[id="finance_' + id[1] + '_suggestion"]').text(ptext);
+                }
+            }
         </script>
         <style type="text/css">
             .ui-tabs-nav li {
@@ -174,7 +304,7 @@
         <td class="contentContainer" colspan="2">
             <h1>{$lang->plantrip}</h1>
             {$leave_ouput}
-            <form name="perform_travelmanager/plantrip_Form" id="perform_travelmanager/plantrip_Form" action="#" method="post">
+            <form name="perform_travelmanager/plantrip_Form" id="perform_travelmanager/plantrip_Form" novalidate action="#" method="post">
                 <div style='margin-top: 10px; '>
                     <a id="createtab" class="showpopup" href="#"><img border="0" alt="{$lang->addsegment}" src="images/addnew.png"> {$lang->addsegment}</a>
                 </div>

@@ -39,6 +39,7 @@ if(!$core->input['action']) {
 
     $leave = $plan_object->get_leave();
     $approvers = $leave->get_approvers();
+    $approver_chain = array();
     if(is_array($approvers)) {
         foreach($approvers as $approver) {
             $approver_chain[] = $approver->uid;
@@ -60,7 +61,7 @@ if(!$core->input['action']) {
     //$leave_type = unserialize($plan_object->get_leave()->get_type()->get()['toApprove']);
 
     /* parse segment of plan */
-    $segment_objs = TravelManagerPlanSegments::get_segments(array('tmpid' => $planid), array('order' => 'fromDate', 'returnarray' => true));
+    $segment_objs = TravelManagerPlanSegments::get_segments(array('tmpid' => $planid), array('order' => array('by' => 'sequence', 'sort' => 'ASC'), 'returnarray' => true));
     if(is_array($segment_objs)) {
         foreach($segment_objs as $segmentid => $segment) {
             $segment_details .= $segment->parse_segment();
@@ -111,6 +112,7 @@ else {
                         eval("\$otherapprovedhotels .= \"".$template->get('travelmanager_approvedhotel_row')."\";");
                     }
                     eval("\$transportaionsegment_fields .= \"".$template->get('travelmanager_viewplan_approvedhotels')."\";");
+                    unset($otherapprovedhotels);
                 }
             }
             if(!empty($transportaionsegment_fields)) {
@@ -143,7 +145,7 @@ else {
                 $travelmanageraccom = TravelManagerPlanaccomodations::get_data(array('tmpsid' => $segment->tmpsid), array('returnarray' => true));
                 if(!is_array($travelmanageraccom)) {
                     header('Content-type: text/xml+javascript');
-                    output_xml('<status>false</status><message>'.$lang->acomchecknote.'</message>');
+                    output_xml('<status>false</status><message>'.$lang->acomchecknote.' for '.$segment->name.'</message>');
                     exit;
                 }
             }
@@ -166,9 +168,9 @@ else {
                 $db->update_query(TravelManagerPlan::TABLE_NAME, array('isFinalized' => 1), TravelManagerPlan::PRIMARY_KEY.'='.$core->input['planid']);
                 $url = 'index.php?module=travelmanager/viewplan&id='.$core->input['planid'].'&action=email';
                 header('Content-type: text/xml+javascript');
-                output_xml('<status>true</status><message><![CDATA[<script>goToURL(\''.$url.'\');</script>]]></message>');
+                output_xml('<status>true</status><message>'.$lang->successfullysaved.'<![CDATA[<script>goToURL(\''.$url.'\');</script>]]></message>');
 
-                // output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
+                // output_xml("<status>true</status><message></message>");
                 break;
             case 1:
                 output_xml("<status>false</status><message>{$lang->planexist}</message>");

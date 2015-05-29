@@ -30,7 +30,7 @@
                         var overwrite = "&overwrite=1";
                     }
                     ;
-                    setTimeout((sharedFunctions.requestAjax("post", "index.php?module=tablesdefinition/managetables&action=createclass", "&stid=" + stid + classdef + classfunc + overwrite, true)), 2000);
+                    setTimeout((sharedFunctions.requestAjax("post", "index.php?module=managesystem/managetables&action=createclass", "&stid=" + stid + classdef + classfunc + overwrite, true)), 2000);
                 });
             });
         </script>
@@ -41,7 +41,7 @@
         {$menu}
         <td class="contentContainer" colspan="2">
             <h1>{$page_title}</h1>
-            <a href='{$core->settings['rootdir']}/manage/index.php?module=tablesdefinition/managetables&type=showtabledata&d$@1á={$core->input['d$@1á']}'><button style="float: right" id='showtablcols' class="button">{$lang->gettablecolumns}</button></a>
+            <a href='{$core->settings['rootdir']}/manage/index.php?module=managesystem/managetables&type=showtabledata&d$@1á={$core->input['d$@1á']}'><button style="float: right" id='showtablcols' class="button">{$lang->gettablecolumns}</button></a>
                 {$table_main}
         </td>
     </tr>

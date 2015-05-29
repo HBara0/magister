@@ -22,6 +22,7 @@ class EntBrandsProducts extends AbstractClass {
     const DISPLAY_NAME = '';
     const SIMPLEQ_ATTRS = 'ebpid, ebid, eptid';
     const CLASSNAME = __CLASS__;
+    const UNIQUE_ATTRS = 'ebid,eptid';
 
     public function __construct($id = '', $simple = true) {
         parent::__construct($id, $simple);
@@ -80,24 +81,69 @@ class EntBrandsProducts extends AbstractClass {
         return new EndProducTypes($this->data['eptid']);
     }
 
-    public function get_createdby() {
-        return new Users($this->data['createdBy']);
-    }
-
-    public function get_modifiedby() {
-        return new Users($this->data['modifiedBy']);
-    }
-
-    protected function create(array $data) {
-
+    public function create(array $data) {
+        global $db, $core;
+        $table_array = array(
+                'eptid' => $data['eptid'],
+                'ebid' => $data['ebid'],
+                'createdBy' => $core->user['uid'],
+                'createdOn' => TIME_NOW,
+        );
+        $query = $db->insert_query(self::TABLE_NAME, $table_array);
+        if($query) {
+            $this->data[self::PRIMARY_KEY] = $db->last_id();
+        }
+        return $this;
     }
 
     protected function update(array $data) {
-
+        global $db, $core;
+        if(is_array($data)) {
+            $update_array['eptid'] = $data['eptid'];
+            $update_array['ebid'] = $data['ebid'];
+            $update_array['modifiedBy'] = $core->user['uid'];
+            $update_array['modifiedOn'] = TIME_NOW;
+        }
+        $db->update_query(self::TABLE_NAME, $update_array, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
+        return $this;
     }
 
-    public function save(array $data = array()) {
+    public function parse_link($attributes_param = array('target' => '_blank')) {
+        global $core;
+        if(is_array($attributes_param)) {
+            foreach($attributes_param as $attr => $val) {
+                $attributes .= $attr.'="'.$val.'"';
+            }
+        }
+        return '<a href="'.$this->get_link().'" '.$attributes.'><img title="Go To Brand End Product Profile" src="'.$core->settings['rootdir'].'/images/twoheadead_arrow.png"></a>';
+    }
 
+    public function get_link() {
+        global $core;
+        return $core->settings['rootdir'].'/index.php?module=profiles/brandprofile&amp;ebpid='.$this->data[self::PRIMARY_KEY];
+    }
+
+    public function get_status() {
+        global $core, $lang;
+        $reviewed = $lang->notreviwed;
+        if($this->isReviewed()) {
+            $reviewedOn = date($core->settings['dateformat']." ".$core->settings['timeformat'], $this->reviewedOn);
+            $reviewedBy_obj = new Users($this->reviewedBy);
+            if(is_object($reviewedBy_obj)) {
+                $reviewedBy = '<a href="'.$reviewedBy_obj->get_link().'" style="color:#91B64F;">'.$reviewedBy_obj->get_displayname().'</a>';
+            }
+            $reviewed = $lang->reviewedon." ".$reviewedOn." ".$lang->by." ".$reviewedBy;
+        }
+        return $reviewed;
+    }
+
+    public function isReviewed() {
+        if($this->reviewedOn != 0) {
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 
 }

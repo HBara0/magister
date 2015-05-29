@@ -303,7 +303,7 @@ class Users extends AbstractClass {
         global $db;
         $query_select = '*';
         if($simple == true) {
-            $query_select = 'employeeNum, joinDate, jobDescription';
+            $query_select = 'employeeNum, joinDate, jobDescription, firstJobDate';
         }
 
         $this->data['hrinfo'] = $db->fetch_assoc($db->query("SELECT ".$query_select."
@@ -594,6 +594,11 @@ class Users extends AbstractClass {
         }
 
         return '<a href="users.php?action=profile&amp;uid='.$this->data['uid'].'" '.$attributes.'>'.$this->data[$options['outputvar']].'</a>';
+    }
+
+    public function get_link() {
+        global $core;
+        return $core->settings['rootdir'].'/users.php?action=profile&amp;uid='.$this->data['uid'];
     }
 
     protected function create(array $data) {

@@ -30,6 +30,9 @@ class ProductsSegments extends AbstractClass {
     protected function update(array $data) {
         global $db;
 
+        if(!isset($data['publishOnWebsite'])) {
+            $data['publishOnWebsite'] = 0;
+        }
         $db->update_query(self::TABLE_NAME, $data, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
     }
 
@@ -136,6 +139,20 @@ class ProductsSegments extends AbstractClass {
         else {
             return false;
         }
+    }
+
+    public function get_link() {
+        global $core;
+        return $core->settings['rootdir'].'/index.php?module=profiles/segmentprofile&amp;id='.$this->data[self::PRIMARY_KEY];
+    }
+
+    public function parse_link($attributes_param = array('target' => '_blank')) {
+        if(is_array($attributes_param)) {
+            foreach($attributes_param as $attr => $val) {
+                $attributes .= $attr.'="'.$val.'"';
+            }
+        }
+        return '<a href="'.$this->get_link().'" '.$attributes.'>'.$this->get_displayname().'</a>';
     }
 
     public function get_customers($filterpermission = '') {

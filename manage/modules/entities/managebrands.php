@@ -34,10 +34,27 @@ if(!$core->input['action']) {
 
     $productypes_objs = EndProducTypes::get_endproductypes();
     if(is_array($productypes_objs)) {
-        foreach($productypes_objs as $productypes_obj) {
-            $endproduct_types = $productypes_obj->get();
-            $endproducttypes_list.='<option value="'.$endproduct_types['eptid'].'">'.$endproduct_types['title'].'</option>';
+        foreach($productypes_objs as $productype) {
+            $value = $productype->title;
+            $pplication = $productype->get_application()->parse_link();
+            if($pplication !== null) {
+                $value .=' - '.$pplication;
+            }
+            $parent = $productype->get_endproducttype_chain();
+            if(!empty($parent)) {
+                $values[$productype->eptid] = $parent.' > '.$value;
+            }
+            else {
+                $values[$productype->eptid] = $value;
+            }
         }
+        asort($values);
+        foreach($values as $key => $value) {
+            $checked = $rowclass = '';
+            $endproducttypes_list .= ' <tr class="'.$rowclass.'">';
+            $endproducttypes_list .= '<td><input id="producttypefilter_check_'.$key.'" type="checkbox"'.$checked.' value="'.$key.'" name="entitybrand[endproducttypes]['.$key.']">'.$value.'</td><tr>';
+        }
+        //$endproducttypes_list.='<option value="'.$endproduct_types['eptid'].'">'.$endproduct_types['title'].'</option>';
     }
     $module = 'entities';
     $modulefile = 'managebrands';

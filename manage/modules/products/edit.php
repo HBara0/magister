@@ -131,6 +131,8 @@ else {
         $productschemsubstances = $core->input['chemsubstances'];
         unset($core->input['action'], $core->input['module'], $core->input['applicationfunction'], $core->input['chemsubstances']);
 
+        $core->input['modifiedBy'] = $core->user['uid'];
+        $core->input['modifiedOn'] = TIME_NOW;
         $query = $db->update_query('products', $core->input, "pid='".$db->escape_string($core->input['pid'])."'");
         if($query) {
             $log->record($core->input['name']);

@@ -16,6 +16,7 @@ class CmsMenuItems extends AbstractClass {
     const DISPLAY_NAME = 'title';
     const SIMPLEQ_ATTRS = 'cmsmiid,cmsmid,title';
     const CLASSNAME = __CLASS__;
+    const UNIQUE_ATTRS = 'alias';
 
     public function __construct($id = '', $simple = true) {
         parent::__construct($id, $simple);
@@ -34,7 +35,6 @@ class CmsMenuItems extends AbstractClass {
                 'publishedDesc' => $data['publishedDesc'],
                 'lang' => $data['lang'],
                 'type' => $data['type'],
-                'configurations' => $data['configurations'],
                 'metaDesc' => $data['metaDesc'],
                 'metaKeywords' => $data['metaKeywords'],
                 'robotsRule' => $data['robotsRule'],
@@ -43,6 +43,23 @@ class CmsMenuItems extends AbstractClass {
                 'createdBy' => $core->user['uid'],
                 'dateCreated' => TIME_NOW,
         );
+
+        /* validate configuration against set of defined configuratons */
+        $accepted_configurations = array('webpage' => array('webpage' => 'webpage'), 'singlesegmentcategory' => array('singlesegmentcategory' => 'singlesegmentcategory'), 'singlesegment' => array('singlesegment' => 'singlesegment'), 'newsarchive' => array('newsarchive' => 'newsarchive'), 'eventsarchive' => array('eventsarchive' => 'eventsarchive'), 'listnews' => array('listnews' => 'listnews'), 'branchprofile' => array('branchprofile' => 'branchprofile'), 'affiliate' => array('affiliate'), 'externalurl' => array('link', 'linktitle', 'linkimage'), 'contact' => array('contact'));
+        foreach($accepted_configurations as $key => $val) {
+            if(empty($data['type'])) {
+                break;
+            }
+            if(!empty($data['configurations'][$key])) {
+                if(is_array($data['configurations'][$key])) {
+                    if(!array_filter($data['configurations'][$key])) {
+                        continue;
+                    }
+                }
+                $menuitem_array['configurations'] = base64_encode(serialize(($data['configurations'][$key])));
+            }
+        }
+
         $query = $db->insert_query(self::TABLE_NAME, $menuitem_array);
         if($query) {
             $this->data[self::PRIMARY_KEY] = $db->last_id();
@@ -57,7 +74,23 @@ class CmsMenuItems extends AbstractClass {
         if(!isset($menuitem_array['cmsmiid'])) {
             $menuitem_array['cmsmiid'] = $this->cmsmiid;
         }
-        $db->update_query('cms_menuitems', $menuitem_array, 'cmsmiid='.$menuitem_array['cmsmiid']);
+
+        /* validate configuration against set of defined configuratons */
+        $accepted_configurations = array('webpage' => array('webpage' => 'webpage'), 'singlesegmentcategory' => array('singlesegmentcategory' => 'singlesegmentcategory'), 'singlesegment' => array('singlesegment' => 'singlesegment'), 'newsarchive' => array('newsarchive' => 'newsarchive'), 'eventsarchive' => array('eventsarchive' => 'eventsarchive'), 'listnews' => array('listnews' => 'listnews'), 'branchprofile' => array('branchprofile' => 'branchprofile'), 'affiliate' => array('affiliate'), 'externalurl' => array('link', 'linktitle', 'linkimage'), 'contact' => array('contact'));
+        foreach($accepted_configurations as $key => $val) {
+            if(empty($menuitem_array['type'])) {
+                break;
+            }
+            if(!empty($menuitem_array['configurations'][$key])) {
+                if(is_array($menuitem_array['configurations'][$key])) {
+                    if(!array_filter($menuitem_array['configurations'][$key])) {
+                        continue;
+                    }
+                }
+                $menuitem_array['configurations'] = base64_encode(serialize(($menuitem_array['configurations'][$key])));
+            }
+        }
+        $db->update_query('cms_menuitems', $menuitem_array, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
     }
 
     public function get_displayname() {

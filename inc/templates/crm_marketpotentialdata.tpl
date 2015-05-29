@@ -2,6 +2,7 @@
     <head>
         <title>{$core->settings[systemtitle]} | {$lang->potentialmarketdata}</title>
         {$headerinc}
+        <script src="{$core->settings[rootdir]}/js/profiles_marketintelligence.min.js" type="text/javascript"></script>
     </head>
     <body>
         {$header}
@@ -21,10 +22,12 @@
                             <th width="250px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->product}</th>
                             <th width="250px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->supplier}</th>
                             <th width="250px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->chemicalsubs}</th>
+                            <th width="250px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->basicingredients}</th>
                             <th width="250px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->functionalproperty}</th>
                             <th width="250px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->application}</th>
                             <th width="250px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->segment}</th>
                             <th width="250px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->brand}</th>
+                            <th width="250px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->brandendproduct}</th>
                             <th width="250px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->endproducttype}</th>
                             <th width="250px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->potentialqty}</th>
                             <th width="150px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->marketshare}</th>

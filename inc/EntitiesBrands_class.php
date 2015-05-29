@@ -13,53 +13,43 @@
  *
  * @author tony.assaad
  */
-class EntitiesBrands {
-    private $entitiesbrands = array();
+class EntitiesBrands extends AbstractClass {
+    protected $data = array();
+    protected $errorcode = 0;
 
     const PRIMARY_KEY = 'ebid';
     const TABLE_NAME = 'entitiesbrands';
     const DISPLAY_NAME = 'name';
     const CLASSNAME = __CLASS__;
+    const SIMPLEQ_ATTRS = '*';
 
-    public function __construct($id = '', $simple = false) {
-        if(isset($id)) {
-            $this->read($id, $simple);
-        }
+    public function __construct($id = '', $simple = true) {
+        parent::__construct($id, $simple);
     }
 
-    private function read($id, $simple) {
-        global $db;
-        $query_select = '*';
-        if($simple == true) {
-            $query_select = 'ebid, eid, name';
-        }
-        $this->entitiesbrands = $db->fetch_assoc($db->query('SELECT '.$query_select.' FROM '.Tprefix.'entitiesbrands WHERE ebid='.intval($id)));
-    }
-
-    public function create($data = array()) {
+    public function create(array $data) {
         global $db, $core;
         if(is_array($data)) {
             $this->data = $data;
-            if(empty($this->data['title'])) {
+            if(empty($this->data['name'])) {
                 $this->errorcode = 1;
                 return false;
             }
 
-            if(value_exists('entitiesbrands', 'name', $this->data['title'], 'eid!='.intval($this->data['eid']))) {
+            if(value_exists('entitiesbrands', 'name', $this->data['name'], 'eid!='.intval($this->data['eid']))) {
                 $this->errorcode = 2;
                 return false;
             }
 
-            $brand = EntitiesBrands::get_data(array('name' => $this->data['title'], 'eid' => $this->data['eid']));
+            $brand = EntitiesBrands::get_data(array('name' => $this->data['name'], 'eid' => $this->data['eid']));
 
             if(!is_object($brand)) {
                 $enttitbrand_data = array(
-                        'name' => $this->data['title'],
+                        'name' => $this->data['name'],
                         'eid' => $this->data['eid'],
                         'createdBy' => $core->user['uid'],
                         'createdOn' => TIME_NOW
                 );
-
                 if($this->data['isGeneral'] == 1) {
                     $enttitbrand_data['isGeneral'] = 1;
                 }
@@ -91,7 +81,9 @@ class EntitiesBrands {
                                 'createdBy' => $core->user['uid'],
                                 'createdOn' => TIME_NOW
                         );
-                        $query = $db->insert_query('entitiesbrandsproducts', $entitiesbrandsproducts_data);
+                        $entitybrand_obj = new EntBrandsProducts();
+                        $entitybrand_obj->set($entitiesbrandsproducts_data);
+                        $entitybrand_obj->save();
                     }
                 }
                 $this->errorcode = 0;
@@ -100,16 +92,28 @@ class EntitiesBrands {
         }
     }
 
+    protected function update(array $data) {
+        global $db, $core;
+        if(is_array($data)) {
+            $update_array['name'] = $data['name'];
+            $update_array['eid'] = $data['eid'];
+            $update_array['modifiedBy'] = $core->user['uid'];
+            $update_array['modifiedOn'] = TIME_NOW;
+        }
+        $db->update_query(self::TABLE_NAME, $update_array, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
+        return $this;
+    }
+
     public function get_entity($simple = true) {
-        return new Entities($this->entitiesbrands['eid'], null, $simple);
+        return new Entities($this->data['eid'], null, $simple);
     }
 
     public function get_createdby() {
-        return new Users($this->entitiesbrands['createdBy']);
+        return new Users($this->data['createdBy']);
     }
 
     public function get_modifiedby() {
-        return new Users($this->entitiesbrands['modifiedBy']);
+        return new Users($this->data['modifiedBy']);
     }
 
     public static function get_data($filters = '', $configs = array()) {
@@ -166,7 +170,7 @@ class EntitiesBrands {
     public function get_entbrandproducts() {
         global $db;
 
-        $query = $db->query('SELECT ebpid  FROM '.Tprefix.'entitiesbrandsproducts WHERE ebid="'.intval($this->entitiesbrands['ebid']).'"');
+        $query = $db->query('SELECT ebpid  FROM '.Tprefix.'entitiesbrandsproducts WHERE ebid="'.intval($this->data['ebid']).'"');
         while($entbrandproduct = $db->fetch_assoc($query)) {
             $entbrandproducts[$entbrandproduct['ebpid']] = new EntBrandsProducts($entbrandproduct['ebpid']);
         }
@@ -176,30 +180,25 @@ class EntitiesBrands {
     public function get_producttypes() {
         global $db;
 
-        $query = $db->query('SELECT eptid FROM '.Tprefix.'entitiesbrandsproducts WHERE ebid="'.intval($this->entitiesbrands['ebid']).'"');
+        $query = $db->query('SELECT eptid FROM '.Tprefix.'entitiesbrandsproducts WHERE ebid="'.intval($this->data['ebid']).'"');
         while($endproduct = $db->fetch_assoc($query)) {
             $endproducts[$endproduct['eptid']] = new EndProducTypes($endproduct['eptid']);
         }
         return $endproducts;
     }
 
-    public function get_errorcode() {
-        return $this->errorcode;
-    }
-
-    public function __get($name) {
-        if(isset($this->entitiesbrands[$name])) {
-            return $this->entitiesbrands[$name];
+    public function parse_link($attributes_param = array('target' => '_blank')) {
+        if(is_array($attributes_param)) {
+            foreach($attributes_param as $attr => $val) {
+                $attributes .= $attr.'="'.$val.'"';
+            }
         }
-        return false;
+        return '<a href="'.$this->get_link().'" '.$attributes.'>'.$this->get_displayname().'</a>';
     }
 
-    public function get_displayname() {
-        return $this->entitiesbrands[self::DISPLAY_NAME];
-    }
-
-    public function get() {
-        return $this->entitiesbrands;
+    public function get_link() {
+        global $core;
+        return $core->settings['rootdir'].'/index.php?module=profiles/brandprofile&amp;ebid='.$this->data[self::PRIMARY_KEY];
     }
 
 }

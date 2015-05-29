@@ -55,10 +55,15 @@ class TravelManagerAirlines {
         }
 
         $requestdata['date'] = date('Y-m-d', $requestdata['date']);
-
-        $requestdata = json_encode(array('request' => array("passengers" => array("adultCount" => 1), "solutions" => 20, 'slice' => array(array('origin' => $requestdata['origin'], 'destination' => $requestdata['destination'], 'date' => $requestdata['date'], 'permittedCarrier' => $requestdata['permittedCarrier'])))));
-//to send the reqeustdata to google api and return the response array.
+        if($requestdata['isOneway'] == 0) {
+            $slice2 = self::reversetrip($requestdata);
+        }
+        $requestdata = json_encode(array('request' => array("passengers" => array("adultCount" => 1), "solutions" => 20, 'slice' => array(array('origin' => $requestdata['origin'], 'destination' => $requestdata['destination'], 'date' => $requestdata['date'], 'permittedCarrier' => $requestdata['permittedCarrier']), $slice2)))); //to send the reqeustdata to google api and return the response array.
         return $requestdata;
+    }
+
+    private function reversetrip($requestdata) {
+        return array('origin' => $requestdata['destination'], 'destination' => $requestdata['origin'], 'date' => date('Y-m-d', $requestdata['arrivaldate']), 'permittedCarrier' => $requestdata['permittedCarrier']);
     }
 
     private function is_roundtrip($slices) {
@@ -68,11 +73,17 @@ class TravelManagerAirlines {
         return false;
     }
 
-    private function parse_responsefilghts($response_flightdata, $category = array(), $sequence, $source = 'plan') {
+    private function parse_responsefilghts($response_flightdata, $category = array(), $sequence, $source = 'plan', $options = '') {
         global $core, $template, $lang;
         if(!is_array($response_flightdata->trips->tripOption)) {
             return;
         }
+        $nocon_count = 0;
+        $con_count = 0;
+        $con_cheapest = '';
+        $nocon_cheapest = '';
+        $minflight = '';
+        $min_con_flight = '';
         foreach($response_flightdata->trips->tripOption as $tripoptnum => $tripoption) {
             if(empty($category['inputChecksum'])) {
                 $category['inputChecksum'] = generate_checksum();
@@ -93,12 +104,16 @@ class TravelManagerAirlines {
 // for($slicenum = 0; $slicenum < count($response_flightdata->trips->tripOption[$tripoptnum]->slice); $slicenum++) {
                 foreach($slice->segment as $segmentnum => $segment) {
                     //  for($segmentnum = 0; $segmentnum < count($response_flightdata->trips->tripOption[$tripoptnum]->slice[$slicenum]->segment); $segmentnum++) {
-                    $departuretime = strtotime($segment->leg[0]->departureTime);
-                    $arrivaltime = strtotime($segment->leg[0]->arrivalTime);
-                    $flight['departuredate'] = date($core->settings['dateformat'], $departuretime);
-                    $flight['departuretime'] = date($core->settings['timeformat'], $departuretime);
-                    $flight['arrivaldate'] = date($core->settings['dateformat'], $arrivaltime);
-                    $flight['arrivaltime'] = date($core->settings['timeformat'], $arrivaltime);
+                    $departure_obj = new DateTime($segment->leg[0]->departureTime);
+                    $flight['departuretimezone'] = 'Departure Time Zone: '.$departure_obj->getTimezone()->getName();
+                    $departuretime = $departure_obj->getTimestamp();
+                    $arrival_obj = new DateTime($segment->leg[0]->arrivalTime);
+                    $flight['arrivaltimezone'] = 'Arrival Time Zone: '.$arrival_obj->getTimezone()->getName();
+                    $arrivaltime = $arrival_obj->getTimestamp();
+                    $flight['departuredate'] = $departure_obj->format($core->settings['dateformat']);
+                    $flight['departuretime'] = $departure_obj->format($core->settings['timeformat']);
+                    $flight['departuredate'] = $arrival_obj->format($core->settings['dateformat']);
+                    $flight['arrivaltime'] = $arrival_obj->format($core->settings['timeformat']);
                     $flight['origin'] = $segment->leg[0]->origin;
                     $flight['cabin'] = $segment->cabin;
                     $flight['destination'] = $segment->leg[0]->destination;
@@ -128,7 +143,12 @@ class TravelManagerAirlines {
                     }
                     $flight['flightnumber'] = $segment->flight->carrier.' '.$segment->flight->number;
                     $flight['flightid'] = $response_flightdata->trips->tripOption[$tripoptnum]->id;
-                    $flight['pricing'] = round($flight['saleTotal'] / $fxrates[$currency['alphaCode']]['rate'], 2);
+                    if($fxrates[$currency['alphaCode']] == 1) {
+                        $flight['pricing'] = round($flight['saleTotal'], 2);
+                    }
+                    else {
+                        $flight['pricing'] = round($flight['saleTotal'] / $fxrates[$currency['alphaCode']]['rate'], 2);
+                    }
                     //  $flight['flightdetails'] = base64_encode(serialize($flight['flightnumber'].$flight['flightid']));
 
                     $flight['flightdetails'] = htmlspecialchars('{ "kind": "qpxExpress#tripsSearch","trips": { "tripOption": ['.json_encode($response_flightdata->trips->tripOption[$tripoptnum]).']}}');
@@ -151,12 +171,15 @@ class TravelManagerAirlines {
                     if($category['selectedflight'] == $flight['flightnumber']) {
                         $checkbox['selctedflight'] = "checked='checked'";
                         $source = 'selectedflight';
+                        if($options['isMinCost'] == 1) {
+                            $min_hidden_input = '<input type="hidden" name="segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].']['.$flight['flightid'].'][isMinCost]" value="1"/>';
+                        }
                     }
                     $flightnumber_checkbox = ' <input type="checkbox" name="segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].']['.$flight['flightid'].'][flightNumber]" value="'.$flight['flightnumber'].'"'.$checkbox['selctedflight'].'/>';
                     $flightnumber_checkbox .= '<input type="hidden" name="segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].']['.$flight['flightid'].'][tmtcid]" value="'.$category['tmtcid'].'"/>';
                     $flightnumber_checkbox .= '<input type="hidden" name="segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].']['.$flight['flightid'].'][inputChecksum]" value="'.$category['inputChecksum'].'"/>';
                     $flightnumber_checkbox .= '<input type="hidden" name="segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].']['.$flight['flightid'].'][currency]" value="840"/>';
-
+                    $flightnumber_checkbox.=$min_hidden_input;
 
                     unset($checkbox['selctedflight']);
                 }
@@ -184,18 +207,49 @@ class TravelManagerAirlines {
                 eval("\$flights_records_roundtripsegments_details .= \"".$template->get('travelmanager_plantrip_segment_flight_paidbyfields')."\";");
             }
             if($source == 'selectedflight') {
-                eval("\$flights_records= \"".$template->get('travelmanager_plantrip_segment_catransportation_flightdetails')."\";");
+                $cheapest = '<small>Flight Is Not The Cheapest</small>';
+                if(isset($options['isMinCost'])) {
+                    if($options['isMinCost'] == 1) {
+                        $cheapest = '<small>This Flight Is The Cheapest</small>';
+                    }
+                }
+                eval("\$flights_records = \"".$template->get('travelmanager_plantrip_segment_catransportation_flightdetails')."\";");
                 return $flights_records;
             }
             else {
-                if($hasconnection != true) {
+                if($hasconnection == true) {
+                    if($con_count == 0) {
+                        $flightnumber_checkbox .= '<input type="hidden" name="segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].']['.$flight['flightid'].'][isMinCost]" value="1"/>';
+                        $cheapest = '<small>This Flight Is The Cheapest</small>';
+                        $con_cheapest = $flight['pricing'];
+                        $con_count++;
+                    }
+                    elseif($flight['pricing'] == $con_cheapest) {
+                        $cheapest = '<small>This Flight Is The Cheapest</small>';
+                    }
+                    elseif($source == 'email') {
+                        $cheapest = '<small>Flight Is Not The Cheapest</small>';
+                    }
                     eval("\$flights_records[hasconnection] .= \"".$template->get('travelmanager_plantrip_segment_catransportation_flightdetails')."\";");
                 }
-                if($hasconnection == true) {
+                else {
+                    if($nocon_count == 0) {
+                        $flightnumber_checkbox .= '<input type="hidden" name="segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].']['.$flight['flightid'].'][isMinCost]" value="1"/>';
+                        $cheapest = '<small>This Flight Is The Cheapest</small>';
+                        $nocon_cheapest = $flight['pricing'];
+                        $nocon_count++;
+                    }
+                    elseif($flight['pricing'] == $nocon_cheapest) {
+                        $cheapest = '<small>This Flight Is The Cheapest</small>';
+                    }
+                    elseif($source == 'email') {
+                        $cheapest = '<small>Flight Is Not The Cheapest</small>';
+                    }
                     eval("\$flights_records[direct] .= \"".$template->get('travelmanager_plantrip_segment_catransportation_flightdetails')."\";");
                 }
                 $flights_records_segments = $flights_records_roundtripsegments = $flights_records_roundtripsegments_details = '';
                 $hasconnection = false;
+                unset($cheapest);
             }
         }
         if($source == 'plan') {
@@ -213,11 +267,11 @@ class TravelManagerAirlines {
      * @param	int		$length		Length of the random string
      * @return  parsed Html	$output
      */
-    public static function parse_bestflight($data, array $transpcat, $sequence, $source = 'plan') {
+    public static function parse_bestflight($data, array $transpcat, $sequence, $source = 'plan', $options = '') {
         $response_flightdata = json_decode($data);
         //$flights_records = '<div class = "subtitle" style = "width:100%;margin:10px; box-shadow: 0px 2px 1px rgba(0, 0, 0, 0.1), 0px 1px 1px rgba(0, 0, 0, 0.1); border: 1px  rgba(0, 0, 0, 0.1) solid;;">Best Flights</div>';
 
-        return self::parse_responsefilghts($response_flightdata, $transpcat, $sequence, $source);
+        return self::parse_responsefilghts($response_flightdata, $transpcat, $sequence, $source, $options);
     }
 
     public static function get_flights($request, $apikey = null) {
@@ -229,9 +283,9 @@ class TravelManagerAirlines {
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-type: application/json"));
         $result = curl_exec($ch);
-        //$result = file_get_contents('./modules/travelmanager/jsonflightdetailsPAR.txt');
-
+//        $result = file_get_contents('./modules/travelmanager/jsonflightdetailsPAR.txt');
         curl_close($ch);
+
         return $result;
     }
 

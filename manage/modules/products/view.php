@@ -8,7 +8,7 @@
  * $id: view.php
  * Last Update: @zaher.reda 	Apr 03, 2009 | 01:38 PM
  */
-if(!defined("DIRECT_ACCESS")) {
+if(!defined('DIRECT_ACCESS')) {
     die("Direct initialization of this file is not allowed.");
 }
 
@@ -41,7 +41,8 @@ if(!$core->input['action']) {
 						LIMIT {$limit_start}, {$core->settings[itemsperlist]}");
     if($db->num_rows($query) > 0) {
         while($product = $db->fetch_array($query)) {
-            $products_list .= "<tr class='{$class}'><td>{$product[pid]}</td><td><span class='editableinline' id='products/view_name_{$product[pid]}'>{$product[name]}</span></td><td>{$product[generic]}</td><td>{$product[segment]}</td><td><a href='".DOMAIN."/index.php?module=profiles/entityprofile&eid={$product[spid]}' target='_blank'>{$product[supplier]}</a></td>";
+            $product_obj = new Products($product['pid']);
+            $products_list .= "<tr class='{$class}'><td>{$product[pid]}</td><td><span class='editableinline' id='products/view_name_{$product[pid]}'>{$product_obj->parse_link()}</span></td><td>{$product[generic]}</td><td>{$product[segment]}</td><td><a href='".DOMAIN."/index.php?module=profiles/entityprofile&eid={$product[spid]}' target='_blank'>{$product[supplier]}</a></td>";
             $products_list .= "<td><a href='index.php?module=products/edit&amp;pid={$product[pid]}'><img src='{$core->settings[rootdir]}/images/edit.gif' alt='{$lang->edit}' border='0' /></a> <a href='#' id='mergeanddelete_{$product[pid]}_products/edit_icon'><img src='{$core->settings[rootdir]}/images/invalid.gif' border='0' /></a></td></tr>";
         }
         $multipages = new Multipages("products", $core->settings['itemsperlist']);

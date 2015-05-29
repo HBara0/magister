@@ -150,4 +150,5 @@ $lang['year'] = 'Year';
 $lang['yes'] = 'Yes';
 $lang['preview'] = 'Preview';
 $lang['requiredfields'] = 'Required Fields';
+$lang['title'] = "Title";
 ?>

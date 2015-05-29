@@ -74,7 +74,9 @@ if($_REQUEST['authkey'] == 'asfasdkjj!h4k23jh4k2_3h4k23jh') {
                 }
             }
         }
-        $email_data['message'] .= '[EUR] Avg: '.formatit($fxrates['EUR']['average']).' ('.trim(formatit(1 / $fxrates['EUR']['average'])).') <span style="color: red; font-weight:bold;">Last: '.trim(formatit($fxrates['EUR']['latest'])).' ('.trim(formatit(1 / $fxrates['EUR']['latest'])).")</span>\n";
+        if(!array_key_exists('EUR', $user['currencies'])) {
+            $email_data['message'] .= '[EUR] Avg: '.formatit($fxrates['EUR']['average']).' ('.trim(formatit(1 / $fxrates['EUR']['average'])).') <span style="color: red; font-weight:bold;">Last: '.trim(formatit($fxrates['EUR']['latest'])).' ('.trim(formatit(1 / $fxrates['EUR']['latest'])).")</span>\n";
+        }
         foreach($user['currencies'] as $alphacode => $rates) {
             if(empty($rates['average']) && !empty($rates['latest'])) {
                 $rates['average'] = $rates['latest'];
@@ -96,7 +98,6 @@ if($_REQUEST['authkey'] == 'asfasdkjj!h4k23jh4k2_3h4k23jh') {
         }
 
         $email_data['message'] .= "\nBest Regards,\n</pre>";
-
         $mail = new Mailer($email_data, 'php');
         if($mail->get_status() == true) {
             $log->record($user['name'], 'success');

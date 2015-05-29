@@ -8,8 +8,8 @@
  * Created: 	@zaher.reda		Mar 16, 2009 | 09:48 AM
  * Last Update: @zaher.reda 	May 20, 2012 | 09:29 AM
  */
-
-/* Stripslases for a given template and then returns it
+/**
+ * Stripslases for a given template and then returns it
  * @param  String		$template 	String to be striped
  * @return String	 				Striped template
  */
@@ -59,7 +59,8 @@ function output($output) {
     echo $output;
 }
 
-/* GZIP cotents to a certain level
+/**
+ * GZIP cotents to a certain level
  * @param  String		$contents 	Contents to be zipped
  * @param  int			$level	 	Level of compression
  * @return String					Compressed content
@@ -106,7 +107,7 @@ function gzip_compression($contents, $level = 1) {
     return $contents;
 }
 
-/*
+/**
  * Outputs XML
  * @param	string		$xml		XML content
  * @return  String					Formated XML
@@ -120,7 +121,7 @@ function output_xml($xml) {
     echo '<xml>'.$xml.'</xml>';
 }
 
-/*
+/**
  * Prepare and set correct headers
  */
 function set_headers() {
@@ -130,7 +131,7 @@ function set_headers() {
     header("Pragma: no-cache");
 }
 
-/*
+/**
  * Generates a random number
  * @param	int		$length		Length of the random string
  * @return  String	$output		Random string of characters and numbers
@@ -149,7 +150,8 @@ function random_string($length) {
     return $output;
 }
 
-/* Retrive the user's session IP address
+/**
+ * Retrive the user's session IP address
  * @return  String 				The IP Address
  */
 function userip() {
@@ -188,7 +190,8 @@ function userip() {
     return $ip;
 }
 
-/* Redirects to a new page
+/**
+ * Redirects to a new page
  * @param	String		$url		The URL to which should be directed
  * @param	int			$delay		Seconds to deplay redirection
  */
@@ -212,7 +215,7 @@ function redirect($url, $delay = 0, $redirect_message = '') {
     exit;
 }
 
-/*
+/**
  * Validates if an email address structure is valid
  * @param	String		$email			The email address to be checked
  * @return	Boolean						Either valid or not
@@ -230,7 +233,7 @@ function isvalid_email($email) {
     }
 }
 
-/*
+/**
  * Custom htmlspecialchars (for unicode)
  * @param 	String 		$text	The string to format
  */
@@ -243,7 +246,7 @@ function chtmlspecialchars(&$text) {
     }
 }
 
-/*
+/**
  * Parse OCODE [BB Code] into corresponding format
  * @param	String		$text		Text to be parsed
  * @return  String		$text		Parse text
@@ -262,7 +265,7 @@ function fix_newline(&$text) {
     }
 }
 
-/*
+/**
  * Displays a customized error message
  * @param	String		$message		The message to be displayed
  * @param	Boolean		$noexit			Don't stop execution or vice versa
@@ -282,7 +285,8 @@ function error($message, $redirect_url = '', $noexit = false) {
     }
 }
 
-/* Creates a cookie
+/**
+ * Creates a cookie
  * @param  String		$name 		Name of the cookie
  * @param  String		$value	 	Value of the cookie
  * @param  int			$duration	Expiry
@@ -298,7 +302,9 @@ function create_cookie($name, $value, $duration = '', $secure = false, $httponly
     }
 }
 
-/* Parse input fields of various types */
+/**
+ * Parse input fields of various types
+ */
 function parse_textfield($name, $id, $type, $value = '', $options = array(), $config = array()) {
     if(empty($id)) {
         return false;
@@ -306,7 +312,7 @@ function parse_textfield($name, $id, $type, $value = '', $options = array(), $co
 
     if(!empty($options)) {
         foreach($options as $key => $val) {
-            $attributes.= ' '.$key.'="'.$val.'"';
+            $attributes.= $key.'="'.$val.'"';
         }
     }
 
@@ -323,8 +329,16 @@ function parse_textfield($name, $id, $type, $value = '', $options = array(), $co
     return $text;
 }
 
-/*
-  creates a selection list
+/**
+ * Parses a select list
+ * @param type $name
+ * @param type $tabindex
+ * @param type $options
+ * @param type $selected_options
+ * @param type $multiple_list
+ * @param string $onchange_actions
+ * @param type $config
+ * @return string
  */
 function parse_selectlist($name, $tabindex, $options, $selected_options, $multiple_list = 0, $onchange_actions = '', $config = array()) {
     if(!is_array($options)) {
@@ -365,8 +379,10 @@ function parse_selectlist($name, $tabindex, $options, $selected_options, $multip
     if(isset($config['width'])) {
         $list_style = 'width: '.$config['width'].';';
     }
-
-    $list .= '<select style="'.$list_style.'" id="'.$id.'" name="'.$name.'" '.$disabled.' size="'.$config['size'].'" tabindex="'.$tabindex.'"'.$required.$multiple.$onchange_actions.'>';
+    if(isset($config['data_attribute'])) {
+        $datattr = $config['data_attribute'].';';
+    }
+    $list .= '<select style="'.$list_style.'" id="'.$id.'" name="'.$name.'" '.$disabled.' size="'.$config['size'].'" tabindex="'.$tabindex.'"'.$required.$multiple.$onchange_actions.$datattr.'>';
     if($config['blankstart'] == true && empty($config['placeholder'])) {
         $list .= '<option></option>';
     }
@@ -449,8 +465,14 @@ function parse_radiobutton($name, $items, $checked_option = '', $display_title =
     return false;
 }
 
-function parse_checkboxes($name, $items, $selected_options = array(), $display_title = true, $title = '', $seperator = '') {
+function parse_checkboxes($name, $items, $selected_options = array(), $display_title = true, $title = '', $seperator = '', $ide = '', $tabindex = '') {
     if(is_array($items)) {
+        if(!empty($tabindex)) {
+            $tabindex = 'tabindex='.$tabindex;
+        }
+        if(!empty($ide)) {
+            $ids = $ide;
+        }
         foreach($items as $key => $val) {
             $checked = '';
             if($display_title === false) {
@@ -462,7 +484,13 @@ function parse_checkboxes($name, $items, $selected_options = array(), $display_t
                     $checked = ' checked="checked"';
                 }
             }
-            $checkbox .= '<input name="'.$name.'['.$key.']" id="'.$name.'_'.$key.'" type="checkbox"  title="'.$title.'" value="'.$key.'"'.$checked.'/>'.$val.$seperator;
+            if(isset($ids) && !empty($ids)) {
+                $id = $ids;
+            }
+            else {
+                $id = $name.'_'.$key;
+            }
+            $checkbox .= '<input name="'.$name.'['.$key.']" id="'.$id.'" type="checkbox" '.$tabindex.' title="'.$title.'" value="'.$key.'"'.$checked.'/>'.$val.$seperator;
         }
         return $checkbox;
     }
@@ -551,7 +579,9 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
     if(is_array($attributes)) {
         foreach($attributes as $key => $val) {
             $where_string .= $andor.' '.$val.' LIKE "%'.$value.'%"';
-            $soundex_where_string .= "{$andor}SOUNDEX({$val}) = SOUNDEX('$value')";
+            if($options['disableSoundex'] != 1) {
+                $soundex_where_string .= "{$andor}SOUNDEX({$val}) = SOUNDEX('$value')";
+            }
             $andor = ' '.$andor_param.' ';
         }
     }
@@ -566,7 +596,6 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
     if(!empty($options['extra_where'])) {
         $extra_where_string = ' AND '.$options['extra_where'];
     }
-
     $query = $db->query("SELECT {$select_attributes_string} FROM ".Tprefix."{$table} WHERE ({$where_string}){$extra_where_string} {$order}");
 
     $clean_key_attribute = $key_attribute;
@@ -592,29 +621,30 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
         $space = '';
     }
 
-    if(is_array($foundkeys)) {
-        $notkeys = implode(',', $foundkeys);
-        $notin = ' AND '.$key_attribute.' NOT IN ('.$notkeys.') ';
-    }
-
-    $query2 = $db->query("SELECT {$select_attributes_string} FROM ".Tprefix."{$table} WHERE ({$soundex_where_string}){$notin}{$extra_where_string}{$order}");
-    if($db->num_rows($query2) > 0) {
-        while($result2 = $db->fetch_assoc($query2)) {
-            foreach($select_attributes as $key => $val) {
-                $output .= $space.$result2[$val];
-                $space = ' ';
-            }
-            $results[$result2[$key_attribute]] = $output;
-            $output = '';
+    if($options['disableSoundex'] != 1) {
+        if(is_array($foundkeys)) {
+            $notkeys = implode(',', $foundkeys);
+            $notin = ' AND '.$key_attribute.' NOT IN ('.$notkeys.') ';
         }
-        $db->free_result($query2);
-    }
 
+        $query2 = $db->query("SELECT {$select_attributes_string} FROM ".Tprefix."{$table} WHERE ({$soundex_where_string}){$notin}{$extra_where_string}{$order}");
+        if($db->num_rows($query2) > 0) {
+            while($result2 = $db->fetch_assoc($query2)) {
+                foreach($select_attributes as $key => $val) {
+                    $output .= $space.$result2[$val];
+                    $space = ' ';
+                }
+                $results[$result2[$key_attribute]] = $output;
+                $output = '';
+            }
+            $db->free_result($query2);
+        }
+    }
     if(is_array($results)) {
         foreach($results as $key => $val) {
             if($options['returnType'] == 'json') {
-                $results_list[$key]['id'] = $key;
-                $results_list[$key]['value'] = $val;
+                $results_list['"'.$key.'"']['id'] = $key;
+                $results_list['"'.$key.'"']['value'] = $val;
             }
             if(isset($options['descinfo']) && !empty($options['descinfo'])) {
                 switch($options['descinfo']) {
@@ -628,8 +658,8 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
 //                        }
                         $city = new Cities($key);
                         if($options['returnType'] == 'json') {
-                            $results_list[$key]['id'] = $city->ciid;
-                            $results_list[$key]['desc'] = $city->name.' - '.$city->get_country()->name;
+                            $results_list['"'.$key.'"']['id'] = $city->ciid;
+                            $results_list['"'.$key.'"']['desc'] = $city->name.' - '.$city->get_country()->name;
                         }
                         else {
                             $details = '<br /><span class="smalltext">'.$city->name.' - '.$city->get_country()->name.'</span>';
@@ -641,8 +671,8 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                         $hotelsobj = TravelManagerHotels::get_data('tmhid='.$key);
                         $city = new Cities($hotelsobj->city);
                         if($options['returnType'] == 'json') {
-                            $results_list[$key]['id'] = $key;
-                            $results_list[$key]['desc'] = $city->name.' - '.$city->get_country()->name;
+                            $results_list['"'.$key.'"']['id'] = $key;
+                            $results_list['"'.$key.'"']['desc'] = $city->name.' - '.$city->get_country()->name;
                         }
                         else {
                             $details = '<br /><span class="smalltext">'.$city->get_country()->name.'</span>';
@@ -657,8 +687,8 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                             foreach($chemfuncprod_objs as $chemfuncprod_obj) {
                                 $application_obj = $chemfuncprod_obj->get_segapplicationfunction();
                                 if($options['returnType'] == 'json') {
-                                    $results_list[$key]['id'] = $chemfuncprod_obj->cfpid;
-                                    $results_list[$key]['desc'] = $chemfuncprod_obj->get_chemicalfunction()->title.' - '.$application_obj->get_application()->title.' - '.$application_obj->get_segment()->title;
+                                    $results_list['"'.$key.'"']['id'] = $chemfuncprod_obj->cfpid;
+                                    $results_list['"'.$key.'"']['desc'] = $chemfuncprod_obj->get_chemicalfunction()->title.' - '.$application_obj->get_application()->title.' - '.$application_obj->get_segment()->title;
                                 }
                                 else {
                                     $details = '<br /><span class="smalltext">'.$chemfuncprod_obj->get_chemicalfunction()->title.' - '.$application_obj->get_application()->title.' - '.$application_obj->get_segment()->title.'</span>';
@@ -672,8 +702,8 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                                 foreach($chemfuncprod_objs as $chemfuncprod_obj) {
                                     $application_obj = $chemfuncprod_obj->get_segapplicationfunction();
                                     if($options['returnType'] == 'json') {
-                                        $results_list[$key]['id'] = $chemfuncprod_obj->cfpid;
-                                        $results_list[$key]['desc'] = $chemfuncprod_obj->get_chemicalfunction()->title.' - '.$application_obj->get_application()->title.' - '.$application_obj->get_segment()->title;
+                                        $results_list['"'.$key.'"']['id'] = $chemfuncprod_obj->cfpid;
+                                        $results_list['"'.$key.'"']['desc'] = $chemfuncprod_obj->get_chemicalfunction()->title.' - '.$application_obj->get_application()->title.' - '.$application_obj->get_segment()->title;
                                     }
                                     else {
                                         $details = '<br/><span class="smalltext">'.$chemfuncprod_obj->get_chemicalfunction()->title.' - '.$application_obj->get_application()->title.' - '.$application_obj->get_segment()->title.'</span>';
@@ -683,7 +713,7 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                             }
                             else {
                                 if($options['returnType'] == 'json') {
-                                    unset($results_list[$key]);
+                                    unset($results_list['"'.$key.'"']);
                                 }
                             }
                         }
@@ -694,7 +724,7 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                         $generic = $product->get_genericproduct();
                         if(is_object($generic)) {
                             if($options['returnType'] == 'json') {
-                                $results_list[$key]['desc'] = $generic->get_segment()->title;
+                                $results_list['"'.$key.'"']['desc'] = $generic->get_segment()->title;
                             }
                             else {
                                 $details = '<br/><span class="smalltext">'.$generic->get_segment()->title.'</span>';
@@ -703,23 +733,23 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                         }
                         else {
                             if($options['returnType'] == 'json') {
-                                unset($results_list[$key]);
+                                unset($results_list['"'.$key.'"']);
                             }
                         }
                         break;
                     case 'checmicalfunction':
                         $chemfunchem_objs = ChemFunctionChemicals::get_data('csid='.$key, array('returnarray' => 1));
                         if(is_array($chemfunchem_objs)) {
-                            unset($results_list[$key]);
+                            unset($results_list['"'.$key.'"']);
 
                             foreach($chemfunchem_objs as $chemfunchem_obj) {
                                 $application_obj = $chemfunchem_obj->get_segapplicationfunction();
 
                                 if($options['returnType'] == 'json') {
-                                    $results_list[$chemfunchem_obj->cfcid]['value'] = $val;
-                                    $results_list[$chemfunchem_obj->cfcid]['id'] = $chemfunchem_obj->cfcid;
+                                    $results_list['"'.$chemfunchem_obj->cfcid.'"']['value'] = $val;
+                                    $results_list['"'.$chemfunchem_obj->cfcid.'"']['id'] = $chemfunchem_obj->cfcid;
                                     if(!empty($application_obj->get_application()->title)) {
-                                        $results_list[$chemfunchem_obj->cfcid]['desc'] = $chemfunchem_obj->get_chemicalfunction()->title.' - '.$application_obj->get_application()->title.' - '.$application_obj->get_segment()->title;
+                                        $results_list['"'.$chemfunchem_obj->cfcid.'"']['desc'] = $chemfunchem_obj->get_chemicalfunction()->title.' - '.$application_obj->get_application()->title.' - '.$application_obj->get_segment()->title;
                                     }
                                 }
                                 else {
@@ -732,37 +762,152 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                         }
                         else {
                             if($options['returnType'] == 'json') {
-                                unset($results_list[$key]);
+                                unset($results_list['"'.$key.'"']);
                             }
                         }
                         break;
                     case 'entbrandsproducts':
                         $entbrandproducts = EntBrandsProducts::get_data('ebid='.$key, array('returnarray' => 1));
                         if(is_array($entbrandproducts)) {
-                            unset($results_list[$key]);
+                            unset($results_list['"'.$key.'"']);
                             foreach($entbrandproducts as $entbrandproduct) {
-                                if($options['returnType'] == 'json') {
-                                    $results_list[$entbrandproduct->get_id()]['value'] = $val;
-                                    $results_list[$entbrandproduct->get_id()]['id'] = $entbrandproduct->get_id();
-                                    $results_list[$entbrandproduct->get_id()]['desc'] = $entbrandproduct->get_endproduct()->title;
+                                $endprod = $entbrandproduct->get_endproduct();
+                                if(is_object($endprod)) {
+                                    if($options['returnType'] == 'json') {
+                                        $results_list['"'.$entbrandproduct->get_id().'"']['value'] = $val;
+                                        $results_list['"'.$entbrandproduct->get_id().'"']['id'] = $entbrandproduct->get_id();
+                                        $results_list['"'.$entbrandproduct->get_id().'"']['desc'] = $endprod->title;
+                                    }
+                                    else {
+                                        $details = '<br /><span class="smalltext">'.$entbrandproduct->get_endproduct()->title.'</span>';
+                                        $results_list .= '<li id="'.$entbrandproduct->get_id().'">'.$val.$details.'</li>';
+                                    }
                                 }
                                 else {
-                                    $details = '<br /><span class="smalltext">'.$entbrandproduct->get_endproduct()->title.'</span>';
-                                    $results_list .= '<li id="'.$entbrandproduct->get_id().'">'.$val.$details.'</li>';
+                                    if($options['returnType'] == 'json') {
+                                        $results_list['"'.$entbrandproduct->get_id().'"']['value'] = $val;
+                                        $results_list['"'.$entbrandproduct->get_id().'"']['id'] = $entbrandproduct->get_id();
+                                    }
+                                    else {
+                                        $results_list .= '<li id="'.$entbrandproduct->get_id().'">'.$val.'</li>';
+                                    }
                                 }
                             }
                         }
                         else {
                             if($options['returnType'] == 'json') {
-                                unset($results_list[$key]);
+                                unset($results_list['"'.$key.'"']);
                             }
                         }
+                        break;
+                    case 'endproducttypes':
+                        $current_obj = new EndProducTypes($key);
+
+                        if(is_object($current_obj)) {
+                            $first_parent = $current_obj->get_parent();
+                            if(is_object($first_parent)) {
+                                $details = $first_parent->get_displayname();
+                                $secondpar_obj = $first_parent->get_parent();
+                                if(is_object($secondpar_obj)) {
+                                    $details = $secondpar_obj->get_displayname().'<--'.$details;
+                                    $third_par = $secondpar_obj->get_parent();
+                                    if(is_object($third_par)) {
+                                        $originalpar_obj = $third_par->get_mother();
+                                        if(is_object($originalpar_obj)) {
+                                            $details = $originalpar_obj->get_displayname().'<-.....<-'.$details;
+                                        }
+                                    }
+                                }
+                                if($options['returnType'] == 'json') {
+                                    $results_list['"'.$current_obj->eptid.'"']['value'] = $val;
+                                    $results_list['"'.$current_obj->eptid.'"']['id'] = $current_obj->eptid;
+                                    $results_list['"'.$current_obj->eptid.'"']['desc'] = $details;
+                                }
+                                else {
+                                    $details = '<br /><span class="smalltext">'.$details.'</span>';
+                                    $results_list .= '<li id="'.$current_obj->eptid.'">'.$val.$details.'</li>';
+                                }
+                            }
+                            else {
+                                if($options['returnType'] == 'json') {
+                                    $results_list['"'.$current_obj->eptid.'"']['value'] = $val;
+                                    $results_list['"'.$current_obj->eptid.'"']['id'] = $current_obj->eptid;
+                                }
+                                else {
+                                    $results_list .= '<li id="'.$current_obj->eptid.'">'.$val.'</li>';
+                                }
+                            }
+                        }
+                        else {
+                            if($options['returnType'] == 'json') {
+                                unset($results_list['"'.$key.'"']);
+                            }
+                        }
+                        unset($details);
+
+                        break;
+                    case 'endproducttype':
+                        $current_obj = new EndProducTypes($key);
+                        if(is_object($current_obj)) {
+                            $first_parent = $current_obj->get_parent();
+                            if(is_object($first_parent)) {
+                                $details = $first_parent->get_displayname();
+                                $secondpar_obj = $first_parent->get_parent();
+                                if(is_object($secondpar_obj)) {
+                                    $details.='-->'.$secondpar_obj->get_displayname();
+                                    $third_par = $secondpar_obj->get_parent();
+                                    if(is_object($third_par)) {
+                                        $originalpar_obj = $third_par->get_mother();
+                                        if(is_object($originalpar_obj)) {
+                                            $details.='->.....->'.$originalpar_obj->get_displayname();
+                                        }
+                                    }
+                                }
+                                if($options['returnType'] == 'json') {
+                                    $results_list['"'.$current_obj->eptid.'"']['value'] = $val;
+                                    $results_list['"'.$current_obj->eptid.'"']['id'] = $current_obj->eptid;
+                                    $results_list['"'.$current_obj->eptid.'"']['desc'] = $details;
+                                }
+                                else {
+                                    $details = '<br /><span class="smalltext">'.$details.'</span>';
+                                    $results_list .= '<li id="'.$current_obj->eptid.'">'.$val.$details.'</li>';
+                                }
+                            }
+                        }
+                        else {
+                            if($options['returnType'] == 'json') {
+                                unset($results_list['"'.$key.'"']);
+                            }
+                        }
+                        unset($details);
+
+                        break;
+                    case 'brands':
+                        $brand_obj = new EntitiesBrands($key);
+                        $customer_obj = $brand_obj->get_entity();
+                        if(is_object($customer_obj)) {
+                            if($options['returnType'] == 'json') {
+                                $results_list['"'.$key.'"']['value'] = $val;
+                                $results_list['"'.$key.'"']['id'] = $brand_obj->ebid;
+                                $results_list['"'.$key.'"']['desc'] = $customer_obj->get_displayname();
+                            }
+                            else {
+                                $details = '<br /><span class="smalltext">'.$customer_obj->get_displayname().'</span>';
+                                $results_list .= '<li id="'.$key.'">'.$val.$details.'</li>';
+                            }
+                        }
+                        else {
+                            if($options['returnType'] == 'json') {
+                                unset($results_list['"'.$key.'"']);
+                            }
+                        }
+                        unset($details);
                         break;
                     case 'country':
                         $entity = new Entities($key);
                         if(!empty($entity->country)) {
                             if($options['returnType'] == 'json') {
-                                $results_list[$key]['desc'] = $entity->get_country()->name;
+                                $results_list['"'.$key.'"']['desc'] = $entity->get_country()->name;
                             }
                             else {
                                 $details = '<br /><span class="smalltext">'.$entity->get_country()->name.'</span>';
@@ -845,7 +990,8 @@ function record_contribution($rid, $isdone = 0) {
     }
 }
 
-/* Gets the quarter information based on settings
+/**
+ * Gets the quarter information based on settings
  * @param  Boolean		$real		Whether a real current quarter or reporting quarter
  * @return Array					Current quarter and year
  */
@@ -972,7 +1118,9 @@ function parse_menuitems($module_name, $modules_dir = 'modules') {
     return $items;
 }
 
-/* To replace parse_userentities_data() gradually */
+/**
+ * To replace parse_userentities_data() gradually
+ */
 function get_user_business_assignments($uid) {
     global $db, $core;
     if(empty($uid)) {
@@ -1078,7 +1226,8 @@ function get_user_business_assignments($uid) {
     return $data;
 }
 
-/* Get user entities view permissions and return them is a ready WHERE clause statement
+/**
+ *  Get user entities view permissions and return them is a ready WHERE clause statement
  * @paran	String						Option suppliersbyaffid/suppliersbyspid
  * @param	Int							supplier or affiliate ID
  * @paran	Int							User ID
@@ -1192,7 +1341,7 @@ function parse_userentities_data($uid) {
     }
 
     if($usergroup['canViewAllAff'] == 0) {
-        //$affiliates = get_specificdata('affiliatedemployees', 'affid', 'affid', 'affid', '', 0, "uid='{$uid}'");
+//$affiliates = get_specificdata('affiliatedemployees', 'affid', 'affid', 'affid', '', 0, "uid='{$uid}'");
         $affiliates_query = $db->query("SELECT affid, isMain, canAudit FROM ".Tprefix."affiliatedemployees WHERE uid='{$uid}'");
         if($db->num_rows($affiliates_query) > 0) {
             while($affiliate = $db->fetch_assoc($affiliates_query)) {
@@ -1255,7 +1404,8 @@ function parse_userentities_data($uid) {
     return $data;
 }
 
-/* Get user entities view permissions and return them is a ready WHERE clause statement
+/**
+ * Get user entities view permissions and return them is a ready WHERE clause statement
  * @paran	String						Option suppliersbyaffid/suppliersbyspid
  * @param	Int							supplier or affiliate ID
  * @paran	Int							User ID
@@ -1404,8 +1554,8 @@ function getquery_entities_viewpermissions() {
   }
   return $count_off_days;
   } */
-
-/* Gives a different class for alternative rows
+/**
+ * Gives a different class for alternative rows
  * @param  String		$class			Current class
  * @return String		$class			The alternative row other class
  */
@@ -1422,7 +1572,8 @@ function alt_row($class) {
     }
 }
 
-/* Formats the request url to a sortable one
+/**
+ * Formats the request url to a sortable one
  * @return String		$sort_url		Formatted url
  */
 function sort_url() {
@@ -1611,7 +1762,7 @@ function getAffiliateList($idsonly = false) {
 }
 
 function encapsulate_in_fieldset($html, $legend = "+", $boolStartClosed = false) {
-    //log_performance(__METHOD__);
+//log_performance(__METHOD__);
 
     $id = md5(rand(9, 99999).time());
 
@@ -1810,6 +1961,12 @@ function fix_url($url) {
     return $url;
 }
 
+/**
+ * Sorts a multi-dimensional array by a specific column
+ * @param array $data   The array to be sorted, passed by reference
+ * @param type $order_attr
+ * @param type $sort    Sorting flag
+ */
 function array_multisort_bycolumn(&$data, $order_attr, $sort = SORT_DESC) {
     ${$order_attr} = array();
     if(!is_array($data)) {
@@ -1821,6 +1978,11 @@ function array_multisort_bycolumn(&$data, $order_attr, $sort = SORT_DESC) {
     array_multisort(${$order_attr}, $sort, $data);
 }
 
+/**
+ * Generates a random unique string
+ * @param string $prefix A prefix to be prepended to the generated alias
+ * @return string
+ */
 function generate_checksum($prefix = '') {
     $identifier = substr(md5(uniqid(microtime())), 1, 10);
 
@@ -1830,6 +1992,12 @@ function generate_checksum($prefix = '') {
     return $prefix.$identifier;
 }
 
+/**
+ * Converts a string to alias like string where are special characters and spaces are removed
+ * @global \Core $core
+ * @param String $string Text to convert to alias
+ * @return String   Text converted to alias
+ */
 function generate_alias($string) {
     global $core;
     $string = trim(str_replace(' ', '-', $string));

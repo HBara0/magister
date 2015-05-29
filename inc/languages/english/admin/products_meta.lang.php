@@ -37,7 +37,7 @@ $lang['package'] = "Package";
 $lang['defaultcurrency'] = "Default Currency";
 $lang['code'] = "Code";
 $lang['taxrate'] = "Tax Rate";
-
+$lang['editendprod'] = "Edit End Product ";
 $lang['suredeleteproduct'] = "Are you sure you want to delete this product?";
 $lang['mergeproductwith'] = "Merge product with";
 $lang['mergeexplanation'] = "Merging will consider the selected product a replacement for the deleted.<br />All related entries will be changed accordingly.";
@@ -59,8 +59,15 @@ $lang['deletesegapfunc'] = 'Delete Segment Application Function';
 $lang['yes'] = 'Yes';
 $lang['areyousure'] = 'Are you sure you want to delete the segment application function?';
 $lang['no'] = 'No';
-$lang['deleteerror'] = 'You can\'t delete a used entity';
+$lang['cannotdeleteuseditem'] = 'You cannot delete a used item; it is related to one or more other items on the system.';
 $lang['usedintables'] = 'Entity Used in the following table/s:';
 $lang['successdelete'] = "Successfully deleted";
 $lang['errordeletingsega'] = 'Error deleting';
+$lang['parent'] = 'Parent';
+$lang['managebasicingredients'] = 'Maage Basic Ingredients';
+$lang['description'] = 'Description';
+$lang['createbasicingredient'] = 'Create Basic Ingredient';
+$lang['itemalreadyexist'] = "Item with same title already exist";
+$lang['updatebasicingredient'] = 'Update Basic Ingredient';
+$lang['basicingredients'] = 'Basic Ingredients';
 ?>

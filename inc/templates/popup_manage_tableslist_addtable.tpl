@@ -1,5 +1,5 @@
 <div id="popup_addsystable" title="{$lang->addtable}">
-    <form name='add_tablesdefinition/tableslist_Form' id="add_tablesdefinition/tableslist_Form" method="post" >
+    <form name='add_managesystem/tableslist_Form' id="add_managesystem/tableslist_Form" method="post" >
         <input type="hidden" id="action" name="action" value="do_addtable" />
         <table width="100%">
             <tr>
@@ -13,7 +13,7 @@
                 <td>{$lang->numberofcolumns}</td><td><input disabled="disabled" type="text" name="table_data[nbOfColumns]" value="{$table_data['nbOfColumns']}"></td>
             </tr>
         </table>
-        <input type='button' class='button' value='{$lang->save}' id='add_tablesdefinition/tableslist_Button' />
+        <input type='button' class='button' value='{$lang->save}' id='add_managesystem/tableslist_Button' />
     </form>
-    <div id="add_tablesdefinition/tableslist_Results" ></div>
+    <div id="add_managesystem/tableslist_Results" ></div>
 </div>

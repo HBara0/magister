@@ -9,14 +9,16 @@
             {$profiles_entityprofile_micustomerentry}
             {$profiles_minproductentry}
             {$profiles_michemfuncproductentry}
+            {$profiles_mibasicingredientsentry}
             <div style="width: 30%; display: inline-block;">{$lang->annualpotential}</div><div style="width: 60%; display: inline-block;"><input type="number" step="any" size="12" id="potential" name="marketdata[potential]" accept="numeric"  required="required" autocomplete="off" min="0" value="{$midata->potential}"/></div>
             <div style="width: 30%; display: inline-block;">{$lang->marketshareperc}</div><div style="width: 60%; display: inline-block;"><input type="number" step="any" size="12" id="mktshareperc" name="marketdata[mktSharePerc]" accept="numeric" required="required" autocomplete="off" min="0" value="{$midata->mktSharePerc}"/></div>
             <div style="width: 30%; display: inline-block;">{$lang->marketshareqty}</div><div style="width: 60%; display: inline-block;"><input type="number" size="12" step="any" id="mktshareqty" name="marketdata[mktShareQty]" accept="numeric" required="required" autocomplete="off" min="0" value="{$midata->mktShareQty}"/></div>
             <div style="width: 30%; display: inline-block;">{$lang->price}</div><div style="width: 60%; display: inline-block;"><input type="number" step="any" size="12" name="marketdata[unitPrice]" accept="numeric" autocomplete="off" min="0" value="{$midata->unitPrice}"/> USD/KG {$lang->cif}</div>
-            <div style="width: 30%; display: inline-block;">{$lang->endproduct}</div>
-            <div style="width: 60%; display: inline-block;"><input type="text" size="25" id="entbrandsproducts_0_autocomplete" size="100" autocomplete="off" value="{$midata->brandname}"/> | <a id="showpopup_createbrand" class="showpopup"><img src="{$core->settings[rootdir]}/images/addnew.png" border="0" title="{$lang->createbrand}"></a>
-                <input type="hidden" id="entbrandsproducts_0_id" name="marketdata[ebpid]" value='{$midata->ebpid}'/>
-                <div id="searchQuickResults_0" class="searchQuickResults" style="display:none;"></div>
+            <div style="width: 30%; display: inline-block;">{$lang->endproductbrand}</div>
+            <div style="width: 60%; display: inline-block;"><input onFocus="getustomerid()" type="text" size="25" id="entbrandsproducts_{$brandprod_rowid}_autocomplete" size="100" autocomplete="off" value="{$brandname}"/> | <a style="cursor: pointer" id="showpopup_createbrand" class="showpopup"><img src="{$core->settings[rootdir]}/images/addnew.png" border="0" title="{$lang->createbrand}"></a>
+                <input type="hidden" id="entbrandsproducts_{$brandprod_rowid}_id" name="marketdata[ebpid]" value='{$midata->ebpid}'/>
+                <input type="hidden" id="entbrandsproducts_{$brandprod_rowid}_cid" name="cid" value='{$midata->cid}'/>
+                <div id="searchQuickResults_{$brandprod_rowid}" class="searchQuickResults" style="display:none;"></div>
             </div>
             <div style="width: 30%; display: inline-block;">{$profiles_mincustomervisit_title}</div>
             <div style="width: 30%; display: inline-block;">
@@ -24,13 +26,14 @@
             </div>
             <div>{$lang->comment}</div>
             <div><textarea cols="60" rows="5" name="marketdata[comments]">{$midata->comments}</textarea></div>
+                {$comments}
             <hr />
             <table cellpadding="0" cellspacing="0" width="100%">
                 <tr><td><strong>{$lang->competition}</strong></td></tr>
                 <tr>
                     <td>
                         <table class="datatable" width="100%">
-                            <tbody id="competitor_tbody">
+                            <tbody id="competitor{$mimorerowsid}_tbody">
                                 <tr id="2">
                                     <td>
                                         <div style="width:100%; display:block;padding:5px">
@@ -70,18 +73,28 @@
                                         </div>
                                     </td>
                                 </tr>
+                                {$competitors_rows}
                             </tbody>
                             <tfoot>
-                                <tr><td><img id="addmore_competitor" src="{$core->settings[rootdir]}/images/add.gif" /></td></tr>
+                                <tr><td><img id="addmore_competitor{$mimorerowsid}" src="{$core->settings[rootdir]}/images/add.gif" /></td></tr>
                             </tfoot>
                         </table>
                     </td>
                 </tr>
             </table>
-
             <div>
                 <input class="button" value="{$lang->add}" id="perform_{$module}/{$modulefile}_Button" type="submit">
                 <div id="perform_{$module}/{$modulefile}_Results"></div>
             </div>
     </form>
 </div>
+
+
+<script>
+    function getustomerid() {
+        var cid = $('#allcustomertypes_{$customer_rowid}_id').val();
+        if(typeof cid != 'undefined') {
+            $('#entbrandsproducts_{$brandprod_rowid}_cid').val(cid);
+        }
+    }
+</script>

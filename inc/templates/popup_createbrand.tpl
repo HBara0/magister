@@ -3,7 +3,7 @@
         <input type="hidden" name="action" value="do_addbrand" />
         <div>
             <div style="display:inline-block; width: 30%;"><strong>{$lang->name}</strong></div>
-            <div style="display:inline-block; width: 60%;"><input name="entitybrand[title]" type="text"/></div>
+            <div style="display:inline-block; width: 60%;"><input name="entitybrand[name]" type="text"/></div>
         </div>
         <div>
             <div style="display: inline-block; width: 30%;"><strong>{$lang->customer}</strong></div>
@@ -15,14 +15,28 @@
         </div>
         <div>
             <div>
-                <br /><strong>{$lang->endproducttypes}</strong></div>
-            <div>
-                <select name="entitybrand[endproducttypes][]" multiple="multiple" size="10" id='popup_createbrand_endproducttypes'>{$endproducttypes_list}</select>
+                <br/><strong>{$lang->endproducttypes}</strong></div>
+
+            <div style="width:100%; height:150px; overflow:auto; display:inline-block; vertical-align:top; margin-bottom: 10px;">
+                <table class="datatable" width="100%">
+                    <thead>
+                        <tr>
+                            <th width="100%"><input type="checkbox" id='producttypefilter_checkall'><input class='inlinefilterfield' type='text' tabindex="2"  placeholder="{$lang->search} {$lang->endproducttypes}" style="display:inline-block;width:70%;margin-left:5px;"/></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {$endproducttypes_list}
+                    </tbody>
+                </table>
             </div>
+
+            <!--  <div>
+                  <select name="entitybrand[endproducttypes][]" multiple="multiple" size="10" id='popup_createbrand_endproducttypes'>{$endproducttypes_list}</select>
+              </div>-->
             <div><input type="checkbox" value="1" onclick="$('#popup_createbrand_endproducttypes').toggle()" name="entitybrand[isGeneral]"> {$lang->considerbrandunspecified}</div>
         </div>
         <div>
-            <hr />
+            <hr/>
             <div><input type='button' id='add_{$module}/{$modulefile}_Button' value='{$lang->savecaps}' class='button'/></div>
             <div style="display:table-row;"> <div style="display:table-cell;"><div id="add_{$module}/{$modulefile}_Results"></div></div></div>
         </div>

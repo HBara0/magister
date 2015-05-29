@@ -20,27 +20,25 @@ if(!$core->input['action']) {
 
     /* Advanced filter search */
     $filters_config = array(
-            'parse' => array('filters' => array('title', 'description', 'from', 'to', 'location'),
-                    'overwriteField' => array('to' => '', 'from' => '')
+            'parse' => array('filters' => array('title', 'description', 'fromDate', 'toDate', 'location'),
             ),
             'process' => array(
                     'filterKey' => 'mtid',
                     'mainTable' => array(
                             'name' => 'meetings',
-                            'filters' => array('title' => 'title', 'description' => 'description', 'location' => 'location'),
+                            'filters' => array('title' => 'title', 'description' => 'description', 'location' => 'location', 'fromDate' => array('operatorType' => 'date', 'name' => 'fromDate'), 'toDate' => array('operatorType' => 'date', 'name' => 'toDate')),
                     ),
             )
     );
     $filter = new Inlinefilters($filters_config);
     $filter_where_values = $filter->process_multi_filters();
     if(is_array($filter_where_values)) {
-        $filters_row_display = 'show';
         if($filters_config['process']['filterKey'] == 'mtid') {
             $filters_config['process']['filterKey'] = 'mtid';
         }
         $filter_where = ' '.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
     }
-    $filters_row = $filter->prase_filtersrows(array('tags' => 'table', 'display' => $filters_row_display));
+    $filters_row = $filter->prase_filtersrows(array('tags' => 'table'));
 
     $multiple_meetings = Meetings::get_multiplemeetings(array('filter_where' => $filter_where, 'order' => array('sortby' => $core->input['sortby'], 'order' => $core->input['order'])));
     if(is_array($multiple_meetings)) {
@@ -57,7 +55,7 @@ if(!$core->input['action']) {
                 }
 
                 $row_tools = '<a href=index.php?module=meetings/create&mtid='.$meeting['mtid'].' title="'.$lang->edit.'"><img src=./images/icons/edit.gif border=0 alt='.$lang->edit.'/></a>';
-                $row_tools .= ' <a href=index.php?module=meetings/minutesmeeting'.$action.'&referrer=list&mtid='.$meeting['mtid'].' title="'.$lang->setmof.'" rel="setmof_'.$meeting['mtid'].'"><img src="'.$core->settings['rootdir'].'/images/icons/boundreport.gif" alt="'.$lang->mom.'" border="0"></a>';
+                $row_tools .= ' <a href=index.php?module=meetings/minutesmeeting'.$action.'&referrer=list&mtid='.$meeting['mtid'].' title="'.$lang->setmof.'" rel="setmof_'.$meeting['mtid'].'"><img src="'.$core->settings['rootdir'].'/images/icons/boundreport.gif" alt="'.$lang->data.'" border="0"></a>';
                 $row_tools .= ' <a href="#'.$meeting['mtid'].'" id="sharemeeting_'.$meeting['mtid'].'_meetings/list_loadpopupbyid" rel="share_'.$meeting['mtid'].'" title="'.$lang->sharewith.'"><img src="'.$core->settings['rootdir'].'/images/icons/sharedoc.png" alt="'.$lang->sharewith.'" border="0"></a>';
             }
 

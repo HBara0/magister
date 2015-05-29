@@ -9,7 +9,7 @@
  */
 
 /**
- * Description of AbstractClass
+ * The global abstract class that
  *
  * @author zaher.reda
  */
@@ -25,7 +25,7 @@ Abstract class AbstractClass {
     const UNIQUE_ATTRS = null;
 
     public function __construct($id = '', $simple = true) {
-        if(isset($id)) {
+        if(isset($id) && !empty($id)) {
             $this->read($id, $simple);
         }
     }
@@ -40,6 +40,12 @@ Abstract class AbstractClass {
         $this->data = $db->fetch_assoc($db->query('SELECT '.$query_select.' FROM '.Tprefix.static::TABLE_NAME.' WHERE '.static::PRIMARY_KEY.'='.intval($id)));
     }
 
+    /**
+     *
+     * @global \Log $log
+     * @param array $data   Data to be saved
+     * @return      Function that will perform the saving
+     */
     public function save(array $data = array()) {
         global $log;
         if(empty($data)) {
@@ -87,8 +93,35 @@ Abstract class AbstractClass {
         return $this->create($data);
     }
 
-    abstract protected function create(array $data);
+    /**
+     * Inserts data into specific DB table after performing validation
+     * 
+     * @global type $db
+     * @param array $data   Data to insert
+     * @return boolean
+     */
+    protected function create(array $data) {
+        global $db;
+        if(!$this->validate_data($data)) {
+            return false;
+        }
+        $db->insert_query(static::TABLE_NAME, $data);
+        $this->data = $data;
+        $this->{static::PRIMARY_KEY} = $db->last_id();
+    }
+
     abstract protected function update(array $data);
+    /**
+     * Function to validate data before creating or modifying.
+     * This function have to be overriden in the class where it is required.
+     *
+     * @param array $data   Data to be validated
+     * @return boolean  Boolean to specify if data has issues or not
+     */
+    protected function validate_data(array $data) {
+        return true;
+    }
+
     public function delete() {
         global $db;
         if(empty($this->data[static::PRIMARY_KEY]) && empty($this->data['inputChecksum'])) {
@@ -106,7 +139,7 @@ Abstract class AbstractClass {
         return false;
     }
 
-    public static function get_data($filters = '', $configs = array()) {
+    public static function get_data($filters = '', array $configs = array()) {
         $data = new DataAccessLayer(static::CLASSNAME, static::TABLE_NAME, static::PRIMARY_KEY);
         return $data->get_objects($filters, $configs);
     }
@@ -124,12 +157,20 @@ Abstract class AbstractClass {
         foreach($data as $name => $value) {
             $this->data[$name] = $value;
         }
+        return $this;
     }
 
     public function __set($name, $value) {
         $this->data[$name] = $value;
     }
 
+    /**
+     * Returns a specific value from the array of object values.
+     *
+     * @param string $name The index of the array.
+     *
+     * @return string|boolean $this->data The value of that specific index.
+     */
     public function __get($name) {
         if(isset($this->data[$name])) {
             return $this->data[$name];
@@ -137,22 +178,29 @@ Abstract class AbstractClass {
         return false;
     }
 
+    /**
+     * Returns the id of the object.
+     *
+     * @return int|null $this->data The id of the object.
+     */
     public function get_id() {
         return $this->data[static::PRIMARY_KEY];
     }
 
+    /**
+     * Returns the display name of the object.
+     *
+     * @uses AbstractClass::PRIMARY_KEY to specify the requirement attribute.
+     *
+     * @return string|null $this->data The display name of the object.
+     */
     public function get_displayname() {
         return $this->data[static::DISPLAY_NAME];
     }
 
-    public function get_uniqueattributes() {
-        return $this->data[static::UNIQUE_ATTRS];
-    }
-
-    public function get_uniqueattributes_columns() {
-        return $this::UNIQUE_ATTRS;
-    }
-
+    /**
+     * @return array|null The object data
+     */
     public function get() {
         return $this->data;
     }

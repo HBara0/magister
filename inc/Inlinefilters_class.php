@@ -166,6 +166,10 @@ class Inlinefilters {
                             $customer = new Entities($core->input['filters'][$filter]);
                             $filters[$filter] = '<input type="text" id="customer_1_autocomplete" value="'.$customer->get_displayname().'"/><input type="hidden" id="customer_1_id" name="filters['.$filter.']"/>';
                             break;
+                        case 'biid':
+                            $basicingredient = new BasicIngredients($core->input['filters'][$filter]);
+                            $filters[$filter] = '<input placeholder="Basic Ingredient" type="text" id="basicingredients_'.$filter.'_autocomplete" value="'.$basicingredient->get_displayname().'"/><input type="hidden" id="basicingredients_'.$filter.'_id" name="filters['.$filter.']"/>';
+                            break;
 //                        case 'spid':
 //                        case 'supplier':
 //                            $supplier = new Entities($core->input['filters'][$filter]);
@@ -214,14 +218,14 @@ class Inlinefilters {
         return false;
     }
 
-    public function prase_filtersrows($options = array('tags' => 'table', 'display' => 'hide'), $exclude = array()) {
+    public function prase_filtersrows($options = array('tags' => 'table', 'display' => 'show'), $exclude = array()) {
         global $lang;
 
-        if($options['display'] == 'show') {
-            $options['display'] = 'display: table-row;';
+        if($options['display'] == 'hide') {
+            $options['display'] = 'display: none;';
         }
         else {
-            $options['display'] = 'display: none;';
+            $options['display'] = 'display: table-row;';
         }
 
         if($options['tags'] == 'div') {

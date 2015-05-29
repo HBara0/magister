@@ -259,7 +259,7 @@ class MySQLiConnection {
         return $structure['Create Table'];
     }
 
-    public function show_fields_from($table, $type) {
+    public function show_fields_from($table, $type = MYSQLI_BOTH) {
         $query = $this->query("SHOW FIELDS FROM {$this->db['prefix']}{$table}");
         while($field = $this->fetch_array($query, $type)) {
             $field_info[] = $field;
@@ -301,6 +301,19 @@ class MySQLiConnection {
             $total += $table['Data_length'] + $table['Index_length'];
         }
         return $total;
+    }
+
+    /**
+     * Checks if a MySQL function exists
+     * @param string $functionname
+     * @return boolean
+     */
+    public function function_exists($functionname) {
+        $query = $this->query('SHOW FUNCTION STATUS WHERE name="'.$this->escape_string($functionname).'"');
+        if($this->num_rows($query) > 0) {
+            return true;
+        }
+        return false;
     }
 
     public function __sleep() {

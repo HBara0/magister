@@ -175,7 +175,9 @@ else {
                         }
                     }
 
-                    $invoiceline->grossmargin = $invoiceline->linenetamt - ($invoiceline->purchaseprice * $invoiceline->qtyinvoiced);
+                    $invoiceline->linenetamt = $invoiceline->linenetamt / 1000;
+                    $invoiceline->costlocal = $invoiceline->costlocal / 1000;
+                    $invoiceline->grossmargin = $invoiceline->linenetamt - (($invoiceline->purchaseprice * $invoiceline->qtyinvoiced) / 1000);
                     $invoiceline->grossmarginusd = $invoiceline->grossmargin / $invoice->usdfxrate;
                     $invoiceline->netmargin = $invoiceline->linenetamt - $invoiceline->costlocal;
                     $invoiceline->netmarginusd = $invoiceline->netmargin / $invoice->usdfxrate;
@@ -201,12 +203,13 @@ else {
             redirect($url, $delay, $redirect_message);
         }
 
-        $salesreport = '<h1>'.$lang->salesreport.'<small><br />'.$lang->{$core->input['type']}.'</small></h1>';
-        $salesreport = '<p><em>The report might have issues in the cost information. If so please report them to the ERP Team.</em></p>';
+        $salesreport = '<h1>'.$lang->salesreport.'<small><br />'.$lang->{$core->input['type']}.'<br />Values are in Thousands <small>(Local Currency)</small></small></h1>';
+        $salesreport .= '<p><em>The report might have issues in the cost information. If so please report them to the ERP Team.</em></p>';
         if($core->input['type'] == 'analytic' || $core->input['type'] == 'dimensional') {
             $overwrite = array('marginperc' => array('fields' => array('divider' => 'netmargin', 'dividedby' => 'linenetamt'), 'operation' => '/'),
                     'priceactual' => array('fields' => array('divider' => 'linenetamt', 'dividedby' => 'qtyinvoiced'), 'operation' => '/'));
-            $formats = array('marginperc' => array('style' => NumberFormatter::PERCENT, 'pattern' => '#0.##'));
+
+            $formats = array('marginperc' => array('style' => NumberFormatter::PERCENT_SYMBOL));
             $required_fields = array('qtyinvoiced', 'priceactual', 'linenetamt', 'purchaseprice', 'costlocal', 'grossmargin', 'netmargin', 'marginperc');
 
             if($core->input['type'] == 'analytic') {
@@ -246,16 +249,17 @@ else {
                             if(!isset($currentyeardata[$i])) {
                                 $currentyeardata[$i] = 0;
                             }
-                            $salesreport .= '<td style="'.$css_styles['table-datacell'].'">'.$formatter->format($currentyeardata[$i]).'</td>';
+                            $salesreport .= '<td style="'.$css_styles['table-datacell'].'">'.$formatter->format($currentyeardata[$i] / 1000).'</td>';
                         }
                         for($y = $current_year; $y >= ($current_year - 1); $y--) {
                             if(!is_array($salerepdata[$y])) {
                                 $salerepdata[$y][] = 0;
                             }
-                            $salesreport .= '<td style="'.$css_styles['table-datacell'].'">'.$formatter->format(array_sum($salerepdata[$y])).'</td>';
                             for($m = 1; $m <= 12; $m++) {
+                                $salerepdata[$y][$m] = $salerepdata[$y][$m] / 1000;
                                 $yearsummarytotals[$y][$m] += $salerepdata[$y][$m];
                             }
+                            $salesreport .= '<td style="'.$css_styles['table-datacell'].'">'.$formatter->format(array_sum($salerepdata[$y])).'</td>';
                         }
                         $salesreport .= '</tr>';
                         if(empty($rowstyle)) {
@@ -306,6 +310,12 @@ else {
                             if(!is_array($salerepdata[$y])) {
                                 $salerepdata[$y][] = 0;
                             }
+
+                            foreach($salerepdata[$y] as $key => $val) {
+                                if(!empty($val)) {
+                                    $salerepdata[$y][$key] = $val / 1000;
+                                }
+                            }
                         }
 
                         $salesrep = new IntegrationOBUser($salerepid, $integration->get_dbconn());
@@ -330,7 +340,7 @@ else {
                             if(is_array($budgetlines)) {
                                 foreach($budgetlines as $budgetline) {
                                     $budget_totals['qty'] += $budgetline->quantity;
-                                    $budget_totals['amt'] += $budgetline->get_convertedamount($currency_obj);
+                                    $budget_totals['amt'] += $budgetline->get_convertedamount($currency_obj) / 1000;
                                 }
                                 if(!empty($budget_totals['amt'])) {
                                     $percentages['budget']['amt'] = (array_sum($salerepdata[$current_year]) / $budget_totals['amt']);
@@ -447,7 +457,8 @@ else {
                     $affiliate->get_generalmanager()->email,
                     $affiliate->get_supervisor()->email,
                     $affiliate->get_financialemanager()->email,
-                    $core->user_obj->email
+                    $core->user_obj->email,
+                    Users::get_data(array('uid' => 3))->email/* Always include User 3 */
             ));
 
             //$mailer->set_to('zaher.reda@orkila.com');
@@ -469,7 +480,8 @@ else {
                         $affiliate->get_generalmanager()->displayName,
                         $affiliate->get_supervisor()->displayName,
                         $affiliate->get_financialemanager()->displayName,
-                        $core->user_obj->displayName);
+                        $core->user_obj->displayName,
+                        Users::get_data(array('uid' => 3))->get_displayname()/* Always include User 3 */);
 
                 if(is_array($recipients)) {
                     $recipients = array_filter($recipients);

@@ -50,4 +50,36 @@ class SourcingSuppliers {
         return $this->supplier;
     }
 
+    public function get_displayname() {
+        return $this->supplier['companyName'];
+    }
+
+    public function get_type() {
+        if($this->supplier['type'] == 'p') {
+            return 'Producer';
+        }
+        if($this->supplier['type'] == 't') {
+            return 'Trader';
+        }
+        return '-';
+    }
+
+    public function get_link() {
+        global $core;
+        return $core->settings['rootdir'].'/index.php?module=sourcing/supplierprofile&amp;id='.$this->supplier['ssid'];
+    }
+
+    public function parse_link($attributes_param = array('target' => '_blank')) {
+        if(!empty($this->data['companyNameAbbr'])) {
+            $this->data['companyName'] .= ' ('.$this->data['companyNameAbbr'].')';
+        }
+
+        if(is_array($attributes_param)) {
+            foreach($attributes_param as $attr => $val) {
+                $attributes .= $attr.'="'.$val.'"';
+            }
+        }
+        return '<a href="'.$this->get_link().'" '.$attributes.'>'.$this->supplier['companyName'].'</a>';
+    }
+
 }

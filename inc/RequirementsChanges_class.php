@@ -1,31 +1,26 @@
 <?php
 /*
  * Copyright © 2014 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * [Provide Short Descption Here]
  * $id: RequirementsChanges_class.php
  * Created:        @zaher.reda    Feb 25, 2014 | 1:02:03 PM
  * Last Update:    @zaher.reda    Feb 25, 2014 | 1:02:03 PM
  */
 
-class RequirementsChanges {
-    private $reqchange = array();
-    private $errorcode = 0;
+class RequirementsChanges extends AbstractClass {
+    protected $data = array();
+    protected $errorcode = 0;
 
-    public function __construct($id = '', $simple = false) {
-        if(isset($id) && !empty($id)) {
-            $this->reqchange = $this->read($id, $simple);
-        }
-    }
+    const PRIMARY_KEY = 'drcid';
+    const TABLE_NAME = 'development_requirements_changes';
+    const DISPLAY_NAME = 'title';
+    const SIMPLEQ_ATTRS = 'drid, title, refKey, drid, isCompleted';
+    const CLASSNAME = __CLASS__;
+    const UNIQUE_ATTRS = null;
 
-    private function read($id, $simple = false) {
-        global $db;
-        $query_select = '*';
-        if($simple == true) {
-            $query_select = 'drid, title';
-        }
-
-        return $db->fetch_assoc($db->query("SELECT {$query_select} FROM ".Tprefix."development_requirements_changes WHERE drcid=".$db->escape_string($id)));
+    public function __construct($id = '', $simple = true) {
+        parent::__construct($id, $simple);
     }
 
     public function create($reqchange) {
@@ -61,26 +56,51 @@ class RequirementsChanges {
         return false;
     }
 
+    /**
+     *
+     * @return \Requirements
+     */
+    public function get_requirement() {
+        return new Requirements($this->drid);
+    }
+
+    /**
+     *
+     * @return \Requirements The requirement which was created due to this change
+     */
+    public function get_outcomeRequirement() {
+        return new Requirements($this->outcomeReq);
+    }
+
     public function get_creator() {
-        if(empty($this->reqchange['createdBy'])) {
+        if(empty($this->data['createdBy'])) {
             return false;
         }
-        return new Users($this->reqchange['createdBy']);
+        return new Users($this->data['createdBy']);
     }
 
     public function get_requester() {
-        if(empty($this->reqchange['requestedBy'])) {
+        if(empty($this->data['requestedBy'])) {
             return false;
         }
-        return new Users($this->reqchange['requestedBy']);
+        return new Users($this->data['requestedBy']);
     }
 
-    public function get_errorcode() {
-        return $this->errorcode;
+    protected function update(array $data) {
+
     }
 
-    public function get() {
-        return $this->reqchange;
+    public function get_link() {
+        return $this->get_requirement()->get_link();
+    }
+
+    public function parse_link($attributes_param = array('target' => '_blank')) {
+        if(is_array($attributes_param)) {
+            foreach($attributes_param as $attr => $val) {
+                $attributes .= $attr.'="'.$val.'"';
+            }
+        }
+        return '<a href="'.$this->get_link().'" '.$attributes.'>'.$this->data[self::DISPLAY_NAME].'</a>';
     }
 
 }

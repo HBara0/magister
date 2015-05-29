@@ -17,7 +17,7 @@
                         {$profile[picture]}
                         <hr />{$profile_profilepicform}</td>
                     <td valign="top" class="border_left" style="padding: 10px;">
-                        <div class="subtitle">{$lang->contactinformation}</div>
+                        <div class="subtitle">{$lang->contactinformation} <a style="cursor:pointer;" href="{$core->settings['rootdir']}/users.php?action=downloadvcard&uid={$profile[uid]}"><img src="./images/editprofile.gif" title="{$lang->downloadcontact}"/></a></div>
                         {$lang->fulladdress}: {$profile[fulladdress]}<br />
                         {$lang->pobox}: {$profile[poBox]}<br />
                         {$lang->internalextension}: {$profile[internalExtension]}<br />
@@ -27,7 +27,7 @@
                         {$lang->email}: <a href="mailto:{$profile[email]}">{$profile[email]}</a><br />
                         {$lang->bbpin}: {$profile[bbPin]}<br />
                         {$profile[skype_output]}
-                    </td>      
+                    </td>
                 </tr>
                 <tr>
                     <td class="border_left" style="padding: 5px;"><span class="subtitle">{$lang->employeeinformation}</span></td>
@@ -38,7 +38,7 @@
                         {$lang->position}: {$profile[position]}<br />
                         {$lang->reportsto}: <a href='users.php?action=profile&amp;uid={$profile[reportsTo]}'>{$profile[reportsToName]}</a><br />
                         {$assistant_details}
-                        {$lang->mainaffiliate}: {$profile[mainaffiliate][name]}<br />    
+                        {$lang->mainaffiliate}: {$profile[mainaffiliate][name]}<br />
                         <p><span style="font-weight:bold;">{$lang->affiliate}</span><a name="affiliates"></a><br />
                             {$profile[affiliatesList]}</p>
                         <p><span style="font-weight:bold;">{$lang->segments}</span><a name="segments"></a><br />

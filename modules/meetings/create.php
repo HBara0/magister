@@ -141,7 +141,7 @@ if(!$core->input['action']) {
 
     $leavetypes = LeaveTypes::get_data('isBusiness=1');
     $leaves = Leaves::get_data(array('uid' => $core->user['uid'], 'type' => array_keys($leavetypes), 'fromDate' => strtotime("-1 year")), array('operators' => array('type' => 'IN', 'fromDate' => 'grt'), 'returnarray' => true));
-    $leaves_list = parse_selectlist('meeting[associations][lid]', $tabindex, $leaves, $associatons['lid']);
+    $leaves_list = parse_selectlist('meeting[associations][lid]', $tabindex, $leaves, $associatons['lid'], 0, null, array('blankstart' => true));
 
     eval("\$createmeeting_associations = \"".$template->get('meeting_create_associations')."\";");
     eval("\$createmeeting = \"".$template->get('meeting_create')."\";");

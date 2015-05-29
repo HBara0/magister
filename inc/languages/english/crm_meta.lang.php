@@ -4,7 +4,7 @@ $lang['listvisitreports'] = "List Visit Reports";
 $lang['generatevisitreport'] = "Generate Reports";
 $lang['importcustomers'] = "Import Customers";
 $lang['importrepresentatives'] = "Import Representatives";
-
+$lang['endproductbrand'] = 'Brand End Product ';
 $lang['selectcustomersfile'] = "Select file";
 $lang['importcustomersallowedtypes'] = "Only CSV & Excel files are allowed.";
 $lang['multivalueseperator'] = "Multi values seperator";
@@ -12,8 +12,8 @@ $lang['ignoredsegments'] = "Following segments were ignored";
 $lang['ignoredaffiliates'] = "Following affiliates were ignored";
 $lang['ignored_entries'] = "Following entries were ignored";
 $lang['possible_conflicting_entries'] = "Following entries are possibly conflicting with existing data";
-
-
+$lang['brandendproduct'] = "Brand Product Type";
+$lang['visitreport'] = "Visit Report";
 $lang['mireport'] = 'Market Intelligence Report';
 $lang['entitynotfound'] = "Entity not found";
 $lang['noentity'] = "Not entity specified";
@@ -67,7 +67,7 @@ $lang['createbrand'] = 'Create Brand';
 $lang['comment'] = "Comment";
 $lang['competition'] = 'Comeptition';
 $lang['competitortrader'] = 'Comptetitor Trader';
-$lang['competitorprod'] = 'Competitor Product';
+$lang['competitorprod'] = 'Competitor Producer';
 $lang['na'] = 'N/A';
 $lang['name'] = 'Name';
 $lang['endproducttypes'] = 'End Product Types';
@@ -77,4 +77,17 @@ $lang['date'] = 'Date';
 $lang['saletype'] = 'Sale Type';
 $lang['sampleacquired'] = 'Sample Acquired';
 $lang['packaging'] = 'Packaging';
+$lang['marketpotentialdata'] = 'Market potential data';
+$lang['basicingredients'] = 'Basic Ingredients';
+$lang['usebasicingredient'] = 'or use a Basic Ingredient instead';
+$lang['select'] = 'Select a';
+$lang['suredeletemientry'] = 'Are you sure you want to delete this entry?';
+$lang['deleteentry'] = 'Delete Entry';
+$lang['createchemical_notes'] = 'Make sure to use a complete, valid, and existing chemical product name along to its CAS Number. <br />Always verify your chemcial names/CAS Numbers through specialized chemical databases before creating them.';
+$lang['createchemical'] = 'Create Chemical Substances';
+$lang['chemicalname'] = 'Chemical Name';
+$lang['chemicalsynonym'] = 'Chemical Synonymes';
+$lang['casnum'] = 'CAS Number';
+$lang['nopermission'] = 'You don\'t have permission to delete this entry';
+$lang['chemicalexsist'] = 'Chemical Data Already Exists';
 ?>

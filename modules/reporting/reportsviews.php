@@ -1,7 +1,7 @@
 <?php
 /*
  * Copyright © 2013 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * Lists views of QR
  * $id: reportsviews.php
  * Created:        @zaher.reda    Aug 28, 2013 | 4:01:18 PM
@@ -13,10 +13,17 @@ if(!defined('DIRECT_ACCESS')) {
 }
 
 if(!$core->input['action']) {
-    $quarter = currentquarter_info();
+    if(!empty($core->input['quarter']) && !empty($core->input['year'])) {
+        $quarter['quarter'] = $core->input['quarter'];
+        $quarter['year'] = $core->input['year'];
+    }
+    else {
+        $quarter = currentquarter_info();
+    }
+
     $query = $db->query('SELECT DISTINCT(identifier), spid
 						FROM '.Tprefix.'reports r
-							JOIN entities e ON (e.eid=r.spid) 
+							JOIN entities e ON (e.eid=r.spid)
 							WHERE quarter='.intval($quarter['quarter']).' AND year='.intval($quarter['year']).'
 							ORDER BY companyName ASC');
     $views_outputs .= '<table class="datatable">';
@@ -66,7 +73,7 @@ if(!$core->input['action']) {
                     //					$days = floor($average_diff/(24*60*60));
                     //					$hours = floor($average_diff % (24*60*60)/(60*60));
                     //					$minutes = ($average_diff % 60) / 60;
-                    //					
+                    //
                     //					$views_outputs .= '<tr><td class="altrow2" colspan="2">Average</t><td class="altrow2">'.$days.' days '.$hours.' hours '.round($minutes).' minutes</td></tr>';
                     //				}
                 }
