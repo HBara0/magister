@@ -759,6 +759,7 @@ $("#anotheraff_otheraccomodations_'.$sequence.'_'.$otherhotel_checksum.'").hide(
                 eval("\$finance_output = \"".$template->get('travelmanager_plantrip_segmentfinance')."\";");
             }
             //parse finnance--end
+            $checkedaccomodation = '';
             if($segmentobj->noAccomodation == '1') {
                 $checkedaccomodation = 'checked = "checked"';
             }

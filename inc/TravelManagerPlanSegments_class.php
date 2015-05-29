@@ -246,6 +246,9 @@ class TravelManagerPlanSegments extends AbstractClass {
 
         $segmentnewdata['modifiedBy'] = $core->user['uid'];
         $segmentnewdata['modifiedOn'] = TIME_NOW;
+        if(!isset($segmentnewdata['noAccomodation'])) {
+            $segmentnewdata['noAccomodation'] = 0;
+        }
         $db->update_query(self::TABLE_NAME, $segmentnewdata, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
         $segpurposes = $segmentdata['purpose'];
         if(is_array($segpurposes)) {
@@ -358,6 +361,7 @@ class TravelManagerPlanSegments extends AbstractClass {
 
                 $validate_fields = array('priceNight', 'numNights', 'currency');
                 foreach($segment_hotels['tmhid'] as $checksum => $hotel) {
+
                     $hotelacc = TravelManagerPlanaccomodations::get_data(array('inputChecksum' => $checksum));  //$hotel[tmhid]
                     if(!isset($hotel['tmhid']) || empty($hotel['tmhid'])) {
                         if(is_object($hotelacc)) {
@@ -578,7 +582,8 @@ class TravelManagerPlanSegments extends AbstractClass {
                 $flight_details = '';
             }
         }
-        if($this->noAccomodation == 0) {
+
+        if($this->noAccomodation != 1) {
             $accomd_objs = TravelManagerPlanaccomodations::get_data(array('tmpsid' => $this->data[self::PRIMARY_KEY]), array('returnarray' => true));
             if(is_array($accomd_objs)) {
                 foreach($accomd_objs as $accomdation) {
