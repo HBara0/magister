@@ -222,6 +222,9 @@ class EndProducTypes extends AbstractClass {
                     $endproducttypes_list.='<br/>';
                 }
                 $editlink = '<div style="float:right"><a href="#'.$values['eptid'].'" id="editendproducts_'.$values['eptid'].'_products/types_loadpopupbyid" title="Edit"><img src="'.$core->settings['rootdir'].'/images/edit.gif" border="0"/></a></div>';
+
+                $delete = '<div style="float:right"><a href="#'.$values['eptid'].'" id="deleteendproducttype_'.$values['eptid'].'_products/types_loadpopupbyid" title="Delete"><img src="'.$core->settings['rootdir'].'/images/invalid.gif" border="0"/></a></div>';
+
                 $endproducttypes_list .= '<li><a target="_blank" href="'.$endprodtype->get_link().'">'.$values['title'].$values['application'].' </a>';
                 unset($values['application']);
                 if(is_array($values['children']) && !empty($values['children'])) {
@@ -229,7 +232,7 @@ class EndProducTypes extends AbstractClass {
                 }
 
 
-                $endproducttypes_list .= $editlink.'</li>';
+                $endproducttypes_list .= $delete.$editlink.'</li>';
             }
             else {
                 $endproducttypes_list .= '<option value="'.$values['eptid'].'">'.$ref.' '.$values['title'].'</option>';
