@@ -330,7 +330,15 @@ function parse_textfield($name, $id, $type, $value = '', $options = array(), $co
 }
 
 /**
-  creates a selection list
+ * Parses a select list
+ * @param type $name
+ * @param type $tabindex
+ * @param type $options
+ * @param type $selected_options
+ * @param type $multiple_list
+ * @param string $onchange_actions
+ * @param type $config
+ * @return string
  */
 function parse_selectlist($name, $tabindex, $options, $selected_options, $multiple_list = 0, $onchange_actions = '', $config = array()) {
     if(!is_array($options)) {

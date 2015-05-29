@@ -31,8 +31,10 @@
                 <table cellpadding="1" cellspacing="1" width="100%">
                     <tr>
                         <td>{$lang->title}</td>
-                        <td><input type="text" tabindex="1" name="meeting[title]" size="40" required="required" value="{$meeting[title]}"/></td>
+                        <td><input type="text" tabindex="1" name="meeting[title]" size="100" required="required" value="{$meeting[title]}"/></td>
                     </tr>
+                    <tr><td class="subtitle" colspan="2">{$lang->associations}</td></tr>
+                        {$createmeeting_associations}
                     <tr>
                         <td>{$lang->fromdate}</td>
                         <td><input type="text" tabindex="2" id="pickDate_from" autocomplete="off" tabindex="1"  name="meeting[fromDate]" value="{$meeting[fromDate_output]}" required="required"/>
@@ -49,7 +51,7 @@
                     </tr>
                     <tr>
                         <td>{$lang->location}</td>
-                        <td><input type="text" name="meeting[location]" size="50" tabindex="7" value="{$meeting[location]}"/></td>
+                        <td><input type="text" name="meeting[location]" size="60" tabindex="7" value="{$meeting[location]}"/></td>
                     </tr>
                     <tr>
                         <td>{$lang->ispublic}</td>
@@ -86,10 +88,8 @@
                             </table>
                         </td>
                     </tr>
-                    <tr><td class="thead" colspan="2">{$lang->associations}<a title="{$lang->associations}" href="#associationssection" onClick="$('#associationssection').fadeToggle();">...</a></td></tr>
-                    {$createmeeting_associations}
                     <tr><td>&nbsp;</td></tr>
-                    <tr><td class="thead" colspan="2">{$lang->attachements}</td></tr>
+                    <tr><td colspan="2" class="subtitle">{$lang->attachements}</td></tr>
                         {$meeting_attachments}
                     <tr>
                         <td colspan="2">

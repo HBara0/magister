@@ -70,4 +70,6 @@ $lang['createbasicingredient'] = 'Create Basic Ingredient';
 $lang['itemalreadyexist'] = "Item with same title already exist";
 $lang['updatebasicingredient'] = 'Update Basic Ingredient';
 $lang['basicingredients'] = 'Basic Ingredients';
+$lang['cloneendproducttype'] = 'Clone End Product Type';
+$lang['newproducttype'] = 'New End Product Type';
 ?>

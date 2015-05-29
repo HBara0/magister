@@ -20,16 +20,19 @@ class vCard {
     }
 
     public function set_vcardname($name = '') {
-        if(!empty(trim($name))) {
+        $name = trim($name);
+        if(!empty($name)) {
             $this->vcard['name'] = $name;
         }
     }
 
     public function set_name($fname = '', $lname = '') {
-        if(empty(trim($fname)) || empty(trim($lname))) {
+        $fname = trim($fname);
+        $lname = trim($lname);
+        if(empty($fname) || empty($lname)) {
             return;
         }
-        $this->vcardfile .= 'N:'.$lname.';'.$fname.';;;'.PHP_EOL;
+        $this->vcardfile .= 'N:'.$lname.';'.$fname.';;;'."\r\n";
     }
 
     public function set_vcardfile($contact) {
@@ -37,15 +40,15 @@ class vCard {
             $this->vcardfile = "BEGIN:VCARD\r\n";
             $this->vcardfile .= "VERSION:4.0\r\n";
             $this->set_name($contact['firstName'], $contact['lastName']);
-            $this->set_fullname($contact['displayName']);
-            $this->set_nickname($contact['nickname']);
+            $this->set_fullname($contact['firstName'].' '.$contact['lastName']);
+            $this->set_nickname($contact['displayName']);
             $this->set_organization($contact['organization']);
             $this->set_photo($contact['photo']);
             $this->set_phone($contact['phone']);
             $this->set_address($contact['address']);
             $this->set_email($contact['email']);
             $this->set_datestamp();
-            $this->vcardfile .= 'END:VCARD'.PHP_EOL;
+            $this->vcardfile .= 'END:VCARD'."\r\n";
         }
         elseif(is_string($contact)) {
             $this->vcardfile = $contact;
@@ -53,10 +56,11 @@ class vCard {
     }
 
     public function set_fullname($fullname = '') {
-        if(empty(trim($fullname))) {
+        $fullname = trim($fullname);
+        if(empty($fullname)) {
             return;
         }
-        $this->vcardfile .= 'FN:'.$fullname.PHP_EOL;
+        $this->vcardfile .= 'FN:'.$fullname."\r\n";
         $this->vcard['name'] = $fullname;
     }
 
@@ -64,15 +68,18 @@ class vCard {
         if(empty($email)) {
             return;
         }
-        if(is_string($email) && !empty(trim($email))) {
-            $this->vcardfile .= 'EMAIL:'.$email.PHP_EOL;
+
+        $email = trim($email);
+        if(is_string($email) && !empty($email)) {
+            $this->vcardfile .= 'EMAIL:'.$email."\r\n";
         }
         elseif(is_array($email)) {
             foreach($email as $e) {
-                if(empty(trim($e))) {
+                $e = trim($e);
+                if(empty($e)) {
                     continue;
                 }
-                $this->vcardfile .= 'EMAIL:'.$e.PHP_EOL;
+                $this->vcardfile .= 'EMAIL:'.$e."\r\n";
             }
         }
     }
@@ -85,26 +92,28 @@ class vCard {
     }
 
     private function set_datestamp() {
-        $this->vcardfile .= 'REV:'.$this->parse_datestamp(TIME_NOW).'Z'.PHP_EOL;
+        $this->vcardfile .= 'REV:'.$this->parse_datestamp(TIME_NOW).'Z'."\r\n";
     }
 
     public function set_nickname($nickname = '') {
-        if(empty(trim($nickname))) {
+        $nickname = trim($nickname);
+        if(empty($nickname)) {
             return;
         }
-        $this->vcardfile .= 'NICKNAME:'.$nickname.PHP_EOL;
+        $this->vcardfile .= 'NICKNAME:'.$nickname."\r\n";
     }
 
     public function set_organization($organization = '') {
-        if(empty(trim($organization))) {
+        $organization = trim($organization);
+        if(empty($organization)) {
             return;
         }
-        $this->vcardfile .= 'ORG:'.$organization.PHP_EOL;
+        $this->vcardfile .= 'ORG:'.$organization."\r\n";
     }
 
     public function download() {
         header('Content-Type: text/x-Vcard');
-        header('Content-Disposition: inline; filename='.$this->vcard['name'].'.vcf');
+        header('Content-Disposition: inline; filename='.generate_alias($this->vcard['name']).'.vcf');
         output($this->get_vcard());
     }
 
@@ -113,25 +122,26 @@ class vCard {
     }
 
     public function set_title($title = '') {
-        if(empty(trim($title))) {
+        $title = trim($title);
+        if(empty($title)) {
             return;
         }
-        $this->vcardfile .= ' Title:'.$title.PHP_EOL;
+        $this->vcardfile .= ' Title:'.$title."\r\n";
     }
 
     public function set_photo($photo = array()) {
         if(empty($photo)) {
             return;
         }
-        if(is_array($photo)) {
-            foreach($photo as $type => $pic) {
-                if(empty(trim($type)) || empty(trim($pic))) {
-                    continue;
-                }
-
-                $this->vcardfile .= 'PHOTO;MEDIATYPE=image/'.$type.':base64,'.$pic.PHP_EOL;
-            }
-        }
+//        if(is_array($photo)) {
+//            foreach($photo as $type => $pic) {
+//                if(empty(trim($type)) || empty(trim($pic))) {
+//                    continue;
+//                }
+//
+//                $this->vcardfile .= 'PHOTO;MEDIATYPE=image/'.$type.':base64,'.$pic."\r\n";
+//            }
+//        }
     }
 
     public function set_address($address = array()) {
@@ -139,10 +149,12 @@ class vCard {
             return;
         }
         foreach($address as $type => $address) {
-            if(empty(trim($type)) || empty(trim($address))) {
+            $address = trim($address);
+            $type = trim($type);
+            if(empty($type) || empty($address)) {
                 continue;
             }
-            $this->vcardfile .= 'ADR;TYPE='.$type.';LABEL="'.$address.'":;;'.$address.PHP_EOL;
+            $this->vcardfile .= 'ADR;TYPE='.$type.';LABEL="'.$address.'":;;'.$address."\r\n";
         }
     }
 
@@ -151,10 +163,12 @@ class vCard {
             return;
         }
         foreach($phone as $type => $number) {
-            if(empty(trim($type)) || empty(trim($number))) {
+            $number = trim($number);
+            $type = trim($type);
+            if(empty($type) || empty($number)) {
                 continue;
             }
-            $this->vcardfile .= 'TEL;TYPE='.$type.',voice;VALUE =uri:tel:'.$number.PHP_EOL;
+            $this->vcardfile .= 'TEL;TYPE='.$type.',voice:'.$number."\r\n";
         }
     }
 
@@ -162,7 +176,7 @@ class vCard {
         if(empty($uid)) {
             return false;
         }
-        $user = new Users($uid);
+        $user = new Users($uid, false);
         $contact['firstName'] = $user->firstName;
         $contact['lastName'] = $user->lastName;
         $contact['displayName'] = $user->displayName;
@@ -176,8 +190,13 @@ class vCard {
             $type = substr($user->profilePicture, -3);
             $contact['photo'] = array('type' => $type, 'pic' => $user->profilePicture);
         }
-        $contact['phone'] = array('work' => $user->telephone, 'work' => $user->telephone2, 'cell' => $user->mobile, 'cell' => $user->mobile2);
-        $contact['address'] = array('work' => $user->addressLine1.' ', $user->addressLine2.' '.$user->building);
+        $contact['phone'] = array('work' => '+'.$user->telephone);
+
+        if($contact['mobileIsPrivate'] != 1) {
+            $contact['phone']['cell'] = '+'.$user->mobile;
+        }
+
+        $contact['address'] = array('home' => $user->addressLine1.' ', $user->addressLine2.' '.$user->building);
         $contact['email'] = $user->email;
         return $contact;
     }

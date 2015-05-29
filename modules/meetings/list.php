@@ -33,13 +33,12 @@ if(!$core->input['action']) {
     $filter = new Inlinefilters($filters_config);
     $filter_where_values = $filter->process_multi_filters();
     if(is_array($filter_where_values)) {
-        $filters_row_display = 'show';
         if($filters_config['process']['filterKey'] == 'mtid') {
             $filters_config['process']['filterKey'] = 'mtid';
         }
         $filter_where = ' '.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
     }
-    $filters_row = $filter->prase_filtersrows(array('tags' => 'table', 'display' => $filters_row_display));
+    $filters_row = $filter->prase_filtersrows(array('tags' => 'table'));
 
     $multiple_meetings = Meetings::get_multiplemeetings(array('filter_where' => $filter_where, 'order' => array('sortby' => $core->input['sortby'], 'order' => $core->input['order'])));
     if(is_array($multiple_meetings)) {

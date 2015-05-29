@@ -47,15 +47,13 @@ if(!$core->input['action']) {
     $filter = new Inlinefilters($filters_config);
     $filter_where_values = $filter->process_multi_filters();
 
-    $filters_row_display = 'hide';
     if(is_array($filter_where_values)) {
-        $filters_row_display = 'show';
         $filters[$filters_config['process']['filterKey']] = $filter_where_values;
         $filters_opts[$filters_config['process']['filterKey']] = 'IN';
         $multipage_where .= ' AND '.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
     }
 
-    $filters_row = $filter->prase_filtersrows(array('tags' => 'table', 'display' => $filters_row_display));
+    $filters_row = $filter->prase_filtersrows(array('tags' => 'table'));
     /* Perform inline filtering - END */
 
     $brandproducts = EntBrandsProducts::get_data($filters, array('returnarray' => true, 'operators' => $filters_opts));

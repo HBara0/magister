@@ -17,7 +17,7 @@
                         {$profile[picture]}
                         <hr />{$profile_profilepicform}</td>
                     <td valign="top" class="border_left" style="padding: 10px;">
-                        <div class="subtitle">{$lang->contactinformation}</div>
+                        <div class="subtitle">{$lang->contactinformation} <a style="cursor:pointer;" href="{$core->settings['rootdir']}/users.php?action=downloadvcard&uid={$profile[uid]}"><img src="./images/editprofile.gif" title="{$lang->downloadcontact}"/></a></div>
                         {$lang->fulladdress}: {$profile[fulladdress]}<br />
                         {$lang->pobox}: {$profile[poBox]}<br />
                         {$lang->internalextension}: {$profile[internalExtension]}<br />
@@ -27,7 +27,6 @@
                         {$lang->email}: <a href="mailto:{$profile[email]}">{$profile[email]}</a><br />
                         {$lang->bbpin}: {$profile[bbPin]}<br />
                         {$profile[skype_output]}
-                        {$download_card_button}
                     </td>
                 </tr>
                 <tr>

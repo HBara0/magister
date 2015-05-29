@@ -1,5 +1,5 @@
 <tr>
-    <td colspan="2" id="associationssection" style="{$sectionsvisibility[associationssection]}">
+    <td colspan="2" id="associationssection">
         <table class="datatable" border="0" width="100%" cellspacing="1" cellpadding="1">
             <tr>
                 <td>{$lang->customer}</td>
