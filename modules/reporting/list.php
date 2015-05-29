@@ -59,15 +59,13 @@ if(!$core->input['action']) {
     );
     $filter = new Inlinefilters($filters_config);
     $filter_where_values = $filter->process_multi_filters();
-    $filters_row_display = 'hide';
 
     if(is_array($filter_where_values)) {
-        $filters_row_display = 'show';
         $filter_where = ' AND r.'.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
         $multipage_where .= $filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
     }
 
-    $filters_row = $filter->prase_filtersrows(array('tags' => 'table', 'display' => $filters_row_display));
+    $filters_row = $filter->prase_filtersrows(array('tags' => 'table'));
     /* Perform inline filtering - END */
 
     if(isset($core->input['perpage']) && !empty($core->input['perpage'])) {

@@ -37,8 +37,8 @@ class vCard {
             $this->vcardfile = "BEGIN:VCARD\r\n";
             $this->vcardfile .= "VERSION:4.0\r\n";
             $this->set_name($contact['firstName'], $contact['lastName']);
-            $this->set_fullname($contact['displayName']);
-            $this->set_nickname($contact['nickname']);
+            $this->set_fullname($contact['firstName'].' '.$contact['lastName']);
+            $this->set_nickname($contact['displayName']);
             $this->set_organization($contact['organization']);
             $this->set_photo($contact['photo']);
             $this->set_phone($contact['phone']);
@@ -104,7 +104,7 @@ class vCard {
 
     public function download() {
         header('Content-Type: text/x-Vcard');
-        header('Content-Disposition: inline; filename='.$this->vcard['name'].'.vcf');
+        header('Content-Disposition: inline; filename='.generate_alias($this->vcard['name']).'.vcf');
         output($this->get_vcard());
     }
 

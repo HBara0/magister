@@ -66,9 +66,7 @@ if(!$core->input['action']) {
     $filter = new Inlinefilters($filters_config);
     $filter_where_values = $filter->process_multi_filters();
 
-    $filters_row_display = 'hide';
     if(is_array($filter_where_values)) {
-        $filters_row_display = 'show';
         // $filter_where = ' AND ';
         if(empty($uid_where)) {
             //  $filter_where = ' WHERE ';
@@ -79,7 +77,7 @@ if(!$core->input['action']) {
         $multipage_filter_where = ' '.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
     }
 
-    $filters_row = $filter->prase_filtersrows(array('tags' => 'table', 'display' => $filters_row_display));
+    $filters_row = $filter->prase_filtersrows(array('tags' => 'table'));
 
     $configs['order'] = array('by' => array('time', 'uid'), 'sort' => 'DESC');
     if(isset($core->input['sortby'], $core->input['order'])) {
