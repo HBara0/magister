@@ -63,9 +63,6 @@ elseif($core->input['action'] == 'do_create') {
         case 2:
             output_xml('<status>false</status><message>Fill All Required Fields</message>');
             break;
-        case 3:
-            output_xml("<status>false</status><message>{$lang->cannotdeleteentry}</message>");
-            break;
         case 5:
             output_xml('<status>true</status><message>Entry Has Been Updated</message>');
             break;

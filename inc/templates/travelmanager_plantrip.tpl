@@ -65,20 +65,28 @@
                     tabs.tabs("refresh");
                     $('input[id="perform_travelmanager/plantrip_Button"]').click();
                 });
-                $('input[id^=destinationcity_]').live('change', function () {
+                $('input[id^=destinationcity_],input[id^=pickDate_to_]').live('change', function () {
                     if(sharedFunctions.checkSession() == false) {
                         return;
                     }
                     var id = $(this).attr('id').split("_");
-                    var sequence = id[1];
+                    if(id[0] == 'destinationcity') {
+                        var sequence = id[1];
+                    }
+                    else if(id[0] == 'pickDate') {
+                        var sequence = id[2];
+                    }
                     errormessage = '';
                     var ciid = $('input[id$=destinationcity_' + sequence + '_cache_id]').val(); /*get  the cityid from the hiiden field*/
                     if(typeof ciid !== typeof undefined && ciid !== '') {
                         var origincity = $('input[id=cities_' + sequence + '_cache_id]').val(); /*get  the cityid from the hiiden field*/
                         sharedFunctions.requestAjax("post", "index.php?module=travelmanager/plantrip&action=populatecontent", "&sequence=" + sequence + "&destcity=" + ciid + "&origincity=" + origincity + "&departuretime=" + $('#altpickDate_from_' + sequence).val() + "&arrivaltime=" + $('#altpickDate_to_' + sequence).val(), 'content_detailsloader_' + sequence + '', 'content_details_' + sequence + '', true);
                         sharedFunctions.requestAjax("post", "index.php?module=travelmanager/plantrip&action=populatecityprofile", "&sequence=" + sequence + "&destcity=" + ciid, 'segment_city_loader_' + sequence + '', 'segment_city_' + sequence + '', true);
+
                     }
+
                 });
+
                 $('input[id^=lookuptransps_]').live('click', function () {
                     if(sharedFunctions.checkSession() == false) {
                         return;
@@ -112,7 +120,6 @@
                     var id = $(this).attr('id').split("_");
                     var sequence = id[1];
                     $('div[id=countryhotels_' + sequence + '_view]').slideToggle("slow");
-
                 });
                 $('input[id*=pickDate_to_]').live('change', function () {
                     if(sharedFunctions.checkSession() == false) {

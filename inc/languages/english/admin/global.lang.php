@@ -104,7 +104,4 @@ $lang['entryexist'] = "Entry Already Exist";
 $lang['entryexists'] = 'Entry with same information already exists';
 $lang['newversionuploaded'] = "New version successfully uploaded";
 $lang['basicingredients'] = 'Manage Basic Ingredients';
-
-$lang['suredelete'] = 'Are you sure you want to delete this entry?';
-$lang['cannotdeleteentry'] = 'Entry Cannot be deleted';
 ?>
