@@ -44,9 +44,7 @@ if(!$core->input['action']) {
     $filter = new Inlinefilters($filters_config);
     $filter_where_values = $filter->process_multi_filters();
 
-    $filters_row_display = 'hide';
     if(is_array($filter_where_values)) {
-        $filters_row_display = 'show';
         if($filters_config['process']['filterKey'] == 'cmsnid') {
             $filters_config['process']['filterKey'] = 'cn.cmsnid';
         }
@@ -54,7 +52,7 @@ if(!$core->input['action']) {
         $multipage_where .= $filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
     }
 
-    $filters_row = $filter->prase_filtersrows(array('tags' => 'table', 'display' => $filters_row_display));
+    $filters_row = $filter->prase_filtersrows(array('tags' => 'table'));
 
     $news_details = $allnews->get_multiplenews($filter_where);
 
