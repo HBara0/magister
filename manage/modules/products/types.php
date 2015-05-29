@@ -126,4 +126,21 @@ elseif($core->input['action'] == 'delete_endproducttype') {
         output_xml("<status>false</status><message>".$lang->cannotdeleteentry."</message>");
     }
 }
+elseif($core->input['action'] == 'get_cloneendproducttype') {
+    $eptid = $core->input['id'];
+    eval("\$cloneendprodtype = \"".$template->get('popup_cloneendproducttype')."\";");
+    output_page($cloneendprodtype);
+}
+elseif($core->input['action'] == 'clone_endproducttype') {
+    $endproducttype_obj = new EndProducTypes();
+    $endproducttype = $endproducttype_obj->clone_endproducttype($core->input['endproduct']);
+    switch($endproducttype->get_errorcode()) {
+        case 0:
+            output_xml('<status>true</status><message>'.$lang->successfullysaved.'</message>');
+            break;
+        case 2:
+            output_xml('<status>false</status><message>'.$lang->fillallrequiredfields.'</message>');
+            break;
+    }
+}
 ?>
