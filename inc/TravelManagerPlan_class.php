@@ -589,8 +589,7 @@ class TravelManagerPlan {
             eval("\$affiliates_output .= \"".$template->get('travelmanager_plantrip_createsegment_affiliates')."\";");
             $afent_checksum = generate_checksum();
             eval("\$entities.= \"".$template->get('travelmanager_plantrip_createsegment_entities')."\";");
-            unset($afent_checksum);
-            unset($selectedpurpose);
+            unset($afent_checksum, $selectedpurpose);
             //get transp cat send to  parse_transportaionfields
 //            $transportation_obj = $segmentobj->get_transportationscat();
 //            $categery['name'] = $transportation_obj->name;
@@ -770,7 +769,7 @@ $("#anotheraff_otheraccomodations_'.$sequence.'_'.$otherhotel_checksum.'").hide(
             eval("\$plantrip_createsegment = \"".$template->get('travelmanager_plantrip_createsegment')."\";");
             $segments_output .= '<div id = "segmentstabs-'.$segid.'">'.$plantrip_createsegment.'</div>';
             $segid++;
-            unset($transsegments_output, $checkedaccomodation, $finance_output, $checked);
+            unset($transsegments_output, $checkedaccomodation, $finance_output, $checked, $affiliates_output, $entities);
         }
 
         eval("\$plantript_segmentstabs= \"".$template->get('travelmanager_plantrip_segmentstabs')."\";");

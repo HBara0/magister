@@ -96,6 +96,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                             continue;
                         }
                         $assigned['primaryId'] = $id;
+                        $assigned['inputChecksum'] = $key;
                         $assign_obj = new TravelManagerPlanAffient();
                         $assign_obj->set($assigned);
                         $assign_obj->save();

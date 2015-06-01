@@ -3,7 +3,7 @@
     <div style="display:block; ">
         <input id="hotels_{$sequence}_cache_hotel_autocomplete" autocomplete="off" tabindex="3" placeholder="{$lang->searchotherhotel}" value=""  type="text"  >
         <input id="hotels_{$sequence}_cache_hotel_id" name="segment[{$sequence}][tmhid][{$otherhotel_checksum}][tmhid]" value="" type="hidden">
-        <input type="hidden" id="hotels_{$sequence}_cache_hotel_countryid" name="countryid" value='{$destcountry_id}'/>
+        <input type="hidden" data-reqparent="children-numnight_segacc_0_{$sequence}-pricenight_segacc_0_{$sequence}" id="hotels_{$sequence}_cache_hotel_countryid" name="countryid" value='{$destcountry_id}'/>
         <span> <a style="cursor: pointer;"  rel="{$destcity[ciid]}" id="addnewhotel_{$sequence}_travelmanager/plantrip_loadpopupbyid"><img src="images/addnew.png"  title="{$lang->addotherhotel}" alt="Add" border="0">{$lang->addhotel}</a> </span>
         <br/>
         <div style="display:inline-block;padding:5px;width:15%;">{$lang->pricenight}</div>
