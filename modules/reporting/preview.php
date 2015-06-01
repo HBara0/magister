@@ -504,11 +504,42 @@ if(!$core->input['action']) {
                 if($core->usergroup['canGenerateReports'] == 1 || $core->usergroup['canFillReports'] == 1) {
                     eval("\$marketreportbox_other = \"".$template->get('new_reporting_report_marketreportbox_other')."\";");
                 }
-
-                eval("\$marketreportbox .= \"".$template->get('new_reporting_report_marketreportbox')."\";");
+                $marketreport_obj = new MarketReport($mrid);
+                if(is_object($marketreport_obj)) {
+                    $criteriaandstars .= '<div class="evaluation_criterium" name="'.$marketreport_obj->psid.'_'.$mrid.'"><div class="criterium_name" style="display:inline-block; width:30%; padding: 2px;"></div>';
+                    $criteriaandstars .= '<div class="ratebar" style="width:40%; display:inline-block;">';
+                    if(!isset($marketreport_obj->rating) || empty($marketreport_obj->rating)) {
+                        $ratingval = 0;
+                    }
+                    else {
+                        $ratingval = $marketreport_obj->rating;
+                    }
+                    if($reportmeta['auditor'] == 0) {
+                        $criteriaandstars .= '<div class="rateit" data-rateit-starwidth="18" data-rateit-starheight="16" data-rateit-ispreset="true" data-rateit-readonly="true" data-rateit-value="'.$ratingval.'"></div>';
+                    }
+                    else {
+                        $header_ratingjs = '$(".rateit").click(function() {
+					if(sharedFunctions.checkSession() == false) {
+						return;
+					}
+					var targetid = $(this).parent().parent().attr("name");
+					var returndiv = "";
+                                        var val=$("#rating_"+targetid).val();
+                                        var ids=targetid.split("_");
+                                        if(ids[1].length < 1 || ids[0].length < 1 ){
+                                        return;
+                                        }
+                                        if(val.length >0){
+					sharedFunctions.requestAjax("post", "index.php?module=reporting/preview&action=do_ratesegment", "target="+ids[0]+"&value="+val+"&repid="+ids[1], returndiv, returndiv, "html");
+                                        }
+				});';
+                        $criteriaandstars .= '<input type="range" min="0" max="5" value="'.$ratingval.'" step="1" id="rating_'.$marketreport_obj->psid.'_'.$mrid.'" class="ratingscale">';
+                        $criteriaandstars .= '<div class="rateit" data-rateit-starwidth="18" data-rateit-starheight="16" data-rateit-ispreset="true" data-rateit-resetable="false" data-rateit-backingfld="#rating_'.$marketreport_obj->psid.'_'.$mrid.'" data-rateit-value="'.$marketreport->rating.'"></div>';
+                        eval("\$marketreportbox .= \"".$template->get('new_reporting_report_marketreportbox')."\";");
+                    }
+                }
             }
         }
-
         /* Show QR contributors */
         $lang->reportpreparedby_text = $lang->reportpreparedby;
         $lang->email_text = $lang->email;
@@ -976,6 +1007,15 @@ else {
             ini_set('memory_limit', '200M');
             $html2pdf->WriteHTML(trim($content), $show_html);
             $html2pdf->Output($suppliername.'_'.date($core->settings['dateformat'], TIME_NOW).'.pdf');
+        }
+    }
+    elseif($core->input['action'] == 'do_ratesegment') {
+        $mrid = $db->escape_string($core->input['repid']);
+        $psid = $db->escape_string($core->input['target']);
+        $marketreport_obj = MarketReport::get_data(array('mrid' => $mrid));
+        if(is_object($marketreport_obj)) {
+            $marketreport_obj->rating = $core->input['value'];
+            $marketreport_obj->save();
         }
     }
 }
