@@ -34,10 +34,13 @@ class TravelManagerHotels extends AbstractClass {
 
     public function create(array $data) {
         global $db;
-        if(is_empty($data['name'], $data['city'], $data['phone'], $data['addressLine1'])) {
+
+        if(is_empty($data['name'], $data['city'], $data['telephone_intcode'], $data['telephone_areacode'], $data['telephone_number'], $data['addressLine1'])) {
             $this->errorcode = 2;
             return false;
         }
+        $data['phone'] = $data['telephone_intcode'].'-'.$data['telephone_areacode'].'-'.$data['telephone_number'];
+        unset($data['telephone_intcode'], $data['telephone_areacode'], $data['telephone_number']);
         $city = new Cities($data['city']);
         if(is_object($city)) {
             $data['country'] = $city->coid;

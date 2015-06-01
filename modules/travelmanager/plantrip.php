@@ -518,7 +518,9 @@ else {
     }
     elseif($core->input ['action'] == 'do_add_otherhotel') {
         $sequence = $core->input['sequence'];
-        $core->input['otherhotel']['phone'] = $core->input['telephone_intcode'].'-'.$core->input['telephone_areacode'].'-'.$core->input['telephone_number'];
+        $core->input['otherhotel']['telephone_intcode'] = $core->input['telephone_intcode'];
+        $core->input['otherhotel']['telephone_areacode'] = $core->input['telephone_areacode'];
+        $core->input['otherhotel']['telephone_number'] = $core->input['telephone_number'];
         $hotelobj = new TravelManagerHotels();
         $hotelobj->set($core->input['otherhotel']);
         $hotelobj->save();
