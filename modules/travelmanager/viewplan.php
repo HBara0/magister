@@ -92,18 +92,23 @@ else {
                 $segment_details .= $segment->parse_segment();
                 $segment_expenses = $segment->parse_expensesummary();
             }
-            /* Get and parse all the possibe Flights */
+
             foreach($segment_objs as $segmentid => $segment) {
                 $transportaion_fields_title = '<div style="font-size: 24px;color: #91B64F;font-weight: 100;">'.$segment->get_origincity()->name.' - '.$segment->get_destinationcity()->name.'</div>';
+                /* Get and parse all the possibe Flights */
                 if(!empty($segment->get()['apiFlightdata'])) {
                     $transportaionsegment_fields .= '<div style="horizontal-align: middle; font-weight: bold;border-bottom: 1px dashed #666;font-size: 14px;padding:5px; background-color: #92D050 ; ">'.$lang->allpossibleflights.'</div>';
                     $transportaionsegment_fields .= TravelManagerAirlines::parse_bestflight($segment->get()['apiFlightdata'], array(), $sequence, 'email');
                 }
                 /* Get and parse all the possibe Approved Hotels */
                 $destcity = new Cities($segment->destinationCity);
-                $approvedhotels = $destcity->get_approvedhotels();
+                $approvedhotels = $destcity->get_country()->get_approvedhotels();
                 if(is_array($approvedhotels)) {
                     foreach($approvedhotels as $hotel) {
+                        $isselectedhotel = TravelManagerPlanaccomodations::get_data(array('tmpsid' => $segment->tmpsid, 'tmhid' => $hotel->tmhid));
+                        if(is_object($isselectedhotel)) {
+                            continue;
+                        }
                         $iscontractedicon = '<img src="./images/invalid.gif" alt="'.$lang->no.'"/>';
                         if($hotel->isContracted == 1) {
                             $iscontractedicon = '<img src="./images/valid.gif" alt="'.$lang->yes.'"/>';
@@ -111,12 +116,13 @@ else {
                         /* parse ratings */
                         eval("\$otherapprovedhotels .= \"".$template->get('travelmanager_approvedhotel_row')."\";");
                     }
+                    $transportaionsegment_fields .= $transportaion_fields_title;
                     eval("\$transportaionsegment_fields .= \"".$template->get('travelmanager_viewplan_approvedhotels')."\";");
                 }
                 unset($otherapprovedhotels);
             }
             if(!empty($transportaionsegment_fields)) {
-                $transportaion_fields .= $transportaion_fields_title.$transportaionsegment_fields;
+                $transportaion_fields .= $transportaionsegment_fields;
                 unset($transportaionsegment_fields, $transportaion_fields_title);
             }
         }
