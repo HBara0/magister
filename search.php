@@ -309,6 +309,7 @@ if($core->input['type'] == 'quick') {
             $order = array('by' => 'name', 'sort' => 'ASC');
             if($core->input['for'] == 'sourcecity' || $core->input['for'] == 'destinationcity') {
                 $order = array('by' => 'defaultAirport DESC, name', 'sort' => 'ASC');
+                $disableSoundex = 1;
             }
         }
         elseif($core->input['for'] == 'countries') {
@@ -358,7 +359,7 @@ if($core->input['type'] == 'quick') {
                 $extra_where .= " AND {$key_attribute} NOT IN ({$core->input[exclude]})";
             }
         }
-        $results_list = quick_search($table, $attributes, $core->input['value'], $select_attributes, $key_attribute, array('returnType' => $core->input['returnType'], 'order' => $order, 'extra_where' => $extra_where, 'descinfo' => $descinfo));
+        $results_list = quick_search($table, $attributes, $core->input['value'], $select_attributes, $key_attribute, array('returnType' => $core->input['returnType'], 'order' => $order, 'extra_where' => $extra_where, 'descinfo' => $descinfo, 'disableSoundex' => $disableSoundex));
         $referrer = explode('&', $_SERVER['HTTP_REFERER']);
         $module = substr($referrer[0], strpos(strtolower($referrer[0]), 'module=') + 7);
         if($core->input['for'] == 'supplier') {

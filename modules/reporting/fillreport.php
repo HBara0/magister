@@ -439,7 +439,7 @@ if(!$core->input['action']) {
                 }
             }
         }
-        $mom_followupactions.=$mom_followupactions.'<tr><td><strong>'.$lang->specificfollowactions.'</strong></td></tr>';
+        // $mom_followupactions.='<tr><td><strong>'.$lang->specificfollowactions.'</strong></td></tr>';
         eval("\$marketreportpage .= \"".$template->get('reporting_fillreports_marketreport')."\";");
         eval("\$fillreportpage = \"".$template->get('reporting_fillreports_tabs')."\";");
     }
