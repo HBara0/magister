@@ -112,8 +112,8 @@ else {
                         eval("\$otherapprovedhotels .= \"".$template->get('travelmanager_approvedhotel_row')."\";");
                     }
                     eval("\$transportaionsegment_fields .= \"".$template->get('travelmanager_viewplan_approvedhotels')."\";");
-                    unset($otherapprovedhotels);
                 }
+                unset($otherapprovedhotels);
             }
             if(!empty($transportaionsegment_fields)) {
                 $transportaion_fields .= $transportaion_fields_title.$transportaionsegment_fields;

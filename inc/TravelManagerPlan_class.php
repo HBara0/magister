@@ -548,7 +548,7 @@ class TravelManagerPlan {
                     $affrowid = $entrowid = 1;
                     foreach($affient_objs as $affient_obj) {
                         if($affient_obj->get_type() == 'affiliate') {
-                            $affiliates = Affiliates::get_affiliates();
+                            $affiliates = Affiliates::get_affiliates(array('isActive' => '1'));
                             $afent_checksum = $affient_obj->inputChecksum;
                             $affilate_list = parse_selectlist('segment['.$sequence.'][assign][affid]['.$afent_checksum.']', '1', $affiliates, $affient_obj->primaryId, '', '', array('blankstart' => true));
                             eval("\$affiliates_output .= \"".$template->get('travelmanager_plantrip_createsegment_affiliates')."\";");
@@ -582,12 +582,12 @@ class TravelManagerPlan {
                     $internalpurposes_checks = parse_checkboxes('segment['.$sequence.'][purpose]', $interperp, $selectedpurpose, '', 'internal purposes', '<br>', 'purposes_checks_internal_'.$sequence.'', 1);
                 }
             }
-            $affiliates = Affiliates::get_affiliates();
-            $afent_checksum = generate_checksum('affient');
+            $affiliates = Affiliates::get_affiliates(array('isActive' => '1'));
+            $afent_checksum = generate_checksum();
             $affilate_list = parse_selectlist('segment['.$sequence.'][assign][affid]['.$afent_checksum.']', '1', $affiliates, '', '', '', array('blankstart' => true));
             $affrowid = $entrowid = 0;
             eval("\$affiliates_output .= \"".$template->get('travelmanager_plantrip_createsegment_affiliates')."\";");
-            $afent_checksum = generate_checksum('affient');
+            $afent_checksum = generate_checksum();
             eval("\$entities.= \"".$template->get('travelmanager_plantrip_createsegment_entities')."\";");
             unset($afent_checksum);
             unset($selectedpurpose);
@@ -769,7 +769,7 @@ $("#anotheraff_otheraccomodations_'.$sequence.'_'.$otherhotel_checksum.'").hide(
             eval("\$plantrip_createsegment = \"".$template->get('travelmanager_plantrip_createsegment')."\";");
             $segments_output .= '<div id = "segmentstabs-'.$segid.'">'.$plantrip_createsegment.'</div>';
             $segid++;
-            unset($transsegments_output, $finance_output, $checked);
+            unset($transsegments_output, $checkedaccomodation, $finance_output, $checked);
         }
 
         eval("\$plantript_segmentstabs= \"".$template->get('travelmanager_plantrip_segmentstabs')."\";");

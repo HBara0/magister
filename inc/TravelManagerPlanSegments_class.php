@@ -782,7 +782,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                 }
                 $selectedhotel = TravelManagerPlanaccomodations::get_data(array(self::PRIMARY_KEY => $this->data[self ::PRIMARY_KEY], TravelManagerHotels::PRIMARY_KEY => $hotel->tmhid), array('simple' => false));
                 if(is_object($selectedhotel)) {
-                    $hotel->isChecked = " checked='checked'";
+                    $hotelchecked = " checked='checked'";
                     $rescurrency = $selectedhotel->get_currency();
                     $rescurrency_id = $rescurrency->get_id();
                     $checksum = $selectedhotel->inputChecksum;
@@ -793,13 +793,14 @@ class TravelManagerPlanSegments extends AbstractClass {
                     }
                 }
                 else {
+                    $hotelchecked = '';
                     $checksum = generate_checksum('accomodation');
                     $selected_hotel[$sequence][$checksum]['displaystatus'] = "display:none;";
                 }
 
-                $review_tools .= '<a href="#'.$approved_hotels['tmhid'].'" id="hotelreview_'.$approved_hotels['tmhid'].'_travelmanager/plantrip_loadpopupbyid" rel="hotelreview_'.$hotel->tmhid.'" title="'.$lang->hotelreview.'"><img src="'.$core->settings['rootdir'].'/images/icons/reviewicon.png" title="'.$lang->readhotelreview.'" alt="'.$lang->readhotelreview.'" border="0" width="16" height="16"></a>';
+                $review_tools .= '<a href="#'.$approved_hotels['tmhid'].'" id="hotelreview_'.$approved_hotels['tmhid'].'_travelmanager/plantrip_loadpopupbyid" rel="hotelreview_'.$approved_hotels['tmhid'].'" title="'.$lang->hotelreview.'"><img src="'.$core->settings['rootdir'].'/images/icons/reviewicon.png" title="'.$lang->readhotelreview.'" alt="'.$lang->readhotelreview.'" border="0" width="16" height="16"></a>';
 
-                $checkbox_hotel = '<input aria-describedby="ui-tooltip-155" title="" name="segment['.$sequence.'][tmhid]['.$checksum.'][tmhid]" id="segment['.$sequence.']['.$checksum.'][tmhid]" value="'.$hotel->tmhid.'" type="checkbox">'.$hotel->name;
+                $checkbox_hotel = '<input aria-describedby="ui-tooltip-155" title="" name="segment['.$sequence.'][tmhid]['.$checksum.'][tmhid]" id="segment['.$sequence.']['.$checksum.'][tmhid]" value="'.$approved_hotels['tmhid'].'" type="checkbox">'.$approved_hotels['name'];
 
                 // $paidby_onchangeactions = 'if($(this).find(":selected").val()=="anotheraff"){$("#"+$(this).find(":selected").val()+"_accomodations_'.$sequence.'_'.$checksum.'").show();}else{$("#anotheraff_accomodations_'.$sequence.'_'.$checksum.'").hide();}';
                 $paidby_onchangeactions = 'if($(this).find(":selected").val()=="anotheraff"){$("#"+$(this).find(":selected").val()+"_accomodations_'.$sequence.'_'.$checksum.'").effect("highlight",{ color: "#D6EAAC"}, 1500).find("input").first().focus().val("");}else{$("#anotheraff_accomodations_'.$sequence.'_'.$checksum.'").hide();}';
@@ -827,9 +828,9 @@ class TravelManagerPlanSegments extends AbstractClass {
 
                 //      $leavedays = abs($this->toDate - $this->fromDate);
                 //     $leavedays = floor($leavedays / (60 * 60 * 24));
-
+                $cityname = $this->get_destinationcity()->get_displayname();
                 eval("\$hotelssegments_output  .= \"".$template->get('travelmanager_plantrip_segment_hotels')."\";");
-                $review_tools = $paidby_details = $currencies_list = $currencies = $selected_hotel = $checkbox_hotel = '';
+                $review_tools = $hotelchecked = $cityname = $paidby_details = $currencies_list = $currencies = $selected_hotel = $checkbox_hotel = '';
             }
         }
 

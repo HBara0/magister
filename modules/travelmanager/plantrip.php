@@ -62,7 +62,7 @@ if(!$core->input['action']) {
             $segment[$sequence]['destinationcity']['name'] = $segment[$sequence]['destinationcity']['name'];  /* Will get the capital city of the visited country of leave */
             $segment[$sequence]['destinationcity']['ciid'] = $segment[$sequence]['destinationcity']['ciid'];  /* Will get the capital city of the visited country of leave */
             $segment[$sequence][reason_output] = $leave['reason'];
-            $affiliates = Affiliates::get_affiliates();
+            $affiliates = Affiliates::get_affiliates(array('isActive' => '1'));
             $affilate_list = parse_selectlist('segment['.$sequence.'][affid]', 1, $affiliates, $segmentobj->affid, '', '', array('blankstart' => true));
             $disabled = 'disabled="true"';
 //$leave_destcity
@@ -90,12 +90,12 @@ if(!$core->input['action']) {
                     $internalpurposes_checks = parse_checkboxes('segment['.$sequence.'][purpose]', $interperp, '', '', 'internal purposes', '<br>', 'purposes_checks_internal_'.$sequence.'', 1);
                 }
             }
-            $affiliates = Affiliates::get_affiliates();
-            $afent_checksum = generate_checksum('affient');
+            $affiliates = Affiliates::get_affiliates(array('isActive' => '1'));
+            $afent_checksum = generate_checksum();
             $affilate_list = parse_selectlist('segment['.$sequence.'][assign][affid]['.$afent_checksum.']', '1', $affiliates, '', '', '', array('blankstart' => true));
             $affrowid = $entrowid = 0;
             eval("\$affiliates_output = \"".$template->get('travelmanager_plantrip_createsegment_affiliates')."\";");
-            $afent_checksum = generate_checksum('affient');
+            $afent_checksum = generate_checksum();
             eval("\$entities = \"".$template->get('travelmanager_plantrip_createsegment_entities')."\";");
             //   $origincity_obj = $leave_obj->get_sourcecity(false);
             $origintcity = $origincity_obj->get();
@@ -251,12 +251,12 @@ else {
                 $internalpurposes_checks = parse_checkboxes('segment['.$sequence.'][purpose]', $interperp, $selectedpurpose, '', 'internal purposes', '<br>', 'purposes_checks_internal_'.$sequence.'', 1);
             }
         }
-        $affiliates = Affiliates::get_affiliates();
-        $afent_checksum = generate_checksum('affient');
+        $affiliates = Affiliates::get_affiliates(array('isActive' => '1'));
+        $afent_checksum = generate_checksum();
         $affilate_list = parse_selectlist('segment['.$sequence.'][assign][affid]['.$afent_checksum.']', '1', $affiliates, '', '', '', array('blankstart' => true));
         $affrowid = $entrowid = 0;
         eval("\$affiliates_output = \"".$template->get('travelmanager_plantrip_createsegment_affiliates')."\";");
-        $afent_checksum = generate_checksum('affient');
+        $afent_checksum = generate_checksum();
         eval("\$entities = \"".$template->get('travelmanager_plantrip_createsegment_entities')."\";");
 
         /* Popuplate basic information from the leave based on the lid passed via ajax */
@@ -597,16 +597,16 @@ else {
     }
     elseif($core->input['action'] == 'ajaxaddmore_affiliate') {
         $affrowid = $db->escape_string($core->input['value']) + 1;
-        $afent_checksum = generate_checksum('affient');
+        $afent_checksum = generate_checksum();
         $sequence = $db->escape_string($core->input['id']);
-        $affiliates = Affiliates::get_affiliates();
-        $affilate_list = parse_selectlist('segment['.$sequence.'][assign][affid]['.$affrowid.']', '1', $affiliates, '', '', '', array('blankstart' => true));
+        $affiliates = Affiliates::get_affiliates(array('isActive' => '1'));
+        $affilate_list = parse_selectlist('segment['.$sequence.'][assign][affid]['.$afent_checksum.']', '1', $affiliates, '', '', '', array('blankstart' => true));
         eval("\$affiliates_output .= \"".$template->get('travelmanager_plantrip_createsegment_affiliates')."\";");
         echo $affiliates_output;
     }
     elseif($core->input['action'] == 'ajaxaddmore_entities') {
         $entrowid = $db->escape_string($core->input['value']) + 1;
-        $afent_checksum = generate_checksum('affient');
+        $afent_checksum = generate_checksum();
         $sequence = $db->escape_string($core->input['id']);
         eval("\$entities .= \"".$template->get('travelmanager_plantrip_createsegment_entities')."\";");
         echo $entities;

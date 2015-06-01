@@ -1,6 +1,7 @@
 <div style="display:block;width:100%;  border:1px solid #FCEFA1;  padding:5px;">
-    <div><input aria-describedby="ui-tooltip-155" title="" name="segment[{$sequence}][tmhid][{$checksum}][tmhid]" id="segment[{$sequence}][{$checksum}][tmhid]" value="{$hotel->tmhid}" type="checkbox" {$hotel->isChecked}>{$hotel->name} <span>{$review_tools}</span><br />{$hotel->addressLine1}</div>
+    <div><input aria-describedby="ui-tooltip-155" title="" name="segment[{$sequence}][tmhid][{$checksum}][tmhid]" id="segment[{$sequence}][{$checksum}][tmhid]" value="{$hotel->tmhid}" type="checkbox" {$hotelchecked}>{$hotel->name} <span>{$review_tools}</span><br />{$hotel->addressLine1}</div>
     <div>
+        City: {$cityname}
     </div><div style="display:inline-block;padding:2px;width:20%; font-weight: bold;" id="avg_segacc_{$approved_hotels[tmhid]}_{$sequence}" >
         <span>Avg Price: {$approved_hotels['avgPrice']} {$currency_dispname}</span>
     </div>
