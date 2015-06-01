@@ -661,7 +661,7 @@ class TravelManagerPlan {
                 $hotelssegments_output.='</div>';
             }
             $hotelssegments_output .= '<br /><h2><small>Other Possible Hotels</small></h2>';
-            $otherhotels = TravelManagerHotels::get_data(array('city' => $segmentobj->get_destinationcity()->get_id(), 'tmhid' => '(SELECT tmhid FROM '.TravelManagerPlanaccomodations::TABLE_NAME.' WHERE '.TravelManagerPlanSegments::PRIMARY_KEY.' = '.$segmentobj->get_id().')', 'isApproved' => 0), array('returnarray' => true, 'operators' => array('tmhid' => 'IN')));
+            $otherhotels = TravelManagerHotels::get_data(array('country' => $counrty_obj->coid, 'tmhid' => '(SELECT tmhid FROM '.TravelManagerPlanaccomodations::TABLE_NAME.' WHERE '.TravelManagerPlanSegments::PRIMARY_KEY.' = '.$segmentobj->get_id().')', 'isApproved' => 0), array('returnarray' => true, 'operators' => array('tmhid' => 'IN')));
             if(is_array($otherhotels)) {
                 $hotelssegments_output .= $segmentobj->parse_hotels($sequence, $otherhotels);
             }

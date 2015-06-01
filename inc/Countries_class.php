@@ -117,5 +117,9 @@ class Countries extends AbstractClass {
         return $phonecodes;
     }
 
+    public function get_approvedhotels() {
+        return TravelManagerHotels::get_data(array('country' => $this->data['coid'], 'isApproved' => 1), array('returnarray' => true));
+    }
+
 }
 ?>
