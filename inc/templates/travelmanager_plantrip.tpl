@@ -257,6 +257,18 @@
                         }
                     }
                 });
+                $('input[type="number"]').live('keyup', function () {
+                    if($(this).attr('max').length > 0) {
+                        if(parseInt($(this).val(), 10) > parseInt($(this).attr('max'), 10)) {
+                            if(parseInt($(this).attr('max'), 10) == 0) {
+                                $(this).val(1);
+                            }
+                            else {
+                                $(this).val($(this).attr('max'));
+                            }
+                        }
+                    }
+                });
                 $('input[id^="purposes_checks_"]').live('change', function () {
                     var id = $(this).attr('id').split('_');
                     var empty = 1;

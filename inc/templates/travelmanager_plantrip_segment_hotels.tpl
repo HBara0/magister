@@ -1,5 +1,5 @@
 <div style="display:block;width:100%;  border:1px solid #FCEFA1;  padding:5px;">
-    <div><input aria-describedby="ui-tooltip-155" title="" name="segment[{$sequence}][tmhid][{$checksum}][tmhid]" id="segment[{$sequence}][{$checksum}][tmhid]" value="{$approved_hotels[tmhid]}" type="checkbox" {$hotel->isChecked}>{$hotel->name} <span>{$review_tools}</span><br />{$hotel->addressLine1}</div>
+    <div><input aria-describedby="ui-tooltip-155" data-reqparent="children-numnight_segacc_{$approved_hotels[tmhid]}_{$sequence}-pricenight_segacc_{$approved_hotels[tmhid]}_{$sequence}" name="segment[{$sequence}][tmhid][{$checksum}][tmhid]" id="segment[{$sequence}][{$checksum}][tmhid]" value="{$approved_hotels[tmhid]}" type="checkbox" {$hotel->isChecked}>{$hotel->name} <span>{$review_tools}</span><br />{$hotel->addressLine1}</div>
     <div>
         City: {$cityname}
     </div><div style="display:inline-block;padding:2px;width:20%; font-weight: bold;" id="avg_segacc_{$approved_hotels[tmhid]}_{$sequence}" >
@@ -7,7 +7,7 @@
     </div>
     <br>
     <div style="display:inline-block;padding:5px;width:15%;">{$lang->pricenight}</div>
-    <div style="display:inline-block;width:15%;"><input tabindex="3" data-reqparent="children-numnight_segacc_{$approved_hotels[tmhid]}_{$sequence}" id="pricenight_segacc_{$approved_hotels[tmhid]}_{$sequence}" accept="numeric" name="segment[{$sequence}][tmhid][{$checksum}][priceNight]" type="text" value="{$selectedhotel->priceNight}" style="width:100%;"></div>
+    <div style="display:inline-block;width:15%;"><input tabindex="3"  id="pricenight_segacc_{$approved_hotels[tmhid]}_{$sequence}" accept="numeric" name="segment[{$sequence}][tmhid][{$checksum}][priceNight]" type="text" value="{$selectedhotel->priceNight}" style="width:100%;"></div>
     <div style="display:inline-block;width:6%;">{$currencies_list}</div>
     <div style="display:inline-block;padding:10px;margin-left:5px;width:16%;">{$lang->numnight}</div>
     <div style="display:inline-block;width:15%;"><input style="width:100px;" tabindex="3" id="numnight_segacc_{$approved_hotels[tmhid]}_{$sequence}" accept="numeric" name="segment[{$sequence}][tmhid][{$checksum}][numNights]" type="number" value="{$selectedhotel->numNights}" max="{$leavedays}"> </div>
