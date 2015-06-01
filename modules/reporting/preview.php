@@ -465,6 +465,41 @@ if(!$core->input['action']) {
                 if(($core->usergroup['reporting_canViewComptInfo'] == 1) || ($core->usergroup['canGenerateReports'] == 1 || $core->usergroup['canFillReports'] == 1)) {
                     eval("\$marketreportbox_competition = \"".$template->get('new_reporting_report_marketreportbox_competition')."\";");
                 }
+                /* Parse MOM Specific Follow Up Actions - START */
+                $quarter_start = strtotime($core->settings['q'.$report['quarter'].'start'].'-'.$report['year']);
+                $quarter_end = strtotime($core->settings['q'.$report['quarter'].'end'].'-'.$report['year']);
+                $momactions_where = '(date BETWEEN '.$quarter_start.' AND '.$quarter_end.') AND momid=(select momid from meetings_minsofmeeting where mtid IN '
+                        .'(select mtid from meetings_associations where idAttr="spid" AND id='.$report[spid].'))';
+                $momactions = MeetingsMOMActions::get_data($momactions_where, array('returnarray' => true, 'operators' => array('filter' => CUSTOMSQLSECURE)));
+                if(is_array($momactions)) {
+                    foreach($momactions as $key => $actions) {
+                        /* The actions are associated to the QR affiliate (primarily) or its employees are assigned to the actions (secondary) */
+                        $meetings_affassociations = MeetingsAssociations::get_data(array('id' => $report[affid], 'idAttr' => 'affid', 'mtid' => 'mtid=(select mtid from meetings_minsofmeeting where momid='.$actions->momid.')'), array('returnarray' => true, 'operators' => array('mtid' => 'CUSTOMSQL')));
+                        //If actions are associated to the QR affiliate -> continue
+                        if(is_array($meetings_affassociations)) {
+                            continue;
+                        }
+                        //Else check if employees of the QR aff are assigned to the actions
+                        $employeesassigned = false;
+                        $momactionsassignees = MeetingsMOMActionAssignees::get_data(array('momaid' => $actions->momaid), array('returnarray' => true));
+                        if(is_array($momactionsassignees)) {
+                            foreach($momactionsassignees as $assignee) {
+                                if(isset($assignee->uid) && !empty($assignee->uid)) {
+                                    $user = new Users($assignee->uid);
+                                    if(is_object($user) && $user->get_mainaffiliate()->affid == $reportmeta['affid']) {
+                                        $employeesassigned = true;
+                                    }
+                                }
+                            }
+                        }
+                        if(!$employeesassigned) {
+                            unset($momactions[$key]); // if no aff or employees associations do not parse actions
+                        }
+                    }
+                    $mom_obj = new MeetingsMOM();
+                    $mom_followupactions .= $mom_obj->parse_actions('QR', $momactions);
+                }
+                /* Parse MOM Specific Follow Up Actions - end */
 
                 if($core->usergroup['canGenerateReports'] == 1 || $core->usergroup['canFillReports'] == 1) {
                     eval("\$marketreportbox_other = \"".$template->get('new_reporting_report_marketreportbox_other')."\";");
@@ -794,6 +829,7 @@ if(!$core->input['action']) {
         $missing_employees_query1 = $db->query("SELECT DISTINCT(u.uid), displayName
 												FROM ".Tprefix."users u JOIN ".Tprefix."assignedemployees ae ON (u.uid=ae.uid)
 												WHERE ae.affid='{$report[affid]}' AND ae.eid='{$report[spid]}' AND u.gid IN (SELECT gid FROM usergroups WHERE canUseReporting=1 AND canFillReports=1) AND u.uid NOT IN (SELECT uid FROM ".Tprefix."reportcontributors WHERE rid='{$report[rid]}' AND isDone=1) AND u.uid!={$core->user[uid]}"); // AND rc.rid='{$report[rid]}'
+
         while($assigned_employee = $db->fetch_assoc($missing_employees_query1)) {
             $missing_employees['name'][] = $assigned_employee['displayName'];
             $missing_employees['uid'][] = $assigned_employee['uid'];

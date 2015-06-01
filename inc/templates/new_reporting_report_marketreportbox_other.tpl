@@ -17,3 +17,9 @@
     </tr>
 </table>
 <br />
+<table class="reportbox">
+    <tr>
+        <td class="thead">{$lang->specificfollowactions}</td>
+    </tr>
+    <tr><td>{$mom_followupactions}</td></tr>
+</table>
