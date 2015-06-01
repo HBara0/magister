@@ -107,7 +107,7 @@ class TravelManagerPlanSegments extends AbstractClass {
             $transptdata['tmpsid'] = $this->data[self::PRIMARY_KEY];
 
             $transptdata = $segmentdata['tmtcid'];
-
+            $transp_count = 0;
             /* Initialize the object */
             if(is_array($transptdata)) {
                 foreach($transptdata as $checksum => $data) {
@@ -124,6 +124,7 @@ class TravelManagerPlanSegments extends AbstractClass {
 
                             $transp_obj->set($transit);
                             $transp_obj->save();
+                            $transp_count++;
                         }
                     }
                     else {
@@ -141,14 +142,20 @@ class TravelManagerPlanSegments extends AbstractClass {
                             }
                             continue;
                         }
+
                         $transp_obj = new TravelManagerPlanTransps();
                         // $data['tmtcid'] = $category;
                         $data[self::PRIMARY_KEY] = $this->data[self::PRIMARY_KEY];
                         $transp_obj->set($data);
                         $transp_obj->save();
+                        $transp_count++;
                     }
                 }
                 unset($chkdata);
+            }
+            if($transp_count == 0) {
+                $transp_errorcode = 2;
+                $errorhandler->record('requiredfields', 'Transportations');
             }
         }
 
@@ -805,7 +812,7 @@ class TravelManagerPlanSegments extends AbstractClass {
 
                 $review_tools .= '<a href="#'.$approved_hotels['tmhid'].'" id="hotelreview_'.$approved_hotels['tmhid'].'_travelmanager/plantrip_loadpopupbyid" rel="hotelreview_'.$approved_hotels['tmhid'].'" title="'.$lang->hotelreview.'"><img src="'.$core->settings['rootdir'].'/images/icons/reviewicon.png" title="'.$lang->readhotelreview.'" alt="'.$lang->readhotelreview.'" border="0" width="16" height="16"></a>';
 
-                $checkbox_hotel = '<input aria-describedby="ui-tooltip-155" title="" name="segment['.$sequence.'][tmhid]['.$checksum.'][tmhid]" id="segment['.$sequence.']['.$checksum.'][tmhid]" value="'.$approved_hotels['tmhid'].'" type="checkbox">'.$approved_hotels['name'];
+                $checkbox_hotel = '<input aria-describedby="ui-tooltip-155" title="" name="segment['.$sequence.'][tmhid]['.$checksum.'][tmhid]" id="segment['.$sequence.']['.$checksum.'][tmhid]" value="'.$approved_hotels['tmhid'].'" type="checkbox" '.$hotelchecked.'>'.$approved_hotels['name'];
 
                 // $paidby_onchangeactions = 'if($(this).find(":selected").val()=="anotheraff"){$("#"+$(this).find(":selected").val()+"_accomodations_'.$sequence.'_'.$checksum.'").show();}else{$("#anotheraff_accomodations_'.$sequence.'_'.$checksum.'").hide();}';
                 $paidby_onchangeactions = 'if($(this).find(":selected").val()=="anotheraff"){$("#"+$(this).find(":selected").val()+"_accomodations_'.$sequence.'_'.$checksum.'").effect("highlight",{ color: "#D6EAAC"}, 1500).find("input").first().focus().val("");}else{$("#anotheraff_accomodations_'.$sequence.'_'.$checksum.'").hide();}';
