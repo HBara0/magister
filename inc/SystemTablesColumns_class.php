@@ -8,7 +8,7 @@ class SystemTablesColumns extends AbstractClass {
     const PRIMARY_KEY = 'stcid';
     const TABLE_NAME = 'system_tables_columns';
     const SIMPLEQ_ATTRS = '*';
-    const UNIQUE_ATTRS = 'stcid';
+    const UNIQUE_ATTRS = 'columnDbName,stid';
     const CLASSNAME = __CLASS__;
     const DISPLAY_NAME = 'columnTitle';
 

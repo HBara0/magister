@@ -282,7 +282,7 @@ if(!$core->input['action']) {
                     else {
                         $ratingval = $marketreport[$segment['psid']]['rating'];
                     }
-                    if($reportmeta['auditor'] == 0) {
+                    if($core->input['auditor'] == 0) {
                         $criteriaandstars .= '<div class="rateit" data-rateit-starwidth="18" data-rateit-starheight="16" data-rateit-ispreset="true" data-rateit-readonly="true" data-rateit-value="'.$ratingval.'"></div>';
                     }
                     else {
@@ -321,7 +321,7 @@ if(!$core->input['action']) {
                     else {
                         $ratingval = $marketreport[$segment['psid']]['rating'];
                     }
-                    if($reportmeta['auditor'] == 0) {
+                    if($core->input['auditor'] == 0) {
                         $criteriaandstars .= '<div class="rateit" data-rateit-starwidth="18" data-rateit-starheight="16" data-rateit-ispreset="true" data-rateit-readonly="true" data-rateit-value="'.$ratingval.'"></div>';
                     }
                     else {
@@ -363,7 +363,7 @@ if(!$core->input['action']) {
                 else {
                     $ratingval = $marketreport[$segment['psid']]['rating'];
                 }
-                if($reportmeta['auditor'] == 0) {
+                if($core->input['auditor'] == 0) {
                     $criteriaandstars .= '<div class="rateit" data-rateit-starwidth="18" data-rateit-starheight="16" data-rateit-ispreset="true" data-rateit-readonly="true" data-rateit-value="'.$ratingval.'"></div>';
                 }
                 else {
