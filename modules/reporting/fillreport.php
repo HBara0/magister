@@ -861,8 +861,8 @@ else {
         $report_meta = unserialize($session->get_phpsession('reportmeta_'.$identifier));
 
 
-        $report_meta['rid'] = $db->escape_string($report_meta['rid']);
-
+        //  $report_meta['rid'] = $db->escape_string($report_meta['rid']);
+        //**  $report_meta['rid'] = 1;
         $report = new ReportingQr(array('rid' => $report_meta['rid']));
         $currencies = unserialize($session->get_phpsession('reportcurrencies_'.$identifier));
 
@@ -877,7 +877,7 @@ else {
             output_xml("<status>false</status><message>{$lang->reportlocked}</message>");
             exit;
         }
-
+        //** $report_meta['excludeProductsActivity'] = 1;
         if(empty($report_meta['excludeProductsActivity'])) {
             if(empty($rawdata['productactivitydata'])) {
                 output_xml("<status>false</status><message>{$lang->productsdataempty}</message>");
