@@ -70,6 +70,7 @@ if(!$core->input['action']) {
     $meeting['attendees_output'] = $meeting_obj->parse_attendees();
 
 
+    $share_meeting .= ' <a href="#" id="sharemeeting_'.$meeting['mtid'].'_meetings/minutesmeeting_loadpopupbyid" rel="share_'.$meeting['mtid'].'" title="'.$lang->sharewith.'"><img src="'.$core->settings['rootdir'].'/images/icons/sharedoc.png" alt="'.$lang->sharewith.'" border="0"></a>';
 
     eval("\$meeting_viewmeeting = \"".$template->get('meetings_viewmeeting')."\";");
     output_page($meeting_viewmeeting);
@@ -85,5 +86,56 @@ elseif($core->input['action'] == 'download') {
     }
     $meeting_attachmentobj = new MeetingsAttachments($core->input['mattid']);
     $download_objs = $meeting_attachmentobj->download();
+}
+else if($core->input['action'] == 'get_sharemeeting') {
+    $mtid = $db->escape_string($core->input['id']);
+
+    $affiliates_users = Users::get_allusers();
+    $meeting_obj = new Meetings($mtid);
+    $shared_users = $meeting_obj->get_shared_users();
+    if(is_array($shared_users)) {
+        foreach($shared_users as $uid => $user) {
+            $user = $user->get();
+            $checked = ' checked="checked"';
+            $rowclass = 'selected';
+
+            eval("\$sharewith_rows .= \"".$template->get('popup_meetings_sharewith_rows')."\";");
+        }
+    }
+
+    foreach($affiliates_users as $uid => $user) {
+        $user = $user->get();
+        $checked = $rowclass = '';
+        if($uid == $core->user['uid']) {
+            continue;
+        }
+
+        if(is_array($shared_users)) {
+            if(array_key_exists($uid, $shared_users)) {
+                continue;
+            }
+        }
+
+        eval("\$sharewith_rows .= \"".$template->get('popup_meetings_sharewith_rows')."\";");
+    }
+    $file = 'viewmeeting';
+    eval("\$share_meeting = \"".$template->get('popup_meetings_share')."\";");
+    output($share_meeting);
+}
+elseif($core->input['action'] == 'do_share') {
+    $mtid = $db->escape_string($core->input['mtid']);
+    if(is_array($core->input['sharemeeting'])) {
+        $meeting_obj = new Meetings($mtid);
+        $meeting_obj->share($core->input['sharemeeting']);
+
+        switch($meeting_obj->get_errorcode()) {
+            case 0:
+                output_xml('<status>true</status><message>'.$lang->successfullysaved.'</message>');
+                break;
+        }
+    }
+    else {
+        output_xml('<status>false</status><message>'.$lang->fillrequiredfields.'</message>');
+    }
 }
 ?>
