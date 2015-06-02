@@ -161,6 +161,10 @@ class TravelManagerPlanSegments extends AbstractClass {
                 $errorhandler->record('requiredfields', 'Transportations');
             }
         }
+        else {
+            $transp_errorcode = 2;
+            $errorhandler->record('requiredfields', 'Transportations');
+        }
 
         if(isset($segmentdata['tmhid'])) {
             $leavedays = abs($segmentdata['toDate'] - $segmentdata['fromDate']);
@@ -856,7 +860,7 @@ class TravelManagerPlanSegments extends AbstractClass {
 
                 //      $leavedays = abs($this->toDate - $this->fromDate);
                 //     $leavedays = floor($leavedays / (60 * 60 * 24));
-                $cityname = $this->get_destinationcity()->get_displayname();
+                $cityname = $hotel->get_city()->get_displayname();
                 eval("\$hotelssegments_output  .= \"".$template->get('travelmanager_plantrip_segment_hotels')."\";");
                 $review_tools = $hotelchecked = $cityname = $paidby_details = $currencies_list = $currencies = $selected_hotel = $checkbox_hotel = '';
             }
