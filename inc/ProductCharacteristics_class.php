@@ -8,7 +8,7 @@ class ProductCharacteristics extends AbstractClass {
     const PRIMARY_KEY = 'pcid';
     const TABLE_NAME = 'productcharacteristics';
     const SIMPLEQ_ATTRS = '*';
-    const UNIQUE_ATTRS = 'name';
+    const UNIQUE_ATTRS = 'name,title';
     const CLASSNAME = __CLASS__;
     const DISPLAY_NAME = 'title';
 

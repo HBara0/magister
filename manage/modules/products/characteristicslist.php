@@ -46,6 +46,8 @@ if(!$core->input['action']) {
     else {
         $char_rows = '<tr><td>NA</td><td></td></tr>';
     }
+    $valcharrowid = 1;
+    eval("\$valchar_output = \"".$template->get('admin_characteristics_values_rows')."\";");
     eval("\$popup_addchar = \"".$template->get('popup_createproductcharcteristic')."\";");
     eval("\$characteristic_list = \"".$template->get('admin_characteristiclists')."\";");
     output_page($characteristic_list);
@@ -58,6 +60,25 @@ else {
             $characteristic = $characteristic->save();
             switch($characteristic->get_errorcode()) {
                 case 0:
+                    if(isset($core->input['characteristicval']) && !empty($core->input['characteristicval'])) {
+                        $prodvalues['pcid'] = $characteristic->pcid;
+                        foreach($core->input['characteristicval'] as $key => $value) {
+                            $prodvalues['title'] = $value;
+                            $prodcharvalue = new ProductCharacteristicValues();
+                            $prodcharvalue->set($prodvalues);
+                            $prodcharvalue = $prodcharvalue->save();
+                            $errors[] = $prodcharvalue->get_errorcode();
+                        }
+                        foreach($errors as $error) {
+                            if($error == 0) {
+                                continue;
+                            }
+                            else {
+                                output_xml('<status>true</status><message>'.$lang->errorsaving.'</message>');
+                                break;
+                            }
+                        }
+                    }
                     output_xml('<status>true</status><message>'.$lang->successfullysaved.'</message>');
                     break;
                 case 2:
@@ -71,5 +92,11 @@ else {
             output_xml('<status>false</status><message>'.$lang->errorsaving.'</message>');
             exit;
         }
+    }
+    else if($core->input['action'] == 'ajaxaddmore_charvalues') {
+        $valcharrowid = $db->escape_string($core->input['value']) + 1;
+        $sequence = $db->escape_string($core->input['id']);
+        eval("\$valchar_output = \"".$template->get('admin_characteristics_values_rows')."\";");
+        echo $valchar_output;
     }
 }
