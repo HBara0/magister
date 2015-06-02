@@ -224,7 +224,7 @@ class EndProducTypes extends AbstractClass {
                 $editlink = '<div style="float:right"><a href="#'.$values['eptid'].'" id="editendproducts_'.$values['eptid'].'_products/types_loadpopupbyid" title="Edit"><img src="'.$core->settings['rootdir'].'/images/edit.gif" border="0"/></a></div>';
 
                 $delete = '<div style="float:right"><a href="#'.$values['eptid'].'" id="deleteendproducttype_'.$values['eptid'].'_products/types_loadpopupbyid" title="Delete"><img src="'.$core->settings['rootdir'].'/images/invalid.gif" border="0"/></a></div>';
-                $clone = '<div style="float:right;margin-right:2px;"><a href="#'.$values['eptid'].'" id="cloneendproducttype_'.$values['eptid'].'_products/types_loadpopupbyid" title="Clone"><img src="'.$core->settings['rootdir'].'/images/CLONE.gif" border="0"/></a></div>';
+                $clone = '<div style="float:right;margin-right:2px;"><a href="#'.$values['eptid'].'" id="cloneendproducttype_'.$values['eptid'].'_products/types_loadpopupbyid" title="Clone"><img src="'.$core->settings['rootdir'].'/images/clone.gif" border="0"/></a></div>';
 
                 $endproducttypes_list .= '<li><a target="_blank" href="'.$endprodtype->get_link().'">'.$values['title'].$values['application'].' </a>';
                 unset($values['application']);
