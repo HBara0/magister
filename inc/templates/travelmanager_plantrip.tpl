@@ -258,12 +258,9 @@
                     }
                 });
                 $('input[type="number"]').live('keyup', function () {
-                    if($(this).attr('max').length > 0) {
-                        if(parseInt($(this).val(), 10) > parseInt($(this).attr('max'), 10)) {
-                            if(parseInt($(this).attr('max'), 10) == 0) {
-                                $(this).val(1);
-                            }
-                            else {
+                    if(typeof $(this).attr('max') != typeof undefined) {
+                        if($(this).attr('max').length > 0) {
+                            if(parseInt($(this).val(), 10) > parseInt($(this).attr('max'), 10)) {
                                 $(this).val($(this).attr('max'));
                             }
                         }

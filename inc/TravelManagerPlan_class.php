@@ -504,7 +504,7 @@ class TravelManagerPlan {
                 $delete_tabicon = '';
             }
 
-            $segmentstabs .= '<li><a href="#segmentstabs-'.$segid.'">Segment '.$segid.'</a>'.$delete_tabicon.'</li>  ';
+            $segmentstabs .= '<li><a href="#segmentstabs-'.$segid.'">'.$segmentobj->name.'</a>'.$delete_tabicon.'</li>  ';
 
             $segment[$sequence]['toDate_output'] = date($core->settings['dateformat'], ( $segmentobj->toDate));
             $segment[$sequence]['toDate_formatted'] = date('d-m-Y', ( $segmentobj->toDate));
