@@ -465,41 +465,7 @@ if(!$core->input['action']) {
                 if(($core->usergroup['reporting_canViewComptInfo'] == 1) || ($core->usergroup['canGenerateReports'] == 1 || $core->usergroup['canFillReports'] == 1)) {
                     eval("\$marketreportbox_competition = \"".$template->get('new_reporting_report_marketreportbox_competition')."\";");
                 }
-                /* Parse MOM Specific Follow Up Actions - START */
-                $quarter_start = strtotime($core->settings['q'.$report['quarter'].'start'].'-'.$report['year']);
-                $quarter_end = strtotime($core->settings['q'.$report['quarter'].'end'].'-'.$report['year']);
-                $momactions_where = '(date BETWEEN '.$quarter_start.' AND '.$quarter_end.') AND momid=(select momid from meetings_minsofmeeting where mtid IN '
-                        .'(select mtid from meetings_associations where idAttr="spid" AND id='.$report[spid].'))';
-                $momactions = MeetingsMOMActions::get_data($momactions_where, array('returnarray' => true, 'operators' => array('filter' => CUSTOMSQLSECURE)));
-                if(is_array($momactions)) {
-                    foreach($momactions as $key => $actions) {
-                        /* The actions are associated to the QR affiliate (primarily) or its employees are assigned to the actions (secondary) */
-                        $meetings_affassociations = MeetingsAssociations::get_data(array('id' => $report[affid], 'idAttr' => 'affid', 'mtid' => 'mtid=(select mtid from meetings_minsofmeeting where momid='.$actions->momid.')'), array('returnarray' => true, 'operators' => array('mtid' => 'CUSTOMSQL')));
-                        //If actions are associated to the QR affiliate -> continue
-                        if(is_array($meetings_affassociations)) {
-                            continue;
-                        }
-                        //Else check if employees of the QR aff are assigned to the actions
-                        $employeesassigned = false;
-                        $momactionsassignees = MeetingsMOMActionAssignees::get_data(array('momaid' => $actions->momaid), array('returnarray' => true));
-                        if(is_array($momactionsassignees)) {
-                            foreach($momactionsassignees as $assignee) {
-                                if(isset($assignee->uid) && !empty($assignee->uid)) {
-                                    $user = new Users($assignee->uid);
-                                    if(is_object($user) && $user->get_mainaffiliate()->affid == $reportmeta['affid']) {
-                                        $employeesassigned = true;
-                                    }
-                                }
-                            }
-                        }
-                        if(!$employeesassigned) {
-                            unset($momactions[$key]); // if no aff or employees associations do not parse actions
-                        }
-                    }
-                    $mom_obj = new MeetingsMOM();
-                    $mom_followupactions .= $mom_obj->parse_actions('QR', $momactions);
-                }
-                /* Parse MOM Specific Follow Up Actions - end */
+
 
                 if($core->usergroup['canGenerateReports'] == 1 || $core->usergroup['canFillReports'] == 1) {
                     eval("\$marketreportbox_other = \"".$template->get('new_reporting_report_marketreportbox_other')."\";");
@@ -514,7 +480,7 @@ if(!$core->input['action']) {
                     else {
                         $ratingval = $marketreport_obj->rating;
                     }
-                    if($reportmeta['auditor'] == 0) {
+                    if($report['auditors']['uid'] != $core->user['uid']) {
                         $criteriaandstars .= '<div class="rateit" data-rateit-starwidth="18" data-rateit-starheight="16" data-rateit-ispreset="true" data-rateit-readonly="true" data-rateit-value="'.$ratingval.'"></div>';
                     }
                     else {
@@ -535,11 +501,54 @@ if(!$core->input['action']) {
 				});';
                         $criteriaandstars .= '<input type="range" min="0" max="5" value="'.$ratingval.'" step="1" id="rating_'.$marketreport_obj->psid.'_'.$mrid.'" class="ratingscale">';
                         $criteriaandstars .= '<div class="rateit" data-rateit-starwidth="18" data-rateit-starheight="16" data-rateit-ispreset="true" data-rateit-resetable="false" data-rateit-backingfld="#rating_'.$marketreport_obj->psid.'_'.$mrid.'" data-rateit-value="'.$marketreport->rating.'"></div>';
-                        eval("\$marketreportbox .= \"".$template->get('new_reporting_report_marketreportbox')."\";");
                     }
                 }
+                eval("\$marketreportbox .= \"".$template->get('new_reporting_report_marketreportbox')."\";");
+                unset($mom_followupactions, $criteriaandstars);
             }
         }
+
+        /* Parse MOM Specific Follow Up Actions - START */
+        $quarter_start = strtotime($report['year'].'-'.$core->settings['q'.$report['quarter'].'start']);
+        $quarter_end = strtotime($report['year'].'-'.$core->settings['q'.$report['quarter'].'end']);
+        $momactions_where = '(date BETWEEN '.$quarter_start.' AND '.$quarter_end.') AND momid=(select momid from meetings_minsofmeeting where mtid IN '
+                .'(select mtid from meetings_associations where idAttr="spid" AND id='.$report[spid].'))';
+        $momactions = MeetingsMOMActions::get_data($momactions_where, array('returnarray' => true, 'operators' => array('filter' => CUSTOMSQLSECURE)));
+        if(is_array($momactions)) {
+            foreach($momactions as $key => $actions) {
+                /* The actions are associated to the QR affiliate (primarily) or its employees are assigned to the actions (secondary) */
+                $meetings_affassociations = MeetingsAssociations::get_data(array('id' => $report[affid], 'idAttr' => 'affid', 'mtid' => 'mtid=(select mtid from meetings_minsofmeeting where momid='.$actions->momid.')'), array('returnarray' => true, 'operators' => array('mtid' => 'CUSTOMSQL')));
+                //If actions are associated to the QR affiliate -> continue
+                if(is_array($meetings_affassociations)) {
+                    continue;
+                }
+                //Else check if employees of the QR aff are assigned to the actions
+                $employeesassigned = false;
+                $momactionsassignees = MeetingsMOMActionAssignees::get_data(array('momaid' => $actions->momaid), array('returnarray' => true));
+                if(is_array($momactionsassignees)) {
+                    foreach($momactionsassignees as $assignee) {
+                        if(isset($assignee->uid) && !empty($assignee->uid)) {
+                            $user = new Users($assignee->uid);
+                            if(is_object($user) && $user->get_mainaffiliate()->affid == $reportmeta['affid']) {
+                                $employeesassigned = true;
+                            }
+                        }
+                    }
+                }
+                if(!$employeesassigned) {
+                    unset($momactions[$key]); // if no aff or employees associations do not parse actions
+                }
+            }
+            $mom_obj = new MeetingsMOM();
+            $mom_followupactions .= $mom_obj->parse_actions('QR', $momactions);
+        }
+        $marketreportbox .= '<table class="reportbox">
+    <tr>
+        <td class="thead">'.$lang->specificfollowactions.'</td>
+    </tr>
+    <tr><td>'.$mom_followupactions.'</td></tr>
+</table>';
+        /* Parse MOM Specific Follow Up Actions - end */
         /* Show QR contributors */
         $lang->reportpreparedby_text = $lang->reportpreparedby;
         $lang->email_text = $lang->email;
