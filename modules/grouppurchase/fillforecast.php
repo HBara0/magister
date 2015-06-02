@@ -74,14 +74,17 @@ if(!$core->input['action']) {
                     default:
                         $forecastline[$field] = $gpforecastline->$field;
                         if(in_array($field, $months)) {
-                            $total[$field] += $gpforecastline->$field;
-                            $forecastline['quantity'] +=$gpforecastline->$field;
-                            $forecastline[$field] = round($forecastline[$field], 2);
-                            $forecastline['quantity'] = round($forecastline['quantity'], 2);
-                            /* disable input fields on update for past months */
-                            $date_str = $forecast_data['year'].'-'.trim($field, 'month');
-                            if(strtotime("$date_str") < strtotime('first day of '.date('F Y'))) {
-                                $readonly[$field] = 'readonly="readonly"';
+                            $k = key($months);
+                            if(!($k < $currentmonth)) {
+                                $total[$field] += $gpforecastline->$field;
+                                $forecastline['quantity'] +=$gpforecastline->$field;
+                                $forecastline[$field] = round($forecastline[$field], 2);
+                                $forecastline['quantity'] = round($forecastline['quantity'], 2);
+                                /* disable input fields on update for past months */
+                                $date_str = $forecast_data['year'].'-'.trim($field, 'month');
+                                if(strtotime("$date_str") < strtotime('first day of '.date('F Y'))) {
+                                    $readonly[$field] = 'readonly="readonly"';
+                                }
                             }
                         }
                 }
@@ -89,6 +92,34 @@ if(!$core->input['action']) {
             $segments_selectlist = '';
             if(count($supplier_segments) > 1) {
                 $segments_selectlist = parse_selectlist('forecastline['.$rowid.'][psid]', 3, $supplier_segments, $forecastline['psid'], null, null, array('placeholder' => 'Overwrite Segment'));
+            }
+
+            $grouppurchaseforecast = GroupPurchaseForecast::get_data(array('affid' => $forecast_data['affid'], 'year' => $nextyear, 'spid' => $forecast_data['spid']));
+            if(is_object($grouppurchaseforecast)) {
+                $businessmgr = $core->user['uid'];
+                if(isset($uid) && !empty($uid)) {
+                    $businessmgr = $uid;
+                }
+                $gpforecastlines = GroupPurchaseForecastLines::get_data(array('gpfid' => $grouppurchaseforecast->gpfid, 'businessMgr' => $businessmgr, 'pid' => $forecastline['pid'], 'psid' => $forecastline['psid'], 'saleType' => $gpforecastline->saleType), array('simple' => false));
+            }
+            if(is_object($gpforecastlines)) {
+                $forecastline_nextyear = $gpforecastlines->get();
+                $fields = $months;
+                foreach($fields as $key => $field) {
+                    if(in_array($field, $months)) {
+                        if($key < $currentmonth) {
+                            $total[$field] += $gpforecastlines->$field;
+                            $forecastline['quantity'] +=$gpforecastlines->$field;
+                            $forecastline[$field] = round($forecastline_nextyear[$field], 2);
+                            $forecastline['quantity'] = round($forecastline_nextyear['quantity'], 2);
+                            /* disable input fields on update for past months */
+                            $date_str = $forecast_data['year'].'-'.trim($field, 'month');
+                            if(strtotime("$date_str") < strtotime('first day of '.date('F Y'))) {
+                                $readonly[$field] = 'readonly="readonly"';
+                            }
+                        }
+                    }
+                }
             }
             eval("\$forecastlines .= \"".$template->get('grouppurchase_fill_forecastlines')."\";");
             unset($forecastline, $readonly);
