@@ -25,14 +25,29 @@ if(!$core->input['action']) {
     }
     $affiliate = new Affiliates($forecast_data['affid']);
     $supplier = new Entities($forecast_data['spid']);
-    $supplier_segments = array_filter($supplier->get_segments());
-
+    if(is_array($supplier->get_segments())) {
+        $supplier_segments = array_filter($supplier->get_segments());
+    }
     $allowed_saletypes = array('localindent', 'proxydirect', 'localexstock', 'localreinvoicing');
     $saletypes = SaleTypes::get_data(array('name' => $allowed_saletypes), array('operators' => array('name' => 'IN')));
     $rowid = 1;
 
+    $months_array = array('january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december');
+    $currentmonth = date('n');
+    $j = $currentmonth;
+    $currentyear = $year = date('Y');
+    $nextyear = date('Y', strtotime('+1 year'));
+
     for($i = 1; $i < 13; $i++) {
+        if($j == 13) {
+            $j = 1;
+            $year = date('Y', strtotime('+1 year'));
+        }
         $months[$i] = 'month'.$i;
+        ${'mon'.$i} = $lang->$months_array[$j - 1]; // for table header
+        ${'month'.$i} = 'month'.$j; //Array month index (as db columns)
+        ${'year'.$i} = $year;  // year index for each field
+        $j++;
     }
 
     $grouppurchaseforecast = GroupPurchaseForecast::get_data(array('affid' => $forecast_data['affid'], 'year' => $forecast_data['year'], 'spid' => $forecast_data['spid']));
@@ -148,11 +163,24 @@ if(!$core->input['action']) {
             }
         }
         else {
-            for($month = 1; $month <= 12; $month++) {
-                $forecastline['month'.$month] = 0;
+
+            $forecastline['inputChecksum1'] = generate_checksum('gp');
+            $currentmonth = date('n');
+            for($i = 1; $i < 13; $i++) {
+                if($currentmonth == 13) {
+                    $forecastline['inputChecksum2'] = generate_checksum('gp');
+                    $currentmonth = 1;
+                    $year = date('Y', strtotime('+1 year'));
+                }
+                $forecastline['month'.$currentmonth] = 0;
+                $currentmonth++;
             }
-            $forecastline['inputChecksum'] = generate_checksum('gp');
-            $saletype_selectlist = parse_selectlist("forecastline[".$rowid."][saleType]", "", $saletypes, "");
+
+//            for($month = 1; $month <= 12; $month++) {
+//                $forecastline['month'.$month] = 0;
+//            }
+
+            $saletype_selectlist = parse_selectlist("forecastline[".$currentyear."][".$rowid."][saleType]", "", $saletypes, "", "", "", array('id' => "forecastline_".$currentyear."_".$rowid."_saleType"));
             eval("\$forecastlines .= \"".$template->get('grouppurchase_fill_forecastlines')."\";");
         }
     }
@@ -163,12 +191,32 @@ if(!$core->input['action']) {
     output_page($fillforecast);
 }
 else if($core->input['action'] == 'ajaxaddmore_forecastlines') {
+    $currentyear = $year = date('Y');
+    $nextyear = date('Y', strtotime('+1 year'));
+    $months_array = array('january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december');
+    $currentmonth = date('n');
+    $j = $currentmonth;
+    $currentyear = $year = date('Y');
+    $nextyear = date('Y', strtotime('+1 year'));
+
+    for($i = 1; $i < 13; $i++) {
+        if($j == 13) {
+            $j = 1;
+            $year = date('Y', strtotime('+1 year'));
+        }
+        $months[$i] = 'month'.$i;
+        ${'mon'.$i} = $lang->$months_array[$j - 1]; // for table header
+        ${'month'.$i} = 'month'.$j; //Array month index (as db columns)
+        ${'year'.$i} = $year;  // year index for each field
+        $j++;
+    }
+
     $rowid = intval($core->input['value']) + 1;
     $forecast_data = $core->input['ajaxaddmoredata'];
     $affiliate = new Affiliates($forecast_data['affid']);
     $forecastline['inputChecksum'] = generate_checksum('gp');
     $saletypes = SaleTypes::get_data();
-    $saletype_selectlist = parse_selectlist("forecastline[".$rowid."][saleType]", "", $saletypes, "");
+    $saletype_selectlist = parse_selectlist("forecastline[".$currentyear."][".$rowid."][saleType]", "", $saletypes, "", "", "", array('id' => "forecastline_".$currentyear."_".$rowid."_saleType"));
 
     for($month = 1; $month <= 12; $month++) {
         $forecastline['month'.$month] = 0;
@@ -178,9 +226,21 @@ else if($core->input['action'] == 'ajaxaddmore_forecastlines') {
 }
 else if($core->input['action'] == 'do_perform_fillforecast') {
     unset($core->input['identifier'], $core->input['module'], $core->input['action']);
-    $gpforecast = new GroupPurchaseForecast();
-    $gpforecast->set($core->input);
-    $gpforecast->save();
+    $years['current'] = date('Y');
+    $years['next'] = date('Y', strtotime('+1 year'));
+
+
+    $fields = array('affid', 'spid', 'uid');
+    foreach($years as $year) {
+        $forecast['year'] = $year;
+        foreach($fields as $field) {
+            $forecast[$field] = $core->input[$field];
+        }
+        $forecast['forecastline'] = $core->input['forecastline'][$year];
+        $gpforecast = new GroupPurchaseForecast();
+        $gpforecast->set($forecast);
+        $gpforecast->save();
+    }
     switch($gpforecast->get_errorcode()) {
         case 0:
         case 1:
