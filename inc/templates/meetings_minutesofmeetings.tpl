@@ -12,7 +12,7 @@
             <form name="perform_meetings/minutesmeeting_Form" id="perform_meetings/minutesmeeting_Form" method="post">
                 <input type="hidden" name="mof[momid]" id="momid" value="{$mof[momid]}" />
                 <input type="hidden" value="do_{$action}" name="action" id="action" />
-                <div>{$lang->meeting}: {$meeting_list}</div>
+                <div style="display:inline-block">{$lang->meeting}: {$meeting_list}</div> <div style="display:inline-block;margin-left: 10px">{$share_meeting}</div>
                 <div class="subtitle" style="margin-top:10px;">{$lang->discussiondetails}</div>
                 <div><textarea class="txteditadv" id="meetingdetails" name="mof[meetingDetails]" cols="90" rows="25">{$mof[meetingDetails]}</textarea></div>
                 <div class="subtitle" style="margin-top:10px;">{$lang->followup}</div>

@@ -1,17 +1,5 @@
 <div style="display:inline-block; width:70%;">
     <table>
-        <tr>
-            <td width="18%">{$lang->fromdate}*</td>
-            <td><input type="text" id="pickDate_from_{$sequence}"  disabled="disabled"   autocomplete="off" tabindex="1" value="{$segment[$sequence][fromDate_output]}" required="required"/>
-                <input type="hidden" name="segment[{$sequence}][fromDate]" id="altpickDate_from_{$sequence}"  value="{$segment[$sequence][fromDate_formatted]}" /></td>
-            </td>
-
-            <td>{$lang->todate}*</td>
-            <td><input type="text" id="pickDate_to_{$sequence}"    autocomplete="off" tabindex="1" value="{$segment[$sequence][toDate_output]}" required="required" />
-                <input type="hidden" name="segment[{$sequence}][toDate]" id="altpickDate_to_{$sequence}" value="{$segment[$sequence][toDate_formatted]}"/></td>
-        <input type="hidden" name="leaveDate" id="leaveDate_to_{$sequence}" value="{$leave[$sequence][toDate]}"/></td>
-       <!-- <td> <span id="numdays_{$sequence}">{$segment[$sequence][numberdays]}</span></td>-->
-        </tr>
         <tr>  <td>{$lang->origincity}*</td>
             <td><input type="text"  disabled="disabled" autocomplete="off" tabindex="1"  id="cities_{$sequence}_cache_autocomplete"    value="{$segment[$sequence][origincity][name]}" required="required"/>
                 <input type='hidden' id='cities_{$sequence}_cache_id'   name="segment[{$sequence}][originCity]" value="{$segment[$sequence][origincity][ciid]}"/>
@@ -25,11 +13,22 @@
 
             </td>
         </tr>
-        <tr><td></td><td>{$lang->internalpurposes}</td><td></td><td>{$lang->externalpurposes}</td></tr>
-        <tr  style="outline: #090 solid thin"><td></td><td>{$internalpurposes_checks}</td><td></td><td>{$extpurposes_checks}</td></tr>
+        <tr>
+            <td width="18%">{$lang->fromdate}*</td>
+            <td><input type="text" id="pickDate_from_{$sequence}"  disabled="disabled"   autocomplete="off" tabindex="1" value="{$segment[$sequence][fromDate_output]}" required="required"/>
+                <input type="hidden" name="segment[{$sequence}][fromDate]" id="altpickDate_from_{$sequence}"  value="{$segment[$sequence][fromDate_formatted]}" /></td>
+            </td>
+
+            <td>{$lang->todate}*</td>
+            <td><input type="text" id="pickDate_to_{$sequence}"    autocomplete="off" tabindex="1" value="{$segment[$sequence][toDate_output]}" required="required" />
+                <input type="hidden" name="segment[{$sequence}][toDate]" id="altpickDate_to_{$sequence}" value="{$segment[$sequence][toDate_formatted]}"/></td>
+        <input type="hidden" name="leaveDate" id="leaveDate_to_{$sequence}" value="{$leave[$sequence][toDate]}"/></td>
+       <!-- <td> <span id="numdays_{$sequence}">{$segment[$sequence][numberdays]}</span></td>-->
+        </tr>
+        <tr><td colspan="2" class="subtitle">{$lang->internalpurposes}</td><td colspan="2" class="subtitle">{$lang->externalpurposes}</td></tr>
+        <tr><td colspan="2">{$internalpurposes_checks}</td><td colspan="2">{$extpurposes_checks}</td></tr>
         <tr style="width:100%;">
-            <td></td>
-            <td style="vertical-align: top;width:20%;">
+            <td colspan="2" style="vertical-align: top;width:20%;">
                 <div style="display: inline-block;width:100%">
                     <table border="0" cellspacing="1" cellpadding="1" width="100%">
                         <tbody id="affiliate_{$sequence}_tbody">
@@ -44,8 +43,7 @@
                     </table>
                 </div>
             </td>
-            <td></td>
-            <td style="vertical-align: top;width:20%;">
+            <td colspan="2" style="vertical-align: top;width:20%;">
                 <div style="display: inline-block;width:100%">
                     <table border="0" cellspacing="1" cellpadding="1" width="100%">
                         <tbody id="entities_{$sequence}_tbody">

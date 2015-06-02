@@ -2,14 +2,20 @@
 $lang['product'] = "Product";
 $lang['segment'] = "Segment";
 $lang['generic'] = "Generic";
+$lang['charasteristiclist'] = "Characteristics List";
+$lang['addcharasteristic'] = "Add Characteristic";
+$lang['numberofvalues'] = "Number Of Values";
 $lang['applications'] = "Applications";
 $lang['functions'] = "Functions";
 $lang['chemicalsubstances'] = 'Chemical Substances';
 $lang['manageapplications'] = "Manage Applications";
 $lang['manageapplicationsfunc'] = "Manage Applications and Functions";
 $lang['name'] = "Name";
+$lang['add'] = "Add";
 $lang['title'] = "Title";
 $lang['managechems'] = "Manage Chemicals";
+$lang['errorsaving'] = "Error Saving";
+
 $lang['listavailableproducts'] = "List of Available Products";
 $lang['addaproduct'] = "Add a Product";
 $lang['productadded'] = "Product {1} was added successfully";
@@ -72,4 +78,6 @@ $lang['updatebasicingredient'] = 'Update Basic Ingredient';
 $lang['basicingredients'] = 'Basic Ingredients';
 $lang['cloneendproducttype'] = 'Clone End Product Type';
 $lang['newproducttype'] = 'New End Product Type';
+$lang['savecaps'] = 'SAVE';
+$lang['charvalues'] = 'Characteristic Values';
 ?>

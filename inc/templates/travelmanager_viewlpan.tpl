@@ -34,7 +34,7 @@
 
                     {$checkbox['confirm']}
                     {$finalize_button}
-                    <button id='closepage'>Close</button>
+                    <button {$hide_close} id='closepage'>Close</button>
                 </form>
                 <div id="perform_travelmanager/viewplan_Results"></div>
 

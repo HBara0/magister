@@ -29,9 +29,11 @@ class GroupPurchaseForecastLines extends AbstractClass {
             if(!$this->validate_requiredfields($data)) {
                 $fields = array('gpfid', 'inputChecksum', 'pid', 'psid', 'saleType', 'businessMgr', 'month1', 'month2', 'month3', 'month4', 'month5', 'month6', 'month7', 'month8', 'month9', 'month10', 'month11', 'month12');
                 foreach($fields as $field) {
-                    $data[$field] = $core->sanitize_inputs($data[$field], array('removetags' => true, 'allowable_tags' => '<blockquote><b><strong><em><ul><ol><li><p><br><strike><del><pre><dl><dt><dd><sup><sub><i><cite><small>'));
-                    $data[$field] = $db->escape_string($data[$field]);
-                    $forecastline_data[$field] = $data[$field];
+                    if(isset($data[$field])) {
+                        $data[$field] = $core->sanitize_inputs($data[$field], array('removetags' => true, 'allowable_tags' => '<blockquote><b><strong><em><ul><ol><li><p><br><strike><del><pre><dl><dt><dd><sup><sub><i><cite><small>'));
+                        $data[$field] = $db->escape_string($data[$field]);
+                        $forecastline_data[$field] = $data[$field];
+                    }
                 }
                 $forecastline_data['createdOn'] = TIME_NOW;
                 $forecastline_data['createdBy'] = $core->user['uid'];
@@ -46,9 +48,11 @@ class GroupPurchaseForecastLines extends AbstractClass {
             if(!$this->validate_requiredfields($data)) {
                 $fields = array('pid', 'psid', 'saleType', 'month1', 'month2', 'month3', 'month4', 'month5', 'month6', 'month7', 'month8', 'month9', 'month10', 'month11', 'month12');
                 foreach($fields as $field) {
-                    $data[$field] = $core->sanitize_inputs($data[$field], array('removetags' => true, 'allowable_tags' => '<blockquote><b><strong><em><ul><ol><li><p><br><strike><del><pre><dl><dt><dd><sup><sub><i><cite><small>'));
-                    $data[$field] = $db->escape_string($data[$field]);
-                    $forecastline_data[$field] = $data[$field];
+                    if(isset($data[$field])) {
+                        $data[$field] = $core->sanitize_inputs($data[$field], array('removetags' => true, 'allowable_tags' => '<blockquote><b><strong><em><ul><ol><li><p><br><strike><del><pre><dl><dt><dd><sup><sub><i><cite><small>'));
+                        $data[$field] = $db->escape_string($data[$field]);
+                        $forecastline_data[$field] = $data[$field];
+                    }
                 }
                 $forecastline_data['modifiedOn'] = TIME_NOW;
                 $forecastline_data['modifiedBy'] = $core->user['uid'];
@@ -62,9 +66,11 @@ class GroupPurchaseForecastLines extends AbstractClass {
         if(is_array($data)) {
             $required_fields = array('pid', 'saleType', 'month1', 'month2', 'month3', 'month4', 'month5', 'month6', 'month7', 'month8', 'month9', 'month10', 'month11', 'month12');
             foreach($required_fields as $field) {
-                if(empty($data[$field]) && $data[$field] != '0') {
-                    $this->errorcode = 2;
-                    return true;
+                if(isset($data[$field])) {
+                    if(empty($data[$field]) && $data[$field] != '0') {
+                        $this->errorcode = 2;
+                        return true;
+                    }
                 }
             }
         }

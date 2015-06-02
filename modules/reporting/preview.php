@@ -466,14 +466,89 @@ if(!$core->input['action']) {
                     eval("\$marketreportbox_competition = \"".$template->get('new_reporting_report_marketreportbox_competition')."\";");
                 }
 
+
                 if($core->usergroup['canGenerateReports'] == 1 || $core->usergroup['canFillReports'] == 1) {
                     eval("\$marketreportbox_other = \"".$template->get('new_reporting_report_marketreportbox_other')."\";");
                 }
-
+                $marketreport_obj = new MarketReport($mrid);
+                if(is_object($marketreport_obj)) {
+                    $criteriaandstars .= '<div class="evaluation_criterium" name="'.$marketreport_obj->psid.'_'.$mrid.'"><div class="criterium_name" style="display:inline-block; width:30%; padding: 2px;"></div>';
+                    $criteriaandstars .= '<div class="ratebar" style="width:40%; display:inline-block;">';
+                    if(!isset($marketreport_obj->rating) || empty($marketreport_obj->rating)) {
+                        $ratingval = 0;
+                    }
+                    else {
+                        $ratingval = $marketreport_obj->rating;
+                    }
+                    if($report['auditors']['uid'] != $core->user['uid']) {
+                        $criteriaandstars .= '<div class="rateit" data-rateit-starwidth="18" data-rateit-starheight="16" data-rateit-ispreset="true" data-rateit-readonly="true" data-rateit-value="'.$ratingval.'"></div>';
+                    }
+                    else {
+                        $header_ratingjs = '$(".rateit").click(function() {
+					if(sharedFunctions.checkSession() == false) {
+						return;
+					}
+					var targetid = $(this).parent().parent().attr("name");
+					var returndiv = "";
+                                        var val=$("#rating_"+targetid).val();
+                                        var ids=targetid.split("_");
+                                        if(ids[1].length < 1 || ids[0].length < 1 ){
+                                        return;
+                                        }
+                                        if(val.length >0){
+					sharedFunctions.requestAjax("post", "index.php?module=reporting/preview&action=do_ratesegment", "target="+ids[0]+"&value="+val+"&repid="+ids[1], returndiv, returndiv, "html");
+                                        }
+				});';
+                        $criteriaandstars .= '<input type="range" min="0" max="5" value="'.$ratingval.'" step="1" id="rating_'.$marketreport_obj->psid.'_'.$mrid.'" class="ratingscale">';
+                        $criteriaandstars .= '<div class="rateit" data-rateit-starwidth="18" data-rateit-starheight="16" data-rateit-ispreset="true" data-rateit-resetable="false" data-rateit-backingfld="#rating_'.$marketreport_obj->psid.'_'.$mrid.'" data-rateit-value="'.$marketreport->rating.'"></div>';
+                    }
+                }
                 eval("\$marketreportbox .= \"".$template->get('new_reporting_report_marketreportbox')."\";");
+                unset($mom_followupactions, $criteriaandstars);
             }
         }
 
+        /* Parse MOM Specific Follow Up Actions - START */
+        $quarter_start = strtotime($report['year'].'-'.$core->settings['q'.$report['quarter'].'start']);
+        $quarter_end = strtotime($report['year'].'-'.$core->settings['q'.$report['quarter'].'end']);
+        $momactions_where = '(date BETWEEN '.$quarter_start.' AND '.$quarter_end.') AND momid=(select momid from meetings_minsofmeeting where mtid IN '
+                .'(select mtid from meetings_associations where idAttr="spid" AND id='.$report[spid].'))';
+        $momactions = MeetingsMOMActions::get_data($momactions_where, array('returnarray' => true, 'operators' => array('filter' => CUSTOMSQLSECURE)));
+        if(is_array($momactions)) {
+            foreach($momactions as $key => $actions) {
+                /* The actions are associated to the QR affiliate (primarily) or its employees are assigned to the actions (secondary) */
+                $meetings_affassociations = MeetingsAssociations::get_data(array('id' => $report[affid], 'idAttr' => 'affid', 'mtid' => 'mtid=(select mtid from meetings_minsofmeeting where momid='.$actions->momid.')'), array('returnarray' => true, 'operators' => array('mtid' => 'CUSTOMSQL')));
+                //If actions are associated to the QR affiliate -> continue
+                if(is_array($meetings_affassociations)) {
+                    continue;
+                }
+                //Else check if employees of the QR aff are assigned to the actions
+                $employeesassigned = false;
+                $momactionsassignees = MeetingsMOMActionAssignees::get_data(array('momaid' => $actions->momaid), array('returnarray' => true));
+                if(is_array($momactionsassignees)) {
+                    foreach($momactionsassignees as $assignee) {
+                        if(isset($assignee->uid) && !empty($assignee->uid)) {
+                            $user = new Users($assignee->uid);
+                            if(is_object($user) && $user->get_mainaffiliate()->affid == $reportmeta['affid']) {
+                                $employeesassigned = true;
+                            }
+                        }
+                    }
+                }
+                if(!$employeesassigned) {
+                    unset($momactions[$key]); // if no aff or employees associations do not parse actions
+                }
+            }
+            $mom_obj = new MeetingsMOM();
+            $mom_followupactions .= $mom_obj->parse_actions('QR', $momactions);
+        }
+        $marketreportbox .= '<table class="reportbox">
+    <tr>
+        <td class="thead">'.$lang->specificfollowactions.'</td>
+    </tr>
+    <tr><td>'.$mom_followupactions.'</td></tr>
+</table>';
+        /* Parse MOM Specific Follow Up Actions - end */
         /* Show QR contributors */
         $lang->reportpreparedby_text = $lang->reportpreparedby;
         $lang->email_text = $lang->email;
@@ -794,6 +869,7 @@ if(!$core->input['action']) {
         $missing_employees_query1 = $db->query("SELECT DISTINCT(u.uid), displayName
 												FROM ".Tprefix."users u JOIN ".Tprefix."assignedemployees ae ON (u.uid=ae.uid)
 												WHERE ae.affid='{$report[affid]}' AND ae.eid='{$report[spid]}' AND u.gid IN (SELECT gid FROM usergroups WHERE canUseReporting=1 AND canFillReports=1) AND u.uid NOT IN (SELECT uid FROM ".Tprefix."reportcontributors WHERE rid='{$report[rid]}' AND isDone=1) AND u.uid!={$core->user[uid]}"); // AND rc.rid='{$report[rid]}'
+
         while($assigned_employee = $db->fetch_assoc($missing_employees_query1)) {
             $missing_employees['name'][] = $assigned_employee['displayName'];
             $missing_employees['uid'][] = $assigned_employee['uid'];
@@ -940,6 +1016,15 @@ else {
             ini_set('memory_limit', '200M');
             $html2pdf->WriteHTML(trim($content), $show_html);
             $html2pdf->Output($suppliername.'_'.date($core->settings['dateformat'], TIME_NOW).'.pdf');
+        }
+    }
+    elseif($core->input['action'] == 'do_ratesegment') {
+        $mrid = $db->escape_string($core->input['repid']);
+        $psid = $db->escape_string($core->input['target']);
+        $marketreport_obj = MarketReport::get_data(array('mrid' => $mrid));
+        if(is_object($marketreport_obj)) {
+            $marketreport_obj->rating = $core->input['value'];
+            $marketreport_obj->save();
         }
     }
 }

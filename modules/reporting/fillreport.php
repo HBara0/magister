@@ -140,14 +140,15 @@ if(!$core->input['action']) {
 							WHERE r.quarter<'".intval($qreport->quarter)."' AND r.year='".intval($qreport->year)."' AND r.affid='".intval($qreport->affid)."' AND r.spid='".intval($qreport->spid)."' AND pa.pid=".$productactivity['pid'].$query_string."
                                                         GROUP BY pid"));
                 /* Get preview Q data - END */
+                $reportinconsistency = '<td><a href="#" id="reportinconsistency_'.$productactivity['paid'].'_reporting/fillreport_loadpopupbyid"><img src="'.$core->settings['rootdir'].'/images/alert.png" title="{$lang->reportinconsistency}"/></a></td>';
                 eval("\$productsrows .= \"".$template->get('reporting_fillreports_productsactivity_productrow')."\";");
+                unset($reportinconsistency);
             }
         }
         else {
             for($rowid = 1; $rowid < $productscount; $rowid++) {
                 $saletype_selectlist = parse_selectlist('productactivity['.$rowid.'][saleType]', 0, $saletypes, 'distribution', 0, null, array('disabled' => $selectlists_disabled));
                 $currencyfx_selectlist = parse_selectlist('productactivity['.$rowid.'][fxrate]', 0, $currencies, 1, '', '', array('id' => 'fxrate_'.$rowid, 'disabled' => $selectlists_disabled));
-
                 eval("\$productsrows .= \"".$template->get('reporting_fillreports_productsactivity_productrow')."\";");
             }
         }
@@ -213,7 +214,7 @@ if(!$core->input['action']) {
 								  WHERE mr.rid='{$rid}'");
             while($marketreports_data = $db->fetch_assoc($query)) {
                 $marketreport[$marketreports_data['psid']] = $marketreports_data;
-                $marketreportcompetetion[$marketreports_data['psid']][$marketreports_data['mrid']] = MarketReportCompetition::get_data(array('mrid' => $marketreports_data['mrid']), array('returnarray' => true));
+                // $marketreportcompetetion[$marketreports_data['psid']][$marketreports_data['mrid']] = MarketReportCompetition::get_data(array('mrid' => $marketreports_data['mrid']), array('returnarray' => true));
             }
         }
 
@@ -272,35 +273,80 @@ if(!$core->input['action']) {
         $query = $db->query("SELECT es.psid, ps.title FROM ".Tprefix."entitiessegments es JOIN ".Tprefix."productsegments ps ON (ps.psid=es.psid) WHERE es.eid='{$reportmeta[spid]}'{$filter_segments_query}");
         if($db->num_rows($query) > 0) {
             while($segment = $db->fetch_assoc($query)) {
-                //parse ratig stars per segment
-                $criteriaandstars .= '<div class="evaluation_criterium" name="'.$segment['psid'].'"><div class="criterium_name" style="display:inline-block; width:30%; padding: 2px;">'.$segment['title'].'</div>';
-                $criteriaandstars .= '<div class="ratebar" style="width:40%; display:inline-block;">';
-                if($reportmeta['auditor'] == 0) {
-                    $criteriaandstars .= '<div class="rateit" data-rateit-starwidth="18" data-rateit-starheight="16" data-rateit-ispreset="true" data-rateit-readonly="true" data-rateit-value="'.$marketreport[$segment['psid']]['rating'].'"></div>';
+                if(is_array($marketreport[$segment['psid']])) {
+                    $criteriaandstars .= '<div class="evaluation_criterium" name="'.$segment['psid'].'_'.$marketreport[$segment['psid']]['mrid'].'"><div class="criterium_name" style="display:inline-block; width:30%; padding: 2px;">'.$segment['title'].'</div>';
+                    $criteriaandstars .= '<div class="ratebar" style="width:40%; display:inline-block;">';
+                    if(!isset($marketreport[$segment['psid']]['rating']) || empty($marketreport[$segment['psid']]['rating'])) {
+                        $ratingval = 0;
+                    }
+                    else {
+                        $ratingval = $marketreport[$segment['psid']]['rating'];
+                    }
+                    if($core->input['auditor'] == 0) {
+                        $criteriaandstars .= '<div class="rateit" data-rateit-starwidth="18" data-rateit-starheight="16" data-rateit-ispreset="true" data-rateit-readonly="true" data-rateit-value="'.$ratingval.'"></div>';
+                    }
+                    else {
+                        $header_ratingjs = '$(".rateit").click(function() {
+					if(sharedFunctions.checkSession() == false) {
+						return;
+					}
+					var targetid = $(this).parent().parent().attr("name");
+					var returndiv = "";
+                                        var val=$("#rating_"+targetid).val();
+                                        var ids=targetid.split("_");
+                                        if(ids[1].length < 1 || ids[0].length < 1 ){
+                                        return;
+                                        }
+                                        if(val.length >0){
+					sharedFunctions.requestAjax("post", "index.php?module=reporting/fillreport&action=do_ratesegment", "target="+ids[0]+"&value="+val+"&repid="+ids[1], returndiv, returndiv, "html");
+                                        }
+				});';
+                        $criteriaandstars .= '<input type="range" min="0" max="5" value="'.$ratingval.'" step="1" id="rating_'.$segment['psid'].'_'.$marketreport[$segment['psid']]['mrid'].'" class="ratingscale">';
+                        $criteriaandstars .= '<div class="rateit" data-rateit-starwidth="18" data-rateit-starheight="16" data-rateit-ispreset="true" data-rateit-resetable="false" data-rateit-backingfld="#rating_'.$segment['psid'].'_'.$marketreport[$segment['psid']]['mrid'].'" data-rateit-value="'.$marketreport[$segment['psid']]['rating'].'"></div>';
+                    }
+                    $criteriaandstars .= '</div></div>';
+                    // $criteriaandstars .='<input type="hidden" name="marketreport['.$segment[psid].'][rating]" id="segmentrating_'.$segment['psid'].'" value="'.$ratingval.'">';
                 }
-                else {
-                    $criteriaandstars .= '<input type="range" min="0" max="5" value="'.$marketreport[$segment['psid']]['rating'].'" step="1" id="rating_'.$segment['psid'].'" class="ratingscale">';
-                    $criteriaandstars .= '<div class="rateit" data-rateit-starwidth="18" data-rateit-starheight="16" data-rateit-ispreset="true" data-rateit-resetable="false" data-rateit-backingfld="#rating_'.$segment['psid'].'" data-rateit-value="'.$marketreport[$segment['psid']]['rating'].'"></div>';
-                }
-                $criteriaandstars .= '</div></div>';
                 eval("\$markerreport_fields .= \"".$template->get('reporting_fillreports_marketreport_fields')."\";");
                 unset($criteriaandstars);
             }
             if(isset($marketreport[0])) {
                 $segment['psid'] = 0;
-                $segment['title'] = $lang->unspecifiedsegment;
                 if(is_array($marketreport[$segment['psid']])) {
-                    $criteriaandstars .= '<div class="evaluation_criterium" name="'.$marketreport[$segment['psid']]['mrid'].'">';
+                    $criteriaandstars .= '<div class="evaluation_criterium" name="'.$segment['psid'].'_'.$marketreport[$segment['psid']]['mrid'].'"><div class="criterium_name" style="display:inline-block; width:30%; padding: 2px;">'.$segment['title'].'</div>';
                     $criteriaandstars .= '<div class="ratebar" style="width:40%; display:inline-block;">';
-                    if($reportmeta['auditor'] == 0) {
-                        $criteriaandstars .= '<div class="rateit" data-rateit-starwidth="18" data-rateit-starheight="16" data-rateit-ispreset="true" data-rateit-readonly="true" data-rateit-value="'.$marketreport[$segment['psid']]['rating'].'"></div>';
+                    if(!isset($marketreport[$segment['psid']]['rating']) || empty($marketreport[$segment['psid']]['rating'])) {
+                        $ratingval = 0;
                     }
                     else {
-                        $criteriaandstars .= '<input type="range" min="0" max="5" value="'.$marketreport[$segment['psid']]['rating'].'" step="1" id="rating_'.$marketreport[$segment['psid']]['mrid'].'" class="ratingscale">';
-                        $criteriaandstars .= '<div class="rateit" data-rateit-starwidth="18" data-rateit-starheight="16" data-rateit-ispreset="true" data-rateit-resetable="false" data-rateit-backingfld="#rating_'.$marketreport[$segment['psid']]['mrid'].'" data-rateit-value="'.$marketreport[$segment['psid']]['rating'].'"></div>';
+                        $ratingval = $marketreport[$segment['psid']]['rating'];
+                    }
+                    if($core->input['auditor'] == 0) {
+                        $criteriaandstars .= '<div class="rateit" data-rateit-starwidth="18" data-rateit-starheight="16" data-rateit-ispreset="true" data-rateit-readonly="true" data-rateit-value="'.$ratingval.'"></div>';
+                    }
+                    else {
+                        $header_ratingjs = '$(".rateit").click(function() {
+					if(sharedFunctions.checkSession() == false) {
+						return;
+					}
+					var targetid = $(this).parent().parent().attr("name");
+					var returndiv = "";
+                                        var val=$("#rating_"+targetid).val();
+                                        var ids=targetid.split("_");
+                                        if(ids[1].length < 1 || ids[0].length < 1 ){
+                                        return;
+                                        }
+                                        if(val.length >0){
+					sharedFunctions.requestAjax("post", "index.php?module=reporting/fillreport&action=do_ratesegment", "target="+ids[0]+"&value="+val+"&repid="+ids[1], returndiv, returndiv, "html");
+                                        }
+				});';
+                        $criteriaandstars .= '<input type="range" min="0" max="5" value="'.$ratingval.'" step="1" id="rating_'.$segment['psid'].'_'.$marketreport[$segment['psid']]['mrid'].'" class="ratingscale">';
+                        $criteriaandstars .= '<div class="rateit" data-rateit-starwidth="18" data-rateit-starheight="16" data-rateit-ispreset="true" data-rateit-resetable="false" data-rateit-backingfld="#rating_'.$segment['psid'].'_'.$marketreport[$segment['psid']]['mrid'].'" data-rateit-value="'.$marketreport[$segment['psid']]['rating'].'"></div>';
                     }
                     $criteriaandstars .= '</div></div>';
+                    // $criteriaandstars .='<input type="hidden" name="marketreport['.$segment[psid].'][rating]" id="segmentrating_'.$segment['psid'].'" value="'.$ratingval.'">';
                 }
+                $segment['title'] = $lang->unspecifiedsegment;
                 eval("\$markerreport_fields .= \"".$template->get('reporting_fillreports_marketreport_fields')."\";");
                 unset($criteriaandstars);
             }
@@ -309,76 +355,81 @@ if(!$core->input['action']) {
             $segment['psid'] = 0;
             $segment['title'] = $lang->unspecifiedsegment;
             if(is_array($marketreport[$segment['psid']])) {
-                $criteriaandstars .= '<div class="evaluation_criterium" name="'.$marketreport[$segment['psid']]['mrid'].'">';
+                $criteriaandstars .= '<div class="evaluation_criterium" name="'.$segment['psid'].'_'.$marketreport[$segment['psid']]['mrid'].'"><div class="criterium_name" style="display:inline-block; width:30%; padding: 2px;">'.$segment['title'].'</div>';
                 $criteriaandstars .= '<div class="ratebar" style="width:40%; display:inline-block;">';
-                if($reportmeta['auditor'] == 0) {
-                    $criteriaandstars .= '<div class="rateit" data-rateit-starwidth="18" data-rateit-starheight="16" data-rateit-ispreset="true" data-rateit-readonly="true" data-rateit-value="'.$marketreport[$segment['psid']]['rating'].'"></div>';
+                if(!isset($marketreport[$segment['psid']]['rating']) || empty($marketreport[$segment['psid']]['rating'])) {
+                    $ratingval = 0;
                 }
                 else {
-                    $criteriaandstars .= '<input type="range" min="0" max="5" value="'.$marketreport[$segment['psid']]['rating'].'" step="1" id="rating_'.$marketreport[$segment['psid']]['mrid'].'" class="ratingscale">';
-                    $criteriaandstars .= '<div class="rateit" data-rateit-starwidth="18" data-rateit-starheight="16" data-rateit-ispreset="true" data-rateit-resetable="false" data-rateit-backingfld="#rating_'.$marketreport[$segment['psid']]['mrid'].'" data-rateit-value="'.$marketreport[$segment['psid']]['rating'].'"></div>';
+                    $ratingval = $marketreport[$segment['psid']]['rating'];
+                }
+                if($core->input['auditor'] == 0) {
+                    $criteriaandstars .= '<div class="rateit" data-rateit-starwidth="18" data-rateit-starheight="16" data-rateit-ispreset="true" data-rateit-readonly="true" data-rateit-value="'.$ratingval.'"></div>';
+                }
+                else {
+                    $header_ratingjs = '$(".rateit").click(function() {
+					if(sharedFunctions.checkSession() == false) {
+						return;
+					}
+					var targetid = $(this).parent().parent().attr("name");
+					var returndiv = "";
+                                        var val=$("#rating_"+targetid).val();
+                                        var ids=targetid.split("_");
+                                        if(ids[1].length < 1 || ids[0].length < 1 ){
+                                        return;
+                                        }
+                                        if(val.length >0){
+					sharedFunctions.requestAjax("post", "index.php?module=reporting/fillreport&action=do_ratesegment", "target="+ids[0]+"&value="+val+"&repid="+ids[1], returndiv, returndiv, "html");
+                                        }
+				});';
+                    $criteriaandstars .= '<input type="range" min="0" max="5" value="'.$ratingval.'" step="1" id="rating_'.$segment['psid'].'_'.$marketreport[$segment['psid']]['mrid'].'" class="ratingscale">';
+                    $criteriaandstars .= '<div class="rateit" data-rateit-starwidth="18" data-rateit-starheight="16" data-rateit-ispreset="true" data-rateit-resetable="false" data-rateit-backingfld="#rating_'.$segment['psid'].'_'.$marketreport[$segment['psid']]['mrid'].'" data-rateit-value="'.$marketreport[$segment['psid']]['rating'].'"></div>';
                 }
                 $criteriaandstars .= '</div></div>';
+                // $criteriaandstars .='<input type="hidden" name="marketreport['.$segment[psid].'][rating]" id="segmentrating_'.$segment['psid'].'" value="'.$ratingval.'">';
             }
             eval("\$markerreport_fields = \"".$template->get('reporting_fillreports_marketreport_fields')."\";");
             unset($criteriaandstars);
         }
 
-        //      $report_meta = unserialize($session->get_phpsession('reportmeta_'.$identifier));
+        //$report_meta = unserialize($session->get_phpsession('reportmeta_'.$identifier));
 
-        $meetings_suppassociations = MeetingsAssociations::get_data(array('id' => $reportmeta[spid], 'idAttr' => 'spid'), array('returnarray' => true));
-        if(is_array($meetings_suppassociations)) {
-            foreach($meetings_suppassociations as $meetingassociation) {
-                $meetings[$meetingassociation->mtid] = $meetingassociation->mtid;
-            }
-        }
-        if(is_array($meetings)) {
-            $meetings = array_unique($meetings);
-            foreach($meetings as $mtid) {
-                $meeting = new Meetings($mtid); // meetings associated to the supplier
-                if(is_object($meeting)) {
-                    $mom_obj = $meeting->get_mom();
-                    if(is_object($mom_obj)) {
-                        /* actions dates are within the quarter */
-                        $quarter_start = strtotime($core->settings['q'.$reportmeta['quarter'].'start'].'-'.$reportmeta['year']);
-                        $quarter_end = strtotime($core->settings['q'.$reportmeta['quarter'].'end'].'-'.$reportmeta['year']);
-                        $momactions_where = '(date BETWEEN '.$quarter_start.' AND '.$quarter_end.') AND momid='.$mom_obj->momid;
-                        $momactions = MeetingsMOMActions::get_data($momactions_where, array('returnarray' => true));
-                        if(is_array($momactions)) {
-                            /* The actions are associated to the QR affiliate (primarily) or its employees are assigned to the actions (secondary) */
-                            //actions are associated to the QR affiliate
-                            $meetings_affassociations = MeetingsAssociations::get_data(array('id' => $reportmeta[affid], 'idAttr' => 'affid', 'mtid' => $mtid), array('returnarray' => true));
-                            if(is_array($meetings_affassociations)) {
-                                foreach($meetings_affassociations as $meetingassociation) {
-                                    $meetings[$meetingassociation->mtid] = $meetingassociation->mtid;
-                                }
+        /* Parse MOM Specific Follow Up Actions - START */
+        $quarter_start = strtotime($core->input['year'].'-'.$core->settings['q'.$core->input['quarter'].'start']);
+        $quarter_end = strtotime($core->input['year'].'-'.$core->settings['q'.$core->input['quarter'].'end']);
+        $momactions_where = '(date BETWEEN '.$quarter_start.' AND '.$quarter_end.') AND momid=(select momid from meetings_minsofmeeting where mtid IN '
+                .'(select mtid from meetings_associations where idAttr="spid" AND id='.$reportmeta[spid].'))';
+        $momactions = MeetingsMOMActions::get_data($momactions_where, array('returnarray' => true, 'operators' => array('filter' => CUSTOMSQLSECURE)));
+        if(is_array($momactions)) {
+            foreach($momactions as $key => $actions) {
+                /* The actions are associated to the QR affiliate (primarily) or its employees are assigned to the actions (secondary) */
+                $meetings_affassociations = MeetingsAssociations::get_data(array('id' => $reportmeta[affid], 'idAttr' => 'affid', 'mtid' => 'mtid=(select mtid from meetings_minsofmeeting where momid='.$actions->momid.')'), array('returnarray' => true, 'operators' => array('mtid' => 'CUSTOMSQL')));
+                //If actions are associated to the QR affiliate -> continue
+                if(is_array($meetings_affassociations)) {
+                    continue;
+                }
+                //Else check if employees of the QR aff are assigned to the actions
+                $employeesassigned = false;
+                $momactionsassignees = MeetingsMOMActionAssignees::get_data(array('momaid' => $actions->momaid), array('returnarray' => true));
+                if(is_array($momactionsassignees)) {
+                    foreach($momactionsassignees as $assignee) {
+                        if(isset($assignee->uid) && !empty($assignee->uid)) {
+                            $user = new Users($assignee->uid);
+                            if(is_object($user) && $user->get_mainaffiliate()->affid == $reportmeta['affid']) {
+                                $employeesassigned = true;
                             }
-                            if(!in_array($mom_obj->mtid, $meetings)) {
-                                //employees are assigned to the actions
-                                foreach($momactions as $key => $actions) {
-                                    $employeesassigned = false;
-                                    $momactionsassignees = MeetingsMOMActionAssignees::get_data(array('momaid' => $actions->momaid), array('returnarray' => true));
-                                    if(is_array($momactionsassignees)) {
-                                        foreach($momactionsassignees as $assignee) {
-                                            if(isset($assignee->uid) && !empty($assignee->uid)) {
-                                                $user = new Users($assignee->uid);
-                                                if(is_object($user) && $user->get_mainaffiliate()->affid == $reportmeta['affid']) {
-                                                    $employeesassigned = true;
-                                                }
-                                            }
-                                        }
-                                    }
-                                    if(!$employeesassigned) {
-                                        unset($momactions[$key]);
-                                    }
-                                }
-                            }
-                            $mom_followupactions .= $mom_obj->parse_actions('QR', $momactions);
                         }
                     }
                 }
+                if(!$employeesassigned) {
+                    unset($momactions[$key]); // if no aff or employees associations do not parse actions
+                }
             }
+            $mom_obj = new MeetingsMOM();
+            $mom_followupactions .= $mom_obj->parse_actions('QR', $momactions);
         }
+        /* Parse MOM Specific Follow Up Actions - end */
+
         eval("\$marketreportpage .= \"".$template->get('reporting_fillreports_marketreport')."\";");
         eval("\$fillreportpage = \"".$template->get('reporting_fillreports_tabs')."\";");
     }
@@ -404,7 +455,7 @@ if(!$core->input['action']) {
                 $core->input['rid'] = $report_meta['rid'];
             }
         }
-        //create_cookie('rid', $core->input['rid'], (time() + (60*$core->settings['idletime']*2)));
+//create_cookie('rid', $core->input['rid'], (time() + (60*$core->settings['idletime']*2)));
 
         $rid = $db->escape_string($core->input['rid']);
         $customerscount = 5; //Make it a setting
@@ -454,7 +505,7 @@ if(!$core->input['action']) {
         /* If supplier does not have contract and contract Expired -START */
         $entity = new Entities($report_meta['spid'], '', false);
         $entity_data = $entity->get();
-        //|| (!empty($entity_data['contractExpiryDate'] && TIME_NOW > $entity_data['contractExpiryDate'])
+//|| (!empty($entity_data['contractExpiryDate'] && TIME_NOW > $entity_data['contractExpiryDate'])
         if(empty($entity_data['contractFirstSigDate']) && $entity_data['contractIsEvergreen'] != 1) {// && !empty($entity_data['contractExpiryDate']
             $exludestage_checked = ' checked="checked"';
             $excludekeycust_notifymessage = '<div class="ui-state-highlight ui-corner-all" style="padding: 5px; margin-top: 10px; margin-bottom: 10px;"><strong>'.$lang->notcontractedsupp.'</strong></div>';
@@ -465,7 +516,7 @@ if(!$core->input['action']) {
             $exludestage = '<br /><input type="checkbox" value="1" name="excludeKeyCustomers"'.$exludestage_checked.' style="width:30px;" id="excludeKeyCustomers" title="'.$lang->exclude_tip.'" /> '.$lang->excludekeycustomers;
         }
 
-        //Parse add customer popup
+//Parse add customer popup
         $affiliates_attributes = array('affid', 'name');
         $affiliates_order = array(
                 'by' => 'name',
@@ -613,7 +664,7 @@ else {
         if($report_meta['auditor'] != '1') {
             $existingentries_query_string = ' AND (uid='.$core->user['uid'].' OR uid=0)';
         }
-        //$oldentries = get_specificdata('productsactivity', array('paid'), 'paid', 'paid', '', 0, "rid='{$rid}'{$oldentries_query_string}");
+//$oldentries = get_specificdata('productsactivity', array('paid'), 'paid', 'paid', '', 0, "rid='{$rid}'{$oldentries_query_string}");
         foreach($core->input['productactivity'] as $i => $productactivity) {
             if(empty($productactivity['pid'])) {
                 if(!empty($productactivity['paid'])) {
@@ -664,7 +715,7 @@ else {
               }
               } */
             if(is_array($cachearr['usedpaid'])) {
-                //$delete_query_where = ' OR ( paid NOT IN ('.implode(', ', $cachearr['usedpaid']).') AND pid NOT IN ('.implode(', ', $cachearr['usedpids']).'))';
+//$delete_query_where = ' OR ( paid NOT IN ('.implode(', ', $cachearr['usedpaid']).') AND pid NOT IN ('.implode(', ', $cachearr['usedpids']).'))';
             }
 //            if(is_array($cachearr['usedpids']) && !empty($cachearr['usedpids'])) {
 //                $del_query = $db->query("DELETE FROM ".Tprefix."productsactivity WHERE rid='{$rid}' AND (pid NOT IN (".implode(', ', $cachearr['usedpids'])."){$delete_query_where}){$existingentries_query_string}");
@@ -795,7 +846,7 @@ else {
             $marketreport_data[$key] = $val;
             $marketreport_data[$key]['psid'] = $key;
             $marketreport_data[$key]['rid'] = $rid;
-            //unset($marketreport_data[$key]['segmenttitle']);
+//unset($marketreport_data[$key]['segmenttitle']);
             $one_notexcluded = true;
         }
 
@@ -876,7 +927,7 @@ else {
 
         $log->record($core->input['name']);
         unset($core->input['action'], $core->input['module']);
-        //Temporary hardcode
+//Temporary hardcode
         $core->input['defaultCurrency'] = 'USD';
 
         $query = $db->insert_query('products', $core->input);
@@ -916,8 +967,8 @@ else {
         $report_meta = unserialize($session->get_phpsession('reportmeta_'.$identifier));
 
 
-        $report_meta['rid'] = $db->escape_string($report_meta['rid']);
-
+        //  $report_meta['rid'] = $db->escape_string($report_meta['rid']);
+        //**  $report_meta['rid'] = 1;
         $report = new ReportingQr(array('rid' => $report_meta['rid']));
         $currencies = unserialize($session->get_phpsession('reportcurrencies_'.$identifier));
 
@@ -932,7 +983,7 @@ else {
             output_xml("<status>false</status><message>{$lang->reportlocked}</message>");
             exit;
         }
-
+        //** $report_meta['excludeProductsActivity'] = 1;
         if(empty($report_meta['excludeProductsActivity'])) {
             if(empty($rawdata['productactivitydata'])) {
                 output_xml("<status>false</status><message>{$lang->productsdataempty}</message>");
@@ -950,7 +1001,7 @@ else {
             $products_deletequery_string = ' AND (uid='.$core->user['uid'].' OR uid=0)';
         }
 
-        //$db->query("DELETE FROM ".Tprefix."productsactivity WHERE rid='{$rawdata[rid]}'{$products_deletequery_string}");
+//$db->query("DELETE FROM ".Tprefix."productsactivity WHERE rid='{$rawdata[rid]}'{$products_deletequery_string}");
         if(empty($report_meta['excludeProductsActivity'])) {
             $productsactivity_validation = $report->validate_forecasts($rawdata['productactivitydata'], $currencies);
             if($productsactivity_validation !== true) {
@@ -1061,7 +1112,7 @@ else {
 //                exit;
 //            }
         }
-        //$rawdata['marketreportdata']['rid'] = $rawdata['rid'];
+//$rawdata['marketreportdata']['rid'] = $rawdata['rid'];
         if(is_array($rawdata['marketreportdata']) && !empty($rawdata['marketreportdata'])) {
             foreach($rawdata['marketreportdata'] as $psid => $val) {
                 if($val['exclude']) {
@@ -1191,6 +1242,82 @@ else {
 
         eval("\$addcustomerbox = \"".$template->get('popup_addcustomer')."\";");
         output_page($addcustomerbox);
+    }
+    elseif($core->input['action'] == 'do_ratesegment') {
+        $mrid = $db->escape_string($core->input['repid']);
+        $psid = $db->escape_string($core->input['target']);
+        $marketreport_obj = MarketReport::get_data(array('mrid' => $mrid));
+        if(is_object($marketreport_obj)) {
+            $marketreport_obj->rating = $core->input['value'];
+            $marketreport_obj->save();
+        }
+    }
+    elseif($core->input['action'] == 'get_reportinconsistency') {
+        $paid = $db->escape_string($core->input['id']);
+        eval("\$report_inc = \"".$template->get('popup_fillreport_reportinconsistency')."\";");
+        output($report_inc);
+    }
+    elseif($core->input['action'] == 'do_reportinconsistency') {
+        if(is_array($core->input['productsactivity'])) {
+            $productactivity_obj = new ProductsActivity($db->escape_string($core->input['productsactivity']['paid']), false);
+            if(is_object($productactivity_obj)) {
+                $reportobj = new ReportingQr($productactivity_obj->rid);
+                $affiliate = $reportobj->get_affiliate();
+                $currency = $productactivity_obj->originalCurrency;
+                $auditors = $reportobj->get_report_supplier_audits();
+                if(is_array($auditors)) {
+                    foreach($auditors as $auditor) {
+                        $ccs[] = $auditor['email'];
+                    }
+                }
+                if(is_array($ccs)) {
+                    $cc = implode(',', $ccs);
+                }
+                else {
+                    $cc = '';
+                }
+                if(isset($currency) && !empty($currency)) {
+                    $currency_obj = new Currencies($currency);
+                    $selectedcur = $currency_obj->get_displayname();
+                }
+                else {
+                    $selectedcur = 'USD';
+                }
+                if(isset($core->input['productsactivity']['comment']) && !empty($core->input['productsactivity']['comment'])) {
+                    $comment = $core->input['productsactivity']['comment'];
+                }
+                else
+                    $comment = 'NA';
+                $user = new Users($core->user['uid']);
+                $email_message = '<h1>QR Reporting Inconsistency</h1>';
+                $email_message .= 'Inconsistency Submitted By :'.$user->get_displayname();
+                $email_message .='Comment: <textarea disabled>'.$comment.'</textarea>';
+                $email_message .= '<div style="width:100%">';
+                $email_message.='<table><thead><tr><th style="width:35%">Product</th><th style="width:8%">Sold Quantity</th><th style="width:8%">Turnover</th><th style="width:10%">Currency</th><th style="width:15%">Sale Type</th><th style="width:8%">Forecast Purchase Amount</th><th style="width:8%">Forecast Purchase Qty</th></thead>';
+                $email_message.='<tbody><tr><td style="width:35%">'.$productactivity_obj->get_product()->get_displayname().'</td><td style="width:8%">'.$productactivity_obj->soldQty.'</td><td style="width:8%">'.$productactivity_obj->turnOver.'</td><td style="width:10%">'.$selectedcur.'</td><td style="width:8%">'.$productactivity_obj->soldQty.'</td><td style="width:15%">'.$productactivity_obj->saleType.'</td><td style="width:8%">'.$productactivity_obj->soldQty.'</td><td style="width:8%">'.$productactivity_obj->quantityForecast.'</td><td style="width:8%">'.$productactivity_obj->soldQty.'</td><td style="width:8%">'.$productactivity_obj->salesForecast.'</td></tr></tbody>';
+                $email_message.='</table></div>';
+                $email_data = array(
+                        'from_email' => $user->email,
+                        'from' => $user->get_displayname(),
+                        'cc' => $cc,
+                        'to' => 'ocos@orkila.com',
+                        'subject' => 'QR Product Activity Inconsistency Reported',
+                        'message' => $email_message,
+                );
+
+                $mail = new Mailer($email_data, 'php');
+                if($mail->get_status() === true) {
+                    output_xml("<status>true</status><message>{$lang->reportsubmitted}</message>");
+                }
+                else {
+                    output_xml("<status>false</status><message>{$lang->errorreporting}</message>");
+                }
+            }
+            else {
+                output_xml('<status>false</status><message>'.$lang->errorreporting.'</message>');
+                exit;
+            }
+        }
     }
 }
 ?>

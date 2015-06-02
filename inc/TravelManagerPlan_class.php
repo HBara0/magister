@@ -504,7 +504,7 @@ class TravelManagerPlan {
                 $delete_tabicon = '';
             }
 
-            $segmentstabs .= '<li><a href="#segmentstabs-'.$segid.'">Segment '.$segid.'</a>'.$delete_tabicon.'</li>  ';
+            $segmentstabs .= '<li><a href="#segmentstabs-'.$segid.'">segment_'.$sequence.'</a>'.$delete_tabicon.'</li>  ';
 
             $segment[$sequence]['toDate_output'] = date($core->settings['dateformat'], ( $segmentobj->toDate));
             $segment[$sequence]['toDate_formatted'] = date('d-m-Y', ( $segmentobj->toDate));
@@ -548,7 +548,7 @@ class TravelManagerPlan {
                     $affrowid = $entrowid = 1;
                     foreach($affient_objs as $affient_obj) {
                         if($affient_obj->get_type() == 'affiliate') {
-                            $affiliates = Affiliates::get_affiliates();
+                            $affiliates = Affiliates::get_affiliates(array('isActive' => '1'));
                             $afent_checksum = $affient_obj->inputChecksum;
                             $affilate_list = parse_selectlist('segment['.$sequence.'][assign][affid]['.$afent_checksum.']', '1', $affiliates, $affient_obj->primaryId, '', '', array('blankstart' => true));
                             eval("\$affiliates_output .= \"".$template->get('travelmanager_plantrip_createsegment_affiliates')."\";");
@@ -582,15 +582,14 @@ class TravelManagerPlan {
                     $internalpurposes_checks = parse_checkboxes('segment['.$sequence.'][purpose]', $interperp, $selectedpurpose, '', 'internal purposes', '<br>', 'purposes_checks_internal_'.$sequence.'', 1);
                 }
             }
-            $affiliates = Affiliates::get_affiliates();
-            $afent_checksum = generate_checksum('affient');
+            $affiliates = Affiliates::get_affiliates(array('isActive' => '1'));
+            $afent_checksum = generate_checksum();
             $affilate_list = parse_selectlist('segment['.$sequence.'][assign][affid]['.$afent_checksum.']', '1', $affiliates, '', '', '', array('blankstart' => true));
             $affrowid = $entrowid = 0;
             eval("\$affiliates_output .= \"".$template->get('travelmanager_plantrip_createsegment_affiliates')."\";");
-            $afent_checksum = generate_checksum('affient');
+            $afent_checksum = generate_checksum();
             eval("\$entities.= \"".$template->get('travelmanager_plantrip_createsegment_entities')."\";");
-            unset($afent_checksum);
-            unset($selectedpurpose);
+            unset($afent_checksum, $selectedpurpose);
             //get transp cat send to  parse_transportaionfields
 //            $transportation_obj = $segmentobj->get_transportationscat();
 //            $categery['name'] = $transportation_obj->name;
@@ -651,7 +650,7 @@ class TravelManagerPlan {
                 $approvedhotels = array();
             }
             if(is_object($counrty_obj)) {
-                $otherapprovedhotels = TravelManagerHotels::get_data('country='.$counrty_obj->coid.' AND city != '.$city_obj->ciid, array('returnarray' => true));
+                $otherapprovedhotels = TravelManagerHotels::get_data('country='.$counrty_obj->coid.' AND city != '.$city_obj->ciid.' AND isApproved=1', array('returnarray' => true));
             }
             $hotelssegments_output .= $segmentobj->parse_hotels($sequence, $approvedhotels);
             if(is_array($otherapprovedhotels)) {
@@ -661,7 +660,7 @@ class TravelManagerPlan {
                 $hotelssegments_output.='</div>';
             }
             $hotelssegments_output .= '<br /><h2><small>Other Possible Hotels</small></h2>';
-            $otherhotels = TravelManagerHotels::get_data(array('city' => $segmentobj->get_destinationcity()->get_id(), 'tmhid' => '(SELECT tmhid FROM '.TravelManagerPlanaccomodations::TABLE_NAME.' WHERE '.TravelManagerPlanSegments::PRIMARY_KEY.' = '.$segmentobj->get_id().')', 'isApproved' => 0), array('returnarray' => true, 'operators' => array('tmhid' => 'IN')));
+            $otherhotels = TravelManagerHotels::get_data(array('country' => $counrty_obj->coid, 'tmhid' => '(SELECT tmhid FROM '.TravelManagerPlanaccomodations::TABLE_NAME.' WHERE '.TravelManagerPlanSegments::PRIMARY_KEY.' = '.$segmentobj->get_id().')', 'isApproved' => 0), array('returnarray' => true, 'operators' => array('tmhid' => 'IN')));
             if(is_array($otherhotels)) {
                 $hotelssegments_output .= $segmentobj->parse_hotels($sequence, $otherhotels);
             }
@@ -759,6 +758,7 @@ $("#anotheraff_otheraccomodations_'.$sequence.'_'.$otherhotel_checksum.'").hide(
                 eval("\$finance_output = \"".$template->get('travelmanager_plantrip_segmentfinance')."\";");
             }
             //parse finnance--end
+            $checkedaccomodation = '';
             if($segmentobj->noAccomodation == '1') {
                 $checkedaccomodation = 'checked = "checked"';
             }
@@ -769,7 +769,7 @@ $("#anotheraff_otheraccomodations_'.$sequence.'_'.$otherhotel_checksum.'").hide(
             eval("\$plantrip_createsegment = \"".$template->get('travelmanager_plantrip_createsegment')."\";");
             $segments_output .= '<div id = "segmentstabs-'.$segid.'">'.$plantrip_createsegment.'</div>';
             $segid++;
-            unset($transsegments_output, $finance_output, $checked);
+            unset($transsegments_output, $checkedaccomodation, $finance_output, $checked, $affiliates_output, $entities);
         }
 
         eval("\$plantript_segmentstabs= \"".$template->get('travelmanager_plantrip_segmentstabs')."\";");
