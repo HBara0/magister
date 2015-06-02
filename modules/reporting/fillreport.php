@@ -1261,7 +1261,21 @@ else {
         if(is_array($core->input['productsactivity'])) {
             $productactivity_obj = new ProductsActivity($db->escape_string($core->input['productsactivity']['paid']), false);
             if(is_object($productactivity_obj)) {
+                $reportobj = new ReportingQr($productactivity_obj->rid);
+                $affiliate = $reportobj->get_affiliate();
                 $currency = $productactivity_obj->originalCurrency;
+                $auditors = $reportobj->get_report_supplier_audits();
+                if(is_array($auditors)) {
+                    foreach($auditors as $auditor) {
+                        $ccs[] = $auditor['email'];
+                    }
+                }
+                if(is_array($ccs)) {
+                    $cc = implode(',', $ccs);
+                }
+                else {
+                    $cc = '';
+                }
                 if(isset($currency) && !empty($currency)) {
                     $currency_obj = new Currencies($currency);
                     $selectedcur = $currency_obj->get_displayname();
@@ -1285,6 +1299,7 @@ else {
                 $email_data = array(
                         'from_email' => $user->email,
                         'from' => $user->get_displayname(),
+                        'cc' => $cc,
                         'to' => 'ocos@orkila.com',
                         'subject' => 'QR Product Activity Inconsistency Reported',
                         'message' => $email_message,
