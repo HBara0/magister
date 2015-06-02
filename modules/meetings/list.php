@@ -104,6 +104,7 @@ else {
 
             eval("\$sharewith_rows .= \"".$template->get('popup_meetings_sharewith_rows')."\";");
         }
+        $file = 'list';
         eval("\$share_meeting = \"".$template->get('popup_meetings_share')."\";");
         output($share_meeting);
     }

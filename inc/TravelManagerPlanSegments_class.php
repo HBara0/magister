@@ -706,7 +706,6 @@ class TravelManagerPlanSegments extends AbstractClass {
                 $expenses_details .= '</div>';
                 $expenses_total += $transpexp['fare'];
             }
-            /* get hotel expences total night of each segment */
         }
 
         $fxrate_query['accomodation'] = "(CASE WHEN tmpa.currency =840 THEN 1 ELSE (SELECT rate FROM currencies_fxrates WHERE baseCurrency=tmpa.currency AND currency=840
