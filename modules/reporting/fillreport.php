@@ -140,14 +140,15 @@ if(!$core->input['action']) {
 							WHERE r.quarter<'".intval($qreport->quarter)."' AND r.year='".intval($qreport->year)."' AND r.affid='".intval($qreport->affid)."' AND r.spid='".intval($qreport->spid)."' AND pa.pid=".$productactivity['pid'].$query_string."
                                                         GROUP BY pid"));
                 /* Get preview Q data - END */
+                $reportinconsistency = '<td><a href="#" id="reportinconsistency_'.$productactivity['paid'].'_reporting/fillreport_loadpopupbyid"><img src="'.$core->settings['rootdir'].'/images/alert.png" title="{$lang->reportinconsistency}"/></a></td>';
                 eval("\$productsrows .= \"".$template->get('reporting_fillreports_productsactivity_productrow')."\";");
+                unset($reportinconsistency);
             }
         }
         else {
             for($rowid = 1; $rowid < $productscount; $rowid++) {
                 $saletype_selectlist = parse_selectlist('productactivity['.$rowid.'][saleType]', 0, $saletypes, 'distribution', 0, null, array('disabled' => $selectlists_disabled));
                 $currencyfx_selectlist = parse_selectlist('productactivity['.$rowid.'][fxrate]', 0, $currencies, 1, '', '', array('id' => 'fxrate_'.$rowid, 'disabled' => $selectlists_disabled));
-
                 eval("\$productsrows .= \"".$template->get('reporting_fillreports_productsactivity_productrow')."\";");
             }
         }
@@ -1249,6 +1250,58 @@ else {
         if(is_object($marketreport_obj)) {
             $marketreport_obj->rating = $core->input['value'];
             $marketreport_obj->save();
+        }
+    }
+    elseif($core->input['action'] == 'get_reportinconsistency') {
+        $paid = $db->escape_string($core->input['id']);
+        eval("\$report_inc = \"".$template->get('popup_fillreport_reportinconsistency')."\";");
+        output($report_inc);
+    }
+    elseif($core->input['action'] == 'do_reportinconsistency') {
+        if(is_array($core->input['productsactivity'])) {
+            $productactivity_obj = new ProductsActivity($db->escape_string($core->input['productsactivity']['paid']), false);
+            if(is_object($productactivity_obj)) {
+                $currency = $productactivity_obj->originalCurrency;
+                if(isset($currency) && !empty($currency)) {
+                    $currency_obj = new Currencies($currency);
+                    $selectedcur = $currency_obj->get_displayname();
+                }
+                else {
+                    $selectedcur = 'USD';
+                }
+                if(isset($core->input['productsactivity']['comment']) && !empty($core->input['productsactivity']['comment'])) {
+                    $comment = $core->input['productsactivity']['comment'];
+                }
+                else
+                    $comment = 'NA';
+                $user = new Users($core->user['uid']);
+                $email_message = '<h1>QR Reporting Inconsistency</h1>';
+                $email_message .= 'Inconsistency Submitted By :'.$user->get_displayname();
+                $email_message .='Comment: <textarea disabled>'.$comment.'</textarea>';
+                $email_message .= '<div style="width:100%">';
+                $email_message.='<table><thead><tr><th style="width:35%">Product</th><th style="width:8%">Sold Quantity</th><th style="width:8%">Turnover</th><th style="width:10%">Currency</th><th style="width:15%">Sale Type</th><th style="width:8%">Forecast Purchase Amount</th><th style="width:8%">Forecast Purchase Qty</th></thead>';
+                $email_message.='<tbody><tr><td style="width:35%">'.$productactivity_obj->get_product()->get_displayname().'</td><td style="width:8%">'.$productactivity_obj->soldQty.'</td><td style="width:8%">'.$productactivity_obj->turnOver.'</td><td style="width:10%">'.$selectedcur.'</td><td style="width:8%">'.$productactivity_obj->soldQty.'</td><td style="width:15%">'.$productactivity_obj->saleType.'</td><td style="width:8%">'.$productactivity_obj->soldQty.'</td><td style="width:8%">'.$productactivity_obj->quantityForecast.'</td><td style="width:8%">'.$productactivity_obj->soldQty.'</td><td style="width:8%">'.$productactivity_obj->salesForecast.'</td></tr></tbody>';
+                $email_message.='</table></div>';
+                $email_data = array(
+                        'from_email' => $user->email,
+                        'from' => $user->get_displayname(),
+                        'to' => 'ocos@orkila.com',
+                        'subject' => 'QR Product Activity Inconsistency Reported',
+                        'message' => $email_message,
+                );
+
+                $mail = new Mailer($email_data, 'php');
+                if($mail->get_status() === true) {
+                    output_xml("<status>true</status><message>{$lang->reportsubmitted}</message>");
+                }
+                else {
+                    output_xml("<status>false</status><message>{$lang->errorreporting}</message>");
+                }
+            }
+            else {
+                output_xml('<status>false</status><message>'.$lang->errorreporting.'</message>');
+                exit;
+            }
         }
     }
 }
