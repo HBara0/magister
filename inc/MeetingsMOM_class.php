@@ -96,6 +96,9 @@ class MeetingsMOM extends AbstractClass {
 //        return $this->data;
 //    }
 
+    /*
+     * Parse Specific actions follow up 
+     */
     public function parse_actions($source = '', $momactions = array()) {
         global $template, $core, $lang;
         if(isset($core->input['mtid']) && !empty($core->input['mtid'])) {
