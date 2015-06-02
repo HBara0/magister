@@ -13,13 +13,14 @@ $lang['forecasts'] = "Forecasts";
 $lang['yearforecasts'] = "Year End Forecasts";
 $lang['sales'] = "Sales";
 $lang['qty'] = "QTY";
+$lang['reportsubmitted'] = "Report Submitted";
 $lang['soldquantity'] = "Sold Quantity";
 $lang['productactivitydetails'] = "Products Activity Details";
 $lang['keycustomers'] = "Key Customers";
 $lang['contactperson'] = "Contact person";
 $lang['purchaseqty'] = "Purchase Qty";
 $lang['tablecontenttitle'] = "Table of Content";
-
+$lang['reportinconsistency'] = 'Report Inconsistency';
 $lang['achievedpercentage'] = 'Achieved Percentage';
 $lang['actionplan'] = 'Action Plan';
 $lang['activityby'] = 'Activity by';
@@ -29,6 +30,9 @@ $lang['actualvalues'] = 'Actual';
 $lang['additionalrecipients'] = 'Additional recipients';
 $lang['affiliates'] = 'Affiliates';
 $lang['all'] = 'All';
+$lang['errorreporting'] = 'Error Reporting';
+
+$lang['report'] = 'Report';
 $lang['allreportscreated'] = 'All reports were created';
 $lang['amount'] = 'Amount';
 $lang['amountsincurrency'] = 'Amounts in <br />
@@ -47,6 +51,7 @@ $lang['cannotfinalizereport'] = 'You cannot finalize the report until the others
 $lang['contactchris'] = 'Should you have any comments or would like to update the recipients\' list, kindly contact Mr. Christophe SACY on his e-mail address: <a href=\'mailto:christophe.sacy@orkila.com\'>christophe.sacy@orkila.com</a>';
 $lang['contactperson'] = 'Contact person';
 $lang['create'] = 'Create';
+$lang['comment'] = 'Comment';
 $lang['currenciesfxrate'] = 'Currencies FX rates';
 $lang['currenciesfxratenote'] = 'Rates are relative to original currencies used in the report & involved countries.';
 $lang['devprojectsnewop'] = 'Development Projects and New Opportunities';
