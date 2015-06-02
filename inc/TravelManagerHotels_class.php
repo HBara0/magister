@@ -20,6 +20,7 @@ class TravelManagerHotels extends AbstractClass {
     const PRIMARY_KEY = 'tmhid';
     const TABLE_NAME = 'travelmanager_hotels';
     const CLASSNAME = __CLASS__;
+    const DISPLAY_NAME = 'name';
     const UNIQUE_ATTRS = 'country,city,alias';
     const SIMPLEQ_ATTRS = 'tmhid, name,alias,city,isApproved,avgPrice,stars,isContracted,currency,addressLine1';
 
