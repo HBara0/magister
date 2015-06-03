@@ -8,7 +8,7 @@ class ProductCharacteristics extends AbstractClass {
     const PRIMARY_KEY = 'pcid';
     const TABLE_NAME = 'productcharacteristics';
     const SIMPLEQ_ATTRS = '*';
-    const UNIQUE_ATTRS = 'name,title';
+    const UNIQUE_ATTRS = 'title';
     const CLASSNAME = __CLASS__;
     const DISPLAY_NAME = 'title';
 
@@ -42,4 +42,22 @@ class ProductCharacteristics extends AbstractClass {
     }
 
     /* -------FUNCTIONS-END-------- */
+    public function parse_link($attributes_param = array('target' => '_blank')) {
+        if(!empty($this->product['companyNameAbbr'])) {
+            $this->product['companyName'] .= ' ('.$this->product['companyNameAbbr'].')';
+        }
+
+        if(is_array($attributes_param)) {
+            foreach($attributes_param as $attr => $val) {
+                $attributes .= $attr.'="'.$val.'"';
+            }
+        }
+        return '<a href="'.$this->get_link().'" '.$attributes.'>'.$this->get_displayname().'</a>';
+    }
+
+    public function get_link() {
+        global $core;
+        return $core->settings['rootdir'].'/index.php?module=profiles/productcharacteristicprofile&amp;pcid='.$this->data[self::PRIMARY_KEY];
+    }
+
 }

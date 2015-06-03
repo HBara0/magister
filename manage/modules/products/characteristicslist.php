@@ -32,6 +32,7 @@ if(!$core->input['action']) {
     if(is_array($characteristics)) {
         foreach($characteristics as $characteristic) {
             $chars = $characteristic->get();
+            $charlink = $characteristic->parse_link();
             $values = ProductCharacteristicValues::get_data(array('pcid' => $chars['pcid']), array('returnarray' => true));
             if(is_array($values)) {
                 $totalval = count($values);
@@ -47,6 +48,7 @@ if(!$core->input['action']) {
         $char_rows = '<tr><td>NA</td><td></td></tr>';
     }
     $valcharrowid = 1;
+    $pcid = 0;
     eval("\$valchar_output = \"".$template->get('admin_characteristics_values_rows')."\";");
     eval("\$popup_addchar = \"".$template->get('popup_createproductcharcteristic')."\";");
     eval("\$characteristic_list = \"".$template->get('admin_characteristiclists')."\";");
@@ -58,24 +60,28 @@ else {
             $characteristic = new ProductCharacteristics();
             $characteristic->set($core->input['characteristic']);
             $characteristic = $characteristic->save();
+            $errors[] = '';
             switch($characteristic->get_errorcode()) {
                 case 0:
                     if(isset($core->input['characteristicval']) && !empty($core->input['characteristicval'])) {
-                        $prodvalues['pcid'] = $characteristic->pcid;
                         foreach($core->input['characteristicval'] as $key => $value) {
-                            $prodvalues['title'] = $value;
+                            $value['pcid'] = $characteristic->pcid;
+                            if(empty($value['title'])) {
+                                continue;
+                            }
                             $prodcharvalue = new ProductCharacteristicValues();
-                            $prodcharvalue->set($prodvalues);
+                            $prodcharvalue->set($value);
                             $prodcharvalue = $prodcharvalue->save();
                             $errors[] = $prodcharvalue->get_errorcode();
                         }
+
                         foreach($errors as $error) {
                             if($error == 0) {
                                 continue;
                             }
                             else {
-                                output_xml('<status>true</status><message>'.$lang->errorsaving.'</message>');
-                                break;
+                                output_xml('<status>false</status><message>'.$lang->errorsavingcharvalues.'</message>');
+                                exit;
                             }
                         }
                     }
@@ -86,6 +92,7 @@ else {
                     break;
                 case 3:
                     output_xml('<status>false</status><message>'.$lang->errorsaving.'</message>');
+                    break;
             }
         }
         else {
@@ -98,5 +105,31 @@ else {
         $sequence = $db->escape_string($core->input['id']);
         eval("\$valchar_output = \"".$template->get('admin_characteristics_values_rows')."\";");
         echo $valchar_output;
+    }
+    elseif($core->input['action'] == 'get_updatecharacteristic') {
+        if(!isset($core->input['id']) || empty($core->input['id'])) {
+            exit;
+        }
+        $characteristic = new ProductCharacteristics($core->input['id']);
+        if(!is_object($characteristic)) {
+            exit;
+        }
+        $chars = $characteristic->get();
+        $pcid = $characteristic->pcid;
+        $valcharrowid = 1;
+        $charvalues = ProductCharacteristicValues::get_data(array('pcid' => $characteristic->pcid), array('returnarray' => true));
+        if(is_array($charvalues)) {
+            foreach($charvalues as $charvalue) {
+                $characteristicval = $charvalue->get();
+                eval("\$valchar_output .= \"".$template->get('admin_characteristics_values_rows')."\";");
+                $valcharrowid++;
+                unset($characteristicval);
+            }
+        }
+        else {
+            eval("\$valchar_output = \"".$template->get('admin_characteristics_values_rows')."\";");
+        }
+        eval("\$popup_addchar = \"".$template->get('popup_createproductcharcteristic')."\";");
+        echo ($popup_addchar);
     }
 }
