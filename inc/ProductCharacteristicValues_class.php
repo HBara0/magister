@@ -8,7 +8,7 @@ class ProductCharacteristicValues extends AbstractClass {
     const PRIMARY_KEY = 'pcvid';
     const TABLE_NAME = 'productcharacteristics_values';
     const SIMPLEQ_ATTRS = '*';
-    const UNIQUE_ATTRS = 'pcid,name';
+    const UNIQUE_ATTRS = 'pcid,title';
     const CLASSNAME = __CLASS__;
     const DISPLAY_NAME = 'title';
 

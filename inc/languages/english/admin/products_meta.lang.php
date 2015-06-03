@@ -15,6 +15,7 @@ $lang['add'] = "Add";
 $lang['title'] = "Title";
 $lang['managechems'] = "Manage Chemicals";
 $lang['errorsaving'] = "Error Saving";
+$lang['errorsavingcharvalues'] = "Error Saving Characteristic Values";
 
 $lang['listavailableproducts'] = "List of Available Products";
 $lang['addaproduct'] = "Add a Product";
