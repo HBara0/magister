@@ -135,12 +135,19 @@ if(!$core->input['action']) {
         }
         $endproduct_type = $entbrandprod_obj->get_endproduct();
         $entitybrand = $entbrandprod_obj->get_entitybrand();
-        $page_title_header = $entitybrand->parse_link().'/'.$endproduct_type->parse_link();
+        $characteristic = $entbrandprod_obj->get_charactersticvalue();
+        $characteristic_output = '';
+        if(!empty($characteristic->get_id())) {
+            $characteristic_output = ' ('.$characteristic->get_displayname().')';
+        }
+
+        $page_title_header = $entitybrand->parse_link().'/'.$endproduct_type->parse_link().$characteristic_output;
         $page_title = $entitybrand->get_displayname().$endproduct_type->get_displayname();
         $customer = $entitybrand->get_entity();
         if(is_object($customer)) {
             $customername = $customer->parse_link();
         }
+
         $group = array('cfcid', 'cfpid', 'biid');
         $query = $db->query("SELECT * FROM (SELECT * FROM ".Tprefix."marketintelligence_basicdata WHERE ebpid='{$ebpid}' ORDER BY createdOn DESC)as sorteddata GROUP BY cfcid,cfpid,biid");
         if($db->num_rows($query) > 0) {

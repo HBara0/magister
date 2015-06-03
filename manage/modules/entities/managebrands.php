@@ -56,6 +56,9 @@ if(!$core->input['action']) {
         }
         //$endproducttypes_list.='<option value="'.$endproduct_types['eptid'].'">'.$endproduct_types['title'].'</option>';
     }
+
+    $characteristics = ProductCharacteristicValues::get_data(null, array('returnarray' => true));
+    $characteristics_list = parse_selectlist('entitybrand[pcvid]', 4, $characteristics, null, 0, null, array('blankstart' => true));
     $module = 'entities';
     $modulefile = 'managebrands';
     eval("\$popup_createbrand = \"".$template->get('popup_createbrand')."\";");

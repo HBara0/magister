@@ -43,5 +43,15 @@ class ProductCharacteristicValues extends AbstractClass {
         return $this;
     }
 
+    public function get_characterstic() {
+        return new ProductCharacteristics($this->pcid);
+    }
+
+    public function get_displayname() {
+        $characterstic = $this->get_characterstic();
+
+        return $characterstic->get_displayname().' - '.parent::get_displayname();
+    }
+
     /* -------FUNCTIONS-END-------- */
 }
