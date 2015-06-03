@@ -3,12 +3,12 @@
         <input type="checkbox" name="forecastline[$rowid][todelete]" value="1" style="width:25px;" title="{$lang->deletecheckboxnote}"/>
     </td>
     <td>
-        <input type="hidden" name="forecastline[{$currentyear}][$rowid][gpflid]" value="{$forecastline[gpflid]}"/>
-        <input type="hidden" name="forecastline[{$nextyear}][$rowid][gpflid]" value="{$forecastline[gpflid]}"/>
-        <input type="hidden" name="forecastline[{$currentyear}][$rowid][inputChecksum1]" value="{$forecastline[inputChecksum]}"/>
-        <input type="hidden" name="forecastline[{$nexttyear}][$rowid][inputChecksum2]" value="{$forecastline[inputChecksum]}"/>
-        <input type="hidden" name="forecastline[{$currentyear}][$rowid][gpfid]" value="{$forecastline[gpfid]}"/>
-        <input type="hidden" name="forecastline[{$nexttyear}][$rowid][gpfid]" value="{$forecastline[gpfid]}"/>
+        <input type="hidden" name="forecastline[{$currentyear}][$rowid][gpflid]" value="{$forecastline[gpflid1]}"/>
+        <input type="hidden" name="forecastline[{$nextyear}][$rowid][gpflid]" value="{$forecastline[gpflid2]}"/>
+        <input type="hidden" name="forecastline[{$currentyear}][$rowid][inputChecksum]" value="{$forecastline[inputChecksum1]}"/>
+        <input type="hidden" name="forecastline[{$nextyear}][$rowid][inputChecksum]" value="{$forecastline[inputChecksum2]}"/>
+        <input type="hidden" name="forecastline[{$currentyear}][$rowid][gpfid]" value="{$forecastline[gpfid1]}"/>
+        <input type="hidden" name="forecastline[{$nextyear}][$rowid][gpfid]" value="{$forecastline[gpfid2]}"/>
         <input type='text' name="forecastline[$rowid][pid]" id="product_noexception_{$rowid}_autocomplete" value="{$forecastline[productName]}" autocomplete='off' {$required}/>
         <input type='text' size='2' style="width:35px;display:none;" name='product_{$rowid}_id_output' id='product_noexception_{$rowid}_id_output' disabled='disabled' value="{$forecastline[pid]}"/>
         <input type='hidden' value='{$forecastline[pid]}' id='product_noexception_{$rowid}_id' name='forecastline[{$currentyear}][$rowid][pid]' />
@@ -21,7 +21,7 @@
     <td> <input style="width:60px;" name="forecastline[{$year2}][$rowid][{$month2}]" type="number" step="any" id="forecastline_{$rowid}_month_2" value="{$forecastline[$month2]}" {$readonly[month2]} required="required"/></td>
     <td> <input style="width:60px;" name="forecastline[{$year3}][$rowid][{$month3}]" type="number" step="any" id="forecastline_{$rowid}_month_3" value="{$forecastline[$month3]}" {$readonly[month3]} required="required"/></td>
     <td> <input style="width:60px;" name="forecastline[{$year4}][$rowid][{$month4}]" type="number" step="any" id="forecastline_{$rowid}_month_4" value="{$forecastline[$month4]}" {$readonly[month4]} required="required"/></td>
-    <td> <input style="width:60px;" name="forecastline[{$year5}][$rowid][[{$month5}]" type="number" step="any" id="forecastline_{$rowid}_month_5" value="{$forecastline[$month5]}" {$readonly[month5]} required="required"/></td>
+    <td> <input style="width:60px;" name="forecastline[{$year5}][$rowid][{$month5}]" type="number" step="any" id="forecastline_{$rowid}_month_5" value="{$forecastline[$month5]}" {$readonly[month5]} required="required"/></td>
     <td> <input style="width:60px;" name="forecastline[{$year6}][$rowid][{$month6}]" type="number" step="any" id="forecastline_{$rowid}_month_6" value="{$forecastline[$month6]}" {$readonly[month6]} required="required"/></td>
     <td> <input style="width:60px;" name="forecastline[{$year7}][$rowid][{$month7}]" type="number" step="any" id="forecastline_{$rowid}_month_7" value="{$forecastline[$month7]}" {$readonly[month7]} required="required"/></td>
     <td> <input style="width:60px;" name="forecastline[{$year8}][$rowid][{$month8}]" type="number" step="any" id="forecastline_{$rowid}_month_8" value="{$forecastline[$month8]}" {$readonly[month8]} required="required"/></td>
