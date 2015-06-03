@@ -8,7 +8,7 @@ class ProductCharacteristicValues extends AbstractClass {
     const PRIMARY_KEY = 'pcvid';
     const TABLE_NAME = 'productcharacteristics_values';
     const SIMPLEQ_ATTRS = '*';
-    const UNIQUE_ATTRS = 'pcid,title';
+    const UNIQUE_ATTRS = 'pcid,name';
     const CLASSNAME = __CLASS__;
     const DISPLAY_NAME = 'title';
 
@@ -23,8 +23,8 @@ class ProductCharacteristicValues extends AbstractClass {
         $table_array = array(
                 'pcid' => $data['pcid'],
                 'title' => $data['title'],
+                'name' => $data['name'],
         );
-        $table_array['name'] = generate_alias($data['title']);
         $query = $db->insert_query(self::TABLE_NAME, $table_array);
         if($query) {
             $this->data[self::PRIMARY_KEY] = $db->last_id();
@@ -37,8 +37,8 @@ class ProductCharacteristicValues extends AbstractClass {
         if(is_array($data)) {
             $update_array['pcid'] = $data['pcid'];
             $update_array['title'] = $data['title'];
+            $update_array['name'] = $data['name'];
         }
-        $update_array['name'] = generate_alias($update_array['title']);
         $db->update_query(self::TABLE_NAME, $update_array, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
         return $this;
     }

@@ -57,8 +57,10 @@ if(!$core->input['action']) {
 else {
     if($core->input['action'] == 'do_addcharacteristic') {
         if(isset($core->input['characteristic']['title']) && !empty($core->input['characteristic']['title'])) {
+            $charvalues = $core->input['characteristic'];
             $characteristic = new ProductCharacteristics();
-            $characteristic->set($core->input['characteristic']);
+            $charvalues['name'] = generate_alias($charvalues['title']);
+            $characteristic->set($charvalues);
             $characteristic = $characteristic->save();
             $errors[] = '';
             switch($characteristic->get_errorcode()) {
@@ -69,6 +71,7 @@ else {
                             if(empty($value['title'])) {
                                 continue;
                             }
+                            $value['name'] = generate_alias($value['title']);
                             $prodcharvalue = new ProductCharacteristicValues();
                             $prodcharvalue->set($value);
                             $prodcharvalue = $prodcharvalue->save();
