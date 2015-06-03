@@ -86,4 +86,6 @@ $lang['successdelete'] = "Successfully deleted";
 $lang['errordeleting'] = "An error occured while deleting the entity";
 $lang['mergeentity'] = 'Merge Entity';
 $lang['deleteentity'] = 'Delete Entity';
+$lang['considerbrandunspecified'] = 'or consider the brand with unspecified/unknown end-product type';
+$lang['charasteristiclist'] = "Characteristics List";
 ?>

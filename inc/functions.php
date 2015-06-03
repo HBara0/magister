@@ -772,24 +772,29 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                             unset($results_list['"'.$key.'"']);
                             foreach($entbrandproducts as $entbrandproduct) {
                                 $endprod = $entbrandproduct->get_endproduct();
+                                $characteristic = $entbrandproduct->get_charactersticvalue();
+                                $characteristic_output = '';
+                                if(is_object($characteristic)) {
+                                    $characteristic_output = ' ('.$characteristic->get_displayname().')';
+                                }
                                 if(is_object($endprod)) {
                                     if($options['returnType'] == 'json') {
-                                        $results_list['"'.$entbrandproduct->get_id().'"']['value'] = $val;
+                                        $results_list['"'.$entbrandproduct->get_id().'"']['value'] = $val.$characteristic_output;
                                         $results_list['"'.$entbrandproduct->get_id().'"']['id'] = $entbrandproduct->get_id();
                                         $results_list['"'.$entbrandproduct->get_id().'"']['desc'] = $endprod->title;
                                     }
                                     else {
-                                        $details = '<br /><span class="smalltext">'.$entbrandproduct->get_endproduct()->title.'</span>';
+                                        $details = '<br /><span class="smalltext">'.$entbrandproduct->get_endproduct()->title.$characteristic_output.'</span>';
                                         $results_list .= '<li id="'.$entbrandproduct->get_id().'">'.$val.$details.'</li>';
                                     }
                                 }
                                 else {
                                     if($options['returnType'] == 'json') {
-                                        $results_list['"'.$entbrandproduct->get_id().'"']['value'] = $val;
+                                        $results_list['"'.$entbrandproduct->get_id().'"']['value'] = $val.$characteristic_output;
                                         $results_list['"'.$entbrandproduct->get_id().'"']['id'] = $entbrandproduct->get_id();
                                     }
                                     else {
-                                        $results_list .= '<li id="'.$entbrandproduct->get_id().'">'.$val.'</li>';
+                                        $results_list .= '<li id="'.$entbrandproduct->get_id().'">'.$val.$characteristic_output.'</li>';
                                     }
                                 }
                             }
@@ -809,12 +814,12 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                                 $details = $first_parent->get_displayname();
                                 $secondpar_obj = $first_parent->get_parent();
                                 if(is_object($secondpar_obj)) {
-                                    $details = $secondpar_obj->get_displayname().'<--'.$details;
+                                    $details = $secondpar_obj->get_displayname().' < '.$details;
                                     $third_par = $secondpar_obj->get_parent();
                                     if(is_object($third_par)) {
                                         $originalpar_obj = $third_par->get_mother();
                                         if(is_object($originalpar_obj)) {
-                                            $details = $originalpar_obj->get_displayname().'<-.....<-'.$details;
+                                            $details = $originalpar_obj->get_displayname().'< ... < '.$details;
                                         }
                                     }
                                 }
