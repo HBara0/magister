@@ -31,13 +31,15 @@ if(!$core->input['action']) {
             foreach($endproducts_objs as $endproducts_obj) {
                 if(is_array($entbrandprod_objs)) {
                     $endprod_link = $endproducts_obj->parse_link();
-                    foreach($entbrandprod_objs as $entbrandprod_obj) {
-                        if($entbrandprod_obj->ebid == $ebid) {
-                            $endprod_link .= '&emsp;&emsp;&emsp;&emsp;<a style="vertical-align: top;text-align: left;" target="_blank" title="Branded End Product" href="'.$core->settings['rootdir'].'/index.php?module=profiles/brandprofile&amp;ebpid='.$entbrandprod_obj->ebpid.'"><img src="'.$core->settings['rootdir'].'/images/right_arrow.gif"/></a><small>(Go To Related Branded End Product)</small>';
-                        }
-                    }
+                    $entbrandprod_obj = EntBrandsProducts::get_data(array(EndProducTypes::PRIMARY_KEY => $endproducts_obj->get_id(), EntitiesBrands::PRIMARY_KEY => $ebid));
+                    //foreach($entbrandprod_objs as $entbrandprod_obj) {
+                    //  if($entbrandprod_obj->ebid == $ebid) {
+                    $endprod_link .= '<div style="float:right;"><a style="vertical-align: top;text-align: left;" target="_blank" title="Branded End Product" href="'.$core->settings['rootdir'].'/index.php?module=profiles/brandprofile&amp;ebpid='.$entbrandprod_obj->ebpid.'"><small>Or Go to Related Branded End Product</small> <img src="'.$core->settings['rootdir'].'/images/right_arrow.gif"/></a></div>';
+                    //break;
+                    //}
+                    //}
                 }
-                $endproduct_rows.='<tr><td>'.$endprod_link.'</td></tr>';
+                $endproduct_rows .= '<tr><td>'.$endprod_link.'</td></tr>';
                 $itemscount['endproducts'] ++;
             }
         }
@@ -70,7 +72,7 @@ if(!$core->input['action']) {
                     continue;
                 }
                 $itemscount['chemicals'] ++;
-                $chemicalsubstances_rows.='<tr><td>'.$chemfuncobj->get_chemicalsubstance()->parse_link().'</td></tr>';
+                $chemicalsubstances_rows .= '<tr><td>'.$chemfuncobj->get_chemicalsubstance()->parse_link().'</td></tr>';
             }
         }
         if(empty($chemicalsubstances_rows)) {
