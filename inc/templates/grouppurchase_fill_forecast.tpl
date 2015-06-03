@@ -30,7 +30,8 @@
 
                 $('select[id^=forecastline_][id$=_saleType]').live('change', function() {
                     var id = $(this).attr('id').split("_");
-                    $('input[id=forecastline_nextyear_' + id[2] + '_saleType]').val($('select[id^=forecastline_][id$=' + id[2] + '_saleType]').val());
+                    alert($('select[id=forecastline_' + id[1] + '_saleType]').val());
+                    $('input[id=forecastline_nextyear_' + id[1] + '_saleType]').val($('select[id^=forecastline_][id$=' + id[1] + '_saleType]').val());
                 });
             });
         </script>

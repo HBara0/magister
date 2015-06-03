@@ -69,12 +69,12 @@ if(!$core->input['action']) {
                         $forecastline['productName'] = $product->name;
                         break;
                     case 'saleType':
-                        $saletype_selectlist = parse_selectlist("forecastline[".$rowid."][saleType]", "", $saletypes, $gpforecastline->$field);
+                        $saletype_selectlist = parse_selectlist("forecastline[".$rowid."][saleType]", "", $saletypes, $gpforecastline->$field, "", "", array('id' => "forecastline_".$rowid."_saleType"));
                         break;
                     default:
                         $forecastline[$field] = $gpforecastline->$field;
                         if(in_array($field, $months)) {
-                            $k = key($months);
+                            $k = array_search($field, $months);
                             if(!($k < $currentmonth)) {
                                 $total[$field] += $gpforecastline->$field;
                                 $forecastline['quantity'] +=$gpforecastline->$field;
@@ -158,7 +158,7 @@ if(!$core->input['action']) {
                                 }
                                 break;
                             case 'saleType';
-                                $saletype_selectlist = parse_selectlist("forecastline[".$rowid."][saleType]", "", $saletypes, $line['saleType']);
+                                $saletype_selectlist = parse_selectlist("forecastline[".$rowid."][saleType]", "", $saletypes, $line['saleType'], "", "", array('id' => "forecastline_".$rowid."_saleType"));
                                 break;
                             case 'pid':
                                 $product = new Products($line['pid']);
@@ -189,7 +189,7 @@ if(!$core->input['action']) {
                     $forecastline['month'.$month] = 0;
                 }
                 $forecastline['inputChecksum'] = generate_checksum('gp');
-                $saletype_selectlist = parse_selectlist("forecastline[".$rowid."][saleType]", "", $saletypes, "");
+                $saletype_selectlist = parse_selectlist("forecastline[".$rowid."][saleType]", "", $saletypes, "", "", "", array('id' => "forecastline_".$rowid."_saleType"));
                 eval("\$forecastlines = \"".$template->get('grouppurchase_fill_forecastlines')."\";");
             }
         }
@@ -211,7 +211,7 @@ if(!$core->input['action']) {
 //                $forecastline['month'.$month] = 0;
 //            }
 
-            $saletype_selectlist = parse_selectlist("forecastline[".$currentyear."][".$rowid."][saleType]", "", $saletypes, "", "", "", array('id' => "forecastline_".$currentyear."_".$rowid."_saleType"));
+            $saletype_selectlist = parse_selectlist("forecastline[".$currentyear."][".$rowid."][saleType]", "", $saletypes, "", "", "", array('id' => "forecastline_".$rowid."_saleType"));
             eval("\$forecastlines .= \"".$template->get('grouppurchase_fill_forecastlines')."\";");
         }
     }
