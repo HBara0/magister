@@ -22,8 +22,8 @@ class ProductCharacteristics extends AbstractClass {
         global $db, $core;
         $table_array = array(
                 'title' => $data['title'],
+                'name' => $data['name'],
         );
-        $table_array['name'] = generate_alias($data['title']);
         $query = $db->insert_query(self::TABLE_NAME, $table_array);
         if($query) {
             $this->data[self::PRIMARY_KEY] = $db->last_id();
@@ -35,11 +35,29 @@ class ProductCharacteristics extends AbstractClass {
         global $db;
         if(is_array($data)) {
             $update_array['title'] = $data['title'];
+            $update_array['name'] = $data['name'];
         }
-        $update_array['name'] = generate_alias($update_array['title']);
         $db->update_query(self::TABLE_NAME, $update_array, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
         return $this;
     }
 
     /* -------FUNCTIONS-END-------- */
+    public function parse_link($attributes_param = array('target' => '_blank')) {
+        if(!empty($this->product['companyNameAbbr'])) {
+            $this->product['companyName'] .= ' ('.$this->product['companyNameAbbr'].')';
+        }
+
+        if(is_array($attributes_param)) {
+            foreach($attributes_param as $attr => $val) {
+                $attributes .= $attr.'="'.$val.'"';
+            }
+        }
+        return '<a href="'.$this->get_link().'" '.$attributes.'>'.$this->get_displayname().'</a>';
+    }
+
+    public function get_link() {
+        global $core;
+        return $core->settings['rootdir'].'/index.php?module=profiles/productcharacteristicprofile&amp;pcid='.$this->data[self::PRIMARY_KEY];
+    }
+
 }

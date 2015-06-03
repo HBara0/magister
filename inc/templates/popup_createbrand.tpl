@@ -13,11 +13,9 @@
                 <input type='hidden' id='allcustomertypes_noexception_id' name='entitybrand[eid]' value="" />
                 <div id='searchQuickResults_customer_noexception' class='searchQuickResults' style='display:none;'></div> </div>
         </div>
-        <div>
-            <div>
-                <br/><strong>{$lang->endproducttypes}</strong></div>
-
-            <div style="width:100%; height:150px; overflow:auto; display:inline-block; vertical-align:top; margin-bottom: 10px;">
+        <div id='popupcreatebrand_endproducttypes'>
+            <div><br/><strong>{$lang->endproducttypes}</strong></div>
+            <div style="width:100%; height:150px; overflow:auto; vertical-align:top; margin-bottom: 10px;">
                 <table class="datatable" width="100%">
                     <thead>
                         <tr>
@@ -28,13 +26,14 @@
                         {$endproducttypes_list}
                     </tbody>
                 </table>
-            </div>
 
+            </div>
+            <div>{$lang->charasteristiclist} {$characteristics_list}</div>
             <!--  <div>
                   <select name="entitybrand[endproducttypes][]" multiple="multiple" size="10" id='popup_createbrand_endproducttypes'>{$endproducttypes_list}</select>
               </div>-->
-            <div><input type="checkbox" value="1" onclick="$('#popup_createbrand_endproducttypes').toggle()" name="entitybrand[isGeneral]"> {$lang->considerbrandunspecified}</div>
         </div>
+        <div><input type="checkbox" value="1" onchange="$('#popupcreatebrand_endproducttypes').toggle();" name="entitybrand[isGeneral]"> {$lang->considerbrandunspecified}</div>
         <div>
             <hr/>
             <div><input type='button' id='add_{$module}/{$modulefile}_Button' value='{$lang->savecaps}' class='button'/></div>

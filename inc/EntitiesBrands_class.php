@@ -72,12 +72,13 @@ class EntitiesBrands extends AbstractClass {
                 }
                 if(is_array($this->data['endproducttypes'])) {
                     foreach($this->data['endproducttypes'] as $eptid) {
-                        if(value_exists('entitiesbrandsproducts', 'eptid', $eptid, 'ebid='.$this->ebid)) {
+                        if(value_exists('entitiesbrandsproducts', 'eptid', $eptid, 'pcvid='.intval($data['pcvid']).' AND ebid='.$this->ebid)) {
                             continue;
                         }
                         $entitiesbrandsproducts_data = array(
                                 'ebid' => $this->ebid,
                                 'eptid' => $eptid,
+                                'pcvid' => $this->data['pcvid'],
                                 'createdBy' => $core->user['uid'],
                                 'createdOn' => TIME_NOW
                         );
@@ -101,6 +102,24 @@ class EntitiesBrands extends AbstractClass {
             $update_array['modifiedOn'] = TIME_NOW;
         }
         $db->update_query(self::TABLE_NAME, $update_array, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
+
+        if(is_array($data['endproducttypes'])) {
+            foreach($data['endproducttypes'] as $eptid) {
+                if(value_exists('entitiesbrandsproducts', 'eptid', $eptid, 'pcvid='.intval($data['pcvid']).' AND ebid='.intval($this->data[self::PRIMARY_KEY]))) {
+                    continue;
+                }
+                $entitiesbrandsproducts_data = array(
+                        'ebid' => $this->data[self::PRIMARY_KEY],
+                        'eptid' => $eptid,
+                        'pcvid' => $data['pcvid'],
+                        'createdBy' => $core->user['uid'],
+                        'createdOn' => TIME_NOW
+                );
+                $entitybrand_obj = new EntBrandsProducts();
+                $entitybrand_obj->set($entitiesbrandsproducts_data);
+                $entitybrand_obj->save();
+            }
+        }
         return $this;
     }
 

@@ -11,9 +11,11 @@ $lang['chemicalsubstances'] = 'Chemical Substances';
 $lang['manageapplications'] = "Manage Applications";
 $lang['manageapplicationsfunc'] = "Manage Applications and Functions";
 $lang['name'] = "Name";
+$lang['add'] = "Add";
 $lang['title'] = "Title";
 $lang['managechems'] = "Manage Chemicals";
 $lang['errorsaving'] = "Error Saving";
+$lang['errorsavingcharvalues'] = "Error Saving Characteristic Values";
 
 $lang['listavailableproducts'] = "List of Available Products";
 $lang['addaproduct'] = "Add a Product";
@@ -78,4 +80,5 @@ $lang['basicingredients'] = 'Basic Ingredients';
 $lang['cloneendproducttype'] = 'Clone End Product Type';
 $lang['newproducttype'] = 'New End Product Type';
 $lang['savecaps'] = 'SAVE';
+$lang['charvalues'] = 'Characteristic Values';
 ?>
