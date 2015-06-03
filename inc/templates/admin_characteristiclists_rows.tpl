@@ -1,6 +1,6 @@
 <tr>
     <td>
-        {$chars['title']}
+        {$charlink}
     </td>
     <td>
         {$totalval}

@@ -32,6 +32,7 @@ if(!$core->input['action']) {
     if(is_array($characteristics)) {
         foreach($characteristics as $characteristic) {
             $chars = $characteristic->get();
+            $charlink = $characteristic->parse_link();
             $values = ProductCharacteristicValues::get_data(array('pcid' => $chars['pcid']), array('returnarray' => true));
             if(is_array($values)) {
                 $totalval = count($values);

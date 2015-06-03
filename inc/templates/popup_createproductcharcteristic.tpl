@@ -24,7 +24,7 @@
                         <span>
                             <div>
                                 <img src="{$core->settings['rootdir']}/images/add.gif" style="cursor: pointer" id="ajaxaddmore_products/characteristicslist_charvalues_{$pcid}" alt="{$lang->add}">{$lang->add}
-                                <input name="numrows_values" type="hidden" id="numrows_charvalues" value="{$valcharrowid}">
+                                <input name="numrows_values" type="hidden" id="numrows_charvalues_{$pcid}" value="{$valcharrowid}">
                                 <input type="hidden" name="moduletype_values" id="moduletype_charvalues_{$pcid}" value="manage" >
                             </div>
                         </span>
