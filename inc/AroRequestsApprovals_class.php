@@ -39,6 +39,15 @@ class AroRequestsApprovals extends AbstractClass {
         }
     }
 
+    public function get_user() {
+        return new Users($this->data['uid']);
+    }
+
+    public function get_email() {
+        $user = $this->get_user();
+        return $user->get_email();
+    }
+
     public function is_apporved() {
         if($this->data['isApproved'] == 1) {
             return true;
