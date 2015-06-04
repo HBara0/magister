@@ -2005,7 +2005,7 @@ function generate_checksum($prefix = '') {
  */
 function generate_alias($string) {
     global $core;
-    $string = trim(str_replace(' ', '-', $string));
+    $string = str_replace(' ', '-', trim($string));
     $string = $core->sanitize_inputs($string, array('removetags' => true));
     $string = preg_replace('/[\@\!\&\(\)$%\^\*\+\#\/\\,.;:=]+/i', '', $string);
     $string = strtolower($string);

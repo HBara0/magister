@@ -469,7 +469,12 @@ else {
             foreach($brandsproducts as $brandproduct) {
                 $options[$brandproduct->ebpid] = $brandproduct->get_entitybrand()->parse_link();
                 if(!empty($brandproduct->eptid)) {
-                    $options[$brandproduct->ebpid] .= ' - '.$brandproduct->get_endproduct()->parse_link();
+                    $characteristic_output = '';
+                    $characteristic = $brandproduct->get_charactersticvalue();
+                    if(is_object($characteristic)) {
+                        $characteristic_output = ' <small>('.$characteristic->get_displayname().')</small>';
+                    }
+                    $options[$brandproduct->ebpid] .= ' - '.$brandproduct->get_endproduct()->parse_link().$characteristic_output;
                 }
             }
 

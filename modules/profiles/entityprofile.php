@@ -479,6 +479,11 @@ if(!$core->input['action']) {
                     $brandproduct_productype->title = $lang->unspecified;
                 }
                 else {
+                    $characteristic_output = '';
+                    $characteristic = $brandproduct->get_charactersticvalue();
+                    if(is_object($characteristic)) {
+                        $characteristic_output = ' <small>('.$characteristic->get_displayname().')</small>';
+                    }
                     $options[$brandproduct->ebpid] .= ' - '.$brandproduct_productype->parse_link();
                 }
 

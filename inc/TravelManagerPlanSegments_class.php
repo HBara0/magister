@@ -165,11 +165,11 @@ class TravelManagerPlanSegments extends AbstractClass {
             $transp_errorcode = 2;
             $errorhandler->record('requiredfields', 'Transportations');
         }
-
-        if(isset($segmentdata['tmhid'])) {
-            $leavedays = abs($segmentdata['toDate'] - $segmentdata['fromDate']);
-            $leavedays = floor($leavedays / (60 * 60 * 24));
-            foreach($segmentdata['tmhid'] as $checksum => $hotel) {
+        if($segmentdata['noAccomodation'] == 0) {
+            if(isset($segmentdata['tmhid'])) {
+                $leavedays = abs($segmentdata['toDate'] - $segmentdata['fromDate']);
+                $leavedays = floor($leavedays / (60 * 60 * 24));
+                foreach($segmentdata['tmhid'] as $checksum => $hotel) {
 //                if(!empty($checksum)) {
 //                    $hotelacc = TravelManagerPlanaccomodations::get_data(array('inputChecksum' => $checksum));
 //                    /* if hotel not exist in segment accomodation & is not selected Skip! */
@@ -177,34 +177,34 @@ class TravelManagerPlanSegments extends AbstractClass {
 //                if(!is_object($hotelacc) && empty($checksum)) {
 //                    continue;
 //                }
-                $validate_fields = array('priceNight', 'numNights', 'currency');
+                    $validate_fields = array('priceNight', 'numNights', 'currency');
 //                foreach($validate_fields as $hotelfield) {
 //                    if(empty($hotel[$hotelfield])) {
 //                        return;
 //                    }
 //                }//////
-                if(!isset($hotel['tmhid']) || empty($hotel['tmhid'])) {
-                    continue;
+                    if(!isset($hotel['tmhid']) || empty($hotel['tmhid'])) {
+                        continue;
+                    }
+                    if($hotel['numNights'] > $leavedays) {
+                        $hotel = new TravelManagerHotels($hotel['tmhid']);
+                        $errorhandler->record($lang->numnightsexceeded.'<br/>', $hotel->name);
+                        return $this;
+                    }
+                    $hoteldata['tmhid'] = $hotel['tmhid'];
+                    $hoteldata['inputChecksum'] = $checksum;
+                    $hoteldata['tmpsid'] = $this->data[self::PRIMARY_KEY];
+                    $hoteldata['priceNight'] = $hotel['priceNight'];
+                    $hoteldata['currency'] = $hotel['currency'];
+                    $hoteldata['numNights'] = $hotel['numNights'];
+                    $hoteldata['paidBy'] = $hotel['entites'];
+                    $hoteldata['paidById'] = $hotel['paidById'];
+                    $accod_obj = new TravelManagerPlanaccomodations();
+                    $accod_obj->set($hoteldata);
+                    $accod_obj->save();
                 }
-                if($hotel['numNights'] > $leavedays) {
-                    $hotel = new TravelManagerHotels($hotel['tmhid']);
-                    $errorhandler->record($lang->numnightsexceeded.'<br/>', $hotel->name);
-                    return $this;
-                }
-                $hoteldata['tmhid'] = $hotel['tmhid'];
-                $hoteldata['inputChecksum'] = $checksum;
-                $hoteldata['tmpsid'] = $this->data[self::PRIMARY_KEY];
-                $hoteldata['priceNight'] = $hotel['priceNight'];
-                $hoteldata['currency'] = $hotel['currency'];
-                $hoteldata['numNights'] = $hotel['numNights'];
-                $hoteldata['paidBy'] = $hotel['entites'];
-                $hoteldata['paidById'] = $hotel['paidById'];
-                $accod_obj = new TravelManagerPlanaccomodations();
-                $accod_obj->set($hoteldata);
-                $accod_obj->save();
             }
         }
-
         $additionalexpenses = $segmentdata['expenses'];
         if(is_array($additionalexpenses)) {
             foreach($additionalexpenses as $expense) {
