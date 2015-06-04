@@ -141,8 +141,8 @@ if(!$core->input['action']) {
         $endproduct_type = $entbrandprod_obj->get_endproduct();
         $entitybrand = $entbrandprod_obj->get_entitybrand();
         $characteristic = $entbrandprod_obj->get_charactersticvalue();
-        $characteristic_output = '';
-        if(!empty($characteristic->get_id())) {
+        $characteristic_output = $characteristic->get_id();
+        if(!empty($characteristic_output)) {
             $characteristic_output = ' ('.$characteristic->get_displayname().')';
         }
 
