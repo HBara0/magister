@@ -1,8 +1,7 @@
 <table class="reportbox">
     <tr>
-        <td class="cathead">{$marketreport[segmenttitle]}&nbsp;{$lang->marketreport}</td>
+        <td class="cathead">{$marketreport[segmenttitle]}&nbsp;{$lang->marketreport}<div>{$criteriaandstars}</div></td>
     </tr>
-    <tr><td>{$criteriaandstars}</td></tr>
     {$marketreportbox_competition}
 </table>
 {$marketreportbox_other}

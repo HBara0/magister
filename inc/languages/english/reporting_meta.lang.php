@@ -31,7 +31,7 @@ $lang['additionalrecipients'] = 'Additional recipients';
 $lang['affiliates'] = 'Affiliates';
 $lang['all'] = 'All';
 $lang['errorreporting'] = 'Error Reporting';
-
+$lang['reportinginconsistencypleaseaddcomment'] = 'Reportin Inconsistency. Please Add A Comment Explaining The Inconsistency Detected In The Product Activity Row';
 $lang['report'] = 'Report';
 $lang['allreportscreated'] = 'All reports were created';
 $lang['amount'] = 'Amount';
