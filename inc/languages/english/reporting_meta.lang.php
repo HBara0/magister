@@ -186,4 +186,7 @@ $lang['markedasatask'] = 'Marked as Task';
 $lang['what'] = 'What';
 $lang['considerbrandunspecified'] = 'or consider the brand with unspecified/unknown end-product type';
 $lang['charasteristiclist'] = "Characteristics List";
+$lang['duedate'] = 'Due Date';
+$lang['markasdone'] = 'Mark Task as Done';
+$lang['taskcompleted'] = 'Task Completed';
 ?>
