@@ -295,6 +295,8 @@ if(!$core->input['action']) {
         $packaging_list = parse_selectlist('marketdata[competitor]['.$rowid.'][packaging]', 7, Packaging::get_data('name IS NOT NULL'), '', '', '', array('blankstart' => 1));
         $saletype_list = parse_selectlist('marketdata[competitor]['.$rowid.'][saletype]', 8, SaleTypes::get_data('stid IN (1,4)'), '', '', '', array('blankstart' => 1));
         $samplacquire = parse_radiobutton('marketdata[competitor]['.$rowid.'][isSampleacquire]', array(1 => 'yes', 0 => 'no'), '', true);
+        $characteristics = ProductCharacteristicValues::get_data(null, array('returnarray' => true));
+        $characteristics_list = parse_selectlist('entitybrand[pcvid]', 4, $characteristics, null, 0, null, array('blankstart' => true));
         eval("\$popup_marketdata= \"".$template->get('popup_profiles_marketdata')."\";");
         eval("\$popup_createbrand = \"".$template->get('popup_createbrand')."\";");
 
@@ -469,7 +471,12 @@ else {
             foreach($brandsproducts as $brandproduct) {
                 $options[$brandproduct->ebpid] = $brandproduct->get_entitybrand()->parse_link();
                 if(!empty($brandproduct->eptid)) {
-                    $options[$brandproduct->ebpid] .= ' - '.$brandproduct->get_endproduct()->parse_link();
+                    $characteristic_output = '';
+                    $characteristic = $brandproduct->get_charactersticvalue();
+                    if(is_object($characteristic)) {
+                        $characteristic_output = ' <small>('.$characteristic->get_displayname().')</small>';
+                    }
+                    $options[$brandproduct->ebpid] .= ' - '.$brandproduct->get_endproduct()->parse_link().$characteristic_output;
                 }
             }
 

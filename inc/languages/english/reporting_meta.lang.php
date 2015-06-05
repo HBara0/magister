@@ -183,5 +183,7 @@ $lang['yeargreaterthancurrent'] = 'Specified year is greater than the current';
 $lang['specificfollowactions'] = 'Specific Follow Up Actions';
 $lang['representative'] = 'Representative';
 $lang['markedasatask'] = 'Marked as Task';
-$lang['what'] = 'What'
+$lang['what'] = 'What';
+$lang['considerbrandunspecified'] = 'or consider the brand with unspecified/unknown end-product type';
+$lang['charasteristiclist'] = "Characteristics List";
 ?>

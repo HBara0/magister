@@ -32,9 +32,14 @@ if(!$core->input['action']) {
                 if(is_array($entbrandprod_objs)) {
                     $endprod_link = $endproducts_obj->parse_link();
                     $entbrandprod_obj = EntBrandsProducts::get_data(array(EndProducTypes::PRIMARY_KEY => $endproducts_obj->get_id(), EntitiesBrands::PRIMARY_KEY => $ebid));
+                    $characteristic_output = '';
+                    $characteristic = $entbrandprod_obj->get_charactersticvalue();
+                    if(is_object($characteristic)) {
+                        $characteristic_output = ' <small>('.$characteristic->get_displayname().')</small>';
+                    }
                     //foreach($entbrandprod_objs as $entbrandprod_obj) {
                     //  if($entbrandprod_obj->ebid == $ebid) {
-                    $endprod_link .= '<div style="float:right;"><a style="vertical-align: top;text-align: left;" target="_blank" title="Branded End Product" href="'.$core->settings['rootdir'].'/index.php?module=profiles/brandprofile&amp;ebpid='.$entbrandprod_obj->ebpid.'"><small>Or Go to Related Branded End Product</small> <img src="'.$core->settings['rootdir'].'/images/right_arrow.gif"/></a></div>';
+                    $endprod_link .=$characteristic_output.'<div style="float:right;"><a style="vertical-align: top;text-align: left;" target="_blank" title="Branded End Product" href="'.$core->settings['rootdir'].'/index.php?module=profiles/brandprofile&amp;ebpid='.$entbrandprod_obj->ebpid.'"><small>Or Go to Related Branded End Product</small> <img src="'.$core->settings['rootdir'].'/images/right_arrow.gif"/></a></div>';
                     //break;
                     //}
                     //}
@@ -136,8 +141,8 @@ if(!$core->input['action']) {
         $endproduct_type = $entbrandprod_obj->get_endproduct();
         $entitybrand = $entbrandprod_obj->get_entitybrand();
         $characteristic = $entbrandprod_obj->get_charactersticvalue();
-        $characteristic_output = '';
-        if(!empty($characteristic->get_id())) {
+        $characteristic_output = $characteristic->get_id();
+        if(!empty($characteristic_output)) {
             $characteristic_output = ' ('.$characteristic->get_displayname().')';
         }
 

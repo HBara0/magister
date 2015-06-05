@@ -61,6 +61,9 @@ class SegmentApplications extends AbstractClass {
                 $this->data[self::PRIMARY_KEY] = $db->last_id();
                 if(!empty($data['segappfunctions']) && isset($data['segappfunctions'])) {
                     foreach($data['segappfunctions'] as $cfid) {
+                        if(empty($cfid) || $cfid == 0) {
+                            continue;
+                        }
                         $segappfuncquery = $db->insert_query('segapplicationfunctions', array('cfid' => $cfid, 'psaid' => $this->data[self::PRIMARY_KEY], 'createdBy' => $core->user['uid'], 'createdOn' => TIME_NOW));
                         if($segappfuncquery) {
                             $data['safid'] = $db->last_id();

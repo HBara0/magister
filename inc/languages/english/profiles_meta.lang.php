@@ -126,5 +126,7 @@ $lang['brandprofile'] = 'Brand Profile';
 $lang['brandslist'] = 'Brands List';
 $lang['reviewedon'] = 'Reviewed On';
 $lang['by'] = 'by';
-$lang['notreviwed'] = 'Not Reviewed Yet'
+$lang['notreviwed'] = 'Not Reviewed Yet';
+$lang['considerbrandunspecified'] = 'or consider the brand with unspecified/unknown end-product type';
+$lang['charasteristiclist'] = "Characteristics List";
 ?>

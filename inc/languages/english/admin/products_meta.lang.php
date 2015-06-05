@@ -2,7 +2,6 @@
 $lang['product'] = "Product";
 $lang['segment'] = "Segment";
 $lang['generic'] = "Generic";
-$lang['charasteristiclist'] = "Characteristics List";
 $lang['addcharasteristic'] = "Add Characteristic";
 $lang['numberofvalues'] = "Number Of Values";
 $lang['applications'] = "Applications";

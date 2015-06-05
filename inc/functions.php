@@ -773,8 +773,8 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                             foreach($entbrandproducts as $entbrandproduct) {
                                 $endprod = $entbrandproduct->get_endproduct();
                                 $characteristic = $entbrandproduct->get_charactersticvalue();
-                                $characteristic_output = '';
-                                if(is_object($characteristic)) {
+                                $characteristic_output = $characteristic->get_id();
+                                if(!empty($characteristic_output)) {
                                     $characteristic_output = ' ('.$characteristic->get_displayname().')';
                                 }
                                 if(is_object($endprod)) {
