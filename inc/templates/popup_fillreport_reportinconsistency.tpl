@@ -4,9 +4,7 @@
         <input type="hidden" name="productsactivity[paid]" value="{$paid}"/>
 
         <div>
-            <table cellpadding="0" cellspacing="0" width="100%">
-                <tr><td>{$lang->comment}</td><td><textarea name="productsactivity[comment]" class="basictxteditadv"></textarea> </td></tr>
-            </table>
+            {$lang->comment}<br/><textarea name="productsactivity[comment]" class="basictxteditadv" id="inconsistencycomment_{$paid}"></textarea>
             <div>
                 <input class="button" value="{$lang->report}" id="perform_reporting/fillreport_Button" type="submit">
                 <div id="perform_reporting/fillreport_Results"></div>
