@@ -16,7 +16,7 @@
         <div id='searchQuickResults_product_{$rowid}' class='searchQuickResults' style='display:none;'></div>
         {$segments_selectlist}
     </td>
-    <td>{$saletype_selectlist}<input type="hidden" value="{}" name="forecastline[{$nextyear}][{$rowid}][saleType]" id="forecastline_nextyear_{$rowid}_saleType"/></td>
+    <td>{$saletype_selectlist}<input type="hidden" value="{$defaultselected}" name="forecastline[{$nextyear}][{$rowid}][saleType]" id="forecastline_nextyear_{$rowid}_saleType"/></td>
     <td> <input style="width:60px;" name="forecastline[{$year1}][$rowid][{$month1}]" type="number" step="any" id="forecastline_{$rowid}_month_1" value="{$forecastline[$month1]}" {$readonly[month1]} required="required"/></td>
     <td> <input style="width:60px;" name="forecastline[{$year2}][$rowid][{$month2}]" type="number" step="any" id="forecastline_{$rowid}_month_2" value="{$forecastline[$month2]}" {$readonly[month2]} required="required"/></td>
     <td> <input style="width:60px;" name="forecastline[{$year3}][$rowid][{$month3}]" type="number" step="any" id="forecastline_{$rowid}_month_3" value="{$forecastline[$month3]}" {$readonly[month3]} required="required"/></td>

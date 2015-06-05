@@ -264,6 +264,7 @@ else if($core->input['action'] == 'ajaxaddmore_forecastlines') {
     $forecastline['inputChecksum1'] = generate_checksum('gp');
     $forecastline['inputChecksum2'] = generate_checksum('gp');
     $saletypes = SaleTypes::get_data();
+    $defaultselected = array_keys($saletypes)[0];
     $saletype_selectlist = parse_selectlist("forecastline[".$currentyear."][".$rowid."][saleType]", "", $saletypes, "", "", "", array('id' => "forecastline_".$currentyear."_".$rowid."_saleType"));
 
     for($month = 1; $month <= 12; $month++) {
