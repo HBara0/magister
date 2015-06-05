@@ -1304,7 +1304,7 @@ else {
                 $mailer->set_subject('QR Product Activity Inconsistency Reported');
                 $mailer->set_message($email_message);
                 $mailer->send();
-                if($mail->get_status() === true) {
+                if($mailer->get_status() === true) {
                     output_xml("<status>true</status><message>{$lang->reportsubmitted}</message>");
                 }
                 else {
