@@ -1270,11 +1270,16 @@ else {
                 $reportobj = $productactivity_obj->get_report();
                 $affiliate = $reportobj->affid;
                 $currency = $productactivity_obj->originalCurrency;
-                $qrreportobj = new ReportingQr($reportobj->report);
-                $auditors = $qrreportobj->get_report_supplier_audits();
+                $auditors = $reportobj->get_report_supplier_audits();
                 if(is_array($auditors)) {
-                    foreach($auditors as $auditor) {
-                        $ccs[] = $auditor['email'];
+                    foreach($auditors as $key => $val) {
+                        if(is_array($val)) {
+                            $ccs[] = $val['email'];
+                        }
+                        else {
+                            $ccs[] = $auditors['email'];
+                            break;
+                        }
                     }
                 }
                 if(isset($currency) && !empty($currency)) {
@@ -1294,20 +1299,16 @@ else {
                 $mailer = new Mailer();
                 $mailer = $mailer->get_mailerobj();
                 $mailer->set_to('ocos.support@orkila.com');
-                $mailet->set_cc($ccs);
-                $mailer->set_from(array('name' => $user->get_displayname(), $user->email));
+                $mailer->set_cc($ccs);
+                $mailer->set_from(array('name' => $user->get_displayname(), 'email' => $user->email));
                 $mailer->set_subject('QR Product Activity Inconsistency Reported');
                 $mailer->set_message($email_message);
-                $mailer->debug_info();
-                exit;
                 $mailer->send();
                 if($mail->get_status() === true) {
-                    output_xml("<status>true</status><message>{$lang->reportsubmitted
-                            }</message>");
+                    output_xml("<status>true</status><message>{$lang->reportsubmitted}</message>");
                 }
                 else {
-                    output_xml("<status>false</status><message>{$lang->errorreporting
-                            }</message>");
+                    output_xml("<status>false</status><message>{$lang->errorreporting}</message>");
                 }
             }
             else {

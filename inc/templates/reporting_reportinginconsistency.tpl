@@ -1,6 +1,6 @@
 <h1>QR Reporting Inconsistency</h1>
 Inconsistency Submitted By :{$user->get_displayname()}
-Comment: <textarea disabled>{$comment}</textarea>
+Comment:<div>{$comment}</div>
 <div style="width:100%">
     <table>
         <thead>
