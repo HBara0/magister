@@ -38,18 +38,24 @@ if(!$core->input['action']) {
     $months_array = array('january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december');
     $currentmonth = date('n');
     $j = $currentmonth;
-
     for($i = 1; $i < 13; $i++) {
         if($j == 13) {
             $j = 1;
             $year = date('Y', strtotime('+1 year'));
+            $nextyear_count = true;
+            $nextyear_countmonths = 0;
         }
         $months[$i] = 'month'.$j;
         ${'mon'.$i} = $lang->$months_array[$j - 1]; // for table header
         ${'month'.$i} = 'month'.$j; //Array month index (as db columns)
         ${'year'.$i} = $year;  // year index for each field
         $j++;
+        if($nextyear_count) {
+            $nextyear_countmonths++;
+        }
     }
+    $altrow = alt_row($altrow);
+    $curryear_countmonths = 12 - $nextyear_countmonths;
     $grouppurchaseforecast = GroupPurchaseForecast::get_data(array('affid' => $forecast_data['affid'], 'year' => $currentyear, 'spid' => $forecast_data['spid']));
     if(is_object($grouppurchaseforecast)) {
         $gpforecastlines = $grouppurchaseforecast->get_forecastlines($uid);

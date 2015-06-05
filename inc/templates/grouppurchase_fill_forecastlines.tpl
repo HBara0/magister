@@ -1,7 +1,5 @@
 <tr id="{$rowid}">
-    <td>
-        <input type="checkbox" name="forecastline[$rowid][todelete]" value="1" style="width:25px;" title="{$lang->deletecheckboxnote}"/>
-    </td>
+
     <td>
         <input type="hidden" name="forecastline[{$currentyear}][$rowid][gpflid]" value="{$forecastline[gpflid1]}"/>
         <input type="hidden" name="forecastline[{$nextyear}][$rowid][gpflid]" value="{$forecastline[gpflid2]}"/>
