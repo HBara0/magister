@@ -60,6 +60,14 @@ if(!$core->input['action']) {
     if(is_object($grouppurchaseforecast)) {
         $gpforecastlines = $grouppurchaseforecast->get_forecastlines($uid);
     }
+    else {
+        $grouppurchaseforecast = GroupPurchaseForecast::get_data(array('affid' => $forecast_data['affid'], 'year' => ($forecast_data['year'] - 1), 'spid' => $forecast_data['spid']));
+        if(is_object($grouppurchaseforecast)) {
+            $gpforecastlines = $grouppurchaseforecast->get_forecastlines($uid);
+
+            $loadprevyeardata = true;
+        }
+    }
     //$budget = Budgets::get_budget_bydata($forecast_data);
 
     /* Read data from existing forecast lines. */
@@ -87,6 +95,15 @@ if(!$core->input['action']) {
                         $forecastline['gpfid1'] = $gpforecastline->gpflid;
                         break;
                     default:
+                        if($loadprevyeardata == true) {
+                            if($field == 'gpflid' || $field == 'gpfid') {
+                                continue;
+                            }
+                            if($field == 'inputChecksum') {
+                                $forecastline[$field] = generate_checksum('gp');
+                                continue;
+                            }
+                        }
                         $forecastline[$field] = $gpforecastline->$field;
                         if(in_array($field, $months)) {
                             $k = $filed.substr($field, 5);

@@ -140,7 +140,7 @@ if(!$core->input['action']) {
 							WHERE r.quarter<'".intval($qreport->quarter)."' AND r.year='".intval($qreport->year)."' AND r.affid='".intval($qreport->affid)."' AND r.spid='".intval($qreport->spid)."' AND pa.pid=".$productactivity['pid'].$query_string."
                                                         GROUP BY pid"));
                 /* Get preview Q data - END */
-                $reportinconsistency = '<td><a href="#" id="reportinconsistency_'.$productactivity['paid'].'_reporting/fillreport_loadpopupbyid"><img src="'.$core->settings['rootdir'].'/images/alert.png" title="{$lang->reportinconsistency}"/></a></td>';
+                $reportinconsistency = '<td><a href="#" id="reportinconsistency_'.$productactivity['paid'].'_reporting/fillreport_loadpopupbyid"><img src="'.$core->settings['rootdir'].'/images/alert.png" title="'.$lang->reportinconsistency.'/"></a></td>';
                 eval("\$productsrows .= \"".$template->get('reporting_fillreports_productsactivity_productrow')."\";");
                 unset($reportinconsistency);
             }
@@ -1254,27 +1254,33 @@ else {
     }
     elseif($core->input['action'] == 'get_reportinconsistency') {
         $paid = $db->escape_string($core->input['id']);
+        $productactivity_obj = new ProductsActivity($db->escape_string($paid), false);
+        $product = $productactivity_obj->get_product()->get_displayname();
+        $reportobj = $productactivity_obj->get_report();
+        $affiliate = new Affiliates($reportobj->affid);
+        $affiliatename = $affiliate->get_displayname();
+        $reportyear = $reportobj->year;
         eval("\$report_inc = \"".$template->get('popup_fillreport_reportinconsistency')."\";");
         output($report_inc);
     }
-    elseif($core->input['action'] == 'do_reportinconsistency') {
+    elseif($core->input ['action'] == 'do_reportinconsistency') {
         if(is_array($core->input['productsactivity'])) {
             $productactivity_obj = new ProductsActivity($db->escape_string($core->input['productsactivity']['paid']), false);
             if(is_object($productactivity_obj)) {
-                $reportobj = new ReportingQr($productactivity_obj->rid);
-                $affiliate = $reportobj->get_affiliate();
+                $reportobj = $productactivity_obj->get_report();
+                $affiliate = $reportobj->affid;
                 $currency = $productactivity_obj->originalCurrency;
                 $auditors = $reportobj->get_report_supplier_audits();
                 if(is_array($auditors)) {
-                    foreach($auditors as $auditor) {
-                        $ccs[] = $auditor['email'];
+                    foreach($auditors as $key => $val) {
+                        if(is_array($val)) {
+                            $ccs[] = $val['email'];
+                        }
+                        else {
+                            $ccs[] = $auditors['email'];
+                            break;
+                        }
                     }
-                }
-                if(is_array($ccs)) {
-                    $cc = implode(',', $ccs);
-                }
-                else {
-                    $cc = '';
                 }
                 if(isset($currency) && !empty($currency)) {
                     $currency_obj = new Currencies($currency);
@@ -1283,30 +1289,22 @@ else {
                 else {
                     $selectedcur = 'USD';
                 }
-                if(isset($core->input['productsactivity']['comment']) && !empty($core->input['productsactivity']['comment'])) {
+                if(isset($core->input['productsactivity'] ['comment']) && !empty($core->input['productsactivity']['comment'])) {
                     $comment = $core->input['productsactivity']['comment'];
                 }
                 else
                     $comment = 'NA';
                 $user = new Users($core->user['uid']);
-                $email_message = '<h1>QR Reporting Inconsistency</h1>';
-                $email_message .= 'Inconsistency Submitted By :'.$user->get_displayname();
-                $email_message .='Comment: <textarea disabled>'.$comment.'</textarea>';
-                $email_message .= '<div style="width:100%">';
-                $email_message.='<table><thead><tr><th style="width:35%">Product</th><th style="width:8%">Sold Quantity</th><th style="width:8%">Turnover</th><th style="width:10%">Currency</th><th style="width:15%">Sale Type</th><th style="width:8%">Forecast Purchase Amount</th><th style="width:8%">Forecast Purchase Qty</th></thead>';
-                $email_message.='<tbody><tr><td style="width:35%">'.$productactivity_obj->get_product()->get_displayname().'</td><td style="width:8%">'.$productactivity_obj->soldQty.'</td><td style="width:8%">'.$productactivity_obj->turnOver.'</td><td style="width:10%">'.$selectedcur.'</td><td style="width:8%">'.$productactivity_obj->soldQty.'</td><td style="width:15%">'.$productactivity_obj->saleType.'</td><td style="width:8%">'.$productactivity_obj->soldQty.'</td><td style="width:8%">'.$productactivity_obj->quantityForecast.'</td><td style="width:8%">'.$productactivity_obj->soldQty.'</td><td style="width:8%">'.$productactivity_obj->salesForecast.'</td></tr></tbody>';
-                $email_message.='</table></div>';
-                $email_data = array(
-                        'from_email' => $user->email,
-                        'from' => $user->get_displayname(),
-                        'cc' => $cc,
-                        'to' => 'ocos@orkila.com',
-                        'subject' => 'QR Product Activity Inconsistency Reported',
-                        'message' => $email_message,
-                );
-
-                $mail = new Mailer($email_data, 'php');
-                if($mail->get_status() === true) {
+                eval("\$email_message .= \"".$template->get('reporting_reportinginconsistency')."\";");
+                $mailer = new Mailer();
+                $mailer = $mailer->get_mailerobj();
+                $mailer->set_to('ocos.support@orkila.com');
+                $mailer->set_cc($ccs);
+                $mailer->set_from(array('name' => $user->get_displayname(), 'email' => $user->email));
+                $mailer->set_subject('QR Product Activity Inconsistency Reported');
+                $mailer->set_message($email_message);
+                $mailer->send();
+                if($mailer->get_status() === true) {
                     output_xml("<status>true</status><message>{$lang->reportsubmitted}</message>");
                 }
                 else {
