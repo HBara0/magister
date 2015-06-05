@@ -1,6 +1,6 @@
 <tr>
     <td style="width:20%;">
-        <strong>{$lang->when} </strong><br/>
+        <strong>{$lang->duedate} </strong><br/>
         <span>{$actions_data[date_otput]}</span>
     </td>
     <td style="width:20%;">
