@@ -167,8 +167,8 @@ class TravelManagerPlanSegments extends AbstractClass {
         }
         if($segmentdata['noAccomodation'] == 0) {
             if(isset($segmentdata['tmhid'])) {
-                $leavedays = abs($segmentdata['toDate'] - $segmentdata['fromDate']);
-                $leavedays = floor($leavedays / (60 * 60 * 24));
+                $segdays = abs($segmentdata['toDate'] - $segmentdata['fromDate']);
+                $segdays = floor($leavedays / (60 * 60 * 24));
                 foreach($segmentdata['tmhid'] as $checksum => $hotel) {
 //                if(!empty($checksum)) {
 //                    $hotelacc = TravelManagerPlanaccomodations::get_data(array('inputChecksum' => $checksum));
@@ -186,7 +186,8 @@ class TravelManagerPlanSegments extends AbstractClass {
                     if(!isset($hotel['tmhid']) || empty($hotel['tmhid'])) {
                         continue;
                     }
-                    if($hotel['numNights'] > $leavedays) {
+                    if($hotel['numNights'] > $segdays) {
+                        $this->errorcode = 9;
                         $hotel = new TravelManagerHotels($hotel['tmhid']);
                         $errorhandler->record($lang->numnightsexceeded.'<br/>', $hotel->name);
                         return $this;
