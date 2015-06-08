@@ -23,7 +23,7 @@ if(!$core->input['action']) {
     if($core->usergroup['crm_canPublishNews'] == 1) {
         $publish_news = '<div style="display:inline-block">'.$lang->ispublish.'</div><div style="display: table-cell; padding:10px;"><input name="news[isPublished]" type="checkbox" value="1"></div>';
     }
-    $content_categories = CmsContentCategories::get_data('title IS NOT NULL');
+    $content_categories = CmsContentCategories::get_data('title IS NOT NULL', array('returnarray' => true));
 
     if(isset($core->input['newsid']) && !empty($core->input['newsid'])) {
         $actiontype = 'edit';
@@ -33,8 +33,12 @@ if(!$core->input['action']) {
         if($news['isFeatured'] == 1) {
 //$checkedboxes['isFeatured'] = "checked='checked'";
         }
-        $news['publishDate_output'] = date($core->settings['dateformat'], $news['publishDate']);
-
+        if(isset($news['publishDate']) && !empty($news['publishDate'])) {
+            $news['publishDate_output'] = date($core->settings['dateformat'], $news['publishDate']);
+        }
+        else {
+            $news['publishDate_output'] = date($core->settings['dateformat'], TIME_NOW);
+        }
         $lang_array = array('en', 'fr');
         foreach($lang_array as $key) {
             if($news['lang'] == $key) {
@@ -55,6 +59,7 @@ if(!$core->input['action']) {
     else {
         $actiontype = 'add';
         $newscategories_list = parse_selectlist('news[categories]', 5, $content_categories, '');
+        $news['publishDate_output'] = date($core->settings['dateformat'], TIME_NOW);
     }
 
     if($core->usergroup['crm_canPublishNews'] == 1) {
@@ -99,7 +104,7 @@ else {
         }
         ?>
         <script language="javascript" type="text/javascript">
-            $(function() {
+            $(function () {
                 top.$("#upload_Result").html("<span class='<?php echo $output_class;?>'><?php echo $output_message;?></span>");
             });
         </script>
