@@ -1268,7 +1268,8 @@ else {
             $productactivity_obj = new ProductsActivity($db->escape_string($core->input['productsactivity']['paid']), false);
             if(is_object($productactivity_obj)) {
                 $reportobj = $productactivity_obj->get_report();
-                $affiliate = $reportobj->affid;
+                $affiliate = new Affiliates($reportobj->affid);
+                $year = $reportobj->year;
                 $currency = $productactivity_obj->originalCurrency;
                 $auditors = $reportobj->get_report_supplier_audits();
                 if(is_array($auditors)) {
