@@ -260,7 +260,42 @@ if(!$core->input['action']) {
         $query = $db->query("SELECT es.psid, ps.title FROM ".Tprefix."entitiessegments es JOIN ".Tprefix."productsegments ps ON (ps.psid=es.psid) WHERE es.eid='{$reportmeta[spid]}'{$filter_segments_query}");
         if($db->num_rows($query) > 0) {
             while($segment = $db->fetch_assoc($query)) {
+                if(is_array($marketreport[$segment['psid']])) {
+                    $criteriaandstars .= '<div class="evaluation_criterium" name="'.$segment['psid'].'_'.$marketreport[$segment['psid']]['mrid'].'"><div class="criterium_name" style="display:inline-block; width:30%; padding: 2px;">'.$segment['title'].'</div>';
+                    $criteriaandstars .= '<div class="ratebar" style="width:40%; display:inline-block;">';
+                    if(!isset($marketreport[$segment['psid']]['rating']) || empty($marketreport[$segment['psid']]['rating'])) {
+                        $ratingval = 0;
+                    }
+                    else {
+                        $ratingval = $marketreport[$segment['psid']]['rating'];
+                    }
+                    if($core->input['auditor'] == 0) {
+                        $criteriaandstars .= '<div class="rateit" data-rateit-starwidth="18" data-rateit-starheight="16" data-rateit-ispreset="true" data-rateit-readonly="true" data-rateit-value="'.$ratingval.'"></div>';
+                    }
+                    else {
+                        $header_ratingjs = '$(".rateit").click(function() {
+					if(sharedFunctions.checkSession() == false) {
+						return;
+					}
+					var targetid = $(this).parent().parent().attr("name");
+					var returndiv = "";
+                                        var val=$("#rating_"+targetid).val();
+                                        var ids=targetid.split("_");
+                                        if(ids[1].length < 1 || ids[0].length < 1 ){
+                                        return;
+                                        }
+                                        if(val.length >0){
+					sharedFunctions.requestAjax("post", "index.php?module=reporting/fillreport&action=do_ratesegment", "target="+ids[0]+"&value="+val+"&repid="+ids[1], returndiv, returndiv, "html");
+                                        }
+				});';
+                        $criteriaandstars .= '<input type="range" min="0" max="5" value="'.$ratingval.'" step="1" id="rating_'.$segment['psid'].'_'.$marketreport[$segment['psid']]['mrid'].'" class="ratingscale">';
+                        $criteriaandstars .= '<div class="rateit" data-rateit-starwidth="18" data-rateit-starheight="16" data-rateit-ispreset="true" data-rateit-resetable="false" data-rateit-backingfld="#rating_'.$segment['psid'].'_'.$marketreport[$segment['psid']]['mrid'].'" data-rateit-value="'.$marketreport[$segment['psid']]['rating'].'"></div>';
+                    }
+                    $criteriaandstars .= '</div></div>';
+                    // $criteriaandstars .='<input type="hidden" name="marketreport['.$segment[psid].'][rating]" id="segmentrating_'.$segment['psid'].'" value="'.$ratingval.'">';
+                }
                 eval("\$markerreport_fields .= \"".$template->get('reporting_fillreports_marketreport_fields')."\";");
+                unset($criteriaandstars);
 
                 $countries = Countries::get_data(array('coid is NOT NULL'));
                 /* Parse Market report competition section on modify */
@@ -464,8 +499,43 @@ if(!$core->input['action']) {
             }
             if(isset($marketreport[0])) {
                 $segment['psid'] = 0;
+                if(is_array($marketreport[$segment['psid']])) {
+                    $criteriaandstars .= '<div class="evaluation_criterium" name="'.$segment['psid'].'_'.$marketreport[$segment['psid']]['mrid'].'"><div class="criterium_name" style="display:inline-block; width:30%; padding: 2px;">'.$segment['title'].'</div>';
+                    $criteriaandstars .= '<div class="ratebar" style="width:40%; display:inline-block;">';
+                    if(!isset($marketreport[$segment['psid']]['rating']) || empty($marketreport[$segment['psid']]['rating'])) {
+                        $ratingval = 0;
+                    }
+                    else {
+                        $ratingval = $marketreport[$segment['psid']]['rating'];
+                    }
+                    if($core->input['auditor'] == 0) {
+                        $criteriaandstars .= '<div class="rateit" data-rateit-starwidth="18" data-rateit-starheight="16" data-rateit-ispreset="true" data-rateit-readonly="true" data-rateit-value="'.$ratingval.'"></div>';
+                    }
+                    else {
+                        $header_ratingjs = '$(".rateit").click(function() {
+					if(sharedFunctions.checkSession() == false) {
+						return;
+					}
+					var targetid = $(this).parent().parent().attr("name");
+					var returndiv = "";
+                                        var val=$("#rating_"+targetid).val();
+                                        var ids=targetid.split("_");
+                                        if(ids[1].length < 1 || ids[0].length < 1 ){
+                                        return;
+                                        }
+                                        if(val.length >0){
+					sharedFunctions.requestAjax("post", "index.php?module=reporting/fillreport&action=do_ratesegment", "target="+ids[0]+"&value="+val+"&repid="+ids[1], returndiv, returndiv, "html");
+                                        }
+				});';
+                        $criteriaandstars .= '<input type="range" min="0" max="5" value="'.$ratingval.'" step="1" id="rating_'.$segment['psid'].'_'.$marketreport[$segment['psid']]['mrid'].'" class="ratingscale">';
+                        $criteriaandstars .= '<div class="rateit" data-rateit-starwidth="18" data-rateit-starheight="16" data-rateit-ispreset="true" data-rateit-resetable="false" data-rateit-backingfld="#rating_'.$segment['psid'].'_'.$marketreport[$segment['psid']]['mrid'].'" data-rateit-value="'.$marketreport[$segment['psid']]['rating'].'"></div>';
+                    }
+                    $criteriaandstars .= '</div></div>';
+                    // $criteriaandstars .='<input type="hidden" name="marketreport['.$segment[psid].'][rating]" id="segmentrating_'.$segment['psid'].'" value="'.$ratingval.'">';
+                }
                 $segment['title'] = $lang->unspecifiedsegment;
                 eval("\$markerreport_fields .= \"".$template->get('reporting_fillreports_marketreport_fields')."\";");
+                unset($criteriaandstars);
             }
         }
         else {
