@@ -153,10 +153,6 @@ if(!$core->input['action']) {
             }
         }
 
-        if($core->usergroup['canExcludeFillStages'] == 1) {
-            $exludestage = '<br /><input type="checkbox" value="1" name="excludeProductsActivity" id="excludeProductsActivity" title="'.$lang->exclude_tip.'"> '.$lang->excludeproductsactivity;
-        }
-
         $generic_attributes = array('gpid', 'title');
         $generic_order = array(
                 'by' => 'title',
@@ -429,7 +425,9 @@ if(!$core->input['action']) {
             $mom_followupactions .= $mom_obj->parse_actions('QR', $momactions);
         }
         /* Parse MOM Specific Follow Up Actions - end */
-
+        if($core->input['transFill'] == 1) {
+            $transfill = 1;
+        }
         eval("\$marketreportpage .= \"".$template->get('reporting_fillreports_marketreport')."\";");
         eval("\$fillreportpage = \"".$template->get('reporting_fillreports_tabs')."\";");
     }
@@ -1270,6 +1268,7 @@ else {
                 $reportobj = $productactivity_obj->get_report();
                 $affiliate = new Affiliates($reportobj->affid);
                 $year = $reportobj->year;
+                $quarter = $reportobj->quarter;
                 $currency = $productactivity_obj->originalCurrency;
                 $auditors = $reportobj->get_report_supplier_audits();
                 if(is_array($auditors)) {
