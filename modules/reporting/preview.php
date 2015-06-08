@@ -16,7 +16,7 @@ if($core->usergroup['canFillReports'] == 0 && $core->usergroup['reporting_canVie
     exit;
 }
 
-$session->start_phpsession();
+//$session->start_phpsession();
 if(!$core->input['action']) {
     $default_rounding = 2; //Later a setting
     $reportcache = new Cache();
@@ -79,7 +79,7 @@ if(!$core->input['action']) {
             $session_identifier = md5(uniqid(microtime()));
             $newreport = new ReportingQr(array('year' => $core->input['year'], 'spid' => $report_param['spid'], 'affid' => $report_param['affid'], 'quarter' => $core->input['quarter']));
             $report = $newreport->get();
-            $session->set_phpsession(array('reportmeta_'.$session_identifier => serialize($report)));
+            // $session->set_phpsession(array('reportmeta_'.$session_identifier => serialize($report)));
             $report['affiliates'] = $newreport->get_report_affiliate();
             if($core->usergroup['canGenerateReports'] == 1 || $core->usergroup['canFillReports'] == 1) {
                 $newreport->read_products_activity(true);
@@ -139,38 +139,41 @@ if(!$core->input['action']) {
             $report['affiliates'] = $newreport->get_report_affiliate();
             $report['supplier'] = $newreport->get_report_supplier();
             $identifier = $db->escape_string($core->input['identifier']);
-            $session_identifier = $identifier;
-            $report_meta = unserialize($session->get_phpsession('reportmeta_'.$identifier));
-            if(isset($report_meta['auditor']) && !empty($report_meta['auditor'])) {
-                $options['isauditor'] = $report_meta['auditor'];
-                $options['transFill'] = $report_meta['transFill'];
-            }
-            /* read productsactivity from fill  data session */
-            if($session->isset_phpsession('productsactivitydata_'.$identifier)) {
-                $productsactivity = unserialize($session->get_phpsession('productsactivitydata_'.$identifier));
-                $report_meta['excludeProductsActivity'] = $productsactivity['excludeProductsActivity'];
-                unset($productsactivity['module']);
-                $report['productsactivity'] = $reportdata['productactivitydata'] = $productsactivity['productactivity'];
 
-                /* Insert produt data coming from the session those are not saved yet --START */
-                if(is_array($productsactivity['productactivity'])) {
-                    $newreport->save_productactivity($productsactivity['productactivity'], unserialize($session->get_phpsession('reportcurrencies_'.$identifier)), $options);
-                }
-                /* Insert produt data coming from the session those are not saved yet --END */
-                $newreport->read_products_activity(true);
-                $report['items'] = $newreport->get_classified_productsactivity();
-                $report['itemsclasses'] = $newreport->get_classified_classes();
+            /** CHECK
+              //            $session_identifier = $identifier;
+              //            $report_meta = unserialize($session->get_phpsession('reportmeta_'.$identifier));
+              //            if(isset($report_meta['auditor']) && !empty($report_meta['auditor'])) {
+              //                $options['isauditor'] = $report_meta['auditor'];
+              //                $options['transFill'] = $report_meta['transFill'];
+              //            }
+              /* read productsactivity from fill  data session */
+            //  if($session->isset_phpsession('productsactivitydata_'.$identifier)) {
+            // $productsactivity = unserialize($session->get_phpsession('productsactivitydata_'.$identifier));
+            $productsactivity = ProductsActivity::get_data(array('rid' => $core->input['rid']), array('returmarray' => true));
+            //  $report_meta['excludeProductsActivity'] = $productsactivity['excludeProductsActivity'];
+            //  unset($productsactivity['module']);
+            $report['productsactivity'] = $reportdata['productactivitydata'] = $productsactivity; // ['productactivity'];
+
+            /* Insert produt data coming from the session those are not saved yet --START */
+            if(is_array($productsactivity)) {
+                $newreport->save_productactivity($productsactivity['productactivity'], unserialize($session->get_phpsession('reportcurrencies_'.$identifier)), $options);
             }
+            /* Insert produt data coming from the session those are not saved yet --END */
+            $newreport->read_products_activity(true);
+            $report['items'] = $newreport->get_classified_productsactivity();
+            $report['itemsclasses'] = $newreport->get_classified_classes();
+            //  }
             /* read keycustomersdata from fill  data session */
-            if($session->isset_phpsession('keycustomersdata_'.$identifier)) {
-                $keycustomersdata = unserialize($session->get_phpsession('keycustomersdata_'.$identifier));
-                $report_meta['excludeKeyCustomers'] = $core->input['incKeyCustomers'] = $keycustomersdata['excludeKeyCustomers'];
-
-                if(empty($report_meta['excludeKeyCustomers'])) {
-                    $report['keycustomers'] = $reportdata['keycustomersdata'] = $keycustomersdata['keycustomers'];
-                }
-                unset($keycustomersdata['module']);
-            }
+//            if($session->isset_phpsession('keycustomersdata_'.$identifier)) {
+//                $keycustomersdata = unserialize($session->get_phpsession('keycustomersdata_'.$identifier));
+//                $report_meta['excludeKeyCustomers'] = $core->input['incKeyCustomers'] = $keycustomersdata['excludeKeyCustomers'];
+//
+//                if(empty($report_meta['excludeKeyCustomers'])) {
+//                    $report['keycustomers'] = $reportdata['keycustomersdata'] = $keycustomersdata['keycustomers'];
+//                }
+//                unset($keycustomersdata['module']);
+//            }
 
             /* Set the marketrport data by serializing the inputs in the stage market report */
             if(strpos(strtolower($_SERVER['HTTP_REFERER']), 'marketreport') !== false) {
@@ -180,8 +183,8 @@ if(!$core->input['action']) {
                 $session->set_phpsession(array('marketreport_'.$identifier => $marketreportdata));
             }
 
-            $session->set_phpsession(array('reportmeta_'.$session_identifier => serialize($report_meta)));
-            $session->set_phpsession(array('reportrawdata_'.$session_identifier => serialize($reportdata)));
+            //    $session->set_phpsession(array('reportmeta_'.$session_identifier => serialize($report_meta)));
+            //   $session->set_phpsession(array('reportrawdata_'.$session_identifier => serialize($reportdata)));
         }
 
         $reports_meta_data['rid'][] = $report['rid'];

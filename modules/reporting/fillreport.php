@@ -19,25 +19,25 @@ if($core->usergroup['canFillReports'] == 0) {
 }
 
 //$session->name_phpsession(COOKIE_PREFIX.'fillquarterreport'.$core->user['uid']);
-$session->start_phpsession();
+//$session->start_phpsession();
 
 $lang->load('reporting_fillreport');
 if(!$core->input['action']) {
     //$headerinc .= "<link href='{$core->settings[rootdir]}/css/jqueryuitheme/jquery-ui-1.7.2.custom.css' rel='stylesheet' type='text/css' />";
 
     if($core->input['stage'] == 'productsactivity') {
-        if(isset($core->input['identifier']) && !empty($core->input['identifier'])) {
-            $identifier = $db->escape_string($core->input['identifier']);
+        // if(isset($core->input['identifier']) && !empty($core->input['identifier'])) {
+        // $identifier = $db->escape_string($core->input['identifier']);
 //            $core->input = unserialize($session->get_phpsession('reportmeta_'.$identifier));
+        //  }
+        //  else {
+        if(!isset($core->input['year'], $core->input['quarter'], $core->input['spid'], $core->input['affid'])) {
+            redirect('index.php?module=reporting/fillreport');
         }
         else {
-            if(!isset($core->input['year'], $core->input['quarter'], $core->input['spid'], $core->input['affid'])) {
-                redirect('index.php?module=reporting/fillreport');
-            }
-            else {
-                $identifier = md5(uniqid(microtime()));
-            }
+            $identifier = md5(uniqid(microtime()));
         }
+        //    }
 
         $saletypes = explode(';', $core->settings['saletypes']);
         foreach($saletypes as $key => $val) {
@@ -637,15 +637,16 @@ if(!$core->input['action']) {
             $session->set_phpsession(array('productsactivitydata_'.$identifier => $productsactivitydata));
         }
 
-        if(!isset($core->input['rid'])) {
-            $report_meta = unserialize($session->get_phpsession('reportmeta_'.$identifier));
-            if(!isset($report_meta['rid'])) {
-                redirect('index.php?module=reporting/fillreport');
-            }
-            else {
-                $core->input['rid'] = $report_meta['rid'];
-            }
-        }
+        ///***************************
+//        if(!isset($core->input['rid'])) {
+//            $report_meta = unserialize($session->get_phpsession('reportmeta_'.$identifier));
+//            if(!isset($report_meta['rid'])) {
+//                redirect('index.php?module=reporting/fillreport');
+//            }
+//            else {
+//                $core->input['rid'] = $report_meta['rid'];
+//            }
+//        }
         //create_cookie('rid', $core->input['rid'], (time() + (60*$core->settings['idletime']*2)));
 
         $rid = $db->escape_string($core->input['rid']);
@@ -694,7 +695,7 @@ if(!$core->input['action']) {
 
         $report_meta = unserialize($session->get_phpsession('reportmeta_'.$identifier));
         /* If supplier does not have contract and contract Expired -START */
-        $entity = new Entities($report_meta['spid'], '', false);
+        $entity = new Entities($reportmeta['spid'], '', false);
         $entity_data = $entity->get();
         //|| (!empty($entity_data['contractExpiryDate'] && TIME_NOW > $entity_data['contractExpiryDate'])
         if(empty($entity_data['contractFirstSigDate']) && $entity_data['contractIsEvergreen'] != 1) {// && !empty($entity_data['contractExpiryDate']
@@ -852,7 +853,7 @@ else {
         }
         /* Validate Forecasts - End */
 
-        if($report_meta['auditor'] != '1') {
+        if($reportmeta['auditor'] != '1') {
             $existingentries_query_string = ' AND (uid='.$core->user['uid'].' OR uid=0)';
         }
         //$oldentries = get_specificdata('productsactivity', array('paid'), 'paid', 'paid', '', 0, "rid='{$rid}'{$oldentries_query_string}");
@@ -1236,8 +1237,8 @@ else {
 
         $report_meta = unserialize($session->get_phpsession('reportmeta_'.$identifier));
 
-        $report_meta['rid'] = intval($report_meta['rid']);
-
+        //$report_meta['rid'] = intval($report_meta['rid']);
+        $report_meta['rid'] = intval($core->input['rid']);
         $report = new ReportingQr(array('rid' => $report_meta['rid']));
         $currencies = unserialize($session->get_phpsession('reportcurrencies_'.$identifier));
 
@@ -1253,12 +1254,13 @@ else {
             exit;
         }
 
-        if(empty($report_meta['excludeProductsActivity'])) {
-            if(empty($rawdata['productactivitydata'])) {
-                output_xml("<status>false</status><message>{$lang->productsdataempty}</message>");
-                exit;
-            }
-        }
+        /* remove exclude product activity check */
+//        if(empty($report_meta['excludeProductsActivity'])) {
+//            if(empty($rawdata['productactivitydata'])) {
+//                output_xml("<status>false</status><message>{$lang->productsdataempty}</message>");
+//                exit;
+//            }
+//        }
 //        if(empty($report_meta['excludeKeyCustomers'])) {
 //            if(empty($rawdata['keycustomersdata'])) {
 //                output_xml("<status>false</status><message>{$lang->keycustomersempty}</message>");
@@ -1271,62 +1273,63 @@ else {
         }
 
 //$db->query("DELETE FROM ".Tprefix."productsactivity WHERE rid='{$rawdata[rid]}'{$products_deletequery_string}");
-        if(empty($report_meta['excludeProductsActivity'])) {
-            $productsactivity_validation = $report->validate_forecasts($rawdata['productactivitydata'], $currencies);
-            if($productsactivity_validation !== true) {
-                output_xml("<status>false</status><message>{$lang->wrongforecastgoback}</message>");
-                exit;
+        ////if(empty($report_meta['excludeProductsActivity'])) {
+        $productsactivity_validation = $report->validate_forecasts($rawdata['productactivitydata'], $currencies);
+        if($productsactivity_validation !== true) {
+            output_xml("<status>false</status><message>{$lang->wrongforecastgoback}</message>");
+            exit;
+        }
+        foreach($rawdata['productactivitydata'] as $i => $newdata) {
+            if(empty($newdata['pid'])) {
+                if(!empty($newdata['paid'])) {
+                    $db->query("DELETE FROM ".Tprefix."productsactivity WHERE paid=".intval($newdata['paid']));
+                }
+                continue;
             }
-            foreach($rawdata['productactivitydata'] as $i => $newdata) {
-                if(empty($newdata['pid'])) {
-                    if(!empty($newdata['paid'])) {
-                        $db->query("DELETE FROM ".Tprefix."productsactivity WHERE paid=".intval($newdata['paid']));
-                    }
-                    continue;
-                }
-                if(isset($newdata['fxrate']) && $newdata['fxrate'] != 1) {
-                    $newdata['turnOverOc'] = $newdata['turnOver'];
-                    $newdata['turnOver'] = round($newdata['turnOver'] / $newdata['fxrate'], 4);
-                    $newdata['originalCurrency'] = $currencies[$newdata['fxrate']];
-                }
+            if(isset($newdata['fxrate']) && $newdata['fxrate'] != 1) {
+                $newdata['turnOverOc'] = $newdata['turnOver'];
+                $newdata['turnOver'] = round($newdata['turnOver'] / $newdata['fxrate'], 4);
+                $newdata['originalCurrency'] = $currencies[$newdata['fxrate']];
+            }
 
-                unset($newdata['productname'], $newdata['fxrate']);
-                if(value_exists('productsactivity', 'rid', $report_meta['rid'], 'pid='.$newdata['pid'].$products_deletequery_string)) {
-                    if(isset($newdata['paid']) && !empty($newdata['paid'])) {
-                        $update_query_where = 'paid='.$db->escape_string($newdata['paid']);
-                    }
-                    else {
-                        unset($newdata['paid']);
-                        $update_query_where = 'rid='.$report_meta['rid'].' AND pid='.$newdata['pid'].$products_deletequery_string;
-                    }
-
-                    $update = $db->update_query('productsactivity', $newdata, $update_query_where);
+            unset($newdata['productname'], $newdata['fxrate']);
+            if(value_exists('productsactivity', 'rid', $report_meta['rid'], 'pid='.$newdata['pid'].$products_deletequery_string)) {
+                if(isset($newdata['paid']) && !empty($newdata['paid'])) {
+                    $update_query_where = 'paid='.$db->escape_string($newdata['paid']);
                 }
                 else {
-                    $newdata['uid'] = $core->user['uid'];
-
-                    $db->insert_query('productsactivity', $newdata);
-                    $cachearr['usedpaid'][] = $db->last_id();
+                    unset($newdata['paid']);
+                    $update_query_where = 'rid='.$report_meta['rid'].' AND pid='.$newdata['pid'].$products_deletequery_string;
                 }
 
-                $cachearr['usedpids'][] = $newdata['pid'];
-                if(isset($newdata['paid']) && !empty($newdata['paid'])) {
-                    $cachearr['usedpaid'][] = $newdata['paid'];
-                }
+                $update = $db->update_query('productsactivity', $newdata, $update_query_where);
             }
+            else {
+                $newdata['uid'] = $core->user['uid'];
+
+                $db->insert_query('productsactivity', $newdata);
+                $cachearr['usedpaid'][] = $db->last_id();
+            }
+
+            $cachearr['usedpids'][] = $newdata['pid'];
+            if(isset($newdata['paid']) && !empty($newdata['paid'])) {
+                $cachearr['usedpaid'][] = $newdata['paid'];
+            }
+        }
 
 //            if(is_array($cachearr['usedpaid'])) {
 //                $delete_query_where = ' OR paid NOT IN ('.implode(', ', $cachearr['usedpaid']).')';
 //                $db->query("DELETE FROM ".Tprefix."productsactivity WHERE rid='{$report_meta[rid]}' AND (pid NOT IN (".implode(', ', $cachearr['usedpids'])."){$delete_query_where}){$products_deletequery_string}");
 //            }
-        }
-        else {
-            if($report_meta['auditor'] != '1') {
-                $products_deletequery_string = ' AND (uid='.$core->user['uid'].' OR uid=0)';
-            }
-            $db->query("DELETE FROM ".Tprefix."productsactivity WHERE rid='{$report_meta[rid]}'".$products_deletequery_string);
-        }
-
+        ////  }
+        ////**** no more exclude product activity
+//        else {
+//            if($report_meta['auditor'] != '1') {
+//                $products_deletequery_string = ' AND (uid='.$core->user['uid'].' OR uid=0)';
+//            }
+//            $db->query("DELETE FROM ".Tprefix."productsactivity WHERE rid='{$report_meta[rid]}'".$products_deletequery_string);
+//        }
+        ///********
 //        $db->query("DELETE FROM ".Tprefix."keycustomers WHERE rid='{$report_meta[rid]}'");
 //        if(empty($report_meta['excludeKeyCustomers'])) {
 //            if(is_array($rawdata['keycustomersdata'])) {
