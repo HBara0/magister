@@ -97,4 +97,41 @@ class CmsMenuItems extends AbstractClass {
         return $this->data[self::DISPLAY_NAME];
     }
 
+    /**
+     * recursive function
+     * @global type $db
+     * @param type $todelete
+     * @return boolean
+     */
+    public function delete_menuitem($todelete) {
+        global $db;
+        $attributes = array('cmsmiid');
+        foreach($attributes as $attribute) {
+            $tables = $db->get_tables_havingcolumn($attribute, 'TABLE_NAME !="cms_menuitems"');
+            if(is_array($tables)) {
+                foreach($tables as $table) {
+                    $query = $db->query("SELECT * FROM ".Tprefix.$table." WHERE ".$attribute."=".$todelete." ");
+                    if($db->num_rows($query) > 0) {
+                        $this->errorcode = 3;
+                        return false;
+                    }
+                }
+            }
+        }
+        $menuitems = CmsMenuItems::get_data(array('parent' => $todelete), array('returnarray' => true));
+        if(is_array($menuitems)) {
+            foreach($menuitems as $menuitem) {
+                $menuitemtodelete = $menuitem->delete_menuitem($menuitem->cmsmiid);
+                if(!$menuitemtodelete) {
+                    return false;
+                }
+            }
+        }
+        $delete = $this->delete();
+        if($delete) {
+            $this->errorcode = 0;
+            return true;
+        }
+    }
+
 }

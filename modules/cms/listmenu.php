@@ -79,4 +79,24 @@ elseif($core->input['action'] == 'viewmenuitem') {
         echo($menu_lists);
     }
 }
+elseif($core->input['action'] == "get_deletemenuitem") {
+    $id = $core->input['id'];
+    eval("\$deletemenuitem = \"".$template->get('popup_cms_deletemenuitem')."\";");
+    output_page($deletemenuitem);
+}
+elseif($core->input['action'] == "do_deletemenuitem") {
+    $id = $db->escape_string($core->input['todelete']);
+    if(empty($id) || $id < 1) {
+        output_xml("<status>false</status><message>".$lang->cannotdeleteentry."</message>");
+    }
+    $menuitem = new CmsMenuItems($id);
+
+    $menuitem = $menuitem->delete_menuitem($id);
+    if($menuitem) {
+        output_xml('<status>true</status><message>'.$lang->successfullydeleted.'</message>');
+    }
+    else {
+        output_xml("<status>false</status><message>".$lang->cannotdeleteentry."</message>");
+    }
+}
 ?>

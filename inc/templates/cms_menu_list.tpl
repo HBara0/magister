@@ -8,11 +8,11 @@
     <tr>
         {$menu}
     <script>
-        $(function() {
+        $(function () {
             function closedialog() {
                 $("#popup_createmenu").dialog("destroy");
             }
-            $("a[id^=mainmenu_]").live('click', function() {
+            $("a[id^=mainmenu_]").live('click', function () {
                 var id = $(this).attr('rel'); /*take the id of clicked link*/
                 $(this).data('newsid', id);
                 contentId = "item_result_" + $(this).data('newsid');
@@ -57,6 +57,7 @@
     </td>
 </tr>
 {$footer}
+{$deletemenuitem}
 </body>
 </html>
 
