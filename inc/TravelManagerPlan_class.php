@@ -410,6 +410,9 @@ class TravelManagerPlan {
                 $segment_planobj = $segment_planobj->save();
 // $segment_planobj->create($segmentdata);
                 $this->errorode = $segment_planobj->get_errorcode();
+                if($this->errorode != 0) {
+                    return $this;
+                }
             }
         }
     }

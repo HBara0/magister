@@ -56,7 +56,15 @@
                 <table width="100%" border="0" cellspacing="0" cellpadding="2">
                     <thead>
                         <tr>
-                            <td class=" border_right" align="center" rowspan="2" valign="top" align="left" style="width:50px;">{$lang->delete}</td>
+                            <td colspan="2"></td>
+                            <td colspan="{$curryear_countmonths}" class="yellowbackground" style="text-align: center;">
+                                {$currentyear}
+                            </td>
+                            <td colspan="{$nextyear_countmonths}" class="altrow2" style="text-align: center">
+                                {$nextyear}
+                            </td>
+                        </tr>
+                        <tr>
                             <td class=" border_right" align="center" rowspan="2" valign="top" align="left">{$lang->product}<a href="index.php?module=contents/addproducts&amp;referrer=budgeting" target="_blank"><img src="images/addnew.png" border="0" alt="{$lang->add}"></a></td>
                             <td class=" border_right" align="center" rowspan="2" valign="top" align="left">{$lang->saletype}</td>
                             <td class=" border_right" align="center" rowspan="2" valign="top" align="left">{$mon1}</td>
