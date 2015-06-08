@@ -313,7 +313,7 @@
         <td class="contentContainer" colspan="2">
             <h1>{$lang->plantrip}</h1>
             {$leave_ouput}
-            <form name="perform_travelmanager/plantrip_Form" id="perform_travelmanager/plantrip_Form" novalidate action="#" method="post">
+            <form name="perform_travelmanager/plantrip_Form" id="perform_travelmanager/plantrip_Form" action="#" method="post">
                 <div style='margin-top: 10px; '>
                     <a id="createtab" class="showpopup" href="#"><img border="0" alt="{$lang->addsegment}" src="images/addnew.png"> {$lang->addsegment}</a>
                 </div>
