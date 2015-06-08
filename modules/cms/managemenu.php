@@ -24,7 +24,6 @@ if(!$core->input['action']) {
         if(isset($core->input['id']) && !empty($core->input['id'])) {
             $menu_id = $db->escape_string($core->input['id']);
         }
-
         $query = $db->query("SELECT cmsmiid, title, parent FROM ".Tprefix." cms_menuitems WHERE cmsmid =".$menu_id." ORDER BY title ASC");
         while($parentmenu = $db->fetch_assoc($query)) {
             $parentmenus[$parentmenu['cmsmiid']] = $parentmenu;
@@ -94,10 +93,68 @@ if(!$core->input['action']) {
             $webpages = get_specificdata('cms_pages', array('alias', 'title'), 'alias', 'title', array('by' => 'title', 'sort' => 'ASC'), 0);
             $list_webpages = parse_selectlist('menuitem[configurations][webpage]', 1, array(0 => '') + $webpages, 0);
 
+            if(isset($menuitem_obj->type) && !empty($menuitem_obj->type)) {
+                switch($menuitem_obj->type) {
+                    case "webpage":
+                    case "branchprofile":
+                    case "singlesegment":
+                    case "singlesegmentcategory":
 
-            eval("\$createmenuitem =\"".$template->get('cms_menu_create_item')."\";");
-            output_page($createmenuitem);
+                        $selectedoption = unserialize(base64_decode($menuitem_obj->configurations));
+                        $selectedtype = '$("input[id=\''.$menuitem_obj->type.'_type\']").prop("checked",true);';
+                        $selectedtype.='$("#'.$menuitem_obj->type.'_configuration").show();';
+                        $selectedtype.=' $("select[name =\'menuitem[configurations]['.$menuitem_obj->type.']\']").find("option[value = \''.$selectedoption.'\']").attr("selected",true);';
+                        break;
+                    case "listaffiliates":
+                        $selectedoptions = unserialize(base64_decode($menuitem_obj->configurations));
+                        $selectedtype = '$("input[id=\''.$menuitem_obj->type.'_type\']").prop("checked",true);';
+                        $selectedtype.='$("#'.$menuitem_obj->type.'_configuration").show();';
+                        if(is_array($selectedoptions)) {
+                            foreach($selectedoptions as $selectedoption) {
+                                $selectedtype.=' $("select[name =\'menuitem[configurations][affiliate][]\']").find("option[value = \''.$selectedoption.'\']").attr("selected",true);';
+                            }
+                        }
+                        else {
+                            $selectedtype.=' $("select[name =\'menuitem[configurations][affiliate]\']").find("option[value = \''.$selectedoptions.'\']").attr("selected",true);';
+                        }
+                        break;
+                    case "segmentslist":
+                    case "segmentcatslist":
+                        $selectedoptions = unserialize(base64_decode($menuitem_obj->configurations));
+                        $selectedtype = '$("input[id=\''.$menuitem_obj->type.'_type\']").prop("checked",true);';
+                        $selectedtype.='$("#'.$menuitem_obj->type.'_configuration").show();';
+                        if(is_array($selectedoptions)) {
+                            foreach($selectedoptions as $selectedoption) {
+                                $selectedtype.=' $("select[name =\'menuitem[configurations]['.$menuitem_obj->type.'][]\']").find("option[value = \''.$selectedoption.'\']").attr("selected",true);';
+                            }
+                        }
+                        else {
+                            $selectedtype.=' $("select[name =\'menuitem[configurations][affiliate]\']").find("option[value = \''.$selectedoptions.'\']").attr("selected",true);';
+                        }
+                        break;
+                    case "externalurl":
+                        $selectedtype.='$("#'.$menuitem_obj->type.'_configuration").show();';
+                        $selectedtype.= '$("input[id=\''.$menuitem_obj->type.'_type\']").prop("checked",true);';
+                        $selectedoptions = unserialize(base64_decode($menuitem_obj->configurations));
+                        if(is_array($selectedoptions)) {
+                            foreach($selectedoptions as $type => $selectedoption) {
+                                $selectedtype.='$("input[name=\'menuitem[configurations][externalurl]['.$type.']\']").val("'.$selectedoption.'");';
+                            }
+                        }
+                        break;
+
+                    case "contact":
+                    case "listnews":
+                    case "events":
+                    case "newsarchive":
+                    case "eventsarchive":
+                        $selectedtype.= '$("input[id=\''.$menuitem_obj->type.'_type\']").prop("checked",true);';
+                        break;
+                }
+            }
         }
+        eval("\$createmenuitem =\"".$template->get('cms_menu_create_item')."\";");
+        output_page($createmenuitem);
     }
 }
 else {
