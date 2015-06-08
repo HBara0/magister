@@ -516,6 +516,43 @@ if(!$core->input['action']) {
 
         $report_meta = unserialize($session->get_phpsession('reportmeta_'.$identifier));
 
+
+        /* Parse MOM Specific Follow Up Actions - START */
+        $quarter_start = strtotime($core->input['year'].'-'.$core->settings['q'.$core->input['quarter'].'start']);
+        $quarter_end = strtotime($core->input['year'].'-'.$core->settings['q'.$core->input['quarter'].'end']);
+        $momactions_where = '(date BETWEEN '.$quarter_start.' AND '.$quarter_end.') AND momid=(select momid from meetings_minsofmeeting where mtid IN '
+                .'(select mtid from meetings_associations where idAttr="spid" AND id='.$reportmeta[spid].'))';
+        $momactions = MeetingsMOMActions::get_data($momactions_where, array('returnarray' => true, 'operators' => array('filter' => CUSTOMSQLSECURE)));
+        if(is_array($momactions)) {
+            foreach($momactions as $key => $actions) {
+                /* The actions are associated to the QR affiliate (primarily) or its employees are assigned to the actions (secondary) */
+                $meetings_affassociations = MeetingsAssociations::get_data(array('id' => $reportmeta[affid], 'idAttr' => 'affid', 'mtid' => 'mtid=(select mtid from meetings_minsofmeeting where momid='.$actions->momid.')'), array('returnarray' => true, 'operators' => array('mtid' => 'CUSTOMSQL')));
+                //If actions are associated to the QR affiliate -> continue
+                if(is_array($meetings_affassociations)) {
+                    continue;
+                }
+                //Else check if employees of the QR aff are assigned to the actions
+                $employeesassigned = false;
+                $momactionsassignees = MeetingsMOMActionAssignees::get_data(array('momaid' => $actions->momaid), array('returnarray' => true));
+                if(is_array($momactionsassignees)) {
+                    foreach($momactionsassignees as $assignee) {
+                        if(isset($assignee->uid) && !empty($assignee->uid)) {
+                            $user = new Users($assignee->uid);
+                            if(is_object($user) && $user->get_mainaffiliate()->affid == $reportmeta['affid']) {
+                                $employeesassigned = true;
+                            }
+                        }
+                    }
+                }
+                if(!$employeesassigned) {
+                    unset($momactions[$key]); // if no aff or employees associations do not parse actions
+                }
+            }
+            $mom_obj = new MeetingsMOM();
+            $mom_followupactions .= $mom_obj->parse_actions('QR', $momactions);
+        }
+        /* Parse MOM Specific Follow Up Actions - end */
+
         eval("\$marketreportpage .= \"".$template->get('reporting_fillreports_marketreport')."\";");
         eval("\$fillreportpage = \"".$template->get('reporting_fillreports_tabs')."\";");
     }
@@ -1462,4 +1499,81 @@ else {
         eval("\$customer_product_row= \"".$template->get('reporting_marketreport_devprojects_custproducts')."\";");
         echo $customer_product_row;
     }
+    elseif($core->input['action'] == 'do_ratesegment') {
+        $mrid = $db->escape_string($core->input['repid']);
+        $psid = $db->escape_string($core->input['target']);
+        $marketreport_obj = MarketReport::get_data(array('mrid' => $mrid));
+        if(is_object($marketreport_obj)) {
+            $marketreport_obj->rating = $core->input['value'];
+            $marketreport_obj->save();
+        }
+    }
+    elseif($core->input['action'] == 'get_reportinconsistency') {
+        $paid = $db->escape_string($core->input['id']);
+        $productactivity_obj = new ProductsActivity($db->escape_string($paid), false);
+        $product = $productactivity_obj->get_product()->get_displayname();
+        $reportobj = $productactivity_obj->get_report();
+        $affiliate = new Affiliates($reportobj->affid);
+        $affiliatename = $affiliate->get_displayname();
+        $reportyear = $reportobj->year;
+        eval("\$report_inc = \"".$template->get('popup_fillreport_reportinconsistency')."\";");
+        output($report_inc);
+    }
+    elseif($core->input ['action'] == 'do_reportinconsistency') {
+        if(is_array($core->input['productsactivity'])) {
+            $productactivity_obj = new ProductsActivity($db->escape_string($core->input['productsactivity']['paid']), false);
+            if(is_object($productactivity_obj)) {
+                $reportobj = $productactivity_obj->get_report();
+                $affiliate = new Affiliates($reportobj->affid);
+                $year = $reportobj->year;
+                $quarter = $reportobj->quarter;
+                $currency = $productactivity_obj->originalCurrency;
+                $auditors = $reportobj->get_report_supplier_audits();
+                if(is_array($auditors)) {
+                    foreach($auditors as $key => $val) {
+                        if(is_array($val)) {
+                            $ccs[] = $val['email'];
+                        }
+                        else {
+                            $ccs[] = $auditors['email'];
+                            break;
+                        }
+                    }
+                }
+                if(isset($currency) && !empty($currency)) {
+                    $currency_obj = new Currencies($currency);
+                    $selectedcur = $currency_obj->get_displayname();
+                }
+                else {
+                    $selectedcur = 'USD';
+                }
+                if(isset($core->input['productsactivity'] ['comment']) && !empty($core->input['productsactivity']['comment'])) {
+                    $comment = $core->input['productsactivity']['comment'];
+                }
+                else
+                    $comment = 'NA';
+                $user = new Users($core->user['uid']);
+                eval("\$email_message .= \"".$template->get('reporting_reportinginconsistency')."\";");
+                $mailer = new Mailer();
+                $mailer = $mailer->get_mailerobj();
+                $mailer->set_to('ocos.support@orkila.com');
+                $mailer->set_cc($ccs);
+                $mailer->set_from(array('name' => $user->get_displayname(), 'email' => $user->email));
+                $mailer->set_subject('QR Product Activity Inconsistency Reported');
+                $mailer->set_message($email_message);
+                $mailer->send();
+                if($mailer->get_status() === true) {
+                    output_xml("<status>true</status><message>{$lang->reportsubmitted}</message>");
+                }
+                else {
+                    output_xml("<status>false</status><message>{$lang->errorreporting}</message>");
+                }
+            }
+            else {
+                output_xml('<status>false</status><message>'.$lang->errorreporting.'</message>');
+                exit;
+            }
+        }
+    }
 }
+?>
