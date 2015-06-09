@@ -9,10 +9,11 @@
     <tr>
         <td style="text-align:right !important;">
           <!--  <input type="button" value="{$lang->prevcaps}" class="button" onClick="goToURL('index.php?module=reporting/fillreport&amp;stage=productsactivity&amp;identifier={$core->input[identifier]}');" />-->
-            <input type="button" id="save_marketreport_reporting/fillreport_Button" value="{$lang->savecaps}" class="button"/>
-            <input type="button" value="{$lang->preview}" class="button" onClick="window.open('index.php?module=reporting/preview&amp;rid={$rid}', '_blank');" /> <br/>
+            <input type="button" id="save_marketreport_reporting/fillreport_Button"  value="{$lang->savecaps}" class="button"/>
+            <input type="hidden" id="previewed_value" name="previewed_marketreport">
+
+            <input type="button" value="{$lang->preview}" class="button" id="previewed_button"/> <br/>
             <div style ="text-align:right; font-style:italic;"><input type="checkbox" name="isDone" id="isDone" value="1" title="{$lang->isdone_tip}"> {$lang->finishedmypart}</div>
-            <div id="save_marketreport_reporting/fillreport_Results"></div>
         </td>
     </tr>
 </table>

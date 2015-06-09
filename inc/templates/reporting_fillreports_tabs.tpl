@@ -10,6 +10,24 @@
                 var tabs = $("#reporttabs").tabs();
                 var tabcounter = tabs.find(".ui-tabs-nav").find('li').length + 1; //find the  lenght of li tabs and increment by 1
             {$header_ratingjs}
+                $('#previewed_button').live('click', function () {
+                    $('input[id="previewed_value"]').each(function (i, obj) {
+                        $(obj).val('1');
+
+                    });
+                    $('input[id="save_productsactivity_reporting/fillreport_Button"]').click();
+                    setTimeout(function () {
+                        $('input[id="save_marketreport_reporting/fillreport_Button"]').click()
+                    }, 2000
+                            );
+
+                    setTimeout(function () {
+                        $('#previewed_value').each(function (i, obj) {
+                            $(obj).val('');
+                        });
+                    }, 4000
+                            );
+                });
             });
         </script>
         <style type="text/css">
@@ -45,7 +63,12 @@
                 </div>
         </td>
     </tr>
-    {$footer}
-    {$addproduct_popup}
+    <tr><td align="center" colspan="3">Product Activity Status:<div id="save_productsactivity_reporting/fillreport_Results"></div>
+    <tr><td align="center" colspan="3">Market Report Status:            <div id="save_marketreport_reporting/fillreport_Results"></div>
+
+
+        </td></tr>
+        {$footer}
+        {$addproduct_popup}
 </body>
 </html>

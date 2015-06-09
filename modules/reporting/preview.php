@@ -176,11 +176,15 @@ if(!$core->input['action']) {
 //            }
 
             /* Set the marketrport data by serializing the inputs in the stage market report */
-            if(strpos(strtolower($_SERVER['HTTP_REFERER']), 'marketreport') !== false) {
-                $marketreportdata = serialize($core->input);
-                $report['marketreports'] = $core->input['marketreport'];
-                $reportdata['marketreportdata'] = $report['marketreports'];
-                $session->set_phpsession(array('marketreport_'.$identifier => $marketreportdata));
+            $marketreports_objs = MarketReport::get_data(array('rid' => $db->escape_string($core->input['rid'])), array('returnarray' => true));
+            if(is_array($marketreports_objs)) {
+                foreach($marketreports_objs as $marketreports_obj) {
+                    $report['marketreports'][$marketreports_obj->mrid] = $report['marketreports'][$marketreports_obj->mrid] = $marketreports_obj->get();
+                }
+//                $marketreportdata = serialize($core->input);
+//                $report['marketreports'] = $core->input['marketreport'];
+//                $reportdata['marketreportdata'] = $report['marketreports'];
+                // $session->set_phpsession(array('marketreport_'.$identifier => $marketreportdata));
             }
 
             //    $session->set_phpsession(array('reportmeta_'.$session_identifier => serialize($report_meta)));
@@ -200,7 +204,6 @@ if(!$core->input['action']) {
         /* Get affiliate currency */
         $report_years = array('current_year' => $report['year'], 'before_1year' => $report['year'] - 1, 'before_2years' => $report['year'] - 2);
         asort($report_years);
-
         $report['quartername'] = 'Q'.$report['quarter'].' '.$report['year'];
         $item = array();
         if($core->usergroup['canGenerateReports'] == 1 || $core->usergroup['canFillReports'] == 1) {
@@ -473,21 +476,27 @@ if(!$core->input['action']) {
                 if($core->usergroup['canGenerateReports'] == 1 || $core->usergroup['canFillReports'] == 1) {
                     eval("\$marketreportbox_other = \"".$template->get('new_reporting_report_marketreportbox_other')."\";");
                 }
-                $marketreport_obj = new MarketReport($mrid);
-                if(is_object($marketreport_obj)) {
-                    $criteriaandstars .= '<div class="evaluation_criterium" name="'.$marketreport_obj->psid.'_'.$mrid.'"><div class="criterium_name" style="display:inline-block; width:30%; padding: 2px;"></div>';
-                    $criteriaandstars .= '<div class="ratebar" style="width:40%; display:inline-block;">';
-                    if(!isset($marketreport_obj->rating) || empty($marketreport_obj->rating)) {
-                        $ratingval = 0;
+                $criteriaandstars .= '<div class="evaluation_criterium" name="'.$marketreport['psid'].'_'.$mrid.'"><div class="criterium_name" style="display:inline-block; width:30%; padding: 2px;"></div>';
+                $criteriaandstars .= '<div class="ratebar" style="width:40%; display:inline-block;">';
+                if(!isset($marketreport['rating']) || empty($marketreport['rating'])) {
+                    $ratingval = 0;
+                }
+                else {
+                    $ratingval = $marketreport['rating'];
+                }
+                $report_obj = new Reporting($marketreport);
+                $audits = $report_obj->get_report_supplier_audits();
+                $auditor = 0;
+                if(is_array($audits)) {
+                    if($audit['uid'] == $core->user['uid']) {
+                        $auditor = 1;
                     }
-                    else {
-                        $ratingval = $marketreport_obj->rating;
-                    }
-                    if($report['auditors']['uid'] != $core->user['uid']) {
-                        $criteriaandstars .= '<div class="rateit" data-rateit-starwidth="18" data-rateit-starheight="16" data-rateit-ispreset="true" data-rateit-readonly="true" data-rateit-value="'.$ratingval.'"></div>';
-                    }
-                    else {
-                        $header_ratingjs = '$(".rateit").click(function() {
+                }
+                if($auditor == 1) {
+                    $criteriaandstars .= '<div class="rateit" data-rateit-starwidth="18" data-rateit-starheight="16" data-rateit-ispreset="true" data-rateit-readonly="true" data-rateit-value="'.$ratingval.'"></div>';
+                }
+                else {
+                    $header_ratingjs = '$(".rateit").click(function() {
 					if(sharedFunctions.checkSession() == false) {
 						return;
 					}
@@ -502,10 +511,10 @@ if(!$core->input['action']) {
 					sharedFunctions.requestAjax("post", "index.php?module=reporting/preview&action=do_ratesegment", "target="+ids[0]+"&value="+val+"&repid="+ids[1], returndiv, returndiv, "html");
                                         }
 				});';
-                        $criteriaandstars .= '<input type="range" min="0" max="5" value="'.$ratingval.'" step="1" id="rating_'.$marketreport_obj->psid.'_'.$mrid.'" class="ratingscale">';
-                        $criteriaandstars .= '<div class="rateit" data-rateit-starwidth="18" data-rateit-starheight="16" data-rateit-ispreset="true" data-rateit-resetable="false" data-rateit-backingfld="#rating_'.$marketreport_obj->psid.'_'.$mrid.'" data-rateit-value="'.$marketreport->rating.'"></div>';
-                    }
+                    $criteriaandstars .= '<input type="range" min="0" max="5" value="'.$ratingval.'" step="1" id="rating_'.$marketreport['psid'].'_'.$mrid.'" class="ratingscale">';
+                    $criteriaandstars .= '<div class="rateit" data-rateit-starwidth="18" data-rateit-starheight="16" data-rateit-ispreset="true" data-rateit-resetable="false" data-rateit-backingfld="#rating_'.$marketreport['psid'].'_'.$mrid.'" data-rateit-value="'.$marketreport['rating'].'"></div>';
                 }
+
                 eval("\$marketreportbox .= \"".$template->get('new_reporting_report_marketreportbox')."\";");
                 unset($mom_followupactions, $criteriaandstars);
             }
@@ -669,21 +678,21 @@ if(!$core->input['action']) {
                     if(is_array($reporting_report_newtotaloverviewbox_row[$aggregate_type][$category])) {
                         $reporting_report_newtotaloverviewbox_row[$aggregate_type][$category] = implode('', $reporting_report_newtotaloverviewbox_row[$aggregate_type][$category]);
                     }
-                    /* Generate Chart */
-                    if($aggregate_type == 'segments') {
-                        $progressionbox_chart = new Charts(array('x' => $report_years, 'y' => $report_charts_data[$aggregate_type][$category]['actual']['y']), 'stackedbar', array('seriesnames' => array(1 => $item['name'])));
-                        $reporting_report_newtotaloverviewbox_chart = '<img src="'.$progressionbox_chart->get_chart().'" />';
-                    }
-                    if($aggregate_type == 'affiliates') {
-                        $progressionbox_chart = new Charts(array('x' => $report_years, 'y' => $report_affiliate_charts_data[$aggregate_type][$category]['actual']['y']), 'linebar', array('seriesnames' => array(1 => $item['name'])));
-                        $reporting_report_newtotaloverviewbox_chart = '<img src="'.$progressionbox_chart->get_chart().'" />';
-                    }
-
-                    eval("\$reporting_report_newtotaloverviewbox[$aggregate_type][$category] = \"".$template->get('new_reporting_report_totaloverviewbox')."\";");
-                    $reporting_report_newtotaloverviewbox_row[$aggregate_type][$category] = array();
-                    $reporting_report_newtotaloverviewbox_chart = '';
-                    $progression_totals['data'] = array();
-                    unset($newtotaloverviewbox_row_percclass);
+//                    /* Generate Chart */
+//                    if($aggregate_type == 'segments') {
+//                        $progressionbox_chart = new Charts(array('x' => $report_years, 'y' => $report_charts_data[$aggregate_type][$category]['actual']['y']), 'stackedbar', array('seriesnames' => array(1 => $item['name'])));
+//                        $reporting_report_newtotaloverviewbox_chart = '<img src="'.$progressionbox_chart->get_chart().'" />';
+//                    }
+//                    if($aggregate_type == 'affiliates') {
+//                        $progressionbox_chart = new Charts(array('x' => $report_years, 'y' => $report_affiliate_charts_data[$aggregate_type][$category]['actual']['y']), 'linebar', array('seriesnames' => array(1 => $item['name'])));
+//                        $reporting_report_newtotaloverviewbox_chart = '<img src="'.$progressionbox_chart->get_chart().'" />';
+//                    }
+//
+//                    eval("\$reporting_report_newtotaloverviewbox[$aggregate_type][$category] = \"".$template->get('new_reporting_report_totaloverviewbox')."\";");
+//                    $reporting_report_newtotaloverviewbox_row[$aggregate_type][$category] = array();
+//                    $reporting_report_newtotaloverviewbox_chart = '';
+//                    $progression_totals['data'] = array();
+//                    unset($newtotaloverviewbox_row_percclass);
                 }
             };
             $toc_data[3]['progressionbyaffiliates'] = array('title' => $lang->progressionyearsby.' '.$lang->affiliates);

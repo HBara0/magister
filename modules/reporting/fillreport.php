@@ -31,7 +31,7 @@ if(!$core->input['action']) {
 //            $core->input = unserialize($session->get_phpsession('reportmeta_'.$identifier));
         //  }
         //  else {
-        if(!isset($core->input['year'], $core->input['quarter'], $core->input['spid'], $core->input['affid'])) {
+        if(!isset($core->input['year'], $core->input['quarter'], $core->input['spid'], $core->input['affid']) || $core->input['year'] == 0) {
             redirect('index.php?module=reporting/fillreport');
         }
         else {
@@ -698,15 +698,8 @@ if(!$core->input['action']) {
         $entity = new Entities($reportmeta['spid'], '', false);
         $entity_data = $entity->get();
         //|| (!empty($entity_data['contractExpiryDate'] && TIME_NOW > $entity_data['contractExpiryDate'])
-        if(empty($entity_data['contractFirstSigDate']) && $entity_data['contractIsEvergreen'] != 1) {// && !empty($entity_data['contractExpiryDate']
-            $exludestage_checked = ' checked="checked"';
-            $excludekeycust_notifymessage = '<div class="ui-state-highlight ui-corner-all" style="padding: 5px; margin-top: 10px; margin-bottom: 10px;"><strong>'.$lang->notcontractedsupp.'</strong></div>';
-        }
 
         /* If supplier does not have contract and contract Expired -END */
-        if($core->usergroup['canExcludeFillStages'] == 1) {
-            $exludestage = '<br /><input type="checkbox" value="1" name="excludeKeyCustomers"'.$exludestage_checked.' style="width:30px;" id="excludeKeyCustomers" title="'.$lang->exclude_tip.'" /> '.$lang->excludekeycustomers;
-        }
 
         //Parse add customer popup
         $affiliates_attributes = array('affid', 'name');
@@ -1179,7 +1172,13 @@ else {
             }
 
             $db->update_query('reports', $new_status, "rid='{$rid}'");
-            output_xml('<status>'.$process_success."</status><message>{$output_message}</message>");
+            if($core->input['previewed_marketreport'] == 1) {
+                $report_obj = new ReportingQReports($rid);
+                if(is_object($report_obj)) {
+                    $action = '<script>window.location = "index.php?module=reporting/preview&rid='.$rid.'"</script>';
+                }
+            }
+            output_xml('<status>'.$process_success."</status><message>{$output_message}<![CDATA[<br />{$action}]]></message>");
         }
         else {
             output_xml("<status>false</status><message>{$lang->saveerror}</message>");
