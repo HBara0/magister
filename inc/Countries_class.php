@@ -121,5 +121,11 @@ class Countries extends AbstractClass {
         return TravelManagerHotels::get_data(array('country' => $this->data['coid'], 'isApproved' => 1), array('returnarray' => true));
     }
 
+    public function get_livedata() {
+        $url = 'https://restcountries.eu/rest/v1/all';
+        $response = file_get_contents($url);
+        return $response;
+    }
+
 }
 ?>

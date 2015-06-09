@@ -117,5 +117,23 @@ else {
         eval("\$addcountry = \"".$template->get('popup_addcountry')."\";");
         output($addcountry);
     }
+    elseif($core->input['action'] == 'update_countrydetails') {
+        $data = json_decode(Countries::get_livedata());
+        if(is_array($data)) {
+            foreach($data as $datarray) {
+                $city_obj = Cities::get_data(array('name' => $datarray->capital));
+                $country_obj = Countries::get_data(array('acronym' => $datarray->alpha2Code), array('returnarray' => false));
+                if(is_object($country_obj)) {
+                    $country = $country_obj->get();
+                    $country['phoneCode'] = $datarray->callingCodes[0];
+                    if(is_object($city_obj)) {
+                        $country['capitalCity'] = $city_obj->ciid;
+                    }
+                    $country_obj->set($country);
+                    $country_obj->save();
+                }
+            }
+        }
+    }
 }
 ?>
