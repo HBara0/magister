@@ -2,10 +2,10 @@
 /*
  * Orkila Central Online System (OCOS)
  * Copyright © 2009 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * List CRM visit reports
  * $module: CRM
- * $id: listvisitreports.php	
+ * $id: listvisitreports.php
  * Created: 	@zaher.reda 	July 27, 2009 | 10:20 AM
  * Last Update: @zaher.reda 	July 06, 2012 | 04:29 PM
  */
@@ -52,6 +52,9 @@ if(!$core->input['action']) {
             $query_where_and = ' AND ';
         }
     }
+    if(isset($query_where) && !empty($query_where)) {
+        $query_or_usercreator = 'OR vr.uid='.$core->user['uid'];
+    }
     /* Perform inline filtering - START */
     $filters_config = array(
             'parse' => array('filters' => array('checkbox', 'customer', 'employee', 'type', 'date'),
@@ -78,10 +81,10 @@ if(!$core->input['action']) {
     /* Perform inline filtering - END */
 
     $query = $db->query("SELECT vr.*, vr.cid AS customer, displayName AS employeename, e.companyName as customername, e.companyNameAbbr
-						 FROM ".Tprefix."visitreports vr 
-						 JOIN ".Tprefix."users u ON (u.uid=vr.uid) 
+						 FROM ".Tprefix."visitreports vr
+						 JOIN ".Tprefix."users u ON (u.uid=vr.uid)
 						 JOIN ".Tprefix."entities e ON (vr.cid=e.eid)
-						 WHERE isDraft=0{$query_where}{$filter_where}
+                                                 WHERE (isDraft=0{$query_where}){$query_or_usercreator}{$filter_where}
 						 ORDER BY {$sort_query}");
 
     if($db->num_rows($query) > 0) {
@@ -173,8 +176,8 @@ else {
             $extra_where .= "  AND vr.cid IN ({$incustomers}) ";
         }
 
-        $query = $db->query("SELECT vr.cid AS customer, vr.spid AS supplier, Concat(u.firstName, ' ', u.lastName) AS employeename, vr.type, vr.date 
-						 FROM ".Tprefix."visitreports vr, ".Tprefix."users u, ".Tprefix."entities e 
+        $query = $db->query("SELECT vr.cid AS customer, vr.spid AS supplier, Concat(u.firstName, ' ', u.lastName) AS employeename, vr.type, vr.date
+						 FROM ".Tprefix."visitreports vr, ".Tprefix."users u, ".Tprefix."entities e
 						 WHERE u.uid=vr.uid AND vr.cid=e.eid {$filter_where}{$extra_where}
 						 ORDER BY {$sort_query}");
 
