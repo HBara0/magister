@@ -23,21 +23,21 @@ if($core->usergroup['canFillReports'] == 0) {
 
 $lang->load('reporting_fillreport');
 if(!$core->input['action']) {
-    //$headerinc .= "<link href='{$core->settings[rootdir]}/css/jqueryuitheme/jquery-ui-1.7.2.custom.css' rel='stylesheet' type='text/css' />";
+//$headerinc .= "<link href='{$core->settings[rootdir]}/css/jqueryuitheme/jquery-ui-1.7.2.custom.css' rel='stylesheet' type='text/css' />";
 
     if($core->input['stage'] == 'productsactivity') {
-        // if(isset($core->input['identifier']) && !empty($core->input['identifier'])) {
-        // $identifier = $db->escape_string($core->input['identifier']);
-//            $core->input = unserialize($session->get_phpsession('reportmeta_'.$identifier));
-        //  }
-        //  else {
-        if(!isset($core->input['year'], $core->input['quarter'], $core->input['spid'], $core->input['affid']) || $core->input['year'] == 0) {
-            redirect('index.php?module=reporting/fillreport');
+        if(isset($core->input['identifier']) && !empty($core->input['identifier'])) {
+            $identifier = $db->escape_string($core->input['identifier']);
+            $core->input = unserialize($session->get_phpsession('reportmeta_'.$identifier));
         }
         else {
-            $identifier = md5(uniqid(microtime()));
+            if(!isset($core->input['year'], $core->input['quarter'], $core->input['spid'], $core->input['affid']) || $core->input['year'] == 0) {
+                redirect('index.php?module=reporting/fillreport');
+            }
+            else {
+                $identifier = md5(uniqid(microtime()));
+            }
         }
-        //    }
 
         $saletypes = explode(';', $core->settings['saletypes']);
         foreach($saletypes as $key => $val) {
@@ -61,7 +61,7 @@ if(!$core->input['action']) {
         $currencies = $currency->get_average_fxrates_transposed(array('GBP', 'EUR'), array('from' => $currencies_from, 'to' => $currencies_to), array('distinct_by' => 'alphaCode', 'precision' => 4));
         $currencies[1] = $core->input['baseCurrency'];
 
-        //** $session->set_phpsession(array('reportcurrencies_'.$identifier => serialize($currencies)));
+//** $session->set_phpsession(array('reportcurrencies_'.$identifier => serialize($currencies)));
         /* Instantiate currencies object and get currencies rate of period - END */
 
         /* Check if audit - START */
@@ -81,8 +81,8 @@ if(!$core->input['action']) {
         }
 
         unset($core->input['module'], $core->input['stage']);
-        //$session->set_phpsession(array('reportmeta_'.$rid => serialize($core->input)));
-        //**  $session->set_phpsession(array('reportmeta_'.$identifier => serialize($core->input)));
+//$session->set_phpsession(array('reportmeta_'.$rid => serialize($core->input)));
+//**  $session->set_phpsession(array('reportmeta_'.$identifier => serialize($core->input)));
 
         $productscount = 6; //Make it a setting
 
@@ -157,13 +157,12 @@ if(!$core->input['action']) {
 
         eval("\$productsactivitypage = \"".$template->get('reporting_fillreports_productsactivity')."\";");
 
-
         /*         * **************88
           // elseif($core->input['stage'] == 'marketreport') {
           //        if(!isset($core->input['identifier'])) {
           //            redirect('index.php?module=reporting/fillreport');
           //        }
-          //        $identifier = $db->escape_string($core->input['identifier']);
+          //       $identifier = $db->escape_string($core->input['identifier']);
           //        if(!isset($core->input['rid'])) {
           //            $report_meta = unserialize($session->get_phpsession('reportmeta_'.$identifier));
           //            if(!isset($report_meta['rid'])) {
@@ -191,7 +190,7 @@ if(!$core->input['action']) {
 
          * * */
 
-        //**   $rid = intval($core->input['rid']);
+//**   $rid = intval($core->input['rid']);
         if(value_exists('marketreport', 'rid', $core->input['rid'])) {
             $ischecked = array();
             $query = $db->query("SELECT mr.*, r.quarter, r.year, r.spid, r.affid
@@ -204,7 +203,7 @@ if(!$core->input['action']) {
             }
         }
 
-        //delete session
+//delete session
 //                  else {
 //                      if($session->isset_phpsession('marketreport_'.$identifier)) {
 //                          $marketreport = unserialize($session->get_phpsession('marketreport_'.$identifier));
@@ -225,8 +224,8 @@ if(!$core->input['action']) {
             }
         }
 
-        // $reportmeta = unserialize($session->get_phpsession('reportmeta_'.$identifier));
-        // $quarter = $reportmeta['quarter'];
+// $reportmeta = unserialize($session->get_phpsession('reportmeta_'.$identifier));
+// $quarter = $reportmeta['quarter'];
 
         $reportmeta = $core->input;
         $quarter = $core->input['quarter'];
@@ -249,8 +248,8 @@ if(!$core->input['action']) {
             $last_report[$lastmarketreports_data['psid']] = $lastmarketreports_data;
         }
 
-        //$segments = get_specificdata('entitiessegments', '*', 'esid', 'psid', '', 0, "eid='{$reportmeta[spid]}'");
-        //foreach($segments as $key => $val) {
+//$segments = get_specificdata('entitiessegments', '*', 'esid', 'psid', '', 0, "eid='{$reportmeta[spid]}'");
+//foreach($segments as $key => $val) {
 
         if($reportmeta['auditor'] == 0) {
             if(!value_exists('suppliersaudits', 'uid', $core->user['uid'], "eid='{$reportmeta[spid]}'")) {
@@ -292,7 +291,7 @@ if(!$core->input['action']) {
                         $criteriaandstars .= '<div class="rateit" data-rateit-starwidth="18" data-rateit-starheight="16" data-rateit-ispreset="true" data-rateit-resetable="false" data-rateit-backingfld="#rating_'.$segment['psid'].'_'.$marketreport[$segment['psid']]['mrid'].'" data-rateit-value="'.$marketreport[$segment['psid']]['rating'].'"></div>';
                     }
                     $criteriaandstars .= '</div></div>';
-                    // $criteriaandstars .='<input type="hidden" name="marketreport['.$segment[psid].'][rating]" id="segmentrating_'.$segment['psid'].'" value="'.$ratingval.'">';
+// $criteriaandstars .='<input type="hidden" name="marketreport['.$segment[psid].'][rating]" id="segmentrating_'.$segment['psid'].'" value="'.$ratingval.'">';
                 }
                 eval("\$markerreport_fields .= \"".$template->get('reporting_fillreports_marketreport_fields')."\";");
                 unset($criteriaandstars);
@@ -531,7 +530,7 @@ if(!$core->input['action']) {
                         $criteriaandstars .= '<div class="rateit" data-rateit-starwidth="18" data-rateit-starheight="16" data-rateit-ispreset="true" data-rateit-resetable="false" data-rateit-backingfld="#rating_'.$segment['psid'].'_'.$marketreport[$segment['psid']]['mrid'].'" data-rateit-value="'.$marketreport[$segment['psid']]['rating'].'"></div>';
                     }
                     $criteriaandstars .= '</div></div>';
-                    // $criteriaandstars .='<input type="hidden" name="marketreport['.$segment[psid].'][rating]" id="segmentrating_'.$segment['psid'].'" value="'.$ratingval.'">';
+// $criteriaandstars .='<input type="hidden" name="marketreport['.$segment[psid].'][rating]" id="segmentrating_'.$segment['psid'].'" value="'.$ratingval.'">';
                 }
                 $segment['title'] = $lang->unspecifiedsegment;
                 eval("\$markerreport_fields .= \"".$template->get('reporting_fillreports_marketreport_fields')."\";");
@@ -593,11 +592,11 @@ if(!$core->input['action']) {
             foreach($momactions as $key => $actions) {
                 /* The actions are associated to the QR affiliate (primarily) or its employees are assigned to the actions (secondary) */
                 $meetings_affassociations = MeetingsAssociations::get_data(array('id' => $reportmeta[affid], 'idAttr' => 'affid', 'mtid' => 'mtid=(select mtid from meetings_minsofmeeting where momid='.$actions->momid.')'), array('returnarray' => true, 'operators' => array('mtid' => 'CUSTOMSQL')));
-                //If actions are associated to the QR affiliate -> continue
+//If actions are associated to the QR affiliate -> continue
                 if(is_array($meetings_affassociations)) {
                     continue;
                 }
-                //Else check if employees of the QR aff are assigned to the actions
+//Else check if employees of the QR aff are assigned to the actions
                 $employeesassigned = false;
                 $momactionsassignees = MeetingsMOMActionAssignees::get_data(array('momaid' => $actions->momaid), array('returnarray' => true));
                 if(is_array($momactionsassignees)) {
@@ -637,7 +636,7 @@ if(!$core->input['action']) {
             $session->set_phpsession(array('productsactivitydata_'.$identifier => $productsactivitydata));
         }
 
-        ///***************************
+///***************************
 //        if(!isset($core->input['rid'])) {
 //            $report_meta = unserialize($session->get_phpsession('reportmeta_'.$identifier));
 //            if(!isset($report_meta['rid'])) {
@@ -647,7 +646,7 @@ if(!$core->input['action']) {
 //                $core->input['rid'] = $report_meta['rid'];
 //            }
 //        }
-        //create_cookie('rid', $core->input['rid'], (time() + (60*$core->settings['idletime']*2)));
+//create_cookie('rid', $core->input['rid'], (time() + (60*$core->settings['idletime']*2)));
 
         $rid = $db->escape_string($core->input['rid']);
         $customerscount = 5; //Make it a setting
@@ -697,11 +696,11 @@ if(!$core->input['action']) {
         /* If supplier does not have contract and contract Expired -START */
         $entity = new Entities($reportmeta['spid'], '', false);
         $entity_data = $entity->get();
-        //|| (!empty($entity_data['contractExpiryDate'] && TIME_NOW > $entity_data['contractExpiryDate'])
+//|| (!empty($entity_data['contractExpiryDate'] && TIME_NOW > $entity_data['contractExpiryDate'])
 
         /* If supplier does not have contract and contract Expired -END */
 
-        //Parse add customer popup
+//Parse add customer popup
         $affiliates_attributes = array('affid', 'name');
         $affiliates_order = array(
                 'by' => 'name',
@@ -849,7 +848,7 @@ else {
         if($reportmeta['auditor'] != '1') {
             $existingentries_query_string = ' AND (uid='.$core->user['uid'].' OR uid=0)';
         }
-        //$oldentries = get_specificdata('productsactivity', array('paid'), 'paid', 'paid', '', 0, "rid='{$rid}'{$oldentries_query_string}");
+//$oldentries = get_specificdata('productsactivity', array('paid'), 'paid', 'paid', '', 0, "rid='{$rid}'{$oldentries_query_string}");
         foreach($core->input['productactivity'] as $i => $productactivity) {
             if(empty($productactivity['pid'])) {
                 if(!empty($productactivity['paid'])) {
@@ -900,7 +899,7 @@ else {
               }
               } */
             if(is_array($cachearr['usedpaid'])) {
-                //$delete_query_where = ' OR ( paid NOT IN ('.implode(', ', $cachearr['usedpaid']).') AND pid NOT IN ('.implode(', ', $cachearr['usedpids']).'))';
+//$delete_query_where = ' OR ( paid NOT IN ('.implode(', ', $cachearr['usedpaid']).') AND pid NOT IN ('.implode(', ', $cachearr['usedpids']).'))';
             }
 //            if(is_array($cachearr['usedpids']) && !empty($cachearr['usedpids'])) {
 //                $del_query = $db->query("DELETE FROM ".Tprefix."productsactivity WHERE rid='{$rid}' AND (pid NOT IN (".implode(', ', $cachearr['usedpids'])."){$delete_query_where}){$existingentries_query_string}");
@@ -1034,7 +1033,7 @@ else {
             $marketreport_data[$key] = $val;
             $marketreport_data[$key]['psid'] = $key;
             $marketreport_data[$key]['rid'] = $rid;
-            //unset($marketreport_data[$key]['segmenttitle']);
+//unset($marketreport_data[$key]['segmenttitle']);
             $one_notexcluded = true;
         }
 
@@ -1131,7 +1130,7 @@ else {
                                 $mrdevproject_product = new MarketReportDevelopmentPojectsProducts();
                                 $mrdevproject_product->set($data);
                                 $mrdevproject_product->save();
-                                //  unset($data['pid'], $data['csid'], $data['mrcid']);
+//  unset($data['pid'], $data['csid'], $data['mrcid']);
                             }
                         }
                     }
@@ -1152,20 +1151,20 @@ else {
 
             /* Validate Forecasts - Start */
             $report = new ReportingQr(array('rid' => $rid));
-            $forecast_validation = $report->validate_forecasts(unserialize($session->get_phpsession('productsactivitydata_'.$identifier))['productactivity'], $currencies);
-
-            if($forecast_validation != true || is_array($forecast_validation)) {
-                $output_message = $lang->savedsuccessfully.' | '.$lang->wrongforecastgoback;
-                $process_success = 'false';
-                $core->input['isDone'] = 0;
+//            $forecast_validation = $report->validate_forecasts(unserialize($session->get_phpsession('productsactivitydata_'.$identifier))['productactivity'], $currencies);
+//
+//            if($forecast_validation != true || is_array($forecast_validation)) {
+//                $output_message = $lang->savedsuccessfully.' | '.$lang->wrongforecastgoback;
+//                $process_success = 'false';
+//                $core->input['isDone'] = 0;
+//            }
+//            else {
+            if($db->fetch_field($db->query("SELECT COUNT(*) as count FROM ".Tprefix."users u JOIN ".Tprefix."assignedemployees ae ON (u.uid=ae.uid) WHERE ae.affid='{$report_meta[affid]}' AND ae.eid='{$report_meta[spid]}' AND u.gid IN (SELECT gid FROM usergroups WHERE canUseReporting=1 AND canFillReports=1) AND u.uid NOT IN (SELECT uid FROM ".Tprefix."reportcontributors WHERE rid='{$rid}' AND isDone=1) AND u.uid!={$core->user[uid]}"), 'count') == 0) {
+                $new_status['status'] = 1;
             }
-            else {
-                if($db->fetch_field($db->query("SELECT COUNT(*) as count FROM ".Tprefix."users u JOIN ".Tprefix."assignedemployees ae ON (u.uid=ae.uid) WHERE ae.affid='{$report_meta[affid]}' AND ae.eid='{$report_meta[spid]}' AND u.gid IN (SELECT gid FROM usergroups WHERE canUseReporting=1 AND canFillReports=1) AND u.uid NOT IN (SELECT uid FROM ".Tprefix."reportcontributors WHERE rid='{$rid}' AND isDone=1) AND u.uid!={$core->user[uid]}"), 'count') == 0) {
-                    $new_status['status'] = 1;
-                }
-                $output_message = $lang->savedsuccessfully;
-                $process_success = 'true';
-            }
+            $output_message = $lang->savedsuccessfully;
+            $process_success = 'true';
+//            }
             /* Validate Forecasts - End */
             if($report_meta['transFill'] != '1' || !isset($report_meta['transFill'])) {
                 record_contribution($rid, $core->input['isDone']);
@@ -1175,7 +1174,7 @@ else {
             if($core->input['previewed_marketreport'] == 1) {
                 $report_obj = new ReportingQReports($rid);
                 if(is_object($report_obj)) {
-                    $action = '<script>window.location = "index.php?module=reporting/preview&rid='.$rid.'"</script>';
+                    $action = '<script>window.open("index.php?module=reporting/preview&rid='.$rid.'&identifier='.$identifier.'","_blank")</script>';
                 }
             }
             output_xml('<status>'.$process_success."</status><message>{$output_message}<![CDATA[<br />{$action}]]></message>");
@@ -1231,23 +1230,20 @@ else {
     }
     elseif($core->input['action'] == 'save_report') {
         $identifier = $db->escape_string($core->input['identifier']);
-
         $rawdata = unserialize($session->get_phpsession('reportrawdata_'.$identifier));
-
-        $report_meta = unserialize($session->get_phpsession('reportmeta_'.$identifier));
-
-        //$report_meta['rid'] = intval($report_meta['rid']);
+//
+//        $report_meta = unserialize($session->get_phpsession('reportmeta_'.$identifier));
+//$report_meta['rid'] = intval($report_meta['rid']);
         $report_meta['rid'] = intval($core->input['rid']);
-        $report = new ReportingQr(array('rid' => $report_meta['rid']));
         $currencies = unserialize($session->get_phpsession('reportcurrencies_'.$identifier));
-
         $cachearr = array();
         if(empty($report_meta['rid'])) {
             output_xml("<status>false</status><message>{$lang->errorsaving}</message>");
             exit;
         }
-
-        list($islocked) = $db->fetch_field($db->query("SELECT isLocked FROM ".Tprefix."reports WHERE rid='{$report_meta[rid]}'"), 'isLocked');
+        $report = new ReportingQr(array('rid' => $report_meta['rid']));
+        $report_meta = $report->get();
+        list($islocked) = $db->fetch_field($db->query("SELECT isLocked FROM ".Tprefix."reports WHERE rid='{$report_meta['rid']}'"), 'isLocked');
         if($islocked == 1) {
             output_xml("<status>false</status><message>{$lang->reportlocked}</message>");
             exit;
@@ -1266,13 +1262,43 @@ else {
 //                exit;
 //            }
 //        }
+        $report_obj = new Reporting($report_meta);
+        $audits = $report->get_report_supplier_audits();
+        $auditor = 0;
+        if(is_array($audits)) {
+            foreach($audits as $audit) {
+                if(is_array($audit)) {
+                    foreach($audit as $user) {
+                        if($user['uid'] == $core->user['uid']) {
+                            $auditor = 1;
+                        }
+                    }
+                }
+                else {
+                    if($audits['uid'] == $core->user['uid']) {
+                        $auditor = 1;
+                        break;
+                    }
+                }
+            }
+        }
 
-        if($report_meta['auditor'] != '1') {
+        if($auditor != '1') {
             $products_deletequery_string = ' AND (uid='.$core->user['uid'].' OR uid=0)';
         }
 
 //$db->query("DELETE FROM ".Tprefix."productsactivity WHERE rid='{$rawdata[rid]}'{$products_deletequery_string}");
-        ////if(empty($report_meta['excludeProductsActivity'])) {
+////if(empty($report_meta['excludeProductsActivity'])) {
+        $productactitity_objs = ProductsActivity::get_data(array('rid' => $report_meta['rid']), array('returnarray' => true));
+        if(is_array($productactitity_objs)) {
+            foreach($productactitity_objs as $productactitity_obj) {
+                $rawdata['productactivitydata'][] = $productactitity_obj->get();
+            }
+        }
+        else {
+            output_xml("<status>false</status><message>{$lang->noproductsactivity}</message>");
+            exit;
+        }
         $productsactivity_validation = $report->validate_forecasts($rawdata['productactivitydata'], $currencies);
         if($productsactivity_validation !== true) {
             output_xml("<status>false</status><message>{$lang->wrongforecastgoback}</message>");
@@ -1320,15 +1346,15 @@ else {
 //                $delete_query_where = ' OR paid NOT IN ('.implode(', ', $cachearr['usedpaid']).')';
 //                $db->query("DELETE FROM ".Tprefix."productsactivity WHERE rid='{$report_meta[rid]}' AND (pid NOT IN (".implode(', ', $cachearr['usedpids'])."){$delete_query_where}){$products_deletequery_string}");
 //            }
-        ////  }
-        ////**** no more exclude product activity
+////  }
+////**** no more exclude product activity
 //        else {
 //            if($report_meta['auditor'] != '1') {
 //                $products_deletequery_string = ' AND (uid='.$core->user['uid'].' OR uid=0)';
 //            }
 //            $db->query("DELETE FROM ".Tprefix."productsactivity WHERE rid='{$report_meta[rid]}'".$products_deletequery_string);
 //        }
-        ///********
+///********
 //        $db->query("DELETE FROM ".Tprefix."keycustomers WHERE rid='{$report_meta[rid]}'");
 //        if(empty($report_meta['excludeKeyCustomers'])) {
 //            if(is_array($rawdata['keycustomersdata'])) {
@@ -1343,74 +1369,97 @@ else {
 
         $emtpy_terms = array('na', 'n/a', 'none', 'nothing', 'nothing to mention');
         $marketreport_found_one = false;
-        foreach($rawdata['marketreportdata'] as $key => $val) {
-            if($val['exclude']) {
-                continue;
+        $rawdata['marketreportdata'] = '';
+        if($auditor != 1) {
+            $marketreportauthors = MarketReportAuthors::get_data(array('uid' => $core->user['uid']), array('returnarray' => true));
+            if(is_array($marketreportauthors)) {
+                foreach($marketreportauthors as $marketreportauthor) {
+                    $marketrepids[] = $marketreportauthor->mrid;
+                }
+                if(in_array($report_meta['rid'], $marketrepids)) {
+                    $marketreport_objs = MarketReport::get_data('rid = '.$report_meta['rid'].' OR createdBy = '.$core->user['uid'].'  OR modifiedBy= '.$core->user['uid'], array('returnarray' => true));
+                }
             }
-            $section_allempty = true;
-            unset($val['segmenttitle'], $val['rid'], $val['psid']);
+        }
+        else {
+            $marketreport_objs = MarketReport::get_data('rid = '.$report_meta['rid'].'', array('returnarray' => true));
+        }
+        if(is_array($marketreport_objs)) {
+            foreach($marketreport_objs as $marketreport_obj) {
+                $rawdata['marketreportdata'][$marketreport_obj->psid] = $marketreport_obj->get();
+            }
+        }
 
-            if($marketreport_found_one == false) {
-                if(!empty($val)) {
-                    foreach($val as $k => $v) {
-                        $v = $core->sanitize_inputs(preg_replace(array('~\x{00a0}~siu', '/\s/'), '', $v), array('method' => 'striponly', 'allowable_tags' => '', 'removetags' => true));
-                        if($section_allempty == true) {
-                            if(!in_array(strtolower(trim($v)), $emtpy_terms) && !preg_match('/^[n;.,-_+\*]+$/', $v)) {
-                                $section_allempty = false;
+//$rawdata['marketreportdata']['rid'] = $rawdata['rid'];
+        if(is_array($rawdata['marketreportdata']) && !empty($rawdata['marketreportdata'])) {
+            foreach($rawdata['marketreportdata'] as $key => $val) {
+                if($val['exclude']) {
+                    continue;
+                }
+                $section_allempty = true;
+                unset($val['segmenttitle '], $val['rid '], $val['psid']);
+
+                if($marketreport_found_one == false) {
+                    if(!empty($val)) {
+                        foreach($val as $k => $v) {
+                            $v = $core->sanitize_inputs(preg_replace(array(' ~ \x{00a0}~siu', '/\s/'), '', $v), array('method' => 'striponly', 'allowable_tags' => '', 'removetags' => true));
+                            if($section_allempty == true) {
+                                if(!in_array(strtolower(trim($v)), $emtpy_terms) && !preg_match('/^[      n;
+                            ., -_+\*]+$/ ', $v)) {
+                                    $section_allempty = false;
+                                }
+                            }
+                            if(empty($v)) {
+                                $marketreport_found_one = true;
+                                break;
                             }
                         }
-                        if(empty($v)) {
-                            $marketreport_found_one = true;
-                            break;
-                        }
+                    }
+                    else {
+                        $marketreport_found_one = true;
+                        break;
                     }
                 }
                 else {
-                    $marketreport_found_one = true;
                     break;
                 }
-            }
-            else {
-                break;
-            }
 
-            if($section_allempty == true) {
-                unset($rawdata['marketreportdata'][$key]);
-            }
+                if($section_allempty == true) {
+                    unset($rawdata['marketreportdata'][$key]);
+                }
 
-            if($marketreport_found_one == true) {
-                output_xml("<status>false</status><message>{$lang->incompletemarketreport}</message>");
-                exit;
+                if($marketreport_found_one == true) {
+                    //     output_xml("<status>false</status><message>{$lang->incompletemarketreport}</message>");
+                    //      exit;
+                }
             }
-        }
-//$rawdata['marketreportdata']['rid'] = $rawdata['rid'];
-        if(is_array($rawdata['marketreportdata']) && !empty($rawdata['marketreportdata'])) {
             foreach($rawdata['marketreportdata'] as $psid => $val) {
                 $val['psid'] = $psid;
                 if($val['exclude']) {
-                    $db->query('DELETE FROM '.Tprefix.'marketreport_authors WHERE mrid=(SELECT mrid FROM '.Tprefix.'marketreport WHERE rid='.$report_meta['rid'].' AND psid='.$val['psid'].')');
-                    $db->query('DELETE FROM '.Tprefix.'marketreport WHERE rid='.$report_meta['rid'].' AND psid='.$val['psid']);
+                    $db->query('DELETE FROM '.Tprefix.'marketreport_authors WHERE mrid = (SELECT mrid FROM '.Tprefix.'marketreport WHERE rid = '.$report_meta['rid'].' AND psid = '.$val['psid'].')');
+                    $db->query('DELETE FROM '.Tprefix.'marketreport WHERE rid = '.$report_meta['rid'].' AND psid = '.$val['psid']);
                     continue;
                 }
 
-                unset($val['segmenttitle'], $val['exclude']);
+                unset($val['segmenttitle '], $val['exclude']);
                 foreach($val as $k => $v) {
-                    $val[$k] = $core->sanitize_inputs(trim($v), array('method' => 'striponly', 'allowable_tags' => '<table><tbody><tr><td><th><thead><tfoot><span><div><a><br><p><b><i><del><strike><img><blockquote><mark><cite><small><ul><ol><li><hr><dl><dt><dd><sup><sub><big><pre><figure><figcaption><strong><em><h1><h2><h3><h4><h5><h6>', 'removetags' => true));
+                    $val[$k] = $core->sanitize_inputs(trim($v), array('method ' => 'striponly', 'allowable_tags' => '<table><tbody><tr><td><th><thead><tfoot><span><div><a><br><p><b><i><del><strike><img><blockquote><mark><cite><small><ul><ol><li><hr><dl><dt><dd><sup><sub><big><pre><figure><figcaption><strong><em><h1><h2><h3><h4><h5><h6>', 'removetags' => true));
                 }
 
-                if(value_exists('marketreport', 'rid', $report_meta['rid'], 'psid="'.$val['psid'].'"')) {
-                    $db->update_query('marketreport', $val, "rid='{$report_meta[rid]}' AND psid='{$val[psid]}'");
-                    $mrid = $db->fetch_field($db->query("SELECT mrid FROM ".Tprefix."marketreport WHERE rid='{$report_meta[rid]}' AND psid='{$val[psid]}'"), 'mrid');
+                if(value_exists('marketreport', 'rid', $report_meta['rid'], 'psid = "'.$val['psid'].'"') || value_exists('marketreport', 'mrid', $val['mrid'])) {
+                    $db->update_query('marketreport  ', $val, "rid='{$report_meta['rid']}' AND psid='{$val['psid']}'");
+                    $mrid = $db->fetch_field($db->query("SELECT mrid FROM ".Tprefix."marketreport WHERE rid='{$report_meta['rid']}' AND psid='{$val['psid']} '"), 'mrid');
                 }
                 else {
                     $val['rid'] = $report_meta['rid'];
-                    $db->insert_query('marketreport', $val);
+                    $db->insert_query('marketreport ', $val);
                     $mrid = $db->last_id();
                 }
 
                 if($report_meta['transFill'] != '1') {
-                    if($db->fetch_field($db->query("SELECT COUNT(*) AS contributed FROM ".Tprefix."marketreport_authors WHERE mrid='{$mrid}' AND uid='{$core->user[uid]}'"), 'contributed') == 0) {
-                        $db->insert_query('marketreport_authors', array('mrid' => $mrid, 'uid' => $core->user['uid']));
+                    if($db->fetch_field($db->query("SELECT COUNT(*) AS contributed FROM ".Tprefix."marketreport_authors WHERE mrid=' {
+                $mrid}' AND uid='{$core->user['uid']} '"), 'contributed') == 0) {
+                        $db->insert_query('marketreport_authors ', array('mrid' => $mrid, 'uid' => $core->user['uid']));
                     }
                 }
             }
@@ -1449,49 +1498,50 @@ else {
             }
             if($core->input['savetype'] == 'finalize') {
                 /* Force recording of contribution if user is finalizing with transparency and no other contributor exist */
-                if($report_meta['transFill'] == '1' && $db->num_rows($db->query('SELECT uid FROM '.Tprefix.'reportcontributors WHERE rid='.intval($report_meta['rid']))) == 0) {
+                if($report_meta['transFill'] == '1' && $db->num_rows($db->query('SELECT uid FROM '.Tprefix.'reportcontributors WHERE rid = '.intval($report_meta['rid']))) == 0) {
                     record_contribution($report_meta['rid'], 1);
                 }
                 output_xml("<status>true</status><message>{$lang->reportfinalized}</message>");
             }
             else {
+
+                $log->record($report_meta['rid']);
+
+                $current_report_details = $db->fetch_assoc($db->query("SELECT e.eid, e.companyName, r.year, r.quarter, e.noQReportSend FROM ".Tprefix."reports r LEFT JOIN ".Tprefix."entities e ON (r.spid=e.eid) WHERE r.rid='{$report_meta[rid]}'"));
+
+                if($current_report_details['noQReportSend'] == 0) {
+                    if($db->fetch_field($db->query("SELECT COUNT(*) AS remainingreports FROM ".Tprefix."reports WHERE quarter='{$current_report_details[quarter]}    ' AND year='{$current_report_details[year]}' AND spid='{$current_report_details[eid]}' AND status='0' AND type='q '"), 'remainingreports') == 0) {
+                        $query = $db->query("SELECT u.* FROM ".Tprefix."users u LEFT JOIN ".Tprefix."suppliersaudits sa ON (sa.uid=u.uid) WHERE sa.eid=' {
+                    $current_report_details[eid]}' AND u.gid IN ('5', '13', '2')");
+                        while($inform = $db->fetch_array($query)) {
+                            $inform_employees[] = $inform['email'];
+                        }
+
+                        if(empty($inform_employees)) {
+                            $inform_employees[] = $core->settings['sendreportsto'];
+                        }
+
+                        $query2 = $db->query("SELECT affid FROM ".Tprefix."reports WHERE quarter='{$current_report_details[quarter]}' AND year='{$current_report_details[year]}' AND spid='{$current_report_details[eid]}'");
+                        while($ready_report = $db->fetch_assoc($query2)) {
+                            $ready_affids[] = $ready_report['affid'];
+                        }
+
+                        $ready_reports_link = $core->settings['rootdir'].'/index.php?module = reporting/preview&referrer = direct&identifier = '.base64_encode(serialize(array('year' => $current_report_details['year'], 'quarter' => $current_report_details['quarter'], 'spid' => $current_report_details['eid'], 'affid' => $ready_affids)));
+
+                        $lang->load('messages');
+                        $email_data = array(
+                                'from_email' => 'no-reply@ocos.orkila.com',
+                                'from' => 'OCOS Mailer',
+                                'to' => $inform_employees,
+                                'subject' => $lang->sprint($lang->reportsready, $current_report_details['quarter'], $current_report_details['year'], $current_report_details['companyName']),
+                                'message' => $lang->sprint($lang->reportsreadymessage, $current_report_details['companyName'], $ready_reports_link)
+                        );
+
+                        $mail = new Mailer($email_data, 'php');
+                    }
+                }
                 output_xml("<status>true</status><message>{$lang->savedsuccessfully}</message>");
             }
-            $log->record($report_meta['rid']);
-
-            $current_report_details = $db->fetch_assoc($db->query("SELECT e.eid, e.companyName, r.year, r.quarter, e.noQReportSend FROM ".Tprefix."reports r LEFT JOIN ".Tprefix."entities e ON (r.spid=e.eid) WHERE r.rid='{$report_meta[rid]}'"));
-
-            if($current_report_details['noQReportSend'] == 0) {
-                if($db->fetch_field($db->query("SELECT COUNT(*) AS remainingreports FROM ".Tprefix."reports WHERE quarter='{$current_report_details[quarter]}' AND year='{$current_report_details[year]}' AND spid='{$current_report_details[eid]}' AND status='0' AND type='q'"), 'remainingreports') == 0) {
-                    $query = $db->query("SELECT u.* FROM ".Tprefix."users u LEFT JOIN ".Tprefix."suppliersaudits sa ON (sa.uid=u.uid) WHERE sa.eid='{$current_report_details[eid]}' AND u.gid IN ('5', '13', '2')");
-                    while($inform = $db->fetch_array($query)) {
-                        $inform_employees[] = $inform['email'];
-                    }
-
-                    if(empty($inform_employees)) {
-                        $inform_employees[] = $core->settings['sendreportsto'];
-                    }
-
-                    $query2 = $db->query("SELECT affid FROM ".Tprefix."reports WHERE quarter='{$current_report_details[quarter]}' AND year='{$current_report_details[year]}' AND spid='{$current_report_details[eid]}'");
-                    while($ready_report = $db->fetch_assoc($query2)) {
-                        $ready_affids[] = $ready_report['affid'];
-                    }
-
-                    $ready_reports_link = $core->settings['rootdir'].'/index.php?module=reporting/preview&referrer=direct&identifier='.base64_encode(serialize(array('year' => $current_report_details['year'], 'quarter' => $current_report_details['quarter'], 'spid' => $current_report_details['eid'], 'affid' => $ready_affids)));
-
-                    $lang->load('messages');
-                    $email_data = array(
-                            'from_email' => 'no-reply@ocos.orkila.com',
-                            'from' => 'OCOS Mailer',
-                            'to' => $inform_employees,
-                            'subject' => $lang->sprint($lang->reportsready, $current_report_details['quarter'], $current_report_details['year'], $current_report_details['companyName']),
-                            'message' => $lang->sprint($lang->reportsreadymessage, $current_report_details['companyName'], $ready_reports_link)
-                    );
-
-                    $mail = new Mailer($email_data, 'php');
-                }
-            }
-            $session->destroy_phpsession();
         }
     }
     elseif($core->input['action'] == 'get_addnew_customer') {
@@ -1500,8 +1550,8 @@ else {
                 'by' => 'name',
                 'sort' => 'ASC'
         );
-        $inaffiliates = implode(',', $core->user['affiliates']);
-        $affiliates = get_specificdata('affiliates', $affiliates_attributes, 'affid', 'name', $affiliates_order, 0, 'affid IN ('.$inaffiliates.')');
+        $inaffiliates = implode(', ', $core->user['affiliates']);
+        $affiliates = get_specificdata('affiliates', $affiliates_attributes, 'affid', 'name', $affiliates_order, 0, 'affid IN('.$inaffiliates.')');
         $affiliates_list = parse_selectlist("affid[]", 4, $affiliates, '', 1);
 
         $countries_attributes = array('coid', 'name');
@@ -1521,7 +1571,7 @@ else {
         $segment['psid'] = $db->escape_string($core->input ['ajaxaddmoredata']['segmentid']);
         $sprowid = 1;
         $countries = Countries::get_data(array('coid is NOT NULL'));
-        $countries_selectlist = parse_selectlist('marketreport['.$segment[psid].'][suppliers]['.$srowid.'][coid]', $tabindex, $countries, $selected_options, '', '', array('width' => '150px', 'blankstart' => true, 'id' => 'marketreport_'.$segment['psid'].'_suppliers_'.$srowid.'_coid'));
+        $countries_selectlist = parse_selectlist('marketreport[ '.$segment[psid].'][       suppliers]  [ '.$srowid.'][ coid]', $tabindex, $countries, $selected_options, '', '', array('width' => '150px', 'blankstart' => true, 'id' => 'marketreport_'.$segment['psid'].'_suppliers_'.$srowid.'_coid'));
         $css['display']['chemsubfield'] = $css['display']['origin'] = 'none';
         $inputchecksum['product'] = generate_checksum('mpl');
         eval("\$product_row= \"".$template->get('reporting_fillreport_marketreport_suppproducts')."\";");
@@ -1543,11 +1593,11 @@ else {
         $segment['psid'] = $db->escape_string($core->input ['ajaxaddmoredata']['segmentid']);
         $srowid = $db->escape_string($core->input ['ajaxaddmoredata']['srowid']);
         $inputchecksum['unspecifiedsuppcs'] = generate_checksum('upl');
-        $unspecifiedsupplierproducts = '<tr>  <td style="width:30%;"></td>  <td style="width:65%;">'
-                .'<input type="text" size="25" id="chemfunctionchecmical_'.$segment[psid].'0'.$sprowid.'_autocomplete" size="100" autocomplete="off" value="" placeholder="pick chemical substance"/>
-                                    <input type="hidden" id="chemfunctionchecmical_'.$segment[psid].'0'.$sprowid.'_id" name="marketreport['.$segment[psid].'][suppliers][0][chp]['.$sprowid.'][csid]" value=""/>
-                                    <div id="searchQuickResults_'.$segment[psid].'0'.$sprowid.'" class="searchQuickResults" style="display:none;"></div>
-                                    <input type="hidden" name="marketreport['.$segment[psid].'][suppliers][0][chp]['.$sprowid.'][inputChecksum]" value="'.$inputchecksum[unspecifiedsuppcs].'"/></td></tr>';
+        $unspecifiedsupplierproducts = '<tr> <td style = "width:30%;"></td> <td style = "width:65%;">'
+                .'<input type = "text" size = "25" id = "chemfunctionchecmical_'.$segment[psid].'0'.$sprowid.'_autocomplete" size = "100" autocomplete = "off" value = "" placeholder = "pick chemical substance"/>
+                            <input type = "hidden" id = "chemfunctionchecmical_'.$segment[psid].'0'.$sprowid.'_id" name = "marketreport['.$segment[psid].'][suppliers][0][chp]['.$sprowid.'][csid]" value = ""/>
+                                    <div id = "searchQuickResults_'.$segment[psid].'0'.$sprowid.'" class = "searchQuickResults" style = "display:none;"></div>
+                            <input type = "hidden" name = "marketreport['.$segment[psid].'][suppliers][0][chp]['.$sprowid.'][inputChecksum]" value = "'.$inputchecksum[unspecifiedsuppcs].'"/></td></tr>';
 
         echo $unspecifiedsupplierproducts;
     }
@@ -1640,7 +1690,8 @@ else {
                 }
             }
             else {
-                output_xml('<status>false</status><message>'.$lang->errorreporting.'</message>');
+                output_xml('<status>false</status><message>'.$lang->errorreporting.'</message
+                        >');
                 exit;
             }
         }

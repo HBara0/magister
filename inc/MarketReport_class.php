@@ -30,6 +30,8 @@ class MarketReport extends AbstractClass {
                 'actionPlan' => $data['actionPlan'],
                 'remarks' => $data['remarks'],
                 'rating' => $data['rating'],
+                'createdBy' => $core->user['uid'],
+                'createdOn' => TIME_NOW
         );
         $query = $db->insert_query(self::TABLE_NAME, $table_array);
         if($query) {
@@ -50,7 +52,10 @@ class MarketReport extends AbstractClass {
             $update_array['actionPlan'] = $data['actionPlan'];
             $update_array['remarks'] = $data['remarks'];
             $update_array['rating'] = $data['rating'];
+            $update_array['modifiedBy'] = $core->user['uid'];
+            $update_array['modifiedOn'] = TIME_NOW;
         }
+
         $db->update_query(self::TABLE_NAME, $update_array, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
         return $this;
     }

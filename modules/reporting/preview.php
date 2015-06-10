@@ -16,7 +16,7 @@ if($core->usergroup['canFillReports'] == 0 && $core->usergroup['reporting_canVie
     exit;
 }
 
-//$session->start_phpsession();
+$session->start_phpsession();
 if(!$core->input['action']) {
     $default_rounding = 2; //Later a setting
     $reportcache = new Cache();
@@ -79,7 +79,7 @@ if(!$core->input['action']) {
             $session_identifier = md5(uniqid(microtime()));
             $newreport = new ReportingQr(array('year' => $core->input['year'], 'spid' => $report_param['spid'], 'affid' => $report_param['affid'], 'quarter' => $core->input['quarter']));
             $report = $newreport->get();
-            // $session->set_phpsession(array('reportmeta_'.$session_identifier => serialize($report)));
+            $session->set_phpsession(array('reportmeta_'.$session_identifier => serialize($report)));
             $report['affiliates'] = $newreport->get_report_affiliate();
             if($core->usergroup['canGenerateReports'] == 1 || $core->usergroup['canFillReports'] == 1) {
                 $newreport->read_products_activity(true);
@@ -139,9 +139,9 @@ if(!$core->input['action']) {
             $report['affiliates'] = $newreport->get_report_affiliate();
             $report['supplier'] = $newreport->get_report_supplier();
             $identifier = $db->escape_string($core->input['identifier']);
-
+            $session_identifier = $identifier;
             /** CHECK
-              //            $session_identifier = $identifier;
+              //
               //            $report_meta = unserialize($session->get_phpsession('reportmeta_'.$identifier));
               //            if(isset($report_meta['auditor']) && !empty($report_meta['auditor'])) {
               //                $options['isauditor'] = $report_meta['auditor'];
@@ -188,7 +188,7 @@ if(!$core->input['action']) {
             }
 
             //    $session->set_phpsession(array('reportmeta_'.$session_identifier => serialize($report_meta)));
-            //   $session->set_phpsession(array('reportrawdata_'.$session_identifier => serialize($reportdata)));
+            $session->set_phpsession(array('reportrawdata_'.$session_identifier => serialize($reportdata)));
         }
 
         $reports_meta_data['rid'][] = $report['rid'];

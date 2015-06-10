@@ -35,6 +35,8 @@ $lang['reportinginconsistencypleaseaddcomment'] = 'Reportin Inconsistency. Pleas
 $lang['report'] = 'Report';
 $lang['allreportscreated'] = 'All reports were created';
 $lang['amount'] = 'Amount';
+$lang['noproductsactivity'] = 'No Existing Products Activity';
+
 $lang['amountsincurrency'] = 'Amounts in <br />
 K USD$';
 $lang['amountsinmt'] = 'Amounts in <br />
