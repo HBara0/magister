@@ -31,11 +31,10 @@ class EntitiesBrands extends AbstractClass {
         global $db, $core;
         if(is_array($data)) {
             $this->data = $data;
-            if(empty($this->data['name'])) {
+            if(empty($this->data['name']) || empty($this->data['eid'])) {
                 $this->errorcode = 1;
                 return false;
             }
-
             if(value_exists('entitiesbrands', 'name', $this->data['name'], 'eid!='.intval($this->data['eid']))) {
                 $this->errorcode = 2;
                 return false;
