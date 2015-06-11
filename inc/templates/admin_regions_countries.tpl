@@ -12,7 +12,9 @@
             <table class="datatable">
                 <div style="float: right;" title="{$lang->addcountry}">
                     <a href="#popup_addcountry" id="showpopup_addcountry" class="showpopup"><img alt="Add Country" src="{$core->settings['rootdir']}/images/icons/edit.gif" /></a>
-                    <a href="http://127.0.0.1/ocos/manage/index.php?module=regions/countries&action=update_countrydetails" id=""><img alt="Add Country" src="{$core->settings['rootdir']}/images/icons/invalid.gif" /></a>
+                </div>
+                <div style="float: right" title="{$lang->updatecountrydata}">
+                    <a href="http://127.0.0.1/ocos/manage/index.php?module=regions/countries&action=update_countrydetails" target="_blank" id=""><img alt="{$lang->updatecountrydata}" src="{$core->settings['rootdir']}/images/download.png" /></a>
                 </div>
                 <thead>
                     <tr>

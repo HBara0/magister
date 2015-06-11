@@ -126,12 +126,37 @@ else {
                 if(is_object($country_obj)) {
                     $country = $country_obj->get();
                     $country['phoneCode'] = $datarray->callingCodes[0];
-                    if(is_object($city_obj)) {
+                    if(is_object($city_obj) && $country['capitalCity'] == '0') {
                         $country['capitalCity'] = $city_obj->ciid;
+                    }
+                    elseif(is_array($city_obj)) {
+                        foreach($city_obj as $city) {
+                            if(is_object($city_obj) && $country['coid'] == $city['coid'] && $country['capitalCity'] == '0') {
+                                $country['capitalCity'] = $city_obj->ciid;
+                            }
+                        }
                     }
                     $country_obj->set($country);
                     $country_obj->save();
+                    $errorcodes[$country_obj->coid] = $country_obj->get_errorcode();
                 }
+            }
+            if(is_array($errorcodes)) {
+                $errorcodes = array_unique($errorcodes);
+                foreach($errorcodes as $coid => $errorcode) {
+                    if($errorcode != 0) {
+                        $problemcoids[] = $coid;
+                    }
+                }
+                if(is_array($problemcoids)) {
+                    echo('Errors while saving these country data: '.implode(',', $problemcoids));
+                }
+                else {
+                    echo('Data Saved Succesfully! Nicely Done!!');
+                }
+            }
+            else {
+                echo('No Countries Saved');
             }
         }
     }
