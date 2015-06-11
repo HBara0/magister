@@ -123,6 +123,7 @@ else {
             foreach($data as $datarray) {
                 $city_obj = Cities::get_data(array('name' => $datarray->capital));
                 $country_obj = Countries::get_data(array('acronym' => $datarray->alpha2Code), array('returnarray' => false));
+                $currency = Currencies::get_data(array('alphaCode' => $datarray->currencies[0]));
                 if(is_object($country_obj)) {
                     $country = $country_obj->get();
                     $country['phoneCode'] = $datarray->callingCodes[0];
@@ -135,6 +136,9 @@ else {
                                 $country['capitalCity'] = $city_obj->ciid;
                             }
                         }
+                    }
+                    if(is_object($currency) && (is_null($country['mainCurrency']) || $country['mainCurrency'] == '0')) {
+                        $country['mainCurrency'] = $currency->numCode;
                     }
                     $country_obj->set($country);
                     $country_obj->save();
