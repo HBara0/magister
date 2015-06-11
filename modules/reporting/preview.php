@@ -524,7 +524,7 @@ if(!$core->input['action']) {
         $quarter_start = strtotime($report['year'].'-'.$core->settings['q'.$report['quarter'].'start']);
         $quarter_end = strtotime($report['year'].'-'.$core->settings['q'.$report['quarter'].'end']);
         $momactions_where = '(date BETWEEN '.$quarter_start.' AND '.$quarter_end.') AND momid=(select momid from meetings_minsofmeeting where mtid IN '
-                .'(select mtid from meetings_associations where idAttr="spid" AND id='.$report[spid].'))';
+                .'(select mtid from meetings_associations where idAttr="spid" AND id='.$report['spid'].'))';
         $momactions = MeetingsMOMActions::get_data($momactions_where, array('returnarray' => true, 'operators' => array('filter' => CUSTOMSQLSECURE)));
         if(is_array($momactions)) {
             foreach($momactions as $key => $actions) {
