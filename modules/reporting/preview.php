@@ -553,13 +553,14 @@ if(!$core->input['action']) {
             }
             $mom_obj = new MeetingsMOM();
             $mom_followupactions .= $mom_obj->parse_actions('QR', $momactions);
-        }
-        $marketreportbox .= '<table class="reportbox">
+            $marketreportbox .= '<table class="reportbox">
     <tr>
         <td class="thead">'.$lang->specificfollowactions.'</td>
     </tr>
     <tr><td>'.$mom_followupactions.'</td></tr>
 </table>';
+        }
+
         /* Parse MOM Specific Follow Up Actions - end */
         /* Show QR contributors */
         $lang->reportpreparedby_text = $lang->reportpreparedby;
