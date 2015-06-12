@@ -255,5 +255,12 @@ class CmsPages extends Cms {
         return $this->status;
     }
 
+    public function __get($name) {
+        if(isset($this->page[$name])) {
+            return $this->page[$name];
+        }
+        return false;
+    }
+
 }
 ?>

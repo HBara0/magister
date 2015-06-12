@@ -128,6 +128,7 @@ elseif($core->input['action'] == 'delete_endproducttype') {
 }
 elseif($core->input['action'] == 'get_cloneendproducttype') {
     $eptid = $core->input['id'];
+
     eval("\$cloneendprodtype = \"".$template->get('popup_cloneendproducttype')."\";");
     output_page($cloneendprodtype);
 }

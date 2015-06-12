@@ -59,7 +59,9 @@ class CmsMenuItems extends AbstractClass {
                 $menuitem_array['configurations'] = base64_encode(serialize(($data['configurations'][$key])));
             }
         }
-
+        if(is_array($menuitem_array['configurations'])) {
+            unset($menuitem_array['configurations']);
+        }
         $query = $db->insert_query(self::TABLE_NAME, $menuitem_array);
         if($query) {
             $this->data[self::PRIMARY_KEY] = $db->last_id();
@@ -90,48 +92,14 @@ class CmsMenuItems extends AbstractClass {
                 $menuitem_array['configurations'] = base64_encode(serialize(($menuitem_array['configurations'][$key])));
             }
         }
+        if(is_array($menuitem_array['configurations'])) {
+            unset($menuitem_array['configurations']);
+        }
         $db->update_query('cms_menuitems', $menuitem_array, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
     }
 
     public function get_displayname() {
         return $this->data[self::DISPLAY_NAME];
-    }
-
-    /**
-     * recursive function
-     * @global type $db
-     * @param type $todelete
-     * @return boolean
-     */
-    public function delete_menuitem($todelete) {
-        global $db;
-        $attributes = array('cmsmiid');
-        foreach($attributes as $attribute) {
-            $tables = $db->get_tables_havingcolumn($attribute, 'TABLE_NAME !="cms_menuitems"');
-            if(is_array($tables)) {
-                foreach($tables as $table) {
-                    $query = $db->query("SELECT * FROM ".Tprefix.$table." WHERE ".$attribute."=".$todelete." ");
-                    if($db->num_rows($query) > 0) {
-                        $this->errorcode = 3;
-                        return false;
-                    }
-                }
-            }
-        }
-        $menuitems = CmsMenuItems::get_data(array('parent' => $todelete), array('returnarray' => true));
-        if(is_array($menuitems)) {
-            foreach($menuitems as $menuitem) {
-                $menuitemtodelete = $menuitem->delete_menuitem($menuitem->cmsmiid);
-                if(!$menuitemtodelete) {
-                    return false;
-                }
-            }
-        }
-        $delete = $this->delete();
-        if($delete) {
-            $this->errorcode = 0;
-            return true;
-        }
     }
 
 }

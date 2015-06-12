@@ -33,9 +33,11 @@ if(!$core->input['action']) {
                     $endprod_link = $endproducts_obj->parse_link();
                     $entbrandprod_obj = EntBrandsProducts::get_data(array(EndProducTypes::PRIMARY_KEY => $endproducts_obj->get_id(), EntitiesBrands::PRIMARY_KEY => $ebid));
                     $characteristic_output = '';
-                    $characteristic = $entbrandprod_obj->get_charactersticvalue();
-                    if(is_object($characteristic)) {
-                        $characteristic_output = ' <small>('.$characteristic->get_displayname().')</small>';
+                    if(is_object($entbrandprod_obj)) {
+                        $characteristic = $entbrandprod_obj->get_charactersticvalue();
+                        if(is_object($characteristic)) {
+                            $characteristic_output = ' <small>('.$characteristic->get_displayname().')</small>';
+                        }
                     }
                     //foreach($entbrandprod_objs as $entbrandprod_obj) {
                     //  if($entbrandprod_obj->ebid == $ebid) {
@@ -233,6 +235,10 @@ if(!$core->input['action']) {
         if($core->usergroup['canManageProducts'] == 1) {
             $mkdchem_rowid = $mkdprod_rowid = $mkdbing_rowid = 1;
             $clone_button = "<span> <a style='cursor: pointer;' class='showpopup' href='#' id='showpopup_clonebrandprod'><img src='".$core->settings['rootdir']."/images/addnew.png' title='".$lang->cloneentitybrand."' alt='Add' border='0'>".$lang->cloneentitybrand."</a> </span>";
+
+            $characteristics = ProductCharacteristicValues::get_data(null, array('returnarray' => true, 'order' => ProductCharacteristicValues::DISPLAY_NAME));
+            $characteristics_list = parse_selectlist('pcvid', 4, $characteristics, null, 0, null, array('blankstart' => true));
+
             eval("\$pop_clone = \"".$template->get('popup_clonebrandprod')."\";");
         }
         eval("\$products_list = \"".$template->get('profiles_brands_productslist')."\";");
@@ -270,7 +276,8 @@ else {
             exit;
         }
         $brandprod['eptid'] = $core->input['endproduct'];
-        $brandprod_obj = EntBrandsProducts::get_data(array('eptid' => $brandprod['eptid'], 'ebid' => $brandprod['ebid']));
+        $brandprod['pcvid'] = $core->input['pcvid'];
+        $brandprod_obj = EntBrandsProducts::get_data(array('pcvid' => $brandprod['pcvid'], 'eptid' => $brandprod['eptid'], 'ebid' => $brandprod['ebid']));
         if(is_object($brandprod_obj)) {
             $brandprod['ebpid'] = $brandprod_obj->ebpid;
         }

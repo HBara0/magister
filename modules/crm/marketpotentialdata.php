@@ -226,7 +226,7 @@ if(!$core->input['action']) {
                 $value = $productype->title;
                 $pplication = $productype->get_application()->parse_link();
                 if($pplication !== null) {
-                    $value .=' - '.$pplication;
+                    $value .= ' - '.$pplication;
                 }
                 $parent = $productype->get_endproducttype_chain();
                 if(!empty($parent)) {
@@ -236,6 +236,7 @@ if(!$core->input['action']) {
                     $values[$productype->eptid] = $value;
                 }
             }
+
             asort($values);
             foreach($values as $key => $value) {
                 $checked = $rowclass = '';
@@ -578,9 +579,9 @@ else {
     }
     elseif($core->input['action'] == 'perform_delete') {
         $id = $db->escape_string($core->input['todelete']);
-        $mintentry = new MarketIntelligence($id);
+        $mintentry = new MarketIntelligence($id, false);
         if(is_object($mintentry)) {
-            if($core->usergroup['crm_canManageMktInteldata'] == 1) {
+            if($core->usergroup['crm_canManageMktInteldata'] == 1 || $mintentry->createdBy == $core->user['uid']) {
                 $query = $db->delete_query('marketintelligence_basicdata', "mibdid='{$id}'");
                 if($query) {
                     output_xml("<status>true</status><message>{$lang->successfullydeleted}</message>");

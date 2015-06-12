@@ -60,7 +60,6 @@ if(!$core->input['action']) {
 
     $filters_row = $filter->prase_filtersrows(array('tags' => 'table', 'display' => $filters_row_display));
 
-
     $pages_details = $allpages->get_multiplepages($filter_where);
 
     if(is_array($pages_details)) {
@@ -74,6 +73,10 @@ if(!$core->input['action']) {
             }
             else {
                 $ispublished_icon = '<img src="./images/false.gif" border="0" />';
+            }
+
+            if($core->usergroup['cms_canPublishNews'] == 1) {
+                $ispublished_icon = '<a href="index.php?module=cms/managewebpage&action=togglepublish&id='.$pageid.'">'.$ispublished_icon.'</a>';
             }
 
             eval("\$cms_pages_list_rows .= \"".$template->get('cms_webpages_list_row')."\";");

@@ -77,6 +77,9 @@ if(!$core->input['action']) {
                 $isfeatured_icon = '<img src="./images/valid.gif" border="0" title="'.$lang->featured.'"/>';
             }
 
+            if($core->usergroup['cms_canPublishNews'] == 1) {
+                $ispublished_icon = '<a href="index.php?module=cms/managenews&action=togglepublish&id='.$news['cmsnid'].'">'.$ispublished_icon.'</a>';
+            }
             eval("\$cms_news_list_rows .= \"".$template->get('cms_news_list_row')."\";");
         }
         //  $multipage_where .= $db->escape_string($attributes_filter_options['prefixes'][$core->input['filterby']].$core->input['filterby']).$filter_value;
