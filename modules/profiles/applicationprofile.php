@@ -113,6 +113,7 @@ if(!$core->input['action']) {
                 $ebids[] = $entitybrandproduct_obj->get_entitybrand()->ebid;
             }
 
+            $eids = array_filter($eids);
             $allowed_eid = $eids;
             if($core->usergroup['canViewAllCust'] == 0) {
                 $allowed_eid = array_intersect($eids, $core->user['customers']);
