@@ -252,8 +252,9 @@ if(!$core->input['action']) {
 //foreach($segments as $key => $val) {
 
         if($reportmeta['auditor'] == 0) {
-                $filter_segments_query = " AND ps.psid IN (SELECT psid FROM ".Tprefix."employeessegments WHERE uid='{$core->user[uid]}')";
+            $filter_segments_query = " AND ps.psid IN (SELECT psid FROM ".Tprefix."employeessegments WHERE uid='{$core->user[uid]}')";
             if(!value_exists('suppliersaudits', 'uid', $core->user['uid'], 'eid='.$reportmeta['spid'])) {
+
             }
         }
         $query = $db->query("SELECT es.psid, ps.title FROM ".Tprefix."entitiessegments es JOIN ".Tprefix."productsegments ps ON (ps.psid=es.psid) WHERE es.eid='{$reportmeta[spid]}'{$filter_segments_query}");
@@ -1174,7 +1175,7 @@ else {
             if($core->input['previewed_marketreport'] == 1) {
                 $report_obj = new ReportingQReports($rid);
                 if(is_object($report_obj)) {
-                    $action = '<script>window.open("index.php?module=reporting/preview&rid='.$rid.'&identifier='.$identifier.'","_blank")</script>';
+                    $action = '<script>$("input[id=\'previewed_value\']").val(\'\');window.open("index.php?module=reporting/preview&rid='.$rid.'&identifier='.$identifier.'","_blank")</script>';
                 }
             }
             output_xml('<status>'.$process_success."</status><message>{$output_message}<![CDATA[<br />{$action}]]></message>");
