@@ -12,7 +12,6 @@ if(!defined('DIRECT_ACCESS')) {
     die('Direct initialization of this file is not allowed.');
 }
 if(!$core->input['action']) {
-
     if(isset($core->input['id']) && !empty($core->input['id'])) {
         $event_obj = Events::get_data(array('ceid' => $core->input['id']), array('simple' => false));
         if(is_object($event_obj)) {
@@ -43,10 +42,15 @@ if(!$core->input['action']) {
     }
 
     /* parse invitees - START */
-    $invitees = $event_obj->get_invited_users();
-    $inviteesids = array_unique(array_map(function($e) {
-                return is_object($e) ? $e->uid : null;
-            }, $invitees));
+    $inviteesids = array();
+    if(is_object($event_obj)) {
+        $invitees = $event_obj->get_invited_users();
+        if(is_array($invitees)) {
+            $inviteesids = array_unique(array_map(function($e) {
+                        return is_object($e) ? $e->uid : null;
+                    }, $invitees));
+        }
+    }
     $affiliatedemployees = AffiliatedEmployees::get_data(array('affid' => $core->user['affiliates']));
     $uids = array_unique(array_map(function($e) {
                 return is_object($e) ? $e->uid : null;
@@ -63,8 +67,8 @@ if(!$core->input['action']) {
                 $rowclass = 'altrow2';
             }
 
-            $invitees_list .='<tr class = "'.$rowclass.'">';
-            $invitees_list .='<td><input id = "affiliatefilter_check_'.$key.'" name = "event[invitees][]" type="checkbox"'.$checked.' value="'.$key.'">'.$value.'</td></tr>';
+            $invitees_list .= '<tr class="'.$rowclass.'">';
+            $invitees_list .= '<td><input id="affiliatefilter_check_'.$key.'" name="event[invitees][]" type="checkbox"'.$checked.' value="'.$key.'">'.$value.'</td></tr>';
         }
     }
 
@@ -74,151 +78,176 @@ if(!$core->input['action']) {
     eval("\$createevent=\"".$template->get('cms_events_add')."\";");
     output_page($createevent);
 }
-else if($core->input['action'] == 'do_perform_manageevents') {
-    unset($core->input['identifier'], $core->input['module'], $core->input['action']);
+else {
+    if($core->input['action'] == 'do_perform_manageevents') {
+        unset($core->input['identifier'], $core->input['module'], $core->input['action']);
 
-    if(empty($core->input['event']['alias'])) {
-        $core->input['event']['alias'] = generate_alias($core->input['event']['title']);
-    }
+        if(empty($core->input['event']['alias'])) {
+            $core->input['event']['alias'] = generate_alias($core->input['event']['title']);
+        }
 
-    $cms_event = Events::get_data(array('alias' => $core->input['event']['alias']));
-    if(!is_object($cms_event)) {
-        $cms_event = new Events();
-    }
+        if(!empty($core->input['event'][Events::PRIMARY_KEY])) {
+            $cms_event = new Events($core->input['event'][Events::PRIMARY_KEY]);
+        }
+        else {
+            $cms_event = Events::get_data(array('alias' => $core->input['event']['alias']));
+        }
+        if(!is_object($cms_event)) {
+            $cms_event = new Events();
+        }
+        else {
+            if(empty($core->input['event'][Events::PRIMARY_KEY])) {
+                echo $lang->entryexists;
+                exit;
+            }
+        }
 
-    $cms_event->set($core->input['event']);
-    $cms_event->save();
-
-    /* Parse Event Logo - START */
-    if(!empty($_FILES['logo']['name'][0])) {
-        $_FILES['logo']['newname'][0] = $core->input['event']['alias'];
-        $upload_param['upload_allowed_types'] = array('image/jpg', 'image/jpeg', 'image/gif', 'image/png');
-        $upload_obj = new Uploader('logo', $_FILES, $upload_param['upload_allowed_types'], 'putfile', 5242880, 1, 1); //5242880 bytes = 5 MB (1024);
-        $logo_path = './uploads/eventslogos';
-        $upload_obj->set_upload_path($logo_path);
-        $upload_obj->process_file();
-        $upload_obj->resize(150, '');
-
-        $logo = $upload_obj->get_filesinfo();
-        $cms_event->set(array('logo' => $upload_obj->get_filename(), 'refreshLogoOnWebsite' => 1));
+        $core->input['event']['publishOnWebsite'] = 0;
+        if($core->usergroup['cms_canPublishNews'] == 1) {
+            $core->input['event']['publishOnWebsite'] = 1;
+        }
+        $core->input['event']['isCreatedFromCMS'] = 1;
+        $cms_event->set($core->input['event']);
         $cms_event->save();
-        if($upload_obj->get_status() != 4) {
-            echo $upload_obj->parse_status($upload_obj->get_status());
-            exit;
-        }
-    }
 
-    /* Add event Invitee */
-    if(is_array($core->input['event']['invitees'])) {
-        foreach($core->input['event']['invitees'] as $invitee) {
-            if(empty($invitee)) {
-                continue;
+        /* Parse Event Logo - START */
+        if(!empty($_FILES['logo']['name'][0])) {
+            $_FILES['logo']['newname'][0] = $core->input['event']['alias'];
+            $upload_param['upload_allowed_types'] = array('image/jpg', 'image/jpeg', 'image/gif', 'image/png');
+            $upload_obj = new Uploader('logo', $_FILES, $upload_param['upload_allowed_types'], 'putfile', 5242880, 1, 1); //5242880 bytes = 5 MB (1024);
+            $logo_path = './uploads/eventslogos';
+            $upload_obj->set_upload_path($logo_path);
+            $upload_obj->process_file();
+            $upload_obj->resize(150, '');
+
+            $logo = $upload_obj->get_filesinfo();
+            $cms_event->set(array('logo' => $upload_obj->get_filename(), 'refreshLogoOnWebsite' => 1));
+            $cms_event->save();
+            if($upload_obj->get_status() != 4) {
+                echo $upload_obj->parse_status($upload_obj->get_status());
+                exit;
             }
-            $new_event_invitee_data = array(
-                    'ceid' => $cms_event->get_id(),
-                    'uid' => $invitee,
-                    'createdOn' => TIME_NOW,
-                    'createdBy' => $core->user['uid']
-            );
-            $invitee = new CalendarEventsInvitees();
-            $invitee->set($new_event_invitee_data);
-            $invitee->save();
         }
-    }
 
-    /* Get invitess by user */
-    $event_users_objs = $cms_event->get_invited_users();
-    if(is_array($event_users_objs)) {
-        foreach($event_users_objs as $event_users_obj) {
-            $event_users = $event_users_obj->get();
-            /* iCal event to the users */
-            $ical_obj = new iCalendar(array('identifier' => $cms_event->identifier, 'uidtimestamp' => $cms_event->createdOn));  /* pass identifer to outlook to avoid creation of multiple file with the same date */
-            $ical_obj->set_datestart($cms_event->fromDate);
-            $ical_obj->set_datend($cms_event->toDate);
-            $ical_obj->set_location($cms_event->place);
-            $ical_obj->set_summary($cms_event->title);
-            $ical_obj->set_categories('Event');
-            $ical_obj->set_organizer();
-            $ical_obj->set_icalattendees($event_users['uid']);
-            $ical_obj->set_description($cms_event->description);
-            $ical_obj->endical();
-
-            $mailer = new Mailer();
-            $mailer = $mailer->get_mailerobj();
-            $mailer->set_type('ical', array('content-class' => 'meetingrequest', 'method' => 'REQUEST'));
-            $mailer->set_from(array('name' => 'OCOS Mailer', 'email' => $core->settings['maileremail']));
-            $mailer->set_subject($cms_event->title);
-            $mailer->set_message($ical_obj->geticalendar());
-            $mailer->set_to($event_users['email']);
-
-            /* Add multiple Attachments */
-            if(is_array($attachments)) {
-                foreach($attachments as $attachment) {
-                    $mailer->add_attachment($attachments_path.'/'.$attachment['name']);
+        /* Add event Invitee */
+        if(is_array($core->input['event']['invitees'])) {
+            foreach($core->input['event']['invitees'] as $invitee) {
+                if(empty($invitee)) {
+                    continue;
                 }
+                $new_event_invitee_data = array(
+                        'ceid' => $cms_event->get_id(),
+                        'uid' => $invitee,
+                        'createdOn' => TIME_NOW,
+                        'createdBy' => $core->user['uid']
+                );
+                $invitee = new CalendarEventsInvitees();
+                $invitee->set($new_event_invitee_data);
+                $invitee->save();
             }
-            //$mailer->send();
         }
-    }
 
-    if($core->input['event']['isPublic'] == 1 && $core->usergroup['calendar_canAddPublicEvents'] == 1) {
-        if(isset($core->input['event']['restrictto'])) {
-            if(is_array($core->input['event']['restrictto'])) {
-                foreach($core->input['event']['restrictto'] as $affid) {
-                    $restriction = new CalendarEventsRestrictions();
-                    $restriction->set(array('affid' => $affid, 'ceid' => $cms_event->get_id()))->save();
+        /* Get invitess by user */
+        $event_users_objs = $cms_event->get_invited_users();
+        if(is_array($event_users_objs)) {
+            foreach($event_users_objs as $event_users_obj) {
+                $event_users = $event_users_obj->get();
+                /* iCal event to the users */
+                $ical_obj = new iCalendar(array('identifier' => $cms_event->identifier, 'uidtimestamp' => $cms_event->createdOn));  /* pass identifer to outlook to avoid creation of multiple file with the same date */
+                $ical_obj->set_datestart($cms_event->fromDate);
+                $ical_obj->set_datend($cms_event->toDate);
+                $ical_obj->set_location($cms_event->place);
+                $ical_obj->set_summary($cms_event->title);
+                $ical_obj->set_categories('Event');
+                $ical_obj->set_organizer();
+                $ical_obj->set_icalattendees($event_users['uid']);
+                $ical_obj->set_description($cms_event->description);
+                $ical_obj->endical();
+
+                $mailer = new Mailer();
+                $mailer = $mailer->get_mailerobj();
+                $mailer->set_type('ical', array('content-class' => 'meetingrequest', 'method' => 'REQUEST'));
+                $mailer->set_from(array('name' => 'OCOS Mailer', 'email' => $core->settings['maileremail']));
+                $mailer->set_subject($cms_event->title);
+                $mailer->set_message($ical_obj->geticalendar());
+                $mailer->set_to($event_users['email']);
+
+                /* Add multiple Attachments */
+                if(is_array($attachments)) {
+                    foreach($attachments as $attachment) {
+                        $mailer->add_attachment($attachments_path.'/'.$attachment['name']);
+                    }
                 }
-                if(isset($core->input['event']['notify']) && $core->input['event']['notify'] == 1) {
-                    /* Send the event notification - START */
-                    $notification_mails = get_specificdata('affiliates', array('affid', 'mailingList'), 'affid', 'mailingList', '', 0, 'mailingList != "" AND affid IN('.implode(',', $core->input['event']['restrictto']).')');
+                //$mailer->send();
+            }
+        }
 
-                    $ical_obj = new iCalendar(array('identifier' => $cms_event->identifier.'all', 'uidtimestamp' => $cms_event->createdOn));  /* pass identifer to outlook to avoid creation of multiple file with the same date */
-                    $ical_obj->set_datestart($cms_event->fromDate);
-                    $ical_obj->set_datend($cms_event->toDate);
-                    $ical_obj->set_location($cms_event->place);
-                    $ical_obj->set_summary($cms_event->title);
-                    $ical_obj->set_name();
-                    $ical_obj->set_status();
-                    $ical_obj->set_transparency();
-                    $ical_obj->set_icalattendees($notification_mails);
-                    $ical_obj->set_description($cms_event->description);
-                    $ical_obj->endical();
+        if($core->input['event']['isPublic'] == 1 && $core->usergroup['calendar_canAddPublicEvents'] == 1) {
+            if(isset($core->input['event']['restrictto'])) {
+                if(is_array($core->input['event']['restrictto'])) {
+                    foreach($core->input['event']['restrictto'] as $affid) {
+                        $restriction = new CalendarEventsRestrictions();
+                        $restriction->set(array('affid' => $affid, 'ceid' => $cms_event->get_id()))->save();
+                    }
+                    if(isset($core->input['event']['notify']) && $core->input['event']['notify'] == 1) {
+                        /* Send the event notification - START */
+                        $notification_mails = get_specificdata('affiliates', array('affid', 'mailingList'), 'affid', 'mailingList', '', 0, 'mailingList != "" AND affid IN('.implode(',', $core->input['event']['restrictto']).')');
 
-                    $mailer = new Mailer();
-                    $mailer = $mailer->get_mailerobj();
-                    $mailer->set_type('ical', array('content-class' => 'meetingrequest', 'method' => 'REQUEST', 'filename' => $cms_event->title.'.ics'));
-                    $mailer->set_from(array('name' => 'Orkila Events Notifier', 'email' => 'events@orkila.com'));
-                    $mailer->set_subject($cms_event->title);
-                    $mailer->set_message($ical_obj->geticalendar());
-                    $mailer->set_to($notification_mails);
+                        $ical_obj = new iCalendar(array('identifier' => $cms_event->identifier.'all', 'uidtimestamp' => $cms_event->createdOn));  /* pass identifer to outlook to avoid creation of multiple file with the same date */
+                        $ical_obj->set_datestart($cms_event->fromDate);
+                        $ical_obj->set_datend($cms_event->toDate);
+                        $ical_obj->set_location($cms_event->place);
+                        $ical_obj->set_summary($cms_event->title);
+                        $ical_obj->set_name();
+                        $ical_obj->set_status();
+                        $ical_obj->set_transparency();
+                        $ical_obj->set_icalattendees($notification_mails);
+                        $ical_obj->set_description($cms_event->description);
+                        $ical_obj->endical();
 
-                    /* Add multiple Attachments */
-                    if(is_array($attachments)) {
-                        foreach($attachments as $attachment) {
-                            $mailer->add_attachment($attachments_path.'/'.$attachment['name']);
+                        $mailer = new Mailer();
+                        $mailer = $mailer->get_mailerobj();
+                        $mailer->set_type('ical', array('content-class' => 'meetingrequest', 'method' => 'REQUEST', 'filename' => $cms_event->title.'.ics'));
+                        $mailer->set_from(array('name' => 'Orkila Events Notifier', 'email' => 'events@orkila.com'));
+                        $mailer->set_subject($cms_event->title);
+                        $mailer->set_message($ical_obj->geticalendar());
+                        $mailer->set_to($notification_mails);
+
+                        /* Add multiple Attachments */
+                        if(is_array($attachments)) {
+                            foreach($attachments as $attachment) {
+                                $mailer->add_attachment($attachments_path.'/'.$attachment['name']);
+                            }
                         }
-                    }
-                    //$mailer->send();
+                        //$mailer->send();
 
-                    if($mailer->get_status() === true) {
-                        $log->record($notification_mails, $last_id);
+                        if($mailer->get_status() === true) {
+                            $log->record($notification_mails, $last_id);
+                        }
+                        else {
+                            $errors['notification'] = false;
+                        }
+                        /* Send the event notification - END */
                     }
-                    else {
-                        $errors['notification'] = false;
-                    }
-                    /* Send the event notification - END */
                 }
             }
         }
+        switch($cms_event->get_errorcode()) {
+            case 0:
+                echo $lang->successfullysaved;
+                break;
+            case 1:
+                echo $lang->fillrequiredfields;
+                break;
+        }
+        exit;
+        /* Parse Event Logo - END */
     }
-    switch($cms_event->get_errorcode()) {
-        case 0:
-            echo $lang->successfullysaved;
-            break;
-        case 1:
-            echo $lang->fillrequiredfields;
-            break;
+    elseif($core->input['action'] == 'togglepublish') {
+        if($core->usergroup['cms_canPublishNews'] == 1 && !empty($core->input['id'])) {
+            $event = new Events($core->input['id']);
+            $db->update_query(Events::TABLE_NAME, array('publishOnWebsite' => !$event->publishOnWebsite), Events::PRIMARY_KEY.'='.intval($core->input['id']));
+        }
+        redirect('index.php?module=cms/eventlist');
     }
-    exit;
-    /* Parse Event Logo - END */
 }

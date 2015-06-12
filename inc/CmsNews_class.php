@@ -17,7 +17,7 @@ class CmsNews extends Cms {
     const TABLE_NAME = 'cms_news';
     const DISPLAY_NAME = '';
     const CLASSNAME = __CLASS__;
-    const SIMPLEQ_ATTRS = 'cmsnid, createdBy';
+    const SIMPLEQ_ATTRS = 'cmsnid, createdBy, isPublished';
 
     public function __construct($id = '', $simple = true) {
         if(isset($id) && !empty($id)) {
@@ -322,6 +322,13 @@ class CmsNews extends Cms {
 
     public function get_status() {
         return $this->status;
+    }
+
+    public function __get($name) {
+        if(isset($this->data[$name])) {
+            return $this->data[$name];
+        }
+        return false;
     }
 
 }

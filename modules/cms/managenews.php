@@ -23,7 +23,7 @@ if(!$core->input['action']) {
     if($core->usergroup['crm_canPublishNews'] == 1) {
         $publish_news = '<div style="display:inline-block">'.$lang->ispublish.'</div><div style="display: table-cell; padding:10px;"><input name="news[isPublished]" type="checkbox" value="1"></div>';
     }
-    $content_categories = CmsContentCategories::get_data('title IS NOT NULL', array('returnarray' => true));
+    $content_categories = CmsContentCategories::get_data('title IS NOT NULL');
 
     if(isset($core->input['newsid']) && !empty($core->input['newsid'])) {
         $actiontype = 'edit';
@@ -33,12 +33,8 @@ if(!$core->input['action']) {
         if($news['isFeatured'] == 1) {
 //$checkedboxes['isFeatured'] = "checked='checked'";
         }
-        if(isset($news['publishDate']) && !empty($news['publishDate'])) {
-            $news['publishDate_output'] = date($core->settings['dateformat'], $news['publishDate']);
-        }
-        else {
-            $news['publishDate_output'] = date($core->settings['dateformat'], TIME_NOW);
-        }
+        $news['publishDate_output'] = date($core->settings['dateformat'], $news['publishDate']);
+
         $lang_array = array('en', 'fr');
         foreach($lang_array as $key) {
             if($news['lang'] == $key) {
@@ -59,7 +55,6 @@ if(!$core->input['action']) {
     else {
         $actiontype = 'add';
         $newscategories_list = parse_selectlist('news[categories]', 5, $content_categories, '');
-        $news['publishDate_output'] = date($core->settings['dateformat'], TIME_NOW);
     }
 
     if($core->usergroup['crm_canPublishNews'] == 1) {
@@ -110,7 +105,14 @@ else {
         </script>
         <?php
     }
-    elseif($core->input['action'] = 'do_uploadtmpimage') {
+    elseif($core->input['action'] == 'togglepublish') {
+        if($core->usergroup['cms_canPublishNews'] == 1 && !empty($core->input['id'])) {
+            $news = new CmsNews($core->input['id'], false);
+            $db->update_query(CmsNews::TABLE_NAME, array('isPublished' => !$news->isPublished), CmsNews::PRIMARY_KEY.'='.intval($core->input['id']));
+        }
+        redirect('index.php?module=cms/listnews');
+    }
+    elseif($core->input['action'] == 'do_uploadtmpimage') {
         $filepath = './tmp/';
 
         $allowed_types = array('image/jpeg', 'image/gif', 'image/png');

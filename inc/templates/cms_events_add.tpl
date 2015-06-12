@@ -15,6 +15,7 @@
             <div>
 
                 <form method="post" enctype="multipart/form-data" action="index.php?module=cms/manageevents&amp;action=do_perform_manageevents" target="uploadFrame">
+                    <input type='hidden' name='event[ceid]' value="{$event[ceid]}">
                     <div style="display:block;">
                         <div style="display: inline-block;width:10%">{$lang->title}</div>
                         <div style="display: inline-block;padding:5px;"><input name="event[title]" type="text" value="{$event[title]}" required="required" size="100"><input type='hidden' name='event[alias]' value="{$event[alias]}"></div>
@@ -61,11 +62,6 @@
                     <div style="display:block;"><textarea name="event[tags]" cols="120" rows="2" id='tags'>{$event[tags]}</textarea><br /><span style="font-style: italic;">Seperate tags by comma. Tags help finding related items.</span><br /></div>
                         {$restriction_selectlist}
                         {$notifyevent_checkbox}
-                    <div style="display:block;padding-top:5px;">
-                        <div style="width:15%; display:inline-block;">{$lang->publishonwebsite}</div>
-                        <div style="width:70%; display:inline-block;"><input name="event[publishOnWebsite]" type="checkbox" value="1" checked='checked'/></div>
-                    </div>
-
                     <div style="display:block;padding-top:10px;width:100%;" class="thead">{$lang->inviteemployees}</div>
                     <div style="width:100%; height:150px; overflow:auto; display:inline-block; vertical-align:top; margin-bottom: 10px;">
                         <table class="datatable" width="100%">

@@ -14,7 +14,10 @@ if(!defined('DIRECT_ACCESS')) {
 if(!$core->input['action']) {
     /* Perform inline filtering - START */
     $filters_config = array(
-            'parse' => array('filters' => array('title', 'place', 'fromDate', 'toDate')
+            'parse' => array('filters' => array('title', 'place', 'fromDate', 'toDate', 'publishOnWebsite'),
+                    'overwriteField' => array(
+                            'publishOnWebsite' => parse_selectlist('filters[publishOnWebsite]', 2, array('' => '', '1' => $lang->published, '0' => $lang->notpublished), $core->input['filters']['publishOnWebsite']),
+                    )
             ),
             'process' => array(
                     'filterKey' => 'ceid',
@@ -37,10 +40,10 @@ if(!$core->input['action']) {
 
     $filters_row = $filter->prase_filtersrows(array('tags' => 'table'));
     if(isset($filter_where) && !empty($filter_where)) {
-        $filter_where .=' AND  publishOnWebsite=1';
+        $filter_where .= ' AND (publishOnWebsite=1 OR isCreatedFromCMS=1)';
     }
     else {
-        $filter_where = ' publishOnWebsite=1';
+        $filter_where = ' (publishOnWebsite=1 OR isCreatedFromCMS=1)';
     }
 //    if(is_array($core->input[filters])) {
 //        $array_fields = array('title', 'place', 'fromDate', 'toDate');
@@ -67,6 +70,18 @@ if(!$core->input['action']) {
         foreach($event_objs as $event) {
             $event->fromdate = date($core->settings['dateformat'], $event->fromDate);
             $event->todate = date($core->settings['dateformat'], $event->toDate);
+
+            if($event->publishOnWebsite == 1) {
+                $ispublished_icon = '<img src="./images/valid.gif" border="0" title="'.$lang->published.'"/>';
+            }
+            else {
+                $ispublished_icon = '<img src="./images/false.gif" border="0" />';
+            }
+
+            if($core->usergroup['cms_canPublishNews'] == 1) {
+                $ispublished_icon = '<a href="index.php?module=cms/manageevents&action=togglepublish&id='.$event->get_id().'">'.$ispublished_icon.'</a>';
+            }
+
             eval("\$cms_events_list_rows .= \"".$template->get('cms_events_list_rows')."\";");
         }
     }
