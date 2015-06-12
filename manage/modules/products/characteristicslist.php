@@ -120,7 +120,7 @@ else {
         $chars = $characteristic->get();
         $pcid = $characteristic->pcid;
         $valcharrowid = 1;
-        $charvalues = ProductCharacteristicValues::get_data(array('pcid' => $characteristic->pcid), array('returnarray' => true));
+        $charvalues = ProductCharacteristicValues::get_data(array('pcid' => $characteristic->pcid), array('returnarray' => true, 'order' => ProductCharacteristicValues::DISPLAY_NAME));
         if(is_array($charvalues)) {
             foreach($charvalues as $charvalue) {
                 $characteristicval = $charvalue->get();
