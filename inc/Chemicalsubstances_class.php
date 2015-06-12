@@ -20,7 +20,7 @@ class Chemicalsubstances extends AbstractClass {
     const TABLE_NAME = 'chemicalsubstances';
     const DISPLAY_NAME = 'name';
     const CLASSNAME = __CLASS__;
-    const SIMPLEQ_ATTRS = 'csid, casNum';
+    const SIMPLEQ_ATTRS = 'csid, casNum,name';
 
     public function __construct($id = '', $simple = true) {
         parent::__construct($id, $simple);
