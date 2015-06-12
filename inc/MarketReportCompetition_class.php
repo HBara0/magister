@@ -27,7 +27,7 @@ class MarketReportCompetition extends AbstractClass {
         if(empty($data)) {
             $data = $this->data;
         }
-        if(!isset($data['sid'])) {
+        if(!isset($data['sid']) && !isset($data['coid'])) {
             return;
         }
         $db->insert_query(self::TABLE_NAME, $data);
@@ -40,7 +40,7 @@ class MarketReportCompetition extends AbstractClass {
         if(empty($data)) {
             $data = $this->data;
         }
-        if(!isset($data['sid'])) {
+        if(!isset($data['sid']) && !isset($data['coid'])) {
             $mrcompetitionproducts = MarketReportCompetitionProducts::get_data(array('mrcid' => $this->data[self::PRIMARY_KEY]), array('returnarray' => true));
             if(is_array($mrcompetitionproducts)) {
                 foreach($mrcompetitionproducts as $mrcompetitionproduct) {
