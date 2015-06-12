@@ -161,11 +161,11 @@ else {
         }
         $extra_where = getquery_entities_viewpermissions();
 
-        $report = $db->fetch_assoc($db->query("SELECT affid, spid, prActivityAvailable, keyCustAvailable, mktReportAvailable
+        $report = $db->fetch_assoc($db->query("SELECT affid, spid, prActivityAvailable, mktReportAvailable
 					 FROM ".Tprefix."reports r
 					 WHERE type='q' AND rid=".$db->escape_string($core->input['rid']).$extra_where['extra']));
 
-        echo parse_statusdetails(array('prActivityAvailable' => $report['prActivityAvailable'], 'keyCustAvailable' => $report['keyCustAvailable'], 'mktReportAvailable' => $report['mktReportAvailable']));
+        echo parse_statusdetails(array('prActivityAvailable' => $report['prActivityAvailable'], 'mktReportAvailable' => $report['mktReportAvailable']));
     }
     elseif($core->input['action'] == 'do_moderation') {
         if($core->input['moderationtool'] == 'lock' || $core->input['moderationtool'] == 'unlock' || $core->input['moderationtool'] == 'lockunlock' || $core->input['moderationtool'] == 'unlockwithreminders') {
