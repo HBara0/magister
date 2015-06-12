@@ -143,6 +143,12 @@ else {
                     if(!isset($country['timeZone']) || empty($country['timeZone']) || is_null($country['timeZone'])) {
                         $country['timeZone'] = $datarray->timezones[0];
                     }
+                    if(!isset($country['continent']) || empty($country['continent']) || is_null($country['continent'])) {
+                        $country['continent'] = $datarray->region;
+                    }
+                    if(!isset($country['region']) || empty($country['region']) || is_null($country['region'])) {
+                        $country['region'] = $datarray->subregion;
+                    }
                     $country_obj->set($country);
                     $country_obj->save();
                     $errorcodes[$country_obj->coid] = $country_obj->get_errorcode();

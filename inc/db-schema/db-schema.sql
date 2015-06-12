@@ -1550,17 +1550,16 @@ DROP TABLE IF EXISTS `countries`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `countries` (
   `coid` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `affid` smallint(5) unsigned NOT NULL,
+  `affid` smallint(5) unsigned DEFAULT NULL,
   `name` varchar(220) NOT NULL,
-  `altName` varchar(200) DEFAULT NULL,
   `acronym` varchar(10) NOT NULL,
-  `capitalCity` int(10) NOT NULL,
   `mainCurrency` int(3) DEFAULT NULL,
-  `defaultTimeZone` varchar(100) DEFAULT NULL,
+  `capitalCity` int(10) NOT NULL,
+  `timeZone` varchar(100) DEFAULT NULL,
+  `phoneCode` int(10) NOT NULL,
   PRIMARY KEY (`coid`),
-  KEY `affid` (`affid`),
-  KEY `capitalCity` (`capitalCity`)
-) ENGINE=MyISAM AUTO_INCREMENT=244 DEFAULT CHARSET=utf8;
+  KEY `affid` (`affid`)
+) ENGINE=MyISAM AUTO_INCREMENT=248 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `currencies`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
