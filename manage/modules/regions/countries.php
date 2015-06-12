@@ -140,6 +140,9 @@ else {
                     if(is_object($currency) && (is_null($country['mainCurrency']) || $country['mainCurrency'] == '0')) {
                         $country['mainCurrency'] = $currency->numCode;
                     }
+                    if(!isset($country['timeZone']) || empty($country['timeZone']) || is_null($country['timeZone'])) {
+                        $country['timeZone'] = $datarray->timezones[0];
+                    }
                     $country_obj->set($country);
                     $country_obj->save();
                     $errorcodes[$country_obj->coid] = $country_obj->get_errorcode();
