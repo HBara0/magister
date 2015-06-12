@@ -166,13 +166,17 @@ class EndProducTypes extends AbstractClass {
     }
 
     public function get_endproducttype_chain($value = '') {
+        if($this->data['parent'] == 0) {
+            return;
+        }
         $parent = new EndProducTypes($this->data['parent']);
         $titlechain = $parent->title.$value;
 
-        if($parent->parent != 0) {
+        if($parent->parent != 0 && $parent->get_id() != $parent->parent) {
             $titlechain = ' > '.$titlechain;
             $titlechain = $parent->get_endproducttype_chain($titlechain);
         }
+
         return $titlechain;
     }
 
