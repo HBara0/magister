@@ -39,7 +39,7 @@
                             <span>
                                 <input type="hidden" name="ajaxaddmoredata[segmentid]" id="ajaxaddmoredata_segmentid"  value="{$segment[psid]}"/>
                                 <input type="hidden" name="ajaxaddmoredata[srowid]" id="ajaxaddmoredata_segmentid"  value="0"/>
-                                <img src="./images/add.gif"  style="cursor:pointer" id="ajaxaddmore_reporting/fillreport_unspecifiedsupplierproducts_{$segment[psid]}_0"  alt="{$lang->addmoreproducts}"> {$lang->addmorechem}
+                                <img src="./images/add.gif"  style="cursor:pointer" id="ajaxaddmore_reporting/fillreport_unspecifiedsupplierproducts_{$segment[psid]}_0"  alt="{$lang->addmoreproducts}"> {$lang->addmorechemsubs}
                                 <input type="hidden" id="numrows_unspecifiedsupplierproducts_{$segment[psid]}_0" value="0">
                             </span>
 

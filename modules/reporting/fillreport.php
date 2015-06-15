@@ -425,7 +425,7 @@ if(!$core->input['action']) {
                 }
                 else {
                     $srowid = $sprowid = 1;
-                    $css['display']['origin'] = 'none';
+                    $css['display']['origin'] = 'block';
                     $css['display']['chemsubfield'] = 'none';
                     $countries_selectlist = parse_selectlist('marketreport['.$segment[psid].'][suppliers]['.$srowid.'][coid]', $tabindex, $countries, $selected_options, '', '', array('width' => '150px', 'blankstart' => true, 'id' => 'marketreport_'.$segment[psid].'_suppliers_'.$srowid.'_coid', 'id' => 'marketreport_'.$segment[psid].'_suppliers_'.$srowid.'_coid'));
                     $inputchecksum['product'] = generate_checksum('mpl');
@@ -1040,13 +1040,16 @@ else {
             $one_notexcluded = true;
         }
 
-        if($found_one == true || $one_notexcluded == false) {
+//        if($found_one == true || $one_notexcluded == false) {
+//            output_xml("<status>false</status><message>{$lang->fillonemktreportsection}</message>");
+//            exit;
+//        }
+
+        $report_meta = unserialize($session->get_phpsession('reportmeta_'.$identifier));
+        if(!is_array($marketreport_data)) {
             output_xml("<status>false</status><message>{$lang->fillonemktreportsection}</message>");
             exit;
         }
-
-        $report_meta = unserialize($session->get_phpsession('reportmeta_'.$identifier));
-
         foreach($marketreport_data as $val) {
             foreach($val as $k => $v) {
                 if($k == 'suppliers' || $k == 'customers') {
@@ -1574,8 +1577,8 @@ else {
         $segment['psid'] = $db->escape_string($core->input ['ajaxaddmoredata']['segmentid']);
         $sprowid = 1;
         $countries = Countries::get_data(array('coid is NOT NULL'));
-        $countries_selectlist = parse_selectlist('marketreport[ '.$segment[psid].'][suppliers]['.$srowid.'][coid]', $tabindex, $countries, $selected_options, '', '', array('width' => '150px', 'blankstart' => true, 'id' => 'marketreport_'.$segment['psid'].'_suppliers_'.$srowid.'_coid'));
-        $css['display']['chemsubfield'] = $css['display']['origin'] = 'none';
+        $countries_selectlist = parse_selectlist('marketreport['.$segment[psid].'][suppliers]['.$srowid.'][coid]', $tabindex, $countries, $selected_options, '', '', array('width' => '150px', 'blankstart' => true, 'id' => 'marketreport_'.$segment['psid'].'_suppliers_'.$srowid.'_coid'));
+        $css['display']['chemsubfield'] = 'none';
         $inputchecksum['product'] = generate_checksum('mpl');
         eval("\$product_row= \"".$template->get('reporting_fillreport_marketreport_suppproducts')."\";");
         $inputchecksum['supplier'] = generate_checksum('msl');

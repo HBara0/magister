@@ -19,8 +19,19 @@
                 </tr>
                 <tr>
                     <td>
-                        <a style="padding-top:-10px;" {$display[product]} style="color:#91b64f;" onclick="$('#competitorsupp_{$segment[psid]}{$srowid}_QSearch').toggle();
-                                $('#marketreport_{$segment['psid']}_suppliers_{$srowid}_origin').toggle();"> Select Origin </a>
+                        <a style="padding-top:-10px;" {$display[product]} style="color:#91b64f;" onclick="if($('#competitorsupp_{$segment[psid]}{$srowid}_QSearch').is(':visible')) {
+                                    $('#competitorsupp_{$segment[psid]}{$srowid}_QSearch').hide();
+                                    $('#marketreport_{$segment['psid']}_suppliers_{$srowid}_origin').show();
+                                    $('#competitorsupp_{$segment[psid]}{$srowid}_id').val('');
+                                    $('#competitorsupp_{$segment[psid]}{$srowid}_QSearch').val('');
+                                }
+                                else {
+                                    $('#marketreport_{$segment['psid']}_suppliers_{$srowid}_origin').hide();
+                                    $('#marketreport_{$segment['psid']}_suppliers_{$srowid}_id').val('');
+                                    $('#competitorsupp_{$segment[psid]}{$srowid}_QSearch').show();
+                                    $('#marketreport_{$segment['psid']}_suppliers_{$srowid}_QSearch').val('');
+
+                                }"> Select Origin </a>
                     </td>
                     <td><span id="marketreport_{$segment['psid']}_suppliers_{$srowid}_origin" style="display: {$css[display][origin]};">{$countries_selectlist}</span>
                     </td>

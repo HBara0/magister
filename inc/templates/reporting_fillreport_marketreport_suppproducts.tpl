@@ -11,8 +11,21 @@
             </div>
         </div>
         <div style="display:inline-block;width:30%;"></div>
-        <div style="display:inline-block;width:65%;padding-top:5px;"><img src="{$core->settings[rootdir]}/images/clickhere.png" /><a style="padding-top:-10px;" {$display[product]} style="color:#91b64f;" onclick="$('#prof_mkd_chemsubfield_{$segment[psid]}{$srowid}{$sprowid}').toggle();
-                $('#prof_mkd_prodfield_{$segment[psid]}{$srowid}{$sprowid}').toggle();">or use chemical substance instead</a></div>
+        <div style="display:inline-block;width:65%;padding-top:5px;"><img src="{$core->settings[rootdir]}/images/clickhere.png" /><a style="padding-top:-10px;" {$display[product]} style="color:#91b64f;" onclick="
+                if($('#prof_mkd_chemsubfield_{$segment[psid]}{$srowid}{$sprowid}').is(':visible')) {
+                    $('#prof_mkd_chemsubfield_{$segment[psid]}{$srowid}{$sprowid}').hide();
+                    $('#prof_mkd_prodfield_{$segment[psid]}{$srowid}{$sprowid}').show();
+                    $('#product_{$segment[psid]}{$srowid}{$sprowid}_autocomplete').val('');
+                    $('#product_{$segment[psid]}{$srowid}{$sprowid}_id').val('');
+                }
+                else {
+                    $('#prof_mkd_prodfield_{$segment[psid]}{$srowid}{$sprowid}').hide();
+                    $('#chemicalproducts_{$segment[psid]}{$srowid}{$sprowid}_id').val('');
+                    $('#chemicalproducts_{$segment[psid]}{$srowid}{$sprowid}_autocomplete').val('');
+                    $('#prof_mkd_chemsubfield_{$segment[psid]}{$srowid}{$sprowid}').show();
+
+
+                }">or use chemical substance instead</a></div>
     </div>
 
     <div id='prof_mkd_chemsubfield_{$segment[psid]}{$srowid}{$sprowid}' style="display: {$css[display][chemsubfield]};">

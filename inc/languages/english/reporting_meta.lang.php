@@ -13,6 +13,7 @@ $lang['forecasts'] = "Forecasts";
 $lang['yearforecasts'] = "Year End Forecasts";
 $lang['sales'] = "Sales";
 $lang['qty'] = "QTY";
+$lang['addmorechemsubs'] = "Add More Chemical Substances";
 $lang['reportsubmitted'] = "Report Submitted";
 $lang['soldquantity'] = "Sold Quantity";
 $lang['productactivitydetails'] = "Products Activity Details";
