@@ -2632,12 +2632,14 @@ CREATE TABLE `marketreport` (
   `issues` text NOT NULL,
   `actionPlan` text NOT NULL,
   `remarks` varchar(300) NOT NULL,
+  `rating` tinyint(1) NOT NULL,
+  `createdBy` int(5) NOT NULL,
+  `createdOn` varchar(150) NOT NULL,
+  `modifiedBy` int(5) NOT NULL,
+  `modifiedOn` varchar(150) NOT NULL,
   PRIMARY KEY (`mrid`),
-  KEY `rid` (`rid`),
-  FULLTEXT KEY `markTrendCompetition` (`markTrendCompetition`,`quarterlyHighlights`,`devProjectsNewOp`,`issues`,`actionPlan`),
-  FULLTEXT KEY `markTrendCompetition_2` (`markTrendCompetition`),
-  FULLTEXT KEY `quarterlyHighlights` (`quarterlyHighlights`)
-) ENGINE=MyISAM AUTO_INCREMENT=8193 DEFAULT CHARSET=utf8;
+  KEY `rid` (`rid`)
+) ENGINE=MyISAM AUTO_INCREMENT=26 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `marketreport_authors`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
