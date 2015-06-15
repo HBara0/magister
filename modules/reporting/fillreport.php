@@ -370,6 +370,7 @@ if(!$core->input['action']) {
                                                 $product_name = $product->get_displayname();
                                                 if(!empty($product_name)) {
                                                     $display['product'] = 'style="display:block;"';
+                                                    $display_orprodlink = 'display:none;';
                                                 }
                                             }
                                             if($mrcompetition_product['csid'] != 0) {
@@ -379,6 +380,7 @@ if(!$core->input['action']) {
                                                 $chemicalsubstance_name = $chemicalsubs->get_displayname();
                                                 if(!empty($chemicalsubstance_name)) {
                                                     $display['chemsubstance'] = 'style="display:block;"';
+                                                    $display_orprodlink = 'display:none;';
                                                 }
                                             }
                                             $inputchecksum['product'] = $mrcompetition_product['inputChecksum'];
@@ -388,7 +390,7 @@ if(!$core->input['action']) {
                                     }
                                     else {
                                         $sprowid = 1;
-                                        $css['display']['chemsubfield'] = 'none';
+                                        $display['product'] = 'none';
                                         $css['display']['origin'] = 'none';
                                         $inputchecksum['product'] = generate_checksum('mpl');
                                         eval("\$product_row= \"".$template->get('reporting_fillreport_marketreport_suppproducts')."\";");
@@ -410,7 +412,7 @@ if(!$core->input['action']) {
                         else {
                             $srowid = $sprowid = 1;
                             $countries_selectlist = parse_selectlist('marketreport['.$segment[psid].'][suppliers]['.$srowid.'][coid]', $tabindex, $countries, $selected_options, '', '', array('width' => '150px', 'blankstart' => true));
-                            $css['display']['chemsubfield'] = 'none';
+                            $display['product'] = 'none';
                             $css['display']['origin'] = 'block';
                             $inputchecksum['product'] = generate_checksum('mpl');
                             eval("\$product_row= \"".$template->get('reporting_fillreport_marketreport_suppproducts')."\";");
@@ -426,7 +428,7 @@ if(!$core->input['action']) {
                 else {
                     $srowid = $sprowid = 1;
                     $css['display']['origin'] = 'block';
-                    $css['display']['chemsubfield'] = 'none';
+                    $display['product'] = 'none';
                     $countries_selectlist = parse_selectlist('marketreport['.$segment[psid].'][suppliers]['.$srowid.'][coid]', $tabindex, $countries, $selected_options, '', '', array('width' => '150px', 'blankstart' => true, 'id' => 'marketreport_'.$segment[psid].'_suppliers_'.$srowid.'_coid', 'id' => 'marketreport_'.$segment[psid].'_suppliers_'.$srowid.'_coid'));
                     $inputchecksum['product'] = generate_checksum('mpl');
                     eval("\$product_row= \"".$template->get('reporting_fillreport_marketreport_suppproducts')."\";");
@@ -440,63 +442,63 @@ if(!$core->input['action']) {
                 }
 
                 /* Parse Market report development projects section on modify */
-
-                if(is_array($mrdevelopmentprojects[$segment['psid']])) {
-                    foreach($mrdevelopmentprojects[$segment['psid']] as $marketreportid => $mrdevprojectcustomers) {
-                        $crowid = $cprowid = 0;
-                        if(is_array($mrdevprojectcustomers)) {
-                            foreach($mrdevprojectcustomers as $mrdpid => $mrdevprojectcustomer) {
-                                $crowid++;
-                                $mrdevprojectcustomer = $mrdevprojectcustomer->get();
-                                $cprowid = 0;
-                                $customer_obj = new Entities($mrdevprojectcustomer['cid']);
-                                if(is_object($customer_obj)) {
-                                    $mrdevprojectcustomer['customerName'] = $customer_obj->get_displayname();
-                                }
-                                $inputchecksum['customer'] = $mrdevprojectcustomer['inputChecksum'];
-
-                                $mrdevprojectcustomer_products = MarketReportDevelopmentPojectsProducts::get_data(array('mrdpid' => $mrdpid), array('returnarray' => true));
-                                if(is_array($mrdevprojectcustomer_products)) {
-                                    $cprowid = 0;
-                                    foreach($mrdevprojectcustomer_products as $customer_product) {
-                                        $cprowid++;
-                                        $customerproduct = $customer_product->get();
-                                        $product = new Products($customerproduct['pid']);
-                                        if(is_object($product)) {
-                                            $customerproduct['productName'] = $product->get_displayname();
-                                        }
-                                        $inputchecksum['custproduct'] = $customerproduct['inputChecksum'];
-                                        $customerproduct['when_output'] = date('d-m-Y', $customerproduct['whenn']);
-                                        $customerproduct['when_formatted'] = date($core->settings['dateformat'], $customerproduct['whenn']);
-
-                                        eval("\$customer_product_row .= \"".$template->get('reporting_marketreport_devprojects_custproducts')."\";");
-                                    }
-                                }
-                                eval("\$markerreport_customer_row .= \"".$template->get('reporting_marketreport_devprojects_custrow')."\";");
-                                unset($customer_product_row);
-                            }
-                            eval("\$devprojectssection .= \"".$template->get('reporting_fillreports_marketreport_devprojects')."\";");
-                            unset($mrdevprojectcustomer, $customerproduct, $product_name, $customer_product_row, $markerreport_customer_row);
-                        }
-                        else {
-                            $crowid = $cprowid = 1;
-                            $inputchecksum['custproduct'] = generate_checksum('cp');
-                            eval("\$customer_product_row = \"".$template->get('reporting_marketreport_devprojects_custproducts')."\";");
-                            $inputchecksum['customer'] = generate_checksum('c');
-                            eval("\$markerreport_customer_row = \"".$template->get('reporting_marketreport_devprojects_custrow')."\";");
-                            eval("\$devprojectssection = \"".$template->get('reporting_fillreports_marketreport_devprojects')."\";");
-                        }
-                    }
-                }
-                else {
-                    $crowid = $cprowid = 1;
-                    $inputchecksum['custproduct'] = generate_checksum('cp');
-                    eval("\$customer_product_row = \"".$template->get('reporting_marketreport_devprojects_custproducts')."\";");
-                    $inputchecksum['customer'] = generate_checksum('c');
-                    eval("\$markerreport_customer_row = \"".$template->get('reporting_marketreport_devprojects_custrow')."\";");
-                    eval("\$devprojectssection = \"".$template->get('reporting_fillreports_marketreport_devprojects')."\";");
-                }
-                $markerreport_fields .=$devprojectssection;
+//
+//                if(is_array($mrdevelopmentprojects[$segment['psid']])) {
+//                    foreach($mrdevelopmentprojects[$segment['psid']] as $marketreportid => $mrdevprojectcustomers) {
+//                        $crowid = $cprowid = 0;
+//                        if(is_array($mrdevprojectcustomers)) {
+//                            foreach($mrdevprojectcustomers as $mrdpid => $mrdevprojectcustomer) {
+//                                $crowid++;
+//                                $mrdevprojectcustomer = $mrdevprojectcustomer->get();
+//                                $cprowid = 0;
+//                                $customer_obj = new Entities($mrdevprojectcustomer['cid']);
+//                                if(is_object($customer_obj)) {
+//                                    $mrdevprojectcustomer['customerName'] = $customer_obj->get_displayname();
+//                                }
+//                                $inputchecksum['customer'] = $mrdevprojectcustomer['inputChecksum'];
+//
+//                                $mrdevprojectcustomer_products = MarketReportDevelopmentPojectsProducts::get_data(array('mrdpid' => $mrdpid), array('returnarray' => true));
+//                                if(is_array($mrdevprojectcustomer_products)) {
+//                                    $cprowid = 0;
+//                                    foreach($mrdevprojectcustomer_products as $customer_product) {
+//                                        $cprowid++;
+//                                        $customerproduct = $customer_product->get();
+//                                        $product = new Products($customerproduct['pid']);
+//                                        if(is_object($product)) {
+//                                            $customerproduct['productName'] = $product->get_displayname();
+//                                        }
+//                                        $inputchecksum['custproduct'] = $customerproduct['inputChecksum'];
+//                                        $customerproduct['when_output'] = date('d-m-Y', $customerproduct['whenn']);
+//                                        $customerproduct['when_formatted'] = date($core->settings['dateformat'], $customerproduct['whenn']);
+//
+//                                        eval("\$customer_product_row .= \"".$template->get('reporting_marketreport_devprojects_custproducts')."\";");
+//                                    }
+//                                }
+//                                eval("\$markerreport_customer_row .= \"".$template->get('reporting_marketreport_devprojects_custrow')."\";");
+//                                unset($customer_product_row);
+//                            }
+//                            eval("\$devprojectssection .= \"".$template->get('reporting_fillreports_marketreport_devprojects')."\";");
+//                            unset($mrdevprojectcustomer, $customerproduct, $product_name, $customer_product_row, $markerreport_customer_row);
+//                        }
+//                        else {
+//                            $crowid = $cprowid = 1;
+//                            $inputchecksum['custproduct'] = generate_checksum('cp');
+//                            eval("\$customer_product_row = \"".$template->get('reporting_marketreport_devprojects_custproducts')."\";");
+//                            $inputchecksum['customer'] = generate_checksum('c');
+//                            eval("\$markerreport_customer_row = \"".$template->get('reporting_marketreport_devprojects_custrow')."\";");
+//                            eval("\$devprojectssection = \"".$template->get('reporting_fillreports_marketreport_devprojects')."\";");
+//                        }
+//                    }
+//                }
+//                else {
+//                    $crowid = $cprowid = 1;
+//                    $inputchecksum['custproduct'] = generate_checksum('cp');
+//                    eval("\$customer_product_row = \"".$template->get('reporting_marketreport_devprojects_custproducts')."\";");
+//                    $inputchecksum['customer'] = generate_checksum('c');
+//                    eval("\$markerreport_customer_row = \"".$template->get('reporting_marketreport_devprojects_custrow')."\";");
+//                    eval("\$devprojectssection = \"".$template->get('reporting_fillreports_marketreport_devprojects')."\";");
+//                }
+//                $markerreport_fields .=$devprojectssection;
                 unset($devprojectssection, $markerreport_customer_row, $customer_product_row);
             }
             if(isset($marketreport[0])) {
@@ -1578,7 +1580,7 @@ else {
         $sprowid = 1;
         $countries = Countries::get_data(array('coid is NOT NULL'));
         $countries_selectlist = parse_selectlist('marketreport['.$segment[psid].'][suppliers]['.$srowid.'][coid]', $tabindex, $countries, $selected_options, '', '', array('width' => '150px', 'blankstart' => true, 'id' => 'marketreport_'.$segment['psid'].'_suppliers_'.$srowid.'_coid'));
-        $css['display']['chemsubfield'] = 'none';
+        $display['product'] = 'none';
         $inputchecksum['product'] = generate_checksum('mpl');
         eval("\$product_row= \"".$template->get('reporting_fillreport_marketreport_suppproducts')."\";");
         $inputchecksum['supplier'] = generate_checksum('msl');
@@ -1589,7 +1591,7 @@ else {
         $sprowid = $db->escape_string($core->input ['value']) + 1;
         $segment['psid'] = $db->escape_string($core->input ['ajaxaddmoredata']['segmentid']);
         $srowid = $db->escape_string($core->input ['ajaxaddmoredata']['srowid']);
-        $css['display']['chemsubfield'] = 'none';
+        $display['product'] = 'none';
         $inputchecksum['product'] = generate_checksum('mpl');
         eval("\$markerreport_segment_suppliers_row = \"".$template->get('reporting_fillreport_marketreport_suppproducts')."\";");
         echo $markerreport_segment_suppliers_row;
