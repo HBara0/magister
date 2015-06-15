@@ -306,7 +306,7 @@ if(!$core->input['action']) {
                             foreach($mrcompetition as $mrcid => $competitionsupplier) {
                                 $srowid++;
                                 $competitionsupplier = $competitionsupplier->get();
-                                if($competitionsupplier['sid'] == 0) {
+                                if($competitionsupplier['sid'] == 0 && $competitionsupplier['coid'] == 0) {
                                     $checked['unspecifiedsupp'] = 'checked="cecked"';
                                     $inputchecksum['unspecifiedsupp'] = $competitionsupplier['inputChecksum'];
 
@@ -348,9 +348,9 @@ if(!$core->input['action']) {
                                 else {
                                     $countries_selectlist = parse_selectlist('marketreport['.$segment[psid].'][suppliers]['.$srowid.'][coid]', $tabindex, $countries, $competitionsupplier['coid'], '', '', array('width' => '150px', 'blankstart' => true, 'id' => 'marketreport_'.$segment[psid].'_suppliers_'.$srowid.'_coid'));
                                     $css['display']['origin'] = 'block;';
-                                    if($competitionsupplier['coid'] == 0) {
-                                        $css['display']['origin'] = 'none';
-                                    }
+                                    //  if($competitionsupplier['coid'] == 0) {
+                                    //      $css['display']['origin'] = 'none';
+                                    //  }
                                     $sprowid = 0;
                                     $supplier = new Entities($competitionsupplier['sid']);
                                     if(is_object($supplier)) {
@@ -1581,6 +1581,7 @@ else {
         $countries = Countries::get_data(array('coid is NOT NULL'));
         $countries_selectlist = parse_selectlist('marketreport['.$segment[psid].'][suppliers]['.$srowid.'][coid]', $tabindex, $countries, $selected_options, '', '', array('width' => '150px', 'blankstart' => true, 'id' => 'marketreport_'.$segment['psid'].'_suppliers_'.$srowid.'_coid'));
         $display['product'] = 'none';
+        $css['display']['origin'] = 'block';
         $inputchecksum['product'] = generate_checksum('mpl');
         eval("\$product_row= \"".$template->get('reporting_fillreport_marketreport_suppproducts')."\";");
         $inputchecksum['supplier'] = generate_checksum('msl');
