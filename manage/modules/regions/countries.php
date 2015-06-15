@@ -143,11 +143,17 @@ else {
                     if(!isset($country['timeZone']) || empty($country['timeZone']) || is_null($country['timeZone'])) {
                         $country['timeZone'] = $datarray->timezones[0];
                     }
-                    if(!isset($country['continent']) || empty($country['continent']) || is_null($country['continent'])) {
-                        $country['continent'] = $datarray->region;
+                    if($country['acronym'] == 'CY') {
+                        $country['continent'] = 'Asia';
+                        $country['region'] = 'Western Asia';
                     }
-                    if(!isset($country['region']) || empty($country['region']) || is_null($country['region'])) {
-                        $country['region'] = $datarray->subregion;
+                    else {
+                        if(!isset($country['continent']) || empty($country['continent']) || is_null($country['continent'])) {
+                            $country['continent'] = $datarray->region;
+                        }
+                        if(!isset($country['region']) || empty($country['region']) || is_null($country['region'])) {
+                            $country['region'] = $datarray->subregion;
+                        }
                     }
                     $country_obj->set($country);
                     $country_obj->save();
