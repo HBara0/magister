@@ -439,6 +439,7 @@ if(!$core->input['action']) {
                             eval("\$markerreport_segment_suppliers = \"".$template->get('reporting_fillreport_marketreport_suppliers')."\";");
                         }
                         $markerreport_fields .=$markerreport_segment_suppliers;
+                        unset($unspecifiedsupplierproducts);
                     }
                 }
                 else {
@@ -456,7 +457,7 @@ if(!$core->input['action']) {
 
                     $markerreport_fields .=$markerreport_segment_suppliers;
                 }
-                unset($unspecifiedsupplierproducts);
+                unset($unspecifiedsupplierproducts, $product_row);
                 /* Parse Market report development projects section on modify */
 //
 //                if(is_array($mrdevelopmentprojects[$segment['psid']])) {
