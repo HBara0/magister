@@ -23,11 +23,18 @@ class MarketReportCompetitionProducts extends AbstractClass {
     }
 
     public function create(array $data = array()) {
-        global $db;
+        global $db, $errorhandler;
         if(empty($data)) {
             $data = $this->data;
         }
+        $marketreport_competition = MarketReportCompetition::get_data(array('mrcid' => $data['mrcid']));
+        if(is_object($marketreport_competition)) {
+            $supplier = Entities::get_data(array('eid' => $marketreport_competition->sid, 'type' => 'cs'));
+        }
         if((empty($data['pid']) && empty($data['csid'])) || empty($data['mrcid'])) {
+            if(is_object($supplier)) {
+                $errorhandler->record('requiredfields: ', 'chemcial Substance for supplier '.$supplier->get_displayname());
+            }
             return;
         }
         $db->insert_query(self::TABLE_NAME, $data);
@@ -36,11 +43,18 @@ class MarketReportCompetitionProducts extends AbstractClass {
     }
 
     public function update(array $data = array()) {
-        global $db;
+        global $db, $errorhandler;
         if(empty($data)) {
             $data = $this->data;
         }
+        $marketreport_competition = MarketReportCompetition::get_data(array('mrcid' => $data['mrcid']));
+        if(is_object($marketreport_competition)) {
+            $supplier = Entities::get_data(array('eid' => $marketreport_competition->sid, 'type' => 'cs'));
+        }
         if((empty($data['pid']) && empty($data['csid'])) || empty($data['mrcid'])) {
+            if(is_object($supplier)) {
+                $errorhandler->record('requiredfields: ', 'chemcial Substance for supplier '.$supplier->get_displayname());
+            }
             return;
         }
         $db->update_query(self::TABLE_NAME, $data, self::PRIMARY_KEY.' = '.intval($this->data[self::PRIMARY_KEY]));
