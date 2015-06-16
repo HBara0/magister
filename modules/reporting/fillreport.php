@@ -346,6 +346,19 @@ if(!$core->input['action']) {
                                             }
                                         }
                                     }
+                                    unset($mrcompetition_product, $competitionsupplier);
+                                    $count = count($mrcompetition);
+                                    /* If the only competitor supplier is the unspecified ,Parse a blank entry */
+                                    if($count == 1) {
+                                        $srowid = $sprowid = 1;
+                                        $countries_selectlist = parse_selectlist('marketreport['.$segment[psid].'][suppliers]['.$srowid.'][coid]', $tabindex, $countries, $selected_options, '', '', array('width' => '150px', 'blankstart' => true));
+                                        $display['product'] = 'none';
+                                        $css['display']['origin'] = 'block';
+                                        $inputchecksum['product'] = generate_checksum('mpl');
+                                        eval("\$product_row= \"".$template->get('reporting_fillreport_marketreport_suppproducts')."\";");
+                                        $inputchecksum['supplier'] = generate_checksum('msl');
+                                        eval("\$markerreport_segment_suppliers_row = \"".$template->get('reporting_fillreport_marketreport_suppliers_rows')."\";");
+                                    }
                                 }
                                 else {
                                     $countries_selectlist = parse_selectlist('marketreport['.$segment[psid].'][suppliers]['.$srowid.'][coid]', $tabindex, $countries, $competitionsupplier['coid'], '', '', array('width' => '150px', 'blankstart' => true, 'id' => 'marketreport_'.$segment[psid].'_suppliers_'.$srowid.'_coid'));
