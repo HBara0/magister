@@ -406,7 +406,7 @@ if(!$core->input['action']) {
                                     else {
                                         $sprowid = 1;
                                         $display['product'] = 'none';
-                                        $css['display']['origin'] = 'none';
+                                        $css['display']['origin'] = 'block';
                                         $inputchecksum['product'] = generate_checksum('mpl');
                                         eval("\$product_row= \"".$template->get('reporting_fillreport_marketreport_suppproducts')."\";");
                                     }
@@ -1118,7 +1118,14 @@ else {
                                 $mrcproduct_obj = new MarketReportCompetitionProducts();
                                 $mrcproduct_obj->set($data);
                                 $mrcproduct_obj->save();
+                                $error_output = $errorhandler->get_errors_inline();
                                 unset($data['pid'], $data['csid'], $data['mrcid']);
+                                if(!empty($error_output)) {
+                                    $output_message = $error_output.'</br>';
+                                    $process_success = 'false';
+                                    output_xml('<status>'.$process_success."</status><message><![CDATA[{$output_message}]]></message>");
+                                    exit;
+                                }
                             }
                         }
                     }
@@ -1188,12 +1195,7 @@ else {
             }
             $output_message = $lang->savedsuccessfully;
             $process_success = 'true';
-            $error_output = $errorhandler->get_errors_inline();
 
-            if(!empty($error_output)) {
-                $output_message = $error_output;
-                $process_success = 'false';
-            }
 //            }
             /* Validate Forecasts - End */
             if($report_meta['transFill'] != '1' || !isset($report_meta['transFill'])) {

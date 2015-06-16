@@ -28,12 +28,21 @@ class MarketReportCompetitionProducts extends AbstractClass {
             $data = $this->data;
         }
         $marketreport_competition = MarketReportCompetition::get_data(array('mrcid' => $data['mrcid']));
+
         if(is_object($marketreport_competition)) {
+            $segment = $marketreport_competition->mrcompetitionsegment();
             $supplier = Entities::get_data(array('eid' => $marketreport_competition->sid, 'type' => 'cs'));
+            $suppcountry = Countries::get_data(array('coid' => $marketreport_competition->coid));
         }
         if((empty($data['pid']) && empty($data['csid'])) || empty($data['mrcid'])) {
             if(is_object($supplier)) {
-                $errorhandler->record('requiredfields: ', 'chemcial Substance for supplier '.$supplier->get_displayname());
+                $field = ' For supplier '.$supplier->get_displayname();
+            }
+            else if(is_object($suppcountry)) {
+                $field = ' For supplier origin '.$suppcountry->get_displayname();
+            }
+            if(is_object($segment)) {
+                $errorhandler->record('Required Fields: ', 'chemcial Substance'.$field.' in Segment '.$segment->get_displayname());
             }
             return;
         }
@@ -49,11 +58,19 @@ class MarketReportCompetitionProducts extends AbstractClass {
         }
         $marketreport_competition = MarketReportCompetition::get_data(array('mrcid' => $data['mrcid']));
         if(is_object($marketreport_competition)) {
+            $segment = $marketreport_competition->mrcompetitionsegment();
             $supplier = Entities::get_data(array('eid' => $marketreport_competition->sid, 'type' => 'cs'));
+            $suppcountry = Countries::get_data(array('coid' => $marketreport_competition->coid));
         }
         if((empty($data['pid']) && empty($data['csid'])) || empty($data['mrcid'])) {
             if(is_object($supplier)) {
-                $errorhandler->record('requiredfields: ', 'chemcial Substance for supplier '.$supplier->get_displayname());
+                $field = ' For supplier '.$supplier->get_displayname();
+            }
+            else if(is_object($suppcountry)) {
+                $field = ' For supplier origin '.$suppcountry->get_displayname();
+            }
+            if(is_object($segment)) {
+                $errorhandler->record('Required Fields: ', 'chemcial Substance'.$field.' in Segment '.$segment->get_displayname());
             }
             return;
         }
