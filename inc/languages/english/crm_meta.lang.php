@@ -38,6 +38,7 @@ $lang['mktshareperc'] = 'Mkt Share Perc';
 $lang['application'] = 'Application';
 $lang['customertype'] = 'Customer Type';
 $lang['customercountry'] = 'Customer Country';
+$lang['characteristic'] = 'Characteristic';
 
 $lang['mktshareqty'] = 'Mkt Share Qty (MT)';
 $lang['unitprice'] = 'Unit Price (USD/Kg)';
