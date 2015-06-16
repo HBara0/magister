@@ -12,10 +12,10 @@
                 </div>
             </div>
         </div>
-        <div style="display:inline-block;width:30%;"></div>
         <div style="display:inline-block;width:65%;padding-top:5px;{$display_orprodlink}"><img src="{$core->settings[rootdir]}/images/clickhere.png" /><a style="padding-top:-10px;" {$display[product]} style="color:#91b64f;" onclick="
                 if($('#prof_mkd_chemsubfield_{$segment[psid]}{$srowid}{$sprowid}').is(':visible')) {
                     $('#prof_mkd_chemsubfield_{$segment[psid]}{$srowid}{$sprowid}').hide();
+                    $('#prof_mkd_prodfield_parentdiv_{$segment[psid]}{$srowid}{$sprowid}').show();
                     $('#prof_mkd_prodfield_{$segment[psid]}{$srowid}{$sprowid}').show();
                     $('#product_{$segment[psid]}{$srowid}{$sprowid}_autocomplete').val('');
                     $('#product_{$segment[psid]}{$srowid}{$sprowid}_id').val('');
@@ -23,12 +23,13 @@
                 else {
                     $('#prof_mkd_prodfield_{$segment[psid]}{$srowid}{$sprowid}').hide();
                     $('#chemicalproducts_{$segment[psid]}{$srowid}{$sprowid}_id').val('');
+                    $('#prof_mkd_prodfield_parentdiv_{$segment[psid]}{$srowid}{$sprowid}').hide();
                     $('#chemicalproducts_{$segment[psid]}{$srowid}{$sprowid}_autocomplete').val('');
                     $('#prof_mkd_chemsubfield_{$segment[psid]}{$srowid}{$sprowid}').show();
 
 
                 }">or use product instead</a></div>
-        <div {$display[product]}><div style="display:inline-block;width:30%;" >{$lang->product} <small>{$lang->ifavailable}</small></div>
+        <div {$display[product]} id='prof_mkd_prodfield_parentdiv_{$segment[psid]}{$srowid}{$sprowid}'><div style="display:inline-block;width:30%;" >{$lang->product} <small>{$lang->ifavailable}</small></div>
             <div id='prof_mkd_prodfield_{$segment[psid]}{$srowid}{$sprowid}' style="display:block;width:65%;">
                 <input type="hidden" value="{$segment[psid]}_{$srowid}_{$sprowid}"/>
                 <input type="text" size="25" id="product_{$segment[psid]}{$srowid}{$sprowid}_autocomplete" autocomplete="off"  value="{$product_name}"/>

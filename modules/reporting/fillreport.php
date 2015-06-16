@@ -1592,7 +1592,7 @@ else {
         $sprowid = $db->escape_string($core->input ['value']) + 1;
         $segment['psid'] = $db->escape_string($core->input ['ajaxaddmoredata']['segmentid']);
         $srowid = $db->escape_string($core->input ['ajaxaddmoredata']['srowid']);
-        $display['product'] = 'none';
+        $display['product'] = 'style="display:none"';
         $inputchecksum['product'] = generate_checksum('mpl');
         eval("\$markerreport_segment_suppliers_row = \"".$template->get('reporting_fillreport_marketreport_suppproducts')."\";");
         echo $markerreport_segment_suppliers_row;
