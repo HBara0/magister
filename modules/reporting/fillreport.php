@@ -1595,7 +1595,7 @@ else {
         $sprowid = intval($core->input ['value']) + 1;
         $segment['psid'] = intval($core->input ['ajaxaddmoredata']['segmentid']);
         $srowid = intval($core->input ['ajaxaddmoredata']['srowid']);
-        $display['product'] = 'none';
+        $display['product'] = 'style="display:none"';
         $inputchecksum['product'] = generate_checksum('mpl');
         eval("\$markerreport_segment_suppliers_row = \"".$template->get('reporting_fillreport_marketreport_suppproducts')."\";");
         output($markerreport_segment_suppliers_row);
