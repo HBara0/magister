@@ -57,7 +57,7 @@ if(!$core->input['action']) {
     }
     $lang->betweenhours = $lang->sprint($lang->betweenhours, $leave_actual_times['fromHour'], $leave_actual_times['fromMinutes'], $leave_actual_times['toHour'], $leave_actual_times['toMinutes'], 0).$hidden_fields;
 
-    $query = $db->query("SELECT * FROM ".Tprefix."leavetypes ORDER BY name ASC");
+    $query = $db->query("SELECT * FROM ".Tprefix."leavetypes WHERE isActive = 1 ORDER BY name ASC");
     while($type = $db->fetch_assoc($query)) {
         if($type['restricted'] == 1 && $is_supervisor != true) {
             continue;

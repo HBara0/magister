@@ -2542,6 +2542,8 @@ CREATE TABLE `leavetypes` (
   `additionalFields` text,
   `countWith` smallint(5) DEFAULT '0',
   `coexistWith` text,
+  `noteLangVar` varchar(50) NOT NULL,
+  `isActive` tinyint(1) NOT NULL DEFAULT '1',
   PRIMARY KEY (`ltid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=13 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -3348,7 +3350,7 @@ CREATE TABLE `segmentapplications` (
   `createdOn` bigint(30) NOT NULL,
   `modifiedBy` int(10) NOT NULL,
   `modifiedOn` int(30) NOT NULL,
-  `publishWebsite` tinyint(1) NOT NULL,
+  `publishOnWebsite` tinyint(1) NOT NULL,
   PRIMARY KEY (`psaid`,`psid`),
   KEY `createdBy` (`createdBy`,`modifiedBy`),
   FULLTEXT KEY `title` (`title`,`description`)
