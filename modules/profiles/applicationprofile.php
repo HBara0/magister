@@ -106,6 +106,7 @@ if(!$core->input['action']) {
     //looping through all eptids collected in end product type
     //Entity Brand block---Start
     if(!empty($eptids)) {
+        $eptids = array_unique($eptids);
         $entitybrandproduct_objs = EntBrandsProducts::get_data(array('eptid' => $eptids), array('returnarray' => true));
         if(is_array($entitybrandproduct_objs)) {
             foreach($entitybrandproduct_objs as $entitybrandproduct_obj) {
@@ -113,7 +114,7 @@ if(!$core->input['action']) {
                 $ebids[] = $entitybrandproduct_obj->get_entitybrand()->ebid;
             }
 
-            $eids = array_filter($eids);
+            $eids = array_unique($eids);
             $allowed_eid = $eids;
             if($core->usergroup['canViewAllCust'] == 0) {
                 $allowed_eid = array_intersect($eids, $core->user['customers']);
