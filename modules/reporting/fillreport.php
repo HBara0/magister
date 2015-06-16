@@ -297,7 +297,7 @@ if(!$core->input['action']) {
                 eval("\$markerreport_fields .= \"".$template->get('reporting_fillreports_marketreport_fields')."\";");
                 unset($criteriaandstars);
 
-                $countries = Countries::get_data(array('coid is NOT NULL'));
+                $countries = Countries::get_data(array('coid is NOT NULL'), array('order' => array('by' => name, 'sort' => 'ASC')));
                 /* Parse Market report competition section on modify */
                 if(is_array($marketreportcompetetion[$segment['psid']])) {
                     foreach($marketreportcompetetion[$segment['psid']] as $marketreportid => $mrcompetition) {
@@ -1581,7 +1581,7 @@ else {
         $srowid = intval($core->input ['value']) + 1;
         $segment['psid'] = intval($core->input['ajaxaddmoredata']['segmentid']);
         $sprowid = 1;
-        $countries = Countries::get_data(array('coid is NOT NULL'));
+        $countries = Countries::get_data(array('coid is NOT NULL'), array('order' => array('by' => name, 'sort' => 'ASC')));
         $countries_selectlist = parse_selectlist('marketreport['.$segment[psid].'][suppliers]['.$srowid.'][coid]', $tabindex, $countries, $selected_options, '', '', array('width' => '150px', 'blankstart' => true, 'id' => 'marketreport_'.$segment['psid'].'_suppliers_'.$srowid.'_coid'));
         $display['product'] = 'none';
         $css['display']['origin'] = 'block';
