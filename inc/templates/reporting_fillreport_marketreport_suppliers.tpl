@@ -25,7 +25,7 @@
                                                 <small>{$lang->unspecifiedsupplier}</small>
                                                 <input type="hidden" name="marketreport[{$segment[psid]}][suppliers][0][inputChecksum]" value="{$inputchecksum[unspecifiedsupp]}"/>
                                             </td>
-                                            <td tyle="width:65%;">
+                                            <td style="width:65%;">
                                                 <input type="text" size="25" id="chemicalproducts_{$segment[psid]}00_autocomplete" size="100" autocomplete="off" value="{$unspecified_chemname}" placeholder="pick chemical substance"/>
                                                 <input type="hidden" id="chemicalproducts_{$segment[psid]}00_id" name="marketreport[{$segment[psid]}][suppliers][0][chp][0][csid]" value="{$unspecified_id}"/>
                                                 <div id="searchQuickResults_{$segment[psid]}00" class="searchQuickResults" style="display:none;"></div>
@@ -42,8 +42,6 @@
                                 <img src="./images/add.gif"  style="cursor:pointer" id="ajaxaddmore_reporting/fillreport_unspecifiedsupplierproducts_{$segment[psid]}_0"  alt="{$lang->addmoreproducts}"> {$lang->addmorechemsubs}
                                 <input type="hidden" id="numrows_unspecifiedsupplierproducts_{$segment[psid]}_0" value="0">
                             </span>
-
-
                         </div>
                     </td>
                 </tr>
