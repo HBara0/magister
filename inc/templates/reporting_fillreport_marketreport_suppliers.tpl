@@ -20,7 +20,7 @@
                                 <table style="width:100%;">
                                     <tbody id="unspecifiedsupplierproducts_{$segment[psid]}_0_tbody">
                                         <tr id="test">
-                                            <td style="width:30%;">
+                                            <td style="width:30%;vertical-align: top">
                                                 <input type="checkbox" value="1" name='marketreport[{$segment[psid]}][suppliers][0][unspecifiedsupp]' {$checked[unspecifiedsupp]}/>
                                                 <small>{$lang->unspecifiedsupplier}</small>
                                                 <input type="hidden" name="marketreport[{$segment[psid]}][suppliers][0][inputChecksum]" value="{$inputchecksum[unspecifiedsupp]}"/>
@@ -30,6 +30,11 @@
                                                 <input type="hidden" id="chemicalproducts_{$segment[psid]}00_id" name="marketreport[{$segment[psid]}][suppliers][0][chp][0][csid]" value="{$unspecified_id}"/>
                                                 <div id="searchQuickResults_{$segment[psid]}00" class="searchQuickResults" style="display:none;"></div>
                                                 <input type="hidden" name="marketreport[{$segment[psid]}][suppliers][0][chp][0][inputChecksum]" value="{$inputchecksum[unspecifiedsuppcs]}"/>
+
+                                                <br/>
+                                                {$lang->productcomment}
+                                                <div><textarea cols="40" name="marketreport[{$segment[psid]}][suppliers][0][chp][0][howCanWeBeatThem]">{$unspecified[howCanWeBeatThem]}</textarea></div>
+
                                             </td>
                                         </tr>
                                         {$unspecifiedsupplierproducts}
