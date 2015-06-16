@@ -333,8 +333,8 @@ if(!$core->input['action']) {
                                                 if(!empty($chemicalsubstance_name)) {
                                                     $inputchecksum['unspecifiedsuppcs'] = $mrcompetition_product['inputChecksum'];
                                                     $unspecifiedsupplierproducts .= '<tr>  <td style="width:30%;"></td>  <td style="width:65%;">'
-                                                            .'<input type="text" size="25" id="chemicalproducts'.$segment[psid].'0'.$sprowid.'_autocomplete" size="100" autocomplete="off" value="'.$chemicalsubstance_name.'" placeholder="pick chemical substance"/>
-                                        <input type="hidden" id="chemicalproducts'.$segment[psid].'0'.$sprowid.'_id" name="marketreport['.$segment[psid].'][suppliers][0][chp]['.$sprowid.'][csid]" value="'.$mrcompetition_product['csid'].'"/>
+                                                            .'<input type="text" size="25" id="chemicalproducts_'.$segment[psid].'0'.$sprowid.'_autocomplete" size="100" autocomplete="off" value="'.$chemicalsubstance_name.'" placeholder="pick chemical substance"/>
+                                        <input type="hidden" id="chemicalproducts_'.$segment[psid].'0'.$sprowid.'_id" name="marketreport['.$segment[psid].'][suppliers][0][chp]['.$sprowid.'][csid]" value="'.$mrcompetition_product['csid'].'"/>
                                     <div id="searchQuickResults_'.$segment[psid].'0'.$sprowid.'" class="searchQuickResults" style="display:none;"></div>
                                     <input type="hidden" name="marketreport['.$segment[psid].'][suppliers][0][chp]['.$sprowid.'][inputChecksum]" value="'.$inputchecksum[unspecifiedsuppcs].'"/>'
                                                             .'<br/>'.$lang->productcomment.'<textarea cols = "40" name = "marketreport['.$segment[psid].'][suppliers][0][chp]['.$sprowid.'][howCanWeBeatThem]">'.$mrcompetition_product['howCanWeBeatThem'].'</textarea></td></tr>';
@@ -1619,8 +1619,8 @@ else {
         $srowid = $db->escape_string($core->input ['ajaxaddmoredata']['srowid']);
         $inputchecksum['unspecifiedsuppcs'] = generate_checksum('upl');
         $unspecifiedsupplierproducts = '<tr> <td style = "width:30%;"></td> <td style = "width:65%;">'
-                .'<input type = "text" size = "25" id = "chemicalproducts'.$segment[psid].'0'.$sprowid.'_autocomplete" size = "100" autocomplete = "off" value = "" placeholder = "pick chemical substance"/>
-                            <input type = "hidden" id = "chemicalproducts'.$segment[psid].'0'.$sprowid.'_id" name = "marketreport['.$segment[psid].'][suppliers][0][chp]['.$sprowid.'][csid]" value = ""/>
+                .'<input type = "text" size = "25" id = "chemicalproducts_'.$segment[psid].'0'.$sprowid.'_autocomplete" size = "100" autocomplete = "off" value = "" placeholder = "pick chemical substance"/>
+                            <input type = "hidden" id = "chemicalproducts_'.$segment[psid].'0'.$sprowid.'_id" name = "marketreport['.$segment[psid].'][suppliers][0][chp]['.$sprowid.'][csid]" value = ""/>
                            <div id = "searchQuickResults_'.$segment[psid].'0'.$sprowid.'" class = "searchQuickResults" style = "display:none;"></div>
                             <input type = "hidden" name = "marketreport['.$segment[psid].'][suppliers][0][chp]['.$sprowid.'][inputChecksum]" value = "'.$inputchecksum[unspecifiedsuppcs].'"/>'
                 .'<br/>'.$lang->productcomment.'<textarea cols="40" name="marketreport['.$segment[psid].'][suppliers][0][chp]['.$sprowid.'][howCanWeBeatThem]"></textarea></td></tr>';
