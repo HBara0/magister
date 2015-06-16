@@ -16,6 +16,7 @@ class ProductsSegments extends AbstractClass {
     const DISPLAY_NAME = 'title';
     const SIMPLEQ_ATTRS = 'psid,alias,title,titleAbbr';
     const UNIQUE_ATTRS = 'alias';
+    const CLASSNAME = __CLASS__;
 
     public function __construct($id = '', $simple = true) {
         parent::__construct($id, $simple);

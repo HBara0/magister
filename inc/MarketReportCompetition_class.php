@@ -54,4 +54,11 @@ class MarketReportCompetition extends AbstractClass {
         return $this;
     }
 
+    public function mrcompetitionsegment() {
+        $marketreport = MarketReport::get_data(array('mrid' => $this->mrid));
+        if(is_object($marketreport)) {
+            return ProductsSegments::get_data(array('psid' => $marketreport->psid));
+        }
+    }
+
 }
