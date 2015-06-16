@@ -307,7 +307,7 @@ if(!$core->input['action']) {
                                 $srowid++;
                                 $competitionsupplier = $competitionsupplier->get();
                                 if($competitionsupplier['sid'] == 0 && $competitionsupplier['coid'] == 0) {
-                                    $checked['unspecifiedsupp'] = 'checked="cecked"';
+                                    $checked['unspecifiedsupp'] = 'checked="checked"';
                                     $inputchecksum['unspecifiedsupp'] = $competitionsupplier['inputChecksum'];
 
                                     $mrcompetition_products = MarketReportCompetitionProducts::get_data(array('mrcid' => $mrcid), array('returnarray' => true));
@@ -457,7 +457,7 @@ if(!$core->input['action']) {
 
                     $markerreport_fields .=$markerreport_segment_suppliers;
                 }
-                unset($unspecifiedsupplierproducts, $product_row);
+                unset($unspecifiedsupplierproducts, $product_row, $markerreport_segment_suppliers_row, $markerreport_segment_suppliers, $checked['unspecifiedsupp']);
                 /* Parse Market report development projects section on modify */
 //
 //                if(is_array($mrdevelopmentprojects[$segment['psid']])) {
