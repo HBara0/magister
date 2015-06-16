@@ -1303,10 +1303,10 @@ else {
                 $rawdata['productactivitydata'][] = $productactitity_obj->get();
             }
         }
-        else {
-            output_xml("<status>false</status><message>{$lang->noproductsactivity}</message>");
-            exit;
-        }
+//        else {
+//            output_xml("<status>false</status><message>{$lang->noproductsactivity}</message>");
+//            exit;
+//        }
         $productsactivity_validation = $report->validate_forecasts($rawdata['productactivitydata'], $currencies);
         if($productsactivity_validation !== true) {
             output_xml("<status>false</status><message>{$lang->wrongforecastgoback}</message>");
@@ -1575,8 +1575,8 @@ else {
         output_page($addcustomerbox);
     }
     elseif($core->input ['action'] == 'ajaxaddmore_suppliers') {
-        $srowid = $db->escape_string($core->input ['value']) + 1;
-        $segment['psid'] = $db->escape_string($core->input ['ajaxaddmoredata']['segmentid']);
+        $srowid = intval($core->input ['value']) + 1;
+        $segment['psid'] = intval($core->input['ajaxaddmoredata']['segmentid']);
         $sprowid = 1;
         $countries = Countries::get_data(array('coid is NOT NULL'));
         $countries_selectlist = parse_selectlist('marketreport['.$segment[psid].'][suppliers]['.$srowid.'][coid]', $tabindex, $countries, $selected_options, '', '', array('width' => '150px', 'blankstart' => true, 'id' => 'marketreport_'.$segment['psid'].'_suppliers_'.$srowid.'_coid'));
@@ -1586,16 +1586,16 @@ else {
         eval("\$product_row= \"".$template->get('reporting_fillreport_marketreport_suppproducts')."\";");
         $inputchecksum['supplier'] = generate_checksum('msl');
         eval("\$markerreport_segment_suppliers_row = \"".$template->get('reporting_fillreport_marketreport_suppliers_rows')."\";");
-        echo $markerreport_segment_suppliers_row;
+        output($markerreport_segment_suppliers_row);
     }
     elseif($core->input ['action'] == 'ajaxaddmore_supplierproducts') {
-        $sprowid = $db->escape_string($core->input ['value']) + 1;
-        $segment['psid'] = $db->escape_string($core->input ['ajaxaddmoredata']['segmentid']);
-        $srowid = $db->escape_string($core->input ['ajaxaddmoredata']['srowid']);
+        $sprowid = intval($core->input ['value']) + 1;
+        $segment['psid'] = intval($core->input ['ajaxaddmoredata']['segmentid']);
+        $srowid = intval($core->input ['ajaxaddmoredata']['srowid']);
         $display['product'] = 'none';
         $inputchecksum['product'] = generate_checksum('mpl');
         eval("\$markerreport_segment_suppliers_row = \"".$template->get('reporting_fillreport_marketreport_suppproducts')."\";");
-        echo $markerreport_segment_suppliers_row;
+        output($markerreport_segment_suppliers_row);
     }
     elseif($core->input ['action'] == 'ajaxaddmore_unspecifiedsupplierproducts') {
         $sprowid = $db->escape_string($core->input['value']) + 1;
@@ -1608,29 +1608,29 @@ else {
                                     <div id = "searchQuickResults_'.$segment[psid].'0'.$sprowid.'" class = "searchQuickResults" style = "display:none;"></div>
                             <input type = "hidden" name = "marketreport['.$segment[psid].'][suppliers][0][chp]['.$sprowid.'][inputChecksum]" value = "'.$inputchecksum[unspecifiedsuppcs].'"/></td></tr>';
 
-        echo $unspecifiedsupplierproducts;
+        output($unspecifiedsupplierproducts);
     }
     elseif($core->input ['action'] == 'ajaxaddmore_customers') {
-        $crowid = $db->escape_string($core->input['value']) + 1;
-        $segment['psid'] = $db->escape_string($core->input ['ajaxaddmoredata']['segmentid']);
+        $crowid = intval($core->input['value']) + 1;
+        $segment['psid'] = intval($core->input ['ajaxaddmoredata']['segmentid']);
         $cprowid = 1;
         $inputchecksum['custproduct'] = generate_checksum('cp');
         eval("\$customer_product_row= \"".$template->get('reporting_marketreport_devprojects_custproducts')."\";");
         $inputchecksum['customer'] = generate_checksum('c');
         eval("\$markerreport_customer_row = \"".$template->get('reporting_marketreport_devprojects_custrow')."\";");
-        echo $markerreport_customer_row;
+        output($markerreport_customer_row);
     }
     elseif($core->input ['action'] == 'ajaxaddmore_customerproducts') {
-        $cprowid = $db->escape_string($core->input['value']) + 1;
-        $segment['psid'] = $db->escape_string($core->input ['ajaxaddmoredata']['segmentid']);
-        $crowid = $db->escape_string($core->input ['ajaxaddmoredata']['crowid']);
+        $cprowid = intval($core->input['value']) + 1;
+        $segment['psid'] = intval($core->input ['ajaxaddmoredata']['segmentid']);
+        $crowid = intval($core->input ['ajaxaddmoredata']['crowid']);
         $inputchecksum['custproduct'] = generate_checksum('cp');
         eval("\$customer_product_row= \"".$template->get('reporting_marketreport_devprojects_custproducts')."\";");
-        echo $customer_product_row;
+        output($customer_product_row);
     }
     elseif($core->input['action'] == 'do_ratesegment') {
-        $mrid = $db->escape_string($core->input['repid']);
-        $psid = $db->escape_string($core->input['target']);
+        $mrid = intval($core->input['repid']);
+        $psid = intval($core->input['target']);
         $marketreport_obj = MarketReport::get_data(array('mrid' => $mrid));
         if(is_object($marketreport_obj)) {
             $marketreport_obj->rating = $core->input['value'];
@@ -1638,7 +1638,7 @@ else {
         }
     }
     elseif($core->input['action'] == 'get_reportinconsistency') {
-        $paid = $db->escape_string($core->input['id']);
+        $paid = intval($core->input['id']);
         $productactivity_obj = new ProductsActivity($db->escape_string($paid), false);
         $product = $productactivity_obj->get_product()->get_displayname();
         $reportobj = $productactivity_obj->get_report();
@@ -1650,7 +1650,7 @@ else {
     }
     elseif($core->input ['action'] == 'do_reportinconsistency') {
         if(is_array($core->input['productsactivity'])) {
-            $productactivity_obj = new ProductsActivity($db->escape_string($core->input['productsactivity']['paid']), false);
+            $productactivity_obj = new ProductsActivity(intval($core->input['productsactivity']['paid']), false);
             if(is_object($productactivity_obj)) {
                 $reportobj = $productactivity_obj->get_report();
                 $affiliate = new Affiliates($reportobj->affid);
