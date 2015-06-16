@@ -21,7 +21,7 @@
     </div>
     <div id="anotheraff_accomodations_{$sequence}_{$checksum}" style="{$selected_hotel[$sequence][$checksum][displaystatus]} padding: 5px;" class="border_bottom border_left border_right border_top" >
         <div style="display:inline-block;width:15%;">{$lang->anotheraff}</div>
-        <div style="display:inline-block;width:20%;padding:5px;"><input id="affiliate_{$sequence}_{$approved_hotels[tmhid]}_cache_acc_autocomplete" autocomplete="off" tabindex="3" value="{$affiliate->name}" type="text"></div>
+        <div style="display:inline-block;width:20%;padding:5px;"><input id="affiliate_{$sequence}_{$approved_hotels[tmhid]}_cache_acc_autocomplete" autocomplete="false" tabindex="3" value="{$affiliate->name}" type="text"></div>
         <input id="affiliate_{$sequence}_{$approved_hotels[tmhid]}_cache_acc_id" name="segment[{$sequence}][tmhid][{$checksum}][paidById]"  value="{$selectedhotel->paidById}" type="hidden">
     </div>
 </div>
