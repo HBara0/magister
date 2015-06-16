@@ -26,7 +26,7 @@ if(!$core->input['action']) {
 
     /* Perform inline filtering - START */
     $filters_config = array(
-            'parse' => array('filters' => array('affid', 'cid', 'coid', 'pid', 'supplier', 'csid', 'biid', 'functionalproperty', 'application', 'segment', 'brand', 'icon', 'eptid', 'potential', 'mktShareQty', 'unitPrice', 'date'),
+            'parse' => array('filters' => array('affid', 'cid', 'coid', 'pid', 'supplier', 'csid', 'biid', 'functionalproperty', 'application', 'segment', 'brand', 'icon', 'eptid', 'characteristic', 'potential', 'mktShareQty', 'unitPrice', 'date'),
                     'overwriteField' => array('application' => '<input class="inlinefilterfield" type="text" style="width: 95%" placeholder="'.$lang->application.'"/>',
                             'segment' => '<input class="inlinefilterfield" type="text" style="width: 95%" placeholder="'.$lang->segment.'"/>',
                             'functionalproperty' => '<input class="inlinefilterfield" type="text" style="width: 95%" placeholder="'.$lang->functionalproperty.'"/>',
@@ -34,6 +34,7 @@ if(!$core->input['action']) {
                             'csid' => '<input class="inlinefilterfield" type="text" style="width: 95%" placeholder="'.$lang->chemicalsubstance.'"/>',
                             'brand' => '<input class="inlinefilterfield" type="text" style="width: 95%" placeholder="'.$lang->brand.'"/>',
                             'eptid' => '<input class="inlinefilterfield" type="text" style="width: 95%" placeholder="'.$lang->endproducttype.'"/>',
+                            'characteristic' => '<input class="inlinefilterfield" type="text" style="width: 95%" placeholder="'.$lang->characteristic.'"/>',
                             'icon' => ''
                     )
             ),
@@ -160,10 +161,15 @@ if(!$core->input['action']) {
             if($marketintel_obj->ebpid != 0) {
                 $ebrandprod_obj = $marketintel_obj->get_entitiesbrandsproducts();
                 $marketintel['brand'] = '-';
+                $marketintel['characteristic'] = '-';
                 if(is_object($ebrandprod_obj) && !is_null($ebrandprod_obj->get())) {
                     $brand_obj = $ebrandprod_obj->get_entitybrand();
                     $marketintel['brand'] = $brand_obj->parse_link();
                     $brandid = $brand_obj->ebid;
+                    $charac_obj = $ebrandprod_obj->get_charactersticvalue();
+                    if(is_object($charac_obj)) {
+                        $marketintel['characteristic'] = $charac_obj->get_displayname();
+                    }
                 }
             }
             else {
