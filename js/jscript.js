@@ -777,7 +777,6 @@ $(function () {
                 if($("#numrows_" + uniquename).length != 0) {
                     $("#numrows_" + uniquename).val(num_rows + 1);
                 }
-                alert(uniquename);
                 /*find the offset of the first input in the last tr*/
                 if($('#' + uniquename + '_tbody > tr:last').find("input").filter(':visible:first').length) {
                     $("html, body").animate({scrollTop: $('#' + uniquename + '_tbody > tr:last').find("input").filter(':visible:first').offset().top}, 1000);
