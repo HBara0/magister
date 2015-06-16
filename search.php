@@ -99,7 +99,7 @@ if($core->input['type'] == 'quick') {
             }
             elseif($core->input['for'] == 'competitorsupp') {
                 $type = 'cs';
-                $extra_where = 'supplierType="t" OR supplierType="p" OR supplierType="b"';
+                $extra_where = '(supplierType="t" OR supplierType="p" OR supplierType="b")';
             }
             elseif($core->input['for'] == 'competitortradersupp') {
                 $type = 'cs';

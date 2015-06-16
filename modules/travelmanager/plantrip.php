@@ -121,7 +121,7 @@ if(!$core->input['action']) {
                 $otherapprovedhotels = TravelManagerHotels::get_data('country='.$destcounrty_obj->coid.' AND city != '.$descity_obj->ciid.' AND isApproved=1', array('returnarray' => true));
             }
             if(is_array($otherapprovedhotels)) {
-                $hotelssegments_output.='<br /><a nohref="nohref" style="cursor:pointer;" id="countryhotels_'.$sequence.'_check"><h2>Hotels In The Same Country</h2></a>';
+                $hotelssegments_output.='<br /><a nohref="nohref" style="cursor:pointer;" id="countryhotels_'.$sequence.'_check"><h2>Lookup Hotels in the same country</h2><img src="'.$core->settings['rootdir'].'/images/right_arrow.gif"/></a>';
                 $hotelssegments_output.='<div id=countryhotels_'.$sequence.'_view style="display:none">';
                 $hotelssegments_output.=$segmentobj->parse_hotels($sequence, $otherapprovedhotels);
                 $hotelssegments_output.='</div>';

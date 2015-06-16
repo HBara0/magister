@@ -23,11 +23,27 @@ class MarketReportCompetitionProducts extends AbstractClass {
     }
 
     public function create(array $data = array()) {
-        global $db;
+        global $db, $errorhandler;
         if(empty($data)) {
             $data = $this->data;
         }
+        $marketreport_competition = MarketReportCompetition::get_data(array('mrcid' => $data['mrcid']));
+
+        if(is_object($marketreport_competition)) {
+            $segment = $marketreport_competition->mrcompetitionsegment();
+            $supplier = Entities::get_data(array('eid' => $marketreport_competition->sid, 'type' => 'cs'));
+            $suppcountry = Countries::get_data(array('coid' => $marketreport_competition->coid));
+        }
         if((empty($data['pid']) && empty($data['csid'])) || empty($data['mrcid'])) {
+            if(is_object($supplier)) {
+                $field = ' For supplier '.$supplier->get_displayname();
+            }
+            else if(is_object($suppcountry)) {
+                $field = ' For supplier origin '.$suppcountry->get_displayname();
+            }
+            if(is_object($segment)) {
+                $errorhandler->record('Required Fields: ', 'chemcial Substance'.$field.' in Segment '.$segment->get_displayname());
+            }
             return;
         }
         $db->insert_query(self::TABLE_NAME, $data);
@@ -36,11 +52,26 @@ class MarketReportCompetitionProducts extends AbstractClass {
     }
 
     public function update(array $data = array()) {
-        global $db;
+        global $db, $errorhandler;
         if(empty($data)) {
             $data = $this->data;
         }
+        $marketreport_competition = MarketReportCompetition::get_data(array('mrcid' => $data['mrcid']));
+        if(is_object($marketreport_competition)) {
+            $segment = $marketreport_competition->mrcompetitionsegment();
+            $supplier = Entities::get_data(array('eid' => $marketreport_competition->sid, 'type' => 'cs'));
+            $suppcountry = Countries::get_data(array('coid' => $marketreport_competition->coid));
+        }
         if((empty($data['pid']) && empty($data['csid'])) || empty($data['mrcid'])) {
+            if(is_object($supplier)) {
+                $field = ' For supplier '.$supplier->get_displayname();
+            }
+            else if(is_object($suppcountry)) {
+                $field = ' For supplier origin '.$suppcountry->get_displayname();
+            }
+            if(is_object($segment)) {
+                $errorhandler->record('Required Fields: ', 'chemcial Substance'.$field.' in Segment '.$segment->get_displayname());
+            }
             return;
         }
         $db->update_query(self::TABLE_NAME, $data, self::PRIMARY_KEY.' = '.intval($this->data[self::PRIMARY_KEY]));

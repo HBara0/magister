@@ -130,6 +130,8 @@ if(!$core->input['action']) {
 							WHERE r.quarter<'".intval($qreport->quarter)."' AND r.year='".intval($qreport->year)."' AND r.affid='".intval($qreport->affid)."' AND r.spid='".intval($qreport->spid)."' AND pa.pid=".$productactivity['pid'].$query_string."
                                                         GROUP BY pid"));
                 /* Get preview Q data - END */
+                $reportinconsistency = '<td><a href="#" id="reportinconsistency_'.$productactivity['paid'].'_reporting/fillreport_loadpopupbyid"><img src="'.$core->settings['rootdir'].'/images/alert.png" title="'.$lang->reportinconsistency.'/"></a></td>';
+
                 eval("\$productsrows .= \"".$template->get('reporting_fillreports_productsactivity_productrow')."\";");
             }
         }
@@ -137,7 +139,6 @@ if(!$core->input['action']) {
             for($rowid = 1; $rowid < $productscount; $rowid++) {
                 $saletype_selectlist = parse_selectlist('productactivity['.$rowid.'][saleType]', 0, $saletypes, 'distribution', 0, null, array('disabled' => $selectlists_disabled));
                 $currencyfx_selectlist = parse_selectlist('productactivity['.$rowid.'][fxrate]', 0, $currencies, 1, '', '', array('id' => 'fxrate_'.$rowid, 'disabled' => $selectlists_disabled));
-
                 eval("\$productsrows .= \"".$template->get('reporting_fillreports_productsactivity_productrow')."\";");
             }
         }
@@ -307,7 +308,7 @@ if(!$core->input['action']) {
                                 $srowid++;
                                 $competitionsupplier = $competitionsupplier->get();
                                 if($competitionsupplier['sid'] == 0 && $competitionsupplier['coid'] == 0) {
-                                    $checked['unspecifiedsupp'] = 'checked="cecked"';
+                                    $checked['unspecifiedsupp'] = 'checked="checked"';
                                     $inputchecksum['unspecifiedsupp'] = $competitionsupplier['inputChecksum'];
 
                                     $mrcompetition_products = MarketReportCompetitionProducts::get_data(array('mrcid' => $mrcid), array('returnarray' => true));
@@ -333,10 +334,10 @@ if(!$core->input['action']) {
                                                 if(!empty($chemicalsubstance_name)) {
                                                     $inputchecksum['unspecifiedsuppcs'] = $mrcompetition_product['inputChecksum'];
                                                     $unspecifiedsupplierproducts .= '<tr>  <td style="width:30%;"></td>  <td style="width:65%;">'
-                                                            .'<input type="text" size="25" id="chemfunctionchecmical_'.$segment[psid].'0'.$sprowid.'_autocomplete" size="100" autocomplete="off" value="'.$chemicalsubstance_name.'" placeholder="pick chemical substance"/>
-                                        <input type="hidden" id="chemfunctionchecmical_'.$segment[psid].'0'.$sprowid.'_id" name="marketreport['.$segment[psid].'][suppliers][0][chp]['.$sprowid.'][csid]" value="'.$mrcompetition_product['csid'].'"/>
-                                    <div id="searchQuickResults_'.$segment[psid].'0'.$sprowid.'" class="searchQuickResults" style="display:none;"></div>
-                                    <input type="hidden" name="marketreport['.$segment[psid].'][suppliers][0][chp]['.$sprowid.'][inputChecksum]" value="'.$inputchecksum[unspecifiedsuppcs].'"/>'
+                                                            .'<input type="text" size="25" id="chemicalproducts_'.$segment[psid].'0'.$sprowid.'_autocomplete" size="100" autocomplete="off" value="'.$chemicalsubstance_name.'" placeholder="pick chemical substance"/>
+                                        <input type="hidden" id="chemicalproducts_'.$segment[psid].'0'.$sprowid.'_id" name="marketreport['.$segment[psid].'][suppliers][0][chp]['.$sprowid.'][csid]" value="'.$mrcompetition_product['csid'].'"/>
+                                        <div id="searchQuickResults_'.$segment[psid].'0'.$sprowid.'" class="searchQuickResults" style="display:none;"></div>
+                                        <input type="hidden" name="marketreport['.$segment[psid].'][suppliers][0][chp]['.$sprowid.'][inputChecksum]" value="'.$inputchecksum[unspecifiedsuppcs].'"/>'
                                                             .'<br/>'.$lang->productcomment.'<textarea cols = "40" name = "marketreport['.$segment[psid].'][suppliers][0][chp]['.$sprowid.'][howCanWeBeatThem]">'.$mrcompetition_product['howCanWeBeatThem'].'</textarea></td></tr>';
                                                 }
                                             }
@@ -345,6 +346,19 @@ if(!$core->input['action']) {
                                                 $srowid = $srowid - 1;
                                             }
                                         }
+                                    }
+                                    unset($mrcompetition_product, $competitionsupplier);
+                                    $count = count($mrcompetition);
+                                    /* If the only competitor supplier is the unspecified ,Parse a blank entry */
+                                    if($count == 1) {
+                                        $srowid = $sprowid = 1;
+                                        $countries_selectlist = parse_selectlist('marketreport['.$segment[psid].'][suppliers]['.$srowid.'][coid]', $tabindex, $countries, $selected_options, '', '', array('width' => '150px', 'blankstart' => true));
+                                        $display['product'] = 'none';
+                                        $css['display']['origin'] = 'block';
+                                        $inputchecksum['product'] = generate_checksum('mpl');
+                                        eval("\$product_row= \"".$template->get('reporting_fillreport_marketreport_suppproducts')."\";");
+                                        $inputchecksum['supplier'] = generate_checksum('msl');
+                                        eval("\$markerreport_segment_suppliers_row = \"".$template->get('reporting_fillreport_marketreport_suppliers_rows')."\";");
                                     }
                                 }
                                 else {
@@ -393,7 +407,7 @@ if(!$core->input['action']) {
                                     else {
                                         $sprowid = 1;
                                         $display['product'] = 'none';
-                                        $css['display']['origin'] = 'none';
+                                        $css['display']['origin'] = 'block';
                                         $inputchecksum['product'] = generate_checksum('mpl');
                                         eval("\$product_row= \"".$template->get('reporting_fillreport_marketreport_suppproducts')."\";");
                                     }
@@ -426,6 +440,7 @@ if(!$core->input['action']) {
                             eval("\$markerreport_segment_suppliers = \"".$template->get('reporting_fillreport_marketreport_suppliers')."\";");
                         }
                         $markerreport_fields .=$markerreport_segment_suppliers;
+                        unset($unspecifiedsupplierproducts);
                     }
                 }
                 else {
@@ -443,7 +458,7 @@ if(!$core->input['action']) {
 
                     $markerreport_fields .=$markerreport_segment_suppliers;
                 }
-
+                unset($unspecifiedsupplierproducts, $product_row, $markerreport_segment_suppliers_row, $markerreport_segment_suppliers, $checked['unspecifiedsupp']);
                 /* Parse Market report development projects section on modify */
 //
 //                if(is_array($mrdevelopmentprojects[$segment['psid']])) {
@@ -1105,7 +1120,14 @@ else {
                                 $mrcproduct_obj = new MarketReportCompetitionProducts();
                                 $mrcproduct_obj->set($data);
                                 $mrcproduct_obj->save();
+                                $error_output = $errorhandler->get_errors_inline();
                                 unset($data['pid'], $data['csid'], $data['mrcid']);
+                                if(!empty($error_output)) {
+                                    $output_message = $error_output.'</br>';
+                                    $process_success = 'false';
+                                    output_xml('<status>'.$process_success."</status><message><![CDATA[{$output_message}]]></message>");
+                                    exit;
+                                }
                             }
                         }
                     }
@@ -1175,6 +1197,7 @@ else {
             }
             $output_message = $lang->savedsuccessfully;
             $process_success = 'true';
+
 //            }
             /* Validate Forecasts - End */
             if($report_meta['transFill'] != '1' || !isset($report_meta['transFill'])) {
@@ -1606,8 +1629,8 @@ else {
         $srowid = $db->escape_string($core->input ['ajaxaddmoredata']['srowid']);
         $inputchecksum['unspecifiedsuppcs'] = generate_checksum('upl');
         $unspecifiedsupplierproducts = '<tr> <td style = "width:30%;"></td> <td style = "width:65%;">'
-                .'<input type = "text" size = "25" id = "chemfunctionchecmical_'.$segment[psid].'0'.$sprowid.'_autocomplete" size = "100" autocomplete = "off" value = "" placeholder = "pick chemical substance"/>
-                            <input type = "hidden" id = "chemfunctionchecmical_'.$segment[psid].'0'.$sprowid.'_id" name = "marketreport['.$segment[psid].'][suppliers][0][chp]['.$sprowid.'][csid]" value = ""/>
+                .'<input type = "text" size = "25" id = "chemicalproducts_'.$segment[psid].'0'.$sprowid.'_autocomplete" size = "100" autocomplete = "off" value = "" placeholder = "pick chemical substance"/>
+                            <input type = "hidden" id = "chemicalproducts_'.$segment[psid].'0'.$sprowid.'_id" name = "marketreport['.$segment[psid].'][suppliers][0][chp]['.$sprowid.'][csid]" value = ""/>
                            <div id = "searchQuickResults_'.$segment[psid].'0'.$sprowid.'" class = "searchQuickResults" style = "display:none;"></div>
                             <input type = "hidden" name = "marketreport['.$segment[psid].'][suppliers][0][chp]['.$sprowid.'][inputChecksum]" value = "'.$inputchecksum[unspecifiedsuppcs].'"/>'
                 .'<br/>'.$lang->productcomment.'<textarea cols="40" name="marketreport['.$segment[psid].'][suppliers][0][chp]['.$sprowid.'][howCanWeBeatThem]"></textarea></td></tr>';

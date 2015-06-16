@@ -72,6 +72,7 @@ if(!$core->input['action']) {
     // }
     /* Perform inline filtering - END */
     if(is_array(($marketintel_objs))) {
+        $midata_unitPrice = $midata_mktShareQty = $midata_mktSharePerc = $midata_potential = 0;
         foreach($marketintel_objs as $marketintel_obj) {
             $mibdid = $marketintel_obj->mibdid;
             $affid = isAllowed($core, 'canViewAllAff', 'affiliates', $marketintel_obj->get_affiliate()->affid);

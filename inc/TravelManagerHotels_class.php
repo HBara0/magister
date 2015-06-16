@@ -22,7 +22,7 @@ class TravelManagerHotels extends AbstractClass {
     const CLASSNAME = __CLASS__;
     const DISPLAY_NAME = 'name';
     const UNIQUE_ATTRS = 'country,city,alias';
-    const SIMPLEQ_ATTRS = 'tmhid, name,alias,city,isApproved,avgPrice,stars,isContracted,currency,addressLine1';
+    const SIMPLEQ_ATTRS = 'tmhid, name,alias,city,country,isApproved,avgPrice,stars,isContracted,currency,addressLine1';
 
     public function __construct($id = '', $simple = true) {
         parent::__construct($id, $simple);
