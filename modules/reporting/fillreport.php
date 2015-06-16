@@ -327,6 +327,7 @@ if(!$core->input['action']) {
                                                 $chemicalsubstance_name = $chemicalsubstance->get_displayname();
                                                 $unspecified_chemname = $chemicalsubstance_name;
                                                 $unspecified_id = $chemicalsubstance->csid;
+                                                $unspecified['howCanWeBeatThem'] = $mrcompetition_product['howCanWeBeatThem'];
                                             }
                                             if($tmpsprowid < count($mrcompetition_products)) {
                                                 if(!empty($chemicalsubstance_name)) {
@@ -335,7 +336,8 @@ if(!$core->input['action']) {
                                                             .'<input type="text" size="25" id="chemfunctionchecmical_'.$segment[psid].'0'.$sprowid.'_autocomplete" size="100" autocomplete="off" value="'.$chemicalsubstance_name.'" placeholder="pick chemical substance"/>
                                         <input type="hidden" id="chemfunctionchecmical_'.$segment[psid].'0'.$sprowid.'_id" name="marketreport['.$segment[psid].'][suppliers][0][chp]['.$sprowid.'][csid]" value="'.$mrcompetition_product['csid'].'"/>
                                     <div id="searchQuickResults_'.$segment[psid].'0'.$sprowid.'" class="searchQuickResults" style="display:none;"></div>
-                                    <input type="hidden" name="marketreport['.$segment[psid].'][suppliers][0][chp]['.$sprowid.'][inputChecksum]" value="'.$inputchecksum[unspecifiedsuppcs].'"/></td></tr>';
+                                    <input type="hidden" name="marketreport['.$segment[psid].'][suppliers][0][chp]['.$sprowid.'][inputChecksum]" value="'.$inputchecksum[unspecifiedsuppcs].'"/>'
+                                                            .'<br/>'.$lang->productcomment.'<textarea cols = "40" name = "marketreport['.$segment[psid].'][suppliers][0][chp]['.$sprowid.'][howCanWeBeatThem]">'.$mrcompetition_product['howCanWeBeatThem'].'</textarea></td></tr>';
                                                 }
                                             }
                                             unset($chemicalsubstance_name, $chemicalsubstance);
@@ -399,6 +401,7 @@ if(!$core->input['action']) {
                                     eval("\$markerreport_segment_suppliers_row .= \"".$template->get('reporting_fillreport_marketreport_suppliers_rows')."\";");
                                     unset($product_row);
                                 }
+                                unset($competitionsupplier, $supplier_name, $supplier);
                             }
                             if(empty($inputchecksum['unspecifiedsupp'])) {
                                 $inputchecksum['unspecifiedsupp'] = generate_checksum('msl');
@@ -407,7 +410,7 @@ if(!$core->input['action']) {
                                 $inputchecksum['unspecifiedsuppcs'] = generate_checksum('mpl');
                             }
                             eval("\$markerreport_segment_suppliers = \"".$template->get('reporting_fillreport_marketreport_suppliers')."\";");
-                            unset($mrcompetition_product, $supplier, $supplier_name, $chemicalsubs, $chemicalsubstance, $chemicalsubstance_name, $product_name, $product_row, $markerreport_segment_suppliers_row, $unspecifiedsupplierproducts, $checked['unspecifiedsupp']);
+                            unset($unspecified['howCanWeBeatThem'], $unspecified_chemname, $mrcompetition_product, $supplier, $supplier_name, $chemicalsubs, $chemicalsubstance, $chemicalsubstance_name, $product_name, $product_row, $markerreport_segment_suppliers_row, $unspecifiedsupplierproducts, $checked['unspecifiedsupp']);
                         }
                         else {
                             $srowid = $sprowid = 1;
@@ -1605,8 +1608,9 @@ else {
         $unspecifiedsupplierproducts = '<tr> <td style = "width:30%;"></td> <td style = "width:65%;">'
                 .'<input type = "text" size = "25" id = "chemfunctionchecmical_'.$segment[psid].'0'.$sprowid.'_autocomplete" size = "100" autocomplete = "off" value = "" placeholder = "pick chemical substance"/>
                             <input type = "hidden" id = "chemfunctionchecmical_'.$segment[psid].'0'.$sprowid.'_id" name = "marketreport['.$segment[psid].'][suppliers][0][chp]['.$sprowid.'][csid]" value = ""/>
-                                    <div id = "searchQuickResults_'.$segment[psid].'0'.$sprowid.'" class = "searchQuickResults" style = "display:none;"></div>
-                            <input type = "hidden" name = "marketreport['.$segment[psid].'][suppliers][0][chp]['.$sprowid.'][inputChecksum]" value = "'.$inputchecksum[unspecifiedsuppcs].'"/></td></tr>';
+                           <div id = "searchQuickResults_'.$segment[psid].'0'.$sprowid.'" class = "searchQuickResults" style = "display:none;"></div>
+                            <input type = "hidden" name = "marketreport['.$segment[psid].'][suppliers][0][chp]['.$sprowid.'][inputChecksum]" value = "'.$inputchecksum[unspecifiedsuppcs].'"/>'
+                .'<br/>'.$lang->productcomment.'<textarea cols="40" name="marketreport['.$segment[psid].'][suppliers][0][chp]['.$sprowid.'][howCanWeBeatThem]"></textarea></td></tr>';
 
         output($unspecifiedsupplierproducts);
     }
