@@ -36,10 +36,10 @@
                  <input type="text" size="25" id="product_{$segment[psid]}{$srowid}{$sprowid}_autocomplete" autocomplete="off"  value="{$product_name}"/>
                  <input type="hidden" id="product_{$segment[psid]}{$srowid}{$sprowid}_id" name="marketreport[{$segment[psid]}][suppliers][{$srowid}][chp][{$sprowid}][pid]" value="{$mrcompetition_product[pid]}"/>
                  <div id="searchQuickResults_{$segment[psid]}{$srowid}{$sprowid}" class="searchQuickResults" style="display:none;"></div>
-                 <input type="hidden" name="marketreport[{$segment[psid]}][suppliers][{$srowid}][chp][{$sprowid}][inputChecksum]" value="{$inputchecksum[product]}"/>
-                 <br />
-             </div>
-         </div>-->
+        --><input type="hidden" name="marketreport[{$segment[psid]}][suppliers][{$srowid}][chp][{$sprowid}][inputChecksum]" value="{$inputchecksum[product]}"/>
+        <!--  <br />
+      </div>
+  </div>-->
 
         <div style="width:100%;">
             <br/>
