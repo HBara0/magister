@@ -59,7 +59,13 @@ class ChemicalFunctions extends AbstractClass {
                 $this->data[self::PRIMARY_KEY] = $data['cfid'] = $db->last_id();
                 if(!empty($data['segapplications']) && isset($data['segapplications'])) {
                     foreach($data['segapplications'] as $psaid) {
-                        $segappfuncquery = $db->insert_query('segapplicationfunctions', array('cfid' => $data['cfid'], 'psaid' => $psaid, 'description' => $data['description'], 'createdBy' => $core->user['uid'], 'createdOn' => TIME_NOW));
+                        $website = "0";
+                        if(is_array($data['publishOnWebsite'])) {
+                            if(in_array($psaid, $data['publishOnWebsite'])) {
+                                $website = "1";
+                            }
+                        }
+                        $segappfuncquery = $db->insert_query('segapplicationfunctions', array('cfid' => $data['cfid'], 'publishOnWebsite' => $website, 'psaid' => $psaid, 'description' => $data['description'], 'createdBy' => $core->user['uid'], 'createdOn' => TIME_NOW));
                         if($segappfuncquery) {
                             $data['safid'] = $db->last_id();
                         }
@@ -76,7 +82,8 @@ class ChemicalFunctions extends AbstractClass {
         global $db, $core;
 
         $segapplications = $data['segapplications'];
-        unset($data['segapplications']);
+        $publishonweb = $data['publishOnWebsite'];
+        unset($data['segapplications'], $data['publishOnWebsite']);
 
         $newalias = generate_alias($data['title']);
         if(!is_object(ChemicalFunctions::get_data(array('name' => $newalias, self::PRIMARY_KEY => $this->data[self::PRIMARY_KEY]), array('operators' => array(self::PRIMARY_KEY => 'NOT IN'))))) {
@@ -85,8 +92,14 @@ class ChemicalFunctions extends AbstractClass {
         $db->update_query(self::TABLE_NAME, $data, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
         if(!empty($segapplications) && isset($segapplications)) {
             foreach($segapplications as $psaid) {
+                $website = "0";
+                if(!empty($publishonweb) && is_array($publishonweb)) {
+                    if(in_array($psaid, $publishonweb)) {
+                        $website = "1";
+                    }
+                }
                 if(!SegApplicationFunctions::get_data(array(self::PRIMARY_KEY => $this->data[self::PRIMARY_KEY], 'psaid' => $psaid))) {
-                    $db->insert_query('segapplicationfunctions', array(self::PRIMARY_KEY => $this->data[self::PRIMARY_KEY], 'psaid' => $psaid, 'description' => $data['description'], 'createdBy' => $core->user['uid'], 'createdOn' => TIME_NOW));
+                    $db->insert_query('segapplicationfunctions', array(self::PRIMARY_KEY => $this->data[self::PRIMARY_KEY], 'publishOnWebsite' => $website, 'psaid' => $psaid, 'description' => $data['description'], 'createdBy' => $core->user['uid'], 'createdOn' => TIME_NOW));
                 }
             }
         }

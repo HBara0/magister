@@ -63,6 +63,7 @@ if(!$core->input['action']) {
     else {
         $productsapplicationsfunctions_list = '<tr><td colspan="3">'.$lang->na.'</td></tr>';
     }
+    $publishcheckbox = '<input type="checkbox" name="" value="1">';
     eval("\$popup_createfunction = \"".$template->get('admin_products_popup_createfunction')."\";");
     eval("\$functionpage = \"".$template->get('admin_products_functions')."\";");
     output_page($functionpage);
@@ -159,18 +160,29 @@ elseif($core->input['action'] == 'get_updatefunction') {
     if(is_array($existing_funcapplications)) {
         foreach($existing_funcapplications as $existing_funcapplication) {
             $applicationids[] = $existing_funcapplication->{SegmentApplications::PRIMARY_KEY};
-        }
-        $applicationsfilters = array(SegmentApplications::PRIMARY_KEY => implode(',', $applicationids));
-    }
-    $applications_obj = SegmentApplications::get_data($applicationsfilters, array('returnarray' => true, 'operators' => array(SegmentApplications::PRIMARY_KEY => 'NOT IN')));
-    if(is_array($applications_obj)) {
-        foreach($applications_obj as $application) {
-            $segment = $application->get_segment();
-
-            if(is_object($application)) {
-                $applications_list .= '<option value='.$application->get_id().'>'.$segment->get_displayname().' - '.$application->title.'</option>';
-                unset($segment);
+            if($existing_funcapplication->publishOnWebsite == 1) {
+                $publishedonweb[] = $existing_funcapplication->psaid;
             }
+        }
+        //  $applicationsfilters = array(SegmentApplications::PRIMARY_KEY => implode(',', $applicationids));
+    }
+    $applications_obj = SegmentApplications::get_data('', array('returnarray' => true));
+    if(is_array($applications_obj)) {
+        foreach($applications_obj as $application_obj) {
+            $checkedapp = $checkedweb = $rowclass = '';
+            if(is_array($applicationids)) {
+                if(in_array($application_obj->psaid, $applicationids)) {
+                    $checkedapp = 'checked="checked"';
+                }
+            }
+            if(is_array($publishedonweb)) {
+                if(in_array($application_obj->psaid, $publishedonweb)) {
+                    $checkedweb = 'checked="checked"';
+                }
+            }
+            $applications_list .='<tr class="'.$rowclass.'">';
+            $applications_list .='<td><input id="applicationfilter_check_'.$application_obj->psaid.'" name="chemicalfunctions[segapplications][]"  type="checkbox"'.$checkedapp.' value="'.$application_obj->psaid.'">'.$application_obj->get_displayname().'</td>';
+            $applications_list.='<td><input id="checkonweb_check_'.$application_obj->psaid.'" name="chemicalfunctions[publishOnWebsite][]"  type="checkbox"'.$checkedweb.' value="'.$application_obj->psaid.'"></td></tr>';
         }
     }
     eval("\$popup_updatefunction = \"".$template->get('admin_products_popup_createfunction')."\";");
