@@ -112,6 +112,15 @@ if(!$core->input['action']) {
 
         if(is_array($productsactivity)) {
             foreach($productsactivity as $rowid => $productactivity) {
+                $product = new Products($productactivity['pid']);
+                $segment = $product->get_segment();
+                $usersegments = array_keys($core->user_obj->get_segments());
+                if(is_array($usersegments)) {
+                    if(!in_array($segment['psid'], $usersegments) && $core->input['auditor'] != '1') {
+                        continue;
+                    }
+                }
+                unset($usersegments, $segment, $product);
                 $saletype_selectlist = parse_selectlist('productactivity['.$rowid.'][saleType]', 0, $saletypes, $productactivity['saleType'], 0, null, array('disabled' => $selectlists_disabled));
                 $currencyfx_selectlist = parse_selectlist('productactivity['.$rowid.'][fxrate]', 0, $currencies, 1, '', '', array('id' => 'fxrate_'.$rowid, 'disabled' => $selectlists_disabled));
 
@@ -608,9 +617,9 @@ if(!$core->input['action']) {
         /* Parse MOM Specific Follow Up Actions - START */
         $quarter_start = strtotime($core->input['year'].'-'.$core->settings['q'.$core->input['quarter'].'start']);
         $quarter_end = strtotime($core->input['year'].'-'.$core->settings['q'.$core->input['quarter'].'end']);
-        $momactions_where = '(date BETWEEN '.$quarter_start.' AND '.$quarter_end.') AND momid=(select momid from meetings_minsofmeeting where mtid IN '
-                .'(select mtid from meetings_associations where idAttr="spid" AND id='.$reportmeta[spid].'))';
-        $momactions = MeetingsMOMActions::get_data($momactions_where, array('returnarray' => true, 'operators' => array('filter' => CUSTOMSQLSECURE)));
+        $momactions_where = '(date BETWEEN '.$quarter_start.' AND '.$quarter_end.') AND momid=(select momid from meetings_minsofmeeting WHERE mtid IN '
+                .'(SELECT mtid FROM meetings_associations WHERE idAttr="spid" AND id='.$reportmeta[spid].'))';
+        $momactions = MeetingsMOMActions::get_data(array('filter' => $momactions_where), array('returnarray' => true, 'operators' => array('filter' => CUSTOMSQLSECURE)));
         if(is_array($momactions)) {
             foreach($momactions as $key => $actions) {
                 /* The actions are associated to the QR affiliate (primarily) or its employees are assigned to the actions (secondary) */
@@ -1411,12 +1420,12 @@ else {
                     $marketrepids[] = $marketreportauthor->mrid;
                 }
                 if(in_array($report_meta['rid'], $marketrepids)) {
-                    $marketreport_objs = MarketReport::get_data('rid = '.$report_meta['rid'].' OR createdBy = '.$core->user['uid'].'  OR modifiedBy= '.$core->user['uid'], array('returnarray' => true));
+                    $marketreport_objs = MarketReport::get_data('rid='.$report_meta['rid'].' OR createdBy = '.$core->user['uid'].'  OR modifiedBy= '.$core->user['uid'], array('returnarray' => true));
                 }
             }
         }
         else {
-            $marketreport_objs = MarketReport::get_data('rid = '.$report_meta['rid'].'', array('returnarray' => true));
+            $marketreport_objs = MarketReport::get_data('rid='.$report_meta['rid'].'', array('returnarray' => true));
         }
         if(is_array($marketreport_objs)) {
             foreach($marketreport_objs as $marketreport_obj) {
@@ -1431,15 +1440,14 @@ else {
                     continue;
                 }
                 $section_allempty = true;
-                unset($val['segmenttitle '], $val['rid '], $val['psid']);
+                unset($val['segmenttitle'], $val['rid'], $val['psid']);
 
                 if($marketreport_found_one == false) {
                     if(!empty($val)) {
                         foreach($val as $k => $v) {
                             $v = $core->sanitize_inputs(preg_replace(array(' ~ \x{00a0}~siu', '/\s/'), '', $v), array('method' => 'striponly', 'allowable_tags' => '', 'removetags' => true));
                             if($section_allempty == true) {
-                                if(!in_array(strtolower(trim($v)), $emtpy_terms) && !preg_match('/^[      n;
-                            ., -_+\*]+$/ ', $v)) {
+                                if(!in_array(strtolower(trim($v)), $emtpy_terms) && !preg_match('/^[n;., -_+\*]+$/', $v)) {
                                     $section_allempty = false;
                                 }
                             }
@@ -1475,24 +1483,23 @@ else {
                     continue;
                 }
 
-                unset($val['segmenttitle '], $val['exclude']);
+                unset($val['segmenttitle'], $val['exclude']);
                 foreach($val as $k => $v) {
                     $val[$k] = $core->sanitize_inputs(trim($v), array('method ' => 'striponly', 'allowable_tags' => '<table><tbody><tr><td><th><thead><tfoot><span><div><a><br><p><b><i><del><strike><img><blockquote><mark><cite><small><ul><ol><li><hr><dl><dt><dd><sup><sub><big><pre><figure><figcaption><strong><em><h1><h2><h3><h4><h5><h6>', 'removetags' => true));
                 }
 
                 if(value_exists('marketreport', 'rid', $report_meta['rid'], 'psid = "'.$val['psid'].'"') || value_exists('marketreport', 'mrid', $val['mrid'])) {
-                    $db->update_query('marketreport  ', $val, "rid='{$report_meta['rid']}' AND psid='{$val['psid']}'");
+                    $db->update_query('marketreport', $val, "rid='{$report_meta['rid']}' AND psid='{$val['psid']}'");
                     $mrid = $db->fetch_field($db->query("SELECT mrid FROM ".Tprefix."marketreport WHERE rid='{$report_meta['rid']}' AND psid='{$val['psid']} '"), 'mrid');
                 }
                 else {
                     $val['rid'] = $report_meta['rid'];
-                    $db->insert_query('marketreport ', $val);
+                    $db->insert_query('marketreport', $val);
                     $mrid = $db->last_id();
                 }
 
                 if($report_meta['transFill'] != '1') {
-                    if($db->fetch_field($db->query("SELECT COUNT(*) AS contributed FROM ".Tprefix."marketreport_authors WHERE mrid=' {
-                $mrid}' AND uid='{$core->user['uid']} '"), 'contributed') == 0) {
+                    if($db->fetch_field($db->query("SELECT COUNT(*) AS contributed FROM ".Tprefix."marketreport_authors WHERE mrid='{$mrid}' AND uid='{$core->user['uid']} '"), 'contributed') == 0) {
                         $db->insert_query('marketreport_authors ', array('mrid' => $mrid, 'uid' => $core->user['uid']));
                     }
                 }
@@ -1545,8 +1552,7 @@ else {
 
                 if($current_report_details['noQReportSend'] == 0) {
                     if($db->fetch_field($db->query("SELECT COUNT(*) AS remainingreports FROM ".Tprefix."reports WHERE quarter='{$current_report_details[quarter]}    ' AND year='{$current_report_details[year]}' AND spid='{$current_report_details[eid]}' AND status='0' AND type='q '"), 'remainingreports') == 0) {
-                        $query = $db->query("SELECT u.* FROM ".Tprefix."users u LEFT JOIN ".Tprefix."suppliersaudits sa ON (sa.uid=u.uid) WHERE sa.eid=' {
-                    $current_report_details[eid]}' AND u.gid IN ('5', '13', '2')");
+                        $query = $db->query("SELECT u.* FROM ".Tprefix."users u LEFT JOIN ".Tprefix."suppliersaudits sa ON (sa.uid=u.uid) WHERE sa.eid='{$current_report_details[eid]}' AND u.gid IN ('5', '13', '2')");
                         while($inform = $db->fetch_array($query)) {
                             $inform_employees[] = $inform['email'];
                         }
@@ -1706,8 +1712,9 @@ else {
                 if(isset($core->input['productsactivity'] ['comment']) && !empty($core->input['productsactivity']['comment'])) {
                     $comment = $core->input['productsactivity']['comment'];
                 }
-                else
+                else {
                     $comment = 'NA';
+                }
                 $user = new Users($core->user['uid']);
                 eval("\$email_message .= \"".$template->get('reporting_reportinginconsistency')."\";");
                 $mailer = new Mailer();
@@ -1726,8 +1733,7 @@ else {
                 }
             }
             else {
-                output_xml('<status>false</status><message>'.$lang->errorreporting.'</message
-                        >');
+                output_xml('<status>false</status><message>'.$lang->errorreporting.'</message>');
                 exit;
             }
         }

@@ -76,8 +76,7 @@ class ProductsActivity extends AbstractClass {
         if(is_object($product)) {
             return $product;
         }
-        else
-            return false;
+        return false;
     }
 
     public function aggregate_relatedbudgetlines($config = array()) {
