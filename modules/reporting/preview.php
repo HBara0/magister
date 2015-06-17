@@ -62,6 +62,11 @@ if(!$core->input['action']) {
         $generate_by = array(''); //Dummy array
     }
 
+    /* Transperent fill */
+    if(isset($core->input['transFill']) && !empty($core->input['transFill'])) {
+        $transfill = $core->input['transFill'];
+    }
+
     foreach($generate_by as $index => $entity) {
         if($core->input['referrer'] == 'generate' || $core->input['referrer'] == 'list' || $core->input['referrer'] == 'direct') {
             if($core->input['referrer'] != 'generate') {
