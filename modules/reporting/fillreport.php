@@ -942,7 +942,7 @@ else {
 //            }
             $update_status = $db->update_query('reports', array('prActivityAvailable' => 1), "rid='{$rid}'");
             if($update_status) {
-                if($report_meta['transFill'] != '1') {
+                if($core->input['transfill'] != '1') {
                     record_contribution($rid);
                 }
                 $log->record($rid);
@@ -1185,7 +1185,8 @@ else {
             }
             /* Save market development projects  -End */
 
-            if($report_meta['transFill'] != '1' || !isset($report_meta['transFill'])) {
+            //  if($report_meta['transFill'] != '1' || !isset($report_meta['transFill'])) {
+            if($transfill != '1') {
                 if($db->fetch_field($db->query("SELECT COUNT(*) AS contributed FROM ".Tprefix."marketreport_authors WHERE mrid='{$mrid}' AND uid='{$core->user[uid]}'"), 'contributed') == 0) {
                     $db->insert_query('marketreport_authors', array('mrid' => $mrid, 'uid' => $core->user['uid']));
                 }
@@ -1224,7 +1225,7 @@ else {
             if($core->input['previewed_marketreport'] == 1) {
                 $report_obj = new ReportingQReports($rid);
                 if(is_object($report_obj)) {
-                    $action = '<script>$("input[id=\'previewed_value\']").val(\'\');window.open("index.php?module=reporting/preview&rid='.$rid.'&identifier='.$identifier.'","_blank")</script>';
+                    $action = '<script>$("input[id=\'previewed_value\']").val(\'\');window.open("index.php?module=reporting/preview&rid='.$rid.'&transFill='.$transfill.'&identifier='.$identifier.'","_blank")</script>';
                 }
             }
             output_xml('<status>'.$process_success."</status><message>{$output_message}<![CDATA[<br />{$action}]]></message>");
@@ -1503,6 +1504,7 @@ else {
                     $db->insert_query('marketreport', $val);
                     $mrid = $db->last_id();
                 }
+                $transfill = $core->input['transfill'];
                 if($transfill != '1') {
                     //  if($report_meta['transFill'] != '1') {
                     if($db->fetch_field($db->query("SELECT COUNT(*) AS contributed FROM ".Tprefix."marketreport_authors WHERE mrid='{$mrid}' AND uid='{$core->user['uid']} '"), 'contributed') == 0) {
