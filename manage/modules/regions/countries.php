@@ -140,8 +140,8 @@ else {
                     if(is_object($currency) && (is_null($country['mainCurrency']) || $country['mainCurrency'] == '0')) {
                         $country['mainCurrency'] = $currency->numCode;
                     }
-                    if(!isset($country['timeZone']) || empty($country['timeZone']) || is_null($country['timeZone'])) {
-                        $country['timeZone'] = $datarray->timezones[0];
+                    if(!isset($country['defaultTimeZone']) || empty($country['defaultTimeZone']) || is_null($country['defaultTimeZone'])) {
+                        $country['defaultTimeZone'] = $datarray->timezones[0];
                     }
                     if($country['acronym'] == 'CY') {
                         $country['continent'] = 'Asia';
