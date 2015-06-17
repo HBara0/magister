@@ -1557,6 +1557,8 @@ CREATE TABLE `countries` (
   `capitalCity` int(10) NOT NULL,
   `timeZone` varchar(100) DEFAULT NULL,
   `phoneCode` int(10) NOT NULL,
+  `continent` varchar(50) NOT NULL,
+  `region` varchar(50) NOT NULL,
   PRIMARY KEY (`coid`),
   KEY `affid` (`affid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=248 DEFAULT CHARSET=utf8;
@@ -3328,14 +3330,14 @@ CREATE TABLE `segapplicationfunctions` (
   `safid` int(10) NOT NULL AUTO_INCREMENT,
   `cfid` int(10) NOT NULL,
   `psaid` int(10) NOT NULL,
-  `description` text COLLATE utf8_unicode_ci,
   `createdBy` int(10) NOT NULL,
   `createdOn` bigint(30) NOT NULL,
   `modifiedBy` int(10) NOT NULL,
   `modifiedOn` bigint(30) NOT NULL,
-  PRIMARY KEY (`safid`,`cfid`,`psaid`),
-  FULLTEXT KEY `description` (`description`)
-) ENGINE=MyISAM AUTO_INCREMENT=2073 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+  `description` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
+  `publishOnWebsite` tinyint(1) NOT NULL,
+  PRIMARY KEY (`safid`,`cfid`,`psaid`)
+) ENGINE=MyISAM AUTO_INCREMENT=2045 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `segmentapplications`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;

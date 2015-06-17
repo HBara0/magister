@@ -26,7 +26,6 @@ if(!$core->input['action']) {
     $report_currencies = array();
     $toc_sequence = 5;
     $reportsinconsistency = false;
-
     if($core->input['referrer'] == 'generate' || $core->input['referrer'] == 'list') {
         if(!isset($core->input['year'], $core->input['quarter'], $core->input['spid'], $core->input['affid'])) {
             redirect('index.php?module=reporting/generatereport');
@@ -971,7 +970,15 @@ if(!$core->input['action']) {
         eval("\$reportspage = \"".$template->get('website_reporting_preview')."\";");
     }
     else {
-        eval("\$reportspage = \"".$template->get('new_reporting_preview')."\";");
+        if($core->input['reportmode'] == 'reportonly') {
+
+            eval("\$header = \"".$template->get('new_reporting_preview_header')."\";");
+
+            $reportspage = $header.$reports.$tools;
+        }
+        else {
+            eval("\$reportspage = \"".$template->get('new_reporting_preview')."\";");
+        }
     }
     output_page($reportspage);
 }
