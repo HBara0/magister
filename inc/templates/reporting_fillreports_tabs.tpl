@@ -21,8 +21,8 @@
                     }, 2000
                             );
 
-                    setTimeout(function() {
-                        $('#previewed_value').each(function(i, obj) {
+                    setTimeout(function () {
+                        $('#previewed_value').each(function (i, obj) {
                             $(obj).val('');
                         });
                     }, 4000
@@ -55,6 +55,8 @@
                 <ul>
                     <li><a href="#reporttabs-1">{$lang->productactivitydetails}</a></li>
                     <li><a href="#reporttabs-2">{$lang->marketreport}</a></li>
+                    <li><a href="#reporttabs-3">{$lang->preview}</a></li>
+
                 </ul>
 
                 <div id="reporttabs-1">
@@ -63,12 +65,15 @@
                 <div id="reporttabs-2">
                     {$marketreportpage}
                 </div>
+                <div id="reporttabs-3">
+                    <iframe id="preview_iframe" src="" width="100%" height="1000px">
+                    </iframe>
+                </div>
+            </div>
         </td>
     </tr>
     <tr><td></td><td colspan="3">Product Activity Status:<div id="save_productsactivity_reporting/fillreport_Results"></div>
     <tr><td></td><td colspan="3">Market Report Status:            <div id="save_marketreport_reporting/fillreport_Results"></div>
-
-
         </td></tr>
         {$footer}
         {$addproduct_popup}

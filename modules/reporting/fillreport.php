@@ -1225,7 +1225,8 @@ else {
             if($core->input['previewed_marketreport'] == 1) {
                 $report_obj = new ReportingQReports($rid);
                 if(is_object($report_obj)) {
-                    $action = '<script>$("input[id=\'previewed_value\']").val(\'\');window.open("index.php?module=reporting/preview&rid='.$rid.'&transFill='.$transfill.'&identifier='.$identifier.'","_blank")</script>';
+                    $url = 'index.php?module=reporting/preview&rid='.$rid.'&transFill='.$transfill.'&identifier='.$identifier.'&reportmode=reportonly';
+                    $action = '<script>$("#preview_iframe").attr("src", "'.$url.'");$(\'a[href="#reporttabs-3"]\').click();</script>';
                 }
             }
             output_xml('<status>'.$process_success."</status><message>{$output_message}<![CDATA[<br />{$action}]]></message>");
