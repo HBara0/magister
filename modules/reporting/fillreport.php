@@ -1421,18 +1421,17 @@ else {
         $marketreport_found_one = false;
         $rawdata['marketreportdata'] = '';
         if($auditor != 1) {
-            $marketreportauthors = MarketReportAuthors::get_data(array('uid' => $core->user['uid']), array('returnarray' => true));
+            $marketreportauthors = MarketReportAuthors::get_data(array('mrid' => 'mrid IN (SELECT mrid FROM '.MarketReport::TABLE_NAME.' WHERE rid='.intval($report_meta['rid']).')', 'uid' => $core->user['uid']), array('returnarray' => true, 'operators' => array('mrid' => CUSTOMSQLSECURE)));
             if(is_array($marketreportauthors)) {
                 foreach($marketreportauthors as $marketreportauthor) {
                     $marketrepids[] = $marketreportauthor->mrid;
                 }
-                if(in_array($report_meta['rid'], $marketrepids)) {
-                    $marketreport_objs = MarketReport::get_data('rid='.$report_meta['rid'].' OR createdBy = '.$core->user['uid'].'  OR modifiedBy= '.$core->user['uid'], array('returnarray' => true));
-                }
+
+                $marketreport_objs = MarketReport::get_data(array('mrid' => $marketrepids), array('returnarray' => true));
             }
         }
         else {
-            $marketreport_objs = MarketReport::get_data('rid='.$report_meta['rid'].'', array('returnarray' => true));
+            $marketreport_objs = MarketReport::get_data('rid='.$report_meta['rid'], array('returnarray' => true));
         }
         if(is_array($marketreport_objs)) {
             foreach($marketreport_objs as $marketreport_obj) {
