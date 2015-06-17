@@ -301,7 +301,7 @@ if($core->input['type'] == 'quick') {
             }
 
             $table = 'cities';
-            $attributes = array('name');
+            $attributes = array('name', 'alias', 'unlocode');
             $key_attribute = 'ciid';
             $select_attributes = array('name', 'unlocode');
             $extra_info = array('table' => 'countries');

@@ -53,7 +53,7 @@ if(!$core->input['action']) {
         }
         if(!empty($pids)) {
             $itemscount['products'] = 0;
-            $pids = array_filter(array_unique($pids));
+            $pids = array_unique($pids);
             foreach($pids as $pid) {
                 $product_obj = new Products($pid);
                 if(is_object($product_obj)) {

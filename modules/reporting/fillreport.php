@@ -130,6 +130,8 @@ if(!$core->input['action']) {
 							WHERE r.quarter<'".intval($qreport->quarter)."' AND r.year='".intval($qreport->year)."' AND r.affid='".intval($qreport->affid)."' AND r.spid='".intval($qreport->spid)."' AND pa.pid=".$productactivity['pid'].$query_string."
                                                         GROUP BY pid"));
                 /* Get preview Q data - END */
+                $reportinconsistency = '<td><a href="#" id="reportinconsistency_'.$productactivity['paid'].'_reporting/fillreport_loadpopupbyid"><img src="'.$core->settings['rootdir'].'/images/alert.png" title="'.$lang->reportinconsistency.'/"></a></td>';
+
                 eval("\$productsrows .= \"".$template->get('reporting_fillreports_productsactivity_productrow')."\";");
             }
         }
@@ -137,7 +139,6 @@ if(!$core->input['action']) {
             for($rowid = 1; $rowid < $productscount; $rowid++) {
                 $saletype_selectlist = parse_selectlist('productactivity['.$rowid.'][saleType]', 0, $saletypes, 'distribution', 0, null, array('disabled' => $selectlists_disabled));
                 $currencyfx_selectlist = parse_selectlist('productactivity['.$rowid.'][fxrate]', 0, $currencies, 1, '', '', array('id' => 'fxrate_'.$rowid, 'disabled' => $selectlists_disabled));
-
                 eval("\$productsrows .= \"".$template->get('reporting_fillreports_productsactivity_productrow')."\";");
             }
         }
@@ -307,7 +308,7 @@ if(!$core->input['action']) {
                                 $srowid++;
                                 $competitionsupplier = $competitionsupplier->get();
                                 if($competitionsupplier['sid'] == 0 && $competitionsupplier['coid'] == 0) {
-                                    $checked['unspecifiedsupp'] = 'checked="cecked"';
+                                    $checked['unspecifiedsupp'] = 'checked="checked"';
                                     $inputchecksum['unspecifiedsupp'] = $competitionsupplier['inputChecksum'];
 
                                     $mrcompetition_products = MarketReportCompetitionProducts::get_data(array('mrcid' => $mrcid), array('returnarray' => true));
@@ -457,7 +458,7 @@ if(!$core->input['action']) {
 
                     $markerreport_fields .=$markerreport_segment_suppliers;
                 }
-                unset($unspecifiedsupplierproducts, $product_row);
+                unset($unspecifiedsupplierproducts, $product_row, $markerreport_segment_suppliers_row, $markerreport_segment_suppliers, $checked['unspecifiedsupp']);
                 /* Parse Market report development projects section on modify */
 //
 //                if(is_array($mrdevelopmentprojects[$segment['psid']])) {

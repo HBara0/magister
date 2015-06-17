@@ -7,19 +7,19 @@
         <input type="hidden" name="marketdata[vridentifier]" value="{$visitreport->identifier}"/>
         <div>
             {$profiles_entityprofile_micustomerentry}
-            {$profiles_minproductentry}
-            {$profiles_michemfuncproductentry}
-            {$profiles_mibasicingredientsentry}
-            <div style="width: 30%; display: inline-block;">{$lang->annualpotential}</div><div style="width: 60%; display: inline-block;"><input type="number" step="any" size="12" id="potential" name="marketdata[potential]" accept="numeric"  required="required" autocomplete="off" min="0" value="{$midata->potential}"/></div>
-            <div style="width: 30%; display: inline-block;">{$lang->marketshareperc}</div><div style="width: 60%; display: inline-block;"><input type="number" step="any" size="12" id="mktshareperc" name="marketdata[mktSharePerc]" accept="numeric" required="required" autocomplete="off" min="0" value="{$midata->mktSharePerc}"/></div>
-            <div style="width: 30%; display: inline-block;">{$lang->marketshareqty}</div><div style="width: 60%; display: inline-block;"><input type="number" size="12" step="any" id="mktshareqty" name="marketdata[mktShareQty]" accept="numeric" required="required" autocomplete="off" min="0" value="{$midata->mktShareQty}"/></div>
-            <div style="width: 30%; display: inline-block;">{$lang->price}</div><div style="width: 60%; display: inline-block;"><input type="number" step="any" size="12" name="marketdata[unitPrice]" accept="numeric" autocomplete="off" min="0" value="{$midata->unitPrice}"/> USD/KG {$lang->cif}</div>
             <div style="width: 30%; display: inline-block;">{$lang->endproductbrand}</div>
             <div style="width: 60%; display: inline-block;"><input onFocus="getustomerid()" type="text" size="25" id="entbrandsproducts_{$brandprod_rowid}_autocomplete" size="100" autocomplete="off" value="{$brandname}"/> | <a style="cursor: pointer" id="showpopup_createbrand" class="showpopup"><img src="{$core->settings[rootdir]}/images/addnew.png" border="0" title="{$lang->createbrand}"></a>
                 <input type="hidden" id="entbrandsproducts_{$brandprod_rowid}_id" name="marketdata[ebpid]" value='{$midata->ebpid}'/>
                 <input type="hidden" id="entbrandsproducts_{$brandprod_rowid}_cid" name="cid" value='{$midata->cid}'/>
                 <div id="searchQuickResults_{$brandprod_rowid}" class="searchQuickResults" style="display:none;"></div>
             </div>
+            {$profiles_minproductentry}
+            {$profiles_michemfuncproductentry}
+            {$profiles_mibasicingredientsentry}
+            <div style="width: 30%; display: inline-block;">{$lang->annualpotential}</div><div style="width: 60%; display: inline-block;"><input type="number" step="any" size="12" id="potential" name="marketdata[potential]" accept="numeric"  required="required" autocomplete="off" min="0" value="{$midata->potential}{$midata_potential}"/></div>
+            <div style="width: 30%; display: inline-block;">{$lang->marketshareperc}</div><div style="width: 60%; display: inline-block;"><input type="number" step="any" size="12" id="mktshareperc" name="marketdata[mktSharePerc]" accept="numeric" required="required" autocomplete="off" min="0" value="{$midata->mktSharePerc}{$midata_mktSharePerc}"/></div>
+            <div style="width: 30%; display: inline-block;">{$lang->marketshareqty}</div><div style="width: 60%; display: inline-block;"><input type="number" size="12" step="any" id="mktshareqty" name="marketdata[mktShareQty]" accept="numeric" required="required" autocomplete="off" min="0" value="{$midata->mktShareQty}{$midata_mktShareQty}"/></div>
+            <div style="width: 30%; display: inline-block;">{$lang->price}</div><div style="width: 60%; display: inline-block;"><input type="number" step="any" size="12" name="marketdata[unitPrice]" accept="numeric" autocomplete="off" min="0" value="{$midata->unitPrice}{$midata_unitPrice}"/> USD/KG {$lang->cif}</div>
             <div style="width: 30%; display: inline-block;">{$profiles_mincustomervisit_title}</div>
             <div style="width: 30%; display: inline-block;">
                 {$profiles_mincustomervisit}
