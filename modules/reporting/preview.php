@@ -403,13 +403,13 @@ if(!$core->input['action']) {
 
                         /* Generate Chart */
                         if($aggregate_type == 'affiliates') {
-//                            $overviewbox_chart = new Charts(array('x' => $report_years, 'y' => $report_charts_data[$aggregate_type][$category]['actual']['y']), 'stackedbar');
-                            //     $reporting_report_newoverviewbox_chart = '<img src="'.$overviewbox_chart->get_chart().'" />';
+                            $overviewbox_chart = new Charts(array('x' => $report_years, 'y' => $report_charts_data[$aggregate_type][$category]['actual']['y']), 'stackedbar');
+                            $reporting_report_newoverviewbox_chart = '<img src="'.$overviewbox_chart->get_chart().'" />';
                         }
 
 //					if($aggregate_type == 'segments') {
 //						$overviewboxsegment_chart = new Charts(array('x' => $report_years, 'y' => $report_segment_charts_data[$aggregate_type][$category]['actual']['y']), 'linebar');
-//						//$reporting_report_newoverviewbox_chart = '<img src="'.$overviewboxsegment_chart->get_chart().'" />';
+//						$reporting_report_newoverviewbox_chart = '<img src="'.$overviewboxsegment_chart->get_chart().'" />';
 //					}
                         $toc_data[5]['affiliatesoverview'] = array('title' => $lang->activityby.' '.$lang->affiliate);
                         eval("\$reporting_report_newoverviewbox[$aggregate_type][$category] = \"".$template->get('new_reporting_report_overviewbox')."\";");
@@ -585,7 +585,7 @@ if(!$core->input['action']) {
         $quarter_end = strtotime($report['year'].'-'.$core->settings['q'.$report['quarter'].'end']);
         $momactions_where = '(date BETWEEN '.$quarter_start.' AND '.$quarter_end.') AND momid=(select momid from meetings_minsofmeeting where mtid IN '
                 .'(select mtid from meetings_associations where idAttr="spid" AND id='.$report['spid'].'))';
-        $momactions = MeetingsMOMActions::get_data($momactions_where, array('returnarray' => true, 'operators' => array('filter' => CUSTOMSQLSECURE)));
+        $momactions = MeetingsMOMActions::get_data(array('filter' => $momactions_where), array('returnarray' => true, 'operators' => array('filter' => CUSTOMSQLSECURE)));
         if(is_array($momactions)) {
             foreach($momactions as $key => $actions) {
                 /* The actions are associated to the QR affiliate (primarily) or its employees are assigned to the actions (secondary) */
@@ -739,21 +739,21 @@ if(!$core->input['action']) {
                     if(is_array($reporting_report_newtotaloverviewbox_row[$aggregate_type][$category])) {
                         $reporting_report_newtotaloverviewbox_row[$aggregate_type][$category] = implode('', $reporting_report_newtotaloverviewbox_row[$aggregate_type][$category]);
                     }
-//                    /* Generate Chart */
-//                    if($aggregate_type == 'segments') {
-//                        $progressionbox_chart = new Charts(array('x' => $report_years, 'y' => $report_charts_data[$aggregate_type][$category]['actual']['y']), 'stackedbar', array('seriesnames' => array(1 => $item['name'])));
-//                        $reporting_report_newtotaloverviewbox_chart = '<img src="'.$progressionbox_chart->get_chart().'" />';
-//                    }
-//                    if($aggregate_type == 'affiliates') {
-//                        $progressionbox_chart = new Charts(array('x' => $report_years, 'y' => $report_affiliate_charts_data[$aggregate_type][$category]['actual']['y']), 'linebar', array('seriesnames' => array(1 => $item['name'])));
-//                        $reporting_report_newtotaloverviewbox_chart = '<img src="'.$progressionbox_chart->get_chart().'" />';
-//                    }
-//
-//                    eval("\$reporting_report_newtotaloverviewbox[$aggregate_type][$category] = \"".$template->get('new_reporting_report_totaloverviewbox')."\";");
-//                    $reporting_report_newtotaloverviewbox_row[$aggregate_type][$category] = array();
-//                    $reporting_report_newtotaloverviewbox_chart = '';
-//                    $progression_totals['data'] = array();
-//                    unset($newtotaloverviewbox_row_percclass);
+                    /* Generate Chart */
+                    if($aggregate_type == 'segments') {
+                        $progressionbox_chart = new Charts(array('x' => $report_years, 'y' => $report_charts_data[$aggregate_type][$category]['actual']['y']), 'stackedbar', array('seriesnames' => array(1 => $item['name'])));
+                        $reporting_report_newtotaloverviewbox_chart = '<img src="'.$progressionbox_chart->get_chart().'" />';
+                    }
+                    if($aggregate_type == 'affiliates') {
+                        $progressionbox_chart = new Charts(array('x' => $report_years, 'y' => $report_affiliate_charts_data[$aggregate_type][$category]['actual']['y']), 'linebar', array('seriesnames' => array(1 => $item['name'])));
+                        $reporting_report_newtotaloverviewbox_chart = '<img src="'.$progressionbox_chart->get_chart().'" />';
+                    }
+
+                    eval("\$reporting_report_newtotaloverviewbox[$aggregate_type][$category] = \"".$template->get('new_reporting_report_totaloverviewbox')."\";");
+                    $reporting_report_newtotaloverviewbox_row[$aggregate_type][$category] = array();
+                    $reporting_report_newtotaloverviewbox_chart = '';
+                    $progression_totals['data'] = array();
+                    unset($newtotaloverviewbox_row_percclass);
                 }
             };
             $toc_data[3]['progressionbyaffiliates'] = array('title' => $lang->progressionyearsby.' '.$lang->affiliates);
