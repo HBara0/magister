@@ -16,4 +16,11 @@
         <td>{$marketreport[issues]}</td>
     </tr>
 </table>
+<table class="reportbox">
+    <tr>
+        <td>
+            {$markerreport_segment_suppliers}
+        </td>
+    </tr>
+</table>
 <br />

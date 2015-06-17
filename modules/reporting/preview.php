@@ -471,7 +471,60 @@ if(!$core->input['action']) {
                 if(($core->usergroup['reporting_canViewComptInfo'] == 1) || ($core->usergroup['canGenerateReports'] == 1 || $core->usergroup['canFillReports'] == 1)) {
                     eval("\$marketreportbox_competition = \"".$template->get('new_reporting_report_marketreportbox_competition')."\";");
                 }
+                /* Parse Mrket Competition - Start */
+                $marketcompetition = MarketReportCompetition::get_data(array('mrid' => $mrid), array('returnarray' => true));
+                if(is_array($marketcompetition)) {
+                    foreach($marketcompetition as $mrcompetition) {
+                        $altrow = alt_row($altrow);
+                        if($mrcompetition->sid == 0 && $mrcompetition->coid == 0) {
+                            $unspecified_competitor = $mrcompetition;
+                            // continue;
+                            $competitior_label = $lang->unspecifiedsupplier;
+                        }
+                        if($mrcompetition->sid != 0) {
+                            $supplier = Entities::get_data(array('eid' => $mrcompetition->sid, 'type' => 'cs'));
+                            if(is_object($supplier)) {
+                                $supplier_name = $supplier->get_displayname();
+                                $competitior_label = $lang->competitorsupplier;
+                            }
+                        }
+                        if($mrcompetition->coid != 0) {
+                            $country = Countries::get_data(array('coid' => $mrcompetition->coid));
+                            if(is_object($country)) {
+                                $country_name = $country->get_displayname();
+                                $competitior_label = $lang->competitororigin;
+                            }
+                        }
+                        $competitionproducts = MarketReportCompetitionProducts::get_data(array('mrcid' => $mrcompetition->mrcid), array('returnarray' => true));
+                        if(is_array($competitionproducts)) {
+                            foreach($competitionproducts as $mrproduct_obj) {
+                                $mrproduct = $mrproduct_obj->get();
+                                if($mrproduct['csid'] != 0) {
+                                    $chemicalsubs = new Chemicalsubstances($mrproduct['csid']);
+                                }
+                                if($mrproduct['pid'] != 0) {
+                                    $product = new Products($mrproduct['csid']);
+                                }
+                                if(is_object($chemicalsubs)) {
+                                    $chemicalsubstance_name = $chemicalsubs->get_displayname();
+                                    $label = $lang->chemicalsubstance;
+                                }
+                                if(is_object($products)) {
+                                    $product_name = $product->get_displayname();
+                                    $label = $lang->product;
+                                }
+                                eval("\$product_row .= \"".$template->get('reporting_previewreport_marketreport_suppproducts')."\";");
+                                unset($chemicalsubstance_name, $chemicalsubs, $product, $product_name);
+                            }
+                        }
 
+                        eval("\$markerreport_segment_suppliers_row .= \"".$template->get('reporting_previewreport_marketreport_suppliers_rows')."\";");
+                        unset($product_row, $supplier, $country, $supplier_name, $country_name);
+                    }
+                    eval("\$markerreport_segment_suppliers = \"".$template->get('reporting_previewreport_marketreport_suppliers')."\";");
+                    unset($markerreport_segment_suppliers_row);
+                }
+                /* Parse Mrket Competition - End */
 
                 if($core->usergroup['canGenerateReports'] == 1 || $core->usergroup['canFillReports'] == 1) {
                     eval("\$marketreportbox_other = \"".$template->get('new_reporting_report_marketreportbox_other')."\";");
@@ -514,9 +567,8 @@ if(!$core->input['action']) {
                     $criteriaandstars .= '<input type="range" min="0" max="5" value="'.$ratingval.'" step="1" id="rating_'.$marketreport['psid'].'_'.$mrid.'" class="ratingscale">';
                     $criteriaandstars .= '<div class="rateit" data-rateit-starwidth="18" data-rateit-starheight="16" data-rateit-ispreset="true" data-rateit-resetable="false" data-rateit-backingfld="#rating_'.$marketreport['psid'].'_'.$mrid.'" data-rateit-value="'.$marketreport['rating'].'"></div>';
                 }
-
                 eval("\$marketreportbox .= \"".$template->get('new_reporting_report_marketreportbox')."\";");
-                unset($mom_followupactions, $criteriaandstars);
+                unset($mom_followupactions, $criteriaandstars, $markerreport_segment_suppliers);
             }
         }
 

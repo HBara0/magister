@@ -198,6 +198,7 @@ $lang['addmoreproducts'] = 'Add more products';
 $lang['addmorecustomers'] = 'Add more customers';
 $lang['competitiongeneralcomment'] = 'General comment about the competition: (New Comer, Who’s market leader, etc…)';
 $lang['productcomment'] = '(how can we beat them, comparison versus our offer, do not talk only price)';
+$lang['howtobeatthem'] = '(how can we beat them, comparison versus our offer)';
 $lang['compsuppliercomment'] = '(if not the name, at least the origin)';
 $lang['ifavailable'] = '(if available)';
 $lang['addmorechem'] = 'Add more chemical function';
@@ -211,4 +212,6 @@ $lang['when'] = 'When';
 $lang['followup'] = 'Follow Up';
 $lang['unspecifiedsupplier'] = 'Unspecified Supplier';
 $lang['chemicalsubstance'] = 'Chemical Substance';
+$lang['competitororigin'] = 'Competitor Supplier Origin';
+$lang['marketcompt'] = 'Market Competition';
 ?>
