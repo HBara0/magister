@@ -89,11 +89,18 @@ if($core->input['action'] == 'get_supplierslist') {
     $affiliate = new Affiliates($affid);
 
     $gp_suppliers = $affiliate->get_suppliers();
+    $usersuppliers = $core->user['suppliers'];
 
+    if(isset($core->input['onBehalf']) && !empty($core->input['onBehalf'])) {
+        $onbehalfuser = get_user_business_assignments($core->input['onBehalf']);
+        $usersuppliers = $onbehalfuser['suppliers'];
+    }
     $gp_supplierslist = '<option value="0"></option>';
     if(is_array($gp_suppliers)) {
         foreach($gp_suppliers as $supplier) {
-            $gp_supplierslist .= '<option value="'.$supplier['eid'].'">'.$supplier['companyName'].'</option>';
+            if(in_array($supplier['eid'], $usersuppliers['eid'])) {
+                $gp_supplierslist .= '<option value="'.$supplier['eid'].'">'.$supplier['companyName'].'</option>';
+            }
         }
         output($gp_supplierslist);
     }
