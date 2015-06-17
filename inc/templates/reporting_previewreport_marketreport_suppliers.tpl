@@ -4,5 +4,9 @@
 </tr>
 
 <tr>
-    {$markerreport_segment_suppliers_row}
+    <td colspan="2">
+        <table class="datatable">
+            {$markerreport_segment_suppliers_row}
+        </table>
+    </td>
 </tr>

@@ -445,7 +445,10 @@ if(!$core->input['action']) {
                 if(!$reportcache->iscached('marketsegments', $marketreport['psid'])) {
                     $reportcache->add('marketsegments', $marketreport['segmenttitle'], $marketreport['psid']);
                 }
-
+                $segment = ProductsSegments::get_data(array('psid' => $marketreport['psid']));
+                if(is_object($segment)) {
+                    $marketreport['segmenttitle'] = $segment->get_displayname();
+                }
                 if(isset($marketreport['exclude']) && $marketreport['exclude'] == 1) {
                     continue;
                 }
@@ -519,7 +522,7 @@ if(!$core->input['action']) {
                         }
 
                         eval("\$markerreport_segment_suppliers_row .= \"".$template->get('reporting_previewreport_marketreport_suppliers_rows')."\";");
-                        unset($product_row, $supplier, $country, $supplier_name, $country_name);
+                        unset($product_row, $supplier, $country, $supplier_name, $country_name, $competitior_label);
                     }
                     eval("\$markerreport_segment_suppliers = \"".$template->get('reporting_previewreport_marketreport_suppliers')."\";");
                     unset($markerreport_segment_suppliers_row);

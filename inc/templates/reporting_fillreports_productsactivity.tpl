@@ -1,6 +1,7 @@
 <div class="ui-state-highlight ui-corner-all" style="padding-left: 5px; margin-bottom:10px;"><p><strong>Important: Fields in this stage, except the forecasts, are no longer editable. If you have any consideration about the numbers, please contact the auditor of the report.</strong></div>
 <form id="save_productsactivity_reporting/fillreport_Form" name="save_productsactivity_reporting/fillreport_Form" action="index.php?module=reporting/fillreport&amp;stage=marketreport" method="post">
     <input type="hidden" id="rid" name="rid" value="{$rid}">
+    <input type="hidden" id="transfill" name="transfill" value="{$transfill}">
     <input type="hidden" id="identifier" name="identifier" value="{$identifier}">
     <input type="hidden" id="numrows" name="numrows" value="{$productscount}">
     <input type="hidden" id="baseCurrency" name="baseCurrency" value="{$core->input[baseCurrency]}">

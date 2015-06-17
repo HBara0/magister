@@ -51,6 +51,10 @@ if(!$core->input['action']) {
 												JOIN ".Tprefix."entities s ON (r.spid=s.eid)
 												WHERE year='{$core->input[year]}' AND r.quarter='{$core->input[quarter]}' AND r.affid='{$core->input[affid]}' AND r.spid='{$core->input[spid]}'"));
 
+        if($core->input['transFill'] == 1) {
+            $transfill = 1;
+        }
+
         $core->input['rid'] = $rid;
         $qreport = new ReportingQr(array('rid' => $rid));
         /* Instantiate currencies object and get currencies rate of period - START */
@@ -649,9 +653,6 @@ if(!$core->input['action']) {
             $mom_followupactions .= $mom_obj->parse_actions('QR', $momactions);
         }
         /* Parse MOM Specific Follow Up Actions - end */
-        if($core->input['transFill'] == 1) {
-            $transfill = 1;
-        }
         eval("\$marketreportpage .= \"".$template->get('reporting_fillreports_marketreport')."\";");
         eval("\$fillreportpage = \"".$template->get('reporting_fillreports_tabs')."\";");
     }
@@ -1013,6 +1014,7 @@ else {
     elseif($core->input['action'] == 'save_marketreport') {
         unset($core->input['ajaxaddmoredata']);
         $rid = intval($core->input['rid']);
+        $transfill = $core->input['transfill'];
         $identifier = $db->escape_string($core->input['identifier']);
         if(!empty($val['exclude']) && $val['exclude'] == 1) {
             $marketreport_data[$key]['exclude'] = $val['exclude'];
@@ -1109,6 +1111,9 @@ else {
                     }
                     if(isset($competitorsupplier_data['unspecifiedsupp']) && $competitorsupplier_data['unspecifiedsupp'] == 1) {
                         $suppdata['sid'] = 0;
+                    }
+                    if(!isset($competitorsupplier_data['unspecifiedsupp']) && $suppdata['sid'] == 0 && $suppdata['coid'] == 0) {
+                        continue;
                     }
                     $suppdata['inputChecksum'] = $competitorsupplier_data['inputChecksum'];
                     $suppdata['coid'] = $competitorsupplier_data['coid'];
@@ -1209,10 +1214,12 @@ else {
 
 //            }
             /* Validate Forecasts - End */
-            if($report_meta['transFill'] != '1' || !isset($report_meta['transFill'])) {
+//            if($report_meta['transFill'] != '1' || !isset($report_meta['transFill'])) {
+//                record_contribution($rid, $core->input['isDone']);
+//            }
+            if($transfill != '1' || !$transfill) {
                 record_contribution($rid, $core->input['isDone']);
             }
-
             $db->update_query('reports', $new_status, "rid='{$rid}'");
             if($core->input['previewed_marketreport'] == 1) {
                 $report_obj = new ReportingQReports($rid);
@@ -1496,8 +1503,8 @@ else {
                     $db->insert_query('marketreport', $val);
                     $mrid = $db->last_id();
                 }
-
-                if($report_meta['transFill'] != '1') {
+                if($transfill != '1') {
+                    //  if($report_meta['transFill'] != '1') {
                     if($db->fetch_field($db->query("SELECT COUNT(*) AS contributed FROM ".Tprefix."marketreport_authors WHERE mrid='{$mrid}' AND uid='{$core->user['uid']} '"), 'contributed') == 0) {
                         $db->insert_query('marketreport_authors ', array('mrid' => $mrid, 'uid' => $core->user['uid']));
                     }
@@ -1533,12 +1540,13 @@ else {
 
         $update_status = $db->update_query('reports', $new_status, "rid='{$report_meta[rid]}'");
         if($update_status) {
-            if($report_meta['transFill'] != '1') {
+            if($transfill != '1') {
+                //  if($report_meta['transFill'] != '1') {
                 record_contribution($report_meta['rid'], 1);
             }
             if($core->input['savetype'] == 'finalize') {
                 /* Force recording of contribution if user is finalizing with transparency and no other contributor exist */
-                if($report_meta['transFill'] == '1' && $db->num_rows($db->query('SELECT uid FROM '.Tprefix.'reportcontributors WHERE rid = '.intval($report_meta['rid']))) == 0) {
+                if($transfill == '1' && $db->num_rows($db->query('SELECT uid FROM '.Tprefix.'reportcontributors WHERE rid = '.intval($report_meta['rid']))) == 0) {
                     record_contribution($report_meta['rid'], 1);
                 }
                 output_xml("<status>true</status><message>{$lang->reportfinalized}</message>");

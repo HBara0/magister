@@ -21,8 +21,8 @@
                     }, 2000
                             );
 
-                    setTimeout(function () {
-                        $('#previewed_value').each(function (i, obj) {
+                    setTimeout(function() {
+                        $('#previewed_value').each(function(i, obj) {
                             $(obj).val('');
                         });
                     }, 4000
@@ -48,7 +48,6 @@
 
         <td class="contentContainer">
             <h1>{$lang->reportdetails}<div style="font-style:italic; font-size:12px; color:#888;">Q{$core->input[quarter]} {$core->input[year]} / {$core->input[supplier]} - {$core->input[affiliate]}</div></h1>
-            <input type="hidden" id="transfill" name="transfill" value="{$transfill}">
             <div class="ui-state-highlight ui-corner-all" style="padding-left: 5px; margin-bottom:10px;"><p><strong>Welcome to the new QR filling process; you no longer need to go back and forth in pages, simply switch tabs.<br />
                         The market report now has a dedicated section for competition, please make sure to use it.</strong></div>
 
