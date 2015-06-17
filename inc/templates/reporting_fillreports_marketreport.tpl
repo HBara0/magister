@@ -1,6 +1,7 @@
 <div class="ui-state-highlight ui-corner-all" style="padding-left: 5px; margin-bottom:10px;"><p><strong>Notice:</strong> If you don't have anything to fill under a specific segment, please use the "<em>Exclude this segment</em>" checkbox on the top right side of each section.</p></div>
 <form id="save_marketreport_reporting/fillreport_Form" name="save_marketreport_reporting/fillreport_Form" method="post" target="_blank"/>
 <input type="hidden" name="rid" value="{$core->input[rid]}">
+<input type="hidden" id="transfill" name="transfill" value="{$transfill}">
 <input type="hidden" id="identifier" name="identifier" value="{$identifier}">
 <table width="100%" class="datatable">
     {$markerreport_fields}

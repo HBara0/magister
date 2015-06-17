@@ -48,7 +48,6 @@
 
         <td class="contentContainer">
             <h1>{$lang->reportdetails}<div style="font-style:italic; font-size:12px; color:#888;">Q{$core->input[quarter]} {$core->input[year]} / {$core->input[supplier]} - {$core->input[affiliate]}</div></h1>
-            <input type="hidden" id="transfill" name="transfill" value="{$transfill}">
             <div id="reporttabs">
                 <ul>
                     <li><a href="#reporttabs-1">{$lang->productactivitydetails}</a></li>
