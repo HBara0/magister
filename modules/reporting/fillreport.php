@@ -1112,6 +1112,9 @@ else {
                     if(isset($competitorsupplier_data['unspecifiedsupp']) && $competitorsupplier_data['unspecifiedsupp'] == 1) {
                         $suppdata['sid'] = 0;
                     }
+                    if(!isset($competitorsupplier_data['unspecifiedsupp']) && $suppdata['sid'] == 0 && $suppdata['coid'] == 0) {
+                        continue;
+                    }
                     $suppdata['inputChecksum'] = $competitorsupplier_data['inputChecksum'];
                     $suppdata['coid'] = $competitorsupplier_data['coid'];
                     $marketreportcompetiton = new MarketReportCompetition();
