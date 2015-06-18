@@ -63,7 +63,7 @@ if(!$core->input['action']) {
     else {
         $productsapplicationsfunctions_list = '<tr><td colspan="3">'.$lang->na.'</td></tr>';
     }
-    $publishcheckbox = '<input type="checkbox" name="" value="1">';
+    $publishonwebsite = '<input type="checkbox" name="chemicalfunctions[publishOnWebsite]" value=1>';
     eval("\$popup_createfunction = \"".$template->get('admin_products_popup_createfunction')."\";");
     eval("\$functionpage = \"".$template->get('admin_products_functions')."\";");
     output_page($functionpage);
@@ -85,7 +85,11 @@ elseif($core->input['action'] == 'do_create') {
 }
 elseif($core->input['action'] == 'save_descr') {
     $segapfunct_obj = new SegApplicationFunctions($core->input['segfuncapp']);
-    $fields = array('cfid' => $segapfunct_obj->cfid, 'psaid' => $segapfunct_obj->psaid, 'description' => $core->input['segapdescription']);
+    $publishonweb = "0";
+    if($core->input['publishOnWebsite'] == 1) {
+        $publishonweb = "1";
+    }
+    $fields = array('cfid' => $segapfunct_obj->cfid, 'psaid' => $segapfunct_obj->psaid, 'publishOnWebsite' => $publishonweb, 'description' => $core->input['segapdescription']);
     $segapfunct_obj->save($fields);
     switch($segapfunct_obj->get_errorcode()) {
         case 0:
@@ -143,6 +147,10 @@ elseif($core->input['action'] == 'get_segapdescription') {
     $segapfunct_obj = new SegApplicationFunctions($core->input['id']);
     $safid = $segapfunct_obj->safid;
     $segapdescriptions = $segapfunct_obj->get_description();
+    if($segapfunct_obj->publishOnWebsite == '1') {
+        $checked = 'checked = "checked"';
+    }
+    $publishonwebsite = '<input type = "checkbox" name = "publishOnWebsite" value = "1" '.$checked.'>';
     eval("\$popup_applicationdescription = \"".$template->get('admin_products_popup_applicationdescription')."\";");
     output($popup_applicationdescription);
 }
@@ -154,35 +162,23 @@ elseif($core->input['action'] == 'get_deleteappfunc') {
 }
 elseif($core->input['action'] == 'get_updatefunction') {
     $function = new ChemicalFunctions($core->input['id']);
-
+    $publishonwebsite = '<input type = "checkbox" name = "chemicalfunctions[publishOnWebsite]" value = 1>';
     $existing_funcapplications = SegApplicationFunctions::get_data(array(ChemicalFunctions::PRIMARY_KEY => $function->get_id()), array('returnarray' => true));
     $applicationsfilters = null;
     if(is_array($existing_funcapplications)) {
         foreach($existing_funcapplications as $existing_funcapplication) {
             $applicationids[] = $existing_funcapplication->{SegmentApplications::PRIMARY_KEY};
-            if($existing_funcapplication->publishOnWebsite == 1) {
-                $publishedonweb[] = $existing_funcapplication->psaid;
-            }
         }
-        //  $applicationsfilters = array(SegmentApplications::PRIMARY_KEY => implode(',', $applicationids));
+        $applicationsfilters = array(SegmentApplications::PRIMARY_KEY => implode(', ', $applicationids));
     }
-    $applications_obj = SegmentApplications::get_data('', array('returnarray' => true));
+    $applications_obj = SegmentApplications::get_data($applicationsfilters, array('returnarray' => true, 'operators' => array(SegmentApplications::PRIMARY_KEY => 'NOT IN')));
     if(is_array($applications_obj)) {
-        foreach($applications_obj as $application_obj) {
-            $checkedapp = $checkedweb = $rowclass = '';
-            if(is_array($applicationids)) {
-                if(in_array($application_obj->psaid, $applicationids)) {
-                    $checkedapp = 'checked="checked"';
-                }
+        foreach($applications_obj as $application) {
+            $segment = $application->get_segment();
+            if(is_object($application)) {
+                $applications_list .= '<option value = '.$application->get_id().'>'.$segment->get_displayname().' - '.$application->title.'</option>';
+                unset($segment);
             }
-            if(is_array($publishedonweb)) {
-                if(in_array($application_obj->psaid, $publishedonweb)) {
-                    $checkedweb = 'checked="checked"';
-                }
-            }
-            $applications_list .='<tr class="'.$rowclass.'">';
-            $applications_list .='<td><input id="applicationfilter_check_'.$application_obj->psaid.'" name="chemicalfunctions[segapplications][]"  type="checkbox"'.$checkedapp.' value="'.$application_obj->psaid.'">'.$application_obj->get_displayname().'</td>';
-            $applications_list.='<td><input id="checkonweb_check_'.$application_obj->psaid.'" name="chemicalfunctions[publishOnWebsite][]"  type="checkbox"'.$checkedweb.' value="'.$application_obj->psaid.'"></td></tr>';
         }
     }
     eval("\$popup_updatefunction = \"".$template->get('admin_products_popup_createfunction')."\";");

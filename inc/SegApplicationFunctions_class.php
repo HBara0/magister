@@ -114,7 +114,7 @@ class SegApplicationFunctions extends AbstractClass {
     public function update(array $data) {
         global $db, $core;
 
-        $valid_fields = array('cfid', 'psaid', 'description');
+        $valid_fields = array('cfid', 'psaid', 'description', 'publishOnWebsite');
         foreach($valid_fields as $attr) {
             $segappfunct[$attr] = $data[$attr];
         }
