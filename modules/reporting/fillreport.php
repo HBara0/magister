@@ -1095,10 +1095,14 @@ else {
             unset($val['customers']);
 
             if(value_exists('marketreport', 'rid', $rid, 'psid="'.$val['psid'].'"')) {
+                $val['modifiedBy'] = $core->user['uid'];
+                $val['modifiedOn'] = TIME_NOW;
                 $query = $db->update_query('marketreport', $val, "rid='{$rid}' AND psid='{$val[psid]}'");
                 $mrid = $db->fetch_field($db->query("SELECT mrid FROM ".Tprefix."marketreport WHERE rid='{$rid}' AND psid='{$val[psid]}'"), 'mrid');
             }
             else {
+                $val['createdBy'] = $core->user['uid'];
+                $val['createdOn'] = TIME_NOW;
                 $query = $db->insert_query('marketreport', $val);
                 $mrid = $db->last_id();
             }
