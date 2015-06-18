@@ -4,7 +4,7 @@
         <input type="hidden" name="action" value="do_reportinconsistency"/>
         <input type="hidden" name="productsactivity[paid]" value="{$paid}"/>
         <div>Report Details</div>
-        <div><h4 class="title">{$reportyear}/{$affiliatename}</h4></div>
+        <div><h4 class="title">Q{$quarter} {$reportyear}/{$affiliatename}</h4></div>
         <div><h4 class="title">{$product}</h4></div>
         <div>
             {$lang->comment}<br/><textarea name="productsactivity[comment]" class="basictxteditadv" id="inconsistencycomment_{$paid}"></textarea>

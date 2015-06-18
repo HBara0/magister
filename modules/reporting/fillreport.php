@@ -1688,6 +1688,7 @@ else {
         $affiliate = new Affiliates($reportobj->affid);
         $affiliatename = $affiliate->get_displayname();
         $reportyear = $reportobj->year;
+        $quarter = $reportobj->quarter;
         eval("\$report_inc = \"".$template->get('popup_fillreport_reportinconsistency')."\";");
         output($report_inc);
     }
