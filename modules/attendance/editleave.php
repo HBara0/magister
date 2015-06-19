@@ -91,7 +91,7 @@ if(!$core->input['action']) {
     $leave['fromDate_formatted'] = date('d-m-Y', $leave['fromDate']); //$leave['fromDate']-((60*60*$leave['fromHour_output'])+(60*$leave['fromMinutes_output']));
     $leave['toDate_formatted'] = date('d-m-Y', $leave['toDate']); //$leave['toDate']-((60*60*$leave['toHour_output'])+(60*$leave['toMinutes_output']));
 
-    $query = $db->query("SELECT ltid, name, title FROM ".Tprefix."leavetypes ORDER BY name ASC");
+    $query = $db->query("SELECT ltid, name, title FROM ".Tprefix."leavetypes WHERE isActive=1 ORDER BY name ASC");
     while($type = $db->fetch_assoc($query)) {
         if(!empty($lang->{$type['name']})) {
             $type['title'] = $lang->{$type['name']};
