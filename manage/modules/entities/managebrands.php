@@ -23,6 +23,7 @@ if(!$core->input['action']) {
     if(is_array($entitybrand_objs)) {
         foreach($entitybrand_objs as $entitybrand_obj) {
             $entitybrands = $entitybrand_obj->get();
+            // $x = $entitybrand_obj->parse_link();
             $entities = $entitybrand_obj->get_entity();
             $entitybrands['supplier'] = $entities->get()['companyName'];
             eval("\$entitybrands_list .= \"".$template->get('admin_entities_brands_rows')."\";");

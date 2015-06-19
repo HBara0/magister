@@ -152,12 +152,12 @@ if(!$core->input['action']) {
                 $brandsproducts = $entity->get_brandsproducts();
                 $output = '';
                 if(is_array($brandsproducts)) {
-                    foreach($brandsproducts as $brandproduct) {
-                        $brandproduct_brand = $brandproduct->get_entitybrand();
-                        $brandproduct_productype = $brandproduct->get_endproduct();
-                        $options[$brandproduct->ebpid] = $brandproduct_brand->name;
+                    foreach($brandsproducts as $brandproduct_obj) {
+                        $brandproduct_brand = $brandproduct_obj->get_entitybrand();
+                        $brandproduct_productype = $brandproduct_obj->get_endproduct();
+                        $options[$brandproduct_obj->ebpid] = $brandproduct_brand->name;
                         if(is_object($brandproduct_productype)) {
-                            $options[$brandproduct->ebpid] .= ' - '.$brandproduct_productype->title;
+                            $options[$brandproduct_obj->ebpid] .= ' - '.$brandproduct_productype->title;
                         }
 
                         eval("\$brandsendproducts .= \"".$template->get('profiles_entityprofile_brandsproducts')."\";");

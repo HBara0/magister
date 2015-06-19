@@ -3,9 +3,9 @@
         <input type="hidden" name="action" value="do_addbrand" />
         <div>
             <div style="display:inline-block; width: 30%;"><strong>{$lang->name}</strong></div>
-            <div style="display:inline-block; width: 60%;"><input name="entitybrand[name]" type="text"/></div>
+            <div style="display:inline-block; width: 60%;"><input name="entitybrand[name]" type="text" value="{$brandproduct[brandname]}" {$disabled}/>{$ebid_hiddenfield}</div>
         </div>
-        <div>
+        <div {$display[customer]}>
             <div style="display: inline-block; width: 30%;"><strong>{$lang->customer}</strong></div>
             <div style="display: inline-block; width: 60%;">
                 <input type='text' id='allcustomertypes_noexception_autocomplete'/>
