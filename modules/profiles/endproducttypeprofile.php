@@ -53,7 +53,7 @@ if(!$core->input['action']) {
         }
         if(!empty($pids)) {
             $itemscount['products'] = 0;
-            $pids = array_unique($pids);
+            $pids = array_filter(array_unique($pids));
             foreach($pids as $pid) {
                 $product_obj = new Products($pid);
                 if(is_object($product_obj)) {
@@ -111,7 +111,7 @@ if(!$core->input['action']) {
         }
     }
     if(is_array($ebpids)) {
-        $ebpids = array_filter(array_unique($ebpids));
+        $ebpids = array_unique($ebpids);
         if(!empty($ebpids)) {
             $itemscount['relatedbrands'] = 0;
             foreach($ebpids as $ebpid) {
@@ -119,26 +119,13 @@ if(!$core->input['action']) {
                 if(is_object($entitybrandproduct)) {
                     $entitybrand = EntitiesBrands::get_data(array('ebid' => $entitybrandproduct->ebid));
                     $entitybrand_link = $entitybrand->parse_link();
-
                     $characteristic = $entitybrandproduct->get_charactersticvalue();
                     $characteristic_output = '';
                     if(!empty($characteristic->get_id())) {
                         $entitybrand_link .= ' ('.$characteristic->get_displayname().')';
                     }
 
-                    // $entbrandprod_objs = $entitybrand->get_entbrandproducts();
-                    $entbrandprod_obj = EntBrandsProducts::get_data(array(ProductCharacteristicValues::PRIMARY_KEY => $entitybrandproduct->{ProductCharacteristicValues::PRIMARY_KEY}, EndProducTypes::PRIMARY_KEY => $entitybrandproduct->{EndProducTypes::PRIMARY_KEY}, EntitiesBrands::PRIMARY_KEY => $entitybrandproduct->{EntitiesBrands::PRIMARY_KEY}));
-
-                    //if(is_array($entbrandprod_objs)) {
-                    //   foreach($entbrandprod_objs as $entbrandprod_obj) {
-                    //if($entbrandprod_obj->eptid == $eptid) {
-                    if(is_object($entbrandprod_obj)) {
-                        $entitybrand_link .= ' <a style="vertical-align: top;text-align: left;" target="_blank" title="Branded End Product" href="'.$core->settings['rootdir'].'/index.php?module=profiles/brandprofile&amp;ebpid='.$entbrandprod_obj->get_id().'"><small>Or Go To Related Branded End Product</small> <img src="'.$core->settings['rootdir'].'/images/right_arrow.gif"/></a>';
-                    }//}
-                    //
-                    // }
-                    //}
-
+                    $entitybrand_link .= ' <a style="vertical-align: top;text-align: left;" target="_blank" title="Branded End Product" href="'.$core->settings['rootdir'].'/index.php?module=profiles/brandprofile&amp;ebpid='.$entitybrandproduct->get_id().'"><small>Or Go To Related Branded End Product</small> <img src="'.$core->settings['rootdir'].'/images/right_arrow.gif"/></a>';
                     if(is_object($entitybrand)) {
                         $entity = new Entities($entitybrand->eid);
                         if(is_object($entity)) {
