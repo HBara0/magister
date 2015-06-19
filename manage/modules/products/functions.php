@@ -39,9 +39,14 @@ if(!$core->input['action']) {
         foreach($functions_obj as $function_obj) {
             $altrow_class = alt_row($altrow_class);
             $function = $function_obj->get();
+            $checked = '';
+            if($function['publishOnWebsite'] == '1') {
+                $checked = 'checked="checked"';
+            }
             $functionsappseg_objs = $function_obj->get_applications();
             if(is_array($functionsappseg_objs)) {
                 foreach($functionsappseg_objs as $safid => $functionsappseg_obj) {
+                    $safids[] = $safid;
                     $functions_applications = $functionsappseg_obj->get();
                     if(empty($functions_applications)) {
                         $functions_application = $lang->na;
@@ -63,7 +68,7 @@ if(!$core->input['action']) {
     else {
         $productsapplicationsfunctions_list = '<tr><td colspan="3">'.$lang->na.'</td></tr>';
     }
-    $publishonwebsite = '<input type="checkbox" name="chemicalfunctions[publishOnWebsite]" value=1>';
+    $publishonwebsite = '<input type="checkbox" name="chemicalfunctions[publishOnWebsite]" '.$checked.' value=1>';
     eval("\$popup_createfunction = \"".$template->get('admin_products_popup_createfunction')."\";");
     eval("\$functionpage = \"".$template->get('admin_products_functions')."\";");
     output_page($functionpage);

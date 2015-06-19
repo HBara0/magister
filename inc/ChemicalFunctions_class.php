@@ -20,7 +20,7 @@ class ChemicalFunctions extends AbstractClass {
     const PRIMARY_KEY = 'cfid';
     const TABLE_NAME = 'chemicalfunctions';
     const DISPLAY_NAME = 'title';
-    const SIMPLEQ_ATTRS = 'cfid, name, title, description';
+    const SIMPLEQ_ATTRS = 'cfid, name, title, description,publishOnWebsite';
     const CLASSNAME = __CLASS__;
     const UNIQUE_ATTRS = 'name';
 
@@ -54,6 +54,7 @@ class ChemicalFunctions extends AbstractClass {
             }
             $chemicalfunctions_data = array(
                     'name' => $data['name'],
+                    'publishOnWebsite' => $website,
                     'title' => $data['title'],
                     'description' => $data['description'],
                     'createdBy' => $core->user['uid'],
@@ -64,7 +65,6 @@ class ChemicalFunctions extends AbstractClass {
                 $this->data[self::PRIMARY_KEY] = $data['cfid'] = $db->last_id();
                 if(!empty($data['segapplications']) && isset($data['segapplications'])) {
                     foreach($data['segapplications'] as $psaid) {
-
                         $segappfuncquery = $db->insert_query('segapplicationfunctions', array('cfid' => $data['cfid'], 'publishOnWebsite' => $website, 'psaid' => $psaid, 'description' => $data['description'], 'createdBy' => $core->user['uid'], 'createdOn' => TIME_NOW));
                         if($segappfuncquery) {
                             $data['safid'] = $db->last_id();
@@ -91,6 +91,7 @@ class ChemicalFunctions extends AbstractClass {
             }
         }
         $newalias = generate_alias($data['title']);
+        $data['publishOnWebsite'] = $website;
         if(!is_object(ChemicalFunctions::get_data(array('name' => $newalias, self::PRIMARY_KEY => $this->data[self::PRIMARY_KEY]), array('operators' => array(self::PRIMARY_KEY => 'NOT IN'))))) {
             $data['name'] = $newalias;
         }
@@ -100,9 +101,6 @@ class ChemicalFunctions extends AbstractClass {
             foreach($segapfunctions_existingobjs as $segapfunction_obj) {
                 if($segapfunction_obj->publishOnWebsite == 0) {
                     $db->update_query(segapplicationfunctions, array('publishOnWebsite' => "0"), 'safid ='.$segapfunction_obj->safid);
-                }
-                else {
-                    $db->update_query(segapplicationfunctions, array('publishOnWebsite' => $website), 'safid ='.$segapfunction_obj->safid);
                 }
             }
         }
