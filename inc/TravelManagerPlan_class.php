@@ -657,7 +657,7 @@ class TravelManagerPlan {
             }
             $hotelssegments_output .= $segmentobj->parse_hotels($sequence, $approvedhotels);
             if(is_array($otherapprovedhotels)) {
-                $hotelssegments_output.='<br /><a nohref="nohref" style="cursor:pointer;" id="countryhotels_'.$sequence.'_check"><div style="display:inline-block"><h2>Lookup Hotels in the same country <img src="'.$core->settings['rootdir'].'/images/right_arrow.gif" alt="Other Approved Hotels"></h2></div></a>';
+                $hotelssegments_output.='<br /><a nohref="nohref" style="cursor:pointer;" id="countryhotels_'.$sequence.'_check"><div style="display:inline-block"><h4>Lookup Hotels in the same country <img src="'.$core->settings['rootdir'].'/images/right_arrow.gif" alt="Other Approved Hotels"></h4></div></a>';
                 $hotelssegments_output.='<div id=countryhotels_'.$sequence.'_view style="display:none">';
                 $hotelssegments_output.=$segmentobj->parse_hotels($sequence, $otherapprovedhotels);
                 $hotelssegments_output.='</div>';
