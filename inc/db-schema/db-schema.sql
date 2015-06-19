@@ -1292,15 +1292,15 @@ CREATE TABLE `chemicalfunctions` (
   `cfid` int(10) NOT NULL AUTO_INCREMENT,
   `name` varchar(120) COLLATE utf8_unicode_ci NOT NULL,
   `title` varchar(220) COLLATE utf8_unicode_ci NOT NULL,
-  `description` text COLLATE utf8_unicode_ci NOT NULL,
   `createdBy` int(10) NOT NULL,
   `createdOn` bigint(30) NOT NULL,
   `modifiedBy` int(10) NOT NULL,
   `modifiedOn` bigint(30) NOT NULL,
+  `description` varchar(120) COLLATE utf8_unicode_ci NOT NULL,
+  `publishOnWebsite` tinyint(1) NOT NULL,
   PRIMARY KEY (`cfid`),
-  KEY `createdBy` (`createdBy`,`modifiedBy`),
-  FULLTEXT KEY `title` (`title`,`description`)
-) ENGINE=MyISAM AUTO_INCREMENT=2051 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+  KEY `createdBy` (`createdBy`,`modifiedBy`)
+) ENGINE=MyISAM AUTO_INCREMENT=2040 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `chemicalsubstances`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
