@@ -111,7 +111,7 @@ class Countries extends AbstractClass {
         $countries = self::get_countries('name IS NOT NUll');
         if(is_array($countries)) {
             foreach($countries as $country) {
-                $phonecodes[$country->phoneCode] = $country->phoneCode;
+                $phonecodes[$country->phoneCode] = '('.$country->get_displayname().')+'.$country->phoneCode;
             }
         }
         return $phonecodes;
