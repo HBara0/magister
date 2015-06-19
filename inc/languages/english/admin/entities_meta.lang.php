@@ -31,6 +31,7 @@ $lang['errormodifyingentity'] = "Error modifying entity";
 $lang['entityalreadyexists'] = "An entity with the same name already exists";
 $lang['invalidentityemail'] = "An invalid entity email was provided";
 $lang['managebrands'] = 'Manage Brands';
+$lang['managebrandsendproducts'] = 'Manage Brand End-Products';
 $lang['endproducttypes'] = 'End Product Types';
 $lang['companyshortname'] = 'Company Short Name';
 $lang['addnewrepresentative'] = "Add New Representative";
@@ -88,4 +89,9 @@ $lang['mergeentity'] = 'Merge Entity';
 $lang['deleteentity'] = 'Delete Entity';
 $lang['considerbrandunspecified'] = 'or consider the brand with unspecified/unknown end-product type';
 $lang['charasteristiclist'] = "Characteristics List";
+$lang['brand'] = 'Brand';
+$lang['endproduct'] = 'End-Product';
+$lang['createbrandendproduct'] = 'Create Brand End-Product';
+$lang['characteristic'] = 'Characteristic';
+$lang['deletebrandendproduct'] = 'Delete Brand End-Product'
 ?>
