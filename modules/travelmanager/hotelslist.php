@@ -19,8 +19,8 @@ if(!$core->input['action']) {
     $sort_url = sort_url();
 
     $filters_config = array(
-            'parse' => array('filters' => array('name', 'city', 'country', 'isApproved', 'avgprice'),
-                    'overwriteField' => array('avgprice' => '<input class="inlinefilterfield" type="text" style="width: 95%" placeholder="'.$lang->avgprice.'"/>',
+            'parse' => array('filters' => array('name', 'city', 'country', 'isApproved', 'avgPrice'),
+                    'overwriteField' => array('avgPrice' => '<input class="inlinefilterfield" type="text" style="width: 95%" placeholder="'.$lang->avgprice.'"/>',
                             'isApproved' => '',
                     )
             ),
@@ -32,7 +32,7 @@ if(!$core->input['action']) {
                     ),
                     'secTables' => array(
                             'countries' => array(
-                                    'filters' => array('country' => array('name' => 'name')),
+                                    'filters' => array('countries' => array('name' => 'name')),
                                     'keyAttr' => 'coid', 'joinKeyAttr' => 'coid', 'joinWith' => 'travelmanager_hotels'
                             ),
                             'cities' => array(
@@ -52,10 +52,10 @@ if(!$core->input['action']) {
         $multipage_where .= ' AND '.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
     }
 
-    $filters_row = $filter->prase_filtersrows(array('tags' => 'table', 'display' => $filters_row_display));
+    $filters_row = $filter->prase_filtersrows(array('tags' => 'table'));
 //end parsing filters
 
-    $hotels = TravelManagerHotels::get_data($filters, array('operators' => $filters_opts, 'returnarray' => true, 'order' => array('sort' => array('isApproved' => 'DESC'), 'by' => array('name', 'avgPrice', 'isApproved'))));
+    $hotels = TravelManagerHotels::get_data($filter_where, array('operators' => $filters_opts, 'returnarray' => true, 'order' => array('sort' => array('isApproved' => 'DESC'), 'by' => array('name', 'avgPrice', 'isApproved'))));
     if(is_array($hotels)) {
         foreach($hotels as $hotel) {
             $hotel_link = $hotel->get_displayname();
