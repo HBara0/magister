@@ -317,14 +317,14 @@ else {
                                 $db->insert_query('productsactivity', $activity);
 
                                 $productact = new ProductsActivity($db->last_id());
-                                if($quarter_info['quarter'] == 1) {
+                                if($quarter_info['quarter'] < 4) {
                                     /* Implement Budget data integration to acquire forecasts  - START */
                                     // $forecasts = $productact->aggregate_relatedbudgetlines(array('aggregatebm' => false));
                                     /* Implement Budget data integration to acquire forecasts   - END */
                                     //$activity['salesForecast'] = $forecasts['amount'] / 1000;
                                     //$activity['quantityForecast'] = $forecasts['quantity'] / 1000;
-                                    $activity['quantityForecast'] = $activity['quantity'];
-                                    $activity['salesForecast'] = $activity['turnOver'];
+                                    $activity['quantityForecast'] = 0; //$activity['quantity'];
+                                    $activity['salesForecast'] = 0; //$activity['turnOver'];
                                 }
                                 else {
                                     $forecasts = $db->fetch_assoc($db->query("SELECT pid, SUM(quantity) AS quantityForecast, SUM(turnOver) AS salesForecast
@@ -348,10 +348,56 @@ else {
                     $db->update_query('reportcontributors', array('isDone' => 0), 'rid='.$rid);
                 }
             }
+
             if($options['runtype'] != 'dry') {
-                $db->update_query('reports', array('dataIsImported' => 1, 'dataImportedOn' => TIME_NOW), 'affid='.$affid.' AND quarter='.$options['quarter'].' AND year='.$options['year']);
+                /* Import from the GP forecasts */
+                if(intval($core->input['quarter']) < 4) {
+                    $sum = 'month1';
+                    for($i = 2; $i <= 12; $i++) {
+                        $sum .='+ month'.$i;
+                    }
+                    $sql = "SELECT pid,businessMgr,SUM({$sum}) AS PurchaseQty FROM ".Tprefix."grouppurchase_forecastlines WHERE gpfid IN(SELECT gpfid FROM ".Tprefix."grouppurchase_forecast WHERE affid=".$affid." AND year=".$core->input['year'].") GROUP BY pid,businessMgr";
+                    $query = $db->query($sql);
+                    if($db->num_rows($query) > 0) {
+                        while($gpline = $db->fetch_assoc($query)) {
+                            $uid_where = '(uid='.$gpline['businessMgr'].' OR uid=0)';
+                            $product = new Products($gpline['pid']);
+                            $spid = $product->get_supplier()->eid;
+                            $rid_where = "rid =(SELECT rid FROM ".Tprefix."reports WHERE affid=".intval($core->input['affid'])." AND year=".intval($core->input['year'])." AND spid=".$spid." AND quarter=".intval($core->input['quarter']).")";
+
+                            $productsactivity_line = ProductsActivity::get_data(array('rid' => $rid_where, 'pid' => $gpline['pid'], 'uid' => $uid_where), array('simple' => false, 'operators' => array('uid' => 'CUSTOMSQL', 'rid' => 'CUSTOMSQLSECURE')));
+                            if(is_object($productsactivity_line)) {
+                                $x = $productsactivity_line->quantityForecast;
+
+                                $gpline['PurchaseQty'] = $productsactivity_line->quantityForecast + $gpline['PurchaseQty'];
+                                if($productsactivity_line->soldQty != 0) {
+                                    $gpline['PurchaseAmount'] = ($productsactivity_line->turnOver / $productsactivity_line->soldQty) * $gpline['PurchaseQty'];
+                                }
+                                $db->update_query(ProductsActivity::TABLE_NAME, array('quantityForecast' => $gpline['PurchaseQty'], 'salesForecast' => $gpline['PurchaseAmount']), 'paid = '.$productsactivity_line->paid);
+                            }
+                            else {
+                                $query = $db->query("SELECT rid FROM ".Tprefix."reports WHERE affid=".intval($core->input['affid'])." AND year=".intval($core->input['year'])." AND spid=".$spid." AND quarter=".intval($core->input['quarter']));
+                                if($db->num_rows($query) > 0) {
+                                    while($report = $db->fetch_assoc($query)) {
+                                        $productactivity_data = array(
+                                                'rid' => $report['rid'],
+                                                'pid' => $gpline['pid'],
+                                                'uid' => $gpline['businessMgr'],
+                                                'quantityForecast' => $gpline['PurchaseQty'],
+                                                'salesForecast' => 0,
+                                        );
+                                        $query = $db->insert_query(ProductsActivity::TABLE_NAME, $productactivity_data);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                /* Import from the GP forecasts-END */
+
+                $db->update_query('reports', array('dataIsImported' => 1, 'dataImportedOn' => TIME_NOW), 'affid = '.$affid.' AND quarter = '.$options['quarter'].' AND year = '.$options['year']);
                 /* SET status to finalized for reports which do no require any input anymore and no data was imported */
-                $otherreports = ReportingQReports::get_data(array('affid' => $affid, 'year' => $options['year'], 'quarter' => $options['quarter'], 'rid' => implode(',', $rids)), array('returnarray' => true, 'operators' => array('rid' => 'NOT IN')));
+                $otherreports = ReportingQReports::get_data(array('affid' => $affid, 'year' => $options['year'], 'quarter' => $options['quarter'], 'rid' => implode(', ', $rids)), array('returnarray' => true, 'operators' => array('rid' => 'NOT IN')));
                 if(is_array($otherreports)) {
                     foreach($otherreports as $otherreport) {
                         $contributors = ReportContributors::get_data(array('rid' => $otherreport->get_id(), 'isDone' => 0), array('returnarray' => true));
@@ -361,30 +407,31 @@ else {
                         }
                     }
                 }
-            }
 
-            if(is_array($errors)) {
-                foreach($errors as $key => $val) {
-                    echo '-'.$key.':<br />';
-                    $val = array_unique($val);
-                    foreach($val as $error) {
-                        echo $error.'<br />';
+
+                if(is_array($errors)) {
+                    foreach($errors as $key => $val) {
+                        echo '-'.$key.':<br />';
+                        $val = array_unique($val);
+                        foreach($val as $error) {
+                            echo $error.'<br />';
+                        }
                     }
                 }
             }
-        }
-        else {
-            if(is_array($errors)) {
-                foreach($errors as $key => $val) {
-                    echo '-'.$key.':<br />';
-                    $val = array_unique($val);
-                    foreach($val as $error) {
-                        echo $error.'<br />';
+            else {
+                if(is_array($errors)) {
+                    foreach($errors as $key => $val) {
+                        echo '-'.$key.':<br />';
+                        $val = array_unique($val);
+                        foreach($val as $error) {
+                            echo $error.'<br />';
+                        }
                     }
                 }
+                output_xml("<status>false</status><message>{$lang->na}</message>");
+                exit;
             }
-            output_xml("<status>false</status><message>{$lang->na}</message>");
-            exit;
         }
     }
 }
