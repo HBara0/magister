@@ -32,12 +32,12 @@ if(!$core->input['action']) {
                     ),
                     'secTables' => array(
                             'countries' => array(
-                                    'filters' => array('countries' => array('name' => 'name')),
-                                    'keyAttr' => 'coid', 'joinKeyAttr' => 'coid', 'joinWith' => 'travelmanager_hotels'
+                                    'filters' => array('country' => array('name' => 'countries.name')),
+                                    'keyAttr' => 'coid', 'joinKeyAttr' => 'country', 'joinWith' => 'travelmanager_hotels'
                             ),
                             'cities' => array(
-                                    'filters' => array('cities' => array('name' => 'name')),
-                                    'keyAttr' => 'ciid', 'joinKeyAttr' => 'ciid', 'joinWith' => 'travelmanager_hotels'
+                                    'filters' => array('city' => array('name' => 'cities.name')),
+                                    'keyAttr' => 'ciid', 'joinKeyAttr' => 'city', 'joinWith' => 'travelmanager_hotels'
                             ),
                     )
             )
