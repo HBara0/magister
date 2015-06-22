@@ -136,7 +136,7 @@ if(!$core->input['action']) {
             $currencies_f[] = $mainaffobj->get_country()->get_maincurrency();
             $currencies_f[] = new Currencies(840, true);
             $currencies_f[] = new Currencies(978, true);
-            $currencies_f = array_unique($currencies_f);
+            $currencies_f = array_filter(array_unique($currencies_f));
             $currencies_listf = parse_selectlist('segment['.$sequence.'][tmpfid]['.$frowid.'][currency]', 4, $currencies_f, '840');
             $segments_financess_output.=$currencies_listf;
             $finance_checksum = generate_checksum('finance');
@@ -162,7 +162,7 @@ if(!$core->input['action']) {
             $currencies[] = $mainaffobj->get_country()->get_maincurrency();
             $currencies[] = new Currencies(840, true);
             $currencies[] = new Currencies(978, true);
-            $currencies = array_unique($currencies);
+            $currencies = array_filter(array_unique($currencies));
             $currencies_list = parse_selectlist('segment['.$sequence.'][tmhid]['.$otherhotel_checksum.'][currency]', 4, $currencies, '840', '', '', array('id' => 'currency_'.$sequence.'_'.$otherhotel_checksum.'_list'));
             $otherhotel['displaystatus'] = "display:none;";
 
@@ -366,7 +366,7 @@ else {
         $currencies[] = $mainaffobj->get_country()->get_maincurrency();
         $currencies[] = new Currencies(840, true);
         $currencies[] = new Currencies(978, true);
-        $currencies = array_unique($currencies);
+        $currencies = array_filter(array_unique($currencies));
         $currencies_list = parse_selectlist('segment['.$sequence.'][tmhid]['.$otherhotel_checksum.'][currency]', 4, $currencies, '840');
         $otherhotel['displaystatus'] = "display:none;";
         $paidby_onchangeactions = 'if($(this).find(":selected").val()=="anotheraff"){$("#"+$(this).find(":selected").val()+"_otheraccomodations_'.$sequence.'_'.$otherhotel_checksum.'").effect("highlight",{ color: "#D6EAAC"}, 1500).find("input").first().focus().val("");}else{$("#anotheraff_otheraccomodations_'.$sequence.'_'.$otherhotel_checksum.'").hide();}';
@@ -590,7 +590,7 @@ else {
         $currencies_f[] = $mainaffobj->get_country()->get_maincurrency();
         $currencies_f[] = new Currencies(840, true);
         $currencies_f[] = new Currencies(978, true);
-        $currencies_f = array_unique($currencies_f);
+        $currencies_f = array_filter(array_unique($currencies_f));
         $currencies_listf = parse_selectlist('segment['.$sequence.'][tmpfid]['.$frowid.'][currency]', 4, $currencies_f, 840);
         $segments_financess_output.=$currencies_listf;
         $finance_checksum = generate_checksum('finance');
