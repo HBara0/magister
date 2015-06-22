@@ -123,7 +123,8 @@ else {
         if(is_array($data['endproducttypes'])) {
             foreach($data['endproducttypes'] as $eptid) {
                 if(value_exists('entitiesbrandsproducts', 'eptid', $eptid, 'pcvid='.intval($data['pcvid']).' AND ebid='.intval($data['ebid']))) {
-                    continue;
+                    output_xml('<status>false</status><message>'.$lang->itemalreadyexist.'</message>');
+                    exit;
                 }
                 $entitiesbrandsproducts_data = array(
                         'ebid' => $data['ebid'],
@@ -149,7 +150,7 @@ else {
                 output_xml('<status>false</status><message>'.$lang->fillrequiredfields.'</message>');
                 break;
             case 2:
-                output_xml('<status>false</status><message>eeee'.$lang->itemalreadyexist.'</message>');
+                output_xml('<status>false</status><message>'.$lang->itemalreadyexist.'</message>');
                 break;
         }
     }
