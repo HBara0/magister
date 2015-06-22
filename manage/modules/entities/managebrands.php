@@ -23,7 +23,6 @@ if(!$core->input['action']) {
     if(is_array($entitybrand_objs)) {
         foreach($entitybrand_objs as $entitybrand_obj) {
             $entitybrands = $entitybrand_obj->get();
-            // $x = $entitybrand_obj->parse_link();
             $entities = $entitybrand_obj->get_entity();
             $entitybrands['supplier'] = $entities->get()['companyName'];
             eval("\$entitybrands_list .= \"".$template->get('admin_entities_brands_rows')."\";");
@@ -68,8 +67,23 @@ if(!$core->input['action']) {
 }
 else {
     if($core->input['action'] == 'do_addbrand') {
-        $entitybrand_obj = new EntitiesBrands();
-        $entitybrand_obj->create($core->input['entitybrand']);
+        $ebid = intval($core->input['entitybrand']['ebid']);
+        if(!empty($core->input['entitybrand']['ebid'])) {
+            $entbrand = EntitiesBrands::get_data(array('name' => $core->input['entitybrand']['name']));
+            if(is_object($entbrand) && $entbrand->ebid != $ebid) {
+                output_xml('<status>false</status><message>'.$lang->brandexists.'</message>');
+                exit;
+            }
+            else {
+                $entitybrand_obj = new EntitiesBrands($ebid);
+                $entitybrand_obj->update($core->input['entitybrand']);
+            }
+        }
+        else {
+            $entitybrand_obj = new EntitiesBrands();
+
+            $entitybrand_obj->create($core->input['entitybrand']);
+        }
         switch($entitybrand_obj->get_errorcode()) {
             case 0:
                 output_xml('<status>true</status><message>'.$lang->successfullysaved.'</message>');
@@ -81,6 +95,53 @@ else {
                 output_xml('<status>false</status><message>eeee'.$lang->itemalreadyexist.'</message>');
                 break;
         }
+    }
+    elseif($core->input['action'] == 'get_deletebrand') {
+        $ebid = $db->escape_string($core->input['id']);
+        $entitybrand_obj = new EntitiesBrands($ebid);
+        $entitybrand = $entitybrand_obj->get();
+        eval("\$deletebrand = \"".$template->get('popup_deletebrand')."\";");
+        echo $deletebrand;
+    }
+    elseif($core->input['action'] == 'perform_delete') {
+        $ebid = $db->escape_string($core->input['todelete']);
+        $entbrand = new EntitiesBrands($ebpid);
+        $exclude_tables = array('entitiesbrands', 'entitiesbrandsproducts');
+        $relatedtables = $db->get_tables_havingcolumn('ebid', '(TABLE_NAME NOT IN('.$exclude_tables.'))');
+        if(is_array($relatedtables)) {
+            foreach($relatedtables as $table) {
+                if(value_exists($table, 'ebid', $ebid)) {
+                    output_xml("<status>false</status><message>{$lang->deleteerror}</message>");
+                    exit;
+                }
+            }
+        }
+        $entbrandproducts = EntBrandsProducts::get_data(array('ebid' => $ebid), array('returnarray' => true));
+        if(is_array($entbrandproducts)) {
+            foreach($entbrandproducts as $entbrandproduct) {
+                $entbrandproduct->delete();
+            }
+        }
+        $entbrand->delete();
+        switch($entbrand->get_errorcode()) {
+            case 0:
+                output_xml("<status>true</status><message>{$lang->successdelete}</message>");
+                break;
+        }
+    }
+    elseif($core->input['action'] == 'get_editbrand') {
+        $id = intval($core->input['id']);
+        $entbrand = new EntitiesBrands($id);
+        $entitybrand = $entbrand->get();
+        $customer = Entities::get_data(array('eid' => $entbrand->eid));
+        if(is_object($customer)) {
+            $entitybrand['customer'] = $customer->get_displayname();
+        }
+        $ebid_hiddenfield = '<input type="hidden" value="'.$id.'" name="entitybrand[ebid]">';
+        $module = 'entities';
+        $modulefile = 'managebrands';
+        eval("\$popup_editbrand = \"".$template->get('popup_editbrand')."\";");
+        output($popup_editbrand);
     }
 }
 ?>

@@ -92,7 +92,7 @@ class EntitiesBrands extends AbstractClass {
         }
     }
 
-    protected function update(array $data) {
+    public function update(array $data) {
         global $db, $core;
         if(is_array($data)) {
             $update_array['name'] = $data['name'];
