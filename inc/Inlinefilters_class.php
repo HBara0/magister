@@ -152,10 +152,15 @@ class Inlinefilters {
                             $reportsto = get_specificdata('users', array('uid', 'displayName'), 'uid', 'displayName', array('sort' => 'ASC', 'by' => 'displayName'), 0, 'gid!=7 AND uid IN (SELECT reportsTo FROM '.Tprefix.'users WHERE gid!=7)');
                             $filters[$filter] = parse_selectlist('filters['.$filter.'][]', $tabindex, $reportsto, $core->input['filters'][$filter], 1, '', array('multiplesize' => 3));
                             break;
+                        case 'uid':
+                            $users = get_specificdata('users', array('uid', 'displayName'), 'uid', 'displayName', array('sort' => 'ASC', 'by' => 'displayName'), 0, '');
+                            $filters[$filter] = parse_selectlist('filters['.$filter.'][]', $tabindex, $users, $core->input['filters'][$filter], 1, '', array('multiplesize' => 3));
+                            break;
                         case 'fromDate':
                         case 'toDate':
                         case 'date':
                         case 'time':
+                        case 'createdOn':
                         case 'effectiveFrom':
                         case 'effectiveTo':
                             $filters[$filter] = '<input type="text" id="pickDate_'.$filter.'_from" autocomplete="off" tabindex="'.$tabindex.'" value="'.$core->input['filters'][$filter]['from'].'" /><input type="hidden" name="filters['.$filter.'][from]" id="altpickDate_'.$filter.'_from" value="'.$core->input['filters'][$filter]['from'].'" /><br />';
