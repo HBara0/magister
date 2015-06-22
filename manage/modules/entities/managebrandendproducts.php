@@ -50,15 +50,15 @@ if(!$core->input['action']) {
                 $details = $endproducttype->parse_link();
                 $first_parent = $endproducttype->get_parent();
                 if(is_object($first_parent)) {
-                    $details .= $first_parent->get_displayname();
+                    $details .='<-'.$first_parent->get_displayname();
                     $secondpar_obj = $first_parent->get_parent();
                     if(is_object($secondpar_obj)) {
-                        $details = $secondpar_obj->get_displayname().' < '.$details;
+                        $details = $details.' <- '.$secondpar_obj->get_displayname();
                         $third_par = $secondpar_obj->get_parent();
                         if(is_object($third_par)) {
                             $originalpar_obj = $third_par->get_mother();
                             if(is_object($originalpar_obj)) {
-                                $details = $originalpar_obj->get_displayname().'< ... < '.$details;
+                                $details = $originalpar_obj->get_displayname().'< .. < '.$details;
                             }
                         }
                     }
@@ -74,6 +74,7 @@ if(!$core->input['action']) {
                 $brandproduct['characteristic'] = $productcharacteristic->get_displayname();
             }
             eval("\$brandproducts_list .= \"".$template->get('admin_entities_brandendproducts_rows')."\";");
+            unset($details);
         }
     }
     else {
