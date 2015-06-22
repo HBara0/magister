@@ -2,7 +2,15 @@
     <head>
         <title>{$core->settings[systemtitle]} | {$lang->createforecast}</title>
         {$headerinc}
-
+        <script>
+            $(function() {
+                $("select[id='forecast_onBehalf']").live('change', function() {
+                    var selectList = $("spid");
+                    selectList.find("option:gt(0)").remove();
+                    $("select[id='affid']").trigger("change");
+                });
+            });
+        </script>
         <script src="{$core->settings[rootdir]}/js/fillreport.js" type="text/javascript"></script>
     </head>
     <body>
