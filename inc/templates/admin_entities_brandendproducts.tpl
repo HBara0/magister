@@ -14,6 +14,7 @@
                 <thead>
                     <tr>
                         <th style="width:30%;">{$lang->endproduct}</th>
+                        <th style="width:30%;">{$lang->description}</th>
                         <th style="width:30%;">{$lang->characteristic}</th>
                         <th style="width:30%;">{$lang->brand}</th>
                         <th style="width:10%;"></th>

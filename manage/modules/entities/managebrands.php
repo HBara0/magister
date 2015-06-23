@@ -52,7 +52,7 @@ if(!$core->input['action']) {
         foreach($values as $key => $value) {
             $checked = $rowclass = '';
             $endproducttypes_list .= ' <tr class="'.$rowclass.'">';
-            $endproducttypes_list .= '<td><input id="producttypefilter_check_'.$key.'" type="checkbox"'.$checked.' value="'.$key.'" name="entitybrand[endproducttypes]['.$key.']">'.$value.'</td><tr>';
+            $endproducttypes_list .= '<td><input id="producttypefilter_check_'.$key.'" type="checkbox"'.$checked.' value="'.$key.'" name="entitybrand[endproducttypes]['.$key.'][eptid]">'.$value.'<input style="float:right;" type="text" name="entitybrand[endproducttypes]['.$key.'][description]" placeholder="'.$lang->description.'"  value="'.$brandproduct[description].'"/></td><tr>';
         }
         //$endproducttypes_list.='<option value="'.$endproduct_types['eptid'].'">'.$endproduct_types['title'].'</option>';
     }
@@ -105,13 +105,17 @@ else {
     }
     elseif($core->input['action'] == 'perform_delete') {
         $ebid = $db->escape_string($core->input['todelete']);
-        $entbrand = new EntitiesBrands($ebpid);
-        $exclude_tables = array('entitiesbrands', 'entitiesbrandsproducts');
-        $relatedtables = $db->get_tables_havingcolumn('ebid', '(TABLE_NAME NOT IN('.$exclude_tables.'))');
+        $entbrand = new EntitiesBrands($ebid);
+        $relatedtables = $db->get_tables_havingcolumn('ebid', '(TABLE_NAME !="entitiesbrands")');
         if(is_array($relatedtables)) {
             foreach($relatedtables as $table) {
+                $error_output = '';
                 if(value_exists($table, 'ebid', $ebid)) {
-                    output_xml("<status>false</status><message>{$lang->deleteerror}</message>");
+                    $errorhandler->record('Entry used in', $table);
+                    if($core->usergroup['canPerformMaintenance'] == 1) {
+                        $error_output = $errorhandler->get_errors_inline();
+                    }
+                    output_xml("<status>false</status><message>{$lang->deleteerror}<![CDATA[<br/>{$error_output}]]></message>");
                     exit;
                 }
             }
