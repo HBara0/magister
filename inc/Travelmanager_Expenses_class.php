@@ -34,6 +34,11 @@ class Travelmanager_Expenses extends AbstractClass {
             if($data['paidBy'] != 'anotheraff') {
                 unset($data['paidById']);
             }
+            if((!empty($data['expectedAmt']) && $data['expectedAmt'] != 0) && empty($data['currency'])) {
+                $this->errorcode = 2;
+                $errorhandler->record('requiredfields', 'Expenses Currency');
+                return $this;
+            }
             $data['createdOn'] = TIME_NOW;
             $query = $db->insert_query(self::TABLE_NAME, $data);
         }
@@ -66,6 +71,10 @@ class Travelmanager_Expenses extends AbstractClass {
     protected function update(array $data) {
         global $db, $core;
         if(is_array($data)) {
+            if(empty($data['currency'])) {
+                $this->errorcode = 2;
+                return $this;
+            }
             $expensestdata['expectedAmt'] = $data['expectedAmt'];
             $expensestdata['currency'] = $data['currency'];
             $expensestdata['description'] = $data['description'];
@@ -76,6 +85,11 @@ class Travelmanager_Expenses extends AbstractClass {
             }
             $expensestdata['modifiedBy'] = $core->user['uid'];
             $expensestdata['modifiedOn'] = TIME_NOW;
+            if(empty($expensestdata['currency'])) {
+                $this->errorcode = 2;
+                $errorhandler->record('requiredfields', 'Expenses Currency');
+                return $this;
+            }
             $db->update_query(self::TABLE_NAME, $expensestdata, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
         }
     }
