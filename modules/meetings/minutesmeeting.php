@@ -27,6 +27,7 @@ if(!$core->input['action']) {
         if($meeting['createdBy'] != $core->user['uid']) {
             error($lang->sectionnopermission);
         }
+        $display = "none";
         $meeting_list = '<input type="hidden" value="'.$meeting['mtid'].'" name="mof[mtid]" /><strong><a href="index.php?module=meetings/viewmeeting&mtid='.$meeting['mtid'].'" target="_blank">'.$meeting['title'].' | '.$meeting['location'].'</a></strong>';
 
         if($meeting['hasMoM'] == 1) {
@@ -123,21 +124,24 @@ if(!$core->input['action']) {
         $mof = $mom_obj->get();
     }
     else {
-        $multiple_meetings = Meetings::get_multiplemeetings(array('hasmom' => 0));
-        if(is_array($multiple_meetings)) {
-            if(empty($meeting_list)) {
-                $meeting_list = '<select name = "mof[mtid]">';
-                foreach($multiple_meetings as $mid => $meeting) {
-                    if(!empty($meeting['title'])) {
-                        $meeting_list .='<option value = "'.$meeting['mtid'].'"> '.$meeting['title'].' | '.$meeting['location'].'</option>';
-                    }
-                }
-                $meeting_list .= '</select>';
-            }
+        if(empty($meeting_list)) {
+            $display = "inline-block";
         }
-        else {
-            $meeting_list = $lang->nomeetingavailable;
-        }
+//        $multiple_meetings = Meetings::get_multiplemeetings(array('hasmom' => 0));
+//        if(is_array($multiplemeetings)) {
+//            if(empty($meeting_list)) {
+//                $meeting_list = '<select name = "mof[mtid]">';
+//                foreach($multiple_meetings as $mid => $meeting) {
+//                    if(!empty($meeting['title'])) {
+//                        $meeting_list .='<option value = "'.$meeting['mtid'].'"> '.$meeting['title'].' | '.$meeting['location'].'</option>';
+//                    }
+//                }
+//                $meeting_list .= '</select>';
+//            }
+//        }
+//        else {
+//            $meeting_list = $lang->nomeetingavailable;
+//        }
 
 
         /* parse Actions ---START */
