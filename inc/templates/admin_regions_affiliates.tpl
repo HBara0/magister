@@ -9,6 +9,7 @@
         {$menu}
         <td class="contentContainer">
             <h1>{$lang->listavailableaffiliates}</h1>
+            <div style="float: right"><a target='_blank' href="{$core->settings['rootdir']}/manage/index.php?module=regions/affiliates&action=update_charspec"><img alt="update" src="{$core->settings['rootdir']}/images/icons/update.png"></a></div>
             <table class="datatable">
                 <thead>
                     <tr>
@@ -51,7 +52,7 @@
                     <tr>
                         <td>{$lang->mailinglistaddress}</td>
                         <td>
-                            <input type="text" id="email" name="mailingList"/> <span id="email_Validation"></span>    
+                            <input type="text" id="email" name="mailingList"/> <span id="email_Validation"></span>
                         </td>
                     </tr>
                     <tr>

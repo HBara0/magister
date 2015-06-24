@@ -2,10 +2,10 @@
 /*
  * Orkila Central Online System (OCOS)
  * Copyright � 2009 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * Manage Affiliates
  * $module: admin/regions
- * $id: affiliates.php	
+ * $id: affiliates.php
  * Last Update: @zaher.reda 	Mar 18, 2009 | 04:03 PM
  */
 if(!defined("DIRECT_ACCESS")) {
@@ -87,6 +87,18 @@ else {
         else {
             output_xml("<status>false</status><message>{$lang->erroraddingaffiliate}</message>");
         }
+    }
+    elseif($core->input['action'] == 'update_charspec') {
+        $affiliates = Affiliates::get_affiliates();
+        if(is_array($affiliates)) {
+            foreach($affiliates as $affiliate) {
+                $affiliate->match_charspec();
+                $affiliate->upload_chartspecs();
+            }
+            echo('Saving might have happened, but again it might not.');
+            exit;
+        }
+        echo('No Saving Was DONE!');
     }
 }
 ?>
