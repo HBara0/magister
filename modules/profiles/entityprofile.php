@@ -713,6 +713,7 @@ else {
         }
         if(is_array($brandsproducts)) {
             foreach($brandsproducts as $brandproduct) {
+                $brandproduct_obj = $brandproduct;
                 $brandproduct_brand = $brandproduct->get_entitybrand();
                 $brandproduct_productype = $brandproduct->get_endproduct();
                 $options[$brandproduct->ebpid] = $brandproduct_brand->name;
