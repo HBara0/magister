@@ -9,7 +9,7 @@
         {$menu}
         <td class="contentContainer">
             <h1>{$lang->listavailableaffiliates}</h1>
-            <div style="float: right"><a target='_blank' href="{$core->settings['rootdir']}/manage/index.php?module=regions/affiliates&action=update_charspec"><img alt="update" src="{$core->settings['rootdir']}/images/icons/update.png"></a></div>
+           <!-- <div style="float: right"><a target='_blank' href="{$core->settings['rootdir']}/manage/index.php?module=regions/affiliates&action=update_charspec"><img alt="update" src="{$core->settings['rootdir']}/images/icons/update.png"></a></div> -->
             <table class="datatable">
                 <thead>
                     <tr>
@@ -84,4 +84,5 @@
     </tr>
     {$footer}
 </body>
+{$editaff}
 </html>
