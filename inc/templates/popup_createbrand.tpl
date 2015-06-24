@@ -9,8 +9,8 @@
             <div style="display: inline-block; width: 30%;"><strong>{$lang->customer}</strong></div>
             <div style="display: inline-block; width: 60%;">
                 <input type='text' id='allcustomertypes_noexception_autocomplete'/>
-                <input type="text" size="3" id="allcustomertypes_noexception_id_output" value="" disabled/>
-                <input type='hidden' id='allcustomertypes_noexception_id' name='entitybrand[eid]' value="" />
+                <input type="text" size="3" id="allcustomertypes_noexception_id_output" disabled/>
+                <input type='hidden' id='allcustomertypes_noexception_id' name='entitybrand[eid]' />
                 <div id='searchQuickResults_customer_noexception' class='searchQuickResults' style='display:none;'></div> </div>
         </div>
         <div id='popupcreatebrand_endproducttypes'>

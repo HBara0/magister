@@ -93,5 +93,7 @@ $lang['brand'] = 'Brand';
 $lang['endproduct'] = 'End-Product';
 $lang['createbrandendproduct'] = 'Create Brand End-Product';
 $lang['characteristic'] = 'Characteristic';
-$lang['deletebrandendproduct'] = 'Delete Brand End-Product'
+$lang['deletebrandendproduct'] = 'Delete Brand End-Product';
+$lang['deletebrand'] = 'Delete Brand';
+$lang['brandexists'] = "A Brand with the same name already exists";
 ?>

@@ -23,8 +23,9 @@ if(!$core->input['action']) {
 
     /* Perform inline filtering - START */
     $filters_config = array(
-            'parse' => array('filters' => array('endproduct', 'characteristic', 'brand'),
+            'parse' => array('filters' => array('endproduct', 'description', 'characteristic', 'brand'),
                     'overwriteField' => array('endproduct' => '<input class="inlinefilterfield" type="text" style="width: 95%" placeholder="'.$lang->endproduct.'"/>',
+                            'description' => '<input class="inlinefilterfield" type="text" style="width: 95%" placeholder="'.$lang->description.'"/>',
                             'characteristic' => '<input class="inlinefilterfield" type="text" style="width: 95%" placeholder="'.$lang->characteristic.'"/>',
                             'brand' => '<input class="inlinefilterfield" type="text" style="width: 95%" placeholder="'.$lang->brand.'"/>'
                     )),
@@ -73,6 +74,7 @@ if(!$core->input['action']) {
             if(is_object($productcharacteristic)) {
                 $brandproduct['characteristic'] = $productcharacteristic->get_displayname();
             }
+            $brandproduct['description'] = $entitybrandproduct['description'];
             eval("\$brandproducts_list .= \"".$template->get('admin_entities_brandendproducts_rows')."\";");
             unset($details);
         }
@@ -101,7 +103,7 @@ if(!$core->input['action']) {
         foreach($values as $key => $value) {
             $checked = $rowclass = '';
             $endproducttypes_list .= ' <tr class="'.$rowclass.'">';
-            $endproducttypes_list .= '<td><input id="producttypefilter_check_'.$key.'" type="checkbox"'.$checked.' value="'.$key.'" name="entitybrand[endproducttypes]['.$key.']">'.$value.'</td><tr>';
+            $endproducttypes_list .= '<td><input id="producttypefilter_check_'.$key.'" type="checkbox"'.$checked.' value="'.$key.'" name="entitybrand[endproducttypes]['.$key.'][eptid]">'.$value.'<input style="float:right;" type="text" name="entitybrand[endproducttypes]['.$key.'][description]" placeholder="'.$lang->description.'" /></td><tr>';
         }
     }
 
@@ -122,23 +124,26 @@ else {
     if($core->input['action'] == 'do_addbrand') {
         $data = $core->input['entitybrand'];
         if(is_array($data['endproducttypes'])) {
-            foreach($data['endproducttypes'] as $eptid) {
-                if(value_exists('entitiesbrandsproducts', 'eptid', $eptid, 'pcvid='.intval($data['pcvid']).' AND ebid='.intval($data['ebid']))) {
-                    output_xml('<status>false</status><message>'.$lang->itemalreadyexist.'</message>');
-                    exit;
-                }
-                $entitiesbrandsproducts_data = array(
-                        'ebid' => $data['ebid'],
-                        'eptid' => $eptid,
-                        'pcvid' => $data['pcvid'],
-                        'createdBy' => $core->user['uid'],
-                        'createdOn' => TIME_NOW
-                );
-                $entitybrand_obj = new EntBrandsProducts();
-                $entitybrand_obj->set($entitiesbrandsproducts_data);
-                $entitybrand_obj->save();
-                if(($entitybrand_obj->get_errorcode()) != 0) {
-                    break;
+            foreach($data['endproducttypes'] as $eptid => $endproduct) {
+                if(isset($endproduct['eptid']) && !empty($endproduct['eptid'])) {
+                    if(value_exists('entitiesbrandsproducts', 'eptid', $eptid, 'pcvid='.intval($data['pcvid']).' AND ebid='.intval($data['ebid']))) {
+                        output_xml('<status>false</status><message>'.$lang->itemalreadyexist.'</message>');
+                        exit;
+                    }
+                    $entitiesbrandsproducts_data = array(
+                            'ebid' => $data['ebid'],
+                            'eptid' => $eptid,
+                            'pcvid' => $data['pcvid'],
+                            'description' => $endproduct['description'],
+                            'createdBy' => $core->user['uid'],
+                            'createdOn' => TIME_NOW
+                    );
+                    $entitybrand_obj = new EntBrandsProducts();
+                    $entitybrand_obj->set($entitiesbrandsproducts_data);
+                    $entitybrand_obj->save();
+                    if(($entitybrand_obj->get_errorcode()) != 0) {
+                        break;
+                    }
                 }
             }
         }

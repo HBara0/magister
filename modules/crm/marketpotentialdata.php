@@ -248,7 +248,7 @@ if(!$core->input['action']) {
             foreach($values as $key => $value) {
                 $checked = $rowclass = '';
                 $endproducttypes_list .= ' <tr class="'.$rowclass.'">';
-                $endproducttypes_list .= '<td><input id="producttypefilter_check_'.$key.'" type="checkbox"'.$checked.' value="'.$key.'" name="entitybrand[endproducttypes]['.$key.']">'.$value.'</td><tr>';
+                $endproducttypes_list .= '<td><input id="producttypefilter_check_'.$key.'" type="checkbox"'.$checked.' value="'.$key.'" name="entitybrand[endproducttypes]['.$key.'][eptid]">'.$value.'<input style="float:right;" type="text" name="entitybrand[endproducttypes]['.$key.'][description]" placeholder="'.$lang->description.'"  value="'.$brandproduct[description].'"/></td><tr>';
             }
         }
 
@@ -369,6 +369,7 @@ else {
         }
         if(is_array($brandsproducts)) {
             foreach($brandsproducts as $brandproduct) {
+                $brandproduct_obj = $brandproduct;
                 $brandproduct_brand = $brandproduct->get_entitybrand();
                 $brandproduct_productype = $brandproduct->get_endproduct();
                 $options[$brandproduct->ebpid] = $brandproduct_brand->name;
