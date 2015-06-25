@@ -33,4 +33,10 @@ $lang['acronym'] = "Acronym";
 $lang['update'] = "Update";
 $lang['successfullysaved'] = "Successfully Saved";
 $lang['fillallrequiredfields'] = "Fill All Required Fields";
+$lang['editaff'] = "Edit Affiliate";
+$lang['save'] = "Save";
+$lang['chartspec'] = "Related Chart Specification";
+$lang['width'] = "Width";
+$lang['height'] = "Height";
+$lang['cssclassname'] = "CSS Class Name";
 ?>

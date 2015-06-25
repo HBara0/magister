@@ -800,7 +800,7 @@ class TravelManagerPlanSegments extends AbstractClass {
         }
     }
 
-    public function parse_hotels($sequence, array $hotels) {
+    public function parse_hotels($sequence, array $hotels, $leavedays = '') {
         global $template, $lang, $core;
 
         if(is_array($hotels)) {
