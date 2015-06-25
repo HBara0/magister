@@ -514,7 +514,7 @@ else {
         $segmentobj_destcityname = $segdescity_obj->get()['name'];
         $country = new Countries(1);
         $countriescodes = $country->get_phonecodes();
-        $countriescodes_list = parse_selectlist('telephone_intcode', $tabindex, $countriescodes, $selected_options, '', '', array('id' => 'telephone_intcode', 'width' => '175px'));
+        $countriescodes_list = parse_selectlist('telephone_intcode', $tabindex, $countriescodes, $selected_options, '', '', array('id' => 'telephone_intcode', 'width' => '150px'));
         eval("\$addhotel= \"".$template->get('popup_addhotel')."\";");
         output($addhotel);
     }

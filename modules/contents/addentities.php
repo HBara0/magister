@@ -72,7 +72,12 @@ if(!$core->input['action']) {
     $companysize = array('', '1-9', '10-49', '50-249', '150-999', '>= 1000');
     $companysize = array_combine($companysize, $companysize);
     $companysize_list = parse_selectlist('companySize', '', $companysize, '', '', '');
-
+    $country = new Countries();
+    $countriescodes = $country->get_phonecodes();
+    $telephone_intcode_list = parse_selectlist('telephone_intcode', $tabindex, $countriescodes, $selected_options, '', '', array('id' => 'telephone_intcode', 'width' => '125px'));
+    $telephone2_intcode_list = parse_selectlist('telephone2_intcode', $tabindex, $countriescodes, $selected_options, '', '', array('id' => 'telephone2_intcode', 'width' => '125px'));
+    $fax_intcode_list = parse_selectlist('fax_intcode', $tabindex, $countriescodes, $selected_options, '', '', array('id' => 'fax_intcode', 'width' => '125px'));
+    $fax2_intcode_list = parse_selectlist('fax2_intcode', $tabindex, $countriescodes, $selected_options, '', '', array('id' => 'fax2_intcode', 'width' => '125px'));
     eval("\$addpage = \"".$template->get('contents_entities_add')."\";");
     output_page($addpage);
 }
@@ -206,6 +211,10 @@ else {
         }
     }
     elseif($core->input['action'] == 'get_addnew_representative') {
+        $country = new Countries();
+        $countriescodes = $country->get_phonecodes();
+        $countries_phonecodes = parse_selectlist('repTelephone[intcode]', '', $countriescodes, '', '', '', array('width' => '125px'));
+
         $positions = Positions::get_data('name IS NOT null', array('returnarray' => true, 'order' => array('by' => 'name', 'sort' => 'ASC')));
         $positions_selectlist = parse_selectlist('repPosition', '', $positions, '', '', '', array('width' => '150px'));
         eval("\$addrepresentativebox = \"".$template->get('popup_addrepresentative')."\";");

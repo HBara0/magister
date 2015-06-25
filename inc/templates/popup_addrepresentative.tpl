@@ -22,7 +22,7 @@
                 </td>
             </tr>
             <tr>
-                <td>{$lang->telephone}</td><td><input name="repTelephone[intcode]" accept="numeric" type="text" size="3" /><input name="repTelephone[areacode]" accept="numeric" type="text" size="4" /><input type='text' accept="numeric" id='repTelephone_number' name='repTelephone[number]' tabindex="2"/></td>
+                <td>{$lang->telephone}</td><td>{$countries_phonecodes}<input name="repTelephone[areacode]" accept="numeric" type="text" size="4" /><input type='text' accept="numeric" id='repTelephone_number' name='repTelephone[number]' tabindex="2"/></td>
             </tr>
             {$entity_field_row}
             <td colspan="2" align="left">
