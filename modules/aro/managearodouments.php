@@ -58,7 +58,7 @@ if(!($core->input['action'])) {
         eval("\$unspecified_customer_row = \"".$template->get('aro_unspecifiedcustomer_row')."\";");
         $rowid++;
         $customeroder['inputChecksum'] = generate_checksum('cl');
-        $payment_term = parse_selectlist('customeroder['.$rowid.'][ptid]', 4, $payment_terms, '', '', '', array('blankstart' => 1, 'id' => "paymentermdays_".$rowid, 'required' => 'required'));
+        $payment_term = parse_selectlist('customeroder['.$rowid.'][ptid]', 4, $payment_terms, '', '', '', array('blankstart' => 1, 'id' => "paymentermdays_".$rowid));
         eval("\$aro_managedocuments_ordercustomers_rows = \"".$template->get('aro_managedocuments_ordercustomers_rows')."\";");
 
         //product Lines
