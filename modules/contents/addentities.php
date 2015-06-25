@@ -206,6 +206,8 @@ else {
         }
     }
     elseif($core->input['action'] == 'get_addnew_representative') {
+        $positions = Positions::get_data('name IS NOT null', array('returnarray' => true, 'order' => array('by' => 'name', 'sort' => 'ASC')));
+        $positions_selectlist = parse_selectlist('repPosition', '', $positions, '', '', '', array('width' => '150px'));
         eval("\$addrepresentativebox = \"".$template->get('popup_addrepresentative')."\";");
         output_page($addrepresentativebox);
     }

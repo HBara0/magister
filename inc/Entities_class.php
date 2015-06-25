@@ -476,7 +476,7 @@ class Entities extends AbstractClass {
             }
         }
 
-        $query = $db->insert_query('representatives', array('name' => ucwords(strtolower($this->data['repName'])), 'email' => $this->data['repEmail'], 'phone' => $this->data['repTelephone'], 'isSupportive' => $this->data['isSupportive']));
+        $query = $db->insert_query('representatives', array('name' => ucwords(strtolower($this->data['repName'])), 'email' => $this->data['repEmail'], 'phone' => $this->data['repTelephone'], 'isSupportive' => $this->data['isSupportive'], 'position' => $this->data['repPosition']));
         if($query) {
             $rpid = $db->last_id();
             if(isset($this->data['repcid'])) {

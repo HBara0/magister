@@ -13,6 +13,10 @@
                 <td><strong>{$lang->email}</strong></td><td><input type='email' required="required" id='repEmail' name='repEmail' tabindex="2" placeholder="name@example.com" /></td>
             </tr>
             <tr>
+                <td width="40%">{$lang->position}</td>
+                <td>{$positions_selectlist}</td>
+            </tr>
+            <tr>
                 <td width="40%">{$lang->issupportive} <a href="#" title="{$lang->issuportivedescription}" class=""><img src="./images/icons/question.gif" /></a></td>
                 <td><select name="isSupportive"><option value=""></option><option value="1">{$lang->yes}</option><option value="0">{$lang->no}</option></select>
                 </td>
