@@ -99,6 +99,7 @@ $(function() {
                     $("#modal-loading").dialog("close").remove();
                 },
                 success: function(returnedData) {
+
                     $('#warehouse_list_td').html(returnedData);
                     $('#parmsfornetmargin_warehousingRate').find('option').remove();
                     $('#parmsfornetmargin_warehousingPeriod').val(0);
@@ -281,7 +282,6 @@ $(function() {
     //-------------------------------------
     //-------------------------------------------------------------------------------------//
     $("select[id^='paymentermdays_']").live('change', function() {
-//alert('paymentermdays_');
         var parentContainer = $(this).closest('div');
         var paymentdays = [];
         var salesdates = [];
@@ -446,7 +446,7 @@ $(function() {
 
     //Trigger(s): 20A - 20B
     $("#partiesinfo_totalfees,select[id^='productline_'][id$='_uom'],input[id^='productline_'][id$='_quantity'],input[id^='productline_'][id$='_intialPrice']").live('change', function() {
-
+        var field_id = $(this).attr('id').split('_');
         if($(this).attr('id') != 'partiesinfo_totalfees') {
             var totalamount = totalcommision = intialprice = totalqty = 0;
             $("tbody[id^='productline_']").find($("select[id$='_uom']")).each(function() {
@@ -461,8 +461,15 @@ $(function() {
             totalcommision = totalamount * (comm / 100)
             var ptid = $("select[id='purchasetype']").val();
             var attributes = '&totalamount=' + totalamount + '&totalcommision=' + totalcommision + '&defaultcomm=' + comm + '&ptid=' + ptid;
-            sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=updatecommission' + attributes);
+            sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=updatecommission' + attributes, function() {
+                if(field_id[2] == 'intialPrice') {
+                    var tr = setTimeout(function() {
+                        $('#productline_' + field_id[1] + '_grossMarginAtRiskRatio').trigger('change');
+                    }, 500);
+                }
+            });
         }
+
         $('#unitfee_btn').trigger('click');
     });
     $("select[id^='productline_'][id$='_uom']").live('change', function() {
