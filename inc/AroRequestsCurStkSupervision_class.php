@@ -19,17 +19,22 @@ class AroRequestsCurStkSupervision extends AbstractClass {
     const CLASSNAME = __CLASS__;
     const UNIQUE_ATTRS = 'aorid,pid,packing';
 
-
     public function __construct($id = '', $simple = true) {
         parent::__construct($id, $simple);
     }
 
     protected function create(array $data) {
-      global $db, $log;
+        global $db, $log;
         if(!$this->validate_requiredfields($data)) {
-           //$currentstock['aorid'] = $data['aorid'];
+            //$currentstock['aorid'] = $data['aorid'];
             unset($data['packingTitle']);
-           $query = $db->insert_query(self::TABLE_NAME, $data);
+            $dates = array('dateOfStockEntry', 'expiryDate', 'estDateOfSale');
+            foreach($dates as $date) {
+                if(isset($data[$date]) && !empty($data[$date])) {
+                    $data[$date] = strtotime($data[$date]);
+                }
+            }
+            $query = $db->insert_query(self::TABLE_NAME, $data);
             if($query) {
                 $log->record(self::TABLE_NAME, $this->data[self::PRIMARY_KEY]);
                 return $this;
@@ -38,10 +43,16 @@ class AroRequestsCurStkSupervision extends AbstractClass {
     }
 
     protected function update(array $data) {
-   global $db, $log;
+        global $db, $log;
         if(!$this->validate_requiredfields($data)) {
-           unset($data['packingTitle']);
-           $query = $db->update_query(self::TABLE_NAME, $data, ''.self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
+            unset($data['packingTitle']);
+            $dates = array('dateOfStockEntry', 'expiryDate', 'estDateOfSale');
+            foreach($dates as $date) {
+                if(isset($data[$date]) && !empty($data[$date])) {
+                    $data[$date] = strtotime($data[$date]);
+                }
+            }
+            $query = $db->update_query(self::TABLE_NAME, $data, ''.self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
             if($query) {
                 $log->record(self::TABLE_NAME, $this->data[self::PRIMARY_KEY]);
                 return $this;

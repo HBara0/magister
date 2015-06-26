@@ -29,6 +29,7 @@ class AroRequestLinesSupervision extends AbstractClass {
             $aorid = $data['aorid'];
             $actualpurchase = $this->calculate_actualpurchasevalues($data);
             $actualpurchase['aorid'] = $aorid;
+            $actualpurchase['shelfLife'] = $data['shelfLife'];
             unset($actualpurchase['estDateOfStockEntry_formatted'], $actualpurchase['estDateOfSale_formatted'], $actualpurchase['estDateOfStockEntry_output'], $actualpurchase['estDateOfSale_output'], $actualpurchase['productName'], $actualpurchase['daysInStock']);
             $query = $db->insert_query(self::TABLE_NAME, $actualpurchase);
             if($query) {
@@ -40,8 +41,9 @@ class AroRequestLinesSupervision extends AbstractClass {
     protected function update(array $data) {
         global $db, $log;
         if(!$this->validate_requiredfields($data)) {
-            $actualpurchase['aorid'] = $data['aorid'];
             $actualpurchase = $this->calculate_actualpurchasevalues($data);
+            $actualpurchase['aorid'] = $data['aorid'];
+            $actualpurchase['shelfLife'] = $data['shelfLife'];
             unset($actualpurchase['estDateOfStockEntry_formatted'], $actualpurchase['estDateOfSale_formatted'], $actualpurchase['estDateOfStockEntry_output'], $actualpurchase['estDateOfSale_output'], $actualpurchase['productName'], $actualpurchase['daysInStock']);
             $query = $db->update_query(self::TABLE_NAME, $actualpurchase, ''.self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
             if($query) {
