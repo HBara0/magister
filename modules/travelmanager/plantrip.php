@@ -123,7 +123,7 @@ if(!$core->input['action']) {
                 $otherapprovedhotels = TravelManagerHotels::get_data('country='.$destcounrty_obj->coid.' AND city != '.$descity_obj->ciid.' AND isApproved=1', array('returnarray' => true));
             }
             if(is_array($otherapprovedhotels)) {
-                $hotelssegments_output.='<br /><a nohref="nohref" style="cursor:pointer;" id="countryhotels_'.$sequence.'_check"><h4>Lookup Hotels in the same country</h4><img src="'.$core->settings['rootdir'].'/images/right_arrow.gif"/></a>';
+                $hotelssegments_output.='<br /><a nohref="nohref" style="cursor:pointer;" id="countryhotels_'.$sequence.'_check"><div style="display:inline-block"><h4>Lookup Hotels in the same country <img src="'.$core->settings['rootdir'].'/images/right_arrow.gif" alt="Other Approved Hotels"></h4></div></a>';
                 $hotelssegments_output.='<div id=countryhotels_'.$sequence.'_view style="display:none">';
                 $hotelssegments_output.=$segmentobj->parse_hotels($sequence, $otherapprovedhotels, $leavedays);
                 $hotelssegments_output.='</div>';
@@ -523,6 +523,9 @@ else {
         $core->input['otherhotel']['telephone_intcode'] = $core->input['telephone_intcode'];
         $core->input['otherhotel']['telephone_areacode'] = $core->input['telephone_areacode'];
         $core->input['otherhotel']['telephone_number'] = $core->input['telephone_number'];
+        if(!isset($core->input['otherhotel']['isContracted']) || empty($core->input['otherhotel']['isContracted'])) {
+            $core->input['otherhotel']['isContracted'] = 0;
+        }
         $hotelobj = new TravelManagerHotels();
         $hotelobj->set($core->input['otherhotel']);
         $hotelobj->save();
@@ -533,6 +536,9 @@ else {
                         ."$('input[id=\"hotels_".$sequence."_cache_hotel_id\"]').val('".$hotelobj->tmhid."');</script>]]>"
                         ."</message>");
                 break;
+            case 1:
+                output_xml("<status>false</status><message>{$lang->fillrequiredfields}</message>");
+                exit;
             case 2:
                 output_xml("<status>false</status><message>{$lang->fillrequiredfields}</message>");
                 exit;
