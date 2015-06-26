@@ -15,7 +15,7 @@
         <tfoot>
             <tr><td valign="top">
                     <input name="numrows_newcustomer" type="hidden" id="numrows_newcustomer_{$rowid}" value="{$rowid}">
-                    <img src="./images/add.gif" id="ajaxaddmore_aro/managearodouments_newcustomer_{$rowid}" alt="{$lang->add}">
+                    <img src="./images/add.gif" id="ajaxaddmore_aro/managearodouments_newcustomer_{$rowid}" alt="{$lang->add}"><small>{$lang->addmorecustomers}</small>
                 </td></tr>
             <tr class="altrow2">
                 {$unspecified_customer_row}

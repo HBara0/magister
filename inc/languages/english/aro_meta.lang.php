@@ -169,3 +169,5 @@ $lang['reply'] = 'Reply';
 $lang['writeyourmsghere'] = 'Write your message here';
 $lang['newrequestmsgsubject'] = 'New message to Aro request';
 $lang['aromessages'] = 'Aro Messages';
+$lang['addmorecustomers'] = 'Add More Customers';
+$lang['addmoreproductlines'] = 'Add More Product Lines';
