@@ -86,7 +86,6 @@ else {
             <?php
             exit;
         }
-
         /* Parse incoming Attachemtns - START */
         $core->input['attachments'] = $_FILES['attachments'];
 
@@ -208,7 +207,34 @@ else {
                     if(isset($core->input['event']['notify']) && $core->input['event']['notify'] == 1) {
                         /* Send the event notification - START */
                         $notification_mails = get_specificdata('affiliates', array('affid', 'mailingList'), 'affid', 'mailingList', '', 0, 'mailingList != "" AND affid IN('.implode(',', $core->input['event']['restrictto']).')');
+                        /* More recipients for visiting us events - START */
+                        if($core->input['event']['type'] == 'visitingus') {
+                            $affiliate = Affiliates::get_data(array('affid' => $core->input['event']['affid'],));
+                            $supplier = Entities::get_data(array('eid' => $core->input['event']['spid'], 'type' => 's'));
 
+                            //supplier's segments coordinators
+                            $supp_segments = $supplier->get_segments();
+                            if(is_array($supp_segments)) {
+                                foreach($supp_segments as $segmentid) {
+                                    $segment = new Segment($segmentid);
+                                    $segment_coordobjs = $segment->get_coordinators();
+                                    if(is_array($segment_coordobjs)) {
+                                        foreach($segment_coordobjs as $coord) {
+                                            $notification_mails[] = $coord->get_coordinator()->email;
+                                        }
+                                    }
+                                }
+                            }
+                            //Aff supervisor
+                            if(is_array($affiliate)) {
+                                $supervisor = $affiliate->get_supervisor();
+                                if(is_object($supervisor)) {
+                                    $notification_mails[] = $supervisor->email;
+                                }
+                            }
+                            $notification_mails[] = 'nicole.sacy@orkila.com';
+                        }
+                        /* More recipients for visiting us events - END */
                         $ical_obj = new iCalendar(array('identifier' => $events_details['identifier'].'all', 'uidtimestamp' => $events_details['createdOn']));  /* pass identifer to outlook to avoid creation of multiple file with the same date */
                         $ical_obj->set_datestart($events_details['fromDate']);
                         $ical_obj->set_datend($events_details['toDate']);
@@ -236,7 +262,24 @@ else {
                             }
                         }
                         $mailer->send();
-
+                        if($core->input['event']['type'] == 'visitingus') {
+                            $meeting = array(
+                                    'title' => $events_details['title'],
+                                    'identifier' => substr(md5(uniqid(microtime())), 1, 10),
+                                    'fromDate' => $events_details['fromDate'], // $new_event['fromDate'],
+                                    'toDate' => $events_details['toDate'],
+                                    'description' => $events_details['description'],
+                                    'location' => $events_details['place'],
+                                    'createdBy' => $core->user['uid'],
+                                    'createdOn' => TIME_NOW,
+                                    'associations' => array(
+                                            'idAttr' => 'spid',
+                                            'id' => $core->input['event']['spid']
+                                    )
+                            );
+                            $meeting_obj = new Meetings();
+                            $meeting_obj->create($meeting);
+                        }
                         if($mailer->get_status() === true) {
                             $log->record($notification_mails, $last_id);
                         }

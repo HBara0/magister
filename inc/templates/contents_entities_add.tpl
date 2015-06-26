@@ -98,13 +98,13 @@
                     </tr>
                     <tr>
                         <td>{$lang->telephone}</td>
-                        <td colspan="2">+ <input type="text" id="telephone_intcode" name="telephone_intcode" size="3" maxlength="3" accept="numeric" /> <input type="text" id="telephone_areacode" name="telephone_areacode" size='4' maxlength="4" accept="numeric" /> <input type="text" id="telephone_number" name="telephone_number" accept="numeric"  /><br />
-                            + <input type="text" id="telephone2_intcode" name="telephone2_intcode" size="3" maxlength="3" accept="numeric" /> <input type="text" id="telephone2_areacode" name="telephone2_areacode" size='4' maxlength="4" accept="numeric" /> <input type="text" id="telephone2_number" name="telephone2_number" accept="numeric" /> </td>
+                        <td colspan="2">{$telephone_intcode_list}<input type="text" id="telephone_areacode" name="telephone_areacode" size='4' maxlength="4" accept="numeric" /> <input type="text" id="telephone_number" name="telephone_number" accept="numeric"  /><br />
+                            {$telephone2_intcode_list} <input type="text" id="telephone2_areacode" name="telephone2_areacode" size='4' maxlength="4" accept="numeric" /> <input type="text" id="telephone2_number" name="telephone2_number" accept="numeric" /> </td>
                     </tr>
                     <tr>
                         <td>{$lang->fax}</td>
-                        <td colspan="2">+ <input type="text" id="fax_intcode" name="fax_intcode" size="3" maxlength="3" accept="numeric" /> <input type="text" id="fax_areacode" name="fax_areacode" size='4' maxlength="4" accept="numeric" /> <input type="text" id="fax_number" name="fax_number" accept="numeric" /><br />
-                            + <input type="text" id="fax2_intcode" name="fax2_intcode" size="3" maxlength="3" accept="numeric" /> <input type="text" id="fax2_areacode" name="fax2_areacode" size='4' maxlength="4" accept="numeric"  /> <input type="text" id="fax2_number" name="fax2_number" accept="numeric" />
+                        <td colspan="2">{$fax_intcode_list}<input type="text" id="fax_areacode" name="fax_areacode" size='4' maxlength="4" accept="numeric" /> <input type="text" id="fax_number" name="fax_number" accept="numeric" /><br />
+                            {$fax2_intcode_list}<input type="text" id="fax2_areacode" name="fax2_areacode" size='4' maxlength="4" accept="numeric"  /> <input type="text" id="fax2_number" name="fax2_number" accept="numeric" />
                         </td>
                     </tr>
                     <tr>

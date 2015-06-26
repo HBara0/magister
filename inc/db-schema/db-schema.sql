@@ -3206,8 +3206,9 @@ CREATE TABLE `representatives` (
   `email` varchar(220) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
   `phone` varchar(20) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
   `isSupportive` tinyint(1) DEFAULT NULL,
+  `position` int(10) NOT NULL,
   PRIMARY KEY (`rpid`)
-) ENGINE=MyISAM AUTO_INCREMENT=5872 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=5894 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `representativespositions`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
