@@ -240,6 +240,9 @@ if(!($core->input['action'])) {
                     if($currentstock->estDateOfSale != 0) {
                         $currentstock->estDateOfSale_output = date($core->settings['dateformat'], $currentstock->estDateOfSale);
                     }
+                    if($currentstock->expiryDate != 0) {
+                        $currentstock->expiryDate_output = date($core->settings['dateformat'], $currentstock->expiryDate);
+                    }
                     $packing = new Packaging($currentstock->packing);
                     $currentstock->packingTitle = $packing->get_displayname();
                     eval("\$currentstock_rows .= \"".$template->get('aro_currentstock_row')."\";");
