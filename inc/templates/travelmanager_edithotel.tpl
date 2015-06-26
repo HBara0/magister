@@ -32,7 +32,7 @@
                             <input type='hidden' id='cities_1_id'  name="hotel[city]" value="{$hotel['city']}"/>
                             <input type='hidden' id='cities_1_id_output' name="hotel[city]" value="{$hotel['city']}" disabled/>
                         </td>
-                        <td>{$lang->country}</td><
+                        <td>{$lang->country}</td>
                         <td><input type="text" id="countries_1_autocomplete" autocomplete="false" tabindex="1" value="{$countryname}" required="required"/>
                             <input type='hidden' id='countries_1_id'  name="hotel[country]" value="{$hotel['country']}"/>
                             <input type='hidden' id='countries_1_id_output' name="hotel[country]" value="{$hotel['country']}" disabled/>
