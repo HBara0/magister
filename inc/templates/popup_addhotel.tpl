@@ -30,8 +30,32 @@
                     {$countriescodes_list}
                     <input type="text" tabindex="100" id="telephone_areacode" name="telephone_areacode" size='4' maxlength="4" accept="numeric" value="{$telephone[1][areacode]}"/>
                     <br/>
-                    <input type="text" tabindex="100" id="telephone_number" name="telephone_number" accept="numeric" value="{$telephone[1][number]}" tabindex="6" required="required"/><br />
+                    <input type="text" tabindex="100" id="telephone_number" name="telephone_number" accept="numeric" value="{$telephone[1][number]}" required="required"/><br />
                 </td>
+            </tr>
+            <tr>
+                <td>{$lang->averagepriceinusd}</td>
+                <td><input tabindex="100" type="number" name="otherhotel[avgPrice]"><input type="hidden" name="otherhotel[currency]" value="840"></td>
+            </tr>
+            <tr>
+                <td>{$lang->website}</td>
+                <td><input tabindex="100" type="text" accept="" name="otherhotel[website]"></td>
+            </tr>
+            <tr>
+                <td>{$lang->contactperson}</td>
+                <td><input tabindex="100" type="text" name="otherhotel[contactPerson]"></td>
+            </tr>
+            <tr>
+                <td>{$lang->contactemail}</td>
+                <td><input tabindex="100" type="email" name="otherhotel[contactEmail]"></td>
+            </tr>
+            <tr>
+                <td>{$lang->distancefromoffice}</td>
+                <td><input tabindex="100" type="text" name="otherhotel[distance]"></td>
+            </tr>
+            <tr>
+                <td>{$lang->negotiatedcontract}</td>
+                <td><input tabindex="100" type="checkbox" name="otherhotel[isContracted]" value="1"></td>
             </tr>
             <tr>
                 <td colspan="2" align="left">

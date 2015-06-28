@@ -2,10 +2,10 @@
 /*
  * Orkila Central Online System (OCOS)
  * Copyright � 2009 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * Manage Affiliates
  * $module: admin/regions
- * $id: affiliates.php	
+ * $id: affiliates.php
  * Last Update: @zaher.reda 	Mar 18, 2009 | 04:03 PM
  */
 if(!defined("DIRECT_ACCESS")) {
@@ -30,8 +30,8 @@ if(!$core->input['action']) {
                 $countries .= $comma.$country['name'];
                 $comma = ', ';
             }
-
-            $affiliates_list .= "<tr class='{$class}'><td>{$affiliate[affid]}</td><td>{$affiliate[name]}</td><td>{$countries}</td></tr>"; //<td>{$description}</td>
+            $editpopup = '<a href="#'.$affiliate['affid'].'" id="editaffiliate_'.$affiliate['affid'].'_regions/affiliates_loadpopupbyid""><img src="'.$core->settings[rootdir].'/images/icons/edit.gif"/></a>';
+            $affiliates_list .= "<tr class='{$class}'><td>{$affiliate[affid]}</td><td>{$affiliate[name]}</td><td>{$countries}</td><td>{$editpopup}</td></tr>"; //<td>{$description}</td>
         }
     }
     else {
@@ -86,6 +86,47 @@ else {
         }
         else {
             output_xml("<status>false</status><message>{$lang->erroraddingaffiliate}</message>");
+        }
+    }
+//    elseif($core->input['action'] == 'update_charspec') {
+//        $affiliates = Affiliates::get_affiliates();
+//        if(is_array($affiliates)) {
+//            foreach($affiliates as $affiliate) {
+//                $affiliate->match_charspec();
+//                $affiliate->upload_chartspecs();
+//            }
+//            echo('Saving might have happened, but again it might not.');
+//            exit;
+//        }
+//        echo('No Saving Was DONE!');
+//    }
+    elseif($core->input['action'] == 'get_editaffiliate') {
+        $id = $db->escape_string($core->input['id']);
+        $affiliate = new Affiliates($id, false);
+        if(is_object($affiliate)) {
+            if(!empty($affiliate->chartSpec)) {
+                $chartspec = unserialize($affiliate->chartSpec);
+            }
+        }
+        eval("\$editaff = \"".$template->get("popup_edit_affiliates")."\";");
+        echo($editaff);
+    }
+    elseif($core->input['action'] = 'perform_editaffiliate') {
+        $specs = $core->input['spec'];
+        $affiliate_obj = new Affiliates($db->escape_string($core->input['id']), false);
+        $affiliate = $affiliate_obj->get();
+        if(is_array($specs)) {
+            $specs = serialize($specs);
+            $affiliate['chartSpec'] = $specs;
+        }
+        $query = $db->update_query('affiliates', $affiliate, 'affid ='.$affiliate['affid']);
+        if($query) {
+            output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
+            exit;
+        }
+        else {
+            output_xml("<status>false</status><message>{$lang->errorsaving}</message>");
+            exit;
         }
     }
 }

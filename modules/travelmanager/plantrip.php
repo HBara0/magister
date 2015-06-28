@@ -116,14 +116,16 @@ if(!$core->input['action']) {
             if(empty($approvedhotels)) {
                 $approvedhotels = array();
             }
-            $hotelssegments_output = $segmentobj->parse_hotels($sequence, $approvedhotels);
+            $leavedays = abs($leave_obj->toDate - $leave_obj->fromDate);
+            $leavedays = floor($leavedays / (60 * 60 * 24));
+            $hotelssegments_output = $segmentobj->parse_hotels($sequence, $approvedhotels, $leavedays);
             if(is_object($destcounrty_obj)) {
                 $otherapprovedhotels = TravelManagerHotels::get_data('country='.$destcounrty_obj->coid.' AND city != '.$descity_obj->ciid.' AND isApproved=1', array('returnarray' => true));
             }
             if(is_array($otherapprovedhotels)) {
-                $hotelssegments_output.='<br /><a nohref="nohref" style="cursor:pointer;" id="countryhotels_'.$sequence.'_check"><h4>Lookup Hotels in the same country</h4><img src="'.$core->settings['rootdir'].'/images/right_arrow.gif"/></a>';
+                $hotelssegments_output.='<br /><a nohref="nohref" style="cursor:pointer;" id="countryhotels_'.$sequence.'_check"><div style="display:inline-block"><h4>Lookup Hotels in the same country <img src="'.$core->settings['rootdir'].'/images/right_arrow.gif" alt="Other Approved Hotels"></h4></div></a>';
                 $hotelssegments_output.='<div id=countryhotels_'.$sequence.'_view style="display:none">';
-                $hotelssegments_output.=$segmentobj->parse_hotels($sequence, $otherapprovedhotels);
+                $hotelssegments_output.=$segmentobj->parse_hotels($sequence, $otherapprovedhotels, $leavedays);
                 $hotelssegments_output.='</div>';
             }
             // $transpmode_apimaplink = 'https://www.google.com/maps/dir/'.$origintcity['name'].',+'.$origintcity['country'].'/'.$destcity['name'].',+'.$destcity['country'].'/';
@@ -512,7 +514,7 @@ else {
         $segmentobj_destcityname = $segdescity_obj->get()['name'];
         $country = new Countries(1);
         $countriescodes = $country->get_phonecodes();
-        $countriescodes_list = parse_selectlist('telephone_intcode', $tabindex, $countriescodes, $selected_options, '', '', array('id' => 'telephone_intcode'));
+        $countriescodes_list = parse_selectlist('telephone_intcode', $tabindex, $countriescodes, $selected_options, '', '', array('id' => 'telephone_intcode', 'width' => '150px'));
         eval("\$addhotel= \"".$template->get('popup_addhotel')."\";");
         output($addhotel);
     }
@@ -521,6 +523,9 @@ else {
         $core->input['otherhotel']['telephone_intcode'] = $core->input['telephone_intcode'];
         $core->input['otherhotel']['telephone_areacode'] = $core->input['telephone_areacode'];
         $core->input['otherhotel']['telephone_number'] = $core->input['telephone_number'];
+        if(!isset($core->input['otherhotel']['isContracted']) || empty($core->input['otherhotel']['isContracted'])) {
+            $core->input['otherhotel']['isContracted'] = 0;
+        }
         $hotelobj = new TravelManagerHotels();
         $hotelobj->set($core->input['otherhotel']);
         $hotelobj->save();
@@ -531,6 +536,9 @@ else {
                         ."$('input[id=\"hotels_".$sequence."_cache_hotel_id\"]').val('".$hotelobj->tmhid."');</script>]]>"
                         ."</message>");
                 break;
+            case 1:
+                output_xml("<status>false</status><message>{$lang->fillrequiredfields}</message>");
+                exit;
             case 2:
                 output_xml("<status>false</status><message>{$lang->fillrequiredfields}</message>");
                 exit;

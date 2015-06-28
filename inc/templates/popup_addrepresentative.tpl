@@ -13,12 +13,16 @@
                 <td><strong>{$lang->email}</strong></td><td><input type='email' required="required" id='repEmail' name='repEmail' tabindex="2" placeholder="name@example.com" /></td>
             </tr>
             <tr>
+                <td width="40%">{$lang->position}</td>
+                <td>{$positions_selectlist}</td>
+            </tr>
+            <tr>
                 <td width="40%">{$lang->issupportive} <a href="#" title="{$lang->issuportivedescription}" class=""><img src="./images/icons/question.gif" /></a></td>
                 <td><select name="isSupportive"><option value=""></option><option value="1">{$lang->yes}</option><option value="0">{$lang->no}</option></select>
                 </td>
             </tr>
             <tr>
-                <td>{$lang->telephone}</td><td><input name="repTelephone[intcode]" accept="numeric" type="text" size="3" /><input name="repTelephone[areacode]" accept="numeric" type="text" size="4" /><input type='text' accept="numeric" id='repTelephone_number' name='repTelephone[number]' tabindex="2"/></td>
+                <td>{$lang->telephone}</td><td>{$countries_phonecodes}<input name="repTelephone[areacode]" accept="numeric" type="text" size="4" /><input type='text' accept="numeric" id='repTelephone_number' name='repTelephone[number]' tabindex="2"/></td>
             </tr>
             {$entity_field_row}
             <td colspan="2" align="left">
