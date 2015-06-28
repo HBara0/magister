@@ -8,6 +8,8 @@ $lang['addmarketdata'] = 'Add Market Data';
 $lang['agent'] = 'Agent';
 $lang['annualpotential'] = 'Annual Potential';
 $lang['brand'] = 'Brand';
+$lang['value'] = 'Value';
+$lang['characvalues'] = 'Characteristic Values';
 $lang['businessinfo'] = 'Business Information';
 $lang['businessregions'] = 'Business Regions';
 $lang['centralpurchase'] = 'Central Purchase';
@@ -124,5 +126,7 @@ $lang['brandprofile'] = 'Brand Profile';
 $lang['brandslist'] = 'Brands List';
 $lang['reviewedon'] = 'Reviewed On';
 $lang['by'] = 'by';
-$lang['notreviwed'] = 'Not Reviewed Yet'
+$lang['notreviwed'] = 'Not Reviewed Yet';
+$lang['considerbrandunspecified'] = 'or consider the brand with unspecified/unknown end-product type';
+$lang['charasteristiclist'] = "Characteristics List";
 ?>

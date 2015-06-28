@@ -46,7 +46,7 @@ if(!$core->input['action']) {
     }
     $multipages = new Multipages("segmentapplications", $core->settings['itemsperlist']);
     $productsapplications_list .= "<tr><td colspan='5'>".$multipages->parse_multipages()."</td></tr>";
-
+    $publishonwebcheckbox = '<input type="checkbox" value="1" name="segmentapplications[publishOnWebsite]">';
     eval("\$dialog_managerapplication = \"".$template->get("admin_popup_manageapplication")."\";");
     eval("\$applicationpage = \"".$template->get("admin_products_applications")."\";");
     output_page($applicationpage);
@@ -69,9 +69,12 @@ else {
     }
     elseif($core->input['action'] == 'get_editbox') {
         $application = new SegmentApplications($core->input['id'], false);
+        if($application->publishOnWebsite == 1) {
+            $checked = 'checked="checked"';
+        }
         $segments = ProductsSegments::get_segments();
         $segments_list = parse_selectlist('segmentapplications[psid]', 2, $segments, $application->psid);
-
+        $publishonwebcheckbox = '<input type="checkbox" value="1" name="segmentapplications[publishOnWebsite]" '.$checked.'>';
         //$dialog_managerapplication = $headerinc;
         eval("\$dialog_managerapplication = \"".$template->get('admin_popup_manageapplication')."\";");
         output($dialog_managerapplication);

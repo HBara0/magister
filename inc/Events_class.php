@@ -21,7 +21,7 @@ class Events extends AbstractClass {
     const TABLE_NAME = 'calendar_events';
     const DISPLAY_NAME = '';
     const CLASSNAME = __CLASS__;
-    const SIMPLEQ_ATTRS = 'ceid, title, description,fromDate,toDate,place,publishOnWebsite';
+    const SIMPLEQ_ATTRS = 'ceid, title, description,fromDate,toDate,place,publishOnWebsite,isCreatedFromCMS';
     const UNIQUE_ATTRS = 'alias';
 
     public function __construct($id = '', $simple = false, $options = array()) {
@@ -35,7 +35,7 @@ class Events extends AbstractClass {
             $this->errorcode = 1;
             return false;
         }
-        $fields = array('title', 'description', 'place', 'boothNum', 'type', 'isPublic', 'publishOnWebsite', 'isFeatured');
+        $fields = array('title', 'description', 'place', 'boothNum', 'type', 'isPublic', 'publishOnWebsite', 'isFeatured', 'isCreatedFromCMS');
         foreach($fields as $field) {
             $event_data[$field] = $data[$field];
         }
@@ -93,7 +93,7 @@ class Events extends AbstractClass {
             $this->errorcode = 1;
             return false;
         }
-        $fields = array('title', 'description', 'place', 'boothNum', 'type', 'isPublic', 'publishOnWebsite', 'isFeatured', 'logo');
+        $fields = array('title', 'description', 'place', 'boothNum', 'type', 'isPublic', 'publishOnWebsite', 'isFeatured', 'logo', 'isCreatedFromCMS');
         foreach($fields as $field) {
             $event_data[$field] = $data[$field];
         }

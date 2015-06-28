@@ -489,6 +489,9 @@ class Meetings {
                     $this->errorcode = 0;
                 }
             }
+            /* Share meeting with owner */
+            $createdby = $this->get_createdby();
+            $this->notify_shareduser($createdby);
 
             //$this->send_mom();
         }

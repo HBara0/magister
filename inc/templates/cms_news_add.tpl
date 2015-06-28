@@ -54,7 +54,24 @@
                     </div>
                     <div style="display:block;">
                         <div style="display:inline-block;width:10%">{$lang->tags}</div>
-                        <div style="display:inline-block; padding:10px;"> <textarea name="news[tags]" cols="100" rows="3">{$news[tags]}</textarea></div>
+                        <div style="display:inline-block; padding:10px;"><textarea name="news[tags]" cols="100" rows="3">{$news[tags]}</textarea></div>
+                    </div>
+                    <div class="thead" style="margin-top:8px;">{$lang->metadata}</div>
+                    <div style="display:block;">
+                        <div style="display:inline-block; padding:11px;">{$lang->metadesc}</div>
+                        <div style="display:inline-block; padding:11px; vertical-align: top;">
+                            <textarea name="news[metaDesc]" cols="60" rows="3" wrap="soft">{$news[metaDesc]}</textarea>
+                        </div>
+                    </div>
+                    <div style="display:block;">
+                        <div style="display:inline-block; padding:11px;">{$lang->metakeyword}</div>
+                        <div style="display:inline-block;  padding:11px; vertical-align: middle;">
+                            <textarea name="news[metaKeywords]" cols="60" rows="3">{$news[metaKeywords]}</textarea>
+                        </div>
+                    </div>
+                    <div style="display:block;">
+                        <div style="display:inline-block; padding:11px;">{$lang->robots}</div>
+                        <div style="display:inline-block; padding:11px;">{$robots_list}</div>
                     </div>
                     <div style="display:block;">
                         <div style="display:block;" class="thead">{$lang->attachfiles}</div>

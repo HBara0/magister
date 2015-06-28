@@ -67,7 +67,12 @@ if(!$core->input['action']) {
                 $endproduct = new EndProducTypes();
             }
 
-            $brands_list .= '<tr><td>'.$brand->parse_link().'</td><td>'.$entity->parse_link().'</td><td>'.$entity->get_country()->name.'</td><td>'.$endproduct->get_displayname().'</td></tr>';
+            $characteristic = $brandproduct->get_charactersticvalue();
+            $characteristic_output = '';
+            if(is_object($characteristic)) {
+                $characteristic_output = ' <small>('.$characteristic->get_displayname().')</small>';
+            }
+            $brands_list .= '<tr><td>'.$brand->parse_link().'</td><td>'.$entity->parse_link().'</td><td>'.$entity->get_country()->name.'</td><td>'.$endproduct->get_displayname().$characteristic_output.'</td></tr>';
         }
     }
     eval("\$listpage = \"".$template->get('profiles_brandslist')."\";");

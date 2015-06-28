@@ -51,7 +51,6 @@ $lang['createmenu'] = "Create Menu";
 $lang['menutitle'] = "Title";
 $lang['menudesc'] = "Description";
 $lang['menuexists'] = "Menu with same title exsit";
-$lang['listmenu'] = "List Menu";
 $lang['menutypes'] = "Menu type";
 $lang['configuration'] = "Configuration";
 $lang['webpage'] = "Single Web Page";
@@ -114,4 +113,9 @@ $lang['fromtime'] = 'From Time';
 $lang['todate'] = 'To Date';
 $lang['totime'] = 'To Time';
 $lang['sequence'] = 'Sequence';
+
+$lang['managemenus'] = 'Manage Menus';
+$lang['createevent'] = 'Create Events';
+$lang['createwebpage'] = 'Create Webpage';
+$lang['createnews'] = 'Create News';
 ?>

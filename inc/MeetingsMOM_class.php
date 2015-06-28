@@ -96,6 +96,9 @@ class MeetingsMOM extends AbstractClass {
 //        return $this->data;
 //    }
 
+    /*
+     * Parse Specific actions follow up
+     */
     public function parse_actions($source = '', $momactions = array()) {
         global $template, $core, $lang;
         if(isset($core->input['mtid']) && !empty($core->input['mtid'])) {
@@ -111,12 +114,15 @@ class MeetingsMOM extends AbstractClass {
                     $actions_data['date_formatted'] = date($core->settings['dateformat'], $actions_data['date']);
                 }
                 if($actions_data['isTask'] == 1) {
-                    $istask = $lang->markedasatask;
                     if($source == 'QR') {
                         $task = Tasks::get_tasks(array('description' => 'Specific follow up actions', 'subject' => $actions_data['what']), array('simple' => false));
                         if(is_object($task)) {
                             if($task->isDone == 1) {
-                                $istask .=' (<img src="./images/valid.gif" alt="'.$lang->valid.'" border="0" /><small>completed</small>)';
+                                $istask .='<img src="./images/valid.gif" alt="'.$lang->valid.'" border="0" /><small>'.$lang->taskcompleted.'</small>';
+                            }
+                            else {
+                                $istask = '<span id="settaskdone_'.$task->ctid.'_calendar/eventstasks_checkbox_Result">'
+                                        .'<input type="checkbox" class="ajaxcheckbox" id="settaskdone_'.$task->ctid.'_calendar/eventstasks_checkbox" value="1"'.$checkbox_checked.'/>'.$lang->markasdone.'</span>';
                             }
                         }
                     }

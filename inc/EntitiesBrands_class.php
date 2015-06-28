@@ -31,11 +31,10 @@ class EntitiesBrands extends AbstractClass {
         global $db, $core;
         if(is_array($data)) {
             $this->data = $data;
-            if(empty($this->data['name'])) {
+            if(empty($this->data['name']) || empty($this->data['eid'])) {
                 $this->errorcode = 1;
                 return false;
             }
-
             if(value_exists('entitiesbrands', 'name', $this->data['name'], 'eid!='.intval($this->data['eid']))) {
                 $this->errorcode = 2;
                 return false;
@@ -53,7 +52,7 @@ class EntitiesBrands extends AbstractClass {
                 if($this->data['isGeneral'] == 1) {
                     $enttitbrand_data['isGeneral'] = 1;
                 }
-                $query = $db->insert_query('entitiesbrands', $enttitbrand_data);
+                $query = $db->insert_query(self::TABLE_NAME, $enttitbrand_data);
             }
             else {
                 $query = true;
@@ -71,19 +70,24 @@ class EntitiesBrands extends AbstractClass {
                     $this->ebid = $db->last_id();
                 }
                 if(is_array($this->data['endproducttypes'])) {
-                    foreach($this->data['endproducttypes'] as $eptid) {
-                        if(value_exists('entitiesbrandsproducts', 'eptid', $eptid, 'ebid='.$this->ebid)) {
-                            continue;
+                    foreach($this->data['endproducttypes'] as $key => $endproduct) {
+                        if(!empty($endproduct['eptid'])) {
+                            $eptid = $endproduct['eptid'];
+                            if(value_exists('entitiesbrandsproducts', 'eptid', $eptid, 'pcvid='.intval($data['pcvid']).' AND ebid='.$this->ebid)) {
+                                continue;
+                            }
+                            $entitiesbrandsproducts_data = array(
+                                    'ebid' => $this->ebid,
+                                    'eptid' => $eptid,
+                                    'pcvid' => $this->data['pcvid'],
+                                    'description' => $endproduct['description'],
+                                    'createdBy' => $core->user['uid'],
+                                    'createdOn' => TIME_NOW
+                            );
+                            $entitybrand_obj = new EntBrandsProducts();
+                            $entitybrand_obj->set($entitiesbrandsproducts_data);
+                            $entitybrand_obj->save();
                         }
-                        $entitiesbrandsproducts_data = array(
-                                'ebid' => $this->ebid,
-                                'eptid' => $eptid,
-                                'createdBy' => $core->user['uid'],
-                                'createdOn' => TIME_NOW
-                        );
-                        $entitybrand_obj = new EntBrandsProducts();
-                        $entitybrand_obj->set($entitiesbrandsproducts_data);
-                        $entitybrand_obj->save();
                     }
                 }
                 $this->errorcode = 0;
@@ -92,7 +96,7 @@ class EntitiesBrands extends AbstractClass {
         }
     }
 
-    protected function update(array $data) {
+    public function update(array $data) {
         global $db, $core;
         if(is_array($data)) {
             $update_array['name'] = $data['name'];
@@ -101,6 +105,25 @@ class EntitiesBrands extends AbstractClass {
             $update_array['modifiedOn'] = TIME_NOW;
         }
         $db->update_query(self::TABLE_NAME, $update_array, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
+
+        if(is_array($data['endproducttypes'])) {
+            foreach($data['endproducttypes'] as $eptid) {
+                if(value_exists('entitiesbrandsproducts', 'eptid', $eptid, 'pcvid='.intval($data['pcvid']).' AND ebid='.intval($this->data[self::PRIMARY_KEY]))) {
+                    continue;
+                }
+                $entitiesbrandsproducts_data = array(
+                        'ebid' => $this->data[self::PRIMARY_KEY],
+                        'eptid' => $eptid,
+                        'pcvid' => $data['pcvid'],
+                        'description' => $this->data['description'],
+                        'createdBy' => $core->user['uid'],
+                        'createdOn' => TIME_NOW
+                );
+                $entitybrand_obj = new EntBrandsProducts();
+                $entitybrand_obj->set($entitiesbrandsproducts_data);
+                $entitybrand_obj->save();
+            }
+        }
         return $this;
     }
 

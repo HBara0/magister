@@ -18,6 +18,8 @@
                     $("div[id^='" + $(this).val() + "_']").show(1000);
 
                 });
+
+            {$selectedtype}
             });
         </script>
     </head>
@@ -140,7 +142,7 @@
 
                     </div>
 
-                    <div  id="webpage_configuration" style="display:block;">
+                    <div  id="webpage_configuration" style="display:none;">
                         <div style="display: table-cell; padding:10px;">
                             <fieldset class="altrow2" style="width:100%;">
                                 <legend class="subtitle">{$lang->webpage}</legend>

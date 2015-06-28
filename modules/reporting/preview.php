@@ -26,7 +26,6 @@ if(!$core->input['action']) {
     $report_currencies = array();
     $toc_sequence = 5;
     $reportsinconsistency = false;
-
     if($core->input['referrer'] == 'generate' || $core->input['referrer'] == 'list') {
         if(!isset($core->input['year'], $core->input['quarter'], $core->input['spid'], $core->input['affid'])) {
             redirect('index.php?module=reporting/generatereport');
@@ -60,6 +59,11 @@ if(!$core->input['action']) {
     }
     else {
         $generate_by = array(''); //Dummy array
+    }
+
+    /* Transperent fill */
+    if(isset($core->input['transFill']) && !empty($core->input['transFill'])) {
+        $transfill = $core->input['transFill'];
     }
 
     foreach($generate_by as $index => $entity) {
@@ -140,47 +144,54 @@ if(!$core->input['action']) {
             $report['supplier'] = $newreport->get_report_supplier();
             $identifier = $db->escape_string($core->input['identifier']);
             $session_identifier = $identifier;
-            $report_meta = unserialize($session->get_phpsession('reportmeta_'.$identifier));
-            if(isset($report_meta['auditor']) && !empty($report_meta['auditor'])) {
-                $options['isauditor'] = $report_meta['auditor'];
-                $options['transFill'] = $report_meta['transFill'];
-            }
-            /* read productsactivity from fill  data session */
-            if($session->isset_phpsession('productsactivitydata_'.$identifier)) {
-                $productsactivity = unserialize($session->get_phpsession('productsactivitydata_'.$identifier));
-                $report_meta['excludeProductsActivity'] = $productsactivity['excludeProductsActivity'];
-                unset($productsactivity['module']);
-                $report['productsactivity'] = $reportdata['productactivitydata'] = $productsactivity['productactivity'];
+            /** CHECK
+              //
+              //            $report_meta = unserialize($session->get_phpsession('reportmeta_'.$identifier));
+              //            if(isset($report_meta['auditor']) && !empty($report_meta['auditor'])) {
+              //                $options['isauditor'] = $report_meta['auditor'];
+              //                $options['transFill'] = $report_meta['transFill'];
+              //            }
+              /* read productsactivity from fill  data session */
+            //  if($session->isset_phpsession('productsactivitydata_'.$identifier)) {
+            // $productsactivity = unserialize($session->get_phpsession('productsactivitydata_'.$identifier));
+            $productsactivity = ProductsActivity::get_data(array('rid' => $core->input['rid']), array('returmarray' => true));
+            //  $report_meta['excludeProductsActivity'] = $productsactivity['excludeProductsActivity'];
+            //  unset($productsactivity['module']);
+            $report['productsactivity'] = $reportdata['productactivitydata'] = $productsactivity; // ['productactivity'];
 
-                /* Insert produt data coming from the session those are not saved yet --START */
-                if(is_array($productsactivity['productactivity'])) {
-                    $newreport->save_productactivity($productsactivity['productactivity'], unserialize($session->get_phpsession('reportcurrencies_'.$identifier)), $options);
-                }
-                /* Insert produt data coming from the session those are not saved yet --END */
-                $newreport->read_products_activity(true);
-                $report['items'] = $newreport->get_classified_productsactivity();
-                $report['itemsclasses'] = $newreport->get_classified_classes();
+            /* Insert produt data coming from the session those are not saved yet --START */
+            if(is_array($productsactivity)) {
+                $newreport->save_productactivity($productsactivity['productactivity'], unserialize($session->get_phpsession('reportcurrencies_'.$identifier)), $options);
             }
+            /* Insert produt data coming from the session those are not saved yet --END */
+            $newreport->read_products_activity(true);
+            $report['items'] = $newreport->get_classified_productsactivity();
+            $report['itemsclasses'] = $newreport->get_classified_classes();
+            //  }
             /* read keycustomersdata from fill  data session */
-            if($session->isset_phpsession('keycustomersdata_'.$identifier)) {
-                $keycustomersdata = unserialize($session->get_phpsession('keycustomersdata_'.$identifier));
-                $report_meta['excludeKeyCustomers'] = $core->input['incKeyCustomers'] = $keycustomersdata['excludeKeyCustomers'];
-
-                if(empty($report_meta['excludeKeyCustomers'])) {
-                    $report['keycustomers'] = $reportdata['keycustomersdata'] = $keycustomersdata['keycustomers'];
-                }
-                unset($keycustomersdata['module']);
-            }
+//            if($session->isset_phpsession('keycustomersdata_'.$identifier)) {
+//                $keycustomersdata = unserialize($session->get_phpsession('keycustomersdata_'.$identifier));
+//                $report_meta['excludeKeyCustomers'] = $core->input['incKeyCustomers'] = $keycustomersdata['excludeKeyCustomers'];
+//
+//                if(empty($report_meta['excludeKeyCustomers'])) {
+//                    $report['keycustomers'] = $reportdata['keycustomersdata'] = $keycustomersdata['keycustomers'];
+//                }
+//                unset($keycustomersdata['module']);
+//            }
 
             /* Set the marketrport data by serializing the inputs in the stage market report */
-            if(strpos(strtolower($_SERVER['HTTP_REFERER']), 'marketreport') !== false) {
-                $marketreportdata = serialize($core->input);
-                $report['marketreports'] = $core->input['marketreport'];
-                $reportdata['marketreportdata'] = $report['marketreports'];
-                $session->set_phpsession(array('marketreport_'.$identifier => $marketreportdata));
+            $marketreports_objs = MarketReport::get_data(array('rid' => $db->escape_string($core->input['rid'])), array('returnarray' => true));
+            if(is_array($marketreports_objs)) {
+                foreach($marketreports_objs as $marketreports_obj) {
+                    $report['marketreports'][$marketreports_obj->mrid] = $report['marketreports'][$marketreports_obj->mrid] = $marketreports_obj->get();
+                }
+//                $marketreportdata = serialize($core->input);
+//                $report['marketreports'] = $core->input['marketreport'];
+//                $reportdata['marketreportdata'] = $report['marketreports'];
+                // $session->set_phpsession(array('marketreport_'.$identifier => $marketreportdata));
             }
 
-            $session->set_phpsession(array('reportmeta_'.$session_identifier => serialize($report_meta)));
+            //    $session->set_phpsession(array('reportmeta_'.$session_identifier => serialize($report_meta)));
             $session->set_phpsession(array('reportrawdata_'.$session_identifier => serialize($reportdata)));
         }
 
@@ -197,7 +208,6 @@ if(!$core->input['action']) {
         /* Get affiliate currency */
         $report_years = array('current_year' => $report['year'], 'before_1year' => $report['year'] - 1, 'before_2years' => $report['year'] - 2);
         asort($report_years);
-
         $report['quartername'] = 'Q'.$report['quarter'].' '.$report['year'];
         $item = array();
         if($core->usergroup['canGenerateReports'] == 1 || $core->usergroup['canFillReports'] == 1) {
@@ -398,7 +408,7 @@ if(!$core->input['action']) {
 
 //					if($aggregate_type == 'segments') {
 //						$overviewboxsegment_chart = new Charts(array('x' => $report_years, 'y' => $report_segment_charts_data[$aggregate_type][$category]['actual']['y']), 'linebar');
-//						//$reporting_report_newoverviewbox_chart = '<img src="'.$overviewboxsegment_chart->get_chart().'" />';
+//						$reporting_report_newoverviewbox_chart = '<img src="'.$overviewboxsegment_chart->get_chart().'" />';
 //					}
                         $toc_data[5]['affiliatesoverview'] = array('title' => $lang->activityby.' '.$lang->affiliate);
                         eval("\$reporting_report_newoverviewbox[$aggregate_type][$category] = \"".$template->get('new_reporting_report_overviewbox')."\";");
@@ -439,7 +449,10 @@ if(!$core->input['action']) {
                 if(!$reportcache->iscached('marketsegments', $marketreport['psid'])) {
                     $reportcache->add('marketsegments', $marketreport['segmenttitle'], $marketreport['psid']);
                 }
-
+                $segment = ProductsSegments::get_data(array('psid' => $marketreport['psid']));
+                if(is_object($segment)) {
+                    $marketreport['segmenttitle'] = $segment->get_displayname();
+                }
                 if(isset($marketreport['exclude']) && $marketreport['exclude'] == 1) {
                     continue;
                 }
@@ -465,15 +478,149 @@ if(!$core->input['action']) {
                 if(($core->usergroup['reporting_canViewComptInfo'] == 1) || ($core->usergroup['canGenerateReports'] == 1 || $core->usergroup['canFillReports'] == 1)) {
                     eval("\$marketreportbox_competition = \"".$template->get('new_reporting_report_marketreportbox_competition')."\";");
                 }
+                /* Parse Mrket Competition - Start */
+                $marketcompetition = MarketReportCompetition::get_data(array('mrid' => $mrid), array('returnarray' => true));
+                if(is_array($marketcompetition)) {
+                    foreach($marketcompetition as $mrcompetition) {
+                        $altrow = alt_row($altrow);
+                        if($mrcompetition->sid == 0 && $mrcompetition->coid == 0) {
+                            $unspecified_competitor = $mrcompetition;
+                            // continue;
+                            $competitior_label = $lang->unspecifiedsupplier;
+                        }
+                        if($mrcompetition->sid != 0) {
+                            $supplier = Entities::get_data(array('eid' => $mrcompetition->sid, 'type' => 'cs'));
+                            if(is_object($supplier)) {
+                                $supplier_name = $supplier->get_displayname();
+                                $competitior_label = $lang->competitorsupplier;
+                            }
+                        }
+                        if($mrcompetition->coid != 0) {
+                            $country = Countries::get_data(array('coid' => $mrcompetition->coid));
+                            if(is_object($country)) {
+                                $country_name = $country->get_displayname();
+                                $competitior_label = $lang->competitororigin;
+                            }
+                        }
+                        $competitionproducts = MarketReportCompetitionProducts::get_data(array('mrcid' => $mrcompetition->mrcid), array('returnarray' => true));
+                        if(is_array($competitionproducts)) {
+                            foreach($competitionproducts as $mrproduct_obj) {
+                                $mrproduct = $mrproduct_obj->get();
+                                if($mrproduct['csid'] != 0) {
+                                    $chemicalsubs = new Chemicalsubstances($mrproduct['csid']);
+                                }
+                                if($mrproduct['pid'] != 0) {
+                                    $product = new Products($mrproduct['csid']);
+                                }
+                                if(is_object($chemicalsubs)) {
+                                    $chemicalsubstance_name = $chemicalsubs->get_displayname();
+                                    $label = $lang->chemicalsubstance;
+                                }
+                                if(is_object($products)) {
+                                    $product_name = $product->get_displayname();
+                                    $label = $lang->product;
+                                }
+                                eval("\$product_row .= \"".$template->get('reporting_previewreport_marketreport_suppproducts')."\";");
+                                unset($chemicalsubstance_name, $chemicalsubs, $product, $product_name);
+                            }
+                        }
+
+                        eval("\$markerreport_segment_suppliers_row .= \"".$template->get('reporting_previewreport_marketreport_suppliers_rows')."\";");
+                        unset($product_row, $supplier, $country, $supplier_name, $country_name, $competitior_label);
+                    }
+                    eval("\$markerreport_segment_suppliers = \"".$template->get('reporting_previewreport_marketreport_suppliers')."\";");
+                    unset($markerreport_segment_suppliers_row);
+                }
+                /* Parse Mrket Competition - End */
 
                 if($core->usergroup['canGenerateReports'] == 1 || $core->usergroup['canFillReports'] == 1) {
                     eval("\$marketreportbox_other = \"".$template->get('new_reporting_report_marketreportbox_other')."\";");
                 }
-
+                $criteriaandstars .= '<div class="evaluation_criterium" name="'.$marketreport['psid'].'_'.$mrid.'"><div class="criterium_name" style="display:inline-block; width:30%; padding: 2px;"></div>';
+                $criteriaandstars .= '<div class="ratebar" style="width:40%; display:inline-block;">';
+                if(!isset($marketreport['rating']) || empty($marketreport['rating'])) {
+                    $ratingval = 0;
+                }
+                else {
+                    $ratingval = $marketreport['rating'];
+                }
+                $report_obj = new Reporting($marketreport);
+                $audits = $report_obj->get_report_supplier_audits();
+                $auditor = 0;
+                if(is_array($audits)) {
+                    if($audit['uid'] == $core->user['uid']) {
+                        $auditor = 1;
+                    }
+                }
+                if($auditor == 1) {
+                    $criteriaandstars .= '<div class="rateit" data-rateit-starwidth="18" data-rateit-starheight="16" data-rateit-ispreset="true" data-rateit-readonly="true" data-rateit-value="'.$ratingval.'"></div>';
+                }
+                else {
+                    $header_ratingjs = '$(".rateit").click(function() {
+					if(sharedFunctions.checkSession() == false) {
+						return;
+					}
+					var targetid = $(this).parent().parent().attr("name");
+					var returndiv = "";
+                                        var val=$("#rating_"+targetid).val();
+                                        var ids=targetid.split("_");
+                                        if(ids[1].length < 1 || ids[0].length < 1 ){
+                                        return;
+                                        }
+                                        if(val.length >0){
+					sharedFunctions.requestAjax("post", "index.php?module=reporting/preview&action=do_ratesegment", "target="+ids[0]+"&value="+val+"&repid="+ids[1], returndiv, returndiv, "html");
+                                        }
+				});';
+                    $criteriaandstars .= '<input type="range" min="0" max="5" value="'.$ratingval.'" step="1" id="rating_'.$marketreport['psid'].'_'.$mrid.'" class="ratingscale">';
+                    $criteriaandstars .= '<div class="rateit" data-rateit-starwidth="18" data-rateit-starheight="16" data-rateit-ispreset="true" data-rateit-resetable="false" data-rateit-backingfld="#rating_'.$marketreport['psid'].'_'.$mrid.'" data-rateit-value="'.$marketreport['rating'].'"></div>';
+                }
                 eval("\$marketreportbox .= \"".$template->get('new_reporting_report_marketreportbox')."\";");
+                unset($mom_followupactions, $criteriaandstars, $markerreport_segment_suppliers);
             }
         }
 
+        /* Parse MOM Specific Follow Up Actions - START */
+        $quarter_start = strtotime($report['year'].'-'.$core->settings['q'.$report['quarter'].'start']);
+        $quarter_end = strtotime($report['year'].'-'.$core->settings['q'.$report['quarter'].'end']);
+        $momactions_where = '(date BETWEEN '.$quarter_start.' AND '.$quarter_end.') AND momid=(select momid from meetings_minsofmeeting where mtid IN '
+                .'(select mtid from meetings_associations where idAttr="spid" AND id='.$report['spid'].'))';
+        $momactions = MeetingsMOMActions::get_data(array('filter' => $momactions_where), array('returnarray' => true, 'operators' => array('filter' => CUSTOMSQLSECURE)));
+        if(is_array($momactions)) {
+            foreach($momactions as $key => $actions) {
+                /* The actions are associated to the QR affiliate (primarily) or its employees are assigned to the actions (secondary) */
+                $meetings_affassociations = MeetingsAssociations::get_data(array('id' => $report[affid], 'idAttr' => 'affid', 'mtid' => 'mtid=(select mtid from meetings_minsofmeeting where momid='.$actions->momid.')'), array('returnarray' => true, 'operators' => array('mtid' => 'CUSTOMSQL')));
+                //If actions are associated to the QR affiliate -> continue
+                if(is_array($meetings_affassociations)) {
+                    continue;
+                }
+                //Else check if employees of the QR aff are assigned to the actions
+                $employeesassigned = false;
+                $momactionsassignees = MeetingsMOMActionAssignees::get_data(array('momaid' => $actions->momaid), array('returnarray' => true));
+                if(is_array($momactionsassignees)) {
+                    foreach($momactionsassignees as $assignee) {
+                        if(isset($assignee->uid) && !empty($assignee->uid)) {
+                            $user = new Users($assignee->uid);
+                            if(is_object($user) && $user->get_mainaffiliate()->affid == $reportmeta['affid']) {
+                                $employeesassigned = true;
+                            }
+                        }
+                    }
+                }
+                if(!$employeesassigned) {
+                    unset($momactions[$key]); // if no aff or employees associations do not parse actions
+                }
+            }
+            $mom_obj = new MeetingsMOM();
+            $mom_followupactions .= $mom_obj->parse_actions('QR', $momactions);
+            $marketreportbox .= '<table class="reportbox">
+    <tr>
+        <td class="thead">'.$lang->specificfollowactions.'</td>
+    </tr>
+    <tr><td>'.$mom_followupactions.'</td></tr>
+</table>';
+        }
+
+        /* Parse MOM Specific Follow Up Actions - end */
         /* Show QR contributors */
         $lang->reportpreparedby_text = $lang->reportpreparedby;
         $lang->email_text = $lang->email;
@@ -594,11 +741,11 @@ if(!$core->input['action']) {
                     /* Generate Chart */
                     if($aggregate_type == 'segments') {
                         $progressionbox_chart = new Charts(array('x' => $report_years, 'y' => $report_charts_data[$aggregate_type][$category]['actual']['y']), 'stackedbar', array('seriesnames' => array(1 => $item['name'])));
-//$reporting_report_newtotaloverviewbox_chart = '<img src="'.$progressionbox_chart->get_chart().'" />';
+                        $reporting_report_newtotaloverviewbox_chart = '<img src="'.$progressionbox_chart->get_chart().'" />';
                     }
                     if($aggregate_type == 'affiliates') {
                         $progressionbox_chart = new Charts(array('x' => $report_years, 'y' => $report_affiliate_charts_data[$aggregate_type][$category]['actual']['y']), 'linebar', array('seriesnames' => array(1 => $item['name'])));
-//$reporting_report_newtotaloverviewbox_chart = '<img src="'.$progressionbox_chart->get_chart().'" />';
+                        $reporting_report_newtotaloverviewbox_chart = '<img src="'.$progressionbox_chart->get_chart().'" />';
                     }
 
                     eval("\$reporting_report_newtotaloverviewbox[$aggregate_type][$category] = \"".$template->get('new_reporting_report_totaloverviewbox')."\";");
@@ -794,6 +941,7 @@ if(!$core->input['action']) {
         $missing_employees_query1 = $db->query("SELECT DISTINCT(u.uid), displayName
 												FROM ".Tprefix."users u JOIN ".Tprefix."assignedemployees ae ON (u.uid=ae.uid)
 												WHERE ae.affid='{$report[affid]}' AND ae.eid='{$report[spid]}' AND u.gid IN (SELECT gid FROM usergroups WHERE canUseReporting=1 AND canFillReports=1) AND u.uid NOT IN (SELECT uid FROM ".Tprefix."reportcontributors WHERE rid='{$report[rid]}' AND isDone=1) AND u.uid!={$core->user[uid]}"); // AND rc.rid='{$report[rid]}'
+
         while($assigned_employee = $db->fetch_assoc($missing_employees_query1)) {
             $missing_employees['name'][] = $assigned_employee['displayName'];
             $missing_employees['uid'][] = $assigned_employee['uid'];
@@ -822,7 +970,15 @@ if(!$core->input['action']) {
         eval("\$reportspage = \"".$template->get('website_reporting_preview')."\";");
     }
     else {
-        eval("\$reportspage = \"".$template->get('new_reporting_preview')."\";");
+        if($core->input['reportmode'] == 'reportonly') {
+
+            eval("\$header = \"".$template->get('new_reporting_preview_header')."\";");
+
+            $reportspage = $header.$reports.$tools;
+        }
+        else {
+            eval("\$reportspage = \"".$template->get('new_reporting_preview')."\";");
+        }
     }
     output_page($reportspage);
 }
@@ -940,6 +1096,15 @@ else {
             ini_set('memory_limit', '200M');
             $html2pdf->WriteHTML(trim($content), $show_html);
             $html2pdf->Output($suppliername.'_'.date($core->settings['dateformat'], TIME_NOW).'.pdf');
+        }
+    }
+    elseif($core->input['action'] == 'do_ratesegment') {
+        $mrid = $db->escape_string($core->input['repid']);
+        $psid = $db->escape_string($core->input['target']);
+        $marketreport_obj = MarketReport::get_data(array('mrid' => $mrid));
+        if(is_object($marketreport_obj)) {
+            $marketreport_obj->rating = $core->input['value'];
+            $marketreport_obj->save();
         }
     }
 }

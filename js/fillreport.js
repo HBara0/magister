@@ -20,17 +20,19 @@ $(function() {
             return;
         }
         var value = $(this).val();
-
         if(value != '0') {
             var id = $(this).attr("id");
             var dataParam = "id=" + value;
             var get = "";
-
             if(id == "affid") {
                 get = "supplierslist";
                 loadingIn = "supplierslist_Loading";
                 contentIn = "spid";
                 $("#spid,#quarter,#year").empty();
+                var onbehalf = $("#forecast_onBehalf").val();
+                if(onbehalf != 0 && typeof onbehalf !== 'undefined') {
+                    dataParam += '&onBehalf=' + onbehalf;
+                }
             }
             else if(id == "spid")
             {
@@ -60,6 +62,7 @@ $(function() {
 //            }
             else if(id == "quarter") {
                 dataParam += "&affid=" + $("#affid").val() + "&spid=" + $("#spid").val();
+                // if()
                 get = "years";
                 loadingIn = "years_Loading";
                 contentIn = "year";

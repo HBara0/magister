@@ -230,7 +230,8 @@ class CmsMenu extends Cms {
 
             if($parsetype == 'list') {
                 $editlink = '<a href="'.$core->settings['rootdir'].'/index.php?module=cms/managemenu&mitid='.$values['cmsmiid'].'" target="_blank"><img src="'.$core->settings['rootdir'].'/images/edit.gif"></a>';
-                $editlink .='<a href="index.php?module=cms/managemenu&type=addmenuitem&id='.$values['cmsmid'].'&parent='.$values['cmsmiid'].'" target="_blank"  title="{$lang->addmenuitem}"><img src="'.$core->settings['rootdir'].'/images/add.gif" border="0"/></a>';
+                $editlink .='<a href="index.php?module=cms/managemenu&type=addmenuitem&id='.$values['cmsmid'].'&parent='.$values['cmsmiid'].'" target="_blank"  title="'.$lang->addmenuitem.'"><img src="'.$core->settings['rootdir'].'/images/add.gif" border="0"/></a>';
+                $editlink .='<a href="#'.$values['cmsmiid'].'" id="deletemenuitem_'.$values['cmsmiid'].'_cms/listmenu_loadpopupbyid" title="'.$lang->deletemenuitem.'"><img src="'.$core->settings['rootdir'].'/images/invalid.gif" border="0"/></a>';
                 $menus_list .= '<li>';
                 $menus_list .= '<div style = "width: 75%; display:inline-block;">'.$values['title'];
                 if(is_array($values['children']) && !empty($values['children'])) {

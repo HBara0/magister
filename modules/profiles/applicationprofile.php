@@ -98,21 +98,45 @@ if(!$core->input['action']) {
             $itemscount['endproducts'] = count($endproducttype_objs);
             foreach($endproducttype_objs as $endproducttype_obj) {
                 $eptids[] = $endproducttype_obj->get_primarykey();
-                $endproducttype_output .= '<tr><td>'.$endproducttype_obj->parse_link().'</td></tr>';
             }
         }
     }
+    unset($endproducttype_obj);
     //End product type---End
     //looping through all eptids collected in end product type
     //Entity Brand block---Start
     if(!empty($eptids)) {
+        $eptids = array_filter(array_unique($eptids));
         $entitybrandproduct_objs = EntBrandsProducts::get_data(array('eptid' => $eptids), array('returnarray' => true));
+        foreach($eptids as $eptid) {
+            $endproducttype_obj = new EndProducTypes($eptid);
+            if(is_object($endproducttype_obj)) {
+                $details = $endproducttype_obj->parse_link();
+                $first_parent = $endproducttype_obj->get_parent();
+                if(is_object($first_parent)) {
+                    $details .= $first_parent->get_displayname();
+                    $secondpar_obj = $first_parent->get_parent();
+                    if(is_object($secondpar_obj)) {
+                        $details = $secondpar_obj->get_displayname().' < '.$details;
+                        $third_par = $secondpar_obj->get_parent();
+                        if(is_object($third_par)) {
+                            $originalpar_obj = $third_par->get_mother();
+                            if(is_object($originalpar_obj)) {
+                                $details = $originalpar_obj->get_displayname().'< ... < '.$details;
+                            }
+                        }
+                    }
+                }
+            }
+            $endproducttype_output .= '<tr><td>'.$details.'</td></tr>';
+        }
         if(is_array($entitybrandproduct_objs)) {
             foreach($entitybrandproduct_objs as $entitybrandproduct_obj) {
                 $eids[] = $entitybrandproduct_obj->get_entitybrand()->eid;
                 $ebids[] = $entitybrandproduct_obj->get_entitybrand()->ebid;
             }
 
+            $eids = array_filter(array_unique($eids));
             $allowed_eid = $eids;
             if($core->usergroup['canViewAllCust'] == 0) {
                 $allowed_eid = array_intersect($eids, $core->user['customers']);

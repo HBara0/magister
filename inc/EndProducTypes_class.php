@@ -166,13 +166,17 @@ class EndProducTypes extends AbstractClass {
     }
 
     public function get_endproducttype_chain($value = '') {
+        if($this->data['parent'] == 0) {
+            return;
+        }
         $parent = new EndProducTypes($this->data['parent']);
         $titlechain = $parent->title.$value;
 
-        if($parent->parent != 0) {
+        if($parent->parent != 0 && $parent->get_id() != $parent->parent) {
             $titlechain = ' > '.$titlechain;
             $titlechain = $parent->get_endproducttype_chain($titlechain);
         }
+
         return $titlechain;
     }
 
@@ -224,6 +228,7 @@ class EndProducTypes extends AbstractClass {
                 $editlink = '<div style="float:right"><a href="#'.$values['eptid'].'" id="editendproducts_'.$values['eptid'].'_products/types_loadpopupbyid" title="Edit"><img src="'.$core->settings['rootdir'].'/images/edit.gif" border="0"/></a></div>';
 
                 $delete = '<div style="float:right"><a href="#'.$values['eptid'].'" id="deleteendproducttype_'.$values['eptid'].'_products/types_loadpopupbyid" title="Delete"><img src="'.$core->settings['rootdir'].'/images/invalid.gif" border="0"/></a></div>';
+                $clone = '<div style="float:right;margin-right:2px;"><a href="#'.$values['eptid'].'" id="cloneendproducttype_'.$values['eptid'].'_products/types_loadpopupbyid" title="Clone"><img src="'.$core->settings['rootdir'].'/images/clone.gif" border="0"/></a></div>';
 
                 $endproducttypes_list .= '<li><a target="_blank" href="'.$endprodtype->get_link().'">'.$values['title'].$values['application'].' </a>';
                 unset($values['application']);
@@ -231,8 +236,7 @@ class EndProducTypes extends AbstractClass {
                     $endproducttypes_list .= '<a href="#endproducttype_'.$values['eptid'].'" id="showmore_endprofucttypechildren_'.$values['eptid'].'">&raquo;</a>';
                 }
 
-
-                $endproducttypes_list .= $delete.$editlink.'</li>';
+                $endproducttypes_list .=$delete.$editlink.' '.$clone.'</li>';
             }
             else {
                 $endproducttypes_list .= '<option value="'.$values['eptid'].'">'.$ref.' '.$values['title'].'</option>';
@@ -359,6 +363,7 @@ class EndProducTypes extends AbstractClass {
             foreach($endproducttypes as $endproduct) {
                 $endproducttodelete = $endproduct->delete_endproducttype($endproduct->eptid);
                 if(!$endproducttodelete) {
+                    $this->errorcode = 3;
                     return false;
                 }
             }
@@ -367,6 +372,69 @@ class EndProducTypes extends AbstractClass {
         if($delete) {
             $this->errorcode = 0;
             return true;
+        }
+    }
+
+    /**
+     *
+     * @global type $db
+     * @param array $data
+     * @return type
+     */
+    public function clone_endproducttype(array $data) {
+        global $db;
+        $endprodtoclone_obj = new EndProducTypes($data['idtoclone']);
+        if(is_object($endprodtoclone_obj)) {
+            $newendproducttype_data = array(
+                    'title' => $data['title'],
+                    'segapplications' => $endprodtoclone_obj->psaid,
+                    'parent' => $data['parentid'],
+            );
+            $newendproducttype = new EndProducTypes();
+            $newendproducttype->set($newendproducttype_data);
+            $endproducttype = $newendproducttype->save();
+            if(!($endproducttype->get_errorcode() == 0)) {
+                return $endproducttype;
+            }
+            $newparentid = $db->last_id();
+            $endprodtoclone_children = EndProducTypes::get_data(array('parent' => $endprodtoclone_obj->eptid), array('returnarray' => true));
+            if(is_array($endprodtoclone_children)) {
+                $endproducttype = $this->clone_endproducttypechildren($newparentid, $endprodtoclone_children);
+            }
+            return $endproducttype;
+        }
+    }
+
+    /**
+     * recursive function to clone the children of the item being cloned all the way down till the last level
+     * @global type $db
+     * @param type $newparentid // the new created producttype id
+     * @param type $endproducttypes // array of all the cloned product type children
+     * @return type
+     */
+    public function clone_endproducttypechildren($newparentid, $endproducttypes) {
+        global $db;
+        if(is_array($endproducttypes)) {
+            foreach($endproducttypes as $child) {
+                $newchild_data = array(
+                        'title' => $child->title,
+                        'segapplications' => $child->psaid,
+                        'parent' => $newparentid,
+                );
+                $newchildproducttype = new EndProducTypes();
+                $newchildproducttype->set($newchild_data);
+                $childproducttype = $newchildproducttype->save();
+                if(!($childproducttype->get_errorcode() == 0)) {
+                    return $childproducttype;
+                }
+                $newchildid = $db->last_id();
+                $children = EndProducTypes::get_data(array('parent' => $child->eptid), array('returnarray' => true));
+                if(is_array($children)) { // recursion to clone all the level
+                    $this->clone_endproducttypechildren($newchildid, $children);
+                }
+            }
+
+            return $childproducttype;
         }
     }
 

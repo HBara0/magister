@@ -479,6 +479,11 @@ if(!$core->input['action']) {
                     $brandproduct_productype->title = $lang->unspecified;
                 }
                 else {
+                    $characteristic_output = '';
+                    $characteristic = $brandproduct->get_charactersticvalue();
+                    if(is_object($characteristic)) {
+                        $characteristic_output = ' <small>('.$characteristic->get_displayname().')</small>';
+                    }
                     $options[$brandproduct->ebpid] .= ' - '.$brandproduct_productype->parse_link();
                 }
 
@@ -544,6 +549,8 @@ if(!$core->input['action']) {
         eval("\$profiles_mibasicingredientsentry_row = \"".$template->get('profiles_mibasicingredientsentry')."\";");
         eval("\$profiles_mibasicingredientsentry = \"".$template->get('profiles_mibasicingredientsentry_rows')."\";");
         eval("\$popup_marketdata = \"".$template->get('popup_profiles_marketdata')."\";");
+        $characteristics = ProductCharacteristicValues::get_data(null, array('returnarray' => true));
+        $characteristics_list = parse_selectlist('entitybrand[pcvid]', 4, $characteristics, null, 0, null, array('blankstart' => true));
         eval("\$popup_createbrand = \"".$template->get('popup_createbrand')."\";");
     }
 
@@ -706,6 +713,7 @@ else {
         }
         if(is_array($brandsproducts)) {
             foreach($brandsproducts as $brandproduct) {
+                $brandproduct_obj = $brandproduct;
                 $brandproduct_brand = $brandproduct->get_entitybrand();
                 $brandproduct_productype = $brandproduct->get_endproduct();
                 $options[$brandproduct->ebpid] = $brandproduct_brand->name;

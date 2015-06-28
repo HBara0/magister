@@ -69,11 +69,9 @@ $(function() {
     $("#mainmenu > li > div > ul > li").find("span").click(function() {
         window.location = "index.php?module=" + $(this).attr("id");
     });
-
     if($(window).height() < 765) {
         $("#sidedesignImage").height($(window).height());
     }
-
     function destroy_texteditors(parent) {
         parent.find(".txteditadv,.inlinetxteditadv,.basictxteditadv").each(function() {
             var id = $(this).attr('id');
@@ -242,7 +240,7 @@ $(function() {
                 }
 
                 filtersQuery = "";
-                var filters = new Array("rid", "spid", "cid", "spid[]", "coid", "countryid", "city");
+                var filters = new Array("rid", "spid", "cid", "spid[]", "coid", "countryid", "city", "hasMOM");
                 for(var i = 0; i < filters.length; i++) {
                     if($("input[name='" + filters[i] + "']").length > 0) {
                         if($("input[name='" + filters[i] + "']").val() != '') {
@@ -984,25 +982,33 @@ $(function() {
     $("[data-reqparent^='children-']").live('change', function() {
         var children = $(this).attr('data-reqparent').split('-');
         if(children.length > 1) {
-            if($(this).val().length < 1) {
-                for(i = 1; i < children.length; i++) {
-                    $('#' + children[i] + '').attr("required", false);
+            if($(this).attr('type') == 'checkbox') {
+                if($(this).is(':checked')) {
+                    for(i = 1; i < children.length; i++) {
+                        $('#' + children[i] + '').attr("required", true);
+                    }
+                }
+                else {
+                    for(i = 1; i < children.length; i++) {
+                        $('#' + children[i] + '').attr("required", false);
+                    }
                 }
             }
             else {
-                for(i = 1; i < children.length; i++) {
-                    $('#' + children[i] + '').attr("required", true);
+                if($(this).val().length < 1) {
+                    for(i = 1; i < children.length; i++) {
+                        $('#' + children[i] + '').attr("required", false);
+                    }
+                }
+                else {
+                    for(i = 1; i < children.length; i++) {
+                        $('#' + children[i] + '').attr("required", true);
+                    }
                 }
             }
         }
     });
-    $('input[type="number"]').live('keyup', function () {
-        if($(this).attr('max').length > 0) {
-            if(parseInt($(this).val(), 10) > parseInt($(this).attr('max'), 10)) {
-                $(this).val($(this).attr('max'));
-            }
-        }
-    });
+
 }
 );
 function validateEmail(email) {

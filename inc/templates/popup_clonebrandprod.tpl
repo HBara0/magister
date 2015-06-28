@@ -13,6 +13,9 @@
                 <td width="30%">{$lang->endproductname}</td><td><input type='text' id='endproducttypes_1_autocomplete' value="{$endproduct_type->get_displayname()}" style="width:65%;"/><input type="hidden" size="3" id="endproducttypes_1_id_output" value="{$endproduct_type->eptid}" disabled/><input type='hidden' id='endproducttypes_1_id' name='endproduct' value="{$endproduct_type->eptid}" /><div id='searchQuickResults_endproducttypes_1' class='searchQuickResults' style='display:none;'></div>
             </tr>
             <tr>
+                <td>{$lang->characterstics}</td><td>{$characteristics_list}</td>
+            </tr>
+            <tr>
                 <td colspan="2">
                     <div style="width:100%; height:150px; overflow:auto; vertical-align:top;">
                         <table class="datatable" width="100%">

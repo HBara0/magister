@@ -814,7 +814,7 @@ if($core->input['action']) {
         }
     }
     elseif($core->input['action'] == 'downloadallempvcard') {
-        $users = Users::get_users('', array('returnarray' => true));
+        $users = Users::get_users(array('gid' => 7), array('operators' => array('gid' => 'NOT IN'), 'returnarray' => true));
         if(is_array($users)) {
             $vcard_cont = '';
             foreach($users as $user) {

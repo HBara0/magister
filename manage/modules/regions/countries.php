@@ -117,5 +117,67 @@ else {
         eval("\$addcountry = \"".$template->get('popup_addcountry')."\";");
         output($addcountry);
     }
+    elseif($core->input['action'] == 'update_countrydetails') {
+        $data = json_decode(Countries::get_livedata());
+        if(is_array($data)) {
+            foreach($data as $datarray) {
+                $city_obj = Cities::get_data(array('name' => $datarray->capital));
+                $country_obj = Countries::get_data(array('acronym' => $datarray->alpha2Code), array('returnarray' => false));
+                $currency = Currencies::get_data(array('alphaCode' => $datarray->currencies[0]));
+                if(is_object($country_obj)) {
+                    $country = $country_obj->get();
+                    $country['phoneCode'] = $datarray->callingCodes[0];
+                    if(is_object($city_obj) && $country['capitalCity'] == '0') {
+                        $country['capitalCity'] = $city_obj->ciid;
+                    }
+                    elseif(is_array($city_obj)) {
+                        foreach($city_obj as $city) {
+                            if(is_object($city_obj) && $country['coid'] == $city['coid'] && $country['capitalCity'] == '0') {
+                                $country['capitalCity'] = $city_obj->ciid;
+                            }
+                        }
+                    }
+                    if(is_object($currency) && (is_null($country['mainCurrency']) || $country['mainCurrency'] == '0')) {
+                        $country['mainCurrency'] = $currency->numCode;
+                    }
+                    if(!isset($country['defaultTimeZone']) || empty($country['defaultTimeZone']) || is_null($country['defaultTimeZone'])) {
+                        $country['defaultTimeZone'] = $datarray->timezones[0];
+                    }
+                    if($country['acronym'] == 'CY') {
+                        $country['continent'] = 'Asia';
+                        $country['region'] = 'Western Asia';
+                    }
+                    else {
+                        if(!isset($country['continent']) || empty($country['continent']) || is_null($country['continent'])) {
+                            $country['continent'] = $datarray->region;
+                        }
+                        if(!isset($country['region']) || empty($country['region']) || is_null($country['region'])) {
+                            $country['region'] = $datarray->subregion;
+                        }
+                    }
+                    $country_obj->set($country);
+                    $country_obj->save();
+                    $errorcodes[$country_obj->coid] = $country_obj->get_errorcode();
+                }
+            }
+            if(is_array($errorcodes)) {
+                $errorcodes = array_unique($errorcodes);
+                foreach($errorcodes as $coid => $errorcode) {
+                    if($errorcode != 0) {
+                        $problemcoids[] = $coid;
+                    }
+                }
+                if(is_array($problemcoids)) {
+                    echo('Errors while saving these country data: '.implode(',', $problemcoids));
+                }
+                else {
+                    echo('Data Saved Succesfully! Nicely Done!!');
+                }
+            }
+            else {
+                echo('No Countries Saved');
+            }
+        }
+    }
 }
 ?>

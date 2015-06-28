@@ -38,6 +38,7 @@ $lang['mktshareperc'] = 'Mkt Share Perc';
 $lang['application'] = 'Application';
 $lang['customertype'] = 'Customer Type';
 $lang['customercountry'] = 'Customer Country';
+$lang['characteristic'] = 'Characteristic';
 
 $lang['mktshareqty'] = 'Mkt Share Qty (MT)';
 $lang['unitprice'] = 'Unit Price (USD/Kg)';
@@ -90,4 +91,6 @@ $lang['chemicalsynonym'] = 'Chemical Synonymes';
 $lang['casnum'] = 'CAS Number';
 $lang['nopermission'] = 'You don\'t have permission to delete this entry';
 $lang['chemicalexsist'] = 'Chemical Data Already Exists';
+$lang['description'] = 'Description';
+$lang['charasteristiclist'] = 'Characteristics List';
 ?>

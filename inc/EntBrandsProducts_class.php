@@ -20,9 +20,9 @@ class EntBrandsProducts extends AbstractClass {
     const PRIMARY_KEY = 'ebpid';
     const TABLE_NAME = 'entitiesbrandsproducts';
     const DISPLAY_NAME = '';
-    const SIMPLEQ_ATTRS = 'ebpid, ebid, eptid';
+    const SIMPLEQ_ATTRS = 'ebpid, ebid, eptid, pcvid,description';
     const CLASSNAME = __CLASS__;
-    const UNIQUE_ATTRS = 'ebid,eptid';
+    const UNIQUE_ATTRS = 'ebid,eptid,pcvid';
 
     public function __construct($id = '', $simple = true) {
         parent::__construct($id, $simple);
@@ -81,11 +81,17 @@ class EntBrandsProducts extends AbstractClass {
         return new EndProducTypes($this->data['eptid']);
     }
 
+    public function get_charactersticvalue() {
+        return new ProductCharacteristicValues($this->pcvid);
+    }
+
     public function create(array $data) {
         global $db, $core;
         $table_array = array(
                 'eptid' => $data['eptid'],
                 'ebid' => $data['ebid'],
+                'pcvid' => $data['pcvid'],
+                'description' => $data['description'],
                 'createdBy' => $core->user['uid'],
                 'createdOn' => TIME_NOW,
         );
@@ -101,6 +107,8 @@ class EntBrandsProducts extends AbstractClass {
         if(is_array($data)) {
             $update_array['eptid'] = $data['eptid'];
             $update_array['ebid'] = $data['ebid'];
+            $update_array['pcvid'] = $data['pcvid'];
+            $update_array['description'] = $data['description'];
             $update_array['modifiedBy'] = $core->user['uid'];
             $update_array['modifiedOn'] = TIME_NOW;
         }

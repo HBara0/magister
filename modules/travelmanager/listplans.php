@@ -22,22 +22,30 @@ if(!$core->input['action']) {
             'parse' => array('filters' => array('uid', 'title', 'fromDate', 'toDate', 'createdOn', 'finalized'),
                     'overwriteField' => array('title' => '<input class="inlinefilterfield" type="text" style="width: 95%" placeholder="'.$lang->title.'"/>',
                             'finalized' => '',
-                            'uid' => ''
                     )
             ),
             'process' => array(
-                    'filterKey' => 'createdOn',
+                    'filterKey' => 'tmpid',
                     'mainTable' => array(
                             'name' => 'travelmanager_plan',
                             'filters' => array('createdOn' => array('operatorType' => 'date', 'name' => 'createdOn')),
                     ),
                     'secTables' => array(
                             'leaves' => array(
-                                    'filters' => array('fromDate' => array('operatorType' => 'date', 'name' => 'fromDate'), 'toDate' => array('operatorType' => 'date', 'name' => 'toDate'))
+                                    'filters' => array('fromDate' => array('operatorType' => 'date', 'name' => 'fromDate'), 'toDate' => array('operatorType' => 'date', 'name' => 'toDate')),
+                                    'keyAttr' => 'lid', 'joinKeyAttr' => 'lid', 'joinWith' => 'travelmanager_plan'
                             ),
+                            'users' => array(
+                                    'filters' => array('uid' => array('operatorType' => 'multiple', 'name' => 'travelmanager_plan.uid')),
+                                    'extraSelect' => 'CONCAT(firstName, \' \', lastName) AS fullName',
+                                    'havingFilters' => array('fullName' => 'fullName'),
+                                    'keyAttr' => 'uid', 'joinKeyAttr' => 'uid', 'joinWith' => 'travelmanager_plan'
+                            )
                     )
             )
     );
+
+
 
     $filter = new Inlinefilters($filters_config);
     $filter_where_values = $filter->process_multi_filters();

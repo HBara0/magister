@@ -11,7 +11,7 @@ if(!defined('DIRECT_ACCESS')) {
     die('Direct initialization of this file is not allowed.');
 }
 if($core->usergroup['profiles_canUseMktIntel'] == 0) {
-    error($lang->sectionnopermission);
+    // error($lang->sectionnopermission);
 }
 if(!$core->input['action']) {
     $sort_url = sort_url();
@@ -26,7 +26,7 @@ if(!$core->input['action']) {
 
     /* Perform inline filtering - START */
     $filters_config = array(
-            'parse' => array('filters' => array('affid', 'cid', 'coid', 'pid', 'supplier', 'csid', 'biid', 'functionalproperty', 'application', 'segment', 'brand', 'icon', 'eptid', 'potential', 'mktShareQty', 'unitPrice', 'date'),
+            'parse' => array('filters' => array('affid', 'cid', 'coid', 'pid', 'supplier', 'csid', 'biid', 'functionalproperty', 'application', 'segment', 'brand', 'icon', 'eptid', 'characteristic', 'potential', 'mktShareQty', 'unitPrice', 'date'),
                     'overwriteField' => array('application' => '<input class="inlinefilterfield" type="text" style="width: 95%" placeholder="'.$lang->application.'"/>',
                             'segment' => '<input class="inlinefilterfield" type="text" style="width: 95%" placeholder="'.$lang->segment.'"/>',
                             'functionalproperty' => '<input class="inlinefilterfield" type="text" style="width: 95%" placeholder="'.$lang->functionalproperty.'"/>',
@@ -34,6 +34,7 @@ if(!$core->input['action']) {
                             'csid' => '<input class="inlinefilterfield" type="text" style="width: 95%" placeholder="'.$lang->chemicalsubstance.'"/>',
                             'brand' => '<input class="inlinefilterfield" type="text" style="width: 95%" placeholder="'.$lang->brand.'"/>',
                             'eptid' => '<input class="inlinefilterfield" type="text" style="width: 95%" placeholder="'.$lang->endproducttype.'"/>',
+                            'characteristic' => '<input class="inlinefilterfield" type="text" style="width: 95%" placeholder="'.$lang->characteristic.'"/>',
                             'icon' => ''
                     )
             ),
@@ -71,6 +72,7 @@ if(!$core->input['action']) {
     // }
     /* Perform inline filtering - END */
     if(is_array(($marketintel_objs))) {
+        $midata_unitPrice = $midata_mktShareQty = $midata_mktSharePerc = $midata_potential = 0;
         foreach($marketintel_objs as $marketintel_obj) {
             $mibdid = $marketintel_obj->mibdid;
             $affid = isAllowed($core, 'canViewAllAff', 'affiliates', $marketintel_obj->get_affiliate()->affid);
@@ -160,10 +162,15 @@ if(!$core->input['action']) {
             if($marketintel_obj->ebpid != 0) {
                 $ebrandprod_obj = $marketintel_obj->get_entitiesbrandsproducts();
                 $marketintel['brand'] = '-';
+                $marketintel['characteristic'] = '-';
                 if(is_object($ebrandprod_obj) && !is_null($ebrandprod_obj->get())) {
                     $brand_obj = $ebrandprod_obj->get_entitybrand();
                     $marketintel['brand'] = $brand_obj->parse_link();
                     $brandid = $brand_obj->ebid;
+                    $charac_obj = $ebrandprod_obj->get_charactersticvalue();
+                    if(is_object($charac_obj)) {
+                        $marketintel['characteristic'] = $charac_obj->get_displayname();
+                    }
                 }
             }
             else {
@@ -226,7 +233,7 @@ if(!$core->input['action']) {
                 $value = $productype->title;
                 $pplication = $productype->get_application()->parse_link();
                 if($pplication !== null) {
-                    $value .=' - '.$pplication;
+                    $value .= ' - '.$pplication;
                 }
                 $parent = $productype->get_endproducttype_chain();
                 if(!empty($parent)) {
@@ -236,11 +243,12 @@ if(!$core->input['action']) {
                     $values[$productype->eptid] = $value;
                 }
             }
+
             asort($values);
             foreach($values as $key => $value) {
                 $checked = $rowclass = '';
                 $endproducttypes_list .= ' <tr class="'.$rowclass.'">';
-                $endproducttypes_list .= '<td><input id="producttypefilter_check_'.$key.'" type="checkbox"'.$checked.' value="'.$key.'" name="entitybrand[endproducttypes]['.$key.']">'.$value.'</td><tr>';
+                $endproducttypes_list .= '<td><input id="producttypefilter_check_'.$key.'" type="checkbox"'.$checked.' value="'.$key.'" name="entitybrand[endproducttypes]['.$key.'][eptid]">'.$value.'<input style="float:right;" type="text" name="entitybrand[endproducttypes]['.$key.'][description]" placeholder="'.$lang->description.'"  value="'.$brandproduct[description].'"/></td><tr>';
             }
         }
 
@@ -257,6 +265,9 @@ if(!$core->input['action']) {
         eval("\$profiles_mibasicingredientsentry_row = \"".$template->get('profiles_mibasicingredientsentry')."\";");
         eval("\$profiles_mibasicingredientsentry = \"".$template->get('profiles_mibasicingredientsentry_rows')."\";");
         eval("\$popup_marketdata= \"".$template->get('popup_profiles_marketdata')."\";");
+
+        $characteristics = ProductCharacteristicValues::get_data(null, array('returnarray' => true));
+        $characteristics_list = parse_selectlist('entitybrand[pcvid]', 4, $characteristics, null, 0, null, array('blankstart' => true));
         eval("\$popup_createbrand = \"".$template->get('popup_createbrand')."\";");
         eval("\$mkintl_section = \"".$template->get('profiles_mktintelsection')."\";");
     }
@@ -358,6 +369,7 @@ else {
         }
         if(is_array($brandsproducts)) {
             foreach($brandsproducts as $brandproduct) {
+                $brandproduct_obj = $brandproduct;
                 $brandproduct_brand = $brandproduct->get_entitybrand();
                 $brandproduct_productype = $brandproduct->get_endproduct();
                 $options[$brandproduct->ebpid] = $brandproduct_brand->name;
@@ -575,9 +587,9 @@ else {
     }
     elseif($core->input['action'] == 'perform_delete') {
         $id = $db->escape_string($core->input['todelete']);
-        $mintentry = new MarketIntelligence($id);
+        $mintentry = new MarketIntelligence($id, false);
         if(is_object($mintentry)) {
-            if($core->usergroup['crm_canManageMktInteldata'] == 1) {
+            if($core->usergroup['crm_canManageMktInteldata'] == 1 || $mintentry->createdBy == $core->user['uid']) {
                 $query = $db->delete_query('marketintelligence_basicdata', "mibdid='{$id}'");
                 if($query) {
                     output_xml("<status>true</status><message>{$lang->successfullydeleted}</message>");

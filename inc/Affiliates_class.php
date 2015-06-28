@@ -15,6 +15,8 @@ class Affiliates {
     const TABLE_NAME = 'affiliates';
     const DISPLAY_NAME = 'name';
 
+    private $charspec = '';
+
     public function __construct($id, $simple = TRUE) {
         if(empty($id)) {
             return false;
@@ -25,7 +27,7 @@ class Affiliates {
     private function read($id, $simple = TRUE) {
         global $db;
 
-        $query_select = 'affid, name, legalName, country, city, integrationOBOrgId, mainCurrency, isIntReinvoiceAffiliate';
+        $query_select = 'affid, name, legalName, country, city, integrationOBOrgId, mainCurrency, isIntReinvoiceAffiliate,alias';
         if($simple == false) {
             $query_select = '*';
         }
@@ -209,6 +211,58 @@ class Affiliates {
         }
         else {
             return Currencies::get_data(array('numCode' => $this->affiliate['mainCurrency']));
+        }
+    }
+
+    /**
+     *
+     */
+    public function get_chartspecs() {
+        return $this->charspec;
+    }
+
+    /**
+     * a simple tool to uploade the chart specs to the database
+     * @param type $affiliate obj
+     */
+    public function upload_chartspecs() {
+        global $db;
+        $charspec = $this->get_chartspecs();
+        if(!empty($charspec)) {
+            $charspec = serialize($charspec);
+            $affiliate = $this->get();
+            $affiliate['chartSpec'] = $charspec;
+            $query = $db->update_query('affiliates', $affiliate, 'affid = '.$affiliate['affid']);
+        }
+    }
+
+    /**
+     *
+     * @param array $data
+     */
+    public function set_chartspecs(array $data) {
+        $this->charspec = $data;
+    }
+
+    /**
+     * this function will get the char spec
+     * depending on the affiliate name and
+     * put it into the private var
+     */
+    public function match_charspec() {
+        switch($this->name) {
+            case 'Orkila South Africa':
+                $chartspec['chartspec']['width'] = "750";
+                $chartspec['chartspec']['height'] = "500";
+                $chartspec['class'] = $this->alias;
+                $this->set_chartspecs($chartspec);
+                break;
+            case 'Orkila Turkey':
+                $chartspec['chartspec']['width'] = "2200";
+                $chartspec['chartspec']['height'] = "1400";
+                $chartspec['class'] = $this->alias;
+                $this->set_chartspecs($chartspec);
+                break;
         }
     }
 

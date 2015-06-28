@@ -2,7 +2,7 @@
 /*
  * Orkila Central Online System (OCOS)
  * Copyright � 2009 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * Export Excel Class
  * $id: Excel_class.php
  * Created: 	@zaher.reda
@@ -11,9 +11,21 @@
 
 class Excel {
     private $data = array();
+    private $worksheets = '';
+    private $type = '';
 
+    /**
+     *
+     * @param type $type
+     * @param array $data
+     * @return boolean
+     */
     public function __construct($type, array $data) {
-        if($type == 'query') {
+        $this->set_type($type);
+        if($this->type == false) {
+            return false;
+        }
+        if($this->type == 'query') {
             $this->query_data($data);
         }
         else {
@@ -22,6 +34,31 @@ class Excel {
         $this->generate_file();
     }
 
+    /**
+     *
+     * @return type string
+     */
+    public function get_type() {
+        return $this->type;
+    }
+
+    /**
+     *
+     * @param type $type string
+     */
+    public function set_type($type) {
+        if(empty($type)) {
+            $this->type = false;
+        }
+        $this->type = $type;
+    }
+
+    /**
+     *
+     * @global type $db
+     * @param type $query_settings
+     * @return boolean
+     */
     private function query_data($query_settings) {
         global $db;
 
@@ -48,47 +85,82 @@ class Excel {
         }
     }
 
-    private function generate_file() {
-        $num_rows = count($this->data);
-        $num_cols = count($this->data[0]);
+    /**
+     * sets a single worksheet data depending on the type of the excel file (if query or html)
+     */
+    public function set_worksheet($data = '') {
+        if($this->type == 'query') {
+            $num_rows = count($this->data);
+            $num_cols = count($this->data[0]);
 
-        $header = "<Row ss:StyleID='s1'>";
-        if(is_array($this->data[0])) {
-            foreach($this->data[0] as $key => $val) {
-                $header .= "<Cell><Data ss:Type='String'>{$val}</Data></Cell>\n";
+            $header = "<Row ss:StyleID='s1'>";
+            if(is_array($this->data[0])) {
+                foreach($this->data[0] as $key => $val) {
+                    $header .= "<Cell><Data ss:Type='String'>{$val}</Data></Cell>\n";
+                }
             }
-        }
-        $header .= "</Row>\n";
+            $header .= "</Row>\n";
 
-        for($i = 1; $i < $num_rows; $i++) {
-            $row = "<Row>";
-            if(is_array($this->data[$i])) {
-                foreach($this->data[$i] as $key => $val) {
-                    if(empty($val) && $val != 0) {
-                        $val = "<Cell><Data ss:Type='String'>&nbsp;</Data></Cell>\n";
-                    }
-                    else {
-                        if(is_numeric($val)) {
-                            $data_type = "Number";
+            for($i = 1; $i < $num_rows; $i++) {
+                $row = "<Row>";
+                if(is_array($this->data[$i])) {
+                    foreach($this->data[$i] as $key => $val) {
+                        if(empty($val) && $val != 0) {
+                            $val = "<Cell><Data ss:Type='String'>&nbsp;</Data></Cell>\n";
                         }
                         else {
-                            $data_type = "String";
+                            if(is_numeric($val)) {
+                                $data_type = "Number";
+                            }
+                            else {
+                                $data_type = "String";
+                            }
+                            $val = "<Cell><Data ss:Type='{$data_type}'>".utf8_encode(htmlspecialchars($val))."</Data></Cell>\n";
                         }
-                        $val = "<Cell><Data ss:Type='{$data_type}'>".utf8_encode(htmlspecialchars($val))."</Data></Cell>\n";
+                        $row .= $val;
                     }
-                    $row .= $val;
+                    $content .= $row."</Row>\n";
                 }
-                $content .= $row."</Row>\n";
             }
+
+            $filename = "OCOS";
+
+            if(preg_match("/module=([A-Za-z\/]+)/i", $_SERVER['HTTP_REFERER'], $ref)) {
+                $ref = explode("/", $ref[1]);
+                $filename .= "-".ucfirst($ref[0]);
+            }
+            $this->worksheets.="<Worksheet ss:Name='{$filename}'>
+					<Table ss:ExpandedColumnCount='{$num_cols}' ss:ExpandedRowCount='{$num_rows}' x:FullColumns='1' x:FullRows='1'>
+						<Column ss:Index='1' ss:AutoFitWidth='1'/>
+						{$header}\n
+						{$content}
+					</Table>
+					<WorksheetOptions xmlns='urn:schemas-microsoft-com:office:excel'></WorksheetOptions>
+			</Worksheet>";
         }
+        elseif($this->type = "html") {
 
-        $filename = "OCOS";
+            $header = "<Row ss:StyleID='s1'>";
+            $header .= "</Row>\n";
+            $content = $data;
+            $filename = "OCOS";
 
-        if(preg_match("/module=([A-Za-z\/]+)/i", $_SERVER['HTTP_REFERER'], $ref)) {
-            $ref = explode("/", $ref[1]);
-            $filename .= "-".ucfirst($ref[0]);
+            if(preg_match("/module=([A-Za-z\/]+)/i", $_SERVER['HTTP_REFERER'], $ref)) {
+                $ref = explode("/", $ref[1]);
+                $filename .= "-".ucfirst($ref[0]);
+            }
+            $this->worksheets.="<Worksheet ss:Name='{$filename}'>
+					<Table x:FullColumns='1' x:FullRows='1'>
+						<Column ss:Index='1' ss:AutoFitWidth='1'/>
+						{$header}\n
+						{$content}
+					</Table>
+					<WorksheetOptions xmlns='urn:schemas-microsoft-com:office:excel'></WorksheetOptions>
+			</Worksheet>";
         }
+    }
 
+    private function generate_file() {
         header("Content-type: application/vnd.ms-excel");
         header("Content-Disposition: attachment; filename={$filename}.xls");
         header("Pragma: no-cache");
@@ -101,14 +173,14 @@ class Excel {
 			  xmlns:x='urn:schemas-microsoft-com:office:excel'
 			  xmlns:ss='urn:schemas-microsoft-com:office:spreadsheet'
 			  xmlns:html='http://www.w3.org/TR/REC-html40'>";
-        print "<DocumentProperties 
+        print "<DocumentProperties
 				 xmlns='urn:schemas-microsoft-com:office:office'>
 				  <Author>OCOS</Author>
 				  <Created>".date("Y-m-d", time())."</Created>
 				  <Company>ORKILA</Company>
 			  </DocumentProperties>";
 
-        print "<ExcelWorkbook 
+        print "<ExcelWorkbook
      			xmlns='urn:schemas-microsoft-com:office:excel'>
 					<WindowHeight>8535</WindowHeight>
 					<WindowWidth>12345</WindowWidth>
@@ -124,16 +196,8 @@ class Excel {
 						<Alignment ss:Horizontal='Center'/>
   					</Style>
 				</Styles>";
-
-        print "<Worksheet ss:Name='{$filename}'>
-					<Table ss:ExpandedColumnCount='{$num_cols}' ss:ExpandedRowCount='{$num_rows}' x:FullColumns='1' x:FullRows='1'>
-						<Column ss:Index='1' ss:AutoFitWidth='1'/>
-						{$header}\n
-						{$content}
-					</Table>
-					<WorksheetOptions xmlns='urn:schemas-microsoft-com:office:excel'></WorksheetOptions>
-			</Worksheet>
-		</Workbook>";
+        print $this->worksheets;
+        print "</Workbook>";
     }
 
 }

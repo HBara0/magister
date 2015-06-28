@@ -1,6 +1,7 @@
 <div class="ui-state-highlight ui-corner-all" style="padding-left: 5px; margin-bottom:10px;"><p><strong>Important: Fields in this stage, except the forecasts, are no longer editable. If you have any consideration about the numbers, please contact the auditor of the report.</strong></div>
 <form id="save_productsactivity_reporting/fillreport_Form" name="save_productsactivity_reporting/fillreport_Form" action="index.php?module=reporting/fillreport&amp;stage=marketreport" method="post">
     <input type="hidden" id="rid" name="rid" value="{$rid}">
+    <input type="hidden" id="transfill" name="transfill" value="{$transfill}">
     <input type="hidden" id="identifier" name="identifier" value="{$identifier}">
     <input type="hidden" id="numrows" name="numrows" value="{$productscount}">
     <input type="hidden" id="baseCurrency" name="baseCurrency" value="{$core->input[baseCurrency]}">
@@ -30,15 +31,14 @@
                 <td colspan="8">
                     <div style="float:left; width: 50%;">
                         <img src="images/add.gif" id="addmore_productsactivity_product" alt="{$lang->add}">
-                        <div id="save_productsactivity_reporting/fillreport_Results"></div>
                     </div>
                     <div style="margin-top: 6px; float:right; width:40%; text-align: right">
                        <!-- <input type="button" value="{$lang->prevcaps}" class="button" onClick="javascript:history.go(-1);"/>-->
+                        <input type="hidden" id="previewed_value" name="previewed_productsactiviy">
                         <input type="submit" id="save_productsactivity_reporting/fillreport_Button" value="{$lang->savecaps}" class="button"/>
-                        <input type="button" value="{$lang->preview}" class="button" onClick="window.open('index.php?module=reporting/preview&amp;rid={$rid}', '_blank');" /> <br/>
+                        <input type="button" value="{$lang->preview}" id="previewed_button" class="button"/> <br/>
                        <!-- <input type="button" value="{$lang->nextcaps}" id="showpopup_fillreportsconfirmnosave" class="button showpopup" />
                         -->
-                        {$exludestage}
                     </div>
                 </td>
             </tr>

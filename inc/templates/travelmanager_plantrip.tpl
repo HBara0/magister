@@ -257,6 +257,15 @@
                         }
                     }
                 });
+                $('input[type="number"]').live('keyup', function () {
+                    if(typeof $(this).attr('max') != typeof undefined) {
+                        if($(this).attr('max').length > 0) {
+                            if(parseInt($(this).val(), 10) > parseInt($(this).attr('max'), 10)) {
+                                $(this).val($(this).attr('max'));
+                            }
+                        }
+                    }
+                });
                 $('input[id^="purposes_checks_"]').live('change', function () {
                     var id = $(this).attr('id').split('_');
                     var empty = 1;
@@ -304,7 +313,7 @@
         <td class="contentContainer" colspan="2">
             <h1>{$lang->plantrip}</h1>
             {$leave_ouput}
-            <form name="perform_travelmanager/plantrip_Form" id="perform_travelmanager/plantrip_Form" novalidate action="#" method="post">
+            <form name="perform_travelmanager/plantrip_Form" id="perform_travelmanager/plantrip_Form" action="#" method="post">
                 <div style='margin-top: 10px; '>
                     <a id="createtab" class="showpopup" href="#"><img border="0" alt="{$lang->addsegment}" src="images/addnew.png"> {$lang->addsegment}</a>
                 </div>

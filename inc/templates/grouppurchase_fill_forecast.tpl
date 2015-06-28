@@ -3,23 +3,41 @@
         <title>{$core->settings[systemtitle]} | {$lang->quantitiesforecast}</title>
         {$headerinc}
         <script type="text/javascript">
-            $(function () {
-                $("input[id^='forecastline_']").live('change keyup live', function () {
+            $(function() {
+
+                $("select[id^='forecastline_']").each(function() {
+                    var id = $(this).attr('id').split("_");
+                    $('input[id=forecastline_nextyear_' + id[1] + '_saleType]').val($('select[id^=forecastline_][id$=' + id[1] + '_saleType]').val());
+                });
+
+
+                $("input[id^='forecastline_']").live('change keyup live', function() {
                     var id = $(this).attr('id').split("_");
                     var total = 0;
                     var monthtotal = 0;
-                    $('input[id^=forecastline_' + id[1] + '_month]').each(function () {
+                    $('input[id^=forecastline_' + id[1] + '_month]').each(function() {
                         if(!jQuery.isEmptyObject(this.value)) {
                             total += parseFloat(this.value);
                         }
                     });
                     $('span[id=total_' + id[1] + ']').text(total.toFixed(2));
-                    $('input[id^=forecastline_][id$=_month_' + id[3] + ']').each(function () {
+                    $('input[id^=forecastline_][id$=_month_' + id[3] + ']').each(function() {
                         if(!jQuery.isEmptyObject(this.value)) {
                             monthtotal += parseFloat(this.value);
                         }
                     });
                     $('span[id=forecastline_total_' + id[2] + id[3] + ']').text(monthtotal.toFixed(2));
+                });
+
+                $('input[id^=product_noexception_][id$=autocomplete]').live('change', function() {
+                    var id = $(this).attr('id').split("_");
+                    $('input[id=forecastline_nextyear_' + id[2] + '_pid]').val($('input[id^=product_noexception_' + id[2] + '_id]').val());
+                });
+
+
+                $('select[id^=forecastline_][id$=_saleType]').live('change', function() {
+                    var id = $(this).attr('id').split("_");
+                    $('input[id=forecastline_nextyear_' + id[1] + '_saleType]').val($('select[id^=forecastline_][id$=' + id[1] + '_saleType]').val());
                 });
             });
         </script>
@@ -38,21 +56,29 @@
                 <table width="100%" border="0" cellspacing="0" cellpadding="2">
                     <thead>
                         <tr>
-                            <td class=" border_right" align="center" rowspan="2" valign="top" align="left" style="width:50px;">{$lang->delete}</td>
+                            <td colspan="2"></td>
+                            <td colspan="{$curryear_countmonths}" class="yellowbackground" style="text-align: center;">
+                                {$currentyear}
+                            </td>
+                            <td colspan="{$nextyear_countmonths}" class="altrow2" style="text-align: center">
+                                {$nextyear}
+                            </td>
+                        </tr>
+                        <tr>
                             <td class=" border_right" align="center" rowspan="2" valign="top" align="left">{$lang->product}<a href="index.php?module=contents/addproducts&amp;referrer=budgeting" target="_blank"><img src="images/addnew.png" border="0" alt="{$lang->add}"></a></td>
                             <td class=" border_right" align="center" rowspan="2" valign="top" align="left">{$lang->saletype}</td>
-                            <td class=" border_right" align="center" rowspan="2" valign="top" align="left">{$lang->january}</td>
-                            <td class=" border_right" align="center" rowspan="2" valign="top" align="left">{$lang->february}</td>
-                            <td class=" border_right" align="center" rowspan="2" valign="top" align="left">{$lang->march}</td>
-                            <td class=" border_right" align="center" rowspan="2" valign="top" align="left">{$lang->april}</td>
-                            <td class=" border_right" align="center" rowspan="2" valign="top" align="left">{$lang->may}</td>
-                            <td class=" border_right" align="center" rowspan="2" valign="top" align="left">{$lang->june}</td>
-                            <td class=" border_right" align="center" rowspan="2" valign="top" align="left">{$lang->july}</td>
-                            <td class=" border_right" align="center" rowspan="2" valign="top" align="left">{$lang->august}</td>
-                            <td class=" border_right" align="center" rowspan="2" valign="top" align="left">{$lang->september}</td>
-                            <td class=" border_right" align="center" rowspan="2" valign="top" align="left">{$lang->october}</td>
-                            <td class=" border_right" align="center" rowspan="2" valign="top" align="left">{$lang->november}</td>
-                            <td class=" border_right" align="center" rowspan="2" valign="top" align="left">{$lang->december}</td>
+                            <td class=" border_right" align="center" rowspan="2" valign="top" align="left">{$mon1}</td>
+                            <td class=" border_right" align="center" rowspan="2" valign="top" align="left">{$mon2}</td>
+                            <td class=" border_right" align="center" rowspan="2" valign="top" align="left">{$mon3}</td>
+                            <td class=" border_right" align="center" rowspan="2" valign="top" align="left">{$mon4}</td>
+                            <td class=" border_right" align="center" rowspan="2" valign="top" align="left">{$mon5}</td>
+                            <td class=" border_right" align="center" rowspan="2" valign="top" align="left">{$mon6}</td>
+                            <td class=" border_right" align="center" rowspan="2" valign="top" align="left">{$mon7}</td>
+                            <td class=" border_right" align="center" rowspan="2" valign="top" align="left">{$mon8}</td>
+                            <td class=" border_right" align="center" rowspan="2" valign="top" align="left">{$mon9}</td>
+                            <td class=" border_right" align="center" rowspan="2" valign="top" align="left">{$mon10}</td>
+                            <td class=" border_right" align="center" rowspan="2" valign="top" align="left">{$mon11}</td>
+                            <td class=" border_right" align="center" rowspan="2" valign="top" align="left">{$mon12}</td>
                             <td class=" border_right" align="center" rowspan="2" valign="top" align="left" style="font-weight:bold">{$lang->total}</td>
                         </tr>
                     </thead>

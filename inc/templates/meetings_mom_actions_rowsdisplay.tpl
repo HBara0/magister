@@ -1,14 +1,14 @@
 <tr>
     <td style="width:20%;">
-        <strong>{$lang->what}</strong><br/>
-        <span>{$actions_data[what]}</span>
-    </td>
-    <td style="width:20%;">
-        <strong>{$lang->when} </strong><br/>
+        <strong>{$lang->duedate} </strong><br/>
         <span>{$actions_data[date_otput]}</span>
     </td>
-    <td style="width:30%;">
+    <td style="width:20%;">
         <span class="subtitle">{$istask}</span>
+    </td>
+    <td style="width:30%;" rowspan="2">
+        <strong>{$lang->what}</strong><br/>
+        <span>{$actions_data[what]}</span>
     </td>
 </tr>
 <tr style="width:100%;">

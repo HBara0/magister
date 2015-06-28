@@ -31,13 +31,22 @@ if(!$core->input['action']) {
             foreach($endproducts_objs as $endproducts_obj) {
                 if(is_array($entbrandprod_objs)) {
                     $endprod_link = $endproducts_obj->parse_link();
-                    foreach($entbrandprod_objs as $entbrandprod_obj) {
-                        if($entbrandprod_obj->ebid == $ebid) {
-                            $endprod_link .= '&emsp;&emsp;&emsp;&emsp;<a style="vertical-align: top;text-align: left;" target="_blank" title="Branded End Product" href="'.$core->settings['rootdir'].'/index.php?module=profiles/brandprofile&amp;ebpid='.$entbrandprod_obj->ebpid.'"><img src="'.$core->settings['rootdir'].'/images/right_arrow.gif"/></a><small>(Go To Related Branded End Product)</small>';
+                    $entbrandprod_obj = EntBrandsProducts::get_data(array(EndProducTypes::PRIMARY_KEY => $endproducts_obj->get_id(), EntitiesBrands::PRIMARY_KEY => $ebid));
+                    $characteristic_output = '';
+                    if(is_object($entbrandprod_obj)) {
+                        $characteristic = $entbrandprod_obj->get_charactersticvalue();
+                        if(is_object($characteristic)) {
+                            $characteristic_output = ' <small>('.$characteristic->get_displayname().')</small>';
                         }
                     }
+                    //foreach($entbrandprod_objs as $entbrandprod_obj) {
+                    //  if($entbrandprod_obj->ebid == $ebid) {
+                    $endprod_link .=$characteristic_output.'<div style="float:right;"><a style="vertical-align: top;text-align: left;" target="_blank" title="Branded End Product" href="'.$core->settings['rootdir'].'/index.php?module=profiles/brandprofile&amp;ebpid='.$entbrandprod_obj->ebpid.'"><small>Or Go to Related Branded End Product</small> <img src="'.$core->settings['rootdir'].'/images/right_arrow.gif"/></a></div>';
+                    //break;
+                    //}
+                    //}
                 }
-                $endproduct_rows.='<tr><td>'.$endprod_link.'</td></tr>';
+                $endproduct_rows .= '<tr><td>'.$endprod_link.'</td></tr>';
                 $itemscount['endproducts'] ++;
             }
         }
@@ -70,7 +79,7 @@ if(!$core->input['action']) {
                     continue;
                 }
                 $itemscount['chemicals'] ++;
-                $chemicalsubstances_rows.='<tr><td>'.$chemfuncobj->get_chemicalsubstance()->parse_link().'</td></tr>';
+                $chemicalsubstances_rows .= '<tr><td>'.$chemfuncobj->get_chemicalsubstance()->parse_link().'</td></tr>';
             }
         }
         if(empty($chemicalsubstances_rows)) {
@@ -133,12 +142,19 @@ if(!$core->input['action']) {
         }
         $endproduct_type = $entbrandprod_obj->get_endproduct();
         $entitybrand = $entbrandprod_obj->get_entitybrand();
-        $page_title_header = $entitybrand->parse_link().'/'.$endproduct_type->parse_link();
+        $characteristic = $entbrandprod_obj->get_charactersticvalue();
+        $characteristic_output = $characteristic->get_id();
+        if(!empty($characteristic_output)) {
+            $characteristic_output = ' ('.$characteristic->get_displayname().')';
+        }
+
+        $page_title_header = $entitybrand->parse_link().'/'.$endproduct_type->parse_link().$characteristic_output;
         $page_title = $entitybrand->get_displayname().$endproduct_type->get_displayname();
         $customer = $entitybrand->get_entity();
         if(is_object($customer)) {
             $customername = $customer->parse_link();
         }
+
         $group = array('cfcid', 'cfpid', 'biid');
         $query = $db->query("SELECT * FROM (SELECT * FROM ".Tprefix."marketintelligence_basicdata WHERE ebpid='{$ebpid}' ORDER BY createdOn DESC)as sorteddata GROUP BY cfcid,cfpid,biid");
         if($db->num_rows($query) > 0) {
@@ -219,6 +235,10 @@ if(!$core->input['action']) {
         if($core->usergroup['canManageProducts'] == 1) {
             $mkdchem_rowid = $mkdprod_rowid = $mkdbing_rowid = 1;
             $clone_button = "<span> <a style='cursor: pointer;' class='showpopup' href='#' id='showpopup_clonebrandprod'><img src='".$core->settings['rootdir']."/images/addnew.png' title='".$lang->cloneentitybrand."' alt='Add' border='0'>".$lang->cloneentitybrand."</a> </span>";
+
+            $characteristics = ProductCharacteristicValues::get_data(null, array('returnarray' => true, 'order' => ProductCharacteristicValues::DISPLAY_NAME));
+            $characteristics_list = parse_selectlist('pcvid', 4, $characteristics, null, 0, null, array('blankstart' => true));
+
             eval("\$pop_clone = \"".$template->get('popup_clonebrandprod')."\";");
         }
         eval("\$products_list = \"".$template->get('profiles_brands_productslist')."\";");
@@ -256,7 +276,8 @@ else {
             exit;
         }
         $brandprod['eptid'] = $core->input['endproduct'];
-        $brandprod_obj = EntBrandsProducts::get_data(array('eptid' => $brandprod['eptid'], 'ebid' => $brandprod['ebid']));
+        $brandprod['pcvid'] = $core->input['pcvid'];
+        $brandprod_obj = EntBrandsProducts::get_data(array('pcvid' => $brandprod['pcvid'], 'eptid' => $brandprod['eptid'], 'ebid' => $brandprod['ebid']));
         if(is_object($brandprod_obj)) {
             $brandprod['ebpid'] = $brandprod_obj->ebpid;
         }

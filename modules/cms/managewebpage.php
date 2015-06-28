@@ -63,6 +63,13 @@ else {
                 break;
         }
     }
+    elseif($core->input['action'] == 'togglepublish') {
+        if($core->usergroup['cms_canPublishNews'] == 1 && !empty($core->input['id'])) {
+            $page = new CmsPages($core->input['id']);
+            $db->update_query('cms_pages', array('isPublished' => !$page->isPublished), 'cmspid='.intval($core->input['id']));
+        }
+        redirect('index.php?module=cms/listwebpages');
+    }
     elseif($core->input['action'] == 'do_uploadtmpimage') {
         $filepath = './tmp/';
 

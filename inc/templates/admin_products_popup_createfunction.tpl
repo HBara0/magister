@@ -5,7 +5,8 @@
         <input type="hidden" name="chemicalfunctions[name]" value="{$function->name}" />
         <table cellpadding='0' cellspacing='0' width='100%'>
             <tr>
-                <td width="40%"><strong>{$lang->name}</strong></td><td><input name="chemicalfunctions[title]" type="text" value="{$function->title}"/></td>
+                <td><strong>{$lang->name}</strong></td><td><input name="chemicalfunctions[title]" type="text" value="{$function->title}"/>
+                    <strong>{$lang->publishonweborunpub}</strong>{$publishonwebsite}</td>
             </tr>
             <tr>
                 <td><strong>{$lang->applications}</strong></td><td><select name="chemicalfunctions[segapplications][]" multiple="true">{$applications_list}</select></td>

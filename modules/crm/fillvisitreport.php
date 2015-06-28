@@ -139,6 +139,8 @@ if(!$core->input['action']) {
                 $packaging_list = parse_selectlist('marketdata[competitor]['.$rowid.'][packaging]', 7, Packaging::get_data('name IS NOT NULL'), '', '', '', array('blankstart' => 1));
                 $saletype_list = parse_selectlist('marketdata[competitor]['.$rowid.'][saletype]', 8, SaleTypes::get_data('stid IN (1,4)'), '', '', '', array('blankstart' => 1));
                 $samplacquire = parse_radiobutton('marketdata[competitor]['.$rowid.'][isSampleacquire]', array(1 => 'yes', 0 => 'no'), '', true);
+                $characteristics = ProductCharacteristicValues::get_data(null, array('returnarray' => true));
+                $characteristics_list = parse_selectlist('entitybrand[pcvid]', 4, $characteristics, null, 0, null, array('blankstart' => true));
                 eval("\$popup_marketdata= \"".$template->get('popup_profiles_marketdata')."\";");
                 eval("\$popup_createbrand = \"".$template->get('popup_createbrand')."\";");
                 eval("\$mkintl_section = \"".$template->get('profiles_mktintelsection')."\";");
@@ -150,12 +152,12 @@ if(!$core->input['action']) {
                 $brandsproducts = $entity->get_brandsproducts();
                 $output = '';
                 if(is_array($brandsproducts)) {
-                    foreach($brandsproducts as $brandproduct) {
-                        $brandproduct_brand = $brandproduct->get_entitybrand();
-                        $brandproduct_productype = $brandproduct->get_endproduct();
-                        $options[$brandproduct->ebpid] = $brandproduct_brand->name;
+                    foreach($brandsproducts as $brandproduct_obj) {
+                        $brandproduct_brand = $brandproduct_obj->get_entitybrand();
+                        $brandproduct_productype = $brandproduct_obj->get_endproduct();
+                        $options[$brandproduct_obj->ebpid] = $brandproduct_brand->name;
                         if(is_object($brandproduct_productype)) {
-                            $options[$brandproduct->ebpid] .= ' - '.$brandproduct_productype->title;
+                            $options[$brandproduct_obj->ebpid] .= ' - '.$brandproduct_productype->title;
                         }
 
                         eval("\$brandsendproducts .= \"".$template->get('profiles_entityprofile_brandsproducts')."\";");
@@ -186,6 +188,8 @@ if(!$core->input['action']) {
                         $endproducttypes_list .= '<td><input id="producttypefilter_check_'.$key.'" type="checkbox"'.$checked.' value="'.$key.'" name="entitybrand[endproducttypes]['.$key.']">'.$value.'</td><tr>';
                     }
                 }
+                $characteristics = ProductCharacteristicValues::get_data(null, array('returnarray' => true));
+                $characteristics_list = parse_selectlist('entitybrand[pcvid]', 4, $characteristics, null, 0, null, array('blankstart' => true));
                 eval("\$popup_createbrand = \"".$template->get('popup_createbrand')."\";");
                 eval("\$popup_marketdata = \"".$template->get('popup_profiles_marketdata')."\";");
             }

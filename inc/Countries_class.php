@@ -111,10 +111,20 @@ class Countries extends AbstractClass {
         $countries = self::get_countries('name IS NOT NUll');
         if(is_array($countries)) {
             foreach($countries as $country) {
-                $phonecodes[$country->phoneCode] = $country->phoneCode;
+                $phonecodes[$country->phoneCode] = $country->get_displayname().' (+'.$country->phoneCode.')';
             }
         }
         return $phonecodes;
+    }
+
+    public function get_approvedhotels() {
+        return TravelManagerHotels::get_data(array('country' => $this->data['coid'], 'isApproved' => 1), array('returnarray' => true));
+    }
+
+    public function get_livedata() {
+        $url = 'https://restcountries.eu/rest/v1/all';
+        $response = file_get_contents($url);
+        return $response;
     }
 
 }

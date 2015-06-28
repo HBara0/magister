@@ -15,6 +15,8 @@ $lang['affiliatesupervisor'] = "Affiliate supervisor";
 $lang['affiliatehr'] = "Affiliate HR";
 $lang['mailinglistaddress'] = "Mailing list address";
 
+$lang['updatecountrydata'] = "Update Country Phone Codes And Capital City";
+
 $lang['noaffiliatesavailable'] = "No affiliates are yet available";
 $lang['erroraddingaffiliate'] = "An error occured while adding the affiliate";
 $lang['affiliateadded'] = "Affiliate {1} was added successfully";
@@ -31,4 +33,10 @@ $lang['acronym'] = "Acronym";
 $lang['update'] = "Update";
 $lang['successfullysaved'] = "Successfully Saved";
 $lang['fillallrequiredfields'] = "Fill All Required Fields";
+$lang['editaff'] = "Edit Affiliate";
+$lang['save'] = "Save";
+$lang['chartspec'] = "Related Chart Specification";
+$lang['width'] = "Width";
+$lang['height'] = "Height";
+$lang['cssclassname'] = "CSS Class Name";
 ?>

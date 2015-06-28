@@ -25,6 +25,14 @@ class Reporting {
         }
     }
 
+    public function get_report_supplier_audits() {
+        global $db;
+        return $db->fetch_assoc($db->query("SELECT u.uid,displayName AS employeeName, u.email
+			FROM ".Tprefix."users u
+			JOIN ".Tprefix."suppliersaudits sa ON (sa.uid=u.uid)
+			WHERE sa.eid=".$this->report['spid'].""));
+    }
+
     protected function get_report_byinfo($reportdata = array()) {
         global $db;
 

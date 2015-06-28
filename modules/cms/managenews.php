@@ -61,6 +61,8 @@ if(!$core->input['action']) {
         $publish_news = '<div style="display:table-cell;">'.$lang->publish.'</div><div style="display: table-cell; padding:10px;"><input name="news[isPublished]" type="checkbox" value=1"{$checkboxes[isPublished]}"></div>';
     }
 
+    $robots_list = parse_selectlist('news[robotsRule]', 1, array("INDEX,FOLLOW" => "INDEX,FOLLOW", "NOINDEX,FOLLOW" => "NOINDEX,FOLLOW", "INDEX,NOFOLLOW" => "INDEX,NOFOLLOW", "NOINDEX,NOFOLLOW" => "NOINDEX,NOFOLLOW"), 0);
+
     eval("\$addnews =\"".$template->get('cms_news_add')."\";");
     output_page($addnews);
 }
@@ -99,13 +101,20 @@ else {
         }
         ?>
         <script language="javascript" type="text/javascript">
-            $(function() {
+            $(function () {
                 top.$("#upload_Result").html("<span class='<?php echo $output_class;?>'><?php echo $output_message;?></span>");
             });
         </script>
         <?php
     }
-    elseif($core->input['action'] = 'do_uploadtmpimage') {
+    elseif($core->input['action'] == 'togglepublish') {
+        if($core->usergroup['cms_canPublishNews'] == 1 && !empty($core->input['id'])) {
+            $news = new CmsNews($core->input['id'], false);
+            $db->update_query(CmsNews::TABLE_NAME, array('isPublished' => !$news->isPublished), CmsNews::PRIMARY_KEY.'='.intval($core->input['id']));
+        }
+        redirect('index.php?module=cms/listnews');
+    }
+    elseif($core->input['action'] == 'do_uploadtmpimage') {
         $filepath = './tmp/';
 
         $allowed_types = array('image/jpeg', 'image/gif', 'image/png');

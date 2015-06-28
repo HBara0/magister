@@ -71,6 +71,14 @@ class ProductsActivity extends AbstractClass {
         }
     }
 
+    public function get_product() {
+        $product = new Products($this->data['pid']);
+        if(is_object($product)) {
+            return $product;
+        }
+        return false;
+    }
+
     public function aggregate_relatedbudgetlines($config = array()) {
         global $db;
         if(!isset($config['aggregatebm'])) {
