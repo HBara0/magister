@@ -61,6 +61,8 @@ if(!$core->input['action']) {
         $publish_news = '<div style="display:table-cell;">'.$lang->publish.'</div><div style="display: table-cell; padding:10px;"><input name="news[isPublished]" type="checkbox" value=1"{$checkboxes[isPublished]}"></div>';
     }
 
+    $robots_list = parse_selectlist('news[robotsRule]', 1, array("INDEX,FOLLOW" => "INDEX,FOLLOW", "NOINDEX,FOLLOW" => "NOINDEX,FOLLOW", "INDEX,NOFOLLOW" => "INDEX,NOFOLLOW", "NOINDEX,NOFOLLOW" => "NOINDEX,NOFOLLOW"), 0);
+
     eval("\$addnews =\"".$template->get('cms_news_add')."\";");
     output_page($addnews);
 }
