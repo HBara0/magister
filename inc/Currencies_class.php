@@ -413,7 +413,7 @@ class Currencies extends AbstractClass {
         $newfx_query = $db->insert_query('currencies_fxrates', $new_fx_rate);
     }
 
-    public function save_fx_rate_fromsource($source, $basecurrency, $currency) {
+    public function save_fx_rate_fromsource($source, $basecurrency, $currency, $rateproperty = 'rate') {
         if(is_empty($basecurrency, $currency, $source)) {
             return false;
         }
@@ -433,8 +433,10 @@ class Currencies extends AbstractClass {
 
         $data = json_decode($data, true);
         //$rate = explode(' ', $data['rhs']);
-
-        $this->set_fx_rate($basecurrency, $currency, $data['rate']);
+        if(is_array($data[$rateproperty])) {
+            $data[$rateproperty] = current($data[$rateproperty]);
+        }
+        $this->set_fx_rate($basecurrency, $currency, $data[$rateproperty]);
     }
 
     private function load_fx_rates($source) {
