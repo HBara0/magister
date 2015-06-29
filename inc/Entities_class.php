@@ -476,7 +476,7 @@ class Entities extends AbstractClass {
             }
         }
 
-        $query = $db->insert_query('representatives', array('name' => ucwords(strtolower($this->data['repName'])), 'email' => $this->data['repEmail'], 'phone' => $this->data['repTelephone'], 'isSupportive' => $this->data['isSupportive'], 'position' => $this->data['repPosition']));
+        $query = $db->insert_query('representatives', array('name' => ucwords(strtolower($this->data['repName'])), 'email' => $this->data['repEmail'], 'phone' => $this->data['repTelephone'], 'isSupportive' => $this->data['isSupportive']));
         if($query) {
             $rpid = $db->last_id();
             if(isset($this->data['repcid'])) {
@@ -487,6 +487,9 @@ class Entities extends AbstractClass {
                 $db->insert_query('entitiesrepresentatives', array('eid' => $this->data['repspid'], 'rpid' => $rpid));
             }
 
+            if(isset($this->data['repPosition']) && !empty($this->data['repPosition'])) {
+                $db->insert_query(RepresentativePositions::TABLE_NAME, array('rpid' => $rpid, 'posid' => $this->data['repPosition']));
+            }
             $this->status = true;
         }
         else {
