@@ -15,7 +15,7 @@
                 <div style="display:inline-block">{$lang->meeting}:{$meeting_list}
                     <div style="display:{$display};">
                         <input type='text' id='meetingsNoMom_autocomplete' autocomplete='off' size='30px'/>
-                        <input type='hidden' id='meetingsNoMom_id' name='mof[mtid]' value="{}"/>
+                        <input type='hidden' id='meetingsNoMom_id' name='mof[mtid]' value="{$meeting['mtid']}"/>
                         <div id='searchQuickResults_meetingsNoMom' class='searchQuickResults' style='display:none;'></div>
                     </div>
                 </div>
