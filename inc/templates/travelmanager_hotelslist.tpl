@@ -16,7 +16,7 @@
                             <th style="width:25%;">{$lang->name} </th>
                             <th style="width:20%;">{$lang->city}</th>
                             <th style="width:20%;">{$lang->country}</th>
-                            <th style="width:15%;">{$lang->isapproved}<a href="{$sort_url}&amp;sortby=isApproved&amp;order=ASC"><img src="./images/sort_asc.gif" border="0" alt="{$lang->sortasc}"/></a><a href="{$sort_url}&amp;sortby=isApproved&amp;order=DESC"><img src="./images/sort_desc.gif" border="0"  alt="{$lang->sortdesc}"/></a></th>
+                            <th style="width:15%;">{$lang->isapproved}</th>
                             <th style="width:20%;">{$lang->avgprice}</th>
                         </tr>
                         <tr>
