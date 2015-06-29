@@ -363,6 +363,7 @@ class EndProducTypes extends AbstractClass {
             foreach($endproducttypes as $endproduct) {
                 $endproducttodelete = $endproduct->delete_endproducttype($endproduct->eptid);
                 if(!$endproducttodelete) {
+                    $this->errorcode = 3;
                     return false;
                 }
             }

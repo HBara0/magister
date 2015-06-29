@@ -621,7 +621,7 @@ class Sourcing {
 												FROM ".Tprefix."sourcing_suppliers_activityareas ssaa
 												JOIN ".Tprefix."countries co ON (co.coid=ssaa.coid)
 												JOIN ".Tprefix."affiliates aff ON (aff.affid=co.affid)
-												WHERE aff.affid IN ('".implode(',', $core->user['affiliates'])."') AND ssaa.ssid= ".$db->escape_string($supplier_id));
+												WHERE aff.affid IN (".implode(',', $core->user['affiliates']).") AND ssaa.ssid= ".$db->escape_string($supplier_id));
 
             if($db->num_rows($activityarea_query) > 0) {
                 $suppliers_query = $db->query("SELECT ssp.psid

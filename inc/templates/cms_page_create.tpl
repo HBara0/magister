@@ -15,7 +15,7 @@
                     <div style="display:block;width:100%;">
                         <div style="display:inline-block; padding:11px;">{$lang->title}</div>
                         <div style="display:inline-block; padding:11px;">
-                            <input type="text" name="page[title]"   size="40" required="required" value="{$page[title]}"/>
+                            <input type="text" name="page[title]" size="100" required="required" value="{$page[title]}"/>
                         </div>
                     </div>
                     <div style="display:block;">
@@ -51,6 +51,10 @@
                     <div style="display:block;" class="thead"> {$lang->pagetext}</div>
                     <div style="display:block;"><textarea name="page[bodyText]" id='bodyText' cols="90" class="txteditadv" rows="25">{$page[bodyText]}</textarea>  <input type="hidden" name="page[uploadedImages]" id="uploadedImages" value="{$page[uploadedImages]}">
                     </div>
+                    <div style="display:block;">
+                        <div style="display:inline-block; padding:11px;">{$lang->banner}Banner</div>
+                        <div style="display:inline-block; padding:11px;"><input type="text" name="page[pageHeaderBkg]" value="{$page[pageHeaderBkg]}" size="100"></div>
+                    </div>
                     <div class="thead" style="margin-top:8px;">{$lang->metadata}</div>
                     <div style="display:block;">
                         <div style="display:inline-block; padding:11px;">{$lang->metadesc}</div>
@@ -71,9 +75,7 @@
                     <div style="display:block;">
                         <div style="display:inline-block; padding:11px;"><input type="submit" class="button" value="{$actiontype}" id="perform_cms/managewebpage_Button"/></div>
                         <div style="display:inline-block; padding:11px;"><input type="reset" class="button" value="{$lang->reset}"/></div>
-
                     </div>
-
                 </form>
                 <div style="display:block;">
                     <div style="display:inline-block; padding:11px;" id="perform_cms/managewebpage_Results"></div>
