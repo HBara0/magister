@@ -33,6 +33,9 @@ class Countries extends AbstractClass {
      * @return \Currencies Country main currency
      */
     public function get_maincurrency() {
+        if(empty($this->data['mainCurrency'])) {
+            return null;
+        }
         return new Currencies($this->data['mainCurrency']);
     }
 
