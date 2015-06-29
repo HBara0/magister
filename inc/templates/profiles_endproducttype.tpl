@@ -9,8 +9,8 @@
         </style>
         <script src="{$core->settings[rootdir]}/js/jquery.rateit.min.js" type="text/javascript"></script>
         <script type="text/javascript">
-            $(function() {
-                $("a[id^='loadentityusers_'],a[id^='loadallusers_']").click(function() {
+            $(function () {
+                $("a[id^='loadentityusers_'],a[id^='loadallusers_']").click(function () {
                     if(sharedFunctions.checkSession() == false) {
                         return;
                     }
@@ -41,6 +41,7 @@
                 <tr>
                     <td colspan="2"><h1>{$profile[title]}</h1></td>
                 </tr>
+                <tr><td colspan="2"><h4>{$details}</h4></td></tr>
                 <tr>
                     <td>
                         <h2>{$application}/{$segment}</h2>

@@ -35,7 +35,7 @@ class EntitiesBrands extends AbstractClass {
                 $this->errorcode = 1;
                 return false;
             }
-            if(value_exists('entitiesbrands', 'name', $this->data['name'], 'eid!='.intval($this->data['eid']))) {
+            if(value_exists('entitiesbrands', 'name', $this->data['name'], 'eid='.$core->input['entitybrand']['eid'])) {
                 $this->errorcode = 2;
                 return false;
             }

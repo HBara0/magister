@@ -124,8 +124,12 @@ class SystemTables extends AbstractClass {
                 $column_names[] = $column_obj->columnDbName;
             }
         }
-        $primary_key = implode(',', $primarykey);
-        $unique_attrs = implode(',', $uniques);
+        if(!empty($primarykey)) {
+            $primary_key = implode(',', $primarykey);
+        }
+        if(!empty($uniques)) {
+            $unique_attrs = implode(',', $uniques);
+        }
         /* check if we want the definition */
         if($view_definition == 1 || $overwrite == 1) {
             /* Parse columns for CREATE AND UPDATE-START */

@@ -154,4 +154,5 @@ $lang['mainemail'] = 'Main Email';
 $lang['fax'] = 'Fax';
 $lang['averageprice'] = 'Average Price';
 $lang['mgmtreview'] = 'Management Review';
+$lang['notapproved'] = 'Not Approved';
 ?>

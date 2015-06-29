@@ -28,7 +28,8 @@ if(!$core->input['action']) {
             error($lang->sectionnopermission);
         }
         $display = "none";
-        $meeting_list = '<input type="hidden" value="'.$meeting['mtid'].'" name="mof[mtid]" /><strong><a href="index.php?module=meetings/viewmeeting&mtid='.$meeting['mtid'].'" target="_blank">'.$meeting['title'].' | '.$meeting['location'].'</a></strong>';
+        //<input type="hidden" value="'.$meeting['mtid'].'" name="mof[mtid]" />
+        $meeting_list = '<strong><a href="index.php?module=meetings/viewmeeting&mtid='.$meeting['mtid'].'" target="_blank">'.$meeting['title'].' | '.$meeting['location'].'</a></strong>';
 
         if($meeting['hasMoM'] == 1) {
             $action = 'edit';
@@ -160,7 +161,7 @@ if(!$core->input['action']) {
         /* parse Attachments ---END */
     }
 
-    $share_meeting .= ' <a href="#" id="sharemeeting_'.$meeting['mtid'].'_meetings/minutesmeeting_loadpopupbyid" rel="share_'.$meeting['mtid'].'" title="'.$lang->sharewith.'"><img src="'.$core->settings['rootdir'].'/images/icons/sharedoc.png" alt="'.$lang->sharewith.'" border="0"></a>';
+    $share_meeting .= ' <a href="#" id="sharemeeting_'.$meeting['mtid'].'_meetings/list_loadpopupbyid" rel="share_'.$meeting['mtid'].'" title="'.$lang->sharewith.'"><img src="'.$core->settings['rootdir'].'/images/icons/sharedoc.png" alt="'.$lang->sharewith.'" border="0"></a>';
 
     eval("\$setminutesmeeting = \"".$template->get('meetings_minutesofmeetings')."\";");
     output_page($setminutesmeeting);
@@ -244,58 +245,5 @@ elseif($core->input['action'] == 'ajaxaddmore_actionsrepresentatives') {
     $reprowid = $db->escape_string($core->input['value']) + 1;
     eval("\$actions_representatives_rows .= \"".$template->get('meetings_mom_actions_representatives')."\";");
     echo $actions_representatives_rows;
-}
-else {
-    if($core->input['action'] == 'get_sharemeeting') {
-        $mtid = $db->escape_string($core->input['id']);
-
-        $affiliates_users = Users::get_allusers();
-        $meeting_obj = new Meetings($mtid);
-        $shared_users = $meeting_obj->get_shared_users();
-        if(is_array($shared_users)) {
-            foreach($shared_users as $uid => $user) {
-                $user = $user->get();
-                $checked = ' checked="checked"';
-                $rowclass = 'selected';
-
-                eval("\$sharewith_rows .= \"".$template->get('popup_meetings_sharewith_rows')."\";");
-            }
-        }
-
-        foreach($affiliates_users as $uid => $user) {
-            $user = $user->get();
-            $checked = $rowclass = '';
-            if($uid == $core->user['uid']) {
-                continue;
-            }
-
-            if(is_array($shared_users)) {
-                if(array_key_exists($uid, $shared_users)) {
-                    continue;
-                }
-            }
-
-            eval("\$sharewith_rows .= \"".$template->get('popup_meetings_sharewith_rows')."\";");
-        }
-        $file = 'minutesmeeting';
-        eval("\$share_meeting = \"".$template->get('popup_meetings_share')."\";");
-        output($share_meeting);
-    }
-    elseif($core->input['action'] == 'do_share') {
-        $mtid = $db->escape_string($core->input['mtid']);
-        if(is_array($core->input['sharemeeting'])) {
-            $meeting_obj = new Meetings($mtid);
-            $meeting_obj->share($core->input['sharemeeting']);
-
-            switch($meeting_obj->get_errorcode()) {
-                case 0:
-                    output_xml('<status>true</status><message>'.$lang->successfullysaved.'</message>');
-                    break;
-            }
-        }
-        else {
-            output_xml('<status>false</status><message>'.$lang->fillrequiredfields.'</message>');
-        }
-    }
 }
 ?>

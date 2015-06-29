@@ -122,8 +122,11 @@ class TravelManagerPlan {
         $currencies[] = $mainaffobj->get_country()->get_maincurrency();
         $currencies[] = new Currencies(840, true);
         $currencies[] = new Currencies(978, true);
-        $currencies = array_filter(array_unique($currencies));
-        $currencies_list = parse_selectlist('segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].'][currency]', '', array_unique($currencies), $transportation->currency, '', '', array('width' => '100%', 'id' => 'currency_'.$sequence.'_'.$category['inputChecksum'].'_list'));
+        foreach($currencies as $currency) {
+            $val_currencies[] = $currency->validate_currency();
+        }
+        $currencies = array_filter(array_unique($val_currencies));
+        $currencies_list = parse_selectlist('segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].'][currency]', '', $currencies, $transportation->currency, '', '', array('width' => '100%', 'id' => 'currency_'.$sequence.'_'.$category['inputChecksum'].'_list'));
 
 
         if(!empty($category['name'])) {
@@ -694,7 +697,10 @@ $("#anotheraff_otheraccomodations_'.$sequence.'_'.$otherhotel_checksum.'").hide(
             $currencies[] = $mainaffobj->get_country()->get_maincurrency();
             $currencies[] = new Currencies(840, true);
             $currencies[] = new Currencies(978, true);
-            $currencies = array_filter(array_unique($currencies));
+            foreach($currencies as $currency) {
+                $val_currencies[] = $currency->validate_currency();
+            }
+            $currencies = array_filter(array_unique($val_currencies));
             $currencies_list = parse_selectlist('segment['.$sequence.'][tmhid]['.$otherhotel_checksum.'][currency]', '3', $currencies, '840', '', '', array('id' => 'currency_'.$sequence.'_'.$otherhotel_checksum.'_list'));
             $leavedays = abs($segmentobj->toDate - $segmentobj->fromDate);
             $leavedays = floor($leavedays / (60 * 60 * 24));
@@ -745,7 +751,10 @@ $("#anotheraff_otheraccomodations_'.$sequence.'_'.$otherhotel_checksum.'").hide(
             $currencies_f[] = $mainaffobj->get_country()->get_maincurrency();
             $currencies_f[] = new Currencies(840, true);
             $currencies_f[] = new Currencies(978, true);
-            $currencies_f = array_filter(array_unique($currencies_f));
+            foreach($currencies_f as $currency) {
+                $val_currencies[] = $currency->validate_currency();
+            }
+            $currencies_f = array_filter(array_unique($val_currencies));
             if(is_array($finance)) {
                 $frowid = 0;
                 foreach($finance as $financerow) {
