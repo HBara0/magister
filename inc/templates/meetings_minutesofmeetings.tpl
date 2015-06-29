@@ -14,10 +14,9 @@
                 <input type="hidden" value="do_{$action}" name="action" id="action" />
                 <div style="display:inline-block">{$lang->meeting}:{$meeting_list}
                     <div style="display:{$display};">
-                        <input type='text' id='meetings_autocomplete' autocomplete='off' size='30px'/>
-                        <input type='hidden' id='meetings_id' name='mof[mtid]' value="{}"/>
-                        <input type='hidden' id='meetings_hasMOM' name='hasMOM' value="0"/>
-                        <div id='searchQuickResults_meetings' class='searchQuickResults' style='display:none;'></div>
+                        <input type='text' id='meetingsNoMom_autocomplete' autocomplete='off' size='30px'/>
+                        <input type='hidden' id='meetingsNoMom_id' name='mof[mtid]' value="{}"/>
+                        <div id='searchQuickResults_meetingsNoMom' class='searchQuickResults' style='display:none;'></div>
                     </div>
                 </div>
             </div> <div style="display:inline-block;margin-left: 10px">{$share_meeting}</div>
