@@ -69,7 +69,7 @@ else {
     if($core->input['action'] == 'do_addbrand') {
         $ebid = intval($core->input['entitybrand']['ebid']);
         if(!empty($core->input['entitybrand']['ebid'])) {
-            $entbrand = EntitiesBrands::get_data(array('name' => $core->input['entitybrand']['name']));
+            $entbrand = EntitiesBrands::get_data(array('name' => $core->input['entitybrand']['name'], 'eid' => $core->input['entitybrand']['eid']));
             if(is_object($entbrand) && $entbrand->ebid != $ebid) {
                 output_xml('<status>false</status><message>'.$lang->brandexists.'</message>');
                 exit;
