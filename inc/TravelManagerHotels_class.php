@@ -140,8 +140,12 @@ class TravelManagerHotels extends AbstractClass {
             $update_array['distance'] = $data['distance'];
         }
         $update_array['alias'] = generate_alias($data['name']);
-        $update_array['phone'] = $data['telephone_intcode'].'-'.$data['telephone_areacode'].'-'.$data['telephone_number'];
-
+        if(isset($data['phone']) && !empty($data['phone'])) {
+            $update_array['phone'] = $data['phone'];
+        }
+        else {
+            $update_array['phone'] = $data['telephone_intcode'].'-'.$data['telephone_areacode'].'-'.$data['telephone_number'];
+        }
         $db->update_query(self::TABLE_NAME, $update_array, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
         return $this;
     }
