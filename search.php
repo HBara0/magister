@@ -348,8 +348,8 @@ if($core->input['type'] == 'quick') {
             //$extra_info = array('table' => 'hotelcountries');
             $order = array('by' => 'name', 'sort' => 'ASC');
         }
-        elseif($core->input['for'] == 'meetings') {
-            if($core->usergroup['meetings_canViewAllMeetings'] == 1) {
+        elseif($core->input['for'] == 'allmeetings' || $core->input['for'] == 'meetingsWithMom' || $core->input['for'] == 'meetingsNoMom' || $core->input['for'] == 'sharedwithusermeetings') {
+            if($core->usergroup['meetings_canViewAllMeetings'] == 0) {
                 $extra_where .='(createdBy='.$core->user['uid'].' OR isPublic=1';
                 $meetings_sharedwith = Meetings::get_meetingsshares_byuser();
                 if(is_array($meetings_sharedwith)) {
@@ -360,11 +360,19 @@ if($core->input['type'] == 'quick') {
             if(!empty($extra_where)) {
                 $extra_where .= ' AND';
             }
-            if(isset($core->input['hasMOM']) && $core->input['hasMOM'] == 1) {
-                $extra_where .= ' hasMOM='.intval($core->input['hasMOM']);
+            if($core->input['for'] == 'meetingsWithMom') {
+                $extra_where .= ' hasMOM=1';
             }
-            elseif(isset($core->input['hasMOM']) && $core->input['hasMOM'] == 0) {
-                $extra_where .= ' hasMOM='.intval($core->input['hasMOM']);
+            if($core->input['for'] == 'meetingsNoMom') {
+                $extra_where .= ' hasMOM=0';
+            }
+            if($core->input['for'] == 'sharedwithusermeetings') {
+                $extra_where = '';
+                $meetings_sharedwith = Meetings::get_meetingsshares_byuser();
+                if(is_array($meetings_sharedwith)) {
+                    $extra_where .= '(mtid IN ('.implode(', ', array_keys($meetings_sharedwith)).')';
+                }
+                $extra_where .= ')';
             }
             $table = 'meetings';
             $attributes = array('title');
@@ -372,6 +380,7 @@ if($core->input['type'] == 'quick') {
             $select_attributes = array('title');
             $order = array('by' => 'title', 'sort' => 'ASC');
         }
+
 //        if(isset($core->input['exclude']) && !empty($core->input['exclude'])) {
 //            if(is_array($core->input['exclude'])) {
 //                $core->input['exclude'] = array_map(intval, $core->input['exclude']);
