@@ -28,7 +28,8 @@ if(!$core->input['action']) {
             error($lang->sectionnopermission);
         }
         $display = "none";
-        $meeting_list = '<input type="hidden" value="'.$meeting['mtid'].'" name="mof[mtid]" /><strong><a href="index.php?module=meetings/viewmeeting&mtid='.$meeting['mtid'].'" target="_blank">'.$meeting['title'].' | '.$meeting['location'].'</a></strong>';
+        //<input type="hidden" value="'.$meeting['mtid'].'" name="mof[mtid]" />
+        $meeting_list = '<strong><a href="index.php?module=meetings/viewmeeting&mtid='.$meeting['mtid'].'" target="_blank">'.$meeting['title'].' | '.$meeting['location'].'</a></strong>';
 
         if($meeting['hasMoM'] == 1) {
             $action = 'edit';
