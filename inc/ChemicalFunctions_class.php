@@ -99,7 +99,7 @@ class ChemicalFunctions extends AbstractClass {
         $segapfunctions_existingobjs = SegApplicationFunctions::get_data(array(self::PRIMARY_KEY => $this->data[self::PRIMARY_KEY]), array('returnarray' => true));
         if(is_array($segapfunctions_existingobjs)) {
             foreach($segapfunctions_existingobjs as $segapfunction_obj) {
-                if($segapfunction_obj->publishOnWebsite == 0) {
+                if($website == 0) {
                     $db->update_query(segapplicationfunctions, array('publishOnWebsite' => "0"), 'safid ='.$segapfunction_obj->safid);
                 }
             }

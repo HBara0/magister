@@ -94,6 +94,12 @@ elseif($core->input['action'] == 'save_descr') {
     if($core->input['publishOnWebsite'] == 1) {
         $publishonweb = "1";
     }
+    $chemicalfuncion_obj = $segapfunct_obj->get_function();
+    if(is_object($chemicalfuncion_obj)) {
+        if($chemicalfuncion_obj->publishOnWebsite == '0') {
+            $publishonweb = "0";
+        }
+    }
     $fields = array('cfid' => $segapfunct_obj->cfid, 'psaid' => $segapfunct_obj->psaid, 'publishOnWebsite' => $publishonweb, 'description' => $core->input['segapdescription']);
     $segapfunct_obj->save($fields);
     switch($segapfunct_obj->get_errorcode()) {
