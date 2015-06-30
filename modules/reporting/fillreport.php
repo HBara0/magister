@@ -1730,6 +1730,7 @@ else {
                 else {
                     $comment = 'NA';
                 }
+                $subject = 'QR Product Activity Inconsistency Reported: '.$affiliate->get_displayname().'/Q'.$quarter.$year;
                 $user = new Users($core->user['uid']);
                 eval("\$email_message .= \"".$template->get('reporting_reportinginconsistency')."\";");
                 $mailer = new Mailer();
@@ -1737,7 +1738,7 @@ else {
                 $mailer->set_to('ocos.support@orkila.com');
                 $mailer->set_cc($ccs);
                 $mailer->set_from(array('name' => $user->get_displayname(), 'email' => $user->email));
-                $mailer->set_subject('QR Product Activity Inconsistency Reported');
+                $mailer->set_subject($subject);
                 $mailer->set_message($email_message);
                 $mailer->send();
                 if($mailer->get_status() === true) {
