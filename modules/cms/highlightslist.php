@@ -14,7 +14,8 @@ if(!defined('DIRECT_ACCESS')) {
 
 if(!$core->input['action']) {
     $filters_config = array(
-            'parse' => array('filters' => array('name', 'type'),
+            'parse' => array('filters' => array('name', 'type', 'isenabled'),
+                    'overwritefield' => array('isenabled' => ''),
             ),
             'process' => array(
                     'filterKey' => CmsHighlights::PRIMARY_KEY,
@@ -39,6 +40,10 @@ if(!$core->input['action']) {
     if(is_array($highlights)) {
         foreach($highlights as $highlight_obj) {
             $highlight = $highlight_obj->get();
+            $imgurl = $core->settings['rootdir'].'/images/valid.gif';
+            if($highlight['isEnabled'] == '0') {
+                $imgurl = $core->settings['rootdir'].'/images/false.gif';
+            }
             eval("\$highlights_rows .= \"".$template->get('cms_highlights_rows')."\";");
         }
     }

@@ -33,6 +33,8 @@
                             <td width="25%"><input type='text' name='highlight[title]' value="{$highlight[title]}"></td>
                             <td width="5%"><strong>{$lang->type}</strong></td>
                             <td width="25%">{$types_list}</td>
+                            <td width="10%">{$lang->isenabled}</td>
+                            <td><input type='checkbox' value='1' name='highlight[isEnabled]' {$enablecheck}></td>
                         </tr>
                         <tr>
                             {$type_html}

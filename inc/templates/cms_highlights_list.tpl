@@ -16,7 +16,9 @@
                     <thead>
                         <tr>
                             <th width="40%">{$lang->title}</th>
-                            <th  width="40%">{$lang->type}</th>
+                            <th width="40%">{$lang->type}</th>
+                            <th width="10%">{$lang->isenabled}</th>
+                            <th width="10%"></th>
                         </tr>
                         {$filters_row}
                     </thead>

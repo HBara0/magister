@@ -24,6 +24,9 @@ if(!$core->input['action']) {
             else if($highlight['type'] == 'graph') {
                 $hide_html = 'hidden="hidden"';
             }
+            if($highlight['isEnabled'] == '1') {
+                $enablecheck = 'checked="checked"';
+            }
         }
     }
     else {

@@ -50,6 +50,10 @@ class CmsHighlights extends AbstractClass {
                 'graphTitle' => $data['graph']['graphTitle'],
                 'description' => $data['graph']['description'],
         );
+        $table_array['isEnabled'] = 0;
+        if($data['isEnabled'] == '1') {
+            $table_array['isEnabled'] = 1;
+        }
         $query = $db->insert_query(self::TABLE_NAME, $table_array);
         if($query) {
             $this->data[self::PRIMARY_KEY] = $db->last_id();
@@ -80,6 +84,10 @@ class CmsHighlights extends AbstractClass {
                     return $this;
                 }
                 unset($data['inlineHtml']);
+            }
+            $update_array['isEnabled'] = 0;
+            if($data['isEnabled'] == '1') {
+                $update_array['isEnabled'] = 1;
             }
             $update_array['title'] = $data['title'];
             $update_array['type'] = $data['type'];
