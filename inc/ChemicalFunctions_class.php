@@ -104,7 +104,7 @@ class ChemicalFunctions extends AbstractClass {
         if(!empty($segapplications) && isset($segapplications)) {
             foreach($segapplications as $psaid) {
                 if(!SegApplicationFunctions::get_data(array(self::PRIMARY_KEY => $this->data[self::PRIMARY_KEY], 'psaid' => $psaid))) {
-                    $db->insert_query('segapplicationfunctions', array(self::PRIMARY_KEY => $this->data[self::PRIMARY_KEY], 'publishOnWebsite' => $data['publishOnWebsite'], 'psaid' => $psaid, 'description' => $data['description'], 'createdBy' => $core->user['uid'], 'createdOn' => TIME_NOW));
+                    $db->insert_query('segapplicationfunctions', array(self::PRIMARY_KEY => $data['cfid'], 'publishOnWebsite' => $data['publishOnWebsite'], 'psaid' => $psaid, 'description' => $data['description'], 'createdBy' => $core->user['uid'], 'createdOn' => TIME_NOW));
                 }
             }
         }
