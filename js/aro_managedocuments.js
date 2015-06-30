@@ -398,14 +398,14 @@ $(function() {
     //------------------------------------------//
     //-------------Disable qtyPotentiallySold if daysInStock=0 ------------------*/
     // Trigger(s): 14
-    $("input[id$='_daysInStock']").live('change keyup', function() {
-        var id = $(this).attr('id').split("_");
-        $("input[id='productline_" + id[1] + "_qtyPotentiallySold']").removeAttr("readonly");
-        if($(this).val() == 0) {
-            $("input[id='productline_" + id[1] + "_qtyPotentiallySold']").attr('value', '0');
-            $("input[id='productline_" + id[1] + "_qtyPotentiallySold']").attr("readonly", "true");
-        }
-    });
+//    $("input[id$='_daysInStock']").live('change keyup', function() {
+//        var id = $(this).attr('id').split("_");
+//        $("input[id='productline_" + id[1] + "_qtyPotentiallySold']").removeAttr("readonly");
+//        if($(this).val() == 0) {
+//            $("input[id='productline_" + id[1] + "_qtyPotentiallySold']").attr('value', '0');
+//            $("input[id='productline_" + id[1] + "_qtyPotentiallySold']").attr("readonly", "true");
+//        }
+//    });
     //---------------------------------------------------------------------------//
     //------Form Submitting after 30 seconds--------------//
 //    var auto_refresh = setInterval(function() {
