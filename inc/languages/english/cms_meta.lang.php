@@ -125,4 +125,11 @@ $lang['editcontentcategory'] = 'Edit Content Category';
 $lang['update'] = 'Update';
 $lang['existingentryupdated'] = 'Existing Entry Updated';
 $lang['isenabled'] = 'Is Enabled';
+$lang['highlightslist'] = 'Highlights List';
+$lang['addhighlight'] = 'Add Highlight';
+$lang['managehighlights'] = 'Manage Highlights';
+$lang['imgpath'] = 'Image Path';
+$lang['title'] = 'Title';
+$lang['link'] = 'Link';
+$lang['html'] = 'HTML';
 ?>
