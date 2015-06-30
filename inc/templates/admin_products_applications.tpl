@@ -37,5 +37,6 @@
     </tr>
     {$footer}
     {$dialog_managerapplication}
+    {$popup_admin_deleteapplications}
 </body>
 </html>

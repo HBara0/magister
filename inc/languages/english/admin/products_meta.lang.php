@@ -81,4 +81,8 @@ $lang['cloneendproducttype'] = 'Clone End Product Type';
 $lang['newproducttype'] = 'New End Product Type';
 $lang['savecaps'] = 'SAVE';
 $lang['charvalues'] = 'Characteristic Values';
+$lang['areyousuredeleteapp'] = 'Are You Sure You Want To Delete This Segment Application ?';
+$lang['yes'] = 'Yes';
+$lang['deleteapp'] = 'Delete Application';
+$lang['deleteerror'] = 'You can\'t delete a used entity';
 ?>
