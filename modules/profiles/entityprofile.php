@@ -470,21 +470,22 @@ if(!$core->input['action']) {
         $brandsproducts = $entity->get_brandsproducts();
         $output = '';
         if(is_array($brandsproducts)) {
-            foreach($brandsproducts as $brandproduct) {
-                $brandproduct_brand = $brandproduct->get_entitybrand();
-                $brandproduct_productype = $brandproduct->get_endproduct();
-                $options[$brandproduct->ebpid] = $brandproduct_brand->parse_link();
+            foreach($brandsproducts as $brandproduct_obj) {
+                $brandproduct = $brandproduct_obj->get();
+                $brandproduct_brand = $brandproduct_obj->get_entitybrand();
+                $brandproduct_productype = $brandproduct_obj->get_endproduct();
+                $options[$brandproduct_obj->ebpid] = $brandproduct_brand->parse_link();
                 if(!is_object($brandproduct_productype)) {
                     $brandproduct_productype = new EntBrandsProducts();
                     $brandproduct_productype->title = $lang->unspecified;
                 }
                 else {
                     $characteristic_output = '';
-                    $characteristic = $brandproduct->get_charactersticvalue();
+                    $characteristic = $brandproduct_obj->get_charactersticvalue();
                     if(is_object($characteristic)) {
                         $characteristic_output = ' <small>('.$characteristic->get_displayname().')</small>';
                     }
-                    $options[$brandproduct->ebpid] .= ' - '.$brandproduct_productype->parse_link();
+                    $options[$brandproduct_obj->ebpid] .= ' - '.$brandproduct_productype->parse_link();
                 }
 
                 eval("\$brandsendproducts .= \"".$template->get('profiles_entityprofile_brandsproducts')."\";");

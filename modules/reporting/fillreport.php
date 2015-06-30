@@ -275,7 +275,7 @@ if(!$core->input['action']) {
         if($db->num_rows($query) > 0) {
             while($segment = $db->fetch_assoc($query)) {
                 if(is_array($marketreport[$segment['psid']])) {
-                    $criteriaandstars .= '<div class="evaluation_criterium" name="'.$segment['psid'].'_'.$marketreport[$segment['psid']]['mrid'].'"><div class="criterium_name" style="display:inline-block; width:30%; padding: 2px;">'.$segment['title'].'</div>';
+                    $criteriaandstars .= '<div class="evaluation_criterium" name="'.$segment['psid'].'_'.$marketreport[$segment['psid']]['mrid'].'"><div class="criterium_name" style="display:inline-block; width:15%;">Rate Content Quality</div>';
                     $criteriaandstars .= '<div class="ratebar" style="width:40%; display:inline-block;">';
                     if(!isset($marketreport[$segment['psid']]['rating']) || empty($marketreport[$segment['psid']]['rating'])) {
                         $ratingval = 0;
