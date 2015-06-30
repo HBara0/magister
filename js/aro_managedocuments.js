@@ -16,6 +16,7 @@ $(function() {
     //--------------------------------------------------------------
     //
 
+
     if(typeof getUrlParameter('referrer') !== 'undefined') {
         if(getUrlParameter('referrer') == 'toapprove' || getUrlParameter('referrer') == 'toapprove#' || (myUrl.substring(myUrl.length - 1) == '#' && getUrlParameter('referrer') == 'toapprove')) {
             $("form[id='perform_aro/managearodouments_Form'] :input:not([id^='approvearo'])").attr("disabled", true);
@@ -43,7 +44,6 @@ $(function() {
             });
         }
     }
-
 ///------------------------
     $("input[id='approvearo']").click(function() {
         sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=approvearo&id=' + $("input[id='approvearo_id']").val());
@@ -62,6 +62,7 @@ $(function() {
         var ptid = $(this).data('purchasetype');
         sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populatedocnum&affid= ' + affid + '&ptid= ' + ptid);
         sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populateaffpolicy&affid= ' + affid + '&ptid= ' + ptid);
+
         $.ajax({type: 'post',
             url: rootdir + "index.php?module=aro/managearodouments&action=generateapprovalchain",
             data: "affid=" + affid + "&ptid=" + ptid,
@@ -375,7 +376,6 @@ $(function() {
             }, 2000);
         });
 
-        //
     });
     //------------------------------------------//
     $("input[id$='freight'],input[id$='bankFees'],input[id$='insurance'],input[id$='legalization'],input[id$='courier'],input[id$='otherFees']").bind('change', function() {
@@ -523,12 +523,12 @@ $(function() {
 
         /*TEST*/
         var id = $(this).attr('id').split("_");
-//        if(id[2] == 'costPrice') {
-//            $("input[id='productline_" + id[1] + "_sellingPrice']").attr("disabled", "true");
-//            var tr = setTimeout(function() {
-//                $("input[id='productline_" + id[1] + "_sellingPrice']").removeAttr("disabled");
-//            }, 2000);
-//        }
+        if(id[2] == 'costPrice') {
+            $("input[id='productline_" + id[1] + "_sellingPrice']").attr("disabled", "true");
+            var tr = setTimeout(function() {
+                $("input[id='productline_" + id[1] + "_sellingPrice']").removeAttr("disabled");
+            }, 1000);
+        }
 
 
         var fields = '';
