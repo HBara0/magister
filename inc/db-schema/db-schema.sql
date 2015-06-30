@@ -1320,6 +1320,23 @@ CREATE TABLE `cms_contentcategories` (
   PRIMARY KEY (`cmsccid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `cms_highlights`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `cms_highlights` (
+  `cmshid` int(5) NOT NULL AUTO_INCREMENT,
+  `title` varchar(50) NOT NULL,
+  `name` varchar(50) NOT NULL,
+  `type` varchar(30) NOT NULL,
+  `inlineHtml` text NOT NULL,
+  `imgPath` varchar(300) NOT NULL,
+  `targetLink` varchar(300) NOT NULL,
+  `graphTitle` varchar(50) NOT NULL,
+  `description` varchar(90) NOT NULL,
+  `isEnabled` tinyint(1) NOT NULL,
+  PRIMARY KEY (`cmshid`)
+) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `cms_menuitems`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
