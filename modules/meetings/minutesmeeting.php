@@ -156,7 +156,7 @@ if(!$core->input['action']) {
         $checksum['actions'] = generate_checksum('mom');
         eval("\$actions_rows .= \"".$template->get('meetings_mom_actions_rows')."\";");
         $headerclass = 'thead';
-        $title = $lang->specificactions;
+        $title = $lang->specificfollowactions;
         eval("\$actions .= \"".$template->get('meetings_mom_actions')."\";");
         /* parse Attachments ---END */
     }
