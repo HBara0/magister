@@ -1316,6 +1316,7 @@ CREATE TABLE `cms_contentcategories` (
   `cmsccid` smallint(5) NOT NULL AUTO_INCREMENT,
   `name` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
   `title` varchar(220) COLLATE utf8_unicode_ci NOT NULL,
+  `isEnabled` tinyint(1) NOT NULL DEFAULT '1',
   PRIMARY KEY (`cmsccid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
