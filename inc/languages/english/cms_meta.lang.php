@@ -113,9 +113,16 @@ $lang['fromtime'] = 'From Time';
 $lang['todate'] = 'To Date';
 $lang['totime'] = 'To Time';
 $lang['sequence'] = 'Sequence';
-
 $lang['managemenus'] = 'Manage Menus';
 $lang['createevent'] = 'Create Events';
 $lang['createwebpage'] = 'Create Webpage';
 $lang['createnews'] = 'Create News';
+$lang['contentcategories'] = 'Content Categories';
+$lang['contentcategorieslist'] = 'Content Categories List';
+$lang['name'] = 'Name';
+$lang['addcontetncat'] = 'Add Content Category';
+$lang['editcontentcategory'] = 'Edit Content Category';
+$lang['update'] = 'Update';
+$lang['existingentryupdated'] = 'Existing Entry Updated';
+$lang['isenabled'] = 'Is Enabled';
 ?>
