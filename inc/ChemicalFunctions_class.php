@@ -61,10 +61,10 @@ class ChemicalFunctions extends AbstractClass {
             }
             $query = $db->insert_query('chemicalfunctions', $chemicalfunctions_data);
             if($query) {
-                $this->data[self::PRIMARY_KEY] = $data['cfid'] = $db->last_id();
-                if(!empty($data['segapplications']) && isset($data['segapplications'])) {
+                $this->data[self::PRIMARY_KEY] = $db->last_id();
+                if(!empty($data['segapplications']) && isset($data['segapplications']) && !empty($this->data[self::PRIMARY_KEY])) {
                     foreach($data['segapplications'] as $psaid) {
-                        $segappfuncquery = $db->insert_query('segapplicationfunctions', array('cfid' => $data['cfid'], 'publishOnWebsite' => $chemicalfunctions_data['publishOnWebsite'], 'psaid' => $psaid, 'description' => $data['description'], 'createdBy' => $core->user['uid'], 'createdOn' => TIME_NOW));
+                        $segappfuncquery = $db->insert_query('segapplicationfunctions', array('cfid' => $this->data['cfid'], 'publishOnWebsite' => $chemicalfunctions_data['publishOnWebsite'], 'psaid' => $psaid, 'description' => $data['description'], 'createdBy' => $core->user['uid'], 'createdOn' => TIME_NOW));
                         if($segappfuncquery) {
                             $data['safid'] = $db->last_id();
                         }
@@ -79,7 +79,10 @@ class ChemicalFunctions extends AbstractClass {
 
     protected function update(array $data = array()) {
         global $db, $core;
-
+        if(!isset($data['cfid']) && empty($data['cfid'])) {
+            $this->errorcode = 2;
+            return $this;
+        }
         $segapplications = $data['segapplications'];
         if($data['publishOnWebsite'] != 1) {
             $data['publishOnWebsite'] = 0;
