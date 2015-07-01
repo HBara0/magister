@@ -1333,7 +1333,7 @@ CREATE TABLE `cms_highlights` (
   `targetLink` varchar(300) NOT NULL,
   `graphTitle` varchar(50) NOT NULL,
   `description` varchar(90) NOT NULL,
-  `isEnabled` tinyint(1) NOT NULL,
+  `isEnabled` tinyint(1) NOT NULL DEFAULT '1',
   PRIMARY KEY (`cmshid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1447,6 +1447,12 @@ CREATE TABLE `cms_pagecategories` (
   `title` varchar(220) COLLATE utf8_unicode_ci NOT NULL,
   PRIMARY KEY (`cmspcid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+CREATE TABLE `cms_newshighlights` (
+  `cmsnhid` int(10) NOT NULL AUTO_INCREMENT,
+  `cmsnid` int(11) NOT NULL,
+  `cmshid` int(5) NOT NULL,
+  PRIMARY KEY (`cmsnhid`)
+) ENGINE=MyISAM AUTO_INCREMENT=8 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `cms_pages`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -1504,6 +1510,12 @@ CREATE TABLE `cms_pages2` (
   KEY `createdBy` (`createdBy`,`modifiedBy`),
   FULLTEXT KEY `tags` (`tags`,`bodyText`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+CREATE TABLE `cms_pageshighlights` (
+  `cmsphid` int(10) NOT NULL AUTO_INCREMENT,
+  `cmspid` int(10) NOT NULL,
+  `cmshid` int(5) NOT NULL,
+  PRIMARY KEY (`cmsphid`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `contactform_messages`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
