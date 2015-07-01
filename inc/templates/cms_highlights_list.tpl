@@ -22,8 +22,6 @@
                         </tr>
                         {$filters_row}
                     </thead>
-                </table>
-                <table class="datatable" width="100%">
                     <tbody>
                         {$highlights_rows}
                     </tbody>

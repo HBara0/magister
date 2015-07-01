@@ -45,7 +45,7 @@
                     </table>
                 </form>
                 <hr />
-                <input type="submit" value="{$lang->add}" id="perform_cms/managehighlight_Button" />
+                <input type="submit" class="button" value="{$lang->savecaps}" id="perform_cms/managehighlight_Button" />
                 <div id="perform_cms/managehighlight_Results"></div>
             </div>
         </td>

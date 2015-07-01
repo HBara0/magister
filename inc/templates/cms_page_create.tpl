@@ -73,6 +73,10 @@
                         <div style="display:inline-block; padding:11px;">{$robots_list}</div>
                     </div>
                     <div style="display:block;">
+                        <div class="thead" style="margin-top:8px;">{$lang->highlights}</div>
+                        {$higlightsbox}
+                    </div>
+                    <div style="display:block;">
                         <div style="display:inline-block; padding:11px;"><input type="submit" class="button" value="{$actiontype}" id="perform_cms/managewebpage_Button"/></div>
                         <div style="display:inline-block; padding:11px;"><input type="reset" class="button" value="{$lang->reset}"/></div>
                     </div>
