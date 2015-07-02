@@ -439,6 +439,9 @@ $(function() {
         if(!formData.match(/action=[A-Za-z0-9]+/)) {
             url += "&action=do_" + id[0] + "_" + details[1];
         }
+        if(details[1] == 'marketintelligencereport') {
+            $("table #filter_options").hide();
+        }
         sharedFunctions.requestAjax("post", url, formData, formid + "Results", formid + "Results");
     });
     $("a[id^='showmore_'][href^='#']").live('click', function() {
@@ -818,9 +821,8 @@ $(function() {
                         } else {
                             var spanClass = 'red_text';
                         }
-
                         if($(returnedData).find('message').text().length > 0) {
-                            $("div[id='" + contentId + "'],a[id='" + contentId + "'],span[id='" + contentId + "']").html("<span class='" + spanClass + "'><img src='" + imagespath + "/" + $(returnedData).find('status').text() + ".gif' border='0' />&nbsp;" + $(returnedData).find('message').text() + "</span>");
+                            $("div[id='" + contentId + "'],a[id='" + contentId + "'],span[id='" + contentId + "']").html("<span class='" + spanClass + "'><img src='" + imagespath + "/" + $(returnedData).find('status').text() + ".gif' border='0' alt=''/>&nbsp;" + $(returnedData).find('message').text() + "</span>");
                         }
                         else {
                             $("div[id='" + contentId + "'],a[id='" + contentId + "'],span[id='" + contentId + "']").html(returnedData).dialog();
@@ -1009,7 +1011,13 @@ $(function() {
         }
     });
 
+    // Toggle filter options when generating dimensional report
+    $("a[id='filterby']").click(function() {
+        $("table #filter_options").toggle();
+    });
 }
+
+
 );
 function validateEmail(email) {
     return email.match(/^[a-zA-Z0-9&*+\-_.{}~^\?=\/]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9.-]+$/);

@@ -2,7 +2,6 @@
     <head>
         <title>{$core->settings[systemtitle]} | {$lang->fillmontlyreport}</title>
         {$headerinc}
-
     </head>
     <body>
         {$header}
@@ -11,10 +10,10 @@
         {$menu}
         <td class="contentContainer">
             <h1>{$lang->mireport}</h1>
-            <form action="index.php?module=crm/marketintelligence_report_preview_obj&amp;referrer=generate&amp;identifier={$identifier}" method="post" id="perform_crm\/marketintelligencereport_Form" name="perform_crm/marketintelligencereport_Form">
-                <div class="thead" >{$lang->filters}</div>
-
-                <table width="100%">
+            <input type="hidden" value="{$identifier}" id="identifier"/>
+            <form name="perform_crm/marketintelligencereport_Form" id="perform_crm/marketintelligencereport_Form"  action="#" method="post">
+                <div class="thead" ><a href="#" id="filterby">{$lang->filters}</a></div>
+                <table width="100%" id="filter_options">
                     <tr>
                         <td width="50%">
                             <div style="width:100%; height:150px; overflow:auto; display:inline-block; vertical-align:top; margin-bottom: 10px;">
@@ -95,8 +94,8 @@
                                     </thead>
                                     <tbody>
                                         <tr>
-                                            <td><input type="checkbox" name="mireport[filter][ctype][]"  value="pc"/>{$lang->potential}</td>
-                                            <td><input type="checkbox" name="mireport[filter][ctype][]"  value="c"/>{$lang->customer} </td>
+                                            <td><input type="checkbox" name="mireport[filter][ctype][]"  value="pc" id="filter_ctype1"/>{$lang->potential}</td>
+                                            <td><input type="checkbox" name="mireport[filter][ctype][]"  value="c" id="filter_ctype2"/>{$lang->customer} </td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -123,16 +122,18 @@
                 </div>
 
                 <div style="display:block;">
-                    <div style="display:inline-block; padding: 8px; margin:8px;"><input value="{$lang->generate}" class="button" type="submit" id="perform_crm/marketintelligencereport_Button"/></div>
-                </div>
+                    <div style="display:inline-block; padding: 8px; margin:8px;">
+                        <input type="submit" id="perform_crm/marketintelligencereport_Button" value="{$lang->generate}" class="button"/>
+                    </div>
 
-                <div style="display:block;">
-                    <div id="perform_crm/marketintelligencereport_Results"></div>
                 </div>
             </form>
-
+            <div style="display:block;">
+                <div id="perform_crm/marketintelligencereport_Results"></div>
+            </div>
         </td>
     </tr>
+
     {$footer}
 </body>
 </html>
