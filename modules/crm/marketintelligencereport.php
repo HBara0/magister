@@ -239,12 +239,13 @@ if($core->input['action'] == 'do_perform_marketintelligencereport') {
             $header_data = strtolower($header_data);
             $dimension_head .= '<th>'.$lang->{$header_data}.'</th>';
         }
+        eval("\$mireport_output = \"".$template->get('dimensionalreport_section')."\";");
     }
     else {
-        redirect($_SERVER['HTTP_REFERER'], 2, $lang->nomatchfound);
+        $mireport_output = $lang->nomatchfound;
+        // redirect($_SERVER['HTTP_REFERER'], 2, $lang->nomatchfound);
     }
     /* get Market intellgence baisc Data  --END */
-    eval("\$mireport_output = \"".$template->get('dimensionalreport_section')."\";");
     output_xml('<status></status><message><![CDATA['.$mireport_output.']]></message>');
 }
 ?>
