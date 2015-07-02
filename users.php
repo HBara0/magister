@@ -706,7 +706,7 @@ if($core->input['action']) {
             $multipage_where = 'gid!=7';
             /* Perform inline filtering - START */
             $filters_config = array(
-                    'parse' => array('filters' => array('fullName', 'displayName', 'affid', 'position', 'reportsTo')
+                    'parse' => array('filters' => array('fullName', 'displayName', 'allenabledaffiliates', 'position', 'reportsTo')
                     ),
                     'process' => array(
                             'filterKey' => 'uid',
@@ -721,7 +721,7 @@ if($core->input['action']) {
                                             'filters' => array('position' => array('operatorType' => 'multiple', 'name' => 'posid')),
                                     ),
                                     'affiliatedemployees' => array(
-                                            'filters' => array('affid' => array('operatorType' => 'multiple', 'name' => 'affid')),
+                                            'filters' => array('allenabledaffiliates' => array('operatorType' => 'multiple', 'name' => 'affid')),
                                             'extraWhere' => 'isMain=1'
                                     )
                             )
