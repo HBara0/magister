@@ -13,13 +13,9 @@ if(!defined('DIRECT_ACCESS')) {
 }
 
 if(!$core->input['action']) {
-    if(isset($core->input['sortby'], $core->input['order'])) {
-        $sort_query = $core->input['sortby'].' '.$core->input['order'];
-    }
     $filters_config = array(
             'parse' => array('filters' => array('name', 'city', 'country', 'isApproved', 'avgPrice'),
                     'overwriteField' => array('avgPrice' => '<input class="inlinefilterfield" type="text" style="width: 95%" placeholder="'.$lang->avgprice.'"/>',
-                            'isApproved' => '',
                             'isApproved' => parse_selectlist('filters[isApproved]', 2, array('' => '', '1' => $lang->isapproved, '0' => $lang->notapproved), $core->input['filters']['isApproved']),
                     )
             ),

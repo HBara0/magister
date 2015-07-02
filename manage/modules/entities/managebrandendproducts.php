@@ -48,23 +48,22 @@ if(!$core->input['action']) {
             $endproducttype = EndProducTypes::get_data(array('eptid' => $entitybrandproduct['eptid']));
             $brandproduct['characteristic'] = $brandproduct['endproductname'] = '-';
             if(is_object($endproducttype)) {
-                $details = $endproducttype->parse_link();
+                $brandproduct['endproductname'] = $endproducttype->parse_link();
                 $first_parent = $endproducttype->get_parent();
                 if(is_object($first_parent)) {
-                    $details .= '--> '.$first_parent->get_displayname();
+                    $brandproduct['endproductname'] .= '--> '.$first_parent->get_displayname();
                     $secondpar_obj = $first_parent->get_parent();
                     if(is_object($secondpar_obj)) {
-                        $details.='-->'.$secondpar_obj->get_displayname();
+                        $brandproduct['endproductname'].='-->'.$secondpar_obj->get_displayname();
                         $third_par = $secondpar_obj->get_parent();
                         if(is_object($third_par)) {
                             $originalpar_obj = $third_par->get_mother();
                             if(is_object($originalpar_obj)) {
-                                $details.='->.....->'.$originalpar_obj->get_displayname();
+                                $brandproduct['endproductname'].='->.....->'.$originalpar_obj->get_displayname();
                             }
                         }
                     }
                 }
-                $brandproduct['endproductname'] = $details;
             }
 //            $brand_obj = EntitiesBrands::get_data(array('ebid' => $entitybrandproduct['ebid']));
 //            if(is_object($brand_obj)) {

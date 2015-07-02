@@ -536,8 +536,8 @@ if(!$core->input['action']) {
                 if($core->usergroup['canGenerateReports'] == 1 || $core->usergroup['canFillReports'] == 1) {
                     eval("\$marketreportbox_other = \"".$template->get('new_reporting_report_marketreportbox_other')."\";");
                 }
-                $criteriaandstars .= '<div class="evaluation_criterium" name="'.$marketreport['psid'].'_'.$mrid.'"><div class="criterium_name" style="display:inline-block; width:30%; padding: 2px;"></div>';
-                $criteriaandstars .= '<div class="ratebar" style="width:40%; display:inline-block;">';
+                $criteriaandstars .= '<div class="evaluation_criterium" name="'.$marketreport['psid'].'_'.$mrid.'"><div class="criterium_name" style="display:inline-block; width:15%;">'.$lang->ratecontentquality.'</div>';
+                $criteriaandstars .= '<div class="ratebar" style="width:40%; display:inline-block; background-color:#FFF;">';
                 if(!isset($marketreport['rating']) || empty($marketreport['rating'])) {
                     $ratingval = 0;
                 }

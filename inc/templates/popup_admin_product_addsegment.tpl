@@ -15,7 +15,10 @@
                 <td colspan="2">{$lang->description}<br /><textarea cols="30" rows="5" id="description{$segment[psid]}" name="segment[description]" class="basictxteditadv">{$segment['description']}</textarea></td>
             </tr>
             <tr>
-                <td>{$lang->largebanner}</td><td><input type="text" size="50" id="largeBanner" name="segment[largeBanner]" value="{$segment[largeBanner]}"/></textarea</td>
+                <td>{$lang->sequence}</td><td><input type="text" size="4" id="sequence" name="segment[displaySequence]" value="{$segment[displaySequence]}"/></td>
+            </tr>
+            <tr>
+                <td>{$lang->largebanner}</td><td><input type="text" size="50" id="largeBanner" name="segment[largeBanner]" value="{$segment[largeBanner]}"/></td>
             </tr>
             <tr>
                 <td>{$lang->mediumbanner}</td><td><input type="text" size="50" id="mediumBanner" name="segment[mediumBanner]" value="{$segment[mediumBanner]}"/></td>
