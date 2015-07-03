@@ -119,6 +119,7 @@ else {
             $specs = serialize($specs);
             $affiliate['chartSpec'] = $specs;
         }
+        $affiliate['chartColor'] = $db->escape_string($core->input['chartColor']);
         $query = $db->update_query('affiliates', $affiliate, 'affid ='.$affiliate['affid']);
         if($query) {
             output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");

@@ -39,4 +39,5 @@ $lang['chartspec'] = "Related Chart Specification";
 $lang['width'] = "Width";
 $lang['height'] = "Height";
 $lang['cssclassname'] = "CSS Class Name";
+$lang['colorhex'] = "Color Hex";
 ?>
