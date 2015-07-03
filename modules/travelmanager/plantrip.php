@@ -139,7 +139,9 @@ if(!$core->input['action']) {
             $currencies_f[] = new Currencies(840, true);
             $currencies_f[] = new Currencies(978, true);
             foreach($currencies_f as $currency) {
-                $val_currencies[] = $currency->validate_currency();
+                if(is_object($currency)) {
+                    $val_currencies[] = $currency->validate_currency();
+                }
             }
             $currencies_f = array_filter(array_unique($val_currencies));
             $currencies_listf = parse_selectlist('segment['.$sequence.'][tmpfid]['.$frowid.'][currency]', 4, $currencies_f, '840');
@@ -168,7 +170,9 @@ if(!$core->input['action']) {
             $currencies[] = new Currencies(840, true);
             $currencies[] = new Currencies(978, true);
             foreach($currencies as $currency) {
-                $val_currencies[] = $currency->validate_currency();
+                if(is_object($currency)) {
+                    $val_currencies[] = $currency->validate_currency();
+                }
             }
             $currencies = array_filter(array_unique($val_currencies));
             $currencies_list = parse_selectlist('segment['.$sequence.'][tmhid]['.$otherhotel_checksum.'][currency]', 4, $currencies, '840', '', '', array('id' => 'currency_'.$sequence.'_'.$otherhotel_checksum.'_list'));
@@ -336,6 +340,7 @@ else {
             if(empty($approvedhotels)) {
                 $approvedhotels = array();
             }
+            $segmentobj->destinationCity = $destcityid;
             $hotelssegments_output = $segmentobj->parse_hotels($sequence, $approvedhotels);
             $destcounrty_obj = $descity_obj->get_country();
             if(is_object($destcounrty_obj)) {
@@ -375,7 +380,9 @@ else {
         $currencies[] = new Currencies(840, true);
         $currencies[] = new Currencies(978, true);
         foreach($currencies as $currency) {
-            $val_currencies[] = $currency->validate_currency();
+            if(is_object($currency)) {
+                $val_currencies[] = $currency->validate_currency();
+            }
         }
         $currencies = array_filter(array_unique($val_currencies));
         $currencies_list = parse_selectlist('segment['.$sequence.'][tmhid]['.$otherhotel_checksum.'][currency]', 4, $currencies, '840');
@@ -608,7 +615,9 @@ else {
         $currencies_f[] = new Currencies(840, true);
         $currencies_f[] = new Currencies(978, true);
         foreach($currencies_f as $currency) {
-            $val_currencies[] = $currency->validate_currency();
+            if(is_object($currency)) {
+                $val_currencies[] = $currency->validate_currency();
+            }
         }
         $currencies_f = array_filter(array_unique($val_currencies));
         $currencies_listf = parse_selectlist('segment['.$sequence.'][tmpfid]['.$frowid.'][currency]', 4, $currencies_f, 840);
