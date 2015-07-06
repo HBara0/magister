@@ -96,7 +96,7 @@ if($core->input['action'] == 'get_supplierslist') {
         $usersuppliers = $onbehalfuser['suppliers'];
     }
     $gp_supplierslist = '<option value="0"></option>';
-    if(is_array($gp_suppliers && is_array($usersuppliers['eid']))) {
+    if(is_array($gp_suppliers) && is_array($usersuppliers['eid'])) {
         foreach($gp_suppliers as $supplier) {
             if(in_array($supplier['eid'], $usersuppliers['eid'])) {
                 $gp_supplierslist .= '<option value="'.$supplier['eid'].'">'.$supplier['companyName'].'</option>';
