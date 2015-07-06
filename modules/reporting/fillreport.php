@@ -137,7 +137,7 @@ if(!$core->input['action']) {
                 }
 
                 /* Get preview Q data */
-                $prev_productactivity = $db->fetch_assoc($db->query("SELECT pid, (SUM(soldQty) + ".$productactivity['soldQty'].") AS soldQty, (SUM(quantity) + ".$productactivity['soldQty'].") AS quantity, (SUM(turnOver) + ".$productactivity['soldQty'].") AS turnOver
+                $prev_productactivity = $db->fetch_assoc($db->query("SELECT pid, ROUND(SUM(soldQty) + ".$productactivity['soldQty'].",2) AS soldQty, ROUND(SUM(quantity) + ".$productactivity['soldQty'].",2) AS quantity, ROUND(SUM(turnOver) + ".$productactivity['soldQty'].", 2) AS turnOver
 							FROM ".Tprefix."productsactivity pa
 							JOIN ".Tprefix."reports r ON (r.rid=pa.rid)
 							WHERE r.quarter<'".intval($qreport->quarter)."' AND r.year='".intval($qreport->year)."' AND r.affid='".intval($qreport->affid)."' AND r.spid='".intval($qreport->spid)."' AND pa.pid=".$productactivity['pid'].$query_string."
@@ -213,7 +213,7 @@ if(!$core->input['action']) {
             while($marketreports_data = $db->fetch_assoc($query)) {
                 $marketreport[$marketreports_data['psid']] = $marketreports_data;
                 $marketreportcompetetion[$marketreports_data['psid']][$marketreports_data['mrid']] = MarketReportCompetition::get_data(array('mrid' => $marketreports_data['mrid']), array('returnarray' => true));
-                $mrdevelopmentprojects[$marketreports_data['psid']][$marketreports_data['mrid']] = MarketReportDevelopmentPojects::get_data(array('mrid' => $marketreports_data['mrid']), array('returnarray' => true));
+                // $mrdevelopmentprojects[$marketreports_data['psid']][$marketreports_data['mrid']] = MarketReportDevelopmentPojects::get_data(array('mrid' => $marketreports_data['mrid']), array('returnarray' => true));
             }
         }
 
@@ -1734,7 +1734,7 @@ else {
                 eval("\$email_message .= \"".$template->get('reporting_reportinginconsistency')."\";");
                 $mailer = new Mailer();
                 $mailer = $mailer->get_mailerobj();
-                $mailer->set_to('ocos.support@orkila.com');
+                $mailer->set_to('support@ocos.orkila.com');
                 $mailer->set_cc($ccs);
                 $mailer->set_from(array('name' => $user->get_displayname(), 'email' => $user->email));
                 $mailer->set_subject('QR Product Activity Inconsistency Reported');
