@@ -27,6 +27,7 @@
 
                 <form action="#" method="post" id="perform_cms/managehighlight_Form" name="perform_cms/managehighlight_Form">
                     <input type='hidden' name='highlight[cmshid]' value="{$highlight['cmshid']}">
+                    <input type='hidden' name='actiontype' value="{$action}">
                     <table width="100%" border="0" cellpadding="0" cellspacing="0">
                         <tr>
                             <td width="20%"><strong>{$lang->title}</strong></td>

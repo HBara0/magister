@@ -8,7 +8,7 @@ class CmsHighlights extends AbstractClass {
     const PRIMARY_KEY = 'cmshid';
     const TABLE_NAME = 'cms_highlights';
     const SIMPLEQ_ATTRS = '*';
-    const UNIQUE_ATTRS = 'name,type';
+    const UNIQUE_ATTRS = 'name';
     const CLASSNAME = __CLASS__;
     const DISPLAY_NAME = 'title';
 
@@ -43,6 +43,7 @@ class CmsHighlights extends AbstractClass {
         }
         $table_array = array(
                 'title' => $data['title'],
+                'name' => $data['name'],
                 'type' => $data['type'],
                 'inlineHtml' => $data['inlineHtml'],
                 'imgPath' => $data['graph']['imgPath'],

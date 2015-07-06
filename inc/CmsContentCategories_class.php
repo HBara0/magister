@@ -20,7 +20,7 @@ class CmsContentCategories extends AbstractClass {
     const PRIMARY_KEY = 'cmsccid';
     const TABLE_NAME = 'cms_contentcategories';
     const DISPLAY_NAME = 'title';
-    const SIMPLEQ_ATTRS = 'cmsccid, name, title';
+    const SIMPLEQ_ATTRS = 'name, title';
     const CLASSNAME = __CLASS__;
     const UNIQUE_ATTRS = 'name,title';
 
@@ -35,8 +35,8 @@ class CmsContentCategories extends AbstractClass {
             return;
         }
         $table_array = array(
-                'name' => $data['tableName'],
-                'title' => $data['className'],
+                'name' => $data['name'],
+                'title' => $data['title'],
         );
         $table_array['isEnabled'] = 0;
         if($data['isEnabled'] == 1) {

@@ -40,10 +40,12 @@ if(!$core->input['action']) {
     if(is_array($highlights)) {
         foreach($highlights as $highlight_obj) {
             $highlight = $highlight_obj->get();
-            $imgurl = $core->settings['rootdir'].'/images/valid.gif';
+            $ispublished_icon = $core->settings['rootdir'].'/images/valid.gif';
             if($highlight['isEnabled'] == '0') {
-                $imgurl = $core->settings['rootdir'].'/images/false.gif';
+                $ispublished_icon = $core->settings['rootdir'].'/images/false.gif';
             }
+            $imgurl = '<a href="index.php?module=cms/managehighlight&action=togglepublish&id='.$highlight_obj->cmshid.'"><img src="'.$ispublished_icon.'"></a>';
+
             eval("\$highlights_rows .= \"".$template->get('cms_highlights_rows')."\";");
         }
     }

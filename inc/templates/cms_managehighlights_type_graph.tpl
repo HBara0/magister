@@ -9,9 +9,9 @@
             </tr>
             <tr>
                 <td width="20%"><strong>{$lang->link}</strong></td>
-                <td width="25%"><input type='text' name='highlight[graph][targetLink]' value="{$highlight['targetLink']}"></td>
+                <td width="25%"><input type='url' name='highlight[graph][targetLink]' value="{$highlight['targetLink']}"></td>
                 <td width="15%"><strong>{$lang->description}</strong></td>
-                <td width="30%"><textarea name='highlight[graph][description]'>{$highlight['description']}</textarea></td>
+                <td width="30%"><textarea name='highlight[graph][description]' maxlength="90">{$highlight['description']}</textarea></td>
             </tr>
         </table>
     </div>
