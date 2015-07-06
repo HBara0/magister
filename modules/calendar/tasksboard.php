@@ -22,9 +22,10 @@ if(!$core->input['action']) {
             $task_iconstats = $task->parsestatus();
             $task->percCompleted_output = '';
             if($task_iconstats == 'inprogress') {
-                $task->percCompleted_output = numfmt_format(numfmt_create('en_EN', NumberFormatter::PERCENT), $task->percCompleted / 100);
+//                $task->percCompleted_output = numfmt_format(numfmt_create('en_EN', NumberFormatter::PERCENT), $task->percCompleted / 100);
+                $value = $task->percCompleted;
+                eval("\$progressbar = \"".$template->get('progressbar')."\";");
             }
-
             $task_icon[$task_iconstats] = '<img src="./images/icons/'.$task_iconstats.'.png" border="0" />';
             eval("\$calendar_taskboard_rows .= \"".$template->get('calendar_tasksboard_rows')."\";");
             unset($task_icon[$task_iconstats], $task_percentage);

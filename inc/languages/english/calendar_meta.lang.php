@@ -73,4 +73,5 @@ $lang['week'] = 'Week';
 $lang['invitemployees'] = 'Invite Employees';
 $lang['tasksboard'] = 'Tasks Board';
 $lang['eventlogo'] = 'Event Logo';
+$lang['prerequisit'] = 'Pre-Requisit';
 ?>
