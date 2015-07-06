@@ -28,12 +28,43 @@ if(!$core->input['action']) {
         $page = $cms_page->get();
         $pagecategories_list = parse_selectlist('page[category]', 5, $content_categories, $page['category']);
         $page['publishDate_output'] = date($core->settings['dateformat'], $page['publishDate']);
+        $existing_pagehighlights = CmsPagesHighlights::get_data(array('cmspid' => $cms_page->cmspid), array('returnarray' => true));
+        if(is_array($existing_pagehighlights)) {
+            foreach($existing_pagehighlights as $pagehighlight) {
+                $highlight = $pagehighlight->get_CmsHighlights();
+                if(is_object($highlight)) {
+                    $existing_highid[] = $highlight->cmshid;
+                    $highlights_list .= ' <tr class="'.$rowclass.'">';
+                    $highlights_list .= '<td><input id="highlightsfilter_check_'.$highlight->cmshid.'" type="checkbox" checked="checked" value="'.$highlight->cmshid.'" name="highlights['.$highlight->cmshid.']">'.$highlight->title.' - '.$highlight->type;
+                }
+            }
+        }
+
+        $highlights = CmsHighlights::get_data(array('isEnabled' => '1'), array('returnarray' => true));
+        if(is_array($highlights)) {
+            foreach($highlights as $highlight) {
+                if(is_array($existing_highid)) {
+                    if(in_array($highlight->cmshid, $existing_highid)) {
+                        continue;
+                    }
+                }
+                $highlights_list .= ' <tr class="'.$rowclass.'">';
+                $highlights_list .= '<td><input id="highlightsfilter_check_'.$highlight->cmshid.'" type="checkbox" value="'.$highlight->cmshid.'" name="highlights['.$highlight->cmshid.']">'.$highlight->title.' - '.$highlight->type;
+            }
+        }
     }
     else {
         $actiontype = 'add';
         $pagecategories_list = parse_selectlist('page[category]', 5, $content_categories, $page['category']);
+        $highlights = CmsHighlights::get_data(array('isEnabled' => '1'), array('returnarray' => true));
+        if(is_array($highlights)) {
+            foreach($highlights as $highlight) {
+                $highlights_list .= ' <tr class="'.$rowclass.'">';
+                $highlights_list .= '<td><input id="highlightsfilter_check_'.$highlight->cmshid.'" type="checkbox" value="'.$highlight->cmshid.'" name="page[highlights]['.$highlight->cmshid.']">'.$highlight->title.' - '.$highlight->type;
+            }
+        }
     }
-
+    eval("\$higlightsbox =\"".$template->get('cms_manage_pagehighlight')."\";");
     eval("\$createpage =\"".$template->get('cms_page_create')."\";");
     output_page($createpage);
 }
@@ -50,6 +81,45 @@ else {
 
         switch($cms_page->get_status()) {
             case 0:
+                if(isset($core->input['highlights']) && !empty($core->input['highlights'])) {
+                    $higlights = $core->input['highlights'];
+                    $higlight_ar['cmspid'] = $cms_page->cmspid;
+                    $existing_highlightsids = CmsPagesHighlights::get_column('cmshid', array('cmspid' => $cms_page->cmspid), array('returnarray' => true));
+                    foreach($higlights as $higlight) {
+                        $higlight_ar['cmshid'] = $higlight;
+                        if(is_array($existing_highlightsids)) {
+                            if(in_array($higlight_ar['cmshid'], $existing_highlightsids)) {
+                                $existingticked = $higlight_ar['cmshid'];
+                                continue;
+                            }
+                        }
+                        $pagehighlight = new CmsPagesHighlights();
+                        $pagehighlight->set($higlight_ar);
+                        $pagehighlight = $pagehighlight->save();
+                        $errorcodes[] = $pagehighlight->get_errorcode();
+                    }
+                    if(is_array($existingticked)) {
+                        $deleted_highlights = array_diff($higlights, $existingticked);
+                        if(is_array($deleted_highlights)) {
+                            foreach($deleted_highlights as $cmshid) {
+                                $query = $db->delete_query(CmsPagesHighlights::TABLE_NAME, 'cmshid ='.$cmshid.' AND cmspid ='.$cms_page->cmspid);
+                                if($query) {
+                                    continue;
+                                }
+                                $errorcodes[] = 2;
+                            }
+                        }
+                    }
+                    if(is_array($errorcodes)) {
+                        $errorcodes = array_filter(array_unique($errorcodes));
+                        if(in_array('1', $errorcodes) || in_array('2', $errorcodes)) {
+                            output_xml("<status>false</status><message>{$lang->errorsaving}</message>");
+                            exit;
+                        }
+                        output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
+                        exit;
+                    }
+                }
                 output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
                 break;
             case 1:

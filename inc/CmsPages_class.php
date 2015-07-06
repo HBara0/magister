@@ -88,7 +88,7 @@ class CmsPages extends Cms {
             $query = $db->insert_query('cms_pages', $this->page);
             if($query) {
                 $this->status = 0;
-                $cmspid = $db->last_id();
+                $cmspid = $this->page['cmspid'] = $db->last_id();
                 $log->record($this->page['cmspid']);
 
                 /* Inform audits about the change, and request approval - START */

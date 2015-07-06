@@ -4,6 +4,10 @@
         {$headerinc}
         <script language="javascript" type="text/javascript">
             $(function() {
+                $(document).ready(function() {
+                    $("select[id='type']").trigger("change");
+                });
+
                 if($("select[id='type']").val() == 's' || $(this).val() == 'cs') {
                     $("tr[id='supplierType'], #parentcompany").show();
                     $("#parentcustomer").hide();

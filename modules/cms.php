@@ -6,11 +6,13 @@ $module['globalpermission'] = 'canUseCms';
 $module['menu'] = array(
         'file' => array(
                 'settings',
+                'contentcategorieslist',
                 'managenews' => array('listnews', 'managenews'),
                 'managewebpage' => array('managewebpage', 'listwebpages'),
                 'listmenu' => array('listmenu'),
                 'manageevents' => array('manageevents', 'eventlist'),
+                'managehighlight' => array('highlightslist', 'managehighlight'),
         ),
-        'title' => array('cmssettings', 'managenews' => array('listnews', 'createnews'), 'managewebpage' => array('createwebpage', 'listwebpages'), 'managemenus' => array('listmenu'), 'manageevents' => array('createevent', 'eventlist')),
-        'permission' => array('canAdminCP', array('canUseCms', 'canUseCms', 'canUseCms'), array('canUseCms', 'canUseCms', 'canUseCms'), array('canUseCms', 'canUseCms'), array('canUseCms', 'canUseCms', 'canUseCms')));
+        'title' => array('cmssettings', 'contentcategorieslist', 'managenews' => array('listnews', 'createnews'), 'managewebpage' => array('createwebpage', 'listwebpages'), 'managemenus' => array('listmenu'), 'manageevents' => array('createevent', 'eventlist'), 'managehighlights' => array('highlightslist', 'managehighlights')),
+        'permission' => array('canAdminCP', 'canUseCms', array('canUseCms', 'canUseCms', 'canUseCms'), array('canUseCms', 'canUseCms', 'canUseCms'), array('canUseCms', 'canUseCms'), array('canUseCms', 'canUseCms', 'canUseCms'), array('canUseCms', 'canUseCms', 'canUseCms')));
 ?>

@@ -101,20 +101,22 @@ if(!$core->input['action']) {
             eval("\$actions .= \"".$template->get('meetings_mom_actions')."\";");
         }
         else {
-            /* parse Actions ---START */
-            $arowid = 0;
-            $userrowid = 0;
-            $checksum['users'] = generate_checksum('mom');
-            eval("\$actions_users .= \"".$template->get('meetings_mom_actions_users')."\";");
-            $reprowid = 0;
-            $checksum['representatives'] = generate_checksum('mom');
-            eval("\$actions_representatives .= \"".$template->get('meetings_mom_actions_representatives')."\";");
-            $checksum['actions'] = generate_checksum('mom');
-            eval("\$actions_rows .= \"".$template->get('meetings_mom_actions_rows')."\";");
-            $headerclass = 'thead';
-            $title = $lang->specificactions;
-            eval("\$actions .= \"".$template->get('meetings_mom_actions')."\";");
-            /* parse Attachments ---END */
+            if($action == 'edit') {
+                /* parse Actions ---START */
+                $arowid = 0;
+                $userrowid = 0;
+                $checksum['users'] = generate_checksum('mom');
+                eval("\$actions_users = \"".$template->get('meetings_mom_actions_users')."\";");
+                $reprowid = 0;
+                $checksum['representatives'] = generate_checksum('mom');
+                eval("\$actions_representatives = \"".$template->get('meetings_mom_actions_representatives')."\";");
+                $checksum['actions'] = generate_checksum('mom');
+                eval("\$actions_rows = \"".$template->get('meetings_mom_actions_rows')."\";");
+                $headerclass = 'thead';
+                $title = $lang->specificfollowactions;
+                eval("\$actions .= \"".$template->get('meetings_mom_actions')."\";");
+                /* parse Attachments ---END */
+            }
         }
     }
     else {
@@ -149,12 +151,12 @@ if(!$core->input['action']) {
         $arowid = 0;
         $userrowid = 0;
         $checksum['users'] = generate_checksum('mom');
-        eval("\$actions_users .= \"".$template->get('meetings_mom_actions_users')."\";");
+        eval("\$actions_users = \"".$template->get('meetings_mom_actions_users')."\";");
         $reprowid = 0;
         $checksum['representatives'] = generate_checksum('mom');
-        eval("\$actions_representatives .= \"".$template->get('meetings_mom_actions_representatives')."\";");
+        eval("\$actions_representatives = \"".$template->get('meetings_mom_actions_representatives')."\";");
         $checksum['actions'] = generate_checksum('mom');
-        eval("\$actions_rows .= \"".$template->get('meetings_mom_actions_rows')."\";");
+        eval("\$actions_rows = \"".$template->get('meetings_mom_actions_rows')."\";");
         $headerclass = 'thead';
         $title = $lang->specificfollowactions;
         eval("\$actions .= \"".$template->get('meetings_mom_actions')."\";");

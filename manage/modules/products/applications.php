@@ -79,5 +79,58 @@ else {
         eval("\$dialog_managerapplication = \"".$template->get('admin_popup_manageapplication')."\";");
         output($dialog_managerapplication);
     }
+    elseif($core->input['action'] == 'get_deletapp') {
+        $psaid = intval($core->input['id']);
+        eval("\$delete_app = \"".$template->get('popup_admin_deleteapplications')."\";");
+        output($delete_app);
+    }
+    elseif($core->input['action'] == 'do_delete') {
+        if($core->usergroup['canManageSegments'] == 0) {
+            output_xml("<status>false</status><message>{$lang->errordeleting}</message>");
+            exit;
+        }
+        $todeleteid = intval($core->input['psaid']);
+        $app_cols = array('psaid');
+        foreach($app_cols as $column) {
+            $tables[$column] = $db->get_tables_havingcolumn($column);
+        }
+        if(is_array($tables)) {
+            foreach($tables as $key => $columntables) {
+                if(is_array($columntables)) {
+                    $app_tables[$key] = array_fill_keys(array_values($columntables), $key);
+                }
+            }
+        }
+        $exclude_tables = array('segmentapplications');
+
+        foreach($app_tables as $tables) {
+            if(is_array($tables)) {
+                foreach($tables as $table => $attr) {
+                    if(in_array($table, $exclude_tables)) {
+                        continue;
+                    }
+                    $query = $db->query("SELECT * FROM ".Tprefix.$table." WHERE ".$attr." = ".$todeleteid);
+                    if($db->num_rows($query) > 0) {
+                        $usedin_tables[] = $table;
+                    }
+                }
+            }
+        }
+        if(is_array($usedin_tables)) {
+            // $result = implode(", ", $usedin_tables);
+            output_xml("<status>false</status><message>{$lang->deleteerror}</message>");
+            exit;
+        }
+        /* Delete Entity */
+        $deletequery = $db->delete_query('segmentapplications', "psaid = '{$todeleteid}'");
+
+        /* Delete "deleted entity" data from excluded tabes if found ? */
+        if($deletequery) {
+            output_xml("<status>true</status><message>{$lang->successdelete}</message>");
+        }
+        else {
+            output_xml("<status>false</status><message>{$lang->errordeleting}</message>");
+        }
+    }
 }
 ?>

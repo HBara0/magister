@@ -74,6 +74,10 @@
                         <div style="display:inline-block; padding:11px;">{$robots_list}</div>
                     </div>
                     <div style="display:block;">
+                        <div class="thead" style="margin-top:8px;">{$lang->highlights}</div>
+                        {$higlightsbox}
+                    </div>
+                    <div style="display:block;">
                         <div style="display:block;" class="thead">{$lang->attachfiles}</div>
                         <div style="display:block;">
                             <fieldset  title="{$lang->attachments}"class="altrow2" style="border:1px solid #DDDDDD"><legend class="subtitle">{$lang->attachments}</legend><input type="file" id="attachments" name="attachments[]" multiple="true"></fieldset>

@@ -92,7 +92,7 @@ else {
                 output_xml('<status>false</status><message>'.$lang->fillrequiredfields.'</message>');
                 break;
             case 2:
-                output_xml('<status>false</status><message>eeee'.$lang->itemalreadyexist.'</message>');
+                output_xml('<status>false</status><message>'.$lang->itemalreadyexist.'</message>');
                 break;
         }
     }

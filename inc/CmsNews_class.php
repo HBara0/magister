@@ -104,7 +104,7 @@ class CmsNews extends Cms {
             $query = $db->insert_query('cms_news', $this->data);
             if($query) {
                 $this->status = 0;
-                $cmsnid = $db->last_id();
+                $cmsnid = $this->data['cmsnid'] = $db->last_id();
                 $log->record($this->data['cmsnid']);
 
                 /* Insert relatedcategories */

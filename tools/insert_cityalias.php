@@ -19,8 +19,8 @@ if(is_array($temp_citis)) {
             if(is_object($basetemp_city)) {
                 $city = Cities::get_data(array('unlocode' => $basetemp_city->cityCode, 'country' => $basetemp_city->countryCode), array('returnarray' => false));
                 if(is_object($city)) {
-                    $ncity['name'] = $basetemp_city->cityName;
-                    $ncity['alias'] = substr($temp_city->cityName, 0, strpos($temp_city->cityName, '='));
+                    $ncity['name'] = trim($basetemp_city->cityName);
+                    $ncity['alias'] = trim(substr($temp_city->cityName, 0, strpos($temp_city->cityName, '=')));
                     $db->update_query('cities', $ncity, 'ciid ='.$city->ciid);
                 }
             }
@@ -33,8 +33,8 @@ if(is_array($temp_citis)) {
             $name = substr($temp_city->cityName, 0, strpos($temp_city->cityName, '(') - 1);
             $city = Cities::get_data(array('unlocode' => $temp_city->cityCode, 'country' => $temp_city->countryCode), array('returnarray' => false));
             if(is_object($city)) {
-                $ncity['name'] = $name;
-                $ncity['alias'] = $alias;
+                $ncity['name'] = trim($name);
+                $ncity['alias'] = trim($alias);
                 $db->update_query('cities', $ncity, 'ciid ='.$city->ciid);
             }
         }

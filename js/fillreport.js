@@ -30,7 +30,7 @@ $(function() {
                 contentIn = "spid";
                 $("#spid,#quarter,#year").empty();
                 var onbehalf = $("#forecast_onBehalf").val();
-                if(onbehalf != 0 && typeof onbehalf !== 'undefined') {
+                if(onbehalf != 0 && typeof onbehalf !== 'undefined' && onbehalf != null) {
                     dataParam += '&onBehalf=' + onbehalf;
                 }
             }
