@@ -11,6 +11,5 @@
             "background": '#006600'
         });
         $("#progresslabel").text('tesssst');
-        progressbar.find(".ui-progressbar-value");
     });
 </script>
