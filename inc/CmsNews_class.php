@@ -275,7 +275,7 @@ class CmsNews extends Cms {
     public function get_multiplenews($filter_where) {
         global $db, $core;
 
-        $sort_query = 'ORDER BY cn.title ASC, cn.version DESC';
+        $sort_query = 'ORDER BY publishDate DESC';
         if(isset($core->input['sortby'], $core->input['order'])) {
             $sort_query = 'ORDER BY '.$core->input['sortby'].' '.$core->input['order'];
         }
