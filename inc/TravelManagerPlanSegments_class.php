@@ -859,7 +859,12 @@ class TravelManagerPlanSegments extends AbstractClass {
                 $currencies[] = new Currencies(840, true);
                 $currencies[] = new Currencies(978, true);
                 $currencies = array_unique($currencies);
-                $currencies_list = parse_selectlist('segment['.$sequence.'][tmhid]['.$checksum.'][currency]', '3', $currencies, $rescurrency_id, '', '', array('id' => 'currency_'.$sequence.'_'.$checksum.'_list'));
+                foreach($currencies as $currency) {
+                    if(is_object($currency)) {
+                        $val_currencies[] = $currency->validate_currency();
+                    }
+                }
+                $currencies_list = parse_selectlist('segment['.$sequence.'][tmhid]['.$checksum.'][currency]', '3', $val_currencies, $rescurrency_id, '', '', array('id' => 'currency_'.$sequence.'_'.$checksum.'_list'));
 
                 //      $leavedays = abs($this->toDate - $this->fromDate);
                 //     $leavedays = floor($leavedays / (60 * 60 * 24));

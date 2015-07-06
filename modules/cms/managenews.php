@@ -20,7 +20,7 @@ if($core->usergroup['cms_canAddNews'] == 0) {
 }
 
 if(!$core->input['action']) {
-    if($core->usergroup['crm_canPublishNews'] == 1) {
+    if($core->usergroup['cms_canPublishNews'] == 1) {
         $publish_news = '<div style="display:inline-block">'.$lang->ispublish.'</div><div style="display: table-cell; padding:10px;"><input name="news[isPublished]" type="checkbox" value="1"></div>';
     }
     $content_categories = CmsContentCategories::get_data('title IS NOT NULL');
@@ -88,8 +88,8 @@ if(!$core->input['action']) {
         }
     }
 
-    if($core->usergroup['crm_canPublishNews'] == 1) {
-        $publish_news = '<div style="display:table-cell;">'.$lang->publish.'</div><div style="display: table-cell; padding:10px;"><input name="news[isPublished]" type="checkbox" value=1"{$checkboxes[isPublished]}"></div>';
+    if($core->usergroup['cms_canPublishNews'] == 1) {
+        $publish_news = '<div style="display:table-cell;">'.$lang->ispublish.'</div><div style="display: table-cell; padding:10px;"><input name="news[isPublished]" type="checkbox" value=1" '.$checkedboxes[isPublished].'"></div>';
     }
 
     $robots_list = parse_selectlist('news[robotsRule]', 1, array("INDEX,FOLLOW" => "INDEX,FOLLOW", "NOINDEX,FOLLOW" => "NOINDEX,FOLLOW", "INDEX,NOFOLLOW" => "INDEX,NOFOLLOW", "NOINDEX,NOFOLLOW" => "NOINDEX,NOFOLLOW"), 0);
@@ -171,7 +171,7 @@ else {
         }
         ?>
         <script language="javascript" type="text/javascript">
-            $(function () {
+            $(function() {
                 top.$("#upload_Result").html("<span class='<?php echo $output_class;?>'><?php echo $output_message;?></span>");
             });
         </script>

@@ -123,7 +123,9 @@ class TravelManagerPlan {
         $currencies[] = new Currencies(840, true);
         $currencies[] = new Currencies(978, true);
         foreach($currencies as $currency) {
-            $val_currencies[] = $currency->validate_currency();
+            if(is_object($currency)) {
+                $val_currencies[] = $currency->validate_currency();
+            }
         }
         $currencies = array_filter(array_unique($val_currencies));
         $currencies_list = parse_selectlist('segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].'][currency]', '', $currencies, $transportation->currency, '', '', array('width' => '100%', 'id' => 'currency_'.$sequence.'_'.$category['inputChecksum'].'_list'));
@@ -698,7 +700,9 @@ $("#anotheraff_otheraccomodations_'.$sequence.'_'.$otherhotel_checksum.'").hide(
             $currencies[] = new Currencies(840, true);
             $currencies[] = new Currencies(978, true);
             foreach($currencies as $currency) {
-                $val_currencies[] = $currency->validate_currency();
+                if(is_object($currency)) {
+                    $val_currencies[] = $currency->validate_currency();
+                }
             }
             $currencies = array_filter(array_unique($val_currencies));
             $currencies_list = parse_selectlist('segment['.$sequence.'][tmhid]['.$otherhotel_checksum.'][currency]', '3', $currencies, '840', '', '', array('id' => 'currency_'.$sequence.'_'.$otherhotel_checksum.'_list'));
@@ -752,7 +756,9 @@ $("#anotheraff_otheraccomodations_'.$sequence.'_'.$otherhotel_checksum.'").hide(
             $currencies_f[] = new Currencies(840, true);
             $currencies_f[] = new Currencies(978, true);
             foreach($currencies_f as $currency) {
-                $val_currencies[] = $currency->validate_currency();
+                if(is_object($currency)) {
+                    $val_currencies[] = $currency->validate_currency();
+                }
             }
             $currencies_f = array_filter(array_unique($val_currencies));
             if(is_array($finance)) {
