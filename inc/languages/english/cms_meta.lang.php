@@ -133,4 +133,5 @@ $lang['title'] = 'Title';
 $lang['link'] = 'Link';
 $lang['html'] = 'HTML';
 $lang['highlights'] = 'Highlights';
+$lang['entryalreadyexists'] = 'Entry Already Exists';
 ?>

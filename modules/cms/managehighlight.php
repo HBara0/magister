@@ -21,7 +21,7 @@ if(!$core->input['action']) {
             if($highlight['type'] == 'html') {
                 $hide_graph = 'hidden="hidden"';
             }
-            else if($highlight['type'] == 'graph') {
+            elseif($highlight['type'] == 'graph') {
                 $hide_html = 'hidden="hidden"';
             }
             if($highlight['isEnabled'] == '1') {
@@ -31,6 +31,7 @@ if(!$core->input['action']) {
     }
     else {
         $hide_html = 'hidden="hidden"';
+        $action = 'create';
     }
     $types_list = parse_selectlist('highlight[type]', 1, $types, $highlight['type'], '', '', array('id' => 'types'));
     eval("\$type_graph = \"".$template->get('cms_managehighlights_type_graph')."\";");
@@ -41,9 +42,17 @@ if(!$core->input['action']) {
 else {
     if($core->input['action'] == 'do_perform_managehighlight') {
         $highlight = $core->input['highlight'];
-        if(!is_array($highlight) || is_empty($highlight)) {
+        if(!is_array($highlight) || is_empty($highlight || empty($highlight['title']))) {
             output_xml("<status>false</status><message>{$lang->fillrequiredfields}</message>");
             exit;
+        }
+        if($core->input['actiontype'] == 'create') {
+            $highlight['name'] = generate_alias($highlight['title']);
+            $existing_object = CmsHighlights::get_data(array('name' => $highlight['name']));
+            if(is_object($existing_object)) {
+                output_xml("<status>false</status><message>{$lang->entryalreadyexists}</message>");
+                exit;
+            }
         }
         $highlight_obj = new CmsHighlights();
         $highlight_obj->set($highlight);
