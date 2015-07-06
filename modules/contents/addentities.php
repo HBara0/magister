@@ -23,6 +23,9 @@ if(!$core->input['action']) {
         if($core->input['type'] == 'supplier') {
             $selected_type = 's';
         }
+        if($core->input['type'] == 'competitorsupplier') {
+            $selected_type = 'cs';
+        }
         else {
             $selected_type = 'c';
             $createreports_disabled = ' disabled';
