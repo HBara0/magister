@@ -69,4 +69,11 @@ else {
                 exit;
         }
     }
+    elseif($core->input['action'] == 'togglepublish') {
+        // if($core->usergroup['cms_canPublishNews'] == 1 && !empty($core->input['id'])) {
+        $highlight = new CmsHighlights(intval($core->input['id']));
+        $db->update_query(CmsHighlights::TABLE_NAME, array('isEnabled' => !$highlight->isEnabled), CmsHighlights::PRIMARY_KEY.'='.intval($core->input['id']));
+        // }
+        redirect('index.php?module=cms/highlightslist');
+    }
 }
