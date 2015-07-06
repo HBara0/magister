@@ -74,4 +74,7 @@ $lang['invitemployees'] = 'Invite Employees';
 $lang['tasksboard'] = 'Tasks Board';
 $lang['eventlogo'] = 'Event Logo';
 $lang['prerequisit'] = 'Pre-Requisit';
+$lang['assignedtome'] = 'Assigned To Me';
+$lang['createdbyme'] = 'Created By Me';
+$lang['sharedwithme'] = 'Shared With Me';
 ?>
