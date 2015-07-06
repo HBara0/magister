@@ -18,7 +18,7 @@ if($core->usergroup['crm_canGenerateMIRep'] == 0) {
 if(!$core->input['action']) {
     $identifier = substr(md5(microtime(uniqid())), 0, 10);
     // Here we get affiliate for user assigned to, or he can audit
-    $a = $core->user['auditfor'];
+
     $afffiliates_users = $core->user['affiliates'] + $core->user['auditfor'];
     $afffiliates_users = array_unique($afffiliates_users);
     foreach($afffiliates_users as $affid => $affiliates) {
@@ -164,7 +164,12 @@ if($core->input['action'] == 'do_perform_marketintelligencereport') {
     $dimensionalize_ob = new DimentionalData();
     /* split the dimension and explode them into chuck of array */
 
+
+    if(!isset($mireportdata['filter']['spid']) && empty($mireportdata['filter']['spid'])) {
+        $mireportdata['filter']['spid'] = $core->user['suppliers']['eid'];
+    }
     /* Get cfpid of segment ----START */
+
     if(isset($mireportdata['filter']['spid'])) {
         $mireportdata['filter']['cfpid'] = 'SELECT cfpid FROM '.Tprefix.'chemfunctionproducts WHERE pid IN (SELECT pid FROM '.Tprefix.'products WHERE spid IN ('.implode(',', $mireportdata['filter']['spid']).'))';
     }
@@ -190,6 +195,15 @@ if($core->input['action'] == 'do_perform_marketintelligencereport') {
 
     unset($mireportdata['filter']['coid'], $mireportdata['filter']['cfpid2'], $mireportdata['filter']['spid'], $mireportdata['filter']['psid'], $mireportdata['filter']['ctype']);
     /* Get cfpid of segment ----END */
+
+
+    if(empty($mireportdata['filter']['cid'])) {
+        $mireportdata['filter']['cid'] = $core->user['customers'];
+    }
+    if(empty($mireportdata['filter']['affid'])) {
+        $afffiliates_users = $core->user['affiliates'] + $core->user['auditfor'];
+        $mireportdata['filter']['affid'] = array_unique($afffiliates_users);
+    }
 
     $marketin_objs = MarketIntelligence::get_marketdata_dal($mireportdata['filter'], array('simple' => false, 'operators' => array('coid' => 'IN', 'cid' => 'IN', 'cfpid' => 'IN', 'cfcid' => 'IN')));
 
