@@ -1645,6 +1645,7 @@ else {
         $srowid = intval($core->input ['ajaxaddmoredata']['srowid']);
         $display['product'] = 'style="display:none"';
         $inputchecksum['product'] = generate_checksum('mpl');
+        $deleterow_icon = ' <img src="./images/invalid.gif"  style="cursor:pointer;vertical-align:bottom;" id="removerow"> Remove Row';
         eval("\$markerreport_segment_suppliers_row = \"".$template->get('reporting_fillreport_marketreport_suppproducts')."\";");
         output($markerreport_segment_suppliers_row);
     }
