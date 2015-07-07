@@ -466,6 +466,8 @@ else {
             // exit;
             $mailer->send();
             if($mailer->get_status() === true) {
+                $sentreport = new ReportsSendLog();
+                $sentreport->set(array('affid' => $affiliate->get_id(), 'report' => 'salesreport', 'date' => TIME_NOW, 'sentBy' => $core->user['uid'], 'sentTo' => ''))->save();
                 unset($core->input['reporttype']);
                 redirect('index.php?'.http_build_query($core->input), 1, 'Success');
             }

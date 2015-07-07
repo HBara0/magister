@@ -70,7 +70,9 @@
             <input type="hidden" id="type" name="type" value="task" />
 
             <div class="subtitle">{$lang->taskdetails}</div>
-            <div style="width:20%; display:inline-block;"><strong>{$lang->task}</strong></div><div style="width:70%; display:inline-block;"><input type="text" name="task[subject]" size="50" required='required'/> <input type="hidden" name="task[dueDate]" id="altpickDate_duedate" value="" /></div><br />
+            <div style="width:20%; display:inline-block;"><strong>{$lang->task}</strong></div><div style="width:70%; display:inline-block;"><input type="text" name="task[subject]" size="50" required='required'/></div><br />
+            <div style="width:20%; display:inline-block;"><strong>{$lang->duedate}</strong></div><div style="width:70%; display:inline-block;"><input type="text" name="task[altDueDate]" id="pickDate_duedate" value="{$duedate}" /></div>
+            <input type="hidden" name="task[dueDate]" id="altpickDate_duedate" value="" />
             <div style="width:20%; display:inline-block;">{$lang->assignedto}</div><div style="width:70%; display:inline-block;">{$assignedto_selectlist}</div><br />
             <div style="width:20%; display:inline-block;">{$lang->priority}</div><div style="width:70%; display:inline-block;"><select name="task[priority]"><option value="2">{$lang->priorityhigh}</option><option value="1" selected='selected'>{$lang->prioritynormal}</option><option value="0">{$lang->prioritylow}</option></select></div><br />
             <div style="width:20%; display:inline-block; vertical-align:top;">{$lang->completed}</div><div style="width:70%; display:inline-block;">
@@ -82,6 +84,11 @@
                     <option value="100">100%</option>
                 </select>
             </div><br/>
+            <div style="width:20%; display:inline-block;">{$lang->prerequisit}</div><div style="width:70%; display:inline-block;">
+                <input style="width: 100%" type="text" {$disabled}  id="alltasks_autocomplete" autocomplete="false" tabindex="1" value="{$taskname}" required="required"/>
+                <input type='hidden' id='alltasks_id'  name="task[prerequisitTask]" value="{$task[prerequisitTask]}"/>
+                <input type='hidden' id='alltasks_id_output' name="task[prerequisitTask]" value="{$task[prerequisitTask]}" disabled/>
+            </div>
             <div style="width:20%; display:inline-block; vertical-align:top;">{$lang->description}</div><div style="width:70%; display:inline-block;"><textarea cols="50" rows="10" name="task[description]" class="basictxteditadv" id="taskdescription"></textarea></div><br/>
             <div style="width:20%; display:inline-block; vertical-align:top;">{$lang->reminder}</div><div style="width:70%; display:inline-block;"><input type="text" value="" tabindex="1" autocomplete="off" name="task[reminderStart]"id="pickDate_reminderStart" size="15"/> {$lang->repeat} {$reminderinterval_selectlist}</div>
             <div style="width:20%; display:inline-block; vertical-align:top;">{$lang->notifytask}</div><div style="width:70%; display:inline-block;">{$tasks_notify_radiobutton}</div><br/>

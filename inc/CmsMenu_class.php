@@ -165,7 +165,7 @@ class CmsMenu extends Cms {
             $query_select = 'cmsmiid, parent,sequence';
         }
 
-        $query = $db->query("SELECT {$query_select} FROM ".Tprefix."cms_menuitems WHERE parent=".$db->escape_string($id).' ORDER BY sequence ASC');
+        $query = $db->query("SELECT {$query_select} FROM ".Tprefix."cms_menuitems WHERE parent=".$db->escape_string($id).' ORDER BY sequence ASC,title ASC');
         if($db->num_rows($query) > 0) {
             while($menu = $db->fetch_assoc($query)) {
                 $menus[$menu['cmsmiid']] = $menu;

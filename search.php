@@ -380,6 +380,13 @@ if($core->input['type'] == 'quick') {
             $select_attributes = array('title');
             $order = array('by' => 'title', 'sort' => 'ASC');
         }
+        elseif($core->input['for'] == 'alltasks') {
+            $table = 'calendar_tasks';
+            $attributes = array('subject');
+            $key_attribute = 'ctid';
+            $select_attributes = array('subject');
+            $order = array('by' => 'subject', 'sort' => 'ASC');
+        }
 
 //        if(isset($core->input['exclude']) && !empty($core->input['exclude'])) {
 //            if(is_array($core->input['exclude'])) {
