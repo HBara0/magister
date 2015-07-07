@@ -21,7 +21,7 @@ $lang->load('products_applications');
 $lang->load('global');
 if(!$core->input['action']) {
     $sort_url = sort_url();
-    $applications_obj = SegmentApplications::get_segmentsapplications();
+    $applications_obj = SegmentApplications::get_segmentsapplications('', array('order' => 'name'));
     if(is_array($applications_obj)) {
         /* loop over the returned objects and get their related data */
         foreach($applications_obj as $application_obj) {
