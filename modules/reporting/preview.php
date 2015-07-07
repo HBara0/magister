@@ -548,11 +548,13 @@ if(!$core->input['action']) {
                 $audits = $report_obj->get_report_supplier_audits();
                 $auditor = 0;
                 if(is_array($audits)) {
-                    if($audit['uid'] == $core->user['uid']) {
-                        $auditor = 1;
+                    foreach($audits as $audit) {
+                        if($audit['uid'] == $core->user['uid']) {
+                            $auditor = 1;
+                        }
                     }
                 }
-                if($auditor == 1) {
+                if($auditor == 0) {
                     $criteriaandstars .= '<div class="rateit" data-rateit-starwidth="18" data-rateit-starheight="16" data-rateit-ispreset="true" data-rateit-readonly="true" data-rateit-value="'.$ratingval.'"></div>';
                 }
                 else {
