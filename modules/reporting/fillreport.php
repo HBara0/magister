@@ -1143,6 +1143,10 @@ else {
                                 if(!empty($error_output)) {
                                     $output_message = $error_output.'</br>';
                                     $process_success = 'false';
+                                    $mkrcompetitionproducts = MarketReportCompetitionProducts::get_data(array('mrcid' => $mrcomp_supplier_obj->mrcid), array('returnarray' => true));
+                                    if(!is_array($mkrcompetitionproducts)) {
+                                        $mrcomp_supplier_obj->delete();
+                                    }
                                     output_xml('<status>'.$process_success."</status><message><![CDATA[{$output_message}]]></message>");
                                     exit;
                                 }
