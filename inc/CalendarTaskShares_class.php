@@ -85,4 +85,15 @@ class CalendarTaskShares extends AbstractClass {
         return new Tasks($this->data['ctid']);
     }
 
+    public function get_tasks_byuser($userid) {
+        $tasks_ids = CalendarTaskShares::get_column('ctid', array('uid' => $userid), array('returnarray' => true));
+        if(is_array($tasks_ids)) {
+            foreach($tasks_ids as $taskid) {
+                $tasks[] = new Tasks($taskid);
+            }
+            return $tasks;
+        }
+        return null;
+    }
+
 }

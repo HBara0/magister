@@ -13,25 +13,78 @@ if(!defined('DIRECT_ACCESS')) {
 }
 
 if(!$core->input['action']) {
-    $taskdata['filter']['ctid'] = 'SELECT ctid FROM calendar_tasks_shares WHERE uid='.$core->user['uid'].') OR (uid='.$core->user['uid'].' OR createdBy='.$core->user['uid'];
-    $tasks = Tasks::get_tasks($taskdata['filter'], array('simple' => false, 'order' => 'dueDate DESC, isDone', 'operators' => array('ctid' => 'IN')));
+//    $taskdata['filter']['ctid'] = 'SELECT ctid FROM calendar_tasks_shares WHERE uid='.$core->user['uid'].') OR (uid='.$core->user['uid'].' OR createdBy='.$core->user['uid'];
+//    $tasks = Tasks::get_tasks($taskdata['filter'], array('simple' => false, 'order' => 'dueDate DESC, isDone', 'operators' => array('ctid' => 'IN')));
 
-    if(is_array($tasks)) {
-        foreach($tasks as $task) {
-            $task->dueDate = date($core->settings['dateformat'], $task->dueDate);
-            $task_iconstats = $task->parsestatus();
-            $task->percCompleted_output = '';
-            if($task_iconstats == 'inprogress') {
-                $task->percCompleted_output = numfmt_format(numfmt_create('en_EN', NumberFormatter::PERCENT), $task->percCompleted / 100);
+    $alltask['createdby'] = Tasks::get_tasks(array('createdBy' => $core->user['uid']), array('returnarray' => true, 'simple' => false));
+    $alltask['assigned'] = Tasks::get_tasks(array('uid' => $core->user['uid']), array('returnarray' => true, 'simple' => false));
+    $alltask['shared'] = CalendarTaskShares::get_tasks_byuser($core->user['uid']);
+
+    if(is_array($alltask)) {
+        foreach($alltask as $type => $tasks) {
+            switch($type) {
+                case 'createdby':
+                    foreach($tasks as $task) {
+                        $task->dueDate = date($core->settings['dateformat'], $task->dueDate);
+                        $task_iconstats = $task->parsestatus();
+                        $task_barid = $task->ctid.'c';
+                        if($task_iconstats == 'inprogress') {
+//                $task->percCompleted_output = numfmt_format(numfmt_create('en_EN', NumberFormatter::PERCENT), $task->percCompleted / 100);
+                            $value = $task->percCompleted;
+                            eval("\$progressbar = \"".$template->get('progressbar')."\";");
+                        }
+                        $task_icon[$task_iconstats] = '<img src="./images/icons/'.$task_iconstats.'.png" border="0" />';
+                        eval("\$calendar_taskboard_rows .= \"".$template->get('calendar_tasksboard_rows')."\";");
+                        unset($task_icon[$task_iconstats], $task_barid, $value, $progressbar);
+                    }
+                    eval("\$calendar_taskboard_createdby = \"".$template->get('calendar_tasksboard')."\";");
+                    unset($calendar_taskboard_rows);
+                    break;
+                case 'assigned':
+                    foreach($tasks as $task) {
+                        $task->dueDate = date($core->settings['dateformat'], $task->dueDate);
+                        $task_iconstats = $task->parsestatus();
+                        $task->percCompleted_output = '';
+                        $task_barid = $task->ctid.'a';
+
+                        if($task_iconstats == 'inprogress') {
+//                $task->percCompleted_output = numfmt_format(numfmt_create('en_EN', NumberFormatter::PERCENT), $task->percCompleted / 100);
+                            $value = $task->percCompleted;
+                            eval("\$progressbar = \"".$template->get('progressbar')."\";");
+                        }
+                        $task_icon[$task_iconstats] = '<img src="./images/icons/'.$task_iconstats.'.png" border="0" />';
+                        eval("\$calendar_taskboard_rows .= \"".$template->get('calendar_tasksboard_rows')."\";");
+                        unset($task_icon[$task_iconstats], $task_barid, $value, $progressbar);
+                    }
+                    eval("\$calendar_taskboard_assigned = \"".$template->get('calendar_tasksboard')."\";");
+                    unset($calendar_taskboard_rows);
+
+                    break;
+                case 'shared':
+                    if(is_array($tasks)) {
+                        foreach($tasks as $task) {
+                            $task->dueDate = date($core->settings['dateformat'], $task->dueDate);
+                            $task_iconstats = $task->parsestatus();
+                            $task->percCompleted_output = '';
+                            $task_barid = $task->ctid.'s';
+                            if($task_iconstats == 'inprogress') {
+//                $task->percCompleted_output = numfmt_format(numfmt_create('en_EN', NumberFormatter::PERCENT), $task->percCompleted / 100);
+                                $value = $task->percCompleted;
+                                eval("\$progressbar = \"".$template->get('progressbar')."\";");
+                            }
+                            $task_icon[$task_iconstats] = '<img src="./images/icons/'.$task_iconstats.'.png" border="0" />';
+                            eval("\$calendar_taskboard_rows .= \"".$template->get('calendar_tasksboard_rows')."\";");
+                            unset($task_icon[$task_iconstats], $task_barid, $value, $progressbar);
+                        }
+                        eval("\$calendar_taskboard_shared = \"".$template->get('calendar_tasksboard')."\";");
+                        unset($calendar_taskboard_rows);
+                        break;
+                    }
             }
-
-            $task_icon[$task_iconstats] = '<img src="./images/icons/'.$task_iconstats.'.png" border="0" />';
-            eval("\$calendar_taskboard_rows .= \"".$template->get('calendar_tasksboard_rows')."\";");
-            unset($task_icon[$task_iconstats], $task_percentage);
         }
-        unset($tasks);
     }
-    eval("\$calendar_taskboard = \"".$template->get('calendar_tasksboard')."\";");
+    eval("\$calendar_taskboard = \"".$template->get('calendar_tasks_tabs')."\";");
+
     output_page($calendar_taskboard);
 }
 elseif($core->input['action'] == 'get_taskdetails') {
@@ -53,11 +106,12 @@ elseif($core->input['action'] == 'get_taskdetails') {
         /* Get Notes - START */
         $task_notes = $task->get_notes();
         if(is_array($task_notes)) {
+
             $notes_count = count($task_notes);
 
             foreach($task_notes as $note) {
                 $rowclass = alt_row($rowclass);
-                $note_date_diff = (TIME_NOW - $note->dateAdded);
+                $note_date_diff = ( TIME_NOW - $note->dateAdded);
                 if(date('y-m-d', $note->dateAdded) != date('y-m-d', TIME_NOW)) {
                     $note->dateAdded_output = date($core->settings['dateformat'].' '.$core->setting['timeformat'], $note->dateAdded);
                 }
