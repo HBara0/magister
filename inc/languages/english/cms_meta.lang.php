@@ -140,4 +140,7 @@ $lang['pagetitle'] = 'Page Title';
 $lang['textcontent'] = 'Text Content';
 $lang['metadescription'] = 'Meta Descritpion';
 $lang['extractpagescontents'] = 'Extract Pages Contents';
+$lang['extractpages'] = 'Extract Pages';
+$lang['showsegmentscontent'] = 'Show Segments Contents';
+$lang['showpagescontents'] = 'Show Pages Contents';
 ?>
