@@ -134,4 +134,13 @@ $lang['link'] = 'Link';
 $lang['html'] = 'HTML';
 $lang['highlights'] = 'Highlights';
 $lang['entryalreadyexists'] = 'Entry Already Exists';
+$lang['extractsegmentscontent'] = 'Extract Segments Content';
+$lang['extractdatatools'] = 'Extract Data Tools';
+$lang['pagetitle'] = 'Page Title';
+$lang['textcontent'] = 'Text Content';
+$lang['metadescription'] = 'Meta Descritpion';
+$lang['extractpagescontents'] = 'Extract Pages Contents';
+$lang['extractpages'] = 'Extract Pages';
+$lang['showsegmentscontent'] = 'Show Segments Contents';
+$lang['showpagescontents'] = 'Show Pages Contents';
 ?>

@@ -159,7 +159,7 @@ class CmsPages extends Cms {
         if(isset($options['exclude'])) {
             $exclude_querystring = ' AND cmspid NOT IN ('.implode(',', $options['exclude']).')';
         }
-        return $db->fetch_assoc($db->query("SELECT title, alias, bodyText,version FROM ".Tprefix."cms_pages WHERE alias='".$db->escape_string($alias)."'{$exclude_querystring} ORDER BY version DESC"));
+        return $db->fetch_assoc($db->query("SELECT title, alias, bodyText,version,metaDesc FROM ".Tprefix."cms_pages WHERE alias='".$db->escape_string($alias)."'{$exclude_querystring} ORDER BY version DESC"));
     }
 
     private function read($id, $simple = false) {
@@ -260,6 +260,25 @@ class CmsPages extends Cms {
             return $this->page[$name];
         }
         return false;
+    }
+
+    public function get_column($column, $filters = '', array $configs = array()) {
+        $data = new DataAccessLayer('CmsPages', 'cms_pages', 'cmspid');
+        return $data->get_column($column, $filters, $configs);
+    }
+
+    public function get_latest_pages() {
+        $aliases = CmsPages::get_column('alias');
+        if(!is_array($aliases)) {
+            return null;
+        }
+        foreach($aliases as $alias) {
+            $pages[] = CmsPages::get_lastversion_page($alias);
+        }
+        if(is_array($pages)) {
+            return $pages;
+        }
+        return null;
     }
 
 }

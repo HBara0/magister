@@ -6,7 +6,7 @@
                 <div style="display:inline-block;width:20%;">{$lang->chemicalsubstance}</div>
                 <div style="display:inline-block;width:65%;">
                     <div>
-                        <input type="text" size="25" id="chemicalproducts_{$segment[psid]}{$srowid}{$sprowid}_autocomplete" size="100" autocomplete="off" value="{$chemicalsubstance_name}"/>
+                        <input type="text" size="25" id="chemicalproducts_{$segment[psid]}{$srowid}{$sprowid}_autocomplete" size="100" autocomplete="off" value="{$chemicalsubstance_name}"/> <em>{$lang->pickresultnottypein}</em>
                         <input type="hidden" id="chemicalproducts_{$segment[psid]}{$srowid}{$sprowid}_id" name="marketreport[{$segment[psid]}][suppliers][{$srowid}][chp][{$sprowid}][csid]" value="{$mrcompetition_product[csid]}"/>
                         <div id="searchQuickResults_{$segment[psid]}{$srowid}{$sprowid}" class="searchQuickResults" style="display:none;"></div>
                     </div>

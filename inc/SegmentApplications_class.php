@@ -20,7 +20,7 @@ class SegmentApplications extends AbstractClass {
     const PRIMARY_KEY = 'psaid';
     const TABLE_NAME = 'segmentapplications';
     const DISPLAY_NAME = 'title';
-    const SIMPLEQ_ATTRS = 'psaid, name, psid, title,sequence';
+    const SIMPLEQ_ATTRS = 'psaid, name, psid, title,sequence,description';
     const CLASSNAME = __CLASS__;
     const UNIQUE_ATTRS = 'name,psid';
 
