@@ -1355,13 +1355,13 @@ else {
 //            output_xml("<status>false</status><message>{$lang->noproductsactivity}</message>");
 //            exit;
 //        }
-        $productsactivity_validation = $report->validate_forecasts($rawdata['productactivitydata'], $currencies);
-        /* Commented out to allow saving of report eventhough product activity stage has errors */
-        // if($productsactivity_validation !== true) {
-        //       output_xml("<status>false</status><message>{$lang->wrongforecastgoback}</message>");
-        //       exit;
-        //  }
         if(is_array($rawdata['productactivitydata'])) {
+            $productsactivity_validation = $report->validate_forecasts($rawdata['productactivitydata'], $currencies);
+            if($productsactivity_validation !== true) {
+                output_xml("<status>false</status><message>{$lang->wrongforecastgoback}</message>");
+                exit;
+            }
+
             foreach($rawdata['productactivitydata'] as $i => $newdata) {
                 if(empty($newdata['pid'])) {
                     if(!empty($newdata['paid'])) {
