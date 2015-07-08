@@ -1023,54 +1023,54 @@ else {
         $emtpy_terms = array('na', 'n/a', 'none', 'nothing', 'nothing to mention');
 
         $found_one = $one_notexcluded = false;
+        if(is_array($core->input['marketreport'])) {
+            foreach($core->input['marketreport'] as $key => $val) {
+                $section_allempty = true;
+                if(isset($val['exclude']) && $val['exclude'] == 1) {
+                    $db->query('DELETE FROM '.Tprefix.'marketreport_authors WHERE mrid=(SELECT mrid FROM '.Tprefix.'marketreport WHERE rid='.$rid.' AND psid='.$key.')');
+                    $db->query('DELETE FROM '.Tprefix.'marketreport WHERE rid='.$rid.' AND psid='.$key);
+                    continue;
+                }
 
-        foreach($core->input['marketreport'] as $key => $val) {
-            $section_allempty = true;
-            if(isset($val['exclude']) && $val['exclude'] == 1) {
-                $db->query('DELETE FROM '.Tprefix.'marketreport_authors WHERE mrid=(SELECT mrid FROM '.Tprefix.'marketreport WHERE rid='.$rid.' AND psid='.$key.')');
-                $db->query('DELETE FROM '.Tprefix.'marketreport WHERE rid='.$rid.' AND psid='.$key);
-                continue;
-            }
-
-            unset($val[segmenttitle], $val[exclude]);
-            if($found_one == false) {
-                if(!empty($val)) {
-                    foreach($val as $k => $v) {
-                        if($k == 'suppliers' || $k == 'customers') {
-                            continue;
-                        }
-                        $v = $core->sanitize_inputs(preg_replace(array('~\x{00a0}~siu', '/\s/'), '', $v), array('method' => 'striponly', 'allowable_tags' => '', 'removetags' => true));
-                        if($section_allempty == true) {
-                            if(!in_array(strtolower($v), $emtpy_terms) && !preg_match('/^[n;.,-_+\*]+$/', $v)) {
-                                $section_allempty = false;
+                unset($val[segmenttitle], $val[exclude]);
+                if($found_one == false) {
+                    if(!empty($val)) {
+                        foreach($val as $k => $v) {
+                            if($k == 'suppliers' || $k == 'customers') {
+                                continue;
+                            }
+                            $v = $core->sanitize_inputs(preg_replace(array('~\x{00a0}~siu', '/\s/'), '', $v), array('method' => 'striponly', 'allowable_tags' => '', 'removetags' => true));
+                            if($section_allempty == true) {
+                                if(!in_array(strtolower($v), $emtpy_terms) && !preg_match('/^[n;.,-_+\*]+$/', $v)) {
+                                    $section_allempty = false;
+                                }
+                            }
+                            if(empty($v)) {
+                                $found_one = true;
+                                break;
                             }
                         }
-                        if(empty($v)) {
-                            $found_one = true;
-                            break;
-                        }
+                    }
+                    else {
+                        $found_one = true;
+                        break;
                     }
                 }
                 else {
-                    $found_one = true;
                     break;
                 }
-            }
-            else {
-                break;
-            }
 
-            if($section_allempty == true) {
-                continue;
-            }
+                if($section_allempty == true) {
+                    continue;
+                }
 
-            $marketreport_data[$key] = $val;
-            $marketreport_data[$key]['psid'] = $key;
-            $marketreport_data[$key]['rid'] = $rid;
+                $marketreport_data[$key] = $val;
+                $marketreport_data[$key]['psid'] = $key;
+                $marketreport_data[$key]['rid'] = $rid;
 //unset($marketreport_data[$key]['segmenttitle']);
-            $one_notexcluded = true;
+                $one_notexcluded = true;
+            }
         }
-
 //        if($found_one == true || $one_notexcluded == false) {
 //            output_xml("<status>false</status><message>{$lang->fillonemktreportsection}</message>");
 //            exit;
@@ -1645,7 +1645,7 @@ else {
         $srowid = intval($core->input ['ajaxaddmoredata']['srowid']);
         $display['product'] = 'style="display:none"';
         $inputchecksum['product'] = generate_checksum('mpl');
-        $deleterow_icon = ' <img src="./images/invalid.gif"  style="cursor:pointer;vertical-align:bottom;" id="removerow"> Remove Row';
+        $deleterow_icon = ' <div id="removerow_div"><img src="./images/invalid.gif"  style="cursor:pointer;vertical-align:bottom;" id="removerow"> Remove Row</div>';
         eval("\$markerreport_segment_suppliers_row = \"".$template->get('reporting_fillreport_marketreport_suppproducts')."\";");
         output($markerreport_segment_suppliers_row);
     }
