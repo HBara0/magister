@@ -878,7 +878,19 @@ else {
         }
         /* Validate Forecasts - End */
 
-        if($reportmeta['auditor'] != '1') {
+
+        $report_obj = new Reporting(array('rid' => $rid));
+        $audits = $report_obj->get_report_supplier_audits();
+        $auditor = 0;
+        if(is_array($audits)) {
+            foreach($audits as $audit) {
+                if($audit->uid == $core->user['uid']) {
+                    $auditor = 1;
+                }
+            }
+        }
+
+        if($auditor != '1') {
             $existingentries_query_string = ' AND (uid='.$core->user['uid'].' OR uid=0)';
         }
 //$oldentries = get_specificdata('productsactivity', array('paid'), 'paid', 'paid', '', 0, "rid='{$rid}'{$oldentries_query_string}");
@@ -1322,7 +1334,7 @@ else {
 //                exit;
 //            }
 //        }
-        $report_obj = new Reporting($report_meta);
+        $report_obj = new Reporting($report_meta['rid']);
         $audits = $report->get_report_supplier_audits();
         $auditor = 0;
         if(is_array($audits)) {
