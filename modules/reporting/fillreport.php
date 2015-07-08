@@ -1143,6 +1143,10 @@ else {
                                 if(!empty($error_output)) {
                                     $output_message = $error_output.'</br>';
                                     $process_success = 'false';
+                                    $mkrcompetitionproducts = MarketReportCompetitionProducts::get_data(array('mrcid' => $mrcomp_supplier_obj->mrcid), array('returnarray' => true));
+                                    if(!is_array($mkrcompetitionproducts)) {
+                                        $mrcomp_supplier_obj->delete();
+                                    }
                                     output_xml('<status>'.$process_success."</status><message><![CDATA[{$output_message}]]></message>");
                                     exit;
                                 }
@@ -1641,6 +1645,7 @@ else {
         $srowid = intval($core->input ['ajaxaddmoredata']['srowid']);
         $display['product'] = 'style="display:none"';
         $inputchecksum['product'] = generate_checksum('mpl');
+        $deleterow_icon = ' <img src="./images/invalid.gif"  style="cursor:pointer;vertical-align:bottom;" id="removerow"> Remove Row';
         eval("\$markerreport_segment_suppliers_row = \"".$template->get('reporting_fillreport_marketreport_suppproducts')."\";");
         output($markerreport_segment_suppliers_row);
     }

@@ -1,5 +1,6 @@
 <tr class="{$altrow}"  style="border:1px gainsboro solid;width:100%" id="{$segment[psid]}_{$sprowid}">
     <td colspan="2">
+        {$deleterow_icon}
         <div id='prof_mkd_chemsubfield_{$segment[psid]}{$srowid}{$sprowid}' style="display:inline-block; width: 100%;">
             <div {$display[chemsubstance]}>
                 <div style="display:inline-block;width:20%;">{$lang->chemicalsubstance}</div>

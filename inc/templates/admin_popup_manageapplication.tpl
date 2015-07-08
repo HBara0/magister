@@ -10,6 +10,9 @@
                 <td width="40%"><strong>{$lang->segment}</strong></td><td>{$segments_list}</td>
             </tr>
             <tr>
+                <td width="40%"><strong>{$lang->sequence}</strong></td><td><input name="segmentapplications[sequence]" value='{$application->sequence}' min="0" type="number"/></td>
+            </tr>
+            <tr>
                 <td colspan="2">{$lang->description}<br /><textarea name="segmentapplications[description]" id='description{$application->psaid}' cols="50" class="basictxteditadv" rows="25">{$application->description}</textarea></td>
             </tr>
             <tr>

@@ -3338,11 +3338,11 @@ CREATE TABLE `segmentapplications` (
   `createdOn` bigint(30) NOT NULL,
   `modifiedBy` int(10) NOT NULL,
   `modifiedOn` int(30) NOT NULL,
-  `publishOnWebsite` tinyint(1) NOT NULL,
+  `publishOnWebsite` tinyint(1) NOT NULL DEFAULT '1',
+  `sequence` tinyint(1) NOT NULL,
   PRIMARY KEY (`psaid`,`psid`),
   KEY `createdBy` (`createdBy`,`modifiedBy`),
   FULLTEXT KEY `title` (`title`,`description`)
-/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `segmentation_import`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
