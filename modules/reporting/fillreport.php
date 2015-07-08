@@ -265,7 +265,7 @@ if(!$core->input['action']) {
 //$segments = get_specificdata('entitiessegments', '*', 'esid', 'psid', '', 0, "eid='{$reportmeta[spid]}'");
 //foreach($segments as $key => $val) {
 
-        if($reportmeta['auditor'] == 0) {
+        if($core->input['auditor'] == 0) {
             $filter_segments_query = " AND ps.psid IN (SELECT psid FROM ".Tprefix."employeessegments WHERE uid='{$core->user[uid]}')";
             if(!value_exists('suppliersaudits', 'uid', $core->user['uid'], 'eid='.$reportmeta['spid'])) {
 
@@ -1327,22 +1327,11 @@ else {
         $auditor = 0;
         if(is_array($audits)) {
             foreach($audits as $audit) {
-                if(is_array($audit)) {
-                    foreach($audit as $user) {
-                        if($user['uid'] == $core->user['uid']) {
-                            $auditor = 1;
-                        }
-                    }
-                }
-                else {
-                    if($audits['uid'] == $core->user['uid']) {
-                        $auditor = 1;
-                        break;
-                    }
+                if($audit->uid == $core->user['uid']) {
+                    $auditor = 1;
                 }
             }
         }
-
         if($auditor != '1') {
             $products_deletequery_string = ' AND (uid='.$core->user['uid'].' OR uid=0)';
         }
@@ -1713,13 +1702,9 @@ else {
                 $currency = $productactivity_obj->originalCurrency;
                 $auditors = $reportobj->get_report_supplier_audits();
                 if(is_array($auditors)) {
-                    foreach($auditors as $key => $val) {
-                        if(is_array($val)) {
-                            $ccs[] = $val['email'];
-                        }
-                        else {
-                            $ccs[] = $auditors['email'];
-                            break;
+                    foreach($auditors as $auditor) {
+                        if($auditor->uid == $core->user['uid']) {
+                            $ccs[] = $auditor->email;
                         }
                     }
                 }
