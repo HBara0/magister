@@ -549,7 +549,7 @@ if(!$core->input['action']) {
                 $auditor = 0;
                 if(is_array($audits)) {
                     foreach($audits as $audit) {
-                        if($audit['uid'] == $core->user['uid']) {
+                        if($audit->uid == $core->user['uid']) {
                             $auditor = 1;
                         }
                     }

@@ -265,7 +265,7 @@ if(!$core->input['action']) {
 //$segments = get_specificdata('entitiessegments', '*', 'esid', 'psid', '', 0, "eid='{$reportmeta[spid]}'");
 //foreach($segments as $key => $val) {
 
-        if($reportmeta['auditor'] == 0) {
+        if($core->input['auditor'] == 0) {
             $filter_segments_query = " AND ps.psid IN (SELECT psid FROM ".Tprefix."employeessegments WHERE uid='{$core->user[uid]}')";
             if(!value_exists('suppliersaudits', 'uid', $core->user['uid'], 'eid='.$reportmeta['spid'])) {
 
@@ -878,7 +878,19 @@ else {
         }
         /* Validate Forecasts - End */
 
-        if($reportmeta['auditor'] != '1') {
+
+        $report_obj = new Reporting(array('rid' => $rid));
+        $audits = $report_obj->get_report_supplier_audits();
+        $auditor = 0;
+        if(is_array($audits)) {
+            foreach($audits as $audit) {
+                if($audit->uid == $core->user['uid']) {
+                    $auditor = 1;
+                }
+            }
+        }
+
+        if($auditor != '1') {
             $existingentries_query_string = ' AND (uid='.$core->user['uid'].' OR uid=0)';
         }
 //$oldentries = get_specificdata('productsactivity', array('paid'), 'paid', 'paid', '', 0, "rid='{$rid}'{$oldentries_query_string}");
@@ -1032,41 +1044,41 @@ else {
                 continue;
             }
 
-            unset($val[segmenttitle], $val[exclude]);
-            if($found_one == false) {
-                if(!empty($val)) {
-                    foreach($val as $k => $v) {
-                        if($k == 'suppliers' || $k == 'customers') {
-                            continue;
-                        }
-                        $v = $core->sanitize_inputs(preg_replace(array('~\x{00a0}~siu', '/\s/'), '', $v), array('method' => 'striponly', 'allowable_tags' => '', 'removetags' => true));
-                        if($section_allempty == true) {
-                            if(!in_array(strtolower($v), $emtpy_terms) && !preg_match('/^[n;.,-_+\*]+$/', $v)) {
-                                $section_allempty = false;
+                unset($val[segmenttitle], $val[exclude]);
+                if($found_one == false) {
+                    if(!empty($val)) {
+                        foreach($val as $k => $v) {
+                            if($k == 'suppliers' || $k == 'customers') {
+                                continue;
+                            }
+                            $v = $core->sanitize_inputs(preg_replace(array('~\x{00a0}~siu', '/\s/'), '', $v), array('method' => 'striponly', 'allowable_tags' => '', 'removetags' => true));
+                            if($section_allempty == true) {
+                                if(!in_array(strtolower($v), $emtpy_terms) && !preg_match('/^[n;.,-_+\*]+$/', $v)) {
+                                    $section_allempty = false;
+                                }
+                            }
+                            if(empty($v)) {
+                                $found_one = true;
+                                break;
                             }
                         }
-                        if(empty($v)) {
-                            $found_one = true;
-                            break;
-                        }
+                    }
+                    else {
+                        $found_one = true;
+                        break;
                     }
                 }
                 else {
-                    $found_one = true;
                     break;
                 }
-            }
-            else {
-                break;
-            }
 
             if($section_allempty == true) {
                 continue;
             }
 
-            $marketreport_data[$key] = $val;
-            $marketreport_data[$key]['psid'] = $key;
-            $marketreport_data[$key]['rid'] = $rid;
+                $marketreport_data[$key] = $val;
+                $marketreport_data[$key]['psid'] = $key;
+                $marketreport_data[$key]['rid'] = $rid;
 //unset($marketreport_data[$key]['segmenttitle']);
             $one_notexcluded = true;
         }
@@ -1322,27 +1334,16 @@ else {
 //                exit;
 //            }
 //        }
-        $report_obj = new Reporting($report_meta);
+        $report_obj = new Reporting($report_meta['rid']);
         $audits = $report->get_report_supplier_audits();
         $auditor = 0;
         if(is_array($audits)) {
             foreach($audits as $audit) {
-                if(is_array($audit)) {
-                    foreach($audit as $user) {
-                        if($user['uid'] == $core->user['uid']) {
-                            $auditor = 1;
-                        }
-                    }
-                }
-                else {
-                    if($audits['uid'] == $core->user['uid']) {
-                        $auditor = 1;
-                        break;
-                    }
+                if($audit->uid == $core->user['uid']) {
+                    $auditor = 1;
                 }
             }
         }
-
         if($auditor != '1') {
             $products_deletequery_string = ' AND (uid='.$core->user['uid'].' OR uid=0)';
         }
@@ -1714,13 +1715,9 @@ else {
                 $currency = $productactivity_obj->originalCurrency;
                 $auditors = $reportobj->get_report_supplier_audits();
                 if(is_array($auditors)) {
-                    foreach($auditors as $key => $val) {
-                        if(is_array($val)) {
-                            $ccs[] = $val['email'];
-                        }
-                        else {
-                            $ccs[] = $auditors['email'];
-                            break;
+                    foreach($auditors as $auditor) {
+                        if($auditor->uid == $core->user['uid']) {
+                            $ccs[] = $auditor->email;
                         }
                     }
                 }

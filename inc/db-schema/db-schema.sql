@@ -1335,7 +1335,7 @@ CREATE TABLE `cms_highlights` (
   `description` varchar(90) NOT NULL,
   `isEnabled` tinyint(1) NOT NULL DEFAULT '1',
   PRIMARY KEY (`cmshid`)
-) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=13 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `cms_menuitems`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;

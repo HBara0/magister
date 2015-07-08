@@ -15,7 +15,6 @@ class SupplierAudits extends AbstractClass {
     const PRIMARY_KEY = 'said';
     const TABLE_NAME = 'suppliersaudits';
     const DISPLAY_NAME = '';
-    const UNIQUE_ATTRS = 'eid,uid';
     const SIMPLEQ_ATTRS = '*';
     const CLASSNAME = __CLASS__;
 

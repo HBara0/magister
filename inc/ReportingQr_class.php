@@ -338,10 +338,18 @@ class ReportingQr Extends Reporting {
 
     public function get_report_supplier_audits() {
         global $db;
-        return $db->fetch_assoc($db->query("SELECT u.uid,displayName AS employeeName, u.email
-			FROM ".Tprefix."users u
-			JOIN ".Tprefix."suppliersaudits sa ON (sa.uid=u.uid)
-			WHERE sa.eid=".$this->report['spid'].""));
+        global $db;
+        $suppaudits = SupplierAudits::get_data(array('eid' => $this->report['spid']), array('returnarray' => true));
+        if(is_array($suppaudits)) {
+            foreach($suppaudits as $suppaudit) {
+                $audits[] = new Users($suppaudit->uid);
+            }
+        }
+        return $audits;
+//        return $db->fetch_assoc($db->query("SELECT u.uid,displayName AS employeeName, u.email
+//			FROM ".Tprefix."users u
+//			JOIN ".Tprefix."suppliersaudits sa ON (sa.uid=u.uid)
+//			WHERE sa.eid=".$this->report['spid'].""));
     }
 
     public function get_report_summary() {

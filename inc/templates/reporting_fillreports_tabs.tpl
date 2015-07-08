@@ -26,6 +26,12 @@
                     }, 4000
                             );
                 });
+                $("input[id^='chemicalproducts'][id$='_autocomplete']").live('change', function() {
+                    var id = $(this).attr("id").split("_");
+                    if(jQuery.isNumeric($('input[id=chemicalproducts_' + id[1] + '_id]').val())) {
+                        $("div[id='removerow_div']").hide();
+                    }
+                });
 
                 $("img[id='removerow']").live('click', function() {
                     $(this).closest("tr").remove();
