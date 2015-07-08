@@ -1349,7 +1349,8 @@ else {
 
 //$db->query("DELETE FROM ".Tprefix."productsactivity WHERE rid='{$rawdata[rid]}'{$products_deletequery_string}");
 ////if(empty($report_meta['excludeProductsActivity'])) {
-        $productactitity_objs = ProductsActivity::get_data(array('rid' => $report_meta['rid']), array('returnarray' => true));
+
+        $productactitity_objs = ProductsActivity::get_data(array('rid' => $report_meta['rid']), array('simple' => false, 'returnarray' => true));
         if(is_array($productactitity_objs)) {
             foreach($productactitity_objs as $productactitity_obj) {
                 $rawdata['productactivitydata'][] = $productactitity_obj->get();
@@ -1439,11 +1440,11 @@ else {
                     $marketrepids[] = $marketreportauthor->mrid;
                 }
 
-                $marketreport_objs = MarketReport::get_data(array('mrid' => $marketrepids), array('returnarray' => true));
+                $marketreport_objs = MarketReport::get_data(array('mrid' => $marketrepids), array('simple' => false, 'returnarray' => true));
             }
         }
         else {
-            $marketreport_objs = MarketReport::get_data('rid='.$report_meta['rid'], array('returnarray' => true));
+            $marketreport_objs = MarketReport::get_data('rid='.$report_meta['rid'], array('simple' => false, 'returnarray' => true));
         }
         //$rawdata['marketreportdata']['rid'] = $rawdata['rid'];
         if(is_array($marketreport_objs)) {
@@ -1645,7 +1646,7 @@ else {
         $srowid = intval($core->input ['ajaxaddmoredata']['srowid']);
         $display['product'] = 'style="display:none"';
         $inputchecksum['product'] = generate_checksum('mpl');
-        $deleterow_icon = ' <img src="./images/invalid.gif"  style="cursor:pointer;vertical-align:bottom;" id="removerow"> Remove Row';
+        //  $deleterow_icon = ' <img src="./images/invalid.gif"  style="cursor:pointer;vertical-align:bottom;" id="removerow"> Remove Row';
         eval("\$markerreport_segment_suppliers_row = \"".$template->get('reporting_fillreport_marketreport_suppproducts')."\";");
         output($markerreport_segment_suppliers_row);
     }
