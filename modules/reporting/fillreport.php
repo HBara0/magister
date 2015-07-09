@@ -877,8 +877,6 @@ else {
             exit;
         }
         /* Validate Forecasts - End */
-
-
         $report_obj = new Reporting(array('rid' => $rid));
         $audits = $report_obj->get_report_supplier_audits();
         $auditor = 0;
@@ -1334,7 +1332,8 @@ else {
 //                exit;
 //            }
 //        }
-        $report_obj = new Reporting($report_meta['rid']);
+        $report_obj = new ReportingQr(array('rid' => $report_meta['rid']));
+        // $report_obj = new Reporting($report_meta['rid']);
         $audits = $report->get_report_supplier_audits();
         $auditor = 0;
         if(is_array($audits)) {
