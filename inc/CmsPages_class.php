@@ -13,6 +13,13 @@ class CmsPages extends Cms {
     protected $status = 0;
     private $page = array();
 
+    const PRIMARY_KEY = 'cmspid';
+    const TABLE_NAME = 'cms_pages';
+    const DISPLAY_NAME = 'title';
+    const SIMPLEQ_ATTRS = 'cmspid,alias,title,version';
+    const UNIQUE_ATTRS = 'cmspid';
+    const CLASSNAME = __CLASS__;
+
     public function __construct($id = '', $simple = false) {
         if(isset($id) && !empty($id)) {
             $this->page = $this->read($id, $simple);
@@ -262,23 +269,25 @@ class CmsPages extends Cms {
         return false;
     }
 
-    public function get_column($column, $filters = '', array $configs = array()) {
-        $data = new DataAccessLayer('CmsPages', 'cms_pages', 'cmspid');
-        return $data->get_column($column, $filters, $configs);
-    }
-
     public function get_latest_pages() {
-        $aliases = CmsPages::get_column('alias');
-        if(!is_array($aliases)) {
-            return null;
-        }
-        foreach($aliases as $alias) {
-            $pages[] = CmsPages::get_lastversion_page($alias);
-        }
+        $dal_config = array(
+                'order' => array('by' => array('title', 'version'), 'sort' => array('ASC', 'DESC')),
+                'operators' => array('publishDate' => 'lt', 'version' => CUSTOMSQLSECURE),
+                'simple' => false,
+                'returnarray' => true
+        );
+
+        $pages = CmsPages::get_data(array('isPublished' => 1, 'publishDate' => TIME_NOW, 'version' => 'version=(SELECT MAX(t2.version) FROM '.CmsPages::TABLE_NAME.' t2 WHERE t2.alias='.CmsPages::TABLE_NAME.'.alias)'), $dal_config);
+
         if(is_array($pages)) {
             return $pages;
         }
         return null;
+    }
+
+    public static function get_data($filters = '', $configs = array()) {
+        $data = new DataAccessLayer(self::CLASSNAME, self::TABLE_NAME, self::PRIMARY_KEY);
+        return $data->get_objects($filters, $configs);
     }
 
 }
