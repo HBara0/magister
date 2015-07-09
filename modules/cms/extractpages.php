@@ -11,7 +11,7 @@ if(!defined('DIRECT_ACCESS')) {
     die('Direct initialization of this file is not allowed.');
 }
 if($core->input['extract'] == 'segments') {
-    $segments = ProductsSegments::get_data(null, array('simple' => false));
+    $segments = ProductsSegments::get_data(array('publishOnWebsite' => '1'), array('simple' => false));
 //$segmentsout = '<html><meta http-equiv=\"Content-Type\" content=\"text/html; charset=Windows-1252\"><body>';
     foreach($segments as $segment) {
         if(empty($segment->description)) {
@@ -21,7 +21,7 @@ if($core->input['extract'] == 'segments') {
             $output = '<p>'.$segment->description.'</p>';
         }
         /* parse application */
-        $aplications_objs = $segment->get_published_applications(false);
+        $aplications_objs = SegmentApplications::get_data(array('psid' => $segment->psid, 'publishOnWebsite' => '1'), array('returnarray' => true, 'simple' => false));
         if(is_array($aplications_objs)) {
             foreach($aplications_objs as $item) {
                 $application_output.='<h5>'.$item->get_displayname().'</h5>';
@@ -65,7 +65,7 @@ if(!$core->input['action']) {
 else {
 
     if($core->input['action'] == 'show_segments') {
-        $segments = ProductsSegments::get_data(array('publishOnWebsite' == '1'), array('simple' => false));
+        $segments = ProductsSegments::get_data(array('publishOnWebsite' => '1'), array('simple' => false));
 //$segmentsout = '<html><meta http-equiv=\"Content-Type\" content=\"text/html; charset=Windows-1252\"><body>';
         foreach($segments as $segment) {
             if(empty($segment->description)) {
@@ -75,7 +75,7 @@ else {
                 $output = '<p>'.$segment->description.'</p>';
             }
             /* parse application */
-            $aplications_objs = $segment->get_published_applications(false);
+            $aplications_objs = SegmentApplications::get_data(array('psid' => $segment->psid, 'publishOnWebsite' => '1'), array('returnarray' => true, 'simple' => false));
             if(is_array($aplications_objs)) {
                 foreach($aplications_objs as $item) {
                     $application_output.='<h5>'.$item->get_displayname().'</h5>';
