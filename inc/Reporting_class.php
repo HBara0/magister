@@ -27,7 +27,7 @@ class Reporting {
 
     public function get_report_supplier_audits() {
         global $db;
-        $suppaudits = SupplierAudits::get_data(array('eid' => $this->report['spid']), array('returnrray' => true));
+        $suppaudits = SupplierAudits::get_data(array('eid' => $this->report['spid']), array('returnarray' => true));
         if(is_array($suppaudits)) {
             foreach($suppaudits as $suppaudit) {
                 $audits[] = new Users($suppaudit->uid);

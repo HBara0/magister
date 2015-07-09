@@ -11,7 +11,7 @@ if(!defined('DIRECT_ACCESS')) {
     die('Direct initialization of this file is not allowed.');
 }
 if($core->input['extract'] == 'segments') {
-    $segments = ProductsSegments::get_data();
+    $segments = ProductsSegments::get_data(null, array('simple' => false));
 //$segmentsout = '<html><meta http-equiv=\"Content-Type\" content=\"text/html; charset=Windows-1252\"><body>';
     foreach($segments as $segment) {
         if(empty($segment->description)) {
@@ -21,14 +21,14 @@ if($core->input['extract'] == 'segments') {
             $output = '<p>'.$segment->description.'</p>';
         }
         /* parse application */
-        $aplications_objs = $segment->get_applications(array('returnarray' => true, 'order' => 'sequence'));
+        $aplications_objs = $segment->get_applications(false);
         if(is_array($aplications_objs)) {
             foreach($aplications_objs as $item) {
                 $application_output.='<h5>'.$item->get_displayname().'</h5>';
                 $application_output.='<div>'.$item->description.'</div><hr>';
             }
         }
-        eval("\$segmentsout .= \"".$template->get('website_segments')."\";");
+        eval("\$segmentsout .= \"".$template->get('cms_extract_websegments')."\";");
         $application_output = $output = '';
     }
     header("Content-type: application/vnd.ms-word");
@@ -44,7 +44,7 @@ elseif($core->input['extract'] == 'pages') {
     $cms_pages = CmsPages::get_latest_pages();
     if(is_array($cms_pages)) {
         foreach($cms_pages as $cms_page) {
-            eval("\$pagesout .= \"".$template->get('website_cmspages')."\";");
+            eval("\$pagesout .= \"".$template->get('cms_extract_webcmspages')."\";");
         }
         header("Content-type: application/vnd.ms-word");
         header("Content-Disposition: attachment;Filename=cms_pages.doc");
@@ -64,7 +64,7 @@ if(!$core->input['action']) {
 else {
 
     if($core->input['action'] == 'show_segments') {
-        $segments = ProductsSegments::get_data();
+        $segments = ProductsSegments::get_data(null, array('simple' => false));
 //$segmentsout = '<html><meta http-equiv=\"Content-Type\" content=\"text/html; charset=Windows-1252\"><body>';
         foreach($segments as $segment) {
             if(empty($segment->description)) {
@@ -74,14 +74,14 @@ else {
                 $output = '<p>'.$segment->description.'</p>';
             }
             /* parse application */
-            $aplications_objs = $segment->get_applications(array('returnarray' => true, 'order' => 'sequence'));
+            $aplications_objs = $segment->get_applications(false);
             if(is_array($aplications_objs)) {
                 foreach($aplications_objs as $item) {
                     $application_output.='<h5>'.$item->get_displayname().'</h5>';
                     $application_output.='<div>'.$item->description.'</div><hr>';
                 }
             }
-            eval("\$segmentsout .= \"".$template->get('website_segments')."\";");
+            eval("\$segmentsout .= \"".$template->get('cms_extract_websegments')."\";");
             $application_output = $output = '';
         }
 //$segmentsout = '</body><html>';
@@ -93,8 +93,9 @@ else {
     else if($core->input['action'] == 'show_cmspages') {
         $cms_pages = CmsPages::get_latest_pages();
         if(is_array($cms_pages)) {
-            foreach($cms_pages as $cms_page) {
-                eval("\$pagesout .= \"".$template->get('website_cmspages')."\";");
+            foreach($cms_pages as $cms_pageobj) {
+                $cms_page = $cms_pageobj->get();
+                eval("\$pagesout .= \"".$template->get('cms_extract_webcmspages')."\";");
             }
         }
         output($pagesout);
