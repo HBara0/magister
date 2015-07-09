@@ -70,13 +70,14 @@ if(!$core->input['action']) {
 
         /* Check if audit - START */
         $core->input['auditor'] = 0;
-        if(value_exists('affiliatedemployees', 'uid', $core->user['uid'], 'canAudit=1 AND affid='.$core->input['affid']) || value_exists('suppliersaudits', 'uid', $core->user['uid'], 'eid='.$core->input['spid']) || $core->usergroup['canAdminCP'] == 1 || $core->usergroup['canViewAllEmp'] == 1) {
+        // if(value_exists('affiliatedemployees', 'uid', $core->user['uid'], 'canAudit=1 AND affid='.$core->input['affid']) || value_exists('suppliersaudits', 'uid', $core->user['uid'], 'eid='.$core->input['spid']) || $core->usergroup['canAdminCP'] == 1 || $core->usergroup['canViewAllEmp'] == 1) {
+        if($qreport->user_isaudit()) {
             $core->input['auditor'] = 1;
         }
         /* Check if audit - END */
 
         $readonly_fields = array('productname' => '', 'turnOver' => '', 'quantity' => '', 'soldQty' => '');
-        if($core->input['auditor'] != '1') {
+        if($core->input['auditor'] != 1) {
             foreach($readonly_fields as $key => $val) {
                 $readonly_fields[$key] = ' readonly';
             }
@@ -120,7 +121,7 @@ if(!$core->input['action']) {
                 $segment = $product->get_segment();
                 $usersegments = array_keys($core->user_obj->get_segments());
                 if(is_array($usersegments)) {
-                    if(!in_array($segment['psid'], $usersegments) && $core->input['auditor'] != '1') {
+                    if(!in_array($segment['psid'], $usersegments) && $core->input['auditor'] != 1) {
                         continue;
                     }
                 }
@@ -148,13 +149,15 @@ if(!$core->input['action']) {
                 eval("\$productsrows .= \"".$template->get('reporting_fillreports_productsactivity_productrow')."\";");
             }
         }
-        else {
+        unset($productactivity);
+        if(empty($productsrows)) {
             for($rowid = 1; $rowid < $productscount; $rowid++) {
                 $saletype_selectlist = parse_selectlist('productactivity['.$rowid.'][saleType]', 0, $saletypes, 'distribution', 0, null, array('disabled' => $selectlists_disabled));
                 $currencyfx_selectlist = parse_selectlist('productactivity['.$rowid.'][fxrate]', 0, $currencies, 1, '', '', array('id' => 'fxrate_'.$rowid, 'disabled' => $selectlists_disabled));
                 eval("\$productsrows .= \"".$template->get('reporting_fillreports_productsactivity_productrow')."\";");
             }
         }
+
 
         $generic_attributes = array('gpid', 'title');
         $generic_order = array(
@@ -657,7 +660,6 @@ if(!$core->input['action']) {
         eval("\$fillreportpage = \"".$template->get('reporting_fillreports_tabs')."\";");
     }
     elseif($core->input['stage'] == 'keycustomers') {
-
         if(!isset($core->input['identifier'])) {
             redirect('index.php?module=reporting/fillreport');
         }
@@ -862,6 +864,10 @@ else {
 
         /* Validate Forecasts - Start */
         $report = new ReportingQr(array('rid' => $rid));
+        if(!is_array($core->input['productactivity'])) {
+            output_xml("<status>false</status><message>{$lang->fillatleastoneproductrow}</message>");
+            exit;
+        }
         $validation = $report->validate_forecasts($core->input['productactivity'], $currencies);
 
         if($validation != true || is_array($validation)) {
@@ -876,19 +882,11 @@ else {
             output_xml('<status>false</status><message>'.$lang->wrongforecastsexist.' <![CDATA['.$corrections_output.']]></message>');
             exit;
         }
-        /* Validate Forecasts - End */
-        $report_obj = new Reporting(array('rid' => $rid));
-        $audits = $report_obj->get_report_supplier_audits();
-        $auditor = 0;
-        if(is_array($audits)) {
-            foreach($audits as $audit) {
-                if($audit->uid == $core->user['uid']) {
-                    $auditor = 1;
-                }
-            }
-        }
 
-        if($auditor != '1') {
+        /* Validate Forecasts - End */
+        $auditor = $report->user_isaudit();
+
+        if($auditor != true) {
             $existingentries_query_string = ' AND (uid='.$core->user['uid'].' OR uid=0)';
         }
 //$oldentries = get_specificdata('productsactivity', array('paid'), 'paid', 'paid', '', 0, "rid='{$rid}'{$oldentries_query_string}");
@@ -907,7 +905,9 @@ else {
             }
 
             if(value_exists('productsactivity', 'rid', $rid, 'pid='.intval($productactivity['pid']).$existingentries_query_string)) {
-                $productactivity['uid'] = $core->user['uid'];
+                if($auditor != true) {
+                    $productactivity['uid'] = $core->user['uid'];
+                }
                 if(isset($productactivity['paid']) && !empty($productactivity['paid'])) {
                     $update_query_where = 'paid='.intval($productactivity['paid']);
                 }
@@ -1042,41 +1042,41 @@ else {
                 continue;
             }
 
-                unset($val[segmenttitle], $val[exclude]);
-                if($found_one == false) {
-                    if(!empty($val)) {
-                        foreach($val as $k => $v) {
-                            if($k == 'suppliers' || $k == 'customers') {
-                                continue;
-                            }
-                            $v = $core->sanitize_inputs(preg_replace(array('~\x{00a0}~siu', '/\s/'), '', $v), array('method' => 'striponly', 'allowable_tags' => '', 'removetags' => true));
-                            if($section_allempty == true) {
-                                if(!in_array(strtolower($v), $emtpy_terms) && !preg_match('/^[n;.,-_+\*]+$/', $v)) {
-                                    $section_allempty = false;
-                                }
-                            }
-                            if(empty($v)) {
-                                $found_one = true;
-                                break;
+            unset($val[segmenttitle], $val[exclude]);
+            if($found_one == false) {
+                if(!empty($val)) {
+                    foreach($val as $k => $v) {
+                        if($k == 'suppliers' || $k == 'customers') {
+                            continue;
+                        }
+                        $v = $core->sanitize_inputs(preg_replace(array('~\x{00a0}~siu', '/\s/'), '', $v), array('method' => 'striponly', 'allowable_tags' => '', 'removetags' => true));
+                        if($section_allempty == true) {
+                            if(!in_array(strtolower($v), $emtpy_terms) && !preg_match('/^[n;.,-_+\*]+$/', $v)) {
+                                $section_allempty = false;
                             }
                         }
-                    }
-                    else {
-                        $found_one = true;
-                        break;
+                        if(empty($v)) {
+                            $found_one = true;
+                            break;
+                        }
                     }
                 }
                 else {
+                    $found_one = true;
                     break;
                 }
+            }
+            else {
+                break;
+            }
 
             if($section_allempty == true) {
                 continue;
             }
 
-                $marketreport_data[$key] = $val;
-                $marketreport_data[$key]['psid'] = $key;
-                $marketreport_data[$key]['rid'] = $rid;
+            $marketreport_data[$key] = $val;
+            $marketreport_data[$key]['psid'] = $key;
+            $marketreport_data[$key]['rid'] = $rid;
 //unset($marketreport_data[$key]['segmenttitle']);
             $one_notexcluded = true;
         }
@@ -1332,18 +1332,8 @@ else {
 //                exit;
 //            }
 //        }
-        $report_obj = new ReportingQr(array('rid' => $report_meta['rid']));
-        // $report_obj = new Reporting($report_meta['rid']);
-        $audits = $report->get_report_supplier_audits();
-        $auditor = 0;
-        if(is_array($audits)) {
-            foreach($audits as $audit) {
-                if($audit->uid == $core->user['uid']) {
-                    $auditor = 1;
-                }
-            }
-        }
-        if($auditor != '1') {
+        $auditor = $report->user_isaudit();
+        if($auditor != true) {
             $products_deletequery_string = ' AND (uid='.$core->user['uid'].' OR uid=0)';
         }
 
@@ -1433,7 +1423,7 @@ else {
         $emtpy_terms = array('na', 'n/a', 'none', 'nothing', 'nothing to mention');
         $marketreport_found_one = false;
         $rawdata['marketreportdata'] = '';
-        if($auditor != 1) {
+        if($auditor != true) {
             $marketreportauthors = MarketReportAuthors::get_data(array('mrid' => 'mrid IN (SELECT mrid FROM '.MarketReport::TABLE_NAME.' WHERE rid='.intval($report_meta['rid']).')', 'uid' => $core->user['uid']), array('returnarray' => true, 'operators' => array('mrid' => CUSTOMSQLSECURE)));
             if(is_array($marketreportauthors)) {
                 foreach($marketreportauthors as $marketreportauthor) {

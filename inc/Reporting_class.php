@@ -40,6 +40,23 @@ class Reporting {
 //			WHERE sa.eid=".$this->report['spid'].""));
     }
 
+    public function user_isaudit() {
+        global $core;
+        if($core->usergroup['canAdminCP'] == 1) {
+            return true;
+        }
+        $audits = $this->get_report_supplier_audits();
+        if(is_array($audits)) {
+            foreach($audits as $audit) {
+                if($audit->uid == $core->user['uid']) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
     protected function get_report_byinfo($reportdata = array()) {
         global $db;
 

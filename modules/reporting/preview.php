@@ -545,16 +545,8 @@ if(!$core->input['action']) {
                     $ratingval = $marketreport['rating'];
                 }
                 $report_obj = new Reporting($marketreport);
-                $audits = $report_obj->get_report_supplier_audits();
-                $auditor = 0;
-                if(is_array($audits)) {
-                    foreach($audits as $audit) {
-                        if($audit->uid == $core->user['uid']) {
-                            $auditor = 1;
-                        }
-                    }
-                }
-                if($auditor == 0) {
+                $auditor = $report_obj->user_isaudit();
+                if($auditor == false) {
                     $criteriaandstars .= '<div class="rateit" data-rateit-starwidth="18" data-rateit-starheight="16" data-rateit-ispreset="true" data-rateit-readonly="true" data-rateit-value="'.$ratingval.'"></div>';
                 }
                 else {
