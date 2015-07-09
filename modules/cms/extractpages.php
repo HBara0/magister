@@ -43,7 +43,8 @@ if($core->input['extract'] == 'segments') {
 elseif($core->input['extract'] == 'pages') {
     $cms_pages = CmsPages::get_latest_pages();
     if(is_array($cms_pages)) {
-        foreach($cms_pages as $cms_page) {
+        foreach($cms_pages as $cms_pageobj) {
+            $cms_page = $cms_pageobj->get();
             eval("\$pagesout .= \"".$template->get('cms_extract_webcmspages')."\";");
         }
         header("Content-type: application/vnd.ms-word");
