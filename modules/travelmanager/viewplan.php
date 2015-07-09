@@ -47,8 +47,13 @@ if(!$core->input['action']) {
         }
     }
     /* Viewable only if user is the person travel  or  the user is in the apprval chain of the plan trip leave */
-    if(!is_object($plan_object) || ($plan_object->uid != $core->user['uid'] && !in_array($core->user['uid'], $approver_chain))) {
+    if(!is_object($plan_object)) {
         error($lang->sectionpermissions);
+    }
+    if(is_array($approver_chain)) {
+        if($plan_object->uid != $core->user['uid'] && !in_array($core->user['uid'], $approver_chain)) {
+            error($lang->sectionpermissions);
+        }
     }
     $leave_type = $leave->get_type();
     $leave_purpose = $leave_segment = $lang->na;
