@@ -214,4 +214,19 @@ $lang['unspecifiedsupplier'] = 'Unspecified Supplier';
 $lang['chemicalsubstance'] = 'Chemical Substance';
 $lang['competitororigin'] = 'Competitor Supplier Origin';
 $lang['marketcompt'] = 'Market Competition';
+
+$lang['qrperformancereport'] = 'QR Performance Report';
+$lang['daystocompletion'] = 'Days to Completion';
+$lang['daystoimportdata'] = 'Days to Import Data';
+$lang['barchartrating'] = 'Bar Chart MKR Rating (Affiliates)';
+$lang['barchartdayscompletion'] = 'Bar Chart Days to Completion (Affiliates)';
+$lang['barchartdaystoimport'] = 'Bar Chart Days to Import data (Affiliates)';
+$lang['allaff'] = 'All Affiliates';
+$lang['q'] = 'Q';
+$lang['mkrrating'] = 'MKR rating';
+$lang['frombeginingofquarter'] = 'From Begining of Quarter';
+$lang['fromcreationdate'] = 'From Creation Date';
+$lang['avgmkrrating'] = 'Average MKR Rating';
+$lang['avg'] = 'Average';
+$lang['allaffiliates'] = 'All Affiliates'
 ?>
