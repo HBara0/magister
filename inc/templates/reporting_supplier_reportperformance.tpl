@@ -19,7 +19,7 @@
             <li>From Quarter Start</li><li>From report Creation</li>
         </ul>
     </td>
-    <td>
+    <td>{$report[status_output]}
         {$report[daysfromqstart]}<br/>{$report[daysfromreportcreation]}
     </td>
 </tr>

@@ -26,8 +26,6 @@ if(!$core->input['action']) {
     if(!isset($core->input['quarter']) || empty($core->input['quarter'])) {
         $report_data['quarter'] = ceil(date('n', time()) / 4);
     }
-
-
     $affiliates = Affiliates::get_affiliates('name IS NOT NULL', array('returnarray' => true));
     if(isset($core->input['affid'])) {
         $affiliates = Affiliates::get_affiliates(array('affid' => intval($core->input['affid'])), array('returnarray' => true));
@@ -35,29 +33,34 @@ if(!$core->input['action']) {
     if(isset($core->input['spid']) && !empty($core->input['spid'])) {
         $extra_where = ' AND spid='.intval($core->input['spid']);
     }
-
     if(is_array($affiliates)) {
         $aff_count = 0;
         foreach($affiliates as $affiliate) {
             $query = $db->query("SELECT * FROM ".Tprefix."reports WHERE affid = ".$affiliate->affid." AND quarter = ".$report_data['quarter']." AND year = ".$report_data['year'].$extra_where);
             $numrows = $db->num_rows($query);
             if($numrows > 0) {
+                $unfinished_reports = 0;
                 while($report = $db->fetch_assoc($query)) {
                     $quarterstart = strtotime($report_data['year'].'-'.$core->settings['q'.$report_data['quarter'].'start']);
-
-                    $report['daysfromqstart'] = $report['daysfromreportcreation'] = $report['daystoimportfromcreation'] = $report['daystoimportfromqstart'] = '-';
-
-                    if($report['finishDate'] != 0) {
-                        $report['daysfromqstart'] = max(0, floor(($report['finishDate'] - $quarterstart) / (60 * 60 * 24)));
+                    if($report['status'] == 1) {
+                        if($report['finishDate'] != 0) {
+                            $report['daysfromqstart'] = max(0, floor(($report['finishDate'] - $quarterstart) / (60 * 60 * 24)));
+                        }
+                        if($report['finishDate'] != 0 && $report['initDate'] != 0) {
+                            $report['daysfromreportcreation'] = max(0, floor(($report['finishDate'] - $report['initDate']) / (60 * 60 * 24)));
+                        }
                     }
-                    if($report['finishDate'] != 0 && $report['initDate'] != 0) {
-                        $report['daysfromreportcreation'] = max(0, floor(($report['finishDate'] - $report['initDate']) / (60 * 60 * 24)));
+                    else {
+                        $report['status_output'] = 'not finished yet';
+                        $unfinished_reports++;
                     }
-                    if($report['dataImportedOn'] != 0) {
-                        $report['daystoimportfromqstart'] = max(0, floor(($report['dataImportedOn'] - $quarterstart) / (60 * 60 * 24)));
-                    }
-                    if($report['dataImportedOn'] != 0 && $report['initDate'] != 0) {
-                        $report['daystoimportfromcreation'] = max(0, floor(($report['dataImportedOn'] - $report['initDate']) / (60 * 60 * 24)));
+                    if($repott['dataIsImported'] == 1) {
+                        if($report['dataImportedOn'] != 0) {
+                            $report['daystoimportfromqstart'] = max(0, floor(($report['dataImportedOn'] - $quarterstart) / (60 * 60 * 24)));
+                        }
+                        if($report['dataImportedOn'] != 0 && $report['initDate'] != 0) {
+                            $report['daystoimportfromcreation'] = max(0, floor(($report['dataImportedOn'] - $report['initDate']) / (60 * 60 * 24)));
+                        }
                     }
 
                     $fields = array('daysfromqstart', 'daysfromreportcreation', 'daystoimportfromqstart', 'daystoimportfromcreation');
@@ -77,8 +80,12 @@ if(!$core->input['action']) {
                                 $author = $reportauthor->get_displayname();
                             }
                             $marketreport = $marketreport->get();
-                            $ratingval = $marketreport['rating'];
-                            $totalrating['supplier'] +=$marketreport['rating'];
+                            if($marketreport['rating'] == null) {
+                                $rating_status = ' (not rated) ';
+                            }
+                            else {
+                                $ratingval = $marketreport['rating'];
+                            }$totalrating['supplier'] +=$marketreport['rating'];
                             $marketreport['segment'] = new ProductsSegments($marketreport['psid']);
                             eval("\$mkr_rating .= \"".$template->get('reporting_mkr_rating')."\";");
                             unset($ratingval, $reportauthor_obj, $reportauthor, $author);
@@ -91,10 +98,16 @@ if(!$core->input['action']) {
                     unset($mkr_rating, $avgrating['supplier'], $totalrating['supplier']);
                 }
                 foreach($fields as $field) {
-                    $avgperaff[$field][$affiliate->get_displayname()] = ceil($totalperaff[$field] / $numrows);
+                    $mkrreports_count = $numrows;
+                    if($field == 'daysfromqstart' || $field == 'daysfromreportcreation') {
+                        $mkrreports_count = $numrows - $unfinished_reports;
+                    }
+                    if($mkrreports_count != 0) {
+                        $avgperaff[$field][$affiliate->get_displayname()] = ceil($totalperaff[$field] / $mkrreports_count);
+                    }
                 }
                 unset($totalperaff);
-                $avgmkrrating[$affiliate->get_displayname()] = $totalrating['affiliate'] / $numrows;
+                $avgmkrrating[$affiliate->get_displayname()] = number_format($totalrating['affiliate'] / $numrows, 2);
 
                 eval("\$aff_rating = \"".$template->get('reporting_mkr_rating')."\";");
                 eval("\$affiliate_report .= \"".$template->get('reporting_affiliate_reportperformance')."\";");
@@ -106,10 +119,9 @@ if(!$core->input['action']) {
                 $aff_count++;
                 unset($avgrating, $totalrating['affiliate']);
             }
-
             unset($supplier_reportperformance, $supplier);
         }
-        $avgrating['allaffiliates'] = $totalrating['allaffiliates'] / $aff_count;
+        $avgrating['allaffiliates'] = number_format($totalrating['allaffiliates'] / $aff_count, 2);
         foreach($fields as $field) {
             $all_aff_avg[$field] = ceil($all_aff_total[$field] / $aff_count);
         }

@@ -45,7 +45,7 @@
                     </tr>
 
                     <tr {$display[allaffiliates]}>
-                        <td>{$lang->avg} {$lang->daystocompletion} - {$lang->frombeginingofquarter}</td>
+                        <td>{$lang->avg} {$lang->daystoimportdata} - {$lang->frombeginingofquarter}</td>
                         <td>{$all_aff_avg[daystoimportfromqstart]}</td>
                     </tr>
                     <tr {$display[allaffiliates]}>
