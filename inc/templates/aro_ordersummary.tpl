@@ -23,7 +23,7 @@
             </tr>
             <tr>
                 <td>{$lang->invoicevalueusd}</td>
-                <td><input type="text" id="ordersummary_invoicevalueusd_intermed" value="" style="width:150px;" disabled="disabled"/> </td>
+                <td><input type="text" id="ordersummary_invoicevalueusd_intermed" style="width:150px;" /> </td>
                 <td><input type="text" id="ordersummary_invoicevalueusd_local" value="" style="width:150px;" disabled="disabled"/> </td>
             </tr>
             <tr>
@@ -58,10 +58,14 @@
             <tr>
                 <td>{$lang->unitfee}</td>
                 <td><input type="text" id="ordersummary_unitfee"/></td>
-            </tr
+            </tr>
+            <tr>
+                <td>{$lang->initialtotalcomm}</td>
+                <td><input type="text" id="ordersummary_initialtotalcomm"/></td>
+            </tr>
             <tr>
                 <td>{$lang->totalcomm}</td>
-                <td><input type="text" id="ordersummary_totalcomm"/><input type="hidden" id="ordersummary_totalamount"</td>
+                <td><input type="text" id="ordersummary_totalcomm"/><input type="hidden" id="ordersummary_totalamount"/></td>
             </tr>
             <tr>
                 <td>

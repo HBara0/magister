@@ -31,18 +31,18 @@
                 </td>
             </tr>
             <tr>
-                <td valign="top">{$lang->interestvalue}</td>
-                <td colspan="4"> <input type="text" name="parmsfornetmargin[interestValue]" id="parmsfornetmargin_interestvalue" value="{$netmarginparms->interestValue}" style="width:150px;" readonly/>
-
-            </tr>
-            <tr>
                 <td valign="top">{$lang->riskratio}</td>
                 <td class="border_right" ><input type="text" name="parmsfornetmargin[localRiskRatio]" id="parmsfornetmargin_localRiskRatio" value="{$netmarginparms->localRiskRatio}" style="width:150px;" readonly/></td>
-                <td class="border_right" ><input type="text" name="parmsfornetmargin[intermedRiskRatio]" id="parmsfornetmargin_intermedRiskRatio" value="{$netmarginparms->intermedRiskRatio}" style="width:150px;" readonly/></td>
+                <td class="border_right" ></td>
                 <td valign="top">{$lang->totalload}</td>
                 <td><input type="text" name="parmsfornetmargin[warehousingTotalLoad]" id="parmsfornetmargin_warehousingTotalLoad" value="{$netmarginparms->warehousingTotalLoad}" style="width:150px;" {$readonly[warehousing]}/></td>
                 <td valign="top">{$lang->uom}</td>
                 <td>{$netmarginparms_uomlist}</td>
+            </tr>
+            <tr>
+                <td valign="top">{$lang->interestvalue}</td>
+                <td></td>
+                <td colspan="4"> <input type="text" name="parmsfornetmargin[interestValue]" id="parmsfornetmargin_interestvalue" value="{$netmarginparms->interestValue}" style="width:150px;" readonly/>
             </tr>
 
         </tbody>

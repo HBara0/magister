@@ -108,10 +108,15 @@ class AroRequestLinesSupervision extends AbstractClass {
         global $core;
         $transittime = '+'.$data['transitTime'].' days';
         $clearance = '+'.$data['clearanceTime'].' days';
-        $data['estDateOfStockEntry'] = strtotime($transittime, $data['dateOfStockEntry']);
-        $estDateOfStockEntry['output'] = strtotime($clearance, $data['estDateOfStockEntry']);
-        $estDateOfStockEntry['formatted'] = date($core->settings['dateformat'], $estDateOfStockEntry['output']);
-
+        if($data['transitTime'] != 0) {
+            $data['estDateOfStockEntry'] = strtotime($transittime, $data['dateOfStockEntry']);
+        }
+        if($data['clearanceTime'] != 0) {
+            $estDateOfStockEntry['output'] = strtotime($clearance, $data['estDateOfStockEntry']);
+        }
+        if(!empty($estDateOfStockEntry['output'])) {
+            $estDateOfStockEntry['formatted'] = date($core->settings['dateformat'], $estDateOfStockEntry['output']);
+        }
         return $estDateOfStockEntry;
     }
 

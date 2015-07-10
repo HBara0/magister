@@ -55,15 +55,21 @@ class AroRequestLines extends AbstractClass {
         if(empty($data)) {
             $data = $this->data;
         }
+        if(isset($parmsfornetmargin['totalDiscount']) && !empty($parmsfornetmargin['totalDiscount'])) {
+            $parmsfornetmargin['commission'] = $parmsfornetmargin['commission'] - $parmsfornetmargin['totalDiscount'];
+        }
+        if(isset($data['totalDiscount']) && !empty($data['totalDiscount'])) {
+            $data['commission'] = $data['commission'] - $data['totalDiscount'];
+        }
         $parmsfornetmargin = $data['parmsfornetmargin'];
         $parmsfornetmargin['localBankInterestRate'] = $parmsfornetmargin['localBankInterestRate'] / 100;
         $parmsfornetmargin['intermedBankInterestRate'] = $parmsfornetmargin['intermedBankInterestRate'] / 100;
         $parmsfornetmargin['commission'] = $parmsfornetmargin['commission'] / 100;
         $parmsfornetmargin['riskRatio'] = $parmsfornetmargin['localRiskRatio'] / 100;
-
         $parmsfornetmargin['YearDays'] = 365;
         unset($data['parmsfornetmargin']);
 
+        $data['commission'] = $data['commission'] / 100;
         /* Get Aro request order type - Start */
         if(empty($data['ptid']) && !empty($data['aorid'])) {
             $aroorderrequest = AroRequests::get_data(array('aorid' => $data['aorid']));

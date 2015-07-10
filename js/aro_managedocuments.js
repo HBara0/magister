@@ -256,9 +256,16 @@ $(function() {
         //Needed for local interest value calculation
         var localBankInterestRate = $("input[id='parmsfornetmargin_localBankInterestRate']").val();
         var totalbuyingvalue_total = 0;
-        var totalbuyingvalue_total = $("tbody[id='ordersummary_invoicevalue_local']").val();
-        if(typeof totalbuyingvalue_total != 'undefined' && typeof localBankInterestRate != undefined) {
-            attributes = attributes + '&localBankInterestRate=' + localBankInterestRate + '&totalbuyingvalue_total=' + totalbuyingvalue_total;
+        var totalbuyingvalue_total = $("input[id='ordersummary_invoicevalueusd_intermed']").val();
+        if(typeof totalbuyingvalue_total != 'undefined') {
+            attributes = attributes + '&totalbuyingvalue_total=' + totalbuyingvalue_total;
+        }
+        if(typeof localBankInterestRate != undefined) {
+            attributes = attributes + '&localBankInterestRate=' + localBankInterestRate;
+        }
+        var intermedBankInterestRate = $("input[id='parmsfornetmargin_intermedBankInterestRate']").val();
+        if(typeof intermedBankInterestRate != 'undefined') {
+            attributes = attributes + '&intermedBankInterestRate=' + intermedBankInterestRate;
         }
 //Update Total fees : Summation of total fees to be added to the interest value
         var totalintermedfees = 0;
@@ -466,7 +473,8 @@ $(function() {
             comm = parseFloat($('input[id=partiesinfo_defaultcommission]').val());
             totalcommision = totalamount * (comm / 100)
             var ptid = $("select[id='purchasetype']").val();
-            var attributes = '&totalamount=' + totalamount + '&totalcommision=' + totalcommision + '&defaultcomm=' + comm + '&ptid=' + ptid;
+            var totaldiscount = parseFloat($('input[id=partiesinfo_totaldiscount]').val());
+            var attributes = '&totalamount=' + totalamount + '&totalcommision=' + totalcommision + '&defaultcomm=' + comm + '&ptid=' + ptid + '&totalDiscount=' + totaldiscount;
             sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=updatecommission' + attributes, function() {
                 if(field_id[2] == 'intialPrice') {
                     var trigger = setTimeout(function() {
@@ -519,8 +527,6 @@ $(function() {
     var fields_array = ["quantity", "qtyPotentiallySold", "intialPrice", "costPrice", "sellingPrice", "daysInStock"];
     // Trigger(s): 15A, 15B, 19, 18A
     $("input[id^='productline_'][id$='_quantity'],input[id^='productline_'][id$='_qtyPotentiallySold'],input[id^='productline_'][id$='_costPrice'],input[id$='_sellingPrice']").live('change', function() {
-// $("input[id^='productline_'],select[id$='packing']").live('change', function () {
-
         /*TEST*/
         var id = $(this).attr('id').split("_");
         if(id[2] == 'costPrice') {
@@ -580,8 +586,7 @@ $(function() {
         var unitfees = $("input[id='ordersummary_unitfee']").val();
         var totalQtyPerUom = totalqtyperuom[$("select[id$='" + id[1] + "_uom']").val()];
         parmsfornetmargin += "&totalQty=" + totalQtyPerUom + "&localRiskRatio=" + $("input[id='parmsfornetmargin_localRiskRatio']").val() + '&unitfees=' + unitfees;
-        //"&fees=" + fees +
-
+        parmsfornetmargin += "&totalDiscount=" + $("input[id='partiesinfo_totaldiscount']").val();
         sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populateproductlinefields&rowid=' + id[1] + fields + '&parmsfornetmargin=' + parmsfornetmargin, function(json) {
             //   $("input[id='unitfee_btn']").trigger("change");
             if(json["productline_" + id[1] + '_grossMarginAtRiskRatio']) {
@@ -805,9 +810,6 @@ function addactualpurchaselines(id) {
 
             });
         }
-//        var y = setTimeout(function () {
-//            $("input[id^='pickDate_sale_" + id + "']").trigger('change');
-//        }, 3000)
     }
 }
 

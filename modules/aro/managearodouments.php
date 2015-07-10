@@ -558,7 +558,7 @@ else {
         $productline_obj = new AroRequestLines();
         $rowid = $core->input['rowid'];
         unset($core->input['action'], $core->input['module'], $core->input['rowid']);
-        $parmsfornetmargin = array('localPeriodOfInterest', 'localBankInterestRate', 'warehousingPeriod', 'warehousingTotalLoad', 'warehousingRate', 'intermedBankInterestRate', 'intermedPeriodOfInterest', 'commission', 'totalQty', 'localRiskRatio', 'unitfees');
+        $parmsfornetmargin = array('localPeriodOfInterest', 'localBankInterestRate', 'warehousingPeriod', 'warehousingTotalLoad', 'warehousingRate', 'intermedBankInterestRate', 'intermedPeriodOfInterest', 'commission', 'totalDiscount', 'totalQty', 'localRiskRatio', 'unitfees');
         foreach($parmsfornetmargin as $parm) {
             $core->input['parmsfornetmargin'][$parm] = $core->input[$parm];
         }
@@ -637,8 +637,7 @@ else {
         echo json_encode($aropolicy_data);
     }
     if($core->input['action'] == 'populateintermedaffpolicy') {
-        $intermedpolicy_data = array('parmsfornetmargin_intermedBankInterestRate' => '',
-                'parmsfornetmargin_intermedRiskRatio' => '');
+        $intermedpolicy_data = array('parmsfornetmargin_intermedBankInterestRate' => '');
         if($core->input ['intermedAff'] != ' ' && !empty($core->input['intermedAff']) && !empty($core->input['ptid']) && $core->input['ptid'] != ' ') {
             $intermedpolicy_filter = 'affid = '.$core->input['intermedAff'].' AND purchaseType = '.$core->input['ptid'].' AND isActive = 1 AND ('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
             $intermedpolicy = AroPolicies::get_data($intermedpolicy_filter);
@@ -648,7 +647,6 @@ else {
             }
 
             $intermedpolicy_data = array('parmsfornetmargin_intermedBankInterestRate' => $intermedpolicy->yearlyInterestRate,
-                    'parmsfornetmargin_intermedRiskRatio' => $intermedpolicy->riskRatioSameCurrCN,
                     'partiesinfo_commission' => $intermedpolicy->commissionCharged,
                     'partiesinfo_defaultcommission' => $intermedpolicy->commissionCharged);
         }
@@ -741,8 +739,8 @@ else {
             }
         }
 
-        if(isset($core->input['localBankInterestRate']) && !empty($core->input['localBankInterestRate'])) {
-            $interestvalue = (($core->input['localBankInterestRate'] / 365 ) / 100 ) * $data['localPeriodOfInterest'] * $core->input['totalbuyingvalue_total'];
+        if(isset($core->input['intermedBankInterestRate']) && !empty($core->input['intermedBankInterestRate'])) {
+            $interestvalue = (($core->input['intermedBankInterestRate'] / 365 ) / 100 ) * $data['intermedPeriodOfInterest'] * $core->input['totalbuyingvalue_total'];
         }
         $totalintermedfees = $core->input['totalintermedfees'];
         if(!empty($interestvalue)) {
@@ -903,12 +901,6 @@ else {
         if(!empty($localnetmargin) && ($core->input['sellingpriceqty_product'] * $core->input['exchangeRateToUSD'] ) != 0) {
             $localnetmargin_perc = $localnetmargin / ($core->input['sellingpriceqty_product'] * $core->input['exchangeRateToUSD']);
         }
-//        $comm = $core->input['defaultcomm'];
-//        if($core->input['totalcommision'] < 250) {
-//            if(!empty($core->input['totalamount']) && $core->input['totalamount'] != 0) {
-//                $comm = (250 * 100 ) / $core->input['totalamount'];
-//            }
-//        }
         $data = array('ordersummary_intermedaff' => $intermedaffiliate->get_displayname(),
                 'ordersummary_localaff' => $affiliate->get_displayname(),
                 'ordersummary_totalquantity' => $quantityperuom,
@@ -923,21 +915,10 @@ else {
                 'ordersummary_globalnetmargin' => round($localnetmargin + $intermedmargin, 2),
                 'ordersummary_netmargin_localperc' => round($localnetmargin_perc, 2),
                 'ordersummary_netmargin_intermedperc' => round($intermedmargin_perc, 2),
-                // 'ordersummary_totalcomm' => round($core->input['totalcommision'], 2),
                 'ordersummary_totalamount' => round($core->input['totalamount'], 2),
-                //    'partiesinfo_commission' => round($comm, 3),
         );
         echo json_encode($data);
     }
-
-//    if($core->input['action'] == 'getinterestvalue') {
-//        $interestvalue = 0;
-//        if(isset($core->input['localBankInterestRate']) && !empty($core->input['localBankInterestRate'])) {
-//            $interestvalue = (($core->input['localBankInterestRate'] / 365) / 100) * $core->input['localPeriodOfInterest'] * $core->input['totalbuyingvalue_total'];
-//        }
-//        $interestvalue_data = array('parmsfornetmargin_interestvalue' => round($interestvalue, 3));
-//        echo json_encode($interestvalue_data);
-//    }
     if($core->input['action'] == 'popultedefaultaffpolicy') {
         if($core->input['affid'] != ' ' && !empty($core->input['affid']) && !empty($core->input['ptid']) && $core->input['ptid'] != ' ') {
             $filter = 'affid = '.$core->input['affid'].' AND purchaseType = '.$core->input['ptid'].' AND isActive = 1 AND ('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
@@ -1135,7 +1116,6 @@ else {
         $totalcomm = $comm = 0;
         $purcasetype = new PurchaseTypes($core->input['ptid']);
         if(is_object($purcasetype) && $purcasetype->needsIntermediary == 1) {
-            //  needsIntermediary
             $totalcomm = $core->input['totalcommision'];
             $comm = $core->input['defaultcomm'];
             if($core->input['totalcommision'] < 250) {
@@ -1144,7 +1124,13 @@ else {
                 }
             }
         }
+        if(isset($core->input['totalDiscount']) && !empty($core->input['totalDiscount'])) {
+            $comm = $core->input['defaultcomm'] - $core->input['totalDiscount'];
+        }
+        $intialtotalcomm = $totalcomm;
+        $totalcomm = $core->input['totalamount'] * ($comm / 100);
         $commission_data = array('partiesinfo_commission' => round($comm, 3),
+                'ordersummary_initialtotalcomm' => round($intialtotalcomm, 2),
                 'ordersummary_totalcomm' => round($totalcomm, 2)
         );
         echo json_encode($commission_data);
