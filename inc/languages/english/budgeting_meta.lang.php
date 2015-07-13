@@ -178,4 +178,9 @@ $lang['topnetsuppliers'] = 'Top Income Suppliers';
 $lang['chooseanafiiliate'] = 'Choose An Affiliate';
 $lang['generatereport'] = 'Generate Report';
 $lang['downloadreport'] = 'Download Report';
+$lang['cumulativeincomedesc'] = 'Cumulative Income (in K USD)';
+$lang['cumulativesaledesc'] = 'Cumulative Sale (in K USD)';
+$lang['topsalessuppliersdesc'] = 'Top 10 Sales Suppliers (in K USD)';
+$lang['topnetsuppliersdesc'] = 'Top 10 Suppliers Income (in K USD)';
+$lang['monthlysummarydesc'] = 'Monthly Summary YEF 2015(in K USD)';
 ?>

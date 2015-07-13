@@ -43,6 +43,9 @@ if($core->input['export']) {
                         }
                         $orderlines[$year][$montnum] = $lines;
                     }
+                    else {
+                        $orderlines[$year][$montnum] = '';
+                    }
                 }
             }
         }
@@ -52,6 +55,9 @@ if($core->input['export']) {
 //get full fata for all years-Start
         foreach($orderlines as $year => $months) {
             if(is_array($months)) {
+                if(!array_filter($months)) {
+                    continue;
+                }
                 foreach($months as $month => $lines) {
                     if(is_array($lines)) {
                         foreach($lines as $line) {
@@ -62,7 +68,7 @@ if($core->input['export']) {
                             else {
                                 $costcurrency = Currencies::get_data(array('alphaCode' => $line->costCurrency), array('returnarray' => false));
                                 if(!is_object($costcurrency)) {
-                                    $costcurrency = new Currencies(840);
+                                    continue;
                                 }
                             }
                             if(is_object($ordercurrency)) {
@@ -72,17 +78,41 @@ if($core->input['export']) {
                             $data[$year][$month]['sales']+=$line->price * $line->quantity * $saleexchangerate;
                             $data[$year][$month]['costs']+=$line->cost * $line->quantity * $costexchangerate;
                             if(isset($line->spid) && !empty($line->spid)) {
-                                $supplier[$line->spid][$year]['sales'] += $line->price * $line->quantity * $saleexchangerate;
-                                $supplier[$line->spid][$year]['costs'] += $line->cost * $line->quantity * $costexchangerate;
-                                $supplier[$line->spid][$year]['income'] = $supplier[$line->spid][$year]['sales'] - $supplier[$line->spid][$year]['costs'];
+                                $suppliers[$line->spid][$year]['sales'] += ($line->price * $line->quantity * $saleexchangerate) / 1000;
+                                $suppliers[$line->spid][$year]['costs'] += ($line->cost * $line->quantity * $costexchangerate) / 1000;
+                                $suppliers[$line->spid][$year]['income'] = $suppliers[$line->spid][$year]['sales'] - $suppliers[$line->spid][$year]['costs'];
                                 if($year == date('Y')) {
-                                    $currentyearsups_sales[$line->spid] = $supplier[$line->spid][$year]['sales'];
-                                    $currentyearsups_costs[$line->spid] = $supplier[$line->spid][$year]['costs'];
+                                    $currentyearsups_sales[$line->spid] = $suppliers[$line->spid][$year]['sales'];
+                                    $currentyearsups_costs[$line->spid] = $suppliers[$line->spid][$year]['costs'];
                                     $currentyearsups_income[$line->spid] = $currentyearsups_sales[$line->spid] - $currentyearsups_costs[$line->spid];
+                                }
+                            }
+                            else {
+                                if(!isset($line->pid) && empty($line->pid)) {
+                                    continue;
+                                }
+                                $product = IntegrationMediationProducts::get_products(array('foreignId' => $line->pid), array('returnarray' => false));
+                                if(!is_object($product)) {
+                                    continue;
+                                }
+                                $localsupplier = $product->get_localsupplier();
+                                if(!is_object($localsupplier) || is_empty($localsupplier->eid)) {
+                                    continue;
+                                }
+                                $suppliers[$localsupplier->eid][$year]['sales'] += ($line->price * $line->quantity * $saleexchangerate) / 1000;
+                                $suppliers[$localsupplier->eid][$year]['costs'] += ($line->cost * $line->quantity * $costexchangerate) / 1000;
+                                $suppliers[$localsupplier->eid][$year]['income'] = $suppliers[$localsupplier->eid][$year]['sales'] - $suppliers[$localsupplier->eid][$year]['costs'];
+                                if($year == date('Y')) {
+                                    $currentyearsups_sales[$localsupplier->eid] = $suppliers[$localsupplier->eid][$year]['sales'];
+                                    $currentyearsups_costs[$localsupplier->eid] = $suppliers[$localsupplier->eid][$year]['costs'];
+                                    $currentyearsups_income[$localsupplier->eid] = $currentyearsups_sales[$localsupplier->eid] - $currentyearsups_costs[$localsupplier->eid];
                                 }
                             }
                         }
                         $data[$year][$month]['income'] = $data[$year][$month]['sales'] - $data[$year][$month]['costs'];
+                    }
+                    else {
+                        $data[$year][$month]['income'] = $data[$year][$month]['sales'] = $data[$year][$month]['costs'] = '';
                     }
                 }
             }
@@ -150,6 +180,9 @@ if($core->input['export']) {
                         }
                     }
                 }
+                else {
+                    $final['cumulativesale'][$year] [date("F", mktime(0, 0, 0, $month, 10))] = $final['monthlysummary'][$type][date("F", mktime(0, 0, 0, $month, 10))] = $final['cumulativeincome'][$year][date("F", mktime(0, 0, 0, $month, 10))] = '';
+                }
             }
         }
         //get top 10 suppliers sales and net=START
@@ -165,10 +198,10 @@ if($core->input['export']) {
             foreach($top_salessups as $supid => $currentsales) {
                 if(is_array($suppliers[$supid])) {
                     foreach($suppliers[$supid] as $year => $type) {
-                        if(is_array($year) && isset($year['sales']) && !empty($year['sales'])) {
+                        if(is_array($type) && isset($type['sales']) && !empty($type['sales'])) {
                             $supplier = new Entities($supid);
                             if(is_object($supplier)) {
-                                $final['topsalessuppliers'][$year][$supplier->get_displayname()] = $year['sales'];
+                                $final['topsalessuppliers'][$year][$supplier->get_displayname()] = $type['sales'];
                             }
                         }
                     }
@@ -179,10 +212,10 @@ if($core->input['export']) {
             foreach($top_netsups as $supid => $currentnet) {
                 if(is_array($suppliers[$supid])) {
                     foreach($suppliers[$supid] as $year => $type) {
-                        if(is_array($year) && isset($year['income']) && !empty($year['income'])) {
+                        if(is_array($type) && isset($type['income']) && !empty($type['income'])) {
                             $supplier = new Entities($supid);
                             if(is_object($supplier)) {
-                                $final['topnetsuppliers'][$year][$supplier->get_displayname()] = $year['income'];
+                                $final['topnetsuppliers'][$year][$supplier->get_displayname()] = $type['income'];
                             }
                         }
                     }
@@ -200,10 +233,11 @@ if($core->input['export']) {
     }
 //parse contents-START
     if(is_array($final)) {
-        $langvariable = '';
+        $langvariable = $pagedesc = '';
         foreach($final as $langvar => $rowhead) {
             $page = $rows = $tablehead = '';
             $langvariable = $langvar;
+            $pagedesc = $langvariable.'desc';
             $colheader = 0;
             if(is_array($rowhead)) {
                 foreach($rowhead as $row => $theads) {
@@ -215,6 +249,9 @@ if($core->input['export']) {
                                 $tablehead.='<th>'.$thead.'</th>';
                             }
                         }
+                    }
+                    else {
+                        $tablehead.='<th>'.$thead.'</th>';
                     }
                     $colheader = 1;
                     $rows.='</tr>';
@@ -248,7 +285,7 @@ xmlns = "http://www.w3.org/TR/REC-html40">
 </xml><![endif]-->
 </head>
 <body><table>
-<thead><tr><th></th>'.$tablehead.'</tr></thead>';
+<thead><tr><th>'.$lang->$pagedesc.'</th></tr><tr><th></th>'.$tablehead.'</tr></thead>';
             $page.='<tbody>'.$rows.'</tbody>';
             $page.='</table></body></html>';
             $path = dirname(__FILE__).'\..\..\tmp\\bugetingexport\\'.uniqid($aff.$langvariable).'.html';
@@ -292,9 +329,9 @@ xmlns = "http://www.w3.org/TR/REC-html40">
                 $main_excel->getSheet(0)->setTitle($title);
 
                 $main_excel->getSheet(0)
-                        ->getStyle('B1:Z1')
+                        ->getStyle('B2:Z2')
                         ->applyFromArray($style['header']);
-                for($i = 2; $i <= 8; $i = $i + 2) {
+                for($i = 3; $i <= 8; $i = $i + 2) {
                     $main_excel->getSheet(0)
                             ->getStyle('A'.$i.':Z'.$i)
                             ->applyFromArray($style['altrows']);
@@ -309,9 +346,9 @@ xmlns = "http://www.w3.org/TR/REC-html40">
         if(is_array($excels)) {
             foreach($excels as $title => $sheet) {
                 $sheet->setTitle($title);
-                $sheet->getStyle('B1:Z1')
+                $sheet->getStyle('B2:Z2')
                         ->applyFromArray($style['header']);
-                for($i = 2; $i <= 8; $i = $i + 2) {
+                for($i = 3; $i <= 9; $i = $i + 2) {
                     $sheet->getStyle('A'.$i.':Z'.$i)
                             ->applyFromArray($style['altrows']);
                 }
