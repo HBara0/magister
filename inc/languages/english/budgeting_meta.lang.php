@@ -170,4 +170,12 @@ $lang['isactual'] = 'Actual';
 $lang['warningimport'] = ' You should only import if you do not have unsaved data in the form';
 $lang['invoicingentityincome'] = 'Commission Split Affiliate Income';
 $lang['commissionsplitaffname'] = 'Commission Split Affiliate';
+$lang['cumulativeincome'] = 'Cumulative Income';
+$lang['monthlysummary'] = 'Monthly Summary';
+$lang['cumulativesale'] = 'Cumulative Sale';
+$lang['topsalessuppliers'] = 'Top Sales Suppliers';
+$lang['topnetsuppliers'] = 'Top Income Suppliers';
+$lang['chooseanafiiliate'] = 'Choose An Affiliate';
+$lang['generatereport'] = 'Generate Report';
+$lang['downloadreport'] = 'Download Report';
 ?>
