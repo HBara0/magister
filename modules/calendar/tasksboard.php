@@ -21,10 +21,12 @@ if(!$core->input['action']) {
     $alltask['shared'] = CalendarTaskShares::get_tasks_byuser($core->user['uid']);
 
     if(is_array($alltask)) {
+        $createdby_ids = array();
         foreach($alltask as $type => $tasks) {
             switch($type) {
                 case 'createdby':
                     foreach($tasks as $task) {
+                        $createdby_ids[] = $task->ctid;
                         $task->dueDate = date($core->settings['dateformat'], $task->dueDate);
                         $task_iconstats = $task->parsestatus();
                         $task_barid = $task->ctid.'c';
@@ -42,6 +44,9 @@ if(!$core->input['action']) {
                     break;
                 case 'assigned':
                     foreach($tasks as $task) {
+                        if(in_array($task->ctid, $createdby_ids)) {
+                            continue;
+                        }
                         $task->dueDate = date($core->settings['dateformat'], $task->dueDate);
                         $task_iconstats = $task->parsestatus();
                         $task->percCompleted_output = '';
