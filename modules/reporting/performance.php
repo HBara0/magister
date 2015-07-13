@@ -49,6 +49,14 @@ if(!$core->input['action']) {
                         if($report['finishDate'] != 0 && $report['initDate'] != 0) {
                             $report['daysfromreportcreation'] = max(0, floor(($report['finishDate'] - $report['initDate']) / (60 * 60 * 24)));
                         }
+
+
+
+                        $icon_locked = '';
+                        if($report['isLocked'] == 1) {
+                            $icon_locked = '_locked';
+                        }
+                        $icon[$report['rid']] = "<a href='index.php?module=reporting/preview&referrer=list&amp;affid={$report[affid]}&amp;spid={$report[spid]}&amp;quarter={$report[quarter]}&amp;year={$report[year]}'><img src='images/icons/report{$icon_locked}.gif' alt='{$report[status]}' border='0' title='prevew report'/></a>";
                     }
                     else {
                         $report['status_output'] = 'not finished yet';
@@ -133,10 +141,10 @@ if(!$core->input['action']) {
             $all_aff_avg[$field] = ceil($all_aff_total[$field] / $aff_count);
         }
         $mkrrating_barchart = new Charts(array('x' => array_keys($avgmkrrating), 'y' => array_values($avgmkrrating)), 'bar', array('yaxisname' => 'MKR Rating', 'xaxisname' => $lang->affiliate, 'title' => $lang->barchartrating, 'scale' => 'SCALE_START0', 'nosort' => true, 'width' => 1000));
-        $daystocompletion_bchart['fromqstart'] = new Charts(array('x' => array_keys($avgperaff['daysfromqstart']), 'y' => array_values($avgperaff['daysfromqstart'])), 'bar', array('yaxisname' => 'Days to Completition (From Q Start)', 'xaxisname' => $lang->affiliates, 'title' => $lang->barchartdayscompletion.' '.$lang->fromqstart, 'scale' => 'SCALE_START0', 'nosort' => true, 'width' => 1000));
-        $daystocompletion_bchart['fromcreationdate'] = new Charts(array('x' => array_keys($avgperaff['daysfromreportcreation']), 'y' => array_values($avgperaff['daysfromreportcreation'])), 'bar', array('yaxisname' => 'Days to Completition (From Report Creation)', 'xaxisname' => $lang->affiliates, 'title' => $lang->barchartdayscompletion.' '.$lang->fromreportcreation, 'scale' => 'SCALE_START0', 'nosort' => true, 'width' => 1000));
-        $daystocompletion_bchart['daystoimportfromqstart'] = new Charts(array('x' => array_keys($avgperaff['daystoimportfromqstart']), 'y' => array_values($avgperaff['daystoimportfromqstart'])), 'bar', array('yaxisname' => 'Days to Completition (From Q Start)', 'xaxisname' => $lang->affiliates, 'title' => $lang->barchartdaystoimport.' '.$lang->fromqstart, 'scale' => 'SCALE_START0', 'nosort' => true, 'width' => 1000));
-        $daystocompletion_bchart['daystoimportfromcreation'] = new Charts(array('x' => array_keys($avgperaff['daystoimportfromcreation']), 'y' => array_values($avgperaff['daystoimportfromcreation'])), 'bar', array('yaxisname' => 'Days to Completition (From Report Creation)', 'xaxisname' => $lang->affiliates, 'title' => $lang->barchartdaystoimport.' '.$lng->fromreportcreation, 'scale' => 'SCALE_START0', 'nosort' => true, 'width' => 1000));
+        $daystocompletion_bchart['fromqstart'] = new Charts(array('x' => array_keys($avgperaff['daysfromqstart']), 'y' => array_values($avgperaff['daysfromqstart'])), 'bar', array('yaxisname' => 'Days to Completition (From Q Start)', 'xaxisname' => $lang->affiliates, 'title' => $lang->barchartdayscompletion.' '.$lang->fromqstart, 'scale' => 'SCALE_START0', 'nosort' => true, 'width' => 1000, 'noLegend' => true));
+        $daystocompletion_bchart['fromcreationdate'] = new Charts(array('x' => array_keys($avgperaff['daysfromreportcreation']), 'y' => array_values($avgperaff['daysfromreportcreation'])), 'bar', array('yaxisname' => 'Days to Completition (From Report Creation)', 'xaxisname' => $lang->affiliates, 'title' => $lang->barchartdayscompletion.' '.$lang->fromreportcreation, 'scale' => 'SCALE_START0', 'nosort' => true, 'width' => 1000, 'noLegend' => true));
+        $daystocompletion_bchart['daystoimportfromqstart'] = new Charts(array('x' => array_keys($avgperaff['daystoimportfromqstart']), 'y' => array_values($avgperaff['daystoimportfromqstart'])), 'bar', array('yaxisname' => 'Days to Completition (From Q Start)', 'xaxisname' => $lang->affiliates, 'title' => $lang->barchartdaystoimport.' '.$lang->fromqstart, 'scale' => 'SCALE_START0', 'nosort' => true, 'width' => 1000, 'noLegend' => true));
+        $daystocompletion_bchart['daystoimportfromcreation'] = new Charts(array('x' => array_keys($avgperaff['daystoimportfromcreation']), 'y' => array_values($avgperaff['daystoimportfromcreation'])), 'bar', array('yaxisname' => 'Days to Completition (From Report Creation)', 'xaxisname' => $lang->affiliates, 'title' => $lang->barchartdaystoimport.' '.$lng->fromreportcreation, 'scale' => 'SCALE_START0', 'nosort' => true, 'width' => 1000, 'noLegend' => true));
     }
     if(isset($core->input['excludecharts']) && $core->input['excludecharts'] == 1) {
         $display['charts'] = 'style="display:none;"';
