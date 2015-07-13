@@ -1,7 +1,8 @@
 <tr >
     <td colspan="2" style="background-color:#d0f6aa">
         {$lang->supplier}: <a href="index.php?module=reporting/performance&year={$report_data[year]}&quarter={$report_data[quarter]}&spid={$report[spid]}&excludecharts=1">{$report[supplier]}</a>
-    </td>
+        {$icon[$report[rid]]}</td>
+
 </tr>
 <tr>
     <td>{$lang->avgmkrrating}</td>
