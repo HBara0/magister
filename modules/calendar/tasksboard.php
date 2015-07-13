@@ -107,7 +107,13 @@ elseif($core->input['action'] == 'get_taskdetails') {
         }
         $task_details['priority_output'] = $task->parse_status();
         $selected['percCompleted'][$task_details['percCompleted']] = ' selected="selected"';
-
+        if(isset($task->prerequisitTask) && !empty($task->prerequisitTask) && $task->prerequisitTask != 0) {
+            $prereqtask_obj = new Tasks($task->prerequisitTask);
+            if(is_object($prereqtask_obj)) {
+                $pre_requisit = $lang->prerequisittask.': ';
+                $pre_requisit.=$prereqtask_obj->subject.'<br>';
+            }
+        }
         /* Get Notes - START */
         $task_notes = $task->get_notes();
         if(is_array($task_notes)) {
