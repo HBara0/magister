@@ -206,6 +206,10 @@ class BudgetLines {
         return new Entities($this->budgetline['cid'], '', false);
     }
 
+    public function get_currency() {
+        return new Currencies($this->budgetline['originalCurrency']);
+    }
+
     public function get_product() {
         return new Products($this->budgetline['pid']);
     }
