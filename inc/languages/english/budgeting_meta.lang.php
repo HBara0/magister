@@ -183,4 +183,6 @@ $lang['cumulativesaledesc'] = 'Cumulative Sale (in K USD)';
 $lang['topsalessuppliersdesc'] = 'Top 10 Sales Suppliers (in K USD)';
 $lang['topnetsuppliersdesc'] = 'Top 10 Suppliers Income (in K USD)';
 $lang['monthlysummarydesc'] = 'Monthly Summary YEF 2015(in K USD)';
+$lang['topincomepercsupdesc'] = 'Top 10 Suppliers By Weight + Number Of Customers';
+$lang['topincomepercsup'] = 'Top Suppliers Weight';
 ?>

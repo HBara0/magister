@@ -83,6 +83,7 @@ if($core->input['export']) {
                                 $suppliers[$line->spid][$year]['income'] = $suppliers[$line->spid][$year]['sales'] - $suppliers[$line->spid][$year]['costs'];
                                 if($year == date('Y')) {
                                     $currentyearsups_sales[$line->spid] = $suppliers[$line->spid][$year]['sales'];
+                                    $suppliers_customers[$line->spid] ++;
                                     $currentyearsups_costs[$line->spid] = $suppliers[$line->spid][$year]['costs'];
                                     $currentyearsups_income[$line->spid] = $currentyearsups_sales[$line->spid] - $currentyearsups_costs[$line->spid];
                                 }
@@ -104,12 +105,15 @@ if($core->input['export']) {
                                 $suppliers[$localsupplier->eid][$year]['income'] = $suppliers[$localsupplier->eid][$year]['sales'] - $suppliers[$localsupplier->eid][$year]['costs'];
                                 if($year == date('Y')) {
                                     $currentyearsups_sales[$localsupplier->eid] = $suppliers[$localsupplier->eid][$year]['sales'];
+                                    $suppliers_customers[$localsupplier->eid] ++;
                                     $currentyearsups_costs[$localsupplier->eid] = $suppliers[$localsupplier->eid][$year]['costs'];
                                     $currentyearsups_income[$localsupplier->eid] = $currentyearsups_sales[$localsupplier->eid] - $currentyearsups_costs[$localsupplier->eid];
                                 }
                             }
                         }
                         $data[$year][$month]['income'] = $data[$year][$month]['sales'] - $data[$year][$month]['costs'];
+                        $totalyear[$year]['income']+=$data[$year][$month]['income'];
+                        $totalyear[$year]['sales']+=$data[$year][$month]['sales'];
                     }
                     else {
                         $data[$year][$month]['income'] = $data[$year][$month]['sales'] = $data[$year][$month]['costs'] = '';
@@ -188,11 +192,38 @@ if($core->input['export']) {
         //get top 10 suppliers sales and net=START
         if(is_array($currentyearsups_sales)) {
             asort($currentyearsups_sales);
-            $top_salessups = array_reverse(array_slice($currentyearsups_sales, 0, 10));
+            $top_salessups = array_reverse(array_slice($currentyearsups_sales, 0, 10, true), true);
         }
         if(is_array($currentyearsups_income)) {
             asort($currentyearsups_income);
-            $top_netsups = array_reverse(array_slice($currentyearsups_income, 0, 10));
+            $top_netsups = array_reverse(array_slice($currentyearsups_income, 0, 10, true), true);
+            foreach($currentyearsups_income as $eid => $number) {
+                $supplierspec_income[$eid] = $number * 100 / $totalyear[date('Y')]['income'];
+            }
+            if(is_array($supplierspec_income)) {
+                asort($supplierspec_income);
+                $top_incomeperc = array_reverse(array_slice($supplierspec_income, 0, 10, true), true);
+            }
+        }
+        if(is_array($top_incomeperc)) {
+            foreach($top_salessups as $supid => $incomeperc) {
+                $customernum = '';
+                if(is_array($suppliers_customers)) {
+                    $customernum = $suppliers_customers[$supid];
+                }
+                if(is_array($currentyearsups_sales)) {
+                    $salesperc = $currentyearsups_sales[$supid] * 100 / $totalyear[date('Y')]['sales'];
+                }
+                $supplier = new Entities($supid);
+                if(is_object($supplier)) {
+
+                    $supname = str_replace(array(' ', '<', '>', '&', '{', '}', '*'), array('-'), $supplier->get_displayname());
+                    $final['topincomepercsup']['%income'][$supname] = $incomeperc.'%';
+                    $final['topincomepercsup']['%sales'][$supname] = $salesperc.'%';
+                    $final['topincomepercsup']['#customers'][$supname] = $customernum;
+                    $supname = '';
+                }
+            }
         }
         if(is_array($top_salessups)) {
             foreach($top_salessups as $supid => $currentsales) {
@@ -201,7 +232,7 @@ if($core->input['export']) {
                         if(is_array($type) && isset($type['sales']) && !empty($type['sales'])) {
                             $supplier = new Entities($supid);
                             if(is_object($supplier)) {
-                                $final['topsalessuppliers'][$year][$supplier->get_displayname()] = $type['sales'];
+                                $final['topsalessuppliers'][$year][str_replace(array(' ', '<', '>', '&', '{', '}', '*'), array('-'), $supplier->get_displayname())] = $type['sales'];
                             }
                         }
                     }
@@ -215,7 +246,7 @@ if($core->input['export']) {
                         if(is_array($type) && isset($type['income']) && !empty($type['income'])) {
                             $supplier = new Entities($supid);
                             if(is_object($supplier)) {
-                                $final['topnetsuppliers'][$year][$supplier->get_displayname()] = $type['income'];
+                                $final['topnetsuppliers'][$year][str_replace(array(' ', '<', '>', '&', '{', '}', '*'), array('-'), $supplier->get_displayname())] = $type['income'];
                             }
                         }
                     }
