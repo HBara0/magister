@@ -185,4 +185,12 @@ $lang['topnetsuppliersdesc'] = 'Top 10 Suppliers Income (in K USD)';
 $lang['monthlysummarydesc'] = 'Monthly Summary YEF 2015(in K USD)';
 $lang['topincomepercsupdesc'] = 'Top 10 Suppliers By Weight + Number Of Customers';
 $lang['topincomepercsup'] = 'Top Suppliers Weight';
+$lang['groupsupsales'] = 'Group Suppliers Sales';
+$lang['groupsupsalesdesc'] = 'Group Suppliers By Sales (in K USD)';
+$lang['groupsupinc'] = 'Group Suppliers Income';
+$lang['groupsupincdesc'] = 'Group Suppliers By Income (in K USD)';
+$lang['solvaygroupsale'] = 'Solvay BU Sales';
+$lang['solvaygroupsaledesc'] = 'Solvay Business Units By Sales (in K USD)';
+$lang['solvaygroupinc'] = 'Solvay BU Income';
+$lang['solvaygroupincdesc'] = 'Solvay Business Units By Income (in K USD)';
 ?>

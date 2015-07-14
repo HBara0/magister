@@ -15,6 +15,7 @@ if(!defined('DIRECT_ACCESS')) {
 }
 if($core->input['export']) {
     $year = date('Y');
+    $groupsuppliers = Entities::get_principalsuppliegroups('id');
     if($core->input['affid']) {
         $extra_where = ' AND affid = '.$core->input['affid'];
     }
@@ -75,41 +76,52 @@ if($core->input['export']) {
                                 $saleexchangerate = $ordercurrency->get_latest_fxrate($ordercurrency->alphaCode, array(), 'USD');
                             }
                             $costexchangerate = $costcurrency->get_latest_fxrate($costcurrency->alphaCode, array(), 'USD');
-                            $data[$year][$month]['sales']+=$line->price * $line->quantity * $saleexchangerate;
-                            $data[$year][$month]['costs']+=$line->cost * $line->quantity * $costexchangerate;
+                            $data[$year][$month]['sales']+=$line->price * $line->quantity / $saleexchangerate / 1000;
+                            $data[$year][$month]['costs']+=$line->cost / $costexchangerate / 1000;
                             if(isset($line->spid) && !empty($line->spid)) {
-                                $suppliers[$line->spid][$year]['sales'] += ($line->price * $line->quantity * $saleexchangerate) / 1000;
-                                $suppliers[$line->spid][$year]['costs'] += ($line->cost * $line->quantity * $costexchangerate) / 1000;
-                                $suppliers[$line->spid][$year]['income'] = $suppliers[$line->spid][$year]['sales'] - $suppliers[$line->spid][$year]['costs'];
-                                if($year == date('Y')) {
-                                    $currentyearsups_sales[$line->spid] = $suppliers[$line->spid][$year]['sales'];
-                                    $suppliers_customers[$line->spid] ++;
-                                    $currentyearsups_costs[$line->spid] = $suppliers[$line->spid][$year]['costs'];
-                                    $currentyearsups_income[$line->spid] = $currentyearsups_sales[$line->spid] - $currentyearsups_costs[$line->spid];
-                                }
+                                $id = $line->spid;
                             }
                             else {
-                                if(!isset($line->pid) && empty($line->pid)) {
-                                    continue;
-                                }
-                                $product = IntegrationMediationProducts::get_products(array('foreignId' => $line->pid), array('returnarray' => false));
-                                if(!is_object($product)) {
-                                    continue;
-                                }
-                                $localsupplier = $product->get_localsupplier();
-                                if(!is_object($localsupplier) || is_empty($localsupplier->eid)) {
-                                    continue;
-                                }
-                                $suppliers[$localsupplier->eid][$year]['sales'] += ($line->price * $line->quantity * $saleexchangerate) / 1000;
-                                $suppliers[$localsupplier->eid][$year]['costs'] += ($line->cost * $line->quantity * $costexchangerate) / 1000;
-                                $suppliers[$localsupplier->eid][$year]['income'] = $suppliers[$localsupplier->eid][$year]['sales'] - $suppliers[$localsupplier->eid][$year]['costs'];
-                                if($year == date('Y')) {
-                                    $currentyearsups_sales[$localsupplier->eid] = $suppliers[$localsupplier->eid][$year]['sales'];
-                                    $suppliers_customers[$localsupplier->eid] ++;
-                                    $currentyearsups_costs[$localsupplier->eid] = $suppliers[$localsupplier->eid][$year]['costs'];
-                                    $currentyearsups_income[$localsupplier->eid] = $currentyearsups_sales[$localsupplier->eid] - $currentyearsups_costs[$localsupplier->eid];
+                                if(isset($line->pid) && !empty($line->pid)) {
+                                    $product = IntegrationMediationProducts::get_products(array('foreignId' => $line->pid), array('returnarray' => false));
+                                    if(is_object($product)) {
+                                        $localsupplier = $product->get_localsupplier();
+                                        if(is_object($localsupplier) && !is_empty($localsupplier->eid)) {
+                                            $id = $localsupplier->eid;
+                                        }
+                                    }
                                 }
                             }
+                            if(!empty($id)) {
+                                $suppliers[$id][$year]['sales'] += ($line->price * $line->quantity / $saleexchangerate) / 1000;
+                                $suppliers[$id][$year]['costs'] += ($line->cost / $costexchangerate) / 1000;
+                                $suppliers[$id][$year]['income'] = $suppliers[$id][$year]['sales'] - $suppliers[$id][$year]['costs'];
+                                if($year == date('Y')) {
+                                    $currentyearsups_sales[$id] = $suppliers[$id][$year]['sales'];
+                                    $suppliers_customers[$id] ++;
+                                    $currentyearsups_costs[$id] = $suppliers[$id][$year]['costs'];
+                                    $currentyearsups_income[$id] = $currentyearsups_sales[$id] - $currentyearsups_costs[$id];
+                                }
+                                if(is_array($groupsuppliers)) {
+                                    if(isset($groupsuppliers[$id]) && !empty($groupsuppliers[$id])) {
+                                        if($groupsuppliers[$id] == 1) {
+                                            $localsupplier = new Entities($id);
+                                            if(is_object($localsupplier)) {
+                                                $solvaygroupsale[$year][str_replace(array(' ', '<', '>', '&', '{', '}', '*'), array('-'), $localsupplier->get_displayname())]+=($line->price * $line->quantity / $saleexchangerate) / 1000;
+                                                $solvaygroupcost[$year][str_replace(array(' ', '<', '>', '&', '{', '}', '*'), array('-'), $localsupplier->get_displayname())]+=($line->cost / $costexchangerate) / 1000;
+                                                $solvaygroupinc[$year][str_replace(array(' ', '<', '>', '&', '{', '}', '*'), array('-'), $localsupplier->get_displayname())] = $solvaygroupsale[$year][str_replace(array(' ', '<', '>', '&', '{', '}', '*'), array('-'), $localsupplier->get_displayname())] - $solvaygroupcost[$year][str_replace(array(' ', '<', '>', '&', '{', '}', '*'), array('-'), $localsupplier->get_displayname())];
+                                            }
+                                        }
+                                        $groupname = Entities::get_suppliergroupname($groupsuppliers[$id]);
+                                        if($groupname != false) {
+                                            $groupsupplierdsles[$year][$groupname]+=($line->price * $line->quantity / $saleexchangerate) / 1000;
+                                            $groupsuppliercost[$year][$groupname]+=($line->cost / $costexchangerate) / 1000;
+                                            $groupsupplierinc[$year][$groupname] = $groupsupplierdsles[$year][$groupname] - $groupsuppliercost[$year][$groupname];
+                                        }
+                                    }
+                                }
+                            }
+                            $id = '';
                         }
                         $data[$year][$month]['income'] = $data[$year][$month]['sales'] - $data[$year][$month]['costs'];
                         $totalyear[$year]['income']+=$data[$year][$month]['income'];
@@ -189,20 +201,36 @@ if($core->input['export']) {
                 }
             }
         }
+        //get groupsuppliers sales and net-START
+        if(is_array($groupsupplierdsles)) {
+            $final['groupsupsales'] = $groupsupplierdsles;
+        }
+        if(is_array($groupsupplierinc)) {
+            $final['groupsupinc'] = $groupsupplierinc;
+        }
+        //get groupsuppliers sales and net-END
+        //get solvaygroup sales and net-START
+        if(is_array($solvaygroupsale)) {
+            $final['solvaygroupsale'] = $solvaygroupsale;
+        }
+        if(is_array($solvaygroupinc)) {
+            $final['solvaygroupinc'] = $solvaygroupinc;
+        }
+        //get solvaygroup sales and net-END
         //get top 10 suppliers sales and net=START
         if(is_array($currentyearsups_sales)) {
             asort($currentyearsups_sales);
-            $top_salessups = array_reverse(array_slice($currentyearsups_sales, 0, 10, true), true);
+            $top_salessups = array_slice(array_reverse($currentyearsups_sales, true), 0, 10, true);
         }
         if(is_array($currentyearsups_income)) {
             asort($currentyearsups_income);
-            $top_netsups = array_reverse(array_slice($currentyearsups_income, 0, 10, true), true);
+            $top_netsups = array_slice(array_reverse($currentyearsups_income, true), 0, 10, true);
             foreach($currentyearsups_income as $eid => $number) {
-                $supplierspec_income[$eid] = $number * 100 / $totalyear[date('Y')]['income'];
+                $supplierspec_income[$eid] = $number * 100 / $totalyear [date('Y')]['income'];
             }
             if(is_array($supplierspec_income)) {
                 asort($supplierspec_income);
-                $top_incomeperc = array_reverse(array_slice($supplierspec_income, 0, 10, true), true);
+                $top_incomeperc = array_slice(array_reverse($supplierspec_income, true), 0, 10, true);
             }
         }
         if(is_array($top_incomeperc)) {
@@ -212,7 +240,7 @@ if($core->input['export']) {
                     $customernum = $suppliers_customers[$supid];
                 }
                 if(is_array($currentyearsups_sales)) {
-                    $salesperc = $currentyearsups_sales[$supid] * 100 / $totalyear[date('Y')]['sales'];
+                    $salesperc = $currentyearsups_sales[$supid] * 100 / $totalyear [date('Y')]['sales'];
                 }
                 $supplier = new Entities($supid);
                 if(is_object($supplier)) {
@@ -253,7 +281,7 @@ if($core->input['export']) {
                 }
             }
         }
-        //get top 10 suppliers sales and net=END
+//get top 10 suppliers sales and net=END
     }
     $aff = 'All';
     if($core->input['affid']) {
