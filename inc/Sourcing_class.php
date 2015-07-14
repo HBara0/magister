@@ -657,7 +657,7 @@ class Sourcing {
             return false;
         }
 
-        if(value_exists('sourcing_chemicalrequests', 'requestDescription', $data['requestDescription'], 'psaid='.intval($data['segmentapplication']))) {
+        if(value_exists('sourcing_chemicalrequests', 'requestDescription', $data['requestDescription'], 'psaid='.intval($data['segmentapplication']).' AND csid='.intval($data['product']))) {
             $this->status = 2;
             return false;
         }
@@ -710,6 +710,7 @@ class Sourcing {
 
         $sort_query = 'ORDER BY scr.timeRequested DESC';
         if(isset($core->input['sortby'], $core->input['order'])) {
+
             $sort_query = 'ORDER BY '.$core->input['sortby'].' '.$core->input['order'];
         }
 
