@@ -1649,15 +1649,16 @@ CREATE TABLE `development_requirements_changes` (
   `description` text NOT NULL,
   `impact` text NOT NULL,
   `outcomeReq` int(10) DEFAULT NULL,
-  `isCompleted` tinyint(1) NOT NULL DEFAULT '0',
   `requestedBy` int(10) NOT NULL,
   `dateRequested` bigint(30) NOT NULL,
   `approvedBy` int(10) NOT NULL,
   `createdBy` int(10) NOT NULL,
   `dateCreated` bigint(30) NOT NULL,
+  `isCompleted` tinyint(1) NOT NULL,
+  `modifiedBy` int(10) NOT NULL,
+  `modifiedOn` bigint(30) NOT NULL,
   PRIMARY KEY (`drcid`),
   KEY `identifier` (`outcomeReq`,`requestedBy`,`approvedBy`,`createdBy`)
-) ENGINE=MyISAM AUTO_INCREMENT=140 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `distributors_import`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
