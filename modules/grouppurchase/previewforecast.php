@@ -66,7 +66,7 @@ if(!($core->input['action'])) {
         if(is_array($filter_where['year'])) {
             $reportyears .='<br/><small> '.implode(', ', $filter_where['year']).'</small>';
         }
-        $reporttitle = '<h1>'.$lang->forecastedquantities.$reportyears.'</h1>';
+        $reporttitle = '<h1>'.$lang->quantitiesforecast.$reportyears.'</h1>';
 
         eval("\$grouppurchase_report = \"".$template->get('grouppurchase_report')."\";");
         output_page($grouppurchase_report);
