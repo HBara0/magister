@@ -30,7 +30,7 @@ class AroRequestLines extends AbstractClass {
 //            $product = new Products($data['pid']);
 //            $data['psid'] = $product->get_segment()['psid'];
 //        }
-        unset($data['ptid']);
+        unset($data['ptid'], $data['commission']);
         $query = $db->insert_query(self::TABLE_NAME, $data);
         if($query) {
             $log->record(self::TABLE_NAME, $this->data[self::PRIMARY_KEY]);
@@ -44,7 +44,7 @@ class AroRequestLines extends AbstractClass {
 //            $product = new Products($data['pid']);
 //            $data['psid'] = $product->get_segment()['psid'];
 //        }
-        unset($data['ptid']);
+        unset($data['ptid'], $data['commission']);
         $query = $db->update_query(self::TABLE_NAME, $data, self::PRIMARY_KEY.' = '.intval($this->data[self::PRIMARY_KEY]));
         if($query) {
             $log->record(self::TABLE_NAME, $this->data[self::PRIMARY_KEY]);
