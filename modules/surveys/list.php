@@ -2,10 +2,10 @@
 /*
  * Orkila Central Online System (OCOS)
  * Copyright © 2009 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * Survey List
  * $module: survyes
- * $id: list.php	
+ * $id: list.php
  * Created: 		@tony.assaad	        May 8, 2012 | 12:00 PM
  * Last Updated: 	@zaher.reda				May 14, 2012 | 12:46 PM
  */
@@ -37,7 +37,7 @@ if(!$core->input['action']) {
             if(($survey['isPublicResults'] == 1 && $core->user['uid'] != $survey['createdBy']) || $core->user['uid'] == $survey['createdBy']) {
                 $surveystats_link = '<a href="index.php?module=surveys/viewresults&identifier='.$survey['identifier'].'"><img src="./images/icons/stats.gif" border="0" alt="{$lang->viewresults}"/></a>';
             }
-
+            $previewlink = '<a href="index.php?module=surveys/preview&identifier='.$survey['identifier'].'" target="_blank"><img src="./images/icons/report.gif" border="0" title="'.$lang->preview.'" alt="{$lang->preview}"/></a>';
             eval("\$surveys_rows .= \"".$template->get('surveys_listsurveys_row')."\";");
         }
     }
