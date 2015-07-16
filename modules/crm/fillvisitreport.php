@@ -490,7 +490,7 @@ else {
 
             $session->destroy_phpsession();
 
-            output_xml("<status>true</status><message>{$lang->visitreportfinalized}</message>");
+            output_xml("<status>true</status><message>{$lang->visitreportfinalized}<![CDATA[<script>goToUrl(\''.$core->settings['rootdir'].'/index.php?module=crm/listvisitreports\')</script>]]></message>");
         }
     }
     elseif($core->input['action'] == 'get_addnew_representative' || $core->input['action'] == 'get_addnew_supprepresentative') {
