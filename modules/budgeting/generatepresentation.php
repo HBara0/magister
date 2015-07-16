@@ -65,6 +65,7 @@ if($core->input['export']) {
     }
 //parse orderlines according to requireements
     if(is_array($orderlines)) {
+        $cache = new Cache();
 //get full fata for all years-Start
         foreach($orderlines as $year => $months) {
             if(is_array($months)) {
@@ -89,13 +90,20 @@ if($core->input['export']) {
                             else {
                                 continue;
                             }
+
                             if(!isset($line->costCurrency) || empty($line->costCurrency)) {
                                 $costcurrency = new Currencies(840);
                             }
                             else {
-                                $costcurrency = Currencies::get_data(array('alphaCode' => $line->costCurrency), array('returnarray' => false));
-                                if(!is_object($costcurrency)) {
-                                    continue;
+                                if($cache->iscached('currency', $line->costCurrency)) {
+                                    $costcurrency = $cache->get_cachedval('currency', $line->costCurrency);
+                                }
+                                else {
+                                    $costcurrency = Currencies::get_data(array('alphaCode' => $line->costCurrency), array('returnarray' => false));
+                                    if(!is_object($costcurrency)) {
+                                        continue;
+                                    }
+                                    $cache->add('currency', $costcurrency, $line->costCurrency);
                                 }
                             }
                             $costexchangerate = $costcurrency->get_latest_fxrate($costcurrency->alphaCode, array(), 'USD');
@@ -104,11 +112,18 @@ if($core->input['export']) {
                             //get supplier id-START
                             if(isset($line->spid) && !empty($line->spid)) {
                                 $id = $line->spid;
+                                $localsupplier = new Entities($id);
                             }
                             else {
                                 if(isset($line->pid) && !empty($line->pid)) {
-                                    $product = IntegrationMediationProducts::get_products(array('foreignId' => $line->pid), array('returnarray' => false));
+                                    if($cache->iscached('supplier', $line->pid)) {
+                                        $product = $cache->get_cachedval('supplier', $line->pid);
+                                    }
+                                    else {
+                                        $product = IntegrationMediationProducts::get_products(array('foreignId' => $line->pid), array('returnarray' => false));
+                                    }
                                     if(is_object($product)) {
+                                        $cache->add('supplier', $product, $line->pid);
                                         $localsupplier = $product->get_localsupplier();
                                         if(is_object($localsupplier) && !is_empty($localsupplier->eid)) {
                                             $id = $localsupplier->eid;
@@ -131,7 +146,6 @@ if($core->input['export']) {
                                 if(is_array($groupsuppliers)) {
                                     if(isset($groupsuppliers[$id]) && !empty($groupsuppliers[$id])) {
                                         if($groupsuppliers[$id] == 1) {
-                                            $localsupplier = new Entities($id);
                                             if(is_object($localsupplier)) {
                                                 $solvaygroupsale[$year][str_replace(array(' ', '<', '>', '&', '{', '}', '*'), array('-'), $localsupplier->get_displayname())]+=($line->price * $line->quantity / $saleexchangerate ) / 1000;
                                                 $solvaygroupcost[$year][str_replace(array(' ', '<', '>', '&', '{', '}', '*'), array('-'), $localsupplier->get_displayname())]+=($line->cost / $costexchangerate ) / 1000;
@@ -183,7 +197,15 @@ if($core->input['export']) {
                     foreach($lines as $line) {
                         $currency = $line->get_currency();
                         if(is_object($currency)) {
-                            $exchangerate = $currency->get_latest_fxrate($currency->alphaCode, array(), 'USD');
+                            if($cache->iscached('exchange', $currency->alphaCode)) {
+                                $product = $cache->get_cachedval('exchange', $currency->alphaCode);
+                            }
+                            else {
+                                $exchangerate = $currency->get_latest_fxrate($currency->alphaCode, array(), 'USD');
+                                if(!empty($exchangerate)) {
+                                    $cache->add('exchange', $exchangerate, $currency->alphaCode);
+                                }
+                            }
                         }
                         for($i = 1; $i < 7; $i ++) {
                             $data[(date('Y') + 1)][$i]['sales'] += (($line->amount * $line->s1Perc / 100 ) / 6 ) * $exchangerate;

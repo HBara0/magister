@@ -62,12 +62,12 @@ else {
 
         switch($survey->get_status()) {
             case 0:
-//                if($core->input['preview'] == 1) {
-                output_xml('<status>true</status><message>'.$lang->successfullysaved.'<![CDATA[<script>$(\'#preview\').val(\'0\');window.open(\''.$core->settings['rootdir'].'/index.php?module=surveys/preview&stid='.$survey->stid.'\')</script>]]></message>');
-//                }
-//                else {
-//                    output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
-//                }
+                if($core->input['preview'] == 1) {
+                    output_xml('<status>true</status><message>'.$lang->successfullysaved.'<![CDATA[<script>$(\'#preview\').val(\'0\');window.open(\''.$core->settings['rootdir'].'/index.php?module=surveys/preview&stid='.$survey->stid.'\')</script>]]></message>');
+                }
+                else {
+                    output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
+                }
                 break;
             case 1:
                 output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");

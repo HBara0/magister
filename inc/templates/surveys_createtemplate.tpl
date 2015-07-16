@@ -87,6 +87,9 @@
                         </td>
                     </tr>
                     <tr>
+                        <td>{$lang->openpreview}<input type="checkbox" name="preview" value="1"></td>
+                    </tr>
+                    <tr>
                         <td colspan="3">
                             <hr />
                             <input  type="submit" value="{$lang->$action}" id="perform_surveys/createsurveytemplate_Button" tabindex="26" class="button"/>
