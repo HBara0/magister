@@ -14,7 +14,7 @@ if(!defined('DIRECT_ACCESS')) {
 
 if(!$core->input['action']) {
 
-    $requirements = RequirementsChanges::get_data(null, array('order' => array('by' => array('isCompleted', 'drid', 'refKey'), 'sort' => array('ASC'))));
+    $requirements = RequirementsChanges::get_data(null, array('simple' => false, 'order' => array('by' => array('isCompleted', 'drid', 'refKey'), 'sort' => array('ASC'))));
     if(!is_array($requirements)) {
         error($lang->nomatchfound);
     }
@@ -23,11 +23,11 @@ if(!$core->input['action']) {
         $rowclass = '';
         $parent = $requirement->get_requirement();
         if($requirement->isCompleted == 1) {
-            $requirement->isCompleted_output = $lang->yes;
+            $requirement->isCompleted_output = '<img src="images/valid.gif" border="0" alt="'.$lang->yes.'">';
             $rowclass = 'altrow2';
         }
         else {
-            //$requirement->isCompleted_output = '<a target="_blank" href="index.php?module=development/viewrequirement&action=markchangecompleted&id='.$requirement->get_id().'">Mark as Completed</a>';
+            $requirement->isCompleted_output = '<a  href="index.php?module=development/requirementchangeslist&action=markchangecompleted&id='.$requirement->drcid.'">'.$lang->markascompleted.'</a>';
         }
 
         $parent->refKey = $parent->parse_fullreferencekey();
@@ -40,5 +40,15 @@ if(!$core->input['action']) {
 
     eval("\$list = \"".$template->get('development_requirementslist')."\";");
     output_page($list);
+}
+elseif($core->input['action'] == 'markchangecompleted') {
+    if($core->usergroup['development_canCreateReq'] == 0) {
+        output_xml('<status>false</status><message>'.$lang->sectionnopermission.'</message>');
+        exit;
+    }
+    $requirementchange = RequirementsChanges::get_data(array('drcid' => $core->input['id']), array('simple' => false));
+    $requirementchange->isCompleted = 1;
+    $requirementchange->save();
+    redirect("index.php?module=development/requirementchangeslist");
 }
 ?>
