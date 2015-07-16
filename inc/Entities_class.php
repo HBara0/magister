@@ -1050,5 +1050,9 @@ class Entities extends AbstractClass {
         return false;
     }
 
+    public function get_supgrouparray() {
+        return self::$groupsup_names;
+    }
+
 }
 ?>

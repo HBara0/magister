@@ -193,4 +193,8 @@ $lang['solvaygroupsale'] = 'Solvay BU Sales';
 $lang['solvaygroupsaledesc'] = 'Solvay Business Units By Sales (in K USD)';
 $lang['solvaygroupinc'] = 'Solvay BU Income';
 $lang['solvaygroupincdesc'] = 'Solvay Business Units By Income (in K USD)';
+$lang['businessmanagersales'] = 'Business M By Sales';
+$lang['businessmanagersalesdesc'] = 'Business Managers By Sales (in K USD)';
+$lang['businessmanagerincome'] = 'Business M By Income';
+$lang['businessmanagerincomedesc'] = 'Business Managers By Income (in K USD)';
 ?>
