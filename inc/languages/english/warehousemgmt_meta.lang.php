@@ -168,5 +168,6 @@ $lang['shipmentstatusdesc'] = 'Shipment Status Description';
 $lang['price'] = 'Price';
 $lang['packaging'] = 'Packaging';
 $lang['linenetamt'] = 'Line Net Amount';
-$lang['linegrossamt'] = 'Line Gross Amount'
+$lang['linegrossamt'] = 'Line Gross Amount';
+$lang['attachments'] = 'Attachments';
 ?>
