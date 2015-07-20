@@ -31,7 +31,7 @@ if($core->input['action'] == 'do_perform_pendingdeliveries') {
     require_once ROOT.INC_ROOT.'integration_config.php';
     $integration = new IntegrationOB($intgconfig['openbravo']['database'], $intgconfig['openbravo']['entmodel']['client']);
     $intgdb = $integration->get_dbconn();
-    $affid = intval($core->input['id']);
+    $affid = intval($core->input['affid']);
     $affiliate = Affiliates::get_affiliates(array('affid' => $affid), array('simple' => false));
     $orgid = $affiliate->integrationOBOrgId;
     if(empty($orgid)) {

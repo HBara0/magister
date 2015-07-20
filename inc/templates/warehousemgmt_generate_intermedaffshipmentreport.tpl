@@ -7,7 +7,7 @@
         {$header}
     <tr>
         {$menu}
-        <td class="contentContainer">
+        <td class="contentContainer" colspan="2">
             <h1>{$lang->intermedaffahipmentaummary}</h1>
             <div style="margin-left: 5px;">
                 <form name="perform_warehousemgmt/intermedaffshipment_Form" id="perform_warehousemgmt/intermedaffshipment_Form"  action="#" method="post">
