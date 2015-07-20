@@ -15,7 +15,7 @@
                 <td>{$lang->cssclassname}</td> <td><input type="text" name="spec[class]" value="{$chartspec['class']}"></td>
             </tr>
             <tr>
-                <td>{$lang->colorhex}</td> <td><input type="text" maxlength="6" name="chartColor" value="{$affiliate->chartColor}"></td>
+                <td>{$lang->colorhex}</td> <td><input type="text" maxlength="6" name="brandingColor" value="{$affiliate->brandingColor}"></td>
             </tr>
         </table>
         <div align="center"><input type='button' id='perform_regions/affiliates_Button' value='{$lang->save}' class='button'/></div>
