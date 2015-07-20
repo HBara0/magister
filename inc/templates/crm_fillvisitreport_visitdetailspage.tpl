@@ -6,9 +6,13 @@
         <script language="javascript">
             $(function() {
                 /*Refresh timeline on adding MI data (after save)*/
-                $("input[id^='perform_']").live('click', function() {
+                $("input[id^='perform_parsetimeline']").live('click', function() {
                     // $(".timeline_container").find('.timeline_entry:eq( 2 )').first().effect("highlight", {color: '#D6EAAC'}, 1500); //to be improved later
+                    //   setTimeout(function() {
                     sharedFunctions.requestAjax("post", "index.php?module=crm/fillvisitreport&stage=visitdetails&identifier=" + $('#identifier') + "&action=parsemitimeline", "identifier=" + $('#identifier').val(), 'customermktdata', 'customermktdata', true);
+                    //  }, 1000
+                    //       );
+
                 });
                 sharedFunctions.requestAjax("post", "index.php?module=crm/fillvisitreport&stage=visitdetails&identifier=" + $('#identifier') + "&action=parsemitimeline", "identifier=" + $('#identifier').val(), 'customermktdata', 'customermktdata', true);
 
@@ -42,6 +46,7 @@
                     <div id="customermktdata">{$visitdetails_fields_mktidata}</div>
                 </div>
                 <div align="center"><input type="button" value="{$lang->prev}" class="button" onclick="goToURL('index.php?module=crm/fillvisitreport&identifier={$identifier}')"> <input type="submit" value="{$lang->next}" class="button"></div>
+                <input type="button" id="perform_parsetimeline" style="display:none;"/>
             </form>
             {$popup_createbrand}
             {$popup_marketdata}
