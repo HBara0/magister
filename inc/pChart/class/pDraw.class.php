@@ -3377,9 +3377,7 @@ class pDraw {
         else {
             /* If all values are the same we keep a +1/-1 scale */
             $Rows = 2;
-            if($XMin != 0) {
-                $XMin = $XMax - 1;
-            };
+            $XMin = $XMax - 1;
             $XMax = $XMax + 1;
             $RowHeight = 1;
 
