@@ -706,7 +706,7 @@ class IntegrationOBTransaction {
             $this->f_db = $f_db;
         }
         else {
-//Open connections
+            //Open connections
         }
 
         if(!empty($id)) {
@@ -1367,9 +1367,14 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
 
 }
 
-class IntegrationOBOrder {
-    private $order;
-    private $f_db;
+class IntegrationOBOrder extends IntegrationAbstractClass {
+    protected $data;
+    protected $f_db;
+
+    const PRIMARY_KEY = 'c_order_id';
+    const TABLE_NAME = 'c_order';
+    const DISPLAY_NAME = '';
+    const CLASSNAME = __CLASS__;
 
     public function __construct($id, $f_db = NULL) {
         if(!empty($f_db)) {
@@ -1382,13 +1387,9 @@ class IntegrationOBOrder {
     }
 
     private function read($id) {
-        $this->order = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
+        $this->data = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
 						FROM c_order
 						WHERE c_order_id='".$this->f_db->escape_string($id)."'"));
-    }
-
-    public function get_currency() {
-        return new IntegrationOBCurrency($this->order['c_currency_id'], $this->f_db);
     }
 
     public function get_paymentplan() {
@@ -1396,18 +1397,39 @@ class IntegrationOBOrder {
     }
 
     public function get_id() {
-        return $this->order['c_order_id'];
+        return $this->data['c_order_id'];
     }
 
     public function get() {
-        return $this->order;
+        return $this->data;
+    }
+
+    public function get_currency() {
+        return new IntegrationOBCurrency($this->data['c_currency_id'], $this->f_db);
+    }
+
+    public function get_salesrep() {
+        return new IntegrationOBUser($this->data['salesrep_id'], $this->f_db);
+    }
+
+    public function get_paymentterm() {
+        return new IntegrationOBPaymentTerm($this->data['c_paymentterm_id'], $this->f_db);
+    }
+
+    public function get_incoterms() {
+        return new IntegrationOBIncoterms($this->data['em_ork_incoterms'], $this->f_db);
     }
 
 }
 
-class IntegrationOBOrderLine {
-    private $orderline;
-    private $f_db;
+class IntegrationOBOrderLine extends IntegrationAbstractClass {
+    protected $data;
+    protected $f_db;
+
+    const PRIMARY_KEY = 'c_orderline_id';
+    const TABLE_NAME = 'c_orderline';
+    const DISPLAY_NAME = '';
+    const CLASSNAME = __CLASS__;
 
     public function __construct($id, $f_db = NULL) {
         if(!empty($f_db)) {
@@ -1420,25 +1442,45 @@ class IntegrationOBOrderLine {
     }
 
     private function read($id) {
-        $this->orderline = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
+        $this->data = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
 						FROM c_orderline
 						WHERE c_orderline_id='".$this->f_db->escape_string($id)."'"));
     }
 
     public function get_inoutline() {
-        return new IntegrationOBInOutLine($this->orderline['m_inoutline_id'], $this->f_db);
+        return new IntegrationOBInOutLine($this->data['m_inoutline_id'], $this->f_db);
     }
 
     public function get_order() {
-        return new IntegrationOBOrder($this->orderline['c_order_id'], $this->f_db);
+        return new IntegrationOBOrder($this->data['c_order_id'], $this->f_db);
     }
 
     public function get_id() {
-        return $this->orderline['c_orderline_id'];
+        return $this->data['c_orderline_id'];
     }
 
     public function get() {
-        return $this->orderline;
+        return $this->data;
+    }
+
+    public function get_attributesetinstance() {
+        return new IntegrationOBAttributeSetInstance($this->data['m_attributesetinstance_id'], $this->f_db);
+    }
+
+    public function get_packaging() {
+        $filters = array('attributename' => array('id' => 'm_attribute_id', 'table' => 'm_attribute', 'attribute' => 'name', 'value' => 'Packaging'));
+
+        $instance = $this->get_attributesetinstance()->get_attributeinstances($filters);
+        if(is_array($instance)) {
+            $instance = current($instance);
+        }
+
+        if(!empty($instance)) {
+            return $instance->get_attributevalue($this->f_db)->get()['value'];
+        }
+        else {
+            return false;
+        }
     }
 
 }
@@ -1700,18 +1742,17 @@ class IntegrationOBLandedCosts {
 
 }
 
-class IntegrationOBProduct {
-    private $product;
-    private $f_db;
+class IntegrationOBProduct extends IntegrationAbstractClass {
+    protected $product;
+    protected $f_db;
+
+    const PRIMARY_KEY = 'm_product_id';
+    const TABLE_NAME = 'm_product';
+    const DISPLAY_NAME = 'name';
+    const CLASSNAME = __CLASS__;
 
     public function __construct($id, $f_db = NULL) {
-        if(!empty($f_db)) {
-            $this->f_db = $f_db;
-        }
-        else {
-//Open connections
-        }
-        $this->read($id);
+        parent::__construct($id, $f_db);
     }
 
     private function read($id) {
@@ -1816,9 +1857,14 @@ class IntegrationOBLocator {
 
 }
 
-class IntegrationOBWarehouse {
-    private $warehouse;
-    private $f_db;
+class IntegrationOBWarehouse extends IntegrationAbstractClass {
+    protected $data;
+    protected $f_db;
+
+    const PRIMARY_KEY = 'm_warehouse_id';
+    const TABLE_NAME = 'm_warehouse';
+    const DISPLAY_NAME = '';
+    const CLASSNAME = __CLASS__;
 
     public function __construct($id, $f_db = NULL) {
         if(!empty($f_db)) {
@@ -1831,58 +1877,61 @@ class IntegrationOBWarehouse {
     }
 
     private function read($id) {
-        $this->warehouse = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
+        $this->data = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
 						FROM m_warehouse
 						WHERE m_warehouse_id='".$this->f_db->escape_string($id)."'"));
     }
 
     public function get_id() {
-        return $this->warehouse['m_warehouse_id'];
+        return $this->data['m_warehouse_id'];
     }
 
     public function get() {
-        return $this->warehouse;
+        return $this->data;
+    }
+
+    public function get_location() {
+        return new IntegrationOBLocation($this->data['c_location_id'], $this->f_db);
     }
 
 }
 
-class IntegrationOBBPartner {
-    private $bpartner;
-    private $f_db;
+class IntegrationOBBPartner extends IntegrationAbstractClass {
+    protected $data;
+    protected $f_db;
+
+    const PRIMARY_KEY = 'c_bpartner_id';
+    const TABLE_NAME = 'c_bpartner';
+    const DISPLAY_NAME = 'name';
+    const CLASSNAME = __CLASS__;
 
     public function __construct($id, $f_db = NULL) {
-        if(!empty($f_db)) {
-            $this->f_db = $f_db;
-        }
-        else {
-//Open connections
-        }
-        $this->read($id);
+        parent::__construct($id, $f_db);
     }
 
     private function read($id) {
-        $this->bpartner = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
+        $this->data = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
 						FROM c_bpartner
 						WHERE c_bpartner_id='".$this->f_db->escape_string($id)."'"));
     }
 
     public function get_id() {
-        return $this->bpartner['c_bpartner_id'];
+        return $this->data['c_bpartner_id'];
     }
 
     public function get_bp_local() {
-        return IntegrationMediationEntities::get_entity_byattr('foreignId', $this->bpartner['c_bpartner_id'])->get_localentity();
+        return IntegrationMediationEntities::get_entity_byattr('foreignId', $this->data['c_bpartner_id'])->get_localentity();
     }
 
     public function __get($name) {
-        if(isset($this->bpartner[$name])) {
-            return $this->bpartner[$name];
+        if(isset($this->data[$name])) {
+            return $this->data[$name];
         }
         return false;
     }
 
     public function get() {
-        return $this->bpartner;
+        return $this->data;
     }
 
 }
@@ -2161,22 +2210,17 @@ class IntegrationCostingAlgorithm {
 
 }
 
-class IntegrationOBUser {
-    private $data;
-    private $f_db;
+class IntegrationOBUser extends IntegrationAbstractClass {
+    protected $data;
+    protected $f_db;
 
     const PRIMARY_KEY = 'ad_user_id';
     const TABLE_NAME = 'ad_user';
     const DISPLAY_NAME = 'name';
+    const CLASSNAME = __CLASS__;
 
     public function __construct($id, $f_db = NULL) {
-        if(!empty($f_db)) {
-            $this->f_db = $f_db;
-        }
-        else {
-//Open connections
-        }
-        $this->read($id);
+        parent::__construct($id, $f_db);
     }
 
     private function read($id) {
@@ -2206,22 +2250,17 @@ class IntegrationOBUser {
 
 }
 
-class IntegrationOBPaymentTerm {
-    private $data;
-    private $f_db;
+class IntegrationOBPaymentTerm extends IntegrationAbstractClass {
+    protected $data;
+    protected $f_db;
 
     const PRIMARY_KEY = 'c_paymentterm_id';
     const TABLE_NAME = 'c_paymentterm';
     const DISPLAY_NAME = 'name';
+    const CLASSNAME = __CLASS__;
 
     public function __construct($id, $f_db = NULL) {
-        if(!empty($f_db)) {
-            $this->f_db = $f_db;
-        }
-        else {
-//Open connections
-        }
-        $this->read($id);
+        parent::__construct($id, $f_db);
     }
 
     private function read($id) {
@@ -2369,6 +2408,85 @@ class IntegrationOBOrg extends IntegrationAbstractClass {
     const PRIMARY_KEY = 'ad_org_id';
     const TABLE_NAME = 'ad_org';
     const DISPLAY_NAME = '';
+    const CLASSNAME = __CLASS__;
+
+    public function __construct($id, $f_db = NULL) {
+        parent::__construct($id, $f_db);
+    }
+
+}
+
+class IntegrationOBBusinessPartnerLocation extends IntegrationAbstractClass {
+    protected $data;
+    protected $f_db;
+
+    const PRIMARY_KEY = 'c_bpartner_location_id';
+    const TABLE_NAME = 'c_bpartner_location';
+    const DISPLAY_NAME = '';
+    const CLASSNAME = __CLASS__;
+
+    public function __construct($id, $f_db = NULL) {
+        parent::__construct($id, $f_db);
+    }
+
+    public function get_location() {
+        return new IntegrationOBLocation($this->data['c_location_id'], $this->f_db);
+    }
+
+}
+
+class IntegrationOBLocation extends IntegrationAbstractClass {
+    protected $data;
+    protected $f_db;
+
+    const PRIMARY_KEY = 'c_location_id';
+    const TABLE_NAME = 'c_location';
+    const DISPLAY_NAME = '';
+    const CLASSNAME = __CLASS__;
+
+    public function __construct($id, $f_db = NULL) {
+        parent::__construct($id, $f_db);
+    }
+
+}
+
+class IntegrationOBCountry extends IntegrationAbstractClass {
+    protected $data;
+    protected $f_db;
+
+    const PRIMARY_KEY = 'c_country_id';
+    const TABLE_NAME = 'c_country';
+    const DISPLAY_NAME = '';
+    const CLASSNAME = __CLASS__;
+
+    public function __construct($id, $f_db = NULL) {
+        parent::__construct($id, $f_db);
+    }
+
+}
+
+class IntegrationOBIncoterms extends IntegrationAbstractClass {
+    protected $data;
+    protected $f_db;
+
+    const PRIMARY_KEY = 'c_incoterms_id';
+    const TABLE_NAME = 'c_incoterms';
+    const DISPLAY_NAME = 'name';
+    const CLASSNAME = __CLASS__;
+
+    public function __construct($id, $f_db = NULL) {
+        parent::__construct($id, $f_db);
+    }
+
+}
+
+class IntegrationOBIAttachments extends IntegrationAbstractClass {
+    protected $data;
+    protected $f_db;
+
+    const PRIMARY_KEY = 'c_file_id';
+    const TABLE_NAME = 'c_file';
+    const DISPLAY_NAME = 'name';
     const CLASSNAME = __CLASS__;
 
     public function __construct($id, $f_db = NULL) {

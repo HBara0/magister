@@ -49,9 +49,6 @@ if(!$core->input['action']) {
                         if($report['finishDate'] != 0 && $report['initDate'] != 0) {
                             $report['daysfromreportcreation'] = max(0, floor(($report['finishDate'] - $report['initDate']) / (60 * 60 * 24)));
                         }
-
-
-
                         $icon_locked = '';
                         if($report['isLocked'] == 1) {
                             $icon_locked = '_locked';
@@ -75,9 +72,17 @@ if(!$core->input['action']) {
                     foreach($fields as $field) {
                         $totalperaff[$field] += $report[$field];
                     }
-
                     $supplier = new Entities($report['spid']);
                     $report['supplier'] = $supplier->get_displayname();
+
+                    $report_obj = new Reporting(array('rid' => $report['rid']));
+                    $audits = $report_obj->get_report_supplier_audits();
+                    if(is_array($audits)) {
+                        foreach($audits as $audit) {
+                            $reportaudits[] = $audit->parse_link();
+                        }
+                        $reportaudits_str = implode(', ', $reportaudits);
+                    }
                     $marketreports = MarketReport::get_data(array('rid' => $report['rid']), array('returnarray' => true));
                     if(is_array($marketreports)) {
                         $mkr_rating = '<tr><td class="subtitle" colspan="2">'.$lang->mkrrating.'</td></tr><tr><td colspan = "2">';
@@ -89,7 +94,7 @@ if(!$core->input['action']) {
                                         $authors .= ', ';
                                     }
                                     $reportauthor = new Users($reportauthor_obj->uid);
-                                    $authors .= $reportauthor->get_displayname();
+                                    $authors .= $reportauthor->parse_link();
                                 }
                             }
                             $marketreport = $marketreport->get();
@@ -140,11 +145,21 @@ if(!$core->input['action']) {
         foreach($fields as $field) {
             $all_aff_avg[$field] = ceil($all_aff_total[$field] / $aff_count);
         }
-        $mkrrating_barchart = new Charts(array('x' => array_keys($avgmkrrating), 'y' => array_values($avgmkrrating)), 'bar', array('yaxisname' => 'MKR Rating', 'xaxisname' => $lang->affiliate, 'title' => $lang->barchartrating, 'scale' => 'SCALE_START0', 'nosort' => true, 'width' => 1000));
-        $daystocompletion_bchart['fromqstart'] = new Charts(array('x' => array_keys($avgperaff['daysfromqstart']), 'y' => array_values($avgperaff['daysfromqstart'])), 'bar', array('yaxisname' => 'Days to Completition (From Q Start)', 'xaxisname' => $lang->affiliates, 'title' => $lang->barchartdayscompletion.' '.$lang->fromqstart, 'scale' => 'SCALE_START0', 'nosort' => true, 'width' => 1000, 'noLegend' => true));
-        $daystocompletion_bchart['fromcreationdate'] = new Charts(array('x' => array_keys($avgperaff['daysfromreportcreation']), 'y' => array_values($avgperaff['daysfromreportcreation'])), 'bar', array('yaxisname' => 'Days to Completition (From Report Creation)', 'xaxisname' => $lang->affiliates, 'title' => $lang->barchartdayscompletion.' '.$lang->fromreportcreation, 'scale' => 'SCALE_START0', 'nosort' => true, 'width' => 1000, 'noLegend' => true));
-        $daystocompletion_bchart['daystoimportfromqstart'] = new Charts(array('x' => array_keys($avgperaff['daystoimportfromqstart']), 'y' => array_values($avgperaff['daystoimportfromqstart'])), 'bar', array('yaxisname' => 'Days to Completition (From Q Start)', 'xaxisname' => $lang->affiliates, 'title' => $lang->barchartdaystoimport.' '.$lang->fromqstart, 'scale' => 'SCALE_START0', 'nosort' => true, 'width' => 1000, 'noLegend' => true));
-        $daystocompletion_bchart['daystoimportfromcreation'] = new Charts(array('x' => array_keys($avgperaff['daystoimportfromcreation']), 'y' => array_values($avgperaff['daystoimportfromcreation'])), 'bar', array('yaxisname' => 'Days to Completition (From Report Creation)', 'xaxisname' => $lang->affiliates, 'title' => $lang->barchartdaystoimport.' '.$lng->fromreportcreation, 'scale' => 'SCALE_START0', 'nosort' => true, 'width' => 1000, 'noLegend' => true));
+        if(is_array($avgmkrrating)) {
+            if(!(count(array_unique($avgmkrrating)) === 1 && end($avgmkrrating) === '0.00')) {
+                $mkrrating_barchart = new Charts(array('x' => array_keys($avgmkrrating), 'y' => array_values($avgmkrrating)), 'bar', array('yaxisname' => 'MKR Rating', 'xaxisname' => $lang->affiliate, 'title' => $lang->barchartrating, 'scale' => 'SCALE_START0', 'nosort' => true, 'width' => 1000));
+                $mkrratingbarchart = $mkrrating_barchart->get_chart();
+            }
+        }
+        $charts = array('daysfromqstart', 'daysfromreportcreation', 'daystoimportfromqstart', 'daystoimportfromcreation');
+        foreach($charts as $chart) {
+            if(is_array($avgperaff[$chart])) {
+                if(!empty(array_filter($avgperaff[$chart]))) {
+                    $daystocompletion_bchart[$chart] = new Charts(array('x' => array_keys($avgperaff[$chart]), 'y' => array_values($avgperaff[$chart])), 'bar', array('yaxisname' => $lang->$chart, 'xaxisname' => $lang->affiliates, 'title' => $lang->$chart, 'scale' => 'SCALE_START0', 'nosort' => true, 'width' => 1000, 'noLegend' => true));
+                    $daystocompletion_bchart[$chart.'chart'] = $daystocompletion_bchart[$chart]->get_chart();
+                }
+            }
+        }
     }
     if(isset($core->input['excludecharts']) && $core->input['excludecharts'] == 1) {
         $display['charts'] = 'style="display:none;"';
