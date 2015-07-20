@@ -13,13 +13,14 @@
                 <thead>
                     <tr>
                         <th width="10%"># <a href="{$sort_url}&amp;sortby=identifier&amp;order=ASC"><img src="./images/sort_asc.gif" border="0" alt="{$lang->sortasc}"/></a><a href="{$sort_url}&amp;sortby=identifier&amp;order=DESC"><img src="./images/sort_desc.gif" border="0" alt="{$lang->sortdesc}"/></a></th>
-                        <th width="21%">{$lang->subject} <a href="{$sort_url}&amp;sortby=subject&amp;order=ASC"><img src="./images/sort_asc.gif" border="0" alt="{$lang->sortasc}"/></a><a href="{$sort_url}&amp;sortby=subject&amp;order=DESC"><img src="./images/sort_desc.gif" border="0" alt="{$lang->sortdesc}"/></a></th>
+                        <th width="20%">{$lang->subject} <a href="{$sort_url}&amp;sortby=subject&amp;order=ASC"><img src="./images/sort_asc.gif" border="0" alt="{$lang->sortasc}"/></a><a href="{$sort_url}&amp;sortby=subject&amp;order=DESC"><img src="./images/sort_desc.gif" border="0" alt="{$lang->sortdesc}"/></a></th>
                         <th width="40%">{$lang->description}</th>
                         <th width="16%">{$lang->category} <a href="{$sort_url}&amp;sortby=categorytitle&amp;order=ASC"><img src="./images/sort_asc.gif" border="0" alt="{$lang->sortasc}"/></a><a href="{$sort_url}&amp;sortby=categorytitle&amp;order=DESC"><img src="./images/sort_desc.gif" border="0" alt="{$lang->sortdesc}"/></a></th>
                         <th width="13%">{$lang->surveydate} <a href="{$sort_url}&amp;sortby=date&amp;order=ASC"><img src="./images/sort_asc.gif" border="0" alt="{$lang->sortasc}"/></a><a href="{$sort_url}&amp;sortby=date&amp;order=DESC"><img src="./images/sort_desc.gif" border="0" alt="{$lang->sortdesc}"/></a></th>
                         <th width="1%">&nbsp;</th>
+                        <th width="1%">&nbsp;</th>
                     </tr>
-                </thead>	
+                </thead>
                 <tbody>
                     {$surveys_rows}
                 </tbody>

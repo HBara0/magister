@@ -11,6 +11,8 @@ v<?php
 class IntegrationMediationSalesOrderLines extends IntegrationMediation {
     private $status = 0;
     private $data = array();
+    private $order_currency = '';
+    private $order_salesrep = '';
 
     const PRIMARY_KEY = 'imsolid';
     const TABLE_NAME = 'integration_mediation_salesorderlines';
@@ -65,8 +67,49 @@ class IntegrationMediationSalesOrderLines extends IntegrationMediation {
     }
 
     public function get_order() {
-        $order = new IntegrationMediationSalesOrders($this->data['foreignOrderId']);
+        $order = IntegrationMediationSalesOrders::get_orders(array('foreignId' => $this->data['foreignOrderId']), array('returnarray' => false));
+        if(!is_object($order)) {
+            return null;
+        }
         return $order;
+    }
+
+    public function set_ordercur($currency) {
+        if(empty($currency)) {
+            return false;
+        }
+        $this->order_currency = $currency;
+    }
+
+    public function get_ordercurr() {
+        return $this->order_currency;
+    }
+
+    public function get_ordercurr_object() {
+        $currency = Currencies::get_data(array('alphaCode' => $this->get_ordercurr()), array('returnarray' => false));
+        if(!is_object($currency) || empty($currency->alphaCode)) {
+            return false;
+        }
+        return $currency;
+    }
+
+    public function get_salesrep() {
+        return $this->order_salesrep;
+    }
+
+    public function set_salesrep($order_salesrep) {
+        if(empty($order_salesrep)) {
+            return false;
+        }
+        $this->order_salesrep = $order_salesrep;
+    }
+
+    public function get_salesrep_object() {
+        $user = Users::get_data(array('displayName' => $this->order_salesrep));
+        if(!is_object($user) || empty($user->uid)) {
+            return false;
+        }
+        return $user;
     }
 
 }

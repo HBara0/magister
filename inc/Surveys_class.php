@@ -12,6 +12,7 @@
 class Surveys {
     private $survey = array();
     private $status = 0; //0=No errors;1=Subject missing;2=Entry exists;3=Error saving;4=validation violation
+    public $stid = 0;
 
     public function __construct($id = '', $simple = false) {
         global $core;
@@ -307,6 +308,7 @@ class Surveys {
             }
             $log->record('createsurveytemplate', $stid);
             $this->status = 0;
+            $this->stid = $stid;
             return true;
         }
         else {
@@ -328,6 +330,17 @@ class Surveys {
 
     public function get_survey() {
         return $this->survey;
+    }
+
+    public function get_template() {
+        if(isset($this->data['stid']) && !empty($this->data['stid'])) {
+            $template = new SurveysTemplates($this->data['stid']);
+            if(!is_object($template)) {
+                return false;
+            }
+            return $template;
+        }
+        return false;
     }
 
     public function get() {

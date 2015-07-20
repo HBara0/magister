@@ -4,6 +4,7 @@ class Entities extends AbstractClass {
     protected $eid = 0;
     protected $status = false;
     protected $data = array();
+    protected static $groupsup_names = array(1 => 'Solvay', 2 => 'Roquette', 3 => 'Wacker', 4 => 'Aditya Birla', 5 => 'Novacyl', 6 => 'Ametech', 7 => 'Vencorex', 8 => 'Meggle', 9 => 'AB Enzymes');
 
     const PRIMARY_KEY = 'eid';
     const TABLE_NAME = 'entities';
@@ -172,7 +173,7 @@ class Entities extends AbstractClass {
                         $this->send_creationnotification();
                     }
                 }
-                //if($this->data['type'] == 'c') {
+//if($this->data['type'] == 'c') {
                 if(!in_array($this->data['type'], $noncurrentitytypes)) {
                     if(IN_AREA == 'user') {
                         $this->insert_assignedemployee();
@@ -181,7 +182,7 @@ class Entities extends AbstractClass {
                         $this->insert_assignedemployee($employees);
                     }
                 }
-                //}
+//}
                 if(is_array($coveredcountries)) {
                     foreach($coveredcountries as $coveredcountry) {
                         $coveredcountry['eid'] = $this->eid;
@@ -1019,6 +1020,38 @@ class Entities extends AbstractClass {
         if($this->type == 'cs') {
             return 'Competitor supplier';
         }
+    }
+
+    public function get_principalsuppliegroups($returntype = 'object') {
+        foreach(self::$groupsup_names as $groupid => $companyname) {
+            $entities = Entities::get_data(array('companyName like "%'.$companyname.'%"'), array('returnarray' => true, 'operators' => array('CUSTOMSQLSECURE')));
+            if(!is_array($entities)) {
+                continue;
+            }
+            if($returntype == 'object') {
+                $groupsuppliers[$groupid] = $entities;
+            }
+            elseif($returntype == 'id') {
+                foreach($entities as $entity) {
+                    $groupsuppliers[$entity->data[eid]] = $groupid;
+                }
+            }
+        }
+        if(!is_array($groupsuppliers)) {
+            return false;
+        }
+        return $groupsuppliers;
+    }
+
+    public function get_suppliergroupname($number) {
+        if(array_key_exists($number, self::$groupsup_names)) {
+            return self::$groupsup_names[$number];
+        }
+        return false;
+    }
+
+    public function get_supgrouparray() {
+        return self::$groupsup_names;
     }
 
 }

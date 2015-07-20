@@ -3,8 +3,8 @@
         <title>{$core->settings[systemtitle]} | {$lang->createtemplate}</title>
         {$headerinc}
         <script type="text/javascript">
-            $(function() {
-                $("select[id$='_[type]']").live('change', function() {
+            $(function () {
+                $("select[id$='_[type]']").live('change', function () {
                     if(sharedFunctions.checkSession() == false) {
                         return;
                     }
@@ -22,8 +22,7 @@
                 });
                 }
             });
-
-            $("select[id$='[validationType]']").live('change', function() {
+            $("select[id$='[validationType]']").live('change', function () {
                 var id = $(this).attr("id").split("_");
                 var valMatch = ["minchars", "maxchars"];
                 $("tr[id='section_" + id[1] + "_[questions]_" + id[3] + "_[validationCriterion]']").css("display", "none");
@@ -33,7 +32,7 @@
             }
             );
             });
-                    $(document).ajaxSuccess(function() {
+                    $(document).ajaxSuccess(function () {
                 $("tbody[id^='questions'][id$='_tbody']").sortable({placeholder: "ui-state-highlight", forcePlaceholderSize: true, delay: 300, opacity: 0.5, containment: "parent", handle: '.questions-sort-icon'});
             });
         </script>
@@ -88,9 +87,13 @@
                         </td>
                     </tr>
                     <tr>
+                        <td>{$lang->openpreview}<input type="checkbox" name="preview" value="1"></td>
+                    </tr>
+                    <tr>
                         <td colspan="3">
                             <hr />
-                            <input type="submit" value="{$lang->$action}" id="perform_surveys/createsurveytemplate_Button" tabindex="26" class="button"/>
+                            <input  type="submit" value="{$lang->$action}" id="perform_surveys/createsurveytemplate_Button" tabindex="26" class="button"/>
+
                             <input type="reset" value="{$lang->reset}" class="button" />
                         </td>
                     </tr>

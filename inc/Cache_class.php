@@ -59,6 +59,10 @@ class Cache {
         return false;
     }
 
+    public function get_cachedval($reference, $index = '') {
+        return $this->data[$reference][$index];
+    }
+
     public function __get($attr) {
         if(isset($this->data[$attr])) {
             return $this->data[$attr];
