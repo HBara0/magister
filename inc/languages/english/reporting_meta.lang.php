@@ -231,4 +231,5 @@ $lang['avg'] = 'Average';
 $lang['allaffiliates'] = 'All Affiliates';
 $lang['fromqstart'] = 'From Q Start';
 $lang['fromreportcreation'] = 'From Report Creation';
+$lang['audits'] = 'Report Audits';
 ?>

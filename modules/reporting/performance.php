@@ -49,9 +49,6 @@ if(!$core->input['action']) {
                         if($report['finishDate'] != 0 && $report['initDate'] != 0) {
                             $report['daysfromreportcreation'] = max(0, floor(($report['finishDate'] - $report['initDate']) / (60 * 60 * 24)));
                         }
-
-
-
                         $icon_locked = '';
                         if($report['isLocked'] == 1) {
                             $icon_locked = '_locked';
@@ -75,9 +72,17 @@ if(!$core->input['action']) {
                     foreach($fields as $field) {
                         $totalperaff[$field] += $report[$field];
                     }
-
                     $supplier = new Entities($report['spid']);
                     $report['supplier'] = $supplier->get_displayname();
+
+                    $report_obj = new Reporting(array('rid' => $report['rid']));
+                    $audits = $report_obj->get_report_supplier_audits();
+                    if(is_array($audits)) {
+                        foreach($audits as $audit) {
+                            $reportaudits[] = $audit->get_displayname();
+                        }
+                        $reportaudits_str = implode(',', $reportaudits);
+                    }
                     $marketreports = MarketReport::get_data(array('rid' => $report['rid']), array('returnarray' => true));
                     if(is_array($marketreports)) {
                         $mkr_rating = '<tr><td class="subtitle" colspan="2">'.$lang->mkrrating.'</td></tr><tr><td colspan = "2">';
