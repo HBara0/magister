@@ -149,6 +149,8 @@ if(!$core->input['action']) {
                 //  eval("\$profiles_minproductentry = \"".$template->get('profiles_michemfuncproductentry')."\";");
                 //get brand related to the customer
                 $entity = new Entities($visitreport_data['cid']);
+
+
                 $brandsproducts = $entity->get_brandsproducts();
                 $output = '';
                 if(is_array($brandsproducts)) {
@@ -185,7 +187,7 @@ if(!$core->input['action']) {
                     foreach($values as $key => $value) {
                         $checked = $rowclass = '';
                         $endproducttypes_list .= ' <tr class="'.$rowclass.'">';
-                        $endproducttypes_list .= '<td><input id="producttypefilter_check_'.$key.'" type="checkbox"'.$checked.' value="'.$key.'" name="entitybrand[endproducttypes]['.$key.']">'.$value.'</td><tr>';
+                        $endproducttypes_list .= '<td><input id="producttypefilter_check_'.$key.'" type="checkbox"'.$checked.' value="'.$key.'"  name="entitybrand[endproducttypes]['.$key.'][eptid]">'.$value.'<input style="float:right;" type="text" name="entitybrand[endproducttypes]['.$key.'][description]" placeholder="'.$lang->description.'"  value="'.$brandproduct[description].'"/></td><tr>';
                     }
                 }
                 $characteristics = ProductCharacteristicValues::get_data(null, array('returnarray' => true));
