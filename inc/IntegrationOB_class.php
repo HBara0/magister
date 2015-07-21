@@ -2109,39 +2109,48 @@ class IntegrationOBAttributeValue {
 
 }
 
-class IntegrationOBUom {
-    private $uom;
-    private $f_db;
+class IntegrationOBUom extends IntegrationAbstractClass {
+    protected $data;
+    protected $f_db;
+
+    const PRIMARY_KEY = 'c_uom_id';
+    const TABLE_NAME = 'c_uom';
+    const DISPLAY_NAME = 'name';
+    const CLASSNAME = __CLASS__;
 
     public function __construct($id, $f_db = NULL) {
-        if(!empty($f_db)) {
-            $this->f_db = $f_db;
-        }
-        else {
-//Open connections
-        }
-        $this->read($id);
+        parent::__construct($id, $f_db);
     }
 
+//    public function __construct($id, $f_db = NULL) {
+//        if(!empty($f_db)) {
+//            $this->f_db = $f_db;
+//        }
+//        else {
+////Open connections
+//        }
+//        $this->read($id);
+//    }
+
     private function read($id) {
-        $this->uom = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
+        $this->data = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
 						FROM c_uom
 						WHERE c_uom_id='".$this->f_db->escape_string($id)."'"));
     }
 
     public function get_id() {
-        return $this->uom['c_uom_id'];
+        return $this->data['c_uom_id'];
     }
 
     public function __get($name) {
-        if(isset($this->uom[$name])) {
-            return $this->uom[$name];
+        if(isset($this->data[$name])) {
+            return $this->data[$name];
         }
         return false;
     }
 
     public function get() {
-        return $this->uom;
+        return $this->data;
     }
 
 }
