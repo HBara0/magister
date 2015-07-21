@@ -215,13 +215,16 @@ if(!($core->input['action'])) {
                     $aprowid++;
                     $products = new Products($actualpurchase->pid);
                     $actualpurchase->productName = $products->get_displayname();
-                    $actualpurchase->estDateOfStockEntry_output = date($core->settings['dateformat'], $actualpurchase->estDateOfStockEntry);
-                    $actualpurchase->estDateOfSale_output = date($core->settings['dateformat'], $actualpurchase->estDateOfSale);
-                    $actualpurchase->estDateOfStockEntry_formatted = date('d-m-Y', $actualpurchase->estDateOfStockEntry);
-                    $actualpurchase->estDateOfSale_formatted = date('d-m-Y', $actualpurchase->estDateOfSale);
+                    if($actualpurchase->estDateOfStockEntry != 0) {
+                        $actualpurchase->estDateOfStockEntry_output = date($core->settings['dateformat'], $actualpurchase->estDateOfStockEntry);
+                        $actualpurchase->estDateOfStockEntry_formatted = date('d-m-Y', $actualpurchase->estDateOfStockEntry);
+                    }
+                    if($actualpurchase->estDateOfSale != 0) {
+                        $actualpurchase->estDateOfSale_output = date($core->settings['dateformat'], $actualpurchase->estDateOfSale);
+                        $actualpurchase->estDateOfSale_formatted = date('d-m-Y', $actualpurchase->estDateOfSale);
+                    }
                     $packing = new Packaging($actualpurchase->packing);
                     $actualpurchase->packingTitle = $packing->get_displayname();
-                    //  $packaging_selected_list = parse_selectlist('productline['.$plrowid.'][packing]', '', $packaging, $actualpurchase->packing, '', '', array('id' => "productline_".$plrowid."_packing", 'blankstart' => 1));
                     eval("\$actualpurchase_rows .= \"".$template->get('aro_actualpurchase_row')."\";");
                 }
             }
