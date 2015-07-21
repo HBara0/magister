@@ -19,7 +19,7 @@ if(!$core->input['action']) {
         $publish_page = '<div style="display:inline-block">'.$lang->ispublish.'</div><div style="display: table-cell; padding:10px;"><input name="page[isPublished]" type="checkbox" value="1"></div>';
     }
     $robots_list = parse_selectlist('page[robotsRule]', 1, array("INDEX,FOLLOW" => "INDEX,FOLLOW", "NOINDEX,FOLLOW" => "NOINDEX,FOLLOW", "INDEX,NOFOLLOW" => "INDEX,NOFOLLOW", "NOINDEX,NOFOLLOW" => "NOINDEX,NOFOLLOW"), 0);
-    $content_categories = CmsContentCategories::get_data('title IS NOT NULL');
+    $content_categories = CmsContentCategories::get_data('title IS NOT NULL', array('returnarray' => true, 'simple' => false));
     if($core->input['type'] == 'edit') {
         $actiontype = 'edit';
         $lang->createwebpage = $lang->editwebpage;
