@@ -45,7 +45,7 @@ elseif($core->input['action'] == 'do_perform_intermedaffshipment') {
     $intermedaff_orgid = $intermedaffiliate->integrationOBOrgId;
     $buyingaff_orgid = $buyingaffiliate->integrationOBOrgId;
 
-    //  $intermedaff_orgid = "DA0CE0FED12C4424AA9B51D492AE96D2";
+    //$intermedaff_orgid = "DA0CE0FED12C4424AA9B51D492AE96D2";
     // $buyingaff_orgid = "B0C07E1A9946477AB47805413D4624F1";
 
     if(empty($intermedaff_orgid) || empty($buyingaff_orgid)) {
@@ -74,7 +74,8 @@ elseif($core->input['action'] == 'do_perform_intermedaffshipment') {
     if(is_array($orders)) {
         foreach($orders as $order_obj) {
             $order = $order_obj->get();
-            $order['DateOrdered_output'] = $order['dateordered'];
+            $order['DateOrdered_output'] = date('Y-m-d', strtotime($order['dateordered']));
+            $order['updated_output'] = date('Y-m-d', strtotime($order['updated']));
             $cust = new IntegrationOBBPartner($order['c_bpartner_id']);
             if(is_object($cust)) {
                 $order['customer'] = $cust->get_displayname();

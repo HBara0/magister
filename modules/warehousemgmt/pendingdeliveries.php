@@ -52,7 +52,7 @@ if($core->input['action'] == 'do_perform_pendingdeliveries') {
             if(is_array($orderlines)) {
                 $nomatchfound = false;
                 /* sales Order data -START */
-                $order['DateOrdered_output'] = $order['dateordered'];
+                $order['DateOrdered_output'] = date('Y-m-d', strtotime($order['dateordered']));
 
                 $warehouse = IntegrationOBWarehouse::get_data("m_warehouse_id='".$order['m_warehouse_id']."'");
                 if(is_object($warehouse)) {
