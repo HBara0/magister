@@ -1,6 +1,6 @@
 <table style="color:black;" class="datatable">
     <thead style="width:60%">
-        <tr style="background-color:#d8feb2;">
+        <tr style="background-color:#d8feb2;font-weight: bold">
             <td style="width:10%;">{$lang->eta}</td>
             <td style="width:10%;">{$lang->ets}</td>
             <td style="width:10%;">{$lang->shipmentstatus}</td>

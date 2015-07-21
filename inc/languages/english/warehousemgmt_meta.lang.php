@@ -169,6 +169,9 @@ $lang['price'] = 'Price';
 $lang['packaging'] = 'Packaging';
 $lang['linenetamt'] = 'Line Net Amount';
 $lang['linegrossamt'] = 'Line Gross Amount';
-$lang['attachments'] = 'Attachments';
-$lang['updatedon'] = 'Updated On'
+$lang['attachmenttitle'] = 'Attachment Title';
+$lang['updatedon'] = 'Updated On';
+$lang['uom'] = 'UOM';
+$lang['description'] = 'Description';
+$lang['downloadlink'] = 'Download Link';
 ?>

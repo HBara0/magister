@@ -74,7 +74,7 @@ if($core->input['action'] == 'do_perform_pendingdeliveries') {
                 /* sales Order data - END */
 
                 /* sales Order Lines data -START */
-                $orderlines_output .='<tr class="subtitle"><td style="width:15%;">'.$lang->product.'</td><td style="width:10%;">'.$lang->orderedqty.'</td><td style="width:10%;"> '.$lang->pendingqty.'</td></tr>';
+                $orderlines_output .='<tr class="subtitle"><td style="width:15%;">'.$lang->product.'</td><td style="width:10%;">'.$lang->orderedqty.'</td><td style="width:10%;"> '.$lang->pendingqty.'</td><td tyle="width:10%;">'.$lang->uom.'</td></tr>';
                 foreach($orderlines as $orderline) {
                     $orderline = $orderline->get();
                     $product = new IntegrationOBProduct($orderline['m_product_id']);
@@ -82,8 +82,10 @@ if($core->input['action'] == 'do_perform_pendingdeliveries') {
                         $orderline['product'] = $product->get_displayname();
                     }
                     $orderline['pendingQty'] = $orderline['qtyordered'] - $orderline['qtydelivered'];
+                    $uom = new IntegrationOBUom($orderline['c_uom_id']);
+                    $orderline['uom'] = $uom->name;
                     eval("\$orderlines_output .= \"".$template->get('warehousemgmt_pendingdeliveries_orderline')."\";");
-                    unset($product);
+                    unset($product, $uom);
                 }
                 /* sales Order Lines data -END */
                 unset($warehouse, $bplocation, $cust);

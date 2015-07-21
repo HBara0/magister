@@ -46,7 +46,7 @@ elseif($core->input['action'] == 'do_perform_intermedaffshipment') {
     $buyingaff_orgid = $buyingaffiliate->integrationOBOrgId;
 
     //$intermedaff_orgid = "DA0CE0FED12C4424AA9B51D492AE96D2";
-    // $buyingaff_orgid = "B0C07E1A9946477AB47805413D4624F1";
+    //$buyingaff_orgid = "B0C07E1A9946477AB47805413D4624F1";
 
     if(empty($intermedaff_orgid) || empty($buyingaff_orgid)) {
         output_xml('<status>true</status><message>Affiliate with no integration Id</message>');
@@ -111,7 +111,10 @@ elseif($core->input['action'] == 'do_perform_intermedaffshipment') {
                         $orderline['product'] = $product->get_displayname();
                     }
                     $orderline['packaging'] = $orderline_obj->get_packaging();
+                    $uom = new IntegrationOBUom($orderline['c_uom_id']);
+                    $orderline['uom'] = $uom->name;
                     eval("\$lines_output .= \"".$template->get('warehousemgmt_intermedaffshipment_line')."\";");
+                    unset($product, $uom);
                 }
             }
 

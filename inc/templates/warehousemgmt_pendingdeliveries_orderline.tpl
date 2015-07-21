@@ -8,5 +8,8 @@
     <td>
         {$orderline[pendingQty]}
     </td>
+    <td>
+        {$orderline[uom]}
+    </td>
 </tr>
 
