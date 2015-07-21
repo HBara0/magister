@@ -13,6 +13,7 @@
             <td>{$lang->paymentterms}</td>
             <td>{$lang->incoterms}</td>
             <td>{$lang->incotermsdesc}</td>
+            <td>{$lang->updatedon}</td>
         </tr>
     </thead>
     <tbody style="color:black;">
@@ -29,6 +30,7 @@
             <td class="border_right">{$order[paymentterm]}</td>
             <td class="border_right">{$order[incoterms]}</td>
             <td class="border_right">{$order[em_ork_incotermsdesc]}</td>
+            <td>{$order[updated_output]}</td>
         </tr>
     </tbody>
 </table>
