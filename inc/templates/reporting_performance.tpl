@@ -16,11 +16,11 @@
                 <thead>
                     <tr {$display[charts]}>
                         <td colspan="2">
-                            <img src ="{$mkrrating_barchart->get_chart()}"/>
-                            <img src ="{$daystocompletion_bchart[fromqstart]->get_chart()}"/>
-                            <img src ="{$daystocompletion_bchart[fromcreationdate]->get_chart()}"/>
-                            <img src ="{$daystocompletion_bchart[daystoimportfromqstart] ->get_chart()}"/>
-                            <img src ="{$daystocompletion_bchart[daystoimportfromcreation]->get_chart()}"/>
+                            <img src ="{$mkrratingbarchart}" alt=""/>
+                            <img src ="{$daystocompletion_bchart[daysfromqstartchart]}" alt=""/>
+                            <img src ="{$daystocompletion_bchart[daysfromreportcreationchart]}" alt=""/>
+                            <img src ="{$daystocompletion_bchart[daystoimportfromqstartchart]}" alt=""/>
+                            <img src ="{$daystocompletion_bchart[daystoimportfromcreationchart]}" alt=""/>
                         </td>
                     </tr>
                     <tr class="subtitle"  {$display[allaffiliates]}>

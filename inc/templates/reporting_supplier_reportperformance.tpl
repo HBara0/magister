@@ -13,6 +13,8 @@
         <strong> {$avgrating[supplier]}</strong>
     </td>
 </tr>
+<tr><td>{$lang->audits}</td>
+    <td>{$reportaudits_str}</td></tr>
 <tr>
     <td style="vertical-align: top">
         {$lang->daystocompletion}:

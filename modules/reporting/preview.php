@@ -501,7 +501,7 @@ if(!$core->input['action']) {
                             $country = Countries::get_data(array('coid' => $mrcompetition->coid));
                             if(is_object($country)) {
                                 $country_name = $country->get_displayname();
-                                $competitior_label = $lang->competitororigin;
+                                $competitior_country = $lang->competitororigin;
                             }
                         }
                         $competitionproducts = MarketReportCompetitionProducts::get_data(array('mrcid' => $mrcompetition->mrcid), array('returnarray' => true));
@@ -528,7 +528,7 @@ if(!$core->input['action']) {
                         }
 
                         eval("\$markerreport_segment_suppliers_row .= \"".$template->get('reporting_previewreport_marketreport_suppliers_rows')."\";");
-                        unset($product_row, $supplier, $country, $supplier_name, $country_name, $competitior_label);
+                        unset($product_row, $supplier, $country, $supplier_name, $country_name, $competitior_label, $competitior_country);
                     }
                     eval("\$markerreport_segment_suppliers = \"".$template->get('reporting_previewreport_marketreport_suppliers')."\";");
                     unset($markerreport_segment_suppliers_row);

@@ -214,13 +214,10 @@ $lang['unspecifiedsupplier'] = 'Unspecified Supplier';
 $lang['chemicalsubstance'] = 'Chemical Substance';
 $lang['competitororigin'] = 'Competitor Supplier Origin';
 $lang['marketcompt'] = 'Market Competition';
-
 $lang['qrperformancereport'] = 'QR Performance Report';
 $lang['daystocompletion'] = 'Days to Completion';
 $lang['daystoimportdata'] = 'Days to Import Data';
 $lang['barchartrating'] = 'MKR Rating (Affiliates)';
-$lang['barchartdayscompletion'] = 'Days to Completion (Affiliates)';
-$lang['barchartdaystoimport'] = 'Days to Import data (Affiliates)';
 $lang['allaff'] = 'All Affiliates';
 $lang['q'] = 'Q';
 $lang['mkrrating'] = 'MKR rating';
@@ -231,4 +228,9 @@ $lang['avg'] = 'Average';
 $lang['allaffiliates'] = 'All Affiliates';
 $lang['fromqstart'] = 'From Q Start';
 $lang['fromreportcreation'] = 'From Report Creation';
+$lang['audits'] = 'Report Audits';
+$lang['daysfromqstart'] = 'Days to Completion (From Q Start)';
+$lang['daysfromreportcreation'] = 'Days to Completion (From Creation Date)';
+$lang['daystoimportfromqstart'] = 'Days to Import Data (From Q Start)';
+$lang['daystoimportfromcreation'] = 'Days to Import Data (From Creation Date)';
 ?>
