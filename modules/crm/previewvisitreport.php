@@ -30,6 +30,9 @@ if(!$core->input['action']) {
     if($core->input['referrer'] == 'fill') {
         $identifier = $db->escape_string($core->input['identifier']);
         $session->set_phpsession(array('visitreportcompetitiondata_'.$identifier => serialize($core->input)));
+        if(empty($session->get_phpsession('visitreportdata_'.$identifier))) {
+            redirect('index.php?module=crm/listvisitreports');
+        }
         $visitreports[1] = array_merge(unserialize($session->get_phpsession('visitreportdata_'.$identifier)), unserialize($session->get_phpsession('visitreportvisitdetailsdata_'.$identifier)));
         foreach($visitreports[1]['comments'] as $key => $val) {
             $visitreports[1]['comments'][$key] = array_merge($visitreports[1]['comments'][$key], $core->input['comments'][$key]);

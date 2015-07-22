@@ -13,6 +13,7 @@
             <td>{$lang->paymentterms}</td>
             <td>{$lang->incoterms}</td>
             <td>{$lang->incotermsdesc}</td>
+            <td>{$lang->updatedon}</td>
         </tr>
     </thead>
     <tbody style="color:black;">
@@ -29,6 +30,7 @@
             <td class="border_right">{$order[paymentterm]}</td>
             <td class="border_right">{$order[incoterms]}</td>
             <td class="border_right">{$order[em_ork_incotermsdesc]}</td>
+            <td>{$order[updated_output]}</td>
         </tr>
     </tbody>
 </table>
@@ -37,9 +39,10 @@
 </table>
 <table style="color:black;" class="datatable">
     <thead>
-        <tr style="width:60%;" class="altrow">
+        <tr style="width:70%;font-weight: bold" class="altrow">
             <td style="width:10%;">{$lang->product}</td>
             <td style="width:10%;">{$lang->qty}</td>
+            <td style="width:10%;">{$lang->uom}</td>
             <td style="width:10%;">{$lang->packaging}</td>
             <td style="width:10%;">{$lang->price}</td>
             <td style="width:10%;">{$lang->linegrossamt}</td>
@@ -50,10 +53,16 @@
         {$lines_output}
     </tbody>
 </table>
-<table style="color:black;display:{$display}">
-    <tr>
-        <td class="subtitle">
-            {$lang->attachments}
+<table style="color:black;display:{$display};">
+    <tr class="subtitle" style="width:100%;">
+        <td style="width:15%">
+            {$lang->attachmenttitle}
+        </td>
+        <td style="width:10%">
+            {$lang->description}
+        </td>
+        <td>
+            {$lang->downloadlink}
         </td>
     </tr>
     <tbody>

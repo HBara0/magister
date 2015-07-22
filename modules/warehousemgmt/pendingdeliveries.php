@@ -31,7 +31,7 @@ if($core->input['action'] == 'do_perform_pendingdeliveries') {
     require_once ROOT.INC_ROOT.'integration_config.php';
     $integration = new IntegrationOB($intgconfig['openbravo']['database'], $intgconfig['openbravo']['entmodel']['client']);
     $intgdb = $integration->get_dbconn();
-    $affid = intval($core->input['id']);
+    $affid = intval($core->input['affid']);
     $affiliate = Affiliates::get_affiliates(array('affid' => $affid), array('simple' => false));
     $orgid = $affiliate->integrationOBOrgId;
     if(empty($orgid)) {
@@ -52,7 +52,7 @@ if($core->input['action'] == 'do_perform_pendingdeliveries') {
             if(is_array($orderlines)) {
                 $nomatchfound = false;
                 /* sales Order data -START */
-                $order['DateOrdered_output'] = $order['dateordered'];
+                $order['DateOrdered_output'] = date('Y-m-d', strtotime($order['dateordered']));
 
                 $warehouse = IntegrationOBWarehouse::get_data("m_warehouse_id='".$order['m_warehouse_id']."'");
                 if(is_object($warehouse)) {
@@ -74,7 +74,7 @@ if($core->input['action'] == 'do_perform_pendingdeliveries') {
                 /* sales Order data - END */
 
                 /* sales Order Lines data -START */
-                $orderlines_output .='<tr class="subtitle"><td style="width:15%;">'.$lang->product.'</td><td style="width:10%;">'.$lang->orderedqty.'</td><td style="width:10%;"> '.$lang->pendingqty.'</td></tr>';
+                $orderlines_output .='<tr class="subtitle"><td style="width:15%;">'.$lang->product.'</td><td style="width:10%;">'.$lang->orderedqty.'</td><td style="width:10%;"> '.$lang->pendingqty.'</td><td tyle="width:10%;">'.$lang->uom.'</td></tr>';
                 foreach($orderlines as $orderline) {
                     $orderline = $orderline->get();
                     $product = new IntegrationOBProduct($orderline['m_product_id']);
@@ -82,8 +82,10 @@ if($core->input['action'] == 'do_perform_pendingdeliveries') {
                         $orderline['product'] = $product->get_displayname();
                     }
                     $orderline['pendingQty'] = $orderline['qtyordered'] - $orderline['qtydelivered'];
+                    $uom = new IntegrationOBUom($orderline['c_uom_id']);
+                    $orderline['uom'] = $uom->name;
                     eval("\$orderlines_output .= \"".$template->get('warehousemgmt_pendingdeliveries_orderline')."\";");
-                    unset($product);
+                    unset($product, $uom);
                 }
                 /* sales Order Lines data -END */
                 unset($warehouse, $bplocation, $cust);

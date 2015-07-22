@@ -74,12 +74,14 @@ class CmsPages extends Cms {
         }
 
         if(is_array($this->prevversion)) {
-            if(similar_text($this->page['bodyText'], $this->prevversion['bodyText']) > 70) {
-                $this->page['version'] = $this->prevversion['version'] + 0.1;
-            }
-            else {
-                $this->page['version'] = $this->prevversion['version'] + 1;
-            }
+            $cms = new Cms();
+            $cms->check_similarity($this->page['bodyText'], $this->prevversion['bodyText'], $this->prevversion['version']);
+//            if(similar_text($this->page['bodyText'], $this->prevversion['bodyText']) > 70) {
+//                $this->page['version'] = $this->prevversion['version'] + 0.1;
+//            }
+//            else {
+//                $this->page['version'] = $this->prevversion['version'] + 1;
+//            }
         }
         else {
             $this->page['version'] = 1.0;
