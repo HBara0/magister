@@ -75,7 +75,7 @@ class CmsPages extends Cms {
 
         if(is_array($this->prevversion)) {
             $cms = new Cms();
-            $cms->check_similarity($this->page['bodyText'], $this->prevversion['bodyText'], $this->prevversion['version']);
+            $this->page['version'] = $cms->check_similarity($this->page['bodyText'], $this->prevversion['bodyText'], $this->prevversion['version']);
 //            if(similar_text($this->page['bodyText'], $this->prevversion['bodyText']) > 70) {
 //                $this->page['version'] = $this->prevversion['version'] + 0.1;
 //            }

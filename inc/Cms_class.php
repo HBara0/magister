@@ -181,7 +181,7 @@ class Cms {
         if(similar_text($newtext, $oldtext) > 70) {
             return $version + 0.1;
         }
-        return $version = $version + 1;
+        return $version + 1;
     }
 
 }
