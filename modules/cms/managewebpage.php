@@ -52,6 +52,15 @@ if(!$core->input['action']) {
                 $highlights_list .= '<td><input id="highlightsfilter_check_'.$highlight->cmshid.'" type="checkbox" value="'.$highlight->cmshid.'" name="highlights['.$highlight->cmshid.']">'.$highlight->title.' - '.$highlight->type;
             }
         }
+        $baseversion['display'] = 'display:none';
+        $base_page = new CmsPages($page['baseVersionId'], false);
+        if(is_object($base_page)) {
+            $base_page = $base_page->get();
+            if(!empty($base_page['version'])) {
+                $baseversion['display'] = 'display:block';
+                $page['baseVersion_outpt'] = '<a href="index.php?module=cms/managewebpage&type=edit&id='.$base_page[cmspid].'" target="_blank">'.$base_page['title'].', Version '.$base_page['version'].'</a>';
+            }
+        }
     }
     else {
         $actiontype = 'add';

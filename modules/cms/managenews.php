@@ -75,6 +75,16 @@ if(!$core->input['action']) {
                 $highlights_list .= '<td><input id="highlightsfilter_check_'.$highlight->cmshid.'" type="checkbox" value="'.$highlight->cmshid.'" name="highlights['.$highlight->cmshid.']">'.$highlight->title.' - '.$highlight->type;
             }
         }
+
+        $baseversion['display'] = 'display:none';
+        $base_news = new CmsNews($news['baseVersionId'], false);
+        if(is_object($base_news)) {
+            $base_news = $base_news->get();
+            if(!empty($base_news['version'])) {
+                $baseversion['display'] = 'display:block';
+                $news['baseVersion_outpt'] = '<a href="index.php?module=cms/managenews&type=edit&newsid='.$base_news[cmsnid].'" target="_blank">'.$base_news['title'].', Version '.$base_news['version'].'</a>';
+            }
+        }
     }
     else {
         $actiontype = 'add';
@@ -94,7 +104,6 @@ if(!$core->input['action']) {
 
     $robots_list = parse_selectlist('news[robotsRule]', 1, array("INDEX,FOLLOW" => "INDEX,FOLLOW", "NOINDEX,FOLLOW" => "NOINDEX,FOLLOW", "INDEX,NOFOLLOW" => "INDEX,NOFOLLOW", "NOINDEX,NOFOLLOW" => "NOINDEX,NOFOLLOW"), 0);
     eval("\$higlightsbox =\"".$template->get('cms_manage_pagehighlight')."\";");
-
     eval("\$addnews =\"".$template->get('cms_news_add')."\";");
     output_page($addnews);
 }
