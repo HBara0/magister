@@ -1371,7 +1371,7 @@ else {
                 }
 
                 unset($newdata['productname'], $newdata['fxrate']);
-                if(value_exists('productsactivity', 'rid', $report_meta['rid'], 'pid='.$newdata['pid'].$products_deletequery_string)) {
+                if(value_exists('productsactivity', 'paid', $db->escape_string($newdata['paid'])) || value_exists('productsactivity', 'rid', $report_meta['rid'], 'pid='.$newdata['pid'].$products_deletequery_string)) {
                     if(isset($newdata['paid']) && !empty($newdata['paid'])) {
                         $update_query_where = 'paid='.$db->escape_string($newdata['paid']);
                     }

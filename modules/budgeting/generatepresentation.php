@@ -51,6 +51,9 @@ if($core->input['export']) {
                                     else if(!empty($order->salesRep)) {
                                         $val->set_salesrep($order->salesRep);
                                     }
+                                    if(!empty($order->cid)) {
+                                        $val->set_customer($order->cid);
+                                    }
                                 }
                             }
                         }
@@ -139,7 +142,18 @@ if($core->input['export']) {
                                 $suppliers[$id][$year]['income'] = $suppliers[$id][$year]['sales'] - $suppliers[$id][$year]['costs'];
                                 if($year == date('Y')) {
                                     $currentyearsups_sales[$id] = $suppliers[$id][$year]['sales'];
-                                    $suppliers_customers[$id] ++;
+                                    $cust = $line->get_customer();
+                                    if(!empty($cust)) {
+                                        if(is_array($supplier_custids[$id])) {
+                                            if(!in_array($cust, $supplier_custids[$id])) {
+                                                $suppliers_customers[$id] ++;
+                                                $supplier_custids[$id][] = $cust;
+                                            }
+                                        }
+                                        else {
+                                            $supplier_custids[$id][] = $cust;
+                                        }
+                                    }
                                     $currentyearsups_costs[$id] = $suppliers[$id][$year]['costs'];
                                     $currentyearsups_income[$id] = $currentyearsups_sales[$id] - $currentyearsups_costs[$id];
                                 }
