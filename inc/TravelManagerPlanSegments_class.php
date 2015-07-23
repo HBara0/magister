@@ -208,6 +208,10 @@ class TravelManagerPlanSegments extends AbstractClass {
                     $accod_obj->save();
                 }
             }
+            else {
+                $transp_errorcode = 2;
+                $errorhandler->record('requiredfields', 'Accomodations');
+            }
         }
         $additionalexpenses = $segmentdata['expenses'];
         if(is_array($additionalexpenses)) {
@@ -414,6 +418,10 @@ class TravelManagerPlanSegments extends AbstractClass {
                         $accod_obj->save();
                     }
                 }
+            }
+            else {
+                $transp_errorcode = 2;
+                $errorhandler->record('requiredfields', 'Accomodations');
             }
         }
         else {
