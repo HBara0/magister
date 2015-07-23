@@ -213,6 +213,10 @@
                 $('input[name^="segment"][name$="[fare]"],input[name^="segment"][name$="[subtotal]"],select[name^="segment"][name$="[currency]"],input[name^="segment"][name$="[expectedAmt]"]').live('change', function () {
                     populate_suggestions(this);
                 });
+                $('button[id^="airflights_button_"]').live('click', function () {
+                    var id = $(this).attr("id").split("_");
+                    $('div[id="airflights_div_' + id[2] + '"]').fadeToggle();
+                });
             });
             function populate_suggestions(obj) {
                 var id = $(obj).attr("id").split("_");

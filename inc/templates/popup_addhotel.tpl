@@ -42,6 +42,10 @@
                 <td><input tabindex="100" type="text" accept="" name="otherhotel[website]"></td>
             </tr>
             <tr>
+                <td>{$lang->stars}</td>
+                <td>{$ratingselectlist}</td>
+            </tr>
+            <tr>
                 <td>{$lang->contactperson}</td>
                 <td><input tabindex="100" type="text" name="otherhotel[contactPerson]"></td>
             </tr>

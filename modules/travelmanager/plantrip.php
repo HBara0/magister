@@ -523,14 +523,17 @@ else {
     elseif($core->input['action'] == 'get_addnewhotel') {
         $ciy_sequence = explode('_', $db->escape_string($core->input['id']));
         $sequence = $ciy_sequence[0];
-        $destcityid = $ciy_sequence[1];
+        $destcityid = $core->input['destcity'];
         $segdescity_obj = new Cities($destcityid); // fix isuue in getting ciid
-        $segdescity_country = $segdescity_obj->get_country()->get_displayname();
-        $segdescity_obj_coid = $segdescity_obj->get_country()->coid;
+        $descountry = $segdescity_obj->get_country();
+        $segdescity_country = $descountry->get_displayname();
+        $segdescity_obj_coid = $descountry->coid;
         $segmentobj_destcityname = $segdescity_obj->get()['name'];
+        $ratings = array(1 => 1, 2 => 2, 3 => 3, 4 => 4, 5 => 5);
+        $ratingselectlist = parse_selectlist('otherhotel[stars]', '', $ratings, '', '', '', array('blankstart' => true));
         $country = new Countries(1);
         $countriescodes = $country->get_phonecodes();
-        $countriescodes_list = parse_selectlist('telephone_intcode', $tabindex, $countriescodes, $selected_options, '', '', array('id' => 'telephone_intcode', 'width' => '150px'));
+        $countriescodes_list = parse_selectlist('telephone_intcode', $tabindex, $countriescodes, $descountry->phoneCode, '', '', array('id' => 'telephone_intcode', 'width' => '150px'));
         eval("\$addhotel= \"".$template->get('popup_addhotel')."\";");
         output($addhotel);
     }

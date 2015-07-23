@@ -5,6 +5,7 @@
         <input id="hotels_{$sequence}_cache_hotel_id" name="segment[{$sequence}][tmhid][{$otherhotel_checksum}][tmhid]" value="" type="hidden">
         <input type="hidden" data-reqparent="children-numnight_segacc_0_{$sequence}-pricenight_segacc_0_{$sequence}" id="hotels_{$sequence}_cache_hotel_countryid" name="countryid" value='{$destcountry_id}'/>
         <span> <a style="cursor: pointer;"  rel="{$destcity[ciid]}" id="addnewhotel_{$sequence}_travelmanager/plantrip_loadpopupbyid"><img src="images/addnew.png"  title="{$lang->addotherhotel}" alt="Add" border="0">{$lang->addhotel}</a> </span>
+        <input type="hidden" name="destcity" value="{$destcity[ciid]}" id="extrapopup_{$sequence}_addnewhotel">
         <br/>
         <div style="display:inline-block;padding:5px;width:15%;">{$lang->pricenight}</div>
         <div style="display:inline-block;padding:5px;width:100px;"><input tabindex="3" style="width:100px"id="pricenight_segacc_0_{$sequence}" data-reqparent="children-numnight_segacc_0_{$sequence}" accept="numeric" name="segment[{$sequence}][tmhid][{$otherhotel_checksum}][priceNight]" type="text" value=""></div>
