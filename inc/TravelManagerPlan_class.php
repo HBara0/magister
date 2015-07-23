@@ -656,14 +656,14 @@ class TravelManagerPlan {
             if(empty($approvedhotels)) {
                 $approvedhotels = array();
             }
-            if(is_object($counrty_obj)) {
+            if(is_object($counrty_obj) && !empty($counrty_obj->coid)) {
                 $otherapprovedhotels = TravelManagerHotels::get_data('country='.$counrty_obj->coid.' AND city != '.$city_obj->ciid.' AND isApproved=1', array('returnarray' => true));
             }
             $leavedays = abs($segmentobj->toDate - $segmentobj->fromDate);
             $leavedays = floor($leavedays / (60 * 60 * 24));
             $hotelssegments_output .= $segmentobj->parse_hotels($sequence, $approvedhotels, $leavedays);
             if(is_array($otherapprovedhotels)) {
-                $hotelssegments_output.='<br /><a nohref="nohref" style="cursor:pointer;" id="countryhotels_'.$sequence.'_check"><div style="display:inline-block"><h4>Lookup Hotels in the same country <img src="'.$core->settings['rootdir'].'/images/right_arrow.gif" alt="Other Approved Hotels"></h4></div></a>';
+                $hotelssegments_output.='<br /><a nohref="nohref" style="cursor:pointer;" id="countryhotels_'.$sequence.'_check"><div style="display:inline-block"><button type="button" class="button">Lookup Hotels In The Same Country</button></div></a>';
                 $hotelssegments_output.='<div id=countryhotels_'.$sequence.'_view style="display:none">';
                 $hotelssegments_output.=$segmentobj->parse_hotels($sequence, $otherapprovedhotels, $leavedays);
                 $hotelssegments_output.='</div>';

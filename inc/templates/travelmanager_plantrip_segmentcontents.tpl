@@ -1,4 +1,5 @@
 <div style="display:block;" >
+    <hr style="width: 100%;height:7px"/>
     <h2 class="subtitle">Possible Transportations</h2>
     <div style="display: block">{$lang->oneway}<input type="radio" value="2" name="segment[{$sequence}][transp]" id="transp_lookuptransps_{$sequence}"/>
         {$lang->roundtrip}<input type="radio" value="1" name="segment[{$sequence}][transp]" id="transp_lookuptransps_{$sequence}"/><br/><br/>
@@ -20,7 +21,7 @@
         <input name="numrows_othertranspcat_{$sequence}" type="hidden" id="numrows_othertranspcat_{$sequence}" value="{$rowid}">
     </div>
 </div>
-
+<hr style="width: 100%;height:7px"/>
 <h2 class="subtitle" style="padding:8px;width:40%;">{$lang->accomodations}</h2>
 <input type="checkbox" id="noAccomodation_{$sequence}" name="segment[{$sequence}][noAccomodation]" {$checkedaccomodation} value="1" /> {$lang->noaccomodation}
 
@@ -33,6 +34,7 @@
   <!-- <div class="subtitle">{}Approved Hotels</div>-->
     {$otherhotels_output}
 </div>
+<hr style="width: 100%;height:7px"/>
 <div style="display:block; width: 100%;" id="segment_expenses_{$sequence}">
     <input name="sequence" type="hidden" id="sequence" value="{$sequence}">
     <h2 class="subtitle" style="padding:8px;width:40%;">{$lang->addexp}</h2>
@@ -49,6 +51,7 @@
     </span>
 
 </div>
+<hr style="width: 100%;height:7px"/>
 <div style="display:block; width: 100%; margin-top: 10px;" id="segment_finances_{$sequence}">
     <input name="sequence" type="hidden" id="sequence" value="{$sequence}">
     <h2 class="subtitle" style="padding:8px;width:100%;">{$lang->finance} ({$lang->anticipatedamount})</h2>

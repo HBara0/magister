@@ -328,7 +328,7 @@ else {
                 $otherapprovedhotels = TravelManagerHotels::get_data('country='.$destcounrty_obj->coid.' AND city != '.$segmentobj->get_destinationcity()->ciid.' AND isApproved=1', array('returnarray' => true));
             }
             if(is_array($otherapprovedhotels)) {
-                $hotelssegments_output.='<br /><a nohref="nohref" style="cursor:pointer;" id="countryhotels_'.$sequence.'_check"><h2>Hotels In The Same Country</h2></a>';
+                $hotelssegments_output.='<br /><a nohref="nohref" style="cursor:pointer;" id="countryhotels_'.$sequence.'_check"><button type="button" class="button">Lookup Hotels In The Same Country</button></a>';
                 $hotelssegments_output.='<div id=countryhotels_'.$sequence.'_view style="display:none">';
                 $hotelssegments_output.=$segmentobj->parse_hotels($sequence, $otherapprovedhotels);
                 $hotelssegments_output.='</div>';
@@ -347,7 +347,7 @@ else {
                 $otherapprovedhotels = TravelManagerHotels::get_data('country='.$destcounrty_obj->coid.' AND city != '.$descity_obj->ciid.' AND isApproved', array('returnarray' => true));
             }
             if(is_array($otherapprovedhotels)) {
-                $hotelssegments_output.='<br /><a nohref="nohref" style="cursor:pointer;" id="countryhotels_'.$sequence.'_check"><h2>Hotels In The Same Country</h2></a>';
+                $hotelssegments_output.='<br /><a nohref="nohref" style="cursor:pointer;" id="countryhotels_'.$sequence.'_check"><button type="button" class="button">Lookup Hotels In The Same Country</button></a>';
                 $hotelssegments_output.='<div id=countryhotels_'.$sequence.'_view style="display:none">';
                 $hotelssegments_output.=$segmentobj->parse_hotels($sequence, $otherapprovedhotels);
                 $hotelssegments_output.='</div>';
