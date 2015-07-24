@@ -83,6 +83,18 @@ if($core->input['export']) {
                         $groupsupplierinc[$year][$groupname]+=0;
                     }
                 }
+////////////////////////////////////////////////////////
+                $arr_indices = array('sales', 'income', 'costs');
+                $segmentcategories = SegmentCategories::get_data(array('title is NOT NULL'), array('returnarray' => true, 'simple' => false));
+                if(is_array($segmentcategories)) {
+                    foreach($segmentcategories as $segmentcat) {
+                        $cache->add('segmentcat', $segmentcat, $segmentcat->scid);
+                        foreach($arr_indices as $index) {
+                            $businesssegments[$segmentcat->scid][$year][$index] = 0;
+                        }
+                    }
+                }
+                ////////////////////////////////////////////////////////
                 foreach($months as $month => $lines) {
                     if(is_array($lines)) {
                         foreach($lines as $line) {
@@ -119,17 +131,28 @@ if($core->input['export']) {
                             }
                             else {
                                 if(isset($line->pid) && !empty($line->pid)) {
-                                    if($cache->iscached('supplier', $line->pid)) {
-                                        $product = $cache->get_cachedval('supplier', $line->pid);
+                                    if($cache->iscached('product', $line->pid)) {
+                                        $product = $cache->get_cachedval('product', $line->pid);
                                     }
                                     else {
                                         $product = IntegrationMediationProducts::get_products(array('foreignId' => $line->pid), array('returnarray' => false));
                                     }
                                     if(is_object($product)) {
-                                        $cache->add('supplier', $product, $line->pid);
+                                        $cache->add('product', $product, $line->pid);
                                         $localsupplier = $product->get_localsupplier();
                                         if(is_object($localsupplier) && !is_empty($localsupplier->eid)) {
                                             $id = $localsupplier->eid;
+                                        }
+
+                                        $productsegment = $product->get_productsegment();
+                                        if(is_object($productsegment)) {
+                                            $productsegmentcat = $productsegment->get_segmentcategory();
+
+                                            if(is_object($productsegmentcat)) {
+                                                $businesssegments[$productsegmentcat->scid][$year]['sales'] += ($line->price * $line->quantity / $saleexchangerate ) / 1000;
+                                                $businesssegments[$productsegmentcat->scid][$year]['costs'] += ($line->cost / $costexchangerate ) / 1000;
+                                                $businesssegments[$productsegmentcat->scid][$year]['income'] = $suppliers[$id][$year]['sales'] - $suppliers[$id][$year]['costs'];
+                                            }
                                         }
                                     }
                                 }
@@ -232,8 +255,37 @@ if($core->input['export']) {
                             $data[(date('Y') + 1)][$i]['income'] += (($line->income * $line->s2Perc / 100 ) / 6 ) * $exchangerate;
                             $data[(date('Y') + 1)][$i]['costs'] = $data[(date('Y') + 1)][$i]['sales'] - $data[(date('Y') + 1)][$i]['income'];
                         }
+                        // Sales / Income data per Business segment - Start
+                        if(!empty($line->psid)) {
+                            $psid = $line->psid;
+                        }
+                        else {
+                            if($cache->iscached('product', $line->pid)) {
+                                $product = $cache->get_cachedval('product', $line->pid);
+                            }
+                            else {
+                                $product = new Products($line->pid, false);
+                            }
+                            if(is_object($product)) {
+                                $cache->add('product', $product, $line->pid);
+                                $psid = $product->get_segment()['psid'];
+                            }
+                        }
+                        if($cache->iscached('segment', $psid)) {
+                            $productsegment = $cache->get_cachedval('segment', $psid);
+                        }
+                        else {
+                            $productsegment = new ProductsSegments($psid, false);
+                        }
+                        if(is_object($productsegment)) {
+                            $productsegcat = $productsegment->get_segmentcategory()->scid;
+                        }
+
+                        $businesssegments[$productsegcat][(date('Y') + 1)]['sales'] += $line->amount * $exchangerate;
+                        $businesssegments[$productsegcat][(date('Y') + 1)]['income'] += $line->income * $exchangerate;
+                        // Sales / Income data per Business segment - END
                         //supplier part-START
-                        if(isset($budget->spid) && !empty($budget->spid)) {
+                        if(isset($line->spid) && !empty($budget->spid)) {
                             $suppliers[$budget->spid][date('Y')]['sales']+=$line->amount * $exchangerate;
                             $suppliers[$budget->spid][date('Y')]['income']+=$line->income * $exchangerate;
                             if(is_array($groupsuppliers)) {
@@ -393,6 +445,142 @@ if($core->input['export']) {
             }
         }
 //get top 10 suppliers sales and net=END
+//
+        //get Sales/Income per business segment - START
+        if(is_array($businesssegments)) {
+            $segmentcategories = SegmentCategories::get_data(array('name is NOT NULL'), array('returnarray' => true, 'simple' => false));
+            $curryear = date('Y');
+            $tables = array('businesssegmentsales', 'businesssegmentincome');
+            $header_fields = array(($curryear - 3), ($curryear - 2), ($curryear - 1), $curryear, $curryear.' YEF vs '.($curryear - 3).'A',
+                    $curryear.' YEF vs '.($curryear - 2).'A', $curryear.' YEF vs '.($curryear - 1).'A', $curryear + 1, $curryear.'YEF vs'.($curryear + 1).'B', '%Weight'.($curryear - 1).'A', '%Weight'.($curryear).'YEF', '%Weight'.($curryear + 1).'B');
+            //Intialize Table -Start//
+            if(is_array($segmentcategories)) {
+                foreach($tables as $tableindex) {
+                    foreach($segmentcategories as $segmentcategory) {
+                        $category_name = $segmentcategory->title = str_replace(array(' ', '<', '>', '&', '{', '}', '*'), array('-'), $segmentcategory->get_displayname());
+                        foreach($header_fields as $field) {
+                            $final[$tableindex][$category_name][$field] = 0;
+                        }
+                    }
+                    foreach($header_fields as $field) {
+                        $final[$tableindex]['total'][$field] = ' ';
+                    }
+                    $categorygroups = array('Segments Groups', 'Life Science', 'Industrials');
+                    foreach($categorygroups as $categorygroup) {
+                        foreach($header_fields as $field) {
+                            if($categorygroup == 'Segments Groups') {
+                                $final[$tableindex][$categorygroup][$field] = $field;
+                            }
+                            else {
+                                $final[$tableindex][$categorygroup][$field] = ' ';
+                            }
+                        }
+                    }
+                    foreach($header_fields as $field) {
+                        $final[$tableindex]['Total'][$field] = ' ';
+                    }
+                }
+            }
+            //Intialize Table - END//
+
+            if(is_array($segmentcategories)) {
+                foreach($segmentcategories as $segmentcategory) {
+                    $category_name = $segmentcategory->title;
+                    switch($segmentcategory->catGroup) {
+                        case 'LS':
+                            $categorygroup = 'Life Science';
+                            break;
+                        case 'IND':
+                            $categorygroup = 'Industrials';
+                            break;
+                        default:
+                            break;
+                    }
+                    foreach($businesssegments as $scid => $businesssegment_data) {
+                        if($scid == $segmentcategory->scid) {
+                            foreach($businesssegment_data as $year => $data) {
+                                $final['businesssegmentsales'][$category_name][$year] = $data['sales'];
+                                $final['businesssegmentincome'][$category_name][$year] = $data['income'];
+
+                                $final['businesssegmentsales']['total'][$year] += $data['sales'];
+                                $final['businesssegmentincome']['total'][$year] += $data['income'];
+
+                                $final['businesssegmentsales'][$categorygroup][$year] +=$data['sales'];
+                                $final['businesssegmentincome'][$categorygroup][$year] +=$data['income'];
+                                $years[$year] = $year;
+                            }
+                            foreach($tables as $tableindex) {
+                                $currentyear_yef[$tableindex] = $final[$tableindex][$category_name][date('Y')];
+                                foreach($years as $year) {
+                                    $value = $final[$tableindex][$category_name][$year];
+                                    if($year < date('Y')) {
+                                        if($value != 0) {
+                                            $final[$tableindex][$category_name][date('Y').' YEF vs '.$year.'A'] = (($currentyear_yef[$tableindex] - $value) / $value) * 100;
+                                        }
+                                    }
+                                    if($year == (date('Y') + 1)) {
+                                        if($currentyear_yef[$tableindex] != 0) {
+                                            $final[$tableindex][$category_name][date('Y').'YEF vs'.$year.'B'] = round(($value - $currentyear_yef[$tableindex]) / $currentyear_yef[$tableindex]) * 100;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                };
+                foreach($tables as $tableindex) {
+                    //Sum total of segment categories groups//
+                    $totalfields = $header_fields = array($curryear - 3, $curryear - 2, $curryear - 1, $curryear, $curryear + 1);
+                    foreach($totalfields as $field) {
+                        $final[$tableindex]['Total'][$field] = $final[$tableindex]['Life Science'][$field] + $final[$tableindex]['Industrials'][$field];
+                    }
+
+                    //Calculate Weights - START//
+                    $categorygroups = array('Life Science', 'Industrials');
+                    foreach($years as $year) {
+                        switch($year) {
+                            case (date('Y') - 1):
+                                $weightindex = '%Weight'.$year.'A';
+                                break;
+                            case (date('Y') + 1):
+                                $weightindex = '%Weight'.$year.'B';
+                                break;
+                            case date('Y'):
+                                $weightindex = '%Weight'.$year.'YEF';
+                                break;
+                            default:
+                                break;
+                        }
+                        foreach($segmentcategories as $segmentcategory) {
+                            $category_name = $segmentcategory->title;
+                            $value = $final[$tableindex][$category_name][$year];
+                            if($final[$tableindex]['total'][$year] != 0) {
+                                $final[$tableindex][$category_name][$weightindex] = $value / $final[$tableindex]['total'][$year] * 100;
+                            }
+                        }
+                        //category groups percentages
+                        foreach($categorygroups as $categorygroup) {
+                            $value = $final[$tableindex][$categorygroup][$year];
+                            if($final[$tableindex]['Total'][$year] != 0) {
+                                $final[$tableindex][$categorygroup][$weightindex] = $value / $final[$tableindex]['Total'][$year] * 100;
+                            }
+                            if($year < date('Y')) {
+                                if($value != 0) {
+                                    $y = $final[$tableindex][$categorygroup][date('Y').' YEF vs '.$year.'A'] = (($final[$tableindex][$categorygroup][date('Y')] - $value) / $value) * 100;
+                                }
+                            }
+                            if($year == (date('Y') + 1)) {
+                                if($final[$tableindex][$categorygroup][date('Y')] != 0) {
+                                    $final[$tableindex][$categorygroup][date('Y').'YEF vs'.$year.'B'] = round(($value - $final[$tableindex][$categorygroup][date('Y')]) / $final[$tableindex][$categorygroup][date('Y')]) * 100;
+                                }
+                            }
+                        }
+                    }
+                    //Calculate Weights - END//
+                }
+            }
+        }
+        //get Sales/Income per business segment - END
     }
     $aff = 'All';
     if($core->input['affid']) {
@@ -414,7 +602,18 @@ if($core->input['export']) {
                     $rows .= '<tr><td>'.$row.'</td>';
                     if(is_array($theads)) {
                         foreach($theads as $thead => $data) {
-                            $rows.= '<td>'.number_format($data, 2, '.', ',').'</td>';
+
+                            if(!is_string($data)) {
+                                if($row == 'Segments Groups') {
+                                    $rows.= '<td>'.$data.'</td>';
+                                }
+                                else {
+                                    $rows.= '<td>'.number_format($data, 2, '.', ',').'</td>';
+                                }
+                            }
+                            else {
+                                $rows.= '<td>'.$data.'</td>';
+                            }
                             if($colheader == 0) {
                                 $existing_theads[] = $thead;
                                 $tablehead.='<th>'.$thead.'</th>';
@@ -495,6 +694,19 @@ xmlns = "http://www.w3.org/TR/REC-html40">
                     'color' => array('rgb' => 'C3F5F2')
             ),
     );
+    $style['test'] = array(
+            'fill' => array(
+                    'type' => PHPExcel_Style_Fill::FILL_SOLID,
+                    'color' => array('rgb' => 'dfecdf')
+            ),
+            'font' => array(
+                    'bold' => true,
+                    'color' => array('rgb' => 'FFFFFF'),
+                    'size' => 12,
+                    'name' => 'Calibri'
+            ),
+    );
+
 //set excel styles-END
     $outputFile = $aff."-report.xls";
 
@@ -509,6 +721,11 @@ xmlns = "http://www.w3.org/TR/REC-html40">
                 $main_excel->getSheet(0)->getStyle('B2:Z2')->applyFromArray($style['header']);
                 for($i = 3; $i <= 8; $i = $i + 2) {
                     $main_excel->getSheet(0)->getStyle('A'.$i.':Z'.$i)->applyFromArray($style['altrows']);
+                }
+                if(($title == $lang->businesssegmentsales) || ($title == $lang->businesssegmentincome)) {
+                    $main_excel->getSheet(0)->getStyle('A11:M11')->applyFromArray($style['test']);
+                    $main_excel->getSheet(0)->getStyle('A12:M12')->applyFromArray($style['header']);
+                    $main_excel->getSheet(0)->getStyle('A15:M15')->applyFromArray($style['header']);
                 }
                 foreach(range('A', 'O') as $col) {
                     $main_excel->getSheet(0)
@@ -529,8 +746,14 @@ xmlns = "http://www.w3.org/TR/REC-html40">
                         ->getAlignment()
                         ->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
                 $sheet->getStyle('B2:Z2')->applyFromArray($style['header']);
+
                 for($i = 3; $i <= 9; $i = $i + 2) {
                     $sheet->getStyle('A'.$i.':Z'.$i)->applyFromArray($style['altrows']);
+                }
+                if(($title == $lang->businesssegmentsales) || ($title == $lang->businesssegmentincome)) {
+                    $sheet->getStyle('A11:M11')->applyFromArray($style['test']);
+                    $sheet->getStyle('A12:M12')->applyFromArray($style['header']);
+                    $sheet->getStyle('A15:M15')->applyFromArray($style['header']);
                 }
                 foreach(range('A', 'O') as $col) {
                     $sheet->getColumnDimension($col)

@@ -175,5 +175,9 @@ class ProductsSegments extends AbstractClass {
         }
     }
 
+    public function get_segmentcategory() {
+        return new SegmentCategories($this->data['category']);
+    }
+
 }
 ?>
