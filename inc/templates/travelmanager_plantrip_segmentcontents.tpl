@@ -1,5 +1,6 @@
 <div style="display:block;" >
     <hr style="width: 100%;height:7px"/>
+    <div class="ui-state-highlight ui-corner-all">{$lang->makesuretochooseandclick}</div>
     <h2 class="subtitle">Possible Transportations</h2>
     <div style="display: block">{$lang->oneway}<input type="radio" value="2" name="segment[{$sequence}][transp]" id="transp_lookuptransps_{$sequence}"/>
         {$lang->roundtrip}<input type="radio" value="1" name="segment[{$sequence}][transp]" id="transp_lookuptransps_{$sequence}"/><br/><br/>
