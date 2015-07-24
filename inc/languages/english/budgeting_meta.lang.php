@@ -197,4 +197,8 @@ $lang['businessmanagersales'] = 'Business M By Sales';
 $lang['businessmanagersalesdesc'] = 'Business Managers By Sales (in K USD)';
 $lang['businessmanagerincome'] = 'Business M By Income';
 $lang['businessmanagerincomedesc'] = 'Business Managers By Income (in K USD)';
+$lang['businesssegmentsales'] = 'Sales per business segment';
+$lang['businesssegmentincome'] = 'Income per business segment';
+$lang['businesssegmentsalesdesc'] = 'Sales per business segment (in K USD)';
+$lang['businesssegmentincomedesc'] = 'Income per business segment (in K USD)';
 ?>
