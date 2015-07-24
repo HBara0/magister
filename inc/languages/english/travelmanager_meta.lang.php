@@ -156,4 +156,5 @@ $lang['averageprice'] = 'Average Price';
 $lang['mgmtreview'] = 'Management Review';
 $lang['notapproved'] = 'Not Approved';
 $lang['minimize'] = 'Minimize';
+$lang['makesuretochooseandclick'] = 'Make Sure To Choose A Transportation Method And Then Look Up Transportation By Clicking The Button';
 ?>
