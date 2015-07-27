@@ -104,7 +104,11 @@ if(!$core->input['action']) {
                             else {
                                 $ratingval = $marketreport['rating'];
                             }$totalrating['supplier'] +=$marketreport['rating'];
-                            $marketreport['segment'] = new ProductsSegments($marketreport['psid']);
+                            $marketreport['segment'] = ProductsSegments::get_data(array('psid' => $marketreport['psid']));
+                            $marketreport['segmenttitle'] = $marketreport['segment']->title;
+                            if(!is_object($marketreport['segment'])) {
+                                $marketreport['segmenttitle'] = $lang->unspecified;
+                            }
                             eval("\$mkr_rating .= \"".$template->get('reporting_mkr_rating')."\";");
                             unset($ratingval, $reportauthor_obj, $reportauthors, $authors);
                         }
@@ -113,7 +117,7 @@ if(!$core->input['action']) {
                     $avgrating['supplier'] = $totalrating['supplier'] / count($marketreports);
                     eval("\$supplier_reportperformance .= \"".$template->get('reporting_supplier_reportperformance')."\";");
                     $totalrating['affiliate'] +=$avgrating['supplier'];
-                    unset($mkr_rating, $avgrating['supplier'], $totalrating['supplier']);
+                    unset($mkr_rating, $avgrating['supplier'], $totalrating['supplier'], $reportaudits);
                 }
                 foreach($fields as $field) {
                     $mkrreports_count = $numrows;
