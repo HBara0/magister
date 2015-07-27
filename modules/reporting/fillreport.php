@@ -1701,6 +1701,7 @@ else {
                 $affiliate = new Affiliates($reportobj->affid);
                 $year = $reportobj->year;
                 $quarter = $reportobj->quarter;
+                $supplier = new Entities($reportobj->spid);
                 $currency = $productactivity_obj->originalCurrency;
                 $auditors = $reportobj->get_report_supplier_audits();
                 if(is_array($auditors)) {
