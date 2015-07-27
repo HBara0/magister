@@ -1,6 +1,6 @@
 <h1>QR Reporting Inconsistency</h1><br>
 Inconsistency Submitted By :{$user->get_displayname()}<br>
-Report Details: {$affiliate->get_displayname()}/Q{$quarter}{$year}<br><br>
+Report Details: {$affiliate->get_displayname()}   {$supplier->get_displayname()}/Q{$quarter}{$year}<br><br>
 Comment:<div>{$comment}</div><br>
 <div style="width:100%">
     <table>
@@ -13,7 +13,8 @@ Comment:<div>{$comment}</div><br>
         <th style="width:8%">Forecast Purchase Amount</th>
         <th style="width:8%">Forecast Purchase Qty</th>
         </thead>
-        <tbody><tr><td style="width:35%">{$productactivity_obj->get_product()->get_displayname()}</td>
+        <tbody><tr style="text-align: center;vertical-align: middle">
+                <td style="width:35%;">{$productactivity_obj->get_product()->get_displayname()}</td>
                 <td style="width:8%">{$productactivity_obj->soldQty}</td>
                 <td style="width:8%">{$productactivity_obj->turnOver}</td>
                 <td style="width:10%">{$selectedcur}</td>
