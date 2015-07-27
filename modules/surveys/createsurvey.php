@@ -27,7 +27,8 @@ if(!$core->input['action']) {
 
     $surveystemplates = get_specificdata('surveys_templates', array('stid', 'title'), 'stid', 'title', 'title', 0, 'isPublic=1 OR createdBy='.$core->user['uid']);
     if(is_array($surveystemplates)) {
-        $surveytemplates_list = parse_selectlist('stid', 5, $surveystemplates, $survey['stid'], '', '', array('id' => 'stid'));
+        $onchange = '$("a[id=previewtemplate_link]").attr("href","index.php?module=surveys/preview&stid=" + $("select[id=stid]").val());';
+        $surveytemplates_list = parse_selectlist('stid', 5, $surveystemplates, $survey['stid'], '', $onchange, array('id' => 'stid'));
     }
 
     $radiobuttons['isPublicFill'] = parse_yesno('isPublicFill', 1, $survey['isPublicFill']);
