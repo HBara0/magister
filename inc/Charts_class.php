@@ -140,8 +140,10 @@ class Charts {
         $this->chart->setGraphArea(50, 30, 680, 200);
 
         /* Draw the scale */
-
-        $scaleSettings = array('GridR' => 150, 'GridG' => 150, 'GridB' => 150, 'DrawSubTicks' => TRUE, 'CycleBackground' => TRUE, 'Mode' => SCALE_MODE_FLOATING);
+        if(isset($this->options['labelrotationangle'])) {
+            $scaleSettings['LabelRotation'] = $this->options['labelrotationangle'];
+        }
+        $scaleSettings = array('GridR' => 150, 'GridG' => 150, 'GridB' => 150, 'DrawSubTicks' => TRUE, 'CycleBackground' => TRUE, 'Mode' => SCALE_MODE_FLOATING, 'LabelRotation' => $scaleSettings['LabelRotation']);
 
         if(isset($this->options['scale']) && !empty($this->options['scale'])) {
             switch($this->options['scale']) {
