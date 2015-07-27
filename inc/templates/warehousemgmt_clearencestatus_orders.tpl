@@ -15,6 +15,7 @@
 <tr class="altrow">
     <td>{$order[documentno]}</td>
     <td>{$order[supplier]}</td>
+    <td>{$order[bpaddress]}</td>
     <td>{$order[etd]}</td>
     <td>{$order[eta]}</td>
     <td>{$order[atd]}</td>

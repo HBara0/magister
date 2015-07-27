@@ -1,6 +1,6 @@
 <html>
     <head>
-        <title>{$core->settings[systemtitle]} | {$lang->pendingdeliveries}</title>
+        <title>{$core->settings[systemtitle]} | {$lang->clearencestatus}</title>
         {$headerinc}
     </head>
     <body>

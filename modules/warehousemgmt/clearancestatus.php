@@ -60,42 +60,44 @@ if($core->input['action'] == 'do_perform_clearancestatus') {
 //                    $order['deliveryfrom_output'] = $warehouse->get_location()->address1;
 //                }
                 $order['bpaddress'] = '-';
-                if(empty($order['c_bpartner_location_id'])) {
+                if(!empty($order['c_bpartner_location_id'])) {
                     $order['bpaddress'] = $order['c_bpartner_location_id'];
                 }
                 $order['eta'] = '-';
-                if(empty($order['em_ork_eta'])) {
-                    $order['eta'] = $order['em_ork_eta'];
+                if(!empty($order['em_ork_eta'])) {
+                    $order['eta'] = date('Y-m-d', strtotime($order['em_ork_eta']));
                 }
                 $order['etd'] = '-';
-                if(empty($order['em_ork_etd'])) {
-                    $order['etd'] = $order['em_ork_etd'];
+                if(!empty($order['em_ork_etd'])) {
+                    $order['etd'] = date('Y-m-d', strtotime($order['em_ork_etd']));
                 }
                 $order['atd'] = '-';
-                if(empty($order['em_ork_atd'])) {
-                    $order['atd'] = $order['em_ork_atd'];
+                if(!empty($order['em_ork_atd'])) {
+                    $order['atd'] = date('Y-m-d', strtotime($order['em_ork_atd']));
                 }
                 $order['ata'] = '-';
-                if(empty($order['em_ork_ata'])) {
-                    $order['ata'] = $order['em_ork_ata'];
+                if(!empty($order['em_ork_ata'])) {
+                    $order['ata'] = date('Y-m-d', strtotime($order['em_ork_ata']));
                 }
                 $order['etc'] = '-';
                 if(empty($order['em_ork_etc'])) {
-                    $order['etc'] = $order['em_ork_etc'];
+                    $order['etc'] = date('Y-m-d', strtotime($order['em_ork_etc']));
                 }
                 $order['supdocrecptdate'] = '-';
-                if(empty($order['em_ork_supdocrecptdate'])) {
-                    $order['supdocrecptdate'] = $order['em_ork_supdocrecptdate'];
+                if(!empty($order['em_ork_supdocrecptdate'])) {
+                    $order['supdocrecptdate'] = date('Y-m-d', strtotime($order['em_ork_supdocrecptdate']));
                 }
                 $order['cadocdelvdate'] = '-';
-                if(empty($order['em_ork_cadocdelvdate'])) {
-                    $order['cadocdelvdate'] = $order['em_ork_cadocdelvdate'];
+                if(!empty($order['em_ork_cadocdelvdate'])) {
+                    $order['cadocdelvdate'] = date('Y-m-d', strtotime($order['em_ork_cadocdelvdate']));
                 }
                 $order['delvorderreldate'] = '-';
-                if(empty($order['em_ork_delvorderreldate'])) {
-                    $order['delvorderreldate'] = $order['em_ork_delvorderreldate'];
+                if(!empty($order['em_ork_delvorderreldate'])) {
+                    $order['delvorderreldate'] = date('Y-m-d', strtotime($order['em_ork_delvorderreldate']));
                 }
-                $bplocation = new IntegrationOBBusinessPartnerLocation($order['bpaddress']);
+                if($order['bpaddress'] != '-') {
+                    $bplocation = new IntegrationOBBusinessPartnerLocation($order['bpaddress']);
+                }
                 if(is_object($bplocation)) {
                     $order['bpaddress'] = $bplocation->get_location()->address1;
                 }
