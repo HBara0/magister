@@ -168,7 +168,7 @@ class Cms {
      * @param type $version
      * @return type
      */
-    public function check_similarity($newtext, $oldtext, $version) {
+    public function get_nextversion($newtext, $oldtext, $version) {
         $newtext_length = strlen($newtext);
         $oldtext_length = strlen($oldtext);
         $string_diff = $newtext_length - $oldtext_length;
