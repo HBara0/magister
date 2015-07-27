@@ -13,6 +13,7 @@
             <div>
                 <form action="index.php?module=cms/managenews" method="post" enctype="multipart/form-data" name="cms_addnews_Form" id="cms_addnews_Form" target="uploadFrame">
                     <input type="hidden" value="do_{$actiontype}news" name="action" id="action" />
+                    <input type="hidden" value="{$news[cmsnid]}" name="news[baseVersionId]"/>
                     <div style="display:block;">
                         <div style="display: inline-block;width:10%">{$lang->newstitle}</div>
                         <div style="display: inline-block; padding:10px;"><input name="news[title]" type="text" value="{$news[title]}" required="required" size="100"><input name="news[alias]" type="hidden" value="{$news[alias]}" size="30"></div>
@@ -40,6 +41,10 @@
                     <div style="display:block;">
                         <div style="display:inline-block;width:10%">{$lang->categories}</div>
                         <div style="display: inline-block; padding:10px;">{$newscategories_list}</div>
+                    </div>
+                    <div style="{$baseversion[display]}">
+                        <div style="display:inline-block; padding:11px;">{$lang->baseversion}</div>
+                        <div style="display:inline-block; padding:11px;">{$news[baseVersion_outpt]}</div>
                     </div>
                     <div style="display:block;">
                         <div style="display:block;" class="thead">{$lang->summary}</div>

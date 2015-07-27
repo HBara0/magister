@@ -652,6 +652,10 @@ $(function () {
         if(module == '' && id != '') {
             file = rootdir + id;
         }
+        //    extrapopup_{$sequence}_addnewhotel
+        if($("input[id^='extrapopup_'][id$='_" + template + "']").val()) {
+            template += "&" + $("input[id^='extrapopup_'][id$='_" + template + "']").attr("name") + "=" + $("input[id^='extrapopup_'][id$='_" + template + "']").val();
+        }
         /*change ajax call*/
         $.ajax({type: 'post',
             url: file + "?module=" + module + "&action=get_" + template,

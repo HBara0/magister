@@ -67,7 +67,7 @@ class Cities extends AbstractClass {
     }
 
     public function get_approvedhotels() {
-        return TravelManagerHotels::get_data(array('city' => $this->data['ciid'], 'isApproved' => 1), array('returnarray' => true));
+        return TravelManagerHotels::get_data(array('city' => $this->data['ciid'], 'isApproved' => 1), array('returnarray' => true, 'order' => array('by' => array('avgPrice', 'name'))));
     }
 
     public function get_reviews() {

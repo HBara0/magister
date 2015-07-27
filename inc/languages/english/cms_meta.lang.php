@@ -143,4 +143,8 @@ $lang['extractpagescontents'] = 'Extract Pages Contents';
 $lang['extractpages'] = 'Extract Pages';
 $lang['showsegmentscontent'] = 'Show Segments Contents';
 $lang['showpagescontents'] = 'Show Pages Contents';
+
+$lang['affdesclist'] = 'Affiliate Description List';
+$lamg['manageaffdesc'] = 'Manage Affiliate Description';
+$lang['baseversion'] = 'Base Version';
 ?>

@@ -161,5 +161,28 @@ class Cms {
         return $this->status;
     }
 
+    /**
+     *
+     * @param type $newtext
+     * @param type $oldtext
+     * @param type $version
+     * @return type
+     */
+    public function check_similarity($newtext, $oldtext, $version) {
+        $newtext_length = strlen($newtext);
+        $oldtext_length = strlen($oldtext);
+        $string_diff = $newtext_length - $oldtext_length;
+        if($string_diff > 255) {
+            return $version + 1;
+        }
+        if(($newtext_length > 10000) || ($oldtext_length > 10000)) {
+            ini_set('max_execution_time', 0);
+        }
+        if(similar_text($newtext, $oldtext) > 70) {
+            return $version + 0.1;
+        }
+        return $version + 1;
+    }
+
 }
 ?>

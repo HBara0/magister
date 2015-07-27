@@ -174,4 +174,16 @@ $lang['updatedon'] = 'Updated On';
 $lang['uom'] = 'UOM';
 $lang['description'] = 'Description';
 $lang['downloadlink'] = 'Download Link';
+$lang['warehousemgmt'] = 'Warehouse Management';
+$lang['clearencestatus'] = 'Clearence Status';
+$lang['supplierlocation'] = 'Supplier Location';
+$lang['etd'] = 'Estimated Time of Departure';
+$lang['eta'] = 'Estimated Time of Arrival';
+$lang['atd'] = 'Actual Time of Departure';
+$lang['ata'] = 'Actual Time of Arrival';
+$lang['etc'] = 'Estimated Time of Clearence';
+$lang['supdocrecptdate'] = 'Receipt Documents From Supplier';
+$lang['cadocdelvdate'] = 'Documents Delivery Date To CA';
+$lang['delvorderreldate'] = 'Deliever Order release Date';
+$lang['ca'] = 'Clearing Agent (CA)';
 ?>

@@ -13,6 +13,7 @@ class IntegrationMediationSalesOrderLines extends IntegrationMediation {
     private $data = array();
     private $order_currency = '';
     private $order_salesrep = '';
+    private $order_customer = '';
 
     const PRIMARY_KEY = 'imsolid';
     const TABLE_NAME = 'integration_mediation_salesorderlines';
@@ -102,6 +103,17 @@ class IntegrationMediationSalesOrderLines extends IntegrationMediation {
             return false;
         }
         $this->order_salesrep = $order_salesrep;
+    }
+
+    public function get_customer() {
+        return $this->order_customer;
+    }
+
+    public function set_customer($order_cust) {
+        if(empty($order_cust)) {
+            return false;
+        }
+        $this->order_customer = $order_cust;
     }
 
     public function get_salesrep_object() {
