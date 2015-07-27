@@ -14,18 +14,7 @@
                         $("input[id^='anonymousFilling'], input[id^='isPublicResults'], input[id^='isPublicFill']").attr("disabled", true);
                     }
                 });
-
-                $("select[id='stid']").live('change', function() {
-                    var new_href = "index.php?module=surveys/preview&stid=" + $(this).val();
-                    $("a[id='previewtemplate_link']").attr("href", new_href);
-                });
-                $("a[id='previewtemplate_link']").live('click', function() {
-                    if(!(jQuery($(this)).attr('href')))
-                    {
-                        var new_href = "index.php?module=surveys/preview&stid=" + $("select[id='stid']").val();
-                        $("a[id='previewtemplate_link']").attr("href", new_href);
-                    }
-                });
+                $("select[id='stid']").trigger("change");
             });
 
         </script>
