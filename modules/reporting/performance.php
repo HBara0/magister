@@ -105,8 +105,10 @@ if(!$core->input['action']) {
                                 $ratingval = $marketreport['rating'];
                             }$totalrating['supplier'] +=$marketreport['rating'];
                             $marketreport['segment'] = ProductsSegments::get_data(array('psid' => $marketreport['psid']));
-                            $marketreport['segmenttitle'] = $marketreport['segment']->title;
-                            if(!is_object($marketreport['segment'])) {
+                            if(is_object($marketreport['segment'])) {
+                                $marketreport['segmenttitle'] = $marketreport['segment']->parse_link();
+                            }
+                            else {
                                 $marketreport['segmenttitle'] = $lang->unspecified;
                             }
                             eval("\$mkr_rating .= \"".$template->get('reporting_mkr_rating')."\";");
@@ -151,7 +153,7 @@ if(!$core->input['action']) {
         }
         if(is_array($avgmkrrating)) {
             if(!(count(array_unique($avgmkrrating)) === 1 && end($avgmkrrating) === '0.00')) {
-                $mkrrating_barchart = new Charts(array('x' => array_keys($avgmkrrating), 'y' => array_values($avgmkrrating)), 'bar', array('yaxisname' => 'MKR Rating', 'xaxisname' => $lang->affiliate, 'title' => $lang->barchartrating, 'scale' => 'SCALE_START0', 'nosort' => true, 'width' => 1000));
+                $mkrrating_barchart = new Charts(array('x' => array_keys($avgmkrrating), 'y' => array_values($avgmkrrating)), 'bar', array('yaxisname' => 'MKR Rating', 'xaxisname' => $lang->affiliate, 'title' => $lang->barchartrating, 'scale' => 'SCALE_START0', 'nosort' => true, 'width' => 1000, 'labelrotationangle' => 90));
                 $mkrratingbarchart = $mkrrating_barchart->get_chart();
             }
         }
@@ -159,7 +161,7 @@ if(!$core->input['action']) {
         foreach($charts as $chart) {
             if(is_array($avgperaff[$chart])) {
                 if(!empty(array_filter($avgperaff[$chart]))) {
-                    $daystocompletion_bchart[$chart] = new Charts(array('x' => array_keys($avgperaff[$chart]), 'y' => array_values($avgperaff[$chart])), 'bar', array('yaxisname' => $lang->$chart, 'xaxisname' => $lang->affiliates, 'title' => $lang->$chart, 'scale' => 'SCALE_START0', 'nosort' => true, 'width' => 1000, 'noLegend' => true));
+                    $daystocompletion_bchart[$chart] = new Charts(array('x' => array_keys($avgperaff[$chart]), 'y' => array_values($avgperaff[$chart])), 'bar', array('yaxisname' => $lang->$chart, 'xaxisname' => $lang->affiliates, 'title' => $lang->$chart, 'scale' => 'SCALE_START0', 'nosort' => true, 'width' => 1000, 'noLegend' => true, 'labelrotationangle' => 90));
                     $daystocompletion_bchart[$chart.'chart'] = $daystocompletion_bchart[$chart]->get_chart();
                 }
             }
