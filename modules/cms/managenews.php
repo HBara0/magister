@@ -85,8 +85,10 @@ if(!$core->input['action']) {
                 $news['baseVersion_outpt'] = '<a href="index.php?module=cms/managenews&type=edit&newsid='.$base_news[cmsnid].'" target="_blank">'.$base_news['title'].', Version '.$base_news['version'].'</a>';
             }
         }
+        $news['version_output'] = $news[title].', '.$lang->version.' '.$news[version];
     }
     else {
+        $baseversion['display'] = 'display:none';
         $actiontype = 'add';
         $newscategories_list = parse_selectlist('news[categories]', 5, $content_categories, '');
         $highlights = CmsHighlights::get_data(array('isEnabled' => '1'), array('returnarray' => true));
