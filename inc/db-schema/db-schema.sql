@@ -1480,11 +1480,13 @@ CREATE TABLE `cms_pages` (
   `hits` mediumint(8) unsigned NOT NULL,
   `uploadedImages` varchar(1000) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
   `tags` varchar(100) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `token` varchar(50) COLLATE utf8_bin NOT NULL,
+  `baseVersionId` int(11) NOT NULL,
   PRIMARY KEY (`cmspid`),
   KEY `createdBy` (`createdBy`,`modifiedBy`),
   KEY `category` (`category`),
   FULLTEXT KEY `bodyText` (`bodyText`,`tags`)
-) ENGINE=MyISAM AUTO_INCREMENT=25 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=MyISAM AUTO_INCREMENT=76 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `cms_pages2`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;

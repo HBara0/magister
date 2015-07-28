@@ -94,6 +94,7 @@ class CmsPages extends Cms {
 
         /* Insert page - START */
         if(is_array($this->page)) {
+            $this->page['token'] = md5(uniqid(microtime(), true));
             $query = $db->insert_query('cms_pages', $this->page);
             if($query) {
                 $this->status = 0;

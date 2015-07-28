@@ -101,6 +101,7 @@ class CmsNews extends Cms {
 
         /* Insert news - START */
         if(is_array($this->data)) {
+            $this->data['token'] = md5(uniqid(microtime(), true));
             $query = $db->insert_query('cms_news', $this->data);
             if($query) {
                 $this->status = 0;
