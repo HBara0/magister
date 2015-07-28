@@ -9,6 +9,7 @@
         {$menu}
         <td class="contentContainer">
             <h1>{$lang->managenews}</h1>
+            <small>{$news[version_output]}</small>
             <iframe id='uploadFrame' name='uploadFrame' src='#' style="display:none;"></iframe>
             <div>
                 <form action="index.php?module=cms/managenews" method="post" enctype="multipart/form-data" name="cms_addnews_Form" id="cms_addnews_Form" target="uploadFrame">

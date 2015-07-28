@@ -61,8 +61,10 @@ if(!$core->input['action']) {
                 $page['baseVersion_outpt'] = '<a href="index.php?module=cms/managewebpage&type=edit&id='.$base_page[cmspid].'" target="_blank">'.$base_page['title'].', Version '.$base_page['version'].'</a>';
             }
         }
+        $page['version_output'] = $page[title].', '.$lang->version.' '.$page[version];
     }
     else {
+        $baseversion['display'] = 'display:none';
         $actiontype = 'add';
         $pagecategories_list = parse_selectlist('page[category]', 5, $content_categories, $page['category']);
         $highlights = CmsHighlights::get_data(array('isEnabled' => '1'), array('returnarray' => true));
