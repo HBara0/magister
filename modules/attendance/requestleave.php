@@ -235,7 +235,7 @@ else {
 
             if(is_array($from_hidden) && !empty($from_hidden)) {
                 if(in_array($key, $from_hidden)) {
-                    $input_type = 'text';
+                    $input_type = 'number';
                     $key_lowercased = strtolower($key);
                     if(isset($lang->$key_lowercased)) {
                         $field_name = '<br />';
