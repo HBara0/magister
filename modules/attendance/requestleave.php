@@ -245,7 +245,7 @@ else {
                 }
             }
 
-            $hidden_fields .= $field_name.' <input type="'.$input_type.'" value="'.$val.'" name="'.$key.'" id="'.$key.'" size="4"/>';
+            $hidden_fields .= $field_name.' <input  min="0" max="60" type="'.$input_type.'" value="'.$val.'" name="'.$key.'" id="'.$key.'" size="4"/>';
         }
 
         if(is_array($from_hidden) && !empty($from_hidden)) {
