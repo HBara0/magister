@@ -87,7 +87,7 @@ else {
         $core->input['pages']['attachments'] = $_FILES;
         $cms_page = new CmsPages();
         $options = array();
-        if($core->input['action'] == 'do_editpage') {
+        if($core->input['action'] == 'do_Editpage') {
             $options['operationtype'] = 'updateversion';
         }
 
