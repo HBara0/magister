@@ -194,6 +194,8 @@ class CmsNews extends Cms {
                 }
 
                 $upload = new Uploader('attachments', $attachments, $upload_param['allowed_types'], 'ftp', $upload_param['maxsize'], 1, 1);
+                return true;
+
                 $upload->establish_ftp($ftp_settings);
                 $upload->set_upload_path($this->settings['newsattachmentspath']);
                 $upload->process_file();

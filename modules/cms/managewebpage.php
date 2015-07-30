@@ -25,6 +25,8 @@ if(!$core->input['action']) {
         $lang->createwebpage = $lang->editwebpage;
         $pageid = $db->escape_string($core->input['id']);
         $cms_page = new CmsPages($pageid);  /* call the page object and the pageid to the constructor to read the single page */
+        $url = 'http://'.$core->settings['websitedir'].'/general/'.$cms_page->category.'/'.$cms_page->alias.'/'.$cms_page->cmspid.'/'.$cms_page->token.'/1';
+        $preview_display = 'display:inline-block';
         $page = $cms_page->get();
         $pagecategories_list = parse_selectlist('page[category]', 5, $content_categories, $page['category']);
         $page['publishDate_output'] = date($core->settings['dateformat'], $page['publishDate']);
@@ -64,8 +66,9 @@ if(!$core->input['action']) {
         $page['version_output'] = $page[title].', '.$lang->version.' '.$page[version];
     }
     else {
-        $baseversion['display'] = 'display:none';
-        $actiontype = 'add';
+        $baseversion['display'] = $preview_display = 'display:none';
+        $actiontype = 'Add';
+        $url = '';
         $pagecategories_list = parse_selectlist('page[category]', 5, $content_categories, $page['category']);
         $highlights = CmsHighlights::get_data(array('isEnabled' => '1'), array('returnarray' => true));
         if(is_array($highlights)) {

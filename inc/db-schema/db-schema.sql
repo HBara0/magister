@@ -1386,33 +1386,32 @@ DROP TABLE IF EXISTS `cms_news`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `cms_news` (
-  `cmsnid` int(10) NOT NULL AUTO_INCREMENT,
-  `title` varchar(220) COLLATE utf8_unicode_ci NOT NULL,
-  `alias` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
+  `cmsnid` int(11) NOT NULL AUTO_INCREMENT,
+  `title` varchar(220) NOT NULL,
+  `alias` varchar(200) NOT NULL,
   `version` float NOT NULL DEFAULT '1',
-  `summary` text COLLATE utf8_unicode_ci NOT NULL,
-  `publishDate` bigint(30) NOT NULL,
+  `summary` text NOT NULL,
+  `publishDate` int(11) NOT NULL,
   `isPublished` tinyint(1) NOT NULL DEFAULT '0',
   `isFeatured` tinyint(1) NOT NULL DEFAULT '0',
-  `lang` varchar(2) COLLATE utf8_unicode_ci NOT NULL,
-  `bodyText` text COLLATE utf8_unicode_ci NOT NULL,
-  `tags` varchar(220) COLLATE utf8_unicode_ci NOT NULL,
-  `metaDesc` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
-  `metaKeywords` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `robotsRule` varchar(100) CHARACTER SET ucs2 COLLATE ucs2_unicode_ci NOT NULL,
+  `lang` varchar(2) NOT NULL,
+  `bodyText` text NOT NULL,
+  `metaDesc` text NOT NULL,
+  `metaKeywords` text NOT NULL,
+  `robotsRule` varchar(100) NOT NULL,
   `createdBy` int(10) NOT NULL,
   `createDate` bigint(30) NOT NULL,
   `modifiedBy` int(10) NOT NULL,
-  `modifyDate` bigint(30) NOT NULL,
+  `modifyDate` int(10) NOT NULL,
   `hits` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `uploadedImages` text COLLATE utf8_unicode_ci,
+  `uploadedImages` text,
+  `tags` varchar(100) NOT NULL,
+  `token` varchar(30) NOT NULL,
+  `baseVersionId` int(11) NOT NULL,
   PRIMARY KEY (`cmsnid`),
   KEY `createDate` (`createDate`,`modifyDate`),
-  FULLTEXT KEY `tags` (`tags`),
-  FULLTEXT KEY `summary` (`summary`),
-  FULLTEXT KEY `bodyText` (`bodyText`),
-  FULLTEXT KEY `summary_2` (`summary`,`bodyText`,`tags`)
-) ENGINE=MyISAM AUTO_INCREMENT=43 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+  FULLTEXT KEY `summary` (`summary`,`bodyText`,`tags`)
+) ENGINE=MyISAM AUTO_INCREMENT=35 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `cms_news_attachments`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;

@@ -84,7 +84,7 @@
                     <div style="display:block;">
                         <div style="display:inline-block; padding:11px;"><input type="submit" class="button" value="{$actiontype}" id="perform_cms/managewebpage_Button"/></div>
                         <div style="display:inline-block; padding:11px;"><input type="reset" class="button" value="{$lang->reset}"/></div>
-                        <div id="preview" style="display: none; padding:11px;"><a href="none" target="_blank" id="preview_link"><button class="button" type="button">{$lang->preview}</button></a></div>
+                        <div id="preview" style="{$preview_display}; padding:11px;"><a href="{$url}" target="_blank" id="preview_link"><button class="button" type="button">{$lang->preview}</button></a></div>
                     </div>
                 </form>
                 <div style="display:block;">
