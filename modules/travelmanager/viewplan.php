@@ -90,7 +90,7 @@ else {
         $leavetype = $leave->get_type();
         $leave_type = $leavetype->name;
         $leave_requestey = $leave->requestKey;
-
+        $approve_link = DOMAIN.'/index.php?module=attendance/listleaves&action=takeactionpage&requestKey='.base64_encode($leave->requestKey).'&id='.base64_encode($leave->lid);
         $segment_objs = TravelManagerPlanSegments::get_segments(array('tmpid' => $planid), array('order' => 'sequence', 'simple' => false, 'returnarray' => true));
 
         if(is_array($segment_objs)) {

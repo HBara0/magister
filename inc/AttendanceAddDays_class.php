@@ -53,6 +53,19 @@ class AttendanceAddDays Extends Attendance {
         }
     }
 
+    public function approve_user($uid) {
+        global $db;
+        $uid = intval($uid);
+        if($this->can_approve_user($uid)) {
+            $db->update_query('attendance_additionalleaves', array('isApproved' => 1, 'approvedOn' => TIME_NOW), 'identifier="'.$this->additionaldays['identifier'].'" AND isApproved="0"');
+
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
     public function request($uid, $data = array()) {
         global $db, $core, $log;
 
@@ -122,6 +135,17 @@ class AttendanceAddDays Extends Attendance {
         }
     }
 
+    public function can_approve_user($uid) {
+        $user = new Users($this->additionaldays['uid']);
+        $reporttsto = $user->get_reportsto()->get();
+        if($reporttsto['uid'] == $uid) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
     public function notify_request() {
         global $log, $core, $lang;
 
@@ -181,7 +205,7 @@ class AttendanceAddDays Extends Attendance {
 
         $leavestats_query = $db->query("SELECT lsid, additionalDays
                                         FROM ".Tprefix."leavesstats
-                                        WHERE uid={$this->additionaldays['uid']} AND ltid=1 AND {$period} BETWEEN periodStart AND periodEnd");
+                                        WHERE uid={$this->additionaldays['uid']} AND ltid=1 AND periodStart < {$period}  AND periodEnd > {$period}");
         if($db->num_rows($leavestats_query) > 0) {
             while($leavestat = $db->fetch_array($leavestats_query)) {
                 $additionalDays = $leavestat['additionalDays'];

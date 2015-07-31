@@ -21,10 +21,12 @@ if(!$core->input['action']) {
     $robots_list = parse_selectlist('page[robotsRule]', 1, array("INDEX,FOLLOW" => "INDEX,FOLLOW", "NOINDEX,FOLLOW" => "NOINDEX,FOLLOW", "INDEX,NOFOLLOW" => "INDEX,NOFOLLOW", "NOINDEX,NOFOLLOW" => "NOINDEX,NOFOLLOW"), 0);
     $content_categories = CmsContentCategories::get_data('title IS NOT NULL', array('returnarray' => true, 'simple' => false));
     if($core->input['type'] == 'edit') {
-        $actiontype = 'edit';
+        $actiontype = $lang->edit;
         $lang->createwebpage = $lang->editwebpage;
         $pageid = $db->escape_string($core->input['id']);
         $cms_page = new CmsPages($pageid);  /* call the page object and the pageid to the constructor to read the single page */
+        $url = 'http://'.$core->settings['websitedir'].'/general/'.$cms_page->category.'/'.$cms_page->alias.'/'.$cms_page->cmspid.'/'.$cms_page->token.'/1';
+        $preview_display = 'display:inline-block';
         $page = $cms_page->get();
         $pagecategories_list = parse_selectlist('page[category]', 5, $content_categories, $page['category']);
         $page['publishDate_output'] = date($core->settings['dateformat'], $page['publishDate']);
@@ -64,8 +66,9 @@ if(!$core->input['action']) {
         $page['version_output'] = $page[title].', '.$lang->version.' '.$page[version];
     }
     else {
-        $baseversion['display'] = 'display:none';
-        $actiontype = 'add';
+        $baseversion['display'] = $preview_display = 'display:none';
+        $actiontype = 'Add';
+        $url = '';
         $pagecategories_list = parse_selectlist('page[category]', 5, $content_categories, $page['category']);
         $highlights = CmsHighlights::get_data(array('isEnabled' => '1'), array('returnarray' => true));
         if(is_array($highlights)) {
@@ -80,11 +83,11 @@ if(!$core->input['action']) {
     output_page($createpage);
 }
 else {
-    if($core->input['action'] == 'do_addpage' || $core->input['action'] == 'do_editpage') {
+    if($core->input['action'] == 'do_Addpage' || $core->input['action'] == 'do_Editpage') {
         $core->input['pages']['attachments'] = $_FILES;
         $cms_page = new CmsPages();
         $options = array();
-        if($core->input['action'] == 'do_editpage') {
+        if($core->input['action'] == 'do_Editpage') {
             $options['operationtype'] = 'updateversion';
         }
 
@@ -127,11 +130,13 @@ else {
                             output_xml("<status>false</status><message>{$lang->errorsaving}</message>");
                             exit;
                         }
-                        output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
+                        $preview_output = '<script>$(\'div[id="preview"]\').show();$(\'div[id="preview"]\').css(\'display\',\'inline-block\');$(\'a[id="preview_link"]\').attr("href", "http://'.$core->settings['websitedir'].'/general/'.$cms_page->category.'/'.$cms_page->alias.'/'.$cms_page->cmspid.'/'.$cms_page->token.'/1");</script>';
+                        output_xml("<status>true</status><message>{$lang->successfullysaved}<![CDATA[{$preview_output}]]></message>");
                         exit;
                     }
                 }
-                output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
+                $preview_output = '<script>$(\'div[id="preview"]\').show();$(\'div[id="preview"]\').css(\'display\',\'inline-block\');$(\'a[id="preview_link"]\').attr("href", "http://'.$core->settings['websitedir'].'/general/'.$cms_page->category.'/'.$cms_page->alias.'/'.$cms_page->cmspid.'/'.$cms_page->token.'/1");</script>';
+                output_xml("<status>true</status><message>{$lang->successfullysaved}<![CDATA[{$preview_output}]]></message>");
                 break;
             case 1:
                 output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
@@ -145,7 +150,7 @@ else {
         }
     }
     elseif($core->input['action'] == 'togglepublish') {
-        if($core->usergroup['cms_canPublishNews'] == 1 && !empty($core->input['id'])) {
+        if($core->usergroup ['cms_canPublishNews'] == 1 && !empty($core->input['id'])) {
             $page = new CmsPages($core->input['id']);
             $db->update_query('cms_pages', array('isPublished' => !$page->isPublished), 'cmspid='.intval($core->input['id']));
         }

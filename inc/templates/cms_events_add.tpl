@@ -2,9 +2,6 @@
     <head>
         <title>{$core->settings[systemtitle]} | {$lang->modifysitesettings}</title>
         {$headerinc}
-        <script type="text/javascript">
-
-        </script>
     </head>
     <body>
         {$header}
@@ -98,11 +95,12 @@
                         <div style="display:inline-block;">
                             <input type="submit" value="{$lang->savecaps}" class="button" onclick="$('#upload_Result').show()"/>
                             <input type="reset" class="button" value="{$lang->reset}"/>
+                            <div style="display:none" id="preview"><a id="preview_link" target="_blank" href="none"><button type="button" class="button">{$lang->preview}</button></a></div>
                         </div>
                     </div>
                 </form>
                 <hr />
-                <iframe id='uploadFrame' name='uploadFrame' src='#' frameBorder='0' width="100%" height="100"> <div id="upload_Result" style="display:none;"><img src="{$core->settings[rootdir]}/images/loading.gif" /> {$lang->uploadinprogress}</div></iframe>
+                <iframe id='uploadFrame' name='uploadFrame' src='{$url}' frameBorder='0' width="100%" height="500px"> <div id="upload_Result" style="display:none;"><img src="{$core->settings[rootdir]}/images/loading.gif" /> {$lang->uploadinprogress}</div></iframe>
                 <div id="perform_cms/manageevents_Results"></div>
             </div>
         </td>

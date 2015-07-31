@@ -904,7 +904,7 @@ else {
                 $productactivity['originalCurrency'] = $currencies[$productactivity['fxrate']];
             }
 
-            if(value_exists('productsactivity', 'rid', $rid, 'pid='.intval($productactivity['pid']).$existingentries_query_string)) {
+            if(isset($productactivity['paid']) && !empty($productactivity['paid']) || value_exists('productsactivity', 'rid', $rid, 'pid='.intval($productactivity['pid']).$existingentries_query_string)) {
                 if($auditor != true) {
                     $productactivity['uid'] = $core->user['uid'];
                 }
@@ -916,7 +916,12 @@ else {
                     $update_query_where = 'rid='.$rid.' AND pid='.intval($productactivity['pid']).$existingentries_query_string;
                 }
                 unset($productactivity['productname'], $productactivity['fxrate']);
-                $update = $db->update_query('productsactivity', $productactivity, $update_query_where);
+//                $update = $db->update_query('productsactivity', $productactivity, $update_query_where);
+                $productsact_obj = ProductsActivity::get_data($update_query_where, array('returnarray' => false));
+                if(is_object($productsact_obj)) {
+                    $productsact_obj->set($productactivity);
+                    $productsact_obj = $productsact_obj->save();
+                }
                 $processed_once = true;
                 if(isset($productactivity['paid']) && !empty($productactivity['paid'])) {
                     $cachearr['usedpaid'][] = $productactivity['paid'];
@@ -927,9 +932,14 @@ else {
                 $productactivity['rid'] = $rid;
 
                 unset($productactivity['productname'], $productactivity['fxrate'], $productactivity['paid']);
-                $insert = $db->insert_query('productsactivity', $productactivity);
-
-                $cachearr['usedpaid'][] = $db->last_id();
+//                $insert = $db->insert_query('productsactivity', $productactivity);
+                $productactivity['uid'] = $core->user['uid'];
+                $productsact_obj = new ProductsActivity();
+                $productsact_obj->set($productactivity);
+                $productsact_obj = $productsact_obj->save();
+                if(is_object($productsact_obj)) {
+                    $cachearr['usedpaid'][] = $productsact_obj->paid;
+                }
                 $processed_once = true;
             }
 
@@ -1374,19 +1384,28 @@ else {
                 if(value_exists('productsactivity', 'paid', $db->escape_string($newdata['paid'])) || value_exists('productsactivity', 'rid', $report_meta['rid'], 'pid='.$newdata['pid'].$products_deletequery_string)) {
                     if(isset($newdata['paid']) && !empty($newdata['paid'])) {
                         $update_query_where = 'paid='.$db->escape_string($newdata['paid']);
+                        $productsact_obj = new ProductsActivity($db->escape_string($newdata['paid']));
                     }
                     else {
                         unset($newdata['paid']);
                         $update_query_where = 'rid='.$report_meta['rid'].' AND pid='.$newdata['pid'].$products_deletequery_string;
+                        $productsact_obj = ProductsActivity::get_data($update_query_where, array('returnarray' => false));
                     }
-
-                    $update = $db->update_query('productsactivity', $newdata, $update_query_where);
+                    if(is_object($productsact_obj)) {
+                        $productsact_obj->set($newdata);
+                        $productsact_obj = $productsact_obj->save();
+                    }
+//                    $update = $db->update_query('productsactivity', $newdata, $update_query_where);
                 }
                 else {
                     $newdata['uid'] = $core->user['uid'];
-
-                    $db->insert_query('productsactivity', $newdata);
-                    $cachearr['usedpaid'][] = $db->last_id();
+                    $productsact_obj = new ProductsActivity();
+                    $productsact_obj->set($newdata);
+                    $productsact_obj = $productsact_obj->save();
+                    if(is_object($productsact_obj)) {
+                        $cachearr['usedpaid'][] = $productsact_obj->paid;
+                    }
+//                    $db->insert_query( 'productsactivity', $newdata);
                 }
 
                 $cachearr['usedpids'][] = $newdata['pid'];
@@ -1480,8 +1499,8 @@ else {
                 }
 
                 if($marketreport_found_one == true) {
-                    //     output_xml("<status>false</status><message>{$lang->incompletemarketreport}</message>");
-                    //      exit;
+//     output_xml("<status>false</status><message>{$lang->incompletemarketreport}</message>");
+//      exit;
                 }
             }
             foreach($rawdata['marketreportdata'] as $psid => $val) {
@@ -1508,7 +1527,7 @@ else {
                 }
                 $transfill = $core->input['transfill'];
                 if($transfill != '1') {
-                    //  if($report_meta['transFill'] != '1') {
+//  if($report_meta['transFill'] != '1') {
                     if($db->fetch_field($db->query("SELECT COUNT(*) AS contributed FROM ".Tprefix."marketreport_authors WHERE mrid='{$mrid}' AND uid='{$core->user['uid']} '"), 'contributed') == 0) {
                         $db->insert_query('marketreport_authors ', array('mrid' => $mrid, 'uid' => $core->user['uid']));
                     }
@@ -1636,7 +1655,7 @@ else {
         $srowid = intval($core->input ['ajaxaddmoredata']['srowid']);
         $display['product'] = 'style="display:none"';
         $inputchecksum['product'] = generate_checksum('mpl');
-        //  $deleterow_icon = ' <img src="./images/invalid.gif"  style="cursor:pointer;vertical-align:bottom;" id="removerow"> Remove Row';
+//  $deleterow_icon = ' <img src="./images/invalid.gif"  style="cursor:pointer;vertical-align:bottom;" id="removerow"> Remove Row';
         eval("\$markerreport_segment_suppliers_row = \"".$template->get('reporting_fillreport_marketreport_suppproducts')."\";");
         output($markerreport_segment_suppliers_row);
     }

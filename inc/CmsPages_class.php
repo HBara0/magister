@@ -3,7 +3,7 @@
  * Orkila Central Online System (OCOS)
  * Copyright © 2009 Orkila International Offshore, All Rights Reserved
  *
- * CMS News Class
+ * CMS Pages Class
  * $id: CmsPages_class.php
  * Created:			@tony.assaad	August 24, 2012 | 10:53 PM
  * Last Update: 	@zaher.reda		October 02, 2012 | 10:59  AM
@@ -38,7 +38,7 @@ class CmsPages extends Cms {
             return false;
         }
 
-        /* Check if news with same title created by anyone */
+        /* Check if page with same title created by anyone */
         if($options['operationtype'] != 'updateversion') {
             if(value_exists('cms_pages', 'title', $this->page['title'])) {
                 $this->status = 2;
@@ -94,6 +94,7 @@ class CmsPages extends Cms {
 
         /* Insert page - START */
         if(is_array($this->page)) {
+            $this->page['token'] = md5(uniqid(microtime(), true));
             $query = $db->insert_query('cms_pages', $this->page);
             if($query) {
                 $this->status = 0;
@@ -111,21 +112,23 @@ class CmsPages extends Cms {
                             'from_email' => $core->settings['maileremail'],
                             'from' => 'OCOS Mailer'
                     );
-
+                    if(!isset($this->settings['websiteaudits']) || empty($this->settings['websiteaudits'])) {
+                        $email_data['to'] = $this->settings['adminemail'];
+                    }
                     if($options['operationtype'] == 'updateversion') {
                         $email_data['subject'] = $lang->sprint($lang->modifynotification_subject, $this->prevversion['title']);
                         $email_data['message'] = $lang->sprint($lang->modifynotification_body, $this->prevversion['title'], //1
-                                similar_text($this->prevversion['title'], $this->news['title']), //2
-                                $this->news['title'], //3
-                                similar_text($this->prevversion['summary'], $this->news['summary']), //4
-                                $this->news['summary'], //5
-                                similar_text($this->prevversion['bodyText'], $this->news['bodyText']), //6
-                                get_stringdiff($this->oldnews['bodyText'], $this->news['bodyText'])//7
+                                similar_text($this->prevversion['title'], $this->page['title']), //2
+                                $this->page['title'], //3
+                                similar_text($this->prevversion['summary'], $this->page['summary']), //4
+                                $this->page['summary'], //5
+                                similar_text($this->prevversion['bodyText'], $this->page['bodyText']), //6
+                                get_stringdiff($this->oldnews['bodyText'], $this->page['bodyText'])//7
                         );
                     }
                     else {
-                        $email_data['subject'] = $lang->sprint($lang->newnotification_subject, $this->news['title']);
-                        $email_data['message'] = $lang->sprint($lang->newnotification_body, $this->news['title'], $this->news['summary'], $this->news['bodyText']);
+                        $email_data['subject'] = $lang->sprint($lang->newnotification_subject, $this->page['title']);
+                        $email_data['message'] = $lang->sprint($lang->newnotification_body, $this->page['title'], $this->page['summary'], $this->page['bodyText']);
                     }
 
                     $mail = new Mailer($email_data, 'php');

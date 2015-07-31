@@ -91,11 +91,14 @@
                     </div>
                     <div style="display:block;">
                         <div style="display:inline-block;">&nbsp;</div>
-                        <div style="display:inline-block;"><input type="submit" onclick="$('#upload_Result').show()" class="button" id="cms_addnews_Form" value="{$actiontype}"  /> <input type="reset" class="button" value="{$lang->reset}"/></div>
+                        <div style="display:inline-block;">
+                            <input type="submit" class="button" id="cms_addnews_Form" value="{$actiontype}"  />
+                            <input type="reset" class="button" value="{$lang->reset}"/>
+                            <div style="{$preview_display};" id="preview"><a id="preview_link" target="_blank" href="{$url}"><button type="button" class="button">{$lang->preview}</button></a></div>
+                        </div>
                     </div>
                 </form>
                 <hr />
-                <div id="upload_Result" style="display:none;"><img src="{$core->settings[rootdir]}/images/loading.gif" /> {$lang->uploadinprogress}</div>
 
             </div>
         </td>

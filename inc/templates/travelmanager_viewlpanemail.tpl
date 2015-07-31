@@ -6,3 +6,4 @@
     <div style="font-size: 24px;color: #91B64F;font-weight: 100;">{$transportaion_fields_title} </div>
     {$transportaion_fields}
 </div>
+<a href="{$approve_link}"><button type="button" class="button">{$lang->approve}</button></a>
