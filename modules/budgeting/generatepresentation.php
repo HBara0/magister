@@ -686,6 +686,11 @@ xmlns = "http://www.w3.org/TR/REC-html40">
             'alignment' => array(
                     'wrap' => true,
                     'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
+            ),
+            'borders' => array(
+                    'allborders' => array('style' => PHPExcel_Style_Border::BORDER_THICK,
+                            'color' => array('rgb' => '000000')
+                    )
             )
     );
     $style['altrows'] = array(
@@ -694,19 +699,6 @@ xmlns = "http://www.w3.org/TR/REC-html40">
                     'color' => array('rgb' => 'C3F5F2')
             ),
     );
-    $style['test'] = array(
-            'fill' => array(
-                    'type' => PHPExcel_Style_Fill::FILL_SOLID,
-                    'color' => array('rgb' => 'dfecdf')
-            ),
-            'font' => array(
-                    'bold' => true,
-                    'color' => array('rgb' => 'FFFFFF'),
-                    'size' => 12,
-                    'name' => 'Calibri'
-            ),
-    );
-
 //set excel styles-END
     $outputFile = $aff."-report.xls";
 
@@ -723,7 +715,7 @@ xmlns = "http://www.w3.org/TR/REC-html40">
                     $main_excel->getSheet(0)->getStyle('A'.$i.':Z'.$i)->applyFromArray($style['altrows']);
                 }
                 if(($title == $lang->businesssegmentsales) || ($title == $lang->businesssegmentincome)) {
-                    $main_excel->getSheet(0)->getStyle('A11:M11')->applyFromArray($style['test']);
+                    $main_excel->getSheet(0)->getStyle('A11:M11')->applyFromArray($style['header']);
                     $main_excel->getSheet(0)->getStyle('A12:M12')->applyFromArray($style['header']);
                     $main_excel->getSheet(0)->getStyle('A15:M15')->applyFromArray($style['header']);
                 }
@@ -751,7 +743,7 @@ xmlns = "http://www.w3.org/TR/REC-html40">
                     $sheet->getStyle('A'.$i.':Z'.$i)->applyFromArray($style['altrows']);
                 }
                 if(($title == $lang->businesssegmentsales) || ($title == $lang->businesssegmentincome)) {
-                    $sheet->getStyle('A11:M11')->applyFromArray($style['test']);
+                    $sheet->getStyle('A11:M11')->applyFromArray($style['header']);
                     $sheet->getStyle('A12:M12')->applyFromArray($style['header']);
                     $sheet->getStyle('A15:M15')->applyFromArray($style['header']);
                 }
