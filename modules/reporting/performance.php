@@ -154,7 +154,8 @@ if(!$core->input['action']) {
         $charts = array('daysfromqstart', 'daysfromreportcreation', 'daystoimportfromqstart', 'daystoimportfromcreation');
         foreach($charts as $chart) {
             if(is_array($avgperaff[$chart])) {
-                if(!empty(array_filter($avgperaff[$chart]))) {
+                $avgperaff[$chart] = array_filter($avgperaff[$chart]);
+                if(!empty($avgperaff[$chart])) {
                     $daystocompletion_bchart[$chart] = new Charts(array('x' => array_keys($avgperaff[$chart]), 'y' => array_values($avgperaff[$chart])), 'bar', array('yaxisname' => $lang->$chart, 'xaxisname' => $lang->affiliates, 'title' => $lang->$chart, 'scale' => 'SCALE_START0', 'nosort' => true, 'width' => 1000, 'noLegend' => true));
                     $daystocompletion_bchart[$chart.'chart'] = $daystocompletion_bchart[$chart]->get_chart();
                 }
