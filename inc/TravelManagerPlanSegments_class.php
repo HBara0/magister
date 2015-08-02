@@ -185,10 +185,9 @@ class TravelManagerPlanSegments extends AbstractClass {
 //                    }
 //                }//////
                     if(!isset($hotel['tmhid']) || empty($hotel['tmhid'])) {
-                        continue;
+                        $transp_errorcode = 2;
+                        $errorhandler->record('requiredfields', 'Accomodations');
                     }
-
-
                     if($hotel['numNights'] > $segdays) {
                         $this->errorcode = 9;
                         $hotel = new TravelManagerHotels($hotel['tmhid']);
@@ -207,10 +206,6 @@ class TravelManagerPlanSegments extends AbstractClass {
                     $accod_obj->set($hoteldata);
                     $accod_obj->save();
                 }
-            }
-            else {
-                $transp_errorcode = 2;
-                $errorhandler->record('requiredfields', 'Accomodations');
             }
         }
         $additionalexpenses = $segmentdata['expenses'];
@@ -395,7 +390,8 @@ class TravelManagerPlanSegments extends AbstractClass {
                             if(is_object($hotelacc)) {
                                 $hotelacc->delete();
                             }
-                            continue;
+                            $transp_errorcode = 2;
+                            $errorhandler->record('requiredfields', 'Accomodations');
                         }
 
                         if($hotel['numNights'] > $leavedays) {
@@ -418,10 +414,6 @@ class TravelManagerPlanSegments extends AbstractClass {
                         $accod_obj->save();
                     }
                 }
-            }
-            else {
-                $transp_errorcode = 2;
-                $errorhandler->record('requiredfields', 'Accomodations');
             }
         }
         else {

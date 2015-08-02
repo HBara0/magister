@@ -8,7 +8,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$lang->pagetitle}</h3>
+            <h3>{$lang->pagetitle}</h3>   <small>{$page[version_output]}</small>
             <div style="display:table; width: 100%;">
                 <form  name="perform_cms/managewebpage_Form" action="#" method="post"  id="perform_cms/managewebpage_Form" >
                     <input type="hidden" value="do_{$actiontype}page" name="action" id="action" />
@@ -84,6 +84,7 @@
                     <div style="display:block;">
                         <div style="display:inline-block; padding:11px;"><input type="submit" class="button" value="{$actiontype}" id="perform_cms/managewebpage_Button"/></div>
                         <div style="display:inline-block; padding:11px;"><input type="reset" class="button" value="{$lang->reset}"/></div>
+                        <div id="preview" style="{$preview_display}; padding:11px;"><a href="{$url}" target="_blank" id="preview_link"><button class="button" type="button">{$lang->preview}</button></a></div>
                     </div>
                 </form>
                 <div style="display:block;">

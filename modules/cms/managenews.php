@@ -28,6 +28,8 @@ if(!$core->input['action']) {
     if(isset($core->input['newsid']) && !empty($core->input['newsid'])) {
         $actiontype = 'edit';
         $cms_news = new CmsNews(intval($core->input['newsid']), false);
+        $url = 'http://'.$core->settings['websitedir'].'/news/'.$cms_news->alias.'/'.base64_encode($cms_news->cmsnid).'/'.$cms_news->token.'/1';
+        $preview_display = 'display:inline-block';
         $news = $cms_news->get();
 
         if($news['isFeatured'] == 1) {
@@ -85,9 +87,12 @@ if(!$core->input['action']) {
                 $news['baseVersion_outpt'] = '<a href="index.php?module=cms/managenews&type=edit&newsid='.$base_news[cmsnid].'" target="_blank">'.$base_news['title'].', Version '.$base_news['version'].'</a>';
             }
         }
+        $news['version_output'] = $news[title].', '.$lang->version.' '.$news[version];
     }
     else {
+        $baseversion['display'] = $preview_display = 'display:none';
         $actiontype = 'add';
+        $url = 'none';
         $newscategories_list = parse_selectlist('news[categories]', 5, $content_categories, '');
         $highlights = CmsHighlights::get_data(array('isEnabled' => '1'), array('returnarray' => true));
         if(is_array($highlights)) {
@@ -164,7 +169,19 @@ else {
                 }
                 $output_class = 'green_text';
                 $output_message = $lang->successfullysaved;
-                break;
+                $preview_output = '';
+                $url = 'http://'.$core->settings['websitedir'].'/news/'.$cms_news->alias.'/'.base64_encode($cms_news->cmsnid).'/'.$cms_news->token.'/1';
+                ?>
+                <script language = "javascript" type = "text/javascript">
+                    $(function () {
+                        top.$('div[id="preview"]').show();
+                        top.$('div[id="preview"]').css('display', 'inline-block');
+                        top.$('a[id="preview_link"]').attr("href", "<?php echo $url;?>");
+                        top.$("#upload_Result").html("<span class='<?php echo $output_class;?>'><?php echo $output_message;?></span>");
+                    });
+                </script>
+                <?php
+                exit;
             case 1:
                 $output_class = 'red_text';
                 $output_message = $lang->fillallrequiredfields;
@@ -180,7 +197,7 @@ else {
         }
         ?>
         <script language="javascript" type="text/javascript">
-            $(function() {
+            $(function () {
                 top.$("#upload_Result").html("<span class='<?php echo $output_class;?>'><?php echo $output_message;?></span>");
             });
         </script>

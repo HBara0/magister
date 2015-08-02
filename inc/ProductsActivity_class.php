@@ -28,15 +28,42 @@ class ProductsActivity extends AbstractClass {
     }
 
     protected function create(array $data) {
+        global $db;
+        if(empty($data['pid']) || !isset($data['pid'])) {
+            $this->errorcode = 1;
+            return;
+        }
+        if(empty($data['rid']) || !isset($data['rid'])) {
+            $this->errorcode = 1;
+            return;
+        }
+        if(empty($data['uid']) || !isset($data['uid'])) {
+            $this->errorcode = 1;
+            return;
+        }
 
+        $query = $db->insert_query(self::TABLE_NAME, $data);
+        return $this;
     }
 
     protected function update(array $data) {
-
-    }
-
-    public function save(array $data = array()) {
-
+        global $db;
+        if(is_array($data)) {
+            if(empty($data['pid']) || !isset($data['pid'])) {
+                $this->errorcode = 1;
+                return;
+            }
+            if(empty($data['rid']) || !isset($data['rid'])) {
+                $this->errorcode = 1;
+                return;
+            }
+            if(empty($data['uid']) || !isset($data['uid'])) {
+                $this->errorcode = 1;
+                return;
+            }
+            $db->update_query(self::TABLE_NAME, $data, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
+        }
+        return $this;
     }
 
     public function get_report() {
