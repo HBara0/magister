@@ -157,6 +157,9 @@ class Charts {
             }
             $scaleSettings['Mode'] = $this->options['scale'];
         }
+        if(isset($this->options['scalepos'])) {
+            $scaleSettings['Pos'] = SCALE_POS_TOPBOTTOM;
+        }
         $this->chart->drawScale($scaleSettings);
 
         /* Write the chart legend */
@@ -171,6 +174,7 @@ class Charts {
         /* Draw the chart */
         //$this->chart->setShadow(TRUE,array("X"=>1,"Y"=>1,"R"=>0,"G"=>0,"B"=>0,"Alpha"=>10));
         //$settings = array("Gradient"=>TRUE,"GradientMode"=>GRADIENT_EFFECT_CAN,"DisplayPos"=>LABEL_POS_INSIDE,"DisplayValues"=>TRUE,"DisplayR"=>255,"DisplayG"=>255,"DisplayB"=>255,"DisplayShadow"=>TRUE,"Surrounding"=>10);
+
         $this->chart->drawBarChart();
 
         $this->imagename = $this->path.'chart_'.uniqid(rand(0, time())).'.png';
