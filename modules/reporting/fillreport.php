@@ -98,6 +98,7 @@ if(!$core->input['action']) {
         $query = $db->query("SELECT pa.*, p.name AS productname
 								FROM ".Tprefix."productsactivity pa LEFT JOIN ".Tprefix."products p ON (pa.pid=p.pid)
 								WHERE pa.rid='{$rid}'{$query_string}");
+
         $rowsnum = $db->num_rows($query);
         if($rowsnum > 0) {
             $i = 1;
@@ -121,7 +122,7 @@ if(!$core->input['action']) {
                 $segment = $product->get_segment();
                 $usersegments = array_keys($core->user_obj->get_segments());
                 if(is_array($usersegments)) {
-                    if(!in_array($segment['psid'], $usersegments) && $core->input['auditor'] != 1) {
+                    if(!in_array($segment['psid'], $usersegments) && $core->input['auditor'] != 1 && $core->user['uid'] != $productactivity['uid']) {
                         continue;
                     }
                 }
@@ -157,7 +158,6 @@ if(!$core->input['action']) {
                 eval("\$productsrows .= \"".$template->get('reporting_fillreports_productsactivity_productrow')."\";");
             }
         }
-
 
         $generic_attributes = array('gpid', 'title');
         $generic_order = array(
@@ -1712,7 +1712,7 @@ else {
         eval("\$report_inc = \"".$template->get('popup_fillreport_reportinconsistency')."\";");
         output($report_inc);
     }
-    elseif($core->input ['action'] == 'do_reportinconsistency') {
+    elseif($core->input ['action'] == 'do_reportvalidateency') {
         if(is_array($core->input['productsactivity'])) {
             $productactivity_obj = new ProductsActivity(intval($core->input['productsactivity']['paid']), false);
             if(is_object($productactivity_obj)) {
