@@ -28,7 +28,7 @@ if(!$core->input['action']) {
             $altrow_class = alt_row($altrow_class);
             $application = $application_obj->get();
             $application['segment'] = $application_obj->get_segment()->get()['title'];
-            eval("\$productsapplications_list .= \"".$template->get("admin_products_applications_row")."\";");
+            eval("\$productsapplications_list .= \"".$template->get('admin_products_applications_row')."\";");
         }
     }
 
@@ -44,7 +44,7 @@ if(!$core->input['action']) {
             $checmicalfunctions_list .= '<option value='.$chemical['cfid'].'>'.$chemical['title'].'</option>';
         }
     }
-    $multipages = new Multipages("segmentapplications", $core->settings['itemsperlist']);
+    $multipages = new Multipages('segmentapplications', $core->settings['itemsperlist']);
     $productsapplications_list .= "<tr><td colspan='5'>".$multipages->parse_multipages()."</td></tr>";
     $publishonwebcheckbox = '<input type="checkbox" value="1" name="segmentapplications[publishOnWebsite]">';
     eval("\$dialog_managerapplication = \"".$template->get("admin_popup_manageapplication")."\";");
