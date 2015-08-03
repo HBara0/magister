@@ -13,7 +13,7 @@
  *
  * @author zaher.reda
  */
-class IntegrationMediation {
+class IntegrationMediation extends AbstractClass {
     protected $foreign_system;
     protected $affids;
     private $status = 0;
@@ -34,6 +34,10 @@ class IntegrationMediation {
 
     private function set_foreign_system($foreign_system) {
         $this->foreign_system = intval($foreign_system);
+    }
+
+    protected function update(array $data) {
+
     }
 
 }

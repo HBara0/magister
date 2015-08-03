@@ -100,6 +100,8 @@ class IntegrationDataAccessLayer {
     }
 
     public function get_objects($filters = null, array $configs = array()) {
+        global $integration;
+
         if(!isset($configs['simple'])) {
             $configs['simple'] = true;
         }
@@ -192,6 +194,10 @@ class IntegrationDataAccessLayer {
         // else
         if(!empty($filters)) {
             $sql .= ' WHERE '.$filters; //SQL where statement; to be improved
+        }
+
+        if(!isset($this->f_db)) {
+            $this->f_db = $integration->get_dbconn();
         }
         $query = $this->f_db->query($sql);
         $numrows = $this->f_db->num_rows($query);
