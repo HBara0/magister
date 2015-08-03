@@ -1,7 +1,7 @@
 <?php
 /*
  * Copyright © 2013 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * Tool to import raw integration data from CSV
  * $id: integration_loadrawdatafiles.php
  * Created:        @zaher.reda    Mar 12, 2013 | 1:04:11 PM
@@ -118,7 +118,8 @@ function insert_data($runtype = 'dry', $validate = true) {
                     if(!empty($tables_fields_values[$table]['foreignSystem'])) {
                         $value_exists_extrawhere = ' AND foreignSystem='.$db->escape_string($tables_fields_values[$table]['foreignSystem']);
                     }
-                    if(!value_exists($table, $table_config['identifier'], substr($tables_fields_values[$table][$table_config['identifier']], 0, 32), 'affid='.$db->escape_string($tables_fields_values[$table]['affid']).$value_exists_extrawhere)) {
+
+                    if(!value_exists($table, $table_config['identifier'], substr($tables_fields_values[$table][$table_config['identifier']], 0, 32), 'affid='.intval($tables_fields_values[$table]['affid']).$value_exists_extrawhere)) {
                         if($core->input['domatch'] == 1) {
                             $tables_fields_values[$table]['localId'] = $db->fetch_field($db->query("SELECT ".$table_config['matchInfo']['dataField']." FROM ".Tprefix.$table_config['matchInfo']['table']." WHERE ".$table_config['matchInfo']['matchWith']."='".$db->escape_string($tables_fields_values[$table][$table_config['matchInfo']['match']])."'"), $table_config['matchInfo']['dataField']);
                         }
@@ -137,7 +138,7 @@ function insert_data($runtype = 'dry', $validate = true) {
                     else {
                         if($runtype != 'dry') {
                             unset($tables_fields_values[$table]['localId']);
-                            $db->update_query($table, $tables_fields_values[$table], $table_config['identifier'].'="'.substr($tables_fields_values[$table][$table_config['identifier']], 0, 32).'"');
+                            $db->update_query($table, $tables_fields_values[$table], $table_config['identifier'].'="'.substr($tables_fields_values[$table][$table_config['identifier']], 0, 32).'" AND affid='.intval($tables_fields_values[$table]['affid']).$value_exists_extrawhere);
                         }
                         echo 'Updated:';
                         print_r($tables_fields_values[$table]);
