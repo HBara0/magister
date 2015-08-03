@@ -770,5 +770,9 @@ class Leaves extends AbstractClass {
         return $visit_type;
     }
 
+    public function get_user() {
+        return new Users($this->data['uid']);
+    }
+
 }
 ?>
