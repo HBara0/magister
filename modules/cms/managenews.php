@@ -28,7 +28,7 @@ if(!$core->input['action']) {
     if(isset($core->input['newsid']) && !empty($core->input['newsid'])) {
         $actiontype = 'edit';
         $cms_news = new CmsNews(intval($core->input['newsid']), false);
-        $url = 'http://'.$core->settings['websitedir'].'/news/'.$cms_news->alias.'/'.base64_encode($cms_news->cmsnid).'/'.$cms_news->token.'/1';
+        $url = 'http://'.$core->settings['websitedir'].'/news/'.$cms_news->alias.'/'.base64_encode($cms_news->cmsnid).'/'.$cms_news->token.'/preview';
         $preview_display = 'display:inline-block';
         $news = $cms_news->get();
 
@@ -170,7 +170,7 @@ else {
                 $output_class = 'green_text';
                 $output_message = $lang->successfullysaved;
                 $preview_output = '';
-                $url = 'http://'.$core->settings['websitedir'].'/news/'.$cms_news->alias.'/'.base64_encode($cms_news->cmsnid).'/'.$cms_news->token.'/1';
+                $url = 'http://'.$core->settings['websitedir'].'/news/'.$cms_news->alias.'/'.base64_encode($cms_news->cmsnid).'/'.$cms_news->token.'/preview';
                 ?>
                 <script language = "javascript" type = "text/javascript">
                     $(function() {

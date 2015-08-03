@@ -19,7 +19,7 @@ if(!$core->input['action']) {
             if($event['isFeatured'] == 1) {
                 $checkedbox['isFeatured'] = "checked='checked'";
             }
-            $url = 'http://'.$core->settings['websitedir'].'/events/'.$event_obj->alias.'/'.base64_encode($event_obj->ceid).'/'.$event_obj->identifier.'/1';
+            $url = 'http://'.$core->settings['websitedir'].'/events/'.$event_obj->alias.'/'.base64_encode($event_obj->ceid).'/'.$event_obj->identifier.'/preview';
             $event['fromDate_output'] = date($core->settings['dateformat'], $event['fromDate']);
             $event['toDate_output'] = date($core->settings['dateformat'], $event['toDate']);
             $event['toTime_output'] = gmdate("H:i:s", strtotime(date($core->settings['timeformat'], $event['toDate'])));
