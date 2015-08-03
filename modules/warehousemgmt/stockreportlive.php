@@ -333,7 +333,8 @@ else {
                         else {
                             switch($field) {
                                 case 'unitcost':
-                                    $output_value = $input['stack']['remaining_cost'] / $input['stack']['remaining_qty'];
+                                        $output_value = $input['stack']['remaining_cost'] / $input['stack']['remaining_qty'];
+                                    }
                                     $input['unitcost'] = $output_value;
 //                                if(in_array($field, $config['total_types'])) {
 //                                    $totals[$field] += $output_value;
@@ -341,6 +342,7 @@ else {
                                     $output .= '<td style="border: 1px solid #CCC; text-align: right;">'.number_format($output_value, $report_options['roundto'], '.', ' ').'</td>';
                                     break;
                                 case 'unitcostusd':
+                                        $output_value = ($input['stack']['remaining_cost'] / $input['stack']['remaining_qty']) / $fxrates['usd'];
                                     $output_value = ($input['stack']['remaining_cost'] / $input['stack']['remaining_qty']) / $fxrates['usd'];
                                     $input['unitcostusd'] = $output_value;
 //                                if(in_array($field, $config['total_types'])) {

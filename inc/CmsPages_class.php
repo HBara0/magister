@@ -115,15 +115,35 @@ class CmsPages extends Cms {
                     if(!isset($this->settings['websiteaudits']) || empty($this->settings['websiteaudits'])) {
                         $email_data['to'] = $this->settings['adminemail'];
                     }
+                    if(strlen($this->prevversion['title']) == 0) {
+                        $titlelength = 1;
+                    }
+                    else {
+                        $titlelength = strlen($this->prevversion['title']);
+                    }
+                    if(strlen($this->prevversion['summary']) == 0) {
+                        $summarylength = 1;
+                    }
+                    else {
+                        $summarylength = strlen($this->prevversion['summary']);
+                    }
+                    if(strlen($this->prevversion['bodyText']) == 0) {
+                        $bodyTextlength = 1;
+                    }
+                    else {
+                        $bodyTextlength = strlen($this->prevversion['bodyText']);
+                    }
                     if($options['operationtype'] == 'updateversion') {
                         $email_data['subject'] = $lang->sprint($lang->modifynotification_subject, $this->prevversion['title']);
                         $email_data['message'] = $lang->sprint($lang->modifynotification_body, $this->prevversion['title'], //1
-                                similar_text($this->prevversion['title'], $this->page['title']), //2
+                                number_format(similar_text($this->prevversion['title'], $this->page['title']) * 100 / $titlelength, 2), //2
                                 $this->page['title'], //3
-                                similar_text($this->prevversion['summary'], $this->page['summary']), //4
+                                number_format(similar_text($this->prevversion['summary'], $this->page['summary']) * 100 / $summarylength, 2), //4
                                 $this->page['summary'], //5
-                                similar_text($this->prevversion['bodyText'], $this->page['bodyText']), //6
-                                get_stringdiff($this->oldnews['bodyText'], $this->page['bodyText'])//7
+                                number_format(similar_text($this->prevversion['bodyText'], $this->page['bodyText']) * 100 / $bodyTextlength, 2), //6
+                                get_stringdiff($this->prevversion['bodyText'], $this->page['bodyText']), //7
+                                $core->settings['rootdir'].'/index.php?module=cms/managewebpage&type=edit&id='.$this->page['cmspid'], //8
+                                'http://'.$core->settings['websitedir'].'/general/'.$this->page['alias'].'/'.$this->page['cmspid'].'/'.$this->page['token'].'/preview'//9
                         );
                     }
                     else {
@@ -291,7 +311,7 @@ class CmsPages extends Cms {
     }
 
     public static function get_data($filters = '', $configs = array()) {
-        $data = new DataAccessLayer(self::CLASSNAME, self::TABLE_NAME, self::PRIMARY_KEY);
+        $data = new DataAccessLayer(self:: CLASSNAME, self:: TABLE_NAME, self::PRIMARY_KEY);
         return $data->get_objects($filters, $configs);
     }
 

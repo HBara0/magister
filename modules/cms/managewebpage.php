@@ -25,7 +25,7 @@ if(!$core->input['action']) {
         $lang->createwebpage = $lang->editwebpage;
         $pageid = $db->escape_string($core->input['id']);
         $cms_page = new CmsPages($pageid);  /* call the page object and the pageid to the constructor to read the single page */
-        $url = 'http://'.$core->settings['websitedir'].'/general/'.$cms_page->category.'/'.$cms_page->alias.'/'.$cms_page->cmspid.'/'.$cms_page->token.'/1';
+        $url = 'http://'.$core->settings['websitedir'].'/general/'.$cms_page->alias.'/'.$cms_page->cmspid.'/'.$cms_page->token.'/preview';
         $preview_display = 'display:inline-block';
         $page = $cms_page->get();
         $pagecategories_list = parse_selectlist('page[category]', 5, $content_categories, $page['category']);
@@ -130,12 +130,12 @@ else {
                             output_xml("<status>false</status><message>{$lang->errorsaving}</message>");
                             exit;
                         }
-                        $preview_output = '<script>$(\'div[id="preview"]\').show();$(\'div[id="preview"]\').css(\'display\',\'inline-block\');$(\'a[id="preview_link"]\').attr("href", "http://'.$core->settings['websitedir'].'/general/'.$cms_page->category.'/'.$cms_page->alias.'/'.$cms_page->cmspid.'/'.$cms_page->token.'/1");</script>';
+                        $preview_output = '<script>$(\'div[id="preview"]\').show();$(\'div[id="preview"]\').css(\'display\',\'inline-block\');$(\'a[id="preview_link"]\').attr("href", "http://'.$core->settings['websitedir'].'/general/'.$cms_page->alias.'/'.$cms_page->cmspid.'/'.$cms_page->token.'/preview");</script>';
                         output_xml("<status>true</status><message>{$lang->successfullysaved}<![CDATA[{$preview_output}]]></message>");
                         exit;
                     }
                 }
-                $preview_output = '<script>$(\'div[id="preview"]\').show();$(\'div[id="preview"]\').css(\'display\',\'inline-block\');$(\'a[id="preview_link"]\').attr("href", "http://'.$core->settings['websitedir'].'/general/'.$cms_page->category.'/'.$cms_page->alias.'/'.$cms_page->cmspid.'/'.$cms_page->token.'/1");</script>';
+                $preview_output = '<script>$(\'div[id="preview"]\').show();$(\'div[id="preview"]\').css(\'display\',\'inline-block\');$(\'a[id="preview_link"]\').attr("href", "http://'.$core->settings['websitedir'].'/general/'.$cms_page->alias.'/'.$cms_page->cmspid.'/'.$cms_page->token.'/preview");</script>';
                 output_xml("<status>true</status><message>{$lang->successfullysaved}<![CDATA[{$preview_output}]]></message>");
                 break;
             case 1:

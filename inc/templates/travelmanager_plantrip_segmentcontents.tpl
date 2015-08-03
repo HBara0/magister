@@ -1,7 +1,7 @@
 <div style="display:block;" >
-    <div style="margin:50px;text-align: center" ><img src="./images/chevron-down.png" align="middle" style=""/></div>
-    <div class="ui-state-highlight ui-corner-all">{$lang->makesuretochooseandclick}</div>
+    <div style="margin:50px;text-align: center" ><hr style="width: 100%;height: 3px;background-color: gray"/></div>
     <h2 class="subtitle">Possible Transportations</h2>
+    <div class="ui-state-highlight ui-corner-all">{$lang->makesuretochooseandclick}</div>
     <div style="display: block">{$lang->oneway}<input type="radio" value="2" name="segment[{$sequence}][transp]" id="transp_lookuptransps_{$sequence}"/>
         {$lang->roundtrip}<input type="radio" value="1" name="segment[{$sequence}][transp]" id="transp_lookuptransps_{$sequence}"/><br/><br/>
         <input type="button" class="button" value="{$lang->lookuptransps}" id="lookuptransps_{$sequence}"/>
@@ -22,7 +22,7 @@
         <input name="numrows_othertranspcat_{$sequence}" type="hidden" id="numrows_othertranspcat_{$sequence}" value="{$rowid}">
     </div>
 </div>
-<div style="margin:50px;text-align: center" ><img src="./images/chevron-down.png" align="middle" style=""/></div>
+<div style="margin:50px;text-align: center" ><hr style="width: 100%;height: 3px;background-color: gray"/></div>
 <h2 class="subtitle" style="padding:8px;width:40%;">{$lang->accomodations}</h2>
 <input type="checkbox" id="noAccomodation_{$sequence}" name="segment[{$sequence}][noAccomodation]" {$checkedaccomodation} value="1" /> {$lang->noaccomodation}
 
@@ -35,7 +35,7 @@
   <!-- <div class="subtitle">{}Approved Hotels</div>-->
     {$otherhotels_output}
 </div>
-<div style="margin:50px;text-align: center" ><img src="./images/chevron-down.png" align="middle" style=""/></div>
+<div style="margin:50px;text-align: center" ><hr style="width: 100%;height: 3px;background-color: gray"/></div>
 <div style="display:block; width: 100%;" id="segment_expenses_{$sequence}">
     <input name="sequence" type="hidden" id="sequence" value="{$sequence}">
     <h2 class="subtitle" style="padding:8px;width:40%;">{$lang->addexp}</h2>
@@ -52,7 +52,7 @@
     </span>
 
 </div>
-<div style="margin:50px;text-align: center" ><img src="./images/chevron-down.png" align="middle" style=""/></div>
+<div style="margin:50px;text-align: center" ><hr style="width: 100%;height: 3px;background-color: gray"/></div>
 <div style="display:block; width: 100%; margin-top: 10px;" id="segment_finances_{$sequence}">
     <input name="sequence" type="hidden" id="sequence" value="{$sequence}">
     <h2 class="subtitle" style="padding:8px;width:100%;">{$lang->finance} ({$lang->anticipatedamount})</h2>
