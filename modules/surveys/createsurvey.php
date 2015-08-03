@@ -2,10 +2,10 @@
 /*
  * Orkila Central Online System (OCOS)
  * Copyright © 2009 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * Create Survey
  * $module: createsurvey
- * $id: createsurvey.php	
+ * $id: createsurvey.php
  * Created By: 		@tony.assaad		May 3, 2012 | 4:30 PM
  * Last Update: 	@zaher.reda			May 10, 2012 | 02:03 PM
  */
@@ -27,7 +27,8 @@ if(!$core->input['action']) {
 
     $surveystemplates = get_specificdata('surveys_templates', array('stid', 'title'), 'stid', 'title', 'title', 0, 'isPublic=1 OR createdBy='.$core->user['uid']);
     if(is_array($surveystemplates)) {
-        $surveytemplates_list = parse_selectlist('stid', 5, $surveystemplates, $survey['stid']);
+        $onchange = '$("a[id=previewtemplate_link]").attr("href","index.php?module=surveys/preview&stid=" + $("select[id=stid]").val());';
+        $surveytemplates_list = parse_selectlist('stid', 5, $surveystemplates, $survey['stid'], '', $onchange, array('id' => 'stid'));
     }
 
     $radiobuttons['isPublicFill'] = parse_yesno('isPublicFill', 1, $survey['isPublicFill']);
@@ -39,7 +40,7 @@ if(!$core->input['action']) {
     $query = $db->query("SELECT u.uid, u.displayName
 						FROM ".Tprefix."affiliatedemployees ae
 						JOIN ".Tprefix."affiliates aff ON (aff.affid = ae.affid)
-						JOIN ".Tprefix."users u ON (u.uid = ae.uid)  
+						JOIN ".Tprefix."users u ON (u.uid = ae.uid)
 						WHERE u.gid!=7 AND (u.uid IN (SELECT uid FROM ".Tprefix."users WHERE reportsTo={$core->user[uid]})
 						OR ae.affid IN (SELECT affid FROM ".Tprefix."affiliatedemployees WHERE (canAudit=1 OR canHR=1) AND uid={$core->user[uid]}))
 						ORDER BY displayName ASC");
@@ -73,8 +74,8 @@ if(!$core->input['action']) {
     }
 
     $invitations_query = $db->query("SELECT DISTINCT(ae.uid), u.*, aff.*, displayName, aff.name AS mainaffiliate, aff.affid
-						FROM ".Tprefix."users u 
-						JOIN ".Tprefix."affiliatedemployees ae ON (u.uid=ae.uid) 
+						FROM ".Tprefix."users u
+						JOIN ".Tprefix."affiliatedemployees ae ON (u.uid=ae.uid)
 						JOIN ".Tprefix."affiliates aff ON (aff.affid=ae.affid)
 						WHERE gid!='7' AND isMain='1'{$invitations_query_where}
 						ORDER BY displayName ASC");
@@ -107,9 +108,9 @@ if(!$core->input['action']) {
             }
 
             /* Get User Segments - START */
-            $user_segments_query = $db->query("SELECT es.*, u.uid ,u.username, ps.title, ps.psid 
+            $user_segments_query = $db->query("SELECT es.*, u.uid ,u.username, ps.title, ps.psid
 										FROM ".Tprefix."employeessegments es
-										JOIN ".Tprefix."users u ON (es.uid=u.uid) 
+										JOIN ".Tprefix."users u ON (es.uid=u.uid)
 										JOIN ".Tprefix."productsegments ps ON (ps.psid=es.psid)
 										WHERE es.uid='{$user[uid]}'
 										ORDER BY title ASC");

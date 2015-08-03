@@ -109,4 +109,5 @@ $lang['suredelete'] = 'Are you sure you want to delete this entry?';
 $lang['cannotdeleteentry'] = 'Entry Cannot be deleted';
 $lang['clone'] = 'Clone';
 $lang['charasteristiclist'] = "Characteristics List";
+$lang['sequence'] = 'Sequence';
 ?>

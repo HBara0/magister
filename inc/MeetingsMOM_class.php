@@ -155,6 +155,13 @@ class MeetingsMOM extends AbstractClass {
                         }
                     }
                 }
+                //$display['representative'] = $display['employee'] = 'style="display:block;"';
+                if(empty($actions_users)) {
+                    $actions_users = '<tr id="'.$userrowid.'" width="100%"><td style="text-align: center;">-<td></tr>';
+                }
+                if(empty($actions_representatives)) {
+                    $actions_representatives .='<tr><td style="text-align: center;">-<td></tr>';
+                }
                 eval("\$actions_rows .= \"".$template->get('meetings_mom_actions_rowsdisplay')."\";");
 
                 unset($istask, $actions_users, $actions_representatives);

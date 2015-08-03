@@ -19,6 +19,9 @@ if(!$core->input['action']) {
     if($core->input['ebid'] && !empty($core->input['ebid'])) {
         $ebid = $db->escape_string($core->input['ebid']);
         $brand_obj = new EntitiesBrands($ebid);
+        if(is_empty($brand_obj->ebid)) {
+            redirect('index.php?module=crm/marketpotentialdata');
+        }
         $page_title = $page_title_header = $brand_obj->get_displayname();
         $entbrandprod_objs = $brand_obj->get_entbrandproducts();
         $customer = $brand_obj->get_entity();
@@ -29,8 +32,23 @@ if(!$core->input['action']) {
         if(is_array($endproducts_objs)) {
             $itemscount['endproducts'] = 0;
             foreach($endproducts_objs as $endproducts_obj) {
-                if(is_array($entbrandprod_objs)) {
+                if(is_object($endproducts_obj) && !empty($endproducts_obj->eptid)) {
                     $endprod_link = $endproducts_obj->parse_link();
+                    $first_parent = $endproducts_obj->get_parent();
+                    if(is_object($first_parent)) {
+                        $endprod_link .= '--> '.$first_parent->get_displayname();
+                        $secondpar_obj = $first_parent->get_parent();
+                        if(is_object($secondpar_obj)) {
+                            $endprod_link.='-->'.$secondpar_obj->get_displayname();
+                            $third_par = $secondpar_obj->get_parent();
+                            if(is_object($third_par)) {
+                                $originalpar_obj = $third_par->get_mother();
+                                if(is_object($originalpar_obj)) {
+                                    $endprod_link.='->.....->'.$originalpar_obj->get_displayname();
+                                }
+                            }
+                        }
+                    }
                     $entbrandprod_obj = EntBrandsProducts::get_data(array(EndProducTypes::PRIMARY_KEY => $endproducts_obj->get_id(), EntitiesBrands::PRIMARY_KEY => $ebid));
                     $characteristic_output = '';
                     if(is_object($entbrandprod_obj)) {
@@ -45,9 +63,9 @@ if(!$core->input['action']) {
                     //break;
                     //}
                     //}
+                    $endproduct_rows .= '<tr><td>'.$endprod_link.'</td></tr>';
+                    $itemscount['endproducts'] ++;
                 }
-                $endproduct_rows .= '<tr><td>'.$endprod_link.'</td></tr>';
-                $itemscount['endproducts'] ++;
             }
         }
         else {

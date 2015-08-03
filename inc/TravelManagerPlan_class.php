@@ -122,8 +122,13 @@ class TravelManagerPlan {
         $currencies[] = $mainaffobj->get_country()->get_maincurrency();
         $currencies[] = new Currencies(840, true);
         $currencies[] = new Currencies(978, true);
-        $currencies = array_filter(array_unique($currencies));
-        $currencies_list = parse_selectlist('segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].'][currency]', '', array_unique($currencies), $transportation->currency, '', '', array('width' => '100%', 'id' => 'currency_'.$sequence.'_'.$category['inputChecksum'].'_list'));
+        foreach($currencies as $currency) {
+            if(is_object($currency)) {
+                $val_currencies[] = $currency->validate_currency();
+            }
+        }
+        $currencies = array_filter(array_unique($val_currencies));
+        $currencies_list = parse_selectlist('segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].'][currency]', '', $currencies, $transportation->currency, '', '', array('width' => '100%', 'id' => 'currency_'.$sequence.'_'.$category['inputChecksum'].'_list'));
 
 
         if(!empty($category['name'])) {
@@ -196,11 +201,9 @@ class TravelManagerPlan {
 ///    $transportaion_fields .=' <input type = "checkbox" value = "{$lang->lookuptransps}"/>'.$lang->oneway;
 ///   $transportaion_fields .='<br/><br/><input type = "button" class = "Button" value = "'.$lang->lookuptransps.'"/>';
 
-
-                        $transportaion_fields .= '<h2><small>Possible Flights</small></h2><div class = "ui-state-highlight ui-corner-all" style = "padding: 6px; font-weight: bold;">'.$lang->availableflightsnoticemessage.'</div><br/>';
-
+                        $button = '<button type="button" id="airflights_button_'.$sequence.'" style="float: right" class="button">'.$lang->minimize.'</button>';
+                        $transportaion_fields .= '<h2><small>Possible Flights</small></h2>'.$button.'<div class = "ui-state-highlight ui-corner-all" style = "padding: 6px; font-weight: bold;">'.$lang->availableflightsnoticemessage.'</div><br/>';
                         $flights = TravelManagerAirlines::get_flights(TravelManagerAirlines::build_flightrequestdata(array('origin' => $cityinfo['origincity']['unlocode'], 'destination' => $cityinfo['destcity']['unlocode'], 'date' => $cityinfo['date'], 'arrivaldate' => $cityinfo['arrivaldate'], 'isOneway' => $cityinfo['isOneway'], 'permittedCarrier' => $permitted_ariliners)));
-
                         $transportaion_fields .= '<input name = "segment['.$sequence.'][apiFlightdata]" id = "segment_'.$sequence.'apiFlightdata" type = "hidden" value = \''.$flights.'\' />';
                         $transportaion_fields .= TravelManagerAirlines::parse_bestflight($flights, array('transportationdetails' => $category['transportationdetials'], 'selectedflight' => $category['transportationdetials']['flightNumber'], 'name' => $category['name'], 'tmtcid' => $category['tmtcid']), $sequence);
                     }
@@ -653,14 +656,14 @@ class TravelManagerPlan {
             if(empty($approvedhotels)) {
                 $approvedhotels = array();
             }
-            if(is_object($counrty_obj)) {
+            if(is_object($counrty_obj) && !empty($counrty_obj->coid)) {
                 $otherapprovedhotels = TravelManagerHotels::get_data('country='.$counrty_obj->coid.' AND city != '.$city_obj->ciid.' AND isApproved=1', array('returnarray' => true));
             }
             $leavedays = abs($segmentobj->toDate - $segmentobj->fromDate);
             $leavedays = floor($leavedays / (60 * 60 * 24));
             $hotelssegments_output .= $segmentobj->parse_hotels($sequence, $approvedhotels, $leavedays);
             if(is_array($otherapprovedhotels)) {
-                $hotelssegments_output.='<br /><a nohref="nohref" style="cursor:pointer;" id="countryhotels_'.$sequence.'_check"><div style="display:inline-block"><h4>Lookup Hotels in the same country <img src="'.$core->settings['rootdir'].'/images/right_arrow.gif" alt="Other Approved Hotels"></h4></div></a>';
+                $hotelssegments_output.='<br /><a nohref="nohref" style="cursor:pointer;" id="countryhotels_'.$sequence.'_check"><div style="display:inline-block"><button type="button" class="button">Lookup Hotels In The Same Country</button></div></a>';
                 $hotelssegments_output.='<div id=countryhotels_'.$sequence.'_view style="display:none">';
                 $hotelssegments_output.=$segmentobj->parse_hotels($sequence, $otherapprovedhotels, $leavedays);
                 $hotelssegments_output.='</div>';
@@ -694,7 +697,12 @@ $("#anotheraff_otheraccomodations_'.$sequence.'_'.$otherhotel_checksum.'").hide(
             $currencies[] = $mainaffobj->get_country()->get_maincurrency();
             $currencies[] = new Currencies(840, true);
             $currencies[] = new Currencies(978, true);
-            $currencies = array_filter(array_unique($currencies));
+            foreach($currencies as $currency) {
+                if(is_object($currency)) {
+                    $val_currencies[] = $currency->validate_currency();
+                }
+            }
+            $currencies = array_filter(array_unique($val_currencies));
             $currencies_list = parse_selectlist('segment['.$sequence.'][tmhid]['.$otherhotel_checksum.'][currency]', '3', $currencies, '840', '', '', array('id' => 'currency_'.$sequence.'_'.$otherhotel_checksum.'_list'));
             $leavedays = abs($segmentobj->toDate - $segmentobj->fromDate);
             $leavedays = floor($leavedays / (60 * 60 * 24));
@@ -745,7 +753,12 @@ $("#anotheraff_otheraccomodations_'.$sequence.'_'.$otherhotel_checksum.'").hide(
             $currencies_f[] = $mainaffobj->get_country()->get_maincurrency();
             $currencies_f[] = new Currencies(840, true);
             $currencies_f[] = new Currencies(978, true);
-            $currencies_f = array_filter(array_unique($currencies_f));
+            foreach($currencies_f as $currency) {
+                if(is_object($currency)) {
+                    $val_currencies[] = $currency->validate_currency();
+                }
+            }
+            $currencies_f = array_filter(array_unique($val_currencies));
             if(is_array($finance)) {
                 $frowid = 0;
                 foreach($finance as $financerow) {

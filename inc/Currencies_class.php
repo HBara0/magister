@@ -564,5 +564,14 @@ class Currencies extends AbstractClass {
         return $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."currencies WHERE alphaCode='".$db->escape_string($alphacode)."'"));
     }
 
+    public function validate_currency() {
+        if(empty($this->data['alphaCode'])) {
+            return null;
+        }
+        else {
+            return $this;
+        }
+    }
+
 }
 ?>

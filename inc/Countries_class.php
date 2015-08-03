@@ -33,6 +33,9 @@ class Countries extends AbstractClass {
      * @return \Currencies Country main currency
      */
     public function get_maincurrency() {
+        if(empty($this->data['mainCurrency'])) {
+            return null;
+        }
         return new Currencies($this->data['mainCurrency']);
     }
 
@@ -108,7 +111,7 @@ class Countries extends AbstractClass {
     }
 
     public function get_phonecodes() {
-        $countries = self::get_countries('name IS NOT NUll');
+        $countries = self::get_countries('name IS NOT NUll', array('order' => array('by' => Countries::DISPLAY_NAME, 'sort' => 'ASC')));
         if(is_array($countries)) {
             foreach($countries as $country) {
                 $phonecodes[$country->phoneCode] = $country->get_displayname().' (+'.$country->phoneCode.')';

@@ -50,7 +50,7 @@ else {
 //output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
             ?>
             <script language="javascript" type="text/javascript">
-                $(function() {
+                $(function () {
                     top.$("#upload_Result").html("<span class='red_text'><?php echo $lang->fillallrequiredfields;?></span>");
                 });
             </script>
@@ -79,7 +79,7 @@ else {
         if(value_exists('calendar_events', 'title', $core->input['event']['title'], 'type='.$db->escape_string($core->input['event']['type']).' AND (toDate='.$new_event['toDate'].' OR fromDate='.$new_event['fromDate'].')')) {
             ?>
             <script language="javascript" type="text/javascript">
-                $(function() {
+                $(function () {
                     top.$("#upload_Result").html("<span class='red_text'><?php echo $lang->eventexists;?></span>");
                 });
             </script>
@@ -101,7 +101,7 @@ else {
                 if($upload_obj->get_status() != 4) {
                     ?>
                     <script language="javascript" type="text/javascript">
-                        $(function() {
+                        $(function () {
                             top.$("#upload_Result").html("<span class='red_text'><?php echo $upload_obj->parse_status($upload_obj->get_status());?></span>");
                         });
                     </script>
@@ -126,7 +126,7 @@ else {
             if($upload_obj->get_status() != 4) {
                 ?>
                 <script language="javascript" type="text/javascript">
-                    $(function() {
+                    $(function () {
                         top.$("#upload_Result").html("<span class='red_text'><?php echo $upload_obj->parse_status($upload_obj->get_status());?></span>");
                     });
                 </script>
@@ -197,7 +197,6 @@ else {
                 $mailer->send();
             }
         }
-
         if($core->input['event']['isPublic'] == 1 && $core->usergroup['calendar_canAddPublicEvents'] == 1) {
             if(isset($core->input['event']['restrictto'])) {
                 if(is_array($core->input['event']['restrictto'])) {
@@ -208,15 +207,18 @@ else {
                         /* Send the event notification - START */
                         $notification_mails = get_specificdata('affiliates', array('affid', 'mailingList'), 'affid', 'mailingList', '', 0, 'mailingList != "" AND affid IN('.implode(',', $core->input['event']['restrictto']).')');
                         /* More recipients for visiting us events - START */
-                        if($core->input['event']['type'] == 'visitingus') {
-                            $affiliate = Affiliates::get_data(array('affid' => $core->input['event']['affid'],));
+
+                        $eventtype = CalendarEventTypes::get_data(array('cetid' => $core->input['event']['type']));
+                        if(is_object($eventtype) && $eventtype->name == 'visitingus') {
+                            $affiliate = new Affiliates($core->input['event']['affid']);
                             $supplier = Entities::get_data(array('eid' => $core->input['event']['spid'], 'type' => 's'));
 
                             //supplier's segments coordinators
-                            $supp_segments = $supplier->get_segments();
+                            if(is_object($supplier)) {
+                                $supp_segments = $supplier->get_segments();
+                            }
                             if(is_array($supp_segments)) {
-                                foreach($supp_segments as $segmentid) {
-                                    $segment = new Segment($segmentid);
+                                foreach($supp_segments as $segment) {
                                     $segment_coordobjs = $segment->get_coordinators();
                                     if(is_array($segment_coordobjs)) {
                                         foreach($segment_coordobjs as $coord) {
@@ -226,7 +228,7 @@ else {
                                 }
                             }
                             //Aff supervisor
-                            if(is_array($affiliate)) {
+                            if(is_object($affiliate)) {
                                 $supervisor = $affiliate->get_supervisor();
                                 if(is_object($supervisor)) {
                                     $notification_mails[] = $supervisor->email;
@@ -261,24 +263,27 @@ else {
                                 $mailer->add_attachment($attachments_path.'/'.$attachment['name']);
                             }
                         }
-                        $mailer->send();
-                        if($core->input['event']['type'] == 'visitingus') {
+                        // $mailer->send();
+
+                        if(is_object($eventtype) && $eventtype->name == 'visitingus') {
                             $meeting = array(
                                     'title' => $events_details['title'],
                                     'identifier' => substr(md5(uniqid(microtime())), 1, 10),
                                     'fromDate' => $events_details['fromDate'], // $new_event['fromDate'],
                                     'toDate' => $events_details['toDate'],
+                                    'fromTime' => $core->input['event']['fromTime'],
+                                    'toTime' => $core->input['event']['toTime'],
                                     'description' => $events_details['description'],
                                     'location' => $events_details['place'],
                                     'createdBy' => $core->user['uid'],
                                     'createdOn' => TIME_NOW,
                                     'associations' => array(
-                                            'idAttr' => 'spid',
-                                            'id' => $core->input['event']['spid']
-                                    )
-                            );
+                                            'spid' => array(
+                                                    'id' => $core->input['event']['spid'])
+                            ));
                             $meeting_obj = new Meetings();
                             $meeting_obj->create($meeting);
+                            print_r($maile->debug_info());
                         }
                         if($mailer->get_status() === true) {
                             $log->record($notification_mails, $last_id);
@@ -296,7 +301,7 @@ else {
             $log->record($core->input['type'], $last_id);
             ?>
             <script language="javascript" type="text/javascript">
-                $(function() {
+                $(function () {
                     top.$("#upload_Result").html("<span class='green_text'><?php echo $lang->successfullysaved;?></span>");
                 });
             </script>

@@ -55,18 +55,22 @@ if(!$core->input['action']) {
         if($hrgm['generalManager'] != 0) {
             $mgt_affid[$hrgm['generalManager']][$hrgm['affid']] = $hrgm['affid'];
             $mgt[$hrgm['generalManager']] = $hrgm['generalManager'];
+            $mang['gm'] = $hrgm['generalManager'];
         }
         if($hrgm['supervisor'] != 0) {
             $mgt_affid[$hrgm['supervisor']][$hrgm['affid']] = $hrgm['affid'];
             $mgt[$hrgm['supervisor']] = $hrgm['supervisor'];
+            $mang['su'] = $hrgm['supervisor'];
         }
         if($hrgm['hrManager'] != 0) {
             $mgt_affid[$hrgm['hrManager']][$hrgm['affid']] = $hrgm['affid'];
             $mgt[$hrgm['hrManager']] = $hrgm['hrManager'];
+            $mang['hr'] = $hrgm['hrManager'];
         }
         if($hrgm['finManager'] != 0) {
             $mgt_affid[$hrgm['finManager']][$hrgm['affid']] = $hrgm['affid'];
             $mgt[$hrgm['finManager']] = $hrgm['finManager'];
+            $mang['fn'] = $hrgm['finManager'];
         }
     }
 
@@ -504,6 +508,36 @@ if(!$core->input['action']) {
             }
 
             $message .= '</table>';
+            if(is_array($mang)) {
+                foreach($mang as $type => $id) {
+                    switch($type) {
+                        case 'hr':
+                            $user = new Users($id);
+                            if(is_object($user) && !empty($user->get_displayname())) {
+                                $message.='<div style="inline-block">HR Manager:<a href="mailto:'.$user->email.'"> '.$user->get_displayname().'</a></div>';
+                            }
+                            break;
+                        case 'fn':
+                            $user = new Users($id);
+                            if(is_object($user) && !empty($user->get_displayname())) {
+                                $message.='<div style="inline-block">Financial Manager:<a href="mailto:'.$user->email.'"> '.$user->get_displayname().'</a></div>';
+                            }
+                            break;
+                        case 'su':
+                            $user = new Users($id);
+                            if(is_object($user) && !empty($user->get_displayname())) {
+                                $message.='<div style="inline-block">Supervisor:<a href="mailto: '.$user->email.'">'.$user->get_displayname().'</a></div>';
+                            }
+                            break;
+                        case 'gm':
+                            $user = new Users($id);
+                            if(is_object($user) && !empty($user->get_displayname())) {
+                                $message.='<div style="inline-block">General Manager:<a href="mailto:'.$user->email.'"> '.$user->get_displayname().'</a></div>';
+                            }
+                            break;
+                    }
+                }
+            }
 
 //        foreach($output as $ltid => $data) {
 //            $message_rows = '';

@@ -3,7 +3,7 @@
  * Orkila Central Online System (OCOS)
  * Copyright © 2009 Orkila International Offshore, All Rights Reserved
  *
- * CMS News Class
+ * CMS Pages Class
  * $id: CmsPages_class.php
  * Created:			@tony.assaad	August 24, 2012 | 10:53 PM
  * Last Update: 	@zaher.reda		October 02, 2012 | 10:59  AM
@@ -12,6 +12,13 @@
 class CmsPages extends Cms {
     protected $status = 0;
     private $page = array();
+
+    const PRIMARY_KEY = 'cmspid';
+    const TABLE_NAME = 'cms_pages';
+    const DISPLAY_NAME = 'title';
+    const SIMPLEQ_ATTRS = 'cmspid,alias,title,version';
+    const UNIQUE_ATTRS = 'cmspid';
+    const CLASSNAME = __CLASS__;
 
     public function __construct($id = '', $simple = false) {
         if(isset($id) && !empty($id)) {
@@ -31,7 +38,7 @@ class CmsPages extends Cms {
             return false;
         }
 
-        /* Check if news with same title created by anyone */
+        /* Check if page with same title created by anyone */
         if($options['operationtype'] != 'updateversion') {
             if(value_exists('cms_pages', 'title', $this->page['title'])) {
                 $this->status = 2;
@@ -67,12 +74,14 @@ class CmsPages extends Cms {
         }
 
         if(is_array($this->prevversion)) {
-            if(similar_text($this->page['bodyText'], $this->prevversion['bodyText']) > 70) {
-                $this->page['version'] = $this->prevversion['version'] + 0.1;
-            }
-            else {
-                $this->page['version'] = $this->prevversion['version'] + 1;
-            }
+            $cms = new Cms();
+            $this->page['version'] = $cms->get_nextversion($this->page['bodyText'], $this->prevversion['bodyText'], $this->prevversion['version']);
+//            if(similar_text($this->page['bodyText'], $this->prevversion['bodyText']) > 70) {
+//                $this->page['version'] = $this->prevversion['version'] + 0.1;
+//            }
+//            else {
+//                $this->page['version'] = $this->prevversion['version'] + 1;
+//            }
         }
         else {
             $this->page['version'] = 1.0;
@@ -85,10 +94,11 @@ class CmsPages extends Cms {
 
         /* Insert page - START */
         if(is_array($this->page)) {
+            $this->page['token'] = md5(uniqid(microtime(), true));
             $query = $db->insert_query('cms_pages', $this->page);
             if($query) {
                 $this->status = 0;
-                $cmspid = $db->last_id();
+                $cmspid = $this->page['cmspid'] = $db->last_id();
                 $log->record($this->page['cmspid']);
 
                 /* Inform audits about the change, and request approval - START */
@@ -102,21 +112,43 @@ class CmsPages extends Cms {
                             'from_email' => $core->settings['maileremail'],
                             'from' => 'OCOS Mailer'
                     );
-
+                    if(!isset($this->settings['websiteaudits']) || empty($this->settings['websiteaudits'])) {
+                        $email_data['to'] = $this->settings['adminemail'];
+                    }
+                    if(strlen($this->prevversion['title']) == 0) {
+                        $titlelength = 1;
+                    }
+                    else {
+                        $titlelength = strlen($this->prevversion['title']);
+                    }
+                    if(strlen($this->prevversion['summary']) == 0) {
+                        $summarylength = 1;
+                    }
+                    else {
+                        $summarylength = strlen($this->prevversion['summary']);
+                    }
+                    if(strlen($this->prevversion['bodyText']) == 0) {
+                        $bodyTextlength = 1;
+                    }
+                    else {
+                        $bodyTextlength = strlen($this->prevversion['bodyText']);
+                    }
                     if($options['operationtype'] == 'updateversion') {
                         $email_data['subject'] = $lang->sprint($lang->modifynotification_subject, $this->prevversion['title']);
                         $email_data['message'] = $lang->sprint($lang->modifynotification_body, $this->prevversion['title'], //1
-                                similar_text($this->prevversion['title'], $this->news['title']), //2
-                                $this->news['title'], //3
-                                similar_text($this->prevversion['summary'], $this->news['summary']), //4
-                                $this->news['summary'], //5
-                                similar_text($this->prevversion['bodyText'], $this->news['bodyText']), //6
-                                get_stringdiff($this->oldnews['bodyText'], $this->news['bodyText'])//7
+                                number_format(similar_text($this->prevversion['title'], $this->page['title']) * 100 / $titlelength, 2), //2
+                                $this->page['title'], //3
+                                number_format(similar_text($this->prevversion['summary'], $this->page['summary']) * 100 / $summarylength, 2), //4
+                                $this->page['summary'], //5
+                                number_format(similar_text($this->prevversion['bodyText'], $this->page['bodyText']) * 100 / $bodyTextlength, 2), //6
+                                get_stringdiff($this->prevversion['bodyText'], $this->page['bodyText']), //7
+                                $core->settings['rootdir'].'/index.php?module=cms/managewebpage&type=edit&id='.$this->page['cmspid'], //8
+                                'http://'.$core->settings['websitedir'].'/general/'.$this->page['alias'].'/'.$this->page['cmspid'].'/'.$this->page['token'].'/preview'//9
                         );
                     }
                     else {
-                        $email_data['subject'] = $lang->sprint($lang->newnotification_subject, $this->news['title']);
-                        $email_data['message'] = $lang->sprint($lang->newnotification_body, $this->news['title'], $this->news['summary'], $this->news['bodyText']);
+                        $email_data['subject'] = $lang->sprint($lang->newnotification_subject, $this->page['title']);
+                        $email_data['message'] = $lang->sprint($lang->newnotification_body, $this->page['title'], $this->page['summary'], $this->page['bodyText']);
                     }
 
                     $mail = new Mailer($email_data, 'php');
@@ -159,7 +191,7 @@ class CmsPages extends Cms {
         if(isset($options['exclude'])) {
             $exclude_querystring = ' AND cmspid NOT IN ('.implode(',', $options['exclude']).')';
         }
-        return $db->fetch_assoc($db->query("SELECT title, alias, bodyText,version FROM ".Tprefix."cms_pages WHERE alias='".$db->escape_string($alias)."'{$exclude_querystring} ORDER BY version DESC"));
+        return $db->fetch_assoc($db->query("SELECT title, alias, bodyText,version,metaDesc FROM ".Tprefix."cms_pages WHERE alias='".$db->escape_string($alias)."'{$exclude_querystring} ORDER BY version DESC"));
     }
 
     private function read($id, $simple = false) {
@@ -260,6 +292,27 @@ class CmsPages extends Cms {
             return $this->page[$name];
         }
         return false;
+    }
+
+    public function get_latest_pages() {
+        $dal_config = array(
+                'order' => array('by' => array('title', 'version'), 'sort' => array('ASC', 'DESC')),
+                'operators' => array('publishDate' => 'lt', 'version' => CUSTOMSQLSECURE),
+                'simple' => false,
+                'returnarray' => true
+        );
+
+        $pages = CmsPages::get_data(array('isPublished' => 1, 'publishDate' => TIME_NOW, 'version' => 'version=(SELECT MAX(t2.version) FROM '.CmsPages::TABLE_NAME.' t2 WHERE t2.alias='.CmsPages::TABLE_NAME.'.alias)'), $dal_config);
+
+        if(is_array($pages)) {
+            return $pages;
+        }
+        return null;
+    }
+
+    public static function get_data($filters = '', $configs = array()) {
+        $data = new DataAccessLayer(self:: CLASSNAME, self:: TABLE_NAME, self::PRIMARY_KEY);
+        return $data->get_objects($filters, $configs);
     }
 
 }

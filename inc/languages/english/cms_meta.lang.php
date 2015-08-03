@@ -86,9 +86,11 @@ $lang['publishdate'] = 'Publish Date';
 $lang['newnotification_subject'] = 'A new  page {1} has been created as follows:';
 $lang['modifynotification_body'] = 'The page {1} has been modified as follows:</br></br>
 
-Title {2} similar: {3}</br>
-Summary {4} similar: {5}</br>
-Body {6} similar: {7} </br>';
+Title {2}% similar: {3}</br>
+Summary {4}% similar: {5}</br>
+Body {6}% similar: {7} </br>
+Click <a target="_blank" href="{8}">here to go to the OCOS CMS page</a></br></br>
+or <a target="_blank" href="{9}">here to preview the page online</a></br>';
 $lang['modifynotification_subject'] = 'Modified News: {1}';
 
 $lang['newnotification_body'] = 'The page {1} has been created  as follows:</br></br>
@@ -113,9 +115,40 @@ $lang['fromtime'] = 'From Time';
 $lang['todate'] = 'To Date';
 $lang['totime'] = 'To Time';
 $lang['sequence'] = 'Sequence';
-
 $lang['managemenus'] = 'Manage Menus';
 $lang['createevent'] = 'Create Events';
 $lang['createwebpage'] = 'Create Webpage';
 $lang['createnews'] = 'Create News';
+$lang['contentcategories'] = 'Content Categories';
+$lang['contentcategorieslist'] = 'Content Categories List';
+$lang['name'] = 'Name';
+$lang['addcontetncat'] = 'Add Content Category';
+$lang['editcontentcategory'] = 'Edit Content Category';
+$lang['update'] = 'Update';
+$lang['existingentryupdated'] = 'Existing Entry Updated';
+$lang['isenabled'] = 'Is Enabled';
+$lang['highlightslist'] = 'Highlights List';
+$lang['addhighlight'] = 'Add Highlight';
+$lang['managehighlights'] = 'Manage Highlights';
+$lang['imgpath'] = 'Image Path';
+$lang['title'] = 'Title';
+$lang['link'] = 'Link';
+$lang['html'] = 'HTML';
+$lang['highlights'] = 'Highlights';
+$lang['entryalreadyexists'] = 'Entry Already Exists';
+$lang['extractsegmentscontent'] = 'Extract Segments Content';
+$lang['extractdatatools'] = 'Extract Data Tools';
+$lang['pagetitle'] = 'Page Title';
+$lang['textcontent'] = 'Text Content';
+$lang['metadescription'] = 'Meta Descritpion';
+$lang['extractpagescontents'] = 'Extract Pages Contents';
+$lang['extractpages'] = 'Extract Pages';
+$lang['showsegmentscontent'] = 'Show Segments Contents';
+$lang['showpagescontents'] = 'Show Pages Contents';
+$lang['affdesclist'] = 'Affiliate Description List';
+$lamg['manageaffdesc'] = 'Manage Affiliate Description';
+$lang['baseversion'] = 'Base Version';
+$lang['edit'] = 'Edit';
+$lang['add'] = 'Add';
+$lang['preview'] = 'Preview';
 ?>

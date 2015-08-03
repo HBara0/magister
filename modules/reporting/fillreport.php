@@ -70,13 +70,14 @@ if(!$core->input['action']) {
 
         /* Check if audit - START */
         $core->input['auditor'] = 0;
-        if(value_exists('affiliatedemployees', 'uid', $core->user['uid'], 'canAudit=1 AND affid='.$core->input['affid']) || value_exists('suppliersaudits', 'uid', $core->user['uid'], 'eid='.$core->input['spid']) || $core->usergroup['canAdminCP'] == 1 || $core->usergroup['canViewAllEmp'] == 1) {
+        // if(value_exists('affiliatedemployees', 'uid', $core->user['uid'], 'canAudit=1 AND affid='.$core->input['affid']) || value_exists('suppliersaudits', 'uid', $core->user['uid'], 'eid='.$core->input['spid']) || $core->usergroup['canAdminCP'] == 1 || $core->usergroup['canViewAllEmp'] == 1) {
+        if($qreport->user_isaudit()) {
             $core->input['auditor'] = 1;
         }
         /* Check if audit - END */
 
         $readonly_fields = array('productname' => '', 'turnOver' => '', 'quantity' => '', 'soldQty' => '');
-        if($core->input['auditor'] != '1') {
+        if($core->input['auditor'] != 1) {
             foreach($readonly_fields as $key => $val) {
                 $readonly_fields[$key] = ' readonly';
             }
@@ -97,6 +98,7 @@ if(!$core->input['action']) {
         $query = $db->query("SELECT pa.*, p.name AS productname
 								FROM ".Tprefix."productsactivity pa LEFT JOIN ".Tprefix."products p ON (pa.pid=p.pid)
 								WHERE pa.rid='{$rid}'{$query_string}");
+
         $rowsnum = $db->num_rows($query);
         if($rowsnum > 0) {
             $i = 1;
@@ -120,7 +122,7 @@ if(!$core->input['action']) {
                 $segment = $product->get_segment();
                 $usersegments = array_keys($core->user_obj->get_segments());
                 if(is_array($usersegments)) {
-                    if(!in_array($segment['psid'], $usersegments) && $core->input['auditor'] != '1') {
+                    if(!in_array($segment['psid'], $usersegments) && $core->input['auditor'] != 1 && $core->user['uid'] != $productactivity['uid']) {
                         continue;
                     }
                 }
@@ -137,7 +139,7 @@ if(!$core->input['action']) {
                 }
 
                 /* Get preview Q data */
-                $prev_productactivity = $db->fetch_assoc($db->query("SELECT pid, (SUM(soldQty) + ".$productactivity['soldQty'].") AS soldQty, (SUM(quantity) + ".$productactivity['soldQty'].") AS quantity, (SUM(turnOver) + ".$productactivity['soldQty'].") AS turnOver
+                $prev_productactivity = $db->fetch_assoc($db->query("SELECT pid, ROUND(SUM(soldQty) + ".$productactivity['soldQty'].",2) AS soldQty, ROUND(SUM(quantity) + ".$productactivity['soldQty'].",2) AS quantity, ROUND(SUM(turnOver) + ".$productactivity['soldQty'].", 2) AS turnOver
 							FROM ".Tprefix."productsactivity pa
 							JOIN ".Tprefix."reports r ON (r.rid=pa.rid)
 							WHERE r.quarter<'".intval($qreport->quarter)."' AND r.year='".intval($qreport->year)."' AND r.affid='".intval($qreport->affid)."' AND r.spid='".intval($qreport->spid)."' AND pa.pid=".$productactivity['pid'].$query_string."
@@ -148,7 +150,8 @@ if(!$core->input['action']) {
                 eval("\$productsrows .= \"".$template->get('reporting_fillreports_productsactivity_productrow')."\";");
             }
         }
-        else {
+        unset($productactivity);
+        if(empty($productsrows)) {
             for($rowid = 1; $rowid < $productscount; $rowid++) {
                 $saletype_selectlist = parse_selectlist('productactivity['.$rowid.'][saleType]', 0, $saletypes, 'distribution', 0, null, array('disabled' => $selectlists_disabled));
                 $currencyfx_selectlist = parse_selectlist('productactivity['.$rowid.'][fxrate]', 0, $currencies, 1, '', '', array('id' => 'fxrate_'.$rowid, 'disabled' => $selectlists_disabled));
@@ -213,7 +216,7 @@ if(!$core->input['action']) {
             while($marketreports_data = $db->fetch_assoc($query)) {
                 $marketreport[$marketreports_data['psid']] = $marketreports_data;
                 $marketreportcompetetion[$marketreports_data['psid']][$marketreports_data['mrid']] = MarketReportCompetition::get_data(array('mrid' => $marketreports_data['mrid']), array('returnarray' => true));
-                $mrdevelopmentprojects[$marketreports_data['psid']][$marketreports_data['mrid']] = MarketReportDevelopmentPojects::get_data(array('mrid' => $marketreports_data['mrid']), array('returnarray' => true));
+                // $mrdevelopmentprojects[$marketreports_data['psid']][$marketreports_data['mrid']] = MarketReportDevelopmentPojects::get_data(array('mrid' => $marketreports_data['mrid']), array('returnarray' => true));
             }
         }
 
@@ -265,7 +268,7 @@ if(!$core->input['action']) {
 //$segments = get_specificdata('entitiessegments', '*', 'esid', 'psid', '', 0, "eid='{$reportmeta[spid]}'");
 //foreach($segments as $key => $val) {
 
-        if($reportmeta['auditor'] == 0) {
+        if($core->input['auditor'] == 0) {
             $filter_segments_query = " AND ps.psid IN (SELECT psid FROM ".Tprefix."employeessegments WHERE uid='{$core->user[uid]}')";
             if(!value_exists('suppliersaudits', 'uid', $core->user['uid'], 'eid='.$reportmeta['spid'])) {
 
@@ -657,7 +660,6 @@ if(!$core->input['action']) {
         eval("\$fillreportpage = \"".$template->get('reporting_fillreports_tabs')."\";");
     }
     elseif($core->input['stage'] == 'keycustomers') {
-
         if(!isset($core->input['identifier'])) {
             redirect('index.php?module=reporting/fillreport');
         }
@@ -862,6 +864,10 @@ else {
 
         /* Validate Forecasts - Start */
         $report = new ReportingQr(array('rid' => $rid));
+        if(!is_array($core->input['productactivity'])) {
+            output_xml("<status>false</status><message>{$lang->fillatleastoneproductrow}</message>");
+            exit;
+        }
         $validation = $report->validate_forecasts($core->input['productactivity'], $currencies);
 
         if($validation != true || is_array($validation)) {
@@ -876,9 +882,11 @@ else {
             output_xml('<status>false</status><message>'.$lang->wrongforecastsexist.' <![CDATA['.$corrections_output.']]></message>');
             exit;
         }
-        /* Validate Forecasts - End */
 
-        if($reportmeta['auditor'] != '1') {
+        /* Validate Forecasts - End */
+        $auditor = $report->user_isaudit();
+
+        if($auditor != true) {
             $existingentries_query_string = ' AND (uid='.$core->user['uid'].' OR uid=0)';
         }
 //$oldentries = get_specificdata('productsactivity', array('paid'), 'paid', 'paid', '', 0, "rid='{$rid}'{$oldentries_query_string}");
@@ -896,8 +904,10 @@ else {
                 $productactivity['originalCurrency'] = $currencies[$productactivity['fxrate']];
             }
 
-            if(value_exists('productsactivity', 'rid', $rid, 'pid='.intval($productactivity['pid']).$existingentries_query_string)) {
-                $productactivity['uid'] = $core->user['uid'];
+            if(isset($productactivity['paid']) && !empty($productactivity['paid']) || value_exists('productsactivity', 'rid', $rid, 'pid='.intval($productactivity['pid']).$existingentries_query_string)) {
+                if($auditor != true) {
+                    $productactivity['uid'] = $core->user['uid'];
+                }
                 if(isset($productactivity['paid']) && !empty($productactivity['paid'])) {
                     $update_query_where = 'paid='.intval($productactivity['paid']);
                 }
@@ -906,7 +916,12 @@ else {
                     $update_query_where = 'rid='.$rid.' AND pid='.intval($productactivity['pid']).$existingentries_query_string;
                 }
                 unset($productactivity['productname'], $productactivity['fxrate']);
-                $update = $db->update_query('productsactivity', $productactivity, $update_query_where);
+//                $update = $db->update_query('productsactivity', $productactivity, $update_query_where);
+                $productsact_obj = ProductsActivity::get_data($update_query_where, array('returnarray' => false));
+                if(is_object($productsact_obj)) {
+                    $productsact_obj->set($productactivity);
+                    $productsact_obj = $productsact_obj->save();
+                }
                 $processed_once = true;
                 if(isset($productactivity['paid']) && !empty($productactivity['paid'])) {
                     $cachearr['usedpaid'][] = $productactivity['paid'];
@@ -917,9 +932,14 @@ else {
                 $productactivity['rid'] = $rid;
 
                 unset($productactivity['productname'], $productactivity['fxrate'], $productactivity['paid']);
-                $insert = $db->insert_query('productsactivity', $productactivity);
-
-                $cachearr['usedpaid'][] = $db->last_id();
+//                $insert = $db->insert_query('productsactivity', $productactivity);
+                $productactivity['uid'] = $core->user['uid'];
+                $productsact_obj = new ProductsActivity();
+                $productsact_obj->set($productactivity);
+                $productsact_obj = $productsact_obj->save();
+                if(is_object($productsact_obj)) {
+                    $cachearr['usedpaid'][] = $productsact_obj->paid;
+                }
                 $processed_once = true;
             }
 
@@ -1143,6 +1163,10 @@ else {
                                 if(!empty($error_output)) {
                                     $output_message = $error_output.'</br>';
                                     $process_success = 'false';
+                                    $mkrcompetitionproducts = MarketReportCompetitionProducts::get_data(array('mrcid' => $mrcomp_supplier_obj->mrcid), array('returnarray' => true));
+                                    if(!is_array($mkrcompetitionproducts)) {
+                                        $mrcomp_supplier_obj->delete();
+                                    }
                                     output_xml('<status>'.$process_success."</status><message><![CDATA[{$output_message}]]></message>");
                                     exit;
                                 }
@@ -1286,7 +1310,7 @@ else {
     }
     elseif($core->input['action'] == 'save_report') {
         $identifier = $db->escape_string($core->input['identifier']);
-        $rawdata = unserialize($session->get_phpsession('reportrawdata_'.$identifier));
+        // $rawdata = unserialize($session->get_phpsession('reportrawdata_'.$identifier));
 //
 //        $report_meta = unserialize($session->get_phpsession('reportmeta_'.$identifier));
 //$report_meta['rid'] = intval($report_meta['rid']);
@@ -1318,34 +1342,15 @@ else {
 //                exit;
 //            }
 //        }
-        $report_obj = new Reporting($report_meta);
-        $audits = $report->get_report_supplier_audits();
-        $auditor = 0;
-        if(is_array($audits)) {
-            foreach($audits as $audit) {
-                if(is_array($audit)) {
-                    foreach($audit as $user) {
-                        if($user['uid'] == $core->user['uid']) {
-                            $auditor = 1;
-                        }
-                    }
-                }
-                else {
-                    if($audits['uid'] == $core->user['uid']) {
-                        $auditor = 1;
-                        break;
-                    }
-                }
-            }
-        }
-
-        if($auditor != '1') {
+        $auditor = $report->user_isaudit();
+        if($auditor != true) {
             $products_deletequery_string = ' AND (uid='.$core->user['uid'].' OR uid=0)';
         }
 
 //$db->query("DELETE FROM ".Tprefix."productsactivity WHERE rid='{$rawdata[rid]}'{$products_deletequery_string}");
 ////if(empty($report_meta['excludeProductsActivity'])) {
-        $productactitity_objs = ProductsActivity::get_data(array('rid' => $report_meta['rid']), array('returnarray' => true));
+
+        $productactitity_objs = ProductsActivity::get_data(array('rid' => $report_meta['rid']), array('simple' => false, 'returnarray' => true));
         if(is_array($productactitity_objs)) {
             foreach($productactitity_objs as $productactitity_obj) {
                 $rawdata['productactivitydata'][] = $productactitity_obj->get();
@@ -1355,49 +1360,60 @@ else {
 //            output_xml("<status>false</status><message>{$lang->noproductsactivity}</message>");
 //            exit;
 //        }
-        $productsactivity_validation = $report->validate_forecasts($rawdata['productactivitydata'], $currencies);
-        if($productsactivity_validation !== true) {
-            output_xml("<status>false</status><message>{$lang->wrongforecastgoback}</message>");
-            exit;
-        }
-        foreach($rawdata['productactivitydata'] as $i => $newdata) {
-            if(empty($newdata['pid'])) {
-                if(!empty($newdata['paid'])) {
-                    $db->query("DELETE FROM ".Tprefix."productsactivity WHERE paid=".intval($newdata['paid']));
-                }
-                continue;
-            }
-            if(isset($newdata['fxrate']) && $newdata['fxrate'] != 1) {
-                $newdata['turnOverOc'] = $newdata['turnOver'];
-                $newdata['turnOver'] = round($newdata['turnOver'] / $newdata['fxrate'], 4);
-                $newdata['originalCurrency'] = $currencies[$newdata['fxrate']];
+        if(is_array($rawdata['productactivitydata'])) {
+            $productsactivity_validation = $report->validate_forecasts($rawdata['productactivitydata'], $currencies);
+            if($productsactivity_validation !== true) {
+                output_xml("<status>false</status><message>{$lang->wrongforecastgoback}</message>");
+                exit;
             }
 
-            unset($newdata['productname'], $newdata['fxrate']);
-            if(value_exists('productsactivity', 'rid', $report_meta['rid'], 'pid='.$newdata['pid'].$products_deletequery_string)) {
-                if(isset($newdata['paid']) && !empty($newdata['paid'])) {
-                    $update_query_where = 'paid='.$db->escape_string($newdata['paid']);
+            foreach($rawdata['productactivitydata'] as $i => $newdata) {
+                if(empty($newdata['pid'])) {
+                    if(!empty($newdata['paid'])) {
+                        $db->query("DELETE FROM ".Tprefix."productsactivity WHERE paid=".intval($newdata['paid']));
+                    }
+                    continue;
+                }
+                if(isset($newdata['fxrate']) && $newdata['fxrate'] != 1) {
+                    $newdata['turnOverOc'] = $newdata['turnOver'];
+                    $newdata['turnOver'] = round($newdata['turnOver'] / $newdata['fxrate'], 4);
+                    $newdata['originalCurrency'] = $currencies[$newdata['fxrate']];
+                }
+
+                unset($newdata['productname'], $newdata['fxrate']);
+                if(value_exists('productsactivity', 'paid', $db->escape_string($newdata['paid'])) || value_exists('productsactivity', 'rid', $report_meta['rid'], 'pid='.$newdata['pid'].$products_deletequery_string)) {
+                    if(isset($newdata['paid']) && !empty($newdata['paid'])) {
+                        $update_query_where = 'paid='.$db->escape_string($newdata['paid']);
+                        $productsact_obj = new ProductsActivity($db->escape_string($newdata['paid']));
+                    }
+                    else {
+                        unset($newdata['paid']);
+                        $update_query_where = 'rid='.$report_meta['rid'].' AND pid='.$newdata['pid'].$products_deletequery_string;
+                        $productsact_obj = ProductsActivity::get_data($update_query_where, array('returnarray' => false));
+                    }
+                    if(is_object($productsact_obj)) {
+                        $productsact_obj->set($newdata);
+                        $productsact_obj = $productsact_obj->save();
+                    }
+//                    $update = $db->update_query('productsactivity', $newdata, $update_query_where);
                 }
                 else {
-                    unset($newdata['paid']);
-                    $update_query_where = 'rid='.$report_meta['rid'].' AND pid='.$newdata['pid'].$products_deletequery_string;
+                    $newdata['uid'] = $core->user['uid'];
+                    $productsact_obj = new ProductsActivity();
+                    $productsact_obj->set($newdata);
+                    $productsact_obj = $productsact_obj->save();
+                    if(is_object($productsact_obj)) {
+                        $cachearr['usedpaid'][] = $productsact_obj->paid;
+                    }
+//                    $db->insert_query( 'productsactivity', $newdata);
                 }
 
-                $update = $db->update_query('productsactivity', $newdata, $update_query_where);
-            }
-            else {
-                $newdata['uid'] = $core->user['uid'];
-
-                $db->insert_query('productsactivity', $newdata);
-                $cachearr['usedpaid'][] = $db->last_id();
-            }
-
-            $cachearr['usedpids'][] = $newdata['pid'];
-            if(isset($newdata['paid']) && !empty($newdata['paid'])) {
-                $cachearr['usedpaid'][] = $newdata['paid'];
+                $cachearr['usedpids'][] = $newdata['pid'];
+                if(isset($newdata['paid']) && !empty($newdata['paid'])) {
+                    $cachearr['usedpaid'][] = $newdata['paid'];
+                }
             }
         }
-
 //            if(is_array($cachearr['usedpaid'])) {
 //                $delete_query_where = ' OR paid NOT IN ('.implode(', ', $cachearr['usedpaid']).')';
 //                $db->query("DELETE FROM ".Tprefix."productsactivity WHERE rid='{$report_meta[rid]}' AND (pid NOT IN (".implode(', ', $cachearr['usedpids'])."){$delete_query_where}){$products_deletequery_string}");
@@ -1426,26 +1442,26 @@ else {
         $emtpy_terms = array('na', 'n/a', 'none', 'nothing', 'nothing to mention');
         $marketreport_found_one = false;
         $rawdata['marketreportdata'] = '';
-        if($auditor != 1) {
+        if($auditor != true) {
             $marketreportauthors = MarketReportAuthors::get_data(array('mrid' => 'mrid IN (SELECT mrid FROM '.MarketReport::TABLE_NAME.' WHERE rid='.intval($report_meta['rid']).')', 'uid' => $core->user['uid']), array('returnarray' => true, 'operators' => array('mrid' => CUSTOMSQLSECURE)));
             if(is_array($marketreportauthors)) {
                 foreach($marketreportauthors as $marketreportauthor) {
                     $marketrepids[] = $marketreportauthor->mrid;
                 }
 
-                $marketreport_objs = MarketReport::get_data(array('mrid' => $marketrepids), array('returnarray' => true));
+                $marketreport_objs = MarketReport::get_data(array('mrid' => $marketrepids), array('simple' => false, 'returnarray' => true));
             }
         }
         else {
-            $marketreport_objs = MarketReport::get_data('rid='.$report_meta['rid'], array('returnarray' => true));
+            $marketreport_objs = MarketReport::get_data('rid='.$report_meta['rid'], array('simple' => false, 'returnarray' => true));
         }
+        //$rawdata['marketreportdata']['rid'] = $rawdata['rid'];
         if(is_array($marketreport_objs)) {
             foreach($marketreport_objs as $marketreport_obj) {
                 $rawdata['marketreportdata'][$marketreport_obj->psid] = $marketreport_obj->get();
             }
         }
 
-//$rawdata['marketreportdata']['rid'] = $rawdata['rid'];
         if(is_array($rawdata['marketreportdata']) && !empty($rawdata['marketreportdata'])) {
             foreach($rawdata['marketreportdata'] as $key => $val) {
                 if($val['exclude']) {
@@ -1483,8 +1499,8 @@ else {
                 }
 
                 if($marketreport_found_one == true) {
-                    //     output_xml("<status>false</status><message>{$lang->incompletemarketreport}</message>");
-                    //      exit;
+//     output_xml("<status>false</status><message>{$lang->incompletemarketreport}</message>");
+//      exit;
                 }
             }
             foreach($rawdata['marketreportdata'] as $psid => $val) {
@@ -1511,7 +1527,7 @@ else {
                 }
                 $transfill = $core->input['transfill'];
                 if($transfill != '1') {
-                    //  if($report_meta['transFill'] != '1') {
+//  if($report_meta['transFill'] != '1') {
                     if($db->fetch_field($db->query("SELECT COUNT(*) AS contributed FROM ".Tprefix."marketreport_authors WHERE mrid='{$mrid}' AND uid='{$core->user['uid']} '"), 'contributed') == 0) {
                         $db->insert_query('marketreport_authors ', array('mrid' => $mrid, 'uid' => $core->user['uid']));
                     }
@@ -1538,9 +1554,9 @@ else {
             $new_status = array('mktReportAvailable' => 1);
         }
 
-        if(!empty($report_meta['excludeProductsActivity'])) {
-            $new_status['prActivityAvailable'] = 0;
-        }
+//        if(!empty($report_meta['excludeProductsActivity'])) {
+//            $new_status['prActivityAvailable'] = 0;
+//        }
 //        if(!empty($report_meta['excludeKeyCustomers'])) {
 //            $new_status['keyCustAvailable'] = 0;
 //        }
@@ -1548,7 +1564,6 @@ else {
         $update_status = $db->update_query('reports', $new_status, "rid='{$report_meta[rid]}'");
         if($update_status) {
             if($transfill != '1') {
-                //  if($report_meta['transFill'] != '1') {
                 record_contribution($report_meta['rid'], 1);
             }
             if($core->input['savetype'] == 'finalize') {
@@ -1640,6 +1655,7 @@ else {
         $srowid = intval($core->input ['ajaxaddmoredata']['srowid']);
         $display['product'] = 'style="display:none"';
         $inputchecksum['product'] = generate_checksum('mpl');
+//  $deleterow_icon = ' <img src="./images/invalid.gif"  style="cursor:pointer;vertical-align:bottom;" id="removerow"> Remove Row';
         eval("\$markerreport_segment_suppliers_row = \"".$template->get('reporting_fillreport_marketreport_suppproducts')."\";");
         output($markerreport_segment_suppliers_row);
     }
@@ -1696,7 +1712,7 @@ else {
         eval("\$report_inc = \"".$template->get('popup_fillreport_reportinconsistency')."\";");
         output($report_inc);
     }
-    elseif($core->input ['action'] == 'do_reportinconsistency') {
+    elseif($core->input ['action'] == 'do_reportvalidateency') {
         if(is_array($core->input['productsactivity'])) {
             $productactivity_obj = new ProductsActivity(intval($core->input['productsactivity']['paid']), false);
             if(is_object($productactivity_obj)) {
@@ -1704,16 +1720,13 @@ else {
                 $affiliate = new Affiliates($reportobj->affid);
                 $year = $reportobj->year;
                 $quarter = $reportobj->quarter;
+                $supplier = new Entities($reportobj->spid);
                 $currency = $productactivity_obj->originalCurrency;
                 $auditors = $reportobj->get_report_supplier_audits();
                 if(is_array($auditors)) {
-                    foreach($auditors as $key => $val) {
-                        if(is_array($val)) {
-                            $ccs[] = $val['email'];
-                        }
-                        else {
-                            $ccs[] = $auditors['email'];
-                            break;
+                    foreach($auditors as $auditor) {
+                        if($auditor->uid == $core->user['uid']) {
+                            $ccs[] = $auditor->email;
                         }
                     }
                 }
@@ -1730,14 +1743,15 @@ else {
                 else {
                     $comment = 'NA';
                 }
+                $subject = 'QR Product Activity Inconsistency Reported: '.$affiliate->get_displayname().'/Q'.$quarter.$year;
                 $user = new Users($core->user['uid']);
                 eval("\$email_message .= \"".$template->get('reporting_reportinginconsistency')."\";");
                 $mailer = new Mailer();
                 $mailer = $mailer->get_mailerobj();
-                $mailer->set_to('ocos.support@orkila.com');
+                $mailer->set_to('support@ocos.orkila.com');
                 $mailer->set_cc($ccs);
                 $mailer->set_from(array('name' => $user->get_displayname(), 'email' => $user->email));
-                $mailer->set_subject('QR Product Activity Inconsistency Reported');
+                $mailer->set_subject($subject);
                 $mailer->set_message($email_message);
                 $mailer->send();
                 if($mailer->get_status() === true) {

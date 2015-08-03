@@ -6,7 +6,7 @@
             $(function() {
                 $("input[name^='isExternal']").live('change', function() {
                     $("#internalinvitations_row, #externalinvitations_row").toggle();
-                    if ($(this).val() == 0) {
+                    if($(this).val() == 0) {
                         $("input[id^='anonymousFilling'], input[id^='isPublicResults'], input[id^='isPublicFill']").attr("disabled", false);
                     }
                     else
@@ -14,7 +14,9 @@
                         $("input[id^='anonymousFilling'], input[id^='isPublicResults'], input[id^='isPublicFill']").attr("disabled", true);
                     }
                 });
+                $("select[id='stid']").trigger("change");
             });
+
         </script>
     </head>
     <body>
@@ -43,7 +45,9 @@
                     </tr>
                     <tr>
                         <td style="font-weight:bold;">{$lang->template}</td>
-                        <td>{$surveytemplates_list} <a href="index.php?module=surveys/createsurveytemplate" target="_blank"><img src="./images/addnew.png" alt="{$lang->add}"></a></td>
+                        <td>{$surveytemplates_list} <a href="index.php?module=surveys/createsurveytemplate" target="_blank"><img src="./images/addnew.png" alt="{$lang->add}"></a>
+                            <a id="previewtemplate_link" href="" target="_blank"><img src="./images/icons/report.gif" border="0" title="{$lang->preview}" alt="{$lang->preview}"/></a>
+                        </td>
                     </tr>
                     <tr>
                         <td style="font-weight:bold;">{$lang->publicfill}</td>
@@ -77,12 +81,12 @@
                                     <td>{$lang->supplier}</td>
                                     <td>
                                         <input type='text'    id='supplier_1_autocomplete'  value="{$survey[associations][suppliername]}" autocomplete='off' size='40px'/>
-                                        <input type='hidden' id='supplier_1_id' name='associations[spid]' value="{$survey[associations][spid]}" /> 
+                                        <input type='hidden' id='supplier_1_id' name='associations[spid]' value="{$survey[associations][spid]}" />
                                         <div id='searchQuickResults_supplier_1' class='searchQuickResults' style='display:none;'></div>
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td>{$lang->affiliate}</td> 
+                                    <td>{$lang->affiliate}</td>
                                     <td>{$affiliates_list}</td>
                                     <td >{$lang->product}</td>
                                     <td>
@@ -102,7 +106,7 @@
                                     <td>{$countries_list}</td>
                                     <td>&nbsp;</td>
                                 </tr>
-                            </table>          
+                            </table>
                         </td>
                     </tr>
                     <tr>
@@ -116,7 +120,7 @@
                             <table width="100%" cellpadding="0" cellspacing="0">
                                 <tbody id="invitationsgroup_tbody">
                                     <tr id="1">
-                                        <td colspan="2">  
+                                        <td colspan="2">
                                             <div style="width:100% ;height: 500px; overflow:auto; display:inline-block; vertical-align:top;">
                                                 <table class="datatable" width="100%">
                                                     <tr class="altrow2">
@@ -134,9 +138,9 @@
                                                         <th>{$lang->position}</th>
                                                         <th>{$lang->segment}</th>
                                                     </tr>
-                                                    {$invitations_rows} 
+                                                    {$invitations_rows}
                                                 </table>
-                                            </div> 
+                                            </div>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -158,7 +162,7 @@
                             <div style="width:20%; display:inline-block; vertical-align:top;">{$lang->invitationsubject}</div><div style="width:65%; display:inline-block; padding-bottom:5px; vertical-align:top;"><input type="text" name="customInvitationSubject" id="customInvitationSubject" size="60"></div>
                             <div style="width:20%; display:inline-block; vertical-align:top;">{$lang->invitationbody}</div>
                             <div style="width:65%; display:inline-block; vertical-align:top;">
-                                <textarea name="customInvitationBody" id="customInvitationBody" cols="45" rows="10"></textarea> 
+                                <textarea name="customInvitationBody" id="customInvitationBody" cols="45" rows="10"></textarea>
                                 <div style="font-style:italic;">{$lang->custominvitationbody_note}</div>
                             </div>
                         </td>
@@ -167,7 +171,7 @@
                         <td colspan="2">
                             <hr />
                             <input type="button" value="{$lang->$action}" id="perform_surveys/{$action}_Button" tabindex="26" class="button"/> <input type="reset" value="{$lang->reset}" class="button" />
-                            <div id="perform_surveys/{$action}_Results"></div>            
+                            <div id="perform_surveys/{$action}_Results"></div>
                         </td>
                     </tr>
                 </table>

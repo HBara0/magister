@@ -8,11 +8,12 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h1>{$lang->managenews}</h1>
+            <h1>{$lang->managenews}<br/>  <h4>{$news[version_output]}</h4></h1>
             <iframe id='uploadFrame' name='uploadFrame' src='#' style="display:none;"></iframe>
             <div>
                 <form action="index.php?module=cms/managenews" method="post" enctype="multipart/form-data" name="cms_addnews_Form" id="cms_addnews_Form" target="uploadFrame">
                     <input type="hidden" value="do_{$actiontype}news" name="action" id="action" />
+                    <input type="hidden" value="{$news[cmsnid]}" name="news[baseVersionId]"/>
                     <div style="display:block;">
                         <div style="display: inline-block;width:10%">{$lang->newstitle}</div>
                         <div style="display: inline-block; padding:10px;"><input name="news[title]" type="text" value="{$news[title]}" required="required" size="100"><input name="news[alias]" type="hidden" value="{$news[alias]}" size="30"></div>
@@ -40,6 +41,10 @@
                     <div style="display:block;">
                         <div style="display:inline-block;width:10%">{$lang->categories}</div>
                         <div style="display: inline-block; padding:10px;">{$newscategories_list}</div>
+                    </div>
+                    <div style="{$baseversion[display]}">
+                        <div style="display:inline-block; padding:11px;">{$lang->baseversion}</div>
+                        <div style="display:inline-block; padding:11px;">{$news[baseVersion_outpt]}</div>
                     </div>
                     <div style="display:block;">
                         <div style="display:block;" class="thead">{$lang->summary}</div>
@@ -74,6 +79,10 @@
                         <div style="display:inline-block; padding:11px;">{$robots_list}</div>
                     </div>
                     <div style="display:block;">
+                        <div class="thead" style="margin-top:8px;">{$lang->highlights}</div>
+                        {$higlightsbox}
+                    </div>
+                    <div style="display:block;">
                         <div style="display:block;" class="thead">{$lang->attachfiles}</div>
                         <div style="display:block;">
                             <fieldset  title="{$lang->attachments}"class="altrow2" style="border:1px solid #DDDDDD"><legend class="subtitle">{$lang->attachments}</legend><input type="file" id="attachments" name="attachments[]" multiple="true"></fieldset>
@@ -81,11 +90,14 @@
                     </div>
                     <div style="display:block;">
                         <div style="display:inline-block;">&nbsp;</div>
-                        <div style="display:inline-block;"><input type="submit" onclick="$('#upload_Result').show()" class="button" id="cms_addnews_Form" value="{$actiontype}"  /> <input type="reset" class="button" value="{$lang->reset}"/></div>
+                        <div style="display:inline-block;">
+                            <input type="submit" class="button" id="cms_addnews_Form" value="{$actiontype}"  />
+                            <input type="reset" class="button" value="{$lang->reset}"/>
+                            <div style="{$preview_display};" id="preview"><a id="preview_link" target="_blank" href="{$url}"><button type="button" class="button">{$lang->preview}</button></a></div>
+                        </div>
                     </div>
                 </form>
                 <hr />
-                <div id="upload_Result" style="display:none;"><img src="{$core->settings[rootdir]}/images/loading.gif" /> {$lang->uploadinprogress}</div>
 
             </div>
         </td>

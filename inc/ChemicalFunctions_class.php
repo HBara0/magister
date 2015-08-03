@@ -46,26 +46,25 @@ class ChemicalFunctions extends AbstractClass {
                 $data['name'] = strtolower($data['title']);
                 $data['name'] = preg_replace('/\s+/', '', $data['name']);
             }
-            $website = "0";
-            if(isset($data['publishOnWebsite']) && !empty($data['publishOnWebsite'])) {
-                if($data['publishOnWebsite'] == 1) {
-                    $website = "1";
-                }
-            }
             $chemicalfunctions_data = array(
                     'name' => $data['name'],
-                    'publishOnWebsite' => $website,
+                    'publishOnWebsite' => 0,
                     'title' => $data['title'],
                     'description' => $data['description'],
                     'createdBy' => $core->user['uid'],
                     'createdOn' => TIME_NOW
             );
+            if(isset($data['publishOnWebsite']) && !empty($data['publishOnWebsite'])) {
+                if($data['publishOnWebsite'] == 1) {
+                    $chemicalfunctions_data['publishOnWebsite'] = 1;
+                }
+            }
             $query = $db->insert_query('chemicalfunctions', $chemicalfunctions_data);
             if($query) {
-                $this->data[self::PRIMARY_KEY] = $data['cfid'] = $db->last_id();
-                if(!empty($data['segapplications']) && isset($data['segapplications'])) {
+                $this->data[self::PRIMARY_KEY] = $db->last_id();
+                if(!empty($data['segapplications']) && isset($data['segapplications']) && !empty($this->data[self::PRIMARY_KEY])) {
                     foreach($data['segapplications'] as $psaid) {
-                        $segappfuncquery = $db->insert_query('segapplicationfunctions', array('cfid' => $data['cfid'], 'publishOnWebsite' => $website, 'psaid' => $psaid, 'description' => $data['description'], 'createdBy' => $core->user['uid'], 'createdOn' => TIME_NOW));
+                        $segappfuncquery = $db->insert_query('segapplicationfunctions', array('cfid' => $this->data['cfid'], 'publishOnWebsite' => $chemicalfunctions_data['publishOnWebsite'], 'psaid' => $psaid, 'description' => $data['description'], 'createdBy' => $core->user['uid'], 'createdOn' => TIME_NOW));
                         if($segappfuncquery) {
                             $data['safid'] = $db->last_id();
                         }
@@ -80,18 +79,16 @@ class ChemicalFunctions extends AbstractClass {
 
     protected function update(array $data = array()) {
         global $db, $core;
-
-        $segapplications = $data['segapplications'];
-        $publishonweb = $data['publishOnWebsite'];
-        unset($data['segapplications'], $data['publishOnWebsite']);
-        $website = "0";
-        if(isset($publishonweb) && !empty($publishonweb)) {
-            if($publishonweb == 1) {
-                $website = "1";
-            }
+        if(!isset($data['cfid']) && empty($data['cfid'])) {
+            $this->errorcode = 2;
+            return $this;
         }
+        $segapplications = $data['segapplications'];
+        if($data['publishOnWebsite'] != 1) {
+            $data['publishOnWebsite'] = 0;
+        }
+        unset($data['segapplications']);
         $newalias = generate_alias($data['title']);
-        $data['publishOnWebsite'] = $website;
         if(!is_object(ChemicalFunctions::get_data(array('name' => $newalias, self::PRIMARY_KEY => $this->data[self::PRIMARY_KEY]), array('operators' => array(self::PRIMARY_KEY => 'NOT IN'))))) {
             $data['name'] = $newalias;
         }
@@ -99,7 +96,7 @@ class ChemicalFunctions extends AbstractClass {
         $segapfunctions_existingobjs = SegApplicationFunctions::get_data(array(self::PRIMARY_KEY => $this->data[self::PRIMARY_KEY]), array('returnarray' => true));
         if(is_array($segapfunctions_existingobjs)) {
             foreach($segapfunctions_existingobjs as $segapfunction_obj) {
-                if($segapfunction_obj->publishOnWebsite == 0) {
+                if($data['publishOnWebsite'] == 0) {
                     $db->update_query(segapplicationfunctions, array('publishOnWebsite' => "0"), 'safid ='.$segapfunction_obj->safid);
                 }
             }
@@ -107,7 +104,7 @@ class ChemicalFunctions extends AbstractClass {
         if(!empty($segapplications) && isset($segapplications)) {
             foreach($segapplications as $psaid) {
                 if(!SegApplicationFunctions::get_data(array(self::PRIMARY_KEY => $this->data[self::PRIMARY_KEY], 'psaid' => $psaid))) {
-                    $db->insert_query('segapplicationfunctions', array(self::PRIMARY_KEY => $this->data[self::PRIMARY_KEY], 'publishOnWebsite' => $website, 'psaid' => $psaid, 'description' => $data['description'], 'createdBy' => $core->user['uid'], 'createdOn' => TIME_NOW));
+                    $db->insert_query('segapplicationfunctions', array(self::PRIMARY_KEY => $data['cfid'], 'publishOnWebsite' => $data['publishOnWebsite'], 'psaid' => $psaid, 'description' => $data['description'], 'createdBy' => $core->user['uid'], 'createdOn' => TIME_NOW));
                 }
             }
         }

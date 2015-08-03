@@ -21,6 +21,21 @@ if(!$core->input['action']) {
     $filter_where = 'eptid IN ('.$eptid.')';
     $endprodtype_obj = new EndProducTypes($eptid, false);
     $profile = $endprodtype_obj->get();
+    $first_parent = $endprodtype_obj->get_parent();
+    if(is_object($first_parent)) {
+        $details = $first_parent->get_displayname();
+        $secondpar_obj = $first_parent->get_parent();
+        if(is_object($secondpar_obj)) {
+            $details.='-->'.$secondpar_obj->get_displayname();
+            $third_par = $secondpar_obj->get_parent();
+            if(is_object($third_par)) {
+                $originalpar_obj = $third_par->get_mother();
+                if(is_object($originalpar_obj)) {
+                    $details.='->.....->'.$originalpar_obj->get_displayname();
+                }
+            }
+        }
+    }
     $application_obj = $endprodtype_obj->get_application();
     $application = $application_obj->parse_link();
     $segment_obj = $application_obj->get_segment();

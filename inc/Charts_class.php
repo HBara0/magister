@@ -140,8 +140,10 @@ class Charts {
         $this->chart->setGraphArea(50, 30, 680, 200);
 
         /* Draw the scale */
-
-        $scaleSettings = array('GridR' => 150, 'GridG' => 150, 'GridB' => 150, 'DrawSubTicks' => TRUE, 'CycleBackground' => TRUE, 'Mode' => SCALE_MODE_FLOATING);
+        if(isset($this->options['labelrotationangle'])) {
+            $scaleSettings['LabelRotation'] = $this->options['labelrotationangle'];
+        }
+        $scaleSettings = array('GridR' => 150, 'GridG' => 150, 'GridB' => 150, 'DrawSubTicks' => TRUE, 'CycleBackground' => TRUE, 'Mode' => SCALE_MODE_FLOATING, 'LabelRotation' => $scaleSettings['LabelRotation']);
 
         if(isset($this->options['scale']) && !empty($this->options['scale'])) {
             switch($this->options['scale']) {
@@ -154,6 +156,9 @@ class Charts {
                 default: break;
             }
             $scaleSettings['Mode'] = $this->options['scale'];
+        }
+        if(isset($this->options['scalepos'])) {
+            $scaleSettings['Pos'] = SCALE_POS_TOPBOTTOM;
         }
         $this->chart->drawScale($scaleSettings);
 
@@ -169,6 +174,7 @@ class Charts {
         /* Draw the chart */
         //$this->chart->setShadow(TRUE,array("X"=>1,"Y"=>1,"R"=>0,"G"=>0,"B"=>0,"Alpha"=>10));
         //$settings = array("Gradient"=>TRUE,"GradientMode"=>GRADIENT_EFFECT_CAN,"DisplayPos"=>LABEL_POS_INSIDE,"DisplayValues"=>TRUE,"DisplayR"=>255,"DisplayG"=>255,"DisplayB"=>255,"DisplayShadow"=>TRUE,"Surrounding"=>10);
+
         $this->chart->drawBarChart();
 
         $this->imagename = $this->path.'chart_'.uniqid(rand(0, time())).'.png';

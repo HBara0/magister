@@ -27,10 +27,49 @@ class Reporting {
 
     public function get_report_supplier_audits() {
         global $db;
-        return $db->fetch_assoc($db->query("SELECT u.uid,displayName AS employeeName, u.email
-			FROM ".Tprefix."users u
-			JOIN ".Tprefix."suppliersaudits sa ON (sa.uid=u.uid)
-			WHERE sa.eid=".$this->report['spid'].""));
+        $suppaudits = SupplierAudits::get_data(array('eid' => $this->report['spid']), array('returnarray' => true));
+        if(is_array($suppaudits)) {
+            foreach($suppaudits as $suppaudit) {
+                $audits[] = new Users($suppaudit->uid);
+            }
+        }
+        return $audits;
+//        return $db->fetch_assoc($db->query("SELECT u.uid,displayName AS employeeName, u.email
+//			FROM ".Tprefix."users u
+//			JOIN ".Tprefix."suppliersaudits sa ON (sa.uid=u.uid)
+//			WHERE sa.eid=".$this->report['spid'].""));
+    }
+
+    /**
+     *
+     * @global type $core
+     * @param type $strict  Whether the user is strictly the report auditor or has other permissions
+     * @return boolean
+     */
+    public function user_isaudit($strict = false) {
+        global $core;
+        if($strict == false) {
+            if($core->usergroup['canAdminCP'] == 1) {
+                return true;
+            }
+
+            if(!empty($this->affid)) {
+                if(value_exists('affiliatedemployees', 'uid', $core->user['uid'], 'canAudit=1 AND affid='.$this->affid)) {
+                    return true;
+                }
+            }
+        }
+
+        $audits = $this->get_report_supplier_audits();
+        if(is_array($audits)) {
+            foreach($audits as $audit) {
+                if($audit->uid == $core->user['uid']) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     protected function get_report_byinfo($reportdata = array()) {
@@ -67,6 +106,10 @@ class Reporting {
             return $this->report[$name];
         }
         return false;
+    }
+
+    public function __isset($name) {
+        return isset($this->report[$name]);
     }
 
     public function get_budget() {

@@ -165,7 +165,7 @@ class CmsMenu extends Cms {
             $query_select = 'cmsmiid, parent,sequence';
         }
 
-        $query = $db->query("SELECT {$query_select} FROM ".Tprefix."cms_menuitems WHERE parent=".$db->escape_string($id).' ORDER BY title ASC');
+        $query = $db->query("SELECT {$query_select} FROM ".Tprefix."cms_menuitems WHERE parent=".$db->escape_string($id).' ORDER BY sequence ASC,title ASC');
         if($db->num_rows($query) > 0) {
             while($menu = $db->fetch_assoc($query)) {
                 $menus[$menu['cmsmiid']] = $menu;
@@ -233,7 +233,10 @@ class CmsMenu extends Cms {
                 $editlink .='<a href="index.php?module=cms/managemenu&type=addmenuitem&id='.$values['cmsmid'].'&parent='.$values['cmsmiid'].'" target="_blank"  title="'.$lang->addmenuitem.'"><img src="'.$core->settings['rootdir'].'/images/add.gif" border="0"/></a>';
                 $editlink .='<a href="#'.$values['cmsmiid'].'" id="deletemenuitem_'.$values['cmsmiid'].'_cms/listmenu_loadpopupbyid" title="'.$lang->deletemenuitem.'"><img src="'.$core->settings['rootdir'].'/images/invalid.gif" border="0"/></a>';
                 $menus_list .= '<li>';
-                $menus_list .= '<div style = "width: 75%; display:inline-block;">'.$values['title'];
+                if($values['sequence'] != '0' || !empty($values['sequence'])) {
+                    $sequence = $values['sequence'].'- ';
+                }
+                $menus_list .= '<div style = "width: 75%; display:inline-block;">'.$sequence.$values['title'];
                 if(is_array($values['children']) && !empty($values['children'])) {
                     $menus_list .= ' <a href = "#menu_'.$values['cmsmiid'].'" id = "showmore_menuchildren_'.$values['cmsmiid'].'">&raquo;
                 </a>';

@@ -2,6 +2,7 @@
     <form id="perform_regions/affiliates_Form" name="perform_regions/affiliates_Form" action="#" method="post">
         <input type="hidden" name="action" value="perform_editaffiliate" />
         <input type="hidden" name="id" value="{$id}" />
+        <h1>{$affiliate->name}</h1>
         <h2>{$lang->chartspec}</h2>
         <table>
             <tr>
@@ -12,6 +13,9 @@
             </tr>
             <tr>
                 <td>{$lang->cssclassname}</td> <td><input type="text" name="spec[class]" value="{$chartspec['class']}"></td>
+            </tr>
+            <tr>
+                <td>{$lang->colorhex}</td> <td><input type="text" maxlength="6" name="brandingColor" value="{$affiliate->brandingColor}"></td>
             </tr>
         </table>
         <div align="center"><input type='button' id='perform_regions/affiliates_Button' value='{$lang->save}' class='button'/></div>

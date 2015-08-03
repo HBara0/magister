@@ -73,5 +73,25 @@ class IntegrationMediationProducts extends IntegrationMediation {
         return $this->data;
     }
 
+    public function get_localsupplier() {
+        if(empty($this->data['localId']) && !isset($this->data['localId'])) {
+            return null;
+        }
+        $localproduct = new Products($this->data['localId']);
+        if(!is_object($localproduct) || empty($localproduct->pid)) {
+            return null;
+        }
+        return $localproduct->get_supplier();
+    }
+
+    public function get_productsegment() {
+        if(!empty($this->data['localId'])) {
+            $localproduct = $this->get_localproduct();
+            if(is_object($localproduct) && !empty($localproduct->pid)) {
+                return ProductsSegments::get_data(array('psid' => $localproduct->get_segment()['psid']), array('simple' => false));
+            }
+        }
+    }
+
 }
 ?>

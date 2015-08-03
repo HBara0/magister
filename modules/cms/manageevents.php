@@ -19,6 +19,7 @@ if(!$core->input['action']) {
             if($event['isFeatured'] == 1) {
                 $checkedbox['isFeatured'] = "checked='checked'";
             }
+            $url = 'http://'.$core->settings['websitedir'].'/events/'.$event_obj->alias.'/'.base64_encode($event_obj->ceid).'/'.$event_obj->identifier.'/preview';
             $event['fromDate_output'] = date($core->settings['dateformat'], $event['fromDate']);
             $event['toDate_output'] = date($core->settings['dateformat'], $event['toDate']);
             $event['toTime_output'] = gmdate("H:i:s", strtotime(date($core->settings['timeformat'], $event['toDate'])));
@@ -124,7 +125,7 @@ else {
             $cms_event->set(array('logo' => $upload_obj->get_filename(), 'refreshLogoOnWebsite' => 1));
             $cms_event->save();
             if($upload_obj->get_status() != 4) {
-                echo $upload_obj->parse_status($upload_obj->get_status());
+                echo $upload_obj->parse_status($upload_obj->get_status(), $cms_event);
                 exit;
             }
         }
@@ -235,12 +236,11 @@ else {
         switch($cms_event->get_errorcode()) {
             case 0:
                 echo $lang->successfullysaved;
-                break;
+                exit;
             case 1:
                 echo $lang->fillrequiredfields;
-                break;
+                exit;
         }
-        exit;
         /* Parse Event Logo - END */
     }
     elseif($core->input['action'] == 'togglepublish') {

@@ -118,6 +118,7 @@
                             <p style="text-align: justify;">
                             <div class="subtitle">Abidjan (Ivory Coast) 3-12 April 2015. SARA Feed/Agrochemicals exhibition</div>
                             For the first time this year Orkila, in conjunction with Olmix, participated in SARA - Agriculture and Animal Resources Fair in Abidjan. With over 160,000 visitors and more than 600 exhibitors, SARA promoted Ivorian products under the theme "promoting sustainable agricultural investment".<br />The economy of the Ivory Coast is primarily agrarian, and its importance was clear by the level of interest and investment in the show. <hr />
+                            </p>
                         </div>
                         <div style='vertical-align: top;'>
                             <p style="text-align: justify;">
@@ -132,6 +133,36 @@
                             <div class="subtitle">Nuremberg (Germany) 21-23 April 2015. ECS – European Coatings Show - exhibition</div>
                             Orkila attended the international World of Paint and Coatings, organized in Nuremberg every two years. It provided the opportunity to meet the global players in this sector, and to become informed about the latest developments in the coatings market.<br />Orkila representatives also accompanied regional formulators of paint, coatings, adhesives, sealants, additives, printing inks or construction chemical products to meet and discuss with those of our Partners exhibiting at the show.
                             </p>
+                            <hr />
+                        </div>
+                        <div style='vertical-align: top;'>
+                            <p style="text-align: justify;">
+                            <div class="subtitle"> Lagos (Nigeria) 28-30 April 2015. AGROFOOD</div>
+                            Hosted at Adepta, French Pavilion, at the 1st International Trade show on Agriculture and Food & Beverages in Lagos. Orkila presented its innovative products & services for local and regional industries.
+                            </p>
+                            <hr />
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td style='width: 10%; vertical-align: top;'><h2>May<br /><small>2015</small></h2></td>
+                    <td>
+                        <div style='vertical-align: top;'>
+                            <p style="text-align: justify;">
+                            <div class="subtitle">Cairo (Egypt) 28-30 May 2015. AGRENA</div>
+                            For eight consecutive years Orkila and its partners participated at Agrena, the region's largest Poultry, Livestock & Fish Show. The exhibition offered a great opportunity to Orkila to connect with the rural districts of Cairo which are considered an important market players.
+                            </p>
+                            <hr />
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td style='width: 10%; vertical-align: top;'><h2>July<br /><small>2015</small></h2></td>
+                    <td>
+                        <div style='vertical-align: top;'>
+                            <p style="text-align: justify;">
+                            <div class="subtitle">Nairobi (Kenya) 2-3 July 2015. AVIANA</div>
+                            Orkila its partners participated for the second year to AVIANA East Africa targeting the thriving poultry & livestock industry.                             </p>
                             <hr />
                         </div>
                     </td>

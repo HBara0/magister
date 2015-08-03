@@ -47,7 +47,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h1>{$lang->quantitiesforecast}<br/><small>{$supplier->get()['companyName']} - {$affiliate->get()['name']}, {$forecast_data['year']}</small></h1>
+            <h1>{$lang->quantitiesforecast}<br/><small>{$supplier->get()['companyName']} - {$affiliate->get()['name']}</small></h1>
             <form name="perform_grouppurchase/fillforecast_Form" id="perform_grouppurchase/fillforecast_Form" action="#" method="post">
                 <input type="hidden" id='spid' name="spid" value="{$forecast_data[spid]}"/>
                 <input type="hidden" id='affid' name="affid" value="{$forecast_data[affid]}"/>

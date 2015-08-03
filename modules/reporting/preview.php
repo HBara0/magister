@@ -83,6 +83,7 @@ if(!$core->input['action']) {
             $session_identifier = md5(uniqid(microtime()));
             $newreport = new ReportingQr(array('year' => $core->input['year'], 'spid' => $report_param['spid'], 'affid' => $report_param['affid'], 'quarter' => $core->input['quarter']));
             $report = $newreport->get();
+            $auditor = $newreport->user_isaudit();
             $session->set_phpsession(array('reportmeta_'.$session_identifier => serialize($report)));
             $report['affiliates'] = $newreport->get_report_affiliate();
             if($core->usergroup['canGenerateReports'] == 1 || $core->usergroup['canFillReports'] == 1) {
@@ -139,6 +140,7 @@ if(!$core->input['action']) {
         else { /* if Referrrer fill  */
             $newreport = new ReportingQr(array('rid' => $core->input['rid']));
             $report = $newreport->get();
+            $auditor = $newreport->user_isaudit();
             $report['contributors'] = $newreport->get_report_contributors();
             $report['affiliates'] = $newreport->get_report_affiliate();
             $report['supplier'] = $newreport->get_report_supplier();
@@ -499,7 +501,7 @@ if(!$core->input['action']) {
                             $country = Countries::get_data(array('coid' => $mrcompetition->coid));
                             if(is_object($country)) {
                                 $country_name = $country->get_displayname();
-                                $competitior_label = $lang->competitororigin;
+                                $competitior_country = $lang->competitororigin;
                             }
                         }
                         $competitionproducts = MarketReportCompetitionProducts::get_data(array('mrcid' => $mrcompetition->mrcid), array('returnarray' => true));
@@ -526,7 +528,7 @@ if(!$core->input['action']) {
                         }
 
                         eval("\$markerreport_segment_suppliers_row .= \"".$template->get('reporting_previewreport_marketreport_suppliers_rows')."\";");
-                        unset($product_row, $supplier, $country, $supplier_name, $country_name, $competitior_label);
+                        unset($product_row, $supplier, $country, $supplier_name, $country_name, $competitior_label, $competitior_country);
                     }
                     eval("\$markerreport_segment_suppliers = \"".$template->get('reporting_previewreport_marketreport_suppliers')."\";");
                     unset($markerreport_segment_suppliers_row);
@@ -536,23 +538,16 @@ if(!$core->input['action']) {
                 if($core->usergroup['canGenerateReports'] == 1 || $core->usergroup['canFillReports'] == 1) {
                     eval("\$marketreportbox_other = \"".$template->get('new_reporting_report_marketreportbox_other')."\";");
                 }
-                $criteriaandstars .= '<div class="evaluation_criterium" name="'.$marketreport['psid'].'_'.$mrid.'"><div class="criterium_name" style="display:inline-block; width:30%; padding: 2px;"></div>';
-                $criteriaandstars .= '<div class="ratebar" style="width:40%; display:inline-block;">';
+                $criteriaandstars .= '<div class="evaluation_criterium" name="'.$marketreport['psid'].'_'.$mrid.'"><div class="criterium_name" style="display:inline-block; width:15%;">'.$lang->ratecontentquality.'</div>';
+                $criteriaandstars .= '<div class="ratebar" style="width:40%; display:inline-block; background-color:#FFF;">';
                 if(!isset($marketreport['rating']) || empty($marketreport['rating'])) {
                     $ratingval = 0;
                 }
                 else {
                     $ratingval = $marketreport['rating'];
                 }
-                $report_obj = new Reporting($marketreport);
-                $audits = $report_obj->get_report_supplier_audits();
-                $auditor = 0;
-                if(is_array($audits)) {
-                    if($audit['uid'] == $core->user['uid']) {
-                        $auditor = 1;
-                    }
-                }
-                if($auditor == 1) {
+
+                if($auditor == false) {
                     $criteriaandstars .= '<div class="rateit" data-rateit-starwidth="18" data-rateit-starheight="16" data-rateit-ispreset="true" data-rateit-readonly="true" data-rateit-value="'.$ratingval.'"></div>';
                 }
                 else {
@@ -759,6 +754,7 @@ if(!$core->input['action']) {
             $toc_data[4]['progressionbysegments'] = array('title' => $lang->progressionyearsby.' '.$lang->segments);
         }
     }
+
     if($core->input['referrer'] == 'generate' || $core->input['referrer'] == 'direct' || $core->input['referrer'] == 'list') {
         if($core->usergroup['canGenerateReports'] == 1 || $core->usergroup['canFillReports'] == 1) {
             if($core->input['referrer'] != 'list') {
@@ -951,7 +947,7 @@ if(!$core->input['action']) {
             $missing_employees_notification = '<div class="ui-state-highlight ui-corner-all" style="padding-left: 5px; font-weight:bold;">'.$lang->employeesnotfillpart.' <ul><li>'.implode('</li><li>', $missing_employees['name']).'</li></ul></div><br />';
         }
 
-        if(($report_meta['auditor'] == 1 && is_array($missing_employees) ) || !is_array($missing_employees)) {
+        if(($auditor == true && is_array($missing_employees) ) || !is_array($missing_employees)) {
             $reporting_preview_tools_finalize_button = $lang->suretofinalizebody.' <p align="center"><input type="button" id="save_report_reporting/fillreport_Button" value="'.$lang->yes.'" class="button" onclick="$(\'#popup_finalizereportconfirmation\').dialog(\'close\')"/></p>';
             $reporting_preview_tools_finalize_type = 'finalize';
         }

@@ -106,6 +106,11 @@ class Inlinefilters {
                             $affiliates = get_specificdata('affiliates', array('affid', 'name'), 'affid', 'name', '', 0, $affiliate_where);
                             $filters[$filter] = parse_selectlist('filters['.$filter.'][]', $tabindex, $affiliates, $core->input['filters'][$filter], 1, '', array('multiplesize' => 3));
                             break;
+                        case 'allenabledaffiliates':
+                            $affiliate_where = 'isActive = 1';
+                            $affiliates = get_specificdata('affiliates', array('affid', 'name'), 'affid', 'name', '', 0, $affiliate_where);
+                            $filters[$filter] = parse_selectlist('filters['.$filter.'][]', $tabindex, $affiliates, $core->input['filters'][$filter], 1, '', array('multiplesize' => 3));
+                            break;
                         case 'ciid':
                             $city = new Cities($core->input['filters'][$filter]);
                             $filters[$filter] = '<input type="text" autocomplete="off" tabindex="1"  id="cities_cache_autocomplete" value="'.$city->get_displayname().'"/><input type="hidden" id="cities_cache_id" name="filters['.$filter.']"/>';

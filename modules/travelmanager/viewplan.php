@@ -47,8 +47,13 @@ if(!$core->input['action']) {
         }
     }
     /* Viewable only if user is the person travel  or  the user is in the apprval chain of the plan trip leave */
-    if(!is_object($plan_object) || ($plan_object->uid != $core->user['uid'] && !in_array($core->user['uid'], $approver_chain))) {
+    if(!is_object($plan_object)) {
         error($lang->sectionpermissions);
+    }
+    if(is_array($approver_chain)) {
+        if($plan_object->uid != $core->user['uid'] && !in_array($core->user['uid'], $approver_chain)) {
+            error($lang->sectionpermissions);
+        }
     }
     $leave_type = $leave->get_type();
     $leave_purpose = $leave_segment = $lang->na;
@@ -69,6 +74,9 @@ if(!$core->input['action']) {
             $segment_expenses = $segment->parse_expensesummary();
         }
     }
+    if($core->input['preview'] == 1) {
+        $display_fin = 'style="display:none"';
+    }
     eval("\$leave_details = \"".$template->get('travelmanager_viewlpan_leavedtls')."\";");
     eval("\$travelmanager_viewplan = \"".$template->get('travelmanager_viewlpan')."\";");
     output_page($travelmanager_viewplan);
@@ -82,10 +90,18 @@ else {
             exit;
         }
         $leave = $plan_object->get_leave();
-        $leavetype = $leave->get_type();
-        $leave_type = $leavetype->name;
+        $leave_type = $leave->get_type();
+        $employee = $leave->get_user()->get_displayname();
+        $leave_purpose = $leave_segment = $lang->na;
+        if(is_object($leave->get_purpose())) {
+            $leave_purpose = $leave->get_purpose()->get()['name'];
+        }
+        if(is_object($leave->get_segment())) {
+            $leave_segment = $leave->get_segment()->get()['title'];
+        }
+        $plan_name = $leave_type->title.' - '.$plan_object->get_leave()->get_country()->get_displayname();
         $leave_requestey = $leave->requestKey;
-
+        $approve_link = DOMAIN.'/index.php?module=attendance/listleaves&action=takeactionpage&requestKey='.base64_encode($leave->requestKey).'&id='.base64_encode($leave->lid).'&tmpid='.$planid;
         $segment_objs = TravelManagerPlanSegments::get_segments(array('tmpid' => $planid), array('order' => 'sequence', 'simple' => false, 'returnarray' => true));
 
         if(is_array($segment_objs)) {
@@ -127,8 +143,9 @@ else {
                 unset($transportaionsegment_fields, $transportaion_fields_title);
             }
         }
-        eval("\$travelmanager_viewplan = \"".$template->get('travelmanager_viewlpanemail')."\";");
+        eval("\$leave_details = \"".$template->get('travelmanager_viewlpan_leavedtls')."\";");
 
+        eval("\$travelmanager_viewplan = \"".$template->get('travelmanager_viewlpanemail')."\";");
         $leave->create_approvalchain();
         $firstapprover = new Users(1); //$leave->get_firstapprover()->get_user();
 

@@ -17,7 +17,7 @@ class BudgetFxRates extends AbstractClass {
     const PRIMARY_KEY = 'bfxid';
     const TABLE_NAME = 'budgeting_fxrates';
     const DISPLAY_NAME = '';
-    const SIMPLEQ_ATTRS = 'bfxid,affid, year, fromCurrency, toCurrency, rate, isActual, isYef, isBudget';
+    const SIMPLEQ_ATTRS = '*';
     const CLASSNAME = __CLASS__;
 
     public function __construct($id = '', $simple = true) {

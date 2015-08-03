@@ -138,7 +138,12 @@ if(!$core->input['action']) {
             $currencies_f[] = $mainaffobj->get_country()->get_maincurrency();
             $currencies_f[] = new Currencies(840, true);
             $currencies_f[] = new Currencies(978, true);
-            $currencies_f = array_filter(array_unique($currencies_f));
+            foreach($currencies_f as $currency) {
+                if(is_object($currency)) {
+                    $val_currencies[] = $currency->validate_currency();
+                }
+            }
+            $currencies_f = array_filter(array_unique($val_currencies));
             $currencies_listf = parse_selectlist('segment['.$sequence.'][tmpfid]['.$frowid.'][currency]', 4, $currencies_f, '840');
             $segments_financess_output.=$currencies_listf;
             $finance_checksum = generate_checksum('finance');
@@ -164,7 +169,12 @@ if(!$core->input['action']) {
             $currencies[] = $mainaffobj->get_country()->get_maincurrency();
             $currencies[] = new Currencies(840, true);
             $currencies[] = new Currencies(978, true);
-            $currencies = array_filter(array_unique($currencies));
+            foreach($currencies as $currency) {
+                if(is_object($currency)) {
+                    $val_currencies[] = $currency->validate_currency();
+                }
+            }
+            $currencies = array_filter(array_unique($val_currencies));
             $currencies_list = parse_selectlist('segment['.$sequence.'][tmhid]['.$otherhotel_checksum.'][currency]', 4, $currencies, '840', '', '', array('id' => 'currency_'.$sequence.'_'.$otherhotel_checksum.'_list'));
             $otherhotel['displaystatus'] = "display:none;";
 
@@ -318,7 +328,7 @@ else {
                 $otherapprovedhotels = TravelManagerHotels::get_data('country='.$destcounrty_obj->coid.' AND city != '.$segmentobj->get_destinationcity()->ciid.' AND isApproved=1', array('returnarray' => true));
             }
             if(is_array($otherapprovedhotels)) {
-                $hotelssegments_output.='<br /><a nohref="nohref" style="cursor:pointer;" id="countryhotels_'.$sequence.'_check"><h2>Hotels In The Same Country</h2></a>';
+                $hotelssegments_output.='<br /><a nohref="nohref" style="cursor:pointer;" id="countryhotels_'.$sequence.'_check"><button type="button" class="button">Lookup Hotels In The Same Country</button></a>';
                 $hotelssegments_output.='<div id=countryhotels_'.$sequence.'_view style="display:none">';
                 $hotelssegments_output.=$segmentobj->parse_hotels($sequence, $otherapprovedhotels);
                 $hotelssegments_output.='</div>';
@@ -330,13 +340,14 @@ else {
             if(empty($approvedhotels)) {
                 $approvedhotels = array();
             }
+            $segmentobj->destinationCity = $destcityid;
             $hotelssegments_output = $segmentobj->parse_hotels($sequence, $approvedhotels);
             $destcounrty_obj = $descity_obj->get_country();
             if(is_object($destcounrty_obj)) {
                 $otherapprovedhotels = TravelManagerHotels::get_data('country='.$destcounrty_obj->coid.' AND city != '.$descity_obj->ciid.' AND isApproved', array('returnarray' => true));
             }
             if(is_array($otherapprovedhotels)) {
-                $hotelssegments_output.='<br /><a nohref="nohref" style="cursor:pointer;" id="countryhotels_'.$sequence.'_check"><h2>Hotels In The Same Country</h2></a>';
+                $hotelssegments_output.='<br /><a nohref="nohref" style="cursor:pointer;" id="countryhotels_'.$sequence.'_check"><button type="button" class="button">Lookup Hotels In The Same Country</button></a>';
                 $hotelssegments_output.='<div id=countryhotels_'.$sequence.'_view style="display:none">';
                 $hotelssegments_output.=$segmentobj->parse_hotels($sequence, $otherapprovedhotels);
                 $hotelssegments_output.='</div>';
@@ -368,7 +379,12 @@ else {
         $currencies[] = $mainaffobj->get_country()->get_maincurrency();
         $currencies[] = new Currencies(840, true);
         $currencies[] = new Currencies(978, true);
-        $currencies = array_filter(array_unique($currencies));
+        foreach($currencies as $currency) {
+            if(is_object($currency)) {
+                $val_currencies[] = $currency->validate_currency();
+            }
+        }
+        $currencies = array_filter(array_unique($val_currencies));
         $currencies_list = parse_selectlist('segment['.$sequence.'][tmhid]['.$otherhotel_checksum.'][currency]', 4, $currencies, '840');
         $otherhotel['displaystatus'] = "display:none;";
         $paidby_onchangeactions = 'if($(this).find(":selected").val()=="anotheraff"){$("#"+$(this).find(":selected").val()+"_otheraccomodations_'.$sequence.'_'.$otherhotel_checksum.'").effect("highlight",{ color: "#D6EAAC"}, 1500).find("input").first().focus().val("");}else{$("#anotheraff_otheraccomodations_'.$sequence.'_'.$otherhotel_checksum.'").hide();}';
@@ -507,14 +523,17 @@ else {
     elseif($core->input['action'] == 'get_addnewhotel') {
         $ciy_sequence = explode('_', $db->escape_string($core->input['id']));
         $sequence = $ciy_sequence[0];
-        $destcityid = $ciy_sequence[1];
+        $destcityid = $core->input['destcity'];
         $segdescity_obj = new Cities($destcityid); // fix isuue in getting ciid
-        $segdescity_country = $segdescity_obj->get_country()->get_displayname();
-        $segdescity_obj_coid = $segdescity_obj->get_country()->coid;
+        $descountry = $segdescity_obj->get_country();
+        $segdescity_country = $descountry->get_displayname();
+        $segdescity_obj_coid = $descountry->coid;
         $segmentobj_destcityname = $segdescity_obj->get()['name'];
+        $ratings = array(1 => 1, 2 => 2, 3 => 3, 4 => 4, 5 => 5);
+        $ratingselectlist = parse_selectlist('otherhotel[stars]', '', $ratings, '', '', '', array('blankstart' => true));
         $country = new Countries(1);
         $countriescodes = $country->get_phonecodes();
-        $countriescodes_list = parse_selectlist('telephone_intcode', $tabindex, $countriescodes, $selected_options, '', '', array('id' => 'telephone_intcode', 'width' => '150px'));
+        $countriescodes_list = parse_selectlist('telephone_intcode', $tabindex, $countriescodes, $descountry->phoneCode, '', '', array('id' => 'telephone_intcode', 'width' => '150px'));
         eval("\$addhotel= \"".$template->get('popup_addhotel')."\";");
         output($addhotel);
     }
@@ -598,7 +617,12 @@ else {
         $currencies_f[] = $mainaffobj->get_country()->get_maincurrency();
         $currencies_f[] = new Currencies(840, true);
         $currencies_f[] = new Currencies(978, true);
-        $currencies_f = array_filter(array_unique($currencies_f));
+        foreach($currencies_f as $currency) {
+            if(is_object($currency)) {
+                $val_currencies[] = $currency->validate_currency();
+            }
+        }
+        $currencies_f = array_filter(array_unique($val_currencies));
         $currencies_listf = parse_selectlist('segment['.$sequence.'][tmpfid]['.$frowid.'][currency]', 4, $currencies_f, 840);
         $segments_financess_output.=$currencies_listf;
         $finance_checksum = generate_checksum('finance');

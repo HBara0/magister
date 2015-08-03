@@ -13,7 +13,7 @@
                         <input type='hidden' id='competitorsupp_{$segment[psid]}{$srowid}_id' name='marketreport[{$segment[psid]}][suppliers][{$srowid}][sid]' value="{$competitionsupplier['sid']}" />
                         <div id='searchQuickResults_competitorsupp_{$segment[psid]}{$srowid}' class='searchQuickResults' style='display:none;'></div>
                         <input type="hidden" name="marketreport[{$segment[psid]}][suppliers][{$srowid}][inputChecksum]" value="{$inputchecksum[supplier]}"/>
-                        <a href="index.php?module=contents/addentities&amp;type=supplier" target="_blank"><img src="images/addnew.png" border="0" alt="{$lang->add}"></a>
+                        <a href="index.php?module=contents/addentities&amp;type=competitorsupplier" target="_blank"><img src="images/addnew.png" border="0" alt="{$lang->add}"></a>
 
                     </td>
                 </tr>

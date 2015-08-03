@@ -79,7 +79,9 @@ class Tasks {
         }
 
         $data['description'] = $core->sanitize_inputs($data['description'], array('method' => 'striponly', 'removetags' => true, 'allowable_tags' => '<blockquote><b><strong><em><ul><ol><li><p><br><strike><del><pre><dl><dt><dd><sup><sub><i><cite><small>'));
-
+        if(isset($data['altDueDate']) && !empty($data['altDueDate'])) {
+            $data['dueDate'] = strtotime($data['altDueDate']);
+        }
         $new_task = array(
                 'uid' => $data['uid'],
                 'identifier' => substr(md5(uniqid(microtime())), 1, 10),
@@ -90,7 +92,8 @@ class Tasks {
                 'reminderInterval' => $data['reminderInterval'],
                 'reminderStart' => strtotime($data['reminderStart']),
                 'createdBy' => $core->user['uid'],
-                'dueDate' => $data['dueDate']
+                'dueDate' => $data['dueDate'],
+                'prerequisitTask' => $data['prerequisitTask']
         );
 
         if(empty($new_task['reminderStart'])) {

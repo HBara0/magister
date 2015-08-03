@@ -101,10 +101,11 @@ class CmsNews extends Cms {
 
         /* Insert news - START */
         if(is_array($this->data)) {
+            $this->data['token'] = md5(uniqid(microtime(), true));
             $query = $db->insert_query('cms_news', $this->data);
             if($query) {
                 $this->status = 0;
-                $cmsnid = $db->last_id();
+                $cmsnid = $this->data['cmsnid'] = $db->last_id();
                 $log->record($this->data['cmsnid']);
 
                 /* Insert relatedcategories */
@@ -193,6 +194,8 @@ class CmsNews extends Cms {
                 }
 
                 $upload = new Uploader('attachments', $attachments, $upload_param['allowed_types'], 'ftp', $upload_param['maxsize'], 1, 1);
+                return true;
+
                 $upload->establish_ftp($ftp_settings);
                 $upload->set_upload_path($this->settings['newsattachmentspath']);
                 $upload->process_file();
@@ -275,7 +278,7 @@ class CmsNews extends Cms {
     public function get_multiplenews($filter_where) {
         global $db, $core;
 
-        $sort_query = 'ORDER BY cn.title ASC, cn.version DESC';
+        $sort_query = 'ORDER BY publishDate DESC';
         if(isset($core->input['sortby'], $core->input['order'])) {
             $sort_query = 'ORDER BY '.$core->input['sortby'].' '.$core->input['order'];
         }

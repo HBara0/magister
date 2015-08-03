@@ -154,7 +154,7 @@ class TravelManagerAirlines {
                     $flight['flightdetails'] = htmlspecialchars('{ "kind": "qpxExpress#tripsSearch","trips": { "tripOption": ['.json_encode($response_flightdata->trips->tripOption[$tripoptnum]).']}}');
                     if($is_roundtrip == true) {
                         $flight['triptype'] = 'Round Trip';
-                        $flight['pricing'] += $flight['pricing'];
+                        // $flight['pricing'] += $flight['pricing'];
 
                         eval("\$flights_records_roundtripsegments_details .= \"".$template->get('travelmanager_plantrip_segment_catransportation_flightdetails_roundtrip_segments_details')."\";");
 
@@ -282,9 +282,9 @@ class TravelManagerAirlines {
         curl_setopt($ch, CURLOPT_POSTFIELDS, $request);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-type: application/json"));
-        $result = curl_exec($ch);
-//        $result = file_get_contents('./modules/travelmanager/jsonflightdetailsPAR.txt');
-        curl_close($ch);
+//        $result = curl_exec($ch);
+        $result = file_get_contents('./modules/travelmanager/jsonflightdetailsPAR.txt');
+//        curl_close($ch);
 
         return $result;
     }

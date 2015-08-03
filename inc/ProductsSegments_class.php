@@ -70,12 +70,12 @@ class ProductsSegments extends AbstractClass {
         }
     }
 
-    public function get_applications() {
+    public function get_applications($simple = true) {
         global $db;
         $query = $db->query('SELECT psaid FROM '.Tprefix.'segmentapplications WHERE psid="'.$this->data['psid'].'"');
         if($db->num_rows($query) > 0) {
             while($rowsegmentapp = $db->fetch_assoc($query)) {
-                $segmentsapp[$rowsegmentapp['psaid']] = new SegmentApplications($rowsegmentapp['psaid']);
+                $segmentsapp[$rowsegmentapp['psaid']] = new SegmentApplications($rowsegmentapp['psaid'], $simple);
             }
             return $segmentsapp;
         }
@@ -173,6 +173,10 @@ class ProductsSegments extends AbstractClass {
         else {
             return false;
         }
+    }
+
+    public function get_segmentcategory() {
+        return new SegmentCategories($this->data['category']);
     }
 
 }

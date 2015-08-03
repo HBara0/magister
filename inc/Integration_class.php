@@ -100,14 +100,104 @@ class IntegrationDataAccessLayer {
     }
 
     public function get_objects($filters = null, array $configs = array()) {
+        global $integration;
+
         if(!isset($configs['simple'])) {
             $configs['simple'] = true;
         }
         $items = array();
         $sql = 'SELECT '.$this->primary_key.' FROM '.Tprefix.$this->table_name;
 
+//        if(is_array($filters) && !empty($filters)) {
+//            $andor = ' WHERE ';
+//            foreach($filters as $attr => $value) {
+//                if(!isset($configs['operators'][$attr]) || empty($configs['operators'][$attr])) {
+//                    $configs['operators'][$attr] = '=';
+//                }
+//
+//                if(is_array($value)) {
+//                    if($configs['operators'][$attr] == 'like') {
+//
+//                    }
+//                    if($configs['operators'][$attr] == 'BETWEEN') {
+//                        $sql .= $andor.$attr.' BETWEEN '.$value[0].' AND '.$value[1];
+//                    }
+//                    else {
+//                        $value_numerichk = array_filter($value, 'is_numeric');
+//                        if($value_numerichk == $value) {
+//                            $value = array_map(intval, $value);
+//                            $sql .= $andor.$attr.' IN ('.implode(',', $value).')';
+//                        }
+//                        else {
+//                            $value = array_map($this->f_db->escape_string, $value);
+//                            $sql .= $andor.$attr.' IN ("'.implode('","', $value).'")';
+//                        }
+//                    }
+//                }
+//                else {
+//                    if(is_numeric($value)) {
+//                        if($configs['operators'][$attr] == 'grt') {
+//                            $configs['operators'][$attr] = ' > ';
+//                            $value = intval($value);
+//                        }
+//                        elseif($configs['operators'][$attr] == 'lt') {
+//                            $configs['operators'][$attr] = ' < ';
+//                            $value = intval($value);
+//                        }
+//                        elseif($configs['operators'][$attr] == 'IN') {
+//                            $value = '('.intval($value).')';
+//                        }
+//                        elseif($configs['operators'][$attr] == 'NOT IN') {
+//                            $value = '('.intval($value).')';
+//                        }
+//                        else {
+//                            $configs['operators'][$attr] = '=';
+//                            $value = intval($value);
+//                        }
+//                    }
+//                    else {
+//                        if($configs['operators'][$attr] == 'like') {
+//                            $value = '"%'.$this->f_db->escape_string($value).'%"';
+//                        }
+//                        elseif($configs['operators'][$attr] == 'IN') {
+//                            $value = '('.$value.')';
+//                        }
+//                        elseif($configs['operators'][$attr] == 'NOT IN') {
+//                            $value = '('.$value.')';
+//                        }
+//                        else if($configs['operators'][$attr] == 'CUSTOMSQL') {
+//                            $value = $this->f_db->escape_string($value);
+//                        }
+//                        else if($configs['operators'][$attr] == 'CUSTOMSQLSECURE') {
+//                            $value = $value;
+//                        }
+//                        else {
+//                            $configs['operators'][$attr] = '=';
+//                            $value = '"'.$this->f_db->escape_string($value).'"';
+//                        }
+//                    }
+//                    if($configs['operators'][$attr] == 'CUSTOMSQL') {
+//                        $sql .= $andor.' '.$value;
+//                    }
+//                    else if($configs['operators'][$attr] == 'CUSTOMSQLSECURE') {
+//                        $sql .= $andor.' '.$value;
+//                    }
+//                    else {
+//                        $sql .= $andor.$attr.' '.$configs['operators'][$attr].$value;
+//                    }
+//                    unset($value);
+//                }
+//
+//                $andor = ' AND ';
+//            }
+//        }
+        // else
         if(!empty($filters)) {
             $sql .= ' WHERE '.$filters; //SQL where statement; to be improved
+        }
+
+        if(!isset($this->f_db)) {
+            $this->f_db = $integration->get_dbconn();
         }
         $query = $this->f_db->query($sql);
         $numrows = $this->f_db->num_rows($query);
@@ -180,6 +270,10 @@ Abstract class IntegrationAbstractClass {
     public static function get_data($filters = '', $configs = array()) {
         $data = new IntegrationDataAccessLayer(static::CLASSNAME, static::TABLE_NAME, static::PRIMARY_KEY);
         return $data->get_objects($filters, $configs);
+    }
+
+    public function get_displayname() {
+        return $this->data[static::DISPLAY_NAME];
     }
 
 }

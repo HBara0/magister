@@ -56,4 +56,5 @@ $lang['markedasatask'] = 'Marked as a task';
 $lang['who'] = 'Who';
 $lang['when'] = 'When';
 $lang['what'] = 'What';
+$lang['duedate'] = 'Due Date';
 ?>

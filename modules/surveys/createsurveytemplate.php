@@ -2,10 +2,10 @@
 /*
  * Orkila Central Online System (OCOS)
  * Copyright © 2009 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * Create Survey
  * $module: createsurveytemplate
- * $id: createsurvey_template.php	
+ * $id: createsurvey_template.php
  * Created By: 		@tony.assaad		June 11, 2012 | 1:00 PM
  * Last Update: 	@tony.assaad		July 01, 2012, 2012 | 12:55 PM
  */
@@ -62,7 +62,12 @@ else {
 
         switch($survey->get_status()) {
             case 0:
-                output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
+                if($core->input['preview'] == 1) {
+                    output_xml('<status>true</status><message>'.$lang->successfullysaved.'<![CDATA[<script>$(\'#preview\').val(\'0\');window.open(\''.$core->settings['rootdir'].'/index.php?module=surveys/preview&stid='.$survey->stid.'\')</script>]]></message>');
+                }
+                else {
+                    output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
+                }
                 break;
             case 1:
                 output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");

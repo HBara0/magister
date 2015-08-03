@@ -26,6 +26,40 @@ class DataAccessLayer {
         $this->class = $class;
     }
 
+    public function get_column($columnname, $filters = null, array $configs = array()) {
+        global $db;
+        if(!is_string($columnname)) {
+            return false;
+        }
+        $items = array();
+        $sql = 'SELECT '.$this->primary_key.','.$columnname.' FROM '.Tprefix.$this->table_name;
+
+        $sql .= $this->construct_whereclause($filters, $configs['operators']);
+        $sql .= $this->construct_groupclause($configs['group']);
+        $sql .= $this->construct_orderclause($configs['order']);
+        $sql .= $this->construct_limitclause($configs['limit']);
+        //  echo $sql.'<br>';
+        $query = $db->query($sql);
+        $this->numrows = $db->num_rows($query);
+        if($this->numrows > 1) {
+            while($item = $db->fetch_assoc($query)) {
+                $items[$item[$this->primary_key]] = $item[$columnname];
+            }
+            $db->free_result($query);
+            return $items;
+        }
+        else {
+            if($this->numrows == 1 && $configs['returnarray'] == true) {
+                $pk = $db->fetch_field($query, $this->primary_key);
+                return array($pk => new $this->class($pk, $configs['simple']));
+            }
+            elseif($this->numrows == 1) {
+                return new $this->class($db->fetch_field($query, $this->primary_key), $configs['simple']);
+            }
+            return false;
+        }
+    }
+
     public function get_objects($filters = null, array $configs = array()) {
         global $db;
 
@@ -256,66 +290,67 @@ class DataAccessLayer {
                 $filters_querystring = ' WHERE '.$db->escape_string($filters);
                 if($operators['filter'] == 'CUSTOMSQLSECURE') {
                     $filters_querystring = ' WHERE '.$filters;
-                                    }
                 }
             }
-            return $filters_querystring;
-            }
-
-            public
-            function fulltext_search($match, $against, $config = array()) {
-            global $db;
-
-            if(isset($config['modifier'])) {
-            $config['modifier'] = ' '.$db->  escape_string($config['modifier']);
-                            }
-
-            if(!isset($configs['simple'])) {
-            $configs['simple'] = true;
-                    }
-
-            $items = array();
-
-                    $syntax = 'MATCH ('.$db->escape_string($match).') AGAINST ("'.$db->escape_string($against).'" '.$configs['modifier'].')';
-                    $sql = 'SELECT '.$this->primary_key.', '.$syntax.' AS relevance FROM '.Tprefix.$this->table_name;
-                    $sql .= ' WHERE '.$syntax;
-
-                    $order['by'][] = 'relevance';
-                    if(!is_array($configs['order'])) {
-                            if(!empty($configs['order'])) {
-            $order['by'][] = $configs['order'];
-                    }
         }
-        else {
-        if(is_array($configs['order'])) {
-        $order['by'] += $configs['order'];
-                }
-    }
-    $order['sort'] = 'DESC';
-            $sql .= $this->construct_orderclause($order);
-            $sql .= $this->construct_limitclause($configs['limit']);
-
-            $query =  $db->query($sql);
-            if($db->num_rows($query) > 0) {
-                    while ( $item = $db->fetch_assoc($query)) {
-    $items[$item[$this->primary_key]] = new $this->class($item[$this->primary_key], $configs['simple'] );
-            }
-    $db->free_result($query);
-            return $items;
-    }
-    return false;
+        return $filters_querystring;
     }
 
     public
-    function __get($name) {
-    if(array_key_exists($name, $this->data)) { return $this->data[$name];
+            function fulltext_search($match, $against, $config = array()) {
+        global $db;
+
+        if(isset($config['modifier'])) {
+            $config['modifier'] = ' '.$db->escape_string($config['modifier']);
+        }
+
+        if(!isset($configs['simple'])) {
+            $configs['simple'] = true;
+        }
+
+        $items = array();
+
+        $syntax = 'MATCH ('.$db->escape_string($match).') AGAINST ("'.$db->escape_string($against).'" '.$configs['modifier'].')';
+        $sql = 'SELECT '.$this->primary_key.', '.$syntax.' AS relevance FROM '.Tprefix.$this->table_name;
+        $sql .= ' WHERE '.$syntax;
+
+        $order['by'][] = 'relevance';
+        if(!is_array($configs['order'])) {
+            if(!empty($configs['order'])) {
+                $order['by'][] = $configs['order'];
+            }
+        }
+        else {
+            if(is_array($configs['order'])) {
+                $order['by'] += $configs['order'];
+            }
+        }
+        $order['sort'] = 'DESC';
+        $sql .= $this->construct_orderclause($order);
+        $sql .= $this->construct_limitclause($configs['limit']);
+
+        $query = $db->query($sql);
+        if($db->num_rows($query) > 0) {
+            while($item = $db->fetch_assoc($query)) {
+                $items[$item[$this->primary_key]] = new $this->class($item[$this->primary_key], $configs['simple']);
+            }
+            $db->free_result($query);
+            return $items;
+        }
+        return false;
     }
+
+    public
+            function __get($name) {
+        if(array_key_exists($name, $this->data)) {
+            return $this->data[$name];
+        }
     }
 
     public function get(
-) {
-    return $this->data;
+    ) {
+        return $this->data;
     }
 
-    }
+}
 ?>

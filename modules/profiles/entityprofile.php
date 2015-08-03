@@ -470,21 +470,22 @@ if(!$core->input['action']) {
         $brandsproducts = $entity->get_brandsproducts();
         $output = '';
         if(is_array($brandsproducts)) {
-            foreach($brandsproducts as $brandproduct) {
-                $brandproduct_brand = $brandproduct->get_entitybrand();
-                $brandproduct_productype = $brandproduct->get_endproduct();
-                $options[$brandproduct->ebpid] = $brandproduct_brand->parse_link();
+            foreach($brandsproducts as $brandproduct_obj) {
+                $brandproduct = $brandproduct_obj->get();
+                $brandproduct_brand = $brandproduct_obj->get_entitybrand();
+                $brandproduct_productype = $brandproduct_obj->get_endproduct();
+                $options[$brandproduct_obj->ebpid] = $brandproduct_brand->parse_link();
                 if(!is_object($brandproduct_productype)) {
                     $brandproduct_productype = new EntBrandsProducts();
                     $brandproduct_productype->title = $lang->unspecified;
                 }
                 else {
                     $characteristic_output = '';
-                    $characteristic = $brandproduct->get_charactersticvalue();
+                    $characteristic = $brandproduct_obj->get_charactersticvalue();
                     if(is_object($characteristic)) {
                         $characteristic_output = ' <small>('.$characteristic->get_displayname().')</small>';
                     }
-                    $options[$brandproduct->ebpid] .= ' - '.$brandproduct_productype->parse_link();
+                    $options[$brandproduct_obj->ebpid] .= ' - '.$brandproduct_productype->parse_link();
                 }
 
                 eval("\$brandsendproducts .= \"".$template->get('profiles_entityprofile_brandsproducts')."\";");
@@ -638,7 +639,8 @@ else {
         }
         switch($marketin_obj->get_errorcode()) {
             case 0:
-                output_xml('<status>true</status><message>'.$lang->successfullysaved.'</message>');
+                header('Content-type: text/xml+javascript');
+                output_xml('<status>true</status><message>'.$lang->successfullysaved.'<![CDATA[<script>$("#perform_parsetimeline").trigger("click");</script>]]></message>');
                 break;
             case 1:
                 output_xml('<status>false</status><message>'.$lang->fillallrequiredfields.'</message>');
@@ -668,7 +670,9 @@ else {
         $mkdchem_rowid = 0;
         $mkdbing_rowid = 0;
         $mkdprod_rowid = 0;
-
+        if(strpos(strtolower($_SERVER['HTTP_REFERER']), 'crm/fillvisitreport') !== false) {
+            $exclude_visitreports = true;
+        }
         if($core->usergroup['profiles_canAddMkIntlData'] == 0) {
             exit;
         }
@@ -757,10 +761,20 @@ else {
             $brandname = $brandedendprod_obj->get_entitybrand()->get_displayname();
         }
         /* parse visit report --START */
-        $visitreport_objs = CrmVisitReports::get_visitreports(array('uid' => $core->user['uid'], 'cid' => $midata->cid, 'isDraft' => 1), array('order' => array('by' => 'date', 'sort' => 'DESC'), 'returnarray' => 1));
-        if(is_array($visitreport_objs)) {
-            $profiles_mincustomervisit_title = $lang->visitreport;
-            $profiles_mincustomervisit = parse_selectlist('marketdata[vrid]', 7, $visitreport_objs, $midata->vrid, '', '', array('blankstart' => 1));
+        if(!$exclude_visitreports) {
+            $visitreport_objs = CrmVisitReports::get_visitreports(array('uid' => $core->user['uid'], 'cid' => $midata->cid, 'isDraft' => 1), array('order' => array('by' => 'date', 'sort' => 'DESC'), 'returnarray' => 1));
+            if(is_array($visitreport_objs)) {
+                $profiles_mincustomervisit_title = $lang->visitreport;
+                $profiles_mincustomervisit = parse_selectlist('marketdata[vrid]', 7, $visitreport_objs, $midata->vrid, '', '', array('blankstart' => 1));
+            }
+        }
+        else {
+            if(strpos(strtolower($_SERVER['HTTP_REFERER']), 'crm/fillvisitreport') !== false) {
+                parse_str(parse_url($_SERVER['HTTP_REFERER'])[query], $query_string);
+                $identifier = $query_string['identifier'];
+                $visitreport = VisitReports::get_data(array('identifier' => $identifier));
+                $profiles_mincustomervisit = '<input type="hidden" value="'.$visitreport->vrid.'" name="marketdata[vrid]"/>';
+            }
         }
         /* parse visit report --END */
         $chemfuncproduct = $midata->get_chemfunctionproducts();

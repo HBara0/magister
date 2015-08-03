@@ -333,7 +333,8 @@ else {
                         else {
                             switch($field) {
                                 case 'unitcost':
-                                    $output_value = $input['stack']['remaining_cost'] / $input['stack']['remaining_qty'];
+                                        $output_value = $input['stack']['remaining_cost'] / $input['stack']['remaining_qty'];
+                                    }
                                     $input['unitcost'] = $output_value;
 //                                if(in_array($field, $config['total_types'])) {
 //                                    $totals[$field] += $output_value;
@@ -341,6 +342,7 @@ else {
                                     $output .= '<td style="border: 1px solid #CCC; text-align: right;">'.number_format($output_value, $report_options['roundto'], '.', ' ').'</td>';
                                     break;
                                 case 'unitcostusd':
+                                        $output_value = ($input['stack']['remaining_cost'] / $input['stack']['remaining_qty']) / $fxrates['usd'];
                                     $output_value = ($input['stack']['remaining_cost'] / $input['stack']['remaining_qty']) / $fxrates['usd'];
                                     $input['unitcostusd'] = $output_value;
 //                                if(in_array($field, $config['total_types'])) {
@@ -786,7 +788,7 @@ else {
         unset($stockevolution_output, $alerts, $summaries_ouput, $output, $fxratesoverview_output);
 
         $affiliates_addrecpt = array(
-                19 => array(244, 356),
+                19 => array(398, 356),
                 22 => array(248, 246, 287, 270, 356, 63),
                 23 => array('zadok.oppong-boahene', 'courage.dzandu', 322, 321, 'tarek.chalhoub', 63, 356),
                 1 => array(12, 333, 182, 43, 356),
@@ -833,6 +835,9 @@ else {
             $mailer->send();
 
             if($mailer->get_status() === true) {
+                $sentreport = new ReportsSendLog();
+                $sentreport->set(array('affid' => $affiliateobj->get_id(), 'report' => 'stockreport', 'date' => TIME_NOW, 'sentBy' => $core->user['uid'], 'sentTo' => ''))->save();
+
                 unset($core->input['reporttype']);
                 redirect('index.php?'.http_build_query($core->input), 1, 'Success');
             }
