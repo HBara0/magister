@@ -87,7 +87,7 @@ if(!$core->input['action']) {
                 $news['baseVersion_outpt'] = '<a href="index.php?module=cms/managenews&type=edit&newsid='.$base_news[cmsnid].'" target="_blank">'.$base_news['title'].', Version '.$base_news['version'].'</a>';
             }
         }
-        $news['version_output'] = $news[title].', '.$lang->version.' '.$news[version];
+        $news['version_output'] = $lang->version.' '.$news[version];
     }
     else {
         $baseversion['display'] = $preview_display = 'display:none';
@@ -173,7 +173,7 @@ else {
                 $url = 'http://'.$core->settings['websitedir'].'/news/'.$cms_news->alias.'/'.base64_encode($cms_news->cmsnid).'/'.$cms_news->token.'/1';
                 ?>
                 <script language = "javascript" type = "text/javascript">
-                    $(function () {
+                    $(function() {
                         top.$('div[id="preview"]').show();
                         top.$('div[id="preview"]').css('display', 'inline-block');
                         top.$('a[id="preview_link"]').attr("href", "<?php echo $url;?>");
@@ -197,7 +197,7 @@ else {
         }
         ?>
         <script language="javascript" type="text/javascript">
-            $(function () {
+            $(function() {
                 top.$("#upload_Result").html("<span class='<?php echo $output_class;?>'><?php echo $output_message;?></span>");
             });
         </script>
