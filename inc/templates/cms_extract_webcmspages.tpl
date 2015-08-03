@@ -9,4 +9,3 @@ Version: {$cms_page[version]}
     <h4>{$lang->textcontent}:</h4> <div>{$cms_page[bodyText]}</div>
 </div>
 <hr>
-<div style="page-break-before:always" />
