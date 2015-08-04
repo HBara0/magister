@@ -6,7 +6,7 @@ class Translations extends AbstractClass {
     protected $errorcode = 0;
 
     const PRIMARY_KEY = 'tid';
-    const TABLE_NAME = 'translations';
+    const TABLE_NAME = 'system_translations';
     const SIMPLEQ_ATTRS = '*';
     const UNIQUE_ATTRS = 'tableName,field,language,tableKey';
     const CLASSNAME = __CLASS__;
