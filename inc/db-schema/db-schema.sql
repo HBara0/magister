@@ -986,6 +986,7 @@ CREATE TABLE `calendar_events` (
   `isFeatured` tinyint(1) NOT NULL,
   `isCreatedFromCMS` tinyint(1) NOT NULL,
   `refreshLogoOnWebsite` varchar(1) NOT NULL,
+  `lang` varchar(2) NOT NULL,
   PRIMARY KEY (`ceid`),
   KEY `uid` (`uid`),
   KEY `createdBy` (`createdBy`,`editedBy`),
@@ -3760,6 +3761,19 @@ CREATE TABLE `system_tables_columns` (
   `isDisplayName` tinyint(1) NOT NULL,
   PRIMARY KEY (`stcid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=320 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `system_translations`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `system_translations` (
+  `tid` int(10) NOT NULL AUTO_INCREMENT,
+  `tableName` varchar(75) NOT NULL,
+  `field` varchar(75) NOT NULL,
+  `language` int(10) NOT NULL,
+  `tableKey` int(10) NOT NULL,
+  `text` text NOT NULL,
+  PRIMARY KEY (`tid`)
+) ENGINE=MyISAM AUTO_INCREMENT=18 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `system_windows`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
