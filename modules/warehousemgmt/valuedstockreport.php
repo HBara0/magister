@@ -81,33 +81,25 @@ else {
             }
         }
 
-        echo '<h1>Valued Stock Report<br /><small>As of '.$report_period['to'].'</small></h1>';
-        echo '<h2>'.$affiliateobj->get_displayname().'</h2>';
         foreach($items as $warehouse_id => $whitems) {
             $warehouse = new IntegrationOBWarehouse($warehouse_id, $integration->get_dbconn());
-            echo '<h4>'.$warehouse->get_displayname().'</h4>';
-            echo '<table border=1 width="100%">';
-            echo '<tr><th>Item</th><th>Qty</th><th>Total Cost</th><th>Unit Cost</th></tr>';
             array_multisort_bycolumn($whitems, 'qty');
             foreach($whitems as $product_id => $item) {
                 if($item['qty'] == 0) {
                     continue;
                 }
                 $product = new IntegrationOBProduct($product_id, $integration->get_dbconn());
-                echo '<tr><td>'.$product->get_displayname().'</td><td>'.$item['qty'].'</td><td>'.$item['value'].'</td><td>'.($item['value'] / $item['qty']).'</td></tr>';
                 $total['qty'] += $item['qty'];
                 $total['value'] += $item['value'];
+                eval("\$itemlines .= \"".$template->get('warehousemgmt_valuedstkreport_reportlines_itemlines')."\";");
             }
-            echo '<tr><th>Total</th><th>'.$total['qty'].'</th><th>'.$total['value'].'</th><th>-</th></tr>';
-            echo '</table>';
+            eval("\$reportlines .= \"".$template->get('warehousemgmt_valuedstkreport_reportlines')."\";");
             $grandtotal['qty'] += $total['qty'];
             $grandtotal['value'] += $total['value'];
-            unset($total);
+            unset($total, $itemlines);
         }
 
-        echo '<h2>Grand Total:<br />';
-        echo 'Qty: '.$grandtotal['qty'].'<br />';
-        echo 'Value: '.$grandtotal['value'];
-        echo '</h2>';
+        eval("\$report = \"".$template->get('warehousemgmt_valuedstkreport_report')."\";");
+        echo($report);
     }
 }
