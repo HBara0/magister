@@ -72,7 +72,7 @@ class ChemicalFunctions extends AbstractClass {
                 }
                 $log->record('createchemicalfunctions', $data['cfid']);
                 $this->errorcode = 0;
-                return true;
+                return $this;
             }
         }
     }

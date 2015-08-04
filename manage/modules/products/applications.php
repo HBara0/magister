@@ -47,6 +47,7 @@ if(!$core->input['action']) {
     $multipages = new Multipages('segmentapplications', $core->settings['itemsperlist']);
     $productsapplications_list .= "<tr><td colspan='5'>".$multipages->parse_multipages()."</td></tr>";
     $publishonwebcheckbox = '<input type="checkbox" value="1" name="segmentapplications[publishOnWebsite]">';
+    $display_trans = 'none';
     eval("\$dialog_managerapplication = \"".$template->get("admin_popup_manageapplication")."\";");
     eval("\$applicationpage = \"".$template->get("admin_products_applications")."\";");
     output_page($applicationpage);
@@ -57,6 +58,29 @@ else {
         $segmentapplications_obj->save($core->input['segmentapplications']);
         switch($segmentapplications_obj->get_errorcode()) {
             case 0:
+                if(is_array($core->input['lang'])) {
+                    $trans_data['tableKey'] = intval($segmentapplications_obj->{SegmentApplications::PRIMARY_KEY});
+                    $trans_data['tableName'] = SegmentApplications::TABLE_NAME;
+                    foreach($core->input['lang'] as $slid => $language) {
+                        $trans_data['language'] = $slid;
+                        if(is_array($language)) {
+                            foreach($language as $field => $text) {
+                                $trans_data['language'] = $slid;
+                                $trans_data['field'] = $field;
+                                $trans_data['text'] = $text;
+                                $translation_obj = new Translations();
+                                $translation_obj->set($trans_data);
+                                $translation_obj->save();
+                                if($translation_obj->get_errorcode() != 0) {
+                                    output_xml("<status>false</status><message>{$lang->errorsaving}</message>");
+                                    exit;
+                                }
+                            }
+                        }
+                    }
+                    output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
+                    exit;
+                }
                 output_xml('<status>true</status><message>'.$lang->successfullysaved.'</message>');
                 break;
             case 1:
@@ -68,7 +92,8 @@ else {
         }
     }
     elseif($core->input['action'] == 'get_editbox') {
-        $application = new SegmentApplications($core->input['id'], false);
+        $apid = intval($core->input['id']);
+        $application = new SegmentApplications($apid, false);
         if($application->publishOnWebsite == 1) {
             $checked = 'checked="checked"';
         }
@@ -76,6 +101,23 @@ else {
         $segments_list = parse_selectlist('segmentapplications[psid]', 2, $segments, $application->psid);
         $publishonwebcheckbox = '<input type="checkbox" value="1" name="segmentapplications[publishOnWebsite]" '.$checked.'>';
         //$dialog_managerapplication = $headerinc;
+        $languages = SystemLanguages::get_data('slid !=1', array('returnarray' => true));
+        if(is_array($languages)) {
+            foreach($languages as $language) {
+                $lid = $language->slid;
+                $trans_fields = array('description', 'title');
+                foreach($trans_fields as $field) {
+                    $translation = Translations::get_translation($field, SegmentApplications::TABLE_NAME, $lid, $application->{SegmentApplications::PRIMARY_KEY});
+                    if(is_object($translation)) {
+                        $trans[$lid][$field] = $translation->text;
+                    }
+                }
+                eval("\$translationtabs_content=\"".$template->get('admin_products_translateapplication_content')."\";");
+                $lang_output .= $translationtabs_content;
+                $lid = '';
+            }
+        }
+        eval("\$translationsprodapp = \"".$template->get('admin_translationsprodapp')."\";");
         eval("\$dialog_managerapplication = \"".$template->get('admin_popup_manageapplication')."\";");
         output($dialog_managerapplication);
     }
@@ -131,6 +173,9 @@ else {
         else {
             output_xml("<status>false</status><message>{$lang->errordeleting}</message>");
         }
+    }
+    elseif($core->input['action'] == 'do_addtranslatedaff') {
+
     }
 }
 ?>
