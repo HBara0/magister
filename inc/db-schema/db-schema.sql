@@ -3769,11 +3769,11 @@ CREATE TABLE `system_translations` (
   `tid` int(10) NOT NULL AUTO_INCREMENT,
   `tableName` varchar(75) NOT NULL,
   `field` varchar(75) NOT NULL,
-  `language` int(10) NOT NULL,
+  `language` varchar(2) NOT NULL,
   `tableKey` int(10) NOT NULL,
   `text` text NOT NULL,
   PRIMARY KEY (`tid`)
-) ENGINE=MyISAM AUTO_INCREMENT=18 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=10 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `system_windows`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
