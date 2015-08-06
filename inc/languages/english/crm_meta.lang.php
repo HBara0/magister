@@ -93,4 +93,22 @@ $lang['nopermission'] = 'You don\'t have permission to delete this entry';
 $lang['chemicalexsist'] = 'Chemical Data Already Exists';
 $lang['description'] = 'Description';
 $lang['charasteristiclist'] = 'Characteristics List';
+
+$lang['generateclassificationcharts'] = 'Generate Classification Charts';
+$lang['currentdata'] = 'Current Amount';
+$lang['prevmonthdata'] = 'Previous Month Amount';
+$lang['position'] = 'Position';
+$lang['topten'] = 'Top 10';
+$lang['salerep'] = 'Salesman';
+$lang['products'] = 'Products';
+$lang['suppliers'] = 'Suppliers';
+$lang['byytd'] = 'YTD';
+$lang['bymonth'] = 'of the Month';
+$lang['byquarter'] = 'of the quarter';
+$lang[''] - 'Live total sales per organisation';
+$lang['livetotalsalesperorganisation'] = 'Live total sales per organisation';
+$lang['drilldownchartsalesperyear'] = 'Drill-Down Chart for Sales per Year';
+$lang['salesdashboard'] = 'Sales Dashboard';
+$lang['salestotalamount'] = 'Sales Total Amounts';
+$lang['affiliates'] = 'Affiliates'
 ?>
