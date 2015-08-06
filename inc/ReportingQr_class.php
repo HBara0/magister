@@ -487,11 +487,15 @@ class ReportingQr Extends Reporting {
                         $actual_current_data = $db->fetch_assoc($db->query("SELECT SUM(".$validation_key."Forecast) AS forecastsum, SUM(".$validation_item.") AS actualsum FROM ".Tprefix."productsactivity pa JOIN ".Tprefix."reports r ON (r.rid=pa.rid) WHERE pid='".$db->escape_string($productactivity['pid'])."' AND quarter='".$this->report['quarter']."' AND year='".$this->report['year']."' AND affid='".$this->report['affid']."' AND spid='".$this->report['spid']."' AND {$actual_current_data_querystring}"));
 
                         $actual_forecast = ($prev_data[$productactivity['pid']][$validation_item] + $actual_current_validation + $actual_current_data['actualsum']);
-                        $actual_current_forecast = $productactivity[$validation_key.'Forecast'] + $actual_current_data['forecastsum'];
+                        $actual_current_forecast = $productactivity[$validation_key.'Forecast'] + $actual_current_data['forecastsum'] + $otheremplforecasts[$productactivity['pid']][$validation_item];
 
+                        $otheremplforecasts[$productactivity['pid']][$validation_item] += $productactivity[$validation_key.'Forecast'];
                         if(round($actual_forecast, 4) > round($actual_current_forecast, 4) || ($this->report['quarter'] == 4 && round($actual_forecast, 4) < round($actual_current_forecast, 4))) {
                             $forecast_corrections[$productactivity['pid']]['name'] = $productactivity['productname'];
                             $forecast_corrections[$productactivity['pid']][$validation_key] = $correctionsign.round($actual_forecast, 4);
+                        }
+                        else {
+                            unset($forecast_corrections[$productactivity['pid']]);
                         }
                     }
                 }

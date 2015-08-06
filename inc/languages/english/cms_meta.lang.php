@@ -151,4 +151,6 @@ $lang['baseversion'] = 'Base Version';
 $lang['edit'] = 'Edit';
 $lang['add'] = 'Add';
 $lang['preview'] = 'Preview';
+$lang['translation'] = 'Translation';
+$lang['manageaff'] = 'Manage Affiliate';
 ?>

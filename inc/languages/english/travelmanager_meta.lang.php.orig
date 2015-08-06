@@ -112,4 +112,6 @@ $lang['stopdescription'] = 'Stops Description';
 $lang['roundtrip'] = 'Round-Trip';
 $lang['class'] = 'Class';
 
+$lang['employee'] = 'Employee';
+
 ?>

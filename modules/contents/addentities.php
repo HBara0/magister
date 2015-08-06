@@ -23,7 +23,7 @@ if(!$core->input['action']) {
         if($core->input['type'] == 'supplier') {
             $selected_type = 's';
         }
-        if($core->input['type'] == 'competitorsupplier') {
+        elseif($core->input['type'] == 'competitorsupplier') {
             $selected_type = 'cs';
         }
         else {
@@ -219,7 +219,8 @@ else {
         $countries_phonecodes = parse_selectlist('repTelephone[intcode]', '', $countriescodes, '', '', '', array('width' => '125px'));
 
         $positions = Positions::get_data('name IS NOT null', array('returnarray' => true, 'order' => array('by' => 'name', 'sort' => 'ASC')));
-        $positions_selectlist = parse_selectlist('repPosition', '', $positions, '', '', '', array('width' => '150px'));
+        $positions_selectlist = parse_selectlist('repPosition', '', $positions, '', '', '', array('blankstart' => true, 'width' => '150px'));
+
         eval("\$addrepresentativebox = \"".$template->get('popup_addrepresentative')."\";");
         output_page($addrepresentativebox);
     }

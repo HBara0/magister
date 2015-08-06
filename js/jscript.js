@@ -149,7 +149,23 @@ $(function () {
 //    $(this).datepicker("option", "maxDate", "+1d ");
 
     $("input[id^='pickDate']").each(function () {
-        initalisedatepicker(this);
+        if($(this).attr("id") == 'pickDate_to') {
+            $(this).datepicker({altField: "#alt" + $(this).attr('id'), altFormat: 'dd-mm-yy', dateFormat: 'MM dd, yy', showWeek: true, firstDay: 1, changeMonth: true, changeYear: true, showAnim: 'slideDown',
+                onClose: function (selectedDate) {
+                    $("#pickDate_from").datepicker("option", "maxDate", selectedDate);
+                }});
+            $("#ui-datepicker-div").css("z-index", $(this).parents(".ui-dialog").css("z-index") + 1);
+        }
+        else if($(this).attr("id") == 'pickDate_from') {
+            $(this).datepicker({altField: "#alt" + $(this).attr('id'), altFormat: 'dd-mm-yy', dateFormat: 'MM dd, yy', showWeek: true, firstDay: 1, changeMonth: true, changeYear: true, showAnim: 'slideDown',
+                onClose: function (selectedDate) {
+                    $("#pickDate_to").datepicker("option", "minDate", selectedDate);
+                }});
+            $("#ui-datepicker-div").css("z-index", $(this).parents(".ui-dialog").css("z-index") + 1);
+        }
+        else {
+            initalisedatepicker(this);
+        }
     })
 
     function initalisedatepicker(object) {

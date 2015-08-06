@@ -693,13 +693,14 @@ class IntegrationOB extends Integration {
 
 }
 
-class IntegrationOBTransaction {
-    private $transaction;
-    private $f_db;
+class IntegrationOBTransaction extends IntegrationAbstractClass {
+    protected $transaction;
+    protected $f_db;
 
     const PRIMARY_KEY = 'm_transaction_id';
     const TABLE_NAME = 'm_transaction';
     const DISPLAY_NAME = '';
+    const CLASSNAME = __CLASS__;
 
     public function __construct($id = '', $f_db = NULL) {
         if(!empty($f_db)) {
@@ -1993,9 +1994,14 @@ class IntegrationOBProductCategory {
 
 }
 
-class IntegrationOBLocator {
-    private $locator;
-    private $f_db;
+class IntegrationOBLocator extends IntegrationAbstractClass {
+    protected $data;
+    protected $f_db;
+
+    const PRIMARY_KEY = 'm_locator_id';
+    const TABLE_NAME = 'm_locator';
+    const DISPLAY_NAME = '';
+    const CLASSNAME = __CLASS__;
 
     public function __construct($id, $f_db = NULL) {
         if(!empty($f_db)) {
@@ -2008,17 +2014,21 @@ class IntegrationOBLocator {
     }
 
     private function read($id) {
-        $this->locator = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
+        $this->data = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
 						FROM m_locator
 						WHERE m_locator_id='".$this->f_db->escape_string($id)."'"));
     }
 
+    public function get_warehouse() {
+        return new IntegrationOBWarehouse($this->m_warehouse_id, $this->f_db);
+    }
+
     public function get_id() {
-        return $this->locator['m_locator_id'];
+        return $this->data['m_locator_id'];
     }
 
     public function get() {
-        return $this->locator;
+        return $this->data;
     }
 
 }
@@ -2029,7 +2039,7 @@ class IntegrationOBWarehouse extends IntegrationAbstractClass {
 
     const PRIMARY_KEY = 'm_warehouse_id';
     const TABLE_NAME = 'm_warehouse';
-    const DISPLAY_NAME = '';
+    const DISPLAY_NAME = 'name';
     const CLASSNAME = __CLASS__;
 
     public function __construct($id, $f_db = NULL) {

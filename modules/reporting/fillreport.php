@@ -886,9 +886,7 @@ else {
         /* Validate Forecasts - End */
         $auditor = $report->user_isaudit();
 
-        if($auditor != true) {
-            $existingentries_query_string = ' AND (uid='.$core->user['uid'].' OR uid=0)';
-        }
+
 //$oldentries = get_specificdata('productsactivity', array('paid'), 'paid', 'paid', '', 0, "rid='{$rid}'{$oldentries_query_string}");
         foreach($core->input['productactivity'] as $i => $productactivity) {
             if(empty($productactivity['pid'])) {
@@ -907,6 +905,9 @@ else {
             if(isset($productactivity['paid']) && !empty($productactivity['paid']) || value_exists('productsactivity', 'rid', $rid, 'pid='.intval($productactivity['pid']).$existingentries_query_string)) {
                 if($auditor != true) {
                     $productactivity['uid'] = $core->user['uid'];
+                }
+                if($auditor != true) {
+                    $existingentries_query_string = ' AND uid IN (0,'.$productactivity['uid'].','.$core->user['uid'].')';
                 }
                 if(isset($productactivity['paid']) && !empty($productactivity['paid'])) {
                     $update_query_where = 'paid='.intval($productactivity['paid']);
@@ -1343,9 +1344,6 @@ else {
 //            }
 //        }
         $auditor = $report->user_isaudit();
-        if($auditor != true) {
-            $products_deletequery_string = ' AND (uid='.$core->user['uid'].' OR uid=0)';
-        }
 
 //$db->query("DELETE FROM ".Tprefix."productsactivity WHERE rid='{$rawdata[rid]}'{$products_deletequery_string}");
 ////if(empty($report_meta['excludeProductsActivity'])) {
@@ -1368,6 +1366,9 @@ else {
             }
 
             foreach($rawdata['productactivitydata'] as $i => $newdata) {
+                if($auditor != true) {
+                    $products_deletequery_string = ' AND uid IN (0,'.$newdata['uid'].','.$core->user['uid'].')';
+                }
                 if(empty($newdata['pid'])) {
                     if(!empty($newdata['paid'])) {
                         $db->query("DELETE FROM ".Tprefix."productsactivity WHERE paid=".intval($newdata['paid']));

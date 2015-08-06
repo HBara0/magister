@@ -85,4 +85,8 @@ $lang['areyousuredeleteapp'] = 'Are You Sure You Want To Delete This Segment App
 $lang['yes'] = 'Yes';
 $lang['deleteapp'] = 'Delete Application';
 $lang['deleteerror'] = 'You can\'t delete a used entity';
+$lang['translation'] = 'Translation';
+$lang['manageappl'] = 'Manage Application';
+$lang['managefunc'] = 'Manage Function';
+$lang['managesegment'] = 'Manage Segment';
 ?>

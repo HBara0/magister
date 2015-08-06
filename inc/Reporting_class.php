@@ -40,11 +40,26 @@ class Reporting {
 //			WHERE sa.eid=".$this->report['spid'].""));
     }
 
-    public function user_isaudit() {
+    /**
+     *
+     * @global type $core
+     * @param type $strict  Whether the user is strictly the report auditor or has other permissions
+     * @return boolean
+     */
+    public function user_isaudit($strict = false) {
         global $core;
-        if($core->usergroup['canAdminCP'] == 1) {
-            return true;
+        if($strict == false) {
+            if($core->usergroup['canAdminCP'] == 1) {
+                return true;
+            }
+
+            if(!empty($this->affid)) {
+                if(value_exists('affiliatedemployees', 'uid', $core->user['uid'], 'canAudit=1 AND affid='.$this->affid)) {
+                    return true;
+                }
+            }
         }
+
         $audits = $this->get_report_supplier_audits();
         if(is_array($audits)) {
             foreach($audits as $audit) {
@@ -91,6 +106,10 @@ class Reporting {
             return $this->report[$name];
         }
         return false;
+    }
+
+    public function __isset($name) {
+        return isset($this->report[$name]);
     }
 
     public function get_budget() {
