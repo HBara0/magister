@@ -64,6 +64,7 @@ if(!$core->input['action']) {
         $leave_segment = $leave->get_segment()->get()['title'];
     }
     $plan_name = $leave_type->title.' - '.$plan_object->get_leave()->get_country()->get_displayname();
+    $employee = $leave->get_user()->get_displayname();
     //$leave_type = unserialize($plan_object->get_leave()->get_type()->get()['toApprove']);
 
     /* parse segment of plan */
