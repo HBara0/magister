@@ -1243,7 +1243,6 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
 
     public function get_product_local() {
         global $db;
-
         $product = new Products($db->fetch_field($db->query('SELECT localId FROM integration_mediation_products WHERE foreignSystem=3 AND foreignName="'.$this->get_product()->name.'"'), 'localId'));
         if(!is_object($product)) {
             $product = new Products($db->fetch_field($db->query('SELECT pid FROM products WHERE name="'.$this->get_product()->name.'"'), 'pid'));
@@ -1308,25 +1307,31 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
 
     public function get_data_byyearmonth($filters = '', $options = array()) {
         //$rawdata = $this->get_aggreateddata_byyearmonth('salesrep_id, c_currency_id', $filters);
-        $lines = IntegrationOBInvoiceLine::get_data($filters);
+        $lines = IntegrationOBInvoiceLine::get_data($filters); // array('order' => array('sort' => 'DESC', 'by' => 'qtyinvoiced')));
         if(is_array($lines)) {
             foreach($lines as $line) {
                 $invoice = $line->get_invoice();
                 $invoice->dateinvoiceduts = strtotime($invoice->dateinvoiced);
                 $invoice->dateparts = getdate($invoice->dateinvoiceduts);
                 $currency = $invoice->get_currency();
-                $data['qty'][$invoice->salesrep_id][$invoice->dateparts['year']][$invoice->dateparts['mon']] += $line->qtyinvoiced;
+                $data['salerep']['qty'][$invoice->salesrep_id][$invoice->dateparts['year']][$invoice->dateparts['mon']] += $line->qtyinvoiced;
 
+                $product = $line->get_product_local();
+                $supplier = new IntegrationOBBPartner($product->c_bpartner_id);
                 if(!empty($options['reportcurrency'])) {
                     $reportcurrency = new Currencies($options['reportcurrency']);
 
                     $fxrate = $reportcurrency->get_fxrate_bytype($options['fxtype'], $currency->iso_code, array('from' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 01:00'), 'to' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 24:00'), 'year' => date('Y', $invoice->dateinvoiceduts), 'month' => date('m', $invoice->dateinvoiceduts)), array('precision' => 4));
                     if(!empty($fxrate)) {
-                        $data['linenetamt'][$invoice->salesrep_id][$invoice->dateparts['year']][$invoice->dateparts['mon']] += $line->linenetamt / $fxrate;
+                        $data['salerep']['linenetamt'][$invoice->salesrep_id][$invoice->dateparts['year']][$invoice->dateparts['mon']] += $line->linenetamt / $fxrate;
+                        $data['products']['linenetamt'][$line->m_product_id][$invoice->dateparts['year']][$invoice->dateparts['mon']] += $line->linenetamt / $fxrate;
+                        $data['suppliers']['linenetamt'][$product->c_bpartner_id][$invoice->dateparts['year']][$invoice->dateparts['mon']] += $line->linenetamt / $fxrate;
                     }
                 }
                 else {
-                    $data['linenetamt'][$invoice->c_currency_id][$invoice->salesrep_id][$invoice->dateparts['year']][$invoice->dateparts['mon']] += $line->linenetamt;
+                    $data['salerep']['linenetamt'][$invoice->c_currency_id][$invoice->salesrep_id][$invoice->dateparts['year']][$invoice->dateparts['mon']] += $line->linenetamt;
+                    $data['products']['linenetamt'][$line->m_product_id][$invoice->dateparts['year']][$invoice->dateparts['mon']] += $line->linenetamt;
+                    $data['suppliers']['linenetamt'][$product->c_bpartner_id][$invoice->dateparts['year']][$invoice->dateparts['mon']] += $line->linenetamt;
                 }
             }
             return $data;
@@ -1340,6 +1345,167 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
 //            return $data;
 //        }
         return false;
+    }
+
+    public function get_classification($data, $period) {
+        $tableindexes = array('salerep', 'products', 'suppliers');
+        foreach($tableindexes as $tableindex) {
+            if(is_array($data[$tableindex])) {
+                if((TIME_NOW > $period['from']) && (TIME_NOW < $period['to'])) {
+                    foreach($data[$tableindex]['linenetamt'] as $id => $salerepdata) {
+                        if(empty($id)) {
+                            continue;
+                        }
+                        $current_year = date('Y', TIME_NOW);
+                        $currentquarter = ceil(date('n', TIME_NOW) / 3); //02;
+                        $current_month = 03; //date("m");
+
+                        $currentyeardata = $salerepdata[$current_year];
+                        $classificationtypes = array('bymonth', 'byytd', 'byquarter');
+
+                        if(isset($currentyeardata[$current_month]) && !empty($currentyeardata[$current_month])) {
+                            $classification[$tableindex]['bymonth'][$tableindex][$id]['currentdata'] = $currentyeardata[$current_month];
+                            $classification[$tableindex]['bymonth'][$tableindex][$id]['currentmonthdata'] = $currentyeardata[$current_month];
+                            $classification_data[] = $currentyeardata[$current_month];
+                        }
+                        else {
+                            $classification[$tableindex]['bymonth'][$tableindex][$id]['currentdata'] = 0;
+                            $classification_data[] = 0;
+                            //  $ytdclassification_data[$id] +=0;
+                        }
+
+                        if(is_array($currentyeardata)) {
+                            foreach($currentyeardata as $cydata) {
+                                if(!empty($cydata)) {
+                                    $classification[$tableindex]['byytd'][$tableindex][$id]['currentdata'] +=$cydata;
+                                    $ytdclassification_data[$id] +=$cydata;
+                                }
+                                else {
+                                    $classification[$tableindex]['byytd'][$tableindex][$id]['currentdata'] += 0;
+                                    $ytdclassification_data[$id] +=0;
+                                }
+                            }
+                        }
+                        $classificationtypes = array('bymonth');
+                        foreach($classificationtypes as $type) {
+                            if(isset($currentyeardata[($current_month - 1)])) {
+                                $classification[$tableindex][$type][$tableindex][$id]['prevmonthdata'] = $currentyeardata[$current_month - 1];
+                            }
+                            else {
+                                $classification[$tableindex][$type][$tableindex][$id]['prevmonthdata'] = 0;
+                            }
+                        }
+                        $qmonths = $this->get_quartermonths($currentquarter);
+                        foreach($qmonths as $month) {
+                            $classification[$tableindex]['byquarter'][$tableindex][$id]['currentdata'] += $currentyeardata[$month];
+                        }
+                    }
+                    array_multisort($classification_data, SORT_DESC, $classification[$tableindex]['bymonth'][$tableindex]);
+                    array_multisort($ytdclassification_data, SORT_DESC, $classification[$tableindex]['byytd'][$tableindex]);
+                    //  array_multisort($ytdclassification_data, SORT_DESC, $classification[$tableindex]['byquarter'][$tableindex]);
+                }
+                else {
+                    foreach($data[$tableindex]['linenetamt'] as $id => $salerepdata) {
+                        $classification[$tableindex]['wholeperiod'][$tableindex][$id]['id'] = $id;
+                        $currentyeardata = $salerepdata[$current_year];
+                        if(is_array($currentyeardata)) {
+                            foreach($currentyeardata as $cydata) {
+                                $classification[$tableindex]['wholeperiod'][$tableindex][$id]['data'] +=$cydata;
+                            }
+                        }
+                    }
+                }
+            }
+            unset($classification_data, $ytdclassification_data);
+        }
+        return $classification;
+    }
+
+    public function parse_classificaton_tables($classification) {
+        global $lang, $core;
+        $tableindexes = array('products', 'suppliers', 'salerep');
+        foreach($tableindexes as $tableindex) {
+            switch($tableindex) {
+                case 'salerep':
+                    $classname = 'IntegrationOBUser';
+                    break;
+                case 'suppliers':
+                    $classname = 'IntegrationOBBPartner';
+                    break;
+                case 'products':
+                    $classname = 'IntegrationOBProduct';
+                    break;
+                default:
+                    break;
+            }
+            if(is_array($classification[$tableindex])) {
+                foreach($classification[$tableindex] as $classificationtype => $classificationdata) {
+                    if(is_array($classificationdata)) {
+                        $output .= '<table class="datatable"><tr><td class="thead" colspan=4>'.$lang->topten.' '.$lang->$tableindex.' '.$lang->$classificationtype.'</td></tr>';
+                        if(is_array($classificationdata[$tableindex])) {
+                            $output .='<tr><td>'.$lang->$tableindex.'</td><td>'.$lang->currentdata.'</td><td>'.$lang->prevmonthdata.'</td><td>'.$lang->position.'</td><tr>';
+                            reset($classificationdata[$tableindex]);
+                            $topofthemonthid = key($classificationdata[$tableindex]);
+                            foreach($classificationdata[$tableindex] as $id => $cdata) {
+                                if(is_array($cdata)) {
+                                    $position = '<img src="'.$core->settings['rootdir'].'/images/icons/red_down_arrow.gif" alt="decreasing"/>';
+                                    if($cdata['currentmonthdata'] > $cdata['prevmonthdata']) {
+                                        $position = '<img src="'.$core->settings['rootdir'].'/images/icons/green_up_arrow.gif" alt="increasing"/>';
+                                    }
+                                    unset($cdata['currentmonthdata']);
+                                    $output .='<tr>';
+                                    $object = new $classname($id);
+                                    $output .='<td>'.$object->name.'</td>';
+                                    foreach($cdata as $data) {
+                                        $output .='<td>'.$data.'</td>';
+                                    }
+                                    $output .='<td>'.$position.'</td></tr>';
+                                }
+                            }
+                        }
+                        $output .='</table><br/>';
+                        $topofthemonth_obj = new $object($topofthemonthid);
+                        $output .='<div>BM '.$lang->$classificationtype.' : '.$topofthemonth_obj->name.'</div>';
+                        $output .='<div style="width:100%;"><img src="'.$this->parse_classificaton_charts($classificationdata[$tableindex], $tableindex).'" /></div>';
+                    }
+                }
+            }
+        }
+        return $output;
+    }
+
+    public function parse_classificaton_charts($data, $type) {
+        global $lang;
+        $data_ids = array_keys($data);
+        switch($type) {
+            case 'salerep':
+                $classname = 'IntegrationOBUser';
+                break;
+            case 'suppliers':
+                $classname = 'IntegrationOBBPartner';
+                break;
+            case 'products':
+                $classname = 'IntegrationOBProduct';
+                break;
+            default:
+                break;
+        }
+        foreach($data_ids as $id) {
+            $object = new $classname($id);
+            $yaxixdata[] = $object->name;
+            $xaxisdata[] = $data[$type][currentdata];
+        }
+        $chart = new Charts(array('x' => $yaxixdata, 'y' => $xaxisdata), 'bar', array('yaxisname' => $lang->topten.' '.$lang->$type, 'xaxisname' => '', 'width' => 1000, 'title' => $lang->topten.' '.$lang->$type, 'scale' => 'SCALE_START0', 'nosort' => true, 'scalepos' => SCALE_POS_TOPBOTTOM, 'labelrotationangle' => 40));
+        return $chart->get_chart();
+    }
+
+    public function get_quartermonths($quarter) {
+        switch($quarter) {
+            case 1: return array('1', '2', '3');
+            case 2: return array('4', '5', '6');
+            case 3: return array('7', '8', '9');
+            case 4: return array('10', '11', '12');
+        }
     }
 
     public function get_aggreateddata_byyearmonth($groupby, $filters = '') {
@@ -1743,7 +1909,7 @@ class IntegrationOBLandedCosts {
 }
 
 class IntegrationOBProduct extends IntegrationAbstractClass {
-    protected $product;
+    protected $data;
     protected $f_db;
 
     const PRIMARY_KEY = 'm_product_id';
@@ -1756,32 +1922,32 @@ class IntegrationOBProduct extends IntegrationAbstractClass {
     }
 
     private function read($id) {
-        $this->product = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
+        $this->data = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
 						FROM m_product
 						WHERE m_product_id='".$this->f_db->escape_string($id)."'"));
     }
 
     public function get_category() {
-        return new IntegrationOBProductCategory($this->product['m_product_category_id'], $this->f_db);
+        return new IntegrationOBProductCategory($this->data['m_product_category_id'], $this->f_db);
     }
 
     public function get_uom() {
-        return new IntegrationOBUom($this->product['c_uom_id'], $this->f_db);
+        return new IntegrationOBUom($this->data['c_uom_id'], $this->f_db);
     }
 
     public function get_id() {
-        return $this->product['m_product_id'];
+        return $this->data['m_product_id'];
     }
 
     public function __get($name) {
-        if(isset($this->product[$name])) {
-            return $this->product[$name];
+        if(isset($this->data[$name])) {
+            return $this->data[$name];
         }
         return false;
     }
 
     public function get() {
-        return $this->product;
+        return $this->data;
     }
 
 }
