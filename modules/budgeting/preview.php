@@ -407,9 +407,9 @@ if(!($core->input['action'])) {
                     if(empty($budgetsdata['current']['managers'])) {
                         $budgetsdata['current']['managers'][] = $core->user['uid'];
                     }
-
-                    if(is_array($budgetsdata[$field]['managers'])) {
-                        $budgetlines_filters = array('businessMgr' => $budgetsdata[$field]['managers']);
+//$field
+                    if(is_array($budgetsdata['current']['managers'])) {
+                        $budgetlines_filters = array('businessMgr' => $budgetsdata['current']['managers']);
                     }
                     $budgetlines = $budget_obj->get_lines($budgetlines_filters);
                     if(is_array($budgetlines)) {

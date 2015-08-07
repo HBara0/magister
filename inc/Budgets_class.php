@@ -363,7 +363,7 @@ class Budgets extends AbstractClass {
 
             if(is_array($data['affiliates'])) {
                 array_walk($data['affiliates'], intval);
-                $budget_reportquery = " AND affid IN (".implode(',', $data['affiliates']).")";
+                $budget_reportquery .= " AND affid IN (".implode(',', $data['affiliates']).")";
             }
             $budget_reportquery = $db->query("SELECT bid FROM ".Tprefix."budgeting_budgets WHERE year=".intval($data['years']).$budget_reportquery);
         }
@@ -550,7 +550,6 @@ class Budgets extends AbstractClass {
 
     public function generate_budgetline_filters() {
         global $core;
-
         if($core->usergroup['canViewAllSupp'] == 0 && $core->usergroup['canViewAllAff'] == 0) {
             $filter['filters']['suppliers'] = $core->user['suppliers']['eid'];
             if(is_array($core->user['auditfor'])) {
