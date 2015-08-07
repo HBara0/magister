@@ -411,6 +411,9 @@ if(!($core->input['action'])) {
                     if(is_array($budgetsdata['current']['managers'])) {
                         $budgetlines_filters = array('businessMgr' => $budgetsdata['current']['managers']);
                     }
+                    if(is_array($budgetsdata['current']['segments'])) {
+                        $budgetlines_filters = array('psid' => $budgetsdata['current']['segments']);
+                    }
                     $budgetlines = $budget_obj->get_lines($budgetlines_filters);
                     if(is_array($budgetlines)) {
                         //foreach($firstbudgetline as $cid => $customersdata) {
