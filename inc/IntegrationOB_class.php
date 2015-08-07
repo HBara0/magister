@@ -1316,11 +1316,10 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                 $invoice->dateparts = getdate($invoice->dateinvoiceduts);
                 $currency = $invoice->get_currency();
                 $data['salerep']['qty'][$invoice->salesrep_id][$invoice->dateparts['year']][$invoice->dateparts['mon']] += $line->qtyinvoiced;
-
-                $product = $line->get_product_local();
-                $supplier = new IntegrationOBBPartner($product->c_bpartner_id);
+                $product = $line->get_product();
                 if(!empty($options['reportcurrency'])) {
                     $reportcurrency = new Currencies($options['reportcurrency']);
+                    $indexes = array('salerep', 'products', 'suppliers');
 
                     $fxrate = $reportcurrency->get_fxrate_bytype($options['fxtype'], $currency->iso_code, array('from' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 01:00'), 'to' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 24:00'), 'year' => date('Y', $invoice->dateinvoiceduts), 'month' => date('m', $invoice->dateinvoiceduts)), array('precision' => 4));
                     if(!empty($fxrate)) {
@@ -1350,31 +1349,29 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
 
     public function get_classification($data, $period) {
         $tableindexes = array('salerep', 'products', 'suppliers');
+        $classificationtypes = array('bymonth', 'byytd', 'byquarter');
+        $current_year = date('Y', TIME_NOW);
+
         foreach($tableindexes as $tableindex) {
             if(is_array($data[$tableindex])) {
                 if((TIME_NOW > $period['from']) && (TIME_NOW < $period['to'])) {
-                    foreach($data[$tableindex]['linenetamt'] as $id => $salerepdata) {
+                    foreach($data[$tableindex]['linenetamt'] as $id => $salerepdata) {//rename salerepdata
                         if(empty($id)) {
                             continue;
                         }
-                        $current_year = date('Y', TIME_NOW);
-                        $currentquarter = ceil(date('n', TIME_NOW) / 3); //02;
+                        $currentquarter = 02; //ceil(date('n', TIME_NOW) / 3);
                         $current_month = 03; //date("m");
 
                         $currentyeardata = $salerepdata[$current_year];
-                        $classificationtypes = array('bymonth', 'byytd', 'byquarter');
-
                         if(isset($currentyeardata[$current_month]) && !empty($currentyeardata[$current_month])) {
                             $classification[$tableindex]['bymonth'][$tableindex][$id]['currentdata'] = $currentyeardata[$current_month];
                             $classification[$tableindex]['bymonth'][$tableindex][$id]['currentmonthdata'] = $currentyeardata[$current_month];
-                            $classification_data[] = $currentyeardata[$current_month];
+                            $classification_data[$id] = $currentyeardata[$current_month];
                         }
                         else {
                             $classification[$tableindex]['bymonth'][$tableindex][$id]['currentdata'] = 0;
-                            $classification_data[] = 0;
-                            //  $ytdclassification_data[$id] +=0;
+                            $classification_data[$id] = 0;
                         }
-
                         if(is_array($currentyeardata)) {
                             foreach($currentyeardata as $cydata) {
                                 if(!empty($cydata)) {
@@ -1386,39 +1383,79 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                                     $ytdclassification_data[$id] +=0;
                                 }
                             }
-                        }
-                        $classificationtypes = array('bymonth');
-                        foreach($classificationtypes as $type) {
-                            if(isset($currentyeardata[($current_month - 1)])) {
-                                $classification[$tableindex][$type][$tableindex][$id]['prevmonthdata'] = $currentyeardata[$current_month - 1];
+
+                            //Change variable names from months to ytd
+                            $classification[$tableindex]['byytd'][$tableindex][$id]['currentmonthdata'] = $classification[$tableindex]['byytd'][$tableindex][$id]['currentdata'];
+                            //Get Last year total data to be compared with current year data
+                            $lastyeardata = $salerepdata[($current_year - 1)];
+                            if(is_array($lastyeardata)) {
+                                foreach($lastyeardata as $lydata) {
+                                    if(!empty($lydata)) {
+                                        $classification[$tableindex]['byytd'][$tableindex][$id]['prevmonthdata'] +=$lydata;
+                                    }
+                                    else {
+                                        $classification[$tableindex]['byytd'][$tableindex][$id]['prevmonthdata'] += 0;
+                                    }
+                                }
                             }
-                            else {
-                                $classification[$tableindex][$type][$tableindex][$id]['prevmonthdata'] = 0;
-                            }
+                            //////////////////////////////////////////////////////////////////
                         }
+                        //Get Last Month data to be compared with current month data
+                        if(isset($currentyeardata[($current_month - 1)])) {
+                            $classification[$tableindex]['bymonth'][$tableindex][$id]['prevmonthdata'] = $currentyeardata[$current_month - 1];
+                        }
+                        else {
+                            $classification[$tableindex]['bymonth'][$tableindex][$id]['prevmonthdata'] = 0;
+                        }
+                        ///////////////////////////////////////////////////////////////////
+                        //classify data by quarter//
                         $qmonths = $this->get_quartermonths($currentquarter);
                         foreach($qmonths as $month) {
                             $classification[$tableindex]['byquarter'][$tableindex][$id]['currentdata'] += $currentyeardata[$month];
+                            $qclassification_data[$id] +=$currentyeardata[$month];
                         }
                     }
-                    array_multisort($classification_data, SORT_DESC, $classification[$tableindex]['bymonth'][$tableindex]);
-                    array_multisort($ytdclassification_data, SORT_DESC, $classification[$tableindex]['byytd'][$tableindex]);
-                    //  array_multisort($ytdclassification_data, SORT_DESC, $classification[$tableindex]['byquarter'][$tableindex]);
+                    ///Sort Data descending to classify top supp/products or BM //
+                    if(isset($classification_data) && isset($classification[$tableindex]['bymonth'][$tableindex])) {
+                        array_multisort($classification_data, SORT_DESC, $classification[$tableindex]['bymonth'][$tableindex]);
+                    }
+                    if(isset($ytdclassification_data) && isset($classification[$tableindex]['byytd'][$tableindex])) {
+                        array_multisort($ytdclassification_data, SORT_DESC, $classification[$tableindex]['byytd'][$tableindex]);
+                    }
+                    if(isset($qclassification_data) && isset($classification[$tableindex]['byquarter'][$tableindex])) {
+                        array_multisort($qclassification_data, SORT_DESC, $classification[$tableindex]['byquarter'][$tableindex]);
+                    }
+                    unset($classification_data, $ytdclassification_data, $qclassification_data);
                 }
                 else {
                     foreach($data[$tableindex]['linenetamt'] as $id => $salerepdata) {
-                        $classification[$tableindex]['wholeperiod'][$tableindex][$id]['id'] = $id;
                         $currentyeardata = $salerepdata[$current_year];
                         if(is_array($currentyeardata)) {
                             foreach($currentyeardata as $cydata) {
                                 $classification[$tableindex]['wholeperiod'][$tableindex][$id]['data'] +=$cydata;
+                                $periodclassification[$id] +=$cydata;
                             }
                         }
                     }
+                    if(isset($periodclassification) && isset($classification[$tableindex]['wholeperiod'][$tableindex])) {
+                        array_multisort($periodclassification, SORT_DESC, $classification[$tableindex]['wholeperiod'][$tableindex]);
+                    }
+                    unset($periodclassification);
                 }
             }
-            unset($classification_data, $ytdclassification_data);
         }
+        //Select only top 10 out of the array//
+        foreach($tableindexes as $tableindex) {
+            foreach($classificationtypes as $type) {
+                if(is_array($classification[$tableindex][$type][$tableindex])) {
+                    $classification[$tableindex][$type][$tableindex] = array_slice($classification[$tableindex][$type][$tableindex], 0, 10);
+                }
+            }
+            if(is_array($classification[$tableindex]['wholeperiod'][$tableindex])) {
+                $classification[$tableindex]['wholeperiod'][$tableindex] = array_slice($classification[$tableindex]['wholeperiod'][$tableindex], 0, 10);
+            }
+        }
+
         return $classification;
     }
 
@@ -1443,31 +1480,43 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                 foreach($classification[$tableindex] as $classificationtype => $classificationdata) {
                     if(is_array($classificationdata)) {
                         $output .= '<table class="datatable"><tr><td class="thead" colspan=4>'.$lang->topten.' '.$lang->$tableindex.' '.$lang->$classificationtype.'</td></tr>';
-                        if(is_array($classificationdata[$tableindex])) {
-                            $output .='<tr><td>'.$lang->$tableindex.'</td><td>'.$lang->currentdata.'</td><td>'.$lang->prevmonthdata.'</td><td>'.$lang->position.'</td><tr>';
-                            reset($classificationdata[$tableindex]);
-                            $topofthemonthid = key($classificationdata[$tableindex]);
-                            foreach($classificationdata[$tableindex] as $id => $cdata) {
-                                if(is_array($cdata)) {
-                                    $position = '<img src="'.$core->settings['rootdir'].'/images/icons/red_down_arrow.gif" alt="decreasing"/>';
-                                    if($cdata['currentmonthdata'] > $cdata['prevmonthdata']) {
-                                        $position = '<img src="'.$core->settings['rootdir'].'/images/icons/green_up_arrow.gif" alt="increasing"/>';
-                                    }
-                                    unset($cdata['currentmonthdata']);
-                                    $output .='<tr>';
-                                    $object = new $classname($id);
-                                    $output .='<td>'.$object->name.'</td>';
-                                    foreach($cdata as $data) {
-                                        $output .='<td>'.$data.'</td>';
-                                    }
-                                    $output .='<td>'.$position.'</td></tr>';
-                                }
-                            }
+                        $output .='<tr><td>'.$lang->$tableindex.'</td><td>'.$lang->currentdata.'</td>';
+                        if($classificationtype != 'wholeperiod') {
+                            $ouput .='<td>'.$lang->prevdata.'</td><td>'.$lang->position.'</td>';
                         }
+                        $output .='<tr>';
+                        reset($classificationdata[$tableindex]);
+                        $topofthemonthid = key($classificationdata[$tableindex]);
+                        foreach($classificationdata[$tableindex] as $id => $cdata) {
+                            if(is_array($cdata)) {
+                                if($classificationtype != 'wholeperiod') {
+                                    if(isset($cdata['prevmonthdata'])) {
+                                        $position = '<img src="'.$core->settings['rootdir'].'/images/icons/red_down_arrow.gif" alt="decreasing"/>';
+                                        if($cdata['currentmonthdata'] > $cdata['prevmonthdata']) {
+                                            $position = '<img src="'.$core->settings['rootdir'].'/images/icons/green_up_arrow.gif" alt="increasing"/>';
+                                        }
+                                    }
+                                }
+                                unset($cdata['currentmonthdata']);
+                                $object = new $classname($id);
+                                $output .='<tr><td>'.$object->name.'</td>';
+                                foreach($cdata as $data) {
+                                    $output .='<td>'.$data.'</td>';
+                                }
+                                if($classificationtype != 'wholeperiod') {
+                                    $output .='<td>'.$position.'</td>';
+                                }
+                                $output .='</tr>';
+                            }
+                            unset($position);
+                        }
+
                         $output .='</table><br/>';
                         $topofthemonth_obj = new $object($topofthemonthid);
-                        $output .='<div>BM '.$lang->$classificationtype.' : '.$topofthemonth_obj->name.'</div>';
-                        $output .='<div style="width:100%;"><img src="'.$this->parse_classificaton_charts($classificationdata[$tableindex], $tableindex).'" /></div>';
+                        if(is_object($topofthemonth_obj)) {
+                            $output .='<div style="font-weight:bold;">'.$lang->$tableindex.' '.$lang->$classificationtype.' : '.$topofthemonth_obj->name.'</div><br/>';
+                        }
+                        $output .='<div style="width:100%;"><h2>'.$lang->topten.' '.$lang->$tableindex.' '.$lang->$classificationtype.'</h2><img src="data:image/png;base64'.base64_encode($this->parse_classificaton_charts($classificationdata[$tableindex], $tableindex)).'" /></div>';
                     }
                 }
             }
@@ -1494,9 +1543,9 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
         foreach($data_ids as $id) {
             $object = new $classname($id);
             $yaxixdata[] = $object->name;
-            $xaxisdata[] = $data[$type][currentdata];
+            $xaxisdata[] = $data[$id]['currentdata'];
         }
-        $chart = new Charts(array('x' => $yaxixdata, 'y' => $xaxisdata), 'bar', array('yaxisname' => $lang->topten.' '.$lang->$type, 'xaxisname' => '', 'width' => 1000, 'title' => $lang->topten.' '.$lang->$type, 'scale' => 'SCALE_START0', 'nosort' => true, 'scalepos' => SCALE_POS_TOPBOTTOM, 'labelrotationangle' => 40));
+        $chart = new Charts(array('x' => $yaxixdata, 'y' => $xaxisdata), 'bar', array('yaxisname' => $lang->topten.' '.$lang->$type, 'xaxisname' => '', 'width' => '1100', 'height' => 300, 'scale' => 'SCALE_START0', 'nosort' => true, 'scalepos' => SCALE_POS_TOPBOTTOM, 'labelrotationangle' => 45));
         return $chart->get_chart();
     }
 

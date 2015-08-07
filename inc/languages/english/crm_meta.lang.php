@@ -93,4 +93,16 @@ $lang['nopermission'] = 'You don\'t have permission to delete this entry';
 $lang['chemicalexsist'] = 'Chemical Data Already Exists';
 $lang['description'] = 'Description';
 $lang['charasteristiclist'] = 'Characteristics List';
+$lang['generateclassificationcharts'] = 'Generate Classification Charts';
+$lang['currentdata'] = 'Current Amount';
+$lang['prevdata'] = 'Previous Amount';
+$lang['position'] = 'Position';
+$lang['topten'] = 'Top 10';
+$lang['salerep'] = 'Salesman';
+$lang['products'] = 'Products';
+$lang['suppliers'] = 'Suppliers';
+$lang['byytd'] = 'YTD';
+$lang['bymonth'] = 'of the Month';
+$lang['byquarter'] = 'of the quarter';
+$lang['wholeperiod'] = 'of the Whole Period';
 ?>
