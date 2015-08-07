@@ -1,6 +1,6 @@
 <html>
     <head>
-        <title>{$core->settings[systemtitle]} | {$lang->stockreport}</title>
+        <title>{$core->settings[systemtitle]} | {$lang->valuedstockreport}</title>
         {$headerinc}
     </head>
     <body>
@@ -8,7 +8,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h1>{$lang->stockreport}</h1>
+            <h1>{$lang->valuedstockreport}</h1>
             <div style="margin-left: 5px;">
                 <div class="ui-state-highlight ui-corner-all" style="padding-left: 5px; margin-bottom:10px;"><p>This report reads data from Openbravo. If you find any wrong info, please verify it on Openbravo.</p></div>
 
