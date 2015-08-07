@@ -1482,7 +1482,7 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                         $output .= '<table class="datatable"><tr><td class="thead" colspan=4>'.$lang->topten.' '.$lang->$tableindex.' '.$lang->$classificationtype.'</td></tr>';
                         $output .='<tr><td>'.$lang->$tableindex.'</td><td>'.$lang->currentdata.'</td>';
                         if($classificationtype != 'wholeperiod') {
-                            $ouput .='<td>'.$lang->prevdata.'</td><td>'.$lang->position.'</td>';
+                            $output .='<td>'.$lang->prevdata.'</td><td>'.$lang->position.'</td>';
                         }
                         $output .='<tr>';
                         reset($classificationdata[$tableindex]);
@@ -1519,7 +1519,6 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                         $output .='<div style="width:100%;"><h2>'.$lang->topten.' '.$lang->$tableindex.' '.$lang->$classificationtype.'</h2><small>(K Amounts)</small>';
 
                         $output .='<img src="'.$this->parse_classificaton_charts($classificationdata[$tableindex], $tableindex).'" />';
-
                         //   $output .='<img src="data:image/png;base64'.base64_encode(file_get_contents($this->parse_classificaton_charts($classificationdata[$tableindex], $tableindex))).'" />';
                         $output .='</div>';
                     }
