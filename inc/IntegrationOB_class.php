@@ -1516,7 +1516,12 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                         if(is_object($topofthemonth_obj)) {
                             $output .='<div style="font-weight:bold;">'.$lang->$tableindex.' '.$lang->$classificationtype.' : '.$topofthemonth_obj->name.'</div><br/>';
                         }
-                        $output .='<div style="width:100%;"><h2>'.$lang->topten.' '.$lang->$tableindex.' '.$lang->$classificationtype.'</h2><img src="data:image/png;base64'.base64_encode($this->parse_classificaton_charts($classificationdata[$tableindex], $tableindex)).'" /></div>';
+                        $output .='<div style="width:100%;"><h2>'.$lang->topten.' '.$lang->$tableindex.' '.$lang->$classificationtype.'</h2><small>(K Amounts)</small>';
+
+                        $output .='<img src="'.$this->parse_classificaton_charts($classificationdata[$tableindex], $tableindex).'" />';
+
+                        //   $output .='<img src="data:image/png;base64'.base64_encode(file_get_contents($this->parse_classificaton_charts($classificationdata[$tableindex], $tableindex))).'" />';
+                        $output .='</div>';
                     }
                 }
             }
@@ -1543,9 +1548,9 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
         foreach($data_ids as $id) {
             $object = new $classname($id);
             $yaxixdata[] = $object->name;
-            $xaxisdata[] = $data[$id]['currentdata'];
+            $xaxisdata[] = $data[$id]['currentdata'] / 1000;
         }
-        $chart = new Charts(array('x' => $yaxixdata, 'y' => $xaxisdata), 'bar', array('yaxisname' => $lang->topten.' '.$lang->$type, 'xaxisname' => '', 'width' => '1100', 'height' => 300, 'scale' => 'SCALE_START0', 'nosort' => true, 'scalepos' => SCALE_POS_TOPBOTTOM, 'labelrotationangle' => 45));
+        $chart = new Charts(array('x' => $yaxixdata, 'y' => $xaxisdata), 'bar', array('yaxisname' => $lang->topten.' '.$lang->$type, 'xaxisname' => '', 'width' => '1100', 'height' => 300, 'scale' => 'SCALE_START0', 'nosort' => true, 'scalepos' => SCALE_POS_TOPBOTTOM, 'noLegend' => true, 'labelrotationangle' => 45));
         return $chart->get_chart();
     }
 
