@@ -25,7 +25,7 @@ if(!$core->input['action']) {
     output_page($generatepage);
 }
 else {
-    if($core->input['action'] == 'do_generatereport') {
+    if($core->input['action'] == 'do_perform_valuedstockreport') {
         require_once ROOT.INC_ROOT.'integration_config.php';
         if(empty($core->input['affid'])) {
             redirect('index.php?module=warehousemgmt/valuedstockreport');
@@ -91,6 +91,7 @@ else {
                 $product = new IntegrationOBProduct($product_id, $integration->get_dbconn());
                 $total['qty'] += $item['qty'];
                 $total['value'] += $item['value'];
+                $item['valuebyqty'] = $item['value'] / $item['qty'];
                 eval("\$itemlines .= \"".$template->get('warehousemgmt_valuedstkreport_reportlines_itemlines')."\";");
             }
             eval("\$reportlines .= \"".$template->get('warehousemgmt_valuedstkreport_reportlines')."\";");
@@ -100,6 +101,6 @@ else {
         }
 
         eval("\$report = \"".$template->get('warehousemgmt_valuedstkreport_report')."\";");
-        echo($report);
+        output_xml('<status></status><message><![CDATA['.$report.']]></message>');
     }
 }
