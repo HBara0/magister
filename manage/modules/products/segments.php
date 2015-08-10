@@ -63,9 +63,9 @@ else {
                             }
                         }
                     }
-                    output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
-                    exit;
                 }
+                output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
+                exit;
             case 1:
                 output_xml('<status>false</status><message>'.$lang->fillallrequiredfields.'</message>');
                 break;
@@ -121,8 +121,8 @@ else {
         $languages = SystemLanguages::get_data('slid !=1', array('returnarray' => true));
         if(is_array($languages)) {
             foreach($languages as $language) {
-                $lid = $language->slid;
-                $trans_fields = array('description', 'title', 'shortDescription');
+                $lid = $language->htmllang;
+                $trans_fields = array('description', 'title', 'shortDescription', 'slogan');
                 foreach($trans_fields as $field) {
                     $translation = Translations::get_translation($field, ProductsSegments::TABLE_NAME, $lid, $segment_obj->{ProductsSegments::PRIMARY_KEY});
                     if(is_object($translation)) {

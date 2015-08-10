@@ -150,7 +150,6 @@ class CmsPages extends Cms {
                         $email_data['subject'] = $lang->sprint($lang->newnotification_subject, $this->page['title']);
                         $email_data['message'] = $lang->sprint($lang->newnotification_body, $this->page['title'], $this->page['summary'], $this->page['bodyText']);
                     }
-
                     $mail = new Mailer($email_data, 'php');
                 }
                 /* Inform audits about the change, and request approval - END */

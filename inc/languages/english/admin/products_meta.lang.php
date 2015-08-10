@@ -89,4 +89,6 @@ $lang['translation'] = 'Translation';
 $lang['manageappl'] = 'Manage Application';
 $lang['managefunc'] = 'Manage Function';
 $lang['managesegment'] = 'Manage Segment';
+$lang['managesegapfunc'] = 'Manage Segment Application Function';
+$lang['slogan'] = 'Slogan';
 ?>

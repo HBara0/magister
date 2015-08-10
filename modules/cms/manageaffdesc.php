@@ -23,7 +23,7 @@ if(!$core->input['action']) {
     $languages = SystemLanguages::get_data('slid !=1', array('returnarray' => true));
     if(is_array($languages)) {
         foreach($languages as $language) {
-            $lid = $language->slid;
+            $lid = $language->htmllang;
             $trans_fields = array('description');
             foreach($trans_fields as $field) {
                 $translation = Translations::get_translation($field, Affiliates::TABLE_NAME, $lid, $affiliate->{Affiliates::PRIMARY_KEY});
