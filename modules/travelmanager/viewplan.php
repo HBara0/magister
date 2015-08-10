@@ -76,12 +76,21 @@ if(!$core->input['action']) {
         }
     }
     if($core->input['preview'] == 1) {
-        $display_fin = 'style="display:none"';
+        $display_fin = $hide_close = 'style="display:none"';
     }
+
     eval("\$leave_details = \"".$template->get('travelmanager_viewlpan_leavedtls')."\";");
-    eval("\$travelmanager_viewplan = \"".$template->get('travelmanager_viewlpan')."\";");
-    output_page($travelmanager_viewplan);
-    //get  segment trans from db
+    eval("\$content = \"".$template->get('travelmanager_viewlpan_content')."\";");
+
+    if($core->input['preview'] == 1) {
+        $display_fin = $hide_close = 'style="display:none"';
+        output_page($content);
+    }
+    else {
+        eval("\$travelmanager_viewplan = \"".$template->get('travelmanager_viewlpan')."\";");
+        output_page($travelmanager_viewplan);
+    }
+//get  segment trans from db
 }
 else {
     if($core->input['action'] == 'email') {
@@ -100,7 +109,7 @@ else {
         if(is_object($leave->get_segment())) {
             $leave_segment = $leave->get_segment()->get()['title'];
         }
-        $plan_name = $leave_type->title.' - '.$plan_object->get_leave()->get_country()->get_displayname();
+        $plan_name = $leave_type->title.' - '.$leave->get_country()->get_displayname();
         $leave_requestey = $leave->requestKey;
         $approve_link = DOMAIN.'/index.php?module=attendance/listleaves&action=takeactionpage&requestKey='.base64_encode($leave->requestKey).'&id='.base64_encode($leave->lid).'&tmpid='.$planid;
         $segment_objs = TravelManagerPlanSegments::get_segments(array('tmpid' => $planid), array('order' => 'sequence', 'simple' => false, 'returnarray' => true));
