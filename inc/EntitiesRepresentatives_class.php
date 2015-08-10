@@ -35,4 +35,12 @@ class EntitiesRepresentatives extends AbstractClass {
 
     }
 
+    public function get_entity() {
+        return new Entities($this->data['eid']);
+    }
+
+    public function get_representative() {
+        return new Representatives($this->data['rpid']);
+    }
+
 }
