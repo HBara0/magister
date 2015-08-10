@@ -110,4 +110,5 @@ $lang['cannotdeleteentry'] = 'Entry Cannot be deleted';
 $lang['clone'] = 'Clone';
 $lang['charasteristiclist'] = "Characteristics List";
 $lang['sequence'] = 'Sequence';
+$lang['segmentcatss'] = 'Segment Categories';
 ?>
