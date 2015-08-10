@@ -4406,6 +4406,7 @@ CREATE TABLE `usergroups` (
   `canUseCms` int(11) NOT NULL,
   `travelmanager_canApproveHotels` tinyint(1) NOT NULL,
   `canUseWarehouseMgmt` tinyint(1) NOT NULL,
+  `canUseCc` tinyint(1) NOT NULL,
   PRIMARY KEY (`gid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=20 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;

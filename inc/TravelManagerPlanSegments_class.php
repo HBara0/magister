@@ -743,7 +743,7 @@ class TravelManagerPlanSegments extends AbstractClass {
             $expenses['accomodation'] = 0;
         }
         $expenses_total += $expenses['accomodation'];
-        // $expenses_subtotal = $numfmt->formatCurrency($expenses_total, "USD");
+        $expenses_subtotal = $numfmt->formatCurrency($expenses_total, "USD");
 
         $fxrate_query['expenses'] = "(CASE WHEN tme.currency =840 THEN 1 ELSE (SELECT rate FROM currencies_fxrates WHERE baseCurrency=tme.currency AND currency=840
 				ORDER BY date DESC LIMIT 0, 1)END)";
@@ -783,7 +783,7 @@ class TravelManagerPlanSegments extends AbstractClass {
             $amount_payedinadv.='<div style = "width:85%;display:inline-block;">'.$lang->amountpayedinadvance.'</div>';
             $amount_payedinadv .= '<div style = "width:10%;display:inline-block;text-align:right;">'.$numfmt->formatCurrency($total_fin_amount, "USD").'</div>';
             $amount_payedinadv.='</div>';
-            $expenses_total+=$total_fin_amount;
+//            $expenses_total+=$total_fin_amount;
         }
         $expenses_total = $numfmt->formatCurrency($expenses_total, "USD");
 // $expenses_total = round($expenses_total, 2);

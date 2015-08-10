@@ -59,6 +59,67 @@ if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject) || $ignore_su
 
                 //$approve_link = DOMAIN.'/index.php?module=attendance/listleaves&action=perform_approveleave&toapprove='.base64_encode($core->input['requestKey']).'&referrer=email';
                 $approve_link = DOMAIN.'/index.php?module=attendance/listleaves&action=takeactionpage&requestKey='.base64_encode($core->input['requestKey']).'&id='.base64_encode($leave['lid']);
+                $travelmanager_plan = TravelManagerPlan::get_plan(array('lid' => $leave['lid']), array('returnarray' => false));
+                if(is_object($travelmanager_plan)) {
+                    $approve_link = DOMAIN.'/index.php?module=attendance/listleaves&action=takeactionpage&requestKey='.base64_encode($leave->requestKey).'&id='.base64_encode($leave->lid).'&tmpid='.$travelmanager_plan->tmpid;
+                    $leave = $travelmanager_plan->get_leave();
+                    $leave_type = $leave->get_type();
+                    $employee = $leave->get_user()->get_displayname();
+                    $leave_purpose = $leave_segment = $lang->na;
+                    if(is_object($leave->get_purpose())) {
+                        $leave_purpose = $leave->get_purpose()->get()['name'];
+                    }
+                    if(is_object($leave->get_segment())) {
+                        $leave_segment = $leave->get_segment()->get()['title'];
+                    }
+                    $plan_name = $leave_type->title.' - '.$leave->get_country()->get_displayname();
+                    $leave_requestey = $leave->requestKey;
+                    $approve_link = DOMAIN.'/index.php?module=attendance/listleaves&action=takeactionpage&requestKey='.base64_encode($leave->requestKey).'&id='.base64_encode($leave->lid).'&tmpid='.$planid;
+                    $segment_objs = TravelManagerPlanSegments::get_segments(array('tmpid' => $planid), array('order' => 'sequence', 'simple' => false, 'returnarray' => true));
+
+                    if(is_array($segment_objs)) {
+                        foreach($segment_objs as $segmentid => $segment) {
+                            $segment_details .= $segment->parse_segment();
+                            $segment_expenses = $segment->parse_expensesummary();
+                        }
+
+                        foreach($segment_objs as $segmentid => $segment) {
+                            $transportaion_fields_title = '<div style="font-size: 24px;color: #91B64F;font-weight: 100;">'.$segment->get_origincity()->name.' - '.$segment->get_destinationcity()->name.'</div>';
+                            /* Get and parse all the possibe Flights */
+                            if(!empty($segment->get()['apiFlightdata'])) {
+                                $transportaionsegment_fields .= '<div style="horizontal-align: middle; font-weight: bold;border-bottom: 1px dashed #666;font-size: 14px;padding:5px; background-color: #92D050 ; ">'.$lang->allpossibleflights.'</div>';
+                                $transportaionsegment_fields .= TravelManagerAirlines::parse_bestflight($segment->get()['apiFlightdata'], array(), $sequence, 'email');
+                            }
+                            /* Get and parse all the possibe Approved Hotels */
+                            $destcity = new Cities($segment->destinationCity);
+                            $approvedhotels = $destcity->get_country()->get_approvedhotels();
+                            if(is_array($approvedhotels)) {
+                                foreach($approvedhotels as $hotel) {
+                                    $isselectedhotel = TravelManagerPlanaccomodations::get_data(array('tmpsid' => $segment->tmpsid, 'tmhid' => $hotel->tmhid));
+                                    if(is_object($isselectedhotel)) {
+                                        continue;
+                                    }
+                                    $iscontractedicon = '<img src="./images/invalid.gif" alt="'.$lang->no.'"/>';
+                                    if($hotel->isContracted == 1) {
+                                        $iscontractedicon = '<img src="./images/valid.gif" alt="'.$lang->yes.'"/>';
+                                    }
+                                    /* parse ratings */
+                                    eval("\$otherapprovedhotels .= \"".$template->get('travelmanager_approvedhotel_row')."\";");
+                                }
+                                $transportaionsegment_fields .= $transportaion_fields_title;
+                                eval("\$transportaionsegment_fields .= \"".$template->get('travelmanager_viewplan_approvedhotels')."\";");
+                            }
+                            unset($otherapprovedhotels);
+                        }
+                        if(!empty($transportaionsegment_fields)) {
+                            $transportaion_fields .= $transportaionsegment_fields;
+                            unset($transportaionsegment_fields, $transportaion_fields_title);
+                        }
+                    }
+                    eval("\$leave_details = \"".$template->get('travelmanager_viewlpan_leavedtls')."\";");
+
+                    eval("\$travelmanager_viewplan = \"".$template->get('travelmanager_viewlpanemail')."\";");
+                }
 
                 /* Parse expense information for message - START */
                 $leave_obj = new Leaves(array('lid' => $leave['lid']), false);
@@ -85,7 +146,7 @@ if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject) || $ignore_su
                 /* Parse expense information for message - END */
 
                 $lang->requestleavesubject = $lang->sprint($lang->requestleavesubject, $leave['firstName'].' '.$leave['lastName'], strtolower($leave['type_details']['title']), $request_key);
-                $lang->requestleavemessagesupervisor = $lang->sprint($lang->requestleavemessagesupervisor, $leave['firstName'].' '.$leave['lastName'], strtolower($leave['type_details']['title']).$leave['details_crumb'], date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave['fromDate']), date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave['toDate']), $leave['reason'], $user['employeename'], $approve_link);
+                $lang->requestleavemessagesupervisor = $lang->sprint($lang->requestleavemessagesupervisor, $leave['firstName'].' '.$leave['lastName'], strtolower($leave['type_details']['title']).$leave['details_crumb'], date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave['fromDate']), date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave['toDate']), $leave['reason'], $user['employeename'], $approve_link, $travelmanager_viewplan);
 
                 $email_data = array(
                         'from_email' => 'approve_leaverequest@ocos.orkila.com',

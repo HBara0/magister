@@ -35,4 +35,8 @@ class AffiliatedEntities extends AbstractClass {
 
     }
 
+    public function get_affiliate() {
+        return new Affiliates($this->data['affid']);
+    }
+
 }
