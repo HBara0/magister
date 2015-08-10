@@ -105,4 +105,10 @@ $lang['byytd'] = 'YTD';
 $lang['bymonth'] = 'of the Month';
 $lang['byquarter'] = 'of the quarter';
 $lang['wholeperiod'] = 'of the Whole Period';
+$lang[''] - 'Live total sales per organisation';
+$lang['livetotalsalesperorganisation'] = 'Live total sales per organisation';
+$lang['drilldownchartsalesperyear'] = 'Drill-Down Chart for Sales per Year';
+$lang['salesdashboard'] = 'Sales Dashboard';
+$lang['salestotalamount'] = 'Sales Total Amounts';
+$lang['affiliates'] = 'Affiliates'
 ?>
