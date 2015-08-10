@@ -21,7 +21,7 @@ if(!$core->input['action']) {
     eval("\$livechart = \"".$template->get('crm_salesdashboard_livechart')."\";");
     eval("\$drilldown = \"".$template->get('crm_salesdashboard_drilldown')."\";");
 
-    eval("\$generatepage = \"".$template->get('crm_dashboard')."\";");
+    eval("\$generatepage = \"".$template->get('crm_salesdashboard')."\";");
     output_page($generatepage);
 }
 else {
@@ -42,9 +42,12 @@ else {
                 }
             }
         }
-        $query = $intgdb->query("SELECT totallines,dateinvoiced,c_invoice_id FROM c_invoice WHERE issotrx='Y'AND docstatus='CO' AND c_invoice.ad_org_id IN ('".implode("','", $orgs)."') AND issotrx='Y' AND (dateinvoiced BETWEEN '".date('Y-m-d 00:00:00', strtotime((date('Y', TIME_NOW) - 2).'-01-01'))."' AND '".date('Y-m-d 00:00:00', strtotime((date('Y', TIME_NOW)).'-12-31'))."')");
+        $query = $intgdb->query("SELECT totallines,dateinvoiced,c_invoice_id,c_currency_id FROM c_invoice WHERE issotrx='Y'AND docstatus='CO' AND c_invoice.ad_org_id IN ('".implode("','", $orgs)."') AND issotrx='Y' AND (dateinvoiced BETWEEN '".date('Y-m-d 00:00:00', strtotime((date('Y', TIME_NOW) - 2).'-01-01'))."' AND '".date('Y-m-d 00:00:00', strtotime((date('Y', TIME_NOW)).'-12-31'))."')");
         if($intgdb->num_rows($query) > 0) {
             while($line = $intgdb->fetch_assoc($query)) {
+                $currency_obj = IntegrationOBCurrency::get_data($line['c_currency_id']);
+                $lines['usdfxrate'] = $currency_obj->get_fxrate_bytype($core->input['fxtype'], $invoice->currency, array('from' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 01:00'), 'to' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 24:00'), 'year' => date('Y', $invoice->dateinvoiceduts), 'month' => date('m', $invoice->dateinvoiceduts)), array('precision' => 4));
+
                 $invoice[dateinvoiceduts] = strtotime($line[dateinvoiced]);
                 $invoice[dateparts] = getdate($invoice[dateinvoiceduts]);
                 $quarter = ceil(date('n', $invoice[dateinvoiceduts]) / 3);

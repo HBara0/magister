@@ -1112,8 +1112,13 @@ class IntegrationOBInvoice {
 						WHERE c_invoice_id='".$this->f_db->escape_string($id)."'"));
     }
 
-    public function get_currency() {
-        return new IntegrationOBCurrency($this->invoice['c_currency_id'], $this->f_db);
+    public function get_currency($currency = '') {
+        if(!empty($currency)) {
+            return new IntegrationOBCurrency($currency, $this->f_db);
+        }
+        else {
+            return new IntegrationOBCurrency($this->invoice['c_currency_id'], $this->f_db);
+        }
     }
 
     public function get_id() {
