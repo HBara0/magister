@@ -104,7 +104,7 @@ else {
         $languages = SystemLanguages::get_data('slid !=1', array('returnarray' => true));
         if(is_array($languages)) {
             foreach($languages as $language) {
-                $lid = $language->slid;
+                $lid = $language->htmllang;
                 $trans_fields = array('description', 'title');
                 foreach($trans_fields as $field) {
                     $translation = Translations::get_translation($field, SegmentApplications::TABLE_NAME, $lid, $application->{SegmentApplications::PRIMARY_KEY});

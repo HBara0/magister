@@ -127,6 +127,29 @@ elseif($core->input['action'] == 'save_descr') {
     $segapfunct_obj->save($fields);
     switch($segapfunct_obj->get_errorcode()) {
         case 0:
+            if(is_array($core->input['lang'])) {
+                $trans_data['tableKey'] = intval($segapfunct_obj->{SegApplicationFunctions::PRIMARY_KEY});
+                $trans_data['tableName'] = SegApplicationFunctions::TABLE_NAME;
+                foreach($core->input['lang'] as $slid => $language) {
+                    $trans_data['language'] = $slid;
+                    if(is_array($language)) {
+                        foreach($language as $field => $text) {
+                            $trans_data['language'] = $slid;
+                            $trans_data['field'] = $field;
+                            $trans_data['text'] = $text;
+                            $translation_obj = new Translations();
+                            $translation_obj->set($trans_data);
+                            $translation_obj->save();
+                            if($translation_obj->get_errorcode() != 0) {
+                                output_xml("<status>false</status><message>{$lang->errorsaving}</message>");
+                                exit;
+                            }
+                        }
+                    }
+                }
+            }
+            output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
+            exit;
             output_xml('<status>true</status><message>'.$lang->successfullysaved.'</message>');
             break;
         case 1:
@@ -181,6 +204,23 @@ elseif($core->input['action'] == 'get_segapdescription') {
     $segapfunct_obj = new SegApplicationFunctions($core->input['id']);
     $safid = $segapfunct_obj->safid;
     $segapdescriptions = $segapfunct_obj->get_description();
+    $languages = SystemLanguages::get_data('slid !=1', array('returnarray' => true));
+    if(is_array($languages)) {
+        foreach($languages as $language) {
+            $lid = $language->htmllang;
+            $trans_fields = array('description');
+            foreach($trans_fields as $field) {
+                $translation = Translations::get_translation($field, SegApplicationFunctions::TABLE_NAME, $lid, $segapfunct_obj->{SegApplicationFunctions::PRIMARY_KEY});
+                if(is_object($translation)) {
+                    $trans[$lid][$field] = $translation->text;
+                }
+            }
+            eval("\$translationtabs_content=\"".$template->get('admin_products_translatesegapfunction_content')."\";");
+            $lang_output .= $translationtabs_content;
+            $lid = '';
+        }
+    }
+    eval("\$translationsapsegfunc = \"".$template->get('admin_translationsprodsegapfunc')."\";");
     if($segapfunct_obj->publishOnWebsite == '1') {
         $checked = 'checked = "checked"';
     }
@@ -199,7 +239,7 @@ elseif($core->input['action'] == 'get_updatefunction') {
     $languages = SystemLanguages::get_data('slid !=1', array('returnarray' => true));
     if(is_array($languages)) {
         foreach($languages as $language) {
-            $lid = $language->slid;
+            $lid = $language->htmllang;
             $trans_fields = array('description', 'title');
             foreach($trans_fields as $field) {
                 $translation = Translations::get_translation($field, ChemicalFunctions::TABLE_NAME, $lid, $function->{ChemicalFunctions::PRIMARY_KEY});
