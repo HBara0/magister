@@ -39,7 +39,7 @@ else {
         $affiliates_where = '(affid IN ('.implode(',', $core->user['affiliates']).')';
         if(is_array($core->user['auditedaffids'])) {
             if(is_array($core->user['auditedaffids'])) {
-                $affiliates_where .= ' OR (affid IN ('.implode(',', $core->user['auditedaffids']).'))';
+                $affiliates_where .= ' OR (affid IN ('.implode(',', $core->user['auditedaffids']).')))';
             }
         }
 
@@ -108,7 +108,7 @@ else {
         $affiliates_where = '(affid IN ('.implode(',', $core->user['affiliates']).')';
         if(is_array($core->user['auditedaffids'])) {
             if(is_array($core->user['auditedaffids'])) {
-                $affiliates_where .= ' OR (affid IN ('.implode(',', $core->user['auditedaffids']).'))';
+                $affiliates_where .= ' OR (affid IN ('.implode(',', $core->user['auditedaffids']).')))';
             }
         }
         $affiliates = Affiliates::get_affiliates(array('affid' => $affiliates_where.' AND integrationOBOrgId Is not NULL'), array('operators' => array('affid' => 'CUSTOMSQL')));
@@ -138,7 +138,7 @@ else {
         $affiliates_where = '(affid IN ('.implode(',', $core->user['affiliates']).')';
         if(is_array($core->user['auditedaffids'])) {
             if(is_array($core->user['auditedaffids'])) {
-                $affiliates_where .= ' OR (affid IN ('.implode(',', $core->user['auditedaffids']).'))';
+                $affiliates_where .= ' OR (affid IN ('.implode(',', $core->user['auditedaffids']).')))';
             }
         }
         $affiliates = Affiliates::get_affiliates(array('affid' => $affiliates_where.' AND integrationOBOrgId Is not NULL'), array('operators' => array('affid' => 'CUSTOMSQL')));
