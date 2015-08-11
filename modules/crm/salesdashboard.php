@@ -57,7 +57,7 @@ else {
                 $invoice['dateinvoiceduts'] = strtotime($line[dateinvoiced]);
                 $invoice['dateparts'] = getdate($invoice[dateinvoiceduts]);
                 $quarter = ceil(date('n', $invoice[dateinvoiceduts]) / 3);
-                $qmonths = get_quarter($quarter);
+                $qmonths = get_quartermonths($quarter);
                 $obcurrency_obj = new IntegrationOBCurrency($line['c_currency_id']);
                 $currency_obj = new Currencies($obcurrency_obj->cursymbol);
                 $line['usdfxrate'] = $currency_obj->get_fxrate_bytype('real', $currency_obj->alphaCode, array('from' => strtotime(date('Y-m-d', $invoice['dateinvoiceduts']).' 01:00'), 'to' => strtotime(date('Y-m-d', $invoice['dateinvoiceduts']).' 24:00'), 'year' => date('Y', $invoice['dateinvoiceduts']), 'month' => date('m', $invoice['dateinvoiceduts'])), array('precision' => 4), 'USD');
@@ -73,7 +73,7 @@ else {
             $data['salesperyear'][] = $data['sales'][intval($year)]['total'];
             for($q = 1; $q < 5; $q++) {
                 $data[$year][] = $data['sales'][intval($year)][$q]['total'];
-                $qmonths = get_quarter($q);
+                $qmonths = get_quartermonths($q);
                 foreach($qmonths as $month) {
                     if(!empty($data['sales'][$invoice[dateparts]['year']][$q][$month])) {
                         $data[$year.'_'.$q][] = $data['sales'][$invoice[dateparts]['year']][$q][$month]; //rand(100, 10000);
@@ -160,7 +160,7 @@ else {
         output(json_encode($chartproperties));
     }
 }
-function get_quarter($q) {
+function get_quartermonths($q) {
     switch($q) {
         case 1:
             $qmonths = array(1, 2, 3);
