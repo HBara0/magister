@@ -500,7 +500,7 @@ else {
                 }
             }
             eval("\$previewpage = \"".$template->get('crm_previewsalesreport')."\";");
-            output_xml('<status></status><message><![CDATA['.$previewpage.']]></message>');
+            output_xml('<status>true</status><message><![CDATA['.$previewpage.']]></message>');
             // output_page($previewpage);
         }
     }

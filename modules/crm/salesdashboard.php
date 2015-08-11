@@ -49,13 +49,17 @@ else {
         $query = $intgdb->query("SELECT totallines,dateinvoiced,c_invoice_id,c_currency_id FROM c_invoice WHERE issotrx='Y'AND docstatus='CO' AND c_invoice.ad_org_id IN ('".implode("','", $orgs)."') AND issotrx='Y' AND (dateinvoiced BETWEEN '".date('Y-m-d 00:00:00', strtotime((date('Y', TIME_NOW) - 2).'-01-01'))."' AND '".date('Y-m-d 00:00:00', strtotime((date('Y', TIME_NOW)).'-12-31'))."')");
         if($intgdb->num_rows($query) > 0) {
             while($line = $intgdb->fetch_assoc($query)) {
-                $invoice['dateinvoiceduts'] = strtotime($line[dateinvoiced]);
-                $invoice['dateparts'] = getdate($invoice[dateinvoiceduts]);
+                // $obcurrency_obj = new IntegrationOBCurrency($line['c_currency_id']);
+                //$currency_obj = new Currencies($obcurrency_obj->cursymbol);
+                //$line['usdfxrate'] = $currency_obj->get_fxrate_bytype('real', $invoice->currency, array('from' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 01:00'), 'to' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 24:00'), 'year' => date('Y', $invoice->dateinvoiceduts), 'month' => date('m', $invoice->dateinvoiceduts)), array('precision' => 4));
+   $invoice[dateinvoiceduts] = strtotime($line[dateinvoiced]);
+                $invoice[dateparts] = getdate($invoice[dateinvoiceduts]);
+              
                 $quarter = ceil(date('n', $invoice[dateinvoiceduts]) / 3);
                 $qmonths = get_quarter($quarter);
 
-                $currency = IntegrationOBCurrency::get_data($line['c_currency_id']);
-                $line['usdfxrate'] = $currency_obj->get_average_fxrate($currency->iso_code, array('from' => strtotime(date('Y-m-d', $invoice[dateinvoiceduts]).' 01:00'), 'to' => strtotime(date('Y-m-d', $invoice[dateinvoiceduts]).' 24:00'), 'year' => date('Y', $invoice[dateinvoiceduts]), 'month' => date('m', $invoice->dateinvoiceduts)), array('precision' => 4));
+              //  $currency = IntegrationOBCurrency::get_data($line['c_currency_id']);
+             //   $line['usdfxrate'] = $currency_obj->get_average_fxrate($currency->iso_code, array('from' => strtotime(date('Y-m-d', $invoice[dateinvoiceduts]).' 01:00'), 'to' => strtotime(date('Y-m-d', $invoice[dateinvoiceduts]).' 24:00'), 'year' => date('Y', $invoice[dateinvoiceduts]), 'month' => date('m', $invoice->dateinvoiceduts)), array('precision' => 4));
 
                 if(in_array($invoice[dateparts]['mon'], $qmonths)) {
                     $data['sales'][$invoice[dateparts]['year']][$quarter]['total'] +=$line[totallines] / $line['usdfxrate'];
