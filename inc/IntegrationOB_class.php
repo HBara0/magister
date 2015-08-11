@@ -1590,6 +1590,17 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
         return false;
     }
 
+    public function get_totallines() {
+        $query = $this->f_db->query("SELECT sum(totallines)as totallines,ad_org_id from c_invoice WHERE issotrx='Y' AND docstatus='CO' AND (dateinvoiced BETWEEN '".date('Y-m-d 00:00:00', strtotime((date('Y', TIME_NOW)).'-01-01'))."' AND '".date('Y-m-d 00:00:00', strtotime((date('Y', TIME_NOW)).'-12-31'))."') GROUP BY ad_org_id");
+        if($this->f_db->num_rows($query) > 0) {
+            while($invoiceline = $this->f_db->fetch_assoc($query)) {
+                $data[$invoiceline['ad_org_id']] = $invoiceline['totallines'];
+            }
+            return $data;
+        }
+        return false;
+    }
+
 }
 
 class IntegrationOBOrder extends IntegrationAbstractClass {
