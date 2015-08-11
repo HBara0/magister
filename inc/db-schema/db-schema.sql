@@ -3589,6 +3589,14 @@ CREATE TABLE `surveys_responses` (
   `time` bigint(10) NOT NULL,
   PRIMARY KEY (`srid`,`sid`,`stqid`,`invitee`)
 ) ENGINE=MyISAM AUTO_INCREMENT=35 DEFAULT CHARSET=latin1;
+CREATE TABLE `surveys_sharedwith` (
+  `sswid` int(10) NOT NULL AUTO_INCREMENT,
+  `sid` int(10) NOT NULL,
+  `uid` int(10) NOT NULL,
+  `createdBy` int(10) NOT NULL,
+  `createdOn` bigint(30) NOT NULL,
+  PRIMARY KEY (`sswid`)
+) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `surveys_templates`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
