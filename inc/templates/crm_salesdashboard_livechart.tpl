@@ -21,7 +21,7 @@ db.setInterval(function () {
 $.post("index.php?module=crm/salesdashboard&action=do_perform_livesales", function (data) {
 chart2.updateSeries('yvalues', data['sales']);
 });
-}, 1500);
+}, 5000);
 });
 
 db.addComponent(chart2);
