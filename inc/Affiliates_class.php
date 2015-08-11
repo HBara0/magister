@@ -144,7 +144,7 @@ class Affiliates {
         $query = $db->query("SELECT DISTINCT(e.eid)
                             FROM ".Tprefix."entities e
                             LEFT JOIN ".Tprefix."affiliatedentities ae ON (ae.eid=e.eid)
-                            WHERE ae.affid={$this->affiliate['affid']} AND type='c'".$additional_where[extra]." ORDER BY companyName ASC");
+                            WHERE ae.affid={$this->affiliate['affid']} AND type='c'".$additional_where['extra']." ORDER BY companyName ASC");
         while($customer = $db->fetch_assoc($query)) {
             $customers[$customer['eid']] = new Entities($customer['eid']);
         }

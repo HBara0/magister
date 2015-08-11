@@ -82,10 +82,10 @@ else {
         $chartproperties['yaxislabel'] = $lang->salestotalamount;
 
         $lines = new IntegrationOBInvoiceLine(null, $intgdb);
-        $query = $intgdb->query("SELECT sum(totallines)as totallines,ad_org_id from c_invoice WHERE issotrx='Y' AND docstatus='CO' AND (dateinvoiced BETWEEN '".date('Y-m-d 00:00:00', strtotime((date('Y', TIME_NOW)).'-01-01'))."' AND '".date('Y-m-d 00:00:00', strtotime((date('Y', TIME_NOW)).'-12-31'))."') GROUP BY ad_org_id");
+        $query = $intgdb->query("SELECT sum(totallines) AS totallines, ad_org_id from c_invoice WHERE issotrx='Y' AND docstatus='CO' AND (dateinvoiced BETWEEN '".date('Y-m-d 00:00:00', strtotime((date('Y', TIME_NOW)).'-01-01'))."' AND '".date('Y-m-d 00:00:00', strtotime((date('Y', TIME_NOW)).'-12-31'))."') GROUP BY ad_org_id");
         if($intgdb->num_rows($query) > 0) {
             while($invoiceline = $intgdb->fetch_assoc($query)) {
-                $sales['sales'][$invoiceline[ad_org_id]] = $invoiceline[totallines];
+                $sales['sales'][$invoiceline['ad_org_id']] = $invoiceline['totallines'];
             }
         }
         $affiliates_where = '(affid IN ('.implode(',', $core->user['affiliates']).')';
@@ -93,7 +93,7 @@ else {
             $affiliates_where .= ' OR (affid IN ('.implode(',', $core->user['auditedaffids']).'))';
         }
         //   $affiliates = Affiliates::get_affiliates(array('affid' => $affiliates_where), array('returnarray' => true, 'simple' => false, 'operators' => array('affid' => 'CUSTOMSQL')));
-        $affiliates = Affiliates::get_affiliates(array('affid' => $core->user['affiliates']), array('returnarray' => true));
+        $affiliates = Affiliates::get_affiliates(array('affid' => $core->user['affiliates'], 'integrationOBOrgId' => 'integrationOBOrgId IS NOT NULL'), array('operators' => array('integrationOBOrgId' => 'CUSTOMSQL'), 'returnarray' => true));
         if(is_array($affiliates)) {
             foreach($affiliates as $affiliate) {
                 if(empty($affiliate->integrationOBOrgId)) {
@@ -101,7 +101,7 @@ else {
                 }
                 $chartproperties['affiliates'][] = $affiliate->name;
                 if(!empty($sales['sales'][$affiliate->integrationOBOrgId])) {
-                    $chartproperties['sales'][] = ($sales['sales'][$affiliate->integrationOBOrgId]); //rand(1000, 100000); //
+                    $chartproperties['sales'][] = ($sales['sales'][$affiliate->integrationOBOrgId]);
                 }
                 else {
                     $chartproperties['sales'][] = 0;
