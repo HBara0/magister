@@ -12,11 +12,14 @@ if(!defined('DIRECT_ACCESS')) {
     die('Direct initialization of this file is not allowed.');
 }
 
-ini_set('max_execution_time', 0);
-require_once ROOT.INC_ROOT.'IntegrationOB_class.php';
 if($core->usergroup['crm_canGenerateSalesReports'] == 0) {
     error($lang->sectionnopermission);
 }
+
+ini_set('max_execution_time', 100);
+require_once ROOT.INC_ROOT.'IntegrationOB_class.php';
+
+$lang->load('crm_salesdashboard');
 if(!$core->input['action']) {
     eval("\$livechart = \"".$template->get('crm_salesdashboard_livechart')."\";");
     eval("\$drilldown = \"".$template->get('crm_salesdashboard_drilldown')."\";");
