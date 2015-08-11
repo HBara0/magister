@@ -10,7 +10,9 @@
         <script>
             var chart = new ChartComponent("chart");
             var chart2 = new ChartComponent("hashtags");
-            rf.StandaloneDashboard(function (db) {
+            var chart3 = new ChartComponent("hashtags");
+
+            rf.StandaloneDashboard(function(db) {
                 chart2.setDimensions(6, 6);
                 chart2.lock();
                 db.addComponent(chart2);
@@ -18,6 +20,10 @@
                 chart.setDimensions(6, 6);
                 chart.lock();
                 db.addComponent(chart);
+
+                chart3.setDimensions(6, 6);
+                chart3.lock();
+                db.addComponent(chart3);
 
             });
         </script>

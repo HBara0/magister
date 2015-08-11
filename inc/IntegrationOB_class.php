@@ -1591,10 +1591,17 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
     }
 
     public function get_totallines() {
-        $query = $this->f_db->query("SELECT sum(totallines)as totallines,ad_org_id from c_invoice WHERE issotrx='Y' AND docstatus='CO' AND (dateinvoiced BETWEEN '".date('Y-m-d 00:00:00', strtotime((date('Y', TIME_NOW)).'-01-01'))."' AND '".date('Y-m-d 00:00:00', strtotime((date('Y', TIME_NOW)).'-12-31'))."') GROUP BY ad_org_id");
+        $query = $this->f_db->query("SELECT sum(totallines)as totallines,ad_org_id,dateinvoiced,c_currency_id from c_invoice WHERE issotrx='Y' AND docstatus='CO' AND (dateinvoiced BETWEEN '".date('Y-m-d 00:00:00', strtotime((date('Y', TIME_NOW)).'-01-01'))."' AND '".date('Y-m-d 00:00:00', strtotime((date('Y', TIME_NOW)).'-12-31'))."') GROUP BY ad_org_id");
         if($this->f_db->num_rows($query) > 0) {
             while($invoiceline = $this->f_db->fetch_assoc($query)) {
-                $data[$invoiceline['ad_org_id']] = $invoiceline['totallines'];
+                $invoiceline['dateinvoiceduts'] = strtotime($invoiceline['dateinvoiced']);
+                $obcurrency_obj = new IntegrationOBCurrency($invoiceline['c_currency_id']);
+                $currency_obj = new Currencies($obcurrency_obj->cursymbol);
+                $invoiceline['usdfxrate'] = $currency_obj->get_fxrate_bytype('real', $currency_obj->alphaCode, array('from' => strtotime(date('Y-m-d', $invoiceline['dateinvoiceduts']).' 01:00'), 'to' => strtotime(date('Y-m-d', $invoiceline['dateinvoiceduts']).' 24:00'), 'year' => date('Y', $invoiceline['dateinvoiceduts']), 'month' => date('m', $invoiceline['dateinvoiceduts'])), array('precision' => 4), 'USD');
+
+                if(!empty($invoiceline['usdfxrate'])) {
+                    $data[$invoiceline['ad_org_id']] = $invoiceline['totallines'] / $invoiceline['usdfxrate'];
+                }
             }
             return $data;
         }

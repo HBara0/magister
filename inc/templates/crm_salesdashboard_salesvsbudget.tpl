@@ -10,10 +10,8 @@
                 aff = data['affiliates'];
                 var title = data['title'];
                 var linechartlabel = data['linechartlabel'];
-                //   var yaxislabel = data['yaxislabel'];
-                //  var xaxislabel = data['xaxislabel'];
-                //  chart3.setCaption(title);
-                // chart3.setLabels(aff);
+                // var yaxislabel = data['yaxislabel'];
+                // var xaxislabel = data['xaxislabel'];
                 chart3.setCaption(title);
                 chart3.setLabels(aff);
                 //   chart3.addSeries(xaxislabel, yaxislabel, sales, {
