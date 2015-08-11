@@ -38,6 +38,8 @@ if(!$core->input['action']) {
                 $surveystats_link = '<a href="index.php?module=surveys/viewresults&identifier='.$survey['identifier'].'"><img src="./images/icons/stats.gif" border="0" alt="{$lang->viewresults}"/></a>';
             }
             $previewlink = '<a href="index.php?module=surveys/preview&identifier='.$survey['identifier'].'" target="_blank"><img src="./images/icons/report.gif" border="0" title="'.$lang->preview.'" alt="{$lang->preview}"/></a>';
+            $sharewith = ' <input type="hidden" name="identifier" id="extrapopup_identifier_sharesurvey" value="'.$survey['identifier'].'"/><a href="#'.$survey['sid'].'" id="sharesurvey_'.$survey['sid'].'_surveys/list_loadpopupbyid" rel="share_'.$survey['sid'].'" title="'.$lang->sharewith.'"><img src="'.$core->settings['rootdir'].'/images/icons/sharedoc.png" alt="'.$lang->sharewith.'" border="0"></a>';
+
             eval("\$surveys_rows .= \"".$template->get('surveys_listsurveys_row')."\";");
         }
     }
@@ -46,5 +48,67 @@ if(!$core->input['action']) {
     }
     eval("\$surveysList = \"".$template->get('surveys_listsurveys')."\";");
     output_page($surveysList);
+}
+else {
+    if($core->input['action'] == 'get_sharesurvey') {
+        $sid = $db->escape_string($core->input['id']);
+        $identifier = $core->input['identifier'];
+        $affiliates_users = Users::get_allusers();
+        $survey_obj = new Surveys($identifier);
+        $shared_users = $survey_obj->get_shared_users();
+        if(is_array($shared_users)) {
+            foreach($shared_users as $user_obj) {
+                $user = $user_obj->get();
+                $userposition = $user_obj->get_positions();
+                if(is_array($userposition)) {
+                    $user['position'] = implode(',', $userposition);
+                }
+                $user['mainAffiliate'] = $user_obj->get_mainaffiliate()->get_displayname();
+                $checked = ' checked="checked"';
+                $rowclass = 'selected';
+                eval("\$sharewith_rows .= \"".$template->get('popup_surveys_sharewith_rows')."\";");
+            }
+        }
+
+        foreach($affiliates_users as $uid => $user_obj) {
+            $user = $user_obj->get();
+            $checked = $rowclass = '';
+            if($uid == $core->user['uid']) {
+                continue;
+            }
+            if(is_array($shared_users)) {
+                if(array_key_exists($uid, $shared_users)) {
+                    continue;
+                }
+            }
+            $userposition = $user_obj->get_positions();
+            if(is_array($userposition)) {
+                $user['position'] = implode(',', $userposition);
+            }
+            $user['mainAffiliate'] = $user_obj->get_mainaffiliate()->get_displayname();
+            eval("\$sharewith_rows .= \"".$template->get('popup_surveys_sharewith_rows')."\";");
+        }
+        $file = 'list';
+        eval("\$share_survey = \"".$template->get('popup_surveys_share')."\";");
+        output($share_survey);
+    }
+    elseif($core->input['action'] == 'do_share') {
+        $sid = $db->escape_string($core->input['sid']);
+        $identifier = $core->input['identifier'];
+        if(is_array($core->input['sharesurvey'])) {
+            $survey_obj = new Surveys($identifier);
+            $sharesurvey = $survey_obj->share($core->input['sharesurvey']);
+            if($sharesurvey == false) {
+                output_xml('<status>true</status><message>Error Saving</message>');
+                exit;
+            }
+            else {
+                output_xml('<status>true</status><message>'.$lang->successfullysaved.'</message>');
+            }
+        }
+        else {
+            output_xml('<status>false</status><message>'.$lang->fillrequiredfields.'</message>');
+        }
+    }
 }
 ?>
