@@ -32,7 +32,7 @@ obj.data = salesperquarter[year];
 yearData[year] = obj;
 })
 chart.unlock()
-chart.setCaption("Annual Sales Summary (" + years[0] + " - " + years[2] + ")");
+chart.setCaption(data['title']);
 chart.setLabels(years);
 chart.addSeries('sales', "Sales", salesperyear);
 chart.setYAxis("Sales", {

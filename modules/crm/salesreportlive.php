@@ -16,13 +16,13 @@ if(!defined('DIRECT_ACCESS')) {
 if($core->usergroup['crm_canGenerateSalesReports'] == 0) {
     error($lang->sectionnopermission);
 }
-ini_set('max_execution_time', 0);
+ini_set('max_execution_time', 100);
 $lang->load('crm_salesreport');
 if(!$core->input['action']) {
     $affiliates = Affiliates::get_affiliates(array('affid' => $core->user['affiliates']), array('returnarray' => true));
     $affiliates_list = parse_selectlist('affids[]', 2, $affiliates, '');
 
-    $fxtypes_selectlist = parse_selectlist('fxtype', 9, array('lastm' => $lang->lastmonthrate, 'ylast' => $lang->yearlatestrate, 'yavg' => $lang->yearaveragerate, 'mavg' => $lang->monthaveragerate, 'real' => $lang->realrate), '', 0);
+    $fxtypes_selectlist = parse_selectlist('fxtype', 9, array('lastm' => $lang->lastmonthrate, 'ylast' => $lang->yearlatestrate, 'yavg' => $lang->yearaveragerate, 'mavg' => $lang->monthaveragerate, 'real' => $lang->realrate), 'mavg', 0);
 
     $dimensions = array('suppliername' => $lang->supplier, 'customername' => $lang->customer, 'productname' => $lang->product, 'segment' => $lang->segment, 'salesrep' => $lang->employee/* ,  'wid' => $lang->warehouse */);
     foreach($dimensions as $dimensionid => $dimension) {
@@ -86,6 +86,7 @@ else {
         $cols = array('month', 'week', 'documentno', 'salesrep', 'customername', 'suppliername', 'productname', 'segment', 'uom', 'qtyinvoiced', 'priceactual', 'linenetamt', 'purchaseprice', 'unitcostlocal', 'costlocal', 'costusd', 'grossmargin', 'grossmarginusd', 'netmargin', 'netmarginusd', 'marginperc');
         if(is_array($invoices)) {
             foreach($invoices as $invoice) {
+                $orgcurrency = $invoice->get_organisation()->get_currency();
                 $invoice->customername = $invoice->get_customer()->name;
                 $invoicelines = $invoice->get_invoicelines();
                 $invoice->salesrep = $invoice->get_salesrep()->name;
@@ -100,6 +101,13 @@ else {
                 $invoice->usdfxrate = $core->input['fxrate'];
                 if(empty($core->input['fxrate'])) {
                     $invoice->usdfxrate = $currency_obj->get_fxrate_bytype($core->input['fxtype'], $invoice->currency, array('from' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 01:00'), 'to' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 24:00'), 'year' => date('Y', $invoice->dateinvoiceduts), 'month' => date('m', $invoice->dateinvoiceduts)), array('precision' => 4));
+                }
+
+                if($orgcurrency->iso_code != $invoice->currency) {
+                    $invoice->localfxrate = $currency_obj->get_fxrate_bytype($core->input['fxtype'], $invoice->currency, array('from' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 01:00'), 'to' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 24:00'), 'year' => date('Y', $invoice->dateinvoiceduts), 'month' => date('m', $invoice->dateinvoiceduts)), array('precision' => 4), $orgcurrency->iso_code);
+                }
+                if(empty($invoice->localfxrate)) {
+                    $invoice->localfxrate = 1;
                 }
 
                 if(empty($invoice->usdfxrate)) {
@@ -175,7 +183,13 @@ else {
                         }
                     }
 
+
                     $invoiceline->linenetamt = $invoiceline->linenetamt / 1000;
+                    /* Convert to local currency if invoice is in foreign currency */
+                    if($orgcurrency->iso_code != $invoice->currency) {
+                        $invoiceline->priceactual /= $invoice->localfxrate;
+                        $invoiceline->linenetamt /= $invoice->localfxrate;
+                    }
                     $invoiceline->costlocal = $invoiceline->costlocal / 1000;
                     $invoiceline->grossmargin = $invoiceline->linenetamt - (($invoiceline->purchaseprice * $invoiceline->qtyinvoiced) / 1000);
                     $invoiceline->grossmarginusd = $invoiceline->grossmargin / $invoice->usdfxrate;
@@ -501,7 +515,6 @@ else {
             }
             eval("\$previewpage = \"".$template->get('crm_previewsalesreport')."\";");
             output_xml('<status>true</status><message><![CDATA['.$previewpage.']]></message>');
-            // output_page($previewpage);
         }
     }
 }

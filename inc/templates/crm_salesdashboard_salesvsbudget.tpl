@@ -17,18 +17,9 @@ chart3.setLabels(aff);
 //   chart3.addSeries(xaxislabel, yaxislabel, sales, {
 //       numberPrefix: "$"
 //    });
-chart3.addSeries("revenue", "Revenue", sales, {
-numberPrefix: "$"
-});
-chart3.addYAxis(linechartlabel, linechartlabel + "%", {
-numberSuffix: "%"
-});
-chart3.addSeries(linechartlabel, linechartlabel + '%', budget, {
-numberSuffix: "%",
-yAxis: linechartlabel,
-seriesDisplayType: "line"
-});
-chart3.setYAxis("Revenue", {numberPrefix: "$", numberHumanize: true});
+chart3.addSeries("actual", "Actual", sales, {numberPrefix: "$"});
+chart3.addSeries(linechartlabel, linechartlabel, budget, {numberPrefix: "$", yAxis: linechartlabel, seriesDisplayType: "line"});
+chart3.setYAxis("", {numberPrefix: "$", numberHumanize: true});
 chart3.unlock();
 });
 db.addComponent(chart3);
