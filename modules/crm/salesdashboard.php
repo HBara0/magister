@@ -58,7 +58,7 @@ else {
         if($intgdb->num_rows($query) > 0) {
             while($line = $intgdb->fetch_assoc($query)) {
                 $quarter = ceil($line['month'] / 3);
-                $qmonths = get_quarter($quarter);
+                $qmonths = get_quartermonths($quarter);
                 $obcurrency_obj = new IntegrationOBCurrency($line['c_currency_id']);
                 $currency_obj = new Currencies($obcurrency_obj->iso_code);
                 $line['usdfxrate'] = $chartcurrency->get_fxrate_bytype('mavg', $currency_obj->alphaCode, array('year' => $line['year'], 'month' => $line['month']), array('precision' => 4), 'USD');
@@ -80,7 +80,7 @@ else {
             $data['salesperyear'][] = $data['sales'][$year]['total'];
             for($q = 1; $q < 5; $q++) {
                 $data[$year][] = $data['sales'][$year][$q]['total'];
-                $qmonths = get_quarter($q);
+                $qmonths = get_quartermonths($q);
                 foreach($qmonths as $month) {
                     if(!empty($data['sales'][$year][$q][$month])) {
                         $data[$year.'_'.$q][] = $data['sales'][$year][$q][$month]; //rand(100, 10000);
@@ -175,7 +175,7 @@ else {
         output(json_encode($chartproperties));
     }
 }
-function get_quarter($q) {
+function get_quartermonths($q) {
     switch($q) {
         case 1:
             $qmonths = array(1, 2, 3);
