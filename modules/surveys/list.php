@@ -38,7 +38,7 @@ if(!$core->input['action']) {
                 $surveystats_link = '<a href="index.php?module=surveys/viewresults&identifier='.$survey['identifier'].'"><img src="./images/icons/stats.gif" border="0" alt="{$lang->viewresults}"/></a>';
             }
             $previewlink = '<a href="index.php?module=surveys/preview&identifier='.$survey['identifier'].'" target="_blank"><img src="./images/icons/report.gif" border="0" title="'.$lang->preview.'" alt="{$lang->preview}"/></a>';
-            $sharewith = ' <input type="hidden" name="identifier" id="extrapopup_identifier_sharesurvey" value="'.$survey['identifier'].'"/><a href="#'.$survey['sid'].'" id="sharesurvey_'.$survey['sid'].'_surveys/list_loadpopupbyid" rel="share_'.$survey['sid'].'" title="'.$lang->sharewith.'"><img src="'.$core->settings['rootdir'].'/images/icons/sharedoc.png" alt="'.$lang->sharewith.'" border="0"></a>';
+            $sharewith = ' <input type="hidden" name="identifier" id="extrapopup_identifier_'.$survey['sid'].'_sharesurvey" value="'.$survey['identifier'].'"/><a href="#'.$survey['sid'].'" id="sharesurvey_'.$survey['sid'].'_surveys/list_loadpopupbyid" rel="share_'.$survey['sid'].'" title="'.$lang->sharewith.'"><img src="'.$core->settings['rootdir'].'/images/icons/sharedoc.png" alt="'.$lang->sharewith.'" border="0"></a>';
 
             eval("\$surveys_rows .= \"".$template->get('surveys_listsurveys_row')."\";");
         }

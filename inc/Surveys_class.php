@@ -108,9 +108,21 @@ class Surveys {
         }
     }
 
+    public function send_additional_invitations($data) {
+        $survey = $this->get_survey();
+        if($survey['isExternal'] == 0) {
+            $this->survey['invitations'] = $data['invitations'];
+        }
+        elseif($survey['isExternal'] == 1) {
+            $this->survey['externalinvitations'] = $data['externalinvitations'];
+            $this->validate_external_invitations();
+        }
+        $this->set_invitations();
+        $this->send_invitations($this->survey['newinvitations']);
+    }
+
     private function validate_external_invitations() {
         global $core, $errorhandler;
-
         if(isset($this->survey['externalinvitations'])) {
             $external_invitations = preg_split("/[\n;]+/", $this->survey['externalinvitations']);
             $this->survey['externalinvitations'] = array();  /* reset the array before cleaning */
@@ -127,8 +139,13 @@ class Surveys {
                     $errorhandler->record('invalidemailaddress', $externalinvitee);
                     return false;
                 }
-
-                $this->survey['externalinvitations'][] = $new_invitation['invitee'];
+                $previnvitations = array_keys($this->get_invitations());
+                if(!is_array($previnvitations)) {
+                    $this->survey['externalinvitations'][] = $new_invitation['invitee'];
+                }
+                elseif(!in_array($new_invitation['invitee'], $previnvitations)) {
+                    $this->survey['externalinvitations'][] = $new_invitation['invitee'];
+                }
             }
         }
         return true;
@@ -394,7 +411,7 @@ class Surveys {
 
     public function get_single_responses($identifier) {
         global $db, $core;
-        //AND sr.uid={$core->user[uid]}
+//AND sr.uid={$core->user[uid]}
         $query = $db->query("SELECT s.identifier AS survey_identifier, sr.*, sqt.hasChoices, sqt.hasMultiAnswers
 						FROM ".Tprefix."surveys_responses sr
 						JOIN ".Tprefix."surveys s ON (s.sid=sr.sid)
@@ -702,15 +719,20 @@ class Surveys {
             $new_invitation['sid'] = $this->survey['sid'];
             $new_invitation['invitee'] = $invitation;
             $db->insert_query('surveys_invitations', $new_invitation);
+            $this->survey['newinvitations'][] = $new_invitation;
         }
     }
 
-    public function send_invitations() {
+    public function send_invitations($newinvitations = array()) {
         global $core, $lang, $template, $log;
-
-        //if(!isset($this->survey['invitations'])) {
-        $this->survey['invitations'] = $this->get_invitations();
-        //}
+        if(isset($newinvitations) && !empty($newinvitations)) {
+            $this->survey['invitations'] = $newinvitations;
+        }
+        else {
+//if(!isset($this->survey['invitations'])) {
+            $this->survey['invitations'] = $this->get_invitations();
+        }
+//}
         $lang->load('messages');
         foreach($this->survey['invitations'] as $uid => $invitee) {
             if($this->survey['isExternal'] == 0) {
@@ -764,7 +786,7 @@ class Surveys {
             $mail = new Mailer($invitations_email, 'php');
             if($mail->get_status() === true) {
                 $log->record('sendinvitations', array('to' => $invitation_data['email']));
-                //return true;
+//return true;
             }
         }
         return true;

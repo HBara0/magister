@@ -21,7 +21,9 @@
     <td class="contentContainer">
         <h1>{$survey[subject]}</h1>
         {$questionsstats}
-        <div style="display:inline-block; width: 50%; margin:0; text-align:right; float:right;"><div id="perform_surveys/viewresults_Results">
+        {$responses}
+        <div style="display:inline-block; width: 25%; margin:0; text-align:right; float:right;">
+            <div id="perform_surveys/viewresults_Results">
                 <form action="#" method="post" id="perform_surveys/viewresults_Form" name="perform_surveys/viewresults_Form">
                     <input type="hidden" value="{$core->input[identifier]}" name="identifier">
                     <input name="action" value="sendreminders" type="hidden" />
@@ -29,7 +31,6 @@
                 </form>
             </div>
         </div>
-        {$responses}
         {$pendingresponses}
         {$invitations}
         {$shareresultswith}

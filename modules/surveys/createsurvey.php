@@ -167,5 +167,9 @@ else {
                 break;
         }
     }
+    if($core->input['action'] == 'sendinvitations') {
+        $surveyobj = new Surveys($core->input['identifier']);
+        $surveyobj->send_additional_invitations($core->input);
+    }
 }
 ?>
