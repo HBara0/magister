@@ -74,7 +74,7 @@ if(!($core->input['action'])) {
         $csrowid = 0;
 
         //Net Margin Parameters
-        $netmarginparms_uomlist = parse_selectlist('parmsfornetmargin[uom]', '', $uom, '', '', '', array('id' => "parmsfornetmargin_uom", 'blankstart' => 1, 'width' => '70px'));
+        $netmarginparms_uomlist = parse_selectlist('parmsfornetmargin[uom]', '', $uom, '', '', '', array('id' => "parmsfornetmargin_uom", 'blankstart' => 1, 'width' => '100px'));
 
         //Parties Information
         $parties = array('intermed', 'vendor');
@@ -168,7 +168,7 @@ if(!($core->input['action'])) {
             }
             $netmarginparms = AroNetMarginParameters::get_data(array('aorid' => $core->input['id']));
             if(is_object($netmarginparms)) {
-                $netmarginparms_uomlist = parse_selectlist('parmsfornetmargin[uom]', '', $uom, $netmarginparms->uom, '', '', array('id' => "parmsfornetmargin_uom", 'blankstart' => 1, 'width' => '70px'));
+                $netmarginparms_uomlist = parse_selectlist('parmsfornetmargin[uom]', '', $uom, $netmarginparms->uom, '', '', array('id' => "parmsfornetmargin_uom", 'blankstart' => 1, 'width' => '100px'));
                 $warehouse = Warehouses::get_data(array('wid' => $netmarginparms->warehouse));
                 $warehouse_list = '<select '.$disabled['warehousing'].'><option value='.$netmarginparms->warehouse.' selected>'.$warehouse->name.'</option>'
                         .'<option value="0"></option></select>';

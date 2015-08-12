@@ -14,9 +14,6 @@ $(function() {
         return false;
     }).next().hide();
     //--------------------------------------------------------------
-    //
-
-
     if(typeof getUrlParameter('referrer') !== 'undefined') {
         if(getUrlParameter('referrer') == 'toapprove' || getUrlParameter('referrer') == 'toapprove#' || (myUrl.substring(myUrl.length - 1) == '#' && getUrlParameter('referrer') == 'toapprove')) {
             $("form[id='perform_aro/managearodouments_Form'] :input:not([id^='approvearo'])").attr("disabled", true);
@@ -220,6 +217,10 @@ $(function() {
                     if(i === 'parmsfornetmargin_warehousingRate') {
                         var id = val.split(" ");
                         $("select[id^='" + i + "']").empty().append("<option value='" + id[0] + "' selected>" + val + "</option>");
+                    }
+                    else if(i === 'parmsfornetmargin_uom') {
+                        var id = val.split(" ");
+                        $("select[id^='" + i + "'] option[value='" + id[0] + "']").attr("selected", "selected");
                     }
                     else {
                         $("input[id^='" + i + "']").val(val);

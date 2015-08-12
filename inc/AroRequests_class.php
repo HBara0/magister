@@ -333,6 +333,7 @@ class AroRequests extends AbstractClass {
         if(is_object($warehousepolicy)) {
             $data['warehousingRate'] = $warehousepolicy->rate.'  '.$currency->alphaCode.'/'.$uom->get_displayname().'/'.$warehousepolicy->datePeriod.' Days';
             $data['warehousingPeriod'] = $warehousepolicy->datePeriod;
+            $data['uom'] = $warehousepolicy->rate_uom;
         }
         if(!is_object($warehousepolicy)) {
             output($lang->nopolicy);
