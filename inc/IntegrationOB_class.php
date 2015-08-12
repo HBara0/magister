@@ -1593,22 +1593,44 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
         return false;
     }
 
-    public function get_totallines() {
-        $sql = "SELECT SUM(totallines) AS totallines, ad_org_id, c_currency_id, date_part('month', dateinvoiced) AS month, date_part('year', dateinvoiced) AS year FROM c_invoice WHERE c_invoice.ad_org_id IN ('".implode("','", $orgs)."') AND issotrx='Y' AND docstatus='CO' AND (dateinvoiced BETWEEN '".date('Y-m-d 00:00:00', strtotime((date('Y', TIME_NOW)).'-01-01'))."' AND '".date('Y-m-d 00:00:00', strtotime((date('Y', TIME_NOW)).'-12-31'))."') GROUP BY ad_org_id, c_currency_id, year, month";
+    public function get_totallines($orgs = null) {
+        global $core;
+
+        if(empty($orgs)) {
+            $affiliates_where = '(affid IN ('.implode(',', $core->user['affiliates']).')';
+            if(is_array($core->user['auditedaffids'])) {
+                if(is_array($core->user['auditedaffids'])) {
+                    $affiliates_where .= ' OR (affid IN ('.implode(',', $core->user['auditedaffids']).')))';
+                }
+            }
+
+            $affiliates = Affiliates::get_affiliates(array('affid' => $affiliates_where, 'integrationOBOrgId' => 'integrationOBOrgId IS NOT NULL'), array('operators' => array('integrationOBOrgId' => 'CUSTOMSQL', 'affid' => 'CUSTOMSQL')));
+            $orgs = array_map(function ($value) {
+                return $value->integrationOBOrgId;
+            }, $affiliates);
+        }
+        $sql = "SELECT SUM(totallines) AS totallines, ad_org_id, c_currency_id, date_part('month', dateinvoiced) AS month, date_part('year', dateinvoiced) AS year FROM c_invoice WHERE c_invoice.ad_org_id IN ('".implode("','", $orgs)."') AND issotrx='Y' AND docstatus='CO' AND (dateinvoiced BETWEEN '".date('Y-m-d 00:00:00', strtotime((date('Y', TIME_NOW)).'-01-01'))."' AND '".date('Y-m-d 23:59:59', strtotime((date('Y', TIME_NOW)).'-12-31'))."') GROUP BY ad_org_id, c_currency_id, year, month";
         $chartcurrency = new Currencies('USD');
         $query = $this->f_db->query($sql);
         if($this->f_db->num_rows($query) > 0) {
             while($invoiceline = $this->f_db->fetch_assoc($query)) {
                 $obcurrency_obj = new IntegrationOBCurrency($invoiceline['c_currency_id']);
                 $currency_obj = new Currencies($obcurrency_obj->iso_code);
-                $invoiceline['usdfxrate'] = $chartcurrency->get_fxrate_bytype('mavg', $currency_obj->alphaCode, array('year' => $invoiceline['year'], 'month' => $invoiceline['month']), array('precision' => 4), 'USD');
-                if(empty($invoiceline['usdfxrate'])) {
-                    $invoiceline['usdfxrate'] = $chartcurrency->get_latest_fxrate($currency_obj->alphaCode, array('precision' => 4), 'USD');
+
+                if($chartcurrency->get_id() != $currency_obj->get_id()) {
+                    $invoiceline['usdfxrate'] = $chartcurrency->get_fxrate_bytype('mavg', $currency_obj->alphaCode, array('year' => $invoiceline['year'], 'month' => $invoiceline['month']), array('precision' => 4), 'USD');
+                    if(empty($invoiceline['usdfxrate'])) {
+                        $invoiceline['usdfxrate'] = $chartcurrency->get_latest_fxrate($currency_obj->alphaCode, array('precision' => 4), 'USD');
+                    }
+                    if(empty($invoiceline['usdfxrate'])) {
+                        $data[$invoiceline['ad_org_id']] = 0;
+                        continue;
+                    }
+                    $data[$invoiceline['ad_org_id']] += $invoiceline['totallines'] / $invoiceline['usdfxrate'];
                 }
-                if(empty($invoiceline['usdfxrate'])) {
-                    continue;
+                else {
+                    $data[$invoiceline['ad_org_id']] += $invoiceline['totallines'];
                 }
-                $data[$invoiceline['ad_org_id']] = $invoiceline['totallines'] / $invoiceline['usdfxrate'];
             }
             return $data;
         }

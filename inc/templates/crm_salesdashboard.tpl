@@ -6,7 +6,7 @@
         <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
         <script type="text/javascript" src="{$core->settings[rootdir]}/inc/razorflow/razorflow_js/files/js/razorflow.min.js"></script>
         <script>
-            rf.StandaloneDashboard(function(db) {
+            rf.StandaloneDashboard(function (db) {
             {$livechart}{$drilldown}{$combinedsalesbudget}
             });
         </script>
@@ -16,7 +16,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h1>{$lang->salesdashboard}</h1>
+            <h1>{$lang->salesdashboard} <small>({$dashbboard_currency})</small></h1>
             <div id="dbTarget"></div>
         </td>
     </tr>
