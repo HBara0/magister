@@ -131,7 +131,7 @@ class Charts {
         /* Write the chart title */
         if(isset($this->options['title']) && !empty($this->options['title'])) {
             $this->chart->setFontProperties(array('FontName' => $this->font, 'FontSize' => 11));
-            $this->chart->drawText(420, 35, $this->options['title'], array('FontSize' => 15, 'Align' => TEXT_ALIGN_BOTTOMLEFT));
+            $this->chart->drawText(50, 30, $this->options['title'], array('FontSize' => 15, 'Align' => TEXT_ALIGN_BOTTOMLEFT));
         }
         /* Set the default font */
         $this->chart->setFontProperties(array('FontName' => $this->font, 'FontSize' => 8));
