@@ -1142,6 +1142,10 @@ class IntegrationOBInvoice {
         return new IntegrationOBPaymentTerm($this->invoice['c_paymentterm_id'], $this->f_db);
     }
 
+    public function get_organisation() {
+        return new IntegrationOBOrg($this->invoice['ad_org_id'], $this->f_db);
+    }
+
     public function get_invoicelines() {
         $lines = new IntegrationOBInvoiceLine(null, $this->f_db);
         return $lines->get_invoicelines('c_invoice_id=\''.$this->invoice['c_invoice_id'].'\'');
@@ -2673,6 +2677,10 @@ class IntegrationOBOrg extends IntegrationAbstractClass {
 
     public function __construct($id, $f_db = NULL) {
         parent::__construct($id, $f_db);
+    }
+
+    public function get_currency() {
+        return new IntegrationOBCurrency($this->data['c_currency_id'], $this->f_db);
     }
 
 }
