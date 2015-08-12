@@ -6,8 +6,8 @@
         <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
         <script type="text/javascript" src="{$core->settings[rootdir]}/inc/razorflow/razorflow_js/files/js/razorflow.min.js"></script>
         <script>
-            rf.StandaloneDashboard(function (db) {
-            {$livechart}{$drilldown}
+            rf.StandaloneDashboard(function(db) {
+            {$livechart}{$drilldown}{$combinedsalesbudget}
             });
         </script>
     </head>

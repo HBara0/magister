@@ -1324,8 +1324,6 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                 $product = $line->get_product();
                 if(!empty($options['reportcurrency'])) {
                     $reportcurrency = new Currencies($options['reportcurrency']);
-                    $indexes = array('salerep', 'products', 'suppliers');
-
                     $fxrate = $reportcurrency->get_fxrate_bytype($options['fxtype'], $currency->iso_code, array('from' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 01:00'), 'to' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 24:00'), 'year' => date('Y', $invoice->dateinvoiceduts), 'month' => date('m', $invoice->dateinvoiceduts)), array('precision' => 4));
                     if(!empty($fxrate)) {
                         $data['salerep']['linenetamt'][$invoice->salesrep_id][$invoice->dateparts['year']][$invoice->dateparts['mon']] += $line->linenetamt / $fxrate;
@@ -1523,8 +1521,9 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                         }
                         $output .='<div style="width:100%;"><h2>'.$lang->topten.' '.$lang->$tableindex.' '.$lang->$classificationtype.'</h2><small>(K Amounts)</small>';
 
-                        $output .='<img src="'.$this->parse_classificaton_charts($classificationdata[$tableindex], $tableindex).'" />';
-                        //   $output .='<img src="data:image/png;base64'.base64_encode(file_get_contents($this->parse_classificaton_charts($classificationdata[$tableindex], $tableindex))).'" />';
+                        //  $output .='<img src="'.$this->parse_classificaton_charts($classificationdata[$tableindex], $tableindex).'" />';
+                        $x = base64_encode(file_get_contents($this->parse_classificaton_charts($classificationdata[$tableindex], $tableindex)));
+                        $output .='<img src="data:image/png;base64,'.$x.'" />';
                         $output .='</div>';
                     }
                 }
@@ -1591,17 +1590,21 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
     }
 
     public function get_totallines() {
-        $query = $this->f_db->query("SELECT sum(totallines)as totallines,ad_org_id,dateinvoiced,c_currency_id from c_invoice WHERE issotrx='Y' AND docstatus='CO' AND (dateinvoiced BETWEEN '".date('Y-m-d 00:00:00', strtotime((date('Y', TIME_NOW)).'-01-01'))."' AND '".date('Y-m-d 00:00:00', strtotime((date('Y', TIME_NOW)).'-12-31'))."') GROUP BY ad_org_id");
+        $sql = "SELECT SUM(totallines) AS totallines, ad_org_id, c_currency_id, date_part('month', dateinvoiced) AS month, date_part('year', dateinvoiced) AS year FROM c_invoice WHERE c_invoice.ad_org_id IN ('".implode("','", $orgs)."') AND issotrx='Y' AND docstatus='CO' AND (dateinvoiced BETWEEN '".date('Y-m-d 00:00:00', strtotime((date('Y', TIME_NOW)).'-01-01'))."' AND '".date('Y-m-d 00:00:00', strtotime((date('Y', TIME_NOW)).'-12-31'))."') GROUP BY ad_org_id, c_currency_id, year, month";
+        $chartcurrency = new Currencies('USD');
+        $query = $this->f_db->query($sql);
         if($this->f_db->num_rows($query) > 0) {
             while($invoiceline = $this->f_db->fetch_assoc($query)) {
-                $invoiceline['dateinvoiceduts'] = strtotime($invoiceline['dateinvoiced']);
                 $obcurrency_obj = new IntegrationOBCurrency($invoiceline['c_currency_id']);
-                $currency_obj = new Currencies($obcurrency_obj->cursymbol);
-                $invoiceline['usdfxrate'] = $currency_obj->get_fxrate_bytype('real', $currency_obj->alphaCode, array('from' => strtotime(date('Y-m-d', $invoiceline['dateinvoiceduts']).' 01:00'), 'to' => strtotime(date('Y-m-d', $invoiceline['dateinvoiceduts']).' 24:00'), 'year' => date('Y', $invoiceline['dateinvoiceduts']), 'month' => date('m', $invoiceline['dateinvoiceduts'])), array('precision' => 4), 'USD');
-
-                if(!empty($invoiceline['usdfxrate'])) {
-                    $data[$invoiceline['ad_org_id']] = $invoiceline['totallines'] / $invoiceline['usdfxrate'];
+                $currency_obj = new Currencies($obcurrency_obj->iso_code);
+                $invoiceline['usdfxrate'] = $chartcurrency->get_fxrate_bytype('mavg', $currency_obj->alphaCode, array('year' => $invoiceline['year'], 'month' => $invoiceline['month']), array('precision' => 4), 'USD');
+                if(empty($invoiceline['usdfxrate'])) {
+                    $invoiceline['usdfxrate'] = $chartcurrency->get_latest_fxrate($currency_obj->alphaCode, array('precision' => 4), 'USD');
                 }
+                if(empty($invoiceline['usdfxrate'])) {
+                    continue;
+                }
+                $data[$invoiceline['ad_org_id']] = $invoiceline['totallines'] / $invoiceline['usdfxrate'];
             }
             return $data;
         }
