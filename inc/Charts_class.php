@@ -137,11 +137,11 @@ class Charts {
         $this->chart->setFontProperties(array('FontName' => $this->font, 'FontSize' => 8));
 
         /* Define the chart area */
-        $grapharea['X'] = 50;
-        if(isset($this->options['X'])) {
-            $grapharea['X'] = $this->options['X'];
+        $grapharea['x1position'] = 50;
+        if(isset($this->options['x1position'])) {
+            $grapharea['x1position'] = $this->options['x1position'];
         }
-        $this->chart->setGraphArea($grapharea['X'], 30, 680, 200);
+        $this->chart->setGraphArea($grapharea['x1position'], 30, 680, 200);
 
         /* Draw the scale */
         if(isset($this->options['labelrotationangle'])) {

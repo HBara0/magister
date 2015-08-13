@@ -1366,8 +1366,8 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                         if(empty($id)) {
                             continue;
                         }
-                        $currentquarter = 02; //ceil(date('n', TIME_NOW) / 3);
-                        $current_month = 03; //date("m");
+                        $currentquarter = ceil(date('n', TIME_NOW) / 3);
+                        $current_month = date('m');
 
                         $currentyeardata = $salerepdata[$current_year];
                         if(isset($currentyeardata[$current_month]) && !empty($currentyeardata[$current_month])) {
@@ -1468,6 +1468,7 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
 
     public function parse_classificaton_tables($classification) {
         global $lang, $core;
+        $formatter = new NumberFormatter('EN_en', NumberFormatter::DECIMAL, '#.##');
         $tableindexes = array('products', 'suppliers', 'salerep');
         foreach($tableindexes as $tableindex) {
             switch($tableindex) {
@@ -1487,20 +1488,20 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                 foreach($classification[$tableindex] as $classificationtype => $classificationdata) {
                     if(is_array($classificationdata)) {
                         $output .= '<table class="datatable"><tr><td class="thead" colspan=4>'.$lang->topten.' '.$lang->$tableindex.' '.$lang->$classificationtype.'</td></tr>';
-                        $output .='<tr><td>'.$lang->$tableindex.'</td><td>'.$lang->currentdata.'</td>';
+                        $output .= '<tr class="altrow2"><th>'.$lang->$tableindex.'</td><th>'.$lang->currentdata.'</td>';
                         if($classificationtype != 'wholeperiod') {
-                            $output .='<td>'.$lang->prevdata.'</td><td>'.$lang->position.'</td>';
+                            $output .= '<th>'.$lang->prevdata.'</th><th>'.$lang->position.'</th>';
                         }
-                        $output .='<tr>';
+                        $output .= '<tr>';
                         reset($classificationdata[$tableindex]);
                         $topofthemonthid = key($classificationdata[$tableindex]);
                         foreach($classificationdata[$tableindex] as $id => $cdata) {
                             if(is_array($cdata)) {
                                 if($classificationtype != 'wholeperiod') {
                                     if(isset($cdata['prevmonthdata'])) {
-                                        $position = '<img src="'.$core->settings['rootdir'].'/images/icons/red_down_arrow.gif" alt="decreasing"/>';
+                                        $position = '<img src="'.$core->settings['rootdir'].'/images/icons/red_down_arrow.gif" alt="&darr;"/>';
                                         if($cdata['currentmonthdata'] > $cdata['prevmonthdata']) {
-                                            $position = '<img src="'.$core->settings['rootdir'].'/images/icons/green_up_arrow.gif" alt="increasing"/>';
+                                            $position = '<img src="'.$core->settings['rootdir'].'/images/icons/green_up_arrow.gif" alt="&uarr;"/>';
                                         }
                                     }
                                     else {
@@ -1509,19 +1510,19 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                                 }
                                 unset($cdata['currentmonthdata']);
                                 $object = new $classname($id);
-                                $output .='<tr><td>'.$object->name.'</td>';
+                                $output .= '<tr><td>'.$object->name.'</td>';
                                 foreach($cdata as $data) {
-                                    $output .='<td>'.$data.'</td>';
+                                    $output .= '<td style="text-align:right;">'.$formatter->format($data).'</td>';
                                 }
                                 if($classificationtype != 'wholeperiod') {
-                                    $output .='<td>'.$position.'</td>';
+                                    $output .= '<td>'.$position.'</td>';
                                 }
                                 $output .='</tr>';
                             }
                             unset($position);
                         }
 
-                        $output .='</table><br/>';
+                        $output .= '</table><br/>';
                         $topofthemonth_obj = new $object($topofthemonthid);
                         if(is_object($topofthemonth_obj)) {
                             $output .='<div style="font-weight:bold;">'.$lang->$tableindex.' '.$lang->$classificationtype.' : '.$topofthemonth_obj->name.'</div><br/>';
@@ -1530,8 +1531,8 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
 
                         //  $output .='<img src="'.$this->parse_classificaton_charts($classificationdata[$tableindex], $tableindex).'" />';
 
-                        $output .='<img src="data:image/png;base64,'.base64_encode(file_get_contents($this->parse_classificaton_charts($classificationdata[$tableindex], $tableindex))).'" />';
-                        $output .='</div>';
+                        $output .= '<img src="data:image/png;base64,'.base64_encode(file_get_contents($this->parse_classificaton_charts($classificationdata[$tableindex], $tableindex))).'" />';
+                        $output .= '</div>';
                     }
                 }
             }
@@ -1560,7 +1561,7 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
             $yaxixdata[] = $object->name;
             $xaxisdata[] = $data[$id]['currentdata'] / 1000;
         }
-        $chart = new Charts(array('x' => $yaxixdata, 'y' => $xaxisdata), 'bar', array('yaxisname' => $lang->topten.' '.$lang->$type, 'xaxisname' => '', 'width' => '1100', 'height' => 300, 'scale' => 'SCALE_START0', 'nosort' => true, 'scalepos' => SCALE_POS_TOPBOTTOM, 'noLegend' => true, 'labelrotationangle' => 45, 'X' => 120));
+        $chart = new Charts(array('x' => $yaxixdata, 'y' => $xaxisdata), 'bar', array('yaxisname' => $lang->topten.' '.$lang->$type, 'xaxisname' => '', 'width' => '800', 'height' => 300, 'scale' => 'SCALE_START0', 'nosort' => true, 'scalepos' => SCALE_POS_TOPBOTTOM, 'noLegend' => true, 'labelrotationangle' => 45, 'x1position' => 120));
         return $chart->get_chart();
     }
 
