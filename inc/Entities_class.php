@@ -1098,17 +1098,11 @@ class Entities extends AbstractClass {
             $reps = [];
             foreach($entitiesreps as $entrep) {
                 $entit_reps = $entrep->get_representative();
-                if(is_array($entit_reps) && !empty($entit_reps)) {
-                    $reps = array_filter(array_merge($reps, $entit_reps));
+                if(is_object($entit_reps) && !empty($entit_reps->rpid)) {
+                    $reps[] = $entit_reps->rpid;
                 }
             }
-            if(is_array($reps) && !empty($reps)) {
-                $repids[] = '';
-                foreach($reps as $rep) {
-                    $repids[] = $rep->rpid;
-                }
-                return $repids;
-            }
+            return $reps;
         }
         return null;
     }
