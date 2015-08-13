@@ -4,3 +4,4 @@
             {$itemlines}
     <tr><th>Total</th><th>{$total['qty']}</th><th>{$total['value']}</th><th>-</th></tr>
 </table>
+<br />
