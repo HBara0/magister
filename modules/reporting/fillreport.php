@@ -1238,6 +1238,8 @@ else {
 //            else {
             if($db->fetch_field($db->query("SELECT COUNT(*) as count FROM ".Tprefix."users u JOIN ".Tprefix."assignedemployees ae ON (u.uid=ae.uid) WHERE ae.affid='{$report_meta[affid]}' AND ae.eid='{$report_meta[spid]}' AND u.gid IN (SELECT gid FROM usergroups WHERE canUseReporting=1 AND canFillReports=1) AND u.uid NOT IN (SELECT uid FROM ".Tprefix."reportcontributors WHERE rid='{$rid}' AND isDone=1) AND u.uid!={$core->user[uid]}"), 'count') == 0) {
                 $new_status['status'] = 1;
+                $new_status['finishDate'] = TIME_NOW;
+                $new_status['uidFinish'] = $core->user['uid'];
             }
             $output_message = $lang->savedsuccessfully;
             $process_success = 'true';
