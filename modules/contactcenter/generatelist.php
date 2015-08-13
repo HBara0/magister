@@ -41,10 +41,10 @@ $filters_user_config = array(
                                 'tablename' => 'affiliatedemployees',
                         ),
                         'employeessegments' => array(
-                                'filters' => array('segment' => array('operatorType' => 'equal', 'name' => 'psid')),
+                                'filters' => array('segment' => array('operatorType' => 'multiple', 'name' => 'psid')),
                         ),
                         'assignedemployees' => array(
-                                'filters' => array('entities' => array('operatorType' => 'multiple', 'name' => 'eid')),
+                                'filters' => array('entities' => array('operatorType' => 'equal', 'name' => 'eid')),
                         ),
                 )
         )
@@ -194,13 +194,14 @@ function get_type() {
 $entitytype = array('s' => $lang->supplier, 'c' => $lang->customer, 'pc' => $lang->potentialcustomer, 'ps' => $lang->potentialsupplier);
 $suppliertype = array('t' => $lang->trader, 'p' => $lang->producer);
 $filters_rep_config = array(
-        'parse' => array('filters' => array('name', 'entities', 'companytype', 'suppliertype', 'customertype', 'segment', 'allaffiliates', 'requiresQr', 'hasContract', 'coid'),
+        'parse' => array('filters' => array('name', 'entities', 'companytype', 'suppliertype', 'customertype', 'segment', 'assignedaff', 'requiresQr', 'hasContract', 'coid'),
                 'overwriteField' => array(
                         'requiresQr' => '<select name="extrafilters[requiresQr][]"><option></option><option value=1>Yes</option><option value=0>No</option></select>',
                         'hasContract' => '<select name="extrafilters[hasContract][]"><option></option><option value=1>Yes</option><option value=0>No</option></select>',
-                        'coid' => parse_selectlist('extrafilters[coid][]', 0, Countries::get_data(), $core->input['extrafilters']['coid'], '', '', array('multiplesize' => 3, 'blankstart' => true)),
-                        'companytype' => parse_selectlist('extrafilters[companytype][]', 0, $entitytype, $core->input['extrafilters']['companytype'], '', '', array('multiplesize' => 3, 'blankstart' => true)),
-                        'suppliertype' => parse_selectlist('extrafilters[suppliertype][]', 0, $suppliertype, $core->input['extrafilters']['suppliertype'], '', '', array('multiplesize' => 3, 'blankstart' => true)),
+                        'coid' => parse_selectlist('extrafilters[coid][]', 0, Countries::get_data(), $core->input['extrafilters']['coid'], '1', '', array('multiplesize' => 3, 'blankstart' => true)),
+                        'companytype' => parse_selectlist('extrafilters[companytype][]', 0, $entitytype, $core->input['extrafilters']['companytype'], '1', '', array('multiplesize' => 3, 'blankstart' => true)),
+                        'suppliertype' => parse_selectlist('extrafilters[suppliertype][]', 0, $suppliertype, $core->input['extrafilters']['suppliertype'], '1', '', array('multiplesize' => 3, 'blankstart' => true)),
+                        'assignedaff' => parse_selectlist('extrafilters[assignedaff][]', 0, Affiliates::get_affiliates('isActive=1'), $core->input['extrafilters']['assignedaff'], '1', '', array('multiplesize' => 3, 'blankstart' => true)),
                 )
         ),
         'process' => array(
@@ -214,7 +215,7 @@ $filters_rep_config = array(
                                 'filters' => array('entities' => array('operatorType' => 'multiple', 'name' => 'eid')),
                         ),
                         'representativessegments' => array(
-                                'filters' => array('segment' => array('operatorType' => 'equal', 'name' => 'psid')),
+                                'filters' => array('segment' => array('operatorType' => 'multiple', 'name' => 'psid')),
                         ),
                 )
         )
@@ -224,74 +225,80 @@ if($core->input['action'] == 'rep') {
     $repchecked = 'checked="checked"';
     $filter_whererep_values = $repfilter->process_multi_filters();
     $filter_userwhere = null;
-    if(is_array($filter_whererep_values)) {
-        $filter_repwhere = ' '.$filters_rep_config['process']['filterKey'].' IN ('.implode(',', $filter_whererep_values).')';
-        $multipage_repwhere .= ' AND '.$filters_rep_config['process']['filterKey'].' IN ('.implode(',', $filter_whererep_values).')';
-    }
+
     if(is_array($core->input['extrafilters'])) {
+        $repids = array();
         foreach($core->input['extrafilters'] as $filter => $val) {
             switch($filter) {
-                case 'suppliertype':
-                    $entties[] = '';
+                case 'assignedaff':
+                    $entities[] = $affiliatedents[] = '';
                     foreach($val as $type) {
                         if(empty($type)) {
                             continue;
                         }
-                        $entties = array_filter(array_merge($entties, Entities::get_data(array('supplierType' => $type), array('returnarray' => true))));
-                    }
-                    if(is_array($entties) && !empty($entties)) {
-                        foreach($entties as $entity) {
-                            if(is_object($entity)) {
-                                $reps = $entity->get_representatives_ids();
-                                if(is_array($reps)) {
-                                    $repids = array_merge($repids, array_filter($reps));
-                                }
+                        $affiliatedents = AffiliatedEntities::get_data(array('affid' => $val), array('returnarray' => true));
+                        if(is_array($affiliatedents)) {
+                            foreach($affiliatedents as $affiliatedent) {
+                                $entities[] = $affiliatedent->get_entity();
                             }
                         }
+                    }
+                    if(is_array($entities) && !empty($entities)) {
+                        $entrepids['assignedaff'] = get_repids($entities);
+                    }
+                    break;
+                case 'suppliertype':
+                    $entities[] = '';
+                    foreach($val as $type) {
+                        if(empty($type)) {
+                            continue;
+                        }
+                        $ents = Entities::get_data(array('supplierType' => $type), array('returnarray' => true));
+                        if(is_array($ents)) {
+                            $entities = array_filter(array_merge($entities, $ents));
+                        }
+                        $ents = '';
+                    }
+                    if(is_array($entities) && !empty($entities)) {
+                        $entrepids['suppliertype'] = get_repids($entities);
                     }
                     break;
                 case 'companytype':
-                    $entties[] = '';
+                    $entities[] = '';
                     foreach($val as $type) {
-                        if(empty($type)) {
+                        if(empty($type) && $type != 0) {
                             continue;
                         }
-                        $entties = array_filter(array_merge($entties, Entities::get_data(array('type' => $type), array('returnarray' => true))));
-                    }
-                    if(is_array($entties) && !empty($entties)) {
-                        foreach($entties as $entity) {
-                            if(is_object($entity)) {
-                                $reps = $entity->get_representatives_ids();
-                                if(is_array($reps)) {
-                                    $repids = array_merge($repids, array_filter($reps));
-                                }
-                            }
+                        $ents = Entities::get_data(array('type' => $type), array('returnarray' => true));
+                        if(is_array($ents)) {
+                            $entities = array_filter(array_merge($entities, $ents));
                         }
+                        $ents = '';
+                    }
+                    if(is_array($entities) && !empty($entities)) {
+                        $entrepids['companytype'] = get_repids($entities);
                     }
                     break;
                 case 'coid':
-                    $entties[] = '';
+                    $entities[] = '';
                     foreach($val as $coid) {
-                        if(empty($coid)) {
+                        if(empty($coid) && $coid != 0) {
                             continue;
                         }
-                        $entties = array_filter(array_merge($entties, Entities::get_data(array('country' => $coid), array('returnarray' => true))));
-                    }
-                    if(is_array($entties) && !empty($entties)) {
-                        foreach($entties as $entity) {
-                            if(is_object($entity)) {
-                                $reps = $entity->get_representatives_ids();
-                                if(is_array($reps)) {
-                                    $repids = array_merge($repids, array_filter($reps));
-                                }
-                            }
+                        $ents = Entities::get_data(array('country' => $coid), array('returnarray' => true));
+                        if(is_array($ents)) {
+                            $entities = array_filter(array_merge($entities, $ents));
                         }
+                        $ents = '';
+                    }
+                    if(is_array($entities) && !empty($entities)) {
+                        $entrepids['coid'] = get_repids($entities);
                     }
                     break;
                 case 'requiresQr':
                     $entities[] = '';
                     foreach($val as $qr) {
-                        if(is_empty($qr)) {
+                        if(is_empty($qr) && $qr != 0) {
                             continue;
                         }
                         if($qr == 0) {
@@ -302,20 +309,13 @@ if($core->input['action'] == 'rep') {
                         }
                     }
                     if(is_array($entities) && !empty($entities)) {
-                        foreach($entities as $entity) {
-                            if(is_object($entity)) {
-                                $reps = $entity->get_representatives_ids();
-                                if(is_array($reps)) {
-                                    $repids = array_merge($repids, array_filter($reps));
-                                }
-                            }
-                        }
+                        $entrepids['requiresQr'] = get_repids($entities);
                     }
                     break;
                 case 'hasContract':
                     $entities[] = '';
                     foreach($val as $cont) {
-                        if(is_empty($cont)) {
+                        if(is_empty($cont) && $cont != 0) {
                             continue;
                         }
                         if($cont == 1) {
@@ -326,38 +326,59 @@ if($core->input['action'] == 'rep') {
                         }
                     }
                     if(is_array($entities) && !empty($entities)) {
-                        foreach($entities as $entity) {
-                            if(is_object($entity)) {
-                                $reps = $entity->get_representatives_ids();
-                                if(is_array($reps)) {
-                                    $repids = array_merge($repids, array_filter($reps));
-                                }
-                            }
-                        }
+                        $entrepids['hasContract'] = get_repids($entities);
                     }
                     break;
                 default:
                     break;
             }
         }
-        if(is_array($repids) && !empty($repids)) {
-            $extrafilter_where = ' AND rpid IN ['.implode(',', $repids).']';
+    }
+    if(is_array($entrepids)) {
+        foreach($entrepids as $entrepid) {
+            if(is_array($entrepid)) {
+                $interarrs[] = array_filter($entrepid);
+            }
+        }
+        if(is_array($interarrs)) {
+            if(count($interarrs) > 1) {
+                $repids = call_user_func_array('array_intersect', $interarrs);
+            }
+            else {
+                $repids = $interarrs;
+            }
         }
     }
-
-    $representatives = Representatives::get_data($filter_repwhere.$extrafilter_where, array('returnarray' => true, 'simple' => false, 'order' => array('by' => 'name', 'sort' => 'ASC')));
+    $filter_whererep = array();
+    if(is_array($filter_whererep_values) && !empty($filter_whererep_values)) {
+        $filter_whererep = $filter_whererep_values;
+    }
+    if(is_array($repids) && !empty($repids)) {
+        if(is_array($filter_whererep_values) && !empty($filter_whererep_values)) {
+            $filter_whererep = array_intersect(array_filter(array_unique($repids)), $filter_whererep);
+        }
+        else {
+            $filter_whererep = array_filter(array_unique($repids));
+        }
+    }
+    if(is_array($filter_whererep) && !empty($filter_whererep)) {
+        $filter_repwhere = ' '.$filters_rep_config['process']['filterKey'].' IN ('.implode(',', $filter_whererep).')';
+        $multipage_repwhere .= ' AND '.$filters_rep_config['process']['filterKey'].' IN ('.implode(',', $filter_whererep).')';
+    }
+    $representatives = Representatives::get_data($filter_repwhere, array('returnarray' => true, 'simple' => false, 'order' => array('by' => 'name', 'sort' => 'ASC')));
     if(is_array($representatives)) {
         $first_timerep == 0;
+        $result_title = $lang->representativesresults;
         $results_head = '<th>'.$lang->name.'</th>';
         $results_head .= '<th>'.$lang->email.'</th>';
         $results_head .= '<th>'.$lang->assignedbusinesspartner.'</th>';
         foreach($representatives as $representative) {
-            $results_body .= '<tr>';
+            $results_body.= '<tr>';
             $results_body.='<td>'.$representative->get_displayname().'</td>';
             $results_body.='<td>'.$representative->email.'</td>';
-            $result_title = $lang->representativesresults;
             $assignedreps = EntitiesRepresentatives::get_data(array('rpid' => $representative->rpid), array('returnarray' => true));
             if(is_array($assignedreps)) {
+                $entities = array();
                 foreach($assignedreps as $assignedrep) {
                     $entities[] = $assignedrep->get_entity();
                     $entitienames[] = $assignedrep->get_entity()->get_displayname();
@@ -388,6 +409,9 @@ if($core->input['action'] == 'rep') {
                                 $results_body.='</td>';
                                 $entype = '';
                             }
+                            else {
+                                $results_body.='<td>-</td>';
+                            }
                             break;
                         case 'coid':
                             if($first_timerep == 0) {
@@ -404,6 +428,9 @@ if($core->input['action'] == 'rep') {
                                 }
                                 $results_body.='</td>';
                                 $entype = '';
+                            }
+                            else {
+                                $results_body.='<td>-</td>';
                             }
                             break;
                         case 'hasContract':
@@ -427,6 +454,9 @@ if($core->input['action'] == 'rep') {
                                 $results_body.='</td>';
                                 $entype = '';
                             }
+                            else {
+                                $results_body.='<td>-</td>';
+                            }
                             break;
                         case 'suppliertype':
                             if($first_timerep == 0) {
@@ -445,6 +475,9 @@ if($core->input['action'] == 'rep') {
                                 $results_body.='</td>';
                                 $entype = '';
                             }
+                            else {
+                                $results_body.='<td>-</td>';
+                            }
                             break;
                         case 'companytype':
                             if($first_timerep == 0) {
@@ -461,6 +494,9 @@ if($core->input['action'] == 'rep') {
                                 }
                                 $results_body.='</td>';
                                 $entype = '';
+                            }
+                            else {
+                                $results_body.='<td>-</td>';
                             }
                             break;
                         case 'requiresQr':
@@ -487,6 +523,9 @@ if($core->input['action'] == 'rep') {
                                 $results_body.='</td>';
                                 $requires = '';
                             }
+                            else {
+                                $results_body.='<td>-</td>';
+                            }
                             break;
                         case 'segment':
                             if($first_timerep == 0) {
@@ -504,7 +543,7 @@ if($core->input['action'] == 'rep') {
                             }
                             $segments = '';
                             break;
-                        case 'allaffiliates':
+                        case 'assignedaff':
                             if($first_timerep == 0) {
                                 $results_head .= '<th>'.$lang->assignedaffiliate.'</th>';
                             }
@@ -520,6 +559,12 @@ if($core->input['action'] == 'rep') {
                                     $results_body.='<td>'.implode(',', $affnames).'</td>';
                                     $affnames = '';
                                 }
+                                else {
+                                    $results_body.='<td>-</td>';
+                                }
+                            }
+                            else {
+                                $results_body.='<td>-</td>';
                             }
                             break;
                         default :
@@ -539,4 +584,19 @@ $filters_repr_row = $repfilter->prase_filtersrows(array('hidebutton' => true, 't
 //rep filters-end
 eval("\$generatelist = \"".$template->get('contacts_generatelist')."\";");
 output_page($generatelist);
-
+function get_repids(array $entities) {
+    foreach($entities as $entity) {
+        if(is_object($entity)) {
+            $reps = $entity->get_representatives_ids();
+            if(is_array($reps)) {
+                if(is_array($entrepids) && !empty($entrepids)) {
+                    $entrepids = array_merge($entrepids, array_filter($reps));
+                }
+                else {
+                    $entrepids = $reps;
+                }
+            }
+        }
+    }
+    return $entrepids;
+}
