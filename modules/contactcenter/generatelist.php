@@ -55,7 +55,7 @@ if(!$core->input['action']) {
     $filters_rep_config = array(
             'parse' => array('filters' => array('name', 'entities', 'companytype', 'suppliertype', 'segment', 'assignedaff', 'requiresQr', 'hasContract', 'coid'),
                     'overwriteField' => array(
-                            'requiresQr' => '<select name="extrafilters[requiresQr][]"><option></option><option value=1>Yes</option><option value=0>No</option></select>',
+                            'requiresQr' => '<select name="extrafilters[requiresQr][]"><option></option><option value=0>Yes</option><option value=1>No</option></select>',
                             'hasContract' => '<select name="extrafilters[hasContract][]"><option></option><option value=1>Yes</option><option value=0>No</option></select>',
                             'coid' => parse_selectlist('extrafilters[coid][]', 0, Countries::get_data(), $core->input['extrafilters']['coid'], '1', '', array('multiplesize' => 3, 'blankstart' => true)),
                             'companytype' => parse_selectlist('extrafilters[companytype][]', 0, $entitytype, $core->input['extrafilters']['companytype'], '1', '', array('multiplesize' => 3, 'blankstart' => true)),
@@ -367,8 +367,7 @@ else {
 //                    }
                         break;
                     case 'requiresQr':
-                        $val = array_filter($val);
-                        if(empty($val)) {
+                        if(empty($val[0])) {
                             break;
                         }
                         $extrafilters[Entities]['noQReportReq'] = $val;
@@ -389,11 +388,18 @@ else {
 //                    }
                         break;
                     case 'hasContract':
-                        $val = array_filter($val);
-                        if(empty($val)) {
+                        if(empty($val[0])) {
                             break;
                         }
-                        $extrafilters[Entities]['contractFirstSigDate'] = $val;
+                        $extrafilters['operators']['contractExpiryDate'] = 'CUSTOMSQLSECURE';
+
+                        if($val[0] == 1) {
+                            $extrafilters[Entities]['contractExpiryDate'] = ' contractExpiryDate > '.TIME_NOW;
+                        }
+                        else {
+                            $extrafilters[Entities]['contractExpiryDate'] = 'contractExpiryDate  < '.TIME_NOW;
+                        }
+
 //                    $entities[] = '';
 //                    foreach($val as $cont) {
 //                        if(is_empty($cont) && $cont != 0) {
@@ -403,7 +409,7 @@ else {
 //                            $entities = array_filter(array_merge($entities, Entities::get_data('contractFirstSigDate IS NOT NULL OR contractFirstSigDate !=0'), array('returnarray' => true)));
 //                        }
 //                        elseif($cont == 0) {
-//                            $entities = array_filter(array_merge($entities, Entities::get_data('contractFirstSigDate IS NULL OR contractFirstSigDate =0'), array('returnarray' => true)));
+//                            $entities = array_filter(array_merge($entities, Entities::get_data('contractFirstSigDate IS NULL OR contractFirstSigDate = 0'), array('returnarray' => true)));
 //                        }
 //                    }
 //                    if(is_array($entities) && !empty($entities)) {
@@ -416,7 +422,7 @@ else {
             }
         }
         if(isset($extrafilters)) {
-            $ents = Entities::get_data($extrafilters[Entities], array('returnarray' => true));
+            $ents = Entities::get_data($extrafilters[Entities], array('returnarray' => true, 'operators' => array('contractExpiryDate' => $extrafilters['operators']['contractExpiryDate'])));
             if(isset($extrafilters[AffiliatedEntities]) && !empty($extrafilters[AffiliatedEntities])) {
                 $extrafilters[AffiliatedEntities]['eid'] = array_keys($ents);
                 $affiliatedents = AffiliatedEntities::get_data($extrafilters[AffiliatedEntities], array('returnarray' => true));
@@ -428,7 +434,9 @@ else {
                 $eids = array_combine($eidsdup, $eidsdup);
                 $ents = array_intersect_key($ents, $eids);
             }
-            $repids = get_repids($ents);
+            if(is_array($ents)) {
+                $repids = get_repids($ents);
+            }
         }
 //    if(is_array($entrepids)) {
 //        foreach($entrepids as $entrepid) {
@@ -451,17 +459,19 @@ else {
         }
         if(is_array($repids) && !empty($repids)) {
             if(is_array($filter_whererep_values) && !empty($filter_whererep_values)) {
-                $filter_whererep = array_intersect($filter_whererep, array_filter(array_unique($repids)));
+                $filter_wherereps = $filter_whererep;
+                $filtered = 1;
+                $filter_whererep = array_intersect(array_filter(array_unique($repids)), $filter_wherereps);
             }
             else {
                 $filter_whererep = array_filter(array_unique($repids));
             }
         }
         if(is_array($filter_whererep) && !empty($filter_whererep)) {
-            $filter_repwhere = ' '.$filters_rep_config['process']['filterKey'].' IN ('.implode(',', $filter_whererep).')';
-            $multipage_repwhere .= ' AND '.$filters_rep_config['process']['filterKey'].' IN ('.implode(',', $filter_whererep).')';
+            $filter_repwhere = ' '.$filters_rep_config['process']['filterKey'].' IN ('.implode(', ', $filter_whererep).')';
+            $multipage_repwhere .= ' AND '.$filters_rep_config['process']['filterKey'].' IN ('.implode(', ', $filter_whererep).')';
         }
-        if(isset($filter_whererep_values) && isset($repids) && empty($filter_repwhere)) {
+        if($filtered == 1 && empty($filter_repwhere)) {
             output_xml("<status>false</status><message>{$lang->noresultsfound}</message>");
             exit;
         }
@@ -493,26 +503,6 @@ else {
                 if(is_array($core->input['representative'])) {
                     foreach($core->input['representative']as $field) {
                         switch($field) {
-                            case 'customertype':
-                                if($first_timerep == 0) {
-                                    $results_head .= '<th>'.$lang->customertype.'</th>';
-                                }
-                                if(is_array($entities)) {
-                                    $entype = array();
-                                    $results_body.='<td>';
-                                    foreach($entities as $entity) {
-                                        if(!is_object($entity)) {
-                                            continue;
-                                        }
-                                        $results_body.=' - <br>';
-                                    }
-                                    $results_body.='</td>';
-                                    $entype = '';
-                                }
-                                else {
-                                    $results_body.='<td>-</td>';
-                                }
-                                break;
                             case 'coid':
                                 if($first_timerep == 0) {
                                     $results_head .= '<th>'.$lang->country.'</th>';
@@ -637,7 +627,7 @@ else {
                                     foreach($repssegs as $repsseg) {
                                         $segments[] = $repsseg->get_segment()->get_displayname();
                                     }
-                                    $results_body.='<td>'.implode(',', $segments).'</td>';
+                                    $results_body.='<td>'.implode(', ', $segments).'</td>';
                                 }
                                 else {
                                     $results_body.='<td>-</td>';
@@ -657,7 +647,7 @@ else {
                                         foreach($affiliatedents as $affiliatedent) {
                                             $affnames[] = $affiliatedent->get_affiliate()->get_displayname();
                                         }
-                                        $results_body.='<td>'.implode(',', $affnames).'</td>';
+                                        $results_body.='<td>'.implode(', ', $affnames).'</td>';
                                         $affnames = '';
                                     }
                                     else {
@@ -679,7 +669,8 @@ else {
                 $assignedreps = $entities = $entitienames = '';
             }
             eval("\$results = \"".$template->get('contacts_generatelist_results')."\";");
-            output_xml('<message><![CDATA['.$results.']]></message>');
+            output_xml('<message><![CDATA['.$results.']]></message>
+                        ');
             exit;
         }
         else {
