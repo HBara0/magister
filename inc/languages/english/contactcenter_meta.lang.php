@@ -34,5 +34,7 @@ $lang['potentialcustomer'] = "Potential Customer";
 $lang['potentialsupplier'] = "Potential Supplier";
 $lang['trader'] = "Trader";
 $lang['producer'] = "Producer";
+$lang['clicktoshowfield'] = "Click to Show Field";
+$lang['noresultsfound'] = "No Results Found";
 
 

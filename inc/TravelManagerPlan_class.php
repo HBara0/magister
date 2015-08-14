@@ -671,7 +671,7 @@ class TravelManagerPlan {
             $hotelssegments_output .= '<br /><h2><small>Other Possible Hotels</small></h2>';
             $otherhotels = TravelManagerHotels::get_data(array('country' => $counrty_obj->coid, 'tmhid' => '(SELECT tmhid FROM '.TravelManagerPlanaccomodations::TABLE_NAME.' WHERE '.TravelManagerPlanSegments::PRIMARY_KEY.' = '.$segmentobj->get_id().')', 'isApproved' => 0), array('returnarray' => true, 'operators' => array('tmhid' => 'IN')));
             if(is_array($otherhotels)) {
-                $hotelssegments_output .= $segmentobj->parse_hotels($sequence, $otherhotels);
+                $hotelssegments_output .= $segmentobj->parse_hotels($sequence, $otherhotels, $leavedays);
             }
             /* parse hotel --END */
             $otherhotel_checksum = generate_checksum('accomodation');

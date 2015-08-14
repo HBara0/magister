@@ -1367,7 +1367,7 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                             continue;
                         }
                         $currentquarter = ceil(date('n', TIME_NOW) / 3);
-                        $current_month = date('m');
+                        $current_month = date("m");
 
                         $currentyeardata = $salerepdata[$current_year];
                         if(isset($currentyeardata[$current_month]) && !empty($currentyeardata[$current_month])) {
@@ -1439,7 +1439,7 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                         $currentyeardata = $salerepdata[$current_year];
                         if(is_array($currentyeardata)) {
                             foreach($currentyeardata as $cydata) {
-                                $classification[$tableindex]['wholeperiod'][$tableindex][$id]['data'] +=$cydata;
+                                $classification[$tableindex]['wholeperiod'][$tableindex][$id]['currentdata'] +=$cydata;
                                 $periodclassification[$id] +=$cydata;
                             }
                         }
@@ -1489,8 +1489,20 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                     if(is_array($classificationdata)) {
                         $output .= '<table class="datatable"><tr><td class="thead" colspan=4>'.$lang->topten.' '.$lang->$tableindex.' '.$lang->$classificationtype.'</td></tr>';
                         $output .= '<tr class="altrow2"><th>'.$lang->$tableindex.'</td><th>'.$lang->currentdata.'</td>';
-                        if($classificationtype != 'wholeperiod') {
+                        if($classificationtype != 'wholeperiod' && $classificationtype != 'byquarter') {
                             $output .= '<th>'.$lang->prevdata.'</th><th>'.$lang->position.'</th>';
+                            switch($classificationtype) {
+                                case 'bymonth':
+                                    $prevperiod = getdate(TIME_NOW);
+                                    $prevperiod = $prevperiod['month'];
+                                    break;
+                                case 'byytd':
+                                    $prevperiod = (date('Y', TIME_NOW));
+                                    break;
+                                default:
+                                    break;
+                            }
+                            $output .='<td>'.$lang->prevdata.' ('.$prevperiod.') </td><td>'.$lang->position.'</td>';
                         }
                         $output .= '<tr>';
                         reset($classificationdata[$tableindex]);
@@ -1528,9 +1540,6 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                             $output .='<div style="font-weight:bold;">'.$lang->$tableindex.' '.$lang->$classificationtype.' : '.$topofthemonth_obj->name.'</div><br/>';
                         }
                         $output .='<div style="width:100%;"><h2>'.$lang->topten.' '.$lang->$tableindex.' '.$lang->$classificationtype.'</h2><small>(K Amounts)</small>';
-
-                        //  $output .='<img src="'.$this->parse_classificaton_charts($classificationdata[$tableindex], $tableindex).'" />';
-
                         $output .= '<img src="data:image/png;base64,'.base64_encode(file_get_contents($this->parse_classificaton_charts($classificationdata[$tableindex], $tableindex))).'" />';
                         $output .= '</div>';
                     }
@@ -1558,7 +1567,13 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
         }
         foreach($data_ids as $id) {
             $object = new $classname($id);
-            $yaxixdata[] = $object->name;
+            if(!is_object($object)) {
+                $yaxixdata[] = 'unspecified';
+            }
+            else {
+                $yaxixdata[] = $object->name;
+            }
+
             $xaxisdata[] = $data[$id]['currentdata'] / 1000;
         }
         $chart = new Charts(array('x' => $yaxixdata, 'y' => $xaxisdata), 'bar', array('yaxisname' => $lang->topten.' '.$lang->$type, 'xaxisname' => '', 'width' => '800', 'height' => 300, 'scale' => 'SCALE_START0', 'nosort' => true, 'scalepos' => SCALE_POS_TOPBOTTOM, 'noLegend' => true, 'labelrotationangle' => 45, 'x1position' => 120));
