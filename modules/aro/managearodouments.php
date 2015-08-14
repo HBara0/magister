@@ -39,7 +39,7 @@ if(!($core->input['action'])) {
     $payment_terms = PaymentTerms::get_data('', $dal_config);
     $segments = ProductsSegments::get_segments('');
     $packaging = Packaging::get_data('name IS NOT NULL', $dal_config);
-    $uom = Uom::get_data('name is not null', $dal_config);
+    $uom = Uom::get_data(array('isWeight' => 1), $dal_config);
     $mainaffobj = new Affiliates($core->user['mainaffiliate']);
     $currencies = Currencies::get_data('');
     $incoterms = Incoterms::get_data('name IS NOT NULL', $dal_config);
@@ -74,6 +74,7 @@ if(!($core->input['action'])) {
         $csrowid = 0;
 
         //Net Margin Parameters
+        $partiesinfo['required_intermedpolicy'] = "required='required'";
         $netmarginparms_uomlist = parse_selectlist('parmsfornetmargin[uom]', '', $uom, '', '', '', array('id' => "parmsfornetmargin_uom", 'blankstart' => 1, 'width' => '100px'));
 
         //Parties Information
@@ -100,6 +101,7 @@ if(!($core->input['action'])) {
         }
         if(is_object($aroorderrequest)) {
             $purchasetype = new PurchaseTypes($aroorderrequest->orderType);
+
             $affiliate_list = parse_selectlist('affid', 1, $affiliate, $aroorderrequest->affid, '', '', array('blankstart' => true, 'id' => 'affid', 'required' => 'required'));
             $purchasetypelist = parse_selectlist('orderType', 4, $purchasetypes, $aroorderrequest->orderType, '', '', array('blankstart' => true, 'id' => 'purchasetype', 'required' => 'required'));
             $currencies_list = parse_selectlist('currency', 4, $currencies, $aroorderrequest->currency, '', '', array('blankstart' => 1, 'id' => 'currencies', 'required' => 'required'));
@@ -270,6 +272,12 @@ if(!($core->input['action'])) {
             //*********Aro Audit Trail -End *********//
             //
             //*********Aro Parties Information -Start *********//
+            if($purchasetype->needsIntermediary == 1) {
+                $partiesinfo['required_intermedpolicy'] = "required='required'";
+            }
+            else {
+                $partiesinfo['required_intermedpolicy'] = "";
+            }
             $aropartiesinfo_obj = AroRequestsPartiesInformation::get_data(array('aorid' => $aroorderrequest->aorid));
             $parties = array('intermed', 'vendor');
             $disabled_list = '';
@@ -316,9 +324,9 @@ if(!($core->input['action'])) {
                 if($party == 'intermed') {
                     $isdisabled = $disabled_list;
                 }
-                $affiliates_list[$party] = parse_selectlist('partiesinfo['.$party.'Aff]', 1, $affiliate, $aff[$party], '', '', array('blankstart' => true, 'id' => 'partiesinfo_'.$party.'_aff', 'required' => 'required', 'width' => '100%', $isdisabled => $isdisabled));
-                $paymentterms_list[$party] = parse_selectlist('partiesinfo['.$party.'PaymentTerm]', 4, $payment_terms, $paymentterm[$party], '', '', array('blankstart' => 1, 'id' => 'partiesinfo_'.$party.'_paymentterm', 'required' => 'required', 'width' => '100%', $isdisabled => $isdisabled));
-                $incoterms_list[$party] = parse_selectlist('partiesinfo['.$party.'Incoterms]', 4, $incoterms, $incoterms[$party], '', '', array('blankstart' => 1, 'id' => 'partiesinfo_'.$party.'_incoterms', 'required' => 'required', 'width' => '100%', $isdisabled => $isdisabled));
+                $affiliates_list[$party] = parse_selectlist('partiesinfo['.$party.'Aff]', 1, $affiliate, $aff[$party], '', '', array('blankstart' => true, 'id' => 'partiesinfo_'.$party.'_aff', 'required' => $partiesinfo['required_intermedpolicy'], 'width' => '100%', $isdisabled => $isdisabled));
+                $paymentterms_list[$party] = parse_selectlist('partiesinfo['.$party.'PaymentTerm]', 4, $payment_terms, $paymentterm[$party], '', '', array('blankstart' => 1, 'id' => 'partiesinfo_'.$party.'_paymentterm', 'required' => $partiesinfo['required_intermedpolicy'], 'width' => '100%', $isdisabled => $isdisabled));
+                $incoterms_list[$party] = parse_selectlist('partiesinfo['.$party.'Incoterms]', 4, $incoterms, $incoterms[$party], '', '', array('blankstart' => 1, 'id' => 'partiesinfo_'.$party.'_incoterms', 'required' => $partiesinfo['required_intermedpolicy'], 'width' => '100%', $isdisabled => $isdisabled));
                 $isdisabled = '';
             }
             $countryofshipment_list = parse_selectlist('partiesinfo[shipmentCountry]', '', $countries, $shipmentcountry, '', '', array('blankstart' => 1, 'width' => '150px'));
@@ -534,7 +542,7 @@ else {
         $segments = ProductsSegments::get_segments('');
         $segments_selectlist = parse_selectlist('productline['.$plrowid.'][psid]', '', $segments, '', null, null, array('id' => "productline_".$plrowid."_psid", 'placeholder' => 'Overwrite Segment', 'width' => '100%'));
         $packaging_list = parse_selectlist('productline['.$plrowid.'][packing]', '', $packaging, '', '', '', array('id' => "productline_".$plrowid."_packing", 'blankstart' => 1));
-        $uom = Uom::get_data();
+        $uom = Uom::get_data(array('isWeight' => 1));
         $kg = Uom::get_data(array('name' => 'Kilogram'));
         $uom_list = parse_selectlist('productline['.$plrowid.'][uom]', '', $uom, $kg->uomid, '', '', array('id' => "productline_".$plrowid."_uom", 'blankstart' => 1, 'width' => '70px'));
         eval("\$aroproductlines_rows = \"".$template->get('aro_productlines_row')."\";");
@@ -1071,7 +1079,6 @@ else {
             $currency = new Currencies($aro_request['currency']);
             $arorequest['currency'] = $currency->get_displayname();
             /* Conversation message --START */
-//  $arorequest_obj = new AroRequests();
             $takeactionpage_conversation = $arorequest_obj->parse_messages(array('uid' => $core->user['uid']));
             /* Conversation  message --END */
             $id = "errorbox";

@@ -114,7 +114,7 @@ $(function() {
                 //var jsonStr = JSON.stringify(data);
                 //obj = JSON.parse(jsonStr);
                 // jQuery.each(obj, function(i, val) {
-                var fields = ["aff", "paymentterm", "incoterms", "IncotermsDesc", "PaymentTermDesc", "ptAcceptableMargin", "promiseofpayment"];
+                var fields = ["aff", "paymentterm", "incoterms", "IncotermsDesc", "PaymentTermDesc", "ptAcceptableMargin", "promiseofpayment", "estdateofpayment"];
                 if(data == 0) {
                     for(var i = 0; i < fields.length; i++) {
                         $("input[id='partiesinfo_intermed_" + fields[i] + "']").removeAttr("required");
