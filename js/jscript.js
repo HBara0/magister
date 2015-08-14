@@ -26,7 +26,7 @@ $(function () {
         $(this).toggleClass('altrow2').children('td [id$="_tools"]').find('div').toggle();
     });
 
-    $("#login_Button").live("click", login);
+    $(document).on("click", "#login_Button", login);
     $("#login_Form input").bind('keypress', function (e) {
         if(e.keyCode == 13) {
             login();
@@ -190,7 +190,8 @@ $(function () {
         $(object).datepicker({altField: "#alt" + $(object).attr('id'), altFormat: 'dd-mm-yy', dateFormat: 'MM dd, yy', showWeek: true, firstDay: 1, changeMonth: true, changeYear: true, showAnim: 'slideDown'});
         $("#ui-datepicker-div").css("z-index", $(object).parents(".ui-dialog").css("z-index") + 1);
     }
-    $("input[class*='inlinefilterfield']").live("keyup", function () {
+
+    $(document).on("keyup", "input[class*='inlinefilterfield']", function () {
         var parentContainer = $(this).closest('table');
         setTimeout(function () {
             parentContainer.children('tbody').find('tr').each(function () {
@@ -221,7 +222,7 @@ $(function () {
         }, 300);
     });
 
-    $("input[id^='pickDate']").live('click', function () {
+    $(document).on("click", "input[id^='pickDate']", function () {
         if(!$(this).hasClass('hasDatepicker')) {
             initalisedatepicker(this);
             $(this).focus();
@@ -229,7 +230,7 @@ $(function () {
     });
 
     var accache = {};
-    $("input[id$='_autocomplete']").live("keyup", function () {
+    $(document).on("keyup", "input[id$='_autocomplete']", function () {
         if(sharedFunctions.checkSession() == false) {
             return;
         }
@@ -315,7 +316,7 @@ $(function () {
             return $("<li>").append("<a>" + item.value + "</a>").appendTo(ul);
         };
     });
-    $("input[id$='_QSearch']").live("keyup", QSearch);
+    $(document).on("keyup", "input[id$='_QSearch']", QSearch);
 
     function QSearch() {
         if(sharedFunctions.checkSession() == false) {
@@ -427,7 +428,7 @@ $(function () {
         inputValue = "";
     }
 
-    $("input.ajaxcheckbox").live('change', function () {
+    $(document).on("change", "input.ajaxcheckbox", function () {
         if(sharedFunctions.checkSession() == false) {
             return;
         }
@@ -481,17 +482,16 @@ $(function () {
         }
         sharedFunctions.requestAjax("post", url, formData, formid + "Results", formid + "Results");
     });
-    $("a[id^='showmore_'][href^='#']").live('click', function () {
+
+    $(document).on("click", "a[id^='showmore_'][href^='#']", function () {
         var id = $(this).attr("id").split("_");
         $("#" + id[1] + "_" + id[2]).toggle();
     });
 
-
-    $("img[id^='addmore_']").live('click', function () {
+    $(document).on("click", "img[id^='addmore_']", function () {
         sharedFunctions.addmoreRows($(this));
     });
-
-    $("input[id='email'],input[accept='email']").live("keyup", validateEmailInline);
+    $(document).on("keyup", "input[id='email'],input[accept='email']", validateEmailInline);
 //$("input[id='email'],input[accept='email']").change(validateEmailInline);
 
     function validateEmailInline() {
