@@ -21,6 +21,9 @@
         <div style="display:inline-block;width:20%;">
             {$paidbyoptions}
         </div>
+        <div class="ui-state-highlight ui-corner-all" style="margin-left:100px;padding-left: 5px; margin-bottom:10px;display:inline-block;width:20%;">
+            {$lang->maxnight} : {$leavedays}
+        </div>
     </div>
     <div id="anotheraff_otheraccomodations_{$sequence}_{$otherhotel_checksum}" style="{$otherhotel[displaystatus]} padding: 8px;" class="border_bottom border_left border_right border_top">
         <div style="display:inline-block;width:15%;">{$lang->anotheraff}</div>
