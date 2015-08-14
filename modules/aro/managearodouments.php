@@ -259,8 +259,12 @@ if(!($core->input['action'])) {
 
             //*********Total Funds Engaged -End   *********//
             //*********Aro Audit Trail -Start *********//
-            $aroorderrequest->createdOn_output = date($core->settings['dateformat'], $aroorderrequest->createdOn);
-            $aroorderrequest->modifiedOn_output = date($core->settings['dateformat'], $aroorderrequest->modifiedOn);
+            if($aroorderrequest->createdOn != 0) {
+                $aroorderrequest->createdOn_output = date($core->settings['dateformat'], $aroorderrequest->createdOn);
+            }
+            if($aroorderrequest->modifiedOn != 0) {
+                $aroorderrequest->modifiedOn_output = date($core->settings['dateformat'], $aroorderrequest->modifiedOn);
+            }
             $createdby_username = new Users($aroorderrequest->createdBy);
             $modifiedby_username = new Users($aroorderrequest->modifiedBy);
             $aroorderrequest->createdBy_output = $createdby_username->parse_link($attributes_param = array('target' => "_blank"));
