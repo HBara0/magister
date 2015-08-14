@@ -14,25 +14,25 @@
                 <td class="subtitle">{$lang->vendor}</td>
             </tr>
             <tr><td colspan="2">{$lang->estdateofpayment}</td>
-                <td><input type="text" id="pickDate_intermed_estdateofpayment" autocomplete="off" tabindex="2" value="{$partiesinfo[intermedEstDateOfPayment_formatted]}" required="required" style="width:150px;" disabled="disabled"/>
+                <td><input type="text" id="pickDate_intermed_estdateofpayment" autocomplete="off" tabindex="2" value="{$partiesinfo[intermedEstDateOfPayment_formatted]}" {$partiesinfo[required_intermedpolicy]} style="width:150px;" disabled="disabled"/>
                     <input type="hidden" name="partiesinfo[intermedEstDateOfPayment]" id="altpickDate_intermed_estdateofpayment" value="{$partiesinfo[intermedEstDateOfPayment_output]}"/>
                 </td>
                 <td><input type="text" id="pickDate_vendor_estdateofpayment" autocomplete="off" tabindex="2" value="{$partiesinfo['vendorEstDateOfPayment_formatted']}" required="required" style="width:150px;" disabled="disabled"/>
                     <input type="hidden" name="partiesinfo[vendorEstDateOfPayment]" id="altpickDate_vendor_estdateofpayment" value="{$partiesinfo['vendorEstDateOfPayment_output']}"/>
                 </td>
                 <td colspan="2"> {$lang->diffbetweenpaymentdays}
-                <input type="number"  id="partiesinfo_diffbtwpaymentdates" value="{$partiesinfo[diffbtwpaymentdates]}" style="width:100px" readonly/>
+                    <input type="number"  id="partiesinfo_diffbtwpaymentdates" value="{$partiesinfo[diffbtwpaymentdates]}" style="width:100px" readonly/>
 
                 </td>
             </tr>
-              <tr><td colspan="2">{$lang->acceptablepaymentterm}</td>
-                  <td><input type="number" step="any" name="partiesinfo[ptAcceptableMargin]" id="partiesinfo_intermed_ptAcceptableMargin" value="{$aropartiesinfo_obj->ptAcceptableMargin}" {$is_disabled}/></td>
-             </tr>
-           <tr><td colspan="2">{$lang->promiseofpayment}</td>
-                     <td><input type="text" id="pickDate_intermed_promiseofpayment" autocomplete="off" tabindex="2" value="{$partiesinfo[promiseOfPayment_formatted]}" required="required" style="width:150px;"/>
-                     <input type="hidden" name="partiesinfo[promiseOfPayment]" id="altpickDate_intermed_promiseOfPayment" value="{$partiesinfo[promiseOfPayment_output]}"/>
-                     </td>
-          </tr>
+            <tr><td colspan="2">{$lang->acceptablepaymentterm}</td>
+                <td><input type="number" step="any" name="partiesinfo[ptAcceptableMargin]" id="partiesinfo_intermed_ptAcceptableMargin" value="{$aropartiesinfo_obj->ptAcceptableMargin}" {$is_disabled}/></td>
+            </tr>
+            <tr><td colspan="2">{$lang->promiseofpayment}</td>
+                <td><input type="text" id="pickDate_intermed_promiseofpayment" autocomplete="off" tabindex="2" value="{$partiesinfo[promiseOfPayment_formatted]}" {$partiesinfo[required_intermedpolicy]} style="width:150px;"/>
+                    <input type="hidden" name="partiesinfo[promiseOfPayment]" id="altpickDate_intermed_promiseOfPayment" value="{$partiesinfo[promiseOfPayment_output]}"/>
+                </td>
+            </tr>
 
         </tbody>
     </table>

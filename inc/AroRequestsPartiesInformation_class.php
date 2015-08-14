@@ -50,19 +50,23 @@ class AroRequestsPartiesInformation extends AbstractClass {
         if(is_array($data)) {
             $required_fields = array('estDateOfShipment', 'shipmentCountry', 'originCountry', 'vendorIncoterms', 'vendorIncotermsDesc', 'vendorPaymentTerm', 'vendorPaymentTermDesc', 'commission');
             $purchtype = new PurchaseTypes($core->input['cpurchasetype']);
-            if($data['vendorIsAff'] == 0 || $purchtype->needsIntermediary == 0) {
+            if($purchtype->needsIntermediary == 1) {
                 $additionalfields = array('vendorEid', 'intermedAff', 'intermedIncoterms', 'intermedIncotermsDesc', 'intermedPaymentTerm', 'intermedPaymentTermDesc');
             }
-            else {
+            else if($data['vendorIsAff'] == 0 && $purchtype->needsIntermediary != 0) {
+                $additionalfields = array('vendorEid', 'intermedAff', 'intermedIncoterms', 'intermedIncotermsDesc', 'intermedPaymentTerm', 'intermedPaymentTermDesc');
+            }
+            else if($data['vendorIsAff'] == 1) {
                 $additionalfields = array('vendorAff');
             }
-            $required_fields = array_merge($required_fields, $additionalfields);
-
+            if(is_array($additionalfields) && !empty($additionalfields)) {
+                $required_fields = array_merge($required_fields, $additionalfields);
+            }
             if(!empty($data['intermedIncoterms']) && !empty($data['vendorIncoterms']) && $data['vendorIncoterms'] != $data['intermedIncoterms']) {
                 $required_fields[] = 'freight';
             }
             foreach($required_fields as $field) {
-                if(empty($data[$field])) {
+                if(empty($data[$field]) && $data[$field] != 0) {
                     $this->errorcode = 2;
                     return true;
                 }
