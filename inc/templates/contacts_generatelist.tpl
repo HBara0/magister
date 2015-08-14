@@ -17,7 +17,7 @@
                     e.stopPropagation();
                 }
                 );
-                $('button[id="subform"]').live('click', function () {
+                $('input[id^="button"]').live('change', function () {
                     if($('#button_user').is(':checked')) {
                         $('#div_user').find('input').removeAttr('disabled');
                         $('#div_user').find('select').removeAttr('disabled');
@@ -34,7 +34,6 @@
                         $('#div_rep').find('input').prop('disabled', 'disabled');
                         $('#div_rep').find('select').prop('disabled', 'disabled');
                     }
-                    $('#perform_contactcenter/generatelist_Button').click();
                 });
             });
         </script>
@@ -66,7 +65,7 @@
                                     {$filters_user_row}
                                 </tr>
                                 <tr>
-                                    <td width="250px" class=" border_right" rowspan="2" valign="top" align="center"></td>
+                                    <td width="250px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->clicktoshowfield}</td>
                                     <td width="250px" class=" border_right" rowspan="2" valign="top" align="center"><input type="checkbox" name="user[]" value="position"></td>
                                     <td width="250px" class=" border_right" rowspan="2" valign="top" align="center"><input type="checkbox" name="user[]" value="entities"></td>
                                     <td width="250px" class=" border_right" rowspan="2" valign="top" align="center"><input type="checkbox" name="user[]" value="segment"></td>
@@ -87,7 +86,6 @@
                                     <th width="250px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->businesspartner}</th>
                                     <th width="250px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->companytype}</th>
                                     <th width="250px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->suppliertype}</th>
-                                    <th width="250px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->customertype}</th>
                                     <th width="250px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->segments}</th>
                                     <th width="250px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->assignedaffiliate}</th>
                                     <th width="250px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->requiresqr}</th>
@@ -100,11 +98,10 @@
                                     {$filters_repr_row}
                                 </tr>
                                 <tr>
-                                    <td width="250px" class=" border_right" rowspan="2" valign="top" align="center"></td>
+                                    <td width="250px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->clicktoshowfield}</td>
                                     <td width="250px" class=" border_right" rowspan="2" valign="top" align="center"></td>
                                     <td width="250px" class=" border_right" rowspan="2" valign="top" align="center"><input type="checkbox" name="representative[]" value="companytype"></td>
                                     <td width="250px" class=" border_right" rowspan="2" valign="top" align="center"><input type="checkbox" name="representative[]" value="suppliertype"></td>
-                                    <td width="250px" class=" border_right" rowspan="2" valign="top" align="center"><input type="checkbox" name="representative[]" value="customertype"></td>
                                     <td width="250px" class=" border_right" rowspan="2" valign="top" align="center"><input type="checkbox" name="representative[]" value="segment"></td>
                                     <td width="250px" class=" border_right" rowspan="2" valign="top" align="center"><input type="checkbox" name="representative[]" value="assignedaff"></td>
                                     <td width="250px" class=" border_right" rowspan="2" valign="top" align="center"><input type="checkbox" name="representative[]" value="requiresQr"></td>
@@ -115,11 +112,9 @@
                         </table>
                     </div>
                 </div>
-                <button id="subform">{$lang->generate}</button
-                <input type='submit' style="cursor: pointer;display:none" class='button' value="{$lang->generate}" id='perform_contactcenter/generatelist_Button'>
+                <input type='submit' style="cursor: pointer" class='button' value="{$lang->generate}" id='perform_contactcenter/generatelist_Button'>
             </form>
             <hr>
-            {$results}
             <div id="perform_contactcenter/generatelist_Results"></div>
         </td>
     </tr>

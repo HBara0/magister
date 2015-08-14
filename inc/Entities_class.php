@@ -1093,14 +1093,17 @@ class Entities extends AbstractClass {
     }
 
     public function get_representatives_ids() {
+        global $db;
         $entitiesreps = EntitiesRepresentatives::get_data(array('eid' => $this->data['eid']), array('returnarray' => true));
-        if(is_array($entitiesreps) && !empty($entitiesreps)) {
-            $reps = [];
-            foreach($entitiesreps as $entrep) {
-                $entit_reps = $entrep->get_representative();
-                if(is_object($entit_reps) && !empty($entit_reps->rpid)) {
-                    $reps[] = $entit_reps->rpid;
+        $query = 'SELECT rpid FROM entitiesrepresentatives WHERE eid ='.$this->data['eid'];
+        $entrepquery = $db->query($query);
+        if($db->num_rows($entrepquery) > 0) {
+            $reps = array();
+            while($news = $db->fetch_assoc($entrepquery)) {
+                if($news['rpid'] == 0 || $news['rpid'] == 1) {
+                    continue;
                 }
+                $reps[] = $news['rpid'];
             }
             return $reps;
         }
