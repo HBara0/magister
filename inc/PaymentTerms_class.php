@@ -59,7 +59,7 @@ class PaymentTerms extends AbstractClass {
         if(is_array($data)) {
             $required_fields = array('title', 'overduePaymentDays');
             foreach($required_fields as $field) {
-                if(empty($data[$field])) {
+                if(empty($data[$field]) && $data[$field] != 0) {
                     $this->errorcode = 2;
                     return true;
                 }
