@@ -189,7 +189,7 @@ if($core->input['action']) {
         echo $headerinc;
         ?>
         <script language="javascript" type="text/javascript">
-            $(function () {
+            $(function() {
                 window.top.$("#upload_Result").html("<?php echo $upload->parse_status($upload->get_status());?>");
             });
         </script>
@@ -741,9 +741,10 @@ if($core->input['action']) {
             $filters_row = $filter->prase_filtersrows(array('tags' => 'table', 'display' => $filters_row_display));
             /* Perform inline filtering - END */
 
-            $query = $db->query("SELECT DISTINCT(u.uid), u.*, aff.*, reportsTo AS supervisor, CONCAT(firstName, ' ', lastName) AS name, aff.name AS mainaffiliate, aff.affid
+            $query = $db->query("SELECT DISTINCT(u.uid), u.*, aff.*, reportsTo AS supervisor, CONCAT(firstName, ' ', lastName) AS name, aff.name AS mainaffiliate, aff.affid,reportstotable.reportsToName
 							FROM ".Tprefix."users u JOIN ".Tprefix."affiliatedemployees ae ON (u.uid=ae.uid) JOIN ".Tprefix."affiliates aff ON (aff.affid=ae.affid)
-							WHERE gid!='7' AND isMain='1'
+							JOIN (SELECT CONCAT(firstName, ' ', lastName) as reportsToName, uid as rtid FROM ".Tprefix."users)reportstotable ON u.reportsTo=reportstotable.rtid
+                                                        WHERE gid!='7' AND isMain='1'
 							{$filter_where}
 							ORDER BY {$sort_query}
 							LIMIT {$limit_start}, {$core->settings[itemsperlist]}");
@@ -779,7 +780,7 @@ if($core->input['action']) {
                         $userpositions = $userpositions.", <a href='#' id='showmore_positions_{$user[uid]}'>...</a> <span style='display:none;' id='positions_{$user[uid]}'>{$hidden_positions}</span>";
                     }
 
-                    list($user['reportsToName']) = get_specificdata('users', array('CONCAT(firstName, \' \', lastName) as reportsToName'), '0', 'reportsToName', '', 0, "uid='{$user[reportsTo]}'");
+                    //  list($user['reportsToName']) = get_specificdata('users', array('CONCAT(firstName, \' \', lastName) as reportsToName'), '0', 'reportsToName', '', 0, "uid='{$user[reportsTo]}'");
 
                     $skypelink = '';
                     if(isset($user['skype']) && !empty($user['skype'])) {
