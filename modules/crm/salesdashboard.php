@@ -183,7 +183,12 @@ else {
         }
 
         foreach($affiliates as $affiliate) {
-            $chartproperties['budget'][] = $budget[$affiliate->affid];
+            if(!empty($budget[$affiliate->affid])) {
+                $chartproperties['budget'][] = $budget[$affiliate->affid];
+            }
+            else {
+                $chartproperties['budget'][] = 0;
+            }
             $chartproperties['affiliates'][] = $affiliate->name;
             if(!empty($sales[$affiliate->integrationOBOrgId])) {
                 $chartproperties['sales'][] = ($sales[$affiliate->integrationOBOrgId]);

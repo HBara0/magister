@@ -59,7 +59,7 @@ if(!$core->input['action']) {
                         $report['status_output'] = 'not finished yet';
                         $unfinished_reports++;
                     }
-                    if($repott['dataIsImported'] == 1) {
+                    if($report['dataIsImported'] == 1) {
                         if($report['dataImportedOn'] != 0) {
                             $report['daystoimportfromqstart'] = max(0, floor(($report['dataImportedOn'] - $quarterstart) / (60 * 60 * 24)));
                         }
@@ -85,7 +85,8 @@ if(!$core->input['action']) {
                     }
                     $marketreports = MarketReport::get_data(array('rid' => $report['rid']), array('returnarray' => true));
                     if(is_array($marketreports)) {
-                        $mkr_rating = '<tr><td class="subtitle" colspan="2">'.$lang->mkrrating.'</td></tr><tr><td colspan = "2">';
+                        $mkrwithrating = 0;
+                        $mkr_rating = '<tr><td class="subtitle" colspan="2">'.$lang->mkrrating.'</td></tr><tr><td colspan="2">';
                         foreach($marketreports as $marketreport) {
                             $reportauthors = MarketReportAuthors::get_data(array('mrid' => $marketreport->mrid), array('returnarray' => true));
                             if(is_array($reportauthors)) {
@@ -98,12 +99,15 @@ if(!$core->input['action']) {
                                 }
                             }
                             $marketreport = $marketreport->get();
-                            if($marketreport['rating'] == null) {
-                                $rating_status = ' (not rated) ';
+                            if(empty($marketreport['rating'])) {
+                                $rating_status = ' - (not rated)';
                             }
                             else {
                                 $ratingval = $marketreport['rating'];
-                            }$totalrating['supplier'] +=$marketreport['rating'];
+                                $totalrating['supplier'] += $marketreport['rating'];
+                                $mkrwithrating++;
+                            }
+
                             $marketreport['segment'] = ProductsSegments::get_data(array('psid' => $marketreport['psid']));
                             if(is_object($marketreport['segment'])) {
                                 $marketreport['segmenttitle'] = $marketreport['segment']->parse_link();
@@ -112,14 +116,20 @@ if(!$core->input['action']) {
                                 $marketreport['segmenttitle'] = $lang->unspecified;
                             }
                             eval("\$mkr_rating .= \"".$template->get('reporting_mkr_rating')."\";");
-                            unset($ratingval, $reportauthor_obj, $reportauthors, $authors);
+                            unset($ratingval, $reportauthor_obj, $reportauthors, $authors, $rating_status);
                         }
                         $mkr_rating .= '</td></tr>';
                     }
-                    $avgrating['supplier'] = $totalrating['supplier'] / count($marketreports);
+
+                    $totalrating['affiliate'] += $totalrating['supplier'];
+                    $totals['affmkrwithrating'][$affiliate->affid] += $mkrwithrating;
+
+                    $avgrating['supplier'] = 0;
+                    if($mkrwithrating != 0) {
+                        $avgrating['supplier'] = $totalrating['supplier'] / $mkrwithrating;
+                    }
                     eval("\$supplier_reportperformance .= \"".$template->get('reporting_supplier_reportperformance')."\";");
-                    $totalrating['affiliate'] +=$avgrating['supplier'];
-                    unset($mkr_rating, $avgrating['supplier'], $totalrating['supplier'], $reportaudits);
+                    unset($mkr_rating, $avgrating['supplier'], $totalrating['supplier'], $reportaudits, $mkrwithrating);
                 }
                 foreach($fields as $field) {
                     $mkrreports_count = $numrows;
@@ -131,12 +141,16 @@ if(!$core->input['action']) {
                     }
                 }
                 unset($totalperaff);
-                $avgmkrrating[$affiliate->get_displayname()] = number_format($totalrating['affiliate'] / $numrows, 2);
+                $totals['allmkrwithrating'] += $totals['affmkrwithrating'][$affiliate->affid];
 
+                $totalrating['allaffiliates'] += $totalrating['affiliate'];
+                $avgmkrrating[$affiliate->get_displayname()] = 0;
+                if(!empty($totals['affmkrwithrating'][$affiliate->affid])) {
+                    $avgmkrrating[$affiliate->get_displayname()] = number_format($totalrating['affiliate'] / $totals['affmkrwithrating'][$affiliate->affid], 2);
+                }
                 eval("\$aff_rating = \"".$template->get('reporting_mkr_rating')."\";");
                 eval("\$affiliate_report .= \"".$template->get('reporting_affiliate_reportperformance')."\";");
 
-                $totalrating['allaffiliates']+=$avgmkrrating[$affiliate->get_displayname()];
                 foreach($fields as $field) {
                     $all_aff_total[$field] += $avgperaff[$field][$affiliate->get_displayname()];
                 }
@@ -146,14 +160,14 @@ if(!$core->input['action']) {
             unset($supplier_reportperformance, $supplier);
         }
         if($aff_count != 0) {
-            $avgrating['allaffiliates'] = number_format($totalrating['allaffiliates'] / $aff_count, 2);
+            $avgrating['allaffiliates'] = number_format($totalrating['allaffiliates'] / $totals['allmkrwithrating'], 2);
         }
         foreach($fields as $field) {
             $all_aff_avg[$field] = ceil($all_aff_total[$field] / $aff_count);
         }
         if(is_array($avgmkrrating)) {
             if(!(count(array_unique($avgmkrrating)) === 1 && end($avgmkrrating) === '0.00')) {
-                $mkrrating_barchart = new Charts(array('x' => array_keys($avgmkrrating), 'y' => array_values($avgmkrrating)), 'bar', array('yaxisname' => 'MKR Rating', 'xaxisname' => $lang->affiliate, 'title' => $lang->barchartrating, 'scale' => 'SCALE_START0', 'nosort' => true, 'width' => 1000, 'labelrotationangle' => 90));
+                $mkrrating_barchart = new Charts(array('x' => array_keys($avgmkrrating), 'y' => array_values($avgmkrrating)), 'bar', array('yaxisname' => 'MKR Rating', 'xaxisname' => $lang->affiliate, 'title' => $lang->barchartrating, 'scale' => 'SCALE_START0', 'nosort' => true, 'width' => 800, 'height' => 300, 'noLegend' => true, 'labelrotationangle' => 90));
                 $mkrratingbarchart = $mkrrating_barchart->get_chart();
             }
         }
@@ -162,15 +176,15 @@ if(!$core->input['action']) {
             if(is_array($avgperaff[$chart])) {
                 $avgperaff[$chart] = array_filter($avgperaff[$chart]);
                 if(!empty($avgperaff[$chart])) {
-                    $daystocompletion_bchart[$chart] = new Charts(array('x' => array_keys($avgperaff[$chart]), 'y' => array_values($avgperaff[$chart])), 'bar', array('yaxisname' => $lang->$chart, 'xaxisname' => $lang->affiliates, 'title' => $lang->$chart, 'scale' => 'SCALE_START0', 'nosort' => true, 'width' => 1000, 'noLegend' => true, 'labelrotationangle' => 90));
+                    $daystocompletion_bchart[$chart] = new Charts(array('x' => array_keys($avgperaff[$chart]), 'y' => array_values($avgperaff[$chart])), 'bar', array('yaxisname' => $lang->$chart, 'xaxisname' => $lang->affiliates, 'title' => $lang->$chart, 'scale' => 'SCALE_START0', 'nosort' => true, 'width' => 800, 'height' => 300, 'noLegend' => true, 'labelrotationangle' => 90));
                     $daystocompletion_bchart[$chart.'chart'] = $daystocompletion_bchart[$chart]->get_chart();
                 }
             }
         }
     }
     if(isset($core->input['excludecharts']) && $core->input['excludecharts'] == 1) {
-        $display['charts'] = 'style="display:none;"';
-        $display['allaffiliates'] = 'style="display:none;"';
+        $display['charts'] = 'style = "display:none;"';
+        $display['allaffiliates'] = 'style = "display:none;"';
     }
     eval("\$reportperformance .= \"".$template->get('reporting_performance')."\";");
     output_page($reportperformance);

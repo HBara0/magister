@@ -21,6 +21,7 @@ class EntitiesSegments extends AbstractClass {
     const TABLE_NAME = 'entitiessegments';
     const DISPLAY_NAME = '';
     const SIMPLEQ_ATTRS = '*';
+    const CLASSNAME = __CLASS__;
 
     public function __construct($id = '', $simple = true) {
         parent::__construct($id, $simple);

@@ -26,10 +26,6 @@ class Chemicalsubstances extends AbstractClass {
         parent::__construct($id, $simple);
     }
 
-    public function save(array $data = array()) {
-
-    }
-
     protected function update(array $data) {
 
     }

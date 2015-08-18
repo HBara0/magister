@@ -1,5 +1,5 @@
 <?php
-$lang['livetotalsalesperorganisation'] = 'Live total sales per organisation';
+$lang['livetotalsalesperorganisation'] = 'Real Time Sales per Organisation';
 $lang['drilldownchartsalesperyear'] = 'Drill-Down Chart for Sales per Year';
 $lang['salesdashboard'] = 'Sales Dashboard';
 $lang['salestotalamount'] = 'Sales Total Amounts';

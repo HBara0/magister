@@ -473,6 +473,7 @@ if(!$core->input['action']) {
                 foreach($marketreport as $key => $val) {
                     if(!is_numeric($val) && !is_array($val)) {
                         //  $marketreport[$key] = nl2br($val);
+                        $marketreport[$key] = str_replace(array('&lt;', '&gt;'), array('<', '>'), $val);
                     }
                 }
 

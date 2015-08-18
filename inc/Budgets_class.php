@@ -557,6 +557,43 @@ class Budgets extends AbstractClass {
                 if(!in_array($this->data['spid'], $core->user['auditfor'])) {
                     if(is_array($core->user['auditedaffids'])) {
                         if(!in_array($this->data['affid'], $core->user['auditedaffids'])) {
+                            //if user is coordinator append more options
+                            $segmentscoords = ProdSegCoordinators::get_data(array('uid' => $core->user['uid']), array('returnarray' => true));
+                            if(is_array($segmentscoords)) {
+                                $psids = array();
+                                $affids = array();
+                                $spids = array();
+                                foreach($segmentscoords as $segmentscoord) {
+                                    if(in_array($segmentscoord->psid, $psids)) {
+                                        continue;
+                                    }
+                                    $psids[] = $segmentscoord->psid;
+                                    $entitysegments = EntitiesSegments::get_data(array('psid' => $segmentscoord->psid), array('returnarray' => true));
+                                    if(is_array($entitysegments)) {
+                                        foreach($entitysegments as $entitysegment) {
+                                            if($entitysegment->eid == $this->data['spid']) {
+                                                $entity = new Entities($entitysegment->eid);
+                                                if($entity->type == 's') {
+                                                    $affiliatedsegs = AffiliatedEntities::get_column('affid', array('eid' => $entitysegment->eid), array('returnarray' => true));
+                                                    if(is_array($affiliatedsegs)) {
+                                                        foreach($affiliatedsegs as $affiliatedseg) {
+                                                            if(!in_array($affiliatedseg, $affids)) {
+                                                                $affids[] = $affiliatedseg;
+                                                            }
+                                                        }
+                                                        if(is_array($affids)) {
+                                                            $core->user['suppliers']['affid'][$entity->eid] = array_unique(array_merge($core->user['suppliers']['affid'][$entity->eid], $affids));
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    if(is_array($affids)) {
+                                        $core->user['affiliates'] = array_unique(array_merge($core->user['affiliates'], $affids));
+                                    }
+                                }
+                            }
                             $filter['filters']['affiliates'] = $core->user['affiliates'];
                             if(is_array($core->user['suppliers']['affid'][$this->data['spid']])) {
                                 if(in_array($this->data['affid'], $core->user['suppliers']['affid'][$this->data['spid']])) {

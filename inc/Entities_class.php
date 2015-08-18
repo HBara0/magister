@@ -1094,7 +1094,6 @@ class Entities extends AbstractClass {
 
     public function get_representatives_ids() {
         global $db;
-        $entitiesreps = EntitiesRepresentatives::get_data(array('eid' => $this->data['eid']), array('returnarray' => true));
         $query = 'SELECT rpid FROM entitiesrepresentatives WHERE eid ='.$this->data['eid'];
         $entrepquery = $db->query($query);
         if($db->num_rows($entrepquery) > 0) {
