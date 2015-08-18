@@ -1471,9 +1471,13 @@ else {
                 $section_allempty = true;
                 unset($val['segmenttitle'], $val['rid'], $val['psid']);
 
+
                 if($marketreport_found_one == false) {
                     if(!empty($val)) {
                         foreach($val as $k => $v) {
+                            if($k == 'devProjectsNewOp' || $k == 'actionPlan' || $k = 'remarks') {
+                                continue;
+                            }
                             $v = $core->sanitize_inputs(preg_replace(array(' ~ \x{00a0}~siu', '/\s/'), '', $v), array('method' => 'striponly', 'allowable_tags' => '', 'removetags' => true));
                             if($section_allempty == true) {
                                 if(!in_array(strtolower(trim($v)), $emtpy_terms) && !preg_match('/^[n;., -_+\*]+$/', $v)) {
