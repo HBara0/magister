@@ -266,5 +266,9 @@ class Affiliates {
         }
     }
 
+    public function get_coveredcountries() {
+        return Countries::get_data(array('affid' => $this->affiliate[self::PRIMARY_KEY]), array('order' => 'name', 'returnarray' => true));
+    }
+
 }
 ?>
