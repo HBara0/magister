@@ -1497,7 +1497,7 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                                     $prevperiod = $prevperiod['month'];
                                     break;
                                 case 'byytd':
-                                    $prevperiod = (date('Y', TIME_NOW));
+                                    $prevperiod = (date('Y', TIME_NOW) - 1);
                                     break;
                                 default:
                                     break;
