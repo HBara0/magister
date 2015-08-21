@@ -110,7 +110,7 @@ class AroRequestsMessages extends AbstractClass {
         $arorequest = AroRequests::get_data(array('aorid' => $this->data['aorid']));
 
         if(is_object($arorequest)) {
-            $reply_links = DOMAIN.'/index.php?module=aro/managearodoumets&action=takeactionpage&requestKey='.base64_encode($arorequest->get()['requestKey']).'&inreplyTo='.$this->data['inReplyTo'].'&id='.base64_encode($arorequest->get()['aorid']);
+            $reply_links = DOMAIN.'/index.php?module=aro/managearodocumets&action=takeactionpage&requestKey='.base64_encode($arorequest->get()['requestKey']).'&inreplyTo='.$this->data['inReplyTo'].'&id='.base64_encode($arorequest->get()['aorid']);
         }
 
         // $approvals = $arorequest->parse_approvalsapprovers();
@@ -118,6 +118,7 @@ class AroRequestsMessages extends AbstractClass {
         $mailer->set_subject($lang->newrequestmsgsubject.' ['.$arorequest->requestKey.']');
 
         $emailreceivers = $this->get_emailreceivers();
+
         foreach($emailreceivers as $uid => $emailreceiver) {
             $message = '<p>'.$this->data['message'].' | <a href="'.$reply_links.'">&#x21b6; '.$lang->reply.'</a></p>';
             $message .= '<h1>'.$lang->conversation.'</h1>'.$arorequest->parse_messages(array('viewmode' => 'textonly', 'uid' => $uid));
@@ -196,18 +197,18 @@ class AroRequestsMessages extends AbstractClass {
                 if(is_array($approvals_objs)) {
                     foreach($approvals_objs as $approvals_obj) {
                         $user = new Users($approvals_obj->uid);
-                        $users_receiver[$approvals_obj->uid] = $user->get_email();
+                        $users_receiver[$approvals_obj->uid] = $user->email;
                     }
                 }
                 else {
                     if(is_object(approvals_objs)) {
                         $user = new Users($approvals_objs->uid);
-                        $users_receiver[$approvals_objs->uid] = $user->get_email();
+                        $users_receiver[$approvals_objs->uid] = $user->email;
                     }
                 }
                 $createdbyid = $arorequest_obj->createdBy;
                 $createdby = new Users($createdbyid);
-                $users_receiver[$createdby->get()['uid']] = $createdby->get_email();
+                $users_receiver[$createdby->get()['uid']] = $createdby->email;
                 break;
             case 'private':
                 $inreply_obj = $this->get_inreplyto();   /* Get the user whos in  the relplyTo this message */
@@ -216,7 +217,7 @@ class AroRequestsMessages extends AbstractClass {
                 }
                 $createdbyid = $arorequest_obj->createdBy;
                 $createdby = new Users($createdbyid);
-                $users_receiver[$createdby->get()['uid']] = $createdby->get_email();
+                $users_receiver[$createdby->get()['uid']] = $createdby->email;
                 break;
             case'limited':
 
@@ -227,12 +228,13 @@ class AroRequestsMessages extends AbstractClass {
                 if(is_array($sender_approvals_objs)) {
                     foreach($sender_approvals_objs as $sender_approvals_obj) {
                         $user = new Users($sender_approvals_obj->uid);
-                        $users_receiver[$user->uid] = $user->get_email();
+                        $users_receiver[$user->uid] = $user->email;
                     }
                 }
                 break;
         }
         unset($users_receiver[$core->user['uid']]);   /* avoid send  threads  to the user who is setting the message thread */
+        print_R($users_receiver);
         return $users_receiver;
     }
 

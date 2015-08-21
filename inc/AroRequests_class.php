@@ -551,7 +551,7 @@ class AroRequests extends AbstractClass {
     }
 
     public function get_nextapprover() {
-        return AroRequestsApprovals::get_data(array('isApproved' => 0, 'aorid' => $this->data[self::PRIMARY_KEY]), array('order' => array('sort' => 'DESC', 'by' => 'sequence'), 'limit' => '0, 1'));
+        return AroRequestsApprovals::get_data(array('isApproved' => 0, 'aorid' => $this->data[self::PRIMARY_KEY]), array('order' => array('sort' => 'ASC', 'by' => 'sequence'), 'limit' => '0, 1'));
     }
 
     public function inform_nextapprover() {
@@ -564,9 +564,9 @@ class AroRequests extends AbstractClass {
             $aroapprovalemail_subject = 'Aro Needs Approval';
             $email_data = array(
                     'from' => 'ocos@orkila.com',
-                    'to' => $user->get_email(),
+                    'to' => $user->email,
                     'subject' => $aroapprovalemail_subject,
-                    'message' => "Aro Request Needs Approval:".$approve_link,
+                    'message' => " Test Aro Request Needs Approval:".$approve_link,
             );
             $mailer = new Mailer();
             $mailer = $mailer->get_mailerobj();
@@ -575,9 +575,8 @@ class AroRequests extends AbstractClass {
             $mailer->set_subject($email_data['subject']);
             $mailer->set_message($email_data['message']);
             $mailer->set_to($email_data['to']);
-            //$x = $mailer->debug_info();
-            //print_R($x);
-            exit;
+
+            $mailer->send();
         }
     }
 
