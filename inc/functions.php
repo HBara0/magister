@@ -1003,9 +1003,11 @@ function get_user_business_assignments($uid) {
             $data['suppliers']['eid'][$val] = $val;
             $audited_affiliates = get_specificdata('affiliatedentities', 'affid', 'affid', 'affid', '', 0, "eid='{$val}'");
             $data['auditedaffiliates'][$val] = $audited_affiliates; //Temporary to maintain backward compatibilty
-            foreach($audited_affiliates as $affid) {
-                $data['suppliers']['affid'][$val][$affid] = $affid;
-                $data['affiliates'][$affid] = $affid;
+            if(is_array($audited_affiliates)) {
+                foreach($audited_affiliates as $affid) {
+                    $data['suppliers']['affid'][$val][$affid] = $affid;
+                    $data['affiliates'][$affid] = $affid;
+                }
             }
         }
     }
@@ -1318,7 +1320,9 @@ function getquery_entities_viewpermissions() {
                     if(in_array($val, $auditfor)) {
                         $inaffiliates_query = '';
                         if($usergroup['canViewAllAff'] == 0) {
-                            $inaffiliates_query = ' AND '.$attribute_prefix.'affid IN ('.implode(',', $user['auditedaffiliates'][$val]).')';
+                            if(is_array($user['auditedaffiliates'][$val])) {
+                                $inaffiliates_query = ' AND '.$attribute_prefix.'affid IN ('.implode(',', $user['auditedaffiliates'][$val]).')';
+                            }
                         }
                     }
                     else {
