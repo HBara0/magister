@@ -14,11 +14,21 @@ $(function() {
         return false;
     }).next().hide();
     //--------------------------------------------------------------
+
+
+    setTimeout(function() {
+        $("input[id='ordersummary_btn']").trigger("click");
+        $("input[id$='_netMargin']").trigger("change");
+    }, 10);
+
     if(typeof getUrlParameter('referrer') !== 'undefined') {
         if(getUrlParameter('referrer') == 'toapprove' || getUrlParameter('referrer') == 'toapprove#' || (myUrl.substring(myUrl.length - 1) == '#' && getUrlParameter('referrer') == 'toapprove')) {
+            // function() {
             $("form[id='perform_aro/managearodouments_Form'] :input:not([id^='approvearo'])").attr("disabled", true);
+            // });
         }
     }
+
     else {
         if(typeof getUrlParameter('id') !== 'undefined') {
             $.ajax({type: 'post',
@@ -32,7 +42,6 @@ $(function() {
                 success: function(returnedData) {
                     if(typeof returnedData != 'undefined' && returnedData.length > 0) {
                         var json = eval("(" + returnedData + ");");
-
                         if(json['disable'] === 1) {
                             $("form[id='perform_aro/managearodouments_Form'] :input:not([id^='approve_aro'])").attr("disabled", true);
                         }
