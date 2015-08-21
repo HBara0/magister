@@ -105,7 +105,9 @@ class AroRequestsPartiesInformation extends AbstractClass {
         if(is_object($intermed_paymentterm)) {
             $intermediarydates['intermedEstDateOfPayment'] = strtotime('+'.$intermed_paymentterm->overduePaymentDays.' days', $partiesinfo_data['estDateOfShipment']);
         }
-        $intermediarydates['promiseOfPayment'] = strtotime('+'.$data['ptAcceptableMargin'].' days', $intermediarydates['intermedEstDateOfPayment']);
+        if(!empty($intermediarydates['intermedEstDateOfPayment'])) {
+            $intermediarydates['promiseOfPayment'] = strtotime('+'.$data['ptAcceptableMargin'].' days', $intermediarydates['intermedEstDateOfPayment']);
+        }
         return $intermediarydates;
     }
 

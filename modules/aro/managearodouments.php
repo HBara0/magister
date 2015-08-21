@@ -828,7 +828,7 @@ else {
         output(json_encode($data));
     }
     if($core->input['action'] == 'populateordersummary') {
-        $intermedaffiliate = new Affiliates($core->input['intermedAff']);
+        $intermedaffiliate = Affiliates::get_affiliates(array('affid' => $core->input['intermedAff']));
         $affiliate = new Affiliates($core->input['aff']);
         $qtyperunit = $core->input['qtyperunit'];
         $feeperunit = $core->input['feeperunit'];
@@ -878,19 +878,19 @@ else {
             $feeperunit_usdarray = implode("\n", $feeperunit_usdarray);
         }
 
-//  $localinvoicevalue = $core->input['invoicevalue_local'];
+        //$localinvoicevalue = $core->input['invoicevalue_local'];
         $purchaseype = new PurchaseTypes($core->input['ptid']);
         $localnetmargin = $core->input['local_netMargin'];
         if($purchaseype->isPurchasedByEndUser == 1) {
-//   $localinvoicevalue = $core->input['invoicevalue_local_RIC'];
+            //$localinvoicevalue = $core->input['invoicevalue_local_RIC'];
             $localnetmargin = 0;
             $intermedmargin = $core->input['local_netMargin'];
         }
-// $localinvoicevalue_usd = $localinvoicevalue * $core->input['exchangeRateToUSD'];
-
-        $invoicevalueintermed = $core->input['invoicevalue_intermed'];
-        $invoicevalueintermed_usd = $core->input['invoicevalue_intermed'] * $core->input['exchangeRateToUSD'];
-
+        //$localinvoicevalue_usd = $localinvoicevalue * $core->input['exchangeRateToUSD'];
+        if($purchaseype->needsIntermediary != 0) {
+            $invoicevalueintermed = $core->input['invoicevalue_intermed'];
+            $invoicevalueintermed_usd = $core->input['invoicevalue_intermed'] * $core->input['exchangeRateToUSD'];
+        }
         if($purchaseype->isPurchasedByEndUser == 0) {
             $intermedmargin = '-';
             $intermedmargin_perc = '-';
@@ -903,7 +903,7 @@ else {
                 }
             }
         }
-        if($purchaseype->isPurchasedByEndUser == 1) {
+        else if($purchaseype->isPurchasedByEndUser == 1) {
             if($localinvoicevalue_usd != 0) {
                 $intermedmargin_perc = $intermedmargin / $localinvoicevalue_usd;
             }
@@ -914,9 +914,14 @@ else {
 
         $localnetmargin_perc = '';
         if(!empty($localnetmargin) && ($core->input['sellingpriceqty_product'] * $core->input['exchangeRateToUSD'] ) != 0) {
-            $localnetmargin_perc = $localnetmargin / ($core->input['sellingpriceqty_product'] * $core->input['exchangeRateToUSD']);
+            $localnetmargin_perc = ($localnetmargin / ($core->input['sellingpriceqty_product'] * $core->input['exchangeRateToUSD'])) * 100;
         }
-        $data = array('ordersummary_intermedaff' => $intermedaffiliate->get_displayname(),
+
+        $intermedaff_name = '-';
+        if(is_object($intermedaffiliate)) {
+            $intermedaff_name = $intermedaffiliate->get_displayname();
+        }
+        $data = array('ordersummary_intermedaff' => $intermedaff_name,
                 'ordersummary_localaff' => $affiliate->get_displayname(),
                 'ordersummary_totalquantity' => $quantityperuom,
                 'ordersummary_totalfees' => $feeperunit_array,

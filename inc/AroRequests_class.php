@@ -48,6 +48,7 @@ class AroRequests extends AbstractClass {
         $orderrequest_array['identifier'] = substr(md5(uniqid(microtime())), 1, 10);
         $query = $db->insert_query(self::TABLE_NAME, $orderrequest_array);
         if($query) {
+            $this->data['identifier'] = $orderrequest_array['identifier'];
             $this->data[self::PRIMARY_KEY] = $db->last_id();
             if(isset($data['nextnumid']) && !empty($data['nextnumid']['nextnum'])) {
                 /* update nextnumber  in the document sequence based on affid and ptid */
@@ -134,6 +135,8 @@ class AroRequests extends AbstractClass {
         $query = $db->update_query(self::TABLE_NAME, $orderrequest_array, ''.self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
         if($query) {
             /* update the document conf with the next number */
+            $arorequest = self::get_data(array('aorid' => $this->data[self::PRIMARY_KEY]));
+            $this->data['identifier'] = $arorequest->identifier;
             $log->record(self::TABLE_NAME, $this->data[self::PRIMARY_KEY]);
             $this->save_ordercustomers($data['customeroder']);
             if($this->errorcode != 0) {
@@ -364,8 +367,7 @@ class AroRequests extends AbstractClass {
             foreach($sortedapprovalchain as $key => $val) {
                 switch($val['approver']) {
                     case 'businessManager':
-                        $approvers['businessManager'] = 1;
-
+                        $approvers['businessManager'] = 182;
                         break;
                     case 'lolm':
                         $approvers['lolm'] = $affiliate->get_logisticsmanager()->uid;
@@ -403,8 +405,10 @@ class AroRequests extends AbstractClass {
                     case 'globalPurchaseManager':
                         $approvers['globalPurchaseManager'] = $affiliate->get_globalpurchasemanager()->uid;
                         break;
-                    //  case 'user':
-                    //      break;
+                    case 'user':
+                        //  $user = new Users($val['uid']);
+                        $approvers[$val['approver']] = $val['uid'];
+                        break;
                     default:
                         if(is_int($val)) {
                             $approvers[$val] = $val;
@@ -445,7 +449,7 @@ class AroRequests extends AbstractClass {
                     $position = array_search($val, $approvers);
                 }
                 $approver = new AroRequestsApprovals();
-                $approver->set(array('aorid' => $this->data[self::PRIMARY_KEY], 'uid' => $val, 'isApproved' => $approve_status, 'timeApproved' => $timeapproved, 'sequence' => $sequence, 'position' => $key));
+                $approver->set(array('aorid' => $this->data[self::PRIMARY_KEY], 'uid' => $val, 'isApproved' => $approve_status, 'timeApproved' => $timeapproved, 'sequence' => $sequence, 'position' => $position));
                 $approver->save();
                 $sequence++;
             }
@@ -514,8 +518,8 @@ class AroRequests extends AbstractClass {
             return false;
         }
         $to = $firstapprover->get_email();
-        $approve_link = $core->settings['rootdir']."/index.php?module=aro/managearodouments&referrer=toapprove&requestKey=".base64_encode($this->data['identifier'])."&id=".$this->data[self::PRIMARY_KEY];
-        $aroapprovalemail_subject = 'Aro Needs Approval !';
+        $approve_link = '<a href="'.$core->settings['rootdir']."/index.php?module=aro/managearodouments&referrer=toapprove&requestKey=".base64_encode($this->data['identifier'])."&id=".$this->data[self::PRIMARY_KEY].' "> View and Approve ARO </a>';
+        $aroapprovalemail_subject = 'Test Aro Needs Approval !';
         $email_data = array(
                 'from' => 'ocos@orkila.com',
                 'to' => $to, // $approvers_mailinglist,

@@ -45,7 +45,7 @@ class AroRequestsApprovals extends AbstractClass {
 
     public function get_email() {
         $user = $this->get_user();
-        return $user->get_email();
+        return $user->email;
     }
 
     public function is_apporved() {
