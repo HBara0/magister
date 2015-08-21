@@ -17,7 +17,8 @@ class AroRequestsCurStkSupervision extends AbstractClass {
     const DISPLAY_NAME = '';
     const SIMPLEQ_ATTRS = '*';
     const CLASSNAME = __CLASS__;
-    const UNIQUE_ATTRS = 'aorid,pid,packing';
+
+    // const UNIQUE_ATTRS = 'aorid,pid,packing';
 
     public function __construct($id = '', $simple = true) {
         parent::__construct($id, $simple);
