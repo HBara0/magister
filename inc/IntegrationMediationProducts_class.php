@@ -15,7 +15,7 @@
  */
 class IntegrationMediationProducts extends IntegrationMediation {
     private $status = 0;
-    private $data = array();
+    protected $data = array();
 
     const PRIMARY_KEY = 'impid';
     const TABLE_NAME = 'integration_mediation_products';
@@ -28,7 +28,7 @@ class IntegrationMediationProducts extends IntegrationMediation {
         $this->read($id, $simple);
     }
 
-    private function read($id, $simple) {
+    protected function read($id, $simple) {
         global $db;
 
         $query_select = '*';

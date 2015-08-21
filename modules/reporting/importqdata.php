@@ -213,15 +213,39 @@ else {
             //$useddata['foreignpid']['sale'] = array();
             $sales_query_extrawhere = " AND imsol.pid NOT IN ('".implode('\',\'', $useddata['foreignpid']['sale'])."')";
         }
-
+        //include sales for all customers in the covered countries of the affiliate
+        $affiliate = new Affiliates($affid);
+        $country_ids = array();
+        $covered_countries = $affiliate->get_coveredcountries();
+        if(is_array($covered_countries)) {
+            $coveredents = array();
+            foreach($covered_countries as $covered_country) {
+                $country_ids[] = $covered_country->coid;
+            }
+            if(is_array($country_ids)) {
+                $country_ents = Entities::get_column('eid', array('country' => $country_ids), array('returnarray' => true));
+                if(is_array($country_ents)) {
+                    $coveredents = array_unique(array_merge($coveredents, $country_ents));
+                    if(is_array($coveredents)) {
+                        $foreign_entids = IntegrationMediationEntities::get_column('foreignId', array('localId' => $coveredents, 'foreignSystem' => $options[foreignSystem]), array('returnarray' => true));
+                        if(is_array($foreign_entids)) {
+                            $foreign_salesorders = IntegrationMediationSalesOrders::get_column('foreignId', array('cid' => $foreign_entids), array('returnarray' => true));
+                            if(is_array($foreign_salesorders)) {
+                                $coveredcountryextraselect = 'OR cid IN (\''.implode('\',\'', $foreign_salesorders).'\')';
+                            }
+                        }
+                    }
+                }
+            }
+        }
         $query = $db->query("SELECT DISTINCT(imsol.foreignId), quantity, quantityUnit, imp.localId AS localpid, p.spid AS localspid, imsol.pid AS foreignpid, imp.foreignName AS productname, ims.foreignName AS foreignSupplierName, foreignOrderId
-								FROM ".Tprefix."integration_mediation_salesorderlines imsol
-								LEFT JOIN ".Tprefix."integration_mediation_products imp ON (imsol.pid=imp.foreignId)
-								LEFT JOIN ".Tprefix."integration_mediation_entities ims ON (imp.foreignSupplier=ims.foreignId)
-								LEFT JOIN ".Tprefix."products p ON (p.pid=imp.localId)
-								WHERE imp.foreignSystem={$options[foreignSystem]} AND (imp.affid={$affid} OR imp.affid=0)
-								AND foreignOrderId IN (SELECT foreignId FROM ".Tprefix."integration_mediation_salesorders WHERE foreignSystem={$options[foreignSystem]} AND affid={$affid} AND (date BETWEEN ".strtotime($options['fromDate'])." AND ".strtotime($options['toDate'])."))
-								".$sales_query_extrawhere);
+        FROM ".Tprefix."integration_mediation_salesorderlines imsol
+        LEFT JOIN ".Tprefix."integration_mediation_products imp ON (imsol.pid = imp.foreignId)
+        LEFT JOIN ".Tprefix."integration_mediation_entities ims ON (imp.foreignSupplier = ims.foreignId)
+        LEFT JOIN ".Tprefix."products p ON (p.pid = imp.localId)
+        WHERE imp.foreignSystem = {$options[foreignSystem]} AND (imp.affid = {$affid} OR imp.affid = 0)
+        AND foreignOrderId IN (SELECT foreignId FROM ".Tprefix."integration_mediation_salesorders WHERE foreignSystem = {$options[foreignSystem]} AND (affid = {$affid} ".$coveredcountryextraselect.") AND (date BETWEEN ".strtotime($options['fromDate'])." AND ".strtotime($options['toDate'])."))
+        ".$sales_query_extrawhere);
 
         /* GET Quarter Information - START */
         $quarter_info = quarter_info(strtotime($options['fromDate']));
@@ -242,7 +266,7 @@ else {
                     $report = $reports_cache[$affid][$sale['localspid']][$quarter_info['year']][$quarter_info['quarter']];
                 }
                 else {
-                    $report = $db->fetch_assoc($db->query("SELECT r.* FROM reports r WHERE r.affid='{$affid}' AND r.quarter='{$quarter_info[quarter]}' AND r.year='{$quarter_info[year]}' AND r.spid='{$sale[localspid]}' AND r.type='q'".$report_querywhere));
+                    $report = $db->fetch_assoc($db->query("SELECT r.* FROM reports r WHERE r.affid = '{$affid}' AND r.quarter = '{$quarter_info[quarter]}' AND r.year = '{$quarter_info[year]}' AND r.spid = '{$sale[localspid]}' AND r.type = 'q'".$report_querywhere));
                     $reports_cache[$affid][$sale['localspid']][$quarter_info['year']][$quarter_info['quarter']] = $report;
                 }
 
@@ -280,7 +304,7 @@ else {
                 }
                 else {
                     if(!isset($sale['foreignName']) || empty($sale['foreignName'])) {
-                        $sale['foreignName'] = $db->fetch_field($db->query("SELECT companyName FROM entities WHERE eid={$sale[localspid]}"), 'companyName');
+                        $sale['foreignName'] = $db->fetch_field($db->query("SELECT companyName FROM entities WHERE eid = {$sale[localspid]}"), 'companyName');
                     }
 
                     $errors['reportnotfound'][] = 'Q'.$quarter_info['quarter'].'/'.$quarter_info['year'].' '.$affid.'-'.$sale['foreignName'];
