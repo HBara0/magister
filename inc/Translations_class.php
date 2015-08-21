@@ -20,30 +20,34 @@ class Translations extends AbstractClass {
 
     public function create(array $data) {
         global $db, $core;
-        $table_array = array(
-                'tableName' => $data['tableName'],
-                'field' => $data['field'],
-                'language' => $data['language'],
-                'tableKey' => $data['tableKey'],
-                'text' => $data['text'],
-        );
-        $query = $db->insert_query(self::TABLE_NAME, $table_array);
-        if($query) {
-            $this->data[self::PRIMARY_KEY] = $db->last_id();
+        if(!$this->validate_requiredfields($data)) {
+            $table_array = array(
+                    'tableName' => $data['tableName'],
+                    'field' => $data['field'],
+                    'language' => $data['language'],
+                    'tableKey' => $data['tableKey'],
+                    'text' => $data['text'],
+            );
+            $query = $db->insert_query(self::TABLE_NAME, $table_array);
+            if($query) {
+                $this->data[self::PRIMARY_KEY] = $db->last_id();
+            }
         }
         return $this;
     }
 
     protected function update(array $data) {
         global $db;
-        if(is_array($data)) {
-            $update_array['tableName'] = $data['tableName'];
-            $update_array['field'] = $data['field'];
-            $update_array['language'] = $data['language'];
-            $update_array['tableKey'] = $data['tableKey'];
-            $update_array['text'] = $data['text'];
+        if(!$this->validate_requiredfields($data)) {
+            if(is_array($data)) {
+                $update_array['tableName'] = $data['tableName'];
+                $update_array['field'] = $data['field'];
+                $update_array['language'] = $data['language'];
+                $update_array['tableKey'] = $data['tableKey'];
+                $update_array['text'] = $data['text'];
+            }
+            $db->update_query(self::TABLE_NAME, $update_array, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
         }
-        $db->update_query(self::TABLE_NAME, $update_array, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
         return $this;
     }
 
@@ -109,6 +113,18 @@ class Translations extends AbstractClass {
             }
         }
         return $this->create($data);
+    }
+
+    private function validate_requiredfields(array $data = array()) {
+        if(is_array($data)) {
+            $required_fields = array('tableName', 'field', 'language', 'tableKey', 'text');
+            foreach($required_fields as $field) {
+                if(empty($data[$field]) && $data[$field] != '0') {
+                    $this->errorcode = 2;
+                    return true;
+                }
+            }
+        }
     }
 
 }
