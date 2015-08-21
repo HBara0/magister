@@ -129,7 +129,7 @@ class AroRequestLines extends AbstractClass {
     private function calculate_netmargin($purchasetype, $data = array(), $newdata = array(), $parms = array()) {
         $parmsfornetmargin['YearDays'] = 365;
         if($parms['localPeriodOfInterest'] != 0 && $parms['warehousingPeriod'] != 0 && $parms['warehousingRate'] != 0 && $parms['totalQty'] != 0) {
-            $netmargin = (($newdata['grossMarginAtRiskRatio'] - (($data['quantity'] * $newdata['affBuyingPrice'] * $parms['localBankInterestRate']) / ( $parmsfornetmargin['YearDays'] * $parms['localPeriodOfInterest']))) * $data['exchangeRateToUSD']);
+            $netmargin = (($newdata['grossMarginAtRiskRatio'] - ((($data['quantity'] * $newdata['affBuyingPrice'] * $parms['localBankInterestRate']) / $parmsfornetmargin['YearDays']) * $parms['localPeriodOfInterest'])) * $data['exchangeRateToUSD']);
             $netmargin -= ((($parms['warehousingTotalLoad'] * $data['quantity']) / $parms['totalQty']) * ($data['daysInStock'] / $parms['warehousingPeriod']) * $parms['warehousingRate']);
         }
         if($purchasetype->isPurchasedByEndUser == 1) {
