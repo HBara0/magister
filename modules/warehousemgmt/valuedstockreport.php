@@ -56,8 +56,9 @@ else {
         }
         $orgid = $affiliateobj->integrationOBOrgId;
         $affiliate = $affiliateobj->get();
-        $affiliate['currency'] = $affiliateobj->get_country()->get_maincurrency()->get()['alphaCode'];
-
+        $currency_obj = $affiliateobj->get_country()->get_maincurrency();
+        $affiliate['currency'] = $currency_obj->get()['alphaCode'];
+        $currencyname = $currency_obj->get_displayname();
         $integration->set_organisations(array($orgid));
         $integration->set_sync_interval($report_period);
 
@@ -89,9 +90,9 @@ else {
                     continue;
                 }
                 $product = new IntegrationOBProduct($product_id, $integration->get_dbconn());
-                $total['qty'] += $item['qty'];
-                $total['value'] += $item['value'];
-                $item['valuebyqty'] = $item['value'] / $item['qty'];
+                $total['qty'] += number_format($item['qty'], 4);
+                $total['value'] += number_format($item['value'], 4);
+                $item['valuebyqty'] = number_format($item['value'] / $item['qty'], 4);
                 eval("\$itemlines .= \"".$template->get('warehousemgmt_valuedstkreport_reportlines_itemlines')."\";");
             }
             eval("\$reportlines .= \"".$template->get('warehousemgmt_valuedstkreport_reportlines')."\";");
