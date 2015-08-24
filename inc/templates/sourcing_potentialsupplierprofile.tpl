@@ -15,23 +15,23 @@
         <script>
                     $(function() {
                     var tooltipvalues = ["{$lang->verylowopp}", "{$lang->lowopp}", "{$lang->mediumopp}", "{$lang->highopp}", "{$lang->veryhighopp}"];
-                            $("#ratingdiv").live("over", function(event, value) {
+                            $(document).on("over", "#ratingdiv", function(event, value) {
                     $(this).attr("title", tooltipvalues[value - 1]);
                     });
             {$header_blurjs}
 
                     $("input[type='radio'][id=approved_type]").attr('disabled', true);
-                            $(".priceok").live('change', function() {
+                            $(document).on('change', ".priceok", function() {
                     var val = $(this).val();
                             /* find the first checkbox in the next parent div after each input with class approved*/
                             var obj = $(this).parent().parent().nextAll().has(":checkbox").first().find(":checkbox").removeAttr("disabled").prop("checked", true);
                             $("div[id^='" + obj.val() + "']").show(); /* obj.val() Get the value of the checkbox in the next div (that has calss main) */
                             $(".stageapproved,.stagenotapproved,.notapplocable").removeAttr("disabled");
                     });
-                            $(".pricenotOk").live('change', function() {
+                            $(document).on('change', ".pricenotOk", function() {
                     $(".stageapproved,.stagenotapproved,.notapplocable").attr('disabled', true);
                     });
-                            $(".stageapproved,.notapplocable").live('change', function() {
+                            $(document).on('change', ".stageapproved,.notapplocable", function() {
                     $(this).parent().parent().parent().next().show().find("textarea,:text").removeAttr("disabled");
                             /* find the first checkbox in the next parent div after each radio checked with class stageapproved after the main Div*/
                             var obj = $(this).parent().parent().parent().nextAll().has(":checkbox").first().find(":checkbox").removeAttr("disabled").prop("checked", true);
@@ -46,7 +46,7 @@
                             $("div[id^='" + obj.val() + "']").show(); /* obj.val() Get the value of the checkbox in the next div (that has calss main) */
 
                     });
-                            $(".stagenotapproved,.pricenotOk").live('change', function() {
+                            $(document).on('change', ".stagenotapproved,.pricenotOk", function() {
                     /*disable and rehide subsequent stage textarea and text*/
                     $(this).parent().parent().parent().next().first().hide().find("textarea,:text").attr("disabled", true);
                             $(this).parent().parent().parent().nextAll().has(":checkbox").first().find(":checkbox").attr('disabled', true);
@@ -55,7 +55,7 @@
                     });
                             /*expand/collapse report section START*/
 
-                            $("input[type='checkbox'][id$='_check']").live('change', function() {
+                            $(document).on('change', "input[type='checkbox'][id$='_check']", function() {
                     var id = $(this).attr("id");
                             $("div[id^='" + $(this).val() + "']").slideToggle("slow");
                     });

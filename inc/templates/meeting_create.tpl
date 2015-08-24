@@ -8,7 +8,7 @@
 
         <script>
             $(function () {
-                $('a[id^=deletefile_]').live('click', function () {
+                $(document).on('click', 'a[id^=deletefile_]', function () {
                     if(sharedFunctions.checkSession() == false) {
                         return;
                     }

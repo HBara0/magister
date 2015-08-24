@@ -525,8 +525,7 @@ $(function () {
             $("#" + id[0]).val($("#" + id[0] + "_last").val());
         }
     });
-
-    $("input[accept='numeric']").live("keydown", function (e) {
+    $(document).on("keydown", "input[accept='numeric']", function (e) {
         if(e.keyCode > 31 && (e.keyCode < 48 || (e.keyCode > 57 && (e.keyCode < 96 || e.keyCode > 105) && e.keyCode != 190 && e.keyCode != 110 && e.keyCode != 16 && e.keyCode != 17 && e.keyCode != 59))) {
             //$(this).val($(this).val().substring(0, ($(this).val().length - 1)));
             e.preventDefault();
@@ -534,8 +533,7 @@ $(function () {
         }
         return true
     });
-
-    $("a[id='resetpassword']").live('click', function () {
+    $(document).on('click', "a[id='resetpassword']", function () {
         $("#logincontent").hide();
         $("#resetpasswordcontent").show();
     });
@@ -593,7 +591,7 @@ $(function () {
                 );
     }
 
-    $("a[id$='_loadpopupbyid'],a[id^='mergeanddelete_'][id$='_icon'],a[id^='revokeleave_'][id$='_icon'],a[id^='approveleave_'][id$='_icon']").live('click', function () {
+    $(document).on('click', "a[id$='_loadpopupbyid'],a[id^='mergeanddelete_'][id$='_icon'],a[id^='revokeleave_'][id$='_icon'],a[id^='approveleave_'][id$='_icon']", function () {
         var id = $(this).attr("id").split("_");
 //        var rel = $(this).prop("rel");
 //        var underscore = '_';
@@ -633,7 +631,7 @@ $(function () {
         $("div[id^='tabs_']").tabs();
     }
 
-    $("a[id^='addnew_']").live("click", function () {
+    $(document).on("click", "a[id^='addnew_']", function () {
         var id = $(this).attr("id").split("_");
         popUp(id[1], id[0] + "_" + id[2]);
     });
@@ -784,7 +782,7 @@ $(function () {
         }
     });
 
-    $("img[id^='ajaxaddmore_']").live("click", function () {
+    $(document).on("click", "img[id^='ajaxaddmore_']", function () {
         if(sharedFunctions.checkSession() == false) {
             return;
         }
@@ -1022,7 +1020,7 @@ $(function () {
             $('#dimensions').val($("#dimensionto").sortable('toArray'));
         }
     });
-    $("[data-reqparent^='children-']").live('change', function () {
+    $(document).on('change', "[data-reqparent^='children-']", function () {
         var children = $(this).attr('data-reqparent').split('-');
         if(children.length > 1) {
             if($(this).attr('type') == 'checkbox') {

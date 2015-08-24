@@ -4,7 +4,7 @@
         {$headerinc}
         <script>
             $(function () {
-                $('#types').live('change', function () {
+                $(document).on('change', '#types', function () {
                     if($(this).val() == 'graph') {
                         $('#type_html').hide();
                         $('#type_graph').show();

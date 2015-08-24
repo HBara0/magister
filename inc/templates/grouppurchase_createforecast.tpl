@@ -3,8 +3,8 @@
         <title>{$core->settings[systemtitle]} | {$lang->createforecast}</title>
         {$headerinc}
         <script>
-            $(function() {
-                $("select[id='forecast_onBehalf']").live('change', function() {
+            $(function () {
+                $(document).on('change', "select[id='forecast_onBehalf']", function () {
                     var selectList = $("spid");
                     selectList.find("option:gt(0)").remove();
                     $("select[id='affid']").trigger("change");

@@ -4,7 +4,7 @@
         {$headerinc}
         <script>
             $(function () {
-                $("select[id='selectlist[referenceType]']").live('change', function () {
+                $(document).on('change', "select[id='selectlist[referenceType]']", function () {
                     if($(this).val() == 'list') {
                         $("div[id='lines']").fadeIn();
                         $("div[id='table']").hide();

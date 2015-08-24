@@ -6,7 +6,7 @@
             $(function () {
                 var tabs = $("#sectionstabs").tabs();
                 var tabcounter = tabs.find(".ui-tabs-nav").find('li').length + 1; //find the  lenght of li tabs and increment by 1
-                $('select[id^="field"][id$="[fieldType]"]').live('change', function () {
+                $(document).on('change', 'select[id^="field"][id$="[fieldType]"]', function () {
                     var id = $(this).attr('id').substring(0, $(this).attr('id').indexOf('[fieldType]')) + '[srliid]';
                     if($(this).val() == 'list') {
                         $("div[id='" + id + "']").show();
@@ -15,7 +15,7 @@
                         $("div[id='" + id + "']").hide();
                     }
                 });
-                $("#createtab").live('click', function () {
+                $(document).on('click', "#createtab", function () {
                     var templatecontent = errormessage = '';
                     var id = "sectionstabs-" + tabcounter;
                     if($("input[id='window_id']").val().length == 0) {

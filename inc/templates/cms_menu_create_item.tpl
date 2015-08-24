@@ -4,7 +4,7 @@
         {$headerinc}
         <script type="text/javascript">
             $(function () {
-                $("input[type='radio'][id$='_type']").live('change', function () {
+                $(document).on('change', "input[type='radio'][id$='_type']", function () {
                     var id = $(this).attr("id");
 
                     /*	if($(this).not($("div[id^='" + $(this).val() + "']"))) {

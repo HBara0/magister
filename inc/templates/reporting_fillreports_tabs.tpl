@@ -6,34 +6,34 @@
         <script src="{$core->settings[rootdir]}/js/fillreport.js" type="text/javascript"></script>
         <script src="{$core->settings[rootdir]}/js/jquery.rateit.min.js" type="text/javascript"></script>
         <script>
-            $(function() {
+            $(function () {
                 var tabs = $("#reporttabs").tabs();
                 var tabcounter = tabs.find(".ui-tabs-nav").find('li').length + 1; //find the  lenght of li tabs and increment by 1
             {$header_ratingjs}
-                $('#previewed_button').live('click', function() {
-                    $('input[id="previewed_value"]').each(function(i, obj) {
+                $(document).on('click', '#previewed_button', function () {
+                    $('input[id="previewed_value"]').each(function (i, obj) {
                         $(obj).val('1');
                     });
                     $('input[id="save_productsactivity_reporting/fillreport_Button"]').click();
-                    setTimeout(function() {
+                    setTimeout(function () {
                         $('input[id="save_marketreport_reporting/fillreport_Button"]').click()
                     }, 2000
                             );
-                    setTimeout(function() {
-                        $('#previewed_value').each(function(i, obj) {
+                    setTimeout(function () {
+                        $('#previewed_value').each(function (i, obj) {
                             $(obj).val('');
                         });
                     }, 4000
                             );
                 });
-                $("input[id^='chemicalproducts'][id$='_autocomplete']").live('change', function() {
+                $(document).on('change', "input[id^='chemicalproducts'][id$='_autocomplete']", function () {
                     var id = $(this).attr("id").split("_");
                     if(jQuery.isNumeric($('input[id=chemicalproducts_' + id[1] + '_id]').val())) {
                         $("div[id='removerow_div']").hide();
                     }
                 });
 
-                $("img[id='removerow']").live('click', function() {
+                $(document).on('click', "img[id='removerow']", function () {
                     $(this).closest("tr").remove();
                 });
             });

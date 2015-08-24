@@ -4,9 +4,9 @@
         {$headerinc}
         <script src="{$core->settings[rootdir]}/js/profiles_marketintelligence.js" type="text/javascript"></script>
         <script language="javascript">
-            $(function() {
+            $(function () {
                 /*Refresh timeline on adding MI data (after save)*/
-                $("input[id^='perform_parsetimeline']").live('click', function() {
+                $(document).on('click', "input[id^='perform_parsetimeline']", function () {
                     // $(".timeline_container").find('.timeline_entry:eq( 2 )').first().effect("highlight", {color: '#D6EAAC'}, 1500); //to be improved later
                     //   setTimeout(function() {
                     sharedFunctions.requestAjax("post", "index.php?module=crm/fillvisitreport&stage=visitdetails&identifier=" + $('#identifier') + "&action=parsemitimeline", "identifier=" + $('#identifier').val(), 'customermktdata', 'customermktdata', true);
@@ -16,7 +16,7 @@
                 });
                 sharedFunctions.requestAjax("post", "index.php?module=crm/fillvisitreport&stage=visitdetails&identifier=" + $('#identifier') + "&action=parsemitimeline", "identifier=" + $('#identifier').val(), 'customermktdata', 'customermktdata', true);
 
-                setInterval(function() {
+                setInterval(function () {
                     if(sharedFunctions.checkSession() == false) {
                         return;
                     }

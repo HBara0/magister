@@ -4,7 +4,7 @@
         {$headerinc}
         <script>
             $(function () {
-                $("input[id^='endproductypes_'][id$='_autocomplete']").live('blur', function () {
+                $(document).on('blur', "input[id^='endproductypes_'][id$='_autocomplete']", function () {
                     var id = $(this).attr('id').split('_');
                     if($(this).val() == '') {
                         $("select[id='productypes_" + id[1] + "_segapplications']").removeAttr('disabled');

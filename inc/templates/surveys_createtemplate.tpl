@@ -4,7 +4,7 @@
         {$headerinc}
         <script type="text/javascript">
             $(function () {
-                $("select[id$='_[type]']").live('change', function () {
+                $(document).on('change', "select[id$='_[type]']", function () {
                     if(sharedFunctions.checkSession() == false) {
                         return;
                     }
@@ -22,7 +22,7 @@
                 });
                 }
             });
-            $("select[id$='[validationType]']").live('change', function () {
+            $(document).on('change', "select[id$='[validationType]']", function () {
                 var id = $(this).attr("id").split("_");
                 var valMatch = ["minchars", "maxchars"];
                 $("tr[id='section_" + id[1] + "_[questions]_" + id[3] + "_[validationCriterion]']").css("display", "none");

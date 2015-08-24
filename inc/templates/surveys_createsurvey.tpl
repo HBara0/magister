@@ -3,8 +3,8 @@
         <title>{$core->settings[systemtitle]} | {$lang->createsurvey}</title>
         {$headerinc}
         <script language="javascript">
-            $(function() {
-                $("input[name^='isExternal']").live('change', function() {
+            $(function () {
+                $(document).on('change', "input[name^='isExternal']", function () {
                     $("#internalinvitations_row, #externalinvitations_row").toggle();
                     if($(this).val() == 0) {
                         $("input[id^='anonymousFilling'], input[id^='isPublicResults'], input[id^='isPublicFill']").attr("disabled", false);

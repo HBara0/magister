@@ -12,7 +12,7 @@
                         return false;
                     }
                 });
-                $('button[id="save_createclass"]').live('click', function () {
+                $(document).on('click', 'button[id="save_createclass"]', function () {
                     $('input[id^="perform_"]').click();
                     var classdef = '';
                     var classfunc = '';
