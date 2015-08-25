@@ -225,9 +225,8 @@ class Inlinefilters {
 
                 $hidden_fields .= $lang->{$filter}.' '.$this->parsed_fields[$filter].'<br />';
             }
-
             if(!empty($hidden_fields)) {
-                return '<div id="popup_additionalfilters" title="'.$lang->additionalfilters.'">'.$hidden_fields.'</div>';
+                return '<tr><td><div id="popup_additionalfilters" title="'.$lang->additionalfilters.'">'.$hidden_fields.'</div></td></tr>';
             }
         }
         return false;
@@ -262,11 +261,15 @@ class Inlinefilters {
         }
 
         foreach($iteration_element as $filter_item => $filter_value) {
+            if(!isset($options['fielddisplay'])) {
+                $options['fielddisplay'] = 'display:block';
+            }
             if($options['tags'] == 'div') {
                 $rows .= '<div>'.$this->parsed_fields[$filter_item].'</div>'; //Will add more CSS for this later
             }
             else {
-                $rows .= '<th>'.$this->parsed_fields[$filter_item].'</th>';
+                //style="'.$options['fielddisplay'].'"
+                $rows .= '<th >'.$this->parsed_fields[$filter_item].'</th>';
             }
             $count_items++;
         }

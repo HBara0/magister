@@ -26,7 +26,7 @@ if(!$core->input['action']) {
                     'filterKey' => 'mtid',
                     'mainTable' => array(
                             'name' => 'meetings',
-                            'filters' => array('title' => 'title', 'description' => 'description', 'location' => 'location', 'fromDate' => array('operatorType' => 'date', 'name' => 'fromDate'), 'toDate' => array('operatorType' => 'date', 'name' => 'toDate')),
+                            'filters' => array('title' => 'title', 'description' => 'description', 'location' => 'location', 'fromDate' => array('operatorType' => 'date', 'name' => 'fromDate'), 'toDate' => array('operatorType' => 'date', 'name' => 'toDate', 'fielddisplay' => 'display:"none"')),
                     ),
             )
     );
@@ -39,7 +39,10 @@ if(!$core->input['action']) {
         $filter_where = ' '.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
     }
     $filters_row = $filter->prase_filtersrows(array('tags' => 'table'));
-
+    $additional_filters_row = $filter->parse_hidden_filters(array('title', 'test2'));
+    if(!empty($additional_filters_row)) {
+        $dditionalfiltericon = '<th><a href="#" id="showpopup_additionalfilters" class="showpopup"><img src="{$core->settings[rootdir]}/images/addnew.png" border="0"></a></th>';
+    }
     $multiple_meetings = Meetings::get_multiplemeetings(array('filter_where' => $filter_where, 'order' => array('sortby' => $core->input['sortby'], 'order' => $core->input['order'])));
     if(is_array($multiple_meetings)) {
         foreach($multiple_meetings as $mid => $meeting) {
