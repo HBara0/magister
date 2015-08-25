@@ -61,8 +61,7 @@ if(!$core->input['action']) {
             $display[$key][uid] = 'display:none;';
             if(isset($approverdata['uid']) && !empty($approverdata['uid']) && $approverdata['approver'] == 'user') {
                 $user = new Users($approverdata['uid']);
-                $chainpolicy[username] = $user->get_displayname();
-
+                $chainpolicy['username'] = $user->get_displayname();
                 if(is_object($user)) {
                     $display[$key][uid] = 'display:block;';
                 }
@@ -72,7 +71,9 @@ if(!$core->input['action']) {
                 $list .= ' <div style="display: inline-block; width:32%;"><input  type="radio"  '.$checkbox[$key]['checked'].'   onchange =\''.$onchange_actions.'\' name="chainpolicy[approverchain]['.$rowid.'][approver]" value="'.$key.'" id="'.$key.'_'.$rowid.'_approver"'.$checked.'/> '.$val.' '.$approver.'</div>';
             }
             eval("\$aro_manageapprovalchainspolicies_approversrows  .= \"".$template->get('aro_manageapprovalchainspolicies_approversrows')."\";");
-            unset($list, $checkbox);
+            unset($list, $checkbox, $user);
+            $display[$key]['uid'] = 'display:none;';
+            unset($chainpolicy['username']);
         }
     }
 
@@ -95,7 +96,7 @@ else if($core->input['action'] == 'do_perform_manageapprovalchainspolicies') {
 
     unset($core->input['identifier'], $core->input['module'], $core->input['action']);
     $aroapproval_policy = new AroApprovalChainPolicies();
-    
+
     $core->input['chainpolicy']['effectiveFrom'] = strtotime($core->input['chainpolicy']['effectiveFrom']);
     $core->input['chainpolicy']['effectiveTo'] = strtotime($core->input['chainpolicy']['effectiveTo']);
     if($core->input['chainpolicy']['effectiveFrom'] > $core->input['chainpolicy']['effectiveTo']) {
