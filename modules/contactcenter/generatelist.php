@@ -221,7 +221,7 @@ else {
                                 if($first_timeuser == 0) {
                                     $results_head .= '<th>'.$lang->reportsto.'</th>';
                                 }
-                                $reportsto = new Users($user->reportsTo);
+                                $reportsto = new Users($user_obj->reportsTo);
                                 if(is_object($reportsto)) {
                                     $results_body.='<td>'.$reportsto->parse_link().'</td>';
                                 }

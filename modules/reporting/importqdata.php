@@ -229,10 +229,7 @@ else {
                     if(is_array($coveredents)) {
                         $foreign_entids = IntegrationMediationEntities::get_column('foreignId', array('localId' => $coveredents, 'foreignSystem' => $options[foreignSystem]), array('returnarray' => true));
                         if(is_array($foreign_entids)) {
-                            $foreign_salesorders = IntegrationMediationSalesOrders::get_column('foreignId', array('cid' => $foreign_entids), array('returnarray' => true));
-                            if(is_array($foreign_salesorders)) {
-                                $coveredcountryextraselect = 'OR cid IN (\''.implode('\',\'', $foreign_salesorders).'\')';
-                            }
+                            $coveredcountryextraselect = 'OR cid IN (\''.implode('\',\'', $foreign_entids).'\')';
                         }
                     }
                 }

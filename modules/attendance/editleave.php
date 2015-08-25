@@ -176,7 +176,7 @@ else {
 
         if(isset($core->input['fromDate']) && !empty($core->input['fromDate']) && (ctype_digit($core->input['fromHour']) && ctype_digit($core->input['fromMinutes']))) {
             $fromdate = explode('-', $core->input['fromDate']);
-            if(checkdate($fromdate[1], $fromdate[0], $fromdate[2])) {
+            if(checkdate($fromdate[1], $fromdate[0], $fromdate[2]) && mktime($core->input['fromHour'], $core->input['fromMinutes'], 0, $fromdate[1], $fromdate[0], $fromdate[2])) {
                 $core->input['fromDate'] = mktime($core->input['fromHour'], $core->input['fromMinutes'], 0, $fromdate[1], $fromdate[0], $fromdate[2]);
                 unset($core->input['fromHour'], $core->input['fromMinutes']);
             }
@@ -192,7 +192,7 @@ else {
 
         if(isset($core->input['toDate']) && !empty($core->input['toDate']) && (ctype_digit($core->input['toHour']) && ctype_digit($core->input['toMinutes']))) {
             $todate = explode('-', $core->input['toDate']);
-            if(checkdate($todate[1], $todate[0], $todate[2])) {
+            if(checkdate($todate[1], $todate[0], $todate[2]) && mktime($core->input['toHour'], $core->input['toMinutes'], 0, $todate[1], $todate[0], $todate[2])) {
                 $core->input['toDate'] = mktime($core->input['toHour'], $core->input['toMinutes'], 0, $todate[1], $todate[0], $todate[2]);
                 unset($core->input['toHour'], $core->input['toMinutes']);
             }
