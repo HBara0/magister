@@ -319,14 +319,14 @@ if(!$core->input['action']) {
         /* Parse Maturity Section - START */
         $maturity_section = '<div id="rml_maindiv"><span class="subtitle">'.$lang->rmlevel.'</span><br />'.get_rml_bar($eid).'</div>';
         if($core->usergroup['profiles_canUpdateRML'] == 1) {
-            $header_rmljs = '$(".rmlselectable").live("click", function() {
+            $header_rmljs = '$(document).on("click",".rmlselectable", function() {
 					if(sharedFunctions.checkSession() == false) {
 						return;
 					}
                         sharedFunctions.requestAjax("post", "index.php?module=profiles/entityprofile&action=do_updaterml", "target="+$(this).attr("id")+"&eid="+$("#eid").val(), "rml_bars", "rml_bars", "html");
                     });
 
-                    $(".rmlselectable").live("hover", function() {
+                    $(document).on("hover",".rmlselectable", function() {
                         $(this).prevAll("div").toggleClass("rmlhighlight");
 						$(this).toggleClass("rmlhighlight");
                     });';

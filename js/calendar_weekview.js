@@ -9,7 +9,7 @@
  */
 
 $(function () {
-    $(".calendar_hour").live('mouseenter', function () {
+    $(document).on('mouseenter', ".calendar_hour", function () {
         var id = $(this).attr('id').split('_');
         $(".ui-selected").each(function () {
             $(this).removeClass('ui-selected');
@@ -50,7 +50,7 @@ $(function () {
     });
 
 
-    $(".calendar_hourevent").live('mouseover', function () {
+    $(document).on('mouseover', ".calendar_hourevent", function () {
         var depth = 30;
         $(this).draggable({
             grid: [170, 20],
@@ -99,7 +99,7 @@ $(function () {
         });
     });
 
-    $(".calendar_hourevent").live('mouseover', function () {
+    $(document).on('mouseover', ".calendar_hourevent", function () {
         var depth = 30;
         $(this).resizable({
             minHeight: 20,
@@ -135,14 +135,14 @@ $(function () {
         });
     });
 
-    $("#customer_1_autocomplete").live('change', function () {
+    $(document).on('change', "#customer_1_autocomplete", function () {
         $.post("index.php?module=calendar/weekviewoperations&action=suggest_customervisits", {uid: $('#popup_weekview_createentry').find('#uid').val(), cid: $('#popup_weekview_createentry').find('#customer_1_id').val()}, function (returnedData) {
             $("#suggestions_Results").show();
             $("#suggestions_Results").html(returnedData);
         });
     });
 
-    $(".calendar_hourevent").live('click', function (event) {
+    $(document).on('click', ".calendar_hourevent", function (event) {
         if($(event.target).is("div")) {
             var id = $(this).attr("id").split("_");
 
@@ -151,7 +151,7 @@ $(function () {
         }
     });
 
-    $("img[id^='deleltevisiticon_']").live('click', function () {
+    $(document).on('click', "img[id^='deleltevisiticon_']", function () {
         var id = $(this).attr("id").split('_');
         $.post("index.php?module=calendar/weekviewoperations&action=delete_visit", {lid: id[1]})
     });
