@@ -130,7 +130,7 @@ $lang['amountpayedinadvance'] = 'Amount Payed In Advance';
 $lang['avgprice'] = 'Average Price';
 $lang['trasptype'] = 'Transportation Type';
 $lang['transpfees'] = 'Transportation Fees';
-$lang['connectionfligts'] = 'Connection Fligts';
+$lang['connectionflights'] = 'Connection Flights';
 $lang['directflights'] = 'Direct Flights';
 $lang['lookuptransps'] = 'Look Up Transportation';
 $lang['oneway'] = 'One Way';
@@ -156,6 +156,6 @@ $lang['averageprice'] = 'Average Price';
 $lang['mgmtreview'] = 'Management Review';
 $lang['notapproved'] = 'Not Approved';
 $lang['minimize'] = 'Minimize';
-$lang['makesuretochooseandclick'] = 'Make Sure To Choose A Transportation Method And Then Look Up Transportation By Clicking The Button';
+$lang['makesuretochooseandclick'] = 'Please Choose One Way or Round-trip And Then Look Up Transportation';
 $lang['maxnight'] = 'Maximum Nights';
 ?>
