@@ -560,7 +560,7 @@ else {
                 output_xml("<status>false</status><message>{$lang->fillrequiredfields}</message>");
                 exit;
             case 2:
-                output_xml("<status>false</status><message>{$lang->fillrequiredfields}</message>");
+                output_xml("<status>false</status><message>Error Saving</message>");
                 exit;
         }
     }
@@ -645,6 +645,27 @@ else {
         $sequence = $db->escape_string($core->input['id']);
         eval("\$entities .= \"".$template->get('travelmanager_plantrip_createsegment_entities')."\";");
         echo $entities;
+    }
+    elseif($core->input['action'] == 'checkpricevsavgprice') {
+        $warnings['hotelprice'] = '';
+        $data['avgprice'] = $core->input['avgprice'];
+        $data['pricepernight'] = $core->input['pricepernight'];
+        $data['currency'] = $core->input['currency'];
+        $tmhotel = new TravelManagerHotels();
+        $warnings['hotelprice'] = $tmhotel->get_warning($data);
+        echo $warnings['hotelprice'];
+    }
+    elseif($core->input['action'] == 'validatefandbexpenses') {
+        $tmexpensetype = new TravelManager_Expenses_Types($core->input['expensetype']);
+        $warnings['foodandbeverage'] = '';
+        if(is_object($tmexpensetype) && $tmexpensetype->title == 'Food & Beverage') {
+            $data['numnights'] = $core->input['numnights'];
+            $data['amount'] = $core->input['amount'];
+            $data['currency'] = $core->input['currency'];
+            $tmexpenses = new Travelmanager_Expenses();
+            $warnings['foodandbeverage'] = $tmexpenses->validate_foodandbeverage_expenses($data);
+        }
+        echo $warnings['foodandbeverage'];
     }
 }
 ?>

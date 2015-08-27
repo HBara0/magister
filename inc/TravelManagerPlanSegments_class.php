@@ -657,7 +657,9 @@ class TravelManagerPlanSegments extends AbstractClass {
                     if($fromcurr != $tocurr) {
                         $priceinbasecurr .='<br/><small>'.$numfmt->formatCurrency($accomdation->numNights * $accomdation->priceNight, $fromcurr->alphaCode).'</small>';
                     }
-                    $segment_hotel .= '<div style = "width:70%; display: inline-block;"> '.$lang->checkin.' '.$hotel->name.'<br>'.$lang->address.': '.$hotel->addressLine1.'  '.$lang->phone.':'.$hotel->phone.'<span style = "margin-bottom:10px;display:block;"><em>'.$accomdation->numNights.' '.$lang->night.' x $'.$pricenight.' </em></span><br>'.$lang->avgprice.': '.$hotel->avgPrice.'-'.$cur_dispname.'</div>'; // fix the html parse multiple hotl
+
+                    $warnings['hotelprice'] = $hotel->get_warning(array('avgprice' => $hotel->avgPrice, 'pricepernight' => $pricenight, 'currency' => $accomdation->currency));
+                    $segment_hotel .= '<div style = "width:70%; display: inline-block;"> '.$lang->checkin.' '.$hotel->name.'<br>'.$lang->address.': '.$hotel->addressLine1.'  '.$lang->phone.':'.$hotel->phone.'<span style = "margin-bottom:10px;display:block;"><em>'.$accomdation->numNights.' '.$lang->night.' x $'.$pricenight.' </em></span><br>'.$lang->avgprice.': '.$hotel->avgPrice.'-'.$cur_dispname.'<div style="color:red;display:inline-block;margin:15px;">'.$warnings['hotelprice'].'</div></div>'; // fix the html parse multiple hotl
                     //$segment_hotel.='<br>'.$lang->address.': '.$hotel->addressLine1.'<br>'.$lang->phone.':'.$hotel->phone.'';
 //    $segment_hotel .= '<div style = " width:30%; display: inline-block;"> <span> '.$lang->night.' '.$accomdation->numNights.' at $ '.$accomdation->priceNight.' '.$lang->night.'</span></div>'; // fix the html parse multiple hotl
                     $segment_hotel .= '<div style = "width:25%; display: inline-block;font-size:14px; font-weight:bold;text-align:right;margin-left:5px;vertical-align:top;"><span> '.$numfmt->formatCurrency(($accomdation->numNights * $pricenight), "USD").$priceinbasecurr.'</span> <br/> <small style = "font-weight:normal;">[paid by: '.$paidby.']</small></div>'; // fix the html parse multiple hotl
@@ -752,10 +754,19 @@ class TravelManagerPlanSegments extends AbstractClass {
             $additional_expenses_details = '<div style="display:block;padding:5px 0px 5px 0px;width:15%;" class="subtitle">'.$lang->addexp.'</div>';
             while($additionalexp = $db->fetch_assoc($additional_expenses)) {
                 $additionalexp_type = new TravelManager_Expenses_Types($additionalexp['tmetid']);
+
+                if(is_object($additionalexp_type) && $additionalexp_type->title == 'Food & Beverage') {
+                    $data['numnights'] = abs($this->data['toDate'] - $this->data['fromDate']) / 60 / 60 / 24;
+                    $data['amount'] = $additionalexp['expectedAmt'];
+                    $data['currency'] = $additionalexp['currency'];
+                    $tmexpenses = new Travelmanager_Expenses();
+                    $warnings['foodandbeverage'] = $tmexpenses->validate_foodandbeverage_expenses($data);
+                }
+
                 $additional_expenses_details .= '<div style = "display:block;padding:5px 0px 5px 0px;">';
                 $additional_expenses_details .= '<div style = "width:85%;display:inline-block;">'.$additionalexp_type->title.'</div>';
                 $additional_expenses_details .= '<div style = "width:10%;display:inline-block;text-align:right;">'.$numfmt->formatCurrency(round($additionalexp['expectedAmt'], 2), "USD").'</div>';
-                $additional_expenses_details .= '</div>';
+                $additional_expenses_details .= $warnings['foodandbeverage'].'</div>';
                 $expenses['additional'] += $additionalexp['expectedAmt'];
             }
             $additional_expenses_details .='<div style="display:block;padding:5px 0px 5px 0px;">';
@@ -894,6 +905,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                 $cityname = $hotel->get_city()->get_displayname();
                 eval("\$hotelssegments_output  .= \"".$template->get('travelmanager_plantrip_segment_hotels')."\";");
                 $review_tools = $hotelchecked = $cityname = $paidby_details = $currencies_list = $currencies = $selected_hotel = $checkbox_hotel = '';
+                unset($currencies, $val_currencies);
             }
         }
 

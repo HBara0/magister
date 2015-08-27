@@ -3,10 +3,10 @@
 
     <div style="display:inline-block; text-align:left;   vertical-align: top;width:70%;">
         <input tabindex="6" accept="numeric"   value="{$expensestype[$segid][$rowid][expectedAmt]}" id="expenses_{$sequence}_{$rowid}_expamount" size="20" name="segment[{$sequence}][expenses][{$rowid}][expectedAmt]" type="text"{$expenses_output_requiredattr}/>
-
         {$currencies_list}
 
     </div>
+    <div id="fandb_warning_{$sequence}_{$rowid}"></div>
     <div style="display:inline-block; text-align:left; padding:5px;vertical-align: top;">
 
 

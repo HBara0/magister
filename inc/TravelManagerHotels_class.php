@@ -189,4 +189,17 @@ class TravelManagerHotels extends AbstractClass {
         }
     }
 
+    public function get_warning($data) {
+        global $lang;
+        if($data['avgprice'] != 'N/A' && !empty($data['avgprice']) && !empty($data['pricepernight'])) {
+            $tocurrency = new Currencies('USD');
+            $fromcurrency = new Currencies($data['currency']);
+            $exchangerate = $tocurrency->get_latest_fxrate($tocurrency->alphaCode, array(), $fromcurrency->alphaCode);
+            $pricepernight_usd = $data['pricepernight'] * $exchangerate;
+            if($pricepernight_usd > (((10 * $data['avgprice']) / 100) + $data['avgprice'])) {
+                return '<p style="color:red">'.$lang->hotelpricewarning.'</p>';
+            }
+        }
+    }
+
 }
