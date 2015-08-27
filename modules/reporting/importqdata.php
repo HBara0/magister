@@ -223,18 +223,9 @@ else {
                 $country_ids[] = $covered_country->coid;
             }
             if(is_array($country_ids)) {
-                $country_ents = Entities::get_column('eid', array('country' => $country_ids), array('returnarray' => true));
-                if(is_array($country_ents)) {
-                    $coveredents = array_unique(array_merge($coveredents, $country_ents));
-                    if(is_array($coveredents)) {
-                        $foreign_entids = IntegrationMediationEntities::get_column('foreignId', array('localId' => $coveredents, 'foreignSystem' => $options[foreignSystem]), array('returnarray' => true));
-                        if(is_array($foreign_entids)) {
-                            $foreign_salesorders = IntegrationMediationSalesOrders::get_column('foreignId', array('cid' => $foreign_entids), array('returnarray' => true));
-                            if(is_array($foreign_salesorders)) {
-                                $coveredcountryextraselect = 'OR cid IN (\''.implode('\',\'', $foreign_salesorders).'\')';
-                            }
-                        }
-                    }
+                $foreign_entids = IntegrationMediationEntities::get_column('foreignId', array('country' => $country_ids, 'foreignSystem' => $options[foreignSystem]), array('returnarray' => true));
+                if(is_array($foreign_entids)) {
+                    $coveredcountryextraselect = 'OR cid IN (\''.implode('\',\'', $foreign_entids).'\')';
                 }
             }
         }

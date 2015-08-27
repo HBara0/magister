@@ -83,7 +83,17 @@ else {
         foreach($core->input['uid'] as $uid) {
             unset($attendance_report_user[$uid], $workshift_output);
             $uid = $db->escape_string($uid);
-
+            $user_obj = new Users($uid);
+            if(is_object($user_obj)) {
+                if($user_obj->get_joindate()) {
+                    $joindate = $user_obj->get_joindate();
+                    if($fromdate < $joindate) {
+                        $currentdate = $joindate;
+                        $fromdate_details = getdate($joindate);
+                        $currentdate_details = getdate($currentdate);
+                    }
+                }
+            }
             $user_display = $db->fetch_field($db->query("SELECT displayName FROM ".Tprefix."users WHERE uid='{$uid}'"), 'displayName');
 
             /* Check for holidays in period - START */

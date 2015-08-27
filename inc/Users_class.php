@@ -613,5 +613,17 @@ class Users extends AbstractClass {
 
     }
 
+    public function get_joindate() {
+        global $db;
+        $query_select = '*';
+        $joindate = $db->fetch_assoc($db->query("SELECT joinDate
+										FROM ".Tprefix."userhrinformation
+										WHERE uid='".$this->data['uid']."'"));
+        if(is_array($joindate) && !empty($joindate)) {
+            return $joindate['joinDate'];
+        }
+        return false;
+    }
+
 }
 ?>

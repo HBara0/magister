@@ -8,7 +8,20 @@
  * Last Update:    @hussein.barakat    Jul 7, 2015 | 11:12:30 AM
  */
 
-
+$sheets_order = array(
+        'monthlysummary' => 1,
+        'cumulativesale' => 2,
+        'cumulativeincome' => 3,
+        'topsalessuppliers' => 4,
+        'topnetsuppliers' => 5,
+        'topincomepercsup' => 6,
+        'groupsupsales' => 7,
+        'groupsupinc' => 8,
+        'solvaygroupsale' => 9,
+        'solvaygroupinc' => 10,
+        'businessmanagersales' => 11,
+        'businessmanagerincome' => 12
+);
 ini_set(max_execution_time, 0);
 if(!defined('DIRECT_ACCESS')) {
     die('Direct initialization of this file is not allowed.');
@@ -27,17 +40,11 @@ if($core->input['export']) {
                 $country_ids[] = $covered_country->coid;
             }
             if(is_array($country_ids)) {
-                $country_ents = Entities::get_column('eid', array('country' => $country_ids), array('returnarray' => true));
-                if(is_array($country_ents)) {
-                    $coveredents = array_unique(array_merge($coveredents, $country_ents));
-                    if(is_array($coveredents)) {
-                        $foreign_entids = IntegrationMediationEntities::get_column('foreignId', array('localId' => $coveredents, 'foreignSystem' => '1'), array('returnarray' => true));
-                        if(is_array($foreign_entids)) {
-                            $foreign_salesorders = IntegrationMediationSalesOrders::get_column('foreignId', array('cid' => $foreign_entids), array('returnarray' => true));
-                            if(is_array($foreign_salesorders)) {
-                                $extra_where_countrysales = ' AND  cid IN (\''.implode('\',\'', $foreign_salesorders).'\')';
-                            }
-                        }
+                $foreign_entids = IntegrationMediationEntities::get_column('foreignId', array('country' => $country_ids, 'foreignSystem' => '1'), array('returnarray' => true));
+                if(is_array($foreign_entids)) {
+                    $foreign_salesorders = IntegrationMediationSalesOrders::get_column('foreignId', array('cid' => $foreign_entids), array('returnarray' => true));
+                    if(is_array($foreign_salesorders)) {
+                        $extra_where_countrysales = ' AND  cid IN (\''.implode('\',\'', $foreign_salesorders).'\')';
                     }
                 }
             }
@@ -263,6 +270,102 @@ if($core->input['export']) {
             $budgets = Budgets::get_data(array('year' => (date('Y') + 1)), array('returnarray' => true, 'simple' => false));
         }
         if(is_array($budgets)) {
+            if(is_array($country_ids)) {
+                $country_ents = Entities::get_column('eid', array('country' => $country_ids), array('returnarray' => true));
+                if(is_array($country_ents)) {
+                    $extra_budlines = BudgetLines::get_data(array('cid' => $country_ents), array('returnarray' => true));
+                    if(is_array($extra_budlines)) {
+                        foreach($extra_budlines as $extra_budline) {
+                            $extra_budget = Budgets::get_data(array('bid' => $extra_budline->bid, 'year' => (date('Y') + 1)), array('returnarray' => false, 'simple' => false));
+                            if(is_object($extra_budget)) {
+                                $currency = $extra_budline->get_currency();
+                                if(is_object($currency)) {
+                                    if($cache->iscached('exchange', $currency->alphaCode)) {
+                                        $product = $cache->get_cachedval('exchange', $currency->alphaCode);
+                                    }
+                                    else {
+                                        $exchangerate = $currency->get_latest_fxrate($currency->alphaCode, array(), 'USD');
+                                        if(!empty($exchangerate)) {
+                                            $cache->add('exchange', $exchangerate, $currency->alphaCode);
+                                        }
+                                    }
+                                }
+                                for($i = 1; $i < 7; $i ++) {
+                                    $data['countrysales'][(date('Y') + 1)][$i]['sales'] += (($extra_budline->amount * $extra_budline->s1Perc / 100 ) / 6 ) * $exchangerate;
+                                    $data['countrysales'][(date('Y') + 1)][$i]['income'] += (($extra_budline->income * $extra_budline->s1Perc / 100 ) / 6 ) * $exchangerate;
+                                    $data['countrysales'][(date('Y') + 1)][$i]['costs'] = $data['countrysales'][(date('Y') + 1)][$i]['sales'] - $data['countrysales'][(date('Y') + 1)][$i]['income'];
+                                }
+
+                                for($i = 7; $i < 13; $i++) {
+                                    $data['countrysales'][(date('Y') + 1)][$i]['sales'] += (($extra_budline->amount * $extra_budline->s2Perc / 100 ) / 6 ) * $exchangerate;
+                                    $data['countrysales'][(date('Y') + 1)][$i]['income'] += (($extra_budline->income * $extra_budline->s2Perc / 100 ) / 6 ) * $exchangerate;
+                                    $data['countrysales'][(date('Y') + 1)][$i]['costs'] = $data['countrysales'][(date('Y') + 1)][$i]['sales'] - $data['countrysales'][(date('Y') + 1)][$i]['income'];
+                                }
+                                // Sales / Income data per Business segment - Start
+                                if(!empty($line->psid)) {
+                                    $psid = $line->psid;
+                                }
+                                else {
+                                    if($cache->iscached('product', $line->pid)) {
+                                        $product = $cache->get_cachedval('product', $line->pid);
+                                    }
+                                    else {
+                                        $product = new Products($line->pid, false);
+                                    }
+                                    if(is_object($product)) {
+                                        $cache->add('product', $product, $line->pid);
+                                        $psid = $product->get_segment()['psid'];
+                                    }
+                                }
+                                if($cache->iscached('segment', $psid)) {
+                                    $productsegment = $cache->get_cachedval('segment', $psid);
+                                }
+                                else {
+                                    $productsegment = new ProductsSegments($psid, false);
+                                }
+                                if(is_object($productsegment)) {
+                                    $productsegcat = $productsegment->get_segmentcategory()->scid;
+                                }
+
+                                $businesssegments['affsales'][$productsegcat][(date('Y') + 1)]['sales'] += $line->amount * $exchangerate;
+                                $businesssegments['affsales'][$productsegcat][(date('Y') + 1)]['income'] += $line->income * $exchangerate;
+                                // Sales / Income data per Business segment - END
+                                //supplier part-START
+                                if(isset($line->spid) && !empty($budget->spid)) {
+                                    $suppliers['affsales'][$budget->spid][date('Y')]['sales']+=$line->amount * $exchangerate;
+                                    $suppliers['affsales'][$budget->spid][date('Y')]['income']+=$line->income * $exchangerate;
+                                    if(is_array($groupsuppliers)) {
+                                        if(isset($groupsuppliers[$budget->spid]) && !empty($groupsuppliers[$budget->spid])) {
+                                            if($groupsuppliers[$budget->spid] == 1) {
+                                                $localsupplier = new Entities($budget->spid);
+                                                if(is_object($localsupplier)) {
+                                                    $solvaygroupsale['affsales'][(date('Y') + 1)][str_replace(array(' ', '<', '>', '&', '{', '}', '*'), array('-'), $localsupplier->get_displayname())]+=$line->amount * $exchangerate;
+                                                    $solvaygroupinc['affsales'][(date('Y') + 1)][str_replace(array(' ', '<', '>', '&', '{', '}', '*'), array('-'), $localsupplier->get_displayname())] +=$line->income * $exchangerate;
+                                                }
+                                            }
+                                            $groupname = Entities::get_suppliergroupname($groupsuppliers[$budget->spid]);
+                                            if($groupname != false) {
+                                                $groupsupplierdsles['affsales'][(date('Y') + 1)][$groupname]+=$line->amount * $exchangerate;
+                                                $groupsupplierinc['affsales'][(date('Y') + 1)][$groupname] += $line->income * $exchangerate;
+                                            }
+                                        }
+                                    }
+                                }
+                                //supplier part-END
+                                //Business manager part-Start
+                                if(isset($line->businessMgr) && !empty($line->businessMgr)) {
+                                    $user = new Users($line->businessMgr);
+                                    if(is_object($user) && !empty($user->uid)) {
+                                        $businessmansales['affsales'][(date('Y') + 1)][str_replace(array(' ', '<', '>', '&', '{', '}', '*'), array('-'), $user->get_displayname())]+=$line->amount * $exchangerate;
+                                        $businessmanincome['affsales'][(date('Y') + 1)][str_replace(array(' ', '<', '>', '&', '{', '}', '*'), array('-'), $user->get_displayname())] = $line->income * $exchangerate;
+                                    }
+                                }
+                                //Business manager part-End
+                            }
+                        }
+                    }
+                }
+            }
             foreach($budgets as $budget) {
                 $lines = $budget->get_budgetlines_objs();
                 if(is_array($lines)) {
@@ -282,13 +385,13 @@ if($core->input['export']) {
                         for($i = 1; $i < 7; $i ++) {
                             $data['affsales'][(date('Y') + 1)][$i]['sales'] += (($line->amount * $line->s1Perc / 100 ) / 6 ) * $exchangerate;
                             $data['affsales'][(date('Y') + 1)][$i]['income'] += (($line->income * $line->s1Perc / 100 ) / 6 ) * $exchangerate;
-                            $data['affsales'][(date('Y') + 1)][$i]['costs'] = $data[(date('Y') + 1)][$i]['sales'] - $data[(date('Y') + 1)][$i]['income'];
+                            $data['affsales'][(date('Y') + 1)][$i]['costs'] = $data['affsales'][(date('Y') + 1)][$i]['sales'] - $data['affsales'][(date('Y') + 1)][$i]['income'];
                         }
 
                         for($i = 7; $i < 13; $i++) {
                             $data['affsales'][(date('Y') + 1)][$i]['sales'] += (($line->amount * $line->s2Perc / 100 ) / 6 ) * $exchangerate;
                             $data['affsales'][(date('Y') + 1)][$i]['income'] += (($line->income * $line->s2Perc / 100 ) / 6 ) * $exchangerate;
-                            $data['affsales'][(date('Y') + 1)][$i]['costs'] = $data[(date('Y') + 1)][$i]['sales'] - $data[(date('Y') + 1)][$i]['income'];
+                            $data['affsales'][(date('Y') + 1)][$i]['costs'] = $data['affsales'][(date('Y') + 1)][$i]['sales'] - $data['affsales'][(date('Y') + 1)][$i]['income'];
                         }
                         // Sales / Income data per Business segment - Start
                         if(!empty($line->psid)) {
@@ -748,7 +851,12 @@ xmlns = "http://www.w3.org/TR/REC-html40">
                     $page.='<tbody>'.$rows.'</tbody>';
                     $page.='</table></body></html>';
                     $path = dirname(__FILE__).'\..\..\tmp\\bugetingexport\\'.uniqid($aff.$saletype.$langvariable).'.html';
-                    $allpaths[$lang->$saletype.$lang->$langvariable] = $path;
+                    if($sheets_order[$langvariable] > 0) {
+                        $allpaths[$sheets_order[$langvariable]][$lang->$saletype.$lang->$langvariable] = $path;
+                    }
+                    else {
+                        $allpaths[100][$lang->$saletype.$lang->$langvariable] = $path;
+                    }
                     $handle = fopen($path, 'w') or die('Cannot open file: '.$allpaths);
                     $writefile = file_put_contents($path, $page);
                     continue;
@@ -793,31 +901,34 @@ xmlns = "http://www.w3.org/TR/REC-html40">
 //es are loaded to PHPExcel using the IOFactory load() method
     if(is_array($allpaths)) {
         $count = 0;
-        foreach($allpaths as $title => $path) {
-            if($count == 0) {
-                $main_excel = PHPExcel_IOFactory::load($path);
-                $main_excel->getSheet(0)->setTitle($title);
+        ksort($allpaths);
+        foreach($allpaths as $order => $allpages) {
+            foreach($allpages as $title => $path) {
+                if($count == 0) {
+                    $main_excel = PHPExcel_IOFactory::load($path);
+                    $main_excel->getSheet(0)->setTitle($title);
 
-                $main_excel->getSheet(0)->getStyle('B2:Z2')->applyFromArray($style['header']);
-                for($i = 3; $i <= 8; $i = $i + 2) {
-                    $main_excel->getSheet(0)->getStyle('A'.$i.':Z'.$i)->applyFromArray($style['altrows']);
+                    $main_excel->getSheet(0)->getStyle('B2:Z2')->applyFromArray($style['header']);
+                    for($i = 3; $i <= 8; $i = $i + 2) {
+                        $main_excel->getSheet(0)->getStyle('A'.$i.':Z'.$i)->applyFromArray($style['altrows']);
+                    }
+                    if(($title == $lang->businesssegmentsales) || ($title == $lang->businesssegmentincome)) {
+                        $main_excel->getSheet(0)->getStyle('A11:M11')->applyFromArray($style['header']);
+                        $main_excel->getSheet(0)->getStyle('A12:M12')->applyFromArray($style['header']);
+                        $main_excel->getSheet(0)->getStyle('A15:M15')->applyFromArray($style['header']);
+                    }
+                    foreach(range('A', 'O') as $col) {
+                        $main_excel->getSheet(0)
+                                ->getColumnDimension($col)
+                                ->setWidth('15');
+                    }
+                    $count = 1;
+                    continue;
                 }
-                if(($title == $lang->businesssegmentsales) || ($title == $lang->businesssegmentincome)) {
-                    $main_excel->getSheet(0)->getStyle('A11:M11')->applyFromArray($style['header']);
-                    $main_excel->getSheet(0)->getStyle('A12:M12')->applyFromArray($style['header']);
-                    $main_excel->getSheet(0)->getStyle('A15:M15')->applyFromArray($style['header']);
-                }
-                foreach(range('A', 'O') as $col) {
-                    $main_excel->getSheet(0)
-                            ->getColumnDimension($col)
-                            ->setWidth('15');
-                }
-                $count = 1;
-                continue;
+                $tempexcel = PHPExcel_IOFactory::load($path);
+                $excels[$title] = $tempexcel->getSheet(0);
+                $tempexcel = '';
             }
-            $tempexcel = PHPExcel_IOFactory::load($path);
-            $excels[$title] = $tempexcel->getSheet(0);
-            $tempexcel = '';
         }
         if(is_array($excels)) {
             foreach($excels as $title => $sheet) {
