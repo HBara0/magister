@@ -9,7 +9,10 @@
 <link href="{$core->settings[rootdir]}/css/styles.css" rel="stylesheet" type="text/css" />
 <link href='{$core->settings[rootdir]}/css/jqueryuitheme/jquery-ui-current.custom.min.css' rel='stylesheet' type='text/css' />
 <link href='{$core->settings[rootdir]}/css/jquery.qtip.min.css' rel='stylesheet' type='text/css' />
+<link rel=" stylesheet" type="text/css" href="{$core->settings[rootdir]}/css/joyride-2.1.css">
 <script src="{$core->settings[rootdir]}/js/ckeditor/ckeditor.js"></script>
+<script type="text/javascript" src="{$core->settings[rootdir]}/js/modernizr.mq.js"></script>
+<script src="{$core->settings[rootdir]}/js/jquery.joyride-2.1.js"></script>
 <script type="text/javascript">
     var loading_text = "{$lang->loading}";
     var imagespath = "{$core->settings[rootdir]}/images/";
