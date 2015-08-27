@@ -773,7 +773,9 @@ class TravelManagerPlanSegments extends AbstractClass {
             $additional_expenses_details .='<div style="display:inline-block;width:85%;">'.$lang->additionalexpensestotal.'</div><div style="width:10%; display:inline-block;text-align:right;font-weight:bold;">  '.$numfmt->formatCurrency($expenses['additional'], "USD").'</div></div>';
             $expenses_total += $expenses['additional'];
         }
-        $finances = TravelManagerPlanFinance::get_data(array('tmpsid' => $this->tmpsid), array('simple' => false, 'returnarray' => true));
+
+        $tmpsid_where = "tmpsid IN (SELECT tmpsid FROM travelmanager_plan_segments WHERE tmpid =".intval($this->tmpid).")";
+        $finances = TravelManagerPlanFinance::get_data(array('tmpsid' => $tmpsid_where), array('operators' => array('tmpsid' => 'CUSTOMSQL'), 'simple' => false, 'returnarray' => true));
         if(is_array($finances)) {
             foreach($finances as $finance) {
                 if($finance->amount == 0) {
@@ -786,7 +788,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                     $tocurr->save_fx_rate_fromsource('http://rate-exchange.appspot.com/currency?from='.$fromcurr->alphaCode.'&to='.$tocurr->alphaCode.'', $fromcurr->numCode, $tocurr->numCode);
                     $amount = $finance->get_convertedamount($fromcurr);
                 }
-                $total_fin_amount+=$amount;
+                $total_fin_amount +=$amount;
             }
         }
         if($total_fin_amount != 0) {
