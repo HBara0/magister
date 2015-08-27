@@ -14,7 +14,7 @@
     <div id="content_suggestedtransploader_{$sequence}"></div>
     <div id="content_suggestedtransp_{$sequence}">{$transsegments_output[suggested]}</div>
 
-    <input type="checkbox" id="checkbox_show_othertransps_{$sequence}" style="margin-left:12px;"/>Other Transps
+    <input type="checkbox" id="checkbox_show_othertransps_{$sequence}" style="margin-left:12px;"/>{$lang->other} {$lang->transportations}
     <div id="show_othertransps_{$sequence}" style="display:none">
         <div>{$transsegments_output[othertransp]}</div>
         <table width="100%" class="datatable" style="margin-top:-20px;">

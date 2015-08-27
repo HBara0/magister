@@ -159,6 +159,15 @@
                     var expensetype = $("select[id='segment_expensestype_" + id[1] + "_" + id[2] + "']").val();
                     sharedFunctions.requestAjax("post", "index.php?module=travelmanager/plantrip&action=validatefandbexpenses", "&amount=" + $("input[id='expenses" + "_" + id[1] + "_" + id[2] + "_expamount']").val() + "&numnights=" + numnights + "&currency=" + $("select[id='currency" + "_" + id[1] + "_" + id[2] + "_list']").val() + "&expensetype=" + expensetype, "fandb_warning_" + id[1] + "_" + id[2], "fandb_warning_" + id[1] + "_" + id[2], true);
                 });
+
+                $(document).on("change", "select[id^='currency'][id$='list']", function() {
+                    var id = $(this).attr('id').split("_");
+                    if(id[2] == 'accomodation') {
+                        $("input[id^='pricenight_segacc_'][id$='" + id[1] + "']").trigger("change");
+                    } else {
+                        $("input[id$='expamount']").trigger("change");
+                    }
+                });
                 $('input[id^="numnight_segacc_"],input[id^="pricenight_segacc_"]').live('change', function() {
                     var id = $(this).attr("id").split("_");
                     if($('input[id="pricenight_' + id[1] + '_' + id[2] + '_' + id[3] + '"]').length < 0) {
