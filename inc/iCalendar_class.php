@@ -205,7 +205,7 @@ class Icalendar {
     public function set_description($description) {
         global $core;
         $description = $this->apply_icalstd(trim($description));
-        $pre_description = preg_replace("/\r|\n/", ' ', $description);
+        $pre_description = preg_replace("/\r|\n/", '\n', $description);
         $description_sanitized = $core->sanitize_inputs($pre_description, array('method' => 'convert', 'removetags' => true));
         $this->icalendarfile .= 'DESCRIPTION: '.$description_sanitized."\r\n";
         if(!empty($pre_description)) {
