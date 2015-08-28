@@ -88,6 +88,18 @@ if(!$core->input['action']) {
             }
         }
     }
+
+    $helptour = new HelpTour();
+    $helptour->set_id('tasksboard_helptour');
+    $helptour->set_cookiename('tasksboard_helptour');
+
+    $touritems = array(
+            'taskstabs-1_btn' => array('text' => 'Here you can see all tasks assigned to you. This also includes the tasks you created for yourself.'),
+            'taskstabs_2_btn' => array('text' => 'ny task that you created shows up here, regardless if assigned to you or to someone else.'),
+            'taskstabs-3_btn' => array('text' => 'Any task that is shared with you shows up here. It is usually created by other users.')
+    );
+    $helptour->set_items($touritems);
+    $helptour = $helptour->parse();
     eval("\$calendar_taskboard = \"".$template->get('calendar_tasks_tabs')."\";");
 
     output_page($calendar_taskboard);
