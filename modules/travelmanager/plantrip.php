@@ -25,6 +25,7 @@ if(!$core->input['action']) {
             redirect('index.php?module=travelmanager/viewplan&id='.$planid);
         }
         $plantrip = $plan_obj->parse_existingsegments();
+
         output($plantrip);
     }
     //$tools_addnewtab = '<a id="createtab" class="showpopup" href="#" title="'.$lang->addsegment.'"><img border="0" alt="Create New Tab" src="images/addnew.png"></img> </a>';
@@ -32,6 +33,8 @@ if(!$core->input['action']) {
         if(empty($core->input['lid'])) {
             redirect('index.php?module=travelmanager/listplans');
         }
+        $checked['othertranspssection'] = 'checked="checked"';
+        $display['othertranspssection'] = "display:block'";
         $segments = null;
         /* Popuplate basic information from the leave based on the lid passed via ajax */
         $leave_obj = new Leaves(array('lid' => $leaveid), false);
@@ -209,6 +212,14 @@ if(!$core->input['action']) {
         $segmentstabs = '<li><a href="#segmentstabs-1">Segment 1</a></li>';
         // $identifier = substr(md5(uniqid(microtime())), 1, 10);
         eval("\$plantript_segmentstabs= \"".$template->get('travelmanager_plantrip_segmentstabs')."\";");
+
+        $helptour = new HelpTour();
+        $helptour->set_id('travelmanager_helptour');
+        $helptour->set_cookiename('travelmanager_helptour');
+        $plan = new TravelManagerPlan();
+        $touritems = $plan->get_helptouritems();
+        $helptour->set_items($touritems);
+        $helptour = $helptour->parse();
         eval("\$plantrip = \"".$template->get('travelmanager_plantrip')."\";");
         output_page($plantrip);
     }
@@ -226,11 +237,11 @@ else {
         $leave[$sequence]['toDate'] = $leave['toDate'];
         $leave[$sequence]['toDate'] = strtotime(date('Y-m-d 23:59:59', $leave[$sequence]['toDate']));
         if(strtotime($core->input['toDate']) >= $leave[$sequence]['toDate'] || $core->input['fromDate'] == 'undefined') {
-            echo'<div style="color:red;">'.$lang->dateexceeded.'</div>';
+            echo'<div style = "color:red;">'.$lang->dateexceeded.'</div>';
             exit;
         }
 //        if(strtotime($core->input['toDate']) == strtotime(date('Y-m-d', $leave['toDate'])) && strtotime($core->input['fromDate']) == strtotime(date('Y-m-d', $leave['toDate']))) {
-//            echo'<div style="color:red;">'.$lang->dateexceeded.'</div>';
+//            echo'<div style = "color:red;">'.$lang->dateexceeded.'</div>';
 //            exit;
 //        }
         /* get prev city name */
@@ -246,7 +257,7 @@ else {
         $segment[$sequence]['fromDate_output'] = date($core->settings['dateformat'], strtotime($core->input['toDate']));
         $segment[$sequence]['fromDate_formatted'] = $core->input['toDate'];
         $leave_purposes = LeaveTypesPurposes::get_data(null);
-        $display_external = $display_internal = 'style="display:none"';
+        $display_external = $display_internal = 'style = "display:none"';
         if(is_array($leave_purposes)) {
             foreach($leave_purposes as $leave_purpose) {
                 if($leave_purpose->category == 'internal') {
@@ -282,7 +293,16 @@ else {
 //            $expensestype_obj = new Travelmanager_Expenses_Types();
 //            $segments_expenses_output = $expensestype_obj->parse_expensesfield($sequence, $rowid);
         /* parse expenses --END */
-
+        if($sequence == 2) {
+            $helptour = '';
+            $seg2helptour = new HelpTour();
+            $seg2helptour->set_id('travelmanagersegment2_helptour');
+            $seg2helptour->set_cookiename('travelmanagersegment2_helptour');
+            $plan = new TravelManagerPlan();
+            $seg2helptouritems = $plan->get_secondseghelptouritems();
+            $seg2helptour->set_items($seg2helptouritems);
+            $seg2helptour = $seg2helptour->parse();
+        }
         eval("\$plantrip_createsegment= \"".$template->get('travelmanager_plantrip_createsegment')."\";");
         output($plantrip_createsegment);
     }
@@ -291,7 +311,7 @@ else {
         $destcityid = $db->escape_string($core->input['destcity']);
         $sequence = $db->escape_string($core->input['sequence']); /* get the  sequence to differentiate the content of each */
         $otherhotel_checksum = generate_checksum('accomodation');
-        $transp_dispnone = 'style="display:none"';
+        $transp_dispnone = 'style = "display:none"';
         $descity_obj = new Cities($destcityid);
         $destcity = $descity_obj->get();
         $dest_country = $descity_obj->get_country();

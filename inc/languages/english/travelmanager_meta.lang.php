@@ -263,6 +263,27 @@ traveling for an extended period of time (greater than a week) or if a business 
 traveling, then one laundry charge will be allowed.<br/>';
 
 
-$lang['hotelpricewarning'] = 'Average hotel pice exceeded by more than 10%';
+$lang['hotelpricewarning'] = 'Average hotel price exceeded by more than 10%';
 $lang['fandbwarning'] = 'Food and beverage limit per day exceeded';
+
+$lang['helptour_firstcity'] = 'This is your departure city as specified in the leave';
+$lang['helptour_fromdate'] = 'This is the start date of your leave/segment';
+$lang['helptour_firstdestcity'] = 'Select the destination city';
+$lang['helptour_todate'] = 'Select the segment end date';
+$lang['helptour_purposes'] = 'Select the leave/segment purpose';
+$lang['helptour_transpsetionheader'] = 'Fill all Transportation expenses in this section';
+$lang['helptour_lookuptransps'] = 'Choose whether you need a oneway or round-trip transportation method , then click the button to check the results';
+$lang['helptour_accomsectionheader'] = 'Fill all Accomodation expenses in this section';
+$lang['helptour_noaccomodation'] = 'Check the box if no accomodation is needed';
+$lang['helptour_countryhotels'] = 'Click on the arrow to view other available hotels in the country';
+$lang['helptour_hotelsautocomplete'] = 'Search for other unapproved hotel by name';
+$lang['helptour_addnewhotel'] = 'Create a new hotel if not found in the previous auto-complete field';
+$lang['helptour_addexpensessetionheader'] = 'Now fill all other additional expenses';
+$lang['helptour_expensestype'] = 'Select an expense type from the drop down menu';
+$lang['helptour_expenses_amtcurr'] = 'Specify expected amount and select the currency';
+$lang['helptour_expensepaidby'] = 'Specify by whom this expense is paid <br/> If it is paid by another affiliate specify the affiliate';
+$lang['helptour_addexpense'] = 'Add another expense';
+$lang['helptour_addexpensessetionheader'] = 'Now fill all other additional expenses';
+$lang['helptour_financesetionheader'] = 'Here you will get  total approximation of all your expenses in dollars <br/> '
+        .'You can fill them in the rows below with respect to the needed currencies';
 ?>

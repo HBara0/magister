@@ -109,6 +109,7 @@ class TravelManagerPlan {
 
     public static function parse_transportaionfields(TravelManagerPlanTransps $transportation, array $category, $cityinfo = array(), $sequence, $rowid = '') {
         global $lang, $template, $core;
+
         $mainaffobj = new Affiliates($core->user['mainaffiliate']);
         if(!empty($cityinfo['destcity']['ciid'])) {
             $destcity = $cityinfo['destcity']['ciid'];
@@ -235,7 +236,10 @@ class TravelManagerPlan {
                     $transportaion_fields .= '<input type = "hidden" name = "segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].'][isUserSuggested]" value = "1"/>';
                     break;
             }
+
+
             if($category['name'] != 'airplane') {
+
                 $transportaion_fields .= '<div style = "position: absolute; top: 1px; right: 1px;"><input type = "checkbox" label = "'.$lang->delete.'" class = "deletecheckbox" title = "'.$lang->deletecheckboxnote.'" value = "1" id = "segment_'.$sequence.'_tmtcid_'.$category['inputChecksum'].'_todelete" name = "segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].'][todelete]" /><label for = "segment_'.$sequence.'_tmtcid_'.$category['inputChecksum'].'_todelete">&nbsp;
                     </label></div>';
                 $transportaion_fields .= '<input type = "hidden" name = "segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].'][inputChecksum]" value = "'.$category['inputChecksum'].'"/>';
@@ -783,6 +787,13 @@ $("#anotheraff_otheraccomodations_'.$sequence.'_'.$otherhotel_checksum.'").hide(
             }
             //parse finances-END
             //  eval("\$transsegments_output.= \"".$template->get('travelmanager_plantrip_segment_transptype')."\";");
+            $display['othertranspssection'] = "display:none";
+
+
+            if(is_array($seg_transppbj)) {
+                $checked['othertranspssection'] = 'checked="checked"';
+                $display['othertranspssection'] = "display:block'";
+            }
             eval("\$plansegmentscontent_output = \"".$template->get('travelmanager_plantrip_segmentcontents')."\";");
             unset($segments_expenses_output, $expensestype, $transsegments_output, $hotelssegments_output, $accomodation, $selectedhotel);
             eval("\$plantrip_createsegment = \"".$template->get('travelmanager_plantrip_createsegment')."\";");
@@ -793,6 +804,16 @@ $("#anotheraff_otheraccomodations_'.$sequence.'_'.$otherhotel_checksum.'").hide(
 
         eval("\$plantript_segmentstabs= \"".$template->get('travelmanager_plantrip_segmentstabs')."\";");
         $planid = $this->tmpid;
+
+
+        $helptour = new HelpTour();
+        $helptour->set_id('travelmanager_helptour');
+        $helptour->set_cookiename('travelmanager_helptour');
+        $touritems = $this->get_helptouritems();
+
+        $helptour->set_items($touritems);
+        $helptour = $helptour->parse();
+
         eval("\$plantrip = \"".$template->get('travelmanager_plantrip')."\";");
         return $plantrip;
     }
@@ -801,6 +822,42 @@ $("#anotheraff_otheraccomodations_'.$sequence.'_'.$otherhotel_checksum.'").hide(
         if($this->data['isFinalized'] == 1) {
             return true;
         }
+    }
+
+    public function get_helptouritems() {
+        global $lang;
+        $touritems = array(
+                'cities_1_cache_autocomplete' => array('text' => $lang->helptour_firstcity),
+                'pickDate_from_1' => array('text' => $lang->helptour_fromdate),
+                'destinationcity_1_cache_autocomplete' => array('text' => $lang->helptour_firstdestcity),
+                'pickDate_to_1' => array('text' => $lang->helptour_todate),
+                'purposes_row_1' => array('text' => $lang->helptour_purposes),
+                'transpsetionheader_1' => array('text' => $lang->helptour_transpsetionheader),
+                'lookuptransps_1' => array('text' => $lang->helptour_lookuptransps),
+                'accomsectionheader_1' => array('text' => $lang->helptour_accomsectionheader),
+                'noAccomodation_1' => array('text' => $lang->helptour_noaccomodation),
+                'countryhotels_1_check' => array('text' => $lang->helptour_countryhotels),
+                'hotels_1_cache_hotel_autocomplete' => array('text' => $lang->helptour_hotelsautocomplete),
+                'addnewhotel_1_travelmanager/plantrip_loadpopupbyid' => array('text' => $lang->helptour_addnewhotel),
+                'addexpensessetionheader_1' => array('text' => $lang->helptour_addexpensessetionheader),
+                'segment_expensestype_1_1' => array('text' => $lang->helptour_expensestype),
+                'expenses_amtcurr_1_1' => array('text' => $lang->helptour_expenses_amtcurr),
+                'segment_paidby_1_1' => array('text' => $lang->helptour_expensepaidby),
+                'ajaxaddmore_travelmanager/plantrip_expenses_1' => array('text' => $lang->helptour_addexpense),
+                'addexpensessetionheader_1' => array('text' => $lang->helptour_addexpensessetionheader),
+                'financesetionheader_1' => array('text' => $lang->helptour_financesetionheader),
+        );
+
+        return $touritems;
+    }
+
+    public function get_secondseghelptouritems() {
+        $touritems = array(
+                'ui-id-2' => array('text' => 'Now proceed with your next segment as before'),
+                'destinationcity_2_cache_autocomplete' => array('text' => 'Select your destination city and press outside the field so that the rest of the page load'),
+                'pickDate_to_2' => array('text' => 'Select the segment end date.<br/> If this is your last segment keep the date unchanged'),
+        );
+        return $touritems;
     }
 
 }

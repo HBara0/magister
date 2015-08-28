@@ -2,6 +2,8 @@
     <ul>
         {$segmentstabs}
     </ul>
-    <div id="loadindsection"></div>
+    <div id="loadindsection">
+
+    </div>
     {$segments_output}
 </div>

@@ -142,7 +142,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                             else {
                                 $field = $lang->transpfees;
                             }
-                            $errorhandler->record('requiredfields', $field.' in Segment '.$segmentdata['sequence']);
+                            $errorhandler->record('Required fields', $field.' in Segment '.$segmentdata['sequence']);
                             if(isset($data['tmtcid']) && empty($data['tmtcid']) && (isset($data['fare']) && empty($data['fare']))) {
                                 unset($transp_errorcode);
                             }
@@ -161,12 +161,12 @@ class TravelManagerPlanSegments extends AbstractClass {
             }
             if($transp_count == 0) {
                 $transp_errorcode = 2;
-                $errorhandler->record('requiredfields', 'Transportations'.' in Segment '.$segmentdata['sequence']);
+                $errorhandler->record('Required fields', 'Transportations'.' in Segment '.$segmentdata['sequence']);
             }
         }
         else {
             $transp_errorcode = 2;
-            $errorhandler->record('requiredfields', 'Transportations'.' in Segment '.$segmentdata['sequence']);
+            $errorhandler->record('Required fields', 'Transportations'.' in Segment '.$segmentdata['sequence']);
         }
         if($segmentdata['noAccomodation'] == 0) {
             if(isset($segmentdata['tmhid'])) {
@@ -192,7 +192,7 @@ class TravelManagerPlanSegments extends AbstractClass {
 //                }//////
                     if(!isset($hotel['tmhid']) || empty($hotel['tmhid'])) {
                         $transp_errorcode = 2;
-                        $errorhandler->record('requiredfields', 'Accomodations'.' in Segment '.$segmentdata['sequence']);
+                        $errorhandler->record('Required fields', 'Accomodations'.' in Segment '.$segmentdata['sequence']);
                     }
                     if($hotel['numNights'] > $segdays) {
                         $this->errorcode = 9;
@@ -215,7 +215,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                 }
                 if($found == 0) {
                     $transp_errorcode = 2;
-                    $errorhandler->record('requiredfields', 'Accomodations'.' in Segment '.$segmentdata['sequence']);
+                    $errorhandler->record('Required fields', 'Accomodations'.' in Segment '.$segmentdata['sequence']);
                 }
             }
         }
@@ -360,7 +360,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                         else {
                             $field = $lang->transpfees;
                         }
-                        $errorhandler->record('requiredfields', $field.' in Segment '.$segmentdata['sequence']);
+                        $errorhandler->record('Required fields', $field.' in Segment '.$segmentdata['sequence']);
                         if(isset($data['tmtcid']) && empty($data['tmtcid']) && (isset($data['fare']) && empty($data['fare']))) {
                             unset($transp_errorcode);
                         }
@@ -385,7 +385,7 @@ class TravelManagerPlanSegments extends AbstractClass {
         }
         if($transp_count == 0) {
             $transp_errorcode = 2;
-            $errorhandler->record('requiredfields', 'Transportations in Segment '.$segmentdata['sequence']);
+            $errorhandler->record('Required fields', 'Transportations in Segment '.$segmentdata['sequence']);
         }
         if($segmentnewdata['noAccomodation'] == 0) {
             if(is_array($segmentdata['tmhid'])) {
@@ -430,12 +430,12 @@ class TravelManagerPlanSegments extends AbstractClass {
                     }
                     if($found == 0) {
                         $transp_errorcode = 2;
-                        $errorhandler->record('requiredfields', 'Accomodations'.' in Segment '.$segmentdata['sequence']);
+                        $errorhandler->record('Required fields', 'Accomodations'.' in Segment '.$segmentdata['sequence']);
                     }
                 }
                 else {
                     $transp_errorcode = 2;
-                    $errorhandler->record('requiredfields', 'Accomodations'.' in Segment '.$segmentdata['sequence']);
+                    $errorhandler->record('Required fields', 'Accomodations'.' in Segment '.$segmentdata['sequence']);
                 }
             }
         }

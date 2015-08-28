@@ -330,6 +330,10 @@
                     $("div[id^='show_othertransps_" + id[3] + "']").hide();
                 }
             });
+
+
+
+
         </script>
         <style type="text/css">
             .ui-tabs-nav li {
@@ -346,7 +350,7 @@
     <tr>
         {$menu}
         <td class="contentContainer" colspan="2">
-            <h1>{$lang->plantrip}</h1>
+            <h1 id="tmsections-1">{$lang->plantrip}</h1>
             {$leave_ouput}
             <form name="perform_travelmanager/plantrip_Form" id="perform_travelmanager/plantrip_Form" action="#" method="post">
                 <div style='margin-top: 10px; '>
@@ -367,12 +371,14 @@
                 </a>
                 <input type="button" style="cursor: pointer" class='button'  value="{$lang->preview} & {$lang->finish}" id="finalize"/>
                 <input type="hidden" value="" name="finalizeplan" id="finalizeplan"/>
-
             </form>
-
             <div id="perform_travelmanager/plantrip_Results"></div>
         </td>
     </tr>
     {$footer}
+
+    <!-- Start Tour -->
+    {$helptour}
+
 </body>
 </html>
