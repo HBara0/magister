@@ -2,34 +2,41 @@
     <div style="margin:50px;text-align: center" >
         <img src="./images/chevron-down.png" align="middle" style=""/>
     </div>
-    <h2 class="subtitle" id="transpsetionheader_{$sequence}">Possible Transportations</h2>
+    <h2 class="subtitle" id="transpsetionheader_{$sequence}">Transportations</h2>
     <div class="ui-state-highlight ui-corner-all" style='padding:8px;margin-bottom: 10px;'>{$lang->transppolicy}</div>
-    <div class="ui-state-highlight ui-corner-all" style='margin-bottom: 10px;font-weight: bold;' id="transpmethod_{$sequence}">{$lang->makesuretochooseandclick}</div>
-    <div style="display: block">{$lang->oneway}<input type="radio" value="2" name="segment[{$sequence}][transp]" id="transp_lookuptransps_{$sequence}"/>
+    <div style="display: block;border:1px solid #FCEFA1; padding:15px;">
+        <h2 class="subtitle">{$lang->lookuptransps}</h2>
+        <div style='margin-bottom: 10px;font-weight: bold;' id="transpmethod_{$sequence}">
+            {$lang->makesuretochooseandclick}</div>
+        {$lang->oneway}<input type="radio" value="2" name="segment[{$sequence}][transp]" id="transp_lookuptransps_{$sequence}"/>
         {$lang->roundtrip}<input type="radio" value="1" name="segment[{$sequence}][transp]" id="transp_lookuptransps_{$sequence}"/><br/><br/>
-        <input type="button" class="button" value="{$lang->lookuptransps}" id="lookuptransps_{$sequence}"/>
+       <!-- <input type="button" class="button" value="{$lang->lookuptransps}" id="lookuptransps_{$sequence}"/>-->
+
+        <!--able width="100%" cellspacing="0" cellpadding="0" style="margin-left: 8px;" class="datatable">
+              <tbody id="othertranspcat_{$sequence}_tbody">-->
+        <div id="content_suggestedtransploader_{$sequence}"></div>
+        <div id="content_suggestedtransp_{$sequence}">{$transsegments_output[suggested]}</div>
     </div>
-    <!--able width="100%" cellspacing="0" cellpadding="0" style="margin-left: 8px;" class="datatable">
-          <tbody id="othertranspcat_{$sequence}_tbody">-->
-    <div id="content_suggestedtransploader_{$sequence}"></div>
-    <div id="content_suggestedtransp_{$sequence}">{$transsegments_output[suggested]}</div>
+    <div class = "ui-state-highlight ui-corner-all" style = "padding: 6px; font-weight: bold;margin-top:10px;">{$lang->availableflightsnoticemessage}</div>
+    <div style="display: block;border:1px solid #FCEFA1; padding:15px;margin-top:10px;">
+        <h2 class="subtitle">{$lang->selectothertransportations}</h2>
+        <input type="checkbox" id="checkbox_show_othertransps_{$sequence}" style="margin-left:12px;margin-top:15px;margin-bottom:15px;" {$checked[othertranspssection]}/>{$lang->other} {$lang->transportations}
+        <div id="show_othertransps_{$sequence}" style="{$display[othertranspssection]}">
+            <div>{$transsegments_output[othertransp]}</div>
+            <table width="100%" class="datatable" style="margin-top:-20px;">
+                <tbody id="othertranspcat_{$sequence}_tbody">
+                    {$rows}
+                </tbody>
+            </table>
 
-    <input type="checkbox" id="checkbox_show_othertransps_{$sequence}" style="margin-left:12px;" {$checked[othertranspssection]}/>{$lang->other} {$lang->transportations}
-    <div id="show_othertransps_{$sequence}" style="{$display[othertranspssection]}">
-        <div>{$transsegments_output[othertransp]}</div>
-        <table width="100%" class="datatable" style="margin-top:-20px;">
-            <tbody id="othertranspcat_{$sequence}_tbody">
-                {$rows}
-            </tbody>
-        </table>
-
-        <div {$transp_dispnone}> <img src="./images/add.gif" style="cursor: pointer" id="ajaxaddmore_travelmanager/plantrip_othertranspcat_{$sequence}"  alt="{$lang->add}"> Add another transportation
-            <input type="hidden" name="ajaxaddmoredata[destcity]" id="ajaxaddmoredata_destcity" value="{$destcityid}"/>
-            <input name="numrows_othertranspcat_{$sequence}" type="hidden" id="numrows_othertranspcat_{$sequence}" value="{$rowid}">
+            <div {$transp_dispnone}> <img src="./images/add.gif" style="cursor: pointer" id="ajaxaddmore_travelmanager/plantrip_othertranspcat_{$sequence}"  alt="{$lang->add}"> Add another transportation
+                <input type="hidden" name="ajaxaddmoredata[destcity]" id="ajaxaddmoredata_destcity" value="{$destcityid}"/>
+                <input name="numrows_othertranspcat_{$sequence}" type="hidden" id="numrows_othertranspcat_{$sequence}" value="{$rowid}">
+            </div>
         </div>
     </div>
 </div>
-<hr>
+
 <div style="margin:50px;text-align: center" >
     <img src="./images/chevron-down.png" align="middle" style=""/>
 </div>

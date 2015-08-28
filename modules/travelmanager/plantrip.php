@@ -307,6 +307,8 @@ else {
         output($plantrip_createsegment);
     }
     elseif($core->input['action'] == 'populatecontent') {
+        $checked['othertranspssection'] = 'checked="checked"';
+        $display['othertranspssection'] = "display:block'";
         $origincityid = $db->escape_string($core->input['origincity']);
         $destcityid = $db->escape_string($core->input['destcity']);
         $sequence = $db->escape_string($core->input['sequence']); /* get the  sequence to differentiate the content of each */
@@ -332,7 +334,7 @@ else {
             if(isset($core->input['transp']) && $core->input['transp'] == 1) {
                 $transp_requirements['oneway'] = 0;
             }
-            $transsegments_output = Cities::parse_transportations($transp, array('origincity' => $origintcity, 'destcity' => $destcity, 'transprequirements' => $transp_requirements), $sequence);
+            $transsegments_output = Cities::parse_transportations($transp, array('origincity' => $origintcity, 'destcity' => $destcity, 'transprequirements' => $transp_requirements, 'referrer' => $core->input['referrer']), $sequence);
         }
         /* load approved hotels */
         $leavedays = abs(strtotime($core->input['arrivaltime']) - strtotime($core->input['departuretime']));
@@ -686,6 +688,14 @@ else {
             $warnings['foodandbeverage'] = $tmexpenses->validate_foodandbeverage_expenses($data);
         }
         echo $warnings['foodandbeverage'];
+    }
+    elseif($core->input['action'] == 'validatetranspclass') {
+        $warnings['transpclass'] = '';
+        $class = TravelManagerPlanTranspClass::get_data(array('tmptc' => intval($core->input['transpclass'])));
+        if($class->get_displayname() == 'Business') {
+            $warnings['transpclass'] = '<p style="color:red;"> no employee may travel in business class. Exceptions can be made, but a business case must be made</p>';
+        }
+        echo $warnings['transpclass'];
     }
 }
 ?>

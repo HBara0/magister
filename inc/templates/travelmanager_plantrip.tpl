@@ -82,17 +82,15 @@
                         var origincity = $('input[id=cities_' + sequence + '_cache_id]').val(); /*get  the cityid from the hiiden field*/
                         sharedFunctions.requestAjax("post", "index.php?module=travelmanager/plantrip&action=populatecontent", "&sequence=" + sequence + "&destcity=" + ciid + "&origincity=" + origincity + "&departuretime=" + $('#altpickDate_from_' + sequence).val() + "&arrivaltime=" + $('#altpickDate_to_' + sequence).val(), 'content_detailsloader_' + sequence + '', 'content_details_' + sequence + '', true);
                         sharedFunctions.requestAjax("post", "index.php?module=travelmanager/plantrip&action=populatecityprofile", "&sequence=" + sequence + "&destcity=" + ciid, 'segment_city_loader_' + sequence + '', 'segment_city_' + sequence + '', true);
-
                     }
 
                 });
-
-                $('input[id^=lookuptransps_]').live('click', function() {
+                $('input[id^=transp_lookuptransps_]').live('click', function() {
                     if(sharedFunctions.checkSession() == false) {
                         return;
                     }
                     var id = $(this).attr('id').split("_");
-                    var sequence = id[1];
+                    var sequence = id[2];
                     errormessage = '';
                     var ciid = $('input[id$=destinationcity_' + sequence + '_cache_id]').val(); /*get  the cityid from the hiiden field*/
                     if(typeof ciid !== typeof undefined && ciid !== '') {
@@ -101,7 +99,7 @@
                         if($('input[id=transp_lookuptransps_' + sequence + ']:checked').val().length > 0) {
                             transp = $('input[id=transp_lookuptransps_' + sequence + ']:checked').val();
                         }
-                        sharedFunctions.requestAjax("post", "index.php?module=travelmanager/plantrip&action=populatecontent", "&sequence=" + sequence + "&parsetransp=1" + "&destcity=" + ciid + "&origincity=" + origincity + "&departuretime=" + $('#altpickDate_from_' + sequence).val() + "&arrivaltime=" + $('#altpickDate_to_' + sequence).val() + '&transp=' + transp, 'content_detailsloader_' + sequence + '', 'content_details_' + sequence + '', true);
+                        sharedFunctions.requestAjax("post", "index.php?module=travelmanager/plantrip&action=populatecontent", "&sequence=" + sequence + "&parsetransp=1" + "&destcity=" + ciid + "&origincity=" + origincity + "&departuretime=" + $('#altpickDate_from_' + sequence).val() + "&arrivaltime=" + $('#altpickDate_to_' + sequence).val() + '&transp=' + transp + "&referrer=lookuptransps", 'content_detailsloader_' + sequence + '', 'content_details_' + sequence + '', true);
                         sharedFunctions.requestAjax("post", "index.php?module=travelmanager/plantrip&action=populatecityprofile", "&sequence=" + sequence + "&destcity=" + ciid, 'segment_city_loader_' + sequence + '', 'segment_city_' + sequence + '', true);
                     }
                 });
@@ -159,7 +157,6 @@
                     var expensetype = $("select[id='segment_expensestype_" + id[1] + "_" + id[2] + "']").val();
                     sharedFunctions.requestAjax("post", "index.php?module=travelmanager/plantrip&action=validatefandbexpenses", "&amount=" + $("input[id='expenses" + "_" + id[1] + "_" + id[2] + "_expamount']").val() + "&numnights=" + numnights + "&currency=" + $("select[id='currency" + "_" + id[1] + "_" + id[2] + "_list']").val() + "&expensetype=" + expensetype, "fandb_warning_" + id[1] + "_" + id[2], "fandb_warning_" + id[1] + "_" + id[2], true);
                 });
-
                 $(document).on("change", "select[id^='currency'][id$='list']", function() {
                     var id = $(this).attr('id').split("_");
                     if(id[2] == 'accomodation') {
@@ -177,7 +174,6 @@
                     $("div[id=total_" + id[1] + "_" + id[2] + '_' + id[3] + "]").fadeToggle('slow').stop().text($('input[id="pricenight_' + id[1] + '_' + id[2] + '_' + id[3] + '"]').val() * $('input[id="numnight_' + id[1] + '_' + id[2] + '_' + id[3] + '"]').val());
                     $('input[name="segment[' + name[2] + '][tmhid][' + name[3] + '_' + name[4] + '][subtotal]"]').val($('input[id="pricenight_' + id[1] + '_' + id[2] + '_' + id[3] + '"]').val() * $('input[id="numnight_' + id[1] + '_' + id[2] + '_' + id[3] + '"]').val());
                     $('input[name="segment[' + name[2] + '][tmhid][' + name[3] + '_' + name[4] + '][subtotal]"]').trigger('change');
-
                     var curr = $('select[name="segment[' + name[2] + '][tmhid][' + name[3] + '_' + name[4] + '][currency]"]').val();
                     var pricepernight = $('input[name="segment[' + name[2] + '][tmhid][' + name[3] + '_' + name[4] + '][priceNight]"]').val();
                     sharedFunctions.requestAjax("post", "index.php?module=travelmanager/plantrip&action=checkpricevsavgprice", "&avgprice=" + $('input[id="avgprice_' + id[1] + '_' + id[2] + '_' + id[3] + '"]').val() + "&pricepernight=" + pricepernight + "&currency=" + curr, "hotelprice_warning_" + id[2] + "_" + id[3], "hotelprice_warning_" + id[2] + "_" + id[3], true);
@@ -330,9 +326,11 @@
                     $("div[id^='show_othertransps_" + id[3] + "']").hide();
                 }
             });
+            $(document).on('change', "select[id^='segment'][id$='_class']", function() {
+                var id = $(this).attr('id').split('_');
+                sharedFunctions.requestAjax("post", "index.php?module=travelmanager/plantrip&action=validatetranspclass", "&transpclass=" + $(this).val(), "transpclass_warning_" + id[1] + "_" + id[3], "transpclass_warning_" + id[1] + "_" + id[3], true);
 
-
-
+            });
 
         </script>
         <style type="text/css">
