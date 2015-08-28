@@ -331,7 +331,7 @@ td {
   height: 20px;
   vertical-align: middle !important; }
 
-input.button, button {
+input.button, .button, button {
   -webkit-border-radius: 4px;
   -moz-border-radius: 4px;
   -ms-border-radius: 4px;
@@ -639,3 +639,15 @@ tr.dummytrow td, tr.dummytrow th {
   width: 16px;
   display: inline-block;
   padding: 0 0 0 0px; }
+
+/* Overwrite JoyRide2 Style */
+.joyride-tip-guide .joyride-next-tip {
+  background: #91b64f !important;
+  border: 1px solid #83c41a !important; }
+
+.joyride-next-tip:hover {
+  background-color: #8cb82b !important;
+  border: 1px solid #83c41a !important; }
+
+[id$="_helptour"], [class$="_helptour"] {
+  display: none; }

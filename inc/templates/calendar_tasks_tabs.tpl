@@ -5,12 +5,6 @@
         <script>
             $(function () {
                 var tabs = $("#taskstabs").tabs();
-                $('#tasksboard_tour').joyride({
-                    autoStart: true,
-                    'cookieMonster': true, // true/false for whether cookies are used
-                    'cookieName': 'tasksboard_tour', // choose your own cookie name
-                    'cookieDomain': false,
-                });
             });
         </script>
     </head>
@@ -35,10 +29,7 @@
     </tr>
     {$footer}
 
-    <ol id="tasksboard_tour">
-        <li data-id="taskstabs-1_btn"><p>Here you can see all tasks assigned to you. This also include the tasks your created for yourself.</p></li>
-        <li data-id="taskstabs_2_btn"><p>Any task that you created shows up here, regardless if assigned to you or someone else.</p></li>
-        <li data-id="taskstabs-3_btn" data-button="{$lang->close}Close"><p>Any task that is shared with you shows up here. It is usually created by other users.</p></li>
-    </ol>
+    <!-- Start Tour -->
+    {$helptour}
 </body>
-</htmt>
+</html>
