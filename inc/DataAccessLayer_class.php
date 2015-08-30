@@ -331,15 +331,13 @@ class DataAccessLayer {
         return false;
     }
 
-    public
-            function __get($name) {
+    public function __get($name) {
         if(array_key_exists($name, $this->data)) {
             return $this->data[$name];
         }
     }
 
-    public function get(
-    ) {
+    public function get() {
         return $this->data;
     }
 

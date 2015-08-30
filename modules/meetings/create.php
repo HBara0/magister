@@ -143,6 +143,31 @@ if(!$core->input['action']) {
     $leaves = Leaves::get_data(array('uid' => $core->user['uid'], 'type' => array_keys($leavetypes), 'fromDate' => strtotime("-1 year")), array('operators' => array('type' => 'IN', 'fromDate' => 'grt'), 'returnarray' => true));
     $leaves_list = parse_selectlist('meeting[associations][lid]', $tabindex, $leaves, $associatons['lid'], 0, null, array('blankstart' => true));
 
+
+
+    $helptour = new HelpTour();
+    $helptour->set_id('createmeeting_helptour');
+    $helptour->set_cookiename('createmeeting_helptour');
+
+    $touritems = array(
+            'meeting_title' => array('text' => 'Provide a clear, informative, and unqiue title for your meeting.'),
+            'createmeeting_associations_title' => array('options' => 'tipLocation:top;', 'text' => 'You can assosciate (or categorize) your meeting to one or more of the following elements. Associating the meeting to a supplier means that the meeting is related.'),
+            'pickDate_from' => array('options' => 'tipLocation:top;', 'text' => 'This is the start date and time of your meeting. Use 24-hours time format.'),
+            'pickDate_to' => array('options' => 'tipLocation:top;', 'text' => 'This is the end date and time of your meeting. Use 24-hours time format.'),
+            /* 'description' => array('text' => 'Provide a meaningful description of this team to help invitees know what is it about.'), */
+            'meeting_location' => array('text' => 'This is the meeting location. It is a free-text box, but make sure it is precise.'),
+            'meeting_ispublic' => array('text' => 'Ticking this checkbox will display this meeting to every user on the system. It does not mean however that all users are invited.'),
+            'notify_user' => array('text' => 'Checking this box, or the box on the right means that invitees will get an invitation to this meeting by email.'),
+            'attendees_tbody' => array('options' => 'tipLocation:top;', 'text' => 'Pick one of more users.'),
+            'rep_tbody' => array('options' => 'tipLocation:top;', 'text' => 'Pick one of more representatives. Representatives are people from the business partner side. <span class="red_text">Be careful when using this as this will send the invitation to outsiders.</span>'),
+            'addmore_attendees' => array('text' => 'You can click this button at any time you need to invite more people.'),
+            'attachments' => array('text' => 'You can attach files to your meeting. These will be attached to the meeting and can be accessed from the meeting page.'),
+            'meetings_create' => array('text' => 'Clicking the button will create the meeting.'),
+            'done' => array('ignoreid' => true, 'text' => 'You are done!')
+    );
+
+    $helptour->set_items($touritems);
+    $helptour = $helptour->parse();
     eval("\$createmeeting_associations = \"".$template->get('meeting_create_associations')."\";");
     eval("\$createmeeting = \"".$template->get('meeting_create')."\";");
     output_page($createmeeting);
