@@ -110,14 +110,16 @@ class LeaveTypes extends AbstractClass {
 
     public function parse_additonalfields(array $additional_settings = array()) {
         global $lang;
-        if(!empty($this->noteLangVar)) {
-            $parsed_fields = '<div class="ui-state-highlight ui-corner-all">'.$lang->{$this->noteLangVar}.'</div><br>';
-        }
+
         $additional_fields = $this->get_additonalfields();
         if(is_array($additional_fields)) {
             foreach($additional_fields as $key => $field) {
                 $parsed_fields .= $this->parse_additonalfield($key, $field);
             }
+        }
+
+        if(!empty($this->noteLangVar)) {
+            $parsed_fields .= '<div class="ui-state-highlight ui-corner-all" style="padding: 5px;"><p>'.$lang->{$this->noteLangVar}.'</p></div><br />';
         }
         return $parsed_fields;
     }
