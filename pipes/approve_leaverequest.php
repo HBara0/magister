@@ -285,7 +285,7 @@ if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject) || $ignore_su
 
             if($ignore_subject == true) {
                 if(isset($request['referrer']) && $request['referrer'] == 'email') {
-                    redirect('index.php?module=attendance/listleaves', 3, $lang->leavesuccessfullyapproved);
+                    redirect('index.php?module=attendance/listleaves', 1, $lang->leavesuccessfullyapproved);
                 }
                 else {
                     ?>
