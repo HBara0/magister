@@ -203,4 +203,5 @@ $lang['businesssegmentsalesdesc'] = 'Sales per business segment (in K USD)';
 $lang['businesssegmentincomedesc'] = 'Income per business segment (in K USD)';
 $lang['affsales'] = '';
 $lang['countrysales'] = 'Country ';
+$lang['salespertype'] = 'Sales Per Type';
 ?>
