@@ -327,26 +327,26 @@ if($core->input['export']) {
                                     $productsegcat = $productsegment->get_segmentcategory()->scid;
                                 }
 
-                                $businesssegments['affsales'][$productsegcat][(date('Y') + 1)]['sales'] += $line->amount * $exchangerate;
-                                $businesssegments['affsales'][$productsegcat][(date('Y') + 1)]['income'] += $line->income * $exchangerate;
+                                $businesssegments['countrysales'][$productsegcat][(date('Y') + 1)]['sales'] += $line->amount * $exchangerate;
+                                $businesssegments['countrysales'][$productsegcat][(date('Y') + 1)]['income'] += $line->income * $exchangerate;
                                 // Sales / Income data per Business segment - END
                                 //supplier part-START
                                 if(isset($line->spid) && !empty($budget->spid)) {
-                                    $suppliers['affsales'][$budget->spid][date('Y')]['sales']+=$line->amount * $exchangerate;
-                                    $suppliers['affsales'][$budget->spid][date('Y')]['income']+=$line->income * $exchangerate;
+                                    $suppliers['countrysales'][$budget->spid][date('Y')]['sales']+=$line->amount * $exchangerate;
+                                    $suppliers['countrysales'][$budget->spid][date('Y')]['income']+=$line->income * $exchangerate;
                                     if(is_array($groupsuppliers)) {
                                         if(isset($groupsuppliers[$budget->spid]) && !empty($groupsuppliers[$budget->spid])) {
                                             if($groupsuppliers[$budget->spid] == 1) {
                                                 $localsupplier = new Entities($budget->spid);
                                                 if(is_object($localsupplier)) {
-                                                    $solvaygroupsale['affsales'][(date('Y') + 1)][str_replace(array(' ', '<', '>', '&', '{', '}', '*'), array('-'), $localsupplier->get_displayname())]+=$line->amount * $exchangerate;
-                                                    $solvaygroupinc['affsales'][(date('Y') + 1)][str_replace(array(' ', '<', '>', '&', '{', '}', '*'), array('-'), $localsupplier->get_displayname())] +=$line->income * $exchangerate;
+                                                    $solvaygroupsale['countrysales'][(date('Y') + 1)][str_replace(array(' ', '<', '>', '&', '{', '}', '*'), array('-'), $localsupplier->get_displayname())]+=$line->amount * $exchangerate;
+                                                    $solvaygroupinc['countrysales'][(date('Y') + 1)][str_replace(array(' ', '<', '>', '&', '{', '}', '*'), array('-'), $localsupplier->get_displayname())] +=$line->income * $exchangerate;
                                                 }
                                             }
                                             $groupname = Entities::get_suppliergroupname($groupsuppliers[$budget->spid]);
                                             if($groupname != false) {
-                                                $groupsupplierdsles['affsales'][(date('Y') + 1)][$groupname]+=$line->amount * $exchangerate;
-                                                $groupsupplierinc['affsales'][(date('Y') + 1)][$groupname] += $line->income * $exchangerate;
+                                                $groupsupplierdsles['countrysales'][(date('Y') + 1)][$groupname]+=$line->amount * $exchangerate;
+                                                $groupsupplierinc['countrysales'][(date('Y') + 1)][$groupname] += $line->income * $exchangerate;
                                             }
                                         }
                                     }
@@ -356,8 +356,8 @@ if($core->input['export']) {
                                 if(isset($line->businessMgr) && !empty($line->businessMgr)) {
                                     $user = new Users($line->businessMgr);
                                     if(is_object($user) && !empty($user->uid)) {
-                                        $businessmansales['affsales'][(date('Y') + 1)][str_replace(array(' ', '<', '>', '&', '{', '}', '*'), array('-'), $user->get_displayname())]+=$line->amount * $exchangerate;
-                                        $businessmanincome['affsales'][(date('Y') + 1)][str_replace(array(' ', '<', '>', '&', '{', '}', '*'), array('-'), $user->get_displayname())] = $line->income * $exchangerate;
+                                        $businessmansales['countrysales'][(date('Y') + 1)][str_replace(array(' ', '<', '>', '&', '{', '}', '*'), array('-'), $user->get_displayname())]+=$line->amount * $exchangerate;
+                                        $businessmanincome['countrysales'][(date('Y') + 1)][str_replace(array(' ', '<', '>', '&', '{', '}', '*'), array('-'), $user->get_displayname())] = $line->income * $exchangerate;
                                     }
                                 }
                                 //Business manager part-End
@@ -382,6 +382,7 @@ if($core->input['export']) {
                                 }
                             }
                         }
+                        $totalbudg_sales+=$line->amount * $exchangerate;
                         for($i = 1; $i < 7; $i ++) {
                             $data['affsales'][(date('Y') + 1)][$i]['sales'] += (($line->amount * $line->s1Perc / 100 ) / 6 ) * $exchangerate;
                             $data['affsales'][(date('Y') + 1)][$i]['income'] += (($line->income * $line->s1Perc / 100 ) / 6 ) * $exchangerate;
@@ -393,6 +394,14 @@ if($core->input['export']) {
                             $data['affsales'][(date('Y') + 1)][$i]['income'] += (($line->income * $line->s2Perc / 100 ) / 6 ) * $exchangerate;
                             $data['affsales'][(date('Y') + 1)][$i]['costs'] = $data['affsales'][(date('Y') + 1)][$i]['sales'] - $data['affsales'][(date('Y') + 1)][$i]['income'];
                         }
+
+                        //get sales by type-START
+                        $type = new SaleTypes($line->get_saletype());
+                        if(is_object($type)) {
+                            $final['affsales']['salespertype'][$type->get_displayname()]['Amount'] += $line->amount * $exchangerate;
+                            $salestypes [] = $type->get_displayname();
+                        }
+                        //get sales by Type-END
                         // Sales / Income data per Business segment - Start
                         if(!empty($line->psid)) {
                             $psid = $line->psid;
@@ -477,6 +486,7 @@ if($core->input['export']) {
                                         continue;
                                     }
 //get cumulative income-END
+//
 //get monthly summary of current year-START
                                     if($year == date('Y')) {
                                         $final[$sheettype]['monthlysummary'][$type][date("F", mktime(0, 0, 0, $month, 10))] = intval($number);
@@ -497,6 +507,14 @@ if($core->input['export']) {
                     }
                 }
             }
+        }
+        if(is_array($salestypes) && $totalbudg_sales > 0) {
+            foreach($salestypes as $salestype) {
+                $final['affsales']['salespertype']['Total']['Amount'] += $final['affsales']['salespertype'][$salestype]['Amount'];
+                $final['affsales']['salespertype']['Total']['Percentage'] += number_format(( $final['affsales']['salespertype'][$salestype]['Amount'] / $totalbudg_sales) * 100, 2, '.', ',');
+                $final['affsales']['salespertype'][$salestype]['Percentage'] = number_format(( $final['affsales']['salespertype'][$salestype]['Amount'] / $totalbudg_sales) * 100, 2, '.', ',').'%';
+            }
+            $final['affsales']['salespertype']['Total']['Percentage'] = $final['affsales']['salespertype']['Total']['Percentage'].'%';
         }
 //get groupsuppliers sales and net-START
         if(is_array($groupsupplierdsles)) {
@@ -631,7 +649,6 @@ if($core->input['export']) {
             }
         }
 //get top 10 suppliers sales and net=END
-//
         //get Sales/Income per business segment - START
         if(is_array($businesssegments['affsales'])) {
             $segmentcategories = SegmentCategories::get_data(array('name is NOT NULL'), array('returnarray' => true, 'simple' => false));
@@ -794,7 +811,7 @@ if($core->input['export']) {
 
                                     if(!is_string($data)) {
                                         if($row == 'Segments Groups') {
-                                            $rows.= '<td>'.$data.'</td>';
+                                            $rows .= '<td>'.$data.'</td>';
                                         }
                                         else {
                                             $rows.= '<td>'.number_format($data, 2, '.', ',').'</td>';

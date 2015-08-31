@@ -51,6 +51,7 @@ class HelpTour {
     }
 
     private function parse_items() {
+        global $core;
         $output = '';
 
         end($this->items);
@@ -66,9 +67,20 @@ class HelpTour {
             }
 
             if($id == $lastid) {
-                $lastbutton = ' data-button="'.$lang->close.'Close"';
+                $attrs['data-button'] = ' data-button="'.$lang->close.'Close"';
             }
-            $output .= '<li data-id="'.$id.'"'.$lastbutton.'><p>'.$text.'</p></li>';
+
+            if(isset($item['options']) && !empty($item['options'])) {
+                $attrs['data-options'] = ' data-options="'.$core->sanitize_inputs($item['options'], array('removetags' => true)).'"';
+            }
+
+            $attrs['data-id'] = ' data-id="'.$id.'"';
+            if($item['ignoreid'] == true) {
+                unset($attrs['data-id']);
+            }
+
+            $output .= '<li'.$attrs['data-id'].$attrs['data-button'].$attrs['data-options'].'><p>'.$text.'</p></li>';
+            unset($attrs);
         }
         return $output;
     }
