@@ -307,8 +307,20 @@ else {
         output($plantrip_createsegment);
     }
     elseif($core->input['action'] == 'populatecontent') {
-        $checked['othertranspssection'] = 'checked="checked"';
-        $display['othertranspssection'] = "display:block'";
+
+        if(isset($core->input['othertranspdisplay']) && !empty($core->input['othertranspdisplay'])) {
+            $display['othertranspssection'] = $core->input['othertranspdisplay'];
+        }
+        else {
+            $display['othertranspssection'] = "display:block'";
+        }
+        if(isset($core->input['othertranspsseccheckbox'])) {
+            $checked['othertranspssection'] = $core->input['othertranspsseccheckbox'];
+        }
+        else {
+            $checked['othertranspssection'] = 'checked="checked"';
+        }
+
         $origincityid = $db->escape_string($core->input['origincity']);
         $destcityid = $db->escape_string($core->input['destcity']);
         $sequence = $db->escape_string($core->input['sequence']); /* get the  sequence to differentiate the content of each */

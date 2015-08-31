@@ -80,7 +80,7 @@
                     var ciid = $('input[id$=destinationcity_' + sequence + '_cache_id]').val(); /*get  the cityid from the hiiden field*/
                     if(typeof ciid !== typeof undefined && ciid !== '') {
                         var origincity = $('input[id=cities_' + sequence + '_cache_id]').val(); /*get  the cityid from the hiiden field*/
-                        sharedFunctions.requestAjax("post", "index.php?module=travelmanager/plantrip&action=populatecontent", "&sequence=" + sequence + "&destcity=" + ciid + "&origincity=" + origincity + "&departuretime=" + $('#altpickDate_from_' + sequence).val() + "&arrivaltime=" + $('#altpickDate_to_' + sequence).val(), 'content_detailsloader_' + sequence + '', 'content_details_' + sequence + '', true);
+                        sharedFunctions.requestAjax("post", "index.php?module=travelmanager/plantrip&action=populatecontent", "&sequence=" + sequence + "&destcity=" + ciid + "&origincity=" + origincity + "&departuretime=" + $('#altpickDate_from_' + sequence).val() + "&arrivaltime=" + $('#altpickDate_to_' + sequence).val(), 'content_detailsloader_' + sequence, 'content_details_' + sequence + '', true);
                         sharedFunctions.requestAjax("post", "index.php?module=travelmanager/plantrip&action=populatecityprofile", "&sequence=" + sequence + "&destcity=" + ciid, 'segment_city_loader_' + sequence + '', 'segment_city_' + sequence + '', true);
                     }
 
@@ -99,7 +99,14 @@
                         if($('input[id=transp_lookuptransps_' + sequence + ']:checked').val().length > 0) {
                             transp = $('input[id=transp_lookuptransps_' + sequence + ']:checked').val();
                         }
-                        sharedFunctions.requestAjax("post", "index.php?module=travelmanager/plantrip&action=populatecontent", "&sequence=" + sequence + "&parsetransp=1" + "&destcity=" + ciid + "&origincity=" + origincity + "&departuretime=" + $('#altpickDate_from_' + sequence).val() + "&arrivaltime=" + $('#altpickDate_to_' + sequence).val() + '&transp=' + transp + "&referrer=lookuptransps", 'content_detailsloader_' + sequence + '', 'content_details_' + sequence + '', true);
+                        if($("input[id='checkbox_show_othertransps_1']").is(':checked')) {
+                            var othertranspsseccheckbox = 'checked="checked"';
+                        }
+                        else {
+                            var othertranspsseccheckbox = "";
+                        }
+
+                        sharedFunctions.requestAjax("post", "index.php?module=travelmanager/plantrip&action=populatecontent", "&sequence=" + sequence + "&parsetransp=1" + "&destcity=" + ciid + "&origincity=" + origincity + "&departuretime=" + $('#altpickDate_from_' + sequence).val() + "&arrivaltime=" + $('#altpickDate_to_' + sequence).val() + '&transp=' + transp + "&referrer=lookuptransps&othertranspdisplay=" + $("div[id^='show_othertransps_']").attr('style') + "&othertranspsseccheckbox=" + othertranspsseccheckbox, 'content_suggestedtransploader_' + sequence + '', 'content_details_' + sequence + '', true);
                         sharedFunctions.requestAjax("post", "index.php?module=travelmanager/plantrip&action=populatecityprofile", "&sequence=" + sequence + "&destcity=" + ciid, 'segment_city_loader_' + sequence + '', 'segment_city_' + sequence + '', true);
                     }
                 });
@@ -239,6 +246,7 @@
                 var id = $(obj).attr("id").split("_");
                 var total = {
                 };
+
                 $('input[id^="segment_' + id[1] + '_"][id$="_fare"]').each(function(i, obj) {
                     var fareid = $(obj).attr("name").slice(0, -6);
                     var farecur = $('select[name="' + fareid + '[currency]"] option:selected').text();
@@ -252,6 +260,22 @@
                         }
                     }
                 });
+
+                var name = ($('input[name$="[flightNumber]"]:checked', "form[id='perform_travelmanager/plantrip_Form']").attr("name"));
+                if(typeof name != 'undefined' && name != "") {
+                    var name = name.split("[");
+                    var fare = parseInt($("input[name$='[" + name[3] + "[" + name[4] + "[fare]']").val(), 10);
+                    var farecur = 'USD';
+                    alert(fare);
+                }
+
+                if(typeof fare !== 'undefined' && typeof fare != 'NaN') {
+                    if(typeof total[farecur] == "undefined") {
+                        total[farecur] = fare;
+                    } else {
+                        total[farecur] = total[farecur] + fare;
+                    }
+                }
                 $('input[name^="segment[' + id[1] + ']"][name$="[subtotal]"]').each(function(i, obj) {
                     var priceid = $(obj).attr("name").slice(0, -10);
                     var pricecur = $('select[name^="' + priceid + '[currency]"] option:selected').text();
@@ -310,6 +334,7 @@
                     }
                 });
                 var ptext = '';
+
                 $.each(total, function(index, val) {
                     ptext += 'Total Amount In ' + index + ' is ' + val + '. ';
                 });
