@@ -37,7 +37,7 @@ class TravelManagerHotels extends AbstractClass {
         global $db, $template, $core, $lang;
 
         if(is_empty($data['name'], $data['city'], $data['telephone_intcode'], $data['telephone_areacode'], $data['telephone_number'], $data['addressLine1'])) {
-            $this->errorcode = 2;
+            $this->errorcode = 1;
             return false;
         }
         $data['phone'] = $data['telephone_intcode'].'-'.$data['telephone_areacode'].'-'.$data['telephone_number'];

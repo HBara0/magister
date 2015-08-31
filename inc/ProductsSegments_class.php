@@ -26,6 +26,7 @@ class ProductsSegments extends AbstractClass {
         global $db;
 
         $db->insert_query(self::TABLE_NAME, $data);
+        return $this;
     }
 
     protected function update(array $data) {
@@ -35,6 +36,7 @@ class ProductsSegments extends AbstractClass {
             $data['publishOnWebsite'] = 0;
         }
         $db->update_query(self::TABLE_NAME, $data, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
+        return $this;
     }
 
     public static function get_segments($filters = null, $configs = array()) {

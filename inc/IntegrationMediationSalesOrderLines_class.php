@@ -10,7 +10,7 @@ v<?php
 
 class IntegrationMediationSalesOrderLines extends IntegrationMediation {
     private $status = 0;
-    private $data = array();
+    protected $data = array();
     private $order_currency = '';
     private $order_salesrep = '';
     private $order_customer = '';
@@ -25,7 +25,7 @@ class IntegrationMediationSalesOrderLines extends IntegrationMediation {
         $this->read($id, $simple);
     }
 
-    private function read($id, $simple) {
+    protected function read($id, $simple) {
         global $db;
 
         $query_select = '*';
@@ -47,7 +47,7 @@ class IntegrationMediationSalesOrderLines extends IntegrationMediation {
         return $data->get_objects($filters, $configs);
     }
 
-    public function get_column($column, $filters = '', array $configs = array()) {
+    public static function get_column($column, $filters = '', array $configs = array()) {
         $data = new DataAccessLayer(static::CLASSNAME, static::TABLE_NAME, static::PRIMARY_KEY);
         return $data->get_column($column, $filters, $configs);
     }

@@ -84,7 +84,7 @@ if(!$core->input['action']) {
 						 FROM ".Tprefix."visitreports vr
 						 JOIN ".Tprefix."users u ON (u.uid=vr.uid)
 						 JOIN ".Tprefix."entities e ON (vr.cid=e.eid)
-                                                 WHERE (isDraft=0{$query_where}){$query_or_usercreator}{$filter_where}
+                                                 WHERE (isDraft IN (0,1){$query_where}){$query_or_usercreator}{$filter_where}
 						 ORDER BY {$sort_query}");
 
     if($db->num_rows($query) > 0) {
@@ -112,9 +112,14 @@ if(!$core->input['action']) {
             }
 
             $icon[$visitreport['vrid']] = "<a href='index.php?module=crm/previewvisitreport&amp;referrer=list&amp;vrid={$visitreport[vrid]}'><img src='images/icons/report{$icon_locked}.gif' alt='{$visitreport[status_text]}' border='0'/></a>";
-
-            list($visitreport['suppliername']) = get_specificdata('entities', array('companyName'), '0', 'companyName', '', 0, "eid='{$visitreport[spid]}'");
-            //list($visitreport['customername']) = get_specificdata('entities', 'companyName', '0', 'companyName', '', 0, "eid='{$visitreport[cid]}'");
+            if($visitreport['isDraft'] == 1) {
+                $draft[$visitreport['vrid']] = "<a href='index.php?module=crm/listvisitreports&amp;val=0&amp;action=do_draft&amp;vrid={$visitreport[vrid]}'><img src='images/valid.gif' title='".$lang->isdraft."' alt='".$lang->undraft."' border='0'/></a>";
+            }
+            else {
+                $draft[$visitreport['vrid']] = "<a href='index.php?module=crm/listvisitreports&amp;val=1&amp;action=do_draft&amp;vrid={$visitreport[vrid]}'><img src='images/invalid.gif' title='".$lang->isnotdraft."' alt='".$lang->draft."' border='0'/></a>";
+            }
+            list($visitreport['suppliername']) = get_specificdata('entities', array('companyName'), '0', 'companyName', '', 0, "eid = '{$visitreport[spid]}'");
+            //list($visitreport['customername']) = get_specificdata('entities', 'companyName', '0', 'companyName', '', 0, "eid = '{$visitreport[cid]}'");
             if(!empty($visitreport['companyNameAbbr'])) {
                 $visitreport['customername'] .= ' ('.$visitreport['companyNameAbbr'].')';
             }
@@ -229,6 +234,12 @@ else {
         else {
             output_xml("<status>false</status><message>{$lang->selectatleastonereport}</message>");
         }
+    }
+    elseif($core->input['action'] == 'do_draft') {
+        $visitreport = new VisitReports(intval($core->input['vrid']), false);
+        $visitreport->isDraft = intval($core->input['val']);
+        $visitreport->update($visitreport->get());
+        redirect(''.$core->settings['rootdir'].'/index.php?module=crm/listvisitreports');
     }
 }
 function parse_calltype(&$value) {

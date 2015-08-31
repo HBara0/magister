@@ -144,7 +144,7 @@ class Affiliates {
         $query = $db->query("SELECT DISTINCT(e.eid)
                             FROM ".Tprefix."entities e
                             LEFT JOIN ".Tprefix."affiliatedentities ae ON (ae.eid=e.eid)
-                            WHERE ae.affid={$this->affiliate['affid']} AND type='c'".$additional_where[extra]." ORDER BY companyName ASC");
+                            WHERE ae.affid={$this->affiliate['affid']} AND type='c'".$additional_where['extra']." ORDER BY companyName ASC");
         while($customer = $db->fetch_assoc($query)) {
             $customers[$customer['eid']] = new Entities($customer['eid']);
         }
@@ -264,6 +264,10 @@ class Affiliates {
                 $this->set_chartspecs($chartspec);
                 break;
         }
+    }
+
+    public function get_coveredcountries() {
+        return Countries::get_data(array('affid' => $this->affiliate[self::PRIMARY_KEY]), array('order' => 'name', 'returnarray' => true));
     }
 
 }

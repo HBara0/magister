@@ -31,9 +31,9 @@
                 <table cellpadding="1" cellspacing="1" width="100%">
                     <tr>
                         <td>{$lang->title}</td>
-                        <td><input type="text" tabindex="1" name="meeting[title]" size="100" required="required" value="{$meeting[title]}"/></td>
+                        <td><input type="text" tabindex="1" name="meeting[title]" id="meeting_title" size="100" required="required" value="{$meeting[title]}"/></td>
                     </tr>
-                    <tr><td class="subtitle" colspan="2">{$lang->associations}</td></tr>
+                    <tr><td class="subtitle" colspan="2" id="createmeeting_associations_title">{$lang->associations}</td></tr>
                         {$createmeeting_associations}
                     <tr>
                         <td>{$lang->fromdate}</td>
@@ -51,11 +51,11 @@
                     </tr>
                     <tr>
                         <td>{$lang->location}</td>
-                        <td><input type="text" name="meeting[location]" size="60" tabindex="7" value="{$meeting[location]}"/></td>
+                        <td><input type="text" name="meeting[location]" size="60" tabindex="7" value="{$meeting[location]}" id="meeting_location"/></td>
                     </tr>
                     <tr>
                         <td>{$lang->ispublic}</td>
-                        <td><input type="checkbox" name="meeting[isPublic]" tabindex="8" value="1"{$checked_checkboxes[isPublic]}/></td>
+                        <td><input type="checkbox" name="meeting[isPublic]" tabindex="8" value="1"{$checked_checkboxes[isPublic]} id="meeting_ispublic"/></td>
                     </tr>
                     <tr>
                         <td colspan="2" id="intivationssection">
@@ -84,7 +84,7 @@
                                             </table>
                                         </div></td>
                                 </tr>
-                                <tr><td><img src="images/add.gif" id="addmore_attendees" alt='{$lang->add}'></td><td><img src="images/add.gif" id="addmore_rep" alt='{$lang->add}' title="{$lang->addmorerows}"></td></tr>
+                                <tr><td><img src="images/add.gif" id="addmore_attendees" alt='{$lang->add}'> {$lang->add}</td><td><img src="images/add.gif" id="addmore_rep" alt='{$lang->add}' title="{$lang->addmorerows}"> {$lang->add}</td></tr>
                             </table>
                         </td>
                     </tr>
@@ -102,6 +102,7 @@
                     </tr>
                 </table>
             </form>
+            {$helptour}
         </td>
     </tr>
     {$createmeeting_deletefile}

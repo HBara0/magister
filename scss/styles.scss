@@ -93,6 +93,7 @@ a, a:visited {
     border-right: 1px solid #E8E8E8;
     padding: 10px;
     font-size: 13px;
+    position: relative;
 }
 
 .contentContainer {
@@ -715,4 +716,19 @@ tr.dummytrow td, tr.dummytrow th {
     width: 16px;
     display:inline-block;
     padding: 0 0 0 0px;
+}
+
+/* Overwrite JoyRide2 Style */
+.joyride-tip-guide .joyride-next-tip {
+    background: $color_green !important;
+    border:1px solid #83c41a !important;
+}
+
+.joyride-next-tip:hover {
+    background-color: #8cb82b !important;
+    border: 1px solid #83c41a !important;
+}
+
+[id$="_helptour"], [class$="_helptour"] {
+    display: none;
 }

@@ -201,4 +201,6 @@ $lang['businesssegmentsales'] = 'Sales per business segment';
 $lang['businesssegmentincome'] = 'Income per business segment';
 $lang['businesssegmentsalesdesc'] = 'Sales per business segment (in K USD)';
 $lang['businesssegmentincomedesc'] = 'Income per business segment (in K USD)';
+$lang['affsales'] = '';
+$lang['countrysales'] = 'Country ';
 ?>

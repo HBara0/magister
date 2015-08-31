@@ -1020,6 +1020,32 @@ class Entities extends AbstractClass {
         if($this->type == 'cs') {
             return 'Competitor supplier';
         }
+        return '-';
+    }
+
+    public function get_suptype() {
+        if($this->supplierType == 's') {
+            return 'Supplier';
+        }
+        if($this->supplierType == 'c') {
+            return 'Customer';
+        }
+        if($this->supplierType == 'pc') {
+            return 'Producer Customer';
+        }
+        if($this->supplierType == 'ps') {
+            return 'Producer Supplier';
+        }
+        if($this->supplierType == 't') {
+            return 'Trader';
+        }
+        if($this->supplierType == 'p') {
+            return 'Producer';
+        }
+        if($this->supplierType == 'cs') {
+            return 'Competitor supplier';
+        }
+        return '-';
     }
 
     public function get_principalsuppliegroups($returntype = 'object') {
@@ -1052,6 +1078,35 @@ class Entities extends AbstractClass {
 
     public function get_supgrouparray() {
         return self::$groupsup_names;
+    }
+
+    public function get_representatives() {
+        $entitiesreps = EntitiesRepresentatives::get_data(array('eid' => $this->data['eid']), array('returnarray' => true));
+        if(is_array($entitiesreps) && !empty($entitiesreps)) {
+            $reps = [];
+            foreach($entitiesreps as $entrep) {
+                $reps = array_filter(array_merger($reps, $entrep->get_representative()));
+            }
+            return $reps;
+        }
+        return null;
+    }
+
+    public function get_representatives_ids() {
+        global $db;
+        $query = 'SELECT rpid FROM entitiesrepresentatives WHERE eid ='.$this->data['eid'];
+        $entrepquery = $db->query($query);
+        if($db->num_rows($entrepquery) > 0) {
+            $reps = array();
+            while($news = $db->fetch_assoc($entrepquery)) {
+                if($news['rpid'] == 0 || $news['rpid'] == 1) {
+                    continue;
+                }
+                $reps[] = $news['rpid'];
+            }
+            return $reps;
+        }
+        return null;
     }
 
 }

@@ -205,10 +205,11 @@ class Icalendar {
     public function set_description($description) {
         global $core;
         $description = $this->apply_icalstd(trim($description));
-        $description_sanitized = $core->sanitize_inputs($description, array('method' => 'convert', 'removetags' => true));
+        $pre_description = preg_replace("/\r|\n/", '\n', $description);
+        $description_sanitized = $core->sanitize_inputs($pre_description, array('method' => 'convert', 'removetags' => true));
         $this->icalendarfile .= 'DESCRIPTION: '.$description_sanitized."\r\n";
-        if(!empty($description)) {
-            $this->icalendarfile .= 'X-ALT-DESC;FMTTYPE=text/html:<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">\n<html>\n<body>\n'.$description.'\n</body>\n</html>'."\r\n";
+        if(!empty($pre_description)) {
+            $this->icalendarfile .= 'X-ALT-DESC;FMTTYPE=text/html:<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">\n<html>\n<body>\n'.$pre_description.'\n</body>\n</html>'."\r\n";
         }
     }
 

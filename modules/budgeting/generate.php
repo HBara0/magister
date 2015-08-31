@@ -21,9 +21,41 @@ $session->start_phpsession();
 if(!$core->input['action']) {
     $identifier = base64_decode($core->input['identifier']);
     $budget_data = unserialize($session->get_phpsession('budgetmetadata_'.$identifier));
-
     $affiliate_where = ' name LIKE "%orkila%"';
+    //if user is coordinator append more options
+    $segmentscoords = ProdSegCoordinators::get_data(array('uid' => $core->user['uid']), array('returnarray' => true));
+    if(is_array($segmentscoords)) {
+        $psids = array();
+        $affids = array();
+        $spids = array();
+        foreach($segmentscoords as $segmentscoord) {
+            if(in_array($segmentscoord->psid, $psids)) {
+                continue;
+            }
+            $psids[] = $segmentscoord->psid;
+        }
+    }
     if($core->usergroup['canViewAllAff'] == 0) {
+        if(is_array($psids)) {
+            foreach($psids as $psid) {
+                $entitysegments = EntitiesSegments::get_data(array('psid' => $psid), array('returnarray' => true));
+                if(is_array($entitysegments)) {
+                    foreach($entitysegments as $entitysegment) {
+                        $affiliatedsegs = AffiliatedEntities::get_column('affid', array('eid' => $entitysegment->eid), array('returnarray' => true));
+                        if(is_array($affiliatedsegs)) {
+                            foreach($affiliatedsegs as $affiliatedseg) {
+                                if(!in_array($affiliatedseg, $affids)) {
+                                    $affids[] = $affiliatedseg;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            if(is_array($affids)) {
+                $core->user['affiliates'] = array_unique(array_merge($core->user['affiliates'], $affids));
+            }
+        }
         $inaffiliates = implode(',', $core->user['affiliates']);
         $affiliate_where .= " AND affid IN ({$inaffiliates})";
     }
@@ -45,6 +77,24 @@ if(!$core->input['action']) {
 
 
     if($core->usergroup['canViewAllSupp'] == 0) {
+        if(is_array($psids)) {
+            foreach($psids as $psid) {
+                $entitysegments = EntitiesSegments::get_data(array('psid' => $psid), array('returnarray' => true));
+                if(is_array($entitysegments)) {
+                    foreach($entitysegments as $entitysegment) {
+                        $entity = new Entities($entitysegment->eid);
+                        if($entity->type == 's') {
+                            if(!in_array($entity->eid, $spids)) {
+                                $spids[] = $entity->eid;
+                            }
+                        }
+                    }
+                }
+            }
+            if(is_array($spids)) {
+                $core->user['suppliers']['eid'] = array_unique(array_merge($core->user['suppliers']['eid'], $spids));
+            }
+        }
         $insupplier = implode(',', $core->user['suppliers']['eid']);
         $supplier_where = " eid IN ({$insupplier})";
     }

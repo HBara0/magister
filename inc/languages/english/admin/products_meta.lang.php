@@ -85,4 +85,14 @@ $lang['areyousuredeleteapp'] = 'Are You Sure You Want To Delete This Segment App
 $lang['yes'] = 'Yes';
 $lang['deleteapp'] = 'Delete Application';
 $lang['deleteerror'] = 'You can\'t delete a used entity';
+$lang['translation'] = 'Translation';
+$lang['manageappl'] = 'Manage Application';
+$lang['managefunc'] = 'Manage Function';
+$lang['managesegment'] = 'Manage Segment';
+$lang['managesegapfunc'] = 'Manage Segment Application Function';
+$lang['slogan'] = 'Slogan';
+$lang['listsegmentcategoriess'] = 'List Of Segment Categories';
+$lang['addasegmentcat'] = 'Add Segment Category';
+$lang['managesegmentcat'] = 'Manage Segment Category';
+$lang['includeinwebcarousel'] = 'Include In Website Carousel';
 ?>

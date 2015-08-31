@@ -94,4 +94,8 @@ $lang['visitfollowup'] = 'Visit Follow-up';
 $lang['visitreportfinalized'] = 'The visit report was successfully finalized';
 $lang['visitslist'] = 'Visits List';
 $lang['chooselocation'] = ' Choose visit location  ';
+$lang['isnotdraft'] = 'Not A Draft';
+$lang['draft'] = 'Draft';
+$lang['undraft'] = 'Un-draft';
+$lang['isdraft'] = 'Is A Draft';
 ?>

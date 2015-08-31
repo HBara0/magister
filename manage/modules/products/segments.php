@@ -40,11 +40,32 @@ else {
         $segment_obj = new ProductsSegments();
         $core->input['segment']['alias'] = generate_alias($core->input['segment']['title']);
         $segment_obj->set($core->input['segment']);
-        $segment_obj->save();
+        $segment_obj = $segment_obj->save();
         switch($segment_obj->get_errorcode()) {
             case 0:
-                output_xml('<status>true</status><message>'.$lang->successfullysaved.'</message>');
-                break;
+                if(is_array($core->input['lang'])) {
+                    $trans_data['tableKey'] = intval($segment_obj->{ProductsSegments::PRIMARY_KEY});
+                    $trans_data['tableName'] = ProductsSegments::TABLE_NAME;
+                    foreach($core->input['lang'] as $slid => $language) {
+                        $trans_data['language'] = $slid;
+                        if(is_array($language)) {
+                            foreach($language as $field => $text) {
+                                $trans_data['language'] = $slid;
+                                $trans_data['field'] = $field;
+                                $trans_data['text'] = $text;
+                                $translation_obj = new Translations();
+                                $translation_obj->set($trans_data);
+                                $translation_obj->save();
+                                if($translation_obj->get_errorcode() != 0) {
+                                    output_xml("<status>false</status><message>{$lang->errorsaving}</message>");
+                                    exit;
+                                }
+                            }
+                        }
+                    }
+                }
+                output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
+                exit;
             case 1:
                 output_xml('<status>false</status><message>'.$lang->fillallrequiredfields.'</message>');
                 break;
@@ -97,6 +118,23 @@ else {
     }
     elseif($core->input['action'] == 'get_updatesegmentdtls') {
         $segment_obj = new ProductsSegments($core->input['id'], false);
+        $languages = SystemLanguages::get_data('slid !=1', array('returnarray' => true));
+        if(is_array($languages)) {
+            foreach($languages as $language) {
+                $lid = $language->htmllang;
+                $trans_fields = array('description', 'title', 'shortDescription', 'slogan');
+                foreach($trans_fields as $field) {
+                    $translation = Translations::get_translation($field, ProductsSegments::TABLE_NAME, $lid, $segment_obj->{ProductsSegments::PRIMARY_KEY});
+                    if(is_object($translation)) {
+                        $trans[$lid][$field] = $translation->text;
+                    }
+                }
+                eval("\$translationtabs_content=\"".$template->get('admin_products_translatesegment_content')."\";");
+                $lang_output .= $translationtabs_content;
+                $lid = '';
+            }
+        }
+        eval("\$translationsprodseg = \"".$template->get('admin_translationsprodfunc')."\";");
         $segment = $segment_obj->get();
         if($segment['publishOnWebsite'] == '1') {
             $checked = 'checked="checked"';

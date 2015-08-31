@@ -108,9 +108,21 @@ class Surveys {
         }
     }
 
+    public function send_additional_invitations($data) {
+        $survey = $this->get_survey();
+        if($survey['isExternal'] == 0) {
+            $this->survey['invitations'] = $data['invitations'];
+        }
+        elseif($survey['isExternal'] == 1) {
+            $this->survey['externalinvitations'] = $data['externalinvitations'];
+            $this->validate_external_invitations();
+        }
+        $this->set_invitations();
+        $this->send_invitations($this->survey['newinvitations']);
+    }
+
     private function validate_external_invitations() {
         global $core, $errorhandler;
-
         if(isset($this->survey['externalinvitations'])) {
             $external_invitations = preg_split("/[\n;]+/", $this->survey['externalinvitations']);
             $this->survey['externalinvitations'] = array();  /* reset the array before cleaning */
@@ -127,8 +139,13 @@ class Surveys {
                     $errorhandler->record('invalidemailaddress', $externalinvitee);
                     return false;
                 }
-
-                $this->survey['externalinvitations'][] = $new_invitation['invitee'];
+                $previnvitations = array_keys($this->get_invitations());
+                if(!is_array($previnvitations)) {
+                    $this->survey['externalinvitations'][] = $new_invitation['invitee'];
+                }
+                elseif(!in_array($new_invitation['invitee'], $previnvitations)) {
+                    $this->survey['externalinvitations'][] = $new_invitation['invitee'];
+                }
             }
         }
         return true;
@@ -394,7 +411,7 @@ class Surveys {
 
     public function get_single_responses($identifier) {
         global $db, $core;
-        //AND sr.uid={$core->user[uid]}
+//AND sr.uid={$core->user[uid]}
         $query = $db->query("SELECT s.identifier AS survey_identifier, sr.*, sqt.hasChoices, sqt.hasMultiAnswers
 						FROM ".Tprefix."surveys_responses sr
 						JOIN ".Tprefix."surveys s ON (s.sid=sr.sid)
@@ -459,12 +476,26 @@ class Surveys {
 								WHERE s.identifier='".$db->escape_string($identifier)."'
 								ORDER BY {$sort_query}");
         }
-
         while($survey_response = $db->fetch_assoc($query)) {
             $survey_responses[$survey_response['identifier']] = $survey_response;
         }
 
         return $survey_responses;
+    }
+
+    public function get_pendingresposes($identifier = '') {
+        global $db;
+//        if($this->survey['isExternal'] == 1) {
+//            $query = $db->query("SELECT DISTINCT(sr.identifier) AS respondant
+//					FROM ".Tprefix."surveys_invitations si WHERE invitee NOT IN(SELECT identifier
+//					FROM ".Tprefix."surveys_responses WHERE sid=".$sid.") WHERE sid=".$sid);
+//        }
+        $query = $db->query("SELECT siid,invitee,identifier FROM ".Tprefix."surveys_invitations WHERE isDone IS NULL AND sid=".$this->survey['sid']);
+        while($inviteerow = $db->fetch_assoc($query)) {
+            $pending_responses[$inviteerow['siid']]['invitee'] = $inviteerow['invitee'];
+            $pending_responses[$inviteerow['siid']]['identifier'] = $inviteerow['identifier'];
+        }
+        return $pending_responses;
     }
 
     public function parse_response(array $response, array $question) {
@@ -688,15 +719,20 @@ class Surveys {
             $new_invitation['sid'] = $this->survey['sid'];
             $new_invitation['invitee'] = $invitation;
             $db->insert_query('surveys_invitations', $new_invitation);
+            $this->survey['newinvitations'][] = $new_invitation;
         }
     }
 
-    public function send_invitations() {
+    public function send_invitations($newinvitations = array()) {
         global $core, $lang, $template, $log;
-
-        //if(!isset($this->survey['invitations'])) {
-        $this->survey['invitations'] = $this->get_invitations();
-        //}
+        if(isset($newinvitations) && !empty($newinvitations)) {
+            $this->survey['invitations'] = $newinvitations;
+        }
+        else {
+//if(!isset($this->survey['invitations'])) {
+            $this->survey['invitations'] = $this->get_invitations();
+        }
+//}
         $lang->load('messages');
         foreach($this->survey['invitations'] as $uid => $invitee) {
             if($this->survey['isExternal'] == 0) {
@@ -750,7 +786,7 @@ class Surveys {
             $mail = new Mailer($invitations_email, 'php');
             if($mail->get_status() === true) {
                 $log->record('sendinvitations', array('to' => $invitation_data['email']));
-                //return true;
+//return true;
             }
         }
         return true;
@@ -1058,6 +1094,75 @@ class Surveys {
 
     public function get_erros($type) {
         return $this->survey['errors'][$type];
+    }
+
+    public function get_shared_users() {
+        global $db;
+
+        $query = $db->query('SELECT uid FROM '.Tprefix.'surveys_sharedwith WHERE sid='.$db->escape_string($this->survey['sid'].''));
+        if($db->num_rows($query)) {
+            while($user = $db->fetch_assoc($query)) {
+                $uids[] = $user['uid'];
+            }
+            $users = Users::get_data(array('uid' => $uids), array('operators' => array('uid' => 'IN'), 'simple' => false, 'returnarray' => true));
+
+            return $users;
+        }
+        return false;
+    }
+
+    public function share($survey_data = array()) {
+        global $db, $core;
+        if(is_array($survey_data)) {
+            foreach($survey_data as $key => $val) {
+                if(empty($val)) {
+                    continue;
+                }
+                /* get exist users for the current survey */
+                $existing_users = $this->get_shared_users();
+                /* get the difference between the exist users and the slected users */
+                if(is_array($existing_users)) {
+                    $existing_users = array_keys($existing_users);
+                    $users_toremove = array_diff($existing_users, $survey_data);
+                    if(!empty($users_toremove)) {
+                        $db->delete_query('surveys_sharedwith', 'uid IN ('.$db->escape_string(implode(',', $users_toremove)).') AND sid='.$this->survey['sid']);
+                    }
+                }
+                $survey_shares['sid'] = $this->survey['sid'];
+                $survey_shares['createdBy'] = $core->user['uid'];
+                $survey_shares['createdOn'] = TIME_NOW;
+                $survey_shares['uid'] = $core->sanitize_inputs($val);
+                if(!value_exists('surveys_sharedwith', 'uid', $val, ' sid='.$this->survey['sid'])) {
+                    $query = $db->insert_query('surveys_sharedwith', $survey_shares);
+                    if(!$query) {
+                        return false;
+                    }
+                    $this->notify_shareduser($survey_shares['uid']);
+                }
+            }
+        }
+        return true;
+    }
+
+    private function notify_shareduser($uid) {
+        global $core, $lang;
+
+        $user_obj = new Users($uid);
+        if(!is_object($user_obj)) {
+            return false;
+        }
+        $share_user = $user_obj->get();
+
+        $lang->load('messages');
+        $surveylink = '<a href="'.DOMAIN.'/index.php?module=surveys/viewresults&amp;referrer=sharedlist&amp;identifier='.$this->survey['identifier'].'">'.$this->survey['subject'].'</a>';
+        $mailer = new Mailer();
+        $mailer = $mailer->get_mailerobj();
+        $mailer->set_subject($this->survey['subject'].' Results');
+        $message = $this->survey['subject'].' Results has been shared with you: Click here to view the results '.$surveylink;
+        $mailer->set_message($message);
+        $mailer->set_from(array('name' => $core->user['displayName'], 'email' => $core->user['email']));
+        $mailer->set_to($share_user['email']);
+        $mailer->send();
     }
 
 }

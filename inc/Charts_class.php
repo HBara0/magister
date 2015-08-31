@@ -131,13 +131,17 @@ class Charts {
         /* Write the chart title */
         if(isset($this->options['title']) && !empty($this->options['title'])) {
             $this->chart->setFontProperties(array('FontName' => $this->font, 'FontSize' => 11));
-            $this->chart->drawText(420, 35, $this->options['title'], array('FontSize' => 15, 'Align' => TEXT_ALIGN_BOTTOMLEFT));
+            $this->chart->drawText(50, 30, $this->options['title'], array('FontSize' => 15, 'Align' => TEXT_ALIGN_BOTTOMLEFT));
         }
         /* Set the default font */
         $this->chart->setFontProperties(array('FontName' => $this->font, 'FontSize' => 8));
 
         /* Define the chart area */
-        $this->chart->setGraphArea(50, 30, 680, 200);
+        $grapharea['x1position'] = 50;
+        if(isset($this->options['x1position'])) {
+            $grapharea['x1position'] = $this->options['x1position'];
+        }
+        $this->chart->setGraphArea($grapharea['x1position'], 30, 680, 200);
 
         /* Draw the scale */
         if(isset($this->options['labelrotationangle'])) {
@@ -160,6 +164,7 @@ class Charts {
         if(isset($this->options['scalepos'])) {
             $scaleSettings['Pos'] = SCALE_POS_TOPBOTTOM;
         }
+
         $this->chart->drawScale($scaleSettings);
 
         /* Write the chart legend */

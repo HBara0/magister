@@ -104,12 +104,13 @@ class Inlinefilters {
                                 $affiliate_where = 'affid IN ('.implode(',', $core->user['affiliates']).')';
                             }
                             $affiliates = get_specificdata('affiliates', array('affid', 'name'), 'affid', 'name', '', 0, $affiliate_where);
-                            $filters[$filter] = parse_selectlist('filters['.$filter.'][]', $tabindex, $affiliates, $core->input['filters'][$filter], 1, '', array('multiplesize' => 3));
+                            $filters[$filter] = parse_selectlist('filters['.$filter.'][]', $tabindex, $affiliates, $core->input['filters'][$filter], 1, '', array('multiplesize' => 3, 'blankstart' => true));
                             break;
                         case 'allenabledaffiliates':
+                        case 'allaffiliates':
                             $affiliate_where = 'isActive = 1';
                             $affiliates = get_specificdata('affiliates', array('affid', 'name'), 'affid', 'name', '', 0, $affiliate_where);
-                            $filters[$filter] = parse_selectlist('filters['.$filter.'][]', $tabindex, $affiliates, $core->input['filters'][$filter], 1, '', array('multiplesize' => 3));
+                            $filters[$filter] = parse_selectlist('filters['.$filter.'][]', $tabindex, $affiliates, $core->input['filters'][$filter], 1, '', array('multiplesize' => 3, 'blankstart' => true));
                             break;
                         case 'ciid':
                             $city = new Cities($core->input['filters'][$filter]);
@@ -128,7 +129,7 @@ class Inlinefilters {
                                     $positions[$key] = $lang->{$val};
                                 }
                             }
-                            $filters[$filter] = parse_selectlist('filters['.$filter.'][]', $tabindex, $positions, $core->input['filters'][$filter], 1, '', array('multiplesize' => 3));
+                            $filters[$filter] = parse_selectlist('filters['.$filter.'][]', $tabindex, $positions, $core->input['filters'][$filter], 1, '', array('multiplesize' => 3, 'blankstart' => true));
                             break;
                         case 'usersuppliers':
                             $filters[$filter] = '';
@@ -151,11 +152,11 @@ class Inlinefilters {
                             else {
                                 $productlines = get_specificdata('productsegments', array('psid', 'title'), 'psid', 'title', '');
                             }
-                            $filters[$filter] = parse_selectlist('filters['.$filter.'][]', $tabindex, $productlines, $core->input['filters'][$filter], 1, '', array('multiplesize' => 3));
+                            $filters[$filter] = parse_selectlist('filters['.$filter.'][]', $tabindex, $productlines, $core->input['filters'][$filter], 1, '', array('multiplesize' => 3, 'blankstart' => true));
                             break;
                         case 'reportsTo':
                             $reportsto = get_specificdata('users', array('uid', 'displayName'), 'uid', 'displayName', array('sort' => 'ASC', 'by' => 'displayName'), 0, 'gid!=7 AND uid IN (SELECT reportsTo FROM '.Tprefix.'users WHERE gid!=7)');
-                            $filters[$filter] = parse_selectlist('filters['.$filter.'][]', $tabindex, $reportsto, $core->input['filters'][$filter], 1, '', array('multiplesize' => 3));
+                            $filters[$filter] = parse_selectlist('filters['.$filter.'][]', $tabindex, $reportsto, $core->input['filters'][$filter], 1, '', array('multiplesize' => 3, 'blankstart' => true));
                             break;
                         case 'uid':
                             $users = get_specificdata('users', array('uid', 'displayName'), 'uid', 'displayName', array('sort' => 'ASC', 'by' => 'displayName'), 0, '');
@@ -179,6 +180,10 @@ class Inlinefilters {
                         case 'biid':
                             $basicingredient = new BasicIngredients($core->input['filters'][$filter]);
                             $filters[$filter] = '<input placeholder="Basic Ingredient" type="text" id="basicingredients_'.$filter.'_autocomplete" value="'.$basicingredient->get_displayname().'"/><input type="hidden" id="basicingredients_'.$filter.'_id" name="filters['.$filter.']"/>';
+                            break;
+                        case 'entities':
+                            $entity = new Entities($core->input['filters'][$filter]);
+                            $filters[$filter] = '<input type="text" id="allentities_1_autocomplete" value="'.$entity->get_displayname().'"/><input type="hidden" id="allentities_1_id" name="filters['.$filter.']"/>';
                             break;
 //                        case 'spid':
 //                        case 'supplier':
@@ -220,9 +225,8 @@ class Inlinefilters {
 
                 $hidden_fields .= $lang->{$filter}.' '.$this->parsed_fields[$filter].'<br />';
             }
-
             if(!empty($hidden_fields)) {
-                return '<div id="popup_additionalfilters" title="'.$lang->additionalfilters.'">'.$hidden_fields.'</div>';
+                return '<tr><td><div id="popup_additionalfilters" title="'.$lang->additionalfilters.'">'.$hidden_fields.'</div></td></tr>';
             }
         }
         return false;
@@ -257,29 +261,33 @@ class Inlinefilters {
         }
 
         foreach($iteration_element as $filter_item => $filter_value) {
+            if(!isset($options['fielddisplay'])) {
+                $options['fielddisplay'] = 'display:block';
+            }
             if($options['tags'] == 'div') {
                 $rows .= '<div>'.$this->parsed_fields[$filter_item].'</div>'; //Will add more CSS for this later
             }
             else {
-                $rows .= '<th>'.$this->parsed_fields[$filter_item].'</th>';
+                //style="'.$options['fielddisplay'].'"
+                $rows .= '<th >'.$this->parsed_fields[$filter_item].'</th>';
             }
             $count_items++;
         }
         unset($filter_value);
-
-        if($options['tags'] == 'div') {
-            $rows .= '<div><input type="image" src="./images/icons/search.gif" border="0" alt="'.$lang->filter.'" value="'.$lang->filter.'"></div></div>';
-            $rows .= '<div class="tablefilters_row_toggle" onClick="$(\'#tablefilters\').toggle();">&middot;&middot;&middot;</div>';
-        }
-        else {
-            if(isset($options['overwriteCountItems']) && !empty($options['overwriteCountItems'])) {
-                $count_items = $options['overwriteCountItems'];
+        if(!isset($options['hidebutton']) || $options['hidebutton'] == false) {
+            if($options['tags'] == 'div') {
+                $rows .= '<div><input type="image" src="./images/icons/search.gif" border="0" alt="'.$lang->filter.'" value="'.$lang->filter.'"></div></div>';
+                $rows .= '<div class="tablefilters_row_toggle" onClick="$(\'#tablefilters\').toggle();">&middot;&middot;&middot;</div>';
             }
-            $rows .= '<th style="text-align:right;"><input type="image" src="./images/icons/search.gif" border="0" alt="'.$lang->filter.'" value="'.$lang->filter.'">';
-            $rows .= '<br /><a href="'.$_SERVER['REQUEST_URI'].'"><img src="./images/invalid.gif" alt="'.$lang->clear.'" border="0" /></a></th></tr>';
-            $rows .= '<tr class="tablefilters_row_toggle"><td colspan="'.$count_items.'" onClick="$(\'#tablefilters\').toggle();"><a title="'.$lang->filter.'">&middot;&middot;&middot;</a></td></tr>';
+            else {
+                if(isset($options['overwriteCountItems']) && !empty($options['overwriteCountItems'])) {
+                    $count_items = $options['overwriteCountItems'];
+                }
+                $rows .= '<th style="text-align:right;"><input type="image" src="./images/icons/search.gif" border="0" alt="'.$lang->filter.'" value="'.$lang->filter.'">';
+                $rows .= '<br /><a href="'.$_SERVER['REQUEST_URI'].'"><img src="./images/invalid.gif" alt="'.$lang->clear.'" border="0" /></a></th></tr>';
+                $rows .= '<tr class="tablefilters_row_toggle"><td colspan="'.$count_items.'" onClick="$(\'#tablefilters\').toggle();"><a title="'.$lang->filter.'">&middot;&middot;&middot;</a></td></tr>';
+            }
         }
-
         return $rows;
     }
 
@@ -334,6 +342,9 @@ class Inlinefilters {
 
         if(isset($this->config['process']['secTables'])) {
             foreach($this->config['process']['secTables'] as $table => $options) {
+                if(isset($options['tablename']) && !empty($options['tablename'])) {
+                    $table = $options['tablename'];
+                }
                 if(!isset($options['filterKeyOverwrite']) || empty($options['filterKeyOverwrite'])) {
                     $options['filterKeyOverwrite'] = $this->config['process']['filterKey'];
                 }

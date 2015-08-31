@@ -16,13 +16,13 @@ if(!defined('DIRECT_ACCESS')) {
 if($core->usergroup['crm_canGenerateSalesReports'] == 0) {
     error($lang->sectionnopermission);
 }
-ini_set('max_execution_time', 0);
+ini_set('max_execution_time', 100);
 $lang->load('crm_salesreport');
 if(!$core->input['action']) {
     $affiliates = Affiliates::get_affiliates(array('affid' => $core->user['affiliates']), array('returnarray' => true));
     $affiliates_list = parse_selectlist('affids[]', 2, $affiliates, '');
 
-    $fxtypes_selectlist = parse_selectlist('fxtype', 9, array('lastm' => $lang->lastmonthrate, 'ylast' => $lang->yearlatestrate, 'yavg' => $lang->yearaveragerate, 'mavg' => $lang->monthaveragerate, 'real' => $lang->realrate), '', 0);
+    $fxtypes_selectlist = parse_selectlist('fxtype', 9, array('lastm' => $lang->lastmonthrate, 'ylast' => $lang->yearlatestrate, 'yavg' => $lang->yearaveragerate, 'mavg' => $lang->monthaveragerate, 'real' => $lang->realrate), 'mavg', 0);
 
     $dimensions = array('suppliername' => $lang->supplier, 'customername' => $lang->customer, 'productname' => $lang->product, 'segment' => $lang->segment, 'salesrep' => $lang->employee/* ,  'wid' => $lang->warehouse */);
     foreach($dimensions as $dimensionid => $dimension) {
@@ -33,14 +33,14 @@ if(!$core->input['action']) {
     output_page($generatepage);
 }
 else {
-    if($core->input['action'] == 'do_generatereport') {
+    if($core->input['action'] == 'do_perform_salesreportlive') {
         require_once ROOT.INC_ROOT.'integration_config.php';
         if(empty($core->input['affids'])) {
-            redirect('index.php?module=crm/salesreportlive');
+            output_xml('<status></status><message>No Affiliate selected</message>');
         }
 
         if(is_empty($core->input['fromDate'])) {
-            redirect('index.php?module=crm/salesreportlive');
+            output_xml('<status></status><message>Please specify the From date</message>');
         }
 
         /* In-line CSS styles in form of array in order to be compatible with email message */
@@ -86,6 +86,7 @@ else {
         $cols = array('month', 'week', 'documentno', 'salesrep', 'customername', 'suppliername', 'productname', 'segment', 'uom', 'qtyinvoiced', 'priceactual', 'linenetamt', 'purchaseprice', 'unitcostlocal', 'costlocal', 'costusd', 'grossmargin', 'grossmarginusd', 'netmargin', 'netmarginusd', 'marginperc');
         if(is_array($invoices)) {
             foreach($invoices as $invoice) {
+                $orgcurrency = $invoice->get_organisation()->get_currency();
                 $invoice->customername = $invoice->get_customer()->name;
                 $invoicelines = $invoice->get_invoicelines();
                 $invoice->salesrep = $invoice->get_salesrep()->name;
@@ -100,6 +101,13 @@ else {
                 $invoice->usdfxrate = $core->input['fxrate'];
                 if(empty($core->input['fxrate'])) {
                     $invoice->usdfxrate = $currency_obj->get_fxrate_bytype($core->input['fxtype'], $invoice->currency, array('from' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 01:00'), 'to' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 24:00'), 'year' => date('Y', $invoice->dateinvoiceduts), 'month' => date('m', $invoice->dateinvoiceduts)), array('precision' => 4));
+                }
+
+                if($orgcurrency->iso_code != $invoice->currency) {
+                    $invoice->localfxrate = $currency_obj->get_fxrate_bytype($core->input['fxtype'], $invoice->currency, array('from' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 01:00'), 'to' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 24:00'), 'year' => date('Y', $invoice->dateinvoiceduts), 'month' => date('m', $invoice->dateinvoiceduts)), array('precision' => 4), $orgcurrency->iso_code);
+                }
+                if(empty($invoice->localfxrate)) {
+                    $invoice->localfxrate = 1;
                 }
 
                 if(empty($invoice->usdfxrate)) {
@@ -175,7 +183,13 @@ else {
                         }
                     }
 
+
                     $invoiceline->linenetamt = $invoiceline->linenetamt / 1000;
+                    /* Convert to local currency if invoice is in foreign currency */
+                    if($orgcurrency->iso_code != $invoice->currency) {
+                        $invoiceline->priceactual /= $invoice->localfxrate;
+                        $invoiceline->linenetamt /= $invoice->localfxrate;
+                    }
                     $invoiceline->costlocal = $invoiceline->costlocal / 1000;
                     $invoiceline->grossmargin = $invoiceline->linenetamt - (($invoiceline->purchaseprice * $invoiceline->qtyinvoiced) / 1000);
                     $invoiceline->grossmarginusd = $invoiceline->grossmargin / $invoice->usdfxrate;
@@ -200,7 +214,7 @@ else {
             }
         }
         else {
-            redirect($url, $delay, $redirect_message);
+            //  redirect($url, $delay, $redirect_message);
         }
 
         $salesreport = '<h1>'.$lang->salesreport.'<small><br />'.$lang->{$core->input['type']}.'<br />Values are in Thousands <small>(Local Currency)</small></small></h1>';
@@ -220,8 +234,13 @@ else {
                 //$monthdata = $integration->get_sales_byyearmonth($yearsummary_filter);
                 $intgdb = $integration->get_dbconn();
                 $invoicelines = new IntegrationOBInvoiceLine(null);
-                $monthdata = $invoicelines->get_data_byyearmonth($yearsummary_filter, array('reportcurrency' => 'USD'));
+                $mdata = $invoicelines->get_data_byyearmonth($yearsummary_filter, array('reportcurrency' => 'USD'));
 
+                if(isset($core->input['generatecharts']) && $core->input['generatecharts'] == 1) {
+                    $classifications = $invoicelines->get_classification($mdata, $period);
+                }
+
+                $monthdata = $mdata['salerep'];
                 if(is_array($monthdata)) {
                     $formatter = new NumberFormatter('EN_en', NumberFormatter::DECIMAL, '#.##');
                     $percformatter = new NumberFormatter('EN_en', NumberFormatter::PERCENT);
@@ -270,6 +289,9 @@ else {
                         }
                     }
 
+                    if(is_array($classifications) && (isset($core->input['generatecharts']) && $core->input['generatecharts'] == 1)) {
+                        $classifications_output .=$invoicelines->parse_classificaton_tables($classifications);
+                    }
 //                    $invoicelinesdata = new IntegrationOBInvoiceLine(null, $integration->get_dbconn());
 //                    $yearsumrawtotals = $invoicelinesdata->get_aggreateddata_byyearmonth(null, $yearsummary_filter." AND c_invoice.issotrx='Y'");
 //                    foreach($yearsumrawtotals as $totaldata) {
@@ -293,12 +315,12 @@ else {
                         }
                         $salesreport .= '</tr>';
                     }
-                    $salesreport .= '</table>';
+                    $salesreport .= $classifications_output.'</table>';
                     unset($yearsumrawtotals, $yearsummarytotals, $currentyeardata);
 
                     /* YTD Comparison */
                     $salesreport .= '<h2>Progression by BM</h2>';
-                    $salesreport .= '<table width="100%" class="datatable">';
+                    $salesreport .= '<table width="100%" class="datatable" style="color:black;">';
                     $salesreport .= '<tr><th style="font-size:14px; font-weight: bold; background-color: #F1F1F1;">Sales Rep</th>';
                     $salesreport .= '<th style="font-size:14px; font-weight: bold; background-color: #F1F1F1; text-align: center;">YTD</th>';
                     $salesreport .= '<th style="font-size:14px; font-weight: bold; background-color: #F1F1F1; text-align: center;">YTD / '.($current_year - 1).'</th>';
@@ -382,7 +404,7 @@ else {
                 $dimensionalreport->set_requiredfields($required_fields);
                 $dimensionalreport->set_data($rawdata);
                 $salesreport .= '<h2><br />'.$lang->{$tabledesc}.'</h2>';
-                $salesreport .= '<table width="100%" class="datatable">';
+                $salesreport .= '<table width="100%" class="datatable" style="color:black;">';
                 $salesreport .= '<tr><th></th>';
                 foreach($required_fields as $field) {
                     if(!isset($lang->{$field})) {
@@ -492,7 +514,7 @@ else {
                 }
             }
             eval("\$previewpage = \"".$template->get('crm_previewsalesreport')."\";");
-            output_page($previewpage);
+            output_xml('<status>true</status><message><![CDATA['.$previewpage.']]></message>');
         }
     }
 }

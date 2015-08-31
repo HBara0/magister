@@ -41,23 +41,14 @@ class DataAccessLayer {
         //  echo $sql.'<br>';
         $query = $db->query($sql);
         $this->numrows = $db->num_rows($query);
-        if($this->numrows > 1) {
+        if($this->numrows > 0) {
             while($item = $db->fetch_assoc($query)) {
                 $items[$item[$this->primary_key]] = $item[$columnname];
             }
             $db->free_result($query);
             return $items;
         }
-        else {
-            if($this->numrows == 1 && $configs['returnarray'] == true) {
-                $pk = $db->fetch_field($query, $this->primary_key);
-                return array($pk => new $this->class($pk, $configs['simple']));
-            }
-            elseif($this->numrows == 1) {
-                return new $this->class($db->fetch_field($query, $this->primary_key), $configs['simple']);
-            }
-            return false;
-        }
+        return false;
     }
 
     public function get_objects($filters = null, array $configs = array()) {
@@ -340,15 +331,13 @@ class DataAccessLayer {
         return false;
     }
 
-    public
-            function __get($name) {
+    public function __get($name) {
         if(array_key_exists($name, $this->data)) {
             return $this->data[$name];
         }
     }
 
-    public function get(
-    ) {
+    public function get() {
         return $this->data;
     }
 

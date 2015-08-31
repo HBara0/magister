@@ -4,7 +4,7 @@
     <script>
         $(function() {
             $("[id^='getquestionresponses_']").click(function() {
-                if (sharedFunctions.checkSession() == false) {
+                if(sharedFunctions.checkSession() == false) {
                     return;
                 }
                 var id = $(this).attr("id").split("_");
@@ -21,16 +21,19 @@
     <td class="contentContainer">
         <h1>{$survey[subject]}</h1>
         {$questionsstats}
-        <div style="display:inline-block; width: 50%; margin:0; text-align:right; float:right;"><div id="perform_surveys/viewresults_Results">
+        {$responses}
+        <div style="display:inline-block; width: 25%; margin:0; text-align:right; float:right;">
+            <div id="perform_surveys/viewresults_Results">
                 <form action="#" method="post" id="perform_surveys/viewresults_Form" name="perform_surveys/viewresults_Form">
                     <input type="hidden" value="{$core->input[identifier]}" name="identifier">
                     <input name="action" value="sendreminders" type="hidden" />
-                    <input value="{$lang->sendreminders}" type="button" id="perform_surveys/viewresults_Button" class="button"/>
+                    <input value="{$lang->sendreminders}" type="button" id="perform_surveys/viewresults_Button" class="button" {$display[sendreminders]}/>
                 </form>
             </div>
         </div>
-        {$responses}
+        {$pendingresponses}
         {$invitations}
+        {$shareresultswith}
     </td>
 </tr>
 {$footer}
