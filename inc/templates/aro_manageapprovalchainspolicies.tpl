@@ -12,6 +12,12 @@
                     }
                     $("div[id^='" + $(this).val() + "_" + id[1] + "']").effect("highlight", {color: "#D6EAAC"}, 1500).find("input").first().focus().val("");
 
+                    if($(this).val() == 'businessManager') {
+                        $("div[id^='" + $(this).val() + "_" + id[1] + "']").effect("highlight", {color: "#D6EAAC"}, 1500).find("input").first().focus().val("");
+                    } else {
+                        $("div[id^='businessManager_" + id[1] + "']").hide();
+
+                    }
                 });
 
             });
