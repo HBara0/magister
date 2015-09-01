@@ -387,14 +387,13 @@ else {
             /* Create leave expenses - START */
             $leave_obj = new Leaves(array('lid' => $lid), false);
 //            $leave_obj->create_expenses($expenses_data);
-
-            if($leavetype_details['isBusiness'] == 1) {
-                $url = 'index.php?module=travelmanager/plantrip&lid=';
-                header('Content-type: text/xhml+javascript');
-                output_xml('<status>true</status><message>'.$lang->redirecttotmplantrip.'<![CDATA[<script>goToURL(\''.$url.$db->escape_string($lid).'\');</script>]]></message>');
-                exit;
-            }
-
+//
+//            if($leavetype_details['isBusiness'] == 1) {
+//                $url = 'index.php?module=travelmanager/plantrip&lid=';
+//                header('Content-type: text/xhml+javascript');
+//                output_xml('<status>true</status><message>'.$lang->redirecttotmplantrip.'<![CDATA[<script>goToURL(\''.$url.$db->escape_string($lid).'\');</script>]]></message>');
+//                exit;
+//            }
 
             $lang->load('attendance_messages');
 
@@ -662,6 +661,13 @@ else {
                 $lang->leavenotificationmessage = $lang->sprint($lang->leavenotificationmessage, $leave_user['firstName'].' '.$leave_user['lastName'], $lang->leavenotificationmessage_typedetails, date($core->settings['dateformat'].' '.$core->settings['timeformat'], $core->input['fromDate']), date($message_todate_format, $core->input['toDate']), $lang->leavenotificationmessage_days, $tooktaking, $contact_details, $contactperson_details);
             }
 
+
+            if($leavetype_details['isBusiness'] == 1) {
+                $url = 'index.php?module=travelmanager/plantrip&lid=';
+                header('Content-type: text/xhml+javascript');
+                output_xml('<status>true</status><message>'.$lang->redirecttotmplantrip.'<![CDATA[<script>goToURL(\''.$url.$db->escape_string($lid).'\');</script>]]></message>');
+                exit;
+            }
             if($approve_immediately == false) {
                 $email_data = array(
                         'from_email' => 'approve_leaverequest@ocos.orkila.com',
