@@ -16,17 +16,22 @@
         <tr>
             <td width="18%">{$lang->fromdate}*</td>
             <td><input type="text" id="pickDate_from_{$sequence}"  disabled="disabled"   autocomplete="false" tabindex="1" value="{$segment[$sequence][fromDate_output]}" required="required"/>
-                <input type="hidden" name="segment[{$sequence}][fromDate]" id="altpickDate_from_{$sequence}"  value="{$segment[$sequence][fromDate_formatted]}" /></td>
+                <input type="hidden" name="segment[{$sequence}][fromDate]" id="altpickDate_from_{$sequence}"  value="{$segment[$sequence][fromDate_formatted]}" />
             </td>
+
 
             <td>{$lang->todate}*</td>
             <td><input type="text" id="pickDate_to_{$sequence}"    autocomplete="false" tabindex="1" value="{$segment[$sequence][toDate_output]}" required="required" />
-                <input type="hidden" name="segment[{$sequence}][toDate]" id="altpickDate_to_{$sequence}" value="{$segment[$sequence][toDate_formatted]}"/></td>
-        <input type="hidden" name="leaveDate" id="leaveDate_to_{$sequence}" value="{$leave[$sequence][toDate]}"/></td>
-       <!-- <td> <span id="numdays_{$sequence}">{$segment[$sequence][numberdays]}</span></td>-->
+                <input type="hidden" name="segment[{$sequence}][toDate]" id="altpickDate_to_{$sequence}" value="{$segment[$sequence][toDate_formatted]}"/>
+                <input type="hidden" name="leaveDate" id="leaveDate_to_{$sequence}" value="{$leave[$sequence][toDate]}"/></td>
+               <!-- <td> <span id="numdays_{$sequence}">{$segment[$sequence][numberdays]}</span></td>-->
         </tr>
-        <tr><td colspan="2" class="subtitle">{$lang->internalpurposes}</td><td colspan="2" class="subtitle">{$lang->externalpurposes}</td></tr>
+
+        <tr id="purposes_row_{$sequence}">
+            <td colspan="2" class="subtitle">{$lang->internalpurposes}</td><td colspan="2" class="subtitle">{$lang->externalpurposes}</td>
+        </tr>
         <tr><td colspan="2">{$internalpurposes_checks}</td><td colspan="2">{$extpurposes_checks}</td></tr>
+
         <tr style="width:100%;">
             <td colspan="2" style="vertical-align: top;width:20%;">
                 <div style="display: inline-block;width:100%">
@@ -59,7 +64,7 @@
                 </div>
             </td>
         </tr>
-        <tr><td>{$lang->considerleisuretourism}</td><td><input type="checkbox" name="segment[{$sequence}][isNoneBusiness]" value="1" {$checked['isNoneBusiness']}/></td></tr>
+        <tr><td id="considerleisure_{$sequence}">{$lang->considerleisuretourism}</td><td><input type="checkbox" name="segment[{$sequence}][isNoneBusiness]" value="1" {$checked['isNoneBusiness']}/></td></tr>
         <tr><td>{$lang->reason}*</td><td><textarea name="segment[{$sequence}][reason]"  cols="30" rows="3" required="required">{$segment[$sequence][reason_output]}</textarea><br/></td></tr>
     </table>
     <div id="content_detailsloader_{$sequence}"></div>
@@ -72,4 +77,5 @@
         {$citybriefings_output}
     </div>
 </div>
+{$seg2helptour}
 

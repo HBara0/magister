@@ -22,7 +22,7 @@
         <h1>{$survey[subject]}</h1>
         {$questionsstats}
         {$responses}
-        <div style="display:inline-block; width: 25%; margin:0; text-align:right; float:right;">
+        <div style="display:inline-block; width: 12%; margin:5px; text-align:right; float:right;">
             <div id="perform_surveys/viewresults_Results">
                 <form action="#" method="post" id="perform_surveys/viewresults_Form" name="perform_surveys/viewresults_Form">
                     <input type="hidden" value="{$core->input[identifier]}" name="identifier">

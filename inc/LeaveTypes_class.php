@@ -147,7 +147,7 @@ class LeaveTypes extends AbstractClass {
                 elseif($attribute == 'spid') {
                     $search_for = 'supplier';
                 }
-                $field = '<input type="text" id="'.$search_for.'_'.$identifier.'_autocomplete" value="'.$field_settings['value_attribute_value'].'" required="required"/><input type="text" size = "3" id = "'.$search_for.'_'.$identifier.'_id_output" value = "'.$field_settings['key_attribute_value'].'" disabled /><input type = "hidden" value="'.$field_settings['key_attribute_value'].'" id="'.$search_for.'_'.$identifier.'_id" name="'.$attribute.'" />';
+                $field = '<input type="text" id="'.$search_for.'_'.$identifier.'_autocomplete" value="'.$field_settings['value_attribute_value'].'" required="required"/><input type="hidden" size = "3" id = "'.$search_for.'_'.$identifier.'_id_output" value = "'.$field_settings['key_attribute_value'].'" disabled /><input type = "hidden" value="'.$field_settings['key_attribute_value'].'" id="'.$search_for.'_'.$identifier.'_id" name="'.$attribute.'" />';
                 break;
             case 'select':
                 if($field_settings['datasource'] == 'db') {

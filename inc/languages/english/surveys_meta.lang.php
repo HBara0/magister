@@ -75,4 +75,5 @@ $lang['openpreview'] = 'Open Preview After Save';
 $lang['pendingresponses'] = 'Pending Responses';
 $lang['externalinvitations'] = 'External Invitations';
 $lang['internalinvitations'] = 'Internal Invitations';
+$lang['send'] = 'Send';
 ?>

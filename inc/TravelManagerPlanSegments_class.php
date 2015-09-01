@@ -142,7 +142,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                             else {
                                 $field = $lang->transpfees;
                             }
-                            $errorhandler->record('requiredfields', $field.' in Segment '.$segmentdata['sequence']);
+                            $errorhandler->record('Required fields', $field.' in Segment '.$segmentdata['sequence']);
                             if(isset($data['tmtcid']) && empty($data['tmtcid']) && (isset($data['fare']) && empty($data['fare']))) {
                                 unset($transp_errorcode);
                             }
@@ -161,12 +161,12 @@ class TravelManagerPlanSegments extends AbstractClass {
             }
             if($transp_count == 0) {
                 $transp_errorcode = 2;
-                $errorhandler->record('requiredfields', 'Transportations'.' in Segment '.$segmentdata['sequence']);
+                $errorhandler->record('Required fields', 'Transportations'.' in Segment '.$segmentdata['sequence']);
             }
         }
         else {
             $transp_errorcode = 2;
-            $errorhandler->record('requiredfields', 'Transportations'.' in Segment '.$segmentdata['sequence']);
+            $errorhandler->record('Required fields', 'Transportations'.' in Segment '.$segmentdata['sequence']);
         }
         if($segmentdata['noAccomodation'] == 0) {
             if(isset($segmentdata['tmhid'])) {
@@ -192,7 +192,7 @@ class TravelManagerPlanSegments extends AbstractClass {
 //                }//////
                     if(!isset($hotel['tmhid']) || empty($hotel['tmhid'])) {
                         $transp_errorcode = 2;
-                        $errorhandler->record('requiredfields', 'Accomodations'.' in Segment '.$segmentdata['sequence']);
+                        $errorhandler->record('Required fields', 'Accomodations'.' in Segment '.$segmentdata['sequence']);
                     }
                     if($hotel['numNights'] > $segdays) {
                         $this->errorcode = 9;
@@ -215,7 +215,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                 }
                 if($found == 0) {
                     $transp_errorcode = 2;
-                    $errorhandler->record('requiredfields', 'Accomodations'.' in Segment '.$segmentdata['sequence']);
+                    $errorhandler->record('Required fields', 'Accomodations'.' in Segment '.$segmentdata['sequence']);
                 }
             }
         }
@@ -360,7 +360,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                         else {
                             $field = $lang->transpfees;
                         }
-                        $errorhandler->record('requiredfields', $field.' in Segment '.$segmentdata['sequence']);
+                        $errorhandler->record('Required fields', $field.' in Segment '.$segmentdata['sequence']);
                         if(isset($data['tmtcid']) && empty($data['tmtcid']) && (isset($data['fare']) && empty($data['fare']))) {
                             unset($transp_errorcode);
                         }
@@ -385,7 +385,7 @@ class TravelManagerPlanSegments extends AbstractClass {
         }
         if($transp_count == 0) {
             $transp_errorcode = 2;
-            $errorhandler->record('requiredfields', 'Transportations in Segment '.$segmentdata['sequence']);
+            $errorhandler->record('Required fields', 'Transportations in Segment '.$segmentdata['sequence']);
         }
         if($segmentnewdata['noAccomodation'] == 0) {
             if(is_array($segmentdata['tmhid'])) {
@@ -430,12 +430,12 @@ class TravelManagerPlanSegments extends AbstractClass {
                     }
                     if($found == 0) {
                         $transp_errorcode = 2;
-                        $errorhandler->record('requiredfields', 'Accomodations'.' in Segment '.$segmentdata['sequence']);
+                        $errorhandler->record('Required fields', 'Accomodations'.' in Segment '.$segmentdata['sequence']);
                     }
                 }
                 else {
                     $transp_errorcode = 2;
-                    $errorhandler->record('requiredfields', 'Accomodations'.' in Segment '.$segmentdata['sequence']);
+                    $errorhandler->record('Required fields', 'Accomodations'.' in Segment '.$segmentdata['sequence']);
                 }
             }
         }
@@ -657,7 +657,9 @@ class TravelManagerPlanSegments extends AbstractClass {
                     if($fromcurr != $tocurr) {
                         $priceinbasecurr .='<br/><small>'.$numfmt->formatCurrency($accomdation->numNights * $accomdation->priceNight, $fromcurr->alphaCode).'</small>';
                     }
-                    $segment_hotel .= '<div style = "width:70%; display: inline-block;"> '.$lang->checkin.' '.$hotel->name.'<br>'.$lang->address.': '.$hotel->addressLine1.'  '.$lang->phone.':'.$hotel->phone.'<span style = "margin-bottom:10px;display:block;"><em>'.$accomdation->numNights.' '.$lang->night.' x $'.$pricenight.' </em></span><br>'.$lang->avgprice.': '.$hotel->avgPrice.'-'.$cur_dispname.'</div>'; // fix the html parse multiple hotl
+
+                    $warnings['hotelprice'] = $hotel->get_warning(array('avgprice' => $hotel->avgPrice, 'pricepernight' => $pricenight, 'currency' => $accomdation->currency));
+                    $segment_hotel .= '<div style = "width:70%; display: inline-block;"> '.$lang->checkin.' '.$hotel->name.'<br>'.$lang->address.': '.$hotel->addressLine1.'  '.$lang->phone.':'.$hotel->phone.'<span style = "margin-bottom:10px;display:block;"><em>'.$accomdation->numNights.' '.$lang->night.' x $'.$pricenight.' </em></span><br>'.$lang->avgprice.': '.$hotel->avgPrice.'-'.$cur_dispname.'<div style="color:red;display:inline-block;margin:15px;">'.$warnings['hotelprice'].'</div></div>'; // fix the html parse multiple hotl
                     //$segment_hotel.='<br>'.$lang->address.': '.$hotel->addressLine1.'<br>'.$lang->phone.':'.$hotel->phone.'';
 //    $segment_hotel .= '<div style = " width:30%; display: inline-block;"> <span> '.$lang->night.' '.$accomdation->numNights.' at $ '.$accomdation->priceNight.' '.$lang->night.'</span></div>'; // fix the html parse multiple hotl
                     $segment_hotel .= '<div style = "width:25%; display: inline-block;font-size:14px; font-weight:bold;text-align:right;margin-left:5px;vertical-align:top;"><span> '.$numfmt->formatCurrency(($accomdation->numNights * $pricenight), "USD").$priceinbasecurr.'</span> <br/> <small style = "font-weight:normal;">[paid by: '.$paidby.']</small></div>'; // fix the html parse multiple hotl
@@ -752,17 +754,28 @@ class TravelManagerPlanSegments extends AbstractClass {
             $additional_expenses_details = '<div style="display:block;padding:5px 0px 5px 0px;width:15%;" class="subtitle">'.$lang->addexp.'</div>';
             while($additionalexp = $db->fetch_assoc($additional_expenses)) {
                 $additionalexp_type = new TravelManager_Expenses_Types($additionalexp['tmetid']);
+
+                if(is_object($additionalexp_type) && $additionalexp_type->title == 'Food & Beverage') {
+                    $data['numnights'] = abs($this->data['toDate'] - $this->data['fromDate']) / 60 / 60 / 24;
+                    $data['amount'] = $additionalexp['expectedAmt'];
+                    $data['currency'] = $additionalexp['currency'];
+                    $tmexpenses = new Travelmanager_Expenses();
+                    $warnings['foodandbeverage'] = $tmexpenses->validate_foodandbeverage_expenses($data);
+                }
+
                 $additional_expenses_details .= '<div style = "display:block;padding:5px 0px 5px 0px;">';
                 $additional_expenses_details .= '<div style = "width:85%;display:inline-block;">'.$additionalexp_type->title.'</div>';
                 $additional_expenses_details .= '<div style = "width:10%;display:inline-block;text-align:right;">'.$numfmt->formatCurrency(round($additionalexp['expectedAmt'], 2), "USD").'</div>';
-                $additional_expenses_details .= '</div>';
+                $additional_expenses_details .= $warnings['foodandbeverage'].'</div>';
                 $expenses['additional'] += $additionalexp['expectedAmt'];
             }
             $additional_expenses_details .='<div style="display:block;padding:5px 0px 5px 0px;">';
             $additional_expenses_details .='<div style="display:inline-block;width:85%;">'.$lang->additionalexpensestotal.'</div><div style="width:10%; display:inline-block;text-align:right;font-weight:bold;">  '.$numfmt->formatCurrency($expenses['additional'], "USD").'</div></div>';
             $expenses_total += $expenses['additional'];
         }
-        $finances = TravelManagerPlanFinance::get_data(array('tmpsid' => $this->tmpsid), array('simple' => false, 'returnarray' => true));
+
+        $tmpsid_where = "tmpsid IN (SELECT tmpsid FROM travelmanager_plan_segments WHERE tmpid =".intval($this->tmpid).")";
+        $finances = TravelManagerPlanFinance::get_data(array('tmpsid' => $tmpsid_where), array('operators' => array('tmpsid' => 'CUSTOMSQL'), 'simple' => false, 'returnarray' => true));
         if(is_array($finances)) {
             foreach($finances as $finance) {
                 if($finance->amount == 0) {
@@ -775,7 +788,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                     $tocurr->save_fx_rate_fromsource('http://rate-exchange.appspot.com/currency?from='.$fromcurr->alphaCode.'&to='.$tocurr->alphaCode.'', $fromcurr->numCode, $tocurr->numCode);
                     $amount = $finance->get_convertedamount($fromcurr);
                 }
-                $total_fin_amount+=$amount;
+                $total_fin_amount +=$amount;
             }
         }
         if($total_fin_amount != 0) {
@@ -894,6 +907,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                 $cityname = $hotel->get_city()->get_displayname();
                 eval("\$hotelssegments_output  .= \"".$template->get('travelmanager_plantrip_segment_hotels')."\";");
                 $review_tools = $hotelchecked = $cityname = $paidby_details = $currencies_list = $currencies = $selected_hotel = $checkbox_hotel = '';
+                unset($currencies, $val_currencies);
             }
         }
 
