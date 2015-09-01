@@ -195,7 +195,7 @@ class TravelManagerPlan {
                     if(!empty($transportation->transpDetails)) {
                         $transportaion_fields .= '<h2><small>Selected Flight</small></h2>';
                         $transportaion_fields .= TravelManagerAirlines::parse_bestflight($transportation->transpDetails, array('transportationdetails' => $category['transportationdetials'], 'selectedflight' => $transportation->flightNumber, 'name' => $category['name'], 'tmtcid' => $category['tmtcid'], 'inputChecksum' => $category['inputChecksum']), $sequence, 'plan', array('isMinCost' => $transportation->isMinCost));
-                        $transportaion_fields .= '<br /><hr/><br />';
+                        $transportaion_fields .= '<br /><hr/><br/>';
                     }
                     else {
 ///$transportaion_fields.='<form name="perform_travelmanager/plantrip_Form" id="perform_travelmanager/plantrip_Form"  action="#" method="post">';
@@ -203,7 +203,7 @@ class TravelManagerPlan {
 ///    $transportaion_fields .=' <input type = "checkbox" value = "{$lang->lookuptransps}"/>'.$lang->oneway;
 ///   $transportaion_fields .='<br/><br/><input type = "button" class = "Button" value = "'.$lang->lookuptransps.'"/>';
 
-                        $button = '<button type="button" id="airflights_button_'.$sequence.'" style="float: right" class="button">'.$lang->minimize.'</button>';
+                        $button = '<button type="button" id="airflights_button_'.$sequence.'" style="float: right" class="button">'.$lang->minimizemaximize.'</button>';
                         $transportaion_fields .= '<h2><small>Possible Flights</small></h2>'.$button.'<br/>';
                         $flights = TravelManagerAirlines::get_flights(TravelManagerAirlines::build_flightrequestdata(array('origin' => $cityinfo['origincity']['unlocode'], 'destination' => $cityinfo['destcity']['unlocode'], 'date' => $cityinfo['date'], 'arrivaldate' => $cityinfo['arrivaldate'], 'isOneway' => $cityinfo['isOneway'], 'permittedCarrier' => $permitted_ariliners)));
                         $transportaion_fields .= '<input name = "segment['.$sequence.'][apiFlightdata]" id = "segment_'.$sequence.'apiFlightdata" type = "hidden" value = \''.$flights.'\' />';
@@ -236,7 +236,6 @@ class TravelManagerPlan {
                     $transportaion_fields .='<div><div style="display:inline-block;padding:10px;width:25%;">'.$lang->stopdescription.'</div><div style = "display:inline-block;width:25%;"><textarea tabindex=2 name="segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].'][stopDescription]" id="segment_'.$sequence.'_tmtcid_'.$category['tmtcid'].'_stopDescription" style="width:100%;">'.$transportation->stopDescription.'</textarea></div></div>';
                     $selectlists['paidby'] = self::parse_paidby($sequence, $category['inputChecksum'], $transportation->paidBy);
                     $transportaion_fields .= '<input type = "hidden" name = "segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].'][isUserSuggested]" value = "1"/>';
-
                     break;
             }
 
@@ -258,6 +257,7 @@ class TravelManagerPlan {
                 }
                 eval("\$transportaion_fields .= \"".$template->get('travelmanager_plantrip_segment_paidbyfields')."\";");
             }
+
             return $transportaion_fields;
         }
     }
@@ -795,7 +795,7 @@ $("#anotheraff_otheraccomodations_'.$sequence.'_'.$otherhotel_checksum.'").hide(
 
             if(is_array($seg_transppbj)) {
                 $checked['othertranspssection'] = 'checked="checked"';
-                $display['othertranspssection'] = "display:block'";
+                $display['othertranspssection'] = "display:block";
             }
             eval("\$plansegmentscontent_output = \"".$template->get('travelmanager_plantrip_segmentcontents')."\";");
             unset($segments_expenses_output, $expensestype, $transsegments_output, $hotelssegments_output, $accomodation, $selectedhotel);
@@ -835,6 +835,7 @@ $("#anotheraff_otheraccomodations_'.$sequence.'_'.$otherhotel_checksum.'").hide(
                 'destinationcity_1_cache_autocomplete' => array('text' => $lang->helptour_firstdestcity),
                 'pickDate_to_1' => array('text' => $lang->helptour_todate),
                 'purposes_row_1' => array('text' => $lang->helptour_purposes),
+                'considerleisure_1' => array('text' => $lang->helptour_considerleisure),
                 'transpsetionheader_1' => array('text' => $lang->helptour_transpsetionheader),
                 'lookuptransps_1' => array('text' => $lang->helptour_lookuptransps),
                 'checkbox_show_othertransps_1' => array('text' => $lang->helptour_chooseothertransps),

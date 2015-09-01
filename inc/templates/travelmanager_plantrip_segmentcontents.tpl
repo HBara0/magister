@@ -21,7 +21,7 @@
     <div style="display: block;border:1px solid #FCEFA1; padding:15px;margin-top:10px;">
         <h2 class="subtitle">{$lang->selectothertransportations}</h2>
         <input type="checkbox" id="checkbox_show_othertransps_{$sequence}" style="margin-left:12px;margin-top:15px;margin-bottom:15px;" {$checked[othertranspssection]}/>{$lang->other} {$lang->transportations}
-        <div id="show_othertransps_{$sequence}" style="{$display[othertranspssection]}">
+        <div id="show_othertransps_{$sequence}" style="{$display['othertranspssection']}">
             <div>{$transsegments_output[othertransp]}</div>
             <table width="100%" class="datatable" style="margin-top:-20px;">
                 <tbody id="othertranspcat_{$sequence}_tbody">

@@ -154,7 +154,7 @@ $lang['fax'] = 'Fax';
 $lang['averageprice'] = 'Average Price';
 $lang['mgmtreview'] = 'Management Review';
 $lang['notapproved'] = 'Not Approved';
-$lang['minimize'] = 'Minimize';
+$lang['minimizemaximize'] = 'Minimize/Maximize';
 $lang['makesuretochooseandclick'] = 'Please Choose One Way or Round-trip';
 $lang['maxnight'] = 'Maximum Nights';
 
