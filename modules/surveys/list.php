@@ -38,7 +38,7 @@ if(!$core->input['action']) {
                 $surveystats_link = '<a href="index.php?module=surveys/viewresults&identifier='.$survey['identifier'].'"><img src="./images/icons/stats.gif" border="0" alt="{$lang->viewresults}"/></a>';
             }
             $previewlink = '<a href="index.php?module=surveys/preview&identifier='.$survey['identifier'].'" target="_blank"><img src="./images/icons/report.gif" border="0" title="'.$lang->preview.'" alt="{$lang->preview}"/></a>';
-            $sharewith = ' <input type="hidden" name="identifier" id="extrapopup_identifier_'.$survey['sid'].'_sharesurvey" value="'.$survey['identifier'].'"/><a href="#'.$survey['sid'].'" id="sharesurvey_'.$survey['sid'].'_surveys/list_loadpopupbyid" rel="share_'.$survey['sid'].'" title="'.$lang->sharewith.'"><img src="'.$core->settings['rootdir'].'/images/icons/sharedoc.png" alt="'.$lang->sharewith.'" border="0"></a>';
+            $sharewith = '<a href="#'.$survey['sid'].'" id="sharesurvey_'.$survey['sid'].'_surveys/list_loadpopupbyid" data-id="'.$survey['sid'].'" data-template="sharesurvey" data-module="surveys/list" data-params="'.base64_encode(json_encode(array('identifier' => $survey['identifier']))).'" rel="share_'.$survey['sid'].'" title="'.$lang->sharewith.'"><img src="'.$core->settings['rootdir'].'/images/icons/sharedoc.png" alt="'.$lang->sharewith.'" border="0"></a>';
 
             eval("\$surveys_rows .= \"".$template->get('surveys_listsurveys_row')."\";");
         }
@@ -51,10 +51,17 @@ if(!$core->input['action']) {
 }
 else {
     if($core->input['action'] == 'get_sharesurvey') {
-        $sid = $db->escape_string($core->input['id']);
-        $identifier = $core->input['identifier'];
+        $sid = intval($core->input['id']);
+        if(isset($core->input['params']) && !empty($core->input['params'])) {
+            $core->input['params'] = json_decode(base64_decode($core->input['params']));
+
+            $identifier = $core->input['params']->identifier;
+        }
         $affiliates_users = Users::get_allusers();
         $survey_obj = new Surveys($identifier);
+        if(!is_object($survey_obj)) {
+            return;
+        }
         $shared_users = $survey_obj->get_shared_users();
         if(is_array($shared_users)) {
             foreach($shared_users as $user_obj) {
