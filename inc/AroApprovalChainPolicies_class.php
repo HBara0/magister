@@ -45,7 +45,7 @@ class AroApprovalChainPolicies extends AbstractClass {
                     // continue;
                 }
                 if(is_array($approverfield)) {
-                    if($approverfield['approver'] == 'user' && is_empty($approverfield['uid'])) {
+                    if(($approverfield['approver'] == 'user' || $approverfield['approver'] == 'businessManager') && is_empty($approverfield['uid'])) {
                         $this->errorcode = 2;
                         return false;
                     }
@@ -60,7 +60,7 @@ class AroApprovalChainPolicies extends AbstractClass {
                 'createdBy' => $core->user['uid'],
                 'purchaseType' => $data['purchaseType'],
                 'informCoordinators' => $data['informCoordinators'],
-                 'informGlobalCFO'=>$data['informGlobalCFO'],
+                'informGlobalCFO' => $data['informGlobalCFO'],
                 'createdOn' => TIME_NOW,
         );
         $query = $db->insert_query(self::TABLE_NAME, $policies_array);
@@ -97,7 +97,7 @@ class AroApprovalChainPolicies extends AbstractClass {
                     'modifiedBy' => $core->user['uid'],
                     'purchaseType' => $data['purchaseType'],
                     'informCoordinators' => $data['informCoordinators'],
-                    'informGlobalCFO'=>$data['informGlobalCFO'],
+                    'informGlobalCFO' => $data['informGlobalCFO'],
                     'modifiedOn' => TIME_NOW,
             );
             unset($data['approvalChain']);

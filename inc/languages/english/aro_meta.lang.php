@@ -172,3 +172,6 @@ $lang['aromessages'] = 'Aro Messages';
 $lang['addmorecustomers'] = 'Add More Customers';
 $lang['addmoreproductlines'] = 'Add More Product Lines';
 $lang['initialtotalcomm'] = 'Initial Total commision';
+$lang['informmore'] = 'Inform more people';
+$lang['selectemployee'] = 'Select Employee';
+$lang['informbymail'] = 'Or specify email address';

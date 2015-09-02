@@ -7,16 +7,13 @@
 
                 $('input[id$=_approver]').live('change', function() {
                     var id = $(this).attr('id').split("_");
-                    if($(this).val() != 'user') {
+                    if($(this).val() != 'user' && $(this).val() != 'businessManager') {
                         $("div[id^='user_" + id[1] + "']").hide();
-                    }
-                    $("div[id^='" + $(this).val() + "_" + id[1] + "']").effect("highlight", {color: "#D6EAAC"}, 1500).find("input").first().focus().val("");
-
-                    if($(this).val() == 'businessManager') {
-                        $("div[id^='" + $(this).val() + "_" + id[1] + "']").effect("highlight", {color: "#D6EAAC"}, 1500).find("input").first().focus().val("");
                     } else {
-                        $("div[id^='businessManager_" + id[1] + "']").hide();
-
+                        //    if($(this).val() != 'businessManager') {
+                        //        $("div[id^='businessManager_" + id[1] + "']").hide();
+                        //  }
+                        $("div[id^='user_" + id[1] + "']").effect("highlight", {color: "#D6EAAC"}, 1500).find("input").first().focus().val("");
                     }
                 });
 
@@ -55,6 +52,23 @@
                     <tr>
                         <td colspan="2" class="altrow2">
                             <input name="chainpolicy[informGlobalCFO]" id="chainpolicy_informGlobalCFO" type="checkbox" value="1" {$checked[informGlobalCFO]}> {$lang->informglobalcfo}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2" class="subtitle">
+                            {$lang->informmore}
+                        </td>
+                    </tr>
+                    <tr><td>{$lang->selectemployee}</td>
+                        <td>
+                            <input type='text' id='user_0_autocomplete' value="{$chainpolicy[username]}"/>
+                            <input type='hidden' id='user_0_id' name='chainpolicy[informInternalUsers][uid]' value="{$user->uid}" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>{$lang->informbymail}</td>
+                        <td>
+                            <textarea name="chainpolicy[informExternalUsers][]" id="description" cols="40" rows="5" ></textarea>
                         </td>
                     </tr>
                 </table>
