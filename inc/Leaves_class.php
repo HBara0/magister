@@ -632,6 +632,10 @@ class Leaves extends AbstractClass {
     }
 
     public function get_country() {
+        if(empty($this->data['coid']) && !empty($this->data['destinationCity'])) {
+            $city = new Cities($this->data['destinationCity']);
+            return $city->get_country();
+        }
         return new Countries($this->data['coid']);
     }
 
