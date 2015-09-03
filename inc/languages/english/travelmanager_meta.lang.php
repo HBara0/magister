@@ -287,4 +287,8 @@ $lang['helptour_addexpense'] = 'Add another expense';
 $lang['helptour_addexpensessetionheader'] = 'Now fill all other additional expenses';
 $lang['helptour_financesetionheader'] = 'Here you will get  total approximation of all your expenses in dollars <br/> '
         .'You can fill them in the rows below with respect to the needed currencies';
+$lang['save_helptour'] = 'Save the current segment';
+$lang['saveandcreatenewseg_helptour'] = 'Save the current segment and create a new one';
+$lang['saveandpreview_helptour'] = 'Preview the current segment';
+$lang['saveandfinalize_helptour'] = 'Preview the final Plan before finalizing';
 ?>

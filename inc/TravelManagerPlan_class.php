@@ -872,6 +872,10 @@ $("#anotheraff_otheraccomodations_'.$sequence.'_'.$otherhotel_checksum.'").hide(
                 'ajaxaddmore_travelmanager/plantrip_expenses_1' => array('text' => $lang->helptour_addexpense),
                 'addexpensessetionheader_1' => array('text' => $lang->helptour_addexpensessetionheader),
                 'financesetionheader_1' => array('text' => $lang->helptour_financesetionheader),
+                'perform_travelmanager/plantrip_Button' => array('text' => $lang->save_helptour),
+                'save_addsegment' => array('text' => $lang->saveandcreatenewseg_helptour),
+                'preview' => array('text' => $lang->saveandpreview_helptour),
+                'finalize' => array('text' => $lang->saveandfinalize_helptour),
         );
 
         return $touritems;
