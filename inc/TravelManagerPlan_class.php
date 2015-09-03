@@ -577,6 +577,19 @@ class TravelManagerPlan {
                             $entrowid++;
                             unset($entityid, $entityname, $afent_checksum);
                         }
+                        elseif($affient_obj->get_type() == 'event') {
+                            $ltpurpose = 'event';
+                            $eventid = $affient_obj->primaryId;
+                            $afent_checksum = $affient_obj->inputChecksum;
+                            $calevents = Events::get_data(array('isPublic' => 1), array('returnarray' => true));
+                            $entities = '<tr id="'.$entrowid.'"><td '.$display_external.' data-purposes="external_'.$sequence.'">Select Event</td><td '.$display_external.' data-purposes="external_'.$sequence.'">';
+                            $entities .= parse_selectlist("segment[{$sequence}][assign][ceid][".$afent_checksum."]", $tabindex, $calevents, $eventid, '', '', array('width' => '200px'));
+                            $entities .='</td></tr>';
+
+                            // eval("\$entities .= \"".$template->get('travelmanager_plantrip_createsegment_entities')."\";");
+                            $entrowid++;
+                            unset($entityid, $entityname, $afent_checksum);
+                        }
                     }
                 }
             }
@@ -602,7 +615,15 @@ class TravelManagerPlan {
             $affrowid = $entrowid = 0;
             eval("\$affiliates_output .= \"".$template->get('travelmanager_plantrip_createsegment_affiliates')."\";");
             $afent_checksum = generate_checksum();
-            eval("\$entities.= \"".$template->get('travelmanager_plantrip_createsegment_entities')."\";");
+            if($ltpurpose != 'event') {
+                eval("\$entities.= \"".$template->get('travelmanager_plantrip_createsegment_entities')."\";");
+            }
+            elseif($ltpurpose == 'event') {
+                $calevents = Events::get_data(array('isPublic' => 1), array('returnarray' => true));
+                $entities .= '<tr id="'.$entrowid.'"><td '.$display_external.' data-purposes="external_'.$sequence.'">Select Event</td><td '.$display_external.' data-purposes="external_'.$sequence.'">';
+                $entities .= parse_selectlist("test", $tabindex, $calevents, $selected_options, '', '', array('width' => '200px', 'blankstart' => true));
+                $entities .='</td></tr>';
+            }
             unset($afent_checksum, $selectedpurpose);
             //get transp cat send to  parse_transportaionfields
 //            $transportation_obj = $segmentobj->get_transportationscat();

@@ -92,6 +92,9 @@ class TravelManagerPlanSegments extends AbstractClass {
                     elseif($type == 'eid') {
                         $assigned['type'] = 'entity';
                     }
+                    elseif($type == 'ceid') {
+                        $assigned['type'] = 'event';
+                    }
                     $assigned['tmpsid'] = $this->data[self::PRIMARY_KEY];
                     foreach($assigndata as $key => $id) {
                         if(empty($id)) {
@@ -302,6 +305,9 @@ class TravelManagerPlanSegments extends AbstractClass {
                     }
                     elseif($type == 'eid') {
                         $assigned['type'] = 'entity';
+                    }
+                    elseif($type == 'ceid') {
+                        $assigned['type'] = 'event';
                     }
                     $assigned['tmpsid'] = $this->data[self::PRIMARY_KEY];
                     foreach($assigndata as $key => $id) {

@@ -50,12 +50,13 @@
             </td>
             <td colspan="2" style="vertical-align: top;width:20%;">
                 <div style="display: inline-block;width:100%">
-                    <table border="0" cellspacing="1" cellpadding="1" width="100%">
+                    <table border="0" cellspacing="1" cellpadding="1" width="100%" {$addmore_display}>
                         <tbody id="entities_{$sequence}_tbody">
                             {$entities}
                         </tbody>
-                        <tr >
+                        <tr>
                             <td data-purposes="external_{$sequence}" {$display_external} >
+                                <input type="hidden" name="ajaxaddmoredata[ltpid]" id="ajaxaddmoredata_ltpid_{$sequence}" value="{$ltpid}"/>
                                 <input name="numrows_entities" type="hidden" id="numrows_entities_{$entityrowid}" value="{$entityrowid}">
                                 <img src="./images/add.gif" id="ajaxaddmore_travelmanager/plantrip_entities_{$sequence}" alt="{$lang->add}">
                             </td>
