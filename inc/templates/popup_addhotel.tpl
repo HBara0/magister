@@ -28,7 +28,7 @@
                 </td>
                 <td>
                     {$countriescodes_list}
-                    <input type="text" tabindex="100" id="telephone_areacode" name="telephone_areacode" size='4' maxlength="4" accept="numeric" value="{$telephone[1][areacode]}"/>
+                  <!--  <input type="text" tabindex="100" id="telephone_areacode" name="telephone_areacode" size='4' maxlength="4" accept="numeric" value="{$telephone[1][areacode]}"/>-->
                     <br/>
                     <input type="text" tabindex="100" id="telephone_number" name="telephone_number" accept="numeric" value="{$telephone[1][number]}" required="required"/><br />
                 </td>
