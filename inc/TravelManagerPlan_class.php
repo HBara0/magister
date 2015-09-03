@@ -851,12 +851,15 @@ $("#anotheraff_otheraccomodations_'.$sequence.'_'.$otherhotel_checksum.'").hide(
     public function get_helptouritems() {
         global $lang;
         $touritems = array(
+                'start' => array('ignoreid' => true, 'text' => $lang->starttmtour),
+                'createtab' => array('options' => 'tipLocation:top;', 'text' => $lang->helptour_createsegment),
                 'cities_1_cache_autocomplete' => array('text' => $lang->helptour_firstcity),
                 'pickDate_from_1' => array('text' => $lang->helptour_fromdate),
                 'destinationcity_1_cache_autocomplete' => array('text' => $lang->helptour_firstdestcity),
                 'pickDate_to_1' => array('text' => $lang->helptour_todate),
-                'purposes_row_1' => array('text' => $lang->helptour_purposes),
-                'considerleisure_1' => array('text' => $lang->helptour_considerleisure),
+                'purposes_row_1' => array('options' => 'tipLocation:top;', 'text' => $lang->helptour_purposes),
+                'considerleisure_1' => array('options' => 'tipLocation:top;', 'text' => $lang->helptour_considerleisure),
+                'segreason_1' => array('options' => 'tipLocation:top;', 'text' => $lang->helptour_segreason),
                 'transpsetionheader_1' => array('text' => $lang->helptour_transpsetionheader),
                 'lookuptransps_1' => array('text' => $lang->helptour_lookuptransps),
                 'checkbox_show_othertransps_1' => array('text' => $lang->helptour_chooseothertransps),
@@ -871,7 +874,7 @@ $("#anotheraff_otheraccomodations_'.$sequence.'_'.$otherhotel_checksum.'").hide(
                 'segment_paidby_1_1' => array('text' => $lang->helptour_expensepaidby),
                 'ajaxaddmore_travelmanager/plantrip_expenses_1' => array('text' => $lang->helptour_addexpense),
                 'addexpensessetionheader_1' => array('text' => $lang->helptour_addexpensessetionheader),
-                'financesetionheader_1' => array('text' => $lang->helptour_financesetionheader),
+                'financesetionheader_1' => array('options' => 'tipLocation:top;', 'text' => $lang->helptour_financesetionheader),
                 'perform_travelmanager/plantrip_Button' => array('text' => $lang->save_helptour),
                 'save_addsegment' => array('text' => $lang->saveandcreatenewseg_helptour),
                 'preview' => array('text' => $lang->saveandpreview_helptour),

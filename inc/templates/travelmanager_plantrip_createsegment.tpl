@@ -66,7 +66,7 @@
             </td>
         </tr>
         <tr><td id="considerleisure_{$sequence}">{$lang->considerleisuretourism}</td><td><input type="checkbox" name="segment[{$sequence}][isNoneBusiness]" value="1" {$checked['isNoneBusiness']}/></td></tr>
-        <tr><td>{$lang->reason}*</td><td><textarea name="segment[{$sequence}][reason]"  cols="30" rows="3" required="required">{$segment[$sequence][reason_output]}</textarea><br/></td></tr>
+        <tr><td id="segreason_{$sequence}">{$lang->reason}*</td><td><textarea name="segment[{$sequence}][reason]"  cols="30" rows="3" required="required">{$segment[$sequence][reason_output]}</textarea><br/></td></tr>
     </table>
     <div id="content_detailsloader_{$sequence}"></div>
     <div id="content_details_{$sequence}">

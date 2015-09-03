@@ -639,6 +639,12 @@ else {
         $origintcity = $origincity_obj->get();
         $origintcity['country'] = $origincity_obj->get_country()->get()['name'];
 
+
+        $transp_requirements['oneway'] = 1;
+        if(isset($core->input['transp']) && $core->input['transp'] == 1) {
+            $transp_requirements['oneway'] = 0;
+        }
+
         /* Load proposed transproration */
         $transp = new TravelManagerPlanTransps();
         $transsegments_output = Cities::parse_transportations($transp, array('origincity' => $origintcity, 'destcity' => $destcity, 'transprequirements' => $transp_requirements), $core->input['sequence']);
@@ -717,7 +723,7 @@ else {
         $warnings['transpclass'] = '';
         $class = TravelManagerPlanTranspClass::get_data(array('tmptc' => intval($core->input['transpclass'])));
         if($class->get_displayname() == 'Business') {
-            $warnings['transpclass'] = '<p style="color:red;"> no employee may travel in business class. Exceptions can be made, but a business case must be made</p>';
+            $warnings['transpclass'] = '<p style="color:red;">'.$lang->transclasswarning.'</p>';
         }
         echo $warnings['transpclass'];
     }

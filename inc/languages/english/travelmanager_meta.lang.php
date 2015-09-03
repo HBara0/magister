@@ -112,7 +112,7 @@ $lang['addexpenses'] = 'Add more expenses';
 $lang['addtranspostation'] = 'Add another transportation';
 $lang['addhotel'] = 'Add new hotel';
 $lang['finance'] = 'Finance';
-$lang['neededamount'] = 'Needed Amount';
+$lang['neededamount'] = 'Advanced Cash Needed Amount';
 $lang['transportations'] = 'Transportation';
 $lang['accomodation'] = 'Accomodation';
 $lang['additionalexpenses'] = 'Additional Expenses';
@@ -291,4 +291,8 @@ $lang['save_helptour'] = 'Save the current segment';
 $lang['saveandcreatenewseg_helptour'] = 'Save the current segment and create a new one';
 $lang['saveandpreview_helptour'] = 'Preview the current segment';
 $lang['saveandfinalize_helptour'] = 'Preview the final Plan before finalizing';
+$lang['transclasswarning'] = 'No employee may travel in business class. Exceptions can be made, and must be addressed to the COO and/or CFO.';
+$lang['starttmtour'] = 'This is your first time on travel manager.<br/>A help tour will guide you in planning your trip.';
+$lang['helptour_segreason'] = 'Specify the Segment reason <small>(Manadatory)</small>';
+$lang['helptour_createsegment'] = 'If you are traveling to multiple cities, divide your travel into segments';
 ?>
