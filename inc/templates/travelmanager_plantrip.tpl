@@ -324,13 +324,17 @@
                     }
                 });
                 $('input[id^="purposes_checks_"]').live('change', function() {
+                    var ltpid = $(this).val();
                     var id = $(this).attr('id').split('_');
                     var empty = 1;
+                    $("input[id='ajaxaddmoredata_ltpid_" + id[3] + "']").val(ltpid);
+
                     $('input[id="' + $(this).attr('id') + '"]').each(function(i, obj) {
                         if($(obj).is(":checked")) {
                             empty = 0;
                         }
                     });
+
                     if(empty == 1) {
                         $('[data-purposes="' + id[2] + '_' + id[3] + '"]').each(function(i, obj) {
                             $(obj).find('input').val('');
@@ -340,7 +344,15 @@
                     }
                     else {
                         $('[data-purposes="' + id[2] + '_' + id[3] + '"]').each(function(i, obj) {
-                            $(obj).show();
+                            if(id[2] == 'external') {
+                                sharedFunctions.requestAjax("post", "index.php?module=travelmanager/plantrip&action=populateexternalpurpose", "&externalpurposetype=" + ltpid + "&sequence=" + id[3], "entities_" + id[3] + "_tbody", "entities_" + id[3] + "_tbody", true);
+                                setTimeout(function() {
+                                    $(obj).show();
+                                }, 1100);
+                            } else {
+                                $(obj).show();
+
+                            }
                         })
                     }
                 });
@@ -357,7 +369,6 @@
             $(document).on('change', "input[id^='checkbox_show_othertransps_']", function() {
                 var id = $(this).attr('id').split('_');
                 if(this.checked) {
-                    alert("div[id^='show_othertransps_" + id[3] + "']");
                     $("div[id^='show_othertransps_" + id[3] + "']").show();
                 } else {
                     $("div[id^='show_othertransps_" + id[3] + "']").hide();

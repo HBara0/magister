@@ -279,8 +279,8 @@ else {
         $affilate_list = parse_selectlist('segment['.$sequence.'][assign][affid]['.$afent_checksum.']', '1', $affiliates, '', '', '', array('blankstart' => true));
         $affrowid = $entrowid = 0;
         eval("\$affiliates_output = \"".$template->get('travelmanager_plantrip_createsegment_affiliates')."\";");
-        $afent_checksum = generate_checksum();
-        eval("\$entities = \"".$template->get('travelmanager_plantrip_createsegment_entities')."\";");
+        // $afent_checksum = generate_checksum();
+        //  eval("\$entities = \"".$template->get('travelmanager_plantrip_createsegment_entities')."\";");
 
         /* Popuplate basic information from the leave based on the lid passed via ajax */
 
@@ -575,7 +575,7 @@ else {
     elseif($core->input ['action'] == 'do_add_otherhotel') {
         $sequence = $core->input['sequence'];
         $core->input['otherhotel']['telephone_intcode'] = $core->input['telephone_intcode'];
-        $core->input['otherhotel']['telephone_areacode'] = $core->input['telephone_areacode'];
+        //  $core->input['otherhotel']['telephone_areacode'] = $core->input['telephone_areacode'];
         $core->input['otherhotel']['telephone_number'] = $core->input['telephone_number'];
         if(!isset($core->input['otherhotel']['isContracted']) || empty($core->input['otherhotel']['isContracted'])) {
             $core->input['otherhotel']['isContracted'] = 0;
@@ -634,6 +634,7 @@ else {
         $transp_requirements['drivemode'] = 'transit';
         $transp_requirements['referrer'] = 'todate';
         $transp_requirements['departuretime'] = $db->escape_string(strtotime($core->input['departuretime']));
+        $transp_requirements['arrivaltime'] = $db->escape_string(strtotime($core->input['arrivaltime']));
         $origincity_obj = new Cities($origincityid);
         $origintcity = $origincity_obj->get();
         $origintcity['country'] = $origincity_obj->get_country()->get()['name'];
@@ -675,9 +676,20 @@ else {
     }
     elseif($core->input['action'] == 'ajaxaddmore_entities') {
         $entrowid = $db->escape_string($core->input['value']) + 1;
+        $ltpid = $core->input['ajaxaddmoredata']['ltpid'];
         $afent_checksum = generate_checksum();
         $sequence = $db->escape_string($core->input['id']);
-        eval("\$entities .= \"".$template->get('travelmanager_plantrip_createsegment_entities')."\";");
+
+        $leavetypepurpose = new LeaveTypesPurposes($ltpid);
+        if($leavetypepurpose->get_displayname() == 'Event & Fair') {
+            $calevents = Events::get_data(array('isPublic' => 1), array('returnarray' => true));
+            $entities = '<tr id="'.$entrowid.'"><td '.$display_external.' data-purposes="external_'.$sequence.'">Select Event</td><td '.$display_external.' data-purposes="external_'.$sequence.'">';
+            $entities .= parse_selectlist("test", $tabindex, $calevents, $selected_options, '', '', array('width' => '200px'));
+            $entities .='</td></tr>';
+        }
+        else {
+            eval("\$entities = \"".$template->get('travelmanager_plantrip_createsegment_entities')."\";");
+        }
         echo $entities;
     }
     elseif($core->input['action'] == 'checkpricevsavgprice') {
@@ -708,6 +720,25 @@ else {
             $warnings['transpclass'] = '<p style="color:red;"> no employee may travel in business class. Exceptions can be made, but a business case must be made</p>';
         }
         echo $warnings['transpclass'];
+    }
+    elseif($core->input['action'] == 'populateexternalpurpose') {
+        $ltpid = $core->input['externalpurposetype'];
+        $sequence = $core->input['sequence'];
+        $display_external = 'style = "display:block"';
+        $entrowid = 0;
+        $afent_checksum = generate_checksum();
+
+        $leavetypepurpose = new LeaveTypesPurposes($ltpid);
+        if($leavetypepurpose->get_displayname() == 'Event & Fair') {
+            $calevents = Events::get_data(array('isPublic' => 1), array('returnarray' => true));
+            $entities = '<tr id="'.$entrowid.'"><td '.$display_external.' data-purposes="external_'.$sequence.'">Select Event</td><td '.$display_external.' data-purposes="external_'.$sequence.'">';
+            $entities .= parse_selectlist("segment[{$sequence}][assign][ceid][{$afent_checksum}]", $tabindex, $calevents, $selected_options, '', '', array('width' => '200px'));
+            $entities .='</td></tr>';
+        }
+        else {
+            eval("\$entities = \"".$template->get('travelmanager_plantrip_createsegment_entities')."\";");
+        }
+        echo $entities;
     }
 }
 ?>
