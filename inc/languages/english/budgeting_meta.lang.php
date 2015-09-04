@@ -203,5 +203,12 @@ $lang['businesssegmentsalesdesc'] = 'Sales per business segment (in K USD)';
 $lang['businesssegmentincomedesc'] = 'Income per business segment (in K USD)';
 $lang['affsales'] = '';
 $lang['countrysales'] = 'Country ';
-$lang['salespertype'] = 'Sales Per Type';
+$lang['salespertype'] = 'Slide 40';
+$lang['salespertypedesc'] = 'Sales Per Type (in K USD)';
+$lang['topincomecustomers'] = 'Top Income Customers';
+$lang['topsalescustomers'] = 'Top Sales  Customers';
+$lang['topincomecustomersdesc'] = 'Top Income '.(date('Y') + 1).' budget Customers';
+$lang['topsalescustomersdesc'] = 'Top Sales '.(date('Y') + 1).' budget Customers';
+$lang['risk'] = 'Slide 42';
+$lang['riskdesc'] = 'Custermoer/Supplier Risk ';
 ?>
