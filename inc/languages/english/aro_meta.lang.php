@@ -175,3 +175,4 @@ $lang['initialtotalcomm'] = 'Initial Total commision';
 $lang['informmore'] = 'Inform more people';
 $lang['selectemployee'] = 'Select Employee';
 $lang['informbymail'] = 'Or specify email address';
+$lang['diffsalestock'] = 'Days between stock entry vs. sale daes';

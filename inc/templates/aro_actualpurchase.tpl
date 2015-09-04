@@ -11,6 +11,7 @@
                 <td class="border_right" rowspan="2" valign="top" align="center" style="width:150px;">{$lang->estdateofstockentry}</td>
                 <td class="border_right" rowspan="2" valign="top" align="center" style="width:100px;">{$lang->shelflife}</td>
                 <td class="border_right" rowspan="2" valign="top" align="center" style="width:150px;">{$lang->estdateofsale} </td>
+                <td class="border_right" rowspan="2" valign="top" align="center" style="width:150px;">{$lang->diffsalestock} </td>
         </thead>
 
         <tbody id="actualpurchaserow_{$aprowid}_tbody" style="width:100%;">

@@ -29,4 +29,7 @@
         <input type="text" id="pickDate_sale_{$aprowid}" autocomplete="off" tabindex="2" value="{$actualpurchase->estDateOfSale_output}"/>
         <input type="hidden" name="actualpurchase[$aprowid][estDateOfSale]" id="altpickDate_sale_{$aprowid}" value="{$actualpurchase->estDateOfSale_formatted}"/>
     </td>
+    <td>
+        <input type="text" id="diff_stockandsale_{$aprowid}" name="actualpurchase[$aprowid][diffStockSalesdates]" value="{$actualpurchase->diffStockSalesdates}"/>
+    </td>
 </tr>

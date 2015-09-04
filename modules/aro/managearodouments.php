@@ -195,6 +195,9 @@ if(!($core->input['action'])) {
                     if($productline['daysInStock'] == 0) {
                         $disabled_fields['qtyPotentiallySold'] = 'readonly = "readonly"';
                     }
+
+                    $productline['qtyPotentiallySold'] = number_format($productline['qtyPotentiallySold']);
+
                     eval("\$aroproductlines_rows .= \"".$template->get('aro_productlines_row')."\";");
                     unset($disabled_fields);
                 }
@@ -684,10 +687,17 @@ else {
         foreach($fields as $field) {
             $actualpurchase_data['actualpurchase_'.$rowid.'_'.$field] = $actualpurchase[$field];
         }
+
+
+        $data['stockentryandsalesdiff'] = date_diff(date_create($actualpurchase['estDateOfStockEntry_output']), date_create($actualpurchase['estDateOfSale_output']));
+        $data['stockentryandsalesdiff'] = $data['stockentryandsalesdiff']->format("%r%a");
+
+
         $actualpurchase_data['pickDate_stock_'.$rowid] = $actualpurchase['estDateOfStockEntry_output'];
         $actualpurchase_data['pickDate_sale_'.$rowid] = $actualpurchase['estDateOfSale_output'];
         $actualpurchase_data['altpickDate_stock_'.$rowid] = $actualpurchase['estDateOfStockEntry_formatted'];
         $actualpurchase_data['altpickDate_sale_'.$rowid] = $actualpurchase['estDateOfSale_formatted'];
+        $actualpurchase_data['diff_stockandsale_'.$rowid] = $data['stockentryandsalesdiff'];
         echo json_encode($actualpurchase_data);
     }
     if($core->input['action'] == 'populateactualpurchase_stockentrydate') {
