@@ -512,7 +512,7 @@ class AroRequests extends AbstractClass {
     }
 
     public function send_approvalemail() {
-        global $core;
+        global $core, $db;
         $firstapprover = $this->get_firstapprover();
         if(!is_object($firstapprover) && empty($firstapprover)) {
             return false;
@@ -535,6 +535,10 @@ class AroRequests extends AbstractClass {
         $mailer->set_to($email_data['to']);
         // $x=$mailer->debug_info();  print_R($x); exit;
         $mailer->send();
+        if($mailer->get_status() === true) {
+            $data = array('emailRecievedDate' => TIME_NOW);
+            $query = $db->update_query('aro_requests_approvals', $data, 'araid='.$firstapprover->araid);
+        }
     }
 
     public function approve($user) {

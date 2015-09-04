@@ -345,6 +345,11 @@ if(!($core->input['action'])) {
             //*********Aro Parties Information-End *********//
             $aroapprovalchain = AroRequestsApprovals::get_data(array('aorid' => $aroorderrequest->aorid), array('returnarray' => true, 'simple' => false, 'order' => array('by' => 'sequence', 'sort' => 'ASC')));
             if(is_array($aroapprovalchain)) {
+
+                $apprs = '<td class="subtitle" style="border-right: 1px dashed ;margin-right:10px;"><span style="font-weight:bold;">'.$lang->position.'</span><br/>
+                    <span style="width:100%;font-weight:bold;">'.$lang->approver.'</span><br/><br/>
+                     <span style="width:100%;font-weight:bold;">'.$lang->dateofapprovalemail.'</span><br/><br/><br/><span style="width:100%;font-weight:bold;">'.$lang->dateofapproval.'</span></td>';
+
                 foreach($aroapprovalchain as $approver) {
                     switch($approver->position) {// needs optimization
                         case 'businessManager':
@@ -383,11 +388,23 @@ if(!($core->input['action'])) {
                     if(is_object($user)) {
                         $username = $user->get_displayname();
                     }
+                    if($approver->emailRecievedDate != 0) {
+                        $dateofapprovalemail = gmdate("H:i:s", ($approver->emailRecievedDate)).'<br/>';
+                        $dateofapprovalemail .=date($core->settings['dateformat'], $approver->emailRecievedDate);
+                    }
                     if($approver->isApproved == 1) {
                         $class = 'greenbackground';
                         if($approver->timeApproved != 0) {
                             $dateofapproval = gmdate("H:i:s", ($approver->timeApproved)).'<br/>';
                             $dateofapproval .=date($core->settings['dateformat'], $approver->timeApproved);
+                        }
+
+                        $hourdiff = round(( $approver->timeApproved - $approver->emailRecievedDate) / 3600, 1);
+                        if($hourdiff < 10) {
+                            $hourdiff_output = '<span style="color:green;">'.$hourdiff.' '.$lang->hours.'</span>';
+                        }
+                        else {
+                            $hourdiff_output = '<span style="color:red;">'.$hourdiff.' '.$lang->hours.'</span>';
                         }
                     }
                     else {
@@ -397,7 +414,7 @@ if(!($core->input['action'])) {
                         }
                     }
                     eval("\$apprs .= \"".$template->get('aro_approvalchain_approver')."\";");
-                    unset($class, $approve);
+                    unset($class, $approve, $hourdiff_output, $hourdiff);
                 }
             }
 
