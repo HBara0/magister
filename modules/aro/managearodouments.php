@@ -398,13 +398,15 @@ if(!($core->input['action'])) {
                             $dateofapproval = gmdate("H:i:s", ($approver->timeApproved)).'<br/>';
                             $dateofapproval .=date($core->settings['dateformat'], $approver->timeApproved);
                         }
-
-                        $hourdiff = round(( $approver->timeApproved - $approver->emailRecievedDate) / 3600, 1);
-                        if($hourdiff < 10) {
-                            $hourdiff_output = '<span style="color:green;">'.$hourdiff.' '.$lang->hours.'</span>';
-                        }
-                        else {
-                            $hourdiff_output = '<span style="color:red;">'.$hourdiff.' '.$lang->hours.'</span>';
+                        $hourdiff_output = '-';
+                        if($approver->emailRecievedDate != 0 && $approver->timeApproved != 0) {
+                            $hourdiff = round(( $approver->timeApproved - $approver->emailRecievedDate) / 3600, 1);
+                            if($hourdiff < 10) {
+                                $hourdiff_output = '<span style="color:green;">'.$hourdiff.' '.$lang->hours.'</span>';
+                            }
+                            else {
+                                $hourdiff_output = '<span style="color:red;">'.$hourdiff.' '.$lang->hours.'</span>';
+                            }
                         }
                     }
                     else {
@@ -1095,7 +1097,7 @@ else {
                     $arorequest->inform_nextapprover();
                 }
                 if($arorequest->is_approved()) {
-                    $arorequest->update_arorequeststatus();
+                    $arorequest = $arorequest->update_arorequeststatus();
                     $arorequest->notifyapprove();
                 }
             }

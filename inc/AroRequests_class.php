@@ -20,7 +20,7 @@ class AroRequests extends AbstractClass {
     const PRIMARY_KEY = 'aorid';
     const TABLE_NAME = 'aro_requests';
     const DISPLAY_NAME = '';
-    const SIMPLEQ_ATTRS = 'aorid,affid,orderType,identifier';
+    const SIMPLEQ_ATTRS = 'aorid,affid,orderType,identifier,isApproved';
     const CLASSNAME = __CLASS__;
     const UNIQUE_ATTRS = 'affid,orderType,orderReference';
 
@@ -599,6 +599,7 @@ class AroRequests extends AbstractClass {
     public function update_arorequeststatus() {
         global $db;
         $db->update_query(self::TABLE_NAME, array('isApproved' => 1), self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
+        return self::get_data(array(self::PRIMARY_KEY => $this->data[self::PRIMARY_KEY]));
     }
 
     public function get_approvals($isapproved = 1) {
@@ -631,9 +632,9 @@ class AroRequests extends AbstractClass {
         if($this->data['isApproved'] == 1) {
             $approvers = $this->get_approvers();
             if(is_array($approvers)) {
-                foreach($approvers as $approver_id) {
-                    $approver = new Users($approver_id);
-                    $mailinglist[$approver_id] = $approver->get_email();
+                foreach($approvers as $approver_obj) {
+                    $approver = new Users($approver_obj->uid);
+                    $mailinglist[$approver->uid] = $approver->get_email();
                 }
             }
             if($this->check_infromcoords() == 1) {
@@ -650,8 +651,16 @@ class AroRequests extends AbstractClass {
                 $mailinglist[$cfo->uid] = $cfo->get_email();
             }
 
+            $informmoreusers = $this->check_informmoreusers();
+            if(is_array($informmoreusers)) {
+                foreach($informmoreusers as $useremail) {
+                    $mailinglist[] = $useremail;
+                }
+            }
+
+            $mailinglist = array_unique($mailinglist);
             $email_data = array(
-                    'from_email' => '..@ocos.orkila.com',
+                    'from_email' => 'test@ocos.orkila.com',
                     'from' => 'Orkila Attendance System',
                     'to' => $mailinglist,
                     'subject' => 'Aro is approved',
@@ -740,6 +749,27 @@ class AroRequests extends AbstractClass {
 
     public function get_approval_byappover($approver) {
         return AroRequestsApprovals::get_data('aorid='.$this->data[self::PRIMARY_KEY].' AND uid='.intval($approver));
+    }
+
+    public function check_informmoreusers() {
+        $filter = 'affid ='.$this->affid.' AND purchaseType = '.$this->orderType.' AND ('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
+        $aroapprovalchain_policies = AroApprovalChainPolicies::get_data($filter);
+        if(is_object($aroapprovalchain_policies)) {
+            if(!empty($aroapprovalchain_policies->informExternalUsers)) {
+                $informmore = unserialize(base64_decode($aroapprovalchain_policies->informExternalUsers));
+            }
+            $informmore = array_filter($informmore);
+            if(!empty($aroapprovalchain_policies->informInternalUsers)) {
+                $informinternalusers = unserialize(base64_decode($aroapprovalchain_policies->informInternalUsers));
+                if(is_array($informinternalusers)) {
+                    foreach($informinternalusers as $userid) {
+                        $user = new Users($userid);
+                        $informmore[] = $user->get_email();
+                    }
+                }
+            }
+        }
+        return $informmore;
     }
 
 }

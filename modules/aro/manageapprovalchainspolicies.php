@@ -33,6 +33,27 @@ if(!$core->input['action']) {
         if($chainpolicy['informGlobalCFO'] == 1) {
             $checked['informGlobalCFO'] = 'checked="checked"';
         }
+
+
+        if(!empty($chainpolicy['informExternalUsers'])) {
+            $informmore['externalusers'] = unserialize(base64_decode($chainpolicy['informExternalUsers']));
+        }
+        if(is_array($informmore['externalusers'])) {
+            $informmore['externalusers'] = array_filter($informmore['externalusers']);
+            foreach($informmore['externalusers'] as $externaluseremail) {
+                $chainpolicy['informExternalUsers_output'] .=$externaluseremail.'<br/>';
+            }
+        }
+
+        if(!empty($chainpolicy['informInternalUsers'])) {
+            $informmore['internalusers'] = unserialize(base64_decode($chainpolicy['informInternalUsers']));
+            if(is_array($informmore['internalusers'])) {
+                foreach($informmore['internalusers'] as $userid) {
+                    $user = new Users($userid);
+                    $chainpolicy['informInternalUsers_output'] .= $user->get_displayname().'<br/>';
+                }
+            }
+        }
     }
     foreach($inaffiliates as $affid) {
         $affiliate[$affid] = new Affiliates($affid);
@@ -97,6 +118,13 @@ else if($core->input['action'] == 'do_perform_manageapprovalchainspolicies') {
     unset($core->input['identifier'], $core->input['module'], $core->input['action']);
     $aroapproval_policy = new AroApprovalChainPolicies();
 
+    $informExternalUsers_str = nl2br($core->input['chainpolicy']['informExternalUsers']);
+    $informExternalUsers = explode("<br />", $informExternalUsers_str);
+    $core->input['chainpolicy']['informExternalUsers'] = serialize($informExternalUsers);
+
+    if(is_array($core->input['chainpolicy']['informInternalUsers']) && !empty($core->input['chainpolicy']['informInternalUsers'])) {
+        $core->input['chainpolicy']['informInternalUsers'] = serialize($core->input['chainpolicy']['informInternalUsers']);
+    }
     $core->input['chainpolicy']['effectiveFrom'] = strtotime($core->input['chainpolicy']['effectiveFrom']);
     $core->input['chainpolicy']['effectiveTo'] = strtotime($core->input['chainpolicy']['effectiveTo']);
     if($core->input['chainpolicy']['effectiveFrom'] > $core->input['chainpolicy']['effectiveTo']) {
@@ -126,4 +154,11 @@ else if($core->input['action'] == 'ajaxaddmore_approvers') {
     $approverdata[sequence] = $rowid;
     eval("\$aro_manageapprovalchainspolicies_approversrows= \"".$template->get('aro_manageapprovalchainspolicies_approversrows')."\";");
     output($aro_manageapprovalchainspolicies_approversrows);
+}
+else if($core->input['action'] == 'ajaxaddmore_informedemployees') {
+    $inform_rowid = intval($core->input['value']) + 1;
+    $informemployees_rows = "<tr><td><input type='text' id='user_".$inform_rowid."_informed_autocomplete' value=\"".
+            $chainpolicy[username]."\"/> <input type='hidden' id='user_".$inform_rowid."_informed_id' name='chainpolicy[informInternalUsers][]' value=\"".
+            $user->uid."\" /></td></tr>";
+    output($informemployees_rows);
 }

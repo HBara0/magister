@@ -10,9 +10,6 @@
                     if($(this).val() != 'user' && $(this).val() != 'businessManager') {
                         $("div[id^='user_" + id[1] + "']").hide();
                     } else {
-                        //    if($(this).val() != 'businessManager') {
-                        //        $("div[id^='businessManager_" + id[1] + "']").hide();
-                        //  }
                         $("div[id^='user_" + id[1] + "']").effect("highlight", {color: "#D6EAAC"}, 1500).find("input").first().focus().val("");
                     }
                 });
@@ -59,16 +56,36 @@
                             {$lang->informmore}
                         </td>
                     </tr>
-                    <tr><td>{$lang->selectemployee}</td>
-                        <td>
-                            <input type='text' id='user_0_autocomplete' value="{$chainpolicy[username]}"/>
-                            <input type='hidden' id='user_0_id' name='chainpolicy[informInternalUsers][uid]' value="{$user->uid}" />
+                    <tr><td style="vertical-align:top">{$lang->selectemployee}</td>
+                        <td style="vertical-align: top;">{$chainpolicy[informInternalUsers_output]}</td>
+                    </tr>
+                    <tr>
+                        <td style="vertical-align:top"></td>
+                        <td style="vertical-align: top;padding-left:10px;">
+                            <input type='text' id='user_0_informed_autocomplete' value="{$chainpolicy[username]}"/>
+                            <input type='hidden' id='user_0_informed_id' name='chainpolicy[informInternalUsers][]' value="{$user->uid}" />
                         </td>
                     </tr>
                     <tr>
-                        <td>{$lang->informbymail}</td>
+                        <td></td>
                         <td>
-                            <textarea name="chainpolicy[informExternalUsers][]" id="description" cols="40" rows="5" ></textarea>
+                            <table>
+                                <tbody id="informedemployees_tbody">
+                                    {$informemployees_rows}
+                                </tbody>
+                                <tr><td valign="top">
+                                        <input name="numrows_informmoreemployees{$inform_rowid}" type="hidden" id="numrows_informedemployees" value="{$inform_rowid}">
+                                        <img src="./images/add.gif" id="ajaxaddmore_aro/manageapprovalchainspolicies_informedemployees" alt="{$lang->add}">
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td style="vertical-align:top">{$lang->informbymail}</td>
+                        <td>
+                            <textarea name="chainpolicy[informExternalUsers]" id="description" cols="40" rows="5" >{$chainpolicy[informExternalUsers_output]}</textarea>
                         </td>
                     </tr>
                 </table>
@@ -77,18 +94,13 @@
                         <tr class="thead"><Td colspan="3">Approval Chain</Td></tr>
                                 {$aro_manageapprovalchainspolicies_approversrows}
                     </tbody>
-
-
                 </table>
                 <table>
                     <tr><td valign="top">
-
                             <input name="numrows_approvers{$rowid}" type="hidden" id="numrows_approvers" value="{$rowid}">
-
                             <img src="./images/add.gif" id="ajaxaddmore_aro/manageapprovalchainspolicies_approvers" alt="{$lang->add}">
                         </td>
                     </tr>
-                    <tr>
                 </table>
                 <input type="submit" id="perform_aro/manageapprovalchainspolicies_Button" value="Save" class="button"/>
             </form>

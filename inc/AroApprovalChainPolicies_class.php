@@ -21,7 +21,7 @@ class AroApprovalChainPolicies extends AbstractClass {
     const TABLE_NAME = 'aro_approvalchain_policies';
     const DISPLAY_NAME = '';
     const UNIQUE_ATTRS = 'affid,purchaseType,effectiveFrom,effectiveTo';
-    const SIMPLEQ_ATTRS = 'aapcid,affid,purchaseType,effectiveFrom,effectiveTo,approvalChain';
+    const SIMPLEQ_ATTRS = 'aapcid,affid,purchaseType,effectiveFrom,effectiveTo,approvalChain,informExternalUsers,informInternalUsers';
     const CLASSNAME = __CLASS__;
 
     public function __construct($id = '', $simple = true) {
@@ -61,6 +61,8 @@ class AroApprovalChainPolicies extends AbstractClass {
                 'purchaseType' => $data['purchaseType'],
                 'informCoordinators' => $data['informCoordinators'],
                 'informGlobalCFO' => $data['informGlobalCFO'],
+                'informExternalUsers' => base64_encode($data['informExternalUsers']),
+                'informInternalUsers' => base64_encode($data['informInternalUsers']),
                 'createdOn' => TIME_NOW,
         );
         $query = $db->insert_query(self::TABLE_NAME, $policies_array);
@@ -98,6 +100,8 @@ class AroApprovalChainPolicies extends AbstractClass {
                     'purchaseType' => $data['purchaseType'],
                     'informCoordinators' => $data['informCoordinators'],
                     'informGlobalCFO' => $data['informGlobalCFO'],
+                    'informExternalUsers' => base64_encode($data['informExternalUsers']),
+                    'informInternalUsers' => base64_encode($data['informInternalUsers']),
                     'modifiedOn' => TIME_NOW,
             );
             unset($data['approvalChain']);
