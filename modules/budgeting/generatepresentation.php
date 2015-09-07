@@ -10,17 +10,67 @@
 
 $sheets_order = array(
         'monthlysummary' => 1,
-        'cumulativesale' => 2,
-        'cumulativeincome' => 3,
-        'topsalessuppliers' => 4,
-        'topnetsuppliers' => 5,
-        'topincomepercsup' => 6,
-        'groupsupsales' => 7,
-        'groupsupinc' => 8,
-        'solvaygroupsale' => 9,
-        'solvaygroupinc' => 10,
-        'businessmanagersales' => 11,
-        'businessmanagerincome' => 12
+        'countrymonthlysummary' => 2,
+        'cumulativesale' => 3,
+        'countrycumulativesale' => 4,
+        'cumulativeincome' => 5,
+        'countrycumulativeincome' => 6,
+        'topsalessuppliers' => 7,
+        'countrytopsalessuppliers' => 8,
+        'topnetsuppliers' => 9,
+        'countrytopnetsuppliers' => 10,
+        'topincomepercsup' => 11,
+        'countrytopincomepercsup' => 12,
+        'groupsupsales' => 13,
+        'countrygroupsupsales' => 14,
+        'groupsupinc' => 15,
+        'countrygroupsupinc' => 16,
+        'solvaygroupsale' => 17,
+        'countrysolvaygroupsale' => 18,
+        'solvaygroupinc' => 19,
+        'countrysolvaygroupinc' => 20,
+        'businesssegmentsales' => 21,
+        'businesssegmentincome' => 22,
+        'businessmanagersales' => 23,
+        'countrybusinessmanagersales' => 24,
+        'businessmanagerincome' => 25,
+        'countrybusinessmanagerincome' => 26,
+        'salesperson1PL' => 27,
+        'salesperson2PL' => 28,
+        'salesperson3PL' => 29,
+        'salesperson4PL' => 30,
+        'salesperson5PL' => 31,
+        'salesperson6PL' => 32,
+        'salesperson7PL' => 33,
+        'salesperson8PL' => 34,
+        'salesperson9PL' => 35,
+        'salesperson10PL' => 36,
+        'salespertype' => 37,
+        'countryvaffiliate' => 38,
+        'risk' => 39,
+        'topsalescustomers' => 40,
+        'topincomecustomers' => 41,
+        'headcount' => 42,
+        'FAClocal' => 43,
+        'FACusd' => 44,
+        'investments' => 45,
+        'bank' => 46,
+        'stockevolution' => 47,
+        'stockaging' => 48,
+        'expiredstock' => 49,
+        'stockexpiringin60' => 50,
+        'oldstocknotexpired' => 51,
+        'stockpermonthofsales' => 52,
+        'totalPL' => 53,
+        'balancesheet' => 54,
+        'currentbalancesheet' => 55,
+        'clientreceivables' => 56,
+        'overduereceivables' => 57,
+        'affiliatepayable' => 58,
+        'debttogroup' => 59,
+        'PLconsolidated' => 60,
+        'localtrainingandvisits' => 61,
+        'internationaltrainingandvisits' => 62,
 );
 ini_set(max_execution_time, 0);
 if(!defined('DIRECT_ACCESS')) {
@@ -1027,12 +1077,10 @@ xmlns = "http://www.w3.org/TR/REC-html40">
                     $page.='<tbody>'.$rows.'</tbody>';
                     $page.='</table></body></html>';
                     $path = dirname(__FILE__).'\..\..\tmp\\bugetingexport\\'.uniqid($aff.$saletype.$langvariable).'.html';
-                    if($sheets_order[$langvariable] > 0) {
-                        $allpaths[$sheets_order[$langvariable]][$lang->$saletype.$lang->$langvariable] = $path;
+                    if($saletype == 'countrysales') {
+                        $langvariable = 'country'.$langvariable;
                     }
-                    else {
-                        $allpaths[100][$lang->$saletype.$lang->$langvariable] = $path;
-                    }
+                    $allpaths[$langvariable][$lang->$langvariable] = $path;
                     $handle = fopen($path, 'w') or die('Cannot open file: '.$allpaths);
                     $writefile = file_put_contents($path, $page);
                     continue;
@@ -1077,14 +1125,13 @@ xmlns = "http://www.w3.org/TR/REC-html40">
 //es are loaded to PHPExcel using the IOFactory load() method
     if(is_array($allpaths)) {
         $count = 0;
-        ksort($allpaths);
-        foreach($allpaths as $order => $allpages) {
-            foreach($allpages as $title => $path) {
+        foreach($sheets_order as $sheettitle => $ordering) {
+            if(isset($allpaths[$sheettitle]) && is_array($allpaths[$sheettitle])) {
                 if($count == 0) {
-                    $main_excel = PHPExcel_IOFactory::load($path);
-                    $main_excel->getSheet(0)->setTitle($title);
-
+                    $main_excel = PHPExcel_IOFactory::load($allpaths[$sheettitle][$lang->$sheettitle]);
+                    $main_excel->getSheet(0)->setTitle($lang->$sheettitle);
                     $main_excel->getSheet(0)->getStyle('B2:Z2')->applyFromArray($style['header']);
+                    $main_excel->getSheet(0)->getTabColor()->setARGB('FF008000');
                     for($i = 3; $i <= 8; $i = $i + 2) {
                         $main_excel->getSheet(0)->getStyle('A'.$i.':Z'.$i)->applyFromArray($style['altrows']);
                     }
@@ -1101,32 +1148,51 @@ xmlns = "http://www.w3.org/TR/REC-html40">
                     $count = 1;
                     continue;
                 }
-                $tempexcel = PHPExcel_IOFactory::load($path);
-                $excels[$title] = $tempexcel->getSheet(0);
+                $tempexcel = PHPExcel_IOFactory::load($allpaths[$sheettitle][$lang->$sheettitle]);
+                $excels[$lang->$sheettitle] = $tempexcel->getSheet(0);
+                if($sheets_order[$sheettitle] < 30 && $sheettitle != 'businesssegmentsales' && $sheettitle != 'businesssegmentincome') {
+                    if((substr($sheettitle, 0, 7) === 'country')) {
+                        $excels[$lang->$sheettitle]->getTabColor()->setARGB('FFFF0000');
+                    }
+                    else {
+                        $excels[$lang->$sheettitle]->getTabColor()->setARGB('FF008000');
+                    }
+                }
                 $tempexcel = '';
+            }
+            else {
+                $excels[$lang->$sheettitle] = 'empty';
             }
         }
         if(is_array($excels)) {
             foreach($excels as $title => $sheet) {
-                $sheet->setTitle($title);
-                $sheet->getDefaultStyle()
-                        ->getAlignment()
-                        ->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
-                $sheet->getStyle('B2:Z2')->applyFromArray($style['header']);
+                if($sheet == 'empty') {
+                    $emptysheet = new PHPExcel_Worksheet();
+                    $emptysheet->setTitle($title);
+                    $emptysheet->getTabColor()->setARGB('FF008E8E');
+                    $main_excel->addSheet($emptysheet);
+                }
+                else {
+                    $sheet->setTitle($title);
+                    $sheet->getDefaultStyle()
+                            ->getAlignment()
+                            ->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+                    $sheet->getStyle('B2:Z2')->applyFromArray($style['header']);
 
-                for($i = 3; $i <= 9; $i = $i + 2) {
-                    $sheet->getStyle('A'.$i.':Z'.$i)->applyFromArray($style['altrows']);
+                    for($i = 3; $i <= 9; $i = $i + 2) {
+                        $sheet->getStyle('A'.$i.':Z'.$i)->applyFromArray($style['altrows']);
+                    }
+                    if(($title == $lang->businesssegmentsales) || ($title == $lang->businesssegmentincome)) {
+                        $sheet->getStyle('A11:M11')->applyFromArray($style['header']);
+                        $sheet->getStyle('A12:M12')->applyFromArray($style['header']);
+                        $sheet->getStyle('A15:M15')->applyFromArray($style['header']);
+                    }
+                    foreach(range('A', 'O') as $col) {
+                        $sheet->getColumnDimension($col)
+                                ->setWidth('15');
+                    }
+                    $main_excel->addSheet($sheet);
                 }
-                if(($title == $lang->businesssegmentsales) || ($title == $lang->businesssegmentincome)) {
-                    $sheet->getStyle('A11:M11')->applyFromArray($style['header']);
-                    $sheet->getStyle('A12:M12')->applyFromArray($style['header']);
-                    $sheet->getStyle('A15:M15')->applyFromArray($style['header']);
-                }
-                foreach(range('A', 'O') as $col) {
-                    $sheet->getColumnDimension($col)
-                            ->setWidth('15');
-                }
-                $main_excel->addSheet($sheet);
             }
             ob_clean();
             $objWriter = PHPExcel_IOFactory::createWriter($main_excel, "Excel5");

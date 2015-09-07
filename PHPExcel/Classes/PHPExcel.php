@@ -474,7 +474,7 @@ class PHPExcel {
      */
     public function addSheet(PHPExcel_Worksheet $pSheet, $iSheetIndex = null) {
         if($this->sheetNameExists($pSheet->getTitle())) {
-            $pSheet->setTitle('sheetnumerodos');
+            $pSheet->setTitle('existingsheetname');
 //            throw new PHPExcel_Exception(
 //            "Workbook already contains a worksheet named '{$pSheet->getTitle()}'. Rename this worksheet first."
 //            );
