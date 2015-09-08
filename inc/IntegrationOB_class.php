@@ -1490,7 +1490,7 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                         $output .= '<table class="datatable"><tr><td class="thead" colspan=4>'.$lang->topten.' '.$lang->$tableindex.' '.$lang->$classificationtype.'</td></tr>';
                         $output .= '<tr class="altrow2"><th>'.$lang->$tableindex.'</td><th>'.$lang->currentdata.'</td>';
                         if($classificationtype != 'wholeperiod' && $classificationtype != 'byquarter') {
-                            $output .= '<th>'.$lang->prevdata.'</th><th>'.$lang->position.'</th>';
+                            $output .= '<th>'.$lang->prevdata.'('.$prevperiod.')</th><th>'.$lang->position.'</th>';
                             switch($classificationtype) {
                                 case 'bymonth':
                                     $prevperiod = getdate(TIME_NOW);
@@ -1502,7 +1502,7 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                                 default:
                                     break;
                             }
-                            $output .='<td>'.$lang->prevdata.' ('.$prevperiod.') </td><td>'.$lang->position.'</td>';
+                            //  $output .='<td>'.$lang->prevdata.' ('.$prevperiod.') </td><td>'.$lang->position.'</td>';
                         }
                         $output .= '<tr>';
                         reset($classificationdata[$tableindex]);
@@ -1522,6 +1522,9 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                                 }
                                 unset($cdata['currentmonthdata']);
                                 $object = new $classname($id);
+                                if(!is_object($object) || empty($object->name)) {
+                                    $object->name = 'unspecified';
+                                }
                                 $output .= '<tr><td>'.$object->name.'</td>';
                                 foreach($cdata as $data) {
                                     $output .= '<td style="text-align:right;">'.$formatter->format($data).'</td>';
@@ -1567,7 +1570,7 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
         }
         foreach($data_ids as $id) {
             $object = new $classname($id);
-            if(!is_object($object)) {
+            if(!is_object($object) || empty($object->name)) {
                 $yaxixdata[] = 'unspecified';
             }
             else {
