@@ -1521,11 +1521,13 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                                     }
                                 }
                                 unset($cdata['currentmonthdata']);
+
                                 $object = new $classname($id);
-                                if(!is_object($object) || empty($object->name)) {
+                                if(!is_object($object) || empty($object->name) || $object->name == 'System') {
                                     $object->name = 'unspecified';
                                 }
                                 $output .= '<tr><td>'.$object->name.'</td>';
+
                                 foreach($cdata as $data) {
                                     $output .= '<td style="text-align:right;">'.$formatter->format($data).'</td>';
                                 }
