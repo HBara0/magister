@@ -1,7 +1,16 @@
 <div style="display:block;" >
-    <div style="margin:50px;text-align: center" >
-        <img src="./images/chevron-down.png" align="middle" style=""/>
+    <div style="text-align: right;display: inline-block;width: 55%;vertical-align: top;margin-top: 50px;margin-bottom: 50px;">
+        <div id="save_section_{$sequence}1">
+            <input type="hidden" id="save_section_{$sequence}_1" value="0" name="segment[{$sequence}][savesection][section1]"/>
+            <a id="save_section_{$sequence}_1" class='tm_sections'/> Save and proceed </a>
+        </div>
     </div>
+    <div style="display: inline-block;width: 35%;vertical-align: top;margin-top: 100px;margin-left: 75px;" id="sectionresults_1">
+    </div>
+    <!-- <div style="margin:50px;text-align: center" >
+         <img src="./images/chevron-down.png" align="middle" style=""/>
+     </div>-->
+    <div id="perform_travelmanager/plantrip_Results_1"></div>
     <h2 class="subtitle" id="transpsetionheader_{$sequence}">Transportations</h2>
     <div class="ui-state-highlight ui-corner-all" style='padding:8px;margin-bottom: 10px;'>{$lang->transppolicy}</div>
     <div style="display: block;border:1px solid #FCEFA1; padding:15px;">
@@ -37,9 +46,15 @@
     </div>
 </div>
 
-<div style="margin:50px;text-align: center" >
-    <img src="./images/chevron-down.png" align="middle" style=""/>
+
+<div style="text-align: right;display: inline-block;width: 55%;vertical-align: top;margin-top: 50px;margin-bottom: 50px;">
+    <div>
+        <input type="hidden" id="save_section_{$sequence}_2" value="0" name="segment[{$sequence}][savesection][section2]"/>
+        <a id="save_section_{$sequence}_2" class='tm_sections'/> Save and proceed </a>
+    </div>
 </div>
+<div style="display: inline-block;width: 35%;vertical-align: top;margin-top: 100px;margin-left: 75px;" id="sectionresults_2"></div>
+
 <h2 class="subtitle" style="padding:8px;width:40%;" id="accomsectionheader_{$sequence}">{$lang->accomodations}</h2>
 <div class="ui-state-highlight ui-corner-all" style='padding:8px;margin-bottom: 8px;'>{$lang->hotelpolicy}</div>
 <input type="checkbox" id="noAccomodation_{$sequence}" name="segment[{$sequence}][noAccomodation]" {$checkedaccomodation} value="1" /> {$lang->noaccomodation}
@@ -53,8 +68,14 @@
   <!-- <div class="subtitle">{}Approved Hotels</div>-->
     {$otherhotels_output}
 </div>
-<div style="margin:50px;text-align: center" >
-    <img src="./images/chevron-down.png" align="middle" style=""/>
+<div>
+    <div style="text-align: right;display: inline-block;width: 55%;vertical-align: top;margin-top: 50px;margin-bottom: 50px;">
+        <div>
+            <input type="hidden" id="save_section_{$sequence}_3" value="0" name="segment[{$sequence}][savesection][section3]"/>
+            <a id="save_section_{$sequence}_3" class='tm_sections'/> Save and proceed </a>
+        </div>
+    </div>
+    <div style="display: inline-block;width: 35%;vertical-align: top;margin-top: 100px;margin-left: 75px;" id="sectionresults_3"></div>
 </div>
 <div style="display:block; width: 100%;" id="segment_expenses_{$sequence}">
     <input name="sequence" type="hidden" id="sequence" value="{$sequence}">
@@ -73,9 +94,14 @@
     </span>
 
 </div>
-<div style="margin:50px;text-align: center" >
-    <img src="./images/chevron-down.png" align="middle" style=""/>
+<div style="text-align: right;display: inline-block;width: 55%;vertical-align: top;margin-top: 50px;margin-bottom: 50px;">
+    <div>
+        <input type="hidden" id="save_section_{$sequence}_4" value="0" name="segment[{$sequence}][savesection][section4]"/>
+        <a id="save_section_{$sequence}_4" class='tm_sections'/> Save and proceed </a>
+    </div>
 </div>
+<div style="display: inline-block;width: 35%;vertical-align: top;margin-top: 100px;margin-left: 75px;" id="sectionresults_4"></div>
+
 <div style="display:block; width: 100%; margin-top: 10px;" id="segment_finances_{$sequence}">
     <input name="sequence" type="hidden" id="sequence" value="{$sequence}">
     <h2 class="subtitle" style="padding:8px;width:100%;" id="financesetionheader_{$sequence}">{$lang->finance} ({$lang->anticipatedamount})</h2>
@@ -93,4 +119,15 @@
             <input name="numrows_finances_{$sequence}" type="hidden" id="numrows_finances_{$sequence}" value="{$frowid}">
         </div>
     </span>
+    <div style="text-align: right;display: inline-block;width: 55%;vertical-align: top;margin-top: 50px;margin-bottom: 50px;">
+        <div>
+            <input type="hidden" id="save_section_{$sequence}_5" value="0" name="segment[{$sequence}][savesection][section5]"/>
+            <a id="save_section_{$sequence}_5" style="
+               display: block;
+               font-weight: bold;
+               cursor: pointer;"/> Save </a>
+        </div>
+    </div>
+    <div style="display: inline-block;width: 35%;vertical-align: top;margin-top: 100px;margin-left: 75px;" id="sectionresults_5"></div>
+
 </div>

@@ -67,7 +67,7 @@ class TravelManagerPlan {
 
         $googledirection_api = 'http://maps.googleapis.com/maps/api/directions/json?origin='.$directiondata['origincity']['name'].',+'.$directiondata['origincity']['country'].'&destination='.$directiondata['destcity']['name'].',+'.$directiondata['destcity']['country'].'&sensor=false&mode='.$directiondata['drivemode'].'&units=metric&departure_time='.$directiondata['departuretime'];
         //  $json = file_get_contents($googledirection_api);
-        //  $data = json_decode($json);
+        //   $data = json_decode($json);
         return $data;
     }
 
@@ -637,7 +637,7 @@ class TravelManagerPlan {
             $destcityid = $destcity['ciid'];
             $transp_requirements['drivemode'] = 'transit';
             $transp_requirements['departuretime'] = $segmentobj->fromDate;
-            $transsegments_output = Cities::parse_transportations($seg_transppbj, array('transportationdetails' => $transportation_details, 'segment' => $segmentobj, 'origincity' => $segmentobj->get_origincity()->get(), 'destcity' => $destcity, 'transprequirements' => $transp_requirements), $sequence);
+            $transsegments_output = Cities::parse_transportations($seg_transppbj, array('transportationdetails' => $transportation_details, 'segment' => $segmentobj, 'origincity' => $segmentobj->get_origincity()->get(), 'destcity' => $destcity, 'transprequirements' => $transp_requirements, 'excludesuggestions' => 1), $sequence);
 
             unset($transp_requirements);
             /* parse transportations types --END */
@@ -860,24 +860,29 @@ $("#anotheraff_otheraccomodations_'.$sequence.'_'.$otherhotel_checksum.'").hide(
                 'purposes_row_1' => array('options' => 'tipLocation:top;', 'text' => $lang->helptour_purposes),
                 'considerleisure_1' => array('options' => 'tipLocation:top;', 'text' => $lang->helptour_considerleisure),
                 'segreason_1' => array('options' => 'tipLocation:top;', 'text' => $lang->helptour_segreason),
+                'save_section_1_1' => array('text' => $lang->helptour_savesec1),
                 'transpsetionheader_1' => array('text' => $lang->helptour_transpsetionheader),
                 'lookuptransps_1' => array('text' => $lang->helptour_lookuptransps),
                 'checkbox_show_othertransps_1' => array('text' => $lang->helptour_chooseothertransps),
+                'save_section_1_2' => array('text' => $lang->helptour_savesec2),
                 'accomsectionheader_1' => array('text' => $lang->helptour_accomsectionheader),
                 'noAccomodation_1' => array('text' => $lang->helptour_noaccomodation),
                 'countryhotels_1_check' => array('text' => $lang->helptour_countryhotels),
                 'hotels_1_cache_hotel_autocomplete' => array('text' => $lang->helptour_hotelsautocomplete),
                 'addnewhotel_1_travelmanager/plantrip_loadpopupbyid' => array('text' => $lang->helptour_addnewhotel),
+                'save_section_1_3' => array('text' => $lang->helptour_savesec3),
                 'addexpensessetionheader_1' => array('text' => $lang->helptour_addexpensessetionheader),
                 'segment_expensestype_1_1' => array('text' => $lang->helptour_expensestype),
                 'expenses_amtcurr_1_1' => array('text' => $lang->helptour_expenses_amtcurr),
                 'segment_paidby_1_1' => array('text' => $lang->helptour_expensepaidby),
                 'ajaxaddmore_travelmanager/plantrip_expenses_1' => array('text' => $lang->helptour_addexpense),
                 'addexpensessetionheader_1' => array('text' => $lang->helptour_addexpensessetionheader),
+                'save_section_1_4' => array('text' => $lang->helptour_savesec4),
                 'financesetionheader_1' => array('options' => 'tipLocation:top;', 'text' => $lang->helptour_financesetionheader),
-                'perform_travelmanager/plantrip_Button' => array('text' => $lang->save_helptour),
-                'save_addsegment' => array('text' => $lang->saveandcreatenewseg_helptour),
+                'save_section_1_5' => array('text' => $lang->helptour_savesec5),
+                //'perform_travelmanager/plantrip_Button' => array('text' => $lang->save_helptour),
                 'preview' => array('text' => $lang->saveandpreview_helptour),
+                'save_addsegment' => array('text' => $lang->saveandcreatenewseg_helptour),
                 'finalize' => array('text' => $lang->saveandfinalize_helptour),
         );
 

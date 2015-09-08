@@ -111,9 +111,7 @@ if(!$core->input['action']) {
             $transp_requirements['drivemode'] = 'transit';
             $transp_requirements['departuretime'] = $db->escape_string(($leave['fromDate']));
             $transp = new TravelManagerPlanTransps();
-            $transsegments_output = Cities::parse_transportations($transp, array('origincity' => $origintcity, 'destcity' => $destcity, 'transprequirements' => $transp_requirements), $sequence);
-
-
+            $transsegments_output = Cities::parse_transportations($transp, array('origincity' => $origintcity, 'destcity' => $destcity, 'transprequirements' => $transp_requirements, 'excludesuggestions' => 1), $sequence);
             $segmentobj = new TravelManagerPlanSegments();
             $approvedhotels = $descity_obj->get_approvedhotels();
             if(empty($approvedhotels)) {
@@ -647,7 +645,7 @@ else {
 
         /* Load proposed transproration */
         $transp = new TravelManagerPlanTransps();
-        $transsegments_output = Cities::parse_transportations($transp, array('origincity' => $origintcity, 'destcity' => $destcity, 'transprequirements' => $transp_requirements), $core->input['sequence']);
+        $transsegments_output = Cities::parse_transportations($transp, array('origincity' => $origintcity, 'destcity' => $destcity, 'transprequirements' => $transp_requirements, 'excludesuggestions' => 1), $core->input['sequence']);
         echo $transsegments_output;
     }
     else if($core->input['action'] == 'ajaxaddmore_finances') {
@@ -689,7 +687,7 @@ else {
         $leavetypepurpose = new LeaveTypesPurposes($ltpid);
         if($leavetypepurpose->get_displayname() == 'Event & Fair') {
             $calevents = Events::get_data(array('isPublic' => 1), array('returnarray' => true));
-            $entities = '<tr id="'.$entrowid.'"><td '.$display_external.' data-purposes="external_'.$sequence.'">Select Event</td><td '.$display_external.' data-purposes="external_'.$sequence.'">';
+            $entities = '<tr id = "'.$entrowid.'"><td '.$display_external.' data-purposes = "external_'.$sequence.'">Select Event</td><td '.$display_external.' data-purposes = "external_'.$sequence.'">';
             $entities .= parse_selectlist("test", $tabindex, $calevents, $selected_options, '', '', array('width' => '200px'));
             $entities .='</td></tr>';
         }
@@ -723,7 +721,7 @@ else {
         $warnings['transpclass'] = '';
         $class = TravelManagerPlanTranspClass::get_data(array('tmptc' => intval($core->input['transpclass'])));
         if($class->get_displayname() == 'Business') {
-            $warnings['transpclass'] = '<p style="color:red;">'.$lang->transclasswarning.'</p>';
+            $warnings['transpclass'] = '<p style = "color:red;">'.$lang->transclasswarning.'</p>';
         }
         echo $warnings['transpclass'];
     }
@@ -737,7 +735,7 @@ else {
         $leavetypepurpose = new LeaveTypesPurposes($ltpid);
         if($leavetypepurpose->get_displayname() == 'Event & Fair') {
             $calevents = Events::get_data(array('isPublic' => 1), array('returnarray' => true));
-            $entities = '<tr id="'.$entrowid.'"><td '.$display_external.' data-purposes="external_'.$sequence.'">Select Event</td><td '.$display_external.' data-purposes="external_'.$sequence.'">';
+            $entities = '<tr id = "'.$entrowid.'"><td '.$display_external.' data-purposes = "external_'.$sequence.'">Select Event</td><td '.$display_external.' data-purposes = "external_'.$sequence.'">';
             $entities .= parse_selectlist("segment[{$sequence}][assign][ceid][{$afent_checksum}]", $tabindex, $calevents, $selected_options, '', '', array('width' => '200px'));
             $entities .='</td></tr>';
         }

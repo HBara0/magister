@@ -12,6 +12,7 @@
                 <input type='hidden' id='destinationcity_{$sequence}_cache_id_output' name="segment[{$sequence}][destinationCity]" value="{$segment[$sequence][destinationcity][ciid]}" disabled/>
 
             </td>
+            <td rowspan="2"> <p id="pickDateto_warning_{$sequence}" style="vertical-align: top;color:red;width:175px;margin-left:10px;"></p></td>
         </tr>
         <tr>
             <td width="18%">{$lang->fromdate}*</td>

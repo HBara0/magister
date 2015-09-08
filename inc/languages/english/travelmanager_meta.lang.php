@@ -266,11 +266,12 @@ traveling, then one laundry charge will be allowed.<br/>';
 $lang['hotelpricewarning'] = 'Average hotel price exceeded by more than 10%';
 $lang['fandbwarning'] = 'Food and beverage limit per day exceeded';
 
-$lang['helptour_firstcity'] = 'This is your departure city as specified in the leave';
-$lang['helptour_fromdate'] = 'This is the start date of your leave/segment';
-$lang['helptour_firstdestcity'] = 'Select the destination city';
-$lang['helptour_todate'] = 'Select the segment end date';
+$lang['helptour_firstcity'] = 'This is your departure city as specified in the leave <small>(Manadatory)</small>';
+$lang['helptour_fromdate'] = 'This is the start date of your leave/segment <small>(Manadatory)</small>';
+$lang['helptour_firstdestcity'] = 'Select the destination city <small>(Manadatory)</small>';
+$lang['helptour_todate'] = 'Select the segment end date. <br/> Make sure to pick the correct date before you proceed. <small>(Manadatory)</small>';
 $lang['helptour_purposes'] = 'Select the leave/segment purpose';
+$lang['helptour_considerleisure'] = 'By checking this box, the segment is considered for leisure.';
 $lang['helptour_transpsetionheader'] = 'Fill all Transportation expenses in this section';
 $lang['helptour_lookuptransps'] = 'Choose whether you need a oneway or round-trip transportation method,<br/>then click the button to check Google results';
 $lang['helptour_chooseothertransps'] = 'Choose any other transportation method';
@@ -294,5 +295,10 @@ $lang['saveandfinalize_helptour'] = 'Preview the final Plan before finalizing';
 $lang['transclasswarning'] = 'No employee may travel in business class. Exceptions can be made, and must be addressed to the COO and/or CFO.';
 $lang['starttmtour'] = 'This is your first time on travel manager.<br/>A help tour will guide you in planning your trip.';
 $lang['helptour_segreason'] = 'Specify the Segment reason <small>(Manadatory)</small>';
-$lang['helptour_createsegment'] = 'If you are traveling to multiple cities, divide your travel into segments';
+$lang['helptour_createsegment'] = 'If you are traveling to multiple cities, divide your travel into multiple segments respectively.';
+$lang['helptour_savesec1'] = 'Save the Segmet details.';
+$lang['helptour_savesec2'] = 'Save Transportation Section details before proceeding.';
+$lang['helptour_savesec3'] = 'Save Accomodations Section details before proceeding.';
+$lang['helptour_savesec4'] = 'Save Expenses Section details before proceeding.';
+$lang['helptour_savesec5'] = 'Save Finance Section details before proceeding to the next segment or finalizing your trip.';
 ?>
