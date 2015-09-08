@@ -662,7 +662,6 @@ tr.dummytrow td, tr.dummytrow th {
   cursor: pointer;
   background-position: right bottom;
   margin-bottom: 50px;
-  margin-top: 50px;
-  position: relative; }
+  margin-top: 50px; }
 
 /*# sourceMappingURL=styles.css.map */
