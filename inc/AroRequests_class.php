@@ -99,7 +99,7 @@ class AroRequests extends AbstractClass {
             $data['totalfunds']['aorid'] = $this->data[self::PRIMARY_KEY];
             $fundsengaged_obj->set($data['totalfunds']);
             $fundsengaged_obj->save();
-            $this->create_approvalchain();
+            $this->create_approvalchain(null, $data['approvalchain']);
             //$sendemail_to['approvers'] = $this->generate_approvalchain();
             $this->send_approvalemail();
             ///////////////////////////////
@@ -182,7 +182,7 @@ class AroRequests extends AbstractClass {
             $data['totalfunds']['aorid'] = $this->data[self::PRIMARY_KEY];
             $fundsengaged_obj->set($data['totalfunds']);
             $fundsengaged_obj->save();
-            $this->create_approvalchain();
+            $this->create_approvalchain(null, $data['approvalchain']);
             $approvers_objs = $this->get_approvers();
 //            if(is_array($approvers_objs)) {
 //                foreach($approvers_objs as $approver) {
@@ -349,7 +349,7 @@ class AroRequests extends AbstractClass {
         return $this->errorid;
     }
 
-    public function generate_approvalchain() {
+    public function generate_approvalchain($pickedapprovers = null) {
         global $core;
         $filter = 'affid ='.$this->affid.' AND purchaseType = '.$this->orderType.' AND ('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
         $aroapprovalchain_policies = AroApprovalChainPolicies::get_data($filter);
@@ -367,7 +367,14 @@ class AroRequests extends AbstractClass {
             foreach($sortedapprovalchain as $key => $val) {
                 switch($val['approver']) {
                     case 'businessManager':
-                        $approvers['businessManager'] = 182;
+                        if(isset($pickedapprovers['businessManager']['uid']) && !empty($pickedapprovers['businessManager']['uid'])) {
+                            $approvers['businessManager'] = $pickedapprovers['businessManager']['uid'];
+                        }
+                        else {
+                            $approvers['businessManager'] = " <input style='padding :5px;' type='text' id='user_1_autocomplete'/>
+                                  <input type='hidden' id='user_1_id' name='approvalchain[businessManager][uid]'  />";
+                        }
+
                         break;
                     case 'lolm':
                         $approvers['lolm'] = $affiliate->get_logisticsmanager()->uid;
@@ -426,11 +433,11 @@ class AroRequests extends AbstractClass {
         return null;
     }
 
-    public function create_approvalchain($approvers = null) {
+    public function create_approvalchain($approvers = null, $options = null) {
         global $core;
 
         if(empty($approvers)) {
-            $approvers = $this->generate_approvalchain();
+            $approvers = $this->generate_approvalchain($options);
         }
         //  $approve_immediately = $this->should_approveimmediately();
         $sequence = 1;

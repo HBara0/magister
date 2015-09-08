@@ -1032,9 +1032,14 @@ else {
                             $position = 'User';
                             break;
                     }
-                    $user = new Users($val);
-                    if(is_object($user)) {
-                        $username = $user->get_displayname();
+                    if($key != 'businessManager') {
+                        $user = new Users($val);
+                        if(is_object($user)) {
+                            $username = $user->get_displayname();
+                        }
+                    }
+                    else {
+                        $username = $val;
                     }
                     eval("\$apprs .= \"".$template->get('aro_approvalchain_approver')."\";");
                 }

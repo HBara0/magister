@@ -45,7 +45,7 @@ class AroApprovalChainPolicies extends AbstractClass {
                     // continue;
                 }
                 if(is_array($approverfield)) {
-                    if(($approverfield['approver'] == 'user' || $approverfield['approver'] == 'businessManager') && is_empty($approverfield['uid'])) {
+                    if(($approverfield['approver'] == 'user') && is_empty($approverfield['uid'])) {
                         $this->errorcode = 2;
                         return false;
                     }

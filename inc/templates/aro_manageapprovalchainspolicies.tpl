@@ -7,7 +7,7 @@
 
                 $('input[id$=_approver]').live('change', function() {
                     var id = $(this).attr('id').split("_");
-                    if($(this).val() != 'user' && $(this).val() != 'businessManager') {
+                    if($(this).val() != 'user') {
                         $("div[id^='user_" + id[1] + "']").hide();
                     } else {
                         $("div[id^='user_" + id[1] + "']").effect("highlight", {color: "#D6EAAC"}, 1500).find("input").first().focus().val("");
