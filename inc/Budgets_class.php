@@ -480,7 +480,7 @@ class Budgets extends AbstractClass {
         }
     }
 
-    public function get_budgetLines($bid = '', $options = array()) {
+    public function get_budgetLines($bid = '', $options = array(), $yefdata = '') {
         global $db;
         if(empty($bid)) {
             $bid = $this->data['bid'];
@@ -500,10 +500,13 @@ class Budgets extends AbstractClass {
             if($db->num_rows($budgetline_queryid) > 0) {
                 while($budgetline_data = $db->fetch_assoc($budgetline_queryid)) {
                     if($budgetline_data['cid'] == 0) {
-                        $budgetline_data['cid'] = md5($budgetline_data['altCid'].$budgetline_data['customerCountry'].$budgetline_data['saltType'].$budgetline_data['pid']);
+                        $budgetline_data['cid'] = md5($budgetline_data['altCid'].$budgetline_data['customerCountry'].$budgetline_data['saleType'].$budgetline_data['pid']);
                     }
                     $budgetline = new BudgetLines($budgetline_data['blid']);
                     $prevbudgetline = new BudgetLines($budgetline_data['prevblid']);
+                    if(!empty($yefdata[$budgetline_data['cid']][$budgetline_data['pid']][$budgetline_data['saleType']]) && is_array($yefdata[$budgetline_data['cid']][$budgetline_data['pid']][$budgetline_data['saleType']])) {
+                        continue;
+                    }
                     $budgetline_details[$budgetline_data['cid']][$budgetline_data['pid']][$budgetline_data['saleType']] = $budgetline->get();
                     $budgetline_details[$budgetline_data['cid']][$budgetline_data['pid']][$budgetline_data['saleType']]['prevbudget'][] = $prevbudgetline->get();
                 }
