@@ -71,20 +71,16 @@ else {
 
         $report['fromdate_output'] = date($core->settings['dateformat'], $fromdate);
         $report['todate_output'] = date($core->settings['dateformat'], $todate);
-
-
         $to = $todate;
-        $currentdate = $fromdate;
-
-        $fromdate_details = getdate($fromdate);
-        $currentdate_details = getdate($currentdate);
-        $todate_details = getdate($todate);
-
         foreach($core->input['uid'] as $uid) {
             unset($attendance_report_user[$uid], $workshift_output);
             $uid = $db->escape_string($uid);
             $user_obj = new Users($uid);
             if(is_object($user_obj)) {
+                $currentdate = $fromdate;
+                $fromdate_details = getdate($fromdate);
+                $currentdate_details = getdate($currentdate);
+                $todate_details = getdate($todate);
                 if($user_obj->get_joindate()) {
                     $joindate = $user_obj->get_joindate();
                     if($fromdate < $joindate) {

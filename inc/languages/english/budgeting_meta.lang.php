@@ -256,4 +256,9 @@ $lang['salespertypedesc'] = 'Sales Per Type (in K USD)';
 $lang['topincomecustomersdesc'] = 'Top Income '.(date('Y') + 1).' budget Customers';
 $lang['topsalescustomersdesc'] = 'Top Sales '.(date('Y') + 1).' budget Customers';
 $lang['riskdesc'] = 'Custermoer/Supplier Risk ';
+$lang['createyef'] = 'Create Year End Forecast';
+$lang['fillyef'] = 'Fill Year End Forecast';
+$lang['october'] = 'October';
+$lang['november'] = 'Novemeber';
+$lang['december'] = 'Decemeber';
 ?>

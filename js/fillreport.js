@@ -1,12 +1,11 @@
-$(function() {
+$(function () {
     $("#affid,#spid,#quarter,#currency").change(getMoreData);
     //get parent form name
     var form = $("#affid,#spid,#quarter").closest("form");
     if(form.attr("name") !== undefined) {
         var formname = form.attr("name").split('/')[0];
     }
-
-    $("#spid").change(function() {
+    $("#spid").change(function () {
         if($(this).val() == '0') {
             $("#buttons_row").hide();
         }
@@ -37,7 +36,7 @@ $(function() {
             else if(id == "spid")
             {
                 dataParam += "&affid=" + $("#affid").val() + "&spid=" + $("#spid").val();
-                if(formname == "perform_budgeting" || formname == "perform_grouppurchase") {
+                if(formname == "perform_budgeting" || formname == "perform_grouppurchase" || formname == "add_budgeting") {
                     get = "years";
                     loadingIn = "years_Loading";
                     contentIn = "year";
@@ -70,7 +69,7 @@ $(function() {
             }
 
             $("#buttons_row").show();
-            if(formname != "perform_budgeting" && formname != "perform_grouppurchase") {
+            if(formname != "perform_budgeting" && formname != "perform_grouppurchase" && formname != "add_budgeting") {
                 var url = "index.php?module=reporting/fillreport&action=get_" + get;
             }
             else if(formname == "perform_budgeting") {
@@ -79,17 +78,20 @@ $(function() {
             else if(formname == "perform_grouppurchase") {
                 var url = "index.php?module=grouppurchase/createforecast&action=get_" + get;
             }
+            else if(formname == "add_budgeting") {
+                var url = "index.php?module=budgeting/createyearendforecast&action=get_" + get;
+            }
             $.ajax({
                 method: "post",
                 url: url,
                 data: dataParam,
-                beforeSend: function() {
+                beforeSend: function () {
                     $("#" + loadingIn).html("<img src='" + imagespath + "/loading.gif' alt='" + loading_text + "'/>")
                 },
-                complete: function() {
+                complete: function () {
                     $("#" + loadingIn).empty();
                 },
-                success: function(returnedData) {
+                success: function (returnedData) {
                     $("#" + contentIn).html(returnedData);
                 }
 
@@ -102,12 +104,12 @@ $(function() {
         }
     }
 
-    $("form[id='save_productsactivity_reporting/fillreport_Form']").submit(function() {
+    $("form[id='save_productsactivity_reporting/fillreport_Form']").submit(function () {
         return validateEmpty('productsactivity');
     });
 
-    $("input[id^='turnOver_'],input[id^='salesForecast_'],input[id^='quantityForecast_'],input[id^='quantity_']").live("click", function() {
-        $(this).blur(function() {
+    $("input[id^='turnOver_'],input[id^='salesForecast_'],input[id^='quantityForecast_'],input[id^='quantity_']").live("click", function () {
+        $(this).blur(function () {
             var id = $(this).attr("id").split("_");
             var toEvaluate = "";
             var evaluationType = "smaller";
@@ -146,7 +148,7 @@ $(function() {
                 }
             }
         });
-        $(this).change(function() {
+        $(this).change(function () {
             if($(this).val() > 1000) {
                 $('#numbernotificationbox').remove();
                 $(".contentContainer").append('<div id="numbernotificationbox">Are you sure that this number is correct?<p><strong>Please review it.</strong></p></div>');
@@ -159,11 +161,11 @@ $(function() {
                     height: 100,
                     zIndex: 1,
                     buttons: {
-                        'Proceed': function() {
+                        'Proceed': function () {
                             $(this).dialog('close');
                         }
                     },
-                    close: function() {
+                    close: function () {
                         //$(this).dialog('close');
                         $('#numbernotificationbox').remove();
                     }
@@ -174,10 +176,10 @@ $(function() {
 
     function validateEmpty(bodyName) {
         var isEmpty = false;
-        $("#" + bodyName + "_tbody").find("tr").each(function() {
+        $("#" + bodyName + "_tbody").find("tr").each(function () {
             var row_id = $(this).attr("id");
             if($(this).find("input:eq(2)").val() != '') {
-                $(this).find("input").each(function() {
+                $(this).find("input").each(function () {
                     if($(this).val() == '' && $(this).attr('id').search(/paid_/gi) == -1) {
                         $(this).attr('required', 'required');
                         isEmpty = true;
@@ -197,7 +199,7 @@ $(function() {
     }
 
     if($("form[id='save_marketreport_reporting/fillreport_Form']").length > 0) {
-        setInterval(function() {
+        setInterval(function () {
             if(sharedFunctions.checkSession() == false) {
                 return;
             }
@@ -217,7 +219,7 @@ $(function() {
 
     }
 
-    $("input[id^='save_'][id$='_Button']").click(function() {
+    $("input[id^='save_'][id$='_Button']").click(function () {
         if(sharedFunctions.checkSession() == false) {
             return;
         }
@@ -227,7 +229,7 @@ $(function() {
         }
         if(validateEmpty(id[1]) == true) {
             var formData = $("form[id='" + id[0] + "_" + id[1] + "_" + id[2] + "_Form']").serialize();
-            $("form[id='" + id[0] + "_" + id[1] + "_" + id[2] + "_Form']").submit(function(e) {
+            $("form[id='" + id[0] + "_" + id[1] + "_" + id[2] + "_Form']").submit(function (e) {
                 e.preventDefault();
             });
             formData = formData.replace(/[^=&]+=(&|$)/g, '');

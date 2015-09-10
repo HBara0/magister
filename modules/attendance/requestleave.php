@@ -425,7 +425,9 @@ else {
             $lang->leavenotificationmessage_days = $lang->sprint($lang->leavenotificationmessage_days, count_workingdays($leave_user['uid'], $core->input['fromDate'], $core->input['toDate'], $leavetype_details['isWholeDay']));
 
             //update_leavestats_periods($core->input, $leavetype_details['isWholeDay']);
-
+            if($core->user['uid'] == $leave_user['reportsTo'] && !empty($leavetype_details['toApprove'])) {
+                $approve_immediately = false;
+            }
             $toapprove = $toapprove_select = unserialize($leavetype_details['toApprove']); //explode(',', $leavetype_details['toApprove']);
             if(is_array($toapprove)) {
                 $aff_obj = new Affiliates($leave_user_obj->get_mainaffiliate()->get()['affid'], false);

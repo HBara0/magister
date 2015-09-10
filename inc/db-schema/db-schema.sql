@@ -958,6 +958,72 @@ CREATE TABLE `budgeting_trainingvisits` (
   PRIMARY KEY (`btvid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=98 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `budgeting_yearendforecast`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `budgeting_yearendforecast` (
+  `yefid` int(10) NOT NULL AUTO_INCREMENT,
+  `identifier` varchar(32) NOT NULL,
+  `year` int(4) NOT NULL,
+  `affid` smallint(5) NOT NULL,
+  `spid` int(10) NOT NULL,
+  `isLocked` tinyint(1) NOT NULL,
+  `isFinalized` tinyint(1) NOT NULL,
+  `finalizedBy` int(10) NOT NULL,
+  `lockedBy` int(10) NOT NULL,
+  `status` tinyint(1) NOT NULL,
+  `createdOn` varchar(50) NOT NULL,
+  `createdBy` int(5) NOT NULL,
+  `modifiedOn` varchar(50) NOT NULL,
+  `modifiedBy` int(5) NOT NULL,
+  PRIMARY KEY (`yefid`)
+) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `budgeting_yef_lines`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `budgeting_yef_lines` (
+  `yeflid` int(10) NOT NULL AUTO_INCREMENT,
+  `inputCheckSum` varchar(200) NOT NULL,
+  `yefid` int(10) NOT NULL,
+  `pid` int(10) NOT NULL,
+  `cid` int(10) NOT NULL,
+  `altCid` varchar(50) NOT NULL,
+  `prevyeflid` int(10) NOT NULL DEFAULT '0',
+  `customerCountry` int(10) NOT NULL,
+  `businessMgr` int(10) NOT NULL,
+  `actualQty` float NOT NULL,
+  `actualIncome` float NOT NULL,
+  `actualAmount` float NOT NULL,
+  `localIncomePercentage` float NOT NULL,
+  `localIncomeAmount` float NOT NULL,
+  `amount` float NOT NULL,
+  `unitPrice` float NOT NULL,
+  `income` float NOT NULL,
+  `incomePerc` float NOT NULL,
+  `invoice` varchar(10) NOT NULL,
+  `invoiceAffid` int(10) NOT NULL,
+  `invoicingEntityIncome` float NOT NULL,
+  `interCompanyPurchase` int(10) NOT NULL,
+  `quantity` float NOT NULL,
+  `originalCurrency` int(11) NOT NULL,
+  `saleType` varchar(12) NOT NULL,
+  `october` float NOT NULL,
+  `november` float NOT NULL,
+  `december` float NOT NULL,
+  `createdBy` int(10) NOT NULL,
+  `createdOn` bigint(30) NOT NULL,
+  `modifiedBy` int(10) NOT NULL,
+  `modifiedOn` bigint(30) NOT NULL,
+  `commissionSplitAffid` int(11) NOT NULL,
+  `purchasingEntity` varchar(50) NOT NULL,
+  `purchasingEntityId` int(10) NOT NULL,
+  `linkedBudgetLine` int(10) NOT NULL,
+  `psid` int(5) NOT NULL,
+  `fromBudget` tinyint(1) NOT NULL,
+  PRIMARY KEY (`yeflid`)
+) ENGINE=MyISAM AUTO_INCREMENT=26 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `calendar_events`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
