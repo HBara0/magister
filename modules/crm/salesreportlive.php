@@ -474,14 +474,15 @@ else {
             $mailer->set_from(array('name' => 'OCOS Mailer', 'email' => $core->settings['maileremail']));
             $mailer->set_subject('Sales Report '.$affiliate->name.' '.$core->input['fromDate'].' - '.$core->input['toDate']);
             $mailer->set_message($salesreport);
-
-            $mailer->set_to(array(
+            $recipients = array(
                     $affiliate->get_generalmanager()->email,
                     $affiliate->get_supervisor()->email,
                     $affiliate->get_financialemanager()->email,
                     $core->user_obj->email,
                     Users::get_data(array('uid' => 3))->email/* Always include User 3 */
-            ));
+            );
+            $recipients = array_unique($recipients);
+            $mailer->set_to($recipients);
 
             //$mailer->set_to('zaher.reda@orkila.com');
             // print_r($mailer->debug_info());
@@ -506,7 +507,7 @@ else {
                         $affiliate->get_financialemanager()->displayName,
                         $core->user_obj->displayName,
                         Users::get_data(array('uid' => 3))->get_displayname()/* Always include User 3 */);
-
+                $recipients = array_unique($recipients);
                 if(is_array($recipients)) {
                     $recipients = array_filter($recipients);
                     $salesreport .= '<hr /><div class="ui-state-highlight ui-corner-all" style="padding-left: 5px; margin-bottom:10px;"><p>This report will be sent to <ul><li>'.implode('</li><li>', $recipients).'</li></ul></p></div>';
