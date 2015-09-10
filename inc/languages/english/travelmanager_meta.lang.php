@@ -301,4 +301,5 @@ $lang['helptour_savesec2'] = 'Save Transportation Section details before proceed
 $lang['helptour_savesec3'] = 'Save Accomodations Section details before proceeding.';
 $lang['helptour_savesec4'] = 'Save Expenses Section details before proceeding.';
 $lang['helptour_savesec5'] = 'Save Finance Section details before proceeding to the next segment or finalizing your trip.';
+$lang['selectevent'] = 'Select Event';
 ?>

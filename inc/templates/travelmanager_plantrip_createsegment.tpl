@@ -51,7 +51,12 @@
             </td>
             <td colspan="2" style="vertical-align: top;width:20%;">
                 <div style="display: inline-block;width:100%">
+                    <input type="hidden" id="event" value="1">
+                    <input type="hidden" id="eventpurposeid" >
                     <table border="0" cellspacing="1" cellpadding="1" width="100%" {$addmore_display}>
+                        <tr  id="events_{$sequence}_trow">
+
+                        </tr>
                         <tbody id="entities_{$sequence}_tbody">
                             {$entities}
                         </tbody>

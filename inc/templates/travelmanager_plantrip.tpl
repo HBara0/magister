@@ -39,7 +39,10 @@
 
                 });
                 $('input[id="save_addsegment"]').live('click', function() {
-                    //  setTimeout('alert("www")', 2000);
+                    if(timer) {
+                        clearInterval(timer);
+                        timer = null;
+                    }
                     function click_seg() {
                         $('a[id="createtab"]').click();
                     }
@@ -99,13 +102,7 @@
                         if($('input[id=transp_lookuptransps_' + sequence + ']:checked').val().length > 0) {
                             transp = $('input[id=transp_lookuptransps_' + sequence + ']:checked').val();
                         }
-                        if($("input[id='checkbox_show_othertransps_" + sequence + "']").is(':checked')) {
-                            var othertranspsseccheckbox = 'checked="checked"';
-                        }
-                        else {
-                            var othertranspsseccheckbox = "";
-                        }
-                        sharedFunctions.requestAjax("post", "index.php?module=travelmanager/plantrip&action=refreshtransp", "&sequence=" + sequence + "&destcity=" + ciid + "&origincity=" + origincity + "&departuretime=" + $('#altpickDate_from_' + sequence).val() + "&arrivaltime=" + $('#altpickDate_to_' + sequence).val() + '&transp=' + transp + "&referrer=lookuptransps&othertranspdisplay=" + $("div[id^='show_othertransps_']").attr('style') + "&othertranspsseccheckbox=" + othertranspsseccheckbox + "&departuretime=" + $('#altpickDate_to_' + (sequence)).val(), 'content_suggestedtransploader_' + sequence + '', 'content_suggestedtransp_' + sequence + '', true);
+                        sharedFunctions.requestAjax("post", "index.php?module=travelmanager/plantrip&action=refreshtransp", "&sequence=" + sequence + "&destcity=" + ciid + "&origincity=" + origincity + "&departuretime=" + $('#altpickDate_from_' + sequence).val() + "&arrivaltime=" + $('#altpickDate_to_' + sequence).val() + '&transp=' + transp + "&referrer=lookuptransps&othertranspdisplay=" + $("div[id^='show_othertransps_']").attr('style') + "&departuretime=" + $('#altpickDate_to_' + (sequence)).val(), 'content_suggestedtransploader_' + sequence + '', 'content_suggestedtransp_' + sequence + '', true);
                         sharedFunctions.requestAjax("post", "index.php?module=travelmanager/plantrip&action=populatecityprofile", "&sequence=" + sequence + "&destcity=" + ciid, 'segment_city_loader_' + sequence + '', 'segment_city_' + sequence + '', true);
                     }
                 });
@@ -185,11 +182,17 @@
                     sharedFunctions.requestAjax("post", "index.php?module=travelmanager/plantrip&action=checkpricevsavgprice", "&avgprice=" + $('input[id="avgprice_' + id[1] + '_' + id[2] + '_' + id[3] + '"]').val() + "&pricepernight=" + pricepernight + "&currency=" + curr, "hotelprice_warning_" + id[2] + "_" + id[3], "hotelprice_warning_" + id[2] + "_" + id[3], true);
                 });
                 $('input[id=finalize]').live('click', function() {
+                    if(timer) {
+                        clearInterval(timer);
+                        timer = null;
+                    }
                     $('input[id="finalizeplan"]').val('1');
                     $('input[id="perform_travelmanager/plantrip_Button"]').click();
                     $('input[id="finalizeplan"]').val('');
                 });
-//on chagne from date refresh qnd trigger again
+                //on chagne from date refresh qnd trigger again
+
+
                 $('input[id^="pickDate_to"]').live('change', function() {
                     var segid = $(this).attr("id").split("_");
                     var nextsegid = ++segid[2];
@@ -197,15 +200,6 @@
                     var origincity = $('input[id=cities_' + nextsegid + '_cache_id]').val(); /*get  the cityid from the hiiden field*/
                     $('input[id^="pickDate_from_' + nextsegid + '"]').live('change', function() {
                         //  $('input[id^="destinationcity_' + nextsegid + '"]').trigger('change');
-
-
-                        if($("input[id='checkbox_show_othertransps_" + segid[2] + "']").is(':checked')) {
-                            var othertranspsseccheckbox = 'checked="checked"';
-                        }
-                        else {
-                            var othertranspsseccheckbox = "";
-                        }
-
                         sharedFunctions.requestAjax("post", "index.php?module=travelmanager/plantrip&action=refreshtransp", "&sequence=" + nextsegid + "&destcity=" + descity + "&origincity=" + origincity + "&departuretime=" + $('#altpickDate_to_' + (nextsegid - 1)).val() + "&othertranspdisplay=" + $("div[id^='show_othertransps_']").attr('style') + "&othertranspsseccheckbox=" + othertranspsseccheckbox, 'content_suggestedtransploader_' + nextsegid + '', 'content_suggestedtransp_' + nextsegid + '', true);
                     });
                     $('input[id^="pickDate_from_' + nextsegid + '"]').val($(this).val()) // set fromdate of the next segment to get the value of the previous ssegment
@@ -261,7 +255,6 @@
                     $("input[id='perform_travelmanager/plantrip_Button']").trigger("click");
                     if(typeof id[3] != 'undefined') {
                         timer = setInterval(function() {
-
                             if($("div[id='sectionresults_" + id[3] + "']").html() != $("div[id='perform_travelmanager/plantrip_Results']").html()) {
                                 $("div[id='sectionresults_" + id[3] + "']").html($("div[id='perform_travelmanager/plantrip_Results']").html());
                             }
@@ -339,34 +332,71 @@
                     }
                 });
                 $('input[id^="purposes_checks_"]').live('change', function() {
-                    var ltpid = $(this).val();
+                    var completeid = $(this).attr('id');
                     var id = $(this).attr('id').split('_');
-                    var empty = 1;
+                    var ltpid = $(this).val();
                     $("input[id='ajaxaddmoredata_ltpid_" + id[3] + "']").val(ltpid);
-                    $('input[id="' + $(this).attr('id') + '"]').each(function(i, obj) {
-                        if($(obj).is(":checked")) {
-                            empty = 0;
+                    var purposeisevent = '';
+                    var eventpurposeid = '';
+                    var checked = '';
+                    if(id[2] == 'external') {
+                        checked = 0;
+                        if($(this).is(":checked")) {
+                            checked = 1;
                         }
-                    });
-                    if(empty == 1) {
-                        $('[data-purposes="' + id[2] + '_' + id[3] + '"]').each(function(i, obj) {
-                            $(obj).find('input').val('');
-                            $(obj).find('select').val('');
-                            $(obj).hide();
+                        $.post("index.php?module=travelmanager/plantrip&action=populateexternalpurpose", {externalpurposetype: ltpid, sequence: id[3]}, function(returnedData) {
+                            var obj = JSON.parse(returnedData);
+                            if(obj.event == 1) {
+                                eventpurposeid = obj.eventpurposeid;
+                                $("input[id='event']").val(1);
+                                $("input[id='eventpurposeid']").val(eventpurposeid);
+                                $("tr[id='events_" + id[3] + "_trow']").html(obj.htmlcontent);
+                                purposeisevent = 1;
+                                if(checked == 0) {
+                                    $("tr[id='events_" + id[3] + "_trow']").hide();
+                                } else {
+                                    $("tr[id='events_" + id[3] + "_trow']").show();
+                                }
+                            } else {
+                                $("input[id='event']").val(0);
+                                purposeisevent = 0;
+                            }
                         });
                     }
-                    else {
-                        $('[data-purposes="' + id[2] + '_' + id[3] + '"]').each(function(i, obj) {
-                            if(id[2] == 'external') {
-                                sharedFunctions.requestAjax("post", "index.php?module=travelmanager/plantrip&action=populateexternalpurpose", "&externalpurposetype=" + ltpid + "&sequence=" + id[3], "entities_" + id[3] + "_tbody", "entities_" + id[3] + "_tbody", true);
-                                setTimeout(function() {
-                                    $(obj).show();
-                                }, 1100);
-                            } else {
-                                $(obj).show();
+                    var t = setInterval(function() {
+                        purposeisevent = String(purposeisevent);
+                        if(purposeisevent.length > 0) {
+                            if(t) {
+                                clearInterval(t);
+                                t = null;
                             }
-                        })
-                    }
+                            if(purposeisevent == 0) {
+                                var empty = 1;
+                                var numchecked = 0;
+                                $('input[id="' + completeid + '"]').each(function(i, obj) {
+                                    if($(obj).is(":checked")) {
+                                        empty = 0;
+                                        numchecked = numchecked + 1;
+                                    }
+                                });
+                                if(numchecked == 1 && $('input[id="' + completeid + '"][value="' + $("input[id='eventpurposeid']").val() + '"]').is(":checked")) {
+                                    empty = 1;
+                                }
+                                if(empty == 1) {
+                                    $('[data-purposes="' + id[2] + '_' + id[3] + '"]').each(function(i, obj) {
+                                        $(obj).find('input').val('');
+                                        $(obj).find('select').val('');
+                                        $(obj).hide();
+                                    });
+                                }
+                                else {
+                                    $('[data-purposes="' + id[2] + '_' + id[3] + '"]').each(function(i, obj) {
+                                        $(obj).show();
+                                    })
+                                }
+                            }
+                        }
+                    }, 1500);
                 });
                 var ptext = '';
                 $.each(total, function(index, val) {
@@ -397,6 +427,14 @@
                     segid = id[1];
                 }
                 $("p[id='pickDateto_warning_" + segid + "']").html('Please note that Changing this field will refresh all the segment sections');
+            });
+            $(document).on('focusout', "input[id^='pickDate_to_'],input[id^='destinationcity_'][id$='cache_autocomplete']", function() {
+                var id = $(this).attr("id").split("_");
+                var segid = id[2];
+                if(id[0] == 'destinationcity') {
+                    segid = id[1];
+                }
+                $("p[id='pickDateto_warning_" + segid + "']").html('');
             });
         </script>
         <style type="text/css">

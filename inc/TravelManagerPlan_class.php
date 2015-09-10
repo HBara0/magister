@@ -582,10 +582,9 @@ class TravelManagerPlan {
                             $eventid = $affient_obj->primaryId;
                             $afent_checksum = $affient_obj->inputChecksum;
                             $calevents = Events::get_data(array('isPublic' => 1), array('returnarray' => true));
-                            $entities = '<tr id="'.$entrowid.'"><td '.$display_external.' data-purposes="external_'.$sequence.'">Select Event</td><td '.$display_external.' data-purposes="external_'.$sequence.'">';
-                            $entities .= parse_selectlist("segment[{$sequence}][assign][ceid][".$afent_checksum."]", $tabindex, $calevents, $eventid, '', '', array('width' => '200px'));
-                            $entities .='</td></tr>';
-
+                            $events = '<td '.$display_external.'>'.$lang->selectevent.'</td><td '.$display_external.'>';
+                            $events .= parse_selectlist("segment[{$sequence}][assign][ceid][".$afent_checksum."]", $tabindex, $calevents, $eventid, '', '', array('width' => '200px'));
+                            $events .='</td>';
                             // eval("\$entities .= \"".$template->get('travelmanager_plantrip_createsegment_entities')."\";");
                             $entrowid++;
                             unset($entityid, $entityname, $afent_checksum);
@@ -615,14 +614,14 @@ class TravelManagerPlan {
             $affrowid = $entrowid = 0;
             eval("\$affiliates_output .= \"".$template->get('travelmanager_plantrip_createsegment_affiliates')."\";");
             $afent_checksum = generate_checksum();
-            if($ltpurpose != 'event') {
-                eval("\$entities.= \"".$template->get('travelmanager_plantrip_createsegment_entities')."\";");
-            }
-            elseif($ltpurpose == 'event') {
+            //   if($ltpurpose != 'event') {
+            eval("\$entities.= \"".$template->get('travelmanager_plantrip_createsegment_entities')."\";");
+            //   }
+            if($ltpurpose == 'event') {
                 $calevents = Events::get_data(array('isPublic' => 1), array('returnarray' => true));
-                $entities .= '<tr id="'.$entrowid.'"><td '.$display_external.' data-purposes="external_'.$sequence.'">Select Event</td><td '.$display_external.' data-purposes="external_'.$sequence.'">';
-                $entities .= parse_selectlist("test", $tabindex, $calevents, $selected_options, '', '', array('width' => '200px', 'blankstart' => true));
-                $entities .='</td></tr>';
+                $events .= '<tr id="'.$entrowid.'"><td '.$display_external.' data-purposes="external_'.$sequence.'">Select Event</td><td '.$display_external.' data-purposes="external_'.$sequence.'">';
+                $events .= parse_selectlist("test", $tabindex, $calevents, $selected_options, '', '', array('width' => '200px', 'blankstart' => true));
+                $events .='</td></tr>';
             }
             unset($afent_checksum, $selectedpurpose);
             //get transp cat send to  parse_transportaionfields

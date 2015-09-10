@@ -32,123 +32,122 @@ class TravelManagerPlanSegments extends AbstractClass {
 
     public function create(array $segmentdata) {
         global $db, $core, $lang, $errorhandler;
-
-        if(is_array($segmentdata['savesection'])) {
-            foreach($segmentdata['savesection'] as $key => $value) {
-                switch($key) {
-                    case 'section1':
-                        if(empty($value)) {
-                            $sectionfields = array('fromDate', 'toDate', 'originCity', 'destinationCity', 'reason', 'isNoneBusiness', 'purpose', 'assign');
-                            foreach($sectionfields as $sectionfield) {
-                                unset($segmentdata[$sectionfield]);
+        $tmp = array_filter($segmentdata['savesection']);
+        if(is_array($tmp)) {
+            if(is_array($segmentdata['savesection'])) {
+                foreach($segmentdata['savesection'] as $key => $value) {
+                    switch($key) {
+//                    case 'section1':
+//                        if(empty($value)) {
+//                            $sectionfields = array('fromDate', 'toDate', 'originCity', 'destinationCity', 'reason', 'isNoneBusiness', 'purpose', 'assign');
+//                            foreach($sectionfields as $sectionfield) {
+//                                unset($segmentdata[$sectionfield]);
+//                            }
+//                        }
+                        case 'section2':
+                            if(empty($value)) {
+                                unset($segmentdata['tmtcid']);
                             }
-                        }
-                    case 'section2':
-                        if(empty($value)) {
-                            unset($segmentdata['tmtcid']);
-                        }
-                        break;
-                    case 'section3':
-                        if(empty($value)) {
-                            unset($segmentdata['tmhid']);
-                        }
-                        break;
-                    case 'section4':
-                        if(empty($value)) {
-                            unset($segmentdata['expenses']);
-                        }
-                        break;
-                    case 'section5':
-                        if(empty($value)) {
-                            unset($segmentdata['tmpfid']);
-                        }
-                        break;
-                    default:
-                        break;
-                }
-            }
-        }
-
-        if(isset($segmentdata['savesection']['section1']) && !empty($segmentdata['savesection']['section1'])) {
-            if(!is_numeric($segmentdata['toDate'])) {
-                $segmentdata['toDate'] = strtotime($segmentdata['toDate']);
-                $segmentdata['fromDate'] = strtotime($segmentdata['fromDate']);
-            }
-            if(is_empty($segmentdata['fromDate'], $segmentdata['toDate'], $segmentdata['originCity'], $segmentdata['destinationCity'], $segmentdata['reason'])) {
-                $this->errorcode = 2;
-                return $this;
-            }
-
-            if(value_exists(self::TABLE_NAME, TravelManagerPlan::PRIMARY_KEY, $segmentdata[TravelManagerPlan::PRIMARY_KEY], "(fromDate = {$segmentdata['fromDate']}  OR toDate = {$segmentdata['toDate']}) AND sequence=".$segmentdata['sequence'])) {
-                $this->errorcode = 4;
-                return $this;
-            }
-
-            $sanitize_fields = array('fromDate', 'toDate', 'originCity', 'destinationCity');
-            foreach($sanitize_fields as $val) {
-                $this->supplier[$val] = $core->sanitize_inputs($this->supplier[$val], array('removetags' => true));
-            }
-            $fromcity = new Cities($segmentdata['originCity']);
-            $tocity = new Cities($segmentdata['destinationCity']);
-            $segmentdata_array = array('tmpid' => $segmentdata['tmpid'],
-                    'name' => $fromcity->get_displayname().' To '.$tocity->get_displayname(),
-                    'fromDate' => $segmentdata['fromDate'],
-                    'toDate' => $segmentdata['toDate'],
-                    'originCity' => $segmentdata['originCity'],
-                    'reason' => $segmentdata['reason'],
-                    'destinationCity' => $segmentdata['destinationCity'],
-                    'apiFlightdata' => $segmentdata['apiFlightdata'],
-                    'createdBy' => $core->user['uid'],
-                    'sequence' => $segmentdata['sequence'],
-                    'createdOn' => TIME_NOW,
-                    'isNoneBusiness' => $segmentdata['isNoneBusiness'],
-                    'noAccomodation' => $segmentdata['noAccomodation'],
-                    'affid' => $segmentdata['affid'],
-                    'eid' => $segmentdata['eid'],
-            );
-
-            $db->insert_query(self::TABLE_NAME, $segmentdata_array);
-            $this->data[self::PRIMARY_KEY] = $db->last_id();
-
-            $segpurposes = $segmentdata['purpose'];
-            if(is_array($segpurposes)) {
-                $db->delete_query('travelmanager_plan_segpurposes', "tmpsid='".$this->data[self::PRIMARY_KEY]."'");
-                foreach($segpurposes as $purpose) {
-                    $purpose_data['purpose'] = $purpose;
-                    $purpose_data['tmpsid'] = $this->data[self::PRIMARY_KEY];
-                    $segmentpurpose_obj = new TravelManagerPlanSegPurposes();
-                    $segmentpurpose_obj->set($purpose_data);
-                    $segmentpurpose_obj->save();
-                }
-            }
-            if(is_array($segmentdata['assign'])) {
-                foreach($segmentdata['assign'] as $type => $assigndata) {
-                    if(is_array($assigndata)) {
-                        if($type == 'affid') {
-                            $assigned['type'] = 'affiliate';
-                        }
-                        elseif($type == 'eid') {
-                            $assigned['type'] = 'entity';
-                        }
-                        elseif($type == 'ceid') {
-                            $assigned['type'] = 'event';
-                        }
-                        $assigned['tmpsid'] = $this->data[self::PRIMARY_KEY];
-                        foreach($assigndata as $key => $id) {
-                            if(empty($id)) {
-                                continue;
+                            break;
+                        case 'section3':
+                            if(empty($value)) {
+                                unset($segmentdata['tmhid']);
                             }
-                            $assigned['primaryId'] = $id;
-                            $assigned['inputChecksum'] = $key;
-                            $assign_obj = new TravelManagerPlanAffient();
-                            $assign_obj->set($assigned);
-                            $assign_obj->save();
-                        }
+                            break;
+                        case 'section4':
+                            if(empty($value)) {
+                                unset($segmentdata['expenses']);
+                            }
+                            break;
+                        case 'section5':
+                            if(empty($value)) {
+                                unset($segmentdata['tmpfid']);
+                            }
+                            break;
+                        default:
+                            break;
                     }
                 }
             }
         }
+        if(!is_numeric($segmentdata['toDate'])) {
+            $segmentdata['toDate'] = strtotime($segmentdata['toDate']);
+            $segmentdata['fromDate'] = strtotime($segmentdata['fromDate']);
+        }
+        if(is_empty($segmentdata['fromDate'], $segmentdata['toDate'], $segmentdata['originCity'], $segmentdata['destinationCity'], $segmentdata['reason'])) {
+            $this->errorcode = 2;
+            return $this;
+        }
 
+        if(value_exists(self::TABLE_NAME, TravelManagerPlan::PRIMARY_KEY, $segmentdata[TravelManagerPlan::PRIMARY_KEY], "(fromDate = {$segmentdata['fromDate']}  OR toDate = {$segmentdata['toDate']}) AND sequence=".$segmentdata['sequence'])) {
+            $this->errorcode = 4;
+            return $this;
+        }
+
+        $sanitize_fields = array('fromDate', 'toDate', 'originCity', 'destinationCity');
+        foreach($sanitize_fields as $val) {
+            $this->supplier[$val] = $core->sanitize_inputs($this->supplier[$val], array('removetags' => true));
+        }
+        $fromcity = new Cities($segmentdata['originCity']);
+        $tocity = new Cities($segmentdata['destinationCity']);
+        $segmentdata_array = array('tmpid' => $segmentdata['tmpid'],
+                'name' => $fromcity->get_displayname().' To '.$tocity->get_displayname(),
+                'fromDate' => $segmentdata['fromDate'],
+                'toDate' => $segmentdata['toDate'],
+                'originCity' => $segmentdata['originCity'],
+                'reason' => $segmentdata['reason'],
+                'destinationCity' => $segmentdata['destinationCity'],
+                'apiFlightdata' => $segmentdata['apiFlightdata'],
+                'createdBy' => $core->user['uid'],
+                'sequence' => $segmentdata['sequence'],
+                'createdOn' => TIME_NOW,
+                'isNoneBusiness' => $segmentdata['isNoneBusiness'],
+                'noAccomodation' => $segmentdata['noAccomodation'],
+                'affid' => $segmentdata['affid'],
+                'eid' => $segmentdata['eid'],
+        );
+
+        $db->insert_query(self::TABLE_NAME, $segmentdata_array);
+        $this->data[self::PRIMARY_KEY] = $db->last_id();
+
+        $segpurposes = $segmentdata['purpose'];
+        if(is_array($segpurposes)) {
+            $db->delete_query('travelmanager_plan_segpurposes', "tmpsid='".$this->data[self::PRIMARY_KEY]."'");
+            foreach($segpurposes as $purpose) {
+                $purpose_data['purpose'] = $purpose;
+                $purpose_data['tmpsid'] = $this->data[self::PRIMARY_KEY];
+                $segmentpurpose_obj = new TravelManagerPlanSegPurposes();
+                $segmentpurpose_obj->set($purpose_data);
+                $segmentpurpose_obj->save();
+            }
+        }
+        if(is_array($segmentdata['assign'])) {
+            foreach($segmentdata['assign'] as $type => $assigndata) {
+                if(is_array($assigndata)) {
+                    if($type == 'affid') {
+                        $assigned['type'] = 'affiliate';
+                    }
+                    elseif($type == 'eid') {
+                        $assigned['type'] = 'entity';
+                    }
+                    elseif($type == 'ceid') {
+                        $assigned['type'] = 'event';
+                    }
+                    $assigned['tmpsid'] = $this->data[self::PRIMARY_KEY];
+                    foreach($assigndata as $key => $id) {
+                        if(empty($id)) {
+                            continue;
+                        }
+                        $assigned['primaryId'] = $id;
+                        $assigned['inputChecksum'] = $key;
+                        $assign_obj = new TravelManagerPlanAffient();
+                        $assign_obj->set($assigned);
+                        $assign_obj->save();
+                    }
+                }
+            }
+        }
+        //  }
         //  unset($segmentdata['savesection']);
 
         if(isset($segmentdata['tmtcid'])) {
@@ -311,105 +310,105 @@ class TravelManagerPlanSegments extends AbstractClass {
 
     public function update(array $segmentdata) {
         global $db, $core, $errorhandler, $lang;
-
-        if(is_array($segmentdata['savesection'])) {
-            foreach($segmentdata['savesection'] as $key => $value) {
-                switch($key) {
-                    case 'section1':
-                        if(empty($value)) {
-                            $sectionfields = array('fromDate', 'toDate', 'originCity', 'destinationCity', 'reason', 'isNoneBusiness', 'purpose', 'assign');
-                            foreach($sectionfields as $sectionfield) {
-                                unset($segmentdata[$sectionfield]);
+        $tmp = array_filter($segmentdata['savesection']);
+        if(is_array($tmp)) {
+            if(is_array($segmentdata['savesection'])) {
+                foreach($segmentdata['savesection'] as $key => $value) {
+                    switch($key) {
+//                    case 'section1':
+//                        if(empty($value)) {
+//                            $sectionfields = array('fromDate', 'toDate', 'originCity', 'destinationCity', 'reason', 'isNoneBusiness', 'purpose', 'assign');
+//                            foreach($sectionfields as $sectionfield) {
+//                                unset($segmentdata[$sectionfield]);
+//                            }
+//                        }
+//                        break;
+                        case 'section2':
+                            if(empty($value)) {
+                                unset($segmentdata['tmtcid'], $segmentdata['apiFlightdata']);
                             }
-                        }
-                        break;
-                    case 'section2':
-                        if(empty($value)) {
-                            unset($segmentdata['tmtcid'], $segmentdata['apiFlightdata']);
-                        }
-                        break;
-                    case 'section3':
-                        if(empty($value)) {
-                            unset($segmentdata['tmhid']);
-                        }
-                        break;
-                    case 'section4':
-                        if(empty($value)) {
-                            unset($segmentdata['expenses']);
-                        }
-                        break;
-                    case 'section5':
-                        if(empty($value)) {
-                            unset($segmentdata['tmpfid']);
-                        }
-                        break;
-                    default:
-                        break;
-                }
-            }
-        }
-        if(isset($segmentdata['savesection']['section1']) && !empty($segmentdata['savesection']['section1'])) {
-            if(!is_numeric($segmentdata['toDate'])) {
-                $segmentdata['toDate'] = strtotime($segmentdata['toDate']);
-                $segmentdata['fromDate'] = strtotime($segmentdata['fromDate']);
-            }
-            if(is_empty($segmentdata['fromDate'], $segmentdata['toDate'], $segmentdata['originCity'], $segmentdata['destinationCity'], $segmentdata['reason'])) {
-                $this->errorcode = 2;
-                return $this;
-            }
-            $valid_fields = array('fromDate', 'toDate', 'originCity', 'destinationCity', 'reason', 'isNoneBusiness', 'noAccomodation', 'eid', 'affid');
-            /* Consider using array intersection */
-            foreach($valid_fields as $attr) {
-                $segmentnewdata[$attr] = $segmentdata[$attr];
-            }
-            $fromcity = new Cities($segmentnewdata['originCity']);
-            $tocity = new Cities($segmentnewdata['destinationCity']);
-            $segmentnewdata['name'] = $fromcity->get_displayname().' To '.$tocity->get_displayname();
-            $segmentnewdata['modifiedBy'] = $core->user['uid'];
-            $segmentnewdata['modifiedOn'] = TIME_NOW;
-            if(!isset($segmentnewdata['noAccomodation'])) {
-                $segmentnewdata['noAccomodation'] = 0;
-            }
-            $db->update_query(self::TABLE_NAME, $segmentnewdata, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
-            $segpurposes = $segmentdata['purpose'];
-            if(is_array($segpurposes)) {
-                $db->delete_query('travelmanager_plan_segpurposes', "tmpsid='".$this->data[self::PRIMARY_KEY]."'");
-                foreach($segpurposes as $purpose) {
-                    $purpose_data['purpose'] = $purpose;
-                    $purpose_data['tmpsid'] = $this->data[self::PRIMARY_KEY];
-                    $segmentpurpose_obj = new TravelManagerPlanSegPurposes();
-                    $segmentpurpose_obj->set($purpose_data);
-                    $segmentpurpose_obj->save();
-                }
-            }
-            if(is_array($segmentdata['assign'])) {
-                foreach($segmentdata['assign'] as $type => $assigndata) {
-                    if(is_array($assigndata)) {
-                        if($type == 'affid') {
-                            $assigned['type'] = 'affiliate';
-                        }
-                        elseif($type == 'eid') {
-                            $assigned['type'] = 'entity';
-                        }
-                        elseif($type == 'ceid') {
-                            $assigned['type'] = 'event';
-                        }
-                        $assigned['tmpsid'] = $this->data[self::PRIMARY_KEY];
-                        foreach($assigndata as $key => $id) {
-                            if(empty($id)) {
-                                continue;
+                            break;
+                        case 'section3':
+                            if(empty($value)) {
+                                unset($segmentdata['tmhid']);
                             }
-                            $assigned['primaryId'] = $id;
-                            $assigned['inputChecksum'] = $key;
-                            $assign_obj = new TravelManagerPlanAffient();
-                            $assign_obj->set($assigned);
-                            $assign_obj->save();
-                        }
+                            break;
+                        case 'section4':
+                            if(empty($value)) {
+                                unset($segmentdata['expenses']);
+                            }
+                            break;
+                        case 'section5':
+                            if(empty($value)) {
+                                unset($segmentdata['tmpfid']);
+                            }
+                            break;
+                        default:
+                            break;
                     }
                 }
             }
         }
-
+        if(!is_numeric($segmentdata['toDate'])) {
+            $segmentdata['toDate'] = strtotime($segmentdata['toDate']);
+            $segmentdata['fromDate'] = strtotime($segmentdata['fromDate']);
+        }
+        if(is_empty($segmentdata['fromDate'], $segmentdata['toDate'], $segmentdata['originCity'], $segmentdata['destinationCity'], $segmentdata['reason'])) {
+            $this->errorcode = 2;
+            return $this;
+        }
+        $valid_fields = array('fromDate', 'toDate', 'originCity', 'destinationCity', 'reason', 'isNoneBusiness', 'noAccomodation', 'eid', 'affid');
+        /* Consider using array intersection */
+        foreach($valid_fields as $attr) {
+            $segmentnewdata[$attr] = $segmentdata[$attr];
+        }
+        $fromcity = new Cities($segmentnewdata['originCity']);
+        $tocity = new Cities($segmentnewdata['destinationCity']);
+        $segmentnewdata['name'] = $fromcity->get_displayname().' To '.$tocity->get_displayname();
+        $segmentnewdata['modifiedBy'] = $core->user['uid'];
+        $segmentnewdata['modifiedOn'] = TIME_NOW;
+        if(!isset($segmentnewdata['noAccomodation'])) {
+            $segmentnewdata['noAccomodation'] = 0;
+        }
+        $db->update_query(self::TABLE_NAME, $segmentnewdata, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
+        $segpurposes = $segmentdata['purpose'];
+        if(is_array($segpurposes)) {
+            $db->delete_query('travelmanager_plan_segpurposes', "tmpsid='".$this->data[self::PRIMARY_KEY]."'");
+            foreach($segpurposes as $purpose) {
+                $purpose_data['purpose'] = $purpose;
+                $purpose_data['tmpsid'] = $this->data[self::PRIMARY_KEY];
+                $segmentpurpose_obj = new TravelManagerPlanSegPurposes();
+                $segmentpurpose_obj->set($purpose_data);
+                $segmentpurpose_obj->save();
+            }
+        }
+        if(is_array($segmentdata['assign'])) {
+            foreach($segmentdata['assign'] as $type => $assigndata) {
+                if(is_array($assigndata)) {
+                    if($type == 'affid') {
+                        $assigned['type'] = 'affiliate';
+                    }
+                    elseif($type == 'eid') {
+                        $assigned['type'] = 'entity';
+                    }
+                    elseif($type == 'ceid') {
+                        $assigned['type'] = 'event';
+                    }
+                    $assigned['tmpsid'] = $this->data[self::PRIMARY_KEY];
+                    foreach($assigndata as $key => $id) {
+                        if(empty($id)) {
+                            continue;
+                        }
+                        $assigned['primaryId'] = $id;
+                        $assigned['inputChecksum'] = $key;
+                        $assign_obj = new TravelManagerPlanAffient();
+                        $assign_obj->set($assigned);
+                        $assign_obj->save();
+                    }
+                }
+            }
+        }
+        //    }
         // unset($segmentdata['savesection']);
 
         $transptdata = $segmentdata['tmtcid'];
