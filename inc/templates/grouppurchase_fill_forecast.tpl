@@ -3,25 +3,25 @@
         <title>{$core->settings[systemtitle]} | {$lang->quantitiesforecast}</title>
         {$headerinc}
         <script type="text/javascript">
-            $(function() {
+            $(function () {
 
-                $("select[id^='forecastline_']").each(function() {
+                $("select[id^='forecastline_']").each(function () {
                     var id = $(this).attr('id').split("_");
                     $('input[id=forecastline_nextyear_' + id[1] + '_saleType]').val($('select[id^=forecastline_][id$=' + id[1] + '_saleType]').val());
                 });
 
 
-                $("input[id^='forecastline_']").live('change keyup live', function() {
+                $("input[id^='forecastline_']").live('change keyup live', function () {
                     var id = $(this).attr('id').split("_");
                     var total = 0;
                     var monthtotal = 0;
-                    $('input[id^=forecastline_' + id[1] + '_month]').each(function() {
+                    $('input[id^=forecastline_' + id[1] + '_month]').each(function () {
                         if(!jQuery.isEmptyObject(this.value)) {
                             total += parseFloat(this.value);
                         }
                     });
                     $('span[id=total_' + id[1] + ']').text(total.toFixed(2));
-                    $('input[id^=forecastline_][id$=_month_' + id[3] + ']').each(function() {
+                    $('input[id^=forecastline_][id$=_month_' + id[3] + ']').each(function () {
                         if(!jQuery.isEmptyObject(this.value)) {
                             monthtotal += parseFloat(this.value);
                         }
@@ -29,13 +29,13 @@
                     $('span[id=forecastline_total_' + id[2] + id[3] + ']').text(monthtotal.toFixed(2));
                 });
 
-                $('input[id^=product_noexception_][id$=autocomplete]').live('change', function() {
+                $('input[id^=product_noexception_][id$=output]').live('change', function () {
                     var id = $(this).attr('id').split("_");
                     $('input[id=forecastline_nextyear_' + id[2] + '_pid]').val($('input[id^=product_noexception_' + id[2] + '_id]').val());
                 });
 
 
-                $('select[id^=forecastline_][id$=_saleType]').live('change', function() {
+                $('select[id^=forecastline_][id$=_saleType]').live('change', function () {
                     var id = $(this).attr('id').split("_");
                     $('input[id=forecastline_nextyear_' + id[1] + '_saleType]').val($('select[id^=forecastline_][id$=' + id[1] + '_saleType]').val());
                 });
