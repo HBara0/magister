@@ -608,7 +608,7 @@ else {
                 $productline['productline_'.$rowid.'_'.$key] = $value;
                 continue;
             }
-            if($value != $data[$key]) {
+            if($value !== $data[$key]) {
                 $productline['productline_'.$rowid.'_'.$key] = $value;
             }
         }
