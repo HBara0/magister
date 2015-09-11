@@ -12,7 +12,7 @@ if(!defined('DIRECT_ACCESS')) {
     die('Direct initialization of this file is not allowed.');
 }
 if($core->usergroup['canUseBudgeting'] == 0) {
-    error($lang->sectionnopermission);
+    //  error($lang->sectionnopermission);
 }
 if(!$core->input['action']) {
     if($core->input['stage'] == 'fillbudgetline') {
@@ -228,7 +228,7 @@ else {
             $yef_data[$attr] = $core->input[$attr];
         }
         if(is_array($core->input['budgetline'])) {
-            if(isset($core->input['yef']['yefid'])) {
+            if(isset($core->input['yef']['yefid']) && !empty($core->input['yef']['yefid'])) {
                 $currentbudget = $core->input['yef'];
                 $yefobj = new BudgetingYearEndForecast($core->input['yef']['yefid']);
             }
@@ -348,7 +348,7 @@ function parse_yefline($data, $readonly = '', $source, $rownums) {
                 if($source == 'yef') {
                     $rowid = $budgetline->inputChecksum;
                 }
-                if(!empty($budgetline['cid'] && ($budgetline['fromBudget' == 1] || $source == 'budget'))) {
+                if(!empty($budgetline['cid']) && ($budgetline['fromBudget' == 1] || $source == 'budget')) {
                     $disabledattrs['cid'] = $disabledattrs['unspecifiedCustomer'] = 'disabled = "disabled"';
                 }
                 $previous_yearsqty = $previous_yearsamount = $previous_yearsincome = $prevyear_incomeperc = $prevyear_unitprice = $previous_actualqty = $previous_actualamount = $previous_actualincome = '';
@@ -516,7 +516,8 @@ function parse_yefline($data, $readonly = '', $source, $rownums) {
                 }
 
                 if($source == 'budget') {
-                    $divided_fields = array('quantity', 'amount', 'income', 'incomePerc', 'actalQty', 'actualIncome', 'actualAmount', 'localIncomePercentage', 'localIncomeAmount', 'unitPrice');
+                    $divided_fields = array('quantity', 'amount', 'income', 'actalQty', 'actualIncome', 'actualAmount', 'localIncomeAmount');
+                    //'unitPrice',localIncomePercentage, 'incomePerc'
                     foreach($divided_fields as $field) {
                         if(!isset($budgetline[$field]) || empty($budgetline[$field])) {
                             continue;

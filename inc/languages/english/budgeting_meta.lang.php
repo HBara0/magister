@@ -261,4 +261,10 @@ $lang['fillyef'] = 'Fill Year End Forecast';
 $lang['october'] = 'October';
 $lang['november'] = 'Novemeber';
 $lang['december'] = 'Decemeber';
+$lang['novemberincome'] = 'November Income';
+$lang['octoberincome'] = 'November Income';
+$lang['decemberincome'] = 'November Income';
+$lang['novemberamount'] = 'November Amount';
+$lang['octoberamount'] = 'October Amount';
+$lang['decemberamount'] = 'December Amount';
 ?>

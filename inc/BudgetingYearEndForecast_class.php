@@ -71,6 +71,30 @@ class BudgetingYearEndForecast extends AbstractClass {
         }
     }
 
+    public static function get_yefs_bydata($data = array()) {
+        global $db;
+        if(isset($data['years']) && !empty($data['years'])) {
+            if(is_array($data['suppliers'])) {
+                array_walk($data['suppliers'], intval);
+                $yef_reportquery = " AND spid IN (".implode(',', $data['suppliers']).")";
+            }
+
+            if(is_array($data['affiliates'])) {
+                array_walk($data['affiliates'], intval);
+                $yef_reportquery .= " AND affid IN (".implode(',', $data['affiliates']).")";
+            }
+            $yef_reportquery = $db->query("SELECT yefid FROM ".Tprefix."budgeting_yearendforecast WHERE year=".intval($data['years']).$yef_reportquery);
+        }
+        if($yef_reportquery) {
+            if($db->num_rows($yef_reportquery) > 0) {
+                while($yef_reportids = $db->fetch_assoc($yef_reportquery)) {
+                    $yefbudgetreport[$yef_reportids['yefid']] = $yef_reportids['yefid'];
+                }
+                return $yefbudgetreport;
+            }
+        }
+    }
+
     public function get_yefLines($yefid = '', $options = array()) {
         global $db;
         if(empty($yefid)) {
@@ -332,8 +356,122 @@ class BudgetingYearEndForecast extends AbstractClass {
         return false;
     }
 
+    public function get_supplier() {
+        return new Entities($this->data['spid']);
+    }
+
     public function get_affiliate() {
         return new Affiliates($this->data['affid']);
+    }
+
+    public function get_currency() {
+        return new Currencies($this->data['originalCurrency']);
+    }
+
+    public function get_CreateUser() {
+        return new Users($this->data['createdBy']);
+    }
+
+    public function get_ModifyUser() {
+        return new Users($this->data['modifiedBy']);
+    }
+
+    public function get_FinalizeUser() {
+        return new Users($this->data['finalizedBy']);
+    }
+
+    public function get_LockUser() {
+        return new Users($this->data['lockedBy']);
+    }
+
+    public function generate_yefline_filters() {
+        global $core;
+        if($core->usergroup['canViewAllSupp'] == 0 && $core->usergroup['canViewAllAff'] == 0) {
+            $filter['filters']['suppliers'] = $core->user['suppliers']['eid'];
+            if(is_array($core->user['auditfor'])) {
+                $filter['filters']['suppliers'] = $core->user['suppliers']['eid'] + $core->user['auditfor'];
+                if(!in_array($this->data['spid'], $core->user['auditfor'])) {
+                    if(is_array($core->user['auditedaffids'])) {
+                        if(!in_array($this->data['affid'], $core->user['auditedaffids'])) {
+                            //if user is coordinator append more options
+                            $segmentscoords = ProdSegCoordinators::get_data(array('uid' => $core->user['uid']), array('returnarray' => true));
+                            if(is_array($segmentscoords)) {
+                                $psids = array();
+                                $affids = array();
+                                $spids = array();
+                                foreach($segmentscoords as $segmentscoord) {
+                                    if(in_array($segmentscoord->psid, $psids)) {
+                                        continue;
+                                    }
+                                    $psids[] = $segmentscoord->psid;
+                                    $entitysegments = EntitiesSegments::get_data(array('psid' => $segmentscoord->psid), array('returnarray' => true));
+                                    if(is_array($entitysegments)) {
+                                        foreach($entitysegments as $entitysegment) {
+                                            if($entitysegment->eid == $this->data['spid']) {
+                                                $entity = new Entities($entitysegment->eid);
+                                                if($entity->type == 's') {
+                                                    $affiliatedsegs = AffiliatedEntities::get_column('affid', array('eid' => $entitysegment->eid), array('returnarray' => true));
+                                                    if(is_array($affiliatedsegs)) {
+                                                        foreach($affiliatedsegs as $affiliatedseg) {
+                                                            if(!in_array($affiliatedseg, $affids)) {
+                                                                $affids[] = $affiliatedseg;
+                                                            }
+                                                        }
+                                                        if(is_array($affids)) {
+                                                            $core->user['suppliers']['affid'][$entity->eid] = array_unique(array_merge($core->user['suppliers']['affid'][$entity->eid], $affids));
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    if(is_array($affids)) {
+                                        $core->user['affiliates'] = array_unique(array_merge($core->user['affiliates'], $affids));
+                                    }
+                                }
+                            }
+                            $filter['filters']['affiliates'] = $core->user['affiliates'];
+                            if(is_array($core->user['suppliers']['affid'][$this->data['spid']])) {
+                                if(in_array($this->data['affid'], $core->user['suppliers']['affid'][$this->data['spid']])) {
+                                    $filter['filters']['businessMgr'] = array($core->user['uid']);
+                                }
+                                else {
+                                    return false;
+                                }
+                            }
+                            else {
+                                $filter['filters']['businessMgr'] = array($core->user['uid']);
+                            }
+                        }
+                    }
+                    else {
+                        $filter['filters']['businessMgr'] = array($core->user['uid']);
+                    }
+                }
+            }
+            else {
+                $filter['filters']['businessMgr'] = array($core->user['uid']);
+            }
+        }
+        return $filter;
+    }
+
+    public function get_yeflines_objs($filters = '', $configs = array()) {
+        return $this->get_lines($filters, $configs);
+    }
+
+    public function get_lines($filters, $configs = null) {
+        if(isset($this->data['yefid']) && !empty($this->data['yefid'])) {
+            $filters['yefid'] = $this->data['yefid'];
+
+            $configs['returnarray'] = true;
+
+            if(!isset($configs['order'])) {
+                $configs['order'] = array('by' => 'pid', 'sort' => 'ASC');
+            }
+            $configs['operators']['businessMgr'] = 'IN';
+            return BudgetingYEFLines::get_data($filters, $configs);
+        }
     }
 
 }

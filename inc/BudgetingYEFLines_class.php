@@ -120,7 +120,7 @@ class BudgetingYEFLines extends AbstractClass {
             if(!isset($data['yef']) || empty($data['yef'])) {
                 return false;
             }
-            $budgetline_bydataquery = $db->query("SELECT * FROM ".Tprefix."budgeting_yef_lines WHERE pid='".$data['pid']."' AND cid='".$data['cid']."' AND altCid='".$db->escape_string($data['altCid'])."' AND saleType='".$data['saleType']."' AND bid='".$data['bid']."' AND customerCountry='".$data['customerCountry']."' AND psid='".$data['psid']."' AND businessMgr='".$data['businessMgr']."'");
+            $budgetline_bydataquery = $db->query("SELECT * FROM ".Tprefix."budgeting_yef_lines WHERE pid='".$data['pid']."' AND cid='".$data['cid']."' AND altCid='".$db->escape_string($data['altCid'])."' AND saleType='".$data['saleType']."' AND yefid='".$data['yefid']."' AND customerCountry='".$data['customerCountry']."' AND psid='".$data['psid']."' AND businessMgr='".$data['businessMgr']."'");
             if($db->num_rows($budgetline_bydataquery) > 0) {
                 return $db->fetch_assoc($budgetline_bydataquery);
             }
@@ -218,6 +218,117 @@ class BudgetingYEFLines extends AbstractClass {
     public function delete() {
         global $db;
         $db->delete_query('budgeting_yef_lines', 'yeflid='.$this->data['yeflid']);
+    }
+
+    public function get_customer() {
+        return new Entities($this->data['cid'], '', false);
+    }
+
+    public function get_currency() {
+        return new Currencies($this->data['originalCurrency']);
+    }
+
+    public function get_product() {
+        return new Products($this->data['pid']);
+    }
+
+    public function get_saletype() {
+        return $this->data['saleType'];
+    }
+
+    public function get_createuser() {
+        return new Users($this->data['createdBy']);
+    }
+
+    public function get_businessMgr() {
+        return new Users($this->data['businessMgr']);
+    }
+
+    public function get_modifyuser() {
+        return new Users($this->data['modifiedBy']);
+    }
+
+    public static function get_aggregate_bysupplier(Entities $supplier, $by, $filters = array(), $configs = array()) {
+        global $db;
+
+        $dal = new DataAccessLayer(self::CLASSNAME, self::TABLE_NAME, self::PRIMARY_KEY);
+        if($configs['toCurrency']) {
+            $fxrate_query = "*(CASE WHEN budgeting_yef_lines.originalCurrency=".intval($configs['toCurrency'])." THEN 1 ELSE (SELECT rate FROM budgeting_fxrates WHERE affid=(SELECT affid FROM budgeting_yearendforecast WHERE yefid=budgeting_yef_lines.yefid) AND year=(SELECT year FROM budgeting_yearendforecast WHERE yefid=budgeting_yef_lines.yefid) AND fromCurrency=budgeting_yef_lines.originalCurrency AND toCurrency=".intval($configs['toCurrency']).") END)";
+        }
+        $total = $db->fetch_assoc($db->query('SELECT SUM('.$by.$fxrate_query.') AS total, (SELECT spid FROM budgeting_yearendforecast WHERE budgeting_yearendforecast.yefid = '.self::TABLE_NAME.'.yefid) AS spid FROM '.self::TABLE_NAME.$dal->construct_whereclause_public($filters, $configs['operators']).' GROUP BY spid HAVING spid='.$supplier->eid));
+        return $total['total'];
+    }
+
+    public static function get_aggregate_bycountry(Countries $country, $by, $filters = array(), $configs = array()) {
+        global $db;
+
+        $dal = new DataAccessLayer(self::CLASSNAME, self::TABLE_NAME, self::PRIMARY_KEY);
+        if($configs['toCurrency']) {
+            $fxrate_query = "*(CASE WHEN budgeting_yef_lines.originalCurrency=".intval($configs['toCurrency'])." THEN 1 ELSE (SELECT rate FROM budgeting_fxrates WHERE affid=(SELECT affid FROM budgeting_yearendforecast WHERE yefid=budgeting_yef_lines.yefid) AND year=(SELECT year FROM budgeting_yearendforecast WHERE yefid=budgeting_yef_lines.yefid) AND fromCurrency=budgeting_yef_lines.originalCurrency AND toCurrency=".intval($configs['toCurrency']).") END)";
+        }
+
+        if(isset($configs['vsAffid']) && !empty($configs['vsAffid'])) {
+            $by = '(CASE '.$configs['vsAffid'].' = (SELECT affid FROM budgeting_yearendforecast WHERE budgeting_yearendforecast.yefid = '.self::TABLE_NAME.'.yefid) THEN localIncome ELSE (income-LocalIncome) END)';
+        }
+
+        $total = $db->fetch_assoc($db->query('SELECT SUM('.$by.$fxrate_query.') AS total, (CASE WHEN customerCountry = 0 THEN (SELECT country FROM entities WHERE entities.eid = '.self::TABLE_NAME.'.cid) ELSE customerCountry END) AS coid FROM '.self::TABLE_NAME.$dal->construct_whereclause_public($filters, $configs['operators']).' GROUP BY coid HAVING coid = '.$country->coid));
+        return $total['total'];
+    }
+
+    public static function get_aggregate_byaffiliate(Affiliates $affiliate, $by, $filters = array(), $configs = array()) {
+        global $db;
+
+        $dal = new DataAccessLayer(self::CLASSNAME, self::TABLE_NAME, self::PRIMARY_KEY);
+
+        if($configs['toCurrency']) {
+            $fxrate_query = "*(CASE WHEN budgeting_yef_lines.originalCurrency=".intval($configs['toCurrency'])." THEN 1 ELSE (SELECT rate FROM budgeting_fxrates WHERE affid=(SELECT affid FROM budgeting_yearendforecast WHERE yefid=budgeting_yef_lines.yefid) AND year=(SELECT year FROM budgeting_yearendforecast WHERE yefid=budgeting_yef_lines.yefid) AND fromCurrency=budgeting_yef_lines.originalCurrency AND toCurrency=".intval($configs['toCurrency']).") END)";
+        }
+        $total = $db->fetch_assoc($db->query('SELECT SUM('.$by.$fxrate_query.') AS total, (SELECT affid FROM budgeting_yearendforecast WHERE budgeting_yearendforecast.yefid = '.self::TABLE_NAME.'.yefid) AS affid FROM '.self::TABLE_NAME.$dal->construct_whereclause_public($filters, $configs['operators']).' GROUP BY affid HAVING affid ='.$affiliate->affid));
+        return $total['total'];
+    }
+
+    public static function get_top($percent, $attr, $filters = '', $configs = array()) {
+        global $db;
+
+        $dal = new DataAccessLayer(self::CLASSNAME, self::TABLE_NAME, self::PRIMARY_KEY);
+
+        if(empty($configs['group'])) {
+            $configs['group'] = 'cid, altCid';
+        }
+
+        $fx_query = '*(CASE WHEN yefl.originalCurrency = 840 THEN 1
+            ELSE (SELECT bfr.rate from budgeting_fxrates bfr WHERE bfr.affid = yefb.affid AND bfr.year = yefb.year AND bfr.fromCurrency = yefl.originalCurrency AND bfr.toCurrency = 840) END)';
+        $sql = 'SELECT SUM('.$attr.$fx_query.') AS '.$attr.' FROM '.self::TABLE_NAME.' yefl JOIN budgeting_yearendforecast yefb ON (yefb.yefid = yefl.yefid)'.$dal->construct_whereclause_public($filters, $configs['operators']).' GROUP BY '.$configs['group'].' ORDER BY '.$attr.' DESC';
+        $data = $db->query($sql);
+        $total = $db->fetch_field($db->query('SELECT SUM('.$attr.$fx_query.') AS total FROM '.self::TABLE_NAME.' yefl JOIN budgeting_yearendforecast yefb ON (yefb.yefid = yefl.yefid)'.$dal->construct_whereclause_public($filters, $configs['operators'])), 'total');
+        while($values = $db->fetch_assoc($data)) {
+            $info['count'] += 1;
+            $info['contribution'] += $values[$attr];
+
+            if((($info['contribution'] * 100) / $total) >= $percent) {
+                break;
+            }
+        }
+        return $info;
+    }
+
+    public function parse_country() {
+        global $lang;
+
+        if(!empty($this->data['customerCountry'])) {
+            $country = new Countries($this->data['customerCountry']);
+        }
+        else {
+            $country = new Countries($this->get_customer()->get()['country']);
+        }
+
+        $country_name = $country->get()['name'];
+        if(empty($country_name)) {
+            return $lang->na;
+        }
+        else {
+            return $country_name;
+        }
     }
 
 }
