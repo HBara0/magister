@@ -181,3 +181,4 @@ $lang['approver'] = 'Approver';
 $lang['dateofapprovalemail'] = 'Date of Reciving Approval Email';
 $lang['dateofapproval'] = 'Date of Approval';
 $lang['hours'] = 'hours';
+$lang['estdateofarrival'] = 'Est. Date of Arrival';

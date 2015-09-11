@@ -109,7 +109,9 @@ if(!($core->input['action'])) {
             //*********Aro Order Customers -Start *********//
             $requestcustomers = AroOrderCustomers::get_data(array('aorid' => $aroorderrequest->aorid), array('returnarray' => true));
             $rowid = 1;
-            $avgeliduedate = date($core->settings['dateformat'], $aroorderrequest->avgLocalInvoiceDueDate);
+            if($aroorderrequest->avgLocalInvoiceDueDate != 0) {
+                $avgeliduedate = date($core->settings['dateformat'], $aroorderrequest->avgLocalInvoiceDueDate);
+            }
             if(is_array($requestcustomers)) {
                 foreach($requestcustomers as $customer) {
                     $customeroder = $customer->get();
@@ -269,9 +271,11 @@ if(!($core->input['action'])) {
                 $aroorderrequest->modifiedOn_output = date($core->settings['dateformat'], $aroorderrequest->modifiedOn);
             }
             $createdby_username = new Users($aroorderrequest->createdBy);
-            $modifiedby_username = new Users($aroorderrequest->modifiedBy);
+            if(!empty($aroorderrequest->modifiedBy)) {
+                $modifiedby_username = new Users($aroorderrequest->modifiedBy);
+                $aroorderrequest->modifiedBy_output = $modifiedby_username->parse_link($attributes_param = array('target' => '__blank'));
+            }
             $aroorderrequest->createdBy_output = $createdby_username->parse_link($attributes_param = array('target' => "_blank"));
-            $aroorderrequest->modifiedBy_output = $modifiedby_username->parse_link($attributes_param = array('target' => '__blank'));
             $aroorderrequest->revision_output = $aroorderrequest->revision;
             eval("\$aro_managedocuments_audittrail_rows .= \"".$template->get('aro_managedocuments_audittrail_rows')."\";");
             eval("\$aro_audittrail= \"".$template->get('aro_managedocuments_audittrail')."\";");
@@ -541,12 +545,14 @@ else {
         // average of actual purchase rows est. date of sale
         if(is_array($salesdates)) {
             foreach($salesdates as $salesdate) {
-                $salesdateobjs[] = strtotime($salesdate);
-                $intervalsales_dates = array_unique($salesdateobjs);
-                if(!empty($intervalsales_dates)) {
-                    $countintervalsales_dates = count($intervalsales_dates);
-                    $sumintervalsales_dates = array_sum($intervalsales_dates);
-                    $avgsaledate = ($sumintervalsales_dates / $countintervalsales_dates);
+                if(!empty($salesdate) || $salesdate != '-') {
+                    $salesdateobjs[] = strtotime($salesdate);
+                    $intervalsales_dates = array_unique($salesdateobjs);
+                    if(!empty($intervalsales_dates)) {
+                        $countintervalsales_dates = count($intervalsales_dates);
+                        $sumintervalsales_dates = array_sum($intervalsales_dates);
+                        $avgsaledate = ($sumintervalsales_dates / $countintervalsales_dates);
+                    }
                 }
             }
         }
@@ -707,10 +713,10 @@ else {
             $actualpurchase_data['actualpurchase_'.$rowid.'_'.$field] = $actualpurchase[$field];
         }
 
-
-        $data['stockentryandsalesdiff'] = date_diff(date_create($actualpurchase['estDateOfStockEntry_output']), date_create($actualpurchase['estDateOfSale_output']));
-        $data['stockentryandsalesdiff'] = $data['stockentryandsalesdiff']->format("%r%a");
-
+        if((isset($actualpurchase['estDateOfStockEntry_output']) && !empty($actualpurchase['estDateOfStockEntry_output'])) && (isset($actualpurchase['estDateOfSale_output']) && !empty($actualpurchase['estDateOfSale_output']))) {
+            $data['stockentryandsalesdiff'] = date_diff(date_create($actualpurchase['estDateOfStockEntry_output']), date_create($actualpurchase['estDateOfSale_output']));
+            $data['stockentryandsalesdiff'] = $data['stockentryandsalesdiff']->format("%r%a");
+        }
 
         $actualpurchase_data['pickDate_stock_'.$rowid] = $actualpurchase['estDateOfStockEntry_output'];
         $actualpurchase_data['pickDate_sale_'.$rowid] = $actualpurchase['estDateOfSale_output'];

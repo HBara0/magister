@@ -94,9 +94,11 @@ class AroRequestLinesSupervision extends AbstractClass {
                 $actualpurchase['estDateOfSale'] = strtotime($daysinstock, $actualpurchase['estDateOfStockEntry']);
             }
         }
-        $actualpurchase['estDateOfSale_output'] = date($core->settings['dateformat'], $actualpurchase['estDateOfSale']);
+        if(!empty($actualpurchase['estDateOfSale']) && $actualpurchase['estDateOfSale'] != false) {
+            $actualpurchase['estDateOfSale_output'] = date($core->settings['dateformat'], $actualpurchase['estDateOfSale']);
+            $actualpurchase['estDateOfSale_formatted'] = date('d-m-Y', $actualpurchase['estDateOfSale']);
+        }
         $actualpurchase['estDateOfStockEntry_formatted'] = date('d-m-Y', $actualpurchase['estDateOfStockEntry']);
-        $actualpurchase['estDateOfSale_formatted'] = date('d-m-Y', $actualpurchase['estDateOfSale']);
 
         if($purchasetype->qtyIsNotStored == 1) {
             $actualpurchase['estDateOfSale'] = $actualpurchase['shelfLife'] = $actualpurchase['estDateOfStockEntry'] = '-';
