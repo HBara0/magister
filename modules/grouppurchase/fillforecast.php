@@ -235,7 +235,7 @@ if(!$core->input['action']) {
         $forecastline['inputChecksum1'] = generate_checksum('gp');
         $currentmonth = date('n');
         for($i = 1; $i < 13; $i++) {
-            if($currentmonth == 13) {
+            if($currentmonth == 12) {
                 $forecastline['inputChecksum2'] = generate_checksum('gp');
                 $currentmonth = 1;
                 $year = date('Y', strtotime('+1 year'));
@@ -270,7 +270,7 @@ else if($core->input['action'] == 'ajaxaddmore_forecastlines') {
     $nextyear = date('Y', strtotime('+1 year'));
 
     for($i = 1; $i < 13; $i++) {
-        if($j == 13) {
+        if($j == 12) {
             $j = 1;
             $year = date('Y', strtotime('+1 year'));
         }

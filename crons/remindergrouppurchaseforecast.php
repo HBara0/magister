@@ -14,7 +14,7 @@ require_once '../inc/init.php';
 $lang = new Language('english');
 $lang->load('grouppurchase_meta');
 $date['to'] = date(TIME_NOW);
-$uids = $db->query("SELECT DISTINCT gpf.businessMgr AS GPfor, bbl.businessMgr AS BBline FROM ".Tprefix."grouppurchase_forecastlines AS gpf,".Tprefix."budgeting_budgets_lines AS bbl WHERE (DATEDIFF(CURDATE(),FROM_UNIXTIME(gpf.createdOn))>30 AND DATEDIFF(CURDATE(),FROM_UNIXTIME(gpf.modifiedOn))>30)");
+$uids = $db->query("SELECT DISTINCT gpf.businessMgr AS GPfor, bbl.businessMgr AS BBline FROM ".Tprefix."grouppurchase_forecastlines AS gpf,".Tprefix."budgeting_budgets_lines AS bbl WHERE (DATEDIFF(CURDATE(),FROM_UNIXTIME(gpf.createdOn))>30 AND (gpf.modifiedOn > 0 AND DATEDIFF(CURDATE(),FROM_UNIXTIME(gpf.modifiedOn))>30))");
 if($db->num_rows($uids) > 0) {
     while($uid = $db->fetch_assoc($uids)) {
         foreach($uid as $key => $value) {
