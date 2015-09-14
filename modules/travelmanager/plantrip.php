@@ -467,7 +467,6 @@ else {
             if(is_array($core->input['segment'])) {
                 $travelplan->set($core->input);
                 $travelplan->save();
-                // $travelplan_obj->create($core->input['segment']);
             }
             switch($travelplan->get_errorcode()) {
                 case 0:

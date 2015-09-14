@@ -39,7 +39,7 @@ if(!$core->input['action']) {
     }
 
     $leave = $plan_object->get_leave();
-    $approvers = $leave->get_approvers();
+    $approvers = $leave->get_approvers(array('returnarray' => true));
     $approver_chain = array();
     if(is_array($approvers)) {
         foreach($approvers as $approver) {
@@ -167,6 +167,7 @@ else {
         $mailer->set_message($travelmanager_viewplan);
         $mailer->set_to($firstapprover->email);
         $mailer->send();
+        redirect('index.php?module=travelmanager/listplans');
     }
     elseif($core->input['action'] == 'do_perform_viewplan') {
         $tmplansegments = TravelManagerPlanSegments::get_data(array('tmpid' => $core->input['planid']), array('returnarray' => true));
