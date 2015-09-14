@@ -150,6 +150,7 @@ $(function () {
             }
             $(this).datepicker({altField: "#alt" + $(this).attr('id'), altFormat: 'dd-mm-yy', dateFormat: 'MM dd, yy', showWeek: true, firstDay: 1, changeMonth: true, changeYear: true, showAnim: 'slideDown',
                 onSelect: function (selectedDate) {
+                    $("#" + $(this).attr("id") + "").trigger('change');
                     $("#" + secid + "").datepicker("option", "maxDate", selectedDate);
                 }});
             $("#ui-datepicker-div").css("z-index", $(this).parents(".ui-dialog").css("z-index") + 1);
