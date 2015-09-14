@@ -1,7 +1,7 @@
 <div style="display:block;" >
     <div style="text-align: right;display: inline-block;width: 55%;vertical-align: top;margin-top: 50px;margin-bottom: 50px;">
         <div id="save_section_{$sequence}1">
-            <input type="" id="save_section_{$sequence}_1_input" value="0" name="segment[{$sequence}][savesection][section1]"/>
+            <input type="hidden" id="save_section_{$sequence}_1_input" value="0" name="segment[{$sequence}][savesection][section1]"/>
             <a id="save_section_{$sequence}_1" class="tm_sections">Save and proceed</a>
         </div>
     </div>

@@ -476,6 +476,9 @@
 
                 <input type="button" style="cursor: pointer" class='button'  value="{$lang->preview} & {$lang->finish}" id="finalize"/>
                 <input type="hidden" value="" name="finalizeplan" id="finalizeplan"/>
+                <div style='width:100%'>
+                    <a href="#" style="float:right" title='{$lang->backtotop}'><img src="{$core->settings[rootdir]}/images/icons/backtotop.png"/></a>
+                </div>
             </form>
             <div id="perform_travelmanager/plantrip_Results"></div>
         </td>
