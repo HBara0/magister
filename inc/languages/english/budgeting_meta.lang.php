@@ -268,4 +268,12 @@ $lang['novemberamount'] = 'November Amount';
 $lang['octoberamount'] = 'October Amount';
 $lang['decemberamount'] = 'December Amount';
 $lang['yearendforecast'] = 'Year End Forecast';
+$lang['currencynotexist'] = 'The currency does not have a conversion rate.';
+$lang['numberspassedbudget'] = 'Numbers surpass those of the related budget in field : ';
+$lang['helptour_welcomeyeffill'] = 'This page is specified for filling YEF for selected year,please do read the guidline below';
+$lang['helptour_quantity'] = 'This quantity is meant for only the 3 months, numbers imported from budgets are taken from the S2 perc and divided to two';
+$lang['helptour_amount'] = 'Same process is done with the amount and the rest of quantities and amounts that are imported from the budget';
+$lang['helptour_localincome'] = 'The local income amount and percentage are the only income that will be calculated into the YEF affiliate, the rest will be allocated for a selected affiliate. Default value is 100%';
+$lang['helptour_commissionaff'] = 'The remaining income that lays outside the selected local income amount will be allocated to this affiliate';
+$lang['helptour_month'] = 'The month percentage number will be the fraction of the total YEF amount split into these three months.Imported numbers from budget are those of the S2 divided by 6';
 ?>

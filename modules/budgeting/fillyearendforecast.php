@@ -141,7 +141,7 @@ if(!$core->input['action']) {
         }
 
         /* check whether to display existing budget Form or display new one  */
-        $unsetable_fields = array('quantity', 'amount', 'incomePerc', 'income', 'inputChecksum');
+        $unsetable_fields = array('quantity', 'amount', 'incomePerc', 'income', 'inputCheckSum');
         $countries = Countries::get_coveredcountries();
 
         /* get already existing YEF lines corresponding to the data inputted */
@@ -163,7 +163,7 @@ if(!$core->input['action']) {
         }
         else {
             $rownums = 1;
-            $rowid = generate_checksum('yef');
+            $rowid = generate_checksum();
             $saletype_selectlist = parse_selectlist('budgetline['.$rowid.'][saleType]', 0, $saletype_selectlistdata, '', '', '', array('id' => 'salestype_'.$rowid));
             $invoice_selectlist = parse_selectlist('budgetline['.$rowid.'][invoice]', 0, $invoice_selectlistdata, '', '', '', array('id' => 'invoice_'.$rowid));
             $purchase_selectlistdata = array('alex' => 'Orkila FZ - Alex', 'fze' => 'Orkila Jebel Ali FZE', 'int' => 'Orkila International', 'customer' => 'Customer', 'direct' => $yef_data['affiliateName']);
@@ -186,7 +186,7 @@ if(!$core->input['action']) {
         <input type="hidden" value="'.$budgetline['commissionSplitAffid'].'" id="affiliate_noexception_'.$rowid.'_commission_id" name="budgetline['.$rowid.'][commissionSplitAffid]"/></td>'
                 );
             }
-            $budgetline['inputChecksum'] = generate_checksum('bl');
+            $budgetline['inputCheckSum'] = generate_checksum();
             $countries_selectlist = parse_selectlist('budgetline['.$rowid.'][customerCountry]', 0, $countries, $affiliate->country, '', '', '');
             eval("\$budgetlinesrows .= \"".$template->get('budgeting_fill_yeflines')."\";");
         }
@@ -210,12 +210,17 @@ if(!$core->input['action']) {
         /* Parse values for JS - END */
         /* Parse  local amount felds based on specific permission */
         if($core->usergroup['budgeting_canFillLocalIncome'] == 1) {
-            $hidden_colcells = array('localincome_head' => '<td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">'.$lang->localincome.'<a href="#" title="'.$lang->localincomeexp.'"><img src="./images/icons/question.gif" ></a></td>',
+            $hidden_colcells = array('localincome_head' => '<td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center"><div id="localincome_tour">'.$lang->localincome.'</div><a href="#" title="'.$lang->localincomeexp.'"><img src="./images/icons/question.gif" ></a></td>',
                     'localincomeper_head' => '<td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">'.$lang->localincomeper.'</td>',
-                    'remainingcommaff_head' => '<td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">'.$lang->remainingcommaff.'<a href="#" title="The affiliate which will keep the remaining commission"><img src="./images/icons/question.gif" ></a></td>'
+                    'remainingcommaff_head' => '<td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center"><div id="commissionaff_tour">'.$lang->remainingcommaff.'</div><a href="#" title="The affiliate which will keep the remaining commission"><img src="./images/icons/question.gif" ></a></td>'
             );
         }
-
+        $helptour = new HelpTour();
+        $helptour->set_id('fillyearendforecast_helptour');
+        $helptour->set_cookiename('fillyearendforecast_helptour');
+        $touritems = BudgetingYearEndForecast::get_helptouritems();
+        $helptour->set_items($touritems);
+        $helptour = $helptour->parse();
         eval("\$fillbudget = \"".$template->get('budgeting_fillyef')."\";");
         output_page($fillbudget);
     }
@@ -242,28 +247,40 @@ else {
                 $yefobj->save_budget($yef_data, $core->input['budgetline']);
             }
             else {
-                BudgetingYearEndForecast::save_budget($yef_data, $core->input['budgetline']);
+                $yefobj = BudgetingYearEndForecast::save_budget($yef_data, $core->input['budgetline']);
             }
         }
-        switch($yefobj->get_errorcode()) {
-            case 0:
+        if(!is_object($yefobj)) {
+            if($yefobj == true) {
                 output_xml('<status>true</status><message>'.$lang->successfullysaved.'</message>');
-                break;
-            case 2:
-                output_xml('<status>false</status><message>'.$lang->fillrequiredfields.'</message>');
-                break;
-            case 602:
-                output_xml('<status>false</status><message>'.$lang->budgetexist.'</message>');
-                break;
-            default:
+                exit;
+            }
+            elseif($yefobj == false) {
                 output_xml('<status>false</status><message>'.$lang->errorsaving.'</message>');
-                break;
+                exit;
+            }
+        }
+        else {
+            switch($yefobj->get_errorcode()) {
+                case 0:
+                    output_xml('<status>true</status><message>'.$lang->successfullysaved.'</message>');
+                    break;
+                case 2:
+                    output_xml('<status>false</status><message>'.$lang->fillrequiredfields.'</message>');
+                    break;
+                case 602:
+                    output_xml('<status>false</status><message>'.$lang->budgetexist.'</message>');
+                    break;
+                default:
+                    output_xml('<status>false</status><message>'.$lang->errorsaving.'</message>');
+                    break;
+            }
         }
     }
     elseif($core->input['action'] == 'ajaxaddmore_budgetlines') {
         $display = 'none';
-        $rowid = generate_checksum('yef');
-        $budgetline['inputChecksum'] = $rowid;
+        $rowid = generate_checksum();
+        $budgetline['inputCheckSum'] = $rowid;
         $rownums = intval($core->input['value']) + 1;
         $yef_data = $core->input['ajaxaddmoredata'];
         $affiliate = new Affiliates($yef_data['affid']);
@@ -325,7 +342,7 @@ else {
     }
 }
 function parse_yefline($data, $readonly = '', $source, $rownums) {
-    global $template, $core, $db;
+    global $template, $core, $db, $lang;
     foreach($data as $cid => $customersdata) {
         /* Get Customer name from object */
         if(!is_int($cid)) {
@@ -335,21 +352,33 @@ function parse_yefline($data, $readonly = '', $source, $rownums) {
         foreach($customersdata as $pid => $productsdata) {
             /* Get Products name from object */
             $product = new Products($pid);
-            $readonly = '';
             foreach($productsdata as $saleid => $budgetline) {
                 if(empty($budgetline) || !is_array($budgetline)) {
                     continue;
                 }
-                if($budgetline['fromBudget'] == 1) {
-                    $readonly = 'readonly';
-                }
+
                 unset($disabledattrs);
                 $rowid = generate_checksum();
                 if($source == 'yef') {
-                    $rowid = $budgetline->inputChecksum;
+                    $rowid = $budgetline['inputCheckSum'];
+                }
+                if($source == 'budget' || $budgetline['fromBudget'] == 1) {
+                    $readonly = 'readonly';
+                    $extra_script = '<script>';
+                    $alert_fields = array('amount', 'quantity', 'income', 'unitPrice');
+                    foreach($alert_fields as $field) {
+                        $extra_script.='$(\'input[name="budgetline['.$rowid.']['.$field.']"]\').live("keyup",function(){'
+                                .'if($(this).val() > '.$budgetline[$field].'){$("#alert_'.$rowid.'").text("'.$lang->numberspassedbudget.$field.'");}else{$("#alert_'.$rowid.'").text("");}'
+                                .'});';
+                    }
+                    $extra_script .= '</script>';
+                    $alert_div = '<span style="color:red" id="alert_'.$rowid.'"></span>';
                 }
                 if(!empty($budgetline['cid']) && ($budgetline['fromBudget' == 1] || $source == 'budget')) {
-                    $disabledattrs['cid'] = $disabledattrs['unspecifiedCustomer'] = 'disabled = "disabled"';
+                    $disabledattrs ['cid'] = $disabledattrs['unspecifiedCustomer'] = 'disabled = "disabled"';
+                }
+                if(!empty($budgetline['pid']) && ($budgetline['fromBudget' == 1] || $source == 'budget')) {
+                    $disabledattrs ['pid'] = 'disabled = "disabled"';
                 }
                 $previous_yearsqty = $previous_yearsamount = $previous_yearsincome = $prevyear_incomeperc = $prevyear_unitprice = $previous_actualqty = $previous_actualamount = $previous_actualincome = '';
 //                if($is_prevonly === true || isset($budgetline['prevbudget'])) {
@@ -438,7 +467,7 @@ function parse_yefline($data, $readonly = '', $source, $rownums) {
 
                 $purchasefromaff = '<input type = "text" placeholder = "'.$lang->search.' '.$lang->affiliate.'" id = "affiliate_noexception_'.$rowid.'_autocomplete" name = "" value = "'.$budgetline['interCompanyPurchase_output'].'" autocomplete = "off" />
                 <input type = "hidden" value = "'.$budgetline['interCompanyPurchase'].'" id = "affiliate_noexception_'.$rowid.'_id" name = "budgetline['.$rowid.'][interCompanyPurchase]" />';
-                if($readonly == 'readonly') {
+                if($budgetline['fromBudget'] == 1 || $source == 'budget') {
                     $purchasefromaff = '<input type = "text" disabled value = "'.$budgetline['interCompanyPurchase_output'].'" ><input type = "hidden" value = "'.$budgetline['interCompanyPurchase'].'" id = "affiliate_noexception_'.$rowid.'_id" name = "budgetline['.$rowid.'][interCompanyPurchase]" />';
                     $purchasingentity_selectlist = '<input type = "text" disabled value = "'.$purchase_selectlistdata[$budgetline['purchasingEntity']].'" name = "purchasenetitytname"><input type = "hidden" value = "'.$budgetline['purchasingEntity'].'" name = "budgetline['.$rowid.'][purchasingEntity]">';
                     $saletype_selectlist = '<input type = "text" disabled value = "'.$saletype_selectlistdata[$saleid].'" name = "saletypename"><input type = "hidden" value = "'.$saleid.'" name = "budgetline['.$rowid.'][saleType]">';
@@ -480,8 +509,10 @@ function parse_yefline($data, $readonly = '', $source, $rownums) {
                     $budget_currencylist_selected = '';
                 }
                 $budget_currencylist.='</select>';
+                $frombudgetline = '';
                 if($source == 'budget' || $budgetline['fromBudget'] == 1) {
-                    $budget_currencylist = '<input type = "hidden" value = "'.$budgetline['originalCurrency'].'" name = ""><input style = "width=50px" type = "text" disabled value = "'.$currencies[$budgetline['originalCurrency']].'">';
+                    $frombudgetline = '<input type = "hidden" value = "1" name = "budgetline['.$rowid.'][fromBudget]">';
+                    $budget_currencylist = '<input type = "hidden" value = "'.$budgetline['originalCurrency'].'" name = "budgetline['.$rowid.'][originalCurrency]"><input style = "width=50px" type = "text" disabled value = "'.$currencies[$budgetline['originalCurrency']].'">';
                 }
 
                 if(!empty($budgetline['interCompanyPurchase'])) {
@@ -496,38 +527,38 @@ function parse_yefline($data, $readonly = '', $source, $rownums) {
                 if(count($supplier_segments) > 1) {
                     $segments_selectlist = parse_selectlist('budgetline['.$rowid.'][psid]', 3, $supplier_segments, $budgetline['psid'], null, null, array('placeholder' => 'Overwrite Segment'));
                 }
+
+
+                if($source == 'budget') {
+                    $divided_fields = array('quantity', 'amount', 'income', 'actalQty', 'actualIncome', 'actualAmount', 'localIncomeAmount');
+                    //'unitPrice',localIncomePercentage, 'incomePerc'
+                    $months_fields = array('october', 'november', 'december');
+                    foreach($months_fields as $month) {
+                        $budgetline[$month] = number_format(33.333, 3);
+                    }
+                    foreach($divided_fields as $field) {
+                        if(!isset($budgetline[$field]) || empty($budgetline[$field])) {
+                            continue;
+                        }
+                        $budgetline[$field] = ($budgetline[$field] * $budgetline['s2Perc'] / 100 ) / 2;
+                    }
+                }
                 if($core->usergroup['budgeting_canFillLocalIncome'] == 1) {
                     $hidden_colcells = array('localincome_row' => ' <td style = "vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align = "center"><input name = "budgetline['.$rowid.'][localIncomeAmount]" value = "'.$budgetline[localIncomeAmount].'" type = "text" id = "localincome_'.$rowid.'" size = "10" accept = "numeric" /> </td>',
                             'localincomeper_row' => '<td style = "vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align = "center"><input name = "budgetline['.$rowid.'][localIncomePercentage]" value = "'.$budgetline[localIncomePercentage].'" type = "text" id = "localincomeper_'.$rowid.'" size = "10" accept = "numeric" /> </td>',
                     );
-                    $hidden_colcells['remainingcommaff_header_row'] = $hidden_colcells['remainingcommaff_header_row'] = '<td style = "vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align = "center">
+                    $hidden_colcells['remainingcommaff_header_row'] = '<td style = "vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align = "center">
                 <input type = "text" placeholder = "'.$lang->search.' '.$lang->affiliate.'" id = affiliate_noexception_'.$rowid.'_commission_autocomplete name = "" value = "'.$budgetline['commissionSplitAffid_output'].'" autocomplete = "off" />
                 <input type = "hidden" value = "'.$budgetline['commissionSplitAffid'].'" id = "affiliate_noexception_'.$rowid.'_commission_id" name = "budgetline['.$rowid.'][commissionSplitAffid]"/></td>';
 
-                    if($source == 'budget') {
-                        $hidden_colcells['remainingcommaff_header_row'] = '<td style = "vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align = "center"><input type="text" value="" disabled></td>';
+                    if($source == 'budget' || $budgetline['fromBudget'] == 1) {
+                        $hidden_colcells ['remainingcommaff_header_row'] = '<td style = "vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align = "center"><input type="text" value="" disabled></td>';
                         if(!empty($budgetline['commissionSplitAffid'])) {
                             $aff = new Affiliates($budgetline['commissionSplitAffid']);
                             if(is_object($aff)) {
                                 $hidden_colcells['remainingcommaff_header_row'] = '<td style = "vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align = "center"><input type = "text" disabled value = '.$aff->get_displayname().'><input type = "hidden" name = "budgetline['.$rowid.'][commissionSplitAffid]" value = "'.$aff->affid.'"></td>';
                             }
                         }
-                    }
-                }
-
-                if($source == 'budget') {
-                    $divided_fields = array('quantity', 'amount', 'income', 'actalQty', 'actualIncome', 'actualAmount', 'localIncomeAmount');
-                    //'unitPrice',localIncomePercentage, 'incomePerc'
-                    foreach($divided_fields as $field) {
-                        if(!isset($budgetline[$field]) || empty($budgetline[$field])) {
-                            continue;
-                        }
-                        $budgetline[$field] = ($budgetline[$field] * $budgetline['s2Perc'] / 100) / 2;
-                    }
-                    $months_fields = array('october', 'november', 'december');
-                    $monthsvalues = $budgetline['s2Perc'] / 6;
-                    foreach($months_fields as $month) {
-                        $budgetline[$month] = number_format($monthsvalues, 3);
                     }
                 }
                 if(empty($budgetline['customerCountry'])) {
@@ -539,8 +570,8 @@ function parse_yefline($data, $readonly = '', $source, $rownums) {
 //                        if(empty($altcid)) {
 //                            $altcid = $prev_budgetline['altCid'];
 //                        }
-                $frombudgetline = '<input type = "hidden" value = "1" name = "budgetline['.$rowid.'][fromBudget]">';
                 eval("\$budgetlinesrows .= \"".$template->get('budgeting_fill_yeflines')."\";");
+                unset($readonly, $extra_script, $alert_div);
             }
         }
         $rownums++;

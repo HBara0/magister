@@ -85,30 +85,17 @@ else {
         $affid = $db->escape_string($core->input['affid']);
         $spid = $db->escape_string($core->input['spid']);
         /* implementing years restricitons */
-        $budget = new Budgets();
-        $budget_years = $budget->populate_budgetyears(array('affid' => $affid, 'spid' => $spid));
+        $yef = new BudgetingYearEndForecast;
+        $budget_years = array(date('Y'), date('Y') - 1);
         $year_selected = '';
         if(is_array($budget_years)) {
             foreach($budget_years as $year) {
-                if($year == date('Y') + 1) {
+                $year_selected = '';
+                if($year == date('Y')) {
                     $year_selected = ' selected="selected"';
-                }
-                else {
-                    if($year < date('Y') - 1) {
-                        continue;
-                    }
                 }
                 $budget_year .= "<option value='{$year}'".$year_selected.">{$year}</option>";
             }
-        }
-
-        if(!in_array(date('Y'), $budget_years)) {
-            $budget_year .= "<option value='".(date('Y'))."'>".(date('Y'))."</option>";
-        }
-
-        if(empty($year_selected)) {
-            $next_year = date('Y') + 1;
-            $budget_year .= "<option value='{$next_year}' selected='selected'>{$next_year}</option>";
         }
 
         output($budget_year);
