@@ -282,9 +282,9 @@ class TravelManagerAirlines {
         curl_setopt($ch, CURLOPT_POSTFIELDS, $request);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-type: application/json"));
-        // $result = curl_exec($ch);
-        $result = file_get_contents('./modules/travelmanager/jsonflightdetailsPAR.txt');
-        //  curl_close($ch);
+        $result = curl_exec($ch);
+        //  $result = file_get_contents('./modules/travelmanager/jsonflightdetailsPAR.txt');
+        curl_close($ch);
 
         return $result;
     }

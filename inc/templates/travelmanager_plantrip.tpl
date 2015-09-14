@@ -251,7 +251,7 @@
                     }
                     var id = $(this).attr("id").split("_");
                     $("input[id^='save_section_" + id[2] + "_'][type='hidden']").val("0");
-                    $("input[id='save_section_" + id[2] + "_" + id[3] + "'][type='hidden']").val("1");
+                    $("input[id='save_section_" + id[2] + "_" + id[3] + "_input'][type='hidden']").val("1");
                     $("input[id='perform_travelmanager/plantrip_Button']").trigger("click");
                     if(typeof id[3] != 'undefined') {
                         timer = setInterval(function() {
