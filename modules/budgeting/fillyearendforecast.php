@@ -367,7 +367,7 @@ function parse_yefline($data, $readonly = '', $source, $rownums) {
                     $extra_script = '<script>';
                     $alert_fields = array('amount', 'quantity', 'income', 'unitPrice');
                     foreach($alert_fields as $field) {
-                        $extra_script.='$(\'input[name="budgetline['.$rowid.']['.$field.']"]\').live("keyup",function(){'
+                        $extra_script.='$(document).on("keyup",\'input[name="budgetline['.$rowid.']['.$field.']"]\',function(){'
                                 .'if($(this).val() > '.$budgetline[$field].'){$("#alert_'.$rowid.'").text("'.$lang->numberspassedbudget.$field.'");}else{$("#alert_'.$rowid.'").text("");}'
                                 .'});';
                     }
