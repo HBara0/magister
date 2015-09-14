@@ -474,4 +474,11 @@ class BudgetingYearEndForecast extends AbstractClass {
         }
     }
 
+    public static function get_saletype_byid($sitd) {
+        global $db;
+        if(!empty($sitd)) {
+            return $db->fetch_field($db->query("SELECT title FROM ".Tprefix."saletypes WHERE stid='".$db->escape_string($sitd)."'"), 'title');
+        }
+    }
+
 }

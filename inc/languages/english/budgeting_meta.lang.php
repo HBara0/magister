@@ -267,4 +267,5 @@ $lang['decemberincome'] = 'November Income';
 $lang['novemberamount'] = 'November Amount';
 $lang['octoberamount'] = 'October Amount';
 $lang['decemberamount'] = 'December Amount';
+$lang['yearendforecast'] = 'Year End Forecast';
 ?>
