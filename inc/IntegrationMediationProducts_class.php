@@ -84,7 +84,7 @@ class IntegrationMediationProducts extends IntegrationMediation {
         return $localproduct->get_supplier();
     }
 
-    public function get_productsegment() {
+    public function get_segment() {
         if(!empty($this->data['localId'])) {
             $localproduct = $this->get_localproduct();
             if(is_object($localproduct) && !empty($localproduct->pid)) {
