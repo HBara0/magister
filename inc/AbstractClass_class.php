@@ -234,7 +234,7 @@ Abstract class AbstractClass {
 
     }
 
-    public function validate_requiredfields($data) {
+    protected function validate_requiredfields($data) {
         if(!empty(static::REQUIRED_ATTRS)) {
             $required_fields = explode(',', static::REQUIRED_ATTRS);
             if(is_array($required_fields) && is_array($data)) {
