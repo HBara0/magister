@@ -91,6 +91,7 @@ class AroRequestsPartiesInformation extends AbstractClass {
                 $dates = $this->get_intermediarydates($data);
                 $partiesinfo_data['intermedEstDateOfPayment'] = $dates['intermedEstDateOfPayment'];
                 $partiesinfo_data['promiseOfPayment'] = $dates['promiseOfPayment'];
+                $partiesinfo_data['commFromIntermed'] = $data['commFromIntermed'];
             }
         }
         return $partiesinfo_data;

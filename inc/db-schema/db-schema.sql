@@ -341,7 +341,7 @@ CREATE TABLE `aro_requests_partiesinformation` (
   `intermedIncotermsDesc` varchar(200) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
   `intermedPaymentTerm` int(10) NOT NULL,
   `intermedPaymentTermDesc` varchar(200) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
-  `ptAcceptableMargin` int(10) NOT NULL,
+  `ptAcceptableMargin` float NOT NULL,
   `promiseOfPayment` bigint(30) NOT NULL,
   `intermedEstDateOfPayment` bigint(30) NOT NULL,
   `commission` int(10) NOT NULL,
@@ -365,8 +365,9 @@ CREATE TABLE `aro_requests_partiesinformation` (
   `legalization` float NOT NULL,
   `courier` float NOT NULL,
   `otherFees` float NOT NULL,
+  `commFromIntermed` int(10) NOT NULL,
   PRIMARY KEY (`apiid`)
-) ENGINE=MyISAM AUTO_INCREMENT=26 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 DROP TABLE IF EXISTS `aro_wareshouses_policies`;
 CREATE TABLE `aro_wareshouses_policies` (
   `awpid` int(10) NOT NULL AUTO_INCREMENT,
