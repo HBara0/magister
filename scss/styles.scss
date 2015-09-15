@@ -744,3 +744,9 @@ tr.dummytrow td, tr.dummytrow th {
     margin-bottom: 50px;
     margin-top: 50px;
 }
+
+@media print {
+    .hidden-print {
+        display: none !important;
+    }
+}
