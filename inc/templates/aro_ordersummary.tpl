@@ -3,9 +3,18 @@
     <p>
     <table>
         <thead>
+            <tr>
+                <td></td>
+                <td class="subtitle"> <input type="text" class="subtitle" id="ordersummary_col1_title"/>{$firstparty_title}</td>
+                <td class="subtitle"> <input type="text" class="subtitle" id="ordersummary_col2_title"/>{$secondparty_title}</td>
+                <td class="subtitle" id="ordersummary_thirdparty_1"> <input type="text" class="subtitle" id="ordersummary_col3_title"/>{$secondparty_title}</td>
+            </tr>
             <tr><td></td>
                 <td class="subtitle"><input type="text" id="ordersummary_intermedaff" style="width:150px;" readonly></span></td>
-                <td class="subtitle"><input type="text" id="ordersummary_localaff" style="width:150px;" readonly></span></td>
+                <td class="subtitle"><input type="text" id="ordersummary_2ndparty" style="width:150px;" readonly></span></td>
+                <td class="subtitle" id="ordersummary_thirdparty_2"><input type="text" id="ordersummary_3rdparty" style="width:150px;" readonly></span>
+                    <input type="hidden" value="" id="haveThirdParty"/></td>
+
             </tr>
         </thead>
         <tbody style="width:100%;">
@@ -14,6 +23,8 @@
                 <td>{$lang->invoicevalue}</td>
                 <td><input type="text" id="ordersummary_invoicevalue_intermed" value="" style="width:150px;" disabled="disabled"/> </td>
                 <td><input type="text" id="ordersummary_invoicevalue_local" value="" style="width:150px;" disabled="disabled"/> </td>
+                <td id="ordersummary_thirdparty_3"><input type="text" id="ordersummary_invoicevalue_thirdparty" value="" style="width:150px;" disabled="disabled"/> </td>
+
             </tr>
             <tr>
                 <td>{$lang->feespaidbyintermed}</td>
@@ -25,6 +36,8 @@
                 <td>{$lang->invoicevalueusd}</td>
                 <td><input type="text" id="ordersummary_invoicevalueusd_intermed" style="width:150px;" /> </td>
                 <td><input type="text" id="ordersummary_invoicevalueusd_local" value="" style="width:150px;" disabled="disabled"/> </td>
+                <td id="ordersummary_thirdparty_4"><input type="text" id="ordersummary_invoicevalueusd_thirdparty" value="" style="width:150px;" disabled="disabled"/> </td>
+
             </tr>
             <tr>
                 <td>{$lang->total} {$lang->netmargin}</td>

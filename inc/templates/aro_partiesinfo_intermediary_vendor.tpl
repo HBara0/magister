@@ -40,6 +40,10 @@
                     <tr class="altrow2"><td>{$lang->totaldiscount}</td>
                         <td><input type="number" step="any" name="partiesinfo[totalDiscount]" id="partiesinfo_totaldiscount" value="{$aropartiesinfo_obj->totalDiscount}"/></td>
                     </tr>
+
+                    <tr class="altrow2"><td>{$lang->commfromintermed}</td>
+                        <td><input type="number" step="any" name="partiesinfo[commFromIntermed]" id="partiesinfo_commFromIntermed" value="{$aropartiesinfo_obj->commFromIntermed}"/></td>
+                    </tr>
                 </table>
             </td>
         </tr>

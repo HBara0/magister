@@ -107,33 +107,32 @@ class AroRequestsMessages extends AbstractClass {
         $mailer = $mailer->get_mailerobj();
         $mailer->set_from(array('name' => $core->user['displayName'], 'email' => $core->user['email']));
 
-        $arorequest = AroRequests::get_data(array('aorid' => $this->data['aorid']));
+        $arorequest = AroRequests::get_data(array('aorid' => $this->data['aorid']), array('simple' => false));
 
         if(is_object($arorequest)) {
-            $reply_links = DOMAIN.'/index.php?module=aro/managearodocumets&action=takeactionpage&requestKey='.base64_encode($arorequest->get()['requestKey']).'&inreplyTo='.$this->data['inReplyTo'].'&id='.base64_encode($arorequest->get()['aorid']);
+            $reply_links = DOMAIN.'/index.php?module=aro/managearodouments&action=takeactionpage&requestKey='.base64_encode($arorequest->get()['requestKey']).'&inreplyTo='.$this->data['inReplyTo'].'&id='.base64_encode($arorequest->get()['aorid']);
         }
-
-        // $approvals = $arorequest->parse_approvalsapprovers();
-        //
-        $mailer->set_subject($lang->newrequestmsgsubject.' ['.$arorequest->requestKey.']');
+        $mailer->set_subject($lang->newrequestmsgsubject.' ['.$arorequest->orderReference.']');
 
         $emailreceivers = $this->get_emailreceivers();
-
-        foreach($emailreceivers as $uid => $emailreceiver) {
-            $message = '<p>'.$this->data['message'].' | <a href="'.$reply_links.'">&#x21b6; '.$lang->reply.'</a></p>';
-            $message .= '<h1>'.$lang->conversation.'</h1>'.$arorequest->parse_messages(array('viewmode' => 'textonly', 'uid' => $uid));
-            if(!empty($message)) {
-                $mailer->set_message($message);
-                $mailer->set_to($emailreceiver);
-                $mailer->send();
+        if(is_array($emailreceivers)) {
+            foreach($emailreceivers as $uid => $emailreceiver) {
+                $message = '<p>'.$this->data['message'].' | <a href="'.$reply_links.'">&#x21b6; '.$lang->reply.'</a></p>';
+                $message .= '<h1>'.$lang->conversation.'</h1>'.$arorequest->parse_messages(array('viewmode' => 'textonly', 'uid' => $uid));
+                if(!empty($message)) {
+                    $mailer->set_message($message);
+                    $mailer->set_to($emailreceiver);
+                    $mailer->send();
+                }
+                $message = '';
             }
-            $message = '';
         }
 
         $this->errorcode = 5;
         if($mailer->get_status() == true) {
             $this->errorcode = 0;
         }
+        return $this;
     }
 
     public function can_seemessage($check_user = '') {
@@ -193,7 +192,8 @@ class AroRequestsMessages extends AbstractClass {
         switch($this->data['viewPermission']) {
             case 'public':
                 $arorequest_obj = new AroRequests($this->data['aorid']);
-                $approvals_objs = $arorequest_obj->get_toapprove();
+                $approvals_objs = $arorequest_obj->get_approvers();
+
                 if(is_array($approvals_objs)) {
                     foreach($approvals_objs as $approvals_obj) {
                         $user = new Users($approvals_obj->uid);
@@ -234,7 +234,7 @@ class AroRequestsMessages extends AbstractClass {
                 break;
         }
         unset($users_receiver[$core->user['uid']]);   /* avoid send  threads  to the user who is setting the message thread */
-        print_R($users_receiver);
+
         return $users_receiver;
     }
 

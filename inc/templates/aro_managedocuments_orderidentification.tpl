@@ -4,7 +4,9 @@
     <table>
         <tbody>
             <tr>
-                <td>{$lang->affiliate}</td>
+                <td>
+                    <input type="hidden" value="{$aroorderrequest->revision}" name="revision"/>
+                    {$lang->affiliate}</td>
                 <td>
                     {$affiliate_list}
                     <input type='hidden' name='aorid' value='{$aroorderrequest->aorid}'/>
@@ -25,8 +27,11 @@
             <tr>
                 <td>{$lang->inspectiontype}</td>
                 <td>{$inspectionlist}</td>
-                <td></td>
-                <td></td>
+                <td>{$lang->bmanager}</td>
+                <td>
+                    <input type='text' id='user_0_autocomplete'/>
+                    <input type='hidden' id='user_0_id' name='aroBusinessManager'  />
+                </td>
             </tr>
 
         </tbody>

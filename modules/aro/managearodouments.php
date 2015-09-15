@@ -420,7 +420,7 @@ if(!($core->input['action'])) {
                         }
                     }
                     eval("\$apprs .= \"".$template->get('aro_approvalchain_approver')."\";");
-                    unset($class, $approve, $hourdiff_output, $hourdiff);
+                    unset($class, $approve, $hourdiff_output, $hourdiff, $dateofapprovalemail, $dateofapproval);
                 }
             }
 
@@ -912,16 +912,12 @@ else {
         if(is_array($feeperunit_usdarray)) {
             $feeperunit_usdarray = implode("\n", $feeperunit_usdarray);
         }
-
-        //$localinvoicevalue = $core->input['invoicevalue_local'];
         $purchaseype = new PurchaseTypes($core->input['ptid']);
         $localnetmargin = $core->input['local_netMargin'];
         if($purchaseype->isPurchasedByEndUser == 1) {
-            //$localinvoicevalue = $core->input['invoicevalue_local_RIC'];
             $localnetmargin = 0;
             $intermedmargin = $core->input['local_netMargin'];
         }
-        //$localinvoicevalue_usd = $localinvoicevalue * $core->input['exchangeRateToUSD'];
         if($purchaseype->needsIntermediary != 0) {
             $invoicevalueintermed = $core->input['invoicevalue_intermed'];
             $invoicevalueintermed_usd = $core->input['invoicevalue_intermed'] * $core->input['exchangeRateToUSD'];
@@ -952,17 +948,42 @@ else {
             $localnetmargin_perc = ($localnetmargin / ($core->input['sellingpriceqty_product'] * $core->input['exchangeRateToUSD'])) * 100;
         }
 
-        $intermedaff_name = '-';
+        $firstparty = '-';
         if(is_object($intermedaffiliate)) {
-            $intermedaff_name = $intermedaffiliate->get_displayname();
+            $firstparty = $intermedaffiliate->get_displayname();
         }
-        $data = array('ordersummary_intermedaff' => $intermedaff_name,
-                'ordersummary_localaff' => $affiliate->get_displayname(),
+        $secondparty = $affiliate->get_displayname();
+
+        $firstpart_title = $lang->intermediary;
+        $secondparty_title = $lang->local;
+        $thirdparty_title = '';
+        $haveThirdParty = 0;
+        if($purchaseype->isPurchasedByEndUser == 1) {
+            $secondparty_title = $lang->customer;
+            $customer_obj = new Entities($core->input['customer']);
+            $secondparty = $customer_obj->get_displayname();
+            if(isset($core->input['commFromIntermed']) && !empty($core->input['commFromIntermed'])) {
+                $thirdparty_title = $lang->local;
+                $thirdparty = $affiliate->get_displayname();
+                $invoicevalue_thirdparty = ($core->input['commFromIntermed'] / 100) * $invoicevalueintermed;
+                $invoicevalue_thirdparty_usd = $invoicevalue_thirdparty * $core->input['exchangeRateToUSD'];
+                $haveThirdParty = 1;
+            }
+        }
+        $data = array(
+                'ordersummary_col1_title' => $firstpart_title,
+                'ordersummary_col2_title' => $secondparty_title,
+                'ordersummary_col3_title' => $thirdparty_title,
+                'ordersummary_intermedaff' => $firstparty,
+                'ordersummary_2ndparty' => $secondparty,
+                'ordersummary_3rdparty' => $thirdparty,
                 'ordersummary_totalquantity' => $quantityperuom,
                 'ordersummary_totalfees' => $feeperunit_array,
                 'ordersummary_totalintermedfees_usd' => $feeperunit_usdarray,
                 'ordersummary_invoicevalue_intermed' => round($invoicevalueintermed, 2),
                 'ordersummary_invoicevalueusd_intermed' => round($invoicevalueintermed_usd, 2),
+                'ordersummary_invoicevalue_thirdparty' => round($invoicevalue_thirdparty, 2),
+                'ordersummary_invoicevalueusd_thirdparty' => round($invoicevalue_thirdparty_usd, 2),
                 //   'ordersummary_invoicevalue_local' => round($localinvoicevalue, 2),
 //   'ordersummary_invoicevalueusd_local' => round($localinvoicevalue_usd, 2),
                 'ordersummary_netmargin_local' => round($localnetmargin, 2),
@@ -971,6 +992,7 @@ else {
                 'ordersummary_netmargin_localperc' => round($localnetmargin_perc, 2),
                 'ordersummary_netmargin_intermedperc' => round($intermedmargin_perc, 2),
                 'ordersummary_totalamount' => round($core->input['totalamount'], 2),
+                'haveThirdParty' => $haveThirdParty
         );
         echo json_encode($data);
     }
@@ -1001,9 +1023,10 @@ else {
             $data['affid'] = $core->input['affid'];
             $data['orderType'] = $core->input['ptid'];
             $data['orderreference'] = $core->input['orderreference'];
+            $data['aroBusinessManager'] = $core->input['aroBusinessManager'];
             $arorequest = new AroRequests();
             $arorequest->set($data);
-            $aroapprovalchain = $arorequest->generate_approvalchain();
+            $aroapprovalchain = $arorequest->generate_approvalchain(null, array('aroBusinessManager' => $data['aroBusinessManager']));
             if(is_array($aroapprovalchain)) {
                 foreach($aroapprovalchain as $key => $val) {
                     switch($key) {
@@ -1037,16 +1060,19 @@ else {
                         case 'user':
                             $position = 'User';
                             break;
+                        case 'reportsTo':
+                            $position = 'Reports To';
+                            break;
                     }
-                    if($key != 'businessManager') {
-                        $user = new Users($val);
-                        if(is_object($user)) {
-                            $username = $user->get_displayname();
-                        }
+                    //   if($key != 'businessManager') {
+                    $user = new Users($val);
+                    if(is_object($user)) {
+                        $username = $user->get_displayname();
                     }
-                    else {
-                        $username = $val;
-                    }
+                    ///  }
+//                    else {
+//                        $username = $val;
+//                    }
                     eval("\$apprs .= \"".$template->get('aro_approvalchain_approver')."\";");
                 }
                 output($apprs);
@@ -1142,7 +1168,7 @@ else {
         /* Errors Should be handled Here */
         switch($arorequestmessage_obj->get_errorcode()) {
             case 0:
-                $arorequestmessage_obj->send_message();
+                $arorequestmessage_obj = $arorequestmessage_obj->send_message();
                 switch($arorequestmessage_obj->get_errorcode()) {
                     case 0:
                         output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");

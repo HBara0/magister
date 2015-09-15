@@ -20,7 +20,7 @@ class AroRequests extends AbstractClass {
     const PRIMARY_KEY = 'aorid';
     const TABLE_NAME = 'aro_requests';
     const DISPLAY_NAME = '';
-    const SIMPLEQ_ATTRS = 'aorid,affid,orderType,identifier,isApproved';
+    const SIMPLEQ_ATTRS = 'aorid,affid,orderType,identifier,isApproved,aroBusinessManager,revision';
     const CLASSNAME = __CLASS__;
     const UNIQUE_ATTRS = 'affid,orderType,orderReference';
 
@@ -39,7 +39,7 @@ class AroRequests extends AbstractClass {
                 return $this->errorcode;
             }
         }
-        $orderrequest_fields = array('affid', 'orderType', 'orderReference', 'inspectionType', 'currency', 'exchangeRateToUSD', 'ReferenceNumber');
+        $orderrequest_fields = array('affid', 'orderType', 'orderReference', 'inspectionType', 'currency', 'exchangeRateToUSD', 'ReferenceNumber', 'aroBusinessManager');
         foreach($orderrequest_fields as $orderrequest_field) {
             $orderrequest_array[$orderrequest_field] = $data[$orderrequest_field];
         }
@@ -99,6 +99,7 @@ class AroRequests extends AbstractClass {
             $data['totalfunds']['aorid'] = $this->data[self::PRIMARY_KEY];
             $fundsengaged_obj->set($data['totalfunds']);
             $fundsengaged_obj->save();
+            $data['approvalchain']['aroBusinessManager'] = $orderrequest_array['aroBusinessManager'];
             $this->create_approvalchain(null, $data['approvalchain']);
             //$sendemail_to['approvers'] = $this->generate_approvalchain();
             $this->send_approvalemail();
@@ -125,13 +126,14 @@ class AroRequests extends AbstractClass {
                 return $this->errorcode;
             }
         }
-        $orderrequest_fields = array('affid', 'orderType', 'orderReference', 'inspectionType', 'currency', 'exchangeRateToUSD', 'ReferenceNumber');
+        $orderrequest_fields = array('affid', 'orderType', 'orderReference', 'inspectionType', 'currency', 'exchangeRateToUSD', 'ReferenceNumber', 'aroBusinessManager');
         foreach($orderrequest_fields as $orderrequest_field) {
             $orderrequest_array[$orderrequest_field] = $data[$orderrequest_field];
         }
         $orderrequest_array['avgLocalInvoiceDueDate'] = strtotime($data['avgeliduedate']);
         $orderrequest_array['modifiedBy'] = $core->user['uid'];
         $orderrequest_array['modifiedOn'] = TIME_NOW;
+        $orderrequest_array['revision'] = $this->data['revision'] + 1;
         $query = $db->update_query(self::TABLE_NAME, $orderrequest_array, ''.self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
         if($query) {
             /* update the document conf with the next number */
@@ -182,6 +184,7 @@ class AroRequests extends AbstractClass {
             $data['totalfunds']['aorid'] = $this->data[self::PRIMARY_KEY];
             $fundsengaged_obj->set($data['totalfunds']);
             $fundsengaged_obj->save();
+            $data['approvalchain']['aroBusinessManager'] = $orderrequest_array['aroBusinessManager'];
             $this->create_approvalchain(null, $data['approvalchain']);
             $approvers_objs = $this->get_approvers();
 //            if(is_array($approvers_objs)) {
@@ -349,7 +352,7 @@ class AroRequests extends AbstractClass {
         return $this->errorid;
     }
 
-    public function generate_approvalchain($pickedapprovers = null) {
+    public function generate_approvalchain($pickedapprovers = null, $options = null) {
         global $core;
         $filter = 'affid ='.$this->affid.' AND purchaseType = '.$this->orderType.' AND ('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
         $aroapprovalchain_policies = AroApprovalChainPolicies::get_data($filter);
@@ -367,13 +370,21 @@ class AroRequests extends AbstractClass {
             foreach($sortedapprovalchain as $key => $val) {
                 switch($val['approver']) {
                     case 'businessManager':
-                        if(isset($pickedapprovers['businessManager']['uid']) && !empty($pickedapprovers['businessManager']['uid'])) {
-                            $approvers['businessManager'] = $pickedapprovers['businessManager']['uid'];
+                        if(!empty($this->data['aroBusinessManager'])) {
+                            $approvers['businessManager'] = $this->data['aroBusinessManager'];
                         }
                         else {
-                            $approvers['businessManager'] = " <input style='padding :5px;' type='text' id='user_1_autocomplete'/>
-                                  <input type='hidden' id='user_1_id' name='approvalchain[businessManager][uid]'  />";
+                            if(!empty($options['aroBusinessManager'])) {
+                                $approvers['businessManager'] = $options['aroBusinessManager'];
+                            }
                         }
+//                        if(isset($pickedapprovers['businessManager']['uid']) && !empty($pickedapprovers['businessManager']['uid'])) {
+//                            $approvers['businessManager'] = $pickedapprovers['businessManager']['uid'];
+//                        }
+//                        else {
+//                            $approvers['businessManager'] = " <input style='padding :5px;' type='text' id='user_1_autocomplete'/>
+//                                  <input type='hidden' id='user_1_id' name='approvalchain[businessManager][uid]'  />";
+//                        }
 
                         break;
                     case 'lolm':
@@ -416,6 +427,20 @@ class AroRequests extends AbstractClass {
                         //  $user = new Users($val['uid']);
                         $approvers[$val['approver']] = $val['uid'];
                         break;
+                    case 'reportsTo':
+                        if(!empty($this->data['aroBusinessManager'])) {
+                            $bm = $this->data['aroBusinessManager'];
+                        }
+                        else {
+                            if(!empty($options['aroBusinessManager'])) {
+                                $bm = $options['aroBusinessManager'];
+                            }
+                        }
+                        $user = Users::get_data(array('uid' => $bm), array('simple' => false));
+                        if(is_object($user) && !empty($user->reportsTo)) {
+                            $approvers[$val['approver']] = $user->reportsTo;
+                        }
+                        unset($bm);
                     default:
                         if(is_int($val)) {
                             $approvers[$val] = $val;
@@ -437,7 +462,7 @@ class AroRequests extends AbstractClass {
         global $core;
 
         if(empty($approvers)) {
-            $approvers = $this->generate_approvalchain($options);
+            $approvers = $this->generate_approvalchain($options, $options['aroBusinessManager']);
         }
         //  $approve_immediately = $this->should_approveimmediately();
         $sequence = 1;
@@ -456,7 +481,7 @@ class AroRequests extends AbstractClass {
                     $position = array_search($val, $approvers);
                 }
                 $approver = new AroRequestsApprovals();
-                $approver->set(array('aorid' => $this->data[self::PRIMARY_KEY], 'uid' => $val, 'isApproved' => $approve_status, 'timeApproved' => $timeapproved, 'sequence' => $sequence, 'position' => $position));
+                $approver->set(array('aorid' => $this->data[self::PRIMARY_KEY], 'uid' => $val, 'isApproved' => $approve_status, 'timeApproved' => $timeapproved, 'sequence' => $sequence, 'position' => $position, 'emailRecievedDate' => ''));
                 $approver->save();
                 $sequence++;
             }
@@ -566,7 +591,7 @@ class AroRequests extends AbstractClass {
     }
 
     public function inform_nextapprover() {
-        global $core;
+        global $core, $db;
         $approval = $this->get_nextapprover();
         if(is_object($approval)) {
             $user = new Users($approval->uid);
@@ -586,8 +611,11 @@ class AroRequests extends AbstractClass {
             $mailer->set_subject($email_data['subject']);
             $mailer->set_message($email_data['message']);
             $mailer->set_to($email_data['to']);
-
             $mailer->send();
+            if($mailer->get_status() === true) {
+                $data = array('emailRecievedDate' => TIME_NOW);
+                $db->update_query('aro_requests_approvals', $data, 'araid='.$approval->araid);
+            }
         }
     }
 
@@ -639,9 +667,12 @@ class AroRequests extends AbstractClass {
         if($this->data['isApproved'] == 1) {
             $approvers = $this->get_approvers();
             if(is_array($approvers)) {
+
                 foreach($approvers as $approver_obj) {
                     $approver = new Users($approver_obj->uid);
-                    $mailinglist[$approver->uid] = $approver->get_email();
+                    if(is_object($approver)) {
+                        $mailinglist[$approver->uid] = $approver->get_email();
+                    }
                 }
             }
             if($this->check_infromcoords() == 1) {

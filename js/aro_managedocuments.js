@@ -384,7 +384,7 @@ $(function() {
             }
         });
         var id = $(this).attr('id').split("_");
-        sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populate_localintersetvalues&invoicevalue_local_RIC' + invoicevalue_local_RIC + '&ptid=' + $("select[id=purchasetype]").val() + '&invoicevalue_local=' + invoicevalue_local + '&exchangeRateToUSD=' + $("#exchangeRateToUSD").val(), function() {
+        sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populate_localintersetvalues&invoicevalue_local_RIC=' + invoicevalue_local_RIC + '&ptid=' + $("select[id=purchasetype]").val() + '&invoicevalue_local=' + invoicevalue_local + '&exchangeRateToUSD=' + $("#exchangeRateToUSD").val(), function() {
             $("select[id='partiesinfo_intermed_paymentterm']").trigger("change");
             clearTimeout(actualpurchaselines_tr);
 
@@ -428,9 +428,9 @@ $(function() {
 //    var auto_refresh = setInterval(function() {
 //        submitform();
 //    }, 30000);
-//    function submitform() {     //Form submit function
-//        $("input[id^='perform_'][id$='_Button']").trigger("click");
-//    }
+    function submitform() {     //Form submit function
+        $("input[id^='perform_'][id$='_Button']").trigger("click");
+    }
 //---------------------------------------------------//
     //-------------If Vendor is affiliate, such select affiliate not entity and Disable  intermediary section----------------------//
     //Trigger Intermediary Aff Policy
@@ -684,7 +684,16 @@ $(function() {
         attributes = attributes + "&InterBR=" + $('input[id=parmsfornetmargin_intermedBankInterestRate]').val();
         attributes = attributes + "&POIintermed=" + $('input[id=parmsfornetmargin_intermedPeriodOfInterest]').val();
         attributes = attributes + "&intermedAff=" + $("select[id='partiesinfo_intermed_aff']").val();
-        sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populateordersummary' + attributes);
+        attributes = attributes + "&customer=" + $("input[id='customer_1_id']").val() + "&commFromIntermed=" + $("input[id='partiesinfo_commFromIntermed']").val();
+
+        sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populateordersummary' + attributes, function(json) {
+            if(json["haveThirdParty"] == 1) {
+                $("td[id^='ordersummary_thirdparty]").show();
+            } //else {
+            //     $("td[id^='ordersummary_thirdparty]").hide();
+//        /}
+        });
+
     });
     //---------------------------------------
     $("input[id='unitfee_btn']").click(function() {
@@ -744,6 +753,33 @@ $(function() {
             }
         });
         $("input[id='totalfunds_total']").val(totalfunds);
+    });
+
+
+
+
+    //--------------------------------------------------
+    $("input[id='user_0_autocomplete']").live('change', function() {
+        var bmid = $("input[id='user_0_id']").val();
+        if(typeof bmid != 'undefined' && bmid.length > 0) {
+            var aroBusinessManager = $("input[id='user_0_id']").val();
+            if(aroBusinessManager.length > 0) {
+                var ptid = $("select[id='purchasetype']").val();
+                var affid = $("select[id='affid']").val();
+                $.ajax({type: 'post',
+                    url: rootdir + "index.php?module=aro/managearodouments&action=generateapprovalchain",
+                    data: "affid=" + affid + "&ptid=" + ptid + "&aroBusinessManager=" + aroBusinessManager,
+                    beforeSend: function() {
+                    },
+                    complete: function() {
+                        //   $("#modal-loading").dialog("close").remove();
+                    },
+                    success: function(returnedData) {
+                        $('#aro_approvalcain').html(returnedData);
+                    }
+                });
+            }
+        }
     });
 });
 var rowid = '';
