@@ -93,6 +93,7 @@ else {
         $year_selected = '';
         if(is_array($budget_years)) {
             foreach($budget_years as $year) {
+                $year_selected = '';
                 if($year == date('Y') + 1) {
                     $year_selected = ' selected="selected"';
                 }

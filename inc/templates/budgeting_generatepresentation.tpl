@@ -1,6 +1,6 @@
 <html>
     <head>
-        <title>{$core->settings[systemtitle]} | {$lang->generatereport}</title>
+        <title>{$core->settings[systemtitle]} | {$lang->generatepresentation}</title>
         {$headerinc}
     </head>
     <body>
@@ -8,7 +8,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h1>{$lang->generatereport}</h1>
+            <h1>{$lang->generatepresentation}</h1>
             <form name="perform_budgeting/generatepresentation_Form" id="perform_budgeting/generatepresentation_Form" action="#" method="post">
                 <div>
                     {$lang->chooseanafiiliate}  {$affiliates_list}

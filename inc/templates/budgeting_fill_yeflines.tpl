@@ -1,7 +1,8 @@
 <tr id="{$rownums}">
     <td style="vertical-align: top; border-bottom: dashed 1px #CCCCCC; text-align: left;">
+        {$extra_script}
         <input type="hidden" name="budgetline[{$rowid}][inputCheckSum]" value="{$rowid}"/>
-        <input type="hidden" name="budgetline[{$rowid}][yeflid]" value="{$budgetline[yeflid]}"/>
+        <input type="hidden" name="budgetline[{$rowid}][yeflid]" value="{$budgetline['yeflid']}"/>
         <input type='text' id='customer_noexception_{$rowid}_autocomplete' name="budgetline[{$rowid}][customerName]" {$disabledattrs[cid]} value="{$budgetline[customerName]}" autocomplete='off' {$required}/>
         <input type='text' {$readonly} size='3' id='customer_noexception_{$rowid}_id_output' disabled='disabled' value="{$budgetline[cid]}" style="display:none;"/>
         <input type='hidden' value="{$budgetline[cid]}" id='customer_noexception_{$rowid}_id' name='budgetline[{$rowid}][cid]' />
@@ -13,9 +14,11 @@
             <span style="display:inline-block;width:10%;"> in</span> <div style="display:inline-block;width:85%">{$countries_selectlist}</div>
         </div>
         <div id='searchQuickResults_customer_{$rowid}' class='searchQuickResults' style='display:none;'></div>
+        {$alert_div}
+
     </td>
     <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;"  align="left">
-        <input type='text' {$readonly}  name="budgetline[{$rowid}][pid]" id="product_noexception_{$rowid}_autocomplete" value="{$budgetline[productName]}" autocomplete='off' />
+        <input type='text' {$disabledattrs[pid]}  name="budgetline[{$rowid}][pid]" id="product_noexception_{$rowid}_autocomplete" value="{$budgetline[productName]}" autocomplete='off' />
         <input type='text' size='2' style="width:35px;display:none;" name='product_{$rowid}_id_output' id='product_noexception_{$rowid}_id_output' disabled='disabled' value="{$budgetline[pid]}"/>
         <input type='hidden' value='{$budgetline[pid]}' id='product_noexception_{$rowid}_id' name='budgetline[{$rowid}][pid]' />
         <div id='searchQuickResults_product_{$rowid}' class='searchQuickResults' style='display:none;'></div>
@@ -30,7 +33,7 @@
     <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left"><select name="budgetline[{$rowid}][UoM]" disabled="disabled"><option value="kg">KG</option></select></td>
     <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left"><input name="budgetline[{$rowid}][unitPrice]" type="text" id="unitprice_{$rowid}" size="10" accept="numeric" {$required} value="{$budgetline[unitPrice]}" autocomplete='off' />{$prevyear_unitprice}</td>
     <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left"><input name="budgetline[{$rowid}][amount]" type="text" id="amount_{$rowid}" size="10" accept="numeric" {$required} value="{$budgetline[amount]}" autocomplete='off' />{$previous_yearsamount}</td>
-    <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left"><input name="budgetline[{$rowid}][incomePerc]"  placeholder="1" type="text" id="amountper_{$rowid}" size="10" accept="numeric" {$required} value="{$budgetline[incomePerc]}" autocomplete='off' />{$prevyear_incomeperc}</td>
+    <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left"><input name="budgetline[{$rowid}][incomePerc]"  type="text" id="amountper_{$rowid}" size="10" accept="numeric" {$required} value="{$budgetline[incomePerc]}" autocomplete='off' />{$prevyear_incomeperc}</td>
     <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center"><input name="budgetline[{$rowid}][income]"  value="{$budgetline[income]}" {$required}type="text" id="income_{$rowid}" size="10" accept="numeric" />{$previous_yearsincome}</td>
         {$hidden_colcells[localincome_row]}
         {$hidden_colcells[localincomeper_row]}

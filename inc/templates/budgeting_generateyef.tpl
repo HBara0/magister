@@ -1,6 +1,6 @@
 <html>
     <head>
-        <title>{$core->settings[systemtitle]} | {$lang->fillsurvey}</title>
+        <title>{$core->settings[systemtitle]} | {$lang->generate} {$lang->yearendforecast}</title>
         {$headerinc}
 
 
@@ -31,7 +31,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h1>{$lang->generatebudget}</h1>
+            <h1>{$lang->generate} {$lang->yearendforecast}</h1>
             <form name="perform_budgeting/generateyearendforecast_Form" id="perform_budgeting/generateyearendforecast_Form" method="post">
                 <input type="hidden" name="identifier" value="{$core->input[identifier]}"/>
                 <div style="display:block; padding:8px;">
@@ -127,7 +127,6 @@
                                                 <td><select  name="budget[reporttype]" id="budget[reporttype]" style="width:100%;">
                                                         <option value="basic">{$lang->basic}</option>
                                                         <option value="dimensional">{$lang->dimensional}</option>
-                                                        <option value="statistical">{$lang->statistical}</option>
                                                     </select>
                                                 </td>
                                             </tr>
@@ -163,10 +162,6 @@
                         </div>
                     </div>
                 </div>
-                <!--  <div  id="budget_currspecify"style="display:block;">
-                      <input type="submit" value="{$lang->generate}" class="button"> <input type="reset" value="{$lang->reset}" class="button">
-                  </div>
-                -->
                 <input type="submit" id="perform_budgeting/generateyearendforecast_Button" value="{$lang->generatereport}" class="button"> <input type="reset" value="{$lang->reset}" class="button">
 
 

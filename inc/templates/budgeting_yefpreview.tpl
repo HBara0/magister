@@ -1,5 +1,4 @@
 <div>
-
     <form name="perform_budgeting/preview_Form" id="perform_budgeting/preview_Form" method="post" action="#">
         {$budgetreport_coverpage}
         {$budgeting_budgetrawreport}

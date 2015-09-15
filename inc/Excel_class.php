@@ -31,6 +31,7 @@ class Excel {
         else {
             $this->data = $data;
         }
+        $this->set_worksheet($this->data);
         $this->generate_file();
     }
 
@@ -89,7 +90,7 @@ class Excel {
      * sets a single worksheet data depending on the type of the excel file (if query or html)
      */
     public function set_worksheet($data = '') {
-        if($this->type == 'query') {
+        if($this->type == 'array') {
             $num_rows = count($this->data);
             $num_cols = count($this->data[0]);
 

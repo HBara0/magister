@@ -190,6 +190,9 @@ class BudgetingYearEndForecast extends AbstractClass {
                         $yef->save_budgetlines($budgetline_data);
                     }
                 }
+                else {
+                    return false;
+                }
             }
             else {
                 $existing_budget = BudgetingYearEndForecast::get_yef_bydata($budgetdata);
@@ -204,6 +207,7 @@ class BudgetingYearEndForecast extends AbstractClass {
                 $log->record('updatedyef', $existing_budget['yefid']);
             }
         }
+        return true;
     }
 
     private function save_budgetlines($budgetline_data = array(), $yef = '', $options = array()) {
@@ -247,7 +251,10 @@ class BudgetingYearEndForecast extends AbstractClass {
                         $yeflineobj = new BudgetingYEFLines();
                     }
                 }
-
+                if(is_empty($data['localIncomeAmount'], $data['localIncomePercentage'])) {
+                    $data['localIncomeAmount'] = $data['income'];
+                    $data['localIncomeAmount'] = '100';
+                }
                 if((empty($data['pid']) && empty($data['altPid'])) || (empty($data['cid']) && empty($data['altCid']))) {
                     if(!empty($data['yeflid'])) {
                         $removed_lines[] = $data['yeflid'];
@@ -319,15 +326,11 @@ class BudgetingYearEndForecast extends AbstractClass {
                     }
                 }
                 unset($data['unspecifiedCustomer']);
-                if(isset($data['yeflid']) && !empty($data['yeflid'])) {
-                    $yeflineobj->update($data);
-                    $yeflineobj->save_interco_line($data);
-                    $this->errorcode = 0;
-                }
-                else {
-                    $yeflineobj->create($data);
+                $yeflineobj = $yeflineobj->save($data);
+                if(is_object($yeflineobj)) {
                     $yeflineobj->save_interco_line($data);
                 }
+                unset($yeflineobj);
             }
 
             if(is_array($removed_lines)) {
@@ -471,6 +474,27 @@ class BudgetingYearEndForecast extends AbstractClass {
             }
             $configs['operators']['businessMgr'] = 'IN';
             return BudgetingYEFLines::get_data($filters, $configs);
+        }
+    }
+
+    public function get_helptouritems() {
+        global $lang;
+        $touritems = array(
+                'page_title' => array('options' => 'tipLocation:top;', 'text' => $lang->helptour_welcomeyeffill),
+                'quantity_tour' => array('options' => 'tipLocation:top;', 'text' => $lang->helptour_quantity),
+                'amount_tour' => array('options' => 'tipLocation:top;', 'text' => $lang->helptour_amount),
+                'localincome_tour' => array('options' => 'tipLocation:top;', 'text' => $lang->helptour_localincome),
+                'commissionaff_tour' => array('options' => 'tipLocation:top;', 'text' => $lang->helptour_commissionaff),
+                'month_tour' => array('options' => 'tipLocation:top;', 'text' => $lang->helptour_month),
+        );
+
+        return $touritems;
+    }
+
+    public static function get_saletype_byid($sitd) {
+        global $db;
+        if(!empty($sitd)) {
+            return $db->fetch_field($db->query("SELECT title FROM ".Tprefix."saletypes WHERE stid='".$db->escape_string($sitd)."'"), 'title');
         }
     }
 

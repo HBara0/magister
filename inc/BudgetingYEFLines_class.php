@@ -8,9 +8,10 @@ class BudgetingYEFLines extends AbstractClass {
     const PRIMARY_KEY = 'yeflid';
     const TABLE_NAME = 'budgeting_yef_lines';
     const SIMPLEQ_ATTRS = '*';
-    const UNIQUE_ATTRS = '';
+    const UNIQUE_ATTRS = 'yefid,pid,cid,saleType';
     const CLASSNAME = __CLASS__;
     const DISPLAY_NAME = '';
+    const REQUIRED_ATTRS = 'yefid,pid,cid,saleType,inputCheckSum';
 
     /* -------Definiton-END-------- */
     /* -------FUNCTIONS-START-------- */
@@ -20,6 +21,9 @@ class BudgetingYEFLines extends AbstractClass {
 
     public function create(array $data) {
         global $db, $core;
+        if(!$this->validate_requiredfields($data)) {
+            return false;
+        }
         $table_array = array(
                 'inputCheckSum' => $data['inputCheckSum'],
                 'yefid' => $data['yefid'],
@@ -57,8 +61,19 @@ class BudgetingYEFLines extends AbstractClass {
                 'psid' => $data['psid'],
                 'fromBudget' => $data['fromBudget'],
         );
+        if(empty($table_array['createdBy'])) {
+            $table_array['createdBy'] = $core->user['uid'];
+        }
+        if(empty($table_array['businessMgr'])) {
+            $table_array['businessMgr'] = $core->user['uid'];
+        }
+        if(empty($table_array['psid'])) {
+            $product = new Products($table_array['pid']);
+            $table_array['psid'] = $product->get_segment()['psid'];
+        }
         $query = $db->insert_query(self::TABLE_NAME, $table_array);
         if($query) {
+            $this->data = $table_array;
             $this->data[self::PRIMARY_KEY] = $db->last_id();
         }
         return $this;
@@ -66,6 +81,9 @@ class BudgetingYEFLines extends AbstractClass {
 
     protected function update(array $data) {
         global $db;
+        if(!$this->validate_requiredfields($data)) {
+            return false;
+        }
         if(is_array($data)) {
             $update_array['inputCheckSum'] = $data['inputCheckSum'];
             $update_array['yefid'] = $data['yefid'];
@@ -103,6 +121,14 @@ class BudgetingYEFLines extends AbstractClass {
             $update_array['psid'] = $data['psid'];
             $update_array['fromBudget'] = $data['fromBudget'];
         }
+
+        if(empty($update_array['businessMgr'])) {
+            $update_array['businessMgr'] = $core->user['uid'];
+        }
+        if(empty($update_array['psid']) && !empty($update_array['pid'])) {
+            $product = new Products($update_array['pid']);
+            $update_array['psid'] = $product->get_segment()['psid'];
+        }
         $db->update_query(self::TABLE_NAME, $update_array, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
         return $this;
     }
@@ -137,7 +163,7 @@ class BudgetingYEFLines extends AbstractClass {
         $data_toremove = array('yefid', 'yeflid', 'cid', 'interCompanyPurchase');
         $data_zerofill = array('invoicingEntityIncome'); //'localIncomePercentage', 'localIncomeAmount',
         $yef = $this->get_yef();
-        $data['inputChecksum'] = generate_checksum('yefl');
+        $data['inputCheckSum'] = generate_checksum();
         $data['linkedBudgetLine'] = $this->data['yeflid'];
         $data['altCid'] = $yef->get_affiliate()->name;
         $data['customerCountry'] = $yef->get_affiliate()->country;
@@ -194,7 +220,7 @@ class BudgetingYEFLines extends AbstractClass {
         }
 
         $ic_budgetline = new BudgetingYEFLines();
-        $ic_budgetline->create($data);
+        $ic_budgetline->save($data);
 
         $this->update(array('linkedBudgetLine' => $ic_budgetline->yeflid));
     }

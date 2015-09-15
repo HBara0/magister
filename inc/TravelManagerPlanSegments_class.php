@@ -32,9 +32,10 @@ class TravelManagerPlanSegments extends AbstractClass {
 
     public function create(array $segmentdata) {
         global $db, $core, $lang, $errorhandler;
-        $tmp = array_filter($segmentdata['savesection']);
-        if(is_array($tmp)) {
-            if(is_array($segmentdata['savesection'])) {
+
+        if(is_array($segmentdata['savesection'])) {
+            $tmp = array_filter($segmentdata['savesection']);
+            if(!empty($tmp)) {
                 foreach($segmentdata['savesection'] as $key => $value) {
                     switch($key) {
 //                    case 'section1':
@@ -310,9 +311,10 @@ class TravelManagerPlanSegments extends AbstractClass {
 
     public function update(array $segmentdata) {
         global $db, $core, $errorhandler, $lang;
-        $tmp = array_filter($segmentdata['savesection']);
-        if(is_array($tmp)) {
-            if(is_array($segmentdata['savesection'])) {
+
+        if(is_array($segmentdata['savesection'])) {
+            $tmp = array_filter($segmentdata['savesection']);
+            if(!empty($tmp)) {
                 foreach($segmentdata['savesection'] as $key => $value) {
                     switch($key) {
 //                    case 'section1':

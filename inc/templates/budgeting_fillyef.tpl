@@ -136,7 +136,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h1>{$lang->fillyef}
+            <h1><div id="page_title">{$lang->fillyef}</div>
                 <div style="font-style:italic; font-size:12px; color:#666;">{$yef_data[affiliateName]} | {$yef_data[supplierName]} | {$yef_data[year]}</div>
             </h1>
             <div class="ui-state-highlight ui-corner-all" style="padding-left: 5px; margin-bottom:10px;">
@@ -154,10 +154,10 @@
                     <td  width="150px" class=" border_right" align="center" rowspan="2" valign="top" align="left">{$lang->customer} <a href="index.php?module=contents/addentities&type=customer" target="_blank"><img src="images/addnew.png" border="0" alt="{$lang->add}"></a></td>
                     <td width="150px" rowspan="2" valign="top" align="center" class=" border_right">{$lang->product} <a href="index.php?module=contents/addproducts&amp;referrer=budgeting" target="_blank"><img src="images/addnew.png" border="0" alt="{$lang->add}"></a></td>
                     <td width="150px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->saletype} <a href="#" title="{$tooltips[saletype]}"><img src="./images/icons/question.gif" ></a></td>
-                    <td width="150px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->quantity}</td>
+                    <td width="150px" class=" border_right" rowspan="2" valign="top" align="center"><div id="quantity_tour">{$lang->quantity}</div></td>
                     <td width="150px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->uom}</td>
                     <td width="150px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->unitprice}</td>
-                    <td width="150px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->amount}</td>
+                    <td width="150px" class=" border_right" rowspan="2" valign="top" align="center"><div id="amount_tour">{$lang->amount}</div></td>
                     <td width="150px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->incomeperc}</td>
                     <td width="150px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->income}</td>
                     {$hidden_colcells[localincome_head]}
@@ -165,9 +165,9 @@
                     {$hidden_colcells[remainingcommaff_head]}
                     <td width="150px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->currency}</td>
                     <td width="150px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->entitypurchasingfromsupplier}</td>
-                    <td width="150px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->october}%</td>
-                    <td width="150px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->november}%</td>
-                    <td width="150px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->december}%</td>
+                    <td width="150px" class=" border_right" rowspan="2" valign="top" align="center"><div id="month_tour">{$lang->october} %</div></td>
+                    <td width="150px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->november} %</td>
+                    <td width="150px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->december} %</td>
                     <td width="150px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->purchasedfromaffiliate} <a href="#" title="The affiliate from which you are buying the items in exceptional cases. Only applicable for the case of intercompany transactions; one affiliate (ex. Orkila Free Zone - Alex) selling and invoicing the other affiliate (ex. Orkila Egypt). This will automatically create an intercompany sale in the budget of the select affiliate. This should not be filled unless in exceptional cases."><img src="./images/icons/question.gif" ></a></td>
                 </tr>
             </thead>
@@ -197,5 +197,6 @@
     </form>
 </td>
 </tr>
+{$helptour}
 </body>
 </html>

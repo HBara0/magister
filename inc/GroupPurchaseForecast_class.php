@@ -136,7 +136,7 @@ class GroupPurchaseForecast extends AbstractClass {
         return GroupPurchaseForecastLines::get_data(array('gpfid' => $this->data[self::PRIMARY_KEY], 'businessMgr' => $businessmgr), array('returnarray' => true, 'simple' => false));
     }
 
-    private function validate_requiredfields(array $data = array()) {
+    protected function validate_requiredfields(array $data = array()) {
         global $core, $db;
         if(is_array($data)) {
             $required_fields = array('affid', 'year', 'spid');

@@ -133,7 +133,7 @@ class MeetingsMOMActions extends AbstractClass {
         }
     }
 
-    private function validate_requiredfields(array $data = array()) {
+    protected function validate_requiredfields(array $data = array()) {
         if(is_array($data)) {
             $required_fields = array('momid', 'what');
             foreach($required_fields as $field) {

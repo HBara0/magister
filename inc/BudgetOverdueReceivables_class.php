@@ -57,7 +57,7 @@ class BudgetOverdueReceivables extends AbstractClass {
         }
     }
 
-    private function validate_requiredfields(array $data = array()) {
+    protected function validate_requiredfields(array $data = array()) {
         if(is_array($data)) {
             $required_fields = array('cid', 'totalAmount', 'oldestUnpaidInvoiceDate');
             foreach($required_fields as $field) {

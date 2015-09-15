@@ -21,6 +21,7 @@ else {
 }
 $lang->load('attendance_messages');
 $lang->load('attendance_meta');
+$lang->load('travelmanager_meta');
 
 if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject) || $ignore_subject == true) {
     if($ignore_subject == true) {
@@ -60,6 +61,7 @@ if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject) || $ignore_su
                 //$approve_link = DOMAIN.'/index.php?module=attendance/listleaves&action=perform_approveleave&toapprove='.base64_encode($core->input['requestKey']).'&referrer=email';
                 $approve_link = DOMAIN.'/index.php?module=attendance/listleaves&action=takeactionpage&requestKey='.base64_encode($core->input['requestKey']).'&id='.base64_encode($leave['lid']);
                 $travelmanager_plan = TravelManagerPlan::get_plan(array('lid' => $leave['lid']), array('returnarray' => false));
+                $planid = $travelmanager_plan->tmpid;
                 if(is_object($travelmanager_plan)) {
                     $approve_link = DOMAIN.'/index.php?module=attendance/listleaves&action=takeactionpage&requestKey='.base64_encode($leave->requestKey).'&id='.base64_encode($leave->lid).'&tmpid='.$travelmanager_plan->tmpid;
                     $leave = $travelmanager_plan->get_leave();
@@ -75,9 +77,10 @@ if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject) || $ignore_su
                     $plan_name = $leave_type->title.' - '.$leave->get_country()->get_displayname();
                     $leave_requestey = $leave->requestKey;
                     $approve_link = DOMAIN.'/index.php?module=attendance/listleaves&action=takeactionpage&requestKey='.base64_encode($leave->requestKey).'&id='.base64_encode($leave->lid).'&tmpid='.$planid;
-                    $segment_objs = TravelManagerPlanSegments::get_segments(array('tmpid' => $planid), array('order' => 'sequence', 'simple' => false, 'returnarray' => true));
 
+                    $segment_objs = TravelManagerPlanSegments::get_segments(array('tmpid' => $planid), array('order' => 'sequence', 'simple' => false, 'returnarray' => true));
                     if(is_array($segment_objs)) {
+
                         foreach($segment_objs as $segmentid => $segment) {
                             $segment_details .= $segment->parse_segment();
                             $segment_expenses = $segment->parse_expensesummary();
@@ -119,6 +122,8 @@ if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject) || $ignore_su
                     eval("\$leave_details = \"".$template->get('travelmanager_viewlpan_leavedtls')."\";");
 
                     eval("\$travelmanager_viewplan = \"".$template->get('travelmanager_viewlpanemail')."\";");
+
+                    $leave = $leave->get();
                 }
 
                 /* Parse expense information for message - START */

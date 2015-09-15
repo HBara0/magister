@@ -180,6 +180,14 @@ if(!$core->input['action']) {
                             }
 
                             foreach($prev_budgetlines as $prev_budgetline) {
+                                //get prev year YEF data
+                                $yef = BudgetingYearEndForecast::get_data(array('year' => $prev_budgetline['year'], 'spid' => $prev_budgetline['spid'], 'affid' => $prev_budgetline['affid']));
+                                if(is_object($yef)) {
+                                    $yefline = BudgetingYEFLines::get_data(array('saleType' => $prev_budgetline['saleType'], 'pid' => $prev_budgetline['pid'], 'cid' => $prev_budgetline['cid'], 'yefid' => $yef->yefid), array('returnarray' => false));
+                                    if(!is_object($yefline)) {
+                                        $yefline = new BudgetingYEFLines();
+                                    }
+                                }
                                 if(!isset($budgetline['invoice'])) {
                                     $budgetline['invoice'] = $prev_budgetline['invoice'];
                                 }
@@ -205,22 +213,22 @@ if(!$core->input['action']) {
                                 $budgetline['alternativeproduct'] .= '<span style="display:block;">'.ucfirst($prev_budgetline['altPid']).'</span>';
                                 $previous_blid = '<input type="hidden" name="budgetline['.$rowid.'][prevblid]" value="'.$prev_budgetline['blid'].'" />';
                                 // $previous_customercountry = '<input type="hidden" name="budgetline['.$rowid.'][customerCountry]" value="'.$prev_budgetline['customerCountry'].'" />';
-                                $previous_yearsqty .= '<span class="altrow smalltext" style="display:block;"><strong>'.$prev_budgetline['year'].'</strong><br />'.$lang->budgetabbr.': '.$prev_budgetline['quantity'].' | '.$lang->actualabbr.': '.$prev_budgetline['actualQty'].'</span>';
-                                $previous_yearsamount .= '<span class="altrow smalltext" style="display:block;"><strong>'.$prev_budgetline['year'].'</strong><br />'.$lang->budgetabbr.': '.$prev_budgetline['amount'].' | '.$lang->actualabbr.': '.$prev_budgetline['actualAmount'].'</span>';
-                                $previous_yearsincome .= '<span class="altrow smalltext" style="display:block;"><strong>'.$prev_budgetline['year'].'</strong><br />'.$lang->budgetabbr.': '.$prev_budgetline['income'].' | '.$lang->actualabbr.': '.$prev_budgetline['actualIncome'].'</span>';
-                                $previous_yearslocalincome .= '<span class="altrow smalltext" style="display:block;"><strong>'.$prev_budgetline['year'].'</strong><br />'.$lang->budgetabbr.': '.$prev_budgetline['localIncomeAmount'].' | '.$lang->actualabbr.':</span>';
+                                $previous_yearsqty .= '<span class="altrow smalltext" style="display:block;"><strong>'.$prev_budgetline['year'].'</strong><br />'.$lang->budgetabbr.': '.$prev_budgetline['quantity'].' | '.$lang->actualabbr.': '.$prev_budgetline['actualQty'].' | '.$lang->yef.': '.$yefline->quantity.'</span>';
+                                $previous_yearsamount .= '<span class="altrow smalltext" style="display:block;"><strong>'.$prev_budgetline['year'].'</strong><br />'.$lang->budgetabbr.': '.$prev_budgetline['amount'].' | '.$lang->actualabbr.': '.$prev_budgetline['actualAmount'].' | '.$lang->yef.': '.$yefline->amount.'</span>';
+                                $previous_yearsincome .= '<span class="altrow smalltext" style="display:block;"><strong>'.$prev_budgetline['year'].'</strong><br />'.$lang->budgetabbr.': '.$prev_budgetline['income'].' | '.$lang->actualabbr.': '.$prev_budgetline['actualIncome'].' | '.$lang->yef.': '.$yefline->income.'</span>';
+                                $previous_yearslocalincome .= '<span class="altrow smalltext" style="display:block;"><strong>'.$prev_budgetline['year'].'</strong><br />'.$lang->budgetabbr.': '.$prev_budgetline['localIncomeAmount'].' | '.$lang->actualabbr.':  | '.$lang->yef.': '.$yefline->localIncomeAmount.'</span>';
 
                                 $prev_budgetline['actualIncomePerc'] = 0;
                                 if(!empty($prev_budgetline['actualAmount'])) {
                                     $prev_budgetline['actualIncomePerc'] = round(($prev_budgetline['actualIncome'] * 100) / $prev_budgetline['actualAmount'], 2);
                                 }
-                                $prevyear_incomeperc .= '<span class="altrow smalltext" style="display:block;"><strong>'.$prev_budgetline['year'].'</strong><br />'.$lang->budgetabbr.': '.$prev_budgetline['incomePerc'].' | '.$lang->actualabbr.': '.$prev_budgetline['actualIncomePerc'].'</span>';
+                                $prevyear_incomeperc .= '<span class="altrow smalltext" style="display:block;"><strong>'.$prev_budgetline['year'].'</strong><br />'.$lang->budgetabbr.': '.$prev_budgetline['incomePerc'].' | '.$lang->actualabbr.': '.$prev_budgetline['actualIncomePerc'].' | '.$lang->yef.': '.$yefline->incomePerc.'</span>';
 
                                 $prev_budgetline['actualUnitPrice'] = 0;
                                 if(!empty($prev_budgetline['actualQty'])) {
                                     $prev_budgetline['actualUnitPrice'] = round($prev_budgetline['actualAmount'] / $prev_budgetline['actualQty'], 2);
                                 }
-                                $prevyear_unitprice .= '<span class="altrow smalltext" style="display:block;"><strong>'.$prev_budgetline['year'].'</strong><br />'.$lang->budgetabbr.': '.$prev_budgetline['unitPrice'].' | '.$lang->actualabbr.': '.$prev_budgetline['actualUnitPrice'].'</span>';
+                                $prevyear_unitprice .= '<span class="altrow smalltext" style="display:block;"><strong>'.$prev_budgetline['year'].'</strong><br />'.$lang->budgetabbr.': '.$prev_budgetline['unitPrice'].' | '.$lang->actualabbr.': '.$prev_budgetline['actualUnitPrice'].' | '.$lang->yef.': '.$yefline->unitPrice.'</span>';
 
                                 $altcid = $budgetline['altCid'];
                                 if(empty($altcid)) {
@@ -311,6 +319,7 @@ if(!$core->input['action']) {
 //                        }
 
                         eval("\$budgetlinesrows .= \"".$template->get('budgeting_fill_lines')."\";");
+                        unset($yefline);
                         $rowid++;
                     }
                 }
