@@ -688,10 +688,10 @@ $(function() {
 
         sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populateordersummary' + attributes, function(json) {
             if(json["haveThirdParty"] == 1) {
-                $("td[id^='ordersummary_thirdparty]").show();
-            } //else {
-            //     $("td[id^='ordersummary_thirdparty]").hide();
-//        /}
+                $("td[id^='ordersummary_thirdparty']").show();
+            } else {
+                $("td[id^='ordersummary_thirdparty']").hide();
+            }
         });
 
     });
