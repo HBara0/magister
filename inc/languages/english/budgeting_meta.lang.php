@@ -278,4 +278,5 @@ $lang['helptour_commissionaff'] = 'The remaining income that lays outside the se
 $lang['helptour_month'] = 'The month percentage number will be the fraction of the total YEF amount split into these three months.Imported numbers from budget are those of the S2 divided by 6';
 $lang['createyearendforecast'] = 'Create Year End Forecast';
 $lang['generateyearendforecast'] = 'Generate Year End Forecast';
+$lang['yef'] = 'YEF';
 ?>
