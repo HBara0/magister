@@ -398,18 +398,19 @@ class AroRequests extends AbstractClass {
                         $approvers['generalManager'] = $affiliate->get_generalmanager()->uid;
                         break;
                     case 'gfinancialManager':
-                        $aropartiesinfo = AroRequestsPartiesInformation::get_data(array('aorid' => $this->data[self::PRIMARY_KEY]));
-                        if(is_object($aropartiesinfo)) {
-                            $intermediaryAff = new Affiliates($aropartiesinfo->intermedAff);
-                        }
-                        else {
-                            if(is_object($localaffpolicy)) {
-                                $intermediaryAff = new Affiliates($localaffpolicy->defaultIntermed);
-                            }
-                        }
-                        if(is_object($intermediaryAff)) {
-                            $approvers['gfinancialManager'] = $intermediaryAff->get_financialemanager()->uid;
-                        }
+//                        $aropartiesinfo = AroRequestsPartiesInformation::get_data(array('aorid' => $this->data[self::PRIMARY_KEY]));
+//                        if(is_object($aropartiesinfo)) {
+//                            $intermediaryAff = new Affiliates($aropartiesinfo->intermedAff);
+//                        }
+//                        else {
+//                            if(is_object($localaffpolicy)) {
+//                                $intermediaryAff = new Affiliates($localaffpolicy->defaultIntermed);
+//                            }
+//                        }
+//                        if(is_object($intermediaryAff)) {
+//                            $approvers['gfinancialManager'] = $intermediaryAff->get_financialemanager()->uid;
+//                        }
+                        $approvers['gfinancialManager'] = 367;
                         break;
                     case 'cfo':
                         $approvers['cfo'] = $affiliate->get_cfo()->uid;
@@ -449,8 +450,9 @@ class AroRequests extends AbstractClass {
                 }
             }
             /* Make list of approvers unique */
-            $approvers = array_unique($approvers);
-
+            if(is_array($approvers)) {
+                $approvers = array_unique($approvers);
+            }
             /* Remove the user himself from the approval chain */
             //    unset($approvers[array_search($core->user['uid'], $approvers)]);
             return $approvers;
@@ -506,7 +508,7 @@ class AroRequests extends AbstractClass {
     }
 
     private function get_segoordinators() {
-        $arorequestlines = AroRequestLines::get_data(array('aorid' => 1));
+        $arorequestlines = AroRequestLines::get_data(array('aorid' => $this->data['aorid']), array('returnarray' => true));
         if(is_array($arorequestlines)) {
             foreach($arorequestlines as $arorequestline) {
                 $arosegments['psid'] = $arorequestline->psid;
@@ -515,7 +517,7 @@ class AroRequests extends AbstractClass {
         if(is_array($arosegments)) {
             foreach($arosegments as $key => $value) {
                 $productsegment_obj = new ProductsSegments($value);
-                $coordinators_objs[$key] = $productsegment_obj->get_coordinators();
+                $coordinators_objs[$value] = $productsegment_obj->get_coordinators();
                 unset($productsegment_obj);
             }
             foreach($coordinators_objs as $key => $coord_objs) {
@@ -570,6 +572,24 @@ class AroRequests extends AbstractClass {
         if($mailer->get_status() === true) {
             $data = array('emailRecievedDate' => TIME_NOW);
             $query = $db->update_query('aro_requests_approvals', $data, 'araid='.$firstapprover->araid);
+
+            if($this->check_infromcoords() == 1) {
+                $segcoords = $this->get_segoordinators();
+                if(is_array($segcoords)) {
+                    foreach($segcoords as $coord) {
+                        $mailinglist[$coord->uid] = $coord->get_email();
+                    }
+                }
+            }
+            $mailinglist = array_unique($mailinglist);
+            $email_data = array(
+                    'from_email' => 'ocos@orkila.com',
+                    'from' => 'ocos@orkila.com',
+                    'to' => $mailinglist,
+                    'subject' => 'Aro '.$this->orderReference.' _Segemnts Coordinators Notification',
+                    'message' => 'Aro '.$this->orderReference.' in progress'  // change message
+            );
+            $mail = new Mailer($email_data, 'php');
         }
     }
 
