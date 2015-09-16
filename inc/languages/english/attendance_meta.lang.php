@@ -159,4 +159,5 @@ $lang['generateattendancelog'] = 'Generate Attendance Log';
 $lang['arrivearly'] = 'Arrived Early';
 $lang['leavelater'] = 'Left Late';
 $lang['earlyandlate'] = 'Arrived Early And Left Late';
+$lang['employeename'] = 'Employee Name';
 ?>

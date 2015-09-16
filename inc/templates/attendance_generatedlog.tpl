@@ -9,8 +9,11 @@
         {$menu}
         <td class="contentContainer">
             <h1>{$lang->attendancelog}</h1>
+            <hr>
+            <h4>From {$report['fromdate_output']} To {$report['todate_output']}</h4>
             <span> < : {$lang->arrivearly} | > : {$lang->leavelater} | <> : {$lang->earlyandlate} | H: {$lang->holiday} | W/E : {$lang->weekend} | L : {$lang->leave}</span>
-            <div align="center">
+            </hr>
+            <div>
                 {$output}
             </div>
             <div align="right">{$tools}</div>

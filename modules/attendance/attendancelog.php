@@ -72,6 +72,7 @@ else {
             unset($attendance_report_user[$uid], $workshift_output);
             $uid = $db->escape_string($uid);
             $user_obj = new Users($uid);
+            $usert_content = '<td  >'.$user_obj->get_displayname().'</td>';
             if(is_object($user_obj)) {
                 $currentdate = $fromdate;
                 $fromdate_details = getdate($fromdate);
@@ -274,7 +275,7 @@ else {
                                 }
 
                                 /* LOG DATA */
-                                $attendance['date_output'] = date($core->settings['dateformat'], $attendance['date']);
+                                $attendance['date_output'] = date('d', $attendance['date']);
                                 $total_workshit = (mktime($current_worshift['offDutyHour'], $current_worshift['offDutyMinutes'], 0, $curdate['mon'], $curdate['mday'], $curdate['year'])) - (mktime($current_worshift['onDutyHour'], $current_worshift['onDutyMinutes'], 0, $curdate['mon'], $curdate['mday'], $curdate['year']));
                                 $attendance['hoursday'] = ($attendance['timeOut']) - ( $attendance['timeIn']);
                                 $attendance['arrival'] = $attendance['timeIn'] - (mktime($current_worshift['onDutyHour'], $current_worshift['onDutyMinutes'], 0, $curdate['mon'], $curdate['mday'], $curdate['year']));
@@ -288,13 +289,12 @@ else {
                                     $extra .= '>';
                                 }
                                 if($attendance['deviation'] >= 0) {
-                                    $day_content .= '<td style="background-color:green" >'.$workperc.'</br>'.$extra.'</td>';
+                                    $day_content .= '<td style="background-color:green;border-left: 1px solid #000;border-right: 1px solid #000;" >'.number_format($workperc, 0).'</br>'.$extra.'</td>';
                                 }
                                 else {
-                                    $day_content .= '<td style="background-color:red" >'.$workperc.$extra.'</td>';
+                                    $day_content .= '<td style="background-color:red;border-left: 1px solid #000;border-right: 1px solid #000;" >'.number_format($workperc, 0).'</td>';
                                 }
-
-                                $month_header .= '<th>'.$attendance['date_output'].'</th>';
+                                $month_header[] = $attendance['date_output'];
                                 /* LOG DATA */
 
                                 $total['actualhours'][$curdate['year']][$curdate['mon']][$curdate['week']][$curdate['mday']] = $attendance['hoursday'];
@@ -304,10 +304,9 @@ else {
                         }
 
                         if($type == 'leaves') {
-                            $day_content = '';
                             foreach($day_data as $leave) {
-                                $month_header .= '<th>'.date('l '.$core->settings['dateformat'], $currentdate).'</th>';
-                                $day_content .= 'L';
+                                $month_header[] = date('d', $currentdate);
+                                $day_content .= '<td style="border-left: 1px solid #000;border-right: 1px solid #000;">L</td>';
                             }
 
                             /* check whether the day is not in weekend and not in holiday */
@@ -317,10 +316,9 @@ else {
                         }
 
                         if($type == 'holiday') {
-                            $day_content = '';
                             foreach($day_data as $holiday) {
-                                $month_header .= '<th>'.date('l '.$core->settings['dateformat'], $currentdate).'</th>';
-                                $day_content .= 'H';
+                                $month_header[] = date('d', $currentdate);
+                                $day_content .= '<td style="border-left: 1px solid #000;border-right: 1px solid #000;">H</td>';
                             }
 
                             if(is_array($worshifts)) {
@@ -334,15 +332,15 @@ else {
                 else {
                     $rowclass = '';
                     if(in_array($curdate['wdayiso'], $workshift['weekDays'])) {
-                        $day_content .= '<td>?</td>';
-                        $month_header.='<th>'.date('l '.$core->settings['dateformat'], $currentdate).'</th>';
+                        $day_content .= '<td style="border-left: 1px solid #000;border-right: 1px solid #000;">?</td>';
+                        $month_header[] = date('d', $currentdate);
                         $total['absent'][$curdate['year']][$curdate['mon']][$curdate['week']] ++;
                         $total['requiredhours'][$curdate['year']][$curdate['mon']][$curdate['week']][$curdate['mday']] = (($current_worshift['offDutyHour'] * 3600) + ($current_worshift['offDutyMinutes'] * 60)) - (($current_worshift['onDutyHour'] * 3600) + ($current_worshift['onDutyMinutes'] * 60));
                     }
                     else {
                         $total['weekends'][$curdate['year']][$curdate['mon']][$curdate['week']] ++;
-                        $day_content .= '<td>W/E</td>';
-                        $month_header = '<th>'.date('l '.$core->settings['dateformat'], $currentdate).'</th>';
+                        $day_content .= '<td style="border-left: 1px solid #000;border-right: 1px solid #000;">W/E</td>';
+                        $month_header [] = date('d', $currentdate);
                     }
                 }
 
@@ -369,26 +367,30 @@ else {
                     $total_outputs['week']['actualhours'] = operation_time_value(array_sum_recursive($total['actualhours'][$curdate['year']][$curdate['mon']][$curdate['week']]));
                     $total_outputs['week']['requiredhours'] = operation_time_value(array_sum_recursive($total['requiredhours'][$curdate['year']][$curdate['mon']][$curdate['week']]));
                     if($nextdate >= $to) {
+                        $month_output = date('F', mktime(0, 0, 0, $curdate['mon'], 10));
                         $total_outputs['month']['actualhours'] = operation_time_value(array_sum_recursive($total['actualhours'][$curdate['year']][$curdate['mon']]));
                         $total_outputs['month']['requiredhours'] = operation_time_value(array_sum_recursive($total['requiredhours'][$curdate['year']][$curdate['mon']]));
-                        $month_header .= '<th>TOTAL</th>';
-                        $day_content .= $total_outputs['month']['actualhours'].' / '.$total_outputs['month']['requiredhours'];
+                        $month_header_output = '<th style="border-left: 1px solid #000;border-right: 1px solid #000;">'.$lang->employeename.'</th><th style="border-left: 1px solid #000;border-right: 1px solid #000;">'.implode('</th><th style="border-left: 1px solid #000;border-right: 1px solid #000;">', $month_header).'</th>';
+                        $month_header_output .= '<th>TOTAL</th>';
+                        $day_content .= '<td style="border-left: 1px solid #000;border-right: 1px solid #000;">'.$total_outputs['month']['actualhours'].' / '.$total_outputs['month']['requiredhours'].'</td>';
                         eval("\$attendance_report_user_month[{$curdate['mon']}] .= \"".$template->get('attendance_log_month')."\";");
+                        unset($month_header, $month_header_output);
+                        $attendance_report_user_week = $day_content = $extra = '';
                     }
-                    $attendance_report_user_week = $day_content = $month_header = $extra = '';
                 }
                 elseif($nextdate_details['week'] == $curdate['week'] && $nextdate_details['mon'] != $curdate['mon']) {
                     //$curdate['mon'] = $nextdate_details['mon'];
-
+                    $month_output = date('F', mktime(0, 0, 0, $curdate['mon'], 10));
                     $total_outputs['month']['actualhours'] = operation_time_value(array_sum_recursive($total['actualhours'][$curdate['year']][$curdate['mon']]));
                     $total_outputs['month']['requiredhours'] = operation_time_value(array_sum_recursive($total['requiredhours'][$curdate['year']][$curdate['mon']]));
-                    $month_header .= '<th>TOTAL</th>';
-                    $day_content .= $total_outputs['month']['actualhours'].' / '.$total_outputs['month']['requiredhours'];
+                    $month_header_output = '<th style="border-left: 1px solid #000;border-right: 1px solid #000;">'.$lang->employeename.'</th><th style="border-left: 1px solid #000;border-right: 1px solid #000;">'.implode('</th><th style="border-left: 1px solid #000;border-right: 1px solid #000;">', $month_header).'</th>';
+                    $month_header_output .= '<th>TOTAL</th>';
+                    $day_content .= '<td>'.$total_outputs['month']['actualhours'].' / '.$total_outputs['month']['requiredhours'].'</td>';
                     //$attendance_report_user_month .= 'a'.$nextdate_details['week'].' == '.$curdate['week'].' && '.$nextdate_details['mon'].' != '.$curdate['mon'];
 
                     eval("\$attendance_report_user_month[{$curdate['mon']}] .= \"".$template->get('attendance_log_month')."\";");
-                    $attendance_report_user_week = $day_content = $month_header = $extra = '';
-                    $attendance_report_user_day = '';
+                    unset($month_header, $month_header_output);
+                    $attendance_report_user_week = $attendance_report_user_day = $day_content = $extra = '';
                 }
 //                elseif($prevdate_details['week'] == $curdate['week'] && $prevdate_details['mon'] != $curdate['mon']) {
 //                    //$curdate['mon'] = $prevdate_details['mon'];
@@ -408,22 +410,25 @@ else {
                 elseif($nextdate_details['week'] != $curdate['week'] && $nextdate_details['mon'] != $curdate['mon']) {
                     $total_outputs['month']['actualhours'] = operation_time_value(array_sum_recursive($total['actualhours'][$curdate['year']][$curdate['mon']]));
                     $total_outputs['month']['requiredhours'] = operation_time_value(array_sum_recursive($total['requiredhours'][$curdate['year']][$curdate['mon']]));
-                    $month_header .= '<th>TOTAL</th>';
-                    $day_content .= $total_outputs['month']['actualhours'].' / '.$total_outputs['month']['requiredhours'];
+                    $month_header_output = '<th style="border-left: 1px solid #000;border-right: 1px solid #000;">'.$lang->employeename.'</th><th style="border-left: 1px solid #000;border-right: 1px solid #000;">'.implode('</th><th style="border-left: 1px solid #000;border-right: 1px solid #000;">', $month_header).'</th>';
+                    $month_header_output .= '<th>TOTAL</th>';
+                    $month_output = date('F', mktime(0, 0, 0, $curdate['mon'], 10));
+                    $day_content .= '<td>'.$total_outputs['month']['actualhours'].' / '.$total_outputs['month']['requiredhours'].'</td>';
                     eval("\$attendance_report_user_month[{$curdate['mon']}] .= \"".$template->get('attendance_log_month')."\";");
-                    $attendance_report_user_week = $day_content = $month_header = $extra = '';
-                    $attendance_report_user_day = '';
+                    unset($month_header, $month_header_output);
+                    $attendance_report_user_week = $attendance_report_user_day = $day_content = $extra = '';
                 }
                 elseif($nextdate_details['week'] == $curdate['week'] && $nextdate_details['mon'] == $curdate['mon']) {
                     if($currentdate >= $to) {/* FIX HERE  */
                         $total_outputs['month']['actualhours'] = operation_time_value(array_sum_recursive($total['actualhours'][$curdate['year']][$curdate['mon']]));
                         $total_outputs['month']['requiredhours'] = operation_time_value(array_sum_recursive($total['requiredhours'][$curdate['year']][$curdate['mon']]));
-
-                        $month_header .= '<th>TOTAL</th>';
-                        $day_content .= $total_outputs['month']['actualhours'].' / '.$total_outputs['month']['requiredhours'];
+                        $month_output = date('F', mktime(0, 0, 0, $curdate['mon'], 10));
+                        $month_header_output = '<th style="border-left: 1px solid #000;border-right: 1px solid #000;">'.$lang->employeename.'</th><th style="border-left: 1px solid #000;border-right: 1px solid #000;">'.implode('</th><th style="border-left: 1px solid #000;border-right: 1px solid #000;">', $month_header).'</th>';
+                        $month_header_output .= '<th>TOTAL</th>';
+                        $day_content .= '<td>'.$total_outputs['month']['actualhours'].' / '.$total_outputs['month']['requiredhours'].'</td>';
                         eval("\$attendance_report_user_month[{$curdate['mon']}] .= \"".$template->get('attendance_log_month')."\";");
-                        $attendance_report_user_week = $day_content = $month_header = $extra = '';
-                        $attendance_report_user_day = '';
+                        unset($month_header, $month_header_output);
+                        $attendance_report_user_week = $attendance_report_user_day = $day_content = $extra = '';
                     }
                 }
                 /* Parse month and week sections - END */
@@ -431,11 +436,6 @@ else {
                 $currentdate += 86400;/** increment  by one day (timestamp) * */
                 $total['period_days'][$curdate['year']][$curdate['mon']][$curdate['week']][$curdate['mday']] ++;
             }
-
-
-            //$attendance_report = $attendance_report_user_month[$year];
-            eval("\$attendance_logs .= \"".$template->get('attendance_report_user')."\";");
-            $attendance_report_user_month = '';
         }
         if($attendance_report_user_month) {
             sort($attendance_report_user_month);
@@ -443,7 +443,7 @@ else {
                 $output.=$html;
             }
         }
-        eval("\$attendance_log = \"".$template->get('attendance_generatedlog')."\";");
+        eval("\$generatepage = \"".$template->get('attendance_generatedlog')."\";");
         output_page($generatepage);
     }
 }
