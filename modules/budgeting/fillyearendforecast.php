@@ -12,7 +12,7 @@ if(!defined('DIRECT_ACCESS')) {
     die('Direct initialization of this file is not allowed.');
 }
 if($core->usergroup['canUseBudgeting'] == 0) {
-    //  error($lang->sectionnopermission);
+//  error($lang->sectionnopermission);
 }
 if(!$core->input['action']) {
     if($core->input['stage'] == 'fillbudgetline') {
@@ -148,7 +148,7 @@ if(!$core->input['action']) {
 
         $rownums = 1;
         if($noyeflines != true) {
-            $prevyehlines = parse_yefline($yeflinesdata, '', 'yef', $rownums);
+            $prevyehlines = parse_yefline($yeflinesdata, '', 'yef', $rownums, $supplier);
             if(is_array($prevyehlines) && !empty($prevyehlines)) {
                 $budgetlinesrows = $prevyehlines['lines'];
                 $rownums = $prevyehlines['rows'];
@@ -205,7 +205,7 @@ if(!$core->input['action']) {
 
         $js_currencies = json_encode($saltypes_currencies);
         $js_saletypesinvoice = json_encode($saletypes_invoicing);
-        //  $js_saletypespurchase = json_encode($saletypes_purchasing);
+//  $js_saletypespurchase = json_encode($saletypes_purchasing);
 
         /* Parse values for JS - END */
         /* Parse  local amount felds based on specific permission */
@@ -341,7 +341,7 @@ else {
         output($budgetlinesrows);
     }
 }
-function parse_yefline($data, $readonly = '', $source, $rownums) {
+function parse_yefline($data, $readonly = '', $source, $rownums, $supplier) {
     global $template, $core, $db, $lang;
     foreach($data as $cid => $customersdata) {
         /* Get Customer name from object */
@@ -364,20 +364,12 @@ function parse_yefline($data, $readonly = '', $source, $rownums) {
                 }
                 if($source == 'budget' || $budgetline['fromBudget'] == 1) {
                     $readonly = 'readonly';
-                    $extra_script = '<script>';
-                    $alert_fields = array('amount', 'quantity', 'income', 'unitPrice');
-                    foreach($alert_fields as $field) {
-                        $extra_script.='$(document).on("keyup",\'input[name="budgetline['.$rowid.']['.$field.']"]\',function(){'
-                                .'if($(this).val() > '.$budgetline[$field].'){$("#alert_'.$rowid.'").text("'.$lang->numberspassedbudget.$field.'");}else{$("#alert_'.$rowid.'").text("");}'
-                                .'});';
-                    }
-                    $extra_script .= '</script>';
                     $alert_div = '<span style="color:red" id="alert_'.$rowid.'"></span>';
                 }
-                if(!empty($budgetline['cid']) && ($budgetline['fromBudget' == 1] || $source == 'budget')) {
+                if(!empty($budgetline['cid']) || $budgetline['fromBudget'] == 1 || $source == 'budget') {
                     $disabledattrs ['cid'] = $disabledattrs['unspecifiedCustomer'] = 'disabled = "disabled"';
                 }
-                if(!empty($budgetline['pid']) && ($budgetline['fromBudget' == 1] || $source == 'budget')) {
+                if(empty($budgetline['pid']) || $budgetline['fromBudget'] == 1 || $source == 'budget') {
                     $disabledattrs ['pid'] = 'disabled = "disabled"';
                 }
                 $previous_yearsqty = $previous_yearsamount = $previous_yearsincome = $prevyear_incomeperc = $prevyear_unitprice = $previous_actualqty = $previous_actualamount = $previous_actualincome = '';
@@ -449,7 +441,6 @@ function parse_yefline($data, $readonly = '', $source, $rownums) {
                 if(empty($budgetline['localIncomeAmount'])) {
                     $budgetline['localIncomeAmount'] = 0;
                 }
-                $budgetline['altCid'] = $altcid;
                 $budgetline['cid'] = $cid;
                 $budgetline['customerName'] = $customer->get()['companyName'];
                 $budgetline['pid'] = $pid;
@@ -477,8 +468,6 @@ function parse_yefline($data, $readonly = '', $source, $rownums) {
                     $budgetline['purchasingEntity'] = 'direct';
                 }
                 $display = 'none';
-
-
 
                 if(empty($budgetline['cid']) && $budgetline['altCid'] == 'Unspecified Customer') {
                     $checked_checkboxes[$rowid]['unspecifiedCustomer'] = ' checked = "checked"';
@@ -511,10 +500,22 @@ function parse_yefline($data, $readonly = '', $source, $rownums) {
                 $budget_currencylist.='</select>';
                 $frombudgetline = '';
                 if($source == 'budget' || $budgetline['fromBudget'] == 1) {
+                    if(!empty($budgetline['psid'])) {
+                        $segment = new ProductsSegments($budgetline['psid']);
+                        $segments_selectlist = $segment->get_displayname().'<input type="hidden" value="'.$budgetline['psid'].'" name="budgetline['.$rowid.'][psid]">';
+                    }
                     $frombudgetline = '<input type = "hidden" value = "1" name = "budgetline['.$rowid.'][fromBudget]">';
                     $budget_currencylist = '<input type = "hidden" value = "'.$budgetline['originalCurrency'].'" name = "budgetline['.$rowid.'][originalCurrency]"><input style = "width=50px" type = "text" disabled value = "'.$currencies[$budgetline['originalCurrency']].'">';
                 }
-
+                else {
+                    $segments_selectlist = '';
+                    if(is_object($supplier)) {
+                        $supplier_segments = array_filter($supplier->get_segments());
+                        if(count($supplier_segments) > 1) {
+                            $segments_selectlist = parse_selectlist('budgetline['.$rowid.'][psid]', 3, $supplier_segments, $budgetline['psid'], null, null, array('placeholder' => 'Overwrite Segment'));
+                        }
+                    }
+                }
                 if(!empty($budgetline['interCompanyPurchase'])) {
                     $intercompany_obj = new Affiliates($budgetline['interCompanyPurchase']);
                     $budgetline['interCompanyPurchase_output'] = $intercompany_obj->get_displayname();
@@ -522,10 +523,6 @@ function parse_yefline($data, $readonly = '', $source, $rownums) {
                 if(!empty($budgetline['commissionSplitAffid'])) {
                     $intercompany_obj = new Affiliates($budgetline['commissionSplitAffid']);
                     $budgetline['commissionSplitAffid_output'] = $intercompany_obj->get_displayname();
-                }
-                $segments_selectlist = '';
-                if(count($supplier_segments) > 1) {
-                    $segments_selectlist = parse_selectlist('budgetline['.$rowid.'][psid]', 3, $supplier_segments, $budgetline['psid'], null, null, array('placeholder' => 'Overwrite Segment'));
                 }
 
                 if($source == 'budget') {
@@ -561,16 +558,28 @@ function parse_yefline($data, $readonly = '', $source, $rownums) {
                     }
                 }
                 if(empty($budgetline['customerCountry'])) {
-                    $budgetline['customerCountry'] = $affiliate->country;
+                    $budgetline['customerCountry'] = $aff->country;
                 }
+                $countries = Countries::get_coveredcountries();
                 $countries_selectlist = parse_selectlist('budgetline['.$rowid.'][customerCountry]', 0, $countries, $budgetline['customerCountry'], '', '', '');
-
+                if($source == 'budget' || $budgetline['fromBudget'] == 1) {
+                    $maxfields = array('amount', 'quantity', 'unitPrice', 'income');
+                    foreach($maxfields as $field) {
+                        $maxbudgetline[$field] = $budgetline[$field];
+                    }
+                    if(!empty($budgetline['customerCountry'])) {
+                        $country = new Countries($budgetline['customerCountry']);
+                        if(!empty($country->coid)) {
+                            $countries_selectlist = $country->get_displayname().'<input type="hidden" name="budgetline['.$rowid.'][customerCountry]" value="'.$country->coid.'">';
+                        }
+                    }
+                }
 //                        $altcid = $budgetline['altCid'];
 //                        if(empty($altcid)) {
 //                            $altcid = $prev_budgetline['altCid'];
 //                        }
                 eval("\$budgetlinesrows .= \"".$template->get('budgeting_fill_yeflines')."\";");
-                unset($readonly, $extra_script, $alert_div);
+                unset($readonly, $extra_script, $alert_div, $maxbudgetline);
             }
         }
         $rownums++;
