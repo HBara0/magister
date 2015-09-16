@@ -11,20 +11,15 @@
                     }
                     $('input[id=income_' + id[1] + ']').val((Number($(this).val()) / 100) * $('input[id=amount_' + id[1] + ']').val());
                 });
-
-
                 $('input[id^="localincomeper_"]').live('keyup', function () {
                     var id = $(this).attr("id").split("_");
                     if(!jQuery.isNumeric($('input[id=localincomeper_' + id[1] + ']').val())) {
                         return;
                     }
                     $('input[id=localincome_' + id[1] + ']').val((Number($(this).val()) / 100) * $('input[id=income_' + id[1] + ']').val());
-
                 });
-
                 $('input[id^="localincome_"]').live('keyup change', function () {
                     var id = $(this).attr("id").split("_");
-
                     if(!jQuery.isNumeric($('input[id=localincome_' + id[1] + ']').val())) {
                         return;
                     }
@@ -41,7 +36,6 @@
                         $('input[id=amountper_' + id[1] + ']').val((Number($(this).val()) * 100) / $('input[id=amount_' + id[1] + ']').val());
                     }
                 });
-
                 $('input[id^="unitprice_"]').live('keyup', function () {
                     var id = $(this).attr("id").split("_");
                     if(!jQuery.isNumeric($('input[id=unitprice_' + id[1] + ']').val())) {
@@ -55,14 +49,12 @@
                     }
 
                 });
-
                 $('input[id^="Qty_"]').live('keyup', function () {
                     var id = $(this).attr("id").split("_");
                     $('input[id="unitprice_' + id[1] + '"]').trigger('keyup');
                     $('input[id="amountper_' + id[1] + '"]').trigger('keyup');
                     $('input[id="localincomeper_' + id[1] + '"]').trigger('keyup');
                 });
-
                 $('input[id^="amount_"]').live('keyup', function () {
                     var id = $(this).attr("id").split("_");
                     if(!jQuery.isNumeric($('input[id=amount_' + id[1] + ']').val())) {
@@ -71,7 +63,6 @@
                     if($('input[id="amountper_' + id[1] + '"]').val().length > 0) {
                         $('input[id="amountper_' + id[1] + '"]').trigger('keyup');
                         $('input[id="localincomeper_' + id[1] + '"]').trigger('keyup');
-
                     } else {
                         if($('input[id="income_' + id[1] + '"]').val().length > 0) {
                             $('input[id="income_' + id[1] + '"]').trigger('keyup');
@@ -84,7 +75,6 @@
                     }
 
                 });
-
                 $('input[id^="s1perc_"]').live('keyup', function (e) {
                     var id = $(this).attr("id").split("_");
                     if($(this).val() > 100) {
@@ -94,7 +84,6 @@
                         $('input[id="s2perc_' + id[1] + '"]').val(Number(100 - $(this).val()));
                     }
                 });
-
                 $('input[id^="s2perc_"]').live('keyup', function (e) {
                     var id = $(this).attr("id").split("_");
                     if($(this).val() > 100) {
@@ -104,11 +93,9 @@
                         $('input[id="s1perc_' + id[1] + '"]').val(Number(100 - $(this).val()));
                     }
                 });
-
                 $('select[id^="salestype_"]').live('change', function () {
                     var id = $(this).attr("id").split("_");
                     var salestype = $(this).val();
-
                     var currencies = {$js_currencies};
                     var invoicetypes = {$js_saletypesinvoice};
                     //var saletypespurchase ={$js_saletypespurchase};
@@ -124,10 +111,17 @@
                         $('#purchasingEntity_' + id[1]).val(saletypespurchase[salestype]);
                     }
                 });
-
                 $("input[type='checkbox'][id$='_unspecifiedCustomer']").live('change', function () {
                     var id = $(this).attr("id").split("_");
                     $("div[id$='" + id[1] + "_unspecifiedCustomer_country']").slideToggle();
+                });
+                $(document).on('change', 'input[data-max]', function () {
+                    if($(this).attr('data-max') > 0 && $(this).val() > $(this).attr('data-max')) {
+                        $("#alert_" + $(this).attr('data-rowid')).text($('input[id="errormessage"]').val() + $(this).attr('data-max'));
+                    } else {
+                        $("#alert_" + $(this).attr('data-rowid')).text("");
+                    }
+                    ;
                 });
             });</script>
     </head>
@@ -148,6 +142,7 @@
         <input type="hidden" id='affid' name="affid" value="{$core->input[yef][affid]}"/>
         <input type="hidden" id='year' name="year" value="{$core->input[yef][year]}"/>
         <input type="hidden" name="yef[yefid]" value="{$currentyef[yefid]}">
+        <input type="hidden" name="errormessage" id="errormessage" disabled="disabled" value="{$lang->numberspassedbudget}">
         <table width="100%" border="0" cellspacing="0" cellpadding="2">
             <thead>
                 <tr style="vertical-align: top;">

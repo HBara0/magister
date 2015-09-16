@@ -11,7 +11,7 @@ class BudgetingYEFLines extends AbstractClass {
     const UNIQUE_ATTRS = 'yefid,pid,cid,saleType';
     const CLASSNAME = __CLASS__;
     const DISPLAY_NAME = '';
-    const REQUIRED_ATTRS = 'yefid,pid,cid,saleType,inputCheckSum';
+    const REQUIRED_ATTRS = 'yefid,saleType,inputCheckSum';
 
     /* -------Definiton-END-------- */
     /* -------FUNCTIONS-START-------- */

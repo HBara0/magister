@@ -255,7 +255,7 @@ class BudgetingYearEndForecast extends AbstractClass {
                     $data['localIncomeAmount'] = $data['income'];
                     $data['localIncomeAmount'] = '100';
                 }
-                if((empty($data['pid']) && empty($data['altPid'])) || (empty($data['cid']) && empty($data['altCid']))) {
+                if((empty($data['pid']) && empty($data['altPid'])) || (empty($data['cid']) && (empty($data['altCid']) || empty($data['customerCountry'])))) {
                     if(!empty($data['yeflid'])) {
                         $removed_lines[] = $data['yeflid'];
                     }
