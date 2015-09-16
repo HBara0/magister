@@ -51,12 +51,8 @@ else {
             $core->input['toDate'] = date('d-m-y', TIME_NOW);
         }
 
-        //$core->input['fromDate'] = $db->escape_string($core->input['fromDate']);
-        //$core->input['toDate'] = $db->escape_string($core->input['toDate']);
-        $fromdate_object = new DateTime($core->input['fromDate']);
-        //$fromdate_object2 = $fromdate_object->createFromFormat('d-m-y', $core->input['fromDate']);
-        $todate_object = new DateTime($core->input['toDate']);
-        //$todate_object2 = $todate_object->createFromFormat('d-m-y', $core->input['toDate']);
+        $fromdate_object = new DateTime($core->input['fromDate'].' 00:00:00');
+        $todate_object = new DateTime($core->input['toDate'].' 23:59:59');
 
         $fromdate = $fromdate_object->getTimestamp();
         $todate = $todate_object->getTimestamp();
@@ -74,15 +70,16 @@ else {
         $to = $todate;
         foreach($core->input['uid'] as $uid) {
             unset($attendance_report_user[$uid], $workshift_output);
-            $uid = $db->escape_string($uid);
+            $uid = intval($uid);
             $user_obj = new Users($uid);
             if(is_object($user_obj)) {
                 $currentdate = $fromdate;
                 $fromdate_details = getdate($fromdate);
                 $currentdate_details = getdate($currentdate);
                 $todate_details = getdate($todate);
-                if($user_obj->get_joindate()) {
-                    $joindate = $user_obj->get_joindate();
+
+                $joindate = $user_obj->get_joindate();
+                if($joindate) {
                     if($fromdate < $joindate) {
                         $currentdate = $joindate;
                         $fromdate_details = getdate($joindate);
@@ -90,7 +87,7 @@ else {
                     }
                 }
             }
-            $user_display = $db->fetch_field($db->query("SELECT displayName FROM ".Tprefix."users WHERE uid='{$uid}'"), 'displayName');
+            $user_display = $user_obj->get_displayname(); //$db->fetch_field($db->query("SELECT displayName FROM ".Tprefix."users WHERE uid='{$uid}'"), 'displayName');
 
             /* Check for holidays in period - START */
             $holiday_todate_details = $todate_details;
