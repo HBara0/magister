@@ -107,7 +107,7 @@ if(!$core->input['action']) {
                 $visitreport['status_text'] = $lang->finalized.$lang->andlocked;
             }
 
-            if($core->usergroup['canLockUnlockReports'] == 1) {
+            if($core->usergroup['canLockUnlockReports'] == 1 || $core->user['uid'] == $visitreport['uid']) {
                 $checkbox[$visitreport['vrid']] = "<input type='checkbox' id='checkbox_{$visitreport[vrid]}' name='listCheckbox[]' value='{$visitreport[vrid]}'/>";
 
                 $icon[$visitreport['vrid']] = "<a href='index.php?module=crm/previewvisitreport&amp;referrer=list&amp;vrid={$visitreport[vrid]}'><img src='images/icons/report{$icon_locked}.gif' alt='{$visitreport[status_text]}' border='0'/></a>";
