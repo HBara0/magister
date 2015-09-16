@@ -480,12 +480,12 @@ class BudgetingYearEndForecast extends AbstractClass {
     public function get_helptouritems() {
         global $lang;
         $touritems = array(
-                'page_title' => array('options' => 'tipLocation:top;', 'text' => $lang->helptour_welcomeyeffill),
-                'quantity_tour' => array('options' => 'tipLocation:top;', 'text' => $lang->helptour_quantity),
-                'amount_tour' => array('options' => 'tipLocation:top;', 'text' => $lang->helptour_amount),
-                'localincome_tour' => array('options' => 'tipLocation:top;', 'text' => $lang->helptour_localincome),
-                'commissionaff_tour' => array('options' => 'tipLocation:top;', 'text' => $lang->helptour_commissionaff),
-                'month_tour' => array('options' => 'tipLocation:top;', 'text' => $lang->helptour_month),
+                'page_title' => array('ignoreid' => true, 'options' => 'tipLocation:top;', 'text' => $lang->helptour_welcomeyeffill),
+                'quantity_tour' => array('options' => 'tipLocation:left;', 'text' => $lang->helptour_quantity),
+                'amount_tour' => array('options' => 'tipLocation:left;', 'text' => $lang->helptour_amount),
+                'localincome_tour' => array('options' => 'tipLocation:left;', 'text' => $lang->helptour_localincome),
+                'commissionaff_tour' => array('options' => 'tipLocation:left;', 'text' => $lang->helptour_commissionaff),
+                'month_tour' => array('options' => 'tipLocation:left;', 'text' => $lang->helptour_month),
         );
 
         return $touritems;

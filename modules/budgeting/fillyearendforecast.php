@@ -182,7 +182,7 @@ if(!$core->input['action']) {
                 $hidden_colcells = array('localincome_row' => ' <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center"><input name="budgetline['.$rowid.'][localIncomeAmount]"  value="'.$budgetline[localIncomeAmount].'"  type="text" id="localincome_'.$rowid.'" size="10" accept="numeric" /> </td>',
                         'localincomeper_row' => '<td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center"><input name="budgetline['.$rowid.'][localIncomePercentage]"  value="'.$budgetline[localIncomePercentage].'" type="text" id="localincomeper_'.$rowid.'" size="10" accept="numeric"  /> </td>',
                         'remainingcommaff_header_row' => '<td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center">
-             <input type="text" placeholder="'.$lang->search.' '.$lang->affiliate.'" id=affiliate_noexception_'.$rowid.'_commission_autocomplete name=""  value="'.$budgetline['commissionSplitAffid_output'].'" autocomplete="off" />
+             <input type="text" placeholder="'.$lang->search.' '.$lang->affiliate.'" id="affiliate_noexception_'.$rowid.'_commission_autocomplete" name=""  value="'.$budgetline['commissionSplitAffid_output'].'" autocomplete="off" />
         <input type="hidden" value="'.$budgetline['commissionSplitAffid'].'" id="affiliate_noexception_'.$rowid.'_commission_id" name="budgetline['.$rowid.'][commissionSplitAffid]"/></td>'
                 );
             }
@@ -324,7 +324,7 @@ else {
             $hidden_colcells = array('localincome_row' => ' <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center"><input name="budgetline['.$rowid.'][localIncomeAmount]"  value="'.$budgetline[localIncomeAmount].'"  type="text" id="localincome_'.$rowid.'" size="10" accept="numeric" /> </td>',
                     'localincomeper_row' => '<td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center"><input name="budgetline['.$rowid.'][localIncomePercentage]"  value="'.$budgetline[localIncomePercentage].'" type="text" id="localincomeper_'.$rowid.'" size="10" accept="numeric"  /> </td>',
                     'remainingcommaff_header_row' => '<td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center">
-             <input type="text" placeholder="'.$lang->search.' '.$lang->affiliate.'" id=affiliate_noexception_'.$rowid.'_commission_autocomplete name=""  value="'.$budgetline['commissionSplitAffid_output'].'" autocomplete="off" />
+             <input type="text" placeholder="'.$lang->search.' '.$lang->affiliate.'" id="affiliate_noexception_'.$rowid.'_commission_autocomplete" name="" value="'.$budgetline['commissionSplitAffid_output'].'" autocomplete="off" />
         <input type="hidden" value="'.$budgetline['commissionSplitAffid'].'" id="affiliate_noexception_'.$rowid.'_commission_id" name="budgetline['.$rowid.'][commissionSplitAffid]"/></td>'
             );
         }
@@ -528,7 +528,6 @@ function parse_yefline($data, $readonly = '', $source, $rownums) {
                     $segments_selectlist = parse_selectlist('budgetline['.$rowid.'][psid]', 3, $supplier_segments, $budgetline['psid'], null, null, array('placeholder' => 'Overwrite Segment'));
                 }
 
-
                 if($source == 'budget') {
                     $divided_fields = array('quantity', 'amount', 'income', 'actalQty', 'actualIncome', 'actualAmount', 'localIncomeAmount');
                     //'unitPrice',localIncomePercentage, 'incomePerc'
@@ -548,15 +547,15 @@ function parse_yefline($data, $readonly = '', $source, $rownums) {
                             'localincomeper_row' => '<td style = "vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align = "center"><input name = "budgetline['.$rowid.'][localIncomePercentage]" value = "'.$budgetline[localIncomePercentage].'" type = "text" id = "localincomeper_'.$rowid.'" size = "10" accept = "numeric" /> </td>',
                     );
                     $hidden_colcells['remainingcommaff_header_row'] = '<td style = "vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align = "center">
-                <input type = "text" placeholder = "'.$lang->search.' '.$lang->affiliate.'" id = affiliate_noexception_'.$rowid.'_commission_autocomplete name = "" value = "'.$budgetline['commissionSplitAffid_output'].'" autocomplete = "off" />
-                <input type = "hidden" value = "'.$budgetline['commissionSplitAffid'].'" id = "affiliate_noexception_'.$rowid.'_commission_id" name = "budgetline['.$rowid.'][commissionSplitAffid]"/></td>';
+                <input type = "text" placeholder = "'.$lang->search.' '.$lang->affiliate.'" id="affiliate_noexception_'.$rowid.'_commission_autocomplete" name = "" value="'.$budgetline['commissionSplitAffid_output'].'" autocomplete = "off" />
+                <input type = "hidden" value = "'.$budgetline['commissionSplitAffid'].'" id="affiliate_noexception_'.$rowid.'_commission_id" name = "budgetline['.$rowid.'][commissionSplitAffid]"/></td>';
 
                     if($source == 'budget' || $budgetline['fromBudget'] == 1) {
                         $hidden_colcells ['remainingcommaff_header_row'] = '<td style = "vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align = "center"><input type="text" value="" disabled></td>';
                         if(!empty($budgetline['commissionSplitAffid'])) {
                             $aff = new Affiliates($budgetline['commissionSplitAffid']);
                             if(is_object($aff)) {
-                                $hidden_colcells['remainingcommaff_header_row'] = '<td style = "vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align = "center"><input type = "text" disabled value = '.$aff->get_displayname().'><input type = "hidden" name = "budgetline['.$rowid.'][commissionSplitAffid]" value = "'.$aff->affid.'"></td>';
+                                $hidden_colcells['remainingcommaff_header_row'] = '<td style = "vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center"><input type="text" disabled value=" '.$aff->get_displayname().'"><input type = "hidden" name = "budgetline['.$rowid.'][commissionSplitAffid]" value = "'.$aff->affid.'"></td>';
                             }
                         }
                     }
