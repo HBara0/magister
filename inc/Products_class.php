@@ -8,55 +8,43 @@
  * Last Update:    @tony.assaad    Mar 11, 2013 | 2:12:19 PM
  */
 
-class Products {
-    private $product = array();
+class Products extends AbstractClass {
+    protected $data = array();
 
     const UNIQUE_ATTRS = '';
     const PRIMARY_KEY = 'pid';
     const TABLE_NAME = 'products';
     const DISPLAY_NAME = 'name';
+    const SIMPLEQ_ATTRS = 'pid, name, spid, gpid, defaultFunction';
+    const CLASSNAME = __CLASS__;
 
-    public function __construct($id, $simple = true) {
-        if(isset($id)) {
-            $this->read($id, $simple);
-        }
-        return null;
-    }
-
-    private function read($id, $simple) {
-        global $db;
-
-        $query_select = '*';
-        if($simple == true) {
-            $query_select = 'pid, name, spid, gpid, defaultFunction';
-        }
-
-        $this->product = $db->fetch_assoc($db->query('SELECT '.$query_select.' FROM '.Tprefix.'products WHERE pid='.intval($id)));
+    public function __construct($id = '', $simple = true) {
+        parent::__construct($id, $simple);
     }
 
     public function get_genericproduct_legacy() {
         global $db;
-        return $this->product['genericproduct'] = $db->fetch_assoc($db->query("SELECT gp.*
+        return $this->data['genericproduct'] = $db->fetch_assoc($db->query("SELECT gp.*
 								FROM ".Tprefix."genericproducts gp
 								JOIN ".Tprefix."products p ON (p.gpid=gp.gpid)
-								WHERE p.pid=".$this->product['pid'].""));
+								WHERE p.pid=".$this->data['pid'].""));
     }
 
     public function get_genericproduct() {
-        return new GenericProducts($this->product['gpid']);
+        return new GenericProducts($this->data['gpid']);
     }
 
     public function get_segment() {
         global $db;
-        return $this->product['productsegment'] = $db->fetch_assoc($db->query("SELECT gp.psid, ps.title, ps.titleAbbr
+        return $this->data['productsegment'] = $db->fetch_assoc($db->query("SELECT gp.psid, ps.title, ps.titleAbbr
 								FROM ".Tprefix."genericproducts gp
 								JOIN ".Tprefix."products p ON (p.gpid=gp.gpid)
 								JOIN ".Tprefix."productsegments ps ON (gp.psid=ps.psid)
-								WHERE p.gpid=".$this->product['gpid'].""));
+								WHERE p.gpid=".$this->data['gpid'].""));
     }
 
     public function get_productsegment() {
-        if(!empty($this->product['defaultFunction'])) {
+        if(!empty($this->data['defaultFunction'])) {
             return $this->get_defaultchemfunction()->get_segment();
         }
         else {
@@ -65,7 +53,7 @@ class Products {
     }
 
     public function get_supplier() {
-        return new Entities($this->product['spid'], '', true);
+        return new Entities($this->data['spid'], '', true);
     }
 
     public static function get_product_byname($name) {
@@ -86,7 +74,7 @@ class Products {
 
     public function get_chemfunctionproducts() {
         global $db;
-        $query = $db->query("SELECT cfpid FROM ".Tprefix."chemfunctionproducts WHERE pid=".$db->escape_string($this->product['pid']));
+        $query = $db->query("SELECT cfpid FROM ".Tprefix."chemfunctionproducts WHERE pid=".$db->escape_string($this->data['pid']));
         if($db->num_rows($query) > 0) {
             while($chemfunctionproduct = $db->fetch_assoc($query)) {
                 $chemfunctionproducts[$chemfunctionproduct['cfpid']] = new ChemFunctionProducts($chemfunctionproduct['cfpid']);
@@ -98,7 +86,7 @@ class Products {
 
     public function get_chemicalsubstance() {
         global $db;
-        $query = $db->query("SELECT csid FROM ".Tprefix."productschemsubstances WHERE pid=".$db->escape_string($this->product['pid']));
+        $query = $db->query("SELECT csid FROM ".Tprefix."productschemsubstances WHERE pid=".$db->escape_string($this->data['pid']));
         if($db->num_rows($query) > 0) {
             while($rowprodchemsubstance = $db->fetch_assoc($query)) {
                 $productschemsubstances[$rowprodchemsubstance['csid']] = new Chemicalsubstances($rowprodchemsubstance['csid']);
@@ -112,35 +100,12 @@ class Products {
 //        if(empty($this->product['defaultFunction'])) {
 //            return false;
 //        }
-        return new ChemFunctionProducts($this->product['defaultFunction']);
-    }
-
-    public function get() {
-        return $this->product;
-    }
-
-    /**
-     *
-     * @return Srtring
-     */
-    public function get_displayname() {
-        return $this->product[self::DISPLAY_NAME];
-    }
-
-    public function __get($attr) {
-        if(isset($this->product[$attr])) {
-            return $this->product[$attr];
-        }
-        return false;
-    }
-
-    public function __isset($name) {
-        return isset($this->product[$name]);
+        return new ChemFunctionProducts($this->data['defaultFunction']);
     }
 
     public function parse_link($attributes_param = array('target' => '_blank')) {
-        if(!empty($this->product['companyNameAbbr'])) {
-            $this->product['companyName'] .= ' ('.$this->product['companyNameAbbr'].')';
+        if(!empty($this->data['companyNameAbbr'])) {
+            $this->data['companyName'] .= ' ('.$this->data['companyNameAbbr'].')';
         }
 
         if(is_array($attributes_param)) {
@@ -153,7 +118,11 @@ class Products {
 
     public function get_link() {
         global $core;
-        return $core->settings['rootdir'].'/index.php?module=profiles/products&amp;pid='.$this->product[self::PRIMARY_KEY];
+        return $core->settings['rootdir'].'/index.php?module=profiles/products&amp;pid='.$this->data[self::PRIMARY_KEY];
+    }
+
+    protected function update(array $data) {
+
     }
 
 }
