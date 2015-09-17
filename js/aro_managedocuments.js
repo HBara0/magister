@@ -369,8 +369,6 @@ $(function() {
     //Trigger(s): 21
     var actualpurchaselines_tr;
     $("input[id$='_netMargin'],input[id$='_grossMarginAtRiskRatio']").live('change', function() {
-        // var tr = setTimeout(function() {
-
         var invoicevalue_local = invoicevalue_local_RIC = grossMarginAtRiskRatio = 0;
         $("tbody[id^='productline_']").find($("input[id$='_affBuyingPrice']")).each(function() {
             var id = $(this).attr('id').split('_');
@@ -530,8 +528,24 @@ $(function() {
             attrs += '&unitfees=' + $("input[id='ordersummary_unitfee']").val();
             attrs += '&rowid=' + id[1] + '&ptid=' + $('select[id=purchasetype]').val();
             sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populateaffbuyingprice' + attrs, function() {
-                $("input[id='ordersummary_btn']").trigger("click");
-                $("input[id$='_netMargin']").trigger("change");// populate_localintersetvalues
+                //// !!!!!!!! NEED TO Modify this into a funtion and apply wherever it is used//
+                $("tbody[id^='productline_']").find($("input[id$='_affBuyingPrice']")).each(function() {
+                    var id = $(this).attr('id').split('_');
+                    invoicevalue_parameter = parseFloat($("input[id='productline_" + id[1] + "_totalBuyingValue']").val());
+                    totalqty = parseFloat($("input[id='productline_" + id[1] + "_quantity']").val());
+                    if(!isNaN(invoicevalue_parameter)) {
+                        invoicevalue_local += invoicevalue_parameter;
+                        if(!isNaN(totalqty)) {
+                            invoicevalue_local_RIC += (totalqty * (parseFloat($("input[id='productline_" + id[1] + "_sellingPrice']").val())));
+                        }
+                    }
+                });
+                /////////////////////////////////////////////////////////////////////////
+                sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populate_localintersetvalues&invoicevalue_local_RIC=' + invoicevalue_local_RIC + '&ptid=' + $("select[id=purchasetype]").val() + '&invoicevalue_local=' + invoicevalue_local + '&exchangeRateToUSD=' + $("#exchangeRateToUSD").val(), function() {
+                    $("input[id='ordersummary_btn']").trigger("click");
+                });
+                //populate_localintersetvalues
+
             });
         });
     });
@@ -782,6 +796,12 @@ $(function() {
             }
         }
     });
+
+    //---------------------------------------------------------------
+    $("input[id='partiesinfo_commission']").live('keyup', function() {
+        $("input[id='partiesinfo_defaultcommission']").val($("input[id='partiesinfo_commission']").val());
+    });
+
 });
 var rowid = '';
 function addactualpurchaserow(id, callback) {
