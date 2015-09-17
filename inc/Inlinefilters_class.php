@@ -123,7 +123,7 @@ class Inlinefilters {
                         case 'posid':
                         case 'position':
                             $lang->load('positions');
-                            $positions = get_specificdata('positions', array('posid', 'name'), 'posid', 'name', '');
+                            $positions = get_specificdata('positions', array('posid', 'name'), 'posid', 'name', 'name');
                             foreach($positions as $key => $val) {
                                 if(isset($lang->{$val})) {
                                     $positions[$key] = $lang->{$val};
