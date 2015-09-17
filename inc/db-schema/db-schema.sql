@@ -986,6 +986,7 @@ CREATE TABLE `budgeting_yef_lines` (
   `yeflid` int(10) NOT NULL AUTO_INCREMENT,
   `inputCheckSum` varchar(200) NOT NULL,
   `yefid` int(10) NOT NULL,
+  `blid` int(10) NOT NULL,
   `pid` int(10) NOT NULL,
   `cid` int(10) NOT NULL,
   `altCid` varchar(50) NOT NULL,
@@ -1022,7 +1023,7 @@ CREATE TABLE `budgeting_yef_lines` (
   `psid` int(5) NOT NULL,
   `fromBudget` tinyint(1) NOT NULL,
   PRIMARY KEY (`yeflid`)
-) ENGINE=MyISAM AUTO_INCREMENT=26 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=10 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `calendar_events`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
