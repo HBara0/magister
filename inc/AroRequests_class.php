@@ -573,23 +573,23 @@ class AroRequests extends AbstractClass {
             $data = array('emailRecievedDate' => TIME_NOW);
             $query = $db->update_query('aro_requests_approvals', $data, 'araid='.$firstapprover->araid);
 
-            if($this->check_infromcoords() == 1) {
-                $segcoords = $this->get_segoordinators();
-                if(is_array($segcoords)) {
-                    foreach($segcoords as $coord) {
-                        $mailinglist[$coord->uid] = $coord->get_email();
-                    }
-                }
-            }
-            $mailinglist = array_unique($mailinglist);
-            $email_data = array(
-                    'from_email' => 'ocos@orkila.com',
-                    'from' => 'ocos@orkila.com',
-                    'to' => $mailinglist,
-                    'subject' => 'Aro '.$this->orderReference.' _Segemnts Coordinators Notification',
-                    'message' => 'Aro '.$this->orderReference.' in progress'  // change message
-            );
-            $mail = new Mailer($email_data, 'php');
+//            if($this->check_infromcoords() == 1) {
+//                $segcoords = $this->get_segoordinators();
+//                if(is_array($segcoords)) {
+//                    foreach($segcoords as $coord) {
+//                        $mailinglist[$coord->uid] = $coord->get_email();
+//                    }
+//                }
+//            }
+//            $mailinglist = array_unique($mailinglist);
+//            $email_data = array(
+//                    'from_email' => 'ocos@orkila.com',
+//                    'from' => 'ocos@orkila.com',
+//                    'to' => $mailinglist,
+//                    'subject' => 'Aro '.$this->orderReference.' _Segemnts Coordinators Notification',
+//                    'message' => 'Aro '.$this->orderReference.' in progress'  // change message
+//            );
+//            $mail = new Mailer($email_data, 'php');
         }
     }
 

@@ -468,7 +468,7 @@ $(function() {
     //----------------------------------------------------------------------------------------------------------------------------//
 
     //Trigger(s): 20A - 20B
-    $("#partiesinfo_totalfees,select[id^='productline_'][id$='_uom'],input[id^='productline_'][id$='_quantity'],input[id^='productline_'][id$='_intialPrice']").live('change', function() {
+    $("#partiesinfo_totalfees,input[id='partiesinfo_totaldiscount'],select[id^='productline_'][id$='_uom'],input[id^='productline_'][id$='_quantity'],input[id^='productline_'][id$='_intialPrice']").live('change', function() {
         var field_id = $(this).attr('id').split('_');
         if($(this).attr('id') != 'partiesinfo_totalfees') {
             var totalamount = totalcommision = intialprice = totalqty = 0;
@@ -531,6 +531,7 @@ $(function() {
             attrs += '&rowid=' + id[1] + '&ptid=' + $('select[id=purchasetype]').val();
             sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populateaffbuyingprice' + attrs, function() {
                 $("input[id='ordersummary_btn']").trigger("click");
+                $("input[id$='_netMargin']").trigger("change");// populate_localintersetvalues
             });
         });
     });
@@ -684,7 +685,7 @@ $(function() {
         attributes = attributes + "&InterBR=" + $('input[id=parmsfornetmargin_intermedBankInterestRate]').val();
         attributes = attributes + "&POIintermed=" + $('input[id=parmsfornetmargin_intermedPeriodOfInterest]').val();
         attributes = attributes + "&intermedAff=" + $("select[id='partiesinfo_intermed_aff']").val();
-        attributes = attributes + "&customer=" + $("input[id='customer_1_id']").val() + "&commFromIntermed=" + $("input[id='partiesinfo_commFromIntermed']").val();
+        attributes = attributes + "&customer=" + $("input[id='customer_1_id']").val() + "&commFromIntermed=" + $("input[id='partiesinfo_commFromIntermed']").val() + "&totalfeespaidbyintermed=" + $('input[id=partiesinfo_totalfees]').val();
 
         sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populateordersummary' + attributes, function(json) {
             if(json["haveThirdParty"] == 1) {

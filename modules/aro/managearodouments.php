@@ -197,9 +197,6 @@ if(!($core->input['action'])) {
                     if($productline['daysInStock'] == 0) {
                         $disabled_fields['qtyPotentiallySold'] = 'readonly = "readonly"';
                     }
-
-                    $productline['qtyPotentiallySold'] = number_format($productline['qtyPotentiallySold']);
-
                     eval("\$aroproductlines_rows .= \"".$template->get('aro_productlines_row')."\";");
                     unset($disabled_fields);
                 }
@@ -927,10 +924,12 @@ else {
             $intermedmargin_perc = '-';
             if(isset($core->input['intermedAff']) && !empty($core->input['intermedAff'])) {
                 $YearDays = 365;
+                $totalfees = $core->input['totalfeespaidbyintermed'];
                 $total_intermedfees_usd = $totalfees * $core->input['exchangeRateToUSD'];
-                $intermedmargin = (($localinvoicevalue_usd - $invoicevalueintermed_usd - $total_intermedfees_usd ) - ($invoicevalueintermed_usd + $total_intermedfees_usd ) * ($core->input['InterBR'] / $YearDays * $core->input['POIintermed']));
+                $localinvoicevalue_usd = $core->input['localinvoicevalue_usd'];
+                $intermedmargin = (($localinvoicevalue_usd - $invoicevalueintermed_usd - $total_intermedfees_usd )); //- ($invoicevalueintermed_usd + $total_intermedfees_usd ) * ($core->input['InterBR'] / $YearDays * $core->input['POIintermed']));
                 if($invoicevalueintermed_usd != 0) {
-                    $intermedmargin_perc = $intermedmargin / $invoicevalueintermed_usd + $total_intermedfees * $core->input['exchangeRateToUSD'];
+                    $intermedmargin_perc = ($intermedmargin / ($invoicevalueintermed_usd + ($total_intermedfees * $core->input['exchangeRateToUSD']))) * 100;
                 }
             }
         }
@@ -1102,10 +1101,10 @@ else {
         foreach($fields as $field) {
             $currentstock_data['currentstock_'.$rowid.'_'.$field] = $currentstock[$field];
         }
-        $currentstock_data['pickDate_currentstock_'.$rowid] = '';
-        $currentstock_data['pickDate_currentsale_'.$rowid] = '';
-        $currentstock_data['altpickDate_currentstock_'.$rowid] = '';
-        $currentstock_data['altpickDate_currentsale_'.$rowid.''] = '';
+        //   $currentstock_data['pickDate_currentstock_'.$rowid] = '';
+        //  $currentstock_data['pickDate_currentsale_'.$rowid] = '';
+        //  $currentstock_data['altpickDate_currentstock_'.$rowid] = '';
+        //  $currentstock_data['altpickDate_currentsale_'.$rowid.''] = '';
         echo json_encode($currentstock_data);
     }
     if($core->input['action'] == 'ajaxaddmore_currentstockrow') {
@@ -1115,8 +1114,6 @@ else {
     }
     if($core->input['action'] == 'viewonly') {
         $aroorderrequest = AroRequests::get_data(array('aorid' => $core->input['id']), array('simple' => false));
-//        if($core->usergroup['aro_canUseAro'] == 0) {
-//            }
         if($aroorderrequest->isApproved == 1) {
             $viewonly = array('disable' => 1);
             echo json_encode($viewonly);
