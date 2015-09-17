@@ -120,7 +120,7 @@ if(!$core->input['action']) {
     else {
         $budget_segment.=$lang->na;
     }
-    $years = Budgets::get_availableyears();
+    $years = BudgetingYearEndForecast::get_availableyears();
     if(is_array($years)) {
         foreach($years as $key => $value) {
             $checked = $rowclass = '';

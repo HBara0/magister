@@ -498,4 +498,16 @@ class BudgetingYearEndForecast extends AbstractClass {
         }
     }
 
+    public static function get_availableyears() {
+        global $db;
+        $query = $db->query('SELECT DISTINCT(year) FROM '.Tprefix.self::TABLE_NAME.' ORDER BY year DESC');
+        if($db->num_rows($query) > 0) {
+            while($year = $db->fetch_assoc($query)) {
+                $years[$year['year']] = $year['year'];
+            }
+            return $years;
+        }
+        return false;
+    }
+
 }

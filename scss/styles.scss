@@ -750,3 +750,8 @@ tr.dummytrow td, tr.dummytrow th {
         display: none !important;
     }
 }
+
+.warning {
+    box-shadow: 0 0 5px rgba(255, 204, 51, 1);
+    border: 1px solid rgba(255, 204, 51, 1);
+}
