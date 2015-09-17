@@ -28,6 +28,7 @@ class BudgetingYEFLines extends AbstractClass {
                 'inputCheckSum' => $data['inputCheckSum'],
                 'yefid' => $data['yefid'],
                 'pid' => $data['pid'],
+                'blid' => $data['blid'],
                 'cid' => $data['cid'],
                 'altCid' => $data['altCid'],
                 'prevyeflid' => $data['prevyeflid'],
@@ -88,6 +89,7 @@ class BudgetingYEFLines extends AbstractClass {
             $update_array['inputCheckSum'] = $data['inputCheckSum'];
             $update_array['yefid'] = $data['yefid'];
             $update_array['pid'] = $data['pid'];
+            $update_array['blid'] = $data['blid'];
             $update_array['cid'] = $data['cid'];
             $update_array['altCid'] = $data['altCid'];
             $update_array['prevyeflid'] = $data['prevyeflid'];

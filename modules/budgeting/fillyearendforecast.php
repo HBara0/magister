@@ -155,7 +155,7 @@ if(!$core->input['action']) {
             }
         }
         if($nolines != true) {
-            $prevbudlines = parse_yefline($budgetlinesdata, 'readonly', 'budget', $rownums);
+            $prevbudlines = parse_yefline($budgetlinesdata, 'readonly', 'budget', $rownums, $supplier);
             if(is_array($prevbudlines) && !empty($prevbudlines)) {
                 $budgetlinesrows .= $prevbudlines['lines'];
                 $rownums = $prevbudlines['rows'];

@@ -181,14 +181,11 @@ if(!$core->input['action']) {
 
                             foreach($prev_budgetlines as $prev_budgetline) {
                                 //get prev year YEF data
-                                $prev_budget = new Budgets($prev_budgetline['bid']);
-                                $yef = BudgetingYearEndForecast::get_data(array('year' => $prev_budget->year, 'spid' => $prev_budget->spid, 'affid' => $prev_budget->affid));
-                                if(is_object($yef)) {
-                                    $yefline = BudgetingYEFLines::get_data(array('saleType' => $prev_budgetline['saleType'], 'pid' => $prev_budgetline['pid'], 'cid' => $prev_budgetline['cid'], 'yefid' => $yef->yefid), array('returnarray' => false));
-                                    if(!is_object($yefline)) {
-                                        $yefline = new BudgetingYEFLines();
-                                    }
+                                $yefline = BudgetingYEFLines::get_data(array('blid' => $prev_budgetline['blid']), array('returnarray' => false));
+                                if(!is_object($yefline)) {
+                                    $yefline = new BudgetingYEFLines();
                                 }
+
                                 if(!isset($budgetline['invoice'])) {
                                     $budgetline['invoice'] = $prev_budgetline['invoice'];
                                 }

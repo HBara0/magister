@@ -2,6 +2,7 @@
     <td style="vertical-align: top; border-bottom: dashed 1px #CCCCCC; text-align: left;">
         <input type="hidden" name="budgetline[{$rowid}][inputCheckSum]" value="{$rowid}"/>
         <input type="hidden" name="budgetline[{$rowid}][yeflid]" value="{$budgetline['yeflid']}"/>
+        <input type="hidden" name="budgetline[{$rowid}][blid]" value="{$budgetline['blid']}"/>
         <input type='text' id='customer_noexception_{$rowid}_autocomplete' name="budgetline[{$rowid}][customerName]" {$disabledattrs[cid]} value="{$budgetline[customerName]}" autocomplete='off' {$required}/>
         <input type='text' {$readonly} size='3' id='customer_noexception_{$rowid}_id_output' disabled='disabled' value="{$budgetline[cid]}" style="display:none;"/>
         <input type='hidden' value="{$budgetline[cid]}" id='customer_noexception_{$rowid}_id' name='budgetline[{$rowid}][cid]' />
@@ -26,14 +27,14 @@
     </td>
     <td style="vertical-align:top; padding:2px;border-bottom: dashed 1px #CCCCCC;" align="center">{$saletype_selectlist}</td>
     <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_right">
-        <input name="budgetline[{$rowid}][quantity]" type="text" id="Qty_{$rowid}" size="10" accept="numeric" data-rowid="{$rowid}"  data-max="{$maxbudgetline[quantity]}" value="{$budgetline[quantity]}"{$required} >
+        <input name="budgetline[{$rowid}][quantity]" type="text" id="Qty_{$rowid}" size="10" accept="numeric" data-rowid="{$rowid}"  data-name="{$lang->quantity}" data-max="{$maxbudgetline[quantity]}" value="{$budgetline[quantity]}"{$required} >
         {$previous_yearsqty}
     </td>
     <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left"><select name="budgetline[{$rowid}][UoM]" disabled="disabled"><option value="kg">KG</option></select></td>
-    <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left"><input name="budgetline[{$rowid}][unitPrice]" type="text" id="unitprice_{$rowid}" size="10" accept="numeric" {$required} value="{$budgetline[unitPrice]}" data-rowid="{$rowid}"  data-max="{$maxbudgetline[unitPrice]}"  autocomplete='off' />{$prevyear_unitprice}</td>
-    <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left"><input name="budgetline[{$rowid}][amount]" type="text" id="amount_{$rowid}" size="10" accept="numeric" {$required} value="{$budgetline[amount]}" data-rowid="{$rowid}" data-max="{$maxbudgetline[amount]}" autocomplete='off' />{$previous_yearsamount}</td>
+    <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left"><input name="budgetline[{$rowid}][unitPrice]" type="text" id="unitprice_{$rowid}" size="10" accept="numeric" {$required} value="{$budgetline[unitPrice]}" data-rowid="{$rowid}"  data-max="{$maxbudgetline[unitPrice]}" data-name="{$lang->unitprice}" autocomplete='off' />{$prevyear_unitprice}</td>
+    <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left"><input name="budgetline[{$rowid}][amount]" type="text" id="amount_{$rowid}" size="10" accept="numeric" {$required} value="{$budgetline[amount]}" data-rowid="{$rowid}" data-name="{$lang->amount}" data-max="{$maxbudgetline[amount]}" autocomplete='off' />{$previous_yearsamount}</td>
     <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left"><input name="budgetline[{$rowid}][incomePerc]"  type="text" id="amountper_{$rowid}" size="10" accept="numeric" {$required} value="{$budgetline[incomePerc]}"  autocomplete='off' />{$prevyear_incomeperc}</td>
-    <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center"><input name="budgetline[{$rowid}][income]"  value="{$budgetline[income]}" data-rowid="{$rowid}" data-max="{$maxbudgetline[income]}" {$required}type="text" id="income_{$rowid}" size="10" accept="numeric" />{$previous_yearsincome}</td>
+    <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center"><input name="budgetline[{$rowid}][income]"  value="{$budgetline[income]}" data-rowid="{$rowid}" data-name="{$lang->income}" data-max="{$maxbudgetline[income]}" {$required}type="text" id="income_{$rowid}" size="10" accept="numeric" />{$previous_yearsincome}</td>
         {$hidden_colcells[localincome_row]}
         {$hidden_colcells[localincomeper_row]}
         {$hidden_colcells[remainingcommaff_header_row]}
