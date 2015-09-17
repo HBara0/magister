@@ -115,9 +115,9 @@
                     var id = $(this).attr("id").split("_");
                     $("div[id$='" + id[1] + "_unspecifiedCustomer_country']").slideToggle();
                 });
-                $(document).on('change', 'input[data-max]', function () {
+                $(document).on('keyup', 'input[data-max]', function () {
                     if($(this).attr('data-max') > 0 && $(this).val() > $(this).attr('data-max')) {
-                        $("#alert_" + $(this).attr('data-rowid')).text($('input[id="errormessage"]').val() + $(this).attr('data-max'));
+                        $("#alert_" + $(this).attr('data-rowid')).text($('input[id="errormessage"]').val() + $(this).attr('data-name'));
                     } else {
                         $("#alert_" + $(this).attr('data-rowid')).text("");
                     }
