@@ -40,9 +40,9 @@
         {$hidden_colcells[remainingcommaff_header_row]}
     <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left">{$budget_currencylist}<span id="currency_details_{$rowid}"></span></td>
     <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center">{$purchasingentity_selectlist}</td>
-    <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left"><input name="budgetline[{$rowid}][october]" type="text" id="october_{$rowid}" size="10" accept="numeric" required="required" value="{$budgetline[october]}" autocomplete='off'/></td>
-    <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left"><input name="budgetline[{$rowid}][november]" type="text" id="november_{$rowid}" size="10" accept="numeric" required="required" value="{$budgetline[november]}"  autocomplete='off'/></td>
-    <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left"><input name="budgetline[{$rowid}][december]" type="text" id="december_{$rowid}" size="10" accept="numeric" required="required" value="{$budgetline[december]}"  autocomplete='off'/></td>
+    <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left"><input name="budgetline[{$rowid}][october]" data-month="{$rowid}" type="text" id="october_{$rowid}" size="10" accept="numeric" required="required" value="{$budgetline[october]}" autocomplete='off'/><span style="color:red" id="alertpercentage_{$rowid}"></span></td>
+    <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left"><input name="budgetline[{$rowid}][november]" data-month="{$rowid}"  type="text" id="november_{$rowid}" size="10" accept="numeric" required="required" value="{$budgetline[november]}"  autocomplete='off'/></td>
+    <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left"><input name="budgetline[{$rowid}][december]" data-month="{$rowid}"  type="text" id="december_{$rowid}" size="10" accept="numeric" required="required" value="{$budgetline[december]}"  autocomplete='off'/></td>
     <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left">{$purchasefromaff}{$frombudgetline}
     </td>
 </tr>

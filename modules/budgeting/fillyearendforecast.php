@@ -18,7 +18,6 @@ if(!$core->input['action']) {
     if($core->input['stage'] == 'fillbudgetline') {
         $display = 'none';
         $yef_data = $core->input['yef'];
-
         $affiliate = new Affiliates($yef_data['affid']);
         $yef_data['affiliateName'] = $affiliate->get()['name'];
         $supplier = new Entities($yef_data['spid']);
@@ -283,7 +282,8 @@ else {
         $budgetline['inputCheckSum'] = $rowid;
         $rownums = intval($core->input['value']) + 1;
         $yef_data = $core->input['ajaxaddmoredata'];
-        $affiliate = new Affiliates($yef_data['affid']);
+        $supplier = new Entities(intval($yef_data['spid']));
+        $affiliate = new Affiliates(intval($yef_data['affid']));
         if($affiliate->isIntReinvoiceAffiliate == 0) {
             $saletypes_query_where = ' WHERE stid NOT IN (SELECT s1.invoiceAffStid FROM saletypes s1 WHERE s1.invoiceAffStid IS NOT NULL)';
         }
@@ -331,7 +331,15 @@ else {
 
 
         $purchase_selectlistdata = array('alex' => 'Orkila FZ - Alex', 'fze' => 'Orkila Jebel Ali FZE', 'int' => 'Orkila International', 'customer' => 'Customer', 'direct' => $affiliate->get_displayname());
-
+        if(is_object($supplier)) {
+            $segs = $supplier->get_segments();
+            if(is_array($segs)) {
+                $supplier_segments = array_filter($segs);
+                if(count($supplier_segments) > 1) {
+                    $segments_selectlist = parse_selectlist('budgetline['.$rowid.'][psid]', 3, $supplier_segments, $budgetline['psid'], null, null, array('placeholder' => 'Overwrite Segment'));
+                }
+            }
+        }
         $purchasingentity_selectlist = parse_selectlist('budgetline['.$rowid.'][purchasingEntity]', 0, $purchase_selectlistdata, 'direct', '', '', array('blankstart' => true, 'id' => 'purchasingEntity_'.$rowid));
         $countries = Countries::get_coveredcountries();
         $countries_selectlist = parse_selectlist('budgetline['.$rowid.'][customerCountry]', 0, $countries, $affiliate->country, '', '');
@@ -510,9 +518,12 @@ function parse_yefline($data, $readonly = '', $source, $rownums, $supplier) {
                 else {
                     $segments_selectlist = '';
                     if(is_object($supplier)) {
-                        $supplier_segments = array_filter($supplier->get_segments());
-                        if(count($supplier_segments) > 1) {
-                            $segments_selectlist = parse_selectlist('budgetline['.$rowid.'][psid]', 3, $supplier_segments, $budgetline['psid'], null, null, array('placeholder' => 'Overwrite Segment'));
+                        $segs = $supplier->get_segments();
+                        if(is_array($segs)) {
+                            $supplier_segments = array_filter($segs);
+                            if(count($supplier_segments) > 1) {
+                                $segments_selectlist = parse_selectlist('budgetline['.$rowid.'][psid]', 3, $supplier_segments, $budgetline['psid'], null, null, array('placeholder' => 'Overwrite Segment'));
+                            }
                         }
                     }
                 }
