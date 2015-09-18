@@ -262,7 +262,10 @@ if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject) || $ignore_su
                       $contact_details = $lang->contactwhileabsent.':<br />'.$leave['phoneWhileAbsent'].'<br />'.$leave['addressWhileAbsent'];
                       } */
                     if(!empty($leave['type_details']['additionalFields'])) {
-                        $leave['type_details']['details_crumb'] = implode(' ', parse_additionaldata($leave, $leave['type_details']['additionalFields'], 1));
+                        $additionaldata = parse_additionaldata($leave, $leave['type_details']['additionalFields'], 1);
+                        if(is_array($additionaldata)) {
+                            $leave['type_details']['details_crumb'] = implode(' ', $additionaldata);
+                        }
                         $leave['type_details']['details_crumb'] = $core->sanitize_inputs($leave['type_details']['details_crumb'], array('method' => 'striponly', 'removetags' => true));
                         $lang->leavenotificationmessage_typedetails = $leave['type_details']['details_crumb'];
                     }
