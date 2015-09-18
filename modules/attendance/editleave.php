@@ -144,6 +144,10 @@ if(!$core->input['action']) {
         $expenses_total = $leaveobject->get_expensestotal();
         eval("\$expsection = \"".$template->get('attendance_requestleave_expsection')."\";");
     }
+    $autoresp_show = 'style="display:none"';
+    if($leave['createAutoResp'] == 1) {
+        $autoresp_checked = 'checked="checked"';
+    }
 
     eval("\$requestleavepage = \"".$template->get('attendance_requestleave')."\";");
     output_page($requestleavepage);
