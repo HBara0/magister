@@ -60,13 +60,19 @@ else {
             foreach($core->input['affids'] as $affid) {
                 $affiliate = new Affiliates($affid, false);
                 $orgs[] = $affiliate->integrationOBOrgId;
+                $currency_obj = $affiliate->get_currency();
             }
         }
         else {
             $affiliate = new Affiliates($core->input['affids'], false);
             $orgs[] = $affiliate->integrationOBOrgId;
+            $currency_obj = $affiliate->get_currency();
         }
-        $currency_obj = new Currencies('USD');
+
+
+        // $reportaff = new Affiliates($core->input['affids'], false);
+        // $currency_obj = $reportaff->get_currency();
+        //   $currency_obj = new Currencies('USD');
 
         if(!empty($core->input['spid'])) {
             $orderline_query_where = ' AND ime.localId IN ('.implode(',', $core->input['spid']).')';
@@ -234,7 +240,7 @@ else {
                 //$monthdata = $integration->get_sales_byyearmonth($yearsummary_filter);
                 $intgdb = $integration->get_dbconn();
                 $invoicelines = new IntegrationOBInvoiceLine(null);
-                $mdata = $invoicelines->get_data_byyearmonth($yearsummary_filter, array('reportcurrency' => 'USD', 'fxtype' => $core->input['fxtype']));
+                $mdata = $invoicelines->get_data_byyearmonth($yearsummary_filter, array('reportcurrency' => $currency_obj->alphaCode, 'fxtype' => $core->input['fxtype']));
 
                 if(isset($core->input['generatecharts']) && $core->input['generatecharts'] == 1) {
                     $classifications = $invoicelines->get_classification($mdata, $period);
