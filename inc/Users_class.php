@@ -264,10 +264,20 @@ class Users extends AbstractClass {
     }
 
     public function get_mainaffiliate() {
+        global $cache;
         if(!isset($this->data['mainaffiliate']) || empty($this->data['mainaffiliate'])) {
             $this->read_mainaffiliate();
         }
-        return new Affiliates($this->data['mainaffiliate'], FALSE);
+
+        if(!$cache->iscached('affiliate', $this->data['mainaffiliate'])) {
+            $affiliate = new Affiliates($this->data['mainaffiliate'], FALSE);
+            $cache->add('affiliate', $affiliate, $affiliate->get_id());
+        }
+        else {
+            $affiliate = new Affiliates($this->data['mainaffiliate'], FALSE);
+        }
+
+        return $affiliate;
     }
 
     /* CORRECTIONS NEEDED:
@@ -681,7 +691,15 @@ class Users extends AbstractClass {
                 $affiliateemployees = AssignedEmployees::get_data(array('affid' => $affiliate->get_id()), array('returnarray' => true));
                 if(is_array($affiliateemployees)) {
                     foreach($affiliateemployees as $affiliateemployee) {
-                        $permissions['uid'][] = $affiliateemployee->{Users::PRIMARY_KEY};
+                        if(!$cache->iscached('user', $affiliateemployee->{Users::PRIMARY_KEY})) {
+                            $employee = $affiliateemployee->get_user();
+                            $cache->add('user', $employee, $employee->get_id());
+                        }
+                        else {
+                            $employee = $cache->get_cachedval('user', $affiliateemployee->{Users::PRIMARY_KEY});
+                        }
+
+                        $permissions['uid'][] = $employee->get_id();
                     }
                 }
                 unset($affentities);
@@ -756,11 +774,42 @@ class Users extends AbstractClass {
             $employeesegments = EmployeeSegments::get_data(array('psid' => $segment->get_id()), array('returnarray' => true));
             if(is_array($employeesegments)) {
                 foreach($employeesegments as $employeesegment) {
-                    $permissions['uid'][] = $employeesegment->{Users::PRIMARY_KEY};
+                    if(!$cache->iscached('user', $employeesegment->{Users::PRIMARY_KEY})) {
+                        $employee = $employeesegment->get_user();
+                        $cache->add('user', $employee, $employee->get_id());
+                    }
+                    else {
+                        $employee = $cache->get_cachedval('user', $employeesegment->{Users::PRIMARY_KEY});
+                    }
+
+                    $permissions['uid'][] = $employee->get_id();
+                    $affiliate = $employee->get_mainaffiliate();
+                    $permissions['affid'][] = $affiliate->get_id();
                 }
             }
             unset($employeesegments);
+
+            $entitiesegments = EntitiesSegments::get_data(array('psid' => $segment->get_id()), array('returnarray' => true));
+            if(is_array($entitiesegments)) {
+                foreach($entitiesegments as $entitysegment) {
+                    if(!$cache->iscached('entity', $entitysegment->{Entities::PRIMARY_KEY})) {
+                        $entity = $entitysegment->get_entity();
+                        $cache->add('entity', $entity, $entity->get_id());
+                    }
+                    else {
+                        $entity = $cache->get_cachedval('entity', $entitysegment->{Entities::PRIMARY_KEY});
+                    }
+                    $permissions['eid'][] = $entity->get_id();
+                    if($entity->is_supplier()) {
+                        $permissions['spid'][] = $entity->get_id();
+                    }
+                    else {
+                        $permissions['cid'][] = $entity->get_id();
+                    }
+                }
+            }
         }
+
         foreach($assignedemployees as $assignedemployee) {
             if(is_array($permissions['eid'])) {
                 if(in_array($assignedemployee->{Entities::PRIMARY_KEY}, $permissions['eid'])) {

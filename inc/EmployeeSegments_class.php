@@ -46,4 +46,8 @@ class EmployeeSegments extends AbstractClass {
         return new ProductsSegments($this->data['psid']);
     }
 
+    public function get_user() {
+        return new Users($this->data['uid']);
+    }
+
 }
