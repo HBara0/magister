@@ -42,6 +42,7 @@ class vCard {
             $this->set_name($contact['firstName'], $contact['lastName']);
             $this->set_fullname($contact['firstName'].' '.$contact['lastName']);
             $this->set_nickname($contact['displayName']);
+            $this->set_title($contact['title']);
             $this->set_organization($contact['organization']);
             $this->set_photo($contact['photo']);
             $this->set_phone($contact['phone']);
@@ -126,7 +127,7 @@ class vCard {
         if(empty($title)) {
             return;
         }
-        $this->vcardfile .= ' Title:'.$title."\r\n";
+        $this->vcardfile .= 'TITLE:'.$title."\r\n";
     }
 
     public function set_photo($photo = array()) {
@@ -183,20 +184,30 @@ class vCard {
         $contact['nickname'] = $user->displayName;
         $affiliatedemp = AffiliatedEmployees::get_data('uid='.$user->uid.' AND isMain=1');
         if(is_object($affiliatedemp)) {
-            $affiliate = new Affiliates($affiliatedemp->affid);
+            $affiliate = new Affiliates($affiliatedemp->affid, false);
             $contact['organization'] = $affiliate->get_displayname();
         }
+
+        $contact['title'] = implode(', ', $user->get_positions());
+
         if(!empty($user->profilePicture)) {
             $type = substr($user->profilePicture, -3);
             $contact['photo'] = array('type' => $type, 'pic' => $user->profilePicture);
         }
-        $contact['phone'] = array('work' => '+'.$user->telephone);
 
-        if($contact['mobileIsPrivate'] != 1) {
+        if(!empty($affiliate->phone1)) {
+            $contact['phone'] = array('work' => '+'.$affiliate->phone1);
+            if(!empty($user->internalExtension)) {
+                $contact['phone']['work'] .= ' x '.$user->internalExtension;
+            }
+        }
+
+        if($contact['mobileIsPrivate'] != 1 || !empty($user->mobile)) {
             $contact['phone']['cell'] = '+'.$user->mobile;
         }
 
-        $contact['address'] = array('home' => $user->addressLine1.' ', $user->addressLine2.' '.$user->building);
+
+        $contact['address'] = array('work' => $affiliate->addressLine1.' '.$affiliate->addressLine2);
         $contact['email'] = $user->email;
         return $contact;
     }

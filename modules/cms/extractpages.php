@@ -24,8 +24,20 @@ if($core->input['extract'] == 'segments') {
         $aplications_objs = SegmentApplications::get_data(array('psid' => $segment->psid, 'publishOnWebsite' => '1'), array('returnarray' => true, 'simple' => false));
         if(is_array($aplications_objs)) {
             foreach($aplications_objs as $item) {
-                $application_output.='<h5>'.$item->get_displayname().'</h5>';
-                $application_output.='<div>'.$item->description.'</div><hr>';
+                $application_output.='<h4>'.$item->get_displayname().'</h4>';
+                $application_output.='<div>'.$item->description.'</div>';
+
+                $segappfunctions = $item->get_segappfunctionsobjs();
+                if(!is_array($segappfunctions)) {
+                    continue;
+                }
+                foreach($segappfunctions as $segappfunction) {
+                    $function = $segappfunction->get_function();
+                    $application_output.='<h5>'.$function->get_displayname().'</h5>';
+                    $application_output.='<div><p>'.$segappfunction->description.'</p></div>';
+                }
+
+                $application_output.='<hr>';
             }
         }
         eval("\$segmentsout .= \"".$template->get('cms_extract_websegments')."\";");
@@ -78,8 +90,19 @@ else {
             $aplications_objs = SegmentApplications::get_data(array('psid' => $segment->psid, 'publishOnWebsite' => '1'), array('returnarray' => true, 'simple' => false));
             if(is_array($aplications_objs)) {
                 foreach($aplications_objs as $item) {
-                    $application_output.='<h5>'.$item->get_displayname().'</h5>';
-                    $application_output.='<div>'.$item->description.'</div><hr>';
+                    $application_output.='<h4>'.$item->get_displayname().'</h4>';
+                    $application_output.='<div>'.$item->description.'</div>';
+
+                    $segappfunctions = $item->get_segappfunctionsobjs();
+                    if(!is_array($segappfunctions)) {
+                        continue;
+                    }
+                    foreach($segappfunctions as $segappfunction) {
+                        $function = $segappfunction->get_function();
+                        $application_output.='<h5>'.$function->get_displayname().'</h5>';
+                        $application_output.='<div><p>'.$segappfunction->description.'</p></div>';
+                    }
+                    $application_output.='<hr>';
                 }
             }
             eval("\$segmentsout .= \"".$template->get('cms_extract_websegments')."\";");

@@ -69,4 +69,4 @@
         {$attachments_ouput}
     </tbody>
 </table>
-
+<br /><br />

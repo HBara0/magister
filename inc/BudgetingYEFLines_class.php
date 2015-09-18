@@ -11,7 +11,7 @@ class BudgetingYEFLines extends AbstractClass {
     const UNIQUE_ATTRS = 'yefid,pid,cid,saleType';
     const CLASSNAME = __CLASS__;
     const DISPLAY_NAME = '';
-    const REQUIRED_ATTRS = 'yefid,pid,cid,saleType,inputCheckSum';
+    const REQUIRED_ATTRS = 'yefid,saleType,inputCheckSum';
 
     /* -------Definiton-END-------- */
     /* -------FUNCTIONS-START-------- */
@@ -28,6 +28,7 @@ class BudgetingYEFLines extends AbstractClass {
                 'inputCheckSum' => $data['inputCheckSum'],
                 'yefid' => $data['yefid'],
                 'pid' => $data['pid'],
+                'blid' => $data['blid'],
                 'cid' => $data['cid'],
                 'altCid' => $data['altCid'],
                 'prevyeflid' => $data['prevyeflid'],
@@ -61,6 +62,9 @@ class BudgetingYEFLines extends AbstractClass {
                 'psid' => $data['psid'],
                 'fromBudget' => $data['fromBudget'],
         );
+        if($table_array['october'] + $table_array['december'] + $table_array['november'] < 98 || $table_array['october'] + $table_array['december'] + $table_array['november'] > 102) {
+            return false;
+        }
         if(empty($table_array['createdBy'])) {
             $table_array['createdBy'] = $core->user['uid'];
         }
@@ -88,6 +92,7 @@ class BudgetingYEFLines extends AbstractClass {
             $update_array['inputCheckSum'] = $data['inputCheckSum'];
             $update_array['yefid'] = $data['yefid'];
             $update_array['pid'] = $data['pid'];
+            $update_array['blid'] = $data['blid'];
             $update_array['cid'] = $data['cid'];
             $update_array['altCid'] = $data['altCid'];
             $update_array['prevyeflid'] = $data['prevyeflid'];
@@ -121,7 +126,9 @@ class BudgetingYEFLines extends AbstractClass {
             $update_array['psid'] = $data['psid'];
             $update_array['fromBudget'] = $data['fromBudget'];
         }
-
+        if($update_array['october'] + $update_array['december'] + $update_array['november'] < 98 || $update_array['october'] + $update_array['december'] + $update_array['november'] > 102) {
+            return false;
+        }
         if(empty($update_array['businessMgr'])) {
             $update_array['businessMgr'] = $core->user['uid'];
         }

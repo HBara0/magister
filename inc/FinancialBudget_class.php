@@ -429,7 +429,7 @@ Class FinancialBudget extends AbstractClass {
         return false;
     }
 
-    public static function parse_financialbudget($options = array()) {
+    public static function parse_financialbudget($options = array(), $source = '') {
         global $db, $template, $core, $lang;
         if(isset($options['budgettypes']) && !empty($options['budgettypes'])) {
             /* get currenceis by consolidated budgetfinamce id */
@@ -487,7 +487,12 @@ Class FinancialBudget extends AbstractClass {
                 else {
                     foreach($budget_currency as $currency) {
                         if($options['tocurrency'] != $currency) {
-                            error($lang->sprint($lang->noexchangerate, implode(', ', $budget_currencies[$budgetyear]), $currencyto->alphaCode, $budgetyear), $_SERVER['HTTP_REFERER']);
+                            if($source = 'presentation') {
+                                continue;
+                            }
+                            else {
+                                error($lang->sprint($lang->noexchangerate, implode(', ', $budget_currencies[$budgetyear]), $currencyto->alphaCode, $budgetyear), $_SERVER['HTTP_REFERER']);
+                            }
                         }
                     }
                 }

@@ -735,7 +735,7 @@ class Leaves extends AbstractClass {
         $this->errorcode;
     }
 
-    public function get_contactperson($simple) {
+    public function get_contactperson($simple = false) {
         return new Users($this->data['contactPerson'], $simple);
     }
 
@@ -776,6 +776,37 @@ class Leaves extends AbstractClass {
 
     public function get_user() {
         return new Users($this->data['uid']);
+    }
+
+    /**
+     * Creates an auto-responder in the mail server
+     * @global Language $lang
+     * @global Core $core
+     * @return \Exception
+     */
+    public function create_autoresponder() {
+        global $lang, $core;
+        if(class_exists('CpanelAPIConnect')) {
+            $apiconnect = new CpanelAPIConnect();
+            $xmlapi = $apiconnect->get_xmlapi();
+            try {
+                $user = $this->get_user();
+                $user->email = 'zaher.reda@orkila.com';
+                $message = 'I am out of the office between '.date($core->settings['dateformat'].' '.$core->settings['timeformat'], $this->data['fromDate']).' AND '.date($core->settings['dateformat'].' '.$core->settings['timeformat'], $this->data['toDate']);
+                if(!empty($this->data['contactPerson'])) {
+                    $contactperson = $this->get_contactperson();
+                    if(is_object($contactperson)) {
+                        $message .= "\n".'Please contact '.$contactperson->displayName.' ('.$contactperson->email.') for urgent issues.';
+                    }
+                }
+
+                $args = array($user->email, $user->displayName, 'Auto Response: %subject%', $message, explode('@', $user->email)[1], true, "utf-8", 8, $this->fromDate, $this->toDate);
+                return $xmlapi->api1_query('orkila', 'Email', 'addautoresponder', $args);
+            }
+            catch(Exception $ex) {
+                return $ex;
+            }
+        }
     }
 
 }

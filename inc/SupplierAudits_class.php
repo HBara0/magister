@@ -34,4 +34,8 @@ class SupplierAudits extends AbstractClass {
 
     }
 
+    public function get_entity() {
+        return new Entities($this->data['eid']);
+    }
+
 }

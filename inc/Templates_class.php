@@ -13,20 +13,28 @@ class Templates {
     protected $cache = array();
 
     public function get($title, $raw = 1) {
-        global $db, $core;
+        global $db, $core, $errorhandler;
 
         if(!isset($this->cache[$title])) {
             if(TEMPLATES_SYSTEM == 'FILE') {
                 $base_dir = ROOT.INC_ROOT.'templates/';
                 $tplfilepath = $base_dir.$core->sanitize_path($title).'.tpl';
-                $handle = fopen($tplfilepath, 'r');
-                $template_content = fread($handle, filesize($tplfilepath));
-                fclose($handle);
+                if(file_exists($tplfilepath)) {
+                    $handle = fopen($tplfilepath, 'r');
+                    $template_content = fread($handle, filesize($tplfilepath));
+                    fclose($handle);
+                }
+                else {
+                    $errorhandler->trigger('Template: '.$title.' could not be found.');
+                }
             }
             else {
                 $template_content = $db->fetch_field($db->query("SELECT template FROM ".Tprefix."templates WHERE title='".$db->escape_string($title)."'"), 'template');
             }
-            $this->cache[$title] = $template_content;
+            $this->cache[$title] = trim($template_content);
+            if(empty($this->cache[$title])) {
+                $this->cache[$title] = 'Template: '.$title.' could not be found.<br />';
+            }
         }
         $template = "<!-- start: {$title} -->\n".$this->cache[$title]."\n<!-- end: {$title} -->";
 

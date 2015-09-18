@@ -255,7 +255,7 @@ class BudgetingYearEndForecast extends AbstractClass {
                     $data['localIncomeAmount'] = $data['income'];
                     $data['localIncomeAmount'] = '100';
                 }
-                if((empty($data['pid']) && empty($data['altPid'])) || (empty($data['cid']) && empty($data['altCid']))) {
+                if((empty($data['pid']) && empty($data['altPid'])) || (empty($data['cid']) && (empty($data['altCid']) || empty($data['customerCountry'])))) {
                     if(!empty($data['yeflid'])) {
                         $removed_lines[] = $data['yeflid'];
                     }
@@ -480,12 +480,12 @@ class BudgetingYearEndForecast extends AbstractClass {
     public function get_helptouritems() {
         global $lang;
         $touritems = array(
-                'page_title' => array('options' => 'tipLocation:top;', 'text' => $lang->helptour_welcomeyeffill),
-                'quantity_tour' => array('options' => 'tipLocation:top;', 'text' => $lang->helptour_quantity),
-                'amount_tour' => array('options' => 'tipLocation:top;', 'text' => $lang->helptour_amount),
-                'localincome_tour' => array('options' => 'tipLocation:top;', 'text' => $lang->helptour_localincome),
-                'commissionaff_tour' => array('options' => 'tipLocation:top;', 'text' => $lang->helptour_commissionaff),
-                'month_tour' => array('options' => 'tipLocation:top;', 'text' => $lang->helptour_month),
+                'page_title' => array('ignoreid' => true, 'options' => 'tipLocation:top;', 'text' => $lang->helptour_welcomeyeffill),
+                'quantity_tour' => array('options' => 'tipLocation:left;', 'text' => $lang->helptour_quantity),
+                'amount_tour' => array('options' => 'tipLocation:left;', 'text' => $lang->helptour_amount),
+                'localincome_tour' => array('options' => 'tipLocation:left;', 'text' => $lang->helptour_localincome),
+                'commissionaff_tour' => array('options' => 'tipLocation:left;', 'text' => $lang->helptour_commissionaff),
+                'month_tour' => array('options' => 'tipLocation:left;', 'text' => $lang->helptour_month),
         );
 
         return $touritems;
@@ -496,6 +496,18 @@ class BudgetingYearEndForecast extends AbstractClass {
         if(!empty($sitd)) {
             return $db->fetch_field($db->query("SELECT title FROM ".Tprefix."saletypes WHERE stid='".$db->escape_string($sitd)."'"), 'title');
         }
+    }
+
+    public static function get_availableyears() {
+        global $db;
+        $query = $db->query('SELECT DISTINCT(year) FROM '.Tprefix.self::TABLE_NAME.' ORDER BY year DESC');
+        if($db->num_rows($query) > 0) {
+            while($year = $db->fetch_assoc($query)) {
+                $years[$year['year']] = $year['year'];
+            }
+            return $years;
+        }
+        return false;
     }
 
 }

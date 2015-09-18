@@ -667,3 +667,6 @@ tr.dummytrow td, tr.dummytrow th {
 @media print {
   .hidden-print {
     display: none !important; } }
+.warning {
+  box-shadow: 0 0 5px #ffcc33;
+  border: 1px solid #ffcc33; }

@@ -1,6 +1,6 @@
 <html>
     <head>
-        <title>{$core->settings[systemtitle]} | {$lang->generatereport}</title>
+        <title>{$core->settings[systemtitle]} | {$lang->attendancelog}</title>
         {$headerinc}
     </head>
     <body>
@@ -8,11 +8,11 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h1>{$lang->generatereport}</h1>
+            <h1>{$lang->attendancelog}</h1>
             <div style="margin-left: 5px;">
                 <form name="do_attendance/generatereport_Form" id="do_attendance/generatereport_Form" method="post" action="index.php?module=attendance/generatereport&amp;action=do_generatereport">
                     {$lang->employeename}</span><br />
-                    <input type="hidden" name="referrer" value="report">
+                    <input type="hidden" name="referrer" value="log">
                     {$users_list}
                     <p>
                         {$lang->fromdate} <br />

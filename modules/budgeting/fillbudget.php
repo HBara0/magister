@@ -181,13 +181,11 @@ if(!$core->input['action']) {
 
                             foreach($prev_budgetlines as $prev_budgetline) {
                                 //get prev year YEF data
-                                $yef = BudgetingYearEndForecast::get_data(array('year' => $prev_budgetline['year'], 'spid' => $prev_budgetline['spid'], 'affid' => $prev_budgetline['affid']));
-                                if(is_object($yef)) {
-                                    $yefline = BudgetingYEFLines::get_data(array('saleType' => $prev_budgetline['saleType'], 'pid' => $prev_budgetline['pid'], 'cid' => $prev_budgetline['cid'], 'yefid' => $yef->yefid), array('returnarray' => false));
-                                    if(!is_object($yefline)) {
-                                        $yefline = new BudgetingYEFLines();
-                                    }
+                                $yefline = BudgetingYEFLines::get_data(array('blid' => $prev_budgetline['blid']), array('returnarray' => false));
+                                if(!is_object($yefline)) {
+                                    $yefline = new BudgetingYEFLines();
                                 }
+
                                 if(!isset($budgetline['invoice'])) {
                                     $budgetline['invoice'] = $prev_budgetline['invoice'];
                                 }
@@ -210,7 +208,9 @@ if(!$core->input['action']) {
                                 if(!empty($budgetline['cid']) || !empty($budgetline['altCid']) || $prev_budgetline['altCid'] == 'Unspecified Customer') {
                                     unset($budgetline['alternativecustomer']);
                                 }
-                                $budgetline['alternativeproduct'] .= '<span style="display:block;">'.ucfirst($prev_budgetline['altPid']).'</span>';
+                                if(!empty($prev_budgetline['altPid'])) {
+                                    $budgetline['alternativeproduct'] .= '<span style="display:block;">'.ucfirst($prev_budgetline['altPid']).'</span>';
+                                }
                                 $previous_blid = '<input type="hidden" name="budgetline['.$rowid.'][prevblid]" value="'.$prev_budgetline['blid'].'" />';
                                 // $previous_customercountry = '<input type="hidden" name="budgetline['.$rowid.'][customerCountry]" value="'.$prev_budgetline['customerCountry'].'" />';
                                 $previous_yearsqty .= '<span class="altrow smalltext" style="display:block;"><strong>'.$prev_budgetline['year'].'</strong><br />'.$lang->budgetabbr.': '.$prev_budgetline['quantity'].' | '.$lang->actualabbr.': '.$prev_budgetline['actualQty'].' | '.$lang->yef.': '.$yefline->quantity.'</span>';

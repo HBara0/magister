@@ -303,8 +303,9 @@ class Surveys {
                                             $question_choices_values = preg_split("/;+/", trim($choice));
                                         }
                                         else {
-                                            $newsurveys_questions_choices = array('stqid' => $stqid, 'choice' => trim($choice), 'value' => trim($choice));
-                                            //$question_choices_values[0] = $choice;
+                                            //$newsurveys_questions_choices = array('stqid' => $stqid, 'choice' => trim($choice), 'value' => trim($choice));
+                                            $question_choices_values[0] = $choice;
+                                            $question_choices_values[1] = $choice;
                                         }
 
                                         if(!isset($question_choices_values[1]) || (empty($question_choices_values[1]) )) {
@@ -1099,7 +1100,7 @@ class Surveys {
     public function get_shared_users() {
         global $db;
 
-        $query = $db->query('SELECT uid FROM '.Tprefix.'surveys_sharedwith WHERE sid='.$db->escape_string($this->survey['sid'].''));
+        $query = $db->query('SELECT uid FROM '.Tprefix.'surveys_sharedwith WHERE sid='.intval($this->survey['sid'].''));
         if($db->num_rows($query)) {
             while($user = $db->fetch_assoc($query)) {
                 $uids[] = $user['uid'];

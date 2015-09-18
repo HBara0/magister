@@ -39,11 +39,11 @@ if(!$core->input['action']) {
     $suppliers = get_specificdata('entities', array('eid', 'companyName'), 'eid', 'companyName', array('by' => 'companyName', 'sort' => 'ASC'), 1, "{$supplier_where}");
     $budget_supplierslist = "<select name=yef[spid] id=spid ><option value='0'>&nbsp;</option></select>";
 
-    $years = array_combine(range(date('Y') + 1, date('Y') + 1), range(date('Y') + 1, date('Y') + 1));
+    $years = array_combine(range(date('Y'), date('Y')), range(date('Y'), date('Y')));
 
     foreach($years as $year) {
         $year_selected = '';
-        if($year == $years[date("Y")] + 1) {
+        if($year == $years[date("Y")]) {
             $year_selected = "selected=selected";
         }
         $budget_year .= "<option value='{$year}'{$year_selected}>{$year}</option>";
