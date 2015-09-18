@@ -153,7 +153,7 @@ if(!$core->input['action']) {
                 $rownums = $prevyehlines['rows'];
             }
         }
-        if($nolines != true) {
+        elseif($nolines != true) {
             $prevbudlines = parse_yefline($budgetlinesdata, 'readonly', 'budget', $rownums, $supplier);
             if(is_array($prevbudlines) && !empty($prevbudlines)) {
                 $budgetlinesrows .= $prevbudlines['lines'];
@@ -188,6 +188,7 @@ if(!$core->input['action']) {
             $budgetline['inputCheckSum'] = generate_checksum();
             $countries_selectlist = parse_selectlist('budgetline['.$rowid.'][customerCountry]', 0, $countries, $affiliate->country, '', '', '');
             eval("\$budgetlinesrows .= \"".$template->get('budgeting_fill_yeflines')."\";");
+            unset($budgetline);
         }
         unset($saletype_selectlistdata, $checked_checkboxes);
 
@@ -226,7 +227,6 @@ if(!$core->input['action']) {
 }
 else {
     if($core->input['action'] == 'do_perform_fillyearendforecast') {
-
         $keydata = array('year', 'spid', 'affid');
         foreach($keydata as $attr) {
             $yef_data[$attr] = $core->input[$attr];

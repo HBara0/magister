@@ -31,7 +31,7 @@ class BudgetingYearEndForecast extends AbstractClass {
                 'lockedBy' => $data['lockedBy'],
                 'status' => $data['status'],
                 'createdOn' => TIME_NOW,
-                'createdBy' => $core->user['id'],
+                'createdBy' => $core->user['uid'],
         );
         $query = $db->insert_query(self::TABLE_NAME, $table_array);
         if($query) {
@@ -41,7 +41,7 @@ class BudgetingYearEndForecast extends AbstractClass {
     }
 
     protected function update(array $data) {
-        global $db;
+        global $db, $core;
         if(is_array($data)) {
             $update_array['identifier'] = $data['identifier'];
             $update_array['year'] = $data['year'];
@@ -53,7 +53,7 @@ class BudgetingYearEndForecast extends AbstractClass {
             $update_array['lockedBy'] = $data['lockedBy'];
             $update_array['status'] = $data['status'];
             $update_array['modifiedOn'] = TIME_NOW;
-            $update_array['modifiedBy'] = $core->user['id'];
+            $update_array['modifiedBy'] = $core->user['uid'];
         }
         $db->update_query(self::TABLE_NAME, $update_array, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
         return $this;
@@ -198,10 +198,12 @@ class BudgetingYearEndForecast extends AbstractClass {
                 $existing_budget = BudgetingYearEndForecast::get_yef_bydata($budgetdata);
                 if(isset($this)) {
                     $this->data['yefid'] = $existing_budget['yefid'];
+                    $this->update($this->data);
                     $this->save_budgetlines($budgetline_data, $this->data['yefid']);
                 }
                 else {
                     $budget = new BudgetingYearEndForecast($existing_budget['yefid']);
+                    $budget->update($budget->get());
                     $budget->save_budgetlines($budgetline_data);
                 }
                 $log->record('updatedyef', $existing_budget['yefid']);

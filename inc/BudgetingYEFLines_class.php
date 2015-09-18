@@ -53,7 +53,7 @@ class BudgetingYEFLines extends AbstractClass {
                 'october' => $data['october'],
                 'november' => $data['november'],
                 'december' => $data['december'],
-                'createdBy' => $core->user['id'],
+                'createdBy' => $core->user['uid'],
                 'createdOn' => TIME_NOW,
                 'commissionSplitAffid' => $data['commissionSplitAffid'],
                 'purchasingEntity' => $data['purchasingEntity'],
@@ -62,8 +62,8 @@ class BudgetingYEFLines extends AbstractClass {
                 'psid' => $data['psid'],
                 'fromBudget' => $data['fromBudget'],
         );
-        if($table_array['october'] + $table_array['december'] + $table_array['november'] < 98 || $table_array['october'] + $table_array['december'] + $table_array['november'] > 102) {
-            return false;
+        if(floor($table_array['october'] + $table_array['december'] + $table_array['november']) != 100 || ceil($table_array['october'] + $table_array['december'] + $table_array['november']) != 100) {
+            $table_array['october'] = $table_array['november'] = $table_array['december'] = 100 / 3;
         }
         if(empty($table_array['createdBy'])) {
             $table_array['createdBy'] = $core->user['uid'];
@@ -84,7 +84,7 @@ class BudgetingYEFLines extends AbstractClass {
     }
 
     protected function update(array $data) {
-        global $db;
+        global $db, $core;
         if(!$this->validate_requiredfields($data)) {
             return false;
         }
@@ -117,7 +117,7 @@ class BudgetingYEFLines extends AbstractClass {
             $update_array['october'] = $data['october'];
             $update_array['november'] = $data['november'];
             $update_array['december'] = $data['december'];
-            $update_array['modifiedBy'] = $core->user['id'];
+            $update_array['modifiedBy'] = $core->user['uid'];
             $update_array['modifiedOn'] = TIME_NOW;
             $update_array['commissionSplitAffid'] = $data['commissionSplitAffid'];
             $update_array['purchasingEntity'] = $data['purchasingEntity'];
@@ -126,8 +126,8 @@ class BudgetingYEFLines extends AbstractClass {
             $update_array['psid'] = $data['psid'];
             $update_array['fromBudget'] = $data['fromBudget'];
         }
-        if($update_array['october'] + $update_array['december'] + $update_array['november'] < 98 || $update_array['october'] + $update_array['december'] + $update_array['november'] > 102) {
-            return false;
+        if(floor($update_array['october'] + $update_array['december'] + $update_array['november']) != 100 || ceil($update_array['october'] + $update_array['december'] + $update_array['november']) != 100) {
+            $update_array['october'] = $update_array['november'] = $update_array['december'] = 100 / 3;
         }
         if(empty($update_array['businessMgr'])) {
             $update_array['businessMgr'] = $core->user['uid'];
