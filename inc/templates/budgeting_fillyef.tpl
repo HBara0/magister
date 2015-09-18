@@ -123,7 +123,7 @@
                         $("#alert_" + $(this).attr('data-rowid')).text("");
                         $(this).removeClass("warning");
                     }
-                $(document).on('change', 'input[data-month]', function () {
+                $(document).on('keyup', 'input[data-month]', function () {
                     var total = 0;
                     $('input[data-month="' + $(this).attr('data-month') + '"]').each(function (i, obj) {
                         total += parseFloat($(obj).val());
