@@ -123,6 +123,18 @@
                         $("#alert_" + $(this).attr('data-rowid')).text("");
                         $(this).removeClass("warning");
                     }
+                $(document).on('change', 'input[data-month]', function () {
+                    var total = 0;
+                    $('input[data-month="' + $(this).attr('data-month') + '"]').each(function (i, obj) {
+                        total += parseFloat($(obj).val());
+                    });
+                    if(total > 101 || total < 99) {
+                        $('span[id="alertpercentage_' + $(this).attr('data-month') + '"]').text('{$lang->alertpercentagesnotmatching}');
+                    }
+                    else {
+                        $('span[id="alertpercentage_' + $(this).attr('data-month') + '"]').text('');
+
+                    }
                 });
             });</script>
     </head>
@@ -174,12 +186,14 @@
                 <tr><td valign="top">
                         <input name="numrows_budgetlines{$rownums}" type="hidden" id="numrows_budgetlines_{$rownums}" value="{$rownums}">
                         <input type="hidden" name="ajaxaddmoredata[affid]" id="ajaxaddmoredata_affid" value="{$yef_data[affid]}"/>
+                        <input type="hidden" name="ajaxaddmoredata[spid]" id="ajaxaddmoredata_spid" value="{$yef_data[spid]}"/>
                         <img src="./images/add.gif" id="ajaxaddmore_budgeting/fillyearendforecast_budgetlines_{$rownums}" alt="{$lang->add}">
                     </td></tr>
                 <tr>
                     <td>
                         <table width="100%">
-                            <tr> <td><input type="button" value="{$lang->prevcaps}" class="button" onClick="goToURL('index.php?module=budgeting/create&amp;identifier={$sessionidentifier}');"/></td>
+                            <tr> <td><input type="button" value="{$lang->prevcaps}" class="button" onClick="goToURL('index.php?module=budgeting/create&amp;identifier={$sessionidentifier}')
+                                            ;"/></td>
                                 <td><input type="button" id="perform_budgeting/fillyearendforecast_Button" value="{$lang->savecaps}" class="button"/></td>
                                 <!--<td> <input type="submit" value="{$lang->nextcaps}" onClick='$("form:first").unbind("submit").trigger("submit");'class="button"/>     </td>--> </tr>
                         </table>

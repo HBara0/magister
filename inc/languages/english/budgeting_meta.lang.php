@@ -288,4 +288,5 @@ $lang['investmentfollowupdesc'] = 'Investments inclusind leasing (in k USD)';
 $lang['headcountdesc'] = 'Headcount';
 $lang['overduereceivablesdesc'] = 'Overdue Receivables (in k local and in k USD)';
 $lang['bankdesc'] = 'Bank (in K USD)';
+$lang['alertpercentagesnotmatching'] = 'Caution! The sum of percentages related to the three months is not equal to 100, current data can not be saved';
 ?>
