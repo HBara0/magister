@@ -2734,6 +2734,25 @@ class IntegrationOBOrg extends IntegrationAbstractClass {
 
 }
 
+class IntegrationOBOrgInfo extends IntegrationAbstractClass {
+    protected $data;
+    protected $f_db;
+
+    const PRIMARY_KEY = 'ad_org_id';
+    const TABLE_NAME = 'ad_orginfo';
+    const DISPLAY_NAME = '';
+    const CLASSNAME = __CLASS__;
+
+    public function __construct($id, $f_db = NULL) {
+        parent::__construct($id, $f_db);
+    }
+
+    public function get_bp() {
+        return new IntegrationOBBPartner($this->data['c_bpartner_id'], $this->f_db);
+    }
+
+}
+
 class IntegrationOBBusinessPartnerLocation extends IntegrationAbstractClass {
     protected $data;
     protected $f_db;
