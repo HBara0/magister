@@ -572,7 +572,7 @@ else {
                                     if($attendance['departure'] > 0) {
                                         $extra .= '>';
                                     }
-                                    if($attendance['deviation'] >= 0) {
+                                    if(number_format($workperc, 0) >= 100) {
                                         $day_content .= '<td style="background-color:#52D017;border-left: 1px solid #000;border-right: 1px solid #000;" >'.number_format($workperc, 0).'</br>'.$extra.'</td>';
                                     }
                                     else {
@@ -649,7 +649,7 @@ else {
                     if($curdate['week'] == 1 && $curdate['mon'] == 12) {
                         $curdate['week'] = 53;
                     }
-                    if($nextdate_details['mon'] != $curdate['mon'] || ($currentdate + 86400) >= $to) {
+                    if($nextdate_details['mon'] != $curdate['mon'] || ($currentdate + 86400) >= $to || ($currentdate + 86400) > TIME_NOW) {
                         $month_output = date('F', mktime(0, 0, 0, $curdate['mon'], 10));
                         $total_outputs['month']['actualhours'] = operation_time_value(array_sum_recursive($total['actualhours'][$curdate['year']][$curdate['mon']]));
                         $total_outputs['month']['requiredhours'] = operation_time_value(array_sum_recursive($total['requiredhours'][$curdate['year']][$curdate['mon']]));
@@ -665,6 +665,9 @@ else {
                         eval("\$attendance_report_user_month[{$curdate['mon']}] .= \"".$template->get('attendance_log_month')."\";");
                         unset($month_header, $month_header_output, $total_days, $attending_days, $weekends);
                         $attendance_report_user_week = $attendance_report_user_day = $day_content = $extra = '';
+                        if(($currentdate + 86400) > TIME_NOW) {
+                            break;
+                        }
                     }
 
 ////                elseif($prevdate_details['week'] == $curdate['week'] && $prevdate_details['mon'] != $curdate['mon']) {
