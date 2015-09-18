@@ -16,7 +16,7 @@ if(!defined('DIRECT_ACCESS')) {
 if($core->usergroup['crm_canGenerateSalesReports'] == 0) {
     error($lang->sectionnopermission);
 }
-ini_set('max_execution_time', 100);
+ini_set('max_execution_time', 0);
 $lang->load('crm_salesreport');
 if(!$core->input['action']) {
     $affiliates = Affiliates::get_affiliates(array('affid' => $core->user['affiliates']), array('returnarray' => true));
@@ -24,9 +24,9 @@ if(!$core->input['action']) {
 
     $fxtypes_selectlist = parse_selectlist('fxtype', 9, array('lastm' => $lang->lastmonthrate, 'ylast' => $lang->yearlatestrate, 'yavg' => $lang->yearaveragerate, 'mavg' => $lang->monthaveragerate, 'real' => $lang->realrate), 'mavg', 0);
 
-    $dimensions = array('suppliername' => $lang->supplier, 'customername' => $lang->customer, 'productname' => $lang->product, 'segment' => $lang->segment, 'salesrep' => $lang->employee/* ,  'wid' => $lang->warehouse */);
+    $dimensions = array('documentno' => 'Document Number', 'suppliername' => $lang->supplier, 'customername' => $lang->customer, 'productname' => $lang->product, 'segment' => $lang->segment, 'salesrep' => $lang->employee/* ,  'wid' => $lang->warehouse */);
     foreach($dimensions as $dimensionid => $dimension) {
-        $dimension_item.='<li class="ui-state-default" id='.$dimensionid.' title="Click and Hold to move the '.$dimension.'">'.$dimension.'</li>';
+        $dimension_item.='<li class = "ui-state-default" id = '.$dimensionid.' title = "Click and Hold to move the '.$dimension.'">'.$dimension.'</li>';
     }
 
     eval("\$generatepage = \"".$template->get('crm_generatesalesreport_live')."\";");
@@ -234,7 +234,7 @@ else {
                 //$monthdata = $integration->get_sales_byyearmonth($yearsummary_filter);
                 $intgdb = $integration->get_dbconn();
                 $invoicelines = new IntegrationOBInvoiceLine(null);
-                $mdata = $invoicelines->get_data_byyearmonth($yearsummary_filter, array('reportcurrency' => 'USD'));
+                $mdata = $invoicelines->get_data_byyearmonth($yearsummary_filter, array('reportcurrency' => 'USD', 'fxtype' => $core->input['fxtype']));
 
                 if(isset($core->input['generatecharts']) && $core->input['generatecharts'] == 1) {
                     $classifications = $invoicelines->get_classification($mdata, $period);
@@ -242,7 +242,7 @@ else {
 
                 $monthdata = $mdata['salerep'];
                 if(is_array($monthdata)) {
-                    $formatter = new NumberFormatter('EN_en', NumberFormatter::DECIMAL, '#.##');
+                    // $formatter = new NumberFormatter('EN_en', NumberFormatter::INTEGER_DIGITS, '#.##');
                     $percformatter = new NumberFormatter('EN_en', NumberFormatter::PERCENT);
                     $salesreport .= '<h2>Monthly Overview by BM</h2>';
                     $salesreport .= '<table width="100%" class="datatable">';
@@ -268,7 +268,7 @@ else {
                             if(!isset($currentyeardata[$i])) {
                                 $currentyeardata[$i] = 0;
                             }
-                            $salesreport .= '<td style="'.$css_styles['table-datacell'].'">'.$formatter->format($currentyeardata[$i] / 1000).'</td>';
+                            $salesreport .= '<td style="'.$css_styles['table-datacell'].'">'.number_format($currentyeardata[$i] / 1000).'</td>'; //$formatter->format($currentyeardata[$i] / 1000)
                         }
                         for($y = $current_year; $y >= ($current_year - 1); $y--) {
                             if(!is_array($salerepdata[$y])) {
@@ -278,7 +278,7 @@ else {
                                 $salerepdata[$y][$m] = $salerepdata[$y][$m] / 1000;
                                 $yearsummarytotals[$y][$m] += $salerepdata[$y][$m];
                             }
-                            $salesreport .= '<td style="'.$css_styles['table-datacell'].'">'.$formatter->format(array_sum($salerepdata[$y])).'</td>';
+                            $salesreport .= '<td style="'.$css_styles['table-datacell'].'">'.number_format(array_sum($salerepdata[$y])).'</td>'; //$formatter->format(array_sum($salerepdata[$y]))
                         }
                         $salesreport .= '</tr>';
                         if(empty($rowstyle)) {
@@ -300,7 +300,7 @@ else {
                     for($y = $current_year; $y >= ($current_year - 1); $y--) {
                         $salesreport .= '<tr style="'.$css_styles['altrow2'].'"><th>Totals ('.$y.')</th>';
                         for($i = 1; $i <= 12; $i++) {
-                            $salesreport .= '<th style="text-align: right;">'.$formatter->format($yearsummarytotals[$y][$i]).'</th>';
+                            $salesreport .= '<th style="text-align: right;">'.number_format($yearsummarytotals[$y][$i]).'</th>'; //$formatter->format
                         }
 
                         for($yy = $current_year; $yy >= ($current_year - 1); $yy--) {
@@ -311,7 +311,7 @@ else {
                             if(!is_array($yearsummarytotals[$yy])) {
                                 $yearsummarytotals[$yy][] = 0;
                             }
-                            $salesreport .= '<th style="text-align: right;">'.$formatter->format(array_sum($yearsummarytotals[$yy])).'</th>';
+                            $salesreport .= '<th style="text-align: right;">'.number_format(array_sum($yearsummarytotals[$yy])).'</th>'; //$formatter->format
                         }
                         $salesreport .= '</tr>';
                     }
@@ -347,7 +347,7 @@ else {
                         $salerep_user = Users::get_data_byattr('displayName', $salesrep->name);
                         $salesreport .= '<tr style="'.$rowstyle.'">';
                         $salesreport .= '<td>'.$salesrep->name.'</td>';
-                        $salesreport .= '<td style="text-align: right;">'.$formatter->format(array_sum($salerepdata[$current_year])).'</td>';
+                        $salesreport .= '<td style="text-align: right;">'.number_format(array_sum($salerepdata[$current_year])).'</td>'; //$formatter->format
 
                         $percentages['prevyear']['linenetamt'] = 0.10;
                         if(array_sum($salerepdata[$current_year - 1]) != 0) {
@@ -369,7 +369,7 @@ else {
                                 }
                             }
 
-                            $salesreport .= '<td style="text-align: right;">'.$formatter->format($budget_totals['amt']).'</td>';
+                            $salesreport .= '<td style="text-align: right;">'.number_format($budget_totals['amt']).'</td>'; //$formatter->format
                             $salesreport .= '<td style="text-align: right;">'.$percformatter->format($percentages['budget']['amt']).'</td>';
                         }
                         else {
