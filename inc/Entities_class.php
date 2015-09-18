@@ -1126,7 +1126,7 @@ class Entities extends AbstractClass {
     }
 
     public function is_supplier() {
-        if($this->type == 's' || $this->type == 'c') {
+        if($this->type == 's' || $this->type == 'cs') {
             return true;
         }
         return false;

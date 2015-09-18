@@ -12,6 +12,7 @@
 class Users extends AbstractClass {
     protected $data = array();
     protected $errorcode = 0;
+    protected $usergroup = array();
 
     const PRIMARY_KEY = 'uid';
     const TABLE_NAME = 'users';
@@ -57,7 +58,7 @@ class Users extends AbstractClass {
         $this->data['mainaffiliate'] = $db->fetch_field($db->query("SELECT affid FROM ".Tprefix."affiliatedemployees WHERE uid='{$this->data['uid']}' AND isMain=1"), 'affid');
     }
 
-    public function read_usergroupsperm($mainonly = false) {
+    public function read_usergroupsperm($mainonly = false, $replacecore = false) {
         global $db, $core;
 
         if($mainonly == true) {
@@ -65,22 +66,29 @@ class Users extends AbstractClass {
         }
 
         $query = $db->query('SELECT *
-							FROM '.Tprefix.'users_usergroups uug
-							JOIN '.Tprefix.'usergroups ug ON (ug.gid=uug.gid)
-							WHERE uid='.$this->data['uid'].$query_extrawhere.'
-							ORDER BY isMain DESC');
+                            FROM '.Tprefix.'users_usergroups uug
+                            JOIN '.Tprefix.'usergroups ug ON (ug.gid=uug.gid)
+                            WHERE uid='.$this->data['uid'].$query_extrawhere.'
+                            ORDER BY isMain DESC');
         while($usergroup = $db->fetch_assoc($query)) {
             if($usergroup['isMain'] != 1) {
                 unset($usergroup['title'], $usergroup['gid'], $usergroup['defaultModule']);
             }
             else {
-                $core->usergroup = $usergroup;
-                $core->user['gid'] = $usergroup['gid'];
+                if($replacecore == true) {
+                    $core->usergroup = $usergroup;
+                    $core->user['gid'] = $usergroup['gid'];
+                }
             }
 
             foreach($usergroup as $permission => $value) {
-                if($core->usergroup[$permission] == 0 && $value == 1) {
-                    $core->usergroup[$permission] = 1;
+                if($replacecore == true) {
+                    if($core->usergroup[$permission] == 0 && $value == 1) {
+                        $core->usergroup[$permission] = 1;
+                    }
+                }
+                if($this->usergroup[$permission] == 0 && $value == 1) {
+                    $this->usergroup[$permission] = 1;
                 }
             }
         }
@@ -627,12 +635,12 @@ class Users extends AbstractClass {
 
     /**
      * Return all permissions that apply to this user taking into consideration all different assignment types
-     * @global type $cache
+     * @global Cache    $cache
      * @return array    Related permissions
      */
     public function get_businesspermissions() {
         global $cache;
-        $usergroupsperm = $this->read_usergroupsperm();
+        $this->read_usergroupsperm();
 
         $affemployees = AffiliatedEmployees::get_data(array('uid' => $this->uid), array('returnarray' => true));
         $assignedemployees = AssignedEmployees::get_data(array('uid' => $this->uid), array('returnarray' => true));
@@ -640,7 +648,11 @@ class Users extends AbstractClass {
         $supplieraudits = SupplierAudits::get_data(array('uid' => $this->uid), array('returnarray' => true));
         $reportingusers = Users::get_users(array('reportsTo' => $this->uid), array('returnarray' => true));
 
-        $permissions = array('pid' => array(), 'uid' => array($this->uid), 'affid' => array($this->get_mainaffiliate()->get_id()));
+        /**
+         * Default set of permissions
+         * Empty arrays are left on purpose
+         */
+        $permissions = array('spid' => array(), 'cid' => array(), 'eid' => array(), 'psid' => array(), 'pid' => array(), 'uid' => array($this->uid), 'affid' => array($this->get_mainaffiliate()->get_id()));
 
         foreach($affemployees as $affemployee) {
             $affiliate = $affemployee->get_affiliate();
@@ -653,11 +665,15 @@ class Users extends AbstractClass {
 
                         $permissions['eid'][] = $entity->get_id();
                         if($entity->is_supplier()) {
+                            $permissions['spid'][] = $entity->get_id();
                             $products = Products::get_data(array('spid' => $entity->get_id()), array('returnarray' => true));
                             $cache->add('entityproducts', $products, $entity->get_id());
                             if(is_array($entity)) {
                                 $permissions['pid'] = array_keys($products);
                             }
+                        }
+                        else {
+                            $permissions['cid'][] = $entity->get_id();
                         }
                     }
                 }
@@ -685,6 +701,7 @@ class Users extends AbstractClass {
                 }
 
                 $permissions['eid'][] = $entity->get_id();
+                $permissions['spid'][] = $entity->get_id();
 
                 if(!$cache->iscached('entity', $audit->{Entities::PRIMARY_KEY})) {
                     $products = Products::get_data(array('spid' => $entity->get_id()), array('returnarray' => true));
@@ -723,7 +740,7 @@ class Users extends AbstractClass {
                     $cache->add('application', $application, $application->get_id());
 
                     $segappfuncs = $application->get_segappfunctionsobjs();
-                    if(is_array($segappfuncs)) {
+                    if(!is_array($segappfuncs)) {
                         continue;
                     }
                     $chemfunprods = ChemFunctionProducts::get_data(array('safid' => array_keys($segappfuncs)), array('returnarray' => true));
@@ -736,7 +753,6 @@ class Users extends AbstractClass {
                 }
             }
 
-            echo $segment->get_id();
             $employeesegments = EmployeeSegments::get_data(array('psid' => $segment->get_id()), array('returnarray' => true));
             if(is_array($employeesegments)) {
                 foreach($employeesegments as $employeesegment) {
@@ -758,8 +774,13 @@ class Users extends AbstractClass {
             else {
                 $entity = $cache->get_cachedval('entity', $assignedemployee->{Entities::PRIMARY_KEY});
             }
-
             $permissions['eid'][] = $entity->get_id();
+            if($entity->is_supplier()) {
+                $permissions['spid'][] = $entity->get_id();
+            }
+            else {
+                $permissions['cid'][] = $entity->get_id();
+            }
         }
 
         /* Set users who report to the user */
@@ -774,15 +795,28 @@ class Users extends AbstractClass {
             }
         }
 
-        if($usergroupsperm['canViewAllAff']) {
+        /**
+         * If a permission has no value then it means the user has not been assigned to any
+         * system therefore, zero out the value to avoid it being consider as having all permissions
+         */
+        foreach($permissions as $key => $perm) {
+            if(empty($permissions[$key])) {
+                $permissions[$key] = array(0);
+            }
+        }
+
+        /**
+         * If user has global permission, remove the permissions values
+         */
+        if($this->usergroup['canViewAllAff'] == 1) {
             unset($permissions['affid']);
         }
 
-        if($usergroupsperm['canViewAllSupp']) {
-            // unset($permissions['eid']);
+        if($this->usergroup['canViewAllSupp'] == 1) {
+            unset($permissions['spid']);
         }
-        if($usergroupsperm['canViewAllCust']) {
-            //unset($permissions['eid']);
+        if($this->usergroup['canViewAllCust'] == 1) {
+            unset($permissions['cid']);
         }
 
         return $permissions;
