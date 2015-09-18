@@ -162,4 +162,11 @@ $lang['earlyandlate'] = 'Arrived Early And Left Late';
 $lang['employeename'] = 'Employee Name';
 $lang['capstotal'] = 'TOTAL';
 $lang['capstotalhour'] = 'TOTAL HOURS';
+$lang['createautoresp'] = 'Create Auto Responder';
+$lang['holiday'] = 'Holiday';
+$lang['weekend'] = 'Week End';
+$lang['leave'] = 'Leave';
+$lang['emailbody'] = 'Email Body';
+$lang['subject'] = 'Subject';
+$lang['autorespifemptybody'] = 'If body is empty original message will contain your leave durtion, contact person selected above and wether you have limited email access';
 ?>

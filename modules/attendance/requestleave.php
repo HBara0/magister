@@ -119,6 +119,8 @@ if(!$core->input['action']) {
             $userown_leaves.='<option value="'.$userleave['lid'].'">'.$userleave['leavetype'].' - '.$userleave['origincity'].' - '.$userleave['from'].'-'.$userleave['to'].' </option>';
         }
     }
+    $autoresp_show = 'style="display:none"';
+    $autoresp_disabled = 'disabled="disabled"';
     eval("\$requestleavepage = \"".$template->get('attendance_requestleave')."\";");
     output_page($requestleavepage);
 }
@@ -693,7 +695,10 @@ else {
                 if(!is_array($mailingLists) || empty($mailingLists)) {
                     $mailingLists = $to;
                 }
-
+                $main_affiliate = new affiliates($core->user['mainaffiliate']);
+                if(is_object($main_affiliate) && !empty($main_affiliate->cpAccount) && $leave_obj->createAutoResp = 1) {
+                    $leave_obj->create_autoresponder();
+                }
                 $email_data = array(
                         'from_email' => 'attendance@ocos.orkila.com',
                         'from' => 'Orkila Attendance System',

@@ -111,10 +111,12 @@
                         $('#purchasingEntity_' + id[1]).val(saletypespurchase[salestype]);
                     }
                 });
+
                 $("input[type='checkbox'][id$='_unspecifiedCustomer']").live('change', function () {
                     var id = $(this).attr("id").split("_");
                     $("div[id$='" + id[1] + "_unspecifiedCustomer_country']").slideToggle();
                 });
+
                 $(document).on('keyup', 'input[data-max]', function () {
                     if($(this).attr('data-max') > 0 && $(this).val() > parseFloat($(this).attr('data-max'))) {
                         $("#alert_" + $(this).attr('data-rowid')).text($('input[id="errormessage"]').val() + $(this).attr('data-name'));
@@ -123,17 +125,21 @@
                         $("#alert_" + $(this).attr('data-rowid')).text("");
                         $(this).removeClass("warning");
                     }
-                $(document).on('change', 'input[data-month]', function () {
+                });
+
+                $(document).on('keyup', 'input[data-month]', function () {
                     var total = 0;
                     $('input[data-month="' + $(this).attr('data-month') + '"]').each(function (i, obj) {
                         total += parseFloat($(obj).val());
+                        $(obj).removeClass("warning");
                     });
-                    if(total > 101 || total < 99) {
+                    if(Math.ceil(total) != 100) {
                         $('span[id="alertpercentage_' + $(this).attr('data-month') + '"]').text('{$lang->alertpercentagesnotmatching}');
+                        $(this).addClass("warning");
                     }
                     else {
                         $('span[id="alertpercentage_' + $(this).attr('data-month') + '"]').text('');
-
+                        $(this).removeClass("warning");
                     }
                 });
             });</script>

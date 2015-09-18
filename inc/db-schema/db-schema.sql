@@ -81,6 +81,7 @@ CREATE TABLE `affiliates` (
   `chartSpec` varchar(250) DEFAULT NULL,
   `isActive` tinyint(1) NOT NULL DEFAULT '1',
   `brandingColor` varchar(6) NOT NULL,
+  `cpAccount` varchar(10) NOT NULL,
   PRIMARY KEY (`affid`),
   KEY `name` (`name`),
   KEY `generalManager` (`generalManager`,`supervisor`,`hrManager`),
@@ -2305,13 +2306,16 @@ CREATE TABLE `leaves` (
   `psid` int(10) NOT NULL,
   `destinationCity` int(10) NOT NULL,
   `sourceCity` int(10) NOT NULL,
+  `createAutoResp` tinyint(1) NOT NULL,
+  `autoRespSubject` varchar(200) NOT NULL,
+  `autoRespBody` text NOT NULL,
   PRIMARY KEY (`lid`),
   KEY `uid` (`uid`),
   KEY `type` (`type`),
   KEY `contactPerson` (`contactPerson`),
   KEY `coid` (`coid`),
   KEY `kiid` (`kiid`)
-) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=27 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `leaves_messages`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
