@@ -118,10 +118,11 @@
                 $(document).on('keyup', 'input[data-max]', function () {
                     if($(this).attr('data-max') > 0 && $(this).val() > parseFloat($(this).attr('data-max'))) {
                         $("#alert_" + $(this).attr('data-rowid')).text($('input[id="errormessage"]').val() + $(this).attr('data-name'));
+                        $(this).addClass("warning");
                     } else {
                         $("#alert_" + $(this).attr('data-rowid')).text("");
+                        $(this).removeClass("warning");
                     }
-                    ;
                 });
             });</script>
     </head>
