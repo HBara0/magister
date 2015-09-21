@@ -44,22 +44,24 @@ else {
 //            }
 //        }
 //        $affiliates = Affiliates::get_affiliates(array('affid' => $affiliates_where, 'integrationOBOrgId' => 'integrationOBOrgId IS NOT NULL'), array('operators' => array('integrationOBOrgId' => 'CUSTOMSQL', 'affid' => 'CUSTOMSQL')));
-//        if(isset($core->input['affs'])) {
-//            $core->input['affs'] = explode(",", $core->input['affs']);
-//            if(is_array($core->input['affs'])) {
-//                $core->input['affs'] = implode("','", $core->input['affs']);
-//            }
-//            $affiliates_where = "(name IN ('".$core->input['affs']."'))";
-//            $affiliates = Affiliates::get_affiliates(array('name' => $affiliates_where, 'integrationOBOrgId' => 'integrationOBOrgId IS NOT NULL'), array('operators' => array('integrationOBOrgId' => 'CUSTOMSQL', 'name' => 'CUSTOMSQLSECURE')));
-//        }
+        if(isset($core->input['affs'])) {
+            $core->input['affs'] = explode(",", $core->input['affs']);
+            if(is_array($core->input['affs'])) {
+                $core->input['affs'] = implode("','", $core->input['affs']);
+            }
+            $affiliates_where = "(name IN ('".$core->input['affs']."'))";
+            $affiliates = Affiliates::get_affiliates(array('name' => $affiliates_where, 'integrationOBOrgId' => 'integrationOBOrgId IS NOT NULL'), array('operators' => array('integrationOBOrgId' => 'CUSTOMSQL', 'name' => 'CUSTOMSQLSECURE')));
+            $extrafilters['affid'] = $affiliates;
+        }
 //
 //        $orgs = array_map(function ($value) {
 //            return $value->integrationOBOrgId;
 //        }, $affiliates);
-
-        if(isset($core->input['affs'])) {
-            $extrafilters['affid'] = $core->input['affs'];
-        }
+//        if(isset($core->input['affs'])) {
+//            $core->input['affs'] = explode(",", $core->input['affs']);
+//
+//            $extrafilters['affid'] = $core->input['affs'];
+//        }
         $where = get_permissions($intgdb, $extrafilters);
         $sql = "SELECT SUM(totallines) AS totallines, date_part('month', dateinvoiced) AS month, date_part('year', dateinvoiced) AS year, c_currency_id "
                 ."FROM c_invoice "
@@ -140,6 +142,7 @@ else {
             }
             $affiliates_where = "(name IN ('".$core->input['affs']."'))";
             $affiliates = Affiliates::get_affiliates(array('name' => $affiliates_where, 'integrationOBOrgId' => 'integrationOBOrgId IS NOT NULL'), array('operators' => array('integrationOBOrgId' => 'CUSTOMSQL', 'name' => 'CUSTOMSQLSECURE')));
+            $extrafilters['affid'] = $affiliates;
         }
         $orgs = array_map(function ($value) {
             return $value->integrationOBOrgId;
@@ -184,16 +187,13 @@ else {
             }
             $affiliates_where = "(name IN ('".$core->input['affs']."'))";
             $affiliates = Affiliates::get_affiliates(array('name' => $affiliates_where, 'integrationOBOrgId' => 'integrationOBOrgId IS NOT NULL'), array('operators' => array('integrationOBOrgId' => 'CUSTOMSQL', 'name' => 'CUSTOMSQLSECURE')));
+            $extrafilters['affid'] = $affiliates;
         }
 
         $orgs = array_map(function ($value) {
             return $value->integrationOBOrgId;
         }, $affiliates);
 
-
-        if(isset($core->input['affs'])) {
-            $extrafilters['affid'] = $core->input['affs'];
-        }
         $where = get_permissions($intgdb, $extrafilters);
         $sales = $lines->get_totallines($where);
         $filteredaffiliates = $affiliates;
@@ -277,7 +277,12 @@ function get_permissions($intgdb, $extrafilters) {
             switch($type) {
                 case 'affid':
                     $configs['operators']['integrationOBOrgId'] = 'CUSTOMSQL';
-                    $affiliates = Affiliates::get_affiliates(array($type => $where, 'integrationOBOrgId' => 'integrationOBOrgId IS NOT NULL'), $configs);
+                    if(isset($extrafilters[$type]) && !empty($extrafilters[$type])) {
+                        $affiliates = $extrafilters[$type];
+                    }
+                    else {
+                        $affiliates = Affiliates::get_affiliates(array($type => $where, 'integrationOBOrgId' => 'integrationOBOrgId IS NOT NULL'), $configs);
+                    }
                     foreach($affiliates as $affiliate) {
                         $filters[$type][] = "'".$affiliate->integrationOBOrgId."'";
                     }
