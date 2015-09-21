@@ -7,12 +7,12 @@
                 <td></td>
                 <td class="subtitle"> <input type="text" class="subtitle" id="ordersummary_col1_title" value="{$aroordersummary->firstpartytitle}"/>{$firstparty_title}</td>
                 <td class="subtitle"> <input type="text" class="subtitle" id="ordersummary_col2_title" value="{$aroordersummary->secondpartytitle}"/>{$secondparty_title}</td>
-                <td class="subtitle" id="ordersummary_thirdparty_1" {$ordersummary[thirdcolumn_display]}> <input type="text" class="subtitle" id="ordersummary_col3_title" value="{$aroordersummary->thirdpartytitle}"/>{$thirdparty_title}</td>
+                <td class="subtitle" id="ordersummary_thirdparty_1" {$ordersummarydisplay[thirdcolumn_display]}> <input type="text" class="subtitle" id="ordersummary_col3_title" value="{$aroordersummary->thirdpartytitle}"/>{$thirdparty_title}</td>
             </tr>
             <tr><td></td>
                 <td class="subtitle"><input type="text" id="ordersummary_intermedaff" style="width:150px;" readonly value="{$firstparty}"></span></td>
                 <td class="subtitle"><input type="text" id="ordersummary_2ndparty" style="width:150px;" readonly value="{$secondparty}"></span></td>
-                <td class="subtitle" id="ordersummary_thirdparty_2" {$ordersummary[thirdcolumn_display]}><input type="text" id="ordersummary_3rdparty" style="width:150px;" readonly value="{$thirdparty}"></span>
+                <td class="subtitle" id="ordersummary_thirdparty_2" {$ordersummarydisplay[thirdcolumn_display]}><input type="text" id="ordersummary_3rdparty" style="width:150px;" readonly value="{$thirdparty}"></span>
                     <input type="hidden" value="" id="haveThirdParty"/></td>
 
             </tr>
@@ -41,7 +41,7 @@
                 <td><input type="text" id="ordersummary_netmargin_intermed" name="ordersummary[netmarginIntermed]" value="{$aroordersummary->netmarginIntermed}" style="width:150px;" readonly="readonly"/> </td>
                 <td><input type="text" id="ordersummary_netmargin_local" name="ordersummary[netmarginLocal]" value="{$aroordersummary->netmarginLocal}" style="width:150px;" readonly="readonly"/> </td>
                 <!-- <td id="ordersummary_thirdparty_3"><input type="text" id="ordersummary_invoicevalue_thirdparty" value="" style="width:150px;" disabled="disabled"/> </td>-->
-                <td id="ordersummary_thirdparty_4" {$ordersummary[thirdcolumn_display]}><input type="text" id="ordersummary_invoicevalueusd_thirdparty" name="ordersummary[invoiceValueThirdParty]" value="{$aroordersummary->invoiceValueThirdParty}" style="width:150px;" readonly="readonly"/> </td>
+                <td id="ordersummary_thirdparty_4" {$ordersummarydisplay[thirdcolumn_display]}><input type="text" id="ordersummary_invoicevalueusd_thirdparty" name="ordersummary[invoiceValueThirdParty]" value="{$aroordersummary->invoiceValueThirdParty}" style="width:150px;" readonly="readonly"/> </td>
             </tr>
             <tr>
                 <td>{$lang->total} {$lang->netmarginperc}</td>

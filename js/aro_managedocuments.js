@@ -14,18 +14,14 @@ $(function() {
         return false;
     }).next().hide();
     //--------------------------------------------------------------
-
-
-    setTimeout(function() {
-        $("input[id='ordersummary_btn']").trigger("click");
-        $("input[id$='_netMargin']").trigger("change");
-    }, 10);
+//    setTimeout(function() {
+//        $("input[id='ordersummary_btn']").trigger("click");
+//        $("input[id$='_netMargin']").trigger("change");
+//    }, 0);
 
     if(typeof getUrlParameter('referrer') !== 'undefined') {
         if(getUrlParameter('referrer') == 'toapprove' || getUrlParameter('referrer') == 'toapprove#' || (myUrl.substring(myUrl.length - 1) == '#' && getUrlParameter('referrer') == 'toapprove')) {
-            // function() {
             $("form[id='perform_aro/managearodouments_Form'] :input:not([id^='approvearo'])").attr("disabled", true);
-            // });
         }
     }
 
@@ -52,7 +48,10 @@ $(function() {
     }
 ///------------------------
     $("input[id='approvearo']").click(function() {
-        sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=approvearo&id=' + $("input[id='approvearo_id']").val());
+        var url = window.location.href;
+        sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=approvearo&id=' + $("input[id='approvearo_id']").val(), function() {
+            window.location.href = url;
+        });
     });
     /*-----------------------------------------------------------
      On change of affid Or purchase type document number, Affiliate policy , approval chain, default aff policy
@@ -185,7 +184,7 @@ $(function() {
 //            }
 //        });
     });
-    //-----------------Populate intermediary affiliate policy-----------------------------//
+//-----------------Populate intermediary affiliate policy-----------------------------//
     $("select[id='partiesinfo_intermed_aff']").live('change', function() {
         var ptid = $("select[id='purchasetype']").val();
         var intermedAff = $("select[id='partiesinfo_intermed_aff']").val();
@@ -196,8 +195,8 @@ $(function() {
 //            $("input[id$='_intialPrice']").trigger("change");
 //        }, 2000);
     });
-    //------------------------------------------------------------------------------------//
-    //-----------------Get Exchang Rate  -------------------------------------------------//
+//------------------------------------------------------------------------------------//
+//-----------------Get Exchang Rate  -------------------------------------------------//
     $("#currencies").live('change', function() {
         sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=getexchangerate&currency=' + $(this).val(), function(json) {
             if(json == null) {
@@ -213,8 +212,8 @@ $(function() {
             }
         });
     });
-    //------------------------------------------------------------------------------------//
-    //-------------------Get Warehouse policy parms---------------------------------------//
+//------------------------------------------------------------------------------------//
+//-------------------Get Warehouse policy parms---------------------------------------//
     $("#parmsfornetmargin_warehouse").live('change', function() {
         var warehouse = $(this).val();
         var ptid = $("#purchasetype").val();
@@ -238,8 +237,8 @@ $(function() {
             });
         }
     });
-    //------------------------------------------------------------------------------------//
-    // If Inco terms are different between intermediary and vendor, freight is mandatory
+//------------------------------------------------------------------------------------//
+// If Inco terms are different between intermediary and vendor, freight is mandatory
     $("select[id='partiesinfo_intermed_incoterms'],select[id='partiesinfo_vendor_incoterms']").live('change', function() {
         $("input[id='partiesinfo_freight']").removeAttr("required");
         if($("select[id='partiesinfo_intermed_incoterms']").val() !== '' && $("select[id='partiesinfo_vendor_incoterms']").val() !== '') {
@@ -248,9 +247,9 @@ $(function() {
             }
         }
     });
-    //----------------------------------------------------------------------------------------------------------------------------//
-    //--------------Populate dates of PartiepickDate_estDateOfShipments Information----------------------------//
-    //Trigger(s): 10A, 7, 6, 11
+//----------------------------------------------------------------------------------------------------------------------------//
+//--------------Populate dates of PartiepickDate_estDateOfShipments Information----------------------------//
+//Trigger(s): 10A, 7, 6, 11
     $("input[id='pickDate_estDateOfShipment'],select[id='partiesinfo_intermed_paymentterm'],select[id='partiesinfo_vendor_paymentterm'],input[id='partiesinfo_intermed_ptAcceptableMargin'],#ordersummary_invoicevalue_local").live('change', function() {
         var estDateOfShipment = $("input[id='pickDate_estDateOfShipment']").val();
         var ptAcceptableMargin = $("input[id='partiesinfo_intermed_ptAcceptableMargin']").val();
@@ -294,13 +293,13 @@ $(function() {
             });
         }
     });
-    //----------------------------------------------------------------------------------------------------------------------------//
-    //-------------on change of est date of sales (actual purchase) Trigger est. local invoice date------------------
+//----------------------------------------------------------------------------------------------------------------------------//
+//-------------on change of est date of sales (actual purchase) Trigger est. local invoice date------------------
     $("input[id^='pickDate_sale_']").live('change', function() {
         $("select[id^='paymentermdays_']").trigger('change');
     });
-    //-------------------------------------
-    //-------------------------------------------------------------------------------------//
+//-------------------------------------
+//-------------------------------------------------------------------------------------//
     $("select[id^='paymentermdays_']").live('change', function() {
         var parentContainer = $(this).closest('div');
         var paymentdays = [];
@@ -325,7 +324,7 @@ $(function() {
             // $("select[id='partiesinfo_intermed_paymentterm']").trigger('change');
         });
     });
-    //-------------------------------------------------------------------------------------//
+//-------------------------------------------------------------------------------------//
 
     $("input[id='pickDate_estDateOfShipment'],input[id='partiesinfo_transitTime'],input[id='partiesinfo_clearanceTime']").live('change', function() {
         var transitTime = $("input[id='partiesinfo_transitTime']").val();
@@ -346,8 +345,8 @@ $(function() {
             sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populateactualpurchase_stockentrydate' + attr + '&rowid=' + id[2]);
         });
     });
-    //-------------------------------------------------------------------------------------//
-    //Calculate order summary  local interest value
+//-------------------------------------------------------------------------------------//
+//Calculate order summary  local interest value
 //    $("input[id$='_affBuyingPrice']").live('change', function () {
 //        var invoicevalue_local = invoicevalue_local_RIC = 0;
 //        $("tbody[id^='productline_']").find($("input[id$='_affBuyingPrice']")).each(function () {
@@ -366,7 +365,7 @@ $(function() {
 //        $("select[id='partiesinfo_intermed_paymentterm']").trigger("change");
 //    });
 
-    //Trigger(s): 21
+//Trigger(s): 21
     var actualpurchaselines_tr;
     $("input[id$='_netMargin'],input[id$='_grossMarginAtRiskRatio']").live('change', function() {
         var invoicevalue_local = invoicevalue_local_RIC = grossMarginAtRiskRatio = 0;
@@ -392,7 +391,7 @@ $(function() {
         });
 
     });
-    //------------------------------------------//
+//------------------------------------------//
     $("input[id$='freight'],input[id$='bankFees'],input[id$='insurance'],input[id$='legalization'],input[id$='courier'],input[id$='otherFees']").bind('change', function() {
         var total = 0;
         $("input[id$='freight'],input[id$='bankFees'],input[id$='insurance'],input[id$='legalization'],input[id$='courier'],input[id$='otherFees']").each(function() {
@@ -410,9 +409,9 @@ $(function() {
 //            $("input[id='ordersummary_btn']").trigger("click");
 //        }, 2000);
     });
-    //------------------------------------------//
-    //-------------Disable qtyPotentiallySold if daysInStock=0 ------------------*/
-    // Trigger(s): 14
+//------------------------------------------//
+//-------------Disable qtyPotentiallySold if daysInStock=0 ------------------*/
+// Trigger(s): 14
 //    $("input[id$='_daysInStock']").live('change keyup', function() {
 //        var id = $(this).attr('id').split("_");
 //        $("input[id='productline_" + id[1] + "_qtyPotentiallySold']").removeAttr("readonly");
@@ -421,8 +420,8 @@ $(function() {
 //            $("input[id='productline_" + id[1] + "_qtyPotentiallySold']").attr("readonly", "true");
 //        }
 //    });
-    //---------------------------------------------------------------------------//
-    //------Form Submitting after 30 seconds--------------//
+//---------------------------------------------------------------------------//
+//------Form Submitting after 30 seconds--------------//
 //    var auto_refresh = setInterval(function() {
 //        submitform();
 //    }, 30000);
@@ -430,8 +429,8 @@ $(function() {
         $("input[id^='perform_'][id$='_Button']").trigger("click");
     }
 //---------------------------------------------------//
-    //-------------If Vendor is affiliate, such select affiliate not entity and Disable  intermediary section----------------------//
-    //Trigger Intermediary Aff Policy
+//-------------If Vendor is affiliate, such select affiliate not entity and Disable  intermediary section----------------------//
+//Trigger Intermediary Aff Policy
     $("input[id='vendor_isaffiliate']").change(function() {
         $("td[id='vendor_affiliate']").css("display", "none");
         $("input[id='supplier_1_autocomplete']").attr('value', '');
@@ -463,9 +462,9 @@ $(function() {
         }
         $("select[id='partiesinfo_intermed_aff']").trigger("change");
     });
-    //----------------------------------------------------------------------------------------------------------------------------//
+//----------------------------------------------------------------------------------------------------------------------------//
 
-    //Trigger(s): 20A - 20B
+//Trigger(s): 20A - 20B
     $("#partiesinfo_totalfees,input[id='partiesinfo_totaldiscount'],select[id^='productline_'][id$='_uom'],input[id^='productline_'][id$='_quantity'],input[id^='productline_'][id$='_intialPrice']").live('change', function() {
         var field_id = $(this).attr('id').split('_');
         if($(this).attr('id') != 'partiesinfo_totalfees') {
@@ -518,7 +517,7 @@ $(function() {
 //        });
 //    });
 
-    // Trigger(s): 16A - 16B - 16C ///input[id$="_intialPrice"] //#partiesinfo_commission
+// Trigger(s): 16A - 16B - 16C ///input[id$="_intialPrice"] //#partiesinfo_commission
     $('#ordersummary_unitfee').live('change', function() {
         var attrs = '';
         $("tbody[id^='productline_']").find($("select[id$='_uom']")).each(function() {
@@ -550,7 +549,7 @@ $(function() {
         });
     });
     var fields_array = ["quantity", "qtyPotentiallySold", "intialPrice", "costPrice", "sellingPrice", "daysInStock"];
-    // Trigger(s): 15A, 15B, 19, 18A
+// Trigger(s): 15A, 15B, 19, 18A
     $("input[id^='productline_'][id$='_quantity'],input[id^='productline_'][id$='_qtyPotentiallySold'],input[id^='productline_'][id$='_costPrice'],input[id$='_sellingPrice']").live('change', function() {
         /*TEST*/
         var id = $(this).attr('id').split("_");
@@ -632,7 +631,7 @@ $(function() {
 //
 //    });
 
-    //needs optimization (loop through array for fields
+//needs optimization (loop through array for fields
     $("input[id='ordersummary_btn']").click(function() {
         var totalfees = $('input[id=partiesinfo_totalfees]').val();
         var exchangeRateToUSD = $("#exchangeRateToUSD").val();
@@ -710,7 +709,7 @@ $(function() {
         });
 
     });
-    //---------------------------------------
+//---------------------------------------
     $("input[id='unitfee_btn']").click(function() {
         var totalfeespaidbyintermed = $('input[id=partiesinfo_totalfees]').val();
         var totalquantity = {};
@@ -759,7 +758,7 @@ $(function() {
             $("input[id='ordersummary_unitfee']").trigger("change");
         });
     });
-    //------------Total Funds Engaged-------
+//------------Total Funds Engaged-------
     $("input[id^='totalfunds_']").live('change', function() {
         var totalfunds = 0;
         $("input[id$='_orderShpInvOverdue'],input[id$='_orderShpInvNotDue'],input[id$='_ordersAppAwaitingShp'],input[id$='_odersWaitingApproval']").each(function() {
@@ -773,7 +772,7 @@ $(function() {
 
 
 
-    //--------------------------------------------------
+//--------------------------------------------------
     $("input[id='user_0_autocomplete']").live('change', function() {
         var bmid = $("input[id='user_0_id']").val();
         if(typeof bmid != 'undefined' && bmid.length > 0) {
@@ -797,11 +796,10 @@ $(function() {
         }
     });
 
-    //---------------------------------------------------------------
+//---------------------------------------------------------------
     $("input[id='partiesinfo_commission']").live('keyup', function() {
         $("input[id='partiesinfo_defaultcommission']").val($("input[id='partiesinfo_commission']").val());
     });
-
 });
 var rowid = '';
 function addactualpurchaserow(id, callback) {

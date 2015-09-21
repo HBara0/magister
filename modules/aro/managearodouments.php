@@ -442,27 +442,29 @@ if(!($core->input['action'])) {
             if(is_object($aropartiesinfo_obj)) {
                 $intermedaffiliate = Affiliates::get_affiliates(array('affid' => $aropartiesinfo_obj->intermedAff));
             }
-            $ordersummary['thirdcolumn_display'] = "style='display:none;'";
-            $firstparty = '-';
-            $aroordersummary->firstpartytitle = $lang->intermediary;
+            $ordersummarydisplay['thirdcolumn_display'] = "style='display:none;'";
+            if(is_object($aroordersummary)) {
+                $firstparty = '-';
+                $aroordersummary->firstpartytitle = $lang->intermediary;
 
-            if(is_object($intermedaffiliate)) {
-                $firstparty = $intermedaffiliate->get_displayname();
-            }
-            $secondparty = $localaff->get_displayname();
-            $aroordersummary->secondpartytitle = $lang->local;
-            $aroordersummary->thirdpartytitle = '';
-            if(is_object($purchaseype) && $purchaseype->isPurchasedByEndUser == 1) {
-                $aroordersummary->secondpartytitle = $lang->customer;
-                $ordersummarycustomer = AroOrderCustomers::get_data(array('aorid' => $aroorderrequest->aorid));
-                if(is_object($ordersummarycustomer)) {
-                    $customer_obj = new Customers($ordersummarycustomer->cid);
-                    $secondparty = $customer_obj->get_displayname();
+                if(is_object($intermedaffiliate)) {
+                    $firstparty = $intermedaffiliate->get_displayname();
                 }
-                if(isset($aroordersummary->invoiceValueThirdParty) && !empty($aroordersummary->invoiceValueThirdParty)) {
-                    $aroordersummary->thirdpartytitle = $lang->local;
-                    $thirdparty = $localaff->get_displayname();
-                    $ordersummary['thirdcolumn_display'] = "style='display:block;'";
+                $secondparty = $localaff->get_displayname();
+                $aroordersummary->secondpartytitle = $lang->local;
+                $aroordersummary->thirdpartytitle = '';
+                if(is_object($purchaseype) && $purchaseype->isPurchasedByEndUser == 1) {
+                    $aroordersummary->secondpartytitle = $lang->customer;
+                    $ordersummarycustomer = AroOrderCustomers::get_data(array('aorid' => $aroorderrequest->aorid));
+                    if(is_object($ordersummarycustomer)) {
+                        $customer_obj = new Customers($ordersummarycustomer->cid);
+                        $secondparty = $customer_obj->get_displayname();
+                    }
+                    if(isset($aroordersummary->invoiceValueThirdParty) && !empty($aroordersummary->invoiceValueThirdParty)) {
+                        $aroordersummary->thirdpartytitle = $lang->local;
+                        $thirdparty = $localaff->get_displayname();
+                        $ordersummarydisplay['thirdcolumn_display'] = "style='display:block;'";
+                    }
                 }
             }
         }
@@ -1158,7 +1160,6 @@ else {
                 $user = new Users($core->user['uid']);
                 $approve = $arorequest->approve($user);
                 if($approve) {
-                    output("Successfully Approved");
                     $arorequest->inform_nextapprover();
                 }
                 if($arorequest->is_approved()) {
@@ -1167,7 +1168,6 @@ else {
                 }
             }
         }
-        echo json_encode(null);
     }
 
     if($core->input['action'] == 'takeactionpage') {

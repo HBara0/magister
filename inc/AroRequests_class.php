@@ -198,7 +198,7 @@ class AroRequests extends AbstractClass {
             $ordesummary_obj->save();
 
             $data['approvalchain']['aroBusinessManager'] = $orderrequest_array['aroBusinessManager'];
-            $this->create_approvalchain(nuAroOrderSummaryll, $data['approvalchain']);
+            $this->create_approvalchain(null, $data['approvalchain']);
             $approvers_objs = $this->get_approvers();
 //            if(is_array($approvers_objs)) {
 //                foreach($approvers_objs as $approver) {
