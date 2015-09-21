@@ -169,4 +169,5 @@ $lang['leave'] = 'Leave';
 $lang['emailbody'] = 'Email Body';
 $lang['subject'] = 'Subject';
 $lang['autorespifemptybody'] = 'If body is empty original message will contain your leave durtion, contact person selected above and wether you have limited email access';
+$lang['unpaidleave'] = 'Unpaid Leave';
 ?>

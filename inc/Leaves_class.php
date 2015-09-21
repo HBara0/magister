@@ -791,6 +791,14 @@ class Leaves extends AbstractClass {
             $xmlapi = $apiconnect->get_xmlapi();
             try {
                 $user = $this->get_user();
+                $main_aff = $user->get_mainaffiliate();
+                if(!is_object($main_aff) || empty($main_aff->affid)) {
+                    return FALSE;
+                }
+                if(empty($main_aff->cpAccount)) {
+                    return FALSE;
+                }
+                $cpaccount = $main_aff->cpAccount;
                 $subject = 'Auto Responder: ';
                 if(!is_empty($this->autoRespSubject)) {
                     $subject = 'Auto Responder: '.$this->autoRespSubject;
@@ -809,7 +817,7 @@ class Leaves extends AbstractClass {
                     }
                 }
                 $args = array($user->email, $user->displayName, $subject, $message, explode('@', $user->email)[1], true, "utf-8", 8, $this->fromDate, $this->toDate);
-                return $xmlapi->api1_query('orkila', 'Email', 'addautoresponder', $args);
+                return $xmlapi->api1_query($cpaccount, 'Email', 'addautoresponder', $args);
             }
             catch(Exception $ex) {
                 return $ex;
