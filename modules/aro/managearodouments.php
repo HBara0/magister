@@ -981,7 +981,7 @@ else {
                 'ordersummary_totalintermedfees_usd' => $feeperunit_usdarray,
                 'ordersummary_invoicevalue_intermed' => round($invoicevalueintermed, 2),
                 'ordersummary_invoicevalueusd_intermed' => round($invoicevalueintermed_usd, 2),
-                'ordersummary_invoicevalue_thirdparty' => round($invoicevalue_thirdparty, 2),
+                //  'ordersummary_invoicevalue_thirdparty' => round($invoicevalue_thirdparty, 2),
                 'ordersummary_invoicevalueusd_thirdparty' => round($invoicevalue_thirdparty_usd, 2),
                 //   'ordersummary_invoicevalue_local' => round($localinvoicevalue, 2),
 //   'ordersummary_invoicevalueusd_local' => round($localinvoicevalue_usd, 2),

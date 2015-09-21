@@ -23,8 +23,6 @@
                 <td>{$lang->invoicevalue}</td>
                 <td><input type="text" id="ordersummary_invoicevalue_intermed" value="" style="width:150px;" disabled="disabled"/> </td>
                 <td><input type="text" id="ordersummary_invoicevalue_local" value="" style="width:150px;" disabled="disabled"/> </td>
-                <td id="ordersummary_thirdparty_3"><input type="text" id="ordersummary_invoicevalue_thirdparty" value="" style="width:150px;" disabled="disabled"/> </td>
-
             </tr>
             <tr>
                 <td>{$lang->feespaidbyintermed}</td>
@@ -36,13 +34,14 @@
                 <td>{$lang->invoicevalueusd}</td>
                 <td><input type="text" id="ordersummary_invoicevalueusd_intermed" style="width:150px;" /> </td>
                 <td><input type="text" id="ordersummary_invoicevalueusd_local" value="" style="width:150px;" disabled="disabled"/> </td>
-                <td id="ordersummary_thirdparty_4"><input type="text" id="ordersummary_invoicevalueusd_thirdparty" value="" style="width:150px;" disabled="disabled"/> </td>
 
             </tr>
             <tr>
                 <td>{$lang->total} {$lang->netmargin}</td>
                 <td><input type="text" id="ordersummary_netmargin_intermed" value="" style="width:150px;" disabled="disabled"/> </td>
                 <td><input type="text" id="ordersummary_netmargin_local" value="" style="width:150px;" disabled="disabled"/> </td>
+                <!-- <td id="ordersummary_thirdparty_3"><input type="text" id="ordersummary_invoicevalue_thirdparty" value="" style="width:150px;" disabled="disabled"/> </td>-->
+                <td id="ordersummary_thirdparty_4"><input type="text" id="ordersummary_invoicevalueusd_thirdparty" value="" style="width:150px;" disabled="disabled"/> </td>
             </tr>
             <tr>
                 <td>{$lang->total} {$lang->netmarginperc}</td>
