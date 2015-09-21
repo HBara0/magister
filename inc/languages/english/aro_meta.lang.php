@@ -184,3 +184,4 @@ $lang['hours'] = 'hours';
 $lang['estdateofarrival'] = 'Est. Date of Arrival';
 $lang['bmanager'] = 'Business Manager';
 $lang['commfromintermed'] = 'Commission from intermediary affiliate';
+$lang['clicktoviewaro'] = 'Click here to view ARO';

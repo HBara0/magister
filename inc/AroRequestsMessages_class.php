@@ -110,14 +110,15 @@ class AroRequestsMessages extends AbstractClass {
         $arorequest = AroRequests::get_data(array('aorid' => $this->data['aorid']), array('simple' => false));
 
         if(is_object($arorequest)) {
-            $reply_links = DOMAIN.'/index.php?module=aro/managearodouments&action=takeactionpage&requestKey='.base64_encode($arorequest->get()['requestKey']).'&inreplyTo='.$this->data['inReplyTo'].'&id='.base64_encode($arorequest->get()['aorid']);
+            $reply_links = DOMAIN.'/index.php?module=aro/managearodouments&action=takeactionpage&requestKey='.base64_encode($arorequest->get()['identifier']).'&inreplyTo='.$this->data['inReplyTo'].'&id='.base64_encode($arorequest->get()['aorid']);
+            $view_link = DOMAIN."/index.php?module=aro/managearodouments&requestKey=".base64_encode($this->data['identifier'])."&id=".base64_encode($arorequest->get()['aorid'])."&referrer=toapprove";
         }
         $mailer->set_subject($lang->newrequestmsgsubject.' ['.$arorequest->orderReference.']');
 
         $emailreceivers = $this->get_emailreceivers();
         if(is_array($emailreceivers)) {
             foreach($emailreceivers as $uid => $emailreceiver) {
-                $message = '<p>'.$this->data['message'].' | <a href="'.$reply_links.'">&#x21b6; '.$lang->reply.'</a></p>';
+                $message = $lang->clicktoviewaro.' '.$view_link.'<br/>'.$this->data['message'].' | <a href="'.$reply_links.'">&#x21b6; '.$lang->reply.'</a><br/>';
                 $message .= '<h1>'.$lang->conversation.'</h1>'.$arorequest->parse_messages(array('viewmode' => 'textonly', 'uid' => $uid));
                 if(!empty($message)) {
                     $mailer->set_message($message);
