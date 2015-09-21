@@ -434,6 +434,37 @@ if(!($core->input['action'])) {
             /* Conversation  message --END */
             eval("\$takeactionpage = \"".$template->get('aro_managearodocuments_takeaction')."\";");
             $takeactionpage = '<a class="header" href="#"><h2>'.$lang->aromessages.'</h2></a><div style="margin-top:10px;">'.$takeactionpage.'</div>';
+
+
+            $aroordersummary = AroOrderSummary::get_data(array('aorid' => $aroorderrequest->aorid));
+            $purchaseype = new PurchaseTypes(array('ptid' => $aroorderrequest->orderType));
+            $localaff = Affiliates::get_affiliates(array('affid' => $aroorderrequest->affid));
+            if(is_object($aropartiesinfo_obj)) {
+                $intermedaffiliate = Affiliates::get_affiliates(array('affid' => $aropartiesinfo_obj->intermedAff));
+            }
+            $ordersummary['thirdcolumn_display'] = "style='display:none;'";
+            $firstparty = '-';
+            $aroordersummary->firstpartytitle = $lang->intermediary;
+
+            if(is_object($intermedaffiliate)) {
+                $firstparty = $intermedaffiliate->get_displayname();
+            }
+            $secondparty = $localaff->get_displayname();
+            $aroordersummary->secondpartytitle = $lang->local;
+            $aroordersummary->thirdpartytitle = '';
+            if(is_object($purchaseype) && $purchaseype->isPurchasedByEndUser == 1) {
+                $aroordersummary->secondpartytitle = $lang->customer;
+                $ordersummarycustomer = AroOrderCustomers::get_data(array('aorid' => $aroorderrequest->aorid));
+                if(is_object($ordersummarycustomer)) {
+                    $customer_obj = new Customers($ordersummarycustomer->cid);
+                    $secondparty = $customer_obj->get_displayname();
+                }
+                if(isset($aroordersummary->invoiceValueThirdParty) && !empty($aroordersummary->invoiceValueThirdParty)) {
+                    $aroordersummary->thirdpartytitle = $lang->local;
+                    $thirdparty = $localaff->get_displayname();
+                    $ordersummary['thirdcolumn_display'] = "style='display:block;'";
+                }
+            }
         }
         else {
             redirect($_SERVER['HTTP_REFERER'], 2, $lang->nomatchfound);
@@ -448,9 +479,9 @@ if(!($core->input['action'])) {
     eval("\$actualpurchase = \"".$template->get('aro_actualpurchase')."\";");
     eval("\$currentstock = \"".$template->get('aro_currentstock')."\";");
     eval("\$orderummary = \"".$template->get('aro_ordersummary')."\";");
+    unset($firstparty, $secondparty, $thirdparty);
     eval("\$totalfunds = \"".$template->get('aro_totalfunds')."\";");
     eval("\$approvalchain= \"".$template->get('aro_approvalchain')."\";");
-
     eval("\$aro_managedocuments= \"".$template->get('aro_managedocuments')."\";");
     output_page($aro_managedocuments);
 }
@@ -981,10 +1012,10 @@ else {
                 'ordersummary_totalintermedfees_usd' => $feeperunit_usdarray,
                 'ordersummary_invoicevalue_intermed' => round($invoicevalueintermed, 2),
                 'ordersummary_invoicevalueusd_intermed' => round($invoicevalueintermed_usd, 2),
-                //  'ordersummary_invoicevalue_thirdparty' => round($invoicevalue_thirdparty, 2),
+                //'ordersummary_invoicevalue_thirdparty' => round($invoicevalue_thirdparty, 2),
                 'ordersummary_invoicevalueusd_thirdparty' => round($invoicevalue_thirdparty_usd, 2),
-                //   'ordersummary_invoicevalue_local' => round($localinvoicevalue, 2),
-//   'ordersummary_invoicevalueusd_local' => round($localinvoicevalue_usd, 2),
+                //'ordersummary_invoicevalue_local' => round($localinvoicevalue, 2),
+                //'ordersummary_invoicevalueusd_local' => round($localinvoicevalue_usd, 2),
                 'ordersummary_netmargin_local' => round($localnetmargin, 2),
                 'ordersummary_netmargin_intermed' => round($intermedmargin, 2),
                 'ordersummary_globalnetmargin' => round($localnetmargin + $intermedmargin, 2),
@@ -1136,6 +1167,7 @@ else {
                 }
             }
         }
+        echo json_encode(null);
     }
 
     if($core->input['action'] == 'takeactionpage') {

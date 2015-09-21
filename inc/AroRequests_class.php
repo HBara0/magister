@@ -99,6 +99,12 @@ class AroRequests extends AbstractClass {
             $data['totalfunds']['aorid'] = $this->data[self::PRIMARY_KEY];
             $fundsengaged_obj->set($data['totalfunds']);
             $fundsengaged_obj->save();
+
+            $ordesummary_obj = new AroOrderSummary();
+            $data['ordersummary']['aorid'] = $this->data[self::PRIMARY_KEY];
+            $ordesummary_obj->set($data['$ordesummary']);
+            $ordesummary_obj->save();
+
             $data['approvalchain']['aroBusinessManager'] = $orderrequest_array['aroBusinessManager'];
             $this->create_approvalchain(null, $data['approvalchain']);
             //$sendemail_to['approvers'] = $this->generate_approvalchain();
@@ -184,8 +190,15 @@ class AroRequests extends AbstractClass {
             $data['totalfunds']['aorid'] = $this->data[self::PRIMARY_KEY];
             $fundsengaged_obj->set($data['totalfunds']);
             $fundsengaged_obj->save();
+
+
+            $ordesummary_obj = new AroOrderSummary();
+            $data['ordersummary']['aorid'] = $this->data[self::PRIMARY_KEY];
+            $ordesummary_obj->set($data['ordersummary']);
+            $ordesummary_obj->save();
+
             $data['approvalchain']['aroBusinessManager'] = $orderrequest_array['aroBusinessManager'];
-            $this->create_approvalchain(null, $data['approvalchain']);
+            $this->create_approvalchain(nuAroOrderSummaryll, $data['approvalchain']);
             $approvers_objs = $this->get_approvers();
 //            if(is_array($approvers_objs)) {
 //                foreach($approvers_objs as $approver) {
