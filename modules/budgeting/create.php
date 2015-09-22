@@ -85,8 +85,8 @@ else {
         }
     }
     elseif($core->input['action'] == 'get_years') {
-        $affid = $db->escape_string($core->input['affid']);
-        $spid = $db->escape_string($core->input['spid']);
+        $affid = intval($core->input['affid']);
+        $spid = intval($core->input['spid']);
         /* implementing years restricitons */
         $budget = new Budgets();
         $budget_years = $budget->populate_budgetyears(array('affid' => $affid, 'spid' => $spid));

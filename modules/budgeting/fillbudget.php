@@ -71,6 +71,9 @@ if(!$core->input['action']) {
 
         if($currentbudget != false) {
             $budgetobj = new Budgets($currentbudget['bid']);
+            if($budgetobj->isLocked == 1) {
+                error('Budget is Locked');
+            }
             $budget_data['bid'] = $currentbudget['bid'];
             $budgetlinesdata = $budgetobj->get_budgetLines('', $filter);
             if(!is_array($budgetlinesdata) || empty($budgetlinesdata)) {

@@ -15,7 +15,7 @@ class Budgets extends AbstractClass {
     const PRIMARY_KEY = 'bid';
     const TABLE_NAME = 'budgeting_budgets';
     const DISPLAY_NAME = '';
-    const SIMPLEQ_ATTRS = 'bid, year, affid, spid';
+    const SIMPLEQ_ATTRS = 'bid, year, affid, spid, isLocked';
     const attachments_path = './uploads/budget';
     const CLASSNAME = __CLASS__;
     const UNIQUE_ATTRS = '';
@@ -106,7 +106,7 @@ class Budgets extends AbstractClass {
      */
     public function populate_budgetyears($data = array()) {
         global $db;
-        $budget_yearquery = $db->query('SELECT bid,year FROM '.Tprefix.'budgeting_budgets WHERE spid='.$data['spid'].' AND affid='.$data['affid'].' AND isLocked=0 ORDER BY year DESC');
+        $budget_yearquery = $db->query('SELECT bid, year FROM '.Tprefix.'budgeting_budgets WHERE spid='.$data['spid'].' AND affid='.$data['affid'].' AND isLocked=0 ORDER BY year DESC');
         if($db->num_rows($budget_yearquery) > 0) {
             while($budget_year = $db->fetch_assoc($budget_yearquery)) {
                 $budget_years[] = $budget_year['year'];
