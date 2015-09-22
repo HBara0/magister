@@ -896,4 +896,41 @@ $("#anotheraff_otheraccomodations_'.$sequence.'_'.$otherhotel_checksum.'").hide(
         return $touritems;
     }
 
+    public function delete() {
+        global $db;
+        $segments = TravelManagerPlanSegments::get_data(array('tmpid' => $this->data['tmpid']), array('returnarray' => true));
+        if(empty($this->data[static::PRIMARY_KEY]) && empty($this->data['identifier'])) {
+            return false;
+        }
+        elseif(empty($this->data[static::PRIMARY_KEY]) && !empty($this->data['identifier'])) {
+            $query = $db->delete_query(static::TABLE_NAME, 'identifier="'.$db->escape_string($this->data['identifier']).'"');
+        }
+        else {
+            $query = $db->delete_query(static::TABLE_NAME, static::PRIMARY_KEY.'='.intval($this->data[static::PRIMARY_KEY]));
+        }
+        if($segments) {
+            $plan_classes = array('TravelManagerPlanSegments', 'TravelManagerPlanTransps', 'TravelManagerPlanaccomodations', 'Travelmanager_Expenses', 'TravelManagerCityReviews', 'TravelManagerPlanAffient', 'TravelManagerPlanSegPurposes', 'TravelManagerPlanFinance');
+            foreach($segments as $segment) {
+                $segmentid = $segment->tmpsid;
+                if(!empty($segmentid)) {
+                    if(is_array($plan_classes)) {
+                        foreach($plan_classes as $object) {
+                            $data = $object::get_data('tmpsid = '.$segmentid.'', array('returnarray' => true));
+                            if(is_array($data)) {
+                                foreach($data as $object_todelete) {
+                                    $object_todelete->delete();
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        if($query) {
+            return true;
+        }
+        return false;
+    }
+
 }

@@ -69,6 +69,11 @@
                 {$lidfield}
                 {$uidfield}
                 <table width="100%" cellpadding="0" cellspacing="0">
+                    <tr {$tmwarning_show}>
+                        <td colspan="2">
+                            <span class="ui-state-highlight">{$lang->cautioneditingtmleave}</span>
+                        </td>
+                    </tr>
                     {$requestonbehalf_field}
                     <tr>
                         <td width="18%">{$lang->fromdate}</td>
@@ -149,10 +154,10 @@
 
                     <tr><td colspan="2"><hr /></td></tr>
 
-                </table>
+                </table>            <div id="perform_attendance/{$action}_Results"></div>
+
                 <input type="submit" id="perform_attendance/{$action}_Button" value="{$lang->$action}" class="button" />
             </form>
-            <div id="perform_attendance/{$action}_Results"></div>
         </td>
     </tr>
     {$footer}

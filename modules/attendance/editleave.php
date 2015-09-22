@@ -21,7 +21,11 @@ if(!$core->input['action']) {
     $leave_obj = new Leaves($core->input['lid']);
     $leavetype_obj = $leave_obj->get_type(false);
     $leave = $db->fetch_assoc($db->query("SELECT l.*, displayName AS contactPersonName FROM ".Tprefix."leaves l LEFT JOIN ".Tprefix."users u ON (u.uid=l.contactPerson) WHERE lid='{$lid}'"));
-
+    $tmwarning_show = 'style="display:none"';
+    $tmplan = TravelManagerPlan::get_plan(array('lid' => $lid), array('returnarray' => false));
+    if(is_object($tmplan)) {
+        $tmwarning_show = '';
+    }
     if($leave['uid'] != $core->user['uid']) {
         if($core->usergroup['attendance_canViewAffAllLeaves'] == 0) {
             if(!value_exists('users', 'reportsTo', $core->user['uid'], "uid='{$leave[uid]}'") && $core->usergroup['attenance_canApproveAllLeaves'] == 0) {
@@ -183,7 +187,6 @@ else {
         unset($core->input['leaveexpenses']);
 
         $lid = $db->escape_string($core->input['lid']);
-
         if(isset($core->input['fromDate']) && !empty($core->input['fromDate']) && (ctype_digit($core->input['fromHour']) && ctype_digit($core->input['fromMinutes']))) {
             $fromdate = explode('-', $core->input['fromDate']);
             if(checkdate($fromdate[1], $fromdate[0], $fromdate[2]) && mktime($core->input['fromHour'], $core->input['fromMinutes'], 0, $fromdate[1], $fromdate[0], $fromdate[2])) {
@@ -310,6 +313,35 @@ else {
 //            }
 //        }
         /* Validate required Fields --END */
+        //check if leave has a TM plan
+        $leave_obj = new Leaves($lid, false);
+        if(is_object($leave_obj)) {
+            $tmplan = TravelManagerPlan::get_plan(array('lid' => $lid), array('returnarray' => false));
+            if(is_object($tmplan)) {
+                if($core->input['deletetm'] == 1) {
+                    unset($core->input['deletetm']);
+                    $tmplan->delete();
+                    $deleted_tm = 1;
+                }
+                else {
+                    $fields = array('destinationCity', 'fromDate', 'sourceCity', 'toDate', 'type');
+                    foreach($fields as $field) {
+                        if($leave_obj->{$field} != $core->input[$field]) {
+                            $changed_fields[] = $field;
+                        }
+                    }
+                    if(is_array($changed_fields)) {
+                        $imploded_fields = implode(',', $changed_fields);
+                        $actualform = serialize($core->input);
+                        $actualform = htmlentities($actualform);
+                        eval("\$deletetm = \"".$template->get('popup_atteendance_deletetmplan')."\";");
+                        output_xml('<status></status><message><![CDATA['.$deletetm.']]></message>');
+                        exit;
+                    }
+                }
+            }
+        }
+        //check if leave has a TM plan end
         $query = $db->update_query('leaves', $core->input, "lid='{$lid}'");
         /* Update leave expenses - START */
         $leave_obj = new Leaves(array('lid' => $lid), false);
@@ -666,11 +698,23 @@ else {
                 $mail = new Mailer($email_data, 'php');
                 if($mail->get_status() === true) {
                     $log->record('notifysupervisors', $email_data['to']);
+                    if($deleted_tm == 1 && $leavetype_details['isBusiness'] == 1) {
+                        $url = 'index.php?module=travelmanager/plantrip&lid=';
+                        header('Content-type: text/xhml+javascript');
+                        output_xml('<status>true</status><message>'.$lang->redirecttotmplantrip.'<![CDATA[<script>goToURL(\''.$url.$db->escape_string($lid).'\');</script>]]></message>');
+                        exit;
+                    }
                     output_xml("<status>true</status><message>{$lang->leavesuccessfullymodified}</message>");
                 }
             }
             else {
                 $log->record('notifysupervisors', $email_data['to']);
+                if($deleted_tm == 1 && $leavetype_details['isBusiness'] == 1) {
+                    $url = 'index.php?module=travelmanager/plantrip&lid=';
+                    header('Content-type: text/xhml+javascript');
+                    output_xml('<status>true</status><message>'.$lang->redirecttotmplantrip.'<![CDATA[<script>goToURL(\''.$url.$db->escape_string($lid).'\');</script>]]></message>');
+                    exit;
+                }
                 output_xml("<status>true</status><message>{$lang->leavesuccessfullymodified}</message>");
             }
         }

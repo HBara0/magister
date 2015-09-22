@@ -15,7 +15,7 @@ if(!defined('DIRECT_ACCESS')) {
 
 if(!$core->input['action']) {
     $action = 'requestleave';
-
+    $tmwarning_show = 'style="display:none"';
     if(empty($core->user_obj->get_hrinfo()['joinDate'])) {
         error('Your HR file does not have your join date. Please contact your HR Manager to correct this.');
     }
