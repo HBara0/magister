@@ -59,8 +59,10 @@ if(!$core->input['action']) {
             }
         }
     }
-    foreach($inaffiliates as $affid) {
-        $affiliate[$affid] = new Affiliates($affid);
+    if(is_array($inaffiliates)) {
+        foreach($inaffiliates as $affid) {
+            $affiliate[$affid] = new Affiliates($affid);
+        }
     }
 
     $affiliate_list = parse_selectlist('chainpolicy[affid]', 1, $affiliate, $chainpolicy[affid]);
