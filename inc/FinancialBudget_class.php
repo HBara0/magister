@@ -429,7 +429,7 @@ Class FinancialBudget extends AbstractClass {
         return false;
     }
 
-    public static function parse_financialbudget($options = array(), $source = '') {
+    public static function parse_financialbudget($options = array()) {
         global $db, $template, $core, $lang;
         if(isset($options['budgettypes']) && !empty($options['budgettypes'])) {
             /* get currenceis by consolidated budgetfinamce id */
@@ -487,12 +487,7 @@ Class FinancialBudget extends AbstractClass {
                 else {
                     foreach($budget_currency as $currency) {
                         if($options['tocurrency'] != $currency) {
-                            if($source = 'presentation') {
-                                continue;
-                            }
-                            else {
-                                error($lang->sprint($lang->noexchangerate, implode(', ', $budget_currencies[$budgetyear]), $currencyto->alphaCode, $budgetyear), $_SERVER['HTTP_REFERER']);
-                            }
+                            error($lang->sprint($lang->noexchangerate, implode(', ', $budget_currencies[$budgetyear]), $currencyto->alphaCode, $budgetyear), $_SERVER['HTTP_REFERER']);
                         }
                     }
                 }
@@ -782,7 +777,7 @@ Class FinancialBudget extends AbstractClass {
                                 unset($totalamount, $total_localamount);
                             }
                         }
-                        $output['trainingvisits']['data'] = $budgeting_tainingvisitpreview;
+                        $output['domestictrainingvisits']['data'] = $budgeting_tainingvisitpreview;
                         break;
                     /* ------------------------------------------------------------------------------------------------------------------- */
 
@@ -826,7 +821,7 @@ Class FinancialBudget extends AbstractClass {
                                 unset($totalamount, $total_localamount);
                             }
                         }
-                        $output['trainingvisits']['data'] = $budgeting_tainingvisitpreview;
+                        $output['internationaltrainingvisits']['data'] = $budgeting_tainingvisitpreview;
                         break;
                     /* ------------------------------------------------------------------------------------------------------------------- */
 

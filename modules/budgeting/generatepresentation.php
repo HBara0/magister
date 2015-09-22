@@ -112,10 +112,13 @@ if($core->input['export']) {
         if(is_array($times)) {
             foreach($times as $year => $month) {
                 foreach($month as $montnum => $timestamps) {
+                    $orders['affsales'][$year][$montnum] = IntegrationMediationSalesOrders::get_orders('date BETWEEN '.$timestamps['start'].' AND '.$timestamps['end'].$extra_where, array('returnarray' => true));
                     if(isset($extra_where_countrysales) && !empty($extra_where_countrysales)) {
                         $orders['countrysales'][$year][$montnum] = IntegrationMediationSalesOrders::get_orders('date BETWEEN '.$timestamps['start'].' AND '.$timestamps['end'].$extra_where_countrysales.'OR affid = '.$core->input['affid'].' )', array('returnarray' => true, 'operators' => array('filter' => 'CUSTOMSQLSECURE')));
                     }
-                    $orders['affsales'][$year][$montnum] = IntegrationMediationSalesOrders::get_orders('date BETWEEN '.$timestamps['start'].' AND '.$timestamps['end'].$extra_where, array('returnarray' => true));
+                    else {
+                        $orders['countrysales'][$year][$montnum] = $orders['affsales'][$year][$montnum];
+                    }
                     if(is_array($orders)) {
                         foreach($orders as $type => $arrs) {
                             if(is_array($orders[$type][$year][$montnum])) {
@@ -1072,7 +1075,7 @@ if($core->input['export']) {
     $budgetypes = array('investmentfollowup', 'headcount', 'profitlossaccount', 'overduereceivables', 'forecastbalancesheet', 'internationaltrainingvisits', 'domestictrainingvisits', 'bank');
     $financialbudget = FinancialBudget::get_data($filters, array('simple' => false, 'returnarray' => true));
     if(is_array($financialbudget)) {
-        $output = FinancialBudget::parse_financialbudget(array('budgettypes' => $budgetypes, 'affid' => $affid, 'tocurrency' => 840, 'year' => date('Y'), 'filter' => array_keys($financialbudget)), 'presentation');
+        $output = FinancialBudget::parse_financialbudget(array('budgettypes' => $budgetypes, 'affid' => $affid, 'tocurrency' => 840, 'year' => date('Y'), 'filter' => array_keys($financialbudget)));
         foreach($budgetypes as $type) {
             if(isset($output[$type]) && !empty($output[$type])) {
                 $budgettitle = $lang->$type;

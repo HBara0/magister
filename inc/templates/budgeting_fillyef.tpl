@@ -171,13 +171,13 @@
                     <td width="150px" class=" border_right" rowspan="2" valign="top" align="center"><div id="quantity_tour">{$lang->quantity}</div></td>
                     <td width="150px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->uom}</td>
                     <td width="150px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->unitprice}</td>
+                    <td width="150px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->currency}</td>
                     <td width="150px" class=" border_right" rowspan="2" valign="top" align="center"><div id="amount_tour">{$lang->amount}</div></td>
                     <td width="150px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->incomeperc}</td>
                     <td width="150px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->income}</td>
-                    {$hidden_colcells[localincome_head]}
                     {$hidden_colcells[localincomeper_head]}
+                    {$hidden_colcells[localincome_head]}
                     {$hidden_colcells[remainingcommaff_head]}
-                    <td width="150px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->currency}</td>
                     <td width="150px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->entitypurchasingfromsupplier}</td>
                     <td width="150px" class=" border_right" rowspan="2" valign="top" align="center"><div id="month_tour">{$lang->october} %</div></td>
                     <td width="150px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->november} %</td>

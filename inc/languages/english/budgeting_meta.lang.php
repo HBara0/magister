@@ -264,8 +264,8 @@ $lang['october'] = 'October';
 $lang['november'] = 'Novemeber';
 $lang['december'] = 'Decemeber';
 $lang['novemberincome'] = 'November Income';
-$lang['octoberincome'] = 'November Income';
-$lang['decemberincome'] = 'November Income';
+$lang['octoberincome'] = 'October Income';
+$lang['decemberincome'] = 'December Income';
 $lang['novemberamount'] = 'November Amount';
 $lang['octoberamount'] = 'October Amount';
 $lang['decemberamount'] = 'December Amount';
@@ -289,4 +289,5 @@ $lang['headcountdesc'] = 'Headcount';
 $lang['overduereceivablesdesc'] = 'Overdue Receivables (in k local and in k USD)';
 $lang['bankdesc'] = 'Bank (in K USD)';
 $lang['alertpercentagesnotmatching'] = 'Caution! The sum of percentages related to the three months is not equal to 100, current data can not be saved';
+$lang['generatingthereportmaytakeawhile'] = 'Generating The Report May Take A While, Please Wait.';
 ?>

@@ -32,13 +32,13 @@
     </td>
     <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left"><select name="budgetline[{$rowid}][UoM]" disabled="disabled"><option value="kg">KG</option></select></td>
     <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left"><input name="budgetline[{$rowid}][unitPrice]" type="text" id="unitprice_{$rowid}" size="10" accept="numeric" {$required} value="{$budgetline[unitPrice]}" data-rowid="{$rowid}"  data-max="{$maxbudgetline[unitPrice]}" data-name="{$lang->unitprice}" autocomplete='off' />{$prevyear_unitprice}</td>
+    <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left">{$budget_currencylist}<span id="currency_details_{$rowid}"></span></td>
     <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left"><input name="budgetline[{$rowid}][amount]" type="text" id="amount_{$rowid}" size="10" accept="numeric" {$required} value="{$budgetline[amount]}" data-rowid="{$rowid}" data-name="{$lang->amount}" data-max="{$maxbudgetline[amount]}" autocomplete='off' />{$previous_yearsamount}</td>
     <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left"><input name="budgetline[{$rowid}][incomePerc]"  type="text" id="amountper_{$rowid}" size="10" accept="numeric" {$required} value="{$budgetline[incomePerc]}"  autocomplete='off' />{$prevyear_incomeperc}</td>
     <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center"><input name="budgetline[{$rowid}][income]"  value="{$budgetline[income]}" data-rowid="{$rowid}" data-name="{$lang->income}" data-max="{$maxbudgetline[income]}" {$required}type="text" id="income_{$rowid}" size="10" accept="numeric" />{$previous_yearsincome}</td>
-        {$hidden_colcells[localincome_row]}
         {$hidden_colcells[localincomeper_row]}
+        {$hidden_colcells[localincome_row]}
         {$hidden_colcells[remainingcommaff_header_row]}
-    <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left">{$budget_currencylist}<span id="currency_details_{$rowid}"></span></td>
     <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center">{$purchasingentity_selectlist}</td>
     <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left"><input name="budgetline[{$rowid}][october]" data-month="{$rowid}" type="text" id="october_{$rowid}" size="10" accept="numeric" required="required" value="{$budgetline[october]}" autocomplete='off'/><span style="color:red" id="alertpercentage_{$rowid}"></span></td>
     <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left"><input name="budgetline[{$rowid}][november]" data-month="{$rowid}"  type="text" id="november_{$rowid}" size="10" accept="numeric" required="required" value="{$budgetline[november]}" autocomplete='off'/></td>

@@ -30,7 +30,6 @@ if(!$core->input['action']) {
 }
 else {
     require_once ROOT.INC_ROOT.'integration_init.php';
-
     $chartcurrency = new Currencies($dashbboard_currency);
     if($core->input['action'] == 'do_perform_totalsalesperyear') {
         $data['title'] = $lang->drilldownchartsalesperyear;
@@ -38,14 +37,13 @@ else {
         $data['yaxislabel'] = $lang->salestotalamount;
         $data['years'] = array("".(date('Y', TIME_NOW) - 2), "".(date('Y', TIME_NOW) - 1), "".(date('Y', TIME_NOW)));
 
-        $affiliates_where = '(affid IN ('.implode(',', $core->user['affiliates']).')';
-        if(is_array($core->user['auditedaffids'])) {
-            if(is_array($core->user['auditedaffids'])) {
-                $affiliates_where .= ' OR (affid IN ('.implode(',', $core->user['auditedaffids']).')))';
-            }
-        }
-        $affiliates = Affiliates::get_affiliates(array('affid' => $affiliates_where, 'integrationOBOrgId' => 'integrationOBOrgId IS NOT NULL'), array('operators' => array('integrationOBOrgId' => 'CUSTOMSQL', 'affid' => 'CUSTOMSQL')));
-
+//        $affiliates_where = '(affid IN ('.implode(',', $core->user['affiliates']).')';
+//        if(is_array($core->user['auditedaffids'])) {
+//            if(is_array($core->user['auditedaffids'])) {
+//                $affiliates_where .= ' OR (affid IN ('.implode(',', $core->user['auditedaffids']).')))';
+//            }
+//        }
+//        $affiliates = Affiliates::get_affiliates(array('affid' => $affiliates_where, 'integrationOBOrgId' => 'integrationOBOrgId IS NOT NULL'), array('operators' => array('integrationOBOrgId' => 'CUSTOMSQL', 'affid' => 'CUSTOMSQL')));
         if(isset($core->input['affs'])) {
             $core->input['affs'] = explode(",", $core->input['affs']);
             if(is_array($core->input['affs'])) {
@@ -53,13 +51,25 @@ else {
             }
             $affiliates_where = "(name IN ('".$core->input['affs']."'))";
             $affiliates = Affiliates::get_affiliates(array('name' => $affiliates_where, 'integrationOBOrgId' => 'integrationOBOrgId IS NOT NULL'), array('operators' => array('integrationOBOrgId' => 'CUSTOMSQL', 'name' => 'CUSTOMSQLSECURE')));
+            $extrafilters['affid'] = $affiliates;
         }
+//
+//        $orgs = array_map(function ($value) {
+//            return $value->integrationOBOrgId;
+//        }, $affiliates);
+//        if(isset($core->input['affs'])) {
+//            $core->input['affs'] = explode(",", $core->input['affs']);
+//
+//            $extrafilters['affid'] = $core->input['affs'];
+//        }
+        $where = get_permissions($intgdb, $extrafilters);
+        $sql = "SELECT SUM(totallines) AS totallines, date_part('month', dateinvoiced) AS month, date_part('year', dateinvoiced) AS year, c_currency_id "
+                ."FROM c_invoice "
+                ."WHERE issotrx='Y' AND docstatus='CO' "
+                ."AND issotrx='Y' AND (dateinvoiced BETWEEN '".date('Y-m-d 00:00:00', strtotime((date('Y', TIME_NOW) - 2).'-01-01'))."' AND '".date('Y-m-d 23:59:59', strtotime((date('Y', TIME_NOW)).'-12-31'))."') "
+                .$where
+                ." GROUP BY c_currency_id, month, year";
 
-        $orgs = array_map(function ($value) {
-            return $value->integrationOBOrgId;
-        }, $affiliates);
-
-        $sql = "SELECT SUM(totallines) AS totallines, date_part('month', dateinvoiced) AS month, date_part('year', dateinvoiced) AS year, c_currency_id FROM c_invoice WHERE issotrx='Y' AND docstatus='CO' AND c_invoice.ad_org_id IN ('".implode("','", $orgs)."') AND issotrx='Y' AND (dateinvoiced BETWEEN '".date('Y-m-d 00:00:00', strtotime((date('Y', TIME_NOW) - 2).'-01-01'))."' AND '".date('Y-m-d 23:59:59', strtotime((date('Y', TIME_NOW)).'-12-31'))."') GROUP BY c_currency_id, month, year";
         $query = $intgdb->query($sql);
         if($intgdb->num_rows($query) > 0) {
             while($line = $intgdb->fetch_assoc($query)) {
@@ -125,19 +135,22 @@ else {
         $affiliates = Affiliates::get_affiliates(array('affid' => $affiliates_where, 'integrationOBOrgId' => 'integrationOBOrgId IS NOT NULL'), array('operators' => array('integrationOBOrgId' => 'CUSTOMSQL', 'affid' => 'CUSTOMSQL')));
 
         if(isset($core->input['affs'])) {
+            $extrafilters['affid'] = $core->input['affs'];
             $core->input['affs'] = explode(",", $core->input['affs']);
             if(is_array($core->input['affs'])) {
                 $core->input['affs'] = implode("','", $core->input['affs']);
             }
             $affiliates_where = "(name IN ('".$core->input['affs']."'))";
             $affiliates = Affiliates::get_affiliates(array('name' => $affiliates_where, 'integrationOBOrgId' => 'integrationOBOrgId IS NOT NULL'), array('operators' => array('integrationOBOrgId' => 'CUSTOMSQL', 'name' => 'CUSTOMSQLSECURE')));
+            $extrafilters['affid'] = $affiliates;
         }
         $orgs = array_map(function ($value) {
             return $value->integrationOBOrgId;
         }, $affiliates);
 
         $lines = new IntegrationOBInvoiceLine(null, $intgdb);
-        $sales = $lines->get_totallines($orgs);
+        $where = get_permissions($intgdb, $extrafilters);
+        $sales = $lines->get_totallines($where);
         if(is_array($affiliates)) {
             foreach($affiliates as $affiliate) {
                 $chartproperties['affiliates'][] = $affiliate->name;
@@ -174,24 +187,25 @@ else {
             }
             $affiliates_where = "(name IN ('".$core->input['affs']."'))";
             $affiliates = Affiliates::get_affiliates(array('name' => $affiliates_where, 'integrationOBOrgId' => 'integrationOBOrgId IS NOT NULL'), array('operators' => array('integrationOBOrgId' => 'CUSTOMSQL', 'name' => 'CUSTOMSQLSECURE')));
+            $extrafilters['affid'] = $affiliates;
         }
 
         $orgs = array_map(function ($value) {
             return $value->integrationOBOrgId;
         }, $affiliates);
 
-        $sales = $lines->get_totallines($orgs);
-//        $filteredaffiliates = $affiliates;
-//        if(isset($core->input['affid']) && !empty($core->input['affid'])) {
-//
-//            $core->input['affid'] = explode(",", $core->input['affid']);
-//            if(is_array($core->input['affid'])) {
-//                $core->input['affid'] = implode("','", $core->input['affid']);
-//            }
-//            $filteaffiliates_where = "(name IN ('".$core->input['affid']."'))";
-//            $filteredaffiliates = Affiliates::get_affiliates(array('name' => $filteaffiliates_where, 'integrationOBOrgId' => 'integrationOBOrgId IS NOT NULL'), array('returnarray' => true, 'operators' => array('integrationOBOrgId' => 'CUSTOMSQL', 'name' => 'CUSTOMSQLSECURE')));
-//        }
+        $where = get_permissions($intgdb, $extrafilters);
+        $sales = $lines->get_totallines($where);
+        $filteredaffiliates = $affiliates;
+        if(isset($core->input['affid']) && !empty($core->input['affid'])) {
 
+            $core->input['affid'] = explode(",", $core->input['affid']);
+            if(is_array($core->input['affid'])) {
+                $core->input['affid'] = implode("','", $core->input['affid']);
+            }
+            $filteaffiliates_where = "(name IN ('".$core->input['affid']."'))";
+            $filteredaffiliates = Affiliates::get_affiliates(array('name' => $filteaffiliates_where, 'integrationOBOrgId' => 'integrationOBOrgId IS NOT NULL'), array('returnarray' => true, 'operators' => array('integrationOBOrgId' => 'CUSTOMSQL', 'name' => 'CUSTOMSQLSECURE')));
+        }
         $fx_query = '*(CASE WHEN bbl.originalCurrency = 840 THEN 1
             ELSE (SELECT bfr.rate from budgeting_fxrates bfr WHERE bfr.affid = bb.affid AND bfr.year = bb.year AND bfr.fromCurrency = bbl.originalCurrency AND bfr.toCurrency = 840) END)';
 
@@ -250,6 +264,51 @@ function get_quartermonths($q) {
             break;
     }
     return $qmonths;
+}
+
+function get_permissions($intgdb, $extrafilters) {
+    global $core;
+    $permissions = $core->user_obj->get_businesspermissions();
+    $permissiontypes = array('affid' => 'c_invoice.ad_org_id'); // 'uid' => 'c_invoice.salesrep_id');
+    foreach($permissiontypes as $type => $col) {
+        if(is_array($permissions[$type])) {
+            $where = $type.' IN ('.implode(',', $permissions[$type]).')';
+            $configs = array('operators' => array($type => 'CUSTOMSQL'), 'simple' => 'false', 'returnarray' => true);
+            switch($type) {
+                case 'affid':
+                    $configs['operators']['integrationOBOrgId'] = 'CUSTOMSQL';
+                    if(isset($extrafilters[$type]) && !empty($extrafilters[$type])) {
+                        $affiliates = $extrafilters[$type];
+                    }
+                    else {
+                        $affiliates = Affiliates::get_affiliates(array($type => $where, 'integrationOBOrgId' => 'integrationOBOrgId IS NOT NULL'), $configs);
+                    }
+                    foreach($affiliates as $affiliate) {
+                        $filters[$type][] = "'".$affiliate->integrationOBOrgId."'";
+                    }
+                    break;
+                case 'uid':
+                    $users = Users::get_data(array($type => $where), $configs);
+                    if(is_array($users)) {
+                        foreach($users as $user) {
+                            $usernames[] = $user->get_displayname();
+                        }
+                    }
+                    $sql = "SELECT ad_user_id FROM ad_user WHERE name IN ('".implode("','", $usernames)."')";
+                    $query = $intgdb->query($sql);
+                    if($intgdb->num_rows($query) > 0) {
+                        while($obuser = $intgdb->fetch_assoc($query)) {
+                            $filters[$type][] = "'".$obuser['ad_user_id']."'";
+                        }
+                    }
+                    break;
+                default:
+                    break;
+            }
+            $permissionsfilter .=' AND '.$col.' IN('.implode(', ', $filters[$type]).')';
+        }
+    }
+    return $permissionsfilter;
 }
 
 ?>

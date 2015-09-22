@@ -119,6 +119,10 @@ if(!$core->input['action']) {
             $userown_leaves.='<option value="'.$userleave['lid'].'">'.$userleave['leavetype'].' - '.$userleave['origincity'].' - '.$userleave['from'].'-'.$userleave['to'].' </option>';
         }
     }
+    $main_aff = new Affiliates($core->user['mainaffiliate']);
+    if(!is_object($main_aff) || empty($main_aff->affid) || empty($main_aff->cpAccount)) {
+        $autoresp_checkshow = 'style="display:none"';
+    }
     $autoresp_show = 'style="display:none"';
     $autoresp_disabled = 'disabled="disabled"';
     eval("\$requestleavepage = \"".$template->get('attendance_requestleave')."\";");
