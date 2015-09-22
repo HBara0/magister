@@ -22,7 +22,6 @@
                         form.addMultiSelectField('affiliate', 'Select Affiliate', obj.affiliates);
 
                         form.onApplyClick(function(params) {
-                            alert(params['affiliate']['text']);
                             var url = window.location.href;
                             if(url.indexOf('?') > -1) {
                                 url += '&affs=' + params['affiliate']['text'];
