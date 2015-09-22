@@ -1075,7 +1075,7 @@ if($core->input['export']) {
     $budgetypes = array('investmentfollowup', 'headcount', 'profitlossaccount', 'overduereceivables', 'forecastbalancesheet', 'internationaltrainingvisits', 'domestictrainingvisits', 'bank');
     $financialbudget = FinancialBudget::get_data($filters, array('simple' => false, 'returnarray' => true));
     if(is_array($financialbudget)) {
-        $output = FinancialBudget::parse_financialbudget(array('budgettypes' => $budgetypes, 'affid' => $affid, 'tocurrency' => 840, 'year' => date('Y'), 'filter' => array_keys($financialbudget)), 'presentation');
+        $output = FinancialBudget::parse_financialbudget(array('budgettypes' => $budgetypes, 'affid' => $affid, 'tocurrency' => 840, 'year' => date('Y'), 'filter' => array_keys($financialbudget)));
         foreach($budgetypes as $type) {
             if(isset($output[$type]) && !empty($output[$type])) {
                 $budgettitle = $lang->$type;

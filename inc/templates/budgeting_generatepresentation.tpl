@@ -15,6 +15,8 @@
                     <input type="hidden" name="export" value="1">
                 </div>
                 <hr>
+                <br>
+                <span class="ui-state-highlight">{$lang->generatingthereportmaytakeawhile}</span><br>
                 <input type="submit" value="{$lang->downloadreport}" class="button">
             </form>
         </td>
