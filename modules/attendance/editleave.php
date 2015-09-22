@@ -276,7 +276,7 @@ else {
         $leave['type_output'] = $leavetype_details['title'];
 
         if(!empty($leavetype_details['additionalFields'])) {
-            $leave['details_crumb'] = parse_additionaldata($core->input, $leavetype_details['additionalFields']);
+            $leave['details_crumb'] = parse_additionaldata($core->input, $leavetype_details['additionalFields'], 0, 'source');
             if(is_array($leave['details_crumb']) && !empty($leave['details_crumb'])) {
                 $leave['details_crumb'] = implode(' ', $leave['details_crumb']);
             }

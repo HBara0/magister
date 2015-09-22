@@ -567,7 +567,7 @@ function parse_additonalfield($attribute, $field_settings) {
     return $field;
 }
 
-function parse_additionaldata($leave, $field_settings, $mainonly = 0) {
+function parse_additionaldata($leave, $field_settings, $mainonly = 0, $source = 'edit') {
     global $db, $lang;
     $field_settings = unserialize($field_settings);
     if(is_array($field_settings)) {
@@ -599,7 +599,7 @@ function parse_additionaldata($leave, $field_settings, $mainonly = 0) {
                 }
 
                 if(!empty($output)) {
-                    if(isset($val['titlelangvar'])) {
+                    if(isset($val['titlelangvar']) && $source != 'edit') {
                         $output = '<br />'.$lang->{$val['titlelangvar']}.': '.$output;
                     }
                 }
