@@ -12,5 +12,5 @@
         <input type="hidden" name="budgetrainingvisit[local][$rowid][date]" id="altpickDate_local{$rowid}" value="{$budgetrainingvisit[Date_formatted]}{$budgetrainingvisit[$populated_leave->lid][$type][Date_formatted]}" />
     </td>
     <td><textarea  name="budgetrainingvisit[local][$rowid][purpose]"  cols="40" required="required">{$budgetrainingvisit[purpose]}{$budgetrainingvisit[$populated_leave->lid][$type][purpose]}</textarea></td>
-    <td><input type='number' id="costaff_{$rowid}_local" step="only"  name="budgetrainingvisit[local][$rowid][costAffiliate]" value="{$budgetrainingvisit[$populated_leave->lid][$type][costAffiliate]}" autocomplete='off' {$required}/></td>
+    <td><input type='number' id="costaff_{$rowid}_local" step="only"  name="budgetrainingvisit[local][$rowid][costAffiliate]" value="{$budgetrainingvisit[costAffiliate]}{$budgetrainingvisit[$populated_leave->lid][$type][costAffiliate]}" autocomplete='off' {$required}/></td>
 </tr>

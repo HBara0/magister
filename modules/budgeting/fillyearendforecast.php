@@ -535,7 +535,20 @@ function parse_yefline($data, $readonly = '', $source, $rownums, $supplier) {
                     $intercompany_obj = new Affiliates($budgetline['commissionSplitAffid']);
                     $budgetline['commissionSplitAffid_output'] = $intercompany_obj->get_displayname();
                 }
-
+                $maxfields = array('amount', 'quantity', 'unitPrice', 'income');
+                if($source == 'budget') {
+                    foreach($maxfields as $field) {
+                        $maxbudgetline[$field] = $budgetline[$field];
+                    }
+                }
+                else if($budgetline['fromBudget'] == 1) {
+                    $prev_actualbudgetline = new BudgetLines($budgetline['blid']);
+                    if(is_object($prev_actualbudgetline) && !empty($prev_actualbudgetline->blid)) {
+                        foreach($maxfields as $field) {
+                            $maxbudgetline[$field] = $prev_actualbudgetline->$field;
+                        }
+                    }
+                }
                 if($source == 'budget') {
                     $divided_fields = array('quantity', 'amount', 'income', 'actalQty', 'actualIncome', 'actualAmount', 'localIncomeAmount');
                     //'unitPrice',localIncomePercentage, 'incomePerc'
@@ -573,11 +586,9 @@ function parse_yefline($data, $readonly = '', $source, $rownums, $supplier) {
                 }
                 $countries = Countries::get_coveredcountries();
                 $countries_selectlist = parse_selectlist('budgetline['.$rowid.'][customerCountry]', 0, $countries, $budgetline['customerCountry'], '', '', '');
+
                 if($source == 'budget' || $budgetline['fromBudget'] == 1) {
-                    $maxfields = array('amount', 'quantity', 'unitPrice', 'income');
-                    foreach($maxfields as $field) {
-                        $maxbudgetline[$field] = $budgetline[$field];
-                    }
+
                     if(!empty($budgetline['customerCountry'])) {
                         $country = new Countries($budgetline['customerCountry']);
                         if(!empty($country->coid)) {
