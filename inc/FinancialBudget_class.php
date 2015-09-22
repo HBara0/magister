@@ -782,7 +782,7 @@ Class FinancialBudget extends AbstractClass {
                                 unset($totalamount, $total_localamount);
                             }
                         }
-                        $output['trainingvisits']['data'] = $budgeting_tainingvisitpreview;
+                        $output['domestictrainingvisits']['data'] = $budgeting_tainingvisitpreview;
                         break;
                     /* ------------------------------------------------------------------------------------------------------------------- */
 
@@ -826,7 +826,7 @@ Class FinancialBudget extends AbstractClass {
                                 unset($totalamount, $total_localamount);
                             }
                         }
-                        $output['trainingvisits']['data'] = $budgeting_tainingvisitpreview;
+                        $output['internationaltrainingvisits']['data'] = $budgeting_tainingvisitpreview;
                         break;
                     /* ------------------------------------------------------------------------------------------------------------------- */
 
