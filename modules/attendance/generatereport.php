@@ -73,7 +73,7 @@ else {
             $uid = intval($uid);
             $user_obj = new Users($uid);
             $attending_days = $total_days = $weekends = 0;
-            $usert_content = '<td  >'.$user_obj->get_displayname().'</td>';
+            $usert_content = '<td style="width:20%;" >'.$user_obj->get_displayname().'</td>';
             if(is_object($user_obj)) {
                 $currentdate = $fromdate;
                 $fromdate_details = getdate($fromdate);
@@ -591,7 +591,12 @@ else {
                             if($type == 'leaves') {
                                 foreach($day_data as $leave) {
                                     $month_header[] = date('d', $currentdate);
-                                    $day_content .= '<td style="border-left: 1px solid #000;border-right: 1px solid #000;">L</td>';
+                                    if($leave['type'] == 13) {
+                                        $day_content .= '<td style="border-left: 1px solid #000;border-right: 1px solid #000;">UL</td>';
+                                    }
+                                    else {
+                                        $day_content .= '<td style="border-left: 1px solid #000;border-right: 1px solid #000;">L</td>';
+                                    }
                                 }
 
                                 /* check whether the day is not in weekend and not in holiday */
@@ -653,12 +658,12 @@ else {
                         $month_output = date('F', mktime(0, 0, 0, $curdate['mon'], 10));
                         $total_outputs['month']['actualhours'] = operation_time_value(array_sum_recursive($total['actualhours'][$curdate['year']][$curdate['mon']]));
                         $total_outputs['month']['requiredhours'] = operation_time_value(array_sum_recursive($total['requiredhours'][$curdate['year']][$curdate['mon']]));
-                        $month_header_output = '<th style="border-left: 1px solid #000;border-right: 1px solid #000;">'.$lang->employeename.'</th><th style="border-left: 1px solid #000;border-right: 1px solid #000;">'.implode('</th><th style="border-left: 1px solid #000;border-right: 1px solid #000;">', $month_header).'</th>';
-                        $month_header_output .= '<th style="border-left: 1px solid #000;border-right: 1px solid #000;">%</th>';
+                        $month_header_output = '<th style="border-left: 1px solid #000;border-right: 1px solid #000;width:20%;">'.$lang->employeename.'</th><th style="border-left: 1px solid #000;border-right: 1px solid #000;">'.implode('</th><th style="border-left: 1px solid #000;border-right: 1px solid #000;">', $month_header).'</th>';
                         $month_header_output .= '<th style="border-left: 1px solid #000;border-right: 1px solid #000;">'.$lang->capstotal.'</th>';
+                        $month_header_output .= '<th style="border-left: 1px solid #000;border-right: 1px solid #000;">%</th>';
                         $month_header_output .= '<th style="border-left: 1px solid #000;border-right: 1px solid #000;">'.$lang->capstotalhour.'</th>';
-                        $day_content .= '<td style="border-left: 1px solid #000;border-right: 1px solid #000;">'.number_format(($attending_days / ($total_days - $weekends)) * 100, 0).'</td>';
-                        $day_content .= '<td style="border-left: 1px solid #000;border-right: 1px solid #000;">'.$attending_days.' / '.$total_days.'</td>';
+                        $day_content .= '<td style="border-left: 1px solid #000;border-right: 1px solid #000;">'.$attending_days.' / '.($total_days).'</td>';
+                        $day_content .= '<td style="border-left: 1px solid #000;border-right: 1px solid #000;">'.number_format(($total_outputs['month']['actualhours'] / $total_outputs['month']['requiredhours']) * 100, 0).'</td>';
                         $day_content .= '<td style="border-left: 1px solid #000;border-right: 1px solid #000;">'.$total_outputs['month']['actualhours'].' / '.$total_outputs['month']['requiredhours'].'</td>';
                         //$attendance_report_user_month .= 'a'.$nextdate_details['week'].' == '.$curdate['week'].' && '.$nextdate_details['mon'].' != '.$curdate['mon'];
 

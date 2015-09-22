@@ -118,8 +118,8 @@
                         <td>{$lang->limitedemailaccess}</td>
                         <td>{$limitedemail_radiobutton}</td>
                     </tr>
-                    <tr>
-                        <td>{$lang->createautoresp}</td>
+                    <tr {$autoresp_checkshow}>
+                        <td >{$lang->createautoresp}</td>
                         <td><input type='checkbox' {$autoresp_checked} name='createAutoResp' id='check_autoresp' value='1'></td>
                     </tr>
                     <tr  id="autorespondersub" {$autoresp_show}>
