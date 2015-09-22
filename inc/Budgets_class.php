@@ -15,7 +15,7 @@ class Budgets extends AbstractClass {
     const PRIMARY_KEY = 'bid';
     const TABLE_NAME = 'budgeting_budgets';
     const DISPLAY_NAME = '';
-    const SIMPLEQ_ATTRS = 'bid, year, affid, spid';
+    const SIMPLEQ_ATTRS = 'bid, year, affid, spid, isLocked';
     const attachments_path = './uploads/budget';
     const CLASSNAME = __CLASS__;
     const UNIQUE_ATTRS = '';
@@ -106,7 +106,7 @@ class Budgets extends AbstractClass {
      */
     public function populate_budgetyears($data = array()) {
         global $db;
-        $budget_yearquery = $db->query('SELECT bid,year FROM '.Tprefix.'budgeting_budgets WHERE spid='.$data['spid'].' AND affid='.$data['affid'].' AND isLocked=0 ORDER BY year DESC');
+        $budget_yearquery = $db->query('SELECT bid, year FROM '.Tprefix.'budgeting_budgets WHERE spid='.$data['spid'].' AND affid='.$data['affid'].' AND isLocked=0 ORDER BY year DESC');
         if($db->num_rows($budget_yearquery) > 0) {
             while($budget_year = $db->fetch_assoc($budget_yearquery)) {
                 $budget_years[] = $budget_year['year'];
@@ -414,7 +414,7 @@ class Budgets extends AbstractClass {
                     if($prevbudget_bydata['cid'] == 0) {
                         $prevbudget_bydata['cid'] = md5($prevbudget_bydata['altCid'].$prevbudget_bydata['saleType'].$prevbudget_bydata['pid']);
                     }
-                    $budgetline_details[$prevbudget_bydata['cid']][$prevbudget_bydata['pid']][$prevbudget_bydata['saleType']][] = $prevbudget_bydata;
+                    $budgetline_details[$prevbudget_bydata['cid']][$prevbudget_bydata['pid']][$prevbudget_bydata['saleType']][$prevbudget_bydata['inputChecksum']] = $prevbudget_bydata;
                 }
             }
         }
@@ -507,8 +507,8 @@ class Budgets extends AbstractClass {
                     if(!empty($yefdata[$budgetline_data['cid']][$budgetline_data['pid']][$budgetline_data['saleType']]) && is_array($yefdata[$budgetline_data['cid']][$budgetline_data['pid']][$budgetline_data['saleType']])) {
                         continue;
                     }
-                    $budgetline_details[$budgetline_data['cid']][$budgetline_data['pid']][$budgetline_data['saleType']] = $budgetline->get();
-                    $budgetline_details[$budgetline_data['cid']][$budgetline_data['pid']][$budgetline_data['saleType']]['prevbudget'][] = $prevbudgetline->get();
+                    $budgetline_details[$budgetline_data['cid']][$budgetline_data['pid']][$budgetline_data['saleType']][$budgetline_data['inputChecksum']] = $budgetline->get();
+                    $budgetline_details[$budgetline_data['cid']][$budgetline_data['pid']][$budgetline_data['saleType']][$budgetline_data['inputChecksum']]['prevbudget'] = $prevbudgetline->get();
                 }
                 return $budgetline_details;
             }

@@ -23,6 +23,7 @@ class AttendanceAttRecords extends AbstractClass {
     const SIMPLEQ_ATTRS = '*';
     const CLASSNAME = __CLASS__;
     const UNIQUE_ATTRS = null;
+    const REQUIRED_ATTRS = 'uid,time,operation';
 
     public function __construct($id = '', $simple = true) {
         parent::__construct($id, $simple);
@@ -36,8 +37,21 @@ class AttendanceAttRecords extends AbstractClass {
 
     }
 
-    protected function update(array $data) {
-
+    public function update(array $data) {
+        global $db;
+        if(!$this->validate_requiredfields($data)) {
+            $this->errorcode = 1;
+            return $this;
+        }
+        $fields = array('aarid', 'uid', 'operation', 'time', 'lastupdateTime');
+        foreach($fields as $field) {
+            $update_array[$field] = $data[$field];
+        }
+        if($this->time != $update_array['time']) {
+            $update_array['lastupdateTime'] = $this->time;
+        }
+        $db->update_query(self::TABLE_NAME, $update_array, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
+        return $this;
     }
 
 }
