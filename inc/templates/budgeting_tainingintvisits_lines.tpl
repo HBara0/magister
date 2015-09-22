@@ -3,7 +3,7 @@
         <input type="hidden" name="budgetrainingvisit[international][$rowid][inputChecksum] " value="{$budgetrainingvisit[inputChecksum]}"/>
         <input type="hidden" name="budgetrainingvisit[international][$rowid][classification] " value="International"/>
         <input type="hidden" name="budgetrainingvisit[international][$rowid][btvid] " value="{$budgetvisit->btvid}"/>
-        <input type="hidden" name="budgetrainingvisit[international][$rowid][lid] " value="{$budgetrainingvisit[$populated_leave->lid][$type][lid]}"/>
+        <input type="hidden" name="budgetrainingvisit[international][$rowid][lid] " value="{$budgetrainingvisit[$populated_leave->lid][$type][lid]}{$budgetrainingvisit[lid]}"/>
     </td>
     <td> <select name="budgetrainingvisit[international][$rowid][bm]"> {$business_managers_list}</select></td>
     <td><input type="text"  id="pickDate_intvisit{$rowid}" autocomplete="off" tabindex="1" value="{$budgetrainingvisit[date_output]} {$budgetrainingvisit[$populated_leave->lid][$type][date_output]}" required="required"/>
