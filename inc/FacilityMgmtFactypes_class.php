@@ -16,7 +16,7 @@
 class FacilityMgmtFactypes extends AbstractClass {
     protected $data = array();
 
-    const PRIMARY_KEY = 'mftid';
+    const PRIMARY_KEY = 'fmftid';
     const TABLE_NAME = 'facilitymgmt_factypes';
     const DISPLAY_NAME = 'name';
     const SIMPLEQ_ATTRS = '*';

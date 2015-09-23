@@ -27,15 +27,29 @@ class FacilityMgmtFacilities extends AbstractClass {
     }
 
     protected function create(array $data) {
-
-    }
-
-    public function save(array $data = array()) {
-
+        global $db, $core;
+        if(is_array($data)) {
+            $data['createdOn'] = TIME_NOW;
+            $data['createdBy'] = $core->user['uid'];
+            if(is_array($data['dimensions'])) {
+                $data['dimensions'] = implode("x", $data['dimensions']);
+            }
+            $db->insert_query(self::TABLE_NAME, $data);
+        }
+        return $this;
     }
 
     protected function update(array $data) {
-
+        global $db, $core;
+        if(is_array($data)) {
+            if(is_array($data['dimensions'])) {
+                $data['dimensions'] = implode("x", $data['dimensions']);
+            }
+            $data['modifiedOn'] = TIME_NOW;
+            $data['modifiedBy'] = $core->user['uid'];
+            $db->update_query(self::TABLE_NAME, $data, self::PRIMARY_KEY.' = '.intval($this->data[self::PRIMARY_KEY]));
+        }
+        return $this;
     }
 
     public function get_displayname() {
