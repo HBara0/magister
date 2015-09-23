@@ -50,7 +50,7 @@ class ProductCharacteristicValues extends AbstractClass {
     public function get_displayname() {
         $characterstic = $this->get_characterstic();
 
-        return $characterstic->get_displayname().' - '.parent::get_displayname();
+        return parent::get_displayname().' - '.$characterstic->get_displayname();
     }
 
     /* -------FUNCTIONS-END-------- */
