@@ -22,7 +22,7 @@
                         <td> <input type="text" id="pickDate_from" autocomplete="off" tabindex="2" value="{$warehouse[effectiveFrom_output]}" required="required" style="width:50%"/> </td>
                         <td> <input type="hidden" name="warehousepolicy[effectiveFrom]" id="altpickDate_from" value="{$warehouse[effectiveFrom]}"/></td>
                     </tr>
-                    <tr><td>{$lang->effromdate}  </td>
+                    <tr><td>{$lang->eftodate}  </td>
                         <td> <input type="text" id="pickDate_to" autocomplete="off" tabindex="2" value="{$warehouse[effectiveTo_output]}" required="required" style="width:50%"/></td>
                         <td> <input type="hidden" name="warehousepolicy[effectiveTo]" id="altpickDate_to" value="{$warehouse[effectiveTo]}"/></td>
                     </tr>
