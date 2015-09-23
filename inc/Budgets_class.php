@@ -414,7 +414,7 @@ class Budgets extends AbstractClass {
                     if($prevbudget_bydata['cid'] == 0) {
                         $prevbudget_bydata['cid'] = md5($prevbudget_bydata['altCid'].$prevbudget_bydata['saleType'].$prevbudget_bydata['pid'].$prevbudget_bydata['prevblid'].$prevbudget_bydata['linkedBudgetLine']);
                     }
-                    $budgetline_details[$prevbudget_bydata['cid']][$prevbudget_bydata['pid']][$prevbudget_bydata['saleType']] = $prevbudget_bydata;
+                    $budgetline_details[$prevbudget_bydata['cid']][$prevbudget_bydata['pid']][$prevbudget_bydata['saleType']][] = $prevbudget_bydata;
                 }
             }
         }
@@ -508,7 +508,7 @@ class Budgets extends AbstractClass {
                         continue;
                     }
                     $budgetline_details[$budgetline_data['cid']][$budgetline_data['pid']][$budgetline_data['saleType']] = $budgetline->get();
-                    $budgetline_details[$budgetline_data['cid']][$budgetline_data['pid']][$budgetline_data['saleType']]['prevbudget'] = $prevbudgetline->get();
+                    $budgetline_details[$budgetline_data['cid']][$budgetline_data['pid']][$budgetline_data['saleType']]['prevbudget'] [] = $prevbudgetline->get();
                 }
                 return $budgetline_details;
             }
