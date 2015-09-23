@@ -1882,6 +1882,76 @@ CREATE TABLE `entitiessegments` (
   PRIMARY KEY (`esid`,`eid`,`psid`),
   KEY `eid` (`eid`,`psid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=7042 DEFAULT CHARSET=latin1;
+DROP TABLE IF EXISTS `facilitymgmt_facilities`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `facilitymgmt_facilities` (
+  `fmfid` int(10) NOT NULL AUTO_INCREMENT,
+  `affid` int(10) NOT NULL,
+  `name` varchar(200) NOT NULL,
+  `type` int(10) NOT NULL,
+  `parent` int(10) NOT NULL,
+  `capacity` int(11) NOT NULL,
+  `numOccupants` int(11) NOT NULL,
+  `dimensions` varchar(10) NOT NULL,
+  `allowReservation` tinyint(1) NOT NULL,
+  `description` varchar(220) NOT NULL,
+  `image` text NOT NULL,
+  `isActive` tinyint(1) NOT NULL,
+  `idColor` varchar(6) NOT NULL,
+  `createdOn` bigint(30) NOT NULL,
+  `createdBy` int(10) NOT NULL,
+  `modifiedOn` bigint(30) NOT NULL,
+  `modifiedBy` int(10) NOT NULL,
+  PRIMARY KEY (`fmfid`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `facilitymgmt_facilityfeatures`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `facilitymgmt_facilityfeatures` (
+  `fmffid` int(10) NOT NULL AUTO_INCREMENT,
+  `fmftid` int(10) NOT NULL,
+  `fmfid` int(10) NOT NULL,
+  `createdBy` int(10) NOT NULL,
+  `createdOn` bigint(30) NOT NULL,
+  `modifiedBy` int(10) NOT NULL,
+  `modifiedOn` bigint(30) NOT NULL,
+  PRIMARY KEY (`fmffid`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `facilitymgmt_factypes`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `facilitymgmt_factypes` (
+  `fmftid` int(10) NOT NULL AUTO_INCREMENT,
+  `name` varchar(110) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `title` varchar(220) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `isRoom` tinyint(1) NOT NULL,
+  `isCoWorkingSpace` tinyint(1) NOT NULL,
+  `isMainLocation` tinyint(1) NOT NULL,
+  `isActive` tinyint(1) NOT NULL,
+  `createdOn` bigint(30) NOT NULL,
+  `createdBy` int(10) NOT NULL,
+  `modifiedBy` int(10) NOT NULL,
+  `modifiedOn` bigint(30) NOT NULL,
+  PRIMARY KEY (`fmftid`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `facilitymgmt_features`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `facilitymgmt_features` (
+  `fmftid` int(10) NOT NULL AUTO_INCREMENT,
+  `name` varchar(110) NOT NULL,
+  `title` varchar(220) NOT NULL,
+  `description` varchar(220) NOT NULL,
+  `createdBy` int(10) NOT NULL,
+  `createdOn` bigint(30) NOT NULL,
+  `modifiedBy` int(10) NOT NULL,
+  `modifiedOn` bigint(30) NOT NULL,
+  PRIMARY KEY (`fmftid`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `files`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -4491,13 +4561,18 @@ CREATE TABLE `usergroups` (
   `aro_canManageWarehousePolicies` tinyint(1) NOT NULL,
   `canUseAro` tinyint(1) NOT NULL,
   `aro_canFillAro` tinyint(1) NOT NULL,
-  `profiles_canUseMktIntel` tinyint(1) NOT NULL DEFAULT '0',
-  `grouppurchase_canGenerateReports` tinyint(1) NOT NULL,
-  `admin_canManageSystemDef` tinyint(1) NOT NULL,
-  `canUseCms` int(11) NOT NULL,
+  `aro_canManageApprovalPolicies` tinyint(1) NOT NULL,
+  `grouppurchase_canGenerateReports` tinyint(10) NOT NULL,
+  `grouppurchase_canViewAllForecasts` int(10) NOT NULL,
+  `profiles_canUseMktIntel` tinyint(1) NOT NULL,
+  `crm_canManageMktInteldata` tinyint(1) NOT NULL,
+  `canUseCms` tinyint(1) NOT NULL,
   `travelmanager_canApproveHotels` tinyint(1) NOT NULL,
   `canUseWarehouseMgmt` tinyint(1) NOT NULL,
+  `warehousemgmt_canGenerateReports` tinyint(1) NOT NULL,
   `canUseCc` tinyint(1) NOT NULL,
+  `canUseFacM` int(1) NOT NULL,
+  `facilitymgmt_canManageFacilities` int(1) NOT NULL,
   PRIMARY KEY (`gid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=20 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
