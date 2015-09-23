@@ -547,18 +547,23 @@ else {
         }
     }
     if($core->input['action'] == 'getestimatedate') {
-        if(is_array($core->input[paymentermdays])) {
-            $paymentermdays = explode(',', $core->input[paymentermdays][0]);
-        }
-        if(is_array($core->input[salesdates])) {
-            $salesdates = explode(',', $core->input[salesdates][0]);
-        }
 
         $purchasetype = new PurchaseTypes($core->input['ptid']);
         if($purchasetype->isPurchasedByEndUser != 0) {
             echo json_encode('error');
             exit;
         }
+
+        if(is_array($core->input[paymentermdays])) {
+            $paymentermdays = explode(',', $core->input[paymentermdays][0]);
+        }
+        if(is_array($core->input[salesdates])) {
+            $salesdates = explode(',', $core->input[salesdates][0]);
+        }
+        if(is_array($core->input[ptbasedates])) {
+            $ptbasedates = explode(',', $core->input[ptbasedates][0]);
+        }
+
         //get average of payment terms
         if(is_array($paymentermdays)) {
             foreach($paymentermdays as $paymenterm) {
@@ -574,14 +579,16 @@ else {
         }
         // average of actual purchase rows est. date of sale
         if(is_array($salesdates)) {
-            foreach($salesdates as $salesdate) {
-                if(!empty($salesdate) || $salesdate != '-') {
-                    $salesdateobjs[] = strtotime($salesdate);
-                    $intervalsales_dates = array_unique($salesdateobjs);
-                    if(!empty($intervalsales_dates)) {
-                        $countintervalsales_dates = count($intervalsales_dates);
-                        $sumintervalsales_dates = array_sum($intervalsales_dates);
-                        $avgsaledate = ($sumintervalsales_dates / $countintervalsales_dates);
+            if(!is_empty(array_filter($salesdates))) {
+                foreach($salesdates as $salesdate) {
+                    if(!empty($salesdate) || $salesdate != '-') {
+                        $salesdateobjs[] = strtotime($salesdate);
+                        $intervalsales_dates = array_unique($salesdateobjs);
+                        if(!empty($intervalsales_dates)) {
+                            $countintervalsales_dates = count($intervalsales_dates);
+                            $sumintervalsales_dates = array_sum($intervalsales_dates);
+                            $avgsaledate = ($sumintervalsales_dates / $countintervalsales_dates);
+                        }
                     }
                 }
             }
@@ -592,6 +599,20 @@ else {
         $est_averagedate = $avgpaymentterms * (86400) + $avgsaledate;
         if(!empty($avgpaymentterms) && !empty($avgsaledate)) {
             $conv = date($core->settings['dateformat'], ($est_averagedate));
+        }
+        if(is_array($ptbasedates)) {
+            if(!is_empty(array_filter($ptbasedates))) {
+                foreach($ptbasedates as $ptbasedate) {
+                    $avgptdates[] = strtotime($ptbasedate) + $avgpaymentterms * (86400);
+                }
+                foreach($salesdates as $salesdate) {
+                    if(!empty($salesdate)) {
+                        $avgptdates[] = strtotime($salesdate) + $avgpaymentterms * (86400);
+                    }
+                }
+                $est_averagedate = array_sum($avgptdates) / count($avgptdates);
+                $conv = date($core->settings['dateformat'], ($est_averagedate));
+            }
         }
         echo json_encode(array('avgeliduedate' => $conv)); //return json to the ajax request to populate in the form
     }
