@@ -14,10 +14,12 @@ $(function() {
         return false;
     }).next().hide();
     //--------------------------------------------------------------
-//    setTimeout(function() {
-//        $("input[id='ordersummary_btn']").trigger("click");
-//        $("input[id$='_netMargin']").trigger("change");
-//    }, 0);
+
+
+    // setTimeout(function() {
+    //       $("input[id='ordersummary_btn']").trigger("click");
+    //       $("input[id$='_netMargin']").trigger("change");
+    //   }, 10);
 
     if(typeof getUrlParameter('referrer') !== 'undefined') {
         if(getUrlParameter('referrer') == 'toapprove' || getUrlParameter('referrer') == 'toapprove#' || (myUrl.substring(myUrl.length - 1) == '#' && getUrlParameter('referrer') == 'toapprove')) {
@@ -67,6 +69,7 @@ $(function() {
         var ptid = $(this).data('purchasetype');
         sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populatedocnum&affid= ' + affid + '&ptid= ' + ptid);
         sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populateaffpolicy&affid= ' + affid + '&ptid= ' + ptid);
+
         $.ajax({type: 'post',
             url: rootdir + "index.php?module=aro/managearodouments&action=generateapprovalchain",
             data: "affid=" + affid + "&ptid=" + ptid,
@@ -183,7 +186,7 @@ $(function() {
 //            }
 //        });
     });
-//-----------------Populate intermediary affiliate policy-----------------------------//
+    //-----------------Populate intermediary affiliate policy-----------------------------//
     $("select[id='partiesinfo_intermed_aff']").live('change', function() {
         var ptid = $("select[id='purchasetype']").val();
         var intermedAff = $("select[id='partiesinfo_intermed_aff']").val();
@@ -194,8 +197,8 @@ $(function() {
 //            $("input[id$='_intialPrice']").trigger("change");
 //        }, 2000);
     });
-//------------------------------------------------------------------------------------//
-//-----------------Get Exchang Rate  -------------------------------------------------//
+    //------------------------------------------------------------------------------------//
+    //-----------------Get Exchang Rate  -------------------------------------------------//
     $("#currencies").live('change', function() {
         sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=getexchangerate&currency=' + $(this).val(), function(json) {
             if(json == null) {
@@ -211,8 +214,8 @@ $(function() {
             }
         });
     });
-//------------------------------------------------------------------------------------//
-//-------------------Get Warehouse policy parms---------------------------------------//
+    //------------------------------------------------------------------------------------//
+    //-------------------Get Warehouse policy parms---------------------------------------//
     $("#parmsfornetmargin_warehouse").live('change', function() {
         var warehouse = $(this).val();
         var ptid = $("#purchasetype").val();
@@ -236,8 +239,8 @@ $(function() {
             });
         }
     });
-//------------------------------------------------------------------------------------//
-// If Inco terms are different between intermediary and vendor, freight is mandatory
+    //------------------------------------------------------------------------------------//
+    // If Inco terms are different between intermediary and vendor, freight is mandatory
     $("select[id='partiesinfo_intermed_incoterms'],select[id='partiesinfo_vendor_incoterms']").live('change', function() {
         $("input[id='partiesinfo_freight']").removeAttr("required");
         if($("select[id='partiesinfo_intermed_incoterms']").val() !== '' && $("select[id='partiesinfo_vendor_incoterms']").val() !== '') {
@@ -246,9 +249,9 @@ $(function() {
             }
         }
     });
-//----------------------------------------------------------------------------------------------------------------------------//
-//--------------Populate dates of PartiepickDate_estDateOfShipments Information----------------------------//
-//Trigger(s): 10A, 7, 6, 11
+    //----------------------------------------------------------------------------------------------------------------------------//
+    //--------------Populate dates of PartiepickDate_estDateOfShipments Information----------------------------//
+    //Trigger(s): 10A, 7, 6, 11
     $("input[id='pickDate_estDateOfShipment'],select[id='partiesinfo_intermed_paymentterm'],select[id='partiesinfo_vendor_paymentterm'],input[id='partiesinfo_intermed_ptAcceptableMargin'],#ordersummary_invoicevalue_local").live('change', function() {
         var estDateOfShipment = $("input[id='pickDate_estDateOfShipment']").val();
         var ptAcceptableMargin = $("input[id='partiesinfo_intermed_ptAcceptableMargin']").val();
@@ -292,14 +295,13 @@ $(function() {
             });
         }
     });
-//----------------------------------------------------------------------------------------------------------------------------//
-//-------------on change of est date of sales (actual purchase) Trigger est. local invoice date------------------
+    //----------------------------------------------------------------------------------------------------------------------------//
+    //-------------on change of est date of sales (actual purchase) Trigger est. local invoice date------------------
     $("input[id^='pickDate_sale_']").live('change', function() {
         $("select[id^='paymentermdays_']").trigger('change');
     });
-//-------------------------------------
-//-------------------------------------------------------------------------------------//
-
+    //---------------------------------------------------------------------------------------------------------
+    //------------- on change of PT base date Trigger est. local invoice date
     $("tbody[id^='newcustomer_']").on('change', "input[id^='pickDate_to_']", function() {
         var id = $(this).attr('id').split('_');
         if($(this).val() == '') {
@@ -307,6 +309,7 @@ $(function() {
         }
         $("select[id^='paymentermdays_" + id[2] + "']").trigger("change");
     });
+//-------------------------------------------------------------------------------------//
     $("select[id^='paymentermdays_']").live('change', function() {
         var parentContainer = $(this).closest('div');
         var paymentdays = [];
@@ -319,7 +322,6 @@ $(function() {
                     if($(this).val() !== '') {
                         paymentdays.push($(this).val());
                     }
-
                 });
             }
         });
@@ -331,6 +333,7 @@ $(function() {
                 }
             }
         });
+
         $("tbody[id^='newcustomer_']").find("input[id^='altpickDate_to_']").each(function() {
             if($(this).val() !== '') {
                 ptbasedates.push($(this).val());
@@ -404,10 +407,12 @@ $(function() {
         sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populate_localintersetvalues&invoicevalue_local_RIC=' + invoicevalue_local_RIC + '&ptid=' + $("select[id=purchasetype]").val() + '&invoicevalue_local=' + invoicevalue_local + '&exchangeRateToUSD=' + $("#exchangeRateToUSD").val(), function() {
             $("select[id='partiesinfo_intermed_paymentterm']").trigger("change");
             clearTimeout(actualpurchaselines_tr);
+
             actualpurchaselines_tr = setTimeout(function() {
                 addactualpurchaselines(id[1]);
             }, 2000);
         });
+
     });
 //------------------------------------------//
     $("input[id$='freight'],input[id$='bankFees'],input[id$='insurance'],input[id$='legalization'],input[id$='courier'],input[id$='otherFees']").bind('change', function() {
@@ -546,6 +551,7 @@ $(function() {
             attrs += '&rowid=' + id[1] + '&ptid=' + $('select[id=purchasetype]').val();
             sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populateaffbuyingprice' + attrs, function() {
                 //// !!!!!!!! NEED TO Modify this into a funtion and apply wherever it is used//
+                var invoicevalue_local = invoicevalue_local_RIC = 0;
                 $("tbody[id^='productline_']").find($("input[id$='_affBuyingPrice']")).each(function() {
                     var id = $(this).attr('id').split('_');
                     invoicevalue_parameter = parseFloat($("input[id='productline_" + id[1] + "_totalBuyingValue']").val());
@@ -561,7 +567,6 @@ $(function() {
                 sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populate_localintersetvalues&invoicevalue_local_RIC=' + invoicevalue_local_RIC + '&ptid=' + $("select[id=purchasetype]").val() + '&invoicevalue_local=' + invoicevalue_local + '&exchangeRateToUSD=' + $("#exchangeRateToUSD").val(), function() {
                     $("input[id='ordersummary_btn']").trigger("click");
                 });
-                //populate_localintersetvalues
 
             });
         });
@@ -717,6 +722,7 @@ $(function() {
         attributes = attributes + "&POIintermed=" + $('input[id=parmsfornetmargin_intermedPeriodOfInterest]').val();
         attributes = attributes + "&intermedAff=" + $("select[id='partiesinfo_intermed_aff']").val();
         attributes = attributes + "&customer=" + $("input[id='customer_1_id']").val() + "&commFromIntermed=" + $("input[id='partiesinfo_commFromIntermed']").val() + "&totalfeespaidbyintermed=" + $('input[id=partiesinfo_totalfees]').val();
+
         sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populateordersummary' + attributes, function(json) {
             if(json["haveThirdParty"] == 1) {
                 $("td[id^='ordersummary_thirdparty']").show();
@@ -724,6 +730,7 @@ $(function() {
                 $("td[id^='ordersummary_thirdparty']").hide();
             }
         });
+
     });
 //---------------------------------------
     $("input[id='unitfee_btn']").click(function() {
@@ -784,6 +791,10 @@ $(function() {
         });
         $("input[id='totalfunds_total']").val(totalfunds);
     });
+
+
+
+
 //--------------------------------------------------
     $("input[id='user_0_autocomplete']").live('change', function() {
         var bmid = $("input[id='user_0_id']").val();
@@ -807,6 +818,7 @@ $(function() {
             }
         }
     });
+
 //---------------------------------------------------------------
     $("input[id='partiesinfo_commission']").live('keyup', function() {
         $("input[id='partiesinfo_defaultcommission']").val($("input[id='partiesinfo_commission']").val());
