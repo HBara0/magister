@@ -314,7 +314,7 @@ else {
                 output_xml('<status>false</status><message>'.$lang->fillallrequiredfields.'</message>');
                 break;
             case 2:
-                output_xml('<status>false</status><message>eeee'.$lang->itemalreadyexist.'</message>');
+                output_xml('<status>false</status><message>'.$lang->entryexists.'</message>');
                 break;
         }
     }
