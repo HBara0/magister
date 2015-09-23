@@ -3,14 +3,17 @@
         <input type="hidden"  name="action" value="do_editattendancerecord" />
         <input type="hidden" name="record[aarid]" value="{$record->aarid}" />
         <div>
-            {$lang->operation} : <span style="width:150px">{$type}</span><br>
             <span>{$user->displayName}</span>
+            <br><br>
+            {$lang->operation} : <span style="width:150px">{$type}</span>
             <input type="hidden" name="record[uid]"  value="{$user->uid}"/>
             <input type="hidden" name="record[aarid]"  value="{$record->aarid}"/>
         </div>
+        <hr>
         <div {$show_lastupdated}>
-            {$lang->lastupdatedtime} : <span>{$lastupdated_time}</span><br>
+            {$lang->lastupdatedtime} :  <span>{$lastupdated_time}</span><br>
         </div>
+        </hr>
         <div>
             <input type="text" id="pickDate_record" autocomplete="off" tabindex="2" value="{$time['date']}" required='required' />
             <input type="hidden" name="time[date]" id="altpickDate_record" value="{$time[date]}"/>
