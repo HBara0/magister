@@ -589,7 +589,7 @@ else {
     elseif($core->input ['action'] == 'deletesegment') {
         $segmentid = $db->escape_string($core->input['segmentid']);
         if(!empty($segmentid)) {
-            $plan_classes = array('TravelManagerPlanSegments', 'TravelManagerPlanTransps', 'TravelManagerPlanaccomodations', 'Travelmanager_Expenses', 'TravelManagerCityReviews');
+            $plan_classes = array('TravelManagerPlanSegments', 'TravelManagerPlanTransps', 'TravelManagerPlanaccomodations', 'Travelmanager_Expenses', 'TravelManagerCityReviews', 'TravelManagerPlanAffient', 'TravelManagerPlanSegPurposes', 'TravelManagerPlanFinance');
             if(is_array($plan_classes)) {
                 foreach($plan_classes as $object) {
                     $data = $object::get_data('tmpsid = '.$segmentid.'', array('returnarray' => true));

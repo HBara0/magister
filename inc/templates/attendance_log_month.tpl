@@ -1,6 +1,6 @@
 <hr>
-<table style="border:none;border-collapse: collapse;">
+<table style="width:100%;border-collapse: collapse;">
     <caption><b>{$month_output}</b></caption>
     <thead><tr colpsan="2">{$month_header_output}</tr></thead>
-    <tbody><tr colspan="2">{$usert_content}{$day_content}</tr></tbody>
+    <tbody>  {$attendance_report_users{$curdate['mon']}}</tbody>
 </table>

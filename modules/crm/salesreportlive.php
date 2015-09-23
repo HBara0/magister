@@ -69,7 +69,7 @@ else {
             $currency_obj = $affiliate->get_currency();
         }
 
-
+        $permissions = $user->get_businesspermissions();
         // $reportaff = new Affiliates($core->input['affids'], false);
         // $currency_obj = $reportaff->get_currency();
         //   $currency_obj = new Currencies('USD');
@@ -87,7 +87,13 @@ else {
         }
 
         $filters = "c_invoice.ad_org_id IN ('".implode("','", $orgs)."') AND docstatus NOT IN ('VO', 'CL') AND (dateinvoiced BETWEEN '".date('Y-m-d 00:00:00', $period['from'])."' AND '".date('Y-m-d 00:00:00', $period['to'])."')";
-        $integration = new IntegrationOB($intgconfig['openbravo']['database'], $intgconfig['openbravo']['entmodel']['client']);
+        if(count($permissions['uid']) == 1 && in_array($core->user['uid'], $permissions['uid'])) {
+            $intuser = $core->user_obj->get_integrationObUser();
+            if(is_object($intuser)) {
+                $filters .= ' AND (salesrep_id=\''.$intuser->get_id().'\' OR salesrep_id IS NULL)';
+            }
+        }
+        $integration = new IntegrationOB($intgconfig['openbravo']['database '], $intgconfig['openbravo']['entmodel']['client']);
         $invoices = $integration->get_saleinvoices($filters);
         $cols = array('month', 'week', 'documentno', 'salesrep', 'customername', 'suppliername', 'productname', 'segment', 'uom', 'qtyinvoiced', 'priceactual', 'linenetamt', 'purchaseprice', 'unitcostlocal', 'costlocal', 'costusd', 'grossmargin', 'grossmarginusd', 'netmargin', 'netmarginusd', 'marginperc');
         if(is_array($invoices)) {
@@ -262,7 +268,6 @@ else {
                     $salesreport .= '</tr>';
                     foreach($monthdata['linenetamt'] as $salerepid => $salerepdata) {
                         $currentyeardata = $salerepdata[$current_year];
-
                         $salesreport .= '<tr style="'.$rowstyle.'">';
                         $salesrep = new IntegrationOBUser($salerepid, $integration->get_dbconn());
                         if(empty($salesrep->name)) {

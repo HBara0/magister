@@ -463,7 +463,14 @@ function parse_yefline($data, $readonly = '', $source, $rownums, $supplier) {
                 $invoice_selectlist = parse_selectlist('budgetline['.$rowid.'][invoice]', 0, $invoice_selectlistdata, $budgetline['invoice'], '', '', array('id' => 'invoice_'.$rowid));
                 $purchase_selectlistdata = array('alex' => 'Orkila FZ - Alex', 'fze' => 'Orkila Jebel Ali FZE', 'int' => 'Orkila International', 'customer' => 'Customer', 'direct' => $yef_data['affiliateName']);
                 $purchasingentity_selectlist = parse_selectlist('budgetline['.$rowid.'][purchasingEntity]', 0, $purchase_selectlistdata, $budgetline['purchasingEntity'], '', '', array('id' => 'purchasingEntity_'.$rowid));
-
+                if(!empty($budgetline['interCompanyPurchase'])) {
+                    $intercompany_obj = new Affiliates($budgetline['interCompanyPurchase']);
+                    $budgetline['interCompanyPurchase_output'] = $intercompany_obj->get_displayname();
+                }
+                if(!empty($budgetline['commissionSplitAffid'])) {
+                    $intercompany_obj = new Affiliates($budgetline['commissionSplitAffid']);
+                    $budgetline['commissionSplitAffid_output'] = $intercompany_obj->get_displayname();
+                }
                 $purchasefromaff = '<input type = "text" placeholder = "'.$lang->search.' '.$lang->affiliate.'" id = "affiliate_noexception_'.$rowid.'_autocomplete" name = "" value = "'.$budgetline['interCompanyPurchase_output'].'" autocomplete = "off" />
                 <input type = "hidden" value = "'.$budgetline['interCompanyPurchase'].'" id = "affiliate_noexception_'.$rowid.'_id" name = "budgetline['.$rowid.'][interCompanyPurchase]" />';
                 if($budgetline['fromBudget'] == 1 || $source == 'budget') {
@@ -601,7 +608,7 @@ function parse_yefline($data, $readonly = '', $source, $rownums, $supplier) {
 //                            $altcid = $prev_budgetline['altCid'];
 //                        }
                 eval("\$budgetlinesrows .= \"".$template->get('budgeting_fill_yeflines')."\";");
-                unset($readonly, $extra_script, $alert_div, $maxbudgetline);
+                unset($readonly, $extra_script, $alert_div, $maxbudgetline, $intercompany_obj);
             }
         }
         $rownums++;
