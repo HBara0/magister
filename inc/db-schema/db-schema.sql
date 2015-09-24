@@ -179,6 +179,33 @@ CREATE TABLE `aro_order_customers` (
   `inputChecksum` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL,
   `cid` int(10) NOT NULL,
   PRIMARY KEY (`aocid`)
+DROP TABLE IF EXISTS `aro_ordersummary`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `aro_ordersummary` (
+  `aorsid` int(10) NOT NULL AUTO_INCREMENT,
+  `aorid` int(10) NOT NULL,
+  `invoiceValueIntermed` float NOT NULL,
+  `invoiceValueLocal` float NOT NULL,
+  `invoiceValueUsdIntermed` float NOT NULL,
+  `invoiceValueUsdLocal` float NOT NULL,
+  `invoiceValueThirdParty` float NOT NULL,
+  `totalIntermedFeesUsdUom` text NOT NULL,
+  `totalIntermedFeesUsd` float NOT NULL,
+  `netmarginIntermed` float NOT NULL,
+  `netmarginLocal` float NOT NULL,
+  `netmarginIntermedPerc` float NOT NULL,
+  `netmarginLocalPerc` float NOT NULL,
+  `globalNetmargin` float NOT NULL,
+  `totalQuantityUom` text NOT NULL,
+  `totalIntermedFeesUom` text NOT NULL,
+  `totalIntermedFees` float NOT NULL,
+  `unitFee` float NOT NULL,
+  `initialCommission` float NOT NULL,
+  `totalCommission` float NOT NULL,
+  `interestValue` float NOT NULL,
+  PRIMARY KEY (`aorsid`)
+) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `aro_policies`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
