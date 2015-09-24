@@ -1652,20 +1652,6 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
 
     public function get_totallines($where) {
         global $core;
-
-//        if(empty($orgs)) {
-//            $affiliates_where = '(affid IN ('.implode(',', $core->user['affiliates']).')';
-//            if(is_array($core->user['auditedaffids'])) {
-//                if(is_array($core->user['auditedaffids'])) {
-//                    $affiliates_where .= ' OR (affid IN ('.implode(',', $core->user['auditedaffids']).')))';
-//                }
-//            }
-//
-//            $affiliates = Affiliates::get_affiliates(array('affid' => $affiliates_where, 'integrationOBOrgId' => 'integrationOBOrgId IS NOT NULL'), array('operators' => array('integrationOBOrgId' => 'CUSTOMSQL', 'affid' => 'CUSTOMSQL')));
-//            $orgs = array_map(function ($value) {
-//                return $value->integrationOBOrgId;
-//            }, $affiliates);
-//        }
         $sql = "SELECT SUM(totallines) AS totallines, ad_org_id, c_currency_id, date_part('month', dateinvoiced) AS month, date_part('year', dateinvoiced) AS year FROM c_invoice "
                 ."WHERE issotrx='Y' AND docstatus='CO' AND (dateinvoiced BETWEEN '".date('Y-m-d 00:00:00', strtotime((date('Y', TIME_NOW)).'-01-01'))."'"
                 ." AND '".date('Y-m-d 23:59:59', strtotime((date('Y', TIME_NOW)).'-12-31'))."' ".$where.") GROUP BY ad_org_id, c_currency_id, year, month";
