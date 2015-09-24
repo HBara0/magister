@@ -1,12 +1,12 @@
 <tr>
     <td>
         <input type='hidden' name='currentstock[$csrowid][inputChecksum]' id="currentstock_{$csrowid}_inputChecksum" value='{$currentstock->inputChecksum}' required="required"/>
-        <input type='text' id="currentstock_{$csrowid}_productName" value="{$currentstock->productName}" style="width:200px;" readonly/>
+        <input type='text' id="currentstock_{$csrowid}_productName" value="{$currentstock->productName}" style="width:200px;" readonly class="automaticallyfilled-noneditable"/>
         <input type='hidden' id="currentstock_{$csrowid}_arlsid" name="currentstock[$csrowid][arcssid]" value="{$currentstock->arcssid}"/>
         <input type='hidden' id="currentstock_{$csrowid}_pid" name="currentstock[$csrowid][pid]" value="{$currentstock->pid}"/>
     </td>
     <td>
-        <input type="text" name="currentstock[$csrowid][packingTitle]" id="currentstock_{$csrowid}_packingTitle" value="{$currentstock->packingTitle}" style="width:100px;" readonly required="required"/>
+        <input type="text" name="currentstock[$csrowid][packingTitle]" id="currentstock_{$csrowid}_packingTitle" value="{$currentstock->packingTitle}" style="width:100px;" readonly required="required" class="automaticallyfilled-noneditable"/>
         <input type="hidden" name="currentstock[$csrowid][packing]" id="currentstock_{$csrowid}_packing" value="{$currentstock->packing}" style="width:100px;"/>
     </td>
     <td>
@@ -21,7 +21,7 @@
 
     </td>
     <td>
-         <input type="text" id="pickDate_currentstock_{$csrowid}_expiryDate" autocomplete="off" tabindex="2" value="{$currentstock->expiryDate_output}"/>
+        <input type="text" id="pickDate_currentstock_{$csrowid}_expiryDate" autocomplete="off" tabindex="2" value="{$currentstock->expiryDate_output}"/>
         <input type="hidden"  name="currentstock[$csrowid][expiryDate]" id="altpickDate_currentstock_{$csrowid}_expiryDate" value="{$currentstock->expiryDate_formatted}"/>
     </td>
     <td>

@@ -18,9 +18,9 @@
             </tr>
             <tr>
                 <td>{$lang->orderreference}</td>
-                <td><input type="text"  readonly="readonly" name="orderReference" id="orderreference" value="{$aroorderrequest->orderReference}" required="required"/></td>
+                <td><input type="text"  readonly="readonly" name="orderReference" id="orderreference" value="{$aroorderrequest->orderReference}" required="required" class="automaticallyfilled-noneditable"/></td>
                 <td>Exchange rate to usd</td>
-                <td><input type="number"  step="any" name="exchangeRateToUSD" id="exchangeRateToUSD" value="{$aroorderrequest->exchangeRateToUSD}" readonly required="required"/>
+                <td><input type="number"  step="any" name="exchangeRateToUSD" id="exchangeRateToUSD" value="{$aroorderrequest->exchangeRateToUSD}" readonly required="required" class="automaticallyfilled-editable"/>
                     <input type="hidden" id="exchangeRateToUSD_disabled" value="1"/></td>
             </tr>
 
@@ -30,7 +30,7 @@
                 <td>{$lang->bmanager}</td>
                 <td>
                     <input type='text' id='user_0_autocomplete'/>
-                    <input type='hidden' id='user_0_id' name='aroBusinessManager'  />
+                    <input type='hidden' id='user_0_id' name='aroBusinessManager'/>
                 </td>
             </tr>
 

@@ -43,11 +43,11 @@
                         </td>
                     </tr>
                     <tr>
-                        <td>{$lang->riskratio}</td>
+                        <td>{$lang->default} {$lang->riskratio}</td>
                         <td><input type="number" step="any" min="0" name="aropolicy[riskRatio]" id="aropolicy_riskRatio" value="{$aropolicy[riskRatio]}"/> %</td>
                     </tr>
                     <tr>
-                        <td>{$lang->yearlyintrestrate}</td>
+                        <td>{$lang->local} {$lang->yearlyintrestrate}</td>
                         <td><input type="number" step="any" min="0" name="aropolicy[yearlyInterestRate]" id="aropolicy_yearlyInterestRate" value="{$aropolicy[yearlyInterestRate]}"/> %</td>
                     </tr>
                     <tr>
@@ -61,7 +61,7 @@
                     <tr>
                         <td width="40%">{$lang->riskratiomonthlyincrease}</td>
                         <td><input type="number" step="any" min="0" name="aropolicy[riskRatioIncreaseDiffCurrCN]" id="aropolicy_riskRatioMonthlyIncreaseDiffCurrCN" value="{$aropolicy[riskRatioIncreaseDiffCurrCN]}"/> % {$lang->each}
-                        <input type="number" step="any" min="0" name="aropolicy[riskRatioDays]" id="aropolicy_riskRatioDays" value="{$aropolicy[riskRatioDays]}"/> {$lang->days}</td>
+                            <input type="number" step="any" min="0" name="aropolicy[riskRatioDays]" id="aropolicy_riskRatioDays" value="{$aropolicy[riskRatioDays]}"/> {$lang->days}</td>
                     </tr>
                     <tr>
                         <td>{$lang->riskratiosamecurrcn}</td>
@@ -77,7 +77,7 @@
                         <td>{$lang->default} {$lang->paymentterms}</td><td>{$paymentterms_list}</td>
                     </tr>
                     <tr>
-                        <td>{$lang->default} {$lang->acceptablemargin}</td>
+                        <td>{$lang->default} {$lang->acceptablepaymentterm}</td>
                         <td><input type="number" step="any" min="0" name="aropolicy[defaultAcceptableMargin]" id="aropolicy_defaultAcceptableMargin" value="{$aropolicy[defaultAcceptableMargin]}"/></td>
 
                     </tr>

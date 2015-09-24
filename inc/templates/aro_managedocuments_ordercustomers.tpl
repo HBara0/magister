@@ -20,7 +20,7 @@
             <tr class="altrow2">
                 {$unspecified_customer_row}
             </tr>
-            <tr><td colspan="2">{$lang->estimatedduedate}</td> <td><input type="hidden" name ="cpurchasetype" id="cpurchasetype"/><input type="text"   name="avgeliduedate" id="avgeliduedate" value="{$avgeliduedate}"/> </td></tr>
+            <tr><td colspan="2">{$lang->estimatedduedate}</td> <td><input type="hidden" name ="cpurchasetype" id="cpurchasetype"/><input type="text"   name="avgeliduedate" id="avgeliduedate" value="{$avgeliduedate}" class="automaticallyfilled-noneditable"/> </td></tr>
         </tfoot>
     </table>
 </p>

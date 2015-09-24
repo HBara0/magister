@@ -4,6 +4,14 @@
     <table>
         <tbody style="width:100%;">
             <tr>
+                <td colspan="4">
+                    <div class="ui-state-highlight ui-corner-all" style="padding-left: 5px; margin-bottom:10px; text-align:center; font-weight:bold;">
+                        {$lang->makesureusdamounts}
+                    </div>
+                </td>
+            </tr>
+
+            <tr>
                 <td>{$lang->ordershpinvoverdue}</td>
                 <td><input type="number" step="any" name="totalfunds[orderShpInvOverdue]" id="totalfunds_orderShpInvOverdue" value="{$totalfunds->orderShpInvOverdue}" style="width:100px;"/></td>
                 <td>{$lang->ordersappawaitingshp}</td>
@@ -17,7 +25,7 @@
             </tr>
             <tr class="altrow">
                 <td style="font-weight:bold;">{$lang->totalfundseng}</td>
-                <td><input type="number"  step="any" name="totalfunds[totalFunds]" id="totalfunds_total" value="{$totalfunds->totalFunds}" style="width:100px;"/></td>
+                <td><input type="number"  step="any" name="totalfunds[totalFunds]" id="totalfunds_total" value="{$totalfunds->totalFunds}" style="width:100px;" class="automaticallyfilled-noneditable"/></td>
             </tr>
         </tbody>
 

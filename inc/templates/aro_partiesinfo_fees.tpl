@@ -15,5 +15,9 @@
     <td><input type="number" step="any" name="partiesinfo[otherFees]" id="partiesinfo_otherFees" value="{$aropartiesinfo_obj->otherFees}"></td>
 
 </tr>
-<tr class="altrow2"><td colspan="2">{$lang->totalfees}</td><td><input type="number" readonly name="partiesinfo[totalfees]" id="partiesinfo_totalfees" value="$partiesinfo[totalfees]"></td>
+<tr class="altrow2"><td colspan="2">{$lang->totalfees}</td>
+    <td>
+        <input type="number" readonly name="partiesinfo[totalfees]" id="partiesinfo_totalintermedfees" value="{$partiesinfo[totalintermedfees]}" class="automaticallyfilled-noneditable">
+        <input type="hidden" readonly name="partiesinfo[totalfees]" id="partiesinfo_totalfees" value="{$partiesinfo[totalfees]}">
+    </td>
 </tr>

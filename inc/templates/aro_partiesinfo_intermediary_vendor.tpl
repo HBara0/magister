@@ -13,7 +13,9 @@
                             <input id="supplier_1_id" name="partiesinfo[vendorEid]"  value="{$aropartiesinfo_obj->vendorEid}" type="hidden">
                             <div id="searchQuickResults_1" class="searchQuickResults" style="display: none;"></div>
                         </td>
-                        <td>{$lang->isaff}<input type="checkbox" name="partiesinfo[vendorIsAff]" id="vendor_isaffiliate" value="1" {$checked}></td>
+                        <td>{$lang->isaff}<input type="checkbox" name="partiesinfo[vendorIsAff]" id="vendor_isaffiliate" value="1" {$checked}>
+                            <a href="#" title="{$lang->vendorisaffdesc}"><img src="./images/icons/question.gif" ></a>
+                        </td>
                         <td id="vendor_affiliate" {$display}>{$affiliates_list['vendor']}</td>
                     </tr>
                     <tr><td>{$lang->incoterms}</td>
@@ -30,18 +32,18 @@
                         <td>{$paymentterms_list['vendor']}</td>
                     </tr>
                     <tr class="altrow2"><td>{$lang->paymenttermsdesc}</td>
-                        <td><input type="text"  name="partiesinfo[intermedPaymentTermDesc]" id="partiesinfo_intermed_PaymentTermDesc" value="{$aropartiesinfo_obj->intermedPaymentTermDesc}" placeholder="" {$partiesinfo[required_intermedpolicy]} style="width:150px;" {$is_disabled}/></td>
+                        <td><input type="text"  name="partiesinfo[intermedPaymentTermDesc]" id="partiesinfo_intermed_PaymentTermDesc" value="{$aropartiesinfo_obj->intermedPaymentTermDesc}" placeholder="Ex: days from B/L" {$partiesinfo[required_intermedpolicy]} style="width:150px;" {$is_disabled}/></td>
                         <td><input type="text"  name="partiesinfo[vendorPaymentTermDesc]" id="partiesinfo_vendor_PaymentTermDesc" value="{$aropartiesinfo_obj->vendorPaymentTermDesc}" required='required' style="width:150px;" placeholder="Ex: days from B/L"/></td>
                     </tr>
                     <tr><td>{$lang->commission} <small>{$lang->commisionlimit}</small></td>
-                        <td><input type="number" step="any" name="partiesinfo[commission]" id="partiesinfo_commission" value="{$aropartiesinfo_obj->commission}" />
+                        <td><input type="number" step="any" name="partiesinfo[commission]" id="partiesinfo_commission" value="{$aropartiesinfo_obj->commission}" class="automaticallyfilled-editable"/>
                             <input type="hidden"  id="partiesinfo_defaultcommission"/></td>
                     </tr>
-                    <tr class="altrow2"><td>{$lang->totaldiscount}</td>
+                    <tr class="altrow2"><td>{$lang->totaldiscount} <a href="#" title="{$lang->totaldiscountdesc}"><img src="./images/icons/question.gif" ></a></td>
                         <td><input type="number" step="any" name="partiesinfo[totalDiscount]" id="partiesinfo_totaldiscount" value="{$aropartiesinfo_obj->totalDiscount}"/></td>
                     </tr>
 
-                    <tr class="altrow2"><td>{$lang->commfromintermed} %</td>
+                    <tr class="altrow2"><td>{$lang->commfromintermed} % <a href="#" title="{$lang->commfromintermeddesc}"><img src="./images/icons/question.gif" ></a></td>
                         <td><input type="number" step="any" name="partiesinfo[commFromIntermed]" id="partiesinfo_commFromIntermed" value="{$aropartiesinfo_obj->commFromIntermed}"/></td>
                     </tr>
                 </table>

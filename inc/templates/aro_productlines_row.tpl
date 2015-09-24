@@ -24,37 +24,37 @@
 
     </td>
     <td>
-        <input type="number"  step="any" name="productline[$plrowid][qtyPotentiallySoldPerc]" id="productline_{$plrowid}_qtyPotentiallySoldPerc" value="{$productline[qtyPotentiallySoldPerc]}" style="width:70px;" readonly/>
+        <input type="number"  step="any" name="productline[$plrowid][qtyPotentiallySoldPerc]" id="productline_{$plrowid}_qtyPotentiallySoldPerc" value="{$productline[qtyPotentiallySoldPerc]}" style="width:70px;" readonly class="automaticallyfilled-noneditable"/>
     </td>
     <td>
         <input type="number"  step="any" name="productline[$plrowid][intialPrice]" id="productline_{$plrowid}_intialPrice" value="{$productline[intialPrice]}" style="width:100px;"/>
     </td>
     <td>
-        <input type="number" step="any" name="productline[$plrowid][fees]" id="productline_{$plrowid}_fees" value="{$productline[fees]}" readonly style="width:100px;"/>
+        <input type="number" step="any" name="productline[$plrowid][fees]" id="productline_{$plrowid}_fees" value="{$productline[fees]}" readonly style="width:100px;" class="automaticallyfilled-noneditable"/>
     </td>
     <td>
-        <input type="text" name="productline[$plrowid][affBuyingPrice]" id="productline_{$plrowid}_affBuyingPrice" value="{$productline[affBuyingPrice]}" readonly style="width:100px;"/>
+        <input type="text" name="productline[$plrowid][affBuyingPrice]" id="productline_{$plrowid}_affBuyingPrice" value="{$productline[affBuyingPrice]}" readonly style="width:100px;" class="automaticallyfilled-noneditable"/>
     </td>
     <td>
-        <input type="text" name="productline[$plrowid][totalBuyingValue]" id="productline_{$plrowid}_totalBuyingValue" value="{$productline[totalBuyingValue]}" readonly style="width:100px;"/>
+        <input type="text" name="productline[$plrowid][totalBuyingValue]" id="productline_{$plrowid}_totalBuyingValue" value="{$productline[totalBuyingValue]}" readonly style="width:100px;" class="automaticallyfilled-noneditable"/>
     </td>
     <td>
         <input type="number"  step="any" name="productline[$plrowid][costPrice]" id="productline_{$plrowid}_costPrice" value="{$productline[costPrice]}" style="width:100px;"/>
     </td>
     <td>
-        <input type="text" name="productline[$plrowid][costPriceAtRiskRatio]" id="productline_{$plrowid}_costPriceAtRiskRatio" value="{$productline[costPriceAtRiskRatio]}" readonly style="width:70px;"/>
+        <input type="text" name="productline[$plrowid][costPriceAtRiskRatio]" id="productline_{$plrowid}_costPriceAtRiskRatio" value="{$productline[costPriceAtRiskRatio]}" readonly style="width:70px;" class="automaticallyfilled-noneditable"/>
     </td>
     <td>
         <input type="number"  step="any" name="productline[$plrowid][sellingPrice]" id="productline_{$plrowid}_sellingPrice" value="{$productline[sellingPrice]}" style="width:100px;"/>
     </td>
     <td>
-        <input type="text" name="productline[$plrowid][grossMarginAtRiskRatio]" id="productline_{$plrowid}_grossMarginAtRiskRatio"  value="{$productline[grossMarginAtRiskRatio]}" readonly style="width:70px;"/>
+        <input type="text" name="productline[$plrowid][grossMarginAtRiskRatio]" id="productline_{$plrowid}_grossMarginAtRiskRatio"  value="{$productline[grossMarginAtRiskRatio]}" readonly style="width:70px;" class="automaticallyfilled-noneditable"/>
     </td>
     <td>
-        <input type="text" name="productline[$plrowid][netMargin]" id="productline_{$plrowid}_netMargin" value="{$productline[netMargin]}" readonly style="width:100px;"/>
+        <input type="text" name="productline[$plrowid][netMargin]" id="productline_{$plrowid}_netMargin" value="{$productline[netMargin]}" readonly style="width:100px;" class="automaticallyfilled-noneditable"/>
     </td>
     <td>
-        <input type="text" name="productline[$plrowid][netMarginPerc]" id="productline_{$plrowid}_netMarginPerc" value="{$productline[netMarginPerc]}" readonly style="width:70px;"/>
+        <input type="text" name="productline[$plrowid][netMarginPerc]" id="productline_{$plrowid}_netMarginPerc" value="{$productline[netMarginPerc]}" readonly style="width:70px;" class="automaticallyfilled-noneditable"/>
     </td>
     <td>
         <input type="checkbox" class="deletecheckbox" id="productline_{$plrowid}_todelete" name="productline[$plrowid][todelete]" value="1" label="Delete" oldtitle="If check-box is checked row is deleted">
