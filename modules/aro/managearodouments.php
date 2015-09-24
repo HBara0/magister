@@ -80,16 +80,24 @@ if(!($core->input['action'])) {
         //Parties Information
         $parties = array('intermed', 'vendor');
         foreach($parties as $party) {
-            $affiliates_list[$party] = parse_selectlist('partiesinfo['.$party.'Aff]', 1, $affiliate, '', '', '', array('blankstart' => 1, 'id' => 'partiesinfo_'.$party.'_aff', 'required' => 'required', 'width' => '100%'));
-            $paymentterms_list[$party] = parse_selectlist('partiesinfo['.$party.'PaymentTerm]', 4, $payment_terms, '', '', '', array('blankstart' => 1, 'id' => 'partiesinfo_'.$party.'_paymentterm', 'required' => 'required', 'width' => '100%'));
-            $incoterms_list[$party] = parse_selectlist('partiesinfo['.$party.'Incoterms]', 4, $incoterms, '', '', '', array('blankstart' => 1, 'id' => 'partiesinfo_'.$party.'_incoterms', 'required' => 'required', 'width' => '100%'));
+            $config_class = '';
+            if($party == 'intermed') {
+                $isdisabled = $disabled_list;
+                $config_class = 'automaticallyfilled-editable';
+            }
+            $affiliates_list[$party] = parse_selectlist('partiesinfo['.$party.'Aff]', 1, $affiliate, '', '', '', array('blankstart' => 1, 'id' => 'partiesinfo_'.$party.'_aff', 'required' => 'required', 'width' => '100%', 'class' => $config_class));
+            $paymentterms_list[$party] = parse_selectlist('partiesinfo['.$party.'PaymentTerm]', 4, $payment_terms, '', '', '', array('blankstart' => 1, 'id' => 'partiesinfo_'.$party.'_paymentterm', 'required' => 'required', 'width' => '100%', 'class' => $config_class));
+            $incoterms_list[$party] = parse_selectlist('partiesinfo['.$party.'Incoterms]', 4, $incoterms, '', '', '', array('blankstart' => 1, 'id' => 'partiesinfo_'.$party.'_incoterms', 'required' => 'required', 'width' => '100%', 'class' => $config_class));
         }
         $countryofshipment_list = parse_selectlist('partiesinfo[shipmentCountry]', '', $countries, '', '', '', array('blankstart' => 1, 'width' => '150px'));
         $countryoforigin_list = parse_selectlist('partiesinfo[originCountry]', '', $countries, '', '', '', array('blankstart' => 1, 'width' => '150px'));
         $display = 'style="display:none;"';
+        $aropartiesinfo_obj = new AroRequestsPartiesInformation();
+        $aropartiesinfo_obj->totalDiscount = $aropartiesinfo_obj->commFromIntermed = 0;
         eval("\$interm_vendor = \"".$template->get('aro_partiesinfo_intermediary_vendor')."\";");
         eval("\$partiesinfo_shipmentparameters = \"".$template->get('aro_partiesinfo_shipmentparameters')."\";");
         eval("\$partiesinfo_fees = \"".$template->get('aro_partiesinfo_fees')."\";");
+        unset($aropartiesinfo_obj);
     }
     if(isset($core->input['id'])) {
         $aroorderrequest = AroRequests::get_data(array('aorid' => $core->input['id']), array('simple' => false));
@@ -321,20 +329,23 @@ if(!($core->input['action'])) {
                 $partiesinfo['diffbtwpaymentdates'] = $partiesinfo['diffbtwpaymentdates']->format("%r%a");
                 $fees = array('freight', 'bankFees', 'insurance', 'otherFees', 'legalization', 'courier');
                 foreach($fees as $fee) {
-                    $partiesinfo['totalfees'] +=$aropartiesinfo_obj->$fee;
+                    $partiesinfo['totalintermedfees'] +=$aropartiesinfo_obj->$fee;
                 }
-                $partiesinfo['totalfees'] += $netmarginparms->interestValue;
+                $partiesinfo['totalinterestvaluefees'] += $netmarginparms->interestValue;
+                $partiesinfo['totalfees'] = $partiesinfo['totalintermedfees'] + $partiesinfo['totalinterestvaluefees'];
             }
             else {
                 $display = 'style="display:none;"';
             }
             foreach($parties as $party) {
+                $config_class = '';
                 if($party == 'intermed') {
                     $isdisabled = $disabled_list;
+                    $config_class = 'automaticallyfilled-editable';
                 }
-                $affiliates_list[$party] = parse_selectlist('partiesinfo['.$party.'Aff]', 1, $affiliate, $aff[$party], '', '', array('blankstart' => true, 'id' => 'partiesinfo_'.$party.'_aff', 'required' => $partiesinfo['required_intermedpolicy'], 'width' => '100%', $isdisabled => $isdisabled));
-                $paymentterms_list[$party] = parse_selectlist('partiesinfo['.$party.'PaymentTerm]', 4, $payment_terms, $paymentterm[$party], '', '', array('blankstart' => 1, 'id' => 'partiesinfo_'.$party.'_paymentterm', 'required' => $partiesinfo['required_intermedpolicy'], 'width' => '100%', $isdisabled => $isdisabled));
-                $incoterms_list[$party] = parse_selectlist('partiesinfo['.$party.'Incoterms]', 4, $incoterms, $incoterms[$party], '', '', array('blankstart' => 1, 'id' => 'partiesinfo_'.$party.'_incoterms', 'required' => $partiesinfo['required_intermedpolicy'], 'width' => '100%', $isdisabled => $isdisabled));
+                $affiliates_list[$party] = parse_selectlist('partiesinfo['.$party.'Aff]', 1, $affiliate, $aff[$party], '', '', array('blankstart' => true, 'id' => 'partiesinfo_'.$party.'_aff', 'required' => $partiesinfo['required_intermedpolicy'], 'width' => '100%', 'class' => $config_class, $isdisabled => $isdisabled));
+                $paymentterms_list[$party] = parse_selectlist('partiesinfo['.$party.'PaymentTerm]', 4, $payment_terms, $paymentterm[$party], '', '', array('blankstart' => 1, 'id' => 'partiesinfo_'.$party.'_paymentterm', 'required' => $partiesinfo['required_intermedpolicy'], 'width' => '100%', 'class' => $config_class, $isdisabled => $isdisabled));
+                $incoterms_list[$party] = parse_selectlist('partiesinfo['.$party.'Incoterms]', 4, $incoterms, $incoterms[$party], '', '', array('blankstart' => 1, 'id' => 'partiesinfo_'.$party.'_incoterms', 'required' => $partiesinfo['required_intermedpolicy'], 'width' => '100%', 'class' => $config_class, $isdisabled => $isdisabled));
                 $isdisabled = '';
             }
             $countryofshipment_list = parse_selectlist('partiesinfo[shipmentCountry]', '', $countries, $shipmentcountry, '', '', array('blankstart' => 1, 'width' => '150px'));
@@ -426,8 +437,8 @@ if(!($core->input['action'])) {
             $aff_obj = new Affiliates($aroorderrequest->affid);
             $arorequest['affiliate'] = $aff_obj->get_displayname();
             $arorequest['purchasetype'] = $purchasetype->get_displayname();
-            $currency = new Currencies($aro_request['currency']);
-            $arorequest['currency'] = $currency->get_displayname();
+            $currency = new Currencies($aroorderrequest->currency);
+            $arorequest['currency'] = $currency->alphaCode;
 
             /* Conversation message --START */
             $takeactionpage_conversation = $aroorderrequest->parse_messages(array('uid' => $core->user['uid']));
@@ -920,6 +931,10 @@ else {
         $feeperunit = $core->input['feeperunit'];
         $qtyperunit = split('_', $qtyperunit);
         $feeperunit = split('_', $feeperunit);
+        $summedqty = $core->input['summedqty'];
+        $summedfees = $core->input['summedfees'];
+        $summedfeesusd = $summedfees * $core->input['exchangeRateToUSD'];
+        $interestvalue = $core->input['interestvalue'];
 
         $i = 0;
         foreach($qtyperunit as $qty) {
@@ -1030,9 +1045,13 @@ else {
                 'ordersummary_intermedaff' => $firstparty,
                 'ordersummary_2ndparty' => $secondparty,
                 'ordersummary_3rdparty' => $thirdparty,
-                'ordersummary_totalquantity' => $quantityperuom,
-                'ordersummary_totalfees' => $feeperunit_array,
-                'ordersummary_totalintermedfees_usd' => $feeperunit_usdarray,
+                'ordersummary_totalquantityperuom' => $quantityperuom,
+                'ordersummary_totalquantity' => $summedqty,
+                'ordersummary_totalfeesperunit' => $feeperunit_array,
+                'ordersummary_totalfees' => $summedfees,
+                'ordersummary_totalintermedfeesperunit_usd' => $feeperunit_usdarray,
+                'ordersummary_totalintermedfees_usd' => $summedfeesusd,
+                'ordersummary_interestvalue' => $interestvalue,
                 'ordersummary_invoicevalue_intermed' => round($invoicevalueintermed, 2),
                 'ordersummary_invoicevalueusd_intermed' => round($invoicevalueintermed_usd, 2),
                 //'ordersummary_invoicevalue_thirdparty' => round($invoicevalue_thirdparty, 2),
@@ -1045,7 +1064,7 @@ else {
                 'ordersummary_netmargin_localperc' => round($localnetmargin_perc, 2),
                 'ordersummary_netmargin_intermedperc' => round($intermedmargin_perc, 2),
                 'ordersummary_totalamount' => round($core->input['totalamount'], 2),
-                'haveThirdParty' => $haveThirdParty
+                'haveThirdParty' => $haveThirdParty,
         );
         echo json_encode($data);
     }

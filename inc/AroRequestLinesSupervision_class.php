@@ -104,6 +104,9 @@ class AroRequestLinesSupervision extends AbstractClass {
             $actualpurchase['estDateOfSale'] = $actualpurchase['shelfLife'] = $actualpurchase['estDateOfStockEntry'] = '-';
         }
         unset($actualpurchase['transitTime'], $actualpurchase['clearanceTime'], $actualpurchase['dateOfStockEntry'], $actualpurchase['totalBuyingValue'], $actualpurchase['daysInStock']);
+        if(isset($data['diffStockSalesdates']) && !is_empty($data['diffStockSalesdates'])) {
+            $actualpurchase['diffStockSalesdates'] = $data['diffStockSalesdates'];
+        }
         return $actualpurchase;
     }
 

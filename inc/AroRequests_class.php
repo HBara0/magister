@@ -102,7 +102,7 @@ class AroRequests extends AbstractClass {
 
             $ordesummary_obj = new AroOrderSummary();
             $data['ordersummary']['aorid'] = $this->data[self::PRIMARY_KEY];
-            $ordesummary_obj->set($data['$ordesummary']);
+            $ordesummary_obj->set($data['ordesummary']);
             $ordesummary_obj->save();
 
             $data['approvalchain']['aroBusinessManager'] = $orderrequest_array['aroBusinessManager'];
