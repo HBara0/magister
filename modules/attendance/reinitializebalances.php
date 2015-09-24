@@ -140,6 +140,8 @@ else {
                         $existing_stat->delete();
                     }
                 }
+
+                $db->update_query(AttendanceAddDays::TABLE_NAME, array('isCounted' => 0), 'uid='.$user->get_id());
                 $prevbalanceset = false;
                 foreach($leaves as $leave) {
                     $stat = new LeavesStats();
@@ -166,13 +168,13 @@ else {
                             }
                         }
                     }
-                }
 
-                /* Count additional Days */
-                $adddays = AttendanceAddDays::get_data(array('uid' => $user->get_id(), 'isApproved' => 1), array('simple' => false, 'returnarray' => true));
-                if(is_array($adddays)) {
-                    foreach($adddays as $addday) {
-                        $addday->update_leavestats();
+                    /* Count additional Days */
+                    $adddays = AttendanceAddDays::get_data(array('uid' => $user->get_id(), 'isApproved' => 1, 'isCounted' => 0), array('simple' => false, 'returnarray' => true));
+                    if(is_array($adddays)) {
+                        foreach($adddays as $addday) {
+                            $addday->update_leavestats();
+                        }
                     }
                 }
             }
@@ -181,3 +183,4 @@ else {
         redirect('index.php?module=attendance/leavesstats', 1, $lang->successfullysaved);
     }
 }
+?>
