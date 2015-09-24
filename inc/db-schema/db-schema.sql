@@ -1308,11 +1308,12 @@ DROP TABLE IF EXISTS `budgeting_yef_lines`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `budgeting_yef_lines` (
   `yeflid` int(10) NOT NULL AUTO_INCREMENT,
-  `inputCheckSum` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
+  `inputCheckSum` varchar(200) NOT NULL,
   `yefid` int(10) NOT NULL,
+  `blid` int(10) NOT NULL,
   `pid` int(10) NOT NULL,
   `cid` int(10) NOT NULL,
-  `altCid` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+  `altCid` varchar(50) NOT NULL,
   `prevyeflid` int(10) NOT NULL DEFAULT '0',
   `customerCountry` int(10) NOT NULL,
   `businessMgr` int(10) NOT NULL,
@@ -1325,13 +1326,13 @@ CREATE TABLE `budgeting_yef_lines` (
   `unitPrice` float NOT NULL,
   `income` float NOT NULL,
   `incomePerc` float NOT NULL,
-  `invoice` varchar(10) COLLATE utf8_unicode_ci NOT NULL,
+  `invoice` varchar(10) NOT NULL,
   `invoiceAffid` int(10) NOT NULL,
   `invoicingEntityIncome` float NOT NULL,
   `interCompanyPurchase` int(10) NOT NULL,
   `quantity` float NOT NULL,
   `originalCurrency` int(11) NOT NULL,
-  `saleType` varchar(12) COLLATE utf8_unicode_ci NOT NULL,
+  `saleType` varchar(12) NOT NULL,
   `october` float NOT NULL,
   `november` float NOT NULL,
   `december` float NOT NULL,
@@ -1339,15 +1340,17 @@ CREATE TABLE `budgeting_yef_lines` (
   `createdOn` bigint(30) NOT NULL,
   `modifiedBy` int(10) NOT NULL,
   `modifiedOn` bigint(30) NOT NULL,
-  `commissionSplitAffid` int(10) NOT NULL,
-  `purchasingEntity` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+  `commissionSplitAffid` int(11) NOT NULL,
+  `purchasingEntity` varchar(50) NOT NULL,
   `purchasingEntityId` int(10) NOT NULL,
   `linkedBudgetLine` int(10) NOT NULL,
   `psid` int(5) NOT NULL,
   `fromBudget` tinyint(1) NOT NULL,
-  `blid` int(10) DEFAULT NULL,
+  `octoberqty` int(11) NOT NULL,
+  `novemberqty` int(11) NOT NULL,
+  `decemberqty` int(11) NOT NULL,
   PRIMARY KEY (`yeflid`)
-) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=14 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `calendar_events`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -2267,6 +2270,78 @@ CREATE TABLE `entitiessegments` (
   UNIQUE KEY `eid_2` (`eid`,`psid`),
   KEY `eid` (`eid`,`psid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=12083 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=7042 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `facilitymgmt_facilities`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `facilitymgmt_facilities` (
+  `fmfid` int(10) NOT NULL AUTO_INCREMENT,
+  `affid` int(10) NOT NULL,
+  `name` varchar(200) NOT NULL,
+  `type` int(10) NOT NULL,
+  `parent` int(10) NOT NULL,
+  `capacity` int(11) NOT NULL,
+  `numOccupants` int(11) NOT NULL,
+  `dimensions` varchar(10) NOT NULL,
+  `allowReservation` tinyint(1) NOT NULL,
+  `description` varchar(220) NOT NULL,
+  `image` text NOT NULL,
+  `isActive` tinyint(1) NOT NULL,
+  `idColor` varchar(10) NOT NULL,
+  `createdOn` bigint(30) NOT NULL,
+  `createdBy` int(10) NOT NULL,
+  `modifiedOn` bigint(30) NOT NULL,
+  `modifiedBy` int(10) NOT NULL,
+  PRIMARY KEY (`fmfid`)
+) ENGINE=MyISAM AUTO_INCREMENT=6 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `facilitymgmt_facilityfeatures`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `facilitymgmt_facilityfeatures` (
+  `fmffid` int(10) NOT NULL AUTO_INCREMENT,
+  `fmftid` int(10) NOT NULL,
+  `fmfid` int(10) NOT NULL,
+  `createdBy` int(10) NOT NULL,
+  `createdOn` bigint(30) NOT NULL,
+  `modifiedBy` int(10) NOT NULL,
+  `modifiedOn` bigint(30) NOT NULL,
+  PRIMARY KEY (`fmffid`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `facilitymgmt_factypes`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `facilitymgmt_factypes` (
+  `fmftid` int(10) NOT NULL AUTO_INCREMENT,
+  `name` varchar(110) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `title` varchar(220) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `isRoom` tinyint(1) NOT NULL,
+  `isCoWorkingSpace` tinyint(1) NOT NULL,
+  `isMainLocation` tinyint(1) NOT NULL,
+  `isActive` tinyint(1) NOT NULL,
+  `createdOn` bigint(30) NOT NULL,
+  `createdBy` int(10) NOT NULL,
+  `modifiedBy` int(10) NOT NULL,
+  `modifiedOn` bigint(30) NOT NULL,
+  PRIMARY KEY (`fmftid`)
+) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `facilitymgmt_features`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `facilitymgmt_features` (
+  `fmftid` int(10) NOT NULL AUTO_INCREMENT,
+  `name` varchar(110) NOT NULL,
+  `title` varchar(220) NOT NULL,
+  `description` varchar(220) NOT NULL,
+  `createdBy` int(10) NOT NULL,
+  `createdOn` bigint(30) NOT NULL,
+  `modifiedBy` int(10) NOT NULL,
+  `modifiedOn` bigint(30) NOT NULL,
+  PRIMARY KEY (`fmftid`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `files`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
