@@ -3,8 +3,8 @@
         <title>{$core->settings[systemtitle]} | {$lang->generatesalesreport}</title>
         {$headerinc}
         <script type="text/javascript">
-            $(function() {
-                $("select[id='type']").live('change', function() {
+            $(function () {
+                $("select[id='type']").live('change', function () {
                     var id = $(this).attr("id")
                     var value = $(this).attr("value")
                     $("div[id$=_reporttype]").not([id ^= '" + $(this).val() + "']).hide();
@@ -20,7 +20,7 @@
         <td class="contentContainer">
             <h1>{$lang->generatesalesreport}</h1>
             <div style="margin-left: 5px;">
-                <form name="perform_crm/salesreport_Form" id="perform_crm/salesreportlive_Form" method="post">
+                <form name="perform_crm/salesreport_Form" id="perform_crm/salesreportlive_Form" method="post" class="hidden-print">
                     {$lang->type} <select name="type" id="type">
                         <option value="analytic">{$lang->analytic}</option>
                         <option value="dimensional">{$lang->dimensional}</option>

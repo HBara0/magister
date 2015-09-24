@@ -266,7 +266,7 @@ if(!$core->input['action']) {
         eval("\$profiles_mibasicingredientsentry = \"".$template->get('profiles_mibasicingredientsentry_rows')."\";");
         eval("\$popup_marketdata= \"".$template->get('popup_profiles_marketdata')."\";");
 
-        $characteristics = ProductCharacteristicValues::get_data(null, array('order' => array('by' => array(ProductCharacteristicValues::DISPLAY_NAME, pcid)), 'returnarray' => true));
+        $characteristics = ProductCharacteristicValues::get_data(null, array('order' => array('by' => array(ProductCharacteristicValues::DISPLAY_NAME, 'pcid')), 'returnarray' => true));
         $characteristics_list = parse_selectlist('entitybrand[pcvid]', 4, $characteristics, null, 0, null, array('blankstart' => true));
         eval("\$popup_createbrand = \"".$template->get('popup_createbrand')."\";");
         eval("\$mkintl_section = \"".$template->get('profiles_mktintelsection')."\";");

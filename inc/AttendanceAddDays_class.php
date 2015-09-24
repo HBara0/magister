@@ -42,7 +42,7 @@ class AttendanceAddDays Extends Attendance {
 
     public function approve($fromemail) {
         global $db;
-        $id = $db->escape_string($id);
+        $id = intval($id);
         if($this->can_apporve($fromemail)) {
             $db->update_query('attendance_additionalleaves', array('isApproved' => 1, 'approvedOn' => TIME_NOW), 'identifier="'.$this->additionaldays['identifier'].'" AND isApproved="0"');
 
