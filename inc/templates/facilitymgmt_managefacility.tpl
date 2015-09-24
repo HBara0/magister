@@ -2,9 +2,6 @@
     <head>
         <title>{$core->settings[systemtitle]} | {$lang->facilitymgmt}</title>
         {$headerinc}
-        <script type="text/javascript">
-
-        </script>
     </head>
     <body>
     <tr>
@@ -33,16 +30,17 @@
                             </td>
                         </tr>
                         <tr><td>{$lang->image}</td>
-                            <td></td>
+                            <td>
+                            </td>
                         </tr>
                         <tr><td>{$lang->color}</td>
                             <td><input type="color" name="facility[idColor]" value="{$facility[idColor]}"/></td>
                         </tr>
                         <tr><td>{$lang->isactive}</td>
-                            <td><input type="checkbox" name="facility[isActive]" value="{$facility[isActive]}" {$checked[isActive]}/></td>
+                            <td><input type="checkbox" name="facility[isActive]" value="1" {$checked[isActive]}/></td>
                         </tr>
                         <tr><td>{$lang->allowreservation}</td>
-                            <td><input type="checkbox" name="facility[allowReservation]" value="{facility[allowReservation]}" {$checked[allowReservation]}/></td>
+                            <td><input type="checkbox" name="facility[allowReservation]" value="1" {$checked[allowReservation]}/></td>
                         </tr>
                     </tbody>
                 </table>

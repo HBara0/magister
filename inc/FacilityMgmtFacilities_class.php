@@ -56,4 +56,187 @@ class FacilityMgmtFacilities extends AbstractClass {
         return $this->data[self::DISPLAY_NAME];
     }
 
+    public function get_affiliate() {
+        return new Affiliates($this->data['affid']);
+    }
+
+    public static function get_facilities_tree() {
+        global $db, $core;
+        $sort_query = ' ORDER BY name ASC';
+        if(isset($core->input['sortby'], $core->input['order'])) {
+            $sort_query = $db->escape_string(' ORDER BY '.$core->input['sortby'].' '.$core->input['order']);
+        }
+
+
+        $query = $db->query("SELECT fmfid FROM ".Tprefix."facilitymgmt_facilities WHERE parent=0 {$sort_query}");
+        if($db->num_rows($query) > 0) {
+            while($facility = $db->fetch_assoc($query)) {
+
+                $level = 'parent';
+                if($menu['parent'] != 0) {
+                    $level = 'children';
+                }
+                $facility_obj = new FacilityMgmtFacilities($facility['fmfid']);
+                $facilities[$facility['fmfid']] = $facility_obj->get();
+                //$facilitys[$facility['fmfid']] = $facilitys_obj[$facility['fmfid']]->get();
+                $facilities[$facility['fmfid']]['children'] = FacilityMgmtFacilities::read_facility_children($facility['fmfid'], $simple);
+            }
+            return $facilities;
+        }
+        return false;
+    }
+
+    public function parse_facility_list(array $facilities = array(), $highlevel = true, $ref = '', $parsetype = 'list', $config = array()) {
+        global $core;
+        if(empty($facilities)) {
+            if(!isset($this->data)) {
+                return false;
+            }
+
+            if($highlevel == true) {
+                $facilities = $this->data;
+            }
+            else {
+                return false;
+            }
+        }
+
+        if($highlevel == true) {
+            if($parsetype == 'list') {
+                $facilities_list = '<ul>';
+            }
+            else {
+                $facilities_list = '<select name="'.$config['name'].'" id="'.$config['id'].'">';
+            }
+        }
+
+
+        foreach($facilities as $id => $values) {
+            if($parsetype == 'list') {
+                $facility = new FacilityMgmtFacilities($values['fmfid']);
+                if($values['parent'] == 0) {
+                    $facility_obj = new FacilityMgmtFacilities($values['fmfid']);
+                    $values['affiliate'] = $facility_obj->get_affiliate()->get_displayname();
+                    if(!empty($values['affiliate'])) {
+                        $values['affiliate'] = ' - '.$values['affiliate'];
+                    }
+                }
+                //   }
+                //<div style = "width:20%; display:inline-block; text-align: left;">'.$values['name'].'</div>'
+
+                if($values['parent'] == 0) {
+                    $facilities_list.='<br/>';
+                }
+                $editlink = '<div style="float:right"><a target="_blank" href="'.$core->settings['rootdir'].'/index.php?module=facilitymgmt/managefacility&id='.$values['fmfid'].'"  title="Edit"><img src="'.$core->settings['rootdir'].'/images/edit.gif" border="0"/></a></div>';
+                $delete_link = "<div style='float:right'><a href='#{$values['fmfid']}' id='deletefacility_{$values['fmfid']}_facilitymgmt/list_loadpopupbyid'><img src='{$core->settings[rootdir]}/images/invalid.gif' border='0' alt='{$lang->deletefacility}' /></a></div>";
+
+                $facilities_list .= '<li>'.$values['name'].$values['affiliate'];
+                unset($values['affiliate']);
+                if(is_array($values['children']) && !empty($values['children'])) {
+                    $facilities_list .= '<a href="#facility_'.$values['fmfid'].'" id="showmore_facilitychildren_'.$values['fmfid'].'">&raquo;</a>';
+                }
+
+                $facilities_list .=$delete_link.$editlink.' </li>';
+            }
+            else {
+                $facilities_list .= '<option value="'.$values['fmfid'].'">'.$ref.' '.$values['name'].'</option>';
+            }
+
+            if(is_array($values['children']) && !empty($values['children'])) {
+                //    if(!empty($values['affiliate'])) {
+                //       $config['excludeaffiliate'] = true;
+                //    }
+                if($parsetype == 'list') {
+                    $facilities_list .= '<ul id="facilitychildren_'.$values['fmfid'].'" style="display:none;">';
+                    $facilities_list .= $this->parse_facility_list($values['children'], false, $ref);
+                    unset($values['children']['affiliate']);
+                    $facilities_list .= '</ul>';
+                }
+                else {
+                    $facilities_list .= $this->parse_facility_list($values['children'], false, $ref, 'select');
+                }
+            }
+
+            if($highlevel == true) {
+                $ref = '';
+            }
+        }
+
+        if($highlevel == true) {
+            if($parsetype == 'list') {
+                $facilities_list .= '</ul>';
+            }
+            else {
+                $facilities_list .= '</select>';
+            }
+        }
+
+
+        return $facilities_list;
+    }
+
+    public function read_facility_children($id, $simple = false) {
+        global $db;
+
+        $query_select = 'fmfid';
+
+        $query = $db->query("SELECT {$query_select} FROM ".Tprefix."facilitymgmt_facilities WHERE parent=".$db->escape_string($id).' ORDER BY name ASC');
+        if($db->num_rows($query) > 0) {
+            while($facility = $db->fetch_assoc($query)) {
+                $facility_obj = new FacilityMgmtFacilities($facility['fmfid']);
+                $facilities[$facility['fmfid']] = $facility_obj->get();
+                $facilities[$facility['fmfid']]['children'] = FacilityMgmtFacilities::read_facility_children($facility['fmfid'], $simple);
+            }
+            return $facilities;
+        }
+
+        return false;
+    }
+
+    public function delete_facility($todelete) {
+        global $db;
+        $attributes = static::PRIMARY_KEY;
+        $tables = $db->get_tables_havingcolumn($attribute, 'TABLE_NAME !="'.static::TABLE_NAME.'"');
+        if(is_array($tables)) {
+            foreach($tables as $table) {
+                $query = $db->query("SELECT * FROM ".Tprefix.$table." WHERE ".$attribute."=".$todelete." ");
+                if($db->num_rows($query) > 0) {
+                    $this->errorcode = 3;
+                    return false;
+                }
+            }
+        }
+        $facilities = FacilityMgmtFacilities::get_data(array('parent' => $todelete), array('returnarray' => true));
+        if(is_array($facilities)) {
+            foreach($facilities as $facility) {
+                $facilitytodelete = $facility->delete_facility($facility->fmfid);
+                if(!$facilitytodelete) {
+                    $this->errorcode = 3;
+                    return false;
+                }
+            }
+        }
+        if($this->delete()) {
+            $this->errorcode = 0;
+            return true;
+        }
+    }
+
+    public function delete() {
+        global $db;
+        if(empty($this->data[static::PRIMARY_KEY]) && empty($this->data['inputChecksum'])) {
+            return false;
+        }
+        elseif(empty($this->data[static::PRIMARY_KEY]) && !empty($this->data['inputChecksum'])) {
+            $query = $db->delete_query(static::TABLE_NAME, 'inputChecksum="'.$db->escape_string($this->data['inputChecksum']).'"');
+        }
+        else {
+            $query = $db->delete_query(static::TABLE_NAME, static::PRIMARY_KEY.'='.intval($this->data[static::PRIMARY_KEY]));
+        }
+        if($query) {
+            return true;
+        }
+        return false;
+    }
+
 }

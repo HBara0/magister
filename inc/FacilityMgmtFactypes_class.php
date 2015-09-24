@@ -18,7 +18,7 @@ class FacilityMgmtFactypes extends AbstractClass {
 
     const PRIMARY_KEY = 'fmftid';
     const TABLE_NAME = 'facilitymgmt_factypes';
-    const DISPLAY_NAME = 'name';
+    const DISPLAY_NAME = 'title';
     const SIMPLEQ_ATTRS = '*';
     const CLASSNAME = __CLASS__;
 
@@ -36,10 +36,6 @@ class FacilityMgmtFactypes extends AbstractClass {
 
     protected function update(array $data) {
 
-    }
-
-    public function get_displayname() {
-        return $this->data[self::DISPLAY_NAME];
     }
 
 }

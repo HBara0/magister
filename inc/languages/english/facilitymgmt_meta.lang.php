@@ -1,4 +1,3 @@
-
 <?php
 $lang['facilitymgmt'] = 'Facility Management';
 $lang['managefacility'] = 'Manage Facility';
@@ -16,4 +15,7 @@ $lang['allowreservation'] = 'Allow Reservation';
 $lang['modifyfacility'] = 'Modify Facility';
 $lang['deletefacility'] = 'Delete Facility';
 $lang['cannotdeletefacility'] = 'Facility can\'t be deleted';
+$lang['facilitytree'] = 'Facility Tree';
+$lang['successfullydeleted'] = 'Successfully Deleted';
+$lang['cannotdelete'] = 'Cannot Delete';
 ?>

@@ -17,10 +17,15 @@ if($core->usergroup['facilitymgmt_canManageFacilities'] == 0) {
 if(!isset($core->input['action'])) {
     $affiliates = Affiliates::get_affiliates(array('affid' => $core->user['mainaffiliate']), array('returnarray' => true));
     $factypes = FacilityMgmtFactypes::get_data(array('isActive' => 1), array('returnarray' => true));
-    $types = FacilityMgmtFactypes::get_data(array('isActive' => 1, 'isRoom' => 0), array('returnarray' => true));
-    $types = array_keys($types);
-    $facilities = FacilityMgmtFacilities::get_data(array('affid' => $core->user['mainaffiliate'], 'isActive' => 1, 'type' => $types), array('returnarray' => true, 'operators' => (array('type' => 'IN'))));
+    $types = FacilityMgmtFactypes::get_data(array('isActive' => 1), array('returnarray' => true));
 
+    if(is_array($types)) {
+        $types = array_keys($types);
+        $facilities = FacilityMgmtFacilities::get_data(array('affid' => $core->user['mainaffiliate'], 'isActive' => 1, 'type' => $types), array('returnarray' => true, 'operators' => (array('type' => 'IN'))));
+    }
+    else {
+        $facilities = FacilityMgmtFacilities::get_data(array('affid' => $core->user['mainaffiliate'], 'isActive' => 1), array('returnarray' => true));
+    }
     if(!isset($core->input['id'])) {
         $affiliate_list = parse_selectlist('facility[affid]', 1, $affiliates, $core->user['mainaffilaite'], '', '', array('width' => '150px', 'blankstart' => true));
         $factypes_list = parse_selectlist('facility[type]', 1, $factypes, '', '', '', array('width' => '150px', 'blankstart' => true));

@@ -152,4 +152,5 @@ $lang['preview'] = 'Preview';
 $lang['requiredfields'] = 'Required Fields';
 $lang['title'] = "Title";
 $lang['contactcenter'] = "Contact Center";
+$lang['facilitymgmt'] = 'Facility Management';
 ?>
