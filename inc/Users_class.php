@@ -871,5 +871,35 @@ class Users extends AbstractClass {
         return $permissions;
     }
 
+    /**
+     * Get the object of the user from the integration class
+     * If no value is defined in the local users table, the system falls back to checking remote table by name
+     * @global type $integration
+     * @return \IntegrationOBUser|boolean
+     */
+    public function get_integrationObUser() {
+        global $integration;
+        if(class_exists('IntegrationOB', true)) {
+            if(!empty($this->integrationOBId)) {
+                return new IntegrationOBUser($this->integrationOBId, $integration->get_dbconn());
+            }
+
+            /**
+             * Attempt to get by display name
+             */
+            $intuser = IntegrationOBUser::get_data('name=\''.$this->displayName.'\' OR (firstname=\''.$this->firstName.'\' AND lastname=\''.$this->lastName.'\')');
+            if(is_object($intuser)) {
+                return $intuser;
+            }
+            else {
+                if(is_array($intuser)) {
+                    return current($intuser);
+                }
+            }
+
+            return false;
+        }
+    }
+
 }
 ?>
