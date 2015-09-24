@@ -670,3 +670,6 @@ tr.dummytrow td, tr.dummytrow th {
 .warning {
   box-shadow: 0 0 5px #ffcc33;
   border: 1px solid #ffcc33; }
+
+tfoot .coltotal, tfoot .colavg {
+  font-weight: bold; }
