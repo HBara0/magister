@@ -69,7 +69,7 @@ else {
             $currency_obj = $affiliate->get_currency();
         }
 
-        $permissions = $user->get_businesspermissions();
+        $permissions = $core->user_obj->get_businesspermissions();
         // $reportaff = new Affiliates($core->input['affids'], false);
         // $currency_obj = $reportaff->get_currency();
         //   $currency_obj = new Currencies('USD');
@@ -87,13 +87,14 @@ else {
         }
 
         $filters = "c_invoice.ad_org_id IN ('".implode("','", $orgs)."') AND docstatus NOT IN ('VO', 'CL') AND (dateinvoiced BETWEEN '".date('Y-m-d 00:00:00', $period['from'])."' AND '".date('Y-m-d 00:00:00', $period['to'])."')";
-        if(count($permissions['uid']) == 1 && in_array($core->user['uid'], $permissions['uid'])) {
+        if(count($permissions['uid']) == 1 && in_array($core->user['uid'], $permissions['uid']) && isset($permissions['spid'])) {
             $intuser = $core->user_obj->get_integrationObUser();
             if(is_object($intuser)) {
                 $filters .= ' AND (salesrep_id=\''.$intuser->get_id().'\' OR salesrep_id IS NULL)';
             }
         }
-        $integration = new IntegrationOB($intgconfig['openbravo']['database '], $intgconfig['openbravo']['entmodel']['client']);
+
+        $integration = new IntegrationOB($intgconfig['openbravo']['database'], $intgconfig['openbravo']['entmodel']['client']);
         $invoices = $integration->get_saleinvoices($filters);
         $cols = array('month', 'week', 'documentno', 'salesrep', 'customername', 'suppliername', 'productname', 'segment', 'uom', 'qtyinvoiced', 'priceactual', 'linenetamt', 'purchaseprice', 'unitcostlocal', 'costlocal', 'costusd', 'grossmargin', 'grossmarginusd', 'netmargin', 'netmarginusd', 'marginperc');
         if(is_array($invoices)) {
@@ -471,6 +472,22 @@ else {
                         $salesreport .= '</tr>';
                     }
                 }
+
+                $totalcols = array('qtyinvoiced', 'linenetamt', 'purchaseprice', 'costlocal', 'costusd', 'grossmargin', 'grossmarginusd', 'netmargin', 'netmarginusd');
+                $avgcols = array('priceactual', 'purchaseprice', 'unitcostlocal', 'marginperc');
+
+                $salesreport .= '<tfoot>';
+                foreach($cols as $col) {
+                    $class = '';
+                    if(in_array($col, $avgcols)) {
+                        $class = 'colavg';
+                    }
+                    else if(in_array($col, $totalcols)) {
+                        $class = 'coltotal';
+                    }
+                    $salesreport .= '<td class="'.$class.'"></td>';
+                }
+                $salesreport .= '</tfoot>';
                 $salesreport .= '</table><br />';
             }
         }

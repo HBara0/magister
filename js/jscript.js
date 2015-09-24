@@ -21,6 +21,7 @@ $(function () {
         var id = $(this).attr('id').split("_");
         $('input:checkbox[id^="' + id[0] + '"]:visible').not(this).prop('checked', this.checked);
     });
+
     $('tr[class*="trowtools"]').hover(function () {
         $(this).toggleClass('altrow2').children('td [id$="_tools"]').find('div').toggle();
     });
@@ -183,6 +184,7 @@ $(function () {
     $("input[class*='inlinefilterfield']").live("keyup", function () {
         var parentContainer = $(this).closest('table');
         setTimeout(function () {
+            var totals = [];
             parentContainer.children('tbody').find('tr').each(function () {
                 var toggle = 'show';
                 $(this).show();
@@ -206,6 +208,29 @@ $(function () {
                 if(toggle == 'hide') {
                     $(this).hide();
                 }
+            });
+
+            parentContainer.children('tbody').find('tr:visible').each(function () {
+                $(this).find('td').each(function () {
+                    var coltext = $(this).text().replace(/,/g, '');
+                    if(!isNaN(coltext) && coltext.length != 0) {
+                        if(isNaN(totals[$(this).index() + 1])) {
+                            totals[$(this).index() + 1] = 0;
+                        }
+                        totals[$(this).index() + 1] += parseFloat(coltext);
+                    }
+                });
+            });
+            parentContainer.children('tfoot').find('tr').each(function () {
+                $(this).find('td.coltotal,td.colavg').each(function () {
+                    if(typeof totals[$(this).index() + 1] == 'undefined') {
+                        return;
+                    }
+                    $(this).text(totals[$(this).index() + 1].toFixed(3));
+                    if($(this).attr('class') == 'colavg') {
+                        $(this).text((totals[$(this).index() + 1] / (parentContainer.children('tbody').find('tr:visible').length)).toFixed(3));
+                    }
+                });
             });
         }, 300);
     });
