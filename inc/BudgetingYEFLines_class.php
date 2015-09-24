@@ -53,6 +53,9 @@ class BudgetingYEFLines extends AbstractClass {
                 'october' => $data['october'],
                 'november' => $data['november'],
                 'december' => $data['december'],
+                'octoberqty' => $data['octoberqty'],
+                'novemberqty' => $data['novemberqty'],
+                'decemberqty' => $data['decemberqty'],
                 'createdBy' => $core->user['uid'],
                 'createdOn' => TIME_NOW,
                 'commissionSplitAffid' => $data['commissionSplitAffid'],
@@ -62,9 +65,7 @@ class BudgetingYEFLines extends AbstractClass {
                 'psid' => $data['psid'],
                 'fromBudget' => $data['fromBudget'],
         );
-        if(floor($table_array['october'] + $table_array['december'] + $table_array['november']) != 100 || ceil($table_array['october'] + $table_array['december'] + $table_array['november']) != 100) {
-            $table_array['october'] = $table_array['november'] = $table_array['december'] = 100 / 3;
-        }
+
         if(empty($table_array['createdBy'])) {
             $table_array['createdBy'] = $core->user['uid'];
         }
@@ -117,6 +118,9 @@ class BudgetingYEFLines extends AbstractClass {
             $update_array['october'] = $data['october'];
             $update_array['november'] = $data['november'];
             $update_array['december'] = $data['december'];
+            $update_array['octoberqty'] = $data['octoberqty'];
+            $update_array['novemberqty'] = $data['novemberqty'];
+            $update_array['decemberqty'] = $data['decemberqty'];
             $update_array['modifiedBy'] = $core->user['uid'];
             $update_array['modifiedOn'] = TIME_NOW;
             $update_array['commissionSplitAffid'] = $data['commissionSplitAffid'];
@@ -125,9 +129,6 @@ class BudgetingYEFLines extends AbstractClass {
             $update_array['linkedBudgetLine'] = $data['linkedBudgetLine'];
             $update_array['psid'] = $data['psid'];
             $update_array['fromBudget'] = $data['fromBudget'];
-        }
-        if(floor($update_array['october'] + $update_array['december'] + $update_array['november']) != 100 || ceil($update_array['october'] + $update_array['december'] + $update_array['november']) != 100) {
-            $update_array['october'] = $update_array['november'] = $update_array['december'] = 100 / 3;
         }
         if(empty($update_array['businessMgr'])) {
             $update_array['businessMgr'] = $core->user['uid'];

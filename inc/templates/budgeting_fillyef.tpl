@@ -118,6 +118,15 @@
                 });
 
                 $(document).on('keyup', 'input[data-max]', function () {
+                    if($(this).attr('data-name') == "{$lang->quantity}") {
+                        var month_qty = $(this).val() / 3;
+                        var month_perc = (month_qty / $(this).val()) * 100;
+                        $('input[data-quantity="' + $(this).attr('data-totalquantity') + '"]').each(function (i, obj) {
+                            $(obj).val(month_qty.toFixed(2));
+                            $(obj).removeClass("warning");
+                            $('input[id="' + $(obj).attr('data-perc') + '"]').val(month_perc.toFixed(2));
+                        });
+                    }
                     if($(this).attr('data-max') > 0 && $(this).val() > parseFloat($(this).attr('data-max'))) {
                         $("#alert_" + $(this).attr('data-rowid')).text($('input[id="errormessage"]').val() + $(this).attr('data-name'));
                         $(this).addClass("warning");
@@ -127,19 +136,23 @@
                     }
                 });
 
-                $(document).on('keyup', 'input[data-month]', function () {
+                $(document).on('keyup', 'input[data-quantity]', function () {
                     var total = 0;
-                    $('input[data-month="' + $(this).attr('data-month') + '"]').each(function (i, obj) {
+                    $('input[data-quantity="' + $(this).attr('data-quantity') + '"]').each(function (i, obj) {
                         total += parseFloat($(obj).val());
                         $(obj).removeClass("warning");
                     });
-                    if(Math.ceil(total) != 100) {
-                        $('span[id="alertpercentage_' + $(this).attr('data-month') + '"]').text('{$lang->alertpercentagesnotmatching}');
-                        $(this).addClass("warning");
-                    }
-                    else {
-                        $('span[id="alertpercentage_' + $(this).attr('data-month') + '"]').text('');
-                        $(this).removeClass("warning");
+                    $('input[data-totalquantity="' + $(this).attr('data-quantity') + '"]').val(total);
+                    $('input[data-quantity="' + $(this).attr('data-quantity') + '"]').each(function (i, obj) {
+                        var month_perc = $(obj).val() / total * 100;
+                        $('input[id="' + $(obj).attr('data-perc') + '"]').val(month_perc.toFixed(2));
+                    });
+                    if($('input[data-totalquantity="' + $(this).attr('data-quantity') + '"]').attr('data-max') > 0 && $('input[data-totalquantity="' + $(this).attr('data-quantity') + '"]').val() > parseFloat($('input[data-totalquantity="' + $(this).attr('data-quantity') + '"]').attr('data-max'))) {
+                        $("#alert_" + $('input[data-totalquantity="' + $(this).attr('data-quantity') + '"]').attr('data-rowid')).text($('input[id="errormessage"]').val() + $('input[data-totalquantity="' + $(this).attr('data-quantity') + '"]').attr('data-name'));
+                        $('input[data-totalquantity="' + $(this).attr('data-quantity') + '"]').addClass("warning");
+                    } else {
+                        $("#alert_" + $('input[data-totalquantity="' + $(this).attr('data-quantity') + '"]').attr('data-rowid')).text("");
+                        $('input[data-totalquantity="' + $(this).attr('data-quantity') + '"]').removeClass("warning");
                     }
                 });
             });</script>
@@ -168,7 +181,10 @@
                     <td  width="150px" class=" border_right" align="center" rowspan="2" valign="top" align="left">{$lang->customer} <a href="index.php?module=contents/addentities&type=customer" target="_blank"><img src="images/addnew.png" border="0" alt="{$lang->add}"></a></td>
                     <td width="150px" rowspan="2" valign="top" align="center" class=" border_right">{$lang->product} <a href="index.php?module=contents/addproducts&amp;referrer=budgeting" target="_blank"><img src="images/addnew.png" border="0" alt="{$lang->add}"></a></td>
                     <td width="150px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->saletype} <a href="#" title="{$tooltips[saletype]}"><img src="./images/icons/question.gif" ></a></td>
-                    <td width="150px" class=" border_right" rowspan="2" valign="top" align="center"><div id="quantity_tour">{$lang->quantity}</div></td>
+                    <td width="150px" class=" border_right" rowspan="2" valign="top" align="center"><div id="month_tour">{$lang->october} {$lang->quantity}</div></td>
+                    <td width="150px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->november} {$lang->quantity}</td>
+                    <td width="150px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->december} {$lang->quantity}</td>
+                    <td width="150px" class=" border_right" rowspan="2" valign="top" align="center"><div id="quantity_tour">{$lang->totalquantity}</div></td>
                     <td width="150px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->uom}</td>
                     <td width="150px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->unitprice}</td>
                     <td width="150px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->currency}</td>
@@ -179,9 +195,6 @@
                     {$hidden_colcells[localincome_head]}
                     {$hidden_colcells[remainingcommaff_head]}
                     <td width="150px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->entitypurchasingfromsupplier}</td>
-                    <td width="150px" class=" border_right" rowspan="2" valign="top" align="center"><div id="month_tour">{$lang->october} %</div></td>
-                    <td width="150px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->november} %</td>
-                    <td width="150px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->december} %</td>
                     <td width="150px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->purchasedfromaffiliate} <a href="#" title="The affiliate from which you are buying the items in exceptional cases. Only applicable for the case of intercompany transactions; one affiliate (ex. Orkila Free Zone - Alex) selling and invoicing the other affiliate (ex. Orkila Egypt). This will automatically create an intercompany sale in the budget of the select affiliate. This should not be filled unless in exceptional cases."><img src="./images/icons/question.gif" ></a></td>
                 </tr>
             </thead>

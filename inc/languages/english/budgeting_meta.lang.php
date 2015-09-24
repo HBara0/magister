@@ -277,7 +277,7 @@ $lang['helptour_quantity'] = 'This quantity is meant for only the 3 months, numb
 $lang['helptour_amount'] = 'Same process is done with the amount and the rest of quantities and amounts that are imported from the budget';
 $lang['helptour_localincome'] = 'The local income amount and percentage are the only income that will be calculated into the YEF affiliate, the rest will be allocated for a selected affiliate. Default value is 100%';
 $lang['helptour_commissionaff'] = 'The remaining income that lays outside the selected local income amount will be allocated to this affiliate';
-$lang['helptour_month'] = 'The month percentage number will be the fraction of the total YEF amount split into these three months.Imported numbers from budget are those of the S2 divided by 6';
+$lang['helptour_month'] = 'The month quantity number will be the fraction of the total YEF quantity split into these three months.Imported numbers from budget are those of the S2 divided by 6';
 $lang['createyearendforecast'] = 'Create Year End Forecast';
 $lang['generateyearendforecast'] = 'Generate Year End Forecast';
 $lang['yef'] = 'YEF';
@@ -290,4 +290,5 @@ $lang['overduereceivablesdesc'] = 'Overdue Receivables (in k local and in k USD)
 $lang['bankdesc'] = 'Bank (in K USD)';
 $lang['alertpercentagesnotmatching'] = 'Caution! The sum of percentages related to the three months is not equal to 100, current data can not be saved';
 $lang['generatingthereportmaytakeawhile'] = 'Generating The Report May Take A While, Please Wait.';
+$lang['totalquantity'] = 'Total Quantity';
 ?>

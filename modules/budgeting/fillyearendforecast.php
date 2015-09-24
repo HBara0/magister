@@ -499,15 +499,16 @@ function parse_yefline($data, $readonly = '', $source, $rownums, $supplier) {
                 if($source == 'budget') {
                     $divided_fields = array('quantity', 'amount', 'income', 'actalQty', 'actualIncome', 'actualAmount', 'localIncomeAmount');
                     //'unitPrice',localIncomePercentage, 'incomePerc'
-                    $months_fields = array('october', 'november', 'december');
-                    foreach($months_fields as $month) {
-                        $budgetline[$month] = number_format(33.333, 3);
-                    }
                     foreach($divided_fields as $field) {
                         if(!isset($budgetline[$field]) || empty($budgetline[$field])) {
                             continue;
                         }
                         $budgetline[$field] = ($budgetline[$field] * $budgetline['s2Perc'] / 100 ) / 2;
+                    }
+                    $months_fields = array('october', 'november', 'december');
+                    foreach($months_fields as $month) {
+                        $budgetline[$month] = number_format(33.333);
+                        $budgetline[$month.'qty'] = number_format(($budgetline[quantity] / 3), 2);
                     }
                 }
                 if($core->usergroup['budgeting_canFillLocalIncome'] == 1) {
@@ -535,7 +536,6 @@ function parse_yefline($data, $readonly = '', $source, $rownums, $supplier) {
                 $countries_selectlist = parse_selectlist('budgetline['.$rowid.'][customerCountry]', 0, $countries, $budgetline['customerCountry'], '', '', '');
 
                 if($source == 'budget' || $budgetline['fromBudget'] == 1) {
-
                     if(!empty($budgetline['customerCountry'])) {
                         $country = new Countries($budgetline['customerCountry']);
                         if(!empty($country->coid)) {

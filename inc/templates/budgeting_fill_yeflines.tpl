@@ -26,8 +26,11 @@
         {$segments_selectlist}
     </td>
     <td style="vertical-align:top; padding:2px;border-bottom: dashed 1px #CCCCCC;" align="center">{$saletype_selectlist}</td>
+    <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_right"><input id="october_{$rowid}" type="hidden" name="budgetline[{$rowid}][october]" value="{$budgetline[october]}"><input name="budgetline[{$rowid}][octoberqty]" data-perc="october_{$rowid}" data-quantity="{$rowid}" type="text" id="octoberqty_{$rowid}" size="10" accept="numeric" required="required" value="{$budgetline[octoberqty]}" autocomplete='off'/><span style="color:red" id="alertpercentage_{$rowid}"></span></td>
+    <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_right"><input id="november_{$rowid}" type="hidden" name="budgetline[{$rowid}][november]" value="{$budgetline[november]}"><input name="budgetline[{$rowid}][novemberqty]" data-perc="november_{$rowid}" data-quantity="{$rowid}"  type="text" id="novemberqty_{$rowid}" size="10" accept="numeric" required="required" value="{$budgetline[novemberqty]}" autocomplete='off'/></td>
+    <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_right"><input id="december_{$rowid}" type="hidden" name="budgetline[{$rowid}][december]" value="{$budgetline[december]}"><input name="budgetline[{$rowid}][decemberqty]" data-perc="december_{$rowid}" data-quantity="{$rowid}"  type="text" id="decemberqty_{$rowid}" size="10" accept="numeric" required="required" value="{$budgetline[decemberqty]}" autocomplete='off'/></td>
     <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_right">
-        <input name="budgetline[{$rowid}][quantity]" type="text" id="Qty_{$rowid}" size="10" accept="numeric" data-rowid="{$rowid}"  data-name="{$lang->quantity}" data-max="{$maxbudgetline[quantity]}" value="{$budgetline[quantity]}"{$required} >
+        <input name="budgetline[{$rowid}][quantity]" type="text" id="Qty_{$rowid}" size="10" accept="numeric" data-rowid="{$rowid}" data-totalquantity="{$rowid}" data-name="{$lang->quantity}" data-max="{$maxbudgetline[quantity]}" value="{$budgetline[quantity]}"{$required} >
         {$previous_yearsqty}
     </td>
     <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left"><select name="budgetline[{$rowid}][UoM]" disabled="disabled"><option value="kg">KG</option></select></td>
@@ -40,9 +43,7 @@
         {$hidden_colcells[localincome_row]}
         {$hidden_colcells[remainingcommaff_header_row]}
     <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center">{$purchasingentity_selectlist}</td>
-    <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left"><input name="budgetline[{$rowid}][october]" data-month="{$rowid}" type="text" id="october_{$rowid}" size="10" accept="numeric" required="required" value="{$budgetline[october]}" autocomplete='off'/><span style="color:red" id="alertpercentage_{$rowid}"></span></td>
-    <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left"><input name="budgetline[{$rowid}][november]" data-month="{$rowid}"  type="text" id="november_{$rowid}" size="10" accept="numeric" required="required" value="{$budgetline[november]}" autocomplete='off'/></td>
-    <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left"><input name="budgetline[{$rowid}][december]" data-month="{$rowid}"  type="text" id="december_{$rowid}" size="10" accept="numeric" required="required" value="{$budgetline[december]}" autocomplete='off'/></td>
+
     <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left">{$purchasefromaff}{$frombudgetline}
     </td>
 </tr>
