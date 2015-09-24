@@ -365,8 +365,11 @@ function parse_selectlist($name, $tabindex, $options, $selected_options, $multip
     if(isset($config['width'])) {
         $list_style = 'width: '.$config['width'].';';
     }
+    if(isset($config['class'])) {
+        $list_class = ' class=" '.$config['class'].'" ';
+    }
 
-    $list .= '<select style="'.$list_style.'" id="'.$id.'" name="'.$name.'" '.$disabled.' size="'.$config['size'].'" tabindex="'.$tabindex.'"'.$required.$multiple.$onchange_actions.'>';
+    $list .= '<select style="'.$list_style.'" id="'.$id.'" name="'.$name.'" '.$disabled.' size="'.$config['size'].'" tabindex="'.$tabindex.'"'.$required.$multiple.$onchange_actions.$list_class.'>';
     if($config['blankstart'] == true && empty($config['placeholder'])) {
         $list .= '<option></option>';
     }
