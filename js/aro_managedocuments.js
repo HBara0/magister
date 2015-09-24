@@ -213,6 +213,7 @@ $(function() {
                 }
             }
         });
+        $("span[id^='ordersummary_curr']").text($(this).find(":selected").text());
     });
     //------------------------------------------------------------------------------------//
     //-------------------Get Warehouse policy parms---------------------------------------//
@@ -422,11 +423,18 @@ $(function() {
                 total += parseFloat(this.value);
             }
         });
+
+        $("input[id='partiesinfo_totalintermedfees']").val(total);
+
         var interestvalue = $("input[id='parmsfornetmargin_interestvalue']").val();
         if(interestvalue.length > 0) {
             total += parseFloat(interestvalue);
         }
-        $("input[id='partiesinfo_totalfees']").val(total).trigger("click", $("input[id='unitfee_btn']"));
+        $("input[id='partiesinfo_totalfees']").val(total);
+        $("input[id='partiesinfo_totalfees']").trigger("change");
+        $("input[id='partiesinfo_totalfees']").trigger("click", $("input[id='unitfee_btn']"));
+
+        // $("input[id='partiesinfo_totalfees']").val(total).trigger("click", $("input[id='unitfee_btn']"));
 //        $("input[id$='_intialPrice']").trigger("change");
 //        var updateinterestvalue = setTimeout(function() {
 //            $("input[id='ordersummary_btn']").trigger("click");
@@ -667,11 +675,14 @@ $(function() {
         var totalfee = 0;
         var totalamount = totalcommision = comm = invoicevalue_local = invoicevalue_local_RIC = 0;
         var invoicevalue_intermed = sellingpriceqty_product = local_netMargin = 0;
+        var sum_totalqty = 0;
+        var sum_totalfees = $("input[id='partiesinfo_totalintermedfees']").val();
         $("tbody[id^='productline_']").find($("select[id$='_uom']")).each(function() {
             var id = $(this).attr('id').split('_');
             totalqty = parseFloat($("input[id='productline_" + id[1] + "_quantity']").val());
             if(!isNaN(totalqty)) {
                 totalquantity[$(this).val()] = parseFloat(totalquantity[$(this).val()] || 0) + totalqty;
+                sum_totalqty = totalqty + parseFloat(sum_totalqty || 0);
             }
             totalfee = parseFloat($("input[id='productline_" + id[1] + "_fees']").val());
             if(!isNaN(totalfee)) {
@@ -722,7 +733,7 @@ $(function() {
         attributes = attributes + "&POIintermed=" + $('input[id=parmsfornetmargin_intermedPeriodOfInterest]').val();
         attributes = attributes + "&intermedAff=" + $("select[id='partiesinfo_intermed_aff']").val();
         attributes = attributes + "&customer=" + $("input[id='customer_1_id']").val() + "&commFromIntermed=" + $("input[id='partiesinfo_commFromIntermed']").val() + "&totalfeespaidbyintermed=" + $('input[id=partiesinfo_totalfees]').val();
-
+        attributes = attributes + "&summedqty=" + sum_totalqty + "&summedfees=" + sum_totalfees + "&interestvalue=" + $("input[id='parmsfornetmargin_interestvalue']").val();
         sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populateordersummary' + attributes, function(json) {
             if(json["haveThirdParty"] == 1) {
                 $("td[id^='ordersummary_thirdparty']").show();
@@ -823,6 +834,20 @@ $(function() {
     $("input[id='partiesinfo_commission']").live('keyup', function() {
         $("input[id='partiesinfo_defaultcommission']").val($("input[id='partiesinfo_commission']").val());
     });
+
+    //--------------------------------------------------------------
+
+    $("a[id='ordersummary_seemore']").live('click', function() {
+        if($(this).text() == 'See More') {
+            $(this).text('See Less');
+            $("tfoot[id='ordersummary_tfoot']").show();
+        } else {
+            $(this).text('See More');
+            $("tfoot[id='ordersummary_tfoot']").hide();
+
+        }
+    });
+
 });
 var rowid = '';
 function addactualpurchaserow(id, callback) {
