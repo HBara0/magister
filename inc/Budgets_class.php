@@ -400,7 +400,7 @@ class Budgets extends AbstractClass {
             $budgetline_query_where = ' AND bdl.businessMgr IN ('.$db->escape_string(implode(',', $options['filters']['businessMgr'])).')';
         }
 
-        for($year = $data['year']; $year >= ($data['year'] - 2); $year--) {
+        for($year = $data['year']; $year >= ($data['year'] - 1); $year--) {
             if($year == $data['year']) {
                 continue;
             }
@@ -480,7 +480,7 @@ class Budgets extends AbstractClass {
         }
     }
 
-    public function get_budgetLines($bid = '', $options = array(), $yefdata = '') {
+    public function get_budgetLines($bid = '', $options = array()) {
         global $db;
         if(empty($bid)) {
             $bid = $this->data['bid'];
@@ -504,11 +504,9 @@ class Budgets extends AbstractClass {
                     }
                     $budgetline = new BudgetLines($budgetline_data['blid']);
                     $prevbudgetline = new BudgetLines($budgetline_data['prevblid']);
-                    if(!empty($yefdata[$budgetline_data['cid']][$budgetline_data['pid']][$budgetline_data['saleType']]) && is_array($yefdata[$budgetline_data['cid']][$budgetline_data['pid']][$budgetline_data['saleType']])) {
-                        continue;
-                    }
+
                     $budgetline_details[$budgetline_data['cid']][$budgetline_data['pid']][$budgetline_data['saleType']] = $budgetline->get();
-                    $budgetline_details[$budgetline_data['cid']][$budgetline_data['pid']][$budgetline_data['saleType']]['prevbudget'] [] = $prevbudgetline->get();
+                    $budgetline_details[$budgetline_data['cid']][$budgetline_data['pid']][$budgetline_data['saleType']]['prevbudget'][] = $prevbudgetline->get();
                 }
                 return $budgetline_details;
             }

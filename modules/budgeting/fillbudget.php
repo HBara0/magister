@@ -241,9 +241,34 @@ if(!$core->input['action']) {
                                     $altcid = $prev_budgetline['altCid'];
                                 }
 
+                                /**
+                                 * Below to be replaced by loop
+                                 */
                                 if(empty($budgetline['customerCountry'])) {
                                     $budgetline['customerCountry'] = $prev_budgetline['customerCountry'];
                                 }
+
+                                if(empty($budgetline['purchasingEntity'])) {
+                                    $budgetline['purchasingEntity'] = $prev_budgetline['purchasingEntity'];
+                                }
+
+                                if(empty($budgetline['localIncomePercentage'])) {
+                                    $budgetline['localIncomePercentage'] = $prev_budgetline['localIncomePercentage'];
+                                }
+
+                                if(!empty($prev_budgetline['interCompanyPurchase'])) {
+                                    $budgetline['interCompanyPurchase'] = $prev_budgetline['interCompanyPurchase'];
+                                    $intercompany_obj = new Affiliates($prev_budgetline['interCompanyPurchase']);
+                                    $budgetline['interCompanyPurchase_output'] = $intercompany_obj->get_displayname();
+                                }
+                                if(!empty($prev_budgetline['commissionSplitAffid'])) {
+                                    $budgetline['commissionSplitAffid'] = $prev_budgetline['commissionSplitAffid'];
+                                    $intercompany_obj = new Affiliates($prev_budgetline['commissionSplitAffid']);
+                                    $budgetline['commissionSplitAffid_output'] = $intercompany_obj->get_displayname();
+                                }
+
+                                $budgetline['originalCurrency'] = $prev_budgetline['originalCurrency'];
+                                $budgetline['psid'] = $prev_budgetline['psid'];
                             }
                         }
                         if(empty($budgetline['localIncomePercentage'])) {
@@ -266,8 +291,6 @@ if(!$core->input['action']) {
                         $purchase_selectlistdata = array('alex' => 'Orkila FZ - Alex', 'fze' => 'Orkila Jebel Ali FZE', 'int' => 'Orkila International', 'customer' => 'Customer', 'direct' => $budget_data['affiliateName']);
                         $purchasingentity_selectlist = parse_selectlist('budgetline['.$rowid.'][purchasingEntity]', 0, $purchase_selectlistdata, $budgetline['purchasingEntity'], '', '', array('id' => 'purchasingEntity_'.$rowid));
                         $display = 'none';
-
-
 
                         if(empty($budgetline['cid']) && $budgetline['altCid'] == 'Unspecified Customer') {
                             $checked_checkboxes[$rowid]['unspecifiedCustomer'] = ' checked="checked"';
@@ -369,7 +392,7 @@ if(!$core->input['action']) {
 
         $js_currencies = json_encode($saltypes_currencies);
         $js_saletypesinvoice = json_encode($saletypes_invoicing);
-        //  $js_saletypespurchase = json_encode($saletypes_purchasing);
+//  $js_saletypespurchase = json_encode($saletypes_purchasing);
 
         /* Parse values for JS - END */
         /* Parse  local amount felds based on specific permission */

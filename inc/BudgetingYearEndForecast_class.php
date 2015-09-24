@@ -118,7 +118,7 @@ class BudgetingYearEndForecast extends AbstractClass {
                         $yefline_data['cid'] = md5($yefline_data['altCid'].$yefline_data['customerCountry'].$yefline_data['saleType'].$yefline_data['pid']);
                     }
                     $yefline = new BudgetingYEFLines($yefline_data['yeflid']);
-                    $yefline_details[$yefline_data['cid']][$yefline_data['pid']][$yefline_data['saleType']][$yefline_data['inputChecksum']] = $yefline->get();
+                    $yefline_details[$yefline_data['cid']][$yefline_data['pid']][$yefline_data['saleType']] = $yefline->get();
                 }
                 return $yefline_details;
             }

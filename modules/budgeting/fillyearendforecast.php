@@ -12,7 +12,7 @@ if(!defined('DIRECT_ACCESS')) {
     die('Direct initialization of this file is not allowed.');
 }
 if($core->usergroup['canUseBudgeting'] == 0) {
-//  error($lang->sectionnopermission);
+    error($lang->sectionnopermission);
 }
 if(!$core->input['action']) {
     if($core->input['stage'] == 'fillbudgetline') {
@@ -350,7 +350,8 @@ else {
     }
 }
 function parse_yefline($data, $readonly = '', $source, $rownums, $supplier) {
-    global $template, $core, $db, $lang;
+    global $template, $core, $db, $lang, $yef_data;
+
     foreach($data as $cid => $customersdata) {
         /* Get Customer name from object */
         if(!is_int($cid)) {
@@ -381,67 +382,6 @@ function parse_yefline($data, $readonly = '', $source, $rownums, $supplier) {
                     $disabledattrs ['pid'] = 'disabled = "disabled"';
                 }
                 $previous_yearsqty = $previous_yearsamount = $previous_yearsincome = $prevyear_incomeperc = $prevyear_unitprice = $previous_actualqty = $previous_actualamount = $previous_actualincome = '';
-//                if($is_prevonly === true || isset($budgetline['prevbudget'])) {
-//                    if($is_prevonly == true) {
-//                        $prev_budgetlines = $budgetline;
-//                    }
-//                    elseif(isset($budgetline['prevbudget'])) {
-//                        $prev_budgetlines = $budgetline['prevbudget'];
-//                    }
-//
-//                    foreach($prev_budgetlines as $prev_budgetline) {
-//                        if(!isset($budgetline['invoice'])) {
-//                            $budgetline['invoice'] = $prev_budgetline['invoice'];
-//                        }
-//                        if($is_prevonly == true) {
-//                            foreach($unsetable_fields as $field) {
-//                                unset($budgetline[$field]);
-//                            }
-//                        }
-//                        /* Get Actual data from mediation tables --START */
-//
-////								if(empty($budgetline['actualQty']) || empty($budgetline['actualincome']) || empty($budgetline['actualamount'])) {
-////									$mediation_actual = $budgetobj->get_actual_meditaiondata(array('pid' => $prev_budgetline['pid'], 'cid' => $prev_budgetline['cid'], 'saleType' => $prev_budgetline['saleType']));
-////
-////									$budgetLines['actualQty'] = $mediation_actual['quantity'];
-////									$actualqty = '<input type = "hidden" name = '.$budgetline['quantity'].' value = '.$budgetLines['actualQty'].' />';
-////									$budgetLines['actualamount'] = $mediation_actual['cost'];
-////									$budgetLines['actualincome'] = $mediation_actual['price'];
-////								}
-//                        $budgetline['alternativecustomer'] .= '<span style = "display:block;">'.ucfirst($prev_budgetline['altCid']).'</span>';
-//                        if(!empty($budgetline['cid']) || !empty($budgetline['altCid']) || $prev_budgetline['altCid'] == 'Unspecified Customer') {
-//                            unset($budgetline['alternativecustomer']);
-//                        }
-////                                $budgetline['alternativeproduct'] .= '<span style = "display:block;">'.ucfirst($prev_budgetline['altPid']).'</span>';
-//                        $previous_yeflid = '<input type = "hidden" name = "budgetline['.$rowid.'][prevblid]" value = "'.$prev_budgetline['yeflid'].'" />';
-//                        // $previous_customercountry = '<input type = "hidden" name = "budgetline['.$rowid.'][customerCountry]" value = "'.$prev_budgetline['customerCountry'].'" />';
-//                        $previous_yearsqty .= '<span class = "altrow smalltext" style = "display:block;"><strong>'.$prev_budgetline['year'].'</strong><br />'.$lang->budgetabbr.': '.$prev_budgetline['quantity'].' | '.$lang->actualabbr.': '.$prev_budgetline['actualQty'].'</span>';
-//                        $previous_yearsamount .= '<span class = "altrow smalltext" style = "display:block;"><strong>'.$prev_budgetline['year'].'</strong><br />'.$lang->budgetabbr.': '.$prev_budgetline['amount'].' | '.$lang->actualabbr.': '.$prev_budgetline['actualAmount'].'</span>';
-//                        $previous_yearsincome .= '<span class = "altrow smalltext" style = "display:block;"><strong>'.$prev_budgetline['year'].'</strong><br />'.$lang->budgetabbr.': '.$prev_budgetline['income'].' | '.$lang->actualabbr.': '.$prev_budgetline['actualIncome'].'</span>';
-//                        $previous_yearslocalincome .= '<span class = "altrow smalltext" style = "display:block;"><strong>'.$prev_budgetline['year'].'</strong><br />'.$lang->budgetabbr.': '.$prev_budgetline['localIncomeAmount'].' | '.$lang->actualabbr.':</span>';
-//
-//                        $prev_budgetline['actualIncomePerc'] = 0;
-//                        if(!empty($prev_budgetline['actualAmount'])) {
-//                            $prev_budgetline['actualIncomePerc'] = round(($prev_budgetline['actualIncome'] * 100) / $prev_budgetline['actualAmount'], 2);
-//                        }
-//                        $prevyear_incomeperc .= '<span class = "altrow smalltext" style = "display:block;"><strong>'.$prev_budgetline['year'].'</strong><br />'.$lang->budgetabbr.': '.$prev_budgetline['incomePerc'].' | '.$lang->actualabbr.': '.$prev_budgetline['actualIncomePerc'].'</span>';
-//
-//                        $prev_budgetline['actualUnitPrice'] = 0;
-//                        if(!empty($prev_budgetline['actualQty'])) {
-//                            $prev_budgetline['actualUnitPrice'] = round($prev_budgetline['actualAmount'] / $prev_budgetline['actualQty'], 2);
-//                        }
-//                        $prevyear_unitprice .= '<span class = "altrow smalltext" style = "display:block;"><strong>'.$prev_budgetline['year'].'</strong><br />'.$lang->budgetabbr.': '.$prev_budgetline['unitPrice'].' | '.$lang->actualabbr.': '.$prev_budgetline['actualUnitPrice'].'</span>';
-//
-//                        $altcid = $budgetline['altCid'];
-//                        if(empty($altcid)) {
-//                            $altcid = $prev_budgetline['altCid'];
-//                        }
-//
-//                        if(empty($budgetline['customerCountry'])) {
-//                            $budgetline['customerCountry'] = $prev_budgetline['customerCountry'];
-//                        }
-//                    }
-//                }
 
                 if(empty($budgetline['localIncomePercentage'])) {
                     $budgetline['localIncomePercentage'] = 0;
@@ -462,7 +402,7 @@ function parse_yefline($data, $readonly = '', $source, $rownums, $supplier) {
                 $saletype_selectlist = parse_selectlist('budgetline['.$rowid.'][saleType]', 0, $saletype_selectlistdata, $saleid, '', '', array('id' => 'salestype_'.$rowid));
                 $invoice_selectlist = parse_selectlist('budgetline['.$rowid.'][invoice]', 0, $invoice_selectlistdata, $budgetline['invoice'], '', '', array('id' => 'invoice_'.$rowid));
                 $purchase_selectlistdata = array('alex' => 'Orkila FZ - Alex', 'fze' => 'Orkila Jebel Ali FZE', 'int' => 'Orkila International', 'customer' => 'Customer', 'direct' => $yef_data['affiliateName']);
-                $purchasingentity_selectlist = parse_selectlist('budgetline['.$rowid.'][purchasingEntity]', 0, $purchase_selectlistdata, $budgetline['purchasingEntity'], '', '', array('id' => 'purchasingEntity_'.$rowid));
+                $purchasingentity_selectlist = parse_selectlist('budgetline['.$rowid.'][purchasingEntity]', 0, $purchase_selectlistdata, $budgetline['purchasingEntity'], '', '', array('disabled' => true, 'id' => 'purchasingEntity_'.$rowid));
                 if(!empty($budgetline['interCompanyPurchase'])) {
                     $intercompany_obj = new Affiliates($budgetline['interCompanyPurchase']);
                     $budgetline['interCompanyPurchase_output'] = $intercompany_obj->get_displayname();
@@ -471,13 +411,13 @@ function parse_yefline($data, $readonly = '', $source, $rownums, $supplier) {
                     $intercompany_obj = new Affiliates($budgetline['commissionSplitAffid']);
                     $budgetline['commissionSplitAffid_output'] = $intercompany_obj->get_displayname();
                 }
-                $purchasefromaff = '<input type = "text" placeholder = "'.$lang->search.' '.$lang->affiliate.'" id = "affiliate_noexception_'.$rowid.'_autocomplete" name = "" value = "'.$budgetline['interCompanyPurchase_output'].'" autocomplete = "off" />
-                <input type = "hidden" value = "'.$budgetline['interCompanyPurchase'].'" id = "affiliate_noexception_'.$rowid.'_id" name = "budgetline['.$rowid.'][interCompanyPurchase]" />';
+                $purchasefromaff = '<input type="text" placeholder="'.$lang->search.' '.$lang->affiliate.'" id="affiliate_noexception_'.$rowid.'_autocomplete" name = "" value = "'.$budgetline['interCompanyPurchase_output'].'" autocomplete = "off" />
+                <input type = "hidden" value="'.$budgetline['interCompanyPurchase'].'" id="affiliate_noexception_'.$rowid.'_id" name = "budgetline['.$rowid.'][interCompanyPurchase]" />';
                 if($budgetline['fromBudget'] == 1 || $source == 'budget') {
-                    $purchasefromaff = '<input type = "text" disabled value = "'.$budgetline['interCompanyPurchase_output'].'" ><input type = "hidden" value = "'.$budgetline['interCompanyPurchase'].'" id = "affiliate_noexception_'.$rowid.'_id" name = "budgetline['.$rowid.'][interCompanyPurchase]" />';
-                    $purchasingentity_selectlist = '<input type = "text" disabled value = "'.$purchase_selectlistdata[$budgetline['purchasingEntity']].'" name = "purchasenetitytname"><input type = "hidden" value = "'.$budgetline['purchasingEntity'].'" name = "budgetline['.$rowid.'][purchasingEntity]">';
-                    $saletype_selectlist = '<input type = "text" disabled value = "'.$saletype_selectlistdata[$saleid].'" name = "saletypename"><input type = "hidden" value = "'.$saleid.'" name = "budgetline['.$rowid.'][saleType]">';
-                    $invoice_selectlist = '<input type = "text" disabled value = "'.$invoice_selectlistdata[$budgetline['invoice']].'" name = "invoicename"><input type = "hidden" value = "'.$budgetline['invoice'].'" name = "budgetline['.$rowid.'][invoice]">';
+                    $purchasefromaff = '<input type="text" disabled value = "'.$budgetline['interCompanyPurchase_output'].'" ><input type = "hidden" value = "'.$budgetline['interCompanyPurchase'].'" id = "affiliate_noexception_'.$rowid.'_id" name = "budgetline['.$rowid.'][interCompanyPurchase]" />';
+                    $purchasingentity_selectlist = '<input type="text" disabled value = "'.$purchase_selectlistdata[$budgetline['purchasingEntity']].'" name = "purchasenetitytname"><input type = "hidden" value="'.$budgetline['purchasingEntity'].'" name = "budgetline['.$rowid.'][purchasingEntity]">';
+                    $saletype_selectlist = '<input type="text" disabled value="'.$saletype_selectlistdata[$saleid].'" name = "saletypename"><input type = "hidden" value = "'.$saleid.'" name = "budgetline['.$rowid.'][saleType]">';
+                    $invoice_selectlist = '<input type="text" disabled value="'.$invoice_selectlistdata[$budgetline['invoice']].'" name = "invoicename"><input type = "hidden" value = "'.$budgetline['invoice'].'" name = "budgetline['.$rowid.'][invoice]">';
                 }
                 if(empty($budgetline['purchasingEntity'])) {
                     $budgetline['purchasingEntity'] = 'direct';
