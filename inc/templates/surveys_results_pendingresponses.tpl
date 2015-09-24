@@ -1,6 +1,4 @@
-
 <div class="subtitle">{$lang->pendingresponses}</div>
-
 <div style="width: 100%; height: 200px; overflow:auto; display: inline-block; vertical-align: top;">
     <table class="datatable">
         <thead>
@@ -14,4 +12,13 @@
             {$pendingresponsesrows}
         </tbody>
     </table>
+</div>
+<div style="display:inline-block; width: 25%; margin:0; text-align:right; float:right;">
+    <div id="perform_surveys/viewresults_Results">
+        <form action="#" method="post" id="perform_surveys/viewresults_Form" name="perform_surveys/viewresults_Form">
+            <input type="hidden" value="{$core->input[identifier]}" name="identifier">
+            <input name="action" value="sendreminders" type="hidden" />
+            <input value="{$lang->sendreminders}" type="button" id="perform_surveys/viewresults_Button" class="button" {$display[sendreminders]}/>
+        </form>
+    </div>
 </div>
