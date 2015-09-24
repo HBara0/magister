@@ -20,12 +20,14 @@ if($_REQUEST['authkey'] == 'kia5ravb$op09dj4a!xhegalhj') {
             19 => array(398),
             22 => array(248,),
             23 => array(416),
-            1 => array(333),
-            21 => array(158),
+            1 => array(333, 356),
+            21 => array(158, 63),
             27 => array(67),
             20 => array('fatimatou.diallo'),
             11 => array(111),
-            2 => array('amal.dababneh')
+            2 => array('amal.dababneh', 34),
+            7 => array(333),
+            16 => array(392)
     );
     $affiliates = Affiliates::get_affiliates(array('integrationOBOrgId' => 'integrationOBOrgId IS NOT NULL'), array('simple' => false, 'returnarray' => true, 'operators' => array('integrationOBOrgId' => 'CUSTOMSQLSECURE')));
     if(is_array($affiliates)) {
