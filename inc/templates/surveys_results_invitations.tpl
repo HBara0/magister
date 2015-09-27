@@ -5,7 +5,7 @@
     <form action="#" method="post" id="perform_surveys/createsurvey_Form" name="perform_surveys/createsurvey_Form">
         <input type="hidden" value="{$core->input[identifier]}" name="identifier">
         <input name="action" value="sendinvitations" type="hidden" />
-        <input value="{$lang->send} {$lang->invitations}" type="button" id="perform_surveys/createsurvey_Button" class="button"/>
+        <div><input value="{$lang->send} {$lang->invitations}" type="button" id="perform_surveys/createsurvey_Button" class="button"/></div>
 
 
         <table class="datatable">

@@ -84,7 +84,7 @@
                     <option value="100">100%</option>
                 </select>
             </div><br/>
-            <div style="width:20%; display:inline-block;">{$lang->prerequisit}</div><div style="width:70%; display:inline-block;">
+            <div style="width:20%; display:inline-block;">{$lang->prerequisite}</div><div style="width:70%; display:inline-block;">
                 <input style="width: 100%" type="text" {$disabled}  id="alltasks_autocomplete" autocomplete="false" tabindex="1" value="{$taskname}" required="required"/>
                 <input type='hidden' id='alltasks_id'  name="task[prerequisitTask]" value="{$task[prerequisitTask]}"/>
                 <input type='hidden' id='alltasks_id_output' name="task[prerequisitTask]" value="{$task[prerequisitTask]}" disabled/>

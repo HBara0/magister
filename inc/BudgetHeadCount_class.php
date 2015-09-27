@@ -101,7 +101,7 @@ class BudgetHeadCount extends AbstractClass {
                         if($input == 'budgetPrevYear') {
                             $readonly = $disabledfield;
                         }
-                        $column_output .=' <td style="width:10%">'.parse_textfield('headcount['.$group->posgid.']['.$input.']', 'headcount_'.$input, 'number', $headcount[$input], array('accept' => 'numeric', 'step' => '1', 'style' => 'width:100%;', 'min' => 0)).'</td>'; //$readonly => $readonly, 
+                        $column_output .=' <td style="width:10%">'.parse_textfield('headcount['.$group->posgid.']['.$input.']', 'headcount_'.$input, 'number', $headcount[$input], array('accept' => 'numeric', 'step' => '1', 'style' => 'width:100%;', 'min' => 0)).'</td>'; //$readonly => $readonly,
                         unset($readonly);
                     }
                     else {
@@ -122,7 +122,7 @@ class BudgetHeadCount extends AbstractClass {
         return $budgeting_total_headcount;
     }
 
-    private function validate_requiredfields(array $data = array()) {
+    protected function validate_requiredfields(array $data = array()) {
         if(is_array($data)) {
             $required_fields = array('bfbid', 'posgid', 'actualPrevThreeYears', 'actualPrevTwoYears', 'yefPrevYear', 'budgetCurrent');
             foreach($required_fields as $field) {

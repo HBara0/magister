@@ -63,14 +63,17 @@ elseif($core->input['action'] == 'do_perform_intermedaffshipment') {
     $coveredcountries = substr($coveredcountries, 0, -1);
     /* Get Buying Aff covered Countries -END */
 
-    $where = " ad_org_id='".$intermedaff_orgid."' AND (c_bpartner_id='".$buyingaff_orgid."'";
-    $where.= "OR EXISTS (SELECT * FROM c_bpartner_location "
-            ."where EXISTS (SELECT * FROM c_location where c_country_id IN(".$coveredcountries.") AND c_location.c_location_id=c_bpartner_location.c_location_id)"
-            ." AND c_bpartner_location.c_bpartner_location_id=c_order.c_bpartner_location_id)"
-            .") AND docstatus = 'CO' "
-            ."AND c_order_id NOT IN (select c_order_id from m_inout) "
+    $buyingaff = new IntegrationOBOrgInfo($buyingaff_orgid);
+    $where = " ad_org_id='".$intermedaff_orgid."' AND c_bpartner_id='".$buyingaff->get_bp()->get_id()."'";
+    $where .= //"OR EXISTS (SELECT * FROM c_bpartner_location "
+            // ."WHERE EXISTS (SELECT * FROM c_location where c_country_id IN (".$coveredcountries.") AND c_location.c_location_id=c_bpartner_location.c_location_id)"
+            //." AND c_bpartner_location.c_bpartner_location_id=c_order.c_bpartner_location_id)"
+            // .") "
+            " AND docstatus = 'CO' "
+            ."AND NOT EXISTS (SELECT c_order_id FROM m_inout WHERE m_inout.c_order_id=c_order.c_order_id)"
             ."ORDER BY dateordered ASC";
-    $orders = IntegrationOBOrder::get_data($where);
+
+    $orders = IntegrationOBOrder::get_data($where, array('returnarray' => true));
     if(is_array($orders)) {
         foreach($orders as $order_obj) {
             $order = $order_obj->get();
@@ -102,7 +105,7 @@ elseif($core->input['action'] == 'do_perform_intermedaffshipment') {
             eval("\$statusinfo_output = \"".$template->get('warehousemgmt_intermedaffshipment_status')."\";");
 
             $filter_where = " c_order_id='".$order_obj->c_order_id."'";
-            $orderlines = IntegrationOBOrderLine::get_data($filter_where);
+            $orderlines = IntegrationOBOrderLine::get_data($filter_where, array('returnarray' => true));
             if(is_array($orderlines)) {
                 foreach($orderlines as $orderline_obj) {
                     $orderline = $orderline_obj->get();
@@ -117,17 +120,20 @@ elseif($core->input['action'] == 'do_perform_intermedaffshipment') {
                     unset($product, $uom);
                 }
             }
+            else {
+                $lines_output .='<tr><td colspan=7>'.$lang->na.'</td></tr>';
+            }
 
-            $display = "none";
+            $display = 'none';
             $attachments = IntegrationOBIAttachments::get_data("ad_record_id='".$order['c_order_id']."'"); //("ad_record_id='123424070965407F8B69A0D787FD9D2D'"); //
             if(is_array($attachments)) {
-                $display = "block";
+                $display = 'block';
                 foreach($attachments as $attachment) {
                     eval("\$attachments_ouput .= \"".$template->get('warehousemgmt_intermedaffshipment_attachments')."\";");
                 }
             }
             else if(is_object($attachments)) {
-                $display = "block";
+                $display = 'block';
                 $attachment = $attachments;
                 eval("\$attachments_ouput .= \"".$template->get('warehousemgmt_intermedaffshipment_attachments')."\";");
             }

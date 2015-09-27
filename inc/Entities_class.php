@@ -1109,5 +1109,28 @@ class Entities extends AbstractClass {
         return null;
     }
 
+    public function get_segment_names() {
+        global $db;
+        if(empty($this->data['eid'])) {
+            $this->data['eid'] = $this->eid;
+        }
+
+        $query = $db->query('SELECT es.psid,seg.title FROM '.Tprefix.'entitiessegments AS es LEFT JOIN productsegments as seg ON (es.psid=seg.psid)WHERE eid='.intval($this->data['eid']));
+        if($db->num_rows($query) > 0) {
+            while($segment = $db->fetch_assoc($query)) {
+                $segments[$segment['psid']] = $segment['title'];
+            }
+            return $segments;
+        }
+        return false;
+    }
+
+    public function is_supplier() {
+        if($this->type == 's' || $this->type == 'cs') {
+            return true;
+        }
+        return false;
+    }
+
 }
 ?>

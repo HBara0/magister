@@ -17,14 +17,29 @@
                 $("input[id^='cost_']").live('change keyup live', function() {
                     var id = $(this).attr('id').split("_");
                     var subtotalintamount = 0;
+                    var totalamount = 0;
+                    var totalamountint = 0;
                     $('input[id$=' + id[2] + '_' + id[3] + '][id^=cost]').each(function() {
                         if(!jQuery.isEmptyObject(this.value)) {
                             subtotalintamount += parseFloat(this.value);
                         }
                     });
+                    $("input[id$='_" + id[3] + "'][id^='cost_" + id[1] + "']").each(function() {
+                        if(!jQuery.isEmptyObject(this.value)) {
+                            totalamount += parseFloat(this.value);
+                        }
+                    });
                     $('span[id=subtotal_' + id[2] + '_' + id[3] + ']').text(subtotalintamount);
-                });
+                    $('span[id=total_' + id[1] + '_int]').text(totalamount);
 
+                    $("span[id$='_int'][id^='total_']").each(function() {
+                        if(!jQuery.isEmptyObject(this.innerHTML)) {
+                            totalamountint += parseFloat(this.innerHTML);
+                        }
+                    });
+                    $('span[id=total_international]').text(totalamountint);
+
+                });
                 $('input[id^="leave_"]').live('click', function() {
                     var id = $(this).attr('id').split("_");
                     $('input[type="submit"][id^="trainingvisitsleaves_"]').attr("disabled", !this.checked);
@@ -52,7 +67,7 @@
                         <thead>
                             <tr style="vertical-align: top;">
                                 <td width="17.5%" rowspan="2" valign="top" align="center" class=" border_right">{$lang->event} </td>
-                                <td  width="17.5%" class=" border_right"   align="center"  valign="top" align="left">{$lang->company} <a href="index.php?module=contents/addentities&type=customer" target="_blank"><img src="images/addnew.png" border="0" alt="{$lang->add}"></a></td>
+                                <td  width="17.5%" class=" border_right"   align="center"  valign="top" align="left">{$lang->company} <a href="index.php?module=contents/addentities&type=supplier" target="_blank"><img src="images/addnew.png" border="0" alt="{$lang->add}"></a></td>
                                 <td width="17.5%" class=" border_right"   valign="top" align="center">{$lang->date}  </td>
                                 <td width="17.5%" class=" border_right" valign="top" align="center">{$lang->purpose}</td>
                                 <td width="30%" class=" border_right"    valign="top" align="center">{$lang->costaffonly}</td>
@@ -99,8 +114,10 @@
 
                         <tr>
                             <td style="width:20%;font-weight:bold">{$lang->total}</td><td style="width:10%"></td><td style="width:10%"></td>
-                            <td style="width:30%"></td> <td style="width:30%"> <span id="tsotal_othercssost" style="font-weight:bold;">{$totalintamoussnt}</span></td>
-                            <td style="width:30%"></td><td style="width:10%"></td>
+                            <td style="width:30%"></td>
+                            <td style="width:30%"> <span id="total_planecost_int" style="font-weight:bold;"></span></td>
+                            <td style="width:30%"> <span id="total_othercost_int" style="font-weight:bold;">{$totalintamoussnt}</span></td>
+                            <td style="width:10%"><span id="total_international" style="font-weight:bold;"></span></td>
                         </tr>
 
                         <tfoot>

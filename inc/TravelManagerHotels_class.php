@@ -36,12 +36,12 @@ class TravelManagerHotels extends AbstractClass {
     public function create(array $data) {
         global $db, $template, $core, $lang;
 
-        if(is_empty($data['name'], $data['city'], $data['telephone_intcode'], $data['telephone_areacode'], $data['telephone_number'], $data['addressLine1'])) {
+        if(is_empty($data['name'], $data['city'], $data['telephone_intcode'], $data['telephone_number'], $data['addressLine1'])) {//$data['telephone_areacode'],
             $this->errorcode = 1;
             return false;
         }
-        $data['phone'] = $data['telephone_intcode'].'-'.$data['telephone_areacode'].'-'.$data['telephone_number'];
-        unset($data['telephone_intcode'], $data['telephone_areacode'], $data['telephone_number']);
+        $data['phone'] = $data['telephone_intcode'].'-'.$data['telephone_number']; //.'-'.$data['telephone_areacode']
+        unset($data['telephone_intcode'], $data['telephone_number']); //, $data['telephone_areacode'],
         $city = new Cities($data['city']);
         if(is_object($city)) {
             $data['country'] = $city->coid;
@@ -97,19 +97,20 @@ class TravelManagerHotels extends AbstractClass {
             $mailer->set_subject('New Added Hotel To Approve');
             $mailer->set_message($emailmessage);
             $mailer->send();
-            if($mailer->get_status() === true) {
-                $this->errorcode = 0;
-            }
-            else {
-                $this->errorcode = 1;
-            }
+//            if($mailer->get_status() === true) {
+//                $this->errorcode = 0;
+//            }
+//            else {
+//                $this->errorcode = 1;
+//            }
+            $this->errorcode = 0;
         }
         return $this;
     }
 
     protected function update(array $data) {
         global $db;
-        if((is_empty($data['name'], $data['city'], $data['addressLine1'])) || (is_empty($data['telephone_intcode'], $data['telephone_areacode'], $data['telephone_number']) && empty($data['phone']))) {
+        if((is_empty($data['name'], $data['city'], $data['addressLine1'])) || (is_empty($data['telephone_intcode'], $data['telephone_number']) && empty($data['phone']))) {// $data['telephone_areacode'],
             $this->errorcode = 2;
             return false;
         }
@@ -144,7 +145,7 @@ class TravelManagerHotels extends AbstractClass {
             $update_array['phone'] = $data['phone'];
         }
         else {
-            $update_array['phone'] = $data['telephone_intcode'].'-'.$data['telephone_areacode'].'-'.$data['telephone_number'];
+            $update_array['phone'] = $data['telephone_intcode'].'-'.$data['telephone_number']; //'-'.$data['telephone_areacode']
         }
         $db->update_query(self::TABLE_NAME, $update_array, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
         return $this;
@@ -186,6 +187,19 @@ class TravelManagerHotels extends AbstractClass {
         }
         else {
             return false;
+        }
+    }
+
+    public function get_warning($data) {
+        global $lang;
+        if($data['avgprice'] != 'N/A' && !empty($data['avgprice']) && !empty($data['pricepernight'])) {
+            $tocurrency = new Currencies('USD');
+            $fromcurrency = new Currencies($data['currency']);
+            $exchangerate = $tocurrency->get_latest_fxrate($tocurrency->alphaCode, array(), $fromcurrency->alphaCode);
+            $pricepernight_usd = $data['pricepernight'] * $exchangerate;
+            if($pricepernight_usd > (((10 * $data['avgprice']) / 100) + $data['avgprice'])) {
+                return '<p style="color:red">'.$lang->hotelpricewarning.'</p>';
+            }
         }
     }
 

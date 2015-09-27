@@ -1384,10 +1384,10 @@ else {
                 }
 
                 unset($newdata['productname'], $newdata['fxrate']);
-                if(value_exists('productsactivity', 'paid', $db->escape_string($newdata['paid'])) || value_exists('productsactivity', 'rid', $report_meta['rid'], 'pid='.$newdata['pid'].$products_deletequery_string)) {
+                if(value_exists('productsactivity', 'paid', intval($newdata['paid'])) || value_exists('productsactivity', 'rid', $report_meta['rid'], 'pid='.$newdata['pid'].$products_deletequery_string)) {
                     if(isset($newdata['paid']) && !empty($newdata['paid'])) {
-                        $update_query_where = 'paid='.$db->escape_string($newdata['paid']);
-                        $productsact_obj = new ProductsActivity($db->escape_string($newdata['paid']));
+                        $update_query_where = 'paid='.intval($newdata['paid']);
+                        $productsact_obj = new ProductsActivity(intval($newdata['paid']));
                     }
                     else {
                         unset($newdata['paid']);

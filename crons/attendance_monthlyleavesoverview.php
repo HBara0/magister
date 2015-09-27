@@ -54,23 +54,23 @@ if(!$core->input['action']) {
     while($hrgm = $db->fetch_assoc($hrgm_query)) {
         if($hrgm['generalManager'] != 0) {
             $mgt_affid[$hrgm['generalManager']][$hrgm['affid']] = $hrgm['affid'];
-            $mgt[$hrgm['generalManager']] = $hrgm['generalManager'];
-            $mang['gm'] = $hrgm['generalManager'];
+            $mgt[$hrgm['affid']][$hrgm['generalManager']] = $hrgm['generalManager'];
+            $mang[$hrgm['affid']]['gm'] = $hrgm['generalManager'];
         }
         if($hrgm['supervisor'] != 0) {
             $mgt_affid[$hrgm['supervisor']][$hrgm['affid']] = $hrgm['affid'];
-            $mgt[$hrgm['supervisor']] = $hrgm['supervisor'];
-            $mang['su'] = $hrgm['supervisor'];
+            $mgt[$hrgm['affid']][$hrgm['supervisor']] = $hrgm['supervisor'];
+            $mang[$hrgm['affid']]['su'] = $hrgm['supervisor'];
         }
         if($hrgm['hrManager'] != 0) {
             $mgt_affid[$hrgm['hrManager']][$hrgm['affid']] = $hrgm['affid'];
-            $mgt[$hrgm['hrManager']] = $hrgm['hrManager'];
-            $mang['hr'] = $hrgm['hrManager'];
+            $mgt[$hrgm['affid']][$hrgm['hrManager']] = $hrgm['hrManager'];
+            $mang[$hrgm['affid']] ['hr'] = $hrgm['hrManager'];
         }
         if($hrgm['finManager'] != 0) {
             $mgt_affid[$hrgm['finManager']][$hrgm['affid']] = $hrgm['affid'];
-            $mgt[$hrgm['finManager']] = $hrgm['finManager'];
-            $mang['fn'] = $hrgm['finManager'];
+            $mgt[$hrgm['affid']] [$hrgm['finManager']] = $hrgm['finManager'];
+            $mang[$hrgm['affid']]['fn'] = $hrgm['finManager'];
         }
     }
 
@@ -508,37 +508,40 @@ if(!$core->input['action']) {
             }
 
             $message .= '</table>';
-            if(is_array($mang)) {
-                foreach($mang as $type => $id) {
+            if(is_array($mang[$affid])) {
+                foreach($mang[$affid] as $type => $id) {
+                    if(empty($id)) {
+                        continue;
+                    }
                     switch($type) {
                         case 'hr':
                             $user = new Users($id);
-                            if(is_object($user) && !empty($user->get_displayname())) {
-                                $message.='<div style="inline-block">HR Manager:<a href="mailto:'.$user->email.'"> '.$user->get_displayname().'</a></div>';
+                            if(is_object($user)) {
+                                $message .= '<div style="inline-block">HR Manager: <a href="mailto:'.$user->email.'"> '.$user->get_displayname().'</a></div>';
                             }
                             break;
                         case 'fn':
                             $user = new Users($id);
-                            if(is_object($user) && !empty($user->get_displayname())) {
-                                $message.='<div style="inline-block">Financial Manager:<a href="mailto:'.$user->email.'"> '.$user->get_displayname().'</a></div>';
+                            if(is_object($user)) {
+                                $message .= '<div style="inline-block">Financial Manager: <a href="mailto:'.$user->email.'"> '.$user->get_displayname().'</a></div>';
                             }
                             break;
                         case 'su':
                             $user = new Users($id);
-                            if(is_object($user) && !empty($user->get_displayname())) {
-                                $message.='<div style="inline-block">Supervisor:<a href="mailto: '.$user->email.'">'.$user->get_displayname().'</a></div>';
+                            if(is_object($user)) {
+                                $message .= '<div style="inline-block">Supervisor: <a href="mailto: '.$user->email.'">'.$user->get_displayname().'</a></div>';
                             }
                             break;
                         case 'gm':
                             $user = new Users($id);
-                            if(is_object($user) && !empty($user->get_displayname())) {
-                                $message.='<div style="inline-block">General Manager:<a href="mailto:'.$user->email.'"> '.$user->get_displayname().'</a></div>';
+                            if(is_object($user)) {
+                                $message .= '<div style="inline-block">General Manager: <a href="mailto:'.$user->email.'"> '.$user->get_displayname().'</a></div>';
                             }
                             break;
                     }
                 }
             }
-
+            // unset($mang);
 //        foreach($output as $ltid => $data) {
 //            $message_rows = '';
 //
@@ -599,7 +602,7 @@ if(!$core->input['action']) {
 
             //echo $message_output;
             //print_r($email_data);
-            //echo '<hr />';
+            // echo '<hr />';
             $mail = new Mailer($email_data, 'php');
             if($mail->get_status() === true) {
                 $log->record($lang->monthlyleavesoverview, $email_data['to']);

@@ -4,7 +4,13 @@ var sales = [];
 var chart2 = new ChartComponent();
 chart2.setDimensions(6, 6);
 chart2.lock()
-$.post("index.php?module=crm/salesdashboard&action=do_perform_livesales", function (data) {
+var name='affs';
+var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
+var urlparms='';
+if(typeof results !='undefined' && results !=null){
+urlparms=results;
+}
+$.post("index.php?module=crm/salesdashboard&action=do_perform_livesales"+urlparms, function (data) {
 sales = data['sales'];
 aff = data['affiliates'];
 var title = data['title'];
@@ -18,7 +24,7 @@ chart2.setYAxis("", {numberHumanize: true});
 
 chart2.unlock();
 db.setInterval(function () {
-$.post("index.php?module=crm/salesdashboard&action=do_perform_livesales", function (data) {
+$.post("index.php?module=crm/salesdashboard&action=do_perform_livesales"+urlparms, function (data) {
 chart2.updateSeries('yvalues', data['sales']);
 });
 }, 5000);

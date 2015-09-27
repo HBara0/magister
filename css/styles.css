@@ -652,3 +652,24 @@ tr.dummytrow td, tr.dummytrow th {
 
 [id$="_helptour"], [class$="_helptour"] {
   display: none; }
+
+.tm_sections {
+  height: 75px;
+  display: block;
+  background-image: url("../images/chevron-down.png");
+  background-repeat: no-repeat;
+  font-weight: bold;
+  cursor: pointer;
+  background-position: right bottom;
+  margin-bottom: 50px;
+  margin-top: 50px; }
+
+@media print {
+  .hidden-print {
+    display: none !important; } }
+.warning {
+  box-shadow: 0 0 5px #ffcc33;
+  border: 1px solid #ffcc33; }
+
+tfoot .coltotal, tfoot .colavg {
+  font-weight: bold; }

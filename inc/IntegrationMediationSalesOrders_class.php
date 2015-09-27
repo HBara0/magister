@@ -14,6 +14,9 @@ class IntegrationMediationSalesOrders extends IntegrationMediation {
 
     const PRIMARY_KEY = 'imsoid';
     const TABLE_NAME = 'integration_mediation_salesorders';
+    const DISPLAY_NAME = '';
+    const SIMPLEQ_ATTRS = '*';
+    const CLASSNAME = __CLASS__;
 
     public function __construct($id = null, $simple = true) {
         if(empty($id)) {

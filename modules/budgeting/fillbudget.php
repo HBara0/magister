@@ -68,9 +68,11 @@ if(!$core->input['action']) {
             }
         }
         /* Validate Permissions - END */
-
         if($currentbudget != false) {
             $budgetobj = new Budgets($currentbudget['bid']);
+            if($budgetobj->isLocked == 1) {
+                error('Budget is Locked');
+            }
             $budget_data['bid'] = $currentbudget['bid'];
             $budgetlinesdata = $budgetobj->get_budgetLines('', $filter);
             if(!is_array($budgetlinesdata) || empty($budgetlinesdata)) {
@@ -178,12 +180,18 @@ if(!$core->input['action']) {
                             elseif(isset($budgetline['prevbudget'])) {
                                 $prev_budgetlines = $budgetline['prevbudget'];
                             }
-
                             foreach($prev_budgetlines as $prev_budgetline) {
+                                //get prev year YEF data
+                                $yefline = BudgetingYEFLines::get_data(array('blid' => $prev_budgetline['blid']), array('returnarray' => false));
+                                if(!is_object($yefline)) {
+                                    $yefline = new BudgetingYEFLines();
+                                }
+
                                 if(!isset($budgetline['invoice'])) {
                                     $budgetline['invoice'] = $prev_budgetline['invoice'];
                                 }
                                 if($is_prevonly == true) {
+                                    $unsetable_fields = array('blid', 'unitPrice', 'quantity', 'amount', 'incomePerc', 'income', 'inputChecksum');
                                     foreach($unsetable_fields as $field) {
                                         unset($budgetline[$field]);
                                     }
@@ -202,37 +210,67 @@ if(!$core->input['action']) {
                                 if(!empty($budgetline['cid']) || !empty($budgetline['altCid']) || $prev_budgetline['altCid'] == 'Unspecified Customer') {
                                     unset($budgetline['alternativecustomer']);
                                 }
-                                $budgetline['alternativeproduct'] .= '<span style="display:block;">'.ucfirst($prev_budgetline['altPid']).'</span>';
+                                if(!empty($prev_budgetline['altPid'])) {
+                                    $budgetline['alternativeproduct'] .= '<span style="display:block;">'.ucfirst($prev_budgetline['altPid']).'</span>';
+                                }
+                                if(empty($prev_budgetline['year'])) {
+                                    $prev_budget = new Budgets($prev_budgetline['bid']);
+                                    $prev_budgetline['year'] = $prev_budget->year;
+                                }
                                 $previous_blid = '<input type="hidden" name="budgetline['.$rowid.'][prevblid]" value="'.$prev_budgetline['blid'].'" />';
                                 // $previous_customercountry = '<input type="hidden" name="budgetline['.$rowid.'][customerCountry]" value="'.$prev_budgetline['customerCountry'].'" />';
-                                $previous_yearsqty .= '<span class="altrow smalltext" style="display:block;"><strong>'.$prev_budgetline['year'].'</strong><br />'.$lang->budgetabbr.': '.$prev_budgetline['quantity'].' | '.$lang->actualabbr.': '.$prev_budgetline['actualQty'].'</span>';
-                                $previous_yearsamount .= '<span class="altrow smalltext" style="display:block;"><strong>'.$prev_budgetline['year'].'</strong><br />'.$lang->budgetabbr.': '.$prev_budgetline['amount'].' | '.$lang->actualabbr.': '.$prev_budgetline['actualAmount'].'</span>';
-                                $previous_yearsincome .= '<span class="altrow smalltext" style="display:block;"><strong>'.$prev_budgetline['year'].'</strong><br />'.$lang->budgetabbr.': '.$prev_budgetline['income'].' | '.$lang->actualabbr.': '.$prev_budgetline['actualIncome'].'</span>';
-                                $previous_yearslocalincome .= '<span class="altrow smalltext" style="display:block;"><strong>'.$prev_budgetline['year'].'</strong><br />'.$lang->budgetabbr.': '.$prev_budgetline['localIncomeAmount'].' | '.$lang->actualabbr.':</span>';
+                                $previous_yearsqty .= '<span class="altrow smalltext" style="display:block;"><strong>'.$prev_budgetline['year'].'</strong><br />'.$lang->budgetabbr.': '.$prev_budgetline['quantity'].' | '.$lang->actualabbr.': '.$prev_budgetline['actualQty'].' | '.$lang->yef.': '.$yefline->quantity.'</span>';
+                                $previous_yearsamount .= '<span class="altrow smalltext" style="display:block;"><strong>'.$prev_budgetline['year'].'</strong><br />'.$lang->budgetabbr.': '.$prev_budgetline['amount'].' | '.$lang->actualabbr.': '.$prev_budgetline['actualAmount'].' | '.$lang->yef.': '.$yefline->amount.'</span>';
+                                $previous_yearsincome .= '<span class="altrow smalltext" style="display:block;"><strong>'.$prev_budgetline['year'].'</strong><br />'.$lang->budgetabbr.': '.$prev_budgetline['income'].' | '.$lang->actualabbr.': '.$prev_budgetline['actualIncome'].' | '.$lang->yef.': '.$yefline->income.'</span>';
+                                $previous_yearslocalincome .= '<span class="altrow smalltext" style="display:block;"><strong>'.$prev_budgetline['year'].'</strong><br />'.$lang->budgetabbr.': '.$prev_budgetline['localIncomeAmount'].' | '.$lang->actualabbr.':  | '.$lang->yef.': '.$yefline->localIncomeAmount.'</span>';
 
                                 $prev_budgetline['actualIncomePerc'] = 0;
                                 if(!empty($prev_budgetline['actualAmount'])) {
                                     $prev_budgetline['actualIncomePerc'] = round(($prev_budgetline['actualIncome'] * 100) / $prev_budgetline['actualAmount'], 2);
                                 }
-                                $prevyear_incomeperc .= '<span class="altrow smalltext" style="display:block;"><strong>'.$prev_budgetline['year'].'</strong><br />'.$lang->budgetabbr.': '.$prev_budgetline['incomePerc'].' | '.$lang->actualabbr.': '.$prev_budgetline['actualIncomePerc'].'</span>';
+                                $prevyear_incomeperc .= '<span class="altrow smalltext" style="display:block;"><strong>'.$prev_budgetline['year'].'</strong><br />'.$lang->budgetabbr.': '.$prev_budgetline['incomePerc'].' | '.$lang->actualabbr.': '.$prev_budgetline['actualIncomePerc'].' | '.$lang->yef.': '.$yefline->incomePerc.'</span>';
 
                                 $prev_budgetline['actualUnitPrice'] = 0;
                                 if(!empty($prev_budgetline['actualQty'])) {
                                     $prev_budgetline['actualUnitPrice'] = round($prev_budgetline['actualAmount'] / $prev_budgetline['actualQty'], 2);
                                 }
-                                $prevyear_unitprice .= '<span class="altrow smalltext" style="display:block;"><strong>'.$prev_budgetline['year'].'</strong><br />'.$lang->budgetabbr.': '.$prev_budgetline['unitPrice'].' | '.$lang->actualabbr.': '.$prev_budgetline['actualUnitPrice'].'</span>';
+                                $prevyear_unitprice .= '<span class="altrow smalltext" style="display:block;"><strong>'.$prev_budgetline['year'].'</strong><br />'.$lang->budgetabbr.': '.$prev_budgetline['unitPrice'].' | '.$lang->actualabbr.': '.$prev_budgetline['actualUnitPrice'].' | '.$lang->yef.': '.$yefline->unitPrice.'</span>';
 
                                 $altcid = $budgetline['altCid'];
                                 if(empty($altcid)) {
                                     $altcid = $prev_budgetline['altCid'];
                                 }
 
+                                /**
+                                 * Below to be replaced by loop
+                                 */
                                 if(empty($budgetline['customerCountry'])) {
                                     $budgetline['customerCountry'] = $prev_budgetline['customerCountry'];
                                 }
+
+                                if(empty($budgetline['purchasingEntity'])) {
+                                    $budgetline['purchasingEntity'] = $prev_budgetline['purchasingEntity'];
+                                }
+
+                                if(empty($budgetline['localIncomePercentage'])) {
+                                    $budgetline['localIncomePercentage'] = $prev_budgetline['localIncomePercentage'];
+                                }
+
+                                if(!empty($prev_budgetline['interCompanyPurchase'])) {
+                                    $budgetline['interCompanyPurchase'] = $prev_budgetline['interCompanyPurchase'];
+                                    $intercompany_obj = new Affiliates($prev_budgetline['interCompanyPurchase']);
+                                    $budgetline['interCompanyPurchase_output'] = $intercompany_obj->get_displayname();
+                                }
+                                if(!empty($prev_budgetline['commissionSplitAffid'])) {
+                                    $budgetline['commissionSplitAffid'] = $prev_budgetline['commissionSplitAffid'];
+                                    $intercompany_obj = new Affiliates($prev_budgetline['commissionSplitAffid']);
+                                    $budgetline['commissionSplitAffid_output'] = $intercompany_obj->get_displayname();
+                                }
+
+                                $budgetline['originalCurrency'] = $prev_budgetline['originalCurrency'];
+                                $budgetline['psid'] = $prev_budgetline['psid'];
                             }
                         }
-
                         if(empty($budgetline['localIncomePercentage'])) {
                             $budgetline['localIncomePercentage'] = 0;
                         }
@@ -253,8 +291,6 @@ if(!$core->input['action']) {
                         $purchase_selectlistdata = array('alex' => 'Orkila FZ - Alex', 'fze' => 'Orkila Jebel Ali FZE', 'int' => 'Orkila International', 'customer' => 'Customer', 'direct' => $budget_data['affiliateName']);
                         $purchasingentity_selectlist = parse_selectlist('budgetline['.$rowid.'][purchasingEntity]', 0, $purchase_selectlistdata, $budgetline['purchasingEntity'], '', '', array('id' => 'purchasingEntity_'.$rowid));
                         $display = 'none';
-
-
 
                         if(empty($budgetline['cid']) && $budgetline['altCid'] == 'Unspecified Customer') {
                             $checked_checkboxes[$rowid]['unspecifiedCustomer'] = ' checked="checked"';
@@ -290,8 +326,8 @@ if(!$core->input['action']) {
                             $segments_selectlist = parse_selectlist('budgetline['.$rowid.'][psid]', 3, $supplier_segments, $budgetline['psid'], null, null, array('placeholder' => 'Overwrite Segment'));
                         }
                         if($core->usergroup['budgeting_canFillLocalIncome'] == 1) {
-                            $hidden_colcells = array('localincome_row' => ' <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center"><input name="budgetline['.$rowid.'][localIncomeAmount]"  value="'.$budgetline[localIncomeAmount].'"  type="text" id="localincome_'.$rowid.'" size="10" accept="numeric" /> </td>',
-                                    'localincomeper_row' => '<td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center"><input name="budgetline['.$rowid.'][localIncomePercentage]"  value="'.$budgetline[localIncomePercentage].'" type="text" id="localincomeper_'.$rowid.'" size="10" accept="numeric"  /> </td>',
+                            $hidden_colcells = array('localincome_row' => ' <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center"><input name="budgetline['.$rowid.'][localIncomeAmount]"  value="'.$budgetline['localIncomeAmount'].'"  type="text" id="localincome_'.$rowid.'" size="10" accept="numeric" /> </td>',
+                                    'localincomeper_row' => '<td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center"><input name="budgetline['.$rowid.'][localIncomePercentage]"  value="'.$budgetline['localIncomePercentage'].'" type="text" id="localincomeper_'.$rowid.'" size="10" accept="numeric"  /> </td>',
                                     'remainingcommaff_header_row' => '<td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center"><input type="text" placeholder="'.$lang->search.' '.$lang->affiliate.'" id="affiliate_noexception_'.$rowid.'_commission_autocomplete" name=""  value="'.$budgetline['commissionSplitAffid_output'].'" autocomplete="off" /><input type="hidden" value="'.$budgetline['commissionSplitAffid'].'" id="affiliate_noexception_'.$rowid.'_commission_id" name="budgetline['.$rowid.'][commissionSplitAffid]"/></td>'
                             );
                         }
@@ -311,6 +347,7 @@ if(!$core->input['action']) {
 //                        }
 
                         eval("\$budgetlinesrows .= \"".$template->get('budgeting_fill_lines')."\";");
+                        unset($yefline);
                         $rowid++;
                     }
                 }
@@ -355,7 +392,7 @@ if(!$core->input['action']) {
 
         $js_currencies = json_encode($saltypes_currencies);
         $js_saletypesinvoice = json_encode($saletypes_invoicing);
-        //  $js_saletypespurchase = json_encode($saletypes_purchasing);
+//  $js_saletypespurchase = json_encode($saletypes_purchasing);
 
         /* Parse values for JS - END */
         /* Parse  local amount felds based on specific permission */

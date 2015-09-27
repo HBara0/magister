@@ -42,7 +42,7 @@ class AttendanceAddDays Extends Attendance {
 
     public function approve($fromemail) {
         global $db;
-        $id = $db->escape_string($id);
+        $id = intval($id);
         if($this->can_apporve($fromemail)) {
             $db->update_query('attendance_additionalleaves', array('isApproved' => 1, 'approvedOn' => TIME_NOW), 'identifier="'.$this->additionaldays['identifier'].'" AND isApproved="0"');
 
@@ -205,14 +205,18 @@ class AttendanceAddDays Extends Attendance {
 
         $leavestats_query = $db->query("SELECT lsid, additionalDays
                                         FROM ".Tprefix."leavesstats
-                                        WHERE uid={$this->additionaldays['uid']} AND ltid=1 AND periodStart < {$period}  AND periodEnd > {$period}");
+                                        WHERE uid={$this->additionaldays['uid']} AND ltid=1 AND ({$period} BETWEEN periodStart AND periodEnd)");
         if($db->num_rows($leavestats_query) > 0) {
             while($leavestat = $db->fetch_array($leavestats_query)) {
                 $additionalDays = $leavestat['additionalDays'];
                 $lsid = $leavestat['lsid'];
             }
             $additionalDays += $this->additionaldays['numDays'];
+
             $db->update_query('leavesstats', array('additionalDays' => $additionalDays), "lsid={$lsid}");
+            if($db->affected_rows() > 0) {
+                $db->update_query(self::TABLE_NAME, array('isCounted' => 1), self::PRIMARY_KEY.'='.$this->additionaldays[self::PRIMARY_KEY]);
+            }
             $log->record('updateleavebalance', $this->additionaldays['adid']);
         }
     }

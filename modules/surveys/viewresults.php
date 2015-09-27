@@ -73,9 +73,11 @@ if(!$core->input['action']) {
             }
         }
 
+        $display['sendreminders'] = "style='display:none';";
+        if($survey['createdBy'] == $core->user['uid']) {
+            $display['sendreminders'] = "style='display:block';";
+        }
         if($survey['createdBy'] == $core->user['uid'] || ($survey['sharedwithstatus'] == true)) {
-            $display['sendreminders'] = "style='display:none';";
-
             /* Show resposne list - START */
             $surveys_responses = $newsurvey->get_survey_distinct_responses('', array('sortby' => $core->input['sorbtby'], 'order' => $core->input['order']));
 
@@ -230,7 +232,7 @@ else {
     }
     elseif($core->input['action'] == 'sendreminders') {
         $survey_identifier = $db->escape_string($core->input['identifier']);
-        $newsurvey = new Surveys($survey_identifier);
+        $newsurvey = new Surveys($survey_identifier, false);
         $survey = $newsurvey->get_survey();
 
         if($survey['createdBy'] != $core->user['uid']) {

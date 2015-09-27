@@ -348,6 +348,10 @@ class Cities extends AbstractClass {
 
         $transp_ouptut['suggested'] = $suggestedtranssegments_output.$suggestedtranscategments_output;
         $transp_ouptut['othertransp'] = $transsegments_output.$transcategments_output;
+
+        if(isset($transpdata['excludesuggestions']) && $transpdata['excludesuggestions'] == 1) {
+            unset($transp_ouptut['suggested']);
+        }
         if(isset($transpdata['transprequirements']['referrer']) && $transpdata['transprequirements'][referrer] == 'todate') {
             return $transp_ouptut['suggested'];
         }

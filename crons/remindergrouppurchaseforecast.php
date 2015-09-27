@@ -14,7 +14,7 @@ require_once '../inc/init.php';
 $lang = new Language('english');
 $lang->load('grouppurchase_meta');
 $date['to'] = date(TIME_NOW);
-$uids = $db->query("SELECT DISTINCT gpf.businessMgr AS GPfor, bbl.businessMgr AS BBline FROM ".Tprefix."grouppurchase_forecastlines AS gpf,".Tprefix."budgeting_budgets_lines AS bbl WHERE (DATEDIFF(CURDATE(),FROM_UNIXTIME(gpf.createdOn))>30 AND DATEDIFF(CURDATE(),FROM_UNIXTIME(gpf.modifiedOn))>30)");
+$uids = $db->query("SELECT DISTINCT gpf.businessMgr AS GPfor, bbl.businessMgr AS BBline FROM ".Tprefix."grouppurchase_forecastlines AS gpf,".Tprefix."budgeting_budgets_lines AS bbl WHERE (gpf.inputChecksum <> '' AND bbl.inputChecksum <> '' )AND (DATEDIFF(CURDATE(),FROM_UNIXTIME(gpf.createdOn))>30 AND (gpf.modifiedOn > 0 AND DATEDIFF(CURDATE(),FROM_UNIXTIME(gpf.modifiedOn))>30))");
 if($db->num_rows($uids) > 0) {
     while($uid = $db->fetch_assoc($uids)) {
         foreach($uid as $key => $value) {
@@ -107,6 +107,17 @@ foreach($data_array as $uid => $rest) {
     if($stuffings['affiliates'][0] == 0) {
         $forecast = 0;
     }
+    foreach($stuffings['affiliates'] as $affid) {
+        $affil_obj = new Affiliates($affid);
+        $message['affiliates'][] = $affil_obj->get_displayname();
+    }
+    foreach($stuffings['suppliers'] as $supid) {
+        $suppliers_obj = new Entities($supid);
+        $message['suppliers'][] = $suppliers_obj->get_displayname();
+    }
+    $message['affiliates'] = implode(',', $message['affiliates']);
+    $message['suppliers'] = implode(',', $message['suppliers']);
+    $message['years'] = implode(',', $stuffings['years']);
     unset($stuffings);
 //        foreach($stuffings as $key => $value) {
 //            if(!is_array($value)) {
@@ -122,16 +133,18 @@ foreach($data_array as $uid => $rest) {
 //            }
 //        }
     $sent_query = http_build_query(array('stuffings' => $forecast));
-
+    $buttonstyle = 'style="font: bold 11px Arial;text-decoration: none; background-color: #EEEEEE;color: #333333;padding: 2px 6px 2px 6px; border-top: 1px solid #CCCCCC;border-right: 1px solid #333333;border-bottom: 1px solid #333333;border-left: 1px solid #CCCCCC;"';
     $url = DOMAIN."/index.php?module=grouppurchase/previewforecast&".$sent_query;
     $url2 = DOMAIN."/index.php?module=grouppurchase/createforecast";
-    $check_link = '<a target="_blank" href='.$url.'>'.$lang->check.'</a>';
+    $check_link = '<a '.$buttonstyle.' target="_blank" href='.$url.'>'.$lang->check.'</a>';
     if($forecast == 0 && !is_string($forecast)) {
         $check_link = '';
     }
-    $email_message = $user_obj->displayName.'<br /> '.$lang->checkforecast;
-    $email_message .= '<br />'.$check_link;
-    $email_message .= '<br /><a target="_blank" href='.$url2.'>'.$lang->update.'</a>';
+    $email_message = 'Dear '.$user_obj->displayName.',<br /> ';
+    $lang->checkforecast = $lang->sprint($lang->checkforecast, $message['affiliates'], $message['suppliers'], $message['years']);
+    $email_message .= $lang->checkforecast;
+    $email_message .= '<br /><br />'.$check_link;
+    $email_message .= '<br /><br /><a '.$buttonstyle.' target="_blank" href='.$url2.'>'.$lang->update.'</a>';
     $email_data = array(
             'from_email' => $core->settings['maileremail'],
             'from' => 'Orkila Mailer',
@@ -142,14 +155,6 @@ foreach($data_array as $uid => $rest) {
     );
 
     $mail = new Mailer($email_data, 'php');
-    print_r($email_message);
-    exit;
-    if($mail->get_status() === true) {
-
-    }
-    else {
-        continue;
-    }
     unset($email_message);
 }
 //}

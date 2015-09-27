@@ -4,6 +4,7 @@
         City: {$cityname}
     </div><div style="display:inline-block;padding:2px;width:20%; font-weight: bold;" id="avg_segacc_{$approved_hotels[tmhid]}_{$sequence}" >
         <span>Avg Price: {$approved_hotels['avgPrice']} {$currency_dispname}</span>
+        <input type='hidden' id='avgprice_segacc_{$approved_hotels[tmhid]}_{$sequence}' value='{$approved_hotels['avgPrice']}'/>
     </div>
     <br>
     <div style="display:inline-block;padding:5px;width:15%;">{$lang->pricenight}</div>
@@ -14,6 +15,7 @@
     <div style="display:inline-block;padding:2px;width:20%; font-weight: bold;" id="total_segacc_{$approved_hotels[tmhid]}_{$sequence}" >
         <span>Sub Total: {$selectedhotel->total} </span>
     </div>
+    <div id='hotelprice_warning_{$approved_hotels[tmhid]}_{$sequence}'></div>
     <input type="hidden"  disabled value="{$selectedhotel->total}" id="hotel_{$sequence}_{$checksum}_total}" name="segment[{$sequence}][tmhid][{$checksum}][subtotal]">
     <input type="hidden" disabled value="{$checksum}" id="checksum_{$approved_hotels[tmhid]}_{$sequence}_{$checksum}_tmhid">
     <div>

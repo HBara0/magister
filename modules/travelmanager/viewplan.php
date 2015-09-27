@@ -39,7 +39,7 @@ if(!$core->input['action']) {
     }
 
     $leave = $plan_object->get_leave();
-    $approvers = $leave->get_approvers();
+    $approvers = $leave->get_approvers(array('returnarray' => true));
     $approver_chain = array();
     if(is_array($approvers)) {
         foreach($approvers as $approver) {
@@ -157,17 +157,17 @@ else {
 
         eval("\$travelmanager_viewplan = \"".$template->get('travelmanager_viewlpanemail')."\";");
         $leave->create_approvalchain();
-        $firstapprover = new Users(1); //$leave->get_firstapprover()->get_user();
+        $firstapprover = $leave->get_firstapprover()->get_user();
 
         $mailer = new Mailer();
         $mailer = $mailer->get_mailerobj();
         $mailer->set_type();
         $mailer->set_from(array('name' => 'Orkila Attendance System', 'email' => 'attendance@ocos.orkila.com'));
-        $mailer->set_subject($leavetype->title.' - '.$plan_object->get_leave()->get_country()->get_displayname());
+        $mailer->set_subject($leave_type->title.' - '.$plan_object->get_leave()->get_country()->get_displayname());
         $mailer->set_message($travelmanager_viewplan);
         $mailer->set_to($firstapprover->email);
-        print_R($mailer->debug_info());
         $mailer->send();
+        redirect('index.php?module=travelmanager/listplans');
     }
     elseif($core->input['action'] == 'do_perform_viewplan') {
         $tmplansegments = TravelManagerPlanSegments::get_data(array('tmpid' => $core->input['planid']), array('returnarray' => true));

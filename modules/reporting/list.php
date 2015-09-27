@@ -71,21 +71,33 @@ if(!$core->input['action']) {
     if(isset($core->input['perpage']) && !empty($core->input['perpage'])) {
         $core->settings['itemsperlist'] = $db->escape_string($core->input['perpage']);
     }
-    $extra_where = getquery_entities_viewpermissions();
-
-    if(isset($extra_where['byspid'][$core->input['filtervalue']])) {
-        $extra_where['multipage'] = 'r.type="q"'.$extra_where['byspid'][$core->input['filtervalue']];
-    }
-    else {
-        if(!empty($extra_where['multipage'])) {
-            $and = ' AND ';
+    /**
+     * Get business permissions of user and parse where statement part
+     */
+    $permissions = $core->user_obj->get_businesspermissions();
+    $permissiontypes = array('affid' => 'r.affid', 'spid' => 'spid');
+    foreach($permissiontypes as $type => $col) {
+        if(isset($permissions[$type]) && !empty($permissions[$type])) {
+            $permissionsfilter .= ' AND '.$col.' IN ('.implode(',', $permissions[$type]).')';
         }
-        $extra_where['multipage'] = 'r.type="q"'.$and.$extra_where['multipage'];
     }
+
+    $extra_where['multipage'] = 'r.type="q"'.$permissionsfilter;
+    //$extra_where = getquery_entities_viewpermissions();
+//
+//    if(isset($extra_where['byspid'][$core->input['filtervalue']])) {
+//        $extra_where['multipage'] = 'r.type="q"'.$extra_where['byspid'][$core->input['filtervalue']];
+//    }
+//    else {
+//        if(!empty($extra_where['multipage'])) {
+//            $and = ' AND ';
+//        }
+//        $extra_where['multipage'] = 'r.type="q"'.$and.$extra_where['multipage'];
+//    }
 
     $query = $db->query("SELECT r.*, a.affid AS affiliate, a.name AS affiliatename, r.spid AS supplier, s.companyName AS suppliername
 						 FROM ".Tprefix."reports r JOIN ".Tprefix."affiliates a ON (a.affid=r.affid) JOIN ".Tprefix."entities s ON (r.spid=s.eid)
-						 WHERE r.type='q'{$filter_where}{$extra_where[extra]}
+						 WHERE r.type='q'{$filter_where}{$permissionsfilter}
 						 ORDER BY {$sort_query}
 						 LIMIT {$limit_start}, {$core->settings[itemsperlist]}");
 

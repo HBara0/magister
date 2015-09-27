@@ -185,7 +185,7 @@ class BudgetForecastAccountsTree extends AbstractClass {
                                 $callback = function($val) use ($currency) {
                                     return $val->fromCurrency == $currency;
                                 };
-                                if($finbudget->currency != $options['toCurrency']) {
+                                if($finbudget->currency != $options['toCurrency'] && is_array($options['fxrates'])) {
                                     $budgetfx = array_filter($options['fxrates'], $callback);
                                     $budgetfx = current($budgetfx);
                                     $amnt = $amnt * $budgetfx->rate;

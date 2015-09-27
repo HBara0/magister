@@ -25,6 +25,7 @@ if(!$core->input['action']) {
             redirect('index.php?module=travelmanager/viewplan&id='.$planid);
         }
         $plantrip = $plan_obj->parse_existingsegments();
+
         output($plantrip);
     }
     //$tools_addnewtab = '<a id="createtab" class="showpopup" href="#" title="'.$lang->addsegment.'"><img border="0" alt="Create New Tab" src="images/addnew.png"></img> </a>';
@@ -32,6 +33,8 @@ if(!$core->input['action']) {
         if(empty($core->input['lid'])) {
             redirect('index.php?module=travelmanager/listplans');
         }
+        $checked['othertranspssection'] = 'checked="checked"';
+        $display['othertranspssection'] = "display:block'";
         $segments = null;
         /* Popuplate basic information from the leave based on the lid passed via ajax */
         $leave_obj = new Leaves(array('lid' => $leaveid), false);
@@ -108,9 +111,7 @@ if(!$core->input['action']) {
             $transp_requirements['drivemode'] = 'transit';
             $transp_requirements['departuretime'] = $db->escape_string(($leave['fromDate']));
             $transp = new TravelManagerPlanTransps();
-            $transsegments_output = Cities::parse_transportations($transp, array('origincity' => $origintcity, 'destcity' => $destcity, 'transprequirements' => $transp_requirements), $sequence);
-
-
+            $transsegments_output = Cities::parse_transportations($transp, array('origincity' => $origintcity, 'destcity' => $destcity, 'transprequirements' => $transp_requirements, 'excludesuggestions' => 1), $sequence);
             $segmentobj = new TravelManagerPlanSegments();
             $approvedhotels = $descity_obj->get_approvedhotels();
             if(empty($approvedhotels)) {
@@ -209,6 +210,14 @@ if(!$core->input['action']) {
         $segmentstabs = '<li><a href="#segmentstabs-1">Segment 1</a></li>';
         // $identifier = substr(md5(uniqid(microtime())), 1, 10);
         eval("\$plantript_segmentstabs= \"".$template->get('travelmanager_plantrip_segmentstabs')."\";");
+
+        $helptour = new HelpTour();
+        $helptour->set_id('travelmanager_helptour');
+        $helptour->set_cookiename('travelmanager_helptour');
+        $plan = new TravelManagerPlan();
+        $touritems = $plan->get_helptouritems();
+        $helptour->set_items($touritems);
+        $helptour = $helptour->parse();
         eval("\$plantrip = \"".$template->get('travelmanager_plantrip')."\";");
         output_page($plantrip);
     }
@@ -226,11 +235,11 @@ else {
         $leave[$sequence]['toDate'] = $leave['toDate'];
         $leave[$sequence]['toDate'] = strtotime(date('Y-m-d 23:59:59', $leave[$sequence]['toDate']));
         if(strtotime($core->input['toDate']) >= $leave[$sequence]['toDate'] || $core->input['fromDate'] == 'undefined') {
-            echo'<div style="color:red;">'.$lang->dateexceeded.'</div>';
+            echo'<div style = "color:red;">'.$lang->dateexceeded.'</div>';
             exit;
         }
 //        if(strtotime($core->input['toDate']) == strtotime(date('Y-m-d', $leave['toDate'])) && strtotime($core->input['fromDate']) == strtotime(date('Y-m-d', $leave['toDate']))) {
-//            echo'<div style="color:red;">'.$lang->dateexceeded.'</div>';
+//            echo'<div style = "color:red;">'.$lang->dateexceeded.'</div>';
 //            exit;
 //        }
         /* get prev city name */
@@ -246,7 +255,7 @@ else {
         $segment[$sequence]['fromDate_output'] = date($core->settings['dateformat'], strtotime($core->input['toDate']));
         $segment[$sequence]['fromDate_formatted'] = $core->input['toDate'];
         $leave_purposes = LeaveTypesPurposes::get_data(null);
-        $display_external = $display_internal = 'style="display:none"';
+        $display_external = $display_internal = 'style = "display:none"';
         if(is_array($leave_purposes)) {
             foreach($leave_purposes as $leave_purpose) {
                 if($leave_purpose->category == 'internal') {
@@ -268,8 +277,8 @@ else {
         $affilate_list = parse_selectlist('segment['.$sequence.'][assign][affid]['.$afent_checksum.']', '1', $affiliates, '', '', '', array('blankstart' => true));
         $affrowid = $entrowid = 0;
         eval("\$affiliates_output = \"".$template->get('travelmanager_plantrip_createsegment_affiliates')."\";");
-        $afent_checksum = generate_checksum();
-        eval("\$entities = \"".$template->get('travelmanager_plantrip_createsegment_entities')."\";");
+        // $afent_checksum = generate_checksum();
+        //  eval("\$entities = \"".$template->get('travelmanager_plantrip_createsegment_entities')."\";");
 
         /* Popuplate basic information from the leave based on the lid passed via ajax */
 
@@ -282,16 +291,30 @@ else {
 //            $expensestype_obj = new Travelmanager_Expenses_Types();
 //            $segments_expenses_output = $expensestype_obj->parse_expensesfield($sequence, $rowid);
         /* parse expenses --END */
-
+        if($sequence == 2) {
+            $helptour = '';
+            $seg2helptour = new HelpTour();
+            $seg2helptour->set_id('travelmanagersegment2_helptour');
+            $seg2helptour->set_cookiename('travelmanagersegment2_helptour');
+            $plan = new TravelManagerPlan();
+            $seg2helptouritems = $plan->get_secondseghelptouritems();
+            $seg2helptour->set_items($seg2helptouritems);
+            $seg2helptour = $seg2helptour->parse();
+        }
         eval("\$plantrip_createsegment= \"".$template->get('travelmanager_plantrip_createsegment')."\";");
         output($plantrip_createsegment);
     }
     elseif($core->input['action'] == 'populatecontent') {
+
+        $display['othertranspssection'] = "display:block'";
+        $checked['othertranspssection'] = 'checked="checked"';
+
+
         $origincityid = $db->escape_string($core->input['origincity']);
         $destcityid = $db->escape_string($core->input['destcity']);
         $sequence = $db->escape_string($core->input['sequence']); /* get the  sequence to differentiate the content of each */
         $otherhotel_checksum = generate_checksum('accomodation');
-        $transp_dispnone = 'style="display:none"';
+        $transp_dispnone = 'style = "display:none"';
         $descity_obj = new Cities($destcityid);
         $destcity = $descity_obj->get();
         $dest_country = $descity_obj->get_country();
@@ -312,48 +335,48 @@ else {
             if(isset($core->input['transp']) && $core->input['transp'] == 1) {
                 $transp_requirements['oneway'] = 0;
             }
-            $transsegments_output = Cities::parse_transportations($transp, array('origincity' => $origintcity, 'destcity' => $destcity, 'transprequirements' => $transp_requirements), $sequence);
+            $transsegments_output = Cities::parse_transportations($transp, array('origincity' => $origintcity, 'destcity' => $destcity, 'transprequirements' => $transp_requirements, 'referrer' => $core->input['referrer'], 'excludesuggestions' => 1), $sequence);
         }
         /* load approved hotels */
         $leavedays = abs(strtotime($core->input['arrivaltime']) - strtotime($core->input['departuretime']));
         $leavedays = floor($leavedays / (60 * 60 * 24));
         // $segmentobj = new TravelManagerPlanSegments();
-        $segmentobj = TravelManagerPlanSegments::get_data(array('originCity' => $origincityid, 'destinationCity' => $destcityid));
-        if(is_object($segmentobj)) {
-            $approvedhotels = $segmentobj->get_destinationcity()->get_approvedhotels();
-            if(is_array($approvedhotels)) {
-                $hotelssegments_output = $segmentobj->parse_hotels($sequence, $approvedhotels, $leavedays);
-            }
-            $destcounrty_obj = $segmentobj->get_destinationcity()->get_country();
-            if(is_object($destcounrty_obj)) {
-                $otherapprovedhotels = TravelManagerHotels::get_data('country='.$destcounrty_obj->coid.' AND city != '.$segmentobj->get_destinationcity()->ciid.' AND isApproved=1', array('returnarray' => true));
-            }
-            if(is_array($otherapprovedhotels)) {
-                $hotelssegments_output.='<br /><a nohref="nohref" style="cursor:pointer;" id="countryhotels_'.$sequence.'_check"><button type="button" class="button">Lookup Hotels In The Same Country</button></a>';
-                $hotelssegments_output.='<div id=countryhotels_'.$sequence.'_view style="display:none">';
-                $hotelssegments_output.=$segmentobj->parse_hotels($sequence, $otherapprovedhotels, $leavedays);
-                $hotelssegments_output.='</div>';
-            }
+//        $segmentobj = TravelManagerPlanSegments::get_data(array('originCity' => $origincityid, 'destinationCity' => $destcityid));
+//        if(is_object($segmentobj)) {
+//            $approvedhotels = $segmentobj->get_destinationcity()->get_approvedhotels();
+//            if(is_array($approvedhotels)) {
+//                $hotelssegments_output = $segmentobj->parse_hotels($sequence, $approvedhotels, $leavedays);
+//            }
+//            $destcounrty_obj = $segmentobj->get_destinationcity()->get_country();
+//            if(is_object($destcounrty_obj)) {
+//                $otherapprovedhotels = TravelManagerHotels::get_data('country='.$destcounrty_obj->coid.' AND city != '.$segmentobj->get_destinationcity()->ciid.' AND isApproved=1', array('returnarray' => true));
+//            }
+//            if(is_array($otherapprovedhotels)) {
+//                $hotelssegments_output.='<br /><a nohref="nohref" style="cursor:pointer;" id="countryhotels_'.$sequence.'_check"><button type="button" class="button">Lookup Hotels In The Same Country</button></a>';
+//                $hotelssegments_output.='<div id=countryhotels_'.$sequence.'_view style="display:none">';
+//                $hotelssegments_output.=$segmentobj->parse_hotels($sequence, $otherapprovedhotels, $leavedays);
+//                $hotelssegments_output.='</div>';
+//            }
+//        }
+//        else {
+        $segmentobj = new TravelManagerPlanSegments();
+        $approvedhotels = $descity_obj->get_approvedhotels();
+        if(empty($approvedhotels)) {
+            $approvedhotels = array();
         }
-        else {
-            $segmentobj = new TravelManagerPlanSegments();
-            $approvedhotels = $descity_obj->get_approvedhotels();
-            if(empty($approvedhotels)) {
-                $approvedhotels = array();
-            }
-            $segmentobj->destinationCity = $destcityid;
-            $hotelssegments_output = $segmentobj->parse_hotels($sequence, $approvedhotels, $leavedays);
-            $destcounrty_obj = $descity_obj->get_country();
-            if(is_object($destcounrty_obj)) {
-                $otherapprovedhotels = TravelManagerHotels::get_data('country='.$destcounrty_obj->coid.' AND city != '.$descity_obj->ciid.' AND isApproved', array('returnarray' => true));
-            }
-            if(is_array($otherapprovedhotels)) {
-                $hotelssegments_output.='<br /><a nohref="nohref" style="cursor:pointer;" id="countryhotels_'.$sequence.'_check"><button type="button" class="button">Lookup Hotels In The Same Country</button></a>';
-                $hotelssegments_output.='<div id=countryhotels_'.$sequence.'_view style="display:none">';
-                $hotelssegments_output.=$segmentobj->parse_hotels($sequence, $otherapprovedhotels, $leavedays);
-                $hotelssegments_output.='</div>';
-            }
+        $segmentobj->destinationCity = $destcityid;
+        $hotelssegments_output = $segmentobj->parse_hotels($sequence, $approvedhotels, $leavedays);
+        $destcounrty_obj = $descity_obj->get_country();
+        if(is_object($destcounrty_obj)) {
+            $otherapprovedhotels = TravelManagerHotels::get_data('country='.$destcounrty_obj->coid.' AND city != '.$descity_obj->ciid.' AND isApproved', array('returnarray' => true));
         }
+        if(is_array($otherapprovedhotels)) {
+            $hotelssegments_output.='<br /><a nohref="nohref" style="cursor:pointer;" id="countryhotels_'.$sequence.'_check"><button type="button" class="button">Lookup Hotels In The Same Country</button></a>';
+            $hotelssegments_output.='<div id=countryhotels_'.$sequence.'_view style="display:none">';
+            $hotelssegments_output.=$segmentobj->parse_hotels($sequence, $otherapprovedhotels, $leavedays);
+            $hotelssegments_output.='</div>';
+        }
+        // }
 
 
 
@@ -444,7 +467,6 @@ else {
             if(is_array($core->input['segment'])) {
                 $travelplan->set($core->input);
                 $travelplan->save();
-                // $travelplan_obj->create($core->input['segment']);
             }
             switch($travelplan->get_errorcode()) {
                 case 0:
@@ -541,7 +563,7 @@ else {
     elseif($core->input ['action'] == 'do_add_otherhotel') {
         $sequence = $core->input['sequence'];
         $core->input['otherhotel']['telephone_intcode'] = $core->input['telephone_intcode'];
-        $core->input['otherhotel']['telephone_areacode'] = $core->input['telephone_areacode'];
+        //  $core->input['otherhotel']['telephone_areacode'] = $core->input['telephone_areacode'];
         $core->input['otherhotel']['telephone_number'] = $core->input['telephone_number'];
         if(!isset($core->input['otherhotel']['isContracted']) || empty($core->input['otherhotel']['isContracted'])) {
             $core->input['otherhotel']['isContracted'] = 0;
@@ -560,14 +582,14 @@ else {
                 output_xml("<status>false</status><message>{$lang->fillrequiredfields}</message>");
                 exit;
             case 2:
-                output_xml("<status>false</status><message>{$lang->fillrequiredfields}</message>");
+                output_xml("<status>false</status><message>Error Saving</message>");
                 exit;
         }
     }
     elseif($core->input ['action'] == 'deletesegment') {
         $segmentid = $db->escape_string($core->input['segmentid']);
         if(!empty($segmentid)) {
-            $plan_classes = array('TravelManagerPlanSegments', 'TravelManagerPlanTransps', 'TravelManagerPlanaccomodations', 'Travelmanager_Expenses', 'TravelManagerCityReviews');
+            $plan_classes = array('TravelManagerPlanSegments', 'TravelManagerPlanTransps', 'TravelManagerPlanaccomodations', 'Travelmanager_Expenses', 'TravelManagerCityReviews', 'TravelManagerPlanAffient', 'TravelManagerPlanSegPurposes', 'TravelManagerPlanFinance');
             if(is_array($plan_classes)) {
                 foreach($plan_classes as $object) {
                     $data = $object::get_data('tmpsid = '.$segmentid.'', array('returnarray' => true));
@@ -600,9 +622,16 @@ else {
         $transp_requirements['drivemode'] = 'transit';
         $transp_requirements['referrer'] = 'todate';
         $transp_requirements['departuretime'] = $db->escape_string(strtotime($core->input['departuretime']));
+        $transp_requirements['arrivaltime'] = $db->escape_string(strtotime($core->input['arrivaltime']));
         $origincity_obj = new Cities($origincityid);
         $origintcity = $origincity_obj->get();
         $origintcity['country'] = $origincity_obj->get_country()->get()['name'];
+
+
+        $transp_requirements['oneway'] = 1;
+        if(isset($core->input['transp']) && $core->input['transp'] == 1) {
+            $transp_requirements['oneway'] = 0;
+        }
 
         /* Load proposed transproration */
         $transp = new TravelManagerPlanTransps();
@@ -641,10 +670,70 @@ else {
     }
     elseif($core->input['action'] == 'ajaxaddmore_entities') {
         $entrowid = $db->escape_string($core->input['value']) + 1;
+        $ltpid = $core->input['ajaxaddmoredata']['ltpid'];
         $afent_checksum = generate_checksum();
         $sequence = $db->escape_string($core->input['id']);
-        eval("\$entities .= \"".$template->get('travelmanager_plantrip_createsegment_entities')."\";");
+
+        $leavetypepurpose = new LeaveTypesPurposes($ltpid);
+//        if($leavetypepurpose->get_displayname() == 'Event & Fair') {
+//            $calevents = Events::get_data(array('isPublic' => 1), array('returnarray' => true));
+//            $entities = '<tr id = "'.$entrowid.'"><td '.$display_external.' data-purposes = "external_'.$sequence.'">Select Event</td><td '.$display_external.' data-purposes = "external_'.$sequence.'">';
+//            $entities .= parse_selectlist("test", $tabindex, $calevents, $selected_options, '', '', array('width' => '200px'));
+//            $entities .='</td></tr>';
+//        }
+//        else {
+        eval("\$entities = \"".$template->get('travelmanager_plantrip_createsegment_entities')."\";");
+        // }
         echo $entities;
+    }
+    elseif($core->input['action'] == 'checkpricevsavgprice') {
+        $warnings['hotelprice'] = '';
+        $data['avgprice'] = $core->input['avgprice'];
+        $data['pricepernight'] = $core->input['pricepernight'];
+        $data['currency'] = $core->input['currency'];
+        $tmhotel = new TravelManagerHotels();
+        $warnings['hotelprice'] = $tmhotel->get_warning($data);
+        echo $warnings['hotelprice'];
+    }
+    elseif($core->input['action'] == 'validatefandbexpenses') {
+        $tmexpensetype = new TravelManager_Expenses_Types($core->input['expensetype']);
+        $warnings['foodandbeverage'] = '';
+        if(is_object($tmexpensetype) && $tmexpensetype->title == 'Food & Beverage') {
+            $data['numnights'] = $core->input['numnights'];
+            $data['amount'] = $core->input['amount'];
+            $data['currency'] = $core->input['currency'];
+            $tmexpenses = new Travelmanager_Expenses();
+            $warnings['foodandbeverage'] = $tmexpenses->validate_foodandbeverage_expenses($data);
+        }
+        echo $warnings['foodandbeverage'];
+    }
+    elseif($core->input['action'] == 'validatetranspclass') {
+        $warnings['transpclass'] = '';
+        $class = TravelManagerPlanTranspClass::get_data(array('tmptc' => intval($core->input['transpclass'])));
+        if($class->get_displayname() == 'Business') {
+            $warnings['transpclass'] = '<p style = "color:red;">'.$lang->transclasswarning.'</p>';
+        }
+        echo $warnings['transpclass'];
+    }
+    elseif($core->input['action'] == 'populateexternalpurpose') {
+        $ltpid = $core->input['externalpurposetype'];
+        $sequence = $core->input['sequence'];
+        $display_externalevent = 'style = "display:block"';
+        $entrowid = 0;
+        $purpose_obj = LeaveTypesPurposes::get_data(array('ltpid' => $ltpid));
+        if(is_object($purpose_obj) && $purpose_obj->name == 'eventfair') {
+            $returneddata['event'] = 1;
+            $afent_checksum = generate_checksum();
+            $calevents = Events::get_data(array('isPublic' => 1), array('returnarray' => true));
+            $returneddata['htmlcontent'] = '<td '.$display_externalevent.' >Select Event</td><td '.$display_external.'>';
+            $returneddata['htmlcontent'] .= parse_selectlist("segment[{$sequence}][assign][ceid][{$afent_checksum}]", $tabindex, $calevents, $selected_options, '', '', array('width' => '200px'));
+            $returneddata['htmlcontent'] .='</td>';
+            $returneddata['eventpurposeid'] = $purpose_obj->ltpid;
+        }
+        else {
+            $returneddata['event'] = 0;
+        }
+        echo json_encode($returneddata);
     }
 }
 ?>

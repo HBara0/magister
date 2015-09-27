@@ -97,6 +97,10 @@ if(!$core->input['action']) {
     if(is_array($records)) {
         foreach($records as $record) {
             $user = $record->get_user();
+            $affiliate = $user->get_mainaffiliate();
+            if(in_array($affiliate->affid, $core->user['hraffids'])) {
+                $hr_section = '<a href="#"  id="updateattrecords_'.$record->aarid.'_attendance/attendancerecords_loadpopupbyid"><img src="'.$core->settings['rootdir'].'/images/edit.gif"></a>';
+            }
             $record->timeOutput = date($core->settings['dateformat'].' '.$core->settings['timeformat'], $record->time);
             eval("\$attendancelist .= \"".$template->get('attendance_attrecords_entry')."\";");
         }
@@ -110,4 +114,37 @@ if(!$core->input['action']) {
     }
     eval("\$listpage = \"".$template->get('attendance_attrecords')."\";");
     output_page($listpage);
+}
+else {
+    if($core->input['action'] == 'get_updateattrecords') {
+        $record = new AttendanceAttRecords(intval($core->input['id']));
+        $user = $record->get_user();
+        $time['date'] = date($core->settings['dateformat'], $record->time);
+        $time['hours'] = trim(preg_replace('/(AM|PM)/', '', date('H:i', $record->time)));
+        $type = parse_selectlist('record[operation]', 4, array('check-in' => $lang->checkin, 'check-out' => $lang->checkout), $record->operation);
+        $show_lastupdated = 'style="display:none"';
+        if(!empty($record->lastupdateTime)) {
+            $show_lastupdated = '';
+            $lastupdated_time = date($core->settings['dateformat'].' '.$core->settings['timeformat'], $record->lastupdateTime);
+        }
+        eval("\$attrecord_details= \"".$template->get('popup_atteendance_records')."\";");
+        output($attrecord_details);
+    }
+    else if($core->input['action'] == 'do_editattendancerecord') {
+        $record = $core->input['record'];
+        $record['time'] = strtotime($core->input['time']['date'].' '.$core->input['time']['time']);
+        $record_obj = new AttendanceAttRecords($record['aarid']);
+        $record_obj = $record_obj->update($record);
+        switch($record_obj->get_errorcode()) {
+            case 0:
+                output_xml('<status>true</status><message>'.$lang->successfullysaved.'</message>');
+                break;
+            case 2:
+                output_xml('<status>false</status><message>'.$lang->fillrequiredfields.'</message>');
+                break;
+            default:
+                output_xml('<status>false</status><message>'.$lang->errorsaving.'</message>');
+                break;
+        }
+    }
 }

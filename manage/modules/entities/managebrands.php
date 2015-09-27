@@ -57,7 +57,7 @@ if(!$core->input['action']) {
         //$endproducttypes_list.='<option value="'.$endproduct_types['eptid'].'">'.$endproduct_types['title'].'</option>';
     }
 
-    $characteristics = ProductCharacteristicValues::get_data(null, array('returnarray' => true, 'order' => ProductCharacteristicValues::DISPLAY_NAME));
+    $characteristics = ProductCharacteristicValues::get_data(null, array('order' => array('by' => array(ProductCharacteristicValues::DISPLAY_NAME, 'pcid')), 'returnarray' => true));
     $characteristics_list = parse_selectlist('entitybrand[pcvid]', 4, $characteristics, null, 0, null, array('blankstart' => true));
     $module = 'entities';
     $modulefile = 'managebrands';

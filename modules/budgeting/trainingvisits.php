@@ -49,7 +49,7 @@ if(!isset($core->input['action'])) {
         }
     }
 
-    $fields = array('purpose', 'event', 'costAffiliate', 'company', 'inputChecksum', 'bm', 'planeCost', 'otherCosts'); //'actualPrevYear', 'budgetPrevYear'
+    $fields = array('purpose', 'event', 'costAffiliate', 'company', 'inputChecksum', 'bm', 'planeCost', 'otherCosts', 'lid'); //'actualPrevYear', 'budgetPrevYear'
     $rowid = 0;
     if(is_array($budgetrainingvisit_obj)) {
         foreach($budgetrainingvisit_obj as $btvid => $budgetvisit) {
@@ -86,7 +86,7 @@ if(!isset($core->input['action'])) {
             $rowid ++;
         }
     }
-
+    unset($btvid, $budgetvisit);
     // unset($budgettaininglocalvisits_rows, $budgettaininig_intvisits_rows);
 
     /* Parse and fill training visit fields based on selected leaves ----START */

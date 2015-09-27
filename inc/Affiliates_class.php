@@ -270,5 +270,9 @@ class Affiliates {
         return Countries::get_data(array('affid' => $this->affiliate[self::PRIMARY_KEY]), array('order' => 'name', 'returnarray' => true));
     }
 
+    public function get_id() {
+        return $this->affiliate[self::PRIMARY_KEY];
+    }
+
 }
 ?>

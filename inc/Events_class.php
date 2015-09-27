@@ -19,7 +19,7 @@ class Events extends AbstractClass {
 
     const PRIMARY_KEY = 'ceid';
     const TABLE_NAME = 'calendar_events';
-    const DISPLAY_NAME = '';
+    const DISPLAY_NAME = 'title';
     const CLASSNAME = __CLASS__;
     const SIMPLEQ_ATTRS = 'ceid, title, description,fromDate,toDate,place,publishOnWebsite,isCreatedFromCMS';
     const UNIQUE_ATTRS = 'alias';
@@ -172,7 +172,7 @@ class Events extends AbstractClass {
         return $this->data;
     }
 
-    private function validate_requiredfields(array $data = array()) {
+    protected function validate_requiredfields(array $data = array()) {
         global $core, $db;
         if(is_array($data)) {
             $required_fields = array('title', 'description', 'fromDate', 'toDate');

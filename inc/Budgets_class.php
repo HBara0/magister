@@ -15,7 +15,7 @@ class Budgets extends AbstractClass {
     const PRIMARY_KEY = 'bid';
     const TABLE_NAME = 'budgeting_budgets';
     const DISPLAY_NAME = '';
-    const SIMPLEQ_ATTRS = 'bid, year, affid, spid';
+    const SIMPLEQ_ATTRS = 'bid, year, affid, spid, isLocked';
     const attachments_path = './uploads/budget';
     const CLASSNAME = __CLASS__;
     const UNIQUE_ATTRS = '';
@@ -106,7 +106,7 @@ class Budgets extends AbstractClass {
      */
     public function populate_budgetyears($data = array()) {
         global $db;
-        $budget_yearquery = $db->query('SELECT bid,year FROM '.Tprefix.'budgeting_budgets WHERE spid='.$data['spid'].' AND affid='.$data['affid'].' AND isLocked=0 ORDER BY year DESC');
+        $budget_yearquery = $db->query('SELECT bid, year FROM '.Tprefix.'budgeting_budgets WHERE spid='.$data['spid'].' AND affid='.$data['affid'].' AND isLocked=0 ORDER BY year DESC');
         if($db->num_rows($budget_yearquery) > 0) {
             while($budget_year = $db->fetch_assoc($budget_yearquery)) {
                 $budget_years[] = $budget_year['year'];
@@ -400,7 +400,7 @@ class Budgets extends AbstractClass {
             $budgetline_query_where = ' AND bdl.businessMgr IN ('.$db->escape_string(implode(',', $options['filters']['businessMgr'])).')';
         }
 
-        for($year = $data['year']; $year >= ($data['year'] - 2); $year--) {
+        for($year = $data['year']; $year >= ($data['year'] - 1); $year--) {
             if($year == $data['year']) {
                 continue;
             }
@@ -412,7 +412,7 @@ class Budgets extends AbstractClass {
             if($db->num_rows($prev_budget_bydataquery) > 0) {
                 while($prevbudget_bydata = $db->fetch_assoc($prev_budget_bydataquery)) {
                     if($prevbudget_bydata['cid'] == 0) {
-                        $prevbudget_bydata['cid'] = md5($prevbudget_bydata['altCid'].$prevbudget_bydata['saleType'].$prevbudget_bydata['pid']);
+                        $prevbudget_bydata['cid'] = md5($prevbudget_bydata['altCid'].$prevbudget_bydata['saleType'].$prevbudget_bydata['pid'].$prevbudget_bydata['prevblid'].$prevbudget_bydata['linkedBudgetLine']);
                     }
                     $budgetline_details[$prevbudget_bydata['cid']][$prevbudget_bydata['pid']][$prevbudget_bydata['saleType']][] = $prevbudget_bydata;
                 }
@@ -500,10 +500,11 @@ class Budgets extends AbstractClass {
             if($db->num_rows($budgetline_queryid) > 0) {
                 while($budgetline_data = $db->fetch_assoc($budgetline_queryid)) {
                     if($budgetline_data['cid'] == 0) {
-                        $budgetline_data['cid'] = md5($budgetline_data['altCid'].$budgetline_data['customerCountry'].$budgetline_data['saltType'].$budgetline_data['pid']);
+                        $budgetline_data['cid'] = md5($budgetline_data['altCid'].$budgetline_data['customerCountry'].$budgetline_data['saleType'].$budgetline_data['pid'].$budgetline_data['prevblid'].$budgetline_data['linkedBudgetLine']);
                     }
                     $budgetline = new BudgetLines($budgetline_data['blid']);
                     $prevbudgetline = new BudgetLines($budgetline_data['prevblid']);
+
                     $budgetline_details[$budgetline_data['cid']][$budgetline_data['pid']][$budgetline_data['saleType']] = $budgetline->get();
                     $budgetline_details[$budgetline_data['cid']][$budgetline_data['pid']][$budgetline_data['saleType']]['prevbudget'][] = $prevbudgetline->get();
                 }

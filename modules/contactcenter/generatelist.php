@@ -126,11 +126,14 @@ else {
         $userfilter = new Inlinefilters($filters_user_config);
         $userchecked = 'checked="checked"';
         $filter_whereuser_values = $userfilter->process_multi_filters();
-        $filter_userwhere = null;
+        // $filter_userwhere = null;
+        $filter_userwhere = 'gid!=7';
         if(is_array($filter_whereuser_values)) {
-            $filter_userwhere = ' '.$filters_user_config['process']['filterKey'].' IN ('.implode(',', $filter_whereuser_values).')';
+            $filter_userwhere .= ' AND '.$filters_user_config['process']['filterKey'].' IN ('.implode(',', $filter_whereuser_values).')';
             $multipage_userwhere .= ' AND '.$filters_user_config['process']['filterKey'].' IN ('.implode(',', $filter_whereuser_values).')';
         }
+
+
         $users = Users::get_data($filter_userwhere, array('returnarray' => true, 'simple' => false, 'order' => $sort_query));
         if(is_array($users)) {
             $first_timeuser = 0;
@@ -139,8 +142,8 @@ else {
 
             foreach($users as $user_obj) {
                 $results_body .= '<tr>';
-                $results_body.='<td>'.$user_obj->parse_link().'</td>';
-                $results_body.='<td>'.$user_obj->email.'</td>';
+                $results_body .= '<td>'.$user_obj->parse_link().'</td>';
+                $results_body .= '<td>'.$user_obj->email.'</td>';
 
                 $result_title = $lang->employeeresults;
                 if(is_array($core->input['user'])) {
@@ -152,13 +155,13 @@ else {
                                 }
                                 $userposition = UserPositions::get_data(array('uid' => $user_obj->uid), array('returnarray' => false));
                                 if(is_object($userposition)) {
-                                    $results_body.='<td>'.$userposition->get_position()->get_displayname().'</td>';
+                                    $results_body .= '<td>'.$userposition->get_position()->get_displayname().'</td>';
                                 }
                                 elseif(is_array($userposition)) {
                                     foreach($userposition as $pos) {
                                         $positions[] = $pos->get_position()->get_displayname();
                                     }
-                                    $results_body.='<td>'.implode(',', $positions).'</td>';
+                                    $results_body .= '<td>'.implode(', ', $positions).'</td>';
                                     $positions = '';
                                 }
 
@@ -172,10 +175,10 @@ else {
                                     foreach($assignedemps as $assignedemp) {
                                         $entities[] = $assignedemp->get_entity()->get_displayname();
                                     }
-                                    $results_body.='<td>'.implode(',', $entities).'</td>';
+                                    $results_body .= '<td>'.implode(', ', $entities).'</td>';
                                 }
                                 else {
-                                    $results_body.='<td>-</td>';
+                                    $results_body .= '<td>-</td>';
                                 }
                                 $entities = '';
                                 break;
@@ -188,7 +191,7 @@ else {
                                     foreach($employeesegs as $employeeseg) {
                                         $segments[] = $employeeseg->get_segment()->get_displayname();
                                     }
-                                    $results_body.='<td>'.implode(',', $segments).'</td>';
+                                    $results_body.='<td>'.implode(', ', $segments).'</td>';
                                 }
                                 else {
                                     $results_body.='<td>-</td>';
@@ -201,7 +204,7 @@ else {
                                 }
                                 $assignedaff = AffiliatedEmployees::get_data(array('uid' => $user_obj->uid, 'isMain' => 1), array('returnarray' => false));
                                 if(is_object($assignedaff)) {
-                                    $results_body.='<td>'.$assignedaff->get_affiliate()->get_displayname().'</td>';
+                                    $results_body .= '<td>'.$assignedaff->get_affiliate()->get_displayname().'</td>';
                                 }
                                 break;
                             case 'allaffiliates':
@@ -213,7 +216,7 @@ else {
                                     foreach($assignedaff as $assign) {
                                         $assgined[] = $assign->get_affiliate()->get_displayname();
                                     }
-                                    $results_body.='<td>'.implode(',', $assgined).'</td>';
+                                    $results_body .= '<td>'.implode(', ', $assgined).'</td>';
                                     $assgined = '';
                                 }
                                 break;
@@ -223,12 +226,12 @@ else {
                                 }
                                 $reportsto = new Users($user_obj->reportsTo);
                                 if(is_object($reportsto)) {
-                                    $results_body.='<td>'.$reportsto->parse_link().'</td>';
+                                    $results_body .= '<td>'.$reportsto->parse_link().'</td>';
                                 }
                                 $reportsto = '';
                                 break;
                             default :
-                                $results_body.='<td>-</td>';
+                                $results_body .= '<td>-</td>';
                                 break;
                         }
                     }

@@ -9,7 +9,7 @@
  */
 
 $module['name'] = 'contactcenter';
-$module['title'] = 'CC';
+$module['title'] = $lang->contactcenter;
 $module['homepage'] = 'generatelist';
 $module['globalpermission'] = 'canUseCc';
 $module['menu'] = array(

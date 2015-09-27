@@ -77,7 +77,7 @@ Class BudgetComAdminExpenses extends AbstractClass {
         }
     }
 
-    private function validate_requiredfields(array $data = array()) {
+    protected function validate_requiredfields(array $data = array()) {
         if(is_array($data)) {
             $required_fields = array('bfbid', 'beciid', 'actualPrevThreeYears', 'actualPrevTwoYears', 'yefPrevYear', 'budgetCurrent', 'budYefPerc'); //'actualPrevYear', 'budgetPrevYear'
             foreach($required_fields as $field) {

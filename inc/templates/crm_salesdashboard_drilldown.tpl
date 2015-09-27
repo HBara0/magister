@@ -12,7 +12,12 @@ var labelsForQuarters = {
 "Q3": ["July", "August", "September"],
 "Q4": ["October", "November", "December"]
 };
-$.post("index.php?module=crm/salesdashboard&action=do_perform_totalsalesperyear", function (data) {
+var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
+var urlparms='';
+if(typeof results !='undefined' && results !=null){
+urlparms=results;
+}
+$.post("index.php?module=crm/salesdashboard&action=do_perform_totalsalesperyear"+urlparms, function (data) {
 var years = data['years'];
 var title = data['title'];
 var yaxislabel = data['yaxislabel'];

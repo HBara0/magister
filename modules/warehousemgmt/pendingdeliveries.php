@@ -43,7 +43,7 @@ if($core->input['action'] == 'do_perform_pendingdeliveries') {
     $where = "ad_org_id='".$orgid."' AND issotrx='Y' AND "
             ."EXISTS (select * from c_orderline where (qtyordered-qtydelivered)!=0 AND c_order.c_order_id=c_orderline.c_order_id)"
             ."AND docstatus = 'CO' ORDER BY dateordered ASC ";
-    $orders = IntegrationOBOrder::get_data($where);
+    $orders = IntegrationOBOrder::get_data($where, array('returnarray' => true));
     if(is_array($orders)) {
         foreach($orders as $order) {
             $filter_where = " c_order_id='".$order->c_order_id."' AND (qtyordered-qtydelivered)!=0";

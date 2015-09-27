@@ -23,6 +23,7 @@ Abstract class AbstractClass {
     const SIMPLEQ_ATTRS = '';
     const CLASSNAME = __CLASS__;
     const UNIQUE_ATTRS = null;
+    const REQUIRED_ATTRS = '';
 
     public function __construct($id = '', $simple = true) {
         if(isset($id) && !empty($id)) {
@@ -231,6 +232,22 @@ Abstract class AbstractClass {
 
     function __destruct() {
 
+    }
+
+    protected function validate_requiredfields($data) {
+        $required_fields = static::REQUIRED_ATTRS;
+        if(!empty($required_fields)) {
+            $required_fields = explode(',', $required_fields);
+            if(is_array($required_fields) && is_array($data)) {
+                foreach($required_fields as $field) {
+                    if(!isset($data[$field]) || empty($data[$field])) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+        }
+        return true;
     }
 
 }

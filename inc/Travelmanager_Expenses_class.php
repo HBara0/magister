@@ -124,7 +124,7 @@ class Travelmanager_Expenses extends AbstractClass {
         return $expenses;
     }
 
-    private function validate_requiredfields(array $data = array()) {
+    protected function validate_requiredfields(array $data = array()) {
         global $core, $db;
         if(is_array($data)) {
             $required_fields = array('expectedAmt', 'tmetid');
@@ -154,6 +154,26 @@ class Travelmanager_Expenses extends AbstractClass {
             }
         }
         return $this->expectedAmt * $exchangerate;
+    }
+
+    public function validate_foodandbeverage_expenses($data) {
+        global $lang;
+        $fromcurrency = new Currencies($data['currency']);
+        $tocurrency = new Currencies('USD');
+        $exchangerate = $tocurrency->get_latest_fxrate($tocurrency->alphaCode, array(), $fromcurrency->alphaCode);
+        if(empty($exchangerate)) {
+            $reverserate = $tocurrency->get_latest_fxrate($fromcurrency->alphaCode, array(), $tocurrency->alphaCode);
+            if(!empty($reverserate)) {
+                $exchangerate = 1 / $reverserate;
+                $tocurrency->set_fx_rate($fromcurrency->numCode, $tocurrency->numCode, $exchangerate);
+            }
+        }
+        if(!empty($data['numnights']) && $data['numnights'] != 0) {
+            $data['amtperday'] = ($data['amount'] * $exchangerate) / $data['numnights'];
+            if($data['amtperday'] > 50) {
+                return '<p style="color:red">'.$lang->fandbwarning.'</p>';
+            }
+        }
     }
 
 }

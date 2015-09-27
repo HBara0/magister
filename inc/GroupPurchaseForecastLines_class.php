@@ -61,7 +61,7 @@ class GroupPurchaseForecastLines extends AbstractClass {
         }
     }
 
-    private function validate_requiredfields(array $data = array()) {
+    protected function validate_requiredfields(array $data = array()) {
         global $core, $db;
         if(is_array($data)) {
             $required_fields = array('pid', 'saleType', 'month1', 'month2', 'month3', 'month4', 'month5', 'month6', 'month7', 'month8', 'month9', 'month10', 'month11', 'month12');

@@ -213,7 +213,7 @@ else {
         $email_data = array(
                 'from_email' => $core->user['email'],
                 'from' => $core->user['firstName'].' '.$core->user['lastName'],
-                'to' => 'it.support@orkila.com',
+                'to' => 'support@ocos.orkila.com',
                 'subject' => $core->input['subject'],
                 'message' => $core->input['message']
                 //'attachments' => array($core->input['attachment'])

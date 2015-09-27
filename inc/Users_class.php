@@ -12,6 +12,7 @@
 class Users extends AbstractClass {
     protected $data = array();
     protected $errorcode = 0;
+    protected $usergroup = array();
 
     const PRIMARY_KEY = 'uid';
     const TABLE_NAME = 'users';
@@ -57,7 +58,7 @@ class Users extends AbstractClass {
         $this->data['mainaffiliate'] = $db->fetch_field($db->query("SELECT affid FROM ".Tprefix."affiliatedemployees WHERE uid='{$this->data['uid']}' AND isMain=1"), 'affid');
     }
 
-    public function read_usergroupsperm($mainonly = false) {
+    public function read_usergroupsperm($mainonly = false, $replacecore = false) {
         global $db, $core;
 
         if($mainonly == true) {
@@ -65,22 +66,29 @@ class Users extends AbstractClass {
         }
 
         $query = $db->query('SELECT *
-							FROM '.Tprefix.'users_usergroups uug
-							JOIN '.Tprefix.'usergroups ug ON (ug.gid=uug.gid)
-							WHERE uid='.$this->data['uid'].$query_extrawhere.'
-							ORDER BY isMain DESC');
+                            FROM '.Tprefix.'users_usergroups uug
+                            JOIN '.Tprefix.'usergroups ug ON (ug.gid=uug.gid)
+                            WHERE uid='.$this->data['uid'].$query_extrawhere.'
+                            ORDER BY isMain DESC');
         while($usergroup = $db->fetch_assoc($query)) {
             if($usergroup['isMain'] != 1) {
                 unset($usergroup['title'], $usergroup['gid'], $usergroup['defaultModule']);
             }
             else {
-                $core->usergroup = $usergroup;
-                $core->user['gid'] = $usergroup['gid'];
+                if($replacecore == true) {
+                    $core->usergroup = $usergroup;
+                    $core->user['gid'] = $usergroup['gid'];
+                }
             }
 
             foreach($usergroup as $permission => $value) {
-                if($core->usergroup[$permission] == 0 && $value == 1) {
-                    $core->usergroup[$permission] = 1;
+                if($replacecore == true) {
+                    if($core->usergroup[$permission] == 0 && $value == 1) {
+                        $core->usergroup[$permission] = 1;
+                    }
+                }
+                if($this->usergroup[$permission] == 0 && $value == 1) {
+                    $this->usergroup[$permission] = 1;
                 }
             }
         }
@@ -256,10 +264,20 @@ class Users extends AbstractClass {
     }
 
     public function get_mainaffiliate() {
+        global $cache;
         if(!isset($this->data['mainaffiliate']) || empty($this->data['mainaffiliate'])) {
             $this->read_mainaffiliate();
         }
-        return new Affiliates($this->data['mainaffiliate'], FALSE);
+
+        if(!$cache->iscached('affiliate', $this->data['mainaffiliate'])) {
+            $affiliate = new Affiliates($this->data['mainaffiliate'], FALSE);
+            $cache->add('affiliate', $affiliate, $affiliate->get_id());
+        }
+        else {
+            $affiliate = new Affiliates($this->data['mainaffiliate'], FALSE);
+        }
+
+        return $affiliate;
     }
 
     /* CORRECTIONS NEEDED:
@@ -623,6 +641,264 @@ class Users extends AbstractClass {
             return $joindate['joinDate'];
         }
         return false;
+    }
+
+    /**
+     * Return all permissions that apply to this user taking into consideration all different assignment types
+     * @global Cache    $cache
+     * @return array    Related permissions
+     */
+    public function get_businesspermissions() {
+        global $cache;
+        $this->read_usergroupsperm();
+
+        $affemployees = AffiliatedEmployees::get_data(array('uid' => $this->uid), array('returnarray' => true));
+        $assignedemployees = AssignedEmployees::get_data(array('uid' => $this->uid), array('returnarray' => true));
+        $segmentscoord = ProdSegCoordinators::get_data(array('uid' => $this->uid), array('returnarray' => true));
+        $supplieraudits = SupplierAudits::get_data(array('uid' => $this->uid), array('returnarray' => true));
+        $reportingusers = Users::get_users(array('reportsTo' => $this->uid), array('returnarray' => true));
+
+        /**
+         * Default set of permissions
+         * Empty arrays are left on purpose
+         */
+        $permissions = array('spid' => array(), 'cid' => array(), 'eid' => array(), 'psid' => array(), 'pid' => array(), 'uid' => array($this->uid), 'affid' => array($this->get_mainaffiliate()->get_id()));
+
+        foreach($affemployees as $affemployee) {
+            $affiliate = $affemployee->get_affiliate();
+            if($affemployee->canAudit == 1) {
+                $affentities = AffiliatedEntities::get_data(array('affid' => $affiliate->get_id()), array('returnarray' => true));
+                if(is_array($affentities)) {
+                    foreach($affentities as $affentity) {
+                        $entity = $affentity->get_entity();
+                        $cache->add('entity', $entity, $entity->get_id());
+
+                        $permissions['eid'][] = $entity->get_id();
+                        if($entity->is_supplier()) {
+                            $permissions['spid'][] = $entity->get_id();
+                            $products = Products::get_data(array('spid' => $entity->get_id()), array('returnarray' => true));
+                            $cache->add('entityproducts', $products, $entity->get_id());
+                            if(is_array($entity)) {
+                                $permissions['pid'] = array_keys($products);
+                            }
+                        }
+                        else {
+                            $permissions['cid'][] = $entity->get_id();
+                        }
+                    }
+                }
+
+                $affiliateemployees = AssignedEmployees::get_data(array('affid' => $affiliate->get_id()), array('returnarray' => true));
+                if(is_array($affiliateemployees)) {
+                    foreach($affiliateemployees as $affiliateemployee) {
+                        if(!$cache->iscached('user', $affiliateemployee->{Users::PRIMARY_KEY})) {
+                            $employee = $affiliateemployee->get_user();
+                            $cache->add('user', $employee, $employee->get_id());
+                        }
+                        else {
+                            $employee = $cache->get_cachedval('user', $affiliateemployee->{Users::PRIMARY_KEY});
+                        }
+
+                        $permissions['uid'][] = $employee->get_id();
+                    }
+                }
+                unset($affentities);
+            }
+            else {
+                $permissions['affid'][] = $affiliate->get_id();
+            }
+        }
+
+        if(is_array($supplieraudits)) {
+            foreach($supplieraudits as $audit) {
+                if(!$cache->iscached('entity', $audit->{Entities::PRIMARY_KEY})) {
+                    $entity = $audit->get_entity();
+                }
+                else {
+                    $entity = $cache->get_cachedval('entity', $audit->{Entities::PRIMARY_KEY});
+                }
+
+                $permissions['eid'][] = $entity->get_id();
+                $permissions['spid'][] = $entity->get_id();
+
+                if(!$cache->iscached('entity', $audit->{Entities::PRIMARY_KEY})) {
+                    $products = Products::get_data(array('spid' => $entity->get_id()), array('returnarray' => true));
+                    $cache->add('entityproducts', $products, $entity->get_id());
+                }
+                else {
+                    $products = $cache->get_cachedval('entityproducts', $audit->{Entities::PRIMARY_KEY});
+                }
+
+                if(is_array($products)) {
+                    $permissions['pid'] = array_merge($permissions['pid'], array_keys($products));
+                }
+            }
+        }
+
+        if(is_array($segmentscoord)) {
+            foreach($segmentscoord as $segmentcoord) {
+                $segment = $segmentcoord->get_segment();
+                $permissions['psid'][] = $segment->get_id();
+
+                $generics = GenericProducts::get_data(array('psid' => $segment->get_id()), array('returnarray' => true));
+                if(is_array($generics)) {
+                    $products = Products::get_data(array('gpid' => array_keys($generics)), array('returnarray' => true));
+                    if(is_array($products)) {
+                        $permissions['pid'] = array_merge($permissions['pid'], array_keys($products));
+                    }
+                }
+                /**
+                 * Get products using applications
+                 */
+                $applications = SegmentApplications::get_data(array('psid' => $segment->get_id()), array('returnarray' => true));
+                if(!is_array($applications)) {
+                    continue;
+                }
+                foreach($applications as $application) {
+                    $cache->add('application', $application, $application->get_id());
+
+                    $segappfuncs = $application->get_segappfunctionsobjs();
+                    if(!is_array($segappfuncs)) {
+                        continue;
+                    }
+                    $chemfunprods = ChemFunctionProducts::get_data(array('safid' => array_keys($segappfuncs)), array('returnarray' => true));
+                    if(!is_array($chemfunprods)) {
+                        continue;
+                    }
+                    foreach($chemfunprods as $chemfunprod) {
+                        $permissions['pid'][] = $chemfunprod->{Products::PRIMARY_KEY};
+                    }
+                }
+            }
+
+            $employeesegments = EmployeeSegments::get_data(array('psid' => $segment->get_id()), array('returnarray' => true));
+            if(is_array($employeesegments)) {
+                foreach($employeesegments as $employeesegment) {
+                    if(!$cache->iscached('user', $employeesegment->{Users::PRIMARY_KEY})) {
+                        $employee = $employeesegment->get_user();
+                        $cache->add('user', $employee, $employee->get_id());
+                    }
+                    else {
+                        $employee = $cache->get_cachedval('user', $employeesegment->{Users::PRIMARY_KEY});
+                    }
+
+                    $permissions['uid'][] = $employee->get_id();
+                    $affiliate = $employee->get_mainaffiliate();
+                    $permissions['affid'][] = $affiliate->get_id();
+                }
+            }
+            unset($employeesegments);
+
+            $entitiesegments = EntitiesSegments::get_data(array('psid' => $segment->get_id()), array('returnarray' => true));
+            if(is_array($entitiesegments)) {
+                foreach($entitiesegments as $entitysegment) {
+                    if(!$cache->iscached('entity', $entitysegment->{Entities::PRIMARY_KEY})) {
+                        $entity = $entitysegment->get_entity();
+                        $cache->add('entity', $entity, $entity->get_id());
+                    }
+                    else {
+                        $entity = $cache->get_cachedval('entity', $entitysegment->{Entities::PRIMARY_KEY});
+                    }
+                    $permissions['eid'][] = $entity->get_id();
+                    if($entity->is_supplier()) {
+                        $permissions['spid'][] = $entity->get_id();
+                    }
+                    else {
+                        $permissions['cid'][] = $entity->get_id();
+                    }
+                }
+            }
+        }
+
+        foreach($assignedemployees as $assignedemployee) {
+            if(is_array($permissions['eid'])) {
+                if(in_array($assignedemployee->{Entities::PRIMARY_KEY}, $permissions['eid'])) {
+                    continue;
+                }
+            }
+            if(!$cache->iscached('entity', $assignedemployee->{Entities::PRIMARY_KEY})) {
+                $entity = $assignedemployee->get_entity();
+                $cache->add('entity', $entity, $entity->get_id());
+            }
+            else {
+                $entity = $cache->get_cachedval('entity', $assignedemployee->{Entities::PRIMARY_KEY});
+            }
+            $permissions['eid'][] = $entity->get_id();
+            if($entity->is_supplier()) {
+                $permissions['spid'][] = $entity->get_id();
+            }
+            else {
+                $permissions['cid'][] = $entity->get_id();
+            }
+        }
+
+        /* Set users who report to the user */
+        if(is_array($reportingusers)) {
+            $permissions['uid'] = array_merge($permissions['uid'], array_keys($reportingusers));
+        }
+
+        /* Unique the values */
+        foreach($permissions as $type => $values) {
+            if(is_array($values)) {
+                $permissions[$type] = array_unique($values);
+            }
+        }
+
+        /**
+         * If a permission has no value then it means the user has not been assigned to any
+         * system therefore, zero out the value to avoid it being consider as having all permissions
+         */
+        foreach($permissions as $key => $perm) {
+            if(empty($permissions[$key])) {
+                $permissions[$key] = array(0);
+            }
+        }
+
+        /**
+         * If user has global permission, remove the permissions values
+         */
+        if($this->usergroup['canViewAllAff'] == 1) {
+            unset($permissions['affid']);
+        }
+
+        if($this->usergroup['canViewAllSupp'] == 1) {
+            unset($permissions['spid']);
+        }
+        if($this->usergroup['canViewAllCust'] == 1) {
+            unset($permissions['cid']);
+        }
+
+        return $permissions;
+    }
+
+    /**
+     * Get the object of the user from the integration class
+     * If no value is defined in the local users table, the system falls back to checking remote table by name
+     * @global type $integration
+     * @return \IntegrationOBUser|boolean
+     */
+    public function get_integrationObUser() {
+        global $integration;
+        if(class_exists('IntegrationOB', true)) {
+            if(!empty($this->integrationOBId)) {
+                return new IntegrationOBUser($this->integrationOBId, $integration->get_dbconn());
+            }
+
+            /**
+             * Attempt to get by display name
+             */
+            $intuser = IntegrationOBUser::get_data('name=\''.$this->displayName.'\' OR (firstname=\''.$this->firstName.'\' AND lastname=\''.$this->lastName.'\')');
+            if(is_object($intuser)) {
+                return $intuser;
+            }
+            else {
+                if(is_array($intuser)) {
+                    return current($intuser);
+                }
+            }
+
+            return false;
+        }
     }
 
 }

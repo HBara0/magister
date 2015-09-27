@@ -143,7 +143,7 @@ class TravelManager_Expenses_Types extends AbstractClass {
         $onchange_actions = 'if($(this).find(":selected").val()=="anotheraff"){$("#"+$(this).find(":selected").val()+"_"+'.$sequence.'+"_"+'.$rowid.').effect("highlight", {color: "#D6EAAC"}, 1500).find("input").first().focus().val("");}else{$("#anotheraff_'.$sequence.'_'.$rowid.'").hide();}';
         // $onchange_actions = 'onchange="$("#"+$(this).find(":selected").val()+ "_"+'.$sequence.'+"_"+'.$rowid.').effect("highlight", {color: "#D6EAAC"}, 1500).find("input").first().focus();"';
 
-        return "<div><div style='display:inline-block;width:20%;padding:5px;'>Paid By</div> <div style='display:inline-block;width:70%;'> <select id=segment_expensestype_".$sequence."_".$rowid." name=segment[".$sequence."][expenses][".$rowid."][paidBy] onchange='".$onchange_actions."'>".$paid_options."</select></div></div>";
+        return "<div><div style='display:inline-block;width:20%;padding:5px;'>Paid By</div> <div style='display:inline-block;width:70%;'> <select id=segment_paidby_".$sequence."_".$rowid." name=segment[".$sequence."][expenses][".$rowid."][paidBy] onchange='".$onchange_actions."'>".$paid_options."</select></div></div>";
     }
 
 }

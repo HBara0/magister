@@ -92,4 +92,6 @@ $lang['revokeleavenotificationsubjectuser'] = 'Your {1}{2} was revoked';
 $lang['leavedetail'] = 'Leave Details <br/>{1} took {2} between <strong>{3}</strong> and <strong>{4}</strong><br />';
 $lang['newleavemsgsubject'] = 'New message to leave request';
 $lang['leavedate'] = 'between {1} and {2}';
+$lang['autorespondermessage'] = '{1} is not available from {2} to {3} ';
+$lang['businesstravel'] = 'Business Travel';
 ?>

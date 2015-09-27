@@ -112,7 +112,8 @@
                         </table>
                     </div>
                 </div>
-                <input type='submit' style="cursor: pointer" class='button' value="{$lang->generate}" id='perform_contactcenter/generatelist_Button'>
+                <input type='submit' style="cursor: pointer" class='button main' value="{$lang->generate}" id='perform_contactcenter/generatelist_Button'>
+                <input type="reset" value="{$lang->reset}" class='button'>
             </form>
             <hr>
             <div id="perform_contactcenter/generatelist_Results"></div>

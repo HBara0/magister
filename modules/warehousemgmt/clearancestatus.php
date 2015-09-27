@@ -41,9 +41,11 @@ if($core->input['action'] == 'do_perform_clearancestatus') {
     $nomatchfound = true;
     // $orgid = "DA0CE0FED12C4424AA9B51D492AE96D2";
     $where = "ad_org_id='".$orgid."' AND issotrx='N' AND "
-            ."EXISTS (select * from c_orderline where (qtyordered-qtydelivered)!=0 AND c_order.c_order_id=c_orderline.c_order_id)"
-            ."AND docstatus = 'CO' ORDER BY dateordered ASC ";
+            ."EXISTS (SELECT c_orderline_id FROM c_orderline WHERE (SELECT SUM(m_inoutline.MovementQty) FROM m_inoutline WHERE m_inoutline.c_orderline_id=c_orderline.c_orderline_id)<c_orderline.QtyOrdered AND c_order.c_order_id=c_orderline.c_order_id)"
+            ."AND docstatus = 'CO' ORDER BY dateordered ASC";
+
     $orders = IntegrationOBOrder::get_data($where);
+
     if(is_array($orders)) {
         foreach($orders as $order) {
             $filter_where = " c_order_id='".$order->c_order_id."' AND (qtyordered-qtydelivered)!=0";

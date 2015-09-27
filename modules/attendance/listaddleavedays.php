@@ -52,7 +52,7 @@ if(!$core->input['action']) {
 						FROM ".Tprefix."attendance_additionalleaves l
 						JOIN ".Tprefix."users u ON (l.uid=u.uid)
 						JOIN ".Tprefix."affiliatedemployees a ON (a.uid=u.uid)
-						WHERE a.affid={$core->user[mainaffiliate]} AND isMain=1 AND u.gid!=7
+						WHERE isMain=1 AND u.gid!=7
 						{$filter_where}
 						ORDER BY {$sort_query}
 						LIMIT {$limit_start}, {$core->settings[itemsperlist]}");

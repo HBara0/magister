@@ -334,7 +334,6 @@ else {
                             switch($field) {
                                 case 'unitcost':
                                     $output_value = $input['stack']['remaining_cost'] / $input['stack']['remaining_qty'];
-
                                     $input['unitcost'] = $output_value;
 //                                if(in_array($field, $config['total_types'])) {
 //                                    $totals[$field] += $output_value;
@@ -342,7 +341,6 @@ else {
                                     $output .= '<td style="border: 1px solid #CCC; text-align: right;">'.number_format($output_value, $report_options['roundto'], '.', ' ').'</td>';
                                     break;
                                 case 'unitcostusd':
-                                    $output_value = ($input['stack']['remaining_cost'] / $input['stack']['remaining_qty']) / $fxrates['usd'];
                                     $output_value = ($input['stack']['remaining_cost'] / $input['stack']['remaining_qty']) / $fxrates['usd'];
                                     $input['unitcostusd'] = $output_value;
 //                                if(in_array($field, $config['total_types'])) {
@@ -796,7 +794,8 @@ else {
                 27 => array(12, 333, 68, 67, 342, 30, 356),
                 20 => array('michel.mbengue', 'samba.kandji', 'ansou.dabo', 'fatimatou.diallo', 356),
                 11 => array(323, 108, 186, 335, 184, 111, 109, 280, 326, 295, 289, 187, 112, 113, 312, 107, 356, 63),
-                2 => array('amal.dababneh')
+                2 => array('amal.dababneh', 34),
+                7 => array(333)
         );
 
         $recipients[] = $affiliateobj->get_generalmanager()->email;

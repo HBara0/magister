@@ -39,6 +39,23 @@
                     });
                     $('#expensestotal').val(sum);
                 });
+
+                $(document).on('change', 'input[id="check_autoresp"]', function () {
+                    if($(this).is(':checked')) {
+                        $('#autorespondersub').show();
+                        $('#autoresponderbody').show();
+
+
+
+                    }
+                    else {
+                        $('#autorespondersub').hide();
+                        $('#autoresponderbody').hide();
+
+
+
+                    }
+                });
             });
         </script>
     </head>
@@ -52,6 +69,11 @@
                 {$lidfield}
                 {$uidfield}
                 <table width="100%" cellpadding="0" cellspacing="0">
+                    <tr {$tmwarning_show}>
+                        <td colspan="2">
+                            <span class="ui-state-highlight">{$lang->cautioneditingtmleave}</span>
+                        </td>
+                    </tr>
                     {$requestonbehalf_field}
                     <tr>
                         <td width="18%">{$lang->fromdate}</td>
@@ -101,6 +123,25 @@
                         <td>{$lang->limitedemailaccess}</td>
                         <td>{$limitedemail_radiobutton}</td>
                     </tr>
+                    <tr {$autoresp_checkshow}>
+                        <td >{$lang->createautoresp}</td>
+                        <td><input type='checkbox' {$autoresp_checked} name='createAutoResp' id='check_autoresp' value='1'></td>
+                    </tr>
+                    <tr  id="autorespondersub" {$autoresp_show}>
+                        <td>
+                            {$lang->subject}                        </td>
+                        <td>
+                            <input  id='autoresp_subject' name='autoRespSubject' value="{$leave[autoRespSubject]}">
+                        </td>
+                    </tr>
+                    <tr id="autoresponderbody" {$autoresp_show}>
+                        <td>
+                            {$lang->emailbody}                        </td>
+                        <td>
+                            <div class="ui-state-highlight"> {$lang->autorespifemptybody} </div>
+                            <textarea   id='autoresp_body'  cols="50" rows="5"  name='autoRespBody'>{$leave[autoRespBody]}</textarea>
+                        </td>
+                    </tr>
                     <tr><td colspan="2"><hr /></td></tr>
                     <tr>
                         <td colspan="2">
@@ -113,10 +154,10 @@
 
                     <tr><td colspan="2"><hr /></td></tr>
 
-                </table>
+                </table>            <div id="perform_attendance/{$action}_Results"></div>
+
                 <input type="submit" id="perform_attendance/{$action}_Button" value="{$lang->$action}" class="button" />
             </form>
-            <div id="perform_attendance/{$action}_Results"></div>
         </td>
     </tr>
     {$footer}

@@ -29,30 +29,39 @@ if(!$core->input['action']) {
     $limit_start = 0;
 
     if(isset($core->input['start'])) {
-        $limit_start = $db->escape_string($core->input['start']);
+        $limit_start = intval($core->input['start']);
     }
 
     if(isset($core->input['perpage']) && !empty($core->input['perpage'])) {
         $core->settings['itemsperlist'] = $db->escape_string($core->input['perpage']);
     }
 
-    if($core->usergroup['canViewAllAff'] == 0) {
-        $query_where = ' AND affid IN ('.implode(', ', array_unique($core->user['affiliates'])).')';
-        $query_where_and = ' AND ';
-    }
-
-    if($core->usergroup['canViewAllCust'] == 0) {
-        if(is_array($core->user['customers'])) {
-            $query_where .= $query_where_and.'cid IN ('.implode(', ', $core->user['customers']).')';
+    /**
+     * Get business permissions of user and parse where statement part
+     */
+    $permissions = $core->user_obj->get_businesspermissions();
+    $permissiontypes = array('affid' => 'affid', 'cid' => 'cid', 'uid' => 'vr.uid');
+    foreach($permissiontypes as $type => $col) {
+        if(isset($permissions[$type]) && !empty($permissions[$type])) {
+            $permissionsfilter .= ' AND '.$col.' IN ('.implode(',', $permissions[$type]).')';
         }
     }
-    else {
-        if(isset($core->user['auditedaffids'])) {
-            $query_where = ' AND affid IN ('.implode(',', $core->user['auditedaffids']).')';
-            $query_where_and = ' AND ';
-        }
-    }
-    if(isset($query_where) && !empty($query_where)) {
+//    if($core->usergroup['canViewAllAff'] == 0) {
+//        $query_where = ' AND affid IN ('.implode(', ', array_unique($core->user['affiliates'])).')';
+//        $query_where_and = ' AND ';
+//    }
+//    if($core->usergroup['canViewAllCust'] == 0) {
+//        if(is_array($core->user['customers'])) {
+//            $query_where .= $query_where_and.'cid IN ('.implode(', ', $core->user['customers']).')';
+//        }
+//    }
+//    else {
+//        if(isset($core->user['auditedaffids'])) {
+//            $query_where = ' AND affid IN ('.implode(',', $core->user['auditedaffids']).')';
+//            $query_where_and = ' AND ';
+//        }
+//    }
+    if(isset($permissionsfilter) && !empty($permissionsfilter)) {
         $query_or_usercreator = 'OR vr.uid='.$core->user['uid'];
     }
     /* Perform inline filtering - START */
@@ -84,7 +93,7 @@ if(!$core->input['action']) {
 						 FROM ".Tprefix."visitreports vr
 						 JOIN ".Tprefix."users u ON (u.uid=vr.uid)
 						 JOIN ".Tprefix."entities e ON (vr.cid=e.eid)
-                                                 WHERE (isDraft IN (0,1){$query_where}){$query_or_usercreator}{$filter_where}
+                                                 WHERE (isDraft IN (0,1){$permissionsfilter}){$query_or_usercreator}{$filter_where}
 						 ORDER BY {$sort_query}");
 
     if($db->num_rows($query) > 0) {
@@ -107,16 +116,16 @@ if(!$core->input['action']) {
                 $visitreport['status_text'] = $lang->finalized.$lang->andlocked;
             }
 
-            if($core->usergroup['canLockUnlockReports'] == 1) {
+            if($core->usergroup['canLockUnlockReports'] == 1 || $core->user['uid'] == $visitreport['uid']) {
                 $checkbox[$visitreport['vrid']] = "<input type='checkbox' id='checkbox_{$visitreport[vrid]}' name='listCheckbox[]' value='{$visitreport[vrid]}'/>";
-            }
 
-            $icon[$visitreport['vrid']] = "<a href='index.php?module=crm/previewvisitreport&amp;referrer=list&amp;vrid={$visitreport[vrid]}'><img src='images/icons/report{$icon_locked}.gif' alt='{$visitreport[status_text]}' border='0'/></a>";
-            if($visitreport['isDraft'] == 1) {
-                $draft[$visitreport['vrid']] = "<a href='index.php?module=crm/listvisitreports&amp;val=0&amp;action=do_draft&amp;vrid={$visitreport[vrid]}'><img src='images/valid.gif' title='".$lang->isdraft."' alt='".$lang->undraft."' border='0'/></a>";
-            }
-            else {
-                $draft[$visitreport['vrid']] = "<a href='index.php?module=crm/listvisitreports&amp;val=1&amp;action=do_draft&amp;vrid={$visitreport[vrid]}'><img src='images/invalid.gif' title='".$lang->isnotdraft."' alt='".$lang->draft."' border='0'/></a>";
+                $icon[$visitreport['vrid']] = "<a href='index.php?module=crm/previewvisitreport&amp;referrer=list&amp;vrid={$visitreport[vrid]}'><img src='images/icons/report{$icon_locked}.gif' alt='{$visitreport[status_text]}' border='0'/></a>";
+                if($visitreport['isDraft'] == 1) {
+                    $draft[$visitreport['vrid']] = "<a href='index.php?module=crm/listvisitreports&amp;val=0&amp;action=do_draft&amp;vrid={$visitreport[vrid]}'><img src='images/valid.gif' title='".$lang->isdraft."' alt='".$lang->undraft."' border='0'/></a>";
+                }
+                else {
+                    $draft[$visitreport['vrid']] = "<a href='index.php?module=crm/listvisitreports&amp;val=1&amp;action=do_draft&amp;vrid={$visitreport[vrid]}'><img src='images/invalid.gif' title='".$lang->isnotdraft."' alt='".$lang->draft."' border='0'/></a>";
+                }
             }
             list($visitreport['suppliername']) = get_specificdata('entities', array('companyName'), '0', 'companyName', '', 0, "eid = '{$visitreport[spid]}'");
             //list($visitreport['customername']) = get_specificdata('entities', 'companyName', '0', 'companyName', '', 0, "eid = '{$visitreport[cid]}'");

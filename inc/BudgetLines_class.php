@@ -151,6 +151,10 @@ class BudgetLines {
     private function split_income(&$budgetline_data) {
         global $core;
         if($core->usergroup['budgeting_canFillLocalIncome'] == 1) {
+            if($budgetline_data['localIncomePercentage'] == 100 && $budgetline_data['localIncomeAmount'] == 0) {
+                $budgetline_data['localIncomeAmount'] = $budgetline_data['income'];
+            }
+
             if(!empty($budgetline_data['linkedBudgetLine']) && !isset($budgetline_data['blid'])) {
                 if(empty($budgetline_data['interCompanyPurchase'])) {
                     return;
@@ -255,7 +259,17 @@ class BudgetLines {
             if(!isset($data['bid']) || empty($data['bid'])) {
                 return false;
             }
-            $budgetline_bydataquery = $db->query("SELECT * FROM ".Tprefix."budgeting_budgets_lines WHERE pid='".$data['pid']."' AND cid='".$data['cid']."' AND altCid='".$db->escape_string($data['altCid'])."' AND saleType='".$data['saleType']."' AND bid='".$data['bid']."' AND customerCountry='".$data['customerCountry']."' AND psid='".$data['psid']."' AND businessMgr='".$data['businessMgr']."'");
+
+            $sql = "SELECT * FROM ".Tprefix."budgeting_budgets_lines WHERE pid='".$data['pid']."' AND cid='".$data['cid']."' AND altCid='".$db->escape_string($data['altCid'])."' AND saleType='".$data['saleType']."' AND bid='".$data['bid']."' AND customerCountry='".$data['customerCountry']."' AND psid='".$data['psid']."' AND businessMgr='".$data['businessMgr']."'";
+            if(isset($data['linkedBudgetLine']) && !empty($data['linkedBudgetLine'])) {
+                $sql .= " AND linkedBudgetLine='".$data['linkedBudgetLine']."'";
+            }
+            if(isset($data['prevblid']) && !empty($data['prevblid'])) {
+                $sql .= " AND prevblid='".$data['prevblid']."'";
+            }
+
+            $budgetline_bydataquery = $db->query($sql);
+
             if($db->num_rows($budgetline_bydataquery) > 0) {
                 return $db->fetch_assoc($budgetline_bydataquery);
             }
