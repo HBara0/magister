@@ -168,7 +168,7 @@ class BudgetingYEFLines extends AbstractClass {
         if(empty($data['interCompanyPurchase'])) {
             return;
         }
-        $data_toremove = array('yefid', 'yeflid', 'cid', 'interCompanyPurchase');
+        $data_toremove = array('yefid', 'yeflid', 'cid', 'interCompanyPurchase', 'blid');
         $data_zerofill = array('invoicingEntityIncome'); //'localIncomePercentage', 'localIncomeAmount',
         $yef = $this->get_yef();
         $data['inputCheckSum'] = generate_checksum();
@@ -221,10 +221,10 @@ class BudgetingYEFLines extends AbstractClass {
             $data[$attr] = 0;
         }
 
-        $data['yefid'] = $ic_budget->yefid;
+        $data['yefid'] = $ic_yef->yefid;
         if(empty($data['yefid'])) {
-            $ic_budget = BudgetingYearEndForecast::get_data(array('affid' => $budgetdata_intercompany['affid'], 'spid' => $yef->spid, 'year' => $yef->year), array('simple' => false));
-            $data['yefid'] = $ic_budget->yefid;
+            $ic_yef = BudgetingYearEndForecast::get_data(array('affid' => $budgetdata_intercompany['affid'], 'spid' => $yef->spid, 'year' => $yef->year), array('simple' => false));
+            $data['yefid'] = $ic_yef->yefid;
         }
 
         $ic_budgetline = new BudgetingYEFLines();

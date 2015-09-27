@@ -118,15 +118,6 @@
                 });
 
                 $(document).on('keyup', 'input[data-max]', function () {
-                    if($(this).attr('data-name') == "{$lang->quantity}") {
-                        var month_qty = $(this).val() / 3;
-                        var month_perc = (month_qty / $(this).val()) * 100;
-                        $('input[data-quantity="' + $(this).attr('data-totalquantity') + '"]').each(function (i, obj) {
-                            $(obj).val(month_qty.toFixed(2));
-                            $(obj).removeClass("warning");
-                            $('input[id="' + $(obj).attr('data-perc') + '"]').val(month_perc.toFixed(2));
-                        });
-                    }
                     if($(this).attr('data-max') > 0 && $(this).val() > parseFloat($(this).attr('data-max'))) {
                         $("#alert_" + $(this).attr('data-rowid')).text($('input[id="errormessage"]').val() + $(this).attr('data-name'));
                         $(this).addClass("warning");
@@ -143,6 +134,12 @@
                         $(obj).removeClass("warning");
                     });
                     $('input[data-totalquantity="' + $(this).attr('data-quantity') + '"]').val(total);
+
+                    var id = $(this).attr("id").split("_");
+                    $('input[id="unitprice_' + id[1] + '"]').trigger('keyup');
+                    $('input[id="amountper_' + id[1] + '"]').trigger('keyup');
+                    $('input[id="localincomeper_' + id[1] + '"]').trigger('keyup');
+
                     $('input[data-quantity="' + $(this).attr('data-quantity') + '"]').each(function (i, obj) {
                         var month_perc = $(obj).val() / total * 100;
                         $('input[id="' + $(obj).attr('data-perc') + '"]').val(month_perc.toFixed(2));
@@ -154,6 +151,7 @@
                         $("#alert_" + $('input[data-totalquantity="' + $(this).attr('data-quantity') + '"]').attr('data-rowid')).text("");
                         $('input[data-totalquantity="' + $(this).attr('data-quantity') + '"]').removeClass("warning");
                     }
+
                 });
             });</script>
     </head>
