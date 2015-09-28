@@ -1,6 +1,6 @@
 @charset "UTF-8";
 /*
-Copyright ┬⌐ 2014 Orkila International Offshore, All Rights Reserved
+Copyright ┬® 2014 Orkila International Offshore, All Rights Reserved
 
 [Provide Short Descption Here]
 $id: _constants.scss
@@ -673,3 +673,9 @@ tr.dummytrow td, tr.dummytrow th {
 
 tfoot .coltotal, tfoot .colavg {
   font-weight: bold; }
+
+  .automaticallyfilled-noneditable {
+  background-color: #e6f3f7; }
+
+.automaticallyfilled-editable {
+  background-color: #ffffb2; }

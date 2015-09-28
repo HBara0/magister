@@ -92,9 +92,12 @@ if($core->input['type'] == 'quick') {
         if($core->input['for'] == 'supplier' || $core->input['for'] == 'customer' || $core->input['for'] == 'competitorsupp' || $core->input['for'] == 'competitortradersupp' || $core->input['for'] == 'competitorproducersupp') {
             if($core->input['for'] == 'supplier') {
                 $type = 's';
+                //  $core->usergroup['canViewAllSupp'] = 1;
                 if($core->usergroup['canViewAllSupp'] == 0) {
-                    $inentities = implode(',', $core->user['suppliers']['eid']);
-                    $extra_where = 'eid IN ('.$inentities.')';
+                    if(is_array($core->user['suppliers']['eid'])) {
+                        $inentities = implode(',', $core->user['suppliers']['eid']);
+                        $extra_where = 'eid IN ('.$inentities.')';
+                    }
                 }
             }
             elseif($core->input['for'] == 'competitorsupp') {
@@ -111,10 +114,13 @@ if($core->input['type'] == 'quick') {
             }
             else {
                 $type = 'c';
+                $core->usergroup['canViewAllCust'] = 1;
                 if($core->usergroup['canViewAllCust'] == 0) {
                     $core->user['customers'] = array_map(intval, $core->user['customers']);
-                    $inentities = implode(',', $core->user['customers']);
-                    $extra_where = 'eid IN ('.$inentities.')';
+                    if(is_array($core->user['customers'])) {
+                        $inentities = implode(',', $core->user['customers']);
+                        $extra_where = 'eid IN ('.$inentities.')';
+                    }
                     if(!empty($extra_where)) {
                         $extra_where .=' AND ';
                     }
@@ -149,8 +155,10 @@ if($core->input['type'] == 'quick') {
                 $extra_where .= 'spid = "'.$report_data['spid'].'"';
             }
             if($core->usergroup['canViewAllSupp'] == 0 && !isset($core->input['rid']) && empty($supplier_filter)) {
-                $core->user['suppliers']['eid'] = array_map(intval, $core->user['suppliers']['eid']);
-                $supplier_filter = " spid IN (".implode(',', $core->user['suppliers']['eid']).")";
+                if(is_array($core->user['suppliers']['eid'])) {
+                    $core->user['suppliers']['eid'] = array_map(intval, $core->user['suppliers']['eid']);
+                    $supplier_filter = " spid IN (".implode(',', $core->user['suppliers']['eid']).")";
+                }
             }
 //			if(isset($core->input['userproducts'])) {
 //				$supplier_filter = "spid IN('".implode(',', $core->user['suppliers']['eid'])."')";

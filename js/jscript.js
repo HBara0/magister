@@ -579,7 +579,7 @@ $(function () {
                 );
     }
 
-    $("a[id$='_loadpopupbyid'],a[id^='mergeanddelete_'][id$='_icon'],a[id^='revokeleave_'][id$='_icon'],a[id^='approveleave_'][id$='_icon']").live('click', function () {
+    $("a[id$='_loadpopupbyid'],a[id^='mergeanddelete_'][id$='_icon'],a[id^='revokeleave_'][id$='_icon'],a[id^='deletearopolicy_'][id$='_icon'],a[id^='deletewarehouse_'][id$='_icon'],a[id^='approveleave_'][id$='_icon']").live('click', function () {
         var id = $(this).attr("id").split("_");
 //        var rel = $(this).prop("rel");
 //        var underscore = '_';
@@ -663,6 +663,10 @@ $(function () {
             if(sharedFunctions.checkSession() == false) {
                 return;
             }
+        }
+
+        if(id === undefined) {
+            id = '';
         }
 
         //$("#popupBox").hide("fast");
@@ -778,27 +782,36 @@ $(function () {
         }
     });
     $("img[id^='ajaxaddmore_']").live("click", function () {
-        if(sharedFunctions.checkSession() == false) {
-            return;
-        }
+        sharedFunctions.ajaxAddMore($(this));
+    });
 
-        var id = $(this).attr('id').split('_');
-        var num_rows = 0;
-        var uniquename = '';
-        var underscore = '';
-        for(i = 2; i < id.length; i++) {
-            uniquename = uniquename + underscore + id[i];
-            underscore = "_";
-        }
-        if($("#numrows_" + uniquename).length != 0) {
-            var num_rows = parseInt($("#numrows_" + uniquename).val());
-        }
+    window.sharedFunctions = function () {
+        function ajaxAddMore(object, callback) {
+            if(sharedFunctions.checkSession() == false) {
+                return;
+            }
+
+            var id = object.attr('id').split('_');
+            var num_rows = 0;
+            var uniquename = '';
+            var underscore = '';
+            for(i = 2; i < id.length; i++) {
+                uniquename = uniquename + underscore + id[i];
+                underscore = "_";
+            }
+            if($("#numrows_" + uniquename).length != 0) {
+                var num_rows = parseInt($("#numrows_" + uniquename).val());
+            }
         var url = rootdir + "index.php?module=" + id[1] + "&action=ajaxaddmore_" + id[2];
         if($("#moduletype_" + uniquename).length != 0) {
             var module = $("#moduletype_" + uniquename).val();
             var url = rootdir + module + "/" + "index.php?module=" + id[1] + "&action=ajaxaddmore_" + id[2];
+            
+          //       /* Make unique code for dialog */
+          //  var date = new Date();
+         //   var msecond = date.getMilliseconds();
         }
-        $.ajax({type: 'post',
+            $.ajax({type: 'post',
             url: url,
             data: "value=" + num_rows + "&id=" + id[id.length - 1] + "&" + $(this).parent().find($('input[id^=ajaxaddmoredata_]')).serialize(),
             beforeSend: function () {
@@ -807,21 +820,22 @@ $(function () {
                 });
             },
             complete: function () {
-                $("#modal-loading").dialog("close").remove();
-            },
+                    $("#modal-loading" + msecond).dialog("close").remove();
+                },
             success: function (returnedData) {
-                $('#' + uniquename + '_tbody').append(returnedData);
-                if($("#numrows_" + uniquename).length != 0) {
-                    $("#numrows_" + uniquename).val(num_rows + 1);
-                }
-                /*find the offset of the first input in the last tr*/
+                    $('#' + uniquename + '_tbody').append(returnedData);
+                    if($("#numrows_" + uniquename).length != 0) {
+                        $("#numrows_" + uniquename).val(num_rows + 1);
+                    }
+                    /*find the offset of the first input in the last tr*/
                 if($('#' + uniquename + '_tbody > tr:last').find("input").filter(':visible:first').length) {
                     $("html, body").animate({scrollTop: $('#' + uniquename + '_tbody > tr:last').find("input").filter(':visible:first').offset().top}, 1000);
+                    if(typeof (callback) === 'function') {
+                        callback();
+                    }
                 }
-                $('#' + uniquename + '_tbody > tr:last').effect("highlight", {color: '#D6EAAC'}, 1500).find('input').first().focus();
-            }
-        });
-    });
+            });
+        }
     window.sharedFunctions = function () {
         function requestAjax(methodParam, urlParam, dataParam, loadingId, contentId, datatype, options) {
             //var datatype = 'html';
@@ -846,7 +860,7 @@ $(function () {
                     }
                 },
                 success: function (returnedData) {
-                    //  alert(returnedData);
+
                     if(datatype == 'xml') {
                         if($(returnedData).find('status').text() == 'true') {
                             var spanClass = 'green_text';
@@ -977,14 +991,50 @@ $(function () {
                 $("#numrows").val(increment);
             }
         }
+
         function sharedPopUp(module, template, id) {
             popUp(module, template, id);
+        }
+
+
+        function populateForm(formname, querystring, callback) {
+            var json = null;
+            $.ajax({type: 'post',
+                dataType: "text",
+                url: querystring,
+                //  data: $(this).serialize() + "&" + $.param(data),
+
+                complete: function () {
+                    $("#modal-loading").dialog("close").remove();
+                },
+                success: function (returnedData) {
+                    try {
+                        if(!returnedData) {
+                            //   $("#orderreference").val(''); //hardcoded temp
+                        }
+
+                        if(typeof returnedData !== typeof undefined && returnedData !== '') {
+                            json = eval("(" + returnedData + ");"); /* convert the json to object */
+                            var form = document.forms[formname];
+                            $(form).populate(json, {resetForm: 0});
+                        }
+
+                        if(typeof (callback) === 'function') {
+                            callback(json);
+                        }
+                    } catch(e) {
+                        alert(returnedData);
+                    }
+                }
+            });
         }
         return {
             "requestAjax": requestAjax,
             "checkSession": checkSession,
             "addmoreRows": addmoreRows,
-            "sharedPopUp": sharedPopUp
+            "sharedPopUp": sharedPopUp,
+            "populateForm": populateForm,
+            "ajaxAddMore": ajaxAddMore,
         }
     }();
     $("#dimensionfrom, #dimensionto").sortable({
@@ -1076,3 +1126,5 @@ function goToURL(url)
         }
     }
 }
+
+

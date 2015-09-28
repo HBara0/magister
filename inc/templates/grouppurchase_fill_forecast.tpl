@@ -92,6 +92,7 @@
                                 <img src="./images/add.gif" id="ajaxaddmore_grouppurchase/fillforecast_forecastlines_{$rowid}" alt="{$lang->add}">
                             </td></tr>
                         <tr>
+
                             <td></td> <td></td>
                             <td class=" border_right" align="center"><span style="font-weight:bold;">{$lang->total}</span></td>
                                 {$total_output}

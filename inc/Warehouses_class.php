@@ -56,7 +56,9 @@ class Warehouses extends AbstractClass {
             $data['coid'] = $city->get_country()->coid;
             $data['modifiedOn'] = TIME_NOW;
             $data['modifiedBy'] = $core->user['uid'];
-
+            if(!isset($data['isActive'])) {
+                $data['isActive'] = 0;
+            }
             $geolocation = $data['geoLocation'];
             unset($data['geoLocation']);
             if(!empty($geolocation)) {
@@ -74,7 +76,7 @@ class Warehouses extends AbstractClass {
         }
     }
 
-    protected function validate_requiredfields(array $data = array()) {
+    private function validate_requiredfields(array $data = array()) {
         if(is_array($data)) {
             $required_fields = array('affid', 'name', 'ciid', 'integrationOBId');
             foreach($required_fields as $field) {

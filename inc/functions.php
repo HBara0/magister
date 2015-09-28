@@ -382,7 +382,13 @@ function parse_selectlist($name, $tabindex, $options, $selected_options, $multip
     if(isset($config['data_attribute'])) {
         $datattr = $config['data_attribute'].';';
     }
-    $list .= '<select style="'.$list_style.'" id="'.$id.'" name="'.$name.'" '.$disabled.' size="'.$config['size'].'" tabindex="'.$tabindex.'"'.$required.$multiple.$onchange_actions.$datattr.'>';
+    
+      if(isset($config['class'])) {
+        $list_class = ' class="'.$config['class'].'" ';
+    }
+
+    $list .= '<select style="'.$list_style.'" id="'.$id.'" name="'.$name.'" '.$disabled.' size="'.$config['size'].'" tabindex="'.$tabindex.'"'.$required.$multiple.$onchange_actions.$datattr.$list_class.'>';
+
     if($config['blankstart'] == true && empty($config['placeholder'])) {
         $list .= '<option></option>';
     }
@@ -1521,7 +1527,9 @@ function getquery_entities_viewpermissions() {
                     if(in_array($val, $auditfor)) {
                         $inaffiliates_query = '';
                         if($usergroup['canViewAllAff'] == 0) {
-                            $inaffiliates_query = ' AND '.$attribute_prefix.'affid IN ('.implode(',', $user['auditedaffiliates'][$val]).')';
+                            if(is_array($user['auditedaffiliates'][$val])) {
+                                $inaffiliates_query = ' AND '.$attribute_prefix.'affid IN ('.implode(',', $user['auditedaffiliates'][$val]).')';
+                            }
                         }
                     }
                     else {

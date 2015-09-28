@@ -28,6 +28,7 @@ class Currencies extends AbstractClass {
 
         if(is_numeric($base_currency)) {
             $this->read($base_currency);
+            $this->base_currency = $this->alphaCode;
         }
         elseif(is_string($base_currency)) {
             $this->read_byalphacode($base_currency);
