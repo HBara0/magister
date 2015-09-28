@@ -411,19 +411,7 @@ class AroRequests extends AbstractClass {
                         $approvers['generalManager'] = $affiliate->get_generalmanager()->uid;
                         break;
                     case 'gfinancialManager':
-//                        $aropartiesinfo = AroRequestsPartiesInformation::get_data(array('aorid' => $this->data[self::PRIMARY_KEY]));
-//                        if(is_object($aropartiesinfo)) {
-//                            $intermediaryAff = new Affiliates($aropartiesinfo->intermedAff);
-//                        }
-//                        else {
-//                            if(is_object($localaffpolicy)) {
-//                                $intermediaryAff = new Affiliates($localaffpolicy->defaultIntermed);
-//                            }
-//                        }
-//                        if(is_object($intermediaryAff)) {
-//                            $approvers['gfinancialManager'] = $intermediaryAff->get_financialemanager()->uid;
-//                        }
-                        $approvers['gfinancialManager'] = 367;
+                        $approvers['gfinancialManager'] = $core->settings['gfinancialManager_id']; // 367;
                         break;
                     case 'cfo':
                         $approvers['cfo'] = $affiliate->get_cfo()->uid;

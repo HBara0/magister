@@ -198,3 +198,10 @@ $lang['promiseofpaymentdesc'] = 'Default value is Estimated date of payment +/- 
 $lang['vendorisaffdesc'] = 'Tick the box whenever the vendor is an affiliate to select that affiliate <br/> Note that In that case, intermediary section is disabled.';
 $lang['forwarder'] = 'Forwarder';
 $lang['exttrafields'] = 'Extra Fields';
+
+$lang['aro_policies'] = 'ARO Policies';
+$lang['aro_wareshouses_policies'] = 'Warehouse Policies';
+$lang['aro_approvalchain_policies'] = 'Approval Chain Policies';
+$lang['aro_documentsequences'] = 'ARO Document Sequence Configuration';
+$lang['followingexppolicies'] = 'The following policies will expire within 30 days :';
+$lang['expiringpolicyrenewed'] = 'System has automatically renewed the policies for 30 more days, but if any policy has changed, please make sure to create a new one';
