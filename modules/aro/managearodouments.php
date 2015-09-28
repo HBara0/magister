@@ -316,8 +316,8 @@ if(!($core->input['action'])) {
                 if($aropartiesinfo_obj->vendorPTIsThroughBank == 1) {
                     $checked['vendorPTIsThroughBank'] = 'checked="checked"';
                 }
-                $incoterms['intermed'] = $aropartiesinfo_obj->intermedIncoterms;
-                $incoterms['vendor'] = $aropartiesinfo_obj->vendorIncoterms;
+                $selected_incoterms['intermed'] = $aropartiesinfo_obj->intermedIncoterms;
+                $selected_incoterms['vendor'] = $aropartiesinfo_obj->vendorIncoterms;
                 $shipmentcountry = $aropartiesinfo_obj->shipmentCountry;
                 $origincountry = $aropartiesinfo_obj->originCountry;
                 if($aropartiesinfo_obj->vendorIsAff == 1) {
@@ -358,7 +358,7 @@ if(!($core->input['action'])) {
                 }
                 $affiliates_list[$party] = parse_selectlist('partiesinfo['.$party.'Aff]', 1, $affiliate, $aff[$party], '', '', array('blankstart' => true, 'id' => 'partiesinfo_'.$party.'_aff', 'required' => $partiesinfo['required_intermedpolicy'], 'width' => '100%', 'class' => $config_class, $isdisabled => $isdisabled));
                 $paymentterms_list[$party] = parse_selectlist('partiesinfo['.$party.'PaymentTerm]', 4, $payment_terms, $paymentterm[$party], '', '', array('blankstart' => 1, 'id' => 'partiesinfo_'.$party.'_paymentterm', 'required' => $partiesinfo['required_intermedpolicy'], 'width' => '100%', 'class' => $config_class, $isdisabled => $isdisabled));
-                $incoterms_list[$party] = parse_selectlist('partiesinfo['.$party.'Incoterms]', 4, $incoterms, $incoterms[$party], '', '', array('blankstart' => 1, 'id' => 'partiesinfo_'.$party.'_incoterms', 'required' => $partiesinfo['required_intermedpolicy'], 'width' => '100%', 'class' => $config_class, $isdisabled => $isdisabled));
+                $incoterms_list[$party] = parse_selectlist('partiesinfo['.$party.'Incoterms]', 4, $incoterms, $selected_incoterms[$party], '', '', array('blankstart' => 1, 'id' => 'partiesinfo_'.$party.'_incoterms', 'required' => $partiesinfo['required_intermedpolicy'], 'width' => '100%', 'class' => $config_class, $isdisabled => $isdisabled));
                 $isdisabled = '';
             }
             $countryofshipment_list = parse_selectlist('partiesinfo[shipmentCountry]', '', $countries, $shipmentcountry, '', '', array('blankstart' => 1, 'width' => '150px'));
@@ -1300,5 +1300,15 @@ else {
                 'ordersummary_totalcomm' => round($totalcomm, 2)
         );
         echo json_encode($commission_data);
+    }
+    else if($core->input['action'] == 'managevendorincoterms') {
+        $vendorincotermdetails = array('carriageOnBuyer' => 0);
+        $incoterm = new Incoterms(intval($core->input['incoterm']));
+        if(is_object($incoterm)) {
+            if($incoterm->carriageOnBuyer == 1) {
+                $vendorincotermdetails = array('carriageOnBuyer' => 1);
+            }
+        }
+        echo json_encode($vendorincotermdetails);
     }
 }

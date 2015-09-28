@@ -51,6 +51,15 @@
                     <tr class="altrow2"><td>{$lang->commfromintermed} % <a href="#" title="{$lang->commfromintermeddesc}"><img src="./images/icons/question.gif" ></a></td>
                         <td><input type="number" step="any" name="partiesinfo[commFromIntermed]" id="partiesinfo_commFromIntermed" value="{$aropartiesinfo_obj->commFromIntermed}"/></td>
                     </tr>
+                    <tr id="partiesinfo_forwarder">
+                        <td colspan="3">
+                            <span class="subtitle"><br/>{$lang->vendor} {$lang->incoterms} {$lang->exttrafields}</span><br/>
+                            <div>
+                                <div style="display:inline-block; width:30%;">  {$lang->forwarder}</div> <input type="text" name="partiesinfo[forwarder]" value="{$aropartiesinfo_obj->forwarder}"/><br/>
+                                <div style="display:inline-block; width:30%;"> {$lang->paymentterms} ({$lang->forwarder})</div> <input type="text" name="partiesinfo[forwarderPT]" value="{$aropartiesinfo_obj->forwarderPT}"/>
+                            </div>
+                        </td>
+                    </tr>
                 </table>
             </td>
         </tr>

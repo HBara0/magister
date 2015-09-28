@@ -196,3 +196,5 @@ $lang['totaldiscountdesc'] = 'Discount percentage to be subtracted from the comm
 $lang['commfromintermeddesc'] = 'commfromintermeddesc';
 $lang['promiseofpaymentdesc'] = 'Default value is Estimated date of payment +/- PT acceptable margin.';
 $lang['vendorisaffdesc'] = 'Tick the box whenever the vendor is an affiliate to select that affiliate <br/> Note that In that case, intermediary section is disabled.';
+$lang['forwarder'] = 'Forwarder';
+$lang['exttrafields'] = 'Extra Fields';

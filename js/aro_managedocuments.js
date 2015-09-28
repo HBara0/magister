@@ -247,6 +247,28 @@ $(function() {
         if($("select[id='partiesinfo_intermed_incoterms']").val() !== '' && $("select[id='partiesinfo_vendor_incoterms']").val() !== '') {
             if($("select[id='partiesinfo_intermed_incoterms']").val() !== $("select[id='partiesinfo_vendor_incoterms']").val()) {
                 $("input[id='partiesinfo_freight']").attr("required", "true");
+
+
+                $.ajax({type: 'post',
+                    url: rootdir + "index.php?module=aro/managearodouments&action=managevendorincoterms",
+                    data: "incoterm=" + $("select[id='partiesinfo_vendor_incoterms']").val(),
+                    beforeSend: function() {
+                    },
+                    complete: function() {
+                    },
+                    success: function(returnedData) {
+                        if(typeof returnedData != 'undefined' && returnedData.length > 0) {
+                            var json = eval("(" + returnedData + ");");
+                            if(json['carriageOnBuyer'] === 1) {
+                                $("tr[id='partiesinfo_forwarder']").show();
+                            } else {
+                                $("tr[id='partiesinfo_forwarder']").hide();
+                            }
+                        }
+                    }
+                });
+            } else {
+                $("tr[id='partiesinfo_forwarder']").hide();
             }
         }
     });
