@@ -2890,6 +2890,7 @@ CREATE TABLE `leavetypes` (
   `isAnnual` tinyint(1) NOT NULL DEFAULT '1',
   `isSick` tinyint(1) NOT NULL DEFAULT '0',
   `isBusiness` tinyint(1) NOT NULL DEFAULT '0',
+  `isUnpaid` tinyint(1) NOT NULL DEFAULT '0',
   `restricted` tinyint(1) NOT NULL DEFAULT '0',
   `noNotification` tinyint(1) NOT NULL DEFAULT '0',
   `noBalance` tinyint(1) NOT NULL DEFAULT '1',

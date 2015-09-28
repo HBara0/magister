@@ -73,7 +73,6 @@ else {
             $uid = intval($uid);
             $user_obj = new Users($uid);
             $attending_days = $total_days = $weekends = 0;
-            $usert_content = '<td style="border-bottom: 1px solid #000;border-left: 1px solid #000;border-right: 1px solid #000;width:150px;float:left;text-align:center;" >'.$user_obj->get_displayname().'</td>';
             if(is_object($user_obj)) {
                 $currentdate = $fromdate;
                 $fromdate_details = getdate($fromdate);
@@ -575,10 +574,10 @@ else {
                                         $extra .= '>';
                                     }
                                     if(number_format($workperc, 0) >= 100) {
-                                        $day_content .= '<td style="width:2%;text-align:center;border-bottom: 1px solid #000;background-color:#52D017;border-left: 1px solid #000;border-right: 1px solid #000;" >'.number_format($workperc, 0).'</br>'.$extra.'</td>';
+                                        $day_content .= '<td style="width:2%;text-align:center;border-bottom: 1px solid #000;background-color:#D6EAAC;border-left: 1px solid #000;border-right: 1px solid #000;" >'.number_format($workperc, 0).'</br>'.$extra.'</td>';
                                     }
                                     else {
-                                        $day_content .= '<td style="width:2%;text-align:center;border-bottom: 1px solid #000;background-color:#DC381F;border-left: 1px solid #000;border-right: 1px solid #000;" >'.number_format($workperc, 0).'</td>';
+                                        $day_content .= '<td style="width:2%;text-align:center;border-bottom: 1px solid #000;background-color:#F9D0D0;border-left: 1px solid #000;border-right: 1px solid #000;" >'.number_format($workperc, 0).'</td>';
                                     }
                                     $month_header[$curdate['mon']][$attendance['date_output']] = $attendance['date_output'];
                                     $attending_days++;
@@ -593,7 +592,9 @@ else {
                             if($type == 'leaves') {
                                 foreach($day_data as $leave) {
                                     $month_header[$curdate['mon']][date('d', $currentdate)] = date('d', $currentdate);
-                                    if($leave['type'] == 13) {
+                                    $leave_obj = new Leaves($leave['lid']);
+
+                                    if($leave_obj->get_leavetype(false)->isUnpaid == 1) {
                                         $day_content .= '<td style="width:2%;text-align:center;border-bottom: 1px solid #000;border-left: 1px solid #000;border-right: 1px solid #000;">UL</td>';
                                     }
                                     else {
@@ -664,16 +665,16 @@ else {
                         $total_outputs['month']['actualhours'] = operation_time_value(array_sum_recursive($total['actualhours'][$curdate['year']][$curdate['mon']]));
                         $total_outputs['month']['requiredhours'] = operation_time_value(array_sum_recursive($total['requiredhours'][$curdate['year']][$curdate['mon']]));
 
-                        $day_content .= '<td style="float:right;width:50px;text-align:center;border-bottom: 1px solid #000;border-left: 1px solid #000;border-right: 1px solid #000;">'.$attending_days.' / '.($total_days).'</td>';
-                        $day_content .= '<td style="float:right;width:25px;text-align:center;border-bottom: 1px solid #000;border-left: 1px solid #000;border-right: 1px solid #000;">'.number_format(($total_outputs['month']['actualhours'] / $total_outputs['month']['requiredhours']) * 100, 0).'</td>';
-                        $day_content .= '<td style="float:right;width:85px;text-align:center;border-bottom: 1px solid #000;border-left: 1px solid #000;border-right: 1px solid #000;">'.$total_outputs['month']['actualhours'].' / '.$total_outputs['month']['requiredhours'].'</td>';
+                        $day_content .= '<td style="width:50px;text-align:center;border-bottom: 1px solid #000;border-left: 1px solid #000;border-right: 1px solid #000;">'.$attending_days.' / '.($total_days).'</td>';
+                        $day_content .= '<td style="width:25px;text-align:center;border-bottom: 1px solid #000;border-left: 1px solid #000;border-right: 1px solid #000;">'.number_format(($total_outputs['month']['actualhours'] / $total_outputs['month']['requiredhours']) * 100, 0).'</td>';
+                        $day_content .= '<td style="width:85px;text-align:center;border-bottom: 1px solid #000;border-left: 1px solid #000;border-right: 1px solid #000;">'.$total_outputs['month']['actualhours'].' / '.$total_outputs['month']['requiredhours'].'</td>';
                         //$attendance_report_user_month .= 'a'.$nextdate_details['week'].' == '.$curdate['week'].' && '.$nextdate_details['mon'].' != '.$curdate['mon'];
 
                         eval("\$attendance_report_users{{$curdate['mon']}} .= \"".$template->get('attendance_log_month_user')."\";");
-                        $month_header_output = '<th style="float:left;width:150px;text-align:center;border-bottom: 1px solid #000;border-left: 1px solid #000;border-right: 1px solid #000;">'.$lang->employeename.'</th><th style="border-left: 1px solid #000;border-right: 1px solid #000;">'.implode('</th><th style="border-left: 1px solid #000;border-right: 1px solid #000;">', $month_header[$curdate['mon']]).'</th>';
-                        $month_header_output .= '<th style="float:right;width:50px;text-align:center;border-bottom: 1px solid #000;border-left: 1px solid #000;border-right: 1px solid #000;">'.$lang->capstotal.'</th>';
-                        $month_header_output .= '<th style="float:right;width:25px;text-align:center;border-bottom: 1px solid #000;border-left: 1px solid #000;border-right: 1px solid #000;">%</th>';
-                        $month_header_output .= '<th style="float:right;width:85px;text-align:center;border-bottom: 1px solid #000;border-left: 1px solid #000;border-right: 1px solid #000;">'.$lang->capstotalhour.'</th>';
+                        $month_header_output = '<th style="width:150px;text-align:center;border-bottom: 1px solid #000;border-left: 1px solid #000;border-right: 1px solid #000;">'.$lang->employeename.'</th><th style="border-left: 1px solid #000;border-right: 1px solid #000;">'.implode('</th><th style="border-left: 1px solid #000;border-right: 1px solid #000;">', $month_header[$curdate['mon']]).'</th>';
+                        $month_header_output .= '<th style="width:50px;text-align:center;border-bottom: 1px solid #000;border-left: 1px solid #000;border-right: 1px solid #000;">'.$lang->capstotal.'</th>';
+                        $month_header_output .= '<th style="width:25px;text-align:center;border-bottom: 1px solid #000;border-left: 1px solid #000;border-right: 1px solid #000;">%</th>';
+                        $month_header_output .= '<th style="width:85px;text-align:center;border-bottom: 1px solid #000;border-left: 1px solid #000;border-right: 1px solid #000;">'.$lang->capstotalhour.'</th>';
 
                         eval("\$attendance_report_user_month[{$curdate['mon']}] = \"".$template->get('attendance_log_month')."\";");
                         unset($month_header, $month_header_output, $total_days, $attending_days, $weekends);
@@ -682,58 +683,6 @@ else {
                             break;
                         }
                     }
-
-////                elseif($prevdate_details['week'] == $curdate['week'] && $prevdate_details['mon'] != $curdate['mon']) {
-////                    //$curdate['mon'] = $prevdate_details['mon'];
-////
-////                    $total_outputs['week']['actualhours'] = operation_time_value(array_sum_recursive($total['actualhours'][$curdate['year']][$curdate['mon']][$curdate['week']]));
-////                    $total_outputs['week']['requiredhours'] = operation_time_value(array_sum_recursive($total['requiredhours'][$curdate['year']][$curdate['mon']][$curdate['week']]));
-////
-////                    eval("\$attendance_report_user_week .= \"".$template->get('attendance_report_user_week')."\";");
-////
-////                    $total_outputs['month']['actualhours'] = operation_time_value(array_sum_recursive($total['actualhours'][$curdate['year']][$curdate['mon']]));
-////                    $total_outputs['month']['requiredhours'] = operation_time_value(array_sum_recursive($total['requiredhours'][$curdate['year']][$curdate['mon']]));
-////
-////                    eval("\$attendance_report_user_month .= \"".$template->get('attendance_report_user_month')."\";");
-////                    $attendance_report_user_day = '';
-////                    $attendance_report_user_week = '';
-////                }
-//                    elseif($nextdate_details['week'] != $curdate['week'] && $nextdate_details['mon'] != $curdate['mon']) {
-//                        $month_output = date('F', mktime(0, 0, 0, $curdate['mon'], 10));
-//                        $total_outputs['month']['actualhours'] = operation_time_value(array_sum_recursive($total['actualhours'][$curdate['year']][$curdate['mon']]));
-//                        $total_outputs['month']['requiredhours'] = operation_time_value(array_sum_recursive($total['requiredhours'][$curdate['year']][$curdate['mon']]));
-//                        $month_header_output = '<th style="border-left: 1px solid #000;border-right: 1px solid #000;">'.$lang->employeename.'</th><th style="border-left: 1px solid #000;border-right: 1px solid #000;">'.implode('</th><th style="border-left: 1px solid #000;border-right: 1px solid #000;">', $month_header).'</th>';
-//                        $month_header_output .= '<th style="border-left: 1px solid #000;border-right: 1px solid #000;">Perc</th>';
-//                        $month_header_output .= '<th style="border-left: 1px solid #000;border-right: 1px solid #000;">TOTAL</th>';
-//                        $month_header_output .= '<th style="border-left: 1px solid #000;border-right: 1px solid #000;">TOTAL HOURS</th>';
-//                        $day_content .= '<td style="border-left: 1px solid #000;border-right: 1px solid #000;">'.number_format(($attending_days / $total_days) * 100, 0).'</td>';
-//                        $day_content .= '<td style="border-left: 1px solid #000;border-right: 1px solid #000;">'.$attending_days.' / '.$total_days.'</td>';
-//                        $day_content .= '<td style="border-left: 1px solid #000;border-right: 1px solid #000;">'.$total_outputs['month']['actualhours'].' / '.$total_outputs['month']['requiredhours'].'</td>';
-//                        //$attendance_report_user_month .= 'a'.$nextdate_details['week'].' == '.$curdate['week'].' && '.$nextdate_details['mon'].' != '.$curdate['mon'];
-//
-//                        eval("\$attendance_report_user_month[{$curdate['mon']}] .= \"".$template->get('attendance_log_month')."\";");
-//                        unset($month_header, $month_header_output, $total_days, $attending_days);
-//                        $attendance_report_user_week = $attendance_report_user_day = $day_content = $extra = '';
-//                    }
-//                    elseif($nextdate_details['week'] == $curdate['week'] && $nextdate_details['mon'] == $curdate['mon']) {
-//                        if($currentdate >= $to) {/* FIX HERE  */
-//                            $month_output = date('F', mktime(0, 0, 0, $curdate['mon'], 10));
-//                            $total_outputs['month']['actualhours'] = operation_time_value(array_sum_recursive($total['actualhours'][$curdate['year']][$curdate['mon']]));
-//                            $total_outputs['month']['requiredhours'] = operation_time_value(array_sum_recursive($total['requiredhours'][$curdate['year']][$curdate['mon']]));
-//                            $month_header_output = '<th style="border-left: 1px solid #000;border-right: 1px solid #000;">'.$lang->employeename.'</th><th style="border-left: 1px solid #000;border-right: 1px solid #000;">'.implode('</th><th style="border-left: 1px solid #000;border-right: 1px solid #000;">', $month_header).'</th>';
-//                            $month_header_output .= '<th style="border-left: 1px solid #000;border-right: 1px solid #000;">Perc</th>';
-//                            $month_header_output .= '<th style="border-left: 1px solid #000;border-right: 1px solid #000;">TOTAL</th>';
-//                            $month_header_output .= '<th style="border-left: 1px solid #000;border-right: 1px solid #000;">TOTAL HOURS</th>';
-//                            $day_content .= '<td style="border-left: 1px solid #000;border-right: 1px solid #000;">'.number_format(($attending_days / $total_days) * 100, 0).'</td>';
-//                            $day_content .= '<td style="border-left: 1px solid #000;border-right: 1px solid #000;">'.$attending_days.' / '.$total_days.'</td>';
-//                            $day_content .= '<td style="border-left: 1px solid #000;border-right: 1px solid #000;">'.$total_outputs['month']['actualhours'].' / '.$total_outputs['month']['requiredhours'].'</td>';
-//                            //$attendance_report_user_month .= 'a'.$nextdate_details['week'].' == '.$curdate['week'].' && '.$nextdate_details['mon'].' != '.$curdate['mon'];
-//
-//                            eval("\$attendance_report_user_month[{$curdate['mon']}] .= \"".$template->get('attendance_log_month')."\";");
-//                            unset($month_header, $month_header_output, $total_days, $attending_days);
-//                            $attendance_report_user_week = $attendance_report_user_day = $day_content = $extra = '';
-//                        }
-//                    }
                     /* Parse month and week sections - END */
                     $prevdate = $currentdate;
                     $currentdate += 86400;/** increment  by one day (timestamp) * */
