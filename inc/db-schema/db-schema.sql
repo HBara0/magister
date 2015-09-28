@@ -555,6 +555,7 @@ CREATE TABLE `aro_requests_partiesinformation` (
   `vendorIncotermsDesc` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
   `vendorPaymentTerm` int(10) NOT NULL,
   `vendorPaymentTermDesc` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
+  `vendorPTIsThroughBank` tinyint(1) NOT NULL,
   `vendorEstDateOfPayment` bigint(30) NOT NULL,
   `estDateOfShipment` bigint(30) NOT NULL,
   `transitTime` int(10) NOT NULL,
@@ -567,6 +568,8 @@ CREATE TABLE `aro_requests_partiesinformation` (
   `legalization` float NOT NULL,
   `courier` float NOT NULL,
   `otherFees` float NOT NULL,
+  `forwarder` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `forwarderPT` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
   PRIMARY KEY (`apiid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=29 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
