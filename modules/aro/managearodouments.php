@@ -36,12 +36,12 @@ if(!($core->input['action'])) {
     }
     $dal_config = array('returnarray' => true);
     $inspections = array('Pre-Shipment' => 'Pre-Shipment', ' Post-Shipment' => ' Post-Shipment', 'Pre and Post Shipment' => 'Pre and Post Shipment', ' To Be Advised Later' => ' To Be Advised Later', 'none' => 'none');
-    $payment_terms = PaymentTerms::get_data('', $dal_config);
-    $segments = ProductsSegments::get_segments('');
+    $payment_terms = PaymentTerms::get_data('', array('returnarray' => true, 'order' => array('sort' => 'ASC', 'by' => 'overduePaymentDays')));
+    $segments = ProductsSegments::get_segments('', array('order' => array('sort' => 'ASC', 'by' => 'title')));
     $packaging = Packaging::get_data('name IS NOT NULL', $dal_config);
     $uom = Uom::get_data(array('isWeight' => 1), $dal_config);
     $mainaffobj = new Affiliates($core->user['mainaffiliate']);
-    $currencies = Currencies::get_data('');
+    $currencies = Currencies::get_data('', array('order' => array('sort' => 'ASC', 'by' => 'name')));
     $incoterms = Incoterms::get_data('name IS NOT NULL', $dal_config);
     $countries = Countries::get_data('', $dal_config);
 
