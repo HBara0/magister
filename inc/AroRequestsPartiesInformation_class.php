@@ -27,6 +27,8 @@ class AroRequestsPartiesInformation extends AbstractClass {
         global $db, $log;
         $partiesinfo_data = $this->calculate_partiesinfofields($data);
         if(is_array($partiesinfo_data)) {
+            $partiesinfo_data['intermedPTIsThroughBank'] = $data['intermedPTIsThroughBank'];
+            $partiesinfo_data['vendorPTIsThroughBank'] = $data['vendorPTIsThroughBank'];
             $query = $db->insert_query(self::TABLE_NAME, $partiesinfo_data);
             if($query) {
                 $log->record(self::TABLE_NAME, $this->data[self::PRIMARY_KEY]);
@@ -38,6 +40,8 @@ class AroRequestsPartiesInformation extends AbstractClass {
         global $db, $log, $core;
         $partiesinfo_data = $this->calculate_partiesinfofields($data);
         if(is_array($partiesinfo_data)) {
+            $partiesinfo_data['intermedPTIsThroughBank'] = $data['intermedPTIsThroughBank'];
+            $partiesinfo_data['vendorPTIsThroughBank'] = $data['vendorPTIsThroughBank'];
             $query = $db->update_query(self::TABLE_NAME, $partiesinfo_data, self::PRIMARY_KEY.' = '.intval($this->data[self::PRIMARY_KEY]));
             if($query) {
                 $log->record(self::TABLE_NAME, $this->data[self::PRIMARY_KEY]);

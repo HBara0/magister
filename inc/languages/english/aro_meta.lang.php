@@ -81,6 +81,7 @@ $lang['totalload'] = 'Total Load';
 $lang['paymenttermsdesc'] = 'Payment Terms Description';
 $lang['paymentterms'] = 'Payment Terms';
 $lang['paymenttermbasedate'] = 'Payment Term Base Date';
+$lang['throughbank'] = 'Through Bank';
 $lang['customer'] = 'Customer';
 $lang['unspecifiedcustomers'] = 'Unspecified customers';
 $lang['estimatedduedate'] = 'Estimated local invoices due date if any ';

@@ -91,6 +91,7 @@ if(!($core->input['action'])) {
                 $isdisabled = $disabled_list;
                 $config_class = 'automaticallyfilled-editable';
             }
+
             $affiliates_list[$party] = parse_selectlist('partiesinfo['.$party.'Aff]', 1, $affiliate, '', '', '', array('blankstart' => 1, 'id' => 'partiesinfo_'.$party.'_aff', 'required' => 'required', 'width' => '100%', 'class' => $config_class));
             $paymentterms_list[$party] = parse_selectlist('partiesinfo['.$party.'PaymentTerm]', 4, $payment_terms, '', '', '', array('blankstart' => 1, 'id' => 'partiesinfo_'.$party.'_paymentterm', 'required' => 'required', 'width' => '100%', 'class' => $config_class));
             $incoterms_list[$party] = parse_selectlist('partiesinfo['.$party.'Incoterms]', 4, $incoterms, '', '', '', array('blankstart' => 1, 'id' => 'partiesinfo_'.$party.'_incoterms', 'required' => 'required', 'width' => '100%', 'class' => $config_class));
@@ -309,12 +310,18 @@ if(!($core->input['action'])) {
                 $aff['vendor'] = $aropartiesinfo_obj->vendorAff;
                 $paymentterm['intermed'] = $aropartiesinfo_obj->intermedPaymentTerm;
                 $paymentterm['vendor'] = $aropartiesinfo_obj->vendorPaymentTerm;
+                if($aropartiesinfo_obj->intermedPTIsThroughBank == 1) {
+                    $checked['intermedPTIsThroughBank'] = 'checked="checked"';
+                }
+                if($aropartiesinfo_obj->vendorPTIsThroughBank == 1) {
+                    $checked['vendorPTIsThroughBank'] = 'checked="checked"';
+                }
                 $incoterms['intermed'] = $aropartiesinfo_obj->intermedIncoterms;
                 $incoterms['vendor'] = $aropartiesinfo_obj->vendorIncoterms;
                 $shipmentcountry = $aropartiesinfo_obj->shipmentCountry;
                 $origincountry = $aropartiesinfo_obj->originCountry;
                 if($aropartiesinfo_obj->vendorIsAff == 1) {
-                    $checked = 'checked="checked"';
+                    $checked['vendorisaff'] = 'checked="checked"';
                     $display = 'style="display:block;"';
                     $is_disabled = 'disabled="disabled"';
                     $disabled_list = 'disabled';
