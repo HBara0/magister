@@ -149,7 +149,7 @@ if(!$core->input['action']) {
         eval("\$expsection = \"".$template->get('attendance_requestleave_expsection')."\";");
     }
     $autoresp_show = 'style="display:none"';
-    $main_aff = new Affiliates($core->user['mainaffiliate']);
+    $main_aff = new Affiliates($core->user['mainaffiliate'], false);
     if(!is_object($main_aff) || empty($main_aff->affid) || empty($main_aff->cpAccount)) {
         $autoresp_checkshow = 'style="display:none"';
     }

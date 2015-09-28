@@ -793,13 +793,13 @@ class Leaves extends AbstractClass {
                 $user = $this->get_user();
                 $main_aff = $user->get_mainaffiliate();
                 if(!is_object($main_aff) || empty($main_aff->affid)) {
-                    return FALSE;
+                    return false;
                 }
                 if(empty($main_aff->cpAccount)) {
-                    return FALSE;
+                    return false;
                 }
                 $cpaccount = $main_aff->cpAccount;
-                $subject = 'Auto Responder: ';
+                $subject = 'Auto Responder: %subject%';
                 if(!is_empty($this->autoRespSubject)) {
                     $subject = 'Auto Responder: '.$this->autoRespSubject;
                 }
@@ -808,11 +808,14 @@ class Leaves extends AbstractClass {
                     $message = $this->autoRespBody;
                 }
                 else {
-                    $message = $lang->sprint($lang->autorespondermessage, $user->get_displayname(), date($core->settings['dateformat'].' '.$core->settings['timeformat'], $this->fromDate), date($core->settings['dateformat'].' '.$core->settings['timeformat'], $this->fromDate));
+                    $message = $lang->sprint($lang->autorespondermessage, date($core->settings['dateformat'].' '.$core->settings['timeformat'], $this->fromDate), date($core->settings['dateformat'].' '.$core->settings['timeformat'], $this->fromDate));
+                    if($this->data['limitedEmail']) {
+                        $message .= "\n".$lang->autorespondermessagelimitedemail;
+                    }
                     if(!empty($this->data['contactPerson'])) {
                         $contactperson = $this->get_contactperson();
                         if(is_object($contactperson)) {
-                            $message .= "\n".'Please contact '.$contactperson->displayName.' ('.$contactperson->email.') for urgent issues.';
+                            $message .= "\n".$lang->sprint($lang->autorespondermessagecontact, $contactperson->displayName, $contactperson->email);
                         }
                     }
                 }

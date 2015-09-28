@@ -42,18 +42,10 @@
 
                 $(document).on('change', 'input[id="check_autoresp"]', function () {
                     if($(this).is(':checked')) {
-                        $('#autorespondersub').show();
-                        $('#autoresponderbody').show();
-
-
-
+                        $('#autorespondersub,#autoresponderbody').show();
                     }
                     else {
-                        $('#autorespondersub').hide();
-                        $('#autoresponderbody').hide();
-
-
-
+                        $('#autorespondersub,#autoresponderbody').hide();
                     }
                 });
             });
@@ -127,19 +119,21 @@
                         <td >{$lang->createautoresp}</td>
                         <td><input type='checkbox' {$autoresp_checked} name='createAutoResp' id='check_autoresp' value='1'></td>
                     </tr>
-                    <tr  id="autorespondersub" {$autoresp_show}>
+                    <tr id="autorespondersub" {$autoresp_show}>
                         <td>
-                            {$lang->subject}                        </td>
+                            {$lang->subject}
+                        </td>
                         <td>
-                            <input  id='autoresp_subject' name='autoRespSubject' value="{$leave[autoRespSubject]}">
+                            <input id='autoresp_subject' name='autoRespSubject' value="{$leave[autoRespSubject]}">
                         </td>
                     </tr>
                     <tr id="autoresponderbody" {$autoresp_show}>
                         <td>
-                            {$lang->emailbody}                        </td>
+                            {$lang->emailbody}
+                        </td>
                         <td>
-                            <div class="ui-state-highlight"> {$lang->autorespifemptybody} </div>
-                            <textarea   id='autoresp_body'  cols="50" rows="5"  name='autoRespBody'>{$leave[autoRespBody]}</textarea>
+                            <div class="ui-state-highlight">{$lang->autorespifemptybody}</div>
+                            <textarea id='autoresp_body' cols="50" rows="5" name='autoRespBody'>{$leave[autoRespBody]}</textarea>
                         </td>
                     </tr>
                     <tr><td colspan="2"><hr /></td></tr>
@@ -151,15 +145,14 @@
                             </fieldset>
                         </td>
                     </tr>
-
                     <tr><td colspan="2"><hr /></td></tr>
-
-                </table>            <div id="perform_attendance/{$action}_Results"></div>
-
+                </table>
                 <input type="submit" id="perform_attendance/{$action}_Button" value="{$lang->$action}" class="button" />
             </form>
+            <div id="perform_attendance/{$action}_Results"></div>
         </td>
     </tr>
     {$footer}
+    {$helptour}
 </body>
 </html>

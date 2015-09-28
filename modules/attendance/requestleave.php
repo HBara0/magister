@@ -119,9 +119,23 @@ if(!$core->input['action']) {
             $userown_leaves.='<option value="'.$userleave['lid'].'">'.$userleave['leavetype'].' - '.$userleave['origincity'].' - '.$userleave['from'].'-'.$userleave['to'].' </option>';
         }
     }
-    $main_aff = new Affiliates($core->user['mainaffiliate']);
+    $main_aff = new Affiliates($core->user['mainaffiliate'], false);
     if(!is_object($main_aff) || empty($main_aff->affid) || empty($main_aff->cpAccount)) {
         $autoresp_checkshow = 'style="display:none"';
+    }
+    else {
+        $helptour = new HelpTour();
+        $helptour->set_id('requestleavear_helptour');
+        $helptour->set_cookiename('requestleavear_helptour');
+
+        $touritems = array(
+                'check_autoresp' => array('options' => 'tipLocation:right;', 'text' => 'Tick this box if you wish to automatically create an auto-responder. The system will create the auto-responder for you with the appropriate start and end time.'),
+                'autoresp_subject' => array('ignoreid' => true, 'text' => 'You can optionally put a custom subject. The system will automatically append "Auto Responder" to your custom subject. If not specified the system will use %subject% which is then replaced by the subject of the original message.'),
+                'autoresp_body' => array('ignoreid' => true, 'text' => 'You can optionally put a custom message. If not specified the system will use a default message that details the start and end date of your leave, whether you have limited access to email or not, and who is to be contacted for urgent issues.')
+        );
+
+        $helptour->set_items($touritems);
+        $helptour = $helptour->parse();
     }
     $autoresp_show = 'style="display:none"';
     $autoresp_disabled = 'disabled="disabled"';
@@ -699,8 +713,8 @@ else {
                 if(!is_array($mailingLists) || empty($mailingLists)) {
                     $mailingLists = $to;
                 }
-                $main_affiliate = new affiliates($core->user['mainaffiliate']);
-                if(is_object($main_affiliate) && !empty($main_affiliate->cpAccount) && $leave_obj->createAutoResp = 1) {
+                $main_affiliate = $leave_user_obj->get_mainaffiliate();
+                if(is_object($main_affiliate) && !empty($main_affiliate->cpAccount) && $leave_obj->createAutoResp == 1) {
                     $leave_obj->create_autoresponder();
                 }
                 $email_data = array(

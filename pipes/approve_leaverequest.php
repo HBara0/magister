@@ -49,7 +49,7 @@ if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject) || $ignore_su
                                 LIMIT 0, 1");
             if($db->num_rows($query3) > 0) {
                 $approver = $db->fetch_assoc($query3);
-
+                $employee = new Users($leave['uid']);
                 $leave['type_details'] = parse_type($leave['type']);
 
                 $leave['details_crumb'] = parse_additionaldata($leave, $leave['type_details']['additionalFields']);
@@ -277,7 +277,8 @@ if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject) || $ignore_su
 
                     $lang->leavenotificationsubject = $lang->sprint($lang->leavenotificationsubject, $leave['firstName'].' '.$leave['lastName'], $lang->leavenotificationmessage_typedetails, $tooktaking, date($core->settings['dateformat'], $leave['fromDate']), date($subject_todate_format, $leave['toDate']));
                     $lang->leavenotificationmessage = $lang->sprint($lang->leavenotificationmessage, $leave['firstName'].' '.$leave['lastName'], $lang->leavenotificationmessage_typedetails, date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave['fromDate']), date($message_todate_format, $leave['toDate']), $lang->leavenotificationmessage_days, $tooktaking, $contact_details, $contactperson_details);
-                    $main_affiliate = new Affiliates($core->user['mainaffiliate']);
+
+                    $main_affiliate = $employee->get_mainaffiliate();
                     if(is_object($main_affiliate) && !empty($main_affiliate->cpAccount) && $leave_obj->createAutoResp = 1) {
                         $leave_obj->create_autoresponder();
                     }
