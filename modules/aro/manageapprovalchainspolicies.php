@@ -37,6 +37,9 @@ if(!$core->input['action']) {
         if($chainpolicy['informGlobalCFO'] == 1) {
             $checked['informGlobalCFO'] = 'checked="checked"';
         }
+        if($chainpolicy['informGlobalPurchaseMgr'] == 1) {
+            $checked['informGlobalPurchaseMgr'] = 'checked="checked"';
+        }
 
 
         if(!empty($chainpolicy['informExternalUsers'])) {

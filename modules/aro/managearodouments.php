@@ -35,7 +35,7 @@ if(!($core->input['action'])) {
         error($lang->missingconfigurations.' (Purchase Types)');
     }
     $dal_config = array('returnarray' => true);
-    $inspections = array('inspection1' => 'inspection', 'Pre-Shipment' => 'Pre-Shipment', ' Post-Shipment' => ' Post-Shipment', 'Pre and Post Shipment' => 'Pre and Post Shipment', ' To Be Advised Later' => ' To Be Advised Later', 'none' => 'none');
+    $inspections = array('Pre-Shipment' => 'Pre-Shipment', ' Post-Shipment' => ' Post-Shipment', 'Pre and Post Shipment' => 'Pre and Post Shipment', ' To Be Advised Later' => ' To Be Advised Later', 'none' => 'none');
     $payment_terms = PaymentTerms::get_data('', $dal_config);
     $segments = ProductsSegments::get_segments('');
     $packaging = Packaging::get_data('name IS NOT NULL', $dal_config);
@@ -44,12 +44,18 @@ if(!($core->input['action'])) {
     $currencies = Currencies::get_data('');
     $incoterms = Incoterms::get_data('name IS NOT NULL', $dal_config);
     $countries = Countries::get_data('', $dal_config);
+
+    $aro_display['prtiesinfo']['discount'] = "display:block;";
+    if($core->usergroup['aro_canMakeDiscounts'] == 0) {
+        $aro_display['prtiesinfo']['discount'] = "display:none;";    //change al other display variables to this array
+    }
+
     if(!isset($core->input['id'])) {
         //order identification
         $affiliate_list = parse_selectlist('affid', 1, $affiliate, $orderid[affid], '', '', array('blankstart' => true, 'id' => "affid", 'required' => 'required'));
         $purchasetypelist = parse_selectlist('orderType', 4, $purchasetypes, $orderid['ptid'], '', '', array('blankstart' => true, 'id' => "purchasetype", 'required' => 'required'));
         $currencies_list = parse_selectlist('currency', 4, $currencies, '', '', '', array('blankstart' => 1, 'id' => "currencies", 'required' => 'required'));
-        $inspectionlist = parse_selectlist('inspectionType', 4, $inspections, '');
+        $inspectionlist = parse_selectlist('inspectionType', 4, $inspections, 'none');
 
         //order Customers
         $customeroder['inputChecksum'] = generate_checksum('ucl');
@@ -380,7 +386,7 @@ if(!($core->input['action'])) {
                             $position = 'Global Finance Manager';
                             break;
                         case 'cfo':
-                            $position = 'Global CFO';
+                            $position = $lang->globalcfo;
                             break;
                         case 'coo':
                             $position = 'Global COO';
@@ -389,7 +395,7 @@ if(!($core->input['action'])) {
                             $position = 'Regional Supervisor';
                             break;
                         case 'globalPurchaseManager':
-                            $position = 'Global purchase manager';
+                            $position = $lang->globalpurchasemgr;
                             break;
                         case 'user':
                             $position = 'User';
@@ -487,7 +493,6 @@ if(!($core->input['action'])) {
     eval("\$aro_managedocuments_orderident= \"".$template->get('aro_managedocuments_orderidentification')."\";");
     eval("\$aro_ordercustomers= \"".$template->get('aro_managedocuments_ordercustomers')."\";");
     eval("\$partiesinformation = \"".$template->get('aro_partiesinformation')."\";");
-
     eval("\$aro_netmarginparms= \"".$template->get('aro_netmarginparameters')."\";");
     eval("\$actualpurchase = \"".$template->get('aro_actualpurchase')."\";");
     eval("\$currentstock = \"".$template->get('aro_currentstock')."\";");

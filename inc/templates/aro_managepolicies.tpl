@@ -43,16 +43,16 @@
                         </td>
                     </tr>
                     <tr>
-                        <td>{$lang->default} {$lang->riskratio}</td>
-                        <td><input type="number" step="any" min="0" name="aropolicy[riskRatio]" id="aropolicy_riskRatio" value="{$aropolicy[riskRatio]}"/> %</td>
-                    </tr>
-                    <tr>
                         <td>{$lang->local} {$lang->yearlyintrestrate}</td>
                         <td><input type="number" step="any" min="0" name="aropolicy[yearlyInterestRate]" id="aropolicy_yearlyInterestRate" value="{$aropolicy[yearlyInterestRate]}"/> %</td>
                     </tr>
                     <tr>
                         <td>{$lang->defaultcommissioncharged}</td>
                         <td><input type="number" step="any" min="0" name="aropolicy[commissionCharged]" id="aropolicy_commissionCharged" value="{$aropolicy[commissionCharged]}"/> %</td>
+                    </tr>
+                    <tr>
+                        <td>{$lang->default} {$lang->riskratio}</td>
+                        <td><input type="number" step="any" min="0" name="aropolicy[riskRatio]" id="aropolicy_riskRatio" value="{$aropolicy[riskRatio]}"/> %</td>
                     </tr>
                     <tr>
                         <td>{$lang->riskratiodiffcurrcp}</td>

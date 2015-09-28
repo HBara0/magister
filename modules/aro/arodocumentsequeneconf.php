@@ -28,6 +28,10 @@ if(!($core->input['action'])) {
         $documentsequence['effectiveFrom_formatted'] = date('d-m-Y', $documentsequence['effectiveFrom']);
         $documentsequence['effectiveTo_formatted'] = date('d-m-Y', $documentsequence['effectiveTo']);
     }
+    else {
+        $documentsequence['incrementBy'] = 1;
+        $documentsequence['nextNumber'] = 1;
+    }
 
 
     if($core->usergroup['canViewAllAff'] == 0) {

@@ -485,9 +485,6 @@ class AroRequests extends AbstractClass {
             foreach($approvers as $key => $val) {
                 $approve_status = $timeapproved = 0;
                 if($val == $core->user['uid'] && $approve_immediately == true) {
-//                 if($val == $core->user['uid']) {
-//                    $approve_immediately = true;
-//                }
                     $approve_status = 1;
                     $timeapproved = TIME_NOW;
                 }
@@ -517,6 +514,14 @@ class AroRequests extends AbstractClass {
         $aroapprovalchain_policies = AroApprovalChainPolicies::get_data($filter);
         if(is_object($aroapprovalchain_policies)) {
             return $aroapprovalchain_policies->informGlobalCFO;
+        }
+    }
+
+    private function check_informglobalpurchasemgr() {
+        $filter = 'affid ='.$this->affid.' AND purchaseType = '.$this->orderType.' AND ('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
+        $aroapprovalchain_policies = AroApprovalChainPolicies::get_data($filter);
+        if(is_object($aroapprovalchain_policies)) {
+            return $aroapprovalchain_policies->informGlobalPurchaseMgr;
         }
     }
 
@@ -569,7 +574,7 @@ class AroRequests extends AbstractClass {
         $aroapprovalemail_subject = 'Test Aro Needs Approval !';
         $email_data = array(
                 'from' => 'ocos@orkila.com',
-                'to' => $to, // $approvers_mailinglist,
+                'to' => $to,
                 'subject' => $aroapprovalemail_subject,
                 'message' => "Aro Request Needs Approval:".$approve_link,
         );
@@ -586,7 +591,9 @@ class AroRequests extends AbstractClass {
             $data = array('emailRecievedDate' => TIME_NOW);
             $query = $db->update_query('aro_requests_approvals', $data, 'araid='.$firstapprover->araid);
 
-//            if($this->check_infromcoords() == 1) {
+            //$toinform=$this->get_toinform();
+//
+//              if($this->check_infromcoords() == 1) {
 //                $segcoords = $this->get_segoordinators();
 //                if(is_array($segcoords)) {
 //                    foreach($segcoords as $coord) {
@@ -598,7 +605,7 @@ class AroRequests extends AbstractClass {
 //            $email_data = array(
 //                    'from_email' => 'ocos@orkila.com',
 //                    'from' => 'ocos@orkila.com',
-//                    'to' => $mailinglist,
+//                    'to' => $mailinglist,  //$toinform
 //                    'subject' => 'Aro '.$this->orderReference.' _Segemnts Coordinators Notification',
 //                    'message' => 'Aro '.$this->orderReference.' in progress'  // change message
 //            );
@@ -700,7 +707,6 @@ class AroRequests extends AbstractClass {
         if($this->data['isApproved'] == 1) {
             $approvers = $this->get_approvers();
             if(is_array($approvers)) {
-
                 foreach($approvers as $approver_obj) {
                     $approver = new Users($approver_obj->uid);
                     if(is_object($approver)) {
@@ -721,7 +727,11 @@ class AroRequests extends AbstractClass {
                 $cfo = new Users($affiliate->cfo);
                 $mailinglist[$cfo->uid] = $cfo->get_email();
             }
-
+            if($this->check_informglobalpurchasemgr() == 1) {
+                $affiliate = new Affiliate($this->data['affid']);
+                $globalPurchaseMgr = new Users($affiliate->globalPurchaseManager);
+                $mailinglist[$globalPurchaseMgr->uid] = $globalPurchaseMgr->get_email();
+            }
             $informmoreusers = $this->check_informmoreusers();
             if(is_array($informmoreusers)) {
                 foreach($informmoreusers as $useremail) {
@@ -742,6 +752,34 @@ class AroRequests extends AbstractClass {
                 //
             }
         }
+    }
+
+    public function get_toinform() {
+        if($this->check_infromcoords() == 1) {
+            $segcoords = $this->get_segoordinators();
+            if(is_array($segcoords)) {
+                foreach($segcoords as $coord) {
+                    $inform[$coord->uid] = $coord->get_email();
+                }
+            }
+        }
+        if($this->check_informglobalcfo() == 1) {
+            $affiliate = new Affiliate($this->data['affid']);
+            $cfo = new Users($affiliate->cfo);
+            $inform[$cfo->uid] = $cfo->get_email();
+        }
+        if($this->check_informglobalpurchasemgr() == 1) {
+            $affiliate = new Affiliate($this->data['affid']);
+            $globalPurchaseMgr = new Users($affiliate->globalPurchaseManager);
+            $inform[$globalPurchaseMgr->uid] = $globalPurchaseMgr->get_email();
+        }
+        $informmoreusers = $this->check_informmoreusers();
+        if(is_array($informmoreusers)) {
+            foreach($informmoreusers as $useremail) {
+                $inform[] = $useremail;
+            }
+        }
+        return $inform;
     }
 
     public function parse_messages(array $options = array()) {

@@ -30,7 +30,7 @@ class AroApprovalChainPolicies extends AbstractClass {
 
     protected function create(array $data) {
         global $db, $core, $log;
-        $required_fields = array('effectiveFrom', 'effectiveTo'); //warehsuoe
+        $required_fields = array('effectiveFrom', 'effectiveTo');
         foreach($required_fields as $field) {
             $data[$field] = $core->sanitize_inputs($data[$field], array('removetags' => true, 'allowable_tags' => '<blockquote><b><strong><em><ul><ol><li><p><br><strike><del><pre><dl><dt><dd><sup><sub><i><cite><small>'));
             if(is_empty($data[$field])) {
@@ -61,6 +61,7 @@ class AroApprovalChainPolicies extends AbstractClass {
                 'purchaseType' => $data['purchaseType'],
                 'informCoordinators' => $data['informCoordinators'],
                 'informGlobalCFO' => $data['informGlobalCFO'],
+                'informGlobalPurchaseMgr' => $data['informGlobalPurchaseMgr'],
                 'informExternalUsers' => base64_encode($data['informExternalUsers']),
                 'informInternalUsers' => base64_encode($data['informInternalUsers']),
                 'createdOn' => TIME_NOW,
@@ -100,6 +101,7 @@ class AroApprovalChainPolicies extends AbstractClass {
                     'purchaseType' => $data['purchaseType'],
                     'informCoordinators' => $data['informCoordinators'],
                     'informGlobalCFO' => $data['informGlobalCFO'],
+                    'informGlobalPurchaseMgr' => $data['informGlobalPurchaseMgr'],
                     'informExternalUsers' => base64_encode($data['informExternalUsers']),
                     'informInternalUsers' => base64_encode($data['informInternalUsers']),
                     'modifiedOn' => TIME_NOW,

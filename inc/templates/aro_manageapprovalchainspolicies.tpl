@@ -42,18 +42,23 @@
                         <td>{$purchasetypelist} </td>
                     </tr>
                     <tr>
+                        <td colspan="2" class="subtitle">
+                            {$lang->informmore}
+                        </td>
+                    </tr>
+                    <tr>
                         <td colspan="2">
-                            <input name="chainpolicy[informCoordinators]" id="chainpolicy_informCoordinators" type="checkbox" value="1" {$checked[informCoordinators]}> {$lang->informcoordinators}
+                            <input name="chainpolicy[informCoordinators]" id="chainpolicy_informCoordinators" type="checkbox" value="1" {$checked[informCoordinators]}> {$lang->inform} {$lang->coordinators}
                         </td>
                     </tr>
                     <tr>
                         <td colspan="2" class="altrow2">
-                            <input name="chainpolicy[informGlobalCFO]" id="chainpolicy_informGlobalCFO" type="checkbox" value="1" {$checked[informGlobalCFO]}> {$lang->informglobalcfo}
+                            <input name="chainpolicy[informGlobalCFO]" id="chainpolicy_informGlobalCFO" type="checkbox" value="1" {$checked[informGlobalCFO]}> {$lang->inform} {$lang->globalcfo}
                         </td>
                     </tr>
                     <tr>
-                        <td colspan="2" class="subtitle">
-                            {$lang->informmore}
+                        <td colspan="2">
+                            <input name="chainpolicy[informGlobalPurchaseMgr]" id="chainpolicy_informGlobalPurchaseMgr" type="checkbox" value="1" {$checked[informGlobalPurchaseMgr]}> {$lang->inform} {$lang->globalpurchasemgr}
                         </td>
                     </tr>
                     <tr><td style="vertical-align:top">{$lang->selectemployee}</td>
