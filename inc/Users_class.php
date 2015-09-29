@@ -579,6 +579,10 @@ class Users extends AbstractClass {
         return $data->get_objects($filters, $configs);
     }
 
+    public function get_email() {
+        return $this->email;
+    }
+
     public static function get_activeusers() {
         global $db;
 

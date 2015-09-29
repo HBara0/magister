@@ -56,7 +56,9 @@ class Warehouses extends AbstractClass {
             $data['coid'] = $city->get_country()->coid;
             $data['modifiedOn'] = TIME_NOW;
             $data['modifiedBy'] = $core->user['uid'];
-
+            if(!isset($data['isActive'])) {
+                $data['isActive'] = 0;
+            }
             $geolocation = $data['geoLocation'];
             unset($data['geoLocation']);
             if(!empty($geolocation)) {

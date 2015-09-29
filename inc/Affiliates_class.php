@@ -27,7 +27,7 @@ class Affiliates {
     private function read($id, $simple = TRUE) {
         global $db;
 
-        $query_select = 'affid, name, legalName, country, city, integrationOBOrgId, mainCurrency, isIntReinvoiceAffiliate,alias';
+        $query_select = 'affid, name,alias, legalName, country, city, integrationOBOrgId, mainCurrency, isIntReinvoiceAffiliate,generalManager,finManager,cfo,coo,globalPurchaseManager,regionalSupervisor,logisticsManager';
         if($simple == false) {
             $query_select = '*';
         }
@@ -273,6 +273,43 @@ class Affiliates {
     public function get_id() {
         return $this->affiliate[self::PRIMARY_KEY];
     }
+    
+    
+      public function get_logisticsmanager() {
+        if(empty($this->affiliate['logisticsManager'])) {
+            return false;
+        }
+        return new Users($this->affiliate['logisticsManager']);
+    }
+
+    public function get_regionalsupervisor() {
+        if(empty($this->affiliate['regionalSupervisor'])) {
+            return false;
+        }
+        return new Users($this->affiliate['regionalSupervisor']);
+    }
+
+    public function get_globalpurchasemanager() {
+        if(empty($this->affiliate['globalPurchaseManager'])) {
+            return false;
+        }
+        return new Users($this->affiliate['globalPurchaseManager']);
+    }
+
+    public function get_coo() {
+        if(empty($this->affiliate['coo'])) {
+            return false;
+        }
+        return new Users($this->affiliate['coo']);
+    }
+
+    public function get_cfo() {
+        if(empty($this->affiliate['cfo'])) {
+            return false;
+        }
+        return new Users($this->affiliate['cfo']);
+        }
+
 
 }
 ?>

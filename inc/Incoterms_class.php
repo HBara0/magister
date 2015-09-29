@@ -14,7 +14,7 @@ class Incoterms extends AbstractClass {
     const PRIMARY_KEY = 'iid';
     const TABLE_NAME = 'incoterms';
     const DISPLAY_NAME = 'titleAbbr';
-    const SIMPLEQ_ATTRS = 'iid,titleAbbr,name,title';
+    const SIMPLEQ_ATTRS = 'iid,titleAbbr,name,title,carriageOnBuyer';
     const CLASSNAME = __CLASS__;
 
     public function __construct($id = '', $simple = true) {
