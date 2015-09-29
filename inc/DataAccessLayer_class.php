@@ -204,8 +204,13 @@ class DataAccessLayer {
                     if($operators[$attr] == 'like') {
 
                     }
+
                     if($operators[$attr] == 'BETWEEN') {
                         $filters_querystring .= $andor.$attr.' BETWEEN '.$value[0].' AND '.$value[1];
+                    }
+                    else if($operators[$attr] == 'NOT IN') {
+                        $value = array_map($db->escape_string, $value);
+                        $filters_querystring .= $andor.$attr.' NOT IN ('.implode(',', $value).')';
                     }
                     else {
                         $value_numerichk = array_filter($value, 'is_numeric');

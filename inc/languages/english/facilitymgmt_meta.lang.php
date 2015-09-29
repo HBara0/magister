@@ -19,4 +19,7 @@ $lang['facilitytree'] = 'Facility Tree';
 $lang['successfullydeleted'] = 'Successfully Deleted';
 $lang['cannotdelete'] = 'Cannot Delete';
 $lang['reservefacility'] = 'Reserve Facility';
+$lang['widthinmeters'] = 'Width In Meters';
+$lang['heightinmeters'] = 'Height In Meters';
+$lang['lengthinmeters'] = 'Length In Meters';
 ?>
