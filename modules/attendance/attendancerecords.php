@@ -98,8 +98,10 @@ if(!$core->input['action']) {
         foreach($records as $record) {
             $user = $record->get_user();
             $affiliate = $user->get_mainaffiliate();
-            if(in_array($affiliate->affid, $core->user['hraffids'])) {
-                $hr_section = '<a href="#"  id="updateattrecords_'.$record->aarid.'_attendance/attendancerecords_loadpopupbyid"><img src="'.$core->settings['rootdir'].'/images/edit.gif"></a>';
+            if(is_array($core->user['hraffids'])) {
+                if(in_array($affiliate->affid, $core->user['hraffids'])) {
+                    $hr_section = '<a href="#"  id="updateattrecords_'.$record->aarid.'_attendance/attendancerecords_loadpopupbyid"><img src="'.$core->settings['rootdir'].'/images/edit.gif"></a>';
+                }
             }
             $record->timeOutput = date($core->settings['dateformat'].' '.$core->settings['timeformat'], $record->time);
             eval("\$attendancelist .= \"".$template->get('attendance_attrecords_entry')."\";");
