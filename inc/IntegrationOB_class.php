@@ -1488,7 +1488,10 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
 
     public function parse_classificaton_tables($classification) {
         global $lang, $core;
-        //  $formatter = new NumberFormatter('EN_en', NumberFormatter::DECIMAL, '#');
+
+        $css_styles['header'] = 'background-color: #F1F1F1;';
+        $css_styles['altrow'] = 'background-color: #f7fafd;;';
+
         $tableindexes = array('products', 'suppliers', 'salerep');
         foreach($tableindexes as $tableindex) {
             switch($tableindex) {
@@ -1507,8 +1510,8 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
             if(is_array($classification[$tableindex])) {
                 foreach($classification[$tableindex] as $classificationtype => $classificationdata) {
                     if(is_array($classificationdata)) {
-                        $output .= '<table class="datatable"><tr><td class="thead" colspan=4>'.$lang->topten.' '.$lang->$tableindex.' '.$lang->$classificationtype.'</td></tr>';
-                        $output .= '<tr class="altrow2"><th>'.$lang->$tableindex.'</th>';
+                        $output .= '<table class="datatable"><tr><td style="background-color:#92D050;font-weight:bold;" colspan=4>'.$lang->topten.' '.$lang->$tableindex.' '.$lang->$classificationtype.'</td></tr>';
+                        $output .= '<tr style="'.$css_styles['header'].'"><th>'.$lang->$tableindex.'</th>';
                         if($classificationtype != 'wholeperiod' && $classificationtype != 'byquarter') {
                             switch($classificationtype) {
                                 case 'bymonth':
@@ -1530,7 +1533,7 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                         if($classificationtype != 'wholeperiod' && $classificationtype != 'byquarter') {
                             $output .='<th>'.$lang->prevdata.'('.$prevperiod.')</th><th>'.$lang->position.'</th>';
                         }
-                        $output .= '<tr>';
+                        $output .= '</tr>';
                         reset($classificationdata[$tableindex]);
                         $topofthemonthid = key($classificationdata[$tableindex]);
                         foreach($classificationdata[$tableindex] as $id => $cdata) {
@@ -1550,10 +1553,10 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                                     if(!is_object($object) || empty($object->name) || $object->name == 'System') {
                                         $object->name = 'unspecified';
                                     }
-                                    $output .= '<tr><td>'.$object->name.'</td>';
+                                    $output .= '<tr style="'.$rowstyle.'"><td>'.$object->name.'</td>';
                                 }
                                 else {
-                                    $output .= '<tr><td>'.$id.'</td>';
+                                    $output .= '<tr style="'.$rowstyle.'"><td>'.$id.'</td>';
                                 }
 
                                 foreach($cdata as $data) {
@@ -1565,6 +1568,12 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                                 $output .='</tr>';
                             }
                             unset($position);
+                            if(empty($rowstyle)) {
+                                $rowstyle = $css_styles['altrow'];
+                            }
+                            else {
+                                $rowstyle = '';
+                            }
                         }
                         $output .= '</table><br/>';
                         if($classname == 'IntegrationOBUser') {
@@ -1577,7 +1586,7 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                             $topofthemonth_obj_name = $id;
                         }
                         $output .='<div style="font-weight:bold;">Top '.$lang->$tableindex.' '.$lang->$classificationtype.' : '.$topofthemonth_obj_name.'</div><br/>';
-                        $output .='<div style="width:100%;"><h2>'.$lang->topten.' '.$lang->$tableindex.' '.$lang->$classificationtype.'</h2><small>(K Amounts)</small>';
+                        $output .='<div style="width:100%;"><h2>'.$lang->topten.' '.$lang->$tableindex.' '.$lang->$classificationtype.' '.$lang->chart.' <small>(K Amounts)</small> </h2>';
                         $output .= '<img src="data:image/png;base64,'.base64_encode(file_get_contents($this->parse_classificaton_charts($classificationdata[$tableindex], $tableindex))).'" />';
                         $output .= '</div>';
                     }
@@ -1604,12 +1613,17 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                 break;
         }
         foreach($data_ids as $id) {
-            $object = new $classname($id);
-            if(!is_object($object) || empty($object->name)) {
-                $yaxixdata[] = 'unspecified';
+            if($classname == 'IntegrationOBUser') {
+                $object = new $classname($id);
+                if(!is_object($object) || empty($object->name)) {
+                    $yaxixdata[] = 'unspecified';
+                }
+                else {
+                    $yaxixdata[] = $object->name;
+                }
             }
             else {
-                $yaxixdata[] = $object->name;
+                $yaxixdata[] = $id;
             }
 
             $xaxisdata[] = $data[$id]['currentdata'] / 1000;

@@ -74,4 +74,5 @@ $lang['byytd'] = 'YTD';
 $lang['bymonth'] = 'of the Month';
 $lang['byquarter'] = 'of the quarter';
 $lang['wholeperiod'] = 'of the Whole Period';
+$lang['chart'] = 'Chart';
 ?>
