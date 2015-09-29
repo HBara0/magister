@@ -698,8 +698,12 @@ CREATE TABLE `attendance_attrecords` (
   `uid` int(10) NOT NULL,
   `time` bigint(30) NOT NULL,
   `operation` varchar(10) COLLATE utf8_unicode_ci NOT NULL,
+  `lastupdateTime` bigint(30) NOT NULL,
+  `lastupdateOperation` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
+  `modifiedOn` bigint(30) NOT NULL,
+  `modifiedBy` int(10) NOT NULL,
   PRIMARY KEY (`aarid`)
-) ENGINE=MyISAM AUTO_INCREMENT=17881 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=77345 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `attendance_leaveexptypes`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
