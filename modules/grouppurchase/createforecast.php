@@ -28,6 +28,9 @@ if(!$core->input['action']) {
     $gp_affiliate = parse_selectlist('forecast[affid]', 1, $affiliates, '', '', '', array('id' => 'affid', 'required' => true));
 
     if($core->usergroup['canViewAllSupp'] == 0) {
+        if(!is_array($core->user['suppliers']['eid'])) {
+            $core->user['suppliers']['eid'][] = 0;
+        }
         $insupplier = implode(',', $core->user['suppliers']['eid']);
         $supplier_where = " eid IN ({$insupplier})";
     }
