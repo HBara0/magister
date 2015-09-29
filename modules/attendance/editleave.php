@@ -496,6 +496,12 @@ else {
                     $db->insert_query('leavesapproval', array('lid' => $lid, 'uid' => $val, 'isApproved' => $approve_status, 'timeApproved' => $timeapproved, 'sequence' => $sequence));
                 }
             }
+            if($deleted_tm == 1 && $leavetype_details['isBusiness'] == 1) {
+                $url = 'index.php?module=travelmanager/plantrip&lid=';
+                header('Content-type: text/xhml+javascript');
+                output_xml('<status>true</status><message>'.$lang->redirecttotmplantrip.'<![CDATA[<script>goToURL(\''.$url.$db->escape_string($lid).'\');</script>]]></message>');
+                exit;
+            }
             /* if(is_array($toapprove_select) && !empty($toapprove_select)) {
               $approvers = $db->fetch_assoc($db->query("SELECT ".implode(', ', $toapprove_select)."
               FROM ".Tprefix."affiliates

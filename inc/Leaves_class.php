@@ -819,7 +819,10 @@ class Leaves extends AbstractClass {
                         }
                     }
                 }
-                $args = array($user->email, $user->displayName, $subject, $message, explode('@', $user->email)[1], true, "utf-8", 8, $this->fromDate, $this->toDate);
+                $dateTimeZoneLocal = new DateTimeZone(date_default_timezone_get());
+                $dateTimeLocal = new DateTime("now", $dateTimeZoneLocal);
+                $differencefromgmt = timezone_offset_get($dateTimeZoneLocal, $dateTimeLocal);
+                $args = array($user->email, $user->displayName, $subject, $message, explode('@', $user->email)[1], true, "utf-8", 8, $this->fromDate - $differencefromgmt, $this->toDate - $differencefromgmt);
                 return $xmlapi->api1_query($cpaccount, 'Email', 'addautoresponder', $args);
             }
             catch(Exception $ex) {
