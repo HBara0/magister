@@ -262,12 +262,16 @@ $(function() {
                             if(json['carriageOnBuyer'] === 1) {
                                 $("tr[id='partiesinfo_forwarder']").show();
                             } else {
+                                $("input[id='partiesinfo_forwardername']").val("");
+                                $("input[id='partiesinfo_forwarderPT']").val("");
                                 $("tr[id='partiesinfo_forwarder']").hide();
                             }
                         }
                     }
                 });
             } else {
+                $("input[id='partiesinfo_forwardername']").val("");
+                $("input[id='partiesinfo_forwarderPT']").val("");
                 $("tr[id='partiesinfo_forwarder']").hide();
             }
         }

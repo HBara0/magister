@@ -101,6 +101,7 @@ if(!($core->input['action'])) {
         $display = 'style="display:none;"';
         $aropartiesinfo_obj = new AroRequestsPartiesInformation();
         $aropartiesinfo_obj->totalDiscount = $aropartiesinfo_obj->commFromIntermed = 0;
+        $aro_display['prtiesinfo']['forwarder'] = 'style="display:none;"';
         eval("\$interm_vendor = \"".$template->get('aro_partiesinfo_intermediary_vendor')."\";");
         eval("\$partiesinfo_shipmentparameters = \"".$template->get('aro_partiesinfo_shipmentparameters')."\";");
         eval("\$partiesinfo_fees = \"".$template->get('aro_partiesinfo_fees')."\";");
@@ -318,6 +319,16 @@ if(!($core->input['action'])) {
                 }
                 $selected_incoterms['intermed'] = $aropartiesinfo_obj->intermedIncoterms;
                 $selected_incoterms['vendor'] = $aropartiesinfo_obj->vendorIncoterms;
+
+                //show /hide forwarder fields based on vendor incoterms
+                $aro_display['prtiesinfo']['forwarder'] = 'style="display:none;"';
+                if($selected_incoterms['intermed'] != $selected_incoterms['vendor']) {
+                    $vendorincoterm_obj = new Incoterms($selected_incoterms['vendor']);
+                    if(is_object($vendorincoterm_obj) && $vendorincoterm_obj->carriageOnBuyer == 1) {
+                        $aro_display['prtiesinfo']['forwarder'] = 'style="display:block;"';
+                    }
+                }
+                ////////////////////////////////////
                 $shipmentcountry = $aropartiesinfo_obj->shipmentCountry;
                 $origincountry = $aropartiesinfo_obj->originCountry;
                 if($aropartiesinfo_obj->vendorIsAff == 1) {
