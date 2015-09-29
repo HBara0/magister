@@ -153,4 +153,6 @@ $lang['requiredfields'] = 'Required Fields';
 $lang['title'] = "Title";
 $lang['contactcenter'] = "Contact Center";
 $lang['facilitymgmt'] = 'Facility Management';
+$lang['capacity'] = "Capacity";
+$lang['reservedby'] = "Reserved By";
 ?>
