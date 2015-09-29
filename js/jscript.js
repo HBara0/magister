@@ -285,7 +285,7 @@ $(function () {
                 }
 
                 filtersQuery = "";
-                var filters = new Array("rid", "spid", "cid", "spid[]", "coid", "countryid", "city", "hasMOM");
+                var filters = new Array("rid", "spid", "cid", "spid[]", "coid", "countryid", "city", "hasMOM", "userlocation", "reserveFrom", "reserveTo");
                 for(var i = 0; i < filters.length; i++) {
                     if($("input[name='" + filters[i] + "']").length > 0) {
                         if($("input[name='" + filters[i] + "']").val() != '') {
@@ -318,6 +318,9 @@ $(function () {
             }
         }).data('uiAutocomplete')._renderItem = function (ul, item) {
             if(typeof item.desc != 'undefined') {
+                if(typeof item.style != 'undefined') {
+                    return $("<li " + item.style + ">").append("<a>" + item.value + "<br><small>" + item.desc + "</small></a>").appendTo(ul);
+                }
                 return $("<li>").append("<a>" + item.value + "<br><small>" + item.desc + "</small></a>").appendTo(ul);
             }
             return $("<li>").append("<a>" + item.value + "</a>").appendTo(ul);

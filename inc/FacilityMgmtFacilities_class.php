@@ -239,4 +239,59 @@ class FacilityMgmtFacilities extends AbstractClass {
         return false;
     }
 
+    public function get_parent() {
+        $parents_objs = FacilityMgmtFacilities::get_data(array(static::PRIMARY_KEY => $this->data['parent']));
+        if(is_object($parents_objs)) {
+            return $parents_objs;
+        }
+        return false;
+    }
+
+    public function get_mother() {
+        $immediate_parent = $this->get_parent();
+        if($immediate_parent == false) {
+            return $this;
+        }
+        return $immediate_parent->get_mother();
+    }
+
+    public function is_reserved($from, $to) {
+        if(is_empty($from, $to)) {
+            return false;
+        }
+        $reservations = FacilityMgmtReservations::get_data(' fmfid = '.$this->fmfid.' AND (fromDate  BETWEEN '.$from.' AND '.$to.') OR (toDate BETWEEN '.$from.' AND '.$to.')');
+        if(is_object($reservations) && !empty($reservations->fmrid)) {
+            return $reservations;
+        }
+        return false;
+    }
+
+    public function is_nearby($userlocation) {
+
+    }
+
+    function calculateDistance($lat1, $lon1, $lat2, $lon2, $unit) {
+
+        $theta = $lon1 - $lon2;
+
+        $dist = sin(deg2rad($lat1)) * sin(deg2rad($lat2)) + cos(deg2rad($lat1)) * cos(deg2rad($lat2)) * cos(deg2rad($theta));
+
+        $dist = acos($dist);
+
+        $dist = rad2deg($dist);
+
+        $miles = $dist * 60 * 1.1515;
+        $unit = strtoupper($unit);
+
+        if($unit == "K") {
+            return ($miles * 1.609344);
+        }
+        else if($unit == "N") {
+            return ($miles * 0.8684);
+        }
+        else {
+            return $miles;
+        }
+    }
+
 }

@@ -549,42 +549,47 @@ else {
                                 /* Check if leaves exist while attendance exists too & adjust accordingly - END */
                                 foreach($day_data as $attendance) {
                                     /* If person has not recorded entry use workshift default - START */
-                                    if(empty($attendance['timeIn']) || !isset($attendance['timeIn'])) {
-                                        $attendance['timeIn'] = mktime($current_worshift['onDutyHour'], $current_worshift['onDutyMinutes'], 0, $curdate['mon'], $curdate['mday'], $curdate['year']);
+                                    if((empty($attendance['timeIn']) || !isset($attendance['timeIn']) ) && (empty($attendance['timeOut']) || !isset($attendance['timeOut']))) {
+                                        $day_content .= '<td style="background-color:#F9D0D0;width:2%;text-align:center;border-bottom: 1px solid #000;border-left: 1px solid #000;border-right: 1px solid #000;">0%</td>';
+                                        $month_header[$curdate['mon']][date('d', $currentdate)] = date('d', $currentdate);
+                                        $total['absent'][$curdate['year']][$curdate['mon']] ++;
+                                        $total['requiredhours'][$curdate['year']][$curdate['mon']][$curdate['week']][$curdate['mday']] = (($current_worshift['offDutyHour'] * 3600) + ($current_worshift['offDutyMinutes'] * 60)) - (($current_worshift['onDutyHour'] * 3600) + ($current_worshift['onDutyMinutes'] * 60));
                                     }
-
-                                    if(empty($attendance['timeOut']) || !isset($attendance['timeOut'])) {
-                                        $attendance['timeOut'] = mktime($current_worshift['offDutyHour'], $current_worshift['offDutyMinutes'], 0, $curdate['mon'], $curdate['mday'], $curdate['year']);
-                                    }
-
-                                    /* LOG DATA */
-
-                                    $attendance['date_output'] = date('d', $attendance['date']);
-                                    $total_workshit = (mktime($current_worshift['offDutyHour'], $current_worshift['offDutyMinutes'], 0, $curdate['mon'], $curdate['mday'], $curdate['year'])) - (mktime($current_worshift['onDutyHour'], $current_worshift['onDutyMinutes'], 0, $curdate['mon'], $curdate['mday'], $curdate['year']));
-                                    $attendance['hoursday'] = ($attendance['timeOut']) - ( $attendance['timeIn']);
-                                    $attendance['arrival'] = $attendance['timeIn'] - (mktime($current_worshift['onDutyHour'], $current_worshift['onDutyMinutes'], 0, $curdate['mon'], $curdate['mday'], $curdate['year']));
-                                    $attendance['departure'] = $attendance['timeOut'] - (mktime($current_worshift['offDutyHour'], $current_worshift['offDutyMinutes'], 0, $curdate['mon'], $curdate['mday'], $curdate['year']));
-                                    $attendance['deviation'] = $attendance['departure'] - $attendance['arrival'];
-                                    $workperc = ($attendance['hoursday'] / $total_workshit) * 100;
-
-                                    if($attendance['arrival'] < 0) {
-                                        $extra = '<';
-                                    }
-                                    if($attendance['departure'] > 0) {
-                                        $extra .= '>';
-                                    }
-                                    if(number_format($workperc, 0) >= 100) {
-                                        $day_content .= '<td style="width:2%;text-align:center;border-bottom: 1px solid #000;background-color:#D6EAAC;border-left: 1px solid #000;border-right: 1px solid #000;" >'.number_format($workperc, 0).'</br>'.$extra.'</td>';
+                                    elseif(empty($attendance['timeIn']) || !isset($attendance['timeIn']) || empty($attendance['timeOut']) || !isset($attendance['timeOut'])) {
+                                        $day_content .= '<td style="width:2%;text-align:center;border-bottom: 1px solid #000;border-left: 1px solid #000;border-right: 1px solid #000;">?</td>';
+                                        $month_header[$curdate['mon']][date('d', $currentdate)] = date('d', $currentdate);
+                                        $attending_days++;
+                                        $total['requiredhours'][$curdate['year']][$curdate['mon']][$curdate['week']][$curdate['mday']] = (($current_worshift['offDutyHour'] * 3600) + ($current_worshift['offDutyMinutes'] * 60)) - (($current_worshift['onDutyHour'] * 3600) + ($current_worshift['onDutyMinutes'] * 60));
                                     }
                                     else {
-                                        $day_content .= '<td style="width:2%;text-align:center;border-bottom: 1px solid #000;background-color:#F9D0D0;border-left: 1px solid #000;border-right: 1px solid #000;" >'.number_format($workperc, 0).'</td>';
+                                        /* LOG DATA */
+                                        $attendance['date_output'] = date('d', $attendance['date']);
+                                        $total_workshit = (mktime($current_worshift['offDutyHour'], $current_worshift['offDutyMinutes'], 0, $curdate['mon'], $curdate['mday'], $curdate['year'])) - (mktime($current_worshift['onDutyHour'], $current_worshift['onDutyMinutes'], 0, $curdate['mon'], $curdate['mday'], $curdate['year']));
+                                        $attendance['hoursday'] = ($attendance['timeOut']) - ( $attendance['timeIn']);
+                                        $attendance['arrival'] = $attendance['timeIn'] - (mktime($current_worshift['onDutyHour'], $current_worshift['onDutyMinutes'], 0, $curdate['mon'], $curdate['mday'], $curdate['year']));
+                                        $attendance['departure'] = $attendance['timeOut'] - (mktime($current_worshift['offDutyHour'], $current_worshift['offDutyMinutes'], 0, $curdate['mon'], $curdate['mday'], $curdate['year']));
+                                        $attendance['deviation'] = $attendance['departure'] - $attendance['arrival'];
+                                        $workperc = ($attendance['hoursday'] / $total_workshit) * 100;
+
+                                        if($attendance['arrival'] < 0) {
+                                            $extra = '<';
+                                        }
+                                        if($attendance['departure'] > 0) {
+                                            $extra .= '>';
+                                        }
+                                        if(number_format($workperc, 0) >= 100) {
+                                            $day_content .= '<td style="width:2%;text-align:center;border-bottom: 1px solid #000;background-color:#D6EAAC;border-left: 1px solid #000;border-right: 1px solid #000;" >'.number_format($workperc, 0).'</br>'.$extra.'</td>';
+                                        }
+                                        else {
+                                            $day_content .= '<td style="width:2%;text-align:center;border-bottom: 1px solid #000;border-left: 1px solid #000;border-right: 1px solid #000;" >'.number_format($workperc, 0).'</td>';
+                                        }
+                                        $month_header[$curdate['mon']][$attendance['date_output']] = $attendance['date_output'];
+                                        $attending_days++;
+                                        /* LOG DATA */
+                                        $extra = '';
+                                        $total['actualhours'][$curdate['year']][$curdate['mon']][$curdate['week']][$curdate['mday']] = $attendance['hoursday'];
+                                        $total['deviation'][$curdate['year']][$curdate['mon']][$curdate['week']][$curdate['mday']] = $attendance['deviation'];
                                     }
-                                    $month_header[$curdate['mon']][$attendance['date_output']] = $attendance['date_output'];
-                                    $attending_days++;
-                                    /* LOG DATA */
-                                    $extra = '';
-                                    $total['actualhours'][$curdate['year']][$curdate['mon']][$curdate['week']][$curdate['mday']] = $attendance['hoursday'];
-                                    $total['deviation'][$curdate['year']][$curdate['mon']][$curdate['week']][$curdate['mday']] = $attendance['deviation'];
                                 }
                                 $total['requiredhours'][$curdate['year']][$curdate['mon']][$curdate['week']][$curdate['mday']] = (($current_worshift['offDutyHour'] * 3600) + ($current_worshift['offDutyMinutes'] * 60)) - (($current_worshift['onDutyHour'] * 3600) + ($current_worshift['onDutyMinutes'] * 60));
                             }
@@ -625,9 +630,9 @@ else {
                     else {
                         $rowclass = '';
                         if(in_array($curdate['wdayiso'], $workshift['weekDays'])) {
-                            $day_content .= '<td style="width:2%;text-align:center;border-bottom: 1px solid #000;border-left: 1px solid #000;border-right: 1px solid #000;">?</td>';
+                            $day_content .= '<td style="background-color:#F9D0D0;width:2%;text-align:center;border-bottom: 1px solid #000;border-left: 1px solid #000;border-right: 1px solid #000;">0%</td>';
                             $month_header[$curdate['mon']][date('d', $currentdate)] = date('d', $currentdate);
-                            $total['absent'][$curdate['year']][$curdate['mon']][$curdate['week']] ++;
+                            $total['absent'][$curdate['year']][$curdate['mon']] ++;
                             $total['requiredhours'][$curdate['year']][$curdate['mon']][$curdate['week']][$curdate['mday']] = (($current_worshift['offDutyHour'] * 3600) + ($current_worshift['offDutyMinutes'] * 60)) - (($current_worshift['onDutyHour'] * 3600) + ($current_worshift['onDutyMinutes'] * 60));
                         }
                         else {
@@ -677,7 +682,7 @@ else {
                         $month_header_output .= '<th style="width:85px;text-align:center;border-bottom: 1px solid #000;border-left: 1px solid #000;border-right: 1px solid #000;">'.$lang->capstotalhour.'</th>';
 
                         eval("\$attendance_report_user_month[{$curdate['mon']}] = \"".$template->get('attendance_log_month')."\";");
-                        unset($month_header, $month_header_output, $total_days, $attending_days, $weekends);
+                        unset($month_header, $month_header_output, $total_days, $attending_days, $weekends, $data[$curdate['year']][$curdate['mon']]);
                         $attendance_report_user_week = $attendance_report_user_day = $day_content = $extra = '';
                         if(($currentdate + 86400) > TIME_NOW) {
                             break;

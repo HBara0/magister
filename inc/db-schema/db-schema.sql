@@ -698,8 +698,12 @@ CREATE TABLE `attendance_attrecords` (
   `uid` int(10) NOT NULL,
   `time` bigint(30) NOT NULL,
   `operation` varchar(10) COLLATE utf8_unicode_ci NOT NULL,
+  `lastupdateTime` bigint(30) NOT NULL,
+  `lastupdateOperation` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
+  `modifiedOn` bigint(30) NOT NULL,
+  `modifiedBy` int(10) NOT NULL,
   PRIMARY KEY (`aarid`)
-) ENGINE=MyISAM AUTO_INCREMENT=17881 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=77345 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `attendance_leaveexptypes`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -2342,6 +2346,20 @@ CREATE TABLE `facilitymgmt_features` (
   `modifiedOn` bigint(30) NOT NULL,
   PRIMARY KEY (`fmftid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `facilitymgmt_reservations`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `facilitymgmt_reservations` (
+  `fmrid` int(10) NOT NULL AUTO_INCREMENT,
+  `fmfid` int(10) NOT NULL,
+  `fromDate` int(30) NOT NULL,
+  `toDate` int(30) NOT NULL,
+  `reservedBy` int(10) NOT NULL,
+  `purpose` text NOT NULL,
+  `mtid` int(10) NOT NULL,
+  PRIMARY KEY (`fmrid`)
+) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `files`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;

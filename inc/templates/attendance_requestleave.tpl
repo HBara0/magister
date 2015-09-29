@@ -148,8 +148,8 @@
                     <tr><td colspan="2"><hr /></td></tr>
                 </table>
                 <input type="submit" id="perform_attendance/{$action}_Button" value="{$lang->$action}" class="button" />
+                <div id="perform_attendance/{$action}_Results"></div>
             </form>
-            <div id="perform_attendance/{$action}_Results"></div>
         </td>
     </tr>
     {$footer}

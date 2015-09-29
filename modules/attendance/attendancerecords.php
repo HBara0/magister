@@ -122,10 +122,14 @@ else {
         $time['date'] = date($core->settings['dateformat'], $record->time);
         $time['hours'] = trim(preg_replace('/(AM|PM)/', '', date('H:i', $record->time)));
         $type = parse_selectlist('record[operation]', 4, array('check-in' => $lang->checkin, 'check-out' => $lang->checkout), $record->operation);
-        $show_lastupdated = 'style="display:none"';
+        $show_lastupdated = $show_lastupdatedoperation = 'style="display:none"';
         if(!empty($record->lastupdateTime)) {
             $show_lastupdated = '';
             $lastupdated_time = date($core->settings['dateformat'].' '.$core->settings['timeformat'], $record->lastupdateTime);
+        }
+        if(!empty($record->lastupdateOperation)) {
+            $show_lastupdatedoperation = '';
+            $lastupdated_operation = $record->lastupdateOperation;
         }
         eval("\$attrecord_details= \"".$template->get('popup_atteendance_records')."\";");
         output($attrecord_details);
