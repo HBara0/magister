@@ -520,9 +520,13 @@ else {
                     /* Loop Through the Worshifts - END */
                     $total_days++;
                     if(isset($data[$curdate['year']][$curdate['mon']][$curdate['week']][$curdate['mday']])) {
+                        $filled = '';
                         foreach($data[$curdate['year']][$curdate['mon']][$curdate['week']][$curdate['mday']] as $type => $day_data) {
                             $rowclass = '';
                             if($type == 'attendance') {
+                                if($filled == 1) {
+                                    continue;
+                                }
                                 /* Check if leaves exist while attendance exists too & adjust accordingly - START */
                                 if(isset($data[$curdate['year']][$curdate['mon']][$curdate['week']][$curdate['mday']]['leaves'])) {
                                     foreach($data[$curdate['year']][$curdate['mon']][$curdate['week']][$curdate['mday']]['leaves'] as $leave) {
@@ -606,7 +610,7 @@ else {
                                         $day_content .= '<td style="width:2%;text-align:center;border-bottom: 1px solid #000;border-left: 1px solid #000;border-right: 1px solid #000;">L</td>';
                                     }
                                 }
-
+                                $filled = 1;
                                 /* check whether the day is not in weekend and not in holiday */
                                 if(in_array($curdate['wdayiso'], $workshift['weekDays']) && !isset($data[$curdate['year']][$curdate['mon']][$curdate['week']][$curdate['mday']]['holiday'])) {
                                     $total['count_leaves'][$curdate['year']][$curdate['mon']][$curdate['week']][$curdate['mday']] ++;
@@ -618,7 +622,7 @@ else {
                                     $month_header[$curdate['mon']][date('d', $currentdate)] = date('d', $currentdate);
                                     $day_content .= '<td style="width:2%;text-align:center;border-bottom: 1px solid #000;border-left: 1px solid #000;border-right: 1px solid #000;">H</td>';
                                 }
-
+                                $filled = 1;
                                 if(is_array($worshifts)) {
                                     if(in_array($curdate['wdayiso'], $workshift['weekDays'])) {
                                         $total['holidays'][$curdate['year']][$curdate['mon']][$curdate['week']][$curdate['mday']] ++;
@@ -682,7 +686,7 @@ else {
                         $month_header_output .= '<th style="width:85px;text-align:center;border-bottom: 1px solid #000;border-left: 1px solid #000;border-right: 1px solid #000;">'.$lang->capstotalhour.'</th>';
 
                         eval("\$attendance_report_user_month[{$curdate['mon']}] = \"".$template->get('attendance_log_month')."\";");
-                        unset($month_header, $month_header_output, $total_days, $attending_days, $weekends, $data[$curdate['year']][$curdate['mon']]);
+                        unset($month_header, $month_header_output, $total, $total_days, $attending_days, $weekends, $data[$curdate['year']][$curdate['mon']]);
                         $attendance_report_user_week = $attendance_report_user_day = $day_content = $extra = '';
                         if(($currentdate + 86400) > TIME_NOW) {
                             break;
