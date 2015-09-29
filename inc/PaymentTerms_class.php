@@ -55,7 +55,7 @@ class PaymentTerms extends AbstractClass {
         }
     }
 
-    private function validate_requiredfields(array $data = array()) {
+    protected function validate_requiredfields(array $data = array()) {
         if(is_array($data)) {
             $required_fields = array('title', 'overduePaymentDays');
             foreach($required_fields as $field) {

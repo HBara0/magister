@@ -49,7 +49,7 @@ class AroRequestsPartiesInformation extends AbstractClass {
         }
     }
 
-    private function validate_requiredfields(array $data = array()) {
+    protected function validate_requiredfields(array $data = array()) {
         global $core;
         if(is_array($data)) {
             $required_fields = array('estDateOfShipment', 'shipmentCountry', 'originCountry', 'vendorIncoterms', 'vendorIncotermsDesc', 'vendorPaymentTerm', 'vendorPaymentTermDesc', 'commission');

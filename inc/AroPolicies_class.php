@@ -26,14 +26,14 @@ class AroPolicies extends AbstractClass {
     protected function create(array $data) {
         global $db, $core, $log;
         if(!$this->validate_requiredfields($data)) {
-                $data['createdOn'] = TIME_NOW;
-                $data['createdBy'] = $core->user['uid'];
-                $query = $db->insert_query(self::TABLE_NAME, $data);
-                if($query) {
-                    $id = $db->last_id();
-                    $log->record('aro_policies', $id);
-                    return $this;
-                }
+            $data['createdOn'] = TIME_NOW;
+            $data['createdBy'] = $core->user['uid'];
+            $query = $db->insert_query(self::TABLE_NAME, $data);
+            if($query) {
+                $id = $db->last_id();
+                $log->record('aro_policies', $id);
+                return $this;
+            }
         }
     }
 
@@ -55,7 +55,7 @@ class AroPolicies extends AbstractClass {
         }
     }
 
-    private function validate_requiredfields(array $data = array()) {
+    protected function validate_requiredfields(array $data = array()) {
         if(is_array($data)) {
             $required_fields = array('affid', 'effectiveFrom', 'effectiveTo'); // add required fields
             foreach($required_fields as $field) {

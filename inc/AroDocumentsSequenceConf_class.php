@@ -99,7 +99,7 @@ class AroDocumentsSequenceConf extends AbstractClass {
         }
     }
 
-    private function validate_requiredfields(array $data = array()) {
+    protected function validate_requiredfields(array $data = array()) {
         if(is_array($data)) {
             $required_fields = array('affid', 'ptid', 'effectiveFrom', 'effectiveTo'); // add required fields
             foreach($required_fields as $field) {
