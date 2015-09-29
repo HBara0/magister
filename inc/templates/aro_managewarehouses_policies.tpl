@@ -38,7 +38,7 @@
                     <tr><td>{$lang->dateperiod}</td>
                         <td><input type="number"  step="any" name="warehousepolicy[datePeriod]"  value="{$warehouse[datePeriod]}" style="width:50%"/></td>
                     </tr>
-                    <tr>
+                    {$audittrail}
                 </table>
                 <input type="submit" id="perform_aro/managewarehousepolicies_Button" value="Save" class="button"/>
             </form>
