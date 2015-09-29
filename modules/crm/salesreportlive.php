@@ -26,7 +26,7 @@ if(!$core->input['action']) {
 
     $dimensions = array('documentno' => 'Document Number', 'suppliername' => $lang->supplier, 'customername' => $lang->customer, 'productname' => $lang->product, 'segment' => $lang->segment, 'salesrep' => $lang->employee/* ,  'wid' => $lang->warehouse */);
     foreach($dimensions as $dimensionid => $dimension) {
-        $dimension_item.='<li class = "ui-state-default" id = '.$dimensionid.' title = "Click and Hold to move the '.$dimension.'">'.$dimension.'</li>';
+        $dimension_item.='<li class = "ui-state-default" id='.$dimensionid.' title="Click and Hold to move the '.$dimension.'">'.$dimension.'</li>';
     }
 
     eval("\$generatepage = \"".$template->get('crm_generatesalesreport_live')."\";");
@@ -69,6 +69,8 @@ else {
             $currency_obj = $affiliate->get_currency();
         }
 
+        $integration = new IntegrationOB($intgconfig['openbravo']['database'], $intgconfig['openbravo']['entmodel']['client']);
+
         $permissions = $core->user_obj->get_businesspermissions();
         // $reportaff = new Affiliates($core->input['affids'], false);
         // $currency_obj = $reportaff->get_currency();
@@ -94,7 +96,7 @@ else {
             }
         }
 
-        $integration = new IntegrationOB($intgconfig['openbravo']['database'], $intgconfig['openbravo']['entmodel']['client']);
+
         $invoices = $integration->get_saleinvoices($filters);
         $cols = array('month', 'week', 'documentno', 'salesrep', 'customername', 'suppliername', 'productname', 'segment', 'uom', 'qtyinvoiced', 'priceactual', 'linenetamt', 'purchaseprice', 'unitcostlocal', 'costlocal', 'costusd', 'grossmargin', 'grossmarginusd', 'netmargin', 'netmarginusd', 'marginperc');
         if(is_array($invoices)) {

@@ -952,6 +952,76 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                             $results_list .= '<li id="'.$key.'">'.$val.'</li>';
                         }
                         break;
+                    case 'basicfacilities':
+                        $facility = new FacilityMgmtFacilities($key);
+                        $motherfacility = $facility->get_mother();
+                        $details = '';
+                        if(is_object($motherfacility) && !empty($motherfacility->fmfid) && $motherfacility->fmfid != $facility->fmfid) {
+                            $details .= $motherfacility->get_displayname();
+                        }
+                        if(!empty($facility->capacity)) {
+                            $details .=' -'.$lang->capacity.': '.$facility->capacity;
+                        }
+                        if(is_object($facility) && !empty($facility->fmfid)) {
+                            if($isreserved == true) {
+
+                            }
+                            if($options['returnType'] == 'json') {
+                                $results_list['"'.$key.'"']['desc'] = $details;
+                            }
+                            else {
+                                $details = '<br/><span class="smalltext">'.$details.'</span>';
+                                $results_list .= '<li id="'.$key.'">'.$val.$details.'</li>';
+                            }
+                        }
+                        else {
+                            if($options['returnType'] == 'json') {
+                                unset($results_list['"'.$key.'"']);
+                            }
+                        }
+                        break;
+                    case 'reservationfacilities':
+                        $facility = new FacilityMgmtFacilities($key);
+                        $motherfacility = $facility->get_mother();
+                        $details = $isreserved = $isreserved = '';
+                        if(is_object($motherfacility) && !empty($motherfacility->fmfid) && $motherfacility->fmfid != $facility->fmfid) {
+                            $details = $motherfacility->get_displayname();
+                        }
+
+                        if(is_object($facility) && !empty($facility->fmfid)) {
+                            if(isset($options['extrainput']) && !is_empty($options['extrainput'])) {
+                                $from = $options['extrainput']['from'];
+                                $to = $options['extrainput']['to'];
+                                $isreserved = $facility->is_reserved(strtotime($from), strtotime($to));
+                            }
+
+                            if(is_object($isreserved)) {
+                                $style = 'style="pointer-events:none;background-color:red;"';
+                                $reservedby = $isreserved->get_reservedBy()->get_displayname();
+                                $details.=' '.$lang->reservedby.' : '.$reservedby;
+                            }
+                            else {
+                                if(!empty($facility->capacity)) {
+                                    $details .=' -'.$lang->capacity.': '.$facility->capacity;
+                                }
+                            }
+                            if($options['returnType'] == 'json') {
+                                if(is_object($isreserved)) {
+                                    $results_list['"'.$key.'"']['style'] = $style;
+                                }
+                                $results_list['"'.$key.'"']['desc'] = $details;
+                            }
+                            else {
+                                $details = '<br/><span class="smalltext">'.$details.'</span>';
+                                $results_list .= '<li '.$style.' id="'.$key.'">'.$val.$details.'</li>';
+                            }
+                        }
+                        else {
+                            if($options['returnType'] == 'json') {
+                                unset($results_list['"'.$key.'"']);
+                            }
+                        }
+                        break;
                 }
             }
             else {

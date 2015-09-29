@@ -5,13 +5,16 @@
         <div>
             <span>{$user->displayName}</span>
             <br><br>
+            <div {$show_lastupdatedoperation}>
+                {$lang->lastvalue} :  <span>{$lastupdated_operation}</span><br>
+            </div>
             {$lang->operation} : <span style="width:150px">{$type}</span>
             <input type="hidden" name="record[uid]"  value="{$user->uid}"/>
             <input type="hidden" name="record[aarid]"  value="{$record->aarid}"/>
         </div>
         <hr>
-        <div {$show_lastupdated}>
-            {$lang->lastupdatedtime} :  <span>{$lastupdated_time}</span><br>
+        <div {$show_lastupdatedtime}>
+            {$lang->lastvalue} :  <span>{$lastupdated_time}</span><br>
         </div>
         </hr>
         <div>

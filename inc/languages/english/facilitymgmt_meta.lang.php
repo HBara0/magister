@@ -18,4 +18,5 @@ $lang['cannotdeletefacility'] = 'Facility can\'t be deleted';
 $lang['facilitytree'] = 'Facility Tree';
 $lang['successfullydeleted'] = 'Successfully Deleted';
 $lang['cannotdelete'] = 'Cannot Delete';
+$lang['reservefacility'] = 'Reserve Facility';
 ?>

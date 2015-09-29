@@ -395,6 +395,27 @@ if($core->input['type'] == 'quick') {
             $select_attributes = array('subject');
             $order = array('by' => 'subject', 'sort' => 'ASC');
         }
+        elseif($core->input['for'] == 'basicfacilities') {
+            $extra_where = '';
+            $extra_where = ' isActive = 1';
+            $table = 'facilitymgmt_facilities';
+            $attributes = array('name');
+            $key_attribute = 'fmfid';
+            $select_attributes = array('name');
+            $order = array('by' => 'name', 'sort' => 'ASC');
+            $descinfo = 'basicfacilities';
+        }
+        elseif($core->input['for'] == 'reservationfacilities') {
+            $extra_where = '';
+            $extra_where = ' isActive = 1';
+            $table = 'facilitymgmt_facilities';
+            $attributes = array('name');
+            $key_attribute = 'fmfid';
+            $select_attributes = array('name');
+            $order = array('by' => 'name', 'sort' => 'ASC');
+            $extrainput = array('from' => $core->input['pickDate_reserveFrom'], 'to' => $core->input['pickDate_reserveTo']);
+            $descinfo = 'reservationfacilities';
+        }
 
 //        if(isset($core->input['exclude']) && !empty($core->input['exclude'])) {
 //            if(is_array($core->input['exclude'])) {
@@ -407,7 +428,7 @@ if($core->input['type'] == 'quick') {
 //                $extra_where .= " AND {$key_attribute} NOT IN ({$core->input[exclude]})";
 //            }
 //        }
-        $results_list = quick_search($table, $attributes, $core->input['value'], $select_attributes, $key_attribute, array('returnType' => $core->input['returnType'], 'order' => $order, 'extra_where' => $extra_where, 'descinfo' => $descinfo, 'disableSoundex' => $disableSoundex));
+        $results_list = quick_search($table, $attributes, $core->input['value'], $select_attributes, $key_attribute, array('extra_input' => $extrainput, 'returnType' => $core->input['returnType'], 'order' => $order, 'extra_where' => $extra_where, 'descinfo' => $descinfo, 'disableSoundex' => $disableSoundex));
         $referrer = explode('&', $_SERVER['HTTP_REFERER']);
         $module = substr($referrer[0], strpos(strtolower($referrer[0]), 'module=') + 7);
         if($core->input['for'] == 'supplier') {
