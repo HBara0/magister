@@ -23,11 +23,12 @@ if(!$core->input['action']) {
 
     /* Perform inline filtering - START */
     $filters_config = array(
-            'parse' => array('filters' => array('endproduct', 'description', 'characteristic', 'brand'),
+            'parse' => array('filters' => array('endproduct', 'description', 'characteristic', 'classificationClass', 'brand'),
                     'overwriteField' => array('endproduct' => '<input class="inlinefilterfield" type="text" style="width: 95%" placeholder="'.$lang->endproduct.'"/>',
                             'description' => '<input class="inlinefilterfield" type="text" style="width: 95%" placeholder="'.$lang->description.'"/>',
                             'characteristic' => '<input class="inlinefilterfield" type="text" style="width: 95%" placeholder="'.$lang->characteristic.'"/>',
-                            'brand' => '<input class="inlinefilterfield" type="text" style="width: 95%" placeholder="'.$lang->brand.'"/>'
+                            'classificationClass' => '<input class="inlinefilterfield" type="text" placeholder="'.$lang->classificationclass.'"/>',
+                            'brand' => '<input class="inlinefilterfield" type="text" placeholder="'.$lang->brand.'"/>'
                     )),
     );
 
@@ -46,7 +47,7 @@ if(!$core->input['action']) {
         foreach($entitybrandproducts_objs as $entitybrandproducts_obj) {
             $entitybrandproduct = $entitybrandproducts_obj->get();
             $endproducttype = EndProducTypes::get_data(array('eptid' => $entitybrandproduct['eptid']));
-            $brandproduct['characteristic'] = $brandproduct['endproductname'] = '-';
+            $brandproduct['characteristic'] = $brandproduct['endproductname'] = $brandproduct['classificationClass'] = '-';
             if(is_object($endproducttype)) {
                 $brandproduct['endproductname'] = $endproducttype->parse_link();
                 $first_parent = $endproducttype->get_parent();
@@ -73,6 +74,7 @@ if(!$core->input['action']) {
             if(is_object($productcharacteristic)) {
                 $brandproduct['characteristic'] = $productcharacteristic->get_displayname();
             }
+            $brandproduct['classificationClass'] = $entitybrandproduct['classificationClass'];
             $brandproduct['description'] = $entitybrandproduct['description'];
             eval("\$brandproducts_list .= \"".$template->get('admin_entities_brandendproducts_rows')."\";");
             unset($details);
@@ -99,10 +101,14 @@ if(!$core->input['action']) {
             }
         }
         asort($values);
+
+        $classification_classes = array('Class A', 'Class B', 'Class C');
+        $classification_classes = array_combine($classification_classes, $classification_classes);
         foreach($values as $key => $value) {
             $checked = $rowclass = '';
             $endproducttypes_list .= ' <tr class="'.$rowclass.'">';
-            $endproducttypes_list .= '<td><input id="producttypefilter_check_'.$key.'" type="checkbox"'.$checked.' value="'.$key.'" name="entitybrand[endproducttypes]['.$key.'][eptid]">'.$value.'<input style="float:right;" type="text" name="entitybrand[endproducttypes]['.$key.'][description]" placeholder="'.$lang->description.'" /></td><tr>';
+            $endproducttypes_list .= '<td><input id="producttypefilter_check_'.$key.'" type="checkbox"'.$checked.' value="'.$key.'" name="entitybrand[endproducttypes]['.$key.'][eptid]">'.$value.'<input style="float:right;" type="text" name="entitybrand[endproducttypes]['.$key.'][description]" placeholder="'.$lang->description.'" /></td>'
+                    .'<td>'.parse_selectlist("entitybrand[endproducttypes][".$key."][classificationClass]", '', $classification_classes, '', '', '', array('blankstart' => true)).'</td></tr>';
         }
     }
 
@@ -134,6 +140,7 @@ else {
                             'eptid' => $eptid,
                             'pcvid' => $data['pcvid'],
                             'description' => $endproduct['description'],
+                            'classificationClass' => $endproduct['classificationClass'],
                             'createdBy' => $core->user['uid'],
                             'createdOn' => TIME_NOW
                     );
