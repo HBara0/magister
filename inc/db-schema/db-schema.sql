@@ -2245,15 +2245,18 @@ CREATE TABLE `entitiesbrandsproducts` (
   `ebpid` int(10) NOT NULL AUTO_INCREMENT,
   `ebid` int(10) NOT NULL,
   `eptid` int(10) NOT NULL,
-  `pcvid` int(5) NOT NULL DEFAULT '0',
-  `description` varchar(250) COLLATE utf8_unicode_ci NOT NULL,
   `createdBy` int(10) NOT NULL,
   `createdOn` bigint(30) NOT NULL,
   `modifiedBy` int(10) NOT NULL,
   `modifiedOn` bigint(30) NOT NULL,
+  `reviewedOn` bigint(30) NOT NULL,
+  `reviewedBy` int(10) NOT NULL,
+  `pcvid` int(10) NOT NULL,
+  `description` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
+  `classificationClass` varchar(110) COLLATE utf8_unicode_ci NOT NULL,
   PRIMARY KEY (`ebpid`,`ebid`,`eptid`),
   KEY `createdBy` (`createdBy`,`modifiedBy`)
-) ENGINE=MyISAM AUTO_INCREMENT=71 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=109 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `entitiesrepresentatives`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
