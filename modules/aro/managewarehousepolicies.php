@@ -26,6 +26,26 @@ if(!$core->input['action']) {
 
         $warehouse['effectiveFrom_formatted'] = date('d-m-Y', $warehouse['effectiveFrom']);
         $warehouse['effectiveTo_formatted'] = date('d-m-Y', $warehouse['effectiveTo']);
+
+        $audittrailfields = array('createdOn', 'createdBy', 'modifiedOn', 'modifiedBy');
+        foreach($audittrailfields as $field) {
+            if(!empty($warehouse[$field])) {
+                switch($field) {
+                    case 'createdOn':
+                    case 'modifiedOn':
+                        $warehouse[$field.'_output'] = date($core->settings['dateformat'], $warehouse[$field]);
+                        break;
+                    default:
+                        $user = new Users($warehouse[$field]);
+                        if(is_object($user)) {
+                            $warehouse[$field.'_output'] = $user->get_displayname();
+                        }
+                        break;
+                }
+                $field_strtolower = strtolower($field);
+                $audittrail .= '<tr><td>'.$lang->$field_strtolower.'</td><td>'.$warehouse[$field.'_output'].'</td></tr>';
+            }
+        }
     }
     /* get warehouses of the affiliates users */
     $dal_config = array(
@@ -49,7 +69,7 @@ if(!$core->input['action']) {
         }
     }
     $currencies_list = parse_selectlist('warehousepolicy[currency]', '', $currencies, $warehouse['currency'], '', '', array('width' => '50%'));
-    $uoms = Uom::get_data(array('isWeight'=>1));
+    $uoms = Uom::get_data(array('isWeight' => 1));
 
     $reateuom = parse_selectlist('warehousepolicy[rate_uom]', '', $uoms, $warehouse['rate_uom'], '', '', array('width' => '50%'));
     eval("\$aro_managewarehousespolicies = \"".$template->get('aro_managewarehouses_policies')."\";");

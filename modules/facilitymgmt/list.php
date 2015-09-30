@@ -42,24 +42,27 @@ if(!isset($core->input['action'])) {
 
                 $facility_data['name'] = $facilitiy->get_displayname();
                 $affiliate = new Affiliates($facilitiy->affid);
-                if(is_object($affiliate)) {
+                if(is_object($affiliate) && !empty($affiliate->{Affiliates::PRIMARY_KEY})) {
                     $facility_data['affiliate'] = $affiliate->get_displayname();
                 }
                 $type = new FacilityMgmtFactypes($facilitiy->type);
-                if(is_object($type)) {
-                    $facility_data['type'] = $affiliate->get_displayname();
+                $facility_data['type'] = 'N/A';
+                if(is_object($type) && !empty($type->{FacilityMgmtFactypes::PRIMARY_KEY})) {
+                    $facility_data['type'] = $type->get_displayname();
                 }
                 $parent = new FacilityMgmtFacilities($facilitiy->parent);
-                if(is_object($parent)) {
-                    $facility_data['parent'] = $affiliate->get_displayname();
+                $facility_data['parent'] = 'N/A';
+                if(is_object($parent) && !empty($parent->{FacilityMgmtFacilities::PRIMARY_KEY})) {
+                    $facility_data['parent'] = $parent->get_displayname();
                 }
-                $facility_data['isactveicon'] = '<img src="./images/false.gif" />';
+                $facility_data['isactiveicon'] = '<img src="./images/false.gif" />';
                 if($facilitiy->isActive == 1) {
-                    $facility_data['isactveicon'] = '<img src="./images/true.gif" />';
+                    $facility_data['isactiveicon'] = '<img src="./images/true.gif" />';
                 }
                 $rowclass = alt_row($rowclass);
                 eval("\$facilities_rows .= \"".$template->get('facilitymgmt_facilityrow')."\";");
                 $edit_link = $delete_link = '';
+                unset($facility_data);
             }
         }
         eval("\$facilitieslist= \"".$template->get('facilitymgmt_facilitylist')."\";");

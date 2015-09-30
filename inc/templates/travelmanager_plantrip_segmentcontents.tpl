@@ -9,7 +9,7 @@
     </div>
     <!-- <div style="margin:50px;text-align: center" >
          <img src="./images/chevron-down.png" align="middle" style=""/>
-     </div>-->hidden
+     </div>-->
     <div id="perform_travelmanager/plantrip_Results_1"></div>
     <h2 class="subtitle" id="transpsetionheader_{$sequence}">Transportations</h2>
     <div class="ui-state-highlight ui-corner-all" style='padding:8px;margin-bottom: 10px;'>{$lang->transppolicy}</div>

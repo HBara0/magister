@@ -19,6 +19,7 @@ class FacilityMgmtFacilities extends AbstractClass {
     const PRIMARY_KEY = 'fmfid';
     const TABLE_NAME = 'facilitymgmt_facilities';
     const DISPLAY_NAME = 'name';
+    const UNIQUE_ATTRS = 'affid,name,parent';
     const SIMPLEQ_ATTRS = '*';
     const CLASSNAME = __CLASS__;
 
@@ -264,6 +265,10 @@ class FacilityMgmtFacilities extends AbstractClass {
             return $reservations;
         }
         return false;
+    }
+
+    public function get_type() {
+        return new FacilityMgmtFactypes($this->data['type']);
     }
 
     public function is_nearby($userlocation) {

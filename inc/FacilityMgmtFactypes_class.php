@@ -38,4 +38,24 @@ class FacilityMgmtFactypes extends AbstractClass {
 
     }
 
+    public function get_roomtypes() {
+        $roomtypes = FacilityMgmtFactypes::get_data(array('isRoom' => 1, 'isActive' => 1), array('returnarray' => true));
+        return $roomtypes;
+    }
+
+    public function get_roomtypesids() {
+        $roomtypes = FacilityMgmtFactypes::get_column('fmftid', array('isRoom' => 1, 'isActive' => 1), array('returnarray' => true));
+        return $roomtypes;
+    }
+
+    public function get_maintypes() {
+        $maintype = FacilityMgmtFactypes::get_data(array('isMainLocation' => 1, 'isActive' => 1), array('returnarray' => true));
+        return $maintype;
+    }
+
+    public function get_maintypesids() {
+        $maintype = FacilityMgmtFactypes::get_column('fmftid', array('isMainLocation' => 1, 'isActive' => 1), array('returnarray' => true));
+        return $maintype;
+    }
+
 }

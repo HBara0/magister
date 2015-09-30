@@ -382,8 +382,8 @@ function parse_selectlist($name, $tabindex, $options, $selected_options, $multip
     if(isset($config['data_attribute'])) {
         $datattr = $config['data_attribute'].';';
     }
-    
-      if(isset($config['class'])) {
+
+    if(isset($config['class'])) {
         $list_class = ' class="'.$config['class'].'" ';
     }
 
@@ -423,7 +423,13 @@ function parse_selectlist($name, $tabindex, $options, $selected_options, $multip
         if(isset($config['disabledItems'][$key])) {
             $attributes .= ' disabled="disabled"';
         }
-
+        if(isset($config['optionids']) && is_array($config['optionids'])) {
+            if(is_array($config['optionids']['when'])) {
+                if(array_key_exists($key, $config['optionids']['when'])) {
+                    $attributes.=' id='.$config['optionids']['id'];
+                }
+            }
+        }
         $list .= '<option value="'.$key.'"'.$attributes.'>'.$val.'</option>';
         $attributes = '';
     }

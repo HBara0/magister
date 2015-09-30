@@ -2,6 +2,22 @@
     <head>
         <title>{$core->settings[systemtitle]} | {$lang->facilitymgmt}</title>
         {$headerinc}
+        <script>
+            $(function () {
+                $(document).on('change', 'select[id="typelist"]', function () {
+                    if($(this).children(":selected").attr("id") == 'isMain') {
+                        $('td[id="within"]').each(function (i, obj) {
+                            $(obj).hide();
+                        });
+                    }
+                    else {
+                        $('td[id="within"]').each(function (i, obj) {
+                            $(obj).show();
+                        });
+                    }
+                });
+            });
+        </script>
     </head>
     <body>
     <tr>
@@ -16,16 +32,25 @@
                         <tr><td>{$lang->name}</td> <td><input type="text" name="facility[name]" value="{$facility[name]}"/></td></tr>
                         <tr><td>{$lang->aff}</td><td>{$affiliate_list}</td></tr>
                         <tr><td>{$lang->type}</td><td>{$factypes_list}</td></tr>
-                        <tr><td>{$lang->within}</td><td>{$facilities_list}</td></tr>
+                        <tr><td id="within" {$show_within}>{$lang->within}</td><td id="within" {$show_within}>{$facilities_list}</td></tr>
                         <tr><td>{$lang->capacity}</td>
                             <td><input type="number" name="facility[capacity]" value="{$facility[capacity]}"/></td>
                         </tr>
                         <tr><td>{$lang->numoccupants}</td>
                             <td><input type="number" name="facility[numOccupants]" value="{$facility[numOccupants]}"/></td>
                         </tr>
-                        <tr><td>{$lang->dimensions}</td>
-                            <td><input type="number" name="facility[dimensions][x]" value="{$facility[x]}" placeholder="x"/>
+                        <tr><td>{$lang->widthinmeters}</td>
+                            <td>
+                                <input type="number" name="facility[dimensions][x]" value="{$facility[x]}" placeholder="x"/>
+                            </td>
+                        </tr>
+                        <tr><td>{$lang->lengthinmeters}</td>
+                            <td>
                                 <input type="number" name="facility[dimensions][y]" value="{$facility[y]}" placeholder="y"/>
+                            </td>
+                        </tr>
+                        <tr><td>{$lang->heightinmeters}</td>
+                            <td>
                                 <input type="number" name="facility[dimensions][z]" value="{$facility[z]}" placeholder="z"/>
                             </td>
                         </tr>
