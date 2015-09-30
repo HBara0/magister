@@ -289,7 +289,7 @@ $lang['helptour_addexpensessetionheader'] = 'Now fill all other additional expen
 $lang['helptour_financesetionheader'] = 'Here you will get total approximation of all your expenses in US Dollars <br/>You can fill them in the rows below each with its respective currency';
 $lang['save_helptour'] = 'Save the current segment';
 $lang['saveandcreatenewseg_helptour'] = 'Save the current segment and create a new one';
-$lang['saveandpreview_helptour'] = 'Preview the current segment';
+$lang['saveandpreview_helptour'] = 'Preview the segments <br/> Note that unsaved sections will not be shown.';
 $lang['saveandfinalize_helptour'] = 'Preview the final Plan before finalizing';
 $lang['transclasswarning'] = 'No employee may travel in business class. Exceptions can be made, and must be addressed to the COO and/or CFO.';
 $lang['starttmtour'] = 'Welcome to the Travel Manager - Trip Planning page.<br />As this is your first time a help tour will guide you as you are planning your trip.';
@@ -302,4 +302,5 @@ $lang['helptour_savesec4'] = 'Save Expenses Section details before proceeding.';
 $lang['helptour_savesec5'] = 'Save Finance Section details before proceeding to the next segment or finalizing your trip.';
 $lang['selectevent'] = 'Select Event';
 $lang['backtotop'] = 'Back to Top';
+$lang['requestleavesubject'] = '{1} requested a {2} [{3}]';
 ?>

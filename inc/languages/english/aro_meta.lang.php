@@ -193,7 +193,7 @@ $lang['commfromintermed'] = 'Commission from intermediary affiliate';
 $lang['clicktoviewaro'] = 'Click here to view ARO';
 $lang['makesureusdamounts'] = 'Make sure all amounts are in USD';
 $lang['totaldiscountdesc'] = 'Discount percentage to be subtracted from the commission percantage <br/> Commission % = Commission % - Total Discount % ';
-$lang['commfromintermeddesc'] = 'commfromintermeddesc';
+$lang['commfromintermeddesc'] = 'LocaL Affiliate commission from Intermediary';
 $lang['promiseofpaymentdesc'] = 'Default value is Estimated date of payment +/- PT acceptable margin.';
 $lang['vendorisaffdesc'] = 'Tick the box whenever the vendor is an affiliate to select that affiliate <br/> Note that In that case, intermediary section is disabled.';
 $lang['forwarder'] = 'Forwarder';

@@ -623,9 +623,9 @@ class Leaves extends AbstractClass {
         return false;
     }
 
-    public function get_purpose() {
-        return new LeaveTypesPurposes($this->data['ltpid']);
-    }
+//    public function get_purpose() {
+//        return new LeaveTypesPurposes($this->data['ltpid']);
+//    }
 
     public function get_type($simple = true) {
         return $this->get_leavetype($simple);

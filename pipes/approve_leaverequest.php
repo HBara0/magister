@@ -68,9 +68,8 @@ if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject) || $ignore_su
                     $leave_type = $leave->get_type();
                     $employee = $leave->get_user(); //->get_displayname();
                     $leave_purpose = $leave_segment = $lang->na;
-                    if(is_object($leave->get_purpose())) {
-                        $leave_purpose = $leave->get_purpose()->get()['name'];
-                    }
+                    $leave_purpose = $leave->reason; //get_purpose()->get()['name'];
+
                     if(is_object($leave->get_segment())) {
                         $leave_segment = $leave->get_segment()->get()['title'];
                     }
@@ -102,9 +101,11 @@ if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject) || $ignore_su
                                     if(is_object($isselectedhotel)) {
                                         continue;
                                     }
-                                    $iscontractedicon = '<img src="./images/invalid.gif" alt="'.$lang->no.'"/>';
+                                    $path = "./images/invalid.gif";
+                                    $iscontractedicon = '<img src="data:image/png;base64,'.base64_encode(file_get_contents($path)).'" alt="'.$lang->no.'"/>';
                                     if($hotel->isContracted == 1) {
-                                        $iscontractedicon = '<img src="./images/valid.gif" alt="'.$lang->yes.'"/>';
+                                        $path = "./images/valid.gif";
+                                        $iscontractedicon = '<img src="data:image/png;base64,'.base64_encode(file_get_contents($path)).'" alt="'.$lang->yes.'"/>';
                                     }
                                     /* parse ratings */
                                     eval("\$otherapprovedhotels .= \"".$template->get('travelmanager_approvedhotel_row')."\";");
@@ -119,8 +120,8 @@ if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject) || $ignore_su
                             unset($transportaionsegment_fields, $transportaion_fields_title);
                         }
                     }
-                    eval("\$leave_details = \"".$template->get('travelmanager_viewlpan_leavedtls')."\";");
-
+                    // eval("\$leave_details = \"".$template->get('travelmanager_viewlpan_leavedtls')."\";");
+                    $leave_details = '<br/><a target="_blank" href="'.DOMAIN.'/index.php?module=attendance/viewleave&id='.$leave->lid.'">'.$lang->viewleave.'</a>';
                     eval("\$travelmanager_viewplan = \"".$template->get('travelmanager_viewlpanemail')."\";");
 
                     $leave = $leave->get();
