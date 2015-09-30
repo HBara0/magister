@@ -416,7 +416,19 @@ if($core->input['type'] == 'quick') {
             $extrainput = array('from' => $core->input['pickDate_reserveFrom'], 'to' => $core->input['pickDate_reserveTo']);
             $descinfo = 'reservationfacilities';
         }
-
+        elseif($core->input['for'] == 'userpermissionentities') {
+            $permissions = $core->user_obj->get_businesspermissions();
+            $table = 'entities';
+            $attributes = array('companyName', 'companyNameAbbr');
+            $key_attribute = 'eid';
+            $select_attributes = array('companyName');
+            $order = array('by' => 'companyName', 'sort' => 'ASC');
+            $descinfo = 'country';
+            if(is_array($permissions['eid'])) {
+                $permisisonents = ' AND eid IN ('.implode(',', array_filter($permissions['eid'])).')';
+            }
+            $extra_where .= ' isActive=1 AND approved=1'.$permisisonents;
+        }
 //        if(isset($core->input['exclude']) && !empty($core->input['exclude'])) {
 //            if(is_array($core->input['exclude'])) {
 //                $core->input['exclude'] = array_map(intval, $core->input['exclude']);

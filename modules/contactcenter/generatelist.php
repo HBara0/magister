@@ -14,7 +14,7 @@ if(!defined('DIRECT_ACCESS')) {
 if(!$core->input['action']) {
     $filters_userrow_display = 'show';
     $filters_user_config = array(
-            'parse' => array('filters' => array('name', 'position', 'entities', 'segment', 'allenabledaffiliates', 'allaffiliates', 'reportsTo'),
+            'parse' => array('filters' => array('name', 'position', 'userpermentities', 'usersegments', 'allenabledaffiliates', 'allaffiliates', 'reportsTo'),
                     'overwriteField' => array()
             ),
             'process' => array(
@@ -38,10 +38,10 @@ if(!$core->input['action']) {
                                     'tablename' => 'affiliatedemployees',
                             ),
                             'employeessegments' => array(
-                                    'filters' => array('segment' => array('operatorType' => 'multiple', 'name' => 'psid')),
+                                    'filters' => array('usersegments' => array('operatorType' => 'multiple', 'name' => 'psid')),
                             ),
                             'assignedemployees' => array(
-                                    'filters' => array('entities' => array('operatorType' => 'equal', 'name' => 'eid')),
+                                    'filters' => array('userpermentities' => array('operatorType' => 'equal', 'name' => 'eid')),
                             ),
                     )
             )
@@ -53,7 +53,7 @@ if(!$core->input['action']) {
     $entitytype = array('s' => $lang->supplier, 'c' => $lang->customer, 'pc' => $lang->potentialcustomer, 'ps' => $lang->potentialsupplier);
     $suppliertype = array('t' => $lang->trader, 'p' => $lang->producer);
     $filters_rep_config = array(
-            'parse' => array('filters' => array('name', 'entities', 'companytype', 'suppliertype', 'segment', 'assignedaff', 'requiresQr', 'hasContract', 'coid'),
+            'parse' => array('filters' => array('name', 'userpermentities', 'companytype', 'suppliertype', 'usersegments', 'assignedaff', 'requiresQr', 'hasContract', 'coid'),
                     'overwriteField' => array(
                             'requiresQr' => '<select name="extrafilters[requiresQr][]"><option></option><option value=0>Yes</option><option value=1>No</option></select>',
                             'hasContract' => '<select name="extrafilters[hasContract][]"><option></option><option value=1>Yes</option><option value=0>No</option></select>',
@@ -71,10 +71,10 @@ if(!$core->input['action']) {
                     ),
                     'secTables' => array(
                             'entitiesrepresentatives' => array(
-                                    'filters' => array('entities' => array('operatorType' => 'multiple', 'name' => 'eid')),
+                                    'filters' => array('userpermentities' => array('operatorType' => 'multiple', 'name' => 'eid')),
                             ),
                             'representativessegments' => array(
-                                    'filters' => array('segment' => array('operatorType' => 'multiple', 'name' => 'psid')),
+                                    'filters' => array('usersegments' => array('operatorType' => 'multiple', 'name' => 'psid')),
                             ),
                     )
             )
@@ -87,11 +87,21 @@ if(!$core->input['action']) {
 else {
     if($core->input['action'] == 'user') {
         $sort_query['sort'] = 'ASC';
+        $permissions = $core->user_obj->get_businesspermissions();
         $sort_query['by'] = 'displayName';
 //user filters-start
         $filters_userrow_display = 'show';
+        if(is_array($permissions['psid'])) {
+            $extrawhere['psid'] = 'psid IN ('.implode(',', array_filter($permissions['psid'])).')';
+        }
+        if(is_array($permissions['eid'])) {
+            $extrawhere['eid'] = 'eid IN ('.implode(',', array_filter($permissions['eid'])).')';
+        }
+        if(is_array($permissions['affid'])) {
+            $extrawhere['affid'] = 'eid IN ('.implode(',', array_filter($permissions['affid'])).')';
+        }
         $filters_user_config = array(
-                'parse' => array('filters' => array('name', 'position', 'entities', 'segment', 'allenabledaffiliates', 'allaffiliates', 'reportsTo'),
+                'parse' => array('filters' => array('name', 'position', 'userpermentities', 'usersegments', 'allenabledaffiliates', 'allaffiliates', 'reportsTo'),
                         'overwriteField' => array()
                 ),
                 'process' => array(
@@ -108,17 +118,19 @@ else {
                                 ),
                                 'affiliatedemployees' => array(
                                         'filters' => array('allenabledaffiliates' => array('operatorType' => 'multiple', 'name' => 'affid')),
-                                        'extraWhere' => 'isMain=1'
+                                        'extraWhere' => $extrawhere['affid']
                                 ),
                                 'affiliatedemployees2' => array(
                                         'filters' => array('allaffiliates' => array('operatorType' => 'multiple', 'name' => 'affid')),
                                         'tablename' => 'affiliatedemployees',
                                 ),
                                 'employeessegments' => array(
-                                        'filters' => array('segment' => array('operatorType' => 'multiple', 'name' => 'psid')),
+                                        'filters' => array('usersegments' => array('operatorType' => 'multiple', 'name' => 'psid')),
+                                        'extraWhere' => $extrawhere['psid']
                                 ),
                                 'assignedemployees' => array(
-                                        'filters' => array('entities' => array('operatorType' => 'equal', 'name' => 'eid')),
+                                        'filters' => array('userpermentities' => array('operatorType' => 'equal', 'name' => 'eid')),
+                                        'extraWhere' => $extrawhere['eid']
                                 ),
                         )
                 )
@@ -166,7 +178,7 @@ else {
                                 }
 
                                 break;
-                            case 'entities':
+                            case 'userpermentities':
                                 if($first_timeuser == 0) {
                                     $results_head .= '<th>'.$lang->assignedbusinesspartner.'</th>';
                                 }
@@ -182,7 +194,7 @@ else {
                                 }
                                 $entities = '';
                                 break;
-                            case 'segment':
+                            case 'usersegments':
                                 if($first_timeuser == 0) {
                                     $results_head .= '<th>'.$lang->segments.'</th>';
                                 }
@@ -250,7 +262,7 @@ else {
     }
     if($core->input['action'] == 'rep') {
         $filters_rep_config = array(
-                'parse' => array('filters' => array('name', 'entities', 'companytype', 'suppliertype', 'segment', 'assignedaff', 'requiresQr', 'hasContract', 'coid'),
+                'parse' => array('filters' => array('name', 'userpermentities', 'companytype', 'suppliertype', 'usersegments', 'assignedaff', 'requiresQr', 'hasContract', 'coid'),
                         'overwriteField' => array(
                                 'requiresQr' => '<select name="extrafilters[requiresQr][]"><option></option><option value=1>Yes</option><option value=0>No</option></select>',
                                 'hasContract' => '<select name="extrafilters[hasContract][]"><option></option><option value=1>Yes</option><option value=0>No</option></select>',
@@ -268,10 +280,10 @@ else {
                         ),
                         'secTables' => array(
                                 'entitiesrepresentatives' => array(
-                                        'filters' => array('entities' => array('operatorType' => 'multiple', 'name' => 'eid')),
+                                        'filters' => array('userpermentities' => array('operatorType' => 'multiple', 'name' => 'eid')),
                                 ),
                                 'representativessegments' => array(
-                                        'filters' => array('segment' => array('operatorType' => 'multiple', 'name' => 'psid')),
+                                        'filters' => array('usersegments' => array('operatorType' => 'multiple', 'name' => 'psid')),
                                 ),
                         )
                 )
@@ -620,7 +632,7 @@ else {
                                     $results_body.='<td>-</td>';
                                 }
                                 break;
-                            case 'segment':
+                            case 'usersegments':
                                 if($first_timerep == 0) {
                                     $results_head .= '<th>'.$lang->segments.'</th>';
                                 }
