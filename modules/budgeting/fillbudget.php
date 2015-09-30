@@ -30,7 +30,6 @@ if(!$core->input['action']) {
         $display = 'none';
         $session->set_phpsession(array('budgetdata_'.$sessionidentifier => serialize($core->input['budget'])));
         $budget_data = $core->input['budget'];
-
         $affiliate = new Affiliates($budget_data['affid']);
         $budget_data['affiliateName'] = $affiliate->get()['name'];
         $supplier = new Entities($budget_data['spid']);
@@ -325,10 +324,17 @@ if(!$core->input['action']) {
                         if(count($supplier_segments) > 1) {
                             $segments_selectlist = parse_selectlist('budgetline['.$rowid.'][psid]', 3, $supplier_segments, $budgetline['psid'], null, null, array('placeholder' => 'Overwrite Segment'));
                         }
+
                         if($core->usergroup['budgeting_canFillLocalIncome'] == 1) {
                             $hidden_colcells = array('localincome_row' => ' <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center"><input name="budgetline['.$rowid.'][localIncomeAmount]"  value="'.$budgetline['localIncomeAmount'].'"  type="text" id="localincome_'.$rowid.'" size="10" accept="numeric" /> </td>',
                                     'localincomeper_row' => '<td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center"><input name="budgetline['.$rowid.'][localIncomePercentage]"  value="'.$budgetline['localIncomePercentage'].'" type="text" id="localincomeper_'.$rowid.'" size="10" accept="numeric"  /> </td>',
                                     'remainingcommaff_header_row' => '<td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center"><input type="text" placeholder="'.$lang->search.' '.$lang->affiliate.'" id="affiliate_noexception_'.$rowid.'_commission_autocomplete" name=""  value="'.$budgetline['commissionSplitAffid_output'].'" autocomplete="off" /><input type="hidden" value="'.$budgetline['commissionSplitAffid'].'" id="affiliate_noexception_'.$rowid.'_commission_id" name="budgetline['.$rowid.'][commissionSplitAffid]"/></td>'
+                            );
+                        }
+                        else {
+                            $hidden_colcells = array('localincome_row' => ' <td style="display:none"><input name="budgetline['.$rowid.'][localIncomeAmount]"  value="'.$budgetline['localIncomeAmount'].'" id="localincome_'.$rowid.'" type="hidden" /> </td>',
+                                    'localincomeper_row' => '<td style="display:none" ><input name="budgetline['.$rowid.'][localIncomePercentage]"  value="'.$budgetline['localIncomePercentage'].'" type="hidden" id="localincomeper_'.$rowid.'"  /> </td>',
+                                    'remainingcommaff_header_row' => '<td style="display:none"><input type="hidden" value="'.$budgetline['commissionSplitAffid'].'" id="affiliate_noexception_'.$rowid.'_commission_id" name="budgetline['.$rowid.'][commissionSplitAffid]"/></td>'
                             );
                         }
 
@@ -374,6 +380,12 @@ if(!$core->input['action']) {
         <input type="hidden" value="'.$budgetline['commissionSplitAffid'].'" id="affiliate_noexception_'.$rowid.'_commission_id" name="budgetline['.$rowid.'][commissionSplitAffid]"/></td>'
                 );
             }
+            else {
+                $hidden_colcells = array('localincome_row' => ' <td style="display:none"><input name="budgetline['.$rowid.'][localIncomeAmount]"  value="'.$budgetline['localIncomeAmount'].'" id="localincome_'.$rowid.'" type="hidden" /> </td>',
+                        'localincomeper_row' => '<td style="display:none" ><input name="budgetline['.$rowid.'][localIncomePercentage]"  value="'.$budgetline['localIncomePercentage'].'" type="hidden" id="localincomeper_'.$rowid.'"  /> </td>',
+                        'remainingcommaff_header_row' => '<td style="display:none"><input type="hidden" value="'.$budgetline['commissionSplitAffid'].'" id="affiliate_noexception_'.$rowid.'_commission_id" name="budgetline['.$rowid.'][commissionSplitAffid]"/></td>'
+                );
+            }
             $budgetline['inputChecksum'] = generate_checksum('bl');
             $countries_selectlist = parse_selectlist('budgetline['.$rowid.'][customerCountry]', 0, $countries, $affiliate->country, '', '', '');
             eval("\$budgetlinesrows .= \"".$template->get('budgeting_fill_lines')."\";");
@@ -400,6 +412,12 @@ if(!$core->input['action']) {
             $hidden_colcells = array('localincome_head' => '<td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">'.$lang->localincome.'<a href="#" title="'.$lang->localincomeexp.'"><img src="./images/icons/question.gif" ></a></td>',
                     'localincomeper_head' => '<td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">'.$lang->localincomeper.'</td>',
                     'remainingcommaff_head' => '<td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">'.$lang->remainingcommaff.'<a href="#" title="The affiliate which will keep the remaining commission"><img src="./images/icons/question.gif" ></a></td>'
+            );
+        }
+        else {
+            $hidden_colcells = array('localincome_head' => '<td style="display:none"></td>',
+                    'localincomeper_head' => '<td style="display:none"></td>',
+                    'remainingcommaff_head' => '<td style="display:none"></td>'
             );
         }
 

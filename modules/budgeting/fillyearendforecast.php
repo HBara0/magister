@@ -215,6 +215,12 @@ if(!$core->input['action']) {
                     'remainingcommaff_head' => '<td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center"><div id="commissionaff_tour">'.$lang->remainingcommaff.'</div><a href="#" title="The affiliate which will keep the remaining commission"><img src="./images/icons/question.gif" ></a></td>'
             );
         }
+        else {
+            $hidden_colcells = array('localincome_head' => '<td style="display:none"></td>',
+                    'localincomeper_head' => '<td style="display:none"></td>',
+                    'remainingcommaff_head' => '<td style="display:none"></td>'
+            );
+        }
         $helptour = new HelpTour();
         $helptour->set_id('fillyearendforecast_helptour');
         $helptour->set_cookiename('fillyearendforecast_helptour');
@@ -528,6 +534,12 @@ function parse_yefline($data, $readonly = '', $source, $rownums, $supplier) {
                             }
                         }
                     }
+                }
+                else {
+                    $hidden_colcells = array('localincome_row' => ' <td style="display:none"><input name="budgetline['.$rowid.'][localIncomeAmount]"  value="'.$budgetline['localIncomeAmount'].'" id="localincome_'.$rowid.'" type="hidden" /> </td>',
+                            'localincomeper_row' => '<td style="display:none" ><input name="budgetline['.$rowid.'][localIncomePercentage]"  value="'.$budgetline['localIncomePercentage'].'" type="hidden" id="localincomeper_'.$rowid.'"  /> </td>',
+                            'remainingcommaff_header_row' => '<td style="display:none"><input type="hidden" value="'.$budgetline['commissionSplitAffid'].'" id="affiliate_noexception_'.$rowid.'_commission_id" name="budgetline['.$rowid.'][commissionSplitAffid]"/></td>'
+                    );
                 }
                 if(empty($budgetline['customerCountry'])) {
                     $budgetline['customerCountry'] = $aff->country;
