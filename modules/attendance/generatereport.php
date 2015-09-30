@@ -461,7 +461,7 @@ else {
                         $attendance_report_user_day = '';
                     }
                     elseif($nextdate_details['week'] == $curdate['week'] && $nextdate_details['mon'] == $curdate['mon']) {
-                        if($currentdate >= $to) {/* FIX HERE  */
+                        if(($currentdate + 86400) >= $to || ($currentdate + 86400) > TIME_NOW) {/* FIX HERE  */
                             $total_outputs['week']['actualhours'] = operation_time_value(array_sum_recursive($total['actualhours'][$curdate['year']][$curdate['mon']][$curdate['week']]));
                             $total_outputs['week']['requiredhours'] = operation_time_value(array_sum_recursive($total['requiredhours'][$curdate['year']][$curdate['mon']][$curdate['week']]));
 
@@ -566,14 +566,29 @@ else {
                                     /* If person has not recorded entry use workshift default - START */
                                     if((empty($attendance['timeIn']) || !isset($attendance['timeIn']) ) && (empty($attendance['timeOut']) || !isset($attendance['timeOut']))) {
                                         $day_content_value .= '0%';
+                                        $extra_style = 'background-color:#F9D0D0';
                                         $month_header[$curdate['mon']][date('d', $currentdate)] = date('d', $currentdate);
                                         $total['absent'][$curdate['year']][$curdate['mon']] ++;
                                         $total['requiredhours'][$curdate['year']][$curdate['mon']][$curdate['week']][$curdate['mday']] = (($current_worshift['offDutyHour'] * 3600) + ($current_worshift['offDutyMinutes'] * 60)) - (($current_worshift['onDutyHour'] * 3600) + ($current_worshift['onDutyMinutes'] * 60));
                                     }
                                     elseif(empty($attendance['timeIn']) || !isset($attendance['timeIn']) || empty($attendance['timeOut']) || !isset($attendance['timeOut'])) {
                                         $day_content_value .= '?';
+                                        $extra_style = 'background-color:#fcefa1';
                                         $month_header[$curdate['mon']][date('d', $currentdate)] = date('d', $currentdate);
                                         $attending_days++;
+                                        if(empty($attendance['timeIn']) || !isset($attendance['timeIn'])) {
+                                            $attendance['timeIn'] = mktime($current_worshift['onDutyHour'], $current_worshift['onDutyMinutes'], 0, $curdate['mon'], $curdate['mday'], $curdate['year']);
+                                        }
+
+                                        if(empty($attendance['timeOut']) || !isset($attendance['timeOut'])) {
+                                            $attendance['timeOut'] = mktime($current_worshift['offDutyHour'], $current_worshift['offDutyMinutes'], 0, $curdate['mon'], $curdate['mday'], $curdate['year']);
+                                        }
+                                        $attendance['arrival'] = $attendance['timeIn'] - (mktime($current_worshift['onDutyHour'], $current_worshift['onDutyMinutes'], 0, $curdate['mon'], $curdate['mday'], $curdate['year']));
+                                        $attendance['departure'] = $attendance['timeOut'] - (mktime($current_worshift['offDutyHour'], $current_worshift['offDutyMinutes'], 0, $curdate['mon'], $curdate['mday'], $curdate['year']));
+                                        $attendance['hoursday'] = ($attendance['timeOut']) - ( $attendance['timeIn']);
+                                        $attendance['deviation'] = $attendance['departure'] - $attendance['arrival'];
+                                        $total['actualhours'][$curdate['year']][$curdate['mon']][$curdate['week']][$curdate['mday']] = $attendance['hoursday'];
+                                        $total['deviation'][$curdate['year']][$curdate['mon']][$curdate['week']][$curdate['mday']] = $attendance['deviation'];
                                         $total['requiredhours'][$curdate['year']][$curdate['mon']][$curdate['week']][$curdate['mday']] = (($current_worshift['offDutyHour'] * 3600) + ($current_worshift['offDutyMinutes'] * 60)) - (($current_worshift['onDutyHour'] * 3600) + ($current_worshift['onDutyMinutes'] * 60));
                                     }
                                     else {
@@ -594,9 +609,11 @@ else {
                                         }
                                         if(number_format($workperc, 0) >= 100) {
                                             $day_content_value .= number_format($workperc, 0).'</br>'.$extra;
+                                            $extra_style = 'background-color:#D6EAAC';
                                         }
                                         else {
                                             $day_content_value .= number_format($workperc, 0);
+                                            $extra_style = 'background-color:#fcefa1';
                                         }
                                         $month_header[$curdate['mon']][$attendance['date_output']] = $attendance['date_output'];
                                         $attending_days++;
@@ -646,6 +663,7 @@ else {
                         $rowclass = '';
                         if(in_array($curdate['wdayiso'], $workshift['weekDays'])) {
                             $day_content_value .= '0%';
+                            $extra_style = 'background-color:#F9D0D0';
                             $month_header[$curdate['mon']][date('d', $currentdate)] = date('d', $currentdate);
                             $total['absent'][$curdate['year']][$curdate['mon']] ++;
                             $total['requiredhours'][$curdate['year']][$curdate['mon']][$curdate['week']][$curdate['mday']] = (($current_worshift['offDutyHour'] * 3600) + ($current_worshift['offDutyMinutes'] * 60)) - (($current_worshift['onDutyHour'] * 3600) + ($current_worshift['onDutyMinutes'] * 60));
@@ -681,8 +699,8 @@ else {
                         $firstloop[$curdate['mon']] = 0;
                     }
 
-                    $day_content .= '<td style="width:2%;text-align:center;border-bottom: 1px solid #000;border-left: 1px solid #000;border-right: 1px solid #000;">'.$day_content_value.'</td>';
-                    $day_content_value = '';
+                    $day_content .= '<td style="width:2%;text-align:center;border-bottom: 1px solid #000;border-left: 1px solid #000;border-right: 1px solid #000;'.$extra_style.'">'.$day_content_value.'</td>';
+                    $day_content_value = $extra_style = '';
                     if($nextdate_details['mon'] != $curdate['mon'] || ($currentdate + 86400) >= $to || ($currentdate + 86400) > TIME_NOW) {
                         $month_output = date('F', mktime(0, 0, 0, $curdate['mon'], 10));
                         $total_outputs['month']['actualhours'] = operation_time_value(array_sum_recursive($total['actualhours'][$curdate['year']][$curdate['mon']]));
