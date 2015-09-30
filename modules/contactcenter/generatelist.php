@@ -14,7 +14,7 @@ if(!defined('DIRECT_ACCESS')) {
 if(!$core->input['action']) {
     $filters_userrow_display = 'show';
     $filters_user_config = array(
-            'parse' => array('filters' => array('name', 'position', 'userpermentities', 'usersegments', 'allenabledaffiliates', 'allaffiliates', 'reportsTo'),
+            'parse' => array('filters' => array('name', 'position', 'entities', 'segment', 'allenabledaffiliates', 'allaffiliates', 'reportsTo'),
                     'overwriteField' => array()
             ),
             'process' => array(
@@ -38,10 +38,10 @@ if(!$core->input['action']) {
                                     'tablename' => 'affiliatedemployees',
                             ),
                             'employeessegments' => array(
-                                    'filters' => array('usersegments' => array('operatorType' => 'multiple', 'name' => 'psid')),
+                                    'filters' => array('segment' => array('operatorType' => 'multiple', 'name' => 'psid')),
                             ),
                             'assignedemployees' => array(
-                                    'filters' => array('userpermentities' => array('operatorType' => 'equal', 'name' => 'eid')),
+                                    'filters' => array('entities' => array('operatorType' => 'equal', 'name' => 'eid')),
                             ),
                     )
             )
@@ -87,21 +87,12 @@ if(!$core->input['action']) {
 else {
     if($core->input['action'] == 'user') {
         $sort_query['sort'] = 'ASC';
-        $permissions = $core->user_obj->get_businesspermissions();
         $sort_query['by'] = 'displayName';
 //user filters-start
         $filters_userrow_display = 'show';
-        if(is_array($permissions['psid'])) {
-            $extrawhere['psid'] = 'psid IN ('.implode(',', array_filter($permissions['psid'])).')';
-        }
-        if(is_array($permissions['eid'])) {
-            $extrawhere['eid'] = 'eid IN ('.implode(',', array_filter($permissions['eid'])).')';
-        }
-        if(is_array($permissions['affid'])) {
-            $extrawhere['affid'] = 'eid IN ('.implode(',', array_filter($permissions['affid'])).')';
-        }
+
         $filters_user_config = array(
-                'parse' => array('filters' => array('name', 'position', 'userpermentities', 'usersegments', 'allenabledaffiliates', 'allaffiliates', 'reportsTo'),
+                'parse' => array('filters' => array('name', 'position', 'entities', 'segment', 'allenabledaffiliates', 'allaffiliates', 'reportsTo'),
                         'overwriteField' => array()
                 ),
                 'process' => array(
@@ -118,19 +109,16 @@ else {
                                 ),
                                 'affiliatedemployees' => array(
                                         'filters' => array('allenabledaffiliates' => array('operatorType' => 'multiple', 'name' => 'affid')),
-                                        'extraWhere' => $extrawhere['affid']
                                 ),
                                 'affiliatedemployees2' => array(
                                         'filters' => array('allaffiliates' => array('operatorType' => 'multiple', 'name' => 'affid')),
                                         'tablename' => 'affiliatedemployees',
                                 ),
                                 'employeessegments' => array(
-                                        'filters' => array('usersegments' => array('operatorType' => 'multiple', 'name' => 'psid')),
-                                        'extraWhere' => $extrawhere['psid']
+                                        'filters' => array('segment' => array('operatorType' => 'multiple', 'name' => 'psid')),
                                 ),
                                 'assignedemployees' => array(
-                                        'filters' => array('userpermentities' => array('operatorType' => 'equal', 'name' => 'eid')),
-                                        'extraWhere' => $extrawhere['eid']
+                                        'filters' => array('entities' => array('operatorType' => 'equal', 'name' => 'eid')),
                                 ),
                         )
                 )
@@ -178,7 +166,7 @@ else {
                                 }
 
                                 break;
-                            case 'userpermentities':
+                            case 'entities':
                                 if($first_timeuser == 0) {
                                     $results_head .= '<th>'.$lang->assignedbusinesspartner.'</th>';
                                 }
@@ -194,7 +182,7 @@ else {
                                 }
                                 $entities = '';
                                 break;
-                            case 'usersegments':
+                            case 'segment':
                                 if($first_timeuser == 0) {
                                     $results_head .= '<th>'.$lang->segments.'</th>';
                                 }
@@ -261,6 +249,13 @@ else {
         }
     }
     if($core->input['action'] == 'rep') {
+        $permissions = $core->user_obj->get_businesspermissions();
+        if(is_array($permissions['psid'])) {
+            $extrawhere['psid'] = 'psid IN ('.implode(',', array_filter($permissions['psid'])).')';
+        }
+        if(is_array($permissions['eid'])) {
+            $extrawhere['eid'] = 'eid IN ('.implode(',', array_filter($permissions['eid'])).')';
+        }
         $filters_rep_config = array(
                 'parse' => array('filters' => array('name', 'userpermentities', 'companytype', 'suppliertype', 'usersegments', 'assignedaff', 'requiresQr', 'hasContract', 'coid'),
                         'overwriteField' => array(
@@ -281,9 +276,11 @@ else {
                         'secTables' => array(
                                 'entitiesrepresentatives' => array(
                                         'filters' => array('userpermentities' => array('operatorType' => 'multiple', 'name' => 'eid')),
+                                        'extraWhere' => $extrawhere['eid']
                                 ),
                                 'representativessegments' => array(
                                         'filters' => array('usersegments' => array('operatorType' => 'multiple', 'name' => 'psid')),
+                                        'extraWhere' => $extrawhere['psid']
                                 ),
                         )
                 )
@@ -438,6 +435,9 @@ else {
         }
         if(isset($extrafilters)) {
             $ents = Entities::get_data($extrafilters[Entities], array('returnarray' => true, 'operators' => array('contractExpiryDate' => $extrafilters['operators']['contractExpiryDate'])));
+            if(is_array($permissions['eid'])) {
+                $ents = array_intersect_key($ents, array_combine($permissions['eid'], $permissions['eid']));
+            }
             if(isset($extrafilters[AffiliatedEntities]) && !empty($extrafilters[AffiliatedEntities])) {
                 $extrafilters[AffiliatedEntities]['eid'] = array_keys($ents);
                 $affiliatedents = AffiliatedEntities::get_data($extrafilters[AffiliatedEntities], array('returnarray' => true));
