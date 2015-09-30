@@ -36,14 +36,15 @@ if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject) || $ignore_su
         $request_key = $db->escape_string($subject[1]);
     }
     $leave = $db->fetch_assoc($db->query("SELECT l.*, u.firstName, u.lastName, email FROM ".Tprefix."leaves l LEFT JOIN ".Tprefix."users u ON (u.uid=l.uid) WHERE l.requestKey='{$request_key}'"));
+    $employee = new Users($leave['uid']);
+    $leave_obj = new Leaves(array('lid' => $leave['lid']), false);
+
     $query = $db->query("SELECT DISTINCT(u.uid), Concat(firstName, ' ', lastName) AS employeename FROM ".Tprefix."users u LEFT JOIN ".Tprefix."usersemails ue ON (ue.uid=u.uid) WHERE u.email='".$db->escape_string($data['from'])."' OR ue.email='".$db->escape_string($data['from'])."'");
     if($db->num_rows($query) > 0) {
         $user = $db->fetch_assoc($query);
         //$user = $db->fetch_assoc($query);
         $db->update_query('leavesapproval', array('isApproved' => 1, 'timeApproved' => TIME_NOW), "lid='{$leave[lid]}' AND uid='{$user[uid]}' AND isApproved='0'");
         if($db->affected_rows() > 0) {
-            $employee = new Users($leave['uid']);
-
             $query3 = $db->query("SELECT l.uid, u.email
 				FROM ".Tprefix."leavesapproval l LEFT JOIN ".Tprefix."users u ON (u.uid=l.uid)
 				WHERE l.isApproved='0' AND l.lid='{$leave[lid]}' AND sequence>(SELECT sequence FROM ".Tprefix."leavesapproval WHERE lid='{$leave[lid]}' AND uid='{$user[uid]}' AND isApproved=1)
