@@ -808,7 +808,7 @@ class Leaves extends AbstractClass {
                     $message = $this->autoRespBody;
                 }
                 else {
-                    $message = $lang->sprint($lang->autorespondermessage, date($core->settings['dateformat'].' '.$core->settings['timeformat'], $this->fromDate), date($core->settings['dateformat'].' '.$core->settings['timeformat'], $this->fromDate));
+                    $message = $lang->sprint($lang->autorespondermessage, date($core->settings['dateformat'].' '.$core->settings['timeformat'], $this->fromDate), date($core->settings['dateformat'].' '.$core->settings['timeformat'], $this->toDate));
                     if($this->data['limitedEmail']) {
                         $message .= "\n".$lang->autorespondermessagelimitedemail;
                     }
