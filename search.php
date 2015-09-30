@@ -114,7 +114,6 @@ if($core->input['type'] == 'quick') {
             }
             else {
                 $type = 'c';
-                $core->usergroup['canViewAllCust'] = 1;
                 if($core->usergroup['canViewAllCust'] == 0) {
                     $core->user['customers'] = array_map(intval, $core->user['customers']);
                     if(is_array($core->user['customers'])) {
@@ -425,7 +424,7 @@ if($core->input['type'] == 'quick') {
             $order = array('by' => 'companyName', 'sort' => 'ASC');
             $descinfo = 'country';
             if(is_array($permissions['eid'])) {
-                $permisisonents = ' AND eid IN ('.implode(',', array_filter($permissions['eid'])).')';
+                $permisisonents = ' AND eid IN ('.implode(',', array_filter($permissions['eid'], 'is_numeric')).')';
             }
             $extra_where .= ' isActive=1 AND approved=1'.$permisisonents;
         }
