@@ -176,4 +176,5 @@ $lang['cautioneditingtmleave'] = 'Warning! This leave has a Travel Manager plan 
 $lang['deletetmplan'] = 'Delete Travel Manager Plan';
 $lang['areyousuretodeletetmaplan'] = 'Are You Sure You Want To Delete The Travel Manager Plan ?';
 $lang['thesetmfieldsaremodified'] = 'These Fields Are Modified And Will Result In Deleting The Travel Manager Plan';
+$lang['affiliates'] = 'Affiliates';
 ?>

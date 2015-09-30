@@ -35,9 +35,20 @@ if(!$core->input['action']) {
         $filter_where = 'uid IN ('.implode(',', $users).')';
     }
 
-    $users = get_specificdata('users', array('uid', 'displayname'), 'uid', 'displayname', array('by' => 'displayname', 'sort' => 'ASC'), 0, $filter_where);
-    $users_list = parse_selectlist('uid[]', 0, $users, $core->user['uid'], 1);
-
+    $users = Users::get_data($filter_where, array('order' => array('by' => 'displayname', 'sort' => 'ASC'), 'returnarray' => true));
+    if(is_array($users)) {
+        foreach($users as $user) {
+            $aff_output = $aff_output_name = '';
+            $affiliate = $user->get_mainaffiliate();
+            if(is_object($affiliate) && !empty($affiliate->affid)) {
+                $aff_output_name = $affiliate->get_displayname();
+            }
+            $aff_output = '<td width:="40%">'.$aff_output_name.'</td>';
+            $users_list .= ' <tr class="'.$rowclass.'">';
+            $users_list .= '<td width="50%"><input style="width:5%;" id="usersfilter_check_'.$user->uid.'" type="checkbox" value="'.$user->uid.'" name="uid[]"><div style="width:90%;display:inline-block;margin-left:5px;">'.$user->get_displayname().'</div></td>'
+                    .$aff_output.'</tr>';
+        }
+    }
     eval("\$generatepage = \"".$template->get('attendance_generatereport')."\";");
     output_page($generatepage);
 }
