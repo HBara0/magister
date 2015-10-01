@@ -959,6 +959,7 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                         }
                         break;
                     case 'basicfacilities':
+                        unset($category);
                         $facility = new FacilityMgmtFacilities($key);
                         $motherfacility = $facility->get_mother();
                         $details = '';
@@ -968,12 +969,23 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                         if(!empty($facility->capacity)) {
                             $details .=' -'.$lang->capacity.': '.$facility->capacity;
                         }
-                        if(is_object($facility) && !empty($facility->fmfid)) {
-                            if($isreserved == true) {
-
+                        $category = $lang->capsnotnearby;
+                        if(isset($options['extrainput']) && !is_empty($options['extrainput'])) {
+                            $query = $db->query("SELECT affid, name, phone1, X(geoLocation) AS longitude, Y(geoLocation) AS latitude FROM ".Tprefix."affiliates WHERE asText(geoLocation) IS NOT NULL AND affid= ".intval($facility->affid));
+                            while($affiliate = $db->fetch_assoc($query)) {
+                                $affiliatelong = $affiliate['longitude'];
+                                $affiliatelat = $affiliate['latitude'];
                             }
+                            $nearby = is_nearby('10', $options['extrainput']['userlong'], $options['extrainput']['userlat'], $affiliatelat, $affiliatelong, 'K');
+                            if($nearby) {
+                                $category = $lang->capsnearby;
+                            }
+                        }
+                        if(is_object($facility) && !empty($facility->fmfid)) {
                             if($options['returnType'] == 'json') {
-                                $results_list['"'.$key.'"']['desc'] = $details;
+                                $results_list[$category]['"'.$key.'"'] = $results_list['"'.$key.'"'];
+                                $results_list[$category]['"'.$key.'"']['desc'] = $details;
+                                unset($results_list['"'.$key.'"']);
                             }
                             else {
                                 $details = '<br/><span class="smalltext">'.$details.'</span>';
@@ -987,35 +999,48 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                         }
                         break;
                     case 'reservationfacilities':
+                        unset($category, $isreserved, $details);
                         $facility = new FacilityMgmtFacilities($key);
                         $motherfacility = $facility->get_mother();
-                        $details = $isreserved = $isreserved = '';
                         if(is_object($motherfacility) && !empty($motherfacility->fmfid) && $motherfacility->fmfid != $facility->fmfid) {
                             $details = $motherfacility->get_displayname();
                         }
 
                         if(is_object($facility) && !empty($facility->fmfid)) {
+                            $category = $lang->capsnotnearby;
                             if(isset($options['extrainput']) && !is_empty($options['extrainput'])) {
                                 $from = $options['extrainput']['from'];
                                 $to = $options['extrainput']['to'];
                                 $isreserved = $facility->is_reserved(strtotime($from), strtotime($to));
-                            }
-
-                            if(is_object($isreserved)) {
-                                $style = 'style="pointer-events:none;background-color:red;"';
-                                $reservedby = $isreserved->get_reservedBy()->get_displayname();
-                                $details.=' '.$lang->reservedby.' : '.$reservedby;
-                            }
-                            else {
-                                if(!empty($facility->capacity)) {
-                                    $details .=' -'.$lang->capacity.': '.$facility->capacity;
+                                if(is_object($isreserved)) {
+                                    $category = $lang->capsreserved;
+                                    $style = 'style="pointer-events:none;background-color:#F9D0D0;"';
+                                    $reservedby = $isreserved->get_reservedBy()->get_displayname();
+                                    $details.=' '.$lang->reservedby.' : '.$reservedby;
+                                }
+                                else {
+                                    if(!empty($facility->capacity)) {
+                                        $details .=' -'.$lang->capacity.': '.$facility->capacity;
+                                    }
+                                    $query = $db->query("SELECT affid, name, phone1, X(geoLocation) AS longitude, Y(geoLocation) AS latitude FROM ".Tprefix."affiliates WHERE asText(geoLocation) IS NOT NULL AND affid= ".intval($facility->affid));
+                                    while($affiliate = $db->fetch_assoc($query)) {
+                                        $affiliatelong = $affiliate['longitude'];
+                                        $affiliatelat = $affiliate['latitude'];
+                                    }
+                                    $nearby = is_nearby('10', $options['extrainput']['userlong'], $options['extrainput']['userlat'], $affiliatelat, $affiliatelong, 'K');
+                                    if($nearby) {
+                                        $category = $lang->capsnearby;
+                                    }
                                 }
                             }
+
                             if($options['returnType'] == 'json') {
+                                $results_list['"'.$key.'"']['desc'] = $details;
                                 if(is_object($isreserved)) {
                                     $results_list['"'.$key.'"']['style'] = $style;
                                 }
-                                $results_list['"'.$key.'"']['desc'] = $details;
+                                $results_list[$category]['"'.$key.'"'] = $results_list['"'.$key.'"'];
+                                unset($results_list['"'.$key.'"']);
                             }
                             else {
                                 $details = '<br/><span class="smalltext">'.$details.'</span>';
@@ -1046,7 +1071,24 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
             $results_list[0]['value'] = $lang->nomatchfound;
         }
     }
-
+    else {
+        if($options['returnType'] == 'json' && ($options['descinfo'] == 'basicfacilities' || $options['descinfo'] == 'reservationfacilities')) {
+            ksort($results_list);
+            foreach($results_list as $category => $results) {
+                if($category == $lang->capsreserved) {
+                    $new_resultlist ['"'.$category.'"']['style'] = 'style="text-align:center;pointer-events:none;background-color:#ff7e7e;"';
+                }
+                else {
+                    $new_resultlist ['"'.$category.'"']['style'] = 'style="text-align:center;pointer-events:none;background-color:#EDEDED;"';
+                }
+                $new_resultlist ['"'.$category.'"']['id'] = $category;
+                $new_resultlist ['"'.$category.'"']['desc'] = "";
+                $new_resultlist ['"'.$category.'"']['value'] = $category;
+                $new_resultlist = array_merge_recursive($new_resultlist, $results);
+            }
+            $results_list = $new_resultlist;
+        }
+    }
     if($options['returnType'] != 'json') {
         $results_list = '<ul id="searchResultsList">'.$results_list.'</ul>';
     }
@@ -2112,6 +2154,38 @@ function generate_alias($string) {
     $string = preg_replace('/[\@\!\&\(\)$%\^\*\+\#\/\\,.;:=]+/i', '', $string);
     $string = strtolower($string);
     return $string;
+}
+
+function is_nearby($maxdistance, $lat1, $lon1, $lat2, $lon2, $unit) {
+    $distance = calculateDistance($lat1, $lon1, $lat2, $lon2, $unit);
+    if($distance > $maxdistance) {
+        return false;
+    }
+    return true;
+}
+
+function calculateDistance($lat1, $lon1, $lat2, $lon2, $unit) {
+
+    $theta = $lon1 - $lon2;
+
+    $dist = sin(deg2rad($lat1)) * sin(deg2rad($lat2)) + cos(deg2rad($lat1)) * cos(deg2rad($lat2)) * cos(deg2rad($theta));
+
+    $dist = acos($dist);
+
+    $dist = rad2deg($dist);
+
+    $miles = $dist * 60 * 1.1515;
+    $unit = strtoupper($unit);
+
+    if($unit == "K") {
+        return ($miles * 1.609344);
+    }
+    else if($unit == "N") {
+        return ($miles * 0.8684);
+    }
+    else {
+        return $miles;
+    }
 }
 
 ?>
