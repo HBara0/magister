@@ -340,6 +340,9 @@ else {
                     }
                 }
             }
+            if($leave_obj->createAutoResp == 1 && empty($core->input['createAutoResp'])) {
+                $leave_obj->delete_autoresponder();
+            }
         }
         //check if leave has a TM plan end
         $query = $db->update_query('leaves', $core->input, "lid='{$lid}'");

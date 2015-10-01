@@ -245,7 +245,9 @@ else {
                 $to_notify[] = $approver['email'];
             }
         }
-
+        if($leave_obj->createAutoResp == 1) {
+            $leave_obj->delete_autoresponder();
+        }
         $query = $db->delete_query('leaves', 'lid='.$lid);
         if($query && $db->affected_rows() > 0) {
             //Reset Leave Balance - Start
