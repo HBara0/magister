@@ -185,7 +185,9 @@
                 });
                 $(document).on('click', 'input[id^="noAccomodation_"]', function () {
                     var id = $(this).attr("id").split("_");
-                    $('#segment_hotels_' + id[1] + ', #other_hotels_' + id[1]).toggle(!$(this).is(':checked')).find('input').val("");
+                    if(!$($('#segment_hotels_' + id[1] + ', #other_hotels_' + id[1])).is(':checked'))) {
+                        $('#segment_hotels_' + id[1] + ', #other_hotels_' + id[1]).find('input').val("")
+                    }
                 });
                 if($('input[id^="specifyaffent_"]').is(':checked')) {
                     var id = $('input[id^="specifyaffent_"]').attr("id").split("_");
