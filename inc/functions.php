@@ -959,7 +959,7 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                         }
                         break;
                     case 'basicfacilities':
-                        unset($category);
+                        unset($category, $details, $desc_distance);
                         $facility = new FacilityMgmtFacilities($key);
                         $motherfacility = $facility->get_mother();
                         $details = '';
@@ -969,22 +969,29 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                         if(!empty($facility->capacity)) {
                             $details .=' -'.$lang->capacity.': '.$facility->capacity;
                         }
-                        $category = $lang->capsnotnearby;
+                        $category = $lang->otheravailable;
                         if(isset($options['extrainput']) && !is_empty($options['extrainput'])) {
                             $query = $db->query("SELECT affid, name, phone1, X(geoLocation) AS longitude, Y(geoLocation) AS latitude FROM ".Tprefix."affiliates WHERE asText(geoLocation) IS NOT NULL AND affid= ".intval($facility->affid));
                             while($affiliate = $db->fetch_assoc($query)) {
                                 $affiliatelong = $affiliate['longitude'];
                                 $affiliatelat = $affiliate['latitude'];
                             }
-                            $nearby = is_nearby('10', $options['extrainput']['userlong'], $options['extrainput']['userlat'], $affiliatelat, $affiliatelong, 'K');
-                            if($nearby) {
-                                $category = $lang->capsnearby;
+                            $distance = calculateDistance($options['extrainput']['userlong'], $options['extrainput']['userlat'], $affiliatelat, $affiliatelong, 'K');
+                            if(!empty($distance)) {
+                                $desc_distance = ' -'.$distance.' KM';
+                                if($distance > 10) {
+                                    $category = $lang->capsnearby;
+                                }
                             }
                         }
                         if(is_object($facility) && !empty($facility->fmfid)) {
                             if($options['returnType'] == 'json') {
+                                if(!empty($desc_distance)) {
+                                    $results_list['"'.$key.'"']['value'] = $results_list['"'.$key.'"']['value'].$desc_distance;
+                                }
                                 $results_list[$category]['"'.$key.'"'] = $results_list['"'.$key.'"'];
                                 $results_list[$category]['"'.$key.'"']['desc'] = $details;
+
                                 unset($results_list['"'.$key.'"']);
                             }
                             else {
@@ -999,7 +1006,7 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                         }
                         break;
                     case 'reservationfacilities':
-                        unset($category, $isreserved, $details);
+                        unset($category, $isreserved, $details, $distance, $desc_distance, $affiliategeoloc);
                         $facility = new FacilityMgmtFacilities($key);
                         $motherfacility = $facility->get_mother();
                         if(is_object($motherfacility) && !empty($motherfacility->fmfid) && $motherfacility->fmfid != $facility->fmfid) {
@@ -1007,7 +1014,7 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                         }
 
                         if(is_object($facility) && !empty($facility->fmfid)) {
-                            $category = $lang->capsnotnearby;
+                            $category = $lang->otheravailable;
                             if(isset($options['extrainput']) && !is_empty($options['extrainput'])) {
                                 $from = $options['extrainput']['from'];
                                 $to = $options['extrainput']['to'];
@@ -1024,12 +1031,15 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                                     }
                                     $query = $db->query("SELECT affid, name, phone1, X(geoLocation) AS longitude, Y(geoLocation) AS latitude FROM ".Tprefix."affiliates WHERE asText(geoLocation) IS NOT NULL AND affid= ".intval($facility->affid));
                                     while($affiliate = $db->fetch_assoc($query)) {
-                                        $affiliatelong = $affiliate['longitude'];
-                                        $affiliatelat = $affiliate['latitude'];
+                                        $affiliategeoloc['lon'] = $affiliate['longitude'];
+                                        $affiliategeoloc['lat'] = $affiliate['latitude'];
                                     }
-                                    $nearby = is_nearby('10', $options['extrainput']['userlong'], $options['extrainput']['userlat'], $affiliatelat, $affiliatelong, 'K');
-                                    if($nearby) {
-                                        $category = $lang->capsnearby;
+                                    $distance = calculateDistance($options['extrainput']['userlong'], $options['extrainput']['userlat'], $affiliategeoloc['lat'], $affiliategeoloc['lon'], 'K');
+                                    if(!empty($distance)) {
+                                        $desc_distance = ' ('.number_format($distance, 2).' KM)';
+                                        if($distance <= 10) {
+                                            $category = $lang->capsnearby;
+                                        }
                                     }
                                 }
                             }
@@ -1039,6 +1049,13 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                                 if(is_object($isreserved)) {
                                     $results_list['"'.$key.'"']['style'] = $style;
                                 }
+                                elseif($category == $lang->capsnearby) {
+                                    $results_list['"'.$key.'"']['style'] = 'style="pointer-events:none;background-color:#A5FFA5;"';
+                                }
+                                if(!empty($desc_distance)) {
+                                    $results_list['"'.$key.'"']['value'] = $results_list['"'.$key.'"']['value'].$desc_distance;
+                                }
+                                $results_list[$category]['"'.$key.'"']['distance'] = $desc_distance;
                                 $results_list[$category]['"'.$key.'"'] = $results_list['"'.$key.'"'];
                                 unset($results_list['"'.$key.'"']);
                             }
@@ -1075,12 +1092,14 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
         if($options['returnType'] == 'json' && ($options['descinfo'] == 'basicfacilities' || $options['descinfo'] == 'reservationfacilities')) {
             ksort($results_list);
             foreach($results_list as $category => $results) {
+                $new_resultlist ['"'.$category.'"']['style'] = 'style="text-align:center;pointer-events:none;background-color:#eaf2ea;"';
                 if($category == $lang->capsreserved) {
                     $new_resultlist ['"'.$category.'"']['style'] = 'style="text-align:center;pointer-events:none;background-color:#ff7e7e;"';
                 }
-                else {
-                    $new_resultlist ['"'.$category.'"']['style'] = 'style="text-align:center;pointer-events:none;background-color:#EDEDED;"';
+                elseif($category == $lang->capsnearby) {
+                    $new_resultlist ['"'.$category.'"']['style'] = 'style="text-align:center;pointer-events:none;background-color:#4CFF4C;"';
                 }
+
                 $new_resultlist ['"'.$category.'"']['id'] = $category;
                 $new_resultlist ['"'.$category.'"']['desc'] = "";
                 $new_resultlist ['"'.$category.'"']['value'] = $category;

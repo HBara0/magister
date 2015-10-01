@@ -406,8 +406,11 @@ if($core->input['type'] == 'quick') {
             $extrainput = array('userlong' => $core->input['loacationLong'], 'userlat' => $core->input['loacationLat']);
         }
         elseif($core->input['for'] == 'reservationfacilities') {
-            $extra_where = '';
-            $extra_where = ' isActive = 1';
+            $extra_where = ' isActive = 1 AND allowReservation = 1';
+            $factypes = FacilityMgmtFactypes::get_column('fmftid', array('isActive' => 1, 'isMainLocation' => 0), array('returnarray' => true));
+            if(is_array($factypes) && !empty($factypes)) {
+                $extra_where.=' AND type IN ('.implode(',', $factypes).')';
+            }
             $table = 'facilitymgmt_facilities';
             $attributes = array('name');
             $key_attribute = 'fmfid';

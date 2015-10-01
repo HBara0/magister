@@ -157,7 +157,7 @@ $lang['successfullydeleted'] = 'Successfully Deleted';
 $lang['aro'] = 'Aro';
 $lang['capacity'] = "Capacity";
 $lang['reservedby'] = "Reserved By";
-$lang['capsnotnearby'] = 'NOT NEARBY';
+$lang['otheravailable'] = 'Other Available Facilities';
 $lang['capsnearby'] = 'NEARBY';
 $lang['capsreserved'] = 'RESERVED';
 ?>
