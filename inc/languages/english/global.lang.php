@@ -160,4 +160,5 @@ $lang['reservedby'] = "Reserved By";
 $lang['otheravailable'] = 'Other Available Facilities';
 $lang['capsnearby'] = 'NEARBY';
 $lang['capsreserved'] = 'RESERVED';
+$lang['forthismeeting'] = 'For This Meeting';
 ?>

@@ -44,6 +44,10 @@ class Meetings {
     public function create($meeting_data = array()) {
         global $db, $core, $log;
         if(is_array($meeting_data)) {
+            if(!is_empty($meeting_data['facilityid'])) {
+                $fmfid = $meeting_data['facilityid'];
+            }
+            unset($meeting_data['facilityid']);
             $this->meeting = $meeting_data;
             if(empty($this->meeting['title'])) {
                 $this->errorcode = 1;
@@ -102,6 +106,12 @@ class Meetings {
             $insertquery = $db->insert_query('meetings', $meeting_data);
             if($insertquery) {
                 $this->meeting['mtid'] = $db->last_id();
+                if(!is_empty($fmfid)) {
+                    $facilityreservation = array('fmfid' => $fmfid, 'mtid' => $this->meeting['mtid'], 'fromDate' => $meeting_data['fromDate'], 'toDate' => $meeting_data['toDate'], 'purpose' => $meeting_data['description'], 'reservedBy' => $meeting_data['createdBy']);
+                    $facilityreservation_obj = new FacilityMgmtReservations();
+                    $facilityreservation_obj->set($facilityreservation);
+                    $facilityreservation_obj->save();
+                }
                 $this->meeting['identifier'] = $meeting_data['identifier'];
                 $log->record('addedmeeting', $this->meeting['mtid']);
                 //$this->get_meetingassociations($this->meeting['mtid'])->set_associations($this->meeting['associations']);
@@ -172,7 +182,16 @@ class Meetings {
                     $ical_obj = new iCalendar(array('identifier' => $this->meeting['identifier'], 'uidtimestamp' => $this->meeting['createdOn'], 'component' => 'event', 'method' => 'REQUEST'));  /* pass identifer to outlook to avoid creation of multiple file with the same date */
                     $ical_obj->set_datestart($this->meeting['fromDate']);
                     $ical_obj->set_datend($this->meeting['toDate']);
-                    $ical_obj->set_location($this->meeting['location']);
+                    $reservation_obj = FacilityMgmtReservations::get_data(array('mtid' => $this->meeting['toDate']), array('returnarray' => false));
+                    if(is_object($reservation_obj) && !is_empty($reservation_obj->fmrid)) {
+                        $facility = new FacilityMgmtFacilities($reservation_obj->fmfid);
+                        if(is_object($facility) && !is_empty($facility->fmfid)) {
+                            $ical_obj->set_location($facility->getfulladdress());
+                        }
+                    }
+                    else {
+                        $ical_obj->set_location($this->meeting['location']);
+                    }
                     $ical_obj->set_summary($this->meeting['title']);
                     $ical_obj->set_categories('Appointment');
                     $ical_obj->set_organizer();
@@ -271,6 +290,10 @@ class Meetings {
 
     public function update($meeting_data = array()) {
         global $db, $log, $core;
+        if(!is_empty($meeting_data['facilityid'])) {
+            $fmfid = intval($meeting_data['facilityid']);
+        }
+        unset($meeting_data['facilityid']);
         $this->meeting['mtid'] = $this->meeting['mtid'];
 
         $this->meeting['notifyuser'] = $meeting_data['notifyuser'];
@@ -280,7 +303,18 @@ class Meetings {
         $associations = $meeting_data['associations'];
         $attendees = $meeting_data['attendees'];
         $this->meeting['attachments'] = $meeting_data['attachments'];
+        if(!empty($meeting_data['altfromDate'])) {
+            $fromdate = explode('-', $meeting_data['altfromDate']);
 
+            if(checkdate($fromdate[1], $fromdate[0], $fromdate[2])) {
+                $meeting_data['fromDate'] = strtotime($meeting_data['altfromDate'].' '.$meeting_data['fromTime']);
+                $meeting_data['toDate'] = strtotime($meeting_data['alttoDate'].' '.$meeting_data['toTime']);
+            }
+        }
+        if($meeting_data['fromDate'] > $meeting_data['toDate']) {
+            $this->errorcode = 3;
+            return false;
+        }
         if($meeting_data['fromDate'] > $meeting_data['toDate']) {
             $this->errorcode = 3;
             return false;
@@ -293,9 +327,7 @@ class Meetings {
         unset($meeting_data['attendees'], $meeting_data['attachments'], $meeting_data['associations'], $meeting_data['notifyuser'], $meeting_data['notifyrep']);
 
 
-        /* Needs validation for time */
-        $meeting_data['fromDate'] = strtotime($meeting_data['fromDate'].' '.$meeting_data['fromTime']);
-        $meeting_data['toDate'] = strtotime($meeting_data['toDate'].' '.$meeting_data['toTime']);
+
         unset($meeting_data['fromTime'], $meeting_data['toTime'], $meeting_data['altfromDate'], $meeting_data['alttoDate']);
         if(!isset($meeting_data['isPublic'])) {
             $meeting_data['isPublic'] = 0;
@@ -305,6 +337,12 @@ class Meetings {
 
         $query = $db->update_query('meetings', $meeting_data, 'mtid='.intval($this->meeting['mtid']));
         if($query) {
+            if(!is_empty($fmfid)) {
+                $facilityreservation = array('fmfid' => $fmfid, 'mtid' => intval($this->meeting['mtid']), 'fromDate' => $meeting_data['fromDate'], 'toDate' => $meeting_data['toDate'], 'purpose' => $meeting_data['description'], 'reservedBy' => $meeting_data['createdBy']);
+                $facilityreservation_obj = new FacilityMgmtReservations();
+                $facilityreservation_obj->set($facilityreservation);
+                $facilityreservation_obj->save();
+            }
             if(isset($this->meeting['attachments']) && !empty($this->meeting['attachments'])) {
                 $this->add_attachments($this->meeting['attachments']);
             }

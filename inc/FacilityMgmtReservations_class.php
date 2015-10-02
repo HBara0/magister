@@ -8,7 +8,7 @@ class FacilityMgmtReservations extends AbstractClass {
     const PRIMARY_KEY = 'fmrid';
     const TABLE_NAME = 'facilitymgmt_reservations';
     const SIMPLEQ_ATTRS = '*';
-    const UNIQUE_ATTRS = 'fmrid';
+    const UNIQUE_ATTRS = 'mtid';
     const CLASSNAME = __CLASS__;
     const DISPLAY_NAME = '';
 
@@ -56,4 +56,8 @@ class FacilityMgmtReservations extends AbstractClass {
     }
 
     /* -------GETTER FUNCTIONS-END-------- */
+    public function get_meeting() {
+        return new Users($this->data['mtid']);
+    }
+
 }

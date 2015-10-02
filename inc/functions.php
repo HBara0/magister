@@ -1009,24 +1009,26 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                         }
                         break;
                     case 'reservationfacilities':
-                        unset($category, $isreserved, $details, $distance, $desc_distance, $affiliategeoloc);
+                        unset($category, $isreserved, $details, $distance, $desc_distance, $affiliategeoloc, $meetingres);
                         $facility = new FacilityMgmtFacilities($key);
                         $motherfacility = $facility->get_mother();
                         if(is_object($motherfacility) && !empty($motherfacility->fmfid) && $motherfacility->fmfid != $facility->fmfid) {
                             $details = $motherfacility->get_displayname();
                         }
-
                         if(is_object($facility) && !empty($facility->fmfid)) {
                             $category = $lang->otheravailable;
                             if(isset($options['extrainput']) && !is_empty($options['extrainput'])) {
                                 $from = $options['extrainput']['from'];
                                 $to = $options['extrainput']['to'];
-                                $isreserved = $facility->is_reserved(strtotime($from), strtotime($to));
+                                $isreserved = $facility->is_reserved($from, $to);
                                 if(is_object($isreserved)) {
                                     $category = $lang->capsreserved;
                                     $style = 'style="pointer-events:none;background-color:#F9D0D0;"';
                                     $reservedby = $isreserved->get_reservedBy()->get_displayname();
                                     $details.=' '.$lang->reservedby.' : '.$reservedby;
+                                    if($isreserved->mtid == $options['extrainput']['mtid']) {
+                                        $meetingres = 1;
+                                    }
                                 }
                                 else {
                                     if(!empty($facility->capacity)) {
@@ -1057,6 +1059,9 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                                 }
                                 if(!empty($desc_distance)) {
                                     $results_list['"'.$key.'"']['value'] = $results_list['"'.$key.'"']['value'].$desc_distance;
+                                }
+                                elseif($meetingres == 1) {
+                                    $results_list['"'.$key.'"']['value'] = $results_list['"'.$key.'"']['value'].'('.$lang->forthismeeting.')';
                                 }
                                 $results_list[$category]['"'.$key.'"']['distance'] = $desc_distance;
                                 $results_list[$category]['"'.$key.'"'] = $results_list['"'.$key.'"'];

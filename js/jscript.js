@@ -251,7 +251,23 @@ $(function () {
             $(valueIn).val("");
             $(valueIn + "_output").val("");
         }
+        var filtersQuery = "";
+        if($(this).attr('data-autocompletefilters')) {
+            var attrs = $(this).attr('data-autocompletefilters').split(',');
+            $.each(attrs, function (i) {
+                if($("input[id='" + attrs[i] + "']").length > 0) {
+                    if($("input[id='" + attrs[i] + "']").val() != '') {
+                        if($("input[id='" + attrs[i] + "']").attr('data-alternativename')) {
+                            filtersQuery += "&" + $("input[id='" + attrs[i] + "']").attr('data-alternativename') + "=" + $("input[id='" + attrs[i] + "']").val();
+                        }
+                        else {
+                            filtersQuery += "&" + attrs[i] + "=" + $("input[id='" + attrs[i] + "']").val();
 
+                        }
+                    }
+                }
+            });
+        }
         $(this).autocomplete({
             source: function (request, response) {
                 var term = request.term;
@@ -283,8 +299,7 @@ $(function () {
                     });
                 }
 
-                filtersQuery = "";
-                var filters = new Array("rid", "spid", "cid", "spid[]", "coid", "countryid", "city", "hasMOM", "userlocation", "reserveFrom", "reserveTo", "loacationLat", "loacationLong");
+                var filters = new Array("rid", "spid", "cid", "spid[]", "coid", "countryid", "city", "hasMOM", "userlocation", "reserveFrom", "reserveTo");
                 for(var i = 0; i < filters.length; i++) {
                     if($("input[name='" + filters[i] + "']").length > 0) {
                         if($("input[name='" + filters[i] + "']").val() != '') {

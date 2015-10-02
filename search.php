@@ -416,7 +416,9 @@ if($core->input['type'] == 'quick') {
             $key_attribute = 'fmfid';
             $select_attributes = array('name');
             $order = array('by' => 'name', 'sort' => 'ASC');
-            $extrainput = array('from' => $core->input['reserveFrom'], 'to' => $core->input['reserveTo'], 'userlong' => $core->input['loacationLong'], 'userlat' => $core->input['loacationLat']);
+            $from = strtotime($core->input['dateFrom'].' '.$core->input['timeFrom']);
+            $to = strtotime($core->input['dateTo'].' '.$core->input['timeTo']);
+            $extrainput = array('mtid' => $core->input['mtid'], 'from' => $from, 'to' => $to, 'userlong' => $core->input['loacationLong'], 'userlat' => $core->input['loacationLat']);
             $descinfo = 'reservationfacilities';
         }
         elseif($core->input['for'] == 'userpermissionentities') {
