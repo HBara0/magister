@@ -343,6 +343,12 @@ class Meetings {
                 $facilityreservation_obj->set($facilityreservation);
                 $facilityreservation_obj->save();
             }
+            else {
+                $facilityreservation_obj = FacilityMgmtReservations::get_data(array('mtid' => intval($this->meeting['mtid'])));
+                if(is_object($facilityreservation_obj) && !empty($facilityreservation_obj->fmrid)) {
+                    $facilityreservation_obj->delete();
+                }
+            }
             if(isset($this->meeting['attachments']) && !empty($this->meeting['attachments'])) {
                 $this->add_attachments($this->meeting['attachments']);
             }

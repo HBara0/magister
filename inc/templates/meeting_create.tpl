@@ -18,10 +18,17 @@
                 $(document).on('change', 'input[id="specifygenloc"]', function () {
                     if($(this).is(':checked')) {
                         $('tr[id="genlocation"]').show();
+                        $('tr[id="facilityrow"]').hide();
+                        $('input[id^="reservationfacilities"]').each(function (i, obj) {
+                            $(obj).prop('disabled', true);
+                        });
                     }
                     else {
                         $('tr[id="genlocation"]').hide();
-
+                        $('tr[id="facilityrow"]').show();
+                        $('input[id^="reservationfacilities"]').each(function (i, obj) {
+                            $(obj).prop('disabled', false);
+                        });
                     }
                 });
             });</script>
@@ -50,7 +57,7 @@
                         <td>{$lang->todate}</td>
                         <td><input type="text" tabindex="4" id="pickDate_to" autocomplete="off" tabindex="1" name="meeting[toDate]"  value="{$meeting[toDate_output]}" required="required"/><input type="hidden" name="meeting[alttoDate]" data-alternativename="dateTo" id="altpickDate_to" value="{$meeting[toDate]}" /> <input type="time" id="altpickTime_to" data-alternativename="timeTo"  name="meeting[toTime]" tabindex="5" pattern="(20|21|22|23|[01]\d|\d)(([:][0-5]\d){1,2})" placeholder="17:00" value="{$meeting[toTime_output]}" required="required"></td>
                     </tr>
-                    <tr>
+                    <tr id="facilityrow" {$location['hidefacility']}>
                         <td>{$lang->facility}</td>
                         <td>
                             {$facilityreserve}

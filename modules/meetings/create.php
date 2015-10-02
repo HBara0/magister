@@ -34,7 +34,11 @@ if(!$core->input['action']) {
                     $facilityid = $facilit->fmfid;
                 }
             }
-
+            else if(!is_empty($meeting['location'])) {
+                $location['hide'] = '';
+                $location['selected'] = 'checked="checked"';
+                $location['hidefacility'] = 'style="display:none"';
+            }
             if(!empty($meeting['fromDate'])) {
                 $meeting['fromDate_output'] = date($core->settings['dateformat'], $meeting['fromDate']);
                 $meeting['fromTime_output'] = trim(preg_replace('/(AM|PM)/', '', date('H:i', $meeting['fromDate'])));
@@ -51,10 +55,7 @@ if(!$core->input['action']) {
             if($meeting['fromDate'] < TIME_NOW) {
                 $disabled_checkboxes['notifyuser'] = $disabled_checkboxes['notifyrep'] = ' disabled="disabled"';
             }
-            if(!is_empty($meeting['location'])) {
-                $location['hide'] = '';
-                $location['selected'] = 'checked="checked"';
-            }
+
             $meeting_assoc = $meeting_obj->get_meetingassociations();
 
             if(is_array($meeting_assoc)) {
