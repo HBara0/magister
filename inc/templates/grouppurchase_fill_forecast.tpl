@@ -11,7 +11,7 @@
                 });
 
 
-                $("input[id^='forecastline_']").live('change keyup live', function () {
+                $(document).on('change keyup live', "input[id^='forecastline_']", function () {
                     var id = $(this).attr('id').split("_");
                     var total = 0;
                     var monthtotal = 0;
@@ -29,13 +29,13 @@
                     $('span[id=forecastline_total_' + id[2] + id[3] + ']').text(monthtotal.toFixed(2));
                 });
 
-                $('input[id^=product_noexception_][id$=output]').live('change', function () {
+                $(document).on('change', 'input[id^=product_noexception_][id$=output]', function () {
                     var id = $(this).attr('id').split("_");
                     $('input[id=forecastline_nextyear_' + id[2] + '_pid]').val($('input[id^=product_noexception_' + id[2] + '_id]').val());
                 });
 
 
-                $('select[id^=forecastline_][id$=_saleType]').live('change', function () {
+                $(document).on('change', 'select[id^=forecastline_][id$=_saleType]', function () {
                     var id = $(this).attr('id').split("_");
                     $('input[id=forecastline_nextyear_' + id[1] + '_saleType]').val($('select[id^=forecastline_][id$=' + id[1] + '_saleType]').val());
                 });

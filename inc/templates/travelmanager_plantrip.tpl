@@ -6,7 +6,7 @@
             $(function() {
                 var tabs = $("#segmentstabs").tabs();
                 var tabcounter = tabs.find(".ui-tabs-nav").find('li').length + 1; //find the  lenght of li tabs and increment by 1
-                $("#createtab").live('click', function() {
+                $(document).on('click', "#createtab", function () {
                     var templatecontent = errormessage = '';
                     var id = "segmentstabs-" + tabcounter;
                     /*User cannot add a new segment if the destination city/to date of the previous segment are not filled*/
@@ -38,7 +38,7 @@
                     }
 
                 });
-                $('input[id="save_addsegment"]').live('click', function() {
+                $(document).on('click', 'input[id="save_addsegment"]', function () {
                     if(timer) {
                         clearInterval(timer);
                         timer = null;
@@ -68,7 +68,7 @@
                     tabs.tabs("refresh");
                     $('input[id="perform_travelmanager/plantrip_Button"]').click();
                 });
-                $('input[id^=destinationcity_],input[id^=pickDate_to_]').live('change', function() {
+                $(document).on('change', 'input[id^=destinationcity_],input[id^=pickDate_to_]', function () {
                     if(sharedFunctions.checkSession() == false) {
                         return;
                     }
@@ -88,7 +88,8 @@
                     }
 
                 });
-                $('input[id^=transp_lookuptransps_]').live('click', function() {
+                
+                $(document).on('click', 'input[id^=lookuptransps_]', function () {
                     if(sharedFunctions.checkSession() == false) {
                         return;
                     }
@@ -108,7 +109,7 @@
                 });
                 /*var firstcategoryid = $('input[id*=transp_]').attr('id').split("_")[3];*/
 
-                $('input[id*=transp_]').live('click', function() {
+                $(document).on('click', 'input[id*=transp_]', function () {
                     var id = $(this).attr('id').split("_");
                     var sequence = id[1];
                     var categoryid = id[3];
@@ -117,12 +118,12 @@
                     //  sharedFunctions.requestAjax("post", "index.php?module=travelmanager/plantrip&action=parsedetailstransp", "&categoryid=" + categoryid + "&sequence=" + sequence + "&catid=" + id[2], 'cat_detailsloader_' + categoryid + '', 'transpcat_content' + categoryid + '', true);
 
                 });
-                $('a[id^=countryhotels_][id$=_check]').live('click', function() {
+                $(document).on('click', 'a[id^=countryhotels_][id$=_check]', function () {
                     var id = $(this).attr('id').split("_");
                     var sequence = id[1];
                     $('div[id=countryhotels_' + sequence + '_view]').slideToggle("slow");
                 });
-                $('input[id*=pickDate_to_]').live('change', function() {
+                $(document).on('change', 'input[id*=pickDate_to_]', function () {
                     if(sharedFunctions.checkSession() == false) {
                         return;
                     }
@@ -139,11 +140,11 @@
                     //$(this).datepicker("option", "maxDate", new Date($("#pickDate_to_" + (tabcounter - 1)).val()));
 
                 });
-                $("select[id^='show_otherexpenses']").live('change', function() {
+                $(document).on('change', "select[id^='show_otherexpenses']", function () {
                     var id = $(this).attr('id').split("_");
                     $("div[id='" + id[1] + "_" + id[2] + "_" + id[3] + "']").fadeToggle('fast');
                 });
-                $("select[id^='segment_expensestype']").live('change', function() {
+                $(document).on('change', "select[id^='segment_expensestype']", function () {
                     var id = $(this).attr('id').split("_");
                     var item = $(this).find(':selected').attr('itemref');
                     $("div[id='Other_" + id[2] + "_" + id[3] + "']").hide();
@@ -168,7 +169,7 @@
                         $("input[id$='expamount']").trigger("change");
                     }
                 });
-                $('input[id^="numnight_segacc_"],input[id^="pricenight_segacc_"]').live('change', function() {
+                $(document).on('change', 'input[id^="numnight_segacc_"],input[id^="pricenight_segacc_"]', function () {
                     var id = $(this).attr("id").split("_");
                     if($('input[id="pricenight_' + id[1] + '_' + id[2] + '_' + id[3] + '"]').length < 0) {
                         return;
@@ -181,7 +182,7 @@
                     var pricepernight = $('input[name="segment[' + name[2] + '][tmhid][' + name[3] + '_' + name[4] + '][priceNight]"]').val();
                     sharedFunctions.requestAjax("post", "index.php?module=travelmanager/plantrip&action=checkpricevsavgprice", "&avgprice=" + $('input[id="avgprice_' + id[1] + '_' + id[2] + '_' + id[3] + '"]').val() + "&pricepernight=" + pricepernight + "&currency=" + curr, "hotelprice_warning_" + id[2] + "_" + id[3], "hotelprice_warning_" + id[2] + "_" + id[3], true);
                 });
-                $('input[id=finalize]').live('click', function() {
+                $(document).on('click', 'input[id=finalize]', function () {
                     if(timer) {
                         clearInterval(timer);
                         timer = null;
@@ -191,14 +192,13 @@
                     $('input[id="finalizeplan"]').val('');
                 });
                 //on chagne from date refresh qnd trigger again
+                $(document).on('change', 'input[id^="pickDate_to"]', function () {
 
-
-                $('input[id^="pickDate_to"]').live('change', function() {
                     var segid = $(this).attr("id").split("_");
                     var nextsegid = ++segid[2];
                     var descity = $('input[id="destinationcity_' + segid[2] + '_cache_id"]').val();
                     var origincity = $('input[id=cities_' + nextsegid + '_cache_id]').val(); /*get  the cityid from the hiiden field*/
-                    $('input[id^="pickDate_from_' + nextsegid + '"]').live('change', function() {
+                    $(document).on('change', 'input[id^="pickDate_from_' + nextsegid + '"]', function () {
                         //  $('input[id^="destinationcity_' + nextsegid + '"]').trigger('change');
                         sharedFunctions.requestAjax("post", "index.php?module=travelmanager/plantrip&action=refreshtransp", "&sequence=" + nextsegid + "&destcity=" + descity + "&origincity=" + origincity + "&departuretime=" + $('#altpickDate_to_' + (nextsegid - 1)).val() + "&othertranspdisplay=" + $("div[id^='show_othertransps_']").attr('style') + "&othertranspsseccheckbox=" + othertranspsseccheckbox, 'content_suggestedtransploader_' + nextsegid + '', 'content_suggestedtransp_' + nextsegid + '', true);
                     });
@@ -209,15 +209,17 @@
                         // $('input[id^="destinationcity_' + nextsegid + '"]').trigger('change');
                     }
                 });
-                $('input[id^="noAccomodation_"]').live('click', function() {
+                $(document).on('click', 'input[id^="noAccomodation_"]', function () {
                     var id = $(this).attr("id").split("_");
-                    $('#segment_hotels_' + id[1] + ', #other_hotels_' + id[1]).toggle(!$(this).is(':checked')).find('input').val("");
+                    if(!$($('#segment_hotels_' + id[1] + ', #other_hotels_' + id[1])).is(':checked'))) {
+                        $('#segment_hotels_' + id[1] + ', #other_hotels_' + id[1]).find('input').val("")
+                    }
                 });
                 if($('input[id^="specifyaffent_"]').is(':checked')) {
                     var id = $('input[id^="specifyaffent_"]').attr("id").split("_");
                     $('tr[id="specifyaffent_' + id[1] + '_block"]').show();
                 }
-                $('input[id^="specifyaffent_"]').live('click', function() {
+                $(document).on('click', 'input[id^="specifyaffent_"]', function () {
                     var segvar = $(this).val();
                     var id = $(this).attr("id").split("_");
                     var segid = id[1];
@@ -236,10 +238,10 @@
                     populate_suggestions(obj);
                     return false;
                 });
-                $('input[name^="segment"][name$="[fare]"],input[name^="segment"][name$="[subtotal]"],select[name^="segment"][name$="[currency]"],input[name^="segment"][name$="[expectedAmt]"]').live('change', function() {
+                $(document).on('change', 'input[name^="segment"][name$="[fare]"],input[name^="segment"][name$="[subtotal]"],select[name^="segment"][name$="[currency]"],input[name^="segment"][name$="[expectedAmt]"]', function () {
                     populate_suggestions(this);
                 });
-                $('button[id^="airflights_button_"]').live('click', function() {
+                $(document).on('click', 'button[id^="airflights_button_"]', function () {
                     var id = $(this).attr("id").split("_");
                     $('div[id="airflights_div_' + id[2] + '"]').fadeToggle();
                 });
@@ -320,7 +322,7 @@
                         }
                     }
                 });
-                $('input[type="number"][id^="numnight_segacc"]').live('keyup', function() {
+                $(document).on('keyup', 'input[type="number"]', function () {
                     if(typeof $(this).attr('max') != typeof undefined) {
                         if($(this).attr('max').length > 0) {
                             if(parseInt($(this).val(), 10) > parseInt($(this).attr('max'), 10)) {
@@ -331,7 +333,7 @@
                         }
                     }
                 });
-                $('input[id^="purposes_checks_"]').live('change', function() {
+                $(document).on('change', 'input[id^="purposes_checks_"]', function () {
                     var completeid = $(this).attr('id');
                     var id = $(this).attr('id').split('_');
                     var ltpid = $(this).val();

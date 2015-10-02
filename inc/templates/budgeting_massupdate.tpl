@@ -4,8 +4,8 @@
         {$headerinc}
         <script type="text/javascript">
 
-            $(function() {
-                $('input[id="agreement"]').live('click', function() {
+            $(function () {
+                $(document).on('click', 'input[id="agreement"]', function () {
                     $('input[type="button"][id^="perform_"]').attr("disabled", !this.checked);
                 });
 

@@ -38,7 +38,7 @@
     </div>
     <script type="text/javascript">
         $(function () {
-            $("#percCompleted").live('change', function () {
+            $(document).on('change', "#percCompleted", function () {
                 if(sharedFunctions.checkSession() == false) {
                     return;
                 }

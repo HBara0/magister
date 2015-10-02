@@ -24,7 +24,7 @@ $(function () {
     $('tr[class*="trowtools"]').hover(function () {
         $(this).toggleClass('altrow2').children('td [id$="_tools"]').find('div').toggle();
     });
-    $("#login_Button").live("click", login);
+    $(document).on("click", "#login_Button", login);
     $("#login_Form input").bind('keypress', function (e) {
         if(e.keyCode == 13) {
             login();
@@ -180,7 +180,8 @@ $(function () {
         $(object).datepicker({altField: "#alt" + $(object).attr('id'), altFormat: 'dd-mm-yy', dateFormat: 'MM dd, yy', showWeek: true, firstDay: 1, changeMonth: true, changeYear: true, showAnim: 'slideDown'});
         $("#ui-datepicker-div").css("z-index", $(object).parents(".ui-dialog").css("z-index") + 1);
     }
-    $("input[class*='inlinefilterfield']").live("keyup", function () {
+
+    $(document).on("keyup", "input[class*='inlinefilterfield']", function () {
         var parentContainer = $(this).closest('table');
         setTimeout(function () {
             var totals = [];
@@ -232,14 +233,14 @@ $(function () {
             });
         }, 300);
     });
-    $("input[id^='pickDate']").live('click', function () {
+    $(document).on("click", "input[id^='pickDate']", function () {
         if(!$(this).hasClass('hasDatepicker')) {
             initalisedatepicker(this);
             $(this).focus();
         }
     });
     var accache = {};
-    $("input[id$='_autocomplete']").live("keyup", function () {
+    $(document).on("keyup", "input[id$='_autocomplete']", function () {
         if(sharedFunctions.checkSession() == false) {
             return;
         }
@@ -324,7 +325,7 @@ $(function () {
             return $("<li>").append("<a>" + item.value + "</a>").appendTo(ul);
         };
     });
-    $("input[id$='_QSearch']").live("keyup", QSearch);
+    $(document).on("keyup", "input[id$='_QSearch']", QSearch);
     function QSearch() {
         if(sharedFunctions.checkSession() == false) {
             return;
@@ -431,7 +432,7 @@ $(function () {
         inputValue = "";
     }
 
-    $("input.ajaxcheckbox").live('change', function () {
+    $(document).on("change", "input.ajaxcheckbox", function () {
         if(sharedFunctions.checkSession() == false) {
             return;
         }
@@ -480,14 +481,15 @@ $(function () {
         }
         sharedFunctions.requestAjax("post", url, formData, formid + "Results", formid + "Results");
     });
-    $("a[id^='showmore_'][href^='#']").live('click', function () {
+
+    $(document).on("click", "a[id^='showmore_'][href^='#']", function () {
         var id = $(this).attr("id").split("_");
         $("#" + id[1] + "_" + id[2]).toggle();
     });
-    $("img[id^='addmore_']").live('click', function () {
+    $(document).on("click", "img[id^='addmore_']", function () {
         sharedFunctions.addmoreRows($(this));
     });
-    $("input[id='email'],input[accept='email']").live("keyup", validateEmailInline);
+    $(document).on("keyup", "input[id='email'],input[accept='email']", validateEmailInline);
 //$("input[id='email'],input[accept='email']").change(validateEmailInline);
 
     function validateEmailInline() {
@@ -520,7 +522,7 @@ $(function () {
             $("#" + id[0]).val($("#" + id[0] + "_last").val());
         }
     });
-    $("input[accept='numeric']").live("keydown", function (e) {
+    $(document).on("keydown", "input[accept='numeric']", function (e) {
         if(e.keyCode > 31 && (e.keyCode < 48 || (e.keyCode > 57 && (e.keyCode < 96 || e.keyCode > 105) && e.keyCode != 190 && e.keyCode != 110 && e.keyCode != 16 && e.keyCode != 17 && e.keyCode != 59))) {
 //$(this).val($(this).val().substring(0, ($(this).val().length - 1)));
             e.preventDefault();
@@ -528,7 +530,7 @@ $(function () {
         }
         return true
     });
-    $("a[id='resetpassword']").live('click', function () {
+    $(document).on('click', "a[id='resetpassword']", function () {
         $("#logincontent").hide();
         $("#resetpasswordcontent").show();
     });
@@ -580,7 +582,7 @@ $(function () {
                 );
     }
 
-    $("a[id$='_loadpopupbyid'],a[id^='mergeanddelete_'][id$='_icon'],a[id^='revokeleave_'][id$='_icon'],a[id^='deletearopolicy_'][id$='_icon'],a[id^='deletewarehouse_'][id$='_icon'],a[id^='approveleave_'][id$='_icon']").live('click', function () {
+    $(document).on('click', "a[id$='_loadpopupbyid'],a[id^='mergeanddelete_'][id$='_icon'],a[id^='revokeleave_'][id$='_icon'],a[id^='approveleave_'][id$='_icon']", function () {
         var id = $(this).attr("id").split("_");
 //        var rel = $(this).prop("rel");
 //        var underscore = '_';
@@ -629,7 +631,7 @@ $(function () {
         $("div[id^='tabs_']").tabs();
     }
 
-    $("a[id^='addnew_']").live("click", function () {
+    $(document).on("click", "a[id^='addnew_']", function () {
         var id = $(this).attr("id").split("_");
         popUp(id[1], id[0] + "_" + id[2]);
     });
@@ -780,7 +782,7 @@ $(function () {
             sharedFunctions.requestAjax("post", "index.php?module=" + parentId[1], data, results, results);
         }
     });
-    $("img[id^='ajaxaddmore_']").live("click", function () {
+    $(document).on("click", "img[id^='ajaxaddmore_']", function () {
         sharedFunctions.ajaxAddMore($(this));
     });
 
@@ -1056,7 +1058,7 @@ $(function () {
             $('#dimensions').val($("#dimensionto").sortable('toArray'));
         }
     });
-    $("[data-reqparent^='children-']").live('change', function () {
+    $(document).on('change', "[data-reqparent^='children-']", function () {
         var children = $(this).attr('data-reqparent').split('-');
         if(children.length > 1) {
             if($(this).attr('type') == 'checkbox') {

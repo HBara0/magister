@@ -1,5 +1,5 @@
-$(function() {
-    $("#type,#pickDate_timeLine,#affid,#supplier_1_id_output,input[id^='customer_'][id$='_output'],select[id^='packingType_'][id$='_output']").live("change", getMoreData);
+$(function () {
+    $(document).on("change", "#type,#pickDate_timeLine,#affid,#supplier_1_id_output,input[id^='customer_'][id$='_output'],select[id^='packingType_'][id$='_output']", getMoreData);
     function getMoreData() {
         if(sharedFunctions.checkSession() == false) {
             return;
@@ -75,13 +75,13 @@ $(function() {
                 $.ajax({method: "post",
                     url: url,
                     data: dataParam,
-                    beforeSend: function() {
+                    beforeSend: function () {
                         $("#" + loadingIn).html("<img src='" + imagespath + "/loading.gif' alt='" + loading_text + "'/>")
                     },
-                    complete: function() {
+                    complete: function () {
                         $("#" + loadingIn).empty();
                     },
-                    success: function(returnedData) {
+                    success: function (returnedData) {
                         $("#" + contentIn).val(returnedData);
                     }
                 });
@@ -91,13 +91,13 @@ $(function() {
                 $.ajax({method: "post",
                     url: url,
                     data: dataParam,
-                    beforeSend: function() {
+                    beforeSend: function () {
                         $("#" + loadingIn).html("<img src='" + imagespath + "/loading.gif' alt='" + loading_text + "'/>")
                     },
-                    complete: function() {
+                    complete: function () {
                         $("#" + loadingIn).empty();
                     },
-                    success: function(returnedData) {
+                    success: function (returnedData) {
                         $("#" + contentIn).html(returnedData);
                     }
                 });
@@ -105,24 +105,24 @@ $(function() {
         }
     }
 
-    $("#currency").live('change', function() {
+    $(document).on('change', "#currency", function () {
         $.ajax({method: "post",
             url: "index.php?module=stock/order&action=get_fxrate",
             data: "currency=" + $("#currency").val(),
-            beforeSend: function() {
+            beforeSend: function () {
                 $("#fxUSD").html("<img src='" + imagespath + "/loading.gif' alt='" + loading_text + "'/>")
             },
-            complete: function() {
+            complete: function () {
                 $("#fxUSD").empty();
             },
-            success: function(returnedData) {
+            success: function (returnedData) {
                 alert(returnedData);
                 $("#fxUSD").val(returnedData);
             }
         });
     });
 
-    $("input[id^='product_'][id$='_output']").change(function() {
+    $("input[id^='product_'][id$='_output']").change(function () {
         if(sharedFunctions.checkSession() == false) {
             return;
         }
@@ -136,7 +136,7 @@ $(function() {
 
         if($("#product_name_" + last_product_rowid).html().length > 0) {
             var exit_process = false;
-            $("input[id^='pid_']").each(function() {
+            $("input[id^='pid_']").each(function () {
                 if($(this).val() == product_id) {
                     var pidrow_id = $(this).attr('id').split('_');
                     var pidrow_id_to_use = pidrow_id[1];
@@ -165,7 +165,7 @@ $(function() {
         sharedFunctions.requestAjax("post", "index.php?module=stock/order&action=get_packingType", "&pid=" + value, loadingIn, contentIn, 1);
     });
 
-    $("input[id^='product_'][id$='_firstOrderQty'],input[id^='product_'][id$='_numOrders'],input[id^='product_'][id$='_quantityPerNextOrder']").live('change', function() {
+    $(document).on('change', "input[id^='product_'][id$='_firstOrderQty'],input[id^='product_'][id$='_numOrders'],input[id^='product_'][id$='_quantityPerNextOrder']", function () {
         var id = $(this).attr('id').split('_');
         var row_total = 0;
         if($("#product_" + id[1] + "_" + id[2] + "_expectedQuantity").length > 0) {
@@ -189,7 +189,7 @@ $(function() {
             $("#product_" + id[1] + "_" + id[2] + "_expectedQuantity").val(row_total);
         }
 
-        $("input[id^='pid_']").each(function() {
+        $("input[id^='pid_']").each(function () {
             if($(this).val() == $("#product_" + id[1] + "_" + id[2] + "_id").val()) {
                 var product_rowid = $(this).attr('id').split('_');
 
@@ -200,7 +200,7 @@ $(function() {
     });
 
 
-    $("input[id^='purchasePrice_'],input[id^='quantity_'],input[id^='sellingPrice_']").live('change', function() {
+    $(document).on('change', "input[id^='purchasePrice_'],input[id^='quantity_'],input[id^='sellingPrice_']", function () {
         var id = $(this).attr('id').split('_');
         if(id[0] == 'purchasePrice') {
             $('#purchaseAmount_' + id[1]).val($('#quantity_' + id[1]).val() * $('#purchasePrice_' + id[1]).val());
