@@ -396,7 +396,6 @@ if($core->input['type'] == 'quick') {
             $order = array('by' => 'subject', 'sort' => 'ASC');
         }
         elseif($core->input['for'] == 'basicfacilities') {
-            $extra_where = '';
             $extra_where = ' isActive = 1';
             $table = 'facilitymgmt_facilities';
             $attributes = array('name');
@@ -404,6 +403,7 @@ if($core->input['type'] == 'quick') {
             $select_attributes = array('name');
             $order = array('by' => 'name', 'sort' => 'ASC');
             $descinfo = 'basicfacilities';
+            $extrainput = array('userlong' => $core->input['loacationLong'], 'userlat' => $core->input['loacationLat']);
         }
         elseif($core->input['for'] == 'reservationfacilities') {
             $extra_where = '';
@@ -413,37 +413,55 @@ if($core->input['type'] == 'quick') {
             $key_attribute = 'fmfid';
             $select_attributes = array('name');
             $order = array('by' => 'name', 'sort' => 'ASC');
-            $extrainput = array('from' => $core->input['pickDate_reserveFrom'], 'to' => $core->input['pickDate_reserveTo']);
+            $extrainput = array('from' => $core->input['reserveFrom'], 'to' => $core->input['reserveTo'], 'userlong' => $core->input['loacationLong'], 'userlat' => $core->input['loacationLat']);
             $descinfo = 'reservationfacilities';
         }
-
+        elseif($core->input['for'] == 'userpermissionentities') {
+            $permissions = $core->user_obj->get_businesspermissions();
+            $table = 'entities';
+            $attributes = array('companyName', 'companyNameAbbr');
+            $key_attribute = 'eid';
+            $select_attributes = array('companyName');
+            $order = array('by' => 'companyName', 'sort' => 'ASC');
+            $descinfo = 'country';
+            if(is_array($permissions['eid'])) {
+                $permisisonents = ' AND eid IN ('.implode(',', array_filter($permissions['eid'])).')';
+            }
+            $extra_where .= ' isActive=1 AND approved=1'.$permisisonents;
+        }
 //        if(isset($core->input['exclude']) && !empty($core->input['exclude'])) {
 //            if(is_array($core->input['exclude'])) {
 //                $core->input['exclude'] = array_map(intval, $core->input['exclude']);
 //            }
 //            if(empty($extra_where)) {
-//                $extra_where = "{$key_attribute} NOT IN ({$core->input[exclude]})";
+//                $extra_where = "{$key_attribute} NOT IN({$core->input[exclude]})";
 //            }
 //            else {
-//                $extra_where .= " AND {$key_attribute} NOT IN ({$core->input[exclude]})";
+//                $extra_where .= " AND {$key_attribute} NOT IN({$core->input[ exclude]})";
 //            }
 //        }
-        $results_list = quick_search($table, $attributes, $core->input['value'], $select_attributes, $key_attribute, array('extra_input' => $extrainput, 'returnType' => $core->input['returnType'], 'order' => $order, 'extra_where' => $extra_where, 'descinfo' => $descinfo, 'disableSoundex' => $disableSoundex));
+        $results_list = quick_search($table, $attributes, $core->input['value'], $select_attributes, $key_attribute, array('extrainput' => $extrainput, 'returnType' => $core->input['returnType'], 'order' => $order, 'extra_where' => $extra_where, 'descinfo' => $descinfo, 'disableSoundex' => $disableSoundex));
         $referrer = explode('&', $_SERVER['HTTP_REFERER']);
         $module = substr($referrer[0], strpos(strtolower($referrer[0]), 'module=') + 7);
         if($core->input['for'] == 'supplier') {
             if($core->input['returnType'] != 'json') {
                 if(strpos(strtolower($_SERVER['HTTP_REFERER']), ADMIN_DIR) !== false) {
-                    $results_list .= "<p><hr />&rsaquo;&rsaquo; <a href='index.php?module=entities/add&amp;type=supplier' target='_blank'>{$lang->add}</a></p>";
+                    $results_list .= "<     p><hr />&rsaquo;
+                    &rsaquo;
+                    <a href = 'index.php?module=entities/add&amp;type=supplier' target = '_blank'>{$lang->add}</a></p>";
                 }
                 else {
-                    $results_list .= "<p><hr />&rsaquo;&rsaquo; <a href='index.php?module=contents/addentities&amp;type=supplier' target='_blank'>{$lang->add}</a></p>";
+                    $results_list .= "<p><hr />&rsaquo;
+                    &rsaquo;
+                    <a href = 'index.php?module=contents/addentities&amp;type=supplier' target = '_blank'>{$lang->add}</a></p>";
                 }
             }
         }
         /* else
           {
-          $results_list .= "<p><hr />&rsaquo;&rsaquo; <a href='#' id='addnew_{$module}_".$core->input['for']."'>{$lang->add}</a></p>";
+          $results_list .= "<p><hr />&rsaquo;
+          &rsaquo;
+          <a href = '#' id = 'addnew_{$module}_".$core->input['for']."'>{$lang->add}</a></p>";
           } */
         output($results_list);
     }

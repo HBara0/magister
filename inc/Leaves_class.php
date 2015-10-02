@@ -808,7 +808,7 @@ class Leaves extends AbstractClass {
                     $message = $this->autoRespBody;
                 }
                 else {
-                    $message = $lang->sprint($lang->autorespondermessage, date($core->settings['dateformat'].' '.$core->settings['timeformat'], $this->fromDate), date($core->settings['dateformat'].' '.$core->settings['timeformat'], $this->fromDate));
+                    $message = $lang->sprint($lang->autorespondermessage, date($core->settings['dateformat'].' '.$core->settings['timeformat'], $this->fromDate), date($core->settings['dateformat'].' '.$core->settings['timeformat'], $this->toDate));
                     if($this->data['limitedEmail']) {
                         $message .= "\n".$lang->autorespondermessagelimitedemail;
                     }
@@ -824,6 +824,35 @@ class Leaves extends AbstractClass {
                 $differencefromgmt = timezone_offset_get($dateTimeZoneLocal, $dateTimeLocal);
                 $args = array($user->email, $user->displayName, $subject, $message, explode('@', $user->email)[1], true, "utf-8", 8, $this->fromDate - $differencefromgmt, $this->toDate - $differencefromgmt);
                 return $xmlapi->api1_query($cpaccount, 'Email', 'addautoresponder', $args);
+            }
+            catch(Exception $ex) {
+                return $ex;
+            }
+        }
+    }
+
+    /**
+     *
+     * @global Language $lang
+     * @global Core $core
+     * @return boolean|\Exception
+     */
+    public function delete_autoresponder() {
+        global $lang, $core;
+        if(class_exists('CpanelAPIConnect')) {
+            $apiconnect = new CpanelAPIConnect();
+            $xmlapi = $apiconnect->get_xmlapi();
+            try {
+                $user = $this->get_user();
+                $main_aff = $user->get_mainaffiliate();
+                if(!is_object($main_aff) || empty($main_aff->affid)) {
+                    return false;
+                }
+                if(empty($main_aff->cpAccount)) {
+                    return false;
+                }
+                $args = array($user->email);
+                return $xmlapi->api1_query($cpaccount, 'Email', 'delautoresponder', $args);
             }
             catch(Exception $ex) {
                 return $ex;

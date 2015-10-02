@@ -90,6 +90,7 @@ class Inlinefilters {
         $tabindex = 1;
 
         if(is_array($this->config['parse'])) {
+            $permissions = $core->user_obj->get_businesspermissions();
             foreach($this->config['parse']['filters'] as $filter) {
                 if(in_array($filter, $exclude)) {
                     continue;
@@ -151,8 +152,8 @@ class Inlinefilters {
                         case 'psid': //all segments
                         case 'segment': //all segments
                         case 'usersegments': //user assigned segments
-                            if($filter == 'usersegments') {
-                                $psegments_query = $db->query("SELECT ps.psid, title FROM ".Tprefix."productsegments ps JOIN ".Tprefix."employeessegments es ON (es.psid=ps.psid) WHERE es.uid={$core->user[uid]}");
+                            if($filter == 'usersegments' && is_array($permissions['psid'])) {
+                                $psegments_query = $db->query("SELECT ps.psid, title FROM ".Tprefix."productsegments ps WHERE ps.psid IN (".implode(',', array_filter($permissions['psid'])).")");
                                 while($productline = $db->fetch_assoc($psegments_query)) {
                                     $productlines[$productline['psid']] = $productline['title'];
                                 }
@@ -192,6 +193,10 @@ class Inlinefilters {
                         case 'entities':
                             $entity = new Entities($core->input['filters'][$filter]);
                             $filters[$filter] = '<input type="text" id="allentities_1_autocomplete" value="'.$entity->get_displayname().'"/><input type="hidden" id="allentities_1_id" name="filters['.$filter.']"/>';
+                            break;
+                        case 'userpermentities':
+                            $entity = new Entities($core->input['filters'][$filter]);
+                            $filters[$filter] = '<input type="text" id="userpermissionentities_1_autocomplete" value="'.$entity->get_displayname().'"/><input type="hidden" id="userpermissionentities_1_id" name="filters['.$filter.']"/>';
                             break;
 //                        case 'spid':
 //                        case 'supplier':

@@ -53,7 +53,7 @@ if(!$core->input['action']) {
     $entitytype = array('s' => $lang->supplier, 'c' => $lang->customer, 'pc' => $lang->potentialcustomer, 'ps' => $lang->potentialsupplier);
     $suppliertype = array('t' => $lang->trader, 'p' => $lang->producer);
     $filters_rep_config = array(
-            'parse' => array('filters' => array('name', 'entities', 'companytype', 'suppliertype', 'segment', 'assignedaff', 'requiresQr', 'hasContract', 'coid'),
+            'parse' => array('filters' => array('name', 'userpermentities', 'companytype', 'suppliertype', 'usersegments', 'assignedaff', 'requiresQr', 'hasContract', 'coid'),
                     'overwriteField' => array(
                             'requiresQr' => '<select name="extrafilters[requiresQr][]"><option></option><option value=0>Yes</option><option value=1>No</option></select>',
                             'hasContract' => '<select name="extrafilters[hasContract][]"><option></option><option value=1>Yes</option><option value=0>No</option></select>',
@@ -71,10 +71,10 @@ if(!$core->input['action']) {
                     ),
                     'secTables' => array(
                             'entitiesrepresentatives' => array(
-                                    'filters' => array('entities' => array('operatorType' => 'multiple', 'name' => 'eid')),
+                                    'filters' => array('userpermentities' => array('operatorType' => 'multiple', 'name' => 'eid')),
                             ),
                             'representativessegments' => array(
-                                    'filters' => array('segment' => array('operatorType' => 'multiple', 'name' => 'psid')),
+                                    'filters' => array('usersegments' => array('operatorType' => 'multiple', 'name' => 'psid')),
                             ),
                     )
             )
@@ -90,6 +90,7 @@ else {
         $sort_query['by'] = 'displayName';
 //user filters-start
         $filters_userrow_display = 'show';
+
         $filters_user_config = array(
                 'parse' => array('filters' => array('name', 'position', 'entities', 'segment', 'allenabledaffiliates', 'allaffiliates', 'reportsTo'),
                         'overwriteField' => array()
@@ -108,7 +109,6 @@ else {
                                 ),
                                 'affiliatedemployees' => array(
                                         'filters' => array('allenabledaffiliates' => array('operatorType' => 'multiple', 'name' => 'affid')),
-                                        'extraWhere' => 'isMain=1'
                                 ),
                                 'affiliatedemployees2' => array(
                                         'filters' => array('allaffiliates' => array('operatorType' => 'multiple', 'name' => 'affid')),
@@ -249,8 +249,15 @@ else {
         }
     }
     if($core->input['action'] == 'rep') {
+        $permissions = $core->user_obj->get_businesspermissions();
+        if(is_array($permissions['psid'])) {
+            $extrawhere['psid'] = 'psid IN ('.implode(',', array_filter($permissions['psid'])).')';
+        }
+        if(is_array($permissions['eid'])) {
+            $extrawhere['eid'] = 'eid IN ('.implode(',', array_filter($permissions['eid'])).')';
+        }
         $filters_rep_config = array(
-                'parse' => array('filters' => array('name', 'entities', 'companytype', 'suppliertype', 'segment', 'assignedaff', 'requiresQr', 'hasContract', 'coid'),
+                'parse' => array('filters' => array('name', 'userpermentities', 'companytype', 'suppliertype', 'usersegments', 'assignedaff', 'requiresQr', 'hasContract', 'coid'),
                         'overwriteField' => array(
                                 'requiresQr' => '<select name="extrafilters[requiresQr][]"><option></option><option value=1>Yes</option><option value=0>No</option></select>',
                                 'hasContract' => '<select name="extrafilters[hasContract][]"><option></option><option value=1>Yes</option><option value=0>No</option></select>',
@@ -268,10 +275,12 @@ else {
                         ),
                         'secTables' => array(
                                 'entitiesrepresentatives' => array(
-                                        'filters' => array('entities' => array('operatorType' => 'multiple', 'name' => 'eid')),
+                                        'filters' => array('userpermentities' => array('operatorType' => 'multiple', 'name' => 'eid')),
+                                        'extraWhere' => $extrawhere['eid']
                                 ),
                                 'representativessegments' => array(
-                                        'filters' => array('segment' => array('operatorType' => 'multiple', 'name' => 'psid')),
+                                        'filters' => array('usersegments' => array('operatorType' => 'multiple', 'name' => 'psid')),
+                                        'extraWhere' => $extrawhere['psid']
                                 ),
                         )
                 )
@@ -426,6 +435,9 @@ else {
         }
         if(isset($extrafilters)) {
             $ents = Entities::get_data($extrafilters[Entities], array('returnarray' => true, 'operators' => array('contractExpiryDate' => $extrafilters['operators']['contractExpiryDate'])));
+            if(is_array($permissions['eid'])) {
+                $ents = array_intersect_key($ents, array_combine($permissions['eid'], $permissions['eid']));
+            }
             if(isset($extrafilters[AffiliatedEntities]) && !empty($extrafilters[AffiliatedEntities])) {
                 $extrafilters[AffiliatedEntities]['eid'] = array_keys($ents);
                 $affiliatedents = AffiliatedEntities::get_data($extrafilters[AffiliatedEntities], array('returnarray' => true));
@@ -620,7 +632,7 @@ else {
                                     $results_body.='<td>-</td>';
                                 }
                                 break;
-                            case 'segment':
+                            case 'usersegments':
                                 if($first_timerep == 0) {
                                     $results_head .= '<th>'.$lang->segments.'</th>';
                                 }
