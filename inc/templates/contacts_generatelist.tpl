@@ -17,7 +17,7 @@
                     e.stopPropagation();
                 }
                 );
-                $(document).on('click', 'button[id="subform"]', function () {
+                $(document).on('change', 'input[id^="button"]', function () {
                     if($('#button_user').is(':checked')) {
                         $('#div_user').find('input').removeAttr('disabled');
                         $('#div_user').find('select').removeAttr('disabled');

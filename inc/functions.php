@@ -989,6 +989,9 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                                 if(!empty($desc_distance)) {
                                     $results_list['"'.$key.'"']['value'] = $results_list['"'.$key.'"']['value'].$desc_distance;
                                 }
+                                if($category == $lang->capsnearby) {
+                                    $results_list['"'.$key.'"']['style'] = 'style="background-color:#A5FFA5;"';
+                                }
                                 $results_list[$category]['"'.$key.'"'] = $results_list['"'.$key.'"'];
                                 $results_list[$category]['"'.$key.'"']['desc'] = $details;
 
@@ -1050,7 +1053,7 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                                     $results_list['"'.$key.'"']['style'] = $style;
                                 }
                                 elseif($category == $lang->capsnearby) {
-                                    $results_list['"'.$key.'"']['style'] = 'style="pointer-events:none;background-color:#A5FFA5;"';
+                                    $results_list['"'.$key.'"']['style'] = 'style="background-color:#A5FFA5;"';
                                 }
                                 if(!empty($desc_distance)) {
                                     $results_list['"'.$key.'"']['value'] = $results_list['"'.$key.'"']['value'].$desc_distance;
