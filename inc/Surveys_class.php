@@ -139,7 +139,10 @@ class Surveys {
                     $errorhandler->record('invalidemailaddress', $externalinvitee);
                     return false;
                 }
-                $previnvitations = array_keys($this->get_invitations());
+                $previnvitations = $this->get_invitations();
+                if(is_array($previnvitations)) {
+                    $previnvitations = array_keys($previnvitations);
+                }
                 if(!is_array($previnvitations)) {
                     $this->survey['externalinvitations'][] = $new_invitation['invitee'];
                 }
@@ -218,12 +221,12 @@ class Surveys {
                                 return false;
                             }
                             else { /* Validate choices if meet the pattern and  has value  before insert */
-                                $question_choices_choice = preg_split('/\n+/', $question['choices']);
+                                $question_choices_choice = preg_split('/\r\n+/', trim($question['choices']));
 
                                 /* Split the choices value by ";" */
                                 if(is_array($question_choices_choice)) {
                                     foreach($question_choices_choice as $key => $choice) {
-                                        if(strstr($question['choices'], ';')) {
+                                        if(strstr($choice, ';')) {
                                             $question_choices_values = preg_split("/;+/", trim($choice));
                                         }
                                         else {
@@ -796,6 +799,9 @@ class Surveys {
     public function get_invitations() {
         global $db;
 
+        if(empty($this->survey['sid'])) {
+            return null;
+        }
         if($this->survey['isExternal']) {
             $invitations_query = $db->query("SELECT si.*
 							FROM ".Tprefix."surveys_invitations si
