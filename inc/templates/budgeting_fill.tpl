@@ -10,6 +10,7 @@
                         return;
                     }
                     $('input[id=income_' + id[1] + ']').val((Number($(this).val()) / 100) * $('input[id=amount_' + id[1] + ']').val());
+                    $('input[id="localincomeper_' + id[1] + '"]').trigger('keyup');
                 });
 
 
@@ -40,6 +41,7 @@
                     if($('input[id="amount_' + id[1] + '"]').val().length > 0) {
                         $('input[id=amountper_' + id[1] + ']').val((Number($(this).val()) * 100) / $('input[id=amount_' + id[1] + ']').val());
                     }
+                    $('input[id="localincomeper_' + id[1] + '"]').trigger('keyup');
                 });
 
                 $(document).on('keyup', 'input[id^="unitprice_"]', function () {

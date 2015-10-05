@@ -59,7 +59,7 @@ $(function() {
      On change of affid Or purchase type document number, Affiliate policy , approval chain, default aff policy
      On change of affid only Get warehouses
      On Change of purchase type only (check which fields to disable))*/
-    $("select[id$='purchasetype'],select[id$='affid']").live('change', function() {
+    $(document).on("change", "select[id$='purchasetype'],select[id$='affid']", function() {
         if(sharedFunctions.checkSession() == false) {
             return;
         }
@@ -69,7 +69,6 @@ $(function() {
         var ptid = $(this).data('purchasetype');
         sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populatedocnum&affid= ' + affid + '&ptid= ' + ptid);
         sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populateaffpolicy&affid= ' + affid + '&ptid= ' + ptid);
-
         $.ajax({type: 'post',
             url: rootdir + "index.php?module=aro/managearodouments&action=generateapprovalchain",
             data: "affid=" + affid + "&ptid=" + ptid,
@@ -187,7 +186,7 @@ $(function() {
 //        });
     });
     //-----------------Populate intermediary affiliate policy-----------------------------//
-    $("select[id='partiesinfo_intermed_aff']").live('change', function() {
+    $(document).on("change", "select[id='partiesinfo_intermed_aff']", function() {
         var ptid = $("select[id='purchasetype']").val();
         var intermedAff = $("select[id='partiesinfo_intermed_aff']").val();
         var estimatedImtermedPayment = $("input[id='pickDate_intermed_estdateofpayment']").val();
@@ -199,7 +198,7 @@ $(function() {
     });
     //------------------------------------------------------------------------------------//
     //-----------------Get Exchang Rate  -------------------------------------------------//
-    $("#currencies").live('change', function() {
+    $(document).on("change", "#currencies", function() {
         sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=getexchangerate&currency=' + $(this).val(), function(json) {
             if(json == null) {
                 $("input[id='exchangeRateToUSD']").removeAttr("readonly").val('');
@@ -217,7 +216,7 @@ $(function() {
     });
     //------------------------------------------------------------------------------------//
     //-------------------Get Warehouse policy parms---------------------------------------//
-    $("#parmsfornetmargin_warehouse").live('change', function() {
+    $(document).on("change", "#parmsfornetmargin_warehouse", function() {
         var warehouse = $(this).val();
         var ptid = $("#purchasetype").val();
         if(warehouse !== '' && warehouse !== typeof undefined) {
@@ -247,8 +246,6 @@ $(function() {
         if($("select[id='partiesinfo_intermed_incoterms']").val() !== '' && $("select[id='partiesinfo_vendor_incoterms']").val() !== '') {
             if($("select[id='partiesinfo_intermed_incoterms']").val() !== $("select[id='partiesinfo_vendor_incoterms']").val()) {
                 $("input[id='partiesinfo_freight']").attr("required", "true");
-
-
                 $.ajax({type: 'post',
                     url: rootdir + "index.php?module=aro/managearodouments&action=managevendorincoterms",
                     data: "incoterm=" + $("select[id='partiesinfo_vendor_incoterms']").val(),
@@ -324,7 +321,7 @@ $(function() {
     });
     //----------------------------------------------------------------------------------------------------------------------------//
     //-------------on change of est date of sales (actual purchase) Trigger est. local invoice date------------------
-    $("input[id^='pickDate_sale_']").live('change', function() {
+    $(document).on("change", "input[id^='pickDate_sale_']", function() {
         $("select[id^='paymentermdays_']").trigger('change');
     });
     //---------------------------------------------------------------------------------------------------------
@@ -337,7 +334,7 @@ $(function() {
         $("select[id^='paymentermdays_" + id[2] + "']").trigger("change");
     });
 //-------------------------------------------------------------------------------------//
-    $("select[id^='paymentermdays_']").live('change', function() {
+    $(document).on("change", "select[id^='paymentermdays_']", function() {
         var parentContainer = $(this).closest('div');
         var paymentdays = [];
         var salesdates = [];
@@ -360,7 +357,6 @@ $(function() {
                 }
             }
         });
-
         $("tbody[id^='newcustomer_']").find("input[id^='altpickDate_to_']").each(function() {
             if($(this).val() !== '') {
                 ptbasedates.push($(this).val());
@@ -375,8 +371,8 @@ $(function() {
         });
     });
 //-------------------------------------------------------------------------------------//
+    $(document).on("change", "input[id='pickDate_estDateOfShipment'],input[id='partiesinfo_transitTime'],input[id='partiesinfo_clearanceTime']", function() {
 
-    $("input[id='pickDate_estDateOfShipment'],input[id='partiesinfo_transitTime'],input[id='partiesinfo_clearanceTime']").live('change', function() {
         var transitTime = $("input[id='partiesinfo_transitTime']").val();
         var clearanceTime = $("input[id='partiesinfo_clearanceTime']").val();
         var dateOfStockEntry = $("input[id='pickDate_estDateOfShipment']").val();
@@ -417,7 +413,7 @@ $(function() {
 
 //Trigger(s): 21
     var actualpurchaselines_tr;
-    $("input[id$='_netMargin'],input[id$='_grossMarginAtRiskRatio']").live('change', function() {
+    $(document).on("change", "input[id$='_netMargin'],input[id$='_grossMarginAtRiskRatio']", function() {
         var invoicevalue_local = invoicevalue_local_RIC = grossMarginAtRiskRatio = 0;
         $("tbody[id^='productline_']").find($("input[id$='_affBuyingPrice']")).each(function() {
             var id = $(this).attr('id').split('_');
@@ -434,12 +430,10 @@ $(function() {
         sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populate_localintersetvalues&invoicevalue_local_RIC=' + invoicevalue_local_RIC + '&ptid=' + $("select[id=purchasetype]").val() + '&invoicevalue_local=' + invoicevalue_local + '&exchangeRateToUSD=' + $("#exchangeRateToUSD").val(), function() {
             $("select[id='partiesinfo_intermed_paymentterm']").trigger("change");
             clearTimeout(actualpurchaselines_tr);
-
             actualpurchaselines_tr = setTimeout(function() {
                 addactualpurchaselines(id[1]);
             }, 2000);
         });
-
     });
 //------------------------------------------//
     $("input[id$='freight'],input[id$='bankFees'],input[id$='insurance'],input[id$='legalization'],input[id$='courier'],input[id$='otherFees']").bind('change', function() {
@@ -449,9 +443,7 @@ $(function() {
                 total += parseFloat(this.value);
             }
         });
-
         $("input[id='partiesinfo_totalintermedfees']").val(total);
-
         var interestvalue = $("input[id='parmsfornetmargin_interestvalue']").val();
         if(interestvalue.length > 0) {
             total += parseFloat(interestvalue);
@@ -459,7 +451,6 @@ $(function() {
         $("input[id='partiesinfo_totalfees']").val(total);
         $("input[id='partiesinfo_totalfees']").trigger("change");
         $("input[id='partiesinfo_totalfees']").trigger("click", $("input[id='unitfee_btn']"));
-
         // $("input[id='partiesinfo_totalfees']").val(total).trigger("click", $("input[id='unitfee_btn']"));
 //        $("input[id$='_intialPrice']").trigger("change");
 //        var updateinterestvalue = setTimeout(function() {
@@ -522,7 +513,7 @@ $(function() {
 //----------------------------------------------------------------------------------------------------------------------------//
 
 //Trigger(s): 20A - 20B
-    $("#partiesinfo_totalfees,input[id='partiesinfo_totaldiscount'],select[id^='productline_'][id$='_uom'],input[id^='productline_'][id$='_quantity'],input[id^='productline_'][id$='_intialPrice']").live('change', function() {
+    $(document).on("change", "#partiesinfo_totalfees,input[id='partiesinfo_totaldiscount'],select[id^='productline_'][id$='_uom'],input[id^='productline_'][id$='_quantity'],input[id^='productline_'][id$='_intialPrice']", function() {
         var field_id = $(this).attr('id').split('_');
         if($(this).attr('id') != 'partiesinfo_totalfees') {
             var totalamount = totalcommision = intialprice = totalqty = 0;
@@ -550,7 +541,7 @@ $(function() {
 
         $('#unitfee_btn').trigger('click');
     });
-    $("select[id^='productline_'][id$='_uom']").live('change', function() {
+    $("select[id^='productline_'][id$='_uom']").change(function() {
         var id = $(this).attr('id').split("_");
         /* Calculate Unit Fees*/
 
@@ -575,7 +566,7 @@ $(function() {
 //    });
 
 // Trigger(s): 16A - 16B - 16C ///input[id$="_intialPrice"] //#partiesinfo_commission
-    $('#ordersummary_unitfee').live('change', function() {
+    $('#ordersummary_unitfee').change(function() {
         var attrs = '';
         $("tbody[id^='productline_']").find($("select[id$='_uom']")).each(function() {
             var id = $(this).attr('id').split('_');
@@ -601,13 +592,12 @@ $(function() {
                 sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populate_localintersetvalues&invoicevalue_local_RIC=' + invoicevalue_local_RIC + '&ptid=' + $("select[id=purchasetype]").val() + '&invoicevalue_local=' + invoicevalue_local + '&exchangeRateToUSD=' + $("#exchangeRateToUSD").val(), function() {
                     $("input[id='ordersummary_btn']").trigger("click");
                 });
-
             });
         });
     });
     var fields_array = ["quantity", "qtyPotentiallySold", "intialPrice", "costPrice", "sellingPrice", "daysInStock"];
 // Trigger(s): 15A, 15B, 19, 18A
-    $("input[id^='productline_'][id$='_quantity'],input[id^='productline_'][id$='_qtyPotentiallySold'],input[id^='productline_'][id$='_costPrice'],input[id$='_sellingPrice']").live('change', function() {
+    $("input[id^='productline_'][id$='_quantity'],input[id^='productline_'][id$='_qtyPotentiallySold'],input[id^='productline_'][id$='_costPrice'],input[id$='_sellingPrice']").change(function() {
         /*TEST*/
         var id = $(this).attr('id').split("_");
         if(id[2] == 'costPrice') {
@@ -767,7 +757,6 @@ $(function() {
                 $("td[id^='ordersummary_thirdparty']").hide();
             }
         });
-
     });
 //---------------------------------------
     $("input[id='unitfee_btn']").click(function() {
@@ -819,7 +808,7 @@ $(function() {
         });
     });
 //------------Total Funds Engaged-------
-    $("input[id^='totalfunds_']").live('change', function() {
+    $(document).on("change", "input[id^='totalfunds_']", function() {
         var totalfunds = 0;
         $("input[id$='_orderShpInvOverdue'],input[id$='_orderShpInvNotDue'],input[id$='_ordersAppAwaitingShp'],input[id$='_odersWaitingApproval']").each(function() {
             if(!jQuery.isEmptyObject(this.value)) {
@@ -828,12 +817,8 @@ $(function() {
         });
         $("input[id='totalfunds_total']").val(totalfunds);
     });
-
-
-
-
 //--------------------------------------------------
-    $("input[id='user_0_autocomplete']").live('change', function() {
+    $(document).on("change", "input[id='user_0_autocomplete']", function() {
         var bmid = $("input[id='user_0_id']").val();
         if(typeof bmid != 'undefined' && bmid.length > 0) {
             var aroBusinessManager = $("input[id='user_0_id']").val();
@@ -855,25 +840,20 @@ $(function() {
             }
         }
     });
-
 //---------------------------------------------------------------
-    $("input[id='partiesinfo_commission']").live('keyup', function() {
+    $(document).on("keyup", "input[id='partiesinfo_commission']", function() {
         $("input[id='partiesinfo_defaultcommission']").val($("input[id='partiesinfo_commission']").val());
     });
-
     //--------------------------------------------------------------
-
-    $("a[id='ordersummary_seemore']").live('click', function() {
+    $(document).on("click", "a[id='ordersummary_seemore']", function() {
         if($(this).text() == 'See More') {
             $(this).text('See Less');
             $("tfoot[id='ordersummary_tfoot']").show();
         } else {
             $(this).text('See More');
             $("tfoot[id='ordersummary_tfoot']").hide();
-
         }
     });
-
 });
 var rowid = '';
 function addactualpurchaserow(id, callback) {

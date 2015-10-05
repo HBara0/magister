@@ -814,25 +814,27 @@ class Users extends AbstractClass {
             }
         }
 
-        foreach($assignedemployees as $assignedemployee) {
-            if(is_array($permissions['eid'])) {
-                if(in_array($assignedemployee->{Entities::PRIMARY_KEY}, $permissions['eid'])) {
-                    continue;
+        if(is_array($assignedemployees)) {
+            foreach($assignedemployees as $assignedemployee) {
+                if(is_array($permissions['eid'])) {
+                    if(in_array($assignedemployee->{Entities::PRIMARY_KEY}, $permissions['eid'])) {
+                        continue;
+                    }
                 }
-            }
-            if(!$cache->iscached('entity', $assignedemployee->{Entities::PRIMARY_KEY})) {
-                $entity = $assignedemployee->get_entity();
-                $cache->add('entity', $entity, $entity->get_id());
-            }
-            else {
-                $entity = $cache->get_cachedval('entity', $assignedemployee->{Entities::PRIMARY_KEY});
-            }
-            $permissions['eid'][] = $entity->get_id();
-            if($entity->is_supplier()) {
-                $permissions['spid'][] = $entity->get_id();
-            }
-            else {
-                $permissions['cid'][] = $entity->get_id();
+                if(!$cache->iscached('entity', $assignedemployee->{Entities::PRIMARY_KEY})) {
+                    $entity = $assignedemployee->get_entity();
+                    $cache->add('entity', $entity, $entity->get_id());
+                }
+                else {
+                    $entity = $cache->get_cachedval('entity', $assignedemployee->{Entities::PRIMARY_KEY});
+                }
+                $permissions['eid'][] = $entity->get_id();
+                if($entity->is_supplier()) {
+                    $permissions['spid'][] = $entity->get_id();
+                }
+                else {
+                    $permissions['cid'][] = $entity->get_id();
+                }
             }
         }
 

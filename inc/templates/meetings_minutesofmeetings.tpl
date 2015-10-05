@@ -2,6 +2,13 @@
     <head>
         <title>{$core->settings[systemtitle]} | {$lang->setmof}</title>
         {$headerinc}
+        <script>
+            $(function() {
+                var auto_save = setInterval(function() {
+                    $("input[id='perform_meetings/minutesmeeting_Button']").trigger("click");
+                }, 120000)
+            });
+        </script>
     </head>
     <body>
         {$header}

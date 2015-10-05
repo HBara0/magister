@@ -81,6 +81,8 @@ if(!$core->input['action']) {
     );
     $repfilter = new Inlinefilters($filters_rep_config);
     $filters_repr_row = $repfilter->prase_filtersrows(array('hidebutton' => true, 'tags' => 'table', 'display' => $filters_reprow_display));
+
+    $userchecked = ' checked="checked"';
     eval("\$generatelist = \"".$template->get('contacts_generatelist')."\";");
     output_page($generatelist);
 }
@@ -109,6 +111,7 @@ else {
                                 ),
                                 'affiliatedemployees' => array(
                                         'filters' => array('allenabledaffiliates' => array('operatorType' => 'multiple', 'name' => 'affid')),
+                                        'extraWhere' => 'isMain=1'
                                 ),
                                 'affiliatedemployees2' => array(
                                         'filters' => array('allaffiliates' => array('operatorType' => 'multiple', 'name' => 'affid')),
@@ -250,9 +253,9 @@ else {
     }
     if($core->input['action'] == 'rep') {
         $permissions = $core->user_obj->get_businesspermissions();
-        if(is_array($permissions['psid'])) {
-            $extrawhere['psid'] = 'psid IN ('.implode(',', array_filter($permissions['psid'])).')';
-        }
+//        if(is_array($permissions['psid'])) {
+//            $extrawhere['psid'] = 'psid IN ('.implode(',', array_filter($permissions['psid'])).')';
+//        }
         if(is_array($permissions['eid'])) {
             $extrawhere['eid'] = 'eid IN ('.implode(',', array_filter($permissions['eid'])).')';
         }
@@ -280,7 +283,7 @@ else {
                                 ),
                                 'representativessegments' => array(
                                         'filters' => array('usersegments' => array('operatorType' => 'multiple', 'name' => 'psid')),
-                                        'extraWhere' => $extrawhere['psid']
+                                // 'extraWhere' => $extrawhere['psid']
                                 ),
                         )
                 )
@@ -434,10 +437,15 @@ else {
             }
         }
         if(isset($extrafilters)) {
-            $ents = Entities::get_data($extrafilters[Entities], array('returnarray' => true, 'operators' => array('contractExpiryDate' => $extrafilters['operators']['contractExpiryDate'])));
             if(is_array($permissions['eid'])) {
-                $ents = array_intersect_key($ents, array_combine($permissions['eid'], $permissions['eid']));
+                if(isset($extrafilters[Entities]['eid'])) {
+                    $extrafilters[Entities]['eid'] = array_intersect($extrafilters[Entities]['eid'], $permissions['eid']);
+                }
+                else {
+                    $extrafilters[Entities]['eid'] = $permissions['eid'];
+                }
             }
+            $ents = Entities::get_data($extrafilters[Entities], array('returnarray' => true, 'operators' => array('contractExpiryDate' => $extrafilters['operators']['contractExpiryDate'])));
             if(isset($extrafilters[AffiliatedEntities]) && !empty($extrafilters[AffiliatedEntities])) {
                 $extrafilters[AffiliatedEntities]['eid'] = array_keys($ents);
                 $affiliatedents = AffiliatedEntities::get_data($extrafilters[AffiliatedEntities], array('returnarray' => true));

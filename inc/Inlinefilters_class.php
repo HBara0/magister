@@ -153,7 +153,7 @@ class Inlinefilters {
                         case 'segment': //all segments
                         case 'usersegments': //user assigned segments
                             if($filter == 'usersegments' && is_array($permissions['psid'])) {
-                                $psegments_query = $db->query("SELECT ps.psid, title FROM ".Tprefix."productsegments ps WHERE ps.psid IN (".implode(',', array_filter($permissions['psid'])).")");
+                                $psegments_query = $db->query("SELECT ps.psid, title FROM ".Tprefix."productsegments ps WHERE ps.psid IN (".implode(',', array_filter($permissions['psid'], 'is_numeric')).")");
                                 while($productline = $db->fetch_assoc($psegments_query)) {
                                     $productlines[$productline['psid']] = $productline['title'];
                                 }

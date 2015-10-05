@@ -17,16 +17,16 @@
                         <table class="datatable" width="100%">
                             <thead>
                                 <tr>
-                                    <th width="50%"><input style="width:5%;" type="checkbox" id='usersfilter_checkall'><input class='inlinefilterfield' type='text'  placeholder="{$lang->search}  {$lang->employeename}" style="width:90%;display:inline-block;margin-left:5px;"/></th>
-                                    <th width="40%"> <input class='inlinefilterfield' type='text'  placeholder="{$lang->search} {$lang->affiliates}" style="width:100%;display:inline-block;margin-left:5px;"/></th>
+                                    <th width="50%"><input type="checkbox" id='usersfilter_checkall'><input class='inlinefilterfield' type='text'  placeholder="{$lang->employeename}" style="width:90%;"/></th>
+                                    <th width="40%"> <input class='inlinefilterfield' type='text' placeholder="{$lang->affiliate}" style="width:90%;"/></th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {$users_list}
                             </tbody>
                         </table>
-
-                    </div>                    <p>
+                    </div>
+                    <p>
                         {$lang->fromdate} <br />
                         <input type="text" id="pickDate_from" autocomplete="off" tabindex="1" /> <input type="hidden" name="fromDate" id="altpickDate_from" />
                         <br />
