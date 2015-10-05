@@ -1,6 +1,12 @@
 <head>
     <title>{$core->settings[systemtitle]} | {$lang->fillsurvey}</title>
     {$headerinc}
+
+    <script>
+        $(function() {
+            $("input[id='startTime']").val($.now());
+        });
+    </script>
 </head>
 <body>
     {$header}
@@ -16,12 +22,14 @@
 
         <form name="perform_surveys/fill_Form" id="perform_surveys/fill_Form" method="post">
             <input type="hidden" value="{$survey_details[identifier]}" name="identifier" />
+            <input type="hidden" id="startTime"  name="answer[startTime]" />
+
             {$questions_list}
             <hr />
             <input type='submit' class='button' value="{$lang->savecaps}" id='perform_surveys/fill_Button'>
         </form>
         <div id="perform_surveys/fill_Results"></div>
-    </td> 
+    </td>
 </tr>
 {$footer}
 </body>

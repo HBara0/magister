@@ -4,8 +4,7 @@
         {$headerinc}
         <script type="text/javascript">
             $(function() {
-
-                $('input[id$=_approver]').live('change', function() {
+                $(document).on("change", 'input[id$=_approver]', function() {
                     var id = $(this).attr('id').split("_");
                     if($(this).val() != 'user') {
                         $("div[id^='user_" + id[1] + "']").hide();

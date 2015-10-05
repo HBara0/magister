@@ -3,4 +3,5 @@
     {$event[place_output]}
     <hr />
     <p style="font-style:italic">{$event[description]}</p>
+    {$edittask}
 </div>

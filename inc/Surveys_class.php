@@ -575,7 +575,7 @@ class Surveys {
                 }
             }
             /* Set contribution as done */
-            $db->update_query('surveys_invitations', array('isDone' => 1, 'timeDone' => TIME_NOW), 'invitee='.$core->user['uid'].' AND sid='.$this->survey['sid']);
+            $db->update_query('surveys_invitations', array('startTime' => $answers['timeStart'], 'isDone' => 1, 'timeDone' => TIME_NOW), 'invitee='.$core->user['uid'].' AND sid='.$this->survey['sid']);
             $this->status = 0;
             return true;
         }
