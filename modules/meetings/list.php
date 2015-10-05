@@ -64,16 +64,9 @@ if(!$core->input['action']) {
 
             $meeting['fromDate_output'] = date($core->settings['dateformat'], $meeting['fromDate']);
             $meeting['toDate_output'] = date($core->settings['dateformat'], $meeting['toDate']);
-            $reservation_obj = FacilityMgmtReservations::get_data(array('mtid' => $meeting['mtid']), array('returnarray' => false));
-            if(is_object($reservation_obj) && !is_empty($reservation_obj->fmrid)) {
-                $facility = new FacilityMgmtFacilities($reservation_obj->fmfid);
-                if(is_object($facility) && !is_empty($facility->fmfid)) {
-                    $meeting['locationoutput'] = $facility->getfulladdress();
-                }
-            }
-            else {
-                $meeting[locationoutput] = $meeting['location'];
-            }
+
+            $meeting['locationoutput'] = $meeting_obj->get_location();
+
             if(strlen($meeting['description']) > 50) {
                 $meeting['description'] = $core->sanitize_inputs(substr($meeting['description'], 0, 50), array('removetags' => true)).'...';
             }

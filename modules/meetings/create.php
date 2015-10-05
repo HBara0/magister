@@ -17,11 +17,11 @@ if($core->usergroup['meetings_canCreateMeeting'] == 0) {
 }
 
 if(!$core->input['action']) {
+    $location['hide'] = 'style="display:none"';
     if(isset($core->input['mtid']) && !empty($core->input['mtid'])) {
         $mtid = $core->input['mtid'];
         $action = 'edit';
         $lang->create = $lang->edit;
-        $location['hide'] = 'style="display:none"';
         $meeting_obj = new Meetings($mtid);
 
         $meeting = $meeting_obj->get();

@@ -98,7 +98,7 @@ class Meetings {
                     'fromDate' => $this->meeting['fromDate'],
                     'toDate' => $this->meeting['toDate'],
                     'description' => $this->meeting['description'],
-                    'location' => $this->meeting['location'],
+                    'location' => $this->get_location(),
                     'createdBy' => $core->user['uid'],
                     'createdOn' => TIME_NOW
             );
@@ -182,16 +182,7 @@ class Meetings {
                     $ical_obj = new iCalendar(array('identifier' => $this->meeting['identifier'], 'uidtimestamp' => $this->meeting['createdOn'], 'component' => 'event', 'method' => 'REQUEST'));  /* pass identifer to outlook to avoid creation of multiple file with the same date */
                     $ical_obj->set_datestart($this->meeting['fromDate']);
                     $ical_obj->set_datend($this->meeting['toDate']);
-                    $reservation_obj = FacilityMgmtReservations::get_data(array('mtid' => $this->meeting['toDate']), array('returnarray' => false));
-                    if(is_object($reservation_obj) && !is_empty($reservation_obj->fmrid)) {
-                        $facility = new FacilityMgmtFacilities($reservation_obj->fmfid);
-                        if(is_object($facility) && !is_empty($facility->fmfid)) {
-                            $ical_obj->set_location($facility->getfulladdress());
-                        }
-                    }
-                    else {
-                        $ical_obj->set_location($this->meeting['location']);
-                    }
+                    $ical_obj->set_location($this->get_location());
                     $ical_obj->set_summary($this->meeting['title']);
                     $ical_obj->set_categories('Appointment');
                     $ical_obj->set_organizer();
@@ -745,6 +736,19 @@ class MeetingsAttendees {
 
     public function get() {
         return $this->attendee;
+    }
+
+    public function get_location() {
+        $reservation_obj = FacilityMgmtReservations::get_data(array('mtid' => $meeting['mtid']), array('returnarray' => false));
+        if(is_object($reservation_obj) && !is_empty($reservation_obj->fmrid)) {
+            $facility = new FacilityMgmtFacilities($reservation_obj->fmfid);
+            if(is_object($facility) && !is_empty($facility->fmfid)) {
+                return $facility->getfulladdress();
+            }
+        }
+        else {
+            return $meeting['location'];
+        }
     }
 
 }

@@ -272,17 +272,15 @@ class FacilityMgmtFacilities extends AbstractClass {
     }
 
     public function getfulladdress() {
+        $address = $this->get_displayname();
         $affiliate = new Affiliates($this->affid);
-        if(is_object($affiliate) && !empty($affiliate->affid)) {
-            $address = $affiliate->get_displayname().'- ';
-        }
+
         if(!is_empty($this->parent)) {
             $motherfaciloty = $this->get_mother();
             if(is_object($motherfaciloty) && !is_empty($motherfaciloty->fmfid)) {
-                $address.=$motherfaciloty->get_displayname().' -';
+                $address.=' - '.$motherfaciloty->get_displayname();
             }
         }
-        $address.=$this->get_displayname();
         return $address;
     }
 
