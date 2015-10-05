@@ -4,7 +4,7 @@
 
     <script>
         $(function() {
-            $("input[id='timeStart']").val($.now());
+            $("input[id='startTime']").val($.now());
         });
     </script>
 </head>
@@ -22,7 +22,7 @@
 
         <form name="perform_surveys/fill_Form" id="perform_surveys/fill_Form" method="post">
             <input type="hidden" value="{$survey_details[identifier]}" name="identifier" />
-            <input type="hidden" id="timeStart" value="{$survey_details[timeStart]}" name="answer[timeStart]" />
+            <input type="hidden" id="startTime"  name="answer[startTime]" />
 
             {$questions_list}
             <hr />
