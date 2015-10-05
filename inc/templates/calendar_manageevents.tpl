@@ -11,7 +11,7 @@
             <h1>{$lang->manageevents}</h1>
             <div>
 
-                <form method="post" enctype="multipart/form-data" action="index.php?module=cms/manageevents&amp;action=do_perform_manageevents" target="uploadFrame">
+                <form name="perform_calendar/manageevents_Form" id="perform_calendar/manageevents_Form"  action="#" method="post">
                     <input type='hidden' name='event[ceid]' value="{$event[ceid]}">
                     <div style="display:block;">
                         <div style="display: inline-block;width:10%">{$lang->title}</div>
@@ -91,15 +91,13 @@
                     </div>
                     <div style="display:block;padding-top:10px;">
                         <div style="display:inline-block;">
-                            <input type="submit" value="{$lang->savecaps}" class="button" onclick="$('#upload_Result').show()"/>
+                            <input type="submit" id="perform_calendar/manageevents_Button" value="Save" class="button"/>
                             <input type="reset" class="button" value="{$lang->reset}"/>
-                            <div style="display:none" id="preview"><a id="preview_link" target="_blank" href="none"><button type="button" class="button">{$lang->preview}</button></a></div>
                         </div>
                     </div>
                 </form>
                 <hr />
-                <iframe id='uploadFrame' name='uploadFrame' src='{$url}' frameBorder='0' width="100%" height="500px"> <div id="upload_Result" style="display:none;"><img src="{$core->settings[rootdir]}/images/loading.gif" /> {$lang->uploadinprogress}</div></iframe>
-                <div id="perform_cms/manageevents_Results"></div>
+                <div id="perform_calendar/manageevents_Results"></div>
             </div>
         </td>
     </tr>

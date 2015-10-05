@@ -78,4 +78,7 @@ $lang['assignedtome'] = 'Assigned To Me';
 $lang['createdbyme'] = 'Created By Me';
 $lang['sharedwithme'] = 'Shared With Me';
 $lang['prerequisittask'] = 'Pre-Requisit Task';
+$lang['youhavenotcreatedthisevent'] = 'You Have Not Created This Event!';
+$lang['manageevents'] = 'Manage Events';
+$lang['edit'] = 'Edit';
 ?>

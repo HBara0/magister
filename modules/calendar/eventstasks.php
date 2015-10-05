@@ -354,6 +354,9 @@ else {
             if(!empty($event['place'])) {
                 $event['place_output'] = $event['place'].' <a href="http://maps.google.com/maps?hl=en&q='.$event['place'].'" target="_blank"><img src="./images/icons/map.png" border="0" alt="'.$lang->map.'"></a>';
             }
+            if($event['createdBy'] == $core->user['uid']) {
+                $edittask = '<hr /><br><a target="_blank" href="'.$core->settings['rootdir'].'/index.php?module=calendar/manageevents&id='.$event['ceid'].'" ><button>'.$lang->edit.'</button></a>';
+            }
             eval("\$eventdetailsbox = \"".$template->get('popup_calendar_eventdetails')."\";");
             output($eventdetailsbox);
         }
