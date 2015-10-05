@@ -4,7 +4,7 @@
         {$headerinc}
         <script>
             $(function() {
-                $("input[id^='pickDate_from']").live('change', function() {
+                $(document).on("change", "input[id^='pickDate_from']", function() {
                     var minDate = $("input[id^='altpickDate_from']").val();
                     var date = minDate.split("-");
                     $("input[id^='pickDate_to']").datepicker("option", "minDate", new Date(date[2], date[1] - 1, date[0]));
