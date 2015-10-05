@@ -459,9 +459,9 @@ $(function() {
             return;
         }
 
-        for(instance in CKEDITOR.instances) {
-            CKEDITOR.instances[instance].updateElement();
-        }
+        // for(instance in CKEDITOR.instances) {
+        //     CKEDITOR.instances[instance].updateElement();
+        //  }
 
         var id = $(this).attr("id").split("_");
         var formid = '';
