@@ -92,6 +92,7 @@
                     <div style="display:block;padding-top:10px;">
                         <div style="display:inline-block;">
                             <input type="submit" id="perform_calendar/manageevents_Button" value="Save" class="button"/>
+                            {$deletelink}
                             <input type="reset" class="button" value="{$lang->reset}"/>
                         </div>
                     </div>
@@ -102,5 +103,6 @@
         </td>
     </tr>
     {$footer}
+    {$deleteventpopup}
 </body>
 </html>

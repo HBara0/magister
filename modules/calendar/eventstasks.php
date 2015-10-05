@@ -355,7 +355,14 @@ else {
                 $event['place_output'] = $event['place'].' <a href="http://maps.google.com/maps?hl=en&q='.$event['place'].'" target="_blank"><img src="./images/icons/map.png" border="0" alt="'.$lang->map.'"></a>';
             }
             if($event['createdBy'] == $core->user['uid']) {
-                $edittask = '<hr /><br><a target="_blank" href="'.$core->settings['rootdir'].'/index.php?module=calendar/manageevents&id='.$event['ceid'].'" ><button>'.$lang->edit.'</button></a>';
+                $edittask = '<hr /><br><div style="display:inline-block"><a target="_blank" href="'.$core->settings['rootdir'].'/index.php?module=calendar/manageevents&id='.$event['ceid'].'" ><button>'.$lang->edit.'</button></a>';
+                $edittask .= '<form id="perform_calendar/manageevents_Form" name="perform_calendar/manageevents_Form" action="#" method="post">
+      <input type="hidden" name="action" value="delete_event" /><input type="hidden"  name="id" value="'.$event['ceid'].'" />
+       <input type=\'button\' id=\'perform_calendar/manageevents_Button\' value="'.$lang->delete.'" class=\'button\'/>
+    </form>
+    </div>
+    <div id="perform_calendar/manageevents_Results"></div>
+';
             }
             eval("\$eventdetailsbox = \"".$template->get('popup_calendar_eventdetails')."\";");
             output($eventdetailsbox);

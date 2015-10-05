@@ -16,11 +16,14 @@ if(!$core->input['action']) {
     if(isset($core->input['id']) && !empty($core->input['id'])) {
         $event_obj = Events::get_data(array('ceid' => $core->input['id']), array('simple' => false));
         if(is_object($event_obj)) {
+
             $event = $event_obj->get();
             if($event_obj->createdBy != $core->user['uid']) {
                 error($lang->youhavenotcreatedthisevent);
                 exit;
             }
+            $deletelink = ' <a href="#popup_deleteevent" id="showpopup_deleteevent" class="showpopup"><button type="button">'.$lang->deleteevent.'</button></a>';
+            eval("\$deleteventpopup=\"".$template->get('popup_calendar_deleteevent')."\";");
             if($event['isFeatured'] == 1) {
                 $checkedbox['isFeatured'] = "checked='checked'";
             }
@@ -247,5 +250,17 @@ else {
                 exit;
         }
         /* Parse Event Logo - END */
+    }
+    elseif($core->input['action'] == 'delete_event') {
+        $event = new Events(intval($core->input['id']));
+        $eventdeleted = $event->delete_event(intval($core->input['id']));
+        if($eventdeleted) {
+            output_xml('<status>true</status><message>'.$lang->succesfullydeleted.'</message>');
+            exit;
+        }
+        else {
+            output_xml('<status>false</status><message>'.$lang->eventisusedbyotherusers.'</message>');
+            exit;
+        }
     }
 }

@@ -81,4 +81,8 @@ $lang['prerequisittask'] = 'Pre-Requisit Task';
 $lang['youhavenotcreatedthisevent'] = 'You Have Not Created This Event!';
 $lang['manageevents'] = 'Manage Events';
 $lang['edit'] = 'Edit';
+$lang['succesfullydeleted'] = 'Succesfully Deleted';
+$lang['eventisusedbyotherusers'] = 'Event Is Already In Use By Other Users';
+$lang['deleteevent'] = 'Delete Event';
+$lang['sureredeleteevent'] = 'Atr You Sure You Want To Delete The Event ?';
 ?>
