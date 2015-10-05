@@ -114,7 +114,6 @@ if($core->input['type'] == 'quick') {
             }
             else {
                 $type = 'c';
-                $core->usergroup['canViewAllCust'] = 1;
                 if($core->usergroup['canViewAllCust'] == 0) {
                     $core->user['customers'] = array_map(intval, $core->user['customers']);
                     if(is_array($core->user['customers'])) {
@@ -406,14 +405,19 @@ if($core->input['type'] == 'quick') {
             $extrainput = array('userlong' => $core->input['loacationLong'], 'userlat' => $core->input['loacationLat']);
         }
         elseif($core->input['for'] == 'reservationfacilities') {
-            $extra_where = '';
-            $extra_where = ' isActive = 1';
+            $extra_where = ' isActive = 1 AND allowReservation = 1';
+            $factypes = FacilityMgmtFactypes::get_column('fmftid', array('isActive' => 1, 'isMainLocation' => 0), array('returnarray' => true));
+            if(is_array($factypes) && !empty($factypes)) {
+                $extra_where.=' AND type IN ('.implode(',', $factypes).')';
+            }
             $table = 'facilitymgmt_facilities';
             $attributes = array('name');
             $key_attribute = 'fmfid';
             $select_attributes = array('name');
             $order = array('by' => 'name', 'sort' => 'ASC');
-            $extrainput = array('from' => $core->input['reserveFrom'], 'to' => $core->input['reserveTo'], 'userlong' => $core->input['loacationLong'], 'userlat' => $core->input['loacationLat']);
+            $from = strtotime($core->input['dateFrom'].' '.$core->input['timeFrom']);
+            $to = strtotime($core->input['dateTo'].' '.$core->input['timeTo']);
+            $extrainput = array('mtid' => $core->input['mtid'], 'from' => $from, 'to' => $to, 'userlong' => $core->input['loacationLong'], 'userlat' => $core->input['loacationLat']);
             $descinfo = 'reservationfacilities';
         }
         elseif($core->input['for'] == 'userpermissionentities') {
@@ -425,7 +429,7 @@ if($core->input['type'] == 'quick') {
             $order = array('by' => 'companyName', 'sort' => 'ASC');
             $descinfo = 'country';
             if(is_array($permissions['eid'])) {
-                $permisisonents = ' AND eid IN ('.implode(',', array_filter($permissions['eid'])).')';
+                $permisisonents = ' AND eid IN ('.implode(',', array_filter($permissions['eid'], 'is_numeric')).')';
             }
             $extra_where .= ' isActive=1 AND approved=1'.$permisisonents;
         }

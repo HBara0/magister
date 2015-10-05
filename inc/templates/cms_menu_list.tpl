@@ -12,7 +12,7 @@
             function closedialog() {
                 $("#popup_createmenu").dialog("destroy");
             }
-            $("a[id^=mainmenu_]").live('click', function () {
+            $(document).on('click', "a[id^=mainmenu_]", function () {
                 var id = $(this).attr('rel'); /*take the id of clicked link*/
                 $(this).data('newsid', id);
                 contentId = "item_result_" + $(this).data('newsid');

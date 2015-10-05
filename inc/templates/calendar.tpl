@@ -4,8 +4,8 @@
         {$headerinc}
         <link href="./css/calendar.min.css" rel="stylesheet" type="text/css" />
         <script type="text/javascript">
-            $(function() {
-                $(".showpopup[id^='createeventtask_']").live("click", function() {
+            $(function () {
+                $(document).on("click", ".showpopup[id^='createeventtask_']", function () {
                     var id = $(this).attr("id").split("_");
                     $("#popup_createeventtask input[id^='altpickDate_']").val(id[1]);
                     $('#popup_createeventtask').dialog('open');
@@ -13,7 +13,7 @@
 
                 $('.redactor_air').css('z-index', ($('.ui-dialog').css('z-index') + 1));
 
-                $('select[id=event_type]').live('change', function() {
+                $(document).on('change', 'select[id=event_type]', function () {
                     var types = [{$etypemorefields}];
                     if(jQuery.inArray(parseInt($(this).val()), types) > -1) {
                         $('#visittypefields').slideDown();

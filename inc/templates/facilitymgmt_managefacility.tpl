@@ -41,17 +41,17 @@
                         </tr>
                         <tr><td>{$lang->widthinmeters}</td>
                             <td>
-                                <input type="number" name="facility[dimensions][x]" value="{$facility[x]}" placeholder="x"/>
+                                <input type="number" name="facility[dimensions][x]" value="{$facility[x]}" />
                             </td>
                         </tr>
                         <tr><td>{$lang->lengthinmeters}</td>
                             <td>
-                                <input type="number" name="facility[dimensions][y]" value="{$facility[y]}" placeholder="y"/>
+                                <input type="number" name="facility[dimensions][y]" value="{$facility[y]}" />
                             </td>
                         </tr>
                         <tr><td>{$lang->heightinmeters}</td>
                             <td>
-                                <input type="number" name="facility[dimensions][z]" value="{$facility[z]}" placeholder="z"/>
+                                <input type="number" name="facility[dimensions][z]" value="{$facility[z]}"/>
                             </td>
                         </tr>
                         <tr><td>{$lang->image}</td>

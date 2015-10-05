@@ -60,6 +60,13 @@ if(!isset($core->input['action'])) {
 }
 else if($core->input['action'] == 'do_perform_managefacility') {
     unset($core->input['identifier'], $core->input['module'], $core->input['action']);
+    $mainlocation_ids = FacilityMgmtFactypes::get_column('fmftid', array('isActive' => 1, 'isMainLocation' => 1), array('returnarray' => true));
+    if(is_array($mainlocation_ids)) {
+        if(is_empty($core->input['facility']['parent']) && !in_array($core->input['facility']['type'], $mainlocation_ids)) {
+            output_xml('<status>false</status><message>'.$lang->parentisneededinnonemaintypes.'</message>');
+            exit;
+        }
+    }
     $facility = new FacilityMgmtFacilities();
     $facility->set($core->input['facility']);
     $facility->save();

@@ -24,7 +24,7 @@ if(!$core->input['action']) {
     $criteriaandstars = $rating_section = '';
     if($core->usergroup['sourcing_canManageEntries'] == 1) {
         $readonlyratings = false;
-        $header_ratingjs = '$(".rateit").live("click",function() {
+        $header_ratingjs = '$(document).on("click",".rateit",function() {
 				if(sharedFunctions.checkSession() == false) {
 					return;
 				}
@@ -33,7 +33,7 @@ if(!$core->input['action']) {
 				sharedFunctions.requestAjax("post", "index.php?module=sourcing/listpotentialsupplier&action=do_ratepotential", "value="+rateid+"&ssid="+ssid, "html");
 			});
 			 var tooltipvalues = ["'.$lang->verylowopp.'", "'.$lang->lowopp.'", "'.$lang->mediumopp.'", "'.$lang->highopp.'", "'.$lang->veryhighopp.'"];
-			 $("div[id^=ratingdiv_]").live("over", function(event, value) {$(this).attr("title", tooltipvalues[value-1]); });
+			 $(document).on("over", "div[id^=ratingdiv_]",function(event, value) {$(this).attr("title", tooltipvalues[value-1]); });
 			';
     }
     else {
