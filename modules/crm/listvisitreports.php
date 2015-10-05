@@ -91,8 +91,8 @@ if(!$core->input['action']) {
 
     $query = $db->query("SELECT vr.*, vr.cid AS customer, displayName AS employeename, e.companyName as customername, e.companyNameAbbr
 						 FROM ".Tprefix."visitreports vr
-						 JOIN ".Tprefix."users u ON (u.uid=vr.uid)
-						 JOIN ".Tprefix."entities e ON (vr.cid=e.eid)
+						LEFT JOIN ".Tprefix."users u ON (u.uid=vr.uid)
+						RIGHT  JOIN ".Tprefix."entities e ON (vr.cid=e.eid)
                                                  WHERE (isDraft IN (0,1){$permissionsfilter}){$query_or_usercreator}{$filter_where}
 						 ORDER BY {$sort_query}");
 
