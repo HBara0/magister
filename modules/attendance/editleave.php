@@ -332,6 +332,9 @@ else {
                     }
                     if(is_array($changed_fields)) {
                         $imploded_fields = implode(',', $changed_fields);
+                        foreach($changed_fields as $field) {
+                            $imploded_fields.=$lang->$field.', ';
+                        }
                         $actualform = serialize($core->input);
                         $actualform = htmlentities($actualform);
                         eval("\$deletetm = \"".$template->get('popup_atteendance_deletetmplan')."\";");
@@ -339,6 +342,9 @@ else {
                         exit;
                     }
                 }
+            }
+            if($leave_obj->createAutoResp == 1 && !isset($core->input['createAutoResp'])) {
+                $leave_obj->delete_autoresponder();
             }
         }
         //check if leave has a TM plan end
@@ -461,7 +467,12 @@ else {
 //									  FROM ".Tprefix."affiliates
 //									  WHERE affid=(SELECT affid FROM affiliatedemployees WHERE uid='".$db->escape_string($leave_user['uid'])."' AND isMain='1')"));
 //			}
-
+            if($deleted_tm == 1 && $leavetype_details['isBusiness'] == 1) {
+                $url = 'index.php?module=travelmanager/plantrip&lid=';
+                header('Content-type: text/xhml+javascript');
+                output_xml('<status>true</status><message>'.$lang->redirecttotmplantrip.'<![CDATA[<script>goToURL(\''.$url.$db->escape_string($lid).'\');</script>]]></message>');
+                exit;
+            }
             if($approve_immediately == true) {
                 $query = $db->query("SELECT la.uid, u.email FROM ".Tprefix."leavesapproval la JOIN ".Tprefix."users u ON (u.uid=la.uid) WHERE lid='{$lid}' ORDER BY sequence ASC");
                 if($db->num_rows($query) > 1) {
@@ -704,23 +715,11 @@ else {
                 $mail = new Mailer($email_data, 'php');
                 if($mail->get_status() === true) {
                     $log->record('notifysupervisors', $email_data['to']);
-                    if($deleted_tm == 1 && $leavetype_details['isBusiness'] == 1) {
-                        $url = 'index.php?module=travelmanager/plantrip&lid=';
-                        header('Content-type: text/xhml+javascript');
-                        output_xml('<status>true</status><message>'.$lang->redirecttotmplantrip.'<![CDATA[<script>goToURL(\''.$url.$db->escape_string($lid).'\');</script>]]></message>');
-                        exit;
-                    }
                     output_xml("<status>true</status><message>{$lang->leavesuccessfullymodified}</message>");
                 }
             }
             else {
                 $log->record('notifysupervisors', $email_data['to']);
-                if($deleted_tm == 1 && $leavetype_details['isBusiness'] == 1) {
-                    $url = 'index.php?module=travelmanager/plantrip&lid=';
-                    header('Content-type: text/xhml+javascript');
-                    output_xml('<status>true</status><message>'.$lang->redirecttotmplantrip.'<![CDATA[<script>goToURL(\''.$url.$db->escape_string($lid).'\');</script>]]></message>');
-                    exit;
-                }
                 output_xml("<status>true</status><message>{$lang->leavesuccessfullymodified}</message>");
             }
         }

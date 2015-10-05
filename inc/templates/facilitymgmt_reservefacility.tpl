@@ -9,7 +9,9 @@
                 }
             });
             function fillvalue(position) {
-                $('input[id="userlocation"]').val(position.coords.latitude + "," + position.coords.longitude);
+                $('input[id="loacationLat"]').val(position.coords.latitude);
+                $('input[id="loacationLong"]').val(position.coords.longitude);
+
             }
         </script>
     </head>
@@ -31,7 +33,8 @@
                         </td></tr>
                     <tr><td style="width: 20%">{$lang->searchfacility}</td><td style="width: 30%">
                             <input type="text"   id="reservationfacilities_{$sequence}_autocomplete" autocomplete="false" tabindex="1" value="" required="required"/>
-                            <input type="hidden" id="userlocation"  value="" name="userlocation"/>
+                            <input type="hidden" id="loacationLat"  value="" name="loacationLat"/>
+                            <input type="hidden" id="loacationLong"  value="" name="loacationLong"/>
                             <input type='hidden' id='reservationfacilities_{$sequence}_id'  name="" value=""/>
                             <input type='hidden' id='reservationfacilities_{$sequence}_id_output' name="" value="" disabled/>
                         </td></tr>

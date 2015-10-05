@@ -20,7 +20,7 @@
                     e.stopPropagation();
                 }
                 );
-                $('input[id^="button"]').live('change', function () {
+                $(document).on('change', 'input[id^="button"]', function () {
                     if($('#button_user').is(':checked')) {
                         $('#div_user').find('input').removeAttr('disabled');
                         $('#div_user').find('select').removeAttr('disabled');

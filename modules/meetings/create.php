@@ -17,23 +17,37 @@ if($core->usergroup['meetings_canCreateMeeting'] == 0) {
 }
 
 if(!$core->input['action']) {
+    $location['hide'] = 'style="display:none"';
     if(isset($core->input['mtid']) && !empty($core->input['mtid'])) {
         $mtid = $core->input['mtid'];
         $action = 'edit';
-
         $lang->create = $lang->edit;
-
         $meeting_obj = new Meetings($mtid);
 
         $meeting = $meeting_obj->get();
         if(is_array($meeting)) {
+
+            if(isset($meeting['fmfid']) && !empty($meeting['fmfid'])) {
+                $facility = $meeting_obj->get_facility();
+                if(is_object($facility) && !is_empty($facility->fmfid)) {
+                    $facilityname = $facility->get_displayname();
+                    $facilityid = $facility->fmfid;
+                }
+            }
+            else if(!is_empty($meeting['location'])) {
+                $location['hide'] = '';
+                $location['selected'] = 'checked="checked"';
+                $location['hidefacility'] = 'style="display:none"';
+            }
             if(!empty($meeting['fromDate'])) {
                 $meeting['fromDate_output'] = date($core->settings['dateformat'], $meeting['fromDate']);
                 $meeting['fromTime_output'] = trim(preg_replace('/(AM|PM)/', '', date('H:i', $meeting['fromDate'])));
+                $meeting['fromDate'] = date('d-m-Y', $meeting['fromDate']);
             }
             if(!empty($meeting['toDate'])) {
                 $meeting['toDate_output'] = date($core->settings['dateformat'], $meeting['toDate']);
                 $meeting['toTime_output'] = trim(preg_replace('/(AM|PM)/', '', date('H:i', $meeting['toDate'])));
+                $meeting['toDate'] = date('d-m-Y', $meeting['toDate']);
             }
             if($meeting['isPublic'] == 1) {
                 $checked_checkboxes['isPublic'] = ' checked="checked"';
@@ -41,6 +55,7 @@ if(!$core->input['action']) {
             if($meeting['fromDate'] < TIME_NOW) {
                 $disabled_checkboxes['notifyuser'] = $disabled_checkboxes['notifyrep'] = ' disabled="disabled"';
             }
+
             $meeting_assoc = $meeting_obj->get_meetingassociations();
 
             if(is_array($meeting_assoc)) {
@@ -168,6 +183,9 @@ if(!$core->input['action']) {
 
     $helptour->set_items($touritems);
     $helptour = $helptour->parse();
+    $facinputname = 'meeting[fmfid]';
+    $extra_inputids = ',altpickDate_from,altpickDate_to,altpickTime_to,altpickTime_from,mtid';
+    eval("\$facilityreserve = \"".$template->get('facility_reserveautocomplete')."\";");
     eval("\$createmeeting_associations = \"".$template->get('meeting_create_associations')."\";");
     eval("\$createmeeting = \"".$template->get('meeting_create')."\";");
     output_page($createmeeting);

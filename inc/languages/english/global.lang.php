@@ -154,7 +154,11 @@ $lang['title'] = "Title";
 $lang['contactcenter'] = "Contact Center";
 $lang['facilitymgmt'] = 'Facility Management';
 $lang['successfullydeleted'] = 'Successfully Deleted';
-$lang['aro']='Aro';
+$lang['aro'] = 'Aro';
 $lang['capacity'] = "Capacity";
 $lang['reservedby'] = "Reserved By";
+$lang['otheravailable'] = 'Other Available Facilities';
+$lang['capsnearby'] = 'NEARBY';
+$lang['capsreserved'] = 'RESERVED';
+$lang['forthismeeting'] = 'For This Meeting';
 ?>

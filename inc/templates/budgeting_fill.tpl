@@ -4,7 +4,7 @@
         {$headerinc}
         <script type="text/javascript">
             $(function () {
-                $('input[id^="amountper_"]').live('keyup', function () {
+                $(document).on('keyup', 'input[id^="amountper_"]', function () {
                     var id = $(this).attr("id").split("_");
                     if(!jQuery.isNumeric($('input[id=amountper_' + id[1] + ']').val())) {
                         return;
@@ -14,7 +14,7 @@
                 });
 
 
-                $('input[id^="localincomeper_"]').live('keyup', function () {
+                $(document).on('keyup', 'input[id^="localincomeper_"]', function () {
                     var id = $(this).attr("id").split("_");
                     if(!jQuery.isNumeric($('input[id=localincomeper_' + id[1] + ']').val())) {
                         return;
@@ -23,7 +23,7 @@
 
                 });
 
-                $('input[id^="localincome_"]').live('keyup change', function () {
+                $(document).on('keyup change', 'input[id^="localincome_"]', function () {
                     var id = $(this).attr("id").split("_");
 
                     if(!jQuery.isNumeric($('input[id=localincome_' + id[1] + ']').val())) {
@@ -33,7 +33,7 @@
                         $('input[id=localincomeper_' + id[1] + ']').val((Number($(this).val()) * 100) / $('input[id=income_' + id[1] + ']').val());
                     }
                 });
-                $('input[id^="income_"]').live('keyup', function () {
+                $(document).on('keyup', 'input[id^="income_"]', function () {
                     var id = $(this).attr("id").split("_");
                     if(!jQuery.isNumeric($('input[id=income_' + id[1] + ']').val())) {
                         return;
@@ -44,7 +44,7 @@
                     $('input[id="localincomeper_' + id[1] + '"]').trigger('keyup');
                 });
 
-                $('input[id^="unitprice_"]').live('keyup', function () {
+                $(document).on('keyup', 'input[id^="unitprice_"]', function () {
                     var id = $(this).attr("id").split("_");
                     if(!jQuery.isNumeric($('input[id=unitprice_' + id[1] + ']').val())) {
                         return;
@@ -58,14 +58,14 @@
 
                 });
 
-                $('input[id^="Qty_"]').live('keyup', function () {
+                $(document).on('keyup', 'input[id^="Qty_"]', function () {
                     var id = $(this).attr("id").split("_");
                     $('input[id="unitprice_' + id[1] + '"]').trigger('keyup');
                     $('input[id="amountper_' + id[1] + '"]').trigger('keyup');
                     $('input[id="localincomeper_' + id[1] + '"]').trigger('keyup');
                 });
 
-                $('input[id^="amount_"]').live('keyup', function () {
+                $(document).on('keyup', 'input[id^="amount_"]', function () {
                     var id = $(this).attr("id").split("_");
                     if(!jQuery.isNumeric($('input[id=amount_' + id[1] + ']').val())) {
                         return;
@@ -87,7 +87,7 @@
 
                 });
 
-                $('input[id^="s1perc_"]').live('keyup', function (e) {
+                $(document).on('keyup', 'input[id^="s1perc_"]', function (e) {
                     var id = $(this).attr("id").split("_");
                     if($(this).val() > 100) {
                         e.preventDefault();
@@ -97,7 +97,7 @@
                     }
                 });
 
-                $('input[id^="s2perc_"]').live('keyup', function (e) {
+                $(document).on('keyup', 'input[id^="s2perc_"]', function (e) {
                     var id = $(this).attr("id").split("_");
                     if($(this).val() > 100) {
                         e.preventDefault();
@@ -107,7 +107,7 @@
                     }
                 });
 
-                $('select[id^="salestype_"]').live('change', function () {
+                $(document).on('change', 'select[id^="salestype_"]', function () {
                     var id = $(this).attr("id").split("_");
                     var salestype = $(this).val();
 
@@ -127,7 +127,7 @@
                     }
                 });
 
-                $("input[type='checkbox'][id$='_unspecifiedCustomer']").live('change', function () {
+                $(document).on('change', "input[type='checkbox'][id$='_unspecifiedCustomer']", function () {
                     var id = $(this).attr("id").split("_");
                     $("div[id$='" + id[1] + "_unspecifiedCustomer_country']").slideToggle();
                 });

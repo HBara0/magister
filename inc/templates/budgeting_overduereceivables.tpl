@@ -3,11 +3,11 @@
         <title>{$core->settings[systemtitle]} | {$lang->overduereceivables}</title>
         {$headerinc}
         <script type="text/javascript">
-            $(function() {
-                $("input[id^='clientoverdue_']").live('change keyup live', function() {
+            $(function () {
+                $(document).on('change keyup live', "input[id^='clientoverdue_']", function () {
                     var id = $(this).attr('id').split("_");
                     var total = 0;
-                    $('input[id^=clientoverdue_][id$=' + id[2] + ']').each(function() {
+                    $('input[id^=clientoverdue_][id$=' + id[2] + ']').each(function () {
                         if(!jQuery.isEmptyObject(this.value)) {
                             total += parseFloat(this.value);
                         }

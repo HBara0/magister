@@ -22,4 +22,5 @@ $lang['reservefacility'] = 'Reserve Facility';
 $lang['widthinmeters'] = 'Width In Meters';
 $lang['heightinmeters'] = 'Height In Meters';
 $lang['lengthinmeters'] = 'Length In Meters';
+$lang['parentisneededinnonemaintypes'] = 'Parent Facility Is Needed In None Main Types Establishements';
 ?>

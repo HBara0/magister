@@ -260,7 +260,7 @@ class FacilityMgmtFacilities extends AbstractClass {
         if(is_empty($from, $to)) {
             return false;
         }
-        $reservations = FacilityMgmtReservations::get_data(' fmfid = '.$this->fmfid.' AND (fromDate  BETWEEN '.$from.' AND '.$to.') OR (toDate BETWEEN '.$from.' AND '.$to.')');
+        $reservations = FacilityMgmtReservations::get_data(' fmfid = '.$this->data['fmfid'].' AND ((fromDate  BETWEEN '.$from.' AND '.$to.') OR (toDate BETWEEN '.$from.' AND '.$to.') OR (fromDate <= '.$from.' AND toDate >= '.$to.')) ');
         if(is_object($reservations) && !empty($reservations->fmrid)) {
             return $reservations;
         }
@@ -271,32 +271,17 @@ class FacilityMgmtFacilities extends AbstractClass {
         return new FacilityMgmtFactypes($this->data['type']);
     }
 
-    public function is_nearby($userlocation) {
+    public function getfulladdress() {
+        $address = $this->get_displayname();
+        $affiliate = new Affiliates($this->affid);
 
-    }
-
-    function calculateDistance($lat1, $lon1, $lat2, $lon2, $unit) {
-
-        $theta = $lon1 - $lon2;
-
-        $dist = sin(deg2rad($lat1)) * sin(deg2rad($lat2)) + cos(deg2rad($lat1)) * cos(deg2rad($lat2)) * cos(deg2rad($theta));
-
-        $dist = acos($dist);
-
-        $dist = rad2deg($dist);
-
-        $miles = $dist * 60 * 1.1515;
-        $unit = strtoupper($unit);
-
-        if($unit == "K") {
-            return ($miles * 1.609344);
+        if(!is_empty($this->parent)) {
+            $motherfaciloty = $this->get_mother();
+            if(is_object($motherfaciloty) && !is_empty($motherfaciloty->fmfid)) {
+                $address.=' - '.$motherfaciloty->get_displayname();
+            }
         }
-        else if($unit == "N") {
-            return ($miles * 0.8684);
-        }
-        else {
-            return $miles;
-        }
+        return $address;
     }
 
 }

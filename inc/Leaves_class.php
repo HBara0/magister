@@ -831,5 +831,34 @@ class Leaves extends AbstractClass {
         }
     }
 
+    /**
+     *
+     * @global Language $lang
+     * @global Core $core
+     * @return boolean|\Exception
+     */
+    public function delete_autoresponder() {
+        global $lang, $core;
+        if(class_exists('CpanelAPIConnect')) {
+            $apiconnect = new CpanelAPIConnect();
+            $xmlapi = $apiconnect->get_xmlapi();
+            try {
+                $user = $this->get_user();
+                $main_aff = $user->get_mainaffiliate();
+                if(!is_object($main_aff) || empty($main_aff->affid)) {
+                    return false;
+                }
+                if(empty($main_aff->cpAccount)) {
+                    return false;
+                }
+                $args = array($user->email);
+                return $xmlapi->api1_query($cpaccount, 'Email', 'delautoresponder', $args);
+            }
+            catch(Exception $ex) {
+                return $ex;
+            }
+        }
+    }
+
 }
 ?>
