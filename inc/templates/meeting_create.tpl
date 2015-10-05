@@ -58,7 +58,8 @@
                         <td><input type="text" tabindex="4" id="pickDate_to" autocomplete="off" tabindex="1" name="meeting[toDate]"  value="{$meeting[toDate_output]}" required="required"/><input type="hidden" name="meeting[alttoDate]" data-alternativename="dateTo" id="altpickDate_to" value="{$meeting[toDate]}" /> <input type="time" id="altpickTime_to" data-alternativename="timeTo"  name="meeting[toTime]" tabindex="5" pattern="(20|21|22|23|[01]\d|\d)(([:][0-5]\d){1,2})" placeholder="17:00" value="{$meeting[toTime_output]}" required="required"></td>
                     </tr>
                     <tr id="facilityrow" {$location['hidefacility']}>
-                        <td>{$lang->facility}</td>
+                        <td>
+                            {$lang->facility}</td>
                         <td>
                             {$facilityreserve}
                         </td>

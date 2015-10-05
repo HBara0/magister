@@ -44,10 +44,9 @@ class Meetings {
     public function create($meeting_data = array()) {
         global $db, $core, $log;
         if(is_array($meeting_data)) {
-            if(!is_empty($meeting_data['facilityid'])) {
-                $fmfid = $meeting_data['facilityid'];
+            if(!is_empty($meeting_data['fmfid'])) {
+                $fmfid = intval($meeting_data['fmfid']);
             }
-            unset($meeting_data['facilityid']);
             $this->meeting = $meeting_data;
             if(empty($this->meeting['title'])) {
                 $this->errorcode = 1;
@@ -94,6 +93,7 @@ class Meetings {
 
             $meeting_data = array(
                     'title' => $this->meeting['title'],
+                    'fmfid' => $this->meeting['fmfid'],
                     'identifier' => substr(md5(uniqid(microtime())), 1, 10),
                     'fromDate' => $this->meeting['fromDate'],
                     'toDate' => $this->meeting['toDate'],
@@ -281,10 +281,12 @@ class Meetings {
 
     public function update($meeting_data = array()) {
         global $db, $log, $core;
-        if(!is_empty($meeting_data['facilityid'])) {
-            $fmfid = intval($meeting_data['facilityid']);
+        if(!is_empty($meeting_data['fmfid'])) {
+            $fmfid = intval($meeting_data['fmfid']);
         }
-        unset($meeting_data['facilityid']);
+        else {
+            $meeting_data['fmfid'] = 0;
+        }
         $this->meeting['mtid'] = $this->meeting['mtid'];
 
         $this->meeting['notifyuser'] = $meeting_data['notifyuser'];
@@ -648,6 +650,25 @@ class Meetings {
         return $this->meeting;
     }
 
+    public function get_location() {
+        if(isset($this->meeting['fmfid']) && !is_empty($this->meeting['fmfid'])) {
+            $facility = $this->get_facility();
+            if(is_object($facility) && !is_empty($facility->fmfid)) {
+                return $facility->getfulladdress();
+            }
+        }
+        else {
+            return $this->meeting['location'];
+        }
+    }
+
+    public function get_facility() {
+        if(isset($this->meeting['fmfid']) && !empty($this->meeting['fmfid'])) {
+            return new FacilityMgmtFacilities($this->meeting['fmfid']);
+        }
+        return false;
+    }
+
 }
 
 class MeetingsAttendees {
@@ -736,19 +757,6 @@ class MeetingsAttendees {
 
     public function get() {
         return $this->attendee;
-    }
-
-    public function get_location() {
-        $reservation_obj = FacilityMgmtReservations::get_data(array('mtid' => $meeting['mtid']), array('returnarray' => false));
-        if(is_object($reservation_obj) && !is_empty($reservation_obj->fmrid)) {
-            $facility = new FacilityMgmtFacilities($reservation_obj->fmfid);
-            if(is_object($facility) && !is_empty($facility->fmfid)) {
-                return $facility->getfulladdress();
-            }
-        }
-        else {
-            return $meeting['location'];
-        }
     }
 
 }

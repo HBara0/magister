@@ -26,12 +26,12 @@ if(!$core->input['action']) {
 
         $meeting = $meeting_obj->get();
         if(is_array($meeting)) {
-            $reservation_obj = FacilityMgmtReservations::get_data(array('mtid' => $meeting['mtid']), array('returnarray' => false));
-            if(is_object($reservation_obj) && !is_empty($reservation_obj->fmrid)) {
-                $facility = new FacilityMgmtFacilities($reservation_obj->fmfid);
+
+            if(isset($meeting['fmfid']) && !empty($meeting['fmfid'])) {
+                $facility = $meeting_obj->get_facility();
                 if(is_object($facility) && !is_empty($facility->fmfid)) {
                     $facilityname = $facility->get_displayname();
-                    $facilityid = $facilit->fmfid;
+                    $facilityid = $facility->fmfid;
                 }
             }
             else if(!is_empty($meeting['location'])) {
@@ -183,7 +183,7 @@ if(!$core->input['action']) {
 
     $helptour->set_items($touritems);
     $helptour = $helptour->parse();
-    $facinputname = 'meeting[facilityid]';
+    $facinputname = 'meeting[fmfid]';
     $extra_inputids = ',altpickDate_from,altpickDate_to,altpickTime_to,altpickTime_from,mtid';
     eval("\$facilityreserve = \"".$template->get('facility_reserveautocomplete')."\";");
     eval("\$createmeeting_associations = \"".$template->get('meeting_create_associations')."\";");
