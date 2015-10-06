@@ -890,7 +890,7 @@ $("#anotheraff_otheraccomodations_'.$sequence.'_'.$otherhotel_checksum.'").hide(
     public function get_secondseghelptouritems() {
         $touritems = array(
                 'ui-id-2' => array('text' => 'Now proceed with your next segment as before'),
-                'destinationcity_2_cache_autocomplete' => array('text' => 'Select your destination city and press outside the field so that the rest of the page load'),
+                'destinationcity_2_cache_autocomplete' => array('text' => 'Select the destination city of that specific segment (Mandatory).<br/> Press outside the field so that the rest of the page load'),
                 'pickDate_to_2' => array('text' => 'Select the segment end date.<br/> If this is your last segment keep the date unchanged'),
         );
         return $touritems;
