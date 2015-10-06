@@ -185,5 +185,27 @@ class Events extends AbstractClass {
         }
     }
 
+    public function delete_event($todelete) {
+        global $db;
+        $attributes = array(static::PRIMARY_KEY);
+        foreach($attributes as $attribute) {
+            $tables = $db->get_tables_havingcolumn($attribute, 'TABLE_NAME !="'.static::PRIMARY_KEY.'"');
+            if(is_array($tables)) {
+                foreach($tables as $table) {
+                    $query = $db->query("SELECT * FROM ".Tprefix.$table." WHERE ".$attribute."=".$todelete." ");
+                    if($db->num_rows($query) > 0) {
+                        $this->errorcode = 3;
+                        return false;
+                    }
+                }
+            }
+        }
+        $delete = $this->delete();
+        if($delete) {
+            $this->errorcode = 0;
+            return true;
+        }
+    }
+
 }
 ?>

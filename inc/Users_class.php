@@ -274,7 +274,7 @@ class Users extends AbstractClass {
             $cache->add('affiliate', $affiliate, $affiliate->get_id());
         }
         else {
-            $affiliate = new Affiliates($this->data['mainaffiliate'], FALSE);
+            $affiliate = $cache->get_cachedval('affiliate', $this->data['mainaffiliate']);
         }
 
         return $affiliate;
