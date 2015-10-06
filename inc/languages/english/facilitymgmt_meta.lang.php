@@ -23,4 +23,11 @@ $lang['widthinmeters'] = 'Width In Meters';
 $lang['heightinmeters'] = 'Height In Meters';
 $lang['lengthinmeters'] = 'Length In Meters';
 $lang['parentisneededinnonemaintypes'] = 'Parent Facility Is Needed In None Main Types Establishements';
+$lang['facilitytypelist'] = 'Facility Type List';
+$lang['isroom'] = 'Is Room';
+$lang['iscoworkingspace'] = 'Is Coworking Space';
+$lang['ismainlocation'] = 'Is Main Location';
+$lang['facilitytypesmgmt'] = 'Facility Type Management';
+$lang['typecategory'] = 'Type Category';
+$lang['description'] = 'Description';
 ?>
