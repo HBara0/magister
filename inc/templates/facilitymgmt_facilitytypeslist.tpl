@@ -16,9 +16,7 @@
                     <thead>
                         <tr>
                             <th width="22%">{$lang->title} </th>
-                            <th width="22%">{$lang->isroom} </th>
-                            <th width="22%">{$lang->iscoworkingspace} </th>
-                            <th width="22%">{$lang->ismainlocation} </th>
+                            <th width="40%">{$lang->typecategory} </th>
                             <th width="7%">{$lang->isactive}</th>
                             <th width="5%"></th>
                         </tr>

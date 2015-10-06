@@ -17,19 +17,17 @@ if($core->usergroup['facilitymgmt_canManageFacilities'] == 0) {
 }
 if(!isset($core->input['action'])) {
     $filters_config = array(
-            'parse' => array('filters' => array('title', 'isRoom', 'isCoWorkingSpace', 'isMainLocation', 'isActive'),
+            'parse' => array('filters' => array('title', 'typecategory', 'isActive'),
                     'overwriteField' => array(
-                            'isRoom' => parse_selectlist('filters[isRoom]', '1', array('1' => $lang->yes, '0' => $lang->no), $core->input['filters']['isRoom'], 1, '', array('blankstart' => true)),
-                            'isMainLocation' => parse_selectlist('filters[isMainLocation]', '1', array('1' => $lang->yes, '0' => $lang->no), $core->input['filters']['isMainLocation'], 1, '', array('blankstart' => true)),
+                            'typecategory' => '<input class="inlinefilterfield" type="text" style="width: 95%" placeholder="'.$lang->typecategory.'"/>',
                             'isActive' => parse_selectlist('filters[isActive]', '1', array('1' => $lang->yes, '0' => $lang->no), $core->input['filters']['isActive'], 1, '', array('blankstart' => true)),
-                            'isCoWorkingSpace' => parse_selectlist('filters[isCoWorkingSpace]', '1', array('1' => $lang->yes, '0' => $lang->no), $core->input['filters']['isCoWorkingSpace'], 1, '', array('blankstart' => true)),
                     )
             ),
             'process' => array(
                     'filterKey' => FacilityMgmtFactypes::PRIMARY_KEY,
                     'mainTable' => array(
                             'name' => FacilityMgmtFactypes::TABLE_NAME,
-                            'filters' => array('isRoom' => array('operatorType' => 'equal', 'name' => 'isRoom'), 'isMainLocation' => array('operatorType' => 'equal', 'name' => 'isMainLocation'), 'isActive' => array('operatorType' => 'equal', 'name' => 'isActive'), 'isCoWorkingSpace' => array('operatorType' => 'equal', 'name' => 'isCoWorkingSpace')),
+                            'filters' => array('isActive' => array('operatorType' => 'equal', 'name' => 'isActive')),
                     ),
             )
     );
@@ -52,17 +50,14 @@ if(!isset($core->input['action'])) {
             $edit_link = '<td width="5%"><a target="_blank" href="index.php?module=facilitymgmt/managefacilitytype&amp;id= '.$type->fmftid.'" title = "'.$lang->modifyfacilitytype.'"><img src = ./images/icons/edit.gif border = 0 alt = '.$lang->edit.'/></a></td>';
 //          $delete_link = "<a href='#{$facilitiy->fmfid}' id='deletefacility_{$facilitiy->fmfid}_facilitymgmt/list_loadpopupbyid'><img src='{$core->settings[rootdir]}/images/invalid.gif' border='0' alt='{$lang->deletefacility}' /></a>";
             $type_output['title'] = $type->get_displayname();
-            $type_output['isroom'] = '<img src = ./images/false.gif border = 0 alt = '.$lang->no.'/>';
             if($type->isRoom == 1) {
-                $type_output['isroom'] = '<img src = ./images/valid.gif border = 0 alt = '.$lang->yes.'/>';
+                $type_output['typecategory'] = $lang->isroom;
             }
-            $type_output['isCoWorkingSpace'] = '<img src = ./images/false.gif border = 0 alt = '.$lang->no.'/>';
-            if($type->isCoWorkingSpace == 1) {
-                $type_output['isCoWorkingSpace'] = '<img src = ./images/valid.gif border = 0 alt = '.$lang->yes.'/>';
+            else if($type->isCoWorkingSpace == 1) {
+                $type_output['typecategory'] = $lang->iscoworkingspace;
             }
-            $type_output['isMainLocation'] = '<img src = ./images/false.gif border = 0 alt = '.$lang->no.'/>';
-            if($type->isMainLocation == 1) {
-                $type_output['isMainLocation'] = '<img src = ./images/valid.gif border = 0 alt = '.$lang->yes.'/>';
+            else if($type->isMainLocation == 1) {
+                $type_output['typecategory'] = $lang->ismainlocation;
             }
             $type_output['isActive'] = '<img src = ./images/false.gif border = 0 alt = '.$lang->no.'/>';
             if($type->isActive == 1) {

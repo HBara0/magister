@@ -47,6 +47,13 @@ if(!isset($core->input['action'])) {
 else if($core->input['action'] == 'do_perform_managefacilitytype') {
     $facilitytype = new FacilityMgmtFactypes();
     $core->input['type']['name'] = generate_alias($core->input['type']['title']);
+    if(!empty($core->input['type']['maintype'])) {
+        $core->input['type'][$core->input['type']['maintype']] = 1;
+    }
+    else {
+        output_xml('<status>false</status><message>'.$lang->fillrequiredfields.'</message>');
+        exit;
+    }
     $facilitytype->set($core->input['type']);
     $facilitytype->save();
     switch($facilitytype->get_errorcode()) {
