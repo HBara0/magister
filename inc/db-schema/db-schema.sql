@@ -2335,6 +2335,7 @@ CREATE TABLE `facilitymgmt_factypes` (
   `createdBy` int(10) NOT NULL,
   `modifiedBy` int(10) NOT NULL,
   `modifiedOn` bigint(30) NOT NULL,
+  `description` varchar(250) NOT NULL,
   PRIMARY KEY (`fmftid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
