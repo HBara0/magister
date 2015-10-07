@@ -71,7 +71,7 @@ if(!$core->input['action']) {
                     ),
                     'secTables' => array(
                             'entitiesrepresentatives' => array(
-                                    'filters' => array('userpermentities' => array('operatorType' => 'multiple', 'name' => 'eid')),
+                                    'filters' => array('userpermentities' => array('operatorType' => 'equal', 'name' => 'eid')),
                             ),
                             'representativessegments' => array(
                                     'filters' => array('usersegments' => array('operatorType' => 'multiple', 'name' => 'psid')),
@@ -278,7 +278,7 @@ else {
                         ),
                         'secTables' => array(
                                 'entitiesrepresentatives' => array(
-                                        'filters' => array('userpermentities' => array('operatorType' => 'multiple', 'name' => 'eid')),
+                                        'filters' => array('userpermentities' => array('operatorType' => 'equal', 'name' => 'eid')),
                                         'extraWhere' => $extrawhere['eid']
                                 ),
                                 'representativessegments' => array(

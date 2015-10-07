@@ -438,7 +438,7 @@ class Inlinefilters {
 
         $query_filter_statement = '';
         foreach($filters as $filteritem => $attr) {
-            if(isset($core->input['filters'][$filteritem]) && (!empty($core->input['filters'][$filteritem]) || ($core->input['filters'][$filteritem] == '0'))) {
+            if((isset($core->input['filters'][$filteritem]) && (!empty($core->input['filters'][$filteritem])) || ($core->input['filters'][$filteritem] == '0'))) {
                 $wherestatement = $this->parse_whereentry($attr, $filteritem);
                 if(!empty($query_filter_statement)) {
                     if($this->matching_rule == 'all') {
