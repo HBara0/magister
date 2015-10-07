@@ -140,7 +140,7 @@ if(!$core->input['action']) {
         }
 
         /* check whether to display existing budget Form or display new one  */
-        $unsetable_fields = array('quantity', 'amount', 'incomePerc', 'income', 'inputCheckSum');
+        $unsetable_fields = array('quantity', 'amount', 'incomePerc', 'income', 'inputChecksum');
         $countries = Countries::get_coveredcountries();
 
         /* get already existing YEF lines corresponding to the data inputted */
@@ -185,7 +185,7 @@ if(!$core->input['action']) {
         <input type="hidden" value="'.$budgetline['commissionSplitAffid'].'" id="affiliate_noexception_'.$rowid.'_commission_id" name="budgetline['.$rowid.'][commissionSplitAffid]"/></td>'
                 );
             }
-            $budgetline['inputCheckSum'] = generate_checksum();
+            $budgetline['inputChecksum'] = generate_checksum();
             $countries_selectlist = parse_selectlist('budgetline['.$rowid.'][customerCountry]', 0, $countries, $affiliate->country, '', '', '');
             eval("\$budgetlinesrows .= \"".$template->get('budgeting_fill_yeflines')."\";");
             unset($budgetline);
@@ -285,7 +285,7 @@ else {
     elseif($core->input['action'] == 'ajaxaddmore_budgetlines') {
         $display = 'none';
         $rowid = generate_checksum();
-        $budgetline['inputCheckSum'] = $rowid;
+        $budgetline['inputChecksum'] = $rowid;
         $rownums = intval($core->input['value']) + 1;
         $yef_data = $core->input['ajaxaddmoredata'];
         $supplier = new Entities(intval($yef_data['spid']));
@@ -375,7 +375,7 @@ function parse_yefline($data, $readonly = '', $source, $rownums, $supplier) {
                 unset($disabledattrs);
                 $rowid = generate_checksum();
                 if($source == 'yef') {
-                    $rowid = $budgetline['inputCheckSum'];
+                    $rowid = $budgetline['inputChecksum'];
                 }
                 if($source == 'budget' || $budgetline['fromBudget'] == 1) {
                     $readonly = 'readonly';
@@ -395,7 +395,7 @@ function parse_yefline($data, $readonly = '', $source, $rownums, $supplier) {
                 if(empty($budgetline['localIncomeAmount'])) {
                     $budgetline['localIncomeAmount'] = 0;
                 }
-                $budgetline['cid'] = $cid;
+//                $budgetline['cid'] = $cid;
                 $budgetline['customerName'] = $customer->get()['companyName'];
                 $budgetline['pid'] = $pid;
                 $budgetline['productName'] = $product->get()['name'];
@@ -514,7 +514,7 @@ function parse_yefline($data, $readonly = '', $source, $rownums, $supplier) {
                     $months_fields = array('october', 'november', 'december');
                     foreach($months_fields as $month) {
                         $budgetline[$month] = number_format(33.333);
-                        $budgetline[$month.'qty'] = number_format(($budgetline[quantity] / 3), 2);
+                        $budgetline[$month.'qty'] = number_format(($budgetline[quantity] / 3), 2, '.', '');
                     }
                 }
                 if($core->usergroup['budgeting_canFillLocalIncome'] == 1) {

@@ -114,11 +114,18 @@ class BudgetingYearEndForecast extends AbstractClass {
 
             if($db->num_rows($yefline_queryid) > 0) {
                 while($yefline_data = $db->fetch_assoc($yefline_queryid)) {
+                    $first_identifier = $yefline_data['cid'];
                     if($yefline_data['cid'] == 0) {
-                        $yefline_data['cid'] = md5($yefline_data['altCid'].$yefline_data['customerCountry'].$yefline_data['saleType'].$yefline_data['pid']);
+                        if($yefline_data['blid'] == 0) {
+                            $first_identifier = md5($yefline_data['altCid'].$yefline_data['customerCountry'].$yefline_data['saleType'].$yefline_data['pid']);
+                        }
+                        else {
+                            $first_identifier = $yefline_data['blid'];
+                        }
                     }
                     $yefline = new BudgetingYEFLines($yefline_data['yeflid']);
-                    $yefline_details[$yefline_data['cid']][$yefline_data['pid']][$yefline_data['saleType']] = $yefline->get();
+                    $yefline_details[$first_identifier][$yefline_data['pid']][$yefline_data['saleType']] = $yefline->get();
+                    unset($first_identifier);
                 }
                 return $yefline_details;
             }
@@ -223,11 +230,13 @@ class BudgetingYearEndForecast extends AbstractClass {
         // if the 2 budgetline are linked together
         if(is_array($budgetline_data)) {
             $required_fields = array('october', 'november', 'december');
-            foreach($budgetline_data as $inputchecksum => $data) {
+            foreach($budgetline_data as $inputChecksum => $data) {
                 if(!isset($data['yefid']) && empty($data['yefid'])) {
                     $data['yefid'] = $yef;
                 }
-
+                if(isset($data['blid']) && !empty($data['blid'])) {
+                    $data['fromBudget'] = '1';
+                }
                 if($data['unspecifiedCustomer'] == 1 && empty($data['cid'])) {
                     $data['altCid'] = 'Unspecified Customer';
                 }
@@ -327,7 +336,17 @@ class BudgetingYearEndForecast extends AbstractClass {
                     }
                 }
                 unset($data['unspecifiedCustomer']);
-                $yeflineobj = $yeflineobj->save($data);
+                if(empty($data['cid']) && !empty($data['blid'])) {
+                    if(value_exists(BudgetingYEFLines::TABLE_NAME, 'blid', $data['blid'])) {
+                        $yeflineobj = $yeflineobj->update($data);
+                    }
+                    else {
+                        $yeflineobj = $yeflineobj->create($data);
+                    }
+                }
+                else {
+                    $yeflineobj = $yeflineobj->save($data);
+                }
                 if(is_object($yeflineobj)) {
                     $yeflineobj->save_interco_line($data);
                 }

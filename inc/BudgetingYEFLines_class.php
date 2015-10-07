@@ -11,7 +11,7 @@ class BudgetingYEFLines extends AbstractClass {
     const UNIQUE_ATTRS = 'yefid,pid,cid,saleType';
     const CLASSNAME = __CLASS__;
     const DISPLAY_NAME = '';
-    const REQUIRED_ATTRS = 'yefid,saleType,inputCheckSum';
+    const REQUIRED_ATTRS = 'yefid,saleType,inputChecksum';
 
     /* -------Definiton-END-------- */
     /* -------FUNCTIONS-START-------- */
@@ -25,7 +25,7 @@ class BudgetingYEFLines extends AbstractClass {
             return false;
         }
         $table_array = array(
-                'inputCheckSum' => $data['inputCheckSum'],
+                'inputChecksum' => $data['inputChecksum'],
                 'yefid' => $data['yefid'],
                 'pid' => $data['pid'],
                 'blid' => $data['blid'],
@@ -90,7 +90,7 @@ class BudgetingYEFLines extends AbstractClass {
             return false;
         }
         if(is_array($data)) {
-            $update_array['inputCheckSum'] = $data['inputCheckSum'];
+            $update_array['inputChecksum'] = $data['inputChecksum'];
             $update_array['yefid'] = $data['yefid'];
             $update_array['pid'] = $data['pid'];
             $update_array['blid'] = $data['blid'];
@@ -171,7 +171,7 @@ class BudgetingYEFLines extends AbstractClass {
         $data_toremove = array('yefid', 'yeflid', 'cid', 'interCompanyPurchase', 'blid');
         $data_zerofill = array('invoicingEntityIncome'); //'localIncomePercentage', 'localIncomeAmount',
         $yef = $this->get_yef();
-        $data['inputCheckSum'] = generate_checksum();
+        $data['inputChecksum'] = generate_checksum();
         $data['linkedBudgetLine'] = $this->data['yeflid'];
         $data['altCid'] = $yef->get_affiliate()->name;
         $data['customerCountry'] = $yef->get_affiliate()->country;
@@ -228,8 +228,12 @@ class BudgetingYEFLines extends AbstractClass {
         }
 
         $ic_budgetline = new BudgetingYEFLines();
-        $ic_budgetline->save($data);
-
+        if(isset($data['linkedBudgetLine']) && !empty($data['linkedBudgetLine'])) {
+            $ic_budgetline->update($data);
+        }
+        else {
+            $ic_budgetline->save($data);
+        }
         $this->update(array('linkedBudgetLine' => $ic_budgetline->yeflid));
     }
 
