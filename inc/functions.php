@@ -1023,7 +1023,6 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                                 $isreserved = $facility->is_reserved($from, $to);
                                 if(is_object($isreserved)) {
                                     $category = $lang->capsreserved;
-                                    $style = 'style="pointer-events:none;background-color:#F9D0D0;"';
                                     $reservedby = $isreserved->get_reservedBy()->get_displayname();
                                     $details.=' '.$lang->reservedby.' : '.$reservedby;
                                     if($isreserved->mtid == $options['extrainput']['mtid']) {
@@ -1052,20 +1051,20 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                             if($options['returnType'] == 'json') {
                                 $results_list['"'.$key.'"']['desc'] = $details;
                                 if(is_object($isreserved)) {
-                                    $results_list['"'.$key.'"']['style'] = $style;
+                                    $results_list['"'.$key.'"']['style'] = 'class="li-redbullet"';
                                 }
                                 elseif($category == $lang->capsnearby) {
-                                    $results_list['"'.$key.'"']['style'] = 'style="background-color:#A5FFA5;"';
+                                    $results_list['"'.$key.'"']['style'] = 'class="li-greenbullet"';
                                 }
                                 if(!empty($desc_distance)) {
-                                    $results_list['"'.$key.'"']['value'] = $results_list['"'.$key.'"']['value'].$desc_distance;
+                                    $results_list['"'.$key.'"']['value'] = $additionavalue.$results_list['"'.$key.'"']['value'].$desc_distance;
                                 }
                                 elseif($meetingres == 1) {
-                                    $results_list['"'.$key.'"']['value'] = $results_list['"'.$key.'"']['value'].'('.$lang->forthismeeting.')';
+                                    $results_list['"'.$key.'"']['value'] = $additionavalue.$results_list['"'.$key.'"']['value'].'('.$lang->forthismeeting.')';
                                 }
                                 $results_list[$category]['"'.$key.'"']['distance'] = $desc_distance;
                                 $results_list[$category]['"'.$key.'"'] = $results_list['"'.$key.'"'];
-                                unset($results_list['"'.$key.'"']);
+                                unset($additionavalue, $results_list['"'.$key.'"']);
                             }
                             else {
                                 $details = '<br/><span class="smalltext">'.$details.'</span>';
@@ -1101,13 +1100,6 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
             ksort($results_list);
             foreach($results_list as $category => $results) {
                 $new_resultlist ['"'.$category.'"']['style'] = 'style="text-align:center;pointer-events:none;background-color:#eaf2ea;"';
-                if($category == $lang->capsreserved) {
-                    $new_resultlist ['"'.$category.'"']['style'] = 'style="text-align:center;pointer-events:none;background-color:#ff7e7e;"';
-                }
-                elseif($category == $lang->capsnearby) {
-                    $new_resultlist ['"'.$category.'"']['style'] = 'style="text-align:center;pointer-events:none;background-color:#4CFF4C;"';
-                }
-
                 $new_resultlist ['"'.$category.'"']['id'] = $category;
                 $new_resultlist ['"'.$category.'"']['desc'] = "";
                 $new_resultlist ['"'.$category.'"']['value'] = $category;
