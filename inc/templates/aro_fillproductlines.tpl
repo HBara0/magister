@@ -1,4 +1,4 @@
-<a class="header" href="#" id="pldiv"><h2>{$lang->fillproductlines}</h2></a>
+<a class="header" href="#" id="pldiv"><h2 id="aro_productlines">{$lang->fillproductlines}</h2></a>
 <div>
     <p>
     <table width="100%">

@@ -34,5 +34,9 @@
 
         </td>
     </tr>
+    <!-- Start Tour -->
+    {$helptour}
+
+
 </body>
 </html>

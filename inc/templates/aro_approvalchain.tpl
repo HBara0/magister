@@ -1,4 +1,4 @@
-<a class="header" href="#"><h2>{$lang->approvalchain}</h2></a>
+<a class="header" href="#"><h2 id="aro_approvalchain">{$lang->approvalchain}</h2></a>
 <div>
     <p>
     <table>
@@ -9,7 +9,7 @@
         </thead>
 
         <tbody style="width:100%;">
-           
+
         </tbody>
     </table>
 </p>
