@@ -221,9 +221,18 @@ class TravelManagerPlanSegments extends AbstractClass {
                 $segdays = floor($segdays / (60 * 60 * 24));
                 $found = 0;
                 foreach($segmentdata['tmhid'] as $checksum => $hotel) {
+                    // if(!isset($hotel['tmhid']) || empty($hotel['tmhid'])) {
+                    //     continue;
+                    // }
+
+                    $hotelacc = TravelManagerPlanaccomodations::get_data(array('inputChecksum' => $checksum));
                     if(!isset($hotel['tmhid']) || empty($hotel['tmhid'])) {
+                        if(is_object($hotelacc)) {
+                            $hotelacc->delete();
+                        }
                         continue;
                     }
+
 //                if(!empty($checksum)) {
 //                    $hotelacc = TravelManagerPlanaccomodations::get_data(array('inputChecksum' => $checksum));
 //                    /* if hotel not exist in segment accomodation & is not selected Skip! */
@@ -237,10 +246,11 @@ class TravelManagerPlanSegments extends AbstractClass {
 //                        return;
 //                    }
 //                }//////
-                    if(!isset($hotel['tmhid']) || empty($hotel['tmhid'])) {
-                        $transp_errorcode = 2;
-                        $errorhandler->record('Required fields', 'Accomodations'.' in Segment '.$segmentdata['sequence']);
-                    }
+//                    if(!isset($hotel['tmhid']) || empty($hotel['tmhid'])) {
+//                        $transp_errorcode = 2;
+//                        $errorhandler->record('Required fields', 'Accomodations'.' in Segment '.$segmentdata['sequence']);
+//                    }
+
                     if($hotel['numNights'] > $segdays) {
                         $this->errorcode = 9;
                         $hotel = new TravelManagerHotels($hotel['tmhid']);
@@ -507,20 +517,20 @@ class TravelManagerPlanSegments extends AbstractClass {
                 $segment_hotels['tmhid'] = $segmentdata['tmhid'];
                 if(is_array($segment_hotels['tmhid'])) {
                     $found = 0;
-// $leave_obj = $this->get_plan()->get_leave();
                     $leavedays = abs($segmentdata['toDate'] - $segmentdata['fromDate']);
                     $leavedays = floor($leavedays / (60 * 60 * 24));
 
                     $validate_fields = array('priceNight', 'numNights', 'currency');
                     foreach($segment_hotels['tmhid'] as $checksum => $hotel) {
-                        if(!isset($hotel['tmhid']) || empty($hotel['tmhid'])) {
-                            continue;
-                        }
-                        $hotelacc = TravelManagerPlanaccomodations::get_data(array('inputChecksum' => $checksum));  //$hotel[tmhid]
+                        // if(!isset($hotel['tmhid']) || empty($hotel['tmhid'])) {
+                        //     continue;
+                        // }
+                        $hotelacc = TravelManagerPlanaccomodations::get_data(array('inputChecksum' => $checksum));
                         if(!isset($hotel['tmhid']) || empty($hotel['tmhid'])) {
                             if(is_object($hotelacc)) {
                                 $hotelacc->delete();
                             }
+                            continue;
                         }
                         $requiredfields = array('numNights' => 'Number of nights', 'priceNight' => 'Price per night');
                         foreach($requiredfields as $requiredfield => $label) {
@@ -753,8 +763,15 @@ class TravelManagerPlanSegments extends AbstractClass {
                 if($transportation->isRoundTrip) {
                     $transportation->isRoundTrip_output = $lang->roundtrip;
                 }
+                if(isset($transportation->class) && !empty($transportation->class)) {
+                    $class = TravelManagerPlanTranspClass::get_data(array('tmptc' => $transportation->class));
+                    if(is_object($class) && $class->get_displayname() == 'Business') {
+                        $warnings['transpclass'] = '<p style = "color:red;">'.$lang->transclasswarning.'</p>';
+                    }
+                }
                 eval("\$segment_transpdetails .= \"".$template->get('travelmanager_viewplan_transpsegments')."\";");
                 $flight_details = $fare = '';
+                unset($class, $warnings['transpclass']);
             }
         }
 
@@ -796,6 +813,7 @@ class TravelManagerPlanSegments extends AbstractClass {
         $additional_expenses = Travelmanager_Expenses::get_data(array('tmpsid' => $this->tmpsid), array('simple' => false, 'returnarray' => true));
         if(is_array($additional_expenses)) {
             foreach($additional_expenses as $additionalexp) {
+
                 $additionalexp_type = new TravelManager_Expenses_Types($additionalexp->tmetid);
                 $additional_expenses_details .= '<div style = "display:block;padding:5px 0px 5px 0px;">';
                 $paidby = $this->display_paidby($additionalexp->paidBy, $additionalexp->paidById);
@@ -804,6 +822,16 @@ class TravelManagerPlanSegments extends AbstractClass {
                 }
                 if($additionalexp_type->title == 'Other') {
                     $additionalexp_type->title = $additionalexp->description;
+                }
+
+
+                $warnings['foodandbeverage'] = '';
+                if(is_object($additionalexp_type) && $additionalexp_type->title == 'Food & Beverage') {
+                    $data['numnights'] = abs($this->data['toDate'] - $this->data['fromDate']) / 60 / 60 / 24;
+                    $data['amount'] = $additionalexp->expectedAmt;
+                    $data['currency'] = $additionalexp->currency;
+                    $tmexpenses = new Travelmanager_Expenses();
+                    $warnings['foodandbeverage'] = $tmexpenses->validate_foodandbeverage_expenses($data);
                 }
 
                 $tocurr = new Currencies(840);
@@ -818,6 +846,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                 }
                 $additional_expenses_details .= '<div style = "width:70%;display:inline-block;">'.$additionalexp_type->title.'</div>';
                 $additional_expenses_details .= '<div style = "width:25%;display:inline-block;font-size:14px;font-weight:bold;text-align:right;vertical-align:top;">'.$numfmt->formatCurrency($expectedAmt, "USD").$expectedAmtinbasecurr.'<br/><small style="font-weight:normal;">[paid by: '.$paidby.' ] </small> </div>';
+                $additional_expenses_details .='<div>'.$warnings['foodandbeverage'].'</div>';
                 $additional_expenses_details .= '</div>';
             }
         }
