@@ -2,10 +2,10 @@
 /*
  * Orkila Central Online System (OCOS)
  * Copyright © 2009 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * Edit users
  * $module: admin/users
- * $id: edit.php	
+ * $id: edit.php
  * Last Update: @zaher.reda 	June 18, 2010 | 3:05 PM
  */
 if(!defined("DIRECT_ACCESS")) {
@@ -79,13 +79,13 @@ if(!$core->input['action']) {
             }
         }
         $useraffiliates['affids'][] = $affiliate['affid'];
-        //} 
+        //}
     }
 
     $affiliates = get_specificdata('affiliates', $affiliates_attributes, 'affid', 'name', $countries_order);
     //$main_affiliate_list = parse_selectlist('mainaffid', 6, $affiliates, $main_useraffiliate, 0);
     //$affiliates_list = parse_selectlist("affids[]", 7, $affiliates, $useraffiliates, 1);
-    //$affiliateshr_list = parse_selectlist("hraffids[]", 8, $affiliates, $userhraffiliates, 1);	
+    //$affiliateshr_list = parse_selectlist("hraffids[]", 8, $affiliates, $userhraffiliates, 1);
     foreach($affiliates as $affid => $name) {
         $rowclass = alt_row($rowclass);
         $mainaffiliate_radiobutton = parse_radiobutton('affiliates[mainaffid]', array($affid => ''), $main_useraffiliate);
@@ -170,6 +170,13 @@ if(!$core->input['action']) {
         $comma = '';
         while($affiliatecustomers = $db->fetch_array($aff_customers_query)) {
             $affiliatedcustomers[$cid] .= $comma.$affiliatecustomers['name'];
+            $comma = ', ';
+        }
+
+        $segments_customers_query = $db->query("SELECT ps.*, es.* FROM ".Tprefix." entitiessegments es JOIN ".Tprefix."productsegments ps ON (ps.psid=es.psid) WHERE es.eid='{$cid}' ORDER BY ps.title ASC");
+        $comma = '';
+        while($customerssegment = $db->fetch_array($segments_customers_query)) {
+            $customerssegments[$cid] .= $comma.$customerssegment['title'];
             $comma = ', ';
         }
 
