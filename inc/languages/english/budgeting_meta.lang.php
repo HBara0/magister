@@ -298,4 +298,8 @@ $lang['stockexpiringin60desc'] = 'Stock expiring within the next 60 days';
 $lang['oldstocknotexpireddesc'] = 'Oldest Stocks - not yet expired';
 $lang['stockpermonthofsalesdesc'] = 'Stock per month of sale';
 $lang['supplierhasnosegment'] = 'Supplier Has No Segments !';
+$lang['from'] = 'From';
+$lang['to'] = 'To';
+$lang['copybudget'] = 'Copy Budget';
+
 ?>
