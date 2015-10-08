@@ -384,10 +384,10 @@ function parse_yefline($data, $readonly = '', $source, $rownums, $supplier) {
                     $readonly = 'readonly';
                     $alert_div = '<span style="color:red" id="alert_'.$rowid.'"></span>';
                 }
-                if(!empty($budgetline['cid']) || $budgetline['fromBudget'] == 1 || $source == 'budget') {
+                if(!empty($budgetline['cid']) && ($budgetline['fromBudget'] == 1 || $source == 'budget')) {
                     $disabledattrs ['cid'] = $disabledattrs['unspecifiedCustomer'] = 'disabled = "disabled"';
                 }
-                if(empty($budgetline['pid']) || $budgetline['fromBudget'] == 1 || $source == 'budget') {
+                if(!empty($budgetline['pid']) && ($budgetline['fromBudget'] == 1 || $source == 'budget')) {
                     $disabledattrs ['pid'] = 'disabled = "disabled"';
                 }
                 $previous_yearsqty = $previous_yearsamount = $previous_yearsincome = $prevyear_incomeperc = $prevyear_unitprice = $previous_actualqty = $previous_actualamount = $previous_actualincome = '';
