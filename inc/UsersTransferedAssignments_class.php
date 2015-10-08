@@ -11,7 +11,7 @@ class UsersTransferedAssignments extends AbstractClass {
     const UNIQUE_ATTRS = 'fromUser,toUser,eid,affid';
     const CLASSNAME = __CLASS__;
     const DISPLAY_NAME = '';
-    const REQUIRED_ATTRS = 'fromUser,toUser';
+    const REQUIRED_ATTRS = 'fromUser,toUser,eid,affid';
 
     /* -------Definiton-END-------- */
     /* -------FUNCTIONS-START-------- */
@@ -59,11 +59,11 @@ class UsersTransferedAssignments extends AbstractClass {
     }
 
     public function get_affid() {
-        return new Users($this->data['affid']);
+        return new Affiliates($this->data['affid']);
     }
 
     public function get_eid() {
-        return new Users($this->data['eid']);
+        return new Entities($this->data['eid']);
     }
 
     /* -------FUNCTIONS-END-------- */
