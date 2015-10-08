@@ -1,6 +1,6 @@
 <html>
     <head>
-        <title>{$core->settings[systemtitle]} | {$lang->modifysitesettings}</title>
+        <title>{$core->settings[systemtitle]} | {$lang->manageevents}</title>
         {$headerinc}
     </head>
     <body>

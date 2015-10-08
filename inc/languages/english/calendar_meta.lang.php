@@ -85,4 +85,8 @@ $lang['succesfullydeleted'] = 'Succesfully Deleted';
 $lang['eventisusedbyotherusers'] = 'Event Is Already In Use By Other Users';
 $lang['deleteevent'] = 'Delete Event';
 $lang['sureredeleteevent'] = 'Atr You Sure You Want To Delete The Event ?';
+$lang['tags'] = 'Tags';
+$lang['inviteemployees'] = 'Invite Employees';
+$lang['eventcancelledsubject'] = '{1} Event Has Been Cancelled';
+$lang['eventcancelledmessage'] = '{1} Event From {2} To {3} Has Been Cancelled';
 ?>

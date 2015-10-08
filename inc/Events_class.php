@@ -189,13 +189,29 @@ class Events extends AbstractClass {
         global $db;
         $attributes = array(static::PRIMARY_KEY);
         foreach($attributes as $attribute) {
-            $tables = $db->get_tables_havingcolumn($attribute, 'TABLE_NAME !="'.static::PRIMARY_KEY.'"');
+            $tables = $db->get_tables_havingcolumn($attribute, 'TABLE_NAME !="'.static::TABLE_NAME.'"');
             if(is_array($tables)) {
                 foreach($tables as $table) {
                     $query = $db->query("SELECT * FROM ".Tprefix.$table." WHERE ".$attribute."=".$todelete." ");
                     if($db->num_rows($query) > 0) {
-                        $this->errorcode = 3;
-                        return false;
+                        if($table == CalendarEventsInvitees::TABLE_NAME) {
+                            while($invitation = $db->fetch_assoc($query)) {
+                                $calinvitee = new CalendarEventsInvitees($invitation['ceiid']);
+                                $deletenotification = $calinvitee->delete_invitation();
+                            }
+                        }
+                        else if($table == CalendarEventsRestrictions::TABLE_NAME) {
+                            while($restriction = $db->fetch_assoc($query)) {
+                                $calrestriction_obj = new CalendarEventsRestrictions($restriction[CalendarEventsRestrictions::PRIMARY_KEY]);
+                                if(is_object($calrestriction_obj)) {
+                                    $calrestriction_obj->delete();
+                                }
+                            }
+                        }
+                        else {
+                            $this->errorcode = 3;
+                            return false;
+                        }
                     }
                 }
             }
