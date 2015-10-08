@@ -798,7 +798,6 @@ if(!$core->input['action']) {
         $affiliates_list = parse_selectlist('affid', 1, $affiliates, '');
 
         if($core->usergroup['reporting_canTransFillReports'] == '1') {
-
             $transfill_checkbox = "<br /><span class='smalltext'><input type='checkbox' name='transFill' id='transFill' value='1' title='{$lang->transfill_tip}'> {$lang->transparentlyfill}</span>";
         }
         eval("\$fillreportpage = \"".$template->get('reporting_fillreports_init')."\";");
@@ -861,9 +860,14 @@ else {
 
         $report_meta = unserialize($session->get_phpsession('reportmeta_'.$identifier));
         $currencies = unserialize($session->get_phpsession('reportcurrencies_'.$identifier));
-
         /* Validate Forecasts - Start */
         $report = new ReportingQr(array('rid' => $rid));
+        if(is_object($report)) {
+            $auditor = $report->user_isaudit();
+        }
+        if($auditor == false) {
+            $core->input['transfill'] = 0;
+        }
         if(!is_array($core->input['productactivity'])) {
             output_xml("<status>false</status><message>{$lang->fillatleastoneproductrow}</message>");
             exit;
@@ -1036,6 +1040,15 @@ else {
         unset($core->input['ajaxaddmoredata']);
         $rid = intval($core->input['rid']);
         $transfill = $core->input['transfill'];
+
+        $report = new ReportingQr(array('rid' => $rid));
+        if(is_object($report)) {
+            $auditor = $report->user_isaudit();
+        }
+        if($auditor == false) {
+            $transfill = 0;
+        }
+
         $identifier = $db->escape_string($core->input['identifier']);
         if(!empty($val['exclude']) && $val['exclude'] == 1) {
             $marketreport_data[$key]['exclude'] = $val['exclude'];
