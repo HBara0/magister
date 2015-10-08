@@ -69,6 +69,14 @@ if(!$core->input['action']) {
                 $filter = array('filters' => array('businessMgr' => array($core->user['uid'])));
             }
         }
+        $fromusers = UsersTransferedAssignments::get_data(array('toUser' => $core->user['uid'], 'affid' => $budget_data['affid'], 'eid' => $budget_data['spid']), array('returnarray' => true));
+        if(is_array($fromusers)) {
+            foreach($fromusers as $fromuser) {
+                $bm_ids[] = $fromuser->fromUser;
+            }
+        }
+        $bm_ids[] = $core->user['uid'];
+        $filter['businessMgr'] = array_merge($filter['businessMgr'], $bm_ids);
         /* Validate Permissions - END */
         if($currentbudget != false) {
             $budgetobj = new Budgets($currentbudget['bid']);
