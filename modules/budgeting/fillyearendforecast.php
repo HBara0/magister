@@ -22,8 +22,11 @@ if(!$core->input['action']) {
         $yef_data['affiliateName'] = $affiliate->get()['name'];
         $supplier = new Entities($yef_data['spid']);
         $yef_data['supplierName'] = $supplier->get()['companyName'];
-        $supplier_segments = array_filter($supplier->get_segments());
-
+        $sup_segments = $supplier->get_segments();
+        if(!is_array($sup_segments)) {
+            error($lang->supplierhasnosegment);
+        }
+        $supplier_segments = array_filter($sup_segments);
         $currentyef = BudgetingYearEndForecast::get_yef_bydata($yef_data);
         if($currentyef != false) {
             $yefobj = new BudgetingYearEndForecast($currentyef['yefid']);
