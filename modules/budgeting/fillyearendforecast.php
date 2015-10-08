@@ -58,6 +58,14 @@ if(!$core->input['action']) {
             }
         }
         /* Validate Permissions - END */
+        $fromusers = UsersTransferedAssignments::get_data(array('toUser' => $core->user['uid'], 'affid' => $budget_data['affid'], 'eid' => $budget_data['spid']), array('returnarray' => true));
+        if(is_array($fromusers)) {
+            foreach($fromusers as $fromuser) {
+                $bm_ids[] = $fromuser->fromUser;
+            }
+        }
+        $bm_ids[] = $core->user['uid'];
+        $filter['businessMgr'] = array_merge($filter['businessMgr'], $bm_ids);
 
         $currentyef = BudgetingYearEndForecast::get_yef_bydata($yef_data);
         if($currentyef != false) {
