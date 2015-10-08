@@ -226,7 +226,8 @@ Alcoholic beverages and mini-bar charges are not permitted and will not be reimb
 The above-mentioned prices are valid for most of the countries people are travelling to. City exceptions might be added to
 this document at a later stage after Finance Committee approval.<br/>
 Exceptions:<br/>
-• Luanda, Angola ! Above limits +50%<br/></li>
+• Luanda, Angola > Above limits +50%<br/>
+• South Africa > Breakfast: ZAR100 - Lunch: ZAR150 - Dinner: ZAR250<br/></li>
 <li>Meals with clients or business partners:<br/>
 In the specific case where an employee is to invite clients or business partners for a meal, then limits and rules
 are lifted while remaining reasonable and appropriate. If requested by our guests, an alcoholic beverage
