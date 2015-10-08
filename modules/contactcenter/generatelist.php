@@ -513,6 +513,9 @@ else {
                 if(is_array($assignedreps)) {
                     $entities = array();
                     foreach($assignedreps as $assignedrep) {
+                        if($assignedrep->rpid == 0) {
+                            continue;
+                        }
                         $entities[] = $assignedrep->get_entity();
                         $entitienames[] = $assignedrep->get_entity()->get_displayname();
                     }
@@ -640,7 +643,7 @@ else {
                                     $results_body.='<td>-</td>';
                                 }
                                 break;
-                            case 'usersegments':
+                            case 'segment':
                                 if($first_timerep == 0) {
                                     $results_head .= '<th>'.$lang->segments.'</th>';
                                 }

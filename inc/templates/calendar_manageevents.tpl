@@ -1,6 +1,6 @@
 <html>
     <head>
-        <title>{$core->settings[systemtitle]} | {$lang->modifysitesettings}</title>
+        <title>{$core->settings[systemtitle]} | {$lang->manageevents}</title>
         {$headerinc}
     </head>
     <body>
@@ -40,14 +40,6 @@
                         </div>
                         <div style="display:inline-block;width:10%">{$lang->totime}</div>
                         <input type="time" name="event[toTime]" value="{$event['toTime_output']}" pattern="(20|21|22|23|[01]\d|\d)(([:][0-5]\d){1,2})" placeholder="{$current_date[hours]}:{$current_date[minutes]}">
-                    </div>
-                    <div style="display:block;">
-                        <div style="display:inline-block; padding:11px;">{$lang->lang}</div>
-                        <div style="display:inline-block; padding:11px;">
-                            <select name="event[lang]">
-                                <option value="english">{$lang->english}</option>
-                                <option value="french">{$lang->french}</option>
-                            </select></div>
                     </div>
                     <div style="display:block;">
                         <div style="display:inline-block;width:10%">{$lang->location}</div>

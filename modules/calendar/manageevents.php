@@ -243,7 +243,7 @@ else {
         }
         switch($event->get_errorcode()) {
             case 0:
-                output_xml('<status>true</status><message>'.$lang->succesfullydeleted.'</message>');
+                output_xml('<status>true</status><message>'.$lang->succesfullysaved.'</message>');
                 exit;
             case 1:
                 output_xml('<status>true</status><message>'.$lang->fillrequiredfields.'</message>');
