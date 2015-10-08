@@ -1,4 +1,4 @@
-<a class="header" href="#"><h2>{$lang->orderidentification}</h2></a>
+<a class="header" href="#"><h2 id="aro_orderidentification">{$lang->orderidentification}</h2></a>
 <div>
     <p>
     <table>

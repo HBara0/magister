@@ -49,9 +49,17 @@ if(!($core->input['action'])) {
     if($core->usergroup['aro_canMakeDiscounts'] == 0) {
         $aro_display['prtiesinfo']['discount'] = "display:none;";    //change al other display variables to this array
     }
+    $aroorderrequest = new AroRequests();
+    $helptour = new HelpTour();
+    $helptour->set_id('aro_helptour');
+    $helptour->set_cookiename('aro_helptour');
+    $touritems = $aroorderrequest->get_helptouritems();
+    if(is_array($touritems)) {
+        $helptour->set_items($touritems);
+        $helptour = $helptour->parse();
+    }
 
     if(!isset($core->input['id'])) {
-        $aroorderrequest = new AroRequests();
         //order identification
         $affiliate_list = parse_selectlist('affid', 1, $affiliate, $orderid[affid], '', '', array('blankstart' => true, 'id' => "affid", 'required' => 'required'));
         $purchasetypelist = parse_selectlist('orderType', 4, $purchasetypes, $orderid['ptid'], '', '', array('blankstart' => true, 'id' => "purchasetype", 'required' => 'required'));
@@ -508,14 +516,6 @@ if(!($core->input['action'])) {
             redirect($_SERVER['HTTP_REFERER'], 2, $lang->nomatchfound);
         }
     }
-
-
-    $helptour = new HelpTour();
-    $helptour->set_id('aro_helptour');
-    $helptour->set_cookiename('aro_helptourlmanager_helptour');
-    $touritems = $aroorderrequest->get_helptouritems();
-    $helptour->set_items($touritems);
-    $helptour = $helptour->parse();
 
     eval("\$aro_productlines = \"".$template->get('aro_fillproductlines')."\";");
     eval("\$aro_managedocuments_orderident= \"".$template->get('aro_managedocuments_orderidentification')."\";");

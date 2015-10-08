@@ -10,8 +10,7 @@
         <td class="contentContainer">
             <h1>{$lang->manageevents}</h1>
             <div>
-
-                <form name="perform_calendar/manageevents_Form" id="perform_calendar/manageevents_Form"  action="#" method="post">
+                <form name="perform_calendar/manageevents_Form" id="perform_calendar/manageevents_Form" action="#" method="post">
                     <input type='hidden' name='event[ceid]' value="{$event[ceid]}">
                     <div style="display:block;">
                         <div style="display: inline-block;width:10%">{$lang->title}</div>
@@ -92,8 +91,8 @@
                     <div style="display:block;padding-top:10px;">
                         <div style="display:inline-block;">
                             <input type="submit" id="perform_calendar/manageevents_Button" value="Save" class="button"/>
-                            {$deletelink}
                             <input type="reset" class="button" value="{$lang->reset}"/>
+                            {$deletelink}
                         </div>
                     </div>
                 </form>

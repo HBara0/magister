@@ -1,4 +1,4 @@
-<a class="header" href="#" id="pldiv"><h2>{$lang->partiesinformation}</h2></a>
+<a class="header" href="#" id="pldiv"><h2 id="aro_partiesinformation">{$lang->partiesinformation}</h2></a>
 <div>
     <p>
         {$interm_vendor}

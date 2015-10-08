@@ -1,4 +1,4 @@
-<a class="header" href="#"><h2>{$lang->actualpurchase}</h2></a>
+<a class="header" href="#"><h2 id="aro_actual_purchase">{$lang->actualpurchase}</h2></a>
 <div>
     <p>
     <table>

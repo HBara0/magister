@@ -8,11 +8,12 @@
  */
 $(function() {
 
-    $('.accordion .header').accordion({collapsible: true});
+    $('.accordion .header').accordion({collapsible: false});
     $('.accordion .header').click(function() {
         $(this).next().toggle();
         return false;
     }).next().hide();
+    $('.accordion .header').trigger('click');
     //--------------------------------------------------------------
 
 
@@ -241,7 +242,7 @@ $(function() {
     });
     //------------------------------------------------------------------------------------//
     // If Inco terms are different between intermediary and vendor, freight is mandatory
-    $("select[id='partiesinfo_intermed_incoterms'],select[id='partiesinfo_vendor_incoterms']").live('change', function() {
+    $(document).on("change", "select[id='partiesinfo_intermed_incoterms'],select[id='partiesinfo_vendor_incoterms']", function() {
         $("input[id='partiesinfo_freight']").removeAttr("required");
         if($("select[id='partiesinfo_intermed_incoterms']").val() !== '' && $("select[id='partiesinfo_vendor_incoterms']").val() !== '') {
             if($("select[id='partiesinfo_intermed_incoterms']").val() !== $("select[id='partiesinfo_vendor_incoterms']").val()) {
@@ -276,7 +277,8 @@ $(function() {
     //----------------------------------------------------------------------------------------------------------------------------//
     //--------------Populate dates of PartiepickDate_estDateOfShipments Information----------------------------//
     //Trigger(s): 10A, 7, 6, 11
-    $("input[id='pickDate_estDateOfShipment'],select[id='partiesinfo_intermed_paymentterm'],select[id='partiesinfo_vendor_paymentterm'],input[id='partiesinfo_intermed_ptAcceptableMargin'],#ordersummary_invoicevalue_local").live('change', function() {
+
+    $(document).on("change", "input[id='pickDate_estDateOfShipment'],select[id='partiesinfo_intermed_paymentterm'],select[id='partiesinfo_vendor_paymentterm'],input[id='partiesinfo_intermed_ptAcceptableMargin'],#ordersummary_invoicevalue_local", function() {
         var estDateOfShipment = $("input[id='pickDate_estDateOfShipment']").val();
         var ptAcceptableMargin = $("input[id='partiesinfo_intermed_ptAcceptableMargin']").val();
         var intermedPaymentTerm = $("select[id = 'partiesinfo_intermed_paymentterm']").val();

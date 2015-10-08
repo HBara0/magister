@@ -1,4 +1,4 @@
-<a class="header " href="#"><h2>{$lang->netmarginparameters}</h2></a>
+<a class="header " href="#"><h2 id="aro_parmsfornetmargin">{$lang->netmarginparameters}</h2></a>
 <div>
     <table>
         <thead>
