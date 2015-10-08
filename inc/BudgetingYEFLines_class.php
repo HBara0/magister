@@ -8,10 +8,10 @@ class BudgetingYEFLines extends AbstractClass {
     const PRIMARY_KEY = 'yeflid';
     const TABLE_NAME = 'budgeting_yef_lines';
     const SIMPLEQ_ATTRS = '*';
-    const UNIQUE_ATTRS = 'yefid,pid,cid,saleType';
+    const UNIQUE_ATTRS = 'yefid,pid,cid,saleType,linkedBudgetLine,blid';
     const CLASSNAME = __CLASS__;
     const DISPLAY_NAME = '';
-    const REQUIRED_ATTRS = 'yefid,saleType,inputChecksum';
+    const REQUIRED_ATTRS = 'yefid,saleType,inputCheckSum';
 
     /* -------Definiton-END-------- */
     /* -------FUNCTIONS-START-------- */
@@ -25,7 +25,7 @@ class BudgetingYEFLines extends AbstractClass {
             return false;
         }
         $table_array = array(
-                'inputChecksum' => $data['inputChecksum'],
+                'inputCheckSum' => $data['inputCheckSum'],
                 'yefid' => $data['yefid'],
                 'pid' => $data['pid'],
                 'blid' => $data['blid'],
@@ -90,7 +90,7 @@ class BudgetingYEFLines extends AbstractClass {
             return false;
         }
         if(is_array($data)) {
-            $update_array['inputChecksum'] = $data['inputChecksum'];
+            $update_array['inputCheckSum'] = $data['inputCheckSum'];
             $update_array['yefid'] = $data['yefid'];
             $update_array['pid'] = $data['pid'];
             $update_array['blid'] = $data['blid'];
@@ -171,7 +171,7 @@ class BudgetingYEFLines extends AbstractClass {
         $data_toremove = array('yefid', 'yeflid', 'cid', 'interCompanyPurchase', 'blid');
         $data_zerofill = array('invoicingEntityIncome'); //'localIncomePercentage', 'localIncomeAmount',
         $yef = $this->get_yef();
-        $data['inputChecksum'] = generate_checksum();
+        $data['inputCheckSum'] = generate_checksum();
         $data['linkedBudgetLine'] = $this->data['yeflid'];
         $data['altCid'] = $yef->get_affiliate()->name;
         $data['customerCountry'] = $yef->get_affiliate()->country;
@@ -180,6 +180,7 @@ class BudgetingYEFLines extends AbstractClass {
         /* Apply Default Margin */
         $data['income'] = $data['localIncomeAmount'] = $data['amount'] * 0.03;
         $data['localIncomePercentage'] = 100;
+        unset($data['blid']);
 
         if(!empty($this->data['linkedBudgetLine'])) {
             $ic_budgetline = new BudgetingYearEndForecast($this->data['linkedBudgetLine']);
@@ -228,12 +229,8 @@ class BudgetingYEFLines extends AbstractClass {
         }
 
         $ic_budgetline = new BudgetingYEFLines();
-        if(isset($data['linkedBudgetLine']) && !empty($data['linkedBudgetLine'])) {
-            $ic_budgetline->update($data);
-        }
-        else {
-            $ic_budgetline->save($data);
-        }
+        $ic_budgetline->save($data);
+
         $this->update(array('linkedBudgetLine' => $ic_budgetline->yeflid));
     }
 

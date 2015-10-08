@@ -24,19 +24,6 @@ if(!$core->input['action']) {
         $yef_data['supplierName'] = $supplier->get()['companyName'];
         $supplier_segments = array_filter($supplier->get_segments());
 
-        $currentyef = BudgetingYearEndForecast::get_yef_bydata($yef_data);
-        if($currentyef != false) {
-            $yefobj = new BudgetingYearEndForecast($currentyef['yefid']);
-            $yef_data['yefid'] = $yefobj->yefid;
-            $yeflinesdata = $yefobj->get_yefLines('', $filter);
-            if(!is_array($yeflinesdata) || empty($yeflinesdata)) {
-                $noyeflines = true;
-            }
-        }
-        else {
-            $noyeflines = true;
-        }
-
         $currentbudget = Budgets::get_budget_bydata($yef_data);
 
         /* Validate Permissions - START */
@@ -68,6 +55,19 @@ if(!$core->input['action']) {
             }
         }
         /* Validate Permissions - END */
+
+        $currentyef = BudgetingYearEndForecast::get_yef_bydata($yef_data);
+        if($currentyef != false) {
+            $yefobj = new BudgetingYearEndForecast($currentyef['yefid']);
+            $yef_data['yefid'] = $yefobj->yefid;
+            $yeflinesdata = $yefobj->get_yefLines('', $filter);
+            if(!is_array($yeflinesdata) || empty($yeflinesdata)) {
+                $noyeflines = true;
+            }
+        }
+        else {
+            $noyeflines = true;
+        }
 
         if($currentbudget != false) {
             $budgetobj = new Budgets($currentbudget['bid']);
@@ -140,7 +140,7 @@ if(!$core->input['action']) {
         }
 
         /* check whether to display existing budget Form or display new one  */
-        $unsetable_fields = array('quantity', 'amount', 'incomePerc', 'income', 'inputChecksum');
+        $unsetable_fields = array('quantity', 'amount', 'incomePerc', 'income', 'inputCheckSum');
         $countries = Countries::get_coveredcountries();
 
         /* get already existing YEF lines corresponding to the data inputted */
@@ -185,7 +185,7 @@ if(!$core->input['action']) {
         <input type="hidden" value="'.$budgetline['commissionSplitAffid'].'" id="affiliate_noexception_'.$rowid.'_commission_id" name="budgetline['.$rowid.'][commissionSplitAffid]"/></td>'
                 );
             }
-            $budgetline['inputChecksum'] = generate_checksum();
+            $budgetline['inputCheckSum'] = generate_checksum();
             $countries_selectlist = parse_selectlist('budgetline['.$rowid.'][customerCountry]', 0, $countries, $affiliate->country, '', '', '');
             eval("\$budgetlinesrows .= \"".$template->get('budgeting_fill_yeflines')."\";");
             unset($budgetline);
@@ -285,7 +285,7 @@ else {
     elseif($core->input['action'] == 'ajaxaddmore_budgetlines') {
         $display = 'none';
         $rowid = generate_checksum();
-        $budgetline['inputChecksum'] = $rowid;
+        $budgetline['inputCheckSum'] = $rowid;
         $rownums = intval($core->input['value']) + 1;
         $yef_data = $core->input['ajaxaddmoredata'];
         $supplier = new Entities(intval($yef_data['spid']));
@@ -375,7 +375,7 @@ function parse_yefline($data, $readonly = '', $source, $rownums, $supplier) {
                 unset($disabledattrs);
                 $rowid = generate_checksum();
                 if($source == 'yef') {
-                    $rowid = $budgetline['inputChecksum'];
+                    $rowid = $budgetline['inputCheckSum'];
                 }
                 if($source == 'budget' || $budgetline['fromBudget'] == 1) {
                     $readonly = 'readonly';
@@ -395,7 +395,7 @@ function parse_yefline($data, $readonly = '', $source, $rownums, $supplier) {
                 if(empty($budgetline['localIncomeAmount'])) {
                     $budgetline['localIncomeAmount'] = 0;
                 }
-//                $budgetline['cid'] = $cid;
+                $budgetline['cid'] = $cid;
                 $budgetline['customerName'] = $customer->get()['companyName'];
                 $budgetline['pid'] = $pid;
                 $budgetline['productName'] = $product->get()['name'];
