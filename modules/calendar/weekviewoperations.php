@@ -173,6 +173,7 @@ elseif($core->input['action'] == 'get_popup_calendar_custvisitsdetails') {
 }
 elseif($core->input['action'] == 'do_perform_weekviewoperations') {
     if($core->usergroup['crm_canFillVisitReports'] == 0) {
+        output_xml("<status>false</status><message>{$lang->sectionnopermission}</message>");
         exit;
     }
 
