@@ -190,7 +190,9 @@ elseif($core->input['action'] == 'do_perform_weekviewoperations') {
     $todate = strtotime($core->input['pickDate_to'].' '.$core->input['toHour'].':'.$core->input['toMinutes'].':00');
     $day = strtotime($core->input['pickDate_from']);
     $day_details = getdate_custom($day);
-
+    if(is_empty($fromdate, $todate)) {
+        error($lang->unspecifieddates);
+    }
     /* check if no leave intersects for the user in the same given date - START */
     if(value_exists('leaves', 'uid', $uid, "(fromDate BETWEEN {$fromdate} AND {$todate} OR toDate BETWEEN {$fromdate} AND {$todate})")) {
         output_xml("<status>false</status><message>{$lang->requestintersectsleave}</message>");

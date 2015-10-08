@@ -243,10 +243,10 @@ else {
         }
         switch($event->get_errorcode()) {
             case 0:
-                echo $lang->successfullysaved;
+                output_xml('<status>true</status><message>'.$lang->succesfullysaved.'</message>');
                 exit;
             case 1:
-                echo $lang->fillrequiredfields;
+                output_xml('<status>true</status><message>'.$lang->fillrequiredfields.'</message>');
                 exit;
         }
         /* Parse Event Logo - END */

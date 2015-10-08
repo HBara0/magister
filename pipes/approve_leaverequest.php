@@ -47,7 +47,7 @@ if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject) || $ignore_su
         if($db->affected_rows() > 0) {
             $query3 = $db->query("SELECT l.uid, u.email
 				FROM ".Tprefix."leavesapproval l LEFT JOIN ".Tprefix."users u ON (u.uid=l.uid)
-				WHERE l.isApproved='0' AND l.lid='{$leave[lid]}' AND sequence>(SELECT sequence FROM ".Tprefix."leavesapproval WHERE lid='{$leave[lid]}' AND uid='{$user[uid]}' AND isApproved=1)
+				WHERE l.isApproved='0' AND l.lid='{$leave[lid]}' AND sequence>(SELECT MAX(sequence) FROM ".Tprefix."leavesapproval WHERE lid='{$leave[lid]}' AND uid='{$user[uid]}' AND isApproved=1)
                                 ORDER BY sequence ASC
                                 LIMIT 0, 1");
             if($db->num_rows($query3) > 0) {

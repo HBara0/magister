@@ -23,6 +23,9 @@ if(!$core->input['action']) {
     if(is_array($alltask)) {
         $createdby_ids = array();
         foreach($alltask as $type => $tasks) {
+            if(!is_array($tasks)) {
+                continue;
+            }
             switch($type) {
                 case 'createdby':
                     foreach($tasks as $task) {
@@ -66,25 +69,23 @@ if(!$core->input['action']) {
 
                     break;
                 case 'shared':
-                    if(is_array($tasks)) {
-                        foreach($tasks as $task) {
-                            $task->dueDate = date($core->settings['dateformat'], $task->dueDate);
-                            $task_iconstats = $task->parsestatus();
-                            $task->percCompleted_output = '';
-                            $task_barid = $task->ctid.'s';
-                            if($task_iconstats == 'inprogress') {
+                    foreach($tasks as $task) {
+                        $task->dueDate = date($core->settings['dateformat'], $task->dueDate);
+                        $task_iconstats = $task->parsestatus();
+                        $task->percCompleted_output = '';
+                        $task_barid = $task->ctid.'s';
+                        if($task_iconstats == 'inprogress') {
 //                $task->percCompleted_output = numfmt_format(numfmt_create('en_EN', NumberFormatter::PERCENT), $task->percCompleted / 100);
-                                $value = $task->percCompleted;
-                                eval("\$progressbar = \"".$template->get('progressbar')."\";");
-                            }
-                            $task_icon[$task_iconstats] = '<img src="./images/icons/'.$task_iconstats.'.png" border="0" />';
-                            eval("\$calendar_taskboard_rows .= \"".$template->get('calendar_tasksboard_rows')."\";");
-                            unset($task_icon[$task_iconstats], $task_barid, $value, $progressbar);
+                            $value = $task->percCompleted;
+                            eval("\$progressbar = \"".$template->get('progressbar')."\";");
                         }
-                        eval("\$calendar_taskboard_shared = \"".$template->get('calendar_tasksboard')."\";");
-                        unset($calendar_taskboard_rows);
-                        break;
+                        $task_icon[$task_iconstats] = '<img src="./images/icons/'.$task_iconstats.'.png" border="0" />';
+                        eval("\$calendar_taskboard_rows .= \"".$template->get('calendar_tasksboard_rows')."\";");
+                        unset($task_icon[$task_iconstats], $task_barid, $value, $progressbar);
                     }
+                    eval("\$calendar_taskboard_shared = \"".$template->get('calendar_tasksboard')."\";");
+                    unset($calendar_taskboard_rows);
+                    break;
             }
         }
     }

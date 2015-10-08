@@ -34,8 +34,11 @@ if(!$core->input['action']) {
         $budget_data['affiliateName'] = $affiliate->get()['name'];
         $supplier = new Entities($budget_data['spid']);
         $budget_data['supplierName'] = $supplier->get()['companyName'];
-        $supplier_segments = array_filter($supplier->get_segments());
-
+        $sup_segments = $supplier->get_segments();
+        if(!is_array($sup_segments)) {
+            error($lang->supplierhasnosegment);
+        }
+        $supplier_segments = array_filter($sup_segments);
         $currentbudget = Budgets::get_budget_bydata($budget_data);
 
         /* Validate Permissions - START */

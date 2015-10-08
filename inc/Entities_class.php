@@ -562,6 +562,9 @@ class Entities extends AbstractClass {
                 if(isset($val['isValidator']) && $val['isValidator'] == 'on') {
                     $db->insert_query('suppliersaudits', array('eid' => $this->eid, 'uid' => $val['uid']));
                 }
+                if(!is_array($val['affiliates'])) {
+                    continue;
+                }
                 foreach($val['affiliates'] as $value) {
                     $db->insert_query('assignedemployees', array('eid' => $this->eid, 'uid' => $val['uid'], 'affid' => $value));
                 }
