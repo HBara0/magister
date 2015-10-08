@@ -89,4 +89,5 @@ $lang['tags'] = 'Tags';
 $lang['inviteemployees'] = 'Invite Employees';
 $lang['eventcancelledsubject'] = '{1} Event Has Been Cancelled';
 $lang['eventcancelledmessage'] = '{1} Event From {2} To {3} Has Been Cancelled';
+$lang['unspecifieddates'] = 'Unspecified From or To Dates';
 ?>
