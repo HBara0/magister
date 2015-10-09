@@ -26,12 +26,12 @@ if(!$core->input['action']) {
         if($filters_config['process']['filterKey'] == 'ceid') {
             $filters_config['process']['filterKey'] = 'ceid';
         }
-        $filter_where = ' '.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
+        $filter_where = ' '.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')'.'  AND ';
         $multipage_where .= $filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
     }
 
     $filters_row = $filter->prase_filtersrows(array('tags' => 'table'));
-    $filter_where .= ' AND (createdBy= '.$core->user['uid'].')';
+    $filter_where .= '(createdBy= '.$core->user['uid'].')';
 
 //    if(is_array($core->input[filters])) {
 //        $array_fields = array('title', 'place', 'fromDate', 'toDate');

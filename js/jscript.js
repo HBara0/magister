@@ -462,6 +462,9 @@ $(function () {
     $(document).on("click", "input[type='submit'][id$='_Button']", function () {
         var id = $(this).attr("id").split("_");
         var formid = '';
+        for(var i in CKEDITOR.instances) {
+            CKEDITOR.instances[i].updateElement();
+        }
         for(var i = 0; i < id.length - 1; i++) {
             formid += id[i] + "_";
         }
