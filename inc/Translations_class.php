@@ -117,7 +117,7 @@ class Translations extends AbstractClass {
 
     protected function validate_requiredfields(array $data = array()) {
         if(is_array($data)) {
-            $required_fields = array('tableName', 'field', 'language', 'tableKey', 'text');
+            $required_fields = array('tableName', 'field', 'language', 'tableKey');
             foreach($required_fields as $field) {
                 if(empty($data[$field]) && $data[$field] != '0') {
                     $this->errorcode = 2;
