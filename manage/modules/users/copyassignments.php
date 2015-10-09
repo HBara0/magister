@@ -49,6 +49,7 @@ else {
                 if(!empty($entity['eid'])) {
                     $results .= $entity['companyName'].'<br />';
                     $db->insert_query('assignedemployees', array('uid' => $param['toUser'], 'eid' => $entity['eid'], 'affid' => $param['affid']));
+                    $db->insert_query('users_transferedassignments', array('fromUser' => $param['fromUser'], 'toUser' => $param['toUser'], 'eid' => $entity['eid'], 'affid' => $param['affid']));
                 }
             }
 
