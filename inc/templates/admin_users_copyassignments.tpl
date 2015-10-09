@@ -14,6 +14,8 @@
                 To User: {$touser_selectlist}<br />
                 Affiliate: {$affiliate_selectlist}<br />
                 Segments: {$segments_selectlist}<br />
+                Assignments <input type="checkbox" name="transfer[assignment]" value="1"><br />
+                User Transfer Assignments <input type="checkbox" name="transfer[userassignments]" value="1"><br />
                 <input type="button" value="{$lang->savecaps}" id="perform_users/copyassignments_Button" tabindex="26"/>
                 <div id="perform_users/copyassignments_Results"></div>
             </form>

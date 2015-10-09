@@ -33,7 +33,6 @@ if(!$core->input['action']) {
 else {
     if($core->input['action'] == 'do_perform_copyassignments') {
         $param = $core->input;
-
         $sql = "SELECT DISTINCT(ae.eid), e.companyName
 	FROM ".Tprefix."assignedemployees ae
 	JOIN entities e ON (e.eid=ae.eid)
@@ -43,13 +42,16 @@ else {
 	AND ae.eid NOT IN (SELECT ae2.eid FROM ".Tprefix."assignedemployees ae2 WHERE ae2.affid=".intval($param['affid'])." AND ae2.uid=".$db->escape_string($param['toUser']).")
 	AND afe.affid=".intval($param['affid'])." AND e.type IN ('c', 's') ORDER BY type ASC, companyName ASC";
         $query = $db->query($sql);
-
         if($db->num_rows($query) > 0) {
             while($entity = $db->fetch_assoc($query)) {
                 if(!empty($entity['eid'])) {
                     $results .= $entity['companyName'].'<br />';
-                    $db->insert_query('assignedemployees', array('uid' => $param['toUser'], 'eid' => $entity['eid'], 'affid' => $param['affid']));
-                    $db->insert_query('users_transferedassignments', array('fromUser' => $param['fromUser'], 'toUser' => $param['toUser'], 'eid' => $entity['eid'], 'affid' => $param['affid']));
+                    if($param['transfer']['assignment'] == 1) {
+                        $db->insert_query('assignedemployees', array('uid' => $param['toUser'], 'eid' => $entity['eid'], 'affid' => $param['affid']));
+                    }
+                    if($param['transfer']['userassignments'] == 1) {
+                        $db->insert_query('users_transferedassignments', array('fromUser' => $param['fromUser'], 'toUser' => $param['toUser'], 'eid' => $entity['eid'], 'affid' => $param['affid']));
+                    }
                 }
             }
 
