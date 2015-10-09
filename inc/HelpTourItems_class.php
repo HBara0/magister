@@ -38,4 +38,22 @@ class HelpTourItems extends AbstractClass {
 
     }
 
+    public function get_helptouritems($reference) {
+        global $lang;
+        $items = HelpTourItems::get_data(array('reference' => $reference), array('returnarray' => true, 'order' => array('by' => 'sequence', 'sort' => 'ASC')));
+        if(is_array($items)) {
+            foreach($items as $item) {
+                $langVar = $item->langVar;
+                $text = $item->text;
+                if((isset($langVar) && !empty($langVar)) && !empty($lang->$langVar)) {
+                    $text = $lang->$langVar;
+                }
+                if(!empty($text)) {
+                    $touritems[$item->itemId] = array('ignoreId' => $item->ignoreId, 'options' => $item->options, 'text' => $text);
+                }
+            }
+        }
+        return $touritems;
+    }
+
 }
