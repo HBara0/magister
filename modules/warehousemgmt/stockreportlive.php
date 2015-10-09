@@ -30,7 +30,6 @@ else {
         if(empty($core->input['affid'])) {
             redirect('index.php?module=warehousemgmt/stockreportlive');
         }
-
         $report_period = array('from' => '2005-01-01');
         $report_period['to'] = 'tomorrow -1 second';
         if(!empty($core->input['asOf'])) {
@@ -79,13 +78,12 @@ else {
         $configs['summary']['order_attr'] = 'remaining_cost';
         $configs['summary']['maintable_hiddencols'] = array('supplier', 'warehouse', 'category', 'product', 'packaging', 'uom', 'unitcost', 'inputdate', 'expirydate', 'daystoexpire');
         $configs['summary']['total_types'] = array('initialquantity', 'quantitysold', 'quantity', 'cost', 'costusd');
-
-
         $configs['aging']['summary_categories'] = $configs['aging']['summary_categories'] = array('category' => 'm_product_category_id', 'warehouse' => 'm_warehouse_id', 'supplier' => 'c_bpartner_id');
         $configs['aging']['summary_reqinfo'] = array('quantity', 'cost', 'range1cost', 'range1qty', /* 'range2cost', 'range2qty', 'range3cost', 'range3qty', */ 'range4cost', 'range4qty', 'range5cost', 'range5qty');
         $configs['aging']['summary_order_attr'] = 'cost';
         $configs['aging']['order_attr'] = 'cost';
         $configs['aging']['maintable_hiddencols'] = array('supplier', 'warehouse', 'category');
+
         $configs['aging']['total_types'] = array('quantity', 'cost', 'costusd', 'range1cost', 'range1qty', 'range1costusd', /* 'range2cost', 'range2qty', 'range3cost', 'range3qty', */ 'range4cost', 'range4qty', 'range4costusd', 'range5cost', 'range5qty', 'range5costusd');
 
         $configs['aging']['info'] = array('title' => 'Stock Aging');
@@ -124,15 +122,32 @@ else {
                 'warehouse' => array('source' => 'warehouse', 'attribute' => 'value', 'title' => 'Warehouse'),
                 'category' => array('source' => array('product', 'category'), 'attribute' => 'value', 'title' => 'Segment'),
                 'quantity' => array('source' => null, 'title' => 'Stock Qty', 'numformat' => true),
+                'costusd' => array('source' => null, 'title' => 'Amount (in USD)', 'numformat' => true),
                 'uom' => array('source' => array('product', 'uom'), 'attribute' => 'uomsymbol', 'title' => 'UoM'),
                 'range1qty' => array('source' => array('entries', 'qty'), 'attribute' => 1, 'title' => '0-90<br />Qty', 'numformat' => true, 'styles' => 'background-color: #F1594A;'),
                 'range2qty' => array('source' => array('entries', 'qty'), 'attribute' => 2, 'title' => '90-180<br />Qty', 'numformat' => true, 'styles' => 'background-color: #F8C830;'),
                 'range3qty' => array('source' => array('entries', 'qty'), 'attribute' => 3, 'title' => '180-270<br />Qty', 'numformat' => true, 'styles' => 'background-color: #F2EB80;'),
                 'range4qty' => array('source' => array('entries', 'qty'), 'attribute' => 4, 'title' => '>270<br />Qty', 'numformat' => true, 'styles' => 'background-color: #ABD25E;')
         );
+
+
+        $configs_budgetreport['summary']['output_fields'] = array(
+                'product' => array('source' => 'product', 'attribute' => 'name', 'title' => 'Product Description'),
+                'category' => array('source' => array('product', 'category'), 'attribute' => 'value', 'title' => 'Product Segment', 'styles' => 'width: 5%;'),
+                'supplier' => array('source' => 'supplier', 'attribute' => 'value', 'title' => 'Supplier Name'),
+                'manager' => array('title' => 'Business Manager'),
+                'quantity' => array('source' => 'stack', 'attribute' => 'remaining_qty', 'title' => 'Quantities (in Kgs)', 'numformat' => true),
+                'costusd' => array('source' => null, 'title' => 'Amount (in USD)', 'numformat' => true),
+                'inputdate' => array('source' => 'transaction', 'attribute' => 'movementdate', 'title' => 'Purchase Date', 'isdate' => true),
+                'expirydate' => array('source' => array('transaction', 'attributes'), 'attribute' => 'guaranteedate', 'title' => 'Expiry Date', 'isdate' => true),
+                'daystoexpire' => array('source' => array('transaction', 'attributes'), 'attribute' => 'daystoexpire', 'title' => 'Days to Expire', 'styles' => array(0 => 'background-color: #F1594A; text-align: center;', 90 => 'background-color: #F8C830; text-align: center;', 180 => 'background-color: #F2EB80; text-align: center;', 270 => 'background-color: #ABD25E; text-align: center;')),
+                'daysinstock' => array('source' => 'stack', 'attribute' => 'daysinstock', 'title' => 'Days in Stock', 'styles' => array(150 => 'background-color: #F1594A; text-align: center;', 120 => 'background-color: #F8C830; text-align: center;', 90 => 'background-color: #F2EB80; text-align: center;', 0 => 'background-color: #ABD25E; text-align: center;')),
+                'usable' => array('title' => 'Usable'),
+                'comments' => array('title' => 'Comments'),
+        );
+        $configs_budgetreport['summary']['total_types'] = array('initialquantity', 'quantitysold', 'quantity');
+        $configs_budgetreport['aging']['maintable_hiddencols'] = array('supplier', 'warehouse', 'category', 'product', 'packaging', 'uom', 'cost', 'costusd', 'range1cost', 'range1qty', 'range4cost', 'range4qty', 'range5cost', 'range5qty');
         /* Configurations Section - END */
-
-
         $output = $summaries_ouput = '';
 
         $affiliateobj = new Affiliates($core->input['affid'], false);
@@ -192,9 +207,14 @@ else {
                 }
             }
             $output .= '<h1>'.$config['info']['title'].'</h1>';
-            $output .= '<table width="100%" cellspacing="0" cellpadding="5" style="border: 1px solid #CCC; font-size: 10px;" border="0">';
+            $output .= '<table id="'.strtolower(preg_replace('/\s+/', '', $config['info']['title'])).'" width="100%" cellspacing="0" cellpadding="5" style="border: 1px solid #CCC; font-size: 10px;" border="0" >';
             $output .= '<tr>';
             foreach($config['output_fields'] as $field => $field_configs) {
+                if(in_array($field, $configs_budgetreport['aging']['maintable_hiddencols'])) {
+                    if($core->input['referrer'] == 'generate_budgetpresntation' && strtolower(preg_replace('/\s+/', '', $config['info']['title'])) == 'stockaging') {
+                        continue;
+                    }
+                }
                 if(is_array($field_configs)) {
                     $output .= '<th style="background: #91b64f;">'.$field_configs['title'].'</th>';
                 }
@@ -424,7 +444,24 @@ else {
 
                     if($report == 'summary') {
                         if((!is_numeric($input['transaction']['attributes']['daystoexpire']) && !empty($input['transaction']['attributes']['daystoexpire'])) || ($input['transaction']['attributes']['daystoexpire'] <= 90) && $input['transaction']['attributes']['daystoexpire'] != '') {
-                            $expired_entries[] = $input;
+
+                            if($core->input['referrer'] == 'generate_budgetpresntation') {
+                                if((!is_numeric($input['transaction']['attributes']['daystoexpire']) && !empty($input['transaction']['attributes']['daystoexpire']))) {
+                                    $expired_entries[] = $input;
+                                }
+                                elseif($input['transaction']['attributes']['daystoexpire'] <= 70) {
+                                    $expiringin60days[] = $input;
+                                    $dtoexpire[] = $input['transaction']['attributes']['daystoexpire'];
+                                }
+                            }
+                            else {
+                                $expired_entries[] = $input;
+                            }
+                        }
+
+                        if(is_numeric($input['transaction']['attributes']['daystoexpire']) && !empty($input['transaction']['attributes']['daystoexpire'])) {
+                            $oldstock_entries[] = $input;
+                            $daysinstock[] = $input['stack']['daysinstock'];
                         }
                     }
 
@@ -435,10 +472,15 @@ else {
                 $output .= '<tr><td colspan="16">N/A</td></tr>';
             }
             /* Output main table totals row - START */
-            $output .= '<tr>';
+            $output .= '<tr id="'.strtolower(preg_replace('/\s+/', '', $config['info']['title'])).'_total">';
+            if($core->input['referrer'] == 'generate_budgetpresntation' && strtolower(preg_replace('/\s+/', '', $config['info']['title'])) == 'stockaging') {
+                $config['maintable_hiddencols'] = $configs_budgetreport['aging']['maintable_hiddencols'];
+            }
             foreach($config['output_fields'] as $field => $field_configs) {
                 if(in_array($field, $config['maintable_hiddencols'])) {
-                    $output .= '<td style="border: 1px solid #CCC;"></td>';
+                    if($core->input['referrer'] != 'generate_budgetpresntation') {
+                        $output .= '<td style="border: 1px solid #CCC;"></td>';
+                    }
                     continue;
                 }
                 $output_value = $totals[$field];
@@ -451,97 +493,102 @@ else {
             /* Output main table totals row - END */
             $output .= '</table>';
 
-            /* Parse Summaries - Start */
-            if(is_array($summaries)) {
-                foreach($summaries as $category => $category_data) {
-                    $totals = array();
-                    $summaries_ouput .= '<h1>'.$config['output_fields'][$category]['title'].' Summary</h1>';
-                    $summaries_ouput .= '<table width="100%" cellspacing="0" cellpadding="5" style="border: 1px solid #CCC; font-size: 10px;" border="0">';
-                    $summaries_ouput .= '<tr><th style="background: #91b64f;">'.$config['output_fields'][$category]['title'].'</th>';
-                    foreach($config['summary_reqinfo'] as $reqinfo) {
-                        $summaries_ouput .= '<th style="background: #91b64f;">'.$config['output_fields'][$reqinfo]['title'].'</th>';
-                    }
-                    unset($out_field_title);
-                    $summaries_ouput .= '</tr>';
+            if($core->input['referrer'] != 'generate_budgetpresntation') {
+                /* Parse Summaries - Start */
+                if(is_array($summaries)) {
+                    foreach($summaries as $category => $category_data) {
+                        $totals = array();
+                        $summaries_ouput .= '<h1>'.$config['output_fields'][$category]['title'].' Summary</h1>';
+                        $summaries_ouput .= '<table width="100%" cellspacing="0" cellpadding="5" style="border: 1px solid #CCC; font-size: 10px;" border="0">';
+                        $summaries_ouput .= '<tr><th style="background: #91b64f;">'.$config['output_fields'][$category]['title'].'</th>';
+                        foreach($config['summary_reqinfo'] as $reqinfo) {
+                            $summaries_ouput .= '<th style="background: #91b64f;">'.$config['output_fields'][$reqinfo]['title'].'</th>';
+                        }
+                        unset($out_field_title);
+                        $summaries_ouput .= '</tr>';
 
-                    ${$config['summary_order_attr']} = array();
-                    foreach($category_data as $cat_data_key => $cat_data_row) {
-                        ${$config['summary_order_attr']}[$cat_data_key] = $cat_data_row[$config['summary_order_attr']];
-                    }
-                    array_multisort(${$config['summary_order_attr']}, SORT_DESC, $category_data);
-                    foreach($category_data as $cat_data_row) {
+                        ${$config['summary_order_attr']} = array();
+                        foreach($category_data as $cat_data_key => $cat_data_row) {
+                            ${$config['summary_order_attr']}[$cat_data_key] = $cat_data_row[$config['summary_order_attr']];
+                        }
+                        array_multisort(${$config['summary_order_attr']}, SORT_DESC, $category_data);
+                        foreach($category_data as $cat_data_row) {
+                            $summaries_ouput .= '<tr>';
+                            foreach($cat_data_row as $output_key => $output_value) {
+                                $output_td_style = '';
+                                if(is_array($output_value)) {
+                                    $output_values = $output_value;
+                                    $output_value = '';
+                                    foreach($output_values as $output_key_temp => $output_value_temp) {
+                                        if(in_array($output_key, $config['total_types'])) {
+                                            $totals[$output_key][$output_key_temp] += $output_value_temp;
+                                        }
+
+                                        if($config['output_fields'][$output_key]['numformat'] == true) {
+                                            $output_value_temp = number_format($output_value_temp, $report_options['roundto'], '.', ' ');
+                                            $output_td_style = ' text-align: right;';
+                                        }
+                                        $output_value .= $output_value_temp.' '.$output_key_temp.'<br />';
+                                    }
+                                }
+                                else {
+                                    if($config['output_fields'][$output_key]['numformat']) {
+                                        if(in_array($output_key, $config['total_types'])) {
+                                            $totals[$output_key] += $output_value;
+                                        }
+                                        if($config['output_fields'][$output_key]['numformat'] == true) {
+                                            $output_value = number_format($output_value, $report_options['roundto'], '.', ' ');
+                                            $output_td_style = ' text-align: right;';
+                                        }
+                                    }
+                                }
+
+                                if(isset($config['output_fields'][$output_key]['styles'])) {
+                                    $output_td_style .= $config['output_fields'][$output_key]['styles'];
+                                }
+                                $summaries_ouput .= '<td style="border: 1px solid #CCC; width: '.(100 / ( count($config['summary_reqinfo']) + 1 ) ).'%; '.$output_td_style.'">'.$output_value.'</td>';
+                            }
+                            $summaries_ouput .= '</tr>';
+                        }
+                        /* Output summary table totals row - START */
                         $summaries_ouput .= '<tr>';
-                        foreach($cat_data_row as $output_key => $output_value) {
-                            $output_td_style = '';
-                            if(is_array($output_value)) {
-                                $output_values = $output_value;
-                                $output_value = '';
-                                foreach($output_values as $output_key_temp => $output_value_temp) {
-                                    if(in_array($output_key, $config['total_types'])) {
-                                        $totals[$output_key][$output_key_temp] += $output_value_temp;
+                        $summaries_ouput .= '<td style="border: 1px solid #CCC;"></td>';
+                        $output_value = null;
+                        foreach($config['summary_reqinfo'] as $field) {
+                            if(is_array($totals[$field])) {
+                                foreach($totals[$field] as $key => $output_value_temp) {
+                                    if(is_numeric($output_value_temp)) {
+                                        $output_value .= number_format($output_value_temp, $report_options['roundto'], '.', ' ').' '.$key.'<br />';
                                     }
-
-                                    if($config['output_fields'][$output_key]['numformat'] == true) {
-                                        $output_value_temp = number_format($output_value_temp, $report_options['roundto'], '.', ' ');
-                                        $output_td_style = ' text-align: right;';
-                                    }
-                                    $output_value .= $output_value_temp.' '.$output_key_temp.'<br />';
                                 }
                             }
                             else {
-                                if($config['output_fields'][$output_key]['numformat']) {
-                                    if(in_array($output_key, $config['total_types'])) {
-                                        $totals[$output_key] += $output_value;
-                                    }
-                                    if($config['output_fields'][$output_key]['numformat'] == true) {
-                                        $output_value = number_format($output_value, $report_options['roundto'], '.', ' ');
-                                        $output_td_style = ' text-align: right;';
-                                    }
+                                $output_value = $totals[$field];
+                                if(is_numeric($output_value)) {
+                                    $output_value = number_format($output_value, $report_options['roundto'], '.', ' ');
                                 }
                             }
-
-                            if(isset($config['output_fields'][$output_key]['styles'])) {
-                                $output_td_style .= $config['output_fields'][$output_key]['styles'];
-                            }
-                            $summaries_ouput .= '<td style="border: 1px solid #CCC; width: '.(100 / ( count($config['summary_reqinfo']) + 1 ) ).'%; '.$output_td_style.'">'.$output_value.'</td>';
+                            $summaries_ouput .= '<td style="border: 1px solid #CCC; font-weight: bold; text-align: right; text-decoration:underline;">'.$output_value.'</td>';
+                            $output_value = '';
                         }
                         $summaries_ouput .= '</tr>';
+                        /* Output summary table totals row - END */
+                        $summaries_ouput .= '</table>';
                     }
-                    /* Output summary table totals row - START */
-                    $summaries_ouput .= '<tr>';
-                    $summaries_ouput .= '<td style="border: 1px solid #CCC;"></td>';
-                    $output_value = null;
-                    foreach($config['summary_reqinfo'] as $field) {
-                        if(is_array($totals[$field])) {
-                            foreach($totals[$field] as $key => $output_value_temp) {
-                                if(is_numeric($output_value_temp)) {
-                                    $output_value .= number_format($output_value_temp, $report_options['roundto'], '.', ' ').' '.$key.'<br />';
-                                }
-                            }
-                        }
-                        else {
-                            $output_value = $totals[$field];
-                            if(is_numeric($output_value)) {
-                                $output_value = number_format($output_value, $report_options['roundto'], '.', ' ');
-                            }
-                        }
-                        $summaries_ouput .= '<td style="border: 1px solid #CCC; font-weight: bold; text-align: right; text-decoration:underline;">'.$output_value.'</td>';
-                        $output_value = '';
-                    }
-                    $summaries_ouput .= '</tr>';
-                    /* Output summary table totals row - END */
-                    $summaries_ouput .= '</table>';
+                    $summaries = array();
                 }
-                $summaries = array();
+                /* Parse Summaries - END */
             }
-            /* Parse Summaries - END */
         }
-        /* Parse Expired Products Table - START */
 
+        /* Parse Expired Products Table - START */
         $alerts = '';
         if(is_array($expired_entries)) {
+            if($core->input['referrer'] == 'generate_budgetpresntation') {
+                $configs['summary']['output_fields'] = $configs_budgetreport['summary']['output_fields'];
+            }
             $totals = null;
-            $alerts .= '<div style="font-weight: bold; color: red; font-size:18pt;">The following products have expired or are expiring soon!</div><br /><table width="100%" cellspacing="0" cellpadding="5" style="border: 1px solid #CCC; font-size: 10px;" border="0">';
+            $alerts .= '<div style="font-weight: bold; color: red; font-size:18pt;">The following products have expired or are expiring soon!</div><br /><table id="expiredstock" width="100%" cellspacing="0" cellpadding="5" style="border: 1px solid #CCC; font-size: 10px;" border="0">';
             $alerts .= '<tr>';
             foreach($configs['summary']['output_fields'] as $field => $field_configs) {
                 if(is_array($field_configs)) {
@@ -559,7 +606,9 @@ else {
                 ${$order_attr}[$data_key] = $data_row['stack'][$order_attr];
             }
             array_multisort(${$order_attr}, SORT_DESC, $expired_entries);
-
+            if($core->input['referrer'] == 'generate_budgetpresntation') {
+                $expired_entries = array_slice($expired_entries, 0, 15);
+            }
             foreach($expired_entries as $id => $input) {
                 $alerts .= '<tr>';
                 foreach($configs['summary']['output_fields'] as $field => $field_configs) {
@@ -582,7 +631,6 @@ else {
                         else {
                             $output_value = $input[$field_configs['source']][$field_configs['attribute']];
                         }
-
                         if(in_array($field, $configs['summary']['total_types'])) {
                             $totals[$field] += $output_value;
                         }
@@ -627,7 +675,12 @@ else {
                         if(in_array($field, $configs['summary']['total_types'])) {
                             $totals[$field] += $input[$field];
                         }
-                        $alerts .= '<td style="border: 1px solid #CCC; text-align: right;">'.number_format($input[$field], $report_options['roundto'], '.', ' ').'</td>';
+                        if($core->input['referrer'] == 'generate_budgetpresntation') {
+                            $alerts .= '<td style="border: 1px solid #CCC; text-align: right;"></td>';
+                        }
+                        else {
+                            $alerts .= '<td style="border: 1px solid #CCC; text-align: right;">'.number_format($input[$field], $report_options['roundto'], '.', ' ').'</td>';
+                        }
 
                         unset($output_value);
                     }
@@ -649,24 +702,247 @@ else {
                 $alerts .= '<td style="border: 1px solid #CCC; font-weight: bold; text-align: right; text-decoration:underline;">'.$output_value.'</td>';
             }
             $alerts .= '</tr>';
+            if($core->input['referrer'] == 'generate_budgetpresntation') {
+                $alerts .='<tr><td colspan="12"> PS: if product is usable, please specify in comments when it will be sold;
+                if "Other" product segment, please specify in comments</td></tr>';
+            }
             /* Output expired table totals row - END */
             $alerts .= '</table>';
         }
         unset($expired_entries);
         /* Parse Expired Products Table - END */
+        //////////////////////////////////////////////////////////////////////////
+        /* Parse Top 15 Products Expiring in 60 days Table (for budget presentation) - START */
+        if($core->input['referrer'] == 'generate_budgetpresntation') {
+            if(is_array($expiringin60days)) {
+                array_multisort($expiringin60days, SORT_ASC, $dtoexpire);
+                array_slice($expiringin60days, 0, 15);
+                $totals = null;
+                $alerts .= '<table id="stockexpiringin60" width="100%" cellspacing="0" cellpadding="5" style="border: 1px solid #CCC; font-size: 10px;" border="0">';
+                $alerts .='<tr><td colspan="12">Top 15 Products expiring within the next 60 days (sorted by amount in USD)</td></tr>';
 
+                $alerts .= '<tr>';
+                foreach($configs_budgetreport['summary']['output_fields'] as $field => $field_configs) {
+                    if(is_array($field_configs)) {
+                        $alerts .= '<th style="background: #91b64f;">'.$field_configs['title'].'</th>';
+                    }
+                    else {
+                        $alerts .= '<th style="background: #91b64f;">'.$field_configs.'</th>';
+                    }
+                }
+                $alerts .= '</tr>';
+
+                $order_attr = 'remaining_cost';
+                ${$order_attr} = array();
+                foreach($expiringin60days as $data_key => $data_row) {
+                    ${$order_attr}[$data_key] = $data_row['stack'][$order_attr];
+                }
+                array_multisort(${$order_attr}, SORT_DESC, $expiringin60days);
+
+                foreach($expiringin60days as $id => $input) {
+                    $alerts .= '<tr>';
+                    foreach($configs_budgetreport['summary']['output_fields'] as $field => $field_configs) {
+                        $output_td_style = '';
+
+                        if(is_array($field_configs) && $field_configs['source'] != null) {
+                            if(is_array($field_configs['source'])) {
+                                $source_data = '';
+                                foreach($field_configs['source'] as $source) {
+                                    if(empty($source_data)) {
+
+                                        $source_data = $input[$source];
+                                    }
+                                    else {
+                                        $source_data = $source_data[$source];
+                                    }
+                                }
+                                $output_value = $source_data[$field_configs['attribute']];
+                            }
+                            else {
+                                $output_value = $input[$field_configs['source']][$field_configs['attribute']];
+                            }
+
+                            if(in_array($field, $configs_budgetreport['summary']['total_types'])) {
+                                $totals[$field] += $output_value;
+                            }
+
+                            if($field_configs['numformat'] == true) {
+                                $output_value = number_format($output_value, $report_options['roundto'], '.', ' ');
+                                $output_td_style = ' text-align: right;';
+                            }
+
+                            if($field_configs['isdate'] == true) {
+                                if(strstr($output_value, '.')) {
+                                    $output_valueobj = DateTime::createFromFormat('Y-m-d G:i:s.u', $output_value);
+                                }
+                                else {
+                                    $output_valueobj = DateTime::createFromFormat('Y-m-d G:i:s', $output_value);
+                                }
+
+                                if($output_valueobj != false) {
+                                    $output_value = $output_valueobj->format($core->settings['dateformat']);
+                                }
+                            }
+
+                            if(isset($field_configs['styles'])) {
+                                if(is_array($field_configs['styles'])) {
+                                    krsort($field_configs['styles']);
+                                    foreach($field_configs['styles'] as $num => $style) {
+                                        if($output_value > $num) {
+                                            $output_td_style .= $style;
+                                            break;
+                                        }
+                                    }
+                                }
+                                else {
+                                    $output_td_style = $field_configs['styles'];
+                                }
+                            }
+
+                            $alerts .= '<td style="border: 1px solid #CCC; '.$output_td_style.'">'.$output_value.'</td>';
+                            unset($output_value);
+                        }
+                        else {
+                            if(in_array($field, $configs_budgetreport['summary']['total_types'])) {
+                                $totals[$field] += $input[$field];
+                            }
+                            $alerts .= '<td style="border: 1px solid #CCC; text-align: right;"></td>';
+                            unset($output_value);
+                        }
+                    }
+                    $alerts .= '</tr>';
+                }
+
+                $alerts .='<tr><td colspan="12">If "Other" product segment, please specify in comments.</td></tr>';
+                $alerts .= '</table>';
+            }
+            unset($expiringin60days);
+            //   }
+            /* Parse Top 15 Products Expiring in 60 days Table (for budget presentation) - END */
+
+            /* Parse Top 10 old products (for budget presentation) - START */
+            if(is_array($oldstock_entries)) {
+                $order_attr = 'daysinstock';
+                ${$order_attr} = array();
+                foreach($oldstock_entries as $data_key => $data_row) {
+                    ${$order_attr}[$data_key] = $data_row['stack'][$order_attr];
+                }
+                array_multisort(${$order_attr}, SORT_DESC, $oldstock_entries);
+                $oldstock_entries = array_slice($oldstock_entries, 0, 10, true);
+                $alerts .= '<table id="oldstocknotexpired" width="100%" cellspacing="0" cellpadding="5" style="border: 1px solid #CCC; font-size: 10px;" border="0">';
+                $alerts .= '<tr><td colspan="12">Top 10 Oldest Products that are not yet expired (sorted by amount in USD)</td></tr>';
+                $alerts .= '<tr>';
+                foreach($configs_budgetreport['summary']['output_fields'] as $field => $field_configs) {
+                    if(is_array($field_configs)) {
+                        $alerts .= '<th style="background: #91b64f;">'.$field_configs['title'].'</th>';
+                    }
+                    else {
+                        $alerts .= '<th style="background: #91b64f;">'.$field_configs.'</th>';
+                    }
+                }
+                $alerts .= '</tr>';
+
+                $order_attr = 'remaining_cost';
+                ${$order_attr} = array();
+                foreach($oldstock_entries as $data_key => $data_row) {
+                    ${$order_attr}[$data_key] = $data_row['stack'][$order_attr];
+                }
+                array_multisort(${$order_attr}, SORT_DESC, $oldstock_entries);
+
+                foreach($oldstock_entries as $id => $input) {
+                    $alerts .= '<tr>';
+                    foreach($configs_budgetreport['summary']['output_fields'] as $field => $field_configs) {
+                        if($filed == 'usable') {
+                            continue;
+                        }
+                        $output_td_style = '';
+
+                        if(is_array($field_configs) && $field_configs['source'] != null) {
+                            if(is_array($field_configs['source'])) {
+                                $source_data = '';
+                                foreach($field_configs['source'] as $source) {
+                                    if(empty($source_data)) {
+
+                                        $source_data = $input[$source];
+                                    }
+                                    else {
+                                        $source_data = $source_data[$source];
+                                    }
+                                }
+                                $output_value = $source_data[$field_configs['attribute']];
+                            }
+                            else {
+                                $output_value = $input[$field_configs['source']][$field_configs['attribute']];
+                            }
+
+                            if(in_array($field, $configs_budgetreport['summary']['total_types'])) {
+                                $totals[$field] += $output_value;
+                            }
+
+                            if($field_configs['numformat'] == true) {
+                                $output_value = number_format($output_value, $report_options['roundto'], '.', ' ');
+                                $output_td_style = ' text-align: right;';
+                            }
+
+                            if($field_configs['isdate'] == true) {
+                                if(strstr($output_value, '.')) {
+                                    $output_valueobj = DateTime::createFromFormat('Y-m-d G:i:s.u', $output_value);
+                                }
+                                else {
+                                    $output_valueobj = DateTime::createFromFormat('Y-m-d G:i:s', $output_value);
+                                }
+
+                                if($output_valueobj != false) {
+                                    $output_value = $output_valueobj->format($core->settings['dateformat']);
+                                }
+                            }
+
+                            if(isset($field_configs['styles'])) {
+                                if(is_array($field_configs['styles'])) {
+                                    krsort($field_configs['styles']);
+                                    foreach($field_configs['styles'] as $num => $style) {
+                                        if($output_value > $num) {
+                                            $output_td_style .= $style;
+                                            break;
+                                        }
+                                    }
+                                }
+                                else {
+                                    $output_td_style = $field_configs['styles'];
+                                }
+                            }
+
+                            $alerts .= '<td style="border: 1px solid #CCC; '.$output_td_style.'">'.$output_value.'</td>';
+                            unset($output_value);
+                        }
+                        else {
+                            if(in_array($field, $configs_budgetreport['summary']['total_types'])) {
+                                $totals[$field] += $input[$field];
+                            }
+                            $alerts .= '<td style="border: 1px solid #CCC; text-align: right;"></td>';
+                            unset($output_value);
+                        }
+                    }
+                    $alerts .= '</tr>';
+                }
+                $alerts .= '</table>';
+            }
+        }
+        /////////////////////////////////////////////////////////////////////////
 
         /* Parse Stock Evolution Report - START */
         $aging_scale = array(2 => '90-179', 3 => '180-359', 4 => '>=360');
         $aging_scale_config = array(0, 90, 180, 360);
         $stockevolution_output = '<h1>Stock Evolution</h1>';
-        $stockevolution_output .= '<table width="100%" cellspacing="0" cellpadding="5" style="border: 1px solid #CCC; font-size: 10px;" border="0">';
-        $stockevolution_output .= '<tr><th style="background: #91b64f;">Month</td><th style="background: #91b64f;">Value K.USD</td>';
+        $stockevolution_output .= '<table id="stockevolution" width="100%" cellspacing="0" cellpadding="5" style="border: 1px solid #CCC; font-size: 10px;" border="0">';
+        $stockevolution_output .= '<tr><th style="background: #91b64f;">Month</td>';
+        if(!isset($core->input['referrer']) || $core->input['referrer'] != 'generate_budgetpresntation') {
+            $stockevolution_output .='<th style="background: #91b64f;">Value K.USD</td>';
+        }
         foreach($aging_scale as $key => $age) {
             $stockevolution_output .= '<th style="background: #91b64f;">'.$age.'</td>';
         }
         $stockevolution_output .= '</tr>';
-
         $first_transaction = $integration->get_firsttransaction(array($orgid));
         if(TIME_NOW - strtotime($first_transaction->get()['trxprocessdate']) > (60 * 60 * 24 * 365 )) {
             $date_from = strtotime((date('Y', TIME_NOW) - 1 ).'-01-31');
@@ -687,17 +963,24 @@ else {
             $chart_data['y']['Total'][$date['mon'].$date['year']] = 0;
             if(is_array($stockevolution_data['value'])) {
                 $value = (array_sum($stockevolution_data['value']) / $fxrates['usd']) / 1000;
-                $stockevolution_output .= '<tr><td style="border: 1px solid #CCC;">'.$date['month'].' - '.$date['year'].' ('.date('Y-m-d', $date_from).')</td><td style="border: 1px solid #CCC; text-align: right;">'.round($value).'</td>';
+                $stockevolution_output .= '<tr><td style="border: 1px solid #CCC;">'.$date['month'].' - '.$date['year'].' ('.date('Y-m-d', $date_from).')</td>';
+                if(!isset($core->input['referrer']) || $core->input['referrer'] != 'generate_budgetpresntation') {
+                    $stockevolution_output .= '<td style="border: 1px solid #CCC; text-align: right;">'.round($value).'</td>';
+                }
+                else {
+                    $stockpermonthofsale_data['months'][] = $date['month'].' - '.$date['year'];
+                    $stockpermonthofsale_data['values'][] = round($value);
+                }
                 $chart_data['y']['Total'][$date['mon'].$date['year']] = $value;
                 unset($value);
 
                 /* Parse Aging Info */
                 foreach($aging_scale as $key => $age) {
                     if(isset($stockevolution_data['aging']['value'][$key])) {
-//$stockevolution_output .= '<td style="border: 1px solid #CCC;">-</td>';
                         $value = (($stockevolution_data['aging']['value'][$key] / $fxrates['usd']) / 1000 );
                         $stockevolution_output .= '<td style="border: 1px solid #CCC; text-align:right;">'.round($value).'</td>';
                         $chart_data['y'][$age][$date['mon'].$date['year']] = $value;
+                        $totalperages[$age] +=round($value);
                         unset($value);
                     }
                     else {
@@ -712,39 +995,77 @@ else {
 
             $date_from = strtotime(date('Y-m-d', $date_from).' last day of next month'); //$date_from + (60 * 60 * 24 * 7);
         }
-
+        /* Parse Stock Evolution Total(for budget presentation) - START */
+        if($core->input['referrer'] == 'generate_budgetpresntation') {
+            if(is_array($totalperages)) {
+                $stockevolution_output .='<tr><td>Total Stock</td>';
+                foreach($totalperages as $totalperage) {
+                    $stockevolution_output .='<td>'.$totalperage.'</td>';
+                }
+                $stockevolution_output .='</tr>';
+            }
+        }
+        /* Parse Stock Evolution Total (for budget presentation) - END */
         $stockevolution_output .= '</table>';
-
-        foreach($aging_scale as $key => $age) {
-            $stockevolution_chart_linecolors[$age] = $configs['aging']['output_fields']['range'.$key.'cost']['chartlinecolor'];
+        /* Parse Stock Per month of sales (for budget presentation) - START */
+        if($core->input['referrer'] == 'generate_budgetpresntation') {
+            if(is_array($stockpermonthofsale_data)) {
+                $stockpermonthofsale_output = '<table id="stockpermonthofsales">';
+                foreach($stockpermonthofsale_data as $stockpermonthofsale_key => $stockpermonthofsale_row) {
+                    if(is_array($stockpermonthofsale_row)) {
+                        switch($stockpermonthofsale_key) {
+                            case 'months':
+                                $stockpermonthofsale_output .='<tr> <th>Months</th>';
+                                break;
+                            case 'values':
+                                $stockpermonthofsale_output .='<tr> <th>Values K.USD</th>';
+                                break;
+                            default:
+                                break;
+                        }
+                        foreach($stockpermonthofsale_row as $stockpermonthofsale_col) {
+                            $stockpermonthofsale_output .='<td>'.$stockpermonthofsale_col.'</td>';
+                        }
+                        $stockpermonthofsale_output .='</tr>';
+                    }
+                }
+                $stockpermonthofsale_output .= '</table>';
+            }
         }
+        /* Parse Stock Per month of sales (for budget presentation) - END */
 
-        $stockevolution_chart = new Charts(array('x' => $chart_data['x'], 'y' => $chart_data['y']), 'line', array('path' => './tmp/charts/', 'labelrotationangle' => 90, 'height' => 400, 'width' => 900, 'yaxisname' => 'K. USD', 'graphareay2margin' => 50, 'scale' => SCALE_START0, 'seriesweight' => 2, 'nosort' => true, 'linescolors' => $stockevolution_chart_linecolors));
-        if($core->input['reporttype'] == 'email') {
-            $stockevolution_output = '<img src="cid:stockevolutionchart" />'.$stockevolution_output;
+        if($core->input['referrer'] != 'generate_budgetpresntation') {
+            foreach($aging_scale as $key => $age) {
+                $stockevolution_chart_linecolors[$age] = $configs['aging']['output_fields']['range'.$key.'cost']['chartlinecolor'];
+            }
+
+            $stockevolution_chart = new Charts(array('x' => $chart_data['x'], 'y' => $chart_data['y']), 'line', array('path' => './tmp/charts/', 'labelrotationangle' => 90, 'height' => 400, 'width' => 900, 'yaxisname' => 'K. USD', 'graphareay2margin' => 50, 'scale' => SCALE_START0, 'seriesweight' => 2, 'nosort' => true, 'linescolors' => $stockevolution_chart_linecolors));
+            if($core->input['reporttype'] == 'email') {
+                $stockevolution_output = '<img src="cid:stockevolutionchart" />'.$stockevolution_output;
+            }
+            else {
+                $stockevolution_output = '<img src="data:image/png;base64,'.base64_encode(file_get_contents($stockevolution_chart->get_chart())).'" />'.$stockevolution_output;
+            }
+
+            /* Parse FX Rates Chart - START */
+            $currency_rates_year = $currency_obj->get_yearaverage_fxrate_monthbased($affiliate['currency'], $date_info['year'], array('distinct_by' => 'alphaCode', 'precision' => 4, 'monthasname' => true), 'USD'); /* GET the fxrate of previous quarter year */
+            $currency_rates_year = array_slice($currency_rates_year, 0, date('n', TIME_NOW));
+
+
+            $overyears_rates = $currency_obj->get_yearaverage_fxrate_yearbased($affiliate['currency'], 2005, $date_info['year'] - 1, array('distinct_by' => 'alphaCode', 'precision' => 4), 'USD');
+            $overyears_rates = $overyears_rates + $currency_rates_year;
+            $index1 = 8;
+            $index2 = count($overyears_rates) - 1;
+            $fxrates_linechart = new Charts(array('x' => array_keys($overyears_rates), 'y' => array('1 USD' => $overyears_rates)), 'line', array('xaxisname' => 'Months ('.$date_info['year'].')', 'yaxisname' => 'USD Rate', 'yaxisunit' => '', 'treshholddata' => array('firstindex' => $index1, 'secondindex' => $index2), 'hasthreshold' => 1, 'width' => 700, 'height' => 200, 'scale' => SCALE_START0, 'path' => './tmp/charts/', 'writelabel' => true));
+
+            $fxratesoverview_output = '<h1>FX Rates Evolution</h1>';
+            if($core->input['reporttype'] == 'email') {
+                $fxratesoverview_output .= '<img src="cid:fxratesoverview" />';
+            }
+            else {
+                $fxratesoverview_output .= '<img src="data:image/png;base64,'.base64_encode(file_get_contents($fxrates_linechart->get_chart())).'" />';
+            }
         }
-        else {
-            $stockevolution_output = '<img src="data:image/png;base64,'.base64_encode(file_get_contents($stockevolution_chart->get_chart())).'" />'.$stockevolution_output;
-        }
-        /* Parse FX Rates Chart - START */
-        $currency_rates_year = $currency_obj->get_yearaverage_fxrate_monthbased($affiliate['currency'], $date_info['year'], array('distinct_by' => 'alphaCode', 'precision' => 4, 'monthasname' => true), 'USD'); /* GET the fxrate of previous quarter year */
-        $currency_rates_year = array_slice($currency_rates_year, 0, date('n', TIME_NOW));
-
-
-        $overyears_rates = $currency_obj->get_yearaverage_fxrate_yearbased($affiliate['currency'], 2005, $date_info['year'] - 1, array('distinct_by' => 'alphaCode', 'precision' => 4), 'USD');
-        $overyears_rates = $overyears_rates + $currency_rates_year;
-        $index1 = 8;
-        $index2 = count($overyears_rates) - 1;
-        $fxrates_linechart = new Charts(array('x' => array_keys($overyears_rates), 'y' => array('1 USD' => $overyears_rates)), 'line', array('xaxisname' => 'Months ('.$date_info['year'].')', 'yaxisname' => 'USD Rate', 'yaxisunit' => '', 'treshholddata' => array('firstindex' => $index1, 'secondindex' => $index2), 'hasthreshold' => 1, 'width' => 700, 'height' => 200, 'scale' => SCALE_START0, 'path' => './tmp/charts/', 'writelabel' => true));
-
-        $fxratesoverview_output = '<h1>FX Rates Evolution</h1>';
-        if($core->input['reporttype'] == 'email') {
-            $fxratesoverview_output .= '<img src="cid:fxratesoverview" />';
-        }
-        else {
-            $fxratesoverview_output .= '<img src="data:image/png;base64,'.base64_encode(file_get_contents($fxrates_linechart->get_chart())).'" />';
-        }
-
         /* Parse FX Rates Chart - END */
 
         /* Parse Stock Evolution Report - END */
@@ -846,7 +1167,7 @@ else {
             unset($message);
         }
         else {
-            $page['content'] = $message;
+            $stockreportpage['content'] = $message;
 //            $recipients = array(
 //                    $affiliateobj->get_generalmanager()->displayName,
 //                    $affiliateobj->get_supervisor()->displayName,
@@ -855,12 +1176,16 @@ else {
 
             if(is_array($recipients)) {
                 $recipients = array_filter($recipients);
-                $page['content'] .= '<hr /><div class="ui-state-highlight ui-corner-all" style="padding-left: 5px; margin-bottom:10px;"><p>This report will be sent to <ul><li>'.implode('</li><li>', $recipients).'</li></ul></p></div>';
-                $page['content'] .= '<a href="index.php?reporttype=email&amp;'.http_build_query($core->input).'"><button class="button">Send by email</button></a>';
+                $stockreportpage['content'] .= '<hr /><div class="ui-state-highlight ui-corner-all" style="padding-left: 5px; margin-bottom:10px;"><p>This report will be sent to <ul><li>'.implode('</li><li>', $recipients).'</li></ul></p></div>';
+                $stockreportpage['content'] .= '<a href="index.php?reporttype=email&amp;'.http_build_query($core->input).'"><button class="button">Send by email</button></a>';
             }
-
-            eval("\$report = \"".$template->get('general_container')."\";");
-            output_page($report);
+            if($core->input['referrer'] != 'generate_budgetpresntation') {
+                eval("\$report = \"".$template->get('general_container')."\";");
+                output_page($report);
+            }
+            else {
+                $report = $stockreportpage[content].$stockpermonthofsale_output;
+            }
         }
         unset($message);
     }

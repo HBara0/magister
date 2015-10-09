@@ -1055,8 +1055,7 @@ if($core->input['export']) {
     }
 
     //get Sales/Income per business segment - END
-//get stock reports - START
-    //get stock reports - END
+
     $aff = 'All';
     $filters = array('year' => date('Y') + 1);
     $financialbudget_year = date('Y') + 1;
@@ -1138,6 +1137,73 @@ xmlns = "http://www.w3.org/TR/REC-html40">
             }
         }
     }
+
+
+
+
+    //get stock reports - START
+
+    ini_set('max_execution_time', 0);
+    $core->input['action'] = "do_generatereport";
+    $core->input['referrer'] = 'generate_budgetpresntation';
+    $core->input['module'] = 'warehousemgmt/stockreportlive';
+    define('DIRECT_ACCESS', true);
+    include "/modules/warehousemgmt/stockreportlive.php";
+    $stockdata = $report;
+    $stocktables_types = array('stockevolution', 'stockaging', 'expiredstock', 'stockexpiringin60', 'oldstocknotexpired', 'stockpermonthofsales');
+    foreach($stocktables_types as $stocktables_type) {
+        $stockpagedesc = $stocktables_type.'desc';
+        if($stocktables_type == 'stockaging') {
+            $stockaging_headerrow = get_string_between($stockdata, '<table id="stockaging"', '</tr>');
+            $stockaging_body = get_string_between($stockdata, '<tr id="'.$stocktables_type.'_total">', '</tr>');
+            $htmlstock = "<table id='stockaging' ".$stockaging_headerrow."</tr><tr>".$stockaging_body."</tr></table>";
+        }
+        else {
+            $parsed = get_string_between($stockdata, '<table id="'.$stocktables_type.'"', '</table>');
+            $htmlstock = "<table id = '".$stocktables_type."' ".$parsed."</table>";
+        }
+        $pagestock = '<html xmlns:v = "urn:schemas-microsoft-com:vml" xmlns:o = "urn:schemas-microsoft-com:office:office" xmlns:x = "urn:schemas-microsoft-com:office:excel"
+xmlns = "http://www.w3.org/TR/REC-html40">
+            <head>
+            <meta http-equiv = Content-Type content = "text/html; charset=windows-1252">
+            <meta name = ProgId content = Excel.Sheet>
+            <meta name = Generator content = "Microsoft Excel 11">
+            <!--[if gte mso 9]><xml>
+            <x:ExcelWorkbook>
+            <x:ExcelWorksheets>
+            <x:ExcelWorksheet>
+            <x:Name>none</x:Name>
+            <x:WorksheetOptions>
+            <x:ProtectContents>False</x:ProtectContents>
+            <x:ProtectObjects>False</x:ProtectObjects>
+            <x:ProtectScenarios>False</x:ProtectScenarios>
+            </x:WorksheetOptions>
+            </x:ExcelWorksheet>
+            </x:ExcelWorksheets>
+            <x:WindowHeight>9210</x:WindowHeight>
+            <x:WindowWidth>19035</x:WindowWidth>
+            <x:WindowTopX>0</x:WindowTopX>
+            <x:WindowTopY>75</x:WindowTopY>
+            <x:ProtectStructure>False</x:ProtectStructure>
+            <x:ProtectWindows>False</x:ProtectWindows>
+            </x:ExcelWorkbook>
+            </xml><![endif] -->
+            </head>
+            <body><table>
+            <thead><tr><th>'.$lang->$stockpagedesc.'</th></tr><tr><th></th></tr></thead>';
+        $pagestock .='<tbody>'.$htmlstock.'</tbody>';
+        $pagestock .='</table></body></html>';
+        $path = dirname(__FILE__).'\..\..\tmp\\bugetingexport\\'.uniqid($stocktables_type).'.html';
+        $allpaths[$stocktables_type][$lang->$stocktables_type] = $path;
+        $handle = fopen($path, 'w') or die('Cannot open file: '.$allpaths);
+        $writefile = file_put_contents($path, $pagestock);
+        unset($htmlstock, $pagestock, $parsed);
+    }
+
+
+
+    unset($style);
+    //get stock reports - END
 //parse contents-START
     if(is_array($final)) {
         $langvariable = $pagedesc = '';
@@ -1159,7 +1225,7 @@ xmlns = "http://www.w3.org/TR/REC-html40">
                                             $rows .= '<td>'.$data.'</td>';
                                         }
                                         else {
-                                            $rows.= '<td>'.number_format($data, 2, '.', ',').'</td>';
+                                            $rows.= '<td>'.number_format($data, 2, '.', ', ').'</td>';
                                         }
                                     }
                                     else {
@@ -1182,34 +1248,34 @@ xmlns = "http://www.w3.org/TR/REC-html40">
                         }
                     }
                     $page = '<html xmlns:v = "urn:schemas-microsoft-com:vml" xmlns:o = "urn:schemas-microsoft-com:office:office" xmlns:x = "urn:schemas-microsoft-com:office:excel"
-xmlns = "http://www.w3.org/TR/REC-html40">
-<head>
-   <meta http-equiv=Content-Type content="text/html; charset=windows-1252">
-          <meta name=ProgId content=Excel.Sheet>
-          <meta name=Generator content="Microsoft Excel 11">
-   <!--[if gte mso 9]><xml>
-           <x:ExcelWorkbook>
-          <x:ExcelWorksheets>
-           <x:ExcelWorksheet>
+            xmlns = "http://www.w3.org/TR/REC-html40">
+            <head>
+            <meta http-equiv = Content-Type content = "text/html; charset=windows-1252">
+            <meta name = ProgId content = Excel.Sheet>
+            <meta name = Generator content = "Microsoft Excel 11">
+            <!--[if gte mso 9]><xml>
+            <x:ExcelWorkbook>
+            <x:ExcelWorksheets>
+            <x:ExcelWorksheet>
             <x:Name>none</x:Name>
-           <x:WorksheetOptions>
-     <x:ProtectContents>False</x:ProtectContents>
-     <x:ProtectObjects>False</x:ProtectObjects>
-     <x:ProtectScenarios>False</x:ProtectScenarios>
-    </x:WorksheetOptions>
-   </x:ExcelWorksheet>
-  </x:ExcelWorksheets>
-  <x:WindowHeight>9210</x:WindowHeight>
-  <x:WindowWidth>19035</x:WindowWidth>
-  <x:WindowTopX>0</x:WindowTopX>
-  <x:WindowTopY>75</x:WindowTopY>
-  <x:ProtectStructure>False</x:ProtectStructure>
-  <x:ProtectWindows>False</x:ProtectWindows>
- </x:ExcelWorkbook>
-</xml><![endif]-->
-</head>
-<body><table>
-<thead><tr><th>'.$lang->$saletype.' '.$lang->$pagedesc.'</th></tr><tr><th></th>'.$tablehead.'</tr></thead>';
+            <x:WorksheetOptions>
+            <x:ProtectContents>False</x:ProtectContents>
+            <x:ProtectObjects>False</x:ProtectObjects>
+            <x:ProtectScenarios>False</x:ProtectScenarios>
+            </x:WorksheetOptions>
+            </x:ExcelWorksheet>
+            </x:ExcelWorksheets>
+            <x:WindowHeight>9210</x:WindowHeight>
+            <x:WindowWidth>19035</x:WindowWidth>
+            <x:WindowTopX>0</x:WindowTopX>
+            <x:WindowTopY>75</x:WindowTopY>
+            <x:ProtectStructure>False</x:ProtectStructure>
+            <x:ProtectWindows>False</x:ProtectWindows>
+            </x:ExcelWorkbook>
+            </xml><![endif] -->
+            </head>
+            <body><table>
+            <thead><tr><th>'.$lang->$saletype.' '.$lang->$pagedesc.'</th></tr><tr><th></th>'.$tablehead.'</tr></thead>';
                     $page.='<tbody>'.$rows.'</tbody>';
                     $page.='</table></body></html>';
                     $path = dirname(__FILE__).'\..\..\tmp\\bugetingexport\\'.uniqid($aff.$saletype.$langvariable).'.html';
@@ -1272,10 +1338,11 @@ xmlns = "http://www.w3.org/TR/REC-html40">
                     $main_excel->getSheet(0)->setTitle($lang->$sheettitle);
                     $main_excel->getSheet(0)->getStyle('B2:Z2')->applyFromArray($style['header']);
                     $main_excel->getSheet(0)->getTabColor()->setARGB('FF008000');
-                    for($i = 3; $i <= 8; $i = $i + 2) {
+                    $rowslimit = 8;
+                    for($i = 3; $i <= $rowslimit; $i = $i + 2) {
                         $main_excel->getSheet(0)->getStyle('A'.$i.':Z'.$i)->applyFromArray($style['altrows']);
                     }
-                    if(($title == $lang->businesssegmentsales) || ($title == $lang->businesssegmentincome)) {
+                    if(($sheettitle == $lang->businesssegmentsales) || ($sheettitle == $lang->businesssegmentincome)) {
                         $main_excel->getSheet(0)->getStyle('A11:M11')->applyFromArray($style['header']);
                         $main_excel->getSheet(0)->getStyle('A12:M12')->applyFromArray($style['header']);
                         $main_excel->getSheet(0)->getStyle('A15:M15')->applyFromArray($style['header']);
@@ -1317,15 +1384,42 @@ xmlns = "http://www.w3.org/TR/REC-html40">
                     $sheet->getDefaultStyle()
                             ->getAlignment()
                             ->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
-                    $sheet->getStyle('B2:Z2')->applyFromArray($style['header']);
+                    if($title == $lang->oldstocknotexpired || $title == $lang->stockexpiringin60) {
+                        $sheet->getStyle('B3:Z3')->applyFromArray($style['header']);
+                    }
+                    else {
+                        $sheet->getStyle('B2:Z2')->applyFromArray($style['header']);
+                    }
 
-                    for($i = 3; $i <= 9; $i = $i + 2) {
+                    $i = 3;
+                    $rowslimit = 9;
+                    if($title == $lang->stockpermonthofsales || $title == $lang->stockaging) {
+                        $rowslimit = 3;
+                    }
+                    if($title == $lang->expiredstock) {
+                        $rowslimit = 17;
+                    }
+                    if($title == $lang->stockexpiringin60) {
+                        $rowslimit = 18;
+                        $i = 4;
+                    }
+                    if($title == $lang->oldstocknotexpired) {
+                        $rowslimit = 14;
+                        $i = 4;
+                    }
+                    if($title == $lang->stockevolution) {
+                        $rowslimit = 23;
+                    }
+                    for($i; $i <= $rowslimit; $i = $i + 2) {
                         $sheet->getStyle('A'.$i.':Z'.$i)->applyFromArray($style['altrows']);
                     }
                     if(($title == $lang->businesssegmentsales) || ($title == $lang->businesssegmentincome)) {
                         $sheet->getStyle('A11:M11')->applyFromArray($style['header']);
                         $sheet->getStyle('A12:M12')->applyFromArray($style['header']);
                         $sheet->getStyle('A15:M15')->applyFromArray($style['header']);
+                    }
+                    if($title == $lang->stockevolution) {
+                        $sheet->getStyle('A24:M24')->applyFromArray($style['header']);
                     }
                     foreach(range('A', 'O') as $col) {
                         $sheet->getColumnDimension($col)
@@ -1346,3 +1440,12 @@ $affiliates = Affiliates::get_affiliates('affid IN ('.implode(',', $core->user['
 $affiliates_list = parse_selectlist('affid', 1, $affiliates, $core->input['affid'], '', '', array('blankstart' => true));
 eval("\$generatepres = \"".$template->get('budgeting_generatepresentation')."\";");
 output_page($generatepres);
+function get_string_between($string, $start, $end) {
+    $string = ' '.$string;
+    $ini = strpos($string, $start);
+    if($ini == 0)
+        return '';
+    $ini += strlen($start);
+    $len = strpos($string, $end, $ini) - $ini;
+    return substr($string, $ini, $len);
+}
