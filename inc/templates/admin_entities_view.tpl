@@ -12,7 +12,7 @@
             <table class="datatable">
                 <thead>
                     <tr>
-                        <th>{$lang->id}</th><th>{$lang->companyname} <a href="{$sort_url}&amp;sortby=entityname&amp;order=ASC"><img src="../images/sort_asc.gif" border="0" alt="{$lang->sortasc}"/></a><a href="{$sort_url}&amp;sortby=entityname&amp;order=DESC"><img src="../images/sort_desc.gif" border="0"  alt="{$lang->sortdesc}"/></a></th><th style="width:50%;">{$lang->affiliate}</th><th>{$lang->country} <a href="{$sort_url}&amp;sortby=cname&amp;order=ASC"><img src="../images/sort_asc.gif" border="0" alt="{$lang->sortasc}"/></a><a href="{$sort_url}&amp;sortby=cname&amp;order=DESC"><img src="../images/sort_desc.gif" border="0"  alt="{$lang->sortdesc}"/></a></th><th>&nbsp;</th>
+                        <th>{$lang->id}</th><th>{$lang->companyname} <a href="{$sort_url}&amp;sortby=entityname&amp;order=ASC"><img src="../images/sort_asc.gif" border="0" alt="{$lang->sortasc}"/></a><a href="{$sort_url}&amp;sortby=entityname&amp;order=DESC"><img src="../images/sort_desc.gif" border="0"  alt="{$lang->sortdesc}"/></a></th><th style="width:50%;">{$lang->affiliate}</th><th>{$lang->country} <a href="{$sort_url}&amp;sortby=c.name&amp;order=ASC"><img src="../images/sort_asc.gif" border="0" alt="{$lang->sortasc}"/></a><a href="{$sort_url}&amp;sortby=c.name&amp;order=DESC"><img src="../images/sort_desc.gif" border="0"  alt="{$lang->sortdesc}"/></a></th><th>&nbsp;</th>
                     </tr>
                 </thead>
                 <tbody>
