@@ -21,7 +21,36 @@ $lang->load('products_applications');
 $lang->load('global');
 if(!$core->input['action']) {
     $sort_url = sort_url();
-    $applications_obj = SegmentApplications::get_segmentsapplications('', array('order' => 'name'));
+    $filters_config = array(
+            'parse' => array('filters' => array('name', 'title', 'segment', 'sequence', 'description'),
+                    'overwriteField' => array(
+                            'description' => '',
+                            'name' => '',
+                            'sequence' => '',
+                    )
+            ),
+            'process' => array(
+                    'filterKey' => 'psaid',
+                    'mainTable' => array(
+                            'name' => 'segmentapplications',
+                            'filters' => array('title' => array('name' => 'title'), 'segment' => array('operatorType' => 'multiple', 'name' => 'psid')),
+                    ),
+            )
+    );
+
+    $filter = new Inlinefilters($filters_config);
+    $filter_where_values = $filter->process_multi_filters();
+    $filter_where = null;
+    if(is_array($filter_where_values)) {
+        $filters_row_display = 'show';
+        $filter_where = ' '.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
+        $multipage_where .= ' AND '.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
+    }
+
+    $filters_row = $filter->prase_filtersrows(array('tags' => 'table', 'display' => $filters_row_display));
+
+    /* Perform inline filtering - END */
+    $applications_obj = SegmentApplications::get_segmentsapplications($filter_where, array('order' => 'name'));
     if(is_array($applications_obj)) {
         /* loop over the returned objects and get their related data */
         foreach($applications_obj as $application_obj) {

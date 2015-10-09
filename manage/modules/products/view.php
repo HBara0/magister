@@ -24,7 +24,40 @@ if(!$core->input['action']) {
     }
 
     $sort_url = sort_url();
+    $filters_config = array(
+            'parse' => array('filters' => array('id', 'product', 'generic', 'segment', 'spid'),
+                    'overwriteField' => array(
+                            'id' => '',
+                            'generic' => '',
+                            'segment' => '',
+                    )
+            ),
+            'process' => array(
+                    'filterKey' => 'pid',
+                    'mainTable' => array(
+                            'name' => 'products',
+                            'filters' => array('product' => array('operatorType' => 'equal', 'name' => 'pid'), 'spid' => array('operatorType' => 'equal', 'name' => 'spid')),
+                    ),
+                    'secTables' => array(
+                            'productsegments' => array(
+                                    'filters' => array('segment' => array('operatorType' => 'multiple', 'name' => 'psid'))
+                            ),
+                    )
+            )
+    );
 
+    $filter = new Inlinefilters($filters_config);
+    $filter_where_values = $filter->process_multi_filters();
+    $filter_where = null;
+    if(is_array($filter_where_values)) {
+        $filters_row_display = 'show';
+        $filter_where = ' AND '.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
+        $multipage_where .= ' AND '.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
+    }
+
+    $filters_row = $filter->prase_filtersrows(array('tags' => 'table', 'display' => $filters_row_display));
+
+    /* Perform inline filtering - END */
     $limit_start = 0;
     if(isset($core->input['start'])) {
         $limit_start = $db->escape_string($core->input['start']);
@@ -36,7 +69,7 @@ if(!$core->input['action']) {
 
     $query = $db->query("SELECT p.*, s.companyName AS supplier, g.title AS generic, ps.title AS segment
 						FROM ".Tprefix."products p, ".Tprefix."entities s, ".Tprefix."genericproducts g, ".Tprefix."productsegments ps
-						WHERE p.spid=s.eid AND g.gpid=p.gpid AND g.psid=ps.psid
+						WHERE p.spid=s.eid AND g.gpid=p.gpid AND g.psid=ps.psid".$filter_where."
 						ORDER BY {$sort_query}
 						LIMIT {$limit_start}, {$core->settings[itemsperlist]}");
     if($db->num_rows($query) > 0) {
