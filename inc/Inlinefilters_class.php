@@ -119,7 +119,7 @@ class Inlinefilters {
                             break;
                         case 'coid':
                             $countries = Countries::get_data('');
-                            $filters[$filter] = parse_selectlist('filters['.$filter.'][]', $tabindex, $countries, $core->input['filters'][$filter], 1, '', array('multiplesize' => 3));
+                            $filters[$filter] = parse_selectlist('filters['.$filter.'][]', $tabindex, $countries, $core->input['filters'][$filter], 1, '', array('blankstart' => true, 'multiplesize' => 3));
                             break;
                         case 'ciid':
                             $city = new Cities($core->input['filters'][$filter]);
@@ -198,11 +198,11 @@ class Inlinefilters {
                             $entity = new Entities($core->input['filters'][$filter]);
                             $filters[$filter] = '<input type="text" id="userpermissionentities_1_autocomplete" value="'.$entity->get_displayname().'"/><input type="hidden" id="userpermissionentities_1_id" name="filters['.$filter.']"/>';
                             break;
-//                        case 'spid':
-//                        case 'supplier':
-//                            $supplier = new Entities($core->input['filters'][$filter]);
-//                            $filters[$filter] = '<input type="text" id="supplier_1_autocomplete" value="'.$supplier->get_displayname().'"/><input type="hidden" id="supplier_1_id" name="filters['.$filter.']"/>';
-//                            break;
+                        case 'spid':
+                        case 'supplier':
+                            $supplier = new Entities($core->input['filters'][$filter]);
+                            $filters[$filter] = '<input type="text" id="supplier_1_autocomplete" value="'.$supplier->get_displayname().'"/><input type="hidden" id="supplier_1_id" name="filters['.$filter.']"/>';
+                            break;
 //                        case 'csid':
 //                        case 'chemical':
 //                        case 'chemicals':
