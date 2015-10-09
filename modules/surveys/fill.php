@@ -18,7 +18,7 @@ if(!$core->input['action']) {
     if(!empty($core->input['identifier'])) {
         $survey = new Surveys($core->input['identifier']);
 
-        if(!$survey->check_respondant()) {
+        if(is_object($survey) && $survey->sid != null && !$survey->check_respondant()) {
             $survey_details = $survey->get_survey();
 
             /* Prevent accessing from OCOS if survey is external */

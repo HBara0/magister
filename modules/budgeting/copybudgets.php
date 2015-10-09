@@ -90,7 +90,7 @@ else {
                                 $newbudget_lines[] = $bline_data;
                             }
                         }
-                        if(is_array()) {
+                        if(is_array($newbudget_lines)) {
                             Budgets::save_budget(array('year' => $budget_data['year'] + 1, 'affid' => $budget_data['affid'], 'spid' => $budget_data['spid']), $newbudget_lines);
                         }
                     }

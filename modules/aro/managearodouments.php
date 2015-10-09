@@ -53,7 +53,8 @@ if(!($core->input['action'])) {
     $helptour = new HelpTour();
     $helptour->set_id('aro_helptour');
     $helptour->set_cookiename('aro_helptour');
-    $touritems = $aroorderrequest->get_helptouritems();
+    $helptouritems_obj = new HelpTourItems();
+    $touritems = $helptouritems_obj->get_helptouritems('aro');
     if(is_array($touritems)) {
         $helptour->set_items($touritems);
         $helptour = $helptour->parse();
@@ -105,6 +106,12 @@ if(!($core->input['action'])) {
             $paymentterms_list[$party] = parse_selectlist('partiesinfo['.$party.'PaymentTerm]', 4, $payment_terms, '', '', '', array('blankstart' => 1, 'id' => 'partiesinfo_'.$party.'_paymentterm', 'required' => 'required', 'width' => '100%', 'class' => $config_class));
             $incoterms_list[$party] = parse_selectlist('partiesinfo['.$party.'Incoterms]', 4, $incoterms, '', '', '', array('blankstart' => 1, 'id' => 'partiesinfo_'.$party.'_incoterms', 'required' => 'required', 'width' => '100%', 'class' => $config_class));
         }
+
+
+        eval("\$takeactionpage = \"".$template->get('aro_managearodocuments_takeaction')."\";");
+        $takeactionpage = '<a class="header" href="#"><h2 id="aro_discussions">'.$lang->aromessages.'</h2></a><div style="margin-top:10px;">'.$takeactionpage.'</div>';
+
+
         $countryofshipment_list = parse_selectlist('partiesinfo[shipmentCountry]', '', $countries, '', '', '', array('blankstart' => 1, 'width' => '150px'));
         $countryoforigin_list = parse_selectlist('partiesinfo[originCountry]', '', $countries, '', '', '', array('blankstart' => 1, 'width' => '150px'));
         $display = 'style="display:none;"';

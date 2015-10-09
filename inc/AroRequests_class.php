@@ -869,16 +869,4 @@ class AroRequests extends AbstractClass {
         return $informmore;
     }
 
-    public function get_helptouritems() {
-        global $lang;
-        $items = HelpTourItems::get_data(array('reference' => 'aro'), array('returnarray' => true, 'order' => array('by' => 'sequence', 'sort' => 'ASC')));
-        if(is_array($items)) {
-            foreach($items as $item) {
-                // $x = unserialize($item->options);
-                $touritems[$item->itemId] = array('options' => $item->options, 'text' => $item->text);
-            }
-        }
-        return $touritems;
-    }
-
 }

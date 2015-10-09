@@ -120,8 +120,9 @@ if(!$core->input['action']) {
             foreach($productsactivity as $rowid => $productactivity) {
                 $product = new Products($productactivity['pid']);
                 $segment = $product->get_segment();
-                $usersegments = array_keys($core->user_obj->get_segments());
+                $usersegments = $core->user_obj->get_segments();
                 if(is_array($usersegments)) {
+                    $usersegments = array_keys($usersegments);
                     if(!in_array($segment['psid'], $usersegments) && $core->input['auditor'] != 1 && $core->user['uid'] != $productactivity['uid']) {
                         continue;
                     }
