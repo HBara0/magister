@@ -30,4 +30,5 @@ $lang['ismainlocation'] = 'Main Location';
 $lang['facilitytypesmgmt'] = 'Manage Facility Type';
 $lang['typecategory'] = 'Type Category';
 $lang['description'] = 'Description';
+$lang['factypenameexist'] = "A facility type with the same name already exists";
 ?>
