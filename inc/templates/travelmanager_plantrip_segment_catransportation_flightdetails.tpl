@@ -1,4 +1,4 @@
-<div style="box-shadow: 0px 2px 1px rgba(0, 0, 0, 0.1), 0px 1px 1px rgba(0, 0, 0, 0.1); border: 1px  rgba(0, 0, 0, 0.1) solid;display: block;margin-bottom: 16px; padding:4px;width:100%;">
+<div style="box-shadow: 0px 2px 1px rgba(0, 0, 0, 0.1), 0px 1px 1px rgba(0, 0, 0, 0.1); border: 1px rgba(0, 0, 0, 0.1) solid;display: block;margin-bottom: 16px; padding:4px;width:100%;">
     <div style=" display:inline-block; width:20%;">
         <input type="hidden" value="{$flight[flightdetails]}" name="segment[{$sequence}][tmtcid][{$category[inputChecksum]}][{$flight[flightid]}][transpDetails]"/>
         {$flightnumber_checkbox}

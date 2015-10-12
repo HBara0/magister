@@ -368,7 +368,7 @@ else {
             }
 
             $leave['reason'] .= $leave_obj->parse_expenses();
-            $leave['reason'] .= $leave_obj->parse_approvalsapprovers(array('parselabel' => true));
+            $leave['reason'] .= '<br/>'.$leave_obj->parse_approvalsapprovers(array('parselabel' => true));
 
             /* Conversation message --START */
             $leaemessag_obj = new LeavesMessages();

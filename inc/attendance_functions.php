@@ -678,7 +678,7 @@ function parse_toinform_list($uid = '', $checked = '', $leavetype_details = arra
 }
 
 function parse_attendance_reports($core, $headerinc = '', $header = '', $menu = '', $footer = '') {
-    global $db, $template;
+    global $db, $template, $log, $lang;
     if(!$core->input['output'] == 'email') {
         if(is_empty($core->input['fromDate'], $core->input['uid'])) {
             error($lang->invalidtodate, 'index.php?module=attendance/generatereport', false);

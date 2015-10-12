@@ -319,7 +319,7 @@ class Cities extends AbstractClass {
             /* Parse save flight */
             if(!empty($aerialtransp)) {
                 $transpdata['inputChecksum'] = $aerialtransp->inputChecksum;
-                $transp_category_fields = TravelManagerPlan::parse_transportaionfields($aerialtransp, array('inputChecksum' => $transpdata['inputChecksum'], 'transportationdetials' => $transportation_details, 'name' => 'airplane', 'tmtcid' => $aerialtransp->tmtcid), array('origincity' => $transpdata['origincity'], 'destcity' => $transpdata['destcity'], 'date' => $transpdata['transprequirements']['departuretime']), $sequence);
+                $transp_category_fields = TravelManagerPlan::parse_transportaionfields($aerialtransp, array('inputChecksum' => $transpdata['inputChecksum'], 'transportationdetials' => $transportation_details, 'name' => 'airplane', 'tmtcid' => $aerialtransp->tmtcid), array('origincity' => $transpdata['origincity'], 'destcity' => $transpdata['destcity'], 'arrivaldate' => $transpdata['transprequirements']['arrivaltime'], 'date' => $transpdata['transprequirements']['departuretime']), $sequence);
                 if(!empty($transp_category_fields)) {
                     eval("\$transcategments_output .= \"".$template->get('travelmanager_plantrip_segment_transtypefields')."\";");
                     //eval("\$transsegments_output .= \"".$template->get('travelmanager_plantrip_segment_transptype')."\";");

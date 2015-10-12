@@ -60,6 +60,7 @@ if(!$core->input['action']) {
 //    if(is_object($leave->get_purpose())) {
 //        $leave_purpose = $leave->get_purpose()->get()['name'];
 //    }
+    fix_newline($leave->reason);
     $leave_purpose = $leave->reason;
     if(is_object($leave->get_segment())) {
         $leave_segment = $leave->get_segment()->get()['title'];
