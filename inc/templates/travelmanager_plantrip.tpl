@@ -214,9 +214,10 @@
 
                 $(document).on('click', 'input[id^="noAccomodation_"]', function() {
                     var id = $(this).attr("id").split("_");
-                    if(!($('#segment_hotels_' + id[1] + ', #other_hotels_' + id[1])).is(':checked')) {
-                        $('#segment_hotels_' + id[1] + ', #other_hotels_' + id[1]).find('input').val("")
-                    }
+                    $('#segment_hotels_' + id[1] + ', #other_hotels_' + id[1]).toggle('fade', 500);
+                    // if(!($('#segment_hotels_' + id[1] + ', #other_hotels_' + id[1])).is(':checked')) {
+                    //     $('#segment_hotels_' + id[1] + ', #other_hotels_' + id[1]).find('input').val("")
+                    // }
                 });
 
                 if($('input[id^="specifyaffent_"]').is(':checked')) {
