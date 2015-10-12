@@ -19,7 +19,35 @@ if($core->usergroup['canManageSegments'] == 0) {
 
 $lang->load('products_segments');
 if(!$core->input['action']) {
-    $query = $db->query("SELECT * FROM ".Tprefix."productsegments ORDER BY title ASC");
+    $filters_config = array(
+            'parse' => array('filters' => array('id', 'segment', 'description'),
+                    'overwriteField' => array(
+                            'id' => '',
+                            'description' => '',
+                    )
+            ),
+            'process' => array(
+                    'filterKey' => 'psid',
+                    'mainTable' => array(
+                            'name' => 'productsegments',
+                            'filters' => array('segment' => array('operatorType' => 'multiple', 'name' => 'psid')),
+                    ),
+            )
+    );
+
+    $filter = new Inlinefilters($filters_config);
+    $filter_where_values = $filter->process_multi_filters();
+    $filter_where = null;
+    if(is_array($filter_where_values)) {
+        $filters_row_display = 'show';
+        $filter_where = ' WHERE '.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
+        $multipage_where .= ' AND '.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
+    }
+
+    $filters_row = $filter->prase_filtersrows(array('tags' => 'table', 'display' => $filters_row_display));
+
+    /* Perform inline filtering - END */
+    $query = $db->query("SELECT * FROM ".Tprefix."productsegments ".$filter_where." ORDER BY title ASC");
     if($db->num_rows($query) > 0) {
         while($segment = $db->fetch_array($query)) {
             $segments_list .= "<tr><td>".$segment['psid']."</td><td><a href=../index.php?module=profiles/segmentprofile&id=".$segment['psid']." target='_blank'>".$segment['title']."</a></td><td>".$segment['description']."</td>";
