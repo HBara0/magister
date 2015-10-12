@@ -13,6 +13,20 @@ if(!defined('DIRECT_ACCESS')) {
     die('Direct initialization of this file is not allowed.');
 }
 if(!$core->input['action']) {
+
+    $display['eventtypefields'] = 'style="display:none"';
+    $suppliers_selectlist = '-';
+
+    if($core->usergroup['canViewAllSupp'] == 0) {
+        if(is_array($core->user['suppliers']['eid'])) {
+            $insupplier = implode(',', $core->user['suppliers']['eid']);
+            $supplier_where = ' eid IN ('.$insupplier.')';
+        }
+    }
+    else {
+        $supplier_where = ' type="s"';
+        $suppliers = get_specificdata('entities', array('eid', 'companyName'), 'eid', 'companyName', array('by' => 'companyName', 'sort' => 'ASC'), 1, $supplier_where);
+    }
     if(isset($core->input['id']) && !empty($core->input['id'])) {
         $event_obj = Events::get_data(array('ceid' => $core->input['id']), array('simple' => false));
         if(is_object($event_obj)) {
@@ -33,18 +47,41 @@ if(!$core->input['action']) {
             $event['toTime_output'] = gmdate("H:i:s", strtotime(date($core->settings['timeformat'], $event['toDate'])));
             $event['fromTime_output'] = gmdate("H:i:s", strtotime(date($core->settings['timeformat'], $event['fromDate'])));
             $disabled['alias'] = 'readonly="readonly"';
+            $suppliers_selectlist = parse_selectlist('event[spid]', 3, $suppliers, $event['spid'], 0, '', array('blankstart' => 1, 'id' => 'spid'));
+            $eventtype_obj = CalendarEventTypes::get_data(array('cetid' => $event['type']));
+            if(is_object($eventtype_obj) && $eventtype_obj->name == 'visitingus') {
+                $display['eventtypefields'] = 'style="display:block"';
+            }
+            if($event['isFeatured'] == 1) {
+                $checkedbox[isFeatured] = "checked='checked'";
+            }
         }
     }
+    else {
+        $suppliers_selectlist = parse_selectlist('event[spid]', 3, $suppliers, '', 0, '', array('blankstart' => 1, 'id' => 'spid'));
+    }
+
 
     $eventtypes = CalendarEventTypes::get_data('');
-    $eventtypes_list = parse_selectlist('event[type]', '', $eventtypes, $event['type']);
+    $eventtypes_list = parse_selectlist('event[type]', '', $eventtypes, $event['type'], '', '', array('id' => 'event_type'));
+    $etypemorefields = array(4);
+    $etypemorefields = implode(', ', $etypemorefields);
     if($core->usergroup['canViewAllAff'] == 0) {
         $inaffiliates = implode(', ', $core->user['affiliates']);
         $affiliate_where = 'affid IN ('.$inaffiliates.')';
     }
     $affiliates = get_specificdata('affiliates', array('affid', 'name'), 'affid', 'name', array('by' => 'name', 'sort' => 'ASC'), 0, $affiliate_where);
     $eventaffiliates_selectlist = parse_selectlist('event[affid]', 2, $affiliates, $event['affid'], '', '', array('blankstart' => 1));
-    $affiliates_selectlist = parse_selectlist('event[restrictto][]', 1, $affiliates, '', 1);
+
+    if(isset($event['ceid']) && !empty($event['ceid'])) {
+        $event_restrictions = CalendarEventsRestrictions::get_data(array('ceid' => $event['ceid']));
+        if(is_array($event_restrictions)) {
+            foreach($event_restrictions as $event_restriction) {
+                $restrictedaff[] = $event_restriction->affid;
+            }
+        }
+    }
+    $affiliates_selectlist = parse_selectlist('event[restrictto][]', 1, $affiliates, $restrictedaff, 1);
     if($core->usergroup['calendar_canAddPublicEvents'] == 1) {
         $restriction_selectlist = '<div style = "display:block;padding-top:5px;"><div style = "width:15%; display:inline-block; vertical-align:top;">'.$lang->restricto.'</div><div style = "width:70%; display:inline-block;">'.$affiliates_selectlist.'</div></div>';
         $notifyevent_checkbox = '<div style = "display:block;padding-top:5px;"><div style = "width:15%; display:inline-block;">'.$lang->notifyevent.'</div><div style = "width:70%; display:inline-block;"><input name = "event[notify]" type = "checkbox" value = "1" /></div></div>';
@@ -112,10 +149,10 @@ else {
         }
 
         $core->input['event']['publishOnWebsite'] = 0;
-        if($core->usergroup['cms_canPublishNews'] == 1) {
-            $core->input['event']['publishOnWebsite'] = 1;
-        }
-        $core->input['event']['isCreatedFromCMS'] = 1;
+        //  if($core->usergroup['cms_canPublishNews'] == 1) {
+        //     $core->input['event']['publishOnWebsite'] = 1;
+        //  }
+        //  $core->input['event']['isCreatedFromCMS'] = 1;
         $event->set($core->input['event']);
         $event->save();
 
@@ -187,7 +224,7 @@ else {
                         $mailer->add_attachment($attachments_path.'/'.$attachment['name']);
                     }
                 }
-                //$mailer->send();
+                $mailer->send();
             }
         }
 
@@ -228,7 +265,7 @@ else {
                                 $mailer->add_attachment($attachments_path.'/'.$attachment['name']);
                             }
                         }
-                        //$mailer->send();
+                        $mailer->send();
 
                         if($mailer->get_status() === true) {
                             $log->record($notification_mails, $last_id);
