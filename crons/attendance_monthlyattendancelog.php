@@ -22,10 +22,12 @@ if(is_array($allactiveusers)) {
     $core->input['action'] = 'do_generatereport';
     $core->input['referrer'] = 'log';
     $core->input['fromDate'] = mktime(0, 0, 0, date('n', strtotime('-1 month')), 1);
-    $core->input['toDate'] = mktime(23, 59, 0, date('n', strtotime('-1 month')), date("t"));
+    $core->input['toDate'] = mktime(23, 59, 0, date('n', strtotime('-1 month')), date("t", strtotime('-1 month')));
     foreach($allactiveusers as $user) {
         $core->user['mainaffiliate'] = $user->get_mainaffiliate()->affid;
         $core->user['hraffids'] = AffiliatedEmployees::get_column('affid', array('canHr' => 1, 'uid' => $user->uid), array('returnarray' => true));
+        $group = new UserGroups($user->gid);
+        $core->usergroup['hr_canHrAllAffiliates'] = $group->hr_canHrAllAffiliates;
         $uids = $user->get_hruserpermissions();
         if(is_array($uids)) {
             $core->input['uid'] = $uids;

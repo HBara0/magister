@@ -25,7 +25,7 @@ if(!$core->input['action']) {
     }
     $sort_url = sort_url();
     $filters_config = array(
-            'parse' => array('filters' => array('id', 'supplier', 'affiliate', 'coid'),
+            'parse' => array('filters' => array('id', 'suppliers', 'affiliate', 'coid'),
                     'overwriteField' => array(
                             'id' => '',
                     )
@@ -34,7 +34,7 @@ if(!$core->input['action']) {
                     'filterKey' => 'eid',
                     'mainTable' => array(
                             'name' => 'entities',
-                            'filters' => array('supplier' => array('operatorType' => 'equal', 'name' => 'eid'), 'coid' => array('operatorType' => 'multiple', 'name' => 'country')),
+                            'filters' => array('suppliers' => array('name' => 'companyName'), 'coid' => array('operatorType' => 'multiple', 'name' => 'country')),
                     ),
                     'secTables' => array(
                             'affiliatedentities' => array(

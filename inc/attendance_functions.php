@@ -735,31 +735,32 @@ function parse_attendance_reports($core, $headerinc = '', $header = '', $menu = 
 
         /* If multiple years, make end month as 12 to include all */
         $holidays_query_where = parse_holidayswhere($fromdate_details, $todate_details);
-
-        $holiday_query = $db->query("SELECT *
+        if(!empty($core->user[mainaffiliate])) {
+            $holiday_query = $db->query("SELECT *
                                         FROM ".Tprefix."holidays
                                         WHERE affid = {$core->user[mainaffiliate]} AND ({$holidays_query_where})
                                         AND hid NOT IN (SELECT hid FROM ".Tprefix."holidaysexceptions WHERE uid={$uid})");
 
-        while($holiday = $db->fetch_assoc($holiday_query)) {
-            if($holiday['year'] == 0) {
-                if($todate_details['year'] != $currentdate_details['year']) {
-                    for($year = $currentdate_details['year']; $year <= $todate_details['year']; $year++) {
-                        $holiday['year'] = $year;
+
+            while($holiday = $db->fetch_assoc($holiday_query)) {
+                if($holiday['year'] == 0) {
+                    if($todate_details['year'] != $currentdate_details['year']) {
+                        for($year = $currentdate_details['year']; $year <= $todate_details['year']; $year++) {
+                            $holiday['year'] = $year;
+                            parse_holiday($holiday, $data);
+                        }
+                    }
+                    else {
+                        $holiday['year'] = $currentdate_details['year'];
                         parse_holiday($holiday, $data);
                     }
                 }
                 else {
-                    $holiday['year'] = $currentdate_details['year'];
                     parse_holiday($holiday, $data);
                 }
             }
-            else {
-                parse_holiday($holiday, $data);
-            }
+            /* Check for holidays in period - END */
         }
-        /* Check for holidays in period - END */
-
         /* Check for the Worshifts during period - START */
         $shifts_query = $db->query("SELECT w.*, e.fromDate, e.toDate
 										FROM ".Tprefix."workshifts w
@@ -1255,18 +1256,27 @@ function parse_attendance_reports($core, $headerinc = '', $header = '', $menu = 
                             }
 
                             if($type == 'leaves') {
+                                $ishalfday = 0;
                                 foreach($day_data as $leave) {
                                     $month_header[$curdate['mon']][date('d', $currentdate)] = date('d', $currentdate);
                                     $leave_obj = new Leaves($leave['lid']);
-
-                                    if($leave_obj->get_leavetype(false)->isUnpaid == 1) {
+                                    $leavetype = $leave_obj->get_leavetype(false);
+                                    if($leavetype->isUnpaid == 1) {
                                         $day_content_value .= 'UL';
+                                    }
+                                    elseif($leavetype->isWholeDay == 0) {
+                                        $ishalfday = '1';
+                                        $day_content_value .= 'HD/';
                                     }
                                     else {
                                         $day_content_value .= 'L';
                                     }
+
+                                    unset($leavetype);
                                 }
-                                $filled = 1;
+                                if(empty($ishalfday)) {
+                                    $filled = 1;
+                                }
                                 /* check whether the day is not in weekend and not in holiday */
                                 if(in_array($curdate['wdayiso'], $workshift['weekDays']) && !isset($data[$curdate['year']][$curdate['mon']][$curdate['week']][$curdate['mday']]['holiday'])) {
                                     $total['count_leaves'][$curdate['year']][$curdate['mon']][$curdate['week']][$curdate['mday']] ++;
@@ -1278,7 +1288,6 @@ function parse_attendance_reports($core, $headerinc = '', $header = '', $menu = 
                                     $month_header[$curdate['mon']][date('d', $currentdate)] = date('d', $currentdate);
                                     $day_content_value .= 'H';
                                 }
-                                $filled = 1;
                                 if(is_array($worshifts)) {
                                     if(in_array($curdate['wdayiso'], $workshift['weekDays'])) {
                                         $total['holidays'][$curdate['year']][$curdate['mon']][$curdate['week']][$curdate['mday']] ++;
@@ -1288,9 +1297,6 @@ function parse_attendance_reports($core, $headerinc = '', $header = '', $menu = 
                         }
                     }
                     else {
-                        if(!is_array($workshift['weekDays'])) {
-                            $d = '';
-                        }
                         if(in_array($curdate['wdayiso'], $workshift['weekDays'])) {
                             $day_content_value .= '0%';
                             $extra_style = 'background-color:#F9D0D0';
@@ -1337,9 +1343,11 @@ function parse_attendance_reports($core, $headerinc = '', $header = '', $menu = 
                         $total_outputs['month']['requiredhours'] = operation_time_value(array_sum_recursive($total['requiredhours'][$curdate['year']][$curdate['mon']]));
 
                         $day_content .= '<td style="width:50px;text-align:center;border-bottom: 1px solid #000;border-left: 1px solid #000;border-right: 1px solid #000;">'.$attending_days.' / '.($total_days).'</td>';
-                        $day_content .= '<td style="width:25px;text-align:center;border-bottom: 1px solid #000;border-left: 1px solid #000;border-right: 1px solid #000;">'.number_format(($total_outputs['month']['actualhours'] / $total_outputs['month']['requiredhours']) * 100, 0).'</td>';
-                        $day_content .= '<td style="width:85px;text-align:center;border-bottom: 1px solid #000;border-left: 1px solid #000;border-right: 1px solid #000;">'.$total_outputs['month']['actualhours'].' / '.$total_outputs['month']['requiredhours'].'</td>';
-                        //$attendance_report_user_month .= 'a'.$nextdate_details['week'].' == '.$curdate['week'].' && '.$nextdate_details['mon'].' != '.$curdate['mon'];
+                        if($total_outputs['month']['requiredhours'] > 0) {
+                            $day_content .= '<td style="width:25px;text-align:center;border-bottom: 1px solid #000;border-left: 1px solid #000;border-right: 1px solid #000;">'.number_format(($total_outputs['month']['actualhours'] / $total_outputs['month']['requiredhours']) * 100, 0).'</td>';
+                            $day_content .= '<td style="width:85px;text-align:center;border-bottom: 1px solid #000;border-left: 1px solid #000;border-right: 1px solid #000;">'.$total_outputs['month']['actualhours'].' / '.$total_outputs['month']['requiredhours'].'</td>';
+                        }
+//$attendance_report_user_month .= 'a'.$nextdate_details['week'].' == '.$curdate['week'].' && '.$nextdate_details['mon'].' != '.$curdate['mon'];
 
                         eval("\$attendance_report_users{{$curdate['mon']}} .= \"".$template->get('attendance_log_month_user')."\";");
                         $month_header_output = '<th style="width:150px;text-align:center;border-bottom: 1px solid #000;border-left: 1px solid #000;border-right: 1px solid #000;">'.$lang->employeename.'</th><th style="border-left: 1px solid #000;border-right: 1px solid #000;">'.implode('</th><th style="border-left: 1px solid #000;border-right: 1px solid #000;">', $month_header[$curdate['mon']]).'</th>';
