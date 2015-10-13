@@ -843,10 +843,9 @@ class Users extends AbstractClass {
             $permissions['uid'] = array_merge($permissions['uid'], array_keys($reportingusers));
         }
         /* Get all disabled users assignment to their replacement */
-        if(is_array($permissions['eid'])) {
-            $additional_disabledusers = AssignedEmployees::get_column('uid', 'uid IN (SELECT uid FROM '.Tprefix.'users WHERE gid = 7) and eid IN('.implode(',', array_filter($permissions['eid'])).')', array('returnarray' => true));
+        if(is_array($permissions['eid']) && !empty($permissions['eid'])) {
+            $additional_disabledusers = AssignedEmployees::get_column('uid', 'affid='.$this->get_mainaffiliate()->get_id().' AND uid IN (SELECT uid FROM '.Tprefix.'users WHERE gid = 7) AND eid IN ('.implode(',', array_filter($permissions['eid'], 'is_numeric')).')', array('returnarray' => true));
             if(is_array($additional_disabledusers) && !empty($additional_disabledusers)) {
-                $additional_disabledusers = array_unique($additional_disabledusers);
                 $permissions['uid'] = array_merge($permissions['uid'], $additional_disabledusers);
             }
         }
