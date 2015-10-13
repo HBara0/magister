@@ -26,7 +26,7 @@ if(!$core->input['action']) {
 
     /* Perform inline filtering - START */
     $filters_config = array(
-            'parse' => array('filters' => array('id', 'customer', 'affiliate', 'coid'),
+            'parse' => array('filters' => array('id', 'customers', 'affiliate', 'coid'),
                     'overwriteField' => array(
                             'id' => '',
                     )
@@ -35,7 +35,7 @@ if(!$core->input['action']) {
                     'filterKey' => 'eid',
                     'mainTable' => array(
                             'name' => 'entities',
-                            'filters' => array('customer' => array('operatorType' => 'equal', 'name' => 'eid'), 'coid' => array('operatorType' => 'multiple', 'name' => 'country')),
+                            'filters' => array('customers' => array('name' => 'companyName'), 'coid' => array('operatorType' => 'multiple', 'name' => 'country')),
                     ),
                     'secTables' => array(
                             'affiliatedentities' => array(
