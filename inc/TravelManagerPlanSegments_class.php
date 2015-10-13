@@ -944,7 +944,7 @@ class TravelManagerPlanSegments extends AbstractClass {
         }
         if($total_fin_amount != 0) {
             $amount_payedinadv.='<div style="border-bottom: 1px;border-bottom-style: solid;border-bottom-color: greenyellow">';
-            $amount_payedinadv.='<div style = "width:85%;display:inline-block;">'.$lang->amountpayedinadvance.'</div>';
+            $amount_payedinadv.='<div style = "width:85%;display:inline-block;">'.$lang->amountneededinadvance.'</div>';
             $amount_payedinadv .= '<div style = "width:10%;display:inline-block;text-align:right;">'.$numfmt->formatCurrency($total_fin_amount, "USD").'</div>';
             $amount_payedinadv.='</div>';
 //            $expenses_total+=$total_fin_amount;
