@@ -515,7 +515,9 @@ else {
                     if($key != 'reportsTo' && $val == $approvers['reportsTo']) {
                         continue;
                     }
-
+                    if($key == 'reportsTo' && !empty($val)) {
+                        list($to) = get_specificdata('users', 'email', '0', 'email', '', 0, "uid='{$leave_user[reportsTo]}'");
+                    }
                     $approve_status = $timeapproved = 0;
                     if(($val == $core->user['uid'] && $approve_immediately == true) || ($approve_immediately == true && $key == 'reportsTo' && $core->user['uid'] == $leave_user['reportsTo']) || ($key == 'reportsTo' && empty($leave_user['reportsTo']))) {
                         if($val == $core->user['uid']) {
