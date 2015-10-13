@@ -374,8 +374,9 @@ else {
             $leaemessag_obj = new LeavesMessages();
             $takeactionpage_conversation = $leave_obj->parse_messages(array('uid' => $core->user['uid']));
             /* Conversation  message --END */
-            if(isset($core->input['tmpid']) && !empty($core->input['tmpid'])) {
-                $preview_iteneraryframe = '<div id="container" style="width:100%;  margin: 0px auto;display:block;"><iframe style="width:100%;height:700px" src="'.$core->settings['rootdir'].'/index.php?module=travelmanager/viewplan&referrer=plantrip&id='.intval($core->input['tmpid']).'&preview=1"></iframe></div>';
+            $tmplan = TravelManagerPlan::get_plan(array('lid' => $leave_obj->get_id()));
+            if(is_object($tmplan)) {
+                $preview_iteneraryframe = '<div id="container" style="width:100%;  margin: 0px auto;display:block;"><iframe style="width:100%;height:700px" src="'.$core->settings['rootdir'].'/index.php?module=travelmanager/viewplan&referrer=plantrip&id='.$tmplan->tmpid.'&preview=1"></iframe></div>';
             }
             eval("\$takeactionpage = \"".$template->get('attendance_listleaves_takeaction')."\";");
             output_page($takeactionpage);

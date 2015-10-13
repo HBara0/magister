@@ -28,7 +28,9 @@ if(!$core->input['action']) {
     $affiliated_budget = parse_selectlist('yef[affid]', 1, $affiliates, '', '', '', array('id' => 'affid'));
 
     if($core->usergroup['canViewAllSupp'] == 0) {
-        $insupplier = implode(',', $core->user['suppliers']['eid']);
+        if(is_array($core->user['suppliers']['eid'])) {
+            $insupplier = implode(',', $core->user['suppliers']['eid']);
+        }
         $supplier_where = " eid IN ({$insupplier})";
     }
     else {
