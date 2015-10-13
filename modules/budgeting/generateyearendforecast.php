@@ -659,8 +659,10 @@ else {
         unset($budgetline);
         foreach($headers_data as $val) {
             $budgetline[0][$val] = $lang->{strtolower($val)};
-            foreach($budgetline_temp as $counter => $value) {
-                $budgetline[$counter][$val] = $value[$val];
+            if(is_array($budgetline_temp)) {
+                foreach($budgetline_temp as $counter => $value) {
+                    $budgetline[$counter][$val] = $value[$val];
+                }
             }
         }
 
