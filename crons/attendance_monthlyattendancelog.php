@@ -21,12 +21,14 @@ if(is_array($allactiveusers)) {
     $core->input['output'] = 'email';
     $core->input['action'] = 'do_generatereport';
     $core->input['referrer'] = 'log';
-    $core->input['fromDate'] = strtotime("first day of previous month");
-    $core->input['toDate'] = strtotime("last day of previous month");
+    $core->input['fromDate'] = mktime(0, 0, 0, date('n', strtotime('-1 month')), 1);
+    $core->input['toDate'] = mktime(23, 59, 0, date('n', strtotime('-1 month')), date("t"));
     foreach($allactiveusers as $user) {
-        $permissions = $user->get_businesspermissions();
-        if(is_array($permissions['uid'])) {
-            $core->input['uid'] = $permissions['uid'];
+        $core->user['mainaffiliate'] = $user->get_mainaffiliate()->affid;
+        $core->user['hraffids'] = AffiliatedEmployees::get_column('affid', array('canHr' => 1, 'uid' => $user->uid), array('returnarray' => true));
+        $uids = $user->get_hruserpermissions();
+        if(is_array($uids)) {
+            $core->input['uid'] = $uids;
         }
         else {
             $core->input['uid'][] = $user->uid;

@@ -914,5 +914,53 @@ class Users extends AbstractClass {
         }
     }
 
+    public function get_hruserpermissions() {
+        global $core;
+        $uids = array();
+        if($core->usergroup['hr_canHrAllAffiliates'] == 0) {
+//            $affid = $core->user['mainaffiliate'];
+            if(is_array($core->user['hraffids']) && !empty($core->user['hraffids'])) {
+                $affid = $core->user['mainaffiliate'];
+                if(!in_array($core->user['mainaffiliate'], $core->user['hraffids'])) {
+                    $affid = $core->user['hraffids'][current($core->user['hraffids'])];
+                }
+            }
+        }
+        if(isset($affid) && !empty($affid)) {
+            $uids = AffiliatedEmployees::get_column('uid', array('affid' => $affid, 'isMain' => 1), array('returnarray' => true));
+        }
+        elseif($core->usergroup['hr_canHrAllAffiliates'] == 1) {
+            $uids = AffiliatedEmployees::get_column('uid', array('isMain' => 1), array('returnarray' => true));
+        }
+        $reportingtothis = $this->get_allreportingtothis();
+        if(is_array($reportingtothis)) {
+            $uids = array_merge($uids, $reportingtothis);
+        }
+        if(is_array($uids)) {
+            return $uids;
+        }
+        return false;
+    }
+
+    public function get_reportingto_objs() {
+        $reportingto = Users::get_data(array('reportsTo' => $this->data['uid']), array('returnarray' => true));
+        if(is_array($reportingto)) {
+            return $reportingto;
+        }
+        return false;
+    }
+
+    public function get_allreportingtothis() {
+        $users = array();
+        $current_reportsto = $this->get_reportingto_objs();
+        if(!is_array($current_reportsto)) {
+            return array($current_reportsto->uid => $current_reportsto);
+        }
+        foreach($current_reportsto as $reportstouser) {
+            $users = array_merge_recursive($users, $reportstouser->get_allreportingtothis());
+        }
+        return $users;
+    }
+
 }
 ?>

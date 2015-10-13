@@ -13,9 +13,6 @@ if(!$core->input['output'] == 'email') {
     }
     if($core->usergroup['attendance_canGenerateReport'] == 0) {
         error($lang->sectionnopermission);
-        $session->start_phpsession();
-        /* Temporary specific fix for time zone */
-        date_default_timezone_set($core->user_obj->get_mainaffiliate()->get_country()->defaultTimeZone);
     }
 }
 
@@ -53,6 +50,9 @@ if(!$core->input['action']) {
 }
 else {
     if($core->input['action'] == 'do_generatereport') {
+        $session->start_phpsession();
+        /* Temporary specific fix for time zone */
+        date_default_timezone_set($core->user_obj->get_mainaffiliate()->get_country()->defaultTimeZone);
         parse_attendance_reports($core, $headerinc, $header, $menu, $footer);
     }
 }
