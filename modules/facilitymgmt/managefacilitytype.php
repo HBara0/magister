@@ -54,6 +54,11 @@ else if($core->input['action'] == 'do_perform_managefacilitytype') {
         output_xml('<status>false</status><message>'.$lang->fillrequiredfields.'</message>');
         exit;
     }
+    $factypes = FacilityMgmtFactypes::get_column('name', $filters);
+    if(in_array($core->input['type']['name'], $factypes)) {
+        output_xml('<status>false</status><message>'.$lang->factypenameexist.'</message>');
+        exit;
+    }
     $facilitytype->set($core->input['type']);
     $facilitytype->save();
     switch($facilitytype->get_errorcode()) {

@@ -1050,11 +1050,9 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
 
                             if($options['returnType'] == 'json') {
                                 $results_list['"'.$key.'"']['desc'] = $details;
+                                $results_list['"'.$key.'"']['style'] = 'class="li-greenbullet"';
                                 if(is_object($isreserved)) {
                                     $results_list['"'.$key.'"']['style'] = 'class="li-redbullet"';
-                                }
-                                elseif($category == $lang->capsnearby) {
-                                    $results_list['"'.$key.'"']['style'] = 'class="li-greenbullet"';
                                 }
                                 if(!empty($desc_distance)) {
                                     $results_list['"'.$key.'"']['value'] = $additionavalue.$results_list['"'.$key.'"']['value'].$desc_distance;

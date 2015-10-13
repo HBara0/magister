@@ -2,7 +2,22 @@
     <head>
         <title>{$core->settings[systemtitle]} | {$lang->manageevents}</title>
         {$headerinc}
+
+        <script>
+            $(function() {
+                $(document).on('change', 'select[id=event_type]', function() {
+                    var types = [{$etypemorefields}];
+                    if(jQuery.inArray(parseInt($(this).val()), types) > -1) {
+                        $('#visittypefields').slideDown();
+                    }
+                    else {
+                        $('#visittypefields').slideUp();
+                    }
+                });
+            });
+        </script>
     </head>
+
     <body>
         {$header}
     <tr>
@@ -20,6 +35,18 @@
                     <div style="display:block;">
                         <div style="display:inline-block;width:10%">{$lang->type}</div>
                         <div style="display: inline-block;padding:5px;">{$eventtypes_list}</div>
+                    </div>
+
+                    <div id="visittypefields" {$display[eventtypefields]}>
+                        <div style="display:block;width:100%;">
+                            <div style="width:10%; display:inline-block;"><strong>{$lang->affiliate}</strong></div>
+                            <div style="width:30%; display:inline-block;">{$eventaffiliates_selectlist}</div><br />
+                        </div>
+                        <div style="display:block;width:100%">
+                            <div style="width:10%; display:inline-block;"><strong>{$lang->supplier}</strong></div>
+                            <div style="width:30%; display:inline-block;">{$suppliers_selectlist}</div><br />
+                        </div>
+                        <br/>
                     </div>
                     <div style="display:block;">
                         <div style="display:inline-block;width:10%">{$lang->fromdate}</div>

@@ -10,6 +10,6 @@
     <div style="width:100%;border-bottom: 1px;border-bottom-style: solid;border-bottom-color: greenyellow">{$segment_accomdetails}</div>
     <h3>{$lang->additionalexpenses}</h3>
     <div style="width:100%;border-bottom: 1px;border-bottom-style: solid;border-bottom-color: greenyellow">{$additional_expenses_details}</div>
-    <h3>{$lang->amountpayedinadvance}</h3>
+    <h3>{$lang->amountneededinadvance}</h3>
     <div style="width:100%;border-bottom: 1px;border-bottom-style: solid;border-bottom-color: greenyellow">{$segment_advancedpayments}</div>
 </div>

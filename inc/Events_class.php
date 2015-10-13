@@ -51,10 +51,12 @@ class Events extends AbstractClass {
         $event_data['refreshLogoOnWebsite'] = $data['refreshLogoOnWebsite'];
         $event_data['tags'] = $data['tags'];
         $event_data['lang'] = $data['lang'];
+        $event_data['affid'] = $data['affid'];
+        $event_data['spid'] = $data['spid'];
         unset($event_data['restrictto']);
         // $data['restricto'] = implode(',', $ $data['restricto']);
-        //  'affid' => $core->input['event']['affid'],
-        //'spid' => $core->input['event']['spid'],
+        // 'affid' => $core->input['event']['affid'];
+        // 'spid' => $core->input['event']['spid'];
         parent::create($event_data);
         //$query = $db->insert_query(self::TABLE_NAME, $event_data);
         //$this->data = $event_data;
@@ -75,7 +77,7 @@ class Events extends AbstractClass {
                 if($upload_obj->get_status() != 4) {
                     ?>
                     <script language="javascript" type="text/javascript">
-                        $(function () {
+                        $(function() {
                             top.$("#upload_Result").html("<span class='red_text'><?php echo $upload_obj->parse_status($upload_obj->get_status());?></span>");
                         });
                     </script>
@@ -108,6 +110,8 @@ class Events extends AbstractClass {
         $event_data['refreshLogoOnWebsite'] = $data['refreshLogoOnWebsite'];
         $event_data['tags'] = $data['tags'];
         $event_data['lang'] = $data['lang'];
+        $event_data['affid'] = $data['affid'];
+        $event_data['spid'] = $data['spid'];
         unset($event_data['restrictto']);
         //'affid' => $core->input['event']['affid'],
         //'spid' => $core->input['event']['spid'],
