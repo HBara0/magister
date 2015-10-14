@@ -275,6 +275,13 @@ if(!($core->input['action'])) {
 
         /* ------------------------------------------------------------------------------------------------------------------------------------------------------- */
         elseif($report_type == 'statistical') {
+
+
+            ///Top 10 customers//
+            $budgetline = new BudgetLines();
+            $budgeting_budgetrawreport .=$budgetline->parse_toptencustomers_tables($budgets['current'], $budgetsdata['current']['toCurrency']);
+            ////////////////////
+
             /* Parse suppliers weight - START */
             $query = $db->query('SELECT DISTINCT(spid) FROM '.Tprefix.'budgeting_budgets WHERE bid IN ('.implode(',', array_keys($budgets['current'])).') GROUP BY spid');
             while($supplier = $db->fetch_assoc($query)) {
@@ -301,7 +308,7 @@ if(!($core->input['action'])) {
             foreach($weightstotals['income'] as $spid => $total) {
                 if($count > 10) {
                     break;
-                } print_R($weightstotals);
+                }// print_R($weightstotals);
                 $budgeting_budgetrawreport .= '<tr><td>'.$suppliers[$spid]->companyName.'</td><td>'.$numfmt_perc->format($weightstotals['amount'][$spid] / $weightsgtotals['amount']).'</td><td>'.$numfmt_perc->format($total / $weightsgtotals['income']).'</td><td>'.$weightstotals['customers'][$spid].'</td></tr>';
 
                 $count++;
