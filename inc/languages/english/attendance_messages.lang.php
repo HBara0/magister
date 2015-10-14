@@ -90,4 +90,5 @@ Your {2}{3} between {4} and {5} was revoked.<br />
 Regards';
 $lang['revokeleavenotificationsubject'] = '{1} revoked their {2}{3}';
 $lang['revokeleavenotificationsubjectuser'] = 'Your {1}{2} was revoked';
+$lang['tmplanfinancenotification'] = '{1} planned a trip with the following expenses';
 ?>

@@ -127,11 +127,6 @@ CREATE TABLE `affiliates2` (
   KEY `finManager` (`finManager`)
 ) ENGINE=MyISAM AUTO_INCREMENT=28 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
-DROP TABLE IF EXISTS `affiliates3`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `affiliates3` (
-  `affid` smallint(5) unsigned NOT NULL AUTO_INCREMENT,
   `alias` varchar(110) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
   `name` varchar(220) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
   `legalName` varchar(220) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
@@ -171,7 +166,9 @@ CREATE TABLE `affiliates3` (
   `isIntReinvoiceAffiliate` tinyint(1) NOT NULL DEFAULT '0',
   `chartSpec` varchar(250) DEFAULT NULL,
   `isActive` tinyint(1) NOT NULL DEFAULT '1',
-  `chartColor` varchar(6) NOT NULL,
+  `brandingColor` varchar(6) NOT NULL,
+  `cpAccount` varchar(10) NOT NULL,
+  `financeEmail` varchar(175) NOT NULL,
   PRIMARY KEY (`affid`),
   KEY `name` (`name`),
   KEY `generalManager` (`generalManager`,`supervisor`,`hrManager`),

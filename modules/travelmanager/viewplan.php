@@ -176,7 +176,7 @@ else {
         $mailer->set_message($travelmanager_viewplan);
         $mailer->set_to($firstapprover->email);
         $mailer->send();
-        $plan_object->email_finance($segment_expenses, $lang->tmplanfinancenotification, $employee);
+//        $plan_object->email_finance($segment_expenses, $lang->tmplanfinancenotification, $employee);
         redirect('index.php?module=travelmanager/listplans');
     }
     elseif($core->input['action'] == 'do_perform_viewplan') {

@@ -303,5 +303,4 @@ $lang['helptour_savesec5'] = 'Save finance section details before proceeding to 
 $lang['selectevent'] = 'Select Event';
 $lang['backtotop'] = 'Back to Top';
 $lang['requestleavesubject'] = '{1} requested a {2} [{3}]';
-$lang['tmplanfinancenotification'] = '{1} planned a trip with the following expenses';
 ?>
