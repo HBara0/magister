@@ -856,7 +856,9 @@ function parse_attendance_reports($core, $headerinc = '', $header = '', $menu = 
           $attendance_report .= '<tr><td colspan="6" align="center" class="subtitle">'.$lang->noattendanceavailable.'</td></tr>';
           continue;
           } */
-
+        if(!is_array($worshifts)) {
+            continue;
+        }
         /* Check for the attendance during the period - END */
         if($core->input['referrer'] == 'report') {
 
@@ -1392,6 +1394,7 @@ function parse_attendance_reports($core, $headerinc = '', $header = '', $menu = 
                 'message' => $output,
                 'to' => $core->input['emailto'],
         );
+        print_r($output);
         $mail = new Mailer($email_data, 'php');
         if($mail->get_status() === true) {
             $log->record($lang->monthlyattendancelog, $email_data['to']);

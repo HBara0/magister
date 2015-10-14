@@ -1802,7 +1802,9 @@ function getdate_custom($timestamp) {
     if(empty($timestamp)) {
         $timestamp = TIME_NOW;
     }
-
+//    if($timestamp == 1441058400) {
+//        $s = 1441058400;
+//    }
     $date = getdate($timestamp);
     $date['week'] = date('W', $timestamp);
     $date['wdayiso'] = date('N', $timestamp);
