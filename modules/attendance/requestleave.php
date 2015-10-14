@@ -108,17 +108,17 @@ if(!$core->input['action']) {
     $to_inform = parse_toinform_list();
     /* Parse user own leave to plan */
     //d $user_leaveobjs = TravelManagerPlan::get_unplannedleaves();   // get only approved business leave
-    if(is_array($user_leaveobjs)) {
-        foreach($user_leaveobjs as $user_leaveobj) {
-            $userleave = $user_leaveobj->get();
-            $userleave['from'] = date($core->settings['dateformat'], $userleave['fromDate']);
-            $userleave['to'] = date($core->settings['dateformat'], $userleave['toDate']);
-            $userleave['origincity'] = $user_leaveobj->get_sourcecity()->get()[name];
-            $userleave['destinationcity'] = $user_leaveobj->get_destinationcity();
-            $userleave['leavetype'] = $user_leaveobj->get_leavetype($userleave['type'])->get()['title'];
-            $userown_leaves.='<option value="'.$userleave['lid'].'">'.$userleave['leavetype'].' - '.$userleave['origincity'].' - '.$userleave['from'].'-'.$userleave['to'].' </option>';
-        }
-    }
+//    if(is_array($user_leaveobjs)) {
+//        foreach($user_leaveobjs as $user_leaveobj) {
+//            $userleave = $user_leaveobj->get();
+//            $userleave['from'] = date($core->settings['dateformat'], $userleave['fromDate']);
+//            $userleave['to'] = date($core->settings['dateformat'], $userleave['toDate']);
+//            $userleave['origincity'] = $user_leaveobj->get_sourcecity()->get()[name];
+//            $userleave['destinationcity'] = $user_leaveobj->get_destinationcity();
+//            $userleave['leavetype'] = $user_leaveobj->get_leavetype($userleave['type'])->get()['title'];
+//            $userown_leaves.='<option value="'.$userleave['lid'].'">'.$userleave['leavetype'].' - '.$userleave['origincity'].' - '.$userleave['from'].'-'.$userleave['to'].' </option>';
+//        }
+//    }
     $main_aff = new Affiliates($core->user['mainaffiliate'], false);
     if(!is_object($main_aff) || empty($main_aff->affid) || empty($main_aff->cpAccount)) {
         $autoresp_checkshow = 'style="display:none"';
@@ -265,7 +265,7 @@ else {
                 }
             }
 
-            $hidden_fields .= $field_name.' <input  min="0" max="60" type="'.$input_type.'" value="'.$val.'" name="'.$key.'" id="'.$key.'" size="4"/>';
+            $hidden_fields .= $field_name.' <input min="0" max="60" type="'.$input_type.'" value="'.$val.'" name="'.$key.'" id="'.$key.'" size="4"/>';
         }
 
         if(is_array($from_hidden) && !empty($from_hidden)) {
@@ -380,15 +380,15 @@ else {
         unset($core->input['leaveexpenses']);
         /* Validate required Fields - START */
         $leavetype = new LeaveTypes($core->input['type']);
-//        if($leavetype->has_expenses()) {
-//            $expensesfield_type = $leavetype->get_expenses();
-//            foreach($expensesfield_type as $alteid => $expensesfield) {
-//                if(($expensesfield['isRequired'] == 1 && (empty($expenses_data[$alteid]['expectedAmt']) && $expenses_data[$alteid]['expectedAmt'] != '0')) || (($expensesfield['requireComments'] == 1 && empty($expenses_data[$alteid]['description'])))) {
-//                    output_xml("<status>false</status><message>{$lang->fillallrequiredfields} (".$expensesfield_type['titleOverwrite'].")</message>");
-//                    exit;
-//                }
-//            }
-//        }
+        if($leavetype->has_expenses() && $core->usergroup['canUseTravelManager'] == 0) {
+            $expensesfield_type = $leavetype->get_expenses();
+            foreach($expensesfield_type as $alteid => $expensesfield) {
+                if(($expensesfield['isRequired'] == 1 && (empty($expenses_data[$alteid]['expectedAmt']) && $expenses_data[$alteid]['expectedAmt'] != '0')) || (($expensesfield['requireComments'] == 1 && empty($expenses_data[$alteid]['description'])))) {
+                    output_xml("<status>false</status><message>{$lang->fillallrequiredfields} (".$expensesfield_type['titleOverwrite'].")</message>");
+                    exit;
+                }
+            }
+        }
 
         if(isset($leavetype_details['reasonIsRequired']) && $leavetype_details['reasonIsRequired'] == 1) {
             if(empty($core->input['reason']) || strlen($core->input['reason']) <= 20) {
@@ -406,7 +406,9 @@ else {
 
             /* Create leave expenses - START */
             $leave_obj = new Leaves(array('lid' => $lid), false);
-//            $leave_obj->create_expenses($expenses_data);
+            if($core->usergroup['canUseTravelManager'] == 0) {
+                $leave_obj->create_expenses($expenses_data);
+            }
 //
 //            if($leavetype_details['isBusiness'] == 1) {
 //                $url = 'index.php?module=travelmanager/plantrip&lid=';
@@ -449,52 +451,52 @@ else {
 
             //update_leavestats_periods($core->input, $leavetype_details['isWholeDay']);
 
+            $approvers = $leave_obj->generate_approvalchain();
             $toapprove = $toapprove_select = unserialize($leavetype_details['toApprove']); //explode(',', $leavetype_details['toApprove']);
-            if(is_array($toapprove)) {
-                $aff_obj = new Affiliates($leave_user_obj->get_mainaffiliate()->get()['affid'], false);
-                foreach($toapprove as $key => $val) {
-                    switch($val) {
-                        case 'reportsTo':
-                            list($to) = get_specificdata('users', 'email', '0', 'email', '', 0, "uid='{$leave_user[reportsTo]}'");
-                            $approvers['reportsTo'] = $leave_user['reportsTo'];
-                            unset($toapprove_select[$key]);
-                            break;
-                        case 'generalManager':
-                            $approvers['generalManager'] = $aff_obj->get_generalmanager()->get()['uid'];
-                            break;
-                        case 'hrManager':
-                            $approvers['hrManager'] = $aff_obj->get_hrmanager()->get()['uid'];
-                            break;
-                        case 'supervisor':
-                            $approvers['supervisor'] = $aff_obj->get_supervisor()->get()['uid'];
-                            break;
-                        case 'segmentCoordinator':
-                            /* If leave has segment selected */
-                            if(is_object($leave_obj->get_segment())) {
-                                $leave_segmobjs = $leave_obj->get_segment();
-                                $leave_segment_coordinatorobjs = $leave_segmobjs->get_coordinators();
-                                if(is_array($leave_segment_coordinatorobjs)) {
-                                    $leave_segment_coordinatorobj = $leave_segment_coordinatorobjs[array_rand($leave_segment_coordinatorobjs, 1)];
-                                    $approvers['segmentCoordinator'] = $leave_segment_coordinatorobj->get_coordinator()->get()['uid'];
-                                }
-                            }
-                            break;
-                        case 'financialManager':
-                            $approvers['financialManager'] = $aff_obj->get_financialemanager()->get()['uid'];
-                            break;
-                        default:
-                            if(is_int($val)) {
-                                $approvers[$val] = $val;
-                            }
-                            unset($toapprove_select[$key]);
-                            break;
-                    }
-                }
-
-                /* Make list of approvers unique */
-                $approvers = array_unique($approvers);
-            }
-
+//            if(is_array($toapprove)) {
+//                $aff_obj = new Affiliates($leave_user_obj->get_mainaffiliate()->get()['affid'], false);
+//                foreach($toapprove as $key => $val) {
+//                    switch($val) {
+//                        case 'reportsTo':
+//                            list($to) = get_specificdata('users', 'email', '0', 'email', '', 0, "uid='{$leave_user[reportsTo]}'");
+//                            $approvers['reportsTo'] = $leave_user['reportsTo'];
+//                            unset($toapprove_select[$key]);
+//                            break;
+//                        case 'generalManager':
+//                            $approvers['generalManager'] = $aff_obj->get_generalmanager()->get()['uid'];
+//                            break;
+//                        case 'hrManager':
+//                            $approvers['hrManager'] = $aff_obj->get_hrmanager()->get()['uid'];
+//                            break;
+//                        case 'supervisor':
+//                            $approvers['supervisor'] = $aff_obj->get_supervisor()->get()['uid'];
+//                            break;
+//                        case 'segmentCoordinator':
+//                            /* If leave has segment selected */
+//                            if(is_object($leave_obj->get_segment())) {
+//                                $leave_segmobjs = $leave_obj->get_segment();
+//                                $leave_segment_coordinatorobjs = $leave_segmobjs->get_coordinators();
+//                                if(is_array($leave_segment_coordinatorobjs)) {
+//                                    $leave_segment_coordinatorobj = $leave_segment_coordinatorobjs[array_rand($leave_segment_coordinatorobjs, 1)];
+//                                    $approvers['segmentCoordinator'] = $leave_segment_coordinatorobj->get_coordinator()->get()['uid'];
+//                                }
+//                            }
+//                            break;
+//                        case 'financialManager':
+//                            $approvers['financialManager'] = $aff_obj->get_financialemanager()->get()['uid'];
+//                            break;
+//                        default:
+//                            if(is_int($val)) {
+//                                $approvers[$val] = $val;
+//                            }
+//                            unset($toapprove_select[$key]);
+//                            break;
+//                    }
+//                }
+//
+//                /* Make list of approvers unique */
+//                $approvers = array_unique($approvers);
+//            }
 //			if(is_array($toapprove_select) && !empty($toapprove_select)) {
 //				$secondapprovers = $db->fetch_assoc($db->query("SELECT ".implode(', ', $toapprove_select)."
 //									  FROM ".Tprefix."affiliates
@@ -513,7 +515,9 @@ else {
                     if($key != 'reportsTo' && $val == $approvers['reportsTo']) {
                         continue;
                     }
-
+                    if($key == 'reportsTo' && !empty($val)) {
+                        list($to) = get_specificdata('users', 'email', '0', 'email', '', 0, "uid='{$leave_user[reportsTo]}'");
+                    }
                     $approve_status = $timeapproved = 0;
                     if(($val == $core->user['uid'] && $approve_immediately == true) || ($approve_immediately == true && $key == 'reportsTo' && $core->user['uid'] == $leave_user['reportsTo']) || ($key == 'reportsTo' && empty($leave_user['reportsTo']))) {
                         if($val == $core->user['uid']) {
@@ -544,6 +548,16 @@ else {
                         break;
                     }
                 }
+            }
+
+            /**
+             * If leave should be planning through TM, trasfer user to there
+             */
+            if($leavetype_details['isBusiness'] == 1 && $core->usergroup['canUseTravelManager'] == 1 && $leave_user_obj->get_id() == 1) {
+                $url = 'index.php?module=travelmanager/plantrip&lid=';
+                header('Content-type: text/xhml+javascript');
+                output_xml('<status>true</status><message>'.$lang->redirecttotmplantrip.'<![CDATA[<script>goToURL(\''.$url.$db->escape_string($lid).'\');</script>]]></message>');
+                exit;
             }
 
             if(date($core->settings['dateformat'], $core->input['fromDate']) != date($core->settings['dateformat'], $core->input['toDate'])) {
@@ -577,30 +591,30 @@ else {
                 $lang->requestleavesubject = $lang->sprint($lang->requestleavesubject, $leave_user['firstName'].' '.$leave_user['lastName'], strtolower($leave['type_output']), $core->input['requestKey']);
 
                 /* Parse expense information for message - START */
-//                if($leave_obj->has_expenses()) {
-//                    $expenses_data = $leave_obj->get_expensesdetails();
-//                    $expenses_message = '';
-//                    foreach($expenses_data as $expense) {
-//                        if(!empty($lang->{$expense['name']})) {
-//                            $expense['title'] = $lang->{$expense['name']};
-//                        }
-//
-//                        if(isset($expense['description']) && !empty($expense['description'])) {
-//                            $expense['description'] = ' ('.$expense['description'].')';
-//                        }
-//
-//                        $exptype_obj = LeaveExpenseTypes::get_exptype_byattr('title', $expense['title'], false);
-//                        if(is_object($exptype_obj)) {
-//                            $agency_link = $exptype_obj->parse_agencylink($leave_obj);
-//                        }
-//
-//                        $expenses_message .= $expense['title'].': '.$expense['expectedAmt'].$expense['currency'].$expense['description'].' '.$agency_link.'<br />';
-//                        unset($agency_link);
-//                    }
-//
-//                    $total = $leave_obj->get_expensestotal();
-//                    $expenses_message_ouput = '<br />'.$lang->associatedexpenses.'<br />'.$expenses_message.'<br />Total: '.$total.'USD<br />';
-//                }
+                if($leave_obj->has_expenses() && $core->usergroup['canUseTravelManager'] == 0) {
+                    $expenses_data = $leave_obj->get_expensesdetails();
+                    $expenses_message = '';
+                    foreach($expenses_data as $expense) {
+                        if(!empty($lang->{$expense['name']})) {
+                            $expense['title'] = $lang->{$expense['name']};
+                        }
+
+                        if(isset($expense['description']) && !empty($expense['description'])) {
+                            $expense['description'] = ' ('.$expense['description'].')';
+                        }
+
+                        $exptype_obj = LeaveExpenseTypes::get_exptype_byattr('title', $expense['title'], false);
+                        if(is_object($exptype_obj)) {
+                            $agency_link = $exptype_obj->parse_agencylink($leave_obj);
+                        }
+
+                        $expenses_message .= $expense['title'].': '.$expense['expectedAmt'].$expense['currency'].$expense['description'].' '.$agency_link.'<br />';
+                        unset($agency_link);
+                    }
+
+                    $total = $leave_obj->get_expensestotal();
+                    $expenses_message_ouput = '<br />'.$lang->associatedexpenses.'<br />'.$expenses_message.'<br />Total: '.$total.'USD<br />';
+                }
                 /* Parse expense information for message - END */
 
                 $core->input['reason'] .= $expenses_message_ouput;
@@ -629,7 +643,7 @@ else {
                     if(!empty($leave['details_crumb'])) {
                         $leave['details_crumb'] = ' - '.$leave['details_crumb'];
                     }
-                    $modifyleave_link = 'https://ocos.orkila.com/index.php?module=attendance/editleave&lid='.$lid;
+                    $modifyleave_link = DOMAIN.'/index.php?module=attendance/editleave&lid='.$lid;
                     $lang->requestleavemessage = $lang->sprint($lang->requestleavemessage, $leave_user['firstName'].' '.$leave_user['lastName'], strtolower($leave['type_output']).' ('.$leavetype_details['description'].')'.$leave['details_crumb'], date($core->settings['dateformat'].' '.$core->settings['timeformat'], $core->input['fromDate']), date($message_todate_format, $core->input['toDate']), $lang->leavenotificationmessage_days, $core->input['reason'], $lang->requestleavemessage_stats, $approve_link, $modifyleave_link);
 
                     /* Parse Calendar - Start */
@@ -684,13 +698,6 @@ else {
                 $lang->leavenotificationmessage = $lang->sprint($lang->leavenotificationmessage, $leave_user['firstName'].' '.$leave_user['lastName'], $lang->leavenotificationmessage_typedetails, date($core->settings['dateformat'].' '.$core->settings['timeformat'], $core->input['fromDate']), date($message_todate_format, $core->input['toDate']), $lang->leavenotificationmessage_days, $tooktaking, $contact_details, $contactperson_details);
             }
 
-
-            if($leavetype_details['isBusiness'] == 1) {
-                $url = 'index.php?module=travelmanager/plantrip&lid=';
-                header('Content-type: text/xhml+javascript');
-                output_xml('<status>true</status><message>'.$lang->redirecttotmplantrip.'<![CDATA[<script>goToURL(\''.$url.$db->escape_string($lid).'\');</script>]]></message>');
-                exit;
-            }
             if($approve_immediately == false) {
                 $email_data = array(
                         'from_email' => 'approve_leaverequest@ocos.orkila.com',
@@ -737,18 +744,21 @@ else {
             }
         }
     }
-//    elseif($core->input['action'] == 'parseexpenses') {
-//        $leavetype = new LeaveTypes($core->input['ltid']);
-//        if($leavetype->has_expenses()) {
-//            $expenses_total = 0;
-//            $expenses_leavetype = $leavetype->get_expenses();
-//            foreach($expenses_leavetype as $val) {
-//                $expences_fields .= $leavetype->parse_expensesfield($val);
-//            }
-//            eval("\$expsection = \"".$template->get('attendance_requestleave_expsection')."\";");
-//            output($expsection);
-//        }
-//    }
+    elseif($core->input['action'] == 'parseexpenses') {
+        if($core->usergroup['canUseTravelManager'] == 1) {
+            exit;
+        }
+        $leavetype = new LeaveTypes($core->input['ltid']);
+        if($leavetype->has_expenses()) {
+            $expenses_total = 0;
+            $expenses_leavetype = $leavetype->get_expenses();
+            foreach($expenses_leavetype as $val) {
+                $expences_fields .= $leavetype->parse_expensesfield($val);
+            }
+            eval("\$expsection = \"".$template->get('attendance_requestleave_expsection')."\";");
+            output($expsection);
+        }
+    }
 }
 function get_calendar($arguments) {
     global $core, $db;

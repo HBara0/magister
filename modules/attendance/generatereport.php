@@ -7,18 +7,17 @@
  * Created		@tony.assaad 		April 03, 2012 | 5:00 PM
  * Last Update: 	@zaher.reda			May 09, 2012 | 12:02 AM
  */
-if(!$core->input['output'] == 'email') {
+$session->start_phpsession();
+/* Temporary specific fix for time zone */
+date_default_timezone_set($core->user_obj->get_mainaffiliate()->get_country()->defaultTimeZone);
+if(!$core->input['output'] != 'email') {
     if(!defined("DIRECT_ACCESS")) {
         die("Direct initialization of this file is not allowed.");
     }
     if($core->usergroup['attendance_canGenerateReport'] == 0) {
         error($lang->sectionnopermission);
-        $session->start_phpsession();
-        /* Temporary specific fix for time zone */
-        date_default_timezone_set($core->user_obj->get_mainaffiliate()->get_country()->defaultTimeZone);
     }
 }
-
 
 if(!$core->input['action']) {
     $filter_where = '';
@@ -53,6 +52,9 @@ if(!$core->input['action']) {
 }
 else {
     if($core->input['action'] == 'do_generatereport') {
+        $session->start_phpsession();
+        /* Temporary specific fix for time zone */
+        date_default_timezone_set($core->user_obj->get_mainaffiliate()->get_country()->defaultTimeZone);
         parse_attendance_reports($core, $headerinc, $header, $menu, $footer);
     }
 }

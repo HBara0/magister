@@ -924,4 +924,27 @@ $("#anotheraff_otheraccomodations_'.$sequence.'_'.$otherhotel_checksum.'").hide(
         return false;
     }
 
+    public function email_finance($message, $subject) {
+        global $core;
+        $affiliate = new Affiliates($core->user['mainaffiliate'], false);
+        if(is_object($affiliate) && !empty($affiliate->financeEmail)) {
+            $financeemail = $affiliate->financeEmail;
+        }
+        elseif(!empty($affiliate->finManager)) {
+            $finmanager = new Users($affiliate->finManager);
+            $financeemail = $finmanager->email;
+        }
+        if(empty($financeemail)) {
+            return;
+        }
+        $mailer = new Mailer();
+        $mailer = $mailer->get_mailerobj();
+        $mailer->set_type();
+        $mailer->set_from(array('name' => 'Orkila Attendance System', 'email' => 'attendance@ocos.orkila.com'));
+        $mailer->set_subject($subject);
+        $mailer->set_message($message);
+        $mailer->set_to($financeemail);
+        $mailer->send();
+    }
+
 }

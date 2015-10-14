@@ -293,6 +293,20 @@ if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject) || $ignore_su
 
                     $mail = new Mailer($email_data, 'php');
                     if($mail->get_status() == true) {
+                        $travelmanager_plan = TravelManagerPlan::get_plan(array('lid' => $leave['lid']), array('returnarray' => false));
+                        $planid = $travelmanager_plan->tmpid;
+                        if(is_object($travelmanager_plan)) {
+                            $leave = $travelmanager_plan->get_leave();
+                            $employee = $leave->get_user(); //->get_displayname();
+                            $segment_objs = TravelManagerPlanSegments::get_segments(array('tmpid' => $planid), array('order' => 'sequence', 'simple' => false, 'returnarray' => true));
+                            if(is_array($segment_objs)) {
+                                foreach($segment_objs as $segmentid => $segment) {
+                                    $segment_expenses = $segment->parse_expensesummary();
+                                    break;
+                                }
+                            }
+                        }
+                        $plan_object->email_finance($segment_expenses, sprint($lang->tmplanfinancenotification, $employee));
                         $log->record('notifyaffiliate', $mailingList);
                     }
                 }

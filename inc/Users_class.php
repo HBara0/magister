@@ -843,10 +843,9 @@ class Users extends AbstractClass {
             $permissions['uid'] = array_merge($permissions['uid'], array_keys($reportingusers));
         }
         /* Get all disabled users assignment to their replacement */
-        if(is_array($permissions['eid'])) {
-            $additional_disabledusers = AssignedEmployees::get_column('uid', 'uid IN (SELECT uid FROM '.Tprefix.'users WHERE gid = 7) and eid IN('.implode(',', array_filter($permissions['eid'])).')', array('returnarray' => true));
+        if(is_array($permissions['eid']) && !empty($permissions['eid'])) {
+            $additional_disabledusers = AssignedEmployees::get_column('uid', 'affid='.$this->get_mainaffiliate()->get_id().' AND uid IN (SELECT uid FROM '.Tprefix.'users WHERE gid = 7) AND eid IN ('.implode(',', array_filter($permissions['eid'], 'is_numeric')).')', array('returnarray' => true));
             if(is_array($additional_disabledusers) && !empty($additional_disabledusers)) {
-                $additional_disabledusers = array_unique($additional_disabledusers);
                 $permissions['uid'] = array_merge($permissions['uid'], $additional_disabledusers);
             }
         }
@@ -912,6 +911,55 @@ class Users extends AbstractClass {
 
             return false;
         }
+    }
+
+    public function get_hruserpermissions() {
+        global $core;
+        $uids = array();
+        if($core->usergroup['hr_canHrAllAffiliates'] == 0) {
+//            $affid = $core->user['mainaffiliate'];
+            if(is_array($core->user['hraffids']) && !empty($core->user['hraffids'])) {
+                $affid = $core->user['mainaffiliate'];
+                if(!in_array($core->user['mainaffiliate'], $core->user['hraffids'])) {
+                    $affid = $core->user['hraffids'][current($core->user['hraffids'])];
+                }
+            }
+        }
+        if(isset($affid) && !empty($affid)) {
+            $uids = AffiliatedEmployees::get_column('uid', array('affid' => $affid, 'isMain' => 1), array('returnarray' => true));
+        }
+        elseif($core->usergroup['hr_canHrAllAffiliates'] == 1) {
+            $uids = AffiliatedEmployees::get_column('uid', array('isMain' => 1), array('returnarray' => true));
+        }
+        $reportingtothis = $this->get_allreportingtothis();
+        if(is_array($reportingtothis)) {
+            $uids = array_merge($uids, $reportingtothis);
+        }
+        if(is_array($uids)) {
+            return $uids;
+        }
+        return false;
+    }
+
+    public function get_reportingto_objs() {
+        $reportingto = Users::get_data(array('reportsTo' => $this->data['uid']), array('returnarray' => true));
+        if(is_array($reportingto)) {
+            return $reportingto;
+        }
+        return $this;
+    }
+
+    public function get_allreportingtothis() {
+        $users = array();
+        $current_reportsto = $this->get_reportingto_objs();
+        if(!is_array($current_reportsto)) {
+            return array($current_reportsto->uid);
+        }
+        foreach($current_reportsto as $reportstouser) {
+            $x = $reportstouser->get_allreportingtothis();
+            $users = array_merge($users, $x);
+        }
+        return $users;
     }
 
 }

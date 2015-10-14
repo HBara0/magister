@@ -75,8 +75,14 @@ if(!$core->input['action']) {
                 $bm_ids[] = $fromuser->fromUser;
             }
         }
-        $bm_ids[] = $core->user['uid'];
-        $filter['businessMgr'] = array_merge($filter['businessMgr'], $bm_ids);
+
+        if(is_array($filter['filters']['businessMgr']) && is_array($bm_ids)) {
+            $filter['filters']['businessMgr'] = array_merge($filter['filters']['businessMgr'], $bm_ids);
+        }
+        elseif(is_array($bm_ids)) {
+            $bm_ids[] = $core->user['uid'];
+            $filter['filters']['businessMgr'] = $bm_ids;
+        }
         /* Validate Permissions - END */
         if($currentbudget != false) {
             $budgetobj = new Budgets($currentbudget['bid']);
@@ -486,7 +492,7 @@ else {
         if($affiliate->isIntReinvoiceAffiliate == 0) {
             $saletypes_query_where = ' WHERE stid NOT IN (SELECT s1.invoiceAffStid FROM saletypes s1 WHERE s1.invoiceAffStid IS NOT NULL)';
         }
-        $saletypes_query = $db->query('SELECT * FROM '.Tprefix.'saletypes');
+        $saletypes_query = $db->query('SELECT * FROM '.Tprefix.'saletypes'.$saletypes_query_where);
         while($saletype = $db->fetch_assoc($saletypes_query)) {
             $saletype_selectlistdata[$saletype['stid']] = $saletype['title'];
             $saletypes[$saletype['stid']] = $saletype;
