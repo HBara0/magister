@@ -108,6 +108,74 @@ class Surveys {
         }
     }
 
+    public function update_survey(array $data) {
+        global $db, $log, $core;
+
+        if(is_empty($data['subject'], $data['category'])) {
+            $this->status = 1;
+            return false;
+        }
+        /* Check if survery with same subject created by the same user exists */
+        if(value_exists('surveys', 'subject', $data['subject'], 'createdBy='.$db->escape_string($core->user['uid'].' AND sid <>'.$data['sid']))) {
+            $this->status = 2;
+            return false;
+        }
+        $fields = array('reference', 'subject', 'description', 'closingDate', 'category', 'isPublicResults', 'closingDate');
+        foreach($fields as $field) {
+            switch($field) {
+                case 'subject':
+                    $survey_data[$field] = $core->sanitize_inputs(ucwords(strtolower($data[$field])), array('removetags' => true));
+                    break;
+                case 'description':
+                    $survey_data[$field] = preg_replace("/<br \/>/i", "\n", $data[$field]);
+                    $survey_data[$field] = $core->sanitize_inputs($data[$field], array('removetags' => true));
+                    break;
+                case 'modifiedOn':
+                    $survey_data[$field] = TIME_NOW;
+                    break;
+                case 'modifiedBy':
+                    $survey_data[$field] = $core->user['uid'];
+                    break;
+                default:
+                    $survey_data[$field] = $data[$field];
+                    break;
+            }
+        }
+        $this->survey = $data;
+        $query = $db->update_query('surveys', $survey_data, 'sid='.$data['sid']);
+        if($query) {
+            $this->status = 0;
+            $this->survey['sid'] = $data['sid'];
+            foreach($this->survey['associations'] as $key => $val) {
+                if(empty($val)) {
+                    $surv_association = SurveyAssociations::get_data(array('sid' => $this->survey['sid'], 'attr' => $key));
+                    if(is_object($surv_association)) {
+                        $surv_association->delete();
+                    }
+                    continue;
+                }
+                $association_data['sid'] = $this->survey['sid'];
+                $association_data['attr'] = $key;
+                $association_data['id'] = $core->sanitize_inputs($val);
+                $surv_association = new SurveyAssociations();
+                $surv_association->set($association_data);
+                $surv_association->save();
+                $this->errorcode = $surv_association->errorcode;
+                switch($this->errorcode) {
+                    case 0:
+                        continue;
+                    case 1:
+                        return;
+                };
+            }
+            return $this;
+        }
+        else {
+            $this->status = 3;
+            return $this;
+        }
+    }
+
     public function send_additional_invitations($data) {
         $survey = $this->get_survey();
         if($survey['isExternal'] == 0) {
