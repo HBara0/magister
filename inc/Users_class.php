@@ -946,17 +946,18 @@ class Users extends AbstractClass {
         if(is_array($reportingto)) {
             return $reportingto;
         }
-        return false;
+        return $this;
     }
 
     public function get_allreportingtothis() {
         $users = array();
         $current_reportsto = $this->get_reportingto_objs();
         if(!is_array($current_reportsto)) {
-            return array($current_reportsto->uid => $current_reportsto);
+            return array($current_reportsto->uid);
         }
         foreach($current_reportsto as $reportstouser) {
-            $users = array_merge_recursive($users, $reportstouser->get_allreportingtothis());
+            $x = $reportstouser->get_allreportingtothis();
+            $users = array_merge($users, $x);
         }
         return $users;
     }

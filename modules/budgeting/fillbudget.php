@@ -192,6 +192,7 @@ if(!$core->input['action']) {
                         if($is_prevonly === true || isset($budgetline['prevbudget'])) {
                             if($is_prevonly == true) {
                                 $prev_budgetlines = $budgetline;
+                                unset($budgetline['businessMgr']);
                             }
                             elseif(isset($budgetline['prevbudget'])) {
                                 $prev_budgetlines = $budgetline['prevbudget'];

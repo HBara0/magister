@@ -510,6 +510,7 @@ function parse_yefline($data, $readonly = '', $source, $rownums, $supplier) {
                     foreach($maxfields as $field) {
                         $maxbudgetline[$field] = $budgetline[$field];
                     }
+                    unset($budgetline['businessMgr']);
                 }
                 else if($budgetline['fromBudget'] == 1) {
                     $prev_actualbudgetline = new BudgetLines($budgetline['blid']);
