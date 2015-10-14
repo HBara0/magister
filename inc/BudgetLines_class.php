@@ -370,7 +370,7 @@ class BudgetLines {
                     }
                 }
                 $budgeting_budgetrawreport .= '<tr><td>'.$name.'</td><td>'.$data['total'].'</td><td>'.$numfmt_perc->format($data['total'] / $custweightsgtotals[$attribute]).'</td></tr>';
-                unset($cust);
+                unset($cust, $name);
             }
             $budgeting_budgetrawreport .='<tr><th>'.$lang->total.'</th><td>'.$custweightsgtotals[$attribute].'</td><td></td></tr>';
             $budgeting_budgetrawreport .= '</table>';

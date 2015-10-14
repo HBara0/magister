@@ -1,6 +1,7 @@
 <tr id="{$rownums}">
     <td style="vertical-align: top; border-bottom: dashed 1px #CCCCCC; text-align: left;">
         <input type="hidden" name="budgetline[{$rowid}][inputCheckSum]" value="{$rowid}"/>
+        <input type="hidden" name="budgetline[{$rowid}][businessMgr]" value="{$budgetline['businessMgr']}"/>
         <input type="hidden" name="budgetline[{$rowid}][yeflid]" value="{$budgetline['yeflid']}"/>
         <input type="hidden" name="budgetline[{$rowid}][blid]" value="{$budgetline['blid']}"/>
         <input type='text' {$disabledattrs[cid]} id='customer_noexception_{$rowid}_autocomplete' name="budgetline[{$rowid}][customerName]" {$disabledattrs[cid]} value="{$budgetline[customerName]}" autocomplete='off' {$required}/>
