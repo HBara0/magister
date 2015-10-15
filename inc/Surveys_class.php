@@ -443,7 +443,7 @@ class Surveys {
     public function get_user_surveys() {
         global $db, $core;
 
-        $sort_query = 'identifier DESC';
+        $sort_query = 'dateCreated DESC';
         if(isset($core->input['sortby'], $core->input['order'])) {
             $sort_query = $core->input['sortby'].' '.$core->input['order'];
         }

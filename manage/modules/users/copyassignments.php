@@ -49,12 +49,15 @@ else {
         if($db->num_rows($query) > 0) {
             while($entity = $db->fetch_assoc($query)) {
                 if(!empty($entity['eid'])) {
-                    $results .= $entity['companyName'].'<br />';
                     if($param['transfer']['assignment'] == 1) {
                         $db->insert_query('assignedemployees', array('uid' => $param['toUser'], 'eid' => $entity['eid'], 'affid' => $param['affid']));
                     }
                     if($param['transfer']['userassignments'] == 1) {
                         $db->insert_query('users_transferedassignments', array('fromUser' => $param['fromUser'], 'toUser' => $param['toUser'], 'eid' => $entity['eid'], 'affid' => $param['affid']));
+                    }
+
+                    if($param['transfer']['userassignments'] == 1 || $param['transfer']['assignment'] == 1) {
+                        $results .= $entity['companyName'].'<br />';
                     }
                 }
             }
