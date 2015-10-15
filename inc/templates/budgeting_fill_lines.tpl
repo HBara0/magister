@@ -1,9 +1,10 @@
 <tr id="{$rowid}">
+    <td style="vertical-align: top; border-bottom: dashed 1px #CCCCCC; text-align: left;width:30px;border-right: dashed 1px #CCCCCC;">  <a href="#" title="{$tooltip[linedetails]}" style="width:1%"><img src="./images/icons/question.gif"></a></td>
     <td style="vertical-align: top; border-bottom: dashed 1px #CCCCCC; text-align: left;">
         <input type="hidden" name="budgetline[$rowid][businessMgr]" value="{$budgetline[businessMgr]}"/>
         <input type="hidden" name="budgetline[$rowid][inputChecksum]" value="{$budgetline[inputChecksum]}"/>
         <input type="hidden" name="budgetline[$rowid][blid]" value="{$budgetline[blid]}"/>
-        <input type='text' id='customer_noexception_{$rowid}_autocomplete' name="budgetline[$rowid][customerName]" {$disabledattrs[cid]} value="{$budgetline[customerName]}" autocomplete='off' {$required}/>
+        <input type='text'style="margin-left:3px;" id='customer_noexception_{$rowid}_autocomplete' name="budgetline[$rowid][customerName]" {$disabledattrs[cid]} value="{$budgetline[customerName]}" autocomplete='off' {$required}/>
         <input type='text' size='3' id='customer_noexception_{$rowid}_id_output' disabled='disabled' value="{$budgetline[cid]}" style="display:none;"/>
         <input type='hidden' value="{$budgetline[cid]}" id='customer_noexception_{$rowid}_id' name='budgetline[$rowid][cid]' />
         <input type="hidden" id="budgetline_{$rowid}_altCid" name="budgetline[$rowid][altCid]" value="{$prev_budgetline[altCid]}"/>
