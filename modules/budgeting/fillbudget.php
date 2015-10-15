@@ -211,8 +211,12 @@ if(!$core->input['action']) {
                         if($is_prevonly === true || isset($budgetline['prevbudget']) || $budgetline[0]['source'] == 'userprevlines') {
                             if($is_prevonly == true) {
                                 $prev_budgetlines = $budgetline;
-                                unset($budgetline['businessMgr']);
                                 $tooltip['linedetails'] = 'Imported from previous budget <br/>';
+                                $line_bm = Users::get_data(array('uid' => $budgetline['businessMgr']));
+                                if(is_object($line_bm)) {
+                                    $tooltip['linedetails'] .= 'Buisness Manager: '.$line_bm->get_displayname();
+                                }
+                                unset($budgetline['businessMgr']);
                             }
                             elseif(isset($budgetline['prevbudget'])) {
                                 $prev_budgetlines = $budgetline['prevbudget'];
@@ -224,6 +228,12 @@ if(!$core->input['action']) {
                             }
                             elseif($budgetline[0]['source'] == 'userprevlines') {
                                 $prev_budgetlines = $budgetline;
+                                $tooltip['linedetails'] = 'Imported from previous budget <br/>';
+                                $line_bm = Users::get_data(array('uid' => $budgetline['businessMgr']));
+                                if(is_object($line_bm)) {
+                                    $tooltip['linedetails'] .= 'Buisness Manager: '.$line_bm->get_displayname();
+                                }
+                                unset($budgetline['businessMgr']);
                             }
                             foreach($prev_budgetlines as $prev_budgetline) {
                                 //get prev year YEF data
@@ -402,7 +412,9 @@ if(!$core->input['action']) {
                         }
                         if(isset($budgetline['businessMgr']) && !empty($budgetline['businessMgr'])) {
                             $line_bm = Users::get_data(array('uid' => $budgetline['businessMgr']));
-                            $tooltip['linedetails'] .= 'Buisness Manager: '.$line_bm->get_displayname();
+                            if(is_object($line_bm)) {
+                                $tooltip['linedetails'] .= 'Buisness Manager: '.$line_bm->get_displayname();
+                            }
                         }
                         eval("\$budgetlinesrows .= \"".$template->get('budgeting_fill_lines')."\";");
                         unset($yefline);
