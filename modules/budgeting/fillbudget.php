@@ -226,13 +226,19 @@ if(!$core->input['action']) {
                                 if(empty($prev_budgetlines)) {
                                     if($budgetline[0]['source'] == 'userprevlines') {
                                         $prev_budgetlines = $budgetline;
+                                        $tooltip['linedetails'] = 'Imported from previous budget <br/>';
+                                        $line_bm = Users::get_data(array('uid' => $budgetline[0]['businessMgr']));
+                                        if(is_object($line_bm)) {
+                                            $tooltip['linedetails'] .= 'Buisness Manager: '.$line_bm->get_displayname();
+                                        }
+                                        unset($budgetline['businessMgr']);
                                     }
                                 }
                             }
                             elseif($budgetline[0]['source'] == 'userprevlines') {
                                 $prev_budgetlines = $budgetline;
                                 $tooltip['linedetails'] = 'Imported from previous budget <br/>';
-                                $line_bm = Users::get_data(array('uid' => $budgetline['businessMgr']));
+                                $line_bm = Users::get_data(array('uid' => $budgetline[0]['businessMgr']));
                                 if(is_object($line_bm)) {
                                     $tooltip['linedetails'] .= 'Buisness Manager: '.$line_bm->get_displayname();
                                 }

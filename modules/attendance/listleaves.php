@@ -349,8 +349,8 @@ else {
     elseif($core->input['action'] == 'takeactionpage') {
 
         if(isset($core->input['id'], $core->input['requestKey'])) {
-            $core->input['id'] = base64_decode($core->input['id']);
-            $leave_obj = new Leaves($core->input['id'], false);
+            $lid = base64_decode($core->input['id']);
+            $leave_obj = new Leaves($lid, false);
             $leave = $leave_obj->get();
             $leave['requester'] = $leave_obj->get_requester()->get();
             $leave['type_details'] = $leave_obj->get_type(false)->get();
@@ -376,7 +376,7 @@ else {
             /* Conversation  message --END */
             $tmplan = TravelManagerPlan::get_plan(array('lid' => $leave_obj->get_id()));
             if(is_object($tmplan)) {
-                $preview_iteneraryframe = '<div id="container" style="width:100%;  margin: 0px auto;display:block;"><iframe style="width:100%;height:700px" src="'.$core->settings['rootdir'].'/index.php?module=travelmanager/viewplan&referrer=plantrip&id='.$tmplan->tmpid.'&preview=1"></iframe></div>';
+                $preview_iteneraryframe = '<div id="container" style="width:100%;  margin: 0px auto;display:block;"><iframe style="width:100%;height:700px" src="'.DOMAIN.'/index.php?module=travelmanager/viewplan&referrer=plan&lid='.$lid.'&id='.$tmplan->tmpid.'&preview=1"></iframe></div>';
             }
             eval("\$takeactionpage = \"".$template->get('attendance_listleaves_takeaction')."\";");
             output_page($takeactionpage);
