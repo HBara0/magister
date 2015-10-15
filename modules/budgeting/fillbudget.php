@@ -466,7 +466,8 @@ else {
                 $budget->save_budget($budget_data, $core->input['budgetline']);
             }
             else {
-                Budgets::save_budget($budget_data, $core->input['budgetline']);
+                $budget = new Budgets();
+                $budget->save_budget($budget_data, $core->input['budgetline']);
             }
         }
         switch($budget->get_errorcode()) {
