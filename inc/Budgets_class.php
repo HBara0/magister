@@ -404,7 +404,7 @@ class Budgets extends AbstractClass {
         }
     }
 
-    public function read_prev_budgetbydata($data = array(), $options = array()) {
+    public function read_prev_budgetbydata($data = array(), $options = array(), $source = null) {
         global $db;
         if(empty($data)) {
             $data['affid'] = $this->data['affid'];
@@ -414,6 +414,13 @@ class Budgets extends AbstractClass {
 
         if(isset($options['filters']['businessMgr']) && is_array($options['filters']['businessMgr'])) {
             $budgetline_query_where = ' AND bdl.businessMgr IN ('.$db->escape_string(implode(',', $options['filters']['businessMgr'])).')';
+        }
+
+        if(isset($options['filters']['blid']) && is_array($options['filters']['blid'])) {
+            if(empty($options['operators']['blid'])) {
+                $options['operators']['blid'] = 'IN';
+            }
+            $budgetline_query_where = ' AND bdl.blid '.$options['operators']['blid'].' ('.$db->escape_string(implode(',', $options['filters']['blid'])).')';
         }
 
         for($year = $data['year']; $year >= ($data['year'] - 1); $year--) {
@@ -430,6 +437,10 @@ class Budgets extends AbstractClass {
                     if($prevbudget_bydata['cid'] == 0) {
                         $prevbudget_bydata['cid'] = md5($prevbudget_bydata['altCid'].$prevbudget_bydata['saleType'].$prevbudget_bydata['pid'].$prevbudget_bydata['prevblid'].$prevbudget_bydata['linkedBudgetLine']);
                     }
+                    if($source == 'userprevlines') {
+                        $prevbudget_bydata['source'] = 'userprevlines';
+                    }
+
                     $budgetline_details[$prevbudget_bydata['cid']][$prevbudget_bydata['pid']][$prevbudget_bydata['saleType']][] = $prevbudget_bydata;
                 }
             }

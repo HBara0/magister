@@ -3,8 +3,8 @@
         <title>{$core->settings[systemtitle]} | {$lang->fillbudget}</title>
         {$headerinc}
         <script type="text/javascript">
-            $(function () {
-                $(document).on('keyup', 'input[id^="amountper_"]', function () {
+            $(function() {
+                $(document).on('keyup', 'input[id^="amountper_"]', function() {
                     var id = $(this).attr("id").split("_");
                     if(!jQuery.isNumeric($('input[id=amountper_' + id[1] + ']').val())) {
                         return;
@@ -14,7 +14,7 @@
                 });
 
 
-                $(document).on('keyup', 'input[id^="localincomeper_"]', function () {
+                $(document).on('keyup', 'input[id^="localincomeper_"]', function() {
                     var id = $(this).attr("id").split("_");
                     if(!jQuery.isNumeric($('input[id=localincomeper_' + id[1] + ']').val())) {
                         return;
@@ -23,7 +23,7 @@
 
                 });
 
-                $(document).on('keyup change', 'input[id^="localincome_"]', function () {
+                $(document).on('keyup change', 'input[id^="localincome_"]', function() {
                     var id = $(this).attr("id").split("_");
 
                     if(!jQuery.isNumeric($('input[id=localincome_' + id[1] + ']').val())) {
@@ -33,7 +33,7 @@
                         $('input[id=localincomeper_' + id[1] + ']').val((Number($(this).val()) * 100) / $('input[id=income_' + id[1] + ']').val());
                     }
                 });
-                $(document).on('keyup', 'input[id^="income_"]', function () {
+                $(document).on('keyup', 'input[id^="income_"]', function() {
                     var id = $(this).attr("id").split("_");
                     if(!jQuery.isNumeric($('input[id=income_' + id[1] + ']').val())) {
                         return;
@@ -44,7 +44,7 @@
                     $('input[id="localincomeper_' + id[1] + '"]').trigger('keyup');
                 });
 
-                $(document).on('keyup', 'input[id^="unitprice_"]', function () {
+                $(document).on('keyup', 'input[id^="unitprice_"]', function() {
                     var id = $(this).attr("id").split("_");
                     if(!jQuery.isNumeric($('input[id=unitprice_' + id[1] + ']').val())) {
                         return;
@@ -58,14 +58,14 @@
 
                 });
 
-                $(document).on('keyup', 'input[id^="Qty_"]', function () {
+                $(document).on('keyup', 'input[id^="Qty_"]', function() {
                     var id = $(this).attr("id").split("_");
                     $('input[id="unitprice_' + id[1] + '"]').trigger('keyup');
                     $('input[id="amountper_' + id[1] + '"]').trigger('keyup');
                     $('input[id="localincomeper_' + id[1] + '"]').trigger('keyup');
                 });
 
-                $(document).on('keyup', 'input[id^="amount_"]', function () {
+                $(document).on('keyup', 'input[id^="amount_"]', function() {
                     var id = $(this).attr("id").split("_");
                     if(!jQuery.isNumeric($('input[id=amount_' + id[1] + ']').val())) {
                         return;
@@ -87,7 +87,7 @@
 
                 });
 
-                $(document).on('keyup', 'input[id^="s1perc_"]', function (e) {
+                $(document).on('keyup', 'input[id^="s1perc_"]', function(e) {
                     var id = $(this).attr("id").split("_");
                     if($(this).val() > 100) {
                         e.preventDefault();
@@ -97,7 +97,7 @@
                     }
                 });
 
-                $(document).on('keyup', 'input[id^="s2perc_"]', function (e) {
+                $(document).on('keyup', 'input[id^="s2perc_"]', function(e) {
                     var id = $(this).attr("id").split("_");
                     if($(this).val() > 100) {
                         e.preventDefault();
@@ -107,7 +107,7 @@
                     }
                 });
 
-                $(document).on('change', 'select[id^="salestype_"]', function () {
+                $(document).on('change', 'select[id^="salestype_"]', function() {
                     var id = $(this).attr("id").split("_");
                     var salestype = $(this).val();
 
@@ -127,7 +127,7 @@
                     }
                 });
 
-                $(document).on('change', "input[type='checkbox'][id$='_unspecifiedCustomer']", function () {
+                $(document).on('change', "input[type='checkbox'][id$='_unspecifiedCustomer']", function() {
                     var id = $(this).attr("id").split("_");
                     $("div[id$='" + id[1] + "_unspecifiedCustomer_country']").slideToggle();
                 });
@@ -154,36 +154,37 @@
         <table width="100%" border="0" cellspacing="0" cellpadding="2">
             <thead>
                 <tr style="vertical-align: top;">
+                    <td  width="1%" class="border_right"  rowspan="2" valign="top" align="left"></td>
                     <td  width="11.6%" class=" border_right" align="center" rowspan="2" valign="top" align="left">{$lang->customer} <a href="index.php?module=contents/addentities&type=customer" target="_blank"><img src="images/addnew.png" border="0" alt="{$lang->add}"></a></td>
                     <td width="11.6%" rowspan="2" valign="top" align="center" class=" border_right">{$lang->product} <a href="index.php?module=contents/addproducts&amp;referrer=budgeting" target="_blank"><img src="images/addnew.png" border="0" alt="{$lang->add}"></a></td>
-                    <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->saletype} <a href="#" title="{$tooltips[saletype]}"><img src="./images/icons/question.gif" ></a></td>
-                    <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->quantity}</td>
-                    <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->uom}</td>
-                    <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->unitprice}</td>
-                    <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->amount}</td>
-                    <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->incomeperc}</td>
-                    <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->income}</td>
+                    <td width="11.6%" class="border_right" rowspan="2" valign="top" align="center">{$lang->saletype} <a href="#" title="{$tooltips[saletype]}"><img src="./images/icons/question.gif" ></a></td>
+                    <td width="11.6%" class="border_right" rowspan="2" valign="top" align="center">{$lang->quantity}</td>
+                    <td width="11.6%" class="border_right" rowspan="2" valign="top" align="center">{$lang->uom}</td>
+                    <td width="11.6%" class="border_right" rowspan="2" valign="top" align="center">{$lang->unitprice}</td>
+                    <td width="11.6%" class="border_right" rowspan="2" valign="top" align="center">{$lang->amount}</td>
+                    <td width="11.6%" class="border_right" rowspan="2" valign="top" align="center">{$lang->incomeperc}</td>
+                    <td width="11.6%" class="border_right" rowspan="2" valign="top" align="center">{$lang->income}</td>
                     {$hidden_colcells[localincome_head]}
                     {$hidden_colcells[localincomeper_head]}
                     {$hidden_colcells[remainingcommaff_head]}
-                    <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->curr}</td>
-                    <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->entitypurchasingfromsupplier}</td>
-                    <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->s1perc}</td>
-                    <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->s2perc}</td>
-                    <td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">{$lang->purchasedfromaffiliate} <a href="#" title="The affiliate from which you are buying the items in exceptional cases. Only applicable for the case of intercompany transactions; one affiliate (ex. Orkila Free Zone - Alex) selling and invoicing the other affiliate (ex. Orkila Egypt). This will automatically create an intercompany sale in the budget of the select affiliate. This should not be filled unless in exceptional cases."><img src="./images/icons/question.gif" ></a></td>
+                    <td width="11.6%" class="border_right" rowspan="2" valign="top" align="center">{$lang->curr}</td>
+                    <td width="11.6%" class="border_right" rowspan="2" valign="top" align="center">{$lang->entitypurchasingfromsupplier}</td>
+                    <td width="11.6%" class="border_right" rowspan="2" valign="top" align="center">{$lang->s1perc}</td>
+                    <td width="11.6%" class="border_right" rowspan="2" valign="top" align="center">{$lang->s2perc}</td>
+                    <td width="11.6%" class="border_right" rowspan="2" valign="top" align="center">{$lang->purchasedfromaffiliate} <a href="#" title="The affiliate from which you are buying the items in exceptional cases. Only applicable for the case of intercompany transactions; one affiliate (ex. Orkila Free Zone - Alex) selling and invoicing the other affiliate (ex. Orkila Egypt). This will automatically create an intercompany sale in the budget of the select affiliate. This should not be filled unless in exceptional cases."><img src="./images/icons/question.gif" ></a></td>
                 </tr>
             </thead>
             <tbody id="budgetlines_{$rowid}_tbody" style="width:100%;">
                 {$budgetlinesrows}
             </tbody>
             <tfoot>
-                <tr><td valign="top">
+                <tr><td valign="top" colspan="2">
                         <input name="numrows_budgetlines{$rowid}" type="hidden" id="numrows_budgetlines_{$rowid}" value="{$rowid}">
                         <input type="hidden" name="ajaxaddmoredata[affid]" id="ajaxaddmoredata_affid" value="{$budget_data[affid]}"/>
                         <img src="./images/add.gif" id="ajaxaddmore_budgeting/fillbudget_budgetlines_{$rowid}" alt="{$lang->add}">
                     </td></tr>
                 <tr>
-                    <td>
+                    <td colspan="2">
                         <table width="100%">
                             <tr> <td><input type="button" value="{$lang->prevcaps}" class="button" onClick="goToURL('index.php?module=budgeting/create&amp;identifier={$sessionidentifier}');"/></td>
                                 <td><input type="button" id="perform_budgeting/fillbudget_Button" value="{$lang->savecaps}" class="button"/></td>
@@ -191,11 +192,10 @@
                         </table>
                     </td>
                 </tr>
-                <tr>
-                    <td ><div id="perform_budgeting/fillbudget_Results"></div></td>
-                </tr>
+
             </tfoot>
         </table>
+        <div id="perform_budgeting/fillbudget_Results"></div>
     </form>
 </td>
 </tr>
