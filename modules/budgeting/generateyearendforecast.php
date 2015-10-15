@@ -301,7 +301,6 @@ else {
                             /* get the currency rate of the Origin currency  of the current buudget - START */
 
                             //get the report to of the user who created the budget.
-
                             $rawdata[$field][$yeflid]['reportsTo'] = $budget_obj->get_CreateUser()->get_reportsto()->uid;
                             $rawdata[$field][$yeflid]['uid'] = $budgetline->businessMgr;
                             $rawdata[$field][$yeflid]['stid'] = $budgetline->saleType;
@@ -417,6 +416,12 @@ else {
                             $rowclass = alt_row($rowclass);
                             //$budgetline_obj = new BudgetLines($budgetline['blid']);
                             $budgetline = $budgetline_obj->get();
+                            $monthfields = array('october', 'november', 'december');
+                            foreach($monthfields as $month) {
+                                $budgetline[$month.'qty'] = $budgetline['quantity'] * ($budgetline[$month] / 100);
+                                $budgetline[$month.'amt'] = $budgetline['amount'] * ($budgetline[$month] / 100);
+                                $budgetline[$month.'inc'] = $budgetline['income'] * ($budgetline[$month] / 100);
+                            }
                             if(isset($budgetline['invoice']) && !empty($budgetline['invoice'])) {
                                 $invoicetype = SaleTypesInvoicing::get_data(array('affid' => $budget_obj->affid, 'invoicingEntity' => $budgetline['invoice'], 'stid' => $budgetline['saleType']));
 
