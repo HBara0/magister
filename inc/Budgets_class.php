@@ -507,7 +507,7 @@ class Budgets extends AbstractClass {
         }
     }
 
-    public function get_budgetLines($bid = '', $options = array()) {
+    public function get_budgetLines($bid = '', $options = array(), $source = NULL) {
         global $db;
         if(empty($bid)) {
             $bid = $this->data['bid'];
@@ -518,7 +518,12 @@ class Budgets extends AbstractClass {
         if(isset($options['filters']['businessMgr']) && is_array($options['filters']['businessMgr'])) {
             $budgetline_query_where = ' AND businessMgr IN ('.$db->escape_string(implode(',', $options['filters']['businessMgr'])).')';
         }
-
+        if(isset($options['filters']['blid']) && is_array($options['filters']['blid']) && !empty($options['filters']['blid'])) {
+            if(empty($options['operators']['blid'])) {
+                $options['operators']['blid'] = 'IN';
+            }
+            $budgetline_query_where = ' AND blid '.$options['operators']['blid'].' ('.$db->escape_string(implode(',', $options['filters']['blid'])).')';
+        }
         if(isset($bid) && !empty($bid)) {
 //$prevbudgetline_details = $this->read_prev_budgetbydata();
             $budgetline_queryid = $db->query("SELECT * FROM ".Tprefix."budgeting_budgets_lines
@@ -531,7 +536,9 @@ class Budgets extends AbstractClass {
                     }
                     $budgetline = new BudgetLines($budgetline_data['blid']);
                     $prevbudgetline = new BudgetLines($budgetline_data['prevblid']);
-
+                    if($source == 'userprevlines') {
+                        $budgetline->source = 'userprevlines';
+                    }
                     $budgetline_details[$budgetline_data['cid']][$budgetline_data['pid']][$budgetline_data['saleType']] = $budgetline->get();
                     $budgetline_details[$budgetline_data['cid']][$budgetline_data['pid']][$budgetline_data['saleType']]['prevbudget'][] = $prevbudgetline->get();
                 }
