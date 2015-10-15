@@ -59,7 +59,9 @@ class BudgetLines {
                 $this->budgetline = $budgetline_data;
                 $this->budgetline['blid'] = $db->last_id();
                 $this->errorcode = 0;
+                return 0;
             }
+            return 3;
         }
     }
 
@@ -143,8 +145,10 @@ class BudgetLines {
         }
 
         $ic_budgetline = new BudgetLines();
-        $ic_budgetline->create($data);
-
+        $errorcode = $ic_budgetline->create($data);
+        if(!empty($errorcode)) {
+            return $errorcode;
+        }
         $this->update(array('linkedBudgetLine' => $ic_budgetline->blid));
     }
 

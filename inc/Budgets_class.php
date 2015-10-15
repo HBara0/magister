@@ -148,6 +148,7 @@ class Budgets extends AbstractClass {
         global $db, $core, $log;
         if(is_array($budgetdata)) {
             if(is_empty($budgetdata['year'], $budgetdata['affid'], $budgetdata['spid'])) {
+                $this->errorcode = 2;
                 return false;
             }
 
@@ -174,6 +175,10 @@ class Budgets extends AbstractClass {
                         $log->record('savenewbudget', $bid);
                         $budget->save_budgetlines($budgetline_data);
                     }
+                }
+                else {
+                    $this->errorcode = 3;
+                    return false;
                 }
             }
             else {
@@ -299,13 +304,20 @@ class Budgets extends AbstractClass {
                 }
                 unset($data['unspecifiedCustomer']);
                 if(isset($data['blid']) && !empty($data['blid'])) {
-                    $budgetlineobj->update($data);
-                    $budgetlineobj->save_interco_line($data);
+                    $errorcodebl = $budgetlineobj->update($data);
+                    $errorcodeint = $budgetlineobj->save_interco_line($data);
+                    if(!is_empty($errorcodeint, $errorcodebl)) {
+                        $this->errorcode = 3;
+                    }
                     $this->errorcode = 0;
                 }
                 else {
-                    $budgetlineobj->create($data);
-                    $budgetlineobj->save_interco_line($data);
+                    $errorcodebl = $budgetlineobj->create($data);
+                    $errorcodeint = $budgetlineobj->save_interco_line($data);
+                    if(!is_empty($errorcodeint, $errorcodebl)) {
+                        $this->errorcode = 3;
+                    }
+                    $this->errorcode = 0;
                 }
             }
 
@@ -320,6 +332,10 @@ class Budgets extends AbstractClass {
                     }
                 }
             }
+        }
+        else {
+            $this->errocode = 2;
+            return;
         }
     }
 
