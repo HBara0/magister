@@ -98,10 +98,13 @@ if(!$core->input['action']) {
             else {
                 foreach($budgetlinesdata as $cid => $cbudgetline) {
                     foreach($cbudgetline as $pid => $pbudgetline) {
-                        foreach($pbudgetline as $budgetline) {
+                        foreach($pbudgetline as $saletype => $budgetline) {
                             $filter['filters']['blid'][] = $budgetline['prevblid'];
                         }
                     }
+                }
+                if(is_array($filter['filters']['blid'])) {
+                    $filter['filters']['blid'] = array_filter($filter['filters']['blid']);
                 }
                 $filter['operators']['blid'] = 'NOT IN';
                 $user_prev_budgetlines = $budgetobj->read_prev_budgetbydata('', $filter, 'userprevlines');
