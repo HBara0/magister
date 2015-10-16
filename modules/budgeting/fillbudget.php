@@ -284,10 +284,15 @@ if(!$core->input['action']) {
                                     $budgetline['commissionSplitAffid_output'] = $intercompany_obj->get_displayname();
                                 }
 
-                                $budgetline['originalCurrency'] = $prev_budgetline['originalCurrency'];
-                                $budgetline['psid'] = $prev_budgetline['psid'];
+                                if(empty($budgetline['originalCurrency'])) {
+                                    $budgetline['originalCurrency'] = $prev_budgetline['originalCurrency'];
+                                }
+                                if(empty($budgetline['psid'])) {
+                                    $budgetline['psid'] = $prev_budgetline['psid'];
+                                }
                             }
                         }
+
                         if(empty($budgetline['localIncomePercentage'])) {
                             $budgetline['localIncomePercentage'] = 0;
                         }
@@ -323,10 +328,12 @@ if(!$core->input['action']) {
 
                         /* Get Actual data from mediation tables --END */
                         $budget_currencylist = '';
+
                         foreach($currencies as $numcode => $currency) {
                             if($budgetline['originalCurrency'] == $numcode) {
                                 $budget_currencylist_selected = ' selected="selected"';
                             }
+
                             $budget_currencylist .= '<option value="'.$numcode.'"'.$budget_currencylist_selected.'>'.$currency.'</option>';
                             $budget_currencylist_selected = '';
                         }
@@ -489,6 +496,7 @@ else {
         $rowid = intval($core->input['value']) + 1;
         $budget_data = $core->input['ajaxaddmoredata'];
         $affiliate = new Affiliates($budget_data['affid']);
+        $supplier = new Entities($budget_data['spid']);
         $budgetline['inputChecksum'] = generate_checksum('bl');
         if($affiliate->isIntReinvoiceAffiliate == 0) {
             $saletypes_query_where = ' WHERE stid NOT IN (SELECT s1.invoiceAffStid FROM saletypes s1 WHERE s1.invoiceAffStid IS NOT NULL)';
@@ -540,6 +548,14 @@ else {
         $purchasingentity_selectlist = parse_selectlist('budgetline['.$rowid.'][purchasingEntity]', 0, $purchase_selectlistdata, 'direct', '', '', array('id' => 'purchasingEntity_'.$rowid));
         $countries = Countries::get_coveredcountries();
         $countries_selectlist = parse_selectlist('budgetline['.$rowid.'][customerCountry]', 0, $countries, $affiliate->country, '', '');
+
+        $sup_segments = $supplier->get_segments();
+        if(is_array($sup_segments)) {
+            $supplier_segments = array_filter($sup_segments);
+            if(count($supplier_segments) > 1) {
+                $segments_selectlist = parse_selectlist('budgetline['.$rowid.'][psid]', 3, $supplier_segments, $budgetline['psid'], null, null, array('placeholder' => 'Overwrite Segment'));
+            }
+        }
 
         eval("\$budgetlinesrows = \"".$template->get('budgeting_fill_lines')."\";");
         output($budgetlinesrows);
