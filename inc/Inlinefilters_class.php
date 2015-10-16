@@ -210,6 +210,11 @@ class Inlinefilters {
 //                            $chemical = new Chemicalsubstances($core->input['filters'][$filter]);
 //                            $filters[$filter] = '<input type="text" autocomplete="off" tabindex="1"  id="chemfunctionchecmical_noexception_cache_autocomplete" value="'.$chemical->get_displayname().'"/><input type="hidden" id="chemfunctionchecmical_cache_id" name="filters['.$filter.']"/><input type="hidden" id="chemfunctionchecmical_noexception_cache_id" name="filters['.$filter.']"/>';
 //                            break;
+                        case 'fromCurrency':
+                        case 'toCurrency':
+                            $currencies = get_specificdata('currencies', array('numCode', 'alphaCode'), 'numCode', 'alphaCode', '', 0);
+                            $filters[$filter] = parse_selectlist('filters['.$filter.'][]', $tabindex, $currencies, $core->input['filters'][$filter], 1, '', array('multiplesize' => 3, 'blankstart' => true));
+                            break;
                         default:
                             $filters[$filter] = '<input type="text" width="100%" name="filters['.$filter.']" tabindex="'.$tabindex.'" value="'.$core->input['filters'][$filter].'" id="filers_'.$filter.'" title="'.$this->config['parse']['filterTitles'][$filter].'">';
                             break;
