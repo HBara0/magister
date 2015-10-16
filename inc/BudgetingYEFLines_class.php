@@ -130,9 +130,7 @@ class BudgetingYEFLines extends AbstractClass {
             $update_array['psid'] = $data['psid'];
             $update_array['fromBudget'] = $data['fromBudget'];
         }
-        if(empty($update_array['businessMgr'])) {
-            $update_array['businessMgr'] = $core->user['uid'];
-        }
+
         if(empty($update_array['psid']) && !empty($update_array['pid'])) {
             $product = new Products($update_array['pid']);
             $update_array['psid'] = $product->get_segment()['psid'];

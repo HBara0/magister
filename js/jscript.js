@@ -829,9 +829,10 @@ $(function () {
                 //  var date = new Date();
                 //   var msecond = date.getMilliseconds();
             }
+
             $.ajax({type: 'post',
                 url: url,
-                data: "value=" + num_rows + "&id=" + id[id.length - 1] + "&" + $(this).parent().find($('input[id^=ajaxaddmoredata_]')).serialize(),
+                data: "value=" + num_rows + "&id=" + id[id.length - 1] + "&" + object.parent().find($('input[id^=ajaxaddmoredata_]')).serialize(),
                 beforeSend: function () {
                     $("body").append("<div id='modal-loading'></div>");
                     $("#modal-loading").dialog({height: 0, modal: true, closeOnEscape: false, title: 'Loading...', resizable: false, minHeight: 0
