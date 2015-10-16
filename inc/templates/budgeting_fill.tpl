@@ -180,6 +180,7 @@
             <tfoot>
                 <tr><td valign="top" colspan="2">
                         <input name="numrows_budgetlines{$rowid}" type="hidden" id="numrows_budgetlines_{$rowid}" value="{$rowid}">
+                        <input type="hidden" name="ajaxaddmoredata[spid]" id="ajaxaddmoredata_spid" value="{$budget_data[spid]}"/>
                         <input type="hidden" name="ajaxaddmoredata[affid]" id="ajaxaddmoredata_affid" value="{$budget_data[affid]}"/>
                         <img src="./images/add.gif" id="ajaxaddmore_budgeting/fillbudget_budgetlines_{$rowid}" alt="{$lang->add}">
                     </td></tr>
