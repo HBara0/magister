@@ -16,7 +16,7 @@
 /* Budgeting Line Class --START */
 
 class BudgetLines {
-    private $budgetline = array();
+    protected $budgetline = array();
 
     const PRIMARY_KEY = 'blid';
     const TABLE_NAME = 'budgeting_budgets_lines';
