@@ -20,7 +20,7 @@
                 {$toolgenerate}
             </form>
         </td>
-    </tr> 
+    </tr>
     {$footer}
 </body>
 </html>

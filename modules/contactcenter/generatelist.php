@@ -274,7 +274,7 @@ else {
                         'filterKey' => 'rpid',
                         'mainTable' => array(
                                 'name' => 'representatives',
-                                'filters' => array('name' => array('operatorType' => 'equal', 'name' => 'name')),
+                                'filters' => array('name' => array('name' => 'name')),
                         ),
                         'secTables' => array(
                                 'entitiesrepresentatives' => array(

@@ -25,5 +25,6 @@
             </tr>
         </tbody>
         {$budget_report_row}
+        {$totals_row }
     </table>
 </page>
