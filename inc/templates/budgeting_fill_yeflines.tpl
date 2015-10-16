@@ -1,4 +1,5 @@
 <tr id="{$rownums}">
+    <td style="vertical-align: top; border-bottom: dashed 1px #CCCCCC; text-align: left;width:30px;border-right: dashed 1px #CCCCCC;">  <a href="#" title="{$tooltip[linedetails]}" style="width:1%"><img src="./images/icons/question.gif"></a></td>
     <td style="vertical-align: top; border-bottom: dashed 1px #CCCCCC; text-align: left;">
         <input type="hidden" name="budgetline[{$rowid}][inputCheckSum]" value="{$rowid}"/>
         <input type="hidden" name="budgetline[{$rowid}][businessMgr]" value="{$budgetline['businessMgr']}"/>

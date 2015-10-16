@@ -95,6 +95,23 @@ if(!$core->input['action']) {
                 $budgetlinesdata = $budgetobj->read_prev_budgetbydata('', $filter);
                 $is_prevonly = true;
             }
+            else {
+                foreach($budgetlinesdata as $cid => $cbudgetline) {
+                    foreach($cbudgetline as $pid => $pbudgetline) {
+                        foreach($pbudgetline as $saletype => $budgetline) {
+                            $filter['filters']['blid'][] = $budgetline['prevblid'];
+                        }
+                    }
+                }
+                if(is_array($filter['filters']['blid'])) {
+                    $filter['filters']['blid'] = array_filter($filter['filters']['blid']);
+                }
+                $filter['operators']['blid'] = 'NOT IN';
+                $user_prev_budgetlines = $budgetobj->read_prev_budgetbydata('', $filter, 'userprevlines');
+                if(is_array($user_prev_budgetlines)) {
+                    $budgetlinesdata = $budgetlinesdata + $user_prev_budgetlines;
+                }
+            }
             $session->set_phpsession(array('budgetmetadata_'.$sessionidentifier => serialize($currentbudget)));
         }
         else {
@@ -177,6 +194,7 @@ if(!$core->input['action']) {
                 $customer = new Entities($cid);
                 foreach($customersdata as $pid => $productsdata) {
                     /* Get Products name from object */
+
                     $product = new Products($pid);
 
 //				if(isset($budgetline[$rowid]['cid']) && !empty($budgetline[$rowid]['cid'])) {
@@ -184,18 +202,47 @@ if(!$core->input['action']) {
 //				}
 
                     foreach($productsdata as $saleid => $budgetline) {
-                        unset($disabledattrs);
+                        unset($disabledattrs, $tooltip);
                         if(!empty($budgetline['cid'])) {
                             $disabledattrs['cid'] = $disabledattrs['unspecifiedCustomer'] = 'disabled="disabled"';
                         }
                         $previous_yearsqty = $previous_yearsamount = $previous_yearsincome = $prevyear_incomeperc = $prevyear_unitprice = $previous_actualqty = $previous_actualamount = $previous_actualincome = '';
-                        if($is_prevonly === true || isset($budgetline['prevbudget'])) {
+//                        $budgetline['prevbudget'] = array_filter($budgetline['prevbudget']);
+//                        if(!is_array($budgetline['prevbudget'])) {
+//                            unset($budgetline['prevbudget']);
+//                        }
+                        if($is_prevonly === true || isset($budgetline['prevbudget']) || $budgetline[0]['source'] == 'userprevlines') {
                             if($is_prevonly == true) {
                                 $prev_budgetlines = $budgetline;
+                                $tooltip['linedetails'] = 'Imported from previous budget <br/>';
+                                $line_bm = Users::get_data(array('uid' => $budgetline['businessMgr']));
+                                if(is_object($line_bm)) {
+                                    $tooltip['linedetails'] .= 'Buisness Manager: '.$line_bm->get_displayname();
+                                }
                                 unset($budgetline['businessMgr']);
                             }
                             elseif(isset($budgetline['prevbudget'])) {
                                 $prev_budgetlines = $budgetline['prevbudget'];
+                                if(empty($prev_budgetlines)) {
+                                    if($budgetline[0]['source'] == 'userprevlines') {
+                                        $prev_budgetlines = $budgetline;
+                                        $tooltip['linedetails'] = 'Imported from previous budget <br/>';
+                                        $line_bm = Users::get_data(array('uid' => $budgetline[0]['businessMgr']));
+                                        if(is_object($line_bm)) {
+                                            $tooltip['linedetails'] .= 'Buisness Manager: '.$line_bm->get_displayname();
+                                        }
+                                        unset($budgetline['businessMgr']);
+                                    }
+                                }
+                            }
+                            elseif($budgetline[0]['source'] == 'userprevlines') {
+                                $prev_budgetlines = $budgetline;
+                                $tooltip['linedetails'] = 'Imported from previous budget <br/>';
+                                $line_bm = Users::get_data(array('uid' => $budgetline[0]['businessMgr']));
+                                if(is_object($line_bm)) {
+                                    $tooltip['linedetails'] .= 'Buisness Manager: '.$line_bm->get_displayname();
+                                }
+                                unset($budgetline['businessMgr']);
                             }
                             foreach($prev_budgetlines as $prev_budgetline) {
                                 //get prev year YEF data
@@ -376,7 +423,15 @@ if(!$core->input['action']) {
 //                        if(empty($altcid)) {
 //                            $altcid = $prev_budgetline['altCid'];
 //                        }
-
+                        if(empty($tooltip['linedetails']) && empty($budgetline['blid'])) {
+                            $tooltip['linedetails'] = 'Imported from previous budget <br/>';
+                        }
+                        if(isset($budgetline['businessMgr']) && !empty($budgetline['businessMgr'])) {
+                            $line_bm = Users::get_data(array('uid' => $budgetline['businessMgr']));
+                            if(is_object($line_bm)) {
+                                $tooltip['linedetails'] .= 'Buisness Manager: '.$line_bm->get_displayname();
+                            }
+                        }
                         eval("\$budgetlinesrows .= \"".$template->get('budgeting_fill_lines')."\";");
                         unset($yefline);
                         $rowid++;
@@ -473,7 +528,8 @@ else {
                 $budget->save_budget($budget_data, $core->input['budgetline']);
             }
             else {
-                Budgets::save_budget($budget_data, $core->input['budgetline']);
+                $budget = new Budgets();
+                $budget->save_budget($budget_data, $core->input['budgetline']);
             }
         }
         switch($budget->get_errorcode()) {
