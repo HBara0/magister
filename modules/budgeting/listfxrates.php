@@ -85,13 +85,9 @@ if(!$core->input['action']) {
         $budget_years .= "<option value=".$year."  {$year_selected}>{$year}</option>";
     }
 
-    $aff_objs = Affiliates::get_affiliates(array('affid' => $core->user['affiliates']), array('operators' => array('affid' => 'IN')));
+    $aff_objs = Affiliates::get_affiliates(array('affid' => $core->user['affiliates']), array('returnarray' => true, 'operators' => array('affid' => 'IN')));
     if(is_array($aff_objs)) {
-        foreach($aff_objs as $affiliate) {
-            $affiliates[$affiliate->affid] = $affiliate->get_displayname();
-        }
-
-        $affiliate_list = parse_selectlist('budgetrate[affid]', 1, $affiliates, $core->user['mainaffilaite']);
+        $affiliate_list = parse_selectlist('budgetrate[affid]', 1, $aff_objs, $core->user['mainaffilaite']);
     }
 
     $currency['filter']['numCode'] = 'SELECT mainCurrency FROM countries where affid IS NOT NULL';
