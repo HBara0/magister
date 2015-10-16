@@ -413,20 +413,24 @@ function parse_yefline($data, $readonly = '', $source, $rownums, $supplier) {
                 if(empty($budgetline) || !is_array($budgetline)) {
                     continue;
                 }
-
                 unset($disabledattrs);
                 $rowid = generate_checksum();
                 if($source == 'yef') {
                     $rowid = $budgetline['inputCheckSum'];
+                    if($budgetline['source'] == 'userprevlines') {
+                        $rowid = $budgetline['inputChecksum'];
+                    }
                 }
-                if($source == 'budget' || $budgetline['fromBudget'] == 1) {
+                if($source == 'budget' || $budgetline['source'] == 'userprevlines') {
+                    $tooltip['linedetails'] = 'Imported from budget <br/>';
+                }
+                elseif($budgetline['fromBudget'] == 1) {
+                    $tooltip['linedetails'] = 'Line Existing In Current Year Budget <br/>';
+                }
+                if($source == 'budget' || $budgetline['fromBudget'] == 1 || $budgetline['source'] == 'userprevlines') {
                     $readonly = 'readonly';
                     $alert_div = '<span style="color:red" id="alert_'.$rowid.'"></span>';
-                }
-                if($budgetline['fromBudget'] == 1 || $source == 'budget') {
                     $disabledattrs ['cid'] = $disabledattrs['unspecifiedCustomer'] = 'disabled = "disabled"';
-                }
-                if($budgetline['fromBudget'] == 1 || $source == 'budget') {
                     $disabledattrs ['pid'] = 'disabled = "disabled"';
                 }
                 $previous_yearsqty = $previous_yearsamount = $previous_yearsincome = $prevyear_incomeperc = $prevyear_unitprice = $previous_actualqty = $previous_actualamount = $previous_actualincome = '';
@@ -436,6 +440,10 @@ function parse_yefline($data, $readonly = '', $source, $rownums, $supplier) {
                 }
                 if(empty($budgetline['localIncomeAmount'])) {
                     $budgetline['localIncomeAmount'] = 0;
+                }
+                if(isset($budgetline['businessMgr']) && !empty($budgetline['businessMgr'])) {
+                    $line_bm = Users::get_data(array('uid' => $budgetline['businessMgr']));
+                    $tooltip['linedetails'] .= 'Buisness Manager: '.$line_bm->get_displayname();
                 }
                 $budgetline['cid'] = $cid;
                 $budgetline['customerName'] = $customer->get()['companyName'];
@@ -462,7 +470,7 @@ function parse_yefline($data, $readonly = '', $source, $rownums, $supplier) {
                 $purchasefromaff = '<input type="text" placeholder="'.$lang->search.' '.$lang->affiliate.'" id="affiliate_noexception_'.$rowid.'_autocomplete" name = "" value = "'.$budgetline['interCompanyPurchase_output'].'" autocomplete = "off" />
                 <input type = "hidden" value="'.$budgetline['interCompanyPurchase'].'" id="affiliate_noexception_'.$rowid.'_id" name = "budgetline['.$rowid.'][interCompanyPurchase]" />';
 
-                if($budgetline['fromBudget'] == 1 || $source == 'budget') {
+                if($budgetline['fromBudget'] == 1 || $source == 'budget' || $budgetline['source'] == 'userprevlines') {
                     $purchasefromaff = '<input type="text" disabled value = "'.$budgetline['interCompanyPurchase_output'].'" ><input type = "hidden" value = "'.$budgetline['interCompanyPurchase'].'" id = "affiliate_noexception_'.$rowid.'_id" name = "budgetline['.$rowid.'][interCompanyPurchase]" />';
                     $purchasingentity_selectlist = '<input type="text" disabled value = "'.$purchase_selectlistdata[$budgetline['purchasingEntity']].'" name = "purchasenetitytname"><input type = "hidden" value="'.$budgetline['purchasingEntity'].'" name = "budgetline['.$rowid.'][purchasingEntity]">';
                     $saletype_selectlist = '<input type="text" disabled value="'.$saletype_selectlistdata[$saleid].'" name = "saletypename"><input type = "hidden" value = "'.$saleid.'" name = "budgetline['.$rowid.'][saleType]">';
@@ -503,7 +511,7 @@ function parse_yefline($data, $readonly = '', $source, $rownums, $supplier) {
                 }
                 $budget_currencylist.='</select>';
                 $frombudgetline = '';
-                if($source == 'budget' || $budgetline['fromBudget'] == 1) {
+                if($source == 'budget' || $budgetline['fromBudget'] == 1 || $budgetline['source'] == 'userprevlines') {
                     if(!empty($budgetline['psid'])) {
                         $segment = new ProductsSegments($budgetline['psid']);
                         $segments_selectlist = $segment->get_displayname().'<input type="hidden" value="'.$budgetline['psid'].'" name="budgetline['.$rowid.'][psid]">';
@@ -532,7 +540,7 @@ function parse_yefline($data, $readonly = '', $source, $rownums, $supplier) {
                     $budgetline['commissionSplitAffid_output'] = $intercompany_obj->get_displayname();
                 }
                 $maxfields = array('amount', 'quantity', 'unitPrice', 'income');
-                if($source == 'budget') {
+                if($source == 'budget' || $budgetline['source'] == 'userprevlines') {
                     foreach($maxfields as $field) {
                         $maxbudgetline[$field] = $budgetline[$field];
                     }
@@ -546,7 +554,7 @@ function parse_yefline($data, $readonly = '', $source, $rownums, $supplier) {
                         }
                     }
                 }
-                if($source == 'budget') {
+                if($source == 'budget' || $budgetline['source'] == 'userprevlines') {
                     $divided_fields = array('quantity', 'amount', 'income', 'actalQty', 'actualIncome', 'actualAmount', 'localIncomeAmount');
                     //'unitPrice',localIncomePercentage, 'incomePerc'
                     foreach($divided_fields as $field) {
@@ -591,7 +599,7 @@ function parse_yefline($data, $readonly = '', $source, $rownums, $supplier) {
                 $countries = Countries::get_coveredcountries();
                 $countries_selectlist = parse_selectlist('budgetline['.$rowid.'][customerCountry]', 0, $countries, $budgetline['customerCountry'], '', '', '');
 
-                if($source == 'budget' || $budgetline['fromBudget'] == 1) {
+                if($source == 'budget' || $budgetline['fromBudget'] == 1 || $budgetline['source'] == 'userprevlines') {
                     if(!empty($budgetline['customerCountry'])) {
                         $country = new Countries($budgetline['customerCountry']);
                         if(!empty($country->coid)) {
@@ -604,13 +612,7 @@ function parse_yefline($data, $readonly = '', $source, $rownums, $supplier) {
 //                            $altcid = $prev_budgetline['altCid'];
 //                        }
 
-                if(empty($tooltip['linedetails']) && empty($budgetline['yeflid'])) {
-                    $tooltip['linedetails'] = 'Imported from budget <br/>';
-                }
-                if(isset($budgetline['businessMgr']) && !empty($budgetline['businessMgr'])) {
-                    $line_bm = Users::get_data(array('uid' => $budgetline['businessMgr']));
-                    $tooltip['linedetails'] .= 'Buisness Manager: '.$line_bm->get_displayname();
-                }
+
                 eval("\$budgetlinesrows .= \"".$template->get('budgeting_fill_yeflines')."\";");
                 unset($readonly, $extra_script, $alert_div, $maxbudgetline, $intercompany_obj, $tooltip);
             }

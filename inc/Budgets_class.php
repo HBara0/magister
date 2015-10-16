@@ -536,11 +536,13 @@ class Budgets extends AbstractClass {
                     }
                     $budgetline = new BudgetLines($budgetline_data['blid']);
                     $prevbudgetline = new BudgetLines($budgetline_data['prevblid']);
+                    $budgetline_arr = $budgetline->get();
                     if($source == 'userprevlines') {
-                        $budgetline->source = 'userprevlines';
+                        $budgetline_arr['source'] = $source;
                     }
-                    $budgetline_details[$budgetline_data['cid']][$budgetline_data['pid']][$budgetline_data['saleType']] = $budgetline->get();
+                    $budgetline_details[$budgetline_data['cid']][$budgetline_data['pid']][$budgetline_data['saleType']] = $budgetline_arr;
                     $budgetline_details[$budgetline_data['cid']][$budgetline_data['pid']][$budgetline_data['saleType']]['prevbudget'][] = $prevbudgetline->get();
+                    unset($budgetline_arr);
                 }
                 return $budgetline_details;
             }
