@@ -238,6 +238,7 @@ else {
             exit;
         }
         $report_type = $core->input['budget']['reporttype'];
+        $countrows = 0;
         if($report_type == 'dimensional') {
             $fields = array('current'); // 'prev2years', 'prev3years');
             foreach($fields as $field) {
@@ -416,12 +417,7 @@ else {
                             $rowclass = alt_row($rowclass);
                             //$budgetline_obj = new BudgetLines($budgetline['blid']);
                             $budgetline = $budgetline_obj->get();
-                            $monthfields = array('october', 'november', 'december');
-                            foreach($monthfields as $month) {
-                                $budgetline[$month.'qty'] = $budgetline['quantity'] * ($budgetline[$month] / 100);
-                                $budgetline[$month.'amt'] = $budgetline['amount'] * ($budgetline[$month] / 100);
-                                $budgetline[$month.'inc'] = $budgetline['income'] * ($budgetline[$month] / 100);
-                            }
+
                             if(isset($budgetline['invoice']) && !empty($budgetline['invoice'])) {
                                 $invoicetype = SaleTypesInvoicing::get_data(array('affid' => $budget_obj->affid, 'invoicingEntity' => $budgetline['invoice'], 'stid' => $budgetline['saleType']));
 
@@ -498,8 +494,19 @@ else {
                                 $customername = '<a href="index.php?module=profiles/entityprofile&eid='.$budget['customerid'].'" target="_blank">'.$budgetline['customer'].'</a>';
                             }
                             $budgetline['interCompanyPurchase_output'] = $lang->na;
-
                             $budgetline['product'] = $budgetline_obj->get_product()->name;
+                            $monthfields = array('october', 'november', 'december');
+                            foreach($monthfields as $month) {
+                                $budgetline[$month.'qty'] = $budgetline['quantity'] * ($budgetline[$month] / 100);
+                                $budgetline[$month.'amt'] = $budgetline['amount'] * ($budgetline[$month] / 100);
+                                $budgetline[$month.'inc'] = $budgetline['income'] * ($budgetline[$month] / 100);
+                                $total[$month.'amt']+=$budgetline[$month.'amt'];
+                                $total[$month.'inc']+= $budgetline[$month.'inc'];
+                            }
+                            $total['amount']+= $budgetline['amount'];
+                            $total['unitPrice']+= $budgetline['unitPrice'];
+                            $total['income']+= $budgetline['income'];
+                            $countrows++;
                             eval("\$budget_report_row .= \"".$template->get('budgeting_yefrawreport_row')."\";");
                         }
                     }
@@ -513,6 +520,23 @@ else {
             if($core->usergroup['budgeting_canFillLocalIncome'] == 1) {
                 $loalincome_header = '<th style="vertical-align:central; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left">'.$lang->localincome.'</th>';
                 $loalincome_header = '<th style="vertical-align:central; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left">'.$lang->remainingcommaff.'</th>';
+            }
+            if(is_array($total) && !empty($total)) {
+                unset($budgetline, $budget);
+                $rowclass = 'thead';
+                $budget['managerid'] = '#';
+                $budget['manager'] = 'TOTAL';
+                if(!empty($countrows)) {
+                    $budgetline['unitPrice'] = 'Avg '.number_format($total['unitPrice'] / $countrows, 2);
+                }
+                $monthfields = array('october', 'november', 'december');
+                foreach($monthfields as $month) {
+                    $budgetline[$month.'amt'] = $total[$month.'amt'];
+                    $budgetline[$month.'inc'] = $budgetline[$month.'inc'];
+                }
+                $budgetline['amount'] = number_format($total['amount']);
+                $budgetline['income'] = number_format($total['income']);
+                eval("\$totals_row = \"".$template->get('budgeting_yefrawreport_row')."\";");
             }
             eval("\$budgeting_budgetrawreport = \"".$template->get('budgeting_yefrawreport')."\";");
         }

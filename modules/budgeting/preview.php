@@ -388,6 +388,7 @@ if(!($core->input['action'])) {
         /* ------------------------------------------------------------------------------------------------------------------------------------------------------- */
         else {
             if(is_array($budgets['current'])) {
+                $countrows = 0;
                 foreach($budgets['current'] as $budgetid) {
                     $budget_obj = new Budgets($budgetid);
                     $budget['country'] = $budget_obj->get_affiliate()->get()['name'];
@@ -505,8 +506,11 @@ if(!($core->input['action'])) {
                                 $customername = '<a href="index.php?module=profiles/entityprofile&eid='.$budget['customerid'].'" target="_blank">'.$budgetline['customer'].'</a>';
                             }
                             $budgetline['interCompanyPurchase_output'] = $lang->na;
-
                             $budgetline['product'] = $budgetline_obj->get_product()->name;
+                            $total['amount']+=$budgetline['amount'];
+                            $total['income']+=$budgetline['income'];
+                            $total['unitPrice']+=$budgetline['unitPrice'];
+                            $countrows++;
                             eval("\$budget_report_row .= \"".$template->get('budgeting_budgetrawreport_row')."\";");
                         }
                     }
@@ -522,6 +526,18 @@ if(!($core->input['action'])) {
             if($core->usergroup['budgeting_canFillLocalIncome'] == 1) {
                 $loalincome_header = '<th style="vertical-align:central; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left">'.$lang->localincome.'</th>';
                 $loalincome_header = '<th style="vertical-align:central; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left">'.$lang->remainingcommaff.'</th>';
+            }
+            if(is_array($total) && !empty($total)) {
+                unset($budgetline, $budget);
+                $rowclass = 'thead';
+                $budget['managerid'] = '#';
+                $budget['manager'] = 'TOTAL';
+                if(!empty($countrows)) {
+                    $budgetline['unitPrice'] = 'Avg '.number_format($total['unitPrice'] / $countrows, 2);
+                }
+                $budgetline['amount'] = number_format($total['amount']);
+                $budgetline['income'] = number_format($total['income']);
+                eval("\$totals_row = \"".$template->get('budgeting_budgetrawreport_row')."\";");
             }
             eval("\$budgeting_budgetrawreport = \"".$template->get('budgeting_budgetrawreport')."\";");
         }
@@ -584,16 +600,16 @@ elseif($core->input['action'] == 'exportexcel') {
             /* Validate Permissions - END */
             $budget['year'] = $budget_obj->get()['year'];
 
-            // $firstbudgetline = $budget_obj->get_budgetLines(0, $filter);
+// $firstbudgetline = $budget_obj->get_budgetLines(0, $filter);
             if(!empty($filter['filters']['businessMgr'])) {
                 $budgetline_filter['businessMgr'] = $filter['filters']['businessMgr'];
             }
             $budgetlines = $budget_obj->get_lines($budgetline_filter);
             if(is_array($budgetlines)) {
-                // foreach($firstbudgetline as $cid => $customersdata) {
-                //  foreach($customersdata as $pid => $productsdata) {
+// foreach($firstbudgetline as $cid => $customersdata) {
+//  foreach($customersdata as $pid => $productsdata) {
                 foreach($budgetlines as $blid => $budgetline_obj) {
-                    //$budgetline_obj = new BudgetLines($budgetline[$counter]['blid']);
+//$budgetline_obj = new BudgetLines($budgetline[$counter]['blid']);
 
                     $budgetline[$counter] = $budgetline_obj->get();
                     $countries = new Countries($budgetline_obj->get_customer()->get()['country']);
@@ -668,8 +684,8 @@ elseif($core->input['action'] == 'exportexcel') {
                     }
                     $counter++;
                 }
-                //  }
-                // }
+//  }
+// }
             }
         }
     }
