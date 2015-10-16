@@ -167,6 +167,9 @@ if(!$core->input['action']) {
             foreach($yeflinesdata as $cid => $cyeflinesdata) {
                 foreach($cyeflinesdata as $pid => $pyeflinesdata) {
                     foreach($pyeflinesdata as $saletypte => $yeflinedata) {
+                        if(empty($yeflinedata['blid'])) {
+                            continue;
+                        }
                         $filter['filters']['blid'][] = $yeflinedata['blid'];
                     }
                 }

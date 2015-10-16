@@ -99,6 +99,9 @@ if(!$core->input['action']) {
                 foreach($budgetlinesdata as $cid => $cbudgetline) {
                     foreach($cbudgetline as $pid => $pbudgetline) {
                         foreach($pbudgetline as $saletype => $budgetline) {
+                            if(empty($budgetline['prevblid'])) {
+                                continue;
+                            }
                             $filter['filters']['blid'][] = $budgetline['prevblid'];
                         }
                     }
@@ -180,7 +183,6 @@ if(!$core->input['action']) {
         foreach($curr_objs as $curr_obj) {
             $currencies[$curr_obj->get_id()] = $curr_obj->alphaCode;
         }
-
         /* check whether to display existing budget Form or display new one  */
         $unsetable_fields = array('quantity', 'amount', 'incomePerc', 'income', 'inputChecksum');
         $countries = Countries::get_coveredcountries();
