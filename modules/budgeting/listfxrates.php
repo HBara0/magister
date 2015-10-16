@@ -22,20 +22,34 @@ if(!$core->input['action']) {
         $create_tool = '<div style="float:right;">  <a href="#" id="showpopup_createbudgetfxrate" class="showpopup"><img alt="Add" src="./images/addnew.png" border="0">'.$lang->createfxrate.'</a>     </div>';
     }
     /* Perform inline filtering - START */
+    $categories = array('isActual' => 'Actual', 'isYef' => 'YEF', 'isBudget' => 'Budget');
     $filters_config = array(
-            'parse' => array('filters' => array('affid', 'year', 'fromCurrency', 'toCurrency', 'rate')
+            'parse' => array('filters' => array('affiliate', 'year', 'fromCurrency', 'toCurrency', 'rate', 'category',),
+                    'overwriteField' => array(
+                            'category' => parse_selectlist("filters[category]", 0, $categories, '', '', '', array('blankstart' => true)),
+                    )
             ),
             'process' => array(
                     'filterKey' => 'bfxid',
                     'mainTable' => array(
                             'name' => 'budgeting_fxrates',
-                            'filters' => array('affid', 'year', 'fromCurrency', 'toCurrency', 'rate')
+                            'filters' => array('affiliate' => array('operatorType' => 'multiple', 'name' => 'affid'), 'year', 'fromCurrency' => array('operatorType' => 'multiple', 'name' => 'fromCurrency'), 'toCurrency' => array('operatorType' => 'multiple', 'name' => 'toCurrency'), 'rate')
                     ),
             )
     );
     $filter = new Inlinefilters($filters_config);
     $filter_where_values = $filter->process_multi_filters();
-
+    if(isset($core->input['filters']['category']) && !empty($core->input['filters']['category'])) {
+        $extra_fxids = BudgetFxRates::get_column('bfxid', array($db->escape_string($core->input['filters']['category']) => 1), array('returnarray' => true, 'simple' => false));
+        if(is_array($extra_fxids)) {
+            if(is_array($filter_where_values)) {
+                $filter_where_values = array_intersect_key($extra_fxids, $filter_where_values);
+            }
+            else {
+                $filter_where_values = $extra_fxids;
+            }
+        }
+    }
     $filters_row_display = 'hide';
     if(is_array($filter_where_values)) {
         $filters_row_display = 'show';
@@ -49,10 +63,12 @@ if(!$core->input['action']) {
     foreach($core->user['affiliates'] as $affid) {
         /* get fxrate for each affiliate */
         if(!empty($filter_where)) { /* filter advaned search */
-            $budgetrate['filter']['bfxid'] = $filter_where;
+            $filters = $filter_where;
         }
-
-        $affilaite_budgetrateobjs = BudgetFxRates::get_data(array('affid' => $affid), array('simple' => false, 'returnarray' => true));
+        else {
+            $filters = array('affid' => $affid);
+        }
+        $affilaite_budgetrateobjs = BudgetFxRates::get_data($filters, array('simple' => false, 'returnarray' => true));
         $row_tools = '';
         if(is_array($affilaite_budgetrateobjs)) {
             foreach($affilaite_budgetrateobjs as $fxrate) {
