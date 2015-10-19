@@ -661,6 +661,7 @@ class Users extends AbstractClass {
         $segmentscoord = ProdSegCoordinators::get_data(array('uid' => $this->uid), array('returnarray' => true));
         $supplieraudits = SupplierAudits::get_data(array('uid' => $this->uid), array('returnarray' => true));
         $reportingusers = Users::get_users(array('reportsTo' => $this->uid), array('returnarray' => true));
+        $assignedsegments = EmployeeSegments::get_data(array('uid' => $this->uid), array('returnarray' => true));
 
         /**
          * Default set of permissions
@@ -813,6 +814,14 @@ class Users extends AbstractClass {
                 }
             }
         }
+        /**
+         * Getting all assigned segments for user
+         */
+        if(is_array($assignedsegments)) {
+            foreach($assignedsegments as $usersegment) {
+                $permissions['psid'][] = $usersegment->psid;
+            }
+        }
 
         if(is_array($assignedemployees)) {
             foreach($assignedemployees as $assignedemployee) {
@@ -956,8 +965,8 @@ class Users extends AbstractClass {
             return array($current_reportsto->uid);
         }
         foreach($current_reportsto as $reportstouser) {
-            $x = $reportstouser->get_allreportingtothis();
-            $users = array_merge($users, $x);
+            $additional_reportingto = $reportstouser->get_allreportingtothis();
+            $users = array_unique(array_merge($users, $additional_reportingto));
         }
         return $users;
     }
