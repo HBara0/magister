@@ -25,9 +25,11 @@ if(!$core->input['action']) {
             redirect('index.php?module=surveys/list');
         }
         $associations = SurveyAssociations::get_data(array('sid' => $survey['sid']), array('returnatarray' => true));
-        foreach($associations as $association) {
-            $association = $association->get();
-            $survey['associations'][$association['attr']] = $association['id'];
+        if(is_array($associations)) {
+            foreach($associations as $association) {
+                $association = $association->get();
+                $survey['associations'][$association['attr']] = $association['id'];
+            }
         }
         if(!empty($survey['associations']['spid'])) {
             $supplier = Entities::get_data(array('eid' => $survey['associations']['spid']));
