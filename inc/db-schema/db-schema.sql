@@ -831,6 +831,54 @@ CREATE TABLE `budgeting_bankfacilities` (
   PRIMARY KEY (`bbfid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `budgeting_blbackup`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `budgeting_blbackup` (
+  `blibkid` int(10) NOT NULL AUTO_INCREMENT,
+  `blid` int(10) unsigned NOT NULL,
+  `inputChecksum` varchar(100) NOT NULL,
+  `pid` int(10) unsigned NOT NULL,
+  `altPid` varchar(200) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `psid` smallint(5) DEFAULT NULL,
+  `bid` int(10) unsigned NOT NULL,
+  `cid` int(10) NOT NULL,
+  `altCid` varchar(50) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `prevblid` int(10) DEFAULT NULL,
+  `customerCountry` int(10) NOT NULL DEFAULT '0',
+  `businessMgr` int(10) NOT NULL,
+  `actualQty` float NOT NULL,
+  `actualIncome` float NOT NULL,
+  `actualAmount` float NOT NULL,
+  `amount` float NOT NULL,
+  `unitPrice` float NOT NULL,
+  `income` float NOT NULL,
+  `incomePerc` float NOT NULL,
+  `localIncomePercentage` float DEFAULT NULL,
+  `localIncomeAmount` float DEFAULT NULL,
+  `invoicingEntityIncome` float NOT NULL DEFAULT '0',
+  `invoice` varchar(10) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `invoiceAffid` smallint(5) DEFAULT NULL,
+  `commissionSplitAffid` smallint(5) NOT NULL DEFAULT '0',
+  `purchasingEntity` varchar(50) NOT NULL,
+  `purchasingEntityId` int(10) NOT NULL,
+  `quantity` float NOT NULL,
+  `createdBy` int(10) NOT NULL DEFAULT '0',
+  `modifiedBy` int(10) NOT NULL,
+  `modifiedOn` bigint(30) NOT NULL DEFAULT '0',
+  `originalCurrency` varchar(4) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `saleType` varchar(12) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `s1Perc` float NOT NULL,
+  `s2Perc` float NOT NULL,
+  `interCompanyPurchase` smallint(5) DEFAULT NULL,
+  `linkedBudgetLine` int(10) DEFAULT NULL,
+  `backedupOn` bigint(30) NOT NULL,
+  `backedupBy` int(10) NOT NULL,
+  PRIMARY KEY (`blibkid`),
+  KEY `createdBy` (`createdBy`),
+  KEY `businessMgr` (`businessMgr`)
+) ENGINE=MyISAM AUTO_INCREMENT=2572 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `budgeting_budgets`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
