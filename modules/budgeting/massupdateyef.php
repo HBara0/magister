@@ -3,7 +3,7 @@ if(!defined('DIRECT_ACCESS')) {
     die('Direct initialization of this file is not allowed.');
 }
 if($core->usergroup['budgeting_canMassUpdate'] == 0) {
-//    error($lang->sectionnopermission);
+    error($lang->sectionnopermission);
 }
 
 if(!$core->input['action']) {
