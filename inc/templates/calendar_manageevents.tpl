@@ -4,8 +4,8 @@
         {$headerinc}
 
         <script>
-            $(function() {
-                $(document).on('change', 'select[id=event_type]', function() {
+            $(function () {
+                $(document).on('change', 'select[id=event_type]', function () {
                     var types = [{$etypemorefields}];
                     if(jQuery.inArray(parseInt($(this).val()), types) > -1) {
                         $('#visittypefields').slideDown();
@@ -74,10 +74,6 @@
                     </div>
                     <div>
                         <input name="event[isPublic]" type='checkbox' value='1' checked='checked' style="display:none">
-                    </div>
-                    <div style="display:block;">
-                        <div style="display: inline-block;width:10%">{$lang->featureevents}</div>
-                        <div style="display: inline-block; padding:10px;"><input name="event[isFeatured]" type="checkbox" value="1" {$checkedbox[isFeatured]}></div>
                     </div>
                     <div style="display:block;" class="thead">{$lang->description}</div>
                     <div style="display:block;"><textarea name="event[description]" cols="100" rows="6" id='description' class="txteditadv">{$event[description]}</textarea></div>
