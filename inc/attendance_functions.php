@@ -1239,7 +1239,7 @@ function parse_attendance_reports($core, $headerinc = '', $header = '', $menu = 
                                             $extra .= '>';
                                         }
                                         if(number_format($workperc, 0) >= 100) {
-                                            $day_content_value .= number_format($workperc, 0).'</br>'.$extra;
+                                            $day_content_value .= number_format($workperc, 0).'</br>'.$extra.' ';
                                             $extra_style = 'background-color:#D6EAAC';
                                         }
                                         else {
@@ -1268,7 +1268,7 @@ function parse_attendance_reports($core, $headerinc = '', $header = '', $menu = 
                                     }
                                     elseif($leavetype->isWholeDay == 0) {
                                         $ishalfday = '1';
-                                        $day_content_value .= 'HD/';
+                                        $day_content_value .= $leavetype->symbol.' ';
                                     }
                                     else {
                                         $day_content_value .= 'L';
@@ -1306,14 +1306,13 @@ function parse_attendance_reports($core, $headerinc = '', $header = '', $menu = 
                             $total['absent'][$curdate['year']][$curdate['mon']] ++;
                             $total['requiredhours'][$curdate['year']][$curdate['mon']][$curdate['week']][$curdate['mday']] = (($current_worshift['offDutyHour'] * 3600) + ($current_worshift['offDutyMinutes'] * 60)) - (($current_worshift['onDutyHour'] * 3600) + ($current_worshift['onDutyMinutes'] * 60));
                         }
-                        else {
-                            $weekends++;
-                            $total['weekends'][$curdate['year']][$curdate['mon']][$curdate['week']] ++;
-                            $day_content_value .= 'W/E';
-                            $month_header[$curdate['mon']][date('d', $currentdate)] = date('d', $currentdate);
-                        }
                     }
-
+                    if(!in_array($curdate['wdayiso'], $workshift['weekDays'])) {
+                        $weekends++;
+                        $total['weekends'][$curdate['year']][$curdate['mon']][$curdate['week']] ++;
+                        $day_content_value .= ' W/E';
+                        $month_header[$curdate['mon']][date('d', $currentdate)] = date('d', $currentdate);
+                    }
                     //$count_hours_week[$week] = array_sum_recursive($total['actual'][$year][$month][$week]);//($total['hoursweek'][$year][$month][$week]/3600);
                     /* Get prev/next day for verification */
                     $nextdate = $currentdate + 86400;

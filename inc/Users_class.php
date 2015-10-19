@@ -955,7 +955,7 @@ class Users extends AbstractClass {
             $uids = array_merge($uids, $reportingtothis);
         }
         if(is_array($uids)) {
-            return $uids;
+            return array_unique($uids);
         }
         return false;
     }
