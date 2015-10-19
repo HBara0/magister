@@ -926,19 +926,29 @@ class Users extends AbstractClass {
         global $core;
         $uids = array();
         if($core->usergroup['hr_canHrAllAffiliates'] == 0) {
-//            $affid = $core->user['mainaffiliate'];
             if(is_array($core->user['hraffids']) && !empty($core->user['hraffids'])) {
-                $affid = $core->user['mainaffiliate'];
-                if(!in_array($core->user['mainaffiliate'], $core->user['hraffids'])) {
-                    $affid = $core->user['hraffids'][current($core->user['hraffids'])];
+                foreach($core->user['hraffids'] as $affid) {
+                    $userdsids = AffiliatedEmployees::get_column('uid', array('affid' => $affid, 'isMain' => 1), array('returnarray' => true));
+                    if(is_array($userdsids)) {
+                        $uids = array_unique(array_merge($uids, $userdsids));
+                    }
                 }
             }
         }
-        if(isset($affid) && !empty($affid)) {
-            $uids = AffiliatedEmployees::get_column('uid', array('affid' => $affid, 'isMain' => 1), array('returnarray' => true));
-        }
-        elseif($core->usergroup['hr_canHrAllAffiliates'] == 1) {
+        else {
             $uids = AffiliatedEmployees::get_column('uid', array('isMain' => 1), array('returnarray' => true));
+        }
+        $affiliate_fields = array('cfo', 'coo', 'generalManager', 'supervisor', 'regionalSupervisor');
+        foreach($affiliate_fields as $field) {
+            $affiliates = Affiliates::get_affiliates(array($field => $this->uid), array('returnarray' => true));
+            if(is_array($affiliates)) {
+                foreach($affiliates as $affiliate) {
+                    $userdsids = AffiliatedEmployees::get_column('uid', array('affid' => $affiliate->affid, 'isMain' => 1), array('returnarray' => true));
+                    if(is_array($userdsids)) {
+                        $uids = array_unique(array_merge($uids, $userdsids));
+                    }
+                }
+            }
         }
         $reportingtothis = $this->get_allreportingtothis();
         if(is_array($reportingtothis)) {
