@@ -115,10 +115,10 @@ if(!$core->input['action']) {
                 $icon_locked = '_locked';
                 $visitreport['status_text'] = $lang->finalized.$lang->andlocked;
             }
-
+            $displaydraft = 'style="display:none"';
             if($core->usergroup['canLockUnlockReports'] == 1 || $core->user['uid'] == $visitreport['uid']) {
                 $checkbox[$visitreport['vrid']] = "<input type='checkbox' id='checkbox_{$visitreport[vrid]}' name='listCheckbox[]' value='{$visitreport[vrid]}'/>";
-
+                $displaydraft = '';
                 $icon[$visitreport['vrid']] = "<a href='index.php?module=crm/previewvisitreport&amp;referrer=list&amp;vrid={$visitreport[vrid]}'><img src='images/icons/report{$icon_locked}.gif' alt='{$visitreport[status_text]}' border='0'/></a>";
                 if($visitreport['isDraft'] == 1) {
                     $draft[$visitreport['vrid']] = "<a href='index.php?module=crm/listvisitreports&amp;val=0&amp;action=do_draft&amp;vrid={$visitreport[vrid]}'><img src='images/valid.gif' title='".$lang->isdraft."' alt='".$lang->undraft."' border='0'/></a>";
