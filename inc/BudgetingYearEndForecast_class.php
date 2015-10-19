@@ -341,7 +341,7 @@ class BudgetingYearEndForecast extends AbstractClass {
                 foreach($removed_lines as $removedblid) {
                     if(!empty($removedblid)) {
                         $yeflineobj = new BudgetingYEFLines($removedblid);
-                        if(!empty($yeflineobj->blid)) {
+                        if(!empty($yeflineobj->yeflid)) {
                             $yeflineobj->delete();
                             $yeflineobj->delete_interco_line();
                         }

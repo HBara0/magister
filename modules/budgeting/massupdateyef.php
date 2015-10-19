@@ -1,18 +1,9 @@
 <?php
-/*
- * Copyright © 2014 Orkila International Offshore, All Rights Reserved
- *
- * [Provide Short Descption Here]
- * $id: massupdate.php
- * Created:        @tony.assaad    Nov 24, 2014 | 12:24:22 PM
- * Last Update:    @tony.assaad    Nov 24, 2014 | 12:24:22 PM
- */
-
 if(!defined('DIRECT_ACCESS')) {
     die('Direct initialization of this file is not allowed.');
 }
 if($core->usergroup['budgeting_canMassUpdate'] == 0) {
-    error($lang->sectionnopermission);
+//    error($lang->sectionnopermission);
 }
 
 if(!$core->input['action']) {
@@ -98,17 +89,13 @@ if(!$core->input['action']) {
         $overwrite_fields .= '<td><div id="value_'.$attr.'" style="display:block;">'.$field['inputfield'].'</div></td>';
         $overwrite_fields .= '</tr>';
     }
-    $pagename = 'massupdate';
+    $pagename = 'massupdateyef';
     eval("\$massupdate = \"".$template->get('budgeting_massupdate')."\";");
     output_page($massupdate);
 }
 else {
-    if($core->input['action'] == 'do_massupdate') {
-
-
-
+    if($core->input['action'] == 'do_massupdateyef') {
         $budgetfilter_where = $core->input['budget']['filter'];
-
         $filterline_where = $core->input['budget']['filterline'];
         $attribute = ($core->input['budget']['overwrite']['attribute']);
         unset($core->input['budget']['overwrite']['attribute']);
@@ -132,9 +119,9 @@ else {
 
         /* acquire all rows which will be affected, */
         //error($lang->sprint($lang->noexchangerate, $budgetline->originalCurrency, $budgetsdata['toCurrency'], $budget_obj->year), $_SERVER['HTTP_REFERER']);
-        $budgetobjs = Budgets::get_data(array('affid' => $budgetfilter_where['affid'], 'spid ' => $budgetfilter_where['spid'], 'year ' => $budgetfilter_where['year']), array('returnarray' => true, 'simple' => false, 'operators' => array('affid' => 'IN', 'spid' => 'IN', 'year' => 'IN')));
-        foreach($budgetobjs as $budgetobj) {
-            $budgetlines_notaffectedobjs = BudgetLines::get_data('bid='.$budgetobj->bid, array('returnarray' => true));
+        $yefobjs = BudgetingYearEndForecast::get_data(array('affid' => $budgetfilter_where['affid'], 'spid ' => $budgetfilter_where['spid'], 'year ' => $budgetfilter_where['year']), array('returnarray' => true, 'simple' => false, 'operators' => array('affid' => 'IN', 'spid' => 'IN', 'year' => 'IN')));
+        foreach($yefobjs as $yefobj) {
+            $budgetlines_notaffectedobjs = BudgetingYEFLines::get_data('yefid='.$yefobj->yefid, array('returnarray' => true));
         }
 
         $overwrites_fieldstocheck = array('businessMgr',
@@ -190,13 +177,13 @@ else {
             $comma = ', ';
         }
 
-        $query = $db->query('UPDATE '.Tprefix.'budgeting_budgets_lines SET '.$updatequery_set.' WHERE bid IN (SELECT bid FROM budgeting_budgets '.$budget_wherecondition.')'.$budgetline_wherecondition);
+        $query = $db->query('UPDATE '.Tprefix.'budgeting_yef_lines SET '.$updatequery_set.' WHERE yefid IN (SELECT yefid FROM budgeting_yearendforecast '.$budget_wherecondition.')'.$budgetline_wherecondition);
         if($query) {
             $filename = generate_checksum();
-            $filepath = ROOT.'/tmp/budget/'.$filename.'.csv';
+            $filepath = ROOT.'/tmp/yef/'.$filename.'.csv';
             $csv = new CSV($filepath);
             $csv->write_file($budgetlines_notaffectedobjs);
-            output_xml('<status>true</status><message>'.$lang->successfullysaved.' '.$db->affected_rows().' lines.<![CDATA[ <a href="'.$core->settings['rootdir'].'/index.php?module=budgeting/massupdate&amps;action=download&amps;file='.$filename.'" target="_blank">Click here to downolad original values.</a>]]></message>');
+            output_xml('<status>true</status><message>'.$lang->successfullysaved.' '.$db->affected_rows().' lines.<![CDATA[ <a href="'.$core->settings['rootdir'].'/index.php?module=budgeting/massupdateyef&amps;action=download&amps;file='.$filename.'" target="_blank">Click here to downolad original values.</a>]]></message>');
         }
     }
     elseif($core->input['action'] == 'download') {
