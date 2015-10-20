@@ -77,7 +77,7 @@ class Events extends AbstractClass {
                 if($upload_obj->get_status() != 4) {
                     ?>
                     <script language="javascript" type="text/javascript">
-                        $(function() {
+                        $(function () {
                             top.$("#upload_Result").html("<span class='red_text'><?php echo $upload_obj->parse_status($upload_obj->get_status());?></span>");
                         });
                     </script>
@@ -224,6 +224,60 @@ class Events extends AbstractClass {
         if($delete) {
             $this->errorcode = 0;
             return true;
+        }
+    }
+
+    public function email_invitees() {
+        global $core;
+        if($core->input['event']['isPublic'] == 1 && $core->usergroup['calendar_canAddPublicEvents'] == 1) {
+            if(isset($core->input['event']['restrictto'])) {
+                if(is_array($core->input['event']['restrictto'])) {
+                    foreach($core->input['event']['restrictto'] as $affid) {
+                        $restriction = new CalendarEventsRestrictions();
+                        $restriction->set(array('affid' => $affid, 'ceid' => $this->get_id()))->save();
+                    }
+                    if(isset($core->input['event']['notify']) && $core->input['event']['notify'] == 1) {
+                        /* Send the event notification - START */
+                        $notification_mails = get_specificdata('affiliates', array('affid', 'mailingList'), 'affid', 'mailingList', '', 0, 'mailingList != "" AND affid IN('.implode(',', $core->input['event']['restrictto']).')');
+
+                        $ical_obj = new iCalendar(array('identifier' => $this->identifier.'all', 'uidtimestamp' => $this->createdOn));  /* pass identifer to outlook to avoid creation of multiple file with the same date */
+                        $ical_obj->set_datestart($this->fromDate);
+                        $ical_obj->set_datend($this->toDate);
+                        $ical_obj->set_location($this->place);
+                        $ical_obj->set_summary($this->title);
+                        $ical_obj->set_name();
+                        $ical_obj->set_status();
+                        $ical_obj->set_transparency();
+                        $ical_obj->set_icalattendees($notification_mails);
+                        $ical_obj->set_description($this->description);
+                        $ical_obj->endical();
+
+                        $mailer = new Mailer();
+                        $mailer = $mailer->get_mailerobj();
+                        $mailer->set_type('ical', array('content-class' => 'meetingrequest', 'method' => 'REQUEST', 'filename' => $this->title.'.ics'));
+                        $mailer->set_from(array('name' => 'Orkila Events Notifier', 'email' => 'events@orkila.com'));
+                        $mailer->set_subject($this->title);
+                        $mailer->set_message($ical_obj->geticalendar());
+                        $mailer->set_to($notification_mails);
+
+                        /* Add multiple Attachments */
+                        if(is_array($attachments)) {
+                            foreach($attachments as $attachment) {
+                                $mailer->add_attachment($attachments_path.'/'.$attachment['name']);
+                            }
+                        }
+                        $mailer->send();
+
+                        if($mailer->get_status() === true) {
+                            $log->record($notification_mails, $last_id);
+                        }
+                        else {
+                            $errors['notification'] = false;
+                        }
+                        /* Send the event notification - END */
+                    }
+                }
+            }
         }
     }
 

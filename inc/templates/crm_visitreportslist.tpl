@@ -3,13 +3,13 @@
         <title>{$core->settings[systemtitle]} | {$lang->listofvisitreports}</title>
         {$headerinc}
         <script language="javascript">
-            $(function() {
-                $('#moderationtools').change(function() {
-                    if (sharedFunctions.checkSession() == false) {
+            $(function () {
+                $('#moderationtools').change(function () {
+                    if(sharedFunctions.checkSession() == false) {
                         return;
                     }
 
-                    if ($(this).val().length > 0) {
+                    if($(this).val().length > 0) {
                         var formData = $("form[id='moderation_crm/listvisitreports_Form']").serialize();
                         var url = "index.php?module=crm/listvisitreports&action=do_lockunlock_listvisitreports";
 
@@ -35,11 +35,12 @@
                             <th>{$lang->prepareby} <a href="{$sort_url}&amp;sortby=employeename&amp;order=ASC"><img src="images/sort_asc.gif" border="0" /></a><a href="{$sort_url}&amp;sortby=employeename&amp;order=DESC"><img src="images/sort_desc.gif" border="0" /></a></th>
                             <th>{$lang->calltype} <a href="{$sort_url}&amp;sortby=visitType&amp;order=ASC"><img src="images/sort_asc.gif" border="0" /></a><a href="{$sort_url}&amp;sortby=visitType&amp;order=DESC"><img src="images/sort_desc.gif" border="0" /></a></th>
                             <th>{$lang->dateofvisit} <a href="{$sort_url}&amp;sortby=date&amp;order=ASC"><img src="images/sort_asc.gif" border="0" /></a><a href="{$sort_url}&amp;sortby=date&amp;order=DESC"><img src="images/sort_desc.gif" border="0" /></a></th>
+                            <th {$displaydraft}>{$lang->isdraft}</th>
                             <th>&nbsp;</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {$reportslist}    
+                        {$reportslist}
                     </tbody>
                     <tfoot>
                         {$buttons_row}

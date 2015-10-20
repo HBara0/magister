@@ -297,7 +297,7 @@ if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject) || $ignore_su
                         $planid = $travelmanager_plan->tmpid;
                         if(is_object($travelmanager_plan)) {
                             $leave = $travelmanager_plan->get_leave();
-                            $employee = $leave->get_user(); //->get_displayname();
+                            $employee = $leave->get_user()->get_displayname();
                             $segment_objs = TravelManagerPlanSegments::get_segments(array('tmpid' => $planid), array('order' => 'sequence', 'simple' => false, 'returnarray' => true));
                             if(is_array($segment_objs)) {
                                 foreach($segment_objs as $segmentid => $segment) {

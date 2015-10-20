@@ -122,11 +122,11 @@ else {
                     $invoice->localfxrate = $currency_obj->get_fxrate_bytype($core->input['fxtype'], $invoice->currency, array('from' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 01:00'), 'to' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 24:00'), 'year' => date('Y', $invoice->dateinvoiceduts), 'month' => date('m', $invoice->dateinvoiceduts)), array('precision' => 4), $orgcurrency->iso_code);
                 }
                 if(empty($invoice->localfxrate)) {
-                    $invoice->localfxrate = 1;
+                    $invoice->localfxrate = 0;
                 }
 
                 if(empty($invoice->usdfxrate)) {
-                    $invoice->usdfxrate = 1;
+                    $invoice->usdfxrate = 0;
                 }
                 if(!is_array($invoicelines)) {
                     continue;
@@ -179,9 +179,9 @@ else {
                         $invoiceline->unitcostlocal = $invoiceline->costlocal / $invoiceline->qtyinvoiced;
                         $invoiceline->unitcostusd = $invoiceline->costusd / $invoiceline->qtyinvoiced;
                     }
-
-                    $invoiceline->costusd = $invoiceline->costlocal / $invoice->usdfxrate;
-
+                    if(!empty($invoice->usdfxrate)) {
+                        $invoiceline->costusd = $invoiceline->costlocal / $invoice->usdfxrate;
+                    }
                     if(is_object($inputstack)) {
                         $input_inoutline = $inputstack->get_transcation()->get_inoutline();
                         if(is_object($input_inoutline)) {
@@ -198,18 +198,29 @@ else {
                         }
                     }
 
+                    $required_fields = array('qtyinvoiced', 'priceactual', 'linenetamt', 'purchaseprice', 'costlocal', 'grossmargin', 'netmargin', 'marginperc');
 
                     $invoiceline->linenetamt = $invoiceline->linenetamt / 1000;
                     /* Convert to local currency if invoice is in foreign currency */
                     if($orgcurrency->iso_code != $invoice->currency) {
-                        $invoiceline->priceactual /= $invoice->localfxrate;
-                        $invoiceline->linenetamt /= $invoice->localfxrate;
+                        if(!empty($invoice->localfxrate)) {
+                            $invoiceline->priceactual /= $invoice->localfxrate;
+                            $invoiceline->linenetamt /= $invoice->localfxrate;
+                        }
+                        else {
+                            unset($invoiceline);
+                            continue;
+                        }
                     }
                     $invoiceline->costlocal = $invoiceline->costlocal / 1000;
                     $invoiceline->grossmargin = $invoiceline->linenetamt - (($invoiceline->purchaseprice * $invoiceline->qtyinvoiced) / 1000);
-                    $invoiceline->grossmarginusd = $invoiceline->grossmargin / $invoice->usdfxrate;
+                    if(!empty($invoice->usdfxrate)) {
+                        $invoiceline->grossmarginusd = $invoiceline->grossmargin / $invoice->usdfxrate;
+                    }
                     $invoiceline->netmargin = $invoiceline->linenetamt - $invoiceline->costlocal;
-                    $invoiceline->netmarginusd = $invoiceline->netmargin / $invoice->usdfxrate;
+                    if(!empty($invoice->usdfxrate)) {
+                        $invoiceline->netmarginusd = $invoiceline->netmargin / $invoice->usdfxrate;
+                    }
                     $invoiceline->marginperc = $invoiceline->netmargin / $invoiceline->linenetamt;
 
                     $output .= '<tr>';
@@ -218,8 +229,10 @@ else {
                         if(empty($value)) {
                             $value = $invoiceline->{$col};
                         }
-
                         $data[$invoiceline->c_invoiceline_id][$col] = $value;
+                        if($col == 'linenetamt') {
+                            $data_linenetamt[$invoiceline->c_invoiceline_id] = $invoiceline->{$col};
+                        }
                     }
 
                     if($invoiceline->marginperc < 0 || $invoiceline->marginperc > 0.5) {
@@ -232,7 +245,7 @@ else {
             //  redirect($url, $delay, $redirect_message);
         }
 
-        $salesreport = '<h1>'.$lang->salesreport.'<small><br />'.$lang->{$core->input['type']}.'<br />Values are in Thousands <small>(Local Currency)</small></small></h1>';
+        $salesreport = '<h1>'.$lang->salesreport.'<small><br />'.$lang->{$core->input['type']}.'<br />Values are in Thousands <small>Local Currency</small> (K '.$currency_obj->alphaCode.')</h1>';
         $salesreport .= '<p><em>The report might have issues in the cost information. If so please report them to the ERP Team.</em></p>';
         if($core->input['type'] == 'analytic' || $core->input['type'] == 'dimensional') {
             $overwrite = array('marginperc' => array('fields' => array('divider' => 'netmargin', 'dividedby' => 'linenetamt'), 'operation' => '/'),
@@ -252,7 +265,7 @@ else {
                 $mdata = $invoicelines->get_data_byyearmonth($yearsummary_filter, array('reportcurrency' => $currency_obj->alphaCode, 'fxtype' => $core->input['fxtype']));
 
                 if(isset($core->input['generatecharts']) && $core->input['generatecharts'] == 1) {
-                    $classifications = $invoicelines->get_classification($mdata, $period);
+                    $classifications = $invoicelines->get_classification($mdata['dataperday'], $period);
                 }
 
                 $monthdata = $mdata['salerep'];
@@ -273,7 +286,7 @@ else {
                         $currentyeardata = $salerepdata[$current_year];
                         $salesreport .= '<tr style="'.$rowstyle.'">';
                         $salesrep = new IntegrationOBUser($salerepid, $integration->get_dbconn());
-                        if(empty($salesrep->name)) {
+                        if(empty($salesrep->name) || $salesrep->name == 'System') {
                             $salesrep->name = 'Not Specified';
                         }
                         $salesreport .= '<td style="'.$css_styles['table-datacell'].'">'.$salesrep->name.'</td>';
