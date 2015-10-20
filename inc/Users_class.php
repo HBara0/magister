@@ -661,6 +661,7 @@ class Users extends AbstractClass {
         $segmentscoord = ProdSegCoordinators::get_data(array('uid' => $this->uid), array('returnarray' => true));
         $supplieraudits = SupplierAudits::get_data(array('uid' => $this->uid), array('returnarray' => true));
         $reportingusers = Users::get_users(array('reportsTo' => $this->uid), array('returnarray' => true));
+        $assignedsegments = EmployeeSegments::get_data(array('uid' => $this->uid), array('returnarray' => true));
 
         /**
          * Default set of permissions
@@ -813,6 +814,14 @@ class Users extends AbstractClass {
                 }
             }
         }
+        /**
+         * Getting all assigned segments for user
+         */
+        if(is_array($assignedsegments)) {
+            foreach($assignedsegments as $usersegment) {
+                $permissions['psid'][] = $usersegment->psid;
+            }
+        }
 
         if(is_array($assignedemployees)) {
             foreach($assignedemployees as $assignedemployee) {
@@ -917,26 +926,36 @@ class Users extends AbstractClass {
         global $core;
         $uids = array();
         if($core->usergroup['hr_canHrAllAffiliates'] == 0) {
-//            $affid = $core->user['mainaffiliate'];
             if(is_array($core->user['hraffids']) && !empty($core->user['hraffids'])) {
-                $affid = $core->user['mainaffiliate'];
-                if(!in_array($core->user['mainaffiliate'], $core->user['hraffids'])) {
-                    $affid = $core->user['hraffids'][current($core->user['hraffids'])];
+                foreach($core->user['hraffids'] as $affid) {
+                    $userdsids = AffiliatedEmployees::get_column('uid', array('affid' => $affid, 'isMain' => 1), array('returnarray' => true));
+                    if(is_array($userdsids)) {
+                        $uids = array_unique(array_merge($uids, $userdsids));
+                    }
                 }
             }
         }
-        if(isset($affid) && !empty($affid)) {
-            $uids = AffiliatedEmployees::get_column('uid', array('affid' => $affid, 'isMain' => 1), array('returnarray' => true));
-        }
-        elseif($core->usergroup['hr_canHrAllAffiliates'] == 1) {
+        else {
             $uids = AffiliatedEmployees::get_column('uid', array('isMain' => 1), array('returnarray' => true));
+        }
+        $affiliate_fields = array('cfo', 'coo', 'generalManager', 'supervisor', 'regionalSupervisor');
+        foreach($affiliate_fields as $field) {
+            $affiliates = Affiliates::get_affiliates(array($field => $this->uid), array('returnarray' => true));
+            if(is_array($affiliates)) {
+                foreach($affiliates as $affiliate) {
+                    $userdsids = AffiliatedEmployees::get_column('uid', array('affid' => $affiliate->affid, 'isMain' => 1), array('returnarray' => true));
+                    if(is_array($userdsids)) {
+                        $uids = array_unique(array_merge($uids, $userdsids));
+                    }
+                }
+            }
         }
         $reportingtothis = $this->get_allreportingtothis();
         if(is_array($reportingtothis)) {
             $uids = array_merge($uids, $reportingtothis);
         }
         if(is_array($uids)) {
-            return $uids;
+            return array_unique($uids);
         }
         return false;
     }
@@ -956,8 +975,8 @@ class Users extends AbstractClass {
             return array($current_reportsto->uid);
         }
         foreach($current_reportsto as $reportstouser) {
-            $x = $reportstouser->get_allreportingtothis();
-            $users = array_merge($users, $x);
+            $additional_reportingto = $reportstouser->get_allreportingtothis();
+            $users = array_unique(array_merge($users, $additional_reportingto));
         }
         return $users;
     }

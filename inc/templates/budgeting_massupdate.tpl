@@ -129,7 +129,7 @@
             <div style="padding:8px"> <input type="checkbox" id="agreement"/>{$lang->agreewarningcond}</div>
             <div><input type="button"   disabled="disabled"  id="perform_budgeting/massupdate_Button" value="{$lang->savecaps}" class="button"/></td</div>
         </form>
-        <div id="perform_budgeting/massupdate_Results" value="{$lang->savecaps}" class="button"/></div>
+        <div id="perform_budgeting/massupdate_Results" value="{$lang->savecaps}"/></div>
 </td>
 </tr>
 </body>

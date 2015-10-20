@@ -182,5 +182,4 @@ $lang['sourceCity'] = 'Source City';
 $lang['toDate'] = 'To Date';
 $lang['type'] = 'Type';
 $lang['monthlyattendancelog'] = 'Monthly Attendance Log';
-$lang['halfday'] = 'Half Day';
 ?>

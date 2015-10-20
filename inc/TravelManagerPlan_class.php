@@ -926,7 +926,7 @@ $("#anotheraff_otheraccomodations_'.$sequence.'_'.$otherhotel_checksum.'").hide(
 
     public function email_finance($message, $subject) {
         global $core;
-        $affiliate = new Affiliates($core->user['mainaffiliate'], false);
+        $affiliate = $this->get_user()->get_mainaffiliate();
         if(is_object($affiliate) && !empty($affiliate->financeEmail)) {
             $financeemail = $affiliate->financeEmail;
         }

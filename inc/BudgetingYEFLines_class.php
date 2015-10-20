@@ -98,7 +98,6 @@ class BudgetingYEFLines extends AbstractClass {
             $update_array['altCid'] = $data['altCid'];
             $update_array['prevyeflid'] = $data['prevyeflid'];
             $update_array['customerCountry'] = $data['customerCountry'];
-            $update_array['businessMgr'] = $data['businessMgr'];
             $update_array['actualQty'] = $data['actualQty'];
             $update_array['actualIncome'] = $data['actualIncome'];
             $update_array['actualAmount'] = $data['actualAmount'];

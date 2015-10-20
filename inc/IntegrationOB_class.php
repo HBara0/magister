@@ -52,11 +52,11 @@ class IntegrationOB extends Integration {
 
             $newdata['localId'] = $db->fetch_field($db->query("SELECT pid FROM ".Tprefix."products WHERE name='".$db->escape_string($product['name'])."'"), 'pid');
 
-            if(value_exists('integration_mediation_products', 'foreignId', $product['m_product_id'])) {
+            if(value_exists('integration_mediation_products', 'foreignId', $product['m_product_id'], 'foreignSystem='.$this->foreign_system)) {
                 if(empty($newdata['localId'])) {
                     unset($newdata['localId']);
                 }
-                $db->update_query('integration_mediation_products', $newdata, 'foreignId="'.$product['m_product_id'].'"');
+                $db->update_query('integration_mediation_products', $newdata, 'foreignId="'.$product['m_product_id'].'" AND foreignSystem='.$this->foreign_system);
             }
             else {
                 $db->insert_query('integration_mediation_products', $newdata);
@@ -69,7 +69,7 @@ class IntegrationOB extends Integration {
     }
 
     public function sync_businesspartners() {
-        global $db, $log;
+        global $db, $log, $cache;
 
         $query = $this->f_db->query("SELECT *
 					FROM c_bpartner
@@ -87,6 +87,29 @@ class IntegrationOB extends Integration {
                     'affid' => $this->affiliates_index[$bpartner['ad_org_id']]
             );
 
+            /**
+             * Get Address of the BP
+             */
+            $address = IntegrationOBBusinessPartnerLocation::get_data('c_bpartner_id=\''.$bpartner['c_bpartner_id'].'\'', array('returnarray' => true));
+            if(is_array($address)) {
+                $address = current($address);
+                if(is_object($address)) {
+                    $location = $address->get_location()->get_country()->countrycode;
+
+                    if(!$cache->iscached('countrycode', $location)) {
+                        $country = Countries::get_data(array('acronym' => $location));
+                        $cache->add('countrycode', $country, $location);
+                    }
+                    else {
+                        $country = $cache->get_cachedval('countrycode', $location);
+                    }
+
+
+                    if(is_object($country)) {
+                        $newdata['country'] = $country->get_id();
+                    }
+                }
+            }
             $newdata['localId'] = $db->fetch_field($db->query("SELECT eid FROM ".Tprefix."entities WHERE companyName='".$db->escape_string($bpartner['name'])."'"), 'eid');
 
             if($bpartner['isvendor'] == 'Y') {
@@ -150,7 +173,7 @@ class IntegrationOB extends Integration {
                     'salesRep' => $document['salesrep']
             );
 
-            $document_newdata['salesRepLocalId'] = $db->fetch_field($db->query("SELECT uid FROM ".Tprefix."users WHERE username='".$db->escape_string($document['username'])."'"), 'uid');
+            $document_newdata['salesRepLocalId'] = $db->fetch_field($db->query("SELECT uid FROM ".Tprefix."users WHERE displayName='".$db->escape_string($document['salesrep'])."' OR username='".$db->escape_string($document['username'])."'"), 'uid');
 
             if(value_exists('integration_mediation_salesorders', 'foreignId', $document['doc_id'])) {
                 $query2 = $db->update_query('integration_mediation_salesorders', $document_newdata, 'foreignId="'.$document['doc_id'].'"');
@@ -2850,6 +2873,10 @@ class IntegrationOBLocation extends IntegrationAbstractClass {
 
     public function __construct($id, $f_db = NULL) {
         parent::__construct($id, $f_db);
+    }
+
+    public function get_country() {
+        return new IntegrationOBCountry($this->data['c_country_id'], $this->f_db);
     }
 
 }

@@ -117,7 +117,7 @@ else {
         $checkfilter_array = array('affid', 'spid', 'year');
         foreach($checkfilter_array as $filterval) {
             if(empty($budgetfilter_where[$filterval])) {
-                output_xml('<status>false</status><message>'.$lang->fillrequiredfields.'</message>');
+                output_xml('<status>false</status><message>'.$lang->fillrequiredfields.'!</message>');
                 exit;
             }
         }
@@ -128,13 +128,6 @@ else {
                 output_xml('<status>false</status><message>'.$lang->fillrequiredfields.' '.$filterval.'</message>');
                 exit;
             }
-        }
-
-        /* acquire all rows which will be affected, */
-        //error($lang->sprint($lang->noexchangerate, $budgetline->originalCurrency, $budgetsdata['toCurrency'], $budget_obj->year), $_SERVER['HTTP_REFERER']);
-        $budgetobjs = Budgets::get_data(array('affid' => $budgetfilter_where['affid'], 'spid ' => $budgetfilter_where['spid'], 'year ' => $budgetfilter_where['year']), array('returnarray' => true, 'simple' => false, 'operators' => array('affid' => 'IN', 'spid' => 'IN', 'year' => 'IN')));
-        foreach($budgetobjs as $budgetobj) {
-            $budgetlines_notaffectedobjs = BudgetLines::get_data('bid='.$budgetobj->bid, array('returnarray' => true));
         }
 
         $overwrites_fieldstocheck = array('businessMgr',
@@ -173,8 +166,8 @@ else {
 
         if(isset($overwrite_fields['value']['localIncomePercentage']) && !empty($overwrite_fields['value']['localIncomePercentage'])) {
             $overwrite_fields['value']['localIncomeAmount'] = '(amount * ('.$overwrite_fields['value']['localIncomePercentage'].' / 100))';
-            $overwrite_fields['value']['localIncomePercentage'] = '('.$overwrite_fields['value']['localIncomePercentage'].' * (100/incomePerc))';
-            $overwrite_fields['value']['invoicingEntityIncome'] = '(amount * ((incomePerc - '.$overwrite_fields['value']['localIncomePercentage'].') / 100))';
+            // $overwrite_fields['value']['localIncomePercentage'] = '('.$overwrite_fields['value']['localIncomePercentage'].' * (100/incomePerc))';
+            $overwrite_fields['value']['invoicingEntityIncome'] = 'amount-'.$overwrite_fields['value']['localIncomeAmount'];
         }
 
         $overwrite_fields['value']['modifiedOn'] = TIME_NOW;
@@ -190,13 +183,29 @@ else {
             $comma = ', ';
         }
 
+        /* acquire all rows which will be affected, */
+        $budgetlines_notaffectedobjs = BudgetLines::get_data('bid IN (SELECT bid FROM budgeting_budgets '.$budget_wherecondition.')'.$budgetline_wherecondition, array('returnarray' => true));
+
         $query = $db->query('UPDATE '.Tprefix.'budgeting_budgets_lines SET '.$updatequery_set.' WHERE bid IN (SELECT bid FROM budgeting_budgets '.$budget_wherecondition.')'.$budgetline_wherecondition);
         if($query) {
+            $affectedrows = $db->affected_rows();
             $filename = generate_checksum();
-            $filepath = ROOT.'/tmp/budget/'.$filename.'.csv';
+            $filepath = ROOT.'/tmp/'.$filename.'.csv';
             $csv = new CSV($filepath);
             $csv->write_file($budgetlines_notaffectedobjs);
-            output_xml('<status>true</status><message>'.$lang->successfullysaved.' '.$db->affected_rows().' lines.<![CDATA[ <a href="'.$core->settings['rootdir'].'/index.php?module=budgeting/massupdate&amps;action=download&amps;file='.$filename.'" target="_blank">Click here to downolad original values.</a>]]></message>');
+
+            if(is_array($budgetlines_notaffectedobjs)) {
+                foreach($budgetlines_notaffectedobjs as $affectedrowobj) {
+                    $affectedrow = $affectedrowobj->get();
+                    unset($affectedrow['inputChecksum']);
+                    $affectedrow['backedupOn'] = TIME_NOW;
+                    $affectedrow['backedupBy'] = $core->user['uid'];
+                    $budgetlinesbk = new BudgetLinesBackup();
+                    $budgetlinesbk->set($affectedrow);
+                    $budgetlinesbk->save();
+                }
+            }
+            output_xml('<status>true</status><message>'.$lang->successfullysaved.' '.$affectedrows.' lines.<![CDATA[ <a href="'.$core->settings['rootdir'].'/index.php?module=budgeting/massupdate&action=download&file='.$filename.'" target="_blank">Click here to downolad original values.</a>]]></message>');
         }
     }
     elseif($core->input['action'] == 'download') {
@@ -204,12 +213,12 @@ else {
             error($lang->error);
         }
 
-        $filepath = ROOT.'/tmp/budget/'.$core->input['file'].'.csv';
+        $filepath = ROOT.'/tmp/'.$core->input['file'].'.csv';
 
         $download = new Download();
         $download->set_real_path($filepath);
         $download->stream_file(true);
-        unlink($filepath);
+        //unlink($filepath);
     }
 }
 
