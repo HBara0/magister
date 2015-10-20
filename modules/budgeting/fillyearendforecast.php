@@ -364,10 +364,19 @@ else {
 
         /* Get budget data */
         $budget_currencylist = ' <select id = "currency_{$rowid}" name = "budgetline['.$rowid.'][originalCurrency]">';
-        $affiliate_currency = new Currencies($affiliate->get_country()->get()['mainCurrency']);
-        $currencies = array_filter(array(840 => 'USD', 978 => 'EUR', $affiliate_currency->get()['numCode'] => $affiliate_currency->get()['alphaCode']));
+        if(!empty($affiliate->mainCurrency)) {
+            $affiliate_currency = new Currencies($affiliate->mainCurrency);
+        }
+        else {
+            $affiliate_currency = new Currencies($affiliate->get_country()->get()['mainCurrency']);
+        }
+        $currencies = array_filter(array(840 => 'USD', 978 => 'EUR', $affiliate_currency->numCode => $affiliate_currency->getalphaCode));
         foreach($currencies as $numcode => $currency) {
-            $budget_currencylist .= '<option value="'.$numcode.'">'.$currency.'</option>';
+            if($numcode == $affiliate_currency->numCode) {
+                $selected = 'selected="selected"';
+            }
+            $budget_currencylist .= '<option '.$selected.' value="'.$numcode.'">'.$currency.'</option>';
+            unset($selected);
         }
         $budget_currencylist.='</select>';
         /* Parse  local amount felds based on specific permission */

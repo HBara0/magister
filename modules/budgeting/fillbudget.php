@@ -176,7 +176,12 @@ if(!$core->input['action']) {
 //
 //
         //$currencies = get_specificdata('currencies', array('numCode', 'alphaCode'), 'numCode', 'alphaCode', array('by' => 'alphaCode', 'sort' => 'ASC'), 1, 'numCode = '.$affiliate_currency);
-        $affiliate_currency = new Currencies($affiliate->get_country()->get()['mainCurrency']);
+        if(!empty($affiliate->mainCurrency)) {
+            $affiliate_currency = new Currencies($affiliate->mainCurrency);
+        }
+        else {
+            $affiliate_currency = new Currencies($affiliate->get_country()->get()['mainCurrency']);
+        }
         $currencies = array_filter(array(840 => 'USD', 978 => 'EUR'));
         $currency['filter']['numCode'] = 'SELECT mainCurrency FROM countries where affid IS NOT NULL';
         $curr_objs = Currencies::get_data($currency['filter'], array('returnarray' => true, 'operators' => array('numCode' => 'IN')));
@@ -585,10 +590,19 @@ else {
 
         /* Get budget data */
 
-        $affiliate_currency = new Currencies($affiliate->get_country()->get()['mainCurrency']);
-        $currencies = array_filter(array(840 => 'USD', 978 => 'EUR', $affiliate_currency->get()['numCode'] => $affiliate_currency->get()['alphaCode']));
+        if(!empty($affiliate->mainCurrency)) {
+            $affiliate_currency = new Currencies($affiliate->mainCurrency);
+        }
+        else {
+            $affiliate_currency = new Currencies($affiliate->get_country()->get()['mainCurrency']);
+        }
+        $currencies = array_filter(array(840 => 'USD', 978 => 'EUR', $affiliate_currency->numCode => $affiliate_currency->getalphaCode));
         foreach($currencies as $numcode => $currency) {
-            $budget_currencylist .= '<option value="'.$numcode.'">'.$currency.'</option>';
+            if($numcode == $affiliate_currency->numCode) {
+                $selected = 'selected="selected"';
+            }
+            $budget_currencylist .= '<option '.$selected.' value="'.$numcode.'">'.$currency.'</option>';
+            unset($selected);
         }
         /* Parse  local amount felds based on specific permission */
         if($core->usergroup['budgeting_canFillLocalIncome'] == 1) {
