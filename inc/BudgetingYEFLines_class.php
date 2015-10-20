@@ -89,6 +89,7 @@ class BudgetingYEFLines extends AbstractClass {
         if(!$this->validate_requiredfields($data)) {
             return false;
         }
+        $this->split_income($data);
         if(is_array($data)) {
             $update_array['inputCheckSum'] = $data['inputCheckSum'];
             $update_array['yefid'] = $data['yefid'];
@@ -360,6 +361,39 @@ class BudgetingYEFLines extends AbstractClass {
         }
         else {
             return $country_name;
+        }
+    }
+
+    private function split_income(&$data) {
+        global $core;
+        if($core->usergroup['budgeting_canFillLocalIncome'] == 1) {
+            if($data['localIncomePercentage'] == 100 && $data['localIncomeAmount'] == 0) {
+                $data['localIncomeAmount'] = $data['income'];
+            }
+
+            if(!empty($data['linkedBudgetLine']) && !isset($data['yeflid'])) {
+                if(empty($data['interCompanyPurchase'])) {
+                    return;
+                }
+            }
+            if(empty($data['localIncomeAmount']) && $data['localIncomeAmount'] != '0') {
+                if(!isset($data['saleType'])) {
+                    return;
+                }
+
+                $saletype = new SaleTypes($data['saleType']);
+                $data['localIncomeAmount'] = $data['income'];
+                $data['localIncomePercentage'] = 100;
+                $data['invoicingEntityIncome'] = 0;
+                if($saletype->localIncomeByDefault == 0) {
+                    $data['localIncomeAmount'] = 0;
+                    $data['localIncomePercentage'] = 0;
+                    $data['invoicingEntityIncome'] = $data['income'];
+                }
+            }
+            else {
+                $data['invoicingEntityIncome'] = $data['income'] - $data['localIncomeAmount'];
+            }
         }
     }
 

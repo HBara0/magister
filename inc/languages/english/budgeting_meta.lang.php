@@ -302,4 +302,5 @@ $lang['from'] = 'From';
 $lang['to'] = 'To';
 $lang['copybudget'] = 'Copy Budget';
 $lang['percentage'] = 'Percentage';
+$lang['massupdateyef'] = 'Mass Update Year End Forecast';
 ?>

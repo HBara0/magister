@@ -456,7 +456,7 @@ class ReportingQr Extends Reporting {
         }
 
         if(is_array($data)) {
-            $query = $db->query("SELECT pid, SUM(quantity) AS quantity, SUM(turnOver) AS turnOver
+            $query = $db->query("SELECT uid,pid, SUM(quantity) AS quantity, SUM(turnOver) AS turnOver
 							FROM ".Tprefix."productsactivity pa
 							JOIN ".Tprefix."reports r ON (r.rid=pa.rid)
 							WHERE r.quarter<'".$this->report['quarter']."' AND r.year='".$this->report['year']."' AND r.affid='".$this->report['affid']."' AND r.spid='".$this->report['spid']."'
@@ -491,11 +491,19 @@ class ReportingQr Extends Reporting {
 
                         $otheremplforecasts[$productactivity['pid']][$validation_item] += $productactivity[$validation_key.'Forecast'];
                         if(round($actual_forecast, 4) > round($actual_current_forecast, 4) || ($this->report['quarter'] == 4 && round($actual_forecast, 4) < round($actual_current_forecast, 4))) {
-                            $forecast_corrections[$productactivity['pid']]['name'] = $productactivity['productname'];
-                            $forecast_corrections[$productactivity['pid']][$validation_key] = $correctionsign.round($actual_forecast, 4);
+                            if($options['source'] == 'finalize') {
+                                $user = new Users($productactivity['uid']);
+                                $forecast_corrections[$productactivity['pid']]['name'] = $productactivity['productname'];
+                                $forecast_corrections[$productactivity['pid']]['user'] = $user->get_displayname();
+                                unset($user);
+                            }
+                            else {
+                                $forecast_corrections[$productactivity['pid']]['name'] = $productactivity['productname'];
+                                $forecast_corrections[$productactivity['pid']][$validation_key] = $correctionsign.round($actual_forecast, 4);
+                            }
                         }
                         else {
-                            unset($forecast_corrections[$productactivity['pid']]);
+                            unset($forecast_corrections[$productactivity['pid']][$validation_key]);
                         }
                     }
                 }
@@ -509,14 +517,22 @@ class ReportingQr Extends Reporting {
                         }
 
                         if($productactivity[$validation_key.'Forecast'] < round($actual_forecast, 4) || ($this->report['quarter'] == 4 && round($productactivity[$validation_key.'Forecast'], 4) > round($actual_forecast, 4))) {
-                            $forecast_corrections[$productactivity['pid']]['name'] = $productactivity['productname'];
-                            $forecast_corrections[$productactivity['pid']][$validation_key] = $correctionsign.round($actual_forecast, 4);
+                            if($options['source'] == 'finalize') {
+                                $user = new Users($productactivity['uid']);
+                                $forecast_corrections[$productactivity['pid']]['name'] = $productactivity['productname'];
+                                $forecast_corrections[$productactivity['pid']]['user'] = $user->get_displayname();
+                                unset($user);
+                            }
+                            else {
+                                $forecast_corrections[$productactivity['pid']]['name'] = $productactivity['productname'];
+                                $forecast_corrections[$productactivity['pid']][$validation_key] = $correctionsign.round($actual_forecast, 4);
+                            }
                         }
                     }
                 }
             }
 
-            if(is_array($forecast_corrections)) {
+            if((is_array($forecast_corrections) && !empty(array_filter($forecast_corrections)))) {
                 return $forecast_corrections;
             }
             return true;

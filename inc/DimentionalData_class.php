@@ -61,15 +61,17 @@ class DimentionalData {
         $data = array();
         $data = $temp_rawdata;
         foreach($raw_datas as $key => $raw_data) {
-            foreach($requiredfields as $field) {
-                $temp_data = $data;
-                $aid = &$temp_rawdata[$field];
-                foreach($dimensions as $dim) {
-                    $aid[$raw_data[$dim]] = array();
-                    $aid = &$aid[$raw_data[$dim]];
+            if(is_array($requiredfields)) {
+                foreach($requiredfields as $field) {
+                    $temp_data = $data;
+                    $aid = &$temp_rawdata[$field];
+                    foreach($dimensions as $dim) {
+                        $aid[$raw_data[$dim]] = array();
+                        $aid = &$aid[$raw_data[$dim]];
+                    }
+                    $aid[$key] = $raw_data[$field];
+                    $data = array_merge_recursive_replace($temp_data, $temp_rawdata);
                 }
-                $aid[$key] = $raw_data[$field];
-                $data = array_merge_recursive_replace($temp_data, $temp_rawdata);
             }
         }
         return $data;
