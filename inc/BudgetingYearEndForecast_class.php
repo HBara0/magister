@@ -255,25 +255,9 @@ class BudgetingYearEndForecast extends AbstractClass {
                         $yeflineobj = new BudgetingYEFLines();
                     }
                 }
-                if(is_empty($data['localIncomeAmount'], $data['localIncomePercentage'])) {
-                    $data['localIncomeAmount'] = $data['income'];
-                    $data['invoicingEntityIncome'] = 0;
-                    $data['localIncomePercentage'] = 100;
-
-                    if(!isset($data['saleType'])) {
-                        return;
-                    }
-
-                    $saletype = new SaleTypes($data['saleType']);
-                    if($saletype->localIncomeByDefault == 0) {
-                        $data['localIncomeAmount'] = 0;
-                        $data['localIncomePercentage'] = 0;
-                        $data['invoicingEntityIncome'] = $data['income'];
-                    }
-                }
-                else {
-                    $data['invoicingEntityIncome'] = $data['income'] - $data['localIncomeAmount'];
-                }
+//                if(is_empty($data['localIncomeAmount'], $data['localIncomePercentage'])) {
+//                    $data['localIncomeAmount'] = $data['income'];
+//                }
                 if((empty($data['pid']) && empty($data['altPid'])) || (empty($data['cid']) && (empty($data['altCid']) || empty($data['customerCountry'])))) {
                     if(!empty($data['yeflid'])) {
                         $removed_lines[] = $data['yeflid'];
