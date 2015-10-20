@@ -345,7 +345,13 @@ class BudgetingYearEndForecast extends AbstractClass {
                     }
                 }
                 unset($data['unspecifiedCustomer']);
-                $yeflineobj = $yeflineobj->save($data);
+                $existingyefline = BudgetingYEFLines::get_data(array('yefid' => $data['yefid'], 'altCid' => $data['altCid'], 'pid' => $data['pid'], 'saleType' => $data['saleType']), array('returnarray' => false));
+                if(is_object($existingyefline)) {
+                    $errorcodebl = $existingyefline->update($data);
+                }
+                else {
+                    $yeflineobj = $yeflineobj->save($data);
+                }
 
                 if(is_object($yeflineobj)) {
                     $yeflineobj->save_interco_line($data);

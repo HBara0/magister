@@ -312,7 +312,13 @@ class Budgets extends AbstractClass {
                     $this->errorcode = 0;
                 }
                 else {
-                    $errorcodebl = $budgetlineobj->create($data);
+                    $existingbudgetline = BudgetLines::get_data(array('bid' => $data['bid'], 'altCid' => $data['altCid'], 'pid' => $data['pid'], 'saleType' => $data['saleType']), array('returnarray' => false));
+                    if(is_object($existingbudgetline)) {
+                        $errorcodebl = $existingbudgetline->update($data);
+                    }
+                    else {
+                        $errorcodebl = $budgetlineobj->create($data);
+                    }
                     $errorcodeint = $budgetlineobj->save_interco_line($data);
                     if(!is_empty($errorcodeint, $errorcodebl)) {
                         $this->errorcode = 3;
