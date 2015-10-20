@@ -204,7 +204,7 @@ class Budgets extends AbstractClass {
         if(empty($bid)) {
             $bid = $this->data['bid'];
         }
-        // if the 2 budgetline are linked together
+// if the 2 budgetline are linked together
         if(is_array($budgetline_data)) {
             foreach($budgetline_data as $blid => $data) {
                 if(!isset($data['bid']) && empty($data['bid'])) {
@@ -594,7 +594,7 @@ class Budgets extends AbstractClass {
                 if(!in_array($this->data['spid'], $core->user['auditfor'])) {
                     if(is_array($core->user['auditedaffids'])) {
                         if(!in_array($this->data['affid'], $core->user['auditedaffids'])) {
-                            //if user is coordinator append more options
+//if user is coordinator append more options
                             $segmentscoords = ProdSegCoordinators::get_data(array('uid' => $core->user['uid']), array('returnarray' => true));
                             if(is_array($segmentscoords)) {
                                 $psids = array();
@@ -619,7 +619,12 @@ class Budgets extends AbstractClass {
                                                             }
                                                         }
                                                         if(is_array($affids)) {
-                                                            $core->user['suppliers']['affid'][$entity->eid] = array_unique(array_merge($core->user['suppliers']['affid'][$entity->eid], $affids));
+                                                            if(is_array($core->user['suppliers']['affid'][$entity->eid])) {
+                                                                $core->user['suppliers']['affid'][$entity->eid] = array_unique(array_merge($core->user['suppliers']['affid'][$entity->eid], $affids));
+                                                            }
+                                                            else {
+                                                                $core->user['suppliers']['affid'][$entity->eid] = array_unique($affids);
+                                                            }
                                                         }
                                                     }
                                                 }

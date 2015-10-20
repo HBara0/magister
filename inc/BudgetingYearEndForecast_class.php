@@ -357,7 +357,7 @@ class BudgetingYearEndForecast extends AbstractClass {
                 foreach($removed_lines as $removedblid) {
                     if(!empty($removedblid)) {
                         $yeflineobj = new BudgetingYEFLines($removedblid);
-                        if(!empty($yeflineobj->blid)) {
+                        if(!empty($yeflineobj->yeflid)) {
                             $yeflineobj->delete();
                             $yeflineobj->delete_interco_line();
                         }
@@ -441,7 +441,12 @@ class BudgetingYearEndForecast extends AbstractClass {
                                                             }
                                                         }
                                                         if(is_array($affids)) {
-                                                            $core->user['suppliers']['affid'][$entity->eid] = array_unique(array_merge($core->user['suppliers']['affid'][$entity->eid], $affids));
+                                                            if(is_array($core->user['suppliers']['affid'][$entity->eid])) {
+                                                                $core->user['suppliers']['affid'][$entity->eid] = array_unique(array_merge($core->user['suppliers']['affid'][$entity->eid], $affids));
+                                                            }
+                                                            else {
+                                                                $core->user['suppliers']['affid'][$entity->eid] = array_unique($affids);
+                                                            }
                                                         }
                                                     }
                                                 }
