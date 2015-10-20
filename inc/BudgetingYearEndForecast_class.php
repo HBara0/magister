@@ -425,7 +425,12 @@ class BudgetingYearEndForecast extends AbstractClass {
                                                             }
                                                         }
                                                         if(is_array($affids)) {
-                                                            $core->user['suppliers']['affid'][$entity->eid] = array_unique(array_merge($core->user['suppliers']['affid'][$entity->eid], $affids));
+                                                            if(is_array($core->user['suppliers']['affid'][$entity->eid])) {
+                                                                $core->user['suppliers']['affid'][$entity->eid] = array_unique(array_merge($core->user['suppliers']['affid'][$entity->eid], $affids));
+                                                            }
+                                                            else {
+                                                                $core->user['suppliers']['affid'][$entity->eid] = array_unique($affids);
+                                                            }
                                                         }
                                                     }
                                                 }
