@@ -264,7 +264,7 @@ class BudgetLines {
                 return false;
             }
 
-            $sql = "SELECT * FROM ".Tprefix."budgeting_budgets_lines WHERE pid='".$data['pid']."' AND cid='".$data['cid']."' AND altCid='".$db->escape_string($data['altCid'])."' AND saleType='".$data['saleType']."' AND bid='".$data['bid']."' AND customerCountry='".$data['customerCountry']."' AND psid='".$data['psid']."' AND businessMgr='".$data['businessMgr']."'";
+            $sql = "SELECT * FROM ".Tprefix."budgeting_budgets_lines WHERE pid='".$data['pid']."' AND cid='".$data['cid']."' AND altCid='".$db->escape_string($data['altCid'])."' AND saleType='".$data['saleType']."' AND bid='".$data['bid']."' AND customerCountry='".$data['customerCountry']."' AND psid='".$data['psid']."'";
             if(isset($data['linkedBudgetLine']) && !empty($data['linkedBudgetLine'])) {
                 $sql .= " AND linkedBudgetLine='".$data['linkedBudgetLine']."'";
             }

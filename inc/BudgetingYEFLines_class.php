@@ -8,7 +8,7 @@ class BudgetingYEFLines extends AbstractClass {
     const PRIMARY_KEY = 'yeflid';
     const TABLE_NAME = 'budgeting_yef_lines';
     const SIMPLEQ_ATTRS = '*';
-    const UNIQUE_ATTRS = 'yefid,pid,cid,saleType,linkedBudgetLine,blid';
+    const UNIQUE_ATTRS = 'yefid,pid,cid,altCid,saleType,linkedBudgetLine,blid';
     const CLASSNAME = __CLASS__;
     const DISPLAY_NAME = '';
     const REQUIRED_ATTRS = 'yefid,saleType,inputCheckSum';

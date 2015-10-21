@@ -72,7 +72,7 @@ Abstract class AbstractClass {
         if(is_array($unique_attrs)) {
             foreach($unique_attrs as $attr) {
                 $attr = trim($attr);
-                if(empty($data[$attr])) {
+                if(empty($data[$attr]) && $data[$attr] != 0) {
                     $checks = null;
                     break;
                 }
