@@ -310,7 +310,10 @@ else {
                                     if(is_object($currency)) {
                                         $currency_output = $currency->get_displayname();
                                     }
-                                    output_xml('<status>false</status><message>'.$lang->sprint($lang->noexchangerate, $currency_output, $budgetsdata['toCurrency'], $budget_obj->year).'</message>');
+                                    $tocurrency = new Currencies($budgetline->originalCurrency);
+                                    if(is_object($tocurrency)) {
+                                        $budgetsdata['toCurrency'] = $tocurrency->get_displayname();
+                                    } output_xml('<status>false</status><message>'.$lang->sprint($lang->noexchangerate, $currency_output, $budgetsdata['toCurrency'], $budget_obj->year).'</message>');
                                     exit;
                                 }
                             }
