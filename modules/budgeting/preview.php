@@ -131,7 +131,17 @@ if(!($core->input['action'])) {
                                     }
                                 }
                                 else {
-                                    error($lang->sprint($lang->noexchangerate, $budgetline->originalCurrency, $budgetsdata['toCurrency'], $budget_obj->year), $_SERVER['HTTP_REFERER']);
+                                    $fromcurrency = new Currencies($budgetline->originalCurrency);
+                                    $fromcurrency_output = $budgetline->originalCurrency;
+                                    if(is_object($fromcurrency)) {
+                                        $fromcurrency_output = $fromcurrency->get_displayname();
+                                    }
+                                    $tocurrency = new Currencies($budgetsdata['toCurrency']);
+                                    $tocurrency_output = $budgetline->originalCurrency;
+                                    if(is_object($tocurrency)) {
+                                        $tocurrency_output = $tocurrency->get_displayname();
+                                    }
+                                    error($lang->sprint($lang->noexchangerate, $fromcurrency_output, $tocurrency_output, $budget_obj->year), $_SERVER['HTTP_REFERER']);
                                 }
                             }
                             /* get the currency rate of the Origin currency  of the current buudget - START */
