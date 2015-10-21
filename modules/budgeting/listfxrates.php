@@ -33,7 +33,7 @@ if(!$core->input['action']) {
                     'filterKey' => 'bfxid',
                     'mainTable' => array(
                             'name' => 'budgeting_fxrates',
-                            'filters' => array('affiliate' => array('operatorType' => 'multiple', 'name' => 'affid'), 'year', 'fromCurrency' => array('operatorType' => 'multiple', 'name' => 'fromCurrency'), 'toCurrency' => array('operatorType' => 'multiple', 'name' => 'toCurrency'), 'rate')
+                            'filters' => array('affiliate' => array('operatorType' => 'multiple', 'name' => 'affid'), 'year' => array('name' => 'year'), 'fromCurrency' => array('operatorType' => 'multiple', 'name' => 'fromCurrency'), 'toCurrency' => array('operatorType' => 'multiple', 'name' => 'toCurrency'), 'rate')
                     ),
             )
     );
