@@ -76,6 +76,8 @@ class BudgetingYEFLines extends AbstractClass {
             $product = new Products($table_array['pid']);
             $table_array['psid'] = $product->get_segment()['psid'];
         }
+
+        $this->split_income($data);
         $query = $db->insert_query(self::TABLE_NAME, $table_array);
         if($query) {
             $this->data = $table_array;
