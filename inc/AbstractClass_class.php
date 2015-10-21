@@ -68,15 +68,17 @@ Abstract class AbstractClass {
                 return $object->update($data);
             }
         }
-        $unique_attrs = explode(',', static::UNIQUE_ATTRS);
-        if(is_array($unique_attrs)) {
-            foreach($unique_attrs as $attr) {
-                $attr = trim($attr);
-                if(empty($data[$attr]) && $data[$attr] != 0) {
-                    $checks = null;
-                    break;
+        if(!empty(static::UNIQUE_ATTRS)) {
+            $unique_attrs = explode(',', static::UNIQUE_ATTRS);
+            if(is_array($unique_attrs)) {
+                foreach($unique_attrs as $attr) {
+                    $attr = trim($attr);
+                    if(empty($data[$attr]) && $data[$attr] != 0) {
+                        $checks = null;
+                        break;
+                    }
+                    $checks[$attr] = $data[$attr];
                 }
-                $checks[$attr] = $data[$attr];
             }
         }
         if(is_array($checks)) {

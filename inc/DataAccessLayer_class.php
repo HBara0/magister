@@ -142,7 +142,7 @@ class DataAccessLayer {
         /* Improve to have multiple orders */
         if(!is_array($order)) {
             if(!empty($order)) {
-                return ' ORDER BY '.$db->escape_string($order).' ASC';
+                return ' ORDER BY '.$db->escape_string($order);
             }
             return false;
         }

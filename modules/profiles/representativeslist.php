@@ -1,13 +1,11 @@
 <?php
 /*
- * Orkila Central Online System (OCOS)
- * Copyright © 2011 Orkila International Offshore, All Rights Reserved
- * List representatives
- * $module: profiles
- * $id: representativeslist.php
+ * Copyright © 2015 Orkila International Offshore, All Rights Reserved
  *
- * Created:	   @najwa.kassem	August 02, 2011 | 9:37 AM
- * Last Update: @zaher.reda 	August 11, 2011 | 09:08 AM
+ * [Provide Short Descption Here]
+ * $id: rep.php
+ * Created:        @hussein.barakat    Oct 21, 2015 | 9:40:16 AM
+ * Last Update:    @hussein.barakat    Oct 21, 2015 | 9:40:16 AM
  */
 
 if(!defined('DIRECT_ACCESS')) {
@@ -15,118 +13,155 @@ if(!defined('DIRECT_ACCESS')) {
 }
 
 if(!$core->input['action']) {
-    $sort_query = 'name ASC';
+    $sort_query = 'isActive DESC';
 
     if(isset($core->input['sortby'], $core->input['order'])) {
-        $sort_query = $db->escape_string($core->input['sortby']).' '.$db->escape_string($core->input['order']);
+        $sort_query .= $db->escape_string(', '.$core->input['sortby']).' '.$db->escape_string($core->input['order']);
     }
 
     $sort_url = sort_url();
-    $limit_start = 0;
-    /* if(!isset($core->input['id']) || empty($core->input['id'])) {
-      redirect("index.php?module=profiles/supplierslist");
-      } */
+    /* Perform inline filtering - START */
+    $filters_config = array(
+            'parse' => array('filters' => array('name', 'email', 'telephone', 'userpermentities', 'position'),
+                    'overwriteField' => array(
+                            'position' => '',
+                            'telephone' => '',
+                    )
+            ),
+            'process' => array(
+                    'filterKey' => 'rpid',
+                    'mainTable' => array(
+                            'name' => 'representatives',
+                            'filters' => array('name' => array('name' => 'name'), 'email' => array('name' => 'email')),
+                    ),
+                    'secTables' => array(
+                            'entitiesrepresentatives' => array(
+                                    'filters' => array('userpermentities' => array('operatorType' => 'equal', 'name' => 'eid')),
+                            ),
+                    )
+            )
+    );
 
-    if(isset($core->input['start'])) {
-        $limit_start = $db->escape_string($core->input['start']);
+    $filter = new Inlinefilters($filters_config);
+    $filter_where_values = $filter->process_multi_filters();
+    $filter_where = null;
+    if(is_array($filter_where_values)) {
+        $filters_row_display = 'show';
+        $filter_where = ' AND '.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
+        $multipage_where .= ' AND '.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
     }
 
-    if(isset($core->input['perpage']) && !empty($core->input['perpage'])) {
-        $core->settings['itemsperlist'] = $db->escape_string($core->input['perpage']);
-    }
+    $filters_row = $filter->prase_filtersrows(array('tags' => 'table', 'display' => $filters_row_display));
 
-    if($core->usergroup['canViewAllCust'] == 0) {
-        $multipage_where .= $permission_filter = ' AND e.eid IN (SELECT eid FROM '.Tprefix.'assignedemployees WHERE uid='.$core->user['uid'].')';
-    }
-
-    if(isset($core->input['filterby'], $core->input['filtervalue'])) {
-        switch($core->input['filterby']) {
-            case 'entityid': $filter_where = ' WHERE e.eid='.$db->escape_string($core->input['filtervalue']);
-                $multipage_where .= ' e.eid='.$db->escape_string($core->input['filtervalue']);
-                break;
-            case 'type': $filter_where = ' WHERE e.type="'.$db->escape_string($core->input['filtervalue']).'"';
-                $multipage_where .= ' e.type="'.$db->escape_string($core->input['filtervalue']).'"';
-                break;
-            default: break;
+    /* filter end */
+    $user = new Users($core->user['uid']);
+    $permissions = $user->get_businesspermissions();
+    if(is_array($permissions['eid'])) {
+        $entityrepresentatives = EntitiesRepresentatives::get_column('rpid', array('eid' => $permissions['eid']), array('returnarray' => true));
+        if(is_array($entityrepresentatives)) {
+            $permissionsfilter = 'rpid IN ('.implode(',', array_unique($entityrepresentatives)).') ';
         }
     }
-
-    $query = $db->query("SELECT r.*, e.companyName, er.eid
-						 FROM ".Tprefix."representatives r 
-						 JOIN ".Tprefix."entitiesrepresentatives er ON (r.rpid=er.rpid) 
-						 JOIN ".Tprefix."entities e ON (e.eid=er.eid)
-						 {$filter_where}{$permission_filter}
-						 ORDER BY {$sort_query}
-						 LIMIT {$limit_start}, {$core->settings[itemsperlist]}");
-
-    if($db->num_rows($query) > 0) {
-        while($representative = $db->fetch_assoc($query)) {
-            $row_class = alt_row($row_class);
-
-            $edit_link = '';
-            $edit_link = '<a href="#'.$representative['rpid'].'" id="editrepresentative_'.$representative['rpid'].'_profiles/representativeslist_loadpopupbyid"><img src="./images/icons/edit.gif" border="0" alt="'.$lang->edit.'"/></a>';
-
-            $position_query = $db->query("SELECT title FROM ".Tprefix."representativespositions rp JOIN ".Tprefix."positions p ON (rp.posid=p.posid) WHERE rp.rpid={$representative[rpid]} ORDER BY title ASC");
-            $positionslist = array();
-            if($db->num_rows($position_query) > 0) {
-                while($position = $db->fetch_assoc($position_query)) {
-                    $positionslist[] = $position['title'];
+    if(empty($permissionsfilter)) {
+        error($lang->noentitiesassigned);
+    }
+    $representatives = Representatives::get_data($permissionsfilter.$filter_where, array('returnarray' => true, 'order' => $sort_query));
+    if(is_array($representatives)) {
+        foreach($representatives as $representative_obj) {
+            if($representative_obj->isActive == 1) {
+                $rowclass = 'greenbackground';
+            }
+            $representative = $representative_obj->get();
+            $representativeassignedents = $representative_obj->get_entities_names();
+            if(is_array($representativeassignedents)) {
+                $representative['companyName'] = implode(', ', $representativeassignedents);
+            }
+            if($core->usergroup['canManageRepresentatives'] == 1 || $representative['createdBy'] == $core->user['uid']) {
+                $edit_link = "<a title=".$lang->editrepresentative." id='editrepresentative_".$representative['rpid']."_profiles/representativeslist_loadpopupbyid'><img src='".$core->settings[rootdir]."/images/icons/edit.gif' border='0'/></a>";
+                $edit_link .= "<a title='".$lang->deleterepresentative."' id='deleterepresentative_".$representative['rpid']."_profiles/representativeslist_loadpopupbyid'><img src='".$core->settings[rootdir]."/images/invalid.gif' border='0'/></a>";
+            }
+//            if($representative['isActive'] == 1) {
+//                $rowclass = 'greenbackground';
+//            }
+            $representative['positions'] = '-';
+            $rep_positions = RepresentativePositions::get_column('posid', array('rpid' => $representative['rpid']), array('returnarray' => true));
+            if(is_array($rep_positions)) {
+                $positions = Positions::get_column('title', array('posid' => $rep_positions), array('returnarray' => true));
+                if(is_array($positions)) {
+                    $representative['positions'] = implode(', ', $positions);
                 }
-                $representative['positions'] = implode(',', $positionslist);
             }
-            else {
-                $representative['positions'] = '-';
-            }
-
             eval("\$representatives_list .= \"".$template->get('profiles_representativeslist_representativerow')."\";");
+            unset($edit_link, $rowclass, $rep_positions);
         }
-
-        $multipages = new Multipages('representatives r 
-									  JOIN '.Tprefix.'entitiesrepresentatives er ON (r.rpid=er.rpid) 
-						 		     JOIN '.Tprefix.'entities e ON (e.eid=er.eid)', $core->settings['itemsperlist'], $multipage_where);
-        $representatives_list .= '<tr><td colspan="6">'.$multipages->parse_multipages().'</td></tr>';
     }
     else {
         $representatives_list = '<tr><td colspan="6">'.$lang->nomatchfound.'</td></tr>';
     }
+    $sequence = 1;
+    $inputname = 'entities[]';
+    eval("\$companieslist = \"".$template->get('autocomplete_representativentity')."\";");
+    unset($representative);
+    $positions = Positions::get_data('', array('returnarray' => true, 'order' => 'name'));
+    $representative['positions'] = parse_selectlist('positions[]', 1, $positions, $representative_positions, 1);
 
+    $segments = get_specificdata('productsegments', array('psid', 'title'), 'psid', 'title', array('by' => 'title', 'sort' => 'ASC'), 0, '');
+    $representative['segments'] = parse_selectlist('segments[]', 1, $segments, $representative_segments, 1);
+    eval("\$create = \"".$template->get("popup_profiles_representativeslist_edit")."\";");
     eval("\$listpage = \"".$template->get('profiles_representativeslist')."\";");
     output_page($listpage);
 }
 else {
-    if($core->input['action'] == 'get_editrepresentative') {
-        $rpid = $db->escape_string($core->input['id']);
-
-        $representative = $db->fetch_assoc($query = $db->query("SELECT * FROM representatives WHERE rpid={$rpid}"));
-
-        $entity = $db->fetch_assoc($db->query("SELECT e.companyName, er.eid, e.type FROM ".Tprefix."entities e JOIN ".Tprefix."entitiesrepresentatives er ON (e.eid=er.eid) WHERE er.rpid={$rpid}"));
-        if($entity['type'] == 'c') {
-            $type = 'customer';
+    if($core->input['action'] == 'get_deleterepresentative') {
+        $rpid = intval($core->input['id']);
+        $representative = new Representatives($rpid);
+        $deletemessage = $lang->deleterep.$representative->get_displayname();
+        eval("\$deleterep = \"".$template->get("popup_profiles_representativeslist_delete")."\";");
+        echo $deleterep;
+    }
+    elseif($core->input['action'] == 'do_delete') {
+        $rpid = intval($core->input['rpid']);
+        $representative = new Representatives($rpid);
+        $deleted = $representative->delete_representative();
+        if($deleted) {
+            output_xml("<status>true</status><message>{$lang->successfullydeleted}</message>");
+            exit;
         }
         else {
-            $type = 'supplier';
+            output_xml("<status>false</status><message>{$lang->representativeisused}</message>");
+            exit;
         }
-
-        $representative['entity'] = $db->fetch_field($db->query("SELECT companyName FROM ".Tprefix."entities e JOIN ".Tprefix."entitiesrepresentatives er ON (e.eid=er.eid) WHERE er.rpid={$rpid}"), 'companyName');
-        $representative['eid'] = $db->fetch_field($db->query("SELECT eid FROM ".Tprefix."entitiesrepresentatives WHERE rpid={$rpid}"), 'eid');
-
-        $representative_positions = get_specificdata('representativespositions rp JOIN positions p ON (rp.posid=p.posid)', 'p.posid', 'posid', 'posid', '', 0, "rp.rpid={$rpid}");
-        $representative_segments = get_specificdata('representativessegments rs JOIN productsegments ps ON (rs.psid=ps.psid)', 'ps.psid', 'psid', 'psid', '', 0, "rs.rpid={$rpid}");
-
+    }
+    elseif($core->input['action'] == 'get_editrepresentative') {
+        $rpid = intval($core->input['id']);
+        $representative_obj = new Representatives($rpid);
+        $representative = $representative_obj->get();
+        $entities = $representative_obj->get_entities();
+        if(is_array($entities)) {
+            $rownum = 0;
+            foreach($entities as $entity_obj) {
+                $valuename = $entity_obj->get_displayname();
+                $valueid = $entity_obj->eid;
+                $inputname = 'entities['.$valueid.']';
+                $rownum++;
+                $companieslist.='<tr>';
+                eval("\$companieslist .= \"".$template->get('autocomplete_representativentity')."\";");
+                $companieslist.='</tr>';
+            }
+        }
         $phones_index = array('phone');
         foreach($phones_index as $val) {
-
             $phone[$val] = explode('-', $representative[$val]);
             $representative[$val] = array();
-
             $representative[$val]['intcode'] = $phone[$val][0];
             $representative[$val]['areacode'] = $phone[$val][1];
             $representative[$val]['number'] = $phone[$val][2];
         }
-
-        $positions = get_specificdata('positions', array('posid', 'title'), 'posid', 'title', array('by' => 'title', 'sort' => 'ASC'), 0, '');
+        $representative_positions = RepresentativePositions::get_column('posid', array('rpid' => $rpid), array('returnarray' => true));
+        $positions = Positions::get_data('', array('returnarray' => true, 'order' => 'name'));
         $representative['positions'] = parse_selectlist('positions[]', 1, $positions, $representative_positions, 1);
 
+        $representative_segments = RepresentativesSegments::get_column('psid', array('rpid' => $rpid), array('returnarray' => true));
         $segments = get_specificdata('productsegments', array('psid', 'title'), 'psid', 'title', array('by' => 'title', 'sort' => 'ASC'), 0, '');
         $representative['segments'] = parse_selectlist('segments[]', 1, $segments, $representative_segments, 1);
 
@@ -134,7 +169,7 @@ else {
         echo $editbox;
     }
     elseif($core->input['action'] == 'do_edit') {
-        if(is_empty($core->input['name'], $core->input['email'], $core->input['eid'])) {
+        if(is_empty($core->input['name'], $core->input['email'], $core->input['entities'])) {
             output_xml("<status>false</status><message>{$lang->fillrequiredfields}</message>");
             exit;
         }
@@ -157,42 +192,52 @@ else {
             }
         }
 
-        $rpid = $db->escape_string($core->input['rpid']);
         $representative = array(
                 'name' => $core->input['name'],
                 'email' => $core->input['email'],
                 'phone' => $core->input['phone']
         );
+        if(!empty($core->input['rpid'])) {
+            $representative['rpid'] = $db->escape_string($core->input['rpid']);
+        }
+        $repobj = new Representatives();
+        $repobj->set($representative);
+        $repobj = $repobj->save();
 
-        $representative_query = $db->update_query('representatives', $representative, "rpid={$rpid}");
+        if($repobj->get_errorcode() == 0) {
+            $rpid = $repobj->rpid;
 
-        if($representative_query) {
             /* Clean up - Start */
             $db->delete_query('entitiesrepresentatives', "rpid={$rpid}");
             /* Clean up - End */
-            $query = $db->insert_query('entitiesrepresentatives', array('eid' => $core->input['eid'], 'rpid' => $rpid), "rpid={$rpid}");
+            if(is_array($core->input['entities'])) {
+                foreach($core->input['entities'] as $eid) {
+                    $entrep = new EntitiesRepresentatives();
+                    $entrep->set(array('rpid' => $rpid, 'eid' => $eid));
+                    $entrep->save();
+                }
+            }
             //$query = $db->update_query('entitiesrepresentatives', array('eid' => $core->input['eid']), "rpid={$rpid}");
 
-            if($query) {
-                if(is_array($core->input['positions'])) {
-                    $db->delete_query('representativespositions', "rpid='{$rpid}'");
-                    foreach($core->input['positions'] as $key => $val) {
-                        $position = $db->insert_query('representativespositions', array('posid' => $val, 'rpid' => $rpid));
-                    }
+            if(is_array($core->input['positions'])) {
+                $db->delete_query('representativespositions', "rpid='{$rpid}'");
+                foreach($core->input['positions'] as $key => $val) {
+                    $position = $db->insert_query('representativespositions', array('posid' => $val, 'rpid' => $rpid));
                 }
+            }
 
-                if(is_array($core->input['segments'])) {
-                    $db->delete_query('representativessegments', "rpid='{$rpid}'");
-                    foreach($core->input['segments'] as $key => $val) {
-                        $db->insert_query('representativessegments', array('psid' => $val, 'rpid' => $rpid));
-                    }
+            if(is_array($core->input['segments'])) {
+                $db->delete_query('representativessegments', "rpid='{$rpid}'");
+                foreach($core->input['segments'] as $key => $val) {
+                    $db->insert_query('representativessegments', array('psid' => $val, 'rpid' => $rpid));
                 }
             }
             output_xml("<status>true</status><message>{$lang->updatedsuccessfully}</message>");
+            exit;
         }
         else {
             output_xml("<status>false</status><message>{$lang->updateerror}</message>");
+            exit;
         }
     }
 }
-?>
