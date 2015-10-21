@@ -99,34 +99,69 @@ if(!$core->input['action']) {
         $overwrite_fields .= '</tr>';
     }
     $pagename = 'massupdate';
+    $lineidname = 'blid';
     eval("\$massupdate = \"".$template->get('budgeting_massupdate')."\";");
     output_page($massupdate);
 }
 else {
     if($core->input['action'] == 'do_massupdate') {
-
-
-
         $budgetfilter_where = $core->input['budget']['filter'];
 
         $filterline_where = $core->input['budget']['filterline'];
         $attribute = ($core->input['budget']['overwrite']['attribute']);
         unset($core->input['budget']['overwrite']['attribute']);
         $overwrite_fields = $core->input['budget']['overwrite'];
+        if(!empty($filterline_where['blid'])) {
+            $filterline_where['blid'] = explode(',', trim($filterline_where['blid']));
+            if(is_array($filterline_where['blid'])) {
+                $filterline_where['blid'] = array_map(intval, $filterline_where['blid']);
+                $filterline_where['blid'] = array_filter($filterline_where['blid']);
 
-        $checkfilter_array = array('affid', 'spid', 'year');
-        foreach($checkfilter_array as $filterval) {
-            if(empty($budgetfilter_where[$filterval])) {
-                output_xml('<status>false</status><message>'.$lang->fillrequiredfields.'!</message>');
-                exit;
+                $budgetline_wherecondition = ' AND blid IN ('.implode(',', $filterline_where['blid']).')';
+            }
+            else {
+                if(!is_numeric($filterline_where['blid']) || $filterline_where['blid'] == 0) {
+                    output_xml('<status>false</status><message>'.$lang->fillrequiredfields.'!</message>');
+                    exit;
+                }
             }
         }
+        else {
+            $checkfilter_array = array('affid', 'spid', 'year');
+            foreach($checkfilter_array as $filterval) {
+                if(empty($budgetfilter_where[$filterval])) {
+                    output_xml('<status>false</status><message>'.$lang->fillrequiredfields.'!</message>');
+                    exit;
+                }
+            }
 
-        $checkfilterline_array = array('businessMgr', 'saleType');
-        foreach($checkfilterline_array as $filterval) {
-            if(empty($filterline_where[$filterval])) {
-                output_xml('<status>false</status><message>'.$lang->fillrequiredfields.' '.$filterval.'</message>');
-                exit;
+            $checkfilterline_array = array('businessMgr', 'saleType');
+            foreach($checkfilterline_array as $filterval) {
+                if(empty($filterline_where[$filterval])) {
+                    output_xml('<status>false</status><message>'.$lang->fillrequiredfields.' '.$filterval.'</message>');
+                    exit;
+                }
+            }
+
+            if(is_array($budgetfilter_where)) {
+                $budget_wherecondition = ' WHERE ';
+                foreach($budgetfilter_where as $attr => $filter) {
+                    if(is_array($filter)) {
+                        $budget_wherecondition .= $and.$attr.' IN ('.implode(',', $filter).')';
+                        $and = ' AND ';
+                        unset($budget_where);
+                    }
+                }
+            }
+
+            /* filter budget lines */
+            if(is_array($filterline_where)) {
+                $and = ' AND ';
+                foreach($filterline_where as $attr => $filterline) {
+                    if(is_array($filterline)) {
+                        $budgetline_wherecondition .= $and.$attr.' IN ('.implode(',', $filterline).')';
+                    }
+                }
             }
         }
 
@@ -140,26 +175,6 @@ else {
             foreach($overwrites_fieldstocheck as $attrfields) {
                 if(!isset($attribute[$attrfields])) {
                     unset($overwrite_fields['value'][$attrfields]);
-                }
-            }
-        }
-        if(is_array($budgetfilter_where)) {
-            $budget_wherecondition = ' WHERE ';
-            foreach($budgetfilter_where as $attr => $filter) {
-                if(is_array($filter)) {
-                    $budget_wherecondition .= $and.$attr.' IN ('.implode(',', $filter).')';
-                    $and = ' AND ';
-                    unset($budget_where);
-                }
-            }
-        }
-
-        /* filter budget lines */
-        if(is_array($filterline_where)) {
-            $and = ' AND ';
-            foreach($filterline_where as $attr => $filterline) {
-                if(is_array($filterline)) {
-                    $budgetline_wherecondition .= $and.$attr.' IN ('.implode(',', $filterline).')';
                 }
             }
         }
@@ -185,8 +200,8 @@ else {
 
         /* acquire all rows which will be affected, */
         $budgetlines_notaffectedobjs = BudgetLines::get_data('bid IN (SELECT bid FROM budgeting_budgets '.$budget_wherecondition.')'.$budgetline_wherecondition, array('returnarray' => true));
-
-        $query = $db->query('UPDATE '.Tprefix.'budgeting_budgets_lines SET '.$updatequery_set.' WHERE bid IN (SELECT bid FROM budgeting_budgets '.$budget_wherecondition.')'.$budgetline_wherecondition);
+        $sql = 'UPDATE '.Tprefix.'budgeting_budgets_lines SET '.$updatequery_set.' WHERE bid IN (SELECT bid FROM budgeting_budgets '.$budget_wherecondition.')'.$budgetline_wherecondition;
+        $query = $db->query($sql);
         if($query) {
             $affectedrows = $db->affected_rows();
             $filename = generate_checksum();
