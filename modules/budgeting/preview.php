@@ -476,7 +476,8 @@ if(!($core->input['action'])) {
                                     }
                                 }
                                 else {
-                                    error($lang->currencynotexist.' '.$budgetline['originalCurrency'].' ('.$budget['affiliate'].')', $_SERVER['HTTP_REFERER']);
+                                    $currency = new Currencies($budgetline['originalCurrency']);
+                                    error($lang->currencynotexist.' '.$currency->get_displayname().' ('.$budget['affiliate'].')', $_SERVER['HTTP_REFERER']);
                                 }
                             }
                             if($core->usergroup['budgeting_canFillLocalIncome'] == 1) {
