@@ -484,7 +484,10 @@ function parse_yefline($data, $readonly = '', $source, $rownums, $supplier) {
 
                 if($budgetline['fromBudget'] == 1 || $source == 'budget' || $budgetline['source'] == 'userprevlines') {
                     $purchasefromaff = '<input type="text" disabled value = "'.$budgetline['interCompanyPurchase_output'].'" ><input type = "hidden" value = "'.$budgetline['interCompanyPurchase'].'" id = "affiliate_noexception_'.$rowid.'_id" name = "budgetline['.$rowid.'][interCompanyPurchase]" />';
-                    $purchasingentity_selectlist = '<input type="text" disabled value = "'.$purchase_selectlistdata[$budgetline['purchasingEntity']].'" name = "purchasenetitytname"><input type = "hidden" value="'.$budgetline['purchasingEntity'].'" name = "budgetline['.$rowid.'][purchasingEntity]">';
+                    //$purchasingentity_selectlist = '<input type="text"  value = "'.$purchase_selectlistdata[$budgetline['purchasingEntity']].'" name = "purchasenetitytname"><input type = "hidden" value="'.$budgetline['purchasingEntity'].'" name = "budgetline['.$rowid.'][purchasingEntity]">';
+                    $purchase_selectlistdata = array('alex' => 'Orkila FZ - Alex', 'fze' => 'Orkila Jebel Ali FZE', 'int' => 'Orkila International', 'customer' => 'Customer', 'direct' => $yef_data['affiliateName']);
+                    $purchasingentity_selectlist = parse_selectlist('budgetline['.$rowid.'][purchasingEntity]', 0, $purchase_selectlistdata, $budgetline['purchasingEntity'], '', '', array('id' => 'purchasingEntity_'.$rowid));
+
                     $saletype_selectlist = '<input type="text" disabled value="'.$saletype_selectlistdata[$saleid].'" name = "saletypename"><input type = "hidden" value = "'.$saleid.'" name = "budgetline['.$rowid.'][saleType]">';
                     $invoice_selectlist = '<input type="text" disabled value="'.$invoice_selectlistdata[$budgetline['invoice']].'" name = "invoicename"><input type = "hidden" value = "'.$budgetline['invoice'].'" name = "budgetline['.$rowid.'][invoice]">';
                 }

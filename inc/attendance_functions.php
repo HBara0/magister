@@ -734,11 +734,11 @@ function parse_attendance_reports($core, $headerinc = '', $header = '', $menu = 
         $holiday_todate_details = $todate_details;
 
         /* If multiple years, make end month as 12 to include all */
-        $holidays_query_where = parse_holidayswhere($fromdate_details, $todate_details);
-        if(!empty($core->user[mainaffiliate])) {
+        $holidays_query_where = ' AND ('.parse_holidayswhere($fromdate_details, $todate_details).') ';
+        if(!empty($core->user['mainaffiliate'])) {
             $holiday_query = $db->query("SELECT *
                                         FROM ".Tprefix."holidays
-                                        WHERE affid = {$core->user[mainaffiliate]} AND ({$holidays_query_where})
+                                        WHERE affid = {$core->user[mainaffiliate]} ".$holidays_query_where."
                                         AND hid NOT IN (SELECT hid FROM ".Tprefix."holidaysexceptions WHERE uid={$uid})");
 
 
@@ -1393,7 +1393,7 @@ function parse_attendance_reports($core, $headerinc = '', $header = '', $menu = 
                 'message' => $output,
                 'to' => $core->input['emailto'],
         );
-        print_r($output);
+
         $mail = new Mailer($email_data, 'php');
         if($mail->get_status() === true) {
             $log->record($lang->monthlyattendancelog, $email_data['to']);

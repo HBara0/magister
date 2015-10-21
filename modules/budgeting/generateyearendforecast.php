@@ -52,7 +52,7 @@ if(!$core->input['action']) {
                     }
                 }
             }
-            $employeesegments_usersids = AssignedEmployees::get_data('psid IN ('.implode(',', $psids).') AND gid != 7 ', array('returnarray' => true));
+            $employeesegments_usersids = EmployeeSegments::get_data('psid IN ('.implode(',', $psids).') AND uid IN(SELECT uid FROM '.Tprefix.'users WHERE gid != 7) ', array('returnarray' => true));
             if(is_array($employeesegments_usersids)) {
                 foreach($employeesegments_usersids as $user) {
                     $segmentusers[$user->uid] = $user->get_displayname();
@@ -291,7 +291,7 @@ else {
                             $budget_currencies[$budgetline->blid] = $budgetline->originalCurrency;
                             /* get the currency rate of the Origin currency  of the current buudget and convert it - START */
                             if($budgetline->originalCurrency != $budgetsdata[$field]['toCurrency']) {
-                                $fxrates_obj = BudgetFxRates::get_data(array('fromCurrency' => $budgetline->originalCurrency, 'toCurrency' => $budgetsdata[$field]['toCurrency'], 'affid' => $budget_obj->affid, 'year' => $budget_obj->year), $dal_config);
+                                $fxrates_obj = BudgetFxRates::get_data(array('fromCurrency' => $budgetline->originalCurrency, 'toCurrency' => $budgetsdata[$field]['toCurrency'], 'affid' => $budget_obj->affid, 'year' => $budget_obj->year, 'isYef' => 1), $dal_config);
                                 if(is_array($fxrates_obj)) {
                                     if($field !== 'current') {
                                         $budgetline->amount = $budgetline->actualAmount;
@@ -305,7 +305,13 @@ else {
                                     }
                                 }
                                 else {
-                                    error($lang->sprint($lang->noexchangerate, $budgetline->originalCurrency, $budgetsdata['toCurrency'], $budget_obj->year), $_SERVER['HTTP_REFERER']);
+                                    $currency = new Currencies($budgetline->originalCurrency);
+                                    $currency_output = $budgetline->originalCurrency;
+                                    if(is_object($currency)) {
+                                        $currency_output = $currency->get_displayname();
+                                    }
+                                    output_xml('<status>false</status><message>'.$lang->sprint($lang->noexchangerate, $currency_output, $budgetsdata['toCurrency'], $budget_obj->year).'</message>');
+                                    exit;
                                 }
                             }
                             /* get the currency rate of the Origin currency  of the current buudget - START */
@@ -473,7 +479,13 @@ else {
                                     }
                                 }
                                 else {
-                                    error($lang->currencynotexist.' '.$budgetline['originalCurrency'].' ('.$budget['affiliate'].')', $_SERVER['HTTP_REFERER']);
+                                    $currency = new Currencies($budgetline['originalCurrency']);
+                                    $currency_output = $budgetline->originalCurrency;
+                                    if(is_object($currency)) {
+                                        $currency_output = $currency->get_displayname();
+                                    }
+                                    output_xml('<status>false</status><message>'.$lang->sprint($lang->currencynotexistvar, $currency_output).' (YEF - '.$budget['affiliate'].')</message>');
+                                    exit;
                                 }
                             }
                             if($core->usergroup['budgeting_canFillLocalIncome'] == 1) {
@@ -506,15 +518,15 @@ else {
                             $budgetline['product'] = $budgetline_obj->get_product()->name;
                             $monthfields = array('october', 'november', 'december');
                             foreach($monthfields as $month) {
-                                $budgetline[$month.'qty'] = $budgetline['quantity'] * ($budgetline[$month] / 100);
-                                $budgetline[$month.'amt'] = $budgetline['amount'] * ($budgetline[$month] / 100);
-                                $budgetline[$month.'inc'] = $budgetline['income'] * ($budgetline[$month] / 100);
-                                $total[$month.'amt']+=$budgetline[$month.'amt'];
-                                $total[$month.'inc']+= $budgetline[$month.'inc'];
+                                $budgetline[$month.'qty'] = round($budgetline['quantity'] * ($budgetline[$month] / 100), 2);
+                                $budgetline[$month.'amt'] = round($budgetline['amount'] * ($budgetline[$month] / 100), 2);
+                                $budgetline[$month.'inc'] = round($budgetline['income'] * ($budgetline[$month] / 100), 2);
+                                $total[$month.'amt'] += $budgetline[$month.'amt'];
+                                $total[$month.'inc'] += $budgetline[$month.'inc'];
                             }
-                            $total['amount']+= $budgetline['amount'];
-                            $total['unitPrice']+= $budgetline['unitPrice'];
-                            $total['income']+= $budgetline['income'];
+                            $total['amount'] += $budgetline['amount'];
+                            $total['unitPrice'] += $budgetline['unitPrice'];
+                            $total['income'] += $budgetline['income'];
                             $countrows++;
                             eval("\$budget_report_row .= \"".$template->get('budgeting_yefrawreport_row')."\";");
                         }
@@ -535,6 +547,7 @@ else {
                 $rowclass = 'thead';
                 $budget['managerid'] = '#';
                 $budget['manager'] = 'TOTAL';
+                $customername = '';
                 if(!empty($countrows)) {
                     $budgetline['unitPrice'] = 'Avg '.number_format($total['unitPrice'] / $countrows, 2);
                 }
