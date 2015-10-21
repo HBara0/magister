@@ -28,11 +28,35 @@ class EntitiesRepresentatives extends AbstractClass {
     }
 
     public function create(array $data) {
-        ;
+        global $db, $core;
+        if(!$this->validate_requiredfields($data)) {
+            return false;
+        }
+        $fields = array('rpid', 'eid');
+        foreach($fields as $field) {
+            $table_array[$field] = $data[$field];
+        }
+
+        $query = $db->insert_query(self::TABLE_NAME, $table_array);
+        if($query) {
+            $this->data = $table_array;
+            $this->data[self::PRIMARY_KEY] = $db->last_id();
+        }
+        return $this;
     }
 
     public function update(array $data) {
+        global $db, $core;
+        if(!$this->validate_requiredfields($data)) {
+            return false;
+        }
+        $fields = array('eid', 'rpid', 'erpid');
+        foreach($fields as $field) {
+            $update_array[$field] = $data[$field];
+        }
 
+        $db->update_query(self::TABLE_NAME, $update_array, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
+        return $this;
     }
 
     public function get_entity() {
