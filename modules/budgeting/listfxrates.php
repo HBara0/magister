@@ -56,40 +56,36 @@ if(!$core->input['action']) {
         if($filters_config['process']['filterKey'] == 'bfxid') {
             $filters_config['process']['filterKey'] = 'bfxid';
         }
-        $filter_where = ' '.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
+        $filter_where = ' AND '.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
     }
     $filters_row = $filter->prase_filtersrows(array('tags' => 'table', 'display' => $filters_row_display));
+    $filters = ' bfxid =0';
+    if(is_array($core->user['affiliates'])) {
+        $filters = 'affid IN('.implode(',', $core->user['affiliates']).')'.$filter_where;
+    }
 
-    foreach($core->user['affiliates'] as $affid) {
-        /* get fxrate for each affiliate */
-        if(!empty($filter_where)) { /* filter advaned search */
-            $filters = $filter_where;
-        }
-        else {
-            $filters = array('affid' => $affid);
-        }
-        $affilaite_budgetrateobjs = BudgetFxRates::get_data($filters, array('simple' => false, 'returnarray' => true));
-        $row_tools = '';
-        if(is_array($affilaite_budgetrateobjs)) {
-            foreach($affilaite_budgetrateobjs as $fxrate) {
-                $affiliate = new Affiliates($fxrate->affid);
-                $fromcurrency = new Currencies($fxrate->fromCurrency);
-                $tocurrency = new Currencies($fxrate->toCurrency);
-                $row_tools .= ' <a href="#'.$fxrate->bfxid.'" id="deleterate_'.$fxrate->bfxid.'_budgeting/listfxrates_loadpopupbyid" rel = "delete_'.$fxrate->bfxid.'" title = "'.$lang->delete.'"><img src = "'.$core->settings['rootdir'].'/images/invalid.gif" alt = "'.$lang->delete.'" border = "0"></a>';
-                $row_tools .= ' <a href="#'.$fxrate->bfxid.'" id="updaterate_'.$fxrate->bfxid.'_budgeting/listfxrates_loadpopupbyid" rel = "update_'.$fxrate->bfxid.'" title = "'.$lang->delete.'"><img src = "'.$core->settings['rootdir'].'/images/icons/edit.gif" alt = "'.$lang->delete.'" border = "0"></a>';
+    $affilaite_budgetrateobjs = BudgetFxRates::get_data($filters, array('simple' => false, 'returnarray' => true));
+    $row_tools = '';
+    if(is_array($affilaite_budgetrateobjs)) {
+        foreach($affilaite_budgetrateobjs as $fxrate) {
+            $affiliate = new Affiliates($fxrate->affid);
+            $fromcurrency = new Currencies($fxrate->fromCurrency);
+            $tocurrency = new Currencies($fxrate->toCurrency);
+            $row_tools .= ' <a href="#'.$fxrate->bfxid.'" id="deleterate_'.$fxrate->bfxid.'_budgeting/listfxrates_loadpopupbyid" rel = "delete_'.$fxrate->bfxid.'" title = "'.$lang->delete.'"><img src = "'.$core->settings['rootdir'].'/images/invalid.gif" alt = "'.$lang->delete.'" border = "0"></a>';
+            $row_tools .= ' <a href="#'.$fxrate->bfxid.'" id="updaterate_'.$fxrate->bfxid.'_budgeting/listfxrates_loadpopupbyid" rel = "update_'.$fxrate->bfxid.'" title = "'.$lang->delete.'"><img src = "'.$core->settings['rootdir'].'/images/icons/edit.gif" alt = "'.$lang->delete.'" border = "0"></a>';
 
-                $ratecategories = array('isActual', 'isYef', 'isBudget');
-                foreach($ratecategories as $ratecategory) {
-                    if(isset($fxrate->$ratecategory) && !empty($fxrate->$ratecategory)) {
-                        $fxrate->category_output = $lang->{strtolower($ratecategory)};
-                        break;
-                    }
+            $ratecategories = array('isActual', 'isYef', 'isBudget');
+            foreach($ratecategories as $ratecategory) {
+                if(isset($fxrate->$ratecategory) && !empty($fxrate->$ratecategory)) {
+                    $fxrate->category_output = $lang->{strtolower($ratecategory)};
+                    break;
                 }
-                eval("\$budgetfxratess_list .= \"".$template->get('budgeting_listfxrates_rows')."\";");
-                $row_tools = '';
             }
+            eval("\$budgetfxratess_list .= \"".$template->get('budgeting_listfxrates_rows')."\";");
+            $row_tools = '';
         }
     }
+
 
     /* Crate rates popup interface */
     $years = array_combine(range(date('Y') - 2, date('Y') + 1), range(date('Y') - 2, date('Y') + 1));
@@ -202,3 +198,60 @@ elseif($core->input['action'] == 'do_createrate') {
             break;
     }
 }
+//elseif($core->input['action'] == 'do_cleanup') {
+//    $fxlineids = BudgetFxRates::get_column('bfxid', '', array('returnarray' => true));
+//    if(is_array($fxlineids)) {
+//        $type_fields = array('isActual', 'isYef', 'isBudget');
+//        foreach($fxlineids as $bxfid) {
+//            if(!value_exists(BudgetFxRates::TABLE_NAME, BudgetFxRates::PRIMARY_KEY, $bxfid)) {
+//                continue;
+//            }
+//            $original_rate = new BudgetFxRates($bxfid);
+//            $original_array = $original_rate->get();
+//            unset($original_array[BudgetFxRates::PRIMARY_KEY]);
+//            $duplicatelines = BudgetFxRates::get_data(array($original_array), array('returnarray' => true));
+//            if(is_array($duplicatelines)) {
+//                foreach($duplicatelines as $duplicateline) {
+//                    if($duplicateline->{BudgetFxRates::PRIMARY_KEY} == $bxfid) {
+//                        continue;
+//                    }
+//                    $duplicateline->delete();
+//                }
+//            }
+//            unset($original_array['rate']);
+//            $duplicate_difrate_lines = BudgetFxRates::get_data(array($original_array), array('returnarray' => true));
+//            if(is_array($duplicate_difrate_lines)) {
+//                foreach($duplicate_difrate_lines as $duplicateline) {
+//                    if($duplicateline->{BudgetFxRates::PRIMARY_KEY} == $bxfid) {
+//                        foreach($type_fields as $field) {
+//                            if($duplicateline->$field == 1) {
+//                                $selectedtype = $field;
+//                            }
+//                        }
+//                        $fromcur = new Currencies($duplicateline->fromCurrency);
+//                        $tocur = new Currencies($duplicateline->toCurrency);
+//                        $different_rates[$bxfid] = ' Rate from '.$fromcur->get_displayname().' To '.$tocur->get_displayname().' that '.$selectedtype.' has multiple values :';
+//                        continue;
+//                    }
+//                    $difrates[$bxfid] = $duplicateline->rate.' , ';
+//                }
+//            }
+//            unset($selectedtype);
+//        }
+//        if(is_array($difrates)) {
+//            foreach($difrates as $fxid => $rates) {
+//                $message.= '\n'.$different_rates[$fxid].'\n'.$rates;
+//            }
+//        }
+//        $email_data = array(
+//                'from_email' => $core->settings['maileremail'],
+//                'from' => 'Orkila Mailer',
+//                'to' => 'elie.zamroud@orkila.com',
+//                'cc' => array('hussein.barakat@orkila.com', 'zaher.reda@orkila.com'),
+//                'subject' => 'Duplicate budget FX Rates exists',
+//                'message' => $message,
+//        );
+//        $mail = new Mailer($email_data, 'php');
+//        output_xml('<status>true</status><message>Success</message>');
+//    }
+//}

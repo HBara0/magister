@@ -479,6 +479,7 @@ if(!($core->input['action'])) {
                                 $fxrates_obj = BudgetFxRates::get_data(array('fromCurrency' => $budgetline['originalCurrency'], 'toCurrency' => $budgetsdata['current']['toCurrency'], 'affid' => $budgetsdata['current']['affiliates'], 'year' => $budgetsdata['current']['years'], 'isBudget' => 1), $dal_config);
                                 if(is_array($fxrates_obj)) {
                                     foreach($fxrates_obj as $fxid => $fxrates) {
+                                        $budgetline['unitPrice'] = ($budgetline['unitPrice'] * $fxrates->rate);
                                         $budgetline['amount'] = ($budgetline['amount'] * $fxrates->rate);
                                         $budgetline['income'] = ($budgetline['income'] * $fxrates->rate);
                                         $budgetline['unitPrice'] = ($budgetline['unitPrice'] * $fxrates->rate);

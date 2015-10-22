@@ -493,9 +493,10 @@ class ReportingQr Extends Reporting {
                         if(round($actual_forecast, 4) > round($actual_current_forecast, 4) || ($this->report['quarter'] == 4 && round($actual_forecast, 4) < round($actual_current_forecast, 4))) {
                             if($options['source'] == 'finalize') {
                                 $user = new Users($productactivity['uid']);
-                                $forecast_corrections[$productactivity['pid']]['name'] = $productactivity['productname'];
+                                $product = new Products($productactivity['pid']);
+                                $forecast_corrections[$productactivity['pid']]['name'] = $product->get_displayname();
                                 $forecast_corrections[$productactivity['pid']]['user'] = $user->get_displayname();
-                                unset($user);
+                                unset($user, $product);
                             }
                             else {
                                 $forecast_corrections[$productactivity['pid']]['name'] = $productactivity['productname'];
@@ -515,13 +516,13 @@ class ReportingQr Extends Reporting {
                                 $actual_forecast = round($productactivity[$validation_item] / $productactivity['fxrate'], 4);
                             }
                         }
-
                         if($productactivity[$validation_key.'Forecast'] < round($actual_forecast, 4) || ($this->report['quarter'] == 4 && round($productactivity[$validation_key.'Forecast'], 4) > round($actual_forecast, 4))) {
                             if($options['source'] == 'finalize') {
                                 $user = new Users($productactivity['uid']);
-                                $forecast_corrections[$productactivity['pid']]['name'] = $productactivity['productname'];
+                                $product = new Products($productactivity['pid']);
+                                $forecast_corrections[$productactivity['pid']]['name'] = $product->get_displayname();
                                 $forecast_corrections[$productactivity['pid']]['user'] = $user->get_displayname();
-                                unset($user);
+                                unset($user, $product);
                             }
                             else {
                                 $forecast_corrections[$productactivity['pid']]['name'] = $productactivity['productname'];

@@ -98,13 +98,13 @@ if(!$core->input['action']) {
     else {
         $representatives_list = '<tr><td colspan="6">'.$lang->nomatchfound.'</td></tr>';
     }
-    $sequence = 1;
+    $sequence = $rownum = 1;
+    $repid = 0;
     $inputname = 'entities[]';
     eval("\$companieslist = \"".$template->get('autocomplete_representativentity')."\";");
     unset($representative);
     $positions = Positions::get_data('', array('returnarray' => true, 'order' => 'name'));
     $representative['positions'] = parse_selectlist('positions[]', 1, $positions, $representative_positions, 1);
-
     $segments = get_specificdata('productsegments', array('psid', 'title'), 'psid', 'title', array('by' => 'title', 'sort' => 'ASC'), 0, '');
     $representative['segments'] = parse_selectlist('segments[]', 1, $segments, $representative_segments, 1);
     eval("\$create = \"".$template->get("popup_profiles_representativeslist_edit")."\";");
@@ -144,9 +144,7 @@ else {
                 $valueid = $entity_obj->eid;
                 $inputname = 'entities['.$valueid.']';
                 $rownum++;
-                $companieslist.='<tr>';
                 eval("\$companieslist .= \"".$template->get('autocomplete_representativentity')."\";");
-                $companieslist.='</tr>';
             }
         }
         $phones_index = array('phone');
@@ -239,5 +237,11 @@ else {
             output_xml("<status>false</status><message>{$lang->updateerror}</message>");
             exit;
         }
+    }
+    elseif($core->input['action'] == 'ajaxaddmore_entity') {
+        $rownum = $sequence = intval($core->input['value']) + 1;
+        $inputname = 'entities[]';
+        eval("\$companieslist = \"".$template->get('autocomplete_representativentity')."\";");
+        output($companieslist);
     }
 }

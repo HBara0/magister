@@ -90,6 +90,7 @@ if(!$core->input['action']) {
         $overwrite_fields .= '</tr>';
     }
     $pagename = 'massupdateyef';
+    $lineidname = 'yeflid';
     eval("\$massupdate = \"".$template->get('budgeting_massupdate')."\";");
     output_page($massupdate);
 }
@@ -100,28 +101,58 @@ else {
         $attribute = ($core->input['budget']['overwrite']['attribute']);
         unset($core->input['budget']['overwrite']['attribute']);
         $overwrite_fields = $core->input['budget']['overwrite'];
+        if(!empty($filterline_where['yeflid'])) {
+            $filterline_where['yeflid'] = explode(',', trim($filterline_where['yeflid']));
+            if(is_array($filterline_where['yeflid'])) {
+                $filterline_where['yeflid'] = array_map(intval, $filterline_where['yeflid']);
+                $filterline_where['yeflid'] = array_filter($filterline_where['yeflid']);
 
-        $checkfilter_array = array('affid', 'spid', 'year');
-        foreach($checkfilter_array as $filterval) {
-            if(empty($budgetfilter_where[$filterval])) {
-                output_xml('<status>false</status><message>'.$lang->fillrequiredfields.'</message>');
-                exit;
+                $yefline_wherecondition = ' AND yeflid IN ('.implode(',', $filterline_where['yeflid']).')';
+            }
+            else {
+                if(!is_numeric($filterline_where['yeflid']) || $filterline_where['yeflid'] == 0) {
+                    output_xml('<status>false</status><message>'.$lang->fillrequiredfields.'!</message>');
+                    exit;
+                }
             }
         }
-
-        $checkfilterline_array = array('businessMgr', 'saleType');
-        foreach($checkfilterline_array as $filterval) {
-            if(empty($filterline_where[$filterval])) {
-                output_xml('<status>false</status><message>'.$lang->fillrequiredfields.' '.$filterval.'</message>');
-                exit;
+        else {
+            $checkfilter_array = array('affid', 'spid', 'year');
+            foreach($checkfilter_array as $filterval) {
+                if(empty($budgetfilter_where[$filterval])) {
+                    output_xml('<status>false</status><message>'.$lang->fillrequiredfields.'!</message>');
+                    exit;
+                }
             }
-        }
 
-        /* acquire all rows which will be affected, */
-        //error($lang->sprint($lang->noexchangerate, $budgetline->originalCurrency, $budgetsdata['toCurrency'], $budget_obj->year), $_SERVER['HTTP_REFERER']);
-        $yefobjs = BudgetingYearEndForecast::get_data(array('affid' => $budgetfilter_where['affid'], 'spid ' => $budgetfilter_where['spid'], 'year ' => $budgetfilter_where['year']), array('returnarray' => true, 'simple' => false, 'operators' => array('affid' => 'IN', 'spid' => 'IN', 'year' => 'IN')));
-        foreach($yefobjs as $yefobj) {
-            $budgetlines_notaffectedobjs = BudgetingYEFLines::get_data('yefid='.$yefobj->yefid, array('returnarray' => true));
+            $checkfilterline_array = array('businessMgr', 'saleType');
+            foreach($checkfilterline_array as $filterval) {
+                if(empty($filterline_where[$filterval])) {
+                    output_xml('<status>false</status><message>'.$lang->fillrequiredfields.' '.$filterval.'</message>');
+                    exit;
+                }
+            }
+
+            if(is_array($budgetfilter_where)) {
+                $budget_wherecondition = ' WHERE ';
+                foreach($budgetfilter_where as $attr => $filter) {
+                    if(is_array($filter)) {
+                        $budget_wherecondition .= $and.$attr.' IN ('.implode(',', $filter).')';
+                        $and = ' AND ';
+                        unset($budget_where);
+                    }
+                }
+            }
+
+            /* filter budget lines */
+            if(is_array($filterline_where)) {
+                $and = ' AND ';
+                foreach($filterline_where as $attr => $filterline) {
+                    if(is_array($filterline)) {
+                        $yefline_wherecondition .= $and.$attr.' IN ('.implode(',', $filterline).')';
+                    }
+                }
+            }
         }
 
         $overwrites_fieldstocheck = array('businessMgr',
@@ -137,31 +168,11 @@ else {
                 }
             }
         }
-        if(is_array($budgetfilter_where)) {
-            $budget_wherecondition = ' WHERE ';
-            foreach($budgetfilter_where as $attr => $filter) {
-                if(is_array($filter)) {
-                    $budget_wherecondition .= $and.$attr.' IN ('.implode(',', $filter).')';
-                    $and = ' AND ';
-                    unset($budget_where);
-                }
-            }
-        }
-
-        /* filter budget lines */
-        if(is_array($filterline_where)) {
-            $and = ' AND ';
-            foreach($filterline_where as $attr => $filterline) {
-                if(is_array($filterline)) {
-                    $budgetline_wherecondition .= $and.$attr.' IN ('.implode(',', $filterline).')';
-                }
-            }
-        }
 
         if(isset($overwrite_fields['value']['localIncomePercentage']) && !empty($overwrite_fields['value']['localIncomePercentage'])) {
             $overwrite_fields['value']['localIncomeAmount'] = '(amount * ('.$overwrite_fields['value']['localIncomePercentage'].' / 100))';
-            $overwrite_fields['value']['localIncomePercentage'] = '('.$overwrite_fields['value']['localIncomePercentage'].' * (100/incomePerc))';
-            $overwrite_fields['value']['invoicingEntityIncome'] = '(amount * ((incomePerc - '.$overwrite_fields['value']['localIncomePercentage'].') / 100))';
+            // $overwrite_fields['value']['localIncomePercentage'] = '('.$overwrite_fields['value']['localIncomePercentage'].' * (100/incomePerc))';
+            $overwrite_fields['value']['invoicingEntityIncome'] = 'amount-'.$overwrite_fields['value']['localIncomeAmount'];
         }
 
         $overwrite_fields['value']['modifiedOn'] = TIME_NOW;
@@ -177,13 +188,29 @@ else {
             $comma = ', ';
         }
 
-        $query = $db->query('UPDATE '.Tprefix.'budgeting_yef_lines SET '.$updatequery_set.' WHERE yefid IN (SELECT yefid FROM budgeting_yearendforecast '.$budget_wherecondition.')'.$budgetline_wherecondition);
+        /* acquire all rows which will be affected, */
+        $budgetlines_notaffectedobjs = BudgetingYEFLines::get_data('yefid IN (SELECT yefid FROM budgeting_yearendforecast '.$budget_wherecondition.')'.$yefline_wherecondition, array('returnarray' => true));
+        $sql = 'UPDATE '.Tprefix.'budgeting_yef_lines SET '.$updatequery_set.' WHERE yefid IN (SELECT yefid FROM budgeting_yearendforecast '.$budget_wherecondition.')'.$yefline_wherecondition;
+        $query = $db->query($sql);
         if($query) {
+            $affectedrows = $db->affected_rows();
             $filename = generate_checksum();
-            $filepath = ROOT.'/tmp/yef/'.$filename.'.csv';
+            $filepath = ROOT.'/tmp/'.$filename.'.csv';
             $csv = new CSV($filepath);
             $csv->write_file($budgetlines_notaffectedobjs);
-            output_xml('<status>true</status><message>'.$lang->successfullysaved.' '.$db->affected_rows().' lines.<![CDATA[ <a href="'.$core->settings['rootdir'].'/index.php?module=budgeting/massupdateyef&amps;action=download&amps;file='.$filename.'" target="_blank">Click here to downolad original values.</a>]]></message>');
+
+            if(is_array($budgetlines_notaffectedobjs)) {
+                foreach($budgetlines_notaffectedobjs as $affectedrowobj) {
+                    $affectedrow = $affectedrowobj->get();
+                    unset($affectedrow['inputChecksum']);
+                    $affectedrow['backedupOn'] = TIME_NOW;
+                    $affectedrow['backedupBy'] = $core->user['uid'];
+                    $budgetlinesbk = new YefLinesBackup();
+                    $budgetlinesbk->set($affectedrow);
+                    $budgetlinesbk->save();
+                }
+            }
+            output_xml('<status>true</status><message>'.$lang->successfullysaved.' '.$affectedrows.' lines.<![CDATA[ <a href="'.$core->settings['rootdir'].'/index.php?module=budgeting/massupdate&action=download&file='.$filename.'" target="_blank">Click here to downolad original values.</a>]]></message>');
         }
     }
     elseif($core->input['action'] == 'download') {

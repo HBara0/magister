@@ -105,4 +105,5 @@ $lang['nextbusinessday'] = 'Next Business Day';
 $lang['createpaymentterms'] = 'Create Payment terms';
 $lang['titleerror'] = 'Title is already used';
 $lang['classificationclass'] = 'Classification Class';
+$lang['join'] = 'Join';
 ?>
