@@ -8,7 +8,7 @@ class BudgetingYEFLines extends AbstractClass {
     const PRIMARY_KEY = 'yeflid';
     const TABLE_NAME = 'budgeting_yef_lines';
     const SIMPLEQ_ATTRS = '*';
-    const UNIQUE_ATTRS = 'yefid,pid,cid,saleType,linkedBudgetLine,blid';
+    const UNIQUE_ATTRS = 'yefid,pid,cid,altCid,saleType,linkedBudgetLine,blid';
     const CLASSNAME = __CLASS__;
     const DISPLAY_NAME = '';
     const REQUIRED_ATTRS = 'yefid,saleType,inputCheckSum';
@@ -76,6 +76,8 @@ class BudgetingYEFLines extends AbstractClass {
             $product = new Products($table_array['pid']);
             $table_array['psid'] = $product->get_segment()['psid'];
         }
+
+        $this->split_income($data);
         $query = $db->insert_query(self::TABLE_NAME, $table_array);
         if($query) {
             $this->data = $table_array;

@@ -129,4 +129,11 @@ $lang['by'] = 'by';
 $lang['notreviwed'] = 'Not Reviewed Yet';
 $lang['considerbrandunspecified'] = 'or consider the brand with unspecified/unknown end-product type';
 $lang['charasteristiclist'] = "Characteristics List";
+$lang['companies'] = 'Companies';
+$lang['updatedsuccessfully'] = 'Updated Successfully';
+$lang['updateerror'] = 'Udate Error';
+$lang['deleterep'] = 'Are you sure you want to delete ';
+$lang['successfullydeleted'] = 'Successfully Deleted';
+$lang['representativeisused'] = 'Representative Already Used';
+$lang['addrepresentative'] = 'Add Representative';
 ?>
