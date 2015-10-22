@@ -35,8 +35,25 @@
                         $("#createReports,#noQReportSend").removeAttr("disabled");
                     }
                 });
-            });
-        </script>
+
+                $("input[id='companyName']").change(function() {
+                    var attributes = "&companyName=" + $("input[id='companyName']").val() + "&type=" + $("select[id='type']").val();
+                    if(typeof ($("select[id='supplierType']").val()) != 'undefined') {
+                        attributes = attributes + "&supplierType=" + $("select[id='supplierType']").val();
+                    }
+
+                    sharedFunctions.requestAjax("post", "index.php?module=entities/add&action=getentitiestobeassigned", attributes, 'ent_tobeassigned', 'ent_tobeassigned', true);
+                });
+                $(document).on("click", "input[id$='joinentity']", function() {
+                    var eids;
+                    $("input[id^=tobeassigned_]").each(function() {
+                        if($(this).is(':checked')) {
+                            eids = $(this).val() + ",";
+                        }
+                    });
+                    sharedFunctions.requestAjax("post", "index.php?module=entities/add&action=assignemployee", "&eid=" + eids, '', '', true);
+                });
+            });</script>
     </head>
     <body>
         {$header}
@@ -61,6 +78,9 @@
                     </tr>
                     <tr>
                         <td width="20%" valign="top"><strong>{$lang->companyshortname}</strong></td><td><input type="text" id="companyNameShort" name="companyNameShort" value="{$entity[companyNameShort]}"/><div id="entitylogo_placeholder">{$entity[logo_output]}</div></td>
+                    </tr>
+                    <tr id="ent_tobeassigned">
+                        {$ent_list}
                     </tr>
                     <tr id="parentcompany">
                         <td width="20%" valign="top">{$lang->parentcompany}</td><td><input type='text' id='supplier_1_autocomplete' autocomplete="off" value="{$entity[parent_companyName]}"/><input type="text" size="3" id="supplier_1_id_output" value="{$entity[parent]}" disabled/><input type='hidden' id='supplier_1_id' name='parent' value="{$entity[parent]}" /><div id='searchQuickResults_supplier_1' class='searchQuickResults' style='display:none;'></div></td>
@@ -170,7 +190,8 @@
                 <form action="index.php?module=entities/add&amp;action=do_uploadlogo" method="post" enctype="multipart/form-data" target="uploadFrame">
                     {$lang->selectfile}: <input type="file" id="uploadfile" name="uploadfile"><br />
                     <div style="font-style:italic; margin: 5px;">{$lang->onlyfiletypesallowed}</div>
-                    <input type="submit" class='button' value="{$lang->savecaps}" onClick="$('#upload_Result').show();">
+                    <input type="submit" class='button' value="{$lang->savecaps}" onClick="$('#upload_Result').show()
+                                    ;">
                 </form>
                 <div id="upload_Result" style="display:none;"><img src="{$core->settings[rootdir]}/images/loading.gif" /> {$lang->uploadinprogress}</div>
             </div>

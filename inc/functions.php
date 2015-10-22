@@ -652,6 +652,9 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
             $db->free_result($query2);
         }
     }
+    if($options['source'] == 'addentity') {
+        return $results;
+    }
     if(is_array($results)) {
         foreach($results as $key => $val) {
             if($options['returnType'] == 'json') {

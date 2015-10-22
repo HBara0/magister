@@ -19,6 +19,7 @@ class BudgetFxRates extends AbstractClass {
     const DISPLAY_NAME = '';
     const SIMPLEQ_ATTRS = '*';
     const CLASSNAME = __CLASS__;
+    const UNIQUE_ATTRS = 'affid,year,fromCurrency,toCurrency,isActual,isYef,isBuget';
 
     public function __construct($id = '', $simple = true) {
         parent::__construct($id, $simple);

@@ -17,7 +17,7 @@ class AssignedEmployees extends AbstractClass {
     const DISPLAY_NAME = '';
     const SIMPLEQ_ATTRS = '*';
     const CLASSNAME = __CLASS__;
-    const UNIQUE_ATTRS = '';
+    const UNIQUE_ATTRS = 'eid,uid,affid';
 
     public function __construct($id = '', $simple = true) {
         parent::__construct($id, $simple);
@@ -32,11 +32,15 @@ class AssignedEmployees extends AbstractClass {
     }
 
     protected function create(array $data) {
-
+        global $db;
+        $db->insert_query(self::TABLE_NAME, $data);
+        return $this;
     }
 
     protected function update(array $data) {
-
+        global $db;
+        $db->update_query(self::TABLE_NAME, $data, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
+        return $this;
     }
 
 }
