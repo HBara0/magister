@@ -481,6 +481,7 @@ if(!($core->input['action'])) {
                                     foreach($fxrates_obj as $fxid => $fxrates) {
                                         $budgetline['amount'] = ($budgetline['amount'] * $fxrates->rate);
                                         $budgetline['income'] = ($budgetline['income'] * $fxrates->rate);
+                                        $budgetline['unitPrice'] = ($budgetline['unitPrice'] * $fxrates->rate);
                                         $budgetline['localIncomeAmount'] = ($budgetline['localIncomeAmount'] * $fxrates->rate);
                                         $budgetline['invoicingEntityIncome'] = ($budgetline['invoicingEntityIncome'] * $fxrates->rate);
                                     }

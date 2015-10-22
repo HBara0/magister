@@ -35,7 +35,7 @@ if(!$core->input['action']) {
             $psids[] = $segmentscoord->psid;
         }
         if(is_array($psids)) {
-            $entitysegments = EntitiesSegments::get_data('psid IN ('.implode(',', $psids).') AND eid IN (Select eid FROM entities WHERE type = "s" ) ', array('operators' => array('filter' => 'CUSTOMSQLSECURE'), 'returnarray' => true));
+            $entitysegments = EntitiesSegments::get_data('psid IN ('.implode(',', $psids).') AND eid IN (SELECT eid FROM entities WHERE type = "s" ) ', array('operators' => array('filter' => 'CUSTOMSQLSECURE'), 'returnarray' => true));
             if(is_array($entitysegments)) {
                 foreach($entitysegments as $entitysegment) {
                     $entity = new Entities($entitysegment->eid);
@@ -52,7 +52,7 @@ if(!$core->input['action']) {
                     }
                 }
             }
-            $employeesegments_usersids = EmployeeSegments::get_data('psid IN ('.implode(',', $psids).') AND uid IN(SELECT uid FROM '.Tprefix.'users WHERE gid != 7) ', array('returnarray' => true));
+            $employeesegments_usersids = EmployeeSegments::get_data('psid IN ('.implode(',', $psids).') AND uid IN (SELECT uid FROM '.Tprefix.'users WHERE gid != 7) ', array('returnarray' => true));
             if(is_array($employeesegments_usersids)) {
                 foreach($employeesegments_usersids as $user) {
                     $segmentusers[$user->uid] = $user->get_displayname();
@@ -310,10 +310,7 @@ else {
                                     if(is_object($currency)) {
                                         $currency_output = $currency->get_displayname();
                                     }
-                                    $tocurrency = new Currencies($budgetline->originalCurrency);
-                                    if(is_object($tocurrency)) {
-                                        $budgetsdata['toCurrency'] = $tocurrency->get_displayname();
-                                    } output_xml('<status>false</status><message>'.$lang->sprint($lang->noexchangerate, $currency_output, $budgetsdata['toCurrency'], $budget_obj->year).'</message>');
+                                    output_xml('<status>false</status><message>'.$lang->sprint($lang->noexchangerate, $currency_output, $currency_output, $budget_obj->year).'</message>');
                                     exit;
                                 }
                             }
@@ -477,6 +474,7 @@ else {
                                     foreach($fxrates_obj as $fxid => $fxrates) {
                                         $budgetline['amount'] = ($budgetline['amount'] * $fxrates->rate);
                                         $budgetline['income'] = ($budgetline['income'] * $fxrates->rate);
+                                        $budgetline['unitPrice'] = ($budgetline['unitPrice'] * $fxrates->rate);
                                         $budgetline['localIncomeAmount'] = ($budgetline['localIncomeAmount'] * $fxrates->rate);
                                         $budgetline['invoicingEntityIncome'] = ($budgetline['invoicingEntityIncome'] * $fxrates->rate);
                                     }
