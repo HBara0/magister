@@ -1377,11 +1377,11 @@ else {
 
         if(is_array($rawdata['productactivitydata'])) {
             $productsactivity_validation = $report->validate_forecasts($rawdata['productactivitydata'], $currencies, array('source' => 'finalize'));
-            if($productsactivity_validation == f || is_array($productsactivity_validation)) {
+            if($productsactivity_validation == false || is_array($productsactivity_validation)) {
                 $corrections_output = '<table width="100%" class="datatable">';
                 $corrections_output .= '<tr><th width="50%">'.$lang->product.'</th><th width="35%">'.$lang->businessmanager.'</th></tr>';
-                if(is_array($validation)) {
-                    foreach($validation as $corrections) {
+                if(is_array($productsactivity_validation)) {
+                    foreach($productsactivity_validation as $corrections) {
                         $corrections_output .= '<tr><td>'.$corrections['name'].'</td><td>'.$corrections['user'].'</td></tr>';
                     }
                 }
