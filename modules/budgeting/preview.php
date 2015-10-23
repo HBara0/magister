@@ -39,10 +39,10 @@ if(!($core->input['action'])) {
         $budgetsdata['current'] = ($core->input['budget']);
         $aggregate_types = array('affiliates', 'suppliers', 'managers', 'segments', 'years');
         //eval("\$budgetreport_coverpage = \"".$template->get('budgeting_budgetreport_coverpage')."\";");
-        $psids = implode(',', array_filter($core->input['budget']['segments']));
+
         if(is_array($core->input['budget']['segments'])) {
             $segmentscoords = ProdSegCoordinators::get_data(array('uid' => $core->user['uid'], 'psid' => implode(',', array_filter($core->input['budget']['segments']))), array('operators' => array('psid' => 'IN'), 'returnarray' => true));
-            if(is_array($segmentscoords)) {
+            if(is_array($segmentscoords) && !(isset($core->input['budget']['managers']) || is_array($core->input['budget']['managers']))) {
                 $budgetsdata['current']['segments'] = array();
                 foreach($segmentscoords as $segmentscoord) {
                     if(in_array($segmentscoord->psid, $budgetsdata['current']['segments'])) {
@@ -501,6 +501,7 @@ if(!($core->input['action'])) {
                                     foreach($fxrates_obj as $fxid => $fxrates) {
                                         $budgetline['amount'] = ($budgetline['amount'] * $fxrates->rate);
                                         $budgetline['income'] = ($budgetline['income'] * $fxrates->rate);
+                                        $budgetline['unitPrice'] = ($budgetline['unitPrice'] * $fxrates->rate);
                                         $budgetline['localIncomeAmount'] = ($budgetline['localIncomeAmount'] * $fxrates->rate);
                                         $budgetline['invoicingEntityIncome'] = ($budgetline['invoicingEntityIncome'] * $fxrates->rate);
                                     }
