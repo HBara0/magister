@@ -133,36 +133,9 @@ class Representatives extends AbstractClass {
                 foreach($tables as $table) {
                     switch($table) {
                         case EntitiesRepresentatives::TABLE_NAME:
-                            $reps = EntitiesRepresentatives::get_data(array('rpid' => $todelete), array('returnarray' => true));
-                            if(is_array($reps)) {
-                                foreach($reps as $rep) {
-                                    $rep = $rep->delete();
-                                    if(!$rep) {
-                                        return $code;
-                                    }
-                                }
-                            }
                         case RepresentativePositions::TABLE_NAME:
-                            $reps = RepresentativePositions::get_data(array('rpid' => $todelete), array('returnarray' => true));
-                            if(is_array($reps)) {
-                                foreach($reps as $rep) {
-                                    $rep = $rep->delete();
-                                    if(!$rep) {
-                                        return $code;
-                                    }
-                                }
-                            }
                         case RepresentativesSegments::TABLE_NAME:
-                            $reps = RepresentativesSegments::get_data(array('rpid' => $todelete), array('returnarray' => true));
-                            if(is_array($reps)) {
-                                foreach($reps as $rep) {
-                                    $rep = $rep->delete();
-                                    if(!$rep) {
-                                        return $code;
-                                    }
-                                }
-                            }
-                            break;
+                            conitnue;
                         default:
                             $query = $db->query("SELECT * FROM ".Tprefix.$table." WHERE ".$attribute."=".$todelete." ");
                             if($db->num_rows($query) > 0) {
@@ -171,6 +144,33 @@ class Representatives extends AbstractClass {
                             }
                             break;
                     }
+                }
+            }
+        }
+        $entreps = EntitiesRepresentatives::get_data(array('rpid' => $todelete), array('returnarray' => true));
+        if(is_array($entreps)) {
+            foreach($entreps as $rep) {
+                $rep = $rep->delete();
+                if(!$rep) {
+                    return $code;
+                }
+            }
+        }
+        $segreps = RepresentativesSegments::get_data(array('rpid' => $todelete), array('returnarray' => true));
+        if(is_array($segreps)) {
+            foreach($segreps as $rep) {
+                $rep = $rep->delete();
+                if(!$rep) {
+                    return $code;
+                }
+            }
+        }
+        $posreps = RepresentativePositions::get_data(array('rpid' => $todelete), array('returnarray' => true));
+        if(is_array($posreps)) {
+            foreach($posreps as $rep) {
+                $rep = $rep->delete();
+                if(!$rep) {
+                    return $code;
                 }
             }
         }
