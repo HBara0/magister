@@ -3,8 +3,15 @@
         <title>{$core->settings[systemtitle]} | {$lang->listofvisitreports}</title>
         {$headerinc}
         <script language="javascript">
-            $(function () {
-                $('#moderationtools').change(function () {
+            $(function() {
+
+                $(document).on("click", "a[id^='unlockuserreport_']", function() {
+                    var id = $(this).attr('id').split('_');
+                    $("input[id='checkbox_" + id[1] + "']").prop('checked', true);
+                    $('#moderationtools option[value="lockunlock"]').prop('selected', true);
+                    $('#moderationtools').trigger("change");
+                });
+                $('#moderationtools').change(function() {
                     if(sharedFunctions.checkSession() == false) {
                         return;
                     }

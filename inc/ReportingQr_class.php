@@ -532,9 +532,11 @@ class ReportingQr Extends Reporting {
                     }
                 }
             }
-
-            if((is_array($forecast_corrections) && !empty(array_filter($forecast_corrections)))) {
-                return $forecast_corrections;
+            if(is_array($forecast_corrections)) {
+                $forecast_corrections = array_filter($forecast_corrections);
+                if(!empty($forecast_corrections)) {
+                    return $forecast_corrections;
+                }
             }
             return true;
         }
