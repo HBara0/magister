@@ -74,7 +74,23 @@ if(!$core->input['action']) {
             $representative = $representative_obj->get();
             $representativeassignedents = $representative_obj->get_entities_names();
             if(is_array($representativeassignedents)) {
-                $representative['companyName'] = implode(', ', $representativeassignedents);
+                $counter = 0;
+                foreach($representativeassignedents as $entname) {
+                    if(++$counter > 2) {
+                        $hidden_entities.= $break.$entname;
+                    }
+                    else {
+                        $userentities .= $break.$entname;
+                    }
+                    $break = '<br />';
+                }
+
+                if($counter > 2) {
+                    $representative['companyName'] = $userentities.", <a href='#entities' id='showmore_entities_{$representative['rpid']}' class='smalltext'>{$lang->readmore}</a> <span style='display:none;' id='entities_{$representative['rpid']}'>{$hidden_entities}</span>";
+                }
+                else {
+                    $representative['companyName'] = $userentities;
+                }
             }
             if($core->usergroup['canManageRepresentatives'] == 1 || $representative['createdBy'] == $core->user['uid']) {
                 $edit_link = "<a title=".$lang->editrepresentative." id='editrepresentative_".$representative['rpid']."_profiles/representativeslist_loadpopupbyid'><img src='".$core->settings[rootdir]."/images/icons/edit.gif' border='0'/></a>";
@@ -92,7 +108,7 @@ if(!$core->input['action']) {
                 }
             }
             eval("\$representatives_list .= \"".$template->get('profiles_representativeslist_representativerow')."\";");
-            unset($edit_link, $rowclass, $rep_positions);
+            unset($edit_link, $rowclass, $rep_positions, $representativeassignedents, $userentities, $hidden_entities);
         }
     }
     else {
