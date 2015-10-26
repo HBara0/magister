@@ -719,9 +719,10 @@ else {
                 }
             }
         }
+        $filename = 'YEF'.$budgetsdata['current']['years'];
 
         unset($budgetline_temp);
-        $excelfile = new Excel('array', $budgetline);
+        $excelfile = new Excel('array', $budgetline, $filename);
     }
 }
 ?>
