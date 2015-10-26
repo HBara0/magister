@@ -71,6 +71,10 @@ if(!$core->input['action']) {
         else {
             if(isset($core->user['auditedaffids'])) {
                 $customers_extra_where = ' AND affid IN ('.implode(',', $core->user['auditedaffids']).')';
+                $customers_extra_where .= ' OR uid IN (Select uid from users WHERE reportsTo='.$core->user['uid'].')';
+            }
+            else {
+                $customers_extra_where = ' AND uid IN (Select uid from users WHERE reportsTo='.$core->user['uid'].')';
             }
         }
         $query = $db->query("SELECT * FROM ".Tprefix."visitreports WHERE{$vrid_where}{$customers_extra_where}");
