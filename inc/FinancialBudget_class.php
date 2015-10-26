@@ -719,11 +719,11 @@ Class FinancialBudget extends AbstractClass {
 
                                         $totalinternvisit[$budgetrainingintvisit_ob->btvid] = number_format($budgetrainingintvisit_ob->planeCost + $budgetrainingintvisit_ob->otherCosts, 2);
                                         $totalamount += ($totalinternvisit[$budgetrainingintvisit_ob->btvid] );
-
-                                        eval("\$budgeting_int_tainingvisitpreview  = \"".$template->get('budgeting_int_traininvisitpreview')."\";");
-                                        $budgeting_tainingvisitpreview.=$budgeting_int_tainingvisitpreview;
-                                        unset($budgeting_tainingvisitpreviewinheader, $totalinternvisit);
+                                        eval("\$budgeting_trainingvisitrows  .= \"".$template->get('budgeting_traininvisitpreview_row')."\";");
+                                        unset($totalinternvisit);
                                     }
+                                    eval("\$budgeting_int_tainingvisitpreview  = \"".$template->get('budgeting_int_traininvisitpreview')."\";");
+                                    $budgeting_tainingvisitpreview.=$budgeting_int_tainingvisitpreview;
                                     $budgeting_tainingvisitgrand_total = '<div style = "font-size:14px;font-weight:bold;float:right;margin-right:120px;">'.$lang->total.' '.$totalamount.' </div>';
                                 }
                                 $budgeting_tainingvisitpreview.=$budgeting_tainingvisitgrand_total;
@@ -732,6 +732,7 @@ Class FinancialBudget extends AbstractClass {
                             }
                         }
                         $output['trainingvisits']['data'] = $budgeting_tainingvisitpreview;
+                        unset($budgeting_tainingvisitpreview);
                         break;
                     /* ------------------------------------------------------------------------------------------------------------------- */
 
@@ -772,18 +773,18 @@ Class FinancialBudget extends AbstractClass {
                                 }
 
 
-                                $budgeting_tainingvisitpreview.=$budgeting_tainingvisitgrand_total;
+                                $budgeting_tainingvisitpreview = $budgeting_tainingvisitgrand_total;
                                 $budgeting_tainingvisitpreview.='<br>';
                                 unset($totalamount, $total_localamount);
                             }
                         }
                         $output['domestictrainingvisits']['data'] = $budgeting_tainingvisitpreview;
+                        unset($budgeting_tainingvisitpreview);
                         break;
                     /* ------------------------------------------------------------------------------------------------------------------- */
 
                     case 'internationaltrainingvisits':
                         $budgetrainingvisit_obj = BudgetTrainingVisits::get_data(array('bfbid' => $financialbudget), array('simple' => false));
-
                         if(is_array($financial_obj)) {
                             foreach($financial_obj as $financialbudget) {
                                 $affiliate = new Affiliates($financialbudget->affid);
@@ -809,19 +810,20 @@ Class FinancialBudget extends AbstractClass {
 
                                         $totalinternvisit[$budgetrainingintvisit_ob->btvid] = number_format($budgetrainingintvisit_ob->planeCost + $budgetrainingintvisit_ob->otherCosts, 2);
                                         $totalamount += ($totalinternvisit[$budgetrainingintvisit_ob->btvid] );
-
-                                        eval("\$budgeting_int_tainingvisitpreview  = \"".$template->get('budgeting_int_traininvisitpreview')."\";");
-                                        $budgeting_tainingvisitpreview.=$budgeting_int_tainingvisitpreview;
-                                        unset($budgeting_tainingvisitpreviewinheader, $totalinternvisit);
+                                        eval("\$budgeting_trainingvisitrows  .= \"".$template->get('budgeting_traininvisitpreview_row')."\";");
+                                        unset($totalinternvisit);
                                     }
+                                    eval("\$budgeting_int_tainingvisitpreview  = \"".$template->get('budgeting_int_traininvisitpreview')."\";");
+                                    $budgeting_tainingvisitpreview.=$budgeting_int_tainingvisitpreview;
                                     $budgeting_tainingvisitgrand_total = '<div style = "font-size:14px;font-weight:bold;float:right;margin-right:120px;">'.$lang->total.' '.$totalamount.' </div>';
                                 }
-                                $budgeting_tainingvisitpreview.=$budgeting_tainingvisitgrand_total;
+                                $budgeting_tainingvisitpreview = $budgeting_tainingvisitgrand_total;
                                 $budgeting_tainingvisitpreview.='<br>';
                                 unset($totalamount, $total_localamount);
                             }
                         }
                         $output['internationaltrainingvisits']['data'] = $budgeting_tainingvisitpreview;
+                        unset($budgeting_tainingvisitpreview);
                         break;
                     /* ------------------------------------------------------------------------------------------------------------------- */
 
