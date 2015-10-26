@@ -544,7 +544,7 @@ else {
                 $loalincome_header = '<th style="vertical-align:central; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left">'.$lang->remainingcommaff.'</th>';
             }
             if(is_array($total) && !empty($total)) {
-                unset($budgetline, $budget);
+                unset($budgetline, $budget, $customername);
                 $rowclass = 'thead';
                 $budget['managerid'] = '#';
                 $budget['manager'] = 'TOTAL';

@@ -99,6 +99,7 @@ if(!$core->input['action']) {
     if($db->num_rows($query) > 0) {
         while($visitreport = $db->fetch_assoc($query)) {
             //$query2 = $db->query("SELECT * FROM ".Tprefix."visitreports_reportsuppliers WHERE vrid='$visitreport[vrid]' AND ");
+            $core->usergroup['canViewAllSupp'] = 1;
             if($core->usergroup['canViewAllSupp'] == 0) {
                 if(is_array($core->user['suppliers']['eid'])) {
                     if($visitreport['hasSupplier'] == 1 && !value_exists('visitreports_reportsuppliers', 'vrid', $visitreport['vrid'], 'spid IN ('.implode(', ', $core->user['suppliers']['eid']).')')) {
@@ -140,7 +141,9 @@ if(!$core->input['action']) {
             parse_calltype($visitreport['type']);
 
             $visitreport['formatteddate'] = date($core->settings['dateformat'], $visitreport['date']);
-
+            if($visitreport['uid'] == $core->user['uid'] && $visitreport['finishDate'] >= strtotime('-2 days', TIME_NOW) && $visitreport['isLocked'] == 1) {
+                $unlockuserreporticon[$visitreport[vrid]] = "<a href='#' id='unlockuserreport_{$visitreport[vrid]}'><img src='images/icons/lock.png' alt='unlock report' border='0'/></a>";
+            }
             eval("\$reportslist .= \"".$template->get('crm_visitreportslist_reportrow')."\";");
         }
 

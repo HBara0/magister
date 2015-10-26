@@ -242,6 +242,24 @@ else {
             }
         }
         else {
+            $salesreport = '<p width="100%">No match found  <br/> Empty Report</p>';
+            if(!is_array($core->input['affids']) || count($core->input['affids']) == 1) {
+                $recipients = array(
+                        $affiliate->get_generalmanager()->displayName,
+                        $affiliate->get_supervisor()->displayName,
+                        $affiliate->get_financialemanager()->displayName,
+                        $core->user_obj->displayName,
+                        Users::get_data(array('uid' => 3))->get_displayname()/* Always include User 3 */);
+                $recipients = array_unique($recipients);
+                if(is_array($recipients)) {
+                    $recipients = array_filter($recipients);
+                    $salesreport .= '<hr /><div class="ui-state-highlight ui-corner-all" style="padding-left: 5px; margin-bottom:10px;"><p>This report will be sent to <ul><li>'.implode('</li><li>', $recipients).'</li></ul></p></div>';
+                    $salesreport .= '<a href="index.php?reporttype=email&amp;'.http_build_query($core->input).'"><button class="button">Send by email</button></a>';
+                }
+            }
+            eval("\$previewpage = \"".$template->get('crm_previewsalesreport')."\";");
+            output_xml('<status>true</status><message><![CDATA['.$previewpage.']]></message>');
+            exit;
             //  redirect($url, $delay, $redirect_message);
         }
 
@@ -423,28 +441,29 @@ else {
                 $required_tables = array('detailed' => explode(',', $core->input['salereport']['dimension'][0]));
             }
 
-
-            foreach($required_tables as $tabledesc => $dimensions) {
-                $rawdata = $data;
-                $dimensionalreport = new DimentionalData();
-                $dimensionalreport->set_dimensions(array_combine(range(1, count($dimensions)), array_values($dimensions)));
-                $dimensionalreport->set_requiredfields($required_fields);
-                $dimensionalreport->set_data($rawdata);
-                $salesreport .= '<h2><br />'.$lang->{$tabledesc}.'</h2>';
-                $salesreport .= '<table width="100%" class="datatable" style="color:black;">';
-                $salesreport .= '<tr><th></th>';
-                foreach($required_fields as $field) {
-                    if(!isset($lang->{$field})) {
-                        $lang->{$field} = $field;
+            if(is_array($required_tables)) {
+                foreach($required_tables as $tabledesc => $dimensions) {
+                    $rawdata = $data;
+                    $dimensionalreport = new DimentionalData();
+                    $dimensionalreport->set_dimensions(array_combine(range(1, count($dimensions)), array_values($dimensions)));
+                    $dimensionalreport->set_requiredfields($required_fields);
+                    $dimensionalreport->set_data($rawdata);
+                    $salesreport .= '<h2><br />'.$lang->{$tabledesc}.'</h2>';
+                    $salesreport .= '<table width="100%" class="datatable" style="color:black;">';
+                    $salesreport .= '<tr><th></th>';
+                    foreach($required_fields as $field) {
+                        if(!isset($lang->{$field})) {
+                            $lang->{$field} = $field;
+                        }
+                        $salesreport .= '<th>'.$lang->{$field}.'</th>';
                     }
-                    $salesreport .= '<th>'.$lang->{$field}.'</th>';
-                }
-                $salesreport .= '</tr>';
-                $salesreport .= $dimensionalreport->get_output(array('outputtype' => 'table', 'noenclosingtags' => true, 'formats' => $formats, 'overwritecalculation' => $overwrite));
-                $salesreport .= '</table>';
+                    $salesreport .= '</tr>';
+                    $salesreport .= $dimensionalreport->get_output(array('outputtype' => 'table', 'noenclosingtags' => true, 'formats' => $formats, 'overwritecalculation' => $overwrite));
+                    $salesreport .= '</table>';
 
-                $chart_data = $dimensionalreport->get_data();
-                //$chart = new Charts(array('x' => array($previous_year => $previous_year, $current_year => $current_year), 'y' => $barchart_quantities_values), 'bar');
+                    $chart_data = $dimensionalreport->get_data();
+                    //$chart = new Charts(array('x' => array($previous_year => $previous_year, $current_year => $current_year), 'y' => $barchart_quantities_values), 'bar');
+                }
             }
         }
         else {

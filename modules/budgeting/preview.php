@@ -11,6 +11,7 @@
 if(!($core->input['action'])) {
     if($core->input['referrer'] == 'generate') {
         $budgetcache = new Cache();
+        $business_managers = array();
         if(is_array($core->user['auditedaffids'])) {
             foreach($core->user['auditedaffids'] as $auditaffid) {
                 $aff_obj = new Affiliates($auditaffid);
@@ -39,6 +40,24 @@ if(!($core->input['action'])) {
         $aggregate_types = array('affiliates', 'suppliers', 'managers', 'segments', 'years');
         //eval("\$budgetreport_coverpage = \"".$template->get('budgeting_budgetreport_coverpage')."\";");
 
+        if(is_array($core->input['budget']['segments'])) {
+            $segmentscoords = ProdSegCoordinators::get_data(array('uid' => $core->user['uid'], 'psid' => implode(',', array_filter($core->input['budget']['segments']))), array('operators' => array('psid' => 'IN'), 'returnarray' => true));
+            if(is_array($segmentscoords) && !(isset($core->input['budget']['managers']) || is_array($core->input['budget']['managers']))) {
+                $budgetsdata['current']['segments'] = array();
+                foreach($segmentscoords as $segmentscoord) {
+                    if(in_array($segmentscoord->psid, $budgetsdata['current']['segments'])) {
+                        continue;
+                    }
+                    $employeesegments = EmployeeSegments::get_data(array('psid' => $segmentscoord->psid), array('returnarray' => true));
+                    if(is_array($employeesegments)) {
+                        foreach($employeesegments as $employeesegment) {
+                            $business_managers[$employeesegment->uid] = $employeesegment->uid;
+                        }
+                    }
+                    $budgetsdata['current']['segments'][] = $segmentscoord->psid;
+                }
+            }
+        }
         /* overrites the filters and get the user filter when no  filters are selected */
         $dummy_budget = new Budgets();
         $filters = $dummy_budget->generate_budgetline_filters();
@@ -432,6 +451,7 @@ if(!($core->input['action'])) {
                     if(is_array($budgetsdata['current']['segments'])) {
                         $budgetlines_filters = array('psid' => $budgetsdata['current']['segments']);
                     }
+
                     $budgetlines = $budget_obj->get_lines($budgetlines_filters);
                     if(is_array($budgetlines)) {
                         //foreach($firstbudgetline as $cid => $customersdata) {
@@ -479,7 +499,6 @@ if(!($core->input['action'])) {
                                 $fxrates_obj = BudgetFxRates::get_data(array('fromCurrency' => $budgetline['originalCurrency'], 'toCurrency' => $budgetsdata['current']['toCurrency'], 'affid' => $budgetsdata['current']['affiliates'], 'year' => $budgetsdata['current']['years'], 'isBudget' => 1), $dal_config);
                                 if(is_array($fxrates_obj)) {
                                     foreach($fxrates_obj as $fxid => $fxrates) {
-                                        $budgetline['unitPrice'] = ($budgetline['unitPrice'] * $fxrates->rate);
                                         $budgetline['amount'] = ($budgetline['amount'] * $fxrates->rate);
                                         $budgetline['income'] = ($budgetline['income'] * $fxrates->rate);
                                         $budgetline['unitPrice'] = ($budgetline['unitPrice'] * $fxrates->rate);
@@ -541,7 +560,7 @@ if(!($core->input['action'])) {
                 $loalincome_header = '<th style="vertical-align:central; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left">'.$lang->remainingcommaff.'</th>';
             }
             if(is_array($total) && !empty($total)) {
-                unset($budgetline, $budget);
+                unset($budgetline, $budget, $customername);
                 $rowclass = 'thead';
                 $budget['managerid'] = '#';
                 $budget['manager'] = 'TOTAL';
