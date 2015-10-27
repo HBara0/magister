@@ -136,4 +136,5 @@ $lang['deleterep'] = 'Are you sure you want to delete ';
 $lang['successfullydeleted'] = 'Successfully Deleted';
 $lang['representativeisused'] = 'Representative Already Used';
 $lang['addrepresentative'] = 'Add Representative';
+$lang['readmore'] = 'Read More';
 ?>

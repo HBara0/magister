@@ -922,13 +922,13 @@ else {
                     $update_query_where = 'rid='.$rid.' AND pid='.intval($productactivity['pid']).$existingentries_query_string;
                 }
                 unset($productactivity['productname'], $productactivity['fxrate']);
-//                $update = $db->update_query('productsactivity', $productactivity, $update_query_where);
+                //$update = $db->update_query('productsactivity', $productactivity, $update_query_where);
                 $productsact_obj = ProductsActivity::get_data($update_query_where, array('returnarray' => false));
                 if(is_object($productsact_obj)) {
                     $productsact_obj->set($productactivity);
                     $productsact_obj = $productsact_obj->save();
+                    $processed_once = true;
                 }
-                $processed_once = true;
                 if(isset($productactivity['paid']) && !empty($productactivity['paid'])) {
                     $cachearr['usedpaid'][] = $productactivity['paid'];
                 }
@@ -938,7 +938,7 @@ else {
                 $productactivity['rid'] = $rid;
 
                 unset($productactivity['productname'], $productactivity['fxrate'], $productactivity['paid']);
-//                $insert = $db->insert_query('productsactivity', $productactivity);
+                // $insert = $db->insert_query('productsactivity', $productactivity);
                 $productactivity['uid'] = $core->user['uid'];
                 $productsact_obj = new ProductsActivity();
                 $productsact_obj->set($productactivity);

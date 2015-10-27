@@ -732,10 +732,10 @@ elseif($core->input['action'] == 'exportexcel') {
             $budgetline[$counter][$val] = $value[$val];
         }
     }
-
+    $filename = 'Budget'.$budgetsdata['current']['years'];
     unset($budgetline_temp);
 
 //unset($budgetline['bid'], $budgetline['blid'], $budgetline['pid'], $budgetline['cid'], $budgetline['incomePerc'], $budgetline['invoice'], $budgetline['createdBy'], $budgetline['modifiedBy'], $budgetline['originalCurrency'], $budgetline['prevbudget'], $budgetline['cusomtercountry']);
-    $excelfile = new Excel('array', $budgetline);
+    $excelfile = new Excel('array', $budgetline, $filename);
 }
 ?>

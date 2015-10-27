@@ -706,9 +706,22 @@ if($core->input['export']) {
                                 ', '
                             }', '*'), array('-'), $custName)]['sector'] = implode(', ', $segs);
                             }
+                            else {
+                                $final[$saletype]['topsalescustomers'][str_replace(array(' ', '<', '>', '&', ' {
+                                ', '
+                            }', '*'), array('-'), $custName)]['sector'] = 'N/A';
+                            }
+                        }
+                        else {
+                            $final[$saletype]['topsalescustomers'][str_replace(array(' ', '<', '>', '&', ' {
+                                ', '
+                            }', '*'), array('-'), $custName)]['sector'] = 'N/A';
                         }
                         if(is_array($customerdata[$saletype][$eid])) {
                             foreach($customerdata[$saletype][$eid] as $year => $type) {
+                                if($year == date('Y' + 1)) {
+                                    continue;
+                                }
                                 if(is_array($type) && isset($type['sales']) && !empty($type['sales'])) {
                                     $final[$saletype]['topsalescustomers'][str_replace(array(' ', '<', '>', '&', ' {
                                 ', '
@@ -793,9 +806,22 @@ if($core->input['export']) {
                                 ', '
                             }', '*'), array('-'), $custName)]['sector'] = implode(', ', $segs);
                             }
+                            else {
+                                $final[$saletype]['topincomecustomers'][str_replace(array(' ', '<', '>', '&', ' {
+                                ', '
+                            }', '*'), array('-'), $custName)]['sector'] = 'N/A';
+                            }
+                        }
+                        else {
+                            $final[$saletype]['topincomecustomers'][str_replace(array(' ', '<', '>', '&', ' {
+                                ', '
+                            }', '*'), array('-'), $custName)]['sector'] = 'N/A';
                         }
                         if(is_array($customerdata[$saletype][$eid])) {
                             foreach($customerdata[$saletype][$eid] as $year => $type) {
+                                if($year == date('Y' + 1)) {
+                                    continue;
+                                }
                                 if(is_array($type) && isset($type['income']) && !empty($type['income'])) {
                                     $final[$saletype]['topincomecustomers'][str_replace(array(' ', '<', '>', '&', ' {
                                 ', '
@@ -1090,76 +1116,77 @@ if($core->input['export']) {
         }
     }
     //getting all financial reports data
-//    $budgetypes = array('investmentfollowup', 'headcount', 'profitlossaccount', 'overduereceivables', 'forecastbalancesheet', 'internationaltrainingvisits', 'domestictrainingvisits', 'bank');
-//    $financialbudget = FinancialBudget::get_data($filters, array('simple' => false, 'returnarray' => true));
-//    if(is_array($financialbudget)) {
-//        $output = FinancialBudget::parse_financialbudget(array('budgettypes' => $budgetypes, 'affid' => $affid, 'tocurrency' => 840, 'year' => date('Y'), 'filter' => array_keys($financialbudget)));
-//        foreach($budgetypes as $type) {
-//            if(isset($output[$type]) && !empty($output[$type])) {
-//                $budgettitle = $lang->$type;
-//                if($type == 'forecastbalancesheet' || $type == 'overduereceivables' || $type == 'bank' || $type == 'trainingvisits') {
-//                    $outputdata[$type] = $output[$type]['data'];
-//                    $htmlbudget .='<p class="thead">'.$budgettitle.'</p>';
-//                    $htmlbudget.= $outputdata[$type];
-//                    $htmlbudget = str_replace(array('&', '{', '}', '*'), array('-'), $htmlbudget);
-//                }
-//                else {
-//                    $htmlbudget = '<table width="100%">';
-//                    $outputdata[$type] = $output[$type]['data'];
-//                    $header_budyef = $output[$type]['budyef'];
-////                    $header_prevbudget = $output[$type]['prevbudget'];
-////                    $header_prevbudget_year = $output[$type]['prevbudget_years'];
-//                    $header_variations = $output[$type]['variations'];
-//                    $header_variations_years = $output[$type]['variations_years'];
-//                    eval("\$htmlbudget .= \"".$template->get('budgeting_financialbudget_header')."\";");
-//                    $htmlbudget.= $outputdata[$type];
-//                    $htmlbudget.= '</table><br/>';
-//                    $htmlbudget = str_replace(array('&', '{', '}', '*'), array('-'), $htmlbudget);
-//                }
-//                $pagedesc = $type.'desc';
-//                $page = '<html xmlns:v = "urn:schemas-microsoft-com:vml" xmlns:o = "urn:schemas-microsoft-com:office:office" xmlns:x = "urn:schemas-microsoft-com:office:excel"
-//xmlns = "http://www.w3.org/TR/REC-html40">
-//<head>
-//   <meta http-equiv=Content-Type content="text/html; charset=windows-1252">
-//          <meta name=ProgId content=Excel.Sheet>
-//          <meta name=Generator content="Microsoft Excel 11">
-//   <!--[if gte mso 9]><xml>
-//           <x:ExcelWorkbook>
-//          <x:ExcelWorksheets>
-//           <x:ExcelWorksheet>
-//            <x:Name>none</x:Name>
-//           <x:WorksheetOptions>
-//     <x:ProtectContents>False</x:ProtectContents>
-//     <x:ProtectObjects>False</x:ProtectObjects>
-//     <x:ProtectScenarios>False</x:ProtectScenarios>
-//    </x:WorksheetOptions>
-//   </x:ExcelWorksheet>
-//  </x:ExcelWorksheets>
-//  <x:WindowHeight>9210</x:WindowHeight>
-//  <x:WindowWidth>19035</x:WindowWidth>
-//  <x:WindowTopX>0</x:WindowTopX>
-//  <x:WindowTopY>75</x:WindowTopY>
-//  <x:ProtectStructure>False</x:ProtectStructure>
-//  <x:ProtectWindows>False</x:ProtectWindows>
-// </x:ExcelWorkbook>
-//</xml><![endif]-->
-//</head>
-//<body><table>
-//<thead><tr><th>'.$lang->$pagedesc.'</th></tr><tr><th></th>'.$type.'</tr></thead>';
-//                $page.='<tbody>'.$htmlbudget.'</tbody>';
-//                $page.='</table></body></html>';
-//                $path = dirname(__FILE__).'\..\..\tmp\\bugetingexport\\'.uniqid($type).'.html';
-//                $allpaths[$type][$lang->$type] = $path;
-//                $handle = fopen($path, 'w') or die('Cannot open file: '.$allpaths);
-//                $writefile = file_put_contents($path, $page);
-//                $htmlbudget = '';
-//            }
-//        }
-//    }
-//
-    //get stock reports - START
+    $budgetypes = array('investmentfollowup', 'headcount', 'profitlossaccount', 'overduereceivables', 'forecastbalancesheet', 'internationaltrainingvisits', 'domestictrainingvisits', 'bank');
+    $financialbudget = FinancialBudget::get_data($filters, array('simple' => false, 'returnarray' => true));
+    if(is_array($financialbudget)) {
+        $output = FinancialBudget::parse_financialbudget(array('budgettypes' => $budgetypes, 'affid' => $affid, 'tocurrency' => 840, 'year' => date('Y'), 'filter' => array_keys($financialbudget), 'source' => 'budgetpresentation'));
+        foreach($budgetypes as $type) {
+            if(isset($output[$type]) && !empty($output[$type])) {
+                $budgettitle = $lang->$type;
+                if($type == 'forecastbalancesheet' || $type == 'overduereceivables' || $type == 'bank' || $type == 'trainingvisits' || $type == 'internationaltrainingvisits' || $type == 'domestictrainingvisits') {
+                    $outputdata[$type] = $output[$type]['data'];
+                    $htmlbudget .='<p class="thead">'.$budgettitle.'</p>';
+                    $htmlbudget.= $outputdata[$type];
+                    $htmlbudget = str_replace(array('&', '{', '}', '*'), array('-'), $htmlbudget);
+                }
+                else {
+                    $htmlbudget = '<table width="100%">';
+                    $outputdata[$type] = $output[$type]['data'];
+                    $header_budyef = $output[$type]['budyef'];
+//                    $header_prevbudget = $output[$type]['prevbudget'];
+//                    $header_prevbudget_year = $output[$type]['prevbudget_years'];
+                    $header_variations = $output[$type]['variations'];
+                    $header_variations_years = $output[$type]['variations_years'];
+                    eval("\$htmlbudget .= \"".$template->get('budgeting_financialbudget_header')."\";");
+                    $htmlbudget.= $outputdata[$type];
+                    $htmlbudget.= '</table><br/>';
+                    $htmlbudget = str_replace(array('&', '{', '}', '*'), array('-'), $htmlbudget);
+                }
+                $pagedesc = $type.'desc';
+                $page = '<html xmlns:v = "urn:schemas-microsoft-com:vml" xmlns:o = "urn:schemas-microsoft-com:office:office" xmlns:x = "urn:schemas-microsoft-com:office:excel"
+xmlns = "http://www.w3.org/TR/REC-html40">
+<head>
+   <meta http-equiv=Content-Type content="text/html; charset=windows-1252">
+          <meta name=ProgId content=Excel.Sheet>
+          <meta name=Generator content="Microsoft Excel 11">
+   <!--[if gte mso 9]><xml>
+           <x:ExcelWorkbook>
+          <x:ExcelWorksheets>
+           <x:ExcelWorksheet>
+            <x:Name>none</x:Name>
+           <x:WorksheetOptions>
+     <x:ProtectContents>False</x:ProtectContents>
+     <x:ProtectObjects>False</x:ProtectObjects>
+     <x:ProtectScenarios>False</x:ProtectScenarios>
+    </x:WorksheetOptions>
+   </x:ExcelWorksheet>
+  </x:ExcelWorksheets>
+  <x:WindowHeight>9210</x:WindowHeight>
+  <x:WindowWidth>19035</x:WindowWidth>
+  <x:WindowTopX>0</x:WindowTopX>
+  <x:WindowTopY>75</x:WindowTopY>
+  <x:ProtectStructure>False</x:ProtectStructure>
+  <x:ProtectWindows>False</x:ProtectWindows>
+ </x:ExcelWorkbook>
+</xml><![endif]-->
+</head>
+<body><table>
+<thead><tr><th>'.$lang->$pagedesc.'</th></tr><tr><th></th>'.$type.'</tr></thead>';
+                $page.='<tbody>'.$htmlbudget.'</tbody>';
+                $page.='</table></body></html>';
+                $path = dirname(__FILE__).'\..\..\tmp\\bugetingexport\\'.uniqid($type).'.html';
+                $allpaths[$type][$lang->$type] = $path;
+                $handle = fopen($path, 'w') or die('Cannot open file: '.$allpaths);
+                $writefile = file_put_contents($path, $page);
+                $htmlbudget = '';
+            }
+        }
+    }
+
+    //get stock reports - END
 
     ini_set('max_execution_time', 0);
+    /* START-- GENERATION OF STOCK REPORTS */
     $core->input['action'] = "do_generatereport";
     $core->input['referrer'] = 'generate_budgetpresntation';
     $core->input['module'] = 'warehousemgmt/stockreportlive';
@@ -1217,6 +1244,7 @@ if($core->input['export']) {
     }
 
     unset($style);
+    /* END-- GENERATION OF STOCK REPORTS */
 
 
     //get stock reports - END
