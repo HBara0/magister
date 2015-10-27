@@ -153,4 +153,5 @@ $lang['add'] = 'Add';
 $lang['preview'] = 'Preview';
 $lang['translation'] = 'Translation';
 $lang['manageaff'] = 'Manage Affiliate';
+$lang['addmenuitem'] = 'Add Menu Item';
 ?>
