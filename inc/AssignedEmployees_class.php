@@ -43,4 +43,15 @@ class AssignedEmployees extends AbstractClass {
         return $this;
     }
 
+    public function get_supplier_auditor($spid) {
+        $suppauditor = self::get_data(array('eid' => $spid, 'isValidator' => 1));
+        if(is_object($suppauditor)) {
+            $suppauditor = new Users($suppauditor->uid);
+            if(is_object($suppauditor)) {
+                return $suppauditor;
+            }
+        }
+        return false;
+    }
+
 }
