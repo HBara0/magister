@@ -548,8 +548,10 @@ if(!($core->input['action'])) {
                     }
                     // }
                     //}
-                }
-                $toolgenerate = '<div align="right" title="'.$lang->generate.'" style="float:right;padding:10px;width:10px;"><a href="index.php?module=budgeting/preview&identifier='.$export_identifier.'&action=exportexcel" target="_blank"><img src="./images/icons/xls.gif"/>'.$lang->generateexcel.'</a></div>';
+                }//href="index.php?module=budgeting/preview&identifier='.$export_identifier.'&action=exportexcel" target="_blank"
+
+                $onclickactin = "$('#tabletoexport').tableExport({type:'excel',escape:'false'});";
+                $toolgenerate = '<div align="right" title="'.$lang->generate.'" style="float:right;padding:10px;width:10px;"><a onClick ="'.$onclickactin.'"><img src="./images/icons/xls.gif"/>'.$lang->generateexcel.'</a></div>';
             }
             else {
                 $budgeting_budgetrawreport = '<tr><td>'.$lang->na.'</td></tr>';
