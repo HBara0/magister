@@ -1,7 +1,7 @@
-<table style="width:100%;table-layout:fixed;">
+<table {$table_style}>
 
     {$budgeting_tainingvisitpreviewinheader}
-    <tbody style="width:100%;">
+    <tbody {$tbody_style}">
         {$budgeting_trainingvisitrows}
 
     </tbody>

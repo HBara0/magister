@@ -670,6 +670,10 @@ Class FinancialBudget extends AbstractClass {
 
                     case 'trainingvisits':
                         $budgetrainingvisit_obj = BudgetTrainingVisits::get_data(array('bfbid' => $financialbudget), array('simple' => false));
+                        $line_style = 'width="16.6%"';
+                        $table_style = ' style = "width:100%;table-layout:fixed;"';
+                        $tbody_style = 'style="width:100%;';
+                        $local_linestyle = 'width="20%"';
 
                         if(is_array($financial_obj)) {
                             foreach($financial_obj as $financialbudget) {
@@ -738,11 +742,9 @@ Class FinancialBudget extends AbstractClass {
 
                     case 'domestictrainingvisits':
                         $budgetrainingvisit_obj = BudgetTrainingVisits::get_data(array('bfbid' => $financialbudget), array('simple' => false));
-
                         if(is_array($financial_obj)) {
                             foreach($financial_obj as $financialbudget) {
                                 $affiliate = new Affiliates($financialbudget->affid);
-                                $budgeting_tainingvisitpreview .='<h2> '.$affiliate->get_displayname().'</small> </h2> ';
                                 $rate = 1;
                                 $ratequery = BudgetFxRates::get_data(array('affid' => $financialbudget->affid, 'year' => $financialbudget->year, 'fromCurrency' => $financialbudget->currency, 'toCurrency' => $options['tocurrency'], 'isBudget' => 1));
                                 if(is_object($ratequery)) {
@@ -750,8 +752,8 @@ Class FinancialBudget extends AbstractClass {
                                 }
                                 $budgetraininglocalvisit_objs = BudgetTrainingVisits::get_data(array('bfbid' => $financialbudget->bfbid, 'classification' => 'local'), array('returnarray' => true, 'simple' => false, 'order' => array('by' => 'totalCostAffiliate', 'sort' => 'DESC')));
                                 if(is_array($budgetraininglocalvisit_objs)) {
-                                    $budgeting_tainingvisitpreview .='<div class = "subtitle" style = "padding:8px;"> '.$lang->localvisit.'</div>';
-                                    eval("\$budgeting_localtainingvisitpreviewinheader = \"".$template->get('budgeting_localtraininvisitpreview_header')."\";");
+//                                    $budgeting_tainingvisitpreview .='<div class = "subtitle" style = "padding:8px;"> '.$lang->localvisit.'</div>';
+                                    eval("\$budgeting_localtainingvisitpreviewinheader = \"".$template->get('budgeting_localtraininvisitpreview_header_presentation')."\";");
                                     foreach($budgetraininglocalvisit_objs as $budgetrainingvisit_ob) {
                                         $inputfields = array('company', 'name', 'date', 'purpose', 'costAffiliate', 'event', 'bm', 'planeCost', 'otherCosts', 'totalCostAffiliate');
                                         if(!empty($budgetrainingvisit_ob->date)) {
@@ -768,13 +770,10 @@ Class FinancialBudget extends AbstractClass {
                                         $budgeting_tainingvisitpreview.=$budgeting_local_traininvisitpreview;
                                         unset($budgeting_localtainingvisitpreviewinheader, $totallocalcostamount);
                                     }
-                                    $budgeting_taininglocalvisitgrand_total = '<div style = "font-size:14px;font-weight:bold;float:right;margin-right:120px;">'.$lang->total.' '.$total_localamount.' </div>';
-                                    $budgeting_tainingvisitpreview.=$budgeting_taininglocalvisitgrand_total;
+//                                    $budgeting_taininglocalvisitgrand_total = '<div>'.$lang->total.' '.$total_localamount.' </div>';
+//                                    $budgeting_tainingvisitpreview.=$budgeting_taininglocalvisitgrand_total;
                                 }
-
-
-                                $budgeting_tainingvisitpreview = $budgeting_tainingvisitgrand_total;
-                                $budgeting_tainingvisitpreview.='<br>';
+//                                $budgeting_tainingvisitpreview = $budgeting_tainingvisitgrand_total;
                                 unset($totalamount, $total_localamount);
                             }
                         }
@@ -788,7 +787,7 @@ Class FinancialBudget extends AbstractClass {
                         if(is_array($financial_obj)) {
                             foreach($financial_obj as $financialbudget) {
                                 $affiliate = new Affiliates($financialbudget->affid);
-                                $budgeting_tainingvisitpreview .='<h2> '.$affiliate->get_displayname().'</small> </h2> ';
+//                                $budgeting_tainingvisitpreview .='<h2> '.$affiliate->get_displayname().'</small> </h2> ';
                                 $rate = 1;
                                 $ratequery = BudgetFxRates::get_data(array('affid' => $financialbudget->affid, 'year' => $financialbudget->year, 'fromCurrency' => $financialbudget->currency, 'toCurrency' => $options['tocurrency'], 'isBudget' => 1));
                                 if(is_object($ratequery)) {
@@ -797,8 +796,8 @@ Class FinancialBudget extends AbstractClass {
 
                                 $budgetrainingintvisit_objs = BudgetTrainingVisits::get_data(array('bfbid' => $financialbudget->bfbid, 'classification' => 'International'), array('returnarray' => true, 'simple' => false));
                                 if(is_array($budgetrainingintvisit_objs)) {
-                                    $budgeting_tainingvisitpreview .='<div class = "subtitle" style = "padding:8px;"> '.$lang->intvisit.' </div>';
-                                    eval("\$budgeting_tainingvisitpreviewinheader  = \"".$template->get('budgeting_traininvisitpreview_header')."\";");
+//                                    $budgeting_tainingvisitpreview .='<div class = "subtitle" style = "padding:8px;"> '.$lang->intvisit.' </div>';
+                                    eval("\$budgeting_tainingvisitpreviewinheader  = \"".$template->get('budgeting_traininvisitpreview_header_presentation')."\";");
                                     foreach($budgetrainingintvisit_objs as $budgetrainingintvisit_ob) {
                                         $userob = new Users($budgetrainingintvisit_ob->bm);
                                         $budgetrainingintvisit_ob->bm = $userob->get_displayname();
@@ -815,10 +814,10 @@ Class FinancialBudget extends AbstractClass {
                                     }
                                     eval("\$budgeting_int_tainingvisitpreview  = \"".$template->get('budgeting_int_traininvisitpreview')."\";");
                                     $budgeting_tainingvisitpreview.=$budgeting_int_tainingvisitpreview;
-                                    $budgeting_tainingvisitgrand_total = '<div style = "font-size:14px;font-weight:bold;float:right;margin-right:120px;">'.$lang->total.' '.$totalamount.' </div>';
+//                                    $budgeting_tainingvisitgrand_total = '<div style = "font-size:14px;font-weight:bold;float:right;margin-right:120px;">'.$lang->total.' '.$totalamount.' </div>';
                                 }
-                                $budgeting_tainingvisitpreview = $budgeting_tainingvisitgrand_total;
-                                $budgeting_tainingvisitpreview.='<br>';
+//                                $budgeting_tainingvisitpreview = $budgeting_tainingvisitgrand_total;
+//                                $budgeting_tainingvisitpreview.='<br>';
                                 unset($totalamount, $total_localamount);
                             }
                         }
