@@ -12,8 +12,8 @@
 class Surveys {
     private $survey = array();
     private $status = 0; //0=No errors;1=Subject missing;2=Entry exists;3=Error saving;4=validation violation
-    public $stid = 0;
 
+    /* public $stid = 0; */
     public function __construct($id = '', $simple = false) {
         global $core;
 
@@ -422,8 +422,8 @@ class Surveys {
     }
 
     public function get_template() {
-        if(isset($this->data['stid']) && !empty($this->data['stid'])) {
-            $template = new SurveysTemplates($this->data['stid']);
+        if(isset($this->survey['stid']) && !empty($this->survey['stid'])) {
+            $template = new SurveysTemplates($this->survey['stid']);
             if(!is_object($template)) {
                 return false;
             }
@@ -601,6 +601,9 @@ class Surveys {
             $responses_stats[$responses_stat['stqid']]['number'] = $responses_stat['sequence'];
             $responses_stats[$responses_stat['stqid']]['title'] = $responses_stat['question'];
             $responses_stats[$responses_stat['stqid']]['choices']['choice'][$responses_stat['stqcid']] = $responses_stat['choice'];
+            if(strlen($responses_stat['choice']) > 40) {
+                $responses_stats[$responses_stat['stqid']]['choices']['choice'][$responses_stat['stqcid']] = $responses_stat['value'];
+            }
             $responses_stats[$responses_stat['stqid']]['choices']['value'][$responses_stat['stqcid']] = $responses_stat['value'];
             $responses_stats[$responses_stat['stqid']]['choices']['stats'][$responses_stat['stqcid']] ++;
         }
@@ -612,6 +615,9 @@ class Surveys {
                     while($other_choices = $db->fetch_assoc($query2)) {
                         if(!isset($responses_stats[$other_choices['stqid']]['choices']['stats'][$other_choices['stqcid']])) {
                             $responses_stats[$other_choices['stqid']]['choices']['choice'][$other_choices['stqcid']] = $other_choices['choice'];
+                            if(strlen($other_choices['choice']) > 40) {
+                                $responses_stats[$other_choices['stqid']]['choices']['choice'][$other_choices['stqcid']] = $other_choices['value'];
+                            }
                             $responses_stats[$other_choices['stqid']]['choices']['value'][$other_choices['stqcid']] = $other_choices['value'];
                             $responses_stats[$other_choices['stqid']]['choices']['stats'][$other_choices['stqcid']] = 0;
                         }
@@ -1238,6 +1244,17 @@ class Surveys {
         $mailer->set_from(array('name' => $core->user['displayName'], 'email' => $core->user['email']));
         $mailer->set_to($share_user['email']);
         $mailer->send();
+    }
+
+    public function __get($name) {
+        if(isset($this->survey[$name])) {
+            return $this->survey[$name];
+        }
+        return false;
+    }
+
+    public function __set($name, $value) {
+        $this->survey[$name] = $value;
     }
 
 }

@@ -154,7 +154,7 @@ class SurveysTemplates extends AbstractClass {
                     $question_output .= '<div style="margin: 5px 20px; 5px; 20px;">'.implode(', ', $question_output_response).'</div>';
                 }
                 else {
-                    $question_output .= '<div style="margin: 5px 20px; 5px; 20px;">'.parse_checkboxes('answer[actual]['.$question['stqid'].']', $question['choices'], '', true, '&nbsp;&nbsp;').'</div>';
+                    $question_output .= '<div style="margin: 5px 20px; 5px; 20px;">'.parse_checkboxes('answer[actual]['.$question['stqid'].']', $question['choices'], '', true, '', '<br />').'</div>';
                 }
                 break;
             case 'radiobutton':
@@ -162,7 +162,7 @@ class SurveysTemplates extends AbstractClass {
                     $question_output .= '<div style="margin: 5px 20px; 5px; 20px;">'.$response['choice'].'</div>';
                 }
                 else {
-                    $question_output .= '<div style="margin: 5px 20px; 5px; 20px;">'.parse_radiobutton('answer[actual]['.$question['stqid'].']', $question['choices'], '', true, '&nbsp;&nbsp;', array('required' => $question['isRequired'])).'</div>';
+                    $question_output .= '<div style="margin: 5px 20px; 5px; 20px;">'.parse_radiobutton('answer[actual]['.$question['stqid'].']', $question['choices'], '', true, '<br />', array('required' => $question['isRequired'])).'</div>';
                 }
                 break;
             case 'textarea':
