@@ -36,15 +36,15 @@ if(!$core->input['action']) {
                     $endprod_link = $endproducts_obj->parse_link();
                     $first_parent = $endproducts_obj->get_parent();
                     if(is_object($first_parent)) {
-                        $endprod_link .= '--> '.$first_parent->get_displayname();
+                        $endprod_link .= ' -> '.$first_parent->get_displayname();
                         $secondpar_obj = $first_parent->get_parent();
                         if(is_object($secondpar_obj)) {
-                            $endprod_link.='-->'.$secondpar_obj->get_displayname();
+                            $endprod_link.= ' -> '.$secondpar_obj->get_displayname();
                             $third_par = $secondpar_obj->get_parent();
                             if(is_object($third_par)) {
                                 $originalpar_obj = $third_par->get_mother();
                                 if(is_object($originalpar_obj)) {
-                                    $endprod_link.='->.....->'.$originalpar_obj->get_displayname();
+                                    $endprod_link.= ' ->...-> '.$originalpar_obj->get_displayname();
                                 }
                             }
                         }

@@ -102,7 +102,7 @@ if(!$core->input['action']) {
         }
         asort($values);
 
-        $classification_classes = array('Class A', 'Class B', 'Class C');
+        $classification_classes = array('A', 'B', 'C');
         $classification_classes = array_combine($classification_classes, $classification_classes);
         foreach($values as $key => $value) {
             $checked = $rowclass = '';
