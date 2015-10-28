@@ -1,8 +1,9 @@
 <page>
     <div style="page-break-before:always;"></div>
-    <table class="datatable" border="0" cellpadding="1" cellspacing="1" width="100%">
-        <tbody>
+    <table class="datatable" border="0" cellpadding="1" cellspacing="1" width="100%" id="tabletoexport">
+        <thead>
             <tr class="thead">
+                <th style="vertical-align:central; padding:2px;  border-bottom: dashed 1px #CCCCCC;" style="opacity:0" align="center" class="border_left"></th>
                 <th style="vertical-align:central; padding:2px;  border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left">{$lang->manager}</th>
                 <th style="vertical-align:central; padding:2px;border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left">{$lang->customer}</th>
                 <th style="vertical-align:central; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left">{$lang->affiliate}</th>
@@ -23,8 +24,11 @@
                 <th style="vertical-align:central; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left">{$lang->purchasingentity}</th>
 
             </tr>
+        </thead>
+        <tbody>
+            {$budget_report_row}
+            {$totals_row}
         </tbody>
-        {$budget_report_row}
-        {$totals_row }
+
     </table>
 </page>

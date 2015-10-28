@@ -2,8 +2,10 @@
     <head>
         <title>{$core->settings[systemtitle]} | {$lang->generatecontactlist}</title>
         {$headerinc}
+        <script type="text/javascript" src="{$core->settings[rootdir]}/js/tableExport.js"></script>
+        <script type="text/javascript" src="{$core->settings[rootdir]}/js/jquery.base64.js"></script>
         <script>
-            $(function () {
+            $(function() {
                 var icons = {
                     header: "ui-icon-circle-arrow-e",
                     activeHeader: "ui-icon-circle-arrow-s"
@@ -12,15 +14,15 @@
                         {
                             icons: icons,
                             heightStyle: "content",
-                            activate: function (event, ui) {
+                            activate: function(event, ui) {
                                 ui.newHeader.find('input').prop('checked', true)
                             }
                         });
-                $('input[type=radio]').on('click', function (e) {
+                $('input[type=radio]').on('click', function(e) {
                     e.stopPropagation();
                 }
                 );
-                $(document).on('change', 'input[id^="button"]', function () {
+                $(document).on('change', 'input[id^="button"]', function() {
                     if($('#button_user').is(':checked')) {
                         $('#div_user').find('input').removeAttr('disabled');
                         $('#div_user').find('select').removeAttr('disabled');
