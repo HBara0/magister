@@ -150,7 +150,7 @@ else {
         }
     }
     elseif($core->input['action'] == 'togglepublish') {
-        if($core->usergroup ['cms_canPublishNews'] == 1 && !empty($core->input['id'])) {
+        if($core->usergroup['cms_canPublishNews'] == 1 && !empty($core->input['id'])) {
             $page = new CmsPages($core->input['id']);
             $db->update_query('cms_pages', array('isPublished' => !$page->isPublished), 'cmspid='.intval($core->input['id']));
         }
