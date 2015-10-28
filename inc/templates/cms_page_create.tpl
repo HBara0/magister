@@ -8,7 +8,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$lang->pagetitle}</h3>   <small>{$page[version_output]}</small>
+            <h1>{$lang->createwebpage}<small><br />{$page[version_output]}</small></h1>
             <div style="display:table; width: 100%;">
                 <form  name="perform_cms/managewebpage_Form" action="#" method="post"  id="perform_cms/managewebpage_Form" >
                     <input type="hidden" value="do_{$actiontype}page" name="action" id="action" />

@@ -450,14 +450,10 @@ if($core->input['type'] == 'quick') {
         if($core->input['for'] == 'supplier') {
             if($core->input['returnType'] != 'json') {
                 if(strpos(strtolower($_SERVER['HTTP_REFERER']), ADMIN_DIR) !== false) {
-                    $results_list .= "<     p><hr />&rsaquo;
-                    &rsaquo;
-                    <a href = 'index.php?module=entities/add&amp;type=supplier' target = '_blank'>{$lang->add}</a></p>";
+                    $results_list .= "<p><hr />&rsaquo;&rsaquo;<a href='index.php?module=entities/add&amp;type=supplier' target = '_blank'>{$lang->add}</a></p>";
                 }
                 else {
-                    $results_list .= "<p><hr />&rsaquo;
-                    &rsaquo;
-                    <a href = 'index.php?module=contents/addentities&amp;type=supplier' target = '_blank'>{$lang->add}</a></p>";
+                    $results_list .= "<p><hr />&rsaquo;&rsaquo;<a href = 'index.php?module=contents/addentities&amp;type=supplier' target = '_blank'>{$lang->add}</a></p>";
                 }
             }
         }

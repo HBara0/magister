@@ -19,7 +19,6 @@ if(!isset($core->input['action'])) {
     $factypes = FacilityMgmtFactypes::get_data(array('isActive' => 1), array('returnarray' => true));
     $roomtypesids = FacilityMgmtFactypes::get_roomtypesids();
     $mainlocationids = FacilityMgmtFactypes::get_maintypesids();
-
     if(!isset($core->input['id'])) {
         $facilities = FacilityMgmtFacilities::get_data(array('type' => $roomtypesids, 'affid' => $core->user['mainaffiliate'], 'isActive' => 1), array('operators' => array('type' => 'NOT IN'), 'returnarray' => true));
         $affiliate_list = parse_selectlist('facility[affid]', 1, $affiliates, $core->user['mainaffilaite'], '', '', array('width' => '150px', 'blankstart' => true));
@@ -55,8 +54,9 @@ if(!isset($core->input['action'])) {
             $show_within = 'style="display:none"';
         }
     }
+
     eval("\$managefacility= \"".$template->get('facilitymgmt_managefacility')."\";");
-    output($managefacility);
+    output_page($managefacility);
 }
 else if($core->input['action'] == 'do_perform_managefacility') {
     unset($core->input['identifier'], $core->input['module'], $core->input['action']);
