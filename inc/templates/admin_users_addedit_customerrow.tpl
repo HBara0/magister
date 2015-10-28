@@ -1,4 +1,3 @@
-
 <tr class="{$rowclass}">
     <td width="1%"><input name="cid[{$cid}]" type="checkbox"{$checked} value="{$cid}" id="customerfilter_check_{$cid}"></td>
     <td width="40%"><a href="../index.php?module=profiles/entityprofile&eid={$cid}" title="{$value}" target="_blank">{$value}</a>

@@ -44,7 +44,7 @@ else {
 	WHERE uid=".$db->escape_string($param['fromUser'])."
 	AND ae.eid IN (SELECT es.eid FROM ".Tprefix."entitiessegments es WHERE es.psid IN (".implode(', ', $param['segments'])."))
 	AND ae.eid NOT IN (SELECT ae2.eid FROM ".Tprefix."assignedemployees ae2 WHERE ae2.affid=".intval($param['affid'])." AND ae2.uid=".$db->escape_string($param['toUser']).")
-	AND afe.affid=".intval($param['affid'])." AND e.type IN (".implode(',', $param['types']).") ORDER BY type ASC, companyName ASC";
+	AND afe.affid=".intval($param['affid'])." AND e.type IN ('".implode('\',\'', $param['types'])."') ORDER BY type ASC, companyName ASC";
         $query = $db->query($sql);
         if($db->num_rows($query) > 0) {
             while($entity = $db->fetch_assoc($query)) {

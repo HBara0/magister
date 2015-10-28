@@ -16,8 +16,8 @@
                 Segments: {$segments_selectlist}<br />
                 Assignments <input type="checkbox" name="transfer[assignment]" value="1">&nbsp;&nbsp;
                 User Transfer Assignments <input type="checkbox" name="transfer[userassignments]" value="1"><br />
-                Customers <input type="checkbox" name="types[]" value="'c'">&nbsp;&nbsp;
-                Suppliers <input type="checkbox" name="types[]" value="'s'"><br />
+                Customers <input type="checkbox" name="types[]" value="c">&nbsp;&nbsp;
+                Suppliers <input type="checkbox" name="types[]" value="s"><br />
 
                 <input type="button" value="{$lang->savecaps}" id="perform_users/copyassignments_Button" tabindex="26"/>
                 <div id="perform_users/copyassignments_Results"></div>
