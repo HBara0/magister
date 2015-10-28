@@ -234,4 +234,5 @@ $lang['daysfromreportcreation'] = 'Days to Completion (From Creation Date)';
 $lang['daystoimportfromqstart'] = 'Days to Import Data (From Q Start)';
 $lang['daystoimportfromcreation'] = 'Days to Import Data (From Creation Date)';
 $lang['businessmanager'] = 'Business Manager';
+$lang['reportauditor'] = 'Report Auditor';
 ?>
