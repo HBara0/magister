@@ -526,7 +526,7 @@ if(!($core->input['action'])) {
                                     $budgetline['segment'] = $segment->titleAbbr;
                                 }
                                 else {
-                                    // $budgetline['segment'] = $budgetline_obj->get_product()->get_segment()['titleAbbr'];
+                                    $budgetline['segment'] = $budgetline_obj->get_product()->get_segment()['titleAbbr'];
                                 }
                             }
                             if((empty($budgetline['cid']) && !empty($budgetline['altCid']))) {
