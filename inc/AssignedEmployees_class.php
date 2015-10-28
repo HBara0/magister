@@ -18,6 +18,7 @@ class AssignedEmployees extends AbstractClass {
     const SIMPLEQ_ATTRS = '*';
     const CLASSNAME = __CLASS__;
     const UNIQUE_ATTRS = 'eid,uid,affid';
+    const REQUIRED_ATTRS = 'eid,uid,affid';
 
     public function __construct($id = '', $simple = true) {
         parent::__construct($id, $simple);
@@ -32,15 +33,31 @@ class AssignedEmployees extends AbstractClass {
     }
 
     protected function create(array $data) {
-        global $db;
-        $db->insert_query(self::TABLE_NAME, $data);
-        return $this;
+        global $db, $log;
+        if(!$this->validate_requiredfields($data)) {
+            $this->errorcode = 2;
+            return $this;
+        }
+        $query = $db->insert_query(self::TABLE_NAME, $data);
+        if($query) {
+            $this->data[self::PRIMARY_KEY] = $db->last_id();
+            $log->record('assignedemployees', $this->data[self::PRIMARY_KEY]);
+            $this->errorcode = 0;
+            return $this;
+        }
     }
 
     protected function update(array $data) {
         global $db;
-        $db->update_query(self::TABLE_NAME, $data, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
-        return $this;
+        if(!$this->validate_requiredfields($data)) {
+            $this->errorcode = 2;
+            return $this;
+        }
+        $query = $db->update_query(self::TABLE_NAME, $data, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
+        if($query) {
+            $this->errorcode = 0;
+            return $this;
+        }
     }
 
     public function get_supplier_auditor($spid) {
