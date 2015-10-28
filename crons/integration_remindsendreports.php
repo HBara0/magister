@@ -9,7 +9,7 @@
  */
 
 require '../inc/init.php';
-if($_REQUEST['authkey'] == 'kia5ravb$op09dj4a!xhegalhj') {
+if($_REQUEST['authkey'] == 'kia5ravbXop09dj4a!xhegalhj') {
     $reportypes = array('stockreport' => 'Stock Report', 'salesreport' => 'Sales Report');
     $links = array(
             'salesreport' => 'https://ocos.orkila.com/index.php?module=crm/salesreportlive',
@@ -27,26 +27,40 @@ if($_REQUEST['authkey'] == 'kia5ravb$op09dj4a!xhegalhj') {
             11 => array(111),
             2 => array('amal.dababneh', 34),
             7 => array(333),
-            16 => array(392)
+            16 => array(392),
+            29 => array(160)
     );
+
+    $time = new DateTime();
+    $timeline = strtotime($time->format('Y-m').'-05');
     $affiliates = Affiliates::get_affiliates(array('integrationOBOrgId' => 'integrationOBOrgId IS NOT NULL'), array('simple' => false, 'returnarray' => true, 'operators' => array('integrationOBOrgId' => 'CUSTOMSQLSECURE')));
     if(is_array($affiliates)) {
         foreach($affiliates as $affiliate) {
-            $message = 'Openbravo/OCOS reports are due on the 5th of the month.<br /><ul>';
+            $message = '';
             $senders = array();
             foreach($reportypes as $report => $reportname) {
                 //$recentreport = ReportsSendLog::get_data(array('date' => strtotime('last month'), 'affid' => $affiliate->affid, 'report' => $report), array('order' => array('by' => 'date', 'sort' => 'DESC'), 'limit' => '0,1', 'operators' => array('date' => 'lt')));
                 //if(!is_object($recentreport)) {
                 // $message .= 'Last '.$reportname.' is more than one month old';
-                $message .= '<li><a href="'.$links[$report].'">'.$reportname.'</a>';
-                $lastreport = ReportsSendLog::get_data(array('affid' => $affiliate->affid, 'report' => $report), array('order' => array('by' => 'date', 'sort' => 'DESC'), 'limit' => '0,1', 'operators' => array('date' => 'lt')));
+                $lastreport = ReportsSendLog::get_data(array('affid' => $affiliate->affid, 'report' => $report), array('order' => array('by' => 'date', 'sort' => 'DESC'), 'limit' => '0, 1', 'operators' => array('date' => 'grt')));
                 if(is_object($lastreport)) {
+                    if($lastreport->date > $timeline) {
+                        continue;
+                    }
                     $senders[] = $lastreport->sentBy;
+                    $message .= '<li><a href = "'.$links[$report].'">'.$reportname.'</a>';
                     $message .= ', last sent on '.date($core->settings['dateformat'], $lastreport->date);
+                }
+                else {
+                    $message .= '<li><a href = "'.$links[$report].'">'.$reportname.'</a>';
                 }
                 $message .= '</li>';
                 //}
             }
+            if(empty($message)) {
+                continue;
+            }
+            $message = 'Openbravo/OCOS reports are due on the 5th of the month.<br /><ul>'.$message;
             $message .= '</ul>';
             /* Send email */
             $mailer = new Mailer();
@@ -84,7 +98,7 @@ if($_REQUEST['authkey'] == 'kia5ravb$op09dj4a!xhegalhj') {
             $mailer->set_to($recpients);
             //$mailer->set_to('zaher.reda@orkila.com');
             // print_r($mailer->debug_info());
-            //  echo '<hr />';
+            //echo '<hr />';
             // exit;
             $mailer->send();
         }
