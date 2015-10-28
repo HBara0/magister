@@ -240,290 +240,274 @@ else {
                     }
                 }
             }
-        }
-        else {
-            $salesreport = '<p width="100%">No match found  <br/> Empty Report</p>';
-            if(!is_array($core->input['affids']) || count($core->input['affids']) == 1) {
-                $recipients = array(
-                        $affiliate->get_generalmanager()->displayName,
-                        $affiliate->get_supervisor()->displayName,
-                        $affiliate->get_financialemanager()->displayName,
-                        $core->user_obj->displayName,
-                        Users::get_data(array('uid' => 3))->get_displayname()/* Always include User 3 */);
-                $recipients = array_unique($recipients);
-                if(is_array($recipients)) {
-                    $recipients = array_filter($recipients);
-                    $salesreport .= '<hr /><div class="ui-state-highlight ui-corner-all" style="padding-left: 5px; margin-bottom:10px;"><p>This report will be sent to <ul><li>'.implode('</li><li>', $recipients).'</li></ul></p></div>';
-                    $salesreport .= '<a href="index.php?reporttype=email&amp;'.http_build_query($core->input).'"><button class="button">Send by email</button></a>';
-                }
-            }
-            eval("\$previewpage = \"".$template->get('crm_previewsalesreport')."\";");
-            output_xml('<status>true</status><message><![CDATA['.$previewpage.']]></message>');
-            exit;
-            //  redirect($url, $delay, $redirect_message);
-        }
+            $salesreport = '<h1>'.$lang->salesreport.'<small><br />'.$lang->{$core->input['type']}.'<br />Values are in Thousands <small>Local Currency</small> (K '.$currency_obj->alphaCode.')</h1>';
+            $salesreport .= '<p><em>The report might have issues in the cost information. If so please report them to the ERP Team.</em></p>';
+            if($core->input['type'] == 'analytic' || $core->input['type'] == 'dimensional') {
+                $overwrite = array('marginperc' => array('fields' => array('divider' => 'netmargin', 'dividedby' => 'linenetamt'), 'operation' => '/'),
+                        'priceactual' => array('fields' => array('divider' => 'linenetamt', 'dividedby' => 'qtyinvoiced'), 'operation' => '/'));
 
-        $salesreport = '<h1>'.$lang->salesreport.'<small><br />'.$lang->{$core->input['type']}.'<br />Values are in Thousands <small>Local Currency</small> (K '.$currency_obj->alphaCode.')</h1>';
-        $salesreport .= '<p><em>The report might have issues in the cost information. If so please report them to the ERP Team.</em></p>';
-        if($core->input['type'] == 'analytic' || $core->input['type'] == 'dimensional') {
-            $overwrite = array('marginperc' => array('fields' => array('divider' => 'netmargin', 'dividedby' => 'linenetamt'), 'operation' => '/'),
-                    'priceactual' => array('fields' => array('divider' => 'linenetamt', 'dividedby' => 'qtyinvoiced'), 'operation' => '/'));
+                $formats = array('marginperc' => array('style' => NumberFormatter::PERCENT_SYMBOL));
+                $required_fields = array('qtyinvoiced', 'priceactual', 'linenetamt', 'purchaseprice', 'costlocal', 'grossmargin', 'netmargin', 'marginperc');
 
-            $formats = array('marginperc' => array('style' => NumberFormatter::PERCENT_SYMBOL));
-            $required_fields = array('qtyinvoiced', 'priceactual', 'linenetamt', 'purchaseprice', 'costlocal', 'grossmargin', 'netmargin', 'marginperc');
+                if($core->input['type'] == 'analytic') {
+                    $current_year = date('Y', TIME_NOW);
+                    $required_tables = array('segmentsummary' => array('segment'), 'salesrepsummary' => array('salesrep'), 'suppliersummary' => array('suppliername'), 'customerssummary' => array('customername'));
 
-            if($core->input['type'] == 'analytic') {
-                $current_year = date('Y', TIME_NOW);
-                $required_tables = array('segmentsummary' => array('segment'), 'salesrepsummary' => array('salesrep'), 'suppliersummary' => array('suppliername'), 'customerssummary' => array('customername'));
+                    $yearsummary_filter = "EXISTS (SELECT c_invoice_id FROM c_invoice WHERE c_invoice.c_invoice_id=c_invoiceline.c_invoice_id AND issotrx='Y'AND ad_org_id IN ('".implode("','", $orgs)."') AND docstatus NOT IN ('VO', 'CL') AND (dateinvoiced BETWEEN '".date('Y-m-d 00:00:00', strtotime((date('Y', TIME_NOW) - 2).'-01-01'))."' AND '".date('Y-m-d 00:00:00', $period['to'])."'))";
+                    //$monthdata = $integration->get_sales_byyearmonth($yearsummary_filter);
+                    $intgdb = $integration->get_dbconn();
+                    $invoicelines = new IntegrationOBInvoiceLine(null);
+                    $mdata = $invoicelines->get_data_byyearmonth($yearsummary_filter, array('reportcurrency' => $currency_obj->alphaCode, 'fxtype' => $core->input['fxtype']));
 
-                $yearsummary_filter = "EXISTS (SELECT c_invoice_id FROM c_invoice WHERE c_invoice.c_invoice_id=c_invoiceline.c_invoice_id AND issotrx='Y'AND ad_org_id IN ('".implode("','", $orgs)."') AND docstatus NOT IN ('VO', 'CL') AND (dateinvoiced BETWEEN '".date('Y-m-d 00:00:00', strtotime((date('Y', TIME_NOW) - 2).'-01-01'))."' AND '".date('Y-m-d 00:00:00', $period['to'])."'))";
-                //$monthdata = $integration->get_sales_byyearmonth($yearsummary_filter);
-                $intgdb = $integration->get_dbconn();
-                $invoicelines = new IntegrationOBInvoiceLine(null);
-                $mdata = $invoicelines->get_data_byyearmonth($yearsummary_filter, array('reportcurrency' => $currency_obj->alphaCode, 'fxtype' => $core->input['fxtype']));
-
-                if(isset($core->input['generatecharts']) && $core->input['generatecharts'] == 1) {
-                    $classifications = $invoicelines->get_classification($mdata['dataperday'], $period);
-                }
-
-                $monthdata = $mdata['salerep'];
-                if(is_array($monthdata)) {
-                    // $formatter = new NumberFormatter('EN_en', NumberFormatter::INTEGER_DIGITS, '#.##');
-                    $percformatter = new NumberFormatter('EN_en', NumberFormatter::PERCENT);
-                    $salesreport .= '<h2>Monthly Overview by BM</h2>';
-                    $salesreport .= '<table width="100%" class="datatable">';
-                    $salesreport .= '<tr><th style="font-size:14px; font-weight: bold; background-color: #F1F1F1;">Sales Rep</th>';
-                    for($i = 1; $i <= 12; $i++) {
-                        $salesreport .= '<th style="font-size:14px; font-weight: bold; background-color: #F1F1F1;">'.DateTime::createFromFormat('m', $i)->format('M').'</th>';
+                    if(isset($core->input['generatecharts']) && $core->input['generatecharts'] == 1) {
+                        $classifications = $invoicelines->get_classification($mdata['dataperday'], $period);
                     }
-                    for($y = $current_year; $y >= ($current_year - 1); $y--) {
-                        $salesreport .= '<th style="font-size:14px; font-weight: bold; background-color: #F1F1F1;">'.$y.'</th>';
-                    }
-                    $salesreport .= '</tr>';
-                    foreach($monthdata['linenetamt'] as $salerepid => $salerepdata) {
-                        $currentyeardata = $salerepdata[$current_year];
-                        $salesreport .= '<tr style="'.$rowstyle.'">';
-                        $salesrep = new IntegrationOBUser($salerepid, $integration->get_dbconn());
-                        if(empty($salesrep->name) || $salesrep->name == 'System') {
-                            $salesrep->name = 'Not Specified';
-                        }
-                        $salesreport .= '<td style="'.$css_styles['table-datacell'].'">'.$salesrep->name.'</td>';
 
+                    $monthdata = $mdata['salerep'];
+                    if(is_array($monthdata)) {
+                        // $formatter = new NumberFormatter('EN_en', NumberFormatter::INTEGER_DIGITS, '#.##');
+                        $percformatter = new NumberFormatter('EN_en', NumberFormatter::PERCENT);
+                        $salesreport .= '<h2>Monthly Overview by BM</h2>';
+                        $salesreport .= '<table width="100%" class="datatable">';
+                        $salesreport .= '<tr><th style="font-size:14px; font-weight: bold; background-color: #F1F1F1;">Sales Rep</th>';
                         for($i = 1; $i <= 12; $i++) {
-                            if(!isset($currentyeardata[$i])) {
-                                $currentyeardata[$i] = 0;
-                            }
-                            $salesreport .= '<td style="'.$css_styles['table-datacell'].'">'.number_format($currentyeardata[$i] / 1000).'</td>'; //$formatter->format($currentyeardata[$i] / 1000)
+                            $salesreport .= '<th style="font-size:14px; font-weight: bold; background-color: #F1F1F1;">'.DateTime::createFromFormat('m', $i)->format('M').'</th>';
                         }
                         for($y = $current_year; $y >= ($current_year - 1); $y--) {
-                            if(!is_array($salerepdata[$y])) {
-                                $salerepdata[$y][] = 0;
-                            }
-                            for($m = 1; $m <= 12; $m++) {
-                                $salerepdata[$y][$m] = $salerepdata[$y][$m] / 1000;
-                                $yearsummarytotals[$y][$m] += $salerepdata[$y][$m];
-                            }
-                            $salesreport .= '<td style="'.$css_styles['table-datacell'].'">'.number_format(array_sum($salerepdata[$y])).'</td>'; //$formatter->format(array_sum($salerepdata[$y]))
+                            $salesreport .= '<th style="font-size:14px; font-weight: bold; background-color: #F1F1F1;">'.$y.'</th>';
                         }
                         $salesreport .= '</tr>';
-                        if(empty($rowstyle)) {
-                            $rowstyle = $css_styles['altrow'];
-                        }
-                        else {
-                            $rowstyle = '';
-                        }
-                    }
+                        foreach($monthdata['linenetamt'] as $salerepid => $salerepdata) {
+                            $currentyeardata = $salerepdata[$current_year];
+                            $salesreport .= '<tr style="'.$rowstyle.'">';
+                            $salesrep = new IntegrationOBUser($salerepid, $integration->get_dbconn());
+                            if(empty($salesrep->name) || $salesrep->name == 'System') {
+                                $salesrep->name = 'Not Specified';
+                            }
+                            $salesreport .= '<td style="'.$css_styles['table-datacell'].'">'.$salesrep->name.'</td>';
 
-                    if(is_array($classifications) && (isset($core->input['generatecharts']) && $core->input['generatecharts'] == 1)) {
-                        $classifications_output .=$invoicelines->parse_classificaton_tables($classifications);
-                    }
+                            for($i = 1; $i <= 12; $i++) {
+                                if(!isset($currentyeardata[$i])) {
+                                    $currentyeardata[$i] = 0;
+                                }
+                                $salesreport .= '<td style="'.$css_styles['table-datacell'].'">'.number_format($currentyeardata[$i] / 1000).'</td>'; //$formatter->format($currentyeardata[$i] / 1000)
+                            }
+                            for($y = $current_year; $y >= ($current_year - 1); $y--) {
+                                if(!is_array($salerepdata[$y])) {
+                                    $salerepdata[$y][] = 0;
+                                }
+                                for($m = 1; $m <= 12; $m++) {
+                                    $salerepdata[$y][$m] = $salerepdata[$y][$m] / 1000;
+                                    $yearsummarytotals[$y][$m] += $salerepdata[$y][$m];
+                                }
+                                $salesreport .= '<td style="'.$css_styles['table-datacell'].'">'.number_format(array_sum($salerepdata[$y])).'</td>'; //$formatter->format(array_sum($salerepdata[$y]))
+                            }
+                            $salesreport .= '</tr>';
+                            if(empty($rowstyle)) {
+                                $rowstyle = $css_styles['altrow'];
+                            }
+                            else {
+                                $rowstyle = '';
+                            }
+                        }
+
+                        if(is_array($classifications) && (isset($core->input['generatecharts']) && $core->input['generatecharts'] == 1)) {
+                            $classifications_output .=$invoicelines->parse_classificaton_tables($classifications);
+                        }
 //                    $invoicelinesdata = new IntegrationOBInvoiceLine(null, $integration->get_dbconn());
 //                    $yearsumrawtotals = $invoicelinesdata->get_aggreateddata_byyearmonth(null, $yearsummary_filter." AND c_invoice.issotrx='Y'");
 //                    foreach($yearsumrawtotals as $totaldata) {
 //                        $yearsummarytotals[$totaldata['year']][$totaldata['month']] = $totaldata['qty'];
 //                    }
-                    for($y = $current_year; $y >= ($current_year - 1); $y--) {
-                        $salesreport .= '<tr style="'.$css_styles['altrow2'].'"><th>Totals ('.$y.')</th>';
-                        for($i = 1; $i <= 12; $i++) {
-                            $salesreport .= '<th style="text-align: right;">'.number_format($yearsummarytotals[$y][$i]).'</th>'; //$formatter->format
-                        }
+                        for($y = $current_year; $y >= ($current_year - 1); $y--) {
+                            $salesreport .= '<tr style="'.$css_styles['altrow2'].'"><th>Totals ('.$y.')</th>';
+                            for($i = 1; $i <= 12; $i++) {
+                                $salesreport .= '<th style="text-align: right;">'.number_format($yearsummarytotals[$y][$i]).'</th>'; //$formatter->format
+                            }
 
-                        for($yy = $current_year; $yy >= ($current_year - 1); $yy--) {
-                            if($yy != $y) {
-                                $salesreport .= '<th style="text-align: center;">-</th>';
+                            for($yy = $current_year; $yy >= ($current_year - 1); $yy--) {
+                                if($yy != $y) {
+                                    $salesreport .= '<th style="text-align: center;">-</th>';
+                                    continue;
+                                }
+                                if(!is_array($yearsummarytotals[$yy])) {
+                                    $yearsummarytotals[$yy][] = 0;
+                                }
+                                $salesreport .= '<th style="text-align: right;">'.number_format(array_sum($yearsummarytotals[$yy])).'</th>'; //$formatter->format
+                            }
+                            $salesreport .= '</tr>';
+                        }
+                        $salesreport .= $classifications_output.'</table>';
+                        unset($yearsumrawtotals, $yearsummarytotals, $currentyeardata);
+
+                        /* YTD Comparison */
+                        $salesreport .= '<h2>Progression by BM</h2>';
+                        $salesreport .= '<table width="100%" class="datatable" style="color:black;">';
+                        $salesreport .= '<tr><th style="font-size:14px; font-weight: bold; background-color: #F1F1F1;">Sales Rep</th>';
+                        $salesreport .= '<th style="font-size:14px; font-weight: bold; background-color: #F1F1F1; text-align: center;">YTD</th>';
+                        $salesreport .= '<th style="font-size:14px; font-weight: bold; background-color: #F1F1F1; text-align: center;">YTD / '.($current_year - 1).'</th>';
+                        $salesreport .= '<th style="font-size:14px; font-weight: bold; background-color: #F1F1F1; text-align: center;">'.$current_year.' objective</th>';
+                        $salesreport .= '<th style="font-size:14px; font-weight: bold; background-color: #F1F1F1; text-align: center;">YTD / '.$current_year.' objective</th>';
+                        $salesreport .= '</tr>';
+                        foreach($monthdata['linenetamt'] as $salerepid => $salerepdata) {
+                            for($y = $current_year; $y >= ($current_year - 1); $y--) {
+                                if(!is_array($salerepdata[$y])) {
+                                    $salerepdata[$y][] = 0;
+                                }
+
+                                foreach($salerepdata[$y] as $key => $val) {
+                                    if(!empty($val)) {
+                                        $salerepdata[$y][$key] = $val / 1000;
+                                    }
+                                }
+                            }
+
+                            $salesrep = new IntegrationOBUser($salerepid, $integration->get_dbconn());
+                            if(empty($salesrep->name)) {
                                 continue;
                             }
-                            if(!is_array($yearsummarytotals[$yy])) {
-                                $yearsummarytotals[$yy][] = 0;
+                            $salerep_user = Users::get_data_byattr('displayName', $salesrep->name);
+                            $salesreport .= '<tr style="'.$rowstyle.'">';
+                            $salesreport .= '<td>'.$salesrep->name.'</td>';
+                            $salesreport .= '<td style="text-align: right;">'.number_format(array_sum($salerepdata[$current_year])).'</td>'; //$formatter->format
+
+                            $percentages['prevyear']['linenetamt'] = 0.10;
+                            if(array_sum($salerepdata[$current_year - 1]) != 0) {
+                                $percentages['prevyear']['linenetamt'] = (array_sum($salerepdata[$current_year]) / array_sum($salerepdata[$current_year - 1]));
                             }
-                            $salesreport .= '<th style="text-align: right;">'.number_format(array_sum($yearsummarytotals[$yy])).'</th>'; //$formatter->format
+                            $salesreport .= '<td style="text-align: right;">'.$percformatter->format($percentages['prevyear']['linenetamt']).'</td>';
+
+                            /* Get budget */
+                            if(is_object($salerep_user)) {
+                                $budgetlines = BudgetLines::get_data(array('businessMgr' => $salerep_user->uid, 'bid' => '(SELECT bid FROM budgeting_budgets WHERE year='.$current_year.' AND affid IN ('.implode(',', $core->input['affids']).'))'), array('returnarray' => true, 'operators' => array('bid' => 'IN')));
+                                $percentages['budget']['amt'] = 0.10;
+                                if(is_array($budgetlines)) {
+                                    foreach($budgetlines as $budgetline) {
+                                        $budget_totals['qty'] += $budgetline->quantity;
+                                        $budget_totals['amt'] += $budgetline->get_convertedamount($currency_obj) / 1000;
+                                    }
+                                    if(!empty($budget_totals['amt'])) {
+                                        $percentages['budget']['amt'] = (array_sum($salerepdata[$current_year]) / $budget_totals['amt']);
+                                    }
+                                }
+
+                                $salesreport .= '<td style="text-align: right;">'.number_format($budget_totals['amt']).'</td>'; //$formatter->format
+                                $salesreport .= '<td style="text-align: right;">'.$percformatter->format($percentages['budget']['amt']).'</td>';
+                            }
+                            else {
+                                $salesreport .= '<td style="text-align: right;">-</td>';
+                                $salesreport .= '<td style="text-align: right;">-</td>';
+                            }
+                            $salesreport .= '</tr>';
+                            if(empty($rowstyle)) {
+                                $rowstyle = $css_styles['altrow'];
+                            }
+                            else {
+                                $rowstyle = '';
+                            }
+                            unset($budget_totals, $percentages);
+                        }
+
+                        $salesreport .= '</table>';
+                        /* YTD Comparison - END */
+
+                        unset($monthdata);
+                    }
+                }
+                elseif($core->input['type'] == 'dimensional') {
+                    $required_tables = array('detailed' => explode(',', $core->input['salereport']['dimension'][0]));
+                }
+
+                if(is_array($required_tables)) {
+                    foreach($required_tables as $tabledesc => $dimensions) {
+                        $rawdata = $data;
+                        $dimensionalreport = new DimentionalData();
+                        $dimensionalreport->set_dimensions(array_combine(range(1, count($dimensions)), array_values($dimensions)));
+                        $dimensionalreport->set_requiredfields($required_fields);
+                        $dimensionalreport->set_data($rawdata);
+                        $salesreport .= '<h2><br />'.$lang->{$tabledesc}.'</h2>';
+                        $salesreport .= '<table width="100%" class="datatable" style="color:black;">';
+                        $salesreport .= '<tr><th></th>';
+                        foreach($required_fields as $field) {
+                            if(!isset($lang->{$field})) {
+                                $lang->{$field} = $field;
+                            }
+                            $salesreport .= '<th>'.$lang->{$field}.'</th>';
                         }
                         $salesreport .= '</tr>';
+                        $salesreport .= $dimensionalreport->get_output(array('outputtype' => 'table', 'noenclosingtags' => true, 'formats' => $formats, 'overwritecalculation' => $overwrite));
+                        $salesreport .= '</table>';
+
+                        $chart_data = $dimensionalreport->get_data();
+                        //$chart = new Charts(array('x' => array($previous_year => $previous_year, $current_year => $current_year), 'y' => $barchart_quantities_values), 'bar');
                     }
-                    $salesreport .= $classifications_output.'</table>';
-                    unset($yearsumrawtotals, $yearsummarytotals, $currentyeardata);
-
-                    /* YTD Comparison */
-                    $salesreport .= '<h2>Progression by BM</h2>';
-                    $salesreport .= '<table width="100%" class="datatable" style="color:black;">';
-                    $salesreport .= '<tr><th style="font-size:14px; font-weight: bold; background-color: #F1F1F1;">Sales Rep</th>';
-                    $salesreport .= '<th style="font-size:14px; font-weight: bold; background-color: #F1F1F1; text-align: center;">YTD</th>';
-                    $salesreport .= '<th style="font-size:14px; font-weight: bold; background-color: #F1F1F1; text-align: center;">YTD / '.($current_year - 1).'</th>';
-                    $salesreport .= '<th style="font-size:14px; font-weight: bold; background-color: #F1F1F1; text-align: center;">'.$current_year.' objective</th>';
-                    $salesreport .= '<th style="font-size:14px; font-weight: bold; background-color: #F1F1F1; text-align: center;">YTD / '.$current_year.' objective</th>';
-                    $salesreport .= '</tr>';
-                    foreach($monthdata['linenetamt'] as $salerepid => $salerepdata) {
-                        for($y = $current_year; $y >= ($current_year - 1); $y--) {
-                            if(!is_array($salerepdata[$y])) {
-                                $salerepdata[$y][] = 0;
-                            }
-
-                            foreach($salerepdata[$y] as $key => $val) {
-                                if(!empty($val)) {
-                                    $salerepdata[$y][$key] = $val / 1000;
-                                }
-                            }
-                        }
-
-                        $salesrep = new IntegrationOBUser($salerepid, $integration->get_dbconn());
-                        if(empty($salesrep->name)) {
-                            continue;
-                        }
-                        $salerep_user = Users::get_data_byattr('displayName', $salesrep->name);
-                        $salesreport .= '<tr style="'.$rowstyle.'">';
-                        $salesreport .= '<td>'.$salesrep->name.'</td>';
-                        $salesreport .= '<td style="text-align: right;">'.number_format(array_sum($salerepdata[$current_year])).'</td>'; //$formatter->format
-
-                        $percentages['prevyear']['linenetamt'] = 0.10;
-                        if(array_sum($salerepdata[$current_year - 1]) != 0) {
-                            $percentages['prevyear']['linenetamt'] = (array_sum($salerepdata[$current_year]) / array_sum($salerepdata[$current_year - 1]));
-                        }
-                        $salesreport .= '<td style="text-align: right;">'.$percformatter->format($percentages['prevyear']['linenetamt']).'</td>';
-
-                        /* Get budget */
-                        if(is_object($salerep_user)) {
-                            $budgetlines = BudgetLines::get_data(array('businessMgr' => $salerep_user->uid, 'bid' => '(SELECT bid FROM budgeting_budgets WHERE year='.$current_year.' AND affid IN ('.implode(',', $core->input['affids']).'))'), array('returnarray' => true, 'operators' => array('bid' => 'IN')));
-                            $percentages['budget']['amt'] = 0.10;
-                            if(is_array($budgetlines)) {
-                                foreach($budgetlines as $budgetline) {
-                                    $budget_totals['qty'] += $budgetline->quantity;
-                                    $budget_totals['amt'] += $budgetline->get_convertedamount($currency_obj) / 1000;
-                                }
-                                if(!empty($budget_totals['amt'])) {
-                                    $percentages['budget']['amt'] = (array_sum($salerepdata[$current_year]) / $budget_totals['amt']);
-                                }
-                            }
-
-                            $salesreport .= '<td style="text-align: right;">'.number_format($budget_totals['amt']).'</td>'; //$formatter->format
-                            $salesreport .= '<td style="text-align: right;">'.$percformatter->format($percentages['budget']['amt']).'</td>';
-                        }
-                        else {
-                            $salesreport .= '<td style="text-align: right;">-</td>';
-                            $salesreport .= '<td style="text-align: right;">-</td>';
-                        }
-                        $salesreport .= '</tr>';
-                        if(empty($rowstyle)) {
-                            $rowstyle = $css_styles['altrow'];
-                        }
-                        else {
-                            $rowstyle = '';
-                        }
-                        unset($budget_totals, $percentages);
-                    }
-
-                    $salesreport .= '</table>';
-                    /* YTD Comparison - END */
-
-                    unset($monthdata);
                 }
             }
-            elseif($core->input['type'] == 'dimensional') {
-                $required_tables = array('detailed' => explode(',', $core->input['salereport']['dimension'][0]));
-            }
-
-            if(is_array($required_tables)) {
-                foreach($required_tables as $tabledesc => $dimensions) {
-                    $rawdata = $data;
-                    $dimensionalreport = new DimentionalData();
-                    $dimensionalreport->set_dimensions(array_combine(range(1, count($dimensions)), array_values($dimensions)));
-                    $dimensionalreport->set_requiredfields($required_fields);
-                    $dimensionalreport->set_data($rawdata);
-                    $salesreport .= '<h2><br />'.$lang->{$tabledesc}.'</h2>';
-                    $salesreport .= '<table width="100%" class="datatable" style="color:black;">';
-                    $salesreport .= '<tr><th></th>';
-                    foreach($required_fields as $field) {
-                        if(!isset($lang->{$field})) {
-                            $lang->{$field} = $field;
+            else {
+                $required_details = array('outliers', 'data');
+                foreach($required_details as $array) {
+                    if(!is_array(${$array})) {
+                        continue;
+                    }
+                    $salesreport .= '<h3>'.ucwords($array).'</h3><table class="datatable">';
+                    $salesreport .= '<thead><tr class="thead">';
+                    $tablefilters = '';
+                    foreach($cols as $col) {
+                        if(!isset($lang->{$col})) {
+                            $lang->{$col} = ucwords($col);
                         }
-                        $salesreport .= '<th>'.$lang->{$field}.'</th>';
+                        $salesreport .= '<th>'.$lang->{$col}.'</th>';
+                        $tablefilters .= '<th><input class="inlinefilterfield" type="text" style="width: 95%;"/></th>';
                     }
                     $salesreport .= '</tr>';
-                    $salesreport .= $dimensionalreport->get_output(array('outputtype' => 'table', 'noenclosingtags' => true, 'formats' => $formats, 'overwritecalculation' => $overwrite));
-                    $salesreport .= '</table>';
 
-                    $chart_data = $dimensionalreport->get_data();
-                    //$chart = new Charts(array('x' => array($previous_year => $previous_year, $current_year => $current_year), 'y' => $barchart_quantities_values), 'bar');
+                    if($core->input['reporttype'] != 'email') {
+                        $salesreport .= '<tr>'.$tablefilters.'</tr>';
+                    }
+                    $salesreport .= '</thead>';
+                    unset($tablefilters);
+                    if(is_array(${$array})) {
+                        foreach(${$array} as $iol => $row) {
+                            $salesreport .= '<tr>';
+                            foreach($cols as $col) {
+                                $value = $row[$col];
+                                if(strstr($col, 'perc')) {
+                                    $value = numfmt_format(numfmt_create('en_EN', NumberFormatter::PERCENT), $value);
+                                }
+                                elseif(is_numeric($value) && $col != 'documentno') {
+                                    $value = numfmt_format(numfmt_create('en_EN', NumberFormatter::DECIMAL), $value);
+                                }
+                                $salesreport .= '<td>'.$value.'</td>';
+                            }
+
+                            $salesreport .= '</tr>';
+                        }
+                    }
+
+                    $totalcols = array('qtyinvoiced', 'linenetamt', 'purchaseprice', 'costlocal', 'costusd', 'grossmargin', 'grossmarginusd', 'netmargin', 'netmarginusd');
+                    $avgcols = array('priceactual', 'purchaseprice', 'unitcostlocal', 'marginperc');
+
+                    $salesreport .= '<tfoot>';
+                    foreach($cols as $col) {
+                        $class = '';
+                        if(in_array($col, $avgcols)) {
+                            $class = 'colavg';
+                        }
+                        else if(in_array($col, $totalcols)) {
+                            $class = 'coltotal';
+                        }
+                        $salesreport .= '<td class="'.$class.'"></td>';
+                    }
+                    $salesreport .= '</tfoot>';
+                    $salesreport .= '</table><br />';
                 }
             }
         }
         else {
-            $required_details = array('outliers', 'data');
-            foreach($required_details as $array) {
-                if(!is_array(${$array})) {
-                    continue;
-                }
-                $salesreport .= '<h3>'.ucwords($array).'</h3><table class="datatable">';
-                $salesreport .= '<thead><tr class="thead">';
-                $tablefilters = '';
-                foreach($cols as $col) {
-                    if(!isset($lang->{$col})) {
-                        $lang->{$col} = ucwords($col);
-                    }
-                    $salesreport .= '<th>'.$lang->{$col}.'</th>';
-                    $tablefilters .= '<th><input class="inlinefilterfield" type="text" style="width: 95%;"/></th>';
-                }
-                $salesreport .= '</tr>';
-
-                if($core->input['reporttype'] != 'email') {
-                    $salesreport .= '<tr>'.$tablefilters.'</tr>';
-                }
-                $salesreport .= '</thead>';
-                unset($tablefilters);
-                if(is_array(${$array})) {
-                    foreach(${$array} as $iol => $row) {
-                        $salesreport .= '<tr>';
-                        foreach($cols as $col) {
-                            $value = $row[$col];
-                            if(strstr($col, 'perc')) {
-                                $value = numfmt_format(numfmt_create('en_EN', NumberFormatter::PERCENT), $value);
-                            }
-                            elseif(is_numeric($value) && $col != 'documentno') {
-                                $value = numfmt_format(numfmt_create('en_EN', NumberFormatter::DECIMAL), $value);
-                            }
-                            $salesreport .= '<td>'.$value.'</td>';
-                        }
-
-                        $salesreport .= '</tr>';
-                    }
-                }
-
-                $totalcols = array('qtyinvoiced', 'linenetamt', 'purchaseprice', 'costlocal', 'costusd', 'grossmargin', 'grossmarginusd', 'netmargin', 'netmarginusd');
-                $avgcols = array('priceactual', 'purchaseprice', 'unitcostlocal', 'marginperc');
-
-                $salesreport .= '<tfoot>';
-                foreach($cols as $col) {
-                    $class = '';
-                    if(in_array($col, $avgcols)) {
-                        $class = 'colavg';
-                    }
-                    else if(in_array($col, $totalcols)) {
-                        $class = 'coltotal';
-                    }
-                    $salesreport .= '<td class="'.$class.'"></td>';
-                }
-                $salesreport .= '</tfoot>';
-                $salesreport .= '</table><br />';
-            }
+            $salesreport = '<p width="100%">No match found  <br/> Empty Report</p>';
+            //eval("\$previewpage = \"".$template->get('crm_previewsalesreport')."\";");
+            // output_xml('<status>true</status><message><![CDATA['.$previewpage.']]></message>');
+            ////exit;
         }
 
         if($core->input['reporttype'] == 'email') {
