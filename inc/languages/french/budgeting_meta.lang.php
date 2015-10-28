@@ -19,8 +19,7 @@ $lang['listfxrates'] = "List Fx Rates";
 $lang['budgetfxlist'] = "Budget List Fx Rates";
 $lang['s1perc'] = "S1 Perc";
 $lang['generate'] = "Generate";
-$lang['warningupdate'] = "Please use this tool carefully, changes you make can affect all the budget data; these changes are irreversible.
-<br />Either filter by ID or by the other fields; ID will always overwrite all other fields.";
+$lang['warningupdate'] = "Please use this tool carefully, changes you make can affect all the budget data; these changes are irreversible.";
 $lang['s2perc'] = "S2 Perc";
 $lang['amount'] = "Sale Amount";
 $lang['agreewarningcond'] = "I have read the warning and acknowledge it";
@@ -100,7 +99,7 @@ $lang['currrate'] = 'From {1} To {2} rate:{3}';
 $lang['budgcurrdesc'] = 'Currency in this budget is in  K  {1}';  //use to display currency desc
 $lang['exchangerate'] = 'Exchange rate for The currency being used : ';
 $lang['currfxratedesc'] = 'Data in this budget is in K ';
-$lang['currencynotexistvar'] = 'The currency {1} does not have a conversion rate to report currency.';
+$lang['currencynotexistvar'] = 'The currency {1} does not have a conversion rate.';
 $lang['noexchangerate'] = 'No exchange rate from {1} to {2} for year {3}';
 $lang['finexpensestotalerror'] = 'Please select a value not more than the total expenses';
 $lang['totalsales'] = 'Total Sales';
@@ -302,6 +301,5 @@ $lang['supplierhasnosegment'] = 'Supplier Has No Segments !';
 $lang['from'] = 'From';
 $lang['to'] = 'To';
 $lang['copybudget'] = 'Copy Budget';
-$lang['percentage'] = 'Percentage';
-$lang['massupdateyef'] = 'Mass Update Year End Forecast';
+
 ?>
