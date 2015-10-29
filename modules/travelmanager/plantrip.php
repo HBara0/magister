@@ -110,6 +110,7 @@ if(!$core->input['action']) {
             $destcity['country'] = $destcounrty_obj->get()['name'];
             $transp_requirements['drivemode'] = 'transit';
             $transp_requirements['departuretime'] = $db->escape_string(($leave['fromDate']));
+            $transp_requirements['arrivaltime'] = $db->escape_string(($leave['toDate']));
             $transp = new TravelManagerPlanTransps();
             $transsegments_output = Cities::parse_transportations($transp, array('origincity' => $origintcity, 'destcity' => $destcity, 'transprequirements' => $transp_requirements, 'excludesuggestions' => 1), $sequence);
             $segmentobj = new TravelManagerPlanSegments();
@@ -636,7 +637,7 @@ else {
         /* Load proposed transproration */
         $transp = new TravelManagerPlanTransps();
         $transsegments_output = Cities::parse_transportations($transp, array('origincity' => $origintcity, 'destcity' => $destcity, 'transprequirements' => $transp_requirements), $core->input['sequence']);
-        echo $transsegments_output;
+        output($transsegments_output);
     }
     else if($core->input['action'] == 'ajaxaddmore_finances') {
         $frowid = $db->escape_string($core->input['value']) + 1;

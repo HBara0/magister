@@ -38,18 +38,23 @@ class AttendanceAttRecords extends AbstractClass {
     }
 
     public function update(array $data) {
-        global $db;
+        global $db, $core;
         if(!$this->validate_requiredfields($data)) {
             $this->errorcode = 1;
             return $this;
         }
-        $fields = array('aarid', 'uid', 'operation', 'time', 'lastupdateTime');
+        $fields = array('aarid', 'uid', 'operation', 'time', 'lastupdateTime', 'lastupdateOperation');
         foreach($fields as $field) {
             $update_array[$field] = $data[$field];
         }
         if($this->time != $update_array['time']) {
             $update_array['lastupdateTime'] = $this->time;
         }
+        if($this->operation != $update_array['operation']) {
+            $update_array['lastupdateOperation'] = $this->operation;
+        }
+        $update_array['modifiedOn'] = TIME_NOW;
+        $update_array['modifiedBy'] = $core->user['uid'];
         $db->update_query(self::TABLE_NAME, $update_array, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
         return $this;
     }

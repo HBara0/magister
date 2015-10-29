@@ -35,5 +35,7 @@ $lang['confirmdeletewarehouse'] = 'Are you sure you want to delete this warehous
 $lang['deletewarehouse'] = 'Delete Warehouse';
 $lang['cannotdeletewarehouse'] = 'Warehouse cannot be deleted';
 $lang['integrationobid'] = 'Id on OB';
+$lang['idob'] = 'Id on OB';
+
 $lang['position'] = 'Position';
 ?>

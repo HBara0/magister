@@ -170,10 +170,10 @@ else {
                 $output_class = 'green_text';
                 $output_message = $lang->successfullysaved;
                 $preview_output = '';
-                $url = 'http://'.$core->settings['websitedir'].'/news/'.$cms_news->alias.'/'.base64_encode($cms_news->cmsnid).'/'.$cms_news->token.'/preview';
+                $url = 'http://'.$core->settings['websitedir'].'/news/'.$cms_news->alias.'/'.base64_encode($cms_news->cmsnid).'/'.$cms_news->token.'/1';
                 ?>
                 <script language = "javascript" type = "text/javascript">
-                    $(function() {
+                    $(function () {
                         top.$('div[id="preview"]').show();
                         top.$('div[id="preview"]').css('display', 'inline-block');
                         top.$('a[id="preview_link"]').attr("href", "<?php echo $url;?>");
@@ -197,7 +197,7 @@ else {
         }
         ?>
         <script language="javascript" type="text/javascript">
-            $(function() {
+            $(function () {
                 top.$("#upload_Result").html("<span class='<?php echo $output_class;?>'><?php echo $output_message;?></span>");
             });
         </script>

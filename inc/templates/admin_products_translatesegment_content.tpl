@@ -14,8 +14,8 @@
         <div style="display:block;"><textarea name="lang[{$lid}][slogan]" cols="100" rows="6" >{$trans[$lid]['slogan']}</textarea></div>
     </div>
     </br></br>
-    {$lang->shortdesc}</br>
     <div style="display:block">
-        <textarea cols="50" rows="5" name="lang[{$lid}][shortDescription]">{$trans[$lid]['shortDescription']}</textarea>
+        <div style="display:block;" class="thead">{$lang->shortdesc}</div>
+        <div style="display:block;"><textarea name="lang[{$lid}][shortDescription]" cols="100" rows="6" id='transegmentshortDescription_{$lid}' class="basictxteditadv">{$trans[$lid]['shortDescription']}</textarea></div>
     </div>
 </div>

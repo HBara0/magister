@@ -8,7 +8,7 @@ class BudgetingYEFLines extends AbstractClass {
     const PRIMARY_KEY = 'yeflid';
     const TABLE_NAME = 'budgeting_yef_lines';
     const SIMPLEQ_ATTRS = '*';
-    const UNIQUE_ATTRS = 'yefid,pid,cid,saleType';
+    const UNIQUE_ATTRS = 'yefid,pid,cid,altCid,saleType,linkedBudgetLine,blid';
     const CLASSNAME = __CLASS__;
     const DISPLAY_NAME = '';
     const REQUIRED_ATTRS = 'yefid,saleType,inputCheckSum';
@@ -76,6 +76,8 @@ class BudgetingYEFLines extends AbstractClass {
             $product = new Products($table_array['pid']);
             $table_array['psid'] = $product->get_segment()['psid'];
         }
+
+        $this->split_income($data);
         $query = $db->insert_query(self::TABLE_NAME, $table_array);
         if($query) {
             $this->data = $table_array;
@@ -89,6 +91,7 @@ class BudgetingYEFLines extends AbstractClass {
         if(!$this->validate_requiredfields($data)) {
             return false;
         }
+        $this->split_income($data);
         if(is_array($data)) {
             $update_array['inputCheckSum'] = $data['inputCheckSum'];
             $update_array['yefid'] = $data['yefid'];
@@ -98,7 +101,6 @@ class BudgetingYEFLines extends AbstractClass {
             $update_array['altCid'] = $data['altCid'];
             $update_array['prevyeflid'] = $data['prevyeflid'];
             $update_array['customerCountry'] = $data['customerCountry'];
-            $update_array['businessMgr'] = $data['businessMgr'];
             $update_array['actualQty'] = $data['actualQty'];
             $update_array['actualIncome'] = $data['actualIncome'];
             $update_array['actualAmount'] = $data['actualAmount'];
@@ -130,9 +132,7 @@ class BudgetingYEFLines extends AbstractClass {
             $update_array['psid'] = $data['psid'];
             $update_array['fromBudget'] = $data['fromBudget'];
         }
-        if(empty($update_array['businessMgr'])) {
-            $update_array['businessMgr'] = $core->user['uid'];
-        }
+
         if(empty($update_array['psid']) && !empty($update_array['pid'])) {
             $product = new Products($update_array['pid']);
             $update_array['psid'] = $product->get_segment()['psid'];
@@ -154,7 +154,7 @@ class BudgetingYEFLines extends AbstractClass {
             if(!isset($data['yef']) || empty($data['yef'])) {
                 return false;
             }
-            $budgetline_bydataquery = $db->query("SELECT * FROM ".Tprefix."budgeting_yef_lines WHERE pid='".$data['pid']."' AND cid='".$data['cid']."' AND altCid='".$db->escape_string($data['altCid'])."' AND saleType='".$data['saleType']."' AND yefid='".$data['yefid']."' AND customerCountry='".$data['customerCountry']."' AND psid='".$data['psid']."' AND businessMgr='".$data['businessMgr']."'");
+            $budgetline_bydataquery = $db->query("SELECT * FROM ".Tprefix."budgeting_yef_lines WHERE pid='".$data['pid']."' AND cid='".$data['cid']."' AND altCid='".$db->escape_string($data['altCid'])."' AND saleType='".$data['saleType']."' AND yefid='".$data['yefid']."' AND customerCountry='".$data['customerCountry']."' AND psid='".$data['psid']."'");
             if($db->num_rows($budgetline_bydataquery) > 0) {
                 return $db->fetch_assoc($budgetline_bydataquery);
             }
@@ -180,6 +180,7 @@ class BudgetingYEFLines extends AbstractClass {
         /* Apply Default Margin */
         $data['income'] = $data['localIncomeAmount'] = $data['amount'] * 0.03;
         $data['localIncomePercentage'] = 100;
+        unset($data['blid']);
 
         if(!empty($this->data['linkedBudgetLine'])) {
             $ic_budgetline = new BudgetingYearEndForecast($this->data['linkedBudgetLine']);
@@ -362,6 +363,39 @@ class BudgetingYEFLines extends AbstractClass {
         }
         else {
             return $country_name;
+        }
+    }
+
+    private function split_income(&$data) {
+        global $core;
+        if($core->usergroup['budgeting_canFillLocalIncome'] == 1) {
+            if($data['localIncomePercentage'] == 100 && $data['localIncomeAmount'] == 0) {
+                $data['localIncomeAmount'] = $data['income'];
+            }
+
+            if(!empty($data['linkedBudgetLine']) && !isset($data['yeflid'])) {
+                if(empty($data['interCompanyPurchase'])) {
+                    return;
+                }
+            }
+            if(empty($data['localIncomeAmount']) && $data['localIncomeAmount'] != '0') {
+                if(!isset($data['saleType'])) {
+                    return;
+                }
+
+                $saletype = new SaleTypes($data['saleType']);
+                $data['localIncomeAmount'] = $data['income'];
+                $data['localIncomePercentage'] = 100;
+                $data['invoicingEntityIncome'] = 0;
+                if($saletype->localIncomeByDefault == 0) {
+                    $data['localIncomeAmount'] = 0;
+                    $data['localIncomePercentage'] = 0;
+                    $data['invoicingEntityIncome'] = $data['income'];
+                }
+            }
+            else {
+                $data['invoicingEntityIncome'] = $data['income'] - $data['localIncomeAmount'];
+            }
         }
     }
 

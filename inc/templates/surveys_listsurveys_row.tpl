@@ -7,4 +7,5 @@
     <td>{$previewlink}</td>
     <td>{$surveystats_link}</td>
     <td>{$sharewith}</td>
+    <td>{$editlink}</td>
 </tr>

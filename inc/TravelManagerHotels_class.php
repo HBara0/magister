@@ -92,9 +92,9 @@ class TravelManagerHotels extends AbstractClass {
             eval("\$emailmessage = \"".$template->get('approvehotel_email')."\";");
             $mailer = new Mailer();
             $mailer = $mailer->get_mailerobj();
-            $mailer->set_to('toemail@email.com');
-            $mailer->set_from('toemail@email.com');
-            $mailer->set_subject('New Added Hotel To Approve');
+            $mailer->set_to('zaher.reda@orkila.com');
+            $mailer->set_from('mailer@ocos.orkila.com');
+            $mailer->set_subject('New Hotel to Approve');
             $mailer->set_message($emailmessage);
             $mailer->send();
 //            if($mailer->get_status() === true) {

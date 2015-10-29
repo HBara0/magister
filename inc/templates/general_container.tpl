@@ -8,7 +8,8 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            {$page[content]}
+            {$stockreportpage[content]}
+            {$stockpermonthofsale_output}
         </td>
     </tr>
 </body>

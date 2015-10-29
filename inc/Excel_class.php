@@ -20,7 +20,7 @@ class Excel {
      * @param array $data
      * @return boolean
      */
-    public function __construct($type, array $data) {
+    public function __construct($type, array $data, $filename = 'Excel') {
         $this->set_type($type);
         if($this->type == false) {
             return false;
@@ -32,7 +32,7 @@ class Excel {
             $this->data = $data;
         }
         $this->set_worksheet($this->data);
-        $this->generate_file();
+        $this->generate_file($filename);
     }
 
     /**
@@ -161,7 +161,7 @@ class Excel {
         }
     }
 
-    private function generate_file() {
+    private function generate_file($filename) {
         header("Content-type: application/vnd.ms-excel");
         header("Content-Disposition: attachment; filename={$filename}.xls");
         header("Pragma: no-cache");

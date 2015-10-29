@@ -24,6 +24,40 @@ if(!$core->input['action']) {
     }
     $sort_url = sort_url();
 
+    /* Perform inline filtering - START */
+    $filters_config = array(
+            'parse' => array('filters' => array('id', 'customers', 'affiliate', 'coid'),
+                    'overwriteField' => array(
+                            'id' => '',
+                    )
+            ),
+            'process' => array(
+                    'filterKey' => 'eid',
+                    'mainTable' => array(
+                            'name' => 'entities',
+                            'filters' => array('customers' => array('name' => 'companyName'), 'coid' => array('operatorType' => 'multiple', 'name' => 'country')),
+                    ),
+                    'secTables' => array(
+                            'affiliatedentities' => array(
+                                    'filters' => array('affiliate' => array('operatorType' => 'multiple', 'name' => 'affid'))
+                            ),
+                    )
+            )
+    );
+
+    $filter = new Inlinefilters($filters_config);
+    $filter_where_values = $filter->process_multi_filters();
+    $filter_where = null;
+    if(is_array($filter_where_values)) {
+        $filters_row_display = 'show';
+        $filter_where = ' AND '.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
+        $multipage_where .= ' AND '.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
+    }
+
+    $filters_row = $filter->prase_filtersrows(array('tags' => 'table', 'display' => $filters_row_display));
+
+    /* Perform inline filtering - END */
+
     $limit_start = 0;
     if(isset($core->input['start'])) {
         $limit_start = $db->escape_string($core->input['start']);
@@ -31,7 +65,7 @@ if(!$core->input['action']) {
 
     $query = $db->query("SELECT s.companyName AS entityname, s.*, c.name as country
 						FROM ".Tprefix."entities s, ".Tprefix."countries c
-						WHERE s.country=c.coid AND s.type='c'
+						WHERE s.country=c.coid AND s.type='c'".$filter_where."
 						ORDER BY {$sort_query}
 						LIMIT {$limit_start}, {$core->settings[itemsperlist]}");
 

@@ -92,9 +92,12 @@ if($core->input['type'] == 'quick') {
         if($core->input['for'] == 'supplier' || $core->input['for'] == 'customer' || $core->input['for'] == 'competitorsupp' || $core->input['for'] == 'competitortradersupp' || $core->input['for'] == 'competitorproducersupp') {
             if($core->input['for'] == 'supplier') {
                 $type = 's';
+                //  $core->usergroup['canViewAllSupp'] = 1;
                 if($core->usergroup['canViewAllSupp'] == 0) {
-                    $inentities = implode(',', $core->user['suppliers']['eid']);
-                    $extra_where = 'eid IN ('.$inentities.')';
+                    if(is_array($core->user['suppliers']['eid'])) {
+                        $inentities = implode(',', $core->user['suppliers']['eid']);
+                        $extra_where = 'eid IN ('.$inentities.')';
+                    }
                 }
             }
             elseif($core->input['for'] == 'competitorsupp') {
@@ -113,8 +116,10 @@ if($core->input['type'] == 'quick') {
                 $type = 'c';
                 if($core->usergroup['canViewAllCust'] == 0) {
                     $core->user['customers'] = array_map(intval, $core->user['customers']);
-                    $inentities = implode(',', $core->user['customers']);
-                    $extra_where = 'eid IN ('.$inentities.')';
+                    if(is_array($core->user['customers'])) {
+                        $inentities = implode(',', $core->user['customers']);
+                        $extra_where = 'eid IN ('.$inentities.')';
+                    }
                     if(!empty($extra_where)) {
                         $extra_where .=' AND ';
                     }
@@ -149,8 +154,10 @@ if($core->input['type'] == 'quick') {
                 $extra_where .= 'spid = "'.$report_data['spid'].'"';
             }
             if($core->usergroup['canViewAllSupp'] == 0 && !isset($core->input['rid']) && empty($supplier_filter)) {
-                $core->user['suppliers']['eid'] = array_map(intval, $core->user['suppliers']['eid']);
-                $supplier_filter = " spid IN (".implode(',', $core->user['suppliers']['eid']).")";
+                if(is_array($core->user['suppliers']['eid'])) {
+                    $core->user['suppliers']['eid'] = array_map(intval, $core->user['suppliers']['eid']);
+                    $supplier_filter = " spid IN (".implode(',', $core->user['suppliers']['eid']).")";
+                }
             }
 //			if(isset($core->input['userproducts'])) {
 //				$supplier_filter = "spid IN('".implode(',', $core->user['suppliers']['eid'])."')";
@@ -387,34 +394,74 @@ if($core->input['type'] == 'quick') {
             $select_attributes = array('subject');
             $order = array('by' => 'subject', 'sort' => 'ASC');
         }
-
+        elseif($core->input['for'] == 'basicfacilities') {
+            $extra_where = ' isActive = 1';
+            $table = 'facilitymgmt_facilities';
+            $attributes = array('name');
+            $key_attribute = 'fmfid';
+            $select_attributes = array('name');
+            $order = array('by' => 'name', 'sort' => 'ASC');
+            $descinfo = 'basicfacilities';
+            $extrainput = array('userlong' => $core->input['loacationLong'], 'userlat' => $core->input['loacationLat']);
+        }
+        elseif($core->input['for'] == 'reservationfacilities') {
+            $extra_where = ' isActive = 1 AND allowReservation = 1';
+            $factypes = FacilityMgmtFactypes::get_column('fmftid', array('isActive' => 1, 'isMainLocation' => 0), array('returnarray' => true));
+            if(is_array($factypes) && !empty($factypes)) {
+                $extra_where.=' AND type IN ('.implode(',', $factypes).')';
+            }
+            $table = 'facilitymgmt_facilities';
+            $attributes = array('name');
+            $key_attribute = 'fmfid';
+            $select_attributes = array('name');
+            $order = array('by' => 'name', 'sort' => 'ASC');
+            $from = strtotime($core->input['dateFrom'].' '.$core->input['timeFrom']);
+            $to = strtotime($core->input['dateTo'].' '.$core->input['timeTo']);
+            $extrainput = array('mtid' => $core->input['mtid'], 'from' => $from, 'to' => $to, 'userlong' => $core->input['loacationLong'], 'userlat' => $core->input['loacationLat']);
+            $descinfo = 'reservationfacilities';
+        }
+        elseif($core->input['for'] == 'userpermissionentities') {
+            $permissions = $core->user_obj->get_businesspermissions();
+            $table = 'entities';
+            $attributes = array('companyName', 'companyNameAbbr');
+            $key_attribute = 'eid';
+            $select_attributes = array('companyName');
+            $order = array('by' => 'companyName', 'sort' => 'ASC');
+            $descinfo = 'country';
+            if(is_array($permissions['eid'])) {
+                $permisisonents = ' AND eid IN ('.implode(',', array_filter($permissions['eid'], 'is_numeric')).')';
+            }
+            $extra_where .= ' isActive=1 AND approved=1'.$permisisonents;
+        }
 //        if(isset($core->input['exclude']) && !empty($core->input['exclude'])) {
 //            if(is_array($core->input['exclude'])) {
 //                $core->input['exclude'] = array_map(intval, $core->input['exclude']);
 //            }
 //            if(empty($extra_where)) {
-//                $extra_where = "{$key_attribute} NOT IN ({$core->input[exclude]})";
+//                $extra_where = "{$key_attribute} NOT IN({$core->input[exclude]})";
 //            }
 //            else {
-//                $extra_where .= " AND {$key_attribute} NOT IN ({$core->input[exclude]})";
+//                $extra_where .= " AND {$key_attribute} NOT IN({$core->input[ exclude]})";
 //            }
 //        }
-        $results_list = quick_search($table, $attributes, $core->input['value'], $select_attributes, $key_attribute, array('returnType' => $core->input['returnType'], 'order' => $order, 'extra_where' => $extra_where, 'descinfo' => $descinfo, 'disableSoundex' => $disableSoundex));
+        $results_list = quick_search($table, $attributes, $core->input['value'], $select_attributes, $key_attribute, array('extrainput' => $extrainput, 'returnType' => $core->input['returnType'], 'order' => $order, 'extra_where' => $extra_where, 'descinfo' => $descinfo, 'disableSoundex' => $disableSoundex));
         $referrer = explode('&', $_SERVER['HTTP_REFERER']);
         $module = substr($referrer[0], strpos(strtolower($referrer[0]), 'module=') + 7);
         if($core->input['for'] == 'supplier') {
             if($core->input['returnType'] != 'json') {
                 if(strpos(strtolower($_SERVER['HTTP_REFERER']), ADMIN_DIR) !== false) {
-                    $results_list .= "<p><hr />&rsaquo;&rsaquo; <a href='index.php?module=entities/add&amp;type=supplier' target='_blank'>{$lang->add}</a></p>";
+                    $results_list .= "<p><hr />&rsaquo;&rsaquo;<a href='index.php?module=entities/add&amp;type=supplier' target = '_blank'>{$lang->add}</a></p>";
                 }
                 else {
-                    $results_list .= "<p><hr />&rsaquo;&rsaquo; <a href='index.php?module=contents/addentities&amp;type=supplier' target='_blank'>{$lang->add}</a></p>";
+                    $results_list .= "<p><hr />&rsaquo;&rsaquo;<a href = 'index.php?module=contents/addentities&amp;type=supplier' target = '_blank'>{$lang->add}</a></p>";
                 }
             }
         }
         /* else
           {
-          $results_list .= "<p><hr />&rsaquo;&rsaquo; <a href='#' id='addnew_{$module}_".$core->input['for']."'>{$lang->add}</a></p>";
+          $results_list .= "<p><hr />&rsaquo;
+          &rsaquo;
+          <a href = '#' id = 'addnew_{$module}_".$core->input['for']."'>{$lang->add}</a></p>";
           } */
         output($results_list);
     }

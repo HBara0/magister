@@ -16,7 +16,7 @@
 /* Budgeting Line Class --START */
 
 class BudgetLines {
-    private $budgetline = array();
+    protected $budgetline = array();
 
     const PRIMARY_KEY = 'blid';
     const TABLE_NAME = 'budgeting_budgets_lines';
@@ -59,7 +59,9 @@ class BudgetLines {
                 $this->budgetline = $budgetline_data;
                 $this->budgetline['blid'] = $db->last_id();
                 $this->errorcode = 0;
+                return 0;
             }
+            return 3;
         }
     }
 
@@ -143,8 +145,10 @@ class BudgetLines {
         }
 
         $ic_budgetline = new BudgetLines();
-        $ic_budgetline->create($data);
-
+        $errorcode = $ic_budgetline->create($data);
+        if(!empty($errorcode)) {
+            return $errorcode;
+        }
         $this->update(array('linkedBudgetLine' => $ic_budgetline->blid));
     }
 
@@ -260,7 +264,7 @@ class BudgetLines {
                 return false;
             }
 
-            $sql = "SELECT * FROM ".Tprefix."budgeting_budgets_lines WHERE pid='".$data['pid']."' AND cid='".$data['cid']."' AND altCid='".$db->escape_string($data['altCid'])."' AND saleType='".$data['saleType']."' AND bid='".$data['bid']."' AND customerCountry='".$data['customerCountry']."' AND psid='".$data['psid']."' AND businessMgr='".$data['businessMgr']."'";
+            $sql = "SELECT * FROM ".Tprefix."budgeting_budgets_lines WHERE pid='".$data['pid']."' AND cid='".$data['cid']."' AND altCid='".$db->escape_string($data['altCid'])."' AND saleType='".$data['saleType']."' AND bid='".$data['bid']."' AND customerCountry='".$data['customerCountry']."' AND psid='".$data['psid']."'";
             if(isset($data['linkedBudgetLine']) && !empty($data['linkedBudgetLine'])) {
                 $sql .= " AND linkedBudgetLine='".$data['linkedBudgetLine']."'";
             }
@@ -287,7 +291,7 @@ class BudgetLines {
 
         $dal = new DataAccessLayer(self::CLASSNAME, self::TABLE_NAME, self::PRIMARY_KEY);
         if($configs['toCurrency']) {
-            $fxrate_query = "*(CASE WHEN budgeting_budgets_lines.originalCurrency=".intval($configs['toCurrency'])." THEN 1 ELSE (SELECT rate FROM budgeting_fxrates WHERE affid=(SELECT affid FROM budgeting_budgets WHERE bid=budgeting_budgets_lines.bid) AND year=(SELECT year FROM budgeting_budgets WHERE bid=budgeting_budgets_lines.bid) AND fromCurrency=budgeting_budgets_lines.originalCurrency AND toCurrency=".intval($configs['toCurrency']).") END)";
+            $fxrate_query = "*(CASE WHEN budgeting_budgets_lines.originalCurrency=".intval($configs['toCurrency'])." THEN 1 ELSE (SELECT rate FROM budgeting_fxrates WHERE affid=(SELECT affid FROM budgeting_budgets WHERE bid=budgeting_budgets_lines.bid) AND year=(SELECT year FROM budgeting_budgets WHERE bid=budgeting_budgets_lines.bid) AND fromCurrency=budgeting_budgets_lines.originalCurrency AND toCurrency=".intval($configs['toCurrency'])."  AND isBudget=1) END)";
         }
 
         if(isset($configs['vsAffid']) && !empty($configs['vsAffid'])) {
@@ -304,7 +308,7 @@ class BudgetLines {
         $dal = new DataAccessLayer(self::CLASSNAME, self::TABLE_NAME, self::PRIMARY_KEY);
 
         if($configs['toCurrency']) {
-            $fxrate_query = "*(CASE WHEN budgeting_budgets_lines.originalCurrency=".intval($configs['toCurrency'])." THEN 1 ELSE (SELECT rate FROM budgeting_fxrates WHERE affid=(SELECT affid FROM budgeting_budgets WHERE bid=budgeting_budgets_lines.bid) AND year=(SELECT year FROM budgeting_budgets WHERE bid=budgeting_budgets_lines.bid) AND fromCurrency=budgeting_budgets_lines.originalCurrency AND toCurrency=".intval($configs['toCurrency']).") END)";
+            $fxrate_query = "*(CASE WHEN budgeting_budgets_lines.originalCurrency=".intval($configs['toCurrency'])." THEN 1 ELSE (SELECT rate FROM budgeting_fxrates WHERE affid=(SELECT affid FROM budgeting_budgets WHERE bid=budgeting_budgets_lines.bid) AND year=(SELECT year FROM budgeting_budgets WHERE bid=budgeting_budgets_lines.bid) AND fromCurrency=budgeting_budgets_lines.originalCurrency AND toCurrency=".intval($configs['toCurrency'])."  AND isBudget=1) END)";
         }
         $total = $db->fetch_assoc($db->query('SELECT SUM('.$by.$fxrate_query.') AS total, (SELECT affid FROM budgeting_budgets WHERE budgeting_budgets.bid = '.self::TABLE_NAME.'.bid) AS affid FROM '.self::TABLE_NAME.$dal->construct_whereclause_public($filters, $configs['operators']).' GROUP BY affid HAVING affid ='.$affiliate->affid));
         return $total['total'];
@@ -315,10 +319,67 @@ class BudgetLines {
 
         $dal = new DataAccessLayer(self::CLASSNAME, self::TABLE_NAME, self::PRIMARY_KEY);
         if($configs['toCurrency']) {
-            $fxrate_query = "*(CASE WHEN budgeting_budgets_lines.originalCurrency=".intval($configs['toCurrency'])." THEN 1 ELSE (SELECT rate FROM budgeting_fxrates WHERE affid=(SELECT affid FROM budgeting_budgets WHERE bid=budgeting_budgets_lines.bid) AND year=(SELECT year FROM budgeting_budgets WHERE bid=budgeting_budgets_lines.bid) AND fromCurrency=budgeting_budgets_lines.originalCurrency AND toCurrency=".intval($configs['toCurrency']).") END)";
+            $fxrate_query = "*(CASE WHEN budgeting_budgets_lines.originalCurrency=".intval($configs['toCurrency'])." THEN 1 ELSE (SELECT rate FROM budgeting_fxrates WHERE affid=(SELECT affid FROM budgeting_budgets WHERE bid=budgeting_budgets_lines.bid) AND year=(SELECT year FROM budgeting_budgets WHERE bid=budgeting_budgets_lines.bid) AND fromCurrency=budgeting_budgets_lines.originalCurrency AND toCurrency=".intval($configs['toCurrency'])."  AND isBudget=1) END)";
         }
         $total = $db->fetch_assoc($db->query('SELECT SUM('.$by.$fxrate_query.') AS total, (SELECT spid FROM budgeting_budgets WHERE budgeting_budgets.bid = '.self::TABLE_NAME.'.bid) AS spid FROM '.self::TABLE_NAME.$dal->construct_whereclause_public($filters, $configs['operators']).' GROUP BY spid HAVING spid='.$supplier->eid));
         return $total['total'];
+    }
+
+    public static function get_aggregate_bycustomer($filters = array(), $by, $configs = array()) {
+        global $db;
+        $dal = new DataAccessLayer(self::CLASSNAME, self::TABLE_NAME, self::PRIMARY_KEY);
+        if($configs['toCurrency']) {
+            $fxrate_query = "*(CASE WHEN budgeting_budgets_lines.originalCurrency=".intval($configs['toCurrency'])." THEN 1 ELSE (SELECT rate FROM budgeting_fxrates WHERE affid=(SELECT affid FROM budgeting_budgets WHERE bid=budgeting_budgets_lines.bid) AND year=(SELECT year FROM budgeting_budgets WHERE bid=budgeting_budgets_lines.bid) AND fromCurrency=budgeting_budgets_lines.originalCurrency AND toCurrency=".intval($configs['toCurrency'])." AND isBudget=1) END)";
+        }
+        $query = $db->query('SELECT SUM('.$by.$fxrate_query.') AS total,cid,altCid FROM '.self::TABLE_NAME.' WHERE blid in(SELECT blid FROM '.Tprefix.'budgeting_budgets_lines WHERE bid IN ('.implode(',', array_keys($filters['bid'])).')) GROUP BY cid,altCid ORDER BY '.$by.' DESC LIMIT 0,10');
+        while($customer = $db->fetch_assoc($query)) {
+            $total[] = $customer;
+        }
+        return $total;
+    }
+
+    public static function get_total($by, $filters, $configs = array()) {
+        global $db;
+        $dal = new DataAccessLayer(self::CLASSNAME, self::TABLE_NAME, self::PRIMARY_KEY);
+        if($configs['toCurrency']) {
+            $fxrate_query = "*(CASE WHEN budgeting_budgets_lines.originalCurrency=".intval($configs['toCurrency'])." THEN 1 ELSE (SELECT rate FROM budgeting_fxrates WHERE affid=(SELECT affid FROM budgeting_budgets WHERE bid=budgeting_budgets_lines.bid) AND year=(SELECT year FROM budgeting_budgets WHERE bid=budgeting_budgets_lines.bid) AND fromCurrency=budgeting_budgets_lines.originalCurrency AND toCurrency=".intval($configs['toCurrency']).") END)";
+        }
+        $total = $db->fetch_assoc($db->query('SELECT SUM('.$by.$fxrate_query.') AS total FROM '.self::TABLE_NAME.' WHERE blid in(SELECT blid FROM '.Tprefix.'budgeting_budgets_lines WHERE bid IN ('.implode(',', array_keys($filters['bid'])).'))'));
+        return $total['total'];
+    }
+
+    public function parse_toptencustomers_tables($budgets, $tocurrency) {
+        global $db, $lang;
+        $numfmt_perc = new NumberFormatter($lang->settings['locale'], NumberFormatter::PERCENT);
+        $numfmt_perc->setPattern("#0.###%");
+
+        $custweightsgtotals['income'] = BudgetLines::get_total('localIncomeAmount', array('bid' => $budgets), array('toCurrency' => $tocurrency));
+        $custweightsgtotals['amount'] = BudgetLines::get_total('amount', array('bid' => $budgets), array('toCurrency' => $tocurrency));
+
+        $custweightstotals['income'] = BudgetLines::get_aggregate_bycustomer(array('bid' => $budgets), 'localIncomeAmount', array('toCurrency' => $tocurrency));
+        $custweightstotals['amount'] = BudgetLines::get_aggregate_bycustomer(array('bid' => $budgets), 'amount', array('toCurrency' => $tocurrency));
+        $attributes = array('amount', 'income');
+        foreach($attributes as $attribute) {
+            $budgeting_budgetrawreport .= '<h1>Top 10 Customers '.$lang->$attribute.'</h1>';
+            $budgeting_budgetrawreport .= '<table width="100%" class="datatable">';
+            $budgeting_budgetrawreport .= '<tr><th>'.$lang->company.'</th><th>'.$lang->$attribute.'</th><th>'.$lang->percentage.'</th></tr>';
+            foreach($custweightstotals[$attribute] as $cid => $data) {
+                if($data['cid'] == 0) {
+                    $name = $data['altCid'];
+                }
+                else {
+                    $cust = new Entities($data['cid']);
+                    if(is_object($cust) && !empty($cust->eid)) {
+                        $name = $cust->companyName;
+                    }
+                }
+                $budgeting_budgetrawreport .= '<tr><td>'.$name.'</td><td>'.$data['total'].'</td><td>'.$numfmt_perc->format($data['total'] / $custweightsgtotals[$attribute]).'</td></tr>';
+                unset($cust, $name);
+            }
+            $budgeting_budgetrawreport .='<tr><th>'.$lang->total.'</th><td>'.$custweightsgtotals[$attribute].'</td><td></td></tr>';
+            $budgeting_budgetrawreport .= '</table>';
+        }
+        return $budgeting_budgetrawreport;
     }
 
     public static function get_top($percent, $attr, $filters = '', $configs = array()) {

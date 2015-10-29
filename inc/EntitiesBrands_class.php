@@ -81,6 +81,7 @@ class EntitiesBrands extends AbstractClass {
                                     'eptid' => $eptid,
                                     'pcvid' => $this->data['pcvid'],
                                     'description' => $endproduct['description'],
+                                    'classificationClass' => $endproduct['classificationClass'],
                                     'createdBy' => $core->user['uid'],
                                     'createdOn' => TIME_NOW
                             );
@@ -116,6 +117,7 @@ class EntitiesBrands extends AbstractClass {
                         'eptid' => $eptid,
                         'pcvid' => $data['pcvid'],
                         'description' => $this->data['description'],
+                        'classificationClass' => $this->data['classificationClass'],
                         'createdBy' => $core->user['uid'],
                         'createdOn' => TIME_NOW
                 );

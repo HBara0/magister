@@ -3,23 +3,23 @@
         <title>{$core->settings[systemtitle]} | {$lang->trainingandvisits}</title>
         {$headerinc}
         <script type="text/javascript">
-            $(function() {
-                $("input[id^='costaff_']").live('change keyup live', function() {
+            $(function () {
+                $(document).on('change keyup live', "input[id^='costaff_']", function () {
                     var id = $(this).attr('id').split("_");
                     var total = 0;
-                    $('input[id^=costaff_][id$=' + id[2] + ']').each(function() {
+                    $('input[id^=costaff_][id$=' + id[2] + ']').each(function () {
                         if(!jQuery.isEmptyObject(this.value)) {
                             total += parseFloat(this.value);
                         }
                     });
                     $('span[id=total_' + id[2] + ']').text(total);
                 });
-                $("input[id^='cost_']").live('change keyup live', function() {
+                $(document).on('change keyup live', "input[id^='cost_']", function () {
                     var id = $(this).attr('id').split("_");
                     var subtotalintamount = 0;
                     var totalamount = 0;
                     var totalamountint = 0;
-                    $('input[id$=' + id[2] + '_' + id[3] + '][id^=cost]').each(function() {
+                    $('input[id$=' + id[2] + '_' + id[3] + '][id^=cost]').each(function () {
                         if(!jQuery.isEmptyObject(this.value)) {
                             subtotalintamount += parseFloat(this.value);
                         }
@@ -40,7 +40,7 @@
                     $('span[id=total_international]').text(totalamountint);
 
                 });
-                $('input[id^="leave_"]').live('click', function() {
+                $(document).on('click', 'input[id^="leave_"]', function () {
                     var id = $(this).attr('id').split("_");
                     $('input[type="submit"][id^="trainingvisitsleaves_"]').attr("disabled", !this.checked);
                 });

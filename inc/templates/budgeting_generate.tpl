@@ -6,11 +6,11 @@
 
         <script type="text/javascript">
             $(function () {
-                $('input[name=fxrate]').live('change', function () {
+                $(document).on('change', 'input[name=fxrate]', function () {
                     $('#fxrateinput').slideToggle('fast', function () {
                     });
                 });
-                $("select[id='budget[reporttype]']").live('change', function () {
+                $(document).on('change', "select[id='budget[reporttype]']", function () {
                     var id = $(this).attr("id")
                     var value = $(this).attr("value")
                     //  if($(this).not($("div[id^='" + $(this).val() + "']"))) {

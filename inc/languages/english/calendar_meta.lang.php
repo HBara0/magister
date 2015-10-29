@@ -78,4 +78,17 @@ $lang['assignedtome'] = 'Assigned To Me';
 $lang['createdbyme'] = 'Created By Me';
 $lang['sharedwithme'] = 'Shared With Me';
 $lang['prerequisittask'] = 'Pre-Requisit Task';
+$lang['youhavenotcreatedthisevent'] = 'You Have Not Created This Event!';
+$lang['manageevents'] = 'Manage Events';
+$lang['edit'] = 'Edit';
+$lang['succesfullydeleted'] = 'Succesfully Deleted';
+$lang['eventisusedbyotherusers'] = 'Event Is Already In Use By Other Users';
+$lang['deleteevent'] = 'Delete Event';
+$lang['sureredeleteevent'] = 'Atr You Sure You Want To Delete The Event ?';
+$lang['tags'] = 'Tags';
+$lang['inviteemployees'] = 'Invite Employees';
+$lang['eventcancelledsubject'] = '{1} Event Has Been Cancelled';
+$lang['eventcancelledmessage'] = '{1} Event From {2} To {3} Has Been Cancelled';
+$lang['unspecifieddates'] = 'Unspecified From or To Dates';
+$lang['featureevents'] = 'Feature Event';
 ?>

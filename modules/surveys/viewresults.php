@@ -33,10 +33,11 @@ if(!$core->input['action']) {
 
         $survey['invitations'] = $newsurvey->get_invitations();
 
-        if(($survey['isPublicResults'] == 1 || $survey['createdBy'] == $core->user['uid']) || ($survey['isPublicResults'] == 1 && $survey['isPublicFill'] == 0 && $newsurvey->check_invitation()) || value_exists('surveys_associations', 'id', $core->user['uid'], 'attr="uid" AND sid='.$survey['sid'])) {
+        if($survey['sharedwithstatus'] == true || ($survey['isPublicResults'] == 1 || $survey['createdBy'] == $core->user['uid']) || ($survey['isPublicResults'] == 1 && $survey['isPublicFill'] == 0 && $newsurvey->check_invitation()) || value_exists('surveys_associations', 'id', $core->user['uid'], 'attr="uid" AND sid='.$survey['sid'])) {
             $responses_stats = $newsurvey->get_responses_stats();
 
             if(is_array($responses_stats)) {
+                $questionsstats = '<h2><small>Graphical Statistics</small></h2>';
                 foreach($responses_stats as $stqid => $question) {
                     $pie_data['titles'] = $question['choices']['choice'];
                     $pie_data['values'] = $question['choices']['stats'];
@@ -59,6 +60,7 @@ if(!$core->input['action']) {
                     else {
                         $lang->questionaverage_output = $question['average'] = '';
                     }
+
                     $pie = new Charts(array('x' => $pie_data['titles'], 'y' => $pie_data['values']), 'bar', array('scale' => SCALE_START0, 'noLegend' => true));
                     //$pie = new Charts(array('titles' => $pie_data['titles'], 'values' => $pie_data['values']), 'pie');
                     //$chart = '<img src='.$pie->get_chart().' />';
@@ -70,6 +72,9 @@ if(!$core->input['action']) {
                     }
                     eval("\$questionsstats .= \"".$template->get('surveys_results_questionstat')."\";");
                 }
+
+
+                $questionsstats .= '<hr /><input type="button" id="crosstabulation" class="button" value="Click to Generate Cross Tabulation"><div id="crosstabulation_results"></div>';
             }
         }
 
@@ -275,5 +280,77 @@ else {
             exit;
         }
     }
+    elseif($core->input['action'] == 'get_crosstabulation') {
+        $survey = new Surveys($core->input['identifier'], false);
+
+        $sharedsurvey = SurveyShares::get_data(array('sid' => $survey->sid, 'uid' => $core->user['uid']));
+
+        if($survey->createdBy != $core->user['uid'] && !is_object($sharedsurvey)) {
+            exit;
+        }
+        $sql = 'SELECT '.SurveysTplQuestions::PRIMARY_KEY.' FROM '.SurveysTplQuestions::TABLE_NAME.' WHERE type IN (SELECT '.SurveysQuestionTypes::PRIMARY_KEY.' FROM '.SurveysQuestionTypes::TABLE_NAME.' WHERE isQuantitative=1 AND hasChoices=1)';
+        $sections_filters = SurveysTplSections::get_data(array(SurveysTemplates::PRIMARY_KEY => $survey->{SurveysTemplates::PRIMARY_KEY}), array('returnarray' => true, 'operators' => array(SurveysTemplates::PRIMARY_KEY => 'IN', 'type' => 'IN')));
+
+        $questions = SurveysTplQuestions::get_data(array('type' => 'SELECT '.SurveysQuestionTypes::PRIMARY_KEY.' FROM '.SurveysQuestionTypes::TABLE_NAME.' WHERE isQuantitative=1 AND hasChoices=1', SurveysTplSections::PRIMARY_KEY => array_keys($sections_filters)), array('returnarray' => true, 'operators' => array('type' => 'IN')));
+        $responses = SurveysResponses::get_data(array('sid' => $survey->sid, SurveysTplQuestions::PRIMARY_KEY => $sql), array('returnarray' => true, 'operators' => array(SurveysTplQuestions::PRIMARY_KEY => 'IN')));
+        if(is_array($responses)) {
+            foreach($responses as $id => $value) {
+                $respcombinations[$value->stqid][$value->invitee] = $value->response;
+            }
+        }
+        $questions2 = $questions;
+        foreach($questions as $id => $question) {
+            foreach($questions2 as $id2 => $question2) {
+                if($question->get_id() == $question2->get_id()) {
+                    continue;
+                }
+                $answers = $respcombinations[$id];
+                $answers2 = $respcombinations[$id2];
+                $output .= parse_crosstabulation($question, $question2, $answers, $answers2);
+            }
+        }
+        output($output);
+    }
 }
+function parse_crosstabulation($question, $question2, $answers, $answers2) {
+    global $lang;
+    $rows = $question->get_choices();
+    $cols = $question2->get_choices();
+
+    $output = '';
+    foreach($rows as $rowid => $row) {
+        foreach($cols as $colid => $col) {
+            foreach($answers as $case => $ar1) {
+                if($ar1 == $rowid && $answers2[$case] == $colid) {
+                    $vals[$rowid][$colid] ++;
+                }
+            }
+        }
+    }
+
+    $output .= '<table class="datatable" width="100%">';
+    $output .= '<tr><td></td><td colspan="'.(count($cols) + 2).'">'.$question2->get_displayname().'</td></tr>';
+    $output .= '<tr><td rowspan="'.(count($rows) + 1).'" style="width: 20%;">'.$question->get_displayname().'</td><td></td>';
+    $colswidth = 60 / count($cols);
+    foreach($cols as $col) {
+        $output .= '<th style="width:'.$colswidth.'%;">'.$col.'</th>';
+    }
+    $output .= '<th>'.$lang->total.'Total</th>';
+    $output .= '</tr>';
+    foreach($rows as $rowid => $row) {
+        $output .= '<tr><th>'.$row.'</th>';
+        foreach($cols as $colid => $col) {
+            if(!isset($vals[$rowid][$colid])) {
+                $vals[$rowid][$colid] = 0;
+            }
+            $output .= '<td>'.$vals[$rowid][$colid].'</td>';
+        }
+        $output .= '<th>'.array_sum($vals[$rowid]).'</th>';
+        $output .= '</tr>';
+    }
+    $output .= '</table><br />';
+
+    return $output;
+}
+
 ?>

@@ -27,6 +27,8 @@
                     <li><span id="entities/add"><a href='index.php?module=entities/add'>{$lang->addentities}</a></span></li>
                     <li><span id="entities/manageentitiesfiles"><a href='index.php?module=entities/manageentitiesfiles'>{$lang->managefiles}</a></span></li>
                     <li><span id="entities/managebrands"><a href='index.php?module=entities/managebrands'>{$lang->managebrands}</a></span></li>
+                    <li><span id="entities/paymenttermslist"><a href='index.php?module=entities/paymenttermslist'>{$lang->managepaymentterms}</a></span></li>
+
                 </ul>
             </div>
         </li>

@@ -52,11 +52,11 @@ class IntegrationOB extends Integration {
 
             $newdata['localId'] = $db->fetch_field($db->query("SELECT pid FROM ".Tprefix."products WHERE name='".$db->escape_string($product['name'])."'"), 'pid');
 
-            if(value_exists('integration_mediation_products', 'foreignId', $product['m_product_id'])) {
+            if(value_exists('integration_mediation_products', 'foreignId', $product['m_product_id'], 'foreignSystem='.$this->foreign_system)) {
                 if(empty($newdata['localId'])) {
                     unset($newdata['localId']);
                 }
-                $db->update_query('integration_mediation_products', $newdata, 'foreignId="'.$product['m_product_id'].'"');
+                $db->update_query('integration_mediation_products', $newdata, 'foreignId="'.$product['m_product_id'].'" AND foreignSystem='.$this->foreign_system);
             }
             else {
                 $db->insert_query('integration_mediation_products', $newdata);
@@ -69,7 +69,7 @@ class IntegrationOB extends Integration {
     }
 
     public function sync_businesspartners() {
-        global $db, $log;
+        global $db, $log, $cache;
 
         $query = $this->f_db->query("SELECT *
 					FROM c_bpartner
@@ -87,6 +87,29 @@ class IntegrationOB extends Integration {
                     'affid' => $this->affiliates_index[$bpartner['ad_org_id']]
             );
 
+            /**
+             * Get Address of the BP
+             */
+            $address = IntegrationOBBusinessPartnerLocation::get_data('c_bpartner_id=\''.$bpartner['c_bpartner_id'].'\'', array('returnarray' => true));
+            if(is_array($address)) {
+                $address = current($address);
+                if(is_object($address)) {
+                    $location = $address->get_location()->get_country()->countrycode;
+
+                    if(!$cache->iscached('countrycode', $location)) {
+                        $country = Countries::get_data(array('acronym' => $location));
+                        $cache->add('countrycode', $country, $location);
+                    }
+                    else {
+                        $country = $cache->get_cachedval('countrycode', $location);
+                    }
+
+
+                    if(is_object($country)) {
+                        $newdata['country'] = $country->get_id();
+                    }
+                }
+            }
             $newdata['localId'] = $db->fetch_field($db->query("SELECT eid FROM ".Tprefix."entities WHERE companyName='".$db->escape_string($bpartner['name'])."'"), 'eid');
 
             if($bpartner['isvendor'] == 'Y') {
@@ -150,7 +173,7 @@ class IntegrationOB extends Integration {
                     'salesRep' => $document['salesrep']
             );
 
-            $document_newdata['salesRepLocalId'] = $db->fetch_field($db->query("SELECT uid FROM ".Tprefix."users WHERE username='".$db->escape_string($document['username'])."'"), 'uid');
+            $document_newdata['salesRepLocalId'] = $db->fetch_field($db->query("SELECT uid FROM ".Tprefix."users WHERE displayName='".$db->escape_string($document['salesrep'])."' OR username='".$db->escape_string($document['username'])."'"), 'uid');
 
             if(value_exists('integration_mediation_salesorders', 'foreignId', $document['doc_id'])) {
                 $query2 = $db->update_query('integration_mediation_salesorders', $document_newdata, 'foreignId="'.$document['doc_id'].'"');
@@ -951,13 +974,14 @@ class IntegrationOBMovementLine {
 
 }
 
-class IntegrationOBInOutLine {
-    private $inoutline;
-    private $f_db;
+class IntegrationOBInOutLine extends IntegrationAbstractClass {
+    protected $inoutline;
+    protected $f_db;
 
     const PRIMARY_KEY = 'm_inoutline_id';
     const TABLE_NAME = 'm_inoutline';
     const DISPLAY_NAME = '';
+    const CLASSNAME = __CLASS__;
 
     public function __construct($id, $f_db = NULL) {
         if(!empty($f_db)) {
@@ -1349,31 +1373,47 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                 if(is_object($outputstack)) {
                     $inputstack = $outputstack->get_inputstack();
                 }
-                if(is_object($inputstack)) {
-                    $invoice->bpartner_name = $inputstack->get_supplier()->name;
+                $product = $line->get_product_local();
+                if(is_object($product)) {
+                    $invoice->bpartner_name = $product->get_supplier()->name;
                 }
                 if(empty($invoice->bpartner_name)) {
-                    $invoice->bpartner_name = $line->get_product_local()->get_supplier()->name;
-                }
-                if(empty($invoice->bpartner_name)) {
-                    $invoice->bpartner_name = 'Unspecified';
+                    if(is_object($inputstack)) {
+                        $invoice->bpartner_name = $inputstack->get_supplier()->name;
+                    }
+                    if(empty($invoice->bpartner_name)) {
+                        $invoice->bpartner_name = $line->get_product_local()->get_supplier()->name;
+                    }
+                    if(empty($invoice->bpartner_name)) {
+                        $invoice->bpartner_name = 'Unspecified';
+                    }
                 }
 
                 if(!empty($options['reportcurrency'])) {
                     $reportcurrency = new Currencies($options['reportcurrency']);
                     $fxrate = $reportcurrency->get_fxrate_bytype($options['fxtype'], $currency->iso_code, array('from' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 01:00'), 'to' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 24:00'), 'year' => date('Y', $invoice->dateinvoiceduts), 'month' => date('m', $invoice->dateinvoiceduts)), array('precision' => 4));
+
                     if(!empty($fxrate)) {
                         $data['salerep']['linenetamt'][$invoice->salesrep_id][$invoice->dateparts['year']][$invoice->dateparts['mon']] += $line->linenetamt / $fxrate;
-                        $data['products']['linenetamt'][$line->m_product_name][$invoice->dateparts['year']][$invoice->dateparts['mon']] += $line->linenetamt / $fxrate;
-                        $data['suppliers']['linenetamt'][$invoice->bpartner_name][$invoice->dateparts['year']][$invoice->dateparts['mon']] += $line->linenetamt / $fxrate;
+                        //   $data['products']['linenetamt'][$line->m_product_name][$invoice->dateparts['year']][$invoice->dateparts['mon']] += $line->linenetamt / $fxrate;
+                        //   $data['suppliers']['linenetamt'][$invoice->bpartner_name][$invoice->dateparts['year']][$invoice->dateparts['mon']] += $line->linenetamt / $fxrate;
+
+
+                        $dataperday['salerep']['linenetamt'][$invoice->salesrep_id][$invoice->dateparts['year']][$invoice->dateparts['mon']][$invoice->dateparts['mday']] += $line->linenetamt / $fxrate;
+                        $dataperday['products']['linenetamt'][$line->m_product_name][$invoice->dateparts['year']][$invoice->dateparts['mon']][$invoice->dateparts['mday']] += $line->linenetamt / $fxrate;
+                        $dataperday['suppliers']['linenetamt'][$invoice->bpartner_name][$invoice->dateparts['year']][$invoice->dateparts['mon']][$invoice->dateparts['mday']] += $line->linenetamt / $fxrate;
                     }
                 }
                 else {
                     $data['salerep']['linenetamt'][$invoice->salesrep_id][$invoice->dateparts['year']][$invoice->dateparts['mon']] += $line->linenetamt;
-                    $data['products']['linenetamt'][$line->m_product_name][$invoice->dateparts['year']][$invoice->dateparts['mon']] += $line->linenetamt;
-                    $data['suppliers']['linenetamt'][$invoice->bpartner_name][$invoice->dateparts['year']][$invoice->dateparts['mon']] += $line->linenetamt;
+
+                    $dataperday['salerep']['linenetamt'][$invoice->salesrep_id][$invoice->dateparts['year']][$invoice->dateparts['mon']][$invoice->dateparts['mday']] += $line->linenetamt;
+                    $dataperday['products']['linenetamt'][$line->m_product_name][$invoice->dateparts['year']][$invoice->dateparts['mon']][$invoice->dateparts['mday']]+= $line->linenetamt;
+                    $dataperday['suppliers']['linenetamt'][$invoice->bpartner_name][$invoice->dateparts['year']][$invoice->dateparts['mon']][$invoice->dateparts['mday']] += $line->linenetamt;
                 }
             }
+            //   $data['monthdata']=  array_sum();
+            $data['dataperday'] = $dataperday;
             return $data;
         }
         return false;
@@ -1392,19 +1432,20 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                         $current_month = date("m");
                         $currentyeardata = $salerepdata[$current_year];
                         if(isset($currentyeardata[$current_month]) && !empty($currentyeardata[$current_month])) {
-                            $classification[$tableindex]['bymonth'][$tableindex][$id]['currentdata'] = $currentyeardata[$current_month];
-                            $classification[$tableindex]['bymonth'][$tableindex][$id]['currentmonthdata'] = $currentyeardata[$current_month];
-                            $classification_data[$id] = $currentyeardata[$current_month];
+                            $classification[$tableindex]['bymonth'][$tableindex][$id]['currentdata'] = array_sum($currentyeardata[$current_month]) / 1000;
+                            $classification[$tableindex]['bymonth'][$tableindex][$id]['currentmonthdata'] = array_sum($currentyeardata[$current_month]) / 1000;
+                            $classification_data[$id] = array_sum($currentyeardata[$current_month]) / 1000;
                         }
                         else {
                             $classification[$tableindex]['bymonth'][$tableindex][$id]['currentdata'] = 0;
                             $classification_data[$id] = 0;
                         }
                         if(is_array($currentyeardata)) {
-                            foreach($currentyeardata as $cydata) {
+                            foreach($currentyeardata as $cydata_array) {
+                                $cydata = array_sum($cydata_array);
                                 if(!empty($cydata)) {
-                                    $classification[$tableindex]['byytd'][$tableindex][$id]['currentdata'] +=$cydata;
-                                    $ytdclassification_data[$id] +=$cydata;
+                                    $classification[$tableindex]['byytd'][$tableindex][$id]['currentdata'] +=$cydata / 1000;
+                                    $ytdclassification_data[$id] +=$cydata / 1000;
                                 }
                                 else {
                                     $classification[$tableindex]['byytd'][$tableindex][$id]['currentdata'] += 0;
@@ -1416,9 +1457,12 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                             //Get Last year total data to be compared with current year data
                             $lastyeardata = $salerepdata[($current_year - 1)];
                             if(is_array($lastyeardata)) {
-                                foreach($lastyeardata as $lydata) {
+                                foreach($lastyeardata as $lydata_array) {
+                                    if(is_array($lydata_array)) {
+                                        $lydata = array_sum($lydata_array);
+                                    }
                                     if(!empty($lydata)) {
-                                        $classification[$tableindex]['byytd'][$tableindex][$id]['prevmonthdata'] +=$lydata;
+                                        $classification[$tableindex]['byytd'][$tableindex][$id]['prevmonthdata'] +=$lydata / 1000;
                                     }
                                     else {
                                         $classification[$tableindex]['byytd'][$tableindex][$id]['prevmonthdata'] += 0;
@@ -1428,8 +1472,8 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                             //////////////////////////////////////////////////////////////////
                         }
                         //Get Last Month data to be compared with current month data
-                        if(isset($currentyeardata[($current_month - 1)]) && !empty($currentyeardata[($current_month - 1)])) {
-                            $classification[$tableindex]['bymonth'][$tableindex][$id]['prevmonthdata'] = $currentyeardata[$current_month - 1];
+                        if(is_array($currentyeardata[($current_month - 1)])) {
+                            $classification[$tableindex]['bymonth'][$tableindex][$id]['prevmonthdata'] = array_sum($currentyeardata[$current_month - 1]) / 1000;
                         }
                         else {
                             $classification[$tableindex]['bymonth'][$tableindex][$id]['prevmonthdata'] = 0;
@@ -1438,8 +1482,10 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                         //classify data by quarter//
                         $qmonths = $this->get_quartermonths($currentquarter);
                         foreach($qmonths as $month) {
-                            $classification[$tableindex]['byquarter'][$tableindex][$id]['currentdata'] += $currentyeardata[$month];
-                            $qclassification_data[$id] +=$currentyeardata[$month];
+                            if(is_array($currentyeardata[$month])) {
+                                $classification[$tableindex]['byquarter'][$tableindex][$id]['currentdata'] += array_sum($currentyeardata[$month]) / 1000;
+                                $qclassification_data[$id] +=array_sum($currentyeardata[$month]) / 1000;
+                            }
                         }
                     }
                     ///Sort Data descending to classify top supp/products or BM //
@@ -1455,12 +1501,21 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                     unset($classification_data, $ytdclassification_data, $qclassification_data);
                 }
                 else {
+                    $from = getdate($period['from']);
+                    $to = getdate($period['to']);
                     foreach($data[$tableindex]['linenetamt'] as $id => $salerepdata) {
-                        $currentyeardata = $salerepdata[$current_year];
-                        if(is_array($currentyeardata)) {
-                            foreach($currentyeardata as $cydata) {
-                                $classification[$tableindex]['wholeperiod'][$tableindex][$id]['currentdata'] +=$cydata;
-                                $periodclassification[$id] +=$cydata;
+                        if(is_array($salerepdata)) {
+                            foreach($salerepdata as $year => $year_data) {
+                                foreach($year_data as $month => $month_data) {
+                                    if(is_array($month_data)) {
+                                        foreach($month_data as $day => $day_data) {
+                                            if(($year == $from['year'] && $month >= $from['mon'] && $day >= $from['mday']) || ($year == $to['year'] && $month <= $to['mon'] && $day <= $to['mday'])) {
+                                                $classification[$tableindex]['wholeperiod'][$tableindex][$id]['currentdata'] +=$day_data / 1000;
+                                                $periodclassification[$id] +=$day_data / 1000;
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
@@ -1488,7 +1543,10 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
 
     public function parse_classificaton_tables($classification) {
         global $lang, $core;
-        //  $formatter = new NumberFormatter('EN_en', NumberFormatter::DECIMAL, '#');
+
+        $css_styles['header'] = 'background-color: #F1F1F1;';
+        $css_styles['altrow'] = 'background-color: #f7fafd;;';
+
         $tableindexes = array('products', 'suppliers', 'salerep');
         foreach($tableindexes as $tableindex) {
             switch($tableindex) {
@@ -1507,8 +1565,8 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
             if(is_array($classification[$tableindex])) {
                 foreach($classification[$tableindex] as $classificationtype => $classificationdata) {
                     if(is_array($classificationdata)) {
-                        $output .= '<table class="datatable"><tr><td class="thead" colspan=4>'.$lang->topten.' '.$lang->$tableindex.' '.$lang->$classificationtype.'</td></tr>';
-                        $output .= '<tr class="altrow2"><th>'.$lang->$tableindex.'</th>';
+                        $output .= '<table class="datatable"><tr><td style="background-color:#92D050;font-weight:bold;" colspan=4>'.$lang->topten.' '.$lang->$tableindex.' '.$lang->$classificationtype.'</td></tr>';
+                        $output .= '<tr style="'.$css_styles['header'].'"><th>'.$lang->$tableindex.'</th>';
                         if($classificationtype != 'wholeperiod' && $classificationtype != 'byquarter') {
                             switch($classificationtype) {
                                 case 'bymonth':
@@ -1530,7 +1588,7 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                         if($classificationtype != 'wholeperiod' && $classificationtype != 'byquarter') {
                             $output .='<th>'.$lang->prevdata.'('.$prevperiod.')</th><th>'.$lang->position.'</th>';
                         }
-                        $output .= '<tr>';
+                        $output .= '</tr>';
                         reset($classificationdata[$tableindex]);
                         $topofthemonthid = key($classificationdata[$tableindex]);
                         foreach($classificationdata[$tableindex] as $id => $cdata) {
@@ -1550,10 +1608,10 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                                     if(!is_object($object) || empty($object->name) || $object->name == 'System') {
                                         $object->name = 'unspecified';
                                     }
-                                    $output .= '<tr><td>'.$object->name.'</td>';
+                                    $output .= '<tr style="'.$rowstyle.'"><td>'.$object->name.'</td>';
                                 }
                                 else {
-                                    $output .= '<tr><td>'.$id.'</td>';
+                                    $output .= '<tr style="'.$rowstyle.'"><td>'.$id.'</td>';
                                 }
 
                                 foreach($cdata as $data) {
@@ -1565,6 +1623,12 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                                 $output .='</tr>';
                             }
                             unset($position);
+                            if(empty($rowstyle)) {
+                                $rowstyle = $css_styles['altrow'];
+                            }
+                            else {
+                                $rowstyle = '';
+                            }
                         }
                         $output .= '</table><br/>';
                         if($classname == 'IntegrationOBUser') {
@@ -1577,7 +1641,7 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                             $topofthemonth_obj_name = $id;
                         }
                         $output .='<div style="font-weight:bold;">Top '.$lang->$tableindex.' '.$lang->$classificationtype.' : '.$topofthemonth_obj_name.'</div><br/>';
-                        $output .='<div style="width:100%;"><h2>'.$lang->topten.' '.$lang->$tableindex.' '.$lang->$classificationtype.'</h2><small>(K Amounts)</small>';
+                        $output .='<div style="width:100%;"><h2>'.$lang->topten.' '.$lang->$tableindex.' '.$lang->$classificationtype.' '.$lang->chart.' <small>(K Amounts)</small> </h2>';
                         $output .= '<img src="data:image/png;base64,'.base64_encode(file_get_contents($this->parse_classificaton_charts($classificationdata[$tableindex], $tableindex))).'" />';
                         $output .= '</div>';
                     }
@@ -1604,12 +1668,17 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                 break;
         }
         foreach($data_ids as $id) {
-            $object = new $classname($id);
-            if(!is_object($object) || empty($object->name)) {
-                $yaxixdata[] = 'unspecified';
+            if($classname == 'IntegrationOBUser') {
+                $object = new $classname($id);
+                if(!is_object($object) || empty($object->name)) {
+                    $yaxixdata[] = 'unspecified';
+                }
+                else {
+                    $yaxixdata[] = $object->name;
+                }
             }
             else {
-                $yaxixdata[] = $object->name;
+                $yaxixdata[] = $id;
             }
 
             $xaxisdata[] = $data[$id]['currentdata'] / 1000;
@@ -2804,6 +2873,10 @@ class IntegrationOBLocation extends IntegrationAbstractClass {
 
     public function __construct($id, $f_db = NULL) {
         parent::__construct($id, $f_db);
+    }
+
+    public function get_country() {
+        return new IntegrationOBCountry($this->data['c_country_id'], $this->f_db);
     }
 
 }

@@ -21,6 +21,9 @@
                             <th style="width:10%;">{$lang->rate}</th>
                             <th style="width:20%;">{$lang->category}</th>
                         </tr>
+                        <tr>
+                            {$filters_row}
+                        </tr>
                     </thead>
                     <tbody class="datatable datacell">
                         {$budgetfxratess_list}

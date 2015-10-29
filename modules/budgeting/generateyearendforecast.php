@@ -35,7 +35,7 @@ if(!$core->input['action']) {
             $psids[] = $segmentscoord->psid;
         }
         if(is_array($psids)) {
-            $entitysegments = EntitiesSegments::get_data('psid IN ('.implode(',', $psids).') AND eid IN (Select eid FROM entities WHERE type = "s" ) ', array('operators' => array('filter' => 'CUSTOMSQLSECURE'), 'returnarray' => true));
+            $entitysegments = EntitiesSegments::get_data('psid IN ('.implode(',', $psids).') AND eid IN (SELECT eid FROM entities WHERE type = "s" ) ', array('operators' => array('filter' => 'CUSTOMSQLSECURE'), 'returnarray' => true));
             if(is_array($entitysegments)) {
                 foreach($entitysegments as $entitysegment) {
                     $entity = new Entities($entitysegment->eid);
@@ -50,6 +50,12 @@ if(!$core->input['action']) {
                             }
                         }
                     }
+                }
+            }
+            $employeesegments_usersids = EmployeeSegments::get_data('psid IN ('.implode(',', $psids).') AND uid IN (SELECT uid FROM '.Tprefix.'users WHERE gid != 7) ', array('returnarray' => true));
+            if(is_array($employeesegments_usersids)) {
+                foreach($employeesegments_usersids as $user) {
+                    $segmentusers[$user->uid] = $user->get_displayname();
                 }
             }
         }
@@ -152,6 +158,9 @@ if(!$core->input['action']) {
             $business_managers[$aff_businessmgr['uid']] = $aff_businessmgr['displayName'];
         }
     }
+    if(is_array($segmentusers)) {
+        $business_managers = array_unique($business_managers + $segmentusers);
+    }
     if(is_array($business_managers)) {
         foreach($business_managers as $key => $value) {
             $checked = $rowclass = '';
@@ -238,6 +247,7 @@ else {
             exit;
         }
         $report_type = $core->input['budget']['reporttype'];
+        $countrows = 0;
         if($report_type == 'dimensional') {
             $fields = array('current'); // 'prev2years', 'prev3years');
             foreach($fields as $field) {
@@ -281,7 +291,7 @@ else {
                             $budget_currencies[$budgetline->blid] = $budgetline->originalCurrency;
                             /* get the currency rate of the Origin currency  of the current buudget and convert it - START */
                             if($budgetline->originalCurrency != $budgetsdata[$field]['toCurrency']) {
-                                $fxrates_obj = BudgetFxRates::get_data(array('fromCurrency' => $budgetline->originalCurrency, 'toCurrency' => $budgetsdata[$field]['toCurrency'], 'affid' => $budget_obj->affid, 'year' => $budget_obj->year), $dal_config);
+                                $fxrates_obj = BudgetFxRates::get_data(array('fromCurrency' => $budgetline->originalCurrency, 'toCurrency' => $budgetsdata[$field]['toCurrency'], 'affid' => $budget_obj->affid, 'year' => $budget_obj->year, 'isYef' => 1), $dal_config);
                                 if(is_array($fxrates_obj)) {
                                     if($field !== 'current') {
                                         $budgetline->amount = $budgetline->actualAmount;
@@ -295,13 +305,18 @@ else {
                                     }
                                 }
                                 else {
-                                    error($lang->sprint($lang->noexchangerate, $budgetline->originalCurrency, $budgetsdata['toCurrency'], $budget_obj->year), $_SERVER['HTTP_REFERER']);
+                                    $currency = new Currencies($budgetline->originalCurrency);
+                                    $currency_output = $budgetline->originalCurrency;
+                                    if(is_object($currency)) {
+                                        $currency_output = $currency->get_displayname();
+                                    }
+                                    output_xml('<status>false</status><message>'.$lang->sprint($lang->noexchangerate, $currency_output, $currency_output, $budget_obj->year).'</message>');
+                                    exit;
                                 }
                             }
                             /* get the currency rate of the Origin currency  of the current buudget - START */
 
                             //get the report to of the user who created the budget.
-
                             $rawdata[$field][$yeflid]['reportsTo'] = $budget_obj->get_CreateUser()->get_reportsto()->uid;
                             $rawdata[$field][$yeflid]['uid'] = $budgetline->businessMgr;
                             $rawdata[$field][$yeflid]['stid'] = $budgetline->saleType;
@@ -417,6 +432,7 @@ else {
                             $rowclass = alt_row($rowclass);
                             //$budgetline_obj = new BudgetLines($budgetline['blid']);
                             $budgetline = $budgetline_obj->get();
+
                             if(isset($budgetline['invoice']) && !empty($budgetline['invoice'])) {
                                 $invoicetype = SaleTypesInvoicing::get_data(array('affid' => $budget_obj->affid, 'invoicingEntity' => $budgetline['invoice'], 'stid' => $budgetline['saleType']));
 
@@ -453,17 +469,24 @@ else {
 
                             /* get the currency rate of the Origin currency  of the current buudget and convert it - START */
                             if($budgetline['originalCurrency'] != $budgetsdata['current']['toCurrency']) {
-                                $fxrates_obj = BudgetFxRates::get_data(array('fromCurrency' => $budgetline['originalCurrency'], 'toCurrency' => $budgetsdata['current']['toCurrency'], 'affid' => $budgetsdata['current']['affiliates'], 'year' => $budgetsdata['current']['years']), $dal_config);
+                                $fxrates_obj = BudgetFxRates::get_data(array('fromCurrency' => $budgetline['originalCurrency'], 'toCurrency' => $budgetsdata['current']['toCurrency'], 'affid' => $budgetsdata['current']['affiliates'], 'year' => $budgetsdata['current']['years'], 'isYef' => 1), $dal_config);
                                 if(is_array($fxrates_obj)) {
                                     foreach($fxrates_obj as $fxid => $fxrates) {
                                         $budgetline['amount'] = ($budgetline['amount'] * $fxrates->rate);
                                         $budgetline['income'] = ($budgetline['income'] * $fxrates->rate);
+                                        $budgetline['unitPrice'] = ($budgetline['unitPrice'] * $fxrates->rate);
                                         $budgetline['localIncomeAmount'] = ($budgetline['localIncomeAmount'] * $fxrates->rate);
                                         $budgetline['invoicingEntityIncome'] = ($budgetline['invoicingEntityIncome'] * $fxrates->rate);
                                     }
                                 }
                                 else {
-                                    error($lang->currencynotexist.' '.$budgetline['originalCurrency'].' ('.$budget['affiliate'].')', $_SERVER['HTTP_REFERER']);
+                                    $currency = new Currencies($budgetline['originalCurrency']);
+                                    $currency_output = $budgetline->originalCurrency;
+                                    if(is_object($currency)) {
+                                        $currency_output = $currency->get_displayname();
+                                    }
+                                    output_xml('<status>false</status><message>'.$lang->sprint($lang->currencynotexistvar, $currency_output).' (YEF - '.$budget['affiliate'].')</message>');
+                                    exit;
                                 }
                             }
                             if($core->usergroup['budgeting_canFillLocalIncome'] == 1) {
@@ -493,13 +516,26 @@ else {
                                 $customername = '<a href="index.php?module=profiles/entityprofile&eid='.$budget['customerid'].'" target="_blank">'.$budgetline['customer'].'</a>';
                             }
                             $budgetline['interCompanyPurchase_output'] = $lang->na;
-
                             $budgetline['product'] = $budgetline_obj->get_product()->name;
+                            $monthfields = array('october', 'november', 'december');
+                            foreach($monthfields as $month) {
+                                $budgetline[$month.'qty'] = round($budgetline['quantity'] * ($budgetline[$month] / 100), 2);
+                                $budgetline[$month.'amt'] = round($budgetline['amount'] * ($budgetline[$month] / 100), 2);
+                                $budgetline[$month.'inc'] = round($budgetline['income'] * ($budgetline[$month] / 100), 2);
+                                $total[$month.'amt'] += $budgetline[$month.'amt'];
+                                $total[$month.'inc'] += $budgetline[$month.'inc'];
+                            }
+                            $total['amount'] += $budgetline['amount'];
+                            $total['unitPrice'] += $budgetline['unitPrice'];
+                            $total['income'] += $budgetline['income'];
+                            $countrows++;
                             eval("\$budget_report_row .= \"".$template->get('budgeting_yefrawreport_row')."\";");
                         }
                     }
                 }
-                $toolgenerate = '<div align="right" title="'.$lang->generate.'" style="float:right;padding:10px;width:10px;"><a href="index.php?module=budgeting/generateyearendforecast&identifier='.$export_identifier.'&action=exportexcel" target="_blank"><img src="./images/icons/xls.gif"/>'.$lang->generateexcel.'</a></div>';
+                //href="index.php?module=budgeting/generateyearendforecast&identifier='.$export_identifier.'&action=exportexcel" target="_blank"
+                $onclickactin = "$('#tabletoexport').tableExport({type:'excel',escape:'false'});";
+                $toolgenerate = '<div align="right" title="'.$lang->generate.'" style="float:right;padding:10px;width:10px;"><a onClick ="'.$onclickactin.'"><img src="./images/icons/xls.gif"/>'.$lang->generateexcel.'</a></div>';
             }
             else {
                 $budgeting_budgetrawreport = '<tr><td>'.$lang->na.'</td></tr>';
@@ -508,6 +544,24 @@ else {
             if($core->usergroup['budgeting_canFillLocalIncome'] == 1) {
                 $loalincome_header = '<th style="vertical-align:central; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left">'.$lang->localincome.'</th>';
                 $loalincome_header = '<th style="vertical-align:central; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left">'.$lang->remainingcommaff.'</th>';
+            }
+            if(is_array($total) && !empty($total)) {
+                unset($budgetline, $budget, $customername);
+                $rowclass = 'thead';
+                $budget['managerid'] = '#';
+                $budget['manager'] = 'TOTAL';
+                $customername = '';
+                if(!empty($countrows)) {
+                    $budgetline['unitPrice'] = 'Avg '.number_format($total['unitPrice'] / $countrows, 2);
+                }
+                $monthfields = array('october', 'november', 'december');
+                foreach($monthfields as $month) {
+                    $budgetline[$month.'amt'] = $total[$month.'amt'];
+                    $budgetline[$month.'inc'] = $budgetline[$month.'inc'];
+                }
+                $budgetline['amount'] = number_format($total['amount']);
+                $budgetline['income'] = number_format($total['income']);
+                eval("\$totals_row = \"".$template->get('budgeting_yefrawreport_row')."\";");
             }
             eval("\$budgeting_budgetrawreport = \"".$template->get('budgeting_yefrawreport')."\";");
         }
@@ -620,7 +674,7 @@ else {
                         }
                         $budgetline[$counter]['saleType'] = BudgetingYearEndForecast::get_saletype_byid($budgetline[$counter]['saleType']);
                         /* get the currency rate of the Origin currency  of the current buudget and convert it - START */
-                        $fxrates_obj = BudgetFxRates::get_data(array('fromCurrency' => $budgetline[$counter]['originalCurrency'], 'toCurrency' => $budgetsdata['current']['toCurrency'], 'affid' => $budget_obj->affid, 'year' => $budget_obj->year, 'isBudget' => 1), $dal_config);
+                        $fxrates_obj = BudgetFxRates::get_data(array('fromCurrency' => $budgetline[$counter]['originalCurrency'], 'toCurrency' => $budgetsdata['current']['toCurrency'], 'affid' => $budget_obj->affid, 'year' => $budget_obj->year, 'isYef' => 1), $dal_config);
                         if(is_array($fxrates_obj)) {
                             foreach($fxrates_obj as $fxid => $fxrates) {
                                 $budgetline[$counter]['unitPrice'] = ($budgetline[$counter]['unitPrice'] * $fxrates->rate);
@@ -659,13 +713,16 @@ else {
         unset($budgetline);
         foreach($headers_data as $val) {
             $budgetline[0][$val] = $lang->{strtolower($val)};
-            foreach($budgetline_temp as $counter => $value) {
-                $budgetline[$counter][$val] = $value[$val];
+            if(is_array($budgetline_temp)) {
+                foreach($budgetline_temp as $counter => $value) {
+                    $budgetline[$counter][$val] = $value[$val];
+                }
             }
         }
+        $filename = 'YEF'.$budgetsdata['current']['years'];
 
         unset($budgetline_temp);
-        $excelfile = new Excel('array', $budgetline);
+        $excelfile = new Excel('array', $budgetline, $filename);
     }
 }
 ?>

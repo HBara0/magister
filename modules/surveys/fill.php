@@ -2,12 +2,12 @@
 /*
  * Orkila Central Online System (OCOS)
  * Copyright © 2009 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * Fill Survey
  * $module: Surveys
  * $id: fillsurvey.php
- * Created: 	@zaher.reda 	May 03, 2012 | 04:45:00 PM	
- * Last Update: @zaher.reda 	July 25, 2012 | 11:15:00 AM	
+ * Created: 	@zaher.reda 	May 03, 2012 | 04:45:00 PM
+ * Last Update: @zaher.reda 	July 25, 2012 | 11:15:00 AM
  */
 
 if(!defined('DIRECT_ACCESS')) {
@@ -18,7 +18,7 @@ if(!$core->input['action']) {
     if(!empty($core->input['identifier'])) {
         $survey = new Surveys($core->input['identifier']);
 
-        if(!$survey->check_respondant()) {
+        if(is_object($survey) && $survey->sid != null && !$survey->check_respondant()) {
             $survey_details = $survey->get_survey();
 
             /* Prevent accessing from OCOS if survey is external */
@@ -46,8 +46,12 @@ if(!$core->input['action']) {
                     $questions_list .= $survey->parse_question($question);
                 }
             }
-
             fix_newline($survey_details['description']);
+
+            //Record survey start time//
+            $duration = 25;
+            $db->update_query('surveys_invitations', array('startTime' => TIME_NOW), 'invitee='.$core->user['uid'].' AND sid='.$survey_details['sid'].' AND ( (('.TIME_NOW.' -startTime)/60) > '.$duration.')');
+
             eval("\$fillreportpage = \"".$template->get('surveys_fillsurvey')."\";");
             output_page($fillreportpage);
         }

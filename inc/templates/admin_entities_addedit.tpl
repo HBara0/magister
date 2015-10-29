@@ -35,8 +35,7 @@
                         $("#createReports,#noQReportSend").removeAttr("disabled");
                     }
                 });
-            });
-        </script>
+            });</script>
     </head>
     <body>
         {$header}
@@ -170,7 +169,8 @@
                 <form action="index.php?module=entities/add&amp;action=do_uploadlogo" method="post" enctype="multipart/form-data" target="uploadFrame">
                     {$lang->selectfile}: <input type="file" id="uploadfile" name="uploadfile"><br />
                     <div style="font-style:italic; margin: 5px;">{$lang->onlyfiletypesallowed}</div>
-                    <input type="submit" class='button' value="{$lang->savecaps}" onClick="$('#upload_Result').show();">
+                    <input type="submit" class='button' value="{$lang->savecaps}" onClick="$('#upload_Result').show()
+                                    ;">
                 </form>
                 <div id="upload_Result" style="display:none;"><img src="{$core->settings[rootdir]}/images/loading.gif" /> {$lang->uploadinprogress}</div>
             </div>

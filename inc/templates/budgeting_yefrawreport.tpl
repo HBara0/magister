@@ -1,8 +1,9 @@
 <page>
     <div style="page-break-before:always;"></div>
-    <table class="datatable" border="0" cellpadding="1" cellspacing="1" width="100%">
-        <tbody>
+    <table class="datatable" border="0" cellpadding="1" cellspacing="1" width="100%" id="tabletoexport">
+        <thead>
             <tr class="thead">
+                <th style="vertical-align:central; padding:2px;  border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left"></th>
                 <th style="vertical-align:central; padding:2px;  border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left">{$lang->manager}</th>
                 <th style="vertical-align:central; padding:2px;border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left">{$lang->customer}</th>
                 <th style="vertical-align:central; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left">{$lang->affiliate}</th>
@@ -20,11 +21,25 @@
                 <th style="vertical-align:central; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left">{$lang->october}%</th>
                 <th style="vertical-align:central; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left">{$lang->november}%</th>
                 <th style="vertical-align:central; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left">{$lang->december}%</th>
+                <th style="vertical-align:central; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left">{$lang->october} Quantity</th>
+                <th style="vertical-align:central; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left">{$lang->november} Quantity</th>
+                <th style="vertical-align:central; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left">{$lang->december} Quantity</th>
+                <th style="vertical-align:central; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left">{$lang->october}  Amount</th>
+                <th style="vertical-align:central; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left">{$lang->november}  Amount</th>
+                <th style="vertical-align:central; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left">{$lang->december}  Amount</th>
+                <th style="vertical-align:central; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left">{$lang->october} Income</th>
+                <th style="vertical-align:central; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left">{$lang->november} Income</th>
+                <th style="vertical-align:central; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left">{$lang->december} Income</th>
                 <th style="vertical-align:central; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left">{$lang->intercompany}</th>
                 <th style="vertical-align:central; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left">{$lang->purchasingentity}</th>
 
             </tr>
+        </thead>
+        <tbody>
+            {$budget_report_row}
         </tbody>
-        {$budget_report_row}
+        <tfoot>
+            {$totals_row}
+        </tfoot>
     </table>
 </page>

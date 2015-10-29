@@ -1,11 +1,11 @@
-<table style="width:100%; ">
+<table {$tbody_style}>
     {$budgeting_localtainingvisitpreviewinheader}
     <tbody>
-        <tr><td width="20%">{$budgetrainingvisit_ob->company} </td>
-            <td width="20%">{$budgetrainingvisit_ob->name} </td>
-            <td width="20%">{$budgetrainingvisit_ob->date} </td>
-            <td width="20%">{$budgetrainingvisit_ob->purpose} </td>
-            <td width="20%">{$budgetrainingvisit_ob->costAffiliate} </td>
+        <tr><td {$local_linestyle}>{$budgetrainingvisit_ob->company} </td>
+            <td {$local_linestyle}>{$budgetrainingvisit_ob->name} </td>
+            <td {$local_linestyle}>{$budgetrainingvisit_ob->date} </td>
+            <td {$local_linestyle}>{$budgetrainingvisit_ob->purpose} </td>
+            <td {$local_linestyle}>{$budgetrainingvisit_ob->costAffiliate} </td>
         </tr>
     </tbody>
 </table>

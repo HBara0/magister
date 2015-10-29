@@ -45,5 +45,28 @@ class CalendarEventsInvitees extends AbstractClass {
         return new Users($this->{Users::PRIMARY_KEY});
     }
 
+    /**
+     * @description Deletes the invitation after sending a notification email to the invitee
+     * @return bool
+     */
+    public function delete_invitation() {
+        global $lang, $core;
+
+        $user = $this->get_invitee();
+        $event = $this->get_event();
+        $email_subject = $lang->sprint($lang->eventcancelledsubject, $event->get_displayname());
+        $email_message = $lang->sprint($lang->eventcancelledmessage, $event->get_displayname(), date($core->settings['dateformat'].' '.$core->settings['timeformat'], $core->input['fromDate']), date($core->settings['dateformat'].' '.$core->settings['timeformat'], $event->fromDate), date($core->settings['dateformat'].' '.$core->settings['timeformat'], $event->toDate));
+        $email_data = array(
+                'from_email' => $core->settings['maileremail'],
+                'from' => 'Orkila Mailer',
+                'to' => $user->email,
+                'subject' => $email_subject,
+                'message' => $email_message,
+        );
+        $mail = new Mailer($email_data, 'php');
+        $delete = $this->delete();
+        return $delete;
+    }
+
 }
 ?>

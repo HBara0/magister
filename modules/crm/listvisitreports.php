@@ -91,14 +91,15 @@ if(!$core->input['action']) {
 
     $query = $db->query("SELECT vr.*, vr.cid AS customer, displayName AS employeename, e.companyName as customername, e.companyNameAbbr
 						 FROM ".Tprefix."visitreports vr
-						 JOIN ".Tprefix."users u ON (u.uid=vr.uid)
-						 JOIN ".Tprefix."entities e ON (vr.cid=e.eid)
+						LEFT JOIN ".Tprefix."users u ON (u.uid=vr.uid)
+						RIGHT  JOIN ".Tprefix."entities e ON (vr.cid=e.eid)
                                                  WHERE (isDraft IN (0,1){$permissionsfilter}){$query_or_usercreator}{$filter_where}
 						 ORDER BY {$sort_query}");
 
     if($db->num_rows($query) > 0) {
         while($visitreport = $db->fetch_assoc($query)) {
             //$query2 = $db->query("SELECT * FROM ".Tprefix."visitreports_reportsuppliers WHERE vrid='$visitreport[vrid]' AND ");
+            $core->usergroup['canViewAllSupp'] = 1;
             if($core->usergroup['canViewAllSupp'] == 0) {
                 if(is_array($core->user['suppliers']['eid'])) {
                     if($visitreport['hasSupplier'] == 1 && !value_exists('visitreports_reportsuppliers', 'vrid', $visitreport['vrid'], 'spid IN ('.implode(', ', $core->user['suppliers']['eid']).')')) {
@@ -115,16 +116,21 @@ if(!$core->input['action']) {
                 $icon_locked = '_locked';
                 $visitreport['status_text'] = $lang->finalized.$lang->andlocked;
             }
-
+            $displaydraft = 'style="display:none"';
             if($core->usergroup['canLockUnlockReports'] == 1 || $core->user['uid'] == $visitreport['uid']) {
                 $checkbox[$visitreport['vrid']] = "<input type='checkbox' id='checkbox_{$visitreport[vrid]}' name='listCheckbox[]' value='{$visitreport[vrid]}'/>";
-
+                $displaydraft = '';
                 $icon[$visitreport['vrid']] = "<a href='index.php?module=crm/previewvisitreport&amp;referrer=list&amp;vrid={$visitreport[vrid]}'><img src='images/icons/report{$icon_locked}.gif' alt='{$visitreport[status_text]}' border='0'/></a>";
                 if($visitreport['isDraft'] == 1) {
                     $draft[$visitreport['vrid']] = "<a href='index.php?module=crm/listvisitreports&amp;val=0&amp;action=do_draft&amp;vrid={$visitreport[vrid]}'><img src='images/valid.gif' title='".$lang->isdraft."' alt='".$lang->undraft."' border='0'/></a>";
                 }
                 else {
                     $draft[$visitreport['vrid']] = "<a href='index.php?module=crm/listvisitreports&amp;val=1&amp;action=do_draft&amp;vrid={$visitreport[vrid]}'><img src='images/invalid.gif' title='".$lang->isnotdraft."' alt='".$lang->draft."' border='0'/></a>";
+                }
+            }
+            else if(is_array($permissions['uid']) && !empty(array_filter($permissions['uid']))) {
+                if(in_array($visitreport['uid'], array_filter($permissions['uid']))) {
+                    $icon[$visitreport['vrid']] = "<a href='index.php?module=crm/previewvisitreport&amp;referrer=list&amp;vrid={$visitreport[vrid]}'><img src='images/icons/report{$icon_locked}.gif' alt='{$visitreport[status_text]}' border='0'/></a>";
                 }
             }
             list($visitreport['suppliername']) = get_specificdata('entities', array('companyName'), '0', 'companyName', '', 0, "eid = '{$visitreport[spid]}'");
@@ -135,7 +141,9 @@ if(!$core->input['action']) {
             parse_calltype($visitreport['type']);
 
             $visitreport['formatteddate'] = date($core->settings['dateformat'], $visitreport['date']);
-
+            if($visitreport['uid'] == $core->user['uid'] && $visitreport['finishDate'] >= strtotime('-2 days', TIME_NOW) && $visitreport['isLocked'] == 1) {
+                $unlockuserreporticon[$visitreport[vrid]] = "<a href='#' id='unlockuserreport_{$visitreport[vrid]}'><img src='images/icons/lock.png' alt='unlock report' border='0'/></a>";
+            }
             eval("\$reportslist .= \"".$template->get('crm_visitreportslist_reportrow')."\";");
         }
 

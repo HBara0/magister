@@ -2,6 +2,9 @@
     <head>
         <title>{$core->settings[systemtitle]} | {$report[title]}</title>
         {$headerinc}
+        <script type="text/javascript" src="{$core->settings[rootdir]}/js/tableExport.min.js"></script>
+        <script type="text/javascript" src="{$core->settings[rootdir]}/js/jquery.base64.min.js"></script>
+
         <link href="./css/report.css" rel="stylesheet" type="text/css" />
         <script type="text/javascript">
 
@@ -20,7 +23,7 @@
                 {$toolgenerate}
             </form>
         </td>
-    </tr> 
+    </tr>
     {$footer}
 </body>
 </html>

@@ -78,6 +78,9 @@ if(!$core->input['action']) {
             }
         }
     }
+    $languages = array('en' => 'english', 'fr' => 'french');
+    $languages_list = parse_selectlist('page[lang]', '', $languages, $page['lang']);
+
     eval("\$higlightsbox =\"".$template->get('cms_manage_pagehighlight')."\";");
     eval("\$createpage =\"".$template->get('cms_page_create')."\";");
     output_page($createpage);
@@ -150,7 +153,7 @@ else {
         }
     }
     elseif($core->input['action'] == 'togglepublish') {
-        if($core->usergroup ['cms_canPublishNews'] == 1 && !empty($core->input['id'])) {
+        if($core->usergroup['cms_canPublishNews'] == 1 && !empty($core->input['id'])) {
             $page = new CmsPages($core->input['id']);
             $db->update_query('cms_pages', array('isPublished' => !$page->isPublished), 'cmspid='.intval($core->input['id']));
         }

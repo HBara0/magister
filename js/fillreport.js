@@ -108,7 +108,7 @@ $(function () {
         return validateEmpty('productsactivity');
     });
 
-    $("input[id^='turnOver_'],input[id^='salesForecast_'],input[id^='quantityForecast_'],input[id^='quantity_']").live("click", function () {
+    $(document).on("click", "input[id^='turnOver_'],input[id^='salesForecast_'],input[id^='quantityForecast_'],input[id^='quantity_']", function () {
         $(this).blur(function () {
             var id = $(this).attr("id").split("_");
             var toEvaluate = "";

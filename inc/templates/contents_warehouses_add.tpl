@@ -51,7 +51,7 @@
                             <span class="smalltext">({$lang->longlattidue})</span></td>
                     </tr>
                     <tr>
-                        <td>{$lang->integrationobid}</td>
+                        <td>{$lang->idob}</td>
                         <td colspan="2"><input type="text" id="warehouse_integrationOBId" name="warehouse[integrationOBId]"  value="{$warehouse->integrationOBId}" required="required"/></td>
                     </tr>
 

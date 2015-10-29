@@ -13,7 +13,7 @@
  *
  * @author zaher.reda
  */
-include_once INC_ROOT.'xmlapi.php';
+include_once ROOT.INC_ROOT.'xmlapi.php';
 
 class CpanelAPIConnect {
     private $user = 'root';

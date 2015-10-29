@@ -57,9 +57,13 @@ if(!$core->input['action']) {
     }
     $leave_type = $leave->get_type();
     $leave_purpose = $leave_segment = $lang->na;
-    if(is_object($leave->get_purpose())) {
-        $leave_purpose = $leave->get_purpose()->get()['name'];
-    }
+//    if(is_object($leave->get_purpose())) {
+//        $leave_purpose = $leave->get_purpose()->get()['name'];
+//    }
+
+    $reason = $leave->reason;
+    fix_newline($reason);
+    $leave_purpose = $reason;
     if(is_object($leave->get_segment())) {
         $leave_segment = $leave->get_segment()->get()['title'];
     }
@@ -103,9 +107,10 @@ else {
         $leave_type = $leave->get_type();
         $employee = $leave->get_user()->get_displayname();
         $leave_purpose = $leave_segment = $lang->na;
-        if(is_object($leave->get_purpose())) {
-            $leave_purpose = $leave->get_purpose()->get()['name'];
-        }
+//        if(is_object($leave->get_purpose())) {
+//            $leave_purpose = $leave->get_purpose()->get()['name'];
+//        }
+        $leave_purpose = $leave->reason;
         if(is_object($leave->get_segment())) {
             $leave_segment = $leave->get_segment()->get()['title'];
         }
@@ -136,9 +141,13 @@ else {
                         if(is_object($isselectedhotel)) {
                             continue;
                         }
-                        $iscontractedicon = '<img src="./images/invalid.gif" alt="'.$lang->no.'"/>';
+
+                        $path = "./images/invalid.gif";
+                        $iscontractedicon = '<img src="data:image/png;base64,'.base64_encode(file_get_contents($path)).'" alt="'.$lang->no.'"/>';
+
                         if($hotel->isContracted == 1) {
-                            $iscontractedicon = '<img src="./images/valid.gif" alt="'.$lang->yes.'"/>';
+                            $path = "./images/valid.gif";
+                            $iscontractedicon = '<img src="data:image/png;base64,'.base64_encode(file_get_contents($path)).'" alt="'.$lang->yes.'"/>';
                         }
                         /* parse ratings */
                         eval("\$otherapprovedhotels .= \"".$template->get('travelmanager_approvedhotel_row')."\";");
@@ -163,10 +172,11 @@ else {
         $mailer = $mailer->get_mailerobj();
         $mailer->set_type();
         $mailer->set_from(array('name' => 'Orkila Attendance System', 'email' => 'attendance@ocos.orkila.com'));
-        $mailer->set_subject($leave_type->title.' - '.$plan_object->get_leave()->get_country()->get_displayname());
+        $mailer->set_subject($lang->sprint($lang->requestleavesubject, $employee, $leave_type->title.' - '.$plan_object->get_leave()->get_country()->get_displayname(), $leave_requestey));
         $mailer->set_message($travelmanager_viewplan);
         $mailer->set_to($firstapprover->email);
         $mailer->send();
+//        $plan_object->email_finance($segment_expenses, $lang->tmplanfinancenotification, $employee);
         redirect('index.php?module=travelmanager/listplans');
     }
     elseif($core->input['action'] == 'do_perform_viewplan') {

@@ -112,7 +112,6 @@ $lang['addexpenses'] = 'Add more expenses';
 $lang['addtranspostation'] = 'Add another transportation';
 $lang['addhotel'] = 'Add new hotel';
 $lang['finance'] = 'Finance';
-$lang['neededamount'] = 'Cash Amount Needed in Advance';
 $lang['transportations'] = 'Transportation';
 $lang['accomodation'] = 'Accommodation ';
 $lang['additionalexpenses'] = 'Additional Expenses';
@@ -125,7 +124,7 @@ $lang['calculatetotal'] = 'Calculate Total Amounts By Currency';
 $lang['saveandopenseg'] = 'Save and Open A New Segment';
 $lang['availableflightsnoticemessage'] = 'If you cannot find the desired transportation, please put transportation details under Other Transportation section';
 $lang['acomchecknote'] = 'Please go back and make sure that you picked a hotel';
-$lang['amountpayedinadvance'] = 'Amount Paid In Advance';
+$lang['amountneededinadvance'] = 'Amount Needed In Advance';
 $lang['avgprice'] = 'Average Price';
 $lang['trasptype'] = 'Transportation Type';
 $lang['transpfees'] = 'Transportation Fees';
@@ -226,7 +225,8 @@ Alcoholic beverages and mini-bar charges are not permitted and will not be reimb
 The above-mentioned prices are valid for most of the countries people are travelling to. City exceptions might be added to
 this document at a later stage after Finance Committee approval.<br/>
 Exceptions:<br/>
-• Luanda, Angola ! Above limits +50%<br/></li>
+• Luanda, Angola > Above limits +50%<br/>
+• South Africa > Breakfast: ZAR100 - Lunch: ZAR150 - Dinner: ZAR250<br/></li>
 <li>Meals with clients or business partners:<br/>
 In the specific case where an employee is to invite clients or business partners for a meal, then limits and rules
 are lifted while remaining reasonable and appropriate. If requested by our guests, an alcoholic beverage
@@ -268,13 +268,13 @@ $lang['fandbwarning'] = 'Food and beverage limit per day exceeded';
 
 $lang['helptour_firstcity'] = 'This is your departure city as specified in the leave <small>(Mandatory)</small>';
 $lang['helptour_fromdate'] = 'This is the start date of your leave/segment <small>(Mandatory)</small>';
-$lang['helptour_firstdestcity'] = 'Select the destination city <small>(Mandatory)</small>';
+$lang['helptour_firstdestcity'] = 'Select the destination city <small>(Mandatory)</small><br/> Note that this is your first segment destination city. Make sure you enter it correctly to proceed with the other plan segments.';
 $lang['helptour_todate'] = 'Select the segment end date. <br/> Make sure to pick the correct date before you proceed. <small>(Mandatory)</small>';
-$lang['helptour_purposes'] = 'Select the leave/segment purpose';
+$lang['helptour_purposes'] = 'Select the leave/segment purpose <br/> Please select at least one purpose.';
 $lang['helptour_considerleisure'] = 'By checking this box, this part of your trip is considered for leisure.';
 $lang['helptour_transpsetionheader'] = 'Fill all transportation expenses in this section.';
 $lang['helptour_lookuptransps'] = 'Choose whether you need a one-way or round-trip transportation method, the system will then suggest available transportations';
-$lang['helptour_chooseothertransps'] = 'Choose any other transportation method';
+$lang['helptour_chooseothertransps'] = 'If you haven’t found your desired transportation above, please tick this box';
 $lang['helptour_accomsectionheader'] = 'Fill all accommodation expenses in this section';
 $lang['helptour_noaccomodation'] = 'Check the box if no accommodation is needed';
 $lang['helptour_countryhotels'] = 'Click on the arrow to view other available hotels in the country';
@@ -286,20 +286,21 @@ $lang['helptour_expenses_amtcurr'] = 'Specify the expected amount and select the
 $lang['helptour_expensepaidby'] = 'Specify who is paying this expense<br/>If it is paid by another affiliate specify the affiliate';
 $lang['helptour_addexpense'] = 'Add another expense (If required)';
 $lang['helptour_addexpensessetionheader'] = 'Now fill all other additional expenses';
-$lang['helptour_financesetionheader'] = 'Here you will get total approximation of all your expenses in US Dollars <br/>You can fill them in the rows below each with its respective currency';
+$lang['helptour_financesetionheader'] = 'Here you will get the total expenses by currency.<br/>You can fill them in the rows below each with its respective currency';
 $lang['save_helptour'] = 'Save the current segment';
 $lang['saveandcreatenewseg_helptour'] = 'Save the current segment and create a new one';
-$lang['saveandpreview_helptour'] = 'Preview the current segment';
+$lang['saveandpreview_helptour'] = 'Preview the segments <br/> Note that unsaved sections will not be shown.';
 $lang['saveandfinalize_helptour'] = 'Preview the final Plan before finalizing';
 $lang['transclasswarning'] = 'No employee may travel in business class. Exceptions can be made, and must be addressed to the COO and/or CFO.';
 $lang['starttmtour'] = 'Welcome to the Travel Manager - Trip Planning page.<br />As this is your first time a help tour will guide you as you are planning your trip.';
 $lang['helptour_segreason'] = 'Specify the segment reason <small>(Mandatory)</small>';
 $lang['helptour_createsegment'] = 'If you are traveling to multiple cities, divide your trip into multiple segments respectively.';
-$lang['helptour_savesec1'] = 'Save the segment details.';
-$lang['helptour_savesec2'] = 'Save Transportation Section details before proceeding.';
-$lang['helptour_savesec3'] = 'Save Accommodations Section details before proceeding.';
-$lang['helptour_savesec4'] = 'Save Expenses Section details before proceeding.';
-$lang['helptour_savesec5'] = 'Save Finance Section details before proceeding to the next segment or finalizing your trip.';
+$lang['helptour_savesec1'] = 'Save the segment details to proceed to the next section.';
+$lang['helptour_savesec2'] = 'Save transportation section details before proceeding.';
+$lang['helptour_savesec3'] = 'Save accommodations section details before proceeding.';
+$lang['helptour_savesec4'] = 'Save expenses section details before proceeding.';
+$lang['helptour_savesec5'] = 'Save finance section details before proceeding to the next segment or finalizing your trip.';
 $lang['selectevent'] = 'Select Event';
 $lang['backtotop'] = 'Back to Top';
+$lang['requestleavesubject'] = '{1} requested a {2} [{3}]';
 ?>

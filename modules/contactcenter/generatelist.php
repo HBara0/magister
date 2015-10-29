@@ -53,7 +53,7 @@ if(!$core->input['action']) {
     $entitytype = array('s' => $lang->supplier, 'c' => $lang->customer, 'pc' => $lang->potentialcustomer, 'ps' => $lang->potentialsupplier);
     $suppliertype = array('t' => $lang->trader, 'p' => $lang->producer);
     $filters_rep_config = array(
-            'parse' => array('filters' => array('name', 'entities', 'companytype', 'suppliertype', 'segment', 'assignedaff', 'requiresQr', 'hasContract', 'coid'),
+            'parse' => array('filters' => array('name', 'userpermentities', 'companytype', 'suppliertype', 'usersegments', 'assignedaff', 'requiresQr', 'hasContract', 'coid'),
                     'overwriteField' => array(
                             'requiresQr' => '<select name="extrafilters[requiresQr][]"><option></option><option value=0>Yes</option><option value=1>No</option></select>',
                             'hasContract' => '<select name="extrafilters[hasContract][]"><option></option><option value=1>Yes</option><option value=0>No</option></select>',
@@ -71,16 +71,18 @@ if(!$core->input['action']) {
                     ),
                     'secTables' => array(
                             'entitiesrepresentatives' => array(
-                                    'filters' => array('entities' => array('operatorType' => 'multiple', 'name' => 'eid')),
+                                    'filters' => array('userpermentities' => array('operatorType' => 'equal', 'name' => 'eid')),
                             ),
                             'representativessegments' => array(
-                                    'filters' => array('segment' => array('operatorType' => 'multiple', 'name' => 'psid')),
+                                    'filters' => array('usersegments' => array('operatorType' => 'multiple', 'name' => 'psid')),
                             ),
                     )
             )
     );
     $repfilter = new Inlinefilters($filters_rep_config);
     $filters_repr_row = $repfilter->prase_filtersrows(array('hidebutton' => true, 'tags' => 'table', 'display' => $filters_reprow_display));
+
+    $userchecked = ' checked="checked"';
     eval("\$generatelist = \"".$template->get('contacts_generatelist')."\";");
     output_page($generatelist);
 }
@@ -90,6 +92,7 @@ else {
         $sort_query['by'] = 'displayName';
 //user filters-start
         $filters_userrow_display = 'show';
+
         $filters_user_config = array(
                 'parse' => array('filters' => array('name', 'position', 'entities', 'segment', 'allenabledaffiliates', 'allaffiliates', 'reportsTo'),
                         'overwriteField' => array()
@@ -249,8 +252,15 @@ else {
         }
     }
     if($core->input['action'] == 'rep') {
+        $permissions = $core->user_obj->get_businesspermissions();
+//        if(is_array($permissions['psid'])) {
+//            $extrawhere['psid'] = 'psid IN ('.implode(',', array_filter($permissions['psid'])).')';
+//        }
+        if(is_array($permissions['eid'])) {
+            $extrawhere['eid'] = 'eid IN ('.implode(',', array_filter($permissions['eid'])).')';
+        }
         $filters_rep_config = array(
-                'parse' => array('filters' => array('name', 'entities', 'companytype', 'suppliertype', 'segment', 'assignedaff', 'requiresQr', 'hasContract', 'coid'),
+                'parse' => array('filters' => array('name', 'userpermentities', 'companytype', 'suppliertype', 'usersegments', 'assignedaff', 'requiresQr', 'hasContract', 'coid'),
                         'overwriteField' => array(
                                 'requiresQr' => '<select name="extrafilters[requiresQr][]"><option></option><option value=1>Yes</option><option value=0>No</option></select>',
                                 'hasContract' => '<select name="extrafilters[hasContract][]"><option></option><option value=1>Yes</option><option value=0>No</option></select>',
@@ -264,14 +274,16 @@ else {
                         'filterKey' => 'rpid',
                         'mainTable' => array(
                                 'name' => 'representatives',
-                                'filters' => array('name' => array('operatorType' => 'equal', 'name' => 'name')),
+                                'filters' => array('name' => array('name' => 'name')),
                         ),
                         'secTables' => array(
                                 'entitiesrepresentatives' => array(
-                                        'filters' => array('entities' => array('operatorType' => 'multiple', 'name' => 'eid')),
+                                        'filters' => array('userpermentities' => array('operatorType' => 'equal', 'name' => 'eid')),
+                                        'extraWhere' => $extrawhere['eid']
                                 ),
                                 'representativessegments' => array(
-                                        'filters' => array('segment' => array('operatorType' => 'multiple', 'name' => 'psid')),
+                                        'filters' => array('usersegments' => array('operatorType' => 'multiple', 'name' => 'psid')),
+                                // 'extraWhere' => $extrawhere['psid']
                                 ),
                         )
                 )
@@ -425,6 +437,14 @@ else {
             }
         }
         if(isset($extrafilters)) {
+            if(is_array($permissions['eid'])) {
+                if(isset($extrafilters[Entities]['eid'])) {
+                    $extrafilters[Entities]['eid'] = array_intersect($extrafilters[Entities]['eid'], $permissions['eid']);
+                }
+                else {
+                    $extrafilters[Entities]['eid'] = $permissions['eid'];
+                }
+            }
             $ents = Entities::get_data($extrafilters[Entities], array('returnarray' => true, 'operators' => array('contractExpiryDate' => $extrafilters['operators']['contractExpiryDate'])));
             if(isset($extrafilters[AffiliatedEntities]) && !empty($extrafilters[AffiliatedEntities])) {
                 $extrafilters[AffiliatedEntities]['eid'] = array_keys($ents);
@@ -493,6 +513,9 @@ else {
                 if(is_array($assignedreps)) {
                     $entities = array();
                     foreach($assignedreps as $assignedrep) {
+                        if($assignedrep->rpid == 0) {
+                            continue;
+                        }
                         $entities[] = $assignedrep->get_entity();
                         $entitienames[] = $assignedrep->get_entity()->get_displayname();
                     }

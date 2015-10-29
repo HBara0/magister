@@ -49,12 +49,16 @@ if(!$core->input['action']) {
             }
         }
         asort($values);
+
+        $classification_classes = array('A', 'B', 'C');
+        $classification_classes = array_combine($classification_classes, $classification_classes);
         foreach($values as $key => $value) {
             $checked = $rowclass = '';
             $endproducttypes_list .= ' <tr class="'.$rowclass.'">';
-            $endproducttypes_list .= '<td><input id="producttypefilter_check_'.$key.'" type="checkbox"'.$checked.' value="'.$key.'" name="entitybrand[endproducttypes]['.$key.'][eptid]">'.$value.'<input style="float:right;" type="text" name="entitybrand[endproducttypes]['.$key.'][description]" placeholder="'.$lang->description.'"  value="'.$brandproduct[description].'"/></td><tr>';
+            $endproducttypes_list .= '<td><input id="producttypefilter_check_'.$key.'" type="checkbox"'.$checked.' value="'.$key.'" name="entitybrand[endproducttypes]['.$key.'][eptid]">'.$value.'<input style="float:right;" type="text" name="entitybrand[endproducttypes]['.$key.'][description]" placeholder="'.$lang->description.'"  value="'.$brandproduct[description].'"/></td>'
+                    .'<td>'.parse_selectlist("entitybrand[endproducttypes][".$key."][classificationClass]", '', $classification_classes, '', '', '', array('blankstart' => true)).'</td></tr>';
         }
-        //$endproducttypes_list.='<option value="'.$endproduct_types['eptid'].'">'.$endproduct_types['title'].'</option>';
+        //$endproducttypes_list.='<option value = "'.$endproduct_types['eptid'].'">'.$endproduct_types['title'].'</option>';
     }
 
     $characteristics = ProductCharacteristicValues::get_data(null, array('order' => array('by' => array(ProductCharacteristicValues::DISPLAY_NAME, 'pcid')), 'returnarray' => true));
@@ -141,7 +145,7 @@ else {
         if(is_object($customer)) {
             $entitybrand['customer'] = $customer->get_displayname();
         }
-        $ebid_hiddenfield = '<input type="hidden" value="'.$id.'" name="entitybrand[ebid]">';
+        $ebid_hiddenfield = '<input type = "hidden" value = "'.$id.'" name = "entitybrand[ebid]">';
         $module = 'entities';
         $modulefile = 'managebrands';
         eval("\$popup_editbrand = \"".$template->get('popup_editbrand')."\";");

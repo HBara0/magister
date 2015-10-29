@@ -1,6 +1,6 @@
 <html>
     <head>
-        <title>{$core->settings[systemtitle]} | {$lang->modifysitesettings}</title>
+        <title>{$core->settings[systemtitle]} | {$lang->manageevents}</title>
         {$headerinc}
     </head>
     <body>
@@ -80,16 +80,6 @@
                             </tbody>
                         </table>
                     </div>
-                    <!--
-                                       <div style="display:block;padding-top:5px;">
-                                           <div style="display:block;" class="thead">{$lang->attachfiles}</div>
-                                           <div style="display:block;">
-                                               <fieldset class="altrow2" style="border:1px solid #DDDDDD">
-                                                   <input type="file" id="attachments" name="attachments[]" multiple="true"></fieldset>
-                                           </div>
-
-                                       </div>
-                    -->
                     <div style="display:block;padding-top:5px;">
                         <div style="display:block;" class="thead">{$lang->attacheventlogo}</div>
                         <div style="display:block;">

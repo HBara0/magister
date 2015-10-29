@@ -142,7 +142,7 @@ class DataAccessLayer {
         /* Improve to have multiple orders */
         if(!is_array($order)) {
             if(!empty($order)) {
-                return ' ORDER BY '.$db->escape_string($order).' ASC';
+                return ' ORDER BY '.$db->escape_string($order);
             }
             return false;
         }
@@ -204,8 +204,13 @@ class DataAccessLayer {
                     if($operators[$attr] == 'like') {
 
                     }
+
                     if($operators[$attr] == 'BETWEEN') {
                         $filters_querystring .= $andor.$attr.' BETWEEN '.$value[0].' AND '.$value[1];
+                    }
+                    elseif($operators[$attr] == 'NOT IN') {
+                        $value = array_map($db->escape_string, $value);
+                        $filters_querystring .= $andor.$attr.' NOT IN ('.implode(',', $value).')';
                     }
                     else {
                         $value_numerichk = array_filter($value, 'is_numeric');

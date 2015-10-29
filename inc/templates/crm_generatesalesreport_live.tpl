@@ -4,7 +4,7 @@
         {$headerinc}
         <script type="text/javascript">
             $(function () {
-                $("select[id='type']").live('change', function () {
+                $(document).on('change', "select[id='type']", function () {
                     var id = $(this).attr("id")
                     var value = $(this).attr("value")
                     $("div[id$=_reporttype]").not([id ^= '" + $(this).val() + "']).hide();

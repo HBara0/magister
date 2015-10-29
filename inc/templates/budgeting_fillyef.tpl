@@ -3,22 +3,23 @@
         <title>{$core->settings[systemtitle]} | {$lang->fillyef}</title>
         {$headerinc}
         <script type="text/javascript">
-            $(function () {
-                $('input[id^="amountper_"]').live('keyup', function () {
+            $(function() {
+                $(document).on('keyup', 'input[id^="amountper_"]', function() {
                     var id = $(this).attr("id").split("_");
                     if(!jQuery.isNumeric($('input[id=amountper_' + id[1] + ']').val())) {
                         return;
                     }
                     $('input[id=income_' + id[1] + ']').val((Number($(this).val()) / 100) * $('input[id=amount_' + id[1] + ']').val());
+                    $('input[id="localincomeper_' + id[1] + '"]').trigger('keyup');
                 });
-                $('input[id^="localincomeper_"]').live('keyup', function () {
+                $(document).on('keyup', 'input[id^="localincomeper_"]', function() {
                     var id = $(this).attr("id").split("_");
                     if(!jQuery.isNumeric($('input[id=localincomeper_' + id[1] + ']').val())) {
                         return;
                     }
                     $('input[id=localincome_' + id[1] + ']').val((Number($(this).val()) / 100) * $('input[id=income_' + id[1] + ']').val());
                 });
-                $('input[id^="localincome_"]').live('keyup change', function () {
+                $(document).on('keyup change', 'input[id^="localincome_"]', function() {
                     var id = $(this).attr("id").split("_");
                     if(!jQuery.isNumeric($('input[id=localincome_' + id[1] + ']').val())) {
                         return;
@@ -27,7 +28,7 @@
                         $('input[id=localincomeper_' + id[1] + ']').val((Number($(this).val()) * 100) / $('input[id=income_' + id[1] + ']').val());
                     }
                 });
-                $('input[id^="income_"]').live('keyup', function () {
+                $(document).on('keyup', 'input[id^="income_"]', function() {
                     var id = $(this).attr("id").split("_");
                     if(!jQuery.isNumeric($('input[id=income_' + id[1] + ']').val())) {
                         return;
@@ -35,8 +36,9 @@
                     if($('input[id="amount_' + id[1] + '"]').val().length > 0) {
                         $('input[id=amountper_' + id[1] + ']').val((Number($(this).val()) * 100) / $('input[id=amount_' + id[1] + ']').val());
                     }
+                    $('input[id="localincomeper_' + id[1] + '"]').trigger('keyup');
                 });
-                $('input[id^="unitprice_"]').live('keyup', function () {
+                $(document).on('keyup', 'input[id^="unitprice_"]', function() {
                     var id = $(this).attr("id").split("_");
                     if(!jQuery.isNumeric($('input[id=unitprice_' + id[1] + ']').val())) {
                         return;
@@ -49,13 +51,13 @@
                     }
 
                 });
-                $('input[id^="Qty_"]').live('keyup', function () {
+                $(document).on('keyup', 'input[id^="Qty_"]', function() {
                     var id = $(this).attr("id").split("_");
                     $('input[id="unitprice_' + id[1] + '"]').trigger('keyup');
                     $('input[id="amountper_' + id[1] + '"]').trigger('keyup');
                     $('input[id="localincomeper_' + id[1] + '"]').trigger('keyup');
                 });
-                $('input[id^="amount_"]').live('keyup', function () {
+                $(document).on('keyup', 'input[id^="amount_"]', function() {
                     var id = $(this).attr("id").split("_");
                     if(!jQuery.isNumeric($('input[id=amount_' + id[1] + ']').val())) {
                         return;
@@ -75,7 +77,7 @@
                     }
 
                 });
-                $('input[id^="s1perc_"]').live('keyup', function (e) {
+                $(document).on('keyup', 'input[id^="s1perc_"]', function(e) {
                     var id = $(this).attr("id").split("_");
                     if($(this).val() > 100) {
                         e.preventDefault();
@@ -84,7 +86,7 @@
                         $('input[id="s2perc_' + id[1] + '"]').val(Number(100 - $(this).val()));
                     }
                 });
-                $('input[id^="s2perc_"]').live('keyup', function (e) {
+                $(document).on('keyup', 'input[id^="s2perc_"]', function(e) {
                     var id = $(this).attr("id").split("_");
                     if($(this).val() > 100) {
                         e.preventDefault();
@@ -93,7 +95,7 @@
                         $('input[id="s1perc_' + id[1] + '"]').val(Number(100 - $(this).val()));
                     }
                 });
-                $('select[id^="salestype_"]').live('change', function () {
+                $(document).on('change', 'select[id^="salestype_"]', function() {
                     var id = $(this).attr("id").split("_");
                     var salestype = $(this).val();
                     var currencies = {$js_currencies};
@@ -112,12 +114,12 @@
                     }
                 });
 
-                $("input[type='checkbox'][id$='_unspecifiedCustomer']").live('change', function () {
+                $(document).on('change', "input[type='checkbox'][id$='_unspecifiedCustomer']", function() {
                     var id = $(this).attr("id").split("_");
                     $("div[id$='" + id[1] + "_unspecifiedCustomer_country']").slideToggle();
                 });
 
-                $(document).on('keyup', 'input[data-max]', function () {
+                $(document).on('keyup', 'input[data-max]', function() {
                     if($(this).attr('data-max') > 0 && $(this).val() > parseFloat($(this).attr('data-max'))) {
                         $("#alert_" + $(this).attr('data-rowid')).text($('input[id="errormessage"]').val() + $(this).attr('data-name'));
                         $(this).addClass("warning");
@@ -127,9 +129,9 @@
                     }
                 });
 
-                $(document).on('keyup', 'input[data-quantity]', function () {
+                $(document).on('keyup', 'input[data-quantity]', function() {
                     var total = 0;
-                    $('input[data-quantity="' + $(this).attr('data-quantity') + '"]').each(function (i, obj) {
+                    $('input[data-quantity="' + $(this).attr('data-quantity') + '"]').each(function(i, obj) {
                         total += parseFloat($(obj).val());
                         $(obj).removeClass("warning");
                     });
@@ -140,7 +142,7 @@
                     $('input[id="amountper_' + id[1] + '"]').trigger('keyup');
                     $('input[id="localincomeper_' + id[1] + '"]').trigger('keyup');
 
-                    $('input[data-quantity="' + $(this).attr('data-quantity') + '"]').each(function (i, obj) {
+                    $('input[data-quantity="' + $(this).attr('data-quantity') + '"]').each(function(i, obj) {
                         var month_perc = $(obj).val() / total * 100;
                         $('input[id="' + $(obj).attr('data-perc') + '"]').val(month_perc.toFixed(2));
                     });
@@ -176,6 +178,7 @@
         <table width="100%" border="0" cellspacing="0" cellpadding="2">
             <thead>
                 <tr style="vertical-align: top;">
+                    <td  width="1%" class="border_right"  rowspan="2" valign="top" align="left"></td>
                     <td  width="150px" class=" border_right" align="center" rowspan="2" valign="top" align="left">{$lang->customer} <a href="index.php?module=contents/addentities&type=customer" target="_blank"><img src="images/addnew.png" border="0" alt="{$lang->add}"></a></td>
                     <td width="150px" rowspan="2" valign="top" align="center" class=" border_right">{$lang->product} <a href="index.php?module=contents/addproducts&amp;referrer=budgeting" target="_blank"><img src="images/addnew.png" border="0" alt="{$lang->add}"></a></td>
                     <td width="150px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->saletype} <a href="#" title="{$tooltips[saletype]}"><img src="./images/icons/question.gif" ></a></td>
@@ -200,14 +203,14 @@
                 {$budgetlinesrows}
             </tbody>
             <tfoot>
-                <tr><td valign="top">
+                <tr><td valign="top" colspan="2">
                         <input name="numrows_budgetlines{$rownums}" type="hidden" id="numrows_budgetlines_{$rownums}" value="{$rownums}">
                         <input type="hidden" name="ajaxaddmoredata[affid]" id="ajaxaddmoredata_affid" value="{$yef_data[affid]}"/>
                         <input type="hidden" name="ajaxaddmoredata[spid]" id="ajaxaddmoredata_spid" value="{$yef_data[spid]}"/>
                         <img src="./images/add.gif" id="ajaxaddmore_budgeting/fillyearendforecast_budgetlines_{$rownums}" alt="{$lang->add}">
                     </td></tr>
                 <tr>
-                    <td>
+                    <td colspan="2">
                         <table width="100%">
                             <tr> <td><input type="button" value="{$lang->prevcaps}" class="button" onClick="goToURL('index.php?module=budgeting/create&amp;identifier={$sessionidentifier}')
                                             ;"/></td>
@@ -216,11 +219,9 @@
                         </table>
                     </td>
                 </tr>
-                <tr>
-                    <td ><div id="perform_budgeting/fillyearendforecast_Results"></div></td>
-                </tr>
             </tfoot>
         </table>
+        <div id="perform_budgeting/fillyearendforecast_Results"></div>
     </form>
 </td>
 </tr>

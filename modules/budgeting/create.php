@@ -31,14 +31,16 @@ if(!$core->input['action']) {
     $affiliated_budget = parse_selectlist('budget[affid]', 1, $affiliates, '', '', '', array('id' => 'affid'));
 
     if($core->usergroup['canViewAllSupp'] == 0) {
-        $insupplier = implode(',', $core->user['suppliers']['eid']);
-        $supplier_where = " eid IN ({$insupplier})";
+        if(is_array($core->user['suppliers']['eid'])) {
+            $insupplier = implode(',', $core->user['suppliers']['eid']);
+            $supplier_where = " eid IN ({$insupplier}) AND";
+        }
     }
     else {
-        $supplier_where = " type='s'";
+        $supplier_where = " type='s' AND";
     }
 
-    $supplier_where .= ' AND approved=1 AND isActive=1';
+    $supplier_where .= ' approved=1 AND isActive=1';
     $suppliers = get_specificdata('entities', array('eid', 'companyName'), 'eid', 'companyName', array('by' => 'companyName', 'sort' => 'ASC'), 1, "{$supplier_where}");
     $budget_supplierslist = "<select name=budget[spid] id=spid ><option value='0'>&nbsp;</option></select>";
 

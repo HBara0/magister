@@ -52,6 +52,12 @@ if(!$core->input['action']) {
                     }
                 }
             }
+            $employeesegments_usersids = EmployeeSegments::get_data('psid IN ('.implode(',', $psids).') AND uid IN(SELECT uid FROM '.Tprefix.'users WHERE gid != 7) ', array('returnarray' => true));
+            if(is_array($employeesegments_usersids)) {
+                foreach($employeesegments_usersids as $user) {
+                    $segmentusers[$user->uid] = $user->get_displayname();
+                }
+            }
         }
     }
     if($core->usergroup['canViewAllAff'] == 0) {
@@ -170,6 +176,9 @@ if(!$core->input['action']) {
         foreach($affiliate_users as $aff_businessmgr) {
             $business_managers[$aff_businessmgr['uid']] = $aff_businessmgr['displayName'];
         }
+    }
+    if(is_array($segmentusers)) {
+        $business_managers = array_unique($business_managers + $segmentusers);
     }
     if(is_array($business_managers)) {
         foreach($business_managers as $key => $value) {

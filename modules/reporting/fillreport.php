@@ -25,6 +25,12 @@ $lang->load('reporting_fillreport');
 if(!$core->input['action']) {
 //$headerinc .= "<link href='{$core->settings[rootdir]}/css/jqueryuitheme/jquery-ui-1.7.2.custom.css' rel='stylesheet' type='text/css' />";
 
+    $suppauditor = new AssignedEmployees();
+    $suppauditor = $suppauditor->get_supplier_auditor($core->input['spid']);
+    if(is_object($suppauditor)) {
+        $supp_auditor_output = '<p> <span style="font-weight:bold">'.$lang->reportauditor.' : </span>'.$suppauditor->get_displayname().'</p>';
+    }
+
     if($core->input['stage'] == 'productsactivity') {
         if(isset($core->input['identifier']) && !empty($core->input['identifier'])) {
             $identifier = $db->escape_string($core->input['identifier']);
@@ -120,8 +126,9 @@ if(!$core->input['action']) {
             foreach($productsactivity as $rowid => $productactivity) {
                 $product = new Products($productactivity['pid']);
                 $segment = $product->get_segment();
-                $usersegments = array_keys($core->user_obj->get_segments());
+                $usersegments = $core->user_obj->get_segments();
                 if(is_array($usersegments)) {
+                    $usersegments = array_keys($usersegments);
                     if(!in_array($segment['psid'], $usersegments) && $core->input['auditor'] != 1 && $core->user['uid'] != $productactivity['uid']) {
                         continue;
                     }
@@ -798,7 +805,6 @@ if(!$core->input['action']) {
         $affiliates_list = parse_selectlist('affid', 1, $affiliates, '');
 
         if($core->usergroup['reporting_canTransFillReports'] == '1') {
-
             $transfill_checkbox = "<br /><span class='smalltext'><input type='checkbox' name='transFill' id='transFill' value='1' title='{$lang->transfill_tip}'> {$lang->transparentlyfill}</span>";
         }
         eval("\$fillreportpage = \"".$template->get('reporting_fillreports_init')."\";");
@@ -861,9 +867,14 @@ else {
 
         $report_meta = unserialize($session->get_phpsession('reportmeta_'.$identifier));
         $currencies = unserialize($session->get_phpsession('reportcurrencies_'.$identifier));
-
         /* Validate Forecasts - Start */
         $report = new ReportingQr(array('rid' => $rid));
+        if(is_object($report)) {
+            $auditor = $report->user_isaudit();
+        }
+        if($auditor == false) {
+            $core->input['transfill'] = 0;
+        }
         if(!is_array($core->input['productactivity'])) {
             output_xml("<status>false</status><message>{$lang->fillatleastoneproductrow}</message>");
             exit;
@@ -917,13 +928,13 @@ else {
                     $update_query_where = 'rid='.$rid.' AND pid='.intval($productactivity['pid']).$existingentries_query_string;
                 }
                 unset($productactivity['productname'], $productactivity['fxrate']);
-//                $update = $db->update_query('productsactivity', $productactivity, $update_query_where);
+                //$update = $db->update_query('productsactivity', $productactivity, $update_query_where);
                 $productsact_obj = ProductsActivity::get_data($update_query_where, array('returnarray' => false));
                 if(is_object($productsact_obj)) {
                     $productsact_obj->set($productactivity);
                     $productsact_obj = $productsact_obj->save();
+                    $processed_once = true;
                 }
-                $processed_once = true;
                 if(isset($productactivity['paid']) && !empty($productactivity['paid'])) {
                     $cachearr['usedpaid'][] = $productactivity['paid'];
                 }
@@ -933,7 +944,7 @@ else {
                 $productactivity['rid'] = $rid;
 
                 unset($productactivity['productname'], $productactivity['fxrate'], $productactivity['paid']);
-//                $insert = $db->insert_query('productsactivity', $productactivity);
+                // $insert = $db->insert_query('productsactivity', $productactivity);
                 $productactivity['uid'] = $core->user['uid'];
                 $productsact_obj = new ProductsActivity();
                 $productsact_obj->set($productactivity);
@@ -1036,6 +1047,15 @@ else {
         unset($core->input['ajaxaddmoredata']);
         $rid = intval($core->input['rid']);
         $transfill = $core->input['transfill'];
+
+        $report = new ReportingQr(array('rid' => $rid));
+        if(is_object($report)) {
+            $auditor = $report->user_isaudit();
+        }
+        if($auditor == false) {
+            $transfill = 0;
+        }
+
         $identifier = $db->escape_string($core->input['identifier']);
         if(!empty($val['exclude']) && $val['exclude'] == 1) {
             $marketreport_data[$key]['exclude'] = $val['exclude'];
@@ -1360,10 +1380,19 @@ else {
 //            output_xml("<status>false</status><message>{$lang->noproductsactivity}</message>");
 //            exit;
 //        }
+
         if(is_array($rawdata['productactivitydata'])) {
-            $productsactivity_validation = $report->validate_forecasts($rawdata['productactivitydata'], $currencies);
-            if($productsactivity_validation !== true) {
-                output_xml("<status>false</status><message>{$lang->wrongforecastgoback}</message>");
+            $productsactivity_validation = $report->validate_forecasts($rawdata['productactivitydata'], $currencies, array('source' => 'finalize'));
+            if($productsactivity_validation == false || is_array($productsactivity_validation)) {
+                $corrections_output = '<table width="100%" class="datatable">';
+                $corrections_output .= '<tr><th width="50%">'.$lang->product.'</th><th width="35%">'.$lang->businessmanager.'</th></tr>';
+                if(is_array($productsactivity_validation)) {
+                    foreach($productsactivity_validation as $corrections) {
+                        $corrections_output .= '<tr><td>'.$corrections['name'].'</td><td>'.$corrections['user'].'</td></tr>';
+                    }
+                }
+                $corrections_output .= '</table>';
+                output_xml('<status>false</status><message>'.$lang->wrongforecastgoback.' <![CDATA['.$corrections_output.']]></message>');
                 exit;
             }
 

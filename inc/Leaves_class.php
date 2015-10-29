@@ -623,9 +623,9 @@ class Leaves extends AbstractClass {
         return false;
     }
 
-    public function get_purpose() {
-        return new LeaveTypesPurposes($this->data['ltpid']);
-    }
+//    public function get_purpose() {
+//        return new LeaveTypesPurposes($this->data['ltpid']);
+//    }
 
     public function get_type($simple = true) {
         return $this->get_leavetype($simple);
@@ -793,13 +793,13 @@ class Leaves extends AbstractClass {
                 $user = $this->get_user();
                 $main_aff = $user->get_mainaffiliate();
                 if(!is_object($main_aff) || empty($main_aff->affid)) {
-                    return FALSE;
+                    return false;
                 }
                 if(empty($main_aff->cpAccount)) {
-                    return FALSE;
+                    return false;
                 }
                 $cpaccount = $main_aff->cpAccount;
-                $subject = 'Auto Responder: ';
+                $subject = 'Auto Responder: %subject%';
                 if(!is_empty($this->autoRespSubject)) {
                     $subject = 'Auto Responder: '.$this->autoRespSubject;
                 }
@@ -808,16 +808,51 @@ class Leaves extends AbstractClass {
                     $message = $this->autoRespBody;
                 }
                 else {
-                    $message = $lang->sprint($lang->autorespondermessage, $user->get_displayname(), date($core->settings['dateformat'].' '.$core->settings['timeformat'], $this->fromDate), date($core->settings['dateformat'].' '.$core->settings['timeformat'], $this->fromDate));
+                    $message = $lang->sprint($lang->autorespondermessage, date($core->settings['dateformat'].' '.$core->settings['timeformat'], $this->fromDate), date($core->settings['dateformat'].' '.$core->settings['timeformat'], $this->toDate));
+                    if($this->data['limitedEmail']) {
+                        $message .= "\n".$lang->autorespondermessagelimitedemail;
+                    }
                     if(!empty($this->data['contactPerson'])) {
                         $contactperson = $this->get_contactperson();
                         if(is_object($contactperson)) {
-                            $message .= "\n".'Please contact '.$contactperson->displayName.' ('.$contactperson->email.') for urgent issues.';
+                            $message .= "\n".$lang->sprint($lang->autorespondermessagecontact, $contactperson->displayName, $contactperson->email);
                         }
                     }
                 }
-                $args = array($user->email, $user->displayName, $subject, $message, explode('@', $user->email)[1], true, "utf-8", 8, $this->fromDate, $this->toDate);
+                $dateTimeZoneLocal = new DateTimeZone(date_default_timezone_get());
+                $dateTimeLocal = new DateTime("now", $dateTimeZoneLocal);
+                $differencefromgmt = timezone_offset_get($dateTimeZoneLocal, $dateTimeLocal);
+                $args = array($user->email, $user->displayName, $subject, $message, explode('@', $user->email)[1], true, "utf-8", 8, $this->fromDate - $differencefromgmt, $this->toDate - $differencefromgmt);
                 return $xmlapi->api1_query($cpaccount, 'Email', 'addautoresponder', $args);
+            }
+            catch(Exception $ex) {
+                return $ex;
+            }
+        }
+    }
+
+    /**
+     *
+     * @global Language $lang
+     * @global Core $core
+     * @return boolean|\Exception
+     */
+    public function delete_autoresponder() {
+        global $lang, $core;
+        if(class_exists('CpanelAPIConnect')) {
+            $apiconnect = new CpanelAPIConnect();
+            $xmlapi = $apiconnect->get_xmlapi();
+            try {
+                $user = $this->get_user();
+                $main_aff = $user->get_mainaffiliate();
+                if(!is_object($main_aff) || empty($main_aff->affid)) {
+                    return false;
+                }
+                if(empty($main_aff->cpAccount)) {
+                    return false;
+                }
+                $args = array($user->email);
+                return $xmlapi->api1_query($cpaccount, 'Email', 'delautoresponder', $args);
             }
             catch(Exception $ex) {
                 return $ex;

@@ -4,5 +4,7 @@
     <td>{$visitreport[employeename]}</td>
     <td>{$visitreport[type]}</td>
     <td>{$visitreport[formatteddate]}</td>
-    <td>{$draft[$visitreport[vrid]]}{$icon[$visitreport[vrid]]}&nbsp;</td>
+    <td {$displaydraft}>{$draft[$visitreport[vrid]]}</td>
+    <td>{$icon[$visitreport[vrid]]}&nbsp;</td>
+    <td>{$unlockuserreporticon[$visitreport[vrid]]}</td>
 </tr>
