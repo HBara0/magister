@@ -35,10 +35,8 @@
                     <div style="display:block;">
                         <div style="display:inline-block; padding:11px;">{$lang->lang}</div>
                         <div style="display:inline-block; padding:11px;">
-                            <select name="page[lang]">
-                                <option value="english">{$lang->english}</option>
-                                <option value="french">{$lang->french}</option>
-                            </select></div>
+                            {$languages_list}
+                        </div>
                     </div>
                     <div style="display:block;margin:5px;">
                         <div style="display:inline-block; padding:11px;">{$lang->categories}</div>

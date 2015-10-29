@@ -25,6 +25,12 @@ $lang->load('reporting_fillreport');
 if(!$core->input['action']) {
 //$headerinc .= "<link href='{$core->settings[rootdir]}/css/jqueryuitheme/jquery-ui-1.7.2.custom.css' rel='stylesheet' type='text/css' />";
 
+    $suppauditor = new AssignedEmployees();
+    $suppauditor = $suppauditor->get_supplier_auditor($core->input['spid']);
+    if(is_object($suppauditor)) {
+        $supp_auditor_output = '<p> <span style="font-weight:bold">'.$lang->reportauditor.' : </span>'.$suppauditor->get_displayname().'</p>';
+    }
+
     if($core->input['stage'] == 'productsactivity') {
         if(isset($core->input['identifier']) && !empty($core->input['identifier'])) {
             $identifier = $db->escape_string($core->input['identifier']);

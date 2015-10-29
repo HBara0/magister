@@ -29,6 +29,7 @@
                     </fieldset></td>
             </tr>
             {$craetereverserate}
+            {$craeteforallaffiliates}
             <tr> <td><input type="submit" id="perform_budgeting/listfxrates_Button" value="{$lang->savecaps}" class="button"/></td></tr>
             <tr> <td><div id="perform_budgeting/listfxrates_Results" /></div></td></tr>
         </table>
