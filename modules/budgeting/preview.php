@@ -512,7 +512,7 @@ if(!($core->input['action'])) {
                                 }
                             }
                             if($core->usergroup['budgeting_canFillLocalIncome'] == 1) {
-                                $localincome_cell .= '<td class="smalltext" style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="right" class="border_left">'.$budgetline['localIncomeAmount'].'</td>';
+                                $localincome_cell = '<td class="smalltext" style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="right" class="border_left">'.$budgetline['localIncomeAmount'].'</td>';
                                 $localincome_cell .= '<td class="smalltext" style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="right" class="border_left">'.$budgetline['invoicingEntityIncome'].'</td>';
                             }
                             else {
@@ -558,7 +558,7 @@ if(!($core->input['action'])) {
             }
 
             if($core->usergroup['budgeting_canFillLocalIncome'] == 1) {
-                $loalincome_header .= '<th style="vertical-align:central; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left">'.$lang->localincome.'</th>';
+                $loalincome_header = '<th style="vertical-align:central; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left">'.$lang->localincome.'</th>';
                 $loalincome_header .= '<th style="vertical-align:central; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left">'.$lang->remainingcommaff.'</th>';
             }
             if(is_array($total) && !empty($total)) {
