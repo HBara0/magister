@@ -136,7 +136,8 @@ if(!$core->input['action']) {
                     $entitybrand_link = $entitybrand->parse_link();
                     $characteristic = $entitybrandproduct->get_charactersticvalue();
                     $characteristic_output = '';
-                    if(!empty($characteristic->get_id())) {
+                    $characteristic_id = $characteristic->get_id();
+                    if(!empty($characteristic_id)) {
                         $entitybrand_link .= ' ('.$characteristic->get_displayname().')';
                     }
 

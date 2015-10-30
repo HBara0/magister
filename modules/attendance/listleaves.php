@@ -245,7 +245,9 @@ else {
                 $to_notify[] = $approver['email'];
             }
         }
-
+        if($leave_obj->createAutoResp == 1) {
+            $leave_obj->delete_autoresponder();
+        }
         $query = $db->delete_query('leaves', 'lid='.$lid);
         if($query && $db->affected_rows() > 0) {
             //Reset Leave Balance - Start
@@ -347,8 +349,8 @@ else {
     elseif($core->input['action'] == 'takeactionpage') {
 
         if(isset($core->input['id'], $core->input['requestKey'])) {
-            $core->input['id'] = base64_decode($core->input['id']);
-            $leave_obj = new Leaves($core->input['id'], false);
+            $lid = base64_decode($core->input['id']);
+            $leave_obj = new Leaves($lid, false);
             $leave = $leave_obj->get();
             $leave['requester'] = $leave_obj->get_requester()->get();
             $leave['type_details'] = $leave_obj->get_type(false)->get();
@@ -366,14 +368,15 @@ else {
             }
 
             $leave['reason'] .= $leave_obj->parse_expenses();
-            $leave['reason'] .= $leave_obj->parse_approvalsapprovers(array('parselabel' => true));
+            $leave['reason'] .= '<br/>'.$leave_obj->parse_approvalsapprovers(array('parselabel' => true));
 
             /* Conversation message --START */
             $leaemessag_obj = new LeavesMessages();
             $takeactionpage_conversation = $leave_obj->parse_messages(array('uid' => $core->user['uid']));
             /* Conversation  message --END */
-            if(isset($core->input['tmpid']) && !empty($core->input['tmpid'])) {
-                $preview_iteneraryframe = '<div id="container" style="width:100%;  margin: 0px auto;display:block;"><iframe style="width:100%;height:700px" src="'.$core->settings['rootdir'].'/index.php?module=travelmanager/viewplan&referrer=plantrip&id='.intval($core->input['tmpid']).'&preview=1"></iframe></div>';
+            $tmplan = TravelManagerPlan::get_plan(array('lid' => $leave_obj->get_id()));
+            if(is_object($tmplan)) {
+                $preview_iteneraryframe = '<div id="container" style="width:100%;  margin: 0px auto;display:block;"><iframe style="width:100%;height:700px" src="'.DOMAIN.'/index.php?module=travelmanager/viewplan&referrer=plan&lid='.$lid.'&id='.$tmplan->tmpid.'&preview=1"></iframe></div>';
             }
             eval("\$takeactionpage = \"".$template->get('attendance_listleaves_takeaction')."\";");
             output_page($takeactionpage);

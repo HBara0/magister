@@ -382,7 +382,13 @@ function parse_selectlist($name, $tabindex, $options, $selected_options, $multip
     if(isset($config['data_attribute'])) {
         $datattr = $config['data_attribute'].';';
     }
-    $list .= '<select style="'.$list_style.'" id="'.$id.'" name="'.$name.'" '.$disabled.' size="'.$config['size'].'" tabindex="'.$tabindex.'"'.$required.$multiple.$onchange_actions.$datattr.'>';
+
+    if(isset($config['class'])) {
+        $list_class = ' class="'.$config['class'].'" ';
+    }
+
+    $list .= '<select style="'.$list_style.'" id="'.$id.'" name="'.$name.'" '.$disabled.' size="'.$config['size'].'" tabindex="'.$tabindex.'"'.$required.$multiple.$onchange_actions.$datattr.$list_class.'>';
+
     if($config['blankstart'] == true && empty($config['placeholder'])) {
         $list .= '<option></option>';
     }
@@ -417,7 +423,13 @@ function parse_selectlist($name, $tabindex, $options, $selected_options, $multip
         if(isset($config['disabledItems'][$key])) {
             $attributes .= ' disabled="disabled"';
         }
-
+        if(isset($config['optionids']) && is_array($config['optionids'])) {
+            if(is_array($config['optionids']['when'])) {
+                if(array_key_exists($key, $config['optionids']['when'])) {
+                    $attributes.=' id='.$config['optionids']['id'];
+                }
+            }
+        }
         $list .= '<option value="'.$key.'"'.$attributes.'>'.$val.'</option>';
         $attributes = '';
     }
@@ -639,6 +651,9 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
             }
             $db->free_result($query2);
         }
+    }
+    if($options['source'] == 'addentity') {
+        return $results;
     }
     if(is_array($results)) {
         foreach($results as $key => $val) {
@@ -946,6 +961,123 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                             $results_list .= '<li id="'.$key.'">'.$val.'</li>';
                         }
                         break;
+                    case 'basicfacilities':
+                        unset($category, $details, $desc_distance);
+                        $facility = new FacilityMgmtFacilities($key);
+                        $motherfacility = $facility->get_mother();
+                        $details = '';
+                        if(is_object($motherfacility) && !empty($motherfacility->fmfid) && $motherfacility->fmfid != $facility->fmfid) {
+                            $details .= $motherfacility->get_displayname();
+                        }
+                        if(!empty($facility->capacity)) {
+                            $details .=' -'.$lang->capacity.': '.$facility->capacity;
+                        }
+                        $category = $lang->otheravailable;
+                        if(isset($options['extrainput']) && !is_empty($options['extrainput'])) {
+                            $query = $db->query("SELECT affid, name, phone1, X(geoLocation) AS longitude, Y(geoLocation) AS latitude FROM ".Tprefix."affiliates WHERE asText(geoLocation) IS NOT NULL AND affid= ".intval($facility->affid));
+                            while($affiliate = $db->fetch_assoc($query)) {
+                                $affiliatelong = $affiliate['longitude'];
+                                $affiliatelat = $affiliate['latitude'];
+                            }
+                            $distance = calculateDistance($options['extrainput']['userlong'], $options['extrainput']['userlat'], $affiliatelat, $affiliatelong, 'K');
+                            if(!empty($distance)) {
+                                $desc_distance = ' -'.$distance.' KM';
+                                if($distance > 10) {
+                                    $category = $lang->capsnearby;
+                                }
+                            }
+                        }
+                        if(is_object($facility) && !empty($facility->fmfid)) {
+                            if($options['returnType'] == 'json') {
+                                if(!empty($desc_distance)) {
+                                    $results_list['"'.$key.'"']['value'] = $results_list['"'.$key.'"']['value'].$desc_distance;
+                                }
+                                if($category == $lang->capsnearby) {
+                                    $results_list['"'.$key.'"']['style'] = 'style="background-color:#A5FFA5;"';
+                                }
+                                $results_list[$category]['"'.$key.'"'] = $results_list['"'.$key.'"'];
+                                $results_list[$category]['"'.$key.'"']['desc'] = $details;
+
+                                unset($results_list['"'.$key.'"']);
+                            }
+                            else {
+                                $details = '<br/><span class="smalltext">'.$details.'</span>';
+                                $results_list .= '<li id="'.$key.'">'.$val.$details.'</li>';
+                            }
+                        }
+                        else {
+                            if($options['returnType'] == 'json') {
+                                unset($results_list['"'.$key.'"']);
+                            }
+                        }
+                        break;
+                    case 'reservationfacilities':
+                        unset($category, $isreserved, $details, $distance, $desc_distance, $affiliategeoloc, $meetingres);
+                        $facility = new FacilityMgmtFacilities($key);
+                        $motherfacility = $facility->get_mother();
+                        if(is_object($motherfacility) && !empty($motherfacility->fmfid) && $motherfacility->fmfid != $facility->fmfid) {
+                            $details = $motherfacility->get_displayname();
+                        }
+                        if(is_object($facility) && !empty($facility->fmfid)) {
+                            $category = $lang->otheravailable;
+                            if(isset($options['extrainput']) && !is_empty($options['extrainput'])) {
+                                $from = $options['extrainput']['from'];
+                                $to = $options['extrainput']['to'];
+                                $isreserved = $facility->is_reserved($from, $to);
+                                if(is_object($isreserved)) {
+                                    $category = $lang->capsreserved;
+                                    $reservedby = $isreserved->get_reservedBy()->get_displayname();
+                                    $details.=' '.$lang->reservedby.' : '.$reservedby;
+                                    if($isreserved->mtid == $options['extrainput']['mtid']) {
+                                        $meetingres = 1;
+                                    }
+                                }
+                                else {
+                                    if(!empty($facility->capacity)) {
+                                        $details .=' -'.$lang->capacity.': '.$facility->capacity;
+                                    }
+                                    $query = $db->query("SELECT affid, name, phone1, X(geoLocation) AS longitude, Y(geoLocation) AS latitude FROM ".Tprefix."affiliates WHERE asText(geoLocation) IS NOT NULL AND affid= ".intval($facility->affid));
+                                    while($affiliate = $db->fetch_assoc($query)) {
+                                        $affiliategeoloc['lon'] = $affiliate['longitude'];
+                                        $affiliategeoloc['lat'] = $affiliate['latitude'];
+                                    }
+                                    $distance = calculateDistance($options['extrainput']['userlong'], $options['extrainput']['userlat'], $affiliategeoloc['lat'], $affiliategeoloc['lon'], 'K');
+                                    if(!empty($distance)) {
+                                        $desc_distance = ' ('.number_format($distance, 2).' KM)';
+                                        if($distance <= 10) {
+                                            $category = $lang->capsnearby;
+                                        }
+                                    }
+                                }
+                            }
+
+                            if($options['returnType'] == 'json') {
+                                $results_list['"'.$key.'"']['desc'] = $details;
+                                $results_list['"'.$key.'"']['style'] = 'class="li-greenbullet"';
+                                if(is_object($isreserved)) {
+                                    $results_list['"'.$key.'"']['style'] = 'class="li-redbullet"';
+                                }
+                                if(!empty($desc_distance)) {
+                                    $results_list['"'.$key.'"']['value'] = $additionavalue.$results_list['"'.$key.'"']['value'].$desc_distance;
+                                }
+                                elseif($meetingres == 1) {
+                                    $results_list['"'.$key.'"']['value'] = $additionavalue.$results_list['"'.$key.'"']['value'].'('.$lang->forthismeeting.')';
+                                }
+                                $results_list[$category]['"'.$key.'"']['distance'] = $desc_distance;
+                                $results_list[$category]['"'.$key.'"'] = $results_list['"'.$key.'"'];
+                                unset($additionavalue, $results_list['"'.$key.'"']);
+                            }
+                            else {
+                                $details = '<br/><span class="smalltext">'.$details.'</span>';
+                                $results_list .= '<li '.$style.' id="'.$key.'">'.$val.$details.'</li>';
+                            }
+                        }
+                        else {
+                            if($options['returnType'] == 'json') {
+                                unset($results_list['"'.$key.'"']);
+                            }
+                        }
+                        break;
                 }
             }
             else {
@@ -964,7 +1096,19 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
             $results_list[0]['value'] = $lang->nomatchfound;
         }
     }
-
+    else {
+        if($options['returnType'] == 'json' && ($options['descinfo'] == 'basicfacilities' || $options['descinfo'] == 'reservationfacilities')) {
+            ksort($results_list);
+            foreach($results_list as $category => $results) {
+                $new_resultlist ['"'.$category.'"']['style'] = 'style="text-align:center;pointer-events:none;background-color:#eaf2ea;"';
+                $new_resultlist ['"'.$category.'"']['id'] = $category;
+                $new_resultlist ['"'.$category.'"']['desc'] = "";
+                $new_resultlist ['"'.$category.'"']['value'] = $category;
+                $new_resultlist = array_merge_recursive($new_resultlist, $results);
+            }
+            $results_list = $new_resultlist;
+        }
+    }
     if($options['returnType'] != 'json') {
         $results_list = '<ul id="searchResultsList">'.$results_list.'</ul>';
     }
@@ -1521,7 +1665,9 @@ function getquery_entities_viewpermissions() {
                     if(in_array($val, $auditfor)) {
                         $inaffiliates_query = '';
                         if($usergroup['canViewAllAff'] == 0) {
-                            $inaffiliates_query = ' AND '.$attribute_prefix.'affid IN ('.implode(',', $user['auditedaffiliates'][$val]).')';
+                            if(is_array($user['auditedaffiliates'][$val])) {
+                                $inaffiliates_query = ' AND '.$attribute_prefix.'affid IN ('.implode(',', $user['auditedaffiliates'][$val]).')';
+                            }
                         }
                     }
                     else {
@@ -1659,7 +1805,9 @@ function getdate_custom($timestamp) {
     if(empty($timestamp)) {
         $timestamp = TIME_NOW;
     }
-
+//    if($timestamp == 1441058400) {
+//        $s = 1441058400;
+//    }
     $date = getdate($timestamp);
     $date['week'] = date('W', $timestamp);
     $date['wdayiso'] = date('N', $timestamp);
@@ -2028,6 +2176,38 @@ function generate_alias($string) {
     $string = preg_replace('/[\@\!\&\(\)$%\^\*\+\#\/\\,.;:=]+/i', '', $string);
     $string = strtolower($string);
     return $string;
+}
+
+function is_nearby($maxdistance, $lat1, $lon1, $lat2, $lon2, $unit) {
+    $distance = calculateDistance($lat1, $lon1, $lat2, $lon2, $unit);
+    if($distance > $maxdistance) {
+        return false;
+    }
+    return true;
+}
+
+function calculateDistance($lat1, $lon1, $lat2, $lon2, $unit) {
+
+    $theta = $lon1 - $lon2;
+
+    $dist = sin(deg2rad($lat1)) * sin(deg2rad($lat2)) + cos(deg2rad($lat1)) * cos(deg2rad($lat2)) * cos(deg2rad($theta));
+
+    $dist = acos($dist);
+
+    $dist = rad2deg($dist);
+
+    $miles = $dist * 60 * 1.1515;
+    $unit = strtoupper($unit);
+
+    if($unit == "K") {
+        return ($miles * 1.609344);
+    }
+    else if($unit == "N") {
+        return ($miles * 0.8684);
+    }
+    else {
+        return $miles;
+    }
 }
 
 ?>

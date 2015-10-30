@@ -8,7 +8,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$lang->pagetitle}</h3>   <small>{$page[version_output]}</small>
+            <h1>{$lang->createwebpage}<small><br />{$page[version_output]}</small></h1>
             <div style="display:table; width: 100%;">
                 <form  name="perform_cms/managewebpage_Form" action="#" method="post"  id="perform_cms/managewebpage_Form" >
                     <input type="hidden" value="do_{$actiontype}page" name="action" id="action" />
@@ -35,10 +35,8 @@
                     <div style="display:block;">
                         <div style="display:inline-block; padding:11px;">{$lang->lang}</div>
                         <div style="display:inline-block; padding:11px;">
-                            <select name="page[lang]">
-                                <option value="english">{$lang->english}</option>
-                                <option value="french">{$lang->french}</option>
-                            </select></div>
+                            {$languages_list}
+                        </div>
                     </div>
                     <div style="display:block;margin:5px;">
                         <div style="display:inline-block; padding:11px;">{$lang->categories}</div>

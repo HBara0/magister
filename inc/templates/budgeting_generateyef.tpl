@@ -3,14 +3,16 @@
         <title>{$core->settings[systemtitle]} | {$lang->generate} {$lang->yearendforecast}</title>
         {$headerinc}
 
+        <script type="text/javascript" src="{$core->settings[rootdir]}/js/tableExport.min.js"></script>
+        <script type="text/javascript" src="{$core->settings[rootdir]}/js/jquery.base64.min.js"></script>
 
         <script type="text/javascript">
-            $(function() {
-                $('input[name=fxrate]').live('change', function() {
-                    $('#fxrateinput').slideToggle('fast', function() {
+            $(function () {
+                $(document).on('change', 'input[name=fxrate]', function () {
+                    $('#fxrateinput').slideToggle('fast', function () {
                     });
                 });
-                $("select[id='budget[reporttype]']").live('change', function() {
+                $(document).on('change', "select[id='budget[reporttype]']", function () {
                     var id = $(this).attr("id")
                     var value = $(this).attr("value")
                     //  if($(this).not($("div[id^='" + $(this).val() + "']"))) {

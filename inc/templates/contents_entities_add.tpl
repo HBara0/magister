@@ -35,6 +35,24 @@
                         $("tr[id='representatives']").show();
                     }
                 });
+
+                $("input[id='companyName']").change(function() {
+                    var attributes = "&companyName=" + $("input[id='companyName']").val() + "&type=" + $("select[id='type']").val();
+                    if(typeof ($("select[id='supplierType']").val()) != 'undefined') {
+                        attributes = attributes + "&supplierType=" + $("select[id='supplierType']").val();
+                    }
+
+                    sharedFunctions.requestAjax("post", "index.php?module=contents/addentities&action=getentitiestobeassigned", attributes, 'ent_tobeassigned', 'ent_tobeassigned', true);
+                });
+                $(document).on("click", "input[id$='joinentity']", function() {
+                    var eids;
+                    $("input[id^=tobeassigned_]").each(function() {
+                        if($(this).is(':checked')) {
+                            eids = $(this).val() + ",";
+                        }
+                    });
+                    sharedFunctions.requestAjax("post", "index.php?module=contents/addentities&action=assignemployee", "&eid=" + eids, '', '', true);
+                });
             });
         </script>
     </head>
@@ -63,16 +81,21 @@
                         <td width="50%" rowspan="3" valign="top"><span id="companyName_inlineCheckResult"></span></td>
                     </tr>
                     <tr>
-                        <td width="20%" valign="top"><strong>{$lang->companyshortname}</strong></td><td><input type="text" id="companyNameShort" required="required" name="companyNameShort" value="{$entity[companyNameShort]}"/></td>
-                    </tr>
+                        <td width="20%" valign="top"><strong>{$lang->companyshortname}</strong></td>
+                        <td><input type="text" id="companyNameShort" required="required" name="companyNameShort" value="{$entity[companyNameShort]}"/></td>
+                        <td></td> </tr>
                     <tr id="parentcompany">
                         <td valign="top">{$lang->parentcompany}</td><td ><input type='text' id='supplier_1_autocomplete' value="{$entity[parent]}"/><input type="hidden" size="3" id="supplier_1_id_output" value="{$entity[parent]}" disabled/><input type='hidden' id='supplier_1_id' name='parent' value="{$entity[parent]}" /><div id='searchQuickResults_supplier_1' class='searchQuickResults' style='display:none;'></div></td>
-                    </tr>
+                        <td></td> </tr>
                     <tr id="parentcustomer">
-                        <td valign="top">{$lang->parentcompany}</td><td><input type='text' id='customer_1_autocomplete' value="{$entity[parent]}"/><input type="hidden" size="3" id="customer_1_id_output" value="{$entity[parent]}" disabled/><input type='hidden' id='customer_1_id' name='parent' value="{$entity[parent]}" /><div id='searchQuickResults_customer_1' class='searchQuickResults' style='display:none;'></div></td>
-                    </tr>
+                        <td valign="top">{$lang->parentcompany}</td>
+                        <td><input type='text' id='customer_1_autocomplete' value="{$entity[parent]}"/><input type="hidden" size="3" id="customer_1_id_output" value="{$entity[parent]}" disabled/><input type='hidden' id='customer_1_id' name='parent' value="{$entity[parent]}" /><div id='searchQuickResults_customer_1' class='searchQuickResults' style='display:none;'></div></td>
+                        <td></td>  </tr>
                     <tr>
                         <td>{$lang->companysize}</td><td>{$companysize_list}</td>
+                        <td></td>  </tr>
+                    <tr id="ent_tobeassigned">
+                        {$ent_list}
                     </tr>
                     <tr>
                         <td><strong>{$lang->segments}</strong></td><td>{$segments_list}</td>

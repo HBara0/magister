@@ -123,8 +123,17 @@
                         <td colspan="2">
                             <div style="width:100% ;height: 200px; overflow:auto; display:inline-block; vertical-align:top;" >
                                 <table class="datatable" width="100%">
+                                    <thead>
+                                        <tr>
+                                            <th width="1%"><input type="checkbox" id="customerfilter_checkall"></th>
+                                            <th width="40%"></th>
+                                            <th><input class="inlinefilterfield" type="text" style="width: 95%;"/></th>
+                                            <th><input class="inlinefilterfield" type="text" style="width: 95%;"/></th>
+                                            <td></td>
+                                        </tr>
+                                    </thead>
                                     {$customer_list}
-                                </table> 
+                                </table>
                             </div>
                         </td>
                     </tr>

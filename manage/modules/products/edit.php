@@ -24,6 +24,9 @@ if(!$core->input['action']) {
 
     $pid = $db->escape_string($core->input['pid']);
     $product_obj = new Products($core->input['pid'], false);
+    if(!is_object($product_obj) || ($product_obj->pid == null)) {
+        redirect('index.php?module=products/view');
+    }
     $product = $product_obj->get();
     $pid = $product['pid']; // Backward compatibility
     $product['supplier_obj'] = $product_obj->get_supplier();

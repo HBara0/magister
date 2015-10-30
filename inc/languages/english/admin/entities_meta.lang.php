@@ -96,4 +96,14 @@ $lang['characteristic'] = 'Characteristic';
 $lang['deletebrandendproduct'] = 'Delete Brand End-Product';
 $lang['deletebrand'] = 'Delete Brand';
 $lang['brandexists'] = "A Brand with the same name already exists";
+$lang['editpaymentterm'] = 'Edit Payment Term';
+$lang['managepaymentterms'] = 'Manage Payment Terms';
+$lang['overduepaymentdays'] = 'Overdue Payment Days';
+$lang['description'] = 'Description';
+$lang['title'] = 'Title';
+$lang['nextbusinessday'] = 'Next Business Day';
+$lang['createpaymentterms'] = 'Create Payment terms';
+$lang['titleerror'] = 'Title is already used';
+$lang['classificationclass'] = 'Classification Class';
+$lang['join'] = 'Join';
 ?>

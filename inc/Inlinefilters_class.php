@@ -90,6 +90,7 @@ class Inlinefilters {
         $tabindex = 1;
 
         if(is_array($this->config['parse'])) {
+            $permissions = $core->user_obj->get_businesspermissions();
             foreach($this->config['parse']['filters'] as $filter) {
                 if(in_array($filter, $exclude)) {
                     continue;
@@ -111,6 +112,14 @@ class Inlinefilters {
                             $affiliate_where = 'isActive = 1';
                             $affiliates = get_specificdata('affiliates', array('affid', 'name'), 'affid', 'name', '', 0, $affiliate_where);
                             $filters[$filter] = parse_selectlist('filters['.$filter.'][]', $tabindex, $affiliates, $core->input['filters'][$filter], 1, '', array('multiplesize' => 3, 'blankstart' => true));
+                            break;
+                        case 'ciid':
+                            $city = new Cities($core->input['filters'][$filter]);
+                            $filters[$filter] = '<input type="text" autocomplete="off" tabindex="1"  id="cities_cache_autocomplete" value="'.$city->get_displayname().'"/><input type="hidden" id="cities_cache_id" name="filters['.$filter.']"/>';
+                            break;
+                        case 'coid':
+                            $countries = Countries::get_data('');
+                            $filters[$filter] = parse_selectlist('filters['.$filter.'][]', $tabindex, $countries, $core->input['filters'][$filter], 1, '', array('blankstart' => true, 'multiplesize' => 3));
                             break;
                         case 'ciid':
                             $city = new Cities($core->input['filters'][$filter]);
@@ -143,8 +152,8 @@ class Inlinefilters {
                         case 'psid': //all segments
                         case 'segment': //all segments
                         case 'usersegments': //user assigned segments
-                            if($filter == 'usersegments') {
-                                $psegments_query = $db->query("SELECT ps.psid, title FROM ".Tprefix."productsegments ps JOIN ".Tprefix."employeessegments es ON (es.psid=ps.psid) WHERE es.uid={$core->user[uid]}");
+                            if($filter == 'usersegments' && is_array($permissions['psid'])) {
+                                $psegments_query = $db->query("SELECT ps.psid, title FROM ".Tprefix."productsegments ps WHERE ps.psid IN (".implode(',', array_filter($permissions['psid'], 'is_numeric')).")");
                                 while($productline = $db->fetch_assoc($psegments_query)) {
                                     $productlines[$productline['psid']] = $productline['title'];
                                 }
@@ -185,11 +194,15 @@ class Inlinefilters {
                             $entity = new Entities($core->input['filters'][$filter]);
                             $filters[$filter] = '<input type="text" id="allentities_1_autocomplete" value="'.$entity->get_displayname().'"/><input type="hidden" id="allentities_1_id" name="filters['.$filter.']"/>';
                             break;
-//                        case 'spid':
-//                        case 'supplier':
-//                            $supplier = new Entities($core->input['filters'][$filter]);
-//                            $filters[$filter] = '<input type="text" id="supplier_1_autocomplete" value="'.$supplier->get_displayname().'"/><input type="hidden" id="supplier_1_id" name="filters['.$filter.']"/>';
-//                            break;
+                        case 'userpermentities':
+                            $entity = new Entities($core->input['filters'][$filter]);
+                            $filters[$filter] = '<input type="text" id="userpermissionentities_1_autocomplete" value="'.$entity->get_displayname().'"/><input type="hidden" id="userpermissionentities_1_id" name="filters['.$filter.']"/>';
+                            break;
+                        case 'spid':
+                        case 'supplier':
+                            $supplier = new Entities($core->input['filters'][$filter]);
+                            $filters[$filter] = '<input type="text" id="supplier_1_autocomplete" value="'.$supplier->get_displayname().'"/><input type="hidden" id="supplier_1_id" name="filters['.$filter.']"/>';
+                            break;
 //                        case 'csid':
 //                        case 'chemical':
 //                        case 'chemicals':
@@ -197,6 +210,11 @@ class Inlinefilters {
 //                            $chemical = new Chemicalsubstances($core->input['filters'][$filter]);
 //                            $filters[$filter] = '<input type="text" autocomplete="off" tabindex="1"  id="chemfunctionchecmical_noexception_cache_autocomplete" value="'.$chemical->get_displayname().'"/><input type="hidden" id="chemfunctionchecmical_cache_id" name="filters['.$filter.']"/><input type="hidden" id="chemfunctionchecmical_noexception_cache_id" name="filters['.$filter.']"/>';
 //                            break;
+                        case 'fromCurrency':
+                        case 'toCurrency':
+                            $currencies = get_specificdata('currencies', array('numCode', 'alphaCode'), 'numCode', 'alphaCode', '', 0);
+                            $filters[$filter] = parse_selectlist('filters['.$filter.'][]', $tabindex, $currencies, $core->input['filters'][$filter], 1, '', array('multiplesize' => 3, 'blankstart' => true));
+                            break;
                         default:
                             $filters[$filter] = '<input type="text" width="100%" name="filters['.$filter.']" tabindex="'.$tabindex.'" value="'.$core->input['filters'][$filter].'" id="filers_'.$filter.'" title="'.$this->config['parse']['filterTitles'][$filter].'">';
                             break;
@@ -425,7 +443,10 @@ class Inlinefilters {
 
         $query_filter_statement = '';
         foreach($filters as $filteritem => $attr) {
-            if(isset($core->input['filters'][$filteritem]) && (!empty($core->input['filters'][$filteritem]) || ($core->input['filters'][$filteritem] == '0'))) {
+            if((isset($core->input['filters'][$filteritem]) && (!empty($core->input['filters'][$filteritem])) || ($core->input['filters'][$filteritem] == '0'))) {
+                if(is_array($core->input['filters'][$filteritem]) && empty(array_filter($core->input['filters'][$filteritem]))) {
+                    break;
+                }
                 $wherestatement = $this->parse_whereentry($attr, $filteritem);
                 if(!empty($query_filter_statement)) {
                     if($this->matching_rule == 'all') {

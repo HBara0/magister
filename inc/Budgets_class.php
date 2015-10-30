@@ -148,6 +148,7 @@ class Budgets extends AbstractClass {
         global $db, $core, $log;
         if(is_array($budgetdata)) {
             if(is_empty($budgetdata['year'], $budgetdata['affid'], $budgetdata['spid'])) {
+                $this->errorcode = 2;
                 return false;
             }
 
@@ -175,6 +176,10 @@ class Budgets extends AbstractClass {
                         $budget->save_budgetlines($budgetline_data);
                     }
                 }
+                else {
+                    $this->errorcode = 3;
+                    return false;
+                }
             }
             else {
                 $existing_budget = Budgets::get_budget_bydata($budgetdata);
@@ -199,7 +204,7 @@ class Budgets extends AbstractClass {
         if(empty($bid)) {
             $bid = $this->data['bid'];
         }
-        // if the 2 budgetline are linked together
+// if the 2 budgetline are linked together
         if(is_array($budgetline_data)) {
             foreach($budgetline_data as $blid => $data) {
                 if(!isset($data['bid']) && empty($data['bid'])) {
@@ -299,13 +304,20 @@ class Budgets extends AbstractClass {
                 }
                 unset($data['unspecifiedCustomer']);
                 if(isset($data['blid']) && !empty($data['blid'])) {
-                    $budgetlineobj->update($data);
-                    $budgetlineobj->save_interco_line($data);
+                    $errorcodebl = $budgetlineobj->update($data);
+                    $errorcodeint = $budgetlineobj->save_interco_line($data);
+                    if(!is_empty($errorcodeint, $errorcodebl)) {
+                        $this->errorcode = 3;
+                    }
                     $this->errorcode = 0;
                 }
                 else {
-                    $budgetlineobj->create($data);
-                    $budgetlineobj->save_interco_line($data);
+                    $errorcodebl = $budgetlineobj->create($data);
+                    $errorcodeint = $budgetlineobj->save_interco_line($data);
+                    if(!is_empty($errorcodeint, $errorcodebl)) {
+                        $this->errorcode = 3;
+                    }
+                    $this->errorcode = 0;
                 }
             }
 
@@ -320,6 +332,10 @@ class Budgets extends AbstractClass {
                     }
                 }
             }
+        }
+        else {
+            $this->errocode = 2;
+            return;
         }
     }
 
@@ -388,7 +404,7 @@ class Budgets extends AbstractClass {
         }
     }
 
-    public function read_prev_budgetbydata($data = array(), $options = array()) {
+    public function read_prev_budgetbydata($data = array(), $options = array(), $source = null) {
         global $db;
         if(empty($data)) {
             $data['affid'] = $this->data['affid'];
@@ -398,6 +414,13 @@ class Budgets extends AbstractClass {
 
         if(isset($options['filters']['businessMgr']) && is_array($options['filters']['businessMgr'])) {
             $budgetline_query_where = ' AND bdl.businessMgr IN ('.$db->escape_string(implode(',', $options['filters']['businessMgr'])).')';
+        }
+
+        if(isset($options['filters']['blid']) && is_array($options['filters']['blid'])) {
+            if(empty($options['operators']['blid'])) {
+                $options['operators']['blid'] = 'IN';
+            }
+            $budgetline_query_where = ' AND bdl.blid '.$options['operators']['blid'].' ('.$db->escape_string(implode(',', $options['filters']['blid'])).')';
         }
 
         for($year = $data['year']; $year >= ($data['year'] - 1); $year--) {
@@ -414,6 +437,10 @@ class Budgets extends AbstractClass {
                     if($prevbudget_bydata['cid'] == 0) {
                         $prevbudget_bydata['cid'] = md5($prevbudget_bydata['altCid'].$prevbudget_bydata['saleType'].$prevbudget_bydata['pid'].$prevbudget_bydata['prevblid'].$prevbudget_bydata['linkedBudgetLine']);
                     }
+                    if($source == 'userprevlines') {
+                        $prevbudget_bydata['source'] = 'userprevlines';
+                    }
+
                     $budgetline_details[$prevbudget_bydata['cid']][$prevbudget_bydata['pid']][$prevbudget_bydata['saleType']][] = $prevbudget_bydata;
                 }
             }
@@ -480,7 +507,7 @@ class Budgets extends AbstractClass {
         }
     }
 
-    public function get_budgetLines($bid = '', $options = array()) {
+    public function get_budgetLines($bid = '', $options = array(), $source = NULL) {
         global $db;
         if(empty($bid)) {
             $bid = $this->data['bid'];
@@ -491,7 +518,12 @@ class Budgets extends AbstractClass {
         if(isset($options['filters']['businessMgr']) && is_array($options['filters']['businessMgr'])) {
             $budgetline_query_where = ' AND businessMgr IN ('.$db->escape_string(implode(',', $options['filters']['businessMgr'])).')';
         }
-
+        if(isset($options['filters']['blid']) && is_array($options['filters']['blid']) && !empty($options['filters']['blid'])) {
+            if(empty($options['operators']['blid'])) {
+                $options['operators']['blid'] = 'IN';
+            }
+            $budgetline_query_where = ' AND blid '.$options['operators']['blid'].' ('.$db->escape_string(implode(',', $options['filters']['blid'])).')';
+        }
         if(isset($bid) && !empty($bid)) {
 //$prevbudgetline_details = $this->read_prev_budgetbydata();
             $budgetline_queryid = $db->query("SELECT * FROM ".Tprefix."budgeting_budgets_lines
@@ -504,9 +536,13 @@ class Budgets extends AbstractClass {
                     }
                     $budgetline = new BudgetLines($budgetline_data['blid']);
                     $prevbudgetline = new BudgetLines($budgetline_data['prevblid']);
-
-                    $budgetline_details[$budgetline_data['cid']][$budgetline_data['pid']][$budgetline_data['saleType']] = $budgetline->get();
+                    $budgetline_arr = $budgetline->get();
+                    if($source == 'userprevlines') {
+                        $budgetline_arr['source'] = $source;
+                    }
+                    $budgetline_details[$budgetline_data['cid']][$budgetline_data['pid']][$budgetline_data['saleType']] = $budgetline_arr;
                     $budgetline_details[$budgetline_data['cid']][$budgetline_data['pid']][$budgetline_data['saleType']]['prevbudget'][] = $prevbudgetline->get();
+                    unset($budgetline_arr);
                 }
                 return $budgetline_details;
             }
@@ -558,7 +594,7 @@ class Budgets extends AbstractClass {
                 if(!in_array($this->data['spid'], $core->user['auditfor'])) {
                     if(is_array($core->user['auditedaffids'])) {
                         if(!in_array($this->data['affid'], $core->user['auditedaffids'])) {
-                            //if user is coordinator append more options
+//if user is coordinator append more options
                             $segmentscoords = ProdSegCoordinators::get_data(array('uid' => $core->user['uid']), array('returnarray' => true));
                             if(is_array($segmentscoords)) {
                                 $psids = array();
@@ -583,7 +619,12 @@ class Budgets extends AbstractClass {
                                                             }
                                                         }
                                                         if(is_array($affids)) {
-                                                            $core->user['suppliers']['affid'][$entity->eid] = array_unique(array_merge($core->user['suppliers']['affid'][$entity->eid], $affids));
+                                                            if(is_array($core->user['suppliers']['affid'][$entity->eid])) {
+                                                                $core->user['suppliers']['affid'][$entity->eid] = array_unique(array_merge($core->user['suppliers']['affid'][$entity->eid], $affids));
+                                                            }
+                                                            else {
+                                                                $core->user['suppliers']['affid'][$entity->eid] = array_unique($affids);
+                                                            }
                                                         }
                                                     }
                                                 }

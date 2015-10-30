@@ -39,7 +39,10 @@ if(!$core->input['action']) {
             }
             $previewlink = '<a href="index.php?module=surveys/preview&identifier='.$survey['identifier'].'" target="_blank"><img src="./images/icons/report.gif" border="0" title="'.$lang->preview.'" alt="{$lang->preview}"/></a>';
             $sharewith = '<a href="#'.$survey['sid'].'" id="sharesurvey_'.$survey['sid'].'_surveys/list_loadpopupbyid" data-id="'.$survey['sid'].'" data-template="sharesurvey" data-module="surveys/list" data-params="'.base64_encode(json_encode(array('identifier' => $survey['identifier']))).'" rel="share_'.$survey['sid'].'" title="'.$lang->sharewith.'"><img src="'.$core->settings['rootdir'].'/images/icons/sharedoc.png" alt="'.$lang->sharewith.'" border="0"></a>';
-
+            $editlink = '';
+            if($core->user['uid'] == $survey['createdBy']) {
+                $editlink = '<a href="index.php?module=surveys/managesurveys&identifier='.$survey['identifier'].'" target="_blank"><img src="./images/icons/edit.gif" border="0" title="'.$lang->edit.'" alt="'.$lang->edit.'"/></a>';
+            }
             eval("\$surveys_rows .= \"".$template->get('surveys_listsurveys_row')."\";");
         }
     }

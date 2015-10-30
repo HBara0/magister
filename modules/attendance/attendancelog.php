@@ -28,11 +28,24 @@ if(!$core->input['action']) {
             $users_where = 'isMain = 1 AND affid = '.$core->user['mainaffiliate'];
         }
         $users = get_specificdata('affiliatedemployees', array('uid'), 'uid', 'uid', '', 0, $users_where);
-        $filter_where = 'uid IN ('.implode(',', $users).')';
+        if(is_array($users)) {
+            $filter_where = 'uid IN ('.implode(',', $users).')';
+        }
     }
 
-    $users = get_specificdata('users', array('uid', 'displayname'), 'uid', 'displayname', array('by' => 'displayname', 'sort' => 'ASC'), 0, $filter_where);
-    $users_list = parse_selectlist('uid[]', 0, $users, $core->user['uid'], 1);
+    $users = Users::get_data($filter_where, array('order' => array('by' => 'displayname', 'sort' => 'ASC'), 'returnarray' => true));
+    if(is_array($users)) {
+        foreach($users as $user) {
+            $aff_output_name = '';
+            $affiliate = $user->get_mainaffiliate();
+            if(is_object($affiliate) && !empty($affiliate->affid)) {
+                $aff_output_name = $affiliate->get_displayname();
+            }
+
+            $users_list .= ' <tr class="'.$rowclass.'">';
+            $users_list .= '<td width="50%"><input id="usersfilter_check_'.$user->uid.'" type="checkbox" value="'.$user->uid.'" name="uid[]"> '.$user->get_displayname().'</td><td width="40%">'.$aff_output_name.'</td></tr>';
+        }
+    }
 
     eval("\$generatepage = \"".$template->get('attendance_attendancelog')."\";");
     output_page($generatepage);

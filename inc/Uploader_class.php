@@ -278,6 +278,9 @@ class Uploader {
     }
 
     public function resize($new_width = 200, $newfile = '') {
+        if(!is_array($this->file[$this->fieldname]['type'])) {
+            return;
+        }
         foreach($this->file[$this->fieldname]['type'] as $key => $val) {
             if(!$this->validate_type($this->allowed_types, $key)) {
                 continue;

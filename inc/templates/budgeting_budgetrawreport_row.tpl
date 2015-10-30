@@ -1,4 +1,6 @@
 <tr id="{$budgetline[blid]}" class="{$rowclass}">
+    <td class="smalltext" style="opacity:0">{$budgetline[blid]}</td>
+
     <td class="smalltext" style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left"> <a href="./users.php?action=profile&amp;uid={$budget[managerid]}" target="_blank">{$budget[manager]}</a></td>
     <td class="smalltext" style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left">{$customername}</td>
     <td class="smalltext" style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left">{$budget[affiliate]}</td>

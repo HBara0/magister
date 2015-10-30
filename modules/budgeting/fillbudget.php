@@ -30,13 +30,15 @@ if(!$core->input['action']) {
         $display = 'none';
         $session->set_phpsession(array('budgetdata_'.$sessionidentifier => serialize($core->input['budget'])));
         $budget_data = $core->input['budget'];
-
         $affiliate = new Affiliates($budget_data['affid']);
         $budget_data['affiliateName'] = $affiliate->get()['name'];
         $supplier = new Entities($budget_data['spid']);
         $budget_data['supplierName'] = $supplier->get()['companyName'];
-        $supplier_segments = array_filter($supplier->get_segments());
-
+        $sup_segments = $supplier->get_segments();
+        if(!is_array($sup_segments)) {
+            error($lang->supplierhasnosegment);
+        }
+        $supplier_segments = array_filter($sup_segments);
         $currentbudget = Budgets::get_budget_bydata($budget_data);
 
         /* Validate Permissions - START */
@@ -67,17 +69,51 @@ if(!$core->input['action']) {
                 $filter = array('filters' => array('businessMgr' => array($core->user['uid'])));
             }
         }
+        $fromusers = UsersTransferedAssignments::get_data(array('toUser' => $core->user['uid'], 'affid' => $budget_data['affid'], 'eid' => $budget_data['spid']), array('returnarray' => true));
+        if(is_array($fromusers)) {
+            foreach($fromusers as $fromuser) {
+                $bm_ids[] = $fromuser->fromUser;
+            }
+        }
+
+        if(is_array($filter['filters']['businessMgr']) && is_array($bm_ids)) {
+            $filter['filters']['businessMgr'] = array_merge($filter['filters']['businessMgr'], $bm_ids);
+        }
+        elseif(is_array($bm_ids)) {
+            $bm_ids[] = $core->user['uid'];
+            $filter['filters']['businessMgr'] = $bm_ids;
+        }
         /* Validate Permissions - END */
         if($currentbudget != false) {
             $budgetobj = new Budgets($currentbudget['bid']);
             if($budgetobj->isLocked == 1) {
-                error('Budget is Locked');
+                //  error('Budget is Locked');
             }
             $budget_data['bid'] = $currentbudget['bid'];
             $budgetlinesdata = $budgetobj->get_budgetLines('', $filter);
             if(!is_array($budgetlinesdata) || empty($budgetlinesdata)) {
                 $budgetlinesdata = $budgetobj->read_prev_budgetbydata('', $filter);
                 $is_prevonly = true;
+            }
+            else {
+                foreach($budgetlinesdata as $cid => $cbudgetline) {
+                    foreach($cbudgetline as $pid => $pbudgetline) {
+                        foreach($pbudgetline as $saletype => $budgetline) {
+                            if(empty($budgetline['prevblid'])) {
+                                continue;
+                            }
+                            $filter['filters']['blid'][] = $budgetline['prevblid'];
+                        }
+                    }
+                }
+                if(is_array($filter['filters']['blid'])) {
+                    $filter['filters']['blid'] = array_filter($filter['filters']['blid']);
+                }
+                $filter['operators']['blid'] = 'NOT IN';
+                $user_prev_budgetlines = $budgetobj->read_prev_budgetbydata('', $filter, 'userprevlines');
+                if(is_array($user_prev_budgetlines)) {
+                    $budgetlinesdata = $budgetlinesdata + $user_prev_budgetlines;
+                }
             }
             $session->set_phpsession(array('budgetmetadata_'.$sessionidentifier => serialize($currentbudget)));
         }
@@ -140,14 +176,18 @@ if(!$core->input['action']) {
 //
 //
         //$currencies = get_specificdata('currencies', array('numCode', 'alphaCode'), 'numCode', 'alphaCode', array('by' => 'alphaCode', 'sort' => 'ASC'), 1, 'numCode = '.$affiliate_currency);
-        $affiliate_currency = new Currencies($affiliate->get_country()->get()['mainCurrency']);
+        if(!empty($affiliate->mainCurrency)) {
+            $affiliate_currency = new Currencies($affiliate->mainCurrency);
+        }
+        else {
+            $affiliate_currency = new Currencies($affiliate->get_country()->get()['mainCurrency']);
+        }
         $currencies = array_filter(array(840 => 'USD', 978 => 'EUR'));
         $currency['filter']['numCode'] = 'SELECT mainCurrency FROM countries where affid IS NOT NULL';
         $curr_objs = Currencies::get_data($currency['filter'], array('returnarray' => true, 'operators' => array('numCode' => 'IN')));
         foreach($curr_objs as $curr_obj) {
             $currencies[$curr_obj->get_id()] = $curr_obj->alphaCode;
         }
-
         /* check whether to display existing budget Form or display new one  */
         $unsetable_fields = array('quantity', 'amount', 'incomePerc', 'income', 'inputChecksum');
         $countries = Countries::get_coveredcountries();
@@ -161,6 +201,7 @@ if(!$core->input['action']) {
                 $customer = new Entities($cid);
                 foreach($customersdata as $pid => $productsdata) {
                     /* Get Products name from object */
+
                     $product = new Products($pid);
 
 //				if(isset($budgetline[$rowid]['cid']) && !empty($budgetline[$rowid]['cid'])) {
@@ -168,17 +209,47 @@ if(!$core->input['action']) {
 //				}
 
                     foreach($productsdata as $saleid => $budgetline) {
-                        unset($disabledattrs);
+                        unset($disabledattrs, $tooltip);
                         if(!empty($budgetline['cid'])) {
                             $disabledattrs['cid'] = $disabledattrs['unspecifiedCustomer'] = 'disabled="disabled"';
                         }
                         $previous_yearsqty = $previous_yearsamount = $previous_yearsincome = $prevyear_incomeperc = $prevyear_unitprice = $previous_actualqty = $previous_actualamount = $previous_actualincome = '';
-                        if($is_prevonly === true || isset($budgetline['prevbudget'])) {
+//                        $budgetline['prevbudget'] = array_filter($budgetline['prevbudget']);
+//                        if(!is_array($budgetline['prevbudget'])) {
+//                            unset($budgetline['prevbudget']);
+//                        }
+                        if($is_prevonly === true || isset($budgetline['prevbudget']) || $budgetline[0]['source'] == 'userprevlines') {
                             if($is_prevonly == true) {
                                 $prev_budgetlines = $budgetline;
+                                $tooltip['linedetails'] = 'Imported from previous budget <br/>';
+                                $line_bm = Users::get_data(array('uid' => $budgetline['businessMgr']));
+                                if(is_object($line_bm)) {
+                                    $tooltip['linedetails'] .= 'Buisness Manager: '.$line_bm->get_displayname();
+                                }
+                                unset($budgetline['businessMgr']);
                             }
                             elseif(isset($budgetline['prevbudget'])) {
                                 $prev_budgetlines = $budgetline['prevbudget'];
+                                if(empty($prev_budgetlines)) {
+                                    if($budgetline[0]['source'] == 'userprevlines') {
+                                        $prev_budgetlines = $budgetline;
+                                        $tooltip['linedetails'] = 'Imported from previous budget <br/>';
+                                        $line_bm = Users::get_data(array('uid' => $budgetline[0]['businessMgr']));
+                                        if(is_object($line_bm)) {
+                                            $tooltip['linedetails'] .= 'Buisness Manager: '.$line_bm->get_displayname();
+                                        }
+                                        unset($budgetline['businessMgr']);
+                                    }
+                                }
+                            }
+                            elseif($budgetline[0]['source'] == 'userprevlines') {
+                                $prev_budgetlines = $budgetline;
+                                $tooltip['linedetails'] = 'Imported from previous budget <br/>';
+                                $line_bm = Users::get_data(array('uid' => $budgetline[0]['businessMgr']));
+                                if(is_object($line_bm)) {
+                                    $tooltip['linedetails'] .= 'Buisness Manager: '.$line_bm->get_displayname();
+                                }
+                                unset($budgetline['businessMgr']);
                             }
                             foreach($prev_budgetlines as $prev_budgetline) {
                                 //get prev year YEF data
@@ -267,10 +338,15 @@ if(!$core->input['action']) {
                                     $budgetline['commissionSplitAffid_output'] = $intercompany_obj->get_displayname();
                                 }
 
-                                $budgetline['originalCurrency'] = $prev_budgetline['originalCurrency'];
-                                $budgetline['psid'] = $prev_budgetline['psid'];
+                                if(empty($budgetline['originalCurrency'])) {
+                                    $budgetline['originalCurrency'] = $prev_budgetline['originalCurrency'];
+                                }
+                                if(empty($budgetline['psid'])) {
+                                    $budgetline['psid'] = $prev_budgetline['psid'];
+                                }
                             }
                         }
+
                         if(empty($budgetline['localIncomePercentage'])) {
                             $budgetline['localIncomePercentage'] = 0;
                         }
@@ -306,10 +382,12 @@ if(!$core->input['action']) {
 
                         /* Get Actual data from mediation tables --END */
                         $budget_currencylist = '';
+
                         foreach($currencies as $numcode => $currency) {
                             if($budgetline['originalCurrency'] == $numcode) {
                                 $budget_currencylist_selected = ' selected="selected"';
                             }
+
                             $budget_currencylist .= '<option value="'.$numcode.'"'.$budget_currencylist_selected.'>'.$currency.'</option>';
                             $budget_currencylist_selected = '';
                         }
@@ -325,10 +403,17 @@ if(!$core->input['action']) {
                         if(count($supplier_segments) > 1) {
                             $segments_selectlist = parse_selectlist('budgetline['.$rowid.'][psid]', 3, $supplier_segments, $budgetline['psid'], null, null, array('placeholder' => 'Overwrite Segment'));
                         }
+
                         if($core->usergroup['budgeting_canFillLocalIncome'] == 1) {
                             $hidden_colcells = array('localincome_row' => ' <td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center"><input name="budgetline['.$rowid.'][localIncomeAmount]"  value="'.$budgetline['localIncomeAmount'].'"  type="text" id="localincome_'.$rowid.'" size="10" accept="numeric" /> </td>',
                                     'localincomeper_row' => '<td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center"><input name="budgetline['.$rowid.'][localIncomePercentage]"  value="'.$budgetline['localIncomePercentage'].'" type="text" id="localincomeper_'.$rowid.'" size="10" accept="numeric"  /> </td>',
                                     'remainingcommaff_header_row' => '<td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center"><input type="text" placeholder="'.$lang->search.' '.$lang->affiliate.'" id="affiliate_noexception_'.$rowid.'_commission_autocomplete" name=""  value="'.$budgetline['commissionSplitAffid_output'].'" autocomplete="off" /><input type="hidden" value="'.$budgetline['commissionSplitAffid'].'" id="affiliate_noexception_'.$rowid.'_commission_id" name="budgetline['.$rowid.'][commissionSplitAffid]"/></td>'
+                            );
+                        }
+                        else {
+                            $hidden_colcells = array('localincome_row' => ' <td style="display:none"><input name="budgetline['.$rowid.'][localIncomeAmount]"  value="'.$budgetline['localIncomeAmount'].'" id="localincome_'.$rowid.'" type="hidden" /> </td>',
+                                    'localincomeper_row' => '<td style="display:none" ><input name="budgetline['.$rowid.'][localIncomePercentage]"  value="'.$budgetline['localIncomePercentage'].'" type="hidden" id="localincomeper_'.$rowid.'"  /> </td>',
+                                    'remainingcommaff_header_row' => '<td style="display:none"><input type="hidden" value="'.$budgetline['commissionSplitAffid'].'" id="affiliate_noexception_'.$rowid.'_commission_id" name="budgetline['.$rowid.'][commissionSplitAffid]"/></td>'
                             );
                         }
 
@@ -345,7 +430,15 @@ if(!$core->input['action']) {
 //                        if(empty($altcid)) {
 //                            $altcid = $prev_budgetline['altCid'];
 //                        }
-
+                        if(empty($tooltip['linedetails']) && empty($budgetline['blid'])) {
+                            $tooltip['linedetails'] = 'Imported from previous budget <br/>';
+                        }
+                        if(isset($budgetline['businessMgr']) && !empty($budgetline['businessMgr'])) {
+                            $line_bm = Users::get_data(array('uid' => $budgetline['businessMgr']));
+                            if(is_object($line_bm)) {
+                                $tooltip['linedetails'] .= 'Buisness Manager: '.$line_bm->get_displayname();
+                            }
+                        }
                         eval("\$budgetlinesrows .= \"".$template->get('budgeting_fill_lines')."\";");
                         unset($yefline);
                         $rowid++;
@@ -372,6 +465,12 @@ if(!$core->input['action']) {
                         'remainingcommaff_header_row' => '<td style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center">
              <input type="text" placeholder="'.$lang->search.' '.$lang->affiliate.'" id=affiliate_noexception_'.$rowid.'_commission_autocomplete name=""  value="'.$budgetline['commissionSplitAffid_output'].'" autocomplete="off" />
         <input type="hidden" value="'.$budgetline['commissionSplitAffid'].'" id="affiliate_noexception_'.$rowid.'_commission_id" name="budgetline['.$rowid.'][commissionSplitAffid]"/></td>'
+                );
+            }
+            else {
+                $hidden_colcells = array('localincome_row' => ' <td style="display:none"><input name="budgetline['.$rowid.'][localIncomeAmount]"  value="'.$budgetline['localIncomeAmount'].'" id="localincome_'.$rowid.'" type="hidden" /> </td>',
+                        'localincomeper_row' => '<td style="display:none" ><input name="budgetline['.$rowid.'][localIncomePercentage]"  value="'.$budgetline['localIncomePercentage'].'" type="hidden" id="localincomeper_'.$rowid.'"  /> </td>',
+                        'remainingcommaff_header_row' => '<td style="display:none"><input type="hidden" value="'.$budgetline['commissionSplitAffid'].'" id="affiliate_noexception_'.$rowid.'_commission_id" name="budgetline['.$rowid.'][commissionSplitAffid]"/></td>'
                 );
             }
             $budgetline['inputChecksum'] = generate_checksum('bl');
@@ -402,6 +501,12 @@ if(!$core->input['action']) {
                     'remainingcommaff_head' => '<td width="11.6%" class=" border_right" rowspan="2" valign="top" align="center">'.$lang->remainingcommaff.'<a href="#" title="The affiliate which will keep the remaining commission"><img src="./images/icons/question.gif" ></a></td>'
             );
         }
+        else {
+            $hidden_colcells = array('localincome_head' => '<td style="display:none"></td>',
+                    'localincomeper_head' => '<td style="display:none"></td>',
+                    'remainingcommaff_head' => '<td style="display:none"></td>'
+            );
+        }
 
         eval("\$fillbudget = \"".$template->get('budgeting_fill')."\";");
         output_page($fillbudget);
@@ -430,7 +535,8 @@ else {
                 $budget->save_budget($budget_data, $core->input['budgetline']);
             }
             else {
-                Budgets::save_budget($budget_data, $core->input['budgetline']);
+                $budget = new Budgets();
+                $budget->save_budget($budget_data, $core->input['budgetline']);
             }
         }
         switch($budget->get_errorcode()) {
@@ -453,11 +559,12 @@ else {
         $rowid = intval($core->input['value']) + 1;
         $budget_data = $core->input['ajaxaddmoredata'];
         $affiliate = new Affiliates($budget_data['affid']);
+        $supplier = new Entities($budget_data['spid']);
         $budgetline['inputChecksum'] = generate_checksum('bl');
         if($affiliate->isIntReinvoiceAffiliate == 0) {
             $saletypes_query_where = ' WHERE stid NOT IN (SELECT s1.invoiceAffStid FROM saletypes s1 WHERE s1.invoiceAffStid IS NOT NULL)';
         }
-        $saletypes_query = $db->query('SELECT * FROM '.Tprefix.'saletypes');
+        $saletypes_query = $db->query('SELECT * FROM '.Tprefix.'saletypes'.$saletypes_query_where);
         while($saletype = $db->fetch_assoc($saletypes_query)) {
             $saletype_selectlistdata[$saletype['stid']] = $saletype['title'];
             $saletypes[$saletype['stid']] = $saletype;
@@ -483,10 +590,19 @@ else {
 
         /* Get budget data */
 
-        $affiliate_currency = new Currencies($affiliate->get_country()->get()['mainCurrency']);
-        $currencies = array_filter(array(840 => 'USD', 978 => 'EUR', $affiliate_currency->get()['numCode'] => $affiliate_currency->get()['alphaCode']));
+        if(!empty($affiliate->mainCurrency)) {
+            $affiliate_currency = new Currencies($affiliate->mainCurrency);
+        }
+        else {
+            $affiliate_currency = new Currencies($affiliate->get_country()->get()['mainCurrency']);
+        }
+        $currencies = array_filter(array(840 => 'USD', 978 => 'EUR', $affiliate_currency->numCode => $affiliate_currency->getalphaCode));
         foreach($currencies as $numcode => $currency) {
-            $budget_currencylist .= '<option value="'.$numcode.'">'.$currency.'</option>';
+            if($numcode == $affiliate_currency->numCode) {
+                $selected = 'selected="selected"';
+            }
+            $budget_currencylist .= '<option '.$selected.' value="'.$numcode.'">'.$currency.'</option>';
+            unset($selected);
         }
         /* Parse  local amount felds based on specific permission */
         if($core->usergroup['budgeting_canFillLocalIncome'] == 1) {
@@ -504,6 +620,14 @@ else {
         $purchasingentity_selectlist = parse_selectlist('budgetline['.$rowid.'][purchasingEntity]', 0, $purchase_selectlistdata, 'direct', '', '', array('id' => 'purchasingEntity_'.$rowid));
         $countries = Countries::get_coveredcountries();
         $countries_selectlist = parse_selectlist('budgetline['.$rowid.'][customerCountry]', 0, $countries, $affiliate->country, '', '');
+
+        $sup_segments = $supplier->get_segments();
+        if(is_array($sup_segments)) {
+            $supplier_segments = array_filter($sup_segments);
+            if(count($supplier_segments) > 1) {
+                $segments_selectlist = parse_selectlist('budgetline['.$rowid.'][psid]', 3, $supplier_segments, $budgetline['psid'], null, null, array('placeholder' => 'Overwrite Segment'));
+            }
+        }
 
         eval("\$budgetlinesrows = \"".$template->get('budgeting_fill_lines')."\";");
         output($budgetlinesrows);

@@ -76,4 +76,5 @@ $lang['pendingresponses'] = 'Pending Responses';
 $lang['externalinvitations'] = 'External Invitations';
 $lang['internalinvitations'] = 'Internal Invitations';
 $lang['send'] = 'Send';
+$lang['modifysurvey'] = 'Modify Survey';
 ?>

@@ -180,16 +180,12 @@ class TravelManagerPlan {
                     break;
                 case 'airplane':
 
-// $availabe_arilinersobjs = TravelManagerAirlines::get_airlines(array('contracted' => '1'));
                     if(is_array($availabe_arilinersobjs)) {
                         foreach($availabe_arilinersobjs as $availabe_arilinersobj) {
                             $permitted_ariliners[] = $availabe_arilinersobj->iatacode;
                         }
                     }
-//$availabe_ariliners = $availabe_arilinersobj->get();
-//$permitted_ariliners = array($availabe_ariliners['iatacode']);
-//$arilinersroptions = parse_radiobutton('segment['.$sequence.'][aflid]', $ariliners, '', true, '&nbsp;&nbsp;');
-//if(is_array($permitted_ariliners)) {
+
                     /* parse request array for the allowed airlines  and encode it as json array */
 
                     if(!empty($transportation->transpDetails)) {
@@ -198,11 +194,6 @@ class TravelManagerPlan {
                         $transportaion_fields .= '<br /><hr/><br/>';
                     }
                     else {
-///$transportaion_fields.='<form name="perform_travelmanager/plantrip_Form" id="perform_travelmanager/plantrip_Form"  action="#" method="post">';
-///  $transportaion_fields .='<input type = "checkbox" value = "{$lang->lookuptransps}" name = "" value = "1">'.$lang->roundtrip;
-///    $transportaion_fields .=' <input type = "checkbox" value = "{$lang->lookuptransps}"/>'.$lang->oneway;
-///   $transportaion_fields .='<br/><br/><input type = "button" class = "Button" value = "'.$lang->lookuptransps.'"/>';
-
                         $button = '<button type="button" id="airflights_button_'.$sequence.'" style="float: right" class="button">'.$lang->minimizemaximize.'</button>';
                         $transportaion_fields .= '<h2><small>Possible Flights</small></h2>'.$button.'<br/>';
                         $flights = TravelManagerAirlines::get_flights(TravelManagerAirlines::build_flightrequestdata(array('origin' => $cityinfo['origincity']['unlocode'], 'destination' => $cityinfo['destcity']['unlocode'], 'date' => $cityinfo['date'], 'arrivaldate' => $cityinfo['arrivaldate'], 'isOneway' => $cityinfo['isOneway'], 'permittedCarrier' => $permitted_ariliners)));
@@ -890,7 +881,7 @@ $("#anotheraff_otheraccomodations_'.$sequence.'_'.$otherhotel_checksum.'").hide(
     public function get_secondseghelptouritems() {
         $touritems = array(
                 'ui-id-2' => array('text' => 'Now proceed with your next segment as before'),
-                'destinationcity_2_cache_autocomplete' => array('text' => 'Select your destination city and press outside the field so that the rest of the page load'),
+                'destinationcity_2_cache_autocomplete' => array('text' => 'Select the destination city of that specific segment (Mandatory).<br/> Press outside the field so that the rest of the page load'),
                 'pickDate_to_2' => array('text' => 'Select the segment end date.<br/> If this is your last segment keep the date unchanged'),
         );
         return $touritems;
@@ -931,6 +922,29 @@ $("#anotheraff_otheraccomodations_'.$sequence.'_'.$otherhotel_checksum.'").hide(
             return true;
         }
         return false;
+    }
+
+    public function email_finance($message, $subject) {
+        global $core;
+        $affiliate = $this->get_user()->get_mainaffiliate();
+        if(is_object($affiliate) && !empty($affiliate->financeEmail)) {
+            $financeemail = $affiliate->financeEmail;
+        }
+        elseif(!empty($affiliate->finManager)) {
+            $finmanager = new Users($affiliate->finManager);
+            $financeemail = $finmanager->email;
+        }
+        if(empty($financeemail)) {
+            return;
+        }
+        $mailer = new Mailer();
+        $mailer = $mailer->get_mailerobj();
+        $mailer->set_type();
+        $mailer->set_from(array('name' => 'Orkila Attendance System', 'email' => 'attendance@ocos.orkila.com'));
+        $mailer->set_subject($subject);
+        $mailer->set_message($message);
+        $mailer->set_to($financeemail);
+        $mailer->send();
     }
 
 }

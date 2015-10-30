@@ -19,6 +19,7 @@ class BudgetFxRates extends AbstractClass {
     const DISPLAY_NAME = '';
     const SIMPLEQ_ATTRS = '*';
     const CLASSNAME = __CLASS__;
+    const UNIQUE_ATTRS = 'affid,year,fromCurrency,toCurrency,isActual,isYef,isBuget';
 
     public function __construct($id = '', $simple = true) {
         parent::__construct($id, $simple);
@@ -30,10 +31,14 @@ class BudgetFxRates extends AbstractClass {
             $this->errorcode = 1;
             return false;
         }
+        if(isset($data['createforallaffs']) && $data['createforallaffs'] == 1) {
+            $this->create_forallaffiliates($data);
+        }
         if(isset($data['createreverserate']) && $data['createreverserate'] == 1) {
             $this->create_reverserate($data);
         }
         unset($data['createreverserate']);
+        unset($data['createforallaffs']);
         unset($data['rateCategory']);
         $db->insert_query(self::TABLE_NAME, $data);
     }
@@ -45,8 +50,12 @@ class BudgetFxRates extends AbstractClass {
         $reversed_data['fromCurrency'] = $data['toCurrency'];
         $reversed_data['toCurrency'] = $data['fromCurrency'];
         $reversed_data['rate'] = 1 / $data['rate'];
+        if(isset($data['createforallaffs']) && $data['createforallaffs'] == 1) {
+            $this->create_forallaffiliates($reversed_data);
+        }
         unset($reversed_data['rateCategory']);
         unset($reversed_data['createreverserate']);
+        unset($reversed_data['createforallaffs']);
         $db->insert_query(self::TABLE_NAME, $reversed_data);
     }
 
@@ -55,6 +64,7 @@ class BudgetFxRates extends AbstractClass {
 
         if(is_array($data)) {
 
+            unset($data['createforallaffs']);
             unset($data['createreverserate']);
             unset($data['rateCategory']);
             $query = $db->update_query(self::TABLE_NAME, $data, self::PRIMARY_KEY.'   ='.intval($this->data[self::PRIMARY_KEY]));
@@ -86,6 +96,32 @@ class BudgetFxRates extends AbstractClass {
 
     public function get_toCurrency() {
         return new Currencies($this->data['toCurrency']);
+    }
+
+    private function create_forallaffiliates($data) {
+        global $db;
+        $activeaffiliates = Affiliates::get_affiliates(array('isActive' => 1), array('returnarray' => true));
+        unset($data['createforallaffs']);
+        unset($data['rateCategory']);
+        unset($data['createreverserate']);
+        if(is_array($activeaffiliates)) {
+            $tobesaved_data = $data;
+            unset($tobesaved_data['affid']);
+            foreach($activeaffiliates as $activeaffiliate) {
+                if($activeaffiliate->affid == $data['affid']) {
+                    continue;
+                }
+                unset($existing_rate);
+                $existing_rate = BudgetFxRates::get_data(array('affid' => $activeaffiliate->affid, 'year' => $data['year'], 'fromCurrency' => $data['fromCurrency'], 'toCurrency' => $data['toCurrency'], 'isActual' => $data['isActual'], 'isYef' => $data['isYef'], 'isBudget' => $data['isBudget']), array('returnarray' => false));
+                if($existing_rate) {
+                    continue;
+                }
+                $tobesaved_data['affid'] = $activeaffiliate->affid;
+                $rate_tobesaved = new BudgetFxRates();
+                $db->insert_query(self::TABLE_NAME, $tobesaved_data);
+                unset($tobesaved_data['affid']);
+            }
+        }
     }
 
 }

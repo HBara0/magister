@@ -86,6 +86,9 @@ class Products extends AbstractClass {
 
     public function get_chemicalsubstance() {
         global $db;
+        if(empty($this->data['pid'])) {
+            return false;
+        }
         $query = $db->query("SELECT csid FROM ".Tprefix."productschemsubstances WHERE pid=".$db->escape_string($this->data['pid']));
         if($db->num_rows($query) > 0) {
             while($rowprodchemsubstance = $db->fetch_assoc($query)) {

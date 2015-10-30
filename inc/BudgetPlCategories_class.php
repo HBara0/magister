@@ -168,7 +168,8 @@ class BudgetPlCategories extends AbstractClass {
                                                                 }
                                                             }
                                                             if($currencyid != $options['tocurrency']) {
-                                                                error($lang->sprint($lang->noexchangerate, $output_currname, $options['tocurrency'], $budgetobject->year), $_SERVER['HTTP_REFERER']);
+                                                                $tocurrency = new Currencies($options['tocurrency']);
+                                                                error($lang->sprint($lang->noexchangerate, $output_currname, $tocurrency->get_displayname(), $budgetobject->year), $_SERVER['HTTP_REFERER']);
                                                             }
                                                         }
                                                     }

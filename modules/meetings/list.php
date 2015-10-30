@@ -65,6 +65,8 @@ if(!$core->input['action']) {
             $meeting['fromDate_output'] = date($core->settings['dateformat'], $meeting['fromDate']);
             $meeting['toDate_output'] = date($core->settings['dateformat'], $meeting['toDate']);
 
+            $meeting['locationoutput'] = $meeting_obj->get_location();
+
             if(strlen($meeting['description']) > 50) {
                 $meeting['description'] = $core->sanitize_inputs(substr($meeting['description'], 0, 50), array('removetags' => true)).'...';
             }

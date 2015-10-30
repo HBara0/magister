@@ -115,7 +115,7 @@ class BudgetingYearEndForecast extends AbstractClass {
             if($db->num_rows($yefline_queryid) > 0) {
                 while($yefline_data = $db->fetch_assoc($yefline_queryid)) {
                     if($yefline_data['cid'] == 0) {
-                        $yefline_data['cid'] = md5($yefline_data['altCid'].$yefline_data['customerCountry'].$yefline_data['saleType'].$yefline_data['pid']);
+                        $yefline_data['cid'] = md5($yefline_data['altCid'].$yefline_data['customerCountry'].$yefline_data['saleType'].$yefline_data['pid'].$yefline_data['blid']);
                     }
                     $yefline = new BudgetingYEFLines($yefline_data['yeflid']);
                     $yefline_details[$yefline_data['cid']][$yefline_data['pid']][$yefline_data['saleType']] = $yefline->get();
@@ -223,11 +223,13 @@ class BudgetingYearEndForecast extends AbstractClass {
         // if the 2 budgetline are linked together
         if(is_array($budgetline_data)) {
             $required_fields = array('october', 'november', 'december');
-            foreach($budgetline_data as $inputchecksum => $data) {
+            foreach($budgetline_data as $inputCheckSum => $data) {
                 if(!isset($data['yefid']) && empty($data['yefid'])) {
                     $data['yefid'] = $yef;
                 }
-
+                if(isset($data['blid']) && !empty($data['blid'])) {
+                    $data['fromBudget'] = '1';
+                }
                 if($data['unspecifiedCustomer'] == 1 && empty($data['cid'])) {
                     $data['altCid'] = 'Unspecified Customer';
                 }
@@ -239,8 +241,8 @@ class BudgetingYearEndForecast extends AbstractClass {
                 if(isset($data['yeflid']) && !empty($data['yeflid'])) {
                     $yeflineobj = new BudgetingYEFLines($data['yeflid']);
                 }
-                else if(isset($data['inputChecksum']) && !empty($data['inputChecksum'])) {
-                    $yeflineobj = BudgetingYEFLines::get_data(array('inputChecksum' => $data['inputChecksum']));
+                else if(isset($data['inputCheckSum']) && !empty($data['inputCheckSum'])) {
+                    $yeflineobj = BudgetingYEFLines::get_data(array('inputCheckSum' => $data['inputCheckSum']));
                     $data['yeflid'] = $yeflineobj->yeflid;
                 }
                 if(!is_object($yeflineobj)) {
@@ -253,9 +255,9 @@ class BudgetingYearEndForecast extends AbstractClass {
                         $yeflineobj = new BudgetingYEFLines();
                     }
                 }
-                if(is_empty($data['localIncomeAmount'], $data['localIncomePercentage'])) {
-                    $data['localIncomeAmount'] = $data['income'];
-                }
+//                if(is_empty($data['localIncomeAmount'], $data['localIncomePercentage'])) {
+//                    $data['localIncomeAmount'] = $data['income'];
+//                }
                 if((empty($data['pid']) && empty($data['altPid'])) || (empty($data['cid']) && (empty($data['altCid']) || empty($data['customerCountry'])))) {
                     if(!empty($data['yeflid'])) {
                         $removed_lines[] = $data['yeflid'];
@@ -338,7 +340,7 @@ class BudgetingYearEndForecast extends AbstractClass {
                 foreach($removed_lines as $removedblid) {
                     if(!empty($removedblid)) {
                         $yeflineobj = new BudgetingYEFLines($removedblid);
-                        if(!empty($yeflineobj->blid)) {
+                        if(!empty($yeflineobj->yeflid)) {
                             $yeflineobj->delete();
                             $yeflineobj->delete_interco_line();
                         }
@@ -422,7 +424,12 @@ class BudgetingYearEndForecast extends AbstractClass {
                                                             }
                                                         }
                                                         if(is_array($affids)) {
-                                                            $core->user['suppliers']['affid'][$entity->eid] = array_unique(array_merge($core->user['suppliers']['affid'][$entity->eid], $affids));
+                                                            if(is_array($core->user['suppliers']['affid'][$entity->eid])) {
+                                                                $core->user['suppliers']['affid'][$entity->eid] = array_unique(array_merge($core->user['suppliers']['affid'][$entity->eid], $affids));
+                                                            }
+                                                            else {
+                                                                $core->user['suppliers']['affid'][$entity->eid] = array_unique($affids);
+                                                            }
                                                         }
                                                     }
                                                 }

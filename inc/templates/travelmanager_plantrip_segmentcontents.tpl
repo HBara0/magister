@@ -9,7 +9,7 @@
     </div>
     <!-- <div style="margin:50px;text-align: center" >
          <img src="./images/chevron-down.png" align="middle" style=""/>
-     </div>-->hidden
+     </div>-->
     <div id="perform_travelmanager/plantrip_Results_1"></div>
     <h2 class="subtitle" id="transpsetionheader_{$sequence}">Transportations</h2>
     <div class="ui-state-highlight ui-corner-all" style='padding:8px;margin-bottom: 10px;'>{$lang->transppolicy}</div>
@@ -122,8 +122,7 @@
     <div style="text-align: right;display: inline-block;width: 55%;vertical-align: top;margin-top: 50px;margin-bottom: 50px;">
         <div>
             <input type="hidden" id="save_section_{$sequence}_5_input" value="0" name="segment[{$sequence}][savesection][section5]"/>
-            <a id="save_section_{$sequence}_5" style=" display: block; font-weight: bold;
-               cursor: pointer;"> Save </a>
+            <a id="save_section_{$sequence}_5" style=" display: block; font-weight: bold;padding-right:50px; cursor: pointer;" class="tm_sections"> Save </a>
         </div>
     </div>
     <div style="display: inline-block;width: 30%;vertical-align: top;margin-top: 100px;margin-left: 75px;" id="sectionresults_5"></div>

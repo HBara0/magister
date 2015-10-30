@@ -16,7 +16,7 @@ $module['menu'] = array(
         'file' => array(
                 'generatelist',
         ),
-        'title' => array('generatelist'),
+        'title' => array('generate'),
         'permission' => array('canUseCc')
 );
 ?>

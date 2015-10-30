@@ -171,9 +171,15 @@ $lang['subject'] = 'Subject';
 $lang['autorespifemptybody'] = 'If body is empty original message will contain your leave durtion, contact person selected above and wether you have limited email access';
 $lang['unpaidleave'] = 'Unpaid Leave';
 $lang['editattendancerecord'] = 'Edit Attendance Record';
-$lang['lastupdatedtime'] = 'Last Updated Time';
-$lang['cautioneditingtmleave'] = 'Warning ! This leave has a Travel Manager plan related to it. If you edit any of these fields, the plan will be deleted !! Fields: Dates,Cities,Leave Type. ';
+$lang['lastvalue'] = 'Last Value';
+$lang['cautioneditingtmleave'] = 'Warning! This leave has a Travel Manager plan related to it. If you edit any of these fields, the plan will be deleted !! Fields: Dates,Cities,Leave Type. ';
 $lang['deletetmplan'] = 'Delete Travel Manager Plan';
 $lang['areyousuretodeletetmaplan'] = 'Are You Sure You Want To Delete The Travel Manager Plan ?';
 $lang['thesetmfieldsaremodified'] = 'These Fields Are Modified And Will Result In Deleting The Travel Manager Plan';
+$lang['destinationCity'] = 'Destination City';
+$lang['fromDate'] = 'From Date';
+$lang['sourceCity'] = 'Source City';
+$lang['toDate'] = 'To Date';
+$lang['type'] = 'Type';
+$lang['monthlyattendancelog'] = 'Monthly Attendance Log';
 ?>

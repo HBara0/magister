@@ -224,5 +224,132 @@ else {
         eval("\$addrepresentativebox = \"".$template->get('popup_addrepresentative')."\";");
         output_page($addrepresentativebox);
     }
+    elseif($core->input['action'] == 'getentitiestobeassigned') {
+        $display['enttobeassigned'] = 'display:block;';
+        $fullcompanyname = explode(" ", $core->input['companyName']);
+        if(is_array($fullcompanyname)) {
+            foreach($fullcompanyname as $name) {
+                $extra_where_filter = ' isActive=1 AND approved=1 AND type="'.$core->input['type'].'"';
+                if($core->input['type'] == 'c') {
+                    $extra_where_filter .=' AND eid IN (SELECT eid from affiliatedentities where affid='.$core->user['mainaffiliate'].')';
+                }
+                $results_list[] = quick_search('entities', array('companyName', 'companyNameAbbr'), $name, array('companyName'), 'eid', array('extrainput' => $extrainput, 'returnType' => $core->input['returnType'], 'order' => array('by' => 'companyName', 'sort' => 'ASC'), 'extra_where' => $extra_where_filter, 'descinfo' => 'country', 'disableSoundex' => $disableSoundex, 'source' => 'addentity'));
+            }
+        }
+        if(is_array($results_list)) {
+            foreach($results_list as $results) {
+                if(is_array($results)) {
+                    foreach($results as $eid => $companyname) {
+                        $ent_tobeassigned[$eid] = $companyname;
+                    }
+                }
+            }
+        }
+        $usermain_affilite = new Affiliates($core->user['mainaffiliate']);
+        if(is_array($ent_tobeassigned)) {
+            foreach($ent_tobeassigned as $key => $value) {
+                $affiliatedentities = AffiliatedEntities::get_data(array('eid' => $key), array('returnarray' => true));
+                if(is_array($affiliatedentities)) {
+                    $affiliates_counter = 0;
+                    foreach($affiliatedentities as $entity) {
+                        if(++$affiliates_counter > 2) {
+                            $hidden_affiliates .= '<a href="index.php?module=profiles/affiliateprofile&affid='.$entity->get_affiliate()->affid.'">'.$entity->get_affiliate()->get_displayname().'</a><br />';
+                        }
+                        elseif($affiliates_counter == 2) {
+                            $show_affiliates .= '<a href="index.php?module=profiles/affiliateprofile&affid='.$entity->get_affiliate()->affid.'">'.$entity->get_affiliate()->get_displayname().'</a>';
+                        }
+                        else {
+                            $show_affiliates .= '<a href="index.php?module=profiles/affiliateprofile&affid='.$entity->get_affiliate()->affid.'">'.$entity->get_affiliate()->get_displayname().'</a><br />';
+                        }
+                        if($affiliates_counter > 2) {
+                            $affiliate = $show_affiliates.", <a href='#affiliate' id='showmore_affiliates_{$supplier[eid]}' title='".$lang->showmore."'>...</a> <br /><span style='display:none;' id='affiliates_{$supplier[eid]}'>{$hidden_affiliates}</span>";
+                        }
+                        else {
+                            $affiliate = $show_affiliates;
+                        }
+                    }
+                }
+                $entity_obj = Entities::get_data(array('eid' => $key), array('simple' => false));
+                if(is_object($entity_obj)) {
+                    $typevalue = $entity_obj->type;
+                    if(!empty($entity_obj->supplierType) && $typevalue == 's') {
+                        $typevalue = $entity_obj->supplierType;
+                    }
+                    switch($typevalue) {
+                        case 'c':
+                            $type = 'Customer';
+                            break;
+                        case 'pc':
+                            $type = 'Potential Customer';
+                            break;
+                        case 's':
+                            $type = 'Supplier';
+                            break;
+                        case 'cs':
+                            $type = 'Competitor Supplier';
+                            break;
+
+                        default:
+                            break;
+                    }
+                }
+                $checked = '';
+                $assignedemployees = AssignedEmployees::get_data(array('eid' => $key, 'uid' => $core->user['uid'], 'affid' => $core->user['mainaffiliate']));
+                if(!is_object($assignedemployees)) {
+                    $ent_tobeassigned_list .='<tr><td><input id="tobeassigned_'.$key.'" type="checkbox"'.$checked.' value="'.$key.'">';
+                }
+                else {
+                    $rowclass = alt_row($rowclass);
+                    $ent_tobeassigned_list .='<tr class="altrow"><td>';
+                }
+
+                $ent_tobeassigned_list .='<a href='.$core->settings['rootdir'].'"index.php?module=profiles/entityprofile&eid='.$key.'" target="_blank">'.$value.'</a></td><td>'.$type.'</td><td>'.$affiliate.'</td></tr>';
+                unset($affiliate, $entity_obj, $type, $affiliatedentities, $typevalue);
+            }
+
+            eval("\$ent_list = \"".$template->get("admin_entities_add_entlist")."\";");
+            output($ent_list);
+        }
+    }
+    elseif($core->input['action'] == 'assignemployee') {
+        $eids = explode(",", $core->input['eid']);
+        $eids = array_filter($eids);
+        $assignedemployee = new AssignedEmployees();
+        if(is_array($eids)) {
+            foreach($eids as $eid) {
+                $assignedemployee = $assignedemployee->save(array('eid' => $eid, 'uid' => $core->user['uid'], 'affid' => $core->user['mainaffiliate']));
+                $entity = new Entities($eid);
+
+                switch($assignedemployee->get_errorcode()) {
+                    case 0:
+                    case 1:
+                        $user = new Users($core->user['uid']);
+                        $reportsto = $user->get_reportsto();
+                        $email_data = array(
+                                'from' => 'ocos@orkila.com',
+                                'to' => $reportsto->email,
+                                'subject' => $lang->sprint($lang->userassignmentsubject, $user->get_displayname(), $entity->get_displayname()),
+                                'message' => $lang->sprint($lang->userassignmentmessage, $user->get_displayname(), $entity->get_displayname()),
+                        );
+                        $mailer = new Mailer();
+                        $mailer = $mailer->get_mailerobj();
+                        $mailer->set_type();
+                        $mailer->set_from($email_data['from']);
+                        $mailer->set_subject($email_data['subject']);
+                        $mailer->set_message($email_data['message']);
+                        $mailer->set_to($email_data['to']);
+                        //  $x = $mailer->debug_info();
+                        //  print_R($x);
+                        exit;
+                        $mailer->send();
+                        output_xml('<status>true</status><message>'.$lang->successfullysaved.'</message>');
+                        break;
+                    case 2:
+                        output_xml('<status>false</status><message>'.$lang->fillrequiredfields.'</message>');
+                        break;
+                }
+            }
+        }
+    }
 }
 ?>

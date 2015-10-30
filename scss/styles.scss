@@ -759,3 +759,17 @@ tr.dummytrow td, tr.dummytrow th {
 tfoot .coltotal, tfoot .colavg {
     font-weight: bold;
 }
+
+.automaticallyfilled-noneditable{
+    background-color: #e6f3f7
+}
+.automaticallyfilled-editable{
+    background-color: #ffffb2
+}
+.li-greenbullet {
+    border-left: 4px solid $color_green;
+}
+.li-redbullet {
+    border-left: 4px solid red;
+    pointer-events:none;
+}

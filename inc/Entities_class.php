@@ -562,6 +562,9 @@ class Entities extends AbstractClass {
                 if(isset($val['isValidator']) && $val['isValidator'] == 'on') {
                     $db->insert_query('suppliersaudits', array('eid' => $this->eid, 'uid' => $val['uid']));
                 }
+                if(!is_array($val['affiliates'])) {
+                    continue;
+                }
                 foreach($val['affiliates'] as $value) {
                     $db->insert_query('assignedemployees', array('eid' => $this->eid, 'uid' => $val['uid'], 'affid' => $value));
                 }
@@ -677,7 +680,7 @@ class Entities extends AbstractClass {
         if(!empty($id)) {
             $query_select = '*';
             if($simple == true) {
-                $query_select = 'eid, companyName, companyName AS name, companyNameAbbr, companyNameShort, logo, country, type,isActive';
+                $query_select = 'eid, companyName, companyName AS name, companyNameAbbr, companyNameShort, logo, country, type,supplierType,isActive';
             }
             return $db->fetch_assoc($db->query("SELECT ".$query_select." FROM ".Tprefix."entities WHERE eid='".$db->escape_string($id)."'"));
         }
@@ -1130,6 +1133,10 @@ class Entities extends AbstractClass {
             return true;
         }
         return false;
+    }
+
+    public function get_affiliate() {
+        return new Affiliates($this->data['affid']);
     }
 
 }

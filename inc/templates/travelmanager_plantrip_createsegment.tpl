@@ -1,4 +1,4 @@
-<div style="display:inline-block; width:70%;">
+<div>
     <table>
         <tr>  <td>{$lang->origincity}*</td>
             <td><input type="text"  disabled="disabled" autocomplete="false" tabindex="1"  id="cities_{$sequence}_cache_autocomplete"    value="{$segment[$sequence][origincity][name]}" required="required"/>
@@ -49,7 +49,7 @@
                     </table>
                 </div>
             </td>
-            <td colspan="2" style="vertical-align: top;width:20%;">
+            <td style="vertical-align: top;width:20%;">
                 <div style="display: inline-block;width:100%">
                     <input type="hidden" id="event" value="1">
                     <input type="hidden" id="eventpurposeid" >
@@ -78,11 +78,11 @@
     <div id="content_details_{$sequence}">
         {$plansegmentscontent_output}
     </div>
-    <div style="display:inline-block;width:25%; margin-left:50px;vertical-align: top;" id="segment_city_{$sequence}">
-        <div id="segment_city_loader_{$sequence}"></div>
-        {$cityprofile_output}
-        {$citybriefings_output}
-    </div>
+</div>
+<div style="vertical-align: top;" id="segment_city_{$sequence}">
+    <div id="segment_city_loader_{$sequence}"></div>
+    {$cityprofile_output}
+    {$citybriefings_output}
 </div>
 {$seg2helptour}
 

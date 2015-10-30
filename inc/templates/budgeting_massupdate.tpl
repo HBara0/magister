@@ -1,11 +1,11 @@
 <html>
     <head>
-        <title>{$core->settings[systemtitle]} | {$lang->massupdate}</title>
+        <title>{$core->settings[systemtitle]} | {$lang->$pagename}</title>
         {$headerinc}
         <script type="text/javascript">
 
-            $(function() {
-                $('input[id="agreement"]').live('click', function() {
+            $(function () {
+                $(document).on('click', 'input[id="agreement"]', function () {
                     $('input[type="button"][id^="perform_"]').attr("disabled", !this.checked);
                 });
 
@@ -18,19 +18,24 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-
-            <h1>{$lang->massupdate}</h1>
+            <h1>{$lang->$pagename}</h1>
             <div class="ui-state-highlight ui-corner-all"  style=" border-color:red;padding-left: 5px; margin-bottom:12px;">
                 <p><h2 style="font-size: 19px;  font-weight: bolder; color:red">Warnings</h2><strong>{$lang->warningupdate}:</strong> </p>
         </div>
-        <form name="perform_budgeting/massupdate_Form" id="perform_budgeting/massupdate_Form" method="post" >
-            <input name="action" type="hidden"  value="do_massupdate"/>
+        <form name="perform_budgeting/{$pagename}_Form" id="perform_budgeting/{$pagename}_Form" method="post" >
+            <input name="action" type="hidden"  value="do_{$pagename}"/>
 
+            <div style="display: block;" id="budgetsfilter">
+                <div class="thead">Filter by ID</div>
+                <div>
+                    <textarea cols="50" rows="5" name="budget[filterline][{$lineidname}]" placeholder="Seperate IDs by comma"></textarea>
+                </div>
+            </div>
             <div style="display: block;" id="budgetsfilter">
                 <div class="thead">Budgets Filters</div>
                 <table width="100%">
                     <tr>
-                        <td  width="50%">
+                        <td width="50%">
                             <div style="width:100%; height:150px; overflow:auto; display:inline-block; vertical-align:top; margin-bottom: 10px;">
                                 <table class="datatable" width="100%">
                                     <thead>
@@ -44,8 +49,6 @@
                                 </table>
                             </div>
                         </td>
-
-
                         <td  width="50%">
                             <div style="width:100%; height:150px; overflow:auto; display:inline-block; vertical-align:top; margin-bottom: 10px;">
                                 <table class="datatable" width="100%">
@@ -81,9 +84,7 @@
                 </table>
 
             </div>
-
             <div style="display: block;" id="budgetlinesfilter">
-
                 <div class="thead">Budget Lines Filters</div>
                 <table width="100%">
                     <Tr>
@@ -116,7 +117,6 @@
                             </div>
                         </td>
                     </tr>
-
                 </table>
             </div>
             <div class="thead">Values to Overwrite:</div>
@@ -127,9 +127,9 @@
             </table>
 
             <div style="padding:8px"> <input type="checkbox" id="agreement"/>{$lang->agreewarningcond}</div>
-            <div><input type="button"   disabled="disabled"  id="perform_budgeting/massupdate_Button" value="{$lang->savecaps}" class="button"/></td</div>
+            <div><input type="button"   disabled="disabled"  id="perform_budgeting/{$pagename}_Button" value="{$lang->savecaps}" class="button"/></td</div>
         </form>
-        <div id="perform_budgeting/massupdate_Results" value="{$lang->savecaps}" class="button"/></div>
+        <div id="perform_budgeting/{$pagename}_Results" value="{$lang->savecaps}"/></div>
 </td>
 </tr>
 </body>

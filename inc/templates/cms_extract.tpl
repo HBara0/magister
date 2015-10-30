@@ -4,7 +4,7 @@
         {$headerinc}
         <script>
             $(function () {
-                $('button[id^="show_"]').live('click', function () {
+                $(document).on('click', 'button[id^="show_"]', function () {
                     var id = $(this).attr('id');
                     sharedFunctions.requestAjax("post", "index.php?module=cms/extractpages&action=" + id, '', 'results', 'results', 'html', true);
                 });

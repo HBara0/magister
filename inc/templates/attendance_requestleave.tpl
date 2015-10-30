@@ -12,7 +12,7 @@
                     sharedFunctions.requestAjax("post", "index.php?module=attendance/requestleave&action=getaffiliates", "uid=" + $('#uid').val() + "&ltid=" + $('#type').val(), 'to_inform_fields', 'to_inform_fields', true);
                 });
 
-                $("#type, #pickDate_to").live('change', function () {
+                $(document).on('change', "#type, #pickDate_to", function () {
                     if(sharedFunctions.checkSession() == false) {
                         return;
                     }
@@ -28,11 +28,11 @@
                     sharedFunctions.requestAjax("post", "index.php?module=attendance/requestleave&action=getadditionalfields", "ltid=" + $('#type').val() + "&fromDate=" + $("#altpickDate_from").val() + "&toDate=" + $("#altpickDate_to").val() + "&uid=" + $("#uid").val(), 'additionalfields_output', 'additionalfields_output', true);
                 });
 
-                $("#type").live('change', function () {
+                $(document).on('change', "#type", function () {
                     // sharedFunctions.requestAjax("post", "index.php?module=attendance/{$action}&action=parseexpenses", "ltid=" + $('#type').val() + "&lid=" + $('input[id=lid]').val(), 'leaveexpenses_container', 'leaveexpenses_container', true);
                 });
 
-                $('input[id^=expenses_]').live('blur', function () {
+                $(document).on('blur', 'input[id^=expenses_]', function () {
                     var sum = 0;
                     $('input[id^=expenses_]').each(function () {
                         sum += Number($(this).val());
@@ -42,18 +42,10 @@
 
                 $(document).on('change', 'input[id="check_autoresp"]', function () {
                     if($(this).is(':checked')) {
-                        $('#autorespondersub').show();
-                        $('#autoresponderbody').show();
-
-
-
+                        $('#autorespondersub,#autoresponderbody').show();
                     }
                     else {
-                        $('#autorespondersub').hide();
-                        $('#autoresponderbody').hide();
-
-
-
+                        $('#autorespondersub,#autoresponderbody').hide();
                     }
                 });
             });
@@ -127,19 +119,21 @@
                         <td >{$lang->createautoresp}</td>
                         <td><input type='checkbox' {$autoresp_checked} name='createAutoResp' id='check_autoresp' value='1'></td>
                     </tr>
-                    <tr  id="autorespondersub" {$autoresp_show}>
+                    <tr id="autorespondersub" {$autoresp_show}>
                         <td>
-                            {$lang->subject}                        </td>
+                            {$lang->subject}
+                        </td>
                         <td>
-                            <input  id='autoresp_subject' name='autoRespSubject' value="{$leave[autoRespSubject]}">
+                            <input id='autoresp_subject' name='autoRespSubject' value="{$leave[autoRespSubject]}">
                         </td>
                     </tr>
                     <tr id="autoresponderbody" {$autoresp_show}>
                         <td>
-                            {$lang->emailbody}                        </td>
+                            {$lang->emailbody}
+                        </td>
                         <td>
-                            <div class="ui-state-highlight"> {$lang->autorespifemptybody} </div>
-                            <textarea   id='autoresp_body'  cols="50" rows="5"  name='autoRespBody'>{$leave[autoRespBody]}</textarea>
+                            <div class="ui-state-highlight">{$lang->autorespifemptybody}</div>
+                            <textarea id='autoresp_body' cols="50" rows="5" name='autoRespBody'>{$leave[autoRespBody]}</textarea>
                         </td>
                     </tr>
                     <tr><td colspan="2"><hr /></td></tr>
@@ -151,15 +145,14 @@
                             </fieldset>
                         </td>
                     </tr>
-
                     <tr><td colspan="2"><hr /></td></tr>
-
-                </table>            <div id="perform_attendance/{$action}_Results"></div>
-
+                </table>
                 <input type="submit" id="perform_attendance/{$action}_Button" value="{$lang->$action}" class="button" />
+                <div id="perform_attendance/{$action}_Results"></div>
             </form>
         </td>
     </tr>
     {$footer}
+    {$helptour}
 </body>
 </html>

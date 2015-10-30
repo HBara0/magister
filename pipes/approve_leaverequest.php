@@ -36,6 +36,9 @@ if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject) || $ignore_su
         $request_key = $db->escape_string($subject[1]);
     }
     $leave = $db->fetch_assoc($db->query("SELECT l.*, u.firstName, u.lastName, email FROM ".Tprefix."leaves l LEFT JOIN ".Tprefix."users u ON (u.uid=l.uid) WHERE l.requestKey='{$request_key}'"));
+    $employee = new Users($leave['uid']);
+    $leave_obj = new Leaves(array('lid' => $leave['lid']), false);
+
     $query = $db->query("SELECT DISTINCT(u.uid), Concat(firstName, ' ', lastName) AS employeename FROM ".Tprefix."users u LEFT JOIN ".Tprefix."usersemails ue ON (ue.uid=u.uid) WHERE u.email='".$db->escape_string($data['from'])."' OR ue.email='".$db->escape_string($data['from'])."'");
     if($db->num_rows($query) > 0) {
         $user = $db->fetch_assoc($query);
@@ -44,14 +47,12 @@ if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject) || $ignore_su
         if($db->affected_rows() > 0) {
             $query3 = $db->query("SELECT l.uid, u.email
 				FROM ".Tprefix."leavesapproval l LEFT JOIN ".Tprefix."users u ON (u.uid=l.uid)
-				WHERE l.isApproved='0' AND l.lid='{$leave[lid]}' AND sequence>(SELECT sequence FROM ".Tprefix."leavesapproval WHERE lid='{$leave[lid]}' AND uid='{$user[uid]}' AND isApproved=1)
+				WHERE l.isApproved='0' AND l.lid='{$leave[lid]}' AND sequence>(SELECT MAX(sequence) FROM ".Tprefix."leavesapproval WHERE lid='{$leave[lid]}' AND uid='{$user[uid]}' AND isApproved=1)
                                 ORDER BY sequence ASC
                                 LIMIT 0, 1");
             if($db->num_rows($query3) > 0) {
                 $approver = $db->fetch_assoc($query3);
-
                 $leave['type_details'] = parse_type($leave['type']);
-
                 $leave['details_crumb'] = parse_additionaldata($leave, $leave['type_details']['additionalFields']);
                 if(is_array($leave['details_crumb']) && !empty($leave['details_crumb'])) {
                     $leave['details_crumb'] = ' - '.implode(' ', $leave['details_crumb']);
@@ -60,22 +61,22 @@ if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject) || $ignore_su
                 //$approve_link = DOMAIN.'/index.php?module=attendance/listleaves&action=perform_approveleave&toapprove='.base64_encode($core->input['requestKey']).'&referrer=email';
                 $approve_link = DOMAIN.'/index.php?module=attendance/listleaves&action=takeactionpage&requestKey='.base64_encode($core->input['requestKey']).'&id='.base64_encode($leave['lid']);
                 $travelmanager_plan = TravelManagerPlan::get_plan(array('lid' => $leave['lid']), array('returnarray' => false));
-                $planid = $travelmanager_plan->tmpid;
+
                 if(is_object($travelmanager_plan)) {
-                    $approve_link = DOMAIN.'/index.php?module=attendance/listleaves&action=takeactionpage&requestKey='.base64_encode($leave->requestKey).'&id='.base64_encode($leave->lid).'&tmpid='.$travelmanager_plan->tmpid;
-                    $leave = $travelmanager_plan->get_leave();
-                    $leave_type = $leave->get_type();
-                    $employee = $leave->get_user(); //->get_displayname();
+                    $planid = $travelmanager_plan->tmpid;
+                    $approve_link = DOMAIN.'/index.php?module=attendance/listleaves&action=takeactionpage&requestKey='.base64_encode($leave_obj->requestKey).'&id='.base64_encode($leave_obj->lid).'&tmpid='.$travelmanager_plan->tmpid;
+                    //$leave = $travelmanager_plan->get_leave();
+                    $leave_type = $leave_obj->get_type();
+                    $employee = $leave_obj->get_user(); //->get_displayname();
                     $leave_purpose = $leave_segment = $lang->na;
-                    if(is_object($leave->get_purpose())) {
-                        $leave_purpose = $leave->get_purpose()->get()['name'];
+                    $leave_purpose = $leave_obj->reason; //get_purpose()->get()['name'];
+
+                    if(is_object($leave_obj->get_segment())) {
+                        $leave_segment = $leave_obj->get_segment()->get()['title'];
                     }
-                    if(is_object($leave->get_segment())) {
-                        $leave_segment = $leave->get_segment()->get()['title'];
-                    }
-                    $plan_name = $leave_type->title.' - '.$leave->get_country()->get_displayname();
-                    $leave_requestey = $leave->requestKey;
-                    $approve_link = DOMAIN.'/index.php?module=attendance/listleaves&action=takeactionpage&requestKey='.base64_encode($leave->requestKey).'&id='.base64_encode($leave->lid).'&tmpid='.$planid;
+                    $plan_name = $leave_type->title.' - '.$leave_obj->get_country()->get_displayname();
+                    $leave_requestey = $leave_obj->requestKey;
+                    $approve_link = DOMAIN.'/index.php?module=attendance/listleaves&action=takeactionpage&requestKey='.base64_encode($leave_obj->requestKey).'&id='.base64_encode($leave_obj->lid).'&tmpid='.$planid;
 
                     $segment_objs = TravelManagerPlanSegments::get_segments(array('tmpid' => $planid), array('order' => 'sequence', 'simple' => false, 'returnarray' => true));
                     if(is_array($segment_objs)) {
@@ -101,9 +102,11 @@ if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject) || $ignore_su
                                     if(is_object($isselectedhotel)) {
                                         continue;
                                     }
-                                    $iscontractedicon = '<img src="./images/invalid.gif" alt="'.$lang->no.'"/>';
+                                    $path = "./images/invalid.gif";
+                                    $iscontractedicon = '<img src="data:image/png;base64,'.base64_encode(file_get_contents($path)).'" alt="'.$lang->no.'"/>';
                                     if($hotel->isContracted == 1) {
-                                        $iscontractedicon = '<img src="./images/valid.gif" alt="'.$lang->yes.'"/>';
+                                        $path = "./images/valid.gif";
+                                        $iscontractedicon = '<img src="data:image/png;base64,'.base64_encode(file_get_contents($path)).'" alt="'.$lang->yes.'"/>';
                                     }
                                     /* parse ratings */
                                     eval("\$otherapprovedhotels .= \"".$template->get('travelmanager_approvedhotel_row')."\";");
@@ -118,38 +121,36 @@ if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject) || $ignore_su
                             unset($transportaionsegment_fields, $transportaion_fields_title);
                         }
                     }
-                    eval("\$leave_details = \"".$template->get('travelmanager_viewlpan_leavedtls')."\";");
-
+                    // eval("\$leave_details = \"".$template->get('travelmanager_viewlpan_leavedtls')."\";");
+                    $leave_details = '<br/><a target="_blank" href="'.DOMAIN.'/index.php?module=attendance/viewleave&id='.$leave_obj->lid.'">'.$lang->viewleave.'</a>';
                     eval("\$travelmanager_viewplan = \"".$template->get('travelmanager_viewlpanemail')."\";");
 
-                    $leave = $leave->get();
-
-                    $leave['firstName'] = $employee->firstName;
-                    $leave['lastName'] = $employee->lastName;
-                    $leave['type_details'] = parse_type($leave_type->ltid);
+                    //$leave = $leave_obj->get();
+                    //$leave['firstName'] = $employee->firstName;
+                    //$leave['lastName'] = $employee->lastName;
+                    //$leave['type_details'] = parse_type($leave_type->ltid);
                 }
 
                 /* Parse expense information for message - START */
-                $leave_obj = new Leaves(array('lid' => $leave['lid']), false);
-//                if($leave_obj->has_expenses()) {
-//                    $expenses_data = $leave_obj->get_expensesdetails();
-//                    $total = 0;
-//                    $expenses_message = '';
-//                    foreach($expenses_data as $expense) {
-//                        if(!empty($lang->{$expense['name']})) {
-//                            $expense['title'] = $lang->{$expense['name']};
-//                        }
-//                        $total += $expense['expectedAmt'];
-//
-//                        $exptype_obj = LeaveExpenseTypes::get_exptype_byattr('title', $expense['title'], false);
-//                        if(is_object($exptype_obj)) {
-//                            $agency_link = $exptype_obj->parse_agencylink($leave_obj);
-//                        }
-//                        $expenses_message .= $expense['title'].': '.$expense['expectedAmt'].$expense['currency'].' '.$agency_link.'<br>';
-//                        unset($agency_link);
-//                    }
-//                    $expenses_message_output = '<br />'.$lang->associatedexpenses.'<br />'.$expenses_message.'<br />Total: '.$total.'USD<br />';
-//                }
+                if($leave_obj->has_expenses()) {
+                    $expenses_data = $leave_obj->get_expensesdetails();
+                    $total = 0;
+                    $expenses_message = '';
+                    foreach($expenses_data as $expense) {
+                        if(!empty($lang->{$expense['name']})) {
+                            $expense['title'] = $lang->{$expense['name']};
+                        }
+                        $total += $expense['expectedAmt'];
+
+                        $exptype_obj = LeaveExpenseTypes::get_exptype_byattr('title', $expense['title'], false);
+                        if(is_object($exptype_obj)) {
+                            $agency_link = $exptype_obj->parse_agencylink($leave_obj);
+                        }
+                        $expenses_message .= $expense['title'].': '.$expense['expectedAmt'].$expense['currency'].' '.$agency_link.'<br>';
+                        unset($agency_link);
+                    }
+                    $expenses_message_output = '<br />'.$lang->associatedexpenses.'<br />'.$expenses_message.'<br />Total: '.$total.'USD<br />';
+                }
                 $leave['reason'] .= $expenses_message_output;
                 /* Parse expense information for message - END */
 
@@ -177,8 +178,7 @@ if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject) || $ignore_su
                 }
 
                 $modifyleave_link = 'https://ocos.orkila.com/index.php?module=attendance/editleave&lid='.$leave['lid'];
-                $outofoffice_link = 'https://server.orkila.com:2096/logout/?locale=en';
-                $lang->leaveapprovedmessage = $lang->sprint($lang->leaveapprovedmessage, $leave['firstName'].' '.$leave['lastName'], strtolower($leave['type_details']['title']), date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave['fromDate']), date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave['toDate']), $modifyleave_link, $outofoffice_link);
+                $lang->leaveapprovedmessage = $lang->sprint($lang->leaveapprovedmessage, $leave['firstName'].' '.$leave['lastName'], strtolower($leave['type_details']['title']), date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave['fromDate']), date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave['toDate']), $modifyleave_link);
 
                 $email_data = array(
                         'from_email' => 'attendance@ocos.orkila.com',
@@ -277,7 +277,7 @@ if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject) || $ignore_su
 
                     $lang->leavenotificationsubject = $lang->sprint($lang->leavenotificationsubject, $leave['firstName'].' '.$leave['lastName'], $lang->leavenotificationmessage_typedetails, $tooktaking, date($core->settings['dateformat'], $leave['fromDate']), date($subject_todate_format, $leave['toDate']));
                     $lang->leavenotificationmessage = $lang->sprint($lang->leavenotificationmessage, $leave['firstName'].' '.$leave['lastName'], $lang->leavenotificationmessage_typedetails, date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave['fromDate']), date($message_todate_format, $leave['toDate']), $lang->leavenotificationmessage_days, $tooktaking, $contact_details, $contactperson_details);
-                    $main_affiliate = new Affiliates($core->user['mainaffiliate']);
+                    $main_affiliate = $employee->get_mainaffiliate();
                     if(is_object($main_affiliate) && !empty($main_affiliate->cpAccount) && $leave_obj->createAutoResp = 1) {
                         $leave_obj->create_autoresponder();
                     }
@@ -291,6 +291,21 @@ if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject) || $ignore_su
 
                     $mail = new Mailer($email_data, 'php');
                     if($mail->get_status() == true) {
+                        $travelmanager_plan = TravelManagerPlan::get_plan(array('lid' => $leave['lid']), array('returnarray' => false));
+                        if(is_object($travelmanager_plan)) {
+                            $planid = $travelmanager_plan->tmpid;
+                            // $leave = $travelmanager_plan->get_leave();
+                            $employee = $leave_obj->get_user()->get_displayname();
+                            $segment_objs = TravelManagerPlanSegments::get_segments(array('tmpid' => $planid), array('order' => 'sequence', 'simple' => false, 'returnarray' => true));
+                            if(is_array($segment_objs)) {
+                                foreach($segment_objs as $segmentid => $segment) {
+                                    $segment_expenses = $segment->parse_expensesummary();
+                                    break;
+                                }
+                            }
+                            $travelmanager_plan->email_finance($segment_expenses, sprint($lang->tmplanfinancenotification, $employee));
+                        }
+
                         $log->record('notifyaffiliate', $mailingList);
                     }
                 }

@@ -30,7 +30,7 @@ if(!$core->input['action']) {
     if($core->input['referrer'] == 'fill') {
         $identifier = $db->escape_string($core->input['identifier']);
         $session->set_phpsession(array('visitreportcompetitiondata_'.$identifier => serialize($core->input)));
-        if(empty($session->get_phpsession('visitreportdata_'.$identifier))) {
+        if(empty($session->get_phpsession('visitreportdata_'.$identifier)) || !is_array(unserialize($session->get_phpsession('visitreportdata_'.$identifier))) || !is_array(unserialize($session->get_phpsession('visitreportvisitdetailsdata_'.$identifier)))) {
             redirect('index.php?module=crm/listvisitreports');
         }
         $visitreports[1] = array_merge(unserialize($session->get_phpsession('visitreportdata_'.$identifier)), unserialize($session->get_phpsession('visitreportvisitdetailsdata_'.$identifier)));
@@ -71,6 +71,10 @@ if(!$core->input['action']) {
         else {
             if(isset($core->user['auditedaffids'])) {
                 $customers_extra_where = ' AND affid IN ('.implode(',', $core->user['auditedaffids']).')';
+                $customers_extra_where .= ' OR uid IN (Select uid from users WHERE reportsTo='.$core->user['uid'].')';
+            }
+            else {
+                $customers_extra_where = ' AND uid IN (Select uid from users WHERE reportsTo='.$core->user['uid'].')';
             }
         }
         $query = $db->query("SELECT * FROM ".Tprefix."visitreports WHERE{$vrid_where}{$customers_extra_where}");

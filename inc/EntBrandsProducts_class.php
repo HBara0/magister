@@ -20,7 +20,7 @@ class EntBrandsProducts extends AbstractClass {
     const PRIMARY_KEY = 'ebpid';
     const TABLE_NAME = 'entitiesbrandsproducts';
     const DISPLAY_NAME = '';
-    const SIMPLEQ_ATTRS = 'ebpid, ebid, eptid, pcvid,description';
+    const SIMPLEQ_ATTRS = 'ebpid, ebid, eptid, pcvid,description,classificationClass';
     const CLASSNAME = __CLASS__;
     const UNIQUE_ATTRS = 'ebid,eptid,pcvid';
 
@@ -92,6 +92,7 @@ class EntBrandsProducts extends AbstractClass {
                 'ebid' => $data['ebid'],
                 'pcvid' => $data['pcvid'],
                 'description' => $data['description'],
+                'classificationClass' => $data['classificationClass'],
                 'createdBy' => $core->user['uid'],
                 'createdOn' => TIME_NOW,
         );
@@ -109,6 +110,7 @@ class EntBrandsProducts extends AbstractClass {
             $update_array['ebid'] = $data['ebid'];
             $update_array['pcvid'] = $data['pcvid'];
             $update_array['description'] = $data['description'];
+            $update_array['classificationClass'] = $data['classificationClass'];
             $update_array['modifiedBy'] = $core->user['uid'];
             $update_array['modifiedOn'] = TIME_NOW;
         }

@@ -5,10 +5,10 @@
         <script type="text/javascript">
 
             $(function () {
-                $('input[id="confirm_finalize"]').live('click', function () {
+                $(document).on('click', 'input[id="confirm_finalize"]', function () {
                     $('input[type="submit"][id^="perform_travelmanager/viewplan_Button"]').attr("disabled", !this.checked);
                 });
-                $('button[id="closepage"]').live('click', function () {
+                $(document).on('click', 'button[id="closepage"]', function () {
                     window.close();
                 });
             });

@@ -43,12 +43,11 @@ if($core->input['action'] == 'do_perform_clearancestatus') {
     $where = "ad_org_id='".$orgid."' AND issotrx='N' AND "
             ."EXISTS (SELECT c_orderline_id FROM c_orderline WHERE (SELECT SUM(m_inoutline.MovementQty) FROM m_inoutline WHERE m_inoutline.c_orderline_id=c_orderline.c_orderline_id)<c_orderline.QtyOrdered AND c_order.c_order_id=c_orderline.c_order_id)"
             ."AND docstatus = 'CO' ORDER BY dateordered ASC";
-
     $orders = IntegrationOBOrder::get_data($where);
 
     if(is_array($orders)) {
         foreach($orders as $order) {
-            $filter_where = " c_order_id='".$order->c_order_id."' AND (qtyordered-qtydelivered)!=0";
+            $filter_where = " c_order_id='".$order->c_order_id."' AND (qtyordered-(SELECT SUM(m_inoutline.MovementQty) FROM m_inoutline WHERE m_inoutline.c_orderline_id=c_orderline.c_orderline_id))!=0";
             $orderlines = IntegrationOBOrderLine::get_data($filter_where, array('returnarray' => true));
             $ca = $order->get_salesrep()->get_displayname();
             $order = $order->get();
@@ -111,13 +110,20 @@ if($core->input['action'] == 'do_perform_clearancestatus') {
 
                 /* sales Order Lines data -START */
                 $orderlines_output .='<tr class="subtitle"><td style="width:15%;">'.$lang->product.'</td><td style="width:10%;">'.$lang->orderedqty.'</td><td style="width:10%;"> '.$lang->pendingqty.'</td><td tyle="width:10%;">'.$lang->uom.'</td></tr>';
-                foreach($orderlines as $orderline) {
-                    $orderline = $orderline->get();
+                foreach($orderlines as $orderline_obj) {
+                    $orderline = $orderline_obj->get();
                     $product = new IntegrationOBProduct($orderline['m_product_id']);
                     if(is_object($product)) {
                         $orderline['product'] = $product->get_displayname();
                     }
-                    $orderline['pendingQty'] = $orderline['qtyordered'] - $orderline['qtydelivered'];
+                    $inout_lines = IntegrationOBInOutLine::get_data("(c_orderline_id ='".$orderline_obj->c_orderline_id."')", array('returnarray' => true));
+                    if(is_array($inout_lines)) {
+                        foreach($inout_lines as $inout_line) {
+                            $inout_line = $inout_line->get();
+                            $inoutline_data['movementqty'] +=$inout_line['movementqty'];
+                        }
+                    }
+                    $orderline['pendingQty'] = $orderline['qtyordered'] - $inoutline_data['movementqty'];
                     $uom = new IntegrationOBUom($orderline['c_uom_id']);
                     $orderline['uom'] = $uom->name;
                     eval("\$orderlines_output .= \"".$template->get('warehousemgmt_pendingdeliveries_orderline')."\";");

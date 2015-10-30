@@ -17,9 +17,11 @@
         </div>
         <input type="hidden"  disabled value="" id="hotel_{$sequence}_{$otherhotel_checksum}_total" name="segment[{$sequence}][tmhid][{$otherhotel_checksum}][subtotal]">
         <input type="hidden" disabled value="{$otherhotel_checksum}" id="checksum_0_{$sequence}_{$otherhotel_checksum}_tmhid">
-        <div style="display:inline-block;padding:5px;width:15%">{$lang->paidby}</div>
-        <div style="display:inline-block;width:20%;">
-            {$paidbyoptions}
+        <div>
+            <div style="display:inline-block;padding:5px;width:15%">{$lang->paidby}</div>
+            <div style="display:inline-block;width:20%;">
+                {$paidbyoptions}
+            </div>
         </div>
         <div class="ui-state-highlight ui-corner-all" style="margin-left:100px;padding-left: 5px; margin-bottom:10px;display:inline-block;width:20%;">
             {$lang->maxnight} : {$leavedays}

@@ -95,6 +95,7 @@ if(!$core->input['action']) {
     }
     eval("\$contractinfo_section = \"".$template->get('admin_entities_addedit_contractinfo')."\";");
     unset($coveredcountries_rows);
+    $display['enttobeassigned'] = 'display:none;';
     eval("\$addpage = \"".$template->get('admin_entities_addedit')."\";");
     output_page($addpage);
 }

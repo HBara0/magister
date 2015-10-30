@@ -11,6 +11,7 @@
 if(!($core->input['action'])) {
     if($core->input['referrer'] == 'generate') {
         $budgetcache = new Cache();
+        $business_managers = array();
         if(is_array($core->user['auditedaffids'])) {
             foreach($core->user['auditedaffids'] as $auditaffid) {
                 $aff_obj = new Affiliates($auditaffid);
@@ -39,6 +40,24 @@ if(!($core->input['action'])) {
         $aggregate_types = array('affiliates', 'suppliers', 'managers', 'segments', 'years');
         //eval("\$budgetreport_coverpage = \"".$template->get('budgeting_budgetreport_coverpage')."\";");
 
+        if(is_array($core->input['budget']['segments'])) {
+            $segmentscoords = ProdSegCoordinators::get_data(array('uid' => $core->user['uid'], 'psid' => implode(',', array_filter($core->input['budget']['segments']))), array('operators' => array('psid' => 'IN'), 'returnarray' => true));
+            if(is_array($segmentscoords) && !(isset($core->input['budget']['managers']) || is_array($core->input['budget']['managers']))) {
+                $budgetsdata['current']['segments'] = array();
+                foreach($segmentscoords as $segmentscoord) {
+                    if(in_array($segmentscoord->psid, $budgetsdata['current']['segments'])) {
+                        continue;
+                    }
+                    $employeesegments = EmployeeSegments::get_data(array('psid' => $segmentscoord->psid), array('returnarray' => true));
+                    if(is_array($employeesegments)) {
+                        foreach($employeesegments as $employeesegment) {
+                            $business_managers[$employeesegment->uid] = $employeesegment->uid;
+                        }
+                    }
+                    $budgetsdata['current']['segments'][] = $segmentscoord->psid;
+                }
+            }
+        }
         /* overrites the filters and get the user filter when no  filters are selected */
         $dummy_budget = new Budgets();
         $filters = $dummy_budget->generate_budgetline_filters();
@@ -131,7 +150,17 @@ if(!($core->input['action'])) {
                                     }
                                 }
                                 else {
-                                    error($lang->sprint($lang->noexchangerate, $budgetline->originalCurrency, $budgetsdata['toCurrency'], $budget_obj->year), $_SERVER['HTTP_REFERER']);
+                                    $fromcurrency = new Currencies($budgetline->originalCurrency);
+                                    $fromcurrency_output = $budgetline->originalCurrency;
+                                    if(is_object($fromcurrency)) {
+                                        $fromcurrency_output = $fromcurrency->get_displayname();
+                                    }
+                                    $tocurrency = new Currencies($budgetsdata['toCurrency']);
+                                    $tocurrency_output = $budgetline->originalCurrency;
+                                    if(is_object($tocurrency)) {
+                                        $tocurrency_output = $tocurrency->get_displayname();
+                                    }
+                                    error($lang->sprint($lang->noexchangerate, $fromcurrency_output, $tocurrency_output, $budget_obj->year), $_SERVER['HTTP_REFERER']);
                                 }
                             }
                             /* get the currency rate of the Origin currency  of the current buudget - START */
@@ -275,6 +304,13 @@ if(!($core->input['action'])) {
 
         /* ------------------------------------------------------------------------------------------------------------------------------------------------------- */
         elseif($report_type == 'statistical') {
+
+
+            ///Top 10 customers//
+            $budgetline = new BudgetLines();
+            $budgeting_budgetrawreport .=$budgetline->parse_toptencustomers_tables($budgets['current'], $budgetsdata['current']['toCurrency']);
+            ////////////////////
+
             /* Parse suppliers weight - START */
             $query = $db->query('SELECT DISTINCT(spid) FROM '.Tprefix.'budgeting_budgets WHERE bid IN ('.implode(',', array_keys($budgets['current'])).') GROUP BY spid');
             while($supplier = $db->fetch_assoc($query)) {
@@ -301,7 +337,7 @@ if(!($core->input['action'])) {
             foreach($weightstotals['income'] as $spid => $total) {
                 if($count > 10) {
                     break;
-                } print_R($weightstotals);
+                }// print_R($weightstotals);
                 $budgeting_budgetrawreport .= '<tr><td>'.$suppliers[$spid]->companyName.'</td><td>'.$numfmt_perc->format($weightstotals['amount'][$spid] / $weightsgtotals['amount']).'</td><td>'.$numfmt_perc->format($total / $weightsgtotals['income']).'</td><td>'.$weightstotals['customers'][$spid].'</td></tr>';
 
                 $count++;
@@ -381,6 +417,7 @@ if(!($core->input['action'])) {
         /* ------------------------------------------------------------------------------------------------------------------------------------------------------- */
         else {
             if(is_array($budgets['current'])) {
+                $countrows = 0;
                 foreach($budgets['current'] as $budgetid) {
                     $budget_obj = new Budgets($budgetid);
                     $budget['country'] = $budget_obj->get_affiliate()->get()['name'];
@@ -414,6 +451,7 @@ if(!($core->input['action'])) {
                     if(is_array($budgetsdata['current']['segments'])) {
                         $budgetlines_filters = array('psid' => $budgetsdata['current']['segments']);
                     }
+
                     $budgetlines = $budget_obj->get_lines($budgetlines_filters);
                     if(is_array($budgetlines)) {
                         //foreach($firstbudgetline as $cid => $customersdata) {
@@ -458,22 +496,24 @@ if(!($core->input['action'])) {
 
                             /* get the currency rate of the Origin currency  of the current buudget and convert it - START */
                             if($budgetline['originalCurrency'] != $budgetsdata['current']['toCurrency']) {
-                                $fxrates_obj = BudgetFxRates::get_data(array('fromCurrency' => $budgetline['originalCurrency'], 'toCurrency' => $budgetsdata['current']['toCurrency'], 'affid' => $budgetsdata['current']['affiliates'], 'year' => $budgetsdata['current']['years']), $dal_config);
+                                $fxrates_obj = BudgetFxRates::get_data(array('fromCurrency' => $budgetline['originalCurrency'], 'toCurrency' => $budgetsdata['current']['toCurrency'], 'affid' => $budgetsdata['current']['affiliates'], 'year' => $budgetsdata['current']['years'], 'isBudget' => 1), $dal_config);
                                 if(is_array($fxrates_obj)) {
                                     foreach($fxrates_obj as $fxid => $fxrates) {
                                         $budgetline['amount'] = ($budgetline['amount'] * $fxrates->rate);
                                         $budgetline['income'] = ($budgetline['income'] * $fxrates->rate);
+                                        $budgetline['unitPrice'] = ($budgetline['unitPrice'] * $fxrates->rate);
                                         $budgetline['localIncomeAmount'] = ($budgetline['localIncomeAmount'] * $fxrates->rate);
                                         $budgetline['invoicingEntityIncome'] = ($budgetline['invoicingEntityIncome'] * $fxrates->rate);
                                     }
                                 }
                                 else {
-                                    error($lang->currencynotexist.' '.$budgetline['originalCurrency'].' ('.$budget['affiliate'].')', $_SERVER['HTTP_REFERER']);
+                                    $currency = new Currencies($budgetline['originalCurrency']);
+                                    error($lang->currencynotexist.' '.$currency->get_displayname().' ('.$budget['affiliate'].')', $_SERVER['HTTP_REFERER']);
                                 }
                             }
                             if($core->usergroup['budgeting_canFillLocalIncome'] == 1) {
                                 $localincome_cell = '<td class="smalltext" style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="right" class="border_left">'.$budgetline['localIncomeAmount'].'</td>';
-                                $localincome_cell = '<td class="smalltext" style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="right" class="border_left">'.$budgetline['invoicingEntityIncome'].'</td>';
+                                $localincome_cell .= '<td class="smalltext" style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="right" class="border_left">'.$budgetline['invoicingEntityIncome'].'</td>';
                             }
                             else {
                                 unset($localincome_cell, $budgetline['localIncomeAmount'], $budgetline['localIncomePercentage'], $budgetline['invoicingEntityIncome']);
@@ -486,7 +526,7 @@ if(!($core->input['action'])) {
                                     $budgetline['segment'] = $segment->titleAbbr;
                                 }
                                 else {
-                                    // $budgetline['segment'] = $budgetline_obj->get_product()->get_segment()['titleAbbr'];
+                                    $budgetline['segment'] = $budgetline_obj->get_product()->get_segment()['titleAbbr'];
                                 }
                             }
                             if((empty($budgetline['cid']) && !empty($budgetline['altCid']))) {
@@ -498,15 +538,20 @@ if(!($core->input['action'])) {
                                 $customername = '<a href="index.php?module=profiles/entityprofile&eid='.$budget['customerid'].'" target="_blank">'.$budgetline['customer'].'</a>';
                             }
                             $budgetline['interCompanyPurchase_output'] = $lang->na;
-
                             $budgetline['product'] = $budgetline_obj->get_product()->name;
+                            $total['amount']+=$budgetline['amount'];
+                            $total['income']+=$budgetline['income'];
+                            $total['unitPrice']+=$budgetline['unitPrice'];
+                            $countrows++;
                             eval("\$budget_report_row .= \"".$template->get('budgeting_budgetrawreport_row')."\";");
                         }
                     }
                     // }
                     //}
-                }
-                $toolgenerate = '<div align="right" title="'.$lang->generate.'" style="float:right;padding:10px;width:10px;"><a href="index.php?module=budgeting/preview&identifier='.$export_identifier.'&action=exportexcel" target="_blank"><img src="./images/icons/xls.gif"/>'.$lang->generateexcel.'</a></div>';
+                }//href="index.php?module=budgeting/preview&identifier='.$export_identifier.'&action=exportexcel" target="_blank"
+
+                $onclickactin = "$('#tabletoexport').tableExport({type:'excel',escape:'false'});";
+                $toolgenerate = '<div align="right" title="'.$lang->generate.'" style="float:right;padding:10px;width:10px;"><a onClick ="'.$onclickactin.'"><img src="./images/icons/xls.gif"/>'.$lang->generateexcel.'</a></div>';
             }
             else {
                 $budgeting_budgetrawreport = '<tr><td>'.$lang->na.'</td></tr>';
@@ -514,7 +559,19 @@ if(!($core->input['action'])) {
 
             if($core->usergroup['budgeting_canFillLocalIncome'] == 1) {
                 $loalincome_header = '<th style="vertical-align:central; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left">'.$lang->localincome.'</th>';
-                $loalincome_header = '<th style="vertical-align:central; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left">'.$lang->remainingcommaff.'</th>';
+                $loalincome_header .= '<th style="vertical-align:central; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left">'.$lang->remainingcommaff.'</th>';
+            }
+            if(is_array($total) && !empty($total)) {
+                unset($budgetline, $budget, $customername);
+                $rowclass = 'thead';
+                $budget['managerid'] = '#';
+                $budget['manager'] = 'TOTAL';
+                if(!empty($countrows)) {
+                    $budgetline['unitPrice'] = 'Avg '.number_format($total['unitPrice'] / $countrows, 2);
+                }
+                $budgetline['amount'] = number_format($total['amount']);
+                $budgetline['income'] = number_format($total['income']);
+                eval("\$totals_row = \"".$template->get('budgeting_budgetrawreport_row')."\";");
             }
             eval("\$budgeting_budgetrawreport = \"".$template->get('budgeting_budgetrawreport')."\";");
         }
@@ -577,16 +634,16 @@ elseif($core->input['action'] == 'exportexcel') {
             /* Validate Permissions - END */
             $budget['year'] = $budget_obj->get()['year'];
 
-            // $firstbudgetline = $budget_obj->get_budgetLines(0, $filter);
+// $firstbudgetline = $budget_obj->get_budgetLines(0, $filter);
             if(!empty($filter['filters']['businessMgr'])) {
                 $budgetline_filter['businessMgr'] = $filter['filters']['businessMgr'];
             }
             $budgetlines = $budget_obj->get_lines($budgetline_filter);
             if(is_array($budgetlines)) {
-                // foreach($firstbudgetline as $cid => $customersdata) {
-                //  foreach($customersdata as $pid => $productsdata) {
+// foreach($firstbudgetline as $cid => $customersdata) {
+//  foreach($customersdata as $pid => $productsdata) {
                 foreach($budgetlines as $blid => $budgetline_obj) {
-                    //$budgetline_obj = new BudgetLines($budgetline[$counter]['blid']);
+//$budgetline_obj = new BudgetLines($budgetline[$counter]['blid']);
 
                     $budgetline[$counter] = $budgetline_obj->get();
                     $countries = new Countries($budgetline_obj->get_customer()->get()['country']);
@@ -661,8 +718,8 @@ elseif($core->input['action'] == 'exportexcel') {
                     }
                     $counter++;
                 }
-                //  }
-                // }
+//  }
+// }
             }
         }
     }
@@ -675,10 +732,10 @@ elseif($core->input['action'] == 'exportexcel') {
             $budgetline[$counter][$val] = $value[$val];
         }
     }
-
+    $filename = 'Budget'.$budgetsdata['current']['years'];
     unset($budgetline_temp);
 
 //unset($budgetline['bid'], $budgetline['blid'], $budgetline['pid'], $budgetline['cid'], $budgetline['incomePerc'], $budgetline['invoice'], $budgetline['createdBy'], $budgetline['modifiedBy'], $budgetline['originalCurrency'], $budgetline['prevbudget'], $budgetline['cusomtercountry']);
-    $excelfile = new Excel('array', $budgetline);
+    $excelfile = new Excel('array', $budgetline, $filename);
 }
 ?>

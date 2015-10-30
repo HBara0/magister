@@ -51,10 +51,12 @@ class Events extends AbstractClass {
         $event_data['refreshLogoOnWebsite'] = $data['refreshLogoOnWebsite'];
         $event_data['tags'] = $data['tags'];
         $event_data['lang'] = $data['lang'];
+        $event_data['affid'] = $data['affid'];
+        $event_data['spid'] = $data['spid'];
         unset($event_data['restrictto']);
         // $data['restricto'] = implode(',', $ $data['restricto']);
-        //  'affid' => $core->input['event']['affid'],
-        //'spid' => $core->input['event']['spid'],
+        // 'affid' => $core->input['event']['affid'];
+        // 'spid' => $core->input['event']['spid'];
         parent::create($event_data);
         //$query = $db->insert_query(self::TABLE_NAME, $event_data);
         //$this->data = $event_data;
@@ -108,6 +110,8 @@ class Events extends AbstractClass {
         $event_data['refreshLogoOnWebsite'] = $data['refreshLogoOnWebsite'];
         $event_data['tags'] = $data['tags'];
         $event_data['lang'] = $data['lang'];
+        $event_data['affid'] = $data['affid'];
+        $event_data['spid'] = $data['spid'];
         unset($event_data['restrictto']);
         //'affid' => $core->input['event']['affid'],
         //'spid' => $core->input['event']['spid'],
@@ -180,6 +184,98 @@ class Events extends AbstractClass {
                 if(empty($data[$field]) && $data[$field] != '0') {
                     $this->errorcode = 2;
                     return true;
+                }
+            }
+        }
+    }
+
+    public function delete_event($todelete) {
+        global $db;
+        $attributes = array(static::PRIMARY_KEY);
+        foreach($attributes as $attribute) {
+            $tables = $db->get_tables_havingcolumn($attribute, 'TABLE_NAME !="'.static::TABLE_NAME.'"');
+            if(is_array($tables)) {
+                foreach($tables as $table) {
+                    $query = $db->query("SELECT * FROM ".Tprefix.$table." WHERE ".$attribute."=".$todelete." ");
+                    if($db->num_rows($query) > 0) {
+                        if($table == CalendarEventsInvitees::TABLE_NAME) {
+                            while($invitation = $db->fetch_assoc($query)) {
+                                $calinvitee = new CalendarEventsInvitees($invitation['ceiid']);
+                                $deletenotification = $calinvitee->delete_invitation();
+                            }
+                        }
+                        else if($table == CalendarEventsRestrictions::TABLE_NAME) {
+                            while($restriction = $db->fetch_assoc($query)) {
+                                $calrestriction_obj = new CalendarEventsRestrictions($restriction[CalendarEventsRestrictions::PRIMARY_KEY]);
+                                if(is_object($calrestriction_obj)) {
+                                    $calrestriction_obj->delete();
+                                }
+                            }
+                        }
+                        else {
+                            $this->errorcode = 3;
+                            return false;
+                        }
+                    }
+                }
+            }
+        }
+        $delete = $this->delete();
+        if($delete) {
+            $this->errorcode = 0;
+            return true;
+        }
+    }
+
+    public function email_invitees() {
+        global $core;
+        if($core->input['event']['isPublic'] == 1 && $core->usergroup['calendar_canAddPublicEvents'] == 1) {
+            if(isset($core->input['event']['restrictto'])) {
+                if(is_array($core->input['event']['restrictto'])) {
+                    foreach($core->input['event']['restrictto'] as $affid) {
+                        $restriction = new CalendarEventsRestrictions();
+                        $restriction->set(array('affid' => $affid, 'ceid' => $this->get_id()))->save();
+                    }
+                    if(isset($core->input['event']['notify']) && $core->input['event']['notify'] == 1) {
+                        /* Send the event notification - START */
+                        $notification_mails = get_specificdata('affiliates', array('affid', 'mailingList'), 'affid', 'mailingList', '', 0, 'mailingList != "" AND affid IN('.implode(',', $core->input['event']['restrictto']).')');
+
+                        $ical_obj = new iCalendar(array('identifier' => $this->identifier.'all', 'uidtimestamp' => $this->createdOn));  /* pass identifer to outlook to avoid creation of multiple file with the same date */
+                        $ical_obj->set_datestart($this->fromDate);
+                        $ical_obj->set_datend($this->toDate);
+                        $ical_obj->set_location($this->place);
+                        $ical_obj->set_summary($this->title);
+                        $ical_obj->set_name();
+                        $ical_obj->set_status();
+                        $ical_obj->set_transparency();
+                        $ical_obj->set_icalattendees($notification_mails);
+                        $ical_obj->set_description($this->description);
+                        $ical_obj->endical();
+
+                        $mailer = new Mailer();
+                        $mailer = $mailer->get_mailerobj();
+                        $mailer->set_type('ical', array('content-class' => 'meetingrequest', 'method' => 'REQUEST', 'filename' => $this->title.'.ics'));
+                        $mailer->set_from(array('name' => 'Orkila Events Notifier', 'email' => 'events@orkila.com'));
+                        $mailer->set_subject($this->title);
+                        $mailer->set_message($ical_obj->geticalendar());
+                        $mailer->set_to($notification_mails);
+
+                        /* Add multiple Attachments */
+                        if(is_array($attachments)) {
+                            foreach($attachments as $attachment) {
+                                $mailer->add_attachment($attachments_path.'/'.$attachment['name']);
+                            }
+                        }
+                        $mailer->send();
+
+                        if($mailer->get_status() === true) {
+                            $log->record($notification_mails, $last_id);
+                        }
+                        else {
+                            $errors['notification'] = false;
+                        }
+                        /* Send the event notification - END */
+                    }
                 }
             }
         }
