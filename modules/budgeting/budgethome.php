@@ -73,7 +73,7 @@ if(is_array($permissions)) {
         $yearstocheck = array($baseyear, $baseyear - 1);
         foreach($affs as $affid) {
             foreach($yearstocheck as $year) {
-                $budgets = Budgets::get_column('bid', 'year = '.$year.$affiliatewhere, array('returnarray' => true));
+                $budgets = Budgets::get_column('bid', array('year' => $year, 'affid' => $affid), array('returnarray' => true));
                 if(is_array($budgets)) {
                     $currencies = BudgetLines::get_column('DISTINCT(originalCurrency) as orcur', array('bid' => $budgets, 'originalCurrency' => 840), array('returnarray' => true, 'alias' => 'orcur', 'singlecolumn' => true, 'operators' => array('originalCurrency' => 'NOT IN')));
                     if(is_array($currencies)) {
@@ -89,7 +89,7 @@ if(is_array($permissions)) {
                 }
             }
             /* yef rates */
-            $yefs = BudgetingYearEndForecast::get_column('yefid', 'year = '.($baseyear - 1).$affiliatewhere, array('returnarray' => true));
+            $yefs = BudgetingYearEndForecast::get_column('yefid', array('year' => ($baseyear - 1), 'affid' => $affid), array('returnarray' => true));
             if(is_array($yefs)) {
                 $currencies = BudgetingYEFLines::get_column('DISTINCT(originalCurrency) as orcur', array('yefid' => $yefs, 'originalCurrency' => 840), array('returnarray' => true, 'alias' => 'orcur', 'singlecolumn' => true, 'operators' => array('originalCurrency' => 'NOT IN')));
                 if(is_array($currencies)) {
