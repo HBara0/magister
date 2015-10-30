@@ -700,5 +700,29 @@ class Budgets extends AbstractClass {
         return $this->errorcode;
     }
 
+    public function lockbudget($operation) {
+        global $db, $core;
+        $fields = array('isFinalized', 'isLocked', 'finalizedBy', 'lockedBy');
+        foreach($fields as $field) {
+            $update_budget[$field] = 0;
+            if(isset($operation) && $operation == 'lock') {
+                switch($field) {
+                    case 'finalizedBy':
+                    case 'lockedBy':
+                        $update_budget[$field] = $core->user['uid'];
+                        break;
+                    default:
+                        $update_budget[$field] = 1;
+                        break;
+                }
+            }
+        }
+        $query = $db->update_query(self::TABLE_NAME, $update_budget, 'bid='.$this->bid);
+        if($query) {
+            return $this;
+        }
+        return false;
+    }
+
 }
 ?>
