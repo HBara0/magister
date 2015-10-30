@@ -106,9 +106,10 @@ else {
                 $budget_year .= "<option value='{$year}'".$year_selected.">{$year}</option>";
             }
         }
-
-        if(!in_array(date('Y'), $budget_years)) {
-            $budget_year .= "<option value='".(date('Y'))."'>".(date('Y'))."</option>";
+        if(is_array($budget_years)) {
+            if(!in_array(date('Y'), $budget_years)) {
+                $budget_year .= "<option value='".(date('Y'))."'>".(date('Y'))."</option>";
+            }
         }
 
         if(empty($year_selected)) {
