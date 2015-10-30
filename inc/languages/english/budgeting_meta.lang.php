@@ -306,4 +306,7 @@ $lang['percentage'] = 'Percentage';
 $lang['massupdateyef'] = 'Mass Update Year End Forecast';
 $lang['craeterateforallaffiliates'] = 'Create Rate For All Affiliates';
 $lang['ifratedoesnotexist'] = 'The rate will be created for the affiliate which does not already have this conversion from selected currencies';
+$lang['budgetingoverview'] = 'Budgeting Overview';
+$lang['financialbudget'] = 'Financial Budget';
+$lang['budgetconversionrates'] = 'Budget Conversion Rates';
 ?>
