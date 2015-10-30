@@ -192,7 +192,7 @@ if(is_array($permissions)) {
         $corrections['budget'] .= '</ul>';
     }
     /* check yef */
-    $yef_where = ' AND year IN ('.$baseyear.')';
+    $yef_where = ' AND year IN ('.($baseyear - 1).')';
     $unyef = BudgetingYearEndForecast:: get_data($basic_where.$yef_where, array('returnarray' => true));
     /* show missing lines in budgets */
     if(is_array($unyef)) {
