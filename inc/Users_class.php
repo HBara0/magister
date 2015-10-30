@@ -888,6 +888,9 @@ class Users extends AbstractClass {
         if($this->usergroup['canViewAllCust'] == 1) {
             unset($permissions['cid']);
         }
+        if($this->usergroup['canViewAllEmp'] == 1) {
+            unset($permissions['uid']);
+        }
 
         return $permissions;
     }
