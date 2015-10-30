@@ -63,20 +63,30 @@ if(!$core->input['action']) {
         else {
             $vrid_where = " vrid='".$db->escape_string($core->input['vrid'])."'";
         }
+        $permissions = $core->user_obj->get_businesspermissions();
+        $permissiontypes = array('affid' => 'affid', 'cid' => 'cid', 'uid' => 'vr.uid');
+        foreach($permissiontypes as $type => $col) {
+            if(isset($permissions[$type]) && !empty($permissions[$type])) {
+                if(is_array($permissiontypes[$type])) {
+                    $customers_extra_where .= ' AND '.$col.' IN ('.implode(',', $permissiontypes[$type]).')';
+                }
+            }
+        }
 
-        if($core->usergroup['canViewAllCust'] == 0) {
-            $incustomers = implode(',', $core->user['customers']);
-            $customers_extra_where = ' AND cid IN ('.$incustomers.') ';
-        }
-        else {
-            if(isset($core->user['auditedaffids'])) {
-                $customers_extra_where = ' AND affid IN ('.implode(',', $core->user['auditedaffids']).')';
-                $customers_extra_where .= ' OR uid IN (Select uid from users WHERE reportsTo='.$core->user['uid'].')';
-            }
-            else {
-                $customers_extra_where = ' AND uid IN (Select uid from users WHERE reportsTo='.$core->user['uid'].')';
-            }
-        }
+//        if($core->usergroup['canViewAllCust'] == 0) {
+//            $incustomers = implode(',', $core->user['customers']);
+//            $customers_extra_where = ' AND cid IN ('.$incustomers.') ';
+//        }
+//        else {
+//            if(isset($core->user['auditedaffids'])) {
+//                $customers_extra_where = ' AND affid IN ('.implode(',', $core->user['auditedaffids']).')';
+//                $customers_extra_where .= ' OR uid IN (Select uid from users WHERE reportsTo='.$core->user['uid'].')';
+//            }
+//            else {
+//                $customers_extra_where = ' AND uid IN (Select uid FROM users WHERE reportsTo='.$core->user['uid'].')';
+//            }
+//        }
+
         $query = $db->query("SELECT * FROM ".Tprefix."visitreports WHERE{$vrid_where}{$customers_extra_where}");
         if($db->num_rows($query) == 0) {
             redirect('index.php?module=crm/listvisitreports');

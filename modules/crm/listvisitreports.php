@@ -43,7 +43,10 @@ if(!$core->input['action']) {
     $permissiontypes = array('affid' => 'affid', 'cid' => 'cid', 'uid' => 'vr.uid');
     foreach($permissiontypes as $type => $col) {
         if(isset($permissions[$type]) && !empty($permissions[$type])) {
-            $permissionsfilter .= ' AND '.$col.' IN ('.implode(',', $permissions[$type]).')';
+            if(is_array($permissiontypes[$type])) {
+                array_filter($permissiontypes[$type]);
+                $permissionsfilter .= ' AND '.$col.' IN ('.implode(',', $permissiontypes[$type]).')';
+            }
         }
     }
 //    if($core->usergroup['canViewAllAff'] == 0) {
@@ -99,13 +102,12 @@ if(!$core->input['action']) {
     if($db->num_rows($query) > 0) {
         while($visitreport = $db->fetch_assoc($query)) {
             //$query2 = $db->query("SELECT * FROM ".Tprefix."visitreports_reportsuppliers WHERE vrid='$visitreport[vrid]' AND ");
-            $core->usergroup['canViewAllSupp'] = 1;
-            if($core->usergroup['canViewAllSupp'] == 0) {
-                if(is_array($core->user['suppliers']['eid'])) {
-                    if($visitreport['hasSupplier'] == 1 && !value_exists('visitreports_reportsuppliers', 'vrid', $visitreport['vrid'], 'spid IN ('.implode(', ', $core->user['suppliers']['eid']).')')) {
-                        continue;
-                    }
+            if(is_array($permissions['spid'])) {// if($core->usergroup['canViewAllSupp'] == 0) {
+                // if(is_array($core->user['suppliers']['eid'])) {
+                if($visitreport['hasSupplier'] == 1 && !value_exists('visitreports_reportsuppliers', 'vrid', $visitreport['vrid'], 'spid IN ('.implode(', ', $permissions['spid']).')')) {//$core->user['suppliers']['eid']
+                    continue;
                 }
+                //   }
             }
             $row_class = alt_row($row_class);
 
