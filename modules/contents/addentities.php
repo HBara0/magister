@@ -300,7 +300,7 @@ else {
                 }
                 else {
                     $rowclass = alt_row($rowclass);
-                    $ent_tobeassigned_list .='<tr class="altrow"><td>';
+                    $ent_tobeassigned_list .='<tr class="altrow"><td><img src="'.DOMAIN.'/images/icons/valid.png"/> ';
                 }
 
                 $ent_tobeassigned_list .='<a href='.$core->settings['rootdir'].'"index.php?module=profiles/entityprofile&eid='.$key.'" target="_blank">'.$value.'</a></td><td>'.$type.'</td><td>'.$affiliate.'</td></tr>';

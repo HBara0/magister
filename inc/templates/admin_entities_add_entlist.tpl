@@ -3,13 +3,20 @@
     <table class="datatable" width="100%">
         <thead>
             <tr>
+                <td colspan="3">
+                    <div class="ui-state-highlight ui-corner-all" style="padding-left: 5px; margin-bottom:10px;color:red">
+                        <p>{$lang->entitymightexistwarning}</p>
+                    </div>
+                </td>
+            </tr>
+            <tr>
                 <th class="thead" colspan="3">{$lang->joinentities}
                 </th>
             </tr>
             <tr>
                 <th colspan="3">
-        <div class="ui-state-highlight ui-corner-all" style="padding-left: 5px; margin-bottom:10px;">
-            <p>{$lang->alreadyassigned}</p>
+        <div class="ui-state-highlight ui-corner-all" style="padding-left: 5px; margin-bottom:10px;font-weight: normal">
+            <p> <img src="{$core->settings[rootdir]}/images/icons/valid.png"/> {$lang->alreadyassigned}</p>
         </div>
     </th>
 </tr>
