@@ -57,7 +57,7 @@ if(!($core->input['action'])) {
     $touritems = $helptouritems_obj->get_helptouritems('aro');
     if(is_array($touritems)) {
         $helptour->set_items($touritems);
-        $helptour = $helptour->parse();
+        $helptour_output = $helptour->parse();
     }
 
     if(!isset($core->input['id'])) {
