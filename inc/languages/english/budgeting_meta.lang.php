@@ -309,4 +309,8 @@ $lang['ifratedoesnotexist'] = 'The rate will be created for the affiliate which 
 $lang['lock'] = 'Lock';
 $lang['lockbudget'] = 'Lock/ Unlock Budget';
 $lang['unlock'] = 'Unlock';
+$lang['somelinesmightnotbeensavedcontactadmin'] = 'Some Lines Might Not Have Been Saved. Please Do Not Close The Page And Contact The OCOS Support Team at: support@ocos.orkila.com ';
+$lang['budgetingoverview'] = 'Budgeting Overview';
+$lang['financialbudget'] = 'Financial Budget';
+$lang['budgetconversionrates'] = 'Budget Conversion Rates';
 ?>
