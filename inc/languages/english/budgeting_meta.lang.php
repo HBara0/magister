@@ -313,4 +313,5 @@ $lang['somelinesmightnotbeensavedcontactadmin'] = 'Some Lines Might Not Have Bee
 $lang['budgetingoverview'] = 'Budgeting Overview';
 $lang['financialbudget'] = 'Financial Budget';
 $lang['budgetconversionrates'] = 'Budget Conversion Rates';
+$lang['commercialbudget'] = 'Commercial Budget';
 ?>
