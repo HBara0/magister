@@ -410,16 +410,18 @@ CREATE TABLE `aro_requests` (
   `currency` int(10) NOT NULL,
   `exchangeRateToUSD` float NOT NULL,
   `referenceNumber` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
-  `avgLocalInvoiceDueDate` bigint(30) NOT NULL,
-  `revision` int(2) NOT NULL DEFAULT '0',
   `createdOn` bigint(30) NOT NULL,
   `createdBy` int(10) NOT NULL,
   `modifiedOn` bigint(30) NOT NULL,
   `modifiedBy` int(10) NOT NULL,
+  `revision` int(2) NOT NULL DEFAULT '0',
+  `isApproved` tinyint(1) NOT NULL,
+  `avgLocalInvoiceDueDate` bigint(30) NOT NULL,
+  `aroBusinessManager` int(10) NOT NULL,
+  `isFinalized` tinyint(1) NOT NULL,
   PRIMARY KEY (`aorid`),
   UNIQUE KEY `aoiid` (`aorid`),
   FULLTEXT KEY `orderReference` (`orderReference`)
-) ENGINE=MyISAM AUTO_INCREMENT=9 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `aro_requests_approvals`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
