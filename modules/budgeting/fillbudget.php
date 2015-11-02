@@ -541,6 +541,13 @@ else {
         }
         switch($budget->get_errorcode()) {
             case 0:
+                /* check if number of vars exceeds the server's max */
+                $numberof_POSTvars = count($core->input, COUNT_RECURSIVE);
+                $max_vars = ini_get('max_input_vars');
+                if($numberof_POSTvars >= $max_vars) {
+                    output_xml('<status>false</status><message>'.$lang->somelinesmightnotbeensavedcontactadmin.'</message>');
+                    exit;
+                }
                 output_xml('<status>true</status><message>'.$lang->successfullysaved.'</message>');
                 break;
             case 2:

@@ -273,9 +273,8 @@ class Affiliates {
     public function get_id() {
         return $this->affiliate[self::PRIMARY_KEY];
     }
-    
-    
-      public function get_logisticsmanager() {
+
+    public function get_logisticsmanager() {
         if(empty($this->affiliate['logisticsManager'])) {
             return false;
         }
@@ -308,8 +307,12 @@ class Affiliates {
             return false;
         }
         return new Users($this->affiliate['cfo']);
-        }
+    }
 
+    public function get_column($columnname, $filters = null, array $configs = array()) {
+        $data = new DataAccessLayer(__CLASS__, self::TABLE_NAME, self::PRIMARY_KEY);
+        return $data->get_column($columnname, $filters, $configs);
+    }
 
 }
 ?>

@@ -865,6 +865,12 @@ function parse_attendance_reports($core, $headerinc = '', $header = '', $menu = 
             /* Loop over all days of period - START */
             while($currentdate <= $to) {
                 $curdate = getdate_custom($currentdate);
+                if($curdate['mday'] == $previousdaynum) {
+                    $prevdate = $currentdate;
+                    $currentdate += 86400;/** increment  by one day (timestamp) * */
+                    continue;
+                }
+                $previousdaynum = $curdate['mday'];
                 if($curdate['week'] == 1 && $curdate['mon'] == 12) {
                     $curdate['week'] = 53;
                 }
@@ -1145,6 +1151,12 @@ function parse_attendance_reports($core, $headerinc = '', $header = '', $menu = 
         elseif($core->input['referrer'] == 'log') {
             while($currentdate <= $to) {
                 $curdate = getdate_custom($currentdate);
+                if($curdate['mday'] == $previousdaynum) {
+                    $prevdate = $currentdate;
+                    $currentdate += 86400;/** increment  by one day (timestamp) * */
+                    continue;
+                }
+                $previousdaynum = $curdate['mday'];
                 if($curdate['week'] == 1 && $curdate['mon'] == 12) {
                     $curdate['week'] = 53;
                 }

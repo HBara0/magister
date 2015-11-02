@@ -111,7 +111,7 @@ if(!$core->input['action']) {
 
     $popupcreaterate = '';
     $craetereverserate = '<tr> <td>'.$lang->craetereverserate.'</td> <td><input type = "checkbox" name = "budgetrate[createreverserate]" value = "1"/></td></tr>';
-    $craeteforallaffiliates = '<tr> <td><div title="'.$lang->ifratedoesnotexist.'">'.$lang->craeterateforallaffiliates.'</div></td> <td><input type = "checkbox" name = "budgetrate[createforallaffs]" value = "1"/></td></tr>';
+    $craeteforallaffiliates = '<tr> <td><div title="'.$lang->ifratedoesnotexist.'">'.$lang->craeterateforallaffiliates.'</div></td> <td><input type = "checkbox" checked="checked" name = "budgetrate[createforallaffs]" value = "1"/></td></tr>';
     $category['checked']['isBudget'] = 'checked="checked"';
     eval("\$popupcreaterate= \"".$template->get('popup_createbudget_fxrate')."\";");
     eval("\$budgetinglistfxrates = \"".$template->get('budgeting_listfxrates')."\";");

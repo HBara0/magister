@@ -1081,5 +1081,9 @@ Class FinancialBudget extends AbstractClass {
         return $filter;
     }
 
+    public function get_affiliate() {
+        return new Affiliates($this->data['affid']);
+    }
+
 }
 ?>

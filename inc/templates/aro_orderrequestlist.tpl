@@ -1,12 +1,12 @@
 <html>
     <head>
-        <title>{$core->settings[systemtitle]} | {$lang->aroorderrequest}</title>
+        <title>{$core->settings[systemtitle]} | {$lang->aroorderrequestlist}</title>
         {$headerinc}
     </head>
     <body>
         {$header}
     <tr> {$menu}
-        <td class="contentContainer"><h1>{$lang->aroorderrequest}</h1>
+        <td class="contentContainer"><h1>{$lang->aroorderrequestlist}</h1>
             <form action='$_SERVER[REQUEST_URI]' method="post">
                 <table class="datatable">
                     <thead>

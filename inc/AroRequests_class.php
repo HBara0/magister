@@ -39,7 +39,7 @@ class AroRequests extends AbstractClass {
                 return $this->errorcode;
             }
         }
-        $orderrequest_fields = array('affid', 'orderType', 'orderReference', 'inspectionType', 'currency', 'exchangeRateToUSD', 'ReferenceNumber', 'aroBusinessManager');
+        $orderrequest_fields = array('affid', 'orderType', 'orderReference', 'inspectionType', 'currency', 'exchangeRateToUSD', 'ReferenceNumber', 'aroBusinessManager', 'isFinalized');
         foreach($orderrequest_fields as $orderrequest_field) {
             $orderrequest_array[$orderrequest_field] = $data[$orderrequest_field];
         }
@@ -102,13 +102,17 @@ class AroRequests extends AbstractClass {
 
             $ordesummary_obj = new AroOrderSummary();
             $data['ordersummary']['aorid'] = $this->data[self::PRIMARY_KEY];
-            $ordesummary_obj->set($data['ordesummary']);
-            $ordesummary_obj->save();
+            if(is_array($data['ordersummary'])) {
+                $ordesummary_obj->set($data['ordersummary']);
+                $ordesummary_obj->save();
+            }
 
             $data['approvalchain']['aroBusinessManager'] = $orderrequest_array['aroBusinessManager'];
             $this->create_approvalchain(null, $data['approvalchain']);
             //$sendemail_to['approvers'] = $this->generate_approvalchain();
-            $this->send_approvalemail();
+            if($data['isFinalized'] == 1) {
+                $this->send_approvalemail();
+            }
             ///////////////////////////////
         }
     }
@@ -132,7 +136,7 @@ class AroRequests extends AbstractClass {
                 return $this->errorcode;
             }
         }
-        $orderrequest_fields = array('affid', 'orderType', 'orderReference', 'inspectionType', 'currency', 'exchangeRateToUSD', 'ReferenceNumber', 'aroBusinessManager');
+        $orderrequest_fields = array('affid', 'orderType', 'orderReference', 'inspectionType', 'currency', 'exchangeRateToUSD', 'ReferenceNumber', 'aroBusinessManager', 'isFinalized');
         foreach($orderrequest_fields as $orderrequest_field) {
             $orderrequest_array[$orderrequest_field] = $data[$orderrequest_field];
         }
@@ -205,7 +209,9 @@ class AroRequests extends AbstractClass {
 //                    $approvers[] = $approver->uid;
 //                }
 //            }
-            $this->send_approvalemail();
+            if($data['isFinalized'] == 1) {
+                $this->send_approvalemail();
+            }
             ////////////////////////////////////////////
         }
     }
@@ -579,25 +585,25 @@ class AroRequests extends AbstractClass {
             $data = array('emailRecievedDate' => TIME_NOW);
             $query = $db->update_query('aro_requests_approvals', $data, 'araid='.$firstapprover->araid);
 
-            //$toinform=$this->get_toinform();
-//
-//              if($this->check_infromcoords() == 1) {
-//                $segcoords = $this->get_segoordinators();
-//                if(is_array($segcoords)) {
-//                    foreach($segcoords as $coord) {
-//                        $mailinglist[$coord->uid] = $coord->get_email();
-//                    }
-//                }
-//            }
-//            $mailinglist = array_unique($mailinglist);
-//            $email_data = array(
-//                    'from_email' => 'ocos@orkila.com',
-//                    'from' => 'ocos@orkila.com',
-//                    'to' => $mailinglist,  //$toinform
-//                    'subject' => 'Aro '.$this->orderReference.' _Segemnts Coordinators Notification',
-//                    'message' => 'Aro '.$this->orderReference.' in progress'  // change message
-//            );
-//            $mail = new Mailer($email_data, 'php');
+            $toinform = $this->get_toinform();
+
+            if($this->check_infromcoords() == 1) {
+                $segcoords = $this->get_segoordinators();
+                if(is_array($segcoords)) {
+                    foreach($segcoords as $coord) {
+                        $mailinglist[$coord->uid] = $coord->get_email();
+                    }
+                }
+            }
+            $mailinglist = array_unique($mailinglist);
+            $email_data = array(
+                    'from_email' => 'ocos@orkila.com',
+                    'from' => 'ocos@orkila.com',
+                    'to' => $mailinglist, //$toinform
+                    'subject' => 'Aro '.$this->orderReference.' _Segments Coordinators Notification',
+                    'message' => 'Aro '.$this->orderReference.' in progress'  // change message
+            );
+            $mail = new Mailer($email_data, 'php');
         }
     }
 
