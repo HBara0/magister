@@ -774,42 +774,43 @@ class Users extends AbstractClass {
                         $permissions['pid'][] = $chemfunprod->{Products::PRIMARY_KEY};
                     }
                 }
-            }
+                //}
 
-            $employeesegments = EmployeeSegments::get_data(array('psid' => $segment->get_id()), array('returnarray' => true));
-            if(is_array($employeesegments)) {
-                foreach($employeesegments as $employeesegment) {
-                    if(!$cache->iscached('user', $employeesegment->{Users::PRIMARY_KEY})) {
-                        $employee = $employeesegment->get_user();
-                        $cache->add('user', $employee, $employee->get_id());
-                    }
-                    else {
-                        $employee = $cache->get_cachedval('user', $employeesegment->{Users::PRIMARY_KEY});
-                    }
+                $employeesegments = EmployeeSegments::get_data(array('psid' => $segment->get_id()), array('returnarray' => true));
+                if(is_array($employeesegments)) {
+                    foreach($employeesegments as $employeesegment) {
+                        if(!$cache->iscached('user', $employeesegment->{Users::PRIMARY_KEY})) {
+                            $employee = $employeesegment->get_user();
+                            $cache->add('user', $employee, $employee->get_id());
+                        }
+                        else {
+                            $employee = $cache->get_cachedval('user', $employeesegment->{Users::PRIMARY_KEY});
+                        }
 
-                    $permissions['uid'][] = $employee->get_id();
-                    $affiliate = $employee->get_mainaffiliate();
-                    $permissions['affid'][] = $affiliate->get_id();
+                        $permissions['uid'][] = $employee->get_id();
+                        $affiliate = $employee->get_mainaffiliate();
+                        $permissions['affid'][] = $affiliate->get_id();
+                    }
                 }
-            }
-            unset($employeesegments);
+                unset($employeesegments);
 
-            $entitiesegments = EntitiesSegments::get_data(array('psid' => $segment->get_id()), array('returnarray' => true));
-            if(is_array($entitiesegments)) {
-                foreach($entitiesegments as $entitysegment) {
-                    if(!$cache->iscached('entity', $entitysegment->{Entities::PRIMARY_KEY})) {
-                        $entity = $entitysegment->get_entity();
-                        $cache->add('entity', $entity, $entity->get_id());
-                    }
-                    else {
-                        $entity = $cache->get_cachedval('entity', $entitysegment->{Entities::PRIMARY_KEY});
-                    }
-                    $permissions['eid'][] = $entity->get_id();
-                    if($entity->is_supplier()) {
-                        $permissions['spid'][] = $entity->get_id();
-                    }
-                    else {
-                        $permissions['cid'][] = $entity->get_id();
+                $entitiesegments = EntitiesSegments::get_data(array('psid' => $segment->get_id()), array('returnarray' => true));
+                if(is_array($entitiesegments)) {
+                    foreach($entitiesegments as $entitysegment) {
+                        if(!$cache->iscached('entity', $entitysegment->{Entities::PRIMARY_KEY})) {
+                            $entity = $entitysegment->get_entity();
+                            $cache->add('entity', $entity, $entity->get_id());
+                        }
+                        else {
+                            $entity = $cache->get_cachedval('entity', $entitysegment->{Entities::PRIMARY_KEY});
+                        }
+                        $permissions['eid'][] = $entity->get_id();
+                        if($entity->is_supplier()) {
+                            $permissions['spid'][] = $entity->get_id();
+                        }
+                        else {
+                            $permissions['cid'][] = $entity->get_id();
+                        }
                     }
                 }
             }
