@@ -205,3 +205,6 @@ $lang['aro_approvalchain_policies'] = 'Approval Chain Policies';
 $lang['aro_documentsequences'] = 'ARO Document Sequence Configuration';
 $lang['followingexppolicies'] = 'The following policies will expire within 30 days :';
 $lang['expiringpolicyrenewed'] = 'System has automatically renewed the policies for 30 more days, but if any policy has changed, please make sure to create a new one';
+$lang['finalize'] = 'Finalize';
+$lang['finalizedemail'] = 'The Approval email will only be send after ARO is finalized';
+$lang['aroorderrequestlist'] = 'Aro Documents list';
