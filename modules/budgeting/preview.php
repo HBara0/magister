@@ -514,9 +514,15 @@ if(!($core->input['action'])) {
                             if($core->usergroup['budgeting_canFillLocalIncome'] == 1) {
                                 $localincome_cell = '<td class="smalltext" style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="right" class="border_left">'.$budgetline['localIncomeAmount'].'</td>';
                                 $localincome_cell .= '<td class="smalltext" style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="right" class="border_left">'.$budgetline['invoicingEntityIncome'].'</td>';
+                                $budgetline['commissionSplitAffName'] = '';
+                                if(!empty($budgetline['commissionSplitAffid'])) {
+                                    $commissionsplitaff = new Affiliates($budgetline['commissionSplitAffid']);
+                                    $budgetline['commissionSplitAffName'] = $commissionsplitaff->name;
+                                }
+                                $localincome_cell .= '<td class="smalltext" style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="right" class="border_left">'.$budgetline['commissionSplitAffName'].'</td>';
                             }
                             else {
-                                unset($localincome_cell, $budgetline['localIncomeAmount'], $budgetline['localIncomePercentage'], $budgetline['invoicingEntityIncome']);
+                                unset($localincome_cell, $budgetline['commissionSplitAffName'], $budgetline['localIncomeAmount'], $budgetline['localIncomePercentage'], $budgetline['invoicingEntityIncome']);
                             }
 
                             /* get the currency rate of the Origin currency  of the current buudget - END */
@@ -539,6 +545,7 @@ if(!($core->input['action'])) {
                             }
                             $budgetline['interCompanyPurchase_output'] = $lang->na;
                             $budgetline['product'] = $budgetline_obj->get_product()->name;
+
                             $total['amount']+=$budgetline['amount'];
                             $total['income']+=$budgetline['income'];
                             $total['unitPrice']+=$budgetline['unitPrice'];
@@ -559,6 +566,7 @@ if(!($core->input['action'])) {
 
             if($core->usergroup['budgeting_canFillLocalIncome'] == 1) {
                 $loalincome_header = '<th style="vertical-align:central; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left">'.$lang->localincome.'</th>';
+                $loalincome_header .= '<th style="vertical-align:central; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left">'.$lang->remainingcommaff.' Amt</th>';
                 $loalincome_header .= '<th style="vertical-align:central; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left">'.$lang->remainingcommaff.'</th>';
             }
             if(is_array($total) && !empty($total)) {
