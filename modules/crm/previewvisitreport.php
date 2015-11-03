@@ -64,6 +64,21 @@ if(!$core->input['action']) {
             $vrid_where = " vrid='".$db->escape_string($core->input['vrid'])."'";
         }
         $permissions = $core->user_obj->get_businesspermissions();
+
+        $trasferedassignments = UsersTransferedAssignments::get_data(array('toUser' => $core->user['uid'], 'affid' => $permissions['affid']), array('returnarray' => true));
+        if(is_array($trasferedassignments)) {
+            foreach($trasferedassignments as $trasferedassignment) {
+                $transfered_entities['cid'][] = $trasferedassignment->eid;
+                $transfered_entities['uid'][] = $trasferedassignment->fromUser;
+            }
+        }
+        $transfered_fields = array('cid', 'uid');
+        foreach($transfered_fields as $transfered_field) {
+            if(is_array($permissions[$transfered_field]) && is_array($transfered_entities[$transfered_field])) {
+                $permissions[$transfered_field] = array_unique(array_merge($permissions[$transfered_field], $transfered_entities[$transfered_field]));
+            }
+        }
+        unset($transfered_entities);
         $permissiontypes = array('affid' => 'affid', 'cid' => 'cid', 'uid' => 'vr.uid');
         foreach($permissiontypes as $type => $col) {
             if(isset($permissions[$type]) && !empty($permissions[$type])) {
