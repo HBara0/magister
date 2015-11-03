@@ -2,10 +2,6 @@
     <head>
         <title>{$core->settings[systemtitle]} | {$pagetitle}</title>
         {$headerinc}
-    </head>
-    <body>
-        {$header}
-
         <script>
             $(function () {
                 $(document).on('click', 'a[id^=deletefile_]', function () {
@@ -32,13 +28,15 @@
                     }
                 });
             });</script>
+    </head>
+    <body>
+        {$header}
     <tr>
         {$menu}
         <td class="contentContainer">
             <h1>{$pagetitle}</h1>
             <iframe id='uploadFrame'  name='uploadFrame' style="display:none;" ></iframe>
             <form method="post" enctype="multipart/form-data" action="index.php?module=meetings/create" target="uploadFrame">
-
                 <input type="hidden" value="do_{$action}meeting" name="action" id="action" />
                 <input type="hidden" value="{$core->input[mtid]}" id="mtid" name="mtid"  />
                 <table cellpadding="1" cellspacing="1" width="100%">
@@ -50,22 +48,24 @@
                         {$createmeeting_associations}
                     <tr>
                         <td>{$lang->fromdate}</td>
-                        <td><input type="text" tabindex="2" id="pickDate_from"  autocomplete="off" tabindex="1" data-alternativename="reserveFrom"  name="meeting[fromDate]" value="{$meeting[fromDate_output]}" required="required"/>
-                            <input type="hidden" name="meeting[altfromDate]" data-alternativename="dateFrom" id="altpickDate_from" value="{$meeting[fromDate]}" /> <input id="altpickTime_from" data-alternativename="timeFrom" type="time" tabindex="3" name="meeting[fromTime]" pattern="(20|21|22|23|[01]\d|\d)(([:][0-5]\d){1,2})" placeholder="08:00" value="{$meeting[fromTime_output]}" required="required"></td>
+                        <td>
+                            <input type="text" tabindex="2" id="pickDate_from"  autocomplete="off" tabindex="1" data-alternativename="reserveFrom"  name="meeting[fromDate]" value="{$meeting[fromDate_output]}" required="required"/>
+                            <input type="hidden" name="meeting[altfromDate]" data-alternativename="dateFrom" id="altpickDate_from" value="{$meeting[fromDate]}" /> <input id="altpickTime_from" data-alternativename="timeFrom" type="time" tabindex="3" name="meeting[fromTime]" pattern="(20|21|22|23|[01]\d|\d)(([:][0-5]\d){1,2})" placeholder="08:00" value="{$meeting[fromTime_output]}" required="required">
+                        </td>
                     </tr>
                     <tr>
                         <td>{$lang->todate}</td>
-                        <td><input type="text" tabindex="4" id="pickDate_to" autocomplete="off" tabindex="1" name="meeting[toDate]"  value="{$meeting[toDate_output]}" required="required"/><input type="hidden" name="meeting[alttoDate]" data-alternativename="dateTo" id="altpickDate_to" value="{$meeting[toDate]}" /> <input type="time" id="altpickTime_to" data-alternativename="timeTo"  name="meeting[toTime]" tabindex="5" pattern="(20|21|22|23|[01]\d|\d)(([:][0-5]\d){1,2})" placeholder="17:00" value="{$meeting[toTime_output]}" required="required"></td>
+                        <td><input type="text" tabindex="4" id="pickDate_to" autocomplete="off" tabindex="1" name="meeting[toDate]" value="{$meeting[toDate_output]}" required="required"/><input type="hidden" name="meeting[alttoDate]" data-alternativename="dateTo" id="altpickDate_to" value="{$meeting[toDate]}" /> <input type="time" id="altpickTime_to" data-alternativename="timeTo" name="meeting[toTime]" tabindex="5" pattern="(20|21|22|23|[01]\d|\d)(([:][0-5]\d){1,2})" placeholder="17:00" value="{$meeting[toTime_output]}" required="required"></td>
                     </tr>
                     <tr id="facilityrow" {$location['hidefacility']}>
                         <td>
-                            {$lang->facility}</td>
+                            {$lang->location}</td>
                         <td>
                             {$facilityreserve}
                         </td>
                     </tr>
                     <tr>
-                        <td>{$lang->specifygenerallocation}</td><td><input id="specifygenloc" type="checkbox"  {$location['selected']} value="1"></td>
+                        <td></td><td><input id="specifygenloc" type="checkbox" {$location['selected']} value="1"> {$lang->specifygenerallocation}</td>
                     </tr>
                     <tr id="genlocation" {$location['hide']}>
                         <td>{$lang->location}</td>

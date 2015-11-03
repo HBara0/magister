@@ -2,7 +2,8 @@
     <head>
         <title>{$core->settings[systemtitle]} | {$lang->aro}</title>
         {$headerinc}
-        <script src="js/aro_managedocuments.js" type="text/javascript"></script>
+        <script src="{$core->settings[rootdir]}/js/jquery.populate.min.js" type="text/javascript"></script>
+        <script src="{$core->settings[rootdir]}/js/aro_managedocuments.min.js" type="text/javascript"></script>
     </head>
     <body>
     <tr>
@@ -39,7 +40,7 @@
         </td>
     </tr>
     <!-- Start Tour -->
-    {$helptour}
+    {$helptour_output}
 
 
 </body>

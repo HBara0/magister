@@ -80,6 +80,7 @@ else {
                                 }
                                 else {
                                     $errors['productnotmatched'][] = $purchaseorderline['productname'].' - '.$purchaseorder['foreignSupplierName'];
+                                    $matchstrings[] = $sale['productname'];
                                 }
                                 continue;
                             }
@@ -249,6 +250,7 @@ else {
                     }
                     else {
                         $errors['productnotmatched'][] = $sale['productname'].' - '.$sale['foreignSupplierName'];
+                        $matchstrings[] = $sale['productname'];
                     }
                     continue;
                 }
@@ -502,6 +504,12 @@ else {
                             echo $error.'<br />';
                         }
                     }
+                }
+                if(is_array($matchstrings)) {
+                    echo 'Match String:<br />';
+                    $matchstrings = array_filter($matchstrings);
+                    echo implode(';', $matchstrings);
+                    echo '<br />';
                 }
                 echo $lang->na;
                 // output_xml("<status>false</status><message>{$lang->na}</message>");
