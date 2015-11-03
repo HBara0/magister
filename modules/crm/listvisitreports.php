@@ -40,15 +40,33 @@ if(!$core->input['action']) {
      * Get business permissions of user and parse where statement part
      */
     $permissions = $core->user_obj->get_businesspermissions();
+
+    $trasferedassignments = UsersTransferedAssignments::get_data(array('toUser' => $core->user['uid'], 'affid' => $permissions['affid']), array('returnarray' => true));
+    if(is_array($trasferedassignments)) {
+        foreach($trasferedassignments as $trasferedassignment) {
+            $transfered_entities['cid'][] = $trasferedassignment->eid;
+            $transfered_entities['uid'][] = $trasferedassignment->fromUser;
+        }
+    }
+    $transfered_fields = array('cid', 'uid');
+    foreach($transfered_fields as $transfered_field) {
+        if(is_array($permissions[$transfered_field]) && is_array($transfered_entities[$transfered_field])) {
+            $permissions[$transfered_field] = array_unique(array_merge($permissions[$transfered_field], $transfered_entities[$transfered_field]));
+        }
+    }
+    unset($transfered_entities);
     $permissiontypes = array('affid' => 'affid', 'cid' => 'cid', 'uid' => 'vr.uid');
     foreach($permissiontypes as $type => $col) {
         if(isset($permissions[$type]) && !empty($permissions[$type])) {
-            if(is_array($permissiontypes[$type])) {
-                array_filter($permissiontypes[$type]);
-                $permissionsfilter .= ' AND '.$col.' IN ('.implode(',', $permissiontypes[$type]).')';
+            if(is_array($permissions[$type])) {
+                $permissions[$type] = array_filter($permissions[$type]);
+                $permissionsfilter .= ' AND '.$col.' IN ('.implode(',', $permissions[$type]).')';
             }
         }
     }
+
+
+
 //    if($core->usergroup['canViewAllAff'] == 0) {
 //        $query_where = ' AND affid IN ('.implode(', ', array_unique($core->user['affiliates'])).')';
 //        $query_where_and = ' AND ';

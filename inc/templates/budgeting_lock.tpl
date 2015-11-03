@@ -79,11 +79,26 @@
                         </td>
 
                     </tr>
+                    <tr>
+                        <td  width="50%">
+                            <div style="width:100%; height:70px; overflow:auto; display:inline-block; vertical-align:top; margin-bottom: 10px;">
+                                <table class="datatable" width="100%">
+                                    <thead>
+                                        <tr>
+                                            <th width="100%">{$lang->operation}<input class='inlinefilterfield' type='text' placeholder="{$lang->search} {$lang->operation}" style="width:70%;display:inline-block;margin-left:5px;"/></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {$operation_type_list}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </td>
+                    </tr>
                 </table>
             </div>
 
-            {$lang->lock}<input type="checkbox" name="budget[operation][lock]" value="1"/>
-            {$lang->unlock}<input type="checkbox" name="budget[operation][unlock]" value="1"/>
+
             <br/><br/>
             <input type='button' id='perform_budgeting/lockbudgets_Button' value='{$lang->savecaps}' class='button'/>
             <div id="perform_budgeting/lockbudgets_Results"></div>

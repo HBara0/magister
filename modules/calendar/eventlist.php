@@ -44,7 +44,7 @@ if(!$core->input['action']) {
 //        }
 //    }
     $sort_url = sort_url();
-    $where_filter['publishOnWebsite'] = 1;
+    $where_filter['publishOnWebsite'] = 0;
     $dal_config = array(
             'simple' => false,
             'returnarray' => true,
@@ -62,17 +62,15 @@ if(!$core->input['action']) {
             if($event->createdBy == $core->user['uid']) {
                 $eventtitle = '<a target="_blank" href="index.php?module=calendar/manageevents&amp;id='.$event->ceid.'" title="'.$event->title.'">'.$event->title.'</a>';
             }
-            if($event->publishOnWebsite == 1) {
-                $ispublished_icon = '<img src="./images/valid.gif" border="0" title="'.$lang->published.'"/>';
-            }
-            else {
-                $ispublished_icon = '<img src="./images/false.gif" border="0" />';
-            }
-
-            if($core->usergroup['cms_canPublishNews'] == 1) {
-                $ispublished_icon = '<a href="index.php?module=cms/manageevents&action=togglepublish&id='.$event->get_id().'">'.$ispublished_icon.'</a>';
-            }
-
+//            if($event->publishOnWebsite == 1) {
+//                $ispublished_icon = '<img src="./images/valid.gif" border="0" title="'.$lang->published.'"/>';
+//            }
+//            else {
+//                $ispublished_icon = '<img src="./images/false.gif" border="0" />';
+//            }
+//            if($core->usergroup['cms_canPublishNews'] == 1) {
+//                $ispublished_icon = '<a href="index.php?module=cms/manageevents&action=togglepublish&id='.$event->get_id().'">'.$ispublished_icon.'</a>';
+//            }
             eval("\$cms_events_list_rows .= \"".$template->get('calendar_events_list_rows')."\";");
         }
     }

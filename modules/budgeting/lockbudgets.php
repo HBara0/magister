@@ -11,7 +11,7 @@ if(!defined("DIRECT_ACCESS")) {
     die("Direct initialization of this file is not allowed.");
 }
 
-if($core->usergroup['canUseBudgeting'] == 0) {
+if($core->usergroup['budgeting_canFinalizeBudgets'] == 0) {
     error($lang->sectionnopermission);
 }
 
@@ -36,9 +36,9 @@ if(!$core->input['action']) {
         }
     }
 
-
+    $supplier_where = " type='s'";
     if(is_array($permissions['spid'])) {
-        $supplier_where = implode(',', $permissions['spid']);
+        $supplier_where .= "AND eid IN(".implode(',', $permissions['spid']).")";
     }
     $suppliers = get_specificdata('entities', array('eid', 'companyName'), 'eid', 'companyName', array('by' => 'companyName', 'sort' => 'ASC'), 1, "{$supplier_where}");
     if(is_array($suppliers)) {
@@ -71,6 +71,15 @@ if(!$core->input['action']) {
         }
     }
 
+    $operations = array('lock' => $lang->lock, 'unlock' => $lang->unlock);
+    if(is_array($operations)) {
+        foreach($operations as $key => $type) {
+            $checked = $rowclass = '';
+            $operation_type_list .= '<tr class="'.$rowclass.'">';
+            $operation_type_list .= '<td><input name="budget[operation]"  required="required" type="radio" value="'.$key.'">'.$type.'</td></tr>';
+        }
+    }
+
     eval("\$budgetlock = \"".$template->get('budgeting_lock')."\";");
     output_page($budgetlock);
 }
@@ -82,16 +91,19 @@ elseif($core->input['action'] == 'do_perform_lockbudgets') {
             'returnarray' => true,
             'simple' => false
     );
+    $filters = array('affid' => 'affiliates', 'spid' => 'suppliers', 'year' => 'years');
+    foreach($filters as $key => $filter) {
+        if(isset($budget_data[$filter]) && !empty($budget_data[$filter])) {
+            $where[$key] = $budget_data[$filter];
+        }
+    }
     if($budget_data['type'] == 'budget') {
-        $budgets = Budgets::get_data(array('affid' => $budget_data['affiliates'], 'spid' => $budget_data['suppliers'], 'year' => $budget_data['years']), $dal_config);
+        $budgets = Budgets::get_data($where, $dal_config);
     }
     elseif($budget_data['type'] == 'yef') {
-        $budgets = BudgetingYearEndForecast::get_data(array('affid' => $budget_data['affiliates'], 'spid' => $budget_data['suppliers'], 'year' => $budget_data['years']), $dal_config);
+        $budgets = BudgetingYearEndForecast::get_data($where, $dal_config);
     }
-    $operation = 'unlock';
-    if(isset($budget_data['operation']['lock']) && $budget_data['operation']['lock'] == 1) {
-        $operation = 'lock';
-    }
+    $operation = $budget_data['operation'];
     if(is_array($budgets)) {
         foreach($budgets as $budget) {
             $budget->lockbudget($operation);
