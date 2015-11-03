@@ -412,15 +412,17 @@ function parse_selectlist($name, $tabindex, $options, $selected_options, $multip
             $selected_options = array_filter($selected_options, 'strlen');
             if(in_array($key, $selected_options)) {
                 $attributes = ' selected="selected"';
+                $selected = true;
             }
         }
         else {
             if($selected_options == $key && $selected_options != null) {
                 $attributes = ' selected="selected"';
+                $selected = true;
             }
         }
 
-        if(isset($config['disabledItems'][$key])) {
+        if(isset($config['disabledItems'][$key]) && $selected != true) {
             $attributes .= ' disabled="disabled"';
         }
         if(isset($config['optionids']) && is_array($config['optionids'])) {
@@ -431,7 +433,7 @@ function parse_selectlist($name, $tabindex, $options, $selected_options, $multip
             }
         }
         $list .= '<option value="'.$key.'"'.$attributes.'>'.$val.'</option>';
-        $attributes = '';
+        $attributes = $selected = '';
     }
     $list .= '</select>';
 

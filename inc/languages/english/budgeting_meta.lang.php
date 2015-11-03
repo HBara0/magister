@@ -314,5 +314,6 @@ $lang['budgetingoverview'] = 'Budgeting Overview';
 $lang['financialbudget'] = 'Financial Budget';
 $lang['budgetconversionrates'] = 'Budget Conversion Rates';
 $lang['commercialbudget'] = 'Commercial Budget';
-$lang['operation'] = 'Operation'
+$lang['operation'] = 'Operation';
+$lang['ratealreadyexists'] = 'Rate Already Exists';
 ?>
