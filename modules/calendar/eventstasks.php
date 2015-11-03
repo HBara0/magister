@@ -283,7 +283,6 @@ else {
                             ));
                             $meeting_obj = new Meetings();
                             $meeting_obj->create($meeting);
-                            print_r($maile->debug_info());
                         }
                         if($mailer->get_status() === true) {
                             $log->record($notification_mails, $last_id);
