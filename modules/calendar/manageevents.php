@@ -234,7 +234,8 @@ else {
                 output_xml('<status>true</status><message>'.$lang->succesfullysaved.'</message>');
                 exit;
             case 1:
-                output_xml('<status>true</status><message>'.$lang->fillrequiredfields.'</message>');
+                $error_output = $errorhandler->get_errors_inline();
+                output_xml('<status>false</status><message>'.$lang->fillrequiredfields.'<![CDATA[<br/>'.$error_output.']]></message>');
                 exit;
         }
         /* Parse Event Logo - END */

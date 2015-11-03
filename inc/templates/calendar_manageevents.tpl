@@ -4,8 +4,8 @@
         {$headerinc}
 
         <script>
-            $(function () {
-                $(document).on('change', 'select[id=event_type]', function () {
+            $(function() {
+                $(document).on('change', 'select[id=event_type]', function() {
                     var types = [{$etypemorefields}];
                     if(jQuery.inArray(parseInt($(this).val()), types) > -1) {
                         $('#visittypefields').slideDown();
@@ -76,7 +76,7 @@
                         <input name="event[isPublic]" type='checkbox' value='1' checked='checked' style="display:none">
                     </div>
                     <div style="display:block;" class="thead">{$lang->description}</div>
-                    <div style="display:block;"><textarea name="event[description]" cols="100" rows="6" id='description' class="txteditadv">{$event[description]}</textarea></div>
+                    <div style="display:block;"><textarea name="event[description]" cols="100" rows="6" id='description' class="txteditadv"  required="required">{$event[description]}</textarea></div>
                     <div style="display:block;" class="thead">{$lang->tags}</div>
                     <div style="display:block;"><textarea name="event[tags]" cols="120" rows="2" id='tags'>{$event[tags]}</textarea><br /><span style="font-style: italic;">Seperate tags by comma. Tags help finding related items.</span><br /></div>
                         {$restriction_selectlist}
