@@ -30,8 +30,8 @@
                     <input type="hidden" value="generate" name="action">
                     <input type="submit" id="perform_budgeting/budgethome_Button" value="{$lang->generate}" class="button" />
                 </div>
-                <div class="tablefilters_row_toggle" style=" padding: 0px !important; text-align: center !important; height: 2px !important;border-bottom: 1px solid #CCC !important;color: #666; line-height: 6px;cursor: pointer; width: 100%;margin:auto;text-align: center">
-                    <a style="margin:auto;text-align: center" title="Filter" onClick="$('#filters').toggle();">&middot;&middot;&middot;</a>
+                <div class="tablefilters_row_toggle"  onClick="$('#filters').toggle();" style=" padding: 0px !important; text-align: center !important; height: 2px !important;border-bottom: 1px solid #CCC !important;color: #666; line-height: 6px;cursor: pointer; width: 100%;margin:auto;text-align: center">
+                    <a style="float:left;text-align: center" ><img src="{$core->settings['rootdir']}/images/icons/search.gif"></a>
                 </div>
                 <br>
                 <hr>
