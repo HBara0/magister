@@ -46,11 +46,11 @@ else {
     elseif($core->input['action'] == 'do_createeventtask') {
 
         echo $headerinc;
-        if(is_empty($core->input['event']['title'], $core->input['event']['fromDate'], $core->input['event']['toDate'], $core->input['event']['type'])) {
+        if(is_empty($core->input['event']['title'], $core->input['event']['fromDate'], $core->input['event']['toDate'], $core->input['event']['type'], $core->input['event']['description'])) {
 //output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
             ?>
             <script language="javascript" type="text/javascript">
-                $(function () {
+                $(function() {
                     top.$("#upload_Result").html("<span class='red_text'><?php echo $lang->fillallrequiredfields;?></span>");
                 });
             </script>
@@ -79,7 +79,7 @@ else {
         if(value_exists('calendar_events', 'title', $core->input['event']['title'], 'type='.$db->escape_string($core->input['event']['type']).' AND (toDate='.$new_event['toDate'].' OR fromDate='.$new_event['fromDate'].')')) {
             ?>
             <script language="javascript" type="text/javascript">
-                $(function () {
+                $(function() {
                     top.$("#upload_Result").html("<span class='red_text'><?php echo $lang->eventexists;?></span>");
                 });
             </script>
@@ -101,7 +101,7 @@ else {
                 if($upload_obj->get_status() != 4) {
                     ?>
                     <script language="javascript" type="text/javascript">
-                        $(function () {
+                        $(function() {
                             top.$("#upload_Result").html("<span class='red_text'><?php echo $upload_obj->parse_status($upload_obj->get_status());?></span>");
                         });
                     </script>
@@ -126,7 +126,7 @@ else {
             if($upload_obj->get_status() != 4) {
                 ?>
                 <script language="javascript" type="text/javascript">
-                    $(function () {
+                    $(function() {
                         top.$("#upload_Result").html("<span class='red_text'><?php echo $upload_obj->parse_status($upload_obj->get_status());?></span>");
                     });
                 </script>
@@ -301,7 +301,7 @@ else {
             $log->record($core->input['type'], $last_id);
             ?>
             <script language="javascript" type="text/javascript">
-                $(function () {
+                $(function() {
                     top.$("#upload_Result").html("<span class='green_text'><?php echo $lang->successfullysaved;?></span>");
                 });
             </script>
