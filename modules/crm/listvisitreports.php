@@ -45,7 +45,7 @@ if(!$core->input['action']) {
     if(is_array($trasferedassignments)) {
         foreach($trasferedassignments as $trasferedassignment) {
             $transfered_entities['cid'][] = $trasferedassignment->eid;
-            $transfered_entities['uid'][] = $trasferedassignment->uid;
+            $transfered_entities['uid'][] = $trasferedassignment->fromUser;
         }
     }
     $transfered_fields = array('cid', 'uid');
