@@ -631,7 +631,7 @@ if(!$core->input['action']) {
         /* Parse MOM Specific Follow Up Actions - START */
         $quarter_start = strtotime($core->input['year'].'-'.$core->settings['q'.$core->input['quarter'].'start']);
         $quarter_end = strtotime($core->input['year'].'-'.$core->settings['q'.$core->input['quarter'].'end']);
-        $momactions_where = '(date BETWEEN '.$quarter_start.' AND '.$quarter_end.') AND momid=(select momid from meetings_minsofmeeting WHERE mtid IN '
+        $momactions_where = '(date BETWEEN '.$quarter_start.' AND '.$quarter_end.') AND momid IN (select momid from meetings_minsofmeeting WHERE mtid IN '
                 .'(SELECT mtid FROM meetings_associations WHERE idAttr="spid" AND id='.$reportmeta[spid].'))';
         $momactions = MeetingsMOMActions::get_data(array('filter' => $momactions_where), array('returnarray' => true, 'operators' => array('filter' => CUSTOMSQLSECURE)));
         if(is_array($momactions)) {
