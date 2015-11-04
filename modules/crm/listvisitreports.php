@@ -148,9 +148,12 @@ if(!$core->input['action']) {
                     $draft[$visitreport['vrid']] = "<a href='index.php?module=crm/listvisitreports&amp;val=1&amp;action=do_draft&amp;vrid={$visitreport[vrid]}'><img src='images/invalid.gif' title='".$lang->isnotdraft."' alt='".$lang->draft."' border='0'/></a>";
                 }
             }
-            else if(is_array($permissions['uid']) && !empty(array_filter($permissions['uid']))) {
-                if(in_array($visitreport['uid'], array_filter($permissions['uid']))) {
-                    $icon[$visitreport['vrid']] = "<a href='index.php?module=crm/previewvisitreport&amp;referrer=list&amp;vrid={$visitreport[vrid]}'><img src='images/icons/report{$icon_locked}.gif' alt='{$visitreport[status_text]}' border='0'/></a>";
+            else {
+                $permissions['uid'] = array_filter($permissions['uid']);
+                if(is_array($permissions['uid']) && !empty($permissions['uid'])) {
+                    if(in_array($visitreport['uid'], $permissions['uid'])) {
+                        $icon[$visitreport['vrid']] = "<a href='index.php?module=crm/previewvisitreport&amp;referrer=list&amp;vrid={$visitreport[vrid]}'><img src='images/icons/report{$icon_locked}.gif' alt='{$visitreport[status_text]}' border='0'/></a>";
+                    }
                 }
             }
             list($visitreport['suppliername']) = get_specificdata('entities', array('companyName'), '0', 'companyName', '', 0, "eid = '{$visitreport[spid]}'");
