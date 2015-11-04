@@ -66,10 +66,10 @@ class TravelManagerHotels extends AbstractClass {
             $hotel['city'] = $newhotel->get_city()->get_displayname();
             $hotel['country'] = $newhotel->get_country()->get_displayname();
             if($newhotel->isContracted == 1) {
-                $hotel['iscontracted'] = '<img src="'.$core->settings['rootdir'].'\images\icons\completed.png">';
+                $hotel['iscontracted'] = '<img src="'.$core->settings['rootdir'].'\images\icons\completed.png" alt="Yes">';
             }
             else {
-                $hotel['iscontracted'] = '<img src="'.$core->settings['rootdir'].'\images\invalid.gif">';
+                $hotel['iscontracted'] = '<img src="'.$core->settings['rootdir'].'\images\invalid.gif" alt="No">';
             }
             //getting hotels in the same country details
             $hotelsinsamecountry = TravelManagerHotels::get_data(array('country' => $newhotel), array('returnarray' => true, 'simple' => false));
@@ -77,10 +77,10 @@ class TravelManagerHotels extends AbstractClass {
                 foreach($hotelsinsamecountry as $hotelincountry) {
                     $otherhotel = $hotelincountry->get();
                     if($newhotel->isApproved == 1) {
-                        $otherhotel['isapproved'] = '<img src="'.$core->settings['rootdir'].'\images\icons\completed.png">';
+                        $otherhotel['isapproved'] = '<img src="'.$core->settings['rootdir'].'\images\valid.gif" alt="Yes">';
                     }
                     else {
-                        $otherhotel['isapproved'] = '<img src="'.$core->settings['rootdir'].'\images\invalid.gif">';
+                        $otherhotel['isapproved'] = '<img src="'.$core->settings['rootdir'].'\images\invalid.gif" alt="No">';
                     }
                     if(empty($otherhotel['avgPrice'])) {
                         $otherhotel['avgPrice'] = '-';
@@ -89,11 +89,26 @@ class TravelManagerHotels extends AbstractClass {
                     unset($otherhotel);
                 }
             }
+
+            $to[] = 'audrey.sacy@orkila.com';
+            $to[] = 'pamela.carnaby@orkila.com';
+
+            $affiliates = Affiliates::get_affiliates(array('country' => $newhotel->get_country()->coid), array('returnarray' => true));
+            if(is_array($affiliates)) {
+                foreach($affiliates as $affiliate_obj) {
+                    $gm = Users::get_data(array('uid' => $affiliate_obj->generalManager), array('simple' => false));
+                    if(is_object($gm)) {
+                        $to[] = $gm->get_email();
+                    }
+                }
+            }
+
             eval("\$emailmessage = \"".$template->get('approvehotel_email')."\";");
             $mailer = new Mailer();
             $mailer = $mailer->get_mailerobj();
-            $mailer->set_to('zaher.reda@orkila.com');
+            $mailer->set_to(array_unique($to));
             $mailer->set_from('mailer@ocos.orkila.com');
+            $mailer->set_cc('zaher.reda@orkila.com');
             $mailer->set_subject('New Hotel to Approve');
             $mailer->set_message($emailmessage);
             $mailer->send();
