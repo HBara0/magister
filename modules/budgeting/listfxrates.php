@@ -53,7 +53,7 @@ if(!$core->input['action']) {
     $filters_row_display = 'hide';
     if(is_array($filter_where_values)) {
         $filters_row_display = 'show';
-        if(empty(array_filter($filter_where_values))) {
+        if(is_empty(array_filter($filter_where_values))) {
             $filter_where = ' AND bfxid = 0';
         }
         else {
