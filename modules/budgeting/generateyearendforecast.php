@@ -118,24 +118,27 @@ else {
         $user_obj = new Users($core->user['uid']);
         $permissions = $user_obj->get_businesspermissions();
         $budgetsdata['current'] = ($core->input['budget']);
-
+        $matchfields = array('affid' => 'affiliates', 'psid' => 'segments', 'spid' => 'suppliers', 'uid' => 'managers');
         if(is_array($permissions)) {
             foreach($permissions as $key => $val) {
+                if(!isset($matchfields[$key])) {
+                    continue;
+                }
                 if(is_array($val)) {
                     if(empty($budgetsdata['current'][$key])) {
                         if(empty($val)) {
                             unset($budgetsdata['current'][$key]);
                             continue;
                         }
-                        $budgetsdata['current'][$key] = $val;
+                        $budgetsdata['current'][$matchfields[$key]] = $val;
                     }
                     else {
-                        $budgetsdata['current'][$key] = array_intersect($val, $budgetsdata['current'][$key]);
+                        $budgetsdata['current'][$matchfields[$key]] = array_intersect($budgetsdata['current'][$key], $val);
                     }
+                    $budgetsdata['current'][$matchfields[$key]] = array_filter($budgetsdata['current'][$matchfields[$key]]);
                 }
             }
         }
-
         $dal_config = array(
                 'operators' => array('affid' => 'in', 'year' => '='),
                 'simple' => false,
@@ -145,11 +148,18 @@ else {
         $periods = array('current'); //, 'prev2years', 'prev3years');
         foreach($periods as $period) {
             $budgetfilter[$period] = $budgetsdata[$period];
-            if(is_array($budgetsdata[$period]['affid'])) {
+            if(is_array($budgetsdata[$period]['affid']) && !is_empty(array_filter($budgetsdata[$period]['affid']))) {
                 $budgetfilter[$period]['affiliates'] = $budgetsdata[$period]['affid'];
             }
-            if(is_array($budgetsdata[$period]['spid'])) {
+            else if($core->usergroup['canViewAllAff'] == 0) {
+                $budgetfilter[$period]['affiliates'] = array(0);
+            }
+
+            if(is_array($budgetsdata[$period]['spid']) && !is_empty(array_filter($budgetsdata[$period]['spid']))) {
                 $budgetfilter[$period]['suppliers'] = $budgetsdata[$period]['spid'];
+            }
+            else if($core->usergroup['canViewAllSupp'] == 0) {
+                $budgetfilter[$period]['suppliers'] = array(0);
             }
             $budgets[$period] = BudgetingYearEndForecast::get_yefs_bydata($budgetfilter[$period]);
         }
@@ -164,14 +174,17 @@ else {
                 foreach($budgets['current'] as $budgetid) {
                     $budget_obj = new BudgetingYearEndForecast($budgetid);
                     $budget_data = $budget_obj->get();
-                    if(isset($budgetsdata['current']['uid'])) {
-                        $budgetlines_filters['businessMgr'] = $budgetsdata['current']['uid'];
+                    if(isset($budgetsdata['current']['uid']) && !is_empty(array_filter($budgetsdata['current']['uid']))) {
+                        $budgetlines_filters['businessMgr'] = array_filter($budgetsdata['current']['uid']);
                     }
                     elseif($core->usergroup['canViewAllEmp'] == 0) {
                         $budgetlines_filters['businessMgr'][] = $core->user['uid'];
                     }
-                    if(isset($budgetsdata['current']['psid'])) {
-                        $budgetlines_filters['psid'] = $budgetsdata['current']['psid'];
+                    if(isset($budgetsdata['current']['psid']) && !is_empty(array_filter($budgetsdata['current']['psid']))) {
+                        $budgetlines_filters['psid'] = array_filter($budgetsdata['current']['psid']);
+                    }
+                    elseif($core->usergroup['canViewAllSupp'] == 0) {
+                        $budgetlines_filters['psid'] = array(0);
                     }
 
                     $budgetlines = $budget_obj->get_yeflines_objs($budgetlines_filters, array('operators' => array('createdBy' => 'in'), 'order' => 'quantity', 'returnarray' => true));
@@ -298,14 +311,17 @@ else {
                     $budget['affiliate'] = $budget_obj->get_affiliate()->get()['name'];
 
                     $budget_data = $budget_obj->get();
-                    if(isset($budgetsdata['current']['uid'])) {
-                        $budgetlines_filters['businessMgr'] = $budgetsdata['current']['uid'];
+                    if(isset($budgetsdata['current']['uid']) && !is_empty(array_filter($budgetsdata['current']['uid']))) {
+                        $budgetlines_filters['businessMgr'] = array_filter($budgetsdata['current']['uid']);
                     }
                     elseif($core->usergroup['canViewAllEmp'] == 0) {
                         $budgetlines_filters['businessMgr'][] = $core->user['uid'];
                     }
-                    if(isset($budgetsdata['current']['psid'])) {
-                        $budgetlines_filters['psid'] = $budgetsdata['current']['psid'];
+                    if(isset($budgetsdata['current']['psid']) && !is_empty(array_filter($budgetsdata['current']['psid']))) {
+                        $budgetlines_filters['psid'] = array_filter($budgetsdata['current']['psid']);
+                    }
+                    elseif($core->usergroup['canViewAllSupp'] == 0) {
+                        $budgetlines_filters['psid'] = array(0);
                     }
                     $budgetlines = $budget_obj->get_lines($budgetlines_filters);
                     if(is_array($budgetlines)) {
