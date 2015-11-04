@@ -53,10 +53,15 @@ if(!$core->input['action']) {
     $filters_row_display = 'hide';
     if(is_array($filter_where_values)) {
         $filters_row_display = 'show';
-        if($filters_config['process']['filterKey'] == 'bfxid') {
-            $filters_config['process']['filterKey'] = 'bfxid';
+        if(empty(array_filter($filter_where_values))) {
+            $filter_where = ' AND bfxid = 0';
         }
-        $filter_where = ' AND '.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
+        else {
+            if($filters_config['process']['filterKey'] == 'bfxid') {
+                $filters_config['process']['filterKey'] = 'bfxid';
+            }
+            $filter_where = ' AND '.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
+        }
     }
     $filters_row = $filter->prase_filtersrows(array('tags' => 'table', 'display' => $filters_row_display));
     $filters = ' bfxid =0';
@@ -84,6 +89,9 @@ if(!$core->input['action']) {
             eval("\$budgetfxratess_list .= \"".$template->get('budgeting_listfxrates_rows')."\";");
             $row_tools = '';
         }
+    }
+    else {
+        $budgetfxratess_list = '<tr><td>N/A</td></tr>';
     }
 
 
