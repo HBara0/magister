@@ -15,6 +15,10 @@ if(!($core->input['action'])) {
         $permissions = $user_obj->get_businesspermissions();
         $budgetsdata['current'] = ($core->input['budget']);
 
+        $budgetsdata['current']['uid'] = $budgetsdata['current']['managers'];
+        $budgetsdata['current']['psid'] = $budgetsdata['current']['segments'];
+        $budgetsdata['current']['affid'] = $budgetsdata['current']['affiliates'];
+        $budgetsdata['current']['eid'] = $budgetsdata['current']['suppliers'];
         if(is_array($permissions)) {
             foreach($permissions as $key => $val) {
                 if(is_array($val)) {
@@ -26,11 +30,19 @@ if(!($core->input['action'])) {
                         $budgetsdata['current'][$key] = $val;
                     }
                     else {
-                        $budgetsdata['current'][$key] = array_intersect($val, $budgetsdata['current'][$key]);
+                        $budgetsdata['current'][$key] = array_intersect($budgetsdata['current'][$key], $val);
                     }
+
+                    $budgetsdata['current'][$key] = array_filter($budgetsdata['current'][$key]);
                 }
             }
         }
+
+        $budgetsdata['current']['managers'] = $budgetsdata['current']['uid'];
+        $budgetsdata['current']['segments'] = $budgetsdata['current']['psid'];
+        $budgetsdata['current']['affiliates'] = $budgetsdata['current']['affid'];
+        $budgetsdata['current']['suppliers'] = $budgetsdata['current']['eid'];
+
         $dal_config = array(
                 'operators' => array('affid' => 'in', 'year' => '='),
                 'simple' => false,
@@ -71,7 +83,8 @@ if(!($core->input['action'])) {
                             $budgetlines_filters['psid'] = $budgetsdata[$field]['psid'];
                         }
 
-                        $budgetlines = $budget_obj->get_budgetlines_objs($budgetlinefilter, array('operators' => array('createdBy' => 'in'), 'order' => 'quantity', 'returnarray' => true));
+
+                        $budgetlines = $budget_obj->get_budgetlines_objs($budgetlines_filters, array('operators' => array('createdBy' => 'in'), 'order' => 'quantity', 'returnarray' => true));
                         unset($budgetlinefilter);
                         if(!is_array($budgetlines)) {
                             continue;
@@ -468,7 +481,7 @@ if(!($core->input['action'])) {
                                     $budgetline['segment'] = $segment->titleAbbr;
                                 }
                                 else {
-//                                    $budgetline['segment'] = $budgetline_obj->get_product()->get_segment()['titleAbbr'];
+                                    $budgetline['segment'] = $budgetline_obj->get_product()->get_segment()['titleAbbr'];
                                 }
                             }
                             if((empty($budgetline['cid']) && !empty($budgetline['altCid']))) {
