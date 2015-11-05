@@ -862,6 +862,7 @@ class Users extends AbstractClass {
         /* Unique the values */
         foreach($permissions as $type => $values) {
             if(is_array($values)) {
+                $values = array_filter($values);
                 $permissions[$type] = array_unique($values);
             }
         }

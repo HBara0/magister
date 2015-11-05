@@ -148,15 +148,15 @@ else {
         $periods = array('current'); //, 'prev2years', 'prev3years');
         foreach($periods as $period) {
             $budgetfilter[$period] = $budgetsdata[$period];
-            if(is_array($budgetsdata[$period]['affid']) && !is_empty(array_filter($budgetsdata[$period]['affid']))) {
-                $budgetfilter[$period]['affiliates'] = $budgetsdata[$period]['affid'];
+            if(is_array($budgetsdata[$period][$matchfields['affid']]) && !is_empty(array_filter($budgetsdata[$period][$matchfields['affid']]))) {
+                $budgetfilter[$period]['affiliates'] = $budgetsdata[$period][$matchfields['affid']];
             }
             else if($core->usergroup['canViewAllAff'] == 0) {
                 $budgetfilter[$period]['affiliates'] = array(0);
             }
 
-            if(is_array($budgetsdata[$period]['spid']) && !is_empty(array_filter($budgetsdata[$period]['spid']))) {
-                $budgetfilter[$period]['suppliers'] = $budgetsdata[$period]['spid'];
+            if(is_array($budgetsdata[$period][$matchfields['spid']]) && !is_empty(array_filter($budgetsdata[$period][$matchfields['spid']]))) {
+                $budgetfilter[$period]['suppliers'] = $budgetsdata[$period][$matchfields['spid']];
             }
             else if($core->usergroup['canViewAllSupp'] == 0) {
                 $budgetfilter[$period]['suppliers'] = array(0);
@@ -174,14 +174,14 @@ else {
                 foreach($budgets['current'] as $budgetid) {
                     $budget_obj = new BudgetingYearEndForecast($budgetid);
                     $budget_data = $budget_obj->get();
-                    if(isset($budgetsdata['current']['uid']) && !is_empty(array_filter($budgetsdata['current']['uid']))) {
-                        $budgetlines_filters['businessMgr'] = array_filter($budgetsdata['current']['uid']);
+                    if(isset($budgetsdata['current'][$matchfields['uid']]) && !is_empty(array_filter($budgetsdata['current'][$matchfields['uid']]))) {
+                        $budgetlines_filters['businessMgr'] = array_filter($budgetsdata['current'][$matchfields['uid']]);
                     }
                     elseif($core->usergroup['canViewAllEmp'] == 0) {
                         $budgetlines_filters['businessMgr'][] = $core->user['uid'];
                     }
-                    if(isset($budgetsdata['current']['psid']) && !is_empty(array_filter($budgetsdata['current']['psid']))) {
-                        $budgetlines_filters['psid'] = array_filter($budgetsdata['current']['psid']);
+                    if(isset($budgetsdata['current'][$matchfields['psid']]) && !is_empty(array_filter($budgetsdata['current'][$matchfields['psid']]))) {
+                        $budgetlines_filters['psid'] = array_filter($budgetsdata['current'][$matchfields['psid']]);
                     }
                     elseif($core->usergroup['canViewAllSupp'] == 0) {
                         $budgetlines_filters['psid'] = array(0);
@@ -311,14 +311,14 @@ else {
                     $budget['affiliate'] = $budget_obj->get_affiliate()->get()['name'];
 
                     $budget_data = $budget_obj->get();
-                    if(isset($budgetsdata['current']['uid']) && !is_empty(array_filter($budgetsdata['current']['uid']))) {
-                        $budgetlines_filters['businessMgr'] = array_filter($budgetsdata['current']['uid']);
+                    if(isset($budgetsdata['current'][$matchfields['uid']]) && !is_empty(array_filter($budgetsdata['current'][$matchfields['uid']]))) {
+                        $budgetlines_filters['businessMgr'] = array_filter($budgetsdata['current'][$matchfields['uid']]);
                     }
                     elseif($core->usergroup['canViewAllEmp'] == 0) {
                         $budgetlines_filters['businessMgr'][] = $core->user['uid'];
                     }
-                    if(isset($budgetsdata['current']['psid']) && !is_empty(array_filter($budgetsdata['current']['psid']))) {
-                        $budgetlines_filters['psid'] = array_filter($budgetsdata['current']['psid']);
+                    if(isset($budgetsdata['current'][$matchfields['psid']]) && !is_empty(array_filter($budgetsdata['current'][$matchfields['psid']]))) {
+                        $budgetlines_filters['psid'] = array_filter($budgetsdata['current'][$matchfields['psid']]);
                     }
                     elseif($core->usergroup['canViewAllSupp'] == 0) {
                         $budgetlines_filters['psid'] = array(0);
