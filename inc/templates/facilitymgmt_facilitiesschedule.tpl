@@ -7,13 +7,12 @@
         <script src="{$core->settings[rootdir]}/js/fullcalendar.js" type="text/javascript"></script>
 
         <script>
-
             $(document).ready(function() {
-                var reservations ={$reserved_data};
-                var reservedData = [];
-                for(var data in reservations) {
-                    reservedData.push(reservations[data]);
-                }
+                //   var reservations ={$reserved_data};
+                //    var reservedData = [];
+                //    for(var data in reservations) {
+                //        reservedData.push(reservations[data]);
+                //   }
 
                 $('#calendar').fullCalendar({
                     header: {
@@ -21,19 +20,31 @@
                         center: 'title',
                         right: 'month,agendaWeek,agendaDay'
                     },
-                    editable: true,
-                    eventLimit: true, // allow "more" link when too many events
-                    //   events: '{$core->settings['rootdir']}/index.php?module=facilitymgmt/facilitiesschedule&action=fetchevents'
-                    events: reservedData
+                    editable: false,
+                    eventLimit: true,
+                    // events: reservedData
+                    events: {
+                        type: 'POST',
+                        url: '{$core->settings['rootdir']}/index.php?module=facilitymgmt/facilitiesschedule&action=fetchevents',
+                        error: function() {
+                            $('#script-warning').show();
+                        }
+
+                    },
+                    loading: function(bool) {
+                        $('#loading').toggle(bool);
+                    }
 
                 });
-                // $('#calendar').fullCalendar('refetchEvents')
+
+                setInterval(function() {
+                    $('#calendar').fullCalendar('refetchEvents')
+                }, 30000);
 
             });
 
         </script>
         <style>
-
             body {
                 margin: 40px 10px;
                 padding: 0;
