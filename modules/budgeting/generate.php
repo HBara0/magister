@@ -24,7 +24,7 @@ if(!$core->input['action']) {
     $user_obj = new Users($core->user['uid']);
     $permissions = $user_obj->get_businesspermissions();
 
-    $affiliate_where = 'isActive =1';
+    $affiliate_where = 'isActive=1';
     if(is_array($permissions['affid'])) {
         $affiliate_where .= " AND affid IN (".implode(',', $permissions['affid']).")";
     }
@@ -41,9 +41,6 @@ if(!$core->input['action']) {
         }
     }
 
-
-
-
     $supplier_where = 'type = "s"';
     if(is_array($permissions['spid'])) {
         $supplier_where = "  eid IN (".implode(',', $permissions['spid']).")";
@@ -56,7 +53,7 @@ if(!$core->input['action']) {
                 continue;
             }
             $checked = $rowclass = '';
-            $suppliers_list .= ' <tr class="'.$rowclass.'">';
+            $suppliers_list .= '<tr class="'.$rowclass.'">';
             $suppliers_list .= '<td><input id="supplierfilter_check_'.$key.'" name="budget[spid][]" type="checkbox"'.$checked.' value="'.$key.'">'.$value.'</td><tr>';
         }
     }
@@ -92,7 +89,7 @@ if(!$core->input['action']) {
     if($core->usergroup['canViewAllEmp'] == 0 && is_array($permissions['uid'])) {
         $users_where .= ' AND uid IN ('.implode(',', $permissions['uid']).')';
     }
-    $bmanagers = get_specificdata('users', array('uid', 'displayName'), 'uid', 'displayName', array('by' => 'displayName', 'sort' => 'ASC'), 1, $users_where);
+    $bmanagers = get_specificdata('users', array('uid', 'displayName'), 'uid', 'displayName', array('by' => 'displayName', 'sort' => 'ASC'), 0, $users_where);
     if(is_array($bmanagers)) {
         foreach($bmanagers as $key => $value) {
             $checked = $rowclass = '';

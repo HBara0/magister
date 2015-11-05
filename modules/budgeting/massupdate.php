@@ -179,10 +179,17 @@ else {
             }
         }
 
-        if(isset($overwrite_fields['value']['localIncomePercentage']) && !empty($overwrite_fields['value']['localIncomePercentage'])) {
-            $overwrite_fields['value']['localIncomeAmount'] = '(amount * ('.$overwrite_fields['value']['localIncomePercentage'].' / 100))';
-            // $overwrite_fields['value']['localIncomePercentage'] = '('.$overwrite_fields['value']['localIncomePercentage'].' * (100/incomePerc))';
-            $overwrite_fields['value']['invoicingEntityIncome'] = 'amount-'.$overwrite_fields['value']['localIncomeAmount'];
+        if(isset($overwrite_fields['value']['localIncomePercentage']) && (!empty($overwrite_fields['value']['localIncomePercentage']) || $overwrite_fields['value']['localIncomePercentage'] == 0)) {
+            if($overwrite_fields['value']['localIncomePercentage'] != 100) {
+                $overwrite_fields['value']['localIncomeAmount'] = '(amount * ('.$overwrite_fields['value']['localIncomePercentage'].' / 100))';
+                // $overwrite_fields['value']['localIncomePercentage'] = '('.$overwrite_fields['value']['localIncomePercentage'].' * (100/incomePerc))';
+
+                $overwrite_fields['value']['invoicingEntityIncome'] = 'income-'.$overwrite_fields['value']['localIncomeAmount'];
+            }
+            else {
+                $overwrite_fields['value']['localIncomeAmount'] = 'income';
+                $overwrite_fields['value']['invoicingEntityIncome'] = 0;
+            }
         }
 
         $overwrite_fields['value']['modifiedOn'] = TIME_NOW;
@@ -201,6 +208,7 @@ else {
         /* acquire all rows which will be affected, */
         $budgetlines_notaffectedobjs = BudgetLines::get_data('bid IN (SELECT bid FROM budgeting_budgets '.$budget_wherecondition.')'.$budgetline_wherecondition, array('returnarray' => true));
         $sql = 'UPDATE '.Tprefix.'budgeting_budgets_lines SET '.$updatequery_set.' WHERE bid IN (SELECT bid FROM budgeting_budgets '.$budget_wherecondition.')'.$budgetline_wherecondition;
+
         $query = $db->query($sql);
         if($query) {
             $affectedrows = $db->affected_rows();
