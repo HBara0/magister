@@ -1631,7 +1631,7 @@ else {
                             $ready_affids[] = $ready_report['affid'];
                         }
 
-                        $ready_reports_link = $core->settings['rootdir'].'/index.php?module = reporting/preview&referrer = direct&identifier = '.base64_encode(serialize(array('year' => $current_report_details['year'], 'quarter' => $current_report_details['quarter'], 'spid' => $current_report_details['eid'], 'affid' => $ready_affids)));
+                        $ready_reports_link = $core->settings['rootdir'].'/index.php?module=reporting/preview&referrer=direct&identifier='.base64_encode(serialize(array('year' => $current_report_details['year'], 'quarter' => $current_report_details['quarter'], 'spid' => $current_report_details['eid'], 'affid' => $ready_affids)));
 
                         $lang->load('messages');
                         $email_data = array(
