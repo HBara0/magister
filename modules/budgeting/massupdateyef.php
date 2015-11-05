@@ -169,11 +169,19 @@ else {
             }
         }
 
-        if(isset($overwrite_fields['value']['localIncomePercentage']) && !empty($overwrite_fields['value']['localIncomePercentage'])) {
-            $overwrite_fields['value']['localIncomeAmount'] = '(amount * ('.$overwrite_fields['value']['localIncomePercentage'].' / 100))';
-            // $overwrite_fields['value']['localIncomePercentage'] = '('.$overwrite_fields['value']['localIncomePercentage'].' * (100/incomePerc))';
-            $overwrite_fields['value']['invoicingEntityIncome'] = 'amount-'.$overwrite_fields['value']['localIncomeAmount'];
+        if(isset($overwrite_fields['value']['localIncomePercentage']) && (!empty($overwrite_fields['value']['localIncomePercentage']) || $overwrite_fields['value']['localIncomePercentage'] == 0)) {
+            if($overwrite_fields['value']['localIncomePercentage'] != 100) {
+                $overwrite_fields['value']['localIncomeAmount'] = '(amount * ('.$overwrite_fields['value']['localIncomePercentage'].' / 100))';
+                // $overwrite_fields['value']['localIncomePercentage'] = '('.$overwrite_fields['value']['localIncomePercentage'].' * (100/incomePerc))';
+
+                $overwrite_fields['value']['invoicingEntityIncome'] = 'income-'.$overwrite_fields['value']['localIncomeAmount'];
+            }
+            else {
+                $overwrite_fields['value']['localIncomeAmount'] = 'income';
+                $overwrite_fields['value']['invoicingEntityIncome'] = 0;
+            }
         }
+
 
         $overwrite_fields['value']['modifiedOn'] = TIME_NOW;
         $overwrite_fields['value']['modifiedBy'] = $core->user['uid'];
@@ -191,6 +199,8 @@ else {
         /* acquire all rows which will be affected, */
         $budgetlines_notaffectedobjs = BudgetingYEFLines::get_data('yefid IN (SELECT yefid FROM budgeting_yearendforecast '.$budget_wherecondition.')'.$yefline_wherecondition, array('returnarray' => true));
         $sql = 'UPDATE '.Tprefix.'budgeting_yef_lines SET '.$updatequery_set.' WHERE yefid IN (SELECT yefid FROM budgeting_yearendforecast '.$budget_wherecondition.')'.$yefline_wherecondition;
+        //output_xml('<status>true</status><message><![CDATA['.$sql.']]></message>');
+        //  exit;
         $query = $db->query($sql);
         if($query) {
             $affectedrows = $db->affected_rows();
