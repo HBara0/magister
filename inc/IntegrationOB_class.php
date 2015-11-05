@@ -1288,7 +1288,7 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
         return new IntegrationOBUom($this->data['c_uom_id'], $this->f_db);
     }
 
-    public function get_cost() {
+    public function get_cost($referer = null) {
         //$transaction = $this->get_transaction();
 //        if(is_array($transaction)) {
 //            $cost = 0;
@@ -1297,6 +1297,11 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
 //            }
 //            return $cost;
 //        }
+        if(!empty($referer) && $referer == 'salesreport') {
+            $transactioncost['cost'] = $this->get_transaction()->transactioncost;
+            $transactioncost['currencyid'] = $this->get_transaction()->get_currency()->iso_code;
+            return $transactioncost;
+        }
         return $this->get_transaction()->transactioncost;
     }
 
@@ -1565,8 +1570,8 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
             if(is_array($classification[$tableindex])) {
                 foreach($classification[$tableindex] as $classificationtype => $classificationdata) {
                     if(is_array($classificationdata)) {
-                        $output .= '<table class="datatable"><tr><td style="background-color:#92D050;font-weight:bold;" colspan=4>'.$lang->topten.' '.$lang->$tableindex.' '.$lang->$classificationtype.'</td></tr>';
-                        $output .= '<tr style="'.$css_styles['header'].'"><th>'.$lang->$tableindex.'</th>';
+                        $output .= '<table class="datatable"><tr><td style="background-color:#92D050;font-weight:bold;" colspan=5>'.$lang->topten.' '.$lang->$tableindex.' '.$lang->$classificationtype.'</td></tr>';
+                        $output .= '<tr style="'.$css_styles['header'].'"><th>'.$lang->rank.'</th><th>'.$lang->$tableindex.'</th>';
                         if($classificationtype != 'wholeperiod' && $classificationtype != 'byquarter') {
                             switch($classificationtype) {
                                 case 'bymonth':
@@ -1591,6 +1596,7 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                         $output .= '</tr>';
                         reset($classificationdata[$tableindex]);
                         $topofthemonthid = key($classificationdata[$tableindex]);
+                        $rank = 1;
                         foreach($classificationdata[$tableindex] as $id => $cdata) {
                             if(is_array($cdata)) {
                                 if($classificationtype != 'wholeperiod') {
@@ -1603,19 +1609,26 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                                     }
                                 }
                                 unset($cdata['currentmonthdata']);
+                                $output .= '<tr style="'.$rowstyle.'"><td>#'.$rank.'</td>';
                                 if($classname == 'IntegrationOBUser') {
                                     $object = new $classname($id);
                                     if(!is_object($object) || empty($object->name) || $object->name == 'System') {
                                         $object->name = 'unspecified';
                                     }
-                                    $output .= '<tr style="'.$rowstyle.'"><td>'.$object->name.'</td>';
+                                    $output .= '<td>'.$object->name.'</td>';
                                 }
                                 else {
-                                    $output .= '<tr style="'.$rowstyle.'"><td>'.$id.'</td>';
+                                    $output .= '<td>'.$id.'</td>';
                                 }
-
+                                $numfmt = new NumberFormatter($lang->settings['locale'], NumberFormatter::DECIMAL);
                                 foreach($cdata as $data) {
-                                    $output .= '<td style="text-align:left;">'.number_format($data).'</td>'; //$formatter->format($data)
+                                    if($data > 10) {
+                                        $numfmt->setPattern("#0");
+                                    }
+                                    else {
+                                        $numfmt->setPattern("#0.##");
+                                    }
+                                    $output .= '<td style="text-align:left;">'.$numfmt->format($data).'</td>'; //$formatter->format($data)
                                 }
                                 if($classificationtype != 'wholeperiod' && $classificationtype != 'byquarter') {
                                     $output .= '<td>'.$position.'</td>';
@@ -1629,6 +1642,7 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                             else {
                                 $rowstyle = '';
                             }
+                            $rank++;
                         }
                         $output .= '</table><br/>';
                         if($classname == 'IntegrationOBUser') {
@@ -1641,9 +1655,9 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                             $topofthemonth_obj_name = $id;
                         }
                         $output .='<div style="font-weight:bold;">Top '.$lang->$tableindex.' '.$lang->$classificationtype.' : '.$topofthemonth_obj_name.'</div><br/>';
-                        $output .='<div style="width:100%;"><h2>'.$lang->topten.' '.$lang->$tableindex.' '.$lang->$classificationtype.' '.$lang->chart.' <small>(K Amounts)</small> </h2>';
+                        $output .='<div style="width:100%;"><h2>'.$lang->chart.' <small>(K Table Amounts )</small> </h2>';
                         $output .= '<img src="data:image/png;base64,'.base64_encode(file_get_contents($this->parse_classificaton_charts($classificationdata[$tableindex], $tableindex))).'" />';
-                        $output .= '</div>';
+                        $output .= '</div><br/>';
                     }
                 }
             }
@@ -1683,7 +1697,7 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
 
             $xaxisdata[] = $data[$id]['currentdata'] / 1000;
         }
-        $chart = new Charts(array('x' => $yaxixdata, 'y' => $xaxisdata), 'bar', array('yaxisname' => $lang->topten.' '.$lang->$type, 'xaxisname' => '', 'width' => '800', 'height' => 300, 'scale' => 'SCALE_START0', 'nosort' => true, 'scalepos' => SCALE_POS_TOPBOTTOM, 'noLegend' => true, 'labelrotationangle' => 45, 'x1position' => 120));
+        $chart = new Charts(array('x' => $yaxixdata, 'y' => $xaxisdata), 'bar', array('yaxisname' => $lang->topten.' '.$lang->$type, 'xaxisname' => '', 'width' => '900', 'height' => 300, 'scale' => 'SCALE_START0', 'nosort' => true, 'scalepos' => SCALE_POS_TOPBOTTOM, 'noLegend' => true, 'labelrotationangle' => 45, 'x1position' => 200));
         return $chart->get_chart();
     }
 
