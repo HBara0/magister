@@ -89,7 +89,7 @@ if(!$core->input['action']) {
     if($core->usergroup['canViewAllEmp'] == 0 && is_array($permissions['uid'])) {
         $users_where .= ' AND uid IN ('.implode(',', $permissions['uid']).')';
     }
-    $bmanagers = get_specificdata('users', array('uid', 'displayName'), 'uid', 'displayName', array('by' => 'displayName', 'sort' => 'ASC'), 1, $users_where);
+    $bmanagers = get_specificdata('users', array('uid', 'displayName'), 'uid', 'displayName', array('by' => 'displayName', 'sort' => 'ASC'), 0, $users_where);
     if(is_array($bmanagers)) {
         foreach($bmanagers as $key => $value) {
             $checked = $rowclass = '';
@@ -119,6 +119,9 @@ else {
         $permissions = $user_obj->get_businesspermissions();
         $budgetsdata['current'] = ($core->input['budget']);
         $matchfields = array('affid' => 'affiliates', 'psid' => 'segments', 'spid' => 'suppliers', 'uid' => 'managers');
+        foreach($matchfields as $key => $val) {
+            $budgetsdata['current'][$val] = $budgetsdata['current'][$key];
+        }
         if(is_array($permissions)) {
             foreach($permissions as $key => $val) {
                 if(!isset($matchfields[$key])) {
@@ -136,6 +139,7 @@ else {
                         $budgetsdata['current'][$matchfields[$key]] = array_intersect($budgetsdata['current'][$key], $val);
                     }
                     $budgetsdata['current'][$matchfields[$key]] = array_filter($budgetsdata['current'][$matchfields[$key]]);
+                    $budgetsdata['current'][$key] = $budgetsdata['current'][$matchfields[$key]];
                 }
             }
         }

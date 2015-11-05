@@ -15,6 +15,9 @@ if(!($core->input['action'])) {
         $permissions = $user_obj->get_businesspermissions();
         $budgetsdata['current'] = ($core->input['budget']);
         $matchfields = array('affid' => 'affiliates', 'psid' => 'segments', 'spid' => 'suppliers', 'uid' => 'managers');
+        foreach($matchfields as $key => $val) {
+            $budgetsdata['current'][$val] = $budgetsdata['current'][$key];
+        }
         if(is_array($permissions)) {
             foreach($permissions as $key => $val) {
                 if(!isset($matchfields[$key])) {
@@ -32,6 +35,7 @@ if(!($core->input['action'])) {
                         $budgetsdata['current'][$matchfields[$key]] = array_intersect($budgetsdata['current'][$key], $val);
                     }
                     $budgetsdata['current'][$matchfields[$key]] = array_filter($budgetsdata['current'][$matchfields[$key]]);
+                    $budgetsdata['current'][$key] = $budgetsdata['current'][$matchfields[$key]];
                 }
             }
         }
@@ -450,7 +454,7 @@ if(!($core->input['action'])) {
 
                             /* get the currency rate of the Origin currency  of the current buudget and convert it - START */
                             if($budgetline['originalCurrency'] != $budgetsdata['current']['toCurrency']) {
-                                $fxrates_obj = BudgetFxRates::get_data(array('fromCurrency' => $budgetline['originalCurrency'], 'toCurrency' => $budgetsdata['current']['toCurrency'], 'affid' => $budgetsdata['current']['affid'], 'year' => $budgetsdata['current']['years'], 'isBudget' => 1), $dal_config);
+                                $fxrates_obj = BudgetFxRates::get_data(array('fromCurrency' => $budgetline['originalCurrency'], 'toCurrency' => $budgetsdata['current']['toCurrency'], 'affid' => $budgetsdata['current']['affiliates'], 'year' => $budgetsdata['current']['years'], 'isBudget' => 1), $dal_config);
                                 if(is_array($fxrates_obj)) {
                                     foreach($fxrates_obj as $fxid => $fxrates) {
                                         $budgetline['amount'] = ($budgetline['amount'] * $fxrates->rate);

@@ -709,9 +709,8 @@ class Users extends AbstractClass {
                     }
                     unset($affentities);
                 }
-                else {
-                    $permissions['affid'][] = $affiliate->get_id();
-                }
+
+                $permissions['affid'][] = $affiliate->get_id();
             }
         }
         if(is_array($supplieraudits)) {
