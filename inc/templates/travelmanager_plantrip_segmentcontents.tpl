@@ -17,8 +17,8 @@
         <h2 class="subtitle">{$lang->lookuptransps}</h2>
         <div style='margin-bottom: 10px;font-weight: bold;' id="transpmethod_{$sequence}">
             {$lang->makesuretochooseandclick}</div>
-        {$lang->oneway}<input type="radio" value="2" name="segment[{$sequence}][transp]" id="transp_lookuptransps_{$sequence}"/>
-        {$lang->roundtrip}<input type="radio" value="1" name="segment[{$sequence}][transp]" id="transp_lookuptransps_{$sequence}"/><br/><br/>
+        {$lang->roundtrip}<input type="radio" value="1" name="segment[{$sequence}][transp]" id="transp_lookuptransps_{$sequence}"/>
+        {$lang->oneway}<input type="radio" value="2" name="segment[{$sequence}][transp]" id="transp_lookuptransps_{$sequence}"/><br/><br/>
        <!-- <input type="button" class="button" value="{$lang->lookuptransps}" id="lookuptransps_{$sequence}"/>-->
 
         <!--able width="100%" cellspacing="0" cellpadding="0" style="margin-left: 8px;" class="datatable">

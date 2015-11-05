@@ -114,15 +114,21 @@ class TravelManagerPlanSegments extends AbstractClass {
         $segpurposes = $segmentdata['purpose'];
         if(is_array($segpurposes)) {
             $db->delete_query('travelmanager_plan_segpurposes', "tmpsid='".$this->data[self::PRIMARY_KEY]."'");
+            $saved_seg_purposes['external'] = $saved_seg_purposes['internal'] = 0;
             foreach($segpurposes as $purpose) {
                 $purpose_data['purpose'] = $purpose;
                 $purpose_data['tmpsid'] = $this->data[self::PRIMARY_KEY];
                 $segmentpurpose_obj = new TravelManagerPlanSegPurposes();
                 $segmentpurpose_obj->set($purpose_data);
                 $segmentpurpose_obj->save();
+                $purpose_obj = LeaveTypesPurposes::get_data(array('ltpid' => $purpose));
+                if(is_object($purpose_obj)) {
+                    $saved_seg_purposes[$purpose_obj->category] ++;
+                }
             }
         }
         if(is_array($segmentdata['assign'])) {
+            $externalpurpose_assignees = 0;
             foreach($segmentdata['assign'] as $type => $assigndata) {
                 if(is_array($assigndata)) {
                     if($type == 'affid') {
@@ -144,18 +150,24 @@ class TravelManagerPlanSegments extends AbstractClass {
                         $assign_obj = new TravelManagerPlanAffient();
                         $assign_obj->set($assigned);
                         $assign_obj->save();
+                        if($assigned['type'] == 'event' || $assigned['type'] == 'entity') {
+                            $externalpurpose_assignees++;
+                        }
                     }
                 }
             }
         }
-        //  }
-        //  unset($segmentdata['savesection']);
 
+        if($externalpurpose_assignees < $saved_seg_purposes['external']) {
+            $this->errorcode = 2;
+            $errorhandler->record('Required Fields', 'External Purposes party');
+            return $this;
+        }
         if(isset($segmentdata['tmtcid'])) {
             $transptdata['tmpsid'] = $this->data[self::PRIMARY_KEY];
 
             $transptdata = $segmentdata['tmtcid'];
-            $transp_count = 0;
+            $transp_count = $airplane_category_count = 0;
             /* Initialize the object */
             if(is_array($transptdata)) {
                 foreach($transptdata as $checksum => $data) {
@@ -173,6 +185,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                             $transp_obj->set($transit);
                             $transp_obj->save();
                             $transp_count++;
+                            $airplane_category_count++;
                         }
                     }
                     else {
@@ -207,6 +220,10 @@ class TravelManagerPlanSegments extends AbstractClass {
             if($transp_count == 0) {
                 $transp_errorcode = 2;
                 $errorhandler->record('Required fields', 'Transportations'.' in Segment '.$segmentdata['sequence']);
+            }
+            if($transp_count == 1 && $airplane_category_count == 1) {
+                $transp_errorcode = 9;
+                $errorhandler->record('Warning:', 'Are you sure you won’t need any other type of transportation? Eg. Bus from the airport, Taxi to and from your meeting,..');
             }
         }
         else {
@@ -386,15 +403,21 @@ class TravelManagerPlanSegments extends AbstractClass {
         $segpurposes = $segmentdata['purpose'];
         if(is_array($segpurposes)) {
             $db->delete_query('travelmanager_plan_segpurposes', "tmpsid='".$this->data[self::PRIMARY_KEY]."'");
+            $saved_seg_purposes['external'] = $saved_seg_purposes['internal'] = 0;
             foreach($segpurposes as $purpose) {
                 $purpose_data['purpose'] = $purpose;
                 $purpose_data['tmpsid'] = $this->data[self::PRIMARY_KEY];
                 $segmentpurpose_obj = new TravelManagerPlanSegPurposes();
                 $segmentpurpose_obj->set($purpose_data);
                 $segmentpurpose_obj->save();
+                $purpose_obj = LeaveTypesPurposes::get_data(array('ltpid' => $purpose));
+                if(is_object($purpose_obj)) {
+                    $saved_seg_purposes[$purpose_obj->category] ++;
+                }
             }
         }
         if(is_array($segmentdata['assign'])) {
+            $externalpurpose_assignees = 0;
             foreach($segmentdata['assign'] as $type => $assigndata) {
                 if(is_array($assigndata)) {
                     if($type == 'affid') {
@@ -416,13 +439,23 @@ class TravelManagerPlanSegments extends AbstractClass {
                         $assign_obj = new TravelManagerPlanAffient();
                         $assign_obj->set($assigned);
                         $assign_obj->save();
+                        if($assigned['type'] == 'event' || $assigned['type'] == 'entity') {
+                            $externalpurpose_assignees++;
+                        }
                     }
                 }
             }
         }
+
+        if($externalpurpose_assignees < $saved_seg_purposes['external']) {
+            $this->errorcode = 2;
+            $errorhandler->record('Required Fields', 'External Purposes party');
+            return $this;
+        }
+
+
         //    }
         // unset($segmentdata['savesection']);
-
         $transptdata = $segmentdata['tmtcid'];
         $trasnp_count = $transp_errorcode = 0;
         if(is_array($transptdata)) {
@@ -446,6 +479,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                         $transp_obj->set($transit);
                         $transp_obj->save();
                         $saved_tmtcids[] = $transit['tmtcid'];
+                        $airplane_category_count++;
                     }
                     /* Delete Flight if not checked on modify segment */
                     if(!isset($flightnumber)) {
@@ -505,6 +539,11 @@ class TravelManagerPlanSegments extends AbstractClass {
             }
 
             unset($chkdata);
+
+            if($transp_count == 1 && $airplane_category_count == 1) {
+                $transp_errorcode = 9;
+                $errorhandler->record('Warning:', 'Are you sure you won’t need any other type of transportation? Eg. Bus from the airport, Taxi to and from your meeting,..');
+            }
         }
         if($segmentdata['savesection']['section2'] == 1) {
             if($transp_count == 0) {

@@ -2628,6 +2628,53 @@ CREATE TABLE `holidaysexceptions` (
   KEY `hid` (`hid`,`uid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=332 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `hr_jobapplicants`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `hr_jobapplicants` (
+  `jaid` int(11) NOT NULL AUTO_INCREMENT,
+  `joid` int(11) NOT NULL,
+  PRIMARY KEY (`jaid`)
+) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `hr_jobopprtunities`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `hr_jobopprtunities` (
+  `joid` int(10) NOT NULL AUTO_INCREMENT,
+  `reference` int(11) NOT NULL,
+  `affid` int(11) NOT NULL,
+  `workLocation` int(11) NOT NULL,
+  `title` varchar(200) NOT NULL,
+  `employmentType` varchar(100) NOT NULL,
+  `shortDesc` varchar(250) NOT NULL,
+  `responsibilities` varchar(250) NOT NULL,
+  `managesOthers` tinyint(1) NOT NULL,
+  `salary` int(11) NOT NULL,
+  `salaryCurrency` int(11) NOT NULL,
+  `approxJoinDate` bigint(30) NOT NULL,
+  `gender` tinyint(1) NOT NULL,
+  `nationality` int(11) NOT NULL,
+  `residence` int(11) NOT NULL,
+  `drivingLicReq` tinyint(1) NOT NULL,
+  `requiredlang` varchar(250) NOT NULL,
+  `careerLevel` varchar(100) NOT NULL,
+  `educationLevel` varchar(100) NOT NULL,
+  `minExpYears` int(11) NOT NULL,
+  `maxExpYears` int(11) NOT NULL,
+  `minQualifications` varchar(250) NOT NULL,
+  `prefQualifications` varchar(250) NOT NULL,
+  `publishOn` bigint(30) NOT NULL,
+  `unpublishOn` bigint(30) NOT NULL,
+  `publishingTimeZone` int(11) NOT NULL,
+  `allowSocialSharing` tinyint(1) NOT NULL,
+  `createdOn` bigint(30) NOT NULL,
+  `createdBy` int(11) NOT NULL,
+  `countApplicants` int(11) NOT NULL,
+  `countViews` int(11) NOT NULL,
+  PRIMARY KEY (`joid`)
+) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `incoterms`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
