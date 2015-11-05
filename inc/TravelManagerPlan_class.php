@@ -842,7 +842,7 @@ $("#anotheraff_otheraccomodations_'.$sequence.'_'.$otherhotel_checksum.'").hide(
         global $lang;
         $touritems = array(
                 'start' => array('ignoreid' => true, 'text' => $lang->starttmtour),
-                'createtab' => array('options' => 'tipLocation:top;', 'text' => $lang->helptour_createsegment),
+                'createtab' => array('options' => 'tipLocation:top;', 'text' => $lang->helptour_createsegment.'<br/><br/>'.$lang->starttmtourexample),
                 'cities_1_cache_autocomplete' => array('text' => $lang->helptour_firstcity),
                 'pickDate_from_1' => array('text' => $lang->helptour_fromdate),
                 'destinationcity_1_cache_autocomplete' => array('text' => $lang->helptour_firstdestcity),
@@ -872,7 +872,7 @@ $("#anotheraff_otheraccomodations_'.$sequence.'_'.$otherhotel_checksum.'").hide(
                 'save_section_1_5' => array('options' => 'tipLocation:right;', 'text' => $lang->helptour_savesec5),
                 'preview' => array('text' => $lang->saveandpreview_helptour),
                 'save_addsegment' => array('text' => $lang->saveandcreatenewseg_helptour),
-                'finalize' => array('text' => $lang->saveandfinalize_helptour),
+                'finalize' => array('text' => $lang->saveandfinalize_helptour.'</br></br><a href="#" class="button" style="height:20px;">Back to top</a>'),
         );
 
         return $touritems;
