@@ -57,6 +57,46 @@ class Core {
         $this->clean_input();
     }
 
+    /**
+     * Filters the input based on user permissions
+     * @return type
+     */
+    public function filter_permissions() {
+        if(!isset($this->user_obj)) {
+            return;
+        }
+        /**
+         * Default list of permission elements with their possible synonyms
+         */
+        $permissions_elements = array('affid' => array('affid', 'affids', 'affiliates'), 'eid' => array('eids', 'eid', 'entities'), 'spid' => array('spid', 'spids', 'suppliers'), 'cid' => array('cids', 'cid', 'customers'), 'psid' => array('psid', 'psids', 'segments'), 'uid' => array('uid', 'uids', 'users'));
+
+        /**
+         * Retrieve the business permissions and loop over elements
+         */
+        $permissions = $this->user_obj->get_businesspermissions();
+        foreach($permissions_elements as $element => $synonyms) {
+            foreach($synonyms as $synonym) {
+                /**
+                 * If user is submiting data matching any of the permissions elements, cross check it with the permissions
+                 * Otherwise, if no input, enforce permissions
+                 */
+                if(isset($this->input[$synonym])) {
+                    /**
+                     * If no permission is specified, then user can see all
+                     */
+                    if(!isset($permissions[$element])) {
+                        continue;
+                    }
+                    $this->input[$synonym] = array_intersect($this->input[$synonym], $permissions[$element]);
+                    $this->input[$synonym] = array_filter($this->input[$synonym]);
+                }
+                else {
+                    $this->input[$element] = $permissions[$element];
+                }
+            }
+        }
+    }
+
     protected function parse_incoming(array $array) {
         if(!is_array($array)) {
             return;
