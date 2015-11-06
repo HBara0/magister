@@ -108,7 +108,7 @@ if(!($core->input['action'])) {
                             $budget_currencies[$budgetline->blid] = $budgetline->originalCurrency;
                             /* get the currency rate of the Origin currency  of the current buudget and convert it - START */
                             if($budgetline->originalCurrency != $budgetsdata[$field]['toCurrency']) {
-                                $fxrates_obj = BudgetFxRates::get_data(array('fromCurrency' => $budgetline->originalCurrency, 'toCurrency' => $budgetsdata[$field]['toCurrency'], 'affid' => $budget_obj->affid, 'year' => $budget_obj->year), $dal_config);
+                                $fxrates_obj = BudgetFxRates::get_data(array('fromCurrency' => $budgetline->originalCurrency, 'toCurrency' => $budgetsdata[$field]['toCurrency'], 'affid' => $budget_obj->affid, 'year' => $budget_obj->year, 'isBudget' => 1), $dal_config);
                                 if(is_array($fxrates_obj)) {
                                     if($field !== 'current') {
                                         $budgetline->amount = $budgetline->actualAmount;
@@ -409,6 +409,7 @@ if(!($core->input['action'])) {
                     elseif($core->usergroup['canViewAllSupp'] == 0) {
                         $budgetlines_filters['psid'] = array(0);
                     }
+
                     $budgetlines = $budget_obj->get_lines($budgetlines_filters);
                     unset($budgetlines_filters);
                     if(is_array($budgetlines)) {
@@ -454,7 +455,7 @@ if(!($core->input['action'])) {
 
                             /* get the currency rate of the Origin currency  of the current buudget and convert it - START */
                             if($budgetline['originalCurrency'] != $budgetsdata['current']['toCurrency']) {
-                                $fxrates_obj = BudgetFxRates::get_data(array('fromCurrency' => $budgetline['originalCurrency'], 'toCurrency' => $budgetsdata['current']['toCurrency'], 'affid' => $budgetsdata['current']['affiliates'], 'year' => $budgetsdata['current']['years'], 'isBudget' => 1), $dal_config);
+                                $fxrates_obj = BudgetFxRates::get_data(array('fromCurrency' => $budgetline['originalCurrency'], 'toCurrency' => $budgetsdata['current']['toCurrency'], 'affid' => $budget_obj->affid, 'year' => $budgetsdata['current']['years'], 'isBudget' => 1), $dal_config);
                                 if(is_array($fxrates_obj)) {
                                     foreach($fxrates_obj as $fxid => $fxrates) {
                                         $budgetline['amount'] = ($budgetline['amount'] * $fxrates->rate);
