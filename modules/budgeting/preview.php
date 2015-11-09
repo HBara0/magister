@@ -479,6 +479,9 @@ if(!($core->input['action'])) {
                                     $budgetline['commissionSplitAffName'] = $commissionsplitaff->name;
                                 }
                                 $localincome_cell .= '<td class="smalltext" style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="right" class="border_left">'.$budgetline['commissionSplitAffName'].'</td>';
+
+                                $total['localIncomeAmount']+=$budgetline['localIncomeAmount'];
+                                $total['invoicingEntityIncome'] +=$budgetline['invoicingEntityIncome'];
                             }
                             else {
                                 unset($localincome_cell, $budgetline['commissionSplitAffName'], $budgetline['localIncomeAmount'], $budgetline['localIncomePercentage'], $budgetline['invoicingEntityIncome']);
@@ -538,6 +541,15 @@ if(!($core->input['action'])) {
                 }
                 $budgetline['amount'] = number_format($total['amount']);
                 $budgetline['income'] = number_format($total['income']);
+
+
+                if($core->usergroup['budgeting_canFillLocalIncome'] == 1) {
+                    $localincome_cell = '<td class="smalltext" style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="right" class="border_left">'.number_format($total['localIncomeAmount']).'</td>';
+                    $localincome_cell .= '<td class="smalltext" style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="right" class="border_left">'.number_format($total['invoicingEntityIncome']).'</td>';
+                    $budgetline['commissionSplitAffName'] = '';
+                    $localincome_cell .= '<td class="smalltext" style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="right" class="border_left">'.$budgetline['commissionSplitAffName'].'</td>';
+                }
+
                 eval("\$totals_row = \"".$template->get('budgeting_budgetrawreport_row')."\";");
             }
             eval("\$budgeting_budgetrawreport = \"".$template->get('budgeting_budgetrawreport')."\";");
