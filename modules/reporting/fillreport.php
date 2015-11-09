@@ -96,9 +96,25 @@ if(!$core->input['action']) {
 //**  $session->set_phpsession(array('reportmeta_'.$identifier => serialize($core->input)));
 
         $productscount = 6; //Make it a setting
-
+//        if($core->input['auditor'] != 1) {
+//            $query_string = ' AND (uid='.$core->user['uid'].' OR uid=0)';
+//        }
         if($core->input['auditor'] != 1) {
-            $query_string = ' AND (uid='.$core->user['uid'].' OR uid=0)';
+            $query_string = ' AND (uid='.$core->user['uid'];
+
+            $fromusers = UsersTransferedAssignments::get_data(array('toUser' => $core->user['uid'], 'affid' => $core->input['affid'], 'eid' => $core->input['spid']), array('returnarray' => true));
+            if(is_array($fromusers)) {
+                foreach($fromusers as $fromuser) {
+                    $bm_ids[] = $fromuser->fromUser;
+                }
+                if(is_array($bm_ids)) {
+                    $bm_ids[] = 0;
+                    $query_string .= ' OR uid IN('.implode(', ', $bm_ids).')';
+                }
+            }
+            else {
+                $query_string .=' OR uid=0)';
+            }
         }
 
         $query = $db->query("SELECT pa.*, p.name AS productname
@@ -130,7 +146,14 @@ if(!$core->input['action']) {
                 if(is_array($usersegments)) {
                     $usersegments = array_keys($usersegments);
                     if(!in_array($segment['psid'], $usersegments) && $core->input['auditor'] != 1 && $core->user['uid'] != $productactivity['uid']) {
-                        continue;
+                        if(is_array($bm_ids)) {
+                            if(!in_array($productactivity['uid'], $bm_ids)) {
+                                continue;
+                            }
+                        }
+                        else {
+                            continue;
+                        }
                     }
                 }
                 unset($usersegments, $segment, $product);
