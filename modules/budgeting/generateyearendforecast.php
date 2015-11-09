@@ -372,7 +372,7 @@ else {
 
                             /* get the currency rate of the Origin currency  of the current buudget and convert it - START */
                             if($budgetline['originalCurrency'] != $budgetsdata['current']['toCurrency']) {
-                                $fxrates_obj = BudgetFxRates::get_data(array('fromCurrency' => $budgetline['originalCurrency'], 'toCurrency' => $budgetsdata['current']['toCurrency'], 'affid' => $budgetsdata['current']['affid'], 'year' => $budgetsdata['current']['years'], 'isYef' => 1), $dal_config);
+                                $fxrates_obj = BudgetFxRates::get_data(array('fromCurrency' => $budgetline['originalCurrency'], 'toCurrency' => $budgetsdata['current']['toCurrency'], 'affid' => $budget_obj->affid, 'year' => $budgetsdata['current']['years'], 'isYef' => 1), $dal_config);
                                 if(is_array($fxrates_obj)) {
                                     foreach($fxrates_obj as $fxid => $fxrates) {
                                         $budgetline['amount'] = ($budgetline['amount'] * $fxrates->rate);
@@ -395,6 +395,8 @@ else {
                             if($core->usergroup['budgeting_canFillLocalIncome'] == 1) {
                                 $localincome_cell = '<td class="smalltext" style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="right" class="border_left">'.$budgetline['localIncomeAmount'].'</td>';
                                 $localincome_cell .= '<td class="smalltext" style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="right" class="border_left">'.$budgetline['invoicingEntityIncome'].'</td>';
+                                $total['localIncomeAmount'] += $budgetline['localIncomeAmount'];
+                                $total['invoicingEntityIncome'] += $budgetline['invoicingEntityIncome'];
                             }
                             else {
                                 unset($localincome_cell, $budgetline['localIncomeAmount'], $budgetline['localIncomePercentage'], $budgetline['invoicingEntityIncome']);
@@ -464,6 +466,14 @@ else {
                 }
                 $budgetline['amount'] = number_format($total['amount']);
                 $budgetline['income'] = number_format($total['income']);
+
+                $budgetline['localIncomeAmount'] = number_format($total['localIncomeAmount']);
+                $budgetline['invoicingEntityIncome'] = number_format($total['invoicingEntityIncome']);
+                if($core->usergroup['budgeting_canFillLocalIncome'] == 1) {
+                    $localincome_cell = '<td class="smalltext" style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="right" class="border_left">'.$budgetline['localIncomeAmount'].'</td>';
+                    $localincome_cell .= '<td class="smalltext" style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="right" class="border_left">'.$budgetline['invoicingEntityIncome'].'</td>';
+                }
+
                 eval("\$totals_row = \"".$template->get('budgeting_yefrawreport_row')."\";");
             }
             eval("\$budgeting_budgetrawreport = \"".$template->get('budgeting_yefrawreport')."\";");
