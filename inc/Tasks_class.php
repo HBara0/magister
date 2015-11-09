@@ -71,8 +71,17 @@ class Tasks {
             $this->status = 1;
             return false;
         }
-
-        $data['dueDate'] = strtotime($data['dueDate']);
+        if(!isset($data['dueDate']) || empty($data['dueDate'])) {
+            if(isset($data['altDueDate']) && !empty($data['altDueDate'])) {
+                $data['dueDate'] = strtotime($data['altDueDate']);
+            }
+            else {
+                $data['dueDate'] = TIME_NOW + 604800;
+            }
+        }
+        else {
+            $data['dueDate'] = strtotime($data['dueDate']);
+        }
         if(value_exists('calendar_tasks', 'subject', $data['subject'], 'dueDate='.$data['dueDate'].' AND uid='.$db->escape_string($data['uid']))) {
             $this->status = 2;
             return false;
