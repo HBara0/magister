@@ -7,6 +7,15 @@
                 var auto_save = setInterval(function() {
                     $("input[id='perform_meetings/minutesmeeting_Button']").trigger("click");
                 }, 120000)
+
+                $(document).on("change", "input[id='meetingsNoMom_autocomplete']", function() {
+                    var id = $("input[id='meetingsNoMom_id']").val();
+                    if(typeof id != "undefind") {
+                        $("a[id^='sharemeeting_']").attr("id", "sharemeeting_" + id + "_meetings/list_loadpopupbyid");
+                        $("a[id^='sharemeeting_']").attr("rel", "share_" + id);
+                        $("span[id='sharemeeting_span']").show();
+                    }
+                });
             });
         </script>
     </head>
