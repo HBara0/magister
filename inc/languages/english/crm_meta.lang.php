@@ -94,4 +94,5 @@ $lang['chemicalexsist'] = 'Chemical Data Already Exists';
 $lang['description'] = 'Description';
 $lang['charasteristiclist'] = 'Characteristics List';
 $lang['classificationclass'] = 'Classification Class';
-?>
+$lang['finalized'] = 'Finalized';
+$lang['andlocked'] = ' And Locked';
