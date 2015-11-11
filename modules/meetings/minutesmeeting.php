@@ -163,7 +163,11 @@ if(!$core->input['action']) {
         /* parse Attachments ---END */
     }
 
-    $share_meeting .= ' <a href="#" id="sharemeeting_'.$meeting['mtid'].'_meetings/list_loadpopupbyid" rel="share_'.$meeting['mtid'].'" title="'.$lang->sharewith.'"><img src="'.$core->settings['rootdir'].'/images/icons/sharedoc.png" alt="'.$lang->sharewith.'" border="0"></a>';
+    $fieldsdisplay['sharemeeting'] = 'style="display:none;"';
+    if(isset($meeting['mtid']) && !empty($meeting['mtid'])) {
+        $fieldsdisplay['sharemeeting'] = 'style="display:block;"';
+    }
+    $share_meeting .= '<span '.$fieldsdisplay['sharemeeting'].' id="sharemeeting_span"> <a href="#" id="sharemeeting_'.$meeting['mtid'].'_meetings/list_loadpopupbyid" rel="share_'.$meeting['mtid'].'" title="'.$lang->sharewith.'"><img src="'.$core->settings['rootdir'].'/images/icons/sharedoc.png" alt="'.$lang->sharewith.'" border="0"></a></span>';
 
     eval("\$setminutesmeeting = \"".$template->get('meetings_minutesofmeetings')."\";");
     output_page($setminutesmeeting);

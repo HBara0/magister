@@ -109,7 +109,7 @@ if(!$core->input['action']) {
                 }
                 if(is_array($bm_ids)) {
                     $bm_ids[] = 0;
-                    $query_string .= ' OR uid IN('.implode(', ', $bm_ids).')';
+                    $query_string .= ' OR uid IN('.implode(', ', $bm_ids).'))';
                 }
             }
             else {

@@ -146,7 +146,7 @@ if(!$core->input['action']) {
                 }
             }
             $currencies_f = array_filter(array_unique($val_currencies));
-            $currencies_listf = parse_selectlist('segment['.$sequence.'][tmpfid]['.$frowid.'][currency]', 4, $currencies_f, '840');
+            $currencies_listf = parse_selectlist('segment['.$sequence.'][tmpfid]['.$frowid.'][currency]', 4, $currencies_f, '840', '', '', array("id" => 'segment_'.$sequence.'_tmpfid_'.$frowid.'_currency'));
             $segments_financess_output.=$currencies_listf;
             $finance_checksum = generate_checksum('finance');
             eval("\$finance_output = \"".$template->get('travelmanager_plantrip_segmentfinance')."\";");
@@ -423,7 +423,7 @@ else {
         $paidbyoptions = parse_selectlist('segment['.$sequence.'][tmhid]['.$otherhotel_checksum.'][entites]', 5, $paidby_entities, $selectedhotel->paidBy, 0, $paidby_onchangeactions);
         $currencies_f = $currencies;
         $frowid = 1;
-        $currencies_listf = parse_selectlist('segment['.$sequence.'][tmpfid]['.$frowid.'][currency]', 4, $currencies_f, $finance->currency);
+        $currencies_listf = parse_selectlist('segment['.$sequence.'][tmpfid]['.$frowid.'][currency]', 4, $currencies_f, $finance->currency, '', '', array("id" => 'segment_'.$sequence.'_tmpfid_'.$frowid.'_currency'));
         $finance_checksum = generate_checksum('finance');
         eval("\$finance_output = \"".$template->get('travelmanager_plantrip_segmentfinance')."\";");
 
@@ -654,7 +654,7 @@ else {
             }
         }
         $currencies_f = array_filter(array_unique($val_currencies));
-        $currencies_listf = parse_selectlist('segment['.$sequence.'][tmpfid]['.$frowid.'][currency]', 4, $currencies_f, 840);
+        $currencies_listf = parse_selectlist('segment['.$sequence.'][tmpfid]['.$frowid.'][currency]', 4, $currencies_f, 840, '', '', array("id" => 'segment_'.$sequence.'_tmpfid_'.$frowid.'_currency'));
         $segments_financess_output.=$currencies_listf;
         $finance_checksum = generate_checksum('finance');
         eval("\$finance_output = \"".$template->get('travelmanager_plantrip_segmentfinance')."\";");
@@ -736,5 +736,33 @@ else {
         }
         echo json_encode($returneddata);
     }
+//    elseif($core->input['action'] == 'validateamountneededinadvance') {
+//        if(!is_array($core->input['totalamounts'])) {
+//            $amountspayedinadvance = explode(',', $core->input['totalamounts']);
+//            $amountspayedinadvance = array_filter($amountspayedinadvance);
+//        }
+//        if(is_array($amountspayedinadvance)) {
+//            foreach($amountspayedinadvance as $amount) {
+//                $amount = explode(':', $amount);
+//                if(is_array($amount)) {
+//                    switch($amount[0]) {
+//                        case 'USD':
+//                            $amounts[$amount[0]] = $amount[1];
+//                            $total +=$amount[1];
+//                            break;
+//                        default:
+//                            $curr_obj = new Currencies($amount[0]);
+//                            $fxrate = $curr_obj->get_average_fxrate('USD');
+//                            if(!is_empty($fxrate)) {
+//                                $amounts[$amount[0]] = $fxrate * $amount[1];
+//                                $total += ($fxrate * $amount[1]);
+//                            }
+//                            break;
+//                    }
+//                }
+//            }
+//        }
+//        $total = $total;
+//    }
 }
 ?>

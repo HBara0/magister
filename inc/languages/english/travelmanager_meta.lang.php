@@ -304,4 +304,5 @@ $lang['helptour_savesec5'] = 'Save finance section details before proceeding to 
 $lang['selectevent'] = 'Select Event';
 $lang['backtotop'] = 'Back to Top';
 $lang['requestleavesubject'] = '{1} requested a {2} [{3}]';
+$lang['helptour_checkhotelslist'] = 'Please note that you can review the list of Orkila\'s approved hotels from the Hotels List page.'
 ?>
