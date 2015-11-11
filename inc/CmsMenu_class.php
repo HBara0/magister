@@ -46,6 +46,32 @@ class CmsMenu extends Cms {
         }
     }
 
+    public function update($data, array $options = array()) {
+        global $db, $log, $core, $errorhandler, $lang;
+        $this->menu = $data;
+
+        if(is_empty($this->menu['title'])) {
+            $this->status = 1;
+            return false;
+        }
+
+        if(!value_exists('cms_menus', 'title', $this->menu['title'])) {
+            $this->status = 3;
+            return false;
+        }
+
+        $this->menu['modifiedBy'] = $core->user['uid'];
+        $this->menu['modifiedOn'] = TIME_NOW;
+        $this->menu['title'] = $core->sanitize_inputs($this->menu['title'], array('removetags' => true));
+
+        if(is_array($this->menu)) {
+            $query = $db->update_query(Tprefix.'cms_menus', $this->menu, 'cmsmid ='.intval($this->menu['cmsmid']));
+            if($query) {
+                $log->record($db->last_id());
+            }
+        }
+    }
+
     public function create_menuitem($data) {
         global $db, $log, $core, $errorhandler, $lang;
         $this->menuitem = $data;
@@ -185,7 +211,7 @@ class CmsMenu extends Cms {
             $query_select = 'cmsmiid, parent,sequence';
         }
 
-        $query = $db->query("SELECT {$query_select} FROM ".Tprefix."cms_menuitems WHERE cmsmid=".$menuid." AND parent=0 ORDER BY title ASC");
+        $query = $db->query("SELECT {$query_select} FROM ".Tprefix."cms_menuitems WHERE cmsmid=".$menuid." AND parent=0 ORDER BY sequence ASC");
         if($db->num_rows($query)) {
             while($menu = $db->fetch_assoc($query)) {
                 $level = 'parent';
@@ -229,17 +255,20 @@ class CmsMenu extends Cms {
         foreach($menus as $id => $values) {
 
             if($parsetype == 'list') {
-                $editlink = '<a href="'.$core->settings['rootdir'].'/index.php?module=cms/managemenu&mitid='.$values['cmsmiid'].'" target="_blank"><img src="'.$core->settings['rootdir'].'/images/edit.gif"></a>';
-                $editlink .='<a href="index.php?module=cms/managemenu&type=addmenuitem&id='.$values['cmsmid'].'&parent='.$values['cmsmiid'].'" target="_blank"  title="'.$lang->addmenuitem.'"><img src="'.$core->settings['rootdir'].'/images/add.gif" border="0"/></a>';
+                $editlink = '&nbsp;&nbsp;<a href="'.$core->settings['rootdir'].'/index.php?module=cms/managemenu&mitid='.$values['cmsmiid'].'" target="_blank"><img src="'.$core->settings['rootdir'].'/images/edit.gif"></a>';
+                $editlink .='<a href="index.php?module=cms/managemenu&type=addmenuitem&id='.$values['cmsmid'].'&parent='.$values['cmsmiid'].'" target="_blank"  title="'.$lang->addmenuitem.'"><img src="'.$core->settings['rootdir'].'/images/addnew.png" border="0"/></a>';
                 $editlink .='<a href="#'.$values['cmsmiid'].'" id="deletemenuitem_'.$values['cmsmiid'].'_cms/listmenu_loadpopupbyid" title="'.$lang->deletemenuitem.'"><img src="'.$core->settings['rootdir'].'/images/invalid.gif" border="0"/></a>';
                 $menus_list .= '<li>';
                 if($values['sequence'] != '0' || !empty($values['sequence'])) {
                     $sequence = $values['sequence'].'- ';
                 }
-                $menus_list .= '<div style = "width: 75%; display:inline-block;">'.$sequence.$values['title'];
+                $menuitem_name = '<div style = "width: 80%;display:inline-block;">'.$sequence.$values['title'].$editlink;
                 if(is_array($values['children']) && !empty($values['children'])) {
-                    $menus_list .= ' <a href = "#menu_'.$values['cmsmiid'].'" id = "showmore_menuchildren_'.$values['cmsmiid'].'">&raquo;
+                    $menus_list .= ' <a style="font-weight:bold" href = "#menu_'.$values['cmsmiid'].'" id = "showmore_menuchildren_'.$values['cmsmiid'].'">'.$menuitem_name.'
                 </a>';
+                }
+                else {
+                    $menus_list .= $menuitem_name;
                 }
                 $menus_list .= '</div>';
                 if($values['children'] == 0) {
@@ -248,7 +277,7 @@ class CmsMenu extends Cms {
                 else {
                     $menus_list .= '<div style = "width: 10%; display:inline-block;">'.count($values['children']).'</div>';
                 }
-                $menus_list .= '<div style = "width: 10%; display:inline-block; text-align: right;">'.$editlink.'</div>';
+//                $menus_list .= '<div style = "width: 10%; display:inline-block; text-align: right;">'.$editlink.'</div>';
                 $menus_list .= '</li>';
                 $menus_list .='<hr>';
             }
@@ -279,6 +308,20 @@ class CmsMenu extends Cms {
 
 
         return $menus_list;
+    }
+
+    public function get() {
+        return $this->menu;
+    }
+
+    protected function read($id, $simple = false) {
+        global $db;
+
+        if(empty($id)) {
+            return false;
+        }
+
+        return $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."cms_menus WHERE cmsmid=".$db->escape_string($id)));
     }
 
 }

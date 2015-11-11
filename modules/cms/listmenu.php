@@ -26,6 +26,9 @@ if($core->usergroup['cms_canAddMenu'] == 0) {
 if(!$core->input['action']) {
     $sort_url = sort_url();
     $allmenus = new CmsMenu();
+    $menuar = array();
+    $actioname = 'do_createmenu';
+    eval("\$createmenu = \"".$template->get('popup_cms_listmeny_createmenu')."\";");
 
     $menu_details = $allmenus->get_menus();  /* Call main menu */
 
@@ -41,6 +44,7 @@ if(!$core->input['action']) {
             else {
                 $menulist['description'] = $menulist['description'];
             }
+            $menulist_editicon = '<a style="cursor: pointer;" title="'.$lang->update.'" id="updatemenu_'.$menuid.'_cms/listmenu_loadpopupbyid" rel="updatemenu_'.$menuid.'"><img src="'.$core->settings[rootdir].'/images/icons/edit.gif"/></a>';
             eval("\$cms_menuitmes_list_rows .= \"".$template->get('cms_menuitmes_list_rows')."\";");
         }
 
@@ -65,7 +69,6 @@ if(!$core->input['action']) {
     else {
         $cms_menuitmes_list_rows = '<tr><td colspan="7">'.$lang->na.'</td></tr>';
     }
-
     eval("\$menulist = \"".$template->get('cms_menu_list')."\";");
     output_page($menulist);
 }
@@ -103,5 +106,13 @@ elseif($core->input['action'] == "do_deletemenuitem") {
     else {
         output_xml("<status>false</status><message>".$lang->cannotdeleteentry."</message>");
     }
+}
+elseif($core->input['action'] == "get_updatemenu") {
+    $id = intval($core->input['id']);
+    $menu_obj = new CmsMenu($id);
+    $actioname = 'do_updatemenu';
+    $menuar = $menu_obj->get();
+    eval("\$createmenu = \"".$template->get('popup_cms_listmeny_createmenu')."\";");
+    echo($createmenu);
 }
 ?>
