@@ -183,7 +183,7 @@ class BudgetingYEFLines extends AbstractClass {
         unset($data['blid']);
 
         if(!empty($this->data['linkedBudgetLine'])) {
-            $ic_budgetline = new BudgetingYearEndForecast($this->data['linkedBudgetLine']);
+            $ic_budgetline = new BudgetingYEFLines($this->data['linkedBudgetLine']);
             if(!empty($ic_budgetline->modifiedOn)) {
                 return;
             }
