@@ -449,12 +449,10 @@ class TravelManagerPlanSegments extends AbstractClass {
 
         if($externalpurpose_assignees < $saved_seg_purposes['external']) {
             $this->errorcode = 2;
-            $errorhandler->record('Required Fields', 'External Purposes party');
+            $errorhandler->record('Required Fields', 'External purposes partner');
             return $this;
         }
 
-
-        //    }
         // unset($segmentdata['savesection']);
         $transptdata = $segmentdata['tmtcid'];
         $trasnp_count = $transp_errorcode = 0;

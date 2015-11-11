@@ -154,13 +154,11 @@
                 });
                 $(document).on("change", "input[id$='expamount']", function() {
                     var id = $(this).attr('id').split("_");
-                    alert("this" + id)
                     var from = new Date($("input[id='pickDate_from_" + id[1] + "']").val());
                     var to = new Date($("input[id='pickDate_to_" + id[1] + "']").val());
                     var timeDiff = Math.abs(to.getTime() - from.getTime());
                     var numnights = Math.ceil(timeDiff / (1000 * 3600 * 24));
                     var expensetype = $("select[id='segment_expensestype_" + id[1] + "_" + id[2] + "']").val();
-                    alert("fandb_warning_" + id[1] + "_" + id[2]);
                     sharedFunctions.requestAjax("post", "index.php?module=travelmanager/plantrip&action=validatefandbexpenses", "&amount=" + $("input[id='expenses" + "_" + id[1] + "_" + id[2] + "_expamount']").val() + "&numnights=" + numnights + "&currency=" + $("select[id='currency" + "_" + id[1] + "_" + id[2] + "_list']").val() + "&expensetype=" + expensetype, "fandb_warning_" + id[1] + "_" + id[2], "fandb_warning_" + id[1] + "_" + id[2], true);
                 });
                 $(document).on("change", "select[id^='currency'][id$='list']", function() {
@@ -211,7 +209,6 @@
                         // $('input[id^="destinationcity_' + nextsegid + '"]').trigger('change');
                     }
                 });
-
                 $(document).on('click', 'input[id^="noAccomodation_"]', function() {
                     var id = $(this).attr("id").split("_");
                     $('#segment_hotels_' + id[1] + ', #other_hotels_' + id[1]).toggle('fade', 500);
@@ -219,7 +216,6 @@
                     //     $('#segment_hotels_' + id[1] + ', #other_hotels_' + id[1]).find('input').val("")
                     // }
                 });
-
                 if($('input[id^="specifyaffent_"]').is(':checked')) {
                     var id = $('input[id^="specifyaffent_"]').attr("id").split("_");
                     $('tr[id="specifyaffent_' + id[1] + '_block"]').show();
@@ -244,6 +240,12 @@
                     return false;
                 });
                 $(document).on('change', 'input[name^="segment"][name$="[fare]"],input[name^="segment"][name$="[subtotal]"],select[name^="segment"][name$="[currency]"],input[name^="segment"][name$="[expectedAmt]"]', function() {
+                    var id = $(this).attr("id").split('_');
+                    if(typeof id[2] != 'undefined') {
+                        if(id[2] == 'tmpfid') {
+                            return;
+                        }
+                    }
                     populate_suggestions(this);
                 });
                 $(document).on('click', 'button[id^="airflights_button_"]', function() {
@@ -269,10 +271,10 @@
                     }
                 });
             });
+            var total = {
+            };
             function populate_suggestions(obj) {
                 var id = $(obj).attr("id").split("_");
-                var total = {
-                };
                 $('input[id^="segment_' + id[1] + '_"][id$="_fare"]').each(function(i, obj) {
                     var fareid = $(obj).attr("name").slice(0, -6);
                     var farecur = $('select[name="' + fareid + '[currency]"] option:selected').text();
@@ -444,8 +446,6 @@
                 }
                 $("p[id='pickDateto_warning_" + segid + "']").html('');
             });
-
-
             $(document).on('click', "input[id^='preview']", function() {
                 var data = $("form").serialize();
                 var previewlink = rootdir + $("input[id='preview_link']").val();
@@ -459,6 +459,38 @@
             }
                 });
             });
+            $(document).on('change', "input[id^='segment'][id$='amount'],select[name^='segment'][name$='currency]']", function() {
+                var totalamounts = '';
+                $.each(total, function(index, val) {
+                    $('input[id^="segment"][id$="amount"]').each(function(i, obj) {
+                        var id = $(obj).attr("id").split("_");
+                        var curramount = $(obj).val()
+                        var currency = $('select[name="segment[' + id[1] + '][tmpfid][' + id[3] + '][currency]"] option:selected').text();
+                        if(currency == index) {
+                            if(curramount > val + ((val * 10) / 100)) {
+                                $("td[id='segment_" + id[1] + "_tmpfid_" + id[3] + "_results']").html("You are asking in advance for 10% more than the planned amount in " + index);
+                            } else {
+                                $("td[id='segment_" + id[1] + "_tmpfid_" + id[3] + "_results']").html("");
+                            }
+                        }
+                    });
+                });
+
+                var id = $(this).attr("id").split("_");
+                if(id[4] == 'currency') {
+                    var currency_matched = false;
+                    $.each(total, function(index, val) {
+                        var curr = $('select[name="segment[' + id[1] + '][tmpfid][' + id[3] + '][currency]"] option:selected').text();
+                        if(curr == index) {
+                            currency_matched = true;
+                        }
+                    });
+                    if(currency_matched == false) {
+                        $("td[id='segment_" + id[1] + "_tmpfid_" + id[3] + "_results']").html("");
+                    }
+                }
+            });
+
 
         </script>
         <style type="text/css">
