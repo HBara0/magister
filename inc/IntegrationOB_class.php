@@ -1382,11 +1382,11 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                 if(is_object($product)) {
                     $invoice->bpartner_name = $product->get_supplier()->name;
                 }
-                if(empty($invoice->bpartner_name)) {
+                if(empty($invoice->bpartner_name) || strstr($invoice->bpartner_name, 'Orkila')) {
                     if(is_object($inputstack)) {
                         $invoice->bpartner_name = $inputstack->get_supplier()->name;
                     }
-                    if(empty($invoice->bpartner_name)) {
+                    if(empty($invoice->bpartner_name) || strstr($invoice->bpartner_name, 'Orkila')) {
                         $invoice->bpartner_name = $line->get_product_local()->get_supplier()->name;
                     }
                     if(empty($invoice->bpartner_name)) {
@@ -1397,7 +1397,6 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                 if(!empty($options['reportcurrency'])) {
                     $reportcurrency = new Currencies($options['reportcurrency']);
                     $fxrate = $reportcurrency->get_fxrate_bytype($options['fxtype'], $currency->iso_code, array('from' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 01:00'), 'to' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 24:00'), 'year' => date('Y', $invoice->dateinvoiceduts), 'month' => date('m', $invoice->dateinvoiceduts)), array('precision' => 4));
-
                     if(!empty($fxrate)) {
                         $data['salerep']['linenetamt'][$invoice->salesrep_id][$invoice->dateparts['year']][$invoice->dateparts['mon']] += $line->linenetamt / $fxrate;
                         //   $data['products']['linenetamt'][$line->m_product_name][$invoice->dateparts['year']][$invoice->dateparts['mon']] += $line->linenetamt / $fxrate;
@@ -1411,13 +1410,11 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                 }
                 else {
                     $data['salerep']['linenetamt'][$invoice->salesrep_id][$invoice->dateparts['year']][$invoice->dateparts['mon']] += $line->linenetamt;
-
                     $dataperday['salerep']['linenetamt'][$invoice->salesrep_id][$invoice->dateparts['year']][$invoice->dateparts['mon']][$invoice->dateparts['mday']] += $line->linenetamt;
                     $dataperday['products']['linenetamt'][$line->m_product_name][$invoice->dateparts['year']][$invoice->dateparts['mon']][$invoice->dateparts['mday']]+= $line->linenetamt;
                     $dataperday['suppliers']['linenetamt'][$invoice->bpartner_name][$invoice->dateparts['year']][$invoice->dateparts['mon']][$invoice->dateparts['mday']] += $line->linenetamt;
                 }
             }
-            //   $data['monthdata']=  array_sum();
             $data['dataperday'] = $dataperday;
             return $data;
         }
@@ -1550,7 +1547,7 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
         global $lang, $core;
 
         $css_styles['header'] = 'background-color: #F1F1F1;';
-        $css_styles['altrow'] = 'background-color: #f7fafd;;';
+        $css_styles['altrow'] = 'background-color:#D0F6AA;'; #f7fafd;;';
 
         $tableindexes = array('products', 'suppliers', 'salerep');
         foreach($tableindexes as $tableindex) {
@@ -1567,6 +1564,7 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                 default:
                     break;
             }
+            $rowstyle = $css_styles['altrow'];
             if(is_array($classification[$tableindex])) {
                 foreach($classification[$tableindex] as $classificationtype => $classificationdata) {
                     if(is_array($classificationdata)) {
@@ -1628,33 +1626,23 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                                     else {
                                         $numfmt->setPattern("#0.##");
                                     }
-                                    $output .= '<td style="text-align:left;">'.$numfmt->format($data).'</td>'; //$formatter->format($data)
+                                    $output .= '<td style="text-align:right;">'.$numfmt->format($data).'</td>';
                                 }
                                 if($classificationtype != 'wholeperiod' && $classificationtype != 'byquarter') {
-                                    $output .= '<td>'.$position.'</td>';
+                                    $output .= '<td style="text-align:center;">'.$position.'</td>';
                                 }
                                 $output .='</tr>';
                             }
                             unset($position);
-                            if(empty($rowstyle)) {
-                                $rowstyle = $css_styles['altrow'];
-                            }
-                            else {
-                                $rowstyle = '';
-                            }
+//                            if(empty($rowstyle)) {
+//                                $rowstyle = $css_styles['altrow'];
+//                            }
+//                            else {
+//                                $rowstyle = '';
+//                            }
                             $rank++;
                         }
                         $output .= '</table><br/>';
-                        if($classname == 'IntegrationOBUser') {
-                            $topofthemonth_obj = new $object($topofthemonthid);
-                            if(is_object($topofthemonth_obj)) {
-                                $topofthemonth_obj_name = $topofthemonth_obj->name;
-                            }
-                        }
-                        else {
-                            $topofthemonth_obj_name = $id;
-                        }
-                        $output .='<div style="font-weight:bold;">Top '.$lang->$tableindex.' '.$lang->$classificationtype.' : '.$topofthemonth_obj_name.'</div><br/>';
                         $output .='<div style="width:100%;"><h2>'.$lang->chart.' <small>(K Table Amounts )</small> </h2>';
                         $output .= '<img src="data:image/png;base64,'.base64_encode(file_get_contents($this->parse_classificaton_charts($classificationdata[$tableindex], $tableindex))).'" />';
                         $output .= '</div><br/>';
