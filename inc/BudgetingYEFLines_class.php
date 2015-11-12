@@ -163,7 +163,7 @@ class BudgetingYEFLines extends AbstractClass {
     }
 
     public function save_interco_line($data) {
-        global $core;
+        global $core, $db;
 
         if(empty($data['interCompanyPurchase'])) {
             return;
@@ -231,7 +231,9 @@ class BudgetingYEFLines extends AbstractClass {
         $ic_budgetline = new BudgetingYEFLines();
         $ic_budgetline->save($data);
 
-        $this->update(array('linkedBudgetLine' => $ic_budgetline->yeflid));
+        if(!empty($this->{self::PRIMARY_KEY})) {
+            $db->update_query(self::TABLE_NAME, array('linkedBudgetLine' => $ic_budgetline->yeflid), self::PRIMARY_KEY.'='.$this->{self::PRIMARY_KEY});
+        }
     }
 
     public function delete_interco_line() {
