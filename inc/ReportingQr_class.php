@@ -594,7 +594,7 @@ class ReportingQr Extends Reporting {
 
             if($processed_once === true) {
                 if(is_array($cachearr['usedpaid'])) {
-                    //$delete_query_where = ' OR paid NOT IN ('.implode(', ', $cachearr['usedpaid']).')';
+//$delete_query_where = ' OR paid NOT IN ('.implode(', ', $cachearr['usedpaid']).')';
                 }
 
                 $db->query("DELETE FROM ".Tprefix."productsactivity WHERE rid=".$this->report['rid']." AND (pid NOT IN (".implode(', ', $cachearr['usedpids'])."){$delete_query_where}){$existingentries_query_string}");
@@ -743,6 +743,59 @@ class ReportingQr Extends Reporting {
 
         if($db->num_rows($user_recipients_query) > 0) {
             return $db->fetch_assoc($user_recipients_query);
+        }
+        return false;
+    }
+
+    public function auditor_ratings($supplierid = '', $userid = '') {
+        if(!empty($supplierid)) {
+            $supplier_where = ' AND eid = '.intval($supplierid);
+        }
+        $suppliers = Entities::get_column('eid', 'type="s" AND approved=1 AND noQReportReq=0'.$supplier_where, array('operators' => array('filter' => 'CUSTOMSQLSECURE'), 'returnarray' => true));
+        if(!empty($userid)) {
+            $userwhere = ' AND uid = '.intval($userid);
+        }
+        $users = Users::get_column('uid', 'gid != 7'.$userwhere, array('operators' => array('filter' => 'CUSTOMSQLSECURE'), 'returnarray' => true));
+        $quarter = currentquarter_info(true);
+        if(is_array($suppliers) && is_array($users)) {
+            if($quarter['quarter'] == 1) {
+                $quarter['quarter'] = 4;
+                $quarter['year'] = $quarter['year'] - 1;
+            }
+            else {
+                $quarter['quarter'] --;
+            }
+            if($quarter['quarter'] == 4) {
+                $month = 1;
+            }
+            else {
+                $month = ($quarter['quarter'] * 3) + 1;
+            }
+
+            $duedate = strtotime($quarter['year'].'-'.$month.'-15');
+            $supplieraudits = SupplierAudits::get_data(array('eid' => $suppliers, 'uid' => $users), array('returnarray' => true));
+            if(is_array($supplieraudits)) {
+                foreach($supplieraudits as $audit) {
+                    $supplier_qreports = ReportingQr::get_reports(array('filter_where' => 'type = "q" AND spid = '.$audit->eid.' AND year = '.$quarter['year'].' AND quarter = '.$quarter['quarter']));
+                    if(is_array($supplier_qreports)) {
+                        foreach($supplier_qreports as $supplier_qreport) {
+                            if(!isset($data[$audit->uid]['count'])) {
+                                $data[$audit->uid]['count'] = 1;
+                            }
+                            else {
+                                $data[$audit->uid]['count'] ++;
+                            }
+                            if(isset($supplier_qreport->finishDate) && !empty($supplier_qreport->finishDate) && $supplier_qreport->isLocked == 1) {
+                                $data[$audit->uid][$supplier_qreport->affid][$audit->eid]['finished'] = $supplier_qreport->finishDate - $duedate;
+                            }
+                            else {
+                                $data[$audit->uid][$supplier_qreport->affid][$audit->eid]['remaining'] = $duedate - TIME_NOW;
+                            }
+                        }
+                    }
+                }
+                return $data;
+            }
         }
         return false;
     }
