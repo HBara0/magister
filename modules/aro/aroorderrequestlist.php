@@ -11,7 +11,7 @@
 if(!defined('DIRECT_ACCESS')) {
     die('Direct initialization of this file is not allowed.');
 }
-if($core->usergroup['aro_canManagePolicies'] == 0) {
+if($core->usergroup['canUseAro'] == 0) {
     error($lang->sectionnopermission);
     exit;
 }
