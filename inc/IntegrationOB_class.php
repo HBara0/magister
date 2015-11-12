@@ -2939,4 +2939,34 @@ class IntegrationOBIAttachments extends IntegrationAbstractClass {
     }
 
 }
+
+class IntegrationOBBPCustAcct extends IntegrationAbstractClass {
+    protected $data;
+    protected $f_db;
+
+    const PRIMARY_KEY = 'c_bp_customer_acct_id';
+    const TABLE_NAME = 'c_bp_customer_acct';
+    const DISPLAY_NAME = '';
+    const CLASSNAME = __CLASS__;
+
+    public function __construct($id, $f_db = NULL) {
+        parent::__construct($id, $f_db);
+    }
+
+}
+
+class IntegrationOBValidCombination extends IntegrationAbstractClass {
+    protected $data;
+    protected $f_db;
+
+    const PRIMARY_KEY = 'c_validcombination_id';
+    const TABLE_NAME = 'c_validcombination';
+    const DISPLAY_NAME = '';
+    const CLASSNAME = __CLASS__;
+
+    public function __construct($id, $f_db = NULL) {
+        parent::__construct($id, $f_db);
+    }
+
+}
 ?>
