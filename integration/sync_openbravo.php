@@ -20,7 +20,8 @@ if($core->input['authCode'] == AUTHCODE) {
             'BD9DC2F7883B4E11A90B02A9A47991DC' => 1, //Orkila Lebanon
             '933EC892369245E485E922731D46FCB1' => 20, //Orkila Senegal
             '51FB1280AB104EFCBBB982D50B3B7693' => 21, //Orkila CI
-            '7AD08388D369403A9DF4B8240E3AD7FF' => 27 //Orkila International
+            '7AD08388D369403A9DF4B8240E3AD7FF' => 27, //Orkila International
+            'ED9F0447A2484096B8B0FFF4EC389100' => 2//Orkila Jordan
     );
 
     $sync_documents = array(
@@ -31,10 +32,11 @@ if($core->input['authCode'] == AUTHCODE) {
             'BD9DC2F7883B4E11A90B02A9A47991DC' => 'invoice', //Orkila Lebanon
             '933EC892369245E485E922731D46FCB1' => 'invoice', //Orkila Senegal
             '51FB1280AB104EFCBBB982D50B3B7693' => 'invoice', //Orkila CI
-            '7AD08388D369403A9DF4B8240E3AD7FF' => 'invoice' //Orkila International
+            '95CA85F7EDF147B193EBDF29565DCEB5' => 'invoice', //Orkila International,
+            'ED9F0447A2484096B8B0FFF4EC389100' => 'invoice' //Orkila Jordan
     );
 
-    $integration = new IntegrationOB($db_info, 'C08F137534222BD001345B7B2E8F182D', $affiliates_index, 3, array('from' => '2011-01-01'));
+    $integration = new IntegrationOB($db_info, 'C08F137534222BD001345B7B2E8F182D', $affiliates_index, 3, array('from' => '2015-01-01'));
 
     $status = $integration->get_status();
     if(!empty($status)) {
