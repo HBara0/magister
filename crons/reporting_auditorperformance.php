@@ -28,13 +28,13 @@ if(is_array($data)) {
         $supsids = array();
         $coord_obj = new Users($uid);
         if(is_array($coordata)) {
-            foreach($coordata as $type => $numbers) {
-                if($type == 'count') {
+            foreach($coordata as $supplierid => $numbers) {
+                if($supplierid == 'count') {
                     continue;
                 }
                 if(is_array($numbers)) {
-                    $affiliate = new Affiliates($type);
-                    foreach($numbers as $supplierid => $offsetdata) {
+                    foreach($numbers as $type => $offsetdata) {
+                        $affiliate = new Affiliates($type);
                         $maxfin = $maxdue = 0;
                         if(is_array($offsetdata)) {
                             foreach($offsetdata as $offsettype => $offset) {
@@ -83,26 +83,26 @@ if(is_array($data)) {
                                 unset($offset_output, $linestatus);
                             }
                         }
-                        if(!in_array($supplierid, $supsids)) {
-                            $supplier = new Entities($supplierid);
-                            $totalreports ++;
-                            $supsids[] = $supplierid;
-                            if($maxdue != 0) {
-                                $supstatus = ':&nbsp;&nbsp;&nbsp;(Report Still Unfinalized : '.$maxdue.' days remaining)';
-                                $suppoutput = '<ul type="circle">'.$listitems_unfin.'</ul>';
-                            }
-                            elseif($maxfin != 0) {
-                                $supstatus = ':&nbsp;&nbsp;&nbsp;(Finalized : '.$maxfin.' days late from the 15th of the month)';
-                                $suppoutput = '<ul type="circle">'.$listitems_fin.'</ul>';
-                            }
-                            else {
-                                $supstatus = ':&nbsp;&nbsp;&nbsp;(Finalized And Sent On Time)';
-                            }
-                            $supplieroutput .= '<ul type="disc"> '.$supplier->get_displayname().' '.$supstatus.$suppoutput.'</ul><br>';
-                        }
-                        unset($supplier, $suppoutput, $supstatus, $listitems_unfin, $listitems_fin);
                     }
                 }
+                if(!in_array($supplierid, $supsids)) {
+                    $supplier = new Entities($supplierid);
+                    $totalreports ++;
+                    $supsids[] = $supplierid;
+                    if($maxdue != 0) {
+                        $supstatus = ':&nbsp;&nbsp;&nbsp;(Report Still Unfinalized : '.$maxdue.' days remaining)';
+                        $suppoutput = '<ul type="circle">'.$listitems_unfin.'</ul>';
+                    }
+                    elseif($maxfin != 0) {
+                        $supstatus = ':&nbsp;&nbsp;&nbsp;(Finalized : '.$maxfin.' days late from the 15th of the month)';
+                        $suppoutput = '<ul type="circle">'.$listitems_fin.'</ul>';
+                    }
+                    else {
+                        $supstatus = ':&nbsp;&nbsp;&nbsp;(Finalized And Sent On Time)';
+                    }
+                    $supplieroutput .= '<ul type="disc"> '.$supplier->get_displayname().' '.$supstatus.$suppoutput.'</ul><br>';
+                }
+                unset($supplier, $suppoutput, $supstatus, $listitems_unfin, $listitems_fin);
             }
         }
         if($unflate > 0) {

@@ -786,10 +786,10 @@ class ReportingQr Extends Reporting {
                                 $data[$audit->uid]['count'] ++;
                             }
                             if(isset($supplier_qreport->finishDate) && !empty($supplier_qreport->finishDate) && $supplier_qreport->isLocked == 1) {
-                                $data[$audit->uid][$supplier_qreport->affid][$audit->eid]['finished'] = $supplier_qreport->finishDate - $duedate;
+                                $data[$audit->uid][$audit->eid][$supplier_qreport->affid]['finished'] = $supplier_qreport->finishDate - $duedate;
                             }
                             else {
-                                $data[$audit->uid][$supplier_qreport->affid][$audit->eid]['remaining'] = $duedate - TIME_NOW;
+                                $data[$audit->uid][$audit->eid][$supplier_qreport->affid]['remaining'] = $duedate - TIME_NOW;
                             }
                         }
                     }
