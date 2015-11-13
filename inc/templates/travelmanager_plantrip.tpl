@@ -271,9 +271,11 @@
                     }
                 });
             });
-            var total = {
+            var totalamountneeded = {
             };
             function populate_suggestions(obj) {
+                var total = {
+                };
                 var id = $(obj).attr("id").split("_");
                 $('input[id^="segment_' + id[1] + '_"][id$="_fare"]').each(function(i, obj) {
                     var fareid = $(obj).attr("name").slice(0, -6);
@@ -392,6 +394,7 @@
                             if(numchecked == 1 && $('input[id="' + completeid + '"][value="' + $("input[id='eventpurposeid']").val() + '"]').is(":checked")) {
                                 empty = 1;
                             }
+                            alert(empty);
                             if(empty == 1) {
                                 $('[data-purposes="' + id[2] + '_' + id[3] + '"]').each(function(i, obj) {
                                     $(obj).find('input').val('');
@@ -415,8 +418,11 @@
                 if(ptext.length > 0) {
                     $('p[id="finance_' + id[1] + '_suggestion"]').text(ptext);
                 }
-
+                totalamountneeded = total;
             }
+
+
+
             $(document).on('change', "input[id^='checkbox_show_othertransps_']", function() {
                 var id = $(this).attr('id').split('_');
                 if(this.checked) {
@@ -461,7 +467,7 @@
             });
             $(document).on('change', "input[id^='segment'][id$='amount'],select[name^='segment'][name$='currency]']", function() {
                 var totalamounts = '';
-                $.each(total, function(index, val) {
+                $.each(totalamountneeded, function(index, val) {
                     $('input[id^="segment"][id$="amount"]').each(function(i, obj) {
                         var id = $(obj).attr("id").split("_");
                         var curramount = $(obj).val()
@@ -479,7 +485,7 @@
                 var id = $(this).attr("id").split("_");
                 if(id[4] == 'currency') {
                     var currency_matched = false;
-                    $.each(total, function(index, val) {
+                    $.each(totalamountneeded, function(index, val) {
                         var curr = $('select[name="segment[' + id[1] + '][tmpfid][' + id[3] + '][currency]"] option:selected').text();
                         if(curr == index) {
                             currency_matched = true;

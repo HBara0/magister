@@ -70,13 +70,15 @@
   <!-- <div class="subtitle">{}Approved Hotels</div>-->
     {$otherhotels_output}
 </div>
-<div style="display: inline-block;width:50%;vertical-align: top;margin-bottom: 50px;margin-top: 100px;">
-    <input type="hidden" id="save_section_{$sequence}_3_input" value="0" name="segment[{$sequence}][savesection][section3]"/>
-    <a id="save_section_{$sequence}_3" style="width:30%;float:right;padding:10px;text-align: center;background-color:#690;font-weight:bold;font-size:15px;">Save & Proceed
-        <img src="{$core->settings['rootdir']}/images/chevron-down.png"/>
-    </a>
+<div>
+    <div style="display: inline-block;width:50%;vertical-align: top;margin-bottom: 50px;margin-top: 100px;">
+        <input type="hidden" id="save_section_{$sequence}_3_input" value="0" name="segment[{$sequence}][savesection][section3]"/>
+        <a id="save_section_{$sequence}_3" style="width:30%;float:right;padding:10px;text-align: center;background-color:#690;font-weight:bold;font-size:15px;">Save & Proceed
+            <img src="{$core->settings['rootdir']}/images/chevron-down.png"/>
+        </a>
+    </div>
+    <div style="display: inline-block;width: 30%;vertical-align: top;margin-top: 100px;margin-left: 75px;" id="sectionresults_3"></div>
 </div>
-<div style="display: inline-block;width: 30%;vertical-align: top;margin-top: 100px;margin-left: 75px;" id="sectionresults_3"></div>
 <div style="display:block; width: 100%;" id="segment_expenses_{$sequence}">
     <input name="sequence" type="hidden" id="sequence" value="{$sequence}">
     <h2 class="subtitle" style="padding:8px;width:40%;" id="addexpensessetionheader_{$sequence}">{$lang->addexp}</h2>
