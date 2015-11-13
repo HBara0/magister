@@ -210,8 +210,6 @@ else {
                             $invoiceline->purchaseprice = 0;
                         }
                     }
-
-
                     if(!empty($invoice->usdfxrate)) {
                         $invoiceline->costusd = $invoiceline->costlocal_invoicecurr / $invoice->usdfxrate;
                     }
@@ -228,6 +226,7 @@ else {
                         if(!empty($invoice->localfxrate)) {
                             $invoiceline->priceactual /= $invoice->localfxrate;
                             $invoiceline->linenetamt /= $invoice->localfxrate;
+                            $invoiceline->purchaseprice /=$invoice->localfxrate;
                         }
                         else {
                             unset($invoiceline);
@@ -235,9 +234,13 @@ else {
                         }
                     }
 
+                    $invoiceline->unitcostlocal = $invoiceline->unitcostlocal / 1000;
+                    $invoiceline->unitcostusd = $invoiceline->unitcostusd / 1000;
+
                     $invoiceline->costlocal = $invoiceline->costlocal / 1000;
                     $invoiceline->costusd = $invoiceline->costusd / 1000;
-                    $invoiceline->grossmargin = $invoiceline->linenetamt - (($invoiceline->purchaseprice * $invoiceline->qtyinvoiced) / 1000);
+                    $invoiceline->purchaseprice = $invoiceline->purchaseprice / 1000;
+                    $invoiceline->grossmargin = $invoiceline->linenetamt - ($invoiceline->purchaseprice * $invoiceline->qtyinvoiced);
                     if(!empty($invoice->usdfxrate)) {
                         $invoiceline->grossmarginusd = $invoiceline->grossmargin / $invoice->usdfxrate;
                     }
@@ -574,10 +577,10 @@ else {
             $recipients = array_unique($recipients);
             $mailer->set_to($recipients);
 
-            $mailer->set_to('zaher.reda@orkila.com');
-            print_r($mailer->debug_info());
-            exit;
-            //  $mailer->send();
+//            $mailer->set_to('zaher.reda@orkila.com');
+//            print_r($mailer->debug_info());
+//            exit;
+            $mailer->send();
             if($mailer->get_status() === true) {
                 $sentreport = new ReportsSendLog();
                 $sentreport->set(array('affid' => $affiliate->get_id(), 'report' => 'salesreport', 'date' => TIME_NOW, 'sentBy' => $core->user['uid'], 'sentTo' => ''))->save();
