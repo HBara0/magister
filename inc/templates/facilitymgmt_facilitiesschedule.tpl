@@ -7,7 +7,7 @@
         <script src="{$core->settings[rootdir]}/js/fullcalendar.js" type="text/javascript"></script>
 
         <script>
-            $(document).ready(function() {
+            $(document).ready(function () {
                 //   var reservations ={$reserved_data};
                 //    var reservedData = [];
                 //    for(var data in reservations) {
@@ -26,18 +26,18 @@
                     events: {
                         type: 'POST',
                         url: '{$core->settings['rootdir']}/index.php?module=facilitymgmt/facilitiesschedule&action=fetchevents',
-                        error: function() {
+                        error: function () {
                             $('#script-warning').show();
                         }
 
                     },
-                    loading: function(bool) {
+                    loading: function (bool) {
                         $('#loading').toggle(bool);
                     }
 
                 });
 
-                setInterval(function() {
+                setInterval(function () {
                     $('#calendar').fullCalendar('refetchEvents')
                 }, 30000);
 
@@ -45,13 +45,6 @@
 
         </script>
         <style>
-            body {
-                margin: 40px 10px;
-                padding: 0;
-                font-family: "Lucida Grande",Helvetica,Arial,Verdana,sans-serif;
-                font-size: 14px;
-            }
-
             #calendar {
                 max-width: 900px;
                 margin: 0 auto;
@@ -65,16 +58,9 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-
-
-
             <div id='calendar'></div>
-
-
         </td>
     </tr>
-
     {$footer}
 </body>
-
 </html>
