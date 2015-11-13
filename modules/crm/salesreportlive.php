@@ -201,8 +201,16 @@ else {
                             $ioinvoiceline = $input_inoutline->get_invoiceline();
                             if(is_object($ioinvoiceline)) {
                                 $invoiceline->purchaseprice = $ioinvoiceline->priceactual;
-                                $invoiceline->purchasecurr = $ioinvoiceline->get_invoice()->get_currency()->uomsymbol;
+                                $invoiceline->purchasecurr = $ioinvoiceline->get_invoice()->get_currency()->iso_code;
                                 $invoiceline->purchasepriceusd = 0;
+                                if($orgcurrency->iso_code != $invoiceline->purchasecurr) {
+                                    $invoice->purchaseprice_localfxrate = $currency_obj->get_fxrate_bytype($core->input['fxtype'], $invoiceline->purchasecurr, array('from' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 01:00'), 'to' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 24:00'), 'year' => date('Y', $invoice->dateinvoiceduts), 'month' => date('m', $invoice->dateinvoiceduts)), array('precision' => 4));
+                                }
+                                if($usdcurrency_obj->alphaCode != $invoiceline->purchasecurr) {
+                                    $invoice->purchaseprice_usdfxrate = $usdcurrency_obj->get_fxrate_bytype($core->input['fxtype'], $invoiceline->purchasecurr, array('from' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 01:00'), 'to' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 24:00'), 'year' => date('Y', $invoice->dateinvoiceduts), 'month' => date('m', $invoice->dateinvoiceduts)), array('precision' => 4));
+                                    $invoiceline->purchasepriceusd = $invoiceline->purchaseprice / $invoice->purchaseprice_usdfxrate;
+                                }
+                                $invoiceline->purchaseprice /= $invoice->purchaseprice_localfxrate;
                             }
                             unset($ioinvoiceline);
                         }
@@ -226,7 +234,6 @@ else {
                         if(!empty($invoice->localfxrate)) {
                             $invoiceline->priceactual /= $invoice->localfxrate;
                             $invoiceline->linenetamt /= $invoice->localfxrate;
-                            $invoiceline->purchaseprice /=$invoice->localfxrate;
                         }
                         else {
                             unset($invoiceline);
@@ -567,10 +574,16 @@ else {
             $mailer->set_from(array('name' => 'OCOS Mailer', 'email' => $core->settings['maileremail']));
             $mailer->set_subject('Sales Report '.$affiliate->name.' '.$core->input['fromDate'].' - '.$core->input['toDate']);
             $mailer->set_message($salesreport);
+
+            $finManager = $affiliate->get_financialemanager();
+            if(!is_object($finManager)) {
+                $finManager = new Users($core->$settings['gfinancialManager_id']);
+            }
             $recipients = array(
                     $affiliate->get_generalmanager()->email,
                     $affiliate->get_supervisor()->email,
-                    $affiliate->get_financialemanager()->email,
+                    $finManager->email,
+                    $affiliate->get_coo()->email,
                     $core->user_obj->email,
                     Users::get_data(array('uid' => 3))->email/* Always include User 3 */
             );
@@ -598,6 +611,7 @@ else {
                         $affiliate->get_generalmanager()->displayName,
                         $affiliate->get_supervisor()->displayName,
                         $affiliate->get_financialemanager()->displayName,
+                        $affiliate->get_coo()->displayName,
                         $core->user_obj->displayName,
                         Users::get_data(array('uid' => 3))->get_displayname()/* Always include User 3 */);
                 $recipients = array_unique($recipients);
