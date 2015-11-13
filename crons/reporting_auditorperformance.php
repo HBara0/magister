@@ -20,7 +20,7 @@ if($quarter['quarter'] == 1) {
 else {
     $quarter['quarter'] --;
 }
-$outputmessage = '<h2>Quarterly Report Auditors Performance Report : Q'.$quarter['quarter'].'/'.$quarter['year'].'</h2>';
+$outputmessage = '<div style="width:100%;text-align:center"><h2>Quarterly Report Auditors Performance Report : Q'.$quarter['quarter'].'/'.$quarter['year'].'</h2></div>';
 if(is_array($data)) {
     foreach($data as $uid => $coordata) {
         $totalreports = 0;
@@ -63,7 +63,7 @@ if(is_array($data)) {
                                         }
                                     }
                                     $offset_output = round($offset / 60 / 60 / 24);
-                                    $listitems_unfin .= '<li>'.$affiliate->get_displayname().' :  '.$linestatus.' '.$offset_output.' days<span style="font-family:bold;color:'.$color.'">'.$symbol.'</span></li>';
+                                    $listitems_unfin .= '<tr><td style="text-align:center"><span style="font-family:bold;color:'.$color.'">'.$symbol.'</span>'.$affiliate->get_displayname().' </td><td> '.$linestatus.' '.$offset_output.' days</td></tr>';
                                 }
                                 else {
                                     $color = 'green';
@@ -86,7 +86,7 @@ if(is_array($data)) {
                                         $offset = -$offset;
                                     }
                                     $offset_output = round($offset / 60 / 60 / 24);
-                                    $listitems_fin .= '<li>'.$affiliate->get_displayname().' :  '.$linestatus.' '.$offset_output.' days<span style="font-family:bold;color:'.$color.'">'.$symbol.'</span></li>';
+                                    $listitems_fin .= '<tr><td style="text-align:center"><span style="font-family:bold;color:'.$color.'">'.$symbol.'</span>'.$affiliate->get_displayname().' </td><td> '.$linestatus.' '.$offset_output.' days</td></tr>';
                                 }
                                 unset($offset_output, $linestatus);
                             }
@@ -98,30 +98,60 @@ if(is_array($data)) {
                     $totalreports ++;
                     $supsids[] = $supplierid;
                     if($maxdue != 0) {
-                        $supstatus = ':&nbsp;&nbsp;&nbsp;(Report Still Unfinalized : '.$maxdue.' days remaining)';
-                        $suppoutput = '<ul type="circle">'.$listitems_unfin.'</ul>';
+                        $supstatus = 'Report Still Unfinalized : '.$maxdue.' days remaining';
+                        $suppoutput .= $listitems_unfin;
                     }
                     elseif($maxfin != 0) {
-                        $supstatus = ':&nbsp;&nbsp;&nbsp;(Finalized : '.$maxfin.' days late from the 15th of the month)';
-                        $suppoutput = '<ul type="circle">'.$listitems_fin.'</ul>';
+                        $supstatus = 'Finalized : '.$maxfin.' days late from the 15th of the month';
+                        $suppoutput .= $listitems_fin;
                     }
                     else {
-                        $supstatus = ':&nbsp;&nbsp;&nbsp;(Finalized And Sent On Time)';
+                        $supstatus = 'Finalized And Sent On Time';
                     }
-                    $supplieroutput .= '<ul type="disc"> '.$supplier->get_displayname().' '.$supstatus.$suppoutput.'</ul><br>';
+                    $backcolor = 'green';
+                    if($avgscore < 3) {
+                        $backcolor = 'F04122';
+                    }
+                    $supplieroutput .= '<tr><th style="border-left: 1px solid black;float:right;width:75%;background-color:'.$backcolor.';color:#f8ffcc"> '.$supplier->get_displayname().'</th><td style="border: 1px solid #CCC;float:left;width:75%;background-color:'.$backcolor.';color:#f8ffcc"> '.$supstatus.'</div></td></tr>';
+                    $supplieroutput .= $suppoutput;
                 }
-                unset($supplier, $suppoutput, $supstatus, $listitems_unfin, $listitems_fin);
+                unset($supplier, $backcolor, $suppoutput, $supstatus, $listitems_unfin, $listitems_fin);
             }
         }
         if($unflate > 0) {
-            $auditorstatus_un = 'Unfinalized And Late =>'.$unflate;
+            $auditorstatus_un = $unflate;
+            $totalundone = $unflate;
         }
         if($finlate > 0) {
-            $auditorstatus_fin = '<br>Sent Late =>'.$finlate;
+            $auditorstatus_fin = $finlate;
+            $totalundone += $finlate;
         }
-        $outputmessage .= '<div><h3>'.$coord_obj->get_displayname().' : '.($totalreports - ($unflate + $finlate)).'/'.$totalreports.'</h3> '.$lang->totalreports.' => '.$totalreports.' <br>'.$auditorstatus_un.$auditorstatus_fin.'<ul>';
-        $outputmessage.=$listitems.$supplieroutput.'</ul></div><hr>   ';
-        unset($supplieroutput, $auditorstatus_fin, $auditorstatus_un);
+        if($totalundone > 0) {
+            if($totalreports = $totalundone) {
+                $avgscore = 0;
+            }
+            else {
+                $avgscore = 5 - (($totalundone * 5 ) / $totalreports);
+            }
+        }
+        else {
+            $avgscore = 5;
+        }
+        $avg_color = 'green';
+        if($avgscore < 3) {
+            $avg_color = '#F04122';
+        }
+        $outputmessage .= '<table style="border-collapse: collapse;border-spacing: 0; " width="75%" align="center" ><thead ><tr style="border:1px solid black;"><th style="height:30px;color: white;background-color:'.$avg_color
+                .';text-align:left" width="60%">'.$coord_obj->get_displayname().'</th><th style="color: white;background-color: '.$avg_color
+                .';"><span style=" font-size:25%;  vertical-align: baseline; border-radius: .20em; white-space: nowrap;font-weight: 700;padding: .2em .4em '
+                .'.3em;height:15px;font-size: 15px;color:'.$avg_color.'; background-color: #f8ffcc;text-align: center">'.$avgscore
+                .'</span> / 5</th></tr></thead>';
+        $outputmessage.='<tr style="border:1px solid black;border-bottom: 2px double black"><td> '.$lang->totalreports.'</td><td> '.$totalreports.' </td></tr><tr style="border:1px solid black;"><td>Unfinalized And Late</td><td>'.$auditorstatus_un
+                .'</td></tr><tr style="border:1px solid black;"><td>Sent Late </td><td style="border:1px solid black;">'.$auditorstatus_fin.'</td></tr>';
+        $outputmessage.=$listitems.$supplieroutput.'</table><hr>';
+        $outputmessage.='';
+        $auditorstatus_fin = $auditorstatus_un = 0;
+        unset($supplieroutput, $avg_color, $avgscore, $totalundone);
     }
 }
 print($outputmessage);
