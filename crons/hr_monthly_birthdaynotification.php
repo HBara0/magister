@@ -4,7 +4,7 @@
  * Copyright © 2009 Orkila International Offshore, All Rights Reserved
  *
  * Get users that has birthday of this Month and  Send  Birthday Notification To affiliate Hr
- * $id: hr_monthly_birthdaynotification.php	
+ * $id: hr_monthly_birthdaynotification.php
  * Created:	   	@tony.assaad		February 28, 2012 | 4:13 PM
  * Modified:	   	@tony.assaad			March 05, 2012 | 4:06 PM
  */
@@ -17,7 +17,7 @@ $users_query = $db->query("SELECT displayName AS employeeName, u.uid, ae.affid, 
 						   FROM ".Tprefix."users u
 							JOIN ".Tprefix."userhrinformation uh ON (u.uid=uh.uid)
 							JOIN ".Tprefix."affiliatedemployees ae ON (ae.uid=u.uid)
-							WHERE u.gid !=7 AND FROM_UNIXTIME(birthDate, '%c')='{$current_date[mon]}' AND (birthDate IS NOT NULL AND birthDate!=0) AND isMain=1 
+							WHERE u.gid !=7 AND FROM_UNIXTIME(birthDate, '%c')='{$current_date[mon]}' AND (birthDate IS NOT NULL AND birthDate!=0) AND isMain=1
 							GROUP BY u.uid");
 
 if($db->num_rows($users_query) > 0) {
@@ -26,18 +26,25 @@ if($db->num_rows($users_query) > 0) {
         $birthday_affid[$users_birthdays['affid']][$users_birthdays['uid']] = $users_birthdays;
     }
 
-    $hraffliate_query = $db->query("SELECT affid, name, hrManager, generalManager FROM ".Tprefix."affiliates");
+    $hraffliate_query = $db->query("SELECT affid, name, hrManager, generalManager,coo FROM ".Tprefix."affiliates");
     if($db->num_rows($hraffliate_query) > 0) {
         while($hr_affiliates = $db->fetch_assoc($hraffliate_query)) {
-            if(empty($hr_affiliates['hrManager'])) {
-                $hr_affiliates['hrManager'] = $hr_affiliates['generalManager'];
+//            if(empty($hr_affiliates['hrManager'])) {
+//                // $hr_affiliates['hrManager'] = $hr_affiliates['generalManager'];
+//            }
+            $recepients[$hr_affiliates['affid']][] = $hr_affiliates['hrManager'];
+            $recepients[$hr_affiliates['affid']][] = $hr_affiliates['generalManager'];
+            $recepients[$hr_affiliates['affid']][] = $hr_affiliates['coo'];
+            $recepients[$hr_affiliates['affid']] = array_unique(array_filter($recepients[$hr_affiliates['affid']]));
+            if(!is_array($recepients[$hr_affiliates['affid']]) || empty($recepients[$hr_affiliates['affid']])) {
+                continue;
             }
-
-            $recepient_details = $db->fetch_assoc($db->query("SELECT uid, displayName, email FROM ".Tprefix."users WHERE uid={$hr_affiliates[hrManager]}"));
-            $hr_affid[$recepient_details['uid']][$hr_affiliates['affid']] = $recepient_details;
+            $query = $db->query("SELECT uid, displayName, email FROM ".Tprefix."users WHERE uid IN (".implode(',', $recepients[$hr_affiliates['affid']]).")"); //uid={$hr_affiliates[hrManager]}");
+            while($recepient_details = $db->fetch_assoc($query)) {
+                $hr_affid[$recepient_details['uid']][$hr_affiliates['affid']] = $recepient_details;
+            }
         }
     }
-
     foreach($hr_affid as $affuid => $recepient_details) {
         $body_message = '';
         foreach($hr_affid[$affuid] as $affid => $recepient_details) {
