@@ -402,7 +402,9 @@ else {
                     }
                 }
             }
-            if($options['runtype'] != 'dry') {
+
+            $skipforecast = true;
+            if($options['runtype'] != 'dry' || $skipforecast == false) {
                 /* Import from the GP forecasts */
                 if(intval($core->input['quarter']) < 4) {
                     $sum = 'month1';
@@ -429,7 +431,7 @@ else {
                                     $gpline['PurchaseAmount'] = ($productsactivity_line->turnOver / $productsactivity_line->quantity) * $gpline['PurchaseQty'];
                                 }
 
-                                echo 'Updated <br />';
+                                echo '<br />Updated ('.$productsactivity_line->rid.'): ';
                                 print_r(array('quantityForecast' => $gpline['PurchaseQty'], 'salesForecast' => $gpline['PurchaseAmount'])).' paid='.$productsactivity_line->paid;
 //                                echo 'Original query was<br />';
 //                                print_r(array('rid' => $rid_where, 'pid' => $gpline['pid'], 'uid' => $uid_where));

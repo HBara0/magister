@@ -8,7 +8,7 @@
     -->
     <div style="display: inline-block;width:50%;vertical-align: top;margin-bottom: 50px;margin-top: 100px;">
         <input type="hidden" id="save_section_{$sequence}_1_input" value="0" name="segment[{$sequence}][savesection][section1]"/>
-        <a id="save_section_{$sequence}_1" style="width:30%;float:right;border:5px groove rgba(131, 196, 26, 0.1);padding:10px;text-align: center;background-color:#690;font-weight:bold;font-size:15px;">Save & Proceed
+        <a id="save_section_{$sequence}_1" style="width:30%;float:right;padding:10px;text-align: center;background-color:#690;font-weight:bold;font-size:15px;">Save & Proceed
             <img src="{$core->settings['rootdir']}/images/chevron-down.png"/>
         </a>
     </div>
@@ -51,7 +51,7 @@
 
 <div style="display: inline-block;width:50%;vertical-align: top;margin-bottom: 50px;margin-top: 100px;">
     <input type="hidden" id="save_section_{$sequence}_2_input" value="0" name="segment[{$sequence}][savesection][section2]"/>
-    <a id="save_section_{$sequence}_2" style="width:30%;float:right;border:5px groove rgba(131, 196, 26, 0.1);padding:10px;text-align: center;background-color:#690;font-weight:bold;font-size:15px;">Save & Proceed
+    <a id="save_section_{$sequence}_2" style="width:30%;float:right;padding:10px;text-align: center;background-color:#690;font-weight:bold;font-size:15px;">Save & Proceed
         <img src="{$core->settings['rootdir']}/images/chevron-down.png"/>
     </a>
 </div>
@@ -70,13 +70,15 @@
   <!-- <div class="subtitle">{}Approved Hotels</div>-->
     {$otherhotels_output}
 </div>
-<div style="display: inline-block;width:50%;vertical-align: top;margin-bottom: 50px;margin-top: 100px;">
-    <input type="hidden" id="save_section_{$sequence}_3_input" value="0" name="segment[{$sequence}][savesection][section3]"/>
-    <a id="save_section_{$sequence}_3" style="width:30%;float:right;border:5px groove rgba(131, 196, 26, 0.1);padding:10px;text-align: center;background-color:#690;font-weight:bold;font-size:15px;">Save & Proceed
-        <img src="{$core->settings['rootdir']}/images/chevron-down.png"/>
-    </a>
+<div>
+    <div style="display: inline-block;width:50%;vertical-align: top;margin-bottom: 50px;margin-top: 100px;">
+        <input type="hidden" id="save_section_{$sequence}_3_input" value="0" name="segment[{$sequence}][savesection][section3]"/>
+        <a id="save_section_{$sequence}_3" style="width:30%;float:right;padding:10px;text-align: center;background-color:#690;font-weight:bold;font-size:15px;">Save & Proceed
+            <img src="{$core->settings['rootdir']}/images/chevron-down.png"/>
+        </a>
+    </div>
+    <div style="display: inline-block;width: 30%;vertical-align: top;margin-top: 100px;margin-left: 75px;" id="sectionresults_3"></div>
 </div>
-<div style="display: inline-block;width: 30%;vertical-align: top;margin-top: 100px;margin-left: 75px;" id="sectionresults_3"></div>
 <div style="display:block; width: 100%;" id="segment_expenses_{$sequence}">
     <input name="sequence" type="hidden" id="sequence" value="{$sequence}">
     <h2 class="subtitle" style="padding:8px;width:40%;" id="addexpensessetionheader_{$sequence}">{$lang->addexp}</h2>
@@ -96,7 +98,7 @@
 </div>
 <div style="display: inline-block;width:50%;vertical-align: top;margin-bottom: 50px;margin-top: 100px;">
     <input type="hidden" id="save_section_{$sequence}_4_input" value="0" name="segment[{$sequence}][savesection][section4]"/>
-    <a id="save_section_{$sequence}_4" style="width:30%;float:right;border:5px groove rgba(131, 196, 26, 0.1);padding:10px;text-align: center;background-color:#690;font-weight:bold;font-size:15px;">Save & Proceed
+    <a id="save_section_{$sequence}_4" style="width:30%;float:right;padding:10px;text-align: center;background-color:#690;font-weight:bold;font-size:15px;">Save & Proceed
         <img src="{$core->settings['rootdir']}/images/chevron-down.png"/>
     </a>
 </div>
@@ -123,7 +125,7 @@
 
     <div style="display: inline-block;width:50%;vertical-align: top;margin-bottom: 50px;margin-top: 100px;">
         <input type="hidden" id="save_section_{$sequence}_5_input" value="0" name="segment[{$sequence}][savesection][section5]"/>
-        <a id="save_section_{$sequence}_5" style="width:30%;float:right;border:5px groove rgba(131, 196, 26, 0.1);padding:10px;text-align: center;background-color:#690;font-weight:bold;font-size:15px;">Save
+        <a id="save_section_{$sequence}_5" style="width:30%;float:right;padding:10px;text-align: center;background-color:#690;font-weight:bold;font-size:15px;">Save
             <img src="{$core->settings['rootdir']}/images/chevron-down.png"/>
         </a>
     </div>

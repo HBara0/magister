@@ -133,14 +133,13 @@ else {
                 }
             }
 
-            if(is_array($leaves)) {
-                $existing_stats = LeavesStats::get_data(array('uid' => $user->get_id(), 'ltid' => $core->input['type']), array('returnarray' => true));
-                if(is_array($existing_stats)) {
-                    foreach($existing_stats as $existing_stat) {
-                        $existing_stat->delete();
-                    }
+            $existing_stats = LeavesStats::get_data(array('uid' => $user->get_id(), 'ltid' => $core->input['type']), array('returnarray' => true));
+            if(is_array($existing_stats)) {
+                foreach($existing_stats as $existing_stat) {
+                    $existing_stat->delete();
                 }
-
+            }
+            if(is_array($leaves)) {
                 $db->update_query(AttendanceAddDays::TABLE_NAME, array('isCounted' => 0), 'uid='.$user->get_id());
                 $prevbalanceset = false;
                 foreach($leaves as $leave) {

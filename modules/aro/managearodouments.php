@@ -11,9 +11,9 @@
 if(!defined('DIRECT_ACCESS')) {
     die('Direct initialization of this file is not allowed.');
 }
-if($core->usergroup['aro_canUseAro'] == 0) {
-    //error($lang->sectionnopermission);
-    // exit;
+if($core->usergroup['canUseAro'] == 0) {
+    error($lang->sectionnopermission);
+    exit;
 }
 
 if(!($core->input['action'])) {

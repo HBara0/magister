@@ -21,7 +21,7 @@
             </td>
 
 
-            <td>{$lang->todate}*</td>
+            <td width="18%">{$lang->todate}*</td>
             <td><input type="text" id="pickDate_to_{$sequence}"    autocomplete="false" tabindex="1" value="{$segment[$sequence][toDate_output]}" required="required" />
                 <input type="hidden" name="segment[{$sequence}][toDate]" id="altpickDate_to_{$sequence}" value="{$segment[$sequence][toDate_formatted]}"/>
                 <input type="hidden" name="leaveDate" id="leaveDate_to_{$sequence}" value="{$leave[$sequence][toDate]}"/></td>
@@ -49,7 +49,7 @@
                     </table>
                 </div>
             </td>
-            <td style="vertical-align: top;width:20%;">
+            <td colspan="2" style="vertical-align: top;width:20%;">
                 <div style="display: inline-block;width:100%">
                     <input type="hidden" id="event" value="1">
                     <input type="hidden" id="eventpurposeid" >
