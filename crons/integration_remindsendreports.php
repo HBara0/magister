@@ -33,6 +33,7 @@ if($_REQUEST['authkey'] == 'kia5ravbXop09dj4a!xhegalhj') {
 
     $time = new DateTime();
     $timeline = strtotime($time->format('Y-m').'-05');
+
     $affiliates = Affiliates::get_affiliates(array('integrationOBOrgId' => 'integrationOBOrgId IS NOT NULL'), array('simple' => false, 'returnarray' => true, 'operators' => array('integrationOBOrgId' => 'CUSTOMSQLSECURE')));
     if(is_array($affiliates)) {
         foreach($affiliates as $affiliate) {
@@ -44,7 +45,12 @@ if($_REQUEST['authkey'] == 'kia5ravbXop09dj4a!xhegalhj') {
                 // $message .= 'Last '.$reportname.' is more than one month old';
                 $lastreport = ReportsSendLog::get_data(array('affid' => $affiliate->affid, 'report' => $report), array('order' => array('by' => 'date', 'sort' => 'DESC'), 'limit' => '0, 1', 'operators' => array('date' => 'grt')));
                 if(is_object($lastreport)) {
+                    $lastreportdate = new DateTime(date('Y-m-d', $lastreport->date));
                     if($lastreport->date > $timeline) {
+                        continue;
+                    }
+
+                    if($time->format('j') < 5 || $lastreportdate->format('n') == $time->format('n')) {
                         continue;
                     }
                     $senders[] = $lastreport->sentBy;
@@ -97,9 +103,9 @@ if($_REQUEST['authkey'] == 'kia5ravbXop09dj4a!xhegalhj') {
             $recpients = array_unique($recpients);
             $mailer->set_to($recpients);
             //$mailer->set_to('zaher.reda@orkila.com');
-            // print_r($mailer->debug_info());
-            //echo '<hr />';
-            // exit;
+            //print_r($mailer->debug_info());
+            // echo '<hr />';
+
             $mailer->send();
         }
     }
