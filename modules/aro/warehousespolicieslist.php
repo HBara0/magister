@@ -13,7 +13,7 @@ if(!defined('DIRECT_ACCESS')) {
 }
 
 if($core->usergroup['aro_canManageWarehousePolicies'] == 0) {
-    //error($lang->sectionnopermission);
+    error($lang->sectionnopermission);
 }
 
 if(!$core->input['action']) {

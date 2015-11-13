@@ -13,7 +13,6 @@ if($core->usergroup['aro_canManageApprovalPolicies'] == 0) {
 
 
 if(!$core->input['action']) {
-    // $core->usergroup['canViewAllAff'] = 1;
     if($core->usergroup['canViewAllAff'] == 0) {
         $inaffiliates = $core->user['affiliates'];
     }

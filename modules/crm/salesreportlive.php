@@ -98,7 +98,7 @@ else {
 
 
         $invoices = $integration->get_saleinvoices($filters);
-        $cols = array('month', 'week', 'documentno', 'salesrep', 'customername', 'suppliername', 'productname', 'segment', 'uom', 'qtyinvoiced', 'priceactual', 'linenetamt', 'purchaseprice', 'unitcostlocal', 'costlocal', 'costusd', 'grossmargin', 'grossmarginusd', 'netmargin', 'netmarginusd', 'marginperc');
+        $cols = array('month', 'week', 'documentno', 'salesrep', 'customername', 'suppliername', 'productname', 'segment', 'uom', 'qtyinvoiced', 'priceactual', 'linenetamt', 'purchaseprice', 'unitcostlocal', 'costlocal', 'costusd', 'grossmargin', 'grossmarginusd', 'grossmarginperc', 'netmargin', 'netmarginusd', 'marginperc');
         if(is_array($invoices)) {
             foreach($invoices as $invoice) {
                 $orgcurrency = $invoice->get_organisation()->get_currency();
@@ -160,14 +160,13 @@ else {
                             $invoiceline->segment = $product->get_segment()['title'];
                         }
                     }
-
                     if(empty($invoiceline->segment)) {
                         $invoiceline->segment = 'Unknown Segment';
                     }
 
                     $invoiceline->productname = $product->name;
-                    if(empty($invoiceline->suppliername)) {
-                        $invoiceline->suppliername = 'Unknown Supplier';
+                    if(empty($invoiceline->suppliername) || strstr($invoice->bpartner_name, 'Orkila')) {
+                        $invoiceline->suppliername = 'Unspecified';
                     }
 
                     $invoiceline->uom = $invoiceline->get_uom()->uomsymbol;
@@ -221,7 +220,7 @@ else {
                         $invoiceline->unitcostusd = $invoiceline->costusd / $invoiceline->qtyinvoiced;
                     }
 
-                    $required_fields = array('qtyinvoiced', 'priceactual', 'linenetamt', 'purchaseprice', 'costlocal', 'grossmargin', 'netmargin', 'marginperc');
+                    $required_fields = array('qtyinvoiced', 'priceactual', 'linenetamt', 'purchaseprice', 'costlocal', 'grossmargin', 'grossmarginperc', 'netmargin', 'marginperc');
 
                     $invoiceline->linenetamt = $invoiceline->linenetamt / 1000;
                     /* Convert to local currency if invoice is in foreign currency */
@@ -247,6 +246,7 @@ else {
                         $invoiceline->netmarginusd = $invoiceline->netmargin / $invoice->usdfxrate;
                     }
                     $invoiceline->marginperc = $invoiceline->netmargin / $invoiceline->linenetamt;
+                    $invoiceline->grossmarginperc = $invoiceline->grossmargin / $invoiceline->linenetamt;
 
                     $output .= '<tr>';
                     foreach($cols as $col) {
@@ -269,16 +269,18 @@ else {
             $salesreport .= '<p><em>The report might have issues in the cost information. If so please report them to the ERP Team.</em></p>';
             if($core->input['type'] == 'analytic' || $core->input['type'] == 'dimensional') {
                 $overwrite = array('marginperc' => array('fields' => array('divider' => 'netmargin', 'dividedby' => 'linenetamt'), 'operation' => '/'),
+                        'grossmarginperc' => array('fields' => array('divider' => 'grossmargin', 'dividedby' => 'linenetamt'), 'operation' => '/'),
                         'priceactual' => array('fields' => array('divider' => 'linenetamt', 'dividedby' => 'qtyinvoiced'), 'operation' => '/'));
 
-                $formats = array('marginperc' => array('style' => NumberFormatter::PERCENT_SYMBOL));
-                $required_fields = array('qtyinvoiced', 'priceactual', 'linenetamt', 'purchaseprice', 'costlocal', 'grossmargin', 'netmargin', 'marginperc');
+                $formats = array('marginperc' => array('style' => NumberFormatter::PERCENT_SYMBOL),
+                        'grossmarginperc' => array('style' => NumberFormatter::PERCENT_SYMBOL),);
+                $required_fields = array('qtyinvoiced', 'priceactual', 'linenetamt', 'purchaseprice', 'costlocal', 'grossmargin', 'grossmarginperc', 'netmargin', 'marginperc');
 
                 if($core->input['type'] == 'analytic') {
                     $current_year = date('Y', TIME_NOW);
                     $required_tables = array('segmentsummary' => array('segment'), 'salesrepsummary' => array('salesrep'), 'suppliersummary' => array('suppliername'), 'customerssummary' => array('customername'));
 
-                    $yearsummary_filter = "EXISTS (SELECT c_invoice_id FROM c_invoice WHERE c_invoice.c_invoice_id=c_invoiceline.c_invoice_id AND issotrx='Y'AND ad_org_id IN ('".implode("','", $orgs)."') AND docstatus NOT IN ('VO', 'CL') AND (dateinvoiced BETWEEN '".date('Y-m-d 00:00:00', strtotime((date('Y', TIME_NOW) - 2).'-01-01'))."' AND '".date('Y-m-d 00:00:00', $period['to'])."'))";
+                    $yearsummary_filter = "EXISTS (SELECT c_invoice_id FROM c_invoice WHERE c_invoice.c_invoice_id=c_invoiceline.c_invoice_id AND issotrx='Y' AND ad_org_id IN ('".implode("','", $orgs)."') AND docstatus NOT IN ('VO', 'CL') AND (dateinvoiced BETWEEN '".date('Y-m-d 00:00:00', strtotime((date('Y', TIME_NOW) - 2).'-01-01'))."' AND '".date('Y-m-d 00:00:00', $period['to'])."'))";
                     //$monthdata = $integration->get_sales_byyearmonth($yearsummary_filter);
                     $intgdb = $integration->get_dbconn();
                     $invoicelines = new IntegrationOBInvoiceLine(null);
@@ -336,12 +338,12 @@ else {
                                 $salesreport .= '<td style="'.$css_styles['table-datacell'].'">'.number_format(array_sum($salerepdata[$y])).'</td>'; //$formatter->format(array_sum($salerepdata[$y]))
                             }
                             $salesreport .= '</tr>';
-                            if(empty($rowstyle)) {
-                                $rowstyle = $css_styles['altrow'];
-                            }
-                            else {
-                                $rowstyle = '';
-                            }
+//                            if(empty($rowstyle)) {
+//                                $rowstyle = $css_styles['altrow'];
+//                            }
+//                            else {
+//                                $rowstyle = '';
+//                            }
                         }
 
                         if(is_array($classifications) && (isset($core->input['generatecharts']) && $core->input['generatecharts'] == 1)) {
@@ -468,7 +470,7 @@ else {
                         $dimensionalreport->set_data($rawdata);
                         // $salesreport .= '<h2><br />'.$lang->{$tabledesc}.'</h2>';
                         $salesreport .= '<br/><table width="100%" class="datatable" style="color:black;">';
-                        $salesreport .= '<tr style="background-color:#92D050;"><th colspan="9">'.$lang->{$tabledesc}.'</th></tr>';
+                        $salesreport .= '<tr style="background-color:#92D050;"><th colspan="10">'.$lang->{$tabledesc}.'</th></tr>';
                         $salesreport .= '<tr><th></th>';
                         foreach($required_fields as $field) {
                             if(!isset($lang->{$field})) {
@@ -526,8 +528,8 @@ else {
                         }
                     }
 
-                    $totalcols = array('qtyinvoiced', 'linenetamt', 'purchaseprice', 'costlocal', 'costusd', 'grossmargin', 'grossmarginusd', 'netmargin', 'netmarginusd');
-                    $avgcols = array('priceactual', 'purchaseprice', 'unitcostlocal', 'marginperc');
+                    $totalcols = array('qtyinvoiced', 'linenetamt', 'purchaseprice', 'costlocal', 'costusd', 'grossmargin', 'grossmarginperc', 'grossmarginusd', 'netmargin', 'netmarginusd');
+                    $avgcols = array('priceactual', 'purchaseprice', 'unitcostlocal', 'grossmarginperc', 'marginperc');
 
                     $salesreport .= '<tfoot>';
                     foreach($cols as $col) {

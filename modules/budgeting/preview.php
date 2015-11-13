@@ -148,6 +148,12 @@ if(!($core->input['action'])) {
                             $rawdata[$field][$blid]['s1Income'] = $rawdata[$field][$blid]['income'] * ($rawdata[$field][$blid]['s1Perc'] / 100);
                             $rawdata[$field][$blid]['s2Income'] = $rawdata[$field][$blid]['income'] * ($rawdata[$field][$blid]['s2Perc'] / 100);
                             $rawdata[$field][$blid]['interCompanyPurchase_output'] = $lang->na;
+//                            if(isset($rawdata[$field][$blid]['interCompanyPurchase']) && !empty($rawdata[$field][$blid]['interCompanyPurchase'])) {
+//                                $interco_affiliate = new Affiliates($rawdata[$field][$blid]['interCompanyPurchase']);
+//                                $rawdata[$field][$blid]['interCompanyPurchase_output'] = $interco_affiliate->get_displayname();
+//                                unset($interco_affiliate);
+//                            }
+
                             if(!empty($rawdata[$field][$blid]['customerCountry'])) {
                                 $rawdata[$field][$blid]['coid'] = $rawdata[$blid]['customerCountry'];
                             }
@@ -506,6 +512,11 @@ if(!($core->input['action'])) {
                                 $customername = '<a href="index.php?module=profiles/entityprofile&eid='.$budget['customerid'].'" target="_blank">'.$budgetline['customer'].'</a>';
                             }
                             $budgetline['interCompanyPurchase_output'] = $lang->na;
+                            if(isset($budgetline['interCompanyPurchase']) && !empty($budgetline['interCompanyPurchase'])) {
+                                $interco_affiliate = new Affiliates($budgetline['interCompanyPurchase']);
+                                $budgetline['interCompanyPurchase_output'] = $interco_affiliate->get_displayname();
+                                unset($interco_affiliate);
+                            }
                             $budgetline['product'] = $budgetline_obj->get_product()->name;
 
                             $total['amount']+=$budgetline['amount'];
