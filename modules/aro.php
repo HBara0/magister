@@ -1,7 +1,7 @@
 <?php
 $module['name'] = 'aro';
 $module['title'] = $lang->aro;
-$module['homepage'] = 'managepolicies';
+$module['homepage'] = 'aroorderrequestlist';
 $module['globalpermission'] = 'canUseAro';
 $module['menu'] = array('file' => array('managewarehousepolicies', 'warehousespolicieslist', 'arodocumentsequeneconf', 'documentssequeneconflist', 'managepolicies', 'listpolicies', 'manageapprovalchainspolicies', 'approvalchainspolicieslist', 'managearodouments', 'aroorderrequestlist'),
         'title' => array('managewarehousepolicies', 'warehousespolicieslist', 'managedoumentsequence', 'doumentsequenceconflist', 'managepolicies', 'aropolicieslist', 'manageapprovalchainspolicies', 'approvalchainspolicieslist', 'managearodouments', 'aroorderrequestlist'),
