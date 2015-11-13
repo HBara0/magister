@@ -208,3 +208,5 @@ $lang['expiringpolicyrenewed'] = 'System has automatically renewed the policies 
 $lang['finalize'] = 'Finalize';
 $lang['finalizedemail'] = 'The Approval email will only be send after ARO is finalized';
 $lang['aroorderrequestlist'] = 'Aro Documents list';
+
+$lang['missingconfigurations'] = 'Some configurations are missing: ';
