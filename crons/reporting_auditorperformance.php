@@ -24,9 +24,11 @@ $outputmessage = '<h2>Quarterly Report Auditors Performance Report : Q'.$quarter
 if(is_array($data)) {
     foreach($data as $uid => $coordata) {
         $totalreports = 0;
-        $finlate = $unflate = 0;
         $supsids = array();
         $coord_obj = new Users($uid);
+        $unfsupsids = array();
+        $finsupsids = array();
+        $unflate = $finlate = 0;
         if(is_array($coordata)) {
             foreach($coordata as $supplierid => $numbers) {
                 if($supplierid == 'count') {
@@ -35,6 +37,7 @@ if(is_array($data)) {
                 if(is_array($numbers)) {
                     foreach($numbers as $type => $offsetdata) {
                         $affiliate = new Affiliates($type);
+
                         $maxfin = $maxdue = 0;
                         if(is_array($offsetdata)) {
                             foreach($offsetdata as $offsettype => $offset) {
@@ -43,6 +46,9 @@ if(is_array($data)) {
                                     $symbol = '&#x2713;';
                                     $linestatus = $lang->remaining;
                                     if($offset < 0) {
+                                        if(round(-$offset / 60 / 60 / 24) > 60) {
+                                            continue;
+                                        }
                                         if($maxdue > $offset) {
                                             $maxdue = round(-$offset / 60 / 60 / 24);
                                         }
@@ -51,8 +57,9 @@ if(is_array($data)) {
                                         $color = 'red';
                                         $linestatus = $lang->unflateby;
                                         $symbol = '&#x2717;';
-                                        if(!in_array($supplierid, $supsids)) {
-                                            $unflate++;
+                                        if(!in_array($supplierid, $unfsupsids)) {
+                                            $unflate ++;
+                                            $unfsupsids[] = $supplierid;
                                         }
                                     }
                                     $offset_output = round($offset / 60 / 60 / 24);
@@ -70,8 +77,9 @@ if(is_array($data)) {
                                         $color = 'red';
                                         $linestatus = $lang->finalizelateby;
                                         $symbol = '&#x2717;';
-                                        if(!in_array($supplierid, $supsids)) {
+                                        if(!in_array($supplierid, $finsupsids)) {
                                             $finlate++;
+                                            $finsupsids[] = $supplierid;
                                         }
                                     }
                                     else {
@@ -111,8 +119,8 @@ if(is_array($data)) {
         if($finlate > 0) {
             $auditorstatus_fin = '<br>Sent Late =>'.$finlate;
         }
-        $outputmessage .= '<div><h3>'.$coord_obj->get_displayname().' ('.$lang->auditorfor.' '.$totalreports.' Reports)</h3> '.$auditorstatus_un.$auditorstatus_fin.'<ul>';
-        $outputmessage.=$listitems.$supplieroutput.'</ul></div><hr>';
+        $outputmessage .= '<div><h3>'.$coord_obj->get_displayname().' : '.($totalreports - ($unflate + $finlate)).'/'.$totalreports.'</h3> '.$lang->totalreports.' => '.$totalreports.' <br>'.$auditorstatus_un.$auditorstatus_fin.'<ul>';
+        $outputmessage.=$listitems.$supplieroutput.'</ul></div><hr>   ';
         unset($supplieroutput, $auditorstatus_fin, $auditorstatus_un);
     }
 }
