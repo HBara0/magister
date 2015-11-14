@@ -142,13 +142,13 @@ class TravelManagerPlan {
                     'anotheraff' => $lang->anotheraff
             );
 
-            if($transportation->isRoundTrip == '1') {
-                $checkroundtrip = 'checked="checked"';
-                $transportaion_fields_output = '<input type="checkbox" '.$checkroundtrip.' name="segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].'][isRoundTrip]" value="1">'.$lang->roundtrip;
-            }
-            else {
-                $transportaion_fields_output = '<input type="checkbox" name="segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].'][isRoundTrip]" '.$checkroundtrip.' value="1">'.$lang->roundtrip;
-            }
+            //    if($transportation->isRoundTrip == '1') {
+            //      $checkroundtrip = 'checked="checked"';
+            $rountrip_radiobuttons = parse_radiobutton("segment[".$sequence."][tmtcid][".$category['inputChecksum']."][isRoundTrip]", array('1' => 'Yes', '0' => 'No'), $transportation->isRoundTrip);
+            $transportaion_fields_output .='<div><div style="display:inline-block;padding:10px;width:25%;">'.$lang->roundtrip.'</div><div style = "display:inline-block;width:25%;">'
+                    .$rountrip_radiobuttons.'</div></div>';
+            //  }
+
 
             switch($category['name']) {
                 case 'taxi'://taxi
@@ -221,7 +221,7 @@ class TravelManagerPlan {
                     $transportaion_fields .= '<div style = "display:inline-block;padding:10px;width:15%;">'.$lang->currency.'</div><div style = "display:inline-block;width:20%;">'.$currencies_list.'</div></div>';
                     $classes = TravelManagerPlanTranspClass::get_data('name is not null', array('returnarray' => true));
                     $transportaion_fields .='<div><div style="display:inline-block;padding:10px;width:25%;">'.$lang->class.'</div><div style="display:inline-block;width:25%;">'.parse_selectlist('segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].'][class]', '2', $classes, $transportation->class, '', '', array('width' => '100%', 'id' => 'segment_'.$sequence.'_tmtcid_'.$category['inputChecksum'].'_class')).'</div>';
-                    $transportaion_fields.='<div style="padding:10px; display:inline-block; width:15%;">'.$transportaion_fields_output.'</div></div>';
+                    $transportaion_fields.=$transportaion_fields_output;
                     $transportaion_fields .='<div><div style="display:inline-block;padding:10px;width:25%;">'.$lang->seatingdescription.'</div><div style = "display:inline-block;width:25%;"><textarea tabindex= 2 name="segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].'][seatingDescription]" id="segment_'.$sequence.'_tmtcid_'.$category['tmtcid'].'_seatingdescription" style="width:100%;">'.$transportation->seatingDescription.'</textarea></div>';
                     $transportaion_fields .='<div style="display:inline-block;padding:10px;width:35%;margin-left:10px;" id="transpclass_warning_'.$sequence.'_'.$category['inputChecksum'].'"></div></div>';
                     $transportaion_fields .='<div><div style="display:inline-block;padding:10px;width:25%;">'.$lang->stopdescription.'</div><div style = "display:inline-block;width:25%;"><textarea tabindex=2 name="segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].'][stopDescription]" id="segment_'.$sequence.'_tmtcid_'.$category['tmtcid'].'_stopDescription" style="width:100%;">'.$transportation->stopDescription.'</textarea></div></div>';
@@ -783,14 +783,14 @@ $("#anotheraff_otheraccomodations_'.$sequence.'_'.$otherhotel_checksum.'").hide(
                     $frowid++;
                     $amount_value = $financerow->amount;
                     $finance_checksum = $financerow->inputChecksum;
-                    $currencies_listf = parse_selectlist('segment['.$sequence.'][tmpfid]['.$frowid.'][currency]', '8', $currencies_f, $financerow->currency);
+                    $currencies_listf = parse_selectlist('segment['.$sequence.'][tmpfid]['.$frowid.'][currency]', '8', $currencies_f, $financerow->currency, '', '', array("id" => 'segment_'.$sequence.'_tmpfid_'.$frowid.'_currency'));
                     $segments_financess_output = $currencies_listf;
                     eval("\$finance_output .= \"".$template->get('travelmanager_plantrip_segmentfinance')."\";");
                 }
             }
             else {
                 $frowid = 1;
-                $currencies_listf = parse_selectlist('segment['.$sequence.'][tmpfid]['.$frowid.'][currency]', '5', $currencies_f, $finance->currency);
+                $currencies_listf = parse_selectlist('segment['.$sequence.'][tmpfid]['.$frowid.'][currency]', '5', $currencies_f, $finance->currency, '', '', array("id" => 'segment_'.$sequence.'_tmpfid_'.$frowid.'_currency'));
                 $finance_checksum = generate_checksum('finance');
                 eval("\$finance_output = \"".$template->get('travelmanager_plantrip_segmentfinance')."\";");
             }
@@ -839,14 +839,14 @@ $("#anotheraff_otheraccomodations_'.$sequence.'_'.$otherhotel_checksum.'").hide(
     }
 
     public function get_helptouritems() {
-        global $lang;
+        global $lang, $core;
         $touritems = array(
                 'start' => array('ignoreid' => true, 'text' => $lang->starttmtour),
-                'createtab' => array('options' => 'tipLocation:top;', 'text' => $lang->helptour_createsegment),
+                'createtab' => array('options' => 'tipLocation:top;', 'text' => $lang->helptour_createsegment.'<br/><br/>'.$lang->starttmtourexample),
                 'cities_1_cache_autocomplete' => array('text' => $lang->helptour_firstcity),
                 'pickDate_from_1' => array('text' => $lang->helptour_fromdate),
-                'destinationcity_1_cache_autocomplete' => array('text' => $lang->helptour_firstdestcity),
-                'pickDate_to_1' => array('text' => $lang->helptour_todate),
+                'destinationcity_1_cache_autocomplete' => array('options' => 'tipLocation:top;', 'text' => $lang->helptour_firstdestcity),
+                'pickDate_to_1' => array('options' => 'tipLocation:top;', 'text' => $lang->helptour_todate),
                 'purposes_row_1' => array('options' => 'tipLocation:top;', 'text' => $lang->helptour_purposes),
                 'considerleisure_1' => array('options' => 'tipLocation:top;', 'text' => $lang->helptour_considerleisure),
                 'segreason_1' => array('options' => 'tipLocation:top;', 'text' => $lang->helptour_segreason),
@@ -856,23 +856,24 @@ $("#anotheraff_otheraccomodations_'.$sequence.'_'.$otherhotel_checksum.'").hide(
                 'checkbox_show_othertransps_1' => array('text' => $lang->helptour_chooseothertransps),
                 'save_section_1_2' => array('options' => 'tipLocation:right;', 'text' => $lang->helptour_savesec2),
                 'accomsectionheader_1' => array('text' => $lang->helptour_accomsectionheader),
+                'travelmanager/hotelslist' => array('text' => $lang->helptour_checkhotelslist.'</br></br> As an example, <a href="'.$core->settings['rootdir'].'/index.php?module=travelmanager/hotelslist" target="_blank" style="color:#83C41A;">click here</a> before proceeding with your accomodations expenses.'),
                 'noAccomodation_1' => array('text' => $lang->helptour_noaccomodation),
-                'countryhotels_1_check' => array('text' => $lang->helptour_countryhotels),
-                'hotels_1_cache_hotel_autocomplete' => array('text' => $lang->helptour_hotelsautocomplete),
+                'countryhotels_1_check' => array('options' => 'tipLocation:top;', 'text' => $lang->helptour_countryhotels),
+                'hotels_1_cache_hotel_autocomplete' => array('options' => 'tipLocation:top;', 'text' => $lang->helptour_hotelsautocomplete),
                 'addnewhotel_1_travelmanager/plantrip_loadpopupbyid' => array('text' => $lang->helptour_addnewhotel),
                 'save_section_1_3' => array('options' => 'tipLocation:right;', 'text' => $lang->helptour_savesec3),
                 'addexpensessetionheader_1' => array('text' => $lang->helptour_addexpensessetionheader),
                 'segment_expensestype_1_1' => array('text' => $lang->helptour_expensestype),
                 'expenses_amtcurr_1_1' => array('text' => $lang->helptour_expenses_amtcurr),
                 'segment_paidby_1_1' => array('text' => $lang->helptour_expensepaidby),
-                'ajaxaddmore_travelmanager/plantrip_expenses_1' => array('text' => $lang->helptour_addexpense),
+                'ajaxaddmore_travelmanager/plantrip_expenses_1' => array('options' => 'tipLocation:top;', 'text' => $lang->helptour_addexpense),
                 'addexpensessetionheader_1' => array('text' => $lang->helptour_addexpensessetionheader),
                 'save_section_1_4' => array('options' => 'tipLocation:right;', 'text' => $lang->helptour_savesec4),
                 'financesetionheader_1' => array('options' => 'tipLocation:top;', 'text' => $lang->helptour_financesetionheader),
                 'save_section_1_5' => array('options' => 'tipLocation:right;', 'text' => $lang->helptour_savesec5),
                 'preview' => array('text' => $lang->saveandpreview_helptour),
                 'save_addsegment' => array('text' => $lang->saveandcreatenewseg_helptour),
-                'finalize' => array('text' => $lang->saveandfinalize_helptour),
+                'finalize' => array('text' => $lang->saveandfinalize_helptour.'</br></br><a href="#" style="height:20px;color:#83C41A">Back to top</a>'),
         );
 
         return $touritems;

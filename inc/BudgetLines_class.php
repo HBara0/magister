@@ -458,5 +458,10 @@ class BudgetLines {
         return $data;
     }
 
+    public function get_column($column, $filters = '', array $configs = array()) {
+        $data = new DataAccessLayer(static::CLASSNAME, static::TABLE_NAME, static::PRIMARY_KEY);
+        return $data->get_column($column, $filters, $configs);
+    }
+
 }
 /* Budgeting Line Class --END */

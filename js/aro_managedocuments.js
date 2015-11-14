@@ -50,7 +50,7 @@ $(function() {
         }
     }
 ///------------------------
-    $("input[id='approvearo']").click(function() {
+    $(document).on("click", "input[id='approvearo']", function() {
         var url = window.location.href;
         sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=approvearo&id=' + $("input[id='approvearo_id']").val(), function() {
             window.location.href = url;
@@ -476,12 +476,13 @@ $(function() {
 //        submitform();
 //    }, 30000);
     function submitform() {     //Form submit function
-        $("input[id^='perform_'][id$='_Button']").trigger("click");
+        //   $("input[id^='perform_'][id$='_Button']").trigger("click");
     }
 //---------------------------------------------------//
 //-------------If Vendor is affiliate, such select affiliate not entity and Disable  intermediary section----------------------//
 //Trigger Intermediary Aff Policy
-    $("input[id='vendor_isaffiliate']").change(function() {
+
+    $(document).on("change", "input[id='vendor_isaffiliate']", function() {
         $("td[id='vendor_affiliate']").css("display", "none");
         $("input[id='supplier_1_autocomplete']").attr('value', '');
         $("input[id='supplier_1_id']").attr('value', '');
@@ -543,7 +544,8 @@ $(function() {
 
         $('#unitfee_btn').trigger('click');
     });
-    $("select[id^='productline_'][id$='_uom']").change(function() {
+
+    $(document).on("change", "select[id^='productline_'][id$='_uom']", function() {
         var id = $(this).attr('id').split("_");
         /* Calculate Unit Fees*/
 
@@ -568,7 +570,7 @@ $(function() {
 //    });
 
 // Trigger(s): 16A - 16B - 16C ///input[id$="_intialPrice"] //#partiesinfo_commission
-    $('#ordersummary_unitfee').change(function() {
+    $(document).on("change", '#ordersummary_unitfee', function() {
         var attrs = '';
         $("tbody[id^='productline_']").find($("select[id$='_uom']")).each(function() {
             var id = $(this).attr('id').split('_');
@@ -599,7 +601,8 @@ $(function() {
     });
     var fields_array = ["quantity", "qtyPotentiallySold", "intialPrice", "costPrice", "sellingPrice", "daysInStock"];
 // Trigger(s): 15A, 15B, 19, 18A
-    $("input[id^='productline_'][id$='_quantity'],input[id^='productline_'][id$='_qtyPotentiallySold'],input[id^='productline_'][id$='_costPrice'],input[id$='_sellingPrice']").change(function() {
+
+    $(document).on("change", "input[id^='productline_'][id$='_quantity'],input[id^='productline_'][id$='_qtyPotentiallySold'],input[id^='productline_'][id$='_costPrice'],input[id$='_sellingPrice']", function() {
         /*TEST*/
         var id = $(this).attr('id').split("_");
         if(id[2] == 'costPrice') {
@@ -681,7 +684,7 @@ $(function() {
 //    });
 
 //needs optimization (loop through array for fields
-    $("input[id='ordersummary_btn']").click(function() {
+    $(document).on("click", "input[id='ordersummary_btn']", function() {
         var totalfees = $('input[id=partiesinfo_totalfees]').val();
         var exchangeRateToUSD = $("#exchangeRateToUSD").val();
         var aff = $('select[id=affid]').val();
@@ -761,7 +764,7 @@ $(function() {
         });
     });
 //---------------------------------------
-    $("input[id='unitfee_btn']").click(function() {
+    $(document).on("click", "input[id='unitfee_btn']", function() {
         var totalfeespaidbyintermed = $('input[id=partiesinfo_totalfees]').val();
         var totalquantity = {};
         var totalqty = 0;
@@ -862,11 +865,11 @@ function addactualpurchaserow(id, callback) {
     if(rowid == '') {
         rowid = $("input[id^='numrows_actualpurchaserow_']").val();
     }
-
     $("input[id^='numrows_actualpurchaserow']").attr("value", id);
     $("input[id^='numrows_currentstockrow']").attr("value", id);
-    sharedFunctions.ajaxAddMore($("img[id='ajaxaddmore_aro/managearodouments_actualpurchaserow_" + rowid + "']"), callback);
-    sharedFunctions.ajaxAddMore($("img[id='ajaxaddmore_aro/managearodouments_currentstockrow_" + rowid + "']"));
+    sharedFunctions.ajaxAddMore($("img[id='ajaxaddmore_aro/managearodouments_actualpurchaserow_" + rowid + "']"), function() {
+        sharedFunctions.ajaxAddMore($("img[id='ajaxaddmore_aro/managearodouments_currentstockrow_" + rowid + "']"), callback);
+    });
     return true;
 }
 
@@ -875,10 +878,14 @@ function addactualpurchaselines(id) {
     var operation = 'create';
     $("tbody[id^='productline_']").find($("input[id^='productline_" + id + "'],select[id^='productline_" + id + "']")).each(function() {
         var field = $(this).attr('id').split('_');
-        if(field[2] == 'netMargin' || field[2] == 'netMarginPerc' || field[2] == 'grossMarginAtRiskRatio' || field[2] == 'totalBuyingValue') {
+        if(field[2] == 'netMargin' || field[2] == 'netMarginPerc' || field[2] == 'grossMarginAtRiskRatio' || field[2] == 'totalBuyingValue' || field[2] == 'psid') {
             return true;
         }
-        if((($(this).val().length == 0) || ($(this).val() == null))) {
+        if($(this).val() == null) {
+            fields = '';
+            return false;
+        }
+        if($(this).val().length == 0) {
             fields = '';
             return false;
         }
@@ -904,6 +911,7 @@ function addactualpurchaselines(id) {
 //        if(triggered == 1) {
 //            operation == 'update';
 //        }
+
         if(operation == 'update') {
             var bvalue = $("input[id^='productline_" + id + "_totalBuyingValue']").val();
             if(bvalue.length > 0) {
@@ -917,7 +925,8 @@ function addactualpurchaselines(id) {
                     $("input[id^='pickDate_sale_" + id + "']").trigger('change');
                 });
             }
-        } else if(operation == 'create') {
+        }
+        else if(operation == 'create') {
             addactualpurchaserow(id, function() {
                 var bvalue = $("input[id^='productline_" + id + "_totalBuyingValue']").val();
                 if(bvalue.length > 0) {

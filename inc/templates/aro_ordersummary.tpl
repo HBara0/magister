@@ -81,7 +81,7 @@
             <td><input type="text" id="ordersummary_unitfee" name="ordersummary[unitFee]" value="{$aroordersummary->unitFee}" readonly="readonly"/></td>
         </tr>
     </tbody>
-    <tfoot style="display:none;" id="ordersummary_tfoot" class="altrow2">
+    <tfoot style="display:none;" id="ordersummary_tfoot" class="altrow2"  name="seemoredetails" >
         <tr>
             <td>{$lang->feespaidbyintermeduom}</td>
             <td colspan="2">
@@ -113,7 +113,7 @@
     </tfoot>
 </table>
 <br/>
-<a href="#here" name="here" id="ordersummary_seemore" class="altrow2" style="font-weight: bold;border:solid thin;padding:5px;">See More</a>
+<a href="#seemoredetails" id="ordersummary_seemore" class="altrow2" style="font-weight: bold;border:solid thin;padding:5px;">See More</a>
 
 <div id="arrData"></div>
 </p>

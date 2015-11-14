@@ -2,7 +2,7 @@
     <form id="perform_budgeting/listfxrates_Form" name="perform_budgeting/listfxrates_Form" method="post">
         <table>
             <tr>
-            <input type="hidden" name="action" value="do_createrate" />
+            <input type="hidden" name="action" value="{$action}" />
             <td>{$lang->affiliate}</td>
             <td>{$affiliate_list}</td>
             </tr>
@@ -22,6 +22,7 @@
             <tr>
                 <td>{$lang->rateategorization}</td>
                 <td>
+                    {$categoryinputhidden}
                     <fieldset style="border:none;padding:0px;" {$disabled}>
                         <span><input type="radio" name="budgetrate[rateCategory]" {$category[checked][isYef]} value="isYef" />{$lang->isyef}</span>
                         <span><input type="radio" name="budgetrate[rateCategory]" {$category[checked][isActual]} value="isActual"/>{$lang->isactual}</span>

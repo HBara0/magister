@@ -11,9 +11,9 @@
 if(!defined('DIRECT_ACCESS')) {
     die('Direct initialization of this file is not allowed.');
 }
-if($core->usergroup['aro_canUseAro'] == 0) {
-    //error($lang->sectionnopermission);
-    // exit;
+if($core->usergroup['canUseAro'] == 0) {
+    error($lang->sectionnopermission);
+    exit;
 }
 
 if(!($core->input['action'])) {
@@ -57,7 +57,7 @@ if(!($core->input['action'])) {
     $touritems = $helptouritems_obj->get_helptouritems('aro');
     if(is_array($touritems)) {
         $helptour->set_items($touritems);
-        $helptour = $helptour->parse();
+        $helptour_output = $helptour->parse();
     }
 
     if(!isset($core->input['id'])) {
@@ -125,7 +125,9 @@ if(!($core->input['action'])) {
     }
     if(isset($core->input['id'])) {
         $aroorderrequest = AroRequests::get_data(array('aorid' => $core->input['id']), array('simple' => false));
-
+        if($aroorderrequest->isFinalized == 1) {
+            $checked['aroisfinalized'] = 'checked="checked"';
+        }
         if(isset($core->input['referrer']) && $core->input['referrer'] = 'toapprove') {
             $aroapproval = AroRequestsApprovals::get_data(array('aorid' => intval($core->input['id']), 'uid' => $core->user['uid']));
             $approve_btn[$core->user['uid']] = '<input type="button" class="button" id="approvearo" value="'.$lang->approve.'"/>'

@@ -29,7 +29,7 @@
         </tr>
 
         <tr id="purposes_row_{$sequence}">
-            <td colspan="2" class="subtitle">{$lang->internalpurposes}</td><td colspan="2" class="subtitle">{$lang->externalpurposes}</td>
+            <td colspan="2" class="subtitle">{$lang->internalpurposes}*</td><td colspan="2" class="subtitle">{$lang->externalpurposes}*</td>
         </tr>
         <tr><td colspan="2">{$internalpurposes_checks}</td><td colspan="2">{$extpurposes_checks}</td></tr>
 

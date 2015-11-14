@@ -247,6 +247,14 @@ class Budgets extends AbstractClass {
                 if(empty($data['s1Perc']) && empty($data['s2Perc'])) {
                     $data['s1Perc'] = $data['s2Perc'] = 50;
                 }
+
+                if(empty($data['psid'])) {
+                    $product = Products::get_data(array('pid' => $data['pid']), array('simple' => false));
+                    if(is_object($product)) {
+                        $data['psid'] = $product->get_segment()['psid'];
+                    }
+                    unset($product);
+                }
                 if(isset($data['invoice'])) {
                     if(empty($this->data['affid'])) {
                         $budget_obj = new Budgets($data['bid']);
@@ -698,6 +706,30 @@ class Budgets extends AbstractClass {
 
     public function get_errorcode() {
         return $this->errorcode;
+    }
+
+    public function lockbudget($operation) {
+        global $db, $core;
+        $fields = array('isFinalized', 'isLocked', 'finalizedBy', 'lockedBy');
+        foreach($fields as $field) {
+            $update_budget[$field] = 0;
+            if(isset($operation) && $operation == 'lock') {
+                switch($field) {
+                    case 'finalizedBy':
+                    case 'lockedBy':
+                        $update_budget[$field] = $core->user['uid'];
+                        break;
+                    default:
+                        $update_budget[$field] = 1;
+                        break;
+                }
+            }
+        }
+        $query = $db->update_query(self::TABLE_NAME, $update_budget, 'bid='.$this->bid);
+        if($query) {
+            return $this;
+        }
+        return false;
     }
 
 }

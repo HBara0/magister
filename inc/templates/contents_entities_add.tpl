@@ -75,15 +75,19 @@
                         <td><strong>{$lang->presence}</strong></td><td>{$presence_list}</td>
                     </tr>
                     <tr>
-                        <td><strong>{$lang->companyname}</strong></td><td width="30%">
-                            <input type="text" id="companyName" name="companyName" required="required" class="inlineCheck" title="{$lang->companyname_title}"/> {$lang->abbreviation}
+                        <td><strong>{$lang->companyname}</strong></td><td width="30%"><!--class="inlineCheck"-->
+                            <input type="text" id="companyName" name="companyName" required="required"  title="{$lang->companyname_title}"/> {$lang->abbreviation}
                             <input type="text" id="companyNameAbbr" name="companyNameAbbr" size='5' title="{$lang->companynameabbr_title}"/></td>
                         <td width="50%" rowspan="3" valign="top"><span id="companyName_inlineCheckResult"></span></td>
                     </tr>
                     <tr>
                         <td width="20%" valign="top"><strong>{$lang->companyshortname}</strong></td>
                         <td><input type="text" id="companyNameShort" required="required" name="companyNameShort" value="{$entity[companyNameShort]}"/></td>
-                        <td></td> </tr>
+                        <td></td>
+                    </tr>
+                    <tr id="ent_tobeassigned">
+                        {$ent_list}
+                    </tr>
                     <tr id="parentcompany">
                         <td valign="top">{$lang->parentcompany}</td><td ><input type='text' id='supplier_1_autocomplete' value="{$entity[parent]}"/><input type="hidden" size="3" id="supplier_1_id_output" value="{$entity[parent]}" disabled/><input type='hidden' id='supplier_1_id' name='parent' value="{$entity[parent]}" /><div id='searchQuickResults_supplier_1' class='searchQuickResults' style='display:none;'></div></td>
                         <td></td> </tr>
@@ -94,9 +98,6 @@
                     <tr>
                         <td>{$lang->companysize}</td><td>{$companysize_list}</td>
                         <td></td>  </tr>
-                    <tr id="ent_tobeassigned">
-                        {$ent_list}
-                    </tr>
                     <tr>
                         <td><strong>{$lang->segments}</strong></td><td>{$segments_list}</td>
                     </tr>

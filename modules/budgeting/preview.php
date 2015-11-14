@@ -11,71 +11,35 @@
 if(!($core->input['action'])) {
     if($core->input['referrer'] == 'generate') {
         $budgetcache = new Cache();
-        $business_managers = array();
-        if(is_array($core->user['auditedaffids'])) {
-            foreach($core->user['auditedaffids'] as $auditaffid) {
-                $aff_obj = new Affiliates($auditaffid);
-                $affiliate_users = $aff_obj->get_all_users();
-                foreach($affiliate_users as $aff_businessmgr) {
-                    $business_managers[$aff_businessmgr['uid']] = $aff_businessmgr['uid'];
-                }
-            }
-        }
-        else {
-            if($core->usergroup['canViewAllEmp'] == 1) {
-                $affiliate = new Affiliates($core->user['mainaffiliate']);
-                $business_managers = array_keys($affiliate->get_all_users(array('displaynameonly' => true)));
-            }
-            else {
-                $business_managers[$core->user['uid']] = $core->user['uid'];
-            }
-        }
-        $affiliate_users = $core->user_obj->get_reportingto();
-        if(is_array($affiliate_users)) {
-            foreach($affiliate_users as $aff_businessmgr) {
-                $business_managers[$aff_businessmgr['uid']] = $aff_businessmgr['uid'];
-            }
-        }
+        $user_obj = new Users($core->user['uid']);
+        $permissions = $user_obj->get_businesspermissions();
         $budgetsdata['current'] = ($core->input['budget']);
-        $aggregate_types = array('affiliates', 'suppliers', 'managers', 'segments', 'years');
-        //eval("\$budgetreport_coverpage = \"".$template->get('budgeting_budgetreport_coverpage')."\";");
-
-        if(is_array($core->input['budget']['segments'])) {
-            $segmentscoords = ProdSegCoordinators::get_data(array('uid' => $core->user['uid'], 'psid' => implode(',', array_filter($core->input['budget']['segments']))), array('operators' => array('psid' => 'IN'), 'returnarray' => true));
-            if(is_array($segmentscoords) && !(isset($core->input['budget']['managers']) || is_array($core->input['budget']['managers']))) {
-                $budgetsdata['current']['segments'] = array();
-                foreach($segmentscoords as $segmentscoord) {
-                    if(in_array($segmentscoord->psid, $budgetsdata['current']['segments'])) {
-                        continue;
-                    }
-                    $employeesegments = EmployeeSegments::get_data(array('psid' => $segmentscoord->psid), array('returnarray' => true));
-                    if(is_array($employeesegments)) {
-                        foreach($employeesegments as $employeesegment) {
-                            $business_managers[$employeesegment->uid] = $employeesegment->uid;
+        $matchfields = array('affid' => 'affiliates', 'psid' => 'segments', 'spid' => 'suppliers', 'uid' => 'managers');
+        foreach($matchfields as $key => $val) {
+            $budgetsdata['current'][$val] = $budgetsdata['current'][$key];
+        }
+        if(is_array($permissions)) {
+            foreach($permissions as $key => $val) {
+                if(!isset($matchfields[$key])) {
+                    continue;
+                }
+                if(is_array($val)) {
+                    if(empty($budgetsdata['current'][$key])) {
+                        if(empty($val)) {
+                            unset($budgetsdata['current'][$key]);
+                            continue;
                         }
+                        $budgetsdata['current'][$matchfields[$key]] = $val;
                     }
-                    $budgetsdata['current']['segments'][] = $segmentscoord->psid;
+                    else {
+                        $budgetsdata['current'][$matchfields[$key]] = array_intersect($budgetsdata['current'][$key], $val);
+                    }
+                    $budgetsdata['current'][$matchfields[$key]] = array_filter($budgetsdata['current'][$matchfields[$key]]);
+                    $budgetsdata['current'][$key] = $budgetsdata['current'][$matchfields[$key]];
                 }
             }
         }
-        /* overrites the filters and get the user filter when no  filters are selected */
-        $dummy_budget = new Budgets();
-        $filters = $dummy_budget->generate_budgetline_filters();
-        ///$filters = array('affiliates' => $core->user['affiliates'], 'suppliers' => $core->user['suppliers']['eid'], 'segments' => array_keys($core->user_obj->get_segments()));
-        if(is_array($filters)) {
-            foreach($filters as $key => $val) {
-                if(empty($budgetsdata['current'][$key])) {
-                    if(empty($val)) {
-                        unset($budgetsdata['current'][$key]);
-                        continue;
-                    }
-                    $budgetsdata['current'][$key] = $val;
-                }
-                else {
-                    $budgetsdata['current'][$key] = array_intersect($val, $budgetsdata['current'][$key]);
-                }
-            }
-        }
+
         $dal_config = array(
                 'operators' => array('affid' => 'in', 'year' => '='),
                 'simple' => false,
@@ -87,7 +51,21 @@ if(!($core->input['action'])) {
         $budgetsdata['prev3years']['years'] = $budgetsdata['current']['years'] - 3;
         $periods = array('current', 'prev2years', 'prev3years');
         foreach($periods as $period) {
-            $budgets[$period] = Budgets::get_budgets_bydata($budgetsdata[$period]);
+            $budgetfilter[$period] = $budgetsdata['current'];
+            if(is_array($budgetsdata[$period][$matchfields['affid']]) && !is_empty(array_filter($budgetsdata[$period][$matchfields['affid']]))) {
+                $budgetfilter[$period]['affiliates'] = $budgetsdata[$period][$matchfields['affid']];
+            }
+            else if($core->usergroup['canViewAllAff'] == 0) {
+                $budgetfilter[$period]['affiliates'] = array(0);
+            }
+
+            if(is_array($budgetsdata[$period][$matchfields['spid']]) && !is_empty(array_filter($budgetsdata[$period][$matchfields['spid']]))) {
+                $budgetfilter[$period]['suppliers'] = $budgetsdata[$period][$matchfields['spid']];
+            }
+            else if($core->usergroup['canViewAllSupp'] == 0) {
+                $budgetfilter[$period]['suppliers'] = array(0);
+            }
+            $budgets[$period] = Budgets::get_budgets_bydata($budgetfilter[$period]);
         }
         if(!is_array($budgets['current'])) {
             redirect($_SERVER['HTTP_REFERER'], 2, $lang->nomatchfound);
@@ -99,27 +77,21 @@ if(!($core->input['action'])) {
                 if(is_array($budgets[$field])) {
                     foreach($budgets[$field] as $budgetid) {
                         $budget_obj = new Budgets($budgetid);
-                        /* Validate Permissions - START */
-                        $filter = $budget_obj->generate_budgetline_filters();
-                        if($filter === false) {
-                            continue;
+                        if(isset($budgetsdata['current'][$matchfields['uid']]) && !is_empty(array_filter($budgetsdata['current'][$matchfields['uid']]))) {
+                            $budgetlines_filters['businessMgr'] = array_filter($budgetsdata['current'][$matchfields['uid']]);
                         }
-                        /* Validate Permissions - END */
-
-                        if(empty($filter)) {
-                            if(isset($budgetsdata[$field]['managers'])) {
-                                $budgetsdata[$field]['managers'] = array_intersect($business_managers, $budgetsdata[$field]['managers']);
-                            }
-                            else {
-                                $budgetsdata[$field]['managers'] = $business_managers;
-                            }
+                        elseif($core->usergroup['canViewAllEmp'] == 0) {
+                            $budgetlines_filters['businessMgr'][] = $core->user['uid'];
+                        }
+                        if(isset($budgetsdata['current'][$matchfields['psid']]) && !is_empty(array_filter($budgetsdata['current'][$matchfields['psid']]))) {
+                            $budgetlines_filters['psid'] = array_filter($budgetsdata['current'][$matchfields['psid']]);
+                        }
+                        elseif($core->usergroup['canViewAllSupp'] == 0) {
+                            $budgetlines_filters['psid'] = array(0);
                         }
 
-                        if(empty($budgetsdata[$field]['managers'])) {
-                            $budgetsdata[$field]['managers'][] = $core->user['uid'];
-                        }
-                        $budgetlines = $budget_obj->get_budgetlines_objs(array('businessMgr' => $budgetsdata[$field]['managers']), array('operators' => array('createdBy' => 'in'), 'order' => 'quantity', 'returnarray' => true));
-
+                        $budgetlines = $budget_obj->get_budgetlines_objs($budgetlines_filters, array('operators' => array('createdBy' => 'in'), 'order' => 'quantity', 'returnarray' => true));
+                        unset($budgetlinefilter);
                         if(!is_array($budgetlines)) {
                             continue;
                         }
@@ -136,7 +108,7 @@ if(!($core->input['action'])) {
                             $budget_currencies[$budgetline->blid] = $budgetline->originalCurrency;
                             /* get the currency rate of the Origin currency  of the current buudget and convert it - START */
                             if($budgetline->originalCurrency != $budgetsdata[$field]['toCurrency']) {
-                                $fxrates_obj = BudgetFxRates::get_data(array('fromCurrency' => $budgetline->originalCurrency, 'toCurrency' => $budgetsdata[$field]['toCurrency'], 'affid' => $budget_obj->affid, 'year' => $budget_obj->year), $dal_config);
+                                $fxrates_obj = BudgetFxRates::get_data(array('fromCurrency' => $budgetline->originalCurrency, 'toCurrency' => $budgetsdata[$field]['toCurrency'], 'affid' => $budget_obj->affid, 'year' => $budget_obj->year, 'isBudget' => 1), $dal_config);
                                 if(is_array($fxrates_obj)) {
                                     if($field !== 'current') {
                                         $budgetline->amount = $budgetline->actualAmount;
@@ -176,6 +148,12 @@ if(!($core->input['action'])) {
                             $rawdata[$field][$blid]['s1Income'] = $rawdata[$field][$blid]['income'] * ($rawdata[$field][$blid]['s1Perc'] / 100);
                             $rawdata[$field][$blid]['s2Income'] = $rawdata[$field][$blid]['income'] * ($rawdata[$field][$blid]['s2Perc'] / 100);
                             $rawdata[$field][$blid]['interCompanyPurchase_output'] = $lang->na;
+//                            if(isset($rawdata[$field][$blid]['interCompanyPurchase']) && !empty($rawdata[$field][$blid]['interCompanyPurchase'])) {
+//                                $interco_affiliate = new Affiliates($rawdata[$field][$blid]['interCompanyPurchase']);
+//                                $rawdata[$field][$blid]['interCompanyPurchase_output'] = $interco_affiliate->get_displayname();
+//                                unset($interco_affiliate);
+//                            }
+
                             if(!empty($rawdata[$field][$blid]['customerCountry'])) {
                                 $rawdata[$field][$blid]['coid'] = $rawdata[$blid]['customerCountry'];
                             }
@@ -372,7 +350,7 @@ if(!($core->input['action'])) {
             }
             $budgeting_budgetrawreport .= '</tr>';
 
-            foreach($budgetsdata['current']['affiliates'] as $affid) {
+            foreach($budgetsdata['current']['affid'] as $affid) {
                 $affiliate = new Affiliates($affid);
                 if($affiliate->country == 0) {
                     continue;
@@ -424,35 +402,22 @@ if(!($core->input['action'])) {
                     $budget['affiliate'] = $budget_obj->get_affiliate()->get()['name'];
 
                     $budget_data = $budget_obj->get();
-                    /* Validate Permissions - START */
-                    $filter = $budget_obj->generate_budgetline_filters();
-                    if($filter === false) {
-                        continue;
-                    }
-                    /* Validate Permissions - END */
-                    //$firstbudgetline = $budget_obj->get_budgetLines(null, $filter);
 
-                    if(empty($filter)) {
-                        if(isset($budgetsdata['current']['managers'])) {
-                            $budgetsdata['current']['managers'] = array_intersect($business_managers, $budgetsdata['current']['managers']);
-                        }
-                        else {
-                            $budgetsdata['current']['managers'] = $business_managers;
-                        }
+                    if(isset($budgetsdata['current'][$matchfields['uid']]) && !is_empty(array_filter($budgetsdata['current'][$matchfields['uid']]))) {
+                        $budgetlines_filters['businessMgr'] = array_filter($budgetsdata['current'][$matchfields['uid']]);
                     }
-
-                    if(empty($budgetsdata['current']['managers'])) {
-                        $budgetsdata['current']['managers'][] = $core->user['uid'];
+                    elseif($core->usergroup['canViewAllEmp'] == 0) {
+                        $budgetlines_filters['businessMgr'][] = $core->user['uid'];
                     }
-//$field
-                    if(is_array($budgetsdata['current']['managers'])) {
-                        $budgetlines_filters = array('businessMgr' => $budgetsdata['current']['managers']);
+                    if(isset($budgetsdata['current'][$matchfields['psid']]) && !is_empty(array_filter($budgetsdata['current'][$matchfields['psid']]))) {
+                        $budgetlines_filters['psid'] = array_filter($budgetsdata['current'][$matchfields['psid']]);
                     }
-                    if(is_array($budgetsdata['current']['segments'])) {
-                        $budgetlines_filters = array('psid' => $budgetsdata['current']['segments']);
+                    elseif($core->usergroup['canViewAllSupp'] == 0) {
+                        $budgetlines_filters['psid'] = array(0);
                     }
 
                     $budgetlines = $budget_obj->get_lines($budgetlines_filters);
+                    unset($budgetlines_filters);
                     if(is_array($budgetlines)) {
                         //foreach($firstbudgetline as $cid => $customersdata) {
                         //foreach($customersdata as $pid => $productsdata) {
@@ -496,7 +461,7 @@ if(!($core->input['action'])) {
 
                             /* get the currency rate of the Origin currency  of the current buudget and convert it - START */
                             if($budgetline['originalCurrency'] != $budgetsdata['current']['toCurrency']) {
-                                $fxrates_obj = BudgetFxRates::get_data(array('fromCurrency' => $budgetline['originalCurrency'], 'toCurrency' => $budgetsdata['current']['toCurrency'], 'affid' => $budgetsdata['current']['affiliates'], 'year' => $budgetsdata['current']['years'], 'isBudget' => 1), $dal_config);
+                                $fxrates_obj = BudgetFxRates::get_data(array('fromCurrency' => $budgetline['originalCurrency'], 'toCurrency' => $budgetsdata['current']['toCurrency'], 'affid' => $budget_obj->affid, 'year' => $budgetsdata['current']['years'], 'isBudget' => 1), $dal_config);
                                 if(is_array($fxrates_obj)) {
                                     foreach($fxrates_obj as $fxid => $fxrates) {
                                         $budgetline['amount'] = ($budgetline['amount'] * $fxrates->rate);
@@ -514,9 +479,18 @@ if(!($core->input['action'])) {
                             if($core->usergroup['budgeting_canFillLocalIncome'] == 1) {
                                 $localincome_cell = '<td class="smalltext" style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="right" class="border_left">'.$budgetline['localIncomeAmount'].'</td>';
                                 $localincome_cell .= '<td class="smalltext" style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="right" class="border_left">'.$budgetline['invoicingEntityIncome'].'</td>';
+                                $budgetline['commissionSplitAffName'] = '';
+                                if(!empty($budgetline['commissionSplitAffid'])) {
+                                    $commissionsplitaff = new Affiliates($budgetline['commissionSplitAffid']);
+                                    $budgetline['commissionSplitAffName'] = $commissionsplitaff->name;
+                                }
+                                $localincome_cell .= '<td class="smalltext" style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="right" class="border_left">'.$budgetline['commissionSplitAffName'].'</td>';
+
+                                $total['localIncomeAmount']+=$budgetline['localIncomeAmount'];
+                                $total['invoicingEntityIncome'] +=$budgetline['invoicingEntityIncome'];
                             }
                             else {
-                                unset($localincome_cell, $budgetline['localIncomeAmount'], $budgetline['localIncomePercentage'], $budgetline['invoicingEntityIncome']);
+                                unset($localincome_cell, $budgetline['commissionSplitAffName'], $budgetline['localIncomeAmount'], $budgetline['localIncomePercentage'], $budgetline['invoicingEntityIncome']);
                             }
 
                             /* get the currency rate of the Origin currency  of the current buudget - END */
@@ -538,7 +512,13 @@ if(!($core->input['action'])) {
                                 $customername = '<a href="index.php?module=profiles/entityprofile&eid='.$budget['customerid'].'" target="_blank">'.$budgetline['customer'].'</a>';
                             }
                             $budgetline['interCompanyPurchase_output'] = $lang->na;
+                            if(isset($budgetline['interCompanyPurchase']) && !empty($budgetline['interCompanyPurchase'])) {
+                                $interco_affiliate = new Affiliates($budgetline['interCompanyPurchase']);
+                                $budgetline['interCompanyPurchase_output'] = $interco_affiliate->get_displayname();
+                                unset($interco_affiliate);
+                            }
                             $budgetline['product'] = $budgetline_obj->get_product()->name;
+
                             $total['amount']+=$budgetline['amount'];
                             $total['income']+=$budgetline['income'];
                             $total['unitPrice']+=$budgetline['unitPrice'];
@@ -559,6 +539,7 @@ if(!($core->input['action'])) {
 
             if($core->usergroup['budgeting_canFillLocalIncome'] == 1) {
                 $loalincome_header = '<th style="vertical-align:central; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left">'.$lang->localincome.'</th>';
+                $loalincome_header .= '<th style="vertical-align:central; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left">'.$lang->remainingcommaff.' Amt</th>';
                 $loalincome_header .= '<th style="vertical-align:central; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="center" class="border_left">'.$lang->remainingcommaff.'</th>';
             }
             if(is_array($total) && !empty($total)) {
@@ -571,6 +552,15 @@ if(!($core->input['action'])) {
                 }
                 $budgetline['amount'] = number_format($total['amount']);
                 $budgetline['income'] = number_format($total['income']);
+
+
+                if($core->usergroup['budgeting_canFillLocalIncome'] == 1) {
+                    $localincome_cell = '<td class="smalltext" style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="right" class="border_left">'.number_format($total['localIncomeAmount']).'</td>';
+                    $localincome_cell .= '<td class="smalltext" style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="right" class="border_left">'.number_format($total['invoicingEntityIncome']).'</td>';
+                    $budgetline['commissionSplitAffName'] = '';
+                    $localincome_cell .= '<td class="smalltext" style="vertical-align:top; padding:2px; border-bottom: dashed 1px #CCCCCC;" align="right" class="border_left">'.$budgetline['commissionSplitAffName'].'</td>';
+                }
+
                 eval("\$totals_row = \"".$template->get('budgeting_budgetrawreport_row')."\";");
             }
             eval("\$budgeting_budgetrawreport = \"".$template->get('budgeting_budgetrawreport')."\";");
@@ -635,8 +625,15 @@ elseif($core->input['action'] == 'exportexcel') {
             $budget['year'] = $budget_obj->get()['year'];
 
 // $firstbudgetline = $budget_obj->get_budgetLines(0, $filter);
-            if(!empty($filter['filters']['businessMgr'])) {
-                $budgetline_filter['businessMgr'] = $filter['filters']['businessMgr'];
+
+            if(isset($budgetsdata['current']['uid']) && !is_empty(array_filter($budgetsdata['current']['uid']))) {
+                $budgetlines_filters['businessMgr'] = array_filter($budgetsdata['current']['uid']);
+            }
+            elseif($core->usergroup['canViewAllEmp'] == 0) {
+                $budgetlines_filters['businessMgr'][] = $core->user['uid'];
+            }
+            if(isset($budgetsdata['current']['psid']) && !is_empty(array_filter($budgetsdata['current']['psid']))) {
+                $budgetlines_filters['psid'] = array_filter($budgetsdata['current']['psid']);
             }
             $budgetlines = $budget_obj->get_lines($budgetline_filter);
             if(is_array($budgetlines)) {

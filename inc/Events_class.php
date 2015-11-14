@@ -77,7 +77,7 @@ class Events extends AbstractClass {
                 if($upload_obj->get_status() != 4) {
                     ?>
                     <script language="javascript" type="text/javascript">
-                        $(function () {
+                        $(function() {
                             top.$("#upload_Result").html("<span class='red_text'><?php echo $upload_obj->parse_status($upload_obj->get_status());?></span>");
                         });
                     </script>
@@ -177,12 +177,13 @@ class Events extends AbstractClass {
     }
 
     protected function validate_requiredfields(array $data = array()) {
-        global $core, $db;
+        global $core, $db, $errorhandler, $lang;
         if(is_array($data)) {
             $required_fields = array('title', 'description', 'fromDate', 'toDate');
             foreach($required_fields as $field) {
                 if(empty($data[$field]) && $data[$field] != '0') {
                     $this->errorcode = 2;
+                    $errorhandler->record('requiredfields', $lang->$field);
                     return true;
                 }
             }

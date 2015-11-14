@@ -11,8 +11,6 @@
 <link href='{$core->settings[rootdir]}/css/jqueryuitheme/jquery-ui-current.custom.min.css' rel='stylesheet' type='text/css' />
 <link href='{$core->settings[rootdir]}/css/jquery.qtip.min.css' rel='stylesheet' type='text/css' />
 <script src="{$core->settings[rootdir]}/js/ckeditor/ckeditor.js"></script>
-<script src="{$core->settings[rootdir]}/js/jquery.populate.js" type="text/javascript"></script>
-
 <script type="text/javascript">
     var loading_text = "{$lang->loading}";
     var imagespath = "{$core->settings[rootdir]}/images/";

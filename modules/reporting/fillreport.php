@@ -96,9 +96,25 @@ if(!$core->input['action']) {
 //**  $session->set_phpsession(array('reportmeta_'.$identifier => serialize($core->input)));
 
         $productscount = 6; //Make it a setting
-
+//        if($core->input['auditor'] != 1) {
+//            $query_string = ' AND (uid='.$core->user['uid'].' OR uid=0)';
+//        }
         if($core->input['auditor'] != 1) {
-            $query_string = ' AND (uid='.$core->user['uid'].' OR uid=0)';
+            $query_string = ' AND (uid='.$core->user['uid'];
+
+            $fromusers = UsersTransferedAssignments::get_data(array('toUser' => $core->user['uid'], 'affid' => $core->input['affid'], 'eid' => $core->input['spid']), array('returnarray' => true));
+            if(is_array($fromusers)) {
+                foreach($fromusers as $fromuser) {
+                    $bm_ids[] = $fromuser->fromUser;
+                }
+                if(is_array($bm_ids)) {
+                    $bm_ids[] = 0;
+                    $query_string .= ' OR uid IN('.implode(', ', $bm_ids).'))';
+                }
+            }
+            else {
+                $query_string .=' OR uid=0)';
+            }
         }
 
         $query = $db->query("SELECT pa.*, p.name AS productname
@@ -130,7 +146,14 @@ if(!$core->input['action']) {
                 if(is_array($usersegments)) {
                     $usersegments = array_keys($usersegments);
                     if(!in_array($segment['psid'], $usersegments) && $core->input['auditor'] != 1 && $core->user['uid'] != $productactivity['uid']) {
-                        continue;
+                        if(is_array($bm_ids)) {
+                            if(!in_array($productactivity['uid'], $bm_ids)) {
+                                continue;
+                            }
+                        }
+                        else {
+                            continue;
+                        }
                     }
                 }
                 unset($usersegments, $segment, $product);
@@ -631,7 +654,7 @@ if(!$core->input['action']) {
         /* Parse MOM Specific Follow Up Actions - START */
         $quarter_start = strtotime($core->input['year'].'-'.$core->settings['q'.$core->input['quarter'].'start']);
         $quarter_end = strtotime($core->input['year'].'-'.$core->settings['q'.$core->input['quarter'].'end']);
-        $momactions_where = '(date BETWEEN '.$quarter_start.' AND '.$quarter_end.') AND momid=(select momid from meetings_minsofmeeting WHERE mtid IN '
+        $momactions_where = '(date BETWEEN '.$quarter_start.' AND '.$quarter_end.') AND momid IN (select momid from meetings_minsofmeeting WHERE mtid IN '
                 .'(SELECT mtid FROM meetings_associations WHERE idAttr="spid" AND id='.$reportmeta[spid].'))';
         $momactions = MeetingsMOMActions::get_data(array('filter' => $momactions_where), array('returnarray' => true, 'operators' => array('filter' => CUSTOMSQLSECURE)));
         if(is_array($momactions)) {
@@ -1631,7 +1654,7 @@ else {
                             $ready_affids[] = $ready_report['affid'];
                         }
 
-                        $ready_reports_link = $core->settings['rootdir'].'/index.php?module = reporting/preview&referrer = direct&identifier = '.base64_encode(serialize(array('year' => $current_report_details['year'], 'quarter' => $current_report_details['quarter'], 'spid' => $current_report_details['eid'], 'affid' => $ready_affids)));
+                        $ready_reports_link = $core->settings['rootdir'].'/index.php?module=reporting/preview&referrer=direct&identifier='.base64_encode(serialize(array('year' => $current_report_details['year'], 'quarter' => $current_report_details['quarter'], 'spid' => $current_report_details['eid'], 'affid' => $ready_affids)));
 
                         $lang->load('messages');
                         $email_data = array(

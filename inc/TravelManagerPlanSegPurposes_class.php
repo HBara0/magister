@@ -27,6 +27,7 @@ class TravelManagerPlanSegPurposes extends AbstractClass {
         if(is_array($data)) {
             $db->insert_query(self::TABLE_NAME, $data);
         }
+        return $this;
     }
 
     protected function update(array $data) {
@@ -34,6 +35,7 @@ class TravelManagerPlanSegPurposes extends AbstractClass {
         if(is_array($data)) {
             $db->update_query(self::TABLE_NAME, $data, self::PRIMARY_KEY.' = '.intval($this->data[self::PRIMARY_KEY]));
         }
+        return $this;
     }
 
 }

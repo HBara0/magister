@@ -30,7 +30,9 @@ if(!$core->input['action']) {
     if($core->input['referrer'] == 'fill') {
         $identifier = $db->escape_string($core->input['identifier']);
         $session->set_phpsession(array('visitreportcompetitiondata_'.$identifier => serialize($core->input)));
-        if(empty($session->get_phpsession('visitreportdata_'.$identifier)) || !is_array(unserialize($session->get_phpsession('visitreportdata_'.$identifier))) || !is_array(unserialize($session->get_phpsession('visitreportvisitdetailsdata_'.$identifier)))) {
+        $unserialized_session = unserialize($session->get_phpsession('visitreportdata_'.$identifier));
+        $phpsession = $session->get_phpsession('visitreportdata_'.$identifier);
+        if(empty($phpsession) || !is_array($unserialized_session) || !is_array($unserialized_session)) {
             redirect('index.php?module=crm/listvisitreports');
         }
         $visitreports[1] = array_merge(unserialize($session->get_phpsession('visitreportdata_'.$identifier)), unserialize($session->get_phpsession('visitreportvisitdetailsdata_'.$identifier)));
@@ -63,20 +65,45 @@ if(!$core->input['action']) {
         else {
             $vrid_where = " vrid='".$db->escape_string($core->input['vrid'])."'";
         }
+        $permissions = $core->user_obj->get_businesspermissions();
 
-        if($core->usergroup['canViewAllCust'] == 0) {
-            $incustomers = implode(',', $core->user['customers']);
-            $customers_extra_where = ' AND cid IN ('.$incustomers.') ';
-        }
-        else {
-            if(isset($core->user['auditedaffids'])) {
-                $customers_extra_where = ' AND affid IN ('.implode(',', $core->user['auditedaffids']).')';
-                $customers_extra_where .= ' OR uid IN (Select uid from users WHERE reportsTo='.$core->user['uid'].')';
-            }
-            else {
-                $customers_extra_where = ' AND uid IN (Select uid from users WHERE reportsTo='.$core->user['uid'].')';
+        $trasferedassignments = UsersTransferedAssignments::get_data(array('toUser' => $core->user['uid'], 'affid' => $permissions['affid']), array('returnarray' => true));
+        if(is_array($trasferedassignments)) {
+            foreach($trasferedassignments as $trasferedassignment) {
+                $transfered_entities['cid'][] = $trasferedassignment->eid;
+                $transfered_entities['uid'][] = $trasferedassignment->fromUser;
             }
         }
+        $transfered_fields = array('cid', 'uid');
+        foreach($transfered_fields as $transfered_field) {
+            if(is_array($permissions[$transfered_field]) && is_array($transfered_entities[$transfered_field])) {
+                $permissions[$transfered_field] = array_unique(array_merge($permissions[$transfered_field], $transfered_entities[$transfered_field]));
+            }
+        }
+        unset($transfered_entities);
+        $permissiontypes = array('affid' => 'affid', 'cid' => 'cid', 'uid' => 'vr.uid');
+        foreach($permissiontypes as $type => $col) {
+            if(isset($permissions[$type]) && !empty($permissions[$type])) {
+                if(is_array($permissiontypes[$type])) {
+                    $customers_extra_where .= ' AND '.$col.' IN ('.implode(',', $permissiontypes[$type]).')';
+                }
+            }
+        }
+
+//        if($core->usergroup['canViewAllCust'] == 0) {
+//            $incustomers = implode(',', $core->user['customers']);
+//            $customers_extra_where = ' AND cid IN ('.$incustomers.') ';
+//        }
+//        else {
+//            if(isset($core->user['auditedaffids'])) {
+//                $customers_extra_where = ' AND affid IN ('.implode(',', $core->user['auditedaffids']).')';
+//                $customers_extra_where .= ' OR uid IN (Select uid from users WHERE reportsTo='.$core->user['uid'].')';
+//            }
+//            else {
+//                $customers_extra_where = ' AND uid IN (Select uid FROM users WHERE reportsTo='.$core->user['uid'].')';
+//            }
+//        }
+
         $query = $db->query("SELECT * FROM ".Tprefix."visitreports WHERE{$vrid_where}{$customers_extra_where}");
         if($db->num_rows($query) == 0) {
             redirect('index.php?module=crm/listvisitreports');

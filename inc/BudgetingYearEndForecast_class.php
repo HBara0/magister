@@ -518,4 +518,28 @@ class BudgetingYearEndForecast extends AbstractClass {
         return false;
     }
 
+    public function lockbudget() {
+        global $db, $core;
+        $fields = array('isFinalized', 'isLocked', 'finalizedBy', 'lockedBy');
+        foreach($fields as $field) {
+            $update_budget[$field] = 0;
+            if(isset($operation) && $operation == 'lock') {
+                switch($field) {
+                    case 'finalizedBy':
+                    case 'lockedBy':
+                        $update_budget[$field] = $core->user['uid'];
+                        break;
+                    default:
+                        $update_budget[$field] = 1;
+                        break;
+                }
+            }
+        }
+        $query = $db->update_query(self::TABLE_NAME, $update_budget, 'yefid='.$this->yefid);
+        if($query) {
+            return $this;
+        }
+        return false;
+    }
+
 }

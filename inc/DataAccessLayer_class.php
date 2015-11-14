@@ -32,7 +32,11 @@ class DataAccessLayer {
             return false;
         }
         $items = array();
-        $sql = 'SELECT '.$this->primary_key.','.$columnname.' FROM '.Tprefix.$this->table_name;
+        $get_columns = $columnname.','.$this->primary_key;
+        if(($configs['singlecolumn'])) {
+            $get_columns = $columnname;
+        }
+        $sql = 'SELECT '.$get_columns.' FROM '.Tprefix.$this->table_name.' '.$configs['join'];
 
         $sql .= $this->construct_whereclause($filters, $configs['operators']);
         $sql .= $this->construct_groupclause($configs['group']);
@@ -42,8 +46,16 @@ class DataAccessLayer {
         $query = $db->query($sql);
         $this->numrows = $db->num_rows($query);
         if($this->numrows > 0) {
+            $val = $columnname;
+            if(!empty($configs['alias'])) {
+                $val = $configs['alias'];
+            }
+            $key = $this->primary_key;
+            if(($configs['singlecolumn'])) {
+                $key = $val;
+            }
             while($item = $db->fetch_assoc($query)) {
-                $items[$item[$this->primary_key]] = $item[$columnname];
+                $items[$item[$key]] = $item[$val];
             }
             $db->free_result($query);
             return $items;
@@ -58,7 +70,7 @@ class DataAccessLayer {
             $configs['simple'] = true;
         }
         $items = array();
-        $sql = 'SELECT '.$this->primary_key.' FROM '.Tprefix.$this->table_name;
+        $sql = 'SELECT '.$this->primary_key.' FROM '.Tprefix.$this->table_name.' '.$configs['join'];
 
         $sql .= $this->construct_whereclause($filters, $configs['operators']);
         $sql .= $this->construct_groupclause($configs['group']);

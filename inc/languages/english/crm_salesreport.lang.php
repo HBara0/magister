@@ -23,6 +23,7 @@ $lang['grossmargin'] = 'Gross Margin';
 $lang['lastmonthrate'] = 'Last Month';
 $lang['linenetamt'] = 'Amount';
 $lang['marginperc'] = 'Margin %';
+$lang['grossmarginperc'] = 'Gross Margin %';
 $lang['monthaveragerate'] = 'Month Average';
 $lang['monthtotal'] = 'Month Total';
 $lang['name'] = 'Name';
@@ -75,4 +76,5 @@ $lang['bymonth'] = 'of the Month';
 $lang['byquarter'] = 'of the quarter';
 $lang['wholeperiod'] = 'of the Whole Period';
 $lang['chart'] = 'Chart';
+$lang['rank'] = 'Rank';
 ?>
