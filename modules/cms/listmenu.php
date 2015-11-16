@@ -80,9 +80,8 @@ elseif($core->input['action'] == 'viewmenuitem') {
     if(is_array($menus_arrays)) {
         $menu_lists = $menuitem->parse_menu_list($menus_arrays);
     }
-    else {
-        $menu_lists = '<a href="index.php?module=cms/managemenu&type=addmenuitem&id='.$newsid.'" target="_blank"  title="'.$lang->addmenuitem.'"><img src="'.$core->settings['rootdir'].'/images/add.gif" border="0"/>'.$lang->addmenuitem.'</a>';
-    }
+    $menu_lists .= '<a href="index.php?module=cms/managemenu&type=addmenuitem&id='.$newsid.'" target="_blank"  title="'.$lang->addmenuitem.'"><img src="'.$core->settings['rootdir'].'/images/add.gif" border="0"/>'.$lang->addmenuitem.'</a>';
+
     if(!empty($menu_lists)) {
         echo($menu_lists);
     }

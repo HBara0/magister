@@ -69,7 +69,7 @@ class TravelManagerPlanTransps extends AbstractClass {
             $data['isMinCost'] = 0;
         }
         if($data['paidBy'] != 'anotheraff') {
-            $data['paidById'] = '';
+            unset($data['paidById']);
         }
         $data['modifiedOn'] = TIME_NOW;
         $data['modifiedBy'] = $core->user['uid'];
