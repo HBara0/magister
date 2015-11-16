@@ -55,16 +55,16 @@ class AroRequestsMessages extends AbstractClass {
         }
         else {
             $this->errorcode = 1;
-            return false;
+            return $this;
         }
 
         if(empty($this->data['message'])) {
             $this->errorcode = 2;
-            return false;
+            return $this;
         }
         if(value_exists('aro_requests_messages', 'message', $this->data['message'], ' uid='.$core->user['uid'].'')) { // Add date filter
             $this->errorcode = 3;
-            return false;
+            return $this;
         }
         if(preg_match("/Message-ID: (.*)/", $this->data['message'], $matches)) {
             preg_match("/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9._-]+)/", $matches[1], $messageid);
@@ -95,13 +95,15 @@ class AroRequestsMessages extends AbstractClass {
         if($query) {
             $this->data['armid'] = $db->last_id();
             $this->errorcode = 0;
-            return true;
+            return $this;
         }
     }
 
     public function send_message() {
         global $lang, $core;
-
+        if(empty($this->data['aorid'])) {
+            $this->data['aorid'] = $core->input['aorid'];
+        }
         $lang->load('aro_meta');
         $mailer = new Mailer();
         $mailer = $mailer->get_mailerobj();
@@ -196,7 +198,7 @@ class AroRequestsMessages extends AbstractClass {
                 $sender_approval_seq = $arorequest_obj->get_approval_byappover($this->data['uid'])->get()['sequence'];
                 //$approvals_objs = $arorequest_obj->get_approvers();
                 $config = array('returnarray' => true, 'simple' => false, 'order' => array('by' => 'sequence', 'sort' => 'ASC'));
-                $approvals_objs = AroRequestsApprovals::get_data(array('aorid='.$this->data['aorid'].' AND sequence >='.intval($sender_approval_seq)), $config);
+                $approvals_objs = AroRequestsApprovals::get_data('aorid='.$this->data['aorid'].' AND sequence <'.intval($sender_approval_seq), $config);
                 if(is_array($approvals_objs)) {
                     foreach($approvals_objs as $approvals_obj) {
                         $user = new Users($approvals_obj->uid);
