@@ -115,6 +115,7 @@ if(!$core->input['action']) {
 else {
     if($core->input['action'] == 'do_perform_generateyearendforecast') {
         $budgetcache = new Cache();
+        ini_set('memory_limit', '200M');
         $user_obj = new Users($core->user['uid']);
         $permissions = $user_obj->get_businesspermissions();
         $budgetsdata['current'] = ($core->input['budget']);
