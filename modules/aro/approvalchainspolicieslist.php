@@ -22,16 +22,16 @@ if(!$core->input['action']) {
     $purchasetypes = PurchaseTypes::get_data('', array('returnarray' => true));
 
     $filters_config = array(
-            'parse' => array('filters' => array('affid', 'effectivefrom', 'effectiveto', 'purchaseType'),
+            'parse' => array('filters' => array('affid', 'effectiveFrom', 'effectiveTo', 'purchaseType'),
                     'overwriteField' => array('purchaseType' => parse_selectlist('filters[purchaseType]', '', $purchasetypes, $core->input['filters']['purchaseType'], '', '', array('placeholder' => 'select purchase type')), 'isActive' => parse_selectlist('filters[isActive]', '', array('' => '', '0' => 'Not active', '1' => 'Active'), $core->input['filters']['isActive']),
                     ),
-                    'fieldsSequence' => array('affid' => 1, 'effectivefrom' => 2, 'effectiveto' => 3, 'purchaseType' => 4)
+                    'fieldsSequence' => array('affid' => 1, 'effectiveFrom' => 2, 'effectiveTo' => 3, 'purchaseType' => 4)
             ),
             'process' => array(
                     'filterKey' => 'aapcid',
                     'mainTable' => array(
                             'name' => 'aro_approvalchain_policies',
-                            'filters' => array('affid' => array('operatorType' => 'multiple', 'name' => 'affid'), 'effectivefrom', 'effectiveto', 'purchaseType' => array('operatorType' => 'equal', 'name' => 'purchaseType')),
+                            'filters' => array('affid' => array('operatorType' => 'multiple', 'name' => 'affid'), 'effectiveFrom' => array('operatorType' => 'date', 'name' => 'effectiveFrom'), 'effectiveTo' => array('operatorType' => 'date', 'name' => 'effectiveTo'), 'purchaseType' => array('operatorType' => 'equal', 'name' => 'purchaseType')),
                     ),
     ));
     $filter = new Inlinefilters($filters_config);
@@ -75,7 +75,7 @@ if(!$core->input['action']) {
             $affobj = new Affiliates($approvers->affid);
             $purchasetype_obj = new PurchaseTypes($approvers->purchaseType);
 
-            $row_tools = '<a href=index.php?module=aro/manageapprovalchainspolicies&id='.$approvers->aapcid.' title="'.$lang->edit.'"><img src=./images/icons/edit.gif border=0 alt='.$lang->edit.'/></a>';
+            $row_tools = '<a href="index.php?module=aro/manageapprovalchainspolicies&id='.$approvers->aapcid.'" title="'.$lang->edit.'"><img src=./images/icons/edit.gif border=0 alt='.$lang->edit.'/></a>';
             $row_tools .= ' <a href="#'.$approvers->aapcid.'" id="deletepolicy_'.$approvers->aapcid.'_aro/approvalchainspolicieslist_loadpopupbyid" rel="delete_'.$approvers->aapcid.'" title="'.$lang->delete.'"><img src="./images/invalid.gif" alt="'.$lang->delete.'" border="0"></a>';
 
             eval("\$policies_approverpolicieslistrow .= \"".$template->get('aro_warehouses_approverpolicies_list_rows')."\";");

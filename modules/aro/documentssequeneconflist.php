@@ -29,7 +29,7 @@ if(!$core->input['action']) {
                     'filterKey' => 'adsid',
                     'mainTable' => array(
                             'name' => 'aro_documentsequences',
-                            'filters' => array('affid' => array('operatorType' => 'multiple', 'name' => 'affid'), 'ptid' => array('operatorType' => 'equal', 'name' => 'ptid'), 'effectiveFrom', 'effectiveTo'),
+                            'filters' => array('affid' => array('operatorType' => 'multiple', 'name' => 'affid'), 'ptid' => array('operatorType' => 'equal', 'name' => 'ptid'), 'effectiveFrom' => array('operatorType' => 'date', 'name' => 'effectiveFrom'), 'effectiveTo' => array('operatorType' => 'date', 'name' => 'effectiveTo')),
                     ),
     ));
     $filter = new Inlinefilters($filters_config);
@@ -74,7 +74,7 @@ if(!$core->input['action']) {
 
     if(is_array($arodocumentsseqconf)) {
         foreach($arodocumentsseqconf as $arodocumentconf) {
-            $row_tools = '<a href=index.php?module=aro/arodocumentsequeneconf&id='.$arodocumentconf->adsid.' title="'.$lang->edit.'"><img src="./images/icons/edit.gif" border=0 alt="'.$lang->edit.'"/></a>';
+            $row_tools = '<a href="index.php?module=aro/arodocumentsequeneconf&id='.$arodocumentconf->adsid.'" title="'.$lang->edit.'"><img src="./images/icons/edit.gif" border=0 alt="'.$lang->edit.'"/></a>';
             $row_tools .= " <a href='#{$arodocumentconf->adsid}' id='deletedocumentsequenceconf_{$arodocumentconf->adsid}_aro/documentssequeneconflist_loadpopupbyid'><img src='{$core->settings[rootdir]}/images/invalid.gif' border='0' alt='{$lang->delete}' /></a>";
             $arodocumentconf->effectiveTo = date($core->settings['dateformat'], $arodocumentconf->effectiveTo);
             $arodocumentconf->effectiveFrom = date($core->settings['dateformat'], $arodocumentconf->effectiveFrom);

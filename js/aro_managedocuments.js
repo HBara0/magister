@@ -70,9 +70,14 @@ $(function() {
         var ptid = $(this).data('purchasetype');
         sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populatedocnum&affid= ' + affid + '&ptid= ' + ptid);
         sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populateaffpolicy&affid= ' + affid + '&ptid= ' + ptid);
+        var aroBusinessManager = '';
+        if(typeof $("input[id='user_0_id']").val() != "undefined") {
+            aroBusinessManager = $("input[id='user_0_id']").val();
+        }
+
         $.ajax({type: 'post',
             url: rootdir + "index.php?module=aro/managearodouments&action=generateapprovalchain",
-            data: "affid=" + affid + "&ptid=" + ptid,
+            data: "affid=" + affid + "&ptid=" + ptid + "&aroBusinessManager=" + aroBusinessManager,
             beforeSend: function() {
             },
             complete: function() {
@@ -472,11 +477,11 @@ $(function() {
 //    });
 //---------------------------------------------------------------------------//
 //------Form Submitting after 30 seconds--------------//
-//    var auto_refresh = setInterval(function() {
-//        submitform();
-//    }, 30000);
+    var auto_refresh = setInterval(function() {
+        submitform();
+    }, 30000);
     function submitform() {     //Form submit function
-        //   $("input[id^='perform_'][id$='_Button']").trigger("click");
+        $("input[id^='perform_'][id$='_Button']").trigger("click");
     }
 //---------------------------------------------------//
 //-------------If Vendor is affiliate, such select affiliate not entity and Disable  intermediary section----------------------//

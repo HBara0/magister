@@ -22,14 +22,14 @@ if(!$core->input['action']) {
     /* Perform inline filtering - START */
     $warhouses = Warehouses::get_data('', array('returnarray' => true));
     $filters_config = array(
-            'parse' => array('filters' => array('warehouse', 'fromDate', 'todate'),
+            'parse' => array('filters' => array('warehouse', 'fromDate', 'toDate'),
                     'overwriteField' => array('warehouse' => parse_selectlist('filters[warehouse]', 1, $warhouses, '', 0, '', array('blankstart' => true)),),
             ),
             'process' => array(
                     'filterKey' => 'awpid',
                     'mainTable' => array(
                             'name' => 'aro_wareshouses_policies',
-                            'filters' => array('warehouse' => array('operatorType' => 'equal', 'name' => 'warehouse'), 'start' => array('operatorType' => 'daterange', 'name' => 'effectiveFrom'), 'end' => array('operatorType' => 'daterange', 'effectiveTo' => 'ameeffectiveTo')),
+                            'filters' => array('warehouse' => array('operatorType' => 'equal', 'name' => 'warehouse'), 'fromDate' => array('operatorType' => 'date', 'name' => 'effectiveFrom'), 'toDate' => array('operatorType' => 'date', 'name' => 'effectiveTo')),
                     )
             )
     );

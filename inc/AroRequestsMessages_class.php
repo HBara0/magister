@@ -193,8 +193,10 @@ class AroRequestsMessages extends AbstractClass {
         switch($this->data['viewPermission']) {
             case 'public':
                 $arorequest_obj = new AroRequests($this->data['aorid']);
-                $approvals_objs = $arorequest_obj->get_approvers();
-
+                $sender_approval_seq = $arorequest_obj->get_approval_byappover($this->data['uid'])->get()['sequence'];
+                //$approvals_objs = $arorequest_obj->get_approvers();
+                $config = array('returnarray' => true, 'simple' => false, 'order' => array('by' => 'sequence', 'sort' => 'ASC'));
+                $approvals_objs = AroRequestsApprovals::get_data(array('aorid='.$this->data['aorid'].' AND sequence >='.intval($sender_approval_seq)), $config);
                 if(is_array($approvals_objs)) {
                     foreach($approvals_objs as $approvals_obj) {
                         $user = new Users($approvals_obj->uid);

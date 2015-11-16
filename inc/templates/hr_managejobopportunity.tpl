@@ -107,7 +107,7 @@
                     <tr>
                         <td>{$lang->yearsofexperience}</td>
                         <td>{$lang->min} <input type="number" id="jobopportunity_minExpYears" name="jobopportunity[minExpYears]" value="{$jobopportunity[minExpYears]}" style="width:125px;"/>
-                            {$lang->max} <input type="number" id="jobopportunity_minExpYears" name="jobopportunity[minExpYears]" value="{$jobopportunity[maxExpYears]}" style="width:125px;"/></td>
+                            {$lang->max} <input type="number" id="jobopportunity_maxExpYears" name="jobopportunity[maxExpYears]" value="{$jobopportunity[maxExpYears]}" style="width:125px;"/></td>
                     </tr>
                     <tr>
                         <td>{$lang->minimumqualifications}</td>
