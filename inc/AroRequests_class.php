@@ -565,7 +565,7 @@ class AroRequests extends AbstractClass {
         }
         $to = $firstapprover->get_email();
         $approve_link = '<a href="'.$core->settings['rootdir']."/index.php?module=aro/managearodouments&referrer=toapprove&requestKey=".base64_encode($this->data['identifier'])."&id=".$this->data[self::PRIMARY_KEY].' "> View and Approve ARO </a>';
-        $aroapprovalemail_subject = 'Test Aro Needs Approval !';
+        $aroapprovalemail_subject = 'Aro Needs Approval !';
         $email_data = array(
                 'from' => 'ocos@orkila.com',
                 'to' => $to,
@@ -595,15 +595,17 @@ class AroRequests extends AbstractClass {
                     }
                 }
             }
-            $mailinglist = array_unique($mailinglist);
-            $email_data = array(
-                    'from_email' => 'ocos@orkila.com',
-                    'from' => 'ocos@orkila.com',
-                    'to' => $mailinglist, //$toinform
-                    'subject' => 'Aro '.$this->orderReference.' _Segments Coordinators Notification',
-                    'message' => 'Aro '.$this->orderReference.' in progress'  // change message
-            );
-            $mail = new Mailer($email_data, 'php');
+            if(is_array($mailinglist)) {
+                $mailinglist = array_unique($mailinglist);
+                $email_data = array(
+                        'from_email' => 'ocos@orkila.com',
+                        'from' => 'ocos@orkila.com',
+                        'to' => $mailinglist, //$toinform
+                        'subject' => 'Aro '.$this->orderReference.' _Segments Coordinators Notification',
+                        'message' => 'Aro '.$this->orderReference.' in progress'  // change message
+                );
+                $mail = new Mailer($email_data, 'php');
+            }
         }
     }
 

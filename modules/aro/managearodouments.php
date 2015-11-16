@@ -1277,7 +1277,7 @@ else {
     }
     elseif($core->input['action'] == 'perform_sendmessage') {
         $arorequestmessage_obj = new AroRequestsMessages();
-        $arorequestmessage_obj->create_message($core->input['arorequestmessage'], $core->input['aorid'], array('source' => 'emaillink'));
+        $arorequestmessage_obj = $arorequestmessage_obj->create_message($core->input['arorequestmessage'], $core->input['aorid'], array('source' => 'emaillink'));
         /* Errors Should be handled Here */
         switch($arorequestmessage_obj->get_errorcode()) {
             case 0:
