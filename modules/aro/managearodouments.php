@@ -402,7 +402,7 @@ if(!($core->input['action'])) {
 
                 $apprs = '<td class="subtitle" style="border-right: 1px dashed ;margin-right:10px;"><span style="font-weight:bold;">'.$lang->position.'</span><br/>
                     <span style="width:100%;font-weight:bold;">'.$lang->approver.'</span><br/><br/>
-                     <span style="width:100%;font-weight:bold;">'.$lang->dateofapprovalemail.'</span><br/><br/><br/><span style="width:100%;font-weight:bold;">'.$lang->dateofapproval.'</span></td>';
+                     <span style="width:100%;font-weight:bold;">'.$lang->dateofapprovalemail.'<small> (GMT)</small></span><br/><br/><br/><span style="width:100%;font-weight:bold;">'.$lang->dateofapproval.'<small> (GMT)</small></span></td>';
 
                 foreach($aroapprovalchain as $approver) {
                     switch($approver->position) {// needs optimization
