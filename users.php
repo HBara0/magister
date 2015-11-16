@@ -295,7 +295,7 @@ if($core->input['action']) {
                 $phones[$val]['number'] = $phone[$val][2];
             }
 
-            $checkboxes_index = array('mobileIsPrivate', 'mobile2IsPrivate', 'newFilesNotification');
+            $checkboxes_index = array('mobileIsPrivate', 'mobile2IsPrivate', 'newFilesNotification', 'birthdayIsPrivate');
             foreach($checkboxes_index as $key) {
                 if($core->user[$key] == 1) {
                     $checkedboxes[$key] = ' checked="checked"';

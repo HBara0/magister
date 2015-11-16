@@ -26,22 +26,29 @@ class AroPolicies extends AbstractClass {
     protected function create(array $data) {
         global $db, $core, $log;
         if(!$this->validate_requiredfields($data)) {
+            if($this->co_exist()) {
+                $this->errorcode = 3;
+                return $this;
+            }
             $data['createdOn'] = TIME_NOW;
             $data['createdBy'] = $core->user['uid'];
             $query = $db->insert_query(self::TABLE_NAME, $data);
             if($query) {
                 $id = $db->last_id();
                 $log->record('aro_policies', $id);
-                return $this;
             }
         }
+        return $this;
     }
 
     protected function update(array $data) {
         global $db, $core, $log;
         if(!$this->validate_requiredfields($data)) {
+            if($this->co_exist('apid NOT IN ('.$this->data['apid'].')')) {
+                $this->errorcode = 3;
+                return $this;
+            }
             $data['modifiedOn'] = TIME_NOW;
-
             $data['modifiedBy'] = $core->user['uid'];
             if(!isset($data['isActive'])) {
                 $data['isActive'] = 0;
@@ -50,9 +57,9 @@ class AroPolicies extends AbstractClass {
             if($query) {
                 $id = $db->last_id();
                 $log->record('aro_policies', $id);
-                return $this;
             }
         }
+        return $this;
     }
 
     protected function validate_requiredfields(array $data = array()) {
@@ -65,6 +72,22 @@ class AroPolicies extends AbstractClass {
                 }
             }
         }
+    }
+
+    public function co_exist($extra_where = '') {
+        $where = 'purchaseType='.$this->data['purchaseType'].' AND affid='.$this->data['affid'].' AND ('
+                .'((effectiveFrom BETWEEN '.$this->data['effectiveFrom'].' AND '.$this->data['effectiveTo'].') OR (effectiveTo BETWEEN '.$this->data['effectiveFrom'].' AND '.$this->data['effectiveTo'].'))'
+                .' OR '.
+                '(('.$this->data['effectiveFrom'].' BETWEEN effectiveFrom AND effectiveTo) AND ('.$this->data['effectiveTo'].' BETWEEN effectiveFrom AND effectiveTo))'
+                .')';
+        if(!empty($extra_where)) {
+            $where .=' AND '.$extra_where;
+        }
+        $policy = self::get_data($where);
+        if(is_object($policy)) {
+            return true;
+        }
+        return false;
     }
 
 }

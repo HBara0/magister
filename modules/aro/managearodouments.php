@@ -1137,7 +1137,9 @@ else {
             $data['affid'] = $core->input['affid'];
             $data['orderType'] = $core->input['ptid'];
             $data['orderreference'] = $core->input['orderreference'];
-            $data['aroBusinessManager'] = $core->input['aroBusinessManager'];
+            if(isset($core->input['aroBusinessManager']) && !empty($core->input['aroBusinessManager'])) {
+                $data['aroBusinessManager'] = $core->input['aroBusinessManager'];
+            }
             $arorequest = new AroRequests();
             $arorequest->set($data);
             $aroapprovalchain = $arorequest->generate_approvalchain(null, array('aroBusinessManager' => $data['aroBusinessManager']));

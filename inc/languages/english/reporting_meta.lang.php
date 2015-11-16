@@ -235,4 +235,10 @@ $lang['daystoimportfromqstart'] = 'Days to Import Data (From Q Start)';
 $lang['daystoimportfromcreation'] = 'Days to Import Data (From Creation Date)';
 $lang['businessmanager'] = 'Business Manager';
 $lang['reportauditor'] = 'Report Auditor';
+$lang['auditorfor'] = 'Auditor For';
+$lang['finalizedearlyby'] = 'Finalized Early By';
+$lang['remaining'] = 'Remaining';
+$lang['unflateby'] = 'Unfinalized And Late By ';
+$lang['finalizelateby'] = 'Finalized Late By';
+$lang['totalreports'] = 'Total Reports';
 ?>

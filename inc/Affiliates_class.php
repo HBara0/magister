@@ -302,6 +302,13 @@ class Affiliates {
         return new Users($this->affiliate['coo']);
     }
 
+    public function get_commercialManager() {
+        if(empty($this->affiliate['commercialManager'])) {
+            return false;
+        }
+        return new Users($this->affiliate['coo']);
+    }
+
     public function get_cfo() {
         if(empty($this->affiliate['cfo'])) {
             return false;

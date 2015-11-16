@@ -76,6 +76,9 @@ $lang['age'] = 'Age';
 $lang['experienceindustry'] = 'Experience Industry';
 $lang['onlineinterview'] = 'Online Interview';
 
+$lang['jobexistsameaff'] = 'Same job exists for this affiliate';
+$lang['errorsaving'] = 'Error ocured while saving';
+
 
 
 

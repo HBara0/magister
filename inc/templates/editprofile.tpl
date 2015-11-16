@@ -93,6 +93,12 @@
                         <td>{$lang->bbpin}</td>
                         <td><input type="text" id="bbPin" name="bbPin" value="{$core->user[bbPin]}"/></td>
                     </tr>
+                    <tr>
+                        <td>{$lang->birthdayisprivate}</td>
+                        <td>
+                            <input type='checkbox' name='birthdayIsPrivate' id='birthdayIsPrivate' value='1' title="{$lang->birthdayisprivate_tip}"{$checkedboxes[birthdayIsPrivate]} />
+                        </td>
+                    </tr>
                     <tr><td>{$download_card_button}</td>
                     </tr>
                     <tr><td colspan="3" class="subtitle"><br />{$lang->accountsettings}</td></tr>

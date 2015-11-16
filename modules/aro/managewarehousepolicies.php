@@ -54,7 +54,7 @@ if(!$core->input['action']) {
             'returnarray' => true
     );
     $warehouse_objs = Warehouses::get_data(array('affid' => $core->user['affiliates'], 'isActive' => 1), $dal_config);
-    $warehouse_list = parse_selectlist('warehousepolicy[warehouse]', 1, $warehouse_objs, '', '', '', array('width' => '50%'));
+    $warehouse_list = parse_selectlist('warehousepolicy[warehouse]', 1, $warehouse_objs, $warehouse['warehouse'], '', '', array('width' => '50%'));
 
     /* parse select list of covered countries currencies */
 
@@ -79,14 +79,14 @@ else if($core->input['action'] == 'do_perform_managewarehousepolicies') {
 
     unset($core->input['identifier'], $core->input['module'], $core->input['action']);
     $arowarepolicy = new AroManageWarehousesPolicies();
-    $core->input['warehousepolicy']['effectiveFrom'] = strtotime($core->input['warehousepolicy']['effectiveFrom']);
-    $core->input['warehousepolicy']['effectiveTo'] = strtotime($core->input['warehousepolicy']['effectiveTo']);
+    $core->input['warehousepolicy']['effectiveFrom'] = strtotime($core->input['warehousepolicy']['effectiveFrom'].' 00:00:00');
+    $core->input['warehousepolicy']['effectiveTo'] = strtotime($core->input['warehousepolicy']['effectiveTo'].' 23:59:59');
     if($core->input['warehousepolicy']['effectiveFrom'] > $core->input['warehousepolicy']['effectiveTo']) {
         output_xml('<status>false</status><message>'.$lang->errordate.'</message>');
         exit;
     }
     $arowarepolicy->set($core->input['warehousepolicy']);
-    $arowarepolicy->save();
+    $arowarepolicy = $arowarepolicy->save();
     switch($arowarepolicy->get_errorcode()) {
         case 0:
         case 1:
@@ -94,6 +94,9 @@ else if($core->input['action'] == 'do_perform_managewarehousepolicies') {
             break;
         case 2:
             output_xml('<status>false</status><message>'.$lang->fillrequiredfields.'</message>');
+            break;
+        case 3:
+            output_xml('<status>false</status><message>'.$lang->warehousepoliciescoexist.'</message>');
             break;
     }
 }

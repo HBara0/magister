@@ -8,7 +8,7 @@
  * Last Update:    @tony.assaad    Feb 4, 2015 | 11:05:25 AM
  */
 if($core->usergroup['aro_canManageApprovalPolicies'] == 0) {
-    // error($lang->sectionnopermission);
+    error($lang->sectionnopermission);
 }
 
 
@@ -126,21 +126,26 @@ else if($core->input['action'] == 'do_perform_manageapprovalchainspolicies') {
     unset($core->input['identifier'], $core->input['module'], $core->input['action']);
     $aroapproval_policy = new AroApprovalChainPolicies();
 
-    $informExternalUsers_str = nl2br($core->input['chainpolicy']['informExternalUsers']);
-    $informExternalUsers = explode("<br />", $informExternalUsers_str);
+    $informExternalUsers = explode(",", $core->input['chainpolicy']['informExternalUsers']);
+    $informExternalUsers = array_filter($informExternalUsers);
     $core->input['chainpolicy']['informExternalUsers'] = serialize($informExternalUsers);
 
     if(is_array($core->input['chainpolicy']['informInternalUsers']) && !empty($core->input['chainpolicy']['informInternalUsers'])) {
         $core->input['chainpolicy']['informInternalUsers'] = serialize($core->input['chainpolicy']['informInternalUsers']);
     }
-    $core->input['chainpolicy']['effectiveFrom'] = strtotime($core->input['chainpolicy']['effectiveFrom']);
-    $core->input['chainpolicy']['effectiveTo'] = strtotime($core->input['chainpolicy']['effectiveTo']);
+
+    if(!is_empty($core->input['chainpolicy']['effectiveFrom'])) {
+        $core->input['chainpolicy']['effectiveFrom'] = strtotime($core->input['chainpolicy']['effectiveFrom'].' 00:00:00');
+    }
+    if(!is_empty($core->input['chainpolicy']['effectiveFrom'])) {
+        $core->input['chainpolicy']['effectiveTo'] = strtotime($core->input['chainpolicy']['effectiveTo'].' 23:59:59');
+    }
     if($core->input['chainpolicy']['effectiveFrom'] > $core->input['chainpolicy']['effectiveTo']) {
         output_xml('<status>false</status><message>'.$lang->errordate.'</message>');
         exit;
     }
     $aroapproval_policy->set($core->input['chainpolicy']);
-    $aroapproval_policy->save();
+    $aroapproval_policy = $aroapproval_policy->save();
     switch($aroapproval_policy->get_errorcode()) {
         case 0:
         case 1:
