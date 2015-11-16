@@ -60,7 +60,7 @@ class HrJobOpportunities extends AbstractClass {
         /* Verify if user can HR this affiliate Server side --END */
 
         if(value_exists('hr_jobopprtunities', 'affid', $data['affid'], '(('.TIME_NOW.' BETWEEN '.$data['publishOn'].' AND '.$data['unpublishOn'].') OR title="'.$data['title'].'" )')) {
-            $this->status = 4;
+            $this->errorcode = 4;
             return false;
         }
 
