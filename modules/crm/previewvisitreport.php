@@ -37,7 +37,9 @@ if(!$core->input['action']) {
         }
         $visitreports[1] = array_merge(unserialize($session->get_phpsession('visitreportdata_'.$identifier)), unserialize($session->get_phpsession('visitreportvisitdetailsdata_'.$identifier)));
         foreach($visitreports[1]['comments'] as $key => $val) {
-            $visitreports[1]['comments'][$key] = array_merge($visitreports[1]['comments'][$key], $core->input['comments'][$key]);
+            if(is_array($core->input['comments'][$key])) {
+                $visitreports[1]['comments'][$key] = array_merge($visitreports[1]['comments'][$key], $core->input['comments'][$key]);
+            }
         }
 
         if(!empty($visitreports[1]['date'])) {
