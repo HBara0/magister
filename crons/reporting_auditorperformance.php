@@ -20,7 +20,7 @@ if($quarter['quarter'] == 1) {
 else {
     $quarter['quarter'] --;
 }
-$outputmessage = '<div style="width:100%;text-align:center"><h2>Quarterly Report Auditors Performance Report : Q'.$quarter['quarter'].'/'.$quarter['year'].'</h2></div>';
+$outputmessage = '<div style="width:100%;text-align:center"><h2 style="color: #91b64f;font-weight: 100;">Quarterly Report Auditors Performance Report : Q'.$quarter['quarter'].'/'.$quarter['year'].'</h2></div>';
 if(is_array($data)) {
     foreach($data as $uid => $coordata) {
         $totalreports = 0;
@@ -155,4 +155,13 @@ if(is_array($data)) {
     }
 }
 print($outputmessage);
-exit;
+$email_data = array(
+        'to' => 'christophe.sacy@orkila.com ',
+        'from_email' => $core->settings['adminemail'],
+        'from' => 'OCOS Mailer',
+        'subject' => 'Quarterly Report Auditors Performance Report : Q'.$quarter['quarter'].'/'.$quarter['year'],
+        'message' => $outputmessage
+);
+
+//echo $email_message.'<hr />';
+$mail = new Mailer($email_data, 'php');
