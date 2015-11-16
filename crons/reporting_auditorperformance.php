@@ -46,9 +46,6 @@ if(is_array($data)) {
                                     $symbol = '&#x2713;';
                                     $linestatus = $lang->remaining;
                                     if($offset < 0) {
-                                        if(round(-$offset / 60 / 60 / 24) > 60) {
-                                            continue;
-                                        }
                                         if($maxdue > $offset) {
                                             $maxdue = round(-$offset / 60 / 60 / 24);
                                         }
@@ -97,20 +94,18 @@ if(is_array($data)) {
                     $supplier = new Entities($supplierid);
                     $totalreports ++;
                     $supsids[] = $supplierid;
+                    $backcolor = 'F04122';
+                    $suppoutput .= $listitems_unfin;
+                    $suppoutput .= $listitems_fin;
                     if($maxdue != 0) {
                         $supstatus = 'Report Still Unfinalized : '.$maxdue.' days remaining';
-                        $suppoutput .= $listitems_unfin;
                     }
                     elseif($maxfin != 0) {
                         $supstatus = 'Finalized : '.$maxfin.' days late from the 15th of the month';
-                        $suppoutput .= $listitems_fin;
                     }
                     else {
                         $supstatus = 'Finalized And Sent On Time';
-                    }
-                    $backcolor = 'green';
-                    if($avgscore < 3) {
-                        $backcolor = 'F04122';
+                        $backcolor = 'green';
                     }
                     $supplieroutput .= '<tr><th style="border-left: 1px solid black;float:right;width:75%;background-color:'.$backcolor.';color:#f8ffcc"> '.$supplier->get_displayname().'</th><td style="border: 1px solid #CCC;float:left;width:75%;background-color:'.$backcolor.';color:#f8ffcc"> '.$supstatus.'</div></td></tr>';
                     $supplieroutput .= $suppoutput;
@@ -118,6 +113,7 @@ if(is_array($data)) {
                 unset($supplier, $backcolor, $suppoutput, $supstatus, $listitems_unfin, $listitems_fin);
             }
         }
+        $auditorstatus_fin = $auditorstatus_un = 0;
         if($unflate > 0) {
             $auditorstatus_un = $unflate;
             $totalundone = $unflate;
@@ -127,7 +123,7 @@ if(is_array($data)) {
             $totalundone += $finlate;
         }
         if($totalundone > 0) {
-            if($totalreports = $totalundone) {
+            if($totalreports == $totalundone) {
                 $avgscore = 0;
             }
             else {
@@ -146,11 +142,10 @@ if(is_array($data)) {
                 .';"><span style=" font-size:25%;  vertical-align: baseline; border-radius: .20em; white-space: nowrap;font-weight: 700;padding: .2em .4em '
                 .'.3em;height:15px;font-size: 15px;color:'.$avg_color.'; background-color: #f8ffcc;text-align: center">'.$avgscore
                 .'</span> / 5</th></tr></thead>';
-        $outputmessage.='<tr style="border:1px solid black;border-bottom: 2px double black"><td> '.$lang->totalreports.'</td><td> '.$totalreports.' </td></tr><tr style="border:1px solid black;"><td>Unfinalized And Late</td><td>'.$auditorstatus_un
+        $outputmessage.='<tr style="border:1px solid black;border-bottom: 2px double black"><td> '.$lang->totalreports.'</td><td> '.$totalreports.' </td></tr><tr style="border:1px solid black;"><td>Unfinalized And Late</td><td style="border:1px solid black;">'.$auditorstatus_un
                 .'</td></tr><tr style="border:1px solid black;"><td>Sent Late </td><td style="border:1px solid black;">'.$auditorstatus_fin.'</td></tr>';
         $outputmessage.=$listitems.$supplieroutput.'</table><hr>';
         $outputmessage.='';
-        $auditorstatus_fin = $auditorstatus_un = 0;
         unset($supplieroutput, $avg_color, $avgscore, $totalundone);
     }
 }
