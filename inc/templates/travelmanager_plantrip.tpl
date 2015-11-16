@@ -394,7 +394,6 @@
                             if(numchecked == 1 && $('input[id="' + completeid + '"][value="' + $("input[id='eventpurposeid']").val() + '"]').is(":checked")) {
                                 empty = 1;
                             }
-                            alert(empty);
                             if(empty == 1) {
                                 $('[data-purposes="' + id[2] + '_' + id[3] + '"]').each(function(i, obj) {
                                     $(obj).find('input').val('');

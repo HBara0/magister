@@ -440,7 +440,7 @@ class BudgetLines {
         global $db;
         $fxrate_query = "(CASE WHEN budgeting_budgets_lines.originalCurrency=".intval($tocurrency)." THEN 1 ELSE (SELECT rate FROM budgeting_fxrates WHERE affid=budgeting_budgets_lines.commissionSplitAffid AND year=".intval($year)." AND fromCurrency=budgeting_budgets_lines.originalCurrency AND toCurrency=".intval($tocurrency).") END)";
         $sql = "SELECT saleType, invoice, SUM(localIncomeAmount*{$fxrate_query}) AS localIncomeAmount, SUM(amount*{$fxrate_query}) AS amount, SUM(invoicingEntityIncome*{$fxrate_query}) AS invoicingEntityIncome FROM ".Tprefix."budgeting_budgets_lines WHERE commissionSplitAffid= ".intval($affid)." AND bid IN (SELECT bid FROM ".Tprefix."budgeting_budgets WHERE year=".intval($year).") GROUP BY saleType";
-        echo $sql;
+//        echo $sql;
         $query = $db->query($sql);
         if($db->num_rows($query) > 0) {
             while($budget = $db->fetch_assoc($query)) {
