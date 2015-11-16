@@ -30,53 +30,7 @@ class AroApprovalChainPolicies extends AbstractClass {
 
     protected function create(array $data) {
         global $db, $core, $log;
-        $required_fields = array('effectiveFrom', 'effectiveTo');
-        foreach($required_fields as $field) {
-            $data[$field] = $core->sanitize_inputs($data[$field], array('removetags' => true, 'allowable_tags' => '<blockquote><b><strong><em><ul><ol><li><p><br><strike><del><pre><dl><dt><dd><sup><sub><i><cite><small>'));
-            if(is_empty($data[$field])) {
-                $this->errorcode = 2;
-                return false;
-            }
-        }
-        if(is_array($data['approverchain'])) {
-            foreach($data['approverchain'] as $approverfield) {
-                if(empty($approverfield['approver']) || !isset($approverfield['approver'])) {
-                    unset($approverfield);
-                    // continue;
-                }
-                if(is_array($approverfield)) {
-                    if(($approverfield['approver'] == 'user') && is_empty($approverfield['uid'])) {
-                        $this->errorcode = 2;
-                        return false;
-                    }
-                    $policies_array['approvalChain'] = @serialize($approverfield);
-                }
-            }
-        }
-        $policies_array = array('affid' => $data['affid'],
-                'effectiveFrom' => $data['effectiveFrom'],
-                'effectiveTo' => $data['effectiveTo'],
-                'approvalChain' => @serialize($data['approverchain']),
-                'createdBy' => $core->user['uid'],
-                'purchaseType' => $data['purchaseType'],
-                'informCoordinators' => $data['informCoordinators'],
-                'informGlobalCFO' => $data['informGlobalCFO'],
-                'informGlobalPurchaseMgr' => $data['informGlobalPurchaseMgr'],
-                'informExternalUsers' => base64_encode($data['informExternalUsers']),
-                'informInternalUsers' => base64_encode($data['informInternalUsers']),
-                'createdOn' => TIME_NOW,
-        );
-        $query = $db->insert_query(self::TABLE_NAME, $policies_array);
-        if($query) {
-            $this->data[self::PRIMARY_KEY] = $db->last_id();
-            $log->record('aro_manage_approvalchain_policies', $this->data[self::PRIMARY_KEY]);
-            $this->errorcode = 0;
-        }
-    }
-
-    protected function update(array $data) {
-        global $db, $core, $log;
-        if(is_array($data)) {
+        if(!$this->validate_requiredfields($data)) {
             if(is_array($data['approverchain'])) {
                 foreach($data['approverchain'] as $approverfield) {
                     if(empty($approverfield['approver']) || !isset($approverfield['approver'])) {
@@ -84,7 +38,7 @@ class AroApprovalChainPolicies extends AbstractClass {
                         // continue;
                     }
                     if(is_array($approverfield)) {
-                        if($approverfield['approver'] == 'user' && is_empty($approverfield['uid'])) {
+                        if(($approverfield['approver'] == 'user') && is_empty($approverfield['uid'])) {
                             $this->errorcode = 2;
                             return false;
                         }
@@ -92,30 +46,86 @@ class AroApprovalChainPolicies extends AbstractClass {
                     }
                 }
             }
-
             $policies_array = array('affid' => $data['affid'],
                     'effectiveFrom' => $data['effectiveFrom'],
                     'effectiveTo' => $data['effectiveTo'],
                     'approvalChain' => @serialize($data['approverchain']),
-                    'modifiedBy' => $core->user['uid'],
+                    'createdBy' => $core->user['uid'],
                     'purchaseType' => $data['purchaseType'],
                     'informCoordinators' => $data['informCoordinators'],
                     'informGlobalCFO' => $data['informGlobalCFO'],
                     'informGlobalPurchaseMgr' => $data['informGlobalPurchaseMgr'],
                     'informExternalUsers' => base64_encode($data['informExternalUsers']),
                     'informInternalUsers' => base64_encode($data['informInternalUsers']),
-                    'modifiedOn' => TIME_NOW,
+                    'createdOn' => TIME_NOW,
             );
-            unset($data['approvalChain']);
-            $query = $db->update_query(self::TABLE_NAME, $policies_array, ''.self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
+            $query = $db->insert_query(self::TABLE_NAME, $policies_array);
             if($query) {
-                $log->record('aro_manage_approvalchain_policies', array('update'));
+                $this->data[self::PRIMARY_KEY] = $db->last_id();
+                $log->record('aro_manage_approvalchain_policies', $this->data[self::PRIMARY_KEY]);
+                $this->errorcode = 0;
             }
         }
+        return $this;
+    }
+
+    protected function update(array $data) {
+        global $db, $core, $log;
+        if(!$this->validate_requiredfields($data)) {
+            if(is_array($data)) {
+                if(is_array($data['approverchain'])) {
+                    foreach($data['approverchain'] as $approverfield) {
+                        if(empty($approverfield['approver']) || !isset($approverfield['approver'])) {
+                            unset($approverfield);
+                            // continue;
+                        }
+                        if(is_array($approverfield)) {
+                            if($approverfield['approver'] == 'user' && is_empty($approverfield['uid'])) {
+                                $this->errorcode = 2;
+                                return $this;
+                            }
+                            $policies_array['approvalChain'] = @serialize($approverfield);
+                        }
+                    }
+                }
+
+                $policies_array = array('affid' => $data['affid'],
+                        'effectiveFrom' => $data['effectiveFrom'],
+                        'effectiveTo' => $data['effectiveTo'],
+                        'approvalChain' => @serialize($data['approverchain']),
+                        'modifiedBy' => $core->user['uid'],
+                        'purchaseType' => $data['purchaseType'],
+                        'informCoordinators' => $data['informCoordinators'],
+                        'informGlobalCFO' => $data['informGlobalCFO'],
+                        'informGlobalPurchaseMgr' => $data['informGlobalPurchaseMgr'],
+                        'informExternalUsers' => base64_encode($data['informExternalUsers']),
+                        'informInternalUsers' => base64_encode($data['informInternalUsers']),
+                        'modifiedOn' => TIME_NOW,
+                );
+                unset($data['approvalChain']);
+                $query = $db->update_query(self::TABLE_NAME, $policies_array, ''.self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
+                if($query) {
+                    $log->record('aro_manage_approvalchain_policies', array('update'));
+                }
+            }
+        }
+        return $this;
     }
 
     public function get_purchasetype() {
         return new PurchaseTypes($this->data['purchaseType']);
+    }
+
+    protected function validate_requiredfields(array $data = array()) {
+        if(is_array($data)) {
+            $required_fields = array('affid', 'purchaseType', 'effectiveFrom', 'effectiveTo'); // add required fields
+            foreach($required_fields as $field) {
+                if(empty($data[$field])) {
+                    $this->errorcode = 2;
+                    return true;
+                }
+            }
+        }
     }
 
 }

@@ -74,8 +74,8 @@ if(!$core->input['action']) {
 
     if(is_array($aropolicies)) {
         foreach($aropolicies as $policy) {
-            $row_tools = '<a href=index.php?module=aro/managepolicies&id='.$policy->apid.' title="'.$lang->edit.'"><img src="./images/icons/edit.gif" border=0 alt="'.$lang->edit.'"/></a>';
-            $row_tools .= "<a href='#{$policy->apid}' id='deletearopolicy_{$policy->apid}_aro/listpolicies_icon'><img src='{$core->settings[rootdir]}/images/invalid.gif' border='0' alt='{$lang->deletearopolicy}' /></a>";
+            $row_tools = '<a href="index.php?module=aro/managepolicies&id='.$policy->apid.'" title="'.$lang->edit.'"><img src="./images/icons/edit.gif" border=0 alt="'.$lang->edit.'"/></a>';
+            $row_tools .= "<a href='#{$policy->apid}' id='deletearopolicy_{$policy->apid}_aro/listpolicies_loadpopupbyid' ><img src='{$core->settings[rootdir]}/images/invalid.gif' border='0' alt='{$lang->deletearopolicy}' /></a>";
             $policy->effectiveTo = date($core->settings['dateformat'], $policy->effectiveTo);
             $policy->effectiveFrom = date($core->settings['dateformat'], $policy->effectiveFrom);
             $affiliate = new Affiliates($policy->affid);

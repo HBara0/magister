@@ -26,62 +26,50 @@ class AroDocumentsSequenceConf extends AbstractClass {
 
     protected function update(array $data) {
         global $db, $core, $log;
-        $required_fields = array('effectiveFrom', 'effectiveTo'); //warehsuoe
-        foreach($required_fields as $field) {
-            $data[$field] = $core->sanitize_inputs($data[$field], array('removetags' => true, 'allowable_tags' => '<blockquote><b><strong><em><ul><ol><li><p><br><strike><del><pre><dl><dt><dd><sup><sub><i><cite><small>'));
-            if(is_empty($data[$field])) {
-                $this->errorcode = 2;
-                return false;
+        if(!$this->validate_requiredfields($data)) {
+            $documentsequence_array = array('affid' => $data['affid'],
+                    'effectiveFrom' => $data['effectiveFrom'],
+                    'effectiveTo' => $data['effectiveTo'],
+                    'prefix' => $data['prefix'],
+                    'incrementBy' => $data['incrementBy'],
+                    'nextNumber' => $data['nextNumber'],
+                    'suffix' => $data['suffix'],
+                    'modifiedBy' => $core->user['uid'],
+                    'ptid' => $data['ptid'],
+                    'modifiedOn' => TIME_NOW,
+            );
+            $query = $db->update_query(self::TABLE_NAME, $documentsequence_array, ''.self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
+            if($query) {
+                $this->data[self::PRIMARY_KEY] = $db->last_id();
+                $log->record(self::TABLE_NAME, $this->data[self::PRIMARY_KEY]);
+                $this->errorcode = 0;
             }
         }
-
-        $documentsequence_array = array('affid' => $data['affid'],
-                'effectiveFrom' => $data['effectiveFrom'],
-                'effectiveTo' => $data['effectiveTo'],
-                'prefix' => $data['prefix'],
-                'incrementBy' => $data['incrementBy'],
-                'nextNumber' => $data['nextNumber'],
-                'suffix' => $data['suffix'],
-                'createdBy' => $core->user['uid'],
-                'ptid' => $data['ptid'],
-                'createdOn' => TIME_NOW,
-        );
-        $query = $db->update_query(self::TABLE_NAME, $documentsequence_array, ''.self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
-        if($query) {
-            $this->data[self::PRIMARY_KEY] = $db->last_id();
-            $log->record(self::TABLE_NAME, $this->data[self::PRIMARY_KEY]);
-            $this->errorcode = 0;
-        }
+        return $this;
     }
 
     protected function create(array $data) {
         global $db, $core, $log;
-        $required_fields = array('effectiveFrom', 'effectiveTo'); //warehsuoe
-        foreach($required_fields as $field) {
-            $data[$field] = $core->sanitize_inputs($data[$field], array('removetags' => true, 'allowable_tags' => '<blockquote><b><strong><em><ul><ol><li><p><br><strike><del><pre><dl><dt><dd><sup><sub><i><cite><small>'));
-            if(is_empty($data[$field])) {
-                $this->errorcode = 2;
-                return false;
+        if(!$this->validate_requiredfields($data)) {
+            $documentsequence_array = array('affid' => $data['affid'],
+                    'effectiveFrom' => $data['effectiveFrom'],
+                    'effectiveTo' => $data['effectiveTo'],
+                    'prefix' => $data['prefix'],
+                    'incrementBy' => $data['incrementBy'],
+                    'nextNumber' => $data['nextNumber'],
+                    'suffix' => $data['suffix'],
+                    'createdBy' => $core->user['uid'],
+                    'ptid' => $data['ptid'],
+                    'createdOn' => TIME_NOW,
+            );
+            $query = $db->insert_query(self::TABLE_NAME, $documentsequence_array);
+            if($query) {
+                $this->data[self::PRIMARY_KEY] = $db->last_id();
+                $log->record(self::TABLE_NAME, $this->data[self::PRIMARY_KEY]);
+                $this->errorcode = 0;
             }
         }
-
-        $documentsequence_array = array('affid' => $data['affid'],
-                'effectiveFrom' => $data['effectiveFrom'],
-                'effectiveTo' => $data['effectiveTo'],
-                'prefix' => $data['prefix'],
-                'incrementBy' => $data['incrementBy'],
-                'nextNumber' => $data['nextNumber'],
-                'suffix' => $data['suffix'],
-                'createdBy' => $core->user['uid'],
-                'ptid' => $data['ptid'],
-                'createdOn' => TIME_NOW,
-        );
-        $query = $db->insert_query(self::TABLE_NAME, $documentsequence_array);
-        if($query) {
-            $this->data[self::PRIMARY_KEY] = $db->last_id();
-            $log->record(self::TABLE_NAME, $this->data[self::PRIMARY_KEY]);
-            $this->errorcode = 0;
-        }
+        return $this;
     }
 
     public function get_intersecting_sequenceconf($confdata = array()) {
@@ -97,11 +85,12 @@ class AroDocumentsSequenceConf extends AbstractClass {
             }
             return $docsequenceconf;
         }
+        return;
     }
 
     protected function validate_requiredfields(array $data = array()) {
         if(is_array($data)) {
-            $required_fields = array('affid', 'ptid', 'effectiveFrom', 'effectiveTo'); // add required fields
+            $required_fields = array('affid', 'ptid', 'effectiveFrom', 'effectiveTo');
             foreach($required_fields as $field) {
                 if(empty($data[$field])) {
                     $this->errorcode = 2;

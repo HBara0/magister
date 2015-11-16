@@ -45,7 +45,7 @@ $lang['suffix'] = 'Suffix';
 $lang['managedoumentsequence'] = 'ARO Document Sequence Configuration';
 $lang['doumentsequenceconflist'] = 'ARO Document Sequence Configuration List';
 $lang['managearodouments'] = 'Manage Aro Documents';
-$lang['intersecterror'] = 'Intersect with another Document Sequence Configurations';
+$lang['intersecterror'] = 'Intersects with another Document Sequence Configurations';
 $lang['confirmdeletedocseqconf'] = 'Are you sure you want to delete this Document Sequence Configuration?';
 $lang['deletearodocseqcong'] = 'Delete Aro Document Sequence Configuration';
 $lang['productlines'] = 'Aro Product Lines';
@@ -66,7 +66,7 @@ FOR RE-INVOICINC CUSTOMER, it rather should be added on Manufacturer price --- d
 $lang['costprice'] = 'Cost Price';
 $lang['costpriceatriskratio'] = 'Cost Price maj';
 $lang['sellingprice'] = 'selling Price';
-$lang['sellingpriceatriskratio'] = 'Gross margin min at';
+$lang['sellingpriceatriskratio'] = 'Gross margin min at risk ratio';
 $lang['netmargin'] = 'Net Margin (USD)';
 $lang['netmarginperc'] = 'Net Margin %';
 $lang['netmarginparameters'] = 'Parameters Influencing Net Margin Calculation';
@@ -210,3 +210,4 @@ $lang['finalizedemail'] = 'The Approval email will only be send after ARO is fin
 $lang['aroorderrequestlist'] = 'Aro Documents list';
 
 $lang['missingconfigurations'] = 'Some configurations are missing: ';
+$lang['warehousepoliciescoexist'] = 'Policies for the same warehouse cannot co-exist';

@@ -69,14 +69,18 @@ if(!$core->input['action']) {
 else if($core->input['action'] == 'do_perform_managepolicies') {
     unset($core->input['identifier'], $core->input['module'], $core->input['action']);
     $aropolicy = new AroPolicies;
-    $core->input['aropolicy']['effectiveFrom'] = strtotime($core->input['aropolicy']['effectiveFrom']);
-    $core->input['aropolicy']['effectiveTo'] = strtotime($core->input['aropolicy']['effectiveTo']);
+    if(!is_empty($core->input['aropolicy']['effectiveFrom'])) {
+        $core->input['aropolicy']['effectiveFrom'] = strtotime($core->input['aropolicy']['effectiveFrom'].' 00:00:00');
+    }
+    if(!is_empty($core->input['aropolicy']['effectiveTo'])) {
+        $core->input['aropolicy']['effectiveTo'] = strtotime($core->input['aropolicy']['effectiveTo'].' 23:59:59');
+    }
     if($core->input['aropolicy']['effectiveFrom'] > $core->input['aropolicy']['effectiveTo']) {
         output_xml('<status>false</status><message>'.$lang->errordate.'</message>');
         exit;
     }
     $aropolicy->set($core->input['aropolicy']);
-    $aropolicy->save();
+    $aropolicy = $aropolicy->save();
     switch($aropolicy->get_errorcode()) {
         case 0:
         case 1:

@@ -20,11 +20,11 @@
                     </tr>
                     <tr ><td>{$lang->effromdate} </td>
                         <td> <input type="text" id="pickDate_from" autocomplete="off" tabindex="2" value="{$warehouse[effectiveFrom_output]}" required="required" style="width:50%"/> </td>
-                        <td> <input type="hidden" name="warehousepolicy[effectiveFrom]" id="altpickDate_from" value="{$warehouse[effectiveFrom]}"/></td>
+                        <td> <input type="hidden" name="warehousepolicy[effectiveFrom]" id="altpickDate_from" value="{$warehouse[effectiveFrom_formatted]}"/></td>
                     </tr>
                     <tr><td>{$lang->eftodate}  </td>
                         <td> <input type="text" id="pickDate_to" autocomplete="off" tabindex="2" value="{$warehouse[effectiveTo_output]}" required="required" style="width:50%"/></td>
-                        <td> <input type="hidden" name="warehousepolicy[effectiveTo]" id="altpickDate_to" value="{$warehouse[effectiveTo]}"/></td>
+                        <td> <input type="hidden" name="warehousepolicy[effectiveTo]" id="altpickDate_to" value="{$warehouse[effectiveTo_formatted]}"/></td>
                     </tr>
                     <tr><td>{$lang->rate}</td>
                         <td><input type="number"  step="any" name="warehousepolicy[rate]" value="{$warehouse[rate]}" style="width:50%"/></td>

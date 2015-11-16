@@ -89,7 +89,7 @@
                     <tr>
                         <td style="vertical-align:top">{$lang->informbymail}</td>
                         <td>
-                            <textarea name="chainpolicy[informExternalUsers]" id="description" cols="40" rows="5" >{$chainpolicy[informExternalUsers_output]}</textarea>
+                            <textarea name="chainpolicy[informExternalUsers]" id="description" cols="40" rows="5" placeholder="Enter emails seperated by comma">{$chainpolicy[informExternalUsers_output]}</textarea>
                         </td>
                     </tr>
                 </table>
