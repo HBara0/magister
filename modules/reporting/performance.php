@@ -160,7 +160,10 @@ if(!$core->input['action']) {
             unset($supplier_reportperformance, $supplier);
         }
         if($aff_count != 0) {
-            $avgrating['allaffiliates'] = number_format($totalrating['allaffiliates'] / $totals['allmkrwithrating'], 2);
+            $avgrating['allaffiliates'] = 0;
+            if($totals['allmkrwithrating'] && $totals['allmkrwithrating'] != 0) {
+                $avgrating['allaffiliates'] = number_format($totalrating['allaffiliates'] / $totals['allmkrwithrating'], 2);
+            }
         }
         foreach($fields as $field) {
             $all_aff_avg[$field] = ceil($all_aff_total[$field] / $aff_count);
