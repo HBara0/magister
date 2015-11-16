@@ -68,6 +68,7 @@ if(!$core->input['action']) {
     }
 
     $meeting['attendees_output'] = $meeting_obj->parse_attendees();
+    $meeting['locationoutput'] = $meeting_obj->get_location();
 
 
     $share_meeting .= ' <a href="#" id="sharemeeting_'.$meeting['mtid'].'_meetings/list_loadpopupbyid" rel="share_'.$meeting['mtid'].'" title="'.$lang->sharewith.'"><img src="'.$core->settings['rootdir'].'/images/icons/sharedoc.png" alt="'.$lang->sharewith.'" border="0"></a>';
