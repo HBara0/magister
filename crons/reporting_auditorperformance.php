@@ -26,8 +26,7 @@ if(is_array($data)) {
         $totalreports = 0;
         $supsids = array();
         $coord_obj = new Users($uid);
-        $unfsupsids = array();
-        $finsupsids = array();
+        $unsupsids = array();
         $unflate = $finlate = 0;
         if(is_array($coordata)) {
             foreach($coordata as $supplierid => $numbers) {
@@ -35,10 +34,9 @@ if(is_array($data)) {
                     continue;
                 }
                 if(is_array($numbers)) {
+                    $maxfin = $maxdue = 0;
                     foreach($numbers as $type => $offsetdata) {
                         $affiliate = new Affiliates($type);
-
-                        $maxfin = $maxdue = 0;
                         if(is_array($offsetdata)) {
                             foreach($offsetdata as $offsettype => $offset) {
                                 if($offsettype == 'remaining') {
@@ -46,7 +44,7 @@ if(is_array($data)) {
                                     $symbol = '&#x2713;';
                                     $linestatus = $lang->remaining;
                                     if($offset < 0) {
-                                        if($maxdue > $offset) {
+                                        if($maxdue > round($offset / 60 / 60 / 24)) {
                                             $maxdue = round(-$offset / 60 / 60 / 24);
                                         }
                                         $offset = -$offset;
@@ -54,9 +52,9 @@ if(is_array($data)) {
                                         $color = 'red';
                                         $linestatus = $lang->unflateby;
                                         $symbol = '&#x2717;';
-                                        if(!in_array($supplierid, $unfsupsids)) {
+                                        if(!in_array($supplierid, $unsupsids)) {
                                             $unflate ++;
-                                            $unfsupsids[] = $supplierid;
+                                            $unsupsids[] = $supplierid;
                                         }
                                     }
                                     $offset_output = round($offset / 60 / 60 / 24);
@@ -67,16 +65,16 @@ if(is_array($data)) {
                                     $symbol = '&#x2713;';
                                     $linestatus = $lang->finalizedearlyby;
                                     if($offset > 0) {
-                                        if($maxfin < $offset) {
+                                        if($maxfin < round($offset / 60 / 60 / 24)) {
                                             $maxfin = round($offset / 60 / 60 / 24);
                                         }
                                         $linetitle = $lang->finalized;
                                         $color = 'red';
                                         $linestatus = $lang->finalizelateby;
                                         $symbol = '&#x2717;';
-                                        if(!in_array($supplierid, $finsupsids)) {
+                                        if(!in_array($supplierid, $unsupsids)) {
                                             $finlate++;
-                                            $finsupsids[] = $supplierid;
+                                            $unsupsids[] = $supplierid;
                                         }
                                     }
                                     else {
@@ -127,7 +125,7 @@ if(is_array($data)) {
                 $avgscore = 0;
             }
             else {
-                $avgscore = 5 - (($totalundone * 5 ) / $totalreports);
+                $avgscore = round(5 - (($totalundone * 5 ) / $totalreports), 1);
             }
         }
         else {

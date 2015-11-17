@@ -19,6 +19,13 @@ if(!$core->input['action']) {
     }
     $selectlists['organisation'] = parse_selectlist('organisation', 1, $selectlists_data['organisations'], '');
 
+    $curr_objs = Currencies::get_data('numCode IS NOT NULL', array('returnarray' => true));
+
+    foreach($curr_objs as $curr) {
+        $currencies[$curr->get_displayname()] = $curr->get_displayname();
+    }
+    $selectlists['organisation'] .= parse_selectlist('trxcurrency', 3, $currencies, '', 0, '', array('blankstart' => true));
+
     eval("\$outputpage = \"".$template->get('finance_intgtrialbalance_options')."\";");
     output_page($outputpage);
 }
@@ -46,21 +53,23 @@ else {
         $parameters['fromDate'] = date('Y-m-d', $parameters['fromDate']);
         $parameters['toDate'] = date('Y-m-d', $parameters['toDate']);
 
-        $parameters['trxcurrency'] = '';
+        // $parameters['trxcurrency'] = 'EUR';
         $parameters['factaccttype'] = 'O';
 
         $integration->set_organisations(array($parameters['organisation']));
 
         $organisation = new IntegrationOBOrg($parameters['organisation']);
         $currency = new IntegrationOBCurrency($parameters['trxcurrency'], $intgdb);
+        $currency = IntegrationOBCurrency::get_data('iso_code=\''.$parameters['trxcurrency'].'\'');
         $numfmt = new NumberFormatter($lang->settings['locale'], NumberFormatter::DECIMAL);
         $amounts_fields = array('saldo_inicial', 'amtacctcr', 'amtacctdr', 'saldo_final');
         $columns = array('currency' => $lang->currency, 'saldo_inicial_source' => $lang->initialbalance, 'amtsourcedr' => $lang->debit, 'amtsourcecr' => $lang->credit, 'saldo_final_source' => $lang->balance, 'saldo_inicial' => $lang->initialbalance, 'amtacctdr' => $lang->debit, 'amtacctcr' => $lang->credit, 'saldo_final' => $lang->balance);
         $columns_cat = array('desc' => 2, 'originalcurrency' => 4, 'legalcurrency' => 4);
 
         if(isset($parameters['trxcurrency']) && !empty($parameters['trxcurrency'])) {
-            $query_where .= " AND F.c_currency_id = '".$parameters['trxcurrency']."'";
+            $query_where .= " AND F.c_currency_id = '".$currency->c_currency_id."'";
         }
+
         $sql = "SELECT ID, ACCOUNT_ID, NAME, currency,
             SUM(SALDO_INICIAL) AS SALDO_INICIAL,
             SUM(AMTACCTDR) AS AMTACCTDR,

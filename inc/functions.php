@@ -1036,7 +1036,7 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                                 }
                                 else {
                                     if(!empty($facility->capacity)) {
-                                        $details .=' -'.$lang->capacity.': '.$facility->capacity;
+                                        $details .= ' - '.$lang->capacity.': '.$facility->capacity;
                                     }
                                     $query = $db->query("SELECT affid, name, phone1, X(geoLocation) AS longitude, Y(geoLocation) AS latitude FROM ".Tprefix."affiliates WHERE asText(geoLocation) IS NOT NULL AND affid= ".intval($facility->affid));
                                     while($affiliate = $db->fetch_assoc($query)) {

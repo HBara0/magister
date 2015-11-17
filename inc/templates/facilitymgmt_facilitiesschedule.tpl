@@ -2,9 +2,9 @@
     <head>
         <title>{$core->settings[systemtitle]} | {$lang->list}</title>
         {$headerinc}
-        <link href='{$core->settings[rootdir]}/css/fullcalendar.css' rel='stylesheet' />
+        <link href='{$core->settings[rootdir]}/css/fullcalendar.min.css' rel='stylesheet' />
         <script src='{$core->settings[rootdir]}/js/moment.min.js'></script>
-        <script src="{$core->settings[rootdir]}/js/fullcalendar.js" type="text/javascript"></script>
+        <script src="{$core->settings[rootdir]}/js/fullcalendar.min.js" type="text/javascript"></script>
 
         <script>
             $(document).ready(function() {
@@ -54,7 +54,6 @@
     </head>
     <body>
         {$header}
-
     <tr>
         {$menu}
         <td class="contentContainer">
