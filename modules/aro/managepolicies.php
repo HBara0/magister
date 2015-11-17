@@ -23,6 +23,7 @@ if(!$core->input['action']) {
         $affiliate_where .= ' AND affid IN ('.$inaffiliates.')';
     }
     $affiliates = get_specificdata('affiliates', array('affid', 'name'), 'affid', 'name', array('by' => 'name', 'sort' => 'ASC'), 0, $affiliate_where);
+    $intermed_affiliates = Affiliates::get_affiliates(array('isActive' => 1), array('returnarray' => true, 'order' => array('sort' => 'ASC', 'by' => 'name')));
     $purchasetypes = PurchaseTypes::get_data('', array('returnarray' => true));
 
     $dal_config = array('returnarray' => true);
@@ -44,7 +45,7 @@ if(!$core->input['action']) {
                 $checked['isActive'] = 'checked="checked"';
             }
             $affiliates_list = parse_selectlist('aropolicy[affid]', '', $affiliates, $aropolicy['affid'], 0, '', array('id' => 'aropolicy_affid', 'width' => '150px'));
-            $intermediary_list = parse_selectlist('aropolicy[defaultIntermed]', '', $affiliates, $aropolicy['defaultIntermed'], 0, '', array('id' => 'aropolicy_defaultIntermed', 'width' => '150px', 'blankstart' => true));
+            $intermediary_list = parse_selectlist('aropolicy[defaultIntermed]', '', $intermed_affiliates, $aropolicy['defaultIntermed'], 0, '', array('id' => 'aropolicy_defaultIntermed', 'width' => '150px', 'blankstart' => true));
             $purchasetypes_list = parse_selectlist('aropolicy[purchaseType]', '', $purchasetypes, $aropolicy['purchaseType'], 0, '', array('id' => 'aropolicy_purchaseType', 'width' => '150px'));
             $paymentterms_list = parse_selectlist('aropolicy[defaultPaymentTerm]', '', $payment_terms, $aropolicy['defaultPaymentTerm'], 0, '', array('id' => 'aropolicy_defaultPaymentTerm', 'width' => '150px', 'blankstart' => true));
             $currencies_list = parse_selectlist('aropolicy[defaultCurrency]', '', $currencies, $aropolicy['defaultCurrency'], 0, '', array('id' => 'aropolicy_defaultCurrency', 'width' => '150px', 'blankstart' => true));
@@ -57,7 +58,7 @@ if(!$core->input['action']) {
     else {
         $affiliates_list = parse_selectlist('aropolicy[affid]', '', $affiliates, '', 0, '', array('id' => 'aropolicy_affid', 'width' => '150px'));
         $purchasetypes_list = parse_selectlist('aropolicy[purchaseType]', '', $purchasetypes, '', 0, '', array('id' => 'aropolicy_purchaseType', 'width' => '150px'));
-        $intermediary_list = parse_selectlist('aropolicy[defaultIntermed]', '', $affiliates, '', 0, '', array('id' => 'aropolicy_defaultIntermed', 'width' => '150px', 'blankstart' => true));
+        $intermediary_list = parse_selectlist('aropolicy[defaultIntermed]', '', $intermed_affiliates, '', 0, '', array('id' => 'aropolicy_defaultIntermed', 'width' => '150px', 'blankstart' => true));
         $paymentterms_list = parse_selectlist('aropolicy[defaultPaymentTerm]', '', $payment_terms, '', 0, '', array('id' => 'aropolicy_defaultPaymentTerm', 'width' => '150px', 'blankstart' => true));
         $currencies_list = parse_selectlist('aropolicy[defaultCurrency]', '', $currencies, '', 0, '', array('id' => 'aropolicy_defaultCurrency', 'width' => '150px', 'blankstart' => true));
         $incoterms_list = parse_selectlist('aropolicy[defaultIncoterms]', '', $incoterms, '', 0, '', array('id' => 'aropolicy_defaultIncoterms', 'width' => '150px', 'blankstart' => true));

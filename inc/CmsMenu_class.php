@@ -37,7 +37,7 @@ class CmsMenu extends Cms {
         $this->menu['createdBy'] = $core->user['uid'];
         $this->menu['dateCreated'] = TIME_NOW;
         $this->menu['title'] = $core->sanitize_inputs($this->menu['title'], array('removetags' => true));
-
+        $this->menu['alias'] = generate_alias($this->menu['title']);
         if(is_array($this->menu)) {
             $query = $db->insert_query('cms_menus', $this->menu);
             if($query) {
@@ -54,15 +54,14 @@ class CmsMenu extends Cms {
             $this->status = 1;
             return false;
         }
-
-        if(!value_exists('cms_menus', 'title', $this->menu['title'])) {
+        if(!value_exists('cms_menus', 'cmsmid', $this->menu['cmsmid'])) {
             $this->status = 3;
             return false;
         }
-
         $this->menu['modifiedBy'] = $core->user['uid'];
         $this->menu['modifiedOn'] = TIME_NOW;
         $this->menu['title'] = $core->sanitize_inputs($this->menu['title'], array('removetags' => true));
+        $this->menu['alias'] = generate_alias($this->menu['title']);
 
         if(is_array($this->menu)) {
             $query = $db->update_query(Tprefix.'cms_menus', $this->menu, 'cmsmid ='.intval($this->menu['cmsmid']));

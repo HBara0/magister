@@ -315,6 +315,7 @@ class ModifyAccount extends Accounts {
                 }
 
                 if(value_exists('userhrinformation', 'uid', $uid)) {
+                    unset($hr_data['employeeNum']);
                     $db->update_query('userhrinformation', $hr_data, "uid='{$uid}'", array('encrypt' => $db_encrypt_fields));
                 }
                 else {

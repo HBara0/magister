@@ -577,7 +577,7 @@ else {
 
             $finManager = $affiliate->get_financialemanager();
             if(!is_object($finManager)) {
-                $finManager = new Users($core->$settings['gfinancialManager_id']);
+                $finManager = $affiliate->get_globalfinancialemanager();
             }
             $recipients = array(
                     $affiliate->get_generalmanager()->email,
@@ -607,10 +607,14 @@ else {
         }
         else {
             if(!is_array($core->input['affids']) || count($core->input['affids']) == 1) {
+                $finManager = $affiliate->get_financialemanager();
+                if(!is_object($finManager)) {
+                    $finManager = $affiliate->get_globalfinancialemanager();
+                }
                 $recipients = array(
                         $affiliate->get_generalmanager()->displayName,
                         $affiliate->get_supervisor()->displayName,
-                        $affiliate->get_financialemanager()->displayName,
+                        $finManager->displayName,
                         $affiliate->get_coo()->displayName,
                         $core->user_obj->displayName,
                         Users::get_data(array('uid' => 3))->get_displayname()/* Always include User 3 */);
