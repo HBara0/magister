@@ -417,7 +417,7 @@ class AroRequests extends AbstractClass {
                         $approvers['generalManager'] = $affiliate->get_generalmanager()->uid;
                         break;
                     case 'gfinancialManager':
-                        $approvers['gfinancialManager'] = $core->settings['gfinancialManager_id']; // 367;
+                        $approvers['gfinancialManager'] = $affiliate->get_globalfinancialemanager(); // $core->settings['gfinancialManager_id']; // 367;
                         break;
                     case 'cfo':
                         $approvers['cfo'] = $affiliate->get_cfo()->uid;
