@@ -348,6 +348,7 @@ class AroRequests extends AbstractClass {
     }
 
     public function calculate_netmaginparms($data = array()) {
+        global $lang;
         $where = 'warehouse='.$data['warehouse'].' AND ('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
         $warehousepolicy = AroManageWarehousesPolicies::get_data($where);
         if(!is_object($warehousepolicy)) {
