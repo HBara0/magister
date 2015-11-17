@@ -14,15 +14,12 @@ $lang->load('topmanagementreport');
 $affiliates = Affiliates::get_affiliates(array('name' => "name LIKE '%orkila%'", 'isActive' => 1), array('simple' => false, 'returnarray' => true, 'operators' => array('name' => CUSTOMSQLSECURE)));
 
 if(is_array($affiliates)) {
-    //number of orkila affiliates
-    $count['orkilacompanies'] = count($affiliates);
-    $table['nboforkilacompanies'] = '<table width="50%"><tr><th style="background-color:#92D050;width:40%">'.$lang->nboforkilacompanies.'</th><th style="background-color: #F2FAED;width:20%">'.$count['orkilacompanies'].'</th></tr></table>';
-
 //Affiliates Employees Count
     $table['employeespercountry'] = '<table style="width:50%;"><tr style="background-color:#92D050;"><th style="width:20%">'.$lang->affiliate.'</th><th style="width:20%">'.$lang->employees.'</th><th style="width:12%">'.$lang->employeescount.'</th><th style="width:12%">'.$lang->employeescountlastyear.'</th></tr>';
     foreach($affiliates as $affiliate) {
         $employees_count[$affiliate->affid] = $employees_count[$affiliate->country] = 0;
-        $affiliated_employees = AffiliatedEmployees::get_data(array('affid' => $affiliate->affid), array('returnarray' => true));
+        $where = 'affid='.$affiliate->affid.' AND uid IN (SELECT uid FROM users_usergroups WHERE gid !=7) AND isMain=1';
+        $affiliated_employees = AffiliatedEmployees::get_data($where, array('returnarray' => true));
         if(is_array($affiliated_employees)) {
             $emp_count = 0;
             foreach($affiliated_employees as $affiliated_employee) {
@@ -52,6 +49,12 @@ if(is_array($affiliates)) {
 }
 
 
+
+$count['orkilacompanies'] = count($affiliates); //number of orkila affiliates
+$count['orkilacountries'] = count($mapdata); // number of orkila countries /counted from map data
+$table['nboforkilacompanies'] = '<table width="50%"><tr><th style="background-color:#92D050;width:40%;text-align:left;padding-left:10px">'.$lang->nboforkilacompanies.'</th><th style="background-color: #F2FAED;width:20%">'.$count['orkilacompanies'].'</th></tr>';
+$table['nboforkilacompanies'] .= '<tr><th style="background-color:#92D050;width:40%;text-align:left;padding-left:10px">'.$lang->nbofcountries.'</th><th style="background-color: #F2FAED;width:20%">'.$count[orkilacountries].'</th></tr></table>';
+
 // MAP Legend
 $mapdata = json_encode($mapdata);
 if(is_array($maplegend)) {
@@ -71,7 +74,7 @@ if(is_array($employeessegment)) {
         $segmentemployees[$employee_segment->psid][] = $employee_segment;
     }
 }
-$segments = ProductsSegments::get_data('', array('returnarray' => true));
+$segments = ProductsSegments::get_data(array('isActive' => 1), array('returnarray' => true));
 if(is_array($segments)) {
     $table['employeespersegment'] = '<table width="50%"><tr style="background-color:#92D050;"><th style="width:40%">'.$lang->segment.'</th><th style="width:20%">'.$lang->employeescount.'</th></tr>';
     foreach($segments as $segment) {
@@ -84,12 +87,12 @@ eval("\$topmanagementreport=\"".$template->get('topmanagementreport')."\";");
 output($topmanagementreport);
 
 $email_data = array(
-        'to' => '',
+        'to' => 'rasha.aboushakra@orkila.com',
         'from_email' => $core->settings['adminemail'],
         'from' => 'OCOS Mailer',
         'subject' => 'Top Management Report',
         'message' => $topmanagementreport
 );
 
-$mail = new Mailer($email_data, 'php');
+//$mail = new Mailer($email_data, 'php');
 
