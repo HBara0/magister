@@ -68,7 +68,7 @@ if(is_array($maplegend)) {
 }
 
 // Employees per Segment
-$employeessegment = EmployeeSegments::get_data('', array('returnarray' => true));
+$employeessegment = EmployeeSegments::get_data('uid IN (SELECT uid FROM users_usergroups WHERE gid !=7)', array('returnarray' => true));
 if(is_array($employeessegment)) {
     foreach($employeessegment as $employee_segment) {
         $segmentemployees[$employee_segment->psid][] = $employee_segment;
