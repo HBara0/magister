@@ -17,6 +17,7 @@
                     url: "index.php?module=crm/salesdashboard&action=get_affiliates",
                     success: function(data) {
                         var obj = JSON.parse(data)
+                        var obj = JSON.parse(data);
                         form.setCaption("Filter by Affiliate");
                         form.unlock();
                         form.addMultiSelectField('affiliate', 'Select Affiliate', obj.affiliates);
