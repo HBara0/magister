@@ -330,6 +330,9 @@ if(!$core->input['action']) {
         }
 
         /* Parse visit report MIdata timeline --END */
+        if($visitreport['isLocked'] == 1) {
+            $isfinalized = '<div style="float:right">'.$lang->finalized.'</div><br>';
+        }
         eval("\$visitreportspages .= \"".$template->get('crm_visitreport')."\";");
         if($core->input['referrer'] != 'fill') {
             $session->set_phpsession(array("visitreports_{$export_identifier}" => $visitreportspages));
