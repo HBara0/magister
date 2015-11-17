@@ -751,7 +751,7 @@ class ReportingQr Extends Reporting {
         if(!empty($supplierid)) {
             $supplier_where = ' AND eid = '.intval($supplierid);
         }
-        $suppliers = Entities::get_column('eid', 'type="s" AND approved=1 AND noQReportReq=0'.$supplier_where, array('operators' => array('filter' => 'CUSTOMSQLSECURE'), 'returnarray' => true));
+        $suppliers = Entities::get_column('eid', 'type="s" AND approved=1 AND noQReportReq=0 AND noQReportSend=0 '.$supplier_where, array('operators' => array('filter' => 'CUSTOMSQLSECURE'), 'returnarray' => true));
         if(!empty($userid)) {
             $userwhere = ' AND uid = '.intval($userid);
         }

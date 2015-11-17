@@ -35,10 +35,9 @@ if(is_array($data)) {
                     continue;
                 }
                 if(is_array($numbers)) {
+                    $maxfin = $maxdue = 0;
                     foreach($numbers as $type => $offsetdata) {
                         $affiliate = new Affiliates($type);
-
-                        $maxfin = $maxdue = 0;
                         if(is_array($offsetdata)) {
                             foreach($offsetdata as $offsettype => $offset) {
                                 if($offsettype == 'remaining') {
@@ -127,7 +126,7 @@ if(is_array($data)) {
                 $avgscore = 0;
             }
             else {
-                $avgscore = 5 - (($totalundone * 5 ) / $totalreports);
+                $avgscore = round(5 - (($totalundone * 5 ) / $totalreports), 1);
             }
         }
         else {
