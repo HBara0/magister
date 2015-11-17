@@ -19,7 +19,7 @@ if($_REQUEST['authkey'] == 'kia5ravb$op09dj4a!xhegalhj') {
         $table['employeespercountry'] = '<table style="width:50%;"><tr style="background-color:#92D050;"><th style="width:20%">'.$lang->affiliate.'</th><th style="width:20%">'.$lang->employees.'</th><th style="width:12%">'.$lang->employeescount.'</th><th style="width:12%">'.$lang->employeescountlastyear.'</th></tr>';
         foreach($affiliates as $affiliate) {
             $employees_count[$affiliate->affid] = $employees_count[$affiliate->country] = 0;
-            $where = 'affid='.$affiliate->affid.' AND uid IN (SELECT uid FROM users_usergroups WHERE gid !=7) AND isMain=1';
+            $where = 'affid='.$affiliate->affid.' AND uid IN (SELECT uid FROM users WHERE gid !=7) AND isMain=1';
             $affiliated_employees = AffiliatedEmployees::get_data($where, array('returnarray' => true));
             if(is_array($affiliated_employees)) {
                 $emp_count = 0;
@@ -69,7 +69,7 @@ if($_REQUEST['authkey'] == 'kia5ravb$op09dj4a!xhegalhj') {
     }
 
 // Employees per Segment
-$employeessegment = EmployeeSegments::get_data('uid IN (SELECT uid FROM users_usergroups WHERE gid !=7)', array('returnarray' => true));
+    $employeessegment = EmployeeSegments::get_data('uid IN (SELECT uid FROM users WHERE gid !=7)', array('returnarray' => true));
     if(is_array($employeessegment)) {
         foreach($employeessegment as $employee_segment) {
             $segmentemployees[$employee_segment->psid][] = $employee_segment;
