@@ -27,8 +27,9 @@ if(!($core->input['action'])) {
         }
     }
     else {
-        $affiliate = Affiliates::get_affiliates();
+        $affiliate = Affiliates::get_affiliates(array('isActive' => 1), array('returnarray' => true));
     }
+    $intermedaffiliates = Affiliates::get_affiliates(array('isActive' => 1), array('returnarray' => true));
 
     $purchasetypes = PurchaseTypes::get_data('name IS NOT NULL', array('returnarray' => true));
     if(!is_array($purchasetypes)) {
@@ -101,8 +102,7 @@ if(!($core->input['action'])) {
                 $isdisabled = $disabled_list;
                 $config_class = 'automaticallyfilled-editable';
             }
-
-            $affiliates_list[$party] = parse_selectlist('partiesinfo['.$party.'Aff]', 1, $affiliate, '', '', '', array('blankstart' => 1, 'id' => 'partiesinfo_'.$party.'_aff', 'required' => 'required', 'width' => '100%', 'class' => $config_class));
+            $affiliates_list[$party] = parse_selectlist('partiesinfo['.$party.'Aff]', 1, $intermedaffiliates, '', '', '', array('blankstart' => 1, 'id' => 'partiesinfo_'.$party.'_aff', 'required' => 'required', 'width' => '100%', 'class' => $config_class));
             $paymentterms_list[$party] = parse_selectlist('partiesinfo['.$party.'PaymentTerm]', 4, $payment_terms, '', '', '', array('blankstart' => 1, 'id' => 'partiesinfo_'.$party.'_paymentterm', 'required' => 'required', 'width' => '100%', 'class' => $config_class));
             $incoterms_list[$party] = parse_selectlist('partiesinfo['.$party.'Incoterms]', 4, $incoterms, '', '', '', array('blankstart' => 1, 'id' => 'partiesinfo_'.$party.'_incoterms', 'required' => 'required', 'width' => '100%', 'class' => $config_class));
         }
@@ -385,7 +385,7 @@ if(!($core->input['action'])) {
                     $isdisabled = $disabled_list;
                     $config_class = 'automaticallyfilled-editable';
                 }
-                $affiliates_list[$party] = parse_selectlist('partiesinfo['.$party.'Aff]', 1, $affiliate, $aff[$party], '', '', array('blankstart' => true, 'id' => 'partiesinfo_'.$party.'_aff', 'required' => $partiesinfo['required_intermedpolicy'], 'width' => '100%', 'class' => $config_class, $isdisabled => $isdisabled));
+                $affiliates_list[$party] = parse_selectlist('partiesinfo['.$party.'Aff]', 1, $intermedaffiliates, $aff[$party], '', '', array('blankstart' => true, 'id' => 'partiesinfo_'.$party.'_aff', 'required' => $partiesinfo['required_intermedpolicy'], 'width' => '100%', 'class' => $config_class, $isdisabled => $isdisabled));
                 $paymentterms_list[$party] = parse_selectlist('partiesinfo['.$party.'PaymentTerm]', 4, $payment_terms, $paymentterm[$party], '', '', array('blankstart' => 1, 'id' => 'partiesinfo_'.$party.'_paymentterm', 'required' => $partiesinfo['required_intermedpolicy'], 'width' => '100%', 'class' => $config_class, $isdisabled => $isdisabled));
                 $incoterms_list[$party] = parse_selectlist('partiesinfo['.$party.'Incoterms]', 4, $incoterms, $selected_incoterms[$party], '', '', array('blankstart' => 1, 'id' => 'partiesinfo_'.$party.'_incoterms', 'required' => $partiesinfo['required_intermedpolicy'], 'width' => '100%', 'class' => $config_class, $isdisabled => $isdisabled));
                 $isdisabled = '';
