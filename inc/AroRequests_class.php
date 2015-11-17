@@ -417,7 +417,7 @@ class AroRequests extends AbstractClass {
                         $approvers['generalManager'] = $affiliate->get_generalmanager()->uid;
                         break;
                     case 'gfinancialManager':
-                        $approvers['gfinancialManager'] = $core->settings['gfinancialManager_id']; // 367;
+                        $approvers['gfinancialManager'] = $affiliate->get_globalfinancialemanager()->uid; // $core->settings['gfinancialManager_id']; // 367;
                         break;
                     case 'cfo':
                         $approvers['cfo'] = $affiliate->get_cfo()->uid;
@@ -737,8 +737,8 @@ class AroRequests extends AbstractClass {
 
             $mailinglist = array_unique($mailinglist);
             $email_data = array(
-                    'from_email' => 'test@ocos.orkila.com',
-                    'from' => 'Orkila Attendance System',
+                    'from_email' => 'ocos@orkila.com',
+                    'from' => 'OCOS',
                     'to' => $mailinglist,
                     'subject' => 'Aro is approved',
                     'message' => "Aro is Approved"

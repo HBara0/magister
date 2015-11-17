@@ -76,6 +76,13 @@ class Affiliates {
         return new Users($this->affiliate['finManager']);
     }
 
+    public function get_globalfinancialemanager() {
+        if(empty($this->affiliate['globalFinManager'])) {
+            return false;
+        }
+        return new Users($this->affiliate['globalFinManager']);
+    }
+
     public function get_defaultworkshift() {
         if(!empty($this->affiliate['defaultWorkshift'])) {
             return new Workshifts($this->affiliate['defaultWorkshift']);
