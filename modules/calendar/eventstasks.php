@@ -281,6 +281,16 @@ else {
                                             'spid' => array(
                                                     'id' => $core->input['event']['spid'])
                             ));
+                            if(is_array($core->input['event']['invitee'])) {
+                                $count = 0;
+                                foreach($core->input['event']['invitee'] as $uid) {
+                                    $meeting['attendees']['uid'][$count]['id'] = $uid;
+                                    $count++;
+                                }
+                            }
+                            else {
+                                $meeting['attendees']['uid'][0]['id'] = $core->user['uid'];
+                            }
                             $meeting_obj = new Meetings();
                             $meeting_obj->create($meeting);
                         }
