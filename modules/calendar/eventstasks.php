@@ -206,6 +206,10 @@ else {
                     if(isset($core->input['event']['notify']) && $core->input['event']['notify'] == 1) {
                         /* Send the event notification - START */
                         $notification_mails = get_specificdata('affiliates', array('affid', 'mailingList'), 'affid', 'mailingList', '', 0, 'mailingList != "" AND affid IN('.implode(',', $core->input['event']['restrictto']).')');
+                        $assignedemp_affs = AffiliatedEmployees::get_column('uid', array('isMain' => 1, 'affid' => $core->input['event']['restrictto']), array('returnarray' => true));
+                        if(is_array($assignedemp_affs)) {
+                            $meetininvitees = Users::get_data('uid IN ('.implode(',', $assignedemp_affs).') AND gid !=7', array('operators' => array('filter' => 'CUSTOMSQLSECURE'), 'returnarray' => true));
+                        }
                         /* More recipients for visiting us events - START */
 
                         $eventtype = CalendarEventTypes::get_data(array('cetid' => $core->input['event']['type']));
@@ -281,10 +285,18 @@ else {
                                             'spid' => array(
                                                     'id' => $core->input['event']['spid'])
                             ));
+                            $meeting['notifyuser'] = 1;
                             if(is_array($core->input['event']['invitee'])) {
                                 $count = 0;
                                 foreach($core->input['event']['invitee'] as $uid) {
                                     $meeting['attendees']['uid'][$count]['id'] = $uid;
+                                    $count++;
+                                }
+                            }
+                            elseif(is_array($meetininvitees)) {
+                                $count = 0;
+                                foreach($meetininvitees as $invitee) {
+                                    $meeting['attendees']['uid'][$count]['id'] = $invitee->uid;
                                     $count++;
                                 }
                             }
