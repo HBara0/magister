@@ -93,8 +93,9 @@ else if($core->input['action'] == 'do_perform_managewarehousepolicies') {
             output_xml('<status>true</status><message>'.$lang->successfullysaved.'</message>');
             break;
         case 2:
-            output_xml('<status>false</status><message>'.$lang->fillrequiredfields.'</message>');
-            break;
+            $error_output = $errorhandler->get_errors_inline();
+            output_xml("<status>false</status><message>{$lang->fillrequiredfields}<![CDATA[<br/>{$error_output}]]></message>");
+            exit;
         case 3:
             output_xml('<status>false</status><message>'.$lang->warehousepoliciescoexist.'</message>');
             break;

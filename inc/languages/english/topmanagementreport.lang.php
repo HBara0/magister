@@ -22,3 +22,4 @@ $lang['employeespersegment'] = 'Employees per Segment';
 $lang['employeesperaff'] = 'Employees per Affiliate';
 $lang['affemployeesmap'] = 'Affiliates Employees Map';
 $lang['total'] = 'Total';
+$lang['nbofcountries'] = ' Number of Countries with an Orkila Company';

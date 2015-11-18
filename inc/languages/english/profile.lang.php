@@ -94,6 +94,6 @@ $lang['wrongid'] = 'Wrong user ID';
 $lang['downloadcontact'] = 'Download Contact';
 $lang['downloademployeescards'] = 'Download All Employees Contacts';
 
-$lang['birthdayisprivate'] = 'Birthday Is Private';
+$lang['birthdayisprivate'] = 'Make my birthday private';
 $lang['birthdayisprivate_tip'] = 'If ticked, your birthday will remain private, else a notification will be send to your affiliate emloyees on your birthday';
 ?>
