@@ -143,7 +143,9 @@ class AroRequests extends AbstractClass {
         $orderrequest_array['avgLocalInvoiceDueDate'] = strtotime($data['avgeliduedate']);
         $orderrequest_array['modifiedBy'] = $core->user['uid'];
         $orderrequest_array['modifiedOn'] = TIME_NOW;
-        $orderrequest_array['revision'] = $this->data['revision'] + 1;
+        if($this->data['isFinalized'] == 1) {
+            $orderrequest_array['revision'] = $this->data['revision'] + 1;
+        }
         $query = $db->update_query(self::TABLE_NAME, $orderrequest_array, ''.self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
         if($query) {
             /* update the document conf with the next number */
@@ -876,6 +878,54 @@ class AroRequests extends AbstractClass {
             }
         }
         return $informmore;
+    }
+
+    public function getif_approvedonce($aorid) {
+        $approvals = AroRequestsApprovals::get_data(array(AroRequests::PRIMARY_KEY => intval($aorid)), array('returnarray' => true));
+        if(is_array($approvals)) {
+            foreach($approvals as $approval) {
+                if($approval->isApproved == 1) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public function delete_aro() {
+        global $db;
+        $todelete = $this->data[AroRequests::PRIMARY_KEY];
+        $attributes = array(AroRequests::PRIMARY_KEY);
+        if($this->data['isFinalized'] == 1 || $this->data['revision'] > 0) {
+            $this->errorcode = 1;
+            return $this;
+        }
+        foreach($attributes as $attribute) {
+            $tables = $db->get_tables_havingcolumn($attribute, 'TABLE_NAME !="'.AroRequests::TABLE_NAME.'"');
+            if(is_array($tables)) {
+                foreach($tables as $table) {
+                    $query = $db->query("SELECT * FROM ".Tprefix.$table." WHERE ".$attribute."=".intval($todelete)." ");
+                    if($db->num_rows($query) > 0) {
+                        if($table == AroApprovalChainPolicies::TABLE_NAME) {
+                            while($approval = $db->fetch_assoc($query)) {
+                                if($approval->isApproved == 1) {
+                                    $this->errorcode = 1;
+                                    return $this;
+                                }
+                            }
+                        }
+                        $deletequery = $db->query("DELETE FROM ".$table." WHERE ".AroRequests::PRIMARY_KEY." = ".$todelete);
+                    }
+                }
+            }
+        }
+        $delete = $this->delete();
+        if($delete) {
+            $this->errorcode = 0;
+            return $this;
+        }
+        $this->errorcode = 2;
+        return $this;
     }
 
 }
