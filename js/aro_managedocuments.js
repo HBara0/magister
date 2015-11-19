@@ -119,6 +119,9 @@ $(function() {
                     $('#warehouse_list_td').html(returnedData);
                     $('#parmsfornetmargin_warehousingRate').find('option').remove();
                     $('#parmsfornetmargin_warehousingPeriod').val(0);
+                    $('#parmsfornetmargin_warehousingRateUsd').find('option').remove();
+                    $('#parmsfornetmargin_warehouseUsdExchangeRate').val('');
+
                 }
             });
         }
@@ -164,7 +167,7 @@ $(function() {
                         $("input[id$='shelfLife']").removeAttr("readonly");
                     }
                 }
-                var warehousing_fields = ["warehouse", "warehousingRate", "warehousingPeriod", "warehousingTotalLoad", "uom"];
+                var warehousing_fields = ["warehouse", "warehousingRate", "warehousingRateUsd", "warehouseRateExchangeRate", "warehousingPeriod", "warehousingTotalLoad", "uom"];
                 /*
                  * Consider refactoring to avoid loop
                  */
@@ -230,21 +233,30 @@ $(function() {
                 var jsonStr = JSON.stringify(data);
                 obj = JSON.parse(jsonStr);
                 jQuery.each(obj, function(i, val) {
-                    if(i === 'parmsfornetmargin_warehousingRate') {
+                    if(i === 'parmsfornetmargin_warehousingRate' || i === 'parmsfornetmargin_warehousingRateUsd') {
                         var id = val.split(" ");
-                        $("select[id^='" + i + "']").empty().append("<option value='" + id[0] + "' selected>" + val + "</option>");
+                        $("select[id='" + i + "']").empty().append("<option value='" + id[0] + "' selected>" + val + "</option>");
                     }
                     else if(i === 'parmsfornetmargin_uom') {
                         var id = val.split(" ");
-                        $("select[id^='" + i + "'] option[value='" + id[0] + "']").attr("selected", "selected");
+                        $("select[id='" + i + "'] option[value='" + id[0] + "']").attr("selected", "selected");
                     }
                     else {
-                        $("input[id^='" + i + "']").val(val);
+                        $("input[id='" + i + "']").val(val);
                     }
                 });
             });
         }
     });
+    $(document).on("change", "#parmsfornetmargin_warehouseUsdExchangeRate", function() {
+        alert('a');
+        if(typeof $(this).val() !== 'undefined' && typeof $("select[id='parmsfornetmargin_warehousingRate']").val() !== 'undefined') {
+            var value = $(this).val() * $("select[id='parmsfornetmargin_warehousingRate']").val();
+            $("select[id='parmsfornetmargin_warehousingRateUsd']").empty().append("<option value='" + value + "' selected>" + value + "</option>");
+        }
+    });
+
+
     //------------------------------------------------------------------------------------//
     // If Inco terms are different between intermediary and vendor, freight is mandatory
     $(document).on("change", "select[id='partiesinfo_intermed_incoterms'],select[id='partiesinfo_vendor_incoterms']", function() {
@@ -479,7 +491,7 @@ $(function() {
 //------Form Submitting after 30 seconds--------------//
     var auto_refresh = setInterval(function() {
         submitform();
-    }, 30000);
+    }, 300000);
     function submitform() {     //Form submit function
         $("input[id^='perform_'][id$='_Button']").trigger("click");
     }
@@ -628,7 +640,7 @@ $(function() {
         $.each(parmsfornetmargin_fields, function(index, value) {
             parmsfornetmargin += '&' + value + '=' + $("input[id='parmsfornetmargin_" + value + "']").val();
         });
-        parmsfornetmargin += '&warehousingRate=' + $("select[id='parmsfornetmargin_warehousingRate']").val();
+        parmsfornetmargin += '&warehousingRate=' + $("select[id='parmsfornetmargin_warehousingRateUsd']").val();
         parmsfornetmargin += "&commission=" + $('input[id=partiesinfo_commission]').val();
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         var totalquantity = {};
