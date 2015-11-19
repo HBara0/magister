@@ -127,9 +127,6 @@ if(!($core->input['action'])) {
     }
     if(isset($core->input['id'])) {
         $aroorderrequest = AroRequests::get_data(array('aorid' => $core->input['id']), array('simple' => false));
-        if($aroorderrequest->isFinalized == 1) {
-            $checked['aroisfinalized'] = 'checked="checked"';
-        }
         if(isset($aroorderrequest->aroBusinessManager) && !empty($aroorderrequest->aroBusinessManager)) {
             $aro_bm = Users::get_data(array('uid' => $aroorderrequest->aroBusinessManager));
             if(is_object($aro_bm)) {
@@ -142,6 +139,12 @@ if(!($core->input['action'])) {
                     .'<input type="hidden" id="approvearo_id" value="'.$aroorderrequest->aorid.'"/>';
         }
         if(is_object($aroorderrequest)) {
+            if(!$aroorderrequest->getif_approvedonce($aroorderrequest->aorid) && $aroorderrequest->createdBy == $core->user['uid']) {
+                $deletebutton = "<a class='button' href='#{$aroorderrequest->aorid}' id='deletearodocument_{$aroorderrequest->aorid}_aro/managearodouments_loadpopupbyid' >{$lang->delete}</a>";
+            }
+            if($aroorderrequest->isFinalized == 1) {
+                $checked['aroisfinalized'] = 'checked="checked"';
+            }
             $purchasetype = new PurchaseTypes($aroorderrequest->orderType);
 
             $affiliate_list = parse_selectlist('affid', 1, $affiliate, $aroorderrequest->affid, '', '', array('blankstart' => true, 'id' => 'affid', 'required' => 'required'));
@@ -1353,5 +1356,24 @@ else {
             }
         }
         echo json_encode($vendorincotermdetails);
+    }
+    elseif($core->input['action'] == 'perform_deletearodocument') {
+        $aro = new AroRequests($db->escape_string($core->input['todelete']));
+        $aro = $aro->delete_aro();
+        switch($aro->get_errorcode()) {
+            case 0:
+                output_xml("<status>true</status><message>{$lang->successfullydeleted}</message>");
+                break;
+            case 1:
+                output_xml("<status>false</status><message>{$lang->aroapprovedatleastonce}</message>");
+                break;
+            default:
+                output_xml("<status>false</status><message>{$lang->errordeleting}</message>");
+                break;
+        }
+    }
+    elseif($core->input['action'] == 'get_deletearodocument') {
+        eval("\$deletearocodbox = \"".$template->get('popup_deletearodocument')."\";");
+        output($deletearocodbox);
     }
 }

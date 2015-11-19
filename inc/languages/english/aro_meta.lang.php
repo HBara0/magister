@@ -198,7 +198,6 @@ $lang['promiseofpaymentdesc'] = 'Default value is Estimated date of payment +/- 
 $lang['vendorisaffdesc'] = 'Tick the box whenever the vendor is an affiliate to select that affiliate <br/> Note that In that case, intermediary section is disabled.';
 $lang['forwarder'] = 'Forwarder';
 $lang['exttrafields'] = 'Extra Fields';
-
 $lang['aro_policies'] = 'ARO Policies';
 $lang['aro_wareshouses_policies'] = 'Warehouse Policies';
 $lang['aro_approvalchain_policies'] = 'Approval Chain Policies';
@@ -208,6 +207,10 @@ $lang['expiringpolicyrenewed'] = 'System has automatically renewed the policies 
 $lang['finalize'] = 'Finalize';
 $lang['finalizedemail'] = 'The Approval email will only be send after ARO is finalized';
 $lang['aroorderrequestlist'] = 'Aro Documents list';
-
 $lang['missingconfigurations'] = 'Some configurations are missing: ';
 $lang['warehousepoliciescoexist'] = 'Policies for the same warehouse cannot co-exist';
+$lang['delete'] = 'Delete';
+$lang['sureredeletearodocument'] = 'Are you sure you want to delete this ARO Document ?';
+$lang['successfullydeleted'] = 'Successfully Deleted';
+$lang['aroapprovedatleastonce'] = 'ARO is already approved once';
+$lang['errordeleting'] = 'Error Deleting';

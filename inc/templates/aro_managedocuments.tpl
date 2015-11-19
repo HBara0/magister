@@ -30,6 +30,7 @@
                     </div>
                     <input type="checkbox" value="1" name="isFinalized" {$checked[aroisfinalized]}/>{$lang->finalize}<br/><br/>
                     <input type="submit" class="button" id="perform_aro/managearodouments_Button" value="{$lang->savecaps}"/>
+                    {$deletebutton}
                 </form>
 
                 <div id="perform_aro/managearodouments_Results"></div>

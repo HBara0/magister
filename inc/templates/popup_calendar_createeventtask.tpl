@@ -44,7 +44,6 @@
             {$restriction_selectlist}
             {$notifyevent_checkbox}
             <div class="subtitle">{$lang->publishoptions}</div>
-            {$publishonwebsite_checkbox}
             <div style="cursor: pointer;"><a onClick="$('#eventemployess').fadeToggle();"><span class="subtitle">{$lang->invitemployees}...</span></a></div>
             <div style="width:100%; height:100px; overflow:auto; transition: background-color 0.5s ease; display:none; padding:5px; z-index:2;" id="eventemployess">
                 {$invitees_rows}

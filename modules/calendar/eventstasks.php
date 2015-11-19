@@ -263,7 +263,7 @@ else {
                                 $mailer->add_attachment($attachments_path.'/'.$attachment['name']);
                             }
                         }
-                        // $mailer->send();
+                        $mailer->send();
 
                         if(is_object($eventtype) && $eventtype->name == 'visitingus') {
                             $meeting = array(
@@ -281,6 +281,7 @@ else {
                                             'spid' => array(
                                                     'id' => $core->input['event']['spid'])
                             ));
+                            $meeting['notifyuser'] = 1;
                             if(is_array($core->input['event']['invitee'])) {
                                 $count = 0;
                                 foreach($core->input['event']['invitee'] as $uid) {

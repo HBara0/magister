@@ -876,6 +876,11 @@ $(function() {
             $("tfoot[id='ordersummary_tfoot']").hide();
         }
     });
+    //--------------------------------------------------------------
+
+    $(document).on("click", "a[id='deletaro']", function() {
+    });
+
 });
 var rowid = '';
 function addactualpurchaserow(id, callback) {
