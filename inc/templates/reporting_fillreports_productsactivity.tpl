@@ -30,7 +30,12 @@
             <tr>
                 <td colspan="8">
                     <div style="float:left; width: 50%;">
-                        <img src="images/add.gif" id="addmore_productsactivity_product" alt="{$lang->add}">
+                        <img src="./images/add.gif" style="cursor: pointer" id="ajaxaddmore_reporting/fillreport_productsactivity" alt="{$lang->add}">{$lang->addproductactivity}
+                        <input name="numrows_productsactivity" type="hidden" id="numrows_productsactivity" value="{$rowid}">
+                        <input type="hidden" name="ajaxaddmoredata[basecurrency]" id="ajaxaddmoredata_productsactivity" value="{$core->input['baseCurrency']}"/>
+                        <input type="hidden" name="ajaxaddmoredata[quarter]" id="ajaxaddmoredata_productsactivity" value="{$qreport->quarter}"/>
+                        <input type="hidden" name="ajaxaddmoredata[isauditor]" id="ajaxaddmoredata_productsactivity" value="{$core->input['auditor']}"/>
+
                     </div>
                     <div style="margin-top: 6px; float:right; width:40%; text-align: right">
                        <!-- <input type="button" value="{$lang->prevcaps}" class="button" onClick="javascript:history.go(-1);"/>-->
