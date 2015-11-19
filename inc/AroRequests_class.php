@@ -143,7 +143,9 @@ class AroRequests extends AbstractClass {
         $orderrequest_array['avgLocalInvoiceDueDate'] = strtotime($data['avgeliduedate']);
         $orderrequest_array['modifiedBy'] = $core->user['uid'];
         $orderrequest_array['modifiedOn'] = TIME_NOW;
-        $orderrequest_array['revision'] = $this->data['revision'] + 1;
+        if($data['isFinalized']) {
+            $orderrequest_array['revision'] = $this->data['revision'] + 1;
+        }
         $query = $db->update_query(self::TABLE_NAME, $orderrequest_array, ''.self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
         if($query) {
             /* update the document conf with the next number */
@@ -360,6 +362,13 @@ class AroRequests extends AbstractClass {
             $data['warehousingRate'] = $warehousepolicy->rate.'  '.$currency->alphaCode.'/'.$uom->get_displayname().'/'.$warehousepolicy->datePeriod.' Days';
             $data['warehousingPeriod'] = $warehousepolicy->datePeriod;
             $data['uom'] = $warehousepolicy->rate_uom;
+            if($currency->alphaCode != 'USD') {
+                $currencyobj = new Currencies('USD');
+                $data['warehouseUsdExchangeRate'] = $currencyobj->get_latest_fxrate($currency->alphaCode, null);
+                if(!empty($data['warehouseUsdExchangeRate'])) {
+                    $data['warehousingRateUsd'] = ($warehousepolicy->rate * $data['warehouseUsdExchangeRate']).' USD/'.$uom->get_displayname().'/'.$warehousepolicy->datePeriod.' Days';
+                }
+            }
         }
         if(!is_object($warehousepolicy)) {
             output($lang->nopolicy);
@@ -412,7 +421,6 @@ class AroRequests extends AbstractClass {
                         break;
                     case 'lfinancialManager':
                         $approvers['lfinancialManager'] = $affiliate->get_financialemanager()->uid;
-
                         break;
                     case 'generalManager':
                         $approvers['generalManager'] = $affiliate->get_generalmanager()->uid;
@@ -720,12 +728,12 @@ class AroRequests extends AbstractClass {
                 }
             }
             if($this->check_informglobalcfo() == 1) {
-                $affiliate = new Affiliate($this->data['affid']);
+                $affiliate = new Affiliates($this->data['affid']);
                 $cfo = new Users($affiliate->cfo);
                 $mailinglist[$cfo->uid] = $cfo->get_email();
             }
             if($this->check_informglobalpurchasemgr() == 1) {
-                $affiliate = new Affiliate($this->data['affid']);
+                $affiliate = new Affiliates($this->data['affid']);
                 $globalPurchaseMgr = new Users($affiliate->globalPurchaseManager);
                 $mailinglist[$globalPurchaseMgr->uid] = $globalPurchaseMgr->get_email();
             }
@@ -761,12 +769,12 @@ class AroRequests extends AbstractClass {
             }
         }
         if($this->check_informglobalcfo() == 1) {
-            $affiliate = new Affiliate($this->data['affid']);
+            $affiliate = new Affiliates($this->data['affid']);
             $cfo = new Users($affiliate->cfo);
             $inform[$cfo->uid] = $cfo->get_email();
         }
         if($this->check_informglobalpurchasemgr() == 1) {
-            $affiliate = new Affiliate($this->data['affid']);
+            $affiliate = new Affiliates($this->data['affid']);
             $globalPurchaseMgr = new Users($affiliate->globalPurchaseManager);
             $inform[$globalPurchaseMgr->uid] = $globalPurchaseMgr->get_email();
         }

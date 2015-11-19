@@ -63,11 +63,11 @@ if(!$core->input['action']) {
                 'returnarray' => true
         );
     }
-    $aroappr_pol = AroApprovalChainPolicies::get_data('effectiveFrom IS NOT NULL and effectiveTo IS NOT NULL', $dal_config);
+    $aroappr_pol = AroApprovalChainPolicies::get_data('effectiveFrom IS NOT NULL and effectiveTo IS NOT NULL AND affid IN ('.implode(',', $core->user['affiliates']).')', $dal_config);
     if(!empty($filter_where)) {
-        $filter_where .='AND effectiveFrom IS NOT NULL and effectiveTo IS NOT NULL';
+        $filter_where .='AND effectiveFrom IS NOT NULL and effectiveTo IS NOT NULL AND affid IN ('.implode(',', $core->user['affiliates']).')';
+        $aroappr_pol = AroApprovalChainPolicies::get_data($filter_where, $dal_config);
     }
-    $aroappr_pol = AroApprovalChainPolicies::get_data($filter_where, $dal_config);
     if(is_array($aroappr_pol)) {
         foreach($aroappr_pol as $approvers) {
             $approvers->effectiveTo = date($core->settings['dateformat'], $approvers->effectiveTo);

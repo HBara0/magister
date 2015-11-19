@@ -20,7 +20,7 @@ if(!$core->input['action']) {
 
 
     /* Perform inline filtering - START */
-    $warhouses = Warehouses::get_data('', array('returnarray' => true));
+    $warhouses = Warehouses::get_data(array('affid' => $core->user['affiliates']), array('returnarray' => true, 'operators' => array('affid' => 'IN')));
     $filters_config = array(
             'parse' => array('filters' => array('warehouse', 'fromDate', 'toDate'),
                     'overwriteField' => array('warehouse' => parse_selectlist('filters[warehouse]', 1, $warhouses, '', 0, '', array('blankstart' => true)),),
@@ -64,10 +64,15 @@ if(!$core->input['action']) {
                 'returnarray' => true
         );
     }
+
+
+    $warehouse_objs = Warehouses::get_data(array('affid' => $core->user['affiliates'], 'isActive' => 1), $dal_config);
+    $warehousefilter_where = ' warehouse IN ('.implode(',', array_keys($warehouse_objs)).')';
     if(!empty($filter_where)) {
-        $filter_where = $filter_where;
+        $warehousefilter_where .= ' AND '.$filter_where;
     }
-    $aroobjs = AroManageWarehousesPolicies::get_data($filter_where, $dal_config);
+
+    $aroobjs = AroManageWarehousesPolicies::get_data($warehousefilter_where, $dal_config);
 
     if(is_array($aroobjs)) {
         foreach($aroobjs as $aro) {
