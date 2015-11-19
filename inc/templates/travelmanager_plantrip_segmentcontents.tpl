@@ -29,9 +29,9 @@
         <div id="content_suggestedtransploader_{$sequence}"></div>
         <div id="content_suggestedtransp_{$sequence}">{$transsegments_output[suggested]}</div>
     </div>
-    <div class = "ui-state-highlight ui-corner-all" style = "padding: 6px; font-weight: bold;margin-top:10px;">{$lang->availableflightsnoticemessage}</div>
     <div style="display: block;border:1px solid #FCEFA1; padding:15px;margin-top:10px;">
         <h2 class="subtitle">{$lang->selectothertransportations}</h2>
+        <div class = "ui-state-highlight ui-corner-all" style = "padding: 6px; font-weight: bold;margin-top:10px;">{$lang->availableflightsnoticemessage}</div>
         <input type="checkbox" id="checkbox_show_othertransps_{$sequence}" style="margin-left:12px;margin-top:15px;margin-bottom:15px;" {$checked[othertranspssection]}/>{$lang->other} {$lang->transportations}
         <div id="show_othertransps_{$sequence}" style="{$display['othertranspssection']}">
             <div>{$transsegments_output[othertransp]}</div>

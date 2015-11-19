@@ -41,6 +41,8 @@ if(!($core->input['action'])) {
     $segments = ProductsSegments::get_segments('', array('order' => array('sort' => 'ASC', 'by' => 'title')));
     $packaging = Packaging::get_data('name IS NOT NULL', $dal_config);
     $uom = Uom::get_data(array('isWeight' => 1), $dal_config);
+    $uom_where = ' isWeight=1 OR isArea=1 OR isVolume=1';
+    $warehouseuoms = Uom::get_data($uom_where, $dal_config);
     $mainaffobj = new Affiliates($core->user['mainaffiliate']);
     $currencies = Currencies::get_data('', array('order' => array('sort' => 'ASC', 'by' => 'name')));
     $incoterms = Incoterms::get_data('name IS NOT NULL', $dal_config);
@@ -92,7 +94,7 @@ if(!($core->input['action'])) {
 
         //Net Margin Parameters
         $partiesinfo['required_intermedpolicy'] = "required='required'";
-        $netmarginparms_uomlist = parse_selectlist('parmsfornetmargin[uom]', '', $uom, '', '', '', array('id' => "parmsfornetmargin_uom", 'blankstart' => 1, 'width' => '100px'));
+        $netmarginparms_uomlist = parse_selectlist('parmsfornetmargin[uom]', '', $warehouseuoms, '', '', '', array('id' => "parmsfornetmargin_uom", 'blankstart' => 1, 'width' => '100px'));
 
         //Parties Information
         $parties = array('intermed', 'vendor');
@@ -125,6 +127,12 @@ if(!($core->input['action'])) {
     }
     if(isset($core->input['id'])) {
         $aroorderrequest = AroRequests::get_data(array('aorid' => $core->input['id']), array('simple' => false));
+        if(isset($aroorderrequest->aroBusinessManager) && !empty($aroorderrequest->aroBusinessManager)) {
+            $aro_bm = Users::get_data(array('uid' => $aroorderrequest->aroBusinessManager));
+            if(is_object($aro_bm)) {
+                $aroorderrequest->aroBusinessManager_output = $aro_bm->get_displayname();
+            }
+        }
         if(isset($core->input['referrer']) && $core->input['referrer'] = 'toapprove') {
             $aroapproval = AroRequestsApprovals::get_data(array('aorid' => intval($core->input['id']), 'uid' => $core->user['uid']));
             $approve_btn[$core->user['uid']] = '<input type="button" class="button" id="approvearo" value="'.$lang->approve.'"/>'
@@ -209,11 +217,12 @@ if(!($core->input['action'])) {
             }
             $netmarginparms = AroNetMarginParameters::get_data(array('aorid' => $core->input['id']));
             if(is_object($netmarginparms)) {
-                $netmarginparms_uomlist = parse_selectlist('parmsfornetmargin[uom]', '', $uom, $netmarginparms->uom, '', '', array('id' => "parmsfornetmargin_uom", 'blankstart' => 1, 'width' => '100px'));
+                $netmarginparms_uomlist = parse_selectlist('parmsfornetmargin[uom]', '', $warehouseuoms, $netmarginparms->uom, '', '', array('id' => "parmsfornetmargin_uom", 'blankstart' => 1, 'width' => '100px'));
                 $warehouse = Warehouses::get_data(array('wid' => $netmarginparms->warehouse));
                 $warehouse_list = '<select '.$disabled['warehousing'].'><option value='.$netmarginparms->warehouse.' selected>'.$warehouse->name.'</option>'
                         .'<option value="0"></option></select>';
                 $netmarginparms_warehousingRate = '<option value = "'.$netmarginparms->warehousingRate.'">'.$netmarginparms->warehousingRate.'</option>';
+                $netmarginparms_warehousingRateUsd = '<option value = "'.$netmarginparms->warehousingRateUsd.'">'.$netmarginparms->warehousingRateUsd.'</option>';
             }
             //*********Parameters Influencing Net Margin Calculation -End ********//
             //********** ARO Product Lines -Start **************//
@@ -752,7 +761,9 @@ else {
             exit;
         }
         foreach($netmarginparms_data as $key => $value) {
-            $parmsfornetmargin['parmsfornetmargin_'.$key] = $value;
+            if(!is_empty($value)) {
+                $parmsfornetmargin['parmsfornetmargin_'.$key] = $value;
+            }
         }
         echo json_encode($parmsfornetmargin);
     }

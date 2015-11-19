@@ -27,7 +27,7 @@ class Affiliates {
     private function read($id, $simple = TRUE) {
         global $db;
 
-        $query_select = 'affid, name,alias, legalName, country, city, integrationOBOrgId, mainCurrency, isIntReinvoiceAffiliate,generalManager,finManager,cfo,coo,globalPurchaseManager,regionalSupervisor,logisticsManager';
+        $query_select = 'affid, name,alias, legalName, country, city, integrationOBOrgId, mainCurrency, isIntReinvoiceAffiliate,generalManager,finManager,cfo,coo,globalPurchaseManager,regionalSupervisor,logisticsManager,globalFinManager';
         if($simple == false) {
             $query_select = '*';
         }

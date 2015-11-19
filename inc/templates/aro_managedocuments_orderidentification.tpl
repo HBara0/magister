@@ -29,8 +29,8 @@
                 <td>{$inspectionlist}</td>
                 <td>{$lang->bmanager}</td>
                 <td>
-                    <input type='text' id='user_0_autocomplete'/>
-                    <input type='hidden' id='user_0_id' name='aroBusinessManager'/>
+                    <input type='text' id='user_0_autocomplete' value="{$aroorderrequest->aroBusinessManager_output}"/>
+                    <input type='hidden' id='user_0_id' name='aroBusinessManager' value="{$aroorderrequest->aroBusinessManager}"/>
                 </td>
             </tr>
 

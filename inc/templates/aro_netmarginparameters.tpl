@@ -42,7 +42,13 @@
             <tr>
                 <td valign="top">{$lang->interestvalue}</td>
                 <td></td>
-                <td colspan="4"> <input type="text" name="parmsfornetmargin[interestValue]" id="parmsfornetmargin_interestvalue" value="{$netmarginparms->interestValue}" style="width:150px;" readonly class="automaticallyfilled-noneditable"/>
+                <td> <input type="text" name="parmsfornetmargin[interestValue]" id="parmsfornetmargin_interestvalue" value="{$netmarginparms->interestValue}" style="width:150px;" readonly class="automaticallyfilled-noneditable"/></td>
+                <td>Exchange rate to USD</td>
+                <td> <input type="number" step="any" name="parmsfornetmargin[warehouseUsdExchangeRate]" id="parmsfornetmargin_warehouseUsdExchangeRate" value="{$netmarginparms->warehouseUsdExchangeRate}" style="width:150px;" class="automaticallyfilled-editable"/>
+                <td>Rate in USD</td>
+                <td>
+                    <select name="parmsfornetmargin[warehousingRateUsd]" id="parmsfornetmargin_warehousingRateUsd" style="width:150px;" {$disabled[warehousing]} class="automaticallyfilled-noneditable">{$netmarginparms_warehousingRateUsd}</select>
+                </td>
             </tr>
 
         </tbody>
