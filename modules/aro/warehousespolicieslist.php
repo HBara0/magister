@@ -66,10 +66,18 @@ if(!$core->input['action']) {
     }
 
 
-    $warehouse_objs = Warehouses::get_data(array('affid' => $core->user['affiliates'], 'isActive' => 1), $dal_config);
-    $warehousefilter_where = ' warehouse IN ('.implode(',', array_keys($warehouse_objs)).')';
+    $warehouse_objs = Warehouses::get_data(array('affid' => $core->user['affiliates'], 'isActive' => 1), array('returnarray' => true));
+    if(is_array($warehouse_objs)) {
+        $warehousefilter_where = ' warehouse IN ('.implode(',', array_keys($warehouse_objs)).')';
+    }
+    else {
+        $warehousefilter_where = ' warehouse IN (0)';
+    }
     if(!empty($filter_where)) {
-        $warehousefilter_where .= ' AND '.$filter_where;
+        if(!empty($warehousefilter_where)) {
+            $warehousefilter_where .= ' AND ';
+        }
+        $warehousefilter_where .=$filter_where;
     }
 
     $aroobjs = AroManageWarehousesPolicies::get_data($warehousefilter_where, $dal_config);
