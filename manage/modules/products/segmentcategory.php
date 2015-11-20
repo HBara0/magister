@@ -31,7 +31,7 @@ if(!$core->input['action']) {
 else {
     if($core->input['action'] == 'do_add_segmentcategory') {
         $segmentcat_obj = new SegmentCategories();
-        $core->input['segmentcat']['alias'] = generate_alias($core->input['segmentcat']['title']);
+        $core->input['segmentcat']['name'] = generate_alias($core->input['segmentcat']['title']);
         $segmentcat_obj->set($core->input['segmentcat']);
         $segmentcat_obj = $segmentcat_obj->save();
         switch($segmentcat_obj->get_errorcode()) {

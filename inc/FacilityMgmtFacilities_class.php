@@ -58,7 +58,7 @@ class FacilityMgmtFacilities extends AbstractClass {
     }
 
     public function get_affiliate() {
-        return new Affiliates($this->data['affid']);
+        return new Affiliates($this->data['affid'], false);
     }
 
     public static function get_facilities_tree() {
@@ -273,8 +273,6 @@ class FacilityMgmtFacilities extends AbstractClass {
 
     public function getfulladdress() {
         $address = $this->get_displayname();
-        $affiliate = new Affiliates($this->affid);
-
         if(!is_empty($this->parent)) {
             $motherfaciloty = $this->get_mother();
             if(is_object($motherfaciloty) && !is_empty($motherfaciloty->fmfid)) {

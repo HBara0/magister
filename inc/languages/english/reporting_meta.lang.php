@@ -241,4 +241,5 @@ $lang['remaining'] = 'Remaining';
 $lang['unflateby'] = 'Unfinalized And Late By ';
 $lang['finalizelateby'] = 'Finalized Late By';
 $lang['totalreports'] = 'Total Reports';
+$lang['addproductactivity'] = 'Add Product Activity';
 ?>
