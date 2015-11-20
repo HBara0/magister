@@ -137,7 +137,10 @@ class AttendanceAddDays Extends Attendance {
 
     public function can_approve_user($uid) {
         $user = new Users($this->additionaldays['uid']);
-        $reporttsto = $user->get_reportsto()->get();
+        $reporttsto_obj = $user->get_reportsto();
+        if(is_object($reporttsto_obj)) {
+            $reporttsto = $reporttsto_obj->get();
+        }
         if($reporttsto['uid'] == $uid) {
             return true;
         }
@@ -162,7 +165,15 @@ class AttendanceAddDays Extends Attendance {
                         'from' => 'Orkila Attendance System',
                         'to' => $reportsto['email'],
                         'subject' => $lang->sprint($lang->adddaysnotificationsubject, $requester['displayName'], $this->additionaldays['identifier']),
-                        'message' => $lang->sprint($lang->adddaysrequestapproval, $requester['displayName'], $this->additionaldays['numDays'], $this->additionaldays['date_output'], $this->additionaldays['remark'])
+                        'message' => $lang->sprint($lang->adddaysrequestapproval, $requester['displayName'], $this->additionaldays['numDays'], $this->additionaldays['date_output'], $this->additionaldays['remark'], '<a  style="font: bold 11px Arial;
+    text-decoration: none;
+    background-color: #EEEEEE;
+    color: #333333;
+    padding: 2px 6px 2px 6px;
+    border-top: 1px solid #CCCCCC;
+    border-right: 1px solid #333333;
+    border-bottom: 1px solid #333333;
+    border-left: 1px solid #CCCCCC;" href="'.$core->settings['rootdir'].'ocos/index.php?module=attendance/listaddleavedays" target="_blank">Approve</a></br>')
                 );
 
                 $mail = new Mailer($email_data, 'php');
