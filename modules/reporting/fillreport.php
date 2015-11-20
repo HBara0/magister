@@ -1630,6 +1630,7 @@ else {
                 if($transfill == '1' && $db->num_rows($db->query('SELECT uid FROM '.Tprefix.'reportcontributors WHERE rid = '.intval($report_meta['rid']))) == 0) {
                     record_contribution($report_meta['rid'], 1);
                 }
+                $log->record('finalizeqr', $report_meta['rid']);
                 output_xml("<status>true</status><message>{$lang->reportfinalized}</message>");
             }
             else {

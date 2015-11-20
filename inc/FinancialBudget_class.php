@@ -23,7 +23,7 @@ Class FinancialBudget extends AbstractClass {
     }
 
     protected function create(array $data) {
-        global $db, $core;
+        global $db, $core, $log;
         if(is_array($data)) {
             $financialdata['bfbid'] = self::PRIMARY_KEY;
             $fields = array('finGenAdmExpAmtApthy', 'finGenAdmExpAmtApty', 'finGenAdmExpAmtYpy', 'finGenAdmExpAmtCurrent'); //'finGenAdmExpAmtApy', 'finGenAdmExpAmtBpy'
@@ -57,6 +57,7 @@ Class FinancialBudget extends AbstractClass {
         if(!query) {
             return;
         }
+        $log->record('createfinancialbudget', $this->data[self::PRIMARY_KEY]);
         $financialexpenses = $data['budgetexps'];
         if(is_array($financialexpenses)) {
             foreach($financialexpenses as $expense) {
@@ -238,6 +239,7 @@ Class FinancialBudget extends AbstractClass {
                 $this->errorcode = 601;
                 return;
             }
+            $log->record('updatefinancialbudget', $this->data[self::PRIMARY_KEY]);
             $financialexpenses = $data['budgetexps'];
             if(is_array($financialexpenses)) {
                 foreach($financialexpenses as $expense) {
@@ -392,6 +394,7 @@ Class FinancialBudget extends AbstractClass {
             /* finalize finanacial budget */
             if($this->alltypes_created()) {
                 $query = $db->update_query(self::TABLE_NAME, array('finalizedBy' => $core->user['uid'], 'isFinalized' => 1), self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
+                $log->record('finalizedfinancialbudget', $this->data[self::PRIMARY_KEY]);
             }
         }
     }

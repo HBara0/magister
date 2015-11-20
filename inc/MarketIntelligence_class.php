@@ -58,7 +58,7 @@ class MarketIntelligence {
     }
 
     public function create($data = array()) {
-        global $db, $core;
+        global $db, $core, $log;
         if(is_array($data)) {
             $this->marketdata = $data;
 
@@ -157,6 +157,7 @@ class MarketIntelligence {
                     }
 
                     if($query) {
+                        $log->record('createmarrketintelligence', $db->last_id());
                         $this->mibdid = $db->last_id();
                         $this->marketdata['competitor']['mibdid'] = $db->last_id();
                         if(is_array($this->marketdata['competitor'])) {
