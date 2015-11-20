@@ -20,7 +20,7 @@ class AroRequests extends AbstractClass {
     const PRIMARY_KEY = 'aorid';
     const TABLE_NAME = 'aro_requests';
     const DISPLAY_NAME = '';
-    const SIMPLEQ_ATTRS = 'aorid,affid,orderType,identifier,isApproved,aroBusinessManager,revision';
+    const SIMPLEQ_ATTRS = '*';
     const CLASSNAME = __CLASS__;
     const UNIQUE_ATTRS = 'affid,orderType,orderReference';
 
