@@ -28,7 +28,7 @@ if(!$core->input['action']) {
     $suppauditor = new AssignedEmployees();
     $suppauditor = $suppauditor->get_supplier_auditor($core->input['spid']);
     if(is_object($suppauditor)) {
-        $supp_auditor_output = '<p> <span style="font-weight:bold">'.$lang->reportauditor.' : </span>'.$suppauditor->get_user()->get_displayname().'</p>';
+        $supp_auditor_output = '<p> <span style="font-weight:bold">'.$lang->reportauditor.' : </span>'.$suppauditor->get_displayname().'</p>';
     }
 
     if($core->input['stage'] == 'productsactivity') {
