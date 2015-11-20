@@ -648,6 +648,10 @@ class AroRequests extends AbstractClass {
         return AroRequestsApprovals::get_data(array('isApproved' => 0, 'aorid' => $this->data[self::PRIMARY_KEY]), array('order' => array('sort' => 'ASC', 'by' => 'sequence'), 'limit' => '0, 1'));
     }
 
+    public function get_lastapproval() {
+        return AroRequestsApprovals::get_data(array('isApproved' => 1, 'aorid' => $this->data[self::PRIMARY_KEY]), array('order' => array('sort' => 'DESC', 'by' => 'sequence'), 'limit' => '0, 1'));
+    }
+
     public function inform_nextapprover() {
         global $core, $db;
         $approval = $this->get_nextapprover();

@@ -1826,5 +1826,31 @@ else {
             }
         }
     }
+    else if($core->input['action'] == 'ajaxaddmore_productsactivity') {
+        $rowid = $db->escape_string($core->input['value']) + 1;
+        $saletypes = explode(';', $core->settings['saletypes']);
+        if(is_array($core->input['ajaxaddmoredata'])) {
+            if(!empty($core->input['ajaxaddmoredata']['basecurrency'])) {
+                $currencies[0] = $core->input['ajaxaddmoredata']['basecurrency'];
+            }
+            $addmore_reportquarter = $core->input['ajaxaddmoredata']['quarter'];
+            $auditor = $core->input['ajaxaddmoredata']['isauditor'];
+        }
+        foreach($saletypes as $key => $val) {
+            $saletypes[$val] = ucfirst($val);
+            unset($saletypes[$key]);
+        }
+        $readonly_fields = array('turnOver' => '', 'quantity' => '', 'soldQty' => '');
+        if($auditor != 1) {
+            foreach($readonly_fields as $key => $val) {
+                $readonly_fields[$key] = ' readonly';
+            }
+            $selectlists_disabled = true;
+        }
+        $saletype_selectlist = parse_selectlist('productactivity['.$rowid.'][saleType]', 0, $saletypes, $productactivity['saleType'], 0, null);
+        $currencyfx_selectlist = parse_selectlist('productactivity['.$rowid.'][fxrate]', 0, $currencies, 1, '', '', array('id' => 'fxrate_'.$rowid, 'disabled' => $selectlists_disabled));
+        eval("\$row = \"".$template->get('reporting_fillreports_productsactivity_productrow')."\";");
+        echo $row;
+    }
 }
 ?>

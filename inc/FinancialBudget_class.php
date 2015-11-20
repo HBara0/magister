@@ -389,6 +389,10 @@ Class FinancialBudget extends AbstractClass {
                 $query = $db->update_query(self::TABLE_NAME, $financialbudgetdata, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
             }
             $this->errorcode = 1;
+            /* finalize finanacial budget */
+            if($this->alltypes_created()) {
+                $query = $db->update_query(self::TABLE_NAME, array('finalizedBy' => $core->user['uid'], 'isFinalized' => 1), self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
+            }
         }
     }
 
@@ -1083,6 +1087,17 @@ Class FinancialBudget extends AbstractClass {
 
     public function get_affiliate() {
         return new Affiliates($this->data['affid']);
+    }
+
+    public function alltypes_created() {
+        $finbudget_types = array(new BudgetComAdminExpenses(), new BudgetInvestExpenses(), new BudgetHeadCount(), new BudgetForecastBalanceSheet(), new BudgetBankFacilities(), new BudgetOverdueReceivables(), new BudgetTrainingVisits(), new BudgetPlExpenses());
+        foreach($finbudget_types as $finbudget_obj) {
+            $existing = $finbudget_obj->get_data(array(self::PRIMARY_KEY => $this->data[self::PRIMARY_KEY]), array('returnarray' => true));
+            if(!is_array($existing)) {
+                return false;
+            }
+        }
+        return true;
     }
 
 }
