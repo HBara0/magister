@@ -30,27 +30,10 @@
 
             </tr>
             <tr>
-                <td>{$lang->total} {$lang->netmargin}</td>
-                <td><input type="text" id="ordersummary_netmargin_intermed" name="ordersummary[netmarginIntermed]" value="{$aroordersummary->netmarginIntermed}" style="width:150px;" readonly="readonly"/> </td>
-                <td><input type="text" id="ordersummary_netmargin_local" name="ordersummary[netmarginLocal]" value="{$aroordersummary->netmarginLocal}" style="width:150px;" readonly="readonly"/> </td>
-                <!-- <td id="ordersummary_thirdparty_3"><input type="text" id="ordersummary_invoicevalue_thirdparty" value="" style="width:150px;" disabled="disabled"/> </td>-->
-                <td id="ordersummary_thirdparty_4" {$ordersummarydisplay[thirdcolumn_display]}><input type="text" id="ordersummary_invoicevalueusd_thirdparty" name="ordersummary[invoiceValueThirdParty]" value="{$aroordersummary->invoiceValueThirdParty}" style="width:150px;" readonly="readonly"/> </td>
-            </tr>
-            <tr>
-                <td>{$lang->total} {$lang->netmarginperc}</td>
-                <td><input type="text" id="ordersummary_netmargin_intermedperc" name="ordersummary[netmarginIntermedPerc]" value="{$aroordersummary->netmarginIntermedPerc}" style="width:150px;" readonly="readonly"/> </td>
-                <td><input type="text" id="ordersummary_netmargin_localperc" name="ordersummary[netmarginLocalPerc]" value="{$aroordersummary->netmarginLocalPerc}" style="width:150px;" readonly="readonly"/> </td>
-            </tr>
-
-            <tr>
-                <td>{$lang->total} {$lang->globalnetmargin}</td>
-                <td colspan="2"><input type="text" id="ordersummary_globalnetmargin" name="ordersummary[globalNetmargin]" value="{$aroordersummary->globalNetmargin}" style="width:150px;" readonly="readonly"/> </td>
-            </tr>
-            <tr>
                 <td>{$lang->totalquantity}</td>
                 <td>
                     <textarea id="ordersummary_totalquantityperuom" name="ordersummary[totalQuantityUom]" readonly="readonly">
-                    </textarea>         <!--style="width:300px"=-->{$aroordersummary->totalQuantityUom}
+                        {$aroordersummary->totalQuantityUom} </textarea>
                 </td>
             </tr>
             <!--<tr>
@@ -63,6 +46,11 @@
                 <td>{$lang->interestvalue} (<span id="ordersummary_curr_1"></span>{$arorequest[currency]})</td>
                 <td>
                     <input type="text" id="ordersummary_interestvalue" name="ordersummary[interestValue]" readonly="readonly" value="{$aroordersummary->interestValue}"/>
+            </tr>
+            <tr>
+                <td>{$lang->interestvalue} (USD)</td>
+                <td>
+                    <input type="text" id="ordersummary_interestvalueUsd" name="ordersummary[interestValueUsd]" readonly="readonly" value="{$aroordersummary->interestValueUsd}"/>
             </tr>
             <tr>
                 <td>{$lang->totalintermedfees} (<span id="ordersummary_curr_2"></span>{$arorequest[currency]})</td>
@@ -78,6 +66,24 @@
             <tr>
                 <td>{$lang->unitfee}</td>
                 <td><input type="text" id="ordersummary_unitfee" name="ordersummary[unitFee]" value="{$aroordersummary->unitFee}" readonly="readonly"/></td>
+            </tr>
+
+            <tr>
+                <td>{$lang->total} {$lang->netmargin}</td>
+                <td><input type="text" id="ordersummary_netmargin_intermed" name="ordersummary[netmarginIntermed]" value="{$aroordersummary->netmarginIntermed}" style="width:150px;" readonly="readonly"/> </td>
+                <td><input type="text" id="ordersummary_netmargin_local" name="ordersummary[netmarginLocal]" value="{$aroordersummary->netmarginLocal}" style="width:150px;" readonly="readonly"/> </td>
+                <!-- <td id="ordersummary_thirdparty_3"><input type="text" id="ordersummary_invoicevalue_thirdparty" value="" style="width:150px;" disabled="disabled"/> </td>-->
+                <td id="ordersummary_thirdparty_4" {$ordersummarydisplay[thirdcolumn_display]}><input type="text" id="ordersummary_invoicevalueusd_thirdparty" name="ordersummary[invoiceValueThirdParty]" value="{$aroordersummary->invoiceValueThirdParty}" style="width:150px;" readonly="readonly"/> </td>
+            </tr>
+            <tr>
+                <td>{$lang->total} {$lang->netmarginperc}</td>
+                <td><input type="text" id="ordersummary_netmargin_intermedperc" name="ordersummary[netmarginIntermedPerc]" value="{$aroordersummary->netmarginIntermedPerc}" style="width:150px;" readonly="readonly"/>% </td>
+                <td><input type="text" id="ordersummary_netmargin_localperc" name="ordersummary[netmarginLocalPerc]" value="{$aroordersummary->netmarginLocalPerc}" style="width:150px;" readonly="readonly"/>% </td>
+            </tr>
+
+            <tr>
+                <td>{$lang->total} {$lang->globalnetmargin}</td>
+                <td colspan="2"><input type="text" id="ordersummary_globalnetmargin" name="ordersummary[globalNetmargin]" value="{$aroordersummary->globalNetmargin}" style="width:150px;" readonly="readonly"/> </td>
             </tr>
         </tbody>
         <tfoot style="display:none;" id="ordersummary_tfoot" class="altrow2"  name="seemoredetails" >

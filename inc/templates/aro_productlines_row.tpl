@@ -21,11 +21,11 @@
     </td>
     <td>
         <input type="number"  step="any" name="productline[$plrowid][qtyPotentiallySold]" id="productline_{$plrowid}_qtyPotentiallySold" value="{$productline[qtyPotentiallySold]}" {$disabled_fields[qtyPotentiallySold]} style="width:100px;"/>
-
     </td>
     <td>
         <input type="number"  step="any" name="productline[$plrowid][qtyPotentiallySoldPerc]" id="productline_{$plrowid}_qtyPotentiallySoldPerc" value="{$productline[qtyPotentiallySoldPerc]}" style="width:70px;" readonly class="automaticallyfilled-noneditable"/>
     </td>
+    <td>%</td>
     <td>
         <input type="number"  step="any" name="productline[$plrowid][intialPrice]" id="productline_{$plrowid}_intialPrice" value="{$productline[intialPrice]}" style="width:100px;"/>
     </td>
@@ -56,6 +56,7 @@
     <td>
         <input type="text" name="productline[$plrowid][netMarginPerc]" id="productline_{$plrowid}_netMarginPerc" value="{$productline[netMarginPerc]}" readonly style="width:70px;" class="automaticallyfilled-noneditable"/>
     </td>
+    <td>%</td>
     <td>
         <input type="checkbox" class="deletecheckbox" id="productline_{$plrowid}_todelete" name="productline[$plrowid][todelete]" value="1" label="Delete" oldtitle="If check-box is checked row is deleted">
         <label for="productline_{$plrowid}_todelete"></label></input>

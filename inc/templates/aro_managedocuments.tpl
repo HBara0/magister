@@ -1,6 +1,6 @@
 <html>
     <head>
-        <title>{$core->settings[systemtitle]} | {$lang->aro}</title>
+        <title>{$core->settings[systemtitle]} | {$lang->aro} {$arodocument_title}</title>
         {$headerinc}
         <script src="{$core->settings[rootdir]}/js/jquery.populate.min.js" type="text/javascript"></script>
         <script src="{$core->settings[rootdir]}/js/aro_managedocuments.min.js" type="text/javascript"></script>
@@ -11,7 +11,7 @@
         {$menu}
         <td class="contentContainer" colspan="2">
             <h1>Aro Document</h1>
-
+            {$arodocument_header}
             <div class="accordion">
                 <form name="perform_aro/managearodouments_Form" id="perform_aro/managearodouments_Form"  action="#" method="post">
                     {$aro_managedocuments_orderident}
