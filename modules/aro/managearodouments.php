@@ -1247,7 +1247,7 @@ else {
         $aroorderrequest = AroRequests::get_data(array('aorid' => $core->input['id']), array('simple' => false));
         if($aroorderrequest->isApproved == 1) {
             $viewonly = array('disable' => 1);
-            echo json_encode($viewonly);
+            output(json_encode($viewonly));
         }
     }
     if($core->input['action'] == 'approvearo') {

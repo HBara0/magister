@@ -20,7 +20,7 @@ class AroRequests extends AbstractClass {
     const PRIMARY_KEY = 'aorid';
     const TABLE_NAME = 'aro_requests';
     const DISPLAY_NAME = '';
-    const SIMPLEQ_ATTRS = 'aorid,affid,orderType,identifier,isApproved,aroBusinessManager,revision';
+    const SIMPLEQ_ATTRS = '*';
     const CLASSNAME = __CLASS__;
     const UNIQUE_ATTRS = 'affid,orderType,orderReference';
 
@@ -300,6 +300,10 @@ class AroRequests extends AbstractClass {
                     if(is_object($actualpurchaseline)) {
                         $db->delete_query('aro_requests_linessupervision', 'arlsid='.$actualpurchaseline->arlsid.'');
                     }
+                    $currstockline = AroRequestsCurStkSupervision::get_data(array('inputChecksum' => $arorequestline['inputChecksum']));
+                    if(is_object($currstockline)) {
+                        $db->delete_query('aro_requests_curstksupervision', 'arcssid='.$currstockline->arcssid.'');
+                    }
                     continue;
                 }
                 $requestline = new AroRequestLines();
@@ -369,6 +373,9 @@ class AroRequests extends AbstractClass {
                     $data['warehousingRateUsd'] = ($warehousepolicy->rate * $data['warehouseUsdExchangeRate']).' USD/'.$uom->get_displayname().'/'.$warehousepolicy->datePeriod.' Days';
                 }
             }
+            else {
+                $data['warehousingRateUsd'] = $data['warehousingRate'];
+            }
         }
         if(!is_object($warehousepolicy)) {
             output($lang->nopolicy);
@@ -436,6 +443,9 @@ class AroRequests extends AbstractClass {
                         break;
                     case 'regionalSupervisor':
                         $approvers['regionalSupervisor'] = $affiliate->get_regionalsupervisor()->uid;
+                        if(empty($approvers['regionalSupervisor'])) {
+                            $approvers['regionalSupervisor'] = $affiliate->get_supervisor()->uid;
+                        }
                         break;
                     case 'globalPurchaseManager':
                         $approvers['globalPurchaseManager'] = $affiliate->get_globalpurchasemanager()->uid;
@@ -573,13 +583,14 @@ class AroRequests extends AbstractClass {
             return false;
         }
         $to = $firstapprover->get_email();
+        $aroaffiliate_obj = new Affiliates($this->affid);
         $approve_link = '<a href="'.$core->settings['rootdir']."/index.php?module=aro/managearodouments&referrer=toapprove&requestKey=".base64_encode($this->data['identifier'])."&id=".$this->data[self::PRIMARY_KEY].' "> View and Approve ARO </a>';
-        $aroapprovalemail_subject = 'Aro Needs Approval !';
+        $aroapprovalemail_subject = "Aro Request ".$aroaffiliate_obj->get_displayname()." [".$this->orderReference."] Needs Approval!";
         $email_data = array(
                 'from' => 'ocos@orkila.com',
                 'to' => $to,
                 'subject' => $aroapprovalemail_subject,
-                'message' => "Aro Request Needs Approval:".$approve_link,
+                'message' => "Aro Request ".$aroaffiliate_obj->get_displayname()." [".$this->orderReference."] Needs Approval:".$approve_link,
         );
         $mailer = new Mailer();
         $mailer = $mailer->get_mailerobj();
@@ -606,12 +617,14 @@ class AroRequests extends AbstractClass {
             }
             if(is_array($mailinglist)) {
                 $mailinglist = array_unique($mailinglist);
+                $viewaro_link = 'To view the ARO <a href="'.$core->settings['rootdir']."/index.php?module=aro/managearodouments&referrer=toapprove&id=".$this->data[self::PRIMARY_KEY].' ">click here</a>';
+
                 $email_data = array(
                         'from_email' => 'ocos@orkila.com',
                         'from' => 'ocos@orkila.com',
                         'to' => $mailinglist, //$toinform
-                        'subject' => 'Aro '.$this->orderReference.' _Segments Coordinators Notification',
-                        'message' => 'Aro '.$this->orderReference.' in progress'  // change message
+                        'subject' => 'Aro '.$aroaffiliate_obj->get_displayname().' ['.$this->orderReference.'] Segments Coordinators Notification',
+                        'message' => 'Aro Request '.$aroaffiliate_obj->get_displayname().' ['.$this->orderReference.'] in progress. <br/>'.$viewaro_link  // change message
                 );
                 $mail = new Mailer($email_data, 'php');
             }
@@ -644,15 +657,17 @@ class AroRequests extends AbstractClass {
         $approval = $this->get_nextapprover();
         if(is_object($approval)) {
             $user = new Users($approval->uid);
+            $aroaffiliate_obj = new Affiliates($this->affid);
             $approve_link = $core->settings['rootdir']."/index.php?module=aro/managearodouments&requestKey=".base64_encode($this->data['identifier'])."&id=".$this->data[self::PRIMARY_KEY]."&referrer=toapprove";
             $approve_link = '<a href="'.$approve_link.'">Approve Link</a>';
-            $aroapprovalemail_subject = 'Aro Needs Approval';
+            $aroapprovalemail_subject = "Aro Request ".$aroaffiliate_obj->get_displayname()." [".$this->orderReference."] Needs Approval";
             $email_data = array(
                     'from' => 'ocos@orkila.com',
                     'to' => $user->email,
                     'subject' => $aroapprovalemail_subject,
-                    'message' => " Test Aro Request Needs Approval:".$approve_link,
+                    'message' => "Aro Request ".$aroaffiliate_obj->get_displayname()." [".$this->orderReference."] Needs Approval:".$approve_link,
             );
+
             $mailer = new Mailer();
             $mailer = $mailer->get_mailerobj();
             $mailer->set_type();
@@ -713,6 +728,7 @@ class AroRequests extends AbstractClass {
     }
 
     public function notifyapprove() {
+        global $core;
         if($this->data['isApproved'] == 1) {
             $approvers = $this->get_approvers();
             if(is_array($approvers)) {
@@ -749,12 +765,14 @@ class AroRequests extends AbstractClass {
             }
 
             $mailinglist = array_unique($mailinglist);
+            $aro_link = $core->settings['rootdir']."/index.php?module=aro/managearodouments&id=".$this->data[self::PRIMARY_KEY]."&action=viewonly";
+
             $email_data = array(
                     'from_email' => 'ocos@orkila.com',
                     'from' => 'OCOS',
                     'to' => $mailinglist,
-                    'subject' => 'Aro is approved',
-                    'message' => "Aro is Approved"
+                    'subject' => 'Aro ['.$this->orderReference.'] is Approved',
+                    'message' => 'Aro ['.$this->orderReference.'] is Approved <br/>  To view the ARO <a href="'.$aro_link.'">click here</a>'
             );
             $mail = new Mailer($email_data, 'php');
             if($mail->get_status() === true) {
@@ -916,12 +934,11 @@ class AroRequests extends AbstractClass {
                 foreach($tables as $table) {
                     $query = $db->query("SELECT * FROM ".Tprefix.$table." WHERE ".$attribute."=".intval($todelete)." ");
                     if($db->num_rows($query) > 0) {
-                        if($table == AroApprovalChainPolicies::TABLE_NAME) {
-                            while($approval = $db->fetch_assoc($query)) {
-                                if($approval->isApproved == 1) {
-                                    $this->errorcode = 1;
-                                    return $this;
-                                }
+                        if($table == AroRequestsApprovals::TABLE_NAME) {
+                            $approve_status = $this->getif_approvedonce(intval($todelete));
+                            if($approve_status) {
+                                $this->errorcode = 1;
+                                return $this;
                             }
                         }
                         $deletequery = $db->query("DELETE FROM ".$table." WHERE ".AroRequests::PRIMARY_KEY." = ".$todelete);
