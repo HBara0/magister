@@ -15,3 +15,6 @@
     <td>{$lang->countryoforigin}</td>
     <td>{$countryoforigin_list}</td>
 </tr>
+<tr><td>{$lang->portofshipment}</td>
+    <td><input name="partiesinfo[shipmentPort]" id="partiesinfo_shipmentPort" value="{$aropartiesinfo_obj->shipmentPort}"></td>
+</tr>
