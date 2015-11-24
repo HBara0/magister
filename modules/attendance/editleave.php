@@ -183,7 +183,7 @@ else {
     }
     elseif($core->input['action'] == 'do_perform_editleave') {
         unset($core->input['leaveid']);
-        //  $expenses_data = $core->input['leaveexpenses'];
+//        $expenses_data = $core->input['leaveexpenses'];
         unset($core->input['leaveexpenses']);
 
         $lid = $db->escape_string($core->input['lid']);
@@ -303,6 +303,16 @@ else {
 
         /* Validate required Fields --START */
         $leavetype = new LeaveTypes($core->input['type']);
+        $expenses_data = $core->input['leaveexpenses'];
+        if($leavetype->has_expenses() && $core->usergroup['canUseTravelManager'] == 0) {
+            $expensesfield_type = $leavetype->get_expenses();
+            foreach($expensesfield_type as $alteid => $expensesfield) {
+                if(($expensesfield['isRequired'] == 1 && (empty($expenses_data[$alteid]['expectedAmt']) && $expenses_data[$alteid]['expectedAmt'] != '0')) || (($expensesfield['requireComments'] == 1 && empty($expenses_data[$alteid]['description'])))) {
+                    output_xml("<status>false</status><message>{$lang->fillallrequiredfields} (".$expensesfield_type['titleOverwrite'].")</message>");
+                    exit;
+                }
+            }
+        }
 //        if($leavetype->has_expenses()) {
 //            $expensesfield_type = $leavetype->get_expenses();
 //            foreach($expensesfield_type as $alteid => $expensesfield) {
@@ -351,6 +361,9 @@ else {
         $query = $db->update_query('leaves', $core->input, "lid='{$lid}'");
         /* Update leave expenses - START */
         $leave_obj = new Leaves(array('lid' => $lid), false);
+        if($core->usergroup['canUseTravelManager'] == 0) {
+            $leave_obj->update_leaveexpenses($expenses_data);
+        }
 //        if(is_array($expenses_data) && !empty($expenses_data)) {
 //            $leave_obj->update_leaveexpenses($expenses_data);
 //        }
