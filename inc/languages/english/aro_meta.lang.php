@@ -214,3 +214,7 @@ $lang['sureredeletearodocument'] = 'Are you sure you want to delete this ARO Doc
 $lang['successfullydeleted'] = 'Successfully Deleted';
 $lang['aroapprovedatleastonce'] = 'ARO is already approved once';
 $lang['errordeleting'] = 'Error Deleting';
+$lang['orderrefernceformat'] = 'Prefix-Next Number-Suffix';
+$lang['documnetconfigurationdesc'] = 'Configure a document sequence so that ARO documents can inherit it and auto-increment.';
+$lang['nextnumtooltip'] = 'The number from which the incrementation will start.';
+$lang['portofshipment'] = 'Port of Shipment';
