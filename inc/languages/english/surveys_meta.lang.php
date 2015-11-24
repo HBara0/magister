@@ -77,4 +77,8 @@ $lang['externalinvitations'] = 'External Invitations';
 $lang['internalinvitations'] = 'Internal Invitations';
 $lang['send'] = 'Send';
 $lang['modifysurvey'] = 'Modify Survey';
+$lang['isanswer'] = 'Is Answer';
+$lang['choice'] = 'Choice';
+$lang['value'] = 'Value';
+$lang['quiz'] = 'Quiz';
 ?>
