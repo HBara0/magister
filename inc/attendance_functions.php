@@ -747,16 +747,16 @@ function parse_attendance_reports($core, $headerinc = '', $header = '', $menu = 
                     if($todate_details['year'] != $currentdate_details['year']) {
                         for($year = $currentdate_details['year']; $year <= $todate_details['year']; $year++) {
                             $holiday['year'] = $year;
-                            parse_holiday($holiday, $data);
+                            parse_holiday($holiday, $data, $fromdate, $todate);
                         }
                     }
                     else {
                         $holiday['year'] = $currentdate_details['year'];
-                        parse_holiday($holiday, $data);
+                        parse_holiday($holiday, $data, $fromdate, $todate);
                     }
                 }
                 else {
-                    parse_holiday($holiday, $data);
+                    parse_holiday($holiday, $data, $fromdate, $todate);
                 }
             }
             /* Check for holidays in period - END */
@@ -1416,8 +1416,7 @@ function parse_attendance_reports($core, $headerinc = '', $header = '', $menu = 
     }
 }
 
-function parse_holiday($holiday, &$data) {
-    global $fromdate, $todate;
+function parse_holiday($holiday, &$data, $fromdate, $todate) {
 
     if(!empty($holiday) && is_array($holiday)) {
         $holiday_timestamp = mktime(0, 0, 0, $holiday['month'], $holiday['day'], $holiday['year']);
@@ -1530,5 +1529,4 @@ function operation_time_value($seconds) {
         return $ret;
     }
 }
-
 ?>
