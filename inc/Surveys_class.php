@@ -289,30 +289,15 @@ class Surveys {
                                 return false;
                             }
                             else { /* Validate choices if meet the pattern and  has value  before insert */
-                                $question_choices_choice = preg_split('/\r\n+/', trim($question['choices']));
 
                                 /* Split the choices value by ";" */
-                                if(is_array($question_choices_choice)) {
-                                    foreach($question_choices_choice as $key => $choice) {
-                                        if(strstr($choice, ';')) {
-                                            $question_choices_values = preg_split("/;+/", trim($choice));
-                                        }
-                                        else {
-                                            $question_choices_values[0] = $choice;
-                                        }
-
-                                        if(empty($question_choices_values[0])) {
-                                            $this->status = 6;
-                                            return false;
-                                        }
-
-                                        if(!isset($question_choices_values[1]) || (empty($question_choices_values[1]) && $question_choices_values[1] != 0)) {
-                                            $question_choices_values[1] = $question_choices_values[0];
-                                        }
-
-                                        if(empty($question_choices_values[1])) {
-                                            $this->status = 6;
-                                            return false;
+                                if(is_array($question['choices'])) {
+                                    foreach($question['choices'] as $key => $choice) {
+                                        if(is_array($choice)) {
+                                            if(empty($choice['choice'])) {
+                                                $this->status = 6;
+                                                return false;
+                                            }
                                         }
                                     }
                                 }
@@ -330,7 +315,9 @@ class Surveys {
                 'isPublic' => $core->input['isPublic'],
                 'title' => $core->sanitize_inputs($core->input['title']),
                 'forceAnonymousFilling' => $core->input['forceAnonymousFilling'],
-                'createdBy' => $core->user['uid']);
+                'createdBy' => $core->user['uid'],
+                'isQuiz' => intval($core->input['isQuiz']));
+
         $query = $db->insert_query('surveys_templates', $newsurveys_template);
 
         if($query) {
@@ -347,7 +334,7 @@ class Surveys {
                     foreach($section['questions'] as $key => $question) {
                         $question['stsid'] = $stsid;
                         $question['sequence'] = $sequence;
-                        if(isset($question['choices'])) {
+                        if(isset($question['choices']) && is_array($question['choices'])) {
                             $question_choices = $question['choices'];
                         }
 
@@ -357,36 +344,18 @@ class Surveys {
                         }
                         unset($question['choices']);
 
-                        $question['question'] = trim($question['question']);
 
                         $query_question = $db->insert_query('surveys_templates_questions', $question);
                         if($query_question) {
                             $stqid = $db->last_id();
 
-                            if(!empty($question_choices)) {
+                            if(!empty($question_choices) && is_array($question_choices)) {
                                 /* Split the question choices by "\n"  */
-                                $question_choices_choice = preg_split('/\n+/', $question_choices);
-
                                 /* Split the choices value by ";"  */
-                                if(is_array($question_choices_choice)) {
-                                    foreach($question_choices_choice as $key => $choice) {
-                                        if(strstr($choice, ';')) {
-                                            $question_choices_values = preg_split("/;+/", trim($choice));
-                                        }
-                                        else {
-                                            //$newsurveys_questions_choices = array('stqid' => $stqid, 'choice' => trim($choice), 'value' => trim($choice));
-                                            $question_choices_values[0] = $choice;
-                                            $question_choices_values[1] = $choice;
-                                        }
-
-                                        if(!isset($question_choices_values[1]) || (empty($question_choices_values[1]) )) {
-                                            $question_choices_values[1] = $question_choices_values[0];
-                                        }
-
-                                        if(!empty($question_choices_values[0]) && (!empty($question_choices_values[1]) )) {
-                                            $newsurveys_questions_choices = array('stqid' => $stqid, 'choice' => trim($question_choices_values[0]), 'value' => trim($question_choices_values[1]));
-                                            $query_choice = $db->insert_query('surveys_templates_questions_choices', $newsurveys_questions_choices);
-                                        }
+                                foreach($question_choices as $key => $choice) {
+                                    if(!empty($choice['choice'])) {
+                                        $choice['stqid'] = $stqid;
+                                        $query_choice = $db->insert_query('surveys_templates_questions_choices', $choice);
                                     }
                                 }
                             }
