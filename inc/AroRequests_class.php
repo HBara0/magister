@@ -507,8 +507,14 @@ class AroRequests extends AbstractClass {
                 }
                 $approver = new AroRequestsApprovals();
                 $approver->set(array('aorid' => $this->data[self::PRIMARY_KEY], 'uid' => $val, 'isApproved' => $approve_status, 'timeApproved' => $timeapproved, 'sequence' => $sequence, 'position' => $position, 'emailRecievedDate' => ''));
-                $approver->save();
-                $sequence++;
+                $approval_obj = AroRequestsApprovals::get_data(array('aorid' => $this->data[self::PRIMARY_KEY], 'position' => $position));
+                if(is_object($approval_obj)) {
+                    $approver->update();
+                }
+                else {
+                    $approver->save();
+                    $sequence++;
+                }
             }
         }
         return true;
@@ -584,13 +590,15 @@ class AroRequests extends AbstractClass {
         }
         $to = $firstapprover->get_email();
         $aroaffiliate_obj = new Affiliates($this->affid);
+        $purchasteype_obj = PurchaseTypes::get_data(array('ptid' => $this->orderType));
+
         $approve_link = '<a href="'.$core->settings['rootdir']."/index.php?module=aro/managearodouments&referrer=toapprove&requestKey=".base64_encode($this->data['identifier'])."&id=".$this->data[self::PRIMARY_KEY].' "> View and Approve ARO </a>';
         $aroapprovalemail_subject = "Aro Request ".$aroaffiliate_obj->get_displayname()." [".$this->orderReference."] Needs Approval!";
         $email_data = array(
                 'from' => 'ocos@orkila.com',
                 'to' => $to,
                 'subject' => $aroapprovalemail_subject,
-                'message' => "Aro Request ".$aroaffiliate_obj->get_displayname()." [".$this->orderReference."] Needs Approval:".$approve_link,
+                'message' => "Aro Request [".$this->orderReference."] ".$aroaffiliate_obj->get_displayname()." ".$purchasteype_obj->get_displayname()." Needs Approval:".$approve_link,
         );
         $mailer = new Mailer();
         $mailer = $mailer->get_mailerobj();
@@ -603,9 +611,8 @@ class AroRequests extends AbstractClass {
         $mailer->send();
         if($mailer->get_status() === true) {
             $data = array('emailRecievedDate' => TIME_NOW);
-            $query = $db->update_query('aro_requests_approvals', $data, 'araid='.$firstapprover->araid);
+            $db->update_query('aro_requests_approvals', $data, 'araid='.$firstapprover->araid);
 
-            $toinform = $this->get_toinform();
 
             if($this->check_infromcoords() == 1) {
                 $segcoords = $this->get_segoordinators();
@@ -627,6 +634,19 @@ class AroRequests extends AbstractClass {
                         'message' => 'Aro Request '.$aroaffiliate_obj->get_displayname().' ['.$this->orderReference.'] in progress. <br/>'.$viewaro_link  // change message
                 );
                 $mail = new Mailer($email_data, 'php');
+            }
+
+            $toinform = $this->get_toinform();
+            if(is_array($toinform)) {
+                $toinform = array_unique($toinform);
+                $viewaro_link = 'to view the ARO <a href="'.$core->settings['rootdir']."/index.php?module=aro/managearodouments&action=viewonly&id=".$this->data[self::PRIMARY_KEY].' ">click here</a>';
+                $email_data = array(
+                        'from_email' => 'ocos@orkila.com',
+                        'from' => 'OCOS',
+                        'to' => $toinform,
+                        'subject' => 'Aro Request ['.$this->orderReference.'] '.$aroaffiliate_obj->get_displayname().' Notification',
+                        'message' => 'Aro Request ['.$this->orderReference.'] '.$aroaffiliate_obj->get_displayname().' in progress. <br/>'.$viewaro_link
+                );
             }
         }
     }
@@ -658,6 +678,8 @@ class AroRequests extends AbstractClass {
         if(is_object($approval)) {
             $user = new Users($approval->uid);
             $aroaffiliate_obj = new Affiliates($this->affid);
+            $purchasteype_obj = PurchaseTypes::get_data(array('ptid' => $this->orderType));
+
             $approve_link = $core->settings['rootdir']."/index.php?module=aro/managearodouments&requestKey=".base64_encode($this->data['identifier'])."&id=".$this->data[self::PRIMARY_KEY]."&referrer=toapprove";
             $approve_link = '<a href="'.$approve_link.'">Approve Link</a>';
             $aroapprovalemail_subject = "Aro Request ".$aroaffiliate_obj->get_displayname()." [".$this->orderReference."] Needs Approval";
@@ -665,7 +687,7 @@ class AroRequests extends AbstractClass {
                     'from' => 'ocos@orkila.com',
                     'to' => $user->email,
                     'subject' => $aroapprovalemail_subject,
-                    'message' => "Aro Request ".$aroaffiliate_obj->get_displayname()." [".$this->orderReference."] Needs Approval:".$approve_link,
+                    'message' => "Aro Request [".$this->orderReference."] ".$aroaffiliate_obj->get_displayname()." ".$purchasteype_obj->get_displayname()." Needs Approval:".$approve_link,
             );
 
             $mailer = new Mailer();
