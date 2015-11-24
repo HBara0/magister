@@ -48,7 +48,7 @@ if(!($core->input['action'])) {
     $incoterms = Incoterms::get_data('name IS NOT NULL', $dal_config);
     $countries = Countries::get_data('', $dal_config);
 
-    $aro_display['prtiesinfo']['discount'] = "display:block;";
+    $aro_display['prtiesinfo']['discount'] = "display:inline-block;";
     if($core->usergroup['aro_canMakeDiscounts'] == 0) {
         $aro_display['prtiesinfo']['discount'] = "display:none;";    //change al other display variables to this array
     }
@@ -502,7 +502,7 @@ if(!($core->input['action'])) {
 
 
             $aroordersummary = AroOrderSummary::get_data(array('aorid' => $aroorderrequest->aorid));
-            $purchaseype = new PurchaseTypes(array('ptid' => $aroorderrequest->orderType));
+            $purchaseype = PurchaseTypes::get_data(array('ptid' => $aroorderrequest->orderType));
             $localaff = Affiliates::get_affiliates(array('affid' => $aroorderrequest->affid));
             if(is_object($aropartiesinfo_obj)) {
                 $intermedaffiliate = Affiliates::get_affiliates(array('affid' => $aropartiesinfo_obj->intermedAff));
@@ -532,6 +532,8 @@ if(!($core->input['action'])) {
                     }
                 }
             }
+            $arodocument_title = $aroorderrequest->orderReference.' '.$localaff->get_displayname();
+            $arodocument_header = '<h2>'.$aroorderrequest->orderReference.' / '.$localaff->get_displayname().' / '.$purchaseype->get_displayname().'</h2>';
         }
         else {
             redirect($_SERVER['HTTP_REFERER'], 2, $lang->nomatchfound);
@@ -991,6 +993,8 @@ else {
         $summedfees = $core->input['summedfees'];
         $summedfeesusd = $summedfees * $core->input['exchangeRateToUSD'];
         $interestvalue = $core->input['interestvalue'];
+        $interestvalueusd = $core->input['interestvalue'] * $core->input['exchangeRateToUSD'];
+
 
         $i = 0;
         foreach($qtyperunit as $qty) {
@@ -1108,6 +1112,7 @@ else {
                 'ordersummary_totalintermedfeesperunit_usd' => $feeperunit_usdarray,
                 'ordersummary_totalintermedfees_usd' => $summedfeesusd,
                 'ordersummary_interestvalue' => $interestvalue,
+                'ordersummary_interestvalueUsd' => $interestvalueusd,
                 'ordersummary_invoicevalue_intermed' => round($invoicevalueintermed, 2),
                 'ordersummary_invoicevalueusd_intermed' => round($invoicevalueintermed_usd, 2),
                 //'ordersummary_invoicevalue_thirdparty' => round($invoicevalue_thirdparty, 2),
