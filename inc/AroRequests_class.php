@@ -509,7 +509,7 @@ class AroRequests extends AbstractClass {
                 $approver->set(array('aorid' => $this->data[self::PRIMARY_KEY], 'uid' => $val, 'isApproved' => $approve_status, 'timeApproved' => $timeapproved, 'sequence' => $sequence, 'position' => $position, 'emailRecievedDate' => ''));
                 $approval_obj = AroRequestsApprovals::get_data(array('aorid' => $this->data[self::PRIMARY_KEY], 'position' => $position));
                 if(is_object($approval_obj)) {
-                    $approver->update();
+                    $approver->update(array('aorid' => $this->data[self::PRIMARY_KEY], 'uid' => $val, 'isApproved' => $approve_status, 'timeApproved' => $timeapproved, 'sequence' => $sequence, 'position' => $position, 'emailRecievedDate' => ''));
                 }
                 else {
                     $approver->save();
