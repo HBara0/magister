@@ -420,7 +420,7 @@ class Surveys {
         $query = $db->query("SELECT s.*, s.dateCreated AS date, sc.title AS categorytitle
 							FROM ".Tprefix."surveys s
 							JOIN ".Tprefix."surveys_categories sc ON (s.category=sc.scid)
-							WHERE s.createdBy={$core->user[uid]} OR s.sid IN (SELECT sid FROM ".Tprefix."surveys_associations WHERE attr='uid' AND id={$core->user[uid]}) OR s.isPublicFill=1 OR s.sid IN (SELECT sid FROM ".Tprefix."surveys_invitations WHERE invitee={$core->user[uid]})
+							WHERE s.createdBy={$core->user[uid]} OR s.sid IN (SELECT sid FROM ".Tprefix."surveys_sharedwith WHERE uid={$core->user[uid]}) OR s.sid IN (SELECT sid FROM ".Tprefix."surveys_associations WHERE attr='uid' AND id={$core->user[uid]}) OR s.isPublicFill=1 OR s.sid IN (SELECT sid FROM ".Tprefix."surveys_invitations WHERE invitee={$core->user[uid]})
 							ORDER BY {$sort_query}");
 
         if($db->num_rows($query) > 0) {
