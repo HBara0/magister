@@ -12,7 +12,7 @@
                                 && $("input[id='documentsequence_prefix']").val().length > 0) {
 
                             var value = $("input[id='documentsequence_prefix']").val() + '-' + $("input[id='documentsequence_nextNumber']").val() + '-' + $("input[id='documentsequence_suffix']").val();
-                            var nextvalue = $("input[id='documentsequence_prefix']").val() + '-' + (parseInt($("input[id='documentsequence_nextNumber']").val()) + 1) + '-' + $("input[id='documentsequence_suffix']").val();
+                            var nextvalue = $("input[id='documentsequence_prefix']").val() + '-' + (parseInt($("input[id='documentsequence_nextNumber']").val()) + parseInt($("input[id='documentsequence_incrementby']").val())) + '-' + $("input[id='documentsequence_suffix']").val();
                             $("div[id='example']").effect("highlight", {color: "#D6EAAC"}, 1500).html('<span style="font-weight:bold;">{$lang->current} {$lang->orderreference}: </span>' + value + '<br/><span style="font-weight:bold;">{$lang->next} {$lang->orderreference}: </span>' + nextvalue);
                         }
                     }
@@ -50,7 +50,7 @@
                         <td> <input type="text"   autocomplete="off" tabindex="2" name="documentsequence[prefix]" value="{$documentsequence[prefix]}" id="documentsequence_prefix"/>  </td>
                     </tr>
                     <tr><td>{$lang->incrementby}  </td>
-                        <td> <input type="number" step="1" min="1"   autocomplete="off" tabindex="2"  name="documentsequence[incrementBy]" value="{$documentsequence[incrementBy]}" />  </td>
+                        <td> <input type="number" step="1" min="1"   autocomplete="off" tabindex="2"  name="documentsequence[incrementBy]" value="{$documentsequence[incrementBy]}" id="documentsequence_incrementby" />  </td>
                     </tr>
                     <tr><td>{$lang->nextnumber}<a title="{$lang->nextnumtooltip}" href="#"><img src="./images/icons/question.gif"></a></td>
                         <td> <input type="number" step="1" min="1" autocomplete="off" tabindex="2"  name="documentsequence[nextNumber]" value="{$documentsequence[nextNumber]}" id="documentsequence_nextNumber"/>  </td>
@@ -60,7 +60,7 @@
                     </tr>
                 </table>
                 <br/>
-                <div class="altrow2" id="example" style="border:black solid 1px;padding: 5px;width:25%">
+                <div class="altrow2" id="example" style="border:black solid 1px;padding: 5px;display: inline-block">
                     <span style="font-weight: bold;">{$lang->current} {$lang->orderreference}:</span> {$lang->orderrefernceformat}<br/>
                     <span style="font-weight: bold;">{$lang->next} {$lang->orderreference}:</span> {$lang->nextorderrefernceformat}
                 </div><br/>

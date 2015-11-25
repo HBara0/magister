@@ -219,5 +219,5 @@ $lang['documnetconfigurationdesc'] = 'Configure a document sequence so that ARO 
 $lang['nextnumtooltip'] = 'The number from which the incrementation will start.';
 $lang['portofshipment'] = 'Port of Shipment';
 $lang['current'] = 'Current';
-$lang['nextorderrefernceformat'] = 'Prefix-Next Number + 1-Suffix';
+$lang['nextorderrefernceformat'] = 'Prefix-Next Number + Increment By Value-Suffix';
 
