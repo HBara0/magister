@@ -218,3 +218,6 @@ $lang['orderrefernceformat'] = 'Prefix-Next Number-Suffix';
 $lang['documnetconfigurationdesc'] = 'Configure a document sequence so that ARO documents can inherit it and auto-increment.';
 $lang['nextnumtooltip'] = 'The number from which the incrementation will start.';
 $lang['portofshipment'] = 'Port of Shipment';
+$lang['current'] = 'Current';
+$lang['nextorderrefernceformat'] = 'Prefix-Next Number + 1-Suffix';
+

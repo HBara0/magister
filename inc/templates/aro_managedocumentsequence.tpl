@@ -12,7 +12,8 @@
                                 && $("input[id='documentsequence_prefix']").val().length > 0) {
 
                             var value = $("input[id='documentsequence_prefix']").val() + '-' + $("input[id='documentsequence_nextNumber']").val() + '-' + $("input[id='documentsequence_suffix']").val();
-                            $("div[id='example']").effect("highlight", {color: "#D6EAAC"}, 1500).html('<span style="font-weight:bold;">{$lang->orderreference}: </span>' + value);
+                            var nextvalue = $("input[id='documentsequence_prefix']").val() + '-' + (parseInt($("input[id='documentsequence_nextNumber']").val()) + 1) + '-' + $("input[id='documentsequence_suffix']").val();
+                            $("div[id='example']").effect("highlight", {color: "#D6EAAC"}, 1500).html('<span style="font-weight:bold;">{$lang->current} {$lang->orderreference}: </span>' + value + '<br/><span style="font-weight:bold;">{$lang->next} {$lang->orderreference}: </span>' + nextvalue);
                         }
                     }
                 });
@@ -26,9 +27,7 @@
         <td class="contentContainer" colspan="2">
             <h1>{$lang->managedoumentsequence}</h1>
             <div>{$lang->documnetconfigurationdesc}</div><br/>
-            <div class="altrow2" id="example" style="border:black solid 1px;padding: 5px;width:25%">
-                <span style="font-weight: bold;">{$lang->orderreference}:</span> {$lang->orderrefernceformat}
-            </div><br/>
+
             <form name="perform_aro/arodocumentsequeneconf_Form" id="perform_aro/arodocumentsequeneconf_Form"  action="#" method="post">
                 <input type="hidden" id="wpid" name="documentsequence[adsid]" value="{$documentsequence[adsid]}">
                 <table class="datatable"  style="width:100%;">
@@ -60,6 +59,11 @@
                         <td> <input type="text" autocomplete="off" tabindex="2"  name="documentsequence[suffix]" value="{$documentsequence[suffix]}" id="documentsequence_suffix" />  </td>
                     </tr>
                 </table>
+                <br/>
+                <div class="altrow2" id="example" style="border:black solid 1px;padding: 5px;width:25%">
+                    <span style="font-weight: bold;">{$lang->current} {$lang->orderreference}:</span> {$lang->orderrefernceformat}<br/>
+                    <span style="font-weight: bold;">{$lang->next} {$lang->orderreference}:</span> {$lang->nextorderrefernceformat}
+                </div><br/>
                 <input type="submit" id="perform_aro/arodocumentsequeneconf_Button" value="Save" class="button"/>
             </form>
             <div id="perform_aro/arodocumentsequeneconf_Results"></div>
