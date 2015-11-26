@@ -148,8 +148,8 @@ $lang['youapprovedleave'] = 'You have already approved this leave';
 $lang['yoursonly'] = 'Yours only';
 $lang['checkin'] = 'checkin';
 $lang['checkout'] = 'checkout';
-$lang['sourcecity'] = 'Source City';
-$lang['destinationcity'] = 'Destination City ';
+$lang['sourcecity'] = 'From (City)';
+$lang['destinationcity'] = 'To (City) ';
 $lang['redirecttotmplantrip'] = 'Successfully Saved. You will be redirected to the Travel Manager module to fill your plan';
 $lang['multipledestinations_note'] = 'If multiple destinations trip, please specify your first destination city and input the length of the full trip';
 $lang['approveadditionaldays'] = 'Approve Additional Days';
@@ -182,4 +182,5 @@ $lang['sourceCity'] = 'Source City';
 $lang['toDate'] = 'To Date';
 $lang['type'] = 'Type';
 $lang['monthlyattendancelog'] = 'Monthly Attendance Log';
+$lang['listaddleavedays'] = 'List Additional Leave Days';
 ?>

@@ -3,8 +3,8 @@
         <title>{$core->settings[systemtitle]} | {$lang->requestleave}</title>
         {$headerinc}
         <script type="text/javascript">
-            $(function () {
-                $("#uid, #type").change(function () {
+            $(function() {
+                $("#uid, #type").change(function() {
                     if(sharedFunctions.checkSession() == false) {
                         return;
                     }
@@ -12,7 +12,7 @@
                     sharedFunctions.requestAjax("post", "index.php?module=attendance/requestleave&action=getaffiliates", "uid=" + $('#uid').val() + "&ltid=" + $('#type').val(), 'to_inform_fields', 'to_inform_fields', true);
                 });
 
-                $(document).on('change', "#type, #pickDate_to", function () {
+                $(document).on('change', "#type, #pickDate_to", function() {
                     if(sharedFunctions.checkSession() == false) {
                         return;
                     }
@@ -28,19 +28,19 @@
                     sharedFunctions.requestAjax("post", "index.php?module=attendance/requestleave&action=getadditionalfields", "ltid=" + $('#type').val() + "&fromDate=" + $("#altpickDate_from").val() + "&toDate=" + $("#altpickDate_to").val() + "&uid=" + $("#uid").val(), 'additionalfields_output', 'additionalfields_output', true);
                 });
 
-                $(document).on('change', "#type", function () {
+                $(document).on('change', "#type", function() {
                     // sharedFunctions.requestAjax("post", "index.php?module=attendance/{$action}&action=parseexpenses", "ltid=" + $('#type').val() + "&lid=" + $('input[id=lid]').val(), 'leaveexpenses_container', 'leaveexpenses_container', true);
                 });
 
-                $(document).on('blur', 'input[id^=expenses_]', function () {
+                $(document).on('blur', 'input[id^=expenses_]', function() {
                     var sum = 0;
-                    $('input[id^=expenses_]').each(function () {
+                    $('input[id^=expenses_]').each(function() {
                         sum += Number($(this).val());
                     });
                     $('#expensestotal').val(sum);
                 });
 
-                $(document).on('change', 'input[id="check_autoresp"]', function () {
+                $(document).on('change', 'input[id="check_autoresp"]', function() {
                     if($(this).is(':checked')) {
                         $('#autorespondersub,#autoresponderbody').show();
                     }
@@ -84,7 +84,7 @@
                         <td>{$leavetypes_list}&nbsp;</td>
                     </tr>
                     <tr>
-                        <td></td><td><span id="additionalfields_output">{$additional_fields_output}</span></td>
+                        <td colspan="2"><span id="additionalfields_output">{$additional_fields_output}</span></td>
                     </tr>
                     <tr>
                         <td>{$lang->leavereason}</td>

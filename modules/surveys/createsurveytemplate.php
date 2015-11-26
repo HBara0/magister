@@ -27,6 +27,7 @@ if(!$core->input['action']) {
 
     $radiobuttons['isPublic'] = parse_yesno('isPublic', 1, $survey_template['isPublic']);
     $radiobuttons['forceAnonymousFilling'] = parse_yesno('forceAnonymousFilling', 1, $lang->forceanonymousfilling_tip);
+    $radiobuttons['isQuiz'] = parse_yesno('isQuiz', 1, $survey_template['isQuiz']);
 
     $radiobuttons['isRequired'] = parse_yesno("section[$section_rowid][questions][$question_rowid][isRequired]", 1, '');
 
@@ -46,10 +47,14 @@ if(!$core->input['action']) {
     $surveycategories_list = parse_selectlist('category', 5, $surveycategories, $survey_template['category']);
 
     $altrow_class = alt_row($altrow_class);
-
+    $choicesrowid_rowid = 1;
+    $showanswer = 'display:none;';
+    if($survey_template['isQuiz'] == 1) {
+        $showanswer = '';
+    }
+    eval("\$choices = \"".$template->get('surveys_createtemplate_sectionrow_questionrow_choicerow')."\";");
     eval("\$newquestions = \"".$template->get('surveys_createtemplate_sectionrow_questionrow')."\";");
     eval("\$newsection = \"".$template->get('surveys_createtemplate_sectionrow')."\";");
-
     $sequence_id += 1;
     eval("\$surveys_createtemplate = \"".$template->get('surveys_createtemplate')."\";");
     output_page($surveys_createtemplate);
@@ -133,8 +138,13 @@ else {
             }
             $question_types_options .= "<option value='{$key}'{$selected}>{$fieldtype[$key]}</option>";
         }
+        $choicesrowid_rowid = 1;
+        $showanswer = 'display:none;';
+        if($core->input['ajaxaddmoredata']['type'] > 0) {
+            $showanswer = '';
+            $type = $core->input['ajaxaddmoredata']['type'];
+        };
         $radiobuttons['isRequired'] = parse_yesno('section['.$section_rowid.'][questions]['.$question_rowid.'][isRequired]', 1, $survey_template['isRequired']);
-
         eval("\$newquestions = \"".$template->get('surveys_createtemplate_sectionrow_questionrow')."\";");
         eval("\$newsection = \"".$template->get('surveys_createtemplate_sectionrow')."\";");
         echo $newsection;
@@ -154,10 +164,26 @@ else {
             $question_types_options .= "<option value='{$key}'{$selected}>{$fieldtype[$key]}</option>";
         }
         $radiobuttons['isRequired'] = parse_yesno('section['.$section_rowid.'][questions]['.$question_rowid.'][isRequired]', 1, $survey_template['isRequired']);
-
-
+        $choicesrowid_rowid = 1;
+        $showanswer = 'display:none;';
+        if($core->input['ajaxaddmoredata']['type'] > 0) {
+            $showanswer = '';
+            $type = $core->input['ajaxaddmoredata']['type'];
+        };
+        eval("\$choices = \"".$template->get('surveys_createtemplate_sectionrow_questionrow_choicerow')."\";");
         eval("\$newquestion = \"".$template->get('surveys_createtemplate_sectionrow_questionrow')."\";");
         echo $newquestion;
+    }
+    elseif($core->input['action'] == 'ajaxaddmore_questionschoices') {
+        $choicesrowid_rowid = $db->escape_string($core->input['value']) + 1;
+        $section_rowid = intval($core->input['ajaxaddmoredata']['sectionrowid']);
+        $question_rowid = intval($core->input['ajaxaddmoredata']['questionrowid']);
+        $showanswer = 'display:none;';
+        if($core->input['ajaxaddmoredata']['type'] > 0) {
+            $showanswer = '';
+        };
+        eval("\$choices = \"".$template->get('surveys_createtemplate_sectionrow_questionrow_choicerow')."\";");
+        echo $choices;
     }
 }
 ?>

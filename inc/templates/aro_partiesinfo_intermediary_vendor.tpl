@@ -40,16 +40,17 @@
                         <td><input type="checkbox" name="partiesinfo[vendorPTIsThroughBank]" value="1" {$checked[vendorPTIsThroughBank]} /></td>
                     </tr>
                     <tr><td>{$lang->commission} <small>{$lang->commisionlimit}</small></td>
-                        <td><input type="number" step="any" name="partiesinfo[commission]" id="partiesinfo_commission" value="{$aropartiesinfo_obj->commission}" class="automaticallyfilled-editable"/>
+                        <td><input type="number" step="any" name="partiesinfo[commission]" id="partiesinfo_commission" value="{$aropartiesinfo_obj->commission}" class="automaticallyfilled-editable"/>%
                             <input type="hidden"  id="partiesinfo_defaultcommission"/></td>
                     </tr>
                     <tr class="altrow2">
                         <td> <span style="{$aro_display[prtiesinfo][discount]}">{$lang->totaldiscount} <a href="#" title="{$lang->totaldiscountdesc}"><img src="./images/icons/question.gif" ></a></span></td>
-                        <td><input style="{$aro_display[prtiesinfo][discount]}" type="number" step="any" name="partiesinfo[totalDiscount]" id="partiesinfo_totaldiscount" value="{$aropartiesinfo_obj->totalDiscount}"/></td>
+                        <td><input style="{$aro_display[prtiesinfo][discount]}" type="number" step="any" name="partiesinfo[totalDiscount]" id="partiesinfo_totaldiscount" value="{$aropartiesinfo_obj->totalDiscount}"/>%
+                        </td>
                     </tr>
 
                     <tr class="altrow2"><td>{$lang->commfromintermed} % <a href="#" title="{$lang->commfromintermeddesc}"><img src="./images/icons/question.gif" ></a></td>
-                        <td><input type="number" step="any" name="partiesinfo[commFromIntermed]" id="partiesinfo_commFromIntermed" value="{$aropartiesinfo_obj->commFromIntermed}"/></td>
+                        <td><input type="number" step="any" name="partiesinfo[commFromIntermed]" id="partiesinfo_commFromIntermed" value="{$aropartiesinfo_obj->commFromIntermed}"/>%</td>
                     </tr>
                     <tr id="partiesinfo_forwarder" {$aro_display[prtiesinfo][forwarder]}>
                         <td colspan="3">

@@ -48,7 +48,7 @@ if(!($core->input['action'])) {
     $incoterms = Incoterms::get_data('name IS NOT NULL', $dal_config);
     $countries = Countries::get_data('', $dal_config);
 
-    $aro_display['prtiesinfo']['discount'] = "display:block;";
+    $aro_display['prtiesinfo']['discount'] = "display:inline-block;";
     if($core->usergroup['aro_canMakeDiscounts'] == 0) {
         $aro_display['prtiesinfo']['discount'] = "display:none;";    //change al other display variables to this array
     }
@@ -502,7 +502,7 @@ if(!($core->input['action'])) {
 
 
             $aroordersummary = AroOrderSummary::get_data(array('aorid' => $aroorderrequest->aorid));
-            $purchaseype = new PurchaseTypes(array('ptid' => $aroorderrequest->orderType));
+            $purchaseype = PurchaseTypes::get_data(array('ptid' => $aroorderrequest->orderType));
             $localaff = Affiliates::get_affiliates(array('affid' => $aroorderrequest->affid));
             if(is_object($aropartiesinfo_obj)) {
                 $intermedaffiliate = Affiliates::get_affiliates(array('affid' => $aropartiesinfo_obj->intermedAff));
@@ -531,7 +531,12 @@ if(!($core->input['action'])) {
                         $ordersummarydisplay['thirdcolumn_display'] = "style='display:block;'";
                     }
                 }
+                if(empty($aroordersummary->interestValueUsd)) {
+                    $aroordersummary->interestValueUsd = $aroordersummary->interestValue * $aroorderrequest->exchangeRateToUSD;
+                }
             }
+            $arodocument_title = $aroorderrequest->orderReference.' '.$localaff->get_displayname();
+            $arodocument_header = '<h2>'.$aroorderrequest->orderReference.' / '.$localaff->get_displayname().' / '.$purchaseype->get_displayname().'</h2>';
         }
         else {
             redirect($_SERVER['HTTP_REFERER'], 2, $lang->nomatchfound);
@@ -991,6 +996,8 @@ else {
         $summedfees = $core->input['summedfees'];
         $summedfeesusd = $summedfees * $core->input['exchangeRateToUSD'];
         $interestvalue = $core->input['interestvalue'];
+        $interestvalueusd = $core->input['interestvalue'] * $core->input['exchangeRateToUSD'];
+
 
         $i = 0;
         foreach($qtyperunit as $qty) {
@@ -1108,6 +1115,7 @@ else {
                 'ordersummary_totalintermedfeesperunit_usd' => $feeperunit_usdarray,
                 'ordersummary_totalintermedfees_usd' => $summedfeesusd,
                 'ordersummary_interestvalue' => $interestvalue,
+                'ordersummary_interestvalueUsd' => $interestvalueusd,
                 'ordersummary_invoicevalue_intermed' => round($invoicevalueintermed, 2),
                 'ordersummary_invoicevalueusd_intermed' => round($invoicevalueintermed_usd, 2),
                 //'ordersummary_invoicevalue_thirdparty' => round($invoicevalue_thirdparty, 2),
@@ -1247,7 +1255,7 @@ else {
         $aroorderrequest = AroRequests::get_data(array('aorid' => $core->input['id']), array('simple' => false));
         if($aroorderrequest->isApproved == 1) {
             $viewonly = array('disable' => 1);
-            echo json_encode($viewonly);
+            output(json_encode($viewonly));
         }
     }
     if($core->input['action'] == 'approvearo') {
@@ -1259,10 +1267,32 @@ else {
                 $approve = $arorequest->approve($user);
                 if($approve) {
                     $arorequest->inform_nextapprover();
-                }
-                if($arorequest->is_approved()) {
-                    $arorequest = $arorequest->update_arorequeststatus();
-                    $arorequest->notifyapprove();
+
+                    //Inform created By
+                    $aroaffiliate_obj = new Affiliates($arorequest->affid);
+                    $purchasteype_obj = PurchaseTypes::get_data(array('ptid' => $arorequest->orderType));
+                    $createdby_obj = Users::get_data(array('uid' => $arorequest->createdBy));
+                    if(is_object($createdby_obj) && !($arorequest->is_approved())) {
+                        $email_data = array(
+                                'from' => 'ocos@orkila.com',
+                                'to' => $createdby_obj->email,
+                                'subject' => "ARO [".$arorequest->orderReference."] Approval Status",
+                                'message' => "Aro Request [".$arorequest->orderReference."] ".$aroaffiliate_obj->get_displayname()." ".$purchasteype_obj->get_displayname()." was approved by ".$user->get_displayname()
+                        );
+                        $viewarolink = '<a href="'.$core->settings['rootdir'].'/index.php?module=aro/managearodouments&id='.$arorequest->aorid.'">Click here to view the ARO</a>';
+                        $mailer = new Mailer();
+                        $mailer = $mailer->get_mailerobj();
+                        $mailer->set_type();
+                        $mailer->set_from($email_data['from']);
+                        $mailer->set_subject($email_data['subject']);
+                        $mailer->set_message($email_data['message'].'<br/>'.$viewarolink);
+                        $mailer->set_to($email_data['to']);
+                        $mailer->send();
+                    }
+                    if($arorequest->is_approved()) {
+                        $arorequest = $arorequest->update_arorequeststatus();
+                        $arorequest->notifyapprove();
+                    }
                 }
             }
         }

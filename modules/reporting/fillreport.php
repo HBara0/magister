@@ -28,7 +28,7 @@ if(!$core->input['action']) {
     $suppauditor = new AssignedEmployees();
     $suppauditor = $suppauditor->get_supplier_auditor($core->input['spid']);
     if(is_object($suppauditor)) {
-        $supp_auditor_output = '<p> <span style="font-weight:bold">'.$lang->reportauditor.' : </span>'.$suppauditor->get_user()->get_displayname().'</p>';
+        $supp_auditor_output = '<p> <span style="font-weight:bold">'.$lang->reportauditor.' : </span>'.$suppauditor->get_displayname().'</p>';
     }
 
     if($core->input['stage'] == 'productsactivity') {
@@ -1633,6 +1633,7 @@ else {
                 if($transfill == '1' && $db->num_rows($db->query('SELECT uid FROM '.Tprefix.'reportcontributors WHERE rid = '.intval($report_meta['rid']))) == 0) {
                     record_contribution($report_meta['rid'], 1);
                 }
+                $log->record('finalizeqr', $report_meta['rid']);
                 output_xml("<status>true</status><message>{$lang->reportfinalized}</message>");
             }
             else {

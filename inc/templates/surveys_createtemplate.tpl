@@ -3,8 +3,8 @@
         <title>{$core->settings[systemtitle]} | {$lang->createtemplate}</title>
         {$headerinc}
         <script type="text/javascript">
-            $(function () {
-                $(document).on('change', "select[id$='_[type]']", function () {
+            $(function() {
+                $(document).on('change', "select[id$='_[type]']", function() {
                     if(sharedFunctions.checkSession() == false) {
                         return;
                     }
@@ -22,7 +22,7 @@
                 });
                 }
             });
-            $(document).on('change', "select[id$='[validationType]']", function () {
+            $(document).on('change', "select[id$='[validationType]']", function() {
                 var id = $(this).attr("id").split("_");
                 var valMatch = ["minchars", "maxchars"];
                 $("tr[id='section_" + id[1] + "_[questions]_" + id[3] + "_[validationCriterion]']").css("display", "none");
@@ -31,8 +31,29 @@
                 }
             }
             );
+            $(document).on('change', "input[id^='isQuiz_']", function() {
+                var val = $(this).val();
+                var show = 0;
+                if(val == 1) {
+                    show = 1;
+                }
+                $('input[id^="ajaxaddmoredata_questionschoices_"]').each(function(i, obj) {
+                    $(obj).val(val);
+                });
+                $('input[name="ajaxaddmoredata[type]"]').each(function(i, obj) {
+                    $(obj).val(val);
+                });
+                $('td[id^="answer_"]').each(function(i, obj) {
+                    if(show == 1) {
+                        $(obj).show();
+                    } else {
+                        $(obj).hide();
+                    }
+                });
+            }
+            );
             });
-                    $(document).ajaxSuccess(function () {
+                    $(document).ajaxSuccess(function() {
                 $("tbody[id^='questions'][id$='_tbody']").sortable({placeholder: "ui-state-highlight", forcePlaceholderSize: true, delay: 300, opacity: 0.5, containment: "parent", handle: '.questions-sort-icon'});
             });
         </script>
@@ -67,6 +88,10 @@
                         <td>{$radiobuttons[forceAnonymousFilling]}</td>
                     </tr>
                     <tr>
+                        <td>{$lang->quiz}</td>
+                        <td>{$radiobuttons[isQuiz]}</td>
+                    </tr>
+                    <tr>
                         <td colspan="2" style="text-align: left; padding:0; margin:0px;">
                             <table width="100%">
                                 <thead>
@@ -80,7 +105,9 @@
                                 <tfoot>
                                     <tr>
                                         <td colspan="4"><img src="./images/add.gif" id="ajaxaddmore_surveys/createsurveytemplate_section_{$section_rowid}"  border="0" alt="{$lang->add}">
-                                            <input name="numrows_section{$section_rowid}" type="hidden" id="numrows_section_{$section_rowid}" value="{$section_rowid}"></td>
+                                            <input name="numrows_section{$section_rowid}" type="hidden" id="numrows_section_{$section_rowid}" value="{$section_rowid}">
+                                            <input type="hidden" name="ajaxaddmoredata[type]" id="ajaxaddmoredata_section_{$section_rowid}" value="{$survery_template[isQuiz]}"/>
+                                        </td>
                                     </tr>
                                 </tfoot>
                             </table>

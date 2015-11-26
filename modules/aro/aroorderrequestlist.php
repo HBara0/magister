@@ -35,7 +35,6 @@ if(!$core->input['action']) {
     ));
     $filter = new Inlinefilters($filters_config);
     $filter_where_values = $filter->process_multi_filters();
-    print_R($filter_where_values);
     if(is_array($filter_where_values)) {
         $filters_row_display = 'show';
         if($filters_config['process']['filterKey'] == 'aorid') {

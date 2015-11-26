@@ -55,8 +55,10 @@ if(!$core->input['action']) {
             $informmore['internalusers'] = unserialize(base64_decode($chainpolicy['informInternalUsers']));
             if(is_array($informmore['internalusers'])) {
                 foreach($informmore['internalusers'] as $userid) {
-                    $user = new Users($userid);
-                    $chainpolicy['informInternalUsers_output'] .= $user->get_displayname().'<br/>';
+                    if($userid != 0) {
+                        $user = new Users($userid);
+                        $chainpolicy['informInternalUsers_output'] .= $user->get_displayname().'<br/>';
+                    }
                 }
             }
         }

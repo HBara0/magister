@@ -73,6 +73,6 @@ else {
 }
 eval("\$listjobopportunities = \"".$template->get('hr_listjobopportunities')."\";");
 output_page($listjobopportunities);
-}
+
 
 

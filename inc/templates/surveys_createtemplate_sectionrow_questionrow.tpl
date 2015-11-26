@@ -1,7 +1,7 @@
 <tr id="{$question_rowid}" class="altrow2">
-    <td style="border-bottom:1px solid #CCC;">    
+    <td style="border-bottom:1px solid #CCC;">
         <table border="0" cellspacing="1" cellpadding="1" width='100%'>
-            <tr> 
+            <tr>
                 <td>{$lang->question}</td>
                 <td>
                     <input name="section[{$section_rowid}][questions][{$question_rowid}][question]"  value="{$section[section_rowid][questions][question_rowid][question]}" type="text" size="40" autocomplete="on" required="required">
@@ -19,7 +19,7 @@
                 <td>{$radiobuttons[isRequired]}</td>
             </tr>
             <tr>
-                <td>{$lang->questiontype}</td>                                                                        
+                <td>{$lang->questiontype}</td>
                 <td><select tabindex="" name="section[{$section_rowid}][questions][{$question_rowid}][type]" id="section_[{$section_rowid}]_[questions]_[{$question_rowid}]_[type]" required="required">{$question_types_options}</select></td>
             </tr>
             <tr>
@@ -51,8 +51,34 @@
                 <td><input type="text" name="section[{$section_rowid}][questions][{$question_rowid}][validationCriterion]" accept="numeric"></td>
             </tr>
             <tr id="section[{$section_rowid}][questions][{$question_rowid}][choices_container]" style="display:none;">
-                <td>{$lang->choices}</td>
-                <td><textarea id="questions_choices" name="section[{$section_rowid}][questions][{$question_rowid}][choices]" title="{$lang->choices_tip}" cols="33" rows="5"></textarea></td>
+                <td colspan="2">
+                    <table width="100%">
+                        <thead>
+                            <tr>
+                                <td colspan="3"><hr /><span class="subtitle">{$lang->choices}</span></td>
+                            </tr>
+                            <tr>
+                                <td id="answer_{$section_rowid}_{$question_rowid}" style="{$showanswer}">{$lang->isanswer}</td>
+                                <td>{$lang->choice}*</td>
+                                <td>{$lang->value}</td>
+                            </tr>
+                        </thead>
+                        <tbody id="questionschoices_{$section_rowid}_{$question_rowid}_tbody"  class="{$altrow_class}">
+                            {$choices}
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="2">
+                                    <img src="./images/add.gif" id="ajaxaddmore_surveys/createsurveytemplate_questionschoices_{$section_rowid}_{$question_rowid}" alt="{$lang->add}"><input id="numrows_questionschoices_{$section_rowid}_{$question_rowid}" name="numrows_questions_{$section_rowid}_{$question_rowid}" type="hidden" value="{$choicesrowid_rowid}">
+                                    <input type="hidden" name="ajaxaddmoredata[type]" id="ajaxaddmoredata_questionschoices_{$section_rowid}_{$question_rowid}" value="{$type}"/>
+                                    <input type="hidden" name="ajaxaddmoredata[questionrowid]" id="ajaxaddmoredata_questionschoices_{$section_rowid}_{$question_rowid}" value="{$question_rowid}"/>
+                                    <input type="hidden" name="ajaxaddmoredata[sectionrowid]" id="ajaxaddmoredata_questionschoices_{$section_rowid}_{$question_rowid}" value="{$section_rowid}"/>
+
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </td>
             </tr>
         </table>
     </td>
