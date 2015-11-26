@@ -47,6 +47,7 @@ else {
         $css_styles['table-datacell'] = 'text-align: right;';
         $css_styles['altrow'] = 'background-color: #f7fafd;';
         $css_styles['altrow2'] = 'background-color: #F2FAED;';
+        $css_styles['altrow3'] = 'background-color: #FBF28E;';
         $css_styles['greenrow'] = 'background-color: #F2FAED;';
 
         $current_date = getdate(TIME_NOW);
@@ -330,13 +331,14 @@ else {
                                 }
                                 $numfmt = new NumberFormatter($lang->settings['locale'], NumberFormatter::DECIMAL);
                                 if($currentyeardata[$i] / 1000 > 10) {
-                                    $numfmt->setPattern("#0");
+                                    $numfmt->setPattern("#,##0");
                                 }
                                 else {
                                     $numfmt->setPattern("#0.##");
                                 }
                                 $salesreport .= '<td style="'.$css_styles['table-datacell'].'">'.$numfmt->format($currentyeardata[$i] / 1000).'</td>'; //$formatter->format($currentyeardata[$i] / 1000)
                             }
+                            $styleindex = 2;
                             for($y = $current_year; $y >= ($current_year - 1); $y--) {
                                 if(!is_array($salerepdata[$y])) {
                                     $salerepdata[$y][] = 0;
@@ -345,7 +347,8 @@ else {
                                     $salerepdata[$y][$m] = $salerepdata[$y][$m] / 1000;
                                     $yearsummarytotals[$y][$m] += $salerepdata[$y][$m];
                                 }
-                                $salesreport .= '<td style="'.$css_styles['table-datacell'].'">'.number_format(array_sum($salerepdata[$y])).'</td>'; //$formatter->format(array_sum($salerepdata[$y]))
+                                $salesreport .= '<td style="'.$css_styles['table-datacell'].' '.$css_styles['altrow'.$styleindex].'">'.number_format(array_sum($salerepdata[$y])).'</td>'; //$formatter->format(array_sum($salerepdata[$y]))
+                                $styleindex++;
                             }
                             $salesreport .= '</tr>';
 //                            if(empty($rowstyle)) {
@@ -364,8 +367,10 @@ else {
 //                    foreach($yearsumrawtotals as $totaldata) {
 //                        $yearsummarytotals[$totaldata['year']][$totaldata['month']] = $totaldata['qty'];
 //                    }
+                        $styleindex = 2;
                         for($y = $current_year; $y >= ($current_year - 1); $y--) {
-                            $salesreport .= '<tr style="'.$css_styles['altrow2'].'"><th>Totals ('.$y.')</th>';
+                            $salesreport .= '<tr style="'.$css_styles['altrow'.$styleindex].'"><th>Totals ('.$y.')</th>';
+                            $styleindex++;
                             for($i = 1; $i <= 12; $i++) {
                                 $salesreport .= '<th style="text-align: right;">'.number_format($yearsummarytotals[$y][$i]).'</th>'; //$formatter->format
                             }
@@ -417,7 +422,7 @@ else {
                             $salesreport .= '<td>'.$salesrep->name.'</td>';
                             $numfmt = new NumberFormatter($lang->settings['locale'], NumberFormatter::DECIMAL);
                             if(array_sum($salerepdata[$current_year]) > 10) {
-                                $numfmt->setPattern("#0");
+                                $numfmt->setPattern("#,##0");
                             }
                             else {
                                 $numfmt->setPattern("#0.##");
@@ -588,6 +593,7 @@ else {
                     Users::get_data(array('uid' => 3))->email/* Always include User 3 */
             );
             $recipients = array_unique($recipients);
+
             $mailer->set_to($recipients);
 
 //            $mailer->set_to('zaher.reda@orkila.com');
