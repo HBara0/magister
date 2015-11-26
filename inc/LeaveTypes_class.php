@@ -202,7 +202,9 @@ class LeaveTypes extends AbstractClass {
 
         if(!empty($field)) {
             if(isset($field_settings['titlelangvar'])) {
-                $field = '<br/><div style="display:block; width:10%;">'.$lang->{$field_settings['titlelangvar']}.'</div><div style = "display:inline-block; width:75%;">'.$field.'</div>';
+                $field = '<br/><br/>'
+                        .'<div style="display:inline-block; width:19%;">'.$lang->{$field_settings['titlelangvar']}.'</div>'
+                        .'<div style = "display:inline-block; width:75%;">'.$field.'</div>';
             }
         }
         return $field;
