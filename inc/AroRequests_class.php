@@ -639,7 +639,7 @@ class AroRequests extends AbstractClass {
             $toinform = $this->get_toinform();
             if(is_array($toinform)) {
                 $toinform = array_unique($toinform);
-                $viewaro_link = 'to view the ARO <a href="'.$core->settings['rootdir']."/index.php?module=aro/managearodouments&action=viewonly&id=".$this->data[self::PRIMARY_KEY].' ">click here</a>';
+                $viewaro_link = 'To view the ARO <a href="'.$core->settings['rootdir']."/index.php?module=aro/managearodouments&referrer=toapprove&id=".$this->data[self::PRIMARY_KEY].' ">click here</a>';
                 $email_data = array(
                         'from_email' => 'ocos@orkila.com',
                         'from' => 'OCOS',
@@ -751,6 +751,8 @@ class AroRequests extends AbstractClass {
 
     public function notifyapprove() {
         global $core;
+        $aroaffiliate_obj = new Affiliates($this->affid);
+        $purchasteype_obj = PurchaseTypes::get_data(array('ptid' => $this->orderType));
         if($this->data['isApproved'] == 1) {
             $approvers = $this->get_approvers();
             if(is_array($approvers)) {
@@ -785,16 +787,15 @@ class AroRequests extends AbstractClass {
                     $mailinglist[] = $useremail;
                 }
             }
-
             $mailinglist = array_unique($mailinglist);
-            $aro_link = $core->settings['rootdir']."/index.php?module=aro/managearodouments&id=".$this->data[self::PRIMARY_KEY]."&action=viewonly";
+            $aro_link = $core->settings['rootdir']."/index.php?module=aro/managearodouments&id=".$this->data[self::PRIMARY_KEY];
 
             $email_data = array(
                     'from_email' => 'ocos@orkila.com',
                     'from' => 'OCOS',
                     'to' => $mailinglist,
-                    'subject' => 'Aro ['.$this->orderReference.'] is Approved',
-                    'message' => 'Aro ['.$this->orderReference.'] is Approved <br/>  To view the ARO <a href="'.$aro_link.'">click here</a>'
+                    'subject' => 'Aro Request ['.$this->orderReference.']/'.$aroaffiliate_obj->get_displayname().'/'.$purchasteype_obj->get_displayname().'is Approved',
+                    'message' => 'Aro Request ['.$this->orderReference.']/'.$aroaffiliate_obj->get_displayname().'/'.$purchasteype_obj->get_displayname().' is Approved <br/>  To view the ARO <a href="'.$aro_link.'">click here</a>'
             );
             $mail = new Mailer($email_data, 'php');
             if($mail->get_status() === true) {
