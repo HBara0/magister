@@ -717,8 +717,7 @@ $(function() {
             data: "id=" + id + data_params,
             beforeSend: function() {
                 $("body").append("<div id='modal-loading'><span  style='display:block; width:100px; height: 100%; margin: 0 auto;'><img  src='./images/loader.gif'/></span></div>");
-                $("#modal-loading").dialog({height: 150, modal: true, closeOnEscape: false, title: 'Loading...', resizable: false, minHeight: 0
-
+                $("#modal-loading").dialog({height: 150, modal: true, closeOnEscape: false, title: 'Loading...', resizable: false, minHeight: 0,
                 });
             },
             complete: function() {
@@ -834,9 +833,19 @@ $(function() {
                 url: url,
                 data: "value=" + num_rows + "&id=" + id[id.length - 1] + "&" + object.parent().find($('input[id^=ajaxaddmoredata_]')).serialize(),
                 beforeSend: function() {
-                    $("body").append("<div id='modal-loading'></div>");
-                    $("#modal-loading").dialog({height: 0, modal: true, closeOnEscape: false, title: 'Loading...', resizable: false, minHeight: 0
-                    });
+                    if(id[1] == 'aro/managearodouments') {
+                        $("body").append("<div id='modal-loading'>Please wait untill the calculation is done.</div>");
+                        $("#modal-loading").dialog({height: 0, modal: true, closeOnEscape: false, title: 'Loading...', resizable: false, minHeight: 0,
+                            open: function(event, ui) {
+                                $(".ui-dialog-titlebar-close", ui.dialog | ui).hide();
+                            }
+                        });
+                        $("#modal-loading").attr('style', 'opacity:1; z-index:1000;height:100px;width:1000px');
+                    } else {
+                        $("body").append("<div id='modal-loading'></div>");
+                        $("#modal-loading").dialog({height: 0, modal: true, closeOnEscape: false, title: 'Loading...', resizable: false, minHeight: 0});
+                    }
+
                 },
                 complete: function() {
                     //+msecond
