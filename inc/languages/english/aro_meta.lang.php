@@ -220,4 +220,6 @@ $lang['nextnumtooltip'] = 'The number from which the incrementation will start.'
 $lang['portofshipment'] = 'Port of Shipment';
 $lang['current'] = 'Current';
 $lang['nextorderrefernceformat'] = 'Prefix-Next Number + Increment By Value-Suffix';
-
+$lang['arodocuments'] = 'Aro Documents';
+$lang['configurationslists'] = 'Configurations list';
+$lang['manageconfigurations'] = 'Manage Configurations';
