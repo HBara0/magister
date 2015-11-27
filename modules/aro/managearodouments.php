@@ -576,11 +576,17 @@ else {
     if($core->input ['action'] == 'populatedocnum') {
         $orderreference = array('orderreference' => '');
         if(!empty($core->input['affid']) && !empty($core->input['ptid'])) {
-            $filter['filter']['time'] = '('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
-            $documentseq_obj = AroDocumentsSequenceConf::get_data(array('time' => $filter['filter']['time'], 'affid' => $core->input['affid'], 'ptid' => $core->input['ptid']), array('simple' => false, 'operators' => array('affid' => 'in', 'ptid' => 'in', 'time' => 'CUSTOMSQLSECURE')));
-            if(is_object($documentseq_obj)) {
-                /* create the array to be encoded each dimension of the array represent the html element in the form */
-                $orderreference = array('cpurchasetype' => $core->input['ptid'], 'orderreference' => $documentseq_obj->prefix.'-'.$documentseq_obj->nextNumber.'-'.$documentseq_obj->suffix);
+            $arorequest_obj = AroRequests::get_data(array('inputChecksum' => $core->input['inputChecksum']));
+            if(!is_object($arorequest_obj)) {
+                $filter['filter']['time'] = '('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
+                $documentseq_obj = AroDocumentsSequenceConf::get_data(array('time' => $filter['filter']['time'], 'affid' => $core->input['affid'], 'ptid' => $core->input['ptid']), array('simple' => false, 'operators' => array('affid' => 'in', 'ptid' => 'in', 'time' => 'CUSTOMSQLSECURE')));
+                if(is_object($documentseq_obj)) {
+                    /* create the array to be encoded each dimension of the array represent the html element in the form */
+                    $orderreference = array('cpurchasetype' => $core->input['ptid'], 'orderreference' => $documentseq_obj->prefix.'-'.$documentseq_obj->nextNumber.'-'.$documentseq_obj->suffix);
+                }
+            }
+            else {
+                $orderreference = array('cpurchasetype' => $core->input['ptid'], 'orderreference' => $arorequest_obj->orderReference);
             }
         }
         echo json_encode($orderreference);
