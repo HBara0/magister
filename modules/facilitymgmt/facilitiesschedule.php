@@ -11,7 +11,7 @@
 if(!defined('DIRECT_ACCESS')) {
     die('Direct initialization of this file is not allowed.');
 }
-if($core->usergroup['facilitymgmt_canManageFacilities'] == 0) {
+if($core->usergroup['canUseFacM'] == 0) {
     error($lang->sectionnopermission);
 }
 if(!isset($core->input['action'])) {
