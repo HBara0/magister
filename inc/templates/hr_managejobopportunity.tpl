@@ -21,37 +21,37 @@
                         <td><input type="text" id="" name="jobopportunity[reference]" value="{$jobopportunity[reference]}" required="required" style="width:200px;"/></td>
                     </tr>
                     <tr>
-                        <td>{$lang->affiliate}</td>
+                        <td>{$lang->affiliate}*</td>
                         <td>{$affiliates_list}</td>
                     </tr>
                     <tr class="thead">
                         <td  colspan="2">{$lang->employmentdetails}</td>
                     </tr>
                     <tr>
-                        <td>{$lang->worklocation}</td>
+                        <td>{$lang->worklocation}*</td>
                         <td>
                             <input type="text" autocomplete="off" id="cities_cache_0_autocomplete" value="{$jobopportunity[workLocation_output]}" required="required" style="width:200px;"/>
                             <input type='hidden' id='cities_cache_0_id'   name="jobopportunity[workLocation]" value="{$jobopportunity[workLocation]}"/>
                         </td>
                     </tr>
                     <tr>
-                        <td>{$lang->title}</td>
+                        <td>{$lang->title}*</td>
                         <td>
                             <input type="text" id="jobopportunity_title" name="jobopportunity[title]" value="{$jobopportunity[title]}" style="width:200px;"/>
                         </td>
                     </tr>
 
                     <tr>
-                        <td>{$lang->employementtype}</td>
+                        <td>{$lang->employementtype}*</td>
                         <td>{$employmenttype_list}</td>
                     </tr>
                     <tr>
-                        <td>{$lang->shortdescription}</td>
+                        <td>{$lang->shortdescription}*</td>
                         <td>
                             <textarea name="jobopportunity[shortDesc]" cols="40" rows="6" >{$jobopportunity[shortDesc]}</textarea><a</td>
                     </tr>
                     <tr>
-                        <td>{$lang->responsibilities}</td>
+                        <td>{$lang->responsibilities}*</td>
                         <td colspan="2">
                             <textarea name="jobopportunity[responsibilities]" cols="40" rows="6" id="jobopportunity_responsibilities">{$jobopportunity[responsibilities]}</textarea>
                         </td>
@@ -145,14 +145,14 @@
                         <td colspan="2">{$lang->publishoptions}</td>
                     </tr>
                     <tr>
-                        <td>{$lang->publishon}</td>
+                        <td>{$lang->publishon}*</td>
                         <td>
                             <input type="text" id="pickDate_2_from" autocomplete="off" value="{$jobopportunity[publishOn_output]}" style="width:200px;"/>
                             <input type="hidden" name="jobopportunity[publishOn]" id="altpickDate_2_from" value="{$jobopportunity[publishOn]}" />
                         </td>
                     </tr>
                     <tr>
-                        <td>{$lang->unpublishon}</td>
+                        <td>{$lang->unpublishon}*</td>
                         <td>
                             <input type="text" id="pickDate_3_from" autocomplete="off" value="{$jobopportunity[unpublishOn_output]}" style="width:200px;"/>
                             <input type="hidden" name="jobopportunity[unpublishOn]" id="altpickDate_3_from" value="{$jobopportunity[unpublishOn]}" />
