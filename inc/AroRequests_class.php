@@ -22,7 +22,7 @@ class AroRequests extends AbstractClass {
     const DISPLAY_NAME = '';
     const SIMPLEQ_ATTRS = '*';
     const CLASSNAME = __CLASS__;
-    const UNIQUE_ATTRS = 'affid,orderType,orderReference';
+    const UNIQUE_ATTRS = 'affid,orderType,orderReference,inputChecksum';
 
     public function __construct($id = null, $simple = true) {
         parent::__construct($id, $simple);
@@ -39,16 +39,16 @@ class AroRequests extends AbstractClass {
                 return $this->errorcode;
             }
         }
-        $orderrequest_fields = array('affid', 'orderType', 'orderReference', 'inspectionType', 'currency', 'exchangeRateToUSD', 'ReferenceNumber', 'aroBusinessManager', 'isFinalized');
+        $orderrequest_fields = array('affid', 'orderType', 'orderReference', 'inspectionType', 'currency', 'exchangeRateToUSD', 'ReferenceNumber', 'aroBusinessManager', 'isFinalized', 'inputChecksum');
         foreach($orderrequest_fields as $orderrequest_field) {
             $orderrequest_array[$orderrequest_field] = $data[$orderrequest_field];
         }
         $orderrequest_array['createdBy'] = $core->user['uid'];
         $orderrequest_array['createdOn'] = TIME_NOW;
-        $orderrequest_array['identifier'] = substr(md5(uniqid(microtime())), 1, 10);
+        //  $orderrequest_array['identifier'] = substr(md5(uniqid(microtime())), 1, 10);
         $query = $db->insert_query(self::TABLE_NAME, $orderrequest_array);
         if($query) {
-            $this->data['identifier'] = $orderrequest_array['identifier'];
+            $this->data['inputChecksum'] = $orderrequest_array['inputChecksum'];
             $this->data[self::PRIMARY_KEY] = $db->last_id();
             if(isset($data['nextnumid']) && !empty($data['nextnumid']['nextnum'])) {
                 /* update nextnumber  in the document sequence based on affid and ptid */
@@ -150,7 +150,7 @@ class AroRequests extends AbstractClass {
         if($query) {
             /* update the document conf with the next number */
             $arorequest = self::get_data(array('aorid' => $this->data[self::PRIMARY_KEY]));
-            $this->data['identifier'] = $arorequest->identifier;
+            $this->data['inputChecksum'] = $arorequest->inputChecksum;
             $log->record(self::TABLE_NAME, $this->data[self::PRIMARY_KEY]);
             $this->save_ordercustomers($data['customeroder']);
             if($this->errorcode != 0) {
@@ -509,14 +509,23 @@ class AroRequests extends AbstractClass {
                 $approver->set(array('aorid' => $this->data[self::PRIMARY_KEY], 'uid' => $val, 'isApproved' => $approve_status, 'timeApproved' => $timeapproved, 'sequence' => $sequence, 'position' => $position, 'emailRecievedDate' => ''));
                 $approval_obj = AroRequestsApprovals::get_data(array('aorid' => $this->data[self::PRIMARY_KEY], 'position' => $position));
                 if(is_object($approval_obj)) {
+                    $approver->araid = $approval_obj->araid;
                     $approver->update(array('aorid' => $this->data[self::PRIMARY_KEY], 'uid' => $val, 'isApproved' => $approve_status, 'timeApproved' => $timeapproved, 'sequence' => $sequence, 'position' => $position, 'emailRecievedDate' => ''));
                 }
                 else {
                     $approver->save();
-                    $sequence++;
                 }
+                $sequence++;
             }
         }
+//        $aroapproval_objs = AroRequestsApprovals::get_data(array('aorid' => $this->data[self::PRIMARY_KEY]), array('returnarray' => true));
+//        if(is_array($aroapproval_objs)) {
+//            foreach($aroapproval_objs as $aroapproval_obj) {
+//                if(!in_array($aroapproval_obj->position, array_keys($approvers))) {
+//                    $aroapproval_obj->delete();
+//                }
+//            }
+//        }
         return true;
     }
 

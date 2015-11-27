@@ -124,6 +124,7 @@ if(!($core->input['action'])) {
         eval("\$partiesinfo_shipmentparameters = \"".$template->get('aro_partiesinfo_shipmentparameters')."\";");
         eval("\$partiesinfo_fees = \"".$template->get('aro_partiesinfo_fees')."\";");
         unset($aropartiesinfo_obj);
+        $aroorderrequest->inputChecksum = generate_checksum('aro');
     }
     if(isset($core->input['id'])) {
         $aroorderrequest = AroRequests::get_data(array('aorid' => $core->input['id']), array('simple' => false));
