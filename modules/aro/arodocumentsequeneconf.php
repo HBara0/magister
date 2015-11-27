@@ -26,6 +26,25 @@ if(!($core->input['action'])) {
 
         $documentsequence['effectiveFrom_formatted'] = date('d-m-Y', $documentsequence['effectiveFrom']);
         $documentsequence['effectiveTo_formatted'] = date('d-m-Y', $documentsequence['effectiveTo']);
+        $audittrailfields = array('createdOn', 'createdBy', 'modifiedOn', 'modifiedBy');
+        foreach($audittrailfields as $field) {
+            if(!empty($documentsequence[$field])) {
+                switch($field) {
+                    case 'createdOn':
+                    case 'modifiedOn':
+                        $documentsequence[$field.'_output'] = date($core->settings['dateformat'], $documentsequence[$field]);
+                        break;
+                    default:
+                        $user = new Users($documentsequence[$field]);
+                        if(is_object($user)) {
+                            $documentsequence[$field.'_output'] = $user->get_displayname();
+                        }
+                        break;
+                }
+                $field_strtolower = strtolower($field);
+                $audittrail .= '<tr><td>'.$lang->$field_strtolower.'</td><td>'.$documentsequence[$field.'_output'].'</td></tr>';
+            }
+        }
     }
     else {
         $documentsequence['incrementBy'] = 1;
