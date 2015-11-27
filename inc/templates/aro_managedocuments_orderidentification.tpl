@@ -16,6 +16,7 @@
                 <td>{$purchasetypelist}</td>
                 <td>{$lang->buyingcurr}</td>
                 <td>{$currencies_list}</td>
+                {$refreshbutton}
             </tr>
             <tr>
                 <td>{$lang->orderreference}</td>

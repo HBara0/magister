@@ -148,8 +148,9 @@ if(!($core->input['action'])) {
             }
             $purchasetype = new PurchaseTypes($aroorderrequest->orderType);
 
-            $affiliate_list = parse_selectlist('affid', 1, $affiliate, $aroorderrequest->affid, '', '', array('blankstart' => true, 'id' => 'affid', 'required' => 'required'));
-            $purchasetypelist = parse_selectlist('orderType', 4, $purchasetypes, $aroorderrequest->orderType, '', '', array('blankstart' => true, 'id' => 'purchasetype', 'required' => 'required'));
+            $affiliate_list = parse_selectlist('affid', 1, $affiliate, $aroorderrequest->affid, '', '', array('blankstart' => true, 'id' => 'affid', 'disabledNonSelectedItems' => '1'));
+            $purchasetypelist = parse_selectlist('orderType', 4, $purchasetypes, $aroorderrequest->orderType, '', '', array('blankstart' => true, 'id' => 'purchasetype', 'disabledNonSelectedItems' => '1'));
+            $refreshbutton = '<td><button onclick=$(function(){$(\'select[id="affid"]\').trigger("change");});>'.$lang->refreshpolicies.'</button></td>';
             $currencies_list = parse_selectlist('currency', 4, $currencies, $aroorderrequest->currency, '', '', array('blankstart' => 1, 'id' => 'currencies', 'required' => 'required'));
             $inspectionlist = parse_selectlist('inspectionType', 4, $inspections, $aroorderrequest->inspectionType);
             //*********Aro Order Customers -Start *********//
