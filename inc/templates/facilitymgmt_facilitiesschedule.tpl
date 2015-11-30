@@ -2,12 +2,12 @@
     <head>
         <title>{$core->settings[systemtitle]} | {$lang->list}</title>
         {$headerinc}
-        <link href='{$core->settings[rootdir]}/css/fullcalendar.css' rel='stylesheet' />
+        <link href='{$core->settings[rootdir]}/css/fullcalendar.min.css' rel='stylesheet' />
         <script src='{$core->settings[rootdir]}/js/moment.min.js'></script>
-        <script src="{$core->settings[rootdir]}/js/fullcalendar.js" type="text/javascript"></script>
+        <script src="{$core->settings[rootdir]}/js/fullcalendar.min.js" type="text/javascript"></script>
 
         <script>
-            $(document).ready(function () {
+            $(document).ready(function() {
                 //   var reservations ={$reserved_data};
                 //    var reservedData = [];
                 //    for(var data in reservations) {
@@ -26,20 +26,20 @@
                     events: {
                         type: 'POST',
                         url: '{$core->settings['rootdir']}/index.php?module=facilitymgmt/facilitiesschedule&action=fetchevents',
-                        error: function () {
+                        error: function() {
                             $('#script-warning').show();
                         }
 
                     },
-                    loading: function (bool) {
+                    loading: function(bool) {
                         $('#loading').toggle(bool);
                     }
 
                 });
 
-                setInterval(function () {
+                setInterval(function() {
                     $('#calendar').fullCalendar('refetchEvents')
-                }, 30000);
+                }, 60000);
 
             });
 
@@ -54,7 +54,6 @@
     </head>
     <body>
         {$header}
-
     <tr>
         {$menu}
         <td class="contentContainer">

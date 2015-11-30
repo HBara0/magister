@@ -31,4 +31,17 @@ $lang['facilitytypesmgmt'] = 'Manage Facility Type';
 $lang['typecategory'] = 'Type Category';
 $lang['description'] = 'Description';
 $lang['factypenameexist'] = "A facility type with the same name already exists";
+$lang['reservationcreation_subject'] = '{1} Reserved {2} In {3}';
+$lang['reservationcreation_message'] = 'Facility : {1}<br /> '
+        .'Is Reserved From {2} To {3}<br />'
+        .'Reserved By: {4} <br/>'
+        .'Purpose: {5}';
+$lang['reservationdeletion_subject'] = 'Reservation Of {1} By {2} In {3} Has Been Cancelled';
+$lang['reservationdeletion_message'] = 'Reservation Cancelled'
+        .'<br />Facility : {1}<br /> '
+        .'Is Reserved From {2} To {3}<br />'
+        .'Reserved By: {4} <br/>'
+        .'Purpose: {5}';
+
+$lang['facilities'] = 'Facilities';
 ?>

@@ -20,6 +20,17 @@ if(!$core->input['action']) {
         $yef_data = $core->input['yef'];
         $affiliate = new Affiliates($yef_data['affid']);
         $yef_data['affiliateName'] = $affiliate->get()['name'];
+        $purchase_selectlistdata = array('alex' => 'Orkila FZ - Alex', 'fze' => 'Orkila Jebel Ali FZE', 'int' => 'Orkila International', 'customer' => 'Customer', 'direct' => $affiliate->get_displayname());
+        if($affiliate->affid == 14) {
+            $purchase_selectlistdata = array('alex' => 'Orkila FZ - Alex', 'int' => 'Orkila International', 'customer' => 'Customer', 'direct' => $affiliate->get_displayname());
+        }
+        elseif($affiliate->affid == 27) {
+            $purchase_selectlistdata = array('alex' => 'Orkila FZ - Alex', 'fze' => 'Orkila Jebel Ali FZE', 'customer' => 'Customer', 'direct' => $affiliate->get_displayname());
+        }
+        elseif($affiliate->affid == 28) {
+            $purchase_selectlistdata = array('fze' => 'Orkila Jebel Ali FZE', 'int' => 'Orkila International', 'customer' => 'Customer', 'direct' => $affiliate->get_displayname());
+        }
+
         $supplier = new Entities($yef_data['spid']);
         $yef_data['supplierName'] = $supplier->get()['companyName'];
         $sup_segments = $supplier->get_segments();
@@ -209,7 +220,7 @@ if(!$core->input['action']) {
             $rowid = generate_checksum();
             $saletype_selectlist = parse_selectlist('budgetline['.$rowid.'][saleType]', 0, $saletype_selectlistdata, '', '', '', array('id' => 'salestype_'.$rowid));
             $invoice_selectlist = parse_selectlist('budgetline['.$rowid.'][invoice]', 0, $invoice_selectlistdata, '', '', '', array('id' => 'invoice_'.$rowid));
-            $purchase_selectlistdata = array('alex' => 'Orkila FZ - Alex', 'fze' => 'Orkila Jebel Ali FZE', 'int' => 'Orkila International', 'customer' => 'Customer', 'direct' => $yef_data['affiliateName']);
+//            $purchase_selectlistdata = array('alex' => 'Orkila FZ - Alex', 'fze' => 'Orkila Jebel Ali FZE', 'int' => 'Orkila International', 'customer' => 'Customer', 'direct' => $yef_data['affiliateName']);
             $purchasingentity_selectlist = parse_selectlist('budgetline['.$rowid.'][purchasingEntity]', 0, $purchase_selectlistdata, 'direct', '', '', array('id' => 'purchasingEntity_'.$rowid));
             $budget_currencylist = ' <select id = "currency_{$rowid}" name = "budgetline['.$rowid.'][originalCurrency]">';
             foreach($currencies as $numcode => $currency) {
@@ -389,8 +400,16 @@ else {
             );
         }
 
-
         $purchase_selectlistdata = array('alex' => 'Orkila FZ - Alex', 'fze' => 'Orkila Jebel Ali FZE', 'int' => 'Orkila International', 'customer' => 'Customer', 'direct' => $affiliate->get_displayname());
+        if($affiliate->affid == 14) {
+            $purchase_selectlistdata = array('alex' => 'Orkila FZ - Alex', 'int' => 'Orkila International', 'customer' => 'Customer', 'direct' => $affiliate->get_displayname());
+        }
+        elseif($affiliate->affid == 27) {
+            $purchase_selectlistdata = array('alex' => 'Orkila FZ - Alex', 'fze' => 'Orkila Jebel Ali FZE', 'customer' => 'Customer', 'direct' => $affiliate->get_displayname());
+        }
+        elseif($affiliate->affid == 28) {
+            $purchase_selectlistdata = array('fze' => 'Orkila Jebel Ali FZE', 'int' => 'Orkila International', 'customer' => 'Customer', 'direct' => $affiliate->get_displayname());
+        }
         if(is_object($supplier)) {
             $segs = $supplier->get_segments();
             if(is_array($segs)) {
@@ -470,6 +489,15 @@ function parse_yefline($data, $readonly = '', $source, $rownums, $supplier) {
                 $saletype_selectlist = parse_selectlist('budgetline['.$rowid.'][saleType]', 0, $saletype_selectlistdata, $saleid, '', '', array('id' => 'salestype_'.$rowid));
                 $invoice_selectlist = parse_selectlist('budgetline['.$rowid.'][invoice]', 0, $invoice_selectlistdata, $budgetline['invoice'], '', '', array('id' => 'invoice_'.$rowid));
                 $purchase_selectlistdata = array('alex' => 'Orkila FZ - Alex', 'fze' => 'Orkila Jebel Ali FZE', 'int' => 'Orkila International', 'customer' => 'Customer', 'direct' => $yef_data['affiliateName']);
+                if($affiliate->affid == 14) {
+                    $purchase_selectlistdata = array('alex' => 'Orkila FZ - Alex', 'int' => 'Orkila International', 'customer' => 'Customer', 'direct' => $yef_data['affiliateName']);
+                }
+                elseif($affiliate->affid == 27) {
+                    $purchase_selectlistdata = array('alex' => 'Orkila FZ - Alex', 'fze' => 'Orkila Jebel Ali FZE', 'customer' => 'Customer', 'direct' => $yef_data['affiliateName']);
+                }
+                elseif($affiliate->affid == 28) {
+                    $purchase_selectlistdata = array('fze' => 'Orkila Jebel Ali FZE', 'int' => 'Orkila International', 'customer' => 'Customer', 'direct' => $yef_data['affiliateName']);
+                }
                 $purchasingentity_selectlist = parse_selectlist('budgetline['.$rowid.'][purchasingEntity]', 0, $purchase_selectlistdata, $budgetline['purchasingEntity'], '', '', array('id' => 'purchasingEntity_'.$rowid));
                 if(!empty($budgetline['interCompanyPurchase'])) {
                     $intercompany_obj = new Affiliates($budgetline['interCompanyPurchase']);

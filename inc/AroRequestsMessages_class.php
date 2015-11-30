@@ -55,16 +55,16 @@ class AroRequestsMessages extends AbstractClass {
         }
         else {
             $this->errorcode = 1;
-            return false;
+            return $this;
         }
 
         if(empty($this->data['message'])) {
             $this->errorcode = 2;
-            return false;
+            return $this;
         }
         if(value_exists('aro_requests_messages', 'message', $this->data['message'], ' uid='.$core->user['uid'].'')) { // Add date filter
             $this->errorcode = 3;
-            return false;
+            return $this;
         }
         if(preg_match("/Message-ID: (.*)/", $this->data['message'], $matches)) {
             preg_match("/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9._-]+)/", $matches[1], $messageid);
@@ -95,13 +95,15 @@ class AroRequestsMessages extends AbstractClass {
         if($query) {
             $this->data['armid'] = $db->last_id();
             $this->errorcode = 0;
-            return true;
+            return $this;
         }
     }
 
     public function send_message() {
         global $lang, $core;
-
+        if(empty($this->data['aorid'])) {
+            $this->data['aorid'] = $core->input['aorid'];
+        }
         $lang->load('aro_meta');
         $mailer = new Mailer();
         $mailer = $mailer->get_mailerobj();
@@ -110,15 +112,16 @@ class AroRequestsMessages extends AbstractClass {
         $arorequest = AroRequests::get_data(array('aorid' => $this->data['aorid']), array('simple' => false));
 
         if(is_object($arorequest)) {
-            $reply_links = DOMAIN.'/index.php?module=aro/managearodouments&action=takeactionpage&requestKey='.base64_encode($arorequest->get()['identifier']).'&inreplyTo='.$this->data['inReplyTo'].'&id='.base64_encode($arorequest->get()['aorid']);
-            $view_link = DOMAIN."/index.php?module=aro/managearodouments&requestKey=".base64_encode($this->data['identifier'])."&id=".base64_encode($arorequest->get()['aorid'])."&referrer=toapprove";
+            // $reply_links = DOMAIN.'/index.php?module=aro/managearodouments&action=takeactionpage&requestKey='.base64_encode($arorequest->get()['identifier']).'&inreplyTo='.$this->data['inReplyTo'].'&id='.base64_encode($arorequest->get()['aorid']);
+            $reply_links = DOMAIN."/index.php?module=aro/managearodouments&id=".$arorequest->get()['aorid'].'#message';
+            $view_link = DOMAIN."/index.php?module=aro/managearodouments&id=".$arorequest->get()['aorid'];
         }
         $mailer->set_subject($lang->newrequestmsgsubject.' ['.$arorequest->orderReference.']');
 
         $emailreceivers = $this->get_emailreceivers();
         if(is_array($emailreceivers)) {
             foreach($emailreceivers as $uid => $emailreceiver) {
-                $message = $lang->clicktoviewaro.' '.$view_link.'<br/>'.$this->data['message'].' | <a href="'.$reply_links.'">&#x21b6; '.$lang->reply.'</a><br/>';
+                $message = '<a href="'.$view_link.'">'.$lang->clicktoviewaro.'</a><br/>'.$this->data['message'].' | <a href="'.$reply_links.'">&#x21b6; '.$lang->reply.'</a><br/>';
                 $message .= '<h1>'.$lang->conversation.'</h1>'.$arorequest->parse_messages(array('viewmode' => 'textonly', 'uid' => $uid));
                 if(!empty($message)) {
                     $mailer->set_message($message);
@@ -193,8 +196,16 @@ class AroRequestsMessages extends AbstractClass {
         switch($this->data['viewPermission']) {
             case 'public':
                 $arorequest_obj = new AroRequests($this->data['aorid']);
-                $approvals_objs = $arorequest_obj->get_approvers();
+                $lastapproval = $arorequest_obj->get_lastapproval();
+                $sender_approval_seq = 0;
+                if(is_object($lastapproval)) {
+                    $sender_approval_seq = $lastapproval->sequence;
+                }
 
+                // $sender_approval_seq = $arorequest_obj->get_approval_byappover($this->data['uid'])->get()['sequence'];
+                //$approvals_objs = $arorequest_obj->get_approvers();
+                $config = array('returnarray' => true, 'simple' => false, 'order' => array('by' => 'sequence', 'sort' => 'ASC'));
+                $approvals_objs = AroRequestsApprovals::get_data('aorid='.$this->data['aorid'].' AND sequence <='.intval($sender_approval_seq), $config);
                 if(is_array($approvals_objs)) {
                     foreach($approvals_objs as $approvals_obj) {
                         $user = new Users($approvals_obj->uid);

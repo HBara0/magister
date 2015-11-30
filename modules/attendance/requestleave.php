@@ -21,15 +21,19 @@ if(!$core->input['action']) {
     }
 
     if($core->usergroup['attendance_canViewAffAllLeaves'] == 1) {
-        $employees[$core->user['uid']] = $core->user['displayName'];
-        if(is_array($core->user['hraffids'])) {
-            $query_extrawhere = 'affid IN ('.implode(', ', $core->user['hraffids']).') OR ';
+        if($core->usergroup['attendance_canRequestAllLeaves'] == 1) {
+            $query = $db->query("SELECT u.uid, u.displayName FROM ".Tprefix."users u JOIN ".Tprefix."affiliatedemployees ae ON (u.uid=ae.uid) WHERE u.gid!=7 AND u.uid!={$core->user[uid]} ORDER BY displayName ASC");
         }
-        $query = $db->query("SELECT u.uid, u.displayName FROM ".Tprefix."users u JOIN ".Tprefix."affiliatedemployees ae ON (u.uid=ae.uid) WHERE (".$query_extrawhere."(canHr=1 AND ae.uid=".$core->user['uid'].") OR (ae.isMain=1 AND ae.affid='{$core->user[mainaffiliate]}') OR u.reportsTo='{$core->user[uid]}') AND u.gid!=7 AND u.uid!={$core->user[uid]} ORDER BY displayName ASC");
+        else {
+            $employees[$core->user['uid']] = $core->user['displayName'];
+            if(is_array($core->user['hraffids'])) {
+                $query_extrawhere = 'affid IN ('.implode(', ', $core->user['hraffids']).') OR ';
+            }
+            $query = $db->query("SELECT u.uid, u.displayName FROM ".Tprefix."users u JOIN ".Tprefix."affiliatedemployees ae ON (u.uid=ae.uid) WHERE (".$query_extrawhere."(canHr=1 AND ae.uid=".$core->user['uid'].") OR (ae.isMain=1 AND ae.affid='{$core->user[mainaffiliate]}') OR u.reportsTo='{$core->user[uid]}') AND u.gid!=7 AND u.uid!={$core->user[uid]} ORDER BY displayName ASC");
+        }
         while($user = $db->fetch_assoc($query)) {
             $employees[$user['uid']] = $user['displayName'];
         }
-
         $show_onbehalf = true;
     }
     else {
@@ -519,8 +523,8 @@ else {
                         list($to) = get_specificdata('users', 'email', '0', 'email', '', 0, "uid='{$leave_user[reportsTo]}'");
                     }
                     $approve_status = $timeapproved = 0;
-                    if(($val == $core->user['uid'] && $approve_immediately == true) || ($approve_immediately == true && $key == 'reportsTo' && $core->user['uid'] == $leave_user['reportsTo']) || ($key == 'reportsTo' && empty($leave_user['reportsTo']))) {
-                        if($val == $core->user['uid']) {
+                    if(($core->usergroup['attenance_canApproveAllLeaves'] == 1 && $approve_immediately == true) || ($val == $core->user['uid'] && $approve_immediately == true) || ($approve_immediately == true && $key == 'reportsTo' && $core->user['uid'] == $leave_user['reportsTo']) || ($key == 'reportsTo' && empty($leave_user['reportsTo']))) {
+                        if($val == $core->user['uid'] || $core->usergroup['attenance_canApproveAllLeaves'] == 1) {
                             $approve_immediately = true;
                         }
                         $approve_status = 1;
@@ -553,7 +557,7 @@ else {
             /**
              * If leave should be planning through TM, trasfer user to there
              */
-            if($leavetype_details['isBusiness'] == 1 && $core->usergroup['canUseTravelManager'] == 1 && $leave_user_obj->get_id() == 1) {
+            if($leavetype_details['isBusiness'] == 1 && $core->usergroup['canUseTravelManager'] == 1) {
                 $url = 'index.php?module=travelmanager/plantrip&lid=';
                 header('Content-type: text/xhml+javascript');
                 output_xml('<status>true</status><message>'.$lang->redirecttotmplantrip.'<![CDATA[<script>goToURL(\''.$url.$db->escape_string($lid).'\');</script>]]></message>');

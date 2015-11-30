@@ -2,10 +2,10 @@
 /*
  * Orkila Central Online System (OCOS)
  * Copyright � 2009 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * View users
  * $module: admin/users
- * $id: view.php	
+ * $id: view.php
  * Last Update: @zaher.reda 	Sep 22, 2010 | 10:25 AM
  */
 if(!defined("DIRECT_ACCESS")) {
@@ -23,6 +23,33 @@ if(!$core->input['action']) {
         $sort_query = $core->input['sortby']." ".$core->input['order'];
     }
     $sort_url = sort_url();
+    $filters_config = array(
+            'parse' => array('filters' => array('id', 'username', 'email', 'usergroup', 'affiliate', 'lastvisit'),
+                    'overwriteField' => array(
+                            'affiliate' => '',
+                            'lastvisit' => '',
+                            'usergroup' => '',
+                    )
+            ),
+            'process' => array(
+                    'filterKey' => 'uid',
+                    'mainTable' => array(
+                            'name' => 'users',
+                            'filters' => array('id' => array('operatorType' => 'equal', 'name' => 'uid'), 'username' => array('name' => 'username'), 'email' => array('name' => 'email')),
+                    ),
+            )
+    );
+
+    $filter = new Inlinefilters($filters_config);
+    $filter_where_values = $filter->process_multi_filters();
+    $filter_where = null;
+    if(is_array($filter_where_values)) {
+        $filters_row_display = 'show';
+        $filter_where = ' WHERE '.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
+        $multipage_where .= ' AND '.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
+    }
+
+    $filters_row = $filter->prase_filtersrows(array('tags' => 'table', 'display' => $filters_row_display));
 
     $limit_start = 0;
     if(isset($core->input['start'])) {
@@ -33,16 +60,16 @@ if(!$core->input['action']) {
         $core->settings['itemsperlist'] = $db->escape_string($core->input['perpage']);
     }
 
-    $query = $db->query("SELECT u.*, g.title AS grouptitle 
-						FROM ".Tprefix."users u LEFT JOIN ".Tprefix."usergroups g ON (u.gid=g.gid) 
-						ORDER BY {$sort_query}
+    $query = $db->query("SELECT u.*, g.title AS grouptitle
+						FROM ".Tprefix."users u LEFT JOIN ".Tprefix."usergroups g ON (u.gid=g.gid){$filter_where}
+                                                ORDER BY {$sort_query}
 						LIMIT {$limit_start}, {$core->settings[itemsperlist]}");
     if($db->num_rows($query) > 0) {
         while($user = $db->fetch_array($query)) {
             $class = alt_row($class);
             $useraffiliates = $hidden_affiliates = $break = "";
 
-            $query2 = $db->query("SELECT aff.name as affiliatename 
+            $query2 = $db->query("SELECT aff.name as affiliatename
 								  FROM ".Tprefix."affiliates aff LEFT JOIN ".Tprefix."affiliatedemployees ae ON (ae.affid=aff.affid)
 								  WHERE ae.uid='{$user[uid]}'
 								  ORDER BY aff.name ASC");

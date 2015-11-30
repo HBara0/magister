@@ -3,7 +3,7 @@
  * Orkila Central Online System (OCOS)
  * Copyright © 2009 Orkila International Offshore, All Rights Reserved
  * $module: group purchase
- * $id: affiliateorder.php	
+ * $id: affiliateorder.php
  * Created:	   @najwa.kassem	Feb 10, 2010 | 10:00 AM
  * Last Update: @najwa.kassem 	Feb 18, 2010 | 10:08 AM
  */
@@ -27,10 +27,10 @@ if(!$core->input['action']) {
 
     $affiliates_list = parse_selectlist('affid', 1, $affiliates, 'affid').'';
 
-    $query2 = $db->query("SELECT *,p.name as pname FROM ".Tprefix."grouppurchase_pricing pri 
-						JOIN ".Tprefix."grouppurchase_pricingdetails d ON (pri.gppid=d.gppid)	
-						JOIN ".Tprefix."products p ON (p.pid=pri.pid)	
-					WHERE affid = 0 
+    $query2 = $db->query("SELECT *,p.name as pname FROM ".Tprefix."grouppurchase_pricing pri
+						JOIN ".Tprefix."grouppurchase_pricingdetails d ON (pri.gppid=d.gppid)
+						JOIN ".Tprefix."products p ON (p.pid=pri.pid)
+					WHERE affid = 0
 					GROUP BY pri.pid
 					ORDER BY pri.setTime  ");
     while($prices = $db->fetch_array($query2)) {
@@ -48,10 +48,10 @@ else {
             exit;
         }
         $affid = $db->escape_string($core->input['affid']);
-        $query2 = $db->query("SELECT *,p.name as pname FROM ".Tprefix."grouppurchase_pricing pri 
-							JOIN ".Tprefix."grouppurchase_pricingdetails d ON (pri.gppid=d.gppid)	
-							JOIN ".Tprefix."products p ON (p.pid=pri.pid)	
-						WHERE affid = 0  
+        $query2 = $db->query("SELECT *,p.name as pname FROM ".Tprefix."grouppurchase_pricing pri
+							JOIN ".Tprefix."grouppurchase_pricingdetails d ON (pri.gppid=d.gppid)
+							JOIN ".Tprefix."products p ON (p.pid=pri.pid)
+						WHERE affid = 0
 							ORDER BY pri.setTime  ");
 
         while($prices = $db->fetch_array($query2)) {
@@ -80,9 +80,9 @@ else {
 
         $pid = $db->escape_string($core->input['pid']);
 
-        $query2 = $db->query("SELECT * FROM ".Tprefix."grouppurchase_pricing pri 
-							JOIN ".Tprefix."grouppurchase_pricingdetails d ON (pri.gppid=d.gppid)	
-							JOIN ".Tprefix."products p ON (p.pid=pri.pid)	
+        $query2 = $db->query("SELECT * FROM ".Tprefix."grouppurchase_pricing pri
+							JOIN ".Tprefix."grouppurchase_pricingdetails d ON (pri.gppid=d.gppid)
+							JOIN ".Tprefix."products p ON (p.pid=pri.pid)
 							WHERE pri.pid = {$pid} AND d.affid = {$affid}
 						GROUP BY d.price
 							ORDER BY pri.setTime  ");
@@ -90,9 +90,9 @@ else {
 
         if($db->num_rows($query2) == 0) {
 
-            $query2 = $db->query("SELECT * FROM ".Tprefix."grouppurchase_pricing pri 
-							JOIN ".Tprefix."grouppurchase_pricingdetails d ON (pri.gppid=d.gppid)	
-							JOIN ".Tprefix."products p ON (p.pid=pri.pid)	
+            $query2 = $db->query("SELECT * FROM ".Tprefix."grouppurchase_pricing pri
+							JOIN ".Tprefix."grouppurchase_pricingdetails d ON (pri.gppid=d.gppid)
+							JOIN ".Tprefix."products p ON (p.pid=pri.pid)
 							WHERE pri.pid = {$pid} AND d.affid = 0
 							ORDER BY pri.setTime");
         }
@@ -124,7 +124,7 @@ else {
           exit; */
         $query = $db->insert_query('grouppurchase_orders', $core->input);
         if($query) {
-            $log->record($db->last_id());
+            $log->record('createaffiliateorder', $db->last_id());
             output_xml("<status>true</status><message>{$lang->ordered}</message>");
         }
         else {

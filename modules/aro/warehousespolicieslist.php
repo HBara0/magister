@@ -20,16 +20,16 @@ if(!$core->input['action']) {
 
 
     /* Perform inline filtering - START */
-    $warhouses = Warehouses::get_data('', array('returnarray' => true));
+    $warhouses = Warehouses::get_data(array('affid' => $core->user['affiliates']), array('returnarray' => true, 'operators' => array('affid' => 'IN')));
     $filters_config = array(
-            'parse' => array('filters' => array('warehouse', 'fromDate', 'todate'),
+            'parse' => array('filters' => array('warehouse', 'fromDate', 'toDate'),
                     'overwriteField' => array('warehouse' => parse_selectlist('filters[warehouse]', 1, $warhouses, '', 0, '', array('blankstart' => true)),),
             ),
             'process' => array(
                     'filterKey' => 'awpid',
                     'mainTable' => array(
                             'name' => 'aro_wareshouses_policies',
-                            'filters' => array('warehouse' => array('operatorType' => 'equal', 'name' => 'warehouse'), 'start' => array('operatorType' => 'daterange', 'name' => 'effectiveFrom'), 'end' => array('operatorType' => 'daterange', 'effectiveTo' => 'ameeffectiveTo')),
+                            'filters' => array('warehouse' => array('operatorType' => 'equal', 'name' => 'warehouse'), 'fromDate' => array('operatorType' => 'date', 'name' => 'effectiveFrom'), 'toDate' => array('operatorType' => 'date', 'name' => 'effectiveTo')),
                     )
             )
     );
@@ -64,10 +64,23 @@ if(!$core->input['action']) {
                 'returnarray' => true
         );
     }
-    if(!empty($filter_where)) {
-        $filter_where = $filter_where;
+
+
+    $warehouse_objs = Warehouses::get_data(array('affid' => $core->user['affiliates'], 'isActive' => 1), array('returnarray' => true));
+    if(is_array($warehouse_objs)) {
+        $warehousefilter_where = ' warehouse IN ('.implode(',', array_keys($warehouse_objs)).')';
     }
-    $aroobjs = AroManageWarehousesPolicies::get_data($filter_where, $dal_config);
+    else {
+        $warehousefilter_where = ' warehouse IN (0)';
+    }
+    if(!empty($filter_where)) {
+        if(!empty($warehousefilter_where)) {
+            $warehousefilter_where .= ' AND ';
+        }
+        $warehousefilter_where .=$filter_where;
+    }
+
+    $aroobjs = AroManageWarehousesPolicies::get_data($warehousefilter_where, $dal_config);
 
     if(is_array($aroobjs)) {
         foreach($aroobjs as $aro) {

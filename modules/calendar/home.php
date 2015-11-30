@@ -92,9 +92,6 @@ else {
         $notifyevent_checkbox = '<div style="width:20%; display:inline-block;">&nbsp;</div><div style="width:70%; display:inline-block;"><input name="event[notify]" type="checkbox" value="1" /> '.$lang->notifyevent.'</div><br />';
     }
 
-    if($core->usergroup['calendar_canPublishEvents'] == 1) {
-        $publishonwebsite_checkbox = '<div style="width:20%; display:inline-block;">&nbsp;</div><div style="width:70%; display:inline-block;"><input name="event[publishOnWebsite]" type="checkbox" value="1" /> '.$lang->publishonwebsite.'</div>';
-    }
 
     $assignedto_employees = get_specificdata('users', array('uid', 'displayName'), 'uid', 'displayName', '', 0, "reportsTo='{$core->user[uid]}' AND gid!=7");
     if(is_array($assignedto_employees)) {

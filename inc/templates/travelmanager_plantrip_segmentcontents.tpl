@@ -29,9 +29,9 @@
         <div id="content_suggestedtransploader_{$sequence}"></div>
         <div id="content_suggestedtransp_{$sequence}">{$transsegments_output[suggested]}</div>
     </div>
-    <div class = "ui-state-highlight ui-corner-all" style = "padding: 6px; font-weight: bold;margin-top:10px;">{$lang->availableflightsnoticemessage}</div>
     <div style="display: block;border:1px solid #FCEFA1; padding:15px;margin-top:10px;">
         <h2 class="subtitle">{$lang->selectothertransportations}</h2>
+        <div class = "ui-state-highlight ui-corner-all" style = "padding: 6px; font-weight: bold;margin-top:10px;">{$lang->availableflightsnoticemessage}</div>
         <input type="checkbox" id="checkbox_show_othertransps_{$sequence}" style="margin-left:12px;margin-top:15px;margin-bottom:15px;" {$checked[othertranspssection]}/>{$lang->other} {$lang->transportations}
         <div id="show_othertransps_{$sequence}" style="{$display['othertranspssection']}">
             <div>{$transsegments_output[othertransp]}</div>
@@ -70,13 +70,15 @@
   <!-- <div class="subtitle">{}Approved Hotels</div>-->
     {$otherhotels_output}
 </div>
-<div style="display: inline-block;width:50%;vertical-align: top;margin-bottom: 50px;margin-top: 100px;">
-    <input type="hidden" id="save_section_{$sequence}_3_input" value="0" name="segment[{$sequence}][savesection][section3]"/>
-    <a id="save_section_{$sequence}_3" style="width:30%;float:right;padding:10px;text-align: center;background-color:#690;font-weight:bold;font-size:15px;">Save & Proceed
-        <img src="{$core->settings['rootdir']}/images/chevron-down.png"/>
-    </a>
+<div>
+    <div style="display: inline-block;width:50%;vertical-align: top;margin-bottom: 50px;margin-top: 100px;">
+        <input type="hidden" id="save_section_{$sequence}_3_input" value="0" name="segment[{$sequence}][savesection][section3]"/>
+        <a id="save_section_{$sequence}_3" style="width:30%;float:right;padding:10px;text-align: center;background-color:#690;font-weight:bold;font-size:15px;">Save & Proceed
+            <img src="{$core->settings['rootdir']}/images/chevron-down.png"/>
+        </a>
+    </div>
+    <div style="display: inline-block;width: 30%;vertical-align: top;margin-top: 100px;margin-left: 75px;" id="sectionresults_3"></div>
 </div>
-<div style="display: inline-block;width: 30%;vertical-align: top;margin-top: 100px;margin-left: 75px;" id="sectionresults_3"></div>
 <div style="display:block; width: 100%;" id="segment_expenses_{$sequence}">
     <input name="sequence" type="hidden" id="sequence" value="{$sequence}">
     <h2 class="subtitle" style="padding:8px;width:40%;" id="addexpensessetionheader_{$sequence}">{$lang->addexp}</h2>

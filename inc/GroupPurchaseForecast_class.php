@@ -24,7 +24,7 @@ class GroupPurchaseForecast extends AbstractClass {
     }
 
     protected function create(array $data) {
-        global $db, $core;
+        global $db, $core, $log;
         if(is_array($data)) {
             if(!$this->validate_requiredfields($data)) {
                 $forecastdata['gpfid'] = self::PRIMARY_KEY;
@@ -42,6 +42,7 @@ class GroupPurchaseForecast extends AbstractClass {
                 if(!$query) {
                     return;
                 }
+                $log->record('creategpforcast', $this->data[self::PRIMARY_KEY]);
                 $forecastlines = $data['forecastline'];
                 if(is_array($forecastlines)) {
                     foreach($forecastlines as $forecastline) {
@@ -77,7 +78,7 @@ class GroupPurchaseForecast extends AbstractClass {
     }
 
     protected function update(array $data) {
-        global $db, $core;
+        global $db, $core, $log;
         if(is_array($data)) {
             if(!$this->validate_requiredfields($data)) {
                 $forecastdata['affid'] = $data['affid'];
@@ -93,6 +94,7 @@ class GroupPurchaseForecast extends AbstractClass {
                     $this->errorcode = 601;
                     return;
                 }
+                $log->record('updategpforcast', $this->data[self::PRIMARY_KEY]);
                 $forecastlines = $data['forecastline'];
                 if(is_array($forecastlines)) {
                     foreach($forecastlines as $forecastline) {

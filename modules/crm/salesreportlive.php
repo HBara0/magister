@@ -47,6 +47,7 @@ else {
         $css_styles['table-datacell'] = 'text-align: right;';
         $css_styles['altrow'] = 'background-color: #f7fafd;';
         $css_styles['altrow2'] = 'background-color: #F2FAED;';
+        $css_styles['altrow3'] = 'background-color: #FBF28E;';
         $css_styles['greenrow'] = 'background-color: #F2FAED;';
 
         $current_date = getdate(TIME_NOW);
@@ -201,8 +202,16 @@ else {
                             $ioinvoiceline = $input_inoutline->get_invoiceline();
                             if(is_object($ioinvoiceline)) {
                                 $invoiceline->purchaseprice = $ioinvoiceline->priceactual;
-                                $invoiceline->purchasecurr = $ioinvoiceline->get_invoice()->get_currency()->uomsymbol;
+                                $invoiceline->purchasecurr = $ioinvoiceline->get_invoice()->get_currency()->iso_code;
                                 $invoiceline->purchasepriceusd = 0;
+                                if($orgcurrency->iso_code != $invoiceline->purchasecurr) {
+                                    $invoice->purchaseprice_localfxrate = $currency_obj->get_fxrate_bytype($core->input['fxtype'], $invoiceline->purchasecurr, array('from' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 01:00'), 'to' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 24:00'), 'year' => date('Y', $invoice->dateinvoiceduts), 'month' => date('m', $invoice->dateinvoiceduts)), array('precision' => 4));
+                                }
+                                if($usdcurrency_obj->alphaCode != $invoiceline->purchasecurr) {
+                                    $invoice->purchaseprice_usdfxrate = $usdcurrency_obj->get_fxrate_bytype($core->input['fxtype'], $invoiceline->purchasecurr, array('from' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 01:00'), 'to' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 24:00'), 'year' => date('Y', $invoice->dateinvoiceduts), 'month' => date('m', $invoice->dateinvoiceduts)), array('precision' => 4));
+                                    $invoiceline->purchasepriceusd = $invoiceline->purchaseprice / $invoice->purchaseprice_usdfxrate;
+                                }
+                                $invoiceline->purchaseprice /= $invoice->purchaseprice_localfxrate;
                             }
                             unset($ioinvoiceline);
                         }
@@ -210,8 +219,6 @@ else {
                             $invoiceline->purchaseprice = 0;
                         }
                     }
-
-
                     if(!empty($invoice->usdfxrate)) {
                         $invoiceline->costusd = $invoiceline->costlocal_invoicecurr / $invoice->usdfxrate;
                     }
@@ -235,9 +242,13 @@ else {
                         }
                     }
 
+                    $invoiceline->unitcostlocal = $invoiceline->unitcostlocal / 1000;
+                    $invoiceline->unitcostusd = $invoiceline->unitcostusd / 1000;
+
                     $invoiceline->costlocal = $invoiceline->costlocal / 1000;
                     $invoiceline->costusd = $invoiceline->costusd / 1000;
-                    $invoiceline->grossmargin = $invoiceline->linenetamt - (($invoiceline->purchaseprice * $invoiceline->qtyinvoiced) / 1000);
+                    $invoiceline->purchaseprice = $invoiceline->purchaseprice / 1000;
+                    $invoiceline->grossmargin = $invoiceline->linenetamt - ($invoiceline->purchaseprice * $invoiceline->qtyinvoiced);
                     if(!empty($invoice->usdfxrate)) {
                         $invoiceline->grossmarginusd = $invoiceline->grossmargin / $invoice->usdfxrate;
                     }
@@ -320,13 +331,14 @@ else {
                                 }
                                 $numfmt = new NumberFormatter($lang->settings['locale'], NumberFormatter::DECIMAL);
                                 if($currentyeardata[$i] / 1000 > 10) {
-                                    $numfmt->setPattern("#0");
+                                    $numfmt->setPattern("#,##0");
                                 }
                                 else {
                                     $numfmt->setPattern("#0.##");
                                 }
                                 $salesreport .= '<td style="'.$css_styles['table-datacell'].'">'.$numfmt->format($currentyeardata[$i] / 1000).'</td>'; //$formatter->format($currentyeardata[$i] / 1000)
                             }
+                            $styleindex = 2;
                             for($y = $current_year; $y >= ($current_year - 1); $y--) {
                                 if(!is_array($salerepdata[$y])) {
                                     $salerepdata[$y][] = 0;
@@ -335,7 +347,8 @@ else {
                                     $salerepdata[$y][$m] = $salerepdata[$y][$m] / 1000;
                                     $yearsummarytotals[$y][$m] += $salerepdata[$y][$m];
                                 }
-                                $salesreport .= '<td style="'.$css_styles['table-datacell'].'">'.number_format(array_sum($salerepdata[$y])).'</td>'; //$formatter->format(array_sum($salerepdata[$y]))
+                                $salesreport .= '<td style="'.$css_styles['table-datacell'].' '.$css_styles['altrow'.$styleindex].'">'.number_format(array_sum($salerepdata[$y])).'</td>'; //$formatter->format(array_sum($salerepdata[$y]))
+                                $styleindex++;
                             }
                             $salesreport .= '</tr>';
 //                            if(empty($rowstyle)) {
@@ -354,8 +367,10 @@ else {
 //                    foreach($yearsumrawtotals as $totaldata) {
 //                        $yearsummarytotals[$totaldata['year']][$totaldata['month']] = $totaldata['qty'];
 //                    }
+                        $styleindex = 2;
                         for($y = $current_year; $y >= ($current_year - 1); $y--) {
-                            $salesreport .= '<tr style="'.$css_styles['altrow2'].'"><th>Totals ('.$y.')</th>';
+                            $salesreport .= '<tr style="'.$css_styles['altrow'.$styleindex].'"><th>Totals ('.$y.')</th>';
+                            $styleindex++;
                             for($i = 1; $i <= 12; $i++) {
                                 $salesreport .= '<th style="text-align: right;">'.number_format($yearsummarytotals[$y][$i]).'</th>'; //$formatter->format
                             }
@@ -407,7 +422,7 @@ else {
                             $salesreport .= '<td>'.$salesrep->name.'</td>';
                             $numfmt = new NumberFormatter($lang->settings['locale'], NumberFormatter::DECIMAL);
                             if(array_sum($salerepdata[$current_year]) > 10) {
-                                $numfmt->setPattern("#0");
+                                $numfmt->setPattern("#,##0");
                             }
                             else {
                                 $numfmt->setPattern("#0.##");
@@ -564,20 +579,27 @@ else {
             $mailer->set_from(array('name' => 'OCOS Mailer', 'email' => $core->settings['maileremail']));
             $mailer->set_subject('Sales Report '.$affiliate->name.' '.$core->input['fromDate'].' - '.$core->input['toDate']);
             $mailer->set_message($salesreport);
+
+            $finManager = $affiliate->get_financialemanager();
+            if(!is_object($finManager)) {
+                $finManager = $affiliate->get_globalfinancialemanager();
+            }
             $recipients = array(
                     $affiliate->get_generalmanager()->email,
                     $affiliate->get_supervisor()->email,
-                    $affiliate->get_financialemanager()->email,
+                    $finManager->email,
+                    $affiliate->get_coo()->email,
                     $core->user_obj->email,
                     Users::get_data(array('uid' => 3))->email/* Always include User 3 */
             );
             $recipients = array_unique($recipients);
+
             $mailer->set_to($recipients);
 
-            $mailer->set_to('zaher.reda@orkila.com');
-            print_r($mailer->debug_info());
-            exit;
-            //  $mailer->send();
+//            $mailer->set_to('zaher.reda@orkila.com');
+//            print_r($mailer->debug_info());
+//            exit;
+            $mailer->send();
             if($mailer->get_status() === true) {
                 $sentreport = new ReportsSendLog();
                 $sentreport->set(array('affid' => $affiliate->get_id(), 'report' => 'salesreport', 'date' => TIME_NOW, 'sentBy' => $core->user['uid'], 'sentTo' => ''))->save();
@@ -591,10 +613,15 @@ else {
         }
         else {
             if(!is_array($core->input['affids']) || count($core->input['affids']) == 1) {
+                $finManager = $affiliate->get_financialemanager();
+                if(!is_object($finManager)) {
+                    $finManager = $affiliate->get_globalfinancialemanager();
+                }
                 $recipients = array(
                         $affiliate->get_generalmanager()->displayName,
                         $affiliate->get_supervisor()->displayName,
-                        $affiliate->get_financialemanager()->displayName,
+                        $finManager->displayName,
+                        $affiliate->get_coo()->displayName,
                         $core->user_obj->displayName,
                         Users::get_data(array('uid' => 3))->get_displayname()/* Always include User 3 */);
                 $recipients = array_unique($recipients);

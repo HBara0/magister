@@ -84,11 +84,13 @@
                     <tr>
                         <td>{$lang->default} {$lang->currency}</td><td>{$currencies_list}</td>
                     </tr>
+                    {$audittrail}
                     <tr>
                         <td>
                             <input name="aropolicy[isActive]" id="aropolicy_isActive" type="checkbox" value="1" {$checked[isActive]}> {$lang->isactive}</td>
                         </td>
                     </tr>
+
                     <tr>
                         <td colspan="3" align="left">
                             <input type="submit" value="{$lang->savecaps}" id="perform_aro/managepolicies_Button" class="button"/> <input type="reset" value="{$lang->reset}" class="button"/>

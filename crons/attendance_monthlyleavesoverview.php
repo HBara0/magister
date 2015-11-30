@@ -49,7 +49,7 @@ if(!$core->input['action']) {
         $month_names .= '<th style="width:6%; padding:5px;">'.$lang->{strtolower(date("F", mktime(0, 0, 0, $i, 1, 0)))}.'</th>';
     }
 
-    $hrgm_query = $db->query("SELECT affid, generalManager, supervisor, hrManager, finManager FROM ".Tprefix."affiliates ORDER by name ASC");
+    $hrgm_query = $db->query("SELECT affid, generalManager, supervisor, hrManager, finManager,coo FROM ".Tprefix."affiliates ORDER by name ASC");
 
     while($hrgm = $db->fetch_assoc($hrgm_query)) {
         if($hrgm['generalManager'] != 0) {
@@ -71,6 +71,11 @@ if(!$core->input['action']) {
             $mgt_affid[$hrgm['finManager']][$hrgm['affid']] = $hrgm['affid'];
             $mgt[$hrgm['affid']] [$hrgm['finManager']] = $hrgm['finManager'];
             $mang[$hrgm['affid']]['fn'] = $hrgm['finManager'];
+        }
+        if($hrgm['coo'] != 0) {
+            $mgt_affid[$hrgm['coo']][$hrgm['affid']] = $hrgm['affid'];
+            $mgt[$hrgm['affid']] [$hrgm['coo']] = $hrgm['coo'];
+            $mang[$hrgm['affid']]['co'] = $hrgm['coo'];
         }
     }
 
@@ -536,6 +541,12 @@ if(!$core->input['action']) {
                             $user = new Users($id);
                             if(is_object($user)) {
                                 $message .= '<div style="inline-block">General Manager: <a href="mailto:'.$user->email.'"> '.$user->get_displayname().'</a></div>';
+                            }
+                            break;
+                        case 'co':
+                            $user = new Users($id);
+                            if(is_object($user)) {
+                                $message .= '<div style="inline-block">Chief Operating Officer: <a href="mailto:'.$user->email.'"> '.$user->get_displayname().'</a></div>';
                             }
                             break;
                     }

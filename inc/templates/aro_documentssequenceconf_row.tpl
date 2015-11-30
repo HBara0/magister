@@ -8,5 +8,4 @@
             {$row_tools}
         </div>
     </td>
-</td>
 </tr>

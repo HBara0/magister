@@ -27,8 +27,9 @@ if(!($core->input['action'])) {
         }
     }
     else {
-        $affiliate = Affiliates::get_affiliates();
+        $affiliate = Affiliates::get_affiliates(array('isActive' => 1), array('returnarray' => true));
     }
+    $intermedaffiliates = Affiliates::get_affiliates(array('isActive' => 1), array('returnarray' => true));
 
     $purchasetypes = PurchaseTypes::get_data('name IS NOT NULL', array('returnarray' => true));
     if(!is_array($purchasetypes)) {
@@ -40,12 +41,14 @@ if(!($core->input['action'])) {
     $segments = ProductsSegments::get_segments('', array('order' => array('sort' => 'ASC', 'by' => 'title')));
     $packaging = Packaging::get_data('name IS NOT NULL', $dal_config);
     $uom = Uom::get_data(array('isWeight' => 1), $dal_config);
+    $uom_where = ' isWeight=1 OR isArea=1 OR isVolume=1';
+    $warehouseuoms = Uom::get_data($uom_where, $dal_config);
     $mainaffobj = new Affiliates($core->user['mainaffiliate']);
     $currencies = Currencies::get_data('', array('order' => array('sort' => 'ASC', 'by' => 'name')));
     $incoterms = Incoterms::get_data('name IS NOT NULL', $dal_config);
     $countries = Countries::get_data('', $dal_config);
 
-    $aro_display['prtiesinfo']['discount'] = "display:block;";
+    $aro_display['prtiesinfo']['discount'] = "display:inline-block;";
     if($core->usergroup['aro_canMakeDiscounts'] == 0) {
         $aro_display['prtiesinfo']['discount'] = "display:none;";    //change al other display variables to this array
     }
@@ -91,7 +94,7 @@ if(!($core->input['action'])) {
 
         //Net Margin Parameters
         $partiesinfo['required_intermedpolicy'] = "required='required'";
-        $netmarginparms_uomlist = parse_selectlist('parmsfornetmargin[uom]', '', $uom, '', '', '', array('id' => "parmsfornetmargin_uom", 'blankstart' => 1, 'width' => '100px'));
+        $netmarginparms_uomlist = parse_selectlist('parmsfornetmargin[uom]', '', $warehouseuoms, '', '', '', array('id' => "parmsfornetmargin_uom", 'blankstart' => 1, 'width' => '100px'));
 
         //Parties Information
         $parties = array('intermed', 'vendor');
@@ -101,8 +104,7 @@ if(!($core->input['action'])) {
                 $isdisabled = $disabled_list;
                 $config_class = 'automaticallyfilled-editable';
             }
-
-            $affiliates_list[$party] = parse_selectlist('partiesinfo['.$party.'Aff]', 1, $affiliate, '', '', '', array('blankstart' => 1, 'id' => 'partiesinfo_'.$party.'_aff', 'required' => 'required', 'width' => '100%', 'class' => $config_class));
+            $affiliates_list[$party] = parse_selectlist('partiesinfo['.$party.'Aff]', 1, $intermedaffiliates, '', '', '', array('blankstart' => 1, 'id' => 'partiesinfo_'.$party.'_aff', 'required' => 'required', 'width' => '100%', 'class' => $config_class));
             $paymentterms_list[$party] = parse_selectlist('partiesinfo['.$party.'PaymentTerm]', 4, $payment_terms, '', '', '', array('blankstart' => 1, 'id' => 'partiesinfo_'.$party.'_paymentterm', 'required' => 'required', 'width' => '100%', 'class' => $config_class));
             $incoterms_list[$party] = parse_selectlist('partiesinfo['.$party.'Incoterms]', 4, $incoterms, '', '', '', array('blankstart' => 1, 'id' => 'partiesinfo_'.$party.'_incoterms', 'required' => 'required', 'width' => '100%', 'class' => $config_class));
         }
@@ -122,11 +124,15 @@ if(!($core->input['action'])) {
         eval("\$partiesinfo_shipmentparameters = \"".$template->get('aro_partiesinfo_shipmentparameters')."\";");
         eval("\$partiesinfo_fees = \"".$template->get('aro_partiesinfo_fees')."\";");
         unset($aropartiesinfo_obj);
+        $aroorderrequest->inputChecksum = generate_checksum('aro');
     }
     if(isset($core->input['id'])) {
         $aroorderrequest = AroRequests::get_data(array('aorid' => $core->input['id']), array('simple' => false));
-        if($aroorderrequest->isFinalized == 1) {
-            $checked['aroisfinalized'] = 'checked="checked"';
+        if(isset($aroorderrequest->aroBusinessManager) && !empty($aroorderrequest->aroBusinessManager)) {
+            $aro_bm = Users::get_data(array('uid' => $aroorderrequest->aroBusinessManager));
+            if(is_object($aro_bm)) {
+                $aroorderrequest->aroBusinessManager_output = $aro_bm->get_displayname();
+            }
         }
         if(isset($core->input['referrer']) && $core->input['referrer'] = 'toapprove') {
             $aroapproval = AroRequestsApprovals::get_data(array('aorid' => intval($core->input['id']), 'uid' => $core->user['uid']));
@@ -134,10 +140,17 @@ if(!($core->input['action'])) {
                     .'<input type="hidden" id="approvearo_id" value="'.$aroorderrequest->aorid.'"/>';
         }
         if(is_object($aroorderrequest)) {
+            if(!$aroorderrequest->getif_approvedonce($aroorderrequest->aorid) && $aroorderrequest->createdBy == $core->user['uid']) {
+                $deletebutton = "<a class='button' href='#{$aroorderrequest->aorid}' id='deletearodocument_{$aroorderrequest->aorid}_aro/managearodouments_loadpopupbyid' >{$lang->delete}</a>";
+            }
+            if($aroorderrequest->isFinalized == 1) {
+                $checked['aroisfinalized'] = 'checked="checked"';
+            }
             $purchasetype = new PurchaseTypes($aroorderrequest->orderType);
 
-            $affiliate_list = parse_selectlist('affid', 1, $affiliate, $aroorderrequest->affid, '', '', array('blankstart' => true, 'id' => 'affid', 'required' => 'required'));
-            $purchasetypelist = parse_selectlist('orderType', 4, $purchasetypes, $aroorderrequest->orderType, '', '', array('blankstart' => true, 'id' => 'purchasetype', 'required' => 'required'));
+            $affiliate_list = parse_selectlist('affid', 1, $affiliate, $aroorderrequest->affid, '', '', array('blankstart' => true, 'id' => 'affid', 'disabledNonSelectedItems' => '1'));
+            $purchasetypelist = parse_selectlist('orderType', 4, $purchasetypes, $aroorderrequest->orderType, '', '', array('blankstart' => true, 'id' => 'purchasetype', 'disabledNonSelectedItems' => '1'));
+            $refreshbutton = '<td><button onclick=$(function(){$(\'select[id="affid"]\').trigger("change");});>'.$lang->refreshpolicies.'</button></td>';
             $currencies_list = parse_selectlist('currency', 4, $currencies, $aroorderrequest->currency, '', '', array('blankstart' => 1, 'id' => 'currencies', 'required' => 'required'));
             $inspectionlist = parse_selectlist('inspectionType', 4, $inspections, $aroorderrequest->inspectionType);
             //*********Aro Order Customers -Start *********//
@@ -206,11 +219,12 @@ if(!($core->input['action'])) {
             }
             $netmarginparms = AroNetMarginParameters::get_data(array('aorid' => $core->input['id']));
             if(is_object($netmarginparms)) {
-                $netmarginparms_uomlist = parse_selectlist('parmsfornetmargin[uom]', '', $uom, $netmarginparms->uom, '', '', array('id' => "parmsfornetmargin_uom", 'blankstart' => 1, 'width' => '100px'));
+                $netmarginparms_uomlist = parse_selectlist('parmsfornetmargin[uom]', '', $warehouseuoms, $netmarginparms->uom, '', '', array('id' => "parmsfornetmargin_uom", 'blankstart' => 1, 'width' => '100px'));
                 $warehouse = Warehouses::get_data(array('wid' => $netmarginparms->warehouse));
                 $warehouse_list = '<select '.$disabled['warehousing'].'><option value='.$netmarginparms->warehouse.' selected>'.$warehouse->name.'</option>'
                         .'<option value="0"></option></select>';
                 $netmarginparms_warehousingRate = '<option value = "'.$netmarginparms->warehousingRate.'">'.$netmarginparms->warehousingRate.'</option>';
+                $netmarginparms_warehousingRateUsd = '<option value = "'.$netmarginparms->warehousingRateUsd.'">'.$netmarginparms->warehousingRateUsd.'</option>';
             }
             //*********Parameters Influencing Net Margin Calculation -End ********//
             //********** ARO Product Lines -Start **************//
@@ -385,7 +399,7 @@ if(!($core->input['action'])) {
                     $isdisabled = $disabled_list;
                     $config_class = 'automaticallyfilled-editable';
                 }
-                $affiliates_list[$party] = parse_selectlist('partiesinfo['.$party.'Aff]', 1, $affiliate, $aff[$party], '', '', array('blankstart' => true, 'id' => 'partiesinfo_'.$party.'_aff', 'required' => $partiesinfo['required_intermedpolicy'], 'width' => '100%', 'class' => $config_class, $isdisabled => $isdisabled));
+                $affiliates_list[$party] = parse_selectlist('partiesinfo['.$party.'Aff]', 1, $intermedaffiliates, $aff[$party], '', '', array('blankstart' => true, 'id' => 'partiesinfo_'.$party.'_aff', 'required' => $partiesinfo['required_intermedpolicy'], 'width' => '100%', 'class' => $config_class, $isdisabled => $isdisabled));
                 $paymentterms_list[$party] = parse_selectlist('partiesinfo['.$party.'PaymentTerm]', 4, $payment_terms, $paymentterm[$party], '', '', array('blankstart' => 1, 'id' => 'partiesinfo_'.$party.'_paymentterm', 'required' => $partiesinfo['required_intermedpolicy'], 'width' => '100%', 'class' => $config_class, $isdisabled => $isdisabled));
                 $incoterms_list[$party] = parse_selectlist('partiesinfo['.$party.'Incoterms]', 4, $incoterms, $selected_incoterms[$party], '', '', array('blankstart' => 1, 'id' => 'partiesinfo_'.$party.'_incoterms', 'required' => $partiesinfo['required_intermedpolicy'], 'width' => '100%', 'class' => $config_class, $isdisabled => $isdisabled));
                 $isdisabled = '';
@@ -402,7 +416,7 @@ if(!($core->input['action'])) {
 
                 $apprs = '<td class="subtitle" style="border-right: 1px dashed ;margin-right:10px;"><span style="font-weight:bold;">'.$lang->position.'</span><br/>
                     <span style="width:100%;font-weight:bold;">'.$lang->approver.'</span><br/><br/>
-                     <span style="width:100%;font-weight:bold;">'.$lang->dateofapprovalemail.'</span><br/><br/><br/><span style="width:100%;font-weight:bold;">'.$lang->dateofapproval.'</span></td>';
+                     <span style="width:100%;font-weight:bold;">'.$lang->dateofapprovalemail.'<small> (GMT)</small></span><br/><br/><br/><span style="width:100%;font-weight:bold;">'.$lang->dateofapproval.'<small> (GMT)</small></span></td>';
 
                 foreach($aroapprovalchain as $approver) {
                     switch($approver->position) {// needs optimization
@@ -490,7 +504,7 @@ if(!($core->input['action'])) {
 
 
             $aroordersummary = AroOrderSummary::get_data(array('aorid' => $aroorderrequest->aorid));
-            $purchaseype = new PurchaseTypes(array('ptid' => $aroorderrequest->orderType));
+            $purchaseype = PurchaseTypes::get_data(array('ptid' => $aroorderrequest->orderType));
             $localaff = Affiliates::get_affiliates(array('affid' => $aroorderrequest->affid));
             if(is_object($aropartiesinfo_obj)) {
                 $intermedaffiliate = Affiliates::get_affiliates(array('affid' => $aropartiesinfo_obj->intermedAff));
@@ -519,7 +533,12 @@ if(!($core->input['action'])) {
                         $ordersummarydisplay['thirdcolumn_display'] = "style='display:block;'";
                     }
                 }
+                if(empty($aroordersummary->interestValueUsd)) {
+                    $aroordersummary->interestValueUsd = $aroordersummary->interestValue * $aroorderrequest->exchangeRateToUSD;
+                }
             }
+            $arodocument_title = $aroorderrequest->orderReference.' '.$localaff->get_displayname();
+            $arodocument_header = '<h2>'.$aroorderrequest->orderReference.' / '.$localaff->get_displayname().' / '.$purchaseype->get_displayname().'</h2>';
         }
         else {
             redirect($_SERVER['HTTP_REFERER'], 2, $lang->nomatchfound);
@@ -558,11 +577,17 @@ else {
     if($core->input ['action'] == 'populatedocnum') {
         $orderreference = array('orderreference' => '');
         if(!empty($core->input['affid']) && !empty($core->input['ptid'])) {
-            $filter['filter']['time'] = '('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
-            $documentseq_obj = AroDocumentsSequenceConf::get_data(array('time' => $filter['filter']['time'], 'affid' => $core->input['affid'], 'ptid' => $core->input['ptid']), array('simple' => false, 'operators' => array('affid' => 'in', 'ptid' => 'in', 'time' => 'CUSTOMSQLSECURE')));
-            if(is_object($documentseq_obj)) {
-                /* create the array to be encoded each dimension of the array represent the html element in the form */
-                $orderreference = array('cpurchasetype' => $core->input['ptid'], 'orderreference' => $documentseq_obj->prefix.'-'.$documentseq_obj->nextNumber.'-'.$documentseq_obj->suffix);
+            $arorequest_obj = AroRequests::get_data(array('inputChecksum' => $core->input['inputChecksum']));
+            if(!is_object($arorequest_obj)) {
+                $filter['filter']['time'] = '('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
+                $documentseq_obj = AroDocumentsSequenceConf::get_data(array('time' => $filter['filter']['time'], 'affid' => $core->input['affid'], 'ptid' => $core->input['ptid']), array('simple' => false, 'operators' => array('affid' => 'in', 'ptid' => 'in', 'time' => 'CUSTOMSQLSECURE')));
+                if(is_object($documentseq_obj)) {
+                    /* create the array to be encoded each dimension of the array represent the html element in the form */
+                    $orderreference = array('cpurchasetype' => $core->input['ptid'], 'orderreference' => $documentseq_obj->prefix.'-'.$documentseq_obj->nextNumber.'-'.$documentseq_obj->suffix);
+                }
+            }
+            else {
+                $orderreference = array('cpurchasetype' => $core->input['ptid'], 'orderreference' => $arorequest_obj->orderReference);
             }
         }
         echo json_encode($orderreference);
@@ -749,7 +774,9 @@ else {
             exit;
         }
         foreach($netmarginparms_data as $key => $value) {
-            $parmsfornetmargin['parmsfornetmargin_'.$key] = $value;
+            if(!is_empty($value)) {
+                $parmsfornetmargin['parmsfornetmargin_'.$key] = $value;
+            }
         }
         echo json_encode($parmsfornetmargin);
     }
@@ -977,6 +1004,8 @@ else {
         $summedfees = $core->input['summedfees'];
         $summedfeesusd = $summedfees * $core->input['exchangeRateToUSD'];
         $interestvalue = $core->input['interestvalue'];
+        $interestvalueusd = $core->input['interestvalue'] * $core->input['exchangeRateToUSD'];
+
 
         $i = 0;
         foreach($qtyperunit as $qty) {
@@ -1094,6 +1123,7 @@ else {
                 'ordersummary_totalintermedfeesperunit_usd' => $feeperunit_usdarray,
                 'ordersummary_totalintermedfees_usd' => $summedfeesusd,
                 'ordersummary_interestvalue' => $interestvalue,
+                'ordersummary_interestvalueUsd' => $interestvalueusd,
                 'ordersummary_invoicevalue_intermed' => round($invoicevalueintermed, 2),
                 'ordersummary_invoicevalueusd_intermed' => round($invoicevalueintermed_usd, 2),
                 //'ordersummary_invoicevalue_thirdparty' => round($invoicevalue_thirdparty, 2),
@@ -1137,7 +1167,9 @@ else {
             $data['affid'] = $core->input['affid'];
             $data['orderType'] = $core->input['ptid'];
             $data['orderreference'] = $core->input['orderreference'];
-            $data['aroBusinessManager'] = $core->input['aroBusinessManager'];
+            if(isset($core->input['aroBusinessManager']) && !empty($core->input['aroBusinessManager'])) {
+                $data['aroBusinessManager'] = $core->input['aroBusinessManager'];
+            }
             $arorequest = new AroRequests();
             $arorequest->set($data);
             $aroapprovalchain = $arorequest->generate_approvalchain(null, array('aroBusinessManager' => $data['aroBusinessManager']));
@@ -1231,7 +1263,7 @@ else {
         $aroorderrequest = AroRequests::get_data(array('aorid' => $core->input['id']), array('simple' => false));
         if($aroorderrequest->isApproved == 1) {
             $viewonly = array('disable' => 1);
-            echo json_encode($viewonly);
+            output(json_encode($viewonly));
         }
     }
     if($core->input['action'] == 'approvearo') {
@@ -1243,10 +1275,32 @@ else {
                 $approve = $arorequest->approve($user);
                 if($approve) {
                     $arorequest->inform_nextapprover();
-                }
-                if($arorequest->is_approved()) {
-                    $arorequest = $arorequest->update_arorequeststatus();
-                    $arorequest->notifyapprove();
+
+                    //Inform created By
+                    $aroaffiliate_obj = new Affiliates($arorequest->affid);
+                    $purchasteype_obj = PurchaseTypes::get_data(array('ptid' => $arorequest->orderType));
+                    $createdby_obj = Users::get_data(array('uid' => $arorequest->createdBy));
+                    if(is_object($createdby_obj) && !($arorequest->is_approved())) {
+                        $email_data = array(
+                                'from' => 'ocos@orkila.com',
+                                'to' => $createdby_obj->email,
+                                'subject' => "ARO [".$arorequest->orderReference."] Approval Status",
+                                'message' => "Aro Request [".$arorequest->orderReference."] ".$aroaffiliate_obj->get_displayname()." ".$purchasteype_obj->get_displayname()." was approved by ".$user->get_displayname()
+                        );
+                        $viewarolink = '<a href="'.$core->settings['rootdir'].'/index.php?module=aro/managearodouments&id='.$arorequest->aorid.'">Click here to view the ARO</a>';
+                        $mailer = new Mailer();
+                        $mailer = $mailer->get_mailerobj();
+                        $mailer->set_type();
+                        $mailer->set_from($email_data['from']);
+                        $mailer->set_subject($email_data['subject']);
+                        $mailer->set_message($email_data['message'].'<br/>'.$viewarolink);
+                        $mailer->set_to($email_data['to']);
+                        $mailer->send();
+                    }
+                    if($arorequest->is_approved()) {
+                        $arorequest = $arorequest->update_arorequeststatus();
+                        $arorequest->notifyapprove();
+                    }
                 }
             }
         }
@@ -1275,7 +1329,7 @@ else {
     }
     elseif($core->input['action'] == 'perform_sendmessage') {
         $arorequestmessage_obj = new AroRequestsMessages();
-        $arorequestmessage_obj->create_message($core->input['arorequestmessage'], $core->input['aorid'], array('source' => 'emaillink'));
+        $arorequestmessage_obj = $arorequestmessage_obj->create_message($core->input['arorequestmessage'], $core->input['aorid'], array('source' => 'emaillink'));
         /* Errors Should be handled Here */
         switch($arorequestmessage_obj->get_errorcode()) {
             case 0:
@@ -1340,5 +1394,24 @@ else {
             }
         }
         echo json_encode($vendorincotermdetails);
+    }
+    elseif($core->input['action'] == 'perform_deletearodocument') {
+        $aro = new AroRequests($db->escape_string($core->input['todelete']));
+        $aro = $aro->delete_aro();
+        switch($aro->get_errorcode()) {
+            case 0:
+                output_xml("<status>true</status><message>{$lang->successfullydeleted}</message>");
+                break;
+            case 1:
+                output_xml("<status>false</status><message>{$lang->aroapprovedatleastonce}</message>");
+                break;
+            default:
+                output_xml("<status>false</status><message>{$lang->errordeleting}</message>");
+                break;
+        }
+    }
+    elseif($core->input['action'] == 'get_deletearodocument') {
+        eval("\$deletearocodbox = \"".$template->get('popup_deletearodocument')."\";");
+        output($deletearocodbox);
     }
 }

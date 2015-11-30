@@ -212,4 +212,13 @@ class SurveysTemplates extends AbstractClass {
         return '<span class="smalltext" style="font-style:italic;">('.$note.')</span>';
     }
 
+    public function get_displayname() {
+        if($this->data['isQuiz'] == 1) {
+            return 'quiz - '.$this->data[self::DISPLAY_NAME];
+        }
+        else {
+            return $this->data[self::DISPLAY_NAME];
+        }
+    }
+
 }

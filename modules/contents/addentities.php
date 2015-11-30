@@ -107,7 +107,7 @@ else {
         $entity = new Entities($entity_data);
         if($entity->get_status() === true) {
             log_action($entity->get_eid());
-            if($create_reports === true) {
+            if($create_reports === true && $entity_data['approved'] == 1) {
                 $current_quarter = currentquarter_info();
                 foreach($core->input['affid'] as $key => $val) {
                     $newreport = array(
@@ -272,9 +272,6 @@ else {
                 $entity_obj = Entities::get_data(array('eid' => $key), array('simple' => false));
                 if(is_object($entity_obj)) {
                     $typevalue = $entity_obj->type;
-                    if(!empty($entity_obj->supplierType) && $typevalue == 's') {
-                        $typevalue = $entity_obj->supplierType;
-                    }
                     switch($typevalue) {
                         case 'c':
                             $type = 'Customer';

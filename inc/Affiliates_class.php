@@ -27,7 +27,7 @@ class Affiliates {
     private function read($id, $simple = TRUE) {
         global $db;
 
-        $query_select = 'affid, name,alias, legalName, country, city, integrationOBOrgId, mainCurrency, isIntReinvoiceAffiliate,generalManager,finManager,cfo,coo,globalPurchaseManager,regionalSupervisor,logisticsManager';
+        $query_select = 'affid, name,alias, legalName, country, city, integrationOBOrgId, mainCurrency, isIntReinvoiceAffiliate,generalManager,finManager,cfo,coo,globalPurchaseManager,regionalSupervisor,supervisor,logisticsManager,globalFinManager';
         if($simple == false) {
             $query_select = '*';
         }
@@ -74,6 +74,13 @@ class Affiliates {
             return false;
         }
         return new Users($this->affiliate['finManager']);
+    }
+
+    public function get_globalfinancialemanager() {
+        if(empty($this->affiliate['globalFinManager'])) {
+            return false;
+        }
+        return new Users($this->affiliate['globalFinManager']);
     }
 
     public function get_defaultworkshift() {
@@ -297,6 +304,13 @@ class Affiliates {
 
     public function get_coo() {
         if(empty($this->affiliate['coo'])) {
+            return false;
+        }
+        return new Users($this->affiliate['coo']);
+    }
+
+    public function get_commercialManager() {
+        if(empty($this->affiliate['commercialManager'])) {
             return false;
         }
         return new Users($this->affiliate['coo']);

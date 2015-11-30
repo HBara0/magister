@@ -278,8 +278,8 @@ else {
         $affilate_list = parse_selectlist('segment['.$sequence.'][assign][affid]['.$afent_checksum.']', '1', $affiliates, '', '', '', array('blankstart' => true));
         $affrowid = $entrowid = 0;
         eval("\$affiliates_output = \"".$template->get('travelmanager_plantrip_createsegment_affiliates')."\";");
-        // $afent_checksum = generate_checksum();
-        //  eval("\$entities = \"".$template->get('travelmanager_plantrip_createsegment_entities')."\";");
+        $afent_checksum = generate_checksum();
+        eval("\$entities = \"".$template->get('travelmanager_plantrip_createsegment_entities')."\";");
 
         /* Popuplate basic information from the leave based on the lid passed via ajax */
 

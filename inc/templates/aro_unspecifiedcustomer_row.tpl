@@ -10,5 +10,6 @@
 </td>
 <td>
     <input type="checkbox" class="deletecheckbox" id="customeroder_{$rowid}_todelete" name="customeroder[$rowid][todelete]" value="1" label="Delete" oldtitle="If check-box is checked row is deleted">
-    <label for="customeroder_{$rowid}_todelete"></label></input>
+    </input>
+    <label for="customeroder_{$rowid}_todelete"></label>
 </td>

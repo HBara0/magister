@@ -35,7 +35,6 @@ if(!$core->input['action']) {
     ));
     $filter = new Inlinefilters($filters_config);
     $filter_where_values = $filter->process_multi_filters();
-    print_R($filter_where_values);
     if(is_array($filter_where_values)) {
         $filters_row_display = 'show';
         if($filters_config['process']['filterKey'] == 'aorid') {
@@ -79,8 +78,8 @@ if(!$core->input['action']) {
 
     if(is_array($arodocumentrequest)) {
         foreach($arodocumentrequest as $documentrequest) {
-            $row_tools = '<a href=index.php?module=aro/managearodouments&id='.$documentrequest->aorid.' title="'.$lang->edit.'"><img src="./images/icons/edit.gif" border=0 alt="'.$lang->edit.'"/></a>';
-            $row_tools .= "<a href='#{$documentrequest->aorid}' id='deletearopolicy_{$documentrequest->aorid}_aro/aroorderrequestlist_icon'><img src='{$core->settings[rootdir]}/images/invalid.gif' border='0' alt='{$lang->deletearopolicy}' /></a>";
+            $row_tools = '<a href="index.php?module=aro/managearodouments&id='.$documentrequest->aorid.'" title="'.$lang->edit.'"><img src="./images/icons/edit.gif" border=0 alt="'.$lang->edit.'"/></a>';
+            //   $row_tools .= "<a href='#{$documentrequest->aorid}' id='deletearopolicy_{$documentrequest->aorid}_aro/aroorderrequestlist_loadpopupbyid'><img src='{$core->settings[rootdir]}/images/invalid.gif' border='0' alt='{$lang->deletearopolicy}' /></a>";
             $affiliate = new Affiliates($documentrequest->affid);
             $purchasetype = new PurchaseTypes($documentrequest->orderType);
             $buyingcurr = new Currencies($documentrequest->currency);
@@ -101,17 +100,17 @@ if(!$core->input['action']) {
     eval("\$aro_orderrequestlist = \"".$template->get('aro_orderrequestlist')."\";");
     output_page($aro_orderrequestlist);
 }
-else {
-    if($core->input['action'] == 'perform_deletearopolicy') {
-        $aropolicy = new AroPolicies($db->escape_string($core->input['todelete']));
-        $aropolicy->delete();
-        if($aropolicy->delete()) {
-            output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
-            exit;
-        }
-    }
-    elseif($core->input['action'] == 'get_deletearopolicy') {
-        eval("\$deletearopolicybox = \"".$template->get('popup_deletearopolicy')."\";");
-        output($deletearopolicybox);
-    }
-}
+//else {
+//    if($core->input['action'] == 'perform_deletearopolicy') {
+//        $arodocument = new AroRequests($db->escape_string($core->input['todelete']));
+//        $arodocument->delete();
+//        if($arodocument->delete()) {
+//            output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
+//            exit;
+//        }
+//    }
+//    elseif($core->input['action'] == 'get_deletearopolicy') {
+//        eval("\$deletearopolicybox = \"".$template->get('popup_deletearopolicy')."\";");
+//        output($deletearopolicybox);
+//    }
+//}

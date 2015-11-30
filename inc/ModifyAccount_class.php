@@ -123,6 +123,9 @@ class ModifyAccount extends Accounts {
         if(!isset($data['mobile2IsPrivate'])) {
             $data['mobile2IsPrivate'] = 0;
         }
+        if(!isset($data['birthdayIsPrivate'])) {
+            $data['birthdayIsPrivate'] = 0;
+        }
         $secondary_data = array(
                 //'mainaffid' => 'main_affiliate',
                 'affiliates' => 'affiliates',
@@ -312,6 +315,7 @@ class ModifyAccount extends Accounts {
                 }
 
                 if(value_exists('userhrinformation', 'uid', $uid)) {
+                    unset($hr_data['employeeNum']);
                     $db->update_query('userhrinformation', $hr_data, "uid='{$uid}'", array('encrypt' => $db_encrypt_fields));
                 }
                 else {

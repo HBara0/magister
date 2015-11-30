@@ -421,8 +421,10 @@ function parse_selectlist($name, $tabindex, $options, $selected_options, $multip
                 $selected = true;
             }
         }
-
-        if(isset($config['disabledItems'][$key]) && $selected != true) {
+        if(isset($config['disabledNonSelectedItems']) && $config['disabledNonSelectedItems'] == 1 && $selected != true) {
+            $attributes .= ' disabled="disabled"';
+        }
+        elseif(isset($config['disabledItems'][$key]) && $selected != true) {
             $attributes .= ' disabled="disabled"';
         }
         if(isset($config['optionids']) && is_array($config['optionids'])) {
@@ -1036,7 +1038,7 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                                 }
                                 else {
                                     if(!empty($facility->capacity)) {
-                                        $details .=' -'.$lang->capacity.': '.$facility->capacity;
+                                        $details .= ' - '.$lang->capacity.': '.$facility->capacity;
                                     }
                                     $query = $db->query("SELECT affid, name, phone1, X(geoLocation) AS longitude, Y(geoLocation) AS latitude FROM ".Tprefix."affiliates WHERE asText(geoLocation) IS NOT NULL AND affid= ".intval($facility->affid));
                                     while($affiliate = $db->fetch_assoc($query)) {

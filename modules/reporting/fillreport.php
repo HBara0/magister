@@ -967,14 +967,14 @@ else {
                 $productactivity['rid'] = $rid;
 
                 unset($productactivity['productname'], $productactivity['fxrate'], $productactivity['paid']);
-                // $insert = $db->insert_query('productsactivity', $productactivity);
+                $insert = $db->insert_query('productsactivity', $productactivity);
                 $productactivity['uid'] = $core->user['uid'];
-                $productsact_obj = new ProductsActivity();
-                $productsact_obj->set($productactivity);
-                $productsact_obj = $productsact_obj->save();
-                if(is_object($productsact_obj)) {
-                    $cachearr['usedpaid'][] = $productsact_obj->paid;
-                }
+//                $productsact_obj = new ProductsActivity();
+//                $productsact_obj->set($productactivity);
+//                $productsact_obj = $productsact_obj->save();
+//                if(is_object($productsact_obj)) {
+//                    $cachearr['usedpaid'][] = $productsact_obj->paid;
+//                }
                 $processed_once = true;
             }
 
@@ -1630,6 +1630,7 @@ else {
                 if($transfill == '1' && $db->num_rows($db->query('SELECT uid FROM '.Tprefix.'reportcontributors WHERE rid = '.intval($report_meta['rid']))) == 0) {
                     record_contribution($report_meta['rid'], 1);
                 }
+                $log->record('finalizeqr', $report_meta['rid']);
                 output_xml("<status>true</status><message>{$lang->reportfinalized}</message>");
             }
             else {
@@ -1825,6 +1826,32 @@ else {
                 exit;
             }
         }
+    }
+    else if($core->input['action'] == 'ajaxaddmore_productsactivity') {
+        $rowid = $db->escape_string($core->input['value']) + 1;
+        $saletypes = explode(';', $core->settings['saletypes']);
+        if(is_array($core->input['ajaxaddmoredata'])) {
+            if(!empty($core->input['ajaxaddmoredata']['basecurrency'])) {
+                $currencies[0] = $core->input['ajaxaddmoredata']['basecurrency'];
+            }
+            $addmore_reportquarter = $core->input['ajaxaddmoredata']['quarter'];
+            $auditor = $core->input['ajaxaddmoredata']['isauditor'];
+        }
+        foreach($saletypes as $key => $val) {
+            $saletypes[$val] = ucfirst($val);
+            unset($saletypes[$key]);
+        }
+        $readonly_fields = array('turnOver' => '', 'quantity' => '', 'soldQty' => '');
+        if($auditor != 1) {
+            foreach($readonly_fields as $key => $val) {
+                $readonly_fields[$key] = ' readonly';
+            }
+            $selectlists_disabled = true;
+        }
+        $saletype_selectlist = parse_selectlist('productactivity['.$rowid.'][saleType]', 0, $saletypes, $productactivity['saleType'], 0, null);
+        $currencyfx_selectlist = parse_selectlist('productactivity['.$rowid.'][fxrate]', 0, $currencies, 1, '', '', array('id' => 'fxrate_'.$rowid, 'disabled' => $selectlists_disabled));
+        eval("\$row = \"".$template->get('reporting_fillreports_productsactivity_productrow')."\";");
+        echo $row;
     }
 }
 ?>

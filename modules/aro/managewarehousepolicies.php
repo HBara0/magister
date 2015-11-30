@@ -54,7 +54,7 @@ if(!$core->input['action']) {
             'returnarray' => true
     );
     $warehouse_objs = Warehouses::get_data(array('affid' => $core->user['affiliates'], 'isActive' => 1), $dal_config);
-    $warehouse_list = parse_selectlist('warehousepolicy[warehouse]', 1, $warehouse_objs, '', '', '', array('width' => '50%'));
+    $warehouse_list = parse_selectlist('warehousepolicy[warehouse]', 1, $warehouse_objs, $warehouse['warehouse'], '', '', array('width' => '50%'));
 
     /* parse select list of covered countries currencies */
 
@@ -69,7 +69,8 @@ if(!$core->input['action']) {
         }
     }
     $currencies_list = parse_selectlist('warehousepolicy[currency]', '', $currencies, $warehouse['currency'], '', '', array('width' => '50%'));
-    $uoms = Uom::get_data(array('isWeight' => 1));
+    $uom_where = ' isWeight=1 OR isArea=1 OR isVolume=1';
+    $uoms = Uom::get_data($uom_where);
 
     $reateuom = parse_selectlist('warehousepolicy[rate_uom]', '', $uoms, $warehouse['rate_uom'], '', '', array('width' => '50%'));
     eval("\$aro_managewarehousespolicies = \"".$template->get('aro_managewarehouses_policies')."\";");
@@ -79,21 +80,25 @@ else if($core->input['action'] == 'do_perform_managewarehousepolicies') {
 
     unset($core->input['identifier'], $core->input['module'], $core->input['action']);
     $arowarepolicy = new AroManageWarehousesPolicies();
-    $core->input['warehousepolicy']['effectiveFrom'] = strtotime($core->input['warehousepolicy']['effectiveFrom']);
-    $core->input['warehousepolicy']['effectiveTo'] = strtotime($core->input['warehousepolicy']['effectiveTo']);
+    $core->input['warehousepolicy']['effectiveFrom'] = strtotime($core->input['warehousepolicy']['effectiveFrom'].' 00:00:00');
+    $core->input['warehousepolicy']['effectiveTo'] = strtotime($core->input['warehousepolicy']['effectiveTo'].' 23:59:59');
     if($core->input['warehousepolicy']['effectiveFrom'] > $core->input['warehousepolicy']['effectiveTo']) {
         output_xml('<status>false</status><message>'.$lang->errordate.'</message>');
         exit;
     }
     $arowarepolicy->set($core->input['warehousepolicy']);
-    $arowarepolicy->save();
+    $arowarepolicy = $arowarepolicy->save();
     switch($arowarepolicy->get_errorcode()) {
         case 0:
         case 1:
             output_xml('<status>true</status><message>'.$lang->successfullysaved.'</message>');
             break;
         case 2:
-            output_xml('<status>false</status><message>'.$lang->fillrequiredfields.'</message>');
+            $error_output = $errorhandler->get_errors_inline();
+            output_xml("<status>false</status><message>{$lang->fillrequiredfields}<![CDATA[<br/>{$error_output}]]></message>");
+            exit;
+        case 3:
+            output_xml('<status>false</status><message>'.$lang->warehousepoliciescoexist.'</message>');
             break;
     }
 }

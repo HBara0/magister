@@ -1,6 +1,6 @@
 <script>
-    $(function () {
-        $('img[id^="replyto_"]').bind('click', function () {
+    $(function() {
+        $('img[id^="replyto_"]').bind('click', function() {
             var id = $(this).attr("id").split("_");
             $("#inreplyto").val(id[1]);
             var permission = id[2];
@@ -24,7 +24,7 @@
     <input type="hidden" value="" id="inreplyto" name="arorequestmessage[inReplyTo]"/>
     <input type="hidden" id="messagerequestkey" name="messagerequestkey" value="{$core->input[requestKey]}" />
     <input type="hidden" value="{$core->input[id]}" id="inreplyto" name="aorid"/>
-    <div id="messagetoreply" style="display:block; padding: 8px;"><textarea id="message" class="texteditor" cols="40" rows="5" name="arorequestmessage[message]" placeholder='{$lang->writeyourmsghere}'></textarea>
+    <div id="messagetoreply" style="display:block; padding: 8px;"><textarea id="message" class="txteditadv" cols="40" rows="5" name="arorequestmessage[message]" placeholder='{$lang->writeyourmsghere}'></textarea>
         <div id="messagetoreply" style="display:none; padding:5px;">
             <span><input type="radio" id="permission_public" name="arorequestmessage[viewPermission]" title="{$lang->publictitle}" value="public" checked="checked">{$lang->public}</span>
             <span><input type="radio" disabled="disabled" id="permission_private" name="arorequestmessage[viewPermission]" title="{$lang->privatetitle}" value="private">{$lang->private}</span>

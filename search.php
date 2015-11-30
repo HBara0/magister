@@ -92,7 +92,7 @@ if($core->input['type'] == 'quick') {
         if($core->input['for'] == 'supplier' || $core->input['for'] == 'customer' || $core->input['for'] == 'competitorsupp' || $core->input['for'] == 'competitortradersupp' || $core->input['for'] == 'competitorproducersupp') {
             if($core->input['for'] == 'supplier') {
                 $type = 's';
-                //  $core->usergroup['canViewAllSupp'] = 1;
+//  $core->usergroup['canViewAllSupp'] = 1;
                 if($core->usergroup['canViewAllSupp'] == 0) {
                     if(is_array($core->user['suppliers']['eid'])) {
                         $inentities = implode(',', $core->user['suppliers']['eid']);
@@ -293,6 +293,7 @@ if($core->input['type'] == 'quick') {
             $key_attribute = 'uid';
             $select_attributes = array('displayName');
             $order = array('by' => 'firstName', 'sort' => 'ASC');
+            $extra_where = 'gid != 7';
         }
         elseif($core->input['for'] == 'cities' || $core->input['for'] == 'sourcecity' || $core->input['for'] == 'destinationcity') {
             if(strlen($core->input['value']) < 3) {
@@ -352,7 +353,7 @@ if($core->input['type'] == 'quick') {
             $key_attribute = 'tmhid';
             $select_attributes = array('name');
             $descinfo = 'hotelcitycountry';
-            //$extra_info = array('table' => 'hotelcountries');
+//$extra_info = array('table' => 'hotelcountries');
             $order = array('by' => 'name', 'sort' => 'ASC');
         }
         elseif($core->input['for'] == 'allmeetings' || $core->input['for'] == 'meetingsWithMom' || $core->input['for'] == 'meetingsNoMom' || $core->input['for'] == 'sharedwithusermeetings') {
@@ -415,6 +416,15 @@ if($core->input['type'] == 'quick') {
             $key_attribute = 'fmfid';
             $select_attributes = array('name');
             $order = array('by' => 'name', 'sort' => 'ASC');
+            if(is_empty($core->input['timeFrom'], $core->input['dateFrom'], $core->input['timeTo'], $core->input['dateTo'])) {
+                $results_list[0]['style'] = 'class="li-redbullet"';
+                $results_list[0]['value'] = $lang->selectfulldate;
+                $results_list[0]['desc'] = '';
+                $results_list[0]['id'] = 0;
+                $results_list = json_encode($results_list);
+                output($results_list);
+                exit;
+            }
             $from = strtotime($core->input['dateFrom'].' '.$core->input['timeFrom']);
             $to = strtotime($core->input['dateTo'].' '.$core->input['timeTo']);
             $extrainput = array('mtid' => $core->input['mtid'], 'from' => $from, 'to' => $to, 'userlong' => $core->input['loacationLong'], 'userlat' => $core->input['loacationLat']);
@@ -429,9 +439,9 @@ if($core->input['type'] == 'quick') {
             $order = array('by' => 'companyName', 'sort' => 'ASC');
             $descinfo = 'country';
             if(is_array($permissions['eid'])) {
-                $permisisonents = ' AND eid IN ('.implode(',', array_filter($permissions['eid'], 'is_numeric')).')';
+                $permisisonents = ' AND eid IN ('.implode(', ', array_filter($permissions['eid'], 'is_numeric')).')';
             }
-            $extra_where .= ' isActive=1 AND approved=1'.$permisisonents;
+            $extra_where .= ' isActive = 1 AND approved = 1'.$permisisonents;
         }
 //        if(isset($core->input['exclude']) && !empty($core->input['exclude'])) {
 //            if(is_array($core->input['exclude'])) {
@@ -446,14 +456,16 @@ if($core->input['type'] == 'quick') {
 //        }
         $results_list = quick_search($table, $attributes, $core->input['value'], $select_attributes, $key_attribute, array('extrainput' => $extrainput, 'returnType' => $core->input['returnType'], 'order' => $order, 'extra_where' => $extra_where, 'descinfo' => $descinfo, 'disableSoundex' => $disableSoundex));
         $referrer = explode('&', $_SERVER['HTTP_REFERER']);
-        $module = substr($referrer[0], strpos(strtolower($referrer[0]), 'module=') + 7);
+        $module = substr($referrer[0], strpos(strtolower($referrer[0]), 'module = ') + 7);
         if($core->input['for'] == 'supplier') {
             if($core->input['returnType'] != 'json') {
                 if(strpos(strtolower($_SERVER['HTTP_REFERER']), ADMIN_DIR) !== false) {
-                    $results_list .= "<p><hr />&rsaquo;&rsaquo;<a href='index.php?module=entities/add&amp;type=supplier' target = '_blank'>{$lang->add}</a></p>";
+                    $results_list .= "<p><hr />&rsaquo;&rsaquo;<a href='index.php?module = entities/add&amp;
+type = supplier' target = '_blank'>{$lang->add}</a></p>";
                 }
                 else {
-                    $results_list .= "<p><hr />&rsaquo;&rsaquo;<a href = 'index.php?module=contents/addentities&amp;type=supplier' target = '_blank'>{$lang->add}</a></p>";
+                    $results_list .= "<p><hr />&rsaquo;&rsaquo;<a href = 'index.php?module = contents/addentities&amp;
+type = supplier' target = '_blank'>{$lang->add}</a></p>";
                 }
             }
         }

@@ -11,6 +11,7 @@
         {$menu}
         <td class="contentContainer">
             <h1>{$pagetitle}</h1>
+            {$isfinalized}
             {$visitreportspages}
             <p><hr /></p>
         <p>{$prev_visitreports_list}</p>

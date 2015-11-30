@@ -37,7 +37,7 @@
                 <table width="100%" border="0" cellspacing="0" cellpadding="0">
                     <tr><td colspan="3" class="subtitle">{$lang->editprofileinformation}</td></tr>
                     <tr>
-                        <td rowspan="14" align="center" valign="top" class="border_right"><a id="showpopup_changeprofilepic" class="showpopup"><img id="profilePicture" src="{$core->settings[rootdir]}/{$core->settings[profilepicdir]}/{$core->user[profilePicture]}" alt="{$lang->changeprofilepic}" border="0" style="cursor:pointer;"/></a><hr /></td>
+                        <td rowspan="15" align="center" valign="top" class="border_right"><a id="showpopup_changeprofilepic" class="showpopup"><img id="profilePicture" src="{$core->settings[rootdir]}/{$core->settings[profilepicdir]}/{$core->user[profilePicture]}" alt="{$lang->changeprofilepic}" border="0" style="cursor:pointer;"/></a><hr /></td>
                         <td><strong>{$lang->firstname}</strong></td><td><input type="text" id="firstName" name="firstName"  value="{$core->user[firstName]}" tabindex="1" required="required"/></td>
                     </tr>
                     <tr>
@@ -93,6 +93,13 @@
                         <td>{$lang->bbpin}</td>
                         <td><input type="text" id="bbPin" name="bbPin" value="{$core->user[bbPin]}"/></td>
                     </tr>
+                    <tr>
+                        <td>{$lang->birthdayisprivate}</td>
+                        <td>
+                            <input type='checkbox' name='birthdayIsPrivate' id='birthdayIsPrivate' value='1' title="{$lang->birthdayisprivate_tip}"{$checkedboxes[birthdayIsPrivate]} />
+                        </td>
+                    </tr>
+
                     <tr><td>{$download_card_button}</td>
                     </tr>
                     <tr><td colspan="3" class="subtitle"><br />{$lang->accountsettings}</td></tr>

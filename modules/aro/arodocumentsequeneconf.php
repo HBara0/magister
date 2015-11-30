@@ -20,13 +20,31 @@ if(!($core->input['action'])) {
     if(isset($core->input['id']) && !empty($core->input['id'])) {
         $document_sequenceobj = new AroDocumentsSequenceConf($core->input['id'], false);
         $documentsequence = $document_sequenceobj->get();
-        /* parse approvers */
 
         $documentsequence['effectiveTo_output'] = date($core->settings['dateformat'], $documentsequence['effectiveTo']);
         $documentsequence['effectiveFrom_output'] = date($core->settings['dateformat'], $documentsequence['effectiveFrom']);
 
         $documentsequence['effectiveFrom_formatted'] = date('d-m-Y', $documentsequence['effectiveFrom']);
         $documentsequence['effectiveTo_formatted'] = date('d-m-Y', $documentsequence['effectiveTo']);
+        $audittrailfields = array('createdOn', 'createdBy', 'modifiedOn', 'modifiedBy');
+        foreach($audittrailfields as $field) {
+            if(!empty($documentsequence[$field])) {
+                switch($field) {
+                    case 'createdOn':
+                    case 'modifiedOn':
+                        $documentsequence[$field.'_output'] = date($core->settings['dateformat'], $documentsequence[$field]);
+                        break;
+                    default:
+                        $user = new Users($documentsequence[$field]);
+                        if(is_object($user)) {
+                            $documentsequence[$field.'_output'] = $user->get_displayname();
+                        }
+                        break;
+                }
+                $field_strtolower = strtolower($field);
+                $audittrail .= '<tr><td>'.$lang->$field_strtolower.'</td><td>'.$documentsequence[$field.'_output'].'</td></tr>';
+            }
+        }
     }
     else {
         $documentsequence['incrementBy'] = 1;
@@ -52,8 +70,12 @@ if(!($core->input['action'])) {
     output_page($aro_managedocumentsequence);
 }
 elseif($core->input['action'] == 'do_perform_arodocumentsequeneconf') {
-    $core->input['documentsequence']['effectiveFrom'] = strtotime("midnight", strtotime($core->input['documentsequence']['effectiveFrom']));
-    $core->input['documentsequence']['effectiveTo'] = strtotime("tomorrow midnight - 1 second", strtotime($core->input['documentsequence']['effectiveTo']));
+    if(!is_empty($core->input['documentsequence']['effectiveFrom'])) {
+        $core->input['documentsequence']['effectiveFrom'] = strtotime("midnight", strtotime($core->input['documentsequence']['effectiveFrom']));
+    }
+    if(!is_empty($core->input['documentsequence']['effectiveTo'])) {
+        $core->input['documentsequence']['effectiveTo'] = strtotime("tomorrow midnight - 1 second", strtotime($core->input['documentsequence']['effectiveTo']));
+    }
     if($core->input['documentsequence']['effectiveFrom'] > $core->input['documentsequence']['effectiveTo']) {
         output_xml('<status>false</status><message>'.$lang->errordate.'</message>');
         exit;
@@ -64,7 +86,7 @@ elseif($core->input['action'] == 'do_perform_arodocumentsequeneconf') {
         output_xml('<status>false</status><message>'.$lang->intersecterror.'</message>');
         exit;
     }
-    $arodoumentobj->save();
+    $arodoumentobj = $arodoumentobj->save();
     switch($arodoumentobj->get_errorcode()) {
         case 0:
         case 1:

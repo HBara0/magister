@@ -68,11 +68,17 @@ $(function() {
         var affid = $(this).data('affid');
         $(this).data('purchasetype', $('select[id=purchasetype]').val());
         var ptid = $(this).data('purchasetype');
-        sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populatedocnum&affid= ' + affid + '&ptid= ' + ptid);
+        var inputChecksum = $("input[id='inputChecksum']").val();
+        sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populatedocnum&affid= ' + affid + '&ptid= ' + ptid + '&inputChecksum=' + inputChecksum);
         sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populateaffpolicy&affid= ' + affid + '&ptid= ' + ptid);
+        var aroBusinessManager = '';
+        if(typeof $("input[id='user_0_id']").val() != "undefined") {
+            aroBusinessManager = $("input[id='user_0_id']").val();
+        }
+
         $.ajax({type: 'post',
             url: rootdir + "index.php?module=aro/managearodouments&action=generateapprovalchain",
-            data: "affid=" + affid + "&ptid=" + ptid,
+            data: "affid=" + affid + "&ptid=" + ptid + "&aroBusinessManager=" + aroBusinessManager,
             beforeSend: function() {
             },
             complete: function() {
@@ -114,6 +120,9 @@ $(function() {
                     $('#warehouse_list_td').html(returnedData);
                     $('#parmsfornetmargin_warehousingRate').find('option').remove();
                     $('#parmsfornetmargin_warehousingPeriod').val(0);
+                    $('#parmsfornetmargin_warehousingRateUsd').find('option').remove();
+                    $('#parmsfornetmargin_warehouseUsdExchangeRate').val('');
+
                 }
             });
         }
@@ -159,7 +168,7 @@ $(function() {
                         $("input[id$='shelfLife']").removeAttr("readonly");
                     }
                 }
-                var warehousing_fields = ["warehouse", "warehousingRate", "warehousingPeriod", "warehousingTotalLoad", "uom"];
+                var warehousing_fields = ["warehouse", "warehousingRate", "warehousingRateUsd", "warehouseRateExchangeRate", "warehousingPeriod", "warehousingTotalLoad", "uom"];
                 /*
                  * Consider refactoring to avoid loop
                  */
@@ -225,21 +234,29 @@ $(function() {
                 var jsonStr = JSON.stringify(data);
                 obj = JSON.parse(jsonStr);
                 jQuery.each(obj, function(i, val) {
-                    if(i === 'parmsfornetmargin_warehousingRate') {
+                    if(i === 'parmsfornetmargin_warehousingRate' || i === 'parmsfornetmargin_warehousingRateUsd') {
                         var id = val.split(" ");
-                        $("select[id^='" + i + "']").empty().append("<option value='" + id[0] + "' selected>" + val + "</option>");
+                        $("select[id='" + i + "']").empty().append("<option value='" + id[0] + "' selected>" + val + "</option>");
                     }
                     else if(i === 'parmsfornetmargin_uom') {
                         var id = val.split(" ");
-                        $("select[id^='" + i + "'] option[value='" + id[0] + "']").attr("selected", "selected");
+                        $("select[id='" + i + "'] option[value='" + id[0] + "']").attr("selected", "selected");
                     }
                     else {
-                        $("input[id^='" + i + "']").val(val);
+                        $("input[id='" + i + "']").val(val);
                     }
                 });
             });
         }
     });
+    $(document).on("change", "#parmsfornetmargin_warehouseUsdExchangeRate", function() {
+        if(typeof $(this).val() !== 'undefined' && typeof $("select[id='parmsfornetmargin_warehousingRate']").val() !== 'undefined') {
+            var value = $(this).val() * $("select[id='parmsfornetmargin_warehousingRate']").val();
+            $("select[id='parmsfornetmargin_warehousingRateUsd']").empty().append("<option value='" + value + "' selected>" + value + "</option>");
+        }
+    });
+
+
     //------------------------------------------------------------------------------------//
     // If Inco terms are different between intermediary and vendor, freight is mandatory
     $(document).on("change", "select[id='partiesinfo_intermed_incoterms'],select[id='partiesinfo_vendor_incoterms']", function() {
@@ -474,10 +491,10 @@ $(function() {
 //------Form Submitting after 30 seconds--------------//
 //    var auto_refresh = setInterval(function() {
 //        submitform();
-//    }, 30000);
-    function submitform() {     //Form submit function
-        //   $("input[id^='perform_'][id$='_Button']").trigger("click");
-    }
+//    }, 300000);
+//    function submitform() {     //Form submit function
+//        $("input[id^='perform_'][id$='_Button']").trigger("click");
+//    }
 //---------------------------------------------------//
 //-------------If Vendor is affiliate, such select affiliate not entity and Disable  intermediary section----------------------//
 //Trigger Intermediary Aff Policy
@@ -623,7 +640,7 @@ $(function() {
         $.each(parmsfornetmargin_fields, function(index, value) {
             parmsfornetmargin += '&' + value + '=' + $("input[id='parmsfornetmargin_" + value + "']").val();
         });
-        parmsfornetmargin += '&warehousingRate=' + $("select[id='parmsfornetmargin_warehousingRate']").val();
+        parmsfornetmargin += '&warehousingRate=' + $("select[id='parmsfornetmargin_warehousingRateUsd']").val();
         parmsfornetmargin += "&commission=" + $('input[id=partiesinfo_commission]').val();
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         var totalquantity = {};
@@ -823,7 +840,7 @@ $(function() {
         $("input[id='totalfunds_total']").val(totalfunds);
     });
 //--------------------------------------------------
-    $(document).on("change", "input[id='user_0_autocomplete']", function() {
+    $(document).on("change", "input[id='user_0_id_output']", function() {
         var bmid = $("input[id='user_0_id']").val();
         if(typeof bmid != 'undefined' && bmid.length > 0) {
             var aroBusinessManager = $("input[id='user_0_id']").val();
@@ -859,6 +876,11 @@ $(function() {
             $("tfoot[id='ordersummary_tfoot']").hide();
         }
     });
+    //--------------------------------------------------------------
+
+    $(document).on("click", "a[id='deletaro']", function() {
+    });
+
 });
 var rowid = '';
 function addactualpurchaserow(id, callback) {
