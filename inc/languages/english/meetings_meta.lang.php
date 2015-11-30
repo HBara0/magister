@@ -59,4 +59,5 @@ $lang['what'] = 'What';
 $lang['duedate'] = 'Due Date';
 $lang['facility'] = 'Facilities';
 $lang['specifygenerallocation'] = 'Or Specify General Location';
+$lang['viewschedule'] = 'View Schedule';
 ?>

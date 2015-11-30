@@ -21,6 +21,7 @@ class ProductsActivity extends AbstractClass {
     const TABLE_NAME = 'productsactivity';
     const DISPLAY_NAME = '';
     const SIMPLEQ_ATTRS = 'paid, pid, rid, uid';
+    const UNIQUE_ATTRS = 'pid, rid, uid';
     const CLASSNAME = __CLASS__;
 
     public function __construct($id = '', $simple = true) {

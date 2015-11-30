@@ -523,8 +523,8 @@ else {
                         list($to) = get_specificdata('users', 'email', '0', 'email', '', 0, "uid='{$leave_user[reportsTo]}'");
                     }
                     $approve_status = $timeapproved = 0;
-                    if(($val == $core->user['uid'] && $approve_immediately == true) || ($approve_immediately == true && $key == 'reportsTo' && $core->user['uid'] == $leave_user['reportsTo']) || ($key == 'reportsTo' && empty($leave_user['reportsTo']))) {
-                        if($val == $core->user['uid']) {
+                    if(($core->usergroup['attenance_canApproveAllLeaves'] == 1 && $approve_immediately == true) || ($val == $core->user['uid'] && $approve_immediately == true) || ($approve_immediately == true && $key == 'reportsTo' && $core->user['uid'] == $leave_user['reportsTo']) || ($key == 'reportsTo' && empty($leave_user['reportsTo']))) {
+                        if($val == $core->user['uid'] || $core->usergroup['attenance_canApproveAllLeaves'] == 1) {
                             $approve_immediately = true;
                         }
                         $approve_status = 1;
@@ -557,7 +557,7 @@ else {
             /**
              * If leave should be planning through TM, trasfer user to there
              */
-            if($leavetype_details['isBusiness'] == 1 && $core->usergroup['canUseTravelManager'] == 1 && $leave_user_obj->get_id() == 1) {
+            if($leavetype_details['isBusiness'] == 1 && $core->usergroup['canUseTravelManager'] == 1) {
                 $url = 'index.php?module=travelmanager/plantrip&lid=';
                 header('Content-type: text/xhml+javascript');
                 output_xml('<status>true</status><message>'.$lang->redirecttotmplantrip.'<![CDATA[<script>goToURL(\''.$url.$db->escape_string($lid).'\');</script>]]></message>');

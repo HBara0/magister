@@ -107,7 +107,7 @@ else {
         $entity = new Entities($entity_data);
         if($entity->get_status() === true) {
             log_action($entity->get_eid());
-            if($create_reports === true) {
+            if($create_reports === true && $entity_data['approved'] == 1) {
                 $current_quarter = currentquarter_info();
                 foreach($core->input['affid'] as $key => $val) {
                     $newreport = array(
