@@ -293,6 +293,7 @@ if($core->input['type'] == 'quick') {
             $key_attribute = 'uid';
             $select_attributes = array('displayName');
             $order = array('by' => 'firstName', 'sort' => 'ASC');
+            $extra_where = 'gid != 7';
         }
         elseif($core->input['for'] == 'cities' || $core->input['for'] == 'sourcecity' || $core->input['for'] == 'destinationcity') {
             if(strlen($core->input['value']) < 3) {

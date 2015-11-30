@@ -2,10 +2,10 @@
 /*
  * Orkila Central Online System (OCOS)
  * Copyright © 2009 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * List employees
  * $module: hr
- * $id: emplpoyeeslist.php	
+ * $id: emplpoyeeslist.php
  * Created:		@najwa.kassem	October 21, 2010 | 9:37 AM
  * Last Update: @zaher.reda 	November 28, 2012 | 11:29 AM
  */
@@ -101,8 +101,8 @@ if(!$core->input['action']) {
         $core->settings['itemsperlist'] = $db->escape_string($core->input['perpage']);
     }
 
-    $query = $db->query("SELECT u.uid, uhr.joinDate as joindate, CONCAT(firstName, ' ', lastName) as fullname 
-						FROM ".Tprefix."users u LEFT JOIN ".Tprefix."userhrinformation uhr ON (uhr.uid=u.uid) JOIN ".Tprefix."affiliatedemployees a ON (a.uid=u.uid) 
+    $query = $db->query("SELECT u.uid, uhr.joinDate as joindate, CONCAT(firstName, ' ', lastName) as fullname
+						FROM ".Tprefix."users u LEFT JOIN ".Tprefix."userhrinformation uhr ON (uhr.uid=u.uid) JOIN ".Tprefix."affiliatedemployees a ON (a.uid=u.uid)
 						WHERE a.affid={$affid} AND isMain=1
 						{$filter_where}
 						ORDER BY {$sort_query}
@@ -178,8 +178,8 @@ else {
             redirect('index.php?module=hr/employeeslist');
         }
 
-        $query = $db->query("SELECT u.uid, CONCAT(firstName, ' ', lastName) as fullname 
-						FROM ".Tprefix."users u JOIN ".Tprefix."affiliatedemployees a ON (a.uid=u.uid) 
+        $query = $db->query("SELECT u.uid, CONCAT(firstName, ' ', lastName) as fullname
+						FROM ".Tprefix."users u JOIN ".Tprefix."affiliatedemployees a ON (a.uid=u.uid)
 						WHERE a.affid={$main_affiliate} AND isMain=1 AND u.gid!=7
 						ORDER BY fullname ASC");
         while($user = $db->fetch_array($query)) {
@@ -206,8 +206,8 @@ else {
             $workshifts[$workshift['wsid']] = $workshift['onDutyHour'].':'.$workshift['onDutyMinutes'].' - '.$workshift['offDutyHour'].':'.$workshift['offDutyMinutes'].' ('.$weekdays[$workshift['wsid']].')';
         }
         $query = $db->query("SELECT *
-							FROM ".Tprefix."employeesshifts e JOIN ".Tprefix."workshifts w ON (e.wsid=w.wsid)  
-							WHERE uid={$uid}");
+							FROM ".Tprefix."employeesshifts e JOIN ".Tprefix."workshifts w ON (e.wsid=w.wsid)
+							WHERE uid={$uid} ORDER BY fromDate");
         $rowid = 1;
         if($db->num_rows($query) > 0) {
             while($shift = $db->fetch_assoc($query)) {

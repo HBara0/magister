@@ -93,7 +93,7 @@ class FacilityMgmtReservations extends AbstractClass {
                 $email_message = $lang->sprint($lang->reservationdeletion_message, $facility->getfulladdress(), date($core->settings['dateformat'].' '.$core->settings['timeformat'], $this->fromDate), date($core->settings['dateformat'].' '.$core->settings['timeformat'], $this->toDate), $user->get_displayname(), $this->purpose);
             }
             $email_data = array(
-                    'from_email' => '', //$core->settings['maileremail'],
+                    'from_email' => $core->settings['maileremail'],
                     'from' => 'OCOS Mailer',
                     'subject' => $email_subject,
                     'message' => $email_message,
