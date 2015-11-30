@@ -78,7 +78,7 @@ class GroupPurchaseForecast extends AbstractClass {
     }
 
     protected function update(array $data) {
-        global $db, $core;
+        global $db, $core, $log;
         if(is_array($data)) {
             if(!$this->validate_requiredfields($data)) {
                 $forecastdata['affid'] = $data['affid'];
