@@ -591,10 +591,13 @@ CREATE TABLE `aro_requests_partiesinformation` (
   `legalization` float NOT NULL,
   `courier` float NOT NULL,
   `otherFees` float NOT NULL,
+  `commFromIntermed` int(10) NOT NULL,
   `forwarder` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL,
   `forwarderPT` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `isConsolidation` tinyint(1) NOT NULL DEFAULT '0',
+  `consolidationWarehouse` int(10) NOT NULL,
   PRIMARY KEY (`apiid`)
-) ENGINE=MyISAM AUTO_INCREMENT=29 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `aro_wareshouses_policies`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -614,7 +617,6 @@ CREATE TABLE `aro_wareshouses_policies` (
   `modifiedOn` bigint(30) NOT NULL,
   PRIMARY KEY (`awpid`),
   UNIQUE KEY `awpid` (`awpid`)
-) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `assets`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -5311,10 +5313,10 @@ DROP TABLE IF EXISTS `warehouses`;
 CREATE TABLE `warehouses` (
   `wid` int(10) NOT NULL AUTO_INCREMENT,
   `affid` smallint(5) NOT NULL,
-  `name` varchar(220) COLLATE utf8_unicode_ci NOT NULL,
-  `addressLine1` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
-  `addressLine2` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
-  `postalCode` varchar(10) COLLATE utf8_unicode_ci NOT NULL,
+  `name` varchar(220) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `addressLine1` varchar(200) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `addressLine2` varchar(100) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `postalCode` varchar(10) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
   `ciid` int(10) NOT NULL,
   `coid` int(10) NOT NULL,
   `geoLocation` point DEFAULT NULL,
@@ -5323,9 +5325,9 @@ CREATE TABLE `warehouses` (
   `createdBy` int(10) NOT NULL,
   `modifiedOn` bigint(30) NOT NULL,
   `modifiedBy` int(10) NOT NULL,
-  `integrationOBId` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `integrationOBId` varchar(32) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `isConsolidatedPlatform` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`wid`)
-) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `website_affiliates`;
 /*!50001 DROP VIEW IF EXISTS `website_affiliates`*/;
