@@ -42,4 +42,6 @@ $lang['reservationdeletion_message'] = 'Reservation Cancelled'
         .'Is Reserved From {2} To {3}<br />'
         .'Reserved By: {4} <br/>'
         .'Purpose: {5}';
+
+$lang['facilities'] = 'Facilities';
 ?>
