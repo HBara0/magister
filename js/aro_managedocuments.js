@@ -68,7 +68,8 @@ $(function() {
         var affid = $(this).data('affid');
         $(this).data('purchasetype', $('select[id=purchasetype]').val());
         var ptid = $(this).data('purchasetype');
-        sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populatedocnum&affid= ' + affid + '&ptid= ' + ptid);
+        var inputChecksum = $("input[id='inputChecksum']").val();
+        sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populatedocnum&affid= ' + affid + '&ptid= ' + ptid + '&inputChecksum=' + inputChecksum);
         sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populateaffpolicy&affid= ' + affid + '&ptid= ' + ptid);
         var aroBusinessManager = '';
         if(typeof $("input[id='user_0_id']").val() != "undefined") {
@@ -249,7 +250,6 @@ $(function() {
         }
     });
     $(document).on("change", "#parmsfornetmargin_warehouseUsdExchangeRate", function() {
-        alert('a');
         if(typeof $(this).val() !== 'undefined' && typeof $("select[id='parmsfornetmargin_warehousingRate']").val() !== 'undefined') {
             var value = $(this).val() * $("select[id='parmsfornetmargin_warehousingRate']").val();
             $("select[id='parmsfornetmargin_warehousingRateUsd']").empty().append("<option value='" + value + "' selected>" + value + "</option>");
@@ -489,12 +489,12 @@ $(function() {
 //    });
 //---------------------------------------------------------------------------//
 //------Form Submitting after 30 seconds--------------//
-    var auto_refresh = setInterval(function() {
-        submitform();
-    }, 300000);
-    function submitform() {     //Form submit function
-        $("input[id^='perform_'][id$='_Button']").trigger("click");
-    }
+//    var auto_refresh = setInterval(function() {
+//        submitform();
+//    }, 300000);
+//    function submitform() {     //Form submit function
+//        $("input[id^='perform_'][id$='_Button']").trigger("click");
+//    }
 //---------------------------------------------------//
 //-------------If Vendor is affiliate, such select affiliate not entity and Disable  intermediary section----------------------//
 //Trigger Intermediary Aff Policy
@@ -840,7 +840,7 @@ $(function() {
         $("input[id='totalfunds_total']").val(totalfunds);
     });
 //--------------------------------------------------
-    $(document).on("change", "input[id='user_0_autocomplete']", function() {
+    $(document).on("change", "input[id='user_0_id_output']", function() {
         var bmid = $("input[id='user_0_id']").val();
         if(typeof bmid != 'undefined' && bmid.length > 0) {
             var aroBusinessManager = $("input[id='user_0_id']").val();

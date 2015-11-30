@@ -19,6 +19,14 @@ if(!$core->input['action']) {
     $newsurvey = new Surveys();
     $survey_details = $newsurvey->get_user_surveys();
 
+
+    $sharedsurveys_objs = SurveyShares::get_data(array('uid' => $core->user['uid']), array('returnarray' => true));
+    if(is_array($sharedsurveys_objs)) {
+        foreach($sharedsurveys_objs as $sharedsurveys_obj) {
+            $sharedsurveys['sid'] = $sharedsurveys_obj->sid;
+        }
+    }
+
     if(is_array($survey_details)) {
         foreach($survey_details as $survey) {
             $rowclass = alt_row($rowclass);
@@ -34,7 +42,7 @@ if(!$core->input['action']) {
             $fillsurvey_link = 'index.php?module=surveys/'.$link.'&identifier='.$identifier;
 
             $surveystats_link = '';
-            if(($survey['isPublicResults'] == 1 && $core->user['uid'] != $survey['createdBy']) || $core->user['uid'] == $survey['createdBy']) {
+            if(($survey['isPublicResults'] == 1 && $core->user['uid'] != $survey['createdBy']) || $core->user['uid'] == $survey['createdBy'] || (is_array($sharedsurveys) && in_array($survey['sid'], $sharedsurveys))) {
                 $surveystats_link = '<a href="index.php?module=surveys/viewresults&identifier='.$survey['identifier'].'"><img src="./images/icons/stats.gif" border="0" alt="{$lang->viewresults}"/></a>';
             }
             $previewlink = '<a href="index.php?module=surveys/preview&identifier='.$survey['identifier'].'" target="_blank"><img src="./images/icons/report.gif" border="0" title="'.$lang->preview.'" alt="{$lang->preview}"/></a>';

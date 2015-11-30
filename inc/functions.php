@@ -421,8 +421,10 @@ function parse_selectlist($name, $tabindex, $options, $selected_options, $multip
                 $selected = true;
             }
         }
-
-        if(isset($config['disabledItems'][$key]) && $selected != true) {
+        if(isset($config['disabledNonSelectedItems']) && $config['disabledNonSelectedItems'] == 1 && $selected != true) {
+            $attributes .= ' disabled="disabled"';
+        }
+        elseif(isset($config['disabledItems'][$key]) && $selected != true) {
             $attributes .= ' disabled="disabled"';
         }
         if(isset($config['optionids']) && is_array($config['optionids'])) {

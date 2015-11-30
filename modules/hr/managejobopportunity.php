@@ -66,16 +66,16 @@ if(!$core->input['action']) {
     $checked['gender']['male'] = 'checked="checked"';
     $checked['gender']['female'] = '';
     if(isset($jobopportunity['gender'])) {
-        if($jobopportunity['gender'] == 'male') {
+        if($jobopportunity['gender'] == '1') {
             $checked['gender']['male'] = 'checked="checked"';
         }
-        else {
+        elseif($jobopportunity['gender'] == '2') {
             $checked['gender']['female'] = 'checked="checked"';
         }
     }
 
     $filter['gender'] = '<label><input type = "radio" id = "filter_gender" value = "1" name = "filter[gender]" oldtitle = "gender" title = ""/>'.$lang->male.'</label>
-    <label><input type = "radio" checked = "checked" id = "filter[gender]" value = "0" name = "filter[gender]" aria-describedby = "ui-tooltip-3"/>'.$lang->female.'</label>';
+    <label><input type = "radio" checked = "checked" id = "filter[gender]" value = "2" name = "filter[gender]" aria-describedby = "ui-tooltip-3"/>'.$lang->female.'</label>';
 
     $countries = get_specificdata('countries', array('coid', 'name'), 'coid', 'name', array('by' => 'name', 'sort' => 'ASC'));
     $nationality_list = parse_selectlist('jobopportunity[nationality]', '', $countries, $jobopportunity['nationality'], 0, '', array('width' => '200px', 'blankstart' => true));

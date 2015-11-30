@@ -6,6 +6,7 @@
             <tr>
                 <td>
                     <input type="hidden" value="{$aroorderrequest->revision}" name="revision"/>
+                    <input type="hidden" id="inputChecksum" name="inputChecksum" value="{$aroorderrequest->inputChecksum}"/>
                     {$lang->affiliate}</td>
                 <td>
                     {$affiliate_list}
@@ -15,6 +16,7 @@
                 <td>{$purchasetypelist}</td>
                 <td>{$lang->buyingcurr}</td>
                 <td>{$currencies_list}</td>
+                {$refreshbutton}
             </tr>
             <tr>
                 <td>{$lang->orderreference}</td>
@@ -31,6 +33,8 @@
                 <td>
                     <input type='text' id='user_0_autocomplete' value="{$aroorderrequest->aroBusinessManager_output}"/>
                     <input type='hidden' id='user_0_id' name='aroBusinessManager' value="{$aroorderrequest->aroBusinessManager}"/>
+                    <input type='hidden' id='user_0_id_output' name='aroBusinessManager' value="{$aroorderrequest->aroBusinessManager}" disabled="disabled"/>
+
                 </td>
             </tr>
 

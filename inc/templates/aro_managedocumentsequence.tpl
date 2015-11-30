@@ -58,6 +58,7 @@
                     <tr><td>{$lang->suffix}</td>
                         <td> <input type="text" autocomplete="off" tabindex="2"  name="documentsequence[suffix]" value="{$documentsequence[suffix]}" id="documentsequence_suffix" />  </td>
                     </tr>
+                    {$audittrail}
                 </table>
                 <br/>
                 <div class="altrow2" id="example" style="border:black solid 1px;padding: 5px;display: inline-block">

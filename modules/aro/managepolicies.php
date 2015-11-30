@@ -50,6 +50,25 @@ if(!$core->input['action']) {
             $paymentterms_list = parse_selectlist('aropolicy[defaultPaymentTerm]', '', $payment_terms, $aropolicy['defaultPaymentTerm'], 0, '', array('id' => 'aropolicy_defaultPaymentTerm', 'width' => '150px', 'blankstart' => true));
             $currencies_list = parse_selectlist('aropolicy[defaultCurrency]', '', $currencies, $aropolicy['defaultCurrency'], 0, '', array('id' => 'aropolicy_defaultCurrency', 'width' => '150px', 'blankstart' => true));
             $incoterms_list = parse_selectlist('aropolicy[defaultIncoterms]', '', $incoterms, $aropolicy['defaultIncoterms'], 0, '', array('id' => 'aropolicy_defaultIncoterms', 'width' => '150px', 'blankstart' => true));
+            $audittrailfields = array('createdOn', 'createdBy', 'modifiedOn', 'modifiedBy');
+            foreach($audittrailfields as $field) {
+                if(!empty($aropolicy[$field])) {
+                    switch($field) {
+                        case 'createdOn':
+                        case 'modifiedOn':
+                            $aropolicy[$field.'_output'] = date($core->settings['dateformat'], $aropolicy[$field]);
+                            break;
+                        default:
+                            $user = new Users($aropolicy[$field]);
+                            if(is_object($user)) {
+                                $aropolicy[$field.'_output'] = $user->get_displayname();
+                            }
+                            break;
+                    }
+                    $field_strtolower = strtolower($field);
+                    $audittrail .= '<tr><td>'.$lang->$field_strtolower.'</td><td>'.$aropolicy[$field.'_output'].'</td></tr>';
+                }
+            }
         }
         else {
             redirect($_SERVER['HTTP_REFERER'], 2, $lang->nomatchfound);

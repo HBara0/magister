@@ -24,7 +24,25 @@ if(!$core->input['action']) {
         $chainpolicyobj = new AroApprovalChainPolicies($core->input['id'], false);
         $chainpolicy = $chainpolicyobj->get();
         /* parse approvers */
-
+        $audittrailfields = array('createdOn', 'createdBy', 'modifiedOn', 'modifiedBy');
+        foreach($audittrailfields as $field) {
+            if(!empty($chainpolicy[$field])) {
+                switch($field) {
+                    case 'createdOn':
+                    case 'modifiedOn':
+                        $chainpolicy[$field.'_output'] = date($core->settings['dateformat'], $chainpolicy[$field]);
+                        break;
+                    default:
+                        $user = new Users($chainpolicy[$field]);
+                        if(is_object($user)) {
+                            $chainpolicy[$field.'_output'] = $user->get_displayname();
+                        }
+                        break;
+                }
+                $field_strtolower = strtolower($field);
+                $audittrail .= '<tr><td>'.$lang->$field_strtolower.'</td><td>'.$chainpolicy[$field.'_output'].'</td></tr>';
+            }
+        }
         $chainpolicy[effectiveTo_output] = date($core->settings['dateformat'], $chainpolicy['effectiveTo']);
         $chainpolicy[effectiveFrom_output] = date($core->settings['dateformat'], $chainpolicy['effectiveFrom']);
 

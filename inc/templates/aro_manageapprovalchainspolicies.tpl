@@ -40,6 +40,7 @@
                     <tr><td>{$lang->purchasetype}  </td>
                         <td>{$purchasetypelist} </td>
                     </tr>
+                    {$audittrail}
                     <tr>
                         <td colspan="2" class="subtitle">
                             {$lang->informmore}
