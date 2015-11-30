@@ -498,7 +498,6 @@ $(function() {
 //---------------------------------------------------//
 //-------------If Vendor is affiliate, such select affiliate not entity and Disable  intermediary section----------------------//
 //Trigger Intermediary Aff Policy
-
     $(document).on("change", "input[id='vendor_isaffiliate']", function() {
         $("td[id='vendor_affiliate']").css("display", "none");
         $("input[id='supplier_1_autocomplete']").attr('value', '');
@@ -531,7 +530,14 @@ $(function() {
         $("select[id='partiesinfo_intermed_aff']").trigger("change");
     });
 //----------------------------------------------------------------------------------------------------------------------------//
-
+    $(document).on("change", "input[id='vendor_isConsolidationPlatform']", function() {
+        if($(this).is(":checked")) {
+            $("td[id='consolidation_warehouse']").css("display", "block");
+        } else {
+            $("select[id='partiesinfo_consolidationWarehouse']").append('<option value="0" selected="selected"></option>');
+            $("td[id='consolidation_warehouse']").css("display", "none");
+        }
+    });
 //Trigger(s): 20A - 20B
     $(document).on("change", "#partiesinfo_totalfees,input[id='partiesinfo_totaldiscount'],select[id^='productline_'][id$='_uom'],input[id^='productline_'][id$='_quantity'],input[id^='productline_'][id$='_intialPrice']", function() {
         var field_id = $(this).attr('id').split('_');
@@ -866,7 +872,7 @@ $(function() {
     $(document).on("keyup", "input[id='partiesinfo_commission']", function() {
         $("input[id='partiesinfo_defaultcommission']").val($("input[id='partiesinfo_commission']").val());
     });
-    //--------------------------------------------------------------
+//--------------------------------------------------------------
     $(document).on("click", "a[id='ordersummary_seemore']", function() {
         if($(this).text() == 'See More') {
             $(this).text('See Less');
@@ -876,11 +882,10 @@ $(function() {
             $("tfoot[id='ordersummary_tfoot']").hide();
         }
     });
-    //--------------------------------------------------------------
+//--------------------------------------------------------------
 
     $(document).on("click", "a[id='deletaro']", function() {
     });
-
 });
 var rowid = '';
 function addactualpurchaserow(id, callback) {

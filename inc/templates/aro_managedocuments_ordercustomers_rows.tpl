@@ -11,7 +11,7 @@
     <td> <input type="text" id="pickDate_to_{$rowid}" autocomplete="off" tabindex="2" value="{$customeroder[paymenttermbasedate_output]}" style="width:200px;"/>
         <input type="hidden" name="customeroder[$rowid][paymentTermBaseDate]" id="altpickDate_to_{$rowid}" value="{$customeroder[paymenttermbasedate_formatted]}"/></td>
     <td>
-        <input type="checkbox" class="deletecheckbox" id="customeroder_{$rowid}_todelete" name="customeroder[$rowid][todelete]" value="1" label="Delete" oldtitle="If check-box is checked row is deleted">
-        <label for="customeroder_{$rowid}_todelete"></label></input>
+        <input type="checkbox" class="deletecheckbox" id="customeroder_{$rowid}_todelete" name="customeroder[$rowid][todelete]" value="1" label="Delete" oldtitle="If check-box is checked row is deleted" />
+        <label for="customeroder_{$rowid}_todelete"></label>
     </td>
 </tr>

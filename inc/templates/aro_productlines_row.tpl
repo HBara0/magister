@@ -58,7 +58,7 @@
     </td>
     <td>%</td>
     <td>
-        <input type="checkbox" class="deletecheckbox" id="productline_{$plrowid}_todelete" name="productline[$plrowid][todelete]" value="1" label="Delete" oldtitle="If check-box is checked row is deleted">
-        <label for="productline_{$plrowid}_todelete"></label></input>
+        <input type="checkbox" class="deletecheckbox" id="productline_{$plrowid}_todelete" name="productline[$plrowid][todelete]" value="1" label="Delete" oldtitle="If check-box is checked row is deleted"/>
+        <label for="productline_{$plrowid}_todelete"></label>
     </td>
 </tr>

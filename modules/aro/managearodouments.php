@@ -124,7 +124,6 @@ if(!($core->input['action'])) {
         eval("\$partiesinfo_shipmentparameters = \"".$template->get('aro_partiesinfo_shipmentparameters')."\";");
         eval("\$partiesinfo_fees = \"".$template->get('aro_partiesinfo_fees')."\";");
         unset($aropartiesinfo_obj);
-        $aroorderrequest->inputChecksum = generate_checksum('aro');
     }
     if(isset($core->input['id'])) {
         $aroorderrequest = AroRequests::get_data(array('aorid' => $core->input['id']), array('simple' => false));
@@ -148,9 +147,8 @@ if(!($core->input['action'])) {
             }
             $purchasetype = new PurchaseTypes($aroorderrequest->orderType);
 
-            $affiliate_list = parse_selectlist('affid', 1, $affiliate, $aroorderrequest->affid, '', '', array('blankstart' => true, 'id' => 'affid', 'disabledNonSelectedItems' => '1'));
-            $purchasetypelist = parse_selectlist('orderType', 4, $purchasetypes, $aroorderrequest->orderType, '', '', array('blankstart' => true, 'id' => 'purchasetype', 'disabledNonSelectedItems' => '1'));
-            $refreshbutton = '<td><button onclick=$(function(){$(\'select[id="affid"]\').trigger("change");});>'.$lang->refreshpolicies.'</button></td>';
+            $affiliate_list = parse_selectlist('affid', 1, $affiliate, $aroorderrequest->affid, '', '', array('blankstart' => true, 'id' => 'affid', 'required' => 'required'));
+            $purchasetypelist = parse_selectlist('orderType', 4, $purchasetypes, $aroorderrequest->orderType, '', '', array('blankstart' => true, 'id' => 'purchasetype', 'required' => 'required'));
             $currencies_list = parse_selectlist('currency', 4, $currencies, $aroorderrequest->currency, '', '', array('blankstart' => 1, 'id' => 'currencies', 'required' => 'required'));
             $inspectionlist = parse_selectlist('inspectionType', 4, $inspections, $aroorderrequest->inspectionType);
             //*********Aro Order Customers -Start *********//
@@ -577,17 +575,11 @@ else {
     if($core->input ['action'] == 'populatedocnum') {
         $orderreference = array('orderreference' => '');
         if(!empty($core->input['affid']) && !empty($core->input['ptid'])) {
-            $arorequest_obj = AroRequests::get_data(array('inputChecksum' => $core->input['inputChecksum']));
-            if(!is_object($arorequest_obj)) {
-                $filter['filter']['time'] = '('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
-                $documentseq_obj = AroDocumentsSequenceConf::get_data(array('time' => $filter['filter']['time'], 'affid' => $core->input['affid'], 'ptid' => $core->input['ptid']), array('simple' => false, 'operators' => array('affid' => 'in', 'ptid' => 'in', 'time' => 'CUSTOMSQLSECURE')));
-                if(is_object($documentseq_obj)) {
-                    /* create the array to be encoded each dimension of the array represent the html element in the form */
-                    $orderreference = array('cpurchasetype' => $core->input['ptid'], 'orderreference' => $documentseq_obj->prefix.'-'.$documentseq_obj->nextNumber.'-'.$documentseq_obj->suffix);
-                }
-            }
-            else {
-                $orderreference = array('cpurchasetype' => $core->input['ptid'], 'orderreference' => $arorequest_obj->orderReference);
+            $filter['filter']['time'] = '('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
+            $documentseq_obj = AroDocumentsSequenceConf::get_data(array('time' => $filter['filter']['time'], 'affid' => $core->input['affid'], 'ptid' => $core->input['ptid']), array('simple' => false, 'operators' => array('affid' => 'in', 'ptid' => 'in', 'time' => 'CUSTOMSQLSECURE')));
+            if(is_object($documentseq_obj)) {
+                /* create the array to be encoded each dimension of the array represent the html element in the form */
+                $orderreference = array('cpurchasetype' => $core->input['ptid'], 'orderreference' => $documentseq_obj->prefix.'-'.$documentseq_obj->nextNumber.'-'.$documentseq_obj->suffix);
             }
         }
         echo json_encode($orderreference);
@@ -1074,8 +1066,9 @@ else {
             }
         }
         else if($purchaseype->isPurchasedByEndUser == 1) {
+            $localinvoicevalue_usd = $core->input['localinvoicevalue_usd'];
             if($localinvoicevalue_usd != 0) {
-                $intermedmargin_perc = $intermedmargin / $localinvoicevalue_usd;
+                $intermedmargin_perc = ($intermedmargin / $localinvoicevalue_usd) * 100;
             }
             else {
                 $intermedmargin_perc = '-';

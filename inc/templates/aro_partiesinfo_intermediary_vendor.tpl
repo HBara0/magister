@@ -13,7 +13,7 @@
                             <input id="supplier_1_id" name="partiesinfo[vendorEid]"  value="{$aropartiesinfo_obj->vendorEid}" type="hidden">
                             <div id="searchQuickResults_1" class="searchQuickResults" style="display: none;"></div>
                         </td>
-                        <td>{$lang->isaff}<input type="checkbox" name="partiesinfo[vendorIsAff]" id="vendor_isaffiliate" value="1" {$checked[vendorisaff]}>
+                        <td style="padding-left:10px">{$lang->isaff}<input type="checkbox" name="partiesinfo[vendorIsAff]" id="vendor_isaffiliate" value="1" {$checked[vendorisaff]}>
                             <a href="#" title="{$lang->vendorisaffdesc}"><img src="./images/icons/question.gif" ></a>
                         </td>
                         <td id="vendor_affiliate" {$display}>{$affiliates_list['vendor']}</td>
@@ -21,7 +21,8 @@
                     <tr><td>{$lang->incoterms}</td>
                         <td>{$incoterms_list['intermed']}</td>
                         <td>{$incoterms_list['vendor']}</td>
-
+                        <td style="padding-left:10px">{$lang->isconsolidation}<input type="checkbox" name="partiesinfo[isConsolidation]" id="vendor_isConsolidationPlatform" value="1" {$checked[isConsolidation]}/></td>
+                        <td id="consolidation_warehouse" {$consolidation_warehouses_display}>{$consolidation_warehouses_list}</td>
                     </tr>
                     <tr class="altrow"><td>{$lang->incotermsdesc}</td>
                         <td><input type="text"  name="partiesinfo[intermedIncotermsDesc]" id="partiesinfo_intermed_IncotermsDesc" value="{$aropartiesinfo_obj->intermedIncotermsDesc}" placeholder="" {$partiesinfo[required_intermedpolicy]} style="width:150px;" {$is_disabled}/></td>
@@ -45,7 +46,7 @@
                     </tr>
                     <tr class="altrow2">
                         <td> <span style="{$aro_display[prtiesinfo][discount]}">{$lang->totaldiscount} <a href="#" title="{$lang->totaldiscountdesc}"><img src="./images/icons/question.gif" ></a></span></td>
-                        <td><input style="{$aro_display[prtiesinfo][discount]}" type="number" step="any" name="partiesinfo[totalDiscount]" id="partiesinfo_totaldiscount" value="{$aropartiesinfo_obj->totalDiscount}"/>%
+                        <td><input style="{$aro_display[prtiesinfo][discount]}" type="number" step="any" name="partiesinfo[totalDiscount]" id="partiesinfo_totaldiscount" value="{$aropartiesinfo_obj->totalDiscount}"/>
                         </td>
                     </tr>
 

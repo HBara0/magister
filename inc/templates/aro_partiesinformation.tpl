@@ -1,7 +1,6 @@
 <a class="header" href="#" id="pldiv"><h2 id="aro_partiesinformation">{$lang->partiesinformation}</h2></a>
 <div>
-    <p>
-        {$interm_vendor}
+    {$interm_vendor}
     <table>
         <tbody width="100%;">
             <tr><td class="subtitle" colspan="6">{$lang->shipmentparameters}</td></tr>
@@ -36,7 +35,6 @@
 
         </tbody>
     </table>
-</p>
 </div>
 
 

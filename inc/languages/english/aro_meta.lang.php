@@ -224,3 +224,5 @@ $lang['arodocuments'] = 'Aro Documents';
 $lang['configurationslists'] = 'Configurations list';
 $lang['manageconfigurations'] = 'Manage Configurations';
 $lang['refreshpolicies'] = 'Refresh Policies';
+$lang['isconsolidation'] = 'Is Consolidation';
+
