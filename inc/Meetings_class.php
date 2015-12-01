@@ -107,7 +107,7 @@ class Meetings {
             if($insertquery) {
                 $this->meeting['mtid'] = $db->last_id();
                 if(!is_empty($fmfid)) {
-                    $facilityreservation = array('fmfid' => $fmfid, 'mtid' => $this->meeting['mtid'], 'fromDate' => $meeting_data['fromDate'], 'toDate' => $meeting_data['toDate'], 'purpose' => $meeting_data['description'], 'reservedBy' => $meeting_data['createdBy']);
+                    $facilityreservation = array('fmfid' => $fmfid, 'mtid' => $this->meeting['mtid'], 'fromDate' => $meeting_data['fromDate'], 'toDate' => $meeting_data['toDate'], 'purpose' => $lang->meeting, 'reservedBy' => $meeting_data['createdBy']);
                     $facilityreservation_obj = new FacilityMgmtReservations();
                     $facilityreservation_obj->set($facilityreservation);
                     $facilityreservation_obj->save();

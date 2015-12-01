@@ -951,16 +951,13 @@ else {
                     $update_query_where = 'rid='.$rid.' AND pid='.intval($productactivity['pid']).$existingentries_query_string;
                 }
                 unset($productactivity['productname'], $productactivity['fxrate']);
-                $update = $db->update_query('productsactivity', $productactivity, $update_query_where);
-//                $productsact_obj = ProductsActivity::get_data($update_query_where, array('returnarray' => false));
-//                if(is_object($productsact_obj)) {
-//                    $productsact_obj->set($productactivity);
-//                    $productsact_obj = $productsact_obj->save();
-//
-//                }
-
-
-                $processed_once = true;
+                //$update = $db->update_query('productsactivity', $productactivity, $update_query_where);
+                $productsact_obj = ProductsActivity::get_data($update_query_where, array('returnarray' => false));
+                if(is_object($productsact_obj)) {
+                    $productsact_obj->set($productactivity);
+                    $productsact_obj = $productsact_obj->save();
+                    $processed_once = true;
+                }
                 if(isset($productactivity['paid']) && !empty($productactivity['paid'])) {
                     $cachearr['usedpaid'][] = $productactivity['paid'];
                 }

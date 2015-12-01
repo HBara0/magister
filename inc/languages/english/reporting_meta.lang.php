@@ -245,4 +245,5 @@ $lang['addproductactivity'] = 'Add Product Activity';
 $lang['auditorscoreexplanation'] = 'Scores are calculated based on the number of supplier QR reports sent on time divided by the total number of reports the auditor is responsible for.<hr />';
 $lang['detailedsection'] = 'Detailed Section';
 $lang['summary'] = 'Summary';
+$lang['warningnegativeandzeronumbers'] = 'Warning! Some Quarter Numbers Are Negative But Are Showing As Zeros. This Means That Some Reports Are Not Filled Properly.';
 ?>

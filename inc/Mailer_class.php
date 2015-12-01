@@ -314,7 +314,7 @@ class Mailer_oophp extends Mailer_functions {
     }
 
     public function set_subject($subject) {
-        $this->mail_data['subject'] = wordwrap($subject, 70);
+        $this->mail_data['subject'] = wordwrap(htmlspecialchars_decode($subject), 70);
     }
 
     public function set_message($message) {

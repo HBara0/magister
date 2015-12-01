@@ -235,7 +235,10 @@ if(!$core->input['action']) {
                                                     $total_year[$aggregate_type][$category][$type][$affid][$year] += $item[$aggregate_type][$category][$affid][$type][$year][$quarter];
 
                                                     $boxes_totals['mainbox'][$aggregate_type][$category][$type][$year][$quarter] += $item[$aggregate_type][$category][$affid][$type][$year][$quarter];
-
+                                                    if($item[$aggregate_type][$category][$affid][$type][$year][$quarter] < 0) {
+                                                        $item[$aggregate_type][$category][$affid][$type][$year][$quarter] = 0;
+                                                        $warnnegative = '<br><div><span style="color:red">'.$lang->warningnegativeandzeronumbers.'</span></div>';
+                                                    }
 //												$item_rounding = 0;
 //												if($item[$aggregate_type][$category][$affid][$type][$year][$quarter] < 1) {
 //													$item_rounding = $default_rounding;
@@ -251,7 +254,6 @@ if(!$core->input['action']) {
                                                 foreach($report['items'][$category][$type][$year][$quarter] as $affid => $affiliatedata) {
                                                     foreach($affiliatedata as $spid => $segmentdata) {
                                                         $item[$aggregate_type][$category][$spid]['name'] = $total_year[$aggregate_type][$category][$type][$spid]['name'] = $newreport->get_productssegments()[$spid];
-                                                        $item[$aggregate_type][$category][$spid][$type][$year][$quarter] = array_sum($report['items'][$category][$type][$year][$quarter][$affid][$spid]);
 
                                                         $total_year[$aggregate_type][$category][$type][$spid][$year] += $item[$aggregate_type][$category][$spid][$type][$year][$quarter];
 
@@ -259,7 +261,11 @@ if(!$core->input['action']) {
 //														$item_class[$aggregate_type][$category][$spid][$type][$year][$quarter] = 'mainbox_forecast';
 //													}
                                                         $boxes_totals['mainbox'][$aggregate_type][$category][$type][$year][$quarter] += $item[$aggregate_type][$category][$spid][$type][$year][$quarter];
-
+                                                        $item[$aggregate_type][$category][$spid][$type][$year][$quarter] = array_sum($report['items'][$category][$type][$year][$quarter][$affid][$spid]);
+                                                        if($item[$aggregate_type][$category][$affid][$type][$year][$quarter] < 0) {
+                                                            $item[$aggregate_type][$category][$affid][$type][$year][$quarter] = 0;
+                                                            $warnnegative = '<br><div><span style="color:red">'.$lang->warningnegativeandzeronumbers.'</span></div>';
+                                                        }
 //													$item_rounding = 0;
 //													if($item[$aggregate_type][$category][$spid][$type][$year][$quarter] < 1) {
 //														$item_rounding = $default_rounding;
@@ -283,6 +289,10 @@ if(!$core->input['action']) {
 
                                                             $total_year[$aggregate_type][$category][$type][$pid][$year] += $item[$aggregate_type][$category][$pid][$type][$year][$quarter];
                                                             $boxes_totals['mainbox'][$aggregate_type][$category][$type][$year][$quarter] += $item[$aggregate_type][$category][$pid][$type][$year][$quarter];
+                                                            if($item[$aggregate_type][$category][$affid][$type][$year][$quarter] < 0) {
+                                                                $item[$aggregate_type][$category][$affid][$type][$year][$quarter] = 0;
+                                                                $warnnegative = '<br><div><span style="color:red">'.$lang->warningnegativeandzeronumbers.'</span></div>';
+                                                            }
                                                             //$item_rounding = 0;
 //														if($item[$aggregate_type][$category][$pid][$type][$year][$quarter] < 1) {
 //															$item_rounding = $default_rounding;
@@ -341,6 +351,12 @@ if(!$core->input['action']) {
                                     if($boxes_totals['mainbox'][$aggregate_type][$category]['actual'][$year][$quarter] < 1 && $boxes_totals['mainbox'][$aggregate_type][$category]['actual'][$year][$quarter] != 0) {
                                         $item_rounding = $default_rounding;
                                     }
+
+                                    if($boxes_totals['mainbox'][$aggregate_type][$category]['actual'][$year][$quarter] < 0) {
+                                        $boxes_totals['mainbox'][$aggregate_type][$category]['actual'][$year][$quarter] = 0;
+                                        $warnnegative = '<br><div><span style="color:red">'.$lang->warningnegativeandzeronumbers.'</span></div>';
+                                    }
+
                                     $boxes_totals_output['mainbox'][$aggregate_type][$category]['actual'][$year][$quarter] = number_format($boxes_totals['mainbox'][$aggregate_type][$category]['actual'][$year][$quarter], $item_rounding, '.', ' ');
 
 //								if($year == $reporting_quarter['year'] && $quarter > $reporting_quarter['quarter']) {
@@ -642,7 +658,6 @@ if(!$core->input['action']) {
         eval("\$reports .= \"".$template->get('new_reporting_report')."\";");
         $reporting_report_newoverviewbox['segments'] = $reporting_report_newoverviewbox['products'] = array();
     }
-
     if($core->usergroup['canGenerateReports'] == 1 || $core->usergroup['canFillReports'] == 1) {
         if(is_array($total_year) && !empty($total_year)) {
             foreach($total_year as $aggregate_type => $aggdata) {

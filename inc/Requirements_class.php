@@ -16,7 +16,7 @@ class Requirements extends AbstractClass {
     const PRIMARY_KEY = 'drid';
     const TABLE_NAME = 'development_requirements';
     const DISPLAY_NAME = 'title';
-    const SIMPLEQ_ATTRS = 'drid, refWord, refKey, title, parent, isCompleted';
+    const SIMPLEQ_ATTRS = 'drid, refWord, refKey, title, parent, isCompleted, module';
     const CLASSNAME = __CLASS__;
     const UNIQUE_ATTRS = null;
 
@@ -271,6 +271,22 @@ class Requirements extends AbstractClass {
             $reference = $this->get_parent()->parse_fullreferencekey().'.'.$reference;
         }
         return $reference;
+    }
+
+    public function hasChildren() {
+        $requirements = Requirements::get_data(array('parent' => $this->data[self::PRIMARY_KEY]), array('returnarray' => true));
+        if(is_array($requirements)) {
+            return true;
+        }
+        return false;
+    }
+
+    public function get_topoftree() {
+        if(!empty($this->parent)) {
+            $parent = $this->get_parent()->get_topoftree();
+            return $parent;
+        }
+        return $this;
     }
 
     public function get_errorcode() {

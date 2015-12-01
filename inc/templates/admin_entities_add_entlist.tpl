@@ -22,7 +22,7 @@
 </tr>
 <tr>
     <th width="40%"><input class='inlinefilterfield' type='text' tabindex="2"  placeholder="{$lang->search} {$lang->entity}" style="display:inline-block;width:100%;margin-left:5px;"/></th>
-    <th width="20%"><input class='inlinefilterfield' type='text' tabindex="2"  placeholder="{$lang->search} {$lang->type}" style="display:inline-block;width:100%;margin-left:5px;"/></th>
+    <th width="20%"><input class='inlinefilterfield' type='text' tabindex="2"  placeholder="{$lang->search} {$lang->entitytype}" style="display:inline-block;width:100%;margin-left:5px;"/></th>
     <th width="40%"><input class='inlinefilterfield' type='text' tabindex="2"  placeholder="{$lang->search} {$lang->affiliate}" style="display:inline-block;width:100%;margin-left:5px;"/></th>
 </tr>
 </thead>

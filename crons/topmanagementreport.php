@@ -34,7 +34,7 @@ if($_REQUEST['authkey'] == 'kia5ravb$op09dj4a!xhegalhj') {
                     }
                 }
                 $employees[$affiliate->affid] .='<small><a href="'.DOMAIN.'/users.php?action=userslist&amp;filters[allenabledaffiliates][]='.$affiliate->affid.'" target="_blank">See all employees</a></small>';
-                $query = $db->query("SELECT * FROM ".Tprefix."userhrinformation WHERE  uid IN (".implode(',', $uids).") AND joinDate <".strtotime('01-01-'.date('Y').''));
+                $query = $db->query("SELECT * FROM ".Tprefix."userhrinformation WHERE uid IN (".implode(',', $uids).") AND (leaveDate > ".strtotime('01-01-'.(date('Y') - 1))." OR leaveDate=0) AND joinDate  <".strtotime('01-01-'.date('Y').''));
                 $employees_count_lastyear[$affiliate->affid] = $employees_count_lastyear[$affiliate->country] = $db->num_rows($query);
                 $employees_count[$affiliate->affid] = $employees_count[$affiliate->country] = count($affiliated_employees);
                 unset($uids);

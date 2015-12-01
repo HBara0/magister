@@ -1350,8 +1350,11 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
 //            return $cost;
 //        }
         if(!empty($referer) && $referer == 'salesreport') {
-            $transactioncost['cost'] = $this->get_transaction()->transactioncost;
-            $transactioncost['currencyid'] = $this->get_transaction()->get_currency()->iso_code;
+            $transaction = $this->get_transaction();
+            if(is_object($transaction)) {
+                $transactioncost['cost'] = $transaction->transactioncost;
+                $transactioncost['currencyid'] = $transaction->get_currency()->iso_code;
+            }
             return $transactioncost;
         }
         return $this->get_transaction()->transactioncost;
@@ -1674,7 +1677,7 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                                 $numfmt = new NumberFormatter($lang->settings['locale'], NumberFormatter::DECIMAL);
                                 foreach($cdata as $data) {
                                     if($data > 10) {
-                                        $numfmt->setPattern("#0");
+                                        $numfmt->setPattern("#,##0");
                                     }
                                     else {
                                         $numfmt->setPattern("#0.##");

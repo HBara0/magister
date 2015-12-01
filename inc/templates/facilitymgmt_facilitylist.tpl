@@ -1,6 +1,6 @@
 <html>
     <head>
-        <title>{$core->settings[systemtitle]} | {$lang->list}</title>
+        <title>{$core->settings[systemtitle]} | {$lang->facilities}</title>
         {$headerinc}
     </head>
     <body>
@@ -9,7 +9,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
-            <h3>{$lang->list}</h3>
+            <h3>{$lang->facilities}</h3>
             <form action='index.php?module=facilityngnt/list' method="post">
                 <div style="float:right;" class="subtitle"> <a target="_blank" href="{$core->settings[rootdir]}/index.php?module=facilitymgmt/managefacility" ><img src="{$core->settings[rootdir]}/images/addnew.png" border="0">{$lang->create}</a></div>
                 <table class="datatable" width="100%">
