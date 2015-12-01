@@ -617,7 +617,7 @@ class AroRequests extends AbstractClass {
         $mailer = new Mailer();
         $mailer = $mailer->get_mailerobj();
         $mailer->set_type();
-        $mailer->set_from($email_data['from']);
+        $mailer->set_from(array('name' => 'Approve ARO', 'email' => $email_data['from']));
         $mailer->set_subject($email_data['subject']);
         $mailer->set_message($email_data['message']);
         $mailer->set_to($email_data['to']);
@@ -707,7 +707,7 @@ class AroRequests extends AbstractClass {
             $mailer = new Mailer();
             $mailer = $mailer->get_mailerobj();
             $mailer->set_type();
-            $mailer->set_from($email_data['from']);
+            $mailer->set_from(array('name' => 'Approve ARO', 'email' => $email_data['from']));
             $mailer->set_subject($email_data['subject']);
             $mailer->set_message($email_data['message']);
             $mailer->set_to($email_data['to']);
@@ -806,14 +806,14 @@ class AroRequests extends AbstractClass {
 
             $email_data = array(
                     'from_email' => 'ocos@orkila.com',
-                    'from' => 'OCOS',
+                    'from' => 'Approved ARO',
                     'to' => $mailinglist,
                     'subject' => 'Aro Request ['.$this->orderReference.']/'.$aroaffiliate_obj->get_displayname().'/'.$purchasteype_obj->get_displayname().'is Approved',
                     'message' => 'Aro Request ['.$this->orderReference.']/'.$aroaffiliate_obj->get_displayname().'/'.$purchasteype_obj->get_displayname().' is Approved <br/>  To view the ARO <a href="'.$aro_link.'">click here</a>'
             );
             $mail = new Mailer($email_data, 'php');
             if($mail->get_status() === true) {
-                //
+
             }
         }
     }

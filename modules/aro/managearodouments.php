@@ -1084,6 +1084,8 @@ else {
             }
         }
         else if($purchaseype->isPurchasedByEndUser == 1) {
+            $localinvoicevalue_usd = $core->input['localinvoicevalue_usd'];
+
             if($localinvoicevalue_usd != 0) {
                 $intermedmargin_perc = ($intermedmargin / $localinvoicevalue_usd) * 100;
             }
