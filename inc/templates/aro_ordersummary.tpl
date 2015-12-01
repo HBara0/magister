@@ -4,8 +4,8 @@
         <thead>
             <tr>
                 <td></td>
-                <td class="subtitle"> <input type="text" class="subtitle" id="ordersummary_col1_title" value="{$aroordersummary->firstpartytitle}"/>{$firstparty_title}</td>
-                <td class="subtitle"> <input type="text" class="subtitle" id="ordersummary_col2_title" value="{$aroordersummary->secondpartytitle}"/>{$secondparty_title}</td>
+                <td class="subtitle"> <input type="text" class="subtitle" id="ordersummary_col1_title" value="{$aroordersummary->firstpartytitle}" readonly/>{$firstparty_title}</td>
+                <td class="subtitle"> <input type="text" class="subtitle" id="ordersummary_col2_title" value="{$aroordersummary->secondpartytitle}" readonly/>{$secondparty_title}</td>
                 <td class="subtitle" id="ordersummary_thirdparty_1" {$ordersummarydisplay[thirdcolumn_display]}> <input type="text" class="subtitle" id="ordersummary_col3_title" value="{$aroordersummary->thirdpartytitle}"/>{$thirdparty_title}</td>
             </tr>
             <tr><td></td>
@@ -13,7 +13,6 @@
                 <td class="subtitle"><input type="text" id="ordersummary_2ndparty" style="width:150px;" readonly value="{$secondparty}"></span></td>
                 <td class="subtitle" id="ordersummary_thirdparty_2" {$ordersummarydisplay[thirdcolumn_display]}><input type="text" id="ordersummary_3rdparty" style="width:150px;" readonly value="{$thirdparty}"></span>
                     <input type="hidden" value="" id="haveThirdParty"/></td>
-
             </tr>
         </thead>
         <tbody style="width:100%;">

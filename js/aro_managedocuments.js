@@ -75,10 +75,10 @@ $(function() {
         if(typeof $("input[id='user_0_id']").val() != "undefined") {
             aroBusinessManager = $("input[id='user_0_id']").val();
         }
-
+        var intermedAff = $("select[id='partiesinfo_intermed_aff']").val();
         $.ajax({type: 'post',
             url: rootdir + "index.php?module=aro/managearodouments&action=generateapprovalchain",
-            data: "affid=" + affid + "&ptid=" + ptid + "&aroBusinessManager=" + aroBusinessManager,
+            data: "affid=" + affid + "&ptid=" + ptid + "&aroBusinessManager=" + aroBusinessManager + "&intermedAff=" + intermedAff,
             beforeSend: function() {
             },
             complete: function() {
@@ -853,9 +853,10 @@ $(function() {
             if(aroBusinessManager.length > 0) {
                 var ptid = $("select[id='purchasetype']").val();
                 var affid = $("select[id='affid']").val();
+                var intermedAff = $("select[id='partiesinfo_intermed_aff']").val();
                 $.ajax({type: 'post',
                     url: rootdir + "index.php?module=aro/managearodouments&action=generateapprovalchain",
-                    data: "affid=" + affid + "&ptid=" + ptid + "&aroBusinessManager=" + aroBusinessManager,
+                    data: "affid=" + affid + "&ptid=" + ptid + "&aroBusinessManager=" + aroBusinessManager + '&intermedAff=' + intermedAff,
                     beforeSend: function() {
                     },
                     complete: function() {

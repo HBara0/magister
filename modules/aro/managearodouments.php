@@ -47,6 +47,7 @@ if(!($core->input['action'])) {
     $currencies = Currencies::get_data('', array('order' => array('sort' => 'ASC', 'by' => 'name')));
     $incoterms = Incoterms::get_data('name IS NOT NULL', $dal_config);
     $countries = Countries::get_data('', $dal_config);
+    $consolidation_warehouses = Warehouses::get_data(array('isActive' => 1, 'isConsolidationPlatform' => 1), array('returnarray' => true));
 
     $aro_display['prtiesinfo']['discount'] = "display:inline-block;";
     if($core->usergroup['aro_canMakeDiscounts'] == 0) {
@@ -108,6 +109,8 @@ if(!($core->input['action'])) {
             $paymentterms_list[$party] = parse_selectlist('partiesinfo['.$party.'PaymentTerm]', 4, $payment_terms, '', '', '', array('blankstart' => 1, 'id' => 'partiesinfo_'.$party.'_paymentterm', 'required' => 'required', 'width' => '100%', 'class' => $config_class));
             $incoterms_list[$party] = parse_selectlist('partiesinfo['.$party.'Incoterms]', 4, $incoterms, '', '', '', array('blankstart' => 1, 'id' => 'partiesinfo_'.$party.'_incoterms', 'required' => 'required', 'width' => '100%', 'class' => $config_class));
         }
+        $consolidation_warehouses_list = parse_selectlist('partiesinfo[consolidationWarehouse]', 1, $consolidation_warehouses, '', '', '', array('id' => 'partiesinfo_consolidationWarehouse', 'width' => '100%'));
+        $consolidation_warehouses_display = 'style="display:none;"'; // change all $display fields to 1 array !!
 
 
         eval("\$takeactionpage = \"".$template->get('aro_managearodocuments_takeaction')."\";");
@@ -124,6 +127,7 @@ if(!($core->input['action'])) {
         eval("\$partiesinfo_shipmentparameters = \"".$template->get('aro_partiesinfo_shipmentparameters')."\";");
         eval("\$partiesinfo_fees = \"".$template->get('aro_partiesinfo_fees')."\";");
         unset($aropartiesinfo_obj);
+        $aroorderrequest->inputChecksum = generate_checksum('aro');
     }
     if(isset($core->input['id'])) {
         $aroorderrequest = AroRequests::get_data(array('aorid' => $core->input['id']), array('simple' => false));
@@ -140,15 +144,16 @@ if(!($core->input['action'])) {
         }
         if(is_object($aroorderrequest)) {
             if(!$aroorderrequest->getif_approvedonce($aroorderrequest->aorid) && $aroorderrequest->createdBy == $core->user['uid']) {
-                $deletebutton = "<a class='button' href='#{$aroorderrequest->aorid}' id='deletearodocument_{$aroorderrequest->aorid}_aro/managearodouments_loadpopupbyid' >{$lang->delete}</a>";
+                $deletebutton = "<a class='button' href='#{$aroorderrequest->aorid}' id='deletearodocument_{$aroorderrequest->aorid}_aro/managearodouments_loadpopupbyid' style='vertical-align:top;'>{$lang->delete}</a>";
             }
             if($aroorderrequest->isFinalized == 1) {
                 $checked['aroisfinalized'] = 'checked="checked"';
             }
             $purchasetype = new PurchaseTypes($aroorderrequest->orderType);
 
-            $affiliate_list = parse_selectlist('affid', 1, $affiliate, $aroorderrequest->affid, '', '', array('blankstart' => true, 'id' => 'affid', 'required' => 'required'));
-            $purchasetypelist = parse_selectlist('orderType', 4, $purchasetypes, $aroorderrequest->orderType, '', '', array('blankstart' => true, 'id' => 'purchasetype', 'required' => 'required'));
+            $affiliate_list = parse_selectlist('affid', 1, $affiliate, $aroorderrequest->affid, '', '', array('blankstart' => true, 'id' => 'affid', 'disabledNonSelectedItems' => '1'));
+            $purchasetypelist = parse_selectlist('orderType', 4, $purchasetypes, $aroorderrequest->orderType, '', '', array('blankstart' => true, 'id' => 'purchasetype', 'disabledNonSelectedItems' => '1'));
+            $refreshbutton = '<td><button onclick="$(function(){$(\'select[id="affid"]\').trigger("change");});" style="margin-left:100px;">'.$lang->refreshpolicies.'</button></td>';
             $currencies_list = parse_selectlist('currency', 4, $currencies, $aroorderrequest->currency, '', '', array('blankstart' => 1, 'id' => 'currencies', 'required' => 'required'));
             $inspectionlist = parse_selectlist('inspectionType', 4, $inspections, $aroorderrequest->inspectionType);
             //*********Aro Order Customers -Start *********//
@@ -347,6 +352,13 @@ if(!($core->input['action'])) {
                 if($aropartiesinfo_obj->vendorPTIsThroughBank == 1) {
                     $checked['vendorPTIsThroughBank'] = 'checked="checked"';
                 }
+                $consolidation_warehouses_display = 'style="display:none;"';
+                if($aropartiesinfo_obj->isConsolidation == 1) {
+                    $checked['isConsolidation'] = 'checked="checked"';
+                    $consolidation_warehouses_display = 'style="display:block;"';
+                }
+                $consolidation_warehouses_list = parse_selectlist('partiesinfo[consolidationWarehouse]', 1, $consolidation_warehouses, $aropartiesinfo_obj->consolidationWarehouse, '', '', array('id' => 'partiesinfo_consolidationWarehouse', 'width' => '100%'));
+
                 $selected_incoterms['intermed'] = $aropartiesinfo_obj->intermedIncoterms;
                 $selected_incoterms['vendor'] = $aropartiesinfo_obj->vendorIncoterms;
 
@@ -575,11 +587,17 @@ else {
     if($core->input ['action'] == 'populatedocnum') {
         $orderreference = array('orderreference' => '');
         if(!empty($core->input['affid']) && !empty($core->input['ptid'])) {
-            $filter['filter']['time'] = '('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
-            $documentseq_obj = AroDocumentsSequenceConf::get_data(array('time' => $filter['filter']['time'], 'affid' => $core->input['affid'], 'ptid' => $core->input['ptid']), array('simple' => false, 'operators' => array('affid' => 'in', 'ptid' => 'in', 'time' => 'CUSTOMSQLSECURE')));
-            if(is_object($documentseq_obj)) {
-                /* create the array to be encoded each dimension of the array represent the html element in the form */
-                $orderreference = array('cpurchasetype' => $core->input['ptid'], 'orderreference' => $documentseq_obj->prefix.'-'.$documentseq_obj->nextNumber.'-'.$documentseq_obj->suffix);
+            $arorequest_obj = AroRequests::get_data(array('inputChecksum' => $core->input['inputChecksum']));
+            if(!is_object($arorequest_obj)) {
+                $filter['filter']['time'] = '('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
+                $documentseq_obj = AroDocumentsSequenceConf::get_data(array('time' => $filter['filter']['time'], 'affid' => $core->input['affid'], 'ptid' => $core->input['ptid']), array('simple' => false, 'operators' => array('affid' => 'in', 'ptid' => 'in', 'time' => 'CUSTOMSQLSECURE')));
+                if(is_object($documentseq_obj)) {
+                    /* create the array to be encoded each dimension of the array represent the html element in the form */
+                    $orderreference = array('cpurchasetype' => $core->input['ptid'], 'orderreference' => $documentseq_obj->prefix.'-'.$documentseq_obj->nextNumber.'-'.$documentseq_obj->suffix);
+                }
+            }
+            else {
+                $orderreference = array('cpurchasetype' => $core->input['ptid'], 'orderreference' => $arorequest_obj->orderReference);
             }
         }
         echo json_encode($orderreference);
@@ -1066,7 +1084,6 @@ else {
             }
         }
         else if($purchaseype->isPurchasedByEndUser == 1) {
-            $localinvoicevalue_usd = $core->input['localinvoicevalue_usd'];
             if($localinvoicevalue_usd != 0) {
                 $intermedmargin_perc = ($intermedmargin / $localinvoicevalue_usd) * 100;
             }
@@ -1160,12 +1177,13 @@ else {
             $data['affid'] = $core->input['affid'];
             $data['orderType'] = $core->input['ptid'];
             $data['orderreference'] = $core->input['orderreference'];
+            $data['intermedAff'] = $core->input['intermedAff'];
             if(isset($core->input['aroBusinessManager']) && !empty($core->input['aroBusinessManager'])) {
                 $data['aroBusinessManager'] = $core->input['aroBusinessManager'];
             }
             $arorequest = new AroRequests();
             $arorequest->set($data);
-            $aroapprovalchain = $arorequest->generate_approvalchain(null, array('aroBusinessManager' => $data['aroBusinessManager']));
+            $aroapprovalchain = $arorequest->generate_approvalchain(null, array('aroBusinessManager' => $data['aroBusinessManager']), $data['intermedAff']);
             if(is_array($aroapprovalchain)) {
                 foreach($aroapprovalchain as $key => $val) {
                     switch($key) {

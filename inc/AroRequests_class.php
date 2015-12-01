@@ -434,8 +434,8 @@ class AroRequests extends AbstractClass {
                         break;
                     case 'gfinancialManager':
                         $approvers['gfinancialManager'] = $affiliate->get_globalfinancialemanager()->uid; // $core->settings['gfinancialManager_id']; // 367;
-                        if(isset($this->partiesinfo['intermedAff']) && !empty($this->partiesinfo['intermedAff'])) {
-                            $intermedaff = Affiliates::get_data(array(''));
+                        if(isset($intermed) && !empty($intermed)) {
+                            $intermedaff = Affiliates::get_data(array('affid' => $intermed));
                             if(is_object($intermedaff)) {
                                 $approvers['gfinancialManager'] = $intermedaff->get_financialemanager()->uid;
                             }
