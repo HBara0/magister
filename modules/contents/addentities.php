@@ -272,9 +272,6 @@ else {
                 $entity_obj = Entities::get_data(array('eid' => $key), array('simple' => false));
                 if(is_object($entity_obj)) {
                     $typevalue = $entity_obj->type;
-                    if(!empty($entity_obj->supplierType) && $typevalue == 's') {
-                        $typevalue = $entity_obj->supplierType;
-                    }
                     switch($typevalue) {
                         case 'c':
                             $type = 'Customer';
