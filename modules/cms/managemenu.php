@@ -148,7 +148,11 @@ if(!$core->input['action']) {
                     case "events":
                     case "newsarchive":
                     case "eventsarchive":
+                    case "homepage":
                         $selectedtype.= '$("input[id=\''.$menuitem_obj->type.'_type\']").prop("checked",true);';
+                        break;
+                    default :
+                        $selectedtype.= '$("input[id=\'none_type\']").prop("checked",true);';
                         break;
                 }
             }

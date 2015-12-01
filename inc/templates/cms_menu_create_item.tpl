@@ -3,15 +3,15 @@
         <title>{$core->settings[systemtitle]} | {$lang->modifysitesettings}</title>
         {$headerinc}
         <script type="text/javascript">
-            $(function () {
-                $(document).on('change', "input[type='radio'][id$='_type']", function () {
+            $(function() {
+                $(document).on('change', "input[type='radio'][id$='_type']", function() {
                     var id = $(this).attr("id");
 
                     /*	if($(this).not($("div[id^='" + $(this).val() + "']"))) {
                      alert('hideee');
                      }// hide*/
                     /*go throw each select and input in hte main configuration  div we are hiding and  reset their value */
-                    $("div[id$=_configuration]").not("[id ^=" + $(this).val() + "_]").find("select,input").each(function () {
+                    $("div[id$=_configuration]").not("[id ^=" + $(this).val() + "_]").find("select,input").each(function() {
                         $(this).val('');
                     });
                     $("div[id$=_configuration]").not("[id ^=" + $(this).val() + "_]").hide();
@@ -43,7 +43,6 @@
                             <input name="menuitem[title]" type="text" value="{$menuitem[title]}" required="required" size="30">
                         </div>
                     </div>
-
                     <div style="display:table-row;">
                         <div style="display:table-cell;">{$lang->alias}</div>
                         <div style="display: table-cell; padding:5px;">
@@ -80,6 +79,10 @@
 
                         <div style="display:table-cell; padding:2px;">
                             <div style="display:inline-block; margin-left:30px">
+                                <input  id="homepage_type" name="menuitem[type]" type="radio" value="homepage">
+                                <label>{$lang->homepage}</label>
+                            </div>
+                            <div style="display:inline-block; margin-left:30px">
                                 <input  id="webpage_type" name="menuitem[type]" type="radio" value="webpage">
                                 <label>{$lang->webpage}</label>
                             </div>
@@ -94,7 +97,12 @@
                             <div style="display:inline-block; margin-left:30px">
                                 <input id="externalurl_type" name="menuitem[type]" type="radio" value="externalurl"  >
                                 <label>{$lang->externalurl}</label>
-                            </div></div>
+                            </div>
+                            <div style="display:inline-block; margin-left:30px">
+                                <input  id="none_type" name="menuitem[type]" type="radio" value="">
+                                <label>{$lang->none}</label>
+                            </div>
+                        </div>
                         <div style="display:table-cell; padding:5px; margin:5px;">
                             <div style="display:inline-block; margin-left:30px">
                                 <input id="contact_type" name="menuitem[type]" type="radio" value="contact">
