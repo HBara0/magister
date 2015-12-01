@@ -27,7 +27,7 @@
                 <td class="border_right" valign="top">{$lang->rate}</td>
                 <td>  <select name="parmsfornetmargin[warehousingRate]" id="parmsfornetmargin_warehousingRate" style="width:150px;" {$disabled[warehousing]} class="automaticallyfilled-noneditable">{$netmarginparms_warehousingRate}</select><input type="hidden" id="parmsfornetmargin_warehousing_disabled" value="1"/></td>
                 <td valign="top">{$lang->period}</td>
-                <td> <input type="text" name="parmsfornetmargin[warehousingPeriod]" id="parmsfornetmargin_warehousingPeriod" value="{$netmarginparms->warehousingPeriod}" style="width:150px;" {$readonly[warehousing]} class="automaticallyfilled-noneditable"/>
+                <td> <input type="text" name="parmsfornetmargin[warehousingPeriod]" id="parmsfornetmargin_warehousingPeriod" value="{$netmarginparms->warehousingPeriod}" style="width:150px;" {$readonly[warehousing]} class="automaticallyfilled-noneditable" {$disabled[warehousing]}/>
                 </td>
             </tr>
             <tr>

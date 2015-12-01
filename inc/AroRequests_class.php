@@ -388,7 +388,7 @@ class AroRequests extends AbstractClass {
         return $this->errorid;
     }
 
-    public function generate_approvalchain($pickedapprovers = null, $options = null) {
+    public function generate_approvalchain($pickedapprovers = null, $options = null, $intermed = null) {
         global $core;
         $filter = 'affid ='.$this->affid.' AND purchaseType = '.$this->orderType.' AND ('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
         $aroapprovalchain_policies = AroApprovalChainPolicies::get_data($filter);
@@ -434,6 +434,12 @@ class AroRequests extends AbstractClass {
                         break;
                     case 'gfinancialManager':
                         $approvers['gfinancialManager'] = $affiliate->get_globalfinancialemanager()->uid; // $core->settings['gfinancialManager_id']; // 367;
+                        if(isset($this->partiesinfo['intermedAff']) && !empty($this->partiesinfo['intermedAff'])) {
+                            $intermedaff = Affiliates::get_data(array(''));
+                            if(is_object($intermedaff)) {
+                                $approvers['gfinancialManager'] = $intermedaff->get_financialemanager()->uid;
+                            }
+                        }
                         break;
                     case 'cfo':
                         $approvers['cfo'] = $affiliate->get_cfo()->uid;
@@ -488,9 +494,8 @@ class AroRequests extends AbstractClass {
 
     public function create_approvalchain($approvers = null, $options = null) {
         global $core;
-
         if(empty($approvers)) {
-            $approvers = $this->generate_approvalchain($options, $options['aroBusinessManager']);
+            $approvers = $this->generate_approvalchain($options, $options['aroBusinessManager'], $this->partiesinfo['intermedAff']);
         }
         //  $approve_immediately = $this->should_approveimmediately();
         $sequence = 1;
