@@ -459,6 +459,7 @@ class IntegrationOB extends Integration {
                     $movement = $stack->get_transcation()->get_movementline();
                     if(is_object($movement)) {
                         $inputs[$transcation['obwfa_input_stack_id']]['stack']['daysinstock'] = $movement->get_output_transaction()->get_outputstack()->get_inputstack()->get_daysinstock();
+                        $inputs[$transcation['obwfa_input_stack_id']]['movementdate'] = $movement->get_output_transaction()->get_outputstack()->get_inputstack()['trxdate'];
                     }
                     else {
                         $inputs[$transcation['obwfa_input_stack_id']]['stack']['daysinstock'] = $stack->get_daysinstock();
@@ -475,6 +476,16 @@ class IntegrationOB extends Integration {
                 $supplier = $stack->get_supplier();
                 if(!empty($supplier)) {
                     $inputs[$transcation['obwfa_input_stack_id']]['supplier'] = $supplier->get();
+                }
+                //If movement type=return from customer, replace buisness partner by local product
+                if($stack->get_transcation()->movementtype == 'C+') {
+                    $localproduct = $stack->get_transcation()->get_product_local();
+                    if(is_object($localproduct)) {
+                        $inputs[$transcation['obwfa_input_stack_id']]['supplier'] = $localproduct->get_supplier()->get();
+                    }
+                    else {
+                        $inputs[$transcation['obwfa_input_stack_id']]['supplier'] = 'unspecified';
+                    }
                 }
                 $inputs[$transcation['obwfa_input_stack_id']]['transaction'] = $stack->get_transcation()->get();
                 $inputs[$transcation['obwfa_input_stack_id']]['transaction']['attributes'] = $stack->get_transcation()->get_attributesetinstance()->get();
@@ -741,7 +752,8 @@ class IntegrationOBTransaction extends IntegrationAbstractClass {
     private function read($id) {
         $this->transaction = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
 						FROM m_transaction
-						WHERE m_transaction_id='".$this->f_db->escape_string($id)."'"));
+						WHERE m_transaction_id='".$this->f_db->escape_string($id)
+                        ."'"));
     }
 
     public function get_lasttranscation_bydate($product, $date) {
@@ -863,6 +875,44 @@ class IntegrationOBTransaction extends IntegrationAbstractClass {
 
     public function get() {
         return $this->transaction;
+    }
+
+    public function get_firstinputstack($inputstack = NULL) {
+        if($inputstack == NULL) {
+            $inputstack = $this->get_inputstack();
+            if(!is_object($inputstack)) {
+                $outputstack = $this->get_outputstack();
+                if(is_object($outputstack)) {
+                    $inputstack = $outputstack->get_inputstack(); //$this->get_input($outputstack);
+                }
+            }
+            $transaction = $this;
+            if(!is_object($transaction)) {
+                $transaction = $inputstack->get_transcation();
+            }
+            switch($transaction->movementtype) {
+                case 'V+':
+                case 'I+':
+                    break;
+                case 'C+':
+                    $inoutline = $transaction->get_inoutline();
+                    if(!is_null($inoutline)) {
+                        $reverse_inoutline = $inoutline->get_orderline()->get_inoutline();
+                        $reverse_transaction = IntegrationOBTransaction::get_data(array(IntegrationOBInOutLine::PRIMARY_KEY => $reverse_inoutline->get_id()));
+                        $inputstack = $reverse_transaction->get_inputstack();
+                        $this->get_firstinputstack($inputstack);
+                    }
+                    break;
+                case 'M+':
+                    $movement = $transaction->get_movementline();
+                    $inputstack = $movement->get_output_transaction()->get_outputstack()->get_inputstack();
+                    $this->get_firstinputstack($inputstack);
+                    break;
+                default:
+                    break;
+            }
+            return $inputstack;
+        }
     }
 
 }
@@ -1201,6 +1251,7 @@ class IntegrationOBInvoice {
             $query_where = ' AND '.$filters; //' AND '.$this->f_db->escape_string($filters);
         }
 
+
         foreach($sums as $attr) {
             $attr = $this->f_db->escape_string($attr);
             $sum_select .= $comma.'SUM('.$attr.') AS '.$attr;
@@ -1256,6 +1307,7 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
         if($this->f_db->num_rows($query) > 0) {
             return new IntegrationOBInvoiceLine($this->f_db->fetch_field($query, 'c_invoiceline_id'), $this->f_db);
         }
+
         return null;
     }
 
@@ -1348,6 +1400,7 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
         //$rawdata = $this->get_aggreateddata_byyearmonth('salesrep_id, c_currency_id', $filters);
         $lines = IntegrationOBInvoiceLine::get_data($filters); // array('order' => array('sort' => 'DESC', 'by' => 'qtyinvoiced')));
         if(is_array($lines)) {
+
             foreach($lines as $line) {
                 $invoice = $line->get_invoice();
                 $invoice->dateinvoiceduts = strtotime($invoice->dateinvoiced);
@@ -1416,6 +1469,7 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                 }
             }
             $data['dataperday'] = $dataperday;
+
             return $data;
         }
         return false;
@@ -1425,7 +1479,6 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
         $tableindexes = array('salerep', 'products', 'suppliers');
         $classificationtypes = array('bymonth', 'byytd', 'byquarter');
         $current_year = date('Y', TIME_NOW);
-
         foreach($tableindexes as $tableindex) {
             if(is_array($data[$tableindex])) {
                 if((TIME_NOW > $period['from']) && (TIME_NOW < $period['to'])) {
@@ -1433,10 +1486,10 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                         $currentquarter = ceil(date('n', TIME_NOW) / 3);
                         $current_month = date("m");
                         $currentyeardata = $salerepdata[$current_year];
-                        if(isset($currentyeardata[$current_month]) && !empty($currentyeardata[$current_month])) {
-                            $classification[$tableindex]['bymonth'][$tableindex][$id]['currentdata'] = array_sum($currentyeardata[$current_month]) / 1000;
-                            $classification[$tableindex]['bymonth'][$tableindex][$id]['currentmonthdata'] = array_sum($currentyeardata[$current_month]) / 1000;
-                            $classification_data[$id] = array_sum($currentyeardata[$current_month]) / 1000;
+                        if(isset($currentyeardata [$current_month]) && !empty($currentyeardata[$current_month])) {
+                            $classification[$tableindex]['bymonth'][$tableindex][$id]['currentdata'] = array_sum($currentyeardata [$current_month]) / 1000;
+                            $classification[$tableindex]['bymonth'][$tableindex][$id]['currentmonthdata'] = array_sum($currentyeardata [$current_month]) / 1000;
+                            $classification_data[$id] = array_sum($currentyeardata [$current_month]) / 1000;
                         }
                         else {
                             $classification[$tableindex]['bymonth'][$tableindex][$id]['currentdata'] = 0;
@@ -1447,7 +1500,7 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                                 $cydata = array_sum($cydata_array);
                                 if(!empty($cydata)) {
                                     $classification[$tableindex]['byytd'][$tableindex][$id]['currentdata'] +=$cydata / 1000;
-                                    $ytdclassification_data[$id] +=$cydata / 1000;
+                                    $ytdclassification_data [$id] +=$cydata / 1000;
                                 }
                                 else {
                                     $classification[$tableindex]['byytd'][$tableindex][$id]['currentdata'] += 0;
@@ -1457,7 +1510,7 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                             //Change variable names from months to ytd
                             $classification[$tableindex]['byytd'][$tableindex][$id]['currentmonthdata'] = $classification[$tableindex]['byytd'][$tableindex][$id]['currentdata'];
                             //Get Last year total data to be compared with current year data
-                            $lastyeardata = $salerepdata[($current_year - 1)];
+                            $lastyeardata = $salerepdata [($current_year - 1)];
                             if(is_array($lastyeardata)) {
                                 foreach($lastyeardata as $lydata_array) {
                                     if(is_array($lydata_array)) {
@@ -1471,26 +1524,26 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                                     }
                                 }
                             }
-                            //////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////
                         }
-                        //Get Last Month data to be compared with current month data
-                        if(is_array($currentyeardata[($current_month - 1)])) {
-                            $classification[$tableindex]['bymonth'][$tableindex][$id]['prevmonthdata'] = array_sum($currentyeardata[$current_month - 1]) / 1000;
+//Get Last Month data to be compared with current month data
+                        if(is_array($currentyeardata [($current_month - 1)])) {
+                            $classification[$tableindex]['bymonth'][$tableindex][$id]['prevmonthdata'] = array_sum($currentyeardata [$current_month - 1]) / 1000;
                         }
                         else {
                             $classification[$tableindex]['bymonth'][$tableindex][$id]['prevmonthdata'] = 0;
                         }
-                        ///////////////////////////////////////////////////////////////////
-                        //classify data by quarter//
+///////////////////////////////////////////////////////////////////
+//classify data by quarter//
                         $qmonths = $this->get_quartermonths($currentquarter);
                         foreach($qmonths as $month) {
                             if(is_array($currentyeardata[$month])) {
-                                $classification[$tableindex]['byquarter'][$tableindex][$id]['currentdata'] += array_sum($currentyeardata[$month]) / 1000;
-                                $qclassification_data[$id] +=array_sum($currentyeardata[$month]) / 1000;
+                                $classification[$tableindex]['byquarter'][$tableindex][$id]['currentdata'] += array_sum($currentyeardata [$month]) / 1000;
+                                $qclassification_data[$id] +=array_sum($currentyeardata [$month]) / 1000;
                             }
                         }
                     }
-                    ///Sort Data descending to classify top supp/products or BM //
+///Sort Data descending to classify top supp/products or BM //
                     if(isset($classification_data) && isset($classification[$tableindex]['bymonth'][$tableindex])) {
                         array_multisort($classification_data, SORT_DESC, $classification[$tableindex]['bymonth'][$tableindex]);
                     }
@@ -1511,9 +1564,9 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                                 foreach($year_data as $month => $month_data) {
                                     if(is_array($month_data)) {
                                         foreach($month_data as $day => $day_data) {
-                                            if(($year == $from['year'] && $month >= $from['mon'] && $day >= $from['mday']) || ($year == $to['year'] && $month <= $to['mon'] && $day <= $to['mday'])) {
+                                            if(($year == $from ['year'] && $month >= $from ['mon'] && $day >= $from ['mday']) || ($year == $to ['year'] && $month <= $to ['mon'] && $day <= $to['mday'])) {
                                                 $classification[$tableindex]['wholeperiod'][$tableindex][$id]['currentdata'] +=$day_data / 1000;
-                                                $periodclassification[$id] +=$day_data / 1000;
+                                                $periodclassification [$id] +=$day_data / 1000;
                                             }
                                         }
                                     }
@@ -1528,7 +1581,7 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                 }
             }
         }
-        //Select only top 10 out of the array//
+//Select only top 10 out of the array//
         foreach($tableindexes as $tableindex) {
             foreach($classificationtypes as $type) {
                 if(is_array($classification[$tableindex][$type][$tableindex])) {
@@ -1574,13 +1627,13 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                             switch($classificationtype) {
                                 case 'bymonth':
                                     $prevperiod = getdate(TIME_NOW);
-                                    $currperiod = ' ('.$prevperiod['month'].')';
+                                    $currperiod = '('.$prevperiod['month'].')';
                                     $dateObj = DateTime::createFromFormat('!m', $prevperiod['mon'] - 1);
                                     $prevperiod = $dateObj->format('F');
                                     unset($dateObj);
                                     break;
                                 case 'byytd':
-                                    $currperiod = ' ('.(date('Y', TIME_NOW)).')';
+                                    $currperiod = '('.(date('Y', TIME_NOW)).')';
                                     $prevperiod = (date('Y', TIME_NOW) - 1);
                                     break;
                                 default:
@@ -1716,6 +1769,7 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                 $data[] = $salesdata;
             }
             $this->f_db->free_result($query);
+
             return $data;
         }
         return false;
@@ -1750,6 +1804,8 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
             }
             return $data;
         }
+
+
         return false;
     }
 
@@ -1777,7 +1833,8 @@ class IntegrationOBOrder extends IntegrationAbstractClass {
     private function read($id) {
         $this->data = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
 						FROM c_order
-						WHERE c_order_id='".$this->f_db->escape_string($id)."'"));
+						WHERE c_order_id='".$this->f_db->escape_string($id)
+                        ."'"));
     }
 
     public function get_paymentplan() {
@@ -1818,6 +1875,10 @@ class IntegrationOBOrderLine extends IntegrationAbstractClass {
     const TABLE_NAME = 'c_orderline';
     const DISPLAY_NAME = '';
     const CLASSNAME = __CLASS__;
+
+//    public function __construct($id, $f_db = NULL) {
+//        parent::__construct($id, $f_db);
+//    }
 
     public function __construct($id, $f_db = NULL) {
         if(!empty($f_db)) {
@@ -1890,7 +1951,8 @@ class IntegrationOBCostingAlgorithm {
     private function read($id) {
         $this->algorithm = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
 						FROM m_costing_algorithm
-						WHERE m_costing_algorithm_id='".$this->f_db->escape_string($id)."'"));
+						WHERE m_costing_algorithm_id='".$this->f_db->escape_string($id)
+                        ."'"));
     }
 
     public function get_id() {
@@ -1935,7 +1997,8 @@ class IntegrationOBInputStack {
     private function read($id) {
         $this->inputstack = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
 						FROM obwfa_input_stack
-						WHERE obwfa_input_stack_id='".$this->f_db->escape_string($id)."'"));
+						WHERE obwfa_input_stack_id='".$this->f_db->escape_string($id)
+                        ."'"));
     }
 
     public function get_daysinstock($relativeto = 'now') {
@@ -1960,6 +2023,7 @@ class IntegrationOBInputStack {
 
         $diff = $end_date->diff($input_date);
         $days = $diff->format('%a');
+
 
         return $days;
     }
@@ -2037,7 +2101,8 @@ class IntegrationOBOutputStack {
     private function read($id) {
         $this->outputstack = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
 						FROM obwfa_output_stack
-						WHERE obwfa_output_stack_id='".$this->f_db->escape_string($id)."'"));
+						WHERE obwfa_output_stack_id='".$this->f_db->escape_string($id)
+                        ."'"));
     }
 
     public function get_transcation() {
@@ -2110,7 +2175,8 @@ class IntegrationOBLandedCosts {
     private function read($id) {
         $this->currency = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
 						FROM m_landedcosts
-						WHERE m_landedcosts_id='".$this->f_db->escape_string($id)."'"));
+						WHERE m_landedcosts_id='".$this->f_db->escape_string($id)
+                        ."'"));
     }
 
     public function get_id() {
@@ -2146,7 +2212,8 @@ class IntegrationOBProduct extends IntegrationAbstractClass {
     private function read($id) {
         $this->data = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
 						FROM m_product
-						WHERE m_product_id='".$this->f_db->escape_string($id)."'"));
+						WHERE m_product_id='".$this->f_db->escape_string($id)
+                        ."'"));
     }
 
     public function get_category() {
@@ -2191,7 +2258,8 @@ class IntegrationOBProductCategory {
     private function read($id) {
         $this->productcategory = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
 						FROM m_product_category
-						WHERE m_product_category_id='".$this->f_db->escape_string($id)."'"));
+						WHERE m_product_category_id='".$this->f_db->escape_string($id)
+                        ."'"));
     }
 
     public function get_id() {
@@ -2237,7 +2305,8 @@ class IntegrationOBLocator extends IntegrationAbstractClass {
     private function read($id) {
         $this->data = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
 						FROM m_locator
-						WHERE m_locator_id='".$this->f_db->escape_string($id)."'"));
+						WHERE m_locator_id='".$this->f_db->escape_string($id)
+                        ."'"));
     }
 
     public function get_warehouse() {
@@ -2276,7 +2345,8 @@ class IntegrationOBWarehouse extends IntegrationAbstractClass {
     private function read($id) {
         $this->data = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
 						FROM m_warehouse
-						WHERE m_warehouse_id='".$this->f_db->escape_string($id)."'"));
+						WHERE m_warehouse_id='".$this->f_db->escape_string($id)
+                        ."'"));
     }
 
     public function get_id() {
@@ -2309,7 +2379,8 @@ class IntegrationOBBPartner extends IntegrationAbstractClass {
     private function read($id) {
         $this->data = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
 						FROM c_bpartner
-						WHERE c_bpartner_id='".$this->f_db->escape_string($id)."'"));
+						WHERE c_bpartner_id='".$this->f_db->escape_string($id)
+                        ."'"));
     }
 
     public function get_id() {
@@ -2350,7 +2421,8 @@ class IntegrationOBAttributeSetInstance {
     private function read($id) {
         $this->setinstance = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
 						FROM m_attributesetinstance
-						WHERE m_attributesetinstance_id='".$this->f_db->escape_string($id)."'"));
+						WHERE m_attributesetinstance_id='".$this->f_db->escape_string($id)
+                        ."'"));
     }
 
     public function get_daystoexpire() {
@@ -2371,6 +2443,7 @@ class IntegrationOBAttributeSetInstance {
 
             $diff = $end_date->diff($expiry_date);
             $days = $diff->format('%r%a');
+
 
             return $days;
         }
@@ -2422,7 +2495,8 @@ class IntegrationOBAttributeInstance {
     private function read($id) {
         $this->instance = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
 						FROM m_attributeinstance
-						WHERE m_attributeinstance_id='".$this->f_db->escape_string($id)."'"));
+						WHERE m_attributeinstance_id='".$this->f_db->escape_string($id)
+                        ."'"));
     }
 
     public function get_attribute() {
@@ -2463,7 +2537,8 @@ class IntegrationOBAttribute {
     private function read($id) {
         $this->attribute = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
 						FROM m_attribute
-						WHERE m_attribute_id='".$this->f_db->escape_string($id)."'"));
+						WHERE m_attribute_id='".$this->f_db->escape_string($id)
+                        ."'"));
     }
 
     public function get_id() {
@@ -2493,7 +2568,8 @@ class IntegrationOBAttributeValue {
     private function read($id) {
         $this->attributevalue = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
 						FROM m_attributevalue
-						WHERE m_attributevalue_id='".$this->f_db->escape_string($id)."'"));
+						WHERE m_attributevalue_id='".$this->f_db->escape_string($id)
+                        ."'"));
     }
 
     public function get_id() {
@@ -2532,7 +2608,8 @@ class IntegrationOBUom extends IntegrationAbstractClass {
     private function read($id) {
         $this->data = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
 						FROM c_uom
-						WHERE c_uom_id='".$this->f_db->escape_string($id)."'"));
+						WHERE c_uom_id='".$this->f_db->escape_string($id)
+                        ."'"));
     }
 
     public function get_id() {
@@ -2569,7 +2646,8 @@ class IntegrationCostingRule {
     private function read($id) {
         $this->rule = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
 						FROM m_costing_rule
-						WHERE m_costing_rule_id='".$this->f_db->escape_string($id)."'"));
+						WHERE m_costing_rule_id='".$this->f_db->escape_string($id)
+                        ."'"));
     }
 
     public function get_costingalgorithm() {
@@ -2603,7 +2681,8 @@ class IntegrationCostingAlgorithm {
     private function read($id) {
         $this->algorithm = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
 						FROM m_costing_algorithm
-						WHERE m_costing_algorithm_id='".$this->f_db->escape_string($id)."'"));
+						WHERE m_costing_algorithm_id='".$this->f_db->escape_string($id)
+                        ."'"));
     }
 
     public function get_id() {
@@ -2632,7 +2711,8 @@ class IntegrationOBUser extends IntegrationAbstractClass {
     private function read($id) {
         $this->data = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
 						FROM ".self::TABLE_NAME."
-						WHERE ".self::PRIMARY_KEY."='".$this->f_db->escape_string($id)."'"));
+						WHERE ".self::PRIMARY_KEY."='".$this->f_db->escape_string($id)
+                        ."'"));
     }
 
     public function get_id() {
@@ -2672,7 +2752,8 @@ class IntegrationOBPaymentTerm extends IntegrationAbstractClass {
     private function read($id) {
         $this->data = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
 						FROM ".self::TABLE_NAME."
-						WHERE ".self::PRIMARY_KEY."='".$this->f_db->escape_string($id)."'"));
+						WHERE ".self::PRIMARY_KEY."='".$this->f_db->escape_string($id)
+                        ."'"));
     }
 
     public function get_id() {

@@ -196,7 +196,10 @@ else {
                     }
 
                     if(is_object($inputstack)) {
-                        $input_inoutline = $inputstack->get_transcation()->get_inoutline();
+                        if(is_object($inputstack->get_transcation())) {
+                            $inputstack = $inputstack->get_transcation()->get_firstinputstack();
+                            $input_inoutline = $inputstack->get_transcation()->get_inoutline();
+                        }
                         if(is_object($input_inoutline)) {
                             $ioinvoiceline = $input_inoutline->get_invoiceline();
                             if(is_object($ioinvoiceline)) {
@@ -208,9 +211,19 @@ else {
                                 }
                                 if($usdcurrency_obj->alphaCode != $invoiceline->purchasecurr) {
                                     $invoice->purchaseprice_usdfxrate = $usdcurrency_obj->get_fxrate_bytype($core->input['fxtype'], $invoiceline->purchasecurr, array('from' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 01:00'), 'to' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 24:00'), 'year' => date('Y', $invoice->dateinvoiceduts), 'month' => date('m', $invoice->dateinvoiceduts)), array('precision' => 4));
-                                    $invoiceline->purchasepriceusd = $invoiceline->purchaseprice / $invoice->purchaseprice_usdfxrate;
+                                    if(!empty($invoice->purchaseprice_usdfxrate)) {
+                                        $invoiceline->purchasepriceusd = $invoiceline->purchaseprice / $invoice->purchaseprice_usdfxrate;
+                                    }
+                                    else {
+                                        $invoiceline->purchasepriceusd = 0;
+                                    }
                                 }
-                                $invoiceline->purchaseprice /= $invoice->purchaseprice_localfxrate;
+                                if(!empty($invoice->purchaseprice_localfxrate)) {
+                                    $invoiceline->purchaseprice /= $invoice->purchaseprice_localfxrate;
+                                }
+                                else {
+                                    $invoiceline->purchaseprice = 0;
+                                }
                             }
                             unset($ioinvoiceline);
                         }
@@ -283,7 +296,8 @@ else {
                         'priceactual' => array('fields' => array('divider' => 'linenetamt', 'dividedby' => 'qtyinvoiced'), 'operation' => '/'));
 
                 $formats = array('marginperc' => array('style' => NumberFormatter::PERCENT_SYMBOL),
-                        'grossmarginperc' => array('style' => NumberFormatter::PERCENT_SYMBOL),);
+                        'grossmarginperc' => array('style' => NumberFormatter::PERCENT_SYMBOL),
+                );
                 $required_fields = array('qtyinvoiced', 'priceactual', 'linenetamt', 'purchaseprice', 'costlocal', 'grossmargin', 'grossmarginperc', 'netmargin', 'marginperc');
 
                 if($core->input['type'] == 'analytic') {
