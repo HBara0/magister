@@ -523,14 +523,14 @@ class AroRequests extends AbstractClass {
                 $sequence++;
             }
         }
-//        $aroapproval_objs = AroRequestsApprovals::get_data(array('aorid' => $this->data[self::PRIMARY_KEY]), array('returnarray' => true));
-//        if(is_array($aroapproval_objs)) {
-//            foreach($aroapproval_objs as $aroapproval_obj) {
-//                if(!in_array($aroapproval_obj->position, array_keys($approvers))) {
-//                    $aroapproval_obj->delete();
-//                }
-//            }
-//        }
+        $aroapproval_objs = AroRequestsApprovals::get_data(array('aorid' => $this->data[self::PRIMARY_KEY]), array('returnarray' => true));
+        if(is_array($aroapproval_objs)) {
+            foreach($aroapproval_objs as $aroapproval_obj) {
+                if(!in_array($aroapproval_obj->position, array_keys($approvers))) {
+                    $aroapproval_obj->delete();
+                }
+            }
+        }
         return true;
     }
 
