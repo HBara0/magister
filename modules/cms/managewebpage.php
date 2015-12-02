@@ -78,7 +78,7 @@ if(!$core->input['action']) {
             }
         }
     }
-    $languages = array('en' => 'english', 'fr' => 'french');
+    $languages = array('english' => 'english', 'french' => 'french');
     $languages_list = parse_selectlist('page[lang]', '', $languages, $page['lang']);
 
     eval("\$higlightsbox =\"".$template->get('cms_manage_pagehighlight')."\";");
