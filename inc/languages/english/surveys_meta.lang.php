@@ -81,4 +81,8 @@ $lang['isanswer'] = 'Is Answer';
 $lang['choice'] = 'Choice';
 $lang['value'] = 'Value';
 $lang['quiz'] = 'Quiz';
+$lang['result'] = 'Result';
+$lang['totalscore'] = 'Total Score';
+$lang['failed'] = 'Failed';
+$lang['passed'] = 'Passed';
 ?>

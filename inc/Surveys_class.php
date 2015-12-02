@@ -86,7 +86,11 @@ class Surveys {
         }
 
         unset($data['invitations'], $data['associations'], $data['inviteesnumber'], $data['externalinvitations']);
-
+        $surveytemplate = new SurveysTemplates($data['stid'], false);
+        if($surveytemplate->isQuiz == 1) {
+            $data['isQuiz'] = 1;
+            $data['total'] = $surveytemplate->total;
+        }
         $query = $db->insert_query('surveys', $data);
         if($query) {
             $this->status = 0;
@@ -225,6 +229,7 @@ class Surveys {
     public function create_survey_template(array $data) {
         global $db, $core, $log;
         $cache = new Cache();
+        $totalquestions = 0;
         unset($data['action'], $data['module']); /* here we destroy the  action and module from the data ARRAY to avoid insert module name and action in the DB  */
         if(empty($data['title'])) {
             $this->status = 1;
@@ -284,6 +289,7 @@ class Surveys {
                         }
 
                         if($question['hasChoices'] == 1) {
+                            $totalquestions++;
                             if(empty($question['choices'])) {
                                 $this->status = 1;
                                 return false;
@@ -317,7 +323,9 @@ class Surveys {
                 'forceAnonymousFilling' => $core->input['forceAnonymousFilling'],
                 'createdBy' => $core->user['uid'],
                 'isQuiz' => intval($core->input['isQuiz']));
-
+        if($newsurveys_template['isQuiz'] == 1) {
+            $newsurveys_template['total'] = $totalquestions;
+        }
         $query = $db->insert_query('surveys_templates', $newsurveys_template);
 
         if($query) {
@@ -539,12 +547,12 @@ class Surveys {
         return $pending_responses;
     }
 
-    public function parse_response(array $response, array $question) {
+    public function parse_response(array $response, array $question, $isquiz = 0) {
         if(is_empty($response, $question)) {
             return false;
         }
 
-        return $this->parse_question($question, false, $response);
+        return $this->parse_question($question, false, $response, $isquiz);
     }
 
     public function get_responses_stats($ignore_zero = false) {
@@ -604,21 +612,39 @@ class Surveys {
             $this->status = 2;
             return false;
         }
-
+        $corrects = 0;
+        $total = 0;
         if($this->validate_answers($answers['actual'])) {
             $identifier = substr(md5(uniqid(microtime())), 1, 10);
             foreach($answers['actual'] as $id => $value) {
+                $total++;
                 if(is_array($value)) {
                     foreach($value as $vid => $val) {
-                        $this->save_single_response(array('id' => $id, 'value' => $val, 'comments' => $answers['comments'][$id][$vid], 'identifier' => $identifier));
+                        $answer = 0;
+                        $questionchoice = new SurveysTplQChoices(intval($val));
+                        if($questionchoice->isAnswer == 1) {
+                            $answer = 1;
+                            $corrects++;
+                        }
+                        $this->save_single_response(array('id' => $id, 'value' => $val, 'comments' => $answers['comments'][$id][$vid], 'identifier' => $identifier, 'isCorrect' => $answer));
                     }
                 }
                 else {
-                    $this->save_single_response(array('id' => $id, 'value' => $value, 'comments' => $answers['comments'][$id], 'identifier' => $identifier));
+                    $answer = 0;
+                    $questionchoice = new SurveysTplQChoices(intval($value));
+                    if($questionchoice->isAnswer == 1) {
+                        $answer = 1;
+                        $corrects++;
+                    }
+                    $this->save_single_response(array('id' => $id, 'value' => $val, 'comments' => $answers['comments'][$id][$vid], 'identifier' => $identifier, 'isCorrect' => $answer));
                 }
             }
             /* Set contribution as done */
-            $db->update_query('surveys_invitations', array('isDone' => 1, 'timeDone' => TIME_NOW), 'invitee='.$core->user['uid'].' AND sid='.$this->survey['sid']);
+            $pass = 0;
+            if($corrects > 0 && $corrects > ($this->survey['total'] / 2)) {
+                $pass = 1;
+            }
+            $db->update_query('surveys_invitations', array('total' => $total, 'passed' => $pass, 'score' => $corrects, 'isDone' => 1, 'timeDone' => TIME_NOW), 'invitee='.$core->user['uid'].' AND sid='.$this->survey['sid']);
             $this->status = 0;
             return true;
         }
@@ -637,7 +663,8 @@ class Surveys {
                 'identifier' => $answer['identifier'],
                 'response' => $core->sanitize_inputs($answer['value']),
                 'comments' => $core->sanitize_inputs($answer['comments']),
-                'time' => TIME_NOW
+                'time' => TIME_NOW,
+                'isCorrect' => $answer['isCorrect'],
         );
         $query = $db->insert_query('surveys_responses', $response);
         if($query) {
@@ -1000,8 +1027,9 @@ class Surveys {
         return $questions;
     }
 
-    public function parse_question(array $question, $secondary = false, array $response = array()) {
+    public function parse_question(array $question, $secondary = false, array $response = array(), $isquiz = 0) {
         $question_output_requiredattr = '';
+        $rowclass = '';
         if($question['isRequired'] == 1) {
             $question_output_required = '<span class="red_text">*</span>';
             $question_output_requiredattr = ' required="required"';
@@ -1058,13 +1086,30 @@ class Surveys {
             case 'selectlist':
                 if(!empty($response)) {
                     if($question['hasMultiAnswers'] == 0) {
-                        $question_output .= '<div style="margin: 5px 20px; 5px; 20px;">'.$response['choice'].'</div>';
+                        if($isquiz == 1) {
+                            if($response['isCorrect'] == 1) {
+                                $rowclass = 'greenbackground';
+                            }
+                            else {
+                                $rowclass = 'unapproved';
+                            }
+                        }
+                        $question_output .= '<div class="'.$rowclass.'" style="margin: 5px 20px; 5px; 20px;">'.$response['choice'].'</div>';
                     }
                     else {
                         foreach($response as $attr => $value) {
-                            $question_output_response[] .= $value['choice'];
+                            $rowclass = '';
+                            if($isquiz == 1) {
+                                if($value['isCorrect'] == 1) {
+                                    $rowclass = 'greenbackground';
+                                }
+                                else {
+                                    $rowclass = 'unapproved';
+                                }
+                            }
+                            $question_output_response.= '<span class="'.$rowclass.'">'.$value['choice'].'</span> ,';
                         }
-                        $question_output .= '<div style="margin: 5px 20px; 5px; 20px;">'.implode('<br />', $question_output_response).'</div>';
+                        $question_output .= '<div style="margin: 5px 20px; 5px; 20px;">'.$question_output_response.'</div>';
                     }
                 }
                 else {
@@ -1074,9 +1119,18 @@ class Surveys {
             case 'checkbox':
                 if(!empty($response)) {
                     foreach($response as $attr => $value) {
-                        $question_output_response[] .= $value['choice'];
+                        $rowclass = '';
+                        if($isquiz == 1) {
+                            if($value['isCorrect'] == 1) {
+                                $rowclass = 'greenbackground';
+                            }
+                            else {
+                                $rowclass = 'unapproved';
+                            }
+                        }
+                        $question_output_response.= '<span class="'.$rowclass.'">'.$value['choice'].'</span> ,';
                     }
-                    $question_output .= '<div style="margin: 5px 20px; 5px; 20px;">'.implode(', ', $question_output_response).'</div>';
+                    $question_output .= '<div style="margin: 5px 20px; 5px; 20px;">'.$question_output_response.'</div>';
                 }
                 else {
                     $question_output .= '<div style="margin: 5px 20px; 5px; 20px;">'.parse_checkboxes('answer[actual]['.$question['stqid'].']', $question['choices'], '', true, '&nbsp;&nbsp;').'</div>';
@@ -1084,7 +1138,15 @@ class Surveys {
                 break;
             case 'radiobutton':
                 if(!empty($response)) {
-                    $question_output .= '<div style="margin: 5px 20px; 5px; 20px;">'.$response['choice'].'</div>';
+                    if($isquiz == 1) {
+                        if($response['isCorrect'] == 1) {
+                            $rowclass = 'greenbackground';
+                        }
+                        else {
+                            $rowclass = 'unapproved';
+                        }
+                    }
+                    $question_output .= '<div class="'.$rowclass.'" style="margin: 5px 20px; 5px; 20px;">'.$response['choice'].'</div>';
                 }
                 else {
                     $question_output .= '<div style="margin: 5px 20px; 5px; 20px;">'.parse_radiobutton('answer[actual]['.$question['stqid'].']', $question['choices'], '', true, '&nbsp;&nbsp;', array('required' => $question['isRequired'])).'</div>';
