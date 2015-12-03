@@ -55,8 +55,8 @@ class AroPolicies extends AbstractClass {
             }
             $query = $db->update_query(self::TABLE_NAME, $data, self::PRIMARY_KEY.' = '.intval($this->data[self::PRIMARY_KEY]));
             if($query) {
-                $id = $db->last_id();
-                $log->record('aro_policies', $id);
+                // $id = $db->last_id();
+                $log->record('aro_policies', $this->data[self::PRIMARY_KEY]);
             }
         }
         return $this;
