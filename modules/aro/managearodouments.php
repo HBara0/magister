@@ -137,7 +137,7 @@ if(!($core->input['action'])) {
                 $aroorderrequest->aroBusinessManager_output = $aro_bm->get_displayname();
             }
         }
-        if(isset($core->input['referrer']) && $core->input['referrer'] = 'toapprove') {
+        if(isset($core->input['referrer']) && $core->input['referrer'] == 'toapprove') {
             $aroapproval = AroRequestsApprovals::get_data(array('aorid' => intval($core->input['id']), 'uid' => $core->user['uid']));
             $approve_btn[$core->user['uid']] = '<input type="button" class="button" id="approvearo" value="'.$lang->approve.'"/>'
                     .'<input type="hidden" id="approvearo_id" value="'.$aroorderrequest->aorid.'"/>';
@@ -562,7 +562,26 @@ if(!($core->input['action'])) {
     eval("\$aro_netmarginparms= \"".$template->get('aro_netmarginparameters')."\";");
     eval("\$actualpurchase = \"".$template->get('aro_actualpurchase')."\";");
     eval("\$currentstock = \"".$template->get('aro_currentstock')."\";");
+
+//    if(isset($core->input['referrer']) && $core->input['referrer'] == 'toapprove') {
+//        if(is_object($aroordersummary)) {
+//            $formatter = new NumberFormatter($lang->settings['locale'], NumberFormatter::DECIMAL);
+//            $perc_formatter = new NumberFormatter($lang->settings['locale'], NumberFormatter::PERCENT);
+//            $ordersummary_fields = array('invoiceValueIntermed', 'invoiceValueLocal', 'invoiceValueUsdIntermed', 'invoiceValueUsdLocal', 'totalQuantityUom', 'interestValue', 'interestValueUsd', 'totalIntermedFees', 'totalIntermedFeesUsd', 'unitFee', 'netmarginIntermed', 'netmarginLocal', 'invoiceValueThirdParty', 'globalNetmargin', 'netmarginIntermedPerc', 'netmarginLocalPerc');
+//            foreach($ordersummary_fields as $field) {
+//                if($field == 'netmarginIntermedPerc' || $field == 'netmarginLocalPerc') {
+//                    $aroordersummary->$field = $perc_formatter->format($aroordersummary->$field);
+//                }
+//                else {
+//                    $aroordersummary->$field = $formatter->format($aroordersummary->$field);
+//                }
+//            }
+//        }
+//        eval("\$orderummary = \"".$template->get('aro_ordersummary_preview')."\";");
+//    }
+//    else {
     eval("\$orderummary = \"".$template->get('aro_ordersummary')."\";");
+    // }
     unset($firstparty, $secondparty, $thirdparty);
     eval("\$totalfunds = \"".$template->get('aro_totalfunds')."\";");
     eval("\$approvalchain= \"".$template->get('aro_approvalchain')."\";");
@@ -1222,6 +1241,8 @@ else {
                         case 'reportsTo':
                             $position = 'Reports To';
                             break;
+                        case 'commercialManager':
+                            $position = 'Commercial Manager';
                     }
                     //   if($key != 'businessManager') {
                     $user = new Users($val);

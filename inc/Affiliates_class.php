@@ -27,7 +27,7 @@ class Affiliates {
     private function read($id, $simple = TRUE) {
         global $db;
 
-        $query_select = 'affid, name,alias, legalName, country, city, integrationOBOrgId, mainCurrency, isIntReinvoiceAffiliate,generalManager,finManager,cfo,coo,globalPurchaseManager,regionalSupervisor,supervisor,logisticsManager,globalFinManager';
+        $query_select = 'affid, name,alias, legalName, country, city, integrationOBOrgId, mainCurrency, isIntReinvoiceAffiliate,generalManager,finManager,cfo,coo,globalPurchaseManager,regionalSupervisor,supervisor,logisticsManager,globalFinManager,commercialManager';
         if($simple == false) {
             $query_select = '*';
         }
@@ -313,7 +313,7 @@ class Affiliates {
         if(empty($this->affiliate['commercialManager'])) {
             return false;
         }
-        return new Users($this->affiliate['coo']);
+        return new Users($this->affiliate['commercialManager']);
     }
 
     public function get_cfo() {
