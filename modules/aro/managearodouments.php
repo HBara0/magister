@@ -919,6 +919,9 @@ else {
         }
         if(isset($partiesinfo['intermedEstDateOfPayment_output']) && !empty($partiesinfo['intermedEstDateOfPayment_output']) && isset($partiesinfo['vendorEstDateOfPayment_output']) && !empty($partiesinfo['vendorEstDateOfPayment_output'])) {
             $data['intermedPeriodOfInterest'] = date_diff(date_create($partiesinfo['vendorEstDateOfPayment_output']), date_create($partiesinfo['intermedEstDateOfPayment_output']));
+            if(isset($partiesinfo['promiseOfPayment_output']) && !empty($partiesinfo['promiseOfPayment_output'])) {
+                $data['intermedPeriodOfInterest'] = date_diff(date_create($partiesinfo['vendorEstDateOfPayment_output']), date_create($partiesinfo['promiseOfPayment_output']));
+            }
             $data['intermedPeriodOfInterest'] = $data['intermedPeriodOfInterest']->format("%r%a");
             $data['diffbetweendates'] = $data['intermedPeriodOfInterest']; // difference between payment days
             if($data['intermedPeriodOfInterest'] < 0) {
@@ -927,6 +930,9 @@ else {
             $data['localPeriodOfInterest'] = 0;
             if(isset($core->input['est_local_pay']) && !empty($core->input['est_local_pay'])) { //est_local_pay= Estimated Local Invoice Due date (order customers section)
                 $data['localPeriodOfInterest'] = date_diff(date_create($partiesinfo['intermedEstDateOfPayment_output']), date_create($core->input['est_local_pay']));
+                if(isset($partiesinfo['promiseOfPayment_output']) && !empty($partiesinfo['promiseOfPayment_output'])) {
+                    $data['localPeriodOfInterest'] = date_diff(date_create($partiesinfo['promiseOfPayment_output']), date_create($core->input['est_local_pay']));
+                }
                 $data['localPeriodOfInterest'] = $data['localPeriodOfInterest']->format("%r%a");
                 if($data['localPeriodOfInterest'] < 0) {
                     $data['localPeriodOfInterest'] = 0;
