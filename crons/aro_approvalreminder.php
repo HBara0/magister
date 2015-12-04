@@ -21,7 +21,7 @@ if(is_array($arorequests)) {
             $sequence = $lastapproval->sequence + 1;
         }
         $nextapproval = AroRequestsApprovals::get_data(array('sequence' => $sequence, 'aorid' => $arorequest->aorid));
-        if(is_object($nextapproval)) {
+        if(is_object($nextapproval) && TIME_NOW >= strtotime('+1 day', $nextapproval->emailRecievedDate)) {
             $nextapprover = Users::get_data(array('uid' => $nextapproval->uid));
 
             $aroaffiliate_obj = Affiliates::get_affiliates(array('affid' => $arorequest->affid));
@@ -31,7 +31,7 @@ if(is_array($arorequests)) {
             $email_data = array(
                     'from' => 'ocos@orkila.com',
                     'to' => $nextapprover->email,
-                    'subject' => "ARO Approval Reminder | Request [".$arorequest->orderReference."] ".$aroaffiliate_obj->get_displayname()." | ".$purchasteype_obj->get_displayname(),
+                    'subject' => "<span style='color:red;'>ARO Request</span> [".$arorequest->orderReference."] ".$aroaffiliate_obj->get_displayname()." | ".$purchasteype_obj->get_displayname().' is pending your approval.',
                     'message' => "Aro Request [".$arorequest->orderReference."] ".$aroaffiliate_obj->get_displayname()." ".$purchasteype_obj->get_displayname()." Needs Approval:".$approve_link,
             );
 
