@@ -93,7 +93,7 @@ if(!$core->input['action']) {
     $purchasetypelist = parse_selectlist('chainpolicy[purchaseType]', 4, $purchasetypes, $chainpolicy[purchaseType]);
 
     if(is_array(unserialize($chainpolicy['approvalChain'])) && !empty($core->input['id'])) {
-        $approvers = array('businessManager' => 'Local Business Manager', 'lolm' => 'Local Logistics Manager', 'lfinancialManager' => 'Local Finance Manager', 'generalManager' => 'General Manager', 'gfinancialManager' => 'Global Finance Manager', 'cfo' => 'Global CFO', 'coo' => 'Global COO', 'regionalSupervisor' => 'Regional supervisor', 'globalPurchaseManager' => 'Global purchase manager', 'user' => 'user', 'reportsTo' => 'Reports To');
+        $approvers = array('businessManager' => 'Local Business Manager', 'lolm' => 'Local Logistics Manager', 'lfinancialManager' => 'Local Finance Manager', 'generalManager' => 'General Manager', 'gfinancialManager' => 'Global Finance Manager', 'cfo' => 'Global CFO', 'coo' => 'Global COO', 'regionalSupervisor' => 'Regional supervisor', 'globalPurchaseManager' => 'Global purchase manager', 'user' => 'user', 'reportsTo' => 'Reports To', 'commercialManager' => 'Commercial Manager');
 
         foreach(unserialize($chainpolicy[approvalChain]) as $key => $approverdata) {
 
@@ -128,7 +128,7 @@ if(!$core->input['action']) {
 
     /* approvers predfined */
     else {
-        $approvers = array('businessManager' => 'Local Business Manager', 'lolm' => 'Local Logistics Manager', 'lfinancialManager' => 'Local Finance Manager', 'generalManager' => 'General Manager', 'gfinancialManager' => 'Global Finance Manager', 'cfo' => 'Global CFO', 'coo' => 'Global COO', 'regionalSupervisor' => 'Regional supervisor', 'globalPurchaseManager' => 'Global purchase manager', 'user' => 'user', 'reportsTo' => 'Reports To');
+        $approvers = array('businessManager' => 'Local Business Manager', 'lolm' => 'Local Logistics Manager', 'lfinancialManager' => 'Local Finance Manager', 'generalManager' => 'General Manager', 'gfinancialManager' => 'Global Finance Manager', 'cfo' => 'Global CFO', 'coo' => 'Global COO', 'regionalSupervisor' => 'Regional supervisor', 'globalPurchaseManager' => 'Global purchase manager', 'user' => 'user', 'reportsTo' => 'Reports To', 'commercialManager' => 'Commercial Manager');
         $rowid = 1;
         $display[1][uid] = 'display:none;';
         foreach($approvers as $key => $approver) {
@@ -178,7 +178,7 @@ else if($core->input['action'] == 'do_perform_manageapprovalchainspolicies') {
 }
 else if($core->input['action'] == 'ajaxaddmore_approvers') {
     $rowid = intval($core->input['value']) + 1;
-    $approvers = array('businessManager' => 'Local Business Manager', 'lolm' => 'Local Logistics Manager', 'lfinancialManager' => 'Local Finance Manager', 'generalManager' => 'General Manager', 'gfinancialManager' => 'Global Finance Manager', 'cfo' => 'Global CFO', 'coo' => 'Global COO', 'regionalSupervisor' => 'Regional supervisor', 'globalPurchaseManager' => 'Global purchase manager', 'user' => 'user', 'reportsTo' => 'Reports To');
+    $approvers = array('businessManager' => 'Local Business Manager', 'lolm' => 'Local Logistics Manager', 'lfinancialManager' => 'Local Finance Manager', 'generalManager' => 'General Manager', 'gfinancialManager' => 'Global Finance Manager', 'cfo' => 'Global CFO', 'coo' => 'Global COO', 'regionalSupervisor' => 'Regional supervisor', 'globalPurchaseManager' => 'Global purchase manager', 'user' => 'user', 'reportsTo' => 'Reports To', 'commercialManager' => 'Commercial Manager');
     //$rowid = 1;
     $display[$rowid][uid] = 'display:none;';
     foreach($approvers as $key => $approver) {

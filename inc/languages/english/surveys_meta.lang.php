@@ -78,4 +78,8 @@ $lang['survey_reminder_subject'] = 'Survey(s) Reminder';
 $lang['template'] = 'Template';
 $lang['value'] = 'Value';
 $lang['violation'] = 'One or more inputs you made violate the requirements';
+$lang['result'] = 'Result';
+$lang['totalscore'] = 'Total Score';
+$lang['failed'] = 'Failed';
+$lang['passed'] = 'Passed';
 ?>

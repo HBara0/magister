@@ -127,6 +127,7 @@ else {
 
         $lines = new IntegrationOBInvoiceLine(null, $intgdb);
         $permissionfilters = get_permissions($intgdb, $extrafilters);
+
         if(is_array($permissionfilters)) {
             foreach($permissionfilters as $key => $value) {
                 $where .=' AND '.$key.' IN('.implode(', ', $value).')';
@@ -138,12 +139,14 @@ else {
             foreach($permissionfilters['c_invoice.ad_org_id'] as $orgid) {
                 $orgid = trim($orgid, "'");
                 $aff = Affiliates::get_affiliates(array('integrationOBOrgId' => $orgid));
-                $chartproperties['affiliates'][] = $aff->name;
-                if(!empty($sales[$orgid])) {
-                    $chartproperties['sales'][] = $sales[$orgid];
-                }
-                else {
-                    $chartproperties['sales'][] = 0;
+                if(!empty($aff->name) && $aff->name != NULL) {
+                    $chartproperties['affiliates'][] = $aff->name;
+                    if(!empty($sales[$orgid]) && $sales[$orgid] != NULL) {
+                        $chartproperties['sales'][] = $sales[$orgid];
+                    }
+                    else {
+                        $chartproperties['sales'][] = 0;
+                    }
                 }
             }
         }
@@ -173,7 +176,7 @@ else {
         }
         $sales = $lines->get_totallines($where);
         $fx_query = '*(CASE WHEN bbl.originalCurrency = 840 THEN 1
-            ELSE (SELECT bfr.rate from budgeting_fxrates bfr WHERE bfr.affid = bb.affid AND bfr.year = bb.year AND bfr.fromCurrency = bbl.originalCurrency AND bfr.toCurrency = 840) END)';
+            ELSE (SELECT bfr.rate from budgeting_fxrates bfr WHERE bfr.affid = bb.affid AND bfr.year = bb.year AND bfr.fromCurrency = bbl.originalCurrency AND bfr.toCurrency = 840 AND isBudget=1) END)';
 
 
         if(is_array($permissionfilters['c_invoice.ad_org_id'])) {
@@ -183,16 +186,15 @@ else {
             }
         }
 
-        $query = $db->query("SELECT affid, SUM(amount".$fx_query.") AS amount FROM budgeting_budgets_lines bbl JOIN budgeting_budgets bb ON (bbl.bid=bb.bid) WHERE year=".date('Y ', TIME_NOW)." AND affid IN (".implode(', ', array_keys($affiliates)).") GROUP by affid");
+        $query = $db->query("SELECT affid, SUM(amount".$fx_query.") AS amount FROM budgeting_budgets_lines bbl JOIN budgeting_budgets bb ON (bbl.bid=bb.bid) WHERE year=".date('Y', TIME_NOW)." AND affid IN (".implode(', ', array_keys($affiliates)).") GROUP by affid");
         if($db->num_rows($query) > 0) {
             while($budgetline = $db->fetch_assoc($query)) {
                 $budget[$budgetline['affid']] = $budgetline['amount'];
             }
         }
-
         foreach($affiliates as $affiliate) {
             $chartproperties['affiliates'][] = $affiliate->name;
-            if(!empty($budget[$affiliate->affid])) {
+            if(!empty($budget[$affiliate->affid]) && $budget[$affiliate->affid] != NULL) {
                 $chartproperties['budget'][] = $budget[$affiliate->affid];
             }
             else {
@@ -205,6 +207,7 @@ else {
                 $chartproperties['sales'][] = 0;
             }
         }
+
         header("Content-Type: application/json");
         output(json_encode($chartproperties));
     }
@@ -247,40 +250,44 @@ function get_permissions($intgdb, $extrafilters) {
     foreach($permissiontypes as $type => $col) {
         if(is_array($permissions[$type])) {
             $where = $type.' IN ('.implode(',', $permissions[$type]).')';
-            $configs = array('operators' => array($type => 'CUSTOMSQL'), 'simple' => 'false', 'returnarray' => true);
-            switch($type) {
-                case 'affid':
-                    $configs['operators']['integrationOBOrgId'] = 'CUSTOMSQL';
-                    if(isset($extrafilters[$type]) && !empty($extrafilters[$type])) {
-                        $affiliates = $extrafilters[$type];
-                    }
-                    else {
-                        $affiliates = Affiliates::get_affiliates(array($type => $where, 'integrationOBOrgId' => 'integrationOBOrgId IS NOT NULL'), $configs);
-                    }
-                    foreach($affiliates as $affiliate) {
-                        $filters[$col][] = "'".$affiliate->integrationOBOrgId."'";
-                    }
-                    break;
-                case 'uid':
-                    $users = Users::get_data(array($type => $where), $configs);
-                    if(is_array($users)) {
-                        foreach($users as $user) {
-                            $usernames[] = $user->get_displayname();
-                        }
-                    }
-                    $sql = "SELECT ad_user_id FROM ad_user WHERE name IN ('".implode("','", $usernames)."')";
-                    $query = $intgdb->query($sql);
-                    if($intgdb->num_rows($query) > 0) {
-                        while($obuser = $intgdb->fetch_assoc($query)) {
-                            $filters[$col][] = "'".$obuser['ad_user_id']."'";
-                        }
-                    }
-                    break;
-                default:
-                    break;
-            }
-            // $permissionsfilter .=' AND '.$col.' IN('.implode(', ', $filters[$type]).')';
         }
+        else {
+            $where = $type.' <> 0';
+        }
+        $configs = array('operators' => array($type => 'CUSTOMSQL'), 'simple' => 'false', 'returnarray' => true);
+        switch($type) {
+            case 'affid':
+                $configs['operators']['integrationOBOrgId'] = 'CUSTOMSQL';
+                if(isset($extrafilters[$type]) && !empty($extrafilters[$type])) {
+                    $affiliates = $extrafilters[$type];
+                }
+                else {
+                    $affiliates = Affiliates::get_affiliates(array($type => $where, 'integrationOBOrgId' => 'integrationOBOrgId IS NOT NULL'), $configs);
+                }
+                foreach($affiliates as $affiliate) {
+                    $filters[$col][] = "'".$affiliate->integrationOBOrgId."'";
+                }
+                break;
+            case 'uid':
+                $users = Users::get_data(array($type => $where), $configs);
+                if(is_array($users)) {
+                    foreach($users as $user) {
+                        $usernames[] = $user->get_displayname();
+                    }
+                }
+                $sql = "SELECT ad_user_id FROM ad_user WHERE name IN ('".implode("','", $usernames)."')";
+                $query = $intgdb->query($sql);
+                if($intgdb->num_rows($query) > 0) {
+                    while($obuser = $intgdb->fetch_assoc($query)) {
+                        $filters[$col][] = "'".$obuser['ad_user_id']."'";
+                    }
+                }
+                break;
+            default:
+                break;
+        }
+        // $permissionsfilter .=' AND '.$col.' IN('.implode(', ', $filters[$type]).')';
+        // }
     }
     return $filters; //$permissionsfilter;
 }

@@ -225,4 +225,17 @@ $lang['configurationslists'] = 'Configurations list';
 $lang['manageconfigurations'] = 'Manage Configurations';
 $lang['refreshpolicies'] = 'Refresh Policies';
 $lang['isconsolidation'] = 'Is Consolidation';
+$lang['test'] = 'Fee/UOM is the average fee per UOM, averaged by number of UoM used';
+$lang['globalnetmargindef'] = 'Summation of the two net margins';
+$lang['interestvaluedef'] = 'Bank Interest Rate * Intermediary period of interest * Total (total buying value)';
+$lang['invoicevalueintermeddef'] = 'SUM of product lines (Quantity * Intial price)';
+$lang['invoicevaluedef'] = 'For Re-Invoicing Customer, Invoice value is the SUM of (Selling Price * Quantity) for all product lines. <br/><br/>
+For Re-Invoicing Affiliate it is the SUM of product lines total buying value';
+$lang['totalnetmarginpercdef'] = 'Net Margin/ SUM(Selling Price * Quantity)<br/><br/> Where SUM(Selling Price * Quantity)= Invoice Value USD in case of Re-Invoicing Customer';
+$lang['totalnetmargindef'] = 'For Re-Invoicing Customer, SUM of product lines Net Margin.<br/><br/> For Re-Invoicing Affiliate, difference between Invoice Values minus Fees paid by Intermediary in USD.';
 
+$lang['destinationcountry'] = 'Country of Destination of the Goods';
+$lang['purchasingcompany'] = 'Company Purchasing the Goods from the Supplie';
+$lang['purchasepricefromsupplier'] = 'Purchase Price from Supplier in USD';
+$lang['purchasecurrency'] = 'Purchase Currency';
+?>

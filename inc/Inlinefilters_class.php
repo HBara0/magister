@@ -445,7 +445,8 @@ class Inlinefilters {
         foreach($filters as $filteritem => $attr) {
             if((isset($core->input['filters'][$filteritem]) && (!empty($core->input['filters'][$filteritem])) || ($core->input['filters'][$filteritem] == '0'))) {
                 if(is_array($core->input['filters'][$filteritem]) && empty(array_filter($core->input['filters'][$filteritem]))) {
-                    break;
+                    //break;
+                    continue;
                 }
                 $wherestatement = $this->parse_whereentry($attr, $filteritem);
                 if(!empty($query_filter_statement)) {

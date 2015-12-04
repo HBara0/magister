@@ -3,8 +3,8 @@
         <title>{$core->settings[systemtitle]} | {$lang->generatesalesreport}</title>
         {$headerinc}
         <script type="text/javascript">
-            $(function () {
-                $(document).on('change', "select[id='type']", function () {
+            $(function() {
+                $(document).on('change', "select[id='type']", function() {
                     var id = $(this).attr("id")
                     var value = $(this).attr("value")
                     $("div[id$=_reporttype]").not([id ^= '" + $(this).val() + "']).hide();
@@ -26,6 +26,7 @@
                         <option value="dimensional">{$lang->dimensional}</option>
                         <option value="transactions">{$lang->transactions}Transactions</option>
                     </select>
+                    <div style="display:inline-block; width:20%; vertical-align:top;margin-right:30px;">{$lang->currency} {$currencies_list}</div>
 
                     <fieldset style="vertical-align:top; margin-top:10px; margin-bottom:10px;" class="altrow2">
                         <legend>{$lang->filters}</legend>

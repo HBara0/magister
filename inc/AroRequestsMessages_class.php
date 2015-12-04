@@ -113,8 +113,8 @@ class AroRequestsMessages extends AbstractClass {
 
         if(is_object($arorequest)) {
             // $reply_links = DOMAIN.'/index.php?module=aro/managearodouments&action=takeactionpage&requestKey='.base64_encode($arorequest->get()['identifier']).'&inreplyTo='.$this->data['inReplyTo'].'&id='.base64_encode($arorequest->get()['aorid']);
-            $reply_links = DOMAIN."/index.php?module=aro/managearodouments&id=".$arorequest->get()['aorid'].'#message';
-            $view_link = DOMAIN."/index.php?module=aro/managearodouments&id=".$arorequest->get()['aorid'];
+            $reply_links = DOMAIN."/index.php?module=aro/managearodouments&referrer=toapprove&id=".$arorequest->get()['aorid'].'#message';
+            $view_link = DOMAIN."/index.php?module=aro/managearodouments&referrer=toapprove&id=".$arorequest->get()['aorid'];
         }
         $mailer->set_subject($lang->newrequestmsgsubject.' ['.$arorequest->orderReference.']');
 
@@ -197,7 +197,7 @@ class AroRequestsMessages extends AbstractClass {
             case 'public':
                 $arorequest_obj = new AroRequests($this->data['aorid']);
                 $lastapproval = $arorequest_obj->get_lastapproval();
-                $sender_approval_seq = 0;
+                $sender_approval_seq = 1;
                 if(is_object($lastapproval)) {
                     $sender_approval_seq = $lastapproval->sequence;
                 }
