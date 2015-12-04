@@ -474,6 +474,9 @@ class AroRequests extends AbstractClass {
                             $approvers[$val['approver']] = $user->reportsTo;
                         }
                         unset($bm);
+                    case 'commercialManager':
+                        $approvers['commercialManager'] = $affiliate->get_commercialmanager()->uid;
+                        break;
                     default:
                         if(is_int($val)) {
                             $approvers[$val] = $val;
@@ -795,6 +798,10 @@ class AroRequests extends AbstractClass {
                 $globalPurchaseMgr = new Users($affiliate->globalPurchaseManager);
                 $mailinglist[$globalPurchaseMgr->uid] = $globalPurchaseMgr->get_email();
             }
+
+            $createdby = new Users($this->createdBy);
+            $mailinglist[$this->createdBy] = $createdby->get_email();
+
             $informmoreusers = $this->check_informmoreusers();
             if(is_array($informmoreusers)) {
                 foreach($informmoreusers as $useremail) {
@@ -808,7 +815,7 @@ class AroRequests extends AbstractClass {
                     'from_email' => 'ocos@orkila.com',
                     'from' => 'Approved ARO',
                     'to' => $mailinglist,
-                    'subject' => 'Aro Request ['.$this->orderReference.']/'.$aroaffiliate_obj->get_displayname().'/'.$purchasteype_obj->get_displayname().'is Approved',
+                    'subject' => 'APPROVED Aro Request ['.$this->orderReference.']/'.$aroaffiliate_obj->get_displayname().'/'.$purchasteype_obj->get_displayname(),
                     'message' => 'Aro Request ['.$this->orderReference.']/'.$aroaffiliate_obj->get_displayname().'/'.$purchasteype_obj->get_displayname().' is Approved <br/>  To view the ARO <a href="'.$aro_link.'">click here</a>'
             );
             $mail = new Mailer($email_data, 'php');

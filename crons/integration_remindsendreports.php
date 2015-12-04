@@ -37,6 +37,9 @@ if($_REQUEST['authkey'] == 'kia5ravbXop09dj4a!xhegalhj') {
     $affiliates = Affiliates::get_affiliates(array('integrationOBOrgId' => 'integrationOBOrgId IS NOT NULL'), array('simple' => false, 'returnarray' => true, 'operators' => array('integrationOBOrgId' => 'CUSTOMSQLSECURE')));
     if(is_array($affiliates)) {
         foreach($affiliates as $affiliate) {
+            if(strstr($affiliate->name, 'Holding')) {
+                continue;
+            }
             $message = '';
             $senders = array();
             foreach($reportypes as $report => $reportname) {
