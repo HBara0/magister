@@ -23,7 +23,6 @@ if(is_array($arorequests)) {
         $nextapproval = AroRequestsApprovals::get_data(array('sequence' => $sequence, 'aorid' => $arorequest->aorid));
         if(is_object($nextapproval) && TIME_NOW >= strtotime('+1 day', $nextapproval->emailRecievedDate)) {
             $nextapprover = Users::get_data(array('uid' => $nextapproval->uid));
-
             $aroaffiliate_obj = Affiliates::get_affiliates(array('affid' => $arorequest->affid));
             $purchasteype_obj = PurchaseTypes::get_data(array('ptid' => $arorequest->orderType));
             $approve_link = $core->settings['rootdir']."/index.php?module=aro/managearodouments&requestKey=".base64_encode($arorequest->data['identifier'])."&id=".$arorequest->aorid."&referrer=toapprove";
@@ -31,8 +30,8 @@ if(is_array($arorequests)) {
             $email_data = array(
                     'from' => 'ocos@orkila.com',
                     'to' => $nextapprover->email,
-                    'subject' => "<span style='color:red;'>ARO Request</span> [".$arorequest->orderReference."] ".$aroaffiliate_obj->get_displayname()." | ".$purchasteype_obj->get_displayname().' is pending your approval.',
-                    'message' => "Aro Request [".$arorequest->orderReference."] ".$aroaffiliate_obj->get_displayname()." ".$purchasteype_obj->get_displayname()." Needs Approval:".$approve_link,
+                    'subject' => "ARO Request</span> [".$arorequest->orderReference."] ".$aroaffiliate_obj->get_displayname()." | ".$purchasteype_obj->get_displayname().' is pending your approval.',
+                    'message' => "Aro Request [".$arorequest->orderReference."] ".$aroaffiliate_obj->get_displayname()." ".$purchasteype_obj->get_displayname()." recieved on ".date($core->settings['dateformat'], $nextapproval->emailRecievedDate)." Needs Approval:".$approve_link,
             );
 
             $mailer = new Mailer();
@@ -43,9 +42,9 @@ if(is_array($arorequests)) {
             $mailer->set_message($email_data['message']);
             $mailer->set_to($email_data['to']);
             $mailer->send();
-//            $x = $mailer->debug_info();
-//            print_R($x);
-//            exit;
+            //  $x = $mailer->debug_info();
+            //  print_R($x);
+            // exit;
         }
     }
 }
