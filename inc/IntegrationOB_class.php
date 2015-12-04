@@ -455,11 +455,11 @@ class IntegrationOB extends Integration {
             while($transcation = $this->f_db->fetch_assoc($query)) {
                 $stack = new IntegrationOBInputStack($transcation['obwfa_input_stack_id'], $this->f_db);
                 $inputs[$transcation['obwfa_input_stack_id']]['stack'] = $stack->get();
-                if(is_null($stack->get_transcation()->get_inoutline())) {
+                if(is_null($stack->get_transcation()->get_firsttransaction()->get_inoutline())) {
                     $movement = $stack->get_transcation()->get_movementline();
                     if(is_object($movement)) {
                         $inputs[$transcation['obwfa_input_stack_id']]['stack']['daysinstock'] = $movement->get_output_transaction()->get_outputstack()->get_inputstack()->get_daysinstock();
-                        $inputs[$transcation['obwfa_input_stack_id']]['movementdate'] = $movement->get_output_transaction()->get_outputstack()->get_inputstack()['trxdate'];
+                        $inputs[$transcation['obwfa_input_stack_id']]['movementdate'] = $movement->get_output_transaction()->get_outputstack()->get_inputstack()->get()['trxdate'];
                     }
                     else {
                         $inputs[$transcation['obwfa_input_stack_id']]['stack']['daysinstock'] = $stack->get_daysinstock();
@@ -479,7 +479,7 @@ class IntegrationOB extends Integration {
                 }
                 //If movement type=return from customer, replace buisness partner by local product
                 if($stack->get_transcation()->movementtype == 'C+') {
-                    $localproduct = $stack->get_transcation()->get_product_local();
+                    $localproduct = $stack->get_transcation()->get_firsttransaction()->get_product_local();
                     if(is_object($localproduct)) {
                         $inputs[$transcation['obwfa_input_stack_id']]['supplier'] = $localproduct->get_supplier()->get();
                     }
@@ -877,42 +877,63 @@ class IntegrationOBTransaction extends IntegrationAbstractClass {
         return $this->transaction;
     }
 
-    public function get_firstinputstack($inputstack = NULL) {
-        if($inputstack == NULL) {
-            $inputstack = $this->get_inputstack();
-            if(!is_object($inputstack)) {
-                $outputstack = $this->get_outputstack();
-                if(is_object($outputstack)) {
-                    $inputstack = $outputstack->get_inputstack(); //$this->get_input($outputstack);
-                }
-            }
-            $transaction = $this;
-            if(!is_object($transaction)) {
-                $transaction = $inputstack->get_transcation();
-            }
-            switch($transaction->movementtype) {
-                case 'V+':
-                case 'I+':
-                    break;
-                case 'C+':
-                    $inoutline = $transaction->get_inoutline();
-                    if(!is_null($inoutline)) {
-                        $reverse_inoutline = $inoutline->get_orderline()->get_inoutline();
-                        $reverse_transaction = IntegrationOBTransaction::get_data(array(IntegrationOBInOutLine::PRIMARY_KEY => $reverse_inoutline->get_id()));
-                        $inputstack = $reverse_transaction->get_inputstack();
-                        $this->get_firstinputstack($inputstack);
-                    }
-                    break;
-                case 'M+':
-                    $movement = $transaction->get_movementline();
-                    $inputstack = $movement->get_output_transaction()->get_outputstack()->get_inputstack();
-                    $this->get_firstinputstack($inputstack);
-                    break;
-                default:
-                    break;
-            }
-            return $inputstack;
+    public function get_firsttransaction() { //($inputstack = NULL)
+//==1200Kg Drum_5 years_Yes_20-05-2015___L781514001_#0_20-05-2020
+        if($this->transactioncost == 15361.190) {
+            $xx = true;
         }
+        switch($this->movementtype) {
+            case 'V+':
+            case 'I+':
+                $transaction = $this;
+                break;
+            case 'C+':
+            case 'C-':
+            case 'M+':
+                if($this->transaction != NULL) {
+                    //$attrsetinstance = $this->get_attributesetinstance();
+                    $transaction = new IntegrationOBTransaction($this->f_db->fetch_field($this->f_db->query("SELECT * FROM m_transaction WHERE m_attributesetinstance_id='".$this->m_attributesetinstance_id."' ORDER BY movementdate ASC LIMIT 1"), 'm_transaction_id'), $this->f_db);
+                }
+                break;
+            default:
+                break;
+        }
+
+        return $transaction;
+
+//        $inputstack = $this->get_inputstack();
+//        if(!is_object($inputstack)) {
+//            $outputstack = $this->get_outputstack();
+//            if(is_object($outputstack)) {
+//                $inputstack = $outputstack->get_inputstack(); //$this->get_input($outputstack);
+//            }
+//        }
+//        $transaction = $this;
+//        if(!is_object($transaction)) {
+//            $transaction = $inputstack->get_transcation();
+//        }
+//        switch($transaction->movementtype) {
+//            case 'V+':
+//            case 'I+':
+//                break;
+//            case 'C+':
+//                $inoutline = $transaction->get_inoutline();
+//                if(!is_null($inoutline)) {
+//                    $reverse_inoutline = $inoutline->get_orderline()->get_inoutline();
+//                    $reverse_transaction = IntegrationOBTransaction::get_data(array(IntegrationOBInOutLine::PRIMARY_KEY => $reverse_inoutline->get_id()));
+//                    $inputstack = $reverse_transaction->get_inputstack();
+//                    $this->get_firstinputstack($inputstack);
+//                }
+//                break;
+//            case 'M+':
+//                $movement = $transaction->get_movementline();
+//                $inputstack = $movement->get_output_transaction()->get_outputstack()->get_inputstack();
+//                $this->get_firstinputstack($inputstack);
+//                break;
+//            default:
+//                break;
+//        }
+//        return $inputstack;
     }
 
 }
@@ -999,9 +1020,9 @@ class IntegrationOBMovementLine {
 
     public function get_output_transaction() {
         $query = $this->f_db->query('SELECT t.m_transaction_id
-								FROM m_transaction t
-								JOIN obwfa_output_stack os ON (os.m_transaction_id=t.m_transaction_id)
-								WHERE t.m_movementline_id=\''.$this->movementline['m_movementline_id'].'\'');
+        FROM m_transaction t
+        JOIN obwfa_output_stack os ON (os.m_transaction_id = t.m_transaction_id)
+        WHERE t.m_movementline_id = \''.$this->movementline['m_movementline_id'].'\'');
         if($this->f_db->num_rows($query) > 0) {
             $transaction = $this->f_db->fetch_assoc($query);
             return new IntegrationOBTransaction($transaction['m_transaction_id'], $this->f_db);
@@ -1457,8 +1478,6 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                         $data['salerep']['linenetamt'][$invoice->salesrep_id][$invoice->dateparts['year']][$invoice->dateparts['mon']] += $line->linenetamt / $fxrate;
                         //   $data['products']['linenetamt'][$line->m_product_name][$invoice->dateparts['year']][$invoice->dateparts['mon']] += $line->linenetamt / $fxrate;
                         //   $data['suppliers']['linenetamt'][$invoice->bpartner_name][$invoice->dateparts['year']][$invoice->dateparts['mon']] += $line->linenetamt / $fxrate;
-
-
                         $dataperday['salerep']['linenetamt'][$invoice->salesrep_id][$invoice->dateparts['year']][$invoice->dateparts['mon']][$invoice->dateparts['mday']] += $line->linenetamt / $fxrate;
                         $dataperday['products']['linenetamt'][$line->m_product_name][$invoice->dateparts['year']][$invoice->dateparts['mon']][$invoice->dateparts['mday']] += $line->linenetamt / $fxrate;
                         $dataperday['suppliers']['linenetamt'][$invoice->bpartner_name][$invoice->dateparts['year']][$invoice->dateparts['mon']][$invoice->dateparts['mday']] += $line->linenetamt / $fxrate;
@@ -1626,6 +1645,9 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                     if(is_array($classificationdata)) {
                         $output .= '<table class="datatable"><tr><td style="background-color:#92D050;font-weight:bold;" colspan=5>'.$lang->topten.' '.$lang->$tableindex.' '.$lang->$classificationtype.'</td></tr>';
                         $output .= '<tr style="'.$css_styles['header'].'"><th>'.$lang->rank.'</th><th>'.$lang->$tableindex.'</th>';
+                        if($tableindex == 'products') {
+                            $output .='<th>'.$lang->supplier.'</th>';
+                        }
                         if($classificationtype != 'wholeperiod' && $classificationtype != 'byquarter') {
                             switch($classificationtype) {
                                 case 'bymonth':
@@ -1673,6 +1695,16 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                                 }
                                 else {
                                     $output .= '<td>'.$id.'</td>';
+                                }
+                                if($tableindex == 'products') {
+                                    $supplier_output = 'Unspecified';
+                                    $product = IntegrationOBProduct::get_data("name='".$id."'");
+                                    if(is_object($product)) {
+                                        if(is_object($product->get_supplier())) {
+                                            $supplier_output = $product->get_supplier()->get_displayname();
+                                        }
+                                    }
+                                    $output .='<th>'.$supplier_output.'</th>';
                                 }
                                 $numfmt = new NumberFormatter($lang->settings['locale'], NumberFormatter::DECIMAL);
                                 foreach($cdata as $data) {
@@ -2240,6 +2272,26 @@ class IntegrationOBProduct extends IntegrationAbstractClass {
 
     public function get() {
         return $this->data;
+    }
+
+    public function get_product_local() {
+        global $db;
+        $product = new Products($db->fetch_field($db->query('SELECT localId FROM integration_mediation_products WHERE foreignSystem=3 AND foreignName="'.$this->name.'"'), 'localId'));
+        if(!is_object($product)) {
+            $product = new Products($db->fetch_field($db->query('SELECT pid FROM products WHERE name="'.$this->name.'"'), 'pid'));
+        }
+        return $product;
+    }
+
+    public function get_supplier() {
+        $localproduct = $this->get_product_local();
+        if(is_object($localproduct) && !empty($localproduct->pid)) {
+            $supplier = $localproduct->get_supplier();
+        }
+        if(is_object($supplier)) {
+            return $supplier;
+        }
+        return false;
     }
 
 }

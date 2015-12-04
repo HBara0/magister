@@ -20,10 +20,13 @@ ini_set('max_execution_time', 0);
 $lang->load('crm_salesreport');
 if(!$core->input['action']) {
     $affiliates = Affiliates::get_affiliates(array('affid' => $core->user['affiliates']), array('returnarray' => true));
-    $affiliates_list = parse_selectlist('affids[]', 2, $affiliates, '');
+    $affiliates_list = parse_selectlist('affids[]', 2, $affiliates, $core->user['mainaffiliate']);
+    $mainaffiliate_obj = Affiliates::get_affiliates(array('affid' => $core->user['mainaffiliate']));
+    $affcurrency_obj = $mainaffiliate_obj->get_currency();
+    $currencies = Currencies::get_data('', array('order' => array('sort' => 'ASC', 'by' => 'name')));
+    $currencies_list = parse_selectlist('reportCurrency', 4, $currencies, $affcurrency_obj->numCode, '', '', array('blankstart' => 1, 'id' => "reportCurrency"));
 
     $fxtypes_selectlist = parse_selectlist('fxtype', 9, array('lastm' => $lang->lastmonthrate, 'ylast' => $lang->yearlatestrate, 'yavg' => $lang->yearaveragerate, 'mavg' => $lang->monthaveragerate, 'real' => $lang->realrate), 'mavg', 0);
-
     $dimensions = array('documentno' => 'Document Number', 'suppliername' => $lang->supplier, 'customername' => $lang->customer, 'productname' => $lang->product, 'segment' => $lang->segment, 'salesrep' => $lang->employee/* ,  'wid' => $lang->warehouse */);
     foreach($dimensions as $dimensionid => $dimension) {
         $dimension_item.='<li class = "ui-state-default" id='.$dimensionid.' title="Click and Hold to move the '.$dimension.'">'.$dimension.'</li>';
@@ -97,6 +100,9 @@ else {
             }
         }
 
+        if(isset($core->input['reportCurrency']) && !empty($core->input['reportCurrency'])) {
+            $currency_obj = Currencies::get_data(array('numCode' => $core->input['reportCurrency']));
+        }
 
         $invoices = $integration->get_saleinvoices($filters);
         $cols = array('month', 'week', 'documentno', 'salesrep', 'customername', 'suppliername', 'productname', 'segment', 'uom', 'qtyinvoiced', 'priceactual', 'linenetamt', 'purchaseprice', 'unitcostlocal', 'costlocal', 'costusd', 'grossmargin', 'grossmarginusd', 'grossmarginperc', 'netmargin', 'netmarginusd', 'marginperc');
@@ -119,15 +125,22 @@ else {
                     $usdcurrency_obj = new Currencies('USD');
                     $invoice->usdfxrate = $usdcurrency_obj->get_fxrate_bytype($core->input['fxtype'], $invoice->currency, array('from' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 01:00'), 'to' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 24:00'), 'year' => date('Y', $invoice->dateinvoiceduts), 'month' => date('m', $invoice->dateinvoiceduts)), array('precision' => 4));
                 }
-
-                if($orgcurrency->iso_code != $invoice->currency) {
-                    $invoice->localfxrate = $currency_obj->get_fxrate_bytype($core->input['fxtype'], $invoice->currency, array('from' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 01:00'), 'to' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 24:00'), 'year' => date('Y', $invoice->dateinvoiceduts), 'month' => date('m', $invoice->dateinvoiceduts)), array('precision' => 4), $orgcurrency->iso_code);
+                if($currency_obj->alphaCode != $invoice->currency) {
+                    $invoice->localfxrate = $currency_obj->get_fxrate_bytype($core->input['fxtype'], $invoice->currency, array('from' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 01:00'), 'to' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 24:00'), 'year' => date('Y', $invoice->dateinvoiceduts), 'month' => date('m', $invoice->dateinvoiceduts)), array('precision' => 4), $currency_obj->alphaCode);
+                }
+                else {
+                    $invoice->localfxrate = 1;
                 }
                 if(empty($invoice->localfxrate)) {
+//                    output_xml('<status>true</status><message>No local exchange rate<br/> From '.$invoice->currency.' to '.$currency_obj->alphaCode.' in the invoice period '.date('Y-m-d', $invoice->dateinvoiceduts).' </message>');
+//                    exit;
                     $invoice->localfxrate = 0;
                 }
 
                 if(empty($invoice->usdfxrate)) {
+//                    output_xml('<status>true</status><message>no usd exchange rate '.$invoice->currency.'</message>');
+//                    exit;
+
                     $invoice->usdfxrate = 0;
                 }
                 if(!is_array($invoicelines)) {
@@ -181,7 +194,7 @@ else {
                             $invoiceline->costlocal_invoicecurr = $invoiceline->costlocal * $fxrate_line;
                         }
                     }
-                    if($orgcurrency->iso_code != $invoice->currency) {
+                    if($currency_obj->alphaCode != $invoice->currency) {
                         if(!empty($invoice->localfxrate)) {
                             $invoiceline->costlocal = $invoiceline->costlocal_invoicecurr / $invoice->localfxrate;
                         }
@@ -196,42 +209,50 @@ else {
                         $invoiceline->costlocal = 0 - $invoiceline->costlocal;
                     }
 
-                    if(is_object($inputstack)) {
-                        if(is_object($inputstack->get_transcation())) {
-                            $inputstack = $inputstack->get_transcation()->get_firstinputstack();
-                            $input_inoutline = $inputstack->get_transcation()->get_inoutline();
-                        }
-                        if(is_object($input_inoutline)) {
-                            $ioinvoiceline = $input_inoutline->get_invoiceline();
-                            if(is_object($ioinvoiceline)) {
-                                $invoiceline->purchaseprice = $ioinvoiceline->priceactual;
-                                $invoiceline->purchasecurr = $ioinvoiceline->get_invoice()->get_currency()->iso_code;
-                                $invoiceline->purchasepriceusd = 0;
-                                if($orgcurrency->iso_code != $invoiceline->purchasecurr) {
-                                    $invoice->purchaseprice_localfxrate = $currency_obj->get_fxrate_bytype($core->input['fxtype'], $invoiceline->purchasecurr, array('from' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 01:00'), 'to' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 24:00'), 'year' => date('Y', $invoice->dateinvoiceduts), 'month' => date('m', $invoice->dateinvoiceduts)), array('precision' => 4));
-                                }
-                                if($usdcurrency_obj->alphaCode != $invoiceline->purchasecurr) {
-                                    $invoice->purchaseprice_usdfxrate = $usdcurrency_obj->get_fxrate_bytype($core->input['fxtype'], $invoiceline->purchasecurr, array('from' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 01:00'), 'to' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 24:00'), 'year' => date('Y', $invoice->dateinvoiceduts), 'month' => date('m', $invoice->dateinvoiceduts)), array('precision' => 4));
-                                    if(!empty($invoice->purchaseprice_usdfxrate)) {
-                                        $invoiceline->purchasepriceusd = $invoiceline->purchaseprice / $invoice->purchaseprice_usdfxrate;
-                                    }
-                                    else {
-                                        $invoiceline->purchasepriceusd = 0;
-                                    }
-                                }
-                                if(!empty($invoice->purchaseprice_localfxrate)) {
-                                    $invoiceline->purchaseprice /= $invoice->purchaseprice_localfxrate;
+                    $firsttransaction = $iltrx->get_firsttransaction();
+                    if(is_object($firsttransaction)) {
+                        $input_inoutline = $firsttransaction->get_inoutline();
+                    }
+                    else {
+                        $input_inoutline = $iltrx->get_inoutline();
+                    }
+
+//                    if(is_object($inputstack)) {
+//                        if(is_object($inputstack->get_transcation())) {
+//                            $input_inoutline = $inputstack->get_transcation()->get_inoutline();
+//                        }
+                    if(is_object($input_inoutline)) {
+                        $ioinvoiceline = $input_inoutline->get_invoiceline();
+                        if(is_object($ioinvoiceline)) {
+                            $invoiceline->purchaseprice = $ioinvoiceline->priceactual;
+                            $invoiceline->purchasecurr = $ioinvoiceline->get_invoice()->get_currency()->iso_code;
+                            $invoiceline->purchasepriceusd = 0;
+                            if($currency_obj->alphaCode != $invoiceline->purchasecurr) {
+                                $invoice->purchaseprice_localfxrate = $currency_obj->get_fxrate_bytype($core->input['fxtype'], $invoiceline->purchasecurr, array('from' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 01:00'), 'to' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 24:00'), 'year' => date('Y', $invoice->dateinvoiceduts), 'month' => date('m', $invoice->dateinvoiceduts)), array('precision' => 4));
+                            }
+                            if($usdcurrency_obj->alphaCode != $invoiceline->purchasecurr) {
+                                $invoice->purchaseprice_usdfxrate = $usdcurrency_obj->get_fxrate_bytype($core->input['fxtype'], $invoiceline->purchasecurr, array('from' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 01:00'), 'to' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 24:00'), 'year' => date('Y', $invoice->dateinvoiceduts), 'month' => date('m', $invoice->dateinvoiceduts)), array('precision' => 4));
+                                if(!empty($invoice->purchaseprice_usdfxrate)) {
+                                    $invoiceline->purchasepriceusd = $invoiceline->purchaseprice / $invoice->purchaseprice_usdfxrate;
                                 }
                                 else {
-                                    $invoiceline->purchaseprice = 0;
+                                    $invoiceline->purchasepriceusd = 0;
                                 }
                             }
-                            unset($ioinvoiceline);
+                            if(!empty($invoice->purchaseprice_localfxrate)) {
+                                $invoiceline->purchaseprice /= $invoice->purchaseprice_localfxrate;
+                            }
+                            else {
+                                $invoiceline->purchaseprice = 0;
+                            }
                         }
-                        else {
-                            $invoiceline->purchaseprice = 0;
-                        }
+                        unset($ioinvoiceline);
                     }
+                    else {
+                        $invoiceline->purchaseprice = 0;
+                    }
+                    // }
+
                     if(!empty($invoice->usdfxrate)) {
                         $invoiceline->costusd = $invoiceline->costlocal_invoicecurr / $invoice->usdfxrate;
                     }
@@ -244,7 +265,7 @@ else {
 
                     $invoiceline->linenetamt = $invoiceline->linenetamt / 1000;
                     /* Convert to local currency if invoice is in foreign currency */
-                    if($orgcurrency->iso_code != $invoice->currency) {
+                    if($currency_obj->alphaCode != $invoice->currency) {
                         if(!empty($invoice->localfxrate)) {
                             $invoiceline->priceactual /= $invoice->localfxrate;
                             $invoiceline->linenetamt /= $invoice->localfxrate;
