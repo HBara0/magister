@@ -1621,6 +1621,7 @@ else {
 //        }
 
         $update_status = $db->update_query('reports', $new_status, "rid='{$report_meta[rid]}'");
+        $transfill = $core->input['transfill'];
         if($update_status) {
             if($transfill != '1') {
                 record_contribution($report_meta['rid'], 1);

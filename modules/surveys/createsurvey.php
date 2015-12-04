@@ -134,7 +134,7 @@ if(!$core->input['action']) {
             eval("\$invitations_rows .= \"".$template->get('surveys_createsurvey_invitationrows')."\";");
         }
     }
-
+    eval("\$defaultmsg = \"".$template->get('surveys_createsurvey_invitationlayout_body')."\";");
     /* Parse Invitations Section - START */
     eval("\$createsurvey = \"".$template->get('surveys_createsurvey')."\";");
     output_page($createsurvey);

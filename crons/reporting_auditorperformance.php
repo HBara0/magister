@@ -21,8 +21,6 @@ if($_REQUEST['authkey'] == 'kia5ravb$op09dj4a!xhegalhj') {
     else {
         $quarter['quarter'] --;
     }
-    $outputmessage = '<div style="width:100%;text-align:center"><h1 style="color: #91b64f;font-weight: 100;">Quarterly Report Auditors Performance Report : Q'.$quarter['quarter'].'/'.$quarter['year'].'</h1></div><br />';
-    $outputmessage.='<div><h3 style="color: #91b64f;font-weight: 100;">'.$lang->auditorscoreexplanation.'</h3></div>';
     if(is_array($data)) {
         foreach($data as $uid => $coordata) {
             $totalreports = 0;
@@ -155,10 +153,13 @@ if($_REQUEST['authkey'] == 'kia5ravb$op09dj4a!xhegalhj') {
             unset($supplieroutput, $avg_color, $avgscore, $totalundone);
         }
     }
-    $outputmessage .= '<h2 style="width:100%;text-align:center;color: #91b64f;font-weight: 100;">'.$lang->summary.'</h2>'.$outputmessage_res.'<hr><h2 style="width:100%;text-align:center;color: #91b64f;font-weight: 100;">'.$lang->detailedsection.'</h2>'.$outputmessage_tot.'<html>
-    <head>
-   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    </head><body>'.$outputmessage.'</body></html>';
+    $outputmessage = '<div style="width:100%;text-align:center"><h1 style="color: #91b64f;font-weight: 100;">Quarterly Report Auditors Performance Report : Q'.$quarter['quarter'].'/'.$quarter['year'].'</h1></div><br />';
+    $outputmessage.='<div><h3 style="color: #91b64f;font-weight: 100;">'.$lang->auditorscoreexplanation.'</h3></div>';
+    $outputmessage .= '<h2 style="width:100%;text-align:center;color: #91b64f;font-weight: 100;">'.$lang->summary.'</h2>'.$outputmessage_res.'<hr><h2 style="width:100%;text-align:center;color: #91b64f;font-weight: 100;">'.$lang->detailedsection.'</h2>'.$outputmessage_tot;
+    $outputmessage = '<html>
+<head>
+<meta http-equiv = "Content-Type" content = "text/html; charset=UTF-8" />
+</head><body>'.$outputmessage.'</body></html>';
     $email_data = array(
             'to' => 'christophe.sacy@orkila.com ',
             'from_email' => $core->settings['adminemail'],
@@ -167,6 +168,6 @@ if($_REQUEST['authkey'] == 'kia5ravb$op09dj4a!xhegalhj') {
             'message' => $outputmessage
     );
 
-//print($outputmessage);
+//    print($outputmessage);
     $mail = new Mailer($email_data, 'php');
 }

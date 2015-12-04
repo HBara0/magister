@@ -37,7 +37,7 @@
                     </tr>
                     <tr>
                         <td>{$lang->description}</td>
-                        <td> <textarea  cols="50" rows="5"  name="description" >{$survey[description]}</textarea></td>
+                        <td> <textarea cols="50" rows="5" name="description" class="txteditadv" id="description">{$survey[description]}</textarea></td>
                     </tr>
                     <tr>
                         <td style="font-weight:bold;">{$lang->category}</td>
@@ -159,10 +159,11 @@
                     </tr>
                     <tr class="altrow2">
                         <td id="customizeinvitationmessage" style="display:none" colspan="2">
+                            <div style="width:20%; display:inline-block; vertical-align:top;">{$lang->customizeinvitation}</div><div style="width:65%; display:inline-block; padding-bottom:5px; vertical-align:top;"><input type="checkbox" name="customInvitation" id="customInvitation"></div>
                             <div style="width:20%; display:inline-block; vertical-align:top;">{$lang->invitationsubject}</div><div style="width:65%; display:inline-block; padding-bottom:5px; vertical-align:top;"><input type="text" name="customInvitationSubject" id="customInvitationSubject" size="60"></div>
                             <div style="width:20%; display:inline-block; vertical-align:top;">{$lang->invitationbody}</div>
                             <div style="width:65%; display:inline-block; vertical-align:top;">
-                                <textarea name="customInvitationBody" id="customInvitationBody" cols="45" rows="10"></textarea>
+                                <textarea name="customInvitationBody" id="customInvitationBody" class="txteditadv" cols="45" rows="10">{$defaultmsg}</textarea>
                                 <div style="font-style:italic;">{$lang->custominvitationbody_note}</div>
                             </div>
                         </td>
