@@ -67,9 +67,9 @@ class Surveys {
 
         /*  Sanitize inputs - START */
         $data['subject'] = $core->sanitize_inputs($data['subject'], array('removetags' => true));
-        $data['description'] = $core->sanitize_inputs($data['description'], array('removetags' => true));
+        $data['description'] = $core->sanitize_inputs($data['description'], array('method' => 'striponly', 'removetags' => true, 'allowable_tags' => '<blockquote><b><strong><em><ul><ol><li><p><br><strike><del><pre><dl><dt><dd><sup><sub><i><img><cite><small>'));
         $data['customInvitationSubject'] = $core->sanitize_inputs($data['customInvitationSubject'], array('removetags' => true));
-        $data['customInvitationBody'] = $core->sanitize_inputs($data['customInvitationBody'], array('removetags' => true));
+        //$data['customInvitationBody'] = $core->sanitize_inputs($data['customInvitationBody'], array('method' => 'striponly', 'removetags' => true, 'allowable_tags' => '<blockquote><b><strong><em><ul><ol><li><p><br><strike><del><pre><dl><dt><dd><sup><sub><i><img><cite><small>'));
         /*  Sanitize inputs - END */
 
         $this->survey = $data;
@@ -85,7 +85,7 @@ class Surveys {
             }
         }
 
-        unset($data['invitations'], $data['associations'], $data['inviteesnumber'], $data['externalinvitations']);
+        unset($data['customInvitation'], $data['invitations'], $data['associations'], $data['inviteesnumber'], $data['externalinvitations']);
         $surveytemplate = new SurveysTemplates($data['stid'], false);
         if($surveytemplate->isQuiz == 1) {
             $data['isQuiz'] = 1;
@@ -836,10 +836,7 @@ class Surveys {
                 $surveylink = 'http://www.orkila.com/surveys/'.$this->survey['identifier'].'/'.$invitee['identifier'];
             }
 
-            if(isset($this->survey['customInvitationBody']) && !empty($this->survey['customInvitationBody'])) {
-                fix_newline($this->survey['customInvitationBody']);
-                $this->survey['customInvitationBody'] = $this->survey['customInvitationBody'];
-
+            if(isset($this->survey['customInvitation']) && !empty($this->survey['customInvitation'])) {
                 $invitations_email['message'] = $this->survey['customInvitationBody'];
 
                 if(strstr($invitations_email['message'], '{link}')) {
@@ -848,6 +845,7 @@ class Surveys {
                 else {
                     $invitations_email['message'] .= '<br />'.$lang->sprint($lang->accesssurveylink, $surveylink);
                 }
+                $surv_createsurv_invlayt_body = $invitations_email['message'];
             }
             else {
                 fix_newline($this->survey['description']);
@@ -855,8 +853,11 @@ class Surveys {
                     $invitee['displayName'] = '';
                 }
                 $invitations_email['message'] = $lang->sprint($lang->surveys_invitation_message, $invitee['displayName'], $this->survey['subject'], $this->survey['description'], $surveylink);
+                eval("\$surv_createsurv_invlayt_body = \"".$template->get('surveys_createsurvey_invitationlayout_body')."\";");
             }
+
             eval("\$invitations_email[message] = \"".$template->get('surveys_createsurvey_invitationlayout')."\";");
+
             $mail = new Mailer($invitations_email, 'php');
             if($mail->get_status() === true) {
                 $log->record('sendinvitations', array('to' => $invitation_data['email']));
