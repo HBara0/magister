@@ -510,18 +510,19 @@ class Surveys {
         }
 
         if($this->survey['isExternal'] == 1) {
-            $query = $db->query("SELECT DISTINCT(sr.identifier), time, si.invitee AS respondant
+            $query = $db->query("SELECT DISTINCT(sr.identifier), time, si.invitee AS respondant,si.passed
 					FROM ".Tprefix."surveys s
 					JOIN ".Tprefix."surveys_responses sr ON (sr.sid=s.sid)
-					JOIN ".Tprefix."surveys_invitations si ON (si.identifier=sr.invitee)
+					JOIN ".Tprefix."surveys_invitations si ON (si.invitee=sr.invitee)
 					WHERE s.identifier='".$db->escape_string($identifier)."'
 					ORDER BY {$sort_query}");
         }
         else {
-            $query = $db->query("SELECT DISTINCT(sr.identifier), time, sr.invitee AS uid, displayName AS respondant
+            $query = $db->query("SELECT DISTINCT(sr.identifier), time, sr.invitee AS uid, displayName AS respondant,si.passed
 								FROM ".Tprefix."surveys s
 								JOIN ".Tprefix."surveys_responses sr ON (sr.sid=s.sid)
 								JOIN ".Tprefix."users u ON (u.uid=sr.invitee)
+                                                                JOIN ".Tprefix."surveys_invitations si ON (si.invitee=sr.invitee)
 								WHERE s.identifier='".$db->escape_string($identifier)."'
 								ORDER BY {$sort_query}");
         }
