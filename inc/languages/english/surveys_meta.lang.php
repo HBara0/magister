@@ -82,4 +82,5 @@ $lang['result'] = 'Result';
 $lang['totalscore'] = 'Total Score';
 $lang['failed'] = 'Failed';
 $lang['passed'] = 'Passed';
+$lang['score'] = 'Score';
 ?>
