@@ -91,6 +91,12 @@ class Surveys {
             $data['isQuiz'] = 1;
             $data['total'] = $surveytemplate->total;
         }
+        if(isset($data['senderEmail']) && !empty($data['senderEmail'])) {
+            if(!isvalid_email($data['senderEmail'])) {
+                $this->status = 6;
+                return false;
+            }
+        }
         $query = $db->insert_query('surveys', $data);
         if($query) {
             $this->status = 0;
@@ -828,7 +834,12 @@ class Surveys {
                         'from' => $core->user['displayName']
                 );
             }
-
+            if(isset($this->survey['senderEmail']) && !empty($this->survey['senderEmail'])) {
+                $invitations_email['from_email'] = $this->survey['senderEmail'];
+            }
+            if(isset($this->survey['senderName']) && !empty($this->survey['senderName'])) {
+                $invitations_email['from'] = $this->survey['senderName'];
+            }
             if(isset($this->survey['customInvitationSubject']) && !empty($this->survey['customInvitationSubject'])) {
                 $invitations_email['subject'] = $this->survey['customInvitationSubject'];
             }
