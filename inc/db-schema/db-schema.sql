@@ -4432,9 +4432,11 @@ CREATE TABLE `surveys` (
   `customInvitationBody` text,
   `isQuiz` tinyint(4) NOT NULL,
   `total` int(11) NOT NULL,
+  `senderEmail` varchar(150) NOT NULL,
+  `senderName` varchar(75) NOT NULL,
   PRIMARY KEY (`sid`),
   KEY `stid` (`stid`,`createdBy`)
-) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `surveys_associations`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
