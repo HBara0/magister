@@ -164,7 +164,7 @@ else {
                 $core->input['affs'] = implode("','", $core->input['affs']);
             }
             $affiliates_where = "(name IN ('".$core->input['affs']."'))";
-            $filteredaffiliates = Affiliates::get_affiliates(array('name' => $affiliates_where, 'integrationOBOrgId' => 'integrationOBOrgId IS NOT NULL'), array('operators' => array('integrationOBOrgId' => 'CUSTOMSQL', 'name' => 'CUSTOMSQLSECURE')));
+            $filteredaffiliates = Affiliates::get_affiliates(array('name' => $affiliates_where, 'integrationOBOrgId' => 'integrationOBOrgId IS NOT NULL'), array('returnarray' => true, 'operators' => array('integrationOBOrgId' => 'CUSTOMSQL', 'name' => 'CUSTOMSQLSECURE')));
             $extrafilters['affid'] = $filteredaffiliates;
         }
 
@@ -185,8 +185,11 @@ else {
                 $affiliates[] = Affiliates::get_affiliates(array('integrationOBOrgId' => $orgid));
             }
         }
+        foreach($affiliates as $affiliate) {
+            $affiliatesfilter[$affiliate->affid] = $affiliate;
+        }
 
-        $query = $db->query("SELECT affid, SUM(amount".$fx_query.") AS amount FROM budgeting_budgets_lines bbl JOIN budgeting_budgets bb ON (bbl.bid=bb.bid) WHERE year=".date('Y', TIME_NOW)." AND affid IN (".implode(', ', array_keys($affiliates)).") GROUP by affid");
+        $query = $db->query("SELECT affid, SUM(amount".$fx_query.") AS amount FROM budgeting_budgets_lines bbl JOIN budgeting_budgets bb ON (bbl.bid=bb.bid) WHERE year=".date('Y', TIME_NOW)." AND affid IN (".implode(', ', array_keys($affiliatesfilter)).") GROUP by affid");
         if($db->num_rows($query) > 0) {
             while($budgetline = $db->fetch_assoc($query)) {
                 $budget[$budgetline['affid']] = $budgetline['amount'];
