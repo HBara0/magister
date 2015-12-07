@@ -22,6 +22,7 @@
                         form.onApplyClick(function(params) {
                             var url = window.location.href;
                             if(url.indexOf('?') > -1) {
+                                url = url.substr(0, url.lastIndexOf("&affs"));
                                 url += '&affs=' + params['affiliate']['text'];
                             } else {
                                 url += '?affs=' + params['affiliate']['text'];
