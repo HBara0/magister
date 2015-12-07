@@ -734,7 +734,10 @@ function parse_attendance_reports($core, $headerinc = '', $header = '', $menu = 
         $holiday_todate_details = $todate_details;
 
         /* If multiple years, make end month as 12 to include all */
-        $holidays_query_where = ' AND ('.parse_holidayswhere($fromdate_details, $todate_details).') ';
+        $holidays_query_where = parse_holidayswhere($fromdate_details, $todate_details);
+        if(!empty($holidays_query_where)) {
+            $holidays_query_where = ' AND ('.$holidays_query_where.') ';
+        }
         if(!empty($core->user['mainaffiliate'])) {
             $holiday_query = $db->query("SELECT *
                                         FROM ".Tprefix."holidays
@@ -1529,4 +1532,5 @@ function operation_time_value($seconds) {
         return $ret;
     }
 }
+
 ?>
