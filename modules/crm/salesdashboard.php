@@ -185,11 +185,15 @@ else {
                 $affiliates[] = Affiliates::get_affiliates(array('integrationOBOrgId' => $orgid));
             }
         }
-        foreach($affiliates as $affiliate) {
-            $affiliatesfilter[$affiliate->affid] = $affiliate;
+        if(is_array($affiliates)) {
+            foreach($affiliates as $affiliate) {
+                $affiliatesfilter[$affiliate->affid] = $affiliate;
+            }
         }
-
-        $query = $db->query("SELECT affid, SUM(amount".$fx_query.") AS amount FROM budgeting_budgets_lines bbl JOIN budgeting_budgets bb ON (bbl.bid=bb.bid) WHERE year=".date('Y', TIME_NOW)." AND affid IN (".implode(', ', array_keys($affiliatesfilter)).") GROUP by affid");
+        if(is_array($affiliatesfilter)) {
+            $affiliatesfilter = " AND affid IN (".implode(', ', array_keys($affiliatesfilter))." )";
+        }
+        $query = $db->query("SELECT affid, SUM(amount".$fx_query.") AS amount FROM budgeting_budgets_lines bbl JOIN budgeting_budgets bb ON (bbl.bid=bb.bid) WHERE year=".date('Y', TIME_NOW).$affiliatesfilter." GROUP by affid");
         if($db->num_rows($query) > 0) {
             while($budgetline = $db->fetch_assoc($query)) {
                 $budget[$budgetline['affid']] = $budgetline['amount'];

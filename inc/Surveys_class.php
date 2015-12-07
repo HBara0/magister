@@ -776,12 +776,14 @@ class Surveys {
 
         if($this->survey['isExternal'] == 0) {
             $temp_invitations = array();
-            foreach($this->survey['invitations'] as $group => $invitations) {
-                if(is_array($invitations)) {
-                    $temp_invitations = array_merge($temp_invitations, $invitations);
-                }
-                else {
-                    array_push($temp_invitations, $invitations);
+            if(is_array($this->survey['invitations'])) {
+                foreach($this->survey['invitations'] as $group => $invitations) {
+                    if(is_array($invitations)) {
+                        $temp_invitations = array_merge($temp_invitations, $invitations);
+                    }
+                    else {
+                        array_push($temp_invitations, $invitations);
+                    }
                 }
             }
             $this->survey['invitations'] = array_unique($temp_invitations);
@@ -789,12 +791,14 @@ class Surveys {
         else {
             $this->survey['invitations'] = $this->survey['externalinvitations'];
         }
-        foreach($this->survey['invitations'] as $invitation) {
-            $new_invitation['identifier'] = substr(md5(uniqid(microtime())), 0, 10);
-            $new_invitation['sid'] = $this->survey['sid'];
-            $new_invitation['invitee'] = $invitation;
-            $db->insert_query('surveys_invitations', $new_invitation);
-            $this->survey['newinvitations'][] = $new_invitation;
+        if(is_array($this->survey['invitations'])) {
+            foreach($this->survey['invitations'] as $invitation) {
+                $new_invitation['identifier'] = substr(md5(uniqid(microtime())), 0, 10);
+                $new_invitation['sid'] = $this->survey['sid'];
+                $new_invitation['invitee'] = $invitation;
+                $db->insert_query('surveys_invitations', $new_invitation);
+                $this->survey['newinvitations'][] = $new_invitation;
+            }
         }
     }
 

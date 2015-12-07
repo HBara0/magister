@@ -40,7 +40,7 @@
                             <th>&nbsp;</th>
                             <th>{$lang->customername} <a href="{$sort_url}&amp;sortby=customername&amp;order=ASC"><img src="images/sort_asc.gif" border="0" /></a><a href="{$sort_url}&amp;sortby=customername&amp;order=DESC"><img src="images/sort_desc.gif" border="0" /></a></th>
                             <th>{$lang->prepareby} <a href="{$sort_url}&amp;sortby=employeename&amp;order=ASC"><img src="images/sort_asc.gif" border="0" /></a><a href="{$sort_url}&amp;sortby=employeename&amp;order=DESC"><img src="images/sort_desc.gif" border="0" /></a></th>
-                            <th>{$lang->calltype} <a href="{$sort_url}&amp;sortby=visitType&amp;order=ASC"><img src="images/sort_asc.gif" border="0" /></a><a href="{$sort_url}&amp;sortby=visitType&amp;order=DESC"><img src="images/sort_desc.gif" border="0" /></a></th>
+                            <th>{$lang->calltype} <a href="{$sort_url}&amp;sortby=type&amp;order=ASC"><img src="images/sort_asc.gif" border="0" /></a><a href="{$sort_url}&amp;sortby=type&amp;order=DESC"><img src="images/sort_desc.gif" border="0" /></a></th>
                             <th>{$lang->dateofvisit} <a href="{$sort_url}&amp;sortby=date&amp;order=ASC"><img src="images/sort_asc.gif" border="0" /></a><a href="{$sort_url}&amp;sortby=date&amp;order=DESC"><img src="images/sort_desc.gif" border="0" /></a></th>
                             <th {$displaydraft}>{$lang->isdraft}</th>
                             <th>&nbsp;</th>
