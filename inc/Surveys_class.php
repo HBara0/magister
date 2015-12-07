@@ -340,8 +340,8 @@ class Surveys {
             foreach($core->input['section'] as $key => $section) {
                 $newsurveys_section = array(
                         'stid' => $stid,
-                        'title' => $core->sanitize_inputs(trim($section['title'])));
-
+                        'title' => $core->sanitize_inputs(trim($section['title'])),
+                        'description' => $core->sanitize_inputs(trim($section['description'])));
                 $section_query = $db->insert_query('surveys_templates_sections', $newsurveys_section);
                 if($section_query) {
                     $stsid = $db->last_id();
@@ -1021,7 +1021,7 @@ class Surveys {
     public function get_questions() {
         global $db;
 
-        $query = $db->query("SELECT *, sts.title AS section_title, stq.description AS description
+        $query = $db->query("SELECT *, sts.title AS section_title, sts.description AS section_description, stq.description AS description
 							FROM ".Tprefix."surveys_templates st
 							JOIN ".Tprefix."surveys_templates_sections sts ON (sts.stid=st.stid)
 							JOIN ".Tprefix."surveys_templates_questions stq ON (sts.stsid=stq.stsid)
@@ -1038,6 +1038,7 @@ class Surveys {
                 }
             }
             $questions[$question['stsid']]['section_title'] = $question['section_title'];
+            $questions[$question['stsid']]['section_description'] = $question['section_description'];
             $questions[$question['stsid']]['questions'][$question['stqid']] = $question;
         }
 

@@ -38,7 +38,7 @@ if(!$core->input['action']) {
             redirect('index.php?module=surveys/list');
         }
         foreach($questions as $section) {
-            $questions_list .= '<div class="subtitle" style="margin-top:20px; border-top: thin solid #E8E8E8;">'.$section['section_title'].'</div>';
+            $questions_list .= '<div class="subtitle" style="margin-top:20px; border-top: thin solid #E8E8E8;">-'.$section['section_title'].'<br/>'.$section['section_description'].'</div>';
             foreach($section['questions'] as $question) {
                 $questions_list .= $template_obj->parse_question($question);
             }

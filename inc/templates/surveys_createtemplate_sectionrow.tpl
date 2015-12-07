@@ -1,7 +1,16 @@
 <tr id="section_{$section_rowid}">
     <td style="border-bottom:2px solid #CCC; margin-bottom: 5px;">
-        <div style="padding:5px 5px 10px 5px;"><strong>{$lang->sectiontitle}</strong>
-            <input name="section[{$section_rowid}][title]" type="text" size="50" required="required"></div>
+        <table>
+            <tr>
+                <td style="padding:5px 5px 10px 5px;"><strong>{$lang->sectiontitle}</strong></td><td>
+                    <input name="section[{$section_rowid}][title]" type="text" size="50" required="required">
+                </td>
+            </tr> <tr>
+                <td style="padding:5px 5px 10px 5px;"><strong>{$lang->sectiondesciption}</strong></td><td>
+                    <textarea cols="50" name="section[{$section_rowid}][description]" ></textarea>
+                </td>
+            </tr>
+        </table>
         <table width="100%">
             <tbody id="questions_{$section_rowid}_tbody"  class="{$altrow_class}">
                 {$newquestions}
