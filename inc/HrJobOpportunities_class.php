@@ -59,16 +59,28 @@ class HrJobOpportunities extends AbstractClass {
         }
         /* Verify if user can HR this affiliate Server side --END */
 
-        if(value_exists('hr_jobopprtunities', 'affid', $data['affid'], '(('.TIME_NOW.' BETWEEN '.$data['publishOn'].' AND '.$data['unpublishOn'].') OR title="'.$data['title'].'" )')) {
+        if(value_exists('hr_jobopprtunities', 'affid', $data['affid'], '( title="'.$data['title'].'" )')) {
             $this->errorcode = 4;
             return false;
         }
 
+        $requiredlangs = $data['requiredlang'];
+        unset($data['requiredlang']);
 
         if(is_array($data)) {
             $query = $db->insert_query(self::TABLE_NAME, $data);
             if($query) {
+                $this->data[self::PRIMARY_KEY] = $db->last_id();
                 $log->record(self::TABLE_NAME, $this->data[self::PRIMARY_KEY]);
+                if(!empty($requiredlangs) && is_array($requiredlangs)) {
+                    $langdata[self::PRIMARY_KEY] = $this->data[self::PRIMARY_KEY];
+                    foreach($requiredlangs as $langid) {
+                        $hrjoblang = new HrJobOpportunitiesLanguage();
+                        $langdata['language'] = $langid;
+                        $hrjoblang->set($langdata);
+                        $hrjoblang->save();
+                    }
+                }
             }
         }
         return $this;
