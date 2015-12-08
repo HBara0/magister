@@ -105,11 +105,11 @@ class Affiliates {
         }
         /* On purpose outside the is_array */
         if(!isset($options['allusers']) || $options['allusers'] === false) {
-            $query_where_add .= ' AND u.gid!=7';
+            $query_where_add .= ' AND u.gid !=7';
         }
 
         if(!empty($options['customfilter'])) {
-            $query_where_add .= ' AND '.$options['customfilter'];
+            $query_where_add .= ' AND  '.$options['customfilter'];
         }
         $sql = "SELECT DISTINCT(u.uid)
 					FROM ".Tprefix."users u
@@ -326,6 +326,19 @@ class Affiliates {
     public function get_column($columnname, $filters = null, array $configs = array()) {
         $data = new DataAccessLayer(__CLASS__, self::TABLE_NAME, self::PRIMARY_KEY);
         return $data->get_column($columnname, $filters, $configs);
+    }
+
+    public function has_attendancerecords() {
+        $affiliateusers = $this->get_users(array('ismain' => 1));
+        if(is_array($affiliateusers)) {
+            foreach($affiliateusers as $user) {
+                $attendancerecs = AttendanceAttRecords::get_data(array('uid' => $user->uid), array('returnarray' => true));
+                if(is_array($attendancerecs)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
 }

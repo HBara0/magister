@@ -679,6 +679,7 @@ function parse_toinform_list($uid = '', $checked = '', $leavetype_details = arra
 
 function parse_attendance_reports($core, $headerinc = '', $header = '', $menu = '', $footer = '') {
     global $db, $template, $log, $lang;
+    $cache = new Cache;
     if(!$core->input['output'] == 'email') {
         if(is_empty($core->input['fromDate'], $core->input['uid'])) {
             error($lang->invalidtodate, 'index.php?module=attendance/generatereport', false);
@@ -716,6 +717,26 @@ function parse_attendance_reports($core, $headerinc = '', $header = '', $menu = 
         if(is_object($user_obj)) {
             if($user_obj->gid == 7) {
                 continue;
+            }
+
+            $user_affiliate = $user_obj->get_mainaffiliate();
+            if(!is_object($user_affiliate) || empty($user_affiliate->affid)) {
+                continue;
+            }
+            if($cache->incache('norecordsaffiliates', $user_affiliate->affid)) {
+                continue;
+            }
+            else {
+                if(!$cache->incache('affiliateshasrecords', $user_affiliate->affid)) {
+                    $affhasrecords = $user_affiliate->has_attendancerecords();
+                    if($affhasrecords) {
+                        $cache->add('affiliateshasrecords', $user_affiliate->affid);
+                    }
+                    else {
+                        $cache->add('norecordsaffiliates', $user_affiliate->affid);
+                        continue;
+                    }
+                }
             }
             $currentdate = $fromdate;
             $fromdate_details = getdate($fromdate);
