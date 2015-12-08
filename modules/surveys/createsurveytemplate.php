@@ -52,6 +52,8 @@ if(!$core->input['action']) {
     if($survey_template['isQuiz'] == 1) {
         $showanswer = '';
     }
+    $sepertorslist = array('space' => 'Space', 'newline' => 'New-Line');
+    $seperatorselectlist = parse_selectlist("section[{$section_rowid}][questions][{$question_rowid}][choicesSeperator]", '', $sepertorslist, '');
     eval("\$choices = \"".$template->get('surveys_createtemplate_sectionrow_questionrow_choicerow')."\";");
     eval("\$newquestions = \"".$template->get('surveys_createtemplate_sectionrow_questionrow')."\";");
     eval("\$newsection = \"".$template->get('surveys_createtemplate_sectionrow')."\";");
@@ -144,6 +146,8 @@ else {
             $showanswer = '';
             $type = $core->input['ajaxaddmoredata']['type'];
         };
+        $sepertorslist = array('space' => 'Space', 'newline' => 'New-Line', 'tab' => 'Tab');
+        $seperatorselectlist = parse_selectlist("section[{$section_rowid}][questions][{$question_rowid}][choicesSeperator]", '', $sepertorslist, '');
         $radiobuttons['isRequired'] = parse_yesno('section['.$section_rowid.'][questions]['.$question_rowid.'][isRequired]', 1, $survey_template['isRequired']);
         eval("\$newquestions = \"".$template->get('surveys_createtemplate_sectionrow_questionrow')."\";");
         eval("\$newsection = \"".$template->get('surveys_createtemplate_sectionrow')."\";");
@@ -170,6 +174,8 @@ else {
             $showanswer = '';
             $type = $core->input['ajaxaddmoredata']['type'];
         };
+        $sepertorslist = array('space' => 'Space', 'newline' => 'New-Line', 'tab' => 'Tab');
+        $seperatorselectlist = parse_selectlist("section[{$section_rowid}][questions][{$question_rowid}][choicesSeperator]", '', $sepertorslist, '');
         eval("\$choices = \"".$template->get('surveys_createtemplate_sectionrow_questionrow_choicerow')."\";");
         eval("\$newquestion = \"".$template->get('surveys_createtemplate_sectionrow_questionrow')."\";");
         echo $newquestion;

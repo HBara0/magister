@@ -88,4 +88,5 @@ $lang['senderemail'] = 'Sender Email';
 $lang['sendername'] = 'Sender Name';
 $lang['wrongemailformat'] = 'Wrong Email Format';
 $lang['sectiondesciption'] = 'Section Description';
+$lang['choicesseperator'] = 'Choices Seperator';
 ?>
