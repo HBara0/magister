@@ -833,18 +833,18 @@ $(function() {
                 url: url,
                 data: "value=" + num_rows + "&id=" + id[id.length - 1] + "&" + object.parent().find($('input[id^=ajaxaddmoredata_]')).serialize(),
                 beforeSend: function() {
-                    if(id[1] == 'aro/managearodouments') {
-                        $("body").append("<div id='modal-loading'>Please wait untill the calculation is done.</div>");
-                        $("#modal-loading").dialog({height: 0, modal: true, closeOnEscape: false, title: 'Loading...', resizable: false, minHeight: 0,
-                            open: function(event, ui) {
-                                $(".ui-dialog-titlebar-close", ui.dialog | ui).hide();
-                            }
-                        });
-                        $("#modal-loading").attr('style', 'opacity:1; z-index:1000;height:100px;width:1000px');
-                    } else {
-                        $("body").append("<div id='modal-loading'></div>");
-                        $("#modal-loading").dialog({height: 0, modal: true, closeOnEscape: false, title: 'Loading...', resizable: false, minHeight: 0});
-                    }
+                    //        if(id[1] == 'aro/managearodouments') {
+                    //           $("body").append("<div id='modal-loading'>Please wait untill the calculation is done.</div>");
+                    //            $("#modal-loading").dialog({height: 0, modal: true, closeOnEscape: false, title: 'Loading...', resizable: false, minHeight: 0,
+                    //               open: function(event, ui) {
+                    //                   $(".ui-dialog-titlebar-close", ui.dialog | ui).hide();
+                    //               }
+                    //            });
+                    //            $("#modal-loading").attr('style', 'opacity:1; z-index:1000;height:100px;width:1000px');
+                    //       } else {
+                    $("body").append("<div id='modal-loading'></div>");
+                    $("#modal-loading").dialog({height: 0, modal: true, closeOnEscape: false, title: 'Loading...', resizable: false, minHeight: 0});
+                    //  }
 
                 },
                 complete: function() {
@@ -858,7 +858,9 @@ $(function() {
                     }
                     /*find the offset of the first input in the last tr*/
                     if($('#' + uniquename + '_tbody > tr:last').find("input").filter(':visible:first').length) {
-                        $("html, body").animate({scrollTop: $('#' + uniquename + '_tbody > tr:last').find("input").filter(':visible:first').offset().top}, 1000);
+                        if(id[1] != 'aro/managearodouments') {
+                            $("html, body").animate({scrollTop: $('#' + uniquename + '_tbody > tr:last').find("input").filter(':visible:first').offset().top}, 1000);
+                        }
                         if(typeof (callback) === 'function') {
                             callback();
                         }
