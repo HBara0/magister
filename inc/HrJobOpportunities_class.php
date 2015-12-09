@@ -23,6 +23,7 @@ class HrJobOpportunities extends AbstractClass {
     const SIMPLEQ_ATTRS = '*';
     const CLASSNAME = __CLASS__;
     const REQUIRED_ATTRS = 'affid,employmentType,title,workLocation,responsibilities,shortDesc,unpublishOn,publishOn';
+    const UNIQUE_ATTRS = 'affid,title,reference';
 
     public function __construct($id = '', $simple = true) {
         parent::__construct($id, $simple);
@@ -59,7 +60,7 @@ class HrJobOpportunities extends AbstractClass {
         }
         /* Verify if user can HR this affiliate Server side --END */
 
-        if(value_exists('hr_jobopprtunities', 'affid', $data['affid'], '(('.TIME_NOW.' BETWEEN '.$data['publishOn'].' AND '.$data['unpublishOn'].') OR title="'.$data['title'].'" )')) {
+        if(value_exists(self::TABLE_NAME, 'affid', $data['affid'], '(('.TIME_NOW.' BETWEEN '.$data['publishOn'].' AND '.$data['unpublishOn'].') AND title="'.$data['title'].'" )')) {
             $this->errorcode = 4;
             return false;
         }
