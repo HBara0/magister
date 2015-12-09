@@ -681,7 +681,7 @@ class AroRequests extends AbstractClass {
         $mailer = new Mailer();
         $mailer = $mailer->get_mailerobj();
         $mailer->set_type();
-        $mailer->set_from(array('name' => 'Approve ARO', 'email' => $email_data['from']));
+        $mailer->set_from(array('name' => 'ARO', 'email' => $email_data['from']));
         $mailer->set_subject($email_data['subject']);
         $mailer->set_message($email_data['message']);
         $mailer->set_to($email_data['to']);
@@ -773,7 +773,7 @@ class AroRequests extends AbstractClass {
             $mailer = new Mailer();
             $mailer = $mailer->get_mailerobj();
             $mailer->set_type();
-            $mailer->set_from(array('name' => 'Approve ARO', 'email' => $email_data['from']));
+            $mailer->set_from(array('name' => 'ARO', 'email' => $email_data['from']));
             $mailer->set_subject($email_data['subject']);
             $mailer->set_message($email_data['message']);
             $mailer->set_to($email_data['to']);

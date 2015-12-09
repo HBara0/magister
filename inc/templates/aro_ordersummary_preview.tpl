@@ -69,8 +69,8 @@
             </tr>
             <tr style="font-weight: bold;">
                 <td>{$lang->total} {$lang->netmarginperc} <a href="#" title="{$lang->totalnetmarginpercdef}"><img src="./images/icons/question.gif"/></a></td>
-                <td style="text-align: right;">{$aroordersummary->netmarginIntermedPerc}</td>
-                <td style="text-align: right;">{$aroordersummary->netmarginLocalPerc}</td>
+                <td style="text-align: right;">{$aroordersummary->netmarginIntermedPerc}%</td>
+                <td style="text-align: right;">{$aroordersummary->netmarginLocalPerc}%</td>
             </tr>
             <tr style="font-weight: bold;">
                 <td>{$lang->total} {$lang->globalnetmargin}<a href="#" title="{$lang->globalnetmargindef}"><img src="./images/icons/question.gif"/></a></td>
