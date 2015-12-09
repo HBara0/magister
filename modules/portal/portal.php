@@ -13,7 +13,6 @@ if(!defined('DIRECT_ACCESS')) {
     die('Direct initialization of this file is not allowed.');
 }
 
-$lang->load('portal');
 require_once INC_ROOT.'attendance_functions.php';
 //require_once INC_ROOT.'currency_functions.php';
 
