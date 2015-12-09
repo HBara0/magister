@@ -332,7 +332,7 @@ class Affiliates {
         $affiliateusers = $this->get_users(array('ismain' => 1));
         if(is_array($affiliateusers)) {
             foreach($affiliateusers as $user) {
-                $attendancerecs = AttendanceAttRecords::get_data(array('uid' => $user->uid), array('returnarray' => true));
+                $attendancerecs = AttendanceAttRecords::get_data(array('uid' => $user['uid']), array('returnarray' => true));
                 if(is_array($attendancerecs)) {
                     return true;
                 }
