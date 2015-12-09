@@ -47,13 +47,14 @@ if(!$core->input['action']) {
     $surveycategories_list = parse_selectlist('category', 5, $surveycategories, $survey_template['category']);
 
     $altrow_class = alt_row($altrow_class);
-    $choicesrowid_rowid = 1;
+    $choicesrowid_rowid = $matrixchoicesrowid_rowid = 1;
     $showanswer = 'display:none;';
     if($survey_template['isQuiz'] == 1) {
         $showanswer = '';
     }
     $sepertorslist = array('space' => 'Space', 'newline' => 'New-Line');
     $seperatorselectlist = parse_selectlist("section[{$section_rowid}][questions][{$question_rowid}][choicesSeperator]", '', $sepertorslist, '');
+    eval("\$matrixchoices = \"".$template->get('surveys_createtemplate_sectionrow_questionrow_matrixchoicerow')."\";");
     eval("\$choices = \"".$template->get('surveys_createtemplate_sectionrow_questionrow_choicerow')."\";");
     eval("\$newquestions = \"".$template->get('surveys_createtemplate_sectionrow_questionrow')."\";");
     eval("\$newsection = \"".$template->get('surveys_createtemplate_sectionrow')."\";");
@@ -124,6 +125,12 @@ else {
         else {
             echo '$("tr[id=\'section'.$section_id.'[questions]'.$question_id.'[validationType_container]\']").css("display","none");';
         }
+        if($questiontypes['isMatrix'] == 1) {
+            echo '$("tr[id=\'section'.$section_id.'[questions]'.$question_id.'[matrixchoices_container]\']").css("display","table-row");';
+        }
+        else {
+            echo '$("tr[id=\'section'.$section_id.'[questions]'.$question_id.'[matrixchoices_container]\']").css("display","none");';
+        }
         exit;
     }
     elseif($core->input['action'] == 'ajaxaddmore_section') {
@@ -140,7 +147,7 @@ else {
             }
             $question_types_options .= "<option value='{$key}'{$selected}>{$fieldtype[$key]}</option>";
         }
-        $choicesrowid_rowid = 1;
+        $choicesrowid_rowid = $matrixchoicesrowid_rowid = 1;
         $showanswer = 'display:none;';
         if($core->input['ajaxaddmoredata']['type'] > 0) {
             $showanswer = '';
@@ -149,6 +156,8 @@ else {
         $sepertorslist = array('space' => 'Space', 'newline' => 'New-Line', 'tab' => 'Tab');
         $seperatorselectlist = parse_selectlist("section[{$section_rowid}][questions][{$question_rowid}][choicesSeperator]", '', $sepertorslist, '');
         $radiobuttons['isRequired'] = parse_yesno('section['.$section_rowid.'][questions]['.$question_rowid.'][isRequired]', 1, $survey_template['isRequired']);
+        eval("\$matrixchoices = \"".$template->get('surveys_createtemplate_sectionrow_questionrow_matrixchoicerow')."\";");
+        eval("\$choices = \"".$template->get('surveys_createtemplate_sectionrow_questionrow_choicerow')."\";");
         eval("\$newquestions = \"".$template->get('surveys_createtemplate_sectionrow_questionrow')."\";");
         eval("\$newsection = \"".$template->get('surveys_createtemplate_sectionrow')."\";");
         echo $newsection;
@@ -176,6 +185,7 @@ else {
         };
         $sepertorslist = array('space' => 'Space', 'newline' => 'New-Line', 'tab' => 'Tab');
         $seperatorselectlist = parse_selectlist("section[{$section_rowid}][questions][{$question_rowid}][choicesSeperator]", '', $sepertorslist, '');
+        eval("\$matrixchoices = \"".$template->get('surveys_createtemplate_sectionrow_questionrow_matrixchoicerow')."\";");
         eval("\$choices = \"".$template->get('surveys_createtemplate_sectionrow_questionrow_choicerow')."\";");
         eval("\$newquestion = \"".$template->get('surveys_createtemplate_sectionrow_questionrow')."\";");
         echo $newquestion;
@@ -190,6 +200,17 @@ else {
         };
         eval("\$choices = \"".$template->get('surveys_createtemplate_sectionrow_questionrow_choicerow')."\";");
         echo $choices;
+    }
+    elseif($core->input['action'] == 'ajaxaddmore_matrixquestionschoices') {
+        $matrixchoicesrowid_rowid = $db->escape_string($core->input['value']) + 1;
+        $section_rowid = intval($core->input['ajaxaddmoredata']['sectionrowid']);
+        $question_rowid = intval($core->input['ajaxaddmoredata']['questionrowid']);
+        $showanswer = 'display:none;';
+        if($core->input['ajaxaddmoredata']['type'] > 0) {
+            $showanswer = '';
+        };
+        eval("\$matrixchoices = \"".$template->get('surveys_createtemplate_sectionrow_questionrow_matrixchoicerow')."\";");
+        echo $matrixchoices;
     }
 }
 ?>

@@ -66,8 +66,15 @@ class SurveysTemplates extends AbstractClass {
                 $query2 = $db->query("SELECT * FROM ".Tprefix."surveys_templates_questions_choices WHERE stqid={$question[stqid]} ORDER BY stqcid ASC");
                 while($choice = $db->fetch_assoc($query2)) {
                     $question['choices'][$choice['stqcid']] = $choice['choice'];
+                    if($choice['hasMultipleValues'] == 1) {
+                        $query3 = $db->query("SELECT * FROM ".Tprefix."surveys_templates_questionschoices_choices WHERE stqcid={$choice[stqcid]} ORDER BY stqcid ASC");
+                        while($choicevalue = $db->fetch_assoc($query3)) {
+                            $question['choicevalues'][$choicevalue['stqccid']] = $choicevalue['choice'];
+                        }
+                    }
                 }
             }
+            $question['choicevalues'] = array_unique($question['choicevalues']);
             $questions[$question['stsid']]['section_title'] = $question['section_title'];
             $questions[$question['stsid']]['questions'][$question['stqid']] = $question;
         }
@@ -177,7 +184,24 @@ class SurveysTemplates extends AbstractClass {
                     $question_output .= '<div style="margin: 5px 20px; 5px; 20px;"><textarea id="answer_'.$question_output_idadd.'_'.$question['stqid'].'" name="answer'.$question_output_idadd.'['.$question['stqid'].']" cols="50" rows="'.$question['fieldSize'].'"'.$question_output_requiredattr.'></textarea> '.$this->parse_validation($question).'</div>';
                 }
                 break;
-            default: return false;
+            case 'matrix':
+                $question_output .= '<div style="margin: 5px 20px; 5px; 20px;"><table>';
+                $question_output .= '<tr><th><input type="hidden" name="answer[options]['.$question['stqid'].'][isMatrix]" value="1"/></th>';
+                foreach($question['choicevalues'] as $choicevalue) {
+                    $question_output .= '<th>'.$choicevalue.'</th>';
+                }
+                $question_output .='</tr>';
+                foreach($question['choices'] as $choicekey => $choice) {
+                    $question_output .='<tr><th>'.$choice.'</th>';
+                    foreach($question['choicevalues'] as $valuekey => $choicevalue) {
+                        $question_output .='<td><input type="radio" name="answer[actual]['.$question['stqid'].']['.$choicekey.']" value="'.$choicekey.'_'.$valuekey.'" '.$checked.$required.'/></td>';
+                    }
+                    $question_output .='</tr>';
+                }
+                $question_output .='</table>';
+                break;
+            default:
+                return false;
         }
 
         if($question['hasCommentsField'] == 1) {
@@ -213,7 +237,7 @@ class SurveysTemplates extends AbstractClass {
     }
 
     public function get_displayname() {
-        if($this->data['isQuiz'] == 1) {
+        if($this->data ['isQuiz'] == 1) {
             return 'quiz - '.$this->data[self::DISPLAY_NAME];
         }
         else {

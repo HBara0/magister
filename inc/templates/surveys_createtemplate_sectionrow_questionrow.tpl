@@ -50,6 +50,41 @@
                 <td>{$lang->validationcriterion}</td>
                 <td><input type="text" name="section[{$section_rowid}][questions][{$question_rowid}][validationCriterion]" accept="numeric"></td>
             </tr>
+
+
+            <tr id="section[{$section_rowid}][questions][{$question_rowid}][matrixchoices_container]" style="display:none;">
+                <td colspan="2">
+                    <table width="100%">
+                        <thead>
+                            <tr>
+                                <td colspan="3"><hr /><span class="subtitle">{$lang->choices}</span>
+                                    <input type="hidden" name="section[{$section_rowid}][questions][{$question_rowid}][isMatrix]" value="1">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td id="answer_{$section_rowid}_{$question_rowid}" style="{$showanswer}">{$lang->isanswer}</td>
+                                <td>{$lang->choice}*</td>
+                            </tr>
+                        </thead>
+                        <tbody id="matrixquestionschoices_{$section_rowid}_{$question_rowid}_tbody"  class="{$altrow_class}">
+                            {$matrixchoices}
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="2">
+                                    <img src="./images/add.gif" id="ajaxaddmore_surveys/createsurveytemplate_matrixquestionschoices_{$section_rowid}_{$question_rowid}" alt="{$lang->add}">
+                                    <input id="numrows_matrixquestionschoices_{$section_rowid}_{$question_rowid}" name="numrows_questions_{$section_rowid}_{$question_rowid}" type="hidden" value="{$matrixchoicesrowid_rowid}">
+                                    <input type="hidden" name="ajaxaddmoredata[type]" id="ajaxaddmoredata_matrixquestionschoices_{$section_rowid}_{$question_rowid}" value="{$type}"/>
+                                    <input type="hidden" name="ajaxaddmoredata[questionrowid]" id="ajaxaddmoredata_matrixquestionschoices_{$section_rowid}_{$question_rowid}" value="{$question_rowid}"/>
+                                    <input type="hidden" name="ajaxaddmoredata[sectionrowid]" id="ajaxaddmoredata_matrixquestionschoices_{$section_rowid}_{$question_rowid}" value="{$section_rowid}"/>
+
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </td>
+            </tr>
+
             <tr id="section[{$section_rowid}][questions][{$question_rowid}][choices_container]" style="display:none;">
                 <td colspan="2">
                     <table width="100%">
