@@ -632,13 +632,16 @@ else {
                     $core->user_obj->email,
                     Users::get_data(array('uid' => 3))->email/* Always include User 3 */
             );
-            $recipients = array_unique(array_filter($recipients));
+            $recipients = array_filter($recipients);
+            if(is_array($recipients)) {
+                $recipients = array_unique($recipients);
+            }
             $mailer->set_to($recipients);
 
-            $mailer->set_to('zaher.reda@orkila.com');
-            print_r($mailer->debug_info());
-            exit;
-            //     $mailer->send();
+//            $mailer->set_to('zaher.reda@orkila.com');
+//            print_r($mailer->debug_info());
+//            exit;
+            $mailer->send();
             if($mailer->get_status() === true) {
                 $sentreport = new ReportsSendLog();
                 $sentreport->set(array('affid' => $affiliate->get_id(), 'report' => 'salesreport', 'date' => TIME_NOW, 'sentBy' => $core->user['uid'], 'sentTo' => ''))->save();
