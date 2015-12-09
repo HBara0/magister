@@ -1020,9 +1020,9 @@ class IntegrationOBMovementLine {
 
     public function get_output_transaction() {
         $query = $this->f_db->query('SELECT t.m_transaction_id
-        FROM m_transaction t
-        JOIN obwfa_output_stack os ON (os.m_transaction_id = t.m_transaction_id)
-        WHERE t.m_movementline_id = \''.$this->movementline['m_movementline_id'].'\'');
+								FROM m_transaction t
+								JOIN obwfa_output_stack os ON (os.m_transaction_id=t.m_transaction_id)
+								WHERE t.m_movementline_id=\''.$this->movementline['m_movementline_id'].'\'');
         if($this->f_db->num_rows($query) > 0) {
             $transaction = $this->f_db->fetch_assoc($query);
             return new IntegrationOBTransaction($transaction['m_transaction_id'], $this->f_db);
@@ -1424,7 +1424,6 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
         //$rawdata = $this->get_aggreateddata_byyearmonth('salesrep_id, c_currency_id', $filters);
         $lines = IntegrationOBInvoiceLine::get_data($filters); // array('order' => array('sort' => 'DESC', 'by' => 'qtyinvoiced')));
         if(is_array($lines)) {
-
             foreach($lines as $line) {
                 $invoice = $line->get_invoice();
                 $invoice->dateinvoiceduts = strtotime($invoice->dateinvoiced);
@@ -1491,7 +1490,6 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                 }
             }
             $data['dataperday'] = $dataperday;
-
             return $data;
         }
         return false;
@@ -1508,10 +1506,10 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                         $currentquarter = ceil(date('n', TIME_NOW) / 3);
                         $current_month = date("m");
                         $currentyeardata = $salerepdata[$current_year];
-                        if(isset($currentyeardata [$current_month]) && !empty($currentyeardata[$current_month])) {
-                            $classification[$tableindex]['bymonth'][$tableindex][$id]['currentdata'] = array_sum($currentyeardata [$current_month]) / 1000;
-                            $classification[$tableindex]['bymonth'][$tableindex][$id]['currentmonthdata'] = array_sum($currentyeardata [$current_month]) / 1000;
-                            $classification_data[$id] = array_sum($currentyeardata [$current_month]) / 1000;
+                        if(isset($currentyeardata[$current_month]) && !empty($currentyeardata[$current_month])) {
+                            $classification[$tableindex]['bymonth'][$tableindex][$id]['currentdata'] = array_sum($currentyeardata[$current_month]) / 1000;
+                            $classification[$tableindex]['bymonth'][$tableindex][$id]['currentmonthdata'] = array_sum($currentyeardata[$current_month]) / 1000;
+                            $classification_data[$id] = array_sum($currentyeardata[$current_month]) / 1000;
                         }
                         else {
                             $classification[$tableindex]['bymonth'][$tableindex][$id]['currentdata'] = 0;
@@ -1522,7 +1520,7 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                                 $cydata = array_sum($cydata_array);
                                 if(!empty($cydata)) {
                                     $classification[$tableindex]['byytd'][$tableindex][$id]['currentdata'] +=$cydata / 1000;
-                                    $ytdclassification_data [$id] +=$cydata / 1000;
+                                    $ytdclassification_data[$id] +=$cydata / 1000;
                                 }
                                 else {
                                     $classification[$tableindex]['byytd'][$tableindex][$id]['currentdata'] += 0;
@@ -1532,7 +1530,7 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                             //Change variable names from months to ytd
                             $classification[$tableindex]['byytd'][$tableindex][$id]['currentmonthdata'] = $classification[$tableindex]['byytd'][$tableindex][$id]['currentdata'];
                             //Get Last year total data to be compared with current year data
-                            $lastyeardata = $salerepdata [($current_year - 1)];
+                            $lastyeardata = $salerepdata[($current_year - 1)];
                             if(is_array($lastyeardata)) {
                                 foreach($lastyeardata as $lydata_array) {
                                     if(is_array($lydata_array)) {
@@ -1549,8 +1547,8 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
 //////////////////////////////////////////////////////////////////
                         }
 //Get Last Month data to be compared with current month data
-                        if(is_array($currentyeardata [($current_month - 1)])) {
-                            $classification[$tableindex]['bymonth'][$tableindex][$id]['prevmonthdata'] = array_sum($currentyeardata [$current_month - 1]) / 1000;
+                        if(is_array($currentyeardata[($current_month - 1)])) {
+                            $classification[$tableindex]['bymonth'][$tableindex][$id]['prevmonthdata'] = array_sum($currentyeardata[$current_month - 1]) / 1000;
                         }
                         else {
                             $classification[$tableindex]['bymonth'][$tableindex][$id]['prevmonthdata'] = 0;
@@ -1560,8 +1558,8 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                         $qmonths = $this->get_quartermonths($currentquarter);
                         foreach($qmonths as $month) {
                             if(is_array($currentyeardata[$month])) {
-                                $classification[$tableindex]['byquarter'][$tableindex][$id]['currentdata'] += array_sum($currentyeardata [$month]) / 1000;
-                                $qclassification_data[$id] +=array_sum($currentyeardata [$month]) / 1000;
+                                $classification[$tableindex]['byquarter'][$tableindex][$id]['currentdata'] += array_sum($currentyeardata[$month]) / 1000;
+                                $qclassification_data[$id] +=array_sum($currentyeardata[$month]) / 1000;
                             }
                         }
                     }
@@ -1586,9 +1584,9 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                                 foreach($year_data as $month => $month_data) {
                                     if(is_array($month_data)) {
                                         foreach($month_data as $day => $day_data) {
-                                            if(($year == $from ['year'] && $month >= $from ['mon'] && $day >= $from ['mday']) || ($year == $to ['year'] && $month <= $to ['mon'] && $day <= $to['mday'])) {
+                                            if(($year == $from['year'] && $month >= $from['mon'] && $day >= $from['mday']) || ($year == $to['year'] && $month <= $to['mon'] && $day <= $to['mday'])) {
                                                 $classification[$tableindex]['wholeperiod'][$tableindex][$id]['currentdata'] +=$day_data / 1000;
-                                                $periodclassification [$id] +=$day_data / 1000;
+                                                $periodclassification[$id] +=$day_data / 1000;
                                             }
                                         }
                                     }
@@ -1731,6 +1729,19 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                             $rank++;
                         }
                         $output .= '</table><br/>';
+
+                        if($classname == 'IntegrationOBUser') {
+                            $topofthemonth_obj = new $object($topofthemonthid);
+                            if(is_object($topofthemonth_obj)) {
+                                $topofthemonth_obj_name = $topofthemonth_obj->name;
+                            }
+                        }
+                        else {
+                            $topofthemonth_obj_name = $id;
+                        }
+                        $topclassification_summary .='<div>Top '.substr_replace($lang->$tableindex, '', -1).' '.$lang->$classificationtype.' : <span style="font-weight:bold;">'.$topofthemonth_obj_name.'</span></div><br/>';
+
+
                         $output .='<div style="width:100%;"><h2>'.$lang->chart.' <small>(K Table Amounts )</small> </h2>';
                         $output .= '<img src="data:image/png;base64,'.base64_encode(file_get_contents($this->parse_classificaton_charts($classificationdata[$tableindex], $tableindex))).'" />';
                         $output .= '</div><br/>';
@@ -1738,7 +1749,10 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                 }
             }
         }
-        return $output;
+        $classificationoutput['tablesandcharts'] = $output;
+        $classificationoutput['summary'] = $topclassification_summary;
+
+        return $classificationoutput;
     }
 
     public function parse_classificaton_charts($data, $type) {
@@ -1839,8 +1853,6 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
             }
             return $data;
         }
-
-
         return false;
     }
 

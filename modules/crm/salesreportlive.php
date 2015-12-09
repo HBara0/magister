@@ -310,8 +310,10 @@ else {
                     }
                 }
             }
-            $salesreport = '<h1>'.$lang->salesreport.'<small><br />'.$lang->{$core->input['type']}.'<br />Values are in Thousands <small>Local Currency</small> (K '.$currency_obj->alphaCode.')</h1>';
-            $salesreport .= '<p><em>The report might have issues in the cost information. If so please report them to the ERP Team.</em></p>';
+            $salesreport_header = '<h1>'.$lang->salesreport.'<small><br />'.$lang->{$core->input['type']}.'<br />Values are in Thousands <small>Local Currency</small> (K '.$currency_obj->alphaCode.')</h1>';
+            $salesreport_header .= '<p><em>The report might have issues in the cost information. If so please report them to the ERP Team.</em></p>';
+
+
             if($core->input['type'] == 'analytic' || $core->input['type'] == 'dimensional') {
                 $overwrite = array('marginperc' => array('fields' => array('divider' => 'netmargin', 'dividedby' => 'linenetamt'), 'operation' => '/'),
                         'grossmarginperc' => array('fields' => array('divider' => 'grossmargin', 'dividedby' => 'linenetamt'), 'operation' => '/'),
@@ -324,7 +326,7 @@ else {
 
                 if($core->input['type'] == 'analytic') {
                     $current_year = date('Y', TIME_NOW);
-                    $required_tables = array('segmentsummary' => array('segment'), 'salesrepsummary' => array('salesrep'), 'suppliersummary' => array('suppliername'), 'customerssummary' => array('customername'));
+                    $required_tables = array('segmentsummary' => array('segment'), 'salesrepsummary' => array('salesrep', 'segment'), 'suppliersummary' => array('suppliername'), 'customerssummary' => array('customername', 'segment'));
 
                     $yearsummary_filter = "EXISTS (SELECT c_invoice_id FROM c_invoice WHERE c_invoice.c_invoice_id=c_invoiceline.c_invoice_id AND issotrx='Y' AND ad_org_id IN ('".implode("','", $orgs)."') AND docstatus NOT IN ('VO', 'CL') AND (dateinvoiced BETWEEN '".date('Y-m-d 00:00:00', strtotime((date('Y', TIME_NOW) - 2).'-01-01'))."' AND '".date('Y-m-d 00:00:00', $period['to'])."'))";
                     //$monthdata = $integration->get_sales_byyearmonth($yearsummary_filter);
@@ -395,7 +397,7 @@ else {
                         }
 
                         if(is_array($classifications) && (isset($core->input['generatecharts']) && $core->input['generatecharts'] == 1)) {
-                            $classifications_output .=$invoicelines->parse_classificaton_tables($classifications);
+                            $classifications_output = $invoicelines->parse_classificaton_tables($classifications);
                         }
 //                    $invoicelinesdata = new IntegrationOBInvoiceLine(null, $integration->get_dbconn());
 //                    $yearsumrawtotals = $invoicelinesdata->get_aggreateddata_byyearmonth(null, $yearsummary_filter." AND c_invoice.issotrx='Y'");
@@ -422,7 +424,9 @@ else {
                             }
                             $salesreport .= '</tr>';
                         }
-                        $salesreport .= '</table><br/><br/>'.$classifications_output;
+                        $salesreport .= '</table><br/><br/>'.$classifications_output['tablesandcharts'];
+
+                        $salesreport = $salesreport_header.$classifications_output['summary'].$salesreport;
                         unset($yearsumrawtotals, $yearsummarytotals, $currentyeardata);
 
                         /* YTD Comparison */
@@ -624,17 +628,17 @@ else {
                     $affiliate->get_supervisor()->email,
                     $finManager->email,
                     $affiliate->get_coo()->email,
+                    $affiliate->get_commercialManager()->email,
                     $core->user_obj->email,
                     Users::get_data(array('uid' => 3))->email/* Always include User 3 */
             );
-            $recipients = array_unique($recipients);
-
+            $recipients = array_unique(array_filter($recipients));
             $mailer->set_to($recipients);
 
-//            $mailer->set_to('zaher.reda@orkila.com');
-//            print_r($mailer->debug_info());
-//            exit;
-            $mailer->send();
+            $mailer->set_to('zaher.reda@orkila.com');
+            print_r($mailer->debug_info());
+            exit;
+            //     $mailer->send();
             if($mailer->get_status() === true) {
                 $sentreport = new ReportsSendLog();
                 $sentreport->set(array('affid' => $affiliate->get_id(), 'report' => 'salesreport', 'date' => TIME_NOW, 'sentBy' => $core->user['uid'], 'sentTo' => ''))->save();
@@ -657,6 +661,7 @@ else {
                         $affiliate->get_supervisor()->displayName,
                         $finManager->displayName,
                         $affiliate->get_coo()->displayName,
+                        $affiliate->get_commercialManager()->displayName,
                         $core->user_obj->displayName,
                         Users::get_data(array('uid' => 3))->get_displayname()/* Always include User 3 */);
                 $recipients = array_unique($recipients);
