@@ -93,6 +93,10 @@
                                 <td colspan="3"><hr /><span class="subtitle">{$lang->choices}</span></td>
                             </tr>
                             <tr>
+                                <td >{$lang->choicesseperator}</td>
+                                <td >{$seperatorselectlist}</td>
+                            </tr>
+                            <tr>
                                 <td id="answer_{$section_rowid}_{$question_rowid}" style="{$showanswer}">{$lang->isanswer}</td>
                                 <td>{$lang->choice}*</td>
                                 <td>{$lang->value}</td>

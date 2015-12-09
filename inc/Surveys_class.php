@@ -91,6 +91,12 @@ class Surveys {
             $data['isQuiz'] = 1;
             $data['total'] = $surveytemplate->total;
         }
+        if(isset($data['senderEmail']) && !empty($data['senderEmail'])) {
+            if(!isvalid_email($data['senderEmail'])) {
+                $this->status = 6;
+                return false;
+            }
+        }
         $query = $db->insert_query('surveys', $data);
         if($query) {
             $this->status = 0;
@@ -340,8 +346,8 @@ class Surveys {
             foreach($core->input['section'] as $key => $section) {
                 $newsurveys_section = array(
                         'stid' => $stid,
-                        'title' => $core->sanitize_inputs(trim($section['title'])));
-
+                        'title' => $core->sanitize_inputs(trim($section['title'])),
+                        'description' => $core->sanitize_inputs(trim($section['description'])));
                 $section_query = $db->insert_query('surveys_templates_sections', $newsurveys_section);
                 if($section_query) {
                     $stsid = $db->last_id();
@@ -867,7 +873,12 @@ class Surveys {
                         'from' => $core->user['displayName']
                 );
             }
-
+            if(isset($this->survey['senderEmail']) && !empty($this->survey['senderEmail'])) {
+                $invitations_email['from_email'] = $this->survey['senderEmail'];
+            }
+            if(isset($this->survey['senderName']) && !empty($this->survey['senderName'])) {
+                $invitations_email['from'] = $this->survey['senderName'];
+            }
             if(isset($this->survey['customInvitationSubject']) && !empty($this->survey['customInvitationSubject'])) {
                 $invitations_email['subject'] = $this->survey['customInvitationSubject'];
             }
@@ -1049,7 +1060,7 @@ class Surveys {
     public function get_questions() {
         global $db;
 
-        $query = $db->query("SELECT *, sts.title AS section_title, stq.description AS description
+        $query = $db->query("SELECT *, sts.title AS section_title, sts.description AS section_description, stq.description AS description, stq.choicesSeperator
 							FROM ".Tprefix."surveys_templates st
 							JOIN ".Tprefix."surveys_templates_sections sts ON (sts.stid=st.stid)
 							JOIN ".Tprefix."surveys_templates_questions stq ON (sts.stsid=stq.stsid)
@@ -1073,6 +1084,7 @@ class Surveys {
             }
             $question['choicevalues'] = array_unique($question['choicevalues']);
             $questions[$question['stsid']]['section_title'] = $question['section_title'];
+            $questions[$question['stsid']]['section_description'] = $question['section_description'];
             $questions[$question['stsid']]['questions'][$question['stqid']] = $question;
         }
 
@@ -1185,7 +1197,12 @@ class Surveys {
                     $question_output .= '<div style="margin: 5px 20px; 5px; 20px;">'.$question_output_response.'</div>';
                 }
                 else {
-                    $question_output .= '<div style="margin: 5px 20px; 5px; 20px;">'.parse_checkboxes('answer[actual]['.$question['stqid'].']', $question['choices'], '', true, '&nbsp;&nbsp;').'</div>';
+                    $seperator = '&nbsp;&nbsp;';
+                    if(!empty($question['choicesSeperator'])) {
+                        $htmlents = array('space' => '&nbsp;&nbsp;', 'newline' => '<br/>');
+                        $seperator = $htmlents[$question['choicesSeperator']];
+                    }
+                    $question_output .= '<div style="margin: 5px 20px; 5px; 20px;">'.parse_checkboxes('answer[actual]['.$question['stqid'].']', $question['choices'], '', true, $seperator).'</div>';
                 }
                 break;
             case 'radiobutton':
@@ -1201,7 +1218,12 @@ class Surveys {
                     $question_output .= '<div class="'.$rowclass.'" style="margin: 5px 20px; 5px; 20px;">'.$response['choice'].'</div>';
                 }
                 else {
-                    $question_output .= '<div style="margin: 5px 20px; 5px; 20px;">'.parse_radiobutton('answer[actual]['.$question['stqid'].']', $question['choices'], '', true, '&nbsp;&nbsp;', array('required' => $question['isRequired'])).'</div>';
+                    $seperator = '&nbsp;&nbsp;';
+                    if(!empty($question['choicesSeperator'])) {
+                        $htmlents = array('space' => '&nbsp;&nbsp;', 'newline' => '<br/>');
+                        $seperator = $htmlents[$question['choicesSeperator']];
+                    }
+                    $question_output .= '<div style="margin: 5px 20px; 5px; 20px;">'.parse_radiobutton('answer[actual]['.$question['stqid'].']', $question['choices'], '', true, $seperator, array('required' => $question['isRequired'])).'</div>';
                 }
                 break;
             case 'textarea':

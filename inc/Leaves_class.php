@@ -860,5 +860,13 @@ class Leaves extends AbstractClass {
         }
     }
 
+    public function has_approvalchain() {
+        $approval = AttLeavesApproval::get_data(array('lid' => $this->data['lid']), array('returnarray' => true, 'simple' => false));
+        if(is_array($approval)) {
+            return $approval;
+        }
+        return false;
+    }
+
 }
 ?>
