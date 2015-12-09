@@ -289,6 +289,12 @@ class Surveys {
                         }
 
                         if($question['hasChoices'] == 1) {
+                            if($question['isMatrix'] == 1) {
+                                $temp_choicevalues = $question['choices'];
+                                $question['choices'] = $question['matrixchoices'];
+                                $question['choicesvalues'] = $temp_choicevalues;
+                                unset($question['matrixchoices']);
+                            }
                             $totalquestions++;
                             if(empty($question['choices'])) {
                                 $this->status = 1;
@@ -340,17 +346,29 @@ class Surveys {
                 if($section_query) {
                     $stsid = $db->last_id();
                     foreach($section['questions'] as $key => $question) {
+                        $hasmultiplevalues = 0;
+                        if($question['isMatrix'] == 1) {
+                            $temp_choicevalues = $question['choices'];
+                            $question['choices'] = $question['matrixchoices'];
+                            $question['choicesvalues'] = $temp_choicevalues;
+                            $hasmultiplevalues = 1;
+                            unset($question['matrixchoices'], $question['isMatrix']);
+                        }
+
                         $question['stsid'] = $stsid;
                         $question['sequence'] = $sequence;
                         if(isset($question['choices']) && is_array($question['choices'])) {
                             $question_choices = $question['choices'];
+                        }
+                        if(isset($question['choicesvalues']) && is_array($question['choicesvalues'])) {
+                            $choice_values = $question['choicesvalues'];
                         }
 
                         if(!empty($question['commentsFieldTitle'])) {
                             $question['hasCommentsField'] = 1;
                             $question['commentsFieldType'] = 'textarea';
                         }
-                        unset($question['choices']);
+                        unset($question['choices'], $question['choicesvalues']);
 
 
                         $query_question = $db->insert_query('surveys_templates_questions', $question);
@@ -363,7 +381,20 @@ class Surveys {
                                 foreach($question_choices as $key => $choice) {
                                     if(!empty($choice['choice'])) {
                                         $choice['stqid'] = $stqid;
+                                        $choice['hasMultipleValues'] = $hasmultiplevalues;
                                         $query_choice = $db->insert_query('surveys_templates_questions_choices', $choice);
+                                        if($query_choice) {
+                                            $stqcid = $db->last_id();
+                                            if($choice['hasMultipleValues'] == 1) {
+                                                if(is_array($choice_values)) {
+                                                    foreach($choice_values as $key => $choicevalue) {
+                                                        $choicevalue['stqcid'] = $stqcid;
+                                                        $query_choice = $db->insert_query('surveys_templates_questionschoices_choices', $choicevalue);
+                                                    }
+                                                    unset($stqcid);
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -619,26 +650,33 @@ class Surveys {
             $identifier = substr(md5(uniqid(microtime())), 1, 10);
             foreach($answers['actual'] as $id => $value) {
                 $total++;
-                if(is_array($value)) {
-                    foreach($value as $vid => $val) {
+                if(questiontypes)
+                    if(is_array($value)) {
+                        foreach($value as $vid => $val) {
+                            if(isset($answers['options'][$id]['isMatrix']) && $answers['options'][$id]['isMatrix'] == 1) {
+                                $selectedoption = explode("_", $val);
+                                $val = $selectedoption[0];
+                                $responseval = $selectedoption[1];
+                            }
+
+                            $answer = 0;
+                            $questionchoice = new SurveysTplQChoices(intval($val));
+                            if($questionchoice->isAnswer == 1) {
+                                $answer = 1;
+                                $corrects++;
+                            }
+                            $this->save_single_response(array('id' => $id, 'value' => $val, 'responseValue' => $responseval, 'comments' => $answers['comments'][$id][$vid], 'identifier' => $identifier, 'isCorrect' => $answer));
+                        }
+                    }
+                    else {
                         $answer = 0;
-                        $questionchoice = new SurveysTplQChoices(intval($val));
+                        $questionchoice = new SurveysTplQChoices(intval($value));
                         if($questionchoice->isAnswer == 1) {
                             $answer = 1;
                             $corrects++;
                         }
                         $this->save_single_response(array('id' => $id, 'value' => $val, 'comments' => $answers['comments'][$id][$vid], 'identifier' => $identifier, 'isCorrect' => $answer));
                     }
-                }
-                else {
-                    $answer = 0;
-                    $questionchoice = new SurveysTplQChoices(intval($value));
-                    if($questionchoice->isAnswer == 1) {
-                        $answer = 1;
-                        $corrects++;
-                    }
-                    $this->save_single_response(array('id' => $id, 'value' => $val, 'comments' => $answers['comments'][$id][$vid], 'identifier' => $identifier, 'isCorrect' => $answer));
-                }
             }
             /* Set contribution as done */
             $pass = 0;
@@ -663,6 +701,7 @@ class Surveys {
                 'invitee' => $core->user['uid'],
                 'identifier' => $answer['identifier'],
                 'response' => $core->sanitize_inputs($answer['value']),
+                'responseValue' => $core->sanitize_inputs($answer['responseValue']),
                 'comments' => $core->sanitize_inputs($answer['comments']),
                 'time' => TIME_NOW,
                 'isCorrect' => $answer['isCorrect'],
@@ -1024,8 +1063,15 @@ class Surveys {
                 $query2 = $db->query("SELECT * FROM ".Tprefix."surveys_templates_questions_choices WHERE stqid={$question[stqid]} ORDER BY stqcid ASC");
                 while($choice = $db->fetch_assoc($query2)) {
                     $question['choices'][$choice['stqcid']] = $choice['choice'];
+                    if($choice['hasMultipleValues'] == 1) {
+                        $query3 = $db->query("SELECT * FROM ".Tprefix."surveys_templates_questionschoices_choices WHERE stqcid={$choice[stqcid]} ORDER BY stqcid ASC");
+                        while($choicevalue = $db->fetch_assoc($query3)) {
+                            $question['choicevalues'][$choicevalue['stqccid']] = $choicevalue['choice'];
+                        }
+                    }
                 }
             }
+            $question['choicevalues'] = array_unique($question['choicevalues']);
             $questions[$question['stsid']]['section_title'] = $question['section_title'];
             $questions[$question['stsid']]['questions'][$question['stqid']] = $question;
         }
@@ -1169,6 +1215,22 @@ class Surveys {
                     }
                     $question_output .= '<div style="margin: 5px 20px; 5px; 20px;"><textarea id="answer_'.$question_output_idadd.'_'.$question['stqid'].'" name="answer'.$question_output_idadd.'['.$question['stqid'].']" cols="50" rows="'.$question['fieldSize'].'"'.$question_output_requiredattr.'></textarea> '.$this->parse_validation($question).'</div>';
                 }
+                break;
+            case 'matrix':
+                $question_output .= '<div style="margin: 5px 20px; 5px; 20px;"><table>';
+                $question_output .= '<tr><th><input type="hidden" name="answer[options]['.$question['stqid'].'][isMatrix]" value="1"/></th>';
+                foreach($question['choicevalues'] as $choicevalue) {
+                    $question_output .= '<th>'.$choicevalue.'</th>';
+                }
+                $question_output .='</tr>';
+                foreach($question['choices'] as $choicekey => $choice) {
+                    $question_output .='<tr><th>'.$choice.'</th>';
+                    foreach($question['choicevalues'] as $valuekey => $choicevalue) {
+                        $question_output .='<td><input type="radio" name="answer[actual]['.$question['stqid'].']['.$choicekey.']" value="'.$choicekey.'_'.$valuekey.'" '.$question_output_requiredattr.'/></td>';
+                    }
+                    $question_output .='</tr>';
+                }
+                $question_output .='</table>';
                 break;
             default: return false;
         }
