@@ -310,8 +310,8 @@ else {
                     }
                 }
             }
-            $salesreport_header = '<h1>'.$lang->salesreport.'<small><br />'.$lang->{$core->input['type']}.'<br />Values are in Thousands <small>Local Currency</small> (K '.$currency_obj->alphaCode.')</h1>';
-            $salesreport_header .= '<p><em>The report might have issues in the cost information. If so please report them to the ERP Team.</em></p>';
+            $salesreport_header = '<h1>'.$lang->salesreport.'<small><br />'.$lang->{$core->input['type']}.'</small><br />Values are in Thousands <small>Local Currency (K '.$currency_obj->alphaCode.')</small></h1>';
+            $salesreport_header .= '<p><em>The report might have issues in the cost information. If so please report them to the ERP Team.</em></p><br/>';
 
 
             if($core->input['type'] == 'analytic' || $core->input['type'] == 'dimensional') {
