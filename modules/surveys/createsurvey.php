@@ -164,6 +164,9 @@ else {
                 header('Content-type: text/xml+xhtml');
                 output_xml("<status>false</status><message><![CDATA[ ".$errorhandler->get_errors_inline()." ]]></message>");
                 break;
+            case 6:
+                output_xml("<status>false</status><message>{$lang->wrongemailformat}</message>");
+                break;
         }
     }
     if($core->input['action'] == 'sendinvitations') {

@@ -235,7 +235,15 @@ $lang['totalnetmarginpercdef'] = 'Net Margin/ SUM(Selling Price * Quantity)<br/>
 $lang['totalnetmargindef'] = 'For Re-Invoicing Customer, SUM of product lines Net Margin.<br/><br/> For Re-Invoicing Affiliate, difference between Invoice Values minus Fees paid by Intermediary in USD.';
 
 $lang['destinationcountry'] = 'Country of Destination of the Goods';
-$lang['purchasingcompany'] = 'Company Purchasing the Goods from the Supplie';
-$lang['purchasepricefromsupplier'] = 'Purchase Price from Supplier in USD';
+$lang['purchasingcompany'] = 'Company Purchasing the Goods from the Supplier';
+$lang['purchasepricefromsupplier'] = 'Purchase Price from Supplier (USD)';
 $lang['purchasecurrency'] = 'Purchase Currency';
+$lang['invvalusdsupplier'] = 'Invoice Value in USD (from Supplier)';
+$lang['invvalintermedaffcustomer'] = 'Invoice Value in USD from Intermediate (to affiliate or customer)';
+$lang['netmarginintermedusd'] = 'Net Margin of the intermediate in USD and %age';
+$lang['invvaluecustomer'] = 'Invoice Value in USD to customer (if any)';
+$lang['netmarginaff'] = 'Net Margin of the Affiliate in USD (if any) and %age';
+$lang['totalnetmarginofallorkilaent'] = 'Total Net Margin in USD of all Orkila entities and %age';
+$lang['nowarehouse'] = 'No Warehouse';
+$lang['usdexchangerate'] = 'Exchange rate to usd';
 ?>

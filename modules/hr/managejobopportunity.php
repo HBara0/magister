@@ -11,8 +11,8 @@
  */
 
 if($core->usergroup['hr_canCreateJobOpport'] == 0) {
-    error($lang->sectionnopermission);
-    exit;
+//    error($lang->sectionnopermission);
+//    exit;
 }
 
 $lang->load('hr_jobopportunities');
@@ -105,8 +105,8 @@ if(!$core->input['action']) {
     $educationlevel_list = parse_selectlist('jobopportunity[educationLevel]', '', $educationlevels, $selected_options, '1', '', array('width' => '200px', 'blankstart' => true));
     $filter['educationlevel_list'] = parse_selectlist('filter[educationLevel]', '', $educationlevels, $selected_options, '1', '', array('width' => '200px', 'blankstart' => true));
 
-    $languages_array = array('egilsh' => 'English', 'french' => 'French', 'arabic' => 'Arabic');
-    $languages_list = parse_selectlist('jobopportunity[requiredlang]', '', $languages_array, $selected_options, '1', '', '', array('width' => '200px', 'blankstart' => true));
+    $languages_array = array('english' => 'English', 'french' => 'French', 'arabic' => 'Arabic');
+    $languages_list = parse_selectlist('jobopportunity[requiredlang][]', '', $languages_array, $selected_options, '1', '', '', array('width' => '200px', 'blankstart' => true));
 
     $mainaffiliate_obj = new Affiliates($core->user['mainaffiliate']);
     $mainaffiliate['curr'] = $mainaffiliate_obj->get_currency()->numCode;

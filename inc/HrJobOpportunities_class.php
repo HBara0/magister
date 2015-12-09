@@ -65,11 +65,23 @@ class HrJobOpportunities extends AbstractClass {
             return false;
         }
 
+        $requiredlangs = $data['requiredlang'];
+        unset($data['requiredlang']);
 
         if(is_array($data)) {
             $query = $db->insert_query(self::TABLE_NAME, $data);
             if($query) {
+                $this->data[self::PRIMARY_KEY] = $db->last_id();
                 $log->record(self::TABLE_NAME, $this->data[self::PRIMARY_KEY]);
+                if(!empty($requiredlangs) && is_array($requiredlangs)) {
+                    $langdata[self::PRIMARY_KEY] = $this->data[self::PRIMARY_KEY];
+                    foreach($requiredlangs as $langid) {
+                        $hrjoblang = new HrJobOpportunitiesLanguage();
+                        $langdata['language'] = $langid;
+                        $hrjoblang->set($langdata);
+                        $hrjoblang->save();
+                    }
+                }
             }
         }
         return $this;

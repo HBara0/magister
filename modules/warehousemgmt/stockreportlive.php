@@ -1118,7 +1118,7 @@ else {
                 20 => array('michel.mbengue', 'samba.kandji', 'ansou.dabo', 'fatimatou.diallo', 356),
                 11 => array(323, 108, 186, 335, 184, 111, 109, 280, 326, 295, 289, 187, 112, 113, 312, 107, 356, 63),
                 2 => array('amal.dababneh', 34),
-                7 => array(333)
+                7 => array(434)
         );
 
         $recipients[] = $affiliateobj->get_generalmanager()->email;

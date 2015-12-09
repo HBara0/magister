@@ -679,6 +679,7 @@ function parse_toinform_list($uid = '', $checked = '', $leavetype_details = arra
 
 function parse_attendance_reports($core, $headerinc = '', $header = '', $menu = '', $footer = '') {
     global $db, $template, $log, $lang;
+    $cache = new Cache;
     if(!$core->input['output'] == 'email') {
         if(is_empty($core->input['fromDate'], $core->input['uid'])) {
             error($lang->invalidtodate, 'index.php?module=attendance/generatereport', false);
@@ -714,6 +715,29 @@ function parse_attendance_reports($core, $headerinc = '', $header = '', $menu = 
         $user_obj = new Users($uid);
         $attending_days = $total_days = $weekends = 0;
         if(is_object($user_obj)) {
+            if($user_obj->gid == 7) {
+                continue;
+            }
+
+            $user_affiliate = $user_obj->get_mainaffiliate();
+            if(!is_object($user_affiliate) || empty($user_affiliate->affid)) {
+                continue;
+            }
+            if($cache->incache('norecordsaffiliates', $user_affiliate->affid)) {
+                continue;
+            }
+            else {
+                if(!$cache->incache('affiliateshasrecords', $user_affiliate->affid)) {
+                    $affhasrecords = $user_affiliate->has_attendancerecords();
+                    if($affhasrecords) {
+                        $cache->add('affiliateshasrecords', $user_affiliate->affid);
+                    }
+                    else {
+                        $cache->add('norecordsaffiliates', $user_affiliate->affid);
+                        continue;
+                    }
+                }
+            }
             $currentdate = $fromdate;
             $fromdate_details = getdate($fromdate);
             $currentdate_details = getdate($currentdate);
@@ -1401,14 +1425,23 @@ function parse_attendance_reports($core, $headerinc = '', $header = '', $menu = 
         eval("\$generatepage = \"".$template->get('attendance_report')."\";");
     }
     if($core->input['output'] == 'email') {
+        $message = "
+          <h1>{$lang->attendancelog}
+                <small><br />{$lang->fromdate} {$report[fromdate_output]} {$lang->todate} {$report[todate_output]}</small>
+            </h1>
+            <span> < : {$lang->arrivearly} | > : {$lang->leavelater} | <> : {$lang->earlyandlate} | H: {$lang->holiday} | W/E : {$lang->weekend} | L : {$lang->leave} | UL : {$lang->unpaidleave}</span>
+            </hr>
+            <div>
+                {$output}
+            </div>";
         $email_data = array(
                 'from_email' => $core->settings['maileremail'],
                 'from' => 'OCOS Mailer',
                 'subject' => 'Monthly Attendance Log',
-                'message' => $output,
+                'message' => $message,
                 'to' => $core->input['emailto'],
         );
-
+        print($message);
         $mail = new Mailer($email_data, 'php');
         if($mail->get_status() === true) {
             $log->record($lang->monthlyattendancelog, $email_data['to']);

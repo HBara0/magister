@@ -525,12 +525,13 @@ class AroRequests extends AbstractClass {
                 }
                 $sequence++;
             }
-        }
-        $aroapproval_objs = AroRequestsApprovals::get_data(array('aorid' => $this->data[self::PRIMARY_KEY]), array('returnarray' => true));
-        if(is_array($aroapproval_objs)) {
-            foreach($aroapproval_objs as $aroapproval_obj) {
-                if(!in_array($aroapproval_obj->position, array_keys($approvers))) {
-                    $aroapproval_obj->delete();
+
+            $aroapproval_objs = AroRequestsApprovals::get_data(array('aorid' => $this->data[self::PRIMARY_KEY]), array('returnarray' => true));
+            if(is_array($aroapproval_objs)) {
+                foreach($aroapproval_objs as $aroapproval_obj) {
+                    if(!in_array($aroapproval_obj->position, array_keys($approvers))) {
+                        $aroapproval_obj->delete();
+                    }
                 }
             }
         }
@@ -599,6 +600,64 @@ class AroRequests extends AbstractClass {
         return $this->get_approvers(array('order' => array('sort' => 'ASC', 'by' => 'sequence'), 'limit' => '0, 1'));
     }
 
+    public function parseapprovalemail() {
+        global $core, $template, $lang;
+        $aroaffiliate_obj = new Affiliates($this->affid);
+        $purchasteype_obj = PurchaseTypes::get_data(array('ptid' => $this->orderType));
+        $currency_obj = Currencies::get_data(array('numCode' => $this->currency));
+        $data['currency'] = $currency_obj->name;
+        $data['purchasetype_output'] = $purchasteype_obj->get_displayname();
+        $data['affiliate_output'] = $aroaffiliate_obj->get_displayname();
+
+        $partiesinfo_obj = AroRequestsPartiesInformation::get_data(array('aorid' => $this->aorid));
+        if(is_object($partiesinfo_obj)) {
+            $fields = array('vendorEstDateOfPayment', 'intermedEstDateOfPayment', 'promiseOfPayment');
+            foreach($fields as $field) {
+                $data[$field.'_formatted'] = '';
+                $data[$field.'_formatted'] = date($core->settings['dateformat'], $partiesinfo_obj->$field);
+            }
+            $intermed_aff = Affiliates::get_affiliates(array('affid' => $partiesinfo_obj->intermedAff));
+            $data['intermed_aff_output'] = '-';
+            if(is_object($intermed_aff)) {
+                $data['intermed_aff_output'] = $intermed_aff->get_displayname();
+            }
+            $vendor = Entities::get_data(array('eid' => $partiesinfo_obj->vendorEid));
+            if(!is_object($vendor) && ($partiesinfo_obj->vendorIsAff == 1 && $partiesinfo_obj->vendorAff != 0)) {
+                $vendor = Affiliates::get_affiliates(array('affid' => $partiesinfo_obj->vendorAff));
+            }
+            if(is_object($vendor)) {
+                $data['vendor_output'] = $vendor->get_displayname();
+            }
+        }
+
+        $formatter = new NumberFormatter($lang->settings['locale'], NumberFormatter::DECIMAL);
+        $perc_formatter = new NumberFormatter($lang->settings['locale'], NumberFormatter::PERCENT);
+
+        $productlines = AroRequestLines::get_data(array('aorid' => $this->aorid), array('returnarray' => true));
+        if(is_array($productlines)) {
+            $data['products_output'] .='<tr class="thead"><td style="width:40%">'.$lang->product.'</td><td style="width:30%">'.$lang->supplier.'</td><td style="width:30%">'.$lang->purchasepricefromsupplier.'</td></tr>';
+            foreach($productlines as $productline) {
+                $product_obj = Products::get_data(array('pid' => $productline->pid));
+                $data['products_output'] .='<tr><td>'.$product_obj->get_displayname().'</td><td>'.$data['vendor_output'].'</td><td>'.$formatter->format($productline->intialPrice).'</td></tr>';
+            }
+        }
+        $ordersummary = AroOrderSummary::get_data(array('aorid' => $this->aorid));
+        if(is_object($ordersummary)) {
+            $fields = array('invoiceValueUsdIntermed', 'invoiceValueUsdLocal', 'netmarginIntermed', 'netmarginIntermedPerc', 'netmarginLocal', 'netmarginLocalPerc', 'globalNetmargin');
+            foreach($fields as $field) {
+                if($field == 'netmarginIntermedPerc' || $field == 'netmarginLocalPerc') {
+                    $data[$field] = $perc_formatter->format($ordersummary->$field);
+                }
+                else {
+                    $data[$field] = $formatter->format($ordersummary->$field);
+                }
+            }
+        }
+
+        eval("\$email = \"".$template->get('aro_approvalemail')."\";");
+        return $email;
+    }
+
     public function send_approvalemail() {
         global $core, $db;
         $firstapprover = $this->get_firstapprover();
@@ -617,14 +676,18 @@ class AroRequests extends AbstractClass {
                 'subject' => $aroapprovalemail_subject,
                 'message' => "Aro Request [".$this->orderReference."] ".$aroaffiliate_obj->get_displayname()." ".$purchasteype_obj->get_displayname()." Needs Approval:".$approve_link,
         );
+
+        // $email_data[message] .='<br/>'.$this->parseapprovalemail();
         $mailer = new Mailer();
         $mailer = $mailer->get_mailerobj();
         $mailer->set_type();
-        $mailer->set_from(array('name' => 'Approve ARO', 'email' => $email_data['from']));
+        $mailer->set_from(array('name' => 'ARO', 'email' => $email_data['from']));
         $mailer->set_subject($email_data['subject']);
         $mailer->set_message($email_data['message']);
         $mailer->set_to($email_data['to']);
-        // $x=$mailer->debug_info();  print_R($x); exit;
+//        $x = $mailer->debug_info();
+//        print_R($x);
+//        exit;
         $mailer->send();
         if($mailer->get_status() === true) {
             $data = array('emailRecievedDate' => TIME_NOW);
@@ -710,7 +773,7 @@ class AroRequests extends AbstractClass {
             $mailer = new Mailer();
             $mailer = $mailer->get_mailerobj();
             $mailer->set_type();
-            $mailer->set_from(array('name' => 'Approve ARO', 'email' => $email_data['from']));
+            $mailer->set_from(array('name' => 'ARO', 'email' => $email_data['from']));
             $mailer->set_subject($email_data['subject']);
             $mailer->set_message($email_data['message']);
             $mailer->set_to($email_data['to']);

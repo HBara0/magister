@@ -82,4 +82,11 @@ $lang['result'] = 'Result';
 $lang['totalscore'] = 'Total Score';
 $lang['failed'] = 'Failed';
 $lang['passed'] = 'Passed';
+$lang['score'] = 'Score';
+$lang['customizeinvitationsender'] = 'Customize Invitation Sender';
+$lang['senderemail'] = 'Sender Email';
+$lang['sendername'] = 'Sender Name';
+$lang['wrongemailformat'] = 'Wrong Email Format';
+$lang['sectiondesciption'] = 'Section Description';
+$lang['choicesseperator'] = 'Choices Seperator';
 ?>

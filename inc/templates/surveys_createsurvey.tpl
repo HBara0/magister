@@ -3,8 +3,8 @@
         <title>{$core->settings[systemtitle]} | {$lang->createsurvey}</title>
         {$headerinc}
         <script language="javascript">
-            $(function () {
-                $(document).on('change', "input[name^='isExternal']", function () {
+            $(function() {
+                $(document).on('change', "input[name^='isExternal']", function() {
                     $("#internalinvitations_row, #externalinvitations_row").toggle();
                     if($(this).val() == 0) {
                         $("input[id^='anonymousFilling'], input[id^='isPublicResults'], input[id^='isPublicFill']").attr("disabled", false);
@@ -166,6 +166,15 @@
                                 <textarea name="customInvitationBody" id="customInvitationBody" class="txteditadv" cols="45" rows="10">{$defaultmsg}</textarea>
                                 <div style="font-style:italic;">{$lang->custominvitationbody_note}</div>
                             </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2" class="thead" style="margin-top:10px;">{$lang->customizeinvitationsender} <a href="#customizeinvitationsender" onClick="$('#customizeinvitationsender').fadeToggle();">...</a></td>
+                    </tr>
+                    <tr class="altrow2">
+                        <td id="customizeinvitationsender" style="display:none" colspan="2">
+                            <div style="width:20%; display:inline-block; vertical-align:top;">{$lang->senderemail}</div><div style="width:65%; display:inline-block; padding-bottom:5px; vertical-align:top;"><input type="email" name="senderEmail" size="40"></div>
+                            <div style="width:20%; display:inline-block; vertical-align:top;">{$lang->sendername}</div><div style="width:65%; display:inline-block; padding-bottom:5px; vertical-align:top;"><input type="text" name="senderName"  ></div>
                         </td>
                     </tr>
                     <tr>
