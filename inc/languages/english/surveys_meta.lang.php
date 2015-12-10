@@ -87,4 +87,5 @@ $lang['totalscore'] = 'Total Score';
 $lang['value'] = 'Value';
 $lang['violation'] = 'One or more inputs you made violate the requirements';
 $lang['wrongemailformat'] = 'Wrong Email Format';
+$lang['rows'] = 'Rows';
 ?>
