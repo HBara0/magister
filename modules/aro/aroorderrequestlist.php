@@ -88,10 +88,21 @@ if(!$core->input['action']) {
             $documentrequest->affid = $affiliate->get_displayname();
             $documentrequest->orderType = $purchasetype->get_displayname();
             $documentrequest->currency = $buyingcurr->get_displayname();
-
-            $rowclass = alt_row($rowclass);
+            $rowclass = 'yellowbackground';
+            if($documentrequest->isFinalized == 1) {
+                $rowclass = 'greenbackground';
+            }
+            else {
+                $approvalobj = $documentrequest->get_nextapprover();
+                if(is_object($approvalobj)) {
+                    $approver = $approvalobj->get_user();
+                    if($approver->uid == $core->user['uid']) {
+                        $rowclass = 'unapproved';
+                    }
+                }
+            }
             eval("\$aroorderrequest_rows .= \"".$template->get('aro_orderrequestlist_row')."\";");
-            $row_tools = '';
+            $row_tools = $rowclass = '';
         }
     }
     else {
