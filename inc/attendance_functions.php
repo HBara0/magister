@@ -1441,7 +1441,7 @@ function parse_attendance_reports($core, $headerinc = '', $header = '', $menu = 
                 'message' => $message,
                 'to' => $core->input['emailto'],
         );
-        print($message);
+
         $mail = new Mailer($email_data, 'php');
         if($mail->get_status() === true) {
             $log->record($lang->monthlyattendancelog, $email_data['to']);
