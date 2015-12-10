@@ -90,14 +90,15 @@ if(!$core->input['action']) {
             $documentrequest->currency = $buyingcurr->get_displayname();
             $rowclass = 'yellowbackground';
             if($documentrequest->isFinalized == 1) {
-                $rowclass = 'greenbackground';
-            }
-            else {
-                $approvalobj = $documentrequest->get_nextapprover();
-                if(is_object($approvalobj)) {
-                    $approver = $approvalobj->get_user();
-                    if($approver->uid == $core->user['uid']) {
-                        $rowclass = 'unapproved';
+                if($documentrequest->isApproved == 1) {
+                    $rowclass = 'greenbackground';
+                }
+                else {
+                    $approvalobj = $documentrequest->get_nextapprover();
+                    if(is_object($approvalobj)) {
+                        if($approvalobj->uid == $core->user['uid']) {
+                            $rowclass = 'unapproved';
+                        }
                     }
                 }
             }
