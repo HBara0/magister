@@ -83,7 +83,7 @@ if(!$core->input['action']) {
                         $forecastline['productName'] = $product->name;
                         break;
                     case 'saleType':
-                        $saletype_selectlist = parse_selectlist("forecastline[".$rowid."][saleType]", "", $saletypes, $gpforecastline->$field, "", "", array('id' => "forecastline_".$rowid."_saleType"));
+                        $saletype_selectlist = parse_selectlist("forecastline[".$currentyear."][".$rowid."][saleType]", "", $saletypes, $gpforecastline->$field, "", "", array('id' => "forecastline_".$currentyear."_".$rowid."_saleType"));
                         break;
                     case 'inputChecksum':
                         $forecastline['inputChecksum1'] = $gpforecastline->$field;
@@ -123,7 +123,7 @@ if(!$core->input['action']) {
             }
             $segments_selectlist = '';
             if(count($supplier_segments) > 1) {
-                $segments_selectlist = parse_selectlist('forecastline['.$rowid.'][psid]', 3, $supplier_segments, $forecastline['psid'], null, null, array('placeholder' => 'Overwrite Segment'));
+                $segments_selectlist = parse_selectlist('forecastline['.$currentyear.']['.$rowid.'][psid]', 3, $supplier_segments, $forecastline['psid'], null, null, array('placeholder' => 'Overwrite Segment', 'id' => "forecastline_".$currentyear."_".$rowid."_psid"));
             }
 
             $grouppurchaseforecast = GroupPurchaseForecast::get_data(array('affid' => $forecast_data['affid'], 'year' => $nextyear, 'spid' => $forecast_data['spid']));
@@ -247,8 +247,10 @@ if(!$core->input['action']) {
 //            for($month = 1; $month <= 12; $month++) {
 //                $forecastline['month'.$month] = 0;
 //            }
-
-        $saletype_selectlist = parse_selectlist("forecastline[".$currentyear."][".$rowid."][saleType]", "", $saletypes, "", "", "", array('id' => "forecastline_".$rowid."_saleType"));
+        if(count($supplier_segments) > 1) {
+            $segments_selectlist = parse_selectlist('forecastline['.$currentyear.']['.$rowid.'][psid]', 3, $supplier_segments, "", null, null, array('placeholder' => 'Overwrite Segment', 'id' => "forecastline_".$currentyear."_".$rowid."_psid"));
+        }
+        $saletype_selectlist = parse_selectlist("forecastline[".$currentyear."][".$rowid."][saleType]", "", $saletypes, "", "", "", array('id' => "forecastline_".$currentyear."_".$rowid."_saleType"));
         eval("\$forecastlines .= \"".$template->get('grouppurchase_fill_forecastlines')."\";");
         //  }
     }
@@ -269,25 +271,41 @@ else if($core->input['action'] == 'ajaxaddmore_forecastlines') {
     $currentyear = $year = date('Y');
     $nextyear = date('Y', strtotime('+1 year'));
 
+    $months_array = array('january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december');
+    $currentmonth = date('n');
+    $j = $currentmonth;
     for($i = 1; $i < 13; $i++) {
-        if($j == 12) {
+        if($j == 13) {
             $j = 1;
             $year = date('Y', strtotime('+1 year'));
+            $nextyear_count = true;
+            $nextyear_countmonths = 0;
         }
-        $months[$i] = 'month'.$i;
+        $months[$i] = 'month'.$j;
         ${'mon'.$i} = $lang->$months_array[$j - 1]; // for table header
         ${'month'.$i} = 'month'.$j; //Array month index (as db columns)
         ${'year'.$i} = $year;  // year index for each field
         $j++;
+        if($nextyear_count) {
+            $nextyear_countmonths++;
+        }
     }
 
     $rowid = intval($core->input['value']) + 1;
     $forecast_data = $core->input['ajaxaddmoredata'];
-    $affiliate = new Affiliates($forecast_data['affid']);
+    $affiliate = new Affiliates(intval($forecast_data['affid']));
     $forecastline['inputChecksum1'] = generate_checksum('gp');
     $forecastline['inputChecksum2'] = generate_checksum('gp');
     $saletypes = SaleTypes::get_data();
     $defaultselected = array_keys($saletypes)[0];
+    $supplier = new Entities(intval($forecast_data['spid']));
+    if(is_array($supplier->get_segments())) {
+        $supplier_segments = array_filter($supplier->get_segments());
+        $segments_selectlist = '';
+        if(count($supplier_segments) > 1) {
+            $segments_selectlist = parse_selectlist('forecastline['.$currentyear.']['.$rowid.'][psid]', 3, $supplier_segments, "", null, null, array('placeholder' => 'Overwrite Segment', 'id' => "forecastline_".$currentyear."_".$rowid."_psid"));
+        }
+    }
     $saletype_selectlist = parse_selectlist("forecastline[".$currentyear."][".$rowid."][saleType]", "", $saletypes, "", "", "", array('id' => "forecastline_".$currentyear."_".$rowid."_saleType"));
 
     for($month = 1; $month <= 12; $month++) {
