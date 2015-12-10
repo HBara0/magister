@@ -92,13 +92,13 @@ Summary {4}% similar: {5}</br>
 Body {6}% similar: {7} </br>
 Click <a target="_blank" href="{8}">here to go to the OCOS CMS page</a></br></br>
 or <a target="_blank" href="{9}">here to preview the page online</a></br>';
-$lang['modifynotification_subject'] = 'Modified News: {1}';
+$lang['modifynotification_subject'] = 'Website article "{1}" has been modified';
 
-$lang['newnotification_body'] = 'The page {1} has been created  as follows:</br></br>
+$lang['newnotification_body'] = 'The page "{1}" has been created/modified as follows:<br /><br />
 
-Title {2} similar: {3}</br>
-Summary {4} similar: {5}</br>
-Body {6} similar: {7} </br>';
+Title {2} similar: {3}<br />
+Summary {4} similar: {5}<br />
+Body {6} similar: {7} <br />';
 
 $lang['ispublic'] = 'Is public';
 $lang['location'] = 'Location';
