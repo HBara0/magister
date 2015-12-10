@@ -132,15 +132,14 @@ else {
                     $invoice->localfxrate = 1;
                 }
                 if(empty($invoice->localfxrate)) {
-//                    output_xml('<status>true</status><message>No local exchange rate<br/> From '.$invoice->currency.' to '.$currency_obj->alphaCode.' in the invoice period '.date('Y-m-d', $invoice->dateinvoiceduts).' </message>');
-//                    exit;
+                    output_xml('<status>true</status><message>No local exchange rate<br/> From '.$invoice->currency.' to '.$currency_obj->alphaCode.' in the invoice period '.date('Y-m-d', $invoice->dateinvoiceduts).' </message>');
+                    exit;
                     $invoice->localfxrate = 0;
                 }
 
                 if(empty($invoice->usdfxrate)) {
-//                    output_xml('<status>true</status><message>no usd exchange rate '.$invoice->currency.'</message>');
-//                    exit;
-
+                    output_xml('<status>true</status><message>no usd exchange rate '.$invoice->currency.'</message>');
+                    exit;
                     $invoice->usdfxrate = 0;
                 }
                 if(!is_array($invoicelines)) {
