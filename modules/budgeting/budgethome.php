@@ -15,8 +15,8 @@ if($core->usergroup['canUseBudgeting'] == 0) {
     error($lang->sectionnopermission);
 }
 $sections = array('rates', 'budget', 'yef', 'fin');
-$red = '#F04122';
-$green = 'green';
+$red = 'list-group-item-danger';
+$green = 'list-group-item-success';
 foreach($sections as $section) {
     $status[$section]['color'] = $green;
     $status[$section]['count'] = '<span class="glyphicon glyphicon-ok"></span>';
@@ -75,7 +75,7 @@ if(is_array($permissions)) {
             foreach($yearstocheck as $year) {
                 $budgets = Budgets::get_column('bid', array('year' => $year, 'affid' => $affid), array('returnarray' => true));
                 if(is_array($budgets)) {
-                    $currencies = BudgetLines::get_column('DISTINCT(originalCurrency) as orcur', array('bid' => $budgets, 'originalCurrency' => 840), array('returnarray' => true, 'alias' => 'orcur', 'singlecolumn' => true, 'operators' => array('originalCurrency' => 'NOT IN')));
+                    $currencies = BudgetLines::get_column('DISTINCT(originalCurrency) AS orcur', array('bid' => $budgets, 'originalCurrency' => 840), array('returnarray' => true, 'alias' => 'orcur', 'singlecolumn' => true, 'operators' => array('originalCurrency' => 'NOT IN')));
                     if(is_array($currencies)) {
                         foreach($currencies as $currency) {
                             $existing_cur = BudgetFxRates::get_data(array('fromCurrency' => $currency, 'toCurrency' => 840, 'year' => $year, 'affid' => $affid, 'isBudget' => 1), array('returnarray' => false));
@@ -207,7 +207,7 @@ if(is_array($permissions)) {
         $corrections['yef'] .= '</ul>';
     }
     /* check financial */
-    $hidefinance = 'style = "display:none"';
+    $hidefinance = ' display:none;';
     if($core->usergroup['budgeting_canFillFinBudgets'] == 1) {
         $hidefinance = '';
         $fin_where = ' isFinalized = 0 AND year IN ('.$baseyear.')';

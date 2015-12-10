@@ -348,8 +348,7 @@ input.button, .button, button {
   /*line-height:30px;*/
   min-width: 80px;
   text-decoration: none;
-  text-align: center;
-  text-shadow: 1px 1px 0px #689324; }
+  text-align: center; }
 
 input[type="submit"].main {
   min-width: 160px; }
