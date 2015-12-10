@@ -4571,8 +4571,9 @@ CREATE TABLE `surveys_questiontypes` (
   `hasValidation` tinyint(1) NOT NULL DEFAULT '0',
   `isSizable` tinyint(1) NOT NULL DEFAULT '0',
   `isQuantitative` tinyint(1) DEFAULT '0',
+  `isMatrix` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`sqtid`)
-) ENGINE=MyISAM AUTO_INCREMENT=8 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=9 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `surveys_responses`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -4586,9 +4587,10 @@ CREATE TABLE `surveys_responses` (
   `response` text NOT NULL,
   `comments` text,
   `time` bigint(10) NOT NULL,
+  `responseValue` int(10) NOT NULL,
   `isCorrect` tinyint(1) NOT NULL,
   PRIMARY KEY (`srid`,`sid`,`stqid`,`invitee`)
-) ENGINE=MyISAM AUTO_INCREMENT=4237 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=120 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `surveys_sharedwith`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -4651,10 +4653,21 @@ CREATE TABLE `surveys_templates_questions_choices` (
   `stqid` int(10) unsigned NOT NULL,
   `choice` varchar(300) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
   `value` varchar(10) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
-  `isAnswer` tinyint(1) NOT NULL,
+  `hasMultipleValues` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`stqcid`),
   KEY `stqid` (`stqid`)
-) ENGINE=MyISAM AUTO_INCREMENT=2317 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=2343 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `surveys_templates_questionschoices_choices`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `surveys_templates_questionschoices_choices` (
+  `stqccid` int(10) NOT NULL AUTO_INCREMENT,
+  `stqcid` int(10) NOT NULL,
+  `choice` varchar(300) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `value` varchar(100) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`stqccid`)
+) ENGINE=MyISAM AUTO_INCREMENT=16 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `surveys_templates_sections`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
