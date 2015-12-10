@@ -57,13 +57,13 @@
                     <table width="100%">
                         <thead>
                             <tr>
-                                <td colspan="3"><hr /><span class="subtitle">{$lang->choices}</span>
+                                <td colspan="3"><hr /><span class="subtitle">{$lang->rows}</span>
                                     <input type="hidden" name="section[{$section_rowid}][questions][{$question_rowid}][isMatrix]" value="1">
                                 </td>
                             </tr>
                             <tr>
                                 <td id="answer_{$section_rowid}_{$question_rowid}" style="{$showanswer}">{$lang->isanswer}</td>
-                                <td>{$lang->choice}*</td>
+                                <td>{$lang->rows}*</td>
                             </tr>
                         </thead>
                         <tbody id="matrixquestionschoices_{$section_rowid}_{$question_rowid}_tbody"  class="{$altrow_class}">
