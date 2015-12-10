@@ -7,9 +7,8 @@
 
                 $("select[id^='forecastline_']").each(function() {
                     var id = $(this).attr('id').split("_");
-                    $('input[id=forecastline_nextyear_' + id[1] + '_saleType]').val($('select[id^=forecastline_][id$=' + id[1] + '_saleType]').val());
+                    $('input[id=forecastline_nextyear_' + id[2] + '_' + id[3] + ']').val($(this).val());
                 });
-
 
                 $(document).on('change keyup live', "input[id^='forecastline_']", function() {
                     var id = $(this).attr('id').split("_");
@@ -35,9 +34,9 @@
                 });
 
 
-                $(document).on('change', 'select[id^=forecastline_][id$=_saleType]', function() {
+                $(document).on('change', 'select[id^=forecastline_]', function() {
                     var id = $(this).attr('id').split("_");
-                    $('input[id=forecastline_nextyear_' + id[1] + '_saleType]').val($('select[id^=forecastline_][id$=' + id[1] + '_saleType]').val());
+                    $('input[id=forecastline_nextyear_' + id[2] + '_' + id[3] + ']').val($(this).val());
                 });
             });
         </script>
@@ -89,6 +88,7 @@
                         <tr><td valign="top">
                                 <input name="numrows_forecastlines{$rowid}" type="hidden" id="numrows_forecastlines_{$rowid}" value="{$rowid}">
                                 <input type="hidden" name="ajaxaddmoredata[affid]" id="ajaxaddmoredata_affid" value="{$forecast_data[affid]}"/>
+                                <input type="hidden" name="ajaxaddmoredata[spid]" id="ajaxaddmoredata_spid" value="{$forecast_data[spid]}"/>
                                 <img src="./images/add.gif" id="ajaxaddmore_grouppurchase/fillforecast_forecastlines_{$rowid}" alt="{$lang->add}">
                             </td></tr>
                         <tr>
