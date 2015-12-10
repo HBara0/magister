@@ -206,7 +206,12 @@ else {
                     $orderline['totalcost'] = $orderline['cost']; //*$orderline['quantity'];
                     $orderline['netmargin'] = $orderline['linenetamt'] - $orderline['totalcost'];
                     $orderline['grossmargin'] = $orderline['linenetamt'] - ($orderline['purchasePrice'] * $orderline['quantity']);
-                    $orderline['marginperc'] = round(($orderline['netmargin'] * 100) / $orderline['linenetamt'], 1);
+                    if($orderline['linenetamt'] != 0) {
+                        $orderline['marginperc'] = round(($orderline['netmargin'] * 100) / $orderline['linenetamt'], 1);
+                    }
+                    else {
+                        $orderline['marginperc'] = 0;
+                    }
 
                     $sales[$order['month_num']][$order['week']]['entries'][$orderline['orderline_id']] = array_merge($order, $orderline);
                     //$sales[$order['month_num']][$order['week']]['linenetamt_total'] +=  $orderline['linenetamt'];
