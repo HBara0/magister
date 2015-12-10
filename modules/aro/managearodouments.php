@@ -465,6 +465,12 @@ if(!($core->input['action'])) {
                         case 'user':
                             $position = 'User';
                             break;
+                        case 'reportsTo':
+                            $position = 'Reports To';
+                            break;
+                        case 'commercialManager':
+                            $position = 'Commercial Manager';
+                            break;
                     }
                     $dateofapproval = '-';
                     $user = new Users($approver->uid);
@@ -1259,6 +1265,7 @@ else {
                             break;
                         case 'commercialManager':
                             $position = 'Commercial Manager';
+                            break;
                     }
                     //   if($key != 'businessManager') {
                     $user = new Users($val);

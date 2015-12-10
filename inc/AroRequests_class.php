@@ -474,6 +474,7 @@ class AroRequests extends AbstractClass {
                             $approvers[$val['approver']] = $user->reportsTo;
                         }
                         unset($bm);
+                        break;
                     case 'commercialManager':
                         $approvers['commercialManager'] = $affiliate->get_commercialmanager()->uid;
                         break;
