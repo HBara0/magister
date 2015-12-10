@@ -25,7 +25,7 @@
                         <td>{$affiliates_list}</td>
                     </tr>
                     <tr class="thead">
-                        <td  colspan="2">{$lang->employmentdetails}</td>
+                        <td colspan="2">{$lang->employmentdetails}</td>
                     </tr>
                     <tr>
                         <td>{$lang->worklocation}*</td>
@@ -48,12 +48,12 @@
                     <tr>
                         <td>{$lang->shortdescription}*</td>
                         <td>
-                            <textarea name="jobopportunity[shortDesc]" cols="40" rows="6" >{$jobopportunity[shortDesc]}</textarea><a</td>
+                            <textarea name="jobopportunity[shortDesc]" cols="40" rows="6" id="jobopportunity_shortDesc" class="txteditadv">{$jobopportunity[shortDesc]}</textarea></td>
                     </tr>
                     <tr>
                         <td>{$lang->responsibilities}*</td>
                         <td colspan="2">
-                            <textarea name="jobopportunity[responsibilities]" cols="40" rows="6" id="jobopportunity_responsibilities">{$jobopportunity[responsibilities]}</textarea>
+                            <textarea name="jobopportunity[responsibilities]" cols="40" rows="6" id="jobopportunity_responsibilities" class="txteditadv">{$jobopportunity[responsibilities]}</textarea>
                         </td>
                     </tr>
                     <tr>
@@ -92,7 +92,7 @@
                         <td>{$lang->residence}</td>
                         <td>
                             <input type="text" autocomplete="off" id="cities_cache_1_autocomplete" value="{$jobopportunity[residence_output]}" style="width:200px;"/>
-                            <input type='hidden' id='cities_cache_1_id'   name="jobopportunity[residence]" value="{$jobopportunity[residence]}"/>
+                            <input type='hidden' id='cities_cache_1_id' name="jobopportunity[residence]" value="{$jobopportunity[residence]}"/>
                         </td>
                     </tr>
                     <tr>
@@ -134,12 +134,12 @@
                     </tr>
                     <tr>
                         <td>{$lang->minimumqualifications}</td>
-                        <td> <textarea name="jobopportunity[minQualifications]" id="jobopportunity_minQualifications" cols="40" row="5">{$jobopportunity[minQualifications]}</textarea>
+                        <td> <textarea name="jobopportunity[minQualifications]" id="jobopportunity_minQualifications" cols="40" row="5" class="txteditadv">{$jobopportunity[minQualifications]}</textarea>
                     </tr>
 
                     <tr>
                         <td>{$lang->preferredqualifications}</td>
-                        <td> <textarea name="jobopportunity[prefQualifications]" id="jobopportunity_prefQualifications" cols="40" rows="5">{$jobopportunity[prefQualifications]}</textarea>
+                        <td> <textarea name="jobopportunity[prefQualifications]" id="jobopportunity_prefQualifications" cols="40" rows="5" class="txteditadv">{$jobopportunity[prefQualifications]}</textarea>
                     </tr>
                     <tr class="thead">
                         <td colspan="2">{$lang->publishoptions}</td>
@@ -166,7 +166,6 @@
                         <td>{$lang->allowsocialsharing}</td>
                         <td>{$radiobuttons[allowSocialSharing]}</td>
                     </tr>
-
                     <tr>
                         <td colspan="2"><br/><h2>{$lang->autofilterconfig}</h2></td>
                     </tr>
@@ -205,7 +204,8 @@
                     <tr>
                         <td>{$lang->age}</td>
                         <td>{$lang->min} <input type="number" id="filter_salary" name="filter[minExpYears]" value="{$filter[minExpYears]}" style="width:125px;"/>
-                            {$lang->max} <input type="number" id="filter_salary" name="filter[maxExpYears]" value="{$filter[maxExpYears]}" style="width:125px;"/></td>
+                            {$lang->max} <input type="number" id="filter_salary" name="filter[maxExpYears]" value="{$filter[maxExpYears]}" style="width:125px;"/>
+                        </td>
                     </tr>
                     <tr>
                         <td>{$lang->careerlevel}</td>
