@@ -1,4 +1,4 @@
-<tr class="trowtools">
+<tr class="trowtools {$rowclass}">
     <td width="18%">{$documentrequest->affid}</td>
     <td width="18%">{$documentrequest->orderType}</td>
     <td width="18%">{$documentrequest->orderReference}</td>
