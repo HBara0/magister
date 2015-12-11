@@ -295,7 +295,8 @@ class Surveys {
                         }
 
                         if($question['hasChoices'] == 1) {
-                            if($question['isMatrix'] == 1) {
+                            $type_obj = new SurveysQuestionTypes($question['type']);
+                            if($type_obj->isMatrix == 1) {
                                 $temp_choicevalues = $question['choices'];
                                 $question['choices'] = $question['matrixchoices'];
                                 $question['choicesvalues'] = $temp_choicevalues;
@@ -353,14 +354,13 @@ class Surveys {
                     $stsid = $db->last_id();
                     foreach($section['questions'] as $key => $question) {
                         $hasmultiplevalues = 0;
-                        if($question['isMatrix'] == 1) {
+                        if($type_obj->isMatrix == 1) {
                             $temp_choicevalues = $question['choices'];
                             $question['choices'] = $question['matrixchoices'];
                             $question['choicesvalues'] = $temp_choicevalues;
                             $hasmultiplevalues = 1;
-                            unset($question['matrixchoices'], $question['isMatrix']);
                         }
-
+                        unset($question['matrixchoices'], $question['isMatrix']);
                         $question['stsid'] = $stsid;
                         $question['sequence'] = $sequence;
                         if(isset($question['choices']) && is_array($question['choices'])) {
@@ -395,6 +395,7 @@ class Surveys {
                                                 if(is_array($choice_values)) {
                                                     foreach($choice_values as $key => $choicevalue) {
                                                         $choicevalue['stqcid'] = $stqcid;
+                                                        $choicevalue['hasMultipleValues'] == 1;
                                                         $query_choice = $db->insert_query('surveys_templates_questionschoices_choices', $choicevalue);
                                                     }
                                                     unset($stqcid);
