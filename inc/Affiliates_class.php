@@ -329,12 +329,17 @@ class Affiliates {
     }
 
     public function has_attendancerecords() {
+        global $db;
         $affiliateusers = $this->get_users(array('ismain' => 1));
         if(is_array($affiliateusers)) {
             foreach($affiliateusers as $user) {
-                $attendancerecs = AttendanceAttRecords::get_data(array('uid' => $user['uid']), array('returnarray' => true));
-                if(is_array($attendancerecs)) {
-                    return true;
+                $query = $db->query('SELECT COUNT(aarid) as count  FROM '.Tprefix.'attendance_attrecords WHERE uid = '.$user['uid']);
+                if($db->num_rows($query) > 0) {
+                    while($count = $db->fetch_assoc($query)) {
+                        if(intval($count['count']) > 0) {
+                            return true;
+                        }
+                    }
                 }
             }
         }
