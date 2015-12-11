@@ -30,7 +30,7 @@
             {$aroproductlines_rows}
         </tbody>
         <tfoot>
-            <tr><td valign="top">
+            <tr><td valign="top" {$display_addmoreproductlines}>
                     <input name="numrows_productline{$plrowid}" type="hidden" id="numrows_productline_{$plrowid}" value="{$plrowid}">
                     <img src="./images/add.gif" id="ajaxaddmore_aro/managearodouments_productline_{$plrowid}" alt="{$lang->add}"><small>{$lang->addmoreproductlines}</small>
                 </td>
