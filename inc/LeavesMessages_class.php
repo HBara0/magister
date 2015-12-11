@@ -210,7 +210,7 @@ class LeavesMessages {
         $leave_details['toDate'] = date($core->settings['dateformat'], $leave->get()['toDate']);
 
         $leave_details['requester'] = $leave->get_requester()->get()['displayName'];
-        $reply_links = DOMAIN.'/index.php?module=attendance/listleaves&action=takeactionpage&requestKey='.base64_encode($leave->get()['messagerequestkey']).'&inreplyTo='.$this->leavemessage['inReplyTo'].'&id='.base64_encode($leave->get()['lid']);
+        $reply_links = DOMAIN.'/index.php?module=attendance/listleaves&action=takeactionpage&requestKey='.base64_encode($leave->requestKey).'&inreplyTo='.$this->leavemessage['inReplyTo'].'&id='.base64_encode($leave->get()['lid']);
 
         $leave->reason .= $leave->parse_expenses();
         $approvals = $leave->parse_approvalsapprovers();

@@ -528,7 +528,7 @@ class AroRequests extends AbstractClass {
             }
 
             $aroapproval_objs = AroRequestsApprovals::get_data(array('aorid' => $this->data[self::PRIMARY_KEY]), array('returnarray' => true));
-            if(is_array($aroapproval_objs)) {
+            if(is_array($aroapproval_objs) && is_array($approvers)) {
                 foreach($aroapproval_objs as $aroapproval_obj) {
                     if(!in_array($aroapproval_obj->position, array_keys($approvers))) {
                         $aroapproval_obj->delete();
