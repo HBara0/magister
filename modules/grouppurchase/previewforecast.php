@@ -57,6 +57,9 @@ if(!($core->input['action'])) {
                         foreach($groupurchase_months as $monthval) {
                             $group_purchase['monthval'] .= '<td class = "smalltext" class = "border_left">'.$numfmt->format($grouppurchasline->$monthval).'</td>';
                         }
+                        if(is_object($saletypename)) {
+                            $saletypename = $salestype->get_displayname();
+                        }
                         eval("\$grouppurchase_report_rows .= \"".$template->get('grouppurchase_report_rows')."\";");
                         unset($group_purchase['monthval']);
                     }
