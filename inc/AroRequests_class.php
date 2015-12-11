@@ -644,7 +644,7 @@ class AroRequests extends AbstractClass {
         }
         $ordersummary = AroOrderSummary::get_data(array('aorid' => $this->aorid));
         if(is_object($ordersummary)) {
-            $fields = array('invoiceValueUsdIntermed', 'invoiceValueUsdLocal', 'netmarginIntermed', 'netmarginIntermedPerc', 'netmarginLocal', 'netmarginLocalPerc', 'globalNetmargin');
+            $fields = array('invoiceValueUsdIntermed', 'invoiceValueUsdLocal', 'invoiceValueThirdParty', 'netmarginIntermed', 'netmarginIntermedPerc', 'netmarginLocal', 'netmarginLocalPerc', 'globalNetmargin');
             foreach($fields as $field) {
                 if($field == 'netmarginIntermedPerc' || $field == 'netmarginLocalPerc') {
                     $data[$field] = $perc_formatter->format($ordersummary->$field);
@@ -653,6 +653,19 @@ class AroRequests extends AbstractClass {
                     $data[$field] = $formatter->format($ordersummary->$field);
                 }
             }
+        }
+        $data['invoiceValueAffiliate'] = $data['invoiceValueCustomer'] = "-";
+        if($purchasteype_obj->isPurchasedByEndUser == 1) {
+            $data['invoiceValueCustomer'] = $data['invoiceValueUsdLocal'];
+            $data['invoiceValueAffiliate'] = $data['invoiceValueThirdParty'];
+        }
+        else {
+            $data['invoiceValueAffiliate'] = $data['invoiceValueUsdLocal'];
+        }
+        $data['invoiceValueFromSupplier'] = $data['invoiceValueUsdIntermed'];
+        if($purchasteype_obj->needsIntermediary == 0) {
+            $data['invoiceValueFromSupplier'] = $data['invoiceValueUsdLocal'];
+            $data['invoiceValueAffiliate'] = '-';
         }
 
         eval("\$email = \"".$template->get('aro_approvalemail')."\";");

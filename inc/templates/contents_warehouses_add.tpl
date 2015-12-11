@@ -52,7 +52,7 @@
                     </tr>
                     <tr>
                         <td>{$lang->idob}</td>
-                        <td colspan="2"><input type="text" id="warehouse_integrationOBId" name="warehouse[integrationOBId]"  value="{$warehouse->integrationOBId}" required="required"/></td>
+                        <td colspan="2"><input type="text" id="warehouse_integrationOBId" name="warehouse[integrationOBId]"  value="{$warehouse->integrationOBId}"/></td>
                     </tr>
 
                     <tr>   <td colspan="3" align="left">

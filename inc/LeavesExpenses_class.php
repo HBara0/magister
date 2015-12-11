@@ -46,7 +46,7 @@ class LeavesExpenses {
         if($core->usergroup['attendance_canViewExpenses'] == 1) {
             foreach($core->user['affiliates'] as $affid) {
                 $aff_obj = new Affiliates($affid);
-                $employees = $aff_obj->get_users();
+                $employees = $aff_obj->get_users(array('allusers' => true));
                 if(is_array($employees)) {
                     foreach($employees as $employee) {
                         $users[$employee['uid']] = $employee['displayName'];
@@ -55,7 +55,7 @@ class LeavesExpenses {
             }
         }
         elseif($core->usergroup['attendace_canViewAllAffExpenses'] == 1) {
-            $user_objs = Users::get_allusers();
+            $user_objs = Users::get_data(null, array('order' => 'displayName'));
             foreach($user_objs as $user_obj) {
                 $employees = $user_obj->get();
                 $users[$employees['uid']] = $employees['displayName'];
@@ -66,7 +66,7 @@ class LeavesExpenses {
                 foreach($core->user['hraffids'] as $hraffid) {
                     $aff_obj = new Affiliates($hraffid);
 
-                    $employees = $aff_obj->get_users();
+                    $employees = $aff_obj->get_users(array('allusers' => true));
                     if(is_array($employees)) {
                         foreach($employees as $employee) {
                             $users[$employee['uid']] = $employee['displayName'];
