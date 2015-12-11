@@ -78,7 +78,7 @@ class Warehouses extends AbstractClass {
 
     protected function validate_requiredfields(array $data = array()) {
         if(is_array($data)) {
-            $required_fields = array('affid', 'name', 'ciid', 'integrationOBId');
+            $required_fields = array('affid', 'name', 'ciid');
             foreach($required_fields as $field) {
                 if(empty($data[$field])) {
                     $this->errorcode = 2;
