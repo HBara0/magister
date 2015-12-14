@@ -26,7 +26,6 @@
                 <td>{$lang->invoicevalueusd}</td>
                 <td style="text-align: right;">{$aroordersummary->invoiceValueUsdIntermed}</td>
                 <td style="text-align: right;">{$aroordersummary->invoiceValueUsdLocal}</td>
-                <td id="ordersummary_thirdparty_4" {$ordersummarydisplay[thirdcolumn_display]}><span style="text-align: right;width:100%">{$aroordersummary->invoiceValueThirdParty}</span></td>
             </tr>
             <tr>
                 <td>{$lang->totalquantity}</td>
@@ -65,6 +64,7 @@
                 <td>{$lang->total} {$lang->netmargin}<a href="#" title="{$lang->totalnetmargindef}"><img src="./images/icons/question.gif"/></a></td>
                 <td style="text-align: right;">{$aroordersummary->netmarginIntermed}</td>
                 <td style="text-align: right;">{$aroordersummary->netmarginLocal}</td>
+                <td id="ordersummary_thirdparty_4" {$ordersummarydisplay[thirdcolumn_display]}><div style="text-align: right;">{$aroordersummary->invoiceValueThirdParty}</div></td>
             </tr>
             <tr style="font-weight: bold;">
                 <td>{$lang->total} {$lang->netmarginperc} <a href="#" title="{$lang->totalnetmarginpercdef}"><img src="./images/icons/question.gif"/></a></td>
