@@ -43,6 +43,10 @@ class AroRequests extends AbstractClass {
         foreach($orderrequest_fields as $orderrequest_field) {
             $orderrequest_array[$orderrequest_field] = $data[$orderrequest_field];
         }
+        $orderrequest_array['finalizedOn'] = 0;
+        if($orderrequest_array['isFinalized'] == 1) {
+            $orderrequest_array['finalizedOn'] = TIME_NOW;
+        }
         $orderrequest_array['createdBy'] = $core->user['uid'];
         $orderrequest_array['createdOn'] = TIME_NOW;
         //  $orderrequest_array['identifier'] = substr(md5(uniqid(microtime())), 1, 10);
@@ -139,6 +143,10 @@ class AroRequests extends AbstractClass {
         $orderrequest_fields = array('affid', 'orderType', 'orderReference', 'inspectionType', 'currency', 'exchangeRateToUSD', 'ReferenceNumber', 'aroBusinessManager', 'isFinalized');
         foreach($orderrequest_fields as $orderrequest_field) {
             $orderrequest_array[$orderrequest_field] = $data[$orderrequest_field];
+        }
+        $orderrequest_array['finalizedOn'] = 0;
+        if($orderrequest_array['isFinalized'] == 1) {
+            $orderrequest_array['finalizedOn'] = TIME_NOW;
         }
         $orderrequest_array['avgLocalInvoiceDueDate'] = strtotime($data['avgeliduedate']);
         $orderrequest_array['modifiedBy'] = $core->user['uid'];
@@ -689,10 +697,10 @@ class AroRequests extends AbstractClass {
                 'from' => 'ocos@orkila.com',
                 'to' => $to,
                 'subject' => $aroapprovalemail_subject,
-                'message' => "Aro Request [".$this->orderReference."] ".$aroaffiliate_obj->get_displayname()." ".$purchasteype_obj->get_displayname()." Needs Approval:".$approve_link,
+                'message' => "Aro Request [".$this->orderReference."] ".$aroaffiliate_obj->get_displayname()." ".$purchasteype_obj->get_displayname()." Needs Approval.".$approve_link,
         );
 
-        $email_data[message] .='<br/>'.$this->parseapprovalemail();
+        $email_data['message'] = $email_data['message'].'<br/> Time elapsed since finalization '.$this->get_timelapsed().'<br/><br/>'.$this->parseapprovalemail().'<br/><br/>'.$approve_link;
         $mailer = new Mailer();
         $mailer = $mailer->get_mailerobj();
         $mailer->set_type();
@@ -788,6 +796,7 @@ class AroRequests extends AbstractClass {
                     'subject' => $aroapprovalemail_subject,
                     'message' => "Aro Request [".$this->orderReference."] ".$aroaffiliate_obj->get_displayname()." ".$purchasteype_obj->get_displayname()." Needs Approval:".$approve_link,
             );
+            $email_data['message'] = $email_data['message'].'<br/> Time elapsed since finalization '.$this->get_timelapsed().'<br/><br/>'.$this->parseapprovalemail().'<br/><br/>';
 
             $mailer = new Mailer();
             $mailer = $mailer->get_mailerobj();
@@ -898,7 +907,7 @@ class AroRequests extends AbstractClass {
                     'from' => 'Approved ARO',
                     'to' => $mailinglist,
                     'subject' => 'APPROVED Aro Request ['.$this->orderReference.']/'.$aroaffiliate_obj->get_displayname().'/'.$purchasteype_obj->get_displayname(),
-                    'message' => 'Aro Request ['.$this->orderReference.']/'.$aroaffiliate_obj->get_displayname().'/'.$purchasteype_obj->get_displayname().' is Approved <br/>  To view the ARO <a href="'.$aro_link.'">click here</a>'
+                    'message' => 'Aro Request ['.$this->orderReference.']/'.$aroaffiliate_obj->get_displayname().'/'.$purchasteype_obj->get_displayname().' is Approved <br/>Time elapsed since finalization '.$this->get_timelapsed().'<br/>  To view the ARO <a href="'.$aro_link.'">click here</a>'
             );
             $mail = new Mailer($email_data, 'php');
             if($mail->get_status() === true) {
@@ -1079,6 +1088,18 @@ class AroRequests extends AbstractClass {
         }
         $this->errorcode = 2;
         return $this;
+    }
+
+    public function get_timelapsed() {
+        $request = self::get_data(array('isFinalized' => 1, 'aorid' => $this->data[self::PRIMARY_KEY]));
+        $hourselapsed = floor((TIME_NOW - $request->finalizedOn) / (60 * 60 )); //in term of hours
+        if($hourselapsed > 24) {
+            $dayselapsed = floor((TIME_NOW - $request->finalizedOn) / (60 * 60 * 24 )); //in term of days
+            return $dayselapsed.'days';
+        }
+        else {
+            return $hourselapsed.' hours';
+        }
     }
 
 }

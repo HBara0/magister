@@ -1,4 +1,4 @@
-<div>
+<div><h2>ARO Details</h2>
     <div style="margin-bottom:20px;">
         <table style="width:100%">
             <tr><td style="font-weight: bold;width:40%">{$lang->orderpurchasetype}</td><td>{$data[purchasetype_output]}</td></tr>
