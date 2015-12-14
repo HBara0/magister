@@ -155,26 +155,19 @@
                         <td><textarea name="externalinvitations" cols="50" rows="5"></textarea></td>
                     </tr>
                     <tr>
-                        <td colspan="2" class="thead" style="margin-top:10px;">{$lang->customizeinvitationmessage} <a href="#customizeinvitationmessage" onClick="$('#customizeinvitationmessage').fadeToggle();">...</a></td>
+                        <td colspan="2" class="thead" style="margin-top:10px;">{$lang->customizeinvitationemail} <a href="#customizeinvitationmessage" onClick="$('#customizeinvitationmessage').fadeToggle();">...</a></td>
                     </tr>
                     <tr class="altrow2">
                         <td id="customizeinvitationmessage" style="display:none" colspan="2">
                             <div style="width:20%; display:inline-block; vertical-align:top;">{$lang->customizeinvitation}</div><div style="width:65%; display:inline-block; padding-bottom:5px; vertical-align:top;"><input type="checkbox" name="customInvitation" id="customInvitation"></div>
+                            <div style="width:20%; display:inline-block; vertical-align:top;">{$lang->senderemail}</div><div style="width:65%; display:inline-block; padding-bottom:5px; vertical-align:top;"><input type="email" name="senderEmail" size="40"></div>
+                            <div style="width:20%; display:inline-block; vertical-align:top;">{$lang->sendername}</div><div style="width:65%; display:inline-block; padding-bottom:5px; vertical-align:top;"><input type="text" name="senderName"  ></div>
                             <div style="width:20%; display:inline-block; vertical-align:top;">{$lang->invitationsubject}</div><div style="width:65%; display:inline-block; padding-bottom:5px; vertical-align:top;"><input type="text" name="customInvitationSubject" id="customInvitationSubject" size="60"></div>
                             <div style="width:20%; display:inline-block; vertical-align:top;">{$lang->invitationbody}</div>
                             <div style="width:65%; display:inline-block; vertical-align:top;">
                                 <textarea name="customInvitationBody" id="customInvitationBody" class="txteditadv" cols="45" rows="10">{$defaultmsg}</textarea>
                                 <div style="font-style:italic;">{$lang->custominvitationbody_note}</div>
                             </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan="2" class="thead" style="margin-top:10px;">{$lang->customizeinvitationsender} <a href="#customizeinvitationsender" onClick="$('#customizeinvitationsender').fadeToggle();">...</a></td>
-                    </tr>
-                    <tr class="altrow2">
-                        <td id="customizeinvitationsender" style="display:none" colspan="2">
-                            <div style="width:20%; display:inline-block; vertical-align:top;">{$lang->senderemail}</div><div style="width:65%; display:inline-block; padding-bottom:5px; vertical-align:top;"><input type="email" name="senderEmail" size="40"></div>
-                            <div style="width:20%; display:inline-block; vertical-align:top;">{$lang->sendername}</div><div style="width:65%; display:inline-block; padding-bottom:5px; vertical-align:top;"><input type="text" name="senderName"  ></div>
                         </td>
                     </tr>
                     <tr>
