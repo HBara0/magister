@@ -1083,7 +1083,9 @@ class Surveys {
                     }
                 }
             }
-            $question['choicevalues'] = array_unique($question['choicevalues']);
+            if(is_array($question['choicevalues'])) {
+                $question['choicevalues'] = array_unique($question['choicevalues']);
+            }
             $questions[$question['stsid']]['section_title'] = $question['section_title'];
             $questions[$question['stsid']]['section_description'] = $question['section_description'];
             $questions[$question['stsid']]['questions'][$question['stqid']] = $question;
