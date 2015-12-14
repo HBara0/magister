@@ -640,6 +640,7 @@ class AroRequests extends AbstractClass {
             foreach($productlines as $productline) {
                 $product_obj = Products::get_data(array('pid' => $productline->pid));
                 $data['products_output'] .='<tr><td>'.$product_obj->get_displayname().'</td><td>'.$data['vendor_output'].'</td><td>'.$formatter->format($productline->intialPrice).'</td></tr>';
+                $reference['qtybysellingprice'] += $productline->quantity * $productline->sellingPrice;
             }
         }
         $ordersummary = AroOrderSummary::get_data(array('aorid' => $this->aorid));
@@ -657,7 +658,7 @@ class AroRequests extends AbstractClass {
         $data['invoiceValueAffiliate'] = $data['invoiceValueCustomer'] = "-";
         if($purchasteype_obj->isPurchasedByEndUser == 1) {
             $data['invoiceValueCustomer'] = $data['invoiceValueUsdLocal'];
-            $data['invoiceValueAffiliate'] = $data['invoiceValueThirdParty'];
+            $data['invoiceValueAffiliate'] = $data['invoiceValueUsdLocal']; //$data['invoiceValueThirdParty'];
         }
         else {
             $data['invoiceValueAffiliate'] = $data['invoiceValueUsdLocal'];
@@ -665,7 +666,7 @@ class AroRequests extends AbstractClass {
         $data['invoiceValueFromSupplier'] = $data['invoiceValueUsdIntermed'];
         if($purchasteype_obj->needsIntermediary == 0) {
             $data['invoiceValueFromSupplier'] = $data['invoiceValueUsdLocal'];
-            $data['invoiceValueAffiliate'] = '-';
+            $data['invoiceValueAffiliate'] = $reference['qtybysellingprice'];
         }
 
         eval("\$email = \"".$template->get('aro_approvalemail')."\";");
@@ -691,7 +692,7 @@ class AroRequests extends AbstractClass {
                 'message' => "Aro Request [".$this->orderReference."] ".$aroaffiliate_obj->get_displayname()." ".$purchasteype_obj->get_displayname()." Needs Approval:".$approve_link,
         );
 
-        // $email_data[message] .='<br/>'.$this->parseapprovalemail();
+        $email_data[message] .='<br/>'.$this->parseapprovalemail();
         $mailer = new Mailer();
         $mailer = $mailer->get_mailerobj();
         $mailer->set_type();
@@ -764,6 +765,10 @@ class AroRequests extends AbstractClass {
 
     public function get_lastapproval() {
         return AroRequestsApprovals::get_data(array('isApproved' => 1, 'aorid' => $this->data[self::PRIMARY_KEY]), array('order' => array('sort' => 'DESC', 'by' => 'sequence'), 'limit' => '0, 1'));
+    }
+
+    public function get_lastnotified() {
+        return AroRequestsApprovals::get_data(array('emailRecievedDate' => 'emailRecievedDate <> 0', 'aorid' => $this->data[self::PRIMARY_KEY]), array('order' => array('sort' => 'DESC', 'by' => 'sequence'), 'operators' => array('emailRecievedDate' => 'CUSTOMSQL'), 'limit' => '0, 1'));
     }
 
     public function inform_nextapprover() {
