@@ -46,7 +46,7 @@ else {
     elseif($core->input['action'] == 'do_createeventtask') {
 
         echo $headerinc;
-        if(is_empty($core->input['event']['title'], $core->input['event']['fromDate'], $core->input['event']['toDate'], $core->input['event']['type'], $core->input['event']['description'])) {
+        if(is_empty($core->input['event']['title'], $core->input['event']['fromDate'], $core->input['event']['toDate'], $core->input['event']['type'], $core->input['event']['description'], $core->input['event']['fromTime'], $core->input['event']['toTime'])) {
 //output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
             ?>
             <script language="javascript" type="text/javascript">
