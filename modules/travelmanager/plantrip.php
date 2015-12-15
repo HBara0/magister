@@ -291,16 +291,16 @@ else {
 //            $expensestype_obj = new Travelmanager_Expenses_Types();
 //            $segments_expenses_output = $expensestype_obj->parse_expensesfield($sequence, $rowid);
         /* parse expenses --END */
-        if($sequence == 2) {
-            $helptour = '';
-            $seg2helptour = new HelpTour();
-            $seg2helptour->set_id('travelmanagersegment2_helptour');
-            $seg2helptour->set_cookiename('travelmanagersegment2_helptour');
-            $plan = new TravelManagerPlan();
-            $seg2helptouritems = $plan->get_secondseghelptouritems();
-            $seg2helptour->set_items($seg2helptouritems);
-            $seg2helptour = $seg2helptour->parse();
-        }
+//        if($sequence == 2) {
+//            $helptour = '';
+//            $seg2helptour = new HelpTour();
+//            $seg2helptour->set_id('travelmanagersegment2_helptour');
+//            $seg2helptour->set_cookiename('travelmanagersegment2_helptour');
+//            $plan = new TravelManagerPlan();
+//            $seg2helptouritems = $plan->get_secondseghelptouritems();
+//            $seg2helptour->set_items($seg2helptouritems);
+//            $seg2helptour = $seg2helptour->parse();
+//        }
         eval("\$plantrip_createsegment= \"".$template->get('travelmanager_plantrip_createsegment')."\";");
         output($plantrip_createsegment);
     }
@@ -425,6 +425,7 @@ else {
         $currencies_listf = parse_selectlist('segment['.$sequence.'][tmpfid]['.$frowid.'][currency]', 4, $currencies_f, $finance->currency, '', '', array("id" => 'segment_'.$sequence.'_tmpfid_'.$frowid.'_currency'));
         $finance_checksum = generate_checksum('finance');
         eval("\$finance_output = \"".$template->get('travelmanager_plantrip_segmentfinance')."\";");
+        $hideforfirstime = 'style="display:none"';
         eval("\$otherhotels_output = \"".$template->get('travelmanager_plantrip_segment_otherhotels')."\";");
         eval("\$plansegmentscontent_output = \"".$template->get('travelmanager_plantrip_segmentcontents')."\";");
         output($plansegmentscontent_output);
@@ -483,7 +484,7 @@ else {
                                 foreach($segment['savesection'] as $section => $val) {
                                     if($val == 1) {
                                         $nextsection = 'section'.(intval(substr($section, -1)) + 1);
-                                        $shownextsection = '<script> $(function(){$("div[id=\'savingsection_'.$sequence.'_'.$nextsection.'\']").show();});</script>';
+                                        $shownextsection = '<script> $(function(){$("div[id=\'savingsection_'.$sequence.'_'.$nextsection.'\']").show();alert(12);});</script>';
                                     }
                                 }
                             }
