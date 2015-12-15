@@ -40,11 +40,12 @@ if(!($core->input['action'])) {
     $payment_terms = PaymentTerms::get_data('', array('returnarray' => true, 'order' => array('sort' => 'ASC', 'by' => 'overduePaymentDays')));
     $segments = ProductsSegments::get_segments('', array('order' => array('sort' => 'ASC', 'by' => 'title')));
     $packaging = Packaging::get_data('name IS NOT NULL', $dal_config);
-    $uom = Uom::get_data(array('isWeight' => 1), $dal_config);
+    $uom_where = "isWeight=1 OR isVolume=1";
+    $uom = Uom::get_data($uom_where, $dal_config);
     $uom_where = ' isWeight=1 OR isArea=1 OR isVolume=1';
     $warehouseuoms = Uom::get_data($uom_where, $dal_config);
     $mainaffobj = new Affiliates($core->user['mainaffiliate']);
-    $currencies = Currencies::get_data('', array('order' => array('sort' => 'ASC', 'by' => 'name')));
+    $currencies = Currencies::get_data('', array('order' => array('sort' => 'ASC', 'by' => 'alphaCode')));
     $incoterms = Incoterms::get_data('name IS NOT NULL', $dal_config);
     $countries = Countries::get_data('', $dal_config);
     $consolidation_warehouses = Warehouses::get_data(array('isActive' => 1, 'isConsolidationPlatform' => 1), array('returnarray' => true));
@@ -100,6 +101,7 @@ if(!($core->input['action'])) {
         $netmarginparms_uomlist = parse_selectlist('parmsfornetmargin[uom]', '', $warehouseuoms, '', '', '', array('id' => "parmsfornetmargin_uom", 'blankstart' => 1, 'width' => '100px'));
 
         //Parties Information
+        // $checked['priceIncludesComm'] = 'checked="checked"';
         $parties = array('intermed', 'vendor');
         foreach($parties as $party) {
             $config_class = '';
@@ -132,6 +134,7 @@ if(!($core->input['action'])) {
         $aroorderrequest->inputChecksum = generate_checksum('aro');
     }
     if(isset($core->input['id'])) {
+
         $aroorderrequest = AroRequests::get_data(array('aorid' => $core->input['id']), array('simple' => false));
         if(isset($aroorderrequest->aroBusinessManager) && !empty($aroorderrequest->aroBusinessManager)) {
             $aro_bm = Users::get_data(array('uid' => $aroorderrequest->aroBusinessManager));
@@ -246,6 +249,11 @@ if(!($core->input['action'])) {
                     $packaging_list = parse_selectlist('productline['.$plrowid.'][packing]', '', $packaging, $productline['packing'], '', '', array('id' => "productline_".$plrowid."_packing", 'blankstart' => 1));
                     $uom_list = parse_selectlist('productline['.$plrowid.'][uom]', '', $uom, $productline['uom'], '', '', array('id' => "productline_".$plrowid."_uom", 'blankstart' => 1, 'width' => '70px'));
                     $product = new Products($productline['pid']);
+                    $prodseg_obj = $product->get_segment();
+                    $productline['seg_output'] = $prodseg_obj['title'];
+                    $productline['packaging_output'] = Packaging::get_data(array('packid' => $productline['packing']))->get_displayname();
+                    $productline['uom_output'] = UOM::get_data(array('uomid' => $productline['uom']))->name;
+
                     $productline[productName] = $product->get_displayname();
                     if($purchasetype->qtyIsNotStored == 1) {
                         $disabled_fields['daysInStock'] = $disabled_fields['qtyPotentiallySold'] = 'readonly = "readonly"';
@@ -253,7 +261,14 @@ if(!($core->input['action'])) {
                     if($productline['daysInStock'] == 0) {
                         $disabled_fields['qtyPotentiallySold'] = 'readonly = "readonly"';
                     }
-                    eval("\$aroproductlines_rows .= \"".$template->get('aro_productlines_row')."\";");
+                    $display_addmoreproductlines = "";
+                    if(isset($core->input['referrer']) && $core->input['referrer'] == 'toapprove') {
+                        $display_addmoreproductlines = "style=display:none;";
+                        eval("\$aroproductlines_rows .= \"".$template->get('aro_productlines_row_preview')."\";");
+                    }
+                    else {
+                        eval("\$aroproductlines_rows .= \"".$template->get('aro_productlines_row')."\";");
+                    }
                     unset($disabled_fields);
                 }
             }
@@ -357,6 +372,9 @@ if(!($core->input['action'])) {
                 if($aropartiesinfo_obj->vendorPTIsThroughBank == 1) {
                     $checked['vendorPTIsThroughBank'] = 'checked="checked"';
                 }
+//                if($aropartiesinfo_obj->priceIncludesComm == 1) {
+//                    $checked['priceIncludesComm'] = 'checked="checked"';
+//                }
                 $consolidation_warehouses_display = 'style="display:none;"';
                 if($aropartiesinfo_obj->isConsolidation == 1) {
                     $checked['isConsolidation'] = 'checked="checked"';
@@ -748,7 +766,8 @@ else {
         $segments = ProductsSegments::get_segments('');
         $segments_selectlist = parse_selectlist('productline['.$plrowid.'][psid]', '', $segments, '', null, null, array('id' => "productline_".$plrowid."_psid", 'placeholder' => 'Overwrite Segment', 'width' => '100%'));
         $packaging_list = parse_selectlist('productline['.$plrowid.'][packing]', '', $packaging, '', '', '', array('id' => "productline_".$plrowid."_packing", 'blankstart' => 1));
-        $uom = Uom::get_data(array('isWeight' => 1));
+        $where = "isWeight=1 OR isVolume=1";
+        $uom = Uom::get_data($where);
         $kg = Uom::get_data(array('name' => 'Kilogram'));
         $uom_list = parse_selectlist('productline['.$plrowid.'][uom]', '', $uom, $kg->uomid, '', '', array('id' => "productline_".$plrowid."_uom", 'blankstart' => 1, 'width' => '70px'));
         eval("\$aroproductlines_rows = \"".$template->get('aro_productlines_row')."\";");
@@ -1170,7 +1189,7 @@ else {
                 'ordersummary_2ndparty' => $secondparty,
                 'ordersummary_3rdparty' => $thirdparty,
                 'ordersummary_totalquantityperuom' => $quantityperuom,
-                'ordersummary_totalquantity' => $summedqty,
+                //'ordersummary_totalquantity' => $summedqty,
                 'ordersummary_totalfeesperunit' => $feeperunit_array,
                 'ordersummary_totalfees' => $summedfees,
                 'ordersummary_totalintermedfeesperunit_usd' => $feeperunit_usdarray,
@@ -1201,12 +1220,20 @@ else {
                 output($lang->nopolicy);
                 exit;
             }
-            $defaultintermedfields = array('defaultCurrency', 'defaultIntermed', 'defaultIncoterms', 'defaultPaymentTerm');
+
+            $purchasetype = PurchaseTypes::get_data(array('ptid' => $core->input['ptid']));
+            $defaultintermedfields = array('defaultIntermed', 'defaultIncoterms', 'defaultPaymentTerm');
             foreach($defaultintermedfields as $defaultintermedfields) {
                 if(empty($affpolicy->$defaultintermedfields)) {
                     $affpolicy->$defaultintermedfields = 0;
                 }
+                if(is_object($purchasetype)) {
+                    if($purchasetype->needsIntermediary == 0) {
+                        $affpolicy->$defaultintermedfields = 0;
+                    }
+                }
             }
+
             $defaultaffpolicy = array('currencies' => $affpolicy->defaultCurrency,
                     'partiesinfo_intermed_aff' => $affpolicy->defaultIntermed,
                     'partiesinfo_intermed_incoterms' => $affpolicy->defaultIncoterms,
@@ -1318,7 +1345,7 @@ else {
     }
     if($core->input['action'] == 'viewonly') {
         $aroorderrequest = AroRequests::get_data(array('aorid' => $core->input['id']), array('simple' => false));
-        if($aroorderrequest->isApproved == 1 || $core->user['uid'] != $aroorderrequest->createdBy) {
+        if($aroorderrequest->isApproved == 1) {
             $viewonly = array('disable' => 1);
             output(json_encode($viewonly));
         }
@@ -1432,11 +1459,13 @@ else {
         if(is_object($purcasetype) && $purcasetype->needsIntermediary == 1) {
             $totalcomm = $core->input['totalcommision'];
             $comm = $core->input['defaultcomm'];
+            //if($core->input['priceIncludesComm'] == 1) {
             if($core->input['totalcommision'] < 250) {
                 if(!empty($core->input['totalamount']) && $core->input['totalamount'] != 0) {
                     $comm = (250 * 100 ) / $core->input['totalamount'];
                 }
             }
+            // }
         }
         if(isset($core->input['totalDiscount']) && !empty($core->input['totalDiscount'])) {
             $comm = $core->input['defaultcomm'] - $core->input['totalDiscount'];
