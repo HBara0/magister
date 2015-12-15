@@ -6,12 +6,14 @@
                 <td></td>
                 <td class="subtitle" style="text-align: center;width:25%;"> {$aroordersummary->firstpartytitle}</td>
                 <td class="subtitle" style="text-align: center;width:25%;"> {$aroordersummary->secondpartytitle}</td>
-                <td class="subtitle" id="ordersummary_thirdparty_1" {$ordersummarydisplay[thirdcolumn_display]}>{$aroordersummary->thirdpartytitle}</td>
+                <td class="subtitle" id="ordersummary_thirdparty_1" {$ordersummarydisplay[thirdcolumn_display]}>
+                    <div style="text-align: center;">{$aroordersummary->thirdpartytitle}</div></td>
             </tr>
             <tr><td></td>
-                <td class="subtitle" style="text-align: center;width:25%;">{$firstparty}</span></td>
-                <td class="subtitle" style="text-align: center;width:25%;">{$secondparty}</span></td>
-                <td class="subtitle" id="ordersummary_thirdparty_2" {$ordersummarydisplay[thirdcolumn_display]}>{$thirdparty}</span>
+                <td class="subtitle" style="text-align: center;width:25%;">{$firstparty}</td>
+                <td class="subtitle" style="text-align: center;width:25%;">{$secondparty}</td>
+                <td class="subtitle" id="ordersummary_thirdparty_2" {$ordersummarydisplay[thirdcolumn_display]}>
+                    <div style="text-align: center;">{$thirdparty}</div>
                     <input type="hidden" value="" id="haveThirdParty"/></td>
             </tr>
         </thead>
@@ -64,16 +66,26 @@
                 <td>{$lang->total} {$lang->netmargin}<a href="#" title="{$lang->totalnetmargindef}"><img src="./images/icons/question.gif"/></a></td>
                 <td style="text-align: right;">{$aroordersummary->netmarginIntermed}</td>
                 <td style="text-align: right;">{$aroordersummary->netmarginLocal}</td>
-                <td id="ordersummary_thirdparty_4" {$ordersummarydisplay[thirdcolumn_display]}><div style="text-align: right;">{$aroordersummary->invoiceValueThirdParty}</div></td>
+                <td {$ordersummarydisplay[thirdcolumn_display]}></td>
             </tr>
+
+            <tr {$ordersummarydisplay[thirdcolumn_display]}>
+                <td>{$lang->total} {$lang->netmargin} <br/>{$lang->afterdeduction}<a href="#" title="{$lang->totalnetmargindef}"><img src="./images/icons/question.gif"/></a></td>
+                <td style="text-align: right;">{$aroordersummary->netmarginIntermed_afterdeduction}</td>
+                <td style="text-align: right;">{$aroordersummary->netmarginLocal}</td>
+                <td id="ordersummary_thirdparty_4" style="text-align: right;"><div style="text-align: right;">{$aroordersummary->invoiceValueThirdParty}</div></td>
+            </tr>
+
             <tr style="font-weight: bold;">
                 <td>{$lang->total} {$lang->netmarginperc} <a href="#" title="{$lang->totalnetmarginpercdef}"><img src="./images/icons/question.gif"/></a></td>
                 <td style="text-align: right;">{$aroordersummary->netmarginIntermedPerc}%</td>
                 <td style="text-align: right;">{$aroordersummary->netmarginLocalPerc}%</td>
+                <td {$ordersummarydisplay[thirdcolumn_display]}></td>
             </tr>
             <tr style="font-weight: bold;">
                 <td>{$lang->total} {$lang->globalnetmargin}<a href="#" title="{$lang->globalnetmargindef}"><img src="./images/icons/question.gif"/></a></td>
                 <td style="text-align:center;"colspan="2">{$aroordersummary->globalNetmargin}</td>
+                <td {$ordersummarydisplay[thirdcolumn_display]}></td>
             </tr>
         </tbody>
         <tfoot style="display:none;" id="ordersummary_tfoot" class="altrow2"  name="seemoredetails" >
