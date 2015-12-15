@@ -3867,6 +3867,20 @@ CREATE TABLE `reportcontributors` (
   PRIMARY KEY (`rcid`),
   KEY `uid` (`uid`,`rid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=8850 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=21 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `reporting_finalizestatuses`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `reporting_finalizestatuses` (
+  `rfsid` int(10) NOT NULL AUTO_INCREMENT,
+  `rid` int(11) NOT NULL,
+  `newStatus` int(11) NOT NULL,
+  `timeModified` bigint(30) NOT NULL,
+  `modifiedBy` int(11) NOT NULL,
+  `actionType` varchar(30) NOT NULL,
+  PRIMARY KEY (`rfsid`)
+) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `reporting_qrrecipients`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
