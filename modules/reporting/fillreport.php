@@ -1649,6 +1649,10 @@ else {
                     record_contribution($report_meta['rid'], 1);
                 }
                 $log->record('finalizeqr', $report_meta['rid']);
+                $findata = array('rid' => intval($report_meta['rid']), 'newStatus' => 1, 'actionType' => 'finalize');
+                $reportfinstatus = new ReportingFinalizeStatus();
+                $reportfinstatus->set($findata);
+                $reportfinstatus->save();
                 output_xml("<status>true</status><message>{$lang->reportfinalized}</message>");
             }
             else {
