@@ -66,6 +66,12 @@ if(!$core->input['action']) {
         if($type['restricted'] == 1 && $is_supervisor != true) {
             continue;
         }
+        /**
+         * Temporary work around for Business Travel leave type.
+         */
+        if($type['ltid'] == 14 && $core->usergroup['canUseTravelManager'] == 0) {
+            continue;
+        }
         if(!empty($lang->{$type['name']})) {
             $type['title'] = $lang->{$type['name']};
         }
