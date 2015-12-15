@@ -1139,5 +1139,13 @@ class Entities extends AbstractClass {
         return new Affiliates($this->data['affid']);
     }
 
+    public function is_auditor($uid) {
+        $assignedemps = AssignedEmployees::get_data(array('uid' => $uid, 'eid' => $this->data['eid'], 'isValidator' => true), array('returnarray' => true));
+        if(is_array($assignedemps)) {
+            return true;
+        }
+        return false;
+    }
+
 }
 ?>

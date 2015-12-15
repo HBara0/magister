@@ -2,10 +2,10 @@
 /*
  * Orkila Central Online System (OCOS)
  * Copyright © 2009 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * Create reports
  * $module: reporting
- * $id: createreports.php	
+ * $id: createreports.php
  * Last Update: @zaher.reda 	June 14, 2010 | 04:55 PM
  */
 if(!defined('DIRECT_ACCESS')) {
@@ -23,8 +23,8 @@ if(!$core->input['action']) {
     $cache = new Cache();
 
     $query = $db->query("SELECT ae.*, a.name, e.companyName
-						FROM ".Tprefix."affiliatedentities ae 
-						JOIN ".Tprefix."entities e ON (e.eid=ae.eid) 
+						FROM ".Tprefix."affiliatedentities ae
+						JOIN ".Tprefix."entities e ON (e.eid=ae.eid)
 						JOIN ".Tprefix."affiliates a ON (ae.affid=a.affid)
 						WHERE e.type='s' AND e.approved=1 AND e.noQReportReq=0
 						AND (ae.affid, ae.eid) NOT IN (SELECT r.affid, r.spid FROM ".Tprefix."reports r WHERE r.type='q' AND r.quarter='{$quarter[quarter]}' AND r.year='{$quarter[year]}')
@@ -60,8 +60,8 @@ else {
               } */
 
             $query = $db->query("SELECT ae.*, a.name, e.companyName
-							FROM ".Tprefix."affiliatedentities ae 
-							JOIN ".Tprefix."entities e ON (e.eid=ae.eid) 
+							FROM ".Tprefix."affiliatedentities ae
+							JOIN ".Tprefix."entities e ON (e.eid=ae.eid)
 							JOIN ".Tprefix."affiliates a ON (ae.affid=a.affid)
 							WHERE e.type='s' AND e.approved=1 AND e.noQReportReq=0
 							AND (ae.affid, ae.eid) NOT IN (SELECT r.affid, r.spid FROM ".Tprefix."reports r WHERE r.type='q' AND r.quarter='".$db->escape_string($core->input['quarter'])."' AND r.year='".$db->escape_string($core->input['year'])."')
@@ -99,6 +99,8 @@ else {
                         'affid' => $ids[0],
                         'spid' => $ids[1],
                         'initDate' => TIME_NOW,
+                        'createdBy' => $core->user['uid'],
+                        'createdOn' => TIME_NOW,
                         'status' => 0
                 );
                 $db->insert_query('reports', $newreport);
