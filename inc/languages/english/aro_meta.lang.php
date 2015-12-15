@@ -246,4 +246,5 @@ $lang['netmarginaff'] = 'Net Margin of the Affiliate in USD (if any) and %age';
 $lang['totalnetmarginofallorkilaent'] = 'Total Net Margin in USD of all Orkila entities and %age';
 $lang['nowarehouse'] = 'No Warehouse';
 $lang['usdexchangerate'] = 'Exchange rate to usd';
+$lang['afterdeduction'] = 'After Deducting local affiliate commission from Intermediary'
 ?>

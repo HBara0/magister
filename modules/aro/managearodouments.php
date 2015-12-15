@@ -569,12 +569,17 @@ if(!($core->input['action'])) {
                     if(isset($aroordersummary->invoiceValueThirdParty) && !empty($aroordersummary->invoiceValueThirdParty)) {
                         $aroordersummary->thirdpartytitle = $lang->local;
                         $thirdparty = $localaff->get_displayname();
-                        $ordersummarydisplay['thirdcolumn_display'] = "style='display:block;'";
+                        $ordersummarydisplay['thirdcolumn_display'] = "style='font-weight:bold';";
+                        if(isset($core->input['referrer']) && $core->input['referrer'] == 'toapprove') {
+                            $ordersummarydisplay[thirdcolumn_display] = "style='font-weight:bold';";
+                        }
                     }
                 }
                 if(empty($aroordersummary->interestValueUsd)) {
                     $aroordersummary->interestValueUsd = $aroordersummary->interestValue * $aroorderrequest->exchangeRateToUSD;
                 }
+
+                $aroordersummary->netmarginIntermed_afterdeduction = $aroordersummary->netmarginIntermed - $aroordersummary->invoiceValueThirdParty;
             }
             $arodocument_title = $aroorderrequest->orderReference.' '.$localaff->get_displayname();
             $arodocument_header = '<h2>'.$aroorderrequest->orderReference.' / '.$localaff->get_displayname().' / '.$purchaseype->get_displayname().'</h2>';
@@ -601,7 +606,7 @@ if(!($core->input['action'])) {
         if(is_object($aroordersummary)) {
             $formatter = new NumberFormatter($lang->settings['locale'], NumberFormatter::DECIMAL);
             $perc_formatter = new NumberFormatter($lang->settings['locale'], NumberFormatter::PERCENT);
-            $ordersummary_fields = array('invoiceValueIntermed', 'invoiceValueLocal', 'invoiceValueUsdIntermed', 'invoiceValueUsdLocal', 'interestValue', 'interestValueUsd', 'totalIntermedFees', 'totalIntermedFeesUsd', 'unitFee', 'netmarginIntermed', 'netmarginLocal', 'invoiceValueThirdParty', 'globalNetmargin'); // 'netmarginIntermedPerc', 'netmarginLocalPerc');
+            $ordersummary_fields = array('netmarginIntermed_afterdeduction', 'invoiceValueIntermed', 'invoiceValueLocal', 'invoiceValueUsdIntermed', 'invoiceValueUsdLocal', 'interestValue', 'interestValueUsd', 'totalIntermedFees', 'totalIntermedFeesUsd', 'unitFee', 'netmarginIntermed', 'netmarginLocal', 'invoiceValueThirdParty', 'globalNetmargin'); // 'netmarginIntermedPerc', 'netmarginLocalPerc');
             foreach($ordersummary_fields as $field) {
 //                if($field == 'netmarginIntermedPerc' || $field == 'netmarginLocalPerc') {
 //                    $aroordersummary->$field = $perc_formatter->format($aroordersummary->$field);
@@ -1176,11 +1181,12 @@ else {
             if(isset($core->input['commFromIntermed']) && !empty($core->input['commFromIntermed'])) {
                 $thirdparty_title = $lang->local;
                 $thirdparty = $affiliate->get_displayname();
-                $invoicevalue_thirdparty = ($core->input['commFromIntermed'] / 100) * $invoicevalueintermed;
+                $invoicevalue_thirdparty = ($core->input['commFromIntermed'] / 100) * $intermedmargin;
                 $invoicevalue_thirdparty_usd = $invoicevalue_thirdparty * $core->input['exchangeRateToUSD'];
                 $haveThirdParty = 1;
             }
         }
+        $intermedmarginafterreduction = $intermedmargin - $invoicevalue_thirdparty_usd;
         $data = array(
                 'ordersummary_col1_title' => $firstpart_title,
                 'ordersummary_col2_title' => $secondparty_title,
@@ -1209,6 +1215,7 @@ else {
                 'ordersummary_netmargin_intermedperc' => round($intermedmargin_perc, 2),
                 'ordersummary_totalamount' => round($core->input['totalamount'], 2),
                 'haveThirdParty' => $haveThirdParty,
+                'ordersummary_netmargin_intermedafterdeduction' => round($intermedmarginafterreduction, 2),
         );
         echo json_encode($data);
     }
