@@ -30,9 +30,7 @@ else {
     $current_module[1] = false;
 }
 
-if($lang->language_file_exists($run_module.'_meta')) {
-    $lang->load($run_module.'_meta');
-}
+$lang->load($run_module.'_meta');
 
 if(file_exists(INC_ROOT.$run_module.'_functions.php')) {
     require_once INC_ROOT.$run_module.'_functions.php';
