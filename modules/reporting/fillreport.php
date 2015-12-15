@@ -854,6 +854,19 @@ else {
         }
         echo $suppliers_list;
     }
+    elseif($core->input['action'] == 'checkif_auditor') {
+        $spid = $db->escape_string($core->input['id']);
+        $supplier = new Entities(intval($spid));
+        if(is_object($supplier)) {
+            $isauditor = $supplier->is_auditor($core->user['uid']);
+            if($isauditor) {
+                echo('<script>$(function(){$(\'input[id="transFill"]\').prop("checked",true);});</script>');
+            }
+            else {
+                echo('<script>$(function(){$(\'input[id="transFill"]\').prop("checked",false);});</script>');
+            }
+        }
+    }
     elseif($core->input['action'] == 'get_quarters') {
         $spid = $db->escape_string($core->input['id']);
         $affid = $db->escape_string($core->input['affid']);
