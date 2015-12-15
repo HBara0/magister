@@ -97,7 +97,7 @@ $lang['selectothertransportations'] = 'Other Transportations';
 $lang['suggestedtransportations'] = 'Suggested Transportations';
 $lang['vehiclenumber'] = 'Vehicle Number';
 $lang['paidby'] = 'Paid By';
-$lang['seatingdescription'] = 'Transportation Seating Description/Reason';
+$lang['seatingdescription'] = 'Additional Details/Reason';
 $lang['considerleisuretourism'] = 'Consider leisure/tourism';
 $lang['otherapprovedhotels'] = 'Other Approved Hotels';
 $lang['hotelname'] = 'Hotel Name';
@@ -304,5 +304,7 @@ $lang['helptour_savesec5'] = 'Save finance section details before proceeding to 
 $lang['selectevent'] = 'Select Event';
 $lang['backtotop'] = 'Back to Top';
 $lang['requestleavesubject'] = '{1} requested a {2} [{3}]';
-$lang['helptour_checkhotelslist'] = 'Please note that you can review the list of Orkila\'s approved hotels from the Hotels List page.'
+$lang['helptour_checkhotelslist'] = 'Please note that you can review the list of Orkila\'s approved hotels from the Hotels List page.';
+$lang['flightrainnumber'] = 'Flight/Train Number';
+$lang['companyname'] = 'Company Name';
 ?>
