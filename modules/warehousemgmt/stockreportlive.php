@@ -1111,7 +1111,7 @@ else {
                 19 => array(398, 356),
                 22 => array(248, 246, 287, 270, 356, 63),
                 23 => array('zadok.oppong-boahene', 'courage.dzandu', 416, 321, 'tarek.chalhoub', 63, 356),
-                1 => array(12, 333, 182, 43, 356),
+                1 => array(356), //12, 333, 182, 43,
                 21 => array(63, 158, 'patrice.mossan', 'marcelle.nklo', 'abel.laho', 'boulongo.diata', 356, 'kenan.amjeh'),
                 27 => array(12, 333, 68, 67, 342, 30, 356),
                 20 => array('michel.mbengue', 'samba.kandji', 'ansou.dabo', 'fatimatou.diallo', 356),
