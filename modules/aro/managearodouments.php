@@ -40,13 +40,17 @@ if(!($core->input['action'])) {
     $payment_terms = PaymentTerms::get_data('', array('returnarray' => true, 'order' => array('sort' => 'ASC', 'by' => 'overduePaymentDays')));
     $segments = ProductsSegments::get_segments('', array('order' => array('sort' => 'ASC', 'by' => 'title')));
     $packaging = Packaging::get_data('name IS NOT NULL', $dal_config);
-    $uom = Uom::get_data(array('isWeight' => 1), $dal_config);
+    $uom_where = "isWeight=1 OR isVolume=1";
+    $uom = Uom::get_data($uom_where, $dal_config);
     $uom_where = ' isWeight=1 OR isArea=1 OR isVolume=1';
     $warehouseuoms = Uom::get_data($uom_where, $dal_config);
     $mainaffobj = new Affiliates($core->user['mainaffiliate']);
-    $currencies = Currencies::get_data('', array('order' => array('sort' => 'ASC', 'by' => 'name')));
+    $currencies = Currencies::get_data('', array('order' => array('sort' => 'ASC', 'by' => 'alphaCode')));
     $incoterms = Incoterms::get_data('name IS NOT NULL', $dal_config);
     $countries = Countries::get_data('', $dal_config);
+    $consolidation_warehouses = Warehouses::get_data(array('isActive' => 1, 'isConsolidationPlatform' => 1), array('returnarray' => true));
+    $consolidation_warehouses['0'] = $lang->nowarehouse;
+    ksort($consolidation_warehouses);
 
     $aro_display['prtiesinfo']['discount'] = "display:inline-block;";
     if($core->usergroup['aro_canMakeDiscounts'] == 0) {
@@ -97,6 +101,7 @@ if(!($core->input['action'])) {
         $netmarginparms_uomlist = parse_selectlist('parmsfornetmargin[uom]', '', $warehouseuoms, '', '', '', array('id' => "parmsfornetmargin_uom", 'blankstart' => 1, 'width' => '100px'));
 
         //Parties Information
+        // $checked['priceIncludesComm'] = 'checked="checked"';
         $parties = array('intermed', 'vendor');
         foreach($parties as $party) {
             $config_class = '';
@@ -108,6 +113,8 @@ if(!($core->input['action'])) {
             $paymentterms_list[$party] = parse_selectlist('partiesinfo['.$party.'PaymentTerm]', 4, $payment_terms, '', '', '', array('blankstart' => 1, 'id' => 'partiesinfo_'.$party.'_paymentterm', 'required' => 'required', 'width' => '100%', 'class' => $config_class));
             $incoterms_list[$party] = parse_selectlist('partiesinfo['.$party.'Incoterms]', 4, $incoterms, '', '', '', array('blankstart' => 1, 'id' => 'partiesinfo_'.$party.'_incoterms', 'required' => 'required', 'width' => '100%', 'class' => $config_class));
         }
+        $consolidation_warehouses_list = parse_selectlist('partiesinfo[consolidationWarehouse]', 1, $consolidation_warehouses, 0, '', '', array('id' => 'partiesinfo_consolidationWarehouse', 'width' => '100%'));
+        $consolidation_warehouses_display = 'style="display:none;"'; // change all $display fields to 1 array !!
 
 
         eval("\$takeactionpage = \"".$template->get('aro_managearodocuments_takeaction')."\";");
@@ -127,6 +134,7 @@ if(!($core->input['action'])) {
         $aroorderrequest->inputChecksum = generate_checksum('aro');
     }
     if(isset($core->input['id'])) {
+
         $aroorderrequest = AroRequests::get_data(array('aorid' => $core->input['id']), array('simple' => false));
         if(isset($aroorderrequest->aroBusinessManager) && !empty($aroorderrequest->aroBusinessManager)) {
             $aro_bm = Users::get_data(array('uid' => $aroorderrequest->aroBusinessManager));
@@ -134,14 +142,14 @@ if(!($core->input['action'])) {
                 $aroorderrequest->aroBusinessManager_output = $aro_bm->get_displayname();
             }
         }
-        if(isset($core->input['referrer']) && $core->input['referrer'] = 'toapprove') {
+        if(isset($core->input['referrer']) && $core->input['referrer'] == 'toapprove') {
             $aroapproval = AroRequestsApprovals::get_data(array('aorid' => intval($core->input['id']), 'uid' => $core->user['uid']));
             $approve_btn[$core->user['uid']] = '<input type="button" class="button" id="approvearo" value="'.$lang->approve.'"/>'
                     .'<input type="hidden" id="approvearo_id" value="'.$aroorderrequest->aorid.'"/>';
         }
         if(is_object($aroorderrequest)) {
             if(!$aroorderrequest->getif_approvedonce($aroorderrequest->aorid) && $aroorderrequest->createdBy == $core->user['uid']) {
-                $deletebutton = "<a class='button' href='#{$aroorderrequest->aorid}' id='deletearodocument_{$aroorderrequest->aorid}_aro/managearodouments_loadpopupbyid' >{$lang->delete}</a>";
+                $deletebutton = "<a class='button' href='#{$aroorderrequest->aorid}' id='deletearodocument_{$aroorderrequest->aorid}_aro/managearodouments_loadpopupbyid' style='vertical-align:top;'>{$lang->delete}</a>";
             }
             if($aroorderrequest->isFinalized == 1) {
                 $checked['aroisfinalized'] = 'checked="checked"';
@@ -150,7 +158,7 @@ if(!($core->input['action'])) {
 
             $affiliate_list = parse_selectlist('affid', 1, $affiliate, $aroorderrequest->affid, '', '', array('blankstart' => true, 'id' => 'affid', 'disabledNonSelectedItems' => '1'));
             $purchasetypelist = parse_selectlist('orderType', 4, $purchasetypes, $aroorderrequest->orderType, '', '', array('blankstart' => true, 'id' => 'purchasetype', 'disabledNonSelectedItems' => '1'));
-            $refreshbutton = '<td><button onclick=$(function(){$(\'select[id="affid"]\').trigger("change");});>'.$lang->refreshpolicies.'</button></td>';
+            $refreshbutton = '<td><button onclick="$(function(){$(\'select[id="affid"]\').trigger("change");});" style="margin-left:100px;">'.$lang->refreshpolicies.'</button></td>';
             $currencies_list = parse_selectlist('currency', 4, $currencies, $aroorderrequest->currency, '', '', array('blankstart' => 1, 'id' => 'currencies', 'required' => 'required'));
             $inspectionlist = parse_selectlist('inspectionType', 4, $inspections, $aroorderrequest->inspectionType);
             //*********Aro Order Customers -Start *********//
@@ -191,6 +199,9 @@ if(!($core->input['action'])) {
                 $altpayment_term = parse_selectlist('customeroder['.$rowid.'][ptid]', 4, $payment_terms, $unspecifiedcust['ptid'], '', '', array('blankstart' => 1, 'id' => "paymentermdays_".$rowid));
                 eval("\$unspecified_customer_row = \"".$template->get('aro_unspecifiedcustomer_row')."\";");
                 $rowid = $clrowid;
+                if($rowid == 1 && (isset($core->input['referrer']) && $core->input['referrer'] == 'toapprove')) {
+                    $arocustomer_output = '<td style="font-weight: bold;width:16%;border-left:4px solid #F2F2F2;">'.$lang->customer.'</td><td>'.$customer->get_displayname().'</td>';
+                }
 
                 // If only unspecified customer row exist, parse default customer order row
                 if(empty($aro_managedocuments_ordercustomers_rows)) {
@@ -238,6 +249,11 @@ if(!($core->input['action'])) {
                     $packaging_list = parse_selectlist('productline['.$plrowid.'][packing]', '', $packaging, $productline['packing'], '', '', array('id' => "productline_".$plrowid."_packing", 'blankstart' => 1));
                     $uom_list = parse_selectlist('productline['.$plrowid.'][uom]', '', $uom, $productline['uom'], '', '', array('id' => "productline_".$plrowid."_uom", 'blankstart' => 1, 'width' => '70px'));
                     $product = new Products($productline['pid']);
+                    $prodseg_obj = $product->get_segment();
+                    $productline['seg_output'] = $prodseg_obj['title'];
+                    $productline['packaging_output'] = Packaging::get_data(array('packid' => $productline['packing']))->get_displayname();
+                    $productline['uom_output'] = UOM::get_data(array('uomid' => $productline['uom']))->name;
+
                     $productline[productName] = $product->get_displayname();
                     if($purchasetype->qtyIsNotStored == 1) {
                         $disabled_fields['daysInStock'] = $disabled_fields['qtyPotentiallySold'] = 'readonly = "readonly"';
@@ -245,7 +261,14 @@ if(!($core->input['action'])) {
                     if($productline['daysInStock'] == 0) {
                         $disabled_fields['qtyPotentiallySold'] = 'readonly = "readonly"';
                     }
-                    eval("\$aroproductlines_rows .= \"".$template->get('aro_productlines_row')."\";");
+                    $display_addmoreproductlines = "";
+                    if(isset($core->input['referrer']) && $core->input['referrer'] == 'toapprove') {
+                        $display_addmoreproductlines = "style=display:none;";
+                        eval("\$aroproductlines_rows .= \"".$template->get('aro_productlines_row_preview')."\";");
+                    }
+                    else {
+                        eval("\$aroproductlines_rows .= \"".$template->get('aro_productlines_row')."\";");
+                    }
                     unset($disabled_fields);
                 }
             }
@@ -349,6 +372,16 @@ if(!($core->input['action'])) {
                 if($aropartiesinfo_obj->vendorPTIsThroughBank == 1) {
                     $checked['vendorPTIsThroughBank'] = 'checked="checked"';
                 }
+//                if($aropartiesinfo_obj->priceIncludesComm == 1) {
+//                    $checked['priceIncludesComm'] = 'checked="checked"';
+//                }
+                $consolidation_warehouses_display = 'style="display:none;"';
+                if($aropartiesinfo_obj->isConsolidation == 1) {
+                    $checked['isConsolidation'] = 'checked="checked"';
+                    $consolidation_warehouses_display = 'style="display:block;"';
+                }
+                $consolidation_warehouses_list = parse_selectlist('partiesinfo[consolidationWarehouse]', 1, $consolidation_warehouses, $aropartiesinfo_obj->consolidationWarehouse, '', '', array('id' => 'partiesinfo_consolidationWarehouse', 'width' => '100%'));
+
                 $selected_incoterms['intermed'] = $aropartiesinfo_obj->intermedIncoterms;
                 $selected_incoterms['vendor'] = $aropartiesinfo_obj->vendorIncoterms;
 
@@ -450,6 +483,12 @@ if(!($core->input['action'])) {
                         case 'user':
                             $position = 'User';
                             break;
+                        case 'reportsTo':
+                            $position = 'Reports To';
+                            break;
+                        case 'commercialManager':
+                            $position = 'Commercial Manager';
+                            break;
                     }
                     $dateofapproval = '-';
                     $user = new Users($approver->uid);
@@ -530,12 +569,17 @@ if(!($core->input['action'])) {
                     if(isset($aroordersummary->invoiceValueThirdParty) && !empty($aroordersummary->invoiceValueThirdParty)) {
                         $aroordersummary->thirdpartytitle = $lang->local;
                         $thirdparty = $localaff->get_displayname();
-                        $ordersummarydisplay['thirdcolumn_display'] = "style='display:block;'";
+                        $ordersummarydisplay['thirdcolumn_display'] = "style='font-weight:bold';";
+                        if(isset($core->input['referrer']) && $core->input['referrer'] == 'toapprove') {
+                            $ordersummarydisplay[thirdcolumn_display] = "style='font-weight:bold';";
+                        }
                     }
                 }
                 if(empty($aroordersummary->interestValueUsd)) {
                     $aroordersummary->interestValueUsd = $aroordersummary->interestValue * $aroorderrequest->exchangeRateToUSD;
                 }
+
+                $aroordersummary->netmarginIntermed_afterdeduction = $aroordersummary->netmarginIntermed - $aroordersummary->invoiceValueThirdParty;
             }
             $arodocument_title = $aroorderrequest->orderReference.' '.$localaff->get_displayname();
             $arodocument_header = '<h2>'.$aroorderrequest->orderReference.' / '.$localaff->get_displayname().' / '.$purchaseype->get_displayname().'</h2>';
@@ -546,13 +590,37 @@ if(!($core->input['action'])) {
     }
 
     eval("\$aro_productlines = \"".$template->get('aro_fillproductlines')."\";");
-    eval("\$aro_managedocuments_orderident= \"".$template->get('aro_managedocuments_orderidentification')."\";");
+    if(isset($core->input['referrer']) && $core->input['referrer'] == 'toapprove') {
+        eval("\$aro_managedocuments_orderident= \"".$template->get('aro_orderidentification_preview')."\";");
+    }
+    else {
+        eval("\$aro_managedocuments_orderident= \"".$template->get('aro_managedocuments_orderidentification')."\";");
+    }
     eval("\$aro_ordercustomers= \"".$template->get('aro_managedocuments_ordercustomers')."\";");
     eval("\$partiesinformation = \"".$template->get('aro_partiesinformation')."\";");
     eval("\$aro_netmarginparms= \"".$template->get('aro_netmarginparameters')."\";");
     eval("\$actualpurchase = \"".$template->get('aro_actualpurchase')."\";");
     eval("\$currentstock = \"".$template->get('aro_currentstock')."\";");
-    eval("\$orderummary = \"".$template->get('aro_ordersummary')."\";");
+
+    if(isset($core->input['referrer']) && $core->input['referrer'] == 'toapprove') {
+        if(is_object($aroordersummary)) {
+            $formatter = new NumberFormatter($lang->settings['locale'], NumberFormatter::DECIMAL);
+            $perc_formatter = new NumberFormatter($lang->settings['locale'], NumberFormatter::PERCENT);
+            $ordersummary_fields = array('netmarginIntermed_afterdeduction', 'invoiceValueIntermed', 'invoiceValueLocal', 'invoiceValueUsdIntermed', 'invoiceValueUsdLocal', 'interestValue', 'interestValueUsd', 'totalIntermedFees', 'totalIntermedFeesUsd', 'unitFee', 'netmarginIntermed', 'netmarginLocal', 'invoiceValueThirdParty', 'globalNetmargin'); // 'netmarginIntermedPerc', 'netmarginLocalPerc');
+            foreach($ordersummary_fields as $field) {
+//                if($field == 'netmarginIntermedPerc' || $field == 'netmarginLocalPerc') {
+//                    $aroordersummary->$field = $perc_formatter->format($aroordersummary->$field);
+////                }
+//                else {
+                $aroordersummary->$field = $formatter->format($aroordersummary->$field);
+                //  }
+            }
+        }
+        eval("\$orderummary = \"".$template->get('aro_ordersummary_preview')."\";");
+    }
+    else {
+        eval("\$orderummary = \"".$template->get('aro_ordersummary')."\";");
+    }
     unset($firstparty, $secondparty, $thirdparty);
     eval("\$totalfunds = \"".$template->get('aro_totalfunds')."\";");
     eval("\$approvalchain= \"".$template->get('aro_approvalchain')."\";");
@@ -703,7 +771,8 @@ else {
         $segments = ProductsSegments::get_segments('');
         $segments_selectlist = parse_selectlist('productline['.$plrowid.'][psid]', '', $segments, '', null, null, array('id' => "productline_".$plrowid."_psid", 'placeholder' => 'Overwrite Segment', 'width' => '100%'));
         $packaging_list = parse_selectlist('productline['.$plrowid.'][packing]', '', $packaging, '', '', '', array('id' => "productline_".$plrowid."_packing", 'blankstart' => 1));
-        $uom = Uom::get_data(array('isWeight' => 1));
+        $where = "isWeight=1 OR isVolume=1";
+        $uom = Uom::get_data($where);
         $kg = Uom::get_data(array('name' => 'Kilogram'));
         $uom_list = parse_selectlist('productline['.$plrowid.'][uom]', '', $uom, $kg->uomid, '', '', array('id' => "productline_".$plrowid."_uom", 'blankstart' => 1, 'width' => '70px'));
         eval("\$aroproductlines_rows = \"".$template->get('aro_productlines_row')."\";");
@@ -890,6 +959,9 @@ else {
         }
         if(isset($partiesinfo['intermedEstDateOfPayment_output']) && !empty($partiesinfo['intermedEstDateOfPayment_output']) && isset($partiesinfo['vendorEstDateOfPayment_output']) && !empty($partiesinfo['vendorEstDateOfPayment_output'])) {
             $data['intermedPeriodOfInterest'] = date_diff(date_create($partiesinfo['vendorEstDateOfPayment_output']), date_create($partiesinfo['intermedEstDateOfPayment_output']));
+            if(isset($partiesinfo['promiseOfPayment_output']) && !empty($partiesinfo['promiseOfPayment_output'])) {
+                $data['intermedPeriodOfInterest'] = date_diff(date_create($partiesinfo['vendorEstDateOfPayment_output']), date_create($partiesinfo['promiseOfPayment_output']));
+            }
             $data['intermedPeriodOfInterest'] = $data['intermedPeriodOfInterest']->format("%r%a");
             $data['diffbetweendates'] = $data['intermedPeriodOfInterest']; // difference between payment days
             if($data['intermedPeriodOfInterest'] < 0) {
@@ -898,6 +970,9 @@ else {
             $data['localPeriodOfInterest'] = 0;
             if(isset($core->input['est_local_pay']) && !empty($core->input['est_local_pay'])) { //est_local_pay= Estimated Local Invoice Due date (order customers section)
                 $data['localPeriodOfInterest'] = date_diff(date_create($partiesinfo['intermedEstDateOfPayment_output']), date_create($core->input['est_local_pay']));
+                if(isset($partiesinfo['promiseOfPayment_output']) && !empty($partiesinfo['promiseOfPayment_output'])) {
+                    $data['localPeriodOfInterest'] = date_diff(date_create($partiesinfo['promiseOfPayment_output']), date_create($core->input['est_local_pay']));
+                }
                 $data['localPeriodOfInterest'] = $data['localPeriodOfInterest']->format("%r%a");
                 if($data['localPeriodOfInterest'] < 0) {
                     $data['localPeriodOfInterest'] = 0;
@@ -1074,8 +1149,10 @@ else {
             }
         }
         else if($purchaseype->isPurchasedByEndUser == 1) {
+            $localinvoicevalue_usd = $core->input['localinvoicevalue_usd'];
+
             if($localinvoicevalue_usd != 0) {
-                $intermedmargin_perc = $intermedmargin / $localinvoicevalue_usd;
+                $intermedmargin_perc = ($intermedmargin / $localinvoicevalue_usd) * 100;
             }
             else {
                 $intermedmargin_perc = '-';
@@ -1104,11 +1181,12 @@ else {
             if(isset($core->input['commFromIntermed']) && !empty($core->input['commFromIntermed'])) {
                 $thirdparty_title = $lang->local;
                 $thirdparty = $affiliate->get_displayname();
-                $invoicevalue_thirdparty = ($core->input['commFromIntermed'] / 100) * $invoicevalueintermed;
-                $invoicevalue_thirdparty_usd = $invoicevalue_thirdparty * $core->input['exchangeRateToUSD'];
+                $invoicevalue_thirdparty = ($core->input['commFromIntermed'] / 100) * $intermedmargin;
+                $invoicevalue_thirdparty_usd = $invoicevalue_thirdparty; //* $core->input['exchangeRateToUSD'];
                 $haveThirdParty = 1;
             }
         }
+        $intermedmarginafterreduction = $intermedmargin - $invoicevalue_thirdparty_usd;
         $data = array(
                 'ordersummary_col1_title' => $firstpart_title,
                 'ordersummary_col2_title' => $secondparty_title,
@@ -1117,7 +1195,7 @@ else {
                 'ordersummary_2ndparty' => $secondparty,
                 'ordersummary_3rdparty' => $thirdparty,
                 'ordersummary_totalquantityperuom' => $quantityperuom,
-                'ordersummary_totalquantity' => $summedqty,
+                //'ordersummary_totalquantity' => $summedqty,
                 'ordersummary_totalfeesperunit' => $feeperunit_array,
                 'ordersummary_totalfees' => $summedfees,
                 'ordersummary_totalintermedfeesperunit_usd' => $feeperunit_usdarray,
@@ -1137,6 +1215,7 @@ else {
                 'ordersummary_netmargin_intermedperc' => round($intermedmargin_perc, 2),
                 'ordersummary_totalamount' => round($core->input['totalamount'], 2),
                 'haveThirdParty' => $haveThirdParty,
+                'ordersummary_netmargin_intermedafterdeduction' => round($intermedmarginafterreduction, 2),
         );
         echo json_encode($data);
     }
@@ -1148,12 +1227,20 @@ else {
                 output($lang->nopolicy);
                 exit;
             }
-            $defaultintermedfields = array('defaultCurrency', 'defaultIntermed', 'defaultIncoterms', 'defaultPaymentTerm');
+
+            $purchasetype = PurchaseTypes::get_data(array('ptid' => $core->input['ptid']));
+            $defaultintermedfields = array('defaultIntermed', 'defaultIncoterms', 'defaultPaymentTerm');
             foreach($defaultintermedfields as $defaultintermedfields) {
                 if(empty($affpolicy->$defaultintermedfields)) {
                     $affpolicy->$defaultintermedfields = 0;
                 }
+                if(is_object($purchasetype)) {
+                    if($purchasetype->needsIntermediary == 0) {
+                        $affpolicy->$defaultintermedfields = 0;
+                    }
+                }
             }
+
             $defaultaffpolicy = array('currencies' => $affpolicy->defaultCurrency,
                     'partiesinfo_intermed_aff' => $affpolicy->defaultIntermed,
                     'partiesinfo_intermed_incoterms' => $affpolicy->defaultIncoterms,
@@ -1167,12 +1254,13 @@ else {
             $data['affid'] = $core->input['affid'];
             $data['orderType'] = $core->input['ptid'];
             $data['orderreference'] = $core->input['orderreference'];
+            $data['intermedAff'] = $core->input['intermedAff'];
             if(isset($core->input['aroBusinessManager']) && !empty($core->input['aroBusinessManager'])) {
                 $data['aroBusinessManager'] = $core->input['aroBusinessManager'];
             }
             $arorequest = new AroRequests();
             $arorequest->set($data);
-            $aroapprovalchain = $arorequest->generate_approvalchain(null, array('aroBusinessManager' => $data['aroBusinessManager']));
+            $aroapprovalchain = $arorequest->generate_approvalchain(null, array('aroBusinessManager' => $data['aroBusinessManager']), $data['intermedAff']);
             if(is_array($aroapprovalchain)) {
                 foreach($aroapprovalchain as $key => $val) {
                     switch($key) {
@@ -1208,6 +1296,9 @@ else {
                             break;
                         case 'reportsTo':
                             $position = 'Reports To';
+                            break;
+                        case 'commercialManager':
+                            $position = 'Commercial Manager';
                             break;
                     }
                     //   if($key != 'businessManager') {
@@ -1280,10 +1371,17 @@ else {
                     $aroaffiliate_obj = new Affiliates($arorequest->affid);
                     $purchasteype_obj = PurchaseTypes::get_data(array('ptid' => $arorequest->orderType));
                     $createdby_obj = Users::get_data(array('uid' => $arorequest->createdBy));
+                    $to[] = $createdby_obj->email;
+                    if(isset($arorequest->aroBusinessManager) && !empty($arorequest->aroBusinessManager)) {
+                        $bm = Users::get_data(array('uid' => $arorequest->aroBusinessManager));
+                        if(is_object($bm)) {
+                            $to[] = $bm->email;
+                        }
+                    }
                     if(is_object($createdby_obj) && !($arorequest->is_approved())) {
                         $email_data = array(
                                 'from' => 'ocos@orkila.com',
-                                'to' => $createdby_obj->email,
+                                'to' => $to,
                                 'subject' => "ARO [".$arorequest->orderReference."] Approval Status",
                                 'message' => "Aro Request [".$arorequest->orderReference."] ".$aroaffiliate_obj->get_displayname()." ".$purchasteype_obj->get_displayname()." was approved by ".$user->get_displayname()
                         );
@@ -1368,11 +1466,13 @@ else {
         if(is_object($purcasetype) && $purcasetype->needsIntermediary == 1) {
             $totalcomm = $core->input['totalcommision'];
             $comm = $core->input['defaultcomm'];
+            //if($core->input['priceIncludesComm'] == 1) {
             if($core->input['totalcommision'] < 250) {
                 if(!empty($core->input['totalamount']) && $core->input['totalamount'] != 0) {
                     $comm = (250 * 100 ) / $core->input['totalamount'];
                 }
             }
+            // }
         }
         if(isset($core->input['totalDiscount']) && !empty($core->input['totalDiscount'])) {
             $comm = $core->input['defaultcomm'] - $core->input['totalDiscount'];

@@ -27,7 +27,7 @@ class Affiliates {
     private function read($id, $simple = TRUE) {
         global $db;
 
-        $query_select = 'affid, name,alias, legalName, country, city, integrationOBOrgId, mainCurrency, isIntReinvoiceAffiliate,generalManager,finManager,cfo,coo,globalPurchaseManager,regionalSupervisor,supervisor,logisticsManager,globalFinManager';
+        $query_select = 'affid, name,alias, legalName, country, city, integrationOBOrgId, mainCurrency, isIntReinvoiceAffiliate,generalManager,finManager,cfo,coo,globalPurchaseManager,regionalSupervisor,supervisor,logisticsManager,globalFinManager,commercialManager';
         if($simple == false) {
             $query_select = '*';
         }
@@ -105,11 +105,11 @@ class Affiliates {
         }
         /* On purpose outside the is_array */
         if(!isset($options['allusers']) || $options['allusers'] === false) {
-            $query_where_add .= ' AND u.gid!=7';
+            $query_where_add .= ' AND u.gid !=7';
         }
 
         if(!empty($options['customfilter'])) {
-            $query_where_add .= ' AND '.$options['customfilter'];
+            $query_where_add .= ' AND  '.$options['customfilter'];
         }
         $sql = "SELECT DISTINCT(u.uid)
 					FROM ".Tprefix."users u
@@ -313,7 +313,7 @@ class Affiliates {
         if(empty($this->affiliate['commercialManager'])) {
             return false;
         }
-        return new Users($this->affiliate['coo']);
+        return new Users($this->affiliate['commercialManager']);
     }
 
     public function get_cfo() {
@@ -326,6 +326,24 @@ class Affiliates {
     public function get_column($columnname, $filters = null, array $configs = array()) {
         $data = new DataAccessLayer(__CLASS__, self::TABLE_NAME, self::PRIMARY_KEY);
         return $data->get_column($columnname, $filters, $configs);
+    }
+
+    public function has_attendancerecords() {
+        global $db;
+        $affiliateusers = $this->get_users(array('ismain' => 1));
+        if(is_array($affiliateusers)) {
+            foreach($affiliateusers as $user) {
+                $query = $db->query('SELECT COUNT(aarid) as count  FROM '.Tprefix.'attendance_attrecords WHERE uid = '.$user['uid']);
+                if($db->num_rows($query) > 0) {
+                    while($count = $db->fetch_assoc($query)) {
+                        if(intval($count['count']) > 0) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
     }
 
 }

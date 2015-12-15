@@ -87,12 +87,26 @@ if(!$core->input['action']) {
             $surveys_responses = $newsurvey->get_survey_distinct_responses('', array('sortby' => $core->input['sorbtby'], 'order' => $core->input['order']));
 
             if(is_array($surveys_responses)) {
+                if($survey['isQuiz'] == 1) {
+                    $passedheader = '<th>'.$lang->result.'<a href="'.$sort_url.'&amp;sortby=isQuiz&amp;order=ASC"><img src="./images/sort_asc.gif" border="0" alt="'.$lang->sortasc.'"/></a><a href="'.$sort_url.'&amp;sortby=isQuiz&amp;order=DESC"><img src="./images/sort_desc.gif" border="0" alt="'.$lang->sortdesc.'"/></a></th>';
+                    $passedheader.= '<th>'.$lang->score.'</th>';
+                }
                 foreach($surveys_responses as $response) {
                     $rowclass = alt_row($rowclass);
                     $response['time_output'] = date($core->settings['dateformat'].' '.$core->settings['timeformat'], $response['time']);
                     if($survey['anonymousFilling'] == 1) {
                         $response['respondant'] = ' - ';
                         $response['uid'] = '';
+                    }
+                    if($survey['isQuiz'] == 1) {
+                        $textcolor = 'red';
+                        $qresult = $lang->failed;
+                        if($response['passed'] == 1) {
+                            $qresult = $lang->passed;
+                            $textcolor = 'green';
+                        }
+                        $passedcolumns = '<td><span style="color:'.$textcolor.'">'.$qresult.'</span></td>';
+                        $passedcolumns .= '<td>'.$response['score'].'/'.$response['total'].'</td>';
                     }
 
                     eval("\$responses_rows .= \"".$template->get('surveys_results_responses_row')."\";");

@@ -12,6 +12,7 @@
         <input type='hidden' value='{$forecastline[pid]}' id='product_noexception_{$rowid}_id' name='forecastline[{$currentyear}][$rowid][pid]' />
         <input type='hidden' value='{$forecastline[pid]}' id="forecastline_nextyear_{$rowid}_pid" name='forecastline[{$nextyear}][$rowid][pid]' />
         <div id='searchQuickResults_product_{$rowid}' class='searchQuickResults' style='display:none;'></div>
+        <input type="hidden" value="{$forecastline['psid']}" name="forecastline[{$nextyear}][{$rowid}][psid]" id="forecastline_nextyear_{$rowid}_psid"/>
         {$segments_selectlist}
     </td>
     <td>{$saletype_selectlist}<input type="hidden" value="{$defaultselected}" name="forecastline[{$nextyear}][{$rowid}][saleType]" id="forecastline_nextyear_{$rowid}_saleType"/></td>

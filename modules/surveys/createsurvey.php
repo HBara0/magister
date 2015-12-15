@@ -134,7 +134,7 @@ if(!$core->input['action']) {
             eval("\$invitations_rows .= \"".$template->get('surveys_createsurvey_invitationrows')."\";");
         }
     }
-
+    eval("\$defaultmsg = \"".$template->get('surveys_createsurvey_invitationlayout_body')."\";");
     /* Parse Invitations Section - START */
     eval("\$createsurvey = \"".$template->get('surveys_createsurvey')."\";");
     output_page($createsurvey);
@@ -163,6 +163,9 @@ else {
             case 5:
                 header('Content-type: text/xml+xhtml');
                 output_xml("<status>false</status><message><![CDATA[ ".$errorhandler->get_errors_inline()." ]]></message>");
+                break;
+            case 6:
+                output_xml("<status>false</status><message>{$lang->wrongemailformat}</message>");
                 break;
         }
     }

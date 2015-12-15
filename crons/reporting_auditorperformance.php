@@ -21,8 +21,6 @@ if($_REQUEST['authkey'] == 'kia5ravb$op09dj4a!xhegalhj') {
     else {
         $quarter['quarter'] --;
     }
-    $outputmessage = '<div style="width:100%;text-align:center"><h1 style="color: #91b64f;font-weight: 100;">Quarterly Report Auditors Performance Report : Q'.$quarter['quarter'].'/'.$quarter['year'].'</h1></div><br />';
-    $outputmessage.='<div><h3 style="color: #91b64f;font-weight: 100;">'.$lang->auditorscoreexplanation.'</h3></div>';
     if(is_array($data)) {
         foreach($data as $uid => $coordata) {
             $totalreports = 0;
@@ -60,7 +58,7 @@ if($_REQUEST['authkey'] == 'kia5ravb$op09dj4a!xhegalhj') {
                                             }
                                         }
                                         $offset_output = round($offset / 60 / 60 / 24);
-                                        $listitems_unfin .= '<tr><td style="text-align:center"><span style="font-family:bold;color:'.$color.'">'.$symbol.'</span>'.$affiliate->get_displayname().' </td><td> '.$linestatus.' '.$offset_output.' days</td></tr>';
+                                        $listitems_unfin .= '<tr><td style="text-align:left;"><span style="font-family:bold;color:'.$color.'">'.$symbol.'</span>'.$affiliate->get_displayname().' </td><td> '.$linestatus.' '.$offset_output.' days</td></tr>';
                                     }
                                     else {
                                         $color = 'green';
@@ -83,7 +81,7 @@ if($_REQUEST['authkey'] == 'kia5ravb$op09dj4a!xhegalhj') {
                                             $offset = -$offset;
                                         }
                                         $offset_output = round($offset / 60 / 60 / 24);
-                                        $listitems_fin .= '<tr><td style="text-align:center"><span style="font-family:bold;color:'.$color.'">'.$symbol.'</span>'.$affiliate->get_displayname().' </td><td> '.$linestatus.' '.$offset_output.' days</td></tr>';
+                                        $listitems_fin .= '<tr><td style="text-align:left;"><span style="font-family:bold;color:'.$color.'">'.$symbol.'</span>'.$affiliate->get_displayname().' </td><td> '.$linestatus.' '.$offset_output.' days</td></tr>';
                                     }
                                     unset($offset_output, $linestatus);
                                 }
@@ -107,7 +105,7 @@ if($_REQUEST['authkey'] == 'kia5ravb$op09dj4a!xhegalhj') {
                             $supstatus = 'Finalized And Sent On Time';
                             $backcolor = 'green';
                         }
-                        $supplieroutput .= '<tr><th style="border-left: 1px solid black;float:right;width:75%;background-color:'.$backcolor.';color:#f8ffcc"> '.$supplier->get_displayname().'</th><td style="border: 1px solid #CCC;width:75%;background-color:'.$backcolor.';color:#f8ffcc"> '.$supstatus.'</div></td></tr>';
+                        $supplieroutput .= '<tr><th style="border-left: 1px solid black;float:right;width:100%;background-color:'.$backcolor.';color:#f8ffcc"> '.$supplier->get_displayname().'</th><td style="border: 1px solid #CCC;width:100%;background-color:'.$backcolor.';color:#f8ffcc"> '.$supstatus.'</div></td></tr>';
                         $supplieroutput .= $suppoutput;
                     }
                     unset($supplier, $backcolor, $suppoutput, $supstatus, $listitems_unfin, $listitems_fin);
@@ -137,14 +135,14 @@ if($_REQUEST['authkey'] == 'kia5ravb$op09dj4a!xhegalhj') {
             if($avgscore < 3) {
                 $avg_color = '#F04122';
             }
-            $outputmessage_res.= '<table style="border-collapse: collapse;border-spacing: 0; " width="75%" align="center" ><thead ><tr style="border:1px solid black;"><th style="height:30px;color: white;background-color:'.$avg_color
+            $outputmessage_res.= '<table style="border-collapse: collapse;border-spacing: 0; " width="100%" align="center" ><thead ><tr style="border:1px solid black;"><th style="height:30px;color: white;background-color:'.$avg_color
                     .';text-align:left" width="60%">'.$coord_obj->get_displayname().'</th><th style="color: white;background-color: '.$avg_color
                     .';"><span style=" font-size:25%;  vertical-align: baseline; border-radius: .20em; white-space: nowrap;font-weight: 700;padding: .2em .4em '
                     .'.3em;height:15px;font-size: 15px;color:'.$avg_color.'; background-color: #f8ffcc;text-align: center">'.$avgscore
                     .'</span> / 5</th></tr></thead>';
             $outputmessage_res.='<tr style="border:1px solid black;"><td>Unfinalized And Late</td><td style="border:1px solid black;">'.$auditorstatus_un
                     .'</td></tr><tr style="border:1px solid black;"><td>Sent Late </td><td style="border:1px solid black;">'.$auditorstatus_fin.'</td></tr><tr style="border:1px solid black;border-bottom: 2px double black;"><td>Sent On Time</td><td style="border:1px solid black;"> '.($totalreports - $auditorstatus_un - $auditorstatus_fin).' </td></tr><tr style="border:1px solid black;border-bottom: 2px double black"><td> '.$lang->totalreports.'</td><td style="border:1px solid black;"> '.$totalreports.' </td></tr>';
-            $outputmessage_tot.= '<table style="border-collapse: collapse;border-spacing: 0; " width="75%" align="center" ><thead ><tr style="border:1px solid black;"><th style="height:30px;color: white;background-color:'.$avg_color
+            $outputmessage_tot.= '<table style="border-collapse: collapse;border-spacing: 0; " width="100%" align="center" ><thead ><tr style="border:1px solid black;"><th style="height:30px;color: white;background-color:'.$avg_color
                     .';text-align:left" width="60%">'.$coord_obj->get_displayname().'</th><th style="color: white;background-color: '.$avg_color
                     .';"><span style=" font-size:25%;  vertical-align: baseline; border-radius: .20em; white-space: nowrap;font-weight: 700;padding: .2em .4em '
                     .'.3em;height:15px;font-size: 15px;color:'.$avg_color.'; background-color: #f8ffcc;text-align: center">'.$avgscore
@@ -155,10 +153,13 @@ if($_REQUEST['authkey'] == 'kia5ravb$op09dj4a!xhegalhj') {
             unset($supplieroutput, $avg_color, $avgscore, $totalundone);
         }
     }
-    $outputmessage .= '<h2 style="width:100%;text-align:center;color: #91b64f;font-weight: 100;">'.$lang->summary.'</h2>'.$outputmessage_res.'<hr><h2 style="width:100%;text-align:center;color: #91b64f;font-weight: 100;">'.$lang->detailedsection.'</h2>'.$outputmessage_tot.'<html>
-    <head>
-   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    </head><body>'.$outputmessage.'</body></html>';
+    $outputmessage = '<div style="width:100%;text-align:center"><h1 style="color: #91b64f;font-weight: 100;">Quarterly Report Auditors Performance Report : Q'.$quarter['quarter'].'/'.$quarter['year'].'</h1></div><br />';
+    $outputmessage.='<div><h3 style="color: #91b64f;font-weight: 100;">'.$lang->auditorscoreexplanation.'</h3></div>';
+    $outputmessage .= '<h2 style="width:100%;text-align:center;color: #91b64f;font-weight: 100;">'.$lang->summary.'</h2>'.$outputmessage_res.'<hr><h2 style="width:100%;text-align:center;color: #91b64f;font-weight: 100;">'.$lang->detailedsection.'</h2>'.$outputmessage_tot;
+    $outputmessage = '<html>
+<head>
+<meta http-equiv = "Content-Type" content = "text/html; charset=UTF-8" />
+</head><body>'.$outputmessage.'</body></html>';
     $email_data = array(
             'to' => 'christophe.sacy@orkila.com ',
             'from_email' => $core->settings['adminemail'],
@@ -167,6 +168,6 @@ if($_REQUEST['authkey'] == 'kia5ravb$op09dj4a!xhegalhj') {
             'message' => $outputmessage
     );
 
-//print($outputmessage);
-    $mail = new Mailer($email_data, 'php');
+    print($outputmessage);
+    //$mail = new Mailer($email_data, 'php');
 }

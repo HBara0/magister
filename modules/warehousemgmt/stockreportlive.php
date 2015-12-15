@@ -162,7 +162,6 @@ else {
         $integration->set_sync_interval($report_period);
         $inputs = $integration->get_fifoinputs(array($orgid), array('hasqty' => true));
         if(!empty($inputs)) {
-
             $fxrates['usd'] = $currency_obj->get_latest_fxrate($affiliate['currency']);
 
             foreach($configs as $report => $config) {
@@ -1112,13 +1111,13 @@ else {
                 19 => array(398, 356),
                 22 => array(248, 246, 287, 270, 356, 63),
                 23 => array('zadok.oppong-boahene', 'courage.dzandu', 416, 321, 'tarek.chalhoub', 63, 356),
-                1 => array(12, 333, 182, 43, 356),
+                1 => array(356), //12, 333, 182, 43,
                 21 => array(63, 158, 'patrice.mossan', 'marcelle.nklo', 'abel.laho', 'boulongo.diata', 356, 'kenan.amjeh'),
                 27 => array(12, 333, 68, 67, 342, 30, 356),
                 20 => array('michel.mbengue', 'samba.kandji', 'ansou.dabo', 'fatimatou.diallo', 356),
                 11 => array(323, 108, 186, 335, 184, 111, 109, 280, 326, 295, 289, 187, 112, 113, 312, 107, 356, 63),
                 2 => array('amal.dababneh', 34),
-                7 => array(333)
+                7 => array(434)
         );
 
         $recipients[] = $affiliateobj->get_generalmanager()->email;
@@ -1186,6 +1185,7 @@ else {
                 $stockreportpage['content'] .= '<a href="index.php?reporttype=email&amp;'.http_build_query($core->input).'"><button class="button">Send by email</button></a>';
             }
             if($core->input['referrer'] != 'generate_budgetpresntation') {
+                $page['content'] = $stockreportpage['content'].'<br/>'.$stockpermonthofsale_output;
                 eval("\$report = \"".$template->get('general_container')."\";");
                 output_page($report);
             }

@@ -111,7 +111,7 @@ else {
             remove_unauthorized_selections($core->input['cid'], $core->user['customers']);
         }
 
-        if($core->input['showBy'] != '1') {
+        if($core->input['showBy'] != '1' && is_array($core->input['cid'])) {
             $extra_where = " AND cid IN (".implode(',', $core->input['cid']).")";
         }
 
@@ -119,7 +119,7 @@ else {
             remove_unauthorized_selections($core->input['spid'], $core->user['suppliers']['eid']);
         }
 
-        if($core->input['showBy'] != '2') {
+        if($core->input['showBy'] != '2' && is_array($core->input['spid'])) {
             $extra_where .= " AND vrs.spid IN (".implode(',', $core->input['spid']).")";
         }
 
@@ -136,7 +136,7 @@ else {
                 $extra_where .= ' AND vr.uid IN ('.$inuid.')';
             }
             else {
-                if($core->input['showBy'] != '3') {
+                if($core->input['showBy'] != '3' && is_array($core->input['uid'])) {
                     $extra_where .= ' AND vr.uid IN ('.implode(',', $core->input['uid']).')';
                 }
             }

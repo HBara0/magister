@@ -107,22 +107,25 @@ class AroRequestsMessages extends AbstractClass {
         $lang->load('aro_meta');
         $mailer = new Mailer();
         $mailer = $mailer->get_mailerobj();
-        $mailer->set_from(array('name' => $core->user['displayName'], 'email' => $core->user['email']));
+        $mailer->set_from(array('name' => $core->user['displayName'], 'email' => $core->settings['maileremail']));
 
         $arorequest = AroRequests::get_data(array('aorid' => $this->data['aorid']), array('simple' => false));
 
         if(is_object($arorequest)) {
             // $reply_links = DOMAIN.'/index.php?module=aro/managearodouments&action=takeactionpage&requestKey='.base64_encode($arorequest->get()['identifier']).'&inreplyTo='.$this->data['inReplyTo'].'&id='.base64_encode($arorequest->get()['aorid']);
-            $reply_links = DOMAIN."/index.php?module=aro/managearodouments&id=".$arorequest->get()['aorid'].'#message';
-            $view_link = DOMAIN."/index.php?module=aro/managearodouments&id=".$arorequest->get()['aorid'];
+            $reply_links = DOMAIN."/index.php?module=aro/managearodouments&referrer=toapprove&id=".$arorequest->get()['aorid'].'#message';
+            $view_link = DOMAIN."/index.php?module=aro/managearodouments&referrer=toapprove&id=".$arorequest->get()['aorid'];
         }
         $mailer->set_subject($lang->newrequestmsgsubject.' ['.$arorequest->orderReference.']');
+
 
         $emailreceivers = $this->get_emailreceivers();
         if(is_array($emailreceivers)) {
             foreach($emailreceivers as $uid => $emailreceiver) {
-                $message = '<a href="'.$view_link.'">'.$lang->clicktoviewaro.'</a><br/>'.$this->data['message'].' | <a href="'.$reply_links.'">&#x21b6; '.$lang->reply.'</a><br/>';
+                $message = 'Time elapsed since finalization '.$arorequest->get_timelapsed().'<br/>';
                 $message .= '<h1>'.$lang->conversation.'</h1>'.$arorequest->parse_messages(array('viewmode' => 'textonly', 'uid' => $uid));
+                $message .= '<a href="'.$view_link.'">'.$lang->clicktoviewaro.'</a><br/>'.$this->data['message'].' | <a href="'.$reply_links.'">&#x21b6; '.$lang->reply.'</a><br/>';
+
                 if(!empty($message)) {
                     $mailer->set_message($message);
                     $mailer->set_to($emailreceiver);
@@ -196,8 +199,8 @@ class AroRequestsMessages extends AbstractClass {
         switch($this->data['viewPermission']) {
             case 'public':
                 $arorequest_obj = new AroRequests($this->data['aorid']);
-                $lastapproval = $arorequest_obj->get_lastapproval();
-                $sender_approval_seq = 0;
+                $lastapproval = $arorequest_obj->get_lastnotified(); //get_lastapproval
+                $sender_approval_seq = 1;
                 if(is_object($lastapproval)) {
                     $sender_approval_seq = $lastapproval->sequence;
                 }

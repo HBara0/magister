@@ -62,7 +62,7 @@ class TravelManagerPlanTransps extends AbstractClass {
         global $db, $core;
         /* Specify transportation categories As isMain (if suggested by the system) */
 
-        $valid_attrs = array('tmpsid', 'tmtcid', 'fare', 'vehicleNumber', 'flightNumber', 'transpDetails', 'paidBy', 'paidById', 'transpType', 'isUserSuggested', 'inputChecksum', 'currency', 'seatingDescription', 'isRoundTrip', 'stopDescription', 'class', 'isMinCost');
+        $valid_attrs = array('tmpsid', 'tmtcid', 'fare', 'vehicleNumber', 'companyName', 'flightNumber', 'transpDetails', 'paidBy', 'paidById', 'transpType', 'isUserSuggested', 'inputChecksum', 'currency', 'seatingDescription', 'isRoundTrip', 'stopDescription', 'class', 'isMinCost');
         $valid_attrs = array_combine($valid_attrs, $valid_attrs);
         $data = array_intersect_key($data, $valid_attrs);
         if(empty($data['isMinCost'])) {
@@ -101,6 +101,7 @@ class TravelManagerPlanTransps extends AbstractClass {
                 'seatingDescription' => $transportdata['seatingDescription'],
                 'isRoundTrip' => $transportdata['isRoundTrip'],
                 'isMinCost' => $transportdata['isMinCost'],
+                'companyName' => $transportdata['companyName'],
                 'stopDescription' => $transportdata['stopDescription'],
                 'class' => $transportdata['class']
         );

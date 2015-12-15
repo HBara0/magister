@@ -679,6 +679,7 @@ function parse_toinform_list($uid = '', $checked = '', $leavetype_details = arra
 
 function parse_attendance_reports($core, $headerinc = '', $header = '', $menu = '', $footer = '') {
     global $db, $template, $log, $lang;
+    $cache = new Cache;
     if(!$core->input['output'] == 'email') {
         if(is_empty($core->input['fromDate'], $core->input['uid'])) {
             error($lang->invalidtodate, 'index.php?module=attendance/generatereport', false);
@@ -714,6 +715,29 @@ function parse_attendance_reports($core, $headerinc = '', $header = '', $menu = 
         $user_obj = new Users($uid);
         $attending_days = $total_days = $weekends = 0;
         if(is_object($user_obj)) {
+            if($user_obj->gid == 7) {
+                continue;
+            }
+
+            $user_affiliate = $user_obj->get_mainaffiliate();
+            if(!is_object($user_affiliate) || empty($user_affiliate->affid)) {
+                continue;
+            }
+            if($cache->incache('norecordsaffiliates', $user_affiliate->affid)) {
+                continue;
+            }
+            else {
+                if(!$cache->incache('affiliateshasrecords', $user_affiliate->affid)) {
+                    $affhasrecords = $user_affiliate->has_attendancerecords();
+                    if($affhasrecords) {
+                        $cache->add('affiliateshasrecords', $user_affiliate->affid);
+                    }
+                    else {
+                        $cache->add('norecordsaffiliates', $user_affiliate->affid);
+                        continue;
+                    }
+                }
+            }
             $currentdate = $fromdate;
             $fromdate_details = getdate($fromdate);
             $currentdate_details = getdate($currentdate);
@@ -734,7 +758,10 @@ function parse_attendance_reports($core, $headerinc = '', $header = '', $menu = 
         $holiday_todate_details = $todate_details;
 
         /* If multiple years, make end month as 12 to include all */
-        $holidays_query_where = ' AND ('.parse_holidayswhere($fromdate_details, $todate_details).') ';
+        $holidays_query_where = parse_holidayswhere($fromdate_details, $todate_details);
+        if(!empty($holidays_query_where)) {
+            $holidays_query_where = ' AND ('.$holidays_query_where.') ';
+        }
         if(!empty($core->user['mainaffiliate'])) {
             $holiday_query = $db->query("SELECT *
                                         FROM ".Tprefix."holidays
@@ -1398,11 +1425,20 @@ function parse_attendance_reports($core, $headerinc = '', $header = '', $menu = 
         eval("\$generatepage = \"".$template->get('attendance_report')."\";");
     }
     if($core->input['output'] == 'email') {
+        $message = "
+          <h1>{$lang->attendancelog}
+                <small><br />{$lang->fromdate} {$report[fromdate_output]} {$lang->todate} {$report[todate_output]}</small>
+            </h1>
+            <span> < : {$lang->arrivearly} | > : {$lang->leavelater} | <> : {$lang->earlyandlate} | H: {$lang->holiday} | W/E : {$lang->weekend} | L : {$lang->leave} | UL : {$lang->unpaidleave}</span>
+            </hr>
+            <div>
+                {$output}
+            </div>";
         $email_data = array(
                 'from_email' => $core->settings['maileremail'],
                 'from' => 'OCOS Mailer',
                 'subject' => 'Monthly Attendance Log',
-                'message' => $output,
+                'message' => $message,
                 'to' => $core->input['emailto'],
         );
 
@@ -1529,4 +1565,75 @@ function operation_time_value($seconds) {
         return $ret;
     }
 }
+
+function reinitialize_balance($user, $type, $prevbalance = null) {
+    global $db;
+    $affiliate = $user->get_mainaffiliate();
+    /* Temporary specific fix for time zone */
+    date_default_timezone_set($affiliate->get_country()->defaultTimeZone);
+
+    $hr_info = $user->get_hrinfo();
+    if(empty($hr_info['joinDate'])) {
+        return;
+    }
+
+    $leaves_objs = Leaves::get_data('uid='.$user->uid.' AND (type='.intval($type).' OR type IN (SELECT ltid FROM leavetypes WHERE countWith='.intval($type).'))', array('order' => array('by' => 'fromDate', 'sort' => 'ASC'), 'returnarray' => true));
+    if(is_array($leaves_objs)) {
+        foreach($leaves_objs as $leave) {
+            //$existing_stats = LeavesStats::get_data('uid='.$user->uid.' AND ltid='.$leave->get_type()->ltid.' AND (('.$leave->fromDate.' BETWEEN periodStart AND periodEnd) OR ('.$leave->toDate.' BETWEEN periodStart AND periodEnd))', array('returnarray' => true));
+            //if(!is_array($existing_stats)) {
+            if(!$leave->is_approved()) {
+                continue;
+            }
+            $leaves[$leave->lid] = $leave->get();
+            // }
+        }
+    }
+
+    $existing_stats = LeavesStats::get_data(array('uid' => $user->get_id(), 'ltid' => $type), array('returnarray' => true));
+    if(is_array($existing_stats)) {
+        foreach($existing_stats as $existing_stat) {
+            $existing_stat->delete();
+        }
+    }
+    if(is_array($leaves)) {
+        $db->update_query(AttendanceAddDays::TABLE_NAME, array('isCounted' => 0), 'uid='.$user->get_id());
+        $prevbalanceset = false;
+        foreach($leaves as $leave) {
+            $stat = new LeavesStats();
+            $stat->generate_periodbased($leave);
+            /* Update the first stat with prev balance */
+            if($prevbalanceset == false) {
+                $existing_stat = LeavesStats::get_data(array('uid' => $user->get_id(), 'ltid' => $type), array('order' => array('sort' => 'ASC', 'by' => 'periodStart'), 'limit' => '0, 1'));
+                if(is_object($existing_stat)) {
+                    $leavepolicy = AffiliatesLeavesPolicies::get_data(array('affid' => $affiliate->affid, 'ltid' => $leavetype->ltid));
+                    if(is_object($leavepolicy)) {
+                        if(!empty($prevbalance)) {
+                            if($prevbalance > $leavepolicy->maxAccumulateDays) {
+                                $remainprevyear = $prevbalance - $leavepolicy->maxAccumulateDays;
+                            }
+                            else {
+                                $remainprevyear = $prevbalance;
+                            }
+
+                            $existing_stat->set(array('remainPrevYear' => $remainprevyear, 'canTake' => $existing_stat->canTake + $remainprevyear));
+                            $existing_stat->save();
+                            unset($remainprevyear);
+                        }
+                        $prevbalanceset = true;
+                    }
+                }
+            }
+
+            /* Count additional Days */
+            $adddays = AttendanceAddDays::get_data(array('uid' => $user->get_id(), 'isApproved' => 1, 'isCounted' => 0), array('simple' => false, 'returnarray' => true));
+            if(is_array($adddays)) {
+                foreach($adddays as $addday) {
+                    $addday->update_leavestats();
+                }
+            }
+        }
+    }
+}
+
 ?>

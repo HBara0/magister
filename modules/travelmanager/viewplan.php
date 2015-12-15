@@ -165,7 +165,20 @@ else {
         eval("\$leave_details = \"".$template->get('travelmanager_viewlpan_leavedtls')."\";");
 
         eval("\$travelmanager_viewplan = \"".$template->get('travelmanager_viewlpanemail')."\";");
-        $leave->create_approvalchain();
+        $approval_chain = $leave->has_approvalchain();
+        if($approval_chain) {
+            foreach($approval_chain as $approval) {
+                if($approval->isApproved == 1) {
+                    $approval_data = $approval->get();
+                    $approval_data['isApproved'] = 0;
+                    $approval_data['timeApproved'] = 0;
+                    $db->update_query(AttLeavesApproval::TABLE_NAME, array('isApproved' => 0, 'timeApproved' => 0), 'lid='.$leave->lid);
+                }
+            }
+        }
+        else {
+            $leave->create_approvalchain();
+        }
         $firstapprover = $leave->get_firstapprover()->get_user();
 
         $mailer = new Mailer();

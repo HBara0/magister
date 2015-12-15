@@ -8,7 +8,6 @@
         <script>
             rf.StandaloneDashboard(function(db) {
             {$livechart}{$drilldown}{$combinedsalesbudget}
-
                 var form = new FormComponent();
                 form.setDimensions(4, 3);
                 form.lock();
@@ -17,14 +16,15 @@
                     url: "index.php?module=crm/salesdashboard&action=get_affiliates",
                     success: function(data) {
                         var obj = JSON.parse(data)
-                        var obj = JSON.parse(data);
                         form.setCaption("Filter by Affiliate");
                         form.unlock();
                         form.addMultiSelectField('affiliate', 'Select Affiliate', obj.affiliates);
-
                         form.onApplyClick(function(params) {
                             var url = window.location.href;
                             if(url.indexOf('?') > -1) {
+                                if(url.lastIndexOf("&affs") > -1) {
+                                    url = url.substr(0, url.lastIndexOf("&affs"));
+                                }
                                 url += '&affs=' + params['affiliate']['text'];
                             } else {
                                 url += '?affs=' + params['affiliate']['text'];
@@ -39,14 +39,9 @@
                             //        chart3.unlock();
                             //    });
                         });
-
                     }
                 });
                 db.addComponent(form);
-
-
-
-
             });
         </script>
     </head>
