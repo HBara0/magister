@@ -66,7 +66,7 @@ if(!$core->input['action']) {
                         }
                     }
                     else {
-                        $views_outputs .= '<tr><th class="subtitle" colspan="3">'.$recepient['name'].' has not seen it</th></tr>';
+                        $views_outputs .= '<tr><th class="subtitle" colspan="3">'.$recepient['name'].' has not seen it (Sent on '.date($core->settings['dateformat'].' '.$core->settings['timeformat'], $recepient['sentOn']).')</th></tr>';
                     }
                     //				if(is_array($recepient['viewsvssent'])) {
                     //					$average_diff = array_sum($recepient['viewsvssent'])/count($recepient['viewsvssent']);
