@@ -191,7 +191,7 @@ if(!$core->input['action']) {
             $paidby_onchangeactions = 'if($(this).find(":selected").val()=="anotheraff"){$("#"+$(this).find(":selected").val()+"_otheraccomodations_'.$sequence.'_'.$otherhotel_checksum.'").effect("highlight",{ color: "#D6EAAC"}, 1500).find("input").first().focus().val("");}else{$("#anotheraff_otheraccomodations_'.$sequence.'_'.$otherhotel_checksum.'").hide();}';
 
             $paidbyoptions = parse_selectlist('segment['.$sequence.'][tmhid]['.$otherhotel_checksum.'][entites]', 5, $paidby_entities, $selectedhotel->paidBy, 0, $paidby_onchangeactions);
-
+            $hideforfirstime = 'style="display:none"';
             eval("\$otherhotels_output = \"".$template->get('travelmanager_plantrip_segment_otherhotels')."\";");
             eval("\$plansegmentscontent_output = \"".$template->get('travelmanager_plantrip_segmentcontents')."\";");
 
@@ -226,7 +226,6 @@ if(!$core->input['action']) {
 else {
     if($core->input['action'] == 'add_segment') {
         $querystring = array('leaveid' => $core->input['lid'], 'sequence' => $core->input['sequence'], 'toDate' => $core->input['toDate'], 'leavetoDatetime' => $core->input['leavetoDatetime'], 'destcity' => $core->input['destcity']);
-
         foreach($querystring as $key => $val) {
             $$key = $db->escape_string($val);
         }
@@ -426,7 +425,6 @@ else {
         $currencies_listf = parse_selectlist('segment['.$sequence.'][tmpfid]['.$frowid.'][currency]', 4, $currencies_f, $finance->currency, '', '', array("id" => 'segment_'.$sequence.'_tmpfid_'.$frowid.'_currency'));
         $finance_checksum = generate_checksum('finance');
         eval("\$finance_output = \"".$template->get('travelmanager_plantrip_segmentfinance')."\";");
-
         eval("\$otherhotels_output = \"".$template->get('travelmanager_plantrip_segment_otherhotels')."\";");
         eval("\$plansegmentscontent_output = \"".$template->get('travelmanager_plantrip_segmentcontents')."\";");
         output($plansegmentscontent_output);
@@ -475,6 +473,22 @@ else {
                         $url = 'index.php?module=travelmanager/viewplan&referrer=plantrip&id=';
                         header('Content-type: text/xml+javascript');
                         output_xml('<status>true</status><message><![CDATA[<script>goToURL(\''.$url.$travelplan->tmpid.'\');</script>]]></message>');
+                        exit;
+                    }
+                    else {
+                        if(is_array($core->input['segment'][$core->input['sequence']])) {
+                            $sequence = $core->input['sequence'];
+                            $segment = $core->input['segment'][$core->input['sequence']];
+                            if(is_array($segment['savesection'])) {
+                                foreach($segment['savesection'] as $section => $val) {
+                                    if($val == 1) {
+                                        $nextsection = 'section'.(intval(substr($section, -1)) + 1);
+                                        $shownextsection = '<script> $(function(){$("div[id=\'savingsection_'.$sequence.'_'.$nextsection.'\']").show();});</script>';
+                                    }
+                                }
+                            }
+                        }
+                        output_xml("<status>true</status><message>{$lang->successfullysaved}<![CDATA[{$shownextsection}]]></message>");
                         exit;
                     }
                     output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");

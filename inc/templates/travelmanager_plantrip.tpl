@@ -211,10 +211,13 @@
                 });
                 $(document).on('click', 'input[id^="noAccomodation_"]', function() {
                     var id = $(this).attr("id").split("_");
-                    $('#segment_hotels_' + id[1] + ', #other_hotels_' + id[1]).toggle('fade', 500);
-                    // if(!($('#segment_hotels_' + id[1] + ', #other_hotels_' + id[1])).is(':checked')) {
-                    //     $('#segment_hotels_' + id[1] + ', #other_hotels_' + id[1]).find('input').val("")
-                    // }
+                    if($(this).is(':checked')) {
+                        $('#segment_hotels_' + id[1] + ', #other_hotels_' + id[1]).find('input').val("");
+                        $('#segment_hotels_' + id[1] + ', #other_hotels_' + id[1]).hide();
+                    }
+                    else {
+                        $('#segment_hotels_' + id[1] + ', #other_hotels_' + id[1]).show();
+                    }
                 });
                 if($('input[id^="specifyaffent_"]').is(':checked')) {
                     var id = $('input[id^="specifyaffent_"]').attr("id").split("_");
@@ -268,6 +271,16 @@
                                 $("div[id='sectionresults_" + id[3] + "']").html($("div[id='perform_travelmanager/plantrip_Results']").html());
                             }
                         }, 1000);
+                    }
+                });
+                $(document).on('change', "select[id^='segment_tmtcid_'][id$='_othercategory']", function() {
+                    var id = $(this).attr('id').split("_");
+                    var value = $(this).find(':selected').val();
+                    if(value == 1 || value == 2) {
+                        $("div[id='segment_tmtcid_" + id[2] + "_" + id[3] + "_transpsextrafields']").show();
+                    }
+                    else {
+                        $("div[id='segment_tmtcid_" + id[2] + "_" + id[3] + "_transpsextrafields']").hide();
                     }
                 });
             });
@@ -480,7 +493,6 @@
                         }
                     });
                 });
-
                 var id = $(this).attr("id").split("_");
                 if(id[4] == 'currency') {
                     var currency_matched = false;

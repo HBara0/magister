@@ -1353,6 +1353,7 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
     }
 
     public function get_cost($referer = null) {
+        global $core;
         //$transaction = $this->get_transaction();
 //        if(is_array($transaction)) {
 //            $cost = 0;
@@ -1361,14 +1362,6 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
 //            }
 //            return $cost;
 //        }
-        if(!empty($referer) && $referer == 'salesreport') {
-            $transaction = $this->get_transaction();
-            if(is_object($transaction)) {
-                $transactioncost['cost'] = $transaction->transactioncost;
-                $transactioncost['currencyid'] = $transaction->get_currency()->iso_code;
-            }
-            return $transactioncost;
-        }
         return $this->get_transaction()->transactioncost;
     }
 
@@ -1674,12 +1667,17 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                                     }
                                 }
                                 unset($cdata['currentmonthdata']);
-                                $output .= '<tr style="'.$rowstyle.'"><td>#'.$rank.'</td>';
+
+
                                 if($classname == 'IntegrationOBUser') {
                                     $object = new $classname($id);
                                     if(!is_object($object) || empty($object->name) || $object->name == 'System') {
                                         $object->name = 'unspecified';
+                                        continue;
                                     }
+                                }
+                                $output .= '<tr style="'.$rowstyle.'"><td>#'.$rank.'</td>';
+                                if($classname == 'IntegrationOBUser' && is_object($object)) {
                                     $output .= '<td>'.$object->name.'</td>';
                                 }
                                 else {
@@ -1687,7 +1685,7 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                                 }
                                 if($tableindex == 'products') {
                                     $supplier_output = 'Unspecified';
-                                    $product = IntegrationOBProduct::get_data("name='".$id."'");
+                                    $product = IntegrationOBProduct::get_data("name='".$this->f_db->escape_string($id)."'");
                                     if(is_object($product)) {
                                         if(is_object($product->get_supplier())) {
                                             $supplier_output = $product->get_supplier()->get_displayname();
@@ -1714,17 +1712,18 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                             $rank++;
                         }
                         $output .= '</table><br/>';
-
+                        $label = $lang->$tableindex;
                         if($classname == 'IntegrationOBUser') {
-                            $topofthemonth_obj = new $object($topofthemonthid);
+                            $topofthemonth_obj = new $classname($topofthemonthid);
                             if(is_object($topofthemonth_obj)) {
                                 $topofthemonth_obj_name = $topofthemonth_obj->name;
                             }
                         }
                         else {
-                            $topofthemonth_obj_name = $id;
+                            $topofthemonth_obj_name = $topofthemonthid;
+                            $label = substr_replace($lang->$tableindex, '', -1);
                         }
-                        $topclassification_summary .='<div>Top '.substr_replace($lang->$tableindex, '', -1).' '.$lang->$classificationtype.' : <span style="font-weight:bold;">'.$topofthemonth_obj_name.'</span></div><br/>';
+                        $topclassification_summary .='<div>Top '.$label.' '.$lang->$classificationtype.' : <span style="font-weight:bold;">'.$topofthemonth_obj_name.'</span></div><br/>';
 
 
                         $output .='<div style="width:100%;"><h2>'.$lang->chart.' <small>(K Table Amounts )</small> </h2>';

@@ -110,73 +110,7 @@ else {
 
         foreach($users as $user) {
             unset($leaves);
-
-            $affiliate = $user->get_mainaffiliate();
-            /* Temporary specific fix for time zone */
-            date_default_timezone_set($affiliate->get_country()->defaultTimeZone);
-
-            $hr_info = $user->get_hrinfo();
-            if(empty($hr_info['joinDate'])) {
-                continue;
-            }
-
-            $leaves_objs = Leaves::get_data('uid='.$user->uid.' AND (type='.intval($core->input['type']).' OR type IN (SELECT ltid FROM leavetypes WHERE countWith='.intval($core->input['type']).'))', array('order' => array('by' => 'fromDate', 'sort' => 'ASC'), 'returnarray' => true));
-            if(is_array($leaves_objs)) {
-                foreach($leaves_objs as $leave) {
-                    //$existing_stats = LeavesStats::get_data('uid='.$user->uid.' AND ltid='.$leave->get_type()->ltid.' AND (('.$leave->fromDate.' BETWEEN periodStart AND periodEnd) OR ('.$leave->toDate.' BETWEEN periodStart AND periodEnd))', array('returnarray' => true));
-                    //if(!is_array($existing_stats)) {
-                    if(!$leave->is_approved()) {
-                        continue;
-                    }
-                    $leaves[$leave->lid] = $leave->get();
-                    // }
-                }
-            }
-
-            $existing_stats = LeavesStats::get_data(array('uid' => $user->get_id(), 'ltid' => $core->input['type']), array('returnarray' => true));
-            if(is_array($existing_stats)) {
-                foreach($existing_stats as $existing_stat) {
-                    $existing_stat->delete();
-                }
-            }
-            if(is_array($leaves)) {
-                $db->update_query(AttendanceAddDays::TABLE_NAME, array('isCounted' => 0), 'uid='.$user->get_id());
-                $prevbalanceset = false;
-                foreach($leaves as $leave) {
-                    $stat = new LeavesStats();
-                    $stat->generate_periodbased($leave);
-                    /* Update the first stat with prev balance */
-                    if($prevbalanceset == false) {
-                        $existing_stat = LeavesStats::get_data(array('uid' => $user->get_id(), 'ltid' => $core->input['type']), array('order' => array('sort' => 'ASC', 'by' => 'periodStart'), 'limit' => '0, 1'));
-                        if(is_object($existing_stat)) {
-                            $leavepolicy = AffiliatesLeavesPolicies::get_data(array('affid' => $affiliate->affid, 'ltid' => $leavetype->ltid));
-                            if(is_object($leavepolicy)) {
-                                if(!empty($core->input['prevBalance'][$user->get_id()])) {
-                                    if($core->input['prevBalance'][$user->get_id()] > $leavepolicy->maxAccumulateDays) {
-                                        $remainprevyear = $core->input['prevBalance'][$user->get_id()] - $leavepolicy->maxAccumulateDays;
-                                    }
-                                    else {
-                                        $remainprevyear = $core->input['prevBalance'][$user->get_id()];
-                                    }
-
-                                    $existing_stat->set(array('remainPrevYear' => $remainprevyear, 'canTake' => $existing_stat->canTake + $remainprevyear));
-                                    $existing_stat->save();
-                                    unset($remainprevyear);
-                                }
-                                $prevbalanceset = true;
-                            }
-                        }
-                    }
-
-                    /* Count additional Days */
-                    $adddays = AttendanceAddDays::get_data(array('uid' => $user->get_id(), 'isApproved' => 1, 'isCounted' => 0), array('simple' => false, 'returnarray' => true));
-                    if(is_array($adddays)) {
-                        foreach($adddays as $addday) {
-                            $addday->update_leavestats();
-                        }
-                    }
-                }
-            }
+            reinitialize_balance($user, $core->input['type'], $core->input['prevBalance'][$user->get_id()]);
         }
 
         redirect('index.php?module=attendance/leavesstats', 1, $lang->successfullysaved);

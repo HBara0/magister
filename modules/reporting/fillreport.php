@@ -854,6 +854,19 @@ else {
         }
         echo $suppliers_list;
     }
+    elseif($core->input['action'] == 'checkif_auditor') {
+        $spid = $db->escape_string($core->input['id']);
+        $supplier = new Entities(intval($spid));
+        if(is_object($supplier)) {
+            $isauditor = $supplier->is_auditor($core->user['uid']);
+            if($isauditor) {
+                echo('<script>$(function(){$(\'input[id="transFill"]\').prop("checked",true);});</script>');
+            }
+            else {
+                echo('<script>$(function(){$(\'input[id="transFill"]\').prop("checked",false);});</script>');
+            }
+        }
+    }
     elseif($core->input['action'] == 'get_quarters') {
         $spid = $db->escape_string($core->input['id']);
         $affid = $db->escape_string($core->input['affid']);
@@ -995,7 +1008,7 @@ else {
 //                    $log->record('deleteproductsactivity', $cachearr);
 //                }
 //            }
-            $update_status = $db->update_query('reports', array('prActivityAvailable' => 1), "rid='{$rid}'");
+            $update_status = $db->update_query('reports', array('modifiedOn' => TIME_NOW, 'modifiedBy' => $core->user['uid'], 'prActivityAvailable' => 1), "rid='{$rid}'");
             if($update_status) {
                 if($core->input['transfill'] != '1') {
                     record_contribution($rid);
@@ -1049,7 +1062,7 @@ else {
                     $db->delete_query('keycustomers', "kcid='{$val}'");
                 }
             }
-            $update_status = $db->update_query('reports', array('keyCustAvailable' => 1), "rid='{$rid}'");
+            $update_status = $db->update_query('reports', array('modifiedOn' => TIME_NOW, 'modifiedBy' => $core->user['uid'], 'keyCustAvailable' => 1), "rid='{$rid}'");
             if($update_status) {
                 $report_meta = unserialize($session->get_phpsession('reportmeta_'.$identifier));
                 if($report_meta['transFill'] != '1') {
@@ -1283,6 +1296,8 @@ else {
                 $new_status['status'] = 1;
                 $new_status['finishDate'] = TIME_NOW;
                 $new_status['uidFinish'] = $core->user['uid'];
+                $new_status ['modifiedOn'] = TIME_NOW;
+                $new_status ['modifiedBy'] = $core->user['uid'];
             }
             $output_message = $lang->savedsuccessfully;
             $process_success = 'true';
@@ -1606,7 +1621,9 @@ else {
                     'prActivityAvailable' => 1,
                     'keyCustAvailable' => 1,
                     'mktReportAvailable' => 1,
-                    'isLocked' => 1
+                    'isLocked' => 1,
+                    'modifiedOn' => TIME_NOW,
+                    'modifiedBy' => $core->user['uid'],
             );
         }
         else {
@@ -1632,6 +1649,10 @@ else {
                     record_contribution($report_meta['rid'], 1);
                 }
                 $log->record('finalizeqr', $report_meta['rid']);
+                $findata = array('rid' => intval($report_meta['rid']), 'newStatus' => 1, 'actionType' => 'finalize');
+                $reportfinstatus = new ReportingFinalizeStatus();
+                $reportfinstatus->set($findata);
+                $reportfinstatus->save();
                 output_xml("<status>true</status><message>{$lang->reportfinalized}</message>");
             }
             else {

@@ -183,39 +183,31 @@ else {
                     }
 
                     $invoiceline->uom = $invoiceline->get_uom()->uomsymbol;
-                    $invoiceline->costlocal = $invoiceline->get_cost('salesreport')['cost'];
+                    $invoiceline->costlocal = $invoiceline->get_cost();
 
-                    if($invoiceline->get_cost('salesreport')['currencyid'] != $invoice->currency) {
-                        $newcurrencyobj = new Currencies($invoiceline->get_cost('salesreport')['currencyid']);
-                        $fxrate_line = $newcurrencyobj->get_fxrate_bytype($core->input['fxtype'], $invoice->currency, array('from' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 01:00'), 'to' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 24:00'), 'year' => date('Y', $invoice->dateinvoiceduts), 'month' => date('m', $invoice->dateinvoiceduts)), array('precision' => 4));
-
-                        if(!empty($fxrate_line)) {
-                            $invoiceline->costlocal_invoicecurr = $invoiceline->costlocal * $fxrate_line;
-                        }
-                    }
                     if($currency_obj->alphaCode != $invoice->currency) {
                         if(!empty($invoice->localfxrate)) {
-                            $invoiceline->costlocal = $invoiceline->costlocal_invoicecurr / $invoice->localfxrate;
+                            $invoiceline->costlocal = $invoiceline->costlocal / $invoice->localfxrate;
                         }
                         else {
                             unset($invoiceline);
                             continue;
                         }
                     }
-
-
                     if($invoiceline->qtyinvoiced < 0) {
                         $invoiceline->costlocal = 0 - $invoiceline->costlocal;
                     }
 
-                    $firsttransaction = $iltrx->get_firsttransaction();
-                    if(is_object($firsttransaction)) {
-                        $input_inoutline = $firsttransaction->get_inoutline();
-                    }
-                    else {
-                        $input_inoutline = $iltrx->get_inoutline();
-                    }
+                    if(is_object($invoiceline->get_transaction())) {
+                        $firsttransaction = $invoiceline->get_transaction()->get_firsttransaction();
 
+                        if(is_object($firsttransaction)) {
+                            $input_inoutline = $firsttransaction->get_inoutline();
+                        }
+                        else {
+                            $input_inoutline = $invoiceline->get_transaction()->get_inoutline();
+                        }
+                    }
 //                    if(is_object($inputstack)) {
 //                        if(is_object($inputstack->get_transcation())) {
 //                            $input_inoutline = $inputstack->get_transcation()->get_inoutline();
@@ -354,10 +346,11 @@ else {
                         $salesreport .= '</tr>';
                         foreach($monthdata['linenetamt'] as $salerepid => $salerepdata) {
                             $currentyeardata = $salerepdata[$current_year];
-                            $salesreport .= '<tr style="'.$rowstyle.'">';
+                            $salesreport .= '<tr style="background-color:#D0F6AA;">';
                             $salesrep = new IntegrationOBUser($salerepid, $integration->get_dbconn());
                             if(empty($salesrep->name) || $salesrep->name == 'System') {
                                 $salesrep->name = 'Not Specified';
+                                continue;
                             }
                             $salesreport .= '<td style="'.$css_styles['table-datacell'].'">'.$salesrep->name.'</td>';
 
@@ -374,7 +367,7 @@ else {
                                 }
                                 $salesreport .= '<td style="'.$css_styles['table-datacell'].'">'.$numfmt->format($currentyeardata[$i] / 1000).'</td>'; //$formatter->format($currentyeardata[$i] / 1000)
                             }
-                            $styleindex = 2;
+                            $styleindex = 3;
                             for($y = $current_year; $y >= ($current_year - 1); $y--) {
                                 if(!is_array($salerepdata[$y])) {
                                     $salerepdata[$y][] = 0;
@@ -384,7 +377,7 @@ else {
                                     $yearsummarytotals[$y][$m] += $salerepdata[$y][$m];
                                 }
                                 $salesreport .= '<td style="'.$css_styles['table-datacell'].' '.$css_styles['altrow'.$styleindex].'">'.number_format(array_sum($salerepdata[$y])).'</td>'; //$formatter->format(array_sum($salerepdata[$y]))
-                                $styleindex++;
+                                $styleindex--;
                             }
                             $salesreport .= '</tr>';
 //                            if(empty($rowstyle)) {
@@ -403,10 +396,10 @@ else {
 //                    foreach($yearsumrawtotals as $totaldata) {
 //                        $yearsummarytotals[$totaldata['year']][$totaldata['month']] = $totaldata['qty'];
 //                    }
-                        $styleindex = 2;
+                        $styleindex = 3;
                         for($y = $current_year; $y >= ($current_year - 1); $y--) {
                             $salesreport .= '<tr style="'.$css_styles['altrow'.$styleindex].'"><th>Totals ('.$y.')</th>';
-                            $styleindex++;
+                            $styleindex--;
                             for($i = 1; $i <= 12; $i++) {
                                 $salesreport .= '<th style="text-align: right;">'.number_format($yearsummarytotals[$y][$i]).'</th>'; //$formatter->format
                             }
@@ -452,7 +445,7 @@ else {
                             }
 
                             $salesrep = new IntegrationOBUser($salerepid, $integration->get_dbconn());
-                            if(empty($salesrep->name)) {
+                            if(empty($salesrep->name) || $salesrep->name == 'System') {
                                 continue;
                             }
                             $salerep_user = Users::get_data_byattr('displayName', $salesrep->name);

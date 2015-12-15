@@ -185,9 +185,12 @@ else {
                 if(count($core->input['listCheckbox']) > 0) {
                     if($core->input['moderationtool'] == 'lock') {
                         $new_status['isLocked'] = 1;
+                        $findata['newStatus'] = 1;
+                        $findata['actionType'] = 'lock';
                     }
                     if($core->input['moderationtool'] == 'unlock') {
-
+                        $findata['newStatus'] = 0;
+                        $findata['actionType'] = 'lock';
                         $new_status['isLocked'] = 0;
                     }
 
@@ -197,13 +200,19 @@ else {
                         if($core->input['moderationtool'] == 'lockunlock') {
                             list($current_status) = get_specificdata('reports', array('isLocked'), '0', 'isLocked', '', 0, "rid='{$rid}'");
                             if($current_status == 0) {
-                                $new_status['isLocked'] = 1;
+                                $findata['newStatus'] = 0;
+                                $findata['actionType'] = 'lock';
+                                $new_status['isLocked'] = 0;
                             }
                             else {
-                                $new_status['isLocked'] = 0;
+                                $new_status['isLocked'] = 1;
+                                $findata['newStatus'] = 1;
+                                $findata['actionType'] = 'lock';
                             }
                         }
                         elseif($core->input['moderationtool'] == 'unlockwithreminders') {
+                            $findata['newStatus'] = 0;
+                            $findata['actionType'] = 'lock';
                             $new_status['isLocked'] = 0;
                             $db->update_query('reportcontributors', array('isDone' => 0), "rid='{$rid}'");
                         }
@@ -211,8 +220,11 @@ else {
                         if($new_status['isLocked'] == 0) {
                             $new_status['status'] = 0;
                         }
-
+                        $findata['rid'] = $rid;
                         $db->update_query('reports', $new_status, "rid='{$rid}'");
+                        $reportfinstatus = new ReportingFinalizeStatus();
+                        $reportfinstatus->set($findata);
+                        $reportfinstatus->save();
                     }
                     output_xml("<status>true</status><message>{$lang->lockchanged}</message>");
                     $log->record($core->input['listCheckbox'], $core->input['moderationtool']);
@@ -252,6 +264,10 @@ else {
                     $rid = $db->escape_string($val);
 
                     $db->update_query('reports', array('status' => 1, 'isLocked' => 1), "rid='{$rid}'");
+                    $findata = array('rid' => intval($rid), 'newStatus' => 1, 'actionType' => 'finalize');
+                    $reportfinstatus = new ReportingFinalizeStatus();
+                    $reportfinstatus->set($findata);
+                    $reportfinstatus->save();
                 }
                 output_xml("<status>true</status><message>{$lang->reportsapproved}</message>");
                 $log->record($core->input['listCheckbox'], $core->input['moderationtool']);

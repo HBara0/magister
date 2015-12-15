@@ -43,6 +43,10 @@ class AroRequests extends AbstractClass {
         foreach($orderrequest_fields as $orderrequest_field) {
             $orderrequest_array[$orderrequest_field] = $data[$orderrequest_field];
         }
+        $orderrequest_array['finalizedOn'] = 0;
+        if($orderrequest_array['isFinalized'] == 1) {
+            $orderrequest_array['finalizedOn'] = TIME_NOW;
+        }
         $orderrequest_array['createdBy'] = $core->user['uid'];
         $orderrequest_array['createdOn'] = TIME_NOW;
         //  $orderrequest_array['identifier'] = substr(md5(uniqid(microtime())), 1, 10);
@@ -139,6 +143,10 @@ class AroRequests extends AbstractClass {
         $orderrequest_fields = array('affid', 'orderType', 'orderReference', 'inspectionType', 'currency', 'exchangeRateToUSD', 'ReferenceNumber', 'aroBusinessManager', 'isFinalized');
         foreach($orderrequest_fields as $orderrequest_field) {
             $orderrequest_array[$orderrequest_field] = $data[$orderrequest_field];
+        }
+        $orderrequest_array['finalizedOn'] = 0;
+        if($orderrequest_array['isFinalized'] == 1) {
+            $orderrequest_array['finalizedOn'] = TIME_NOW;
         }
         $orderrequest_array['avgLocalInvoiceDueDate'] = strtotime($data['avgeliduedate']);
         $orderrequest_array['modifiedBy'] = $core->user['uid'];
@@ -640,11 +648,12 @@ class AroRequests extends AbstractClass {
             foreach($productlines as $productline) {
                 $product_obj = Products::get_data(array('pid' => $productline->pid));
                 $data['products_output'] .='<tr><td>'.$product_obj->get_displayname().'</td><td>'.$data['vendor_output'].'</td><td>'.$formatter->format($productline->intialPrice).'</td></tr>';
+                $reference['qtybysellingprice'] += $productline->quantity * $productline->sellingPrice;
             }
         }
         $ordersummary = AroOrderSummary::get_data(array('aorid' => $this->aorid));
         if(is_object($ordersummary)) {
-            $fields = array('invoiceValueUsdIntermed', 'invoiceValueUsdLocal', 'netmarginIntermed', 'netmarginIntermedPerc', 'netmarginLocal', 'netmarginLocalPerc', 'globalNetmargin');
+            $fields = array('invoiceValueUsdIntermed', 'invoiceValueUsdLocal', 'invoiceValueThirdParty', 'netmarginIntermed', 'netmarginIntermedPerc', 'netmarginLocal', 'netmarginLocalPerc', 'globalNetmargin');
             foreach($fields as $field) {
                 if($field == 'netmarginIntermedPerc' || $field == 'netmarginLocalPerc') {
                     $data[$field] = $perc_formatter->format($ordersummary->$field);
@@ -653,6 +662,19 @@ class AroRequests extends AbstractClass {
                     $data[$field] = $formatter->format($ordersummary->$field);
                 }
             }
+        }
+        $data['invoiceValueAffiliate'] = $data['invoiceValueCustomer'] = "-";
+        if($purchasteype_obj->isPurchasedByEndUser == 1) {
+            $data['invoiceValueCustomer'] = $data['invoiceValueUsdLocal'];
+            $data['invoiceValueAffiliate'] = $data['invoiceValueUsdLocal']; //$data['invoiceValueThirdParty'];
+        }
+        else {
+            $data['invoiceValueAffiliate'] = $data['invoiceValueUsdLocal'];
+        }
+        $data['invoiceValueFromSupplier'] = $data['invoiceValueUsdIntermed'];
+        if($purchasteype_obj->needsIntermediary == 0) {
+            $data['invoiceValueFromSupplier'] = $data['invoiceValueUsdLocal'];
+            $data['invoiceValueAffiliate'] = $reference['qtybysellingprice'];
         }
 
         eval("\$email = \"".$template->get('aro_approvalemail')."\";");
@@ -675,10 +697,10 @@ class AroRequests extends AbstractClass {
                 'from' => 'ocos@orkila.com',
                 'to' => $to,
                 'subject' => $aroapprovalemail_subject,
-                'message' => "Aro Request [".$this->orderReference."] ".$aroaffiliate_obj->get_displayname()." ".$purchasteype_obj->get_displayname()." Needs Approval:".$approve_link,
+                'message' => "Aro Request [".$this->orderReference."] ".$aroaffiliate_obj->get_displayname()." ".$purchasteype_obj->get_displayname()." Needs Approval.".$approve_link,
         );
 
-        // $email_data[message] .='<br/>'.$this->parseapprovalemail();
+        $email_data['message'] = $email_data['message'].'<br/> Time elapsed since finalization '.$this->get_timelapsed().'<br/><br/>'.$this->parseapprovalemail().'<br/><br/>'.$approve_link;
         $mailer = new Mailer();
         $mailer = $mailer->get_mailerobj();
         $mailer->set_type();
@@ -753,6 +775,10 @@ class AroRequests extends AbstractClass {
         return AroRequestsApprovals::get_data(array('isApproved' => 1, 'aorid' => $this->data[self::PRIMARY_KEY]), array('order' => array('sort' => 'DESC', 'by' => 'sequence'), 'limit' => '0, 1'));
     }
 
+    public function get_lastnotified() {
+        return AroRequestsApprovals::get_data(array('emailRecievedDate' => 'emailRecievedDate <> 0', 'aorid' => $this->data[self::PRIMARY_KEY]), array('order' => array('sort' => 'DESC', 'by' => 'sequence'), 'operators' => array('emailRecievedDate' => 'CUSTOMSQL'), 'limit' => '0, 1'));
+    }
+
     public function inform_nextapprover() {
         global $core, $db;
         $approval = $this->get_nextapprover();
@@ -770,6 +796,7 @@ class AroRequests extends AbstractClass {
                     'subject' => $aroapprovalemail_subject,
                     'message' => "Aro Request [".$this->orderReference."] ".$aroaffiliate_obj->get_displayname()." ".$purchasteype_obj->get_displayname()." Needs Approval:".$approve_link,
             );
+            $email_data['message'] = $email_data['message'].'<br/> Time elapsed since finalization '.$this->get_timelapsed().'<br/><br/>'.$this->parseapprovalemail().'<br/><br/>';
 
             $mailer = new Mailer();
             $mailer = $mailer->get_mailerobj();
@@ -880,7 +907,7 @@ class AroRequests extends AbstractClass {
                     'from' => 'Approved ARO',
                     'to' => $mailinglist,
                     'subject' => 'APPROVED Aro Request ['.$this->orderReference.']/'.$aroaffiliate_obj->get_displayname().'/'.$purchasteype_obj->get_displayname(),
-                    'message' => 'Aro Request ['.$this->orderReference.']/'.$aroaffiliate_obj->get_displayname().'/'.$purchasteype_obj->get_displayname().' is Approved <br/>  To view the ARO <a href="'.$aro_link.'">click here</a>'
+                    'message' => 'Aro Request ['.$this->orderReference.']/'.$aroaffiliate_obj->get_displayname().'/'.$purchasteype_obj->get_displayname().' is Approved <br/>Time elapsed since finalization '.$this->get_timelapsed().'<br/>  To view the ARO <a href="'.$aro_link.'">click here</a>'
             );
             $mail = new Mailer($email_data, 'php');
             if($mail->get_status() === true) {
@@ -1061,6 +1088,18 @@ class AroRequests extends AbstractClass {
         }
         $this->errorcode = 2;
         return $this;
+    }
+
+    public function get_timelapsed() {
+        $request = self::get_data(array('isFinalized' => 1, 'aorid' => $this->data[self::PRIMARY_KEY]));
+        $hourselapsed = floor((TIME_NOW - $request->finalizedOn) / (60 * 60 )); //in term of hours
+        if($hourselapsed > 24) {
+            $dayselapsed = floor((TIME_NOW - $request->finalizedOn) / (60 * 60 * 24 )); //in term of days
+            return $dayselapsed.'days';
+        }
+        else {
+            return $hourselapsed.' hours';
+        }
     }
 
 }

@@ -441,7 +441,7 @@ DROP TABLE IF EXISTS `aro_requests`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `aro_requests` (
   `aorid` int(10) NOT NULL AUTO_INCREMENT,
-  `identifier` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `inputChecksum` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
   `affid` int(10) NOT NULL,
   `orderType` int(10) NOT NULL,
   `orderReference` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
@@ -449,18 +449,19 @@ CREATE TABLE `aro_requests` (
   `currency` int(10) NOT NULL,
   `exchangeRateToUSD` float NOT NULL,
   `referenceNumber` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
-  `avgLocalInvoiceDueDate` bigint(30) NOT NULL,
-  `revision` int(2) NOT NULL DEFAULT '0',
-  `isApproved` tinyint(1) NOT NULL DEFAULT '0',
-  `isFinalized` tinyint(1) NOT NULL DEFAULT '0',
   `createdOn` bigint(30) NOT NULL,
   `createdBy` int(10) NOT NULL,
   `modifiedOn` bigint(30) NOT NULL,
   `modifiedBy` int(10) NOT NULL,
+  `revision` int(2) NOT NULL DEFAULT '0',
+  `isApproved` tinyint(1) NOT NULL,
+  `avgLocalInvoiceDueDate` bigint(30) NOT NULL,
+  `aroBusinessManager` int(10) NOT NULL,
+  `isFinalized` tinyint(1) NOT NULL,
+  `finalizedOn` bigint(30) NOT NULL,
   PRIMARY KEY (`aorid`),
   UNIQUE KEY `aoiid` (`aorid`),
   FULLTEXT KEY `orderReference` (`orderReference`)
-) ENGINE=MyISAM AUTO_INCREMENT=9 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `aro_requests_approvals`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -3866,6 +3867,20 @@ CREATE TABLE `reportcontributors` (
   PRIMARY KEY (`rcid`),
   KEY `uid` (`uid`,`rid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=8850 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=21 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `reporting_finalizestatuses`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `reporting_finalizestatuses` (
+  `rfsid` int(10) NOT NULL AUTO_INCREMENT,
+  `rid` int(11) NOT NULL,
+  `newStatus` int(11) NOT NULL,
+  `timeModified` bigint(30) NOT NULL,
+  `modifiedBy` int(11) NOT NULL,
+  `actionType` varchar(30) NOT NULL,
+  PRIMARY KEY (`rfsid`)
+) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `reporting_qrrecipients`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -3936,10 +3951,15 @@ CREATE TABLE `reports` (
   `dataIsImported` tinyint(1) NOT NULL DEFAULT '0',
   `sentOn` bigint(30) DEFAULT NULL,
   `importedOn` bigint(30) DEFAULT NULL,
+  `dataImportedOn` bigint(30) DEFAULT NULL,
+  `createdOn` bigint(30) NOT NULL,
+  `createdBy` int(10) NOT NULL,
+  `modifiedOn` bigint(30) NOT NULL,
+  `modifiedBy` int(10) NOT NULL,
   PRIMARY KEY (`rid`),
   KEY `affid` (`affid`,`spid`),
   KEY `summary` (`summary`)
-) ENGINE=MyISAM AUTO_INCREMENT=8700 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `reports2`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -5238,32 +5258,34 @@ CREATE TABLE `travelmanager_plan_transps` (
   `tmpltid` int(10) NOT NULL AUTO_INCREMENT,
   `tmpsid` int(10) NOT NULL,
   `tmtcid` int(10) NOT NULL,
-  `inputChecksum` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
-  `isMAin` tinyint(1) NOT NULL,
+  `isMain` tinyint(1) NOT NULL,
   `isUserSuggested` tinyint(1) DEFAULT '0',
-  `fare` float NOT NULL,
-  `currency` int(3) NOT NULL,
-  `flightNumber` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
-  `flightDetails` longtext COLLATE utf8_unicode_ci,
+  `fare` float(10,0) NOT NULL,
   `vehicleNumber` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
-  `transpDetails` longtext COLLATE utf8_unicode_ci NOT NULL,
-  `transpType` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'Might need removal',
-  `paidBy` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
-  `paidById` smallint(5) DEFAULT NULL,
-  `seatingDescription` mediumtext COLLATE utf8_unicode_ci,
-  `stopDescription` mediumtext COLLATE utf8_unicode_ci,
-  `isRoundTrip` tinyint(1) NOT NULL DEFAULT '0',
-  `isMinCost` tinyint(1) NOT NULL DEFAULT '0',
-  `class` int(10) NOT NULL,
+  `flightNumber` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+  `isMinCost` tinyint(1) NOT NULL,
+  `transpDetails` text COLLATE utf8_unicode_ci NOT NULL,
+  `agencyName` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `numDays` decimal(10,0) NOT NULL,
+  `transpType` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+  `paidById` int(10) NOT NULL,
+  `paidBy` varchar(180) COLLATE utf8_unicode_ci NOT NULL,
+  `seatingDescription` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
   `createdOn` bigint(30) NOT NULL,
-  `createdBy` tinyint(10) NOT NULL,
-  `modifiedOn` bigint(30) DEFAULT NULL,
-  `modifiedBy` int(10) DEFAULT NULL,
+  `createdBy` int(10) NOT NULL,
+  `modifiedOn` bigint(30) NOT NULL,
+  `modifiedBy` int(10) NOT NULL,
+  `currency` int(4) NOT NULL,
+  `inputChecksum` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
+  `isRoundTrip` tinyint(1) NOT NULL DEFAULT '0',
+  `stopDescription` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `class` int(10) NOT NULL,
+  `companyName` varchar(75) COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`tmpltid`,`tmpsid`,`tmtcid`),
   KEY `tmpltid` (`tmpltid`),
   KEY `tmtcid` (`tmtcid`),
   KEY `tmpltid_2` (`tmpltid`)
-) ENGINE=MyISAM AUTO_INCREMENT=8 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=20 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `travelmanager_plantrip_affient`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
