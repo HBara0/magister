@@ -46,7 +46,7 @@ if(!$core->input['action']) {
 
 
     for($i = 1; $i <= 12; $i++) {
-        $month_names .= '<th style="width:6%; padding:5px;">'.$lang->{strtolower(date("F", mktime(0, 0, 0, $i, 1, 0)))}.'</th>';
+        $month_names .= '<td style="width:6%; padding:5px;">'.$lang->{strtolower(date("F", mktime(0, 0, 0, $i, 1, 0)))}.'</td>';
     }
 
     $hrgm_query = $db->query("SELECT affid, generalManager, supervisor, hrManager, finManager,coo FROM ".Tprefix."affiliates ORDER by name ASC");
