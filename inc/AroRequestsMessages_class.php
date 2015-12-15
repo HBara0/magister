@@ -107,7 +107,7 @@ class AroRequestsMessages extends AbstractClass {
         $lang->load('aro_meta');
         $mailer = new Mailer();
         $mailer = $mailer->get_mailerobj();
-        $mailer->set_from(array('name' => $core->user['displayName'], 'email' => $core->user['email']));
+        $mailer->set_from(array('name' => $core->user['displayName'], 'email' => $core->settings['maileremail']));
 
         $arorequest = AroRequests::get_data(array('aorid' => $this->data['aorid']), array('simple' => false));
 
