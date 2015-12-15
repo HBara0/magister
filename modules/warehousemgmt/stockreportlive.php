@@ -162,7 +162,6 @@ else {
         $integration->set_sync_interval($report_period);
         $inputs = $integration->get_fifoinputs(array($orgid), array('hasqty' => true));
         if(!empty($inputs)) {
-
             $fxrates['usd'] = $currency_obj->get_latest_fxrate($affiliate['currency']);
 
             foreach($configs as $report => $config) {
@@ -1186,6 +1185,7 @@ else {
                 $stockreportpage['content'] .= '<a href="index.php?reporttype=email&amp;'.http_build_query($core->input).'"><button class="button">Send by email</button></a>';
             }
             if($core->input['referrer'] != 'generate_budgetpresntation') {
+                $page['content'] = $stockreportpage['content'].'<br/>'.$stockpermonthofsale_output;
                 eval("\$report = \"".$template->get('general_container')."\";");
                 output_page($report);
             }
