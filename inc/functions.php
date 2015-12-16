@@ -1613,7 +1613,7 @@ function getquery_entities_viewpermissions() {
     }
     $where = array();
 
-    if($arguments[0] == 'suppliersbyaffid' || $arguments[0] == 'affiliatebyspid') {
+    if(is_array($arguments) && $arguments[0] == 'suppliersbyaffid' || $arguments[0] == 'affiliatebyspid') {
         $query_attribute = '';
         if($arguments[0] == 'suppliersbyaffid') {
             if($usergroup['canViewAllSupp'] == 0) {
