@@ -13,7 +13,7 @@ if(!defined("DIRECT_ACCESS")) {
 }
 
 if($core->usergroup['budgeting_cangenerateFinBudgets'] == 0) {
-    // error($lang->sectionnopermission);
+    error($lang->sectionnopermission);
 }
 //$session->start_phpsession();
 

@@ -1182,7 +1182,7 @@ else {
                 $thirdparty_title = $lang->local;
                 $thirdparty = $affiliate->get_displayname();
                 $invoicevalue_thirdparty = ($core->input['commFromIntermed'] / 100) * $intermedmargin;
-                $invoicevalue_thirdparty_usd = $invoicevalue_thirdparty * $core->input['exchangeRateToUSD'];
+                $invoicevalue_thirdparty_usd = $invoicevalue_thirdparty; //* $core->input['exchangeRateToUSD'];
                 $haveThirdParty = 1;
             }
         }
