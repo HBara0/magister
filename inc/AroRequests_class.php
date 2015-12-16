@@ -1102,4 +1102,20 @@ class AroRequests extends AbstractClass {
         }
     }
 
+    public function get_aros_byproductsegments($uid) {
+        $segmentids = ProdSegCoordinators::get_column('psid', array('uid' => $uid), array('returnarray' => true));
+        if(is_array($segmentids)) {
+            foreach($segmentids as $psid) {
+                $requestlines = AroRequestLines::get_data(array('psid' => $psid), array('returnarray' => true));
+                if(is_array($requestlines)) {
+                    foreach($requestlines as $requestline) {
+                        $aroids[] = $requestline->aorid;
+                    }
+                }
+            }
+            return $aroids;
+        }
+        return false;
+    }
+
 }
