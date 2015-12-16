@@ -1617,25 +1617,27 @@ function getquery_entities_viewpermissions() {
         $query_attribute = '';
         if($arguments[0] == 'suppliersbyaffid') {
             if($usergroup['canViewAllSupp'] == 0) {
-                foreach($user['suppliers']['eid'] as $key => $val) {
-                    if(in_array($val, $auditfor)) {
-                        if(in_array($arguments[1], $user['auditedaffiliates'][$val])) {
-                            $found_ids[] = $val;
+                if(is_array($user['suppliers']['eid'])) {
+                    foreach($user['suppliers']['eid'] as $key => $val) {
+                        if(in_array($val, $auditfor)) {
+                            if(in_array($arguments[1], $user['auditedaffiliates'][$val])) {
+                                $found_ids[] = $val;
+                            }
                         }
+                        else {
+                            if(in_array($arguments[1], $user['suppliers']['affid'][$val])) {
+                                $found_ids[] = $val;
+                            }
+                        }
+                    }
+                    if(!empty($arguments[5])) {
+                        $query_attribute = $arguments[5];
                     }
                     else {
-                        if(in_array($arguments[1], $user['suppliers']['affid'][$val])) {
-                            $found_ids[] = $val;
-                        }
+                        $query_attribute = 'spid';
                     }
+                    $query_attribute = $attribute_prefix.$query_attribute;
                 }
-                if(!empty($arguments[5])) {
-                    $query_attribute = $arguments[5];
-                }
-                else {
-                    $query_attribute = 'spid';
-                }
-                $query_attribute = $attribute_prefix.$query_attribute;
             }
         }
         else {
