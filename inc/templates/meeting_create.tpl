@@ -3,26 +3,26 @@
         <title>{$core->settings[systemtitle]} | {$pagetitle}</title>
         {$headerinc}
         <script>
-            $(function () {
-                $(document).on('click', 'a[id^=deletefile_]', function () {
+            $(function() {
+                $(document).on('click', 'a[id^=deletefile_]', function() {
                     if(sharedFunctions.checkSession() == false) {
                         return;
                     }
                     var id = $(this).attr('id').split("_");
                     sharedFunctions.requestAjax("post", "index.php?module=meetings/create&action=deletefile", "mattid=" + id[1], 'deletecontainer_' + id[1], 'deletecontainer_' + id[1], true);
                 });
-                $(document).on('change', 'input[id="specifygenloc"]', function () {
+                $(document).on('change', 'input[id="specifygenloc"]', function() {
                     if($(this).is(':checked')) {
                         $('tr[id="genlocation"]').show();
                         $('tr[id="facilityrow"]').hide();
-                        $('input[id^="reservationfacilities"]').each(function (i, obj) {
+                        $('input[id^="reservationfacilities"]').each(function(i, obj) {
                             $(obj).prop('disabled', true);
                         });
                     }
                     else {
                         $('tr[id="genlocation"]').hide();
                         $('tr[id="facilityrow"]').show();
-                        $('input[id^="reservationfacilities"]').each(function (i, obj) {
+                        $('input[id^="reservationfacilities"]').each(function(i, obj) {
                             $(obj).prop('disabled', false);
                         });
                     }
@@ -49,7 +49,7 @@
                     <tr>
                         <td>{$lang->fromdate}</td>
                         <td>
-                            <input type="text" tabindex="2" id="pickDate_from"  autocomplete="off" tabindex="1" data-alternativename="reserveFrom"  name="meeting[fromDate]" value="{$meeting[fromDate_output]}" required="required"/>
+                            <input type="text" tabindex="2" id="pickDate_from"  autocomplete="off" tabindex="1" data-alternativename="reserveFrom"  name="meeting[fromDate]" value="{$meeting[fromDate_output]}" />
                             <input type="hidden" name="meeting[altfromDate]" data-alternativename="dateFrom" id="altpickDate_from" value="{$meeting[fromDate]}" /> <input id="altpickTime_from" data-alternativename="timeFrom" type="time" tabindex="3" name="meeting[fromTime]" pattern="(20|21|22|23|[01]\d|\d)(([:][0-5]\d){1,2})" placeholder="08:00" value="{$meeting[fromTime_output]}" required="required">
                         </td>
                     </tr>
@@ -107,7 +107,7 @@
                                             </table>
                                         </div></td>
                                 </tr>
-                                <tr><td><img src="images/add.gif" id="addmore_attendees" alt='{$lang->add}'> {$lang->add}</td><td><img src="images/add.gif" id="addmore_rep" alt='{$lang->add}' title="{$lang->addmorerows}"> {$lang->add}</td></tr>
+                                <tr><td></td><td><img src="images/add.gif" id="addmore_rep" alt='{$lang->add}' title="{$lang->addmorerows}"> {$lang->add}</td></tr>
                             </table>
                         </td>
                     </tr>

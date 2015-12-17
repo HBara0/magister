@@ -1,11 +1,13 @@
 <tr id="{$rowid}" class="{$altrow}">
-    <td>{$lang->employee} <input type="hidden" name="meeting[attendees][uid][{$rowid}][matid]" value="{$matid}"/></td>
+    <td>{$lang->employees} <input type="hidden" name="meeting[attendees][uid][matids]" value="{$matids}"/></td>
     <td>
-        <input type='text'id='user_{$rowid}_QSearch' value="{$meeting[attendees][$matid][name]}" autocomplete='off' size='40px'/>
-        <input type='hidden' id='user_{$rowid}_id' name='meeting[attendees][uid][{$rowid}][id]' value="{$meeting[attendees][$matid][uid]}" />
-        <div id='searchQuickResults_user_{$rowid}' class='searchQuickResults' style='display:none;'></div>
-        <!--<input type='text'id='user_{$rowid}_autocomplete' value="{$meeting[attendees][$matid][name]}" autocomplete='off' size='40px'/>
-        <input type='hidden' id='user_{$rowid}_id' name='meeting[attendees][uid][{$rowid}][id]' value="{$meeting[attendees][$matid][uid]}" />
-        <div id='searchQuickResults_user_{$rowid}' class='searchQuickResults' style='display:none;'></div> -->
+        <input type="text" id="demo-input-local" name="meeting[attendees][uid][ids]" />
+        <script type="text/javascript">
+            $(document).ready(function() {
+                $("#demo-input-local").tokenInput(
+                        "{$core->settings[rootdir]}/search.php?&type=quick&returnType=jsontoken&for=user", {minChars:2,preventDuplicates: true,method: 'POST',queryParam:'value', minChars: 2,jsonContainer: null,contentType: "json",prePopulate:[ {$eistingattendees}]}
+                );
+            });
+        </script>
     </td>
 </tr>
