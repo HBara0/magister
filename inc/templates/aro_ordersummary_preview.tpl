@@ -23,11 +23,13 @@
                 <td>{$lang->invoicevalue} (<span id="ordersummary_curr_0"></span>{$arorequest[currency]}) <a href="#" title="{$lang->invoicevaluedef}"><img src="./images/icons/question.gif"/></a></td>
                 <td style="text-align: right;">{$aroordersummary->invoiceValueIntermed}</td>
                 <td style="text-align: right;">{$aroordersummary->invoiceValueLocal}</td>
+                <td {$ordersummarydisplay[thirdcolumn_display]}></td>
             </tr>
             <tr style="font-weight: bold;">
                 <td>{$lang->invoicevalueusd}</td>
                 <td style="text-align: right;">{$aroordersummary->invoiceValueUsdIntermed}</td>
                 <td style="text-align: right;">{$aroordersummary->invoiceValueUsdLocal}</td>
+                <td {$ordersummarydisplay[thirdcolumn_display]}></td>
             </tr>
             <tr>
                 <td>{$lang->totalquantity}</td>
@@ -77,15 +79,23 @@
             </tr>
 
             <tr style="font-weight: bold;">
-                <td>{$lang->total} {$lang->netmarginperc} <a href="#" title="{$lang->totalnetmarginpercdef}"><img src="./images/icons/question.gif"/></a></td>
+                <td>{$lang->total} {$lang->netmarginperc} <!--<a href="#" title="{$lang->totalnetmarginpercdef}"><img src="./images/icons/question.gif"/></a>--></td>
                 <td style="text-align: right;">{$aroordersummary->netmarginIntermedPerc}%</td>
                 <td style="text-align: right;">{$aroordersummary->netmarginLocalPerc}%</td>
                 <td {$ordersummarydisplay[thirdcolumn_display]}></td>
             </tr>
             <tr style="font-weight: bold;">
-                <td>{$lang->total} {$lang->globalnetmargin}<a href="#" title="{$lang->globalnetmargindef}"><img src="./images/icons/question.gif"/></a></td>
-                <td style="text-align:center;"colspan="2">{$aroordersummary->globalNetmargin}</td>
-                <td {$ordersummarydisplay[thirdcolumn_display]}></td>
+                <td>{$lang->total} {$lang->globalnetmargin}
+                    <a href="#" title="{$lang->globalnetmargindef}"><img src="./images/icons/question.gif"/></a></td>
+                <td style="text-align:right">{$aroordersummary->globalNetmargin}</td>
+                <td></td>
+                <td {$ordersummarydisplay[thirdcolumn_display]}</td>
+            </tr>
+            <tr style="font-weight: bold;">
+                <td>{$lang->total} {$lang->globalnetmargin} %</td>
+                <td style="text-align:right;">{$aroordersummary->globalNetmarginPerc}%</td>
+                <td></td>
+                <td {$ordersummarydisplay[thirdcolumn_display]}</td>
             </tr>
         </tbody>
         <tfoot style="display:none;" id="ordersummary_tfoot" class="altrow2"  name="seemoredetails" >

@@ -97,8 +97,13 @@ class AroRequests extends AbstractClass {
             //save product lines and return array of product segments involved
             $arosegments = $this->save_productlines($data['productline'], $data['parmsfornetmargin'], $totalQtyperuom);
             $this->save_linessupervision($data['actualpurchase'], $data['partiesinfo']['transitTime'], $data['partiesinfo']['clearanceTime'], $data['partiesinfo']['estDateOfShipment']);
+            if($this->errorcode != 0) {
+                return $this->errorcode;
+            }
             $this->save_currentstocklines($data['currentstock']);
-
+            if($this->errorcode != 0) {
+                return $this->errorcode;
+            }
             $fundsengaged_obj = new AroRequestsFundsEngaged();
             $data['totalfunds']['aorid'] = $this->data[self::PRIMARY_KEY];
             $fundsengaged_obj->set($data['totalfunds']);
@@ -197,8 +202,13 @@ class AroRequests extends AbstractClass {
             //save product lines and return array of product segments involved
             $arosegments = $this->save_productlines($data['productline'], $data['parmsfornetmargin'], $totalQtyperuom);
             $this->save_linessupervision($data['actualpurchase'], $data['partiesinfo']['transitTime'], $data['partiesinfo']['clearanceTime'], $data['partiesinfo']['estDateOfShipment']);
+            if($this->errorcode != 0) {
+                return $this->errorcode;
+            }
             $this->save_currentstocklines($data['currentstock']);
-
+            if($this->errorcode != 0) {
+                return $this->errorcode;
+            }
 
             $fundsengaged_obj = new AroRequestsFundsEngaged();
             $data['totalfunds']['aorid'] = $this->data[self::PRIMARY_KEY];
@@ -332,7 +342,7 @@ class AroRequests extends AbstractClass {
                 $requestlinesupervision = new AroRequestLinesSupervision();
                 $requestlinesupervision->set($linesupervision);
                 $requestlinesupervision->save();
-                $this->errorcode = $requestlinesupervision->errorcode;
+                $this->errorcode = $requestlinesupervision->get_errorcode();
                 switch($this->get_errorcode()) {
                     case 0:
                         continue;
@@ -350,7 +360,7 @@ class AroRequests extends AbstractClass {
                 $currentstocksupervision_obj = new AroRequestsCurStkSupervision();
                 $currentstocksupervision_obj->set($currentstockline);
                 $currentstocksupervision_obj->save();
-                $this->errorcode = $currentstocksupervision_obj->errorcode;
+                $this->errorcode = $currentstocksupervision_obj->get_errorcode();
                 switch($this->get_errorcode()) {
                     case 0:
                         continue;
