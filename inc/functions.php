@@ -1117,11 +1117,11 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
             $results_list = $new_resultlist;
         }
     }
-    if($options['returnType'] == 'json') {
-        $results_list = json_encode($results_list);
-    }
-    else if($options['returnType'] == 'jsontoken') {
+    if($options['outputjsonformat'] == 'tokens') {
         $results_list = json_encode(array_values($results_list));
+    }
+    else if($options['returnType'] == 'json') {
+        $results_list = json_encode($results_list);
     }
     else {
         $results_list = '<ul id = "searchResultsList">'.$results_list.'</ul>';

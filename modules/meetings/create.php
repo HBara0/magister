@@ -74,7 +74,7 @@ if(!$core->input['action']) {
                     $meeting['attendees'][$matid] = $attendees_objs->get();
                     if(isset($meeting['attendees'][$matid]['uid'])) {
                         $matids.=$matid.',';
-                        $eistingattendees.='{id: '.$meeting['attendees'][$matid]['uid'].', name:\''.$meeting['attendees'][$matid]['displayName'].'\'},';
+                        $eistingattendees.='{id: '.$meeting['attendees'][$matid]['uid'].', value:\''.$meeting['attendees'][$matid]['displayName'].'\'},';
                     }
                     if(isset($meeting['attendees'][$matid]['rpid'])) {
                         $meeting['attendees'][$matid]['id'] = $meeting['attendees'][$matid]['rpid'];
