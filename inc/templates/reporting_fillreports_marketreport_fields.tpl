@@ -5,15 +5,15 @@
 <tr><td><strong>{$lang->marktrend}</strong> <small>({$lang->marktrend_note})</small></td></tr>
 <tr style="vertical-align: top;">
     <td>
-        <textarea class="basictxteditadv" cols="55" rows="5" id="markTrendCompetition{$segment[psid]}" name="marketreport[{$segment[psid]}][markTrendCompetition]">{$marketreport[$segment[psid]][markTrendCompetition]}</textarea><p style="color: #CCCCCC;"><strong><em>{$lang->prevqnotes}</em></strong><br />{$last_report[$segment[psid]][markTrendCompetition]}</p>
+        <textarea class="txteditadv" cols="55" rows="5" id="markTrendCompetition{$segment[psid]}" name="marketreport[{$segment[psid]}][markTrendCompetition]">{$marketreport[$segment[psid]][markTrendCompetition]}</textarea><p style="color: #CCCCCC;"><strong><em>{$lang->prevqnotes}</em></strong><br />{$last_report[$segment[psid]][markTrendCompetition]}</p>
     </td>
 </tr>
 <tr><td><strong>{$lang->summarysituation}</strong> <small>({$lang->summarysituation_note})</td></tr>
 <tr style="vertical-align: top;">
-    <td><textarea class="basictxteditadv" cols="55" rows="5" id="quarterlyHighlights{$segment[psid]}" name="marketreport[{$segment[psid]}][quarterlyHighlights]">{$marketreport[$segment[psid]][quarterlyHighlights]}</textarea><p style="color: #CCCCCC;"><strong><em>{$lang->prevqnotes}</em></strong><br />{$last_report[$segment[psid]][quarterlyHighlights]}</p></td>
+    <td><textarea class="txteditadv" cols="55" rows="5" id="quarterlyHighlights{$segment[psid]}" name="marketreport[{$segment[psid]}][quarterlyHighlights]">{$marketreport[$segment[psid]][quarterlyHighlights]}</textarea><p style="color: #CCCCCC;"><strong><em>{$lang->prevqnotes}</em></strong><br />{$last_report[$segment[psid]][quarterlyHighlights]}</p></td>
 </tr>
 <tr><td><strong>{$lang->issues}</strong> <small>({$lang->issues_note})</small></td></tr>
 <tr style="vertical-align: top;">
-    <td><textarea class="basictxteditadv" cols="55" rows="5" id="issues{$segment[psid]}" name="marketreport[{$segment[psid]}][issues]">{$marketreport[$segment[psid]][issues]}</textarea><p style="color: #CCCCCC;"><strong><em>{$lang->prevqnotes}</em></strong><br />{$last_report[$segment[psid]][issues]}</p></td>
+    <td><textarea class="txteditadv" cols="55" rows="5" id="issues{$segment[psid]}" name="marketreport[{$segment[psid]}][issues]">{$marketreport[$segment[psid]][issues]}</textarea><p style="color: #CCCCCC;"><strong><em>{$lang->prevqnotes}</em></strong><br />{$last_report[$segment[psid]][issues]}</p></td>
 </tr>
 <tr><td>&nbsp;</td></tr>
