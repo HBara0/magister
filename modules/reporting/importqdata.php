@@ -333,6 +333,12 @@ else {
                         if($activity['soldQty'] == 0 && $activity['turnOver'] == 0 && $activity['quantity'] == 0) {
                             continue;
                         }
+                        $fields = array('turnOver', 'turnOverOc', 'salesForecast', 'soldQty', 'quantityForecast', 'quantity');
+                        foreach($fields as $field) {
+                            if(!empty($activity[$field])) {
+                                $activity[$field] = round($activity[$field]);
+                            }
+                        }
                         $activity['importedOn'] = TIME_NOW;
 
                         if($options['operation'] != 'replace') {
@@ -356,7 +362,11 @@ else {
                                     echo 'Updated: ';
                                     $paupdate_querywhere = ' AND uid=0';
                                 }
-
+                                foreach($fields as $field) {
+                                    if(!empty($activity[$field])) {
+                                        $activity[$field] = round($activity[$field]);
+                                    }
+                                }
                                 $db->update_query('productsactivity', $activity, 'rid='.$rid.' AND pid='.$pid.$paupdate_querywhere);
                             }
                         }
@@ -367,6 +377,13 @@ else {
                             else {
                                 echo 'Added: ';
                                 if($options['runtype'] != 'dry') {
+                                    $fields = array('turnOver', 'turnOverOc', 'salesForecast', 'soldQty', 'quantityForecast', 'quantity');
+                                    foreach($fields as $field) {
+                                        if(!empty($activity[$field])) {
+                                            $activity[$field] = round($activity[$field]);
+                                        }
+                                    }
+                                    $activity['turnOver'] = round($activity['turnOver']);
                                     $db->insert_query('productsactivity', $activity);
 
                                     $productact = new ProductsActivity($db->last_id());
@@ -389,7 +406,7 @@ else {
                                         $activity['salesForecast'] += $forecasts['salesForecast'] + $activity['turnOver'];
                                     }
 
-                                    $db->update_query('productsactivity', array('salesForecast' => $activity['salesForecast'], 'quantityForecast' => $activity['quantityForecast']), 'paid='.$productact->paid);
+                                    $db->update_query('productsactivity', array('salesForecast' => round($activity['salesForecast']), 'quantityForecast' => round($activity['quantityForecast'])), 'paid='.$productact->paid);
                                 }
                             }
                         }
@@ -438,7 +455,7 @@ else {
 //                                echo '<br />';
 //                                print_r($productsactivity_line);
 //                                echo '<hr />';
-                                $db->update_query(ProductsActivity::TABLE_NAME, array('quantityForecast' => $gpline['PurchaseQty'], 'salesForecast' => $gpline['PurchaseAmount']), 'paid='.$productsactivity_line->paid);
+                                $db->update_query(ProductsActivity::TABLE_NAME, array('quantityForecast' => round($gpline['PurchaseQty']), 'salesForecast' => round($gpline['PurchaseAmount'])), 'paid='.$productsactivity_line->paid);
                             }
                             else {
                                 $sql = "SELECT rid FROM ".Tprefix."reports WHERE affid=".intval($core->input['affid'])." AND year=".intval($core->input['year'])." AND spid=".$spid." AND quarter=".intval($core->input['quarter']);
@@ -449,7 +466,7 @@ else {
                                                 'rid' => $report['rid'],
                                                 'pid' => $gpline['pid'],
                                                 'uid' => $gpline['businessMgr'],
-                                                'quantityForecast' => $gpline['PurchaseQty'] / 1000,
+                                                'quantityForecast' => round($gpline['PurchaseQty'] / 1000),
                                                 'salesForecast' => 0,
                                                 'importedOn' => TIME_NOW
                                         );
