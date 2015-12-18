@@ -661,13 +661,9 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
     }
     if(is_array($results)) {
         foreach($results as $key => $val) {
-            if($options['returnType'] == 'json') {
+            if($options['returnType'] == 'json' || $options['returnType'] == 'jsontoken') {
                 $results_list['"'.$key.'"']['id'] = $key;
                 $results_list['"'.$key.'"']['value'] = $val;
-            }
-            else if($options['returnType'] == 'jsontoken') {
-                $results_list['"'.$key.'"']['id'] = $key;
-                $results_list['"'.$key.'"']['name'] = $val;
             }
             if($options['returnType'] != 'jsontoken' && isset($options['descinfo']) && !empty($options['descinfo'])) {
                 switch($options['descinfo']) {
@@ -950,7 +946,7 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                     case 'country':
                         $entity = new Entities($key);
                         if(!empty($entity->country)) {
-                            if($options['returnType'] == 'json') {
+                            if($options['returnType'] == 'json' || $options['returnType'] == 'jsontoken') {
                                 $results_list['"'.$key.'"']['desc'] = $entity->get_country()->name;
                             }
                             else {

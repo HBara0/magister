@@ -84,6 +84,8 @@ if(!$core->input['action']) {
                 }
                 unset($meeting['attendees '], $matid);
             }
+            $tokenfields = 'user';
+            eval("\$jquery_tokeninput = \"".$template->get('jquery_tokeninput')."\";");
             eval("\$createmeeting_userattendees = \"".$template->get('meeting_create_userattendee')."\";");
             if(empty($createmeeting_repattendees)) {
                 eval("\$createmeeting_repattendees  = \"".$template->get('meeting_create_repattendee')."\";");
@@ -125,6 +127,8 @@ if(!$core->input['action']) {
     else {
         $rowid = 1;
         $reprowid = 1;
+        $tokenfields = 'user';
+        eval("\$jquery_tokeninput = \"".$template->get('jquery_tokeninput')."\";");
         eval("\$createmeeting_userattendees = \"".$template->get('meeting_create_userattendee')."\";");
         eval("\$createmeeting_repattendees  = \"".$template->get('meeting_create_repattendee')."\";");
         eval("\$meeting_attachments = \"".$template->get('meeting_create_attachments')."\";");

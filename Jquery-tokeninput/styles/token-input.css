@@ -1,19 +1,23 @@
 /* Example tokeninput style #1: Token vertical list*/
 ul.token-input-list {
-    overflow: hidden; 
-    height: auto !important; 
+    overflow: hidden;
+    height: auto !important;
     height: 1%;
     width: 400px;
-    border: 1px solid #999;
     cursor: text;
     font-size: 12px;
     font-family: Verdana;
     z-index: 999;
     margin: 0;
     padding: 0;
-    background-color: #fff;
+    background-color: 	#f7f7f7;
     list-style-type: none;
     clear: left;
+    padding: 10px;
+    border: solid 5px #92D050;
+    box-shadow: inset 1px 1px 2px 0 #707070;
+    transition: box-shadow 0.3s;
+
 }
 
 ul.token-input-list li {
@@ -29,8 +33,8 @@ ul.token-input-list li input {
 }
 
 li.token-input-token {
-    overflow: hidden; 
-    height: auto !important; 
+    overflow: hidden;
+    height: auto !important;
     height: 1%;
     margin: 3px;
     padding: 3px 5px;
