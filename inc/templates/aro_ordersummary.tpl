@@ -88,7 +88,8 @@
             </tr>
             <tr style="font-weight:bold">
                 <td>{$lang->total} {$lang->globalnetmargin}<a href="#" title="{$lang->globalnetmargindef}"><img src="./images/icons/question.gif"/></a></td>
-                <td colspan="2"><input type="text" id="ordersummary_globalnetmargin" name="ordersummary[globalNetmargin]" value="{$aroordersummary->globalNetmargin}" style="width:150px;" readonly="readonly"/> </td>
+                <td><input type="text" id="ordersummary_globalnetmargin" name="ordersummary[globalNetmargin]" value="{$aroordersummary->globalNetmargin}" style="width:150px;" readonly="readonly"/> </td>
+                <td><input type="text" id="ordersummary_globalnetmarginPerc" name="ordersummary[globalNetmarginPerc]" value="{$aroordersummary->globalNetmarginPerc}" style="width:150px;" readonly="readonly"/>% </td>
             </tr>
         </tbody>
         <tfoot style="display:none;" id="ordersummary_tfoot" class="altrow2"  name="seemoredetails" >

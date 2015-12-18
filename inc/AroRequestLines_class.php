@@ -140,7 +140,7 @@ class AroRequestLines extends AbstractClass {
             $netmargin -= ((($parms['warehousingTotalLoad'] * $data['quantity']) / $parms['totalQty']) * ($data['daysInStock'] / $parms['warehousingPeriod']) * $parms['warehousingRate']);
         }
         if($purchasetype->isPurchasedByEndUser == 1) {
-            $netmargin = ($newdata['grossMarginAtRiskRatio'] - (($data['quantity'] * $newdata['costPriceAtRiskRatio']) * ($parms['intermedBankInterestRate'] / $parmsfornetmargin['YearDays']) * $parms['intermedPeriodOfInterest']) * $data['exchangeRateToUSD']);
+            $netmargin = ($newdata['grossMarginAtRiskRatio'] - (($data['quantity'] * $newdata['costPriceAtRiskRatio']) * ($parms['intermedBankInterestRate'] / $parmsfornetmargin['YearDays']) * $parms['intermedPeriodOfInterest'])) * $data['exchangeRateToUSD'];
         }
         return $netmargin;
     }

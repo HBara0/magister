@@ -77,4 +77,5 @@ $lang['byquarter'] = 'of the quarter';
 $lang['wholeperiod'] = 'of the Whole Period';
 $lang['chart'] = 'Chart';
 $lang['rank'] = 'Rank';
+$lang['endofmonth'] = 'End of Month'
 ?>

@@ -115,8 +115,6 @@ if(!($core->input['action'])) {
         }
         $consolidation_warehouses_list = parse_selectlist('partiesinfo[consolidationWarehouse]', 1, $consolidation_warehouses, 0, '', '', array('id' => 'partiesinfo_consolidationWarehouse', 'width' => '100%'));
         $consolidation_warehouses_display = 'style="display:none;"'; // change all $display fields to 1 array !!
-
-
         eval("\$takeactionpage = \"".$template->get('aro_managearodocuments_takeaction')."\";");
         $takeactionpage = '<a class="header" href="#"><h2 id="aro_discussions">'.$lang->aromessages.'</h2></a><div style="margin-top:10px;">'.$takeactionpage.'</div>';
 
@@ -141,6 +139,9 @@ if(!($core->input['action'])) {
             if(is_object($aro_bm)) {
                 $aroorderrequest->aroBusinessManager_output = $aro_bm->get_displayname();
             }
+        }
+        if($aroorderrequest->isApproved == 1) {
+            $arostatus = '<h2>APPROVED </h2>';
         }
         if(isset($core->input['referrer']) && $core->input['referrer'] == 'toapprove') {
             $aroapproval = AroRequestsApprovals::get_data(array('aorid' => intval($core->input['id']), 'uid' => $core->user['uid']));
@@ -251,7 +252,10 @@ if(!($core->input['action'])) {
                     $product = new Products($productline['pid']);
                     $prodseg_obj = $product->get_segment();
                     $productline['seg_output'] = $prodseg_obj['title'];
-                    $productline['packaging_output'] = Packaging::get_data(array('packid' => $productline['packing']))->get_displayname();
+                    $packaging_obj = Packaging::get_data(array('packid' => $productline['packing']));
+                    if(is_object($packaging_obj)) {
+                        $productline['packaging_output'] = $packaging_obj->get_displayname();
+                    }
                     $productline['uom_output'] = UOM::get_data(array('uomid' => $productline['uom']))->name;
 
                     $productline[productName] = $product->get_displayname();
@@ -1181,10 +1185,13 @@ else {
             if(isset($core->input['commFromIntermed']) && !empty($core->input['commFromIntermed'])) {
                 $thirdparty_title = $lang->local;
                 $thirdparty = $affiliate->get_displayname();
-                $invoicevalue_thirdparty = ($core->input['commFromIntermed'] / 100) * $intermedmargin;
+                $invoicevalue_thirdparty = ($core->input['commFromIntermed'] / 100) * $core->input['localinvoicevalue_usd']; //$invoicevalueintermed;
                 $invoicevalue_thirdparty_usd = $invoicevalue_thirdparty; //* $core->input['exchangeRateToUSD'];
                 $haveThirdParty = 1;
             }
+        }
+        if(($core->input['sellingpriceqty_product'] * $core->input['exchangeRateToUSD']) != 0) {
+            $globalmarginperc = (($localnetmargin + $intermedmargin) / ($core->input['sellingpriceqty_product'] * $core->input['exchangeRateToUSD'])) * 100;
         }
         $intermedmarginafterreduction = $intermedmargin - $invoicevalue_thirdparty_usd;
         $data = array(
@@ -1216,6 +1223,7 @@ else {
                 'ordersummary_totalamount' => round($core->input['totalamount'], 2),
                 'haveThirdParty' => $haveThirdParty,
                 'ordersummary_netmargin_intermedafterdeduction' => round($intermedmarginafterreduction, 2),
+                'ordersummary_globalnetmarginPerc' => round($globalmarginperc, 2),
         );
         echo json_encode($data);
     }
@@ -1352,7 +1360,7 @@ else {
     }
     if($core->input['action'] == 'viewonly') {
         $aroorderrequest = AroRequests::get_data(array('aorid' => $core->input['id']), array('simple' => false));
-        if($aroorderrequest->isApproved == 1) {
+        if($aroorderrequest->isApproved == 1 || $core->user['uid'] != $aroorderrequest->createdBy) {
             $viewonly = array('disable' => 1);
             output(json_encode($viewonly));
         }
