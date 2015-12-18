@@ -484,7 +484,7 @@ else {
                                 foreach($segment['savesection'] as $section => $val) {
                                     if($val == 1) {
                                         $nextsection = 'section'.(intval(substr($section, -1)) + 1);
-                                        $shownextsection = '<script> $(function(){$("div[id=\'savingsection_'.$sequence.'_'.$nextsection.'\']").show();alert(12);});</script>';
+                                        $shownextsection = '<script> $(function(){$("div[id=\'savingsection_'.$sequence.'_'.$nextsection.'\']").show();});</script>';
                                     }
                                 }
                             }

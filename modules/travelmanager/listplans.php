@@ -74,7 +74,7 @@ if(!$core->input['action']) {
 
             $plan->link = 'index.php?module=travelmanager/viewplan&id='.$plan->tmpid;
             $finalized = '<img src="'.$core->settings['rootdir'].'/images/valid.gif" alt="'.$lang->finalized.'" border="0">';
-            if($plan->isFinalized == 0) {
+            if($plan->isFinalized != 1) {
                 $finalized = '<img src="'.$core->settings['rootdir'].'/images/invalid.gif" border="0">';
                 $plan->link = 'index.php?module=travelmanager/plantrip&id='.$plan->tmpid;
             }
