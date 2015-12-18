@@ -1,6 +1,6 @@
 <script type="text/javascript">
     $(document).ready(function() {
-        $('input[id^="tokeninput_{$tokenfields}_input"]').each(function(i, obj) {
+        $('input[id^="tokeninput_{$tokenfields}{$tokenidentifier}_input"]').each(function(i, obj) {
             var id = $(this).attr("id").split("_");
             $(this).tokenInput(
                     "{$core->settings[rootdir]}/search.php?&type=quick&returnType=jsontoken&for=" + id[1], {

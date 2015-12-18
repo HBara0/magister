@@ -663,7 +663,7 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
         foreach($results as $key => $val) {
             if($options['returnType'] == 'json' || $options['returnType'] == 'jsontoken') {
                 $results_list['"'.$key.'"']['id'] = $key;
-                $results_list['"'.$key.'"']['value'] = $val;
+                $results_list['"'.$key.'"']['value'] = preg_replace('/[^\da-z]/i', ' ', $val);
             }
             if($options['returnType'] != 'jsontoken' && isset($options['descinfo']) && !empty($options['descinfo'])) {
                 switch($options['descinfo']) {
@@ -1082,6 +1082,12 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                             }
                         }
                         break;
+                }
+                if(isset($results_list['"'.$key.'"']['desc']) && !empty($results_list['"'.$key.'"']['desc'])) {
+                    $results_list['"'.$key.'"']['desc'] = preg_replace('/[^\da-z]/i', ' ', $results_list['"'.$key.'"']['desc']);
+                }
+                if(isset($results_list['"'.$key.'"']['value']) && !empty($results_list['"'.$key.'"']['value'])) {
+                    $results_list['"'.$key.'"']['value'] = preg_replace('/[^\da-z]/i', ' ', $results_list['"'.$key.'"']['value']);
                 }
             }
             else {
