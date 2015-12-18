@@ -17,8 +17,8 @@
 
     <div style="margin-bottom:20px;">
         <table style="width:100%">
-            <tr><td style="font-weight: bold;width:40%">{$lang->estdateofpayment}</td><td>{$data[vendorEstDateOfPayment_formatted]}</td></tr>
-            <tr><td style="font-weight: bold;width:40%">{$lang->estdateofpayment}</td><td>{$data[intermedEstDateOfPayment_formatted]}</td></tr>
+            <tr><td style="font-weight: bold;width:40%">{$lang->estdateofpayment} {$lang->vendor}</td><td>{$data[vendorEstDateOfPayment_formatted]}</td></tr>
+            <tr><td style="font-weight: bold;width:40%">{$lang->estdateofpayment} {$lang->intermediary}</td><td>{$data[intermedEstDateOfPayment_formatted]}</td></tr>
             <tr><td style="font-weight: bold;width:40%">{$lang->promiseofpayment}</td><td>{$data[promiseOfPayment_formatted]}</td></tr>
         </table>
     </div>

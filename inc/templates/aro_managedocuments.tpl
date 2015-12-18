@@ -11,6 +11,7 @@
         {$menu}
         <td class="contentContainer" colspan="2">
             <h1>Aro Document</h1>
+            {$arostatus}
             {$arodocument_header}
             <div class="accordion">
                 <form name="perform_aro/managearodouments_Form" id="perform_aro/managearodouments_Form"  action="#" method="post">

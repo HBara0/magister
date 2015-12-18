@@ -31,8 +31,8 @@
                 </td>
             </tr>
             <tr>
-                <td valign="top">{$lang->riskratio}</td>
-                <td class="border_right" ><input type="text" name="parmsfornetmargin[localRiskRatio]" id="parmsfornetmargin_localRiskRatio" value="{$netmarginparms->localRiskRatio}" style="width:150px;" readonly class="automaticallyfilled-noneditable"/></td>
+                <td valign="top">{$lang->riskratio} <a href="#" title="{$lang->zeroriskratio}"><img src="./images/icons/question.gif"/></a></td>
+                <td class="border_right" ><input type="text" name="parmsfornetmargin[localRiskRatio]" id="parmsfornetmargin_localRiskRatio" value="{$netmarginparms->localRiskRatio}" style="width:150px;" class="automaticallyfilled-editable"/></td>
                 <td class="border_right" ></td>
                 <td valign="top">{$lang->totalload}</td>
                 <td><input type="text" name="parmsfornetmargin[warehousingTotalLoad]" id="parmsfornetmargin_warehousingTotalLoad" value="{$netmarginparms->warehousingTotalLoad}" style="width:150px;" {$readonly[warehousing]} required/></td>

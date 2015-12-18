@@ -661,11 +661,11 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
     }
     if(is_array($results)) {
         foreach($results as $key => $val) {
-            if($options['returnType'] == 'json') {
+            if($options['returnType'] == 'json' || $options['returnType'] == 'jsontoken') {
                 $results_list['"'.$key.'"']['id'] = $key;
                 $results_list['"'.$key.'"']['value'] = $val;
             }
-            if(isset($options['descinfo']) && !empty($options['descinfo'])) {
+            if($options['returnType'] != 'jsontoken' && isset($options['descinfo']) && !empty($options['descinfo'])) {
                 switch($options['descinfo']) {
                     case 'citycountry':
 //                        $hotelsobj = TravelManagerHotels::get_data('tmhid='.$key);
@@ -946,7 +946,7 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                     case 'country':
                         $entity = new Entities($key);
                         if(!empty($entity->country)) {
-                            if($options['returnType'] == 'json') {
+                            if($options['returnType'] == 'json' || $options['returnType'] == 'jsontoken') {
                                 $results_list['"'.$key.'"']['desc'] = $entity->get_country()->name;
                             }
                             else {
@@ -1085,8 +1085,8 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                 }
             }
             else {
-                if($options['returnType'] != 'json') {
-                    $results_list .= '<li id="'.$key.'">'.$val.'</li>';
+                if($options['returnType'] != 'json' && $options['returnType'] != 'jsontoken') {
+                    $results_list .= '<li id = "'.$key.'">'.$val.'</li>';
                 }
             }
         }
@@ -1113,11 +1113,14 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
             $results_list = $new_resultlist;
         }
     }
-    if($options['returnType'] != 'json') {
-        $results_list = '<ul id="searchResultsList">'.$results_list.'</ul>';
+    if($options['outputjsonformat'] == 'tokens') {
+        $results_list = json_encode(array_values($results_list));
+    }
+    else if($options['returnType'] == 'json') {
+        $results_list = json_encode($results_list);
     }
     else {
-        $results_list = json_encode($results_list);
+        $results_list = '<ul id = "searchResultsList">'.$results_list.'</ul>';
     }
 
     return $results_list;
