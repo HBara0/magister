@@ -41,8 +41,9 @@ else {
 
         if($core->input['type'] == 'endofmonth') {
             $core->input['affids'][] = $core->user['mainaffiliate'];
-            $core->input['fromDate'] = date('Y-m-d', strtotime('first day of last month'));
-            $core->input['toDate'] = date('Y-m-d', strtotime('last day of last month'));
+            //            $query_date = '2015-01-04';
+            $core->input['fromDate'] = date('Y-m-d', strtotime('first day of last month')); //date('Y-01-01', strtotime($query_date));
+            $core->input['toDate'] = date('Y-m-d', strtotime('last day of last month')); // date('Y-01-31', strtotime($query_date));
             $core->input['type'] = 'analytic';
         }
         if(empty($core->input['affids'])) {
