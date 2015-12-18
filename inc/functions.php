@@ -27,9 +27,9 @@ function output_page($template) {
 
     $timer->stop();
 
-    $debug = '';
+    $debug = 'Version '.SYSTEMVERSION.'<br />';
     if($core->usergroup['canPerformMaintenance'] == 1) {
-        $debug = 'Generated in '.$timer->get().' seconds';
+        $debug .= 'Generated in '.$timer->get().' seconds';
     }
     $template = str_replace("<debug>", $debug, $template);
 

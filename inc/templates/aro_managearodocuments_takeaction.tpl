@@ -1,6 +1,6 @@
 <script>
-    $(function() {
-        $('img[id^="replyto_"]').bind('click', function() {
+    $(function () {
+        $('img[id^="replyto_"]').bind('click', function () {
             var id = $(this).attr("id").split("_");
             $("#inreplyto").val(id[1]);
             var permission = id[2];
