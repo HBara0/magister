@@ -632,8 +632,10 @@ class AroRequests extends AbstractClass {
         if(is_object($partiesinfo_obj)) {
             $fields = array('vendorEstDateOfPayment', 'intermedEstDateOfPayment', 'promiseOfPayment');
             foreach($fields as $field) {
-                $data[$field.'_formatted'] = '';
-                $data[$field.'_formatted'] = date($core->settings['dateformat'], $partiesinfo_obj->$field);
+                if(!empty($partiesinfo_obj->$field)) {
+                    $data[$field.'_formatted'] = '';
+                    $data[$field.'_formatted'] = date($core->settings['dateformat'], $partiesinfo_obj->$field);
+                }
             }
             $intermed_aff = Affiliates::get_affiliates(array('affid' => $partiesinfo_obj->intermedAff));
             $data['intermed_aff_output'] = '-';
@@ -666,7 +668,7 @@ class AroRequests extends AbstractClass {
             $fields = array('invoiceValueUsdIntermed', 'invoiceValueUsdLocal', 'invoiceValueThirdParty', 'netmarginIntermed', 'netmarginIntermedPerc', 'netmarginLocal', 'netmarginLocalPerc', 'globalNetmargin');
             foreach($fields as $field) {
                 if($field == 'netmarginIntermedPerc' || $field == 'netmarginLocalPerc') {
-                    $data[$field] = $perc_formatter->format($ordersummary->$field);
+                    $data[$field] = $perc_formatter->format($ordersummary->$field / 100);
                 }
                 else {
                     $data[$field] = $formatter->format($ordersummary->$field);

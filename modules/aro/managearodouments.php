@@ -252,7 +252,10 @@ if(!($core->input['action'])) {
                     $product = new Products($productline['pid']);
                     $prodseg_obj = $product->get_segment();
                     $productline['seg_output'] = $prodseg_obj['title'];
-                    $productline['packaging_output'] = Packaging::get_data(array('packid' => $productline['packing']))->get_displayname();
+                    $packaging_obj = Packaging::get_data(array('packid' => $productline['packing']));
+                    if(is_object($packaging_obj)) {
+                        $productline['packaging_output'] = $packaging_obj->get_displayname();
+                    }
                     $productline['uom_output'] = UOM::get_data(array('uomid' => $productline['uom']))->name;
 
                     $productline[productName] = $product->get_displayname();
@@ -1182,8 +1185,8 @@ else {
             if(isset($core->input['commFromIntermed']) && !empty($core->input['commFromIntermed'])) {
                 $thirdparty_title = $lang->local;
                 $thirdparty = $affiliate->get_displayname();
-                $invoicevalue_thirdparty = ($core->input['commFromIntermed'] / 100) * $invoicevalueintermed;
-                $invoicevalue_thirdparty_usd = $invoicevalue_thirdparty * $core->input['exchangeRateToUSD'];
+                $invoicevalue_thirdparty = ($core->input['commFromIntermed'] / 100) * $core->input['localinvoicevalue_usd']; //$invoicevalueintermed;
+                $invoicevalue_thirdparty_usd = $invoicevalue_thirdparty; //* $core->input['exchangeRateToUSD'];
                 $haveThirdParty = 1;
             }
         }

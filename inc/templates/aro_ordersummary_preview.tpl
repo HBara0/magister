@@ -72,7 +72,7 @@
             </tr>
 
             <tr {$ordersummarydisplay[thirdcolumn_display]}>
-                <td>{$lang->total} {$lang->netmargin} <br/>{$lang->afterdeduction}<a href="#" title="{$lang->totalnetmargindef}"><img src="./images/icons/question.gif"/></a></td>
+                <td>{$lang->total} {$lang->netmargin} <br/>{$lang->afterdeduction}<a href="#" title="{$lang->totalnetmarginafterdeduction}"><img src="./images/icons/question.gif"/></a></td>
                 <td style="text-align: right;">{$aroordersummary->netmarginIntermed_afterdeduction}</td>
                 <td style="text-align: right;">{$aroordersummary->netmarginLocal}</td>
                 <td id="ordersummary_thirdparty_4" style="text-align: right;"><div style="text-align: right;">{$aroordersummary->invoiceValueThirdParty}</div></td>

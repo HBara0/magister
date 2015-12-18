@@ -935,14 +935,21 @@ function addactualpurchaselines(id) {
     $("tbody[id^='productline_']").find($("input[id^='productline_" + id + "'],select[id^='productline_" + id + "']")).each(function() {
         var field = $(this).attr('id').split('_');
         if(field[2] == 'netMargin' || field[2] == 'netMarginPerc' || field[2] == 'grossMarginAtRiskRatio' || field[2] == 'totalBuyingValue' || field[2] == 'psid') {
+
             return true;
         }
         if($(this).val() == null) {
             fields = '';
+            if($("#modal-loading2").dialog("isOpen")) {
+                $("#modal-loading2").dialog("close");
+            }
             return false;
         }
         if($(this).val().length == 0) {
             fields = '';
+            if($("#modal-loading2").dialog("isOpen")) {
+                $("#modal-loading2").dialog("close");
+            }
             return false;
         }
         if(!(($(this).val().length == 0) || ($(this).val() == null))) {//&& field[2] != 'totalBuyingValue'

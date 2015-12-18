@@ -30,7 +30,7 @@
             <span><input type="radio" disabled="disabled" id="permission_private" name="arorequestmessage[viewPermission]"  value="private">{$lang->private}</span>
             <span><input type="radio" disabled="disabled" id="permission_limited" name="arorequestmessage[viewPermission]" value="limited">{$lang->limited}</span>
         </div>
-        <div><input type='submit' id="add_aro/managearodouments_Button" value="&#x21b6; {$lang->reply}" class='button' /></div>
+        <div><input type='button' id="add_aro/managearodouments_Button" value="&#x21b6; {$lang->reply}" class='button' /></div>
         <div id="add_aro/managearodouments_Results"></div>
         <div style="display:block;">{$takeactionpage_conversation}</div>
     </div>
