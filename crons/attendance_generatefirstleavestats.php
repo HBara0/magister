@@ -15,27 +15,20 @@ if(is_array($allactiveusers)) {
     $to = strtotime("2016-01-01 17:00:00");
     foreach($allactiveusers as $user) {
         $data = array('uid' => $user->uid, 'fromDate' => $from, 'toDate' => $to, 'skipWorkingDays' => True, 'type' => 1);
-        $query1 = $db->query("Select MIN(periodStart) as firstperiod FROM ".Tprefix."leavesstats WHERE ltid='1' AND uid= {$user->uid}");
-        $number_stats1 = $db->num_rows($query1);
-        if($number_stats1 > 0) {
-            while($firstsperiodstart = $db->fetch_assoc($query1)) {
-                if(empty($firstsperiodstart['firstperiod'])) {
-                    continue;
-                }
-                $query = $db->query("SELECT ls.*, Concat(u.firstName, ' ', u.lastName) AS employeename
+        $query = $db->query("SELECT ls.*, Concat(u.firstName, ' ', u.lastName) AS employeename
                 FROM ".Tprefix."leavesstats ls JOIN ".Tprefix."users u ON (ls.uid = u.uid)
-                WHERE ltid = '1' AND u.uid = {$user->uid} AND periodStart = {$firstsperiodstart['firstperiod']}
+                WHERE ltid = '1' AND u.uid = {$user->uid}
+                SORT BY periodStart ASC  Limit 0,1
                 ");
-                $number_stats = $db->num_rows($query);
-                if($number_stats > 0) {
-                    while($stats = $db->fetch_assoc($query)) {
-                        $stats['balance'] = $stats['canTake'] - $stats['daysTaken'];
-                        $stats['finalBalance'] = $stats['balance'] + $stats['additionalDays'];
-                        reinitialize_balance($user, 3, $stats['finalBalance']);
-                    }
-                }
+        $number_stats = $db->num_rows($query);
+        if($number_stats > 0) {
+            while($stats = $db->fetch_assoc($query)) {
+                $stats['balance'] = $stats['canTake'] - $stats['daysTaken'];
+                $stats['finalBalance'] = $stats['balance'] + $stats['additionalDays'];
+                reinitialize_balance($user, 3, $stats['finalBalance']);
             }
         }
+
         $stat = new LeavesStats();
         $stat->generate_periodbased($data);
     }
