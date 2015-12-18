@@ -19,7 +19,7 @@ class FacilityMgmtReservations extends AbstractClass {
     }
 
     public function create(array $data) {
-        global $db, $core;
+        global $db;
         $table_array = array(
                 'fmfid' => $data['fmfid'],
                 'fromDate' => $data['fromDate'],
@@ -28,6 +28,8 @@ class FacilityMgmtReservations extends AbstractClass {
                 'purpose' => $data['purpose'],
                 'mtid' => $data['mtid'],
         );
+
+        $this->data = $table_array;
         $query = $db->insert_query(self::TABLE_NAME, $table_array);
         if($query) {
             $this->data[self::PRIMARY_KEY] = $db->last_id();

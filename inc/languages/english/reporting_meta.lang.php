@@ -246,4 +246,5 @@ $lang['auditorscoreexplanation'] = 'Scores are calculated based on the number of
 $lang['detailedsection'] = 'Detailed Section';
 $lang['summary'] = 'Summary';
 $lang['warningnegativeandzeronumbers'] = 'Warning! Some Quarter Numbers Are Negative But Are Showing As Zeros. This Means That Some Reports Are Not Filled Properly.';
+$lang['overview'] = 'Overview';
 ?>

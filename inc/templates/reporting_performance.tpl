@@ -23,6 +23,7 @@
                             <img src ="{$daystocompletion_bchart[daystoimportfromcreationchart]}" alt=""/>
                         </td>
                     </tr>
+                    <tr class="thead"><td colspan="2" style="text-align: center;font-size: large">{$lang->overview}</td></tr>
                     <tr class="subtitle"  {$display[allaffiliates]}>
                         <td colspan="2">{$lang->allaffiliates}</td>
                     </tr>
