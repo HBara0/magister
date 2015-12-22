@@ -307,4 +307,7 @@ $lang['requestleavesubject'] = '{1} requested a {2} [{3}]';
 $lang['helptour_checkhotelslist'] = 'Please note that you can review the list of Orkila\'s approved hotels from the Hotels List page.';
 $lang['flightrainnumber'] = 'Flight/Train Number';
 $lang['companyname'] = 'Company Name';
+$lang['notifyamountisready'] = 'Notify Amount Is Ready';
+$lang['travelmanagerplan_financereadnotify_subject'] = 'Your travel plan\'s finance cash is ready to be picked up ';
+$lang['travelmanagerplan_financereadnotify_message'] = 'Your travel plan of {1} has been reviewed by the finance team. Please pass by and pick the requested amount from the finance team ';
 ?>

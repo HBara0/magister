@@ -164,7 +164,7 @@ class TravelManagerPlanSegments extends AbstractClass {
 
         if($externalpurpose_assignees < $saved_seg_purposes['external']) {
             $this->errorcode = 2;
-            $errorhandler->record('Required Fields', 'External Purposes partner');
+            $errorhandler->record('Required Fields', 'External Purposes partner in Segment '.$segmentdata['sequence']);
             return $this;
         }
         if(isset($segmentdata['tmtcid'])) {
@@ -211,7 +211,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                             continue;
                         }
                         if(isset($data['tmtcid']) && ($data['tmtcid'] == 1 || $data['tmtcid'] == 2) && (is_empty($data['companyName'], $data['vehicleNumber']))) {
-                            if(empty($transit['companyName'])) {
+                            if(empty($data['companyName'])) {
                                 $field = $lang->companyname;
                             }
                             else {
@@ -514,7 +514,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                     if(isset($data['tmtcid']) && empty($data['tmtcid'])) {
                         continue;
                     }
-                    if((isset($transit['transpType']) && empty($transit['transpType'])) || ((isset($transit['fare']) && empty($transit['fare'])))) {
+                    if((isset($data['transpType']) && empty($data['transpType'])) || ((isset($data['fare']) && empty($data['fare'])))) {
                         $transp_errorcode = 2;
                         if(empty($data['tmtcid'])) {
                             $field = $lang->trasptype;
@@ -529,7 +529,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                         continue;
                     }
                     if(isset($data['tmtcid']) && ($data['tmtcid'] == 1 || $data['tmtcid'] == 2) && (is_empty($data['companyName'], $data['vehicleNumber']))) {
-                        if(empty($transit['companyName'])) {
+                        if(empty($data['companyName'])) {
                             $field = $lang->companyname;
                         }
                         else {
@@ -968,7 +968,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                 $expenses_details .= '<div style = "display:block;padding:5px 0px 5px 0px;">';
                 $expenses_details .= '<div style = "width:85%;display:inline-block;">'.$transpcat->title.'</div>';
                 $transp_obj = new TravelManagerPlanTransps();
-                $expenses_details .= '<div style = "width:10%;display:inline-block;text-align:right;">$'.round($transpexp['fare'], 2).'</div>';
+                $expenses_details .= '<div style = "width:10%;display:inline-block;text-align:right;">$'.round($transpexp['fare']).'</div>';
                 $expenses_details .= '</div>';
                 $expenses_total += $transpexp['fare'];
             }
@@ -977,7 +977,7 @@ class TravelManagerPlanSegments extends AbstractClass {
         $fxrate_query['accomodation'] = "(CASE WHEN tmpa.currency =840 THEN 1 ELSE (SELECT rate FROM currencies_fxrates WHERE baseCurrency=tmpa.currency AND currency=840
 				ORDER BY date DESC LIMIT 0, 1) END)";
         $expenses['accomodation'] = $db->fetch_field($db->query("SELECT SUM(priceNight*{$fxrate_query['accomodation']}*numNights) AS total FROM ".Tprefix."travelmanager_plan_accomodations tmpa WHERE tmpsid IN (SELECT tmpsid FROM travelmanager_plan_segments WHERE tmpid=".intval($this->tmpid).")"), 'total');
-        $expenses['accomodation'] = round($expenses['accomodation'], 2);
+        $expenses['accomodation'] = round($expenses['accomodation']);
         if(empty($expenses['accomodation'])) {
             $expenses['accomodation'] = 0;
         }
