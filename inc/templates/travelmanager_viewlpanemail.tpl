@@ -12,8 +12,8 @@
     border-left: 1px solid #CCCCCC;" href="{$approve_link}" target="_blank">{$lang->approve}</a></br>
 <div id="container" style="width:100%;  margin: 0px auto;display:block;">
     </br>
-    {$segment_details}
     <div style=" width:100%; background-color: lightgray; display: block;">{$segment_expenses} </div>
+    {$segment_details}
     <div style="font-size: 24px;color: #91B64F;font-weight: 100;">{$transportaion_fields_title} </div>
     {$transportaion_fields}
 </div>
