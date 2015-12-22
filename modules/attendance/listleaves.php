@@ -176,6 +176,11 @@ if(!$core->input['action']) {
                 $edit_link = "<a href='index.php?module=attendance/editleave&amp;lid={$leave[lid]}'><img src='{$core->settings[rootdir]}/images/icons/edit.gif' border='0' alt='{$lang->modifyleave}' /></a>";
                 $revoke_link = "<a href='#{$leave[lid]}' id='revokeleave_{$leave[lid]}_attendance/listleaves_icon'><img src='{$core->settings[rootdir]}/images/invalid.gif' border='0' alt='{$lang->revokeleave}' /></a>";
             }
+            $tmplan = TravelManagerPlan::get_plan(array('lid' => $leave['lid']));
+            if(is_object($tmplan)) {
+                $tm_link = "<a target='_blank' href='".DOMAIN."/index.php?module=travelmanager/viewplan&referrer=plan&lid={$leave['lid']}&id={$tmplan->tmpid}' border='0' alt='{$lang->modifyleave}' /><img src='{$core->settings[rootdir]}/images/icons/report.gif' border='0' /></a>";
+            }
+            unset($tmplan);
             eval("\$requestslist .= \"".$template->get('attendance_listleaves_leaverow')."\";");
         }
     }
