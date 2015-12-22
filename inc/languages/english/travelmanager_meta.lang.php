@@ -310,4 +310,8 @@ $lang['companyname'] = 'Company Name';
 $lang['notifyamountisready'] = 'Notify Amount Is Ready';
 $lang['travelmanagerplan_financereadnotify_subject'] = 'Your travel plan\'s finance cash is ready to be picked up ';
 $lang['travelmanagerplan_financereadnotify_message'] = 'Your travel plan of {1} has been reviewed by the finance team. Please pass by and pick the requested amount from the finance team ';
+$lang['segmentoverview'] = 'Segment Overview';
+$lang['purposes'] = 'Purposes';
+$lang['internal'] = 'Internal';
+$lang['external'] = 'External';
 ?>
