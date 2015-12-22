@@ -333,7 +333,7 @@ else {
                         if($activity['soldQty'] == 0 && $activity['turnOver'] == 0 && $activity['quantity'] == 0) {
                             continue;
                         }
-                        $fields = array('turnOver', 'turnOverOc', 'salesForecast', 'soldQty', 'quantityForecast', 'quantity');
+                        $fields = array('salesForecast', 'quantityForecast');
                         foreach($fields as $field) {
                             if(!empty($activity[$field])) {
                                 $activity[$field] = round($activity[$field]);
@@ -377,13 +377,12 @@ else {
                             else {
                                 echo 'Added: ';
                                 if($options['runtype'] != 'dry') {
-                                    $fields = array('turnOver', 'turnOverOc', 'salesForecast', 'soldQty', 'quantityForecast', 'quantity');
+                                    $fields = array('salesForecast', 'quantityForecast');
                                     foreach($fields as $field) {
                                         if(!empty($activity[$field])) {
                                             $activity[$field] = round($activity[$field]);
                                         }
                                     }
-                                    $activity['turnOver'] = round($activity['turnOver']);
                                     $db->insert_query('productsactivity', $activity);
 
                                     $productact = new ProductsActivity($db->last_id());

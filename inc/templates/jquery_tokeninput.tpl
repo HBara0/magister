@@ -1,10 +1,10 @@
 <script type="text/javascript">
     $(document).ready(function() {
-        $('input[id^="tokeninput_{$tokenfields}_input"]').each(function(i, obj) {
+        $('input[id^="tokeninput_{$tokenfields}{$tokenidentifier}_input"]').each(function(i, obj) {
             var id = $(this).attr("id").split("_");
             $(this).tokenInput(
                     "{$core->settings[rootdir]}/search.php?&type=quick&returnType=jsontoken&for=" + id[1], {
-                minChars: 2, preventDuplicates: true, method: 'POST', queryParam: 'value', minChars: 2, jsonContainer: null, contentType: "json", prePopulate: [{$eistingattendees}],
+                minChars: 2, preventDuplicates: true, method: 'POST', queryParam: 'value', minChars: 2, jsonContainer: null, contentType: "json", prePopulate: [{$existingdata}],
                 resultsFormatter: function(item) {
                     if(typeof item.desc != 'undefined') {
                         return "<li>" + item.value + " <br><small>" + item.desc + "</small></li>";

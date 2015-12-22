@@ -667,7 +667,7 @@ else {
             }
             unset($salesreport);
         }
-        else {
+        else if($core->input['type'] == 'endofmonth') {
             if(!is_array($core->input['affids']) || count($core->input['affids']) == 1) {
                 $finManager = $affiliate->get_financialemanager();
                 if(!is_object($finManager)) {

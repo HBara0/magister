@@ -105,6 +105,7 @@ if(!$core->input['action']) {
                     if(is_object($approvalobj)) {
                         if($approvalobj->uid == $core->user['uid']) {
                             $rowclass = 'unapproved';
+                            $row_tools = '<a href="index.php?module=aro/managearodouments&referrer=toapprove&id='.$documentrequest->aorid.'" title="'.$lang->edit.'"><img src="./images/icons/edit.gif" border=0 alt="'.$lang->edit.'"/></a>';
                         }
                     }
                 }

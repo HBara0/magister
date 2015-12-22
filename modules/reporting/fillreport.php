@@ -1311,6 +1311,12 @@ else {
                 record_contribution($rid, $core->input['isDone']);
             }
             $db->update_query('reports', $new_status, "rid='{$rid}'");
+            $findata['newStatus'] = 1;
+            $findata['actionType'] = 'finalize';
+            $findata['rid'] = $rid;
+            $reportfinstatus = new ReportingFinalizeStatus();
+            $reportfinstatus->set($findata);
+            $reportfinstatus->save();
             if($core->input['previewed_marketreport'] == 1) {
                 $report_obj = new ReportingQReports($rid);
                 if(is_object($report_obj)) {

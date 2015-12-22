@@ -473,7 +473,7 @@ else {
                     if(isset($core->input['finalizeplan']) && $core->input['finalizeplan'] == 1) {
                         $url = 'index.php?module=travelmanager/viewplan&referrer=plantrip&id=';
                         header('Content-type: text/xml+javascript');
-                        output_xml('<status>true</status><message><![CDATA[<script>goToURL(\''.$url.$travelplan->tmpid.'\');</script>]]></message>');
+                        output_xml('<status>true</status><message>'.$lang->successfullysaved.'<![CDATA[<script>goToURL(\''.$url.$travelplan->tmpid.'\');</script>]]></message>');
                         exit;
                     }
                     else {
@@ -484,7 +484,7 @@ else {
                                 foreach($segment['savesection'] as $section => $val) {
                                     if($val == 1) {
                                         $nextsection = 'section'.(intval(substr($section, -1)) + 1);
-                                        $shownextsection = '<script> $(function(){$("div[id=\'savingsection_'.$sequence.'_'.$nextsection.'\']").show();alert(12);});</script>';
+                                        $shownextsection = '<script> $(function(){$("div[id=\'savingsection_'.$sequence.'_'.$nextsection.'\']").show();});</script>';
                                     }
                                 }
                             }

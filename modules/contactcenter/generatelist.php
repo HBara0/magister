@@ -447,7 +447,12 @@ else {
             }
             $ents = Entities::get_data($extrafilters[Entities], array('returnarray' => true, 'operators' => array('contractExpiryDate' => $extrafilters['operators']['contractExpiryDate'])));
             if(isset($extrafilters[AffiliatedEntities]) && !empty($extrafilters[AffiliatedEntities])) {
-                $extrafilters[AffiliatedEntities]['eid'] = array_keys($ents);
+                if(is_array($ents)) {
+                    $extrafilters[AffiliatedEntities]['eid'] = array_keys($ents);
+                }
+                else {
+                    $extrafilters[AffiliatedEntities]['eid'] = array(0);
+                }
                 $affiliatedents = AffiliatedEntities::get_data($extrafilters[AffiliatedEntities], array('returnarray' => true));
                 $eids = array_map(
                         function($e) {

@@ -107,7 +107,6 @@
                                             </table>
                                         </div></td>
                                 </tr>
-                                <tr><td></td><td><img src="images/add.gif" id="addmore_rep" alt='{$lang->add}' title="{$lang->addmorerows}"> {$lang->add}</td></tr>
                             </table>
                         </td>
                     </tr>

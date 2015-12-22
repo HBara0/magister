@@ -73,23 +73,29 @@ if(!$core->input['action']) {
                     $attendees_objs = $meeting_attednobj->get_attendee();
                     $meeting['attendees'][$matid] = $attendees_objs->get();
                     if(isset($meeting['attendees'][$matid]['uid'])) {
-                        $matids.=$matid.',';
-                        $eistingattendees.='{id: '.$meeting['attendees'][$matid]['uid'].', value:\''.$meeting['attendees'][$matid]['displayName'].'\'},';
+                        $usermatids.=$matid.',';
+                        $eistinguserattendees.='{id: '.$meeting['attendees'][$matid]['uid'].', value:\''.$db->escape_string($meeting['attendees'][$matid]['displayName']).'\'},';
                     }
                     if(isset($meeting['attendees'][$matid]['rpid'])) {
-                        $meeting['attendees'][$matid]['id'] = $meeting['attendees'][$matid]['rpid'];
-                        eval("\$createmeeting_repattendees .= \"".$template->get('meeting_create_repattendee')."\";");
-                        $reprowid++;
+                        $repmatids.=$matid.',';
+                        $eistingrepattendees.='{id: '.$meeting['attendees'][$matid]['rpid'].', value:\''.$db->escape_string($meeting['attendees'][$matid]['name']).'\',desc:\''.$db->escape_string($meeting['attendees'][$matid]['email']).'\'},';
                     }
                 }
                 unset($meeting['attendees '], $matid);
             }
-            $tokenfields = 'user';
-            eval("\$jquery_tokeninput = \"".$template->get('jquery_tokeninput')."\";");
-            eval("\$createmeeting_userattendees = \"".$template->get('meeting_create_userattendee')."\";");
-            if(empty($createmeeting_repattendees)) {
-                eval("\$createmeeting_repattendees  = \"".$template->get('meeting_create_repattendee')."\";");
+            if(!empty($eistinguserattendees)) {
+                $existingdata = $eistinguserattendees;
             }
+            $tokenfields = 'user';
+            eval("\$userinput = \"".$template->get('jquery_tokeninput')."\";");
+            eval("\$createmeeting_userattendees = \"".$template->get('meeting_create_userattendee')."\";");
+            unset($existingdata);
+            if(!empty($eistingrepattendees)) {
+                $existingdata = $eistingrepattendees;
+            }
+            $tokenfields = 'representative';
+            eval("\$repinput = \"".$template->get('jquery_tokeninput')."\";");
+            eval("\$createmeeting_repattendees  = \"".$template->get('meeting_create_repattendee')."\";");
 
             $entity_obj = new Entities($associatons['cid']);
             $meeting['associations']['cutomername'] = $entity_obj->get()['companyName'];
@@ -128,8 +134,10 @@ if(!$core->input['action']) {
         $rowid = 1;
         $reprowid = 1;
         $tokenfields = 'user';
-        eval("\$jquery_tokeninput = \"".$template->get('jquery_tokeninput')."\";");
+        eval("\$userinput = \"".$template->get('jquery_tokeninput')."\";");
         eval("\$createmeeting_userattendees = \"".$template->get('meeting_create_userattendee')."\";");
+        $tokenfields = 'representative';
+        eval("\$repinput = \"".$template->get('jquery_tokeninput')."\";");
         eval("\$createmeeting_repattendees  = \"".$template->get('meeting_create_repattendee')."\";");
         eval("\$meeting_attachments = \"".$template->get('meeting_create_attachments')."\";");
         $sectionsvisibility['associationssection'] = ' display:none;
@@ -220,6 +228,16 @@ else {
                 }
             }
         }
+        if(!empty($core->input['meeting']['attendees']['rpid']['ids'])) {
+            $ids_array = explode(', ', $core->input['meeting']['attendees']['rpid']['ids']);
+            if(is_array($ids_array)) {
+                $key = 1;
+                foreach($ids_array as $id) {
+                    $core->input['meeting']['attendees']['rpid'][$key] = array('id' => $id);
+                    $key++;
+                }
+            }
+        }
         $meeting_obj = new Meetings();
         $meeting_obj->create($core->input['meeting']);
 
@@ -296,7 +314,60 @@ else {
                 }
             }
         }
-        unset($meetinguids[$id]);
+        else {
+            $key = 1;
+            if(is_array($meetinguids)) {
+                foreach($meetinguids as $uid => $matid) {
+                    $core->input['meeting']['attendees']['uid'][$key] = array('matid' => $matid);
+                    $key++;
+                }
+            }
+        }
+        if(!empty($core->input['meeting']['attendees']['rpid']['matids'])) {
+            $matids = explode(',', $core->input['meeting']['attendees']['rpid']['matids']);
+            unset($core->input['meeting']['attendees']['rpid']['matids']);
+            if(is_array($matids)) {
+                foreach($matids as $matid) {
+                    if(empty($matid)) {
+                        continue;
+                    }
+                    $meetingatt_obj = new MeetingsAttendees(intval($matid));
+                    $meetingrpids[$meetingatt_obj->attendee['attendee']] = $meetingatt_obj->attendee['matid'];
+                }
+            }
+        }
+        if(!empty($core->input['meeting']['attendees']['rpid']['ids'])) {
+            $ids_array = explode(',', $core->input['meeting']['attendees']['rpid']['ids']);
+            unset($core->input['meeting']['attendees']['rpid']['ids']);
+            if(is_array($ids_array)) {
+                $key = 1;
+                foreach($ids_array as $id) {
+                    if(is_array($meetingrpids) && (isset($meetingrpids[$id]) && !empty($meetingrpids[$id]))) {
+                        $core->input['meeting']['attendees']['rpid'][$key] = array('matid' => $meetingrpids[$id], 'id' => $id);
+                        unset($meetingrpids[$id]);
+                    }
+                    else {
+                        $core->input['meeting']['attendees']['rpid'][$key] = array('id' => $id);
+                    }
+                    $key++;
+                }
+                if(is_array($meetingrpids)) {
+                    foreach($meetingrpids as $rpid => $matid) {
+                        $core->input['meeting']['attendees']['rpid'][$key] = array('matid' => $matid);
+                        $key++;
+                    }
+                }
+            }
+        }
+        else {
+            $key = 1;
+            if(is_array($meetingrpids)) {
+                foreach($meetingrpids as $rpid => $matid) {
+                    $core->input['meeting']['attendees']['rpid'][$key] = array('matid' => $matid);
+                    $key++;
+                }
+            }
+        }
         $meeting_obj = new Meetings($mtid);
         $meeting_obj->update($core->input['meeting']);
         echo $headerinc;
