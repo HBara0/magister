@@ -255,5 +255,27 @@ else {
                 exit;
         }
     }
+    elseif($core->input['action'] == 'takeactionpage') {
+        if(isset($core->input['pid']) && !empty($core->input['pid'])) {
+            $tmplan_obj = new TravelManagerPlan(intval($core->input['pid']));
+            if(is_object($tmplan_obj)) {
+                if($core->input['notify'] == 'user') {
+                    $touser = new Users($tmplan_obj->uid);
+                    $leave = $tmplan_obj->get_leave();
+                    $leave_type = $leave->get_type();
+                    $plan_name = $leave_type->title.' - '.$leave->get_country()->get_displayname();
+                    $message = $lang->sprint($lang->travelmanagerplan_financereadnotify_message, $plan_name);
+                    $mailer = new Mailer();
+                    $mailer = $mailer->get_mailerobj();
+                    $mailer->set_type();
+                    $mailer->set_from(array('name' => $core->user['displayName'], 'email' => $core->user['email']));
+                    $mailer->set_subject($lang->travelmanagerplan_financereadnotify_subject);
+                    $mailer->set_message($message);
+                    $mailer->set_to($touser->email);
+                    $mailer->send();
+                }
+            }
+        }
+    }
 }
 ?>

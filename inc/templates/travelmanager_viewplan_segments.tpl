@@ -4,8 +4,10 @@
         <span style="overflow: hidden;white-space: nowrap; text-overflow: ellipsis;  margin:35px;">{$destination_cities}</span><br/>
         <span style="overflow: hidden;white-space: nowrap; text-overflow: ellipsis;  margin:35px;">{$segmentdate}</span>
     </div>
+    <h3>{$lang->segmentoverview}</h3>
+    <div style="width:100%;border-bottom: 1px;border-bottom-style: solid;border-bottom-color: greenyellow">{$segment_overview}</div>
     <h3>{$lang->transportations}</h3>
-    <div style="width:100%;border-bottom: 1px;border-bottom-style: solid;border-bottom-color: greenyellow"">{$segment_transpdetails}</div>
+    <div style="width:100%;border-bottom: 1px;border-bottom-style: solid;border-bottom-color: greenyellow">{$segment_transpdetails}</div>
     <h3>{$lang->accomodation}</h3>
     <div style="width:100%;border-bottom: 1px;border-bottom-style: solid;border-bottom-color: greenyellow">{$segment_accomdetails}</div>
     <h3>{$lang->additionalexpenses}</h3>

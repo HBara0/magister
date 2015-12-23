@@ -300,11 +300,10 @@ if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject) || $ignore_su
                             $segment_objs = TravelManagerPlanSegments::get_segments(array('tmpid' => $planid), array('order' => 'sequence', 'simple' => false, 'returnarray' => true));
                             if(is_array($segment_objs)) {
                                 foreach($segment_objs as $segmentid => $segment) {
-                                    $segment_expenses = $segment->parse_expensesummary();
+                                    $travelmanager_plan->email_finance($segment, $lang->sprint($lang->tmplanfinancenotification, $employee));
                                     break;
                                 }
                             }
-                            $travelmanager_plan->email_finance($segment_expenses, $lang->sprint($lang->tmplanfinancenotification, $employee));
                         }
 
                         $log->record('notifyaffiliate', $mailingList);

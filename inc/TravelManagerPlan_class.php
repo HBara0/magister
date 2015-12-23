@@ -220,11 +220,11 @@ class TravelManagerPlan {
                         $hideotherfields = 'style="display:none;"';
                     }
                     $transportaion_fields.='<hr>';
-                    $transportaion_fields .= '<div><div style="display:inline-block;padding:10px;width:25%;">'.$lang->transptype.'</div><div style="display:inline-block;width:25%;">'.parse_selectlist('segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].'][tmtcid]', '2', $category['othercategories'], $transportation->tmtcid, '', '', array('width' => '100%', 'id' => 'segment_tmtcid_'.$sequence.'_'.$category['inputChecksum'].'_othercategory', 'blankstart' => true, 'data_attribute' => 'data-reqparent="children-segment_'.$sequence.'_tmtcid_'.$category['tmtcid'].'_fare" ')).'</div>';
+                    $transportaion_fields .= '<div><div style="display:inline-block;padding:10px;width:25%;">'.$lang->transptype.'*</div><div style="display:inline-block;width:25%;">'.parse_selectlist('segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].'][tmtcid]', '2', $category['othercategories'], $transportation->tmtcid, '', '', array('width' => '100%', 'id' => 'segment_tmtcid_'.$sequence.'_'.$category['inputChecksum'].'_othercategory', 'blankstart' => true, 'data_attribute' => 'data-reqparent="children-segment_'.$sequence.'_tmtcid_'.$category['tmtcid'].'_fare" ')).'</div>';
                     $transportaion_fields .='<div style="display:inline-block;padding:10px;width:15%;">'.$lang->class.'</div><div style="display:inline-block;width:25%;">'.parse_selectlist('segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].'][class]', '2', $classes, $transportation->class, '', '', array('width' => '100%', 'id' => 'segment_'.$sequence.'_tmtcid_'.$category['inputChecksum'].'_class')).'</div></div>';
-                    $transportaion_fields .= '<div id="segment_tmtcid_'.$sequence.'_'.$category['inputChecksum'].'_transpsextrafields" '.$hideotherfields.'><div style="display:inline-block;padding:10px;width:25%;">'.$lang->companyname.'</div><div style="display:inline-block;width:25%;">'.parse_textfield('segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].'][companyName]', 'segment_tmtcid_'.$sequence.'_'.$category['tmtcid'].'_companyName', 'text', $transportation->companyName, array('style' => 'width:100%;', 'tabindex' => '2;')).'</div>';
-                    $transportaion_fields .= '<div style = "display:inline-block;padding:10px;width:15%;">'.$lang->flightrainnumber.'</div><div style = "display:inline-block;width:20%;">'.parse_textfield('segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].'][vehicleNumber]', 'segment_tmtcid_'.$sequence.'_'.$category['tmtcid'].'_vehicleNumber', 'text', $transportation->vehicleNumber, array('style' => 'width:100%;', 'tabindex' => '2;')).'</div></div>';
-                    $transportaion_fields .= '<div><div style = "display:inline-block;padding:10px;width:25%;">'.$lang->feeday.'</div><div style = "display:inline-block;width:25%;">'.parse_textfield('segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].'][fare]', 'segment_'.$sequence.'_tmtcid_'.$category['tmtcid'].'_fare', 'number', $transportation->fare, array('style' => 'width:100%;', 'tabindex' => '2;')).'</div>';
+                    $transportaion_fields .= '<div id="segment_tmtcid_'.$sequence.'_'.$category['inputChecksum'].'_transpsextrafields" '.$hideotherfields.'><div style="display:inline-block;padding:10px;width:25%;">'.$lang->companyname.'*</div><div style="display:inline-block;width:25%;">'.parse_textfield('segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].'][companyName]', 'segment_tmtcid_'.$sequence.'_'.$category['tmtcid'].'_companyName', 'text', $transportation->companyName, array('style' => 'width:100%;', 'tabindex' => '2;')).'</div>';
+                    $transportaion_fields .= '<div style = "display:inline-block;padding:10px;width:15%;">'.$lang->flightrainnumber.'*</div><div style = "display:inline-block;width:20%;">'.parse_textfield('segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].'][vehicleNumber]', 'segment_tmtcid_'.$sequence.'_'.$category['tmtcid'].'_vehicleNumber', 'text', $transportation->vehicleNumber, array('style' => 'width:100%;', 'tabindex' => '2;')).'</div></div>';
+                    $transportaion_fields .= '<div><div style = "display:inline-block;padding:10px;width:25%;">'.$lang->feeday.'*</div><div style = "display:inline-block;width:25%;">'.parse_textfield('segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].'][fare]', 'segment_'.$sequence.'_tmtcid_'.$category['tmtcid'].'_fare', 'number', $transportation->fare, array('style' => 'width:100%;', 'tabindex' => '2;')).'</div>';
                     $transportaion_fields .= '<div style = "display:inline-block;padding:10px;width:15%;">'.$lang->currency.'</div><div style = "display:inline-block;width:20%;">'.$currencies_list.'</div></div>';
                     $transportaion_fields.=$transportaion_fields_output;
                     $transportaion_fields .='<div><div style="display:inline-block;padding:10px;width:25%;">'.$lang->seatingdescription.'</div><div style = "display:inline-block;width:25%;"><textarea tabindex= 2 name="segment['.$sequence.'][tmtcid]['.$category['inputChecksum'].'][seatingDescription]" id="segment_'.$sequence.'_tmtcid_'.$category['tmtcid'].'_seatingdescription" style="width:100%;">'.$transportation->seatingDescription.'</textarea></div>';
@@ -930,8 +930,19 @@ $("#anotheraff_otheraccomodations_'.$sequence.'_'.$otherhotel_checksum.'").hide(
         return false;
     }
 
-    public function email_finance($message, $subject) {
-        global $core;
+    public function email_finance($segment, $subject) {
+        global $core, $lang;
+        $message = $segment->parse_expensesummary();
+        $approve_link = DOMAIN.'/index.php?module=travelmanager/viewplan&action=takeactionpage&pid='.$segment->tmpid.'&notify=user';
+        $message.='<hr/><div><a  style="font: bold 11px Arial;
+    text-decoration: none;
+    background-color: #EEEEEE;
+    color: #333333;
+    padding: 2px 6px 2px 6px;
+    border-top: 1px solid #CCCCCC;
+    border-right: 1px solid #333333;
+    border-bottom: 1px solid #333333;
+    border-left: 1px solid #CCCCCC;" href="'.$approve_link.'" target="_blank">'.$lang->notifyamountisready.'</a></div>';
         $affiliate = $this->get_user()->get_mainaffiliate();
         if(is_object($affiliate) && !empty($affiliate->financeEmail)) {
             $financeemail = $affiliate->financeEmail;

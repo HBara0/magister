@@ -164,7 +164,7 @@ class TravelManagerPlanSegments extends AbstractClass {
 
         if($externalpurpose_assignees < $saved_seg_purposes['external']) {
             $this->errorcode = 2;
-            $errorhandler->record('Required Fields', 'External Purposes partner');
+            $errorhandler->record('Required Fields', 'External Purposes partner in Segment '.$segmentdata['sequence']);
             return $this;
         }
         if(isset($segmentdata['tmtcid'])) {
@@ -184,7 +184,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                             }
                             $transp_obj = new TravelManagerPlanTransps();
                             $transit[self::PRIMARY_KEY] = $this->data[self::PRIMARY_KEY];
-                            //$transit['tmtcid'] = $category;
+//$transit['tmtcid'] = $category;
 
                             $transp_obj->set($transit);
                             $transp_obj->save();
@@ -211,7 +211,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                             continue;
                         }
                         if(isset($data['tmtcid']) && ($data['tmtcid'] == 1 || $data['tmtcid'] == 2) && (is_empty($data['companyName'], $data['vehicleNumber']))) {
-                            if(empty($transit['companyName'])) {
+                            if(empty($data['companyName'])) {
                                 $field = $lang->companyname;
                             }
                             else {
@@ -222,7 +222,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                             return $this;
                         }
                         $transp_obj = new TravelManagerPlanTransps();
-                        // $data['tmtcid'] = $category;
+// $data['tmtcid'] = $category;
                         $data[self::PRIMARY_KEY] = $this->data[self::PRIMARY_KEY];
                         $transp_obj->set($data);
                         $transp_obj->save();
@@ -252,9 +252,9 @@ class TravelManagerPlanSegments extends AbstractClass {
                 $segdays = floor($segdays / (60 * 60 * 24));
                 $found = 0;
                 foreach($segmentdata['tmhid'] as $checksum => $hotel) {
-                    // if(!isset($hotel['tmhid']) || empty($hotel['tmhid'])) {
-                    //     continue;
-                    // }
+// if(!isset($hotel['tmhid']) || empty($hotel['tmhid'])) {
+//     continue;
+// }
 
                     $hotelacc = TravelManagerPlanaccomodations::get_data(array('inputChecksum' => $checksum));
                     if(!isset($hotel['tmhid']) || empty($hotel['tmhid'])) {
@@ -339,7 +339,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                 $finance_obj = new TravelManagerPlanFinance();
                 $finance_obj->set($financedata);
                 $finance_obj->save();
-                //   $this->errorcode = 0;
+//   $this->errorcode = 0;
             }
         }
 
@@ -469,11 +469,11 @@ class TravelManagerPlanSegments extends AbstractClass {
 
         if($externalpurpose_assignees < $saved_seg_purposes['external']) {
             $this->errorcode = 2;
-            $errorhandler->record('Required Fields', 'External purposes partner');
+            $errorhandler->record('Required Fields', 'External Purposes partner in Segment '.$segmentdata['sequence']);
             return $this;
         }
 
-        // unset($segmentdata['savesection']);
+// unset($segmentdata['savesection']);
         $transptdata = $segmentdata['tmtcid'];
         $trasnp_count = $transp_errorcode = 0;
         if(is_array($transptdata)) {
@@ -514,7 +514,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                     if(isset($data['tmtcid']) && empty($data['tmtcid'])) {
                         continue;
                     }
-                    if((isset($transit['transpType']) && empty($transit['transpType'])) || ((isset($transit['fare']) && empty($transit['fare'])))) {
+                    if((isset($data['transpType']) && empty($data['transpType'])) || ((isset($data['fare']) && empty($data['fare'])))) {
                         $transp_errorcode = 2;
                         if(empty($data['tmtcid'])) {
                             $field = $lang->trasptype;
@@ -529,7 +529,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                         continue;
                     }
                     if(isset($data['tmtcid']) && ($data['tmtcid'] == 1 || $data['tmtcid'] == 2) && (is_empty($data['companyName'], $data['vehicleNumber']))) {
-                        if(empty($transit['companyName'])) {
+                        if(empty($data['companyName'])) {
                             $field = $lang->companyname;
                         }
                         else {
@@ -548,7 +548,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                         continue;
                     }
                     $transp_count++;
-                    // $data['tmtcid'] = $category;
+// $data['tmtcid'] = $category;
                     $data[self::PRIMARY_KEY] = $this->data[self::PRIMARY_KEY];
                     $transp_obj->set($data);
                     $transp_obj->save();
@@ -590,9 +590,9 @@ class TravelManagerPlanSegments extends AbstractClass {
 
                     $validate_fields = array('priceNight', 'numNights', 'currency');
                     foreach($segment_hotels['tmhid'] as $checksum => $hotel) {
-                        // if(!isset($hotel['tmhid']) || empty($hotel['tmhid'])) {
-                        //     continue;
-                        // }
+// if(!isset($hotel['tmhid']) || empty($hotel['tmhid'])) {
+//     continue;
+// }
                         $hotelacc = TravelManagerPlanaccomodations::get_data(array('inputChecksum' => $checksum));
                         if(!isset($hotel['tmhid']) || empty($hotel['tmhid'])) {
                             if(is_object($hotelacc)) {
@@ -801,7 +801,68 @@ class TravelManagerPlanSegments extends AbstractClass {
         $segmentdate = date('l F d, Y', $this->fromDate);
         $segmentdate .=' - '.date('l F d, Y', $this->toDate);
         $numfmt = new NumberFormatter($lang->settings['locale'], NumberFormatter::CURRENCY);
+        /* parse segment overview containing purposes and extra info --START */
+        if(!empty($this->data['reason'])) {
+            $segment_overview = '<div style=" display: inline-block; vertical-align: top;"><span class="subtitle">'.$lang->reason.'</span></div><br><div >'.$this->data['reason'].'</div></br>';
+        }
+        if($this->data['isNoneBusiness'] == 1) {
+            $segment_overview .= '<div style="width:70%; display: inline-block; vertical-align: top;"><span class="subtitle">'.$lang->considerleisuretourism.'</span></div></br>';
+        }
+        $segment_purposes = TravelManagerPlanSegPurposes::get_data(array('tmpsid' => $this->data[self::PRIMARY_KEY]), array('returnarray' => true));
+        if(is_array($segment_purposes)) {
+            foreach($segment_purposes as $segment_purpose) {
+                $ltypepurpose = $segment_purpose->get_leavetypepurpose();
+                $purposes[$ltypepurpose->category][$ltypepurpose->ltpid] = $ltypepurpose->get_displayname();
+            }
+        }
+        $segment_affient = TravelManagerPlanAffient::get_data(array('tmpsid' => $this->data[self::PRIMARY_KEY]), array('returnarray' => true));
+        if(is_array($segment_affient)) {
+            $eventype = LeaveTypesPurposes::get_data(array('name' => 'eventfair'), array('returnarray' => false));
+            foreach($segment_affient as $seg_affient) {
+                $affients[$seg_affient->type][] = $seg_affient->primaryId;
+            }
+        }
 
+
+        if(is_array($purposes)) {
+            $segment_overview .= '</br></br><div style="width:80%; display: inline-block; vertical-align: top;"><span class="subtitle">'.$lang->purposes.':</span></div>';
+            foreach($purposes as $type => $typepurpose) {
+                if(is_array($typepurpose)) {
+                    if(is_object($eventype) && array_key_exists($eventype->ltpid, $typepurpose)) {
+                        $segment_overview .= '</br><div style="width:80%; display: inline-block; vertical-align: top;"><span style="font-weight:bold" >'.$lang->event.':</span></div></br>';
+                        if(is_array($affients) && is_array($affients['event'])) {
+                            foreach($affients['event'] as $eventid) {
+                                $event = new Events($eventid);
+                                $segment_overview .=$event->get_displayname().'&nbsp, &nbsp';
+                            }
+                        }
+                        unset($typepurpose[$event->ltpid]);
+                    }
+                    $segment_overview .= '</br><div style = "width:80%; display: inline-block; vertical-align: top;"><span style = "font-weight:bold" >'.$lang->$type.':</span></div></br>'.implode(', &nbsp', $typepurpose);
+                    if($type == 'internal') {
+                        if(is_array($affients['affiliate'])) {
+                            $segment_overview .='<br><div style="display:inline-block"><em><small>';
+                            foreach($affients['affiliate'] as $key) {
+                                $affiliate = new Affiliates($key);
+                                $segment_overview .='&nbsp'.$affiliate->get_displayname().'&nbsp,';
+                            }
+                            $segment_overview .='</small></em></div>';
+                        }
+                    }
+                    else {
+                        if(is_array($affients['entity'])) {
+                            $segment_overview .='<br><div style="display:inline-block"><em><small>';
+                            foreach($affients['entity'] as $key) {
+                                $entity = new Entities($key);
+                                $segment_overview .='&nbsp'.$entity->get_displayname().'&nbsp,';
+                            }
+                            $segment_overview .='</small></em></div>';
+                        }
+                    }
+                }
+            }
+        }
+        /* parse segment overview containing purposes and extra info --End */
         $destination_cities = $this->get_origincity()->name.' - '.$this->get_destinationcity()->name;
         $transp_objs = TravelManagerPlanTransps::get_data(array('tmpsid' => $this->data[self::PRIMARY_KEY]), array('returnarray' => true));
         if(is_array($transp_objs)) {
@@ -813,8 +874,8 @@ class TravelManagerPlanSegments extends AbstractClass {
                 }
                 if(!empty($transportation->transpDetails)) {
                     $flight_details = TravelManagerAirlines::parse_bestflight($transportation->transpDetails, array(), $sequence, 'selectedflight', array('isMinCost' => $transportation->isMinCost));
-                    //  $transp_flightdetails = json_decode($transportation->flightDetails, true);
-                    //  $flight_details = $this->parse_flightdetails($transp_flightdetails);
+//  $transp_flightdetails = json_decode($transportation->flightDetails, true);
+//  $flight_details = $this->parse_flightdetails($transp_flightdetails);
                 }
                 $tocurr = new Currencies(840);
                 $fare = $transportation->get_convertedamount($tocurr);
@@ -885,7 +946,7 @@ class TravelManagerPlanSegments extends AbstractClass {
 
                     $warnings['hotelprice'] = $hotel->get_warning(array('avgprice' => $hotel->avgPrice, 'pricepernight' => $pricenight, 'currency' => $accomdation->currency));
                     $segment_hotel .= '<div style = "width:70%; display: inline-block;"> '.$lang->checkin.' '.$hotel->name.'<br>'.$lang->address.': '.$hotel->addressLine1.'  '.$lang->phone.':'.$hotel->phone.'<span style = "margin-bottom:10px;display:block;"><em>'.$accomdation->numNights.' '.$lang->night.' x $'.$pricenight.' </em><small>('.$lang->avgprice.': '.$hotel->avgPrice.$cur_dispname.')</small></span><div style="color:red;display:inline-block;margin:15px;">'.$warnings['hotelprice'].'</div></div>'; // fix the html parse multiple hotl
-                    //$segment_hotel.='<br>'.$lang->address.': '.$hotel->addressLine1.'<br>'.$lang->phone.':'.$hotel->phone.'';
+//$segment_hotel.='<br>'.$lang->address.': '.$hotel->addressLine1.'<br>'.$lang->phone.':'.$hotel->phone.'';
 //    $segment_hotel .= '<div style = " width:30%; display: inline-block;"> <span> '.$lang->night.' '.$accomdation->numNights.' at $ '.$accomdation->priceNight.' '.$lang->night.'</span></div>'; // fix the html parse multiple hotl
                     $segment_hotel .= '<div style = "width:25%; display: inline-block;font-size:14px; font-weight:bold;text-align:right;margin-left:5px;vertical-align:top;"><span> '.$numfmt->formatCurrency(($accomdation->numNights * $pricenight), "USD").$priceinbasecurr.'</span> <br/> <small style = "font-weight:normal;">[paid by: '.$paidby.']</small></div>'; // fix the html parse multiple hotl
                     unset($priceinbasecurr, $pricenight);
@@ -968,7 +1029,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                 $expenses_details .= '<div style = "display:block;padding:5px 0px 5px 0px;">';
                 $expenses_details .= '<div style = "width:85%;display:inline-block;">'.$transpcat->title.'</div>';
                 $transp_obj = new TravelManagerPlanTransps();
-                $expenses_details .= '<div style = "width:10%;display:inline-block;text-align:right;">$'.round($transpexp['fare'], 2).'</div>';
+                $expenses_details .= '<div style = "width:10%;display:inline-block;text-align:right;">$'.round($transpexp['fare']).'</div>';
                 $expenses_details .= '</div>';
                 $expenses_total += $transpexp['fare'];
             }
@@ -977,7 +1038,7 @@ class TravelManagerPlanSegments extends AbstractClass {
         $fxrate_query['accomodation'] = "(CASE WHEN tmpa.currency =840 THEN 1 ELSE (SELECT rate FROM currencies_fxrates WHERE baseCurrency=tmpa.currency AND currency=840
 				ORDER BY date DESC LIMIT 0, 1) END)";
         $expenses['accomodation'] = $db->fetch_field($db->query("SELECT SUM(priceNight*{$fxrate_query['accomodation']}*numNights) AS total FROM ".Tprefix."travelmanager_plan_accomodations tmpa WHERE tmpsid IN (SELECT tmpsid FROM travelmanager_plan_segments WHERE tmpid=".intval($this->tmpid).")"), 'total');
-        $expenses['accomodation'] = round($expenses['accomodation'], 2);
+        $expenses['accomodation'] = round($expenses['accomodation']);
         if(empty($expenses['accomodation'])) {
             $expenses['accomodation'] = 0;
         }
@@ -1110,7 +1171,7 @@ class TravelManagerPlanSegments extends AbstractClass {
 
                 $checkbox_hotel = '<input aria-describedby="ui-tooltip-155" title="" name="segment['.$sequence.'][tmhid]['.$checksum.'][tmhid]" id="segment['.$sequence.']['.$checksum.'][tmhid]" value="'.$approved_hotels['tmhid'].'" type="checkbox" '.$hotelchecked.'>'.$approved_hotels['name'];
 
-                // $paidby_onchangeactions = 'if($(this).find(":selected").val()=="anotheraff"){$("#"+$(this).find(":selected").val()+"_accomodations_'.$sequence.'_'.$checksum.'").show();}else{$("#anotheraff_accomodations_'.$sequence.'_'.$checksum.'").hide();}';
+// $paidby_onchangeactions = 'if($(this).find(":selected").val()=="anotheraff"){$("#"+$(this).find(":selected").val()+"_accomodations_'.$sequence.'_'.$checksum.'").show();}else{$("#anotheraff_accomodations_'.$sequence.'_'.$checksum.'").hide();}';
                 $paidby_onchangeactions = 'if($(this).find(":selected").val()=="anotheraff"){$("#"+$(this).find(":selected").val()+"_accomodations_'.$sequence.'_'.$checksum.'").effect("highlight",{ color: "#D6EAAC"}, 1500).find("input").first().focus().val("");}else{$("#anotheraff_accomodations_'.$sequence.'_'.$checksum.'").hide();}';
                 $paidby_entities = array(
                         'myaffiliate' => $lang->myaffiliate,
@@ -1139,8 +1200,8 @@ class TravelManagerPlanSegments extends AbstractClass {
                 }
                 $currencies_list = parse_selectlist('segment['.$sequence.'][tmhid]['.$checksum.'][currency]', '3', $val_currencies, $rescurrency_id, '', '', array('id' => 'currency_'.$sequence.'_'.$checksum.'_list'));
 
-                //      $leavedays = abs($this->toDate - $this->fromDate);
-                //     $leavedays = floor($leavedays / (60 * 60 * 24));
+//      $leavedays = abs($this->toDate - $this->fromDate);
+//     $leavedays = floor($leavedays / (60 * 60 * 24));
                 $cityname = $hotel->get_city()->get_displayname();
                 eval("\$hotelssegments_output  .= \"".$template->get('travelmanager_plantrip_segment_hotels')."\";");
                 $review_tools = $hotelchecked = $cityname = $paidby_details = $currencies_list = $currencies = $selected_hotel = $checkbox_hotel = '';

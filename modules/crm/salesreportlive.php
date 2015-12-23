@@ -193,15 +193,15 @@ else {
                     $invoiceline->uom = $invoiceline->get_uom()->uomsymbol;
                     $invoiceline->costlocal = $invoiceline->get_cost();
 
-                    if($currency_obj->alphaCode != $invoice->currency) {
-                        if(!empty($invoice->localfxrate)) {
-                            $invoiceline->costlocal = $invoiceline->costlocal / $invoice->localfxrate;
-                        }
-                        else {
-                            unset($invoiceline);
-                            continue;
-                        }
-                    }
+//                    if($currency_obj->alphaCode != $invoice->currency) {
+//                        if(!empty($invoice->localfxrate)) {
+//                            $invoiceline->costlocal = $invoiceline->costlocal / $invoice->localfxrate;
+//                        }
+//                        else {
+//                            unset($invoiceline);
+//                            continue;
+//                        }
+//                    }
                     if($invoiceline->qtyinvoiced < 0) {
                         $invoiceline->costlocal = 0 - $invoiceline->costlocal;
                     }
