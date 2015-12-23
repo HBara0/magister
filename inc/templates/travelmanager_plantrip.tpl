@@ -283,6 +283,36 @@
                         $("div[id='segment_tmtcid_" + id[2] + "_" + id[3] + "_transpsextrafields']").hide();
                     }
                 });
+
+                $(document).on('change', "input[id^='allentities_'][id$='_cache_id_output']", function() {
+                    if(sharedFunctions.checkSession() == false) {
+                        return;
+                    }
+                    var value = $(this).val();
+                    if(value != '0') {
+                        var id = $(this).attr('id').split("_");
+                        var dataParam = "id=" + value;
+                        get = "suppliersegments";
+                        loadingIn = "suppliersegments_" + id[1] + "_Loading";
+                        contentIn = "supsegments_" + id[1];
+                        var url = "index.php?module=travelmanager/plantrip&action=get_" + get;
+                        $.ajax({
+                            method: "post",
+                            url: url,
+                            data: dataParam,
+                            beforeSend: function() {
+                                $("#" + loadingIn).html("<img src='" + imagespath + "/loading.gif' alt='" + loading_text + "'/>")
+                            },
+                            complete: function() {
+                                $("#" + loadingIn).empty();
+                            },
+                            success: function(returnedData) {
+                                $("#" + contentIn).html(returnedData);
+                            }
+
+                        });
+                    }
+                });
             });
             var totalamountneeded = {
             };

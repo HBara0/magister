@@ -751,6 +751,19 @@ else {
         }
         echo json_encode($returneddata);
     }
+    else if($core->input['action'] == 'get_suppliersegments') {
+        $supplier = new Entities(intval($core->input['id']));
+        if(is_object($supplier)) {
+            $suppliersegments = $supplier->get_segment_names();
+            if(is_array($suppliersegments)) {
+                $supplierssegements_list = "<option value='0'>&nbsp;</option>";
+                foreach($suppliersegments as $psid => $title) {
+                    $supplierssegements_list .= "<option value='{$psid}'>{$title}</option>";
+                }
+                echo $supplierssegements_list;
+            }
+        }
+    }
 //    elseif($core->input['action'] == 'validateamountneededinadvance') {
 //        if(!is_array($core->input['totalamounts'])) {
 //            $amountspayedinadvance = explode(',', $core->input['totalamounts']);
