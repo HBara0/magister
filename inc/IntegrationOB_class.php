@@ -1796,7 +1796,8 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
 
 
                         $output .='<div style="width:100%;"><h2>'.$lang->chart.' <small>(K Table Amounts )</small> </h2>';
-                        if(!empty($this->parse_classificaton_charts($classificationdata[$tableindex], $tableindex))) {
+                        $chart = $this->parse_classificaton_charts($classificationdata[$tableindex], $tableindex);
+                        if(!empty($chart)) {
                             $output .= '<img src="data:image/png;base64,'.base64_encode(file_get_contents($this->parse_classificaton_charts($classificationdata[$tableindex], $tableindex))).'" />';
                         }
                         $output .= '</div><br/>';
