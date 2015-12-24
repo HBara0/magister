@@ -254,5 +254,6 @@ $lang['rejectarodocument'] = 'Reject ARO Document';
 $lang['reasontorejectaro'] = 'Please mention the reason for rejecting this ARO.';
 $lang['markposent'] = 'Mark PO as Sent';
 $lang['posent'] = 'PO SENT';
-$lang['ponotsent'] = 'PO NOT SENT'
+$lang['ponotsent'] = 'PO NOT SENT';
+$lang['legend'] = 'Legend';
 ?>

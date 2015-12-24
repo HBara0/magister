@@ -86,7 +86,6 @@ if(!$core->input['action']) {
     if(is_array($arodocumentrequest)) {
         foreach($arodocumentrequest as $documentrequest) {
             $row_tools = '<a href="index.php?module=aro/managearodouments&id='.$documentrequest->aorid.'" title="'.$lang->edit.'"><img src="./images/icons/edit.gif" border=0 alt="'.$lang->edit.'"/></a>';
-            //   $row_tools .= "<a href='#{$documentrequest->aorid}' id='deletearopolicy_{$documentrequest->aorid}_aro/aroorderrequestlist_loadpopupbyid'><img src='{$core->settings[rootdir]}/images/invalid.gif' border='0' alt='{$lang->deletearopolicy}' /></a>";
             $affiliate = new Affiliates($documentrequest->affid);
             $purchasetype = new PurchaseTypes($documentrequest->orderType);
             $buyingcurr = new Currencies($documentrequest->currency);
@@ -95,7 +94,12 @@ if(!$core->input['action']) {
             $documentrequest->affid = $affiliate->get_displayname();
             $documentrequest->orderType = $purchasetype->get_displayname();
             $documentrequest->currency = $buyingcurr->get_displayname();
-            $rowclass = "trowtools yellowbackground";
+            $rowclass = 'trowtools unapproved';
+            $approvals = AroRequestsApprovals::get_data(array('aorid' => $documentrequest->aorid, 'isApproved' => 1), array('returnarray' => true));
+            if(is_array($approvals)) {
+                $rowclass = "trowtools yellowbackground";
+            }
+            $style = $icons['rejected'] = "";
             if($documentrequest->isRejected == 1) {
                 $style = 'style="color:red;"';
                 $rowclass = "";
@@ -109,7 +113,7 @@ if(!$core->input['action']) {
                     $approvalobj = $documentrequest->get_nextapprover();
                     if(is_object($approvalobj)) {
                         if($approvalobj->uid == $core->user['uid']) {
-                            // $rowclass = 'unapproved';
+                            $icons['pending'] = '<span class="glyphicon glyphicon-exclamation-sign"></span>';
                             $row_tools = '<a href="index.php?module=aro/managearodouments&referrer=toapprove&id='.$documentrequest->aorid.'" title="'.$lang->edit.'"><img src="./images/icons/edit.gif" border=0 alt="'.$lang->edit.'"/></a>';
                         }
                     }
