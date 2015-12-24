@@ -249,4 +249,10 @@ $lang['usdexchangerate'] = 'Exchange rate to usd';
 $lang['afterdeduction'] = 'After Deducting local affiliate commission from Intermediary';
 $lang['totalnetmarginafterdeduction'] = '- Local affiliate commision is subtracted from the intermediary net margin.<br/><br/>- Local Affiliate net margin is based on the commision it gets from the Intermediary (comission% * Invoice value Intermediary).';
 $lang['zeroriskratio'] = 'ZERO% RISK RATE is allowed:<br/> ONLY IF IT IS A RE-INVOICING CUSTOMER WITH ADVANCE PAYMENT AND SAME CURRENCY THAN SUPPLIER';
+$lang['reject'] = 'Reject';
+$lang['rejectarodocument'] = 'Reject ARO Document';
+$lang['reasontorejectaro'] = 'Please mention the reason for rejecting this ARO.';
+$lang['markposent'] = 'Mark PO as Sent';
+$lang['posent'] = 'PO SENT';
+$lang['ponotsent'] = 'PO NOT SENT'
 ?>

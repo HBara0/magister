@@ -1,5 +1,5 @@
-<tr class="trowtools {$rowclass}">
-    <td width="18%">{$documentrequest->affid}</td>
+<tr {$style} class="{$rowclass}">
+    <td width="18%">{$icons[rejected]}{$documentrequest->affid}</td>
     <td width="18%">{$documentrequest->orderType}</td>
     <td width="18%">{$documentrequest->orderReference}</td>
     <td width="18%">{$documentrequest->currency}</td>

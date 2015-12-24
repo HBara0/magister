@@ -503,10 +503,21 @@ class AroRequests extends AbstractClass {
                         break;
                 }
             }
-            /* Make list of approvers unique */
-            if(is_array($approvers)) {
-                $approvers = array_unique($approvers);
+
+            /* Make list of approvers unique ,keeping higher position of duplicates */
+            foreach($approvers as $position => $uid) {
+                $approvers_positions[$uid] = $position;
             }
+            unset($position, $uid);
+            foreach($approvers as $position => $approver) {
+                if(!in_array($position, $approvers_positions)) {
+                    unset($approvers[$position]);
+                }
+            }
+
+//            if(is_array($approvers)) {
+//                $approvers = array_unique($approvers);
+//            }
             /* Remove the user himself from the approval chain */
             //    unset($approvers[array_search($core->user['uid'], $approvers)]);
             return $approvers;
@@ -656,10 +667,10 @@ class AroRequests extends AbstractClass {
 
         $productlines = AroRequestLines::get_data(array('aorid' => $this->aorid), array('returnarray' => true));
         if(is_array($productlines)) {
-            $data['products_output'] .='<tr class="thead"><td style="width:40%">'.$lang->product.'</td><td style="width:30%">'.$lang->supplier.'</td><td style="width:30%">'.$lang->purchasepricefromsupplier.'</td></tr>';
+            $data['products_output'] .='<tr style="background-color:#92D050;font-weight:bold"><td style="width:40%">'.$lang->product.'</td><td style="width:30%">'.$lang->supplier.'</td><td style="width:30%">'.$lang->purchasepricefromsupplier.'</td></tr>';
             foreach($productlines as $productline) {
                 $product_obj = Products::get_data(array('pid' => $productline->pid));
-                $data['products_output'] .='<tr><td>'.$product_obj->get_displayname().'</td><td>'.$data['vendor_output'].'</td><td>'.$formatter->format($productline->intialPrice).'</td></tr>';
+                $data['products_output'] .='<tr><td style="background-color:#D0F6AA;">'.$product_obj->get_displayname().'</td><td style="background-color:#D0F6AA;">'.$data['vendor_output'].'</td><td style="background-color:#D0F6AA;">'.$formatter->format($productline->intialPrice).'</td></tr>';
                 $reference['qtybysellingprice'] += $productline->quantity * $productline->sellingPrice;
             }
         }
@@ -674,6 +685,7 @@ class AroRequests extends AbstractClass {
                     $data[$field] = $formatter->format($ordersummary->$field);
                 }
             }
+            $data['totalQuantityUom'] = $ordersummary->totalQuantityUom;
         }
         $data['invoiceValueAffiliate'] = $data['invoiceValueCustomer'] = "-";
         if($purchasteype_obj->isPurchasedByEndUser == 1) {
@@ -1128,6 +1140,36 @@ class AroRequests extends AbstractClass {
             return $aroids;
         }
         return false;
+    }
+
+    public function reject_aro() {
+        global $db, $core;
+        //  if($this->can_apporve($core->user))
+        $query = $db->update_query('aro_requests', array('isRejected' => 1, 'rejectedBy' => $core->user['uid'], 'rejectedOn' => TIME_NOW), ''.self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
+        if($query) {
+            $arorequestmessage_obj = new AroRequestsMessages();
+            $core->input['rejectionmessage']['message'] = 'REJECTED: '.$core->input['rejectionmessage']['message'];
+            $arorequestmessage_obj = $arorequestmessage_obj->create_message($core->input['rejectionmessage'], $this->data['aorid'], array('source' => 'emaillink'));
+            switch($arorequestmessage_obj->get_errorcode()) {
+                case 0:
+                    $arorequestmessage_obj = $arorequestmessage_obj->send_message(array('msgtype' => 'rejection', 'rejectedBy' => $core->user['uid']));
+                    $this->errorcode = $arorequestmessage_obj->get_errorcode();
+                    break;
+                default:
+                    $this->errorcode = $arorequestmessage_obj->get_errorcode();
+                    break;
+            }
+            return $this;
+        }
+        else {
+            $this->errorcode = 4;
+            return $this;
+        }
+    }
+
+    public function mark_sentpo() {
+        global $db;
+        $query = $db->update_query('aro_requests', array('POSent' => 1), ''.self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
     }
 
 }

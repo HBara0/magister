@@ -95,21 +95,27 @@ if(!$core->input['action']) {
             $documentrequest->affid = $affiliate->get_displayname();
             $documentrequest->orderType = $purchasetype->get_displayname();
             $documentrequest->currency = $buyingcurr->get_displayname();
-            $rowclass = 'yellowbackground';
+            $rowclass = "trowtools yellowbackground";
+            if($documentrequest->isRejected == 1) {
+                $style = 'style="color:red;"';
+                $rowclass = "";
+                $icons['rejected'] = '<span class="glyphicon glyphicon-ban-circle"></span> ';
+            }
             if($documentrequest->isFinalized == 1) {
                 if($documentrequest->isApproved == 1) {
-                    $rowclass = 'greenbackground';
+                    $rowclass = 'trowtools greenbackground';
                 }
                 else {
                     $approvalobj = $documentrequest->get_nextapprover();
                     if(is_object($approvalobj)) {
                         if($approvalobj->uid == $core->user['uid']) {
-                            $rowclass = 'unapproved';
+                            // $rowclass = 'unapproved';
                             $row_tools = '<a href="index.php?module=aro/managearodouments&referrer=toapprove&id='.$documentrequest->aorid.'" title="'.$lang->edit.'"><img src="./images/icons/edit.gif" border=0 alt="'.$lang->edit.'"/></a>';
                         }
                     }
                 }
             }
+
             eval("\$aroorderrequest_rows .= \"".$template->get('aro_orderrequestlist_row')."\";");
             $row_tools = $rowclass = '';
         }
