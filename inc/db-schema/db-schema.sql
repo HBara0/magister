@@ -2528,8 +2528,30 @@ CREATE TABLE `facilitymgmt_reservations` (
   `reservedBy` int(10) NOT NULL,
   `purpose` text NOT NULL,
   `mtid` int(10) NOT NULL,
+  `status` int(10) NOT NULL,
   PRIMARY KEY (`fmrid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `facilitymgmt_reserve_purposes`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `facilitymgmt_reserve_purposes` (
+  `fmrp` int(10) NOT NULL AUTO_INCREMENT,
+  `alias` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+  `title` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+  `fmrt` int(10) NOT NULL,
+  PRIMARY KEY (`fmrp`)
+) ENGINE=MyISAM AUTO_INCREMENT=10 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `facilitymgmt_reserve_types`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `facilitymgmt_reserve_types` (
+  `fmrt` int(10) NOT NULL AUTO_INCREMENT,
+  `alias` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+  `title` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`fmrt`)
+) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `files`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -3262,7 +3284,7 @@ CREATE TABLE `logs` (
   `data` text NOT NULL,
   PRIMARY KEY (`lid`),
   KEY `uid` (`uid`)
-) ENGINE=MyISAM AUTO_INCREMENT=77902 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=77906 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `marketintelligence_basicdata`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -5163,6 +5185,16 @@ CREATE TABLE `travelmanager_plantrip_affient` (
   `primaryId` int(10) NOT NULL,
   PRIMARY KEY (`tmpsafid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `travelmanager_plantrip_entitiysegment`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `travelmanager_plantrip_entitiysegment` (
+  `tmpsesid` int(10) NOT NULL AUTO_INCREMENT,
+  `psid` int(10) NOT NULL,
+  `tmpsafid` int(10) NOT NULL,
+  PRIMARY KEY (`tmpsesid`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `travelmanager_transpcategories`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
