@@ -442,7 +442,7 @@ DROP TABLE IF EXISTS `aro_requests`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `aro_requests` (
   `aorid` int(10) NOT NULL AUTO_INCREMENT,
-  `identifier` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `inputChecksum` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
   `affid` int(10) NOT NULL,
   `orderType` int(10) NOT NULL,
   `orderReference` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
@@ -458,6 +458,10 @@ CREATE TABLE `aro_requests` (
   `createdBy` int(10) NOT NULL,
   `modifiedOn` bigint(30) NOT NULL,
   `modifiedBy` int(10) NOT NULL,
+  `POSent` tinyint(1) NOT NULL DEFAULT '0',
+  `isRejected` tinyint(1) NOT NULL DEFAULT '0',
+  `rejectedBy` int(10) NOT NULL,
+  `rejectedOn` bigint(30) NOT NULL,
   PRIMARY KEY (`aorid`),
   UNIQUE KEY `aoiid` (`aorid`),
   FULLTEXT KEY `orderReference` (`orderReference`)
@@ -474,6 +478,7 @@ CREATE TABLE `aro_requests_approvals` (
   `isApproved` tinyint(1) NOT NULL,
   `timeApproved` bigint(30) NOT NULL,
   `sequence` tinyint(1) NOT NULL,
+  `emailRecievedDate` bigint(30) DEFAULT NULL,
   PRIMARY KEY (`araid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -569,7 +574,7 @@ CREATE TABLE `aro_requests_messages` (
   `createdOn` bigint(30) NOT NULL,
   `viewPermission` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
   PRIMARY KEY (`armid`)
-) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=14 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `aro_requests_partiesinformation`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -2001,7 +2006,7 @@ CREATE TABLE `development_bugs` (
   `modifiedBy` int(11) NOT NULL,
   PRIMARY KEY (`dbid`),
   KEY `assignedTo` (`assignedTo`)
-) ENGINE=MyISAM AUTO_INCREMENT=448 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=450 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `development_requirements`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -3257,7 +3262,7 @@ CREATE TABLE `logs` (
   `data` text NOT NULL,
   PRIMARY KEY (`lid`),
   KEY `uid` (`uid`)
-) ENGINE=MyISAM AUTO_INCREMENT=77891 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=77902 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `marketintelligence_basicdata`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -5560,6 +5565,7 @@ CREATE TABLE `warehouses` (
   `ciid` int(10) NOT NULL,
   `coid` int(10) NOT NULL,
   `geoLocation` point DEFAULT NULL,
+  `isConsolidationPlatform` tinyint(1) NOT NULL DEFAULT '0',
   `isActive` tinyint(1) NOT NULL,
   `createdOn` bigint(30) NOT NULL,
   `createdBy` int(10) NOT NULL,
