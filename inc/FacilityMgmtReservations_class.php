@@ -8,7 +8,7 @@ class FacilityMgmtReservations extends AbstractClass {
     const PRIMARY_KEY = 'fmrid';
     const TABLE_NAME = 'facilitymgmt_reservations';
     const SIMPLEQ_ATTRS = '*';
-    const UNIQUE_ATTRS = 'mtid';
+    const UNIQUE_ATTRS = '';
     const CLASSNAME = __CLASS__;
     const DISPLAY_NAME = '';
 
@@ -19,7 +19,11 @@ class FacilityMgmtReservations extends AbstractClass {
     }
 
     public function create(array $data) {
-        global $db;
+        global $db, $core;
+        if(empty($data['reservedBy'])) {
+            $data['reservedBy'] = $core->user['uid'];
+        }
+
         $table_array = array(
                 'fmfid' => $data['fmfid'],
                 'fromDate' => $data['fromDate'],
@@ -27,6 +31,7 @@ class FacilityMgmtReservations extends AbstractClass {
                 'reservedBy' => $data['reservedBy'],
                 'purpose' => $data['purpose'],
                 'mtid' => $data['mtid'],
+                'status' => intval($data['status']),
         );
 
         $this->data = $table_array;
@@ -39,7 +44,10 @@ class FacilityMgmtReservations extends AbstractClass {
     }
 
     protected function update(array $data) {
-        global $db;
+        global $db, $core;
+        if(empty($data['reservedBy'])) {
+            $data['reservedBy'] = $core->user['uid'];
+        }
         if(is_array($data)) {
             $update_array['fmfid'] = $data['fmfid'];
             $update_array['fromDate'] = $data['fromDate'];
@@ -47,6 +55,7 @@ class FacilityMgmtReservations extends AbstractClass {
             $update_array['reservedBy'] = $data['reservedBy'];
             $update_array['purpose'] = $data['purpose'];
             $update_array['mtid'] = $data['mtid'];
+            $update_array['status'] = $data['status'];
         }
         $db->update_query(self::TABLE_NAME, $update_array, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
         $this->notify_reservations('create');
