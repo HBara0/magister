@@ -40,7 +40,7 @@ if(!$core->input['action']) {
         if($filters_config['process']['filterKey'] == 'aorid') {
             $filters_config['process']['filterKey'] = 'aorid';
         }
-        $filter_where = ' '.$filters_config['process']['filterKey'].' IN ('.implode(', ', $filter_where_values).')';
+        $filter_where = ' AND '.$filters_config['process']['filterKey'].' IN ('.implode(', ', $filter_where_values).')';
     }
     $filters_row = $filter->prase_filtersrows(array('tags' => 'table', 'display' => $filters_row_display));
     /* Advanced filter search -END */
@@ -70,12 +70,19 @@ if(!$core->input['action']) {
                 'simple' => false
         );
     }
-    $arodocumentrequest = AroRequests::get_data(array('affid' => array_keys($affiliates)), $dal_config);
+    $seperator = '';
+    if(is_array($affiliates)) {
+        $seperator = ' OR ';
+        $filterarray = 'affid IN ('.implode(',', array_keys($affiliates)).')';
+    }
+    /* get AROs where product's segment is withing current user coordinated segments */
 
-    if(!empty($filter_where)) {
-        $arodocumentrequest = AroRequests::get_data($filter_where, array('returnarray' => true, 'simple' => false));
+    $segmentsaroids = AroRequests::get_aros_byproductsegments($core->user['uid']);
+    if(is_array($segmentsaroids)) {
+        $filterarray .= $seperator.' aorid IN ('.implode(',', $segmentsaroids).')';
     }
 
+    $arodocumentrequest = AroRequests::get_data($filterarray.$filter_where, array('returnarray' => true, 'simple' => false));
     if(is_array($arodocumentrequest)) {
         foreach($arodocumentrequest as $documentrequest) {
             $row_tools = '<a href="index.php?module=aro/managearodouments&id='.$documentrequest->aorid.'" title="'.$lang->edit.'"><img src="./images/icons/edit.gif" border=0 alt="'.$lang->edit.'"/></a>';
@@ -98,6 +105,7 @@ if(!$core->input['action']) {
                     if(is_object($approvalobj)) {
                         if($approvalobj->uid == $core->user['uid']) {
                             $rowclass = 'unapproved';
+                            $row_tools = '<a href="index.php?module=aro/managearodouments&referrer=toapprove&id='.$documentrequest->aorid.'" title="'.$lang->edit.'"><img src="./images/icons/edit.gif" border=0 alt="'.$lang->edit.'"/></a>';
                         }
                     }
                 }

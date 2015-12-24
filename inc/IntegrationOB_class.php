@@ -1479,7 +1479,7 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
         return false;
     }
 
-    public function get_classification($data, $period) {
+    public function get_classification($data, $period, $options = array()) {
         $tableindexes = array('salerep', 'products', 'suppliers');
         $classificationtypes = array('bymonth', 'byytd', 'byquarter');
         $current_year = date('Y', TIME_NOW);
@@ -1569,6 +1569,11 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                                     if(is_array($month_data)) {
                                         foreach($month_data as $day => $day_data) {
                                             if(($year == $from['year'] && $month >= $from['mon'] && $day >= $from['mday']) || ($year == $to['year'] && $month <= $to['mon'] && $day <= $to['mday'])) {
+                                                if($from['mon'] == $to['mon']) {
+                                                    if(!($day >= $from['mday'] && $day <= $to['mday'])) {
+                                                        continue;
+                                                    }
+                                                }
                                                 $classification[$tableindex]['wholeperiod'][$tableindex][$id]['currentdata'] +=$day_data / 1000;
                                                 $periodclassification[$id] +=$day_data / 1000;
                                             }
@@ -1584,6 +1589,10 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                     unset($periodclassification);
                 }
             }
+            //  }
+            if($options['reporttype'] == 'endofmonth') {
+                $classification[$tableindex]['byytd'][$tableindex] = $this->get_ytdsales($data, $period, $tableindex);
+            }
         }
 //Select only top 10 out of the array//
         foreach($tableindexes as $tableindex) {
@@ -1598,6 +1607,59 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
         }
 
         return $classification;
+    }
+
+    public function get_ytdsales($data, $period, $tableindex) {
+        $classificationtypes = array('byytd');
+        $current_year = date('Y', TIME_NOW);
+        if(is_array($data[$tableindex])) {
+            foreach($data[$tableindex]['linenetamt'] as $id => $salerepdata) {//rename salerepdata
+                $currentquarter = ceil(date('n', TIME_NOW) / 3);
+                $current_month = date("m");
+                $currentyeardata = $salerepdata[$current_year];
+                if(is_array($currentyeardata)) {
+                    foreach($currentyeardata as $cydata_array) {
+                        $cydata = array_sum($cydata_array);
+                        if(!empty($cydata)) {
+                            $classification[$tableindex]['byytd'][$tableindex][$id]['currentdata'] +=$cydata / 1000;
+                            $ytdclassification_data[$id] +=$cydata / 1000;
+                        }
+                        else {
+                            $classification[$tableindex]['byytd'][$tableindex][$id]['currentdata'] += 0;
+                            $ytdclassification_data[$id] +=0;
+                        }
+                    }
+                    //Change variable names from months to ytd
+                    $classification[$tableindex]['byytd'][$tableindex][$id]['currentmonthdata'] = $classification[$tableindex]['byytd'][$tableindex][$id]['currentdata'];
+                    //Get Last year total data to be compared with current year data
+                    $lastyeardata = $salerepdata[($current_year - 1)];
+                    if(is_array($lastyeardata)) {
+                        foreach($lastyeardata as $lydata_array) {
+
+                            if(is_array($lydata_array)) {
+                                $lydata = array_sum($lydata_array);
+                            }
+                            if(!empty($lydata)) {
+                                $classification[$tableindex]['byytd'][$tableindex][$id]['prevmonthdata'] +=$lydata / 1000;
+                            }
+                            else {
+                                $classification[$tableindex]['byytd'][$tableindex][$id]['prevmonthdata'] += 0;
+                            }
+                        }
+                    }
+//////////////////////////////////////////////////////////////////
+                }
+            }
+
+            ///Sort Data descending to classify top supp/products or BM //
+            if(isset($ytdclassification_data) && isset($classification[$tableindex]['byytd'][$tableindex])) {
+                array_multisort($ytdclassification_data, SORT_DESC, $classification[$tableindex]['byytd'][$tableindex]);
+            }
+
+            unset($classification_data, $ytdclassification_data, $qclassification_data);
+            //   }
+        }
+        return $classification[$tableindex]['byytd'][$tableindex];
     }
 
     public function parse_classificaton_tables($classification) {
@@ -1625,7 +1687,11 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
             if(is_array($classification[$tableindex])) {
                 foreach($classification[$tableindex] as $classificationtype => $classificationdata) {
                     if(is_array($classificationdata)) {
-                        $output .= '<table class="datatable"><tr><td style="background-color:#92D050;font-weight:bold;" colspan=5>'.$lang->topten.' '.$lang->$tableindex.' '.$lang->$classificationtype.'</td></tr>';
+                        $colspan = 5;
+                        if($tableindex == 'products') {
+                            $colspan = 6;
+                        }
+                        $output .= '<table class="datatable"><tr><td style="background-color:#92D050;font-weight:bold;" colspan="'.$colspan.'">'.$lang->topten.' '.$lang->$tableindex.' '.$lang->$classificationtype.'</td></tr>';
                         $output .= '<tr style="'.$css_styles['header'].'"><th>'.$lang->rank.'</th><th>'.$lang->$tableindex.'</th>';
                         if($tableindex == 'products') {
                             $output .='<th>'.$lang->supplier.'</th>';
@@ -1652,64 +1718,67 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                             $output .='<th>'.$lang->prevdata.'('.$prevperiod.')</th><th>'.$lang->position.'</th>';
                         }
                         $output .= '</tr>';
-                        reset($classificationdata[$tableindex]);
-                        $topofthemonthid = key($classificationdata[$tableindex]);
-                        $rank = 1;
-                        foreach($classificationdata[$tableindex] as $id => $cdata) {
-                            if(is_array($cdata)) {
-                                if($classificationtype != 'wholeperiod') {
-                                    if(!isset($cdata['prevmonthdata']) && $classificationtype != 'byquarter') {
-                                        $cdata['prevmonthdata'] = 0;
-                                    }
-                                    $position = '<img src="'.$core->settings['rootdir'].'/images/icons/red_down_arrow.gif" alt="&darr;"/>';
-                                    if($cdata['currentmonthdata'] > $cdata['prevmonthdata']) {
-                                        $position = '<img src="'.$core->settings['rootdir'].'/images/icons/green_up_arrow.gif" alt="&uarr;"/>';
-                                    }
-                                }
-                                unset($cdata['currentmonthdata']);
-
-
-                                if($classname == 'IntegrationOBUser') {
-                                    $object = new $classname($id);
-                                    if(!is_object($object) || empty($object->name) || $object->name == 'System') {
-                                        $object->name = 'unspecified';
-                                        continue;
-                                    }
-                                }
-                                $output .= '<tr style="'.$rowstyle.'"><td>#'.$rank.'</td>';
-                                if($classname == 'IntegrationOBUser' && is_object($object)) {
-                                    $output .= '<td>'.$object->name.'</td>';
-                                }
-                                else {
-                                    $output .= '<td>'.$id.'</td>';
-                                }
-                                if($tableindex == 'products') {
-                                    $supplier_output = 'Unspecified';
-                                    $product = IntegrationOBProduct::get_data("name='".$this->f_db->escape_string($id)."'");
-                                    if(is_object($product)) {
-                                        if(is_object($product->get_supplier())) {
-                                            $supplier_output = $product->get_supplier()->get_displayname();
+                        if(is_array($classificationdata[$tableindex])) {
+                            reset($classificationdata[$tableindex]);
+                            $topofthemonthid = key($classificationdata[$tableindex]);
+                            // }
+                            $rank = 1;
+                            foreach($classificationdata[$tableindex] as $id => $cdata) {
+                                if(is_array($cdata)) {
+                                    if($classificationtype != 'wholeperiod') {
+                                        if(!isset($cdata['prevmonthdata']) && $classificationtype != 'byquarter') {
+                                            $cdata['prevmonthdata'] = 0;
+                                        }
+                                        $position = '<img src="'.$core->settings['rootdir'].'/images/icons/red_down_arrow.gif" alt="&darr;"/>';
+                                        if($cdata['currentmonthdata'] > $cdata['prevmonthdata']) {
+                                            $position = '<img src="'.$core->settings['rootdir'].'/images/icons/green_up_arrow.gif" alt="&uarr;"/>';
                                         }
                                     }
-                                    $output .='<th>'.$supplier_output.'</th>';
-                                }
-                                $numfmt = new NumberFormatter($lang->settings['locale'], NumberFormatter::DECIMAL);
-                                foreach($cdata as $data) {
-                                    if($data > 10) {
-                                        $numfmt->setPattern("#,##0");
+                                    unset($cdata['currentmonthdata']);
+
+
+                                    if($classname == 'IntegrationOBUser') {
+                                        $object = new $classname($id);
+                                        if(!is_object($object) || empty($object->name) || $object->name == 'System') {
+                                            $object->name = 'unspecified';
+                                            continue;
+                                        }
+                                    }
+                                    $output .= '<tr style="'.$rowstyle.'"><td>#'.$rank.'</td>';
+                                    if($classname == 'IntegrationOBUser' && is_object($object)) {
+                                        $output .= '<td>'.$object->name.'</td>';
                                     }
                                     else {
-                                        $numfmt->setPattern("#0.##");
+                                        $output .= '<td>'.$id.'</td>';
                                     }
-                                    $output .= '<td style="text-align:right;">'.$numfmt->format($data).'</td>';
+                                    if($tableindex == 'products') {
+                                        $supplier_output = 'Unspecified';
+                                        $product = IntegrationOBProduct::get_data("name='".$this->f_db->escape_string($id)."'");
+                                        if(is_object($product)) {
+                                            if(is_object($product->get_supplier())) {
+                                                $supplier_output = $product->get_supplier()->get_displayname();
+                                            }
+                                        }
+                                        $output .='<th>'.$supplier_output.'</th>';
+                                    }
+                                    $numfmt = new NumberFormatter($lang->settings['locale'], NumberFormatter::DECIMAL);
+                                    foreach($cdata as $data) {
+                                        if($data > 10) {
+                                            $numfmt->setPattern("#,##0");
+                                        }
+                                        else {
+                                            $numfmt->setPattern("#0.##");
+                                        }
+                                        $output .= '<td style="text-align:right;">'.$numfmt->format($data).'</td>';
+                                    }
+                                    if($classificationtype != 'wholeperiod' && $classificationtype != 'byquarter') {
+                                        $output .= '<td style="text-align:center;">'.$position.'</td>';
+                                    }
+                                    $output .='</tr>';
                                 }
-                                if($classificationtype != 'wholeperiod' && $classificationtype != 'byquarter') {
-                                    $output .= '<td style="text-align:center;">'.$position.'</td>';
-                                }
-                                $output .='</tr>';
+                                unset($position);
+                                $rank++;
                             }
-                            unset($position);
-                            $rank++;
                         }
                         $output .= '</table><br/>';
                         $label = $lang->$tableindex;
@@ -1727,7 +1796,10 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
 
 
                         $output .='<div style="width:100%;"><h2>'.$lang->chart.' <small>(K Table Amounts )</small> </h2>';
-                        $output .= '<img src="data:image/png;base64,'.base64_encode(file_get_contents($this->parse_classificaton_charts($classificationdata[$tableindex], $tableindex))).'" />';
+                        $chart = $this->parse_classificaton_charts($classificationdata[$tableindex], $tableindex);
+                        if(!empty($chart)) {
+                            $output .= '<img src="data:image/png;base64,'.base64_encode(file_get_contents($this->parse_classificaton_charts($classificationdata[$tableindex], $tableindex))).'" />';
+                        }
                         $output .= '</div><br/>';
                     }
                 }
@@ -1741,38 +1813,40 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
 
     public function parse_classificaton_charts($data, $type) {
         global $lang;
-        $data_ids = array_keys($data);
-        switch($type) {
-            case 'salerep':
-                $classname = 'IntegrationOBUser';
-                break;
-            case 'suppliers':
-                $classname = 'IntegrationOBBPartner';
-                break;
-            case 'products':
-                $classname = 'IntegrationOBProduct';
-                break;
-            default:
-                break;
-        }
-        foreach($data_ids as $id) {
-            if($classname == 'IntegrationOBUser') {
-                $object = new $classname($id);
-                if(!is_object($object) || empty($object->name)) {
-                    $yaxixdata[] = 'unspecified';
+        if(is_array($data)) {
+            $data_ids = array_keys($data);
+            switch($type) {
+                case 'salerep':
+                    $classname = 'IntegrationOBUser';
+                    break;
+                case 'suppliers':
+                    $classname = 'IntegrationOBBPartner';
+                    break;
+                case 'products':
+                    $classname = 'IntegrationOBProduct';
+                    break;
+                default:
+                    break;
+            }
+            foreach($data_ids as $id) {
+                if($classname == 'IntegrationOBUser') {
+                    $object = new $classname($id);
+                    if(!is_object($object) || empty($object->name)) {
+                        $yaxixdata[] = 'unspecified';
+                    }
+                    else {
+                        $yaxixdata[] = $object->name;
+                    }
                 }
                 else {
-                    $yaxixdata[] = $object->name;
+                    $yaxixdata[] = $id;
                 }
-            }
-            else {
-                $yaxixdata[] = $id;
-            }
 
-            $xaxisdata[] = $data[$id]['currentdata'] / 1000;
+                $xaxisdata[] = $data[$id]['currentdata'] / 1000;
+            }
+            $chart = new Charts(array('x' => $yaxixdata, 'y' => $xaxisdata), 'bar', array('yaxisname' => $lang->topten.' '.$lang->$type, 'xaxisname' => '', 'width' => '900', 'height' => 300, 'scale' => 'SCALE_START0', 'nosort' => true, 'scalepos' => SCALE_POS_TOPBOTTOM, 'noLegend' => true, 'labelrotationangle' => 45, 'x1position' => 200));
+            return $chart->get_chart();
         }
-        $chart = new Charts(array('x' => $yaxixdata, 'y' => $xaxisdata), 'bar', array('yaxisname' => $lang->topten.' '.$lang->$type, 'xaxisname' => '', 'width' => '900', 'height' => 300, 'scale' => 'SCALE_START0', 'nosort' => true, 'scalepos' => SCALE_POS_TOPBOTTOM, 'noLegend' => true, 'labelrotationangle' => 45, 'x1position' => 200));
-        return $chart->get_chart();
     }
 
     public function get_quartermonths($quarter) {

@@ -131,24 +131,44 @@
                         </div>
                     </div>
                     <div style="display:table-row;">
-                        <div class="thead" style="display:table-cell;">{$lang->chemicalproducts}</div>
+                        <div class="thead" style="display:table-cell;">{$lang->chemicalproducts}
+                        </div>
                         <div class="thead" style="display:table-cell;"></div>
                     </div>
                     <div style="display:table-row; vertical-align:top;">
-                        <div style="display: table-cell; padding:5px;">{$lang->selectchemicalproduct}</div>
+                        <div style="display: table-cell; padding:5px;text-align: center;font-weight: bold;vertical-align: middle">{$lang->producer}</div>
                         <div style="display: table-cell; padding:5px;">
                             <table>
-                                <tbody id="chemicalproduct_tbody" >
-                                    {$chemicalproducts_rows}
+                                <tbody  >
+                                    <tr>
+                                        <td>
+                                            <input type="text" id="tokeninput_{$tokenfields}_1_input" name="chemicals[p]" />
+                                            {$prodinput}
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div style="display:table-row; vertical-align:top;">
+                        <div style="display: table-cell; padding:5px;text-align: center;font-weight: bold;vertical-align: middle">{$lang->trader}</div>
+                        <div style="display: table-cell; padding:5px;">
+                            <table>
+                                <tbody >
+                                    <tr>
+                                        <td>
+                                            <input type="text" id="tokeninput_{$tokenfields}_2_input" name="chemicals[t]" />
+                                            {$tradinput}
+                                        </td>
+                                    </tr>
                                 </tbody>
 
                             </table>
                         </div>
                     </div>
-                    <div style="display:table-row; margin-bottom: 10px;">
-                        <div style="display: table-cell; padding:5px;"> <img src="images/add.gif" id="addmore_chemicalproduct" alt="{$lang->add}" />
-                            <input name="chemicalproduct_numrows" id="chemicalproduct_numrows" value="{$chemicalp_rowid}" type="hidden" />
-                        </div>
+                    <div style="display:table-row; vertical-align:top;">
+                        <div style="display: table-cell; padding:5px;"> <a href='#createchemical_id' id='addnew_sourcing/managesupplier_chemical'><img src='images/addnew.png' border='0' alt='{$lang->add}' /></a></div>
                     </div>
                     <div style="display:table-row;">
                         <div class="thead" style="display:table-cell;">{$lang->genericproducts}</div>

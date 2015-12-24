@@ -19,6 +19,7 @@ if($core->usergroup['sourcing_canManageEntries'] == 0) {
 }
 
 if(!$core->input['action']) {
+    $tokenfields = 'chemicalproducts';
     if($core->input['type'] == 'edit' && isset($core->input['id'])) {
         $actiontype = 'edit';
         $id = $db->escape_string($core->input['id']);
@@ -41,15 +42,11 @@ if(!$core->input['action']) {
         $chemicalp_rowid = 1;
         if(is_array($supplier['chemicalsubstances'])) {
             foreach($supplier['chemicalsubstances'] as $key => $chemicalproduct) {
-                $selecteditems['supplyType'][$key][$chemicalproduct['supplyType']] = ' selected="selected"';
-                eval("\$chemicalproducts_rows .= \"".$template->get('sourcing_managesupplier_chemicalrow')."\";");
-                $chemicalp_rowid++;
+                $selectchems[$chemicalproduct['supplyType']].='{id: '.$supplier['chemicalsubstances'][$key]['csid'].', value:\''.$db->escape_string($supplier['chemicalsubstances'][$key]['name']).'\'},';
             }
-            unset($selecteditems);
         }
-        else {
-            eval("\$chemicalproducts_rows = \"".$template->get('sourcing_managesupplier_chemicalrow')."\";");
-        }
+
+
 
         $genericproduct_rowid = 1;
         if(is_array($supplier['genericproducts'])) {
@@ -121,6 +118,17 @@ if(!$core->input['action']) {
         eval("\$contactpersons_rows .= \"".$template->get('sourcing_managesupplier_contactprow')."\";");
     }
 
+    if(isset($selectchems['p']) && !empty($selectchems['t'])) {
+        $existingdata = $selectchems['p'];
+    }
+    $tokenidentifier = '_1';
+    eval("\$prodinput = \"".$template->get('jquery_tokeninput')."\";");
+    unset($existingdata);
+    if(isset($selectchems['t']) && !empty($selectchems['t'])) {
+        $existingdata = $selectchems['t'];
+    }
+    $tokenidentifier = '_2';
+    eval("\$tradinput = \"".$template->get('jquery_tokeninput')."\";");
     $countries_list = parse_selectlist('supplier[country]', 8, get_specificdata('countries', array('coid', 'name'), 'coid', 'name', array('sort' => 'ASC', 'by' => 'name')), $supplier['details']['country']);
     $product_list = parse_selectlist('supplier[productsegment][]', 9, get_specificdata('productsegments', array('psid', 'title'), 'psid', 'title', ''), $supplier['segments'], 1);
     $rml_selectlist = parse_selectlist('supplier[relationMaturity]', 10, get_specificdata('entities_rmlevels', array('ermlid', 'title'), 'ermlid', 'title', ''), $supplier['details']['relationMaturity']);
@@ -134,7 +142,6 @@ if(!$core->input['action']) {
             }
         }
     }
-
     $availablecountries = get_specificdata('countries', array('coid', 'name'), 'coid', 'name', '', '', 'affid IN (SELECT affid FROM affiliates)'); /* get the countries that an affiliates works with */
     if(is_array($availablecountries)) {
         foreach($availablecountries as $acoid => $name) {
@@ -164,6 +171,20 @@ else {
         }
         else {
             $options = array();
+        }
+        if(isset($core->input['chemicals']) && is_array($core->input['chemicals'])) {
+            foreach($core->input['chemicals'] as $type => $ids) {
+                if(!empty($ids)) {
+                    $idsarray = explode(',', $ids);
+                    if(is_array($idsarray)) {
+                        foreach($idsarray as $id) {
+                            if(!is_empty($id)) {
+                                $core->input['supplier']['chemicalproducts'][] = array('supplyType' => $type, 'csid' => $id);
+                            }
+                        }
+                    }
+                }
+            }
         }
         $potential_supplier = new Sourcing();
         $potential_supplier->add($core->input['supplier'], $options);

@@ -38,4 +38,8 @@ class TravelManagerPlanSegPurposes extends AbstractClass {
         return $this;
     }
 
+    public function get_leavetypepurpose() {
+        return new LeaveTypesPurposes($this->data['purpose']);
+    }
+
 }

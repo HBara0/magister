@@ -135,7 +135,7 @@ if(!$core->input['action']) {
 
     $leaveobject = new Leaves(array('lid' => $core->input['lid']));
     $leavetype = new LeaveTypes($leaveobject->get_leavetype()->get()['ltid']);
-    if($leaveobject->has_expenses()) {
+    if($leavetype->has_expenses()) {
         $leaveexpenses = $leaveobject->get_expensesdetails();
         if(!is_array($leaveexpenses)) {
             $leaveexpenses = $leavetype->get_expenses();
@@ -183,7 +183,7 @@ else {
     }
     elseif($core->input['action'] == 'do_perform_editleave') {
         unset($core->input['leaveid']);
-//        $expenses_data = $core->input['leaveexpenses'];
+        $expenses_data = $core->input['leaveexpenses'];
         unset($core->input['leaveexpenses']);
 
         $lid = $db->escape_string($core->input['lid']);
@@ -303,7 +303,6 @@ else {
 
         /* Validate required Fields --START */
         $leavetype = new LeaveTypes($core->input['type']);
-        $expenses_data = $core->input['leaveexpenses'];
         if($leavetype->has_expenses() && $core->usergroup['canUseTravelManager'] == 0) {
             $expensesfield_type = $leavetype->get_expenses();
             foreach($expensesfield_type as $alteid => $expensesfield) {
@@ -361,12 +360,9 @@ else {
         $query = $db->update_query('leaves', $core->input, "lid='{$lid}'");
         /* Update leave expenses - START */
         $leave_obj = new Leaves(array('lid' => $lid), false);
-        if($core->usergroup['canUseTravelManager'] == 0) {
+        if($core->usergroup['canUseTravelManager'] == 0 && is_array($expenses_data) && !empty($expenses_data)) {
             $leave_obj->update_leaveexpenses($expenses_data);
         }
-//        if(is_array($expenses_data) && !empty($expenses_data)) {
-//            $leave_obj->update_leaveexpenses($expenses_data);
-//        }
         /* Update leave expenses - END */
         if($query) {
             if($db->affected_rows() == 0) {

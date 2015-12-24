@@ -1113,7 +1113,7 @@ else {
                 23 => array('zadok.oppong-boahene', 'courage.dzandu', 416, 321, 'tarek.chalhoub', 63, 356),
                 1 => array(356), //12, 333, 182, 43,
                 21 => array(63, 158, 'patrice.mossan', 'marcelle.nklo', 'abel.laho', 'boulongo.diata', 356, 'kenan.amjeh'),
-                27 => array(12, 333, 68, 67, 342, 30, 356),
+                27 => array(12, 333, 68, 67, 356), //342,30
                 20 => array('michel.mbengue', 'samba.kandji', 'ansou.dabo', 'fatimatou.diallo', 356),
                 11 => array(323, 108, 186, 335, 184, 111, 109, 280, 326, 295, 289, 187, 112, 113, 312, 107, 356, 63),
                 2 => array('amal.dababneh', 34),

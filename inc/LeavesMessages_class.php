@@ -195,7 +195,11 @@ class LeavesMessages {
         $lang->load('attendance_messages');
         $mailer = new Mailer();
         $mailer = $mailer->get_mailerobj();
-        $mailer->set_from(array('name' => $core->user['displayName'], 'email' => $core->user['email']));
+        $from = $core->user['displayName'];
+        if(empty($from)) {
+            $from = $lang->ocosquestion;
+        }
+        $mailer->set_from(array('name' => $from, 'email' => $core->user['email']));
 
         $leave = $this->get_leave(false);
         $leavetype = $leave->get_type(false);

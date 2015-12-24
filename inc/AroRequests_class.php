@@ -97,8 +97,13 @@ class AroRequests extends AbstractClass {
             //save product lines and return array of product segments involved
             $arosegments = $this->save_productlines($data['productline'], $data['parmsfornetmargin'], $totalQtyperuom);
             $this->save_linessupervision($data['actualpurchase'], $data['partiesinfo']['transitTime'], $data['partiesinfo']['clearanceTime'], $data['partiesinfo']['estDateOfShipment']);
+            if($this->errorcode != 0) {
+                return $this->errorcode;
+            }
             $this->save_currentstocklines($data['currentstock']);
-
+            if($this->errorcode != 0) {
+                return $this->errorcode;
+            }
             $fundsengaged_obj = new AroRequestsFundsEngaged();
             $data['totalfunds']['aorid'] = $this->data[self::PRIMARY_KEY];
             $fundsengaged_obj->set($data['totalfunds']);
@@ -197,8 +202,13 @@ class AroRequests extends AbstractClass {
             //save product lines and return array of product segments involved
             $arosegments = $this->save_productlines($data['productline'], $data['parmsfornetmargin'], $totalQtyperuom);
             $this->save_linessupervision($data['actualpurchase'], $data['partiesinfo']['transitTime'], $data['partiesinfo']['clearanceTime'], $data['partiesinfo']['estDateOfShipment']);
+            if($this->errorcode != 0) {
+                return $this->errorcode;
+            }
             $this->save_currentstocklines($data['currentstock']);
-
+            if($this->errorcode != 0) {
+                return $this->errorcode;
+            }
 
             $fundsengaged_obj = new AroRequestsFundsEngaged();
             $data['totalfunds']['aorid'] = $this->data[self::PRIMARY_KEY];
@@ -332,7 +342,7 @@ class AroRequests extends AbstractClass {
                 $requestlinesupervision = new AroRequestLinesSupervision();
                 $requestlinesupervision->set($linesupervision);
                 $requestlinesupervision->save();
-                $this->errorcode = $requestlinesupervision->errorcode;
+                $this->errorcode = $requestlinesupervision->get_errorcode();
                 switch($this->get_errorcode()) {
                     case 0:
                         continue;
@@ -350,7 +360,7 @@ class AroRequests extends AbstractClass {
                 $currentstocksupervision_obj = new AroRequestsCurStkSupervision();
                 $currentstocksupervision_obj->set($currentstockline);
                 $currentstocksupervision_obj->save();
-                $this->errorcode = $currentstocksupervision_obj->errorcode;
+                $this->errorcode = $currentstocksupervision_obj->get_errorcode();
                 switch($this->get_errorcode()) {
                     case 0:
                         continue;
@@ -622,8 +632,10 @@ class AroRequests extends AbstractClass {
         if(is_object($partiesinfo_obj)) {
             $fields = array('vendorEstDateOfPayment', 'intermedEstDateOfPayment', 'promiseOfPayment');
             foreach($fields as $field) {
-                $data[$field.'_formatted'] = '';
-                $data[$field.'_formatted'] = date($core->settings['dateformat'], $partiesinfo_obj->$field);
+                if(!empty($partiesinfo_obj->$field)) {
+                    $data[$field.'_formatted'] = '';
+                    $data[$field.'_formatted'] = date($core->settings['dateformat'], $partiesinfo_obj->$field);
+                }
             }
             $intermed_aff = Affiliates::get_affiliates(array('affid' => $partiesinfo_obj->intermedAff));
             $data['intermed_aff_output'] = '-';
@@ -656,7 +668,7 @@ class AroRequests extends AbstractClass {
             $fields = array('invoiceValueUsdIntermed', 'invoiceValueUsdLocal', 'invoiceValueThirdParty', 'netmarginIntermed', 'netmarginIntermedPerc', 'netmarginLocal', 'netmarginLocalPerc', 'globalNetmargin');
             foreach($fields as $field) {
                 if($field == 'netmarginIntermedPerc' || $field == 'netmarginLocalPerc') {
-                    $data[$field] = $perc_formatter->format($ordersummary->$field);
+                    $data[$field] = $perc_formatter->format($ordersummary->$field / 100);
                 }
                 else {
                     $data[$field] = $formatter->format($ordersummary->$field);
@@ -1100,6 +1112,22 @@ class AroRequests extends AbstractClass {
         else {
             return $hourselapsed.' hours';
         }
+    }
+
+    public function get_aros_byproductsegments($uid) {
+        $segmentids = ProdSegCoordinators::get_column('psid', array('uid' => $uid), array('returnarray' => true));
+        if(is_array($segmentids)) {
+            foreach($segmentids as $psid) {
+                $requestlines = AroRequestLines::get_data(array('psid' => $psid), array('returnarray' => true));
+                if(is_array($requestlines)) {
+                    foreach($requestlines as $requestline) {
+                        $aroids[] = $requestline->aorid;
+                    }
+                }
+            }
+            return $aroids;
+        }
+        return false;
     }
 
 }

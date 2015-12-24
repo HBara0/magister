@@ -2,8 +2,8 @@
 <table width="50%">
     <tr style="font-weight:bold;">
         <td width="25%">{$lang->hotel}</td>
-        <td width="25%">{$lang->avgprice}</td>
-        <td width="25%">Stars</td>
+        <td width="25%">{$lang->avgprice} USD</td>
+        <td width="25%">{$lang->address}</td>
         <td width="25%">{$lang->iscontracted}</t>
     </tr>
     {$otherapprovedhotels}

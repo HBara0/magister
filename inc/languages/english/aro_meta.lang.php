@@ -246,5 +246,7 @@ $lang['netmarginaff'] = 'Net Margin of the Affiliate in USD (if any) and %age';
 $lang['totalnetmarginofallorkilaent'] = 'Total Net Margin in USD of all Orkila entities and %age';
 $lang['nowarehouse'] = 'No Warehouse';
 $lang['usdexchangerate'] = 'Exchange rate to usd';
-$lang['afterdeduction'] = 'After Deducting local affiliate commission from Intermediary'
+$lang['afterdeduction'] = 'After Deducting local affiliate commission from Intermediary';
+$lang['totalnetmarginafterdeduction'] = '- Local affiliate commision is subtracted from the intermediary net margin.<br/><br/>- Local Affiliate net margin is based on the commision it gets from the Intermediary (comission% * Invoice value Intermediary).';
+$lang['zeroriskratio'] = 'ZERO% RISK RATE is allowed:<br/> ONLY IF IT IS A RE-INVOICING CUSTOMER WITH ADVANCE PAYMENT AND SAME CURRENCY THAN SUPPLIER';
 ?>

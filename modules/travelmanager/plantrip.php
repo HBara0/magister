@@ -291,16 +291,16 @@ else {
 //            $expensestype_obj = new Travelmanager_Expenses_Types();
 //            $segments_expenses_output = $expensestype_obj->parse_expensesfield($sequence, $rowid);
         /* parse expenses --END */
-        if($sequence == 2) {
-            $helptour = '';
-            $seg2helptour = new HelpTour();
-            $seg2helptour->set_id('travelmanagersegment2_helptour');
-            $seg2helptour->set_cookiename('travelmanagersegment2_helptour');
-            $plan = new TravelManagerPlan();
-            $seg2helptouritems = $plan->get_secondseghelptouritems();
-            $seg2helptour->set_items($seg2helptouritems);
-            $seg2helptour = $seg2helptour->parse();
-        }
+//        if($sequence == 2) {
+//            $helptour = '';
+//            $seg2helptour = new HelpTour();
+//            $seg2helptour->set_id('travelmanagersegment2_helptour');
+//            $seg2helptour->set_cookiename('travelmanagersegment2_helptour');
+//            $plan = new TravelManagerPlan();
+//            $seg2helptouritems = $plan->get_secondseghelptouritems();
+//            $seg2helptour->set_items($seg2helptouritems);
+//            $seg2helptour = $seg2helptour->parse();
+//        }
         eval("\$plantrip_createsegment= \"".$template->get('travelmanager_plantrip_createsegment')."\";");
         output($plantrip_createsegment);
     }
@@ -425,6 +425,7 @@ else {
         $currencies_listf = parse_selectlist('segment['.$sequence.'][tmpfid]['.$frowid.'][currency]', 4, $currencies_f, $finance->currency, '', '', array("id" => 'segment_'.$sequence.'_tmpfid_'.$frowid.'_currency'));
         $finance_checksum = generate_checksum('finance');
         eval("\$finance_output = \"".$template->get('travelmanager_plantrip_segmentfinance')."\";");
+        $hideforfirstime = 'style="display:none"';
         eval("\$otherhotels_output = \"".$template->get('travelmanager_plantrip_segment_otherhotels')."\";");
         eval("\$plansegmentscontent_output = \"".$template->get('travelmanager_plantrip_segmentcontents')."\";");
         output($plansegmentscontent_output);
@@ -472,7 +473,7 @@ else {
                     if(isset($core->input['finalizeplan']) && $core->input['finalizeplan'] == 1) {
                         $url = 'index.php?module=travelmanager/viewplan&referrer=plantrip&id=';
                         header('Content-type: text/xml+javascript');
-                        output_xml('<status>true</status><message><![CDATA[<script>goToURL(\''.$url.$travelplan->tmpid.'\');</script>]]></message>');
+                        output_xml('<status>true</status><message>'.$lang->successfullysaved.'<![CDATA[<script>goToURL(\''.$url.$travelplan->tmpid.'\');</script>]]></message>');
                         exit;
                     }
                     else {
