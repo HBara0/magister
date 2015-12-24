@@ -33,17 +33,67 @@ if(!isset($core->input['action'])) {
     eval("\$facilitiestree= \"".$template->get('facilitymgmt_facilitiesschedule')."\";");
     output_page($facilitiestree);
 }
-else if($core->input['action'] == 'fetchevents') {
-    $facilities = FacilityMgmtFacilities::get_data(array('isActive' => 1), array('returnarray' => true, 'simple' => fales));
-    if(is_array($facilities)) {
-        foreach($facilities as $facilitiy) {
-            $reservations = FacilityMgmtReservations::get_data(array('fmfid' => $facilitiy->fmfid), array('returnarray' => true, 'simple' => false));
-            if(is_array($reservations)) {
-                foreach($reservations as $reservation) {
-                    $reserved_data[] = array('title' => $facilitiy->name, 'start' => date(DATE_ATOM, $reservation->fromDate), 'end' => date(DATE_ATOM, $reservation->toDate), 'color' => '#'.$facilitiy->idColor);
+else {
+    if($core->input['action'] == 'get_creatreservation') {
+        $statuses = FacilityManagementReserveType::get_data(null, array('returnarray' => true));
+        if(is_array($statuses)) {
+            $statuslist = parse_selectlist('reserve[status]', '1', $statuses, 2, '', '', array('id' => 'status'));
+        }
+        $purposes = FacilityManagementReservePurpose::get_data(null, array('returnarray' => true));
+        if(is_array($purposes)) {
+            foreach($purposes as $purpose) {
+                if($purpose->fmrt == 0) {
+                    $purposeoptions .= '<option value="'.$purpose->alias.'" >'.$purpose->get_displayname().'</option>';
+                }
+                else if($purpose->fmrt == 2) {
+                    $purposeoptions .= '<option data-purpose="purpose_'.$purpose->fmrt.'" value="'.$purpose->alias.'" >'.$purpose->get_displayname().'</option>';
+                }
+                else {
+                    $purposeoptions .= '<option data-purpose="purpose_'.$purpose->fmrt.'" value="'.$purpose->alias.'" style="display:none">'.$purpose->get_displayname().'</option>';
                 }
             }
         }
+        $date = strtotime($core->input['date']);
+        $reservation['fromDate'] = $date;
+        $reservation['fromTime_output'] = trim(preg_replace('/(AM|PM)/', '', date('H:i', $date)));
+        $reservation['fromDate_output'] = date($core->settings['dateformat'], $date);
+        $reservation['toDate'] = $date + 1;
+        $reservation['toTime_output'] = trim(preg_replace('/(AM|PM)/', '', date('H:i', $date + 1)));
+        $reservation['toDate_output'] = date($core->settings['dateformat'], $date + 1);
+        eval("\$reserve = \"".$template->get('popup_reservefacility')."\";");
+        output($reserve);
     }
-    echo(json_encode($reserved_data));
+    else if($core->input['action'] == 'fetchevents') {
+        $facilities = FacilityMgmtFacilities::get_data(array('isActive' => 1), array('returnarray' => true, 'simple' => fales));
+        if(is_array($facilities)) {
+            foreach($facilities as $facilitiy) {
+                $reservations = FacilityMgmtReservations::get_data(array('fmfid' => $facilitiy->fmfid), array('returnarray' => true, 'simple' => false));
+                if(is_array($reservations)) {
+                    foreach($reservations as $reservation) {
+                        $reserved_data[] = array('title' => $facilitiy->name, 'start' => date(DATE_ATOM, $reservation->fromDate), 'end' => date(DATE_ATOM, $reservation->toDate), 'color' => '#'.$facilitiy->idColor);
+                    }
+                }
+            }
+        }
+        echo(json_encode($reserved_data));
+    }
+    else if($core->input['action'] == 'perform_createreservation') {
+        if(is_empty($core->input['reserve']['fromDate'], $core->input['reserve']['toDate'], $core->input['reserve']['fmfid'], $core->input['reserve']['fromTime'], $core->input['reserve']['toTime'])) {
+            output_xml('<status>false</status><message>'.$lang->fillrequiredfields.'</message>');
+            exit;
+        }
+        $core->input['reserve']['fromDate'] = strtotime($core->input['reserve']['fromDate'].' '.$core->input['reserve']['fromTime']);
+        $core->input['reserve']['toDate'] = strtotime($core->input['reserve']['toDate'].' '.$core->input['reserve']['toTime']);
+        $reservation = new FacilityMgmtReservations();
+        $reservation->set($core->input['reserve']);
+        $reservation = $reservation->save();
+        switch($reservation->get_errorcode()) {
+            case 0:
+                output_xml('<status>true</status><message>'.$lang->successfullysaved.'<![CDATA[<script>$("div[id^=\'popup_\']").dialog("close").remove(); $(\'#calendar\').fullCalendar("refetchEvents")</script>]]></message>');
+                break;
+            default:
+                output_xml('<status>false</status><message>'.$lang->errorsaving.'</message>');
+                break;
+        }
+    }
 }

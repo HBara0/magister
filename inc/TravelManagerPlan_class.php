@@ -568,10 +568,22 @@ class TravelManagerPlan {
                         elseif($affient_obj->get_type() == 'entity') {
                             $entityid = $affient_obj->primaryId;
                             $afent_checksum = $affient_obj->inputChecksum;
-                            $entityname = $affient_obj->get_entity()->get_displayname();
+                            $entity = $affient_obj->get_entity();
+                            $entityname = $entity->get_displayname();
+                            $entitysegments = $entity->get_segment_names();
+                            $segmententitysgments = TravelManagerPlanSegmentEntitySegments::get_column('psid', array(TravelManagerPlanAffient::PRIMARY_KEY => $affient_obj->{TravelManagerPlanAffient::PRIMARY_KEY}));
+                            if(is_array($entitysegments)) {
+                                foreach($entitysegments as $psid => $title) {
+                                    $selected = '';
+                                    if(is_array($segmententitysgments) && in_array($psid, $segmententitysgments)) {
+                                        $selected = 'selected="selected"';
+                                    }
+                                    $segmentsoptions .= "<option {$selected} value='{$psid}'>{$title}</option>";
+                                }
+                            }
                             eval("\$entities .= \"".$template->get('travelmanager_plantrip_createsegment_entities')."\";");
                             $entrowid++;
-                            unset($entityid, $entityname, $afent_checksum);
+                            unset($entityid, $segmentsoptions, $entityname, $afent_checksum);
                         }
                         elseif($affient_obj->get_type() == 'event') {
                             $ltpurpose = 'event';

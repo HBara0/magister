@@ -985,8 +985,8 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                             }
                             $distance = calculateDistance($options['extrainput']['userlong'], $options['extrainput']['userlat'], $affiliatelat, $affiliatelong, 'K');
                             if(!empty($distance)) {
-                                $desc_distance = ' -'.$distance.' KM';
-                                if($distance > 10) {
+                                $desc_distance = ' '.$distance.' KM';
+                                if($distance <= 10) {
                                     $category = $lang->capsnearby;
                                 }
                             }
