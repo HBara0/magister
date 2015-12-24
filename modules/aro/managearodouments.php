@@ -223,8 +223,16 @@ if(!($core->input['action'])) {
                 }
                 $altpayment_term = parse_selectlist('customeroder['.$rowid.'][ptid]', 4, $payment_terms, $unspecifiedcust['ptid'], '', '', array('blankstart' => 1, 'id' => "paymentermdays_".$rowid));
                 if(isset($core->input['referrer']) && $core->input['referrer'] == 'toapprove') {
-                    $altpayment_term = PaymentTerms::get_data(array('ptid' => $unspecifiedcust['ptid']))->get_displayname();
-                    eval("\$unspecified_customer_row = \"".$template->get('aro_unspecifiedcustomer_row_preview')."\";");
+                    $altpayment_term = '';
+                    if(isset($unspecifiedcust) && !empty($unspecifiedcust)) {
+                        $altpayment_term_obj = PaymentTerms::get_data(array('ptid' => $unspecifiedcust['ptid']));
+                        if(is_object($altpayment_term_obj)) {
+                            $altpayment_term = $altpayment_term_obj->get_displayname();
+                            unset($altpayment_term_obj);
+                        }
+                        $unspecified_customer_row = '  <tr class="altrow2"><td>'.$lang->unspecifiedcustomers.'</td><td>'.$altpayment_term.'</td>
+                                        <td>'.$customeroder[paymentTermDesc].'</td><td>'.$customeroder[paymenttermbasedate_output].'</td></tr>';
+                    }
                 }
                 else {
                     eval("\$unspecified_customer_row = \"".$template->get('aro_unspecifiedcustomer_row')."\";");
@@ -647,11 +655,14 @@ if(!($core->input['action'])) {
     eval("\$aro_productlines = \"".$template->get('aro_fillproductlines')."\";");
     if(isset($core->input['referrer']) && $core->input['referrer'] == 'toapprove') {
         eval("\$aro_managedocuments_orderident= \"".$template->get('aro_orderidentification_preview')."\";");
+        eval("\$aro_ordercustomers= \"".$template->get('aro_managedocuments_ordercustomers_preview')."\";");
+        eval("\$totalfunds = \"".$template->get('aro_totalfunds_preview')."\";");
     }
     else {
         eval("\$aro_managedocuments_orderident= \"".$template->get('aro_managedocuments_orderidentification')."\";");
+        eval("\$aro_ordercustomers= \"".$template->get('aro_managedocuments_ordercustomers')."\";");
+        eval("\$totalfunds = \"".$template->get('aro_totalfunds')."\";");
     }
-    eval("\$aro_ordercustomers= \"".$template->get('aro_managedocuments_ordercustomers')."\";");
     eval("\$partiesinformation = \"".$template->get('aro_partiesinformation')."\";");
     eval("\$aro_netmarginparms= \"".$template->get('aro_netmarginparameters')."\";");
     eval("\$actualpurchase = \"".$template->get('aro_actualpurchase')."\";");
@@ -677,7 +688,6 @@ if(!($core->input['action'])) {
         eval("\$orderummary = \"".$template->get('aro_ordersummary')."\";");
     }
     unset($firstparty, $secondparty, $thirdparty);
-    eval("\$totalfunds = \"".$template->get('aro_totalfunds')."\";");
     eval("\$approvalchain= \"".$template->get('aro_approvalchain')."\";");
     eval("\$aro_managedocuments= \"".$template->get('aro_managedocuments')."\";");
     output_page($aro_managedocuments);

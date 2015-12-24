@@ -13,15 +13,8 @@
             {$aro_managedocuments_ordercustomers_rows}
         </tbody>
         <tfoot>
-            <tr class="altrow2">
-                {$unspecified_customer_row}
-
-                <td>{$lang->unspecifiedcustomers}</td>
-                <td>{$altpayment_term}</td>
-                <td> {$customeroder[paymentTermDesc]}</td>
-                <td> {$customeroder[paymenttermbasedate_output]}</td>
-            </tr>
-            <tr><td colspan="2">{$lang->estimatedduedate}</td> <td>{$avgeliduedate}</td></tr>
+            {$unspecified_customer_row}
+            <tr><td colspan="2" style="font-weight: bold;">{$lang->estimatedduedate}</td> <td>{$avgeliduedate}</td></tr>
         </tfoot>
     </table>
 </p>
