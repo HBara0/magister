@@ -46,4 +46,12 @@ $lang['reservationdeletion_message'] = 'Reservation Cancelled'
         .'Purpose: {5}';
 
 $lang['facilities'] = 'Facilities';
+$lang['facilitieslist'] = 'Facilities List';
+$lang['facilitiesschedule'] = 'Facilities Schedule';
+$lang['facility'] = 'Facility';
+
+$lang['from'] = 'From';
+$lang['to'] = 'To';
+$lang['purpose'] = 'Purpose';
+$lang['status'] = 'Status';
 ?>
