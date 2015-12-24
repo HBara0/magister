@@ -74,5 +74,9 @@ class Cache {
         return isset($this->data[$name]);
     }
 
+    public function flush($reference) {
+        unset($this->data[$reference]);
+    }
+
 }
 ?>

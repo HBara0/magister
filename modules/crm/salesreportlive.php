@@ -557,6 +557,7 @@ else {
                             $chart_data = $dimensionalreport->get_data();
                             //$chart = new Charts(array('x' => array($previous_year => $previous_year, $current_year => $current_year), 'y' => $barchart_quantities_values), 'bar');
                         }
+                        $cache->flush('totals');
                         unset($dimensionalreport);
                     }
                 }
