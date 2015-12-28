@@ -2,11 +2,24 @@
     <head>
         <title>{$core->settings[systemtitle]} | {$lang->aroorderrequestlist}</title>
         {$headerinc}
+        <link href="{$core->settings[rootdir]}/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+
+        <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+        <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
     </head>
     <body>
         {$header}
     <tr> {$menu}
         <td class="contentContainer"><h1>{$lang->aroorderrequestlist}</h1>
+            <div style="font-weight:bold;width:75%;float:right">{$lang->legend}</div>
+            <div style="width:75%;float:right">
+                <div style="display:inline-block;width:23%"> <div style="width:20px;display:inline-block" class="yellowbackground">-</div> Approval Process Started </div>
+                <div style="display:inline-block;width:16%"> <div style="width:20px;display:inline-block" class="unapproved">-</div> No Approvals yet</div>
+                <div style="display:inline-block;width:15%"> <div style="width:20px;display:inline-block" class="greenbackground">-</div> Fully Approved</div>
+                <div style="display:inline-block;width:13%"><span class="glyphicon glyphicon-ban-circle" style="color:red"></span> ARO Rejected</div>
+                <div style="display:inline-block;width:23%"> <span class="glyphicon glyphicon-exclamation-sign" ></span> ARO Approval pending at you</div>
+                <br/><br/>
+            </div>
             <form action='$_SERVER[REQUEST_URI]' method="post">
                 <table class="datatable">
                     <thead>

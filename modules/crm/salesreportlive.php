@@ -41,9 +41,10 @@ else {
 
         if($core->input['type'] == 'endofmonth') {
             $core->input['affids'][] = $core->user['mainaffiliate'];
-            //            $query_date = '2015-01-04';
-            $core->input['fromDate'] = date('Y-m-d', strtotime('first day of last month')); //date('Y-01-01', strtotime($query_date));
-            $core->input['toDate'] = date('Y-m-d', strtotime('last day of last month')); // date('Y-01-31', strtotime($query_date));
+            //$query_date = '2015-01-04';
+            $core->input['fromDate'] = date('Y-m-d', strtotime('first day of last month')); // date('Y-01-15', strtotime($query_date)); //
+            $core->input['toDate'] = date('Y-m-d', strtotime('last day of last month')); // date('Y-01-30', strtotime($query_date)); //
+            $reporttype = $core->input['type'];
             $core->input['type'] = 'analytic';
         }
         if(empty($core->input['affids'])) {
@@ -334,7 +335,7 @@ else {
                     $mdata = $invoicelines->get_data_byyearmonth($yearsummary_filter, array('reportcurrency' => $currency_obj->alphaCode, 'fxtype' => $core->input['fxtype']));
 
                     if(isset($core->input['generatecharts']) && $core->input['generatecharts'] == 1) {
-                        $classifications = $invoicelines->get_classification($mdata['dataperday'], $period, array('reporttype' => 'endofmonth'));
+                        $classifications = $invoicelines->get_classification($mdata['dataperday'], $period, array('reporttype' => $reporttype));
                     }
 
                     $monthdata = $mdata['salerep'];
@@ -516,22 +517,26 @@ else {
                 }
 
 
-                $tabletypes = array('mainsummaytables', 'ytdsummarytables');
+                $tabletypes[] = 'mainsummaytables';
+                if($reporttype == 'endofmonth') {
+                    $tabletypes[] = 'ytdsummarytables';
+                }
 
                 if(is_array($required_tables)) {
                     foreach($tabletypes as $type) {
                         if($type == 'ytdsummarytables') {
-                            unset($rawdata);
                             $ytddata = get_ytddata($core->input, $period, $orgs);
                         }
                         foreach($required_tables as $tabledesc => $dimensions) {
-                            $rawdata = $data;
                             $dimensionalreport = new DimentionalData();
                             if($type == 'ytdsummarytables') {
+                                unset($rawdata);
                                 $rawdata = $ytddata;
                                 $lang->{$tabledesc} = $lang->{$tabledesc}.' YTD';
                             }
-
+                            else {
+                                $rawdata = $data;
+                            }
                             $dimensionalreport->set_dimensions(array_combine(range(1, count($dimensions)), array_values($dimensions)));
                             $dimensionalreport->set_requiredfields($required_fields);
                             $dimensionalreport->set_data($rawdata);
@@ -552,6 +557,8 @@ else {
                             $chart_data = $dimensionalreport->get_data();
                             //$chart = new Charts(array('x' => array($previous_year => $previous_year, $current_year => $current_year), 'y' => $barchart_quantities_values), 'bar');
                         }
+                        $cache->flush('totals');
+                        unset($dimensionalreport);
                     }
                 }
             }
@@ -667,7 +674,7 @@ else {
             }
             unset($salesreport);
         }
-        else if($core->input['type'] == 'endofmonth') {
+        else if($reporttype == 'endofmonth') {
             if(!is_array($core->input['affids']) || count($core->input['affids']) == 1) {
                 $finManager = $affiliate->get_financialemanager();
                 if(!is_object($finManager)) {
@@ -688,9 +695,9 @@ else {
                     $salesreport .= '<a href="index.php?reporttype=email&amp;'.http_build_query($core->input).'"><button class="button">Send by email</button></a>';
                 }
             }
-            eval("\$previewpage = \"".$template->get('crm_previewsalesreport')."\";");
-            output_xml('<status>true</status><message><![CDATA['.$previewpage.']]></message>');
         }
+        eval("\$previewpage = \"".$template->get('crm_previewsalesreport')."\";");
+        output_xml('<status>true</status><message><![CDATA['.$previewpage.']]></message>');
     }
 }
 function get_ytddata($input_data, $period, $orgs) {
@@ -699,15 +706,12 @@ function get_ytddata($input_data, $period, $orgs) {
     if(!empty($input_data['spid'])) {
         $orderline_query_where = ' AND ime.localId IN ('.implode(',', $input_data['spid']).')';
     }
-
     if(!empty($input_data['pid'])) {
         $orderline_query_where .= ' AND imp.localId IN ('.implode(',', $input_data['pid']).')';
     }
-
     if(!empty($input_data['cid'])) {
         $query_where .= ' AND ime.localId IN ('.implode(',', $input_data['cid']).')';
     }
-
     $filters = "c_invoice.ad_org_id IN ('".implode("','", $orgs)."') AND docstatus NOT IN ('VO', 'CL') AND (dateinvoiced BETWEEN '".date('Y-01-01 00:00:00', $period['from'])."' AND '".date('Y-m-d 00:00:00', $period['to'])."')";
     if(count($permissions['uid']) == 1 && in_array($$input_data['uid'], $permissions['uid']) && isset($permissions['spid'])) {
         $intuser = $core->user_obj->get_integrationObUser();
@@ -715,12 +719,9 @@ function get_ytddata($input_data, $period, $orgs) {
             $filters .= ' AND (salesrep_id=\''.$intuser->get_id().'\' OR salesrep_id IS NULL)';
         }
     }
-
     if(isset($input_data['reportCurrency']) && !empty($input_data['reportCurrency'])) {
         $currency_obj = Currencies::get_data(array('numCode' => $input_data['reportCurrency']));
     }
-    //$integration = new IntegrationOB($intgconfig['openbravo']['database'], $intgconfig['openbravo']['entmodel']['client']);
-    //$intgdb = $integration->get_dbconn();
     $invoices = $integration->get_saleinvoices($filters);
     $cols = array('month', 'week', 'documentno', 'salesrep', 'customername', 'suppliername', 'productname', 'segment', 'uom', 'qtyinvoiced', 'priceactual', 'linenetamt', 'purchaseprice', 'unitcostlocal', 'costlocal', 'costusd', 'grossmargin', 'grossmarginusd', 'grossmarginperc', 'netmargin', 'netmarginusd', 'marginperc');
     if(is_array($invoices)) {
@@ -802,15 +803,6 @@ function get_ytddata($input_data, $period, $orgs) {
                 $invoiceline->uom = $invoiceline->get_uom()->uomsymbol;
                 $invoiceline->costlocal = $invoiceline->get_cost();
 
-//                if($currency_obj->alphaCode != $invoice->currency) {
-//                    if(!empty($invoice->localfxrate)) {
-//                        $invoiceline->costlocal = $invoiceline->costlocal / $invoice->localfxrate;
-//                    }
-//                    else {
-//                        unset($invoiceline);
-//                        continue;
-//                    }
-//                }
                 if($invoiceline->qtyinvoiced < 0) {
                     $invoiceline->costlocal = 0 - $invoiceline->costlocal;
                 }

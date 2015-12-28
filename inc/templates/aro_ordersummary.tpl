@@ -85,6 +85,7 @@
                 <td>{$lang->total} {$lang->netmarginperc} <a href="#" title="{$lang->totalnetmarginpercdef}"><img src="./images/icons/question.gif"/></a></td>
                 <td><input type="text" id="ordersummary_netmargin_intermedperc" name="ordersummary[netmarginIntermedPerc]" value="{$aroordersummary->netmarginIntermedPerc}" style="width:150px;" readonly="readonly"/>% </td>
                 <td><input type="text" id="ordersummary_netmargin_localperc" name="ordersummary[netmarginLocalPerc]" value="{$aroordersummary->netmarginLocalPerc}" style="width:150px;" readonly="readonly"/>% </td>
+                <td id="ordersummary_thirdparty_5" {$ordersummarydisplay[thirdcolumn_display]}><input type="text" id="ordersummary_marginperc_thirdparty" value="{$aroordersummary->marginPercThirdParty}" style="width:150px;" readonly="readonly"/> </td>
             </tr>
             <tr style="font-weight:bold">
                 <td>{$lang->total} {$lang->globalnetmargin}<a href="#" title="{$lang->globalnetmargindef}"><img src="./images/icons/question.gif"/></a></td>

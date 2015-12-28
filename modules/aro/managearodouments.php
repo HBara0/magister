@@ -134,21 +134,39 @@ if(!($core->input['action'])) {
     if(isset($core->input['id'])) {
 
         $aroorderrequest = AroRequests::get_data(array('aorid' => $core->input['id']), array('simple' => false));
-        if(isset($aroorderrequest->aroBusinessManager) && !empty($aroorderrequest->aroBusinessManager)) {
-            $aro_bm = Users::get_data(array('uid' => $aroorderrequest->aroBusinessManager));
-            if(is_object($aro_bm)) {
-                $aroorderrequest->aroBusinessManager_output = $aro_bm->get_displayname();
-            }
-        }
-        if($aroorderrequest->isApproved == 1) {
-            $arostatus = '<h2>APPROVED </h2>';
-        }
+
+
         if(isset($core->input['referrer']) && $core->input['referrer'] == 'toapprove') {
             $aroapproval = AroRequestsApprovals::get_data(array('aorid' => intval($core->input['id']), 'uid' => $core->user['uid']));
             $approve_btn[$core->user['uid']] = '<input type="button" class="button" id="approvearo" value="'.$lang->approve.'"/>'
                     .'<input type="hidden" id="approvearo_id" value="'.$aroorderrequest->aorid.'"/>';
         }
         if(is_object($aroorderrequest)) {
+
+            if(isset($aroorderrequest->aroBusinessManager) && !empty($aroorderrequest->aroBusinessManager)) {
+                $aro_bm = Users::get_data(array('uid' => $aroorderrequest->aroBusinessManager));
+                if(is_object($aro_bm)) {
+                    $aroorderrequest->aroBusinessManager_output = $aro_bm->get_displayname();
+                }
+            }
+
+            if($aroorderrequest->isApproved == 1) {
+                $arostatus = '<h2>APPROVED </h2>';
+
+                if($aroorderrequest->POSent == 1) {
+                    $postatus = '<h2 style="width:150px;text-align:center">'.$lang->posent.'<img src="'.$core->settings[rootdir].'/images/valid.gif"/></h2>';
+                }
+                else {
+                    $postatus = '<h2 style="width:150px;text-align:center;color:red">'.$lang->ponotsent.'<img src="'.$core->settings[rootdir].'/images/invalid.gif"/></h2>';
+                    if($core->user['uid'] == $aroorderrequest->createdBy) {
+                        $postatus = '<input type="button" class="button" id="po_sent" value="'.$lang->markposent.'" />';
+                    }
+                }
+            }
+            if($aroorderrequest->isRejected == 1) {
+                $rejected_watrermark = "<img src='".$core->settings[rootdir]."/images/rejected.png' style='width:200px;margin-left:100px;display:inline-block'/>";
+            }
+
             if(!$aroorderrequest->getif_approvedonce($aroorderrequest->aorid) && $aroorderrequest->createdBy == $core->user['uid']) {
                 $deletebutton = "<a class='button' href='#{$aroorderrequest->aorid}' id='deletearodocument_{$aroorderrequest->aorid}_aro/managearodouments_loadpopupbyid' style='vertical-align:top;'>{$lang->delete}</a>";
             }
@@ -184,7 +202,13 @@ if(!($core->input['action'])) {
                     $customer = new Customers($customeroder['cid']);
                     $payment_term = parse_selectlist('customeroder['.$rowid.'][ptid]', 4, $payment_terms, $customeroder['ptid'], '', '', array('blankstart' => 1, 'id' => "paymentermdays_".$rowid, 'required' => 'required'));
                     $customeroder['customerName'] = $customer->get_displayname();
-                    eval("\$aro_managedocuments_ordercustomers_rows .= \"".$template->get('aro_managedocuments_ordercustomers_rows')."\";");
+                    if(isset($core->input['referrer']) && $core->input['referrer'] == 'toapprove') {
+                        $customeroder['paymentTerm'] = PaymentTerms::get_data(array('ptid' => $customeroder['ptid']))->get_displayname();
+                        eval("\$aro_managedocuments_ordercustomers_rows .= \"".$template->get('aro_managedocuments_ordercustomers_rows_preview')."\";");
+                    }
+                    else {
+                        eval("\$aro_managedocuments_ordercustomers_rows .= \"".$template->get('aro_managedocuments_ordercustomers_rows')."\";");
+                    }
                     $rowid++;
                 }
                 $clrowid = $rowid - 1;
@@ -198,7 +222,21 @@ if(!($core->input['action'])) {
                     $customeroder['inputChecksum'] = generate_checksum('ucl');
                 }
                 $altpayment_term = parse_selectlist('customeroder['.$rowid.'][ptid]', 4, $payment_terms, $unspecifiedcust['ptid'], '', '', array('blankstart' => 1, 'id' => "paymentermdays_".$rowid));
-                eval("\$unspecified_customer_row = \"".$template->get('aro_unspecifiedcustomer_row')."\";");
+                if(isset($core->input['referrer']) && $core->input['referrer'] == 'toapprove') {
+                    $altpayment_term = '';
+                    if(isset($unspecifiedcust) && !empty($unspecifiedcust)) {
+                        $altpayment_term_obj = PaymentTerms::get_data(array('ptid' => $unspecifiedcust['ptid']));
+                        if(is_object($altpayment_term_obj)) {
+                            $altpayment_term = $altpayment_term_obj->get_displayname();
+                            unset($altpayment_term_obj);
+                        }
+                        $unspecified_customer_row = '  <tr class="altrow2"><td>'.$lang->unspecifiedcustomers.'</td><td>'.$altpayment_term.'</td>
+                                        <td>'.$customeroder[paymentTermDesc].'</td><td>'.$customeroder[paymenttermbasedate_output].'</td></tr>';
+                    }
+                }
+                else {
+                    eval("\$unspecified_customer_row = \"".$template->get('aro_unspecifiedcustomer_row')."\";");
+                }
                 $rowid = $clrowid;
                 if($rowid == 1 && (isset($core->input['referrer']) && $core->input['referrer'] == 'toapprove')) {
                     $arocustomer_output = '<td style="font-weight: bold;width:16%;border-left:4px solid #F2F2F2;">'.$lang->customer.'</td><td>'.$customer->get_displayname().'</td>';
@@ -304,7 +342,12 @@ if(!($core->input['action'])) {
                     }
                     $packing = new Packaging($actualpurchase->packing);
                     $actualpurchase->packingTitle = $packing->get_displayname();
-                    eval("\$actualpurchase_rows .= \"".$template->get('aro_actualpurchase_row')."\";");
+                    if(isset($core->input['referrer']) && $core->input['referrer'] == 'toapprove') {
+                        eval("\$actualpurchase_rows .= \"".$template->get('aro_actualpurchase_row_preview')."\";");
+                    }
+                    else {
+                        eval("\$actualpurchase_rows .= \"".$template->get('aro_actualpurchase_row')."\";");
+                    }
                 }
             }
             //*********Aro Actual Purchase-End *********//
@@ -327,7 +370,12 @@ if(!($core->input['action'])) {
                     }
                     $packing = new Packaging($currentstock->packing);
                     $currentstock->packingTitle = $packing->get_displayname();
-                    eval("\$currentstock_rows .= \"".$template->get('aro_currentstock_row')."\";");
+                    if(isset($core->input['referrer']) && $core->input['referrer'] == 'toapprove') {
+                        eval("\$currentstock_rows .= \"".$template->get('aro_currentstock_row_preview')."\";");
+                    }
+                    else {
+                        eval("\$currentstock_rows .= \"".$template->get('aro_currentstock_row')."\";");
+                    }
                 }
             }
             //*********Current Stock -End *********//
@@ -520,10 +568,20 @@ if(!($core->input['action'])) {
                             }
                         }
                     }
+                    elseif($aroorderrequest->isRejected == 1) {
+                        if($approver->uid == $aroorderrequest->rejectedBy) {
+                            if($aroorderrequest->rejectedOn != 0) {
+                                $rejected['style'] = 'background-color:#f9d0d0;';
+                                $rejectedOn = gmdate("H:i:s", ($aroorderrequest->rejectedOn)).'<br/>';
+                                $rejectedOn .=date($core->settings['dateformat'], $aroorderrequest->rejectedOn);
+                            }
+                        }
+                    }
                     else {
                         if($approver->uid == $core->user['uid']) {
                             $approve = '<input type="button" class="button" id="approvearo" value="'.$lang->approve.'"/>'
-                                    .'<input type="hidden" id="approvearo_id" value="'.$aroorderrequest->aorid.'"/>';
+                                    .'<input type="hidden" id="approvearo_id" value="'.$aroorderrequest->aorid.'"/>'.
+                                    '<a class="button" id="rejectarodocument_'.$aroorderrequest->aorid.'_aro/managearodouments_loadpopupbyid" style="margin-left:5px;vertical-align:top;padding-top:5px;height:22px;"/>'.$lang->reject.'</a>';
                         }
                     }
                     eval("\$apprs .= \"".$template->get('aro_approvalchain_approver')."\";");
@@ -575,7 +633,7 @@ if(!($core->input['action'])) {
                         $thirdparty = $localaff->get_displayname();
                         $ordersummarydisplay['thirdcolumn_display'] = "style='font-weight:bold';";
                         if(isset($core->input['referrer']) && $core->input['referrer'] == 'toapprove') {
-                            $ordersummarydisplay[thirdcolumn_display] = "style='font-weight:bold';";
+                            $ordersummarydisplay[thirdcolumn_display] = 'style="font-weight:bold;width:15%"';
                         }
                     }
                 }
@@ -584,9 +642,10 @@ if(!($core->input['action'])) {
                 }
 
                 $aroordersummary->netmarginIntermed_afterdeduction = $aroordersummary->netmarginIntermed - $aroordersummary->invoiceValueThirdParty;
+                $aroordersummary->marginPercThirdParty = ($aroordersummary->netmarginIntermed_afterdeduction / $aroordersummary->invoiceValueUsdLocal) * 100;
             }
             $arodocument_title = $aroorderrequest->orderReference.' '.$localaff->get_displayname();
-            $arodocument_header = '<h2>'.$aroorderrequest->orderReference.' / '.$localaff->get_displayname().' / '.$purchaseype->get_displayname().'</h2>';
+            $arodocument_header = '<h2 style="display:inline-block;">'.$aroorderrequest->orderReference.' / '.$localaff->get_displayname().' / '.$purchaseype->get_displayname().'</h2>';
         }
         else {
             redirect($_SERVER['HTTP_REFERER'], 2, $lang->nomatchfound);
@@ -596,11 +655,14 @@ if(!($core->input['action'])) {
     eval("\$aro_productlines = \"".$template->get('aro_fillproductlines')."\";");
     if(isset($core->input['referrer']) && $core->input['referrer'] == 'toapprove') {
         eval("\$aro_managedocuments_orderident= \"".$template->get('aro_orderidentification_preview')."\";");
+        eval("\$aro_ordercustomers= \"".$template->get('aro_managedocuments_ordercustomers_preview')."\";");
+        eval("\$totalfunds = \"".$template->get('aro_totalfunds_preview')."\";");
     }
     else {
         eval("\$aro_managedocuments_orderident= \"".$template->get('aro_managedocuments_orderidentification')."\";");
+        eval("\$aro_ordercustomers= \"".$template->get('aro_managedocuments_ordercustomers')."\";");
+        eval("\$totalfunds = \"".$template->get('aro_totalfunds')."\";");
     }
-    eval("\$aro_ordercustomers= \"".$template->get('aro_managedocuments_ordercustomers')."\";");
     eval("\$partiesinformation = \"".$template->get('aro_partiesinformation')."\";");
     eval("\$aro_netmarginparms= \"".$template->get('aro_netmarginparameters')."\";");
     eval("\$actualpurchase = \"".$template->get('aro_actualpurchase')."\";");
@@ -626,7 +688,6 @@ if(!($core->input['action'])) {
         eval("\$orderummary = \"".$template->get('aro_ordersummary')."\";");
     }
     unset($firstparty, $secondparty, $thirdparty);
-    eval("\$totalfunds = \"".$template->get('aro_totalfunds')."\";");
     eval("\$approvalchain= \"".$template->get('aro_approvalchain')."\";");
     eval("\$aro_managedocuments= \"".$template->get('aro_managedocuments')."\";");
     output_page($aro_managedocuments);
@@ -1188,12 +1249,14 @@ else {
                 $invoicevalue_thirdparty = ($core->input['commFromIntermed'] / 100) * $core->input['localinvoicevalue_usd']; //$invoicevalueintermed;
                 $invoicevalue_thirdparty_usd = $invoicevalue_thirdparty; //* $core->input['exchangeRateToUSD'];
                 $haveThirdParty = 1;
+                $intermedmarginafterreduction = $intermedmargin - $invoicevalue_thirdparty_usd;
+                $intermedmargin_perc = ($intermedmarginafterreduction / $localinvoicevalue_usd) * 100;
+                $thirdpartymargin_perc = ($invoicevalue_thirdparty_usd / $localinvoicevalue_usd) * 100;
             }
         }
         if(($core->input['sellingpriceqty_product'] * $core->input['exchangeRateToUSD']) != 0) {
             $globalmarginperc = (($localnetmargin + $intermedmargin) / ($core->input['sellingpriceqty_product'] * $core->input['exchangeRateToUSD'])) * 100;
         }
-        $intermedmarginafterreduction = $intermedmargin - $invoicevalue_thirdparty_usd;
         $data = array(
                 'ordersummary_col1_title' => $firstpart_title,
                 'ordersummary_col2_title' => $secondparty_title,
@@ -1224,6 +1287,7 @@ else {
                 'haveThirdParty' => $haveThirdParty,
                 'ordersummary_netmargin_intermedafterdeduction' => round($intermedmarginafterreduction, 2),
                 'ordersummary_globalnetmarginPerc' => round($globalmarginperc, 2),
+                'ordersummary_marginperc_thirdparty' => round($thirdpartymargin_perc, 2)
         );
         echo json_encode($data);
     }
@@ -1360,9 +1424,11 @@ else {
     }
     if($core->input['action'] == 'viewonly') {
         $aroorderrequest = AroRequests::get_data(array('aorid' => $core->input['id']), array('simple' => false));
-        if($aroorderrequest->isApproved == 1 || $core->user['uid'] != $aroorderrequest->createdBy) {
-            $viewonly = array('disable' => 1);
-            output(json_encode($viewonly));
+        if($core->user['uid'] != 362) {
+            if($aroorderrequest->isApproved == 1 || $core->user['uid'] != $aroorderrequest->createdBy) {
+                $viewonly = array('disable' => 1);
+                output(json_encode($viewonly));
+            }
         }
     }
     if($core->input['action'] == 'approvearo') {
@@ -1521,5 +1587,41 @@ else {
     elseif($core->input['action'] == 'get_deletearodocument') {
         eval("\$deletearocodbox = \"".$template->get('popup_deletearodocument')."\";");
         output($deletearocodbox);
+    }
+    elseif($core->input['action'] == 'get_rejectarodocument') {
+        eval("\$rejectarobox = \"".$template->get('popup_rejectarodocument')."\";");
+        output($rejectarobox);
+    }
+    elseif($core->input['action'] == 'perform_rejectarodocument') {
+        $aro = new AroRequests($db->escape_string($core->input['toreject']));
+        if(empty($core->input['rejectionmessage']['message'])) {
+            output_xml("<status>true</status><message>{$lang->fillallrequiredfields}</message>");
+            exit;
+        }
+        $aro = $aro->reject_aro($core->input);
+        switch($aro->get_errorcode()) {
+            case 0:
+                output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
+                break;
+            case 1:
+            case 2:
+                output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
+                break;
+            case 3:
+                output_xml("<status>false</status><message>{$lang->entryexists}</message>");
+                break;
+            case 4:
+                output_xml("<status>false</status><message>{$lang->errorsaving}</message>"); // ERROR rejecting
+                break;
+            case 5:
+                output_xml("<status>false</status><message>{$lang->successfullysaved} - {$lang->errorsendingemail}</message>");
+                break;
+        }
+    }
+    elseif($core->input['action'] == 'markpoassent') {
+        $aro_obj = new AroRequests($db->escape_string($core->input['id']));
+        if(is_object($aro_obj)) {
+            $aro_obj->mark_sentpo();
+        }
     }
 }

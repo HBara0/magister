@@ -99,7 +99,7 @@ class AroRequestsMessages extends AbstractClass {
         }
     }
 
-    public function send_message() {
+    public function send_message($options = array()) {
         global $lang, $core;
         if(empty($this->data['aorid'])) {
             $this->data['aorid'] = $core->input['aorid'];
@@ -116,19 +116,34 @@ class AroRequestsMessages extends AbstractClass {
             $reply_links = DOMAIN."/index.php?module=aro/managearodouments&referrer=toapprove&id=".$arorequest->get()['aorid'].'#message';
             $view_link = DOMAIN."/index.php?module=aro/managearodouments&referrer=toapprove&id=".$arorequest->get()['aorid'];
         }
-        $mailer->set_subject($lang->newrequestmsgsubject.' ['.$arorequest->orderReference.']');
-
+        if($options['msgtype'] == 'rejection') {
+            $aroaffiliate_obj = Affiliates::get_affiliates(array('affid' => $arorequest->affid));
+            $purchasteype_obj = PurchaseTypes::get_data(array('ptid' => $arorequest->orderType));
+            $mailer->set_subject('REJECTED Aro Request ['.$arorequest->orderReference.']/'.$aroaffiliate_obj->get_displayname().'/'.$purchasteype_obj->get_displayname());
+        }
+        else {
+            $mailer->set_subject($lang->newrequestmsgsubject.' ['.$arorequest->orderReference.']');
+        }
 
         $emailreceivers = $this->get_emailreceivers();
         if(is_array($emailreceivers)) {
             foreach($emailreceivers as $uid => $emailreceiver) {
                 $message = 'Time elapsed since finalization '.$arorequest->get_timelapsed().'<br/>';
                 $message .= '<h1>'.$lang->conversation.'</h1>'.$arorequest->parse_messages(array('viewmode' => 'textonly', 'uid' => $uid));
-                $message .= '<a href="'.$view_link.'">'.$lang->clicktoviewaro.'</a><br/>'.$this->data['message'].' | <a href="'.$reply_links.'">&#x21b6; '.$lang->reply.'</a><br/>';
-
+                if($options['msgtype'] == 'rejection') {
+                    $rejectedby = Users::get_data(array('uid' => $options['rejectedBy']));
+                    $message = 'Aro Request ['.$arorequest->orderReference.']/'.$aroaffiliate_obj->get_displayname().'/'.$purchasteype_obj->get_displayname().' was rejected by '.$rejectedby.
+                            '<br/>'.$message;
+                }
+                else {
+                    $message .= '<a href="'.$view_link.'">'.$lang->clicktoviewaro.'</a><br/>'.$this->data['message'].' | <a href="'.$reply_links.'">&#x21b6; '.$lang->reply.'</a><br/>';
+                }
                 if(!empty($message)) {
                     $mailer->set_message($message);
                     $mailer->set_to($emailreceiver);
+//                    $x = $mailer->debug_info();
+//                    print_R($x);
+//                    exit;
                     $mailer->send();
                 }
                 $message = '';
