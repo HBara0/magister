@@ -49,10 +49,10 @@ class SurveysTemplates extends AbstractClass {
     }
 
     /* -------FUNCTIONS-END-------- */
-    public function get_questions() {
+    public function get_questions($referrer = '') {
         global $db;
 
-        $query = $db->query("SELECT *, sts.title AS section_title, stq.description AS description
+        $query = $db->query("SELECT *, sts.title AS section_title,sts.description as section_description, stq.description AS description
 							FROM ".Tprefix."surveys_templates st
 							JOIN ".Tprefix."surveys_templates_sections sts ON (sts.stid=st.stid)
 							JOIN ".Tprefix."surveys_templates_questions stq ON (sts.stsid=stq.stsid)
@@ -77,6 +77,7 @@ class SurveysTemplates extends AbstractClass {
             if(is_array($question['choicevalues'])) {
                 $question['choicevalues'] = array_unique($question['choicevalues']);
             }
+            $questions[$question['stsid']]['section_description'] = $question['section_description'];
             $questions[$question['stsid']]['section_title'] = $question['section_title'];
             $questions[$question['stsid']]['questions'][$question['stqid']] = $question;
         }
@@ -197,16 +198,16 @@ class SurveysTemplates extends AbstractClass {
                 }
                 break;
             case 'matrix':
-                $question_output .= '<div style="margin: 5px 20px; 5px; 20px;"><table>';
+                $question_output .= '<div style="margin: 5px 20px; 5px; 20px;"><table class="datatable">';
                 $question_output .= '<tr><th><input type="hidden" name="answer[options]['.$question['stqid'].'][isMatrix]" value="1"/></th>';
                 foreach($question['choicevalues'] as $choicevalue) {
-                    $question_output .= '<th>'.$choicevalue.'</th>';
+                    $question_output .= '<th style="text-align:left;">'.$choicevalue.'</th>';
                 }
                 $question_output .='</tr>';
                 foreach($question['choices'] as $choicekey => $choice) {
                     $question_output .='<tr><th>'.$choice.'</th>';
                     foreach($question['choicevalues'] as $valuekey => $choicevalue) {
-                        $question_output .='<td><input type="radio" name="answer[actual]['.$question['stqid'].']['.$choicekey.']" value="'.$choicekey.'_'.$valuekey.'" '.$checked.$required.'/></td>';
+                        $question_output .='<td style="text-align:left;"><input type="radio" name="answer[actual]['.$question['stqid'].']['.$choicekey.']" value="'.$choicekey.'_'.$valuekey.'" '.$checked.$required.'/></td>';
                     }
                     $question_output .='</tr>';
                 }
@@ -255,6 +256,62 @@ class SurveysTemplates extends AbstractClass {
         else {
             return $this->data[self::DISPLAY_NAME];
         }
+    }
+
+    public function get_questionchoices($stqid) {
+        global $db;
+        $question = SurveysTplQuestions::get_data(array('stqid' => $stqid), array('simple' => false));
+        if(is_object($question)) {
+            $question = $question->get();
+            $qtype_obj = SurveysQuestionTypes::get_data(array('sqtid' => $question['type']));
+            $question['hasChoices'] = $qtype_obj->hasChoices;
+            $question['isMatrix'] = $qtype_obj->isMatrix;
+            if($question['hasChoices'] == 1) {
+                $query2 = $db->query("SELECT * FROM ".Tprefix."surveys_templates_questions_choices WHERE stqid={$question[stqid]} ORDER BY stqcid ASC");
+                while($choice = $db->fetch_assoc($query2)) {
+                    $question['choices'][$choice['stqcid']]['choice'] = $choice['choice'];
+                    if($choice['hasMultipleValues'] == 1) {
+                        $query3 = $db->query("SELECT * FROM ".Tprefix."surveys_templates_questionschoices_choices WHERE stqcid={$choice[stqcid]} ORDER BY stqcid ASC");
+                        while($choicevalue = $db->fetch_assoc($query3)) {
+                            if(is_array($choices)) {
+                                if(!in_array($choicevalue['choice'], $choices)) {
+                                    $question['choicevalues'][$choicevalue['stqccid']]['choice'] = $choicevalue['choice'];
+                                    $choices[] = $choicevalue['choice'];
+                                }
+                            }
+                            else {
+                                $question['choicevalues'][$choicevalue['stqccid']]['choice'] = $choicevalue['choice'];
+                                $choices[] = $choicevalue['choice'];
+                            }
+                            if(is_array($values)) {
+                                if(!in_array($choicevalue['value'], $values)) {
+                                    $question['choicevalues'][$choicevalue['stqccid']]['value'] = $choicevalue['value'];
+                                    $values[] = $choicevalue['value'];
+                                }
+                            }
+                            else {
+                                $question['choicevalues'][$choicevalue['stqccid']]['value'] = $choicevalue['value'];
+                                $values[] = $choicevalue['value'];
+                            }
+                        }
+                    }
+                    else {
+                        $question['choices'][$choice['stqcid']]['value'] = $choice['value'];
+                    }
+                    if($choice['isAnswer'] == 1) {
+                        $question['choicevalues'][$choicevalue['stqccid']]['isAnswer'] = 1;
+                    }
+                }
+            }
+        }
+        $data['choices'] = $question['choices'];
+        $data['choicevalues'] = $question['choicevalues'];
+        $data['answers'] = $question['choicevalues'];
+        if($question['isMatrix'] == 1) {
+            $data['choices'] = $question['choicevalues'];
+            $data['choicevalues'] = $question['choices'];
+        }
+        return $data;
     }
 
 }

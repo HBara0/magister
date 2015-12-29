@@ -30,4 +30,6 @@ $lang['surveytemplateexists'] = 'A template with the same name already exsits';
 $lang['surveytemplatetitle'] = 'Title';
 $lang['validationcriterion'] = 'Validation Criterion';
 $lang['validationtype'] = 'Validation Type';
+$lang['createbasedonanother'] = 'Create based on another template';
+$lang['loadquestins'] = 'Load questions';
 ?>

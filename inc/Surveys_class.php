@@ -354,6 +354,7 @@ class Surveys {
                     $stsid = $db->last_id();
                     foreach($section['questions'] as $key => $question) {
                         $hasmultiplevalues = 0;
+                        $type_obj = new SurveysQuestionTypes($question['type']);
                         if($type_obj->isMatrix == 1) {
                             $temp_choicevalues = $question['choices'];
                             $question['choices'] = $question['matrixchoices'];
@@ -1242,16 +1243,21 @@ class Surveys {
                 }
                 break;
             case 'matrix':
-                $question_output .= '<div style="margin: 5px 20px; 5px; 20px;"><table>';
+                $question_output .= '<div style="margin: 5px 20px; 5px; 20px;"><table class="datatable">';
                 $question_output .= '<tr><th><input type="hidden" name="answer[options]['.$question['stqid'].'][isMatrix]" value="1"/></th>';
                 foreach($question['choicevalues'] as $choicevalue) {
-                    $question_output .= '<th>'.$choicevalue.'</th>';
+                    $question_output .= '<th style="text-align:left;">'.$choicevalue.'</th>';
                 }
                 $question_output .='</tr>';
+                if(is_array($response)) {
+                    foreach($response as $singleresponse) {
+                        $checked[$singleresponse['response']][$singleresponse['responseValue']] = "checked='checked';";
+                    }
+                }
                 foreach($question['choices'] as $choicekey => $choice) {
                     $question_output .='<tr><th>'.$choice.'</th>';
                     foreach($question['choicevalues'] as $valuekey => $choicevalue) {
-                        $question_output .='<td><input type="radio" name="answer[actual]['.$question['stqid'].']['.$choicekey.']" value="'.$choicekey.'_'.$valuekey.'" '.$question_output_requiredattr.'/></td>';
+                        $question_output .='<td style="text-align:left;"><input type="radio" name="answer[actual]['.$question['stqid'].']['.$choicekey.']" value="'.$choicekey.'_'.$valuekey.'" '.$question_output_requiredattr.' '.$checked[$choicekey][$valuekey].'/></td>';
                     }
                     $question_output .='</tr>';
                 }
