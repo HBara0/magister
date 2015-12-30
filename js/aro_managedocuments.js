@@ -71,7 +71,6 @@ $(function() {
     $(document).on("click", "input[id='po_sent']", function() {
         var url = window.location.href;
         sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=markpoassent&id=' + $("input[name='aorid']").val(), function() {
-            alert(url);
             window.location.href = url;
         });
     });
@@ -153,7 +152,6 @@ $(function() {
                 //obj = JSON.parse(jsonStr);
                 // jQuery.each(obj, function(i, val) {
                 var fields = ["aff", "paymentterm", "incoterms", "IncotermsDesc", "PaymentTermDesc", "ptAcceptableMargin", "promiseofpayment", "estdateofpayment"];
-                alert(data);
                 if(data == 0) {
                     for(var i = 0; i < fields.length; i++) {
                         $("input[id='partiesinfo_intermed_" + fields[i] + "']").removeAttr("required");
@@ -225,6 +223,8 @@ $(function() {
 //        var triggercomm = setTimeout(function() {
 //            $("input[id$='_intialPrice']").trigger("change");
 //        }, 2000);
+
+        $("input[id='user_0_id_output']").trigger("change");
     });
     //------------------------------------------------------------------------------------//
     //-----------------Get Exchang Rate  -------------------------------------------------//
