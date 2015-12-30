@@ -254,7 +254,7 @@ class Surveys {
                 continue;
             }
 
-            if(empty($section['title'])) {
+            if(empty($section['title']) || empty($section['inputChecksum'])) {
                 $this->status = 1;
                 return false;
             }
@@ -348,6 +348,7 @@ class Surveys {
                 $newsurveys_section = array(
                         'stid' => $stid,
                         'title' => $core->sanitize_inputs(trim($section['title'])),
+                        'inputChecksum' => $core->sanitize_inputs(trim($section['inputChecksum'])),
                         'description' => $core->sanitize_inputs(trim($section['description'])));
                 $section_query = $db->insert_query('surveys_templates_sections', $newsurveys_section);
                 if($section_query) {

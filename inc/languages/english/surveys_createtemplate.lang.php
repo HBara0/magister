@@ -32,4 +32,5 @@ $lang['validationcriterion'] = 'Validation Criterion';
 $lang['validationtype'] = 'Validation Type';
 $lang['createbasedonanother'] = 'Create based on another template';
 $lang['loadquestins'] = 'Load questions';
+$lang['sectiontemplatealreadyused'] = 'Section Template Already Used';
 ?>

@@ -151,6 +151,7 @@ if(!$core->input['action']) {
         }
         $sepertorslist = array('space' => 'Space', 'newline' => 'New-Line');
         $seperatorselectlist = parse_selectlist("section[{$section_rowid}][questions][{$question_rowid}][choicesSeperator]", '', $sepertorslist, '');
+        $section['section_inputChecksum'] = generate_checksum();
         eval("\$matrixchoices = \"".$template->get('surveys_createtemplate_sectionrow_questionrow_matrixchoicerow')."\";");
         eval("\$choices = \"".$template->get('surveys_createtemplate_sectionrow_questionrow_choicerow')."\";");
         eval("\$newquestions = \"".$template->get('surveys_createtemplate_sectionrow_questionrow')."\";");
@@ -262,6 +263,7 @@ else {
             $showanswer = '';
             $type = $core->input['ajaxaddmoredata']['type'];
         };
+        $section['section_inputChecksum'] = generate_checksum();
         $sepertorslist = array('space' => 'Space', 'newline' => 'New-Line', 'tab' => 'Tab');
         $seperatorselectlist = parse_selectlist("section[{$section_rowid}][questions][{$question_rowid}][choicesSeperator]", '', $sepertorslist, '');
         $radiobuttons['isRequired'] = parse_yesno('section['.$section_rowid.'][questions]['.$question_rowid.'][isRequired]', 1, $survey_template['isRequired']);
@@ -344,6 +346,24 @@ else {
 //        eval("\$surveys_createtemplate = \"".$template->get('surveys_createtemplate')."\";");
 //        output($surveys_createtemplate);
         redirect('index.php?module=surveys/createsurveytemplate&stid='.$stid);
+    }
+    elseif($core->input['action'] == 'delete_section') {
+        if(isset($core->input['sectionid']) && !empty($core->input['sectionid'])) {
+            $section = new SurveysTplSections(intval($core->input['sectionid']));
+        }
+        elseif(isset($core->input['checksum']) && !empty($core->input['checksum'])) {
+            $section = SurveysTplSections::get_data(array('inputChecksum' => $db->escape_string($core->input['checksum'])), array('returnarray' => false));
+        }
+        if(is_object($section) && !empty($section->{SurveysTplSections::PRIMARY_KEY})) {
+            if($section->section_used()) {
+                echo('<span style="color:red">'.$lang->sectiontemplatealreadyused.'</span>');
+                exit;
+            }
+            $section->delete();
+        }
+
+        $result = '<script> $(function() { $(\'tr[id="section_'.$core->input['rowid'].'"]\').remove();});</script>';
+        echo($result);
     }
 }
 ?>

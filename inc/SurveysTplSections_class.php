@@ -37,4 +37,24 @@ class SurveysTplSections extends AbstractClass {
 
     }
 
+    public function section_used() {
+        $template = $this->get_template();
+        if(is_object($template)) {
+            if($template->template_used()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public function delete() {
+        $sectionquestions = SurveysTplQuestions::get_data(array(self::PRIMARY_KEY => $this->data[self::PRIMARY_KEY]), array('returnarray' => true));
+        if(is_array($sectionquestions)) {
+            foreach($sectionquestions as $question) {
+                $question->delete();
+            }
+        }
+        parent::delete();
+    }
+
 }

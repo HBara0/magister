@@ -52,7 +52,7 @@ class SurveysTemplates extends AbstractClass {
     public function get_questions($referrer = '') {
         global $db;
 
-        $query = $db->query("SELECT *, sts.title AS section_title,sts.description as section_description, stq.description AS description
+        $query = $db->query("SELECT *, sts.title AS section_title,sts.inputChecksum AS section_inputChecksum,sts.stsid AS section_id,sts.description as section_description, stq.description AS description
 							FROM ".Tprefix."surveys_templates st
 							JOIN ".Tprefix."surveys_templates_sections sts ON (sts.stid=st.stid)
 							JOIN ".Tprefix."surveys_templates_questions stq ON (sts.stsid=stq.stsid)
@@ -79,6 +79,8 @@ class SurveysTemplates extends AbstractClass {
             }
             $questions[$question['stsid']]['section_description'] = $question['section_description'];
             $questions[$question['stsid']]['section_title'] = $question['section_title'];
+            $questions[$question['stsid']]['section_id'] = $question['section_id'];
+            $questions[$question['stsid']]['section_inputChecksum'] = $question['section_inputChecksum'];
             $questions[$question['stsid']]['questions'][$question['stqid']] = $question;
         }
 
@@ -312,6 +314,15 @@ class SurveysTemplates extends AbstractClass {
             $data['choicevalues'] = $question['choices'];
         }
         return $data;
+    }
+
+    public function template_used() {
+        global $db;
+        $query = $db->query("SELECT sid FROM ".Tprefix."surveys WHERE stid=".$this->data[self::PRIMARY_KEY]);
+        if($query && $db->num_rows($query) > 0) {
+            return true;
+        }
+        return false;
     }
 
 }
