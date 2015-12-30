@@ -109,5 +109,8 @@ else if($core->input['action'] == 'do_perform_managepolicies') {
         case 2:
             output_xml('<status>false</status><message>'.$lang->fillrequiredfields.'</message>');
             break;
+        case 3:
+            output_xml('<status>false</status><message>'.$lang->policiescoexist.'</message>');
+            break;
     }
 }

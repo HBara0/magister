@@ -31,6 +31,10 @@ class AroApprovalChainPolicies extends AbstractClass {
     protected function create(array $data) {
         global $db, $core, $log;
         if(!$this->validate_requiredfields($data)) {
+            if($this->co_exist()) {
+                $this->errorcode = 3;
+                return $this;
+            }
             if(is_array($data['approverchain'])) {
                 foreach($data['approverchain'] as $approverfield) {
                     if(empty($approverfield['approver']) || !isset($approverfield['approver'])) {
@@ -72,6 +76,12 @@ class AroApprovalChainPolicies extends AbstractClass {
     protected function update(array $data) {
         global $db, $core, $log;
         if(!$this->validate_requiredfields($data)) {
+
+            if($this->co_exist('aapcid NOT IN ('.$this->data['aapcid'].')')) {
+                $this->errorcode = 3;
+                return $this;
+            }
+
             if(is_array($data)) {
                 if(is_array($data['approverchain'])) {
                     foreach($data['approverchain'] as $approverfield) {
@@ -126,6 +136,22 @@ class AroApprovalChainPolicies extends AbstractClass {
                 }
             }
         }
+    }
+
+    public function co_exist($extra_where = '') {
+        $where = 'purchaseType='.$this->data['purchaseType'].' AND affid='.$this->data['affid'].' AND ('
+                .'((effectiveFrom BETWEEN '.$this->data['effectiveFrom'].' AND '.$this->data['effectiveTo'].') OR (effectiveTo BETWEEN '.$this->data['effectiveFrom'].' AND '.$this->data['effectiveTo'].'))'
+                .' OR '.
+                '(('.$this->data['effectiveFrom'].' BETWEEN effectiveFrom AND effectiveTo) AND ('.$this->data['effectiveTo'].' BETWEEN effectiveFrom AND effectiveTo))'
+                .')';
+        if(!empty($extra_where)) {
+            $where .=' AND '.$extra_where;
+        }
+        $policy = self::get_data($where);
+        if(is_object($policy)) {
+            return true;
+        }
+        return false;
     }
 
 }
