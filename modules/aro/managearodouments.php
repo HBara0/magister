@@ -543,9 +543,14 @@ if(!($core->input['action'])) {
                             break;
                     }
                     $dateofapproval = '-';
-                    $user = new Users($approver->uid);
-                    if(is_object($user)) {
-                        $username = $user->get_displayname();
+                    if($approver->uid == 0) {
+                        $username = '-';
+                    }
+                    else {
+                        $user = new Users($approver->uid);
+                        if(is_object($user)) {
+                            $username = $user->get_displayname();
+                        }
                     }
                     if($approver->emailRecievedDate != 0) {
                         $dateofapprovalemail = gmdate("H:i:s", ($approver->emailRecievedDate)).'<br/>';
@@ -642,7 +647,11 @@ if(!($core->input['action'])) {
                 }
 
                 $aroordersummary->netmarginIntermed_afterdeduction = $aroordersummary->netmarginIntermed - $aroordersummary->invoiceValueThirdParty;
-                $aroordersummary->marginPercThirdParty = ($aroordersummary->netmarginIntermed_afterdeduction / $aroordersummary->invoiceValueUsdLocal) * 100;
+                $aroordersummary->marginPercThirdParty = round(($aroordersummary->invoiceValueThirdParty / $aroordersummary->invoiceValueUsdLocal) * 100, 2);
+
+                if(isset($aroordersummary->netmarginIntermed_afterdeduction) && !empty($aroordersummary->netmarginIntermed_afterdeduction)) {
+                    $aroordersummary->netmarginIntermedPerc = round(($aroordersummary->netmarginIntermed_afterdeduction / $aroordersummary->invoiceValueUsdLocal) * 100, 2);
+                }
             }
             $arodocument_title = $aroorderrequest->orderReference.' '.$localaff->get_displayname();
             $arodocument_header = '<h2 style="display:inline-block;">'.$aroorderrequest->orderReference.' / '.$localaff->get_displayname().' / '.$purchaseype->get_displayname().'</h2>';
@@ -1374,9 +1383,15 @@ else {
                             break;
                     }
                     //   if($key != 'businessManager') {
-                    $user = new Users($val);
-                    if(is_object($user)) {
-                        $username = $user->get_displayname();
+                    if($val == 0) {
+                        $username = '-';
+                    }
+                    else {
+                        $user = new Users($val);
+
+                        if(is_object($user)) {
+                            $username = $user->get_displayname();
+                        }
                     }
                     ///  }
 //                    else {
