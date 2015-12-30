@@ -196,7 +196,7 @@ if(!$core->input['action']) {
     $helptour->set_items($touritems);
     $helptour = $helptour->parse();
     $facinputname = 'meeting[fmfid]';
-    $extra_inputids = ', altpickDate_from, altpickDate_to, altpickTime_to, altpickTime_from, mtid';
+    $extra_inputids = ',altpickDate_from,altpickDate_to,altpickTime_to,altpickTime_from,mtid';
     eval("\$facilityreserve = \"".$template->get('facility_reserveautocomplete')."\";");
     eval("\$createmeeting_associations = \"".$template->get('meeting_create_associations')."\";");
     eval("\$createmeeting = \"".$template->get('meeting_create')."\";");
