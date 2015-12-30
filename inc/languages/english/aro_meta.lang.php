@@ -256,4 +256,5 @@ $lang['markposent'] = 'Mark PO as Sent';
 $lang['posent'] = 'PO SENT';
 $lang['ponotsent'] = 'PO NOT SENT';
 $lang['legend'] = 'Legend';
+$lang['policiescoexist'] = 'A policy for the same affiliate and purchase type within this effective period already exists';
 ?>
