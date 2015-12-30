@@ -18,7 +18,9 @@
                     </tr>
                     <tr>
                         <td>{$lang->reference}</td>
-                        <td><input type="text" id="" name="jobopportunity[reference]" value="{$jobopportunity[reference]}" required="required" style="width:200px;"/></td>
+                        <td><input type="text"  name="jobopportunity[reference]" value="{$jobopportunity[reference]}" required="required" style="width:200px;"/></td>
+                        <td><input type="hidden" name="jobopportunity[joid]" value="{$jobopportunity[joid]}" /></td>
+
                     </tr>
                     <tr>
                         <td>{$lang->affiliate}*</td>
@@ -58,7 +60,11 @@
                     </tr>
                     <tr>
                         <td>{$lang->manageothers}</td>
-                        <td>{$radiobuttons[managesOthers]}</td>
+                        <td>
+                            <input type="radio" name="jobopportunity[managesOthers]" {$checked[managesOthers][yes]} value="1"/> {$lang->yes}
+                            <input type="radio" name="jobopportunity[managesOthers]" {$checked[managesOthers][no]} value="0"/> {$lang->no}
+                            <input type="radio" name="jobopportunity[managesOthers]"  value="3"/> {$lang->unspecify}
+                        </td>
                     </tr>
 
                     <tr>
@@ -80,8 +86,9 @@
                     <tr>
                         <td>{$lang->gender}</td>
                         <td>
-                            <input type="checkbox" name="jobopportunity[gender]" {$checked[gender][male]} value=""/> {$lang->male}
-                            <input type="checkbox" name="jobopportunity[gender]" {$checked[gender][female]}/> {$lang->female}
+                            <input type="radio" name="jobopportunity[gender]" {$checked[gender][male]} value="1"/> {$lang->male}
+                            <input type="radio" name="jobopportunity[gender]" {$checked[gender][female]} value="2"/> {$lang->female}
+                            <input type="radio" name="jobopportunity[gender]"  value="0"/> {$lang->unspecify}
                         </td>
                     </tr>
                     <tr>
@@ -97,7 +104,11 @@
                     </tr>
                     <tr>
                         <td>{$lang->drivinglicenserequired}</td>
-                        <td>{$radiobuttons[drivingLicReq]}</td>
+                        <td>
+                            <input type="radio" name="jobopportunity[drivingLicReq]" {$checked[drivingLicReq][yes]} value="1"/> {$lang->yes}
+                            <input type="radio" name="jobopportunity[drivingLicReq]" {$checked[drivingLicReq][no]} value="0"/> {$lang->no}
+                            <input type="radio" name="jobopportunity[drivingLicReq]"  value="3"/> {$lang->unspecify}
+                        </td>
                     </tr>
                     <tr>
                         <td style="vertical-align:top;">{$lang->requiredlanguages}</td>
@@ -164,19 +175,26 @@
                     </tr>
                     <tr>
                         <td>{$lang->allowsocialsharing}</td>
-                        <td>{$radiobuttons[allowSocialSharing]}</td>
+                        <td>
+                            <input type="radio" name="jobopportunity[allowSocialSharing]" {$checked[allowSocialSharing][yes]} value="1"/> {$lang->yes}
+                            <input type="radio" name="jobopportunity[allowSocialSharing]" {$checked[allowSocialSharing][no]} value="0"/> {$lang->no}
+                            <input type="radio" name="jobopportunity[allowSocialSharing]"  value="3"/> {$lang->unspecify}
+                        </td>
                     </tr>
                     <tr>
                         <td colspan="2"><br/><h2>{$lang->autofilterconfig}</h2></td>
                     </tr>
                     <tr>
                         <td>{$lang->filtertype}</td>
-                        <td>{$filter[types]}</td>
+                        <td>
+                            <label><input type="radio" {$checked[filtertype][flag]} value="flag" name="filter[filterType]" oldtitle="type" title=""/>{$lang->flag}</label>
+                            <label><input type="radio" {$checked[filtertype][discard]} value="discard" name="filter[filterType]" aria-describedby="ui-tooltip-3"/>{$lang->discard}</label>
+                        </td>
                     </tr>
                     <tr>
                         <td>{$lang->yearsofexperience}</td>
-                        <td>{$lang->min} <input type="number" id="filter_minExpYears" name="filter[minExpYears]" value="{$filter[minExpYears]}" style="width:125px;"/>
-                            {$lang->max} <input type="number" id="filter_minExpYears" name="filter[minExpYears]" value="{$filter[maxExpYears]}" style="width:125px;"/></td>
+                        <td>{$lang->min} <input type="number" id="filter_minExpYears" name="filter[minExpYears]" value="{$filterdata[minExpYears]}" style="width:125px;"/>
+                            {$lang->max} <input type="number" id="filter_minExpYears" name="filter[maxExpYears]" value="{$filterdata[maxExpYears]}" style="width:125px;"/></td>
                     </tr>
                     <tr>
                         <td style="vertical-align:top;">{$lang->minimumedutcationlevel}</td>
@@ -199,23 +217,28 @@
                     </tr>
                     <tr>
                         <td>{$lang->gender}</td>
-                        <td>{$filter[gender]}</td>
+
+                        <td>
+                            <input type="radio" name="filter[gender]" {$checked[filtergender][male]} value="1"/> {$lang->male}
+                            <input type="radio" name="filter[gender]" {$checked[filtergender][female]} value="2"/> {$lang->female}
+                            <input type="radio" name="filter[gender]"  value="0"/> {$lang->unspecify}
+                        </td>
                     </tr>
                     <tr>
                         <td>{$lang->age}</td>
-                        <td>{$lang->min} <input type="number" id="filter_salary" name="filter[minExpYears]" value="{$filter[minExpYears]}" style="width:125px;"/>
-                            {$lang->max} <input type="number" id="filter_salary" name="filter[maxExpYears]" value="{$filter[maxExpYears]}" style="width:125px;"/>
+                        <td>{$lang->min} <input type="number" id="filter_salary" name="filter[minAge]" value="{$filterdata[minAge]}" style="width:125px;"/>
+                            {$lang->max} <input type="number" id="filter_salary" name="filter[maxAge]" value="{$filterdata[maxAge]}" style="width:125px;"/>
                         </td>
                     </tr>
                     <tr>
                         <td>{$lang->careerlevel}</td>
-                        <td>{$careerlevel_list}</td>
+                        <td>{$filter['careerlevel_list']}</td>
                     </tr>
                     <tr>
                         <td>{$lang->residence}</td>
                         <td>
-                            <input type="text" autocomplete="off" id="cities_cache_2_autocomplete" value="{$filter[residence_output]}" style="width:200px;"/>
-                            <input type='hidden' id='cities_cache_2_id'   name="filter[residence]" value="{$filter[residence]}"/>
+                            <input type="text" autocomplete="off" id="cities_cache_2_autocomplete" value="{$filterdata[residence_output]}" style="width:200px;"/>
+                            <input type='hidden' id='cities_cache_2_id'   name="filter[residence]" value="{$filterdata[residence]}"/>
                         </td>
                     </tr>
                     <tr>
@@ -232,7 +255,7 @@
                     <tr>
                         <td>
                             <input type="submit" value="{$lang->savecaps}" id="perform_hr/managejobopportunity_Button" class="button"/> <input type="reset" value="{$lang->reset}" class="button"/>
-                            <div id="perform_hr/managejobopportunity_Results"></div>
+                        </td><td> <div id="perform_hr/managejobopportunity_Results"></div>
                         </td>
                     </tr>
                 </table>

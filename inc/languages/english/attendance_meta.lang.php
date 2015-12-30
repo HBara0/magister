@@ -183,4 +183,5 @@ $lang['toDate'] = 'To Date';
 $lang['type'] = 'Type';
 $lang['monthlyattendancelog'] = 'Monthly Attendance Log';
 $lang['listaddleavedays'] = 'List Additional Leave Days';
+$lang['tmplanneeded'] = 'Leave Is Missing A Travel Manager Plan. Please Create A Plan by Clicking On This Link';
 ?>

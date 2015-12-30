@@ -2804,57 +2804,107 @@ CREATE TABLE `hr_jobopportunities_educationlevel` (
   `langVar` varchar(100) NOT NULL,
   PRIMARY KEY (`joelid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
+DROP TABLE IF EXISTS `hr_jobopportunities_filters`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `hr_jobopportunities_filters` (
+  `hrjofid` int(10) NOT NULL AUTO_INCREMENT,
+  `joid` int(10) NOT NULL,
+  `filterType` varchar(100) NOT NULL,
+  `minExpYears` int(11) NOT NULL,
+  `maxExpYears` int(11) NOT NULL,
+  `minAge` int(11) NOT NULL,
+  `maxAge` int(11) NOT NULL,
+  `residence` int(11) NOT NULL,
+  `gender` tinyint(1) NOT NULL,
+  PRIMARY KEY (`hrjofid`)
+) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `hr_jobopportunities_language`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `hr_jobopportunities_language` (
+  `hrjolid` int(10) NOT NULL AUTO_INCREMENT,
+  `language` varchar(25) NOT NULL,
+  `joid` int(10) NOT NULL,
+  `type` varchar(20) NOT NULL,
+  PRIMARY KEY (`hrjolid`)
+) ENGINE=MyISAM AUTO_INCREMENT=92 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `hr_jobopportunities_selected_careerlevel`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `hr_jobopportunities_selected_careerlevel` (
+  `hrjosc` int(10) NOT NULL AUTO_INCREMENT,
+  `joid` int(10) NOT NULL,
+  `joclid` int(10) NOT NULL,
+  `type` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`hrjosc`)
+) ENGINE=MyISAM AUTO_INCREMENT=154 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `hr_jobopportunities_selected_educationlevel`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `hr_jobopportunities_selected_educationlevel` (
+  `hrjose` int(10) NOT NULL AUTO_INCREMENT,
+  `joid` int(10) NOT NULL,
+  `joelid` int(10) NOT NULL,
+  `type` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`hrjose`)
+) ENGINE=MyISAM AUTO_INCREMENT=54 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `hr_jobopprtunities`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `hr_jobopprtunities` (
   `joid` int(10) NOT NULL AUTO_INCREMENT,
-  `reference` varchar(20) NOT NULL,
-  `affid` smallint(5) NOT NULL,
-  `workLocation` int(10) NOT NULL,
+  `reference` int(11) NOT NULL,
+  `affid` int(11) NOT NULL,
+  `workLocation` int(11) NOT NULL,
   `title` varchar(200) NOT NULL,
   `employmentType` varchar(100) NOT NULL,
-  `shortDesc` text NOT NULL,
-  `responsibilities` text NOT NULL,
+  `shortDesc` varchar(250) NOT NULL,
+  `responsibilities` varchar(250) NOT NULL,
   `managesOthers` tinyint(1) NOT NULL,
-  `salary` float DEFAULT NULL,
-  `salaryCurrency` int(10) NOT NULL,
+  `salary` int(11) NOT NULL,
+  `salaryCurrency` int(11) NOT NULL,
   `approxJoinDate` bigint(30) NOT NULL,
   `gender` tinyint(1) NOT NULL,
-  `nationality` int(10) NOT NULL,
-  `residence` int(10) NOT NULL,
+  `nationality` int(11) NOT NULL,
+  `residence` int(11) NOT NULL,
   `drivingLicReq` tinyint(1) NOT NULL,
   `requiredlang` varchar(250) NOT NULL,
   `careerLevel` varchar(100) NOT NULL,
   `educationLevel` varchar(100) NOT NULL,
   `minExpYears` int(11) NOT NULL,
   `maxExpYears` int(11) NOT NULL,
-  `minQualifications` text,
-  `prefQualifications` text,
+  `minQualifications` text CHARACTER SET utf8,
+  `prefQualifications` text CHARACTER SET utf8,
   `publishOn` bigint(30) NOT NULL,
   `unpublishOn` bigint(30) NOT NULL,
-  `publishingTimeZone` varchar(100) DEFAULT NULL,
+  `publishingTimeZone` int(11) NOT NULL,
   `allowSocialSharing` tinyint(1) NOT NULL,
   `createdOn` bigint(30) NOT NULL,
-  `createdBy` int(10) NOT NULL,
-  `countApplicants` int(10) NOT NULL DEFAULT '0',
-  `countViews` int(10) NOT NULL DEFAULT '0',
+  `createdBy` int(11) NOT NULL,
+  `countApplicants` int(11) NOT NULL,
+  `countViews` int(11) NOT NULL,
+  `modifiedOn` bigint(30) NOT NULL,
+  `modifiedBy` int(10) NOT NULL,
   PRIMARY KEY (`joid`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `incoterms`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `incoterms` (
-  `iid` smallint(10) NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `title` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `titleAbbr` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `carriageOnBuyer` tinyint(1) NOT NULL DEFAULT '0',
+  `iid` int(10) NOT NULL AUTO_INCREMENT,
+  `titleAbbr` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `name` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `title` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `carriageOnBuyer` int(11) NOT NULL,
   PRIMARY KEY (`iid`),
   UNIQUE KEY `name` (`name`)
-) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `integration_mediation_entities`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;

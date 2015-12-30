@@ -114,9 +114,17 @@ if(!$core->input['action']) {
             $leave['requestKey_encoded'] = base64_encode($leave['requestKey']);
 
             if(!isset($type_cache[$leave['type']])) {
-                $leavetype_details = $db->fetch_assoc($db->query("SELECT name, title, description FROM ".Tprefix."leavetypes WHERE ltid='".$db->escape_string($leave['type'])."'"));
+                $leavetype_details = $db->fetch_assoc($db->query("SELECT name, title, description,isBusiness FROM ".Tprefix."leavetypes WHERE ltid='".$db->escape_string($leave['type'])."'"));
                 if(!empty($lang->{$leavetype_details['name']})) {
                     $leavetype_details['title'] = $lang->{$leavetype_details['name']};
+                }
+                $tmplan_link = '';
+                if($leavetype_details['isBusiness'] == 1 && $core->usergroup['canUseTravelManager'] == 1) {
+                    $tmplan = TravelManagerPlan::get_plan(array('lid' => $leave['lid']), array('returnarray' => false));
+                    if(!is_object($tmplan)) {
+                        $url = 'index.php?module=travelmanager/plantrip&lid='.$leave['lid'];
+                        $tmplan_link = "<a target='_blank' href='{$url}'><img src='{$core->settings[rootdir]}/images/icons/red_flag.gif' border='0' title='{$lang->tmplanneeded}' alt='{$lang->tmplanneeded}' /></a>";
+                    }
                 }
                 $leave['type_output'] = $leavetype_details['title'];
                 if(!empty($leavetype_details['description'])) {
