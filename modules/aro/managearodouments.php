@@ -548,6 +548,11 @@ if(!($core->input['action'])) {
                 if(isset($arocustomer_output) && !empty($arocustomer_output) && is_object($customer)) {
                     $purchaser['fromaff'] = $customer->get_displayname();
                 }
+                if($purchasetype->needsIntermediary == 0) {
+                    $aff_obj = new Affiliates($aroorderrequest->affid);
+                    $purchaser['fromvendor'] = $aff_obj->get_displayname();
+                    $purchaser['fromaff'] = '';
+                }
                 eval("\$interm_vendor = \"".$template->get('aro_partiesinfo_intermediary_vendor_preview')."\";");
                 eval("\$partiesinfo_shipmentparameters = \"".$template->get('aro_partiesinfo_shipmentparameters_preview')."\";");
                 eval("\$partiesinfo_fees = \"".$template->get('aro_partiesinfo_fees_preview')."\";");
