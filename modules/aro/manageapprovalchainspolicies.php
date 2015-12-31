@@ -184,6 +184,9 @@ else if($core->input['action'] == 'do_perform_manageapprovalchainspolicies') {
         case 3:
             output_xml('<status>false</status><message>'.$lang->policiescoexist.'</message>');
             break;
+        case 4:
+            output_xml('<status>false</status><message>'.$lang->policyalreadyinuse.'</message>');
+            break;
     }
 }
 else if($core->input['action'] == 'ajaxaddmore_approvers') {
