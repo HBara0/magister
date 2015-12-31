@@ -1,11 +1,10 @@
 <html>
     <head>
         <title>{$core->settings[systemtitle]} | {$lang->aroorderrequestlist}</title>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" integrity="sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==" crossorigin="anonymous">
         {$headerinc}
-        <link href="{$core->settings[rootdir]}/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js" integrity="sha512-K1qjQ+NcF2TYO/eI3M6v8EiNYZfA95pQumfvcVrTHtwQVDG+aHRqLi/ETn2uB+1JqwYqVG3LIvdm9lj6imS/pQ==" crossorigin="anonymous"></script>
 
-        <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
-        <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
     </head>
     <body>
         {$header}
@@ -17,7 +16,7 @@
                 <div style="display:inline-block;width:16%"> <div style="width:20px;display:inline-block" class="unapproved">-</div> No Approvals yet</div>
                 <div style="display:inline-block;width:15%"> <div style="width:20px;display:inline-block" class="greenbackground">-</div> Fully Approved</div>
                 <div style="display:inline-block;width:13%"><span class="glyphicon glyphicon-ban-circle" style="color:red"></span> ARO Rejected</div>
-                <div style="display:inline-block;width:23%"> <span class="glyphicon glyphicon-exclamation-sign" ></span> ARO Approval pending at you</div>
+                <div style="display:inline-block;width:25%"> <span class="glyphicon glyphicon-exclamation-sign" ></span> ARO Approval pending at you</div>
                 <br/><br/>
             </div>
             <form action='$_SERVER[REQUEST_URI]' method="post">
