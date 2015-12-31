@@ -82,7 +82,7 @@ class AroRequestLines extends AbstractClass {
         /* Get Aro request order type - End */
 
         if(isset($data['quantity']) && !empty($data['quantity'])) {
-            if((isset($data['qtyPotentiallySold']) && !empty($data['qtyPotentiallySold'])) || ($data['qtyPotentiallySold'] == 0)) {
+            if($data['quantity'] != 0 && ((isset($data['qtyPotentiallySold']) && !empty($data['qtyPotentiallySold'])) || ($data['qtyPotentiallySold'] == 0))) {
                 $new_data['qtyPotentiallySoldPerc'] = round(($data['qtyPotentiallySold'] / $data['quantity']) * 100, 3);
             }
         }

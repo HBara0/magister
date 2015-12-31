@@ -1,6 +1,8 @@
 <tr id="{$rowid}">
-    <Td>
+    <td>
         <div style="display: block; width: 100%; height:150px; overflow:auto;">
+            <div><img id='deletesection_{$rowid}' src="{$core->settings['rootdir']}/images/invalid.gif" style='cursor:pointer;float:right'>
+            </div>
             <div  style="display: inline-block; ; width:20%; vertical-align:top;"> <label>sequence</label><input type="number"  min="1" max="12" value="{$approverdata[sequence]}" name="chainpolicy[approverchain][{$rowid}][sequence]"/></div>
             <div  style="display: inline-block; ; width:65%;">
                 <label> <h4>select approver</h4></label>

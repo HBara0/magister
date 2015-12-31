@@ -258,4 +258,5 @@ $lang['ponotsent'] = 'PO NOT SENT';
 $lang['legend'] = 'Legend';
 $lang['policiescoexist'] = 'A policy for the same affiliate and purchase type within this effective period already exists';
 $lang['consolidationwarehouse'] = 'Consolidation Warehouse';
+$lang['policyalreadyinuse'] = 'Policy Already In Use';
 ?>

@@ -98,7 +98,6 @@ class AroApprovalChainPolicies extends AbstractClass {
                         }
                     }
                 }
-
                 $policies_array = array('affid' => $data['affid'],
                         'effectiveFrom' => $data['effectiveFrom'],
                         'effectiveTo' => $data['effectiveTo'],
@@ -113,11 +112,28 @@ class AroApprovalChainPolicies extends AbstractClass {
                         'modifiedOn' => TIME_NOW,
                 );
                 unset($data['approvalChain']);
+                $existing_chain = new AroApprovalChainPolicies($this->data[self::PRIMARY_KEY]);
+                if(is_object($existing_chain)) {
+                    $x = strlen(trim($policies_array['approvalChain']));
+                    $s = strlen(trim($existing_chain->approvalChain));
+
+                    $y = strcmp(trim($existing_chain->approvalChain), trim($policies_array['approvalChain']));
+                    if(strcmp($existing_chain->approvalChain, $policies_array['approvalChain']) != 0) {
+                        $arorequestobj = new AroRequests();
+                        if($arorequestobj->is_policyused($this)) {
+                            $this->errorcode = 4;
+                            return $this;
+                        }
+                    }
+                }
                 $query = $db->update_query(self::TABLE_NAME, $policies_array, ''.self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
                 if($query) {
                     $log->record('aro_manage_approvalchain_policies', array('update'));
                 }
             }
+        }
+        else {
+            $this->errorcode = 2;
         }
         return $this;
     }
