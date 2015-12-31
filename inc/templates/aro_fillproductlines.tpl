@@ -3,7 +3,7 @@
     <p>
     <table width="100%">
         <thead>
-            <tr style="vertical-align: top;">
+            <tr style="vertical-align: top;{$bold}">
                 <td class="border_right" rowspan="2" valign="top" align="center">{$lang->product}</td>
                 <td class="border_right" rowspan="2" valign="top" align="center">{$lang->packaging}</td>
                 <td class="border_right" rowspan="2" valign="top" align="center">{$lang->quantity}</td>
@@ -26,7 +26,7 @@
             </tr>
         </thead>
 
-        <tbody id="productline_{$plrowid}_tbody" style="width:100%;">
+        <tbody id="productline_{$plrowid}_tbody" style="width:100%;" class="{$datatable}">
             {$aroproductlines_rows}
         </tbody>
         <tfoot>
