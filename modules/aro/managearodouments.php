@@ -170,6 +170,9 @@ if(!($core->input['action'])) {
             if(!$aroorderrequest->getif_approvedonce($aroorderrequest->aorid) && $aroorderrequest->createdBy == $core->user['uid']) {
                 $deletebutton = "<a class='button' href='#{$aroorderrequest->aorid}' id='deletearodocument_{$aroorderrequest->aorid}_aro/managearodouments_loadpopupbyid' style='vertical-align:top;'>{$lang->delete}</a>";
             }
+            if(isset($core->input['referrer']) && $core->input['referrer'] == 'toapprove') {
+                $deletebutton = "";
+            }
             if($aroorderrequest->isFinalized == 1) {
                 $checked['aroisfinalized'] = 'checked="checked"';
             }
@@ -533,9 +536,17 @@ if(!($core->input['action'])) {
                 if($aropartiesinfo_obj->isConsolidation == 1) {
                     $consolidation_warehouses_display = '';
                     $consolidation_warehouses_obj = Warehouses::get_data(array('wid' => $aropartiesinfo_obj->consolidationWarehouse));
+                    $consolidation_warehouses_output = '-';
                     if(is_object($consolidation_warehouses_obj)) {
                         $consolidation_warehouses_output = $consolidation_warehouses_obj->get_displayname();
                     }
+                }
+                $purchaser['fromaff'] = $purchaser['fromvendor'] = '-';
+                if(!empty($aff['intermed_output'])) {
+                    $purchaser['fromvendor'] = $aff['intermed_output'];
+                }
+                if(isset($arocustomer_output) && !empty($arocustomer_output) && is_object($customer)) {
+                    $purchaser['fromaff'] = $customer->get_displayname();
                 }
                 eval("\$interm_vendor = \"".$template->get('aro_partiesinfo_intermediary_vendor_preview')."\";");
                 eval("\$partiesinfo_shipmentparameters = \"".$template->get('aro_partiesinfo_shipmentparameters_preview')."\";");
@@ -637,7 +648,7 @@ if(!($core->input['action'])) {
                         if($approver->uid == $core->user['uid']) {
                             $approve = '<input type="button" class="button" id="approvearo" value="'.$lang->approve.'"/>'
                                     .'<input type="hidden" id="approvearo_id" value="'.$aroorderrequest->aorid.'"/>'.
-                                    '<a class="button" id="rejectarodocument_'.$aroorderrequest->aorid.'_aro/managearodouments_loadpopupbyid" style="margin-left:5px;vertical-align:top;padding-top:5px;height:22px;"/>'.$lang->reject.'</a>';
+                                    '<a class="button" id="rejectarodocument_'.$aroorderrequest->aorid.'_aro/managearodouments_loadpopupbyid" style="margin-left:5px;vertical-align:top;padding-top:5px;"/>'.$lang->reject.'</a>';
                         }
                     }
                     eval("\$apprs .= \"".$template->get('aro_approvalchain_approver')."\";");
