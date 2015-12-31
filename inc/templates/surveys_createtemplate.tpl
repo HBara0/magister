@@ -52,8 +52,6 @@
                         }
                     });
                 });
-
-
                 $(document).on('click', "input[id='test']", function() {
                     if($("#popup_createbasedonanothertpl").dialog("isOpen")) {
                         var stid = $("select[id='stid']").val();
@@ -63,11 +61,43 @@
                     url = url.replace('#', '') + '&bstid=' + stid;
                     window.location.href = url;
                 });
-
+                $(document).on('click', "img[id^='deletesection_']", function() {
+                    if(sharedFunctions.checkSession() == false) {
+                        return;
+                    }
+                    $('div[id^="sectiondeleteresult_"]').each(function(i, obj) {
+                        $(obj).html('');
+                    });
+                    var extrainput = '';
+                    var id = $(this).attr('id').split('_');
+                    var url = rootdir + "index.php?module=surveys/createsurveytemplate&action=delete_section";
+                    if($('input[id="sectionid_' + id[1] + '"]').val()) {
+                        extrainput = "&sectionid=" + $('input[id="sectionid_' + id[1] + '"]').val();
+                    }
+                    if($('input[id="sectionchecksum_' + id[1] + '"]').val()) {
+                        extrainput += "&checksum=" + $('input[id="sectionchecksum_' + id[1] + '"]').val();
+                    }
+                    $.ajax({
+                        type: 'post',
+                        url: url,
+                        data: "rowid=" + id[1] + extrainput,
+                        beforeSend: function() {
+                            $("body").append("<div id='modal-loading'></div>");
+                            $("#modal-loading").dialog({height: 0, modal: true, closeOnEscape: false, title: 'Loading...', resizable: false, minHeight: 0});
+                        },
+                        complete: function() {
+                            $("#modal-loading").dialog("close").remove();
+                        },
+                        success: function(returnedData) {
+                            $('#sectiondeleteresult_' + id[1]).append(returnedData);
+                        }
+                    });
+                });
             });
             $(document).ajaxSuccess(function() {
                 $("tbody[id^='questions'][id$='_tbody']").sortable({placeholder: "ui-state-highlight", forcePlaceholderSize: true, delay: 300, opacity: 0.5, containment: "parent", handle: '.questions-sort-icon'});
             });
+
         </script>
 
     </head>

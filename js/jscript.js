@@ -255,6 +255,7 @@ $(function() {
         if($(this).attr('data-autocompletefilters')) {
             var attrs = $(this).attr('data-autocompletefilters').split(',');
             $.each(attrs, function(i) {
+                attrs[i] = $.trim(attrs[i]);
                 if($("input[id='" + attrs[i] + "']").length > 0) {
                     if($("input[id='" + attrs[i] + "']").val() != '') {
                         if($("input[id='" + attrs[i] + "']").attr('data-alternativename')) {

@@ -45,4 +45,14 @@ class SurveysTplQuestions extends AbstractClass {
 
     }
 
+    public function delete() {
+        $sectionquestionschoices = SurveysTplQChoices::get_data(array(self::PRIMARY_KEY => $this->data[self::PRIMARY_KEY]), array('returnarray' => true));
+        if(is_array($sectionquestionschoices)) {
+            foreach($sectionquestionschoices as $choice) {
+                $choice->delete();
+            }
+        }
+        parent::delete();
+    }
+
 }

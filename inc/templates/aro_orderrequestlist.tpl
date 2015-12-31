@@ -9,7 +9,7 @@
     <body>
         {$header}
     <tr> {$menu}
-        <td class="contentContainer"><h1>{$lang->aroorderrequestlist}</h1>
+         <td class="contentContainer"><h1>{$lang->aroorderrequestlist}</h1>
             <div style="font-weight:bold;width:75%;float:right">{$lang->legend}</div>
             <div style="width:75%;float:right">
                 <div style="display:inline-block;width:23%"> <div style="width:20px;display:inline-block" class="yellowbackground">-</div> Approval Process Started </div>

@@ -54,4 +54,11 @@ $lang['from'] = 'From';
 $lang['to'] = 'To';
 $lang['purpose'] = 'Purpose';
 $lang['status'] = 'Status';
+$lang['reservationupdate_subject'] = 'Reservation Change of {1} by {2} in {3}';
+$lang['reservationupdate_message'] = 'Reservation Altered To'
+        .'<br />Facility: {1}<br /> '
+        .'From {2}<br />'
+        .'To {3}<br />'
+        .'Reserved By: {4} <br/>'
+        .'Purpose: {5}';
 ?>
