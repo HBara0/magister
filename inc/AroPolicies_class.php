@@ -53,6 +53,10 @@ class AroPolicies extends AbstractClass {
             if(!isset($data['isActive'])) {
                 $data['isActive'] = 0;
             }
+            if($this->is_policyused($this)) {
+                $this->errorcode = 4;
+                return $this;
+            }
             $query = $db->update_query(self::TABLE_NAME, $data, self::PRIMARY_KEY.' = '.intval($this->data[self::PRIMARY_KEY]));
             if($query) {
                 // $id = $db->last_id();
@@ -86,6 +90,18 @@ class AroPolicies extends AbstractClass {
         $policy = self::get_data($where);
         if(is_object($policy)) {
             return true;
+        }
+        return false;
+    }
+
+    public function is_policyused($policyobj) {
+        $aro_betweenpolicyeffect = AroRequests::get_data('affid = '.$policyobj->affid.' AND orderType='.$policyobj->purchaseType.' AND isFinalized = 1 AND createdOn BETWEEN '.$policyobj->effectiveFrom.' AND '.$policyobj->effectiveTo, array('returnarray' => true));
+        if(is_array($aro_betweenpolicyeffect)) {
+            foreach($aro_betweenpolicyeffect as $aro) {
+                if($aro->getif_approvedonce($aro->aorid)) {
+                    return true;
+                }
+            }
         }
         return false;
     }

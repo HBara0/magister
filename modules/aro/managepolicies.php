@@ -112,5 +112,8 @@ else if($core->input['action'] == 'do_perform_managepolicies') {
         case 3:
             output_xml('<status>false</status><message>'.$lang->policiescoexist.'</message>');
             break;
+        case 4:
+            output_xml('<status>false</status><message>'.$lang->policyalreadyinuse.'</message>');
+            break;
     }
 }

@@ -39,6 +39,10 @@ class AroDocumentsSequenceConf extends AbstractClass {
                     'modifiedOn' => TIME_NOW,
             );
             $query = $db->update_query(self::TABLE_NAME, $documentsequence_array, ''.self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
+            if($this->is_policyused($this)) {
+                $this->errorcode = 4;
+                return $this;
+            }
             if($query) {
                 $this->data[self::PRIMARY_KEY] = $db->last_id();
                 $log->record(self::TABLE_NAME, $this->data[self::PRIMARY_KEY]);
@@ -102,6 +106,18 @@ class AroDocumentsSequenceConf extends AbstractClass {
 
     public function get_nextaro_identification() {
         return $this->data['nextNumber'] + $this->data['incrementBy'];
+    }
+
+    public function is_policyused($policyobj) {
+        $aro_betweenpolicyeffect = AroRequests::get_data('affid = '.$policyobj->affid.' AND orderType='.$policyobj->ptid.' AND isFinalized = 1 AND createdOn BETWEEN '.$policyobj->effectiveFrom.' AND '.$policyobj->effectiveTo, array('returnarray' => true));
+        if(is_array($aro_betweenpolicyeffect)) {
+            foreach($aro_betweenpolicyeffect as $aro) {
+                if($aro->getif_approvedonce($aro->aorid)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
 }
