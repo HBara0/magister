@@ -1,4 +1,4 @@
-<tr id="{$plrowid}">
+<tr id="{$plrowid}"  class="{$plaltrow}">
     <td class="border_right">{$productline[productName]}<br/>{$productline[seg_output]}</td>
     <td class="border_right">{$productline[packaging_output]} </td>
     <td class="border_right">{$productline[quantity]}</td>

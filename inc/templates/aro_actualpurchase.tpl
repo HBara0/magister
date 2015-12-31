@@ -3,7 +3,7 @@
     <p>
     <table>
         <thead>
-            <tr style="vertical-align: top;">
+            <tr style="vertical-align: top;{$bold}">
                 <td class="border_right" rowspan="2" valign="top" align="center" style="width:150px;">{$lang->product}</td>
                 <td class="border_right" rowspan="2" valign="top" align="center" style="width:100px;">{$lang->packaging}</td>
                 <td class="border_right" rowspan="2" valign="top" align="center" style="width:100px;">{$lang->quantity}</td>
@@ -14,7 +14,7 @@
                 <td class="border_right" rowspan="2" valign="top" align="center" style="width:150px;">{$lang->diffsalestock} </td>
         </thead>
 
-        <tbody id="actualpurchaserow_{$aprowid}_tbody" style="width:100%;">
+        <tbody id="actualpurchaserow_{$aprowid}_tbody" style="width:100%;" class="{$datatable}">
             {$actualpurchase_rows}
         </tbody>
         <tfoot>

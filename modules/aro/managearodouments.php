@@ -270,11 +270,18 @@ if(!($core->input['action'])) {
             $netmarginparms = AroNetMarginParameters::get_data(array('aorid' => $core->input['id']));
             if(is_object($netmarginparms)) {
                 $netmarginparms_uomlist = parse_selectlist('parmsfornetmargin[uom]', '', $warehouseuoms, $netmarginparms->uom, '', '', array('id' => "parmsfornetmargin_uom", 'blankstart' => 1, 'width' => '100px'));
+                $warehouse_uom_obj = Uom::get_data(array('uomid' => $netmarginparms->uom));
+                if(is_object($warehouse_uom_obj)) {
+                    $warehouse_uom_output = $warehouse_uom_obj->get_displayname();
+                }
                 $warehouse = Warehouses::get_data(array('wid' => $netmarginparms->warehouse));
                 $warehouse_list = '<select '.$disabled['warehousing'].'><option value='.$netmarginparms->warehouse.' selected>'.$warehouse->name.'</option>'
                         .'<option value="0"></option></select>';
+                $warehouse_output = $warehouse->name;
                 $netmarginparms_warehousingRate = '<option value = "'.$netmarginparms->warehousingRate.'">'.$netmarginparms->warehousingRate.'</option>';
                 $netmarginparms_warehousingRateUsd = '<option value = "'.$netmarginparms->warehousingRateUsd.'">'.$netmarginparms->warehousingRateUsd.'</option>';
+                $netmarginparms_warehousingRate_output = $netmarginparms->warehousingRate;
+                $netmarginparms_warehousingRateUsd_output = $netmarginparms->warehousingRateUsd;
             }
             //*********Parameters Influencing Net Margin Calculation -End ********//
             //********** ARO Product Lines -Start **************//
@@ -306,6 +313,12 @@ if(!($core->input['action'])) {
                     $display_addmoreproductlines = "";
                     if(isset($core->input['referrer']) && $core->input['referrer'] == 'toapprove') {
                         $display_addmoreproductlines = "style=display:none;";
+                        if(empty($plaltrow)) {
+                            $plaltrow = 'altrow';
+                        }
+                        else {
+                            $plaltrow = "";
+                        }
                         eval("\$aroproductlines_rows .= \"".$template->get('aro_productlines_row_preview')."\";");
                     }
                     else {
@@ -489,12 +502,50 @@ if(!($core->input['action'])) {
                 $incoterms_list[$party] = parse_selectlist('partiesinfo['.$party.'Incoterms]', 4, $incoterms, $selected_incoterms[$party], '', '', array('blankstart' => 1, 'id' => 'partiesinfo_'.$party.'_incoterms', 'required' => $partiesinfo['required_intermedpolicy'], 'width' => '100%', 'class' => $config_class, $isdisabled => $isdisabled));
                 $isdisabled = '';
             }
+
             $countryofshipment_list = parse_selectlist('partiesinfo[shipmentCountry]', '', $countries, $shipmentcountry, '', '', array('blankstart' => 1, 'width' => '150px'));
             $countryoforigin_list = parse_selectlist('partiesinfo[originCountry]', '', $countries, $origincountry, '', '', array('blankstart' => 1, 'width' => '150px'));
 
-            eval("\$interm_vendor = \"".$template->get('aro_partiesinfo_intermediary_vendor')."\";");
-            eval("\$partiesinfo_shipmentparameters = \"".$template->get('aro_partiesinfo_shipmentparameters')."\";");
-            eval("\$partiesinfo_fees = \"".$template->get('aro_partiesinfo_fees')."\";");
+            if(isset($core->input['referrer']) && $core->input['referrer'] == 'toapprove') {
+                $shipmentcountry_obj = Countries::get_data(array('coid' => $shipmentcountry));
+                if(is_object($shipmentcountry_obj)) {
+                    $shipmentcountry_output = $shipmentcountry_obj->get_displayname();
+                }
+                $origincountry_obj = Countries::get_data(array('coid' => $origincountry));
+                if(is_object($origincountry_obj)) {
+                    $origincountry_output = $origincountry_obj->get_displayname();
+                }
+                foreach($parties as $party) {
+                    $aff[$party.'_obj'] = Affiliates::get_affiliates(array('affid' => $aff[$party]));
+                    if(is_object($aff[$party.'_obj'])) {
+                        $aff[$party.'_output'] = $aff[$party.'_obj']->get_displayname();
+                    }
+                    $paymentterm[$party.'_obj'] = PaymentTerms::get_data(array('ptid' => $paymentterm[$party]));
+                    if(is_object($paymentterm[$party.'_obj'])) {
+                        $paymentterms[$party.'_output'] = $paymentterm[$party.'_obj']->get_displayname();
+                    }
+                    $selected_incoterms[$party.'_obj'] = Incoterms::get_data(array('iid' => $selected_incoterms[$party]));
+                    if(is_object($selected_incoterms[$party.'_obj'])) {
+                        $incoterms[$party.'_output'] = $selected_incoterms[$party.'_obj']->get_displayname();
+                    }
+                }
+
+                if($aropartiesinfo_obj->isConsolidation == 1) {
+                    $consolidation_warehouses_display = '';
+                    $consolidation_warehouses_obj = Warehouses::get_data(array('wid' => $aropartiesinfo_obj->consolidationWarehouse));
+                    if(is_object($consolidation_warehouses_obj)) {
+                        $consolidation_warehouses_output = $consolidation_warehouses_obj->get_displayname();
+                    }
+                }
+                eval("\$interm_vendor = \"".$template->get('aro_partiesinfo_intermediary_vendor_preview')."\";");
+                eval("\$partiesinfo_shipmentparameters = \"".$template->get('aro_partiesinfo_shipmentparameters_preview')."\";");
+                eval("\$partiesinfo_fees = \"".$template->get('aro_partiesinfo_fees_preview')."\";");
+            }
+            else {
+                eval("\$interm_vendor = \"".$template->get('aro_partiesinfo_intermediary_vendor')."\";");
+                eval("\$partiesinfo_shipmentparameters = \"".$template->get('aro_partiesinfo_shipmentparameters')."\";");
+                eval("\$partiesinfo_fees = \"".$template->get('aro_partiesinfo_fees')."\";");
+            }
             //*********Aro Parties Information-End *********//
             $aroapprovalchain = AroRequestsApprovals::get_data(array('aorid' => $aroorderrequest->aorid), array('returnarray' => true, 'simple' => false, 'order' => array('by' => 'sequence', 'sort' => 'ASC')));
             if(is_array($aroapprovalchain)) {
@@ -661,19 +712,23 @@ if(!($core->input['action'])) {
         }
     }
 
-    eval("\$aro_productlines = \"".$template->get('aro_fillproductlines')."\";");
     if(isset($core->input['referrer']) && $core->input['referrer'] == 'toapprove') {
+        $bold = "font-weight:bold;";
+        $datatable = "datatable";
         eval("\$aro_managedocuments_orderident= \"".$template->get('aro_orderidentification_preview')."\";");
         eval("\$aro_ordercustomers= \"".$template->get('aro_managedocuments_ordercustomers_preview')."\";");
         eval("\$totalfunds = \"".$template->get('aro_totalfunds_preview')."\";");
+        eval("\$aro_netmarginparms= \"".$template->get('aro_netmarginparameters_preview')."\";");
+        eval("\$partiesinformation = \"".$template->get('aro_partiesinformation_preview')."\";");
     }
     else {
         eval("\$aro_managedocuments_orderident= \"".$template->get('aro_managedocuments_orderidentification')."\";");
         eval("\$aro_ordercustomers= \"".$template->get('aro_managedocuments_ordercustomers')."\";");
         eval("\$totalfunds = \"".$template->get('aro_totalfunds')."\";");
+        eval("\$aro_netmarginparms= \"".$template->get('aro_netmarginparameters')."\";");
+        eval("\$partiesinformation = \"".$template->get('aro_partiesinformation')."\";");
     }
-    eval("\$partiesinformation = \"".$template->get('aro_partiesinformation')."\";");
-    eval("\$aro_netmarginparms= \"".$template->get('aro_netmarginparameters')."\";");
+    eval("\$aro_productlines = \"".$template->get('aro_fillproductlines')."\";");
     eval("\$actualpurchase = \"".$template->get('aro_actualpurchase')."\";");
     eval("\$currentstock = \"".$template->get('aro_currentstock')."\";");
 
