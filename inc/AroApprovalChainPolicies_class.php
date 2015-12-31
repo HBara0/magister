@@ -114,13 +114,8 @@ class AroApprovalChainPolicies extends AbstractClass {
                 unset($data['approvalChain']);
                 $existing_chain = new AroApprovalChainPolicies($this->data[self::PRIMARY_KEY]);
                 if(is_object($existing_chain)) {
-                    $x = strlen(trim($policies_array['approvalChain']));
-                    $s = strlen(trim($existing_chain->approvalChain));
-
-                    $y = strcmp(trim($existing_chain->approvalChain), trim($policies_array['approvalChain']));
                     if(strcmp($existing_chain->approvalChain, $policies_array['approvalChain']) != 0) {
-                        $arorequestobj = new AroRequests();
-                        if($arorequestobj->is_policyused($this)) {
+                        if($this->is_policyused($this)) {
                             $this->errorcode = 4;
                             return $this;
                         }
@@ -166,6 +161,18 @@ class AroApprovalChainPolicies extends AbstractClass {
         $policy = self::get_data($where);
         if(is_object($policy)) {
             return true;
+        }
+        return false;
+    }
+
+    public function is_policyused($policyobj) {
+        $aro_betweenpolicyeffect = AroRequests::get_data('affid = '.$policyobj->affid.' AND orderType='.$policyobj->purchaseType.' AND isFinalized = 1 AND createdOn BETWEEN '.$policyobj->effectiveFrom.' AND '.$policyobj->effectiveTo, array('returnarray' => true));
+        if(is_array($aro_betweenpolicyeffect)) {
+            foreach($aro_betweenpolicyeffect as $aro) {
+                if($aro->getif_approvedonce($aro->aorid)) {
+                    return true;
+                }
+            }
         }
         return false;
     }

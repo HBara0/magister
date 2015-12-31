@@ -95,5 +95,8 @@ elseif($core->input['action'] == 'do_perform_arodocumentsequeneconf') {
         case 2:
             output_xml('<status>false</status><message>'.$lang->fillrequiredfields.'</message>');
             break;
+        case 4:
+            output_xml('<status>false</status><message>'.$lang->policyalreadyinuse.'</message>');
+            break;
     }
 }
