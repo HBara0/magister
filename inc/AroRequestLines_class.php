@@ -162,6 +162,7 @@ class AroRequestLines extends AbstractClass {
     }
 
     public function validate_requiredfields(array $data = array()) {
+        global $errorhandler;
         if(empty($data)) {
             $data = $this->data;
         }
@@ -169,6 +170,7 @@ class AroRequestLines extends AbstractClass {
             $required_fields = array('pid', 'quantity');
             foreach($required_fields as $field) {
                 if(empty($data[$field]) && $data[$field] != '0') {
+                    $errorhandler->record('Required fields', $field);
                     $this->errorcode = 2;
                     return;
                 }

@@ -54,10 +54,12 @@ class AroRequestLinesSupervision extends AbstractClass {
     }
 
     protected function validate_requiredfields(array $data = array()) {
+        global $errorhandler;
         if(is_array($data)) {
             $required_fields = array('pid', 'quantity', 'packing');
             foreach($required_fields as $field) {
                 if(empty($data[$field]) && $data[$field] != '0') {
+                    $errorhandler->record('Required fields', $field);
                     $this->errorcode = 2;
                     return true;
                 }
