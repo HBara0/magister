@@ -1330,8 +1330,10 @@ else {
                 $invoicevalue_thirdparty_usd = $invoicevalue_thirdparty; //* $core->input['exchangeRateToUSD'];
                 $haveThirdParty = 1;
                 $intermedmarginafterreduction = $intermedmargin - $invoicevalue_thirdparty_usd;
-                $intermedmargin_perc = ($intermedmarginafterreduction / $localinvoicevalue_usd) * 100;
-                $thirdpartymargin_perc = ($invoicevalue_thirdparty_usd / $localinvoicevalue_usd) * 100;
+                if($localinvoicevalue_usd != 0) {
+                    $intermedmargin_perc = ($intermedmarginafterreduction / $localinvoicevalue_usd) * 100;
+                    $thirdpartymargin_perc = ($invoicevalue_thirdparty_usd / $localinvoicevalue_usd) * 100;
+                }
             }
         }
         if(($core->input['sellingpriceqty_product'] * $core->input['exchangeRateToUSD']) != 0) {
