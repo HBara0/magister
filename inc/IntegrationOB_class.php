@@ -1480,14 +1480,19 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
     }
 
     public function get_classification($data, $period, $options = array()) {
+        global $core;
         $tableindexes = array('salerep', 'products', 'suppliers');
         $classificationtypes = array('bymonth', 'byytd', 'byquarter');
-        $current_year = date('Y', TIME_NOW);
+        $TIME_NOW = TIME_NOW;
+//        if($core->user['uid'] == 362) {
+//            $TIME_NOW = '1451460679';
+//        }
+        $current_year = date('Y', $TIME_NOW);
         foreach($tableindexes as $tableindex) {
             if(is_array($data[$tableindex])) {
-                if((TIME_NOW > $period['from']) && (TIME_NOW < $period['to'])) {
+                if(($TIME_NOW > $period['from']) && ($TIME_NOW < $period['to'])) {
                     foreach($data[$tableindex]['linenetamt'] as $id => $salerepdata) {//rename salerepdata
-                        $currentquarter = ceil(date('n', TIME_NOW) / 3);
+                        $currentquarter = ceil(date('n', $TIME_NOW) / 3);
                         $current_month = date("m");
                         $currentyeardata = $salerepdata[$current_year];
                         if(isset($currentyeardata[$current_month]) && !empty($currentyeardata[$current_month])) {
@@ -1610,11 +1615,13 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
     }
 
     public function get_ytdsales($data, $period, $tableindex) {
+        global $core;
+        $TIME_NOW = TIME_NOW;
         $classificationtypes = array('byytd');
-        $current_year = date('Y', TIME_NOW);
+        $current_year = date('Y', $TIME_NOW);
         if(is_array($data[$tableindex])) {
             foreach($data[$tableindex]['linenetamt'] as $id => $salerepdata) {//rename salerepdata
-                $currentquarter = ceil(date('n', TIME_NOW) / 3);
+                $currentquarter = ceil(date('n', $TIME_NOW) / 3);
                 $current_month = date("m");
                 $currentyeardata = $salerepdata[$current_year];
                 if(is_array($currentyeardata)) {
@@ -1634,9 +1641,22 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                     //Get Last year total data to be compared with current year data
                     $lastyeardata = $salerepdata[($current_year - 1)];
                     if(is_array($lastyeardata)) {
+                        $to = getdate($period['to']);
                         foreach($lastyeardata as $lydata_array) {
-
                             if(is_array($lydata_array)) {
+                                foreach($lydata_array as $year => $year_data) {
+                                    if(is_array($year_data)) {
+                                        foreach($year_data as $month => $month_data) {
+                                            if(is_array($month_data)) {
+                                                foreach($month_data as $day => $day_data) {
+                                                    if(!($month <= $to['mon'] && $day <= $to['mday'])) {
+                                                        continue;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
                                 $lydata = array_sum($lydata_array);
                             }
                             if(!empty($lydata)) {
@@ -1664,7 +1684,7 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
 
     public function parse_classificaton_tables($classification) {
         global $lang, $core;
-
+        $TIME_NOW = TIME_NOW;
         $css_styles['header'] = 'background-color: #F1F1F1;';
         $css_styles['altrow'] = 'background-color:#D0F6AA;'; #f7fafd;;';
 
@@ -1699,21 +1719,22 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                         if($classificationtype != 'wholeperiod' && $classificationtype != 'byquarter') {
                             switch($classificationtype) {
                                 case 'bymonth':
-                                    $prevperiod = getdate(TIME_NOW);
+                                    $prevperiod = getdate($TIME_NOW);
                                     $currperiod = ' ('.$prevperiod['month'].')';
                                     $dateObj = DateTime::createFromFormat('!m', $prevperiod['mon'] - 1);
                                     $prevperiod = $dateObj->format('F');
                                     unset($dateObj);
                                     break;
                                 case 'byytd':
-                                    $currperiod = ' ('.(date('Y', TIME_NOW)).')';
-                                    $prevperiod = (date('Y', TIME_NOW) - 1);
+                                    $currperiod = ' ('.(date('Y', $TIME_NOW)).')';
+                                    $prevperiod = (date('Y', $TIME_NOW) - 1);
                                     break;
                                 default:
                                     break;
                             }
                         }
                         $output .='<th>'.$lang->currentdata.$currperiod.'</th>';
+                        unset($currperiod);
                         if($classificationtype != 'wholeperiod' && $classificationtype != 'byquarter') {
                             $output .='<th>'.$lang->prevdata.'('.$prevperiod.')</th><th>'.$lang->position.'</th>';
                         }
@@ -1759,7 +1780,7 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                                                 $supplier_output = $product->get_supplier()->get_displayname();
                                             }
                                         }
-                                        $output .='<th>'.$supplier_output.'</th>';
+                                        $output .='<td>'.$supplier_output.'</td>';
                                     }
                                     $numfmt = new NumberFormatter($lang->settings['locale'], NumberFormatter::DECIMAL);
                                     foreach($cdata as $data) {
@@ -1812,7 +1833,8 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
     }
 
     public function parse_classificaton_charts($data, $type) {
-        global $lang;
+        global $lang, $core;
+        $TIME_NOW = TIME_NOW;
         if(is_array($data)) {
             $data_ids = array_keys($data);
             switch($type) {
@@ -1843,6 +1865,9 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                 }
 
                 $xaxisdata[] = $data[$id]['currentdata'] / 1000;
+                if(!empty($data[$id]['prevmonthdata'])) {
+                    $xaxisdata[] = array($data[$id]['currentdata'] / 1000, $data[$id]['prevmonthdata'] / 1000);
+                }
             }
             $chart = new Charts(array('x' => $yaxixdata, 'y' => $xaxisdata), 'bar', array('yaxisname' => $lang->topten.' '.$lang->$type, 'xaxisname' => '', 'width' => '900', 'height' => 300, 'scale' => 'SCALE_START0', 'nosort' => true, 'scalepos' => SCALE_POS_TOPBOTTOM, 'noLegend' => true, 'labelrotationangle' => 45, 'x1position' => 200));
             return $chart->get_chart();
@@ -1884,8 +1909,8 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
     public function get_totallines($where) {
         global $core;
         $sql = "SELECT SUM(totallines) AS totallines, ad_org_id, c_currency_id, date_part('month', dateinvoiced) AS month, date_part('year', dateinvoiced) AS year FROM c_invoice "
-                ."WHERE issotrx='Y' AND docstatus='CO' AND (dateinvoiced BETWEEN '".date('Y-m-d 00:00:00', strtotime((date('Y', TIME_NOW)).'-01-01'))."'"
-                ." AND '".date('Y-m-d 23:59:59', strtotime((date('Y', TIME_NOW)).'-12-31'))."' ".$where.") GROUP BY ad_org_id, c_currency_id, year, month";
+                ."WHERE issotrx='Y' AND docstatus='CO' AND (dateinvoiced BETWEEN '".date('Y-m-d 00:00:00', strtotime((date('Y', $TIME_NOW)).'-01-01'))."'"
+                ." AND '".date('Y-m-d 23:59:59', strtotime((date('Y', $TIME_NOW)).'-12-31'))."' ".$where.") GROUP BY ad_org_id, c_currency_id, year, month";
         $chartcurrency = new Currencies('USD');
         $query = $this->f_db->query($sql);
         if($this->f_db->num_rows($query) > 0) {
