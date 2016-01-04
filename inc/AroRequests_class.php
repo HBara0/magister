@@ -505,13 +505,15 @@ class AroRequests extends AbstractClass {
             }
 
             /* Make list of approvers unique ,keeping higher position of duplicates */
-            foreach($approvers as $position => $uid) {
-                $approvers_positions[$uid] = $position;
-            }
-            unset($position, $uid);
-            foreach($approvers as $position => $approver) {
-                if(!in_array($position, $approvers_positions)) {
-                    unset($approvers[$position]);
+            if(is_array($approvers)) {
+                foreach($approvers as $position => $uid) {
+                    $approvers_positions[$uid] = $position;
+                }
+                unset($position, $uid);
+                foreach($approvers as $position => $approver) {
+                    if(!in_array($position, $approvers_positions)) {
+                        unset($approvers[$position]);
+                    }
                 }
             }
 
