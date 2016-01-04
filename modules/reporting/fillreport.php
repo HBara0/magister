@@ -177,7 +177,12 @@ if(!$core->input['action']) {
                 /* Get preview Q data - END */
                 $reportinconsistency = '<td><a href="#" id="reportinconsistency_'.$productactivity['paid'].'_reporting/fillreport_loadpopupbyid"><img src="'.$core->settings['rootdir'].'/images/alert.png" title="'.$lang->reportinconsistency.'/"></a></td>';
 
+                if(!empty($productactivity['uid'])) {
+                    $user = new Users($productactivity['uid']);
+                    $bmname = '<br /><small>'.$lang->filledby.' '.$user->get_displayname().'</small>';
+                }
                 eval("\$productsrows .= \"".$template->get('reporting_fillreports_productsactivity_productrow')."\";");
+                unset($bmname);
             }
         }
         unset($productactivity);
