@@ -260,4 +260,5 @@ $lang['policiescoexist'] = 'A policy for the same affiliate and purchase type wi
 $lang['consolidationwarehouse'] = 'Consolidation Warehouse';
 $lang['policyalreadyinuse'] = 'Policy Already In Use';
 $lang['purchaser'] = 'Purchaser';
+$lang['peopletobeinformed'] = 'People to be informed';
 ?>
