@@ -103,17 +103,20 @@ class FacilityMgmtReservations extends AbstractClass {
 
         if(!empty($email_to)) {
             $user = new Users($this->reservedBy);
+            if(!empty($this->purpose)) {
+                $purpose = $lang->purpose.' : '.$this->purpose;
+            }
             if($status == 'create') {
                 $email_subject = $lang->sprint($lang->reservationcreation_subject, $user->get_displayname(), $facility->getfulladdress(), $affiliate->get_displayname());
-                $email_message = $lang->sprint($lang->reservationcreation_message, $facility->getfulladdress(), date($core->settings['dateformat'].' '.$core->settings['timeformat'], $this->fromDate), date($core->settings['dateformat'].' '.$core->settings['timeformat'], $this->toDate), $user->get_displayname(), $this->purpose);
+                $email_message = $lang->sprint($lang->reservationcreation_message, $facility->getfulladdress(), date($core->settings['dateformat'].' '.$core->settings['timeformat'], $this->fromDate), date($core->settings['dateformat'].' '.$core->settings['timeformat'], $this->toDate), $user->get_displayname(), $purpose);
             }
             else if($status == 'delete') {
                 $email_subject = $lang->sprint($lang->reservationdeletion_subject, $facility->getfulladdress(), $user->get_displayname(), $affiliate->get_displayname());
-                $email_message = $lang->sprint($lang->reservationdeletion_message, $facility->getfulladdress(), date($core->settings['dateformat'].' '.$core->settings['timeformat'], $this->fromDate), date($core->settings['dateformat'].' '.$core->settings['timeformat'], $this->toDate), $user->get_displayname(), $this->purpose);
+                $email_message = $lang->sprint($lang->reservationdeletion_message, $facility->getfulladdress(), date($core->settings['dateformat'].' '.$core->settings['timeformat'], $this->fromDate), date($core->settings['dateformat'].' '.$core->settings['timeformat'], $this->toDate), $user->get_displayname(), $purpose);
             }
             else if($status == 'update') {
                 $email_subject = $lang->sprint($lang->reservationupdate_subject, $facility->getfulladdress(), $user->get_displayname(), $affiliate->get_displayname());
-                $email_message = $lang->sprint($lang->reservationupdate_message, $facility->getfulladdress(), date($core->settings['dateformat'].' '.$core->settings['timeformat'], $this->fromDate), date($core->settings['dateformat'].' '.$core->settings['timeformat'], $this->toDate), $user->get_displayname(), $this->purpose);
+                $email_message = $lang->sprint($lang->reservationupdate_message, $facility->getfulladdress(), date($core->settings['dateformat'].' '.$core->settings['timeformat'], $this->fromDate), date($core->settings['dateformat'].' '.$core->settings['timeformat'], $this->toDate), $user->get_displayname(), $purpose);
             }
             $email_data = array(
                     'from_email' => $core->settings['maileremail'],
