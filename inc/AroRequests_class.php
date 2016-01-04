@@ -29,13 +29,14 @@ class AroRequests extends AbstractClass {
     }
 
     public function create(array $data) {
-        global $db, $core, $log;
+        global $db, $core, $log, $lang, $errorhandler;
 
         $required_fields = array('affid', 'orderType', 'currency', 'orderReference');
         foreach($required_fields as $field) {
             $data[$field] = $core->sanitize_inputs($data[$field], array('removetags' => true, 'allowable_tags' => '<blockquote><b><strong><em><ul><ol><li><p><br><strike><del><pre><dl><dt><dd><sup><sub><i><cite><small>'));
             if(is_empty($data[$field])) {
                 $this->errorcode = 2;
+                $errorhandler->record('Required fields', $lang->$field);
                 return $this->errorcode;
             }
         }
@@ -136,12 +137,13 @@ class AroRequests extends AbstractClass {
     }
 
     protected function update(array $data) {
-        global $db, $core, $log;
+        global $db, $core, $log, $errorhandler, $lang;
         $required_fields = array('affid', 'orderType', 'currency', 'orderReference');
         foreach($required_fields as $field) {
             $data[$field] = $core->sanitize_inputs($data[$field], array('removetags' => true, 'allowable_tags' => '<blockquote><b><strong><em><ul><ol><li><p><br><strike><del><pre><dl><dt><dd><sup><sub><i><cite><small>'));
             if(is_empty($data[$field])) {
                 $this->errorcode = 2;
+                $errorhandler->record('Required fields', $lang->$field);
                 return $this->errorcode;
             }
         }
