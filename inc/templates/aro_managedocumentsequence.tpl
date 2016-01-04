@@ -65,7 +65,7 @@
                     <span style="font-weight: bold;">{$lang->current} {$lang->orderreference}:</span> {$lang->orderrefernceformat}<br/>
                     <span style="font-weight: bold;">{$lang->next} {$lang->orderreference}:</span> {$lang->nextorderrefernceformat}
                 </div><br/>
-                <input type="submit" id="perform_aro/arodocumentsequeneconf_Button" value="Save" class="button"/>
+                <input type="submit" id="perform_aro/arodocumentsequeneconf_Button" value="Save" class="button" style="{$display[save]}" />
             </form>
             <div id="perform_aro/arodocumentsequeneconf_Results"></div>
         </td>

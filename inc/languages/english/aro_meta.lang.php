@@ -273,4 +273,5 @@ $lang['vendorIncotermsDesc'] = 'Vendor Inco Terms Description';
 $lang['vendorPaymentTerm'] = 'Vendor Payment Term';
 $lang['vendorPaymentTermDesc'] = 'Vendor Payment Term Description';
 $lang['packing'] = 'Packing';
+$lang['peopletobeinformed'] = 'People to be informed';
 ?>

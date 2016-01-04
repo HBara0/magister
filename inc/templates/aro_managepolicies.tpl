@@ -92,7 +92,7 @@
                     </tr>
 
                     <tr>
-                        <td colspan="3" align="left">
+                        <td colspan="3" align="left" style="{$display[save]}">
                             <input type="submit" value="{$lang->savecaps}" id="perform_aro/managepolicies_Button" class="button"/> <input type="reset" value="{$lang->reset}" class="button"/>
                             <div id="perform_aro/managepolicies_Results"></div>
                         </td>
