@@ -54,7 +54,7 @@ class AroRequestsPartiesInformation extends AbstractClass {
     }
 
     protected function validate_requiredfields(array $data = array()) {
-        global $core, $errorhandler;
+        global $core, $errorhandler, $lang;
         if(is_array($data)) {
             $required_fields = array('estDateOfShipment', 'shipmentCountry', 'originCountry', 'vendorIncoterms', 'vendorIncotermsDesc', 'vendorPaymentTerm', 'vendorPaymentTermDesc', 'commission');
             $purchtype = new PurchaseTypes($core->input['cpurchasetype']);
@@ -75,7 +75,7 @@ class AroRequestsPartiesInformation extends AbstractClass {
             }
             foreach($required_fields as $field) {
                 if(empty($data[$field]) && $data[$field] != 0) {
-                    $errorhandler->record('Required fields', $field);
+                    $errorhandler->record('Required fields', $lang->$field);
                     $this->errorcode = 2;
                     return true;
                 }
