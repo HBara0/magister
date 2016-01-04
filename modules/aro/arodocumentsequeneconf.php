@@ -45,6 +45,10 @@ if(!($core->input['action'])) {
                 $audittrail .= '<tr><td>'.$lang->$field_strtolower.'</td><td>'.$documentsequence[$field.'_output'].'</td></tr>';
             }
         }
+
+        if(TIME_NOW > $documentsequence['effectiveTo']) {
+            $display['save'] = 'display:none';
+        }
     }
     else {
         $documentsequence['incrementBy'] = 1;

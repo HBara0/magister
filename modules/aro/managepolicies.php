@@ -69,6 +69,10 @@ if(!$core->input['action']) {
                     $audittrail .= '<tr><td>'.$lang->$field_strtolower.'</td><td>'.$aropolicy[$field.'_output'].'</td></tr>';
                 }
             }
+
+            if(TIME_NOW > $aropolicy['effectiveTo']) {
+                $display['save'] = 'display:none';
+            }
         }
         else {
             redirect($_SERVER['HTTP_REFERER'], 2, $lang->nomatchfound);

@@ -85,6 +85,10 @@ if(!$core->input['action']) {
                 }
             }
         }
+
+        if(TIME_NOW > $chainpolicy['effectiveTo']) {
+            $display['save'] = 'display:none';
+        }
     }
     if(is_array($inaffiliates)) {
         foreach($inaffiliates as $affid) {

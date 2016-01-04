@@ -110,7 +110,7 @@
                         </td>
                     </tr>
                 </table>
-                <input type="submit" id="perform_aro/manageapprovalchainspolicies_Button" value="Save" class="button"/>
+                <input type="submit" id="perform_aro/manageapprovalchainspolicies_Button" value="Save" class="button" style="{$display[save]}"/>
             </form>
             <div id="perform_aro/manageapprovalchainspolicies_Results"></div>
         </td>
