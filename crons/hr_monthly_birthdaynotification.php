@@ -13,12 +13,13 @@ require_once '../inc/init.php';
 
 $current_date = getdate(TIME_NOW);
 
-$users_query = $db->query("SELECT displayName AS employeeName, u.uid, ae.affid, birthDate, FROM_UNIXTIME(birthDate, '%d') as birthDay, FROM_UNIXTIME(birthDate, '%Y') as birthYear
+$users_query = $db->query("SELECT displayName AS employeeName, u.uid, ae.affid, birthDate, FROM_UNIXTIME(birthDate, '%d') as birthDay, FROM_UNIXTIME(birthDate, '%Y') as birthYear,email
 						   FROM ".Tprefix."users u
 							JOIN ".Tprefix."userhrinformation uh ON (u.uid=uh.uid)
 							JOIN ".Tprefix."affiliatedemployees ae ON (ae.uid=u.uid)
-							WHERE u.gid !=7 AND FROM_UNIXTIME(birthDate, '%c')='{$current_date[mon]}' AND (birthDate IS NOT NULL AND birthDate!=0) AND isMain=1
-							GROUP BY u.uid");
+                                                        WHERE u.gid !=7  AND FROM_UNIXTIME(birthDate, '%c')='{$current_date[mon]}' AND (birthDate IS NOT NULL AND birthDate!=0) AND isMain=1
+                                                        GROUP BY u.uid
+                                                        ORDER BY birthDay ASC");
 
 if($db->num_rows($users_query) > 0) {
     while($users_birthdays = $db->fetch_assoc($users_query)) {
@@ -49,9 +50,12 @@ if($db->num_rows($users_query) > 0) {
         $body_message = '';
         foreach($hr_affid[$affuid] as $affid => $recepient_details) {
             if(is_array($birthday_affid[$affid]) && !empty($birthday_affid[$affid])) {
+                $affiliate_obj = Affiliates::get_affiliates(array('affid' => $affid));
+                $body_message .='<table width="50%"><tr style="background-color:#92D050;"><td colspan="2">'.$affiliate_obj->get_displayname().'</td></tr>';
                 foreach($birthday_affid[$affid] as $uid => $user) {
-                    $body_message .= '<li>'.$user['employeeName'].',  '.date('l jS', mktime(0, 0, 0, $current_date['mon'], $user['birthDay'], $current_date['year'])).' ('.($current_date['year'] - $user['birthYear']).' years old)</li>';
+                    $body_message .= '<tr style="background-color:#F1F1F1;"><td style="width:50%">'.$user['employeeName'].'</td><td>'.date('l jS', mktime(0, 0, 0, $current_date['mon'], $user['birthDay'], $current_date['year'])).' ('.($current_date['year'] - $user['birthYear']).' years old)</td></tr>'; //<td><a href="mailto:'.$user['email'].'"> '.$user['email'].'</a></td>
                 }
+                $body_message .='</table>';
             }
         }
         if(empty($body_message)) {
@@ -64,9 +68,12 @@ if($db->num_rows($users_query) > 0) {
                 'from_email' => $core->settings['maileremail'],
                 'from' => 'OCOS Mailer',
                 'subject' => 'Employee birthdays during '.$current_date['month'],
-                'message' => 'Hello '.$recepient_details['displayName'].',<br />The Following birthdays are taking during '.$current_date['month'].'</br></br />'.$body_message
+                'message' => 'Hello '.$recepient_details['displayName'].',<br />The Following birthdays are taking place during '.$current_date['month'].'</br></br />'.$body_message
         );
-
+//        if($affuid == $core->user['uid']) {
+//            echo $email_data['message'];
+//            exit;
+//      }
         $mail = new Mailer($email_data, 'php');
         if($mail->get_status() === true) {
             $log->record('hrbirthdaynotification', array('to' => $recepient_details['email']), 'emailsent');
