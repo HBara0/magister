@@ -15,4 +15,4 @@
 <input type="hidden" id="loacationLong"  value="" name="loacationLong"/>
 <input type='hidden' id='reservationfacilities{$extraid}_id'  name="{$facinputname}" value="{$facilityid}"/>
 <input type='hidden' id='reservationfacilities{$extraid}_id_output' name="" value="" disabled/>
-<a href="index.php?module=facilitymgmt/facilitiesschedule"><img src="./images/icons/calendar.gif" alt='{$lang->viewschedule}'> {$lang->viewschedule}</a>
+<a target="_blank" href="index.php?module=facilitymgmt/facilitiesschedule"><img src="./images/icons/calendar.gif" alt='{$lang->viewschedule}'> {$lang->viewschedule}</a>
