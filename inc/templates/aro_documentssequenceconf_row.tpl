@@ -1,4 +1,4 @@
-<tr class="trowtools">
+<tr class="trowtools {$rowclass}">
     <td width="24%">{$arodocumentconf->affid}</td>
     <td width="24%">{$arodocumentconf->ptid}</td>
     <td width="22%">{$arodocumentconf->effectiveFrom}</td>

@@ -1,4 +1,4 @@
-<tr class="trowtools">
+<tr class="trowtools {$rowclass}">
     <td width="22%">{$policy->affid}</td>
     <td width="22%">{$policy->purchaseType}</td>
     <td width="22%">{$policy->effectiveFrom}</td>

@@ -1,4 +1,4 @@
-<Tr class="trowtools">
+<Tr class="trowtools {$rowclass}">
     <td>{$affobj->get_displayname()}</td>
     <td>{$approvers->effectiveFrom}</td>
     <td>{$approvers->effectiveTo}</td>

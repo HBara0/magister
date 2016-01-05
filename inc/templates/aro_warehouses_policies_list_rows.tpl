@@ -1,4 +1,4 @@
-<Tr class="trowtools">
+<Tr class="trowtools {$rowclass}">
     <td width="33%">{$aro->warehouse}</td>
     <td width="30%">{$aro->effectiveFrom}</td>
     <td width="30%">{$aro->effectiveTo}</td>
