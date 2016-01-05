@@ -24,13 +24,14 @@ if(!$core->input['action']) {
     if(!empty($core->input['num'])) {
         $phonenumber = $db->escape_string($core->input['num']);
         $entities = Entities::get_data(" phone1 = '{$phonenumber}' OR phone2 = '{$phonenumber}' ORDER BY createdOn DESC", array('operators' => array('filter' => 'CUSTOMSQLSECURE'), 'returnarray' => true));
-        $entities = Entities::get_data('eid IN (2,3,4,1,7,6,9)');
+//        $entities = Entities::get_data('eid =1', array('returnarray' => true));
+//        $entities = Entities::get_data('eid IN (1,2,3,4,5)', array('returnarray' => true));
         if(is_array($entities)) {
             if(count($entities) == 1) {
                 foreach($entities as $entity) {
                     $entityid = '<input type="hidden" name="log[eid]" value="'.$entity->eid.'">';
                     $withentity = '&nbspwith '.$entity->get_displayname();
-                    $entitylogs = CallLogs::get_data("eid= {$entity['eid']} AND (isPrivate = 0 OR uid = {$core->user['uid']})", array('limit' => 10, 'returnarray' => true));
+                    $entitylogs = CallLogs::get_data("eid= {$entity->eid} AND (isPrivate = 0 OR uid = {$core->user['uid']})", array('order' => 'createdOn DESC', 'limit' => 10, 'returnarray' => true));
                     if(is_array($entitylogs)) {
                         $logs = "<h2>{$lang->pastlogs}</h2>";
                         foreach($entitylogs as $log) {
