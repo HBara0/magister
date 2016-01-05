@@ -401,10 +401,10 @@ if(!($core->input['action'])) {
             //*********Total Funds Engaged -End   *********//
             //*********Aro Audit Trail -Start *********//
             if($aroorderrequest->createdOn != 0) {
-                $aroorderrequest->createdOn_output = date($core->settings['dateformat'], $aroorderrequest->createdOn);
+                $aroorderrequest->createdOn_output = date($core->settings['dateformat'].' '.$core->settings['timeformat'], $aroorderrequest->createdOn);
             }
             if($aroorderrequest->modifiedOn != 0) {
-                $aroorderrequest->modifiedOn_output = date($core->settings['dateformat'], $aroorderrequest->modifiedOn);
+                $aroorderrequest->modifiedOn_output = date($core->settings['dateformat'].' '.$core->settings['timeformat'], $aroorderrequest->modifiedOn);
             }
             $createdby_username = new Users($aroorderrequest->createdBy);
             if(!empty($aroorderrequest->modifiedBy)) {
@@ -817,7 +817,8 @@ else {
         unset($core->input['module'], $core->input['action']);
         $orderident_obj = new AroRequests();
         /* get arodocument of the affid and pruchase type */
-        $documentseq_obj = AroDocumentsSequenceConf::get_data(array('affid' => $core->input['affid'], 'ptid' => $core->input['orderType']), array('simple' => false, 'operators' => array('affid' => 'in', 'ptid' => 'in')));
+        $filter = 'affid = '.intval($core->input['affid']).' AND ptid = '.intval($core->input['orderType']).' AND ('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
+        $documentseq_obj = AroDocumentsSequenceConf::get_data($filter, array('simple' => false, 'operators' => array('affid' => 'in', 'ptid' => 'in')));
         if(is_object($documentseq_obj)) {
             $nextsequence_number = $documentseq_obj->get_nextaro_identification();
             $core->input['nextnumid']['nextnum'] = $nextsequence_number;
