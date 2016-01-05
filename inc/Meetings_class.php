@@ -54,7 +54,7 @@ class Meetings {
             }
 
             if(value_exists('meetings', 'title', $this->meeting['title'], ' createdBy='.$core->user['uid'].'')) { // Add date filter
-                $this->errorcode = 4;
+                $this->errorcode = 5;
                 return false;
             }
 
