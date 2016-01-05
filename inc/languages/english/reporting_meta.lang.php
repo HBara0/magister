@@ -247,4 +247,5 @@ $lang['detailedsection'] = 'Detailed Section';
 $lang['summary'] = 'Summary';
 $lang['warningnegativeandzeronumbers'] = 'Warning! Some Quarter Numbers Are Negative But Are Showing As Zeros. This Means That Some Reports Are Not Filled Properly.';
 $lang['overview'] = 'Overview';
+$lang['filledby'] = 'Filled By';
 ?>

@@ -107,7 +107,7 @@ class AroRequestsMessages extends AbstractClass {
         $lang->load('aro_meta');
         $mailer = new Mailer();
         $mailer = $mailer->get_mailerobj();
-        $mailer->set_from(array('name' => $core->user['displayName'], 'email' => $core->settings['maileremail']));
+        $mailer->set_from(array('name' => $core->user['displayName'], 'email' => 'approve_arorequest@ocos.orkila.com')); //$core->settings['maileremail']));
 
         $arorequest = AroRequests::get_data(array('aorid' => $this->data['aorid']), array('simple' => false));
 
@@ -122,7 +122,7 @@ class AroRequestsMessages extends AbstractClass {
             $mailer->set_subject('REJECTED Aro Request ['.$arorequest->orderReference.']/'.$aroaffiliate_obj->get_displayname().'/'.$purchasteype_obj->get_displayname());
         }
         else {
-            $mailer->set_subject($lang->newrequestmsgsubject.' ['.$arorequest->orderReference.']');
+            $mailer->set_subject($lang->newrequestmsgsubject.' ['.$arorequest->orderReference.'] ['.$arorequest->inputChecksum.']');
         }
 
         $emailreceivers = $this->get_emailreceivers();
@@ -139,7 +139,7 @@ class AroRequestsMessages extends AbstractClass {
                     $message .= '<a href="'.$view_link.'">'.$lang->clicktoviewaro.'</a><br/>'.$this->data['message'].' | <a href="'.$reply_links.'">&#x21b6; '.$lang->reply.'</a><br/>';
                 }
                 if(!empty($message)) {
-                    $mailer->set_message($message);
+                    $mailer->set_message('__ARO NOTIFICATION__<br/>'.$message);
                     $mailer->set_to($emailreceiver);
 //                    $x = $mailer->debug_info();
 //                    print_R($x);

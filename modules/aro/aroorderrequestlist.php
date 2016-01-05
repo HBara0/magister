@@ -85,6 +85,8 @@ if(!$core->input['action']) {
     $arodocumentrequest = AroRequests::get_data($filterarray.$filter_where, array('returnarray' => true, 'simple' => false));
     if(is_array($arodocumentrequest)) {
         foreach($arodocumentrequest as $documentrequest) {
+            $icons['pending'] = "";
+            $style = $icons['rejected'] = "";
             $row_tools = '<a href="index.php?module=aro/managearodouments&id='.$documentrequest->aorid.'" title="'.$lang->edit.'"><img src="./images/icons/edit.gif" border=0 alt="'.$lang->edit.'"/></a>';
             $affiliate = new Affiliates($documentrequest->affid);
             $purchasetype = new PurchaseTypes($documentrequest->orderType);
@@ -99,7 +101,6 @@ if(!$core->input['action']) {
             if(is_array($approvals)) {
                 $rowclass = "trowtools yellowbackground";
             }
-            $style = $icons['rejected'] = "";
             if($documentrequest->isRejected == 1) {
                 $style = 'style="color:red;"';
                 $rowclass = "";

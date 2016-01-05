@@ -45,6 +45,10 @@ if(!($core->input['action'])) {
                 $audittrail .= '<tr><td>'.$lang->$field_strtolower.'</td><td>'.$documentsequence[$field.'_output'].'</td></tr>';
             }
         }
+
+        if(TIME_NOW > $documentsequence['effectiveTo']) {
+            $display['save'] = 'display:none';
+        }
     }
     else {
         $documentsequence['incrementBy'] = 1;
@@ -94,6 +98,9 @@ elseif($core->input['action'] == 'do_perform_arodocumentsequeneconf') {
             break;
         case 2:
             output_xml('<status>false</status><message>'.$lang->fillrequiredfields.'</message>');
+            break;
+        case 4:
+            output_xml('<status>false</status><message>'.$lang->policyalreadyinuse.'</message>');
             break;
     }
 }

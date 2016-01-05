@@ -17,7 +17,7 @@ class HrJobOpportunitiesLanguage extends AbstractClass {
     const DISPLAY_NAME = '';
     const SIMPLEQ_ATTRS = '*';
     const CLASSNAME = __CLASS__;
-    const REQUIRED_ATTRS = 'joid,language';
+    const REQUIRED_ATTRS = 'joid,language,type';
     const UNIQUE_ATTRS = 'joid,language';
 
     public function __construct($id = '', $simple = true) {
@@ -27,7 +27,7 @@ class HrJobOpportunitiesLanguage extends AbstractClass {
     protected function create(array $data) {
         global $db, $core;
         if(is_array($data)) {
-            $fields = array('joid', 'language');
+            $fields = array('joid', 'language', 'type');
             foreach($fields as $field) {
                 if(empty($data[$field])) {
                     $this->errorcode = 1;
@@ -46,7 +46,7 @@ class HrJobOpportunitiesLanguage extends AbstractClass {
     protected function update(array $data) {
         global $db, $core;
         if(is_array($data)) {
-            $fields = array('joid', 'language');
+            $fields = array('joid', 'language', 'type');
             foreach($fields as $field) {
                 if(empty($data[$field])) {
                     $this->errorcode = 1;

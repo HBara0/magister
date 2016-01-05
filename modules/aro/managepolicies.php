@@ -69,6 +69,10 @@ if(!$core->input['action']) {
                     $audittrail .= '<tr><td>'.$lang->$field_strtolower.'</td><td>'.$aropolicy[$field.'_output'].'</td></tr>';
                 }
             }
+
+            if(TIME_NOW > $aropolicy['effectiveTo']) {
+                $display['save'] = 'display:none';
+            }
         }
         else {
             redirect($_SERVER['HTTP_REFERER'], 2, $lang->nomatchfound);
@@ -108,6 +112,12 @@ else if($core->input['action'] == 'do_perform_managepolicies') {
             break;
         case 2:
             output_xml('<status>false</status><message>'.$lang->fillrequiredfields.'</message>');
+            break;
+        case 3:
+            output_xml('<status>false</status><message>'.$lang->policiescoexist.'</message>');
+            break;
+        case 4:
+            output_xml('<status>false</status><message>'.$lang->policyalreadyinuse.'</message>');
             break;
     }
 }

@@ -24,40 +24,147 @@ if(!$core->input['action']) {
     $section_rowid = 1;
     $question_rowid = 1;
     $sequence = 1;
+    if(isset($core->input['bstid']) && !empty($core->input['bstid'])) {
+        $stid = $core->input['bstid'];
+        $template_obj = SurveysTemplates::get_data(array('stid' => $stid));
+        $title = $template_obj->title;
+        $survey_template = $template_obj->get();
+        $questions = $template_obj->get_questions();
+        if(is_array($questions)) {
+            foreach($questions as $section) {
+                foreach($section['questions'] as $question) {
+                    $showanswer = 'display:none;';
+                    if($core->input['ajaxaddmoredata']['type'] > 0) {
+                        $showanswer = '';
+                    };
+                    if(is_array($question)) {
+                        $style['choicesdisplay'] = $style['matrixchoicesdisplay'] = 'style="display:none;"';
+                        unset($question['choices'], $question['choicevalues']);
+                        $quest_choices = $template_obj->get_questionchoices($question['stqid']);
+                        $question['choices'] = $quest_choices['choices'];
+                        $question['choicevalues'] = $quest_choices['choicevalues'];
+                        $question['answers'] = $quest_choices['answers'];
+                        foreach($question as $questionfield => $value) {
+                            $section[$section_rowid]['questions'][$question_rowid][$questionfield] = $value;
+                            if($questionfield == 'choices' && is_array($value)) {
+                                $choicesrowid_rowid = $matrixchoicesrowid_rowid = 1;
+                                $style['choicesdisplay'] = 'style="display:block;"';
+                                foreach($value as $choicevalue) {
+                                    $section[$section_rowid]['questions'][$question_rowid]['choices'][$choicesrowid_rowid]['choice'] = $choicevalue['choice'];
+                                    $section[$section_rowid]['questions'][$question_rowid]['choices'][$choicesrowid_rowid]['value'] = $choicevalue['value'];
+                                    $choice_selected = "";
+                                    if(isset($choicevalue['isAnswer']) && $choicevalue['isAnswer'] == 1) {
+                                        $choice_selected = 'checked="checked"';
+                                    }
+                                    eval("\$choices .= \"".$template->get('surveys_createtemplate_sectionrow_questionrow_choicerow')."\";");
+                                    $choicesrowid_rowid++;
+                                }
+                            }
+                            if($question['isMatrix'] == 1 && $questionfield == 'choicevalues' && is_array($value)) {
+                                foreach($value as $matrixchoicevalue) {
+                                    $section[$section_rowid]['questions'][$question_rowid]['matrixchoices'][$matrixchoicesrowid_rowid]['choice'] = $matrixchoicevalue['choice'];
+                                    $section[$section_rowid]['questions'][$question_rowid]['matrixchoices'][$matrixchoicesrowid_rowid]['value'] = $matrixchoicevalue['value'];
 
-    $radiobuttons['isPublic'] = parse_yesno('isPublic', 1, $survey_template['isPublic']);
-    $radiobuttons['forceAnonymousFilling'] = parse_yesno('forceAnonymousFilling', 1, $lang->forceanonymousfilling_tip);
-    $radiobuttons['isQuiz'] = parse_yesno('isQuiz', 1, $survey_template['isQuiz']);
+                                    $style['matrixchoicesdisplay'] = 'style="display:block;"';
+                                    eval("\$matrixchoices .= \"".$template->get('surveys_createtemplate_sectionrow_questionrow_matrixchoicerow')."\";");
+                                    $matrixchoicesrowid_rowid++;
+                                }
+                            }
+                        }
+                    }
+                    $style['hasvlidationdisplay'] = $style['validationcriteriadisplay'] = 'style="display:none;"';
+                    if($question['hasValidation'] == 1) {
+                        $style['hasvlidationdisplay'] = 'style="display:block;"';
+                        if(!empty($question['validationType'])) {
+                            $selectedvtype[$question['validationType']] = 'selected="selected"';
+                        }
+                        if(!empty($question['validationCriterion'])) {
+                            $section[$section_rowid][questions][$question_rowid][validationCriterion] = $question['validationCriterion'];
+                            $style['validationcriteriadisplay'] = 'style="display:block;"';
+                        }
+                    }
+                    if($question['isSizable'] == 1) {
+                        $style['fieldsizedisplay'] = 'style="display:block;"';
+                        $section[$section_rowid][questions][$question_rowid]['fieldSize'] = $question['fieldSize'];
+                    }
+                    $radiobuttons['isRequired'] = parse_yesno("section[$section_rowid][questions][$question_rowid][isRequired]", 1, $question['isRequired']);
 
-    $radiobuttons['isRequired'] = parse_yesno("section[$section_rowid][questions][$question_rowid][isRequired]", 1, '');
+                    $fieldtype = get_specificdata('surveys_questiontypes', array('name', 'sqtid'), 'sqtid', 'name', '', 0);
+                    $desctype = get_specificdata('surveys_questiontypes', array('sqtid', 'description'), 'sqtid', 'description', '', 0);
+                    $question_types_options = "<option value=''></option>";
+                    foreach($fieldtype as $key => $formatvalue) {
+                        $fieldtype[$key] = $formatvalue;
+                        if(!empty($desctype[$key])) {
+                            $fieldtype[$key] .= '  ('.$desctype[$key].')';
+                        }
+                        $selected = "";
+                        if($key == $question['type']) {
+                            $selected = "selected='selected'";
+                        }
+                        $question_types_options .= "<option value='{$key}' {$selected}>{$fieldtype[$key]}</option>";
+                    }
 
-    $fieldtype = get_specificdata('surveys_questiontypes', array('name', 'sqtid'), 'sqtid', 'name', '', 0);
-    $desctype = get_specificdata('surveys_questiontypes', array('sqtid', 'description'), 'sqtid', 'description', '', 0);
-    $question_types_options = "<option value=''></option>";
-    foreach($fieldtype as $key => $formatvalue) {
-        $fieldtype[$key] = $formatvalue;
-        if(!empty($desctype[$key])) {
-            $fieldtype[$key] .= '  ('.$desctype[$key].')';
+                    $altrow_class = alt_row($altrow_class);
+                    $choicesrowid_rowid = $matrixchoicesrowid_rowid = 1;
+                    $showanswer = 'display:none;';
+                    if($survey_template['isQuiz'] == 1) {
+                        $showanswer = '';
+                    }
+                    $sepertorslist = array('space' => 'Space', 'newline' => 'New-Line');
+                    $seperatorselectlist = parse_selectlist("section[{$section_rowid}][questions][{$question_rowid}][choicesSeperator]", '', $sepertorslist, '');
+
+                    eval("\$newquestions .= \"".$template->get('surveys_createtemplate_sectionrow_questionrow')."\";");
+                    $question_rowid++;
+                    unset($matrixchoices, $choices, $selectedvtype);
+                }
+                eval("\$newsection .= \"".$template->get('surveys_createtemplate_sectionrow')."\";");
+                unset($newquestions);
+                $section_rowid++;
+            }
+        }
+    }
+    else {
+        $style['validationcriteriadisplay'] = $style['hasvlidationdisplay'] = 'style="display:none;"';
+        $style['choicesdisplay'] = $style['matrixchoicesdisplay'] = 'style="display:none;"';
+        $style['fieldsizedisplay'] = 'style="display:none;"';
+
+
+        $radiobuttons['isRequired'] = parse_yesno("section[$section_rowid][questions][$question_rowid][isRequired]", 1, '');
+        $fieldtype = get_specificdata('surveys_questiontypes', array('name', 'sqtid'), 'sqtid', 'name', '', 0);
+        $desctype = get_specificdata('surveys_questiontypes', array('sqtid', 'description'), 'sqtid', 'description', '', 0);
+        $question_types_options = "<option value=''></option>";
+        foreach($fieldtype as $key => $formatvalue) {
+            $fieldtype[$key] = $formatvalue;
+            if(!empty($desctype[$key])) {
+                $fieldtype[$key] .= '  ('.$desctype[$key].')';
+            }
+
+            $question_types_options .= "<option value='{$key}'{$selected}>{$fieldtype[$key]}</option>";
         }
 
-        $question_types_options .= "<option value='{$key}'{$selected}>{$fieldtype[$key]}</option>";
+
+        $altrow_class = alt_row($altrow_class);
+        $choicesrowid_rowid = $matrixchoicesrowid_rowid = 1;
+        $showanswer = 'display:none;';
+        if($survey_template['isQuiz'] == 1) {
+            $showanswer = '';
+        }
+        $sepertorslist = array('space' => 'Space', 'newline' => 'New-Line');
+        $seperatorselectlist = parse_selectlist("section[{$section_rowid}][questions][{$question_rowid}][choicesSeperator]", '', $sepertorslist, '');
+        $section['section_inputChecksum'] = generate_checksum();
+        eval("\$matrixchoices = \"".$template->get('surveys_createtemplate_sectionrow_questionrow_matrixchoicerow')."\";");
+        eval("\$choices = \"".$template->get('surveys_createtemplate_sectionrow_questionrow_choicerow')."\";");
+        eval("\$newquestions = \"".$template->get('surveys_createtemplate_sectionrow_questionrow')."\";");
+        eval("\$newsection = \"".$template->get('surveys_createtemplate_sectionrow')."\";");
     }
 
+    $radiobuttons['isPublic'] = parse_yesno('isPublic', 1, $survey_template['isPublic']);
+    $radiobuttons['forceAnonymousFilling'] = parse_yesno('forceAnonymousFilling', 1, $survey_template['forceAnonymousFilling']); //$lang->forceanonymousfilling_tip);
+    $radiobuttons['isQuiz'] = parse_yesno('isQuiz', 1, $survey_template['isQuiz']);
     $surveycategories = get_specificdata('surveys_categories', array('scid', 'title'), 'scid', 'title', 'title');
     $surveycategories_list = parse_selectlist('category', 5, $surveycategories, $survey_template['category']);
 
-    $altrow_class = alt_row($altrow_class);
-    $choicesrowid_rowid = $matrixchoicesrowid_rowid = 1;
-    $showanswer = 'display:none;';
-    if($survey_template['isQuiz'] == 1) {
-        $showanswer = '';
-    }
-    $sepertorslist = array('space' => 'Space', 'newline' => 'New-Line');
-    $seperatorselectlist = parse_selectlist("section[{$section_rowid}][questions][{$question_rowid}][choicesSeperator]", '', $sepertorslist, '');
-    eval("\$matrixchoices = \"".$template->get('surveys_createtemplate_sectionrow_questionrow_matrixchoicerow')."\";");
-    eval("\$choices = \"".$template->get('surveys_createtemplate_sectionrow_questionrow_choicerow')."\";");
-    eval("\$newquestions = \"".$template->get('surveys_createtemplate_sectionrow_questionrow')."\";");
-    eval("\$newsection = \"".$template->get('surveys_createtemplate_sectionrow')."\";");
+
     $sequence_id += 1;
     eval("\$surveys_createtemplate = \"".$template->get('surveys_createtemplate')."\";");
     output_page($surveys_createtemplate);
@@ -99,6 +206,8 @@ else {
     }
     elseif($core->input['action'] == 'parsetype') {
         /* Get validation of the question - START */
+        $style['choicesdisplay'] = $style['matrixchoicesdisplay'] = $style['fieldsizedisplay'] = 'style="display:none;"';
+
         $section_id = $core->input['sectionid'];
         $question_id = $core->input['questionid'];
         $query = $db->query("SELECT * FROM ".Tprefix."surveys_questiontypes sqt
@@ -135,6 +244,7 @@ else {
     }
     elseif($core->input['action'] == 'ajaxaddmore_section') {
         $question_rowid = 1;
+        $style['choicesdisplay'] = $style['matrixchoicesdisplay'] = $style['validationcriteriadisplay'] = $style['hasvlidationdisplay'] = 'style="display:none;"';
         $section_rowid = $db->escape_string($core->input['value']) + 1;
         $sequence = $db->escape_string($core->input['sequence']) + 1;
         $fieldtype = get_specificdata('surveys_questiontypes', array('name', 'sqtid'), 'sqtid', 'name', '', 0);
@@ -153,16 +263,20 @@ else {
             $showanswer = '';
             $type = $core->input['ajaxaddmoredata']['type'];
         };
+        $section['section_inputChecksum'] = generate_checksum();
         $sepertorslist = array('space' => 'Space', 'newline' => 'New-Line', 'tab' => 'Tab');
         $seperatorselectlist = parse_selectlist("section[{$section_rowid}][questions][{$question_rowid}][choicesSeperator]", '', $sepertorslist, '');
         $radiobuttons['isRequired'] = parse_yesno('section['.$section_rowid.'][questions]['.$question_rowid.'][isRequired]', 1, $survey_template['isRequired']);
         eval("\$matrixchoices = \"".$template->get('surveys_createtemplate_sectionrow_questionrow_matrixchoicerow')."\";");
         eval("\$choices = \"".$template->get('surveys_createtemplate_sectionrow_questionrow_choicerow')."\";");
+        $style['fieldsizedisplay'] = 'style="display:none;"';
         eval("\$newquestions = \"".$template->get('surveys_createtemplate_sectionrow_questionrow')."\";");
         eval("\$newsection = \"".$template->get('surveys_createtemplate_sectionrow')."\";");
         echo $newsection;
     }
     elseif($core->input['action'] == 'ajaxaddmore_questions') {
+        $style['hasvlidationdisplay'] = $style['validationcriteriadisplay'] = 'style="display:none;"';
+        $style['choicesdisplay'] = $style['matrixchoicesdisplay'] = 'style="display:none;"';
         $question_rowid = $db->escape_string($core->input['value']) + 1;
         $section_rowid = $db->escape_string($core->input['id']);
         $sequence = $db->escape_string($core->input['value']) + 1;
@@ -177,7 +291,7 @@ else {
             $question_types_options .= "<option value='{$key}'{$selected}>{$fieldtype[$key]}</option>";
         }
         $radiobuttons['isRequired'] = parse_yesno('section['.$section_rowid.'][questions]['.$question_rowid.'][isRequired]', 1, $survey_template['isRequired']);
-        $choicesrowid_rowid = 1;
+        $choicesrowid_rowid = $matrixchoicesrowid_rowid = 1;
         $showanswer = 'display:none;';
         if($core->input['ajaxaddmoredata']['type'] > 0) {
             $showanswer = '';
@@ -187,10 +301,12 @@ else {
         $seperatorselectlist = parse_selectlist("section[{$section_rowid}][questions][{$question_rowid}][choicesSeperator]", '', $sepertorslist, '');
         eval("\$matrixchoices = \"".$template->get('surveys_createtemplate_sectionrow_questionrow_matrixchoicerow')."\";");
         eval("\$choices = \"".$template->get('surveys_createtemplate_sectionrow_questionrow_choicerow')."\";");
+        $style['fieldsizedisplay'] = 'style="display:none;"';
         eval("\$newquestion = \"".$template->get('surveys_createtemplate_sectionrow_questionrow')."\";");
         echo $newquestion;
     }
     elseif($core->input['action'] == 'ajaxaddmore_questionschoices') {
+        $style['matrixchoicesdisplay'] = 'style="display:none;"';
         $choicesrowid_rowid = $db->escape_string($core->input['value']) + 1;
         $section_rowid = intval($core->input['ajaxaddmoredata']['sectionrowid']);
         $question_rowid = intval($core->input['ajaxaddmoredata']['questionrowid']);
@@ -202,6 +318,8 @@ else {
         echo $choices;
     }
     elseif($core->input['action'] == 'ajaxaddmore_matrixquestionschoices') {
+        // $style['matrixchoicesdisplay'] = 'style="display:none;"';
+
         $matrixchoicesrowid_rowid = $db->escape_string($core->input['value']) + 1;
         $section_rowid = intval($core->input['ajaxaddmoredata']['sectionrowid']);
         $question_rowid = intval($core->input['ajaxaddmoredata']['questionrowid']);
@@ -211,6 +329,41 @@ else {
         };
         eval("\$matrixchoices = \"".$template->get('surveys_createtemplate_sectionrow_questionrow_matrixchoicerow')."\";");
         echo $matrixchoices;
+    }
+    elseif($core->input['action'] == 'get_createbasedonanother') {
+        $surveystemplates = SurveysTemplates::get_data('isPublic=1 OR createdBy='.$core->user['uid'], array('order' => array('by' => array('isQuiz', 'title'), 'sort' => array('sort' => array('isQuiz' => 'DESC', 'title' => 'ASC'))), 'returnarray' => true));
+        if(is_array($surveystemplates)) {
+            $surveytemplates_list = parse_selectlist('stid', 5, $surveystemplates, $survey['stid'], '', $onchange, array('id' => 'stid'));
+        }
+        eval("\$createbasedonanothertpl = \"".$template->get('popup_createbasedonanothertpl')."\";");
+        output_page($createbasedonanothertpl);
+    }
+    elseif($core->input['action'] == 'createbasedonanother') {
+        $stid = $core->input['stid'];
+        $action = 'createtemplate';
+        $surveytemplate = SurveysTemplates::get_data(array('stid' => $stid));
+        $titlee = $surveytemplate->title;
+//        eval("\$surveys_createtemplate = \"".$template->get('surveys_createtemplate')."\";");
+//        output($surveys_createtemplate);
+        redirect('index.php?module=surveys/createsurveytemplate&stid='.$stid);
+    }
+    elseif($core->input['action'] == 'delete_section') {
+        if(isset($core->input['sectionid']) && !empty($core->input['sectionid'])) {
+            $section = new SurveysTplSections(intval($core->input['sectionid']));
+        }
+        elseif(isset($core->input['checksum']) && !empty($core->input['checksum'])) {
+            $section = SurveysTplSections::get_data(array('inputChecksum' => $db->escape_string($core->input['checksum'])), array('returnarray' => false));
+        }
+        if(is_object($section) && !empty($section->{SurveysTplSections::PRIMARY_KEY})) {
+            if($section->section_used()) {
+                echo('<span style="color:red">'.$lang->sectiontemplatealreadyused.'</span>');
+                exit;
+            }
+            $section->delete();
+        }
+
+        $result = '<script> $(function() { $(\'tr[id="section_'.$core->input['rowid'].'"]\').remove();});</script>';
+        echo($result);
     }
 }
 ?>

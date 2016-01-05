@@ -41,9 +41,9 @@ else {
 
         if($core->input['type'] == 'endofmonth') {
             $core->input['affids'][] = $core->user['mainaffiliate'];
-            //$query_date = '2015-01-04';
-            $core->input['fromDate'] = date('Y-m-d', strtotime('first day of last month')); // date('Y-01-15', strtotime($query_date)); //
-            $core->input['toDate'] = date('Y-m-d', strtotime('last day of last month')); // date('Y-01-30', strtotime($query_date)); //
+            //            $query_date = '2015-01-04';
+            $core->input['fromDate'] = date('Y-m-d', strtotime('first day of last month')); //date('Y-01-01', strtotime($query_date));
+            $core->input['toDate'] = date('Y-m-d', strtotime('last day of last month')); // date('Y-01-31', strtotime($query_date));
             $reporttype = $core->input['type'];
             $core->input['type'] = 'analytic';
         }
@@ -557,6 +557,7 @@ else {
                             $chart_data = $dimensionalreport->get_data();
                             //$chart = new Charts(array('x' => array($previous_year => $previous_year, $current_year => $current_year), 'y' => $barchart_quantities_values), 'bar');
                         }
+                        $cache->flush('totals');
                         unset($dimensionalreport);
                     }
                 }
@@ -718,6 +719,10 @@ function get_ytddata($input_data, $period, $orgs) {
             $filters .= ' AND (salesrep_id=\''.$intuser->get_id().'\' OR salesrep_id IS NULL)';
         }
     }
+
+    $affiliate = new Affiliates($input_data['affids'], false);
+    $currency_obj = $affiliate->get_currency();
+
     if(isset($input_data['reportCurrency']) && !empty($input_data['reportCurrency'])) {
         $currency_obj = Currencies::get_data(array('numCode' => $input_data['reportCurrency']));
     }

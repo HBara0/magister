@@ -74,6 +74,9 @@ if(!$core->input['action']) {
 
     if(is_array($aropolicies)) {
         foreach($aropolicies as $policy) {
+            if($policy->effectiveTo < TIME_NOW) {
+                $rowclass = 'unapproved';
+            }
             $row_tools = '<a href="index.php?module=aro/managepolicies&id='.$policy->apid.'" title="'.$lang->edit.'"><img src="./images/icons/edit.gif" border=0 alt="'.$lang->edit.'"/></a>';
             $row_tools .= "<a href='#{$policy->apid}' id='deletearopolicy_{$policy->apid}_aro/listpolicies_loadpopupbyid' ><img src='{$core->settings[rootdir]}/images/invalid.gif' border='0' alt='{$lang->deletearopolicy}' /></a>";
             $policy->effectiveTo = date($core->settings['dateformat'], $policy->effectiveTo);
@@ -88,7 +91,7 @@ if(!$core->input['action']) {
             }
             $rowclass = alt_row($rowclass);
             eval("\$aropolicies_rows .= \"".$template->get('aro_policieslist_row')."\";");
-            $row_tools = '';
+            $row_tools = $rowclass = '';
         }
     }
     else {

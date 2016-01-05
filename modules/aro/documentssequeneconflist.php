@@ -63,6 +63,7 @@ if(!$core->input['action']) {
     }
     else {
         $dal_config = array(
+                'order' => array('by' => 'createdOn', 'sort' => 'DESC'),
                 'returnarray' => true,
                 'operators' => array('affid' => 'IN')
         );
@@ -76,15 +77,17 @@ if(!$core->input['action']) {
         foreach($arodocumentsseqconf as $arodocumentconf) {
             $row_tools = '<a href="index.php?module=aro/arodocumentsequeneconf&id='.$arodocumentconf->adsid.'" title="'.$lang->edit.'"><img src="./images/icons/edit.gif" border=0 alt="'.$lang->edit.'"/></a>';
             $row_tools .= " <a href='#{$arodocumentconf->adsid}' id='deletedocumentsequenceconf_{$arodocumentconf->adsid}_aro/documentssequeneconflist_loadpopupbyid'><img src='{$core->settings[rootdir]}/images/invalid.gif' border='0' alt='{$lang->delete}' /></a>";
+            if($arodocumentconf->effectiveTo < TIME_NOW) {
+                $rowclass = 'unapproved';
+            }
             $arodocumentconf->effectiveTo = date($core->settings['dateformat'], $arodocumentconf->effectiveTo);
             $arodocumentconf->effectiveFrom = date($core->settings['dateformat'], $arodocumentconf->effectiveFrom);
             $affiliate = new Affiliates($arodocumentconf->affid);
             $purchasetype = new PurchaseTypes($arodocumentconf->ptid);
             $arodocumentconf->affid = $affiliate->get_displayname();
             $arodocumentconf->ptid = $purchasetype->get_displayname();
-            $rowclass = alt_row($rowclass);
             eval("\$documentsequenceconf_rows .= \"".$template->get('aro_documentssequenceconf_row')."\";");
-            $row_tools = '';
+            $row_tools = $rowclass = '';
         }
     }
     else {

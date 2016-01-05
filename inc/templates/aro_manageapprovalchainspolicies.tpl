@@ -12,7 +12,10 @@
                         $("div[id^='user_" + id[1] + "']").effect("highlight", {color: "#D6EAAC"}, 1500).find("input").first().focus().val("");
                     }
                 });
-
+                $(document).on('click', "img[id^='deletesection_']", function() {
+                    var id = $(this).attr('id').split("_");
+                    $('tr[id="' + id[1] + '"]').remove();
+                });
             });
         </script>
     </head>
@@ -107,7 +110,7 @@
                         </td>
                     </tr>
                 </table>
-                <input type="submit" id="perform_aro/manageapprovalchainspolicies_Button" value="Save" class="button"/>
+                <input type="submit" id="perform_aro/manageapprovalchainspolicies_Button" value="Save" class="button" style="{$display[save]}"/>
             </form>
             <div id="perform_aro/manageapprovalchainspolicies_Results"></div>
         </td>

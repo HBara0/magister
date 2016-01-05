@@ -30,7 +30,9 @@ if(!$core->input['action']) {
     if(is_object($suppauditor)) {
         $supp_auditor_output = '<p> <span style="font-weight:bold">'.$lang->reportauditor.' : </span>'.$suppauditor->get_displayname().'</p>';
     }
-
+    if($core->input['transFill'] == 1) {
+        $transfill = 1;
+    }
     if($core->input['stage'] == 'productsactivity') {
         if(isset($core->input['identifier']) && !empty($core->input['identifier'])) {
             $identifier = $db->escape_string($core->input['identifier']);
@@ -57,9 +59,7 @@ if(!$core->input['action']) {
 												JOIN ".Tprefix."entities s ON (r.spid=s.eid)
 												WHERE year='{$core->input[year]}' AND r.quarter='{$core->input[quarter]}' AND r.affid='{$core->input[affid]}' AND r.spid='{$core->input[spid]}'"));
 
-        if($core->input['transFill'] == 1) {
-            $transfill = 1;
-        }
+
 
         $core->input['rid'] = $rid;
         $qreport = new ReportingQr(array('rid' => $rid));
@@ -177,7 +177,12 @@ if(!$core->input['action']) {
                 /* Get preview Q data - END */
                 $reportinconsistency = '<td><a href="#" id="reportinconsistency_'.$productactivity['paid'].'_reporting/fillreport_loadpopupbyid"><img src="'.$core->settings['rootdir'].'/images/alert.png" title="'.$lang->reportinconsistency.'/"></a></td>';
 
+                if(!empty($productactivity['uid'])) {
+                    $user = new Users($productactivity['uid']);
+                    $bmname = '<br /><small>'.$lang->filledby.' '.$user->get_displayname().'</small>';
+                }
                 eval("\$productsrows .= \"".$template->get('reporting_fillreports_productsactivity_productrow')."\";");
+                unset($bmname);
             }
         }
         unset($productactivity);

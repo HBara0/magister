@@ -1610,7 +1610,7 @@ function reinitialize_balance($user, $type, $prevbalance = null) {
                     if(is_object($leavepolicy)) {
                         if(!empty($prevbalance)) {
                             if($prevbalance > $leavepolicy->maxAccumulateDays) {
-                                $remainprevyear = $prevbalance - $leavepolicy->maxAccumulateDays;
+                                $remainprevyear = $leavepolicy->maxAccumulateDays;
                             }
                             else {
                                 $remainprevyear = $prevbalance;

@@ -82,7 +82,7 @@ class AroRequestLines extends AbstractClass {
         /* Get Aro request order type - End */
 
         if(isset($data['quantity']) && !empty($data['quantity'])) {
-            if((isset($data['qtyPotentiallySold']) && !empty($data['qtyPotentiallySold'])) || ($data['qtyPotentiallySold'] == 0)) {
+            if($data['quantity'] != 0 && ((isset($data['qtyPotentiallySold']) && !empty($data['qtyPotentiallySold'])) || ($data['qtyPotentiallySold'] == 0))) {
                 $new_data['qtyPotentiallySoldPerc'] = round(($data['qtyPotentiallySold'] / $data['quantity']) * 100, 3);
             }
         }
@@ -162,6 +162,7 @@ class AroRequestLines extends AbstractClass {
     }
 
     public function validate_requiredfields(array $data = array()) {
+        global $errorhandler, $lang;
         if(empty($data)) {
             $data = $this->data;
         }
@@ -169,6 +170,7 @@ class AroRequestLines extends AbstractClass {
             $required_fields = array('pid', 'quantity');
             foreach($required_fields as $field) {
                 if(empty($data[$field]) && $data[$field] != '0') {
+                    $errorhandler->record('Required fields', $lang->$field);
                     $this->errorcode = 2;
                     return;
                 }

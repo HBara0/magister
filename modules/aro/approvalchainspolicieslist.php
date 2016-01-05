@@ -70,6 +70,9 @@ if(!$core->input['action']) {
     }
     if(is_array($aroappr_pol)) {
         foreach($aroappr_pol as $approvers) {
+            if($approvers->effectiveTo < TIME_NOW) {
+                $rowclass = 'unapproved';
+            }
             $approvers->effectiveTo = date($core->settings['dateformat'], $approvers->effectiveTo);
             $approvers->effectiveFrom = date($core->settings['dateformat'], $approvers->effectiveFrom);
             $affobj = new Affiliates($approvers->affid);
@@ -79,6 +82,7 @@ if(!$core->input['action']) {
             $row_tools .= ' <a href="#'.$approvers->aapcid.'" id="deletepolicy_'.$approvers->aapcid.'_aro/approvalchainspolicieslist_loadpopupbyid" rel="delete_'.$approvers->aapcid.'" title="'.$lang->delete.'"><img src="./images/invalid.gif" alt="'.$lang->delete.'" border="0"></a>';
 
             eval("\$policies_approverpolicieslistrow .= \"".$template->get('aro_warehouses_approverpolicies_list_rows')."\";");
+            $rowclass = '';
         }
     }
 

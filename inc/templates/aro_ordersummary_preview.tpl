@@ -85,14 +85,12 @@
             <tr style="font-weight: bold;background-color: #D0F6AA">
                 <td class="altrow">{$lang->total} {$lang->globalnetmargin}
                     <a href="#" title="{$lang->globalnetmargindef}"><img src="./images/icons/question.gif"/></a></td>
-                <td style="text-align:right">{$aroordersummary->globalNetmargin}</td>
-                <td></td>
+                <td style="text-align:center" colspan="2">{$aroordersummary->globalNetmargin}</td>
                 <td {$ordersummarydisplay[thirdcolumn_display]}</td>
             </tr>
             <tr style="font-weight: bold;background-color: #D0F6AA">
                 <td class="altrow">{$lang->total} {$lang->globalnetmargin} %</td>
-                <td style="text-align:right;">{$aroordersummary->globalNetmarginPerc}%</td>
-                <td></td>
+                <td style="text-align:center;" colspan="2">{$aroordersummary->globalNetmarginPerc}%</td>
                 <td {$ordersummarydisplay[thirdcolumn_display]}</td>
             </tr>
         </tbody>

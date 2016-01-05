@@ -97,8 +97,12 @@ if(!$core->input['action']) {
             eval("\$repinput = \"".$template->get('jquery_tokeninput')."\";");
             eval("\$createmeeting_repattendees  = \"".$template->get('meeting_create_repattendee')."\";");
 
-            $entity_obj = new Entities($associatons['cid']);
-            $meeting['associations']['cutomername'] = $entity_obj->get()['companyName'];
+            if(is_array($associatons['cid'])) {
+                foreach($associatons['cid'] as $cid) {
+                    $entity_obj = new Entities($cid);
+                    $meeting['associations']['cutomername'] = $entity_obj->get()['companyName'];
+                }
+            }
             $meeting['associations']['spid'] = $associatons['cid'];
             if(is_array($associatons['spid'])) {
                 $associatons['spid'] = current($associatons['spid']);
@@ -148,7 +152,7 @@ if(!$core->input['action']) {
     $afiliates = get_specificdata('affiliates ', array('affid', 'name'), 'affid', 'name', array('by' => 'name', 'sort' => 'ASC'), 1, 'affid IN('.implode(', ', $core->user['affiliates']).')');
     $afiliates[0] = '';
     asort($afiliates);
-    $affiliates_list = parse_selectlist('meeting[        associations][affid][]   ', 5, $afiliates, $associatons['affid '], 1);
+    $affiliates_list = parse_selectlist('meeting[associations][affid][]', 5, $afiliates, $associatons['affid '], 1);
     $aff_events = Events::get_affiliatedevents($core->user['affiliates']);
     if(is_array($aff_events)) {
         foreach($aff_events as $ceid => $event) {
@@ -163,7 +167,7 @@ if(!$core->input['action']) {
 
     $leavetypes = LeaveTypes::get_data('isBusiness = 1');
     $leaves = Leaves::get_data(array('uid' => $core->user['uid'], 'type' => array_keys($leavetypes), 'fromDate' => strtotime("-1 year")), array('operators' => array('type' => 'IN', 'fromDate' => 'grt'), 'returnarray' => true));
-    $leaves_list = parse_selectlist('meeting[    associations][lid]   ', $tabindex, $leaves, $associatons['lid   '], 0, null, array('blankstart' => true));
+    $leaves_list = parse_selectlist('meeting[associations][lid]', $tabindex, $leaves, $associatons['lid'], 0, null, array('blankstart' => true));
 
 
 
@@ -196,7 +200,7 @@ if(!$core->input['action']) {
     $helptour->set_items($touritems);
     $helptour = $helptour->parse();
     $facinputname = 'meeting[fmfid]';
-    $extra_inputids = ', altpickDate_from, altpickDate_to, altpickTime_to, altpickTime_from, mtid';
+    $extra_inputids = ',altpickDate_from,altpickDate_to,altpickTime_to,altpickTime_from,mtid';
     eval("\$facilityreserve = \"".$template->get('facility_reserveautocomplete')."\";");
     eval("\$createmeeting_associations = \"".$template->get('meeting_create_associations')."\";");
     eval("\$createmeeting = \"".$template->get('meeting_create')."\";");

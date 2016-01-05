@@ -78,8 +78,8 @@ $lang['onlineinterview'] = 'Online Interview';
 
 $lang['jobexistsameaff'] = 'Same job exists for this affiliate';
 $lang['errorsaving'] = 'Error ocured while saving';
-
-
+$lang['wrongpublishoptions'] = 'Wrong Publish Options';
+$lang['unspecify'] = 'Unspecify';
 
 
 

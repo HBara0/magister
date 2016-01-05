@@ -20,6 +20,10 @@ if(!$core->input['action']) {
         $inaffiliates = Affiliates::get_affiliates(array('isActive' => 1), array('returnarray' => true));
         $inaffiliates = array_keys($inaffiliates);
     }
+
+    /* Inform Global Purchase manager by default */
+    $checked['informGlobalPurchaseMgr'] = 'checked="checked"';
+
     if(isset($core->input['id']) && !empty($core->input['id'])) {
         $chainpolicyobj = new AroApprovalChainPolicies($core->input['id'], false);
         $chainpolicy = $chainpolicyobj->get();
@@ -54,6 +58,7 @@ if(!$core->input['action']) {
         if($chainpolicy['informGlobalCFO'] == 1) {
             $checked['informGlobalCFO'] = 'checked="checked"';
         }
+        $checked['informGlobalPurchaseMgr'] = '';
         if($chainpolicy['informGlobalPurchaseMgr'] == 1) {
             $checked['informGlobalPurchaseMgr'] = 'checked="checked"';
         }
@@ -79,6 +84,10 @@ if(!$core->input['action']) {
                     }
                 }
             }
+        }
+
+        if(TIME_NOW > $chainpolicy['effectiveTo']) {
+            $display['save'] = 'display:none';
         }
     }
     if(is_array($inaffiliates)) {
@@ -138,6 +147,8 @@ if(!$core->input['action']) {
         eval("\$aro_manageapprovalchainspolicies_approversrows= \"".$template->get('aro_manageapprovalchainspolicies_approversrows')."\";");
         // $rowid = intval($core->input['value']) + 1;
     }
+
+
     eval("\$aro_manageapprovalchainspolicies= \"".$template->get('aro_manageapprovalchainspolicies')."\";");
     output_page($aro_manageapprovalchainspolicies);
 }
@@ -173,6 +184,12 @@ else if($core->input['action'] == 'do_perform_manageapprovalchainspolicies') {
             break;
         case 2:
             output_xml('<status>false</status><message>'.$lang->fillrequiredfields.'</message>');
+            break;
+        case 3:
+            output_xml('<status>false</status><message>'.$lang->policiescoexist.'</message>');
+            break;
+        case 4:
+            output_xml('<status>false</status><message>'.$lang->policyalreadyinuse.'</message>');
             break;
     }
 }
