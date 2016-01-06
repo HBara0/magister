@@ -14,9 +14,16 @@ class Sessions {
     public function __construct() {
         global $db, $core;
         $this->cleanup();
-
+        $tokenpass = false;
+        if($core->input['module'] == 'crm/addcalllog' && !empty($core->input['apiKey'])) {
+            $user = Users::get_data(array('apiKey' => $core->input['apiKey']), array('returnarray' => false, 'simple' => false));
+            if(is_object($user)) {
+                $tokenpass = true;
+                $uid = $user->uid;
+            }
+        }
         if(!isset($core->cookies['sid'])) {
-            $this->create();
+            $this->create($uid);
         }
         else {
             $this->update();
@@ -91,11 +98,14 @@ class Sessions {
         $db->delete_query('sessions', "time<$limit");
     }
 
-    protected function create() {
+    protected function create($uid = '') {
         global $db, $core;
 
         $this->sid = md5(uniqid(microtime()));
-        $this->uid = 0;
+        if(empty($uid)) {
+            $uid = 0;
+        }
+        $this->uid = $uid;
         $this->ipaddress = userip();
 
         $this->create_dbsession();
