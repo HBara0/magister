@@ -8,7 +8,7 @@ class FacilityMgmtReservations extends AbstractClass {
     const PRIMARY_KEY = 'fmrid';
     const TABLE_NAME = 'facilitymgmt_reservations';
     const SIMPLEQ_ATTRS = '*';
-    const UNIQUE_ATTRS = '';
+    const UNIQUE_ATTRS = 'mtid,fmfid';
     const CLASSNAME = __CLASS__;
     const DISPLAY_NAME = '';
 
