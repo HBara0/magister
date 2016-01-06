@@ -61,4 +61,5 @@ $lang['facility'] = 'Facilities';
 $lang['specifygenerallocation'] = 'Or Specify General Location';
 $lang['viewschedule'] = 'View Schedule';
 $lang['employees'] = 'Employees';
+$lang['meetingwithsamenamexists'] = 'Meeting With The Same Name Already Exists';
 ?>

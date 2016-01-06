@@ -63,7 +63,7 @@ if(!$core->input['action']) {
     /* Parse affiliates select list - END */
 
     eval("\$page[content] = \"".$template->get('attendance_reinitializebalances')."\";");
-    eval("\$page_ouptput = \"".$template->get('general_container')."\";");
+    eval("\$page_ouptput = \"".$template->get('reinbalance_container')."\";");
     output_page($page_ouptput);
 }
 else {
@@ -96,7 +96,7 @@ else {
         }
 
         eval("\$page[content] = \"".$template->get('attendance_reinitializebalances_userselection')."\";");
-        eval("\$page_ouptput = \"".$template->get('general_container')."\";");
+        eval("\$page_ouptput = \"".$template->get('reinbalance_container')."\";");
         output_page($page_ouptput);
     }
     elseif($core->input['action'] == 'reinitialize') {

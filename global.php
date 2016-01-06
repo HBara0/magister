@@ -38,10 +38,13 @@ if(!empty($core->user['language'])) {
     date_default_timezone_set($core->user['language']);
 }
 eval("\$headerinc = \"".$template->get('headerinc')."\";");
-
-if($session->uid > 0) {
+$tokenpass = false;
+if($core->input['module'] == 'crm/addcalllog' && $core->input['tokenpass'] == $core->user['token']) {
+    $tokenpass == true;
+}
+if($session->uid > 0 || $tokenpass) {
     /* Check if passwors has expired */
-    if(IN_AREA != 'admin') {
+    if(IN_AREA != 'admin' && !$tokenpass) {
         if(((TIME_NOW - $core->user['lastPasswordChange']) / 24 / 60 / 60) > $core->settings['passwordExpiresAfter']) {
             if(!defined('PASSEXPIRE_EXCLUDE') || PASSEXPIRE_EXCLUDE == 0) {
                 redirect(DOMAIN.'/users.php?action=profile&amp;do=edit&amp;messagecode=1');

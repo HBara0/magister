@@ -271,7 +271,11 @@ else {
                 $output_message = $lang->meetingintersect;
                 //output_xml('<status>false</status><message>'.$lang->meetingintersect.'</message>');
                 break;
-
+            case 5:
+                $output_class = 'red_text';
+                $output_message = $lang->meetingwithsamenamexists;
+                //output_xml('<status>false</status><message>'.$lang->meetingintersect.'</message>');
+                break;
             default:
                 $output_class = 'red_text';
                 $output_message = $lang->errorsaving;

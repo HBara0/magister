@@ -32,7 +32,7 @@
                 </div>
                 <div class="form-group">
                     <label for="description"><strong>{$lang->calldescription}</strong></label>
-                    <textarea id="description" class="basictxteditadv" name="log[description]"></textarea>
+                    <textarea id="description" class="htmltextedit" name="log[description]"></textarea>
                 </div>
                 <input type='submit' style="cursor: pointer;" class='button' value="{$lang->savecaps}" id='perform_crm/addcalllog_Button'>
             </form>
