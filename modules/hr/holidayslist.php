@@ -74,7 +74,7 @@ if(!$core->input['action']) {
     array_unshift($days_number, '');
     $filters_config = array(
             'parse' => array('filters' => array('title', 'month', 'day', 'numDays', 'year'),
-                    'overwriteField' => array('month' => parse_selectlist('filters[month]', 3, $months, $core->input['filters']['month'], 0), 'day' => parse_selectlist('filters[day]', 3, array_combine(range(0, 31), $days_number), $core->input['filters']['day'], 0))
+                    'overwriteField' => array('month' => parse_selectlist('filters[month]', 3, $months, $core->input['filters']['month'], 0), 'day' => parse_selectlist('filters[day]', 3, array_combine($days_number, $days_number), $core->input['filters']['day'], 0))
             ),
             'process' => array(
                     'filterKey' => 'hid',
