@@ -993,7 +993,7 @@ class Users extends AbstractClass {
         global $db;
         $key = $this->generate_apikey();
         if($key) {
-            $db->update_query(self::TABLE_NAME, array('token' => $key), self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
+            $db->update_query(self::TABLE_NAME, array('apiKey' => $key), self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
         }
     }
 

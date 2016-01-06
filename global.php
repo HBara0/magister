@@ -39,7 +39,7 @@ if(!empty($core->user['language'])) {
 }
 eval("\$headerinc = \"".$template->get('headerinc')."\";");
 $tokenpass = false;
-if($core->input['module'] == 'crm/addcalllog' && $core->input['tokenpass'] == $core->user['token']) {
+if($core->input['module'] == 'crm/addcalllog' && $core->input['tokenpass'] == $core->user['apiKey']) {
     $tokenpass == true;
 }
 if($session->uid > 0 || $tokenpass) {
