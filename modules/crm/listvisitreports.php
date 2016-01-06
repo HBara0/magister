@@ -60,7 +60,9 @@ if(!$core->input['action']) {
         if(isset($permissions[$type]) && !empty($permissions[$type])) {
             if(is_array($permissions[$type])) {
                 $permissions[$type] = array_filter($permissions[$type]);
-                $permissionsfilter .= ' AND '.$col.' IN ('.implode(',', $permissions[$type]).')';
+                if(!empty($permissions[$type])) {
+                    $permissionsfilter .= ' AND '.$col.' IN ('.implode(',', $permissions[$type]).')';
+                }
             }
         }
     }
