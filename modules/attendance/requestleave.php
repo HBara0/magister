@@ -47,7 +47,7 @@ if(!$core->input['action']) {
 
     if($show_onbehalf == true) {
         $is_supervisor = true;
-        $employees_list = parse_selectlist('uid', 1, $employees, $core->user['uid']);
+        $employees_list = parse_selectlist('uid', 1, $employees, $core->user['uid'], '', '', array('blankstart' => true));
         $requestonbehalf_field = '<tr><td width="18%">'.$lang->reqleaveonbehalf.'</td><td>'.$employees_list.'</td></tr>';
     }
     $employeeshift = $db->fetch_assoc($db->query("SELECT ws.* FROM ".Tprefix."employeesshifts es JOIN ".Tprefix."workshifts ws ON (ws.wsid=es.wsid) WHERE es.uid='{$core->user[uid]}' AND ((".TIME_NOW." BETWEEN es.fromDate AND es.toDate) OR es.fromDate IS NULL)"));
