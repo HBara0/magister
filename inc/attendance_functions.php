@@ -1568,6 +1568,7 @@ function operation_time_value($seconds) {
 
 function reinitialize_balance($user, $type, $prevbalance = null) {
     global $db;
+    date_default_timezone_set('UTC');
     $affiliate = $user->get_mainaffiliate();
     /* Temporary specific fix for time zone */
     date_default_timezone_set($affiliate->get_country()->defaultTimeZone);
