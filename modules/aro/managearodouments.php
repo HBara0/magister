@@ -482,8 +482,10 @@ if(!($core->input['action'])) {
                         $partiesinfo[$field.'_formatted'] = date($core->settings['dateformat'], $aropartiesinfo_obj->$field);
                     }
                 }
-                $partiesinfo['diffbtwpaymentdates'] = date_diff(date_create($partiesinfo['vendorEstDateOfPayment_output']), date_create($partiesinfo['intermedEstDateOfPayment_output']));
-                $partiesinfo['diffbtwpaymentdates'] = $partiesinfo['diffbtwpaymentdates']->format("%r%a");
+                if(!is_empty($partiesinfo['vendorEstDateOfPayment_output'], $partiesinfo['intermedEstDateOfPayment_output'])) {
+                    $partiesinfo['diffbtwpaymentdates'] = date_diff(date_create($partiesinfo['vendorEstDateOfPayment_output']), date_create($partiesinfo['intermedEstDateOfPayment_output']));
+                    $partiesinfo['diffbtwpaymentdates'] = $partiesinfo['diffbtwpaymentdates']->format("%r%a");
+                }
                 $fees = array('freight', 'bankFees', 'insurance', 'otherFees', 'legalization', 'courier');
                 foreach($fees as $fee) {
                     $partiesinfo['totalintermedfees'] +=$aropartiesinfo_obj->$fee;
@@ -1685,7 +1687,7 @@ else {
     elseif($core->input['action'] == 'perform_rejectarodocument') {
         $aro = new AroRequests($db->escape_string($core->input['toreject']));
         if(empty($core->input['rejectionmessage']['message'])) {
-            output_xml("<status>true</status><message>{$lang->fillallrequiredfields}</message>");
+            output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
             exit;
         }
         $aro = $aro->reject_aro($core->input);
