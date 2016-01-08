@@ -668,7 +668,7 @@ class AroRequests extends AbstractClass {
 
 
         $data['affiliate_output'] = $aroaffiliate_obj->get_displayname();
-        if($purchasteype_obj->isPurchasedByEndUser == 1) {
+        if($purchasteype_obj->needsIntermediary == 1) {
             if(is_object($intermed_aff)) {
                 $data['affiliate_output'] = $intermed_aff->get_displayname();
             }
