@@ -1568,6 +1568,7 @@ function operation_time_value($seconds) {
 
 function reinitialize_balance($user, $type, $prevbalance = null) {
     global $db;
+    date_default_timezone_set('UTC');
     $affiliate = $user->get_mainaffiliate();
     /* Temporary specific fix for time zone */
     date_default_timezone_set($affiliate->get_country()->defaultTimeZone);
@@ -1606,7 +1607,7 @@ function reinitialize_balance($user, $type, $prevbalance = null) {
             if($prevbalanceset == false) {
                 $existing_stat = LeavesStats::get_data(array('uid' => $user->get_id(), 'ltid' => $type), array('order' => array('sort' => 'ASC', 'by' => 'periodStart'), 'limit' => '0, 1'));
                 if(is_object($existing_stat)) {
-                    $leavepolicy = AffiliatesLeavesPolicies::get_data(array('affid' => $affiliate->affid, 'ltid' => $leavetype->ltid));
+                    $leavepolicy = AffiliatesLeavesPolicies::get_data(array('affid' => $affiliate->affid, 'ltid' => $type));
                     if(is_object($leavepolicy)) {
                         if(!empty($prevbalance)) {
                             if($prevbalance > $leavepolicy->maxAccumulateDays) {

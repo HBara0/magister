@@ -985,5 +985,17 @@ class Users extends AbstractClass {
         return $users;
     }
 
+    public function generate_apikey() {
+        return md5($this->data['uid'].$this->data['username'].$this->data['salt']);
+    }
+
+    public function save_apikey() {
+        global $db;
+        $key = $this->generate_apikey();
+        if($key) {
+            $db->update_query(self::TABLE_NAME, array('apiKey' => $key), self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
+        }
+    }
+
 }
 ?>

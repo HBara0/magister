@@ -5524,7 +5524,7 @@ CREATE TABLE `users` (
   `dateAdded` bigint(30) NOT NULL,
   `failedLoginAttempts` tinyint(2) unsigned NOT NULL DEFAULT '0',
   `lastAttemptTime` bigint(30) NOT NULL DEFAULT '0',
-  `defaultModule` varchar(20) NOT NULL,
+  `defaultModule` varchar(10) NOT NULL,
   `language` varchar(50) NOT NULL,
   `firstName` varchar(150) NOT NULL,
   `middleName` varchar(150) NOT NULL,
@@ -5553,12 +5553,12 @@ CREATE TABLE `users` (
   `poBox` int(10) DEFAULT NULL,
   `profilePicture` varchar(200) DEFAULT NULL,
   `newFilesNotification` tinyint(1) NOT NULL DEFAULT '0',
-  `timeZone` varchar(200) DEFAULT NULL,
-  `integrationOBId` varchar(32) DEFAULT NULL,
-  `birthdayIsPrivate` tinyint(1) NOT NULL DEFAULT '0',
+  `Budget_canFillLocalincome` tinyint(1) NOT NULL,
+  `birthdayIsPrivate` tinyint(1) NOT NULL,
+  `token` varchar(50) NOT NULL,
   PRIMARY KEY (`uid`),
   KEY `gid` (`gid`)
-) ENGINE=MyISAM AUTO_INCREMENT=354 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=141111112 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `users_passwordarchive`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;

@@ -507,6 +507,9 @@ class TravelManagerPlan {
         }
         foreach($segmentplan_objs as $segmentid => $segmentobj) {
             $sequence = $segmentobj->sequence;
+            if($sequence == 1) {
+                $segmentobj->fromDate = $this->get_leave()->fromDate;
+            }
             $delete_tabicon = '<span class="ui-icon ui-icon-close" id="deleteseg_'.$segmentid.'"role="presentation" title="Close">Remove Tab</span>';
 
             if($sequence == 1) {
@@ -695,7 +698,7 @@ class TravelManagerPlan {
                 $otherapprovedhotels = TravelManagerHotels::get_data('country='.$counrty_obj->coid.' AND city != '.$city_obj->ciid.' AND isApproved=1', array('returnarray' => true));
             }
             $leavedays = abs($segmentobj->toDate - $segmentobj->fromDate);
-            $leavedays = floor($leavedays / (60 * 60 * 24));
+            $leavedays = floor($leavedays / (60 * 60 * 24)) + 1;
             $hotelssegments_output .= $segmentobj->parse_hotels($sequence, $approvedhotels, $leavedays);
             if(is_array($otherapprovedhotels)) {
                 $hotelssegments_output.='<br /><a nohref="nohref" style="cursor:pointer;" id="countryhotels_'.$sequence.'_check"><div style="display:inline-block"><button type="button" class="button">Lookup Hotels In The Same Country</button></div></a>';
@@ -740,7 +743,7 @@ $("#anotheraff_otheraccomodations_'.$sequence.'_'.$otherhotel_checksum.'").hide(
             $currencies = array_filter(array_unique($val_currencies));
             $currencies_list = parse_selectlist('segment['.$sequence.'][tmhid]['.$otherhotel_checksum.'][currency]', '3', $currencies, '840', '', '', array('id' => 'currency_'.$sequence.'_'.$otherhotel_checksum.'_list'));
             $leavedays = abs($segmentobj->toDate - $segmentobj->fromDate);
-            $leavedays = floor($leavedays / (60 * 60 * 24));
+            $leavedays = floor($leavedays / (60 * 60 * 24)) + 1;
             eval("\$otherhotels_output = \"".$template->get('travelmanager_plantrip_segment_otherhotels')."\";");
             /* parse expenses --START */
             $segexpenses_ojbs = $segmentobj->get_expenses(array('simple' => false, 'returnarray' => true, 'order' => array('by' => 'tmeid', 'sort' => 'ASC')));

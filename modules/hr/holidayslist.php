@@ -65,7 +65,7 @@ if(!$core->input['action']) {
 
     $multipage_where = 'affid='.$affid;
     /* Perform inline filtering - START */
-    $months[0] = '';
+    $months[''] = '';
     for($i = 1; $i <= 12; $i++) {
         $months[$i] = $lang->{strtolower(date('F', mktime(0, 0, 0, $i, 1, 1970)))};
     }
@@ -74,7 +74,7 @@ if(!$core->input['action']) {
     array_unshift($days_number, '');
     $filters_config = array(
             'parse' => array('filters' => array('title', 'month', 'day', 'numDays', 'year'),
-                    'overwriteField' => array('month' => parse_selectlist('filters[month]', 3, $months, $core->input['filters']['month'], 0), 'day' => parse_selectlist('filters[day]', 3, array_combine(range(0, 31), $days_number), $core->input['filters']['day'], 0))
+                    'overwriteField' => array('month' => parse_selectlist('filters[month]', 3, $months, $core->input['filters']['month'], 0), 'day' => parse_selectlist('filters[day]', 3, array_combine($days_number, $days_number), $core->input['filters']['day'], 0))
             ),
             'process' => array(
                     'filterKey' => 'hid',
@@ -99,10 +99,10 @@ if(!$core->input['action']) {
     /* Perform inline filtering - END */
 
     $query = $db->query("SELECT * FROM ".Tprefix."holidays
-						WHERE affid={$affid}
-						{$filter_where}
-						ORDER BY {$sort_query}
-						LIMIT {$limit_start}, {$core->settings[itemsperlist]}");
+                                    WHERE affid={$affid}
+                                    {$filter_where}
+                                    ORDER BY isOnce ASC, {$sort_query}
+                                    LIMIT {$limit_start}, {$core->settings[itemsperlist]}");
 
 
     if($db->num_rows($query) > 0) {

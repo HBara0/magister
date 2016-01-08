@@ -119,7 +119,7 @@ if(!$core->input['action']) {
                 $approvedhotels = array();
             }
             $leavedays = abs($leave_obj->toDate - $leave_obj->fromDate);
-            $leavedays = floor($leavedays / (60 * 60 * 24));
+            $leavedays = floor($leavedays / (60 * 60 * 24)) + 1;
             $hotelssegments_output = $segmentobj->parse_hotels($sequence, $approvedhotels, $leavedays);
             if(is_object($destcounrty_obj)) {
                 $otherapprovedhotels = TravelManagerHotels::get_data('country='.$destcounrty_obj->coid.' AND city != '.$descity_obj->ciid.' AND isApproved=1', array('returnarray' => true));
@@ -339,7 +339,7 @@ else {
         }
         /* load approved hotels */
         $leavedays = abs(strtotime($core->input['arrivaltime']) - strtotime($core->input['departuretime']));
-        $leavedays = floor($leavedays / (60 * 60 * 24));
+        $leavedays = floor($leavedays / (60 * 60 * 24)) + 1;
         // $segmentobj = new TravelManagerPlanSegments();
 //        $segmentobj = TravelManagerPlanSegments::get_data(array('originCity' => $origincityid, 'destinationCity' => $destcityid));
 //        if(is_object($segmentobj)) {
