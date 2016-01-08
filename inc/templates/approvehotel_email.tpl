@@ -2,7 +2,7 @@
     <body>
         <table>
             <tr><td>
-                    <h1>{$lang->newhoteladded} : {$hotel['alias']}</h1></td>
+                    <h1 style="color:green">{$lang->newhoteladded} : {$hotel['alias']}</h1></td>
             </tr>
             <tr>
                 <td><h2>{$hotel['city']}/ {$hotel['country']}</h2></td>
@@ -35,16 +35,24 @@
                 <td>{$lang->distancefromoffice}</td><td>{$hotel['distance']}</td>
             </tr>
             <tr>
-                <td><a href="{$newhotel->get_editlink()}&referrer=approve"><button>{$lang->approve}</button></a></td>
+                <td><a style="font: bold 11px Arial;
+                       text-decoration: none;
+                       background-color: #EEEEEE;
+                       color: #333333;
+                       padding: 2px 6px 2px 6px;
+                       border-top: 1px solid #CCCCCC;
+                       border-right: 1px solid #333333;
+                       border-bottom: 1px solid #333333;
+                       border-left: 1px solid #CCCCCC;" href="{$newhotel->get_editlink()}&referrer=approve"><button>{$lang->approve}</button></a></td>
             </tr>
         </table>
         <div><h3>{$lang->hotelsinsamecountry}</h3></div>
-        <table>
+        <table style="width:75%;">
             <thead>
-            <th>{$lang->name}</th>
-            <th>{$lang->city} </th>
-            <th>{$lang->isapproved} </th>
-            <th>{$lang->averagepriceinusd}</th>
+            <th style="width:30%;">{$lang->name}</th>
+            <th style="width:15%;">{$lang->city} </th>
+            <th style="width:10%;">{$lang->isapproved} </th>
+            <th style="width:15%;">{$lang->averagepriceinusd}</th>
         </thead>
         <tbody>
             {$hotelsinsamecountrysection}
