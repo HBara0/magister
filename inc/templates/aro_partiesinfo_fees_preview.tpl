@@ -17,6 +17,5 @@
 </tr>
 <tr><td colspan="2" style="font-weight:bold;">{$lang->totalfees}</td>
     <td>{$partiesinfo[totalintermedfees]}
-        {$partiesinfo[totalfees]}
     </td>
 </tr>
