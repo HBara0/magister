@@ -14,7 +14,12 @@ class Sessions {
     public function __construct() {
         global $db, $core;
         $this->cleanup();
-
+        if($core->input['module'] == 'crm/addcalllog' && !empty($core->input['apiKey'])) {
+            $user = Users::get_data(array('apiKey' => $core->input['apiKey']), array('returnarray' => false, 'simple' => false));
+            if(is_object($user)) {
+                $this->uid = $user->uid;
+            }
+        }
         if(!isset($core->cookies['sid'])) {
             $this->create();
         }

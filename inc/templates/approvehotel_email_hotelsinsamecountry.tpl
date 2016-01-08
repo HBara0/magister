@@ -1,6 +1,6 @@
 <tr>
-    <td>{$otherhotel['name']}</td>
-    <td>{$otherhotel['city']}</td>
-    <td>{$otherhotel['isapproved']}</td>
-    <td>{$otherhotel['avgPrice']}</td>
+    <td style="width:30%;">{$otherhotel['name']}</td>
+    <td style="width:15%;">{$otherhotel['city']}</td>
+    <td style="width:10%;">{$otherhotel['isapproved']}</td>
+    <td style="width:15%;">{$otherhotel['avgPrice']}</td>
 </tr>

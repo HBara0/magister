@@ -184,4 +184,5 @@ $lang['type'] = 'Type';
 $lang['monthlyattendancelog'] = 'Monthly Attendance Log';
 $lang['listaddleavedays'] = 'List Additional Leave Days';
 $lang['tmplanneeded'] = 'Leave Is Missing A Travel Manager Plan. Please Create A Plan by Clicking On This Link';
+$lang['leavedoestnoexist'] = 'Leave Does Not Exit Anymore, It May Have Been Revoked';
 ?>

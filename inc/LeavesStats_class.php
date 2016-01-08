@@ -39,6 +39,7 @@ class LeavesStats extends AbstractClass {
 
     public function generate_periodbased($data) {
         /* Get required Info */
+        date_default_timezone_set('UTC');
         $user = new Users($data['uid'], false);
         $this->user_hrinfo = $user->get_hrinfo();
         $affiliate = $user->get_mainaffiliate();
@@ -152,8 +153,8 @@ class LeavesStats extends AbstractClass {
                 }
             }
             else {
-                $statdata['periodStart'] = mktime(0, 0, 0, 1, 1, $leave_year);
-                $statdata['periodEnd'] = mktime(23, 59, 59, 12, 31, $leave_year);
+                $statdata['periodStart'] = strtotime('1/1/'.$leave_year.' midnight UTC');
+                $statdata['periodEnd'] = strtotime('1/1/'.($leave_year + 1).' midnight UTC') - 1;
                 $statdata += $this->calculate_regularperiod($statdata['periodStart'], $leavepolicy);
             }
 

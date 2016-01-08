@@ -36,6 +36,9 @@ if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject) || $ignore_su
         $request_key = $db->escape_string($subject[1]);
     }
     $leave = $db->fetch_assoc($db->query("SELECT l.*, u.firstName, u.lastName, email FROM ".Tprefix."leaves l LEFT JOIN ".Tprefix."users u ON (u.uid=l.uid) WHERE l.requestKey='{$request_key}'"));
+    if(empty($leave['lid'])) {
+        error($lang->leavedoestnoexist, 'index.php?module=attendance/listleaves');
+    }
     $employee = new Users($leave['uid']);
     $leave_obj = new Leaves(array('lid' => $leave['lid']), false);
 
