@@ -23,11 +23,11 @@ if(!defined("DIRECT_ACCESS")) {
 if(!$core->input['action']) {
     if(!empty($core->input['num'])) {
         $phonenumber = $db->escape_string($core->input['num']);
-        $entities = Entities::get_data(" phone1= {$phonenumber} OR phone2 = {$phonenumber}", array('operators' => array('order' => 'companyName ASC', 'filter' => 'CUSTOMSQLSECURE'), 'returnarray' => true));
+        $entities = Entities::get_data(" (phone1= '{$phonenumber}' OR phone2 = '{$phonenumber}') AND isActive=1", array('operators' => array('order' => 'companyName ASC', 'filter' => 'CUSTOMSQLSECURE'), 'returnarray' => true));
 //        $entities = Entities::get_data('eid =1', array('returnarray' => true));
 //        $entities = Entities::get_data('eid IN (1,2,3,4,5)', array('returnarray' => true));
         if(!is_array($entities)) {
-            $representatives = Representatives::get_data(" phone = '{$phonenumber}' AND isActive=0", array('order' => 'name ASC', 'operators' => array('filter' => 'CUSTOMSQLSECURE'), 'returnarray' => true));
+            $representatives = Representatives::get_data(" phone = '{$phonenumber}' AND isActive=1", array('order' => 'name ASC', 'operators' => array('filter' => 'CUSTOMSQLSECURE'), 'returnarray' => true));
             if(is_array($representatives)) {
                 foreach($representatives as $representative) {
                     $entrep = $representative->get_entities();
