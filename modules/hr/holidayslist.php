@@ -65,7 +65,7 @@ if(!$core->input['action']) {
 
     $multipage_where = 'affid='.$affid;
     /* Perform inline filtering - START */
-    $months[0] = '';
+    $months[''] = '';
     for($i = 1; $i <= 12; $i++) {
         $months[$i] = $lang->{strtolower(date('F', mktime(0, 0, 0, $i, 1, 1970)))};
     }
@@ -99,10 +99,10 @@ if(!$core->input['action']) {
     /* Perform inline filtering - END */
 
     $query = $db->query("SELECT * FROM ".Tprefix."holidays
-						WHERE affid={$affid}
-						{$filter_where}
-						ORDER BY {$sort_query}
-						LIMIT {$limit_start}, {$core->settings[itemsperlist]}");
+                                    WHERE affid={$affid}
+                                    {$filter_where}
+                                    ORDER BY isOnce ASC, {$sort_query}
+                                    LIMIT {$limit_start}, {$core->settings[itemsperlist]}");
 
 
     if($db->num_rows($query) > 0) {

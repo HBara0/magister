@@ -128,7 +128,8 @@ class AroRequests extends AbstractClass {
     }
 
     private function set_documentsequencenumber($doc_sequencedata) {
-        $documentseq_obj = AroDocumentsSequenceConf::get_data(array('affid' => $doc_sequencedata['affid'], 'ptid' => $doc_sequencedata['orderType']), array('returnarray' => false, 'simple' => false, 'operators' => array('affid' => 'in', 'ptid' => 'in')));
+        $filter = 'affid = '.$doc_sequencedata['affid'].' AND ptid = '.$doc_sequencedata['orderType'].' AND ('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
+        $documentseq_obj = AroDocumentsSequenceConf::get_data($filter, array('returnarray' => false, 'simple' => false));
         if(is_object($documentseq_obj)) {
             $nextNumber = $doc_sequencedata['nextnumid']['nextnum'];
             $documentseq_obj->set(array('nextNumber' => $nextNumber));
@@ -641,7 +642,6 @@ class AroRequests extends AbstractClass {
         $currency_obj = Currencies::get_data(array('numCode' => $this->currency));
         $data['currency'] = $currency_obj->name;
         $data['purchasetype_output'] = $purchasteype_obj->get_displayname();
-        $data['affiliate_output'] = $aroaffiliate_obj->get_displayname();
 
         $partiesinfo_obj = AroRequestsPartiesInformation::get_data(array('aorid' => $this->aorid));
         if(is_object($partiesinfo_obj)) {
@@ -663,6 +663,14 @@ class AroRequests extends AbstractClass {
             }
             if(is_object($vendor)) {
                 $data['vendor_output'] = $vendor->get_displayname();
+            }
+        }
+
+
+        $data['affiliate_output'] = $aroaffiliate_obj->get_displayname();
+        if($purchasteype_obj->needsIntermediary == 1) {
+            if(is_object($intermed_aff)) {
+                $data['affiliate_output'] = $intermed_aff->get_displayname();
             }
         }
 

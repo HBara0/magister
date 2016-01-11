@@ -200,7 +200,18 @@ $(function() {
                     else {
                         $("input[id='parmsfornetmargin_" + warehousing_fields[i] + "']").removeAttr("readonly");
                         $("input[id='parmsfornetmargin_" + warehousing_fields[i] + "'],select[id ='parmsfornetmargin_" + warehousing_fields[i] + "']").removeAttr("disabled");
+
                     }
+                }
+                if($("input[id='parmsfornetmargin_warehousing_disabled']").val() == 0) {
+                    $("input[id='partiesinfo_intermed_ptAcceptableMargin']").val('');
+                    $("input[id='partiesinfo_intermed_ptAcceptableMargin']").attr("readonly", "true");
+                    $("input[id='pickDate_intermed_promiseofpayment']").val('');
+                    $("input[id='pickDate_intermed_promiseofpayment']").attr("readonly", "true");
+                }
+                else {
+                    $("input[id='partiesinfo_intermed_ptAcceptableMargin']").removeAttr("readonly");
+                    $("input[id='pickDate_intermed_promiseofpayment']").removeAttr("readonly");
                 }
             });
         }

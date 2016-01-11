@@ -20,7 +20,6 @@ if(!($core->input['action'])) {
     if(isset($core->input['id']) && !empty($core->input['id'])) {
         $document_sequenceobj = new AroDocumentsSequenceConf($core->input['id'], false);
         $documentsequence = $document_sequenceobj->get();
-
         $documentsequence['effectiveTo_output'] = date($core->settings['dateformat'], $documentsequence['effectiveTo']);
         $documentsequence['effectiveFrom_output'] = date($core->settings['dateformat'], $documentsequence['effectiveFrom']);
 
@@ -32,7 +31,7 @@ if(!($core->input['action'])) {
                 switch($field) {
                     case 'createdOn':
                     case 'modifiedOn':
-                        $documentsequence[$field.'_output'] = date($core->settings['dateformat'], $documentsequence[$field]);
+                        $documentsequence[$field.'_output'] = date($core->settings['dateformat'].' '.$core->settings['timeformat'], $documentsequence[$field]);
                         break;
                     default:
                         $user = new Users($documentsequence[$field]);
