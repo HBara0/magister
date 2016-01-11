@@ -12,7 +12,7 @@ require_once '../inc/init.php';
 $lang = new Language('english');
 $lang->load('aro_meta');
 
-$arorequests = AroRequests::get_data(array('isFinalized' => 1, 'isApproved' => 0), array('returnarray' => true));
+$arorequests = AroRequests::get_data(array('isFinalized' => 1, 'isApproved' => 0, 'isRejected' => 0), array('returnarray' => true));
 if(is_array($arorequests)) {
     foreach($arorequests as $arorequest) {
         $sequence = 1;
