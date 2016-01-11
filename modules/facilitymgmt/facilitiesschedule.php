@@ -60,19 +60,23 @@ else {
         $reservation['toDate'] = $date + 1;
         $reservation['toTime_output'] = trim(preg_replace('/(AM|PM)/', '', date('H:i', $date + 1)));
         $reservation['toDate_output'] = date($core->settings['dateformat'], $date + 1);
+        $facinputname = 'reserve[fmfid]';
+        $facilityid = '';
+        $facilityname = '';
+        $extra_inputids = ',pickDate_from,pickDate_to,altpickTime_to,altpickTime_from';
+        eval("\$facilityreserve = \"".$template->get('facility_reserveautocomplete')."\";");
         eval("\$reserve = \"".$template->get('popup_reservefacility')."\";");
         output($reserve);
     }
     else if($core->input['action'] == 'fetchevents') {
-        $facilities = FacilityMgmtFacilities::get_data(array('isActive' => 1), array('returnarray' => true, 'simple' => fales));
-        if(is_array($facilities)) {
-            foreach($facilities as $facilitiy) {
-                $reservations = FacilityMgmtReservations::get_data(array('fmfid' => $facilitiy->fmfid), array('returnarray' => true, 'simple' => false));
-                if(is_array($reservations)) {
-                    foreach($reservations as $reservation) {
-                        $reserved_data[] = array('title' => $facilitiy->name, 'start' => date(DATE_ATOM, $reservation->fromDate), 'end' => date(DATE_ATOM, $reservation->toDate), 'color' => '#'.$facilitiy->idColor);
-                    }
+        $reservations = FacilityMgmtReservations::get_data(array(), array('returnarray' => true, 'simple' => false));
+        if(is_array($reservations)) {
+            foreach($reservations as $reservation) {
+                $facilitiy = $reservation->get_facility();
+                if($facilitiy->isActive != 1) {
+                    continue;
                 }
+                $reserved_data[] = array('title' => $facilitiy->name, 'start' => date(DATE_ATOM, $reservation->fromDate), 'end' => date(DATE_ATOM, $reservation->toDate), 'color' => $facilitiy->idColor);
             }
         }
         echo(json_encode($reserved_data));
@@ -91,6 +95,10 @@ else {
             case 0:
                 output_xml('<status>true</status><message>'.$lang->successfullysaved.'<![CDATA[<script>$("div[id^=\'popup_\']").dialog("close").remove(); $(\'#calendar\').fullCalendar("refetchEvents")</script>]]></message>');
                 break;
+            case 5:
+                $error_output = $errorhandler->get_errors_inline();
+                output_xml("<status>false</status><message>{$lang->errorsaving}<![CDATA[<br/>{$error_output}]]></message>");
+                exit;
             default:
                 output_xml('<status>false</status><message>'.$lang->errorsaving.'</message>');
                 break;
