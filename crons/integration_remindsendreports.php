@@ -19,7 +19,7 @@ if($_REQUEST['authkey'] == 'kia5ravbXop09dj4a!xhegalhj') {
     $affiliates_addrecpt = array(
             19 => array(398),
             22 => array(248,),
-            23 => array(416),
+            23 => array(416, 448),
             1 => array(434, 356),
             21 => array(158, 63),
 //            27 => array(67),
