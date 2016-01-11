@@ -80,6 +80,50 @@
                             });
 
                         },
+                        eventClick: function(event, jsEvent, view) {
+
+                            $.ajax({
+                                type: 'post',
+                                url: rootdir + "?module=facilitymgmt/facilitiesschedule&action=get_editreservation",
+                                data: "id=" + event.id,
+                                beforeSend: function() {
+                                    $("body").append("<div id='modal-loading'><span  style='display:block; width:100px; height: 100%; margin: 0 auto;'><img  src='./images/loader.gif'/></span></div>");
+                                    $("#modal-loading").dialog({
+                                        height: 150, modal: true, closeOnEscape: false, title: 'Loading...', resizable: false, minHeight: 0,
+                                    });
+                                },
+                                complete: function() {
+                                    $("#modal-loading").dialog("close").remove();
+                                },
+                                success: function(returnedData) {
+                                    $(".contentContainer").append(returnedData);
+                                    $("div[id^='popup_']").dialog({
+                                        bgiframe: true,
+                                        closeOnEscape: true,
+                                        modal: true,
+                                        width: 600,
+                                        minWidth: 600,
+                                        maxWidth: 800,
+                                        zIndex: 1000,
+                                        close: function() {
+                                            $(this).find("form").each(function() {
+                                                this.reset();
+                                            });
+                                            $(this).find("span[id$='_Validation']").empty();
+                                            $(this).find("span[id$='_Results']").empty();
+                                            $(this).remove();
+                                        }
+                                    });
+                                    /* Make the parent dialog overflow as visible to completely display the  customer inline search results */
+                                    $(".ui-dialog,div[id^='popup_']").css("overflow", "visible");
+                                    $("input[id='hide_popupBox']").click(function() {
+                                        $("#popupBox").hide("fast");
+                                    });
+                                }
+
+                            });
+
+                        }
                     });
                     setInterval(function() {
                         $(obj).fullCalendar('refetchEvents')

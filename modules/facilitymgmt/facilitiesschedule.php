@@ -63,6 +63,7 @@ else {
         $facinputname = 'reserve[fmfid]';
         $facilityid = '';
         $facilityname = '';
+        $display_infobox = 'style="display:none"';
         $extra_inputids = ',pickDate_from,pickDate_to,altpickTime_to,altpickTime_from';
         eval("\$facilityreserve = \"".$template->get('facility_reserveautocomplete')."\";");
         eval("\$reserve = \"".$template->get('popup_reservefacility')."\";");
@@ -76,7 +77,7 @@ else {
                 if($facilitiy->isActive != 1) {
                     continue;
                 }
-                $reserved_data[] = array('title' => $facilitiy->name, 'start' => date(DATE_ATOM, $reservation->fromDate), 'end' => date(DATE_ATOM, $reservation->toDate), 'color' => $facilitiy->idColor);
+                $reserved_data[] = array('id' => $reservation->{FacilityMgmtReservations::PRIMARY_KEY}, 'title' => $facilitiy->name, 'start' => date(DATE_ATOM, $reservation->fromDate), 'end' => date(DATE_ATOM, $reservation->toDate), 'color' => $facilitiy->idColor);
             }
         }
         echo(json_encode($reserved_data));
@@ -103,5 +104,71 @@ else {
                 output_xml('<status>false</status><message>'.$lang->errorsaving.'</message>');
                 break;
         }
+    }
+    else if($core->input['action'] == 'get_editreservation') {
+        if(!isset($core->input['id'])) {
+            return false;
+        }
+        $id = intval($core->input['id']);
+        $reserve = new FacilityMgmtReservations($id);
+        if(is_object($reserve)) {
+            $facilitiy = $reserve->get_facility();
+            $facilityid = $facilitiy->fmfid;
+            $facilityname = $facilitiy->get_displayname();
+            $reservedby = $reserve->get_reservedBy()->get_displayname();
+            if($core->user['uid'] == $reserve->reservedBy && $reserve->mtid == 0) {
+                $display_infobox = 'style="display:none"';
+                $statuses = FacilityManagementReserveType::get_data(null, array('returnarray' => true));
+                if(is_array($statuses)) {
+                    $statuslist = parse_selectlist('reserve[status]', '1', $statuses, 2, $reserve->status, '', array('id' => 'status'));
+                }
+                $purposes = FacilityManagementReservePurpose::get_data(null, array('returnarray' => true));
+                if(is_array($purposes)) {
+                    foreach($purposes as $purpose) {
+                        if($purpose->alias == $reserve->purpose) {
+                            $selected = 'selected="selected"';
+                        }
+                        if($purpose->fmrt == 0) {
+                            $purposeoptions .= '<option '.$selected.' value="'.$purpose->alias.'" >'.$purpose->get_displayname().'</option>';
+                        }
+                        else if($purpose->fmrt == 2) {
+                            $purposeoptions .= '<option '.$selected.' data-purpose="purpose_'.$purpose->fmrt.'" value="'.$purpose->alias.'" >'.$purpose->get_displayname().'</option>';
+                        }
+                        else {
+                            $purposeoptions .= '<option '.$selected.' data-purpose="purpose_'.$purpose->fmrt.'" value="'.$purpose->alias.'" style="display:none">'.$purpose->get_displayname().'</option>';
+                        }
+                        $selected = '';
+                    }
+                }
+                $reservation['fromDate'] = $reserve->fromDate;
+                $reservation['fromTime_output'] = trim(preg_replace('/(AM|PM)/', '', date('H:i', $reserve->fromDate)));
+                $reservation['fromDate_output'] = date($core->settings['dateformat'], $reserve->fromDate);
+                $reservation['toDate'] = $reserve->toDate;
+                $reservation['toTime_output'] = trim(preg_replace('/(AM|PM)/', '', date('H:i', $reserve->toDate)));
+                $reservation['toDate_output'] = date($core->settings['dateformat'], $reserve->toDate);
+                $facinputname = 'reserve[fmfid]';
+                $extra_inputids = ',pickDate_from,pickDate_to,altpickTime_to,altpickTime_from';
+                eval("\$facilityreserve = \"".$template->get('facility_reserveautocomplete')."\";");
+            }
+            else {
+                $reservation['fromDate_output'] = date($core->settings['dateformat'], $reserve->fromDate).' , '.trim(preg_replace('/(AM|PM)/', '', date('H:i', $reserve->fromDate)));
+                $reservation['toDate_output'] = date($core->settings['dateformat'], $reserve->toDate).' , '.trim(preg_replace('/(AM|PM)/', '', date('H:i', $reserve->toDate)));
+                $show_status = 'style="display:none"';
+                if(!empty($reserve->status)) {
+                    $reservetype = new FacilityManagementReserveType(intval($reserve->status));
+                    $reservation['status_output'] = $reservetype->get_displayname();
+                    $show_status = '';
+                }
+                $show_purpose = 'style="display:none"';
+                if(!empty($reserve->purpose)) {
+                    $reservepurpose = FacilityManagementReservePurpose::get_data(array('alias' => $reserve->purpose));
+                    $reservation['purpose_output'] = $reservepurpose->get_displayname();
+                    $show_purpose = '';
+                }
+                $display_form = 'style="display:none"';
+            }
+        }
+        eval("\$reserve = \"".$template->get('popup_reservefacility')."\";");
+        output($reserve);
     }
 }
