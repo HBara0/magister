@@ -82,7 +82,7 @@ if(!$core->input['action']) {
     if($core->input['preview'] == 1) {
         $display_fin = $hide_close = 'style="display:none"';
     }
-
+    $hideleavedtls_link = ';display:none;';
     eval("\$leave_details = \"".$template->get('travelmanager_viewlpan_leavedtls')."\";");
     eval("\$content = \"".$template->get('travelmanager_viewlpan_content')."\";");
 
@@ -162,6 +162,7 @@ else {
                 unset($transportaionsegment_fields, $transportaion_fields_title);
             }
         }
+        $hideleavedtls_link = ';display:none;';
         eval("\$leave_details = \"".$template->get('travelmanager_viewlpan_leavedtls')."\";");
 
         eval("\$travelmanager_viewplan = \"".$template->get('travelmanager_viewlpanemail')."\";");
@@ -276,6 +277,7 @@ else {
                 }
             }
         }
+        redirect('index.php?module=travelmanager/listplans', 1, $lang->successfullysaved);
     }
 }
 ?>
