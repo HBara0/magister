@@ -355,6 +355,9 @@ class Surveys {
                     $stsid = $db->last_id();
                     foreach($section['questions'] as $key => $question) {
                         $hasmultiplevalues = 0;
+                        if(empty($question['question'])) {
+                            continue;
+                        }
                         $type_obj = new SurveysQuestionTypes($question['type']);
                         if($type_obj->isMatrix == 1) {
                             $temp_choicevalues = $question['choices'];
@@ -1102,7 +1105,7 @@ class Surveys {
         $question_output_requiredattr = '';
         $rowclass = '';
         if(!empty($response)) {
-            $disabled = 'disbaled=""disabled';
+            $disabled = ' disbaled="disabled"';
         }
         if($question['isRequired'] == 1) {
             $question_output_required = '<span class="red_text">*</span>';
