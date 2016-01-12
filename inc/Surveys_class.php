@@ -66,6 +66,7 @@ class Surveys {
         unset($data['action'], $data['module']);
 
         /*  Sanitize inputs - START */
+        $data['surveyHeader'] = $core->sanitize_inputs($data['surveyHeader'], array('method' => 'striponly', 'removetags' => false));
         $data['subject'] = $core->sanitize_inputs($data['subject'], array('removetags' => true));
         $data['description'] = $core->sanitize_inputs($data['description'], array('method' => 'striponly', 'removetags' => true, 'allowable_tags' => '<blockquote><b><strong><em><ul><ol><li><p><br><strike><del><pre><dl><dt><dd><sup><sub><i><img><cite><small>'));
         $data['customInvitationSubject'] = $core->sanitize_inputs($data['customInvitationSubject'], array('removetags' => true));
@@ -355,6 +356,9 @@ class Surveys {
                     $stsid = $db->last_id();
                     foreach($section['questions'] as $key => $question) {
                         $hasmultiplevalues = 0;
+                        if(empty($question['question'])) {
+                            continue;
+                        }
                         $type_obj = new SurveysQuestionTypes($question['type']);
                         if($type_obj->isMatrix == 1) {
                             $temp_choicevalues = $question['choices'];
