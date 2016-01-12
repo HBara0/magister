@@ -750,6 +750,9 @@ class AroRequests extends AbstractClass {
         $mailer->send();
         if($mailer->get_status() === true) {
             $data = array('emailRecievedDate' => TIME_NOW);
+            if($firstapprover->firstEmailRecievedDate == 0) {
+                $data['firstEmailRecievedDate'] = TIME_NOW;
+            }
             $db->update_query('aro_requests_approvals', $data, 'araid='.$firstapprover->araid);
 
 
@@ -844,6 +847,9 @@ class AroRequests extends AbstractClass {
             $mailer->send();
             if($mailer->get_status() === true) {
                 $data = array('emailRecievedDate' => TIME_NOW);
+                if($approval->firstEmailRecievedDate == 0) {
+                    $data['firstEmailRecievedDate'] = TIME_NOW;
+                }
                 $db->update_query('aro_requests_approvals', $data, 'araid='.$approval->araid);
             }
         }
