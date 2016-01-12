@@ -8,9 +8,10 @@ class FacilityMgmtReservations extends AbstractClass {
     const PRIMARY_KEY = 'fmrid';
     const TABLE_NAME = 'facilitymgmt_reservations';
     const SIMPLEQ_ATTRS = '*';
-    const UNIQUE_ATTRS = 'mtid,fmfid';
+    const UNIQUE_ATTRS = 'mtid,fmfid,fromDate,toDate';
     const CLASSNAME = __CLASS__;
     const DISPLAY_NAME = '';
+    const REQUIRED_ATTRS = 'fmfid,fromDate,toDate';
 
     /* -------Definiton-END-------- */
     /* -------FUNCTIONS-START-------- */
@@ -23,7 +24,10 @@ class FacilityMgmtReservations extends AbstractClass {
         if(empty($data['reservedBy'])) {
             $data['reservedBy'] = $core->user['uid'];
         }
-
+        if(!$this->validate_requiredfields($data)) {
+            $this->errorcode = 5;
+            return $this;
+        }
         $table_array = array(
                 'fmfid' => $data['fmfid'],
                 'fromDate' => $data['fromDate'],
@@ -55,6 +59,10 @@ class FacilityMgmtReservations extends AbstractClass {
         global $db, $core;
         if(empty($data['reservedBy'])) {
             $data['reservedBy'] = $core->user['uid'];
+        }
+        if(!$this->validate_requiredfields($data)) {
+            $this->errorcode = 5;
+            return $this;
         }
         if(is_array($data)) {
             $update_array['fmfid'] = $data['fmfid'];
@@ -145,6 +153,28 @@ class FacilityMgmtReservations extends AbstractClass {
             return true;
         }
         return false;
+    }
+
+    public function validate_requiredfields($data) {
+        global $errorhandler;
+        $required_fields = self::REQUIRED_ATTRS;
+        if(!empty($required_fields)) {
+            $required_fields = explode(',', $required_fields);
+            if(is_array($required_fields) && is_array($data)) {
+                foreach($required_fields as $field) {
+                    if(!isset($data[$field]) || empty($data[$field])) {
+                        $errorhandler->record('Required fields', $field);
+                        return false;
+                    }
+                }
+            }
+        }
+        if($data['fromDate'] > $data['toDate']) {
+            $errorhandler->record('Wrong dates', $field);
+            return false;
+        }
+
+        return true;
     }
 
 }
