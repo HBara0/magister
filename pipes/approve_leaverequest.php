@@ -125,7 +125,6 @@ if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject) || $ignore_su
                         }
                     }
                     // eval("\$leave_details = \"".$template->get('travelmanager_viewlpan_leavedtls')."\";");
-                    $leave_details = '<br/><a target="_blank" href="'.DOMAIN.'/index.php?module=attendance/viewleave&id='.$leave_obj->lid.'">'.$lang->viewleave.'</a>';
                     eval("\$travelmanager_viewplan = \"".$template->get('travelmanager_viewlpanemail')."\";");
 
                     //$leave = $leave_obj->get();
