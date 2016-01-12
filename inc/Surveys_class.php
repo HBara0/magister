@@ -1220,7 +1220,6 @@ class Surveys {
                             $rowclass = 'unapproved';
                         }
                     }
-                    print_r($response);
                     $question_output .= '<div class="'.$rowclass.'" style="margin: 5px 20px; 5px; 20px;">'.$response['choice'].'</div>';
                 }
                 else {
