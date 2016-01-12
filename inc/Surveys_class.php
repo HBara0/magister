@@ -1253,6 +1253,7 @@ class Surveys {
                 }
                 break;
             case 'matrix':
+                unset($checked);
                 $question_output .= '<div style="margin: 5px 20px; 5px; 20px;"><table class="datatable">';
                 $question_output .= '<tr><th style="width:40%;"><input type="hidden" name="answer[options]['.$question['stqid'].'][isMatrix]" value="1"/></th>';
                 foreach($question['choicevalues'] as $choicevalue) {
@@ -1260,13 +1261,14 @@ class Surveys {
                 }
                 $question_output .='</tr>';
                 if(is_array($response)) {
-                    $matriceq_responses = SurveysResponses::get_data(array('stqid' => $response['stqid']), array('returnarray' => true));
+                    $matriceq_responses = SurveysResponses::get_data(array('stqid' => $response['stqid'], 'identifier' => $response['identifier']), array('returnarray' => true));
                     if(is_array($matriceq_responses)) {
                         foreach($matriceq_responses as $singleresponse) {
                             $checked[$singleresponse->response][$singleresponse->responseValue] = true;
                         }
                     }
                 }
+
                 foreach($question['choices'] as $choicekey => $choice) {
                     $question_output .='<tr><th>'.$choice.'</th>';
                     foreach($question['choicevalues'] as $valuekey => $choicevalue) {
