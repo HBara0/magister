@@ -201,9 +201,9 @@ class SurveysTemplates extends AbstractClass {
                 break;
             case 'matrix':
                 $question_output .= '<div style="margin: 5px 20px; 5px; 20px;"><table class="datatable">';
-                $question_output .= '<tr><th><input type="hidden" name="answer[options]['.$question['stqid'].'][isMatrix]" value="1"/></th>';
+                $question_output .= '<tr><th style="width:40%;"><input type="hidden" name="answer[options]['.$question['stqid'].'][isMatrix]" value="1"/></th>';
                 foreach($question['choicevalues'] as $choicevalue) {
-                    $question_output .= '<th style="text-align:left;">'.$choicevalue.'</th>';
+                    $question_output .= '<th style="text-align:left; width:'.((100 - 40) / count($question['choicevalues'])).'%;"">'.$choicevalue.'</th>';
                 }
                 $question_output .='</tr>';
                 foreach($question['choices'] as $choicekey => $choice) {
@@ -213,7 +213,7 @@ class SurveysTemplates extends AbstractClass {
                     }
                     $question_output .='</tr>';
                 }
-                $question_output .='</table>';
+                $question_output .='</table></div>';
                 break;
             default:
                 return false;
