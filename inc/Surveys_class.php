@@ -689,7 +689,7 @@ class Surveys {
                         $answer = 1;
                         $corrects++;
                     }
-                    $this->save_single_response(array('id' => $id, 'value' => intval($value), 'comments' => $answers['comments'][$id][$vid], 'identifier' => $identifier, 'isCorrect' => $answer));
+                    $this->save_single_response(array('id' => $id, 'value' => $value, 'comments' => $answers['comments'][$id][$vid], 'identifier' => $identifier, 'isCorrect' => $answer));
                 }
             }
             /* Set contribution as done */
@@ -1106,7 +1106,7 @@ class Surveys {
         $question_output_requiredattr = '';
         $rowclass = '';
         if(!empty($response)) {
-            $disabled = 'disbaled=""disabled';
+            $disabled = ' disbaled="disabled"';
         }
         if($question['isRequired'] == 1) {
             $question_output_required = '<span class="red_text">*</span>';

@@ -35,6 +35,9 @@ if(!$core->input['action']) {
             $insupplier = implode(',', $core->user['suppliers']['eid']);
             $supplier_where = " eid IN ({$insupplier}) AND";
         }
+        if(empty($supplier_where)) {
+            $supplier_where = " eid = 0 ";
+        }
     }
     else {
         $supplier_where = " type='s' AND";

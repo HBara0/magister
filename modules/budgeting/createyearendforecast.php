@@ -30,8 +30,11 @@ if(!$core->input['action']) {
     if($core->usergroup['canViewAllSupp'] == 0) {
         if(is_array($core->user['suppliers']['eid'])) {
             $insupplier = implode(',', $core->user['suppliers']['eid']);
+            $supplier_where = " eid IN ({$insupplier})";
         }
-        $supplier_where = " eid IN ({$insupplier})";
+        if(empty($supplier_where)) {
+            $supplier_where = " eid = 0 ";
+        }
     }
     else {
         $supplier_where = " type='s'";
