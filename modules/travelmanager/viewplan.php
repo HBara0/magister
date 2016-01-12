@@ -277,6 +277,7 @@ else {
                 }
             }
         }
+        redirect('index.php?module=travelmanager/listplans', 1, $lang->successfullysaved);
     }
 }
 ?>
