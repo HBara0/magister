@@ -325,4 +325,13 @@ class SurveysTemplates extends AbstractClass {
         return false;
     }
 
+    public function delete() {
+        $sections = SurveysTplSections::get_data(array('stid' => $this->data['stid']), array('returnarray' => true));
+        if(is_array($sections)) {
+            foreach($sections as $section) {
+                $section->delete();
+            }
+        }
+    }
+
 }
