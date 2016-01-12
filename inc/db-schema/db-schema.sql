@@ -474,14 +474,16 @@ DROP TABLE IF EXISTS `aro_requests_approvals`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `aro_requests_approvals` (
   `araid` int(10) NOT NULL AUTO_INCREMENT,
-  `arid` int(10) NOT NULL,
   `aorid` int(10) NOT NULL,
   `uid` int(10) NOT NULL,
   `isApproved` tinyint(1) NOT NULL,
   `timeApproved` bigint(30) NOT NULL,
-  `sequence` tinyint(1) NOT NULL,
+  `sequence` int(10) NOT NULL,
+  `position` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `emailRecievedDate` bigint(30) NOT NULL,
+  `firstEmailRecievedDate` bigint(30) NOT NULL,
   PRIMARY KEY (`araid`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=26 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `aro_requests_curstksupervision`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
