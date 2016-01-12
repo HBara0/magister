@@ -325,4 +325,21 @@ class SurveysTemplates extends AbstractClass {
         return false;
     }
 
+    public function delete() {
+        global $db;
+        $query = $db->query("SELECT * FROM ".Tprefix."surveys s
+                            WHERE stid=".$this->data['stid']);
+        if($db->num_rows($query) > 0) {
+            while($survey = $db->fetch_assoc($query)) {
+                return false;
+            }
+        }
+        $sections = SurveysTplSections::get_data(array('stid' => $this->data['stid']), array('returnarray' => true));
+        if(is_array($sections)) {
+            foreach($sections as $section) {
+                $section->delete();
+            }
+        }
+    }
+
 }

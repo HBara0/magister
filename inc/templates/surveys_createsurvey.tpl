@@ -5,7 +5,7 @@
         <script language="javascript">
             $(function() {
                 $(document).on('change', "input[name^='isExternal']", function() {
-                    $("#internalinvitations_row, #externalinvitations_row").toggle();
+                    $("#internalinvitations_row, #externalinvitations_row, #externalinvitations_row2").toggle();
                     if($(this).val() == 0) {
                         $("input[id^='anonymousFilling'], input[id^='isPublicResults'], input[id^='isPublicFill']").attr("disabled", false);
                     }
@@ -153,6 +153,10 @@
                     <tr id="externalinvitations_row" style="display:none">
                         <td>{$lang->externalinvitations}</td>
                         <td><textarea name="externalinvitations" cols="50" rows="5"></textarea></td>
+                    </tr>
+                    <tr id="externalinvitations_row2" style="display:none">
+                        <td>{$lang->surveyheaderurl}</td>
+                        <td><input style="width:40%" type="text" name="surveyHeader"></td>
                     </tr>
                     <tr>
                         <td colspan="2" class="thead" style="margin-top:10px;">{$lang->customizeinvitationemail} <a href="#customizeinvitationmessage" onClick="$('#customizeinvitationmessage').fadeToggle();">...</a></td>

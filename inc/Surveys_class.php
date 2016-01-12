@@ -66,6 +66,7 @@ class Surveys {
         unset($data['action'], $data['module']);
 
         /*  Sanitize inputs - START */
+        $data['surveyHeader'] = $core->sanitize_inputs($data['surveyHeader'], array('method' => 'striponly', 'removetags' => false));
         $data['subject'] = $core->sanitize_inputs($data['subject'], array('removetags' => true));
         $data['description'] = $core->sanitize_inputs($data['description'], array('method' => 'striponly', 'removetags' => true, 'allowable_tags' => '<blockquote><b><strong><em><ul><ol><li><p><br><strike><del><pre><dl><dt><dd><sup><sub><i><img><cite><small>'));
         $data['customInvitationSubject'] = $core->sanitize_inputs($data['customInvitationSubject'], array('removetags' => true));
@@ -688,7 +689,7 @@ class Surveys {
                         $answer = 1;
                         $corrects++;
                     }
-                    $this->save_single_response(array('id' => $id, 'value' => intval($value), 'comments' => $answers['comments'][$id][$vid], 'identifier' => $identifier, 'isCorrect' => $answer));
+                    $this->save_single_response(array('id' => $id, 'value' => $value, 'comments' => $answers['comments'][$id][$vid], 'identifier' => $identifier, 'isCorrect' => $answer));
                 }
             }
             /* Set contribution as done */

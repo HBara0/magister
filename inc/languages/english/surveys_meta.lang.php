@@ -89,4 +89,5 @@ $lang['violation'] = 'One or more inputs you made violate the requirements';
 $lang['wrongemailformat'] = 'Wrong Email Format';
 $lang['rows'] = 'Rows';
 $lang['customizeinvitationemail'] = 'Customize Invitation E-mail';
+$lang['surveyheaderurl'] = 'Survey Header URL';
 ?>
