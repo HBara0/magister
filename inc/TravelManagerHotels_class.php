@@ -117,8 +117,6 @@ class TravelManagerHotels extends AbstractClass {
             }
 
             eval("\$emailmessage = \"".$template->get('approvehotel_email')."\";");
-            print($emailmessage);
-            exit;
             $mailer = new Mailer();
             $mailer = $mailer->get_mailerobj();
             $mailer->set_to(array_unique($to));

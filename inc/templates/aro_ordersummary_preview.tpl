@@ -52,7 +52,7 @@
                 <td></td> <td {$ordersummarydisplay[thirdcolumn_display]}></td>
             </tr>
             <tr style="background-color: #D0F6AA">
-                <td class="altrow">$lang->feespaidbyintermed}</td>
+                <td class="altrow">{$lang->feespaidbyintermed}</td>
                 <td style="text-align: right;">{$aroordersummary->totalIntermedFeesUsd}</td>
                 <td></td> <td {$ordersummarydisplay[thirdcolumn_display]}></td>
             </tr>
@@ -89,7 +89,7 @@
                 <td {$ordersummarydisplay[thirdcolumn_display]}</td>
             </tr>
             <tr style="font-weight: bold;background-color: #D0F6AA">
-                <td class="altrow">{$lang->total} {$lang->globalnetmargin} %</td>
+                <td class="altrow">{$lang->total} {$lang->globalnetmarginperc} %</td>
                 <td style="text-align:center;" colspan="2">{$aroordersummary->globalNetmarginPerc}%</td>
                 <td {$ordersummarydisplay[thirdcolumn_display]}</td>
             </tr>

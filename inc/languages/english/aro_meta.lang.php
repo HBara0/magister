@@ -140,6 +140,7 @@ $lang['feespaidbyintermed'] = 'Fees Paid by Intermed (USD)';
 $lang['feespaidbyintermeduom'] = 'Fees Paid by Intermed per UOM (USD)';
 $lang['total'] = 'Total';
 $lang['globalnetmargin'] = 'Global Net Margin (USD)';
+$lang['globalnetmarginperc'] = 'Global Net Margin ';
 $lang['totalquantity'] = 'Total Quantity';
 $lang['totalquantityinuom'] = 'Total Quantity in UOM';
 $lang['totalintermedfees'] = 'Total fees Paid by Intermed in Buying Curreny';

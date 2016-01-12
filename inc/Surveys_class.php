@@ -69,7 +69,7 @@ class Surveys {
         $data['subject'] = $core->sanitize_inputs($data['subject'], array('removetags' => true));
         $data['description'] = $core->sanitize_inputs($data['description'], array('method' => 'striponly', 'removetags' => true, 'allowable_tags' => '<blockquote><b><strong><em><ul><ol><li><p><br><strike><del><pre><dl><dt><dd><sup><sub><i><img><cite><small>'));
         $data['customInvitationSubject'] = $core->sanitize_inputs($data['customInvitationSubject'], array('removetags' => true));
-        //$data['customInvitationBody'] = $core->sanitize_inputs($data['customInvitationBody'], array('method' => 'striponly', 'removetags' => true, 'allowable_tags' => '<blockquote><b><strong><em><ul><ol><li><p><br><strike><del><pre><dl><dt><dd><sup><sub><i><img><cite><small>'));
+//$data['customInvitationBody'] = $core->sanitize_inputs($data['customInvitationBody'], array('method' => 'striponly', 'removetags' => true, 'allowable_tags' => '<blockquote><b><strong><em><ul><ol><li><p><br><strike><del><pre><dl><dt><dd><sup><sub><i><img><cite><small>'));
         /*  Sanitize inputs - END */
 
         $this->survey = $data;
@@ -658,34 +658,35 @@ class Surveys {
         if($this->validate_answers($answers['actual'])) {
             $identifier = substr(md5(uniqid(microtime())), 1, 10);
             foreach($answers['actual'] as $id => $value) {
-                $total++;
-                if(questiontypes)
-                    if(is_array($value)) {
-                        foreach($value as $vid => $val) {
-                            if(isset($answers['options'][$id]['isMatrix']) && $answers['options'][$id]['isMatrix'] == 1) {
-                                $selectedoption = explode("_", $val);
-                                $val = $selectedoption[0];
-                                $responseval = $selectedoption[1];
-                            }
-
-                            $answer = 0;
-                            $questionchoice = new SurveysTplQChoices(intval($val));
-                            if($questionchoice->isAnswer == 1) {
-                                $answer = 1;
-                                $corrects++;
-                            }
-                            $this->save_single_response(array('id' => $id, 'value' => $val, 'responseValue' => $responseval, 'comments' => $answers['comments'][$id][$vid], 'identifier' => $identifier, 'isCorrect' => $answer));
+                $totalres++;
+//                if(questiontypes)
+                if(is_array($value)) {
+                    foreach($value as $vid => $val) {
+                        if(isset($answers['options'][$id]['isMatrix']) && $answers['options'][$id]['isMatrix'] == 1) {
+                            $selectedoption = explode("_", $val);
+                            $val = $selectedoption[0];
+                            $responseval = $selectedoption[1];
                         }
-                    }
-                    else {
+
                         $answer = 0;
-                        $questionchoice = new SurveysTplQChoices(intval($value));
+                        $questionchoice = new SurveysTplQChoices(intval($val));
                         if($questionchoice->isAnswer == 1) {
                             $answer = 1;
                             $corrects++;
                         }
-                        $this->save_single_response(array('id' => $id, 'value' => $val, 'comments' => $answers['comments'][$id][$vid], 'identifier' => $identifier, 'isCorrect' => $answer));
+                        $this->save_single_response(array('id' => $id, 'value' => $val, 'responseValue' => $responseval, 'comments' => $answers['comments'][$id][$vid], 'identifier' => $identifier, 'isCorrect' => $answer));
+                        unset($selectedoption, $responseval);
                     }
+                }
+                else {
+                    $answer = 0;
+                    $questionchoice = new SurveysTplQChoices(intval($value));
+                    if($questionchoice->isAnswer == 1) {
+                        $answer = 1;
+                        $corrects++;
+                    }
+                    $this->save_single_response(array('id' => $id, 'value' => intval($value), 'comments' => $answers['comments'][$id][$vid], 'identifier' => $identifier, 'isCorrect' => $answer));
+                }
             }
             /* Set contribution as done */
             $pass = 0;
@@ -1097,8 +1098,12 @@ class Surveys {
     }
 
     public function parse_question(array $question, $secondary = false, array $response = array(), $isquiz = 0) {
+        global $core;
         $question_output_requiredattr = '';
         $rowclass = '';
+        if(!empty($response)) {
+            $disabled = 'disbaled=""disabled';
+        }
         if($question['isRequired'] == 1) {
             $question_output_required = '<span class="red_text">*</span>';
             $question_output_requiredattr = ' required="required"';
@@ -1251,14 +1256,22 @@ class Surveys {
                 }
                 $question_output .='</tr>';
                 if(is_array($response)) {
-                    foreach($response as $singleresponse) {
-                        //$checked[$singleresponse['response']][$singleresponse['responseValue']] = " checked='checked'";
+                    $matriceq_responses = SurveysResponses::get_data(array('stqid' => $response['stqid']), array('returnarray' => true));
+                    if(is_array($matriceq_responses)) {
+                        foreach($matriceq_responses as $singleresponse) {
+                            $checked[$singleresponse->response][$singleresponse->responseValue] = true;
+                        }
                     }
                 }
                 foreach($question['choices'] as $choicekey => $choice) {
                     $question_output .='<tr><th>'.$choice.'</th>';
                     foreach($question['choicevalues'] as $valuekey => $choicevalue) {
-                        $question_output .='<td style="text-align:left;"><input type="radio" name="answer[actual]['.$question['stqid'].']['.$choicekey.']" value="'.$choicekey.'_'.$valuekey.'" '.$question_output_requiredattr.' '.$checked[$choicekey][$valuekey].'/></td>';
+                        if($checked[$choicekey][$valuekey]) {
+                            $question_output .='<td style="text-align:left;"><img src="'.$core->settings['rootdir'].'/images/icons/completed.png" alt="checked"></td>';
+                        }
+                        else {
+                            $question_output .='<td style = "text-align:left;"><input '.$disabled.' type = "radio" name = "answer[actual]['.$question['stqid'].']['.$choicekey.']" value = "'.$choicekey.'_'.$valuekey.'" '.$question_output_requiredattr.' /></td>';
+                        }
                     }
                     $question_output .='</tr>';
                 }
@@ -1272,7 +1285,7 @@ class Surveys {
                 if(empty($response['comments'])) {
                     $response['comments'] = '-';
                 }
-                $question_output .= '<div style="margin: 5px 20px; 5px; 20px;">'.$question['commentsFieldTitle'].': '.$response['comments'].'</div>';
+                $question_output .= '<div style = "margin: 5px 20px; 5px; 20px;">'.$question['commentsFieldTitle'].': '.$response['comments'].'</div>';
             }
             else {
                 $question_output .= $this->parse_question(array('stqid' => $question['stqid'], 'question' => $question['commentsFieldTitle'], 'fieldType' => $question['commentsFieldType'], 'fieldSize' => $question['commentsFieldSize']), true);
@@ -1291,7 +1304,7 @@ class Surveys {
             $sid = $this->survey['sid'];
         }
 
-        if(value_exists('surveys_responses', 'sid', $sid, 'invitee='.$core->user['uid'])) {
+        if(value_exists('surveys_responses', 'sid', $sid, 'invitee = '.$core->user['uid'])) {
             return true;
         }
     }
@@ -1311,7 +1324,7 @@ class Surveys {
     public function get_shared_users() {
         global $db;
 
-        $query = $db->query('SELECT uid FROM '.Tprefix.'surveys_sharedwith WHERE sid='.intval($this->survey['sid'].''));
+        $query = $db->query('SELECT uid FROM '.Tprefix.'surveys_sharedwith WHERE sid = '.intval($this->survey['sid'].''));
         if($db->num_rows($query)) {
             while($user = $db->fetch_assoc($query)) {
                 $uids[] = $user['uid'];
@@ -1337,14 +1350,14 @@ class Surveys {
                     $existing_users = array_keys($existing_users);
                     $users_toremove = array_diff($existing_users, $survey_data);
                     if(!empty($users_toremove)) {
-                        $db->delete_query('surveys_sharedwith', 'uid IN ('.$db->escape_string(implode(',', $users_toremove)).') AND sid='.$this->survey['sid']);
+                        $db->delete_query('surveys_sharedwith', 'uid IN ('.$db->escape_string(implode(', ', $users_toremove)).') AND sid = '.$this->survey['sid']);
                     }
                 }
                 $survey_shares['sid'] = $this->survey['sid'];
                 $survey_shares['createdBy'] = $core->user['uid'];
                 $survey_shares['createdOn'] = TIME_NOW;
                 $survey_shares['uid'] = $core->sanitize_inputs($val);
-                if(!value_exists('surveys_sharedwith', 'uid', $val, ' sid='.$this->survey['sid'])) {
+                if(!value_exists('surveys_sharedwith', 'uid', $val, ' sid = '.$this->survey['sid'])) {
                     $query = $db->insert_query('surveys_sharedwith', $survey_shares);
                     if(!$query) {
                         return false;
@@ -1366,7 +1379,7 @@ class Surveys {
         $share_user = $user_obj->get();
 
         $lang->load('messages');
-        $surveylink = '<a href="'.DOMAIN.'/index.php?module=surveys/viewresults&amp;referrer=sharedlist&amp;identifier='.$this->survey['identifier'].'">'.$this->survey['subject'].'</a>';
+        $surveylink = '<a href = "'.DOMAIN.'/index.php?module=surveys/viewresults&amp;referrer=sharedlist&amp;identifier='.$this->survey['identifier'].'">'.$this->survey['subject'].'</a>';
         $mailer = new Mailer();
         $mailer = $mailer->get_mailerobj();
         $mailer->set_subject($this->survey['subject'].' Results');
