@@ -678,7 +678,7 @@ class Surveys {
                             $answer = 1;
                             $corrects++;
                         }
-                        $this->save_single_response(array('id' => $id, 'value' => $val, 'responseValue' => $responseval, 'comments' => $answers['comments'][$id][$vid], 'identifier' => $identifier, 'isCorrect' => $answer));
+                        $this->save_single_response(array('id' => $id, 'value' => $val, 'responseValue' => $responseval, 'comments' => $answers['comments'][$id], 'identifier' => $identifier, 'isCorrect' => $answer));
                         unset($selectedoption, $responseval);
                     }
                 }
@@ -689,7 +689,7 @@ class Surveys {
                         $answer = 1;
                         $corrects++;
                     }
-                    $this->save_single_response(array('id' => $id, 'value' => $value, 'comments' => $answers['comments'][$id][$vid], 'identifier' => $identifier, 'isCorrect' => $answer));
+                    $this->save_single_response(array('id' => $id, 'value' => $value, 'comments' => $answers['comments'][$id], 'identifier' => $identifier, 'isCorrect' => $answer));
                 }
             }
             /* Set contribution as done */
@@ -1288,6 +1288,12 @@ class Surveys {
 
         if($question['hasCommentsField'] == 1) {
             if(!empty($response)) {
+                if(is_array($response)) {
+                    foreach($response as $sresponse) {
+                        $response = $sresponse;
+                        break;
+                    }
+                }
                 if(empty($response['comments'])) {
                     $response['comments'] = '-';
                 }

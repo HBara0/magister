@@ -653,9 +653,19 @@ if(!($core->input['action'])) {
                     }
                     else {
                         if($approver->uid == $core->user['uid']) {
-                            $approve = '<input type="button" class="button" id="approvearo" value="'.$lang->approve.'"/>'
-                                    .'<input type="hidden" id="approvearo_id" value="'.$aroorderrequest->aorid.'"/>'.
-                                    '<a class="button" id="rejectarodocument_'.$aroorderrequest->aorid.'_aro/managearodouments_loadpopupbyid" style="margin-left:5px;vertical-align:top;padding-top:5px;"/>'.$lang->reject.'</a>';
+                            $approvalobj = $aroorderrequest->get_nextapprover();
+                            if(is_object($approvalobj)) {
+                                if($approvalobj->uid == $core->user['uid']) {
+                                    $approve = '<input type="button" class="button" id="approvearo" value="'.$lang->approve.'"/>'
+                                            .'<input type="hidden" id="approvearo_id" value="'.$aroorderrequest->aorid.'"/>'.
+                                            '<a class="button" id="rejectarodocument_'.$aroorderrequest->aorid.'_aro/managearodouments_loadpopupbyid" style="margin-left:5px;vertical-align:top;padding-top:5px;"/>'.$lang->reject.'</a>';
+                                }
+                                else {
+                                    if($approver->firstEmailRecievedDate != 0) {
+                                        $icons['reintializedapprovalprocess'] = '<span class="glyphicon glyphicon-exclamation-sign alert-danger" data-toggle="tooltip" title="Approval Process was reintialized!" ></span>';
+                                    }
+                                }
+                            }
                         }
                     }
                     eval("\$apprs .= \"".$template->get('aro_approvalchain_approver')."\";");
