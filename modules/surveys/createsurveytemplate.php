@@ -117,6 +117,7 @@ if(!$core->input['action']) {
                     $question_rowid++;
                     unset($matrixchoices, $choices, $selectedvtype);
                 }
+                $section['section_inputChecksum'] = generate_checksum();
                 eval("\$newsection .= \"".$template->get('surveys_createtemplate_sectionrow')."\";");
                 unset($newquestions);
                 $section_rowid++;
