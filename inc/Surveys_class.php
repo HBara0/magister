@@ -557,7 +557,7 @@ class Surveys {
             $query = $db->query("SELECT DISTINCT(sr.identifier), time, si.invitee AS respondant,si.passed,si.score,si.total
 					FROM ".Tprefix."surveys s
 					JOIN ".Tprefix."surveys_responses sr ON (sr.sid=s.sid)
-					JOIN ".Tprefix."surveys_invitations si ON (si.invitee=sr.invitee)
+					JOIN ".Tprefix."surveys_invitations si ON (si.identifier=sr.invitee)
 					WHERE s.identifier='".$db->escape_string($identifier)."'
 					ORDER BY {$sort_query}");
         }
@@ -1254,9 +1254,9 @@ class Surveys {
                 break;
             case 'matrix':
                 $question_output .= '<div style="margin: 5px 20px; 5px; 20px;"><table class="datatable">';
-                $question_output .= '<tr><th><input type="hidden" name="answer[options]['.$question['stqid'].'][isMatrix]" value="1"/></th>';
+                $question_output .= '<tr><th style="width:40%;"><input type="hidden" name="answer[options]['.$question['stqid'].'][isMatrix]" value="1"/></th>';
                 foreach($question['choicevalues'] as $choicevalue) {
-                    $question_output .= '<th style="text-align:left;">'.$choicevalue.'</th>';
+                    $question_output .= '<th style="text-align:left; width:'.((100 - 40) / count($question['choicevalues'])).'%;">'.$choicevalue.'</th>';
                 }
                 $question_output .='</tr>';
                 if(is_array($response)) {
@@ -1279,7 +1279,7 @@ class Surveys {
                     }
                     $question_output .='</tr>';
                 }
-                $question_output .='</table>';
+                $question_output .='</table></div>';
                 break;
             default: return false;
         }
