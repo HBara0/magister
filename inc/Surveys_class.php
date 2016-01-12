@@ -689,7 +689,7 @@ class Surveys {
                         $answer = 1;
                         $corrects++;
                     }
-                    $this->save_single_response(array('id' => $id, 'value' => $value, 'comments' => $answers['comments'][$id][$vid], 'identifier' => $identifier, 'isCorrect' => $answer));
+                    $this->save_single_response(array('id' => $id, 'value' => $value, 'comments' => $answers['comments'][$id], 'identifier' => $identifier, 'isCorrect' => $answer));
                 }
             }
             /* Set contribution as done */
