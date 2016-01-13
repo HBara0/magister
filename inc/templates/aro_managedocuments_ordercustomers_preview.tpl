@@ -1,7 +1,7 @@
 <a class="header " href="#"><h2>Order Customers</h2></a>
 <div>
     <p>
-    <table>
+    <table class="datatable">
         <thead>
             <tr style="vertical-align: top;">
                 <td class="border_right" rowspan="2" valign="top" align="center" style="font-weight:bold;">{$lang->customer}</td>

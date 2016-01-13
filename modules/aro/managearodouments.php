@@ -667,9 +667,9 @@ if(!($core->input['action'])) {
                             $approvalobj = $aroorderrequest->get_nextapprover();
                             if(is_object($approvalobj)) {
                                 if($approvalobj->uid == $core->user['uid']) {
-                                    $approve = '<input type="button" class="button" id="approvearo" value="'.$lang->approve.'"/>'
+                                    $approve = '<input type="button" class="btn btn-success" id="approvearo" value="'.$lang->approve.'"/>'
                                             .'<input type="hidden" id="approvearo_id" value="'.$aroorderrequest->aorid.'"/>'.
-                                            '<a class="button" id="rejectarodocument_'.$aroorderrequest->aorid.'_aro/managearodouments_loadpopupbyid" style="margin-left:5px;vertical-align:top;padding-top:5px;"/>'.$lang->reject.'</a>';
+                                            '<a class="btn btn-danger" id="rejectarodocument_'.$aroorderrequest->aorid.'_aro/managearodouments_loadpopupbyid" style="margin-left:5px;vertical-align:top;padding-top:5px;"/>'.$lang->reject.'</a>';
                                 }
                                 else {
                                     if($approver->firstEmailRecievedDate != 0) {
@@ -777,14 +777,16 @@ if(!($core->input['action'])) {
         if(is_object($aroordersummary)) {
             $formatter = new NumberFormatter($lang->settings['locale'], NumberFormatter::DECIMAL);
             $perc_formatter = new NumberFormatter($lang->settings['locale'], NumberFormatter::PERCENT);
-            $ordersummary_fields = array('netmarginIntermed_afterdeduction', 'invoiceValueIntermed', 'invoiceValueLocal', 'invoiceValueUsdIntermed', 'invoiceValueUsdLocal', 'interestValue', 'interestValueUsd', 'totalIntermedFees', 'totalIntermedFeesUsd', 'unitFee', 'netmarginIntermed', 'netmarginLocal', 'invoiceValueThirdParty', 'globalNetmargin'); // 'netmarginIntermedPerc', 'netmarginLocalPerc');
+            $ordersummary_fields = array('netmarginIntermed_afterdeduction', 'invoiceValueIntermed', 'invoiceValueLocal', 'invoiceValueUsdIntermed', 'invoiceValueUsdLocal', 'interestValue', 'interestValueUsd', 'totalIntermedFees', 'totalIntermedFeesUsd', 'unitFee', 'netmarginIntermed', 'netmarginLocal', 'invoiceValueThirdParty', 'globalNetmargin', 'totalQuantityUom'); // 'netmarginIntermedPerc', 'netmarginLocalPerc');
             foreach($ordersummary_fields as $field) {
-//                if($field == 'netmarginIntermedPerc' || $field == 'netmarginLocalPerc') {
-//                    $aroordersummary->$field = $perc_formatter->format($aroordersummary->$field);
-////                }
-//                else {
-                $aroordersummary->$field = $formatter->format($aroordersummary->$field);
-                //  }
+                switch($field) {
+                    case 'totalQuantityUom':
+                        $aroordersummary->$field = $formatter->format(explode('/', $aroordersummary->$field)[0]).'/'.explode('/', $aroordersummary->$field)[1];
+                        break;
+                    default:
+                        $aroordersummary->$field = $formatter->format($aroordersummary->$field);
+                        break;
+                }
             }
         }
         eval("\$orderummary = \"".$template->get('aro_ordersummary_preview')."\";");
