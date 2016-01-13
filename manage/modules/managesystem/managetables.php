@@ -20,8 +20,8 @@ $lang->load('tables_meta');
 $lang->load('global');
 
 if($core->usergroup['admin_canManageSystemDef'] == 0) {
-    //  error($lang->sectionnopermission);
-    //exit;
+    error($lang->sectionnopermission);
+    exit;
 }
 
 if(!$core->input['action']) {

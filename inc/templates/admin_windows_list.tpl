@@ -11,15 +11,13 @@
             <h1>{$lang->windowslist}</h1>
             <form method='post' action='$_SERVER[REQUEST_URI]'>
                 <div style="width: 75%">
-                    <div style="float:right;" class="subtitle"><a  target="_blank"  href="{$core->settings['rootdir']}/manage/index.php?module=managesystem/managewindows"><img src="{$core->settings[rootdir]}/images/addnew.png" border="0">{$lang->addlist}</a></div>
+                    <div style="float:right;" class="subtitle"><a  target="_blank"  href="{$core->settings['rootdir']}/manage/index.php?module=managesystem/managewindows"><img src="{$core->settings[rootdir]}/images/addnew.png" border="0">{$lang->addwindow}</a></div>
                     <table width="100%" border="0" cellspacing="0" cellpadding="2" style="display:table" class="datatable">
                         <thead>
                             <tr>
                                 <th width="200px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->name}</th>
                                 <th width="200px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->title}</th>
                                 <th width="200px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->type}</th>
-                                <th width="200px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->description}</th>
-                                <th width="200px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->comment}</th>
                                 <th width="200px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->isactive}</th>
                                 <th>&nbsp;</th>
                             </tr><tr>

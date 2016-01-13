@@ -46,6 +46,9 @@ if(!$core->input['action']) {
             $window = $window_obj->get();
             if($window != null) {
                 $swid = $windowid = $window['swid'];
+                if($window['isActive'] == 1) {
+                    $window_isactive_check = 'checked="checked"';
+                }
                 $window_type_list = parse_selectlist("window[type]", 0, array('interactive' => 'Interactive', 'readonly' => 'Read-Only'), $window['type']);
                 $sections_objs = SystemWindowsSection::get_data(array('swid' => $window['swid']), array('simple' => false, 'returnarray' => true));
                 $fieldrow_id = 1;
@@ -76,15 +79,19 @@ if(!$core->input['action']) {
                                 if($field['isReadOnly'] == 1) {
                                     $field_isreadonly_check = 'checked="checked"';
                                 }
-                                $field_fieldtype_list = parse_selectlist("field[".$swsid."][".$field['inputChecksum']."][fieldType]", 0, $fieldtypes, $section['type']);
+                                $field_fieldtype_list = parse_selectlist("field[".$swsid."][".$field['inputChecksum']."][fieldType]", 0, $fieldtypes, $field['fieldType']);
                                 $referencelists_objs = SystemReferenceLists::get_data('', array('returnarray' => true));
                                 if(is_array($referencelists_objs)) {
                                     $field_fieldtypelist_list = parse_selectlist("field[".$swsid."][".$field['inputChecksum']."][srlid]", 0, $referencelists_objs, $section['srliid']);
                                 }
-                                $field_allowedfiletypes_list = parse_selectlist("field[".$swsid."][".$field['allowedFileTypes']."][allowedFileTypes]", 0, $file_types, $section['allowedFileTypes'], '', '', array('blankstart' => true));
-                                ;
+                                $showfieldtype_reflists[$field['inputChecksum']] = 'display:none;';
+                                if($field['fieldType'] == 'list') {
+                                    $showfieldtype_reflists[$field['inputChecksum']] = '';
+                                }
+                                $field_allowedfiletypes_list = parse_selectlist("field[".$swsid."][".$field['inputChecksum']."][allowedFileTypes]", 0, $file_types, $section['allowedFileTypes'], '', '', array('blankstart' => true));
                                 eval("\$section_fields .= \"".$template->get('admin_system_windows_section_fieldrow')."\";");
                                 $fieldrow_id++;
+                                unset($field_isdisplayed_check, $field_isreadonly_check, $field_fieldtypelist_list);
                             }
                         }
                         eval("\$section_table_fields = \"".$template->get('admin_system_windows_section_tablefield')."\";");
@@ -93,7 +100,7 @@ if(!$core->input['action']) {
                         $section_content.='</div>';
                         $delete_tabicon = '<span class = "ui-icon ui-icon-close" id = "deleteseg_'.$tabnum.'"role = "presentation" title = "Close">Remove Tab</span>';
                         $sectionstabs.='<li><a href = "#sectionstabs-'.$tabnum.'">'.$sections_obj->get_displayname().'</a>'.$delete_tabicon.'</li> ';
-                        unset($section_fields);
+                        unset($section_fields, $section_tables_selectlist, $section_ismain_check, $section_isactive_check);
                     }
                 }
                 eval("\$sections = \"".$template->get('admin_system_windows_sections')."\";");
@@ -127,6 +134,10 @@ else {
         $referencelists_objs = SystemReferenceLists::get_data('', array('returnarray' => true));
         if(is_array($referencelists_objs)) {
             $field_fieldtypelist_list = parse_selectlist("field[".$swsid."][".$field['inputChecksum']."][srlid]", 0, $referencelists_objs, $section['srliid']);
+        }
+        $showfieldtype_reflists[$field['inputChecksum']] = 'display:none;';
+        if($field['fieldType'] == 'list') {
+            $showfieldtype_reflists[$field['inputChecksum']] = '';
         }
         $field_allowedfiletypes_list = parse_selectlist("field[".$swsid."][".$field['inputChecksum']."][allowedFileTypes]", 0, $file_types, '', '', '', array('blankstart' => true));
 
@@ -199,22 +210,24 @@ else {
         }
     }
     elseif($core->input['action'] == 'save_fields_managewindows') {
-        foreach($core->input['field'] as $swsid => $fields) {
-            foreach($fields as $inputchecksum => $field) {
-                if(!isset($field['inputChecksum']) || empty($field['inputChecksum'])) {
-                    output_xml("<status>false</status><message>".$lang->errorsaving."</message>");
-                    return;
-                }
-                $window_field = new SystemWindowsSectionFields();
-                $window_field->set($field);
-                $window_field->save();
-                switch($window_field->get_errorcode()) {
-                    case 1:
+        if(is_array($core->input['field'])) {
+            foreach($core->input['field'] as $swsid => $fields) {
+                foreach($fields as $inputchecksum => $field) {
+                    if(!isset($field['inputChecksum']) || empty($field['inputChecksum'])) {
                         output_xml("<status>false</status><message>".$lang->errorsaving."</message>");
-                        exit;
-                    case 2:
-                        output_xml('<status>false</status><message>'.$lang->fillrequiredfields.'</message>');
-                        exit;
+                        return;
+                    }
+                    $window_field = new SystemWindowsSectionFields();
+                    $window_field->set($field);
+                    $window_field->save();
+                    switch($window_field->get_errorcode()) {
+                        case 1:
+                            output_xml("<status>false</status><message>".$lang->errorsaving."</message>");
+                            exit;
+                        case 2:
+                            output_xml('<status>false</status><message>'.$lang->fillrequiredfields.'</message>');
+                            exit;
+                    }
                 }
             }
         }

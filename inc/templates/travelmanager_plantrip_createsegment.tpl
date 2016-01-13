@@ -58,7 +58,8 @@
 
                         </tr>
                         <tbody id="entities_{$sequence}_tbody">
-                            {$entities}
+                            <tr><th data-purposes="external_{$sequence}" colspan="2">{$lang->businesspartners}*</th></tr>
+                                    {$entities}
                         </tbody>
                         <tr>
                             <td data-purposes="external_{$sequence}" {$display_external} >
