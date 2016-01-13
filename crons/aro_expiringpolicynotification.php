@@ -42,7 +42,7 @@ foreach($tables as $primarykey => $table) {
                     break;
             }
             $expiringpolices[$table][$uid].= " / ".date('d-m-Y', $policy['effectiveTo']);
-            //   $expiringpolices[$table][$uid] .=" (Created On: ".date('d-m-Y', $policy['createdOn']).") </li>";
+            $expiringpolices[$table][$uid] .=" (Created On: ".date('d-m-Y', $policy['createdOn']).") </li>";
             $query = $db->update_query($table, array('effectiveTo' => strtotime('+30 days', $policy['effectiveTo'])), $primarykey.'='.$policy[$primarykey]);
             if($query) {
                 $log->record($table, array('update'));
@@ -57,18 +57,19 @@ if(is_array($recipients)) {
     foreach($recipients as $recipient) {
         if(isset($expiringpolices_data[$recipient]) && !empty($expiringpolices_data[$recipient])) {
             $recipient_obj = new Users($recipient);
-            //   if($usergroup['aro_canManagePolicies'] == 1) {
-            $email_data = '<h1>'.$lang->followingexppolicies.'</h1>'.$expiringpolices_data[$recipient].$lang->expiringpolicyrenewed;
-            $email_data = array(
-                    'from_email' => '', //$core->settings['maileremail'],
-                    'from' => 'OCOS Mailer',
-                    'subject' => 'Epiring ARO Policies',
-                    'message' => $email_data,
-                    'to' => $recipient_obj->get_email(),
-            );
-            //  print_r($email_data);
-            // $mail = new Mailer($email_data, 'php');
-            //  }
+            if($usergroup['aro_canManagePolicies'] == 1) {
+                $email_data = '<h1>'.$lang->followingexppolicies.'</h1>'.$expiringpolices_data[$recipient].$lang->expiringpolicyrenewed;
+                $email_data = array(
+                        'from_email' => $core->settings['maileremail'],
+                        'from' => 'OCOS Mailer',
+                        'subject' => 'Expiring ARO Policies',
+                        'message' => $email_data,
+                        'to' => $recipient_obj->get_email(),
+                );
+//            print_r($email_data);
+//            exit;
+                $mail = new Mailer($email_data, 'php');
+            }
         }
     }
 }

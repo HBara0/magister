@@ -511,6 +511,68 @@ class IntegrationOB extends Integration {
         return false;
     }
 
+    public function get_fifoinputsalternative(array $organisations, array $options) {
+
+        $query = $this->f_db->query("SELECT m_attributesetinstance_id, m_product_id,SUM(movementqty) AS remainingQty FROM m_transaction
+									WHERE ad_org_id IN ('".implode('\',\'', $organisations)."')
+									AND movementdate BETWEEN '".date('Y-m-d 00:00:00', strtotime($this->period['from']))."' AND '".date('Y-m-d 00:00:00', strtotime($this->period['to']))."'{$query_extrawhere}
+                                                                        GROUP BY m_attributesetinstance_id,m_product_id HAVING SUM(movementqty) > 0
+                                                                    ");
+
+
+        if($this->f_db->num_rows($query) > 0) {
+            while($transcation = $this->f_db->fetch_assoc($query)) {
+                $filter = " m_attributesetinstance_id='".$transcation['m_attributesetinstance_id']."' AND m_product_id='".$transcation['m_product_id']."' ORDER BY movementdate ASC LIMIT 1";
+                $first_transaction = IntegrationOBTransaction::get_data($filter);
+                if(!is_object($first_transaction)) {
+                    continue;
+                }
+
+                $transaction_data = $first_transaction->get();
+                $movement_qty_query = $this->f_db->query("SELECT SUM(movementqty) AS soldqty FROM m_transaction
+									WHERE m_attributesetinstance_id='".$transcation['m_attributesetinstance_id']."' AND m_product_id='".$transcation['m_product_id']."'
+                                                                            AND movementtype IN('C+','C-')");
+                if($this->f_db->num_rows($movement_qty_query) > 0) {
+                    while($movement_qty = $this->f_db->fetch_assoc($movement_qty_query)) {
+                        $inputs[$transaction_data['m_transaction_id']]['stack']['soldqty'] = abs($movement_qty['soldqty']);
+                    }
+                }
+
+                $inputs[$transaction_data['m_transaction_id']]['stack']['qty'] = $transaction_data['movementqty'];
+                $inputs[$transaction_data['m_transaction_id']]['stack']['remaining_cost'] = $transaction_data['transactioncost'];
+                $inputs[$transaction_data['m_transaction_id']]['stack']['remaining_qty'] = $transcation['remainingqty'];
+                $inputs[$transaction_data['m_transaction_id']]['stack']['daysinstock'] = $first_transaction->get_daysinstock();
+                $inputs[$transaction_data['m_transaction_id']]['movementdate'] = $first_transaction->get()['movementdate'];
+                $inputs[$transaction_data['m_transaction_id']]['product'] = $first_transaction->get_product()->get();
+                $inputs[$transaction_data['m_transaction_id']]['product']['category'] = $first_transaction->get_product()->get_category()->get();
+                $inputs[$transaction_data['m_transaction_id']]['category'] = &$inputs[$transaction_data['m_transaction_id']]['product']['category'];
+                $inputs[$transaction_data['m_transaction_id']]['product']['uom'] = $first_transaction->get_product()->get_uom()->get();
+
+                if(!is_null($first_transaction->get_inoutline())) {
+                    $supplier = $first_transaction->get_supplier();
+                }
+                if(!empty($supplier)) {
+                    $inputs[$transaction_data['m_transaction_id']]['supplier'] = $supplier->get();
+                }
+                else {
+                    $inputs[$transaction_data['m_transaction_id']]['supplier'] = 'unspecified';
+                }
+
+                $inputs[$transaction_data['m_transaction_id']]['transaction'] = $first_transaction->get();
+                $inputs[$transaction_data['m_transaction_id']]['transaction']['attributes'] = $first_transaction->get_attributesetinstance()->get();
+                $inputs[$transaction_data['m_transaction_id']]['transaction']['attributes']['daystoexpire'] = $first_transaction->get_attributesetinstance()->get_daystoexpire();
+                if($inputs[$transaction_data['m_transaction_id']]['transaction']['attributes']['daystoexpire'] < 0) {
+                    $inputs[$transaction_data['m_transaction_id']]['transaction']['attributes']['daystoexpire'] = '<span style="color:red;font-weight:bold;">Expired</span>';
+                }
+                $inputs[$transaction_data['m_transaction_id']]['transaction']['attributes']['packaging'] = $first_transaction->get_packaging();
+
+                $inputs[$transaction_data['m_transaction_id']]['warehouse'] = $first_transaction->get_locator()->get_warehouse()->get();
+            }
+            return $inputs;
+        }
+        return false;
+    }
+
     public function get_firsttransaction($organisations) {
         $query = $this->f_db->query("SELECT m_transaction_id
 				FROM m_transaction
@@ -728,7 +790,7 @@ class IntegrationOB extends Integration {
 }
 
 class IntegrationOBTransaction extends IntegrationAbstractClass {
-    protected $transaction;
+    protected $data;
     protected $f_db;
 
     const PRIMARY_KEY = 'm_transaction_id';
@@ -736,21 +798,26 @@ class IntegrationOBTransaction extends IntegrationAbstractClass {
     const DISPLAY_NAME = '';
     const CLASSNAME = __CLASS__;
 
-    public function __construct($id = '', $f_db = NULL) {
-        if(!empty($f_db)) {
-            $this->f_db = $f_db;
-        }
-        else {
-            //Open connections
-        }
+//    public function __construct($id = '', $f_db = NULL) {
+//        if(!empty($f_db)) {
+//            $this->f_db = $f_db;
+//        }
+//        else {
+//            //Open connections
+//        }
+//
+//        if(!empty($id)) {
+//            $this->read($id);
+//        }
+//    }
 
-        if(!empty($id)) {
-            $this->read($id);
-        }
+
+    public function __construct($id, $f_db = NULL) {
+        parent::__construct($id, $f_db);
     }
 
     private function read($id) {
-        $this->transaction = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
+        $this->data = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
 						FROM m_transaction
 						WHERE m_transaction_id='".$this->f_db->escape_string($id)."'"));
     }
@@ -771,7 +838,7 @@ class IntegrationOBTransaction extends IntegrationAbstractClass {
     }
 
     public function get_currency() {
-        return new IntegrationOBCurrency($this->transaction['c_currency_id'], $this->f_db);
+        return new IntegrationOBCurrency($this->data['c_currency_id'], $this->f_db);
     }
 
     public function get_id() {
@@ -779,23 +846,23 @@ class IntegrationOBTransaction extends IntegrationAbstractClass {
     }
 
     public function get_inoutline() {
-        if(empty($this->transaction['m_inoutline_id'])) {
+        if(empty($this->data['m_inoutline_id'])) {
             return null;
         }
-        return new IntegrationOBInOutLine($this->transaction['m_inoutline_id'], $this->f_db);
+        return new IntegrationOBInOutLine($this->data['m_inoutline_id'], $this->f_db);
     }
 
     public function get_movementline() {
-        if(empty($this->transaction['m_movementline_id'])) {
+        if(empty($this->data['m_movementline_id'])) {
             return null;
         }
-        return new IntegrationOBMovementLine($this->transaction['m_movementline_id'], $this->f_db);
+        return new IntegrationOBMovementLine($this->data['m_movementline_id'], $this->f_db);
     }
 
     public function get_outputstack() {
         $query = $this->f_db->query('SELECT obwfa_output_stack_id
 									FROM obwfa_output_stack
-									WHERE m_transaction_id=\''.$this->transaction['m_transaction_id'].'\'');
+									WHERE m_transaction_id=\''.$this->data['m_transaction_id'].'\'');
         if($this->f_db->num_rows($query) > 0) {
             $stack = $this->f_db->fetch_assoc($query);
             return new IntegrationOBOutputStack($stack['obwfa_output_stack_id'], $this->f_db);
@@ -805,7 +872,7 @@ class IntegrationOBTransaction extends IntegrationAbstractClass {
     public function get_inputstack() {
         $query = $this->f_db->query('SELECT obwfa_input_stack_id
 									FROM obwfa_input_stack
-									WHERE m_transaction_id=\''.$this->transaction['m_transaction_id'].'\'');
+									WHERE m_transaction_id=\''.$this->data['m_transaction_id'].'\'');
         if($this->f_db->num_rows($query) > 0) {
             $stack = $this->f_db->fetch_assoc($query);
             return new IntegrationOBInputStack($stack['obwfa_input_stack_id'], $this->f_db);
@@ -814,7 +881,7 @@ class IntegrationOBTransaction extends IntegrationAbstractClass {
     }
 
     public function get_attributesetinstance() {
-        return new IntegrationOBAttributeSetInstance($this->transaction['m_attributesetinstance_id'], $this->f_db);
+        return new IntegrationOBAttributeSetInstance($this->data['m_attributesetinstance_id'], $this->f_db);
     }
 
     public function get_packaging() {
@@ -850,7 +917,7 @@ class IntegrationOBTransaction extends IntegrationAbstractClass {
     }
 
     public function get_product() {
-        return new IntegrationOBProduct($this->transaction['m_product_id']);
+        return new IntegrationOBProduct($this->data['m_product_id'], $this->f_db);
     }
 
     public function get_product_local() {
@@ -866,14 +933,14 @@ class IntegrationOBTransaction extends IntegrationAbstractClass {
     }
 
     public function __get($name) {
-        if(isset($this->transaction[$name])) {
-            return $this->transaction[$name];
+        if(isset($this->data[$name])) {
+            return $this->data[$name];
         }
         return false;
     }
 
     public function get() {
-        return $this->transaction;
+        return $this->data;
     }
 
     public function get_firsttransaction() { //($inputstack = NULL)
@@ -885,7 +952,7 @@ class IntegrationOBTransaction extends IntegrationAbstractClass {
             case 'C+':
             case 'C-':
             case 'M+':
-                if($this->transaction != NULL) {
+                if($this->data != NULL) {
                     $transaction = new IntegrationOBTransaction($this->f_db->fetch_field($this->f_db->query("SELECT * FROM m_transaction WHERE m_attributesetinstance_id='".$this->m_attributesetinstance_id."' ORDER BY movementdate ASC LIMIT 1"), 'm_transaction_id'), $this->f_db);
                 }
                 break;
@@ -927,6 +994,36 @@ class IntegrationOBTransaction extends IntegrationAbstractClass {
 //                break;
 //        }
 //        return $inputstack;
+    }
+
+    public function get_daysinstock($relativeto = 'now') {
+        if(strstr($this->data['movementdate'], '.')) {
+            $input_date = DateTime::createFromFormat('Y-m-d G:i:s.u', $this->data['movementdate']);
+        }
+        else {
+            $input_date = DateTime::createFromFormat('Y-m-d G:i:s', $this->data['movementdate']);
+        }
+
+        $end_date = new DateTime();
+        if($relativeto == 'now') {
+            $end_date->setTimestamp(TIME_NOW);
+        }
+        else {
+            $end_date->setTimestamp(strtotime($relativeto));
+        }
+
+        if($input_date === false) {
+            return false;
+        }
+
+        $diff = $end_date->diff($input_date);
+        $days = $diff->format('%a');
+
+        return $days;
+    }
+
+    public function get_locator() {
+        return new IntegrationOBLocator($this->data['m_locator_id'], $this->f_db);
     }
 
 }
@@ -1484,9 +1581,9 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
         $tableindexes = array('salerep', 'products', 'suppliers');
         $classificationtypes = array('bymonth', 'byytd', 'byquarter');
         $TIME_NOW = TIME_NOW;
-//        if($core->user['uid'] == 362) {
-//            $TIME_NOW = '1451460679';
-//        }
+        // if($core->user['uid'] == 362) {
+        // $TIME_NOW = '1451460679';
+        // }
         $current_year = date('Y', $TIME_NOW);
         foreach($tableindexes as $tableindex) {
             if(is_array($data[$tableindex])) {
@@ -1617,6 +1714,9 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
     public function get_ytdsales($data, $period, $tableindex) {
         global $core;
         $TIME_NOW = TIME_NOW;
+        //if($core->user['uid'] == 362) {
+        // $TIME_NOW = '1451460679';
+        // }
         $classificationtypes = array('byytd');
         $current_year = date('Y', $TIME_NOW);
         if(is_array($data[$tableindex])) {
@@ -1642,49 +1742,45 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                     $lastyeardata = $salerepdata[($current_year - 1)];
                     if(is_array($lastyeardata)) {
                         $to = getdate($period['to']);
-                        foreach($lastyeardata as $lydata_array) {
-                            if(is_array($lydata_array)) {
-                                foreach($lydata_array as $year => $year_data) {
-                                    if(is_array($year_data)) {
-                                        foreach($year_data as $month => $month_data) {
-                                            if(is_array($month_data)) {
-                                                foreach($month_data as $day => $day_data) {
-                                                    if(!($month <= $to['mon'] && $day <= $to['mday'])) {
-                                                        continue;
-                                                    }
-                                                }
-                                            }
-                                        }
+                        foreach($lastyeardata as $month => $month_data) {
+                            if(is_array($month_data)) {
+                                foreach($month_data as $day => $day_data) {
+                                    if($month < $to['mon'] || ($month == $to['mon'] && $day <= $to['mday'])) {
+                                        $lydata +=$day_data;
+                                    }
+                                    else {
+                                        continue;
                                     }
                                 }
-                                $lydata = array_sum($lydata_array);
-                            }
-                            if(!empty($lydata)) {
-                                $classification[$tableindex]['byytd'][$tableindex][$id]['prevmonthdata'] +=$lydata / 1000;
-                            }
-                            else {
-                                $classification[$tableindex]['byytd'][$tableindex][$id]['prevmonthdata'] += 0;
                             }
                         }
+                        if(!empty($lydata)) {
+                            $classification[$tableindex]['byytd'][$tableindex][$id]['prevmonthdata'] +=$lydata / 1000;
+                        }
+                        else {
+                            $classification[$tableindex]['byytd'][$tableindex][$id]['prevmonthdata'] += 0;
+                        }
                     }
-//////////////////////////////////////////////////////////////////
                 }
+//////////////////////////////////////////////////////////////////
             }
-
-            ///Sort Data descending to classify top supp/products or BM //
-            if(isset($ytdclassification_data) && isset($classification[$tableindex]['byytd'][$tableindex])) {
-                array_multisort($ytdclassification_data, SORT_DESC, $classification[$tableindex]['byytd'][$tableindex]);
-            }
-
-            unset($classification_data, $ytdclassification_data, $qclassification_data);
-            //   }
         }
+
+        ///Sort Data descending to classify top supp/products or BM //
+        if(isset($ytdclassification_data) && isset($classification[$tableindex]['byytd'][$tableindex])) {
+            array_multisort($ytdclassification_data, SORT_DESC, $classification[$tableindex]['byytd'][$tableindex]);
+        }
+
+        unset($classification_data, $ytdclassification_data, $qclassification_data);
+
         return $classification[$tableindex]['byytd'][$tableindex];
     }
 
     public function parse_classificaton_tables($classification) {
         global $lang, $core;
         $TIME_NOW = TIME_NOW;
+        //$TIME_NOW = '1451460679';
+
         $css_styles['header'] = 'background-color: #F1F1F1;';
         $css_styles['altrow'] = 'background-color:#D0F6AA;'; #f7fafd;;';
 
@@ -1835,6 +1931,8 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
     public function parse_classificaton_charts($data, $type) {
         global $lang, $core;
         $TIME_NOW = TIME_NOW;
+        //$TIME_NOW = '1451460679';
+
         if(is_array($data)) {
             $data_ids = array_keys($data);
             switch($type) {

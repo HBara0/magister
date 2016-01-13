@@ -29,6 +29,7 @@
                     {$aro_audittrail}
                     {$orderummary}
                     {$totalfunds}
+                    {$takeactionpage}
                     {$approvalchain}
                     <div class="ui-state-highlight ui-corner-all" style="padding-left: 5px; margin-bottom:10px;width:30%">
                         {$lang->finalizedemail}
@@ -39,7 +40,7 @@
                 </form>
                 <div id="perform_aro/managearodouments_Results"></div>
                 <hr />
-                {$takeactionpage}
+
             </div>
         </td>
     </tr>

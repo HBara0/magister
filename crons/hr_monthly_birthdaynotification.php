@@ -53,7 +53,7 @@ if($db->num_rows($users_query) > 0) {
                 $affiliate_obj = Affiliates::get_affiliates(array('affid' => $affid));
                 $body_message .='<table width="50%"><tr style="background-color:#92D050;"><td colspan="2">'.$affiliate_obj->get_displayname().'</td></tr>';
                 foreach($birthday_affid[$affid] as $uid => $user) {
-                    $body_message .= '<tr style="background-color:#F1F1F1;"><td style="width:50%">'.$user['employeeName'].'</td><td>'.date('l jS', mktime(0, 0, 0, $current_date['mon'], $user['birthDay'], $current_date['year'])).' ('.($current_date['year'] - $user['birthYear']).' years old)</td></tr>'; //<td><a href="mailto:'.$user['email'].'"> '.$user['email'].'</a></td>
+                    $body_message .= '<tr style="background-color:#F1F1F1;"><td style="width:50%">'.$user['employeeName'].'</td><td style="width:50%">'.date('l jS', mktime(0, 0, 0, $current_date['mon'], $user['birthDay'], $current_date['year'])).' ('.($current_date['year'] - $user['birthYear']).' years old)</td></tr>'; //<td><a href="mailto:'.$user['email'].'"> '.$user['email'].'</a></td></tr>';
                 }
                 $body_message .='</table>';
             }
@@ -73,7 +73,7 @@ if($db->num_rows($users_query) > 0) {
 //        if($affuid == $core->user['uid']) {
 //            echo $email_data['message'];
 //            exit;
-//      }
+//        }
         $mail = new Mailer($email_data, 'php');
         if($mail->get_status() === true) {
             $log->record('hrbirthdaynotification', array('to' => $recepient_details['email']), 'emailsent');
