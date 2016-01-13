@@ -19,12 +19,12 @@
                 <td colspan="2" style="padding-left:10px;font-weight:bold"> {$lang->diffbetweenpaymentdays}</td>
                 <td>{$partiesinfo[diffbtwpaymentdates]} </td>
             </tr>
-            <tr class="altrow">
+            <tr class="altrow" style="{$previewdisplay[promiseofpayment]}">
                 <td colspan="2">{$lang->acceptablepaymentterm}</td>
                 <td>{$aropartiesinfo_obj->ptAcceptableMargin}</td>
                 <td></td>
             </tr>
-            <tr class="altrow">
+            <tr class="altrow" style="{$previewdisplay[promiseofpayment]}">
                 <td colspan="2">{$lang->promiseofpayment}  <a href="#" title="{$lang->promiseofpaymentdesc}"><img src="./images/icons/question.gif" ></a></td>
                 <td>{$partiesinfo[promiseOfPayment_formatted]} </td>
                 <td></td>
