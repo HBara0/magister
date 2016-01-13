@@ -108,6 +108,9 @@ class MySQLiConnection {
         $comma = $query_string = '';
         if(is_array($data)) {
             foreach($data as $key => $val) {
+                if(is_null($val)) {
+                    continue;
+                }
                 if(!empty($options['encrypt']) && is_array($options['encrypt']) && in_array($key, $options['encrypt'])) {
                     if(array_key_exists($key.'Key', $data)) {
                         $keyphrase = $data[$key.'Key'];

@@ -112,4 +112,12 @@ $lang['clone'] = 'Clone';
 $lang['charasteristiclist'] = "Characteristics List";
 $lang['sequence'] = 'Sequence';
 $lang['segmentcatss'] = 'Segment Categories';
+
+$lang['managesystem'] = 'Manage System';
+$lang['tableslist'] = 'Tables List';
+$lang['managetables'] = 'Manage Tables';
+$lang['windowslist'] = 'Windows List';
+$lang['managewindows'] = 'Manage Windows';
+$lang['referencelists'] = 'Reference Lists';
+$lang['managereferencelist'] = 'Manage Reference List';
 ?>

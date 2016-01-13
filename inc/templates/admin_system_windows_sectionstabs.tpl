@@ -17,9 +17,9 @@
                 <td>{$lang->sectiondisplaytype}</td><td>{$section_displaytype_selectlist}</td>
             </tr>
             <tr>
-                <td>{$lang->helpcomments}</td><td><textarea name='section[{$section['inputChecksum']}][comment]'> {$section['comment']}</textarea></td>
-                <td>{$lang->displaylogic}</td><td><textarea name='section[{$section['inputChecksum']}][displayLogic]'> {$section['displayLogic']}</textarea></td>
-                <td>{$lang->sqlwhereclause}</td><td><textarea name='section[{$section['inputChecksum']}][sqlWhereClause]'> {$section['sqlWhereClause']}</textarea></td>
+                <td>{$lang->helpcomments}</td><td><textarea name='section[{$section['inputChecksum']}][comment]'>{$section['comment']}</textarea></td>
+                <td>{$lang->displaylogic}</td><td><textarea name='section[{$section['inputChecksum']}][displayLogic]'>{$section['displayLogic']}</textarea></td>
+                <td>{$lang->sqlwhereclause}</td><td><textarea name='section[{$section['inputChecksum']}][sqlWhereClause]'>{$section['sqlWhereClause']}</textarea></td>
 
             </tr>
             <tr>
