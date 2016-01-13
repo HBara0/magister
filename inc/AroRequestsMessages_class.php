@@ -39,7 +39,7 @@ class AroRequestsMessages extends AbstractClass {
 
     public function get_replies() {
         global $db;
-        $replies = self::get_data('inReplyTo='.$this->data[self::PRIMARY_KEY], array('simple' => false, 'returnarray' => true));
+        $replies = self::get_data('inReplyToMsgId='.$this->data[self::PRIMARY_KEY], array('simple' => false, 'returnarray' => true));
         if(is_array($replies)) {
             return $replies;
         }
@@ -76,7 +76,9 @@ class AroRequestsMessages extends AbstractClass {
         }
 
         if(isset($this->data['inReplyToMsgId'])) {
-            $this->data['inReplyTo'] = self::get_message_byattr('msgId', $this->arorequestmessage_data['inReplyToMsgId'])->get()['lmid'];
+            $inreplyto_obj = self::get_data(array('armid' => $this->data['inReplyToMsgId']), array('simple' => false));
+            $this->data['inReplyToMsgId'] = $inreplyto_obj->get()['armid'];
+            $this->data['inReplyTo'] = $inreplyto_obj->get()['uid'];
         }
 
         if($config['source'] != 'emaillink') {
@@ -85,7 +87,10 @@ class AroRequestsMessages extends AbstractClass {
         $this->data['aorid'] = $aorid;
         $this->data['uid'] = $core->user['uid'];
         $this->data['createdOn'] = TIME_NOW;
-        $this->data['viewPermission'] = 'public';
+        $this->data['viewPermission'] = 'limited';
+        if($data['viewPermission'] == 1 || (is_object($inreplyto_obj) && $inreplyto_obj->viewPermission == 'public')) {
+            $this->data['viewPermission'] = 'public';
+        }
         foreach($this->data as $attr => $val) {
             if(!in_array($attr, $valid_fields)) {
                 unset($this->data[$attr]);
@@ -193,8 +198,8 @@ class AroRequestsMessages extends AbstractClass {
                 $aro_request_obj = new AroRequests($this->data['aorid']);
                 $sender_approval_seq = $aro_request_obj->get_approval_byappover($this->data['uid'])->get()['sequence'];
                 $user_approval_seq = $aro_request_obj->get_approval_byappover($check_user)->get()['sequence'];
-
-                if($sender_approval_seq <= $user_approval_seq) {
+                if($sender_approval_seq >= $user_approval_seq) {
+                    //  if($sender_approval_seq <= $user_approval_seq) {
                     return true;
                 }
                 return false;
@@ -214,26 +219,12 @@ class AroRequestsMessages extends AbstractClass {
         switch($this->data['viewPermission']) {
             case 'public':
                 $arorequest_obj = new AroRequests($this->data['aorid']);
-                $lastapproval = $arorequest_obj->get_lastnotified(); //get_lastapproval
-                $sender_approval_seq = 1;
-                if(is_object($lastapproval)) {
-                    $sender_approval_seq = $lastapproval->sequence;
-                }
-
-                // $sender_approval_seq = $arorequest_obj->get_approval_byappover($this->data['uid'])->get()['sequence'];
-                //$approvals_objs = $arorequest_obj->get_approvers();
                 $config = array('returnarray' => true, 'simple' => false, 'order' => array('by' => 'sequence', 'sort' => 'ASC'));
-                $approvals_objs = AroRequestsApprovals::get_data('aorid='.$this->data['aorid'].' AND sequence <='.intval($sender_approval_seq), $config);
+                $approvals_objs = AroRequestsApprovals::get_data('aorid='.$this->data['aorid'], $config);
                 if(is_array($approvals_objs)) {
                     foreach($approvals_objs as $approvals_obj) {
                         $user = new Users($approvals_obj->uid);
                         $users_receiver[$approvals_obj->uid] = $user->email;
-                    }
-                }
-                else {
-                    if(is_object(approvals_objs)) {
-                        $user = new Users($approvals_objs->uid);
-                        $users_receiver[$approvals_objs->uid] = $user->email;
                     }
                 }
                 $createdbyid = $arorequest_obj->createdBy;
@@ -250,17 +241,23 @@ class AroRequestsMessages extends AbstractClass {
                 $users_receiver[$createdby->get()['uid']] = $createdby->email;
                 break;
             case'limited':
-
                 $arorequest_obj = new AroRequests($this->data['aorid']);
-                $sender_approval_seq = $arorequest_obj->get_approval_byappover($this->data['uid'])->get()['sequence'];
-
-                $sender_approvals_objs = AroRequestsApprovals::get_data('aorid='.$this->data['aorid'].' AND sequence >='.intval($sender_approval_seq));
-                if(is_array($sender_approvals_objs)) {
-                    foreach($sender_approvals_objs as $sender_approvals_obj) {
-                        $user = new Users($sender_approvals_obj->uid);
-                        $users_receiver[$user->uid] = $user->email;
+                $lastapproval = $arorequest_obj->get_lastnotified(); //get_lastapproval
+                $sender_approval_seq = 1;
+                if(is_object($lastapproval)) {
+                    $sender_approval_seq = $lastapproval->sequence;
+                }
+                $config = array('returnarray' => true, 'simple' => false, 'order' => array('by' => 'sequence', 'sort' => 'ASC'));
+                $approvals_objs = AroRequestsApprovals::get_data('aorid='.$this->data['aorid'].' AND sequence <='.intval($sender_approval_seq), $config);
+                if(is_array($approvals_objs)) {
+                    foreach($approvals_objs as $approvals_obj) {
+                        $user = new Users($approvals_obj->uid);
+                        $users_receiver[$approvals_obj->uid] = $user->email;
                     }
                 }
+                $createdbyid = $arorequest_obj->createdBy;
+                $createdby = new Users($createdbyid);
+                $users_receiver[$createdby->get()['uid']] = $createdby->email;
                 break;
         }
         unset($users_receiver[$core->user['uid']]);   /* avoid send  threads  to the user who is setting the message thread */

@@ -1,8 +1,8 @@
 <script>
-    $(function () {
-        $('img[id^="replyto_"]').bind('click', function () {
+    $(function() {
+        $('img[id^="replyto_"]').bind('click', function() {
             var id = $(this).attr("id").split("_");
-            $("#inreplyto").val(id[1]);
+            $("#inReplyToMsgId").val(id[1]);
             var permission = id[2];
             $('input[id$="_' + permission + '"]').prop('checked', true);
             $('#message').focus();
@@ -21,16 +21,20 @@
 <div class='subtitle'>{$lang->conversation}</div>
 <form name="add_aro/managearodouments_Form" id="add_aro/managearodouments_Form" action="#" method="post">
     <input type="hidden" name="action" value="perform_sendmessage" />
-    <input type="hidden" value="" id="inreplyto" name="arorequestmessage[inReplyTo]"/>
+    <input type="hidden" value="" id="inReplyToMsgId" name="arorequestmessage[inReplyToMsgId]"/>
     <input type="hidden" id="messagerequestkey" name="messagerequestkey" value="{$core->input[requestKey]}" />
-    <input type="hidden" value="{$core->input[id]}" id="inreplyto" name="aorid"/>
-    <div id="messagetoreply" style="display:block; padding: 8px;"><textarea id="message" class="txteditadv" cols="40" rows="5" name="arorequestmessage[message]" placeholder='{$lang->writeyourmsghere}'></textarea>
-        <div id="messagetoreply" style="display:none; padding:5px;">
-            <span><input type="radio" id="permission_public" name="arorequestmessage[viewPermission]"  value="public" checked="checked">{$lang->public}</span>
-            <span><input type="radio" disabled="disabled" id="permission_private" name="arorequestmessage[viewPermission]"  value="private">{$lang->private}</span>
-            <span><input type="radio" disabled="disabled" id="permission_limited" name="arorequestmessage[viewPermission]" value="limited">{$lang->limited}</span>
-        </div>
-        <div><input type='button' id="add_aro/managearodouments_Button" value="&#x21b6; {$lang->reply}" class='button' /></div>
+    <input type="hidden" value="{$core->input[id]}" id="aorid" name="aorid"/>
+    <div id="messagetoreply" style="display:block; padding: 8px;">
+        <textarea id="message" class="txteditadv" cols="40" rows="5" name="arorequestmessage[message]" placeholder='{$lang->writeyourmsghere}'></textarea>
+        <!-- <div id="messagetoreply" style=" padding:5px;">
+             <span><input type="radio" id="permission_public" name="arorequestmessage[viewPermission]"  value="public" checked="checked">{$lang->public}</span>
+             <span><input type="radio" disabled="disabled" id="permission_private" name="arorequestmessage[viewPermission]"  value="private">{$lang->private}</span>
+             <span><input type="radio" disabled="disabled" id="permission_limited" name="arorequestmessage[viewPermission]" value="limited">{$lang->limited}</span>
+         </div>
+        -->
+        <div>
+            <input type="checkbox" name="arorequestmessage[viewPermission]" value="1"/> {$lang->publicaromsg}<br/>
+            <input type='button' id="add_aro/managearodouments_Button" value="&#x21b6; {$lang->reply}" class='button' /></div>
         <div id="add_aro/managearodouments_Results"></div>
         <div style="display:block;">{$takeactionpage_conversation}</div>
     </div>

@@ -990,7 +990,7 @@ class AroRequests extends AbstractClass {
         global $template, $core;
         $takeactionpage_conversation = null;
 
-        $initialmsgs = AroRequestsMessages::get_data('aorid='.$this->data[self::PRIMARY_KEY].' AND inReplyTo=0', array('simple' => false, 'returnarray' => true));
+        $initialmsgs = AroRequestsMessages::get_data('aorid='.$this->data[self::PRIMARY_KEY].' AND inReplyToMsgId=0', array('simple' => false, 'returnarray' => true));
         if(!is_array($initialmsgs)) {
             return false;
         }
