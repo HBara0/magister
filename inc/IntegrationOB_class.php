@@ -511,6 +511,68 @@ class IntegrationOB extends Integration {
         return false;
     }
 
+    public function get_fifoinputsalternative(array $organisations, array $options) {
+
+        $query = $this->f_db->query("SELECT m_attributesetinstance_id, m_product_id,SUM(movementqty) AS remainingQty FROM m_transaction
+									WHERE ad_org_id IN ('".implode('\',\'', $organisations)."')
+									AND movementdate BETWEEN '".date('Y-m-d 00:00:00', strtotime($this->period['from']))."' AND '".date('Y-m-d 00:00:00', strtotime($this->period['to']))."'{$query_extrawhere}
+                                                                        GROUP BY m_attributesetinstance_id,m_product_id HAVING SUM(movementqty) > 0
+                                                                    ");
+
+
+        if($this->f_db->num_rows($query) > 0) {
+            while($transcation = $this->f_db->fetch_assoc($query)) {
+                $filter = " m_attributesetinstance_id='".$transcation['m_attributesetinstance_id']."' AND m_product_id='".$transcation['m_product_id']."' ORDER BY movementdate ASC LIMIT 1";
+                $first_transaction = IntegrationOBTransaction::get_data($filter);
+                if(!is_object($first_transaction)) {
+                    continue;
+                }
+
+                $transaction_data = $first_transaction->get();
+                $movement_qty_query = $this->f_db->query("SELECT SUM(movementqty) AS soldqty FROM m_transaction
+									WHERE m_attributesetinstance_id='".$transcation['m_attributesetinstance_id']."' AND m_product_id='".$transcation['m_product_id']."'
+                                                                            AND movementtype IN('C+','C-')");
+                if($this->f_db->num_rows($movement_qty_query) > 0) {
+                    while($movement_qty = $this->f_db->fetch_assoc($movement_qty_query)) {
+                        $inputs[$transaction_data['m_transaction_id']]['stack']['soldqty'] = abs($movement_qty['soldqty']);
+                    }
+                }
+
+                $inputs[$transaction_data['m_transaction_id']]['stack']['qty'] = $transaction_data['movementqty'];
+                $inputs[$transaction_data['m_transaction_id']]['stack']['remaining_cost'] = $transaction_data['transactioncost'];
+                $inputs[$transaction_data['m_transaction_id']]['stack']['remaining_qty'] = $transcation['remainingqty'];
+                $inputs[$transaction_data['m_transaction_id']]['stack']['daysinstock'] = $first_transaction->get_daysinstock();
+                $inputs[$transaction_data['m_transaction_id']]['movementdate'] = $first_transaction->get()['movementdate'];
+                $inputs[$transaction_data['m_transaction_id']]['product'] = $first_transaction->get_product()->get();
+                $inputs[$transaction_data['m_transaction_id']]['product']['category'] = $first_transaction->get_product()->get_category()->get();
+                $inputs[$transaction_data['m_transaction_id']]['category'] = &$inputs[$transaction_data['m_transaction_id']]['product']['category'];
+                $inputs[$transaction_data['m_transaction_id']]['product']['uom'] = $first_transaction->get_product()->get_uom()->get();
+
+                if(!is_null($first_transaction->get_inoutline())) {
+                    $supplier = $first_transaction->get_supplier();
+                }
+                if(!empty($supplier)) {
+                    $inputs[$transaction_data['m_transaction_id']]['supplier'] = $supplier->get();
+                }
+                else {
+                    $inputs[$transaction_data['m_transaction_id']]['supplier'] = 'unspecified';
+                }
+
+                $inputs[$transaction_data['m_transaction_id']]['transaction'] = $first_transaction->get();
+                $inputs[$transaction_data['m_transaction_id']]['transaction']['attributes'] = $first_transaction->get_attributesetinstance()->get();
+                $inputs[$transaction_data['m_transaction_id']]['transaction']['attributes']['daystoexpire'] = $first_transaction->get_attributesetinstance()->get_daystoexpire();
+                if($inputs[$transaction_data['m_transaction_id']]['transaction']['attributes']['daystoexpire'] < 0) {
+                    $inputs[$transaction_data['m_transaction_id']]['transaction']['attributes']['daystoexpire'] = '<span style="color:red;font-weight:bold;">Expired</span>';
+                }
+                $inputs[$transaction_data['m_transaction_id']]['transaction']['attributes']['packaging'] = $first_transaction->get_packaging();
+
+                $inputs[$transaction_data['m_transaction_id']]['warehouse'] = $first_transaction->get_locator()->get_warehouse()->get();
+            }
+            return $inputs;
+        }
+        return false;
+    }
+
     public function get_firsttransaction($organisations) {
         $query = $this->f_db->query("SELECT m_transaction_id
 				FROM m_transaction
