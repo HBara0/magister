@@ -33,6 +33,8 @@ if(!$core->input['action']) {
     if(isset($core->input['spid']) && !empty($core->input['spid'])) {
         $extra_where = ' AND spid='.intval($core->input['spid']);
     }
+    $fields = array('daysfromqstart', 'daysfromreportcreation', 'daystoimportfromqstart', 'daystoimportfromcreation');
+
     if(is_array($affiliates)) {
         $aff_count = 0;
         foreach($affiliates as $affiliate) {
@@ -164,9 +166,10 @@ if(!$core->input['action']) {
             if($totals['allmkrwithrating'] && $totals['allmkrwithrating'] != 0) {
                 $avgrating['allaffiliates'] = number_format($totalrating['allaffiliates'] / $totals['allmkrwithrating'], 2);
             }
-        }
-        foreach($fields as $field) {
-            $all_aff_avg[$field] = ceil($all_aff_total[$field] / $aff_count);
+
+            foreach($fields as $field) {
+                $all_aff_avg[$field] = ceil($all_aff_total[$field] / $aff_count);
+            }
         }
         if(is_array($avgmkrrating)) {
             if(!(count(array_unique($avgmkrrating)) === 1 && end($avgmkrrating) === '0.00')) {
