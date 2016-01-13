@@ -464,6 +464,12 @@ class AroRequests extends AbstractClass {
                         break;
                     case 'cfo':
                         $approvers['cfo'] = $affiliate->get_cfo()->uid;
+                        if(isset($intermed) && !empty($intermed)) {
+                            $intermedaff = Affiliates::get_affiliates(array('affid' => $intermed));
+                            if(is_object($intermedaff)) {
+                                $approvers['cfo'] = $intermedaff->get_cfo()->uid;
+                            }
+                        }
                         break;
                     case 'coo':
                         $approvers['coo'] = $affiliate->get_coo()->uid;

@@ -28,7 +28,7 @@
                 <td><input type="number" step="any" name="partiesinfo[ptAcceptableMargin]" id="partiesinfo_intermed_ptAcceptableMargin" value="{$aropartiesinfo_obj->ptAcceptableMargin}" {$is_disabled} class="automaticallyfilled-editable"/></td>
             </tr>
             <tr><td colspan="2">{$lang->promiseofpayment}  <a href="#" title="{$lang->promiseofpaymentdesc}"><img src="./images/icons/question.gif" ></a></td>
-                <td><input type="text" id="pickDate_intermed_promiseofpayment" autocomplete="off" tabindex="2" value="{$partiesinfo[promiseOfPayment_formatted]}" {$partiesinfo[required_intermedpolicy]} style="width:150px;" class="automaticallyfilled-noneditable"/>
+                <td><input type="text" id="pickDate_intermed_promiseofpayment" autocomplete="off" tabindex="2" value="{$partiesinfo[promiseOfPayment_formatted]}" style="width:150px;" class="automaticallyfilled-noneditable"/>
                     <input type="hidden" name="partiesinfo[promiseOfPayment]" id="altpickDate_intermed_promiseOfPayment" value="{$partiesinfo[promiseOfPayment_output]}"/>
                 </td>
             </tr>
