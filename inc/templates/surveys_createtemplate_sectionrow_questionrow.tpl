@@ -27,7 +27,7 @@
                 <td><input name="section[{$section_rowid}][questions][{$question_rowid}][commentsFieldTitle]" value="{$section[$section_rowid][questions][$question_rowid][commentsFieldTitle]}"  title="{$lang->commentsFieldTitle_tip}" type="text" size="40"></td>
             </tr>
             <tr>
-                <td>{$lang->commentsfieldsize}</td>
+                <td><img  src="{$core->settings['rootdir']}/images/icons/double arrow.png">{$lang->commentsfieldrownumber}</td>
                 <td><input accept="numeric" id="commentsFieldSize" value="{$section[$section_rowid][questions][$question_rowid][commentsFieldSize]}" name="section[{$section_rowid}][questions][{$question_rowid}][commentsFieldSize]" type="text" size="10" title="{$lang->commentsfieldsize_tip}" maxlength="3"><span id="fieldsizevalidate"></span></td>
             </tr>
             <tr id="section[{$section_rowid}][questions][{$question_rowid}][fieldSize_container]" {$style[fieldsizedisplay]}>
