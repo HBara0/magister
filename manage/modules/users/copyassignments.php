@@ -18,9 +18,10 @@ if($core->usergroup['canManageUsers'] == 0) {
 }
 
 if(!$core->input['action']) {
-    $users = Users::get_users(null, array('order' => 'displayName'));
-    $fromuser_selectlist = parse_selectlist('fromUser', 2, $users, '');
-    $touser_selectlist = parse_selectlist('toUser', 2, $users, '');
+    $fromusers = Users::get_users(null, array('order' => 'displayName'));
+    $tousers = Users::get_users('gid !=7', array('order' => 'displayName'));
+    $fromuser_selectlist = parse_selectlist('fromUser', 2, $fromusers, '');
+    $touser_selectlist = parse_selectlist('toUser', 2, $tousers, '');
 
     $segments = ProductsSegments::get_segments();
     $segments_selectlist = parse_selectlist('segments[]', 3, $segments, '', 1);
