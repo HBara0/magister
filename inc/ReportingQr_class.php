@@ -52,8 +52,8 @@ class ReportingQr Extends Reporting {
 
                 $this->report['productsactivity'][$products_activityrow['paid']] = $products_activityrow;
 
-//				$this->report['classifiedpactivity']['amount']['percentage'][$this->report['year']][$this->report['quarter']][$this->report['affid']][$products_activityrow['psid']][$products_activityrow['pid']] = round(($this->report['classifiedpactivity']['amount']['actual'][$this->report['year']][$this->report['quarter']][$this->report['affid']][$products_activityrow['psid']][$products_activityrow['pid']]/$this->report['classifiedpactivity']['amount']['forecast'][$this->report['year']][$this->report['quarter']][$this->report['affid']][$products_activityrow['psid']][$products_activityrow['pid']])*100);
-//				$this->report['classifiedpactivity']['quantity']['percentage'][$this->report['year']][$this->report['quarter']][$this->report['affid']][$products_activityrow['psid']][$products_activityrow['pid']] = round(($this->report['classifiedpactivity']['quantity']['actual'][$this->report['year']][$this->report['quarter']][$this->report['affid']][$products_activityrow['psid']][$products_activityrow['pid']]/$this->report['classifiedpactivity']['quantity']['forecast'][$this->report['year']][$this->report['quarter']][$this->report['affid']][$products_activityrow['psid']][$products_activityrow['pid']])*100);
+//				$this->report['classifiedpactivity']['amount']['percentage'][$this->report['year']][$this->report['quarter']][$this->report['affid']][$products_activityrow['psid']][$products_activityrow['pid']] = floor(($this->report['classifiedpactivity']['amount']['actual'][$this->report['year']][$this->report['quarter']][$this->report['affid']][$products_activityrow['psid']][$products_activityrow['pid']]/$this->report['classifiedpactivity']['amount']['forecast'][$this->report['year']][$this->report['quarter']][$this->report['affid']][$products_activityrow['psid']][$products_activityrow['pid']])*100);
+//				$this->report['classifiedpactivity']['quantity']['percentage'][$this->report['year']][$this->report['quarter']][$this->report['affid']][$products_activityrow['psid']][$products_activityrow['pid']] = floor(($this->report['classifiedpactivity']['quantity']['actual'][$this->report['year']][$this->report['quarter']][$this->report['affid']][$products_activityrow['psid']][$products_activityrow['pid']]/$this->report['classifiedpactivity']['quantity']['forecast'][$this->report['year']][$this->report['quarter']][$this->report['affid']][$products_activityrow['psid']][$products_activityrow['pid']])*100);
 //
                 $this->report['products'][$products_activityrow['pid']] = $products_activityrow['productname'];
                 $this->report['productssegments'][$products_activityrow['psid']] = $products_activityrow['segment'];
@@ -476,7 +476,7 @@ class ReportingQr Extends Reporting {
                     foreach($validation_items as $validation_key => $validation_item) {
                         $actual_current_validation = $productactivity[$validation_item];
                         if($validation_key == 'sales' && isset($productactivity['fxrate'])) {
-                            $actual_current_validation = round($productactivity[$validation_item] / $productactivity['fxrate'], 4);
+                            $actual_current_validation = floor($productactivity[$validation_item] / $productactivity['fxrate'], 4);
                         }
 
                         $actual_current_data_querystring = 'uid!='.$core->user['uid'];
@@ -490,7 +490,7 @@ class ReportingQr Extends Reporting {
                         $actual_current_forecast = $productactivity[$validation_key.'Forecast'] + $actual_current_data['forecastsum'] + $otheremplforecasts[$productactivity['pid']][$validation_item];
 
                         $otheremplforecasts[$productactivity['pid']][$validation_item] += $productactivity[$validation_key.'Forecast'];
-                        if(round($actual_forecast, 4) > round($actual_current_forecast, 4) || ($this->report['quarter'] == 4 && round($actual_forecast, 4) < round($actual_current_forecast, 4))) {
+                        if(floor($actual_forecast, 4) > floor($actual_current_forecast, 4) || ($this->report['quarter'] == 4 && floor($actual_forecast, 4) < floor($actual_current_forecast, 4))) {
                             if($options['source'] == 'finalize') {
                                 $user = new Users($productactivity['uid']);
                                 $product = new Products($productactivity['pid']);
@@ -500,7 +500,7 @@ class ReportingQr Extends Reporting {
                             }
                             else {
                                 $forecast_corrections[$productactivity['pid']]['name'] = $productactivity['productname'];
-                                $forecast_corrections[$productactivity['pid']][$validation_key] = $correctionsign.round($actual_forecast, 4);
+                                $forecast_corrections[$productactivity['pid']][$validation_key] = $correctionsign.floor($actual_forecast, 4);
                             }
                         }
                         else {
@@ -513,10 +513,10 @@ class ReportingQr Extends Reporting {
                         $actual_forecast = $productactivity[$validation_item];
                         if($validation_key == 'sales') {
                             if(isset($productactivity['fxrate']) && $productactivity['fxrate'] != 1) {
-                                $actual_forecast = round($productactivity[$validation_item] / $productactivity['fxrate'], 4);
+                                $actual_forecast = floor($productactivity[$validation_item] / $productactivity['fxrate'], 4);
                             }
                         }
-                        if($productactivity[$validation_key.'Forecast'] < round($actual_forecast, 4) || ($this->report['quarter'] == 4 && round($productactivity[$validation_key.'Forecast'], 4) > round($actual_forecast, 4))) {
+                        if($productactivity[$validation_key.'Forecast'] < floor($actual_forecast, 4) || ($this->report['quarter'] == 4 && floor($productactivity[$validation_key.'Forecast'], 4) > floor($actual_forecast, 4))) {
                             if($options['source'] == 'finalize') {
                                 $user = new Users($productactivity['uid']);
                                 $product = new Products($productactivity['pid']);
@@ -526,7 +526,7 @@ class ReportingQr Extends Reporting {
                             }
                             else {
                                 $forecast_corrections[$productactivity['pid']]['name'] = $productactivity['productname'];
-                                $forecast_corrections[$productactivity['pid']][$validation_key] = $correctionsign.round($actual_forecast, 4);
+                                $forecast_corrections[$productactivity['pid']][$validation_key] = $correctionsign.floor($actual_forecast, 4);
                             }
                         }
                     }
@@ -558,7 +558,7 @@ class ReportingQr Extends Reporting {
                 if(!empty($productdata['pid']) && isset($productdata['pid'])) {
                     if($productdata['fxrate'] != 1 && isset($productdata['fxrate'])) {
                         $productdata['turnOverOc'] = $productdata['turnOver'];
-                        $productdata['turnOver'] = round($productdata['turnOver'] / $productdata['fxrate'], 4);
+                        $productdata['turnOver'] = floor($productdata['turnOver'] / $productdata['fxrate'], 4);
                         $productdata['originalCurrency'] = $currencies[$productdata['fxrate']];
                     }
 
