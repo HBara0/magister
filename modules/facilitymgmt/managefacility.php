@@ -15,7 +15,7 @@ if($core->usergroup['facilitymgmt_canManageFacilities'] == 0) {
     error($lang->sectionnopermission);
 }
 if(!isset($core->input['action'])) {
-    $affiliates = Affiliates::get_affiliates(array('affid' => $core->user['mainaffiliate']), array('returnarray' => true));
+    $affiliates = Affiliates::get_affiliates(array('affid' => $core->user['affiliates']), array('returnarray' => true));
     $factypes = FacilityMgmtFactypes::get_data(array('isActive' => 1), array('returnarray' => true));
     $roomtypesids = FacilityMgmtFactypes::get_roomtypesids();
     $mainlocationids = FacilityMgmtFactypes::get_maintypesids();

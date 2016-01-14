@@ -19,12 +19,12 @@ if($core->usergroup['canAdminCP'] == 0) {
 if(!$core->input['action']) {
     $report_data['year'] = intval($core->input['year']);
     $report_data['quarter'] = intval($core->input['quarter']);
-
+    $current_qrinfo = currentquarter_info();
     if(!isset($core->input['year']) || empty($core->input['year'])) {
-        $report_data['year'] = date('Y', TIME_NOW);
+        $report_data['year'] = $current_qrinfo['year'];
     }
     if(!isset($core->input['quarter']) || empty($core->input['quarter'])) {
-        $report_data['quarter'] = ceil(date('n', time()) / 3) - 1;
+        $report_data['quarter'] = $current_qrinfo['quarter'];
     }
     $affiliates = Affiliates::get_affiliates('name IS NOT NULL', array('returnarray' => true));
     if(isset($core->input['affid'])) {
@@ -32,6 +32,9 @@ if(!$core->input['action']) {
     }
     if(isset($core->input['spid']) && !empty($core->input['spid'])) {
         $extra_where = ' AND spid='.intval($core->input['spid']);
+    }
+    if(isset($core->input['uid']) && !empty($core->input['uid'])) {
+        $extra_where = ' AND (rid IN (SELECT rid FROM '.Tprefix.'reportcontributors WHERE uid ='.intval($core->input['uid']).') OR spid IN (SELECT eid FROM '.Tprefix.'suppliersaudits where uid ='.intval($core->input['uid']).'))';
     }
     $fields = array('daysfromqstart', 'daysfromreportcreation', 'daystoimportfromqstart', 'daystoimportfromcreation');
 
@@ -81,7 +84,7 @@ if(!$core->input['action']) {
                     $audits = $report_obj->get_report_supplier_audits();
                     if(is_array($audits)) {
                         foreach($audits as $audit) {
-                            $reportaudits[] = $audit->parse_link();
+                            $reportaudits[] = $audit->parse_qrperformance_link($report_data['year'], $report_data['quarter'], '');
                         }
                         $reportaudits_str = implode(', ', $reportaudits);
                     }
@@ -97,7 +100,7 @@ if(!$core->input['action']) {
                                         $authors .= ', ';
                                     }
                                     $reportauthor = new Users($reportauthor_obj->uid);
-                                    $authors .= $reportauthor->parse_link();
+                                    $authors .= $reportauthor->parse_qrperformance_link($report_data['year'], $report_data['quarter'], '');
                                 }
                             }
                             $marketreport = $marketreport->get();
