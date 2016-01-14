@@ -21,7 +21,7 @@ class Events extends AbstractClass {
     const TABLE_NAME = 'calendar_events';
     const DISPLAY_NAME = 'title';
     const CLASSNAME = __CLASS__;
-    const SIMPLEQ_ATTRS = 'ceid, title, description,fromDate,toDate,place,publishOnWebsite,isCreatedFromCMS';
+    const SIMPLEQ_ATTRS = 'ceid, title, description,fromDate,toDate,place,publishOnWebsite,isCreatedFromCMS,isPublic';
     const UNIQUE_ATTRS = 'alias';
 
     public function __construct($id = '', $simple = false, $options = array()) {
@@ -77,7 +77,7 @@ class Events extends AbstractClass {
                 if($upload_obj->get_status() != 4) {
                     ?>
                     <script language="javascript" type="text/javascript">
-                        $(function() {
+                        $(function () {
                             top.$("#upload_Result").html("<span class='red_text'><?php echo $upload_obj->parse_status($upload_obj->get_status());?></span>");
                         });
                     </script>
