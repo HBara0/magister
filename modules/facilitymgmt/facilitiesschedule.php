@@ -77,7 +77,8 @@ else {
                 if($facilitiy->isActive != 1) {
                     continue;
                 }
-                $reserved_data[] = array('id' => $reservation->{FacilityMgmtReservations::PRIMARY_KEY}, 'title' => $facilitiy->name, 'start' => date(DATE_ATOM, $reservation->fromDate), 'end' => date(DATE_ATOM, $reservation->toDate), 'color' => $facilitiy->idColor);
+                $user_reserving = $reservation->get_reservedBy()->get_displayname();
+                $reserved_data[] = array('id' => $reservation->{FacilityMgmtReservations::PRIMARY_KEY}, 'title' => $facilitiy->name.' '.$lang->reservedby.' '.$user_reserving, 'start' => date(DATE_ATOM, $reservation->fromDate), 'end' => date(DATE_ATOM, $reservation->toDate), 'color' => $facilitiy->idColor);
             }
         }
         echo(json_encode($reserved_data));
