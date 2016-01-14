@@ -19,7 +19,7 @@ if($core->usergroup['canAdminCP'] == 0) {
 if(!$core->input['action']) {
     $report_data['year'] = intval($core->input['year']);
     $report_data['quarter'] = intval($core->input['quarter']);
-
+    $current_qrinfo = currentquarter_info();
     $fields = array('daysfromqstart', 'daysfromreportcreation', 'daystoimportfromqstart', 'daystoimportfromcreation');
 
     if(!isset($core->input['year']) || empty($core->input['year'])) {
@@ -38,6 +38,11 @@ if(!$core->input['action']) {
     if(isset($core->input['spid']) && !empty($core->input['spid'])) {
         $extra_where = ' AND spid='.intval($core->input['spid']);
     }
+    if(isset($core->input['uid']) && !empty($core->input['uid'])) {
+        $extra_where = ' AND (rid IN (SELECT rid FROM '.Tprefix.'reportcontributors WHERE uid ='.intval($core->input['uid']).') OR spid IN (SELECT eid FROM '.Tprefix.'suppliersaudits where uid ='.intval($core->input['uid']).'))';
+    }
+    $fields = array('daysfromqstart', 'daysfromreportcreation', 'daystoimportfromqstart', 'daystoimportfromcreation');
+
     if(is_array($affiliates)) {
         $aff_count = 0;
         foreach($affiliates as $affiliate) {
@@ -83,7 +88,7 @@ if(!$core->input['action']) {
                     $audits = $report_obj->get_report_supplier_audits();
                     if(is_array($audits)) {
                         foreach($audits as $audit) {
-                            $reportaudits[] = $audit->parse_link();
+                            $reportaudits[] = $audit->parse_qrperformance_link($report_data['year'], $report_data['quarter'], '');
                         }
                         $reportaudits_str = implode(', ', $reportaudits);
                     }
@@ -99,7 +104,7 @@ if(!$core->input['action']) {
                                         $authors .= ', ';
                                     }
                                     $reportauthor = new Users($reportauthor_obj->uid);
-                                    $authors .= $reportauthor->parse_link();
+                                    $authors .= $reportauthor->parse_qrperformance_link($report_data['year'], $report_data['quarter'], '');
                                 }
                             }
                             $marketreport = $marketreport->get();
@@ -168,9 +173,10 @@ if(!$core->input['action']) {
             if($totals['allmkrwithrating'] && $totals['allmkrwithrating'] != 0) {
                 $avgrating['allaffiliates'] = number_format($totalrating['allaffiliates'] / $totals['allmkrwithrating'], 2);
             }
-        }
-        foreach($fields as $field) {
-            $all_aff_avg[$field] = ceil($all_aff_total[$field] / $aff_count);
+
+            foreach($fields as $field) {
+                $all_aff_avg[$field] = ceil($all_aff_total[$field] / $aff_count);
+            }
         }
         if(is_array($avgmkrrating)) {
             if(!(count(array_unique($avgmkrrating)) === 1 && end($avgmkrrating) === '0.00')) {

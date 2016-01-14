@@ -893,7 +893,7 @@ class Entities extends AbstractClass {
             $entity_columns = array('eid', 'cid');
         }
         elseif($type == 's') {
-            $entity_columns = array('eid', 'spid');
+            $entity_columns = array('eid', 'spid', 'vendorEid');
         }
         $old_entity_details = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."entities WHERE eid={$oldid}"));
         $new_entity_details = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."entities WHERE eid={$newid}"));

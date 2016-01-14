@@ -58,4 +58,5 @@ $lang['reservationupdate_message'] = 'Reservation Altered To'
         .'From : {2}<br />'
         .'To : {3}<br />'
         .'Reserved By: {4} <br/>{5}';
+$lang['reservedby'] = 'Reserved By';
 ?>

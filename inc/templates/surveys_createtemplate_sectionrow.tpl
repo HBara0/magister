@@ -10,7 +10,7 @@
                 <td>
                     <input name="section[{$section_rowid}][stsid]" id="sectionid_{$section_rowid}" type="hidden" value="{$section[section_id]}">
                     <input name="section[{$section_rowid}][inputChecksum]" id="sectionchecksum_{$section_rowid}" type="hidden" value="{$section[section_inputChecksum]}">
-                    <input name="section[{$section_rowid}][title]" type="text" size="50" required="required" value="{$section[section_title]}">
+                    <input name="section[{$section_rowid}][title]" type="text" size="50" value="{$section[section_title]}">
                 </td>
             </tr> <tr>
                 <td style="padding:5px 5px 10px 5px;"><strong>{$lang->sectiondesciption}</strong></td><td>

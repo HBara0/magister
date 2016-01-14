@@ -255,18 +255,18 @@ class Surveys {
                 continue;
             }
 
-            if(empty($section['title']) || empty($section['inputChecksum'])) {
+            if(empty($section['inputChecksum'])) {
                 $this->status = 1;
                 return false;
             }
 
             /* Check if same section title has been used in the same template */
-            if($cache->incache('sectiontitles', $section['title'])) {
+            if($cache->incache('sectionchecksums', $section['inputChecksum'])) {
                 $this->status = 4;
                 return false;
             }
             else {
-                $cache->add('sectiontitles', $section['title'], $key);
+                $cache->add('sectionchecksums', $section['inputChecksum'], $key);
                 foreach($section['questions'] as $stqid => $question) {
                     if(count($section['questions']) == 1) {
                         if(empty($question['question'])) {

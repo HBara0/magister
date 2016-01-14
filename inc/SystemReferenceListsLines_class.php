@@ -1,41 +1,31 @@
 <?php
-/*-------Definiton-START--------*/
+/* -------Definiton-START-------- */
+
 class SystemReferenceListsLines extends AbstractClass {
-        protected $data = array();
-        protected $errorcode = 0;
-        const PRIMARY_KEY = 'srllid';
-        const TABLE_NAME = 'system_referencelists_lines';
-        const SIMPLEQ_ATTRS = '*';
-        const UNIQUE_ATTRS = 'srllid,type';
-        const CLASSNAME = __CLASS__;
-        const DISPLAY_NAME = 'name';
+    protected $data = array();
+    protected $errorcode = 0;
 
-                    /*-------Definiton-END--------*/
-/*-------FUNCTIONS-START--------*/
+    const PRIMARY_KEY = 'srllid';
+    const TABLE_NAME = 'system_referencelists_lines';
+    const SIMPLEQ_ATTRS = '*';
+    const UNIQUE_ATTRS = 'srllid,type';
+    const CLASSNAME = __CLASS__;
+    const DISPLAY_NAME = 'name';
 
-public function __construct($id = '', $simple = true) {
+    /* -------Definiton-END-------- */
+    /* -------FUNCTIONS-START-------- */
+    public function __construct($id = '', $simple = true) {
         parent::__construct($id, $simple);
-                }
+    }
 
-public function create(array $data) {
-        global $db,$core;
-        $table_array = array(
- 	'name' => $data['name'],
-	'title' => $data['title'],
-	'value' => $data['value'],
-	'sequence' => $data['sequence'],
-	'description' => $data['description'],
-	'isActive' => $data['isActive'],
-	'table' => $data['table'],
-	'keyColumn' => $data['keyColumn'],
-	'displayedColumn' => $data['displayedColumn'],
-	'whereClause' => $data['whereClause'],
-	'type' => $data['type'],
-	'srlid' => $data['srlid'],
-	'inputChecksum' => $data['inputChecksum'],
-	'tableName' => $data['tableName'],
-
-                );
+    public function create(array $data) {
+        global $db, $core;
+        $fields = array('name', 'title', 'value', 'sequence', 'description', 'isActive', 'table', 'keyColumn', 'displayedColumn', 'whereClause', 'type', 'srlid', 'inputChecksum', 'tableName');
+        foreach($fields as $field) {
+            if(!is_null($data[$field])) {
+                $table_array[$field] = $data[$field];
+            }
+        }
         $query = $db->insert_query(self::TABLE_NAME, $table_array);
         if($query) {
             $this->data[self::PRIMARY_KEY] = $db->last_id();
@@ -43,35 +33,24 @@ public function create(array $data) {
         return $this;
     }
 
-protected function update(array $data) {
+    protected function update(array $data) {
         global $db;
-        if(is_array($data)) {
-	$update_array['name']=$data['name'];
-	$update_array['title']=$data['title'];
-	$update_array['value']=$data['value'];
-	$update_array['sequence']=$data['sequence'];
-	$update_array['description']=$data['description'];
-	$update_array['isActive']=$data['isActive'];
-	$update_array['table']=$data['table'];
-	$update_array['keyColumn']=$data['keyColumn'];
-	$update_array['displayedColumn']=$data['displayedColumn'];
-	$update_array['whereClause']=$data['whereClause'];
-	$update_array['type']=$data['type'];
-	$update_array['srlid']=$data['srlid'];
-	$update_array['inputChecksum']=$data['inputChecksum'];
-	$update_array['tableName']=$data['tableName'];
-
-                    }
-       $db->update_query(self::TABLE_NAME, $update_array, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
-        return $this;
+        $update_array['isActive'] = 0;
+        $fields = array('name', 'title', 'value', 'sequence', 'description', 'isActive', 'table', 'keyColumn', 'displayedColumn', 'whereClause', 'type', 'srlid', 'inputChecksum', 'tableName');
+        foreach($fields as $field) {
+            if(!is_null($data[$field])) {
+                $update_array[$field] = $data[$field];
+            }
         }
+        $db->update_query(self::TABLE_NAME, $update_array, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
+        return $this;
+    }
 
-/*-------FUNCTIONS-START--------*/
-/*-------GETTER FUNCTIONS-START--------*/
+    /* -------FUNCTIONS-START-------- */
+    /* -------GETTER FUNCTIONS-START-------- */
+    public function get_referencelist() {
+        return new SystemReferenceLists($this->data['srlid']);
+    }
 
-public function get_referencelist(){
-    return new SystemReferenceLists($this->data['srlid']);
-
-   }
-/*-------GETTER FUNCTIONS-END--------*/
+    /* -------GETTER FUNCTIONS-END-------- */
 }

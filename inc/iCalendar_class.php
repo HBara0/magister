@@ -308,6 +308,10 @@ class Icalendar {
         return $this->icalendar;
     }
 
+    public function set_url($url) {
+        $this->icalendarfile .= 'URL: '.$url."\r\n";
+    }
+
 }
 
 class iCalendar_TimeZone {

@@ -464,6 +464,12 @@ class AroRequests extends AbstractClass {
                         break;
                     case 'cfo':
                         $approvers['cfo'] = $affiliate->get_cfo()->uid;
+                        if(isset($intermed) && !empty($intermed)) {
+                            $intermedaff = Affiliates::get_affiliates(array('affid' => $intermed));
+                            if(is_object($intermedaff)) {
+                                $approvers['cfo'] = $intermedaff->get_cfo()->uid;
+                            }
+                        }
                         break;
                     case 'coo':
                         $approvers['coo'] = $affiliate->get_coo()->uid;
@@ -990,7 +996,7 @@ class AroRequests extends AbstractClass {
         global $template, $core;
         $takeactionpage_conversation = null;
 
-        $initialmsgs = AroRequestsMessages::get_data('aorid='.$this->data[self::PRIMARY_KEY].' AND inReplyTo=0', array('simple' => false, 'returnarray' => true));
+        $initialmsgs = AroRequestsMessages::get_data('aorid='.$this->data[self::PRIMARY_KEY].' AND inReplyToMsgId=0', array('simple' => false, 'returnarray' => true));
         if(!is_array($initialmsgs)) {
             return false;
         }

@@ -482,6 +482,9 @@ if(!($core->input['action'])) {
                         $partiesinfo[$field.'_formatted'] = date($core->settings['dateformat'], $aropartiesinfo_obj->$field);
                     }
                 }
+                if($purchasetype->isPurchasedByEndUser == 1) {
+                    $previewdisplay['promiseofpayment'] = 'display:none';
+                }
                 if(!is_empty($partiesinfo['vendorEstDateOfPayment_output'], $partiesinfo['intermedEstDateOfPayment_output'])) {
                     $partiesinfo['diffbtwpaymentdates'] = date_diff(date_create($partiesinfo['vendorEstDateOfPayment_output']), date_create($partiesinfo['intermedEstDateOfPayment_output']));
                     $partiesinfo['diffbtwpaymentdates'] = $partiesinfo['diffbtwpaymentdates']->format("%r%a");
@@ -544,16 +547,24 @@ if(!($core->input['action'])) {
                     }
                 }
                 $purchaser['fromaff'] = $purchaser['fromvendor'] = '-';
-                if(!empty($aff['intermed_output'])) {
-                    $purchaser['fromvendor'] = $aff['intermed_output'];
-                }
-                if(isset($arocustomer_output) && !empty($arocustomer_output) && is_object($customer)) {
-                    $purchaser['fromaff'] = $customer->get_displayname();
-                }
+                $aff_obj = new Affiliates($aroorderrequest->affid);
+
                 if($purchasetype->needsIntermediary == 0) {
-                    $aff_obj = new Affiliates($aroorderrequest->affid);
                     $purchaser['fromvendor'] = $aff_obj->get_displayname();
                     $purchaser['fromaff'] = '';
+                }
+                else {
+                    if(!empty($aff['intermed_output'])) {
+                        $purchaser['fromvendor'] = $aff['intermed_output'];
+                    }
+                    if($purchasetype->isPurchasedByEndUser == 1) {
+                        if(isset($arocustomer_output) && !empty($arocustomer_output) && is_object($customer)) {
+                            $purchaser['fromaff'] = $customer->get_displayname();
+                        }
+                    }
+                    else {
+                        $purchaser['fromaff'] = $aff_obj->get_displayname();
+                    }
                 }
                 eval("\$interm_vendor = \"".$template->get('aro_partiesinfo_intermediary_vendor_preview')."\";");
                 eval("\$partiesinfo_shipmentparameters = \"".$template->get('aro_partiesinfo_shipmentparameters_preview')."\";");
@@ -656,9 +667,9 @@ if(!($core->input['action'])) {
                             $approvalobj = $aroorderrequest->get_nextapprover();
                             if(is_object($approvalobj)) {
                                 if($approvalobj->uid == $core->user['uid']) {
-                                    $approve = '<input type="button" class="button" id="approvearo" value="'.$lang->approve.'"/>'
+                                    $approve = '<input type="button" class="btn btn-success" id="approvearo" value="'.$lang->approve.'"/>'
                                             .'<input type="hidden" id="approvearo_id" value="'.$aroorderrequest->aorid.'"/>'.
-                                            '<a class="button" id="rejectarodocument_'.$aroorderrequest->aorid.'_aro/managearodouments_loadpopupbyid" style="margin-left:5px;vertical-align:top;padding-top:5px;"/>'.$lang->reject.'</a>';
+                                            '<a class="btn btn-danger" id="rejectarodocument_'.$aroorderrequest->aorid.'_aro/managearodouments_loadpopupbyid" style="margin-left:5px;vertical-align:top;padding-top:5px;"/>'.$lang->reject.'</a>';
                                 }
                                 else {
                                     if($approver->firstEmailRecievedDate != 0) {
@@ -684,6 +695,7 @@ if(!($core->input['action'])) {
             /* Conversation message --START */
             $takeactionpage_conversation = $aroorderrequest->parse_messages(array('uid' => $core->user['uid']));
             /* Conversation  message --END */
+
             eval("\$takeactionpage = \"".$template->get('aro_managearodocuments_takeaction')."\";");
             $takeactionpage = '<a class="header" href="#"><h2>'.$lang->aromessages.'</h2></a><div style="margin-top:10px;">'.$takeactionpage.'</div>';
 
@@ -726,8 +738,9 @@ if(!($core->input['action'])) {
                 }
 
                 $aroordersummary->netmarginIntermed_afterdeduction = $aroordersummary->netmarginIntermed - $aroordersummary->invoiceValueThirdParty;
-                $aroordersummary->marginPercThirdParty = round(($aroordersummary->invoiceValueThirdParty / $aroordersummary->invoiceValueUsdLocal) * 100, 2);
-
+                if(!empty($aroordersummary->invoiceValueUsdLocal)) {
+                    $aroordersummary->marginPercThirdParty = round(($aroordersummary->invoiceValueThirdParty / $aroordersummary->invoiceValueUsdLocal) * 100, 2);
+                }
                 if(isset($aroordersummary->netmarginIntermed_afterdeduction) && !empty($aroordersummary->netmarginIntermed_afterdeduction)) {
                     $aroordersummary->netmarginIntermedPerc = round(($aroordersummary->netmarginIntermed_afterdeduction / $aroordersummary->invoiceValueUsdLocal) * 100, 2);
                 }
@@ -764,14 +777,16 @@ if(!($core->input['action'])) {
         if(is_object($aroordersummary)) {
             $formatter = new NumberFormatter($lang->settings['locale'], NumberFormatter::DECIMAL);
             $perc_formatter = new NumberFormatter($lang->settings['locale'], NumberFormatter::PERCENT);
-            $ordersummary_fields = array('netmarginIntermed_afterdeduction', 'invoiceValueIntermed', 'invoiceValueLocal', 'invoiceValueUsdIntermed', 'invoiceValueUsdLocal', 'interestValue', 'interestValueUsd', 'totalIntermedFees', 'totalIntermedFeesUsd', 'unitFee', 'netmarginIntermed', 'netmarginLocal', 'invoiceValueThirdParty', 'globalNetmargin'); // 'netmarginIntermedPerc', 'netmarginLocalPerc');
+            $ordersummary_fields = array('netmarginIntermed_afterdeduction', 'invoiceValueIntermed', 'invoiceValueLocal', 'invoiceValueUsdIntermed', 'invoiceValueUsdLocal', 'interestValue', 'interestValueUsd', 'totalIntermedFees', 'totalIntermedFeesUsd', 'unitFee', 'netmarginIntermed', 'netmarginLocal', 'invoiceValueThirdParty', 'globalNetmargin', 'totalQuantityUom'); // 'netmarginIntermedPerc', 'netmarginLocalPerc');
             foreach($ordersummary_fields as $field) {
-//                if($field == 'netmarginIntermedPerc' || $field == 'netmarginLocalPerc') {
-//                    $aroordersummary->$field = $perc_formatter->format($aroordersummary->$field);
-////                }
-//                else {
-                $aroordersummary->$field = $formatter->format($aroordersummary->$field);
-                //  }
+                switch($field) {
+                    case 'totalQuantityUom':
+                        $aroordersummary->$field = $formatter->format(explode('/', $aroordersummary->$field)[0]).'/'.explode('/', $aroordersummary->$field)[1];
+                        break;
+                    default:
+                        $aroordersummary->$field = $formatter->format($aroordersummary->$field);
+                        break;
+                }
             }
         }
         eval("\$orderummary = \"".$template->get('aro_ordersummary_preview')."\";");

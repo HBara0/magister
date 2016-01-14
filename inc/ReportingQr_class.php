@@ -476,7 +476,7 @@ class ReportingQr Extends Reporting {
                     foreach($validation_items as $validation_key => $validation_item) {
                         $actual_current_validation = $productactivity[$validation_item];
                         if($validation_key == 'sales' && isset($productactivity['fxrate'])) {
-                            $actual_current_validation = round($productactivity[$validation_item] / $productactivity['fxrate'], 4);
+                            $actual_current_validation = round($productactivity[$validation_item] / $productactivity['fxrate'], 5);
                         }
 
                         $actual_current_data_querystring = 'uid!='.$core->user['uid'];
@@ -500,12 +500,13 @@ class ReportingQr Extends Reporting {
                             }
                             else {
                                 $forecast_corrections[$productactivity['pid']]['name'] = $productactivity['productname'];
-                                $forecast_corrections[$productactivity['pid']][$validation_key] = $correctionsign.round($actual_forecast, 4);
+                                $forecast_corrections[$productactivity['pid']][$validation_key] = $correctionsign.round($actual_forecast, 5);
                             }
                         }
                         else {
                             unset($forecast_corrections[$productactivity['pid']][$validation_key]);
                         }
+                        unset($lessernumbers);
                     }
                 }
                 else {
@@ -526,7 +527,7 @@ class ReportingQr Extends Reporting {
                             }
                             else {
                                 $forecast_corrections[$productactivity['pid']]['name'] = $productactivity['productname'];
-                                $forecast_corrections[$productactivity['pid']][$validation_key] = $correctionsign.round($actual_forecast, 4);
+                                $forecast_corrections[$productactivity['pid']][$validation_key] = round($actual_forecast, 5);
                             }
                         }
                     }
@@ -558,7 +559,7 @@ class ReportingQr Extends Reporting {
                 if(!empty($productdata['pid']) && isset($productdata['pid'])) {
                     if($productdata['fxrate'] != 1 && isset($productdata['fxrate'])) {
                         $productdata['turnOverOc'] = $productdata['turnOver'];
-                        $productdata['turnOver'] = round($productdata['turnOver'] / $productdata['fxrate'], 4);
+                        $productdata['turnOver'] = round($productdata['turnOver'] / $productdata['fxrate'], 5);
                         $productdata['originalCurrency'] = $currencies[$productdata['fxrate']];
                     }
 
