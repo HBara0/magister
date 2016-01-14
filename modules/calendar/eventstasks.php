@@ -177,7 +177,8 @@ else {
                 $ical_obj->set_categories('Event');
                 $ical_obj->set_organizer();
                 $ical_obj->set_icalattendees($event_users['uid']);
-                $ical_obj->set_description($events_details['description']);
+                $ical_obj->set_description($events_details['description'].$lang->planyourtripforevent);
+                $ical_obj->set_url($core->settings['rootdir'].'/index.php?module=attendance/requestleave');
                 $ical_obj->endical();
 
                 $mailer = new Mailer();

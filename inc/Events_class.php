@@ -229,7 +229,7 @@ class Events extends AbstractClass {
     }
 
     public function email_invitees() {
-        global $core;
+        global $core, $lang;
         if($core->input['event']['isPublic'] == 1 && $core->usergroup['calendar_canAddPublicEvents'] == 1) {
             if(isset($core->input['event']['restrictto'])) {
                 if(is_array($core->input['event']['restrictto'])) {
@@ -250,7 +250,8 @@ class Events extends AbstractClass {
                         $ical_obj->set_status();
                         $ical_obj->set_transparency();
                         $ical_obj->set_icalattendees($notification_mails);
-                        $ical_obj->set_description($this->description);
+                        $ical_obj->set_description($this->description.$lang->planyourtripforevent);
+                        $ical_obj->set_url($core->settings['rootdir'].'/index.php?module=attendance/requestleave');
                         $ical_obj->endical();
 
                         $mailer = new Mailer();
