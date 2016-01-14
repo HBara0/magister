@@ -20,12 +20,17 @@ if(!$core->input['action']) {
     $report_data['year'] = intval($core->input['year']);
     $report_data['quarter'] = intval($core->input['quarter']);
 
+    $fields = array('daysfromqstart', 'daysfromreportcreation', 'daystoimportfromqstart', 'daystoimportfromcreation');
+
     if(!isset($core->input['year']) || empty($core->input['year'])) {
-        $report_data['year'] = date('Y', TIME_NOW);
+        $report_data_temp = currentquarter_info();
+        $report_data['year'] = $report_data_temp['year'];
     }
     if(!isset($core->input['quarter']) || empty($core->input['quarter'])) {
-        $report_data['quarter'] = ceil(date('n', time()) / 3) - 1;
+        $report_data_temp = currentquarter_info();
+        $report_data['quarter'] = $report_data_temp['quarter'];
     }
+
     $affiliates = Affiliates::get_affiliates('name IS NOT NULL', array('returnarray' => true));
     if(isset($core->input['affid'])) {
         $affiliates = Affiliates::get_affiliates(array('affid' => intval($core->input['affid'])), array('returnarray' => true));
@@ -68,7 +73,6 @@ if(!$core->input['action']) {
                         }
                     }
 
-                    $fields = array('daysfromqstart', 'daysfromreportcreation', 'daystoimportfromqstart', 'daystoimportfromcreation');
                     foreach($fields as $field) {
                         $totalperaff[$field] += $report[$field];
                     }
