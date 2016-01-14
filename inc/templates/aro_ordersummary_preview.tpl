@@ -85,7 +85,7 @@
             <tr style="font-weight: bold;background-color: #D0F6AA">
                 <td class="altrow">{$lang->total} {$lang->globalnetmargin}
                     <a href="#" title="{$lang->globalnetmargindef}"><img src="./images/icons/question.gif"/></a></td>
-                <td style="text-align:center" colspan="2">{$aroordersummary->globalNetmargin}</td>
+                <td style="text-align:center" colspan="2">{$aroordersummary->globalNetmargin} ({$aroordersummary->riskRatioAmount})</td>
                 <td {$ordersummarydisplay[thirdcolumn_display]}</td>
             </tr>
             <tr style="font-weight: bold;background-color: #D0F6AA">
@@ -94,7 +94,7 @@
                 <td {$ordersummarydisplay[thirdcolumn_display]}</td>
             </tr>
         </tbody>
-        <tfoot style="display:none;" id="ordersummary_tfoot" class="altrow2"  name="seemoredetails" >
+        <tfoot style="display:none;" id="ordersummary_tfoot" class="altrow2"  name="seemoredetails" class="hidden-print">
             <tr>
                 <td>{$lang->feespaidbyintermeduom}</td>
                 <td colspan="2">{$aroordersummary->totalIntermedFeesUsdUom}</td>
@@ -118,11 +118,10 @@
                     <input type="button" id="unitfee_btn" style="display:none"/>
                 </td>
             </tr>
-
         </tfoot>
     </table>
     <br/>
-    <a href="#seemoredetails" id="ordersummary_seemore" class="altrow2" style="font-weight: bold;border:solid thin;padding:5px;">See More</a>
+    <a href="#seemoredetails" id="ordersummary_seemore" class="altrow2 hidden-print" style="font-weight: bold;border:solid thin;padding:5px;">See More</a>
 
     <div id="arrData"></div>
 </div>

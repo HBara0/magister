@@ -5,8 +5,7 @@
     <td class="border_right">{$productline[uom_output]}</td>
     <td class="border_right">{$productline[daysInStock]}</td>
     <td class="border_right">{$productline[qtyPotentiallySold]}</td>
-    <td>{$productline[qtyPotentiallySoldPerc]}</td>
-    <td class="border_right">%</td>
+    <td>{$productline[qtyPotentiallySoldPerc]}%</td>
     <td class="border_right">{$productline[intialPrice]}</td>
     <td class="border_right">{$productline[fees]}</td>
     <td class="border_right">{$productline[affBuyingPrice]}</td>
@@ -16,6 +15,5 @@
     <td class="border_right">{$productline[sellingPrice]} </td>
     <td class="border_right">{$productline[grossMarginAtRiskRatio]} </td>
     <td class="border_right">{$productline[netMargin]}</td>
-    <td>{$productline[netMarginPerc]}</td>
-    <td class="border_right">%</td>
+    <td>{$productline[netMarginPerc]}%</td>
 </tr>

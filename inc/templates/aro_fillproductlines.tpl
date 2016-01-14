@@ -12,7 +12,7 @@
                     <input type="hidden" id="productline_daysInStock_disabled" value="1"/></td>
                 <td class="border_right" rowspan="2" valign="top" align="center">{$lang->qtypotentiallysold}
                     <input type="hidden" id="productline_qtyPotentiallySold_disabled" value="1"/></td>
-                <td class="border_right" colspan="2" rowspan="2" valign="top" align="center">{$lang->qtypotentiallysold}(%)</td>
+                <td class="border_right" {$colspan[qtypotentiallysold]} rowspan="2" valign="top" align="center">{$lang->qtypotentiallysold}(%)</td>
                 <td class="border_right" rowspan="2" valign="top" align="center">{$lang->intialprice}</td>
                 <td class="border_right" rowspan="2" valign="top" align="center">{$lang->fees}</td>
                 <td class="border_right" rowspan="2" valign="top" align="center">{$lang->affbuyingprice}<a href="#" title="{$lang->affbuyingpricetooltip}"><img src="./images/icons/question.gif"/></a></td>

@@ -5,7 +5,7 @@
         <tbody style="width:100%;">
             <tr>
                 <td colspan="4">
-                    <div class="ui-state-highlight ui-corner-all" style="padding-left: 5px; margin-bottom:10px; text-align:center; font-weight:bold;">
+                    <div class="ui-state-highlight ui-corner-all hidden-print" style="padding-left: 5px; margin-bottom:10px; text-align:center; font-weight:bold;">
                         {$lang->makesureusdamounts}
                     </div>
                 </td>
