@@ -7,7 +7,15 @@
  * Last Update:    @tony.assaad    Feb 19, 2015 | 9:59:17 AM
  */
 $(function() {
+    $('td').each(function() {
+        var pattern = /^[ 0-9-,.%]*$/;
+        if($(this).html().match(pattern)) {
+            if($(this).html().indexOf('-') === 0) {
+                $(this).css("color", "red");
+            }
 
+        }
+    });
 
     $("body").append("<div id='modal-loading2'>Please wait untill the calculation is done. <span  style='display:block; width:100px; height:75%; margin:15px auto 0 auto;'><img  src='./images/loader.gif'/></span></div>");
     $("#modal-loading2").dialog({height: 150, modal: true, closeOnEscape: false, title: 'Loading...', resizable: false, minHeight: 0, autoOpen: false, position: 'center',
