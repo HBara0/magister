@@ -997,5 +997,19 @@ class Users extends AbstractClass {
         }
     }
 
+    public function parse_qrperformance_link($year, $quarter, $attributes_param = array('target' => '_blank'), $options = array()) {
+        if(is_array($attributes_param)) {
+            foreach($attributes_param as $attr => $val) {
+                $attributes .= $attr.'="'.$val.'"';
+            }
+        }
+
+        if(!isset($options['outputvar'])) {
+            $options['outputvar'] = 'displayName';
+        }
+
+        return '<a href="index.php?module=reporting/performance&year='.$year.'&quarter='.$quarter.'&uid='.$this->data[self::PRIMARY_KEY].'&excludecharts=1" '.$attributes.'>'.$this->data[$options['outputvar']].'</a>';
+    }
+
 }
 ?>
