@@ -1290,11 +1290,15 @@ class Surveys {
             if(!empty($response)) {
                 if(is_array($response)) {
                     foreach($response as $sresponse) {
+                        if(!is_array($sresponse)) {
+                            continue;
+                        }
                         $response = $sresponse;
                         break;
                     }
                 }
-                if(empty($response['comments'])) {
+
+                if(!isset($response['comments']) || empty($response['comments'])) {
                     $response['comments'] = '-';
                 }
                 $question_output .= '<div style = "margin: 5px 20px; 5px; 20px;">'.$question['commentsFieldTitle'].': '.$response['comments'].'</div>';
