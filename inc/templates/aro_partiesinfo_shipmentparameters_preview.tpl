@@ -1,21 +1,21 @@
 <tr class="altrow">
-    <td>{$lang->estdateofshipment}</td>
-    <td>{$partiesinfo[estDateOfShipment_formatted]}</td>
-    <td>{$lang->transittime}</td>
-    <td>{$aropartiesinfo_obj->transitTime}</td>
-    <td>{$lang->estclearancetime}</td>
-    <td>{$aropartiesinfo_obj->clearanceTime}</td>
+    <td class="border_right">{$lang->estdateofshipment}</td>
+    <td class="border_right">{$partiesinfo[estDateOfShipment_formatted]}</td>
+    <td class="border_right">{$lang->transittime}</td>
+    <td class="border_right">{$aropartiesinfo_obj->transitTime}</td>
+    <td class="border_right">{$lang->estclearancetime}</td>
+    <td class="border_right">{$aropartiesinfo_obj->clearanceTime}</td>
 </tr>
 <tr class="altrow">
-    <td>{$lang->countryofshipment}</td>
-    <td>{$shipmentcountry_output}</td>
-    <td>{$lang->countryoforigin}</td>
-    <td>{$origincountry_output}</td>
-    <td></td>
-    <td></td>
+    <td class="border_right">{$lang->countryofshipment}</td>
+    <td class="border_right">{$shipmentcountry_output}</td>
+    <td class="border_right">{$lang->countryoforigin}</td>
+    <td class="border_right">{$origincountry_output}</td>
+    <td class="border_right"></td>
+    <td class="border_right"></td>
 </tr>
 <tr class="altrow">
-    <td>{$lang->portofshipment}</td>
-    <td>{$aropartiesinfo_obj->shipmentPort}</td>
-    <td colspan="4"></td>
+    <td class="border_right">{$lang->portofshipment}</td>
+    <td class="border_right">{$aropartiesinfo_obj->shipmentPort}</td>
+    <td class="border_right" colspan="4"></td>
 </tr>

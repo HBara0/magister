@@ -1,6 +1,6 @@
 <tr id="{$rowid}">
-    <td>{$customeroder[customerName]}</td>
-    <td>{$customeroder[paymentTerm]}</td>
-    <td>{$customeroder[paymentTermDesc]}</td>
-    <td>{$customeroder[paymenttermbasedate_output]}<td>
+    <td class="border_right">{$customeroder[customerName]}</td>
+    <td class="border_right">{$customeroder[paymentTerm]}</td>
+    <td class="border_right">{$customeroder[paymentTermDesc]}</td>
+    <td class="border_right">{$customeroder[paymenttermbasedate_output]}<td>
 </tr>

@@ -3,32 +3,31 @@
     {$interm_vendor}
     <table>
         <tbody width="100%;" class="datatable">
-            <tr><td class="subtitle" colspan="6">{$lang->shipmentparameters}</td></tr>
+            <tr><td class="subtitle border_right" colspan="6">{$lang->shipmentparameters}</td></tr>
                 {$partiesinfo_shipmentparameters}
-            <tr><td class="subtitle" colspan="6">{$lang->fees}</td></tr>
+            <tr><td class="subtitle  border_right" colspan="6">{$lang->fees}</td></tr>
                 {$partiesinfo_fees}
             <tr><td colspan="2"></td>
-                <td class="subtitle">{$lang->intermediary}</td>
-                <td class="subtitle">{$lang->vendor}</td>
+                <td class="subtitle border_right">{$lang->intermediary}</td>
+                <td class="subtitle border_right">{$lang->vendor}</td>
             </tr>
 
             <tr class="altrow">
                 <td colspan="2">{$lang->estdateofpayment}</td>
-                <td>{$partiesinfo[intermedEstDateOfPayment_formatted]}</td>
-                <td>{$partiesinfo[vendorEstDateOfPayment_formatted]} </td>
-                <td colspan="2" style="padding-left:10px;font-weight:bold"> {$lang->diffbetweenpaymentdays}</td>
-                <td>{$partiesinfo[diffbtwpaymentdates]} </td>
+                <td class="border_right">{$partiesinfo[intermedEstDateOfPayment_formatted]}</td>
+                <td class="border_right">{$partiesinfo[vendorEstDateOfPayment_formatted]} </td>
+                <td class="border_right" colspan="2" style="padding-left:10px;font-weight:bold"> {$lang->diffbetweenpaymentdays}</td>
+                <td class="border_right">{$partiesinfo[diffbtwpaymentdates]} </td>
             </tr>
             <tr class="altrow" style="{$previewdisplay[promiseofpayment]}">
-                <td colspan="2">{$lang->acceptablepaymentterm}</td>
-                <td>{$aropartiesinfo_obj->ptAcceptableMargin}</td>
-                <td></td>
+                <td class="border_right" colspan="2">{$lang->acceptablepaymentterm}</td>
+                <td class="border_right">{$aropartiesinfo_obj->ptAcceptableMargin}</td>
+                <td class="border_right"></td>
             </tr>
             <tr class="altrow" style="{$previewdisplay[promiseofpayment]}">
-                <td colspan="2">{$lang->promiseofpayment}  <a href="#" title="{$lang->promiseofpaymentdesc}"><img src="./images/icons/question.gif" ></a></td>
-                <td>{$partiesinfo[promiseOfPayment_formatted]} </td>
-                <td></td>
-
+                <td class="border_right" colspan="2">{$lang->promiseofpayment}  <a href="#" title="{$lang->promiseofpaymentdesc}"><img src="./images/icons/question.gif" ></a></td>
+                <td class="border_right">{$partiesinfo[promiseOfPayment_formatted]} </td>
+                <td class="border_right"></td>
             </tr>
         </tbody>
     </table>

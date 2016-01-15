@@ -14,7 +14,9 @@
         </tbody>
         <tfoot>
             {$unspecified_customer_row}
-            <tr><td style="font-weight: bold;">{$lang->estimatedduedate}</td> <td>{$avgeliduedate}</td></tr>
+            <tr>
+                <td class="border_right" colspan="4"><span style="font-weight:bold;">{$lang->estimatedduedate}</span>
+                    <span class="border_right" style="padding-left:10px;">{$avgeliduedate}</span></td></tr>
         </tfoot>
     </table>
 </p>
