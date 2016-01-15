@@ -44,6 +44,11 @@
                         <td><input type="number" step="any" name="partiesinfo[commission]" id="partiesinfo_commission" value="{$aropartiesinfo_obj->commission}" class="automaticallyfilled-editable"/>%
                             <input type="hidden"  id="partiesinfo_defaultcommission"/></td>
                     </tr>
+                    <tr><td> Price includes commission</td>
+                        <td>
+                            <input type="checkbox" name="partiesinfo[priceIncludesComm]" value="1" {$checked[priceIncludesComm]}/>
+                        </td>
+                    </tr>
                     <tr class="altrow2">
                         <td> <span style="{$aro_display[prtiesinfo][discount]}">{$lang->totaldiscount} <a href="#" title="{$lang->totaldiscountdesc}"><img src="./images/icons/question.gif" ></a></span></td>
                         <td><input style="{$aro_display[prtiesinfo][discount]}" type="number" step="any" name="partiesinfo[totalDiscount]" id="partiesinfo_totaldiscount" value="{$aropartiesinfo_obj->totalDiscount}"/>

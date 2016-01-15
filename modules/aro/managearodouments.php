@@ -242,7 +242,7 @@ if(!($core->input['action'])) {
                 }
                 $rowid = $clrowid;
                 if($rowid == 1 && (isset($core->input['referrer']) && $core->input['referrer'] == 'toapprove')) {
-                    $arocustomer_output = '<td style="font-weight: bold;width:16%;border-left:4px solid #F2F2F2;">'.$lang->customer.'</td><td>'.$customer->get_displayname().'</td>';
+                    $arocustomer_output = '<td style="font-weight: bold;width:16%;" class="border-right">'.$lang->customer.'</td><td class="border-right">'.$customer->get_displayname().'</td>';
                 }
 
                 // If only unspecified customer row exist, parse default customer order row
@@ -288,6 +288,7 @@ if(!($core->input['action'])) {
             }
             //*********Parameters Influencing Net Margin Calculation -End ********//
             //********** ARO Product Lines -Start **************//
+            $riskratioamount = 0;
             $plrowid = 0;
             $productlines = AroRequestLines::get_data(array('aorid' => $aroorderrequest->aorid), array('returnarray' => true, 'order' => array('by' => 'inputChecksum', 'sort' => 'ASC')));
             if(is_array($productlines)) {
@@ -328,6 +329,7 @@ if(!($core->input['action'])) {
                         eval("\$aroproductlines_rows .= \"".$template->get('aro_productlines_row')."\";");
                     }
                     unset($disabled_fields);
+                    $riskratioamount +=$productline['riskRatioAmount'];
                 }
             }
             else {
@@ -744,6 +746,7 @@ if(!($core->input['action'])) {
                 if(isset($aroordersummary->netmarginIntermed_afterdeduction) && !empty($aroordersummary->netmarginIntermed_afterdeduction)) {
                     $aroordersummary->netmarginIntermedPerc = round(($aroordersummary->netmarginIntermed_afterdeduction / $aroordersummary->invoiceValueUsdLocal) * 100, 2);
                 }
+                $aroordersummary->riskRatioAmount = $riskratioamount;
             }
             $arodocument_title = $aroorderrequest->orderReference.' '.$localaff->get_displayname();
             $arodocument_header = '<h2 style="display:inline-block;">'.$aroorderrequest->orderReference.' / '.$localaff->get_displayname().' / '.$purchaseype->get_displayname().'</h2>';
@@ -763,6 +766,7 @@ if(!($core->input['action'])) {
         eval("\$partiesinformation = \"".$template->get('aro_partiesinformation_preview')."\";");
     }
     else {
+        $colspan['qtypotentiallysold'] = 'colspan="2"';
         eval("\$aro_managedocuments_orderident= \"".$template->get('aro_managedocuments_orderidentification')."\";");
         eval("\$aro_ordercustomers= \"".$template->get('aro_managedocuments_ordercustomers')."\";");
         eval("\$totalfunds = \"".$template->get('aro_totalfunds')."\";");
@@ -796,7 +800,12 @@ if(!($core->input['action'])) {
     }
     unset($firstparty, $secondparty, $thirdparty);
     eval("\$approvalchain= \"".$template->get('aro_approvalchain')."\";");
-    eval("\$aro_managedocuments= \"".$template->get('aro_managedocuments')."\";");
+    if(isset($core->input['referrer']) && $core->input['referrer'] == 'toapprove') {
+        eval("\$aro_managedocuments= \"".$template->get('aro_managedocuments_preview')."\";");
+    }
+    else {
+        eval("\$aro_managedocuments= \"".$template->get('aro_managedocuments')."\";");
+    }
     output_page($aro_managedocuments);
 }
 else {

@@ -64,6 +64,11 @@
                             <input name="chainpolicy[informGlobalPurchaseMgr]" id="chainpolicy_informGlobalPurchaseMgr" type="checkbox" value="1" {$checked[informGlobalPurchaseMgr]}> {$lang->inform} {$lang->globalpurchasemgr}
                         </td>
                     </tr>
+                    <tr>
+                        <td colspan="2">
+                            <input name="chainpolicy[informGlobalCommercials]" id="chainpolicy_informGlobalCommercials" type="checkbox" value="1" {$checked[informGlobalCommercials]}> {$lang->inform} {$lang->intermediarycommercials}
+                        </td>
+                    </tr>
                     <tr><td style="vertical-align:top">{$lang->selectemployee}</td>
                         <td style="vertical-align: top;">{$chainpolicy[informInternalUsers_output]}</td>
                     </tr>

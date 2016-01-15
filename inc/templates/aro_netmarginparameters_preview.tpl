@@ -32,7 +32,7 @@
                 <td style="width:15%;padding-left:10px;">{$netmarginparms->warehousingPeriod} </td>
             </tr>
             <tr class="altrow">
-                <td valign="top">{$lang->riskratio} <a href="#" title="{$lang->zeroriskratio}"><img src="./images/icons/question.gif"/></a></td>
+                <td valign="top">{$lang->riskratio} <a class="hidden-print" href="#" title="{$lang->zeroriskratio}"><img src="./images/icons/question.gif"/></a></td>
                 <td class="border_right" style="padding-left:10px;" >{$netmarginparms->localRiskRatio}</td>
                 <td class="border_right" ></td>
                 <td valign="top">{$lang->totalload}</td>
