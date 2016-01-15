@@ -1196,4 +1196,11 @@ class AroRequests extends AbstractClass {
         $query = $db->update_query('aro_requests', array('POSent' => 1), ''.self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
     }
 
+    public function get_businessmanager() {
+        if(!is_empty($this->data['aroBusinessManager'])) {
+            return new Users(intval($this->data['aroBusinessManager']));
+        }
+        return false;
+    }
+
 }

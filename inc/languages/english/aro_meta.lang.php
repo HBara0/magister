@@ -277,4 +277,5 @@ $lang['packing'] = 'Packing';
 $lang['peopletobeinformed'] = 'People to be informed';
 $lang['publicaromsg'] = 'Make it avilable to all approvers';
 $lang['intermediarycommercials'] = 'Intermediary Commercials';
+$lang['businessmanager'] = 'Business Manager';
 ?>

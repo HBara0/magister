@@ -22,15 +22,15 @@ if(!$core->input['action']) {
     $ordertypes = PurchaseTypes::get_data('', array('returnarray' => true));
     $ordercurrency = Currencies::get_data('', array('returnarray' => true));
     $filters_config = array(
-            'parse' => array('filters' => array('affid', 'orderType', 'orderReference', 'currency', 'createdOn'),
+            'parse' => array('filters' => array('affid', 'orderType', 'orderReference', 'currency', 'uid', 'createdOn'),
                     'overwriteField' => array('orderType' => parse_selectlist('filters[orderType]', '', $ordertypes, $core->input['filters']['orderType'], '', '', array('placeholder' => 'Select Order Type')), 'currency' => parse_selectlist('filters[currency]', '', $ordercurrency, $core->input['filters']['currency'], '', '', array('placeholder' => 'Select Currency'))),
-                    'fieldsSequence' => array('affid' => 1, 'orderType' => 2, 'orderReference' => 3, 'currency' => 4, 'createdOn' => 5)
+                    'fieldsSequence' => array('affid' => 1, 'orderType' => 2, 'orderReference' => 3, 'currency' => 4, 'uid' => 5, 'createdOn' => 6)
             ),
             'process' => array(
                     'filterKey' => 'aorid',
                     'mainTable' => array(
                             'name' => 'aro_requests',
-                            'filters' => array('affid' => array('operatorType' => 'multiple', 'name' => 'affid'), 'orderType' => array('operatorType' => 'equal', 'name' => 'orderType'), 'orderReference' => array('single', 'name' => 'orderReference'), 'currency' => array('multiple', 'name' => 'currency'), 'createdOn' => array('operatorType' => 'date', 'name' => 'createdOn')),
+                            'filters' => array('affid' => array('operatorType' => 'multiple', 'name' => 'affid'), 'uid' => array('operatorType' => 'multiple', 'name' => 'aroBusinessManager'), 'orderType' => array('operatorType' => 'equal', 'name' => 'orderType'), 'orderReference' => array('single', 'name' => 'orderReference'), 'currency' => array('multiple', 'name' => 'currency'), 'createdOn' => array('operatorType' => 'date', 'name' => 'createdOn')),
                     ),
     ));
     $filter = new Inlinefilters($filters_config);
@@ -97,6 +97,11 @@ if(!$core->input['action']) {
             $documentrequest->orderType = $purchasetype->get_displayname();
             $documentrequest->currency = $buyingcurr->get_displayname();
             $rowclass = 'trowtools unapproved';
+            $documentrequest->businessmanager_output = 'N/A';
+            $arobm = $documentrequest->get_businessmanager();
+            if(is_object($arobm)) {
+                $documentrequest->businessmanager_output = $arobm->get_displayname();
+            }
             $approvals = AroRequestsApprovals::get_data(array('aorid' => $documentrequest->aorid, 'isApproved' => 1), array('returnarray' => true));
             if(is_array($approvals)) {
                 $rowclass = "trowtools yellowbackground";
