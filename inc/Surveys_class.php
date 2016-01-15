@@ -394,12 +394,18 @@ class Surveys {
                                     if(!empty($choice['choice'])) {
                                         $choice['stqid'] = $stqid;
                                         $choice['hasMultipleValues'] = $hasmultiplevalues;
+                                        if(empty($choice['choice'])) {
+                                            continue;
+                                        }
                                         $query_choice = $db->insert_query('surveys_templates_questions_choices', $choice);
                                         if($query_choice) {
                                             $stqcid = $db->last_id();
                                             if($choice['hasMultipleValues'] == 1) {
                                                 if(is_array($choice_values)) {
                                                     foreach($choice_values as $key => $choicevalue) {
+                                                        if(empty($choicevalue['choice'])) {
+                                                            continue;
+                                                        }
                                                         $choicevalue['stqcid'] = $stqcid;
                                                         $choicevalue['hasMultipleValues'] == 1;
                                                         $query_choice = $db->insert_query('surveys_templates_questionschoices_choices', $choicevalue);
