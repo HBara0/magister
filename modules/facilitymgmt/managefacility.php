@@ -20,8 +20,8 @@ if(!isset($core->input['action'])) {
     $roomtypesids = FacilityMgmtFactypes::get_roomtypesids();
     $mainlocationids = FacilityMgmtFactypes::get_maintypesids();
     if(!isset($core->input['id'])) {
-        $facilities = FacilityMgmtFacilities::get_data(array('type' => $roomtypesids, 'affid' => $core->user['mainaffiliate'], 'isActive' => 1), array('operators' => array('type' => 'NOT IN'), 'returnarray' => true));
-        $affiliate_list = parse_selectlist('facility[affid]', 1, $affiliates, $core->user['mainaffilaite'], '', '', array('width' => '150px', 'blankstart' => true));
+        $facilities = FacilityMgmtFacilities::get_data(array('type' => $roomtypesids, 'isActive' => 1), array('operators' => array('type' => 'NOT IN'), 'returnarray' => true));
+        $affiliate_list = parse_selectlist('facility[affid]', 1, $affiliates, $core->user['affiliates'], '', '', array('width' => '150px', 'blankstart' => true));
         $factypes_list = parse_selectlist('facility[type]', 1, $factypes, '', '', '', array('id' => 'typelist', 'optionids' => array('when' => $mainlocationids, 'id' => 'isMain'), 'width' => '150px', 'blankstart' => true));
         // If type isMainLocation it cannot have a parent.
         $facilities_list = parse_selectlist('facility[parent]', 1, $facilities, '', '', '', array('width' => '150px', 'blankstart' => true));
