@@ -61,6 +61,7 @@ class AroApprovalChainPolicies extends AbstractClass {
                     'informGlobalPurchaseMgr' => $data['informGlobalPurchaseMgr'],
                     'informExternalUsers' => base64_encode($data['informExternalUsers']),
                     'informInternalUsers' => base64_encode($data['informInternalUsers']),
+                    'informGlobalCommercials' => $data['informGlobalCommercials'],
                     'createdOn' => TIME_NOW,
             );
             $query = $db->insert_query(self::TABLE_NAME, $policies_array);
@@ -107,6 +108,7 @@ class AroApprovalChainPolicies extends AbstractClass {
                         'informCoordinators' => $data['informCoordinators'],
                         'informGlobalCFO' => $data['informGlobalCFO'],
                         'informGlobalPurchaseMgr' => $data['informGlobalPurchaseMgr'],
+                        'informGlobalCommercials' => $data['informGlobalCommercials'],
                         'informExternalUsers' => base64_encode($data['informExternalUsers']),
                         'informInternalUsers' => base64_encode($data['informInternalUsers']),
                         'modifiedOn' => TIME_NOW,

@@ -62,7 +62,10 @@ if(!$core->input['action']) {
         if($chainpolicy['informGlobalPurchaseMgr'] == 1) {
             $checked['informGlobalPurchaseMgr'] = 'checked="checked"';
         }
-
+        $checked['informGlobalCommercials'] = '';
+        if($chainpolicy['informGlobalCommercials'] == 1) {
+            $checked['informGlobalCommercials'] = 'checked="checked"';
+        }
 
         if(!empty($chainpolicy['informExternalUsers'])) {
             $informmore['externalusers'] = unserialize(base64_decode($chainpolicy['informExternalUsers']));
