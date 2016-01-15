@@ -603,6 +603,14 @@ class AroRequests extends AbstractClass {
         }
     }
 
+    private function check_infromcommercials() {
+        $filter = 'affid ='.$this->affid.' AND purchaseType = '.$this->orderType.' AND ('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
+        $aroapprovalchain_policies = AroApprovalChainPolicies::get_data($filter);
+        if(is_object($aroapprovalchain_policies)) {
+            return $aroapprovalchain_policies->informGlobalCommercials;
+        }
+    }
+
     private function get_segoordinators() {
         $arorequestlines = AroRequestLines::get_data(array('aorid' => $this->data['aorid']), array('returnarray' => true));
         if(is_array($arorequestlines)) {
@@ -937,7 +945,12 @@ class AroRequests extends AbstractClass {
                 $globalPurchaseMgr = new Users($affiliate->globalPurchaseManager);
                 $mailinglist[$globalPurchaseMgr->uid] = $globalPurchaseMgr->get_email();
             }
-
+            if($this->check_infromcommercials() == 1) {
+                $intermediary_obj = $this->get_intermediaryaff();
+                if(is_object($intermediary_obj)) {
+                    $mailinglist[] = $intermediary_obj->commercialEmail;
+                }
+            }
             $createdby = new Users($this->createdBy);
             $mailinglist[$this->createdBy] = $createdby->get_email();
 
@@ -948,6 +961,8 @@ class AroRequests extends AbstractClass {
                 }
             }
             $mailinglist = array_unique($mailinglist);
+            $mailinglist = array_filter($mailinglist);
+
             $aro_link = $core->settings['rootdir']."/index.php?module=aro/managearodouments&id=".$this->data[self::PRIMARY_KEY];
 
             $email_data = array(
@@ -982,6 +997,12 @@ class AroRequests extends AbstractClass {
             $affiliate = new Affiliates($this->data['affid']);
             $globalPurchaseMgr = new Users($affiliate->globalPurchaseManager);
             $inform[$globalPurchaseMgr->uid] = $globalPurchaseMgr->get_email();
+        }
+        if($this->check_infromcommercials() == 1) {
+            $intermediary_obj = $this->get_intermediaryaff();
+            if(is_object($intermediary_obj)) {
+                $mailinglist[] = $intermediary_obj->commercialEmail;
+            }
         }
         $informmoreusers = $this->check_informmoreusers();
         if(is_array($informmoreusers)) {
@@ -1194,6 +1215,17 @@ class AroRequests extends AbstractClass {
     public function mark_sentpo() {
         global $db;
         $query = $db->update_query('aro_requests', array('POSent' => 1), ''.self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
+    }
+
+    public function get_intermediaryaff() {
+        $purchasteype_obj = PurchaseTypes::get_data(array('ptid' => $this->orderType));
+        if($purchasteype_obj->needsIntermediary == 1) {
+            $partiesinfo_obj = AroRequestsPartiesInformation::get_data(array(self::PRIMARY_KEY => $this->data[self::PRIMARY_KEY]));
+            if(is_object($partiesinfo_obj) && !empty($partiesinfo_obj->intermedAff)) {
+                return Affiliates::get_affiliates(array('affid' => $partiesinfo_obj->intermedAff), array('simple' => false));
+            }
+        }
+        return false;
     }
 
     public function get_businessmanager() {

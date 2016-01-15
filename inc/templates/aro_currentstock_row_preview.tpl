@@ -1,9 +1,9 @@
 <tr>
-    <td>{$currentstock->productName}</td>
-    <td>{$currentstock->packingTitle}</td>
-    <td>{$currentstock->quantity}</td>
-    <td> {$currentstock->stockValue} </td>
-    <td>{$currentstock->dateOfStockEntry_output}</td>
-    <td>{$currentstock->expiryDate_output} </td>
-    <td>{$currentstock->estDateOfSale_output}</td>
+    <td class="border_right">{$currentstock->productName}</td>
+    <td class="border_right">{$currentstock->packingTitle}</td>
+    <td class="border_right">{$currentstock->quantity}</td>
+    <td class="border_right"> {$currentstock->stockValue} </td>
+    <td class="border_right">{$currentstock->dateOfStockEntry_output}</td>
+    <td class="border_right">{$currentstock->expiryDate_output} </td>
+    <td class="border_right">{$currentstock->estDateOfSale_output}</td>
 </tr>
