@@ -1554,6 +1554,10 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                 if(!empty($options['reportcurrency'])) {
                     $reportcurrency = new Currencies($options['reportcurrency']);
                     $fxrate = $reportcurrency->get_fxrate_bytype($options['fxtype'], $currency->iso_code, array('from' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 01:00'), 'to' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 24:00'), 'year' => date('Y', $invoice->dateinvoiceduts), 'month' => date('m', $invoice->dateinvoiceduts)), array('precision' => 4));
+                    if(empty($fxrate)) {
+                        $options['fxtype'] = "ylast";
+                        $fxrate = $reportcurrency->get_fxrate_bytype($options['fxtype'], $currency->iso_code, array('from' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 01:00'), 'to' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 24:00'), 'year' => date('Y', $invoice->dateinvoiceduts), 'month' => date('m', $invoice->dateinvoiceduts)), array('precision' => 4));
+                    }
                     if(!empty($fxrate)) {
                         $data['salerep']['linenetamt'][$invoice->salesrep_id][$invoice->dateparts['year']][$invoice->dateparts['mon']] += $line->linenetamt / $fxrate;
                         //   $data['products']['linenetamt'][$line->m_product_name][$invoice->dateparts['year']][$invoice->dateparts['mon']] += $line->linenetamt / $fxrate;
@@ -1585,6 +1589,10 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
         // $TIME_NOW = '1451460679';
         // }
         $current_year = date('Y', $TIME_NOW);
+        $x = date('m');
+        if(date('m') == '01' && $options['reporttype'] == 'endofmonth') {
+            $current_year = date('Y') - 1;
+        }
         foreach($tableindexes as $tableindex) {
             if(is_array($data[$tableindex])) {
                 if(($TIME_NOW > $period['from']) && ($TIME_NOW < $period['to'])) {
@@ -1671,6 +1679,11 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                                     if(is_array($month_data)) {
                                         foreach($month_data as $day => $day_data) {
                                             if(($year == $from['year'] && $month >= $from['mon'] && $day >= $from['mday']) || ($year == $to['year'] && $month <= $to['mon'] && $day <= $to['mday'])) {
+                                                if($from['year'] == $to['year']) {
+                                                    if(!($month >= $from['mon'] && $month <= $to['mon'])) {
+                                                        continue;
+                                                    }
+                                                }
                                                 if($from['mon'] == $to['mon']) {
                                                     if(!($day >= $from['mday'] && $day <= $to['mday'])) {
                                                         continue;
@@ -1719,10 +1732,11 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
         // }
         $classificationtypes = array('byytd');
         $current_year = date('Y', $TIME_NOW);
+        if(date('m') == '01') {
+            $current_year = date('Y') - 1;
+        }
         if(is_array($data[$tableindex])) {
             foreach($data[$tableindex]['linenetamt'] as $id => $salerepdata) {//rename salerepdata
-                $currentquarter = ceil(date('n', $TIME_NOW) / 3);
-                $current_month = date("m");
                 $currentyeardata = $salerepdata[$current_year];
                 if(is_array($currentyeardata)) {
                     foreach($currentyeardata as $cydata_array) {
@@ -1760,6 +1774,7 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                         else {
                             $classification[$tableindex]['byytd'][$tableindex][$id]['prevmonthdata'] += 0;
                         }
+                        unset($lydata);
                     }
                 }
 //////////////////////////////////////////////////////////////////
@@ -1776,11 +1791,13 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
         return $classification[$tableindex]['byytd'][$tableindex];
     }
 
-    public function parse_classificaton_tables($classification) {
+    public function parse_classificaton_tables($classification, $options = array()) {
         global $lang, $core;
         $TIME_NOW = TIME_NOW;
         //$TIME_NOW = '1451460679';
-
+        if(date('m') == '01' && $options['reporttype'] == 'endofmonth') {
+            $TIME_NOW = strtotime('last day of last month');
+        }
         $css_styles['header'] = 'background-color: #F1F1F1;';
         $css_styles['altrow'] = 'background-color:#D0F6AA;'; #f7fafd;;';
 
@@ -1932,7 +1949,9 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
         global $lang, $core;
         $TIME_NOW = TIME_NOW;
         //$TIME_NOW = '1451460679';
-
+        if(date('m') == '01' && $options['reporttype'] == 'endofmonth') {
+            $TIME_NOW = strtotime('last day of last month');
+        }
         if(is_array($data)) {
             $data_ids = array_keys($data);
             switch($type) {
