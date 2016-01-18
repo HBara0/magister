@@ -492,11 +492,11 @@ class ReportingQr Extends Reporting {
                         $otheremplforecasts[$productactivity['pid']][$validation_item] += $productactivity[$validation_key.'Forecast'];
                         if(round($actual_forecast, 4) > round($actual_current_forecast, 4) || ($this->report['quarter'] == 4 && round($actual_forecast, 4) < round($actual_current_forecast, 4))) {
                             if($options['source'] == 'finalize') {
-                                $user = new Users($productactivity['uid']);
-                                $product = new Products($productactivity['pid']);
-                                $forecast_corrections[$productactivity['pid']]['name'] = $product->get_displayname();
-                                $forecast_corrections[$productactivity['pid']]['user'] = $user->get_displayname();
-                                unset($user, $product);
+//                                $user = new Users($productactivity['uid']);
+//                                $product = new Products($productactivity['pid']);
+//                                $forecast_corrections[$productactivity['pid']]['name'] = $product->get_displayname();
+//                                $forecast_corrections[$productactivity['pid']]['user'] = $user->get_displayname();
+//                                unset($user, $product);
                             }
                             else {
                                 $forecast_corrections[$productactivity['pid']]['name'] = $productactivity['productname'];
