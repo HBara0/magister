@@ -68,6 +68,9 @@ else {
         $dimensionalize_ob = new DimentionalData();
 
         /* split the dimension and explode them into chuck of array */
+        if(!is_array($expencesreport_data['dimension']) || is_empty($expencesreport_data['dimension'][0])) {
+            redirect($core->settings['rootdir'].'/index.php?module=attendance/generatexpensesreport');
+        }
         $expencesreport_data['dimension'] = $dimensionalize_ob->construct_dimensions($expencesreport_data['dimension']);
 
         $expences_indexes = array('expectedAmt', 'actualAmt');

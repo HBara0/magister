@@ -1228,4 +1228,11 @@ class AroRequests extends AbstractClass {
         return false;
     }
 
+    public function get_businessmanager() {
+        if(!is_empty($this->data['aroBusinessManager'])) {
+            return new Users(intval($this->data['aroBusinessManager']));
+        }
+        return false;
+    }
+
 }
