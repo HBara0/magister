@@ -77,8 +77,10 @@ class AroRequestsMessages extends AbstractClass {
 
         if(isset($this->data['inReplyToMsgId'])) {
             $inreplyto_obj = self::get_data(array('armid' => $this->data['inReplyToMsgId']), array('simple' => false));
-            $this->data['inReplyToMsgId'] = $inreplyto_obj->get()['armid'];
-            $this->data['inReplyTo'] = $inreplyto_obj->get()['uid'];
+            if(is_object($inreplyto_obj)) {
+                $this->data['inReplyToMsgId'] = $inreplyto_obj->get()['armid'];
+                $this->data['inReplyTo'] = $inreplyto_obj->get()['uid'];
+            }
         }
 
         if($config['source'] != 'emaillink') {
