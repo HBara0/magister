@@ -80,7 +80,10 @@ class Meetings {
                 $this->errorcode = 2;
                 return false;
             }
-
+            if($this->meeting['fromDate'] > $this->meeting['toDate']) {
+                $this->errorcode = 3;
+                return false;
+            }
             /* Check if meeting intersects with another for the same user - START */
             /* Check if meeting intersects with another for the same user - END */
 
@@ -308,10 +311,7 @@ class Meetings {
             $this->errorcode = 3;
             return false;
         }
-        if($meeting_data['fromDate'] > $meeting_data['toDate']) {
-            $this->errorcode = 3;
-            return false;
-        }
+
         if(is_empty($meeting_data['title'], $meeting_data['fromDate'], $meeting_data['toDate'], $meeting_data['fromTime'], $meeting_data['toTime'])) {
             $this->errorcode = 1;
             return false;

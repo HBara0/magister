@@ -260,10 +260,15 @@ class FacilityMgmtFacilities extends AbstractClass {
         if(is_empty($from, $to)) {
             return false;
         }
-        $reservations = FacilityMgmtReservations::get_data(' fmfid = '.$this->data['fmfid'].' AND ((fromDate  BETWEEN '.$from.' AND '.$to.') OR (toDate BETWEEN '.$from.' AND '.$to.') OR (fromDate <= '.$from.' AND toDate >= '.$to.')) ');
-        if(is_object($reservations) && !empty($reservations->fmrid)) {
-            return $reservations;
+        $reservations = FacilityMgmtReservations::get_data(' fmfid = '.$this->data['fmfid'].' AND ((fromDate  BETWEEN '.$from.' AND '.$to.') OR (toDate BETWEEN '.$from.' AND '.$to.') OR (fromDate <= '.$from.' AND toDate >= '.$to.')) ', array('returnarray' => true));
+        if(is_array($reservations)) {
+            foreach($reservations as $reservation) {
+                if(is_object($reservation) && !empty($reservation->fmrid)) {
+                    return $reservation;
+                }
+            }
         }
+
         return false;
     }
 
