@@ -926,7 +926,22 @@ class TravelManagerPlanSegments extends AbstractClass {
                 if($fromcurr != $tocurr) {
                     $fare .='<br/><small>'.$numfmt->formatCurrency($transportation->fare, $fromcurr->alphaCode).'</small>';
                 }
-
+                // Show averages of same flight -START
+                if($transportation->get_transpcategory()->isAerial == 1) {
+                    $avgof = array('10', '5');
+                    foreach($avgof as $flightsnum) {
+                        $avg = $transportation->get_averagaeflightfare(array('segid' => $this->data[self::PRIMARY_KEY], 'originCity' => $this->data['originCity'], 'destinationCity' => $this->data['destinationCity']), $flightsnum);
+                        $avgflightfare[$avg['numofflights']] = 'Avg Last '.$avg['numofflights'].' '.$numfmt->formatCurrency($avg['avgprice'], $fromcurr->alphaCode);
+                    }
+                    if(is_array($avgflightfare)) {
+                        foreach($avgflightfare as $avgof => $avgflightfare) {
+                            if(!empty($avgflightfare_output)) {
+                                $avgflightfare_output .=' | ';
+                            }
+                            $avgflightfare_output .=$avgflightfare;
+                        }
+                    }
+                }
                 if($transportation->isRoundTrip) {
                     $transportation->isRoundTrip_output = $lang->roundtrip;
                 }
