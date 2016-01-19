@@ -112,7 +112,10 @@ class FacilityMgmtReservations extends AbstractClass {
         if(!empty($email_to)) {
             $user = new Users($this->reservedBy);
             if(!empty($this->purpose)) {
-                $purpose = $lang->purpose.' : '.$this->purpose;
+                $purpose_obj = FacilityManagementReservePurpose::get_data(array('alias' => $this->data['purpose']), array('returnarray' => false));
+                if(is_object($purpose_obj)) {
+                    $purpose = $lang->purpose.' : '.$purpose_obj->get_displayname();
+                }
             }
             if($status == 'create') {
                 $email_subject = $lang->sprint($lang->reservationcreation_subject, $user->get_displayname(), $facility->getfulladdress(), $affiliate->get_displayname());
