@@ -32,6 +32,22 @@
                 </ul>
             </div>
         </li>
+        <li class="expandable"><span id="products">{$lang->manageproducts}</span>
+            <div id="products_children_container" style="display: none;">
+                <ul id="products_children">
+                    <li><span id="products/segments"><a href='index.php?module=products/segments'>{$lang->segments}</a></span></li>
+                    <li><span id="products/functions"><a href='index.php?module=products/segmentcategory'>{$lang->segmentcatss}</a></span> </li>
+                    <li><span id="products/generics"><a href='index.php?module=products/generics'>{$lang->generics}</a></span></li>
+                    <li><span id="products/add"><a href='index.php?module=products/add'>{$lang->addproducts}</a></span></li>
+                    <li><span id="products/view"><a href='index.php?module=products/view'>{$lang->listproducts}</a></span></li>
+                    <li><span id="products/applications"><a href='index.php?module=products/applications'>{$lang->applications}</a></span></li>
+                    <li><span id="products/functions"><a href='index.php?module=products/functions'>{$lang->functions}</a></span> </li>
+                    <li><span id="products/types"><a href='index.php?module=products/types'>{$lang->types}</a></span> </li>
+                    <li><span id="products/basicingredients"><a href='index.php?module=products/basicingredients'>{$lang->basicingredients}</a></span> </li>
+                    <li><span id="products/characteristicslist"><a href='index.php?module=products/characteristicslist'>{$lang->charasteristiclist}</a></span> </li>
+                </ul>
+            </div>
+        </li>
         <li class="expandable"><span id="managesystem">{$lang->managesystem}</span>
             <div id="managesystem_children_container" style="display: none;">
                 <ul id="managesystem_children">
