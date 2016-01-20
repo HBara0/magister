@@ -355,6 +355,7 @@ else {
             if($leave_obj->createAutoResp == 1 && !isset($core->input['createAutoResp'])) {
                 $leave_obj->delete_autoresponder();
             }
+            $core->input['workingDays'] = $leave_obj->count_workingdays();
         }
         //check if leave has a TM plan end
         $query = $db->update_query('leaves', $core->input, "lid='{$lid}'");
