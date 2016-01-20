@@ -9,7 +9,7 @@
     border-top: 1px solid #CCCCCC;
     border-right: 1px solid #333333;
     border-bottom: 1px solid #333333;
-    border-left: 1px solid #CCCCCC;" href="{$approve_link}" target="_blank">{$lang->approve}</a></br>
+    border-left: 1px solid #CCCCCC;" href="{$approve_link}" target="_blank">{$lang->commentapprovereject}</a></br>
 <div id="container" style="width:100%;  margin: 0px auto;display:block;">
     </br>
     <div style=" width:100%; background-color: lightgray; display: block;">{$segment_expenses} </div>
