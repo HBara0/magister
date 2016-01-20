@@ -51,7 +51,7 @@ class FacilityMgmtReservations extends AbstractClass {
         if($query) {
             $this->data[self::PRIMARY_KEY] = $db->last_id();
         }
-        $this->notify_reservations('create');
+        //  $this->notify_reservations('create');
         return $this;
     }
 
@@ -74,7 +74,7 @@ class FacilityMgmtReservations extends AbstractClass {
             $update_array['status'] = $data['status'];
         }
         $db->update_query(self::TABLE_NAME, $update_array, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
-        $this->notify_reservations('update');
+        // $this->notify_reservations('update');
         return $this;
     }
 
