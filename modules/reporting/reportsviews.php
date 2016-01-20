@@ -20,6 +20,19 @@ if(!$core->input['action']) {
     else {
         $quarter = currentquarter_info();
     }
+//getting last two quarters
+    switch($quarter['quarter']) {
+        case '2':
+            $last_twoqs = array(1 => ($quarter['year'] ), 4 => ($quarter['year'] - 1));
+            break;
+        case '1':
+            $last_twoqs = array(4 => ($quarter['year'] - 1), 3 => ($quarter['year'] - 1));
+            break;
+        default :
+            $last_twoqs = array(( $quarter['quarter'] - 1) => $quarter['year'], ($quarter['quarter'] - 2) => $quarter['year']);
+            break;
+    }
+
 
     $query = $db->query('SELECT DISTINCT(identifier), spid
 						FROM '.Tprefix.'reports r
@@ -52,7 +65,6 @@ if(!$core->input['action']) {
                         $views_outputs .= '<tr><th class="subtitle" colspan="3">'.$recepient['name'].'</th></tr>';
                         while($view = $db->fetch_assoc($qrrview_query)) {
                             $rowclass = alt_row($rowclass);
-
                             $view['timeObj'] = new DateTime();
                             $view['timeObj']->setTimestamp($view['time']);
                             $diff = $view['timeObj']->diff($recepient['sentOnObj']);
@@ -66,7 +78,33 @@ if(!$core->input['action']) {
                         }
                     }
                     else {
-                        $views_outputs .= '<tr><th class="subtitle" colspan="3">'.$recepient['name'].' has not seen it (Sent on '.date($core->settings['dateformat'].' '.$core->settings['timeformat'], $recepient['sentOn']).')</th></tr>';
+                        $viewed = 0;
+                        $notviewed = '';
+                        //check if recipient did not read the report since last two quarters
+                        foreach($last_twoqs as $lastq_quarter => $lastq_year) {
+                            $lastsingle_q_reports = ReportingQReports::get_column('DISTINCT(identifier)', array('isSent' => 1, 'spid' => $supplier->eid, 'type' => 'q', 'year' => $lastq_year, 'quarter' => $lastq_quarter));
+                            if(is_array($lastsingle_q_reports)) {
+                                if(is_array($lastqs_reports)) {
+                                    $lastqs_reports = array_merge($lastqs_reports, $lastsingle_q_reports);
+                                }
+                                else {
+                                    $lastqs_reports = $lastsingle_q_reports;
+                                }
+                            }
+                        }
+                        if(is_array($lastqs_reports)) {
+                            $pastqs_reportrecipients = ReportingQrRecipient::get_column(ReportingQrRecipient::PRIMARY_KEY, array('reportIdentifier' => $lastqs_reports));
+                            if(is_array($pastqs_reportrecipients)) {
+                                $viewsofpast_qs = ReportingQrRecipientViews::get_data(array(ReportingQrRecipient::PRIMARY_KEY => $pastqs_reportrecipients), array('returnarray' => true));
+                                if(is_array($viewsofpast_qs)) {
+                                    $viewed = 1;
+                                }
+                            }
+                        }
+                        if($viewed == 0) {
+                            $notviewed = '<span data-toggle="tooltip" data-placement="right" title="'.$lang->notviewedinlasttwoq.'" class="glyphicon glyphicon-info-sign" style="color:red"></span>';
+                        }
+                        $views_outputs .= '<tr><th class = "subtitle" colspan = "3">'.$recepient['name'].' has not seen it (Sent on '.date($core->settings['dateformat'].' '.$core->settings['timeformat'], $recepient['sentOn']).')'.$notviewed.'</th></tr>';
                     }
                     //				if(is_array($recepient['viewsvssent'])) {
                     //					$average_diff = array_sum($recepient['viewsvssent'])/count($recepient['viewsvssent']);
@@ -74,12 +112,12 @@ if(!$core->input['action']) {
                     //					$hours = floor($average_diff % (24*60*60)/(60*60));
                     //					$minutes = ($average_diff % 60) / 60;
                     //
-                    //					$views_outputs .= '<tr><td class="altrow2" colspan="2">Average</t><td class="altrow2">'.$days.' days '.$hours.' hours '.round($minutes).' minutes</td></tr>';
+                    //					$views_outputs .= '<tr><td class = "altrow2" colspan = "2">Average</t><td class = "altrow2">'.$days.' days '.$hours.' hours '.round($minutes).' minutes</td></tr>';
                     //				}
                 }
             }
             else {
-                $views_outputs .= '<tr><td class="unapproved" colspan="3">No Sent</td></tr>';
+                $views_outputs .= '<tr><td class = "unapproved" colspan = "3">No Sent</td></tr>';
             }
         }
         else {
@@ -88,8 +126,8 @@ if(!$core->input['action']) {
     }
 
     if(is_array($info['qrnosend'])) {
-        $views_outputs .= '<tr><td class="thead" colspan="3">Filling but not sending to:</td></tr>';
-        $views_outputs .= '<tr><td colspan="3"><ul><li>'.implode('</li><li>', $info['qrnosend']).'</li></ul></td></tr>';
+        $views_outputs .= '<tr><td class = "thead" colspan = "3">Filling but not sending to:</td></tr>';
+        $views_outputs .= '<tr><td colspan = "3"><ul><li>'.implode('</li><li>', $info['qrnosend']).'</li></ul></td></tr>';
     }
     $views_outputs .= '</table>';
     eval("\$reportviewspage = \"".$template->get('reporting_reportsviews')."\";");

@@ -616,7 +616,7 @@ class Surveys {
             $identifier = $identifier;
         }
 
-        $query = $db->query("SELECT s.identifier AS survey_identifier, stq.sequence, s.subject, stqc.*, sr.*, stq.question, sqt.hasChoices, sqt.hasMultiAnswers, sqt.isQuantitative
+        $query = $db->query("SELECT s.identifier AS survey_identifier, stq.sequence, s.subject, stqc.*, sr.*, stq.question, sqt.hasChoices, sqt.hasMultiAnswers, sqt.isQuantitative, sqt.isMatrix
 						FROM ".Tprefix."surveys_responses sr
 						JOIN ".Tprefix."surveys s ON (s.sid=sr.sid)
 						JOIN ".Tprefix."surveys_templates_questions stq ON (stq.stqid=sr.stqid)
@@ -634,6 +634,13 @@ class Surveys {
             }
             $responses_stats[$responses_stat['stqid']]['choices']['value'][$responses_stat['stqcid']] = $responses_stat['value'];
             $responses_stats[$responses_stat['stqid']]['choices']['stats'][$responses_stat['stqcid']] ++;
+            if($responses_stat['isMatrix'] == 1 && !empty($responses_stat['responseValue'])) {
+                $survey_question_choiceschoice = new SurveysTplQChoiceChoices($responses_stat['responseValue']);
+                if(is_object($survey_question_choiceschoice)) {
+                    $responses_stats[$responses_stat['stqid']]['choices']['choicesvalues'][$responses_stat['stqcid']]['values'] [$responses_stat['responseValue']] ++;
+                    $responses_stats[$responses_stat['stqid']]['choices']['choicesvalues'][$responses_stat['stqcid']]['choice'] [$responses_stat['responseValue']] = $survey_question_choiceschoice->get_displayname();
+                }
+            }
         }
         /* Get choices that were not selected */
         if($ignore_zero == false) {
@@ -648,6 +655,23 @@ class Surveys {
                             }
                             $responses_stats[$other_choices['stqid']]['choices']['value'][$other_choices['stqcid']] = $other_choices['value'];
                             $responses_stats[$other_choices['stqid']]['choices']['stats'][$other_choices['stqcid']] = 0;
+                            if(isset($data['choices']['choicesvalues']) && is_array($data['choices']['choicesvalues'])) {
+                                $query3 = $db->query("SELECT * FROM ".Tprefix."surveys_templates_questionschoices_choices WHERE stqcid={$other_choices[stqcid]}");
+                                while($matrixchoicesvalue = $db->fetch_assoc($query3)) {
+                                    $responses_stats[$other_choices['stqid']]['choices']['choicesvalues'][$other_choices['stqcid']]['values'][$matrixchoicesvalue['stqccid']] = 0;
+                                    $responses_stats[$other_choices['stqid']]['choices']['choicesvalues'][$other_choices['stqcid']]['choice'][$matrixchoicesvalue['stqccid']] = $matrixchoicesvalue['choice'];
+                                }
+                            }
+                        }
+                        else if(isset($data['choices']['choicesvalues']) && is_array($data['choices']['choicesvalues'])) {
+                            $query3 = $db->query("SELECT * FROM ".Tprefix."surveys_templates_questionschoices_choices WHERE stqcid={$other_choices[stqcid]}");
+                            while($matrixchoicesvalue = $db->fetch_assoc($query3)) {
+                                if(isset($responses_stats[$other_choices['stqid']]['choices']['choicesvalues'][$other_choices['stqcid']]['values'][$matrixchoicesvalue['stqccid']])) {
+                                    continue;
+                                }
+                                $responses_stats[$other_choices['stqid']]['choices']['choicesvalues'][$other_choices['stqcid']]['values'][$matrixchoicesvalue['stqccid']] = 0;
+                                $responses_stats[$other_choices['stqid']]['choices']['choicesvalues'][$other_choices['stqcid']]['choice'][$matrixchoicesvalue['stqccid']] = $matrixchoicesvalue['choice'];
+                            }
                         }
                     }
                 }
@@ -1091,13 +1115,10 @@ class Surveys {
                     if($choice['hasMultipleValues'] == 1) {
                         $query3 = $db->query("SELECT * FROM ".Tprefix."surveys_templates_questionschoices_choices WHERE stqcid={$choice[stqcid]} ORDER BY stqcid ASC");
                         while($choicevalue = $db->fetch_assoc($query3)) {
-                            $question['choicevalues'][$choicevalue['stqccid']] = $choicevalue['choice'];
+                            $question['choicevalues'][$choicevalue['stqcid']][$choicevalue['stqccid']] = $choicevalue['choice'];
                         }
                     }
                 }
-            }
-            if(is_array($question['choicevalues'])) {
-                $question['choicevalues'] = array_unique($question['choicevalues']);
             }
             $questions[$question['stsid']]['section_title'] = $question['section_title'];
             $questions[$question['stsid']]['section_description'] = $question['section_description'];
@@ -1262,8 +1283,13 @@ class Surveys {
                 unset($checked);
                 $question_output .= '<div style="margin: 5px 20px; 5px; 20px;"><table class="datatable">';
                 $question_output .= '<tr><th style="width:40%;"><input type="hidden" name="answer[options]['.$question['stqid'].'][isMatrix]" value="1"/></th>';
-                foreach($question['choicevalues'] as $choicevalue) {
-                    $question_output .= '<th style="text-align:left; width:'.((100 - 40) / count($question['choicevalues'])).'%;">'.$choicevalue.'</th>';
+                foreach($question['choicevalues'] as $choicevalues) {
+                    if(is_array($choicevalues)) {
+                        foreach($choicevalues as $choicevalue) {
+                            $question_output .= '<th style="text-align:left; width:'.((100 - 40) / count($choicevalues)).'%;">'.$choicevalue.'</th>';
+                        }
+                    }
+                    break;
                 }
                 $question_output .='</tr>';
                 if(is_array($response)) {
@@ -1277,12 +1303,14 @@ class Surveys {
 
                 foreach($question['choices'] as $choicekey => $choice) {
                     $question_output .='<tr><th>'.$choice.'</th>';
-                    foreach($question['choicevalues'] as $valuekey => $choicevalue) {
-                        if($checked[$choicekey][$valuekey]) {
-                            $question_output .='<td style="text-align:left;"><img src="'.$core->settings['rootdir'].'/images/icons/completed.png" alt="checked"></td>';
-                        }
-                        else {
-                            $question_output .='<td style = "text-align:left;"><input '.$disabled.' type = "radio" name = "answer[actual]['.$question['stqid'].']['.$choicekey.']" value = "'.$choicekey.'_'.$valuekey.'" '.$question_output_requiredattr.' /></td>';
+                    if(is_array($question['choicevalues'][$choicekey])) {
+                        foreach($question['choicevalues'][$choicekey] as $valuekey => $value) {
+                            if($checked[$choicekey][$valuekey]) {
+                                $question_output .='<td style="text-align:left;"><img src="'.$core->settings['rootdir'].'/images/icons/completed.png" alt="checked"></td>';
+                            }
+                            else {
+                                $question_output .='<td style = "text-align:left;"><input '.$disabled.' type = "radio" name = "answer[actual]['.$question['stqid'].']['.$choicekey.']" value = "'.$choicekey.'_'.$valuekey.'" '.$question_output_requiredattr.' /></td>';
+                            }
                         }
                     }
                     $question_output .='</tr>';

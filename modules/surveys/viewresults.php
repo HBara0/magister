@@ -39,40 +39,54 @@ if(!$core->input['action']) {
             if(is_array($responses_stats)) {
                 $questionsstats = '<h2><small>Graphical Statistics</small></h2>';
                 foreach($responses_stats as $stqid => $question) {
-                    $pie_data['titles'] = $question['choices']['choice'];
-                    $pie_data['values'] = $question['choices']['stats'];
-
-                    foreach($question['choices']['choice'] as $stqcid => $choice) {
-                        /* Exit the loop if stats value = 0 */
-                        if($question['choices']['stats'][$stqcid] == 0 || empty($question['choices']['value'][$stqcid])) {
-                            continue;
+                    if(isset($question['choices']['choicesvalues']) && is_array($question['choices']['choicesvalues'])) {
+                        foreach($question['choices']['choicesvalues'] as $choicekyey => $choicesvalues) {
+                            $choicetitle = $question['choices']['choice'][$choicekyey];
+                            $pie_data['titles'] = $choicesvalues['choice'];
+                            $pie_data['values'] = $choicesvalues['values'];
+                            $pie = new Charts(array('x' => $pie_data['titles'], 'y' => $pie_data['values']), 'bar', array('scale' => SCALE_START0, 'noLegend' => true));
+                            $chart = '<img src='.$pie->get_chart().' />';
+                            eval("\$matrix_charts .= \"".$template->get('surveys_results_questionstat_matrix_singlechoice')."\";");
                         }
-                        /* Count of answers for a choice in the question Array */
-                        $count[$stqid] += $question['choices']['stats'][$stqcid];
-                        /* Weight is  value of the choice for each question */
-                        $weighted_sum[$stqid] += ($question['choices']['stats'][$stqcid] * $question['choices']['value'][$stqcid]);
-                    }
 
-                    if(!empty($count[$stqid])) {
-                        $question['average'] = round($weighted_sum[$stqid] / $count[$stqid], 2);
-                        $lang->questionaverage_output = '('.$lang->questionaverage.' '.$question['average'].')';
+                        eval("\$questionsstats .= \"".$template->get('surveys_results_questionstat_matrix')."\";");
+                        unset($matrixchat);
                     }
                     else {
-                        $lang->questionaverage_output = $question['average'] = '';
-                    }
+                        $pie_data['titles'] = $question['choices']['choice'];
+                        $pie_data['values'] = $question['choices']['stats'];
 
-                    $pie = new Charts(array('x' => $pie_data['titles'], 'y' => $pie_data['values']), 'bar', array('scale' => SCALE_START0, 'noLegend' => true));
-                    //$pie = new Charts(array('titles' => $pie_data['titles'], 'values' => $pie_data['values']), 'pie');
-                    //$chart = '<img src='.$pie->get_chart().' />';
-                    if($survey['createdBy'] == $core->user['uid']) {
-                        $chart = '<a href="#question_'.$stqid.'" id="getquestionresponses_'.$stqid.'_'.$survey['identifier'].'"><img src='.$pie->get_chart().' border="0" /></a>';
+                        foreach($question['choices']['choice'] as $stqcid => $choice) {
+                            /* Exit the loop if stats value = 0 */
+                            if($question['choices']['stats'][$stqcid] == 0 || empty($question['choices']['value'][$stqcid])) {
+                                continue;
+                            }
+                            /* Count of answers for a choice in the question Array */
+                            $count[$stqid] += $question['choices']['stats'][$stqcid];
+                            /* Weight is  value of the choice for each question */
+                            $weighted_sum[$stqid] += ($question['choices']['stats'][$stqcid] * $question['choices']['value'][$stqcid]);
+                        }
+
+                        if(!empty($count[$stqid])) {
+                            $question['average'] = round($weighted_sum[$stqid] / $count[$stqid], 2);
+                            $lang->questionaverage_output = '('.$lang->questionaverage.' '.$question['average'].')';
+                        }
+                        else {
+                            $lang->questionaverage_output = $question['average'] = '';
+                        }
+
+                        $pie = new Charts(array('x' => $pie_data['titles'], 'y' => $pie_data['values']), 'bar', array('scale' => SCALE_START0, 'noLegend' => true));
+                        //$pie = new Charts(array('titles' => $pie_data['titles'], 'values' => $pie_data['values']), 'pie');
+                        //$chart = '<img src='.$pie->get_chart().' />';
+                        if($survey['createdBy'] == $core->user['uid']) {
+                            $chart = '<a href="#question_'.$stqid.'" id="getquestionresponses_'.$stqid.'_'.$survey['identifier'].'"><img src='.$pie->get_chart().' border="0" /></a>';
+                        }
+                        else {
+                            $chart = '<img src='.$pie->get_chart().' />';
+                        }
+                        eval("\$questionsstats .= \"".$template->get('surveys_results_questionstat')."\";");
                     }
-                    else {
-                        $chart = '<img src='.$pie->get_chart().' />';
-                    }
-                    eval("\$questionsstats .= \"".$template->get('surveys_results_questionstat')."\";");
                 }
-
 
                 $questionsstats .= '<hr /><input type="button" id="crosstabulation" class="button" value="Click to Generate Cross Tabulation"><div id="crosstabulation_results"></div>';
             }

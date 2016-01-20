@@ -82,7 +82,14 @@ else {
         $mtid = $db->escape_string($core->input['id']);
 
         $affiliates_users = Users::get_allusers();
-        $meeting_obj = new Meetings($mtid);
+        $meeting_obj = new Meetings(intval($mtid));
+        if(!is_object($meeting_obj)) {
+            exit;
+        }
+        $meeting_objarray = $meeting_obj->get();
+        if(empty($meeting_objarray->meeting['mtid'])) {
+            exit;
+        }
         $shared_users = $meeting_obj->get_shared_users();
         if(is_array($shared_users)) {
             foreach($shared_users as $uid => $user) {

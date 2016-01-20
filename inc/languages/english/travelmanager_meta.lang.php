@@ -314,4 +314,5 @@ $lang['segmentoverview'] = 'Segment Overview';
 $lang['purposes'] = 'Purposes';
 $lang['internal'] = 'Internal';
 $lang['external'] = 'External';
+$lang['commentapprovereject'] = 'Approve/Comment on Leave';
 ?>

@@ -476,7 +476,7 @@ class ReportingQr Extends Reporting {
                 if(isset($prev_data[$productactivity['pid']])) {
                     foreach($validation_items as $validation_key => $validation_item) {
                         $actual_current_validation = $productactivity[$validation_item];
-                        if($validation_key == 'sales' && isset($productactivity['fxrate'])) {
+                        if($validation_key == 'sales' && isset($productactivity['fxrate']) && !empty($productactivity['fxrate'])) {
                             $actual_current_validation = round($productactivity[$validation_item] / $productactivity['fxrate'], 5);
                         }
 

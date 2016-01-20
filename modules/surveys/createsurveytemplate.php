@@ -47,7 +47,7 @@ if(!$core->input['action']) {
                         foreach($question as $questionfield => $value) {
                             $section[$section_rowid]['questions'][$question_rowid][$questionfield] = $value;
                             if($questionfield == 'choices' && is_array($value)) {
-                                $choicesrowid_rowid = $matrixchoicesrowid_rowid = 1;
+                                $choicesrowid_rowid = 1;
                                 $style['choicesdisplay'] = 'style="display:block;"';
                                 foreach($value as $choicevalue) {
                                     $section[$section_rowid]['questions'][$question_rowid]['choices'][$choicesrowid_rowid]['choice'] = $choicevalue['choice'];
@@ -61,6 +61,7 @@ if(!$core->input['action']) {
                                 }
                             }
                             if($question['isMatrix'] == 1 && $questionfield == 'choicevalues' && is_array($value)) {
+                                $matrixchoicesrowid_rowid = 1;
                                 foreach($value as $matrixchoicevalue) {
                                     $section[$section_rowid]['questions'][$question_rowid]['matrixchoices'][$matrixchoicesrowid_rowid]['choice'] = $matrixchoicevalue['choice'];
                                     $section[$section_rowid]['questions'][$question_rowid]['matrixchoices'][$matrixchoicesrowid_rowid]['value'] = $matrixchoicevalue['value'];
@@ -105,7 +106,6 @@ if(!$core->input['action']) {
                     }
 
                     $altrow_class = alt_row($altrow_class);
-                    $choicesrowid_rowid = $matrixchoicesrowid_rowid = 1;
                     $showanswer = 'display:none;';
                     if($survey_template['isQuiz'] == 1) {
                         $showanswer = '';
@@ -114,8 +114,8 @@ if(!$core->input['action']) {
                     $seperatorselectlist = parse_selectlist("section[{$section_rowid}][questions][{$question_rowid}][choicesSeperator]", '', $sepertorslist, '');
 
                     eval("\$newquestions .= \"".$template->get('surveys_createtemplate_sectionrow_questionrow')."\";");
-                    $question_rowid++;
                     unset($matrixchoices, $choices, $selectedvtype);
+                    $question_rowid++;
                 }
                 $section['section_inputChecksum'] = generate_checksum();
                 eval("\$newsection .= \"".$template->get('surveys_createtemplate_sectionrow')."\";");

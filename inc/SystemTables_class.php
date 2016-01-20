@@ -200,7 +200,7 @@ public function create(array \$data) {
          if(is_array(\$fields)){
             foreach(\$fields as \$field){
                 if(!is_null(\$data[\$field])){
-                    \$table_array(\$field)=\$data[\$field];
+                    \$table_array[\$field]=\$data[\$field];
                 }
             }
         }
@@ -222,7 +222,7 @@ protected function update(array \$data) {
          if(is_array(\$fields)){
             foreach(\$fields as \$field){
                 if(!is_null(\$data[\$field])){
-                    \$table_array(\$field)=\$data[\$field];
+                    \$table_array[\$field]=\$data[\$field];
                 }
             }
         }

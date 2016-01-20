@@ -66,10 +66,6 @@ class Meetings {
                     $this->meeting['toDate'] = strtotime($this->meeting['alttoDate'].' '.$this->meeting['toTime']);
                 }
             }
-            if($meeting_data['fromDate'] > $meeting_data['toDate']) {
-                $this->errorcode = 3;
-                return false;
-            }
 
             if(is_empty($this->meeting['title'], $this->meeting['fromDate'], $this->meeting['toDate'], $this->meeting['fromTime'], $this->meeting['toTime'])) {
                 $this->errorcode = 1;
