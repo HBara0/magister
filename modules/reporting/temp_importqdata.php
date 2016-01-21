@@ -284,8 +284,8 @@ else {
                     if(!isset($newpurchase[$report['rid']][$uid][$sale['localpid']])) {
                         $newpurchase[$report['rid']][$uid][$sale['localpid']] = array(
                                 'pid' => $sale['localpid'],
-                                'quantity' => 0,
-                                'turnOver' => 0,
+//                                'quantity' => 0,
+//                                'turnOver' => 0,
                                 'rid' => $report['rid'],
                                 'uid' => $uid,
                                 'soldQty' => $sale['quantity']
@@ -364,7 +364,7 @@ else {
                                 }
                                 foreach($fields as $field) {
                                     if(!empty($activity[$field])) {
-                                        $activity[$field] = round($activity[$field]);
+                                        unset($activity[$field]);
                                     }
                                 }
                                 $db->update_query('productsactivity', $activity, 'rid='.$rid.' AND pid='.$pid.$paupdate_querywhere);
@@ -380,7 +380,7 @@ else {
                                     $fields = array('salesForecast', 'quantityForecast');
                                     foreach($fields as $field) {
                                         if(!empty($activity[$field])) {
-                                            $activity[$field] = round($activity[$field]);
+                                            unset($activity[$field]);
                                         }
                                     }
                                     $db->insert_query('productsactivity', $activity);
@@ -405,7 +405,7 @@ else {
                                         $activity['salesForecast'] += $forecasts['salesForecast'] + $activity['turnOver'];
                                     }
 
-                                    $db->update_query('productsactivity', array('salesForecast' => round($activity['salesForecast']), 'quantityForecast' => round($activity['quantityForecast'])), 'paid='.$productact->paid);
+//                                    $db->update_query('productsactivity', array('salesForecast' => round($activity['salesForecast']), 'quantityForecast' => round($activity['quantityForecast'])), 'paid='.$productact->paid);
                                 }
                             }
                         }
@@ -413,8 +413,8 @@ else {
                         echo "Done<br />";
                     }
                     if($options['runtype'] != 'dry') {
-                        $db->update_query('reports', array('isLocked' => 0, 'status' => 0, 'prActivityAvailable' => 1, 'dataIsImported' => 1, 'dataImportedOn' => TIME_NOW), 'rid='.$rid);
-                        $db->update_query('reportcontributors', array('isDone' => 0), 'rid='.$rid);
+//                        $db->update_query('reports', array('isLocked' => 0, 'status' => 0, 'prActivityAvailable' => 1, 'dataIsImported' => 1, 'dataImportedOn' => TIME_NOW), 'rid='.$rid);
+//                        $db->update_query('reportcontributors', array('isDone' => 0), 'rid='.$rid);
                     }
                 }
             }
@@ -422,86 +422,86 @@ else {
             $skipforecast = true;
             if($options['runtype'] != 'dry' || $skipforecast == false) {
                 /* Import from the GP forecasts */
-                if(intval($core->input['quarter']) < 4) {
-                    $sum = 'month1';
-                    for($i = 2; $i <= 12; $i++) {
-                        $sum .='+ month'.$i;
-                    }
-                    $sql = "SELECT pid,businessMgr,SUM({$sum}) AS PurchaseQty FROM ".Tprefix."grouppurchase_forecastlines WHERE gpfid IN(SELECT gpfid FROM ".Tprefix."grouppurchase_forecast WHERE affid=".$affid." AND year=".$core->input['year'].") GROUP BY pid,businessMgr HAVING PurchaseQty>0";
-                    $query = $db->query($sql);
-                    if($db->num_rows($query) > 0) {
-                        while($gpline = $db->fetch_assoc($query)) {
-                            if($gpline['PurchaseQty'] == 0) {
-                                continue;
-                            }
-                            $uid_where = '(uid='.$gpline['businessMgr'].' OR uid=0)';
-                            $product = new Products($gpline['pid']);
-                            $spid = $product->get_supplier()->eid;
-                            $rid_where = "rid =(SELECT rid FROM ".Tprefix."reports WHERE affid=".intval($core->input['affid'])." AND year=".intval($core->input['year'])." AND spid=".$spid." AND quarter=".intval($core->input['quarter']).")";
-
-                            $productsactivity_line = ProductsActivity::get_data(array('rid' => $rid_where, 'pid' => $gpline['pid'], 'uid' => $uid_where), array('simple' => false, 'operators' => array('uid' => 'CUSTOMSQL', 'rid' => 'CUSTOMSQLSECURE')));
-
-                            if(is_object($productsactivity_line)) {
-                                $gpline['PurchaseQty'] = $productsactivity_line->quantityForecast + ($gpline['PurchaseQty'] / 1000);
-                                if($productsactivity_line->soldQty != 0 && $productsactivity_line->quantity != 0) {
-                                    $gpline['PurchaseAmount'] = ($productsactivity_line->turnOver / $productsactivity_line->quantity) * $gpline['PurchaseQty'];
-                                }
-
-                                echo '<br />Updated ('.$productsactivity_line->rid.'): ';
-                                print_r(array('quantityForecast' => $gpline['PurchaseQty'], 'salesForecast' => $gpline['PurchaseAmount'])).' paid='.$productsactivity_line->paid;
-//                                echo 'Original query was<br />';
-//                                print_r(array('rid' => $rid_where, 'pid' => $gpline['pid'], 'uid' => $uid_where));
-//                                echo '<br />';
-//                                print_r($productsactivity_line);
-//                                echo '<hr />';
-                                $db->update_query(ProductsActivity::TABLE_NAME, array('quantityForecast' => round($gpline['PurchaseQty']), 'salesForecast' => round($gpline['PurchaseAmount'])), 'paid='.$productsactivity_line->paid);
-                            }
-                            else {
-                                $sql = "SELECT rid FROM ".Tprefix."reports WHERE affid=".intval($core->input['affid'])." AND year=".intval($core->input['year'])." AND spid=".$spid." AND quarter=".intval($core->input['quarter']);
-                                $query2 = $db->query($sql);
-                                if($db->num_rows($query2) > 0) {
-                                    while($report = $db->fetch_assoc($query2)) {
-                                        $productactivity_data = array(
-                                                'rid' => $report['rid'],
-                                                'pid' => $gpline['pid'],
-                                                'uid' => $gpline['businessMgr'],
-                                                'quantityForecast' => round($gpline['PurchaseQty'] / 1000),
-                                                'salesForecast' => 0,
-                                                'importedOn' => TIME_NOW
-                                        );
-
-                                        echo 'Inserted Forecast<br />';
-                                        print_r($productactivity_data);
-//                                        echo 'Original query was<br />';
-//                                        print_r(array('rid' => $rid_where, 'pid' => $gpline['pid'], 'uid' => $uid_where));
-//                                        echo '<br />';
-//                                        print_r($productsactivity_line);
-//                                        echo '<hr />';
-                                        $db->insert_query(ProductsActivity::TABLE_NAME, $productactivity_data);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                /* Import from the GP forecasts-END */
-
-                $db->update_query('reports', array('dataIsImported' => 1, 'dataImportedOn' => TIME_NOW), 'affid='.$affid.' AND quarter='.$options['quarter'].' AND year = '.$options['year']);
-                /* SET status to finalized for reports which do no require any input anymore and no data was imported */
-                $orfilters = array('affid' => $affid, 'year' => $options['year'], 'quarter' => $options['quarter']);
-                if(is_array($rids)) {
-                    $orfilters['rid'] = implode(', ', $rids);
-                }
-                $otherreports = ReportingQReports::get_data($orfilters, array('returnarray' => true, 'operators' => array('rid' => 'NOT IN')));
-                if(is_array($otherreports)) {
-                    foreach($otherreports as $otherreport) {
-                        $contributors = ReportContributors::get_data(array('rid' => $otherreport->get_id(), 'isDone' => 0), array('returnarray' => true));
-                        if(!is_array($contributors) || empty($contributors)) {
-                            $otherreport->set(array('status' => 1));
-                            $otherreport->save();
-                        }
-                    }
-                }
+//                if(intval($core->input['quarter']) < 4) {
+//                    $sum = 'month1';
+//                    for($i = 2; $i <= 12; $i++) {
+//                        $sum .='+ month'.$i;
+//                    }
+//                    $sql = "SELECT pid,businessMgr,SUM({$sum}) AS PurchaseQty FROM ".Tprefix."grouppurchase_forecastlines WHERE gpfid IN(SELECT gpfid FROM ".Tprefix."grouppurchase_forecast WHERE affid=".$affid." AND year=".$core->input['year'].") GROUP BY pid,businessMgr HAVING PurchaseQty>0";
+//                    $query = $db->query($sql);
+//                    if($db->num_rows($query) > 0) {
+//                        while($gpline = $db->fetch_assoc($query)) {
+//                            if($gpline['PurchaseQty'] == 0) {
+//                                continue;
+//                            }
+//                            $uid_where = '(uid='.$gpline['businessMgr'].' OR uid=0)';
+//                            $product = new Products($gpline['pid']);
+//                            $spid = $product->get_supplier()->eid;
+//                            $rid_where = "rid =(SELECT rid FROM ".Tprefix."reports WHERE affid=".intval($core->input['affid'])." AND year=".intval($core->input['year'])." AND spid=".$spid." AND quarter=".intval($core->input['quarter']).")";
+//
+//                            $productsactivity_line = ProductsActivity::get_data(array('rid' => $rid_where, 'pid' => $gpline['pid'], 'uid' => $uid_where), array('simple' => false, 'operators' => array('uid' => 'CUSTOMSQL', 'rid' => 'CUSTOMSQLSECURE')));
+//
+//                            if(is_object($productsactivity_line)) {
+//                                $gpline['PurchaseQty'] = $productsactivity_line->quantityForecast + ($gpline['PurchaseQty'] / 1000);
+//                                if($productsactivity_line->soldQty != 0 && $productsactivity_line->quantity != 0) {
+//                                    $gpline['PurchaseAmount'] = ($productsactivity_line->turnOver / $productsactivity_line->quantity) * $gpline['PurchaseQty'];
+//                                }
+//
+//                                echo '<br />Updated ('.$productsactivity_line->rid.'): ';
+//                                print_r(array('quantityForecast' => $gpline['PurchaseQty'], 'salesForecast' => $gpline['PurchaseAmount'])).' paid='.$productsactivity_line->paid;
+////                                echo 'Original query was<br />';
+////                                print_r(array('rid' => $rid_where, 'pid' => $gpline['pid'], 'uid' => $uid_where));
+////                                echo '<br />';
+////                                print_r($productsactivity_line);
+////                                echo '<hr />';
+//                                $db->update_query(ProductsActivity::TABLE_NAME, array('quantityForecast' => round($gpline['PurchaseQty']), 'salesForecast' => round($gpline['PurchaseAmount'])), 'paid='.$productsactivity_line->paid);
+//                            }
+//                            else {
+//                                $sql = "SELECT rid FROM ".Tprefix."reports WHERE affid=".intval($core->input['affid'])." AND year=".intval($core->input['year'])." AND spid=".$spid." AND quarter=".intval($core->input['quarter']);
+//                                $query2 = $db->query($sql);
+//                                if($db->num_rows($query2) > 0) {
+//                                    while($report = $db->fetch_assoc($query2)) {
+//                                        $productactivity_data = array(
+//                                                'rid' => $report['rid'],
+//                                                'pid' => $gpline['pid'],
+//                                                'uid' => $gpline['businessMgr'],
+//                                                'quantityForecast' => round($gpline['PurchaseQty'] / 1000),
+//                                                'salesForecast' => 0,
+//                                                'importedOn' => TIME_NOW
+//                                        );
+//
+//                                        echo 'Inserted Forecast<br />';
+//                                        print_r($productactivity_data);
+////                                        echo 'Original query was<br />';
+////                                        print_r(array('rid' => $rid_where, 'pid' => $gpline['pid'], 'uid' => $uid_where));
+////                                        echo '<br />';
+////                                        print_r($productsactivity_line);
+////                                        echo '<hr />';
+//                                        $db->insert_query(ProductsActivity::TABLE_NAME, $productactivity_data);
+//                                    }
+//                                }
+//                            }
+//                        }
+//                    }
+//                }
+//                /* Import from the GP forecasts-END */
+//
+//                $db->update_query('reports', array('dataIsImported' => 1, 'dataImportedOn' => TIME_NOW), 'affid='.$affid.' AND quarter='.$options['quarter'].' AND year = '.$options['year']);
+//                /* SET status to finalized for reports which do no require any input anymore and no data was imported */
+//                $orfilters = array('affid' => $affid, 'year' => $options['year'], 'quarter' => $options['quarter']);
+//                if(is_array($rids)) {
+//                    $orfilters['rid'] = implode(', ', $rids);
+//                }
+//                $otherreports = ReportingQReports::get_data($orfilters, array('returnarray' => true, 'operators' => array('rid' => 'NOT IN')));
+//                if(is_array($otherreports)) {
+//                    foreach($otherreports as $otherreport) {
+//                        $contributors = ReportContributors::get_data(array('rid' => $otherreport->get_id(), 'isDone' => 0), array('returnarray' => true));
+//                        if(!is_array($contributors) || empty($contributors)) {
+//                            $otherreport->set(array('status' => 1));
+//                            $otherreport->save();
+//                        }
+//                    }
+//                }
 
                 if(is_array($errors)) {
                     foreach($errors as $key => $val) {
