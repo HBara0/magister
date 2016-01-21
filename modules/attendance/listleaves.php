@@ -398,7 +398,7 @@ else {
     }
     elseif($core->input['action'] == 'perform_sendmessage') {
         $leavemessage_obj = new LeavesMessages();
-        $leavemessage_obj->create_message($core->input['leavemessage'], $core->input['lid'], array('source' => 'emaillink'));
+        $leavemessage_obj->create_message($core->input['leavemessage'], base64_decode($core->input['lid']), array('source' => 'emaillink'));
         /* Errors Should be handled Here */
         switch($leavemessage_obj->get_errorcode()) {
             case 0:
