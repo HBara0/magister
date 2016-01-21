@@ -94,4 +94,10 @@ $lang['revokeleavenotificationsubject'] = '{1} revoked their {2}{3}';
 $lang['revokeleavenotificationsubjectuser'] = 'Your {1}{2} was revoked';
 $lang['tmplanfinancenotification'] = '{1} planned a trip with the following expenses';
 $lang['ocosquestion'] = 'OCOS Question';
+$lang['apporvinganonexistingleavesubject'] = 'You just approved a non existing leave';
+$lang['apporvinganonexistingleave'] = 'Dear {1},<br />
+<br />
+You Just tried to approve a deleted or revoked leave.
+<br />
+Regards';
 ?>
