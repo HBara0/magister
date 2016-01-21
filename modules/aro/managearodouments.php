@@ -399,8 +399,15 @@ if(!($core->input['action'])) {
             //*********Current Stock -End *********//
             //*********Total Funds Engaged -Start *********//
             $totalfunds = AroRequestsFundsEngaged::get_data(array('aorid' => $aroorderrequest->aorid));
+            $numfmt = new NumberFormatter($lang->settings['locale'], NumberFormatter::CURRENCY);
+            $totalfunds_fiels = array('orderShpInvOverdue', 'orderShpInvNotDue', 'ordersAppAwaitingShp', 'odersWaitingApproval', 'totalFunds');
+            if(is_object($totalfunds)) {
+                foreach($totalfunds_fiels as $totalfunds_field) {
+                    $totalfunds->$totalfunds_field = $numfmt->formatCurrency(($totalfunds->$totalfunds_field), "USD");
+                }
+            }
 
-            //*********Total Funds Engaged -End   *********//
+//*********Total Funds Engaged -End   *********//
             //*********Aro Audit Trail -Start *********//
             if($aroorderrequest->createdOn != 0) {
                 $aroorderrequest->createdOn_output = date($core->settings['dateformat'].' '.$core->settings['timeformat'], $aroorderrequest->createdOn);
@@ -669,9 +676,9 @@ if(!($core->input['action'])) {
                             $approvalobj = $aroorderrequest->get_nextapprover();
                             if(is_object($approvalobj)) {
                                 if($approvalobj->uid == $core->user['uid']) {
-                                    $approve = '<input type="button" class="btn btn-success" id="approvearo" value="'.$lang->approve.'"/>'
+                                    $approve = '<input type="button" id="approvearo" value="'.$lang->approve.'" class="btn btn-success"/>'//
                                             .'<input type="hidden" id="approvearo_id" value="'.$aroorderrequest->aorid.'"/>'.
-                                            '<a class="btn btn-danger" id="rejectarodocument_'.$aroorderrequest->aorid.'_aro/managearodouments_loadpopupbyid" style="margin-left:5px;vertical-align:top;padding-top:5px;"/>'.$lang->reject.'</a>';
+                                            '<a  class="btn btn-danger" id="rejectarodocument_'.$aroorderrequest->aorid.'_aro/managearodouments_loadpopupbyid" style="margin-left:5px;vertical-align:top;padding-top:5px;"/>'.$lang->reject.'</a>';
                                 }
                                 else {
                                     if($approver->firstEmailRecievedDate != 0) {
@@ -744,7 +751,9 @@ if(!($core->input['action'])) {
                     $aroordersummary->marginPercThirdParty = round(($aroordersummary->invoiceValueThirdParty / $aroordersummary->invoiceValueUsdLocal) * 100, 2);
                 }
                 if(isset($aroordersummary->netmarginIntermed_afterdeduction) && !empty($aroordersummary->netmarginIntermed_afterdeduction)) {
-                    $aroordersummary->netmarginIntermedPerc = round(($aroordersummary->netmarginIntermed_afterdeduction / $aroordersummary->invoiceValueUsdLocal) * 100, 2);
+                    if(!empty($aroordersummary->invoiceValueUsdLocal)) {
+                        $aroordersummary->netmarginIntermedPerc = round(($aroordersummary->netmarginIntermed_afterdeduction / $aroordersummary->invoiceValueUsdLocal) * 100, 2);
+                    }
                 }
                 $aroordersummary->riskRatioAmount = $riskratioamount;
             }
@@ -872,6 +881,9 @@ else {
                 break;
             case 3:
                 output_xml('<status>false</status><message>'.$lang->productlineerror.$orderident_obj->get_errorid().'</message>');
+                break;
+            case 4:
+                output_xml('<status>false</status><message>In case of Customer Reinvoicing, there cannot be several customers and unspecified customers.</message>');
                 break;
         }
     }
