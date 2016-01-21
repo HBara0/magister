@@ -21,18 +21,7 @@ if(!$core->input['action']) {
         $quarter = currentquarter_info();
     }
 //getting last two quarters
-    switch($quarter['quarter']) {
-        case '2':
-            $last_twoqs = array(1 => ($quarter['year'] ), 4 => ($quarter['year'] - 1));
-            break;
-        case '1':
-            $last_twoqs = array(4 => ($quarter['year'] - 1), 3 => ($quarter['year'] - 1));
-            break;
-        default :
-            $last_twoqs = array(( $quarter['quarter'] - 1) => $quarter['year'], ($quarter['quarter'] - 2) => $quarter['year']);
-            break;
-    }
-
+    $last_twoqs = get_lastquarters($quarter);
 
     $query = $db->query('SELECT DISTINCT(identifier), spid
 						FROM '.Tprefix.'reports r
