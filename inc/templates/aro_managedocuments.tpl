@@ -3,11 +3,11 @@
         <title>{$core->settings[systemtitle]} | {$lang->aro} {$arodocument_title}</title>
         {$headerinc}
         <script src="{$core->settings[rootdir]}/js/jquery.populate.min.js" type="text/javascript"></script>
-        <script src="{$core->settings[rootdir]}/js/aro_managedocuments.js" type="text/javascript"></script>
+        <script src="{$core->settings[rootdir]}/js/aro_managedocuments.min.js" type="text/javascript"></script>
     </head>
     <body>
-    <tr>
         {$header}
+    <tr>
         {$menu}
         <td class="contentContainer" colspan="2">
             <h1>Aro Document</h1>
