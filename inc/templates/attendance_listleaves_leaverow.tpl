@@ -4,6 +4,7 @@
     <td>{$leave[fromDate_output]}</td>
     <td>{$leave[toDate_output]}</td>
     <td><a href=index.php?module=attendance/viewleave&id={$leave[lid]}>{$leave['type_output']}</a></td>
+    <td>{$leave[workingDays]}</td>
     <td>&nbsp;{$approve_link}</td>
-    <td>{$tmplan_link}&nbsp;{$revoke_link}&nbsp;{$tm_link}</td>
+    <td>{$edit_link}&nbsp;{$revoke_link}&nbsp;{$tmplan_link}</td>
 </tr>

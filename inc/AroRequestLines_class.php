@@ -110,7 +110,7 @@ class AroRequestLines extends AbstractClass {
                 $new_data['grossMarginAtRiskRatio'] = 0;
             }
         }
-        $new_data['riskRatioAmount'] = round(($new_data['costPriceAtRiskRatio'] * $data['quantity']), 2);
+        //  $new_data['riskRatioAmount'] = round(($new_data['costPriceAtRiskRatio'] * $data['quantity']), 2);
         if($purchasetype->isPurchasedByEndUser == 1) {
             $new_data['daysInStock'] = 0;
             $new_data['qtyPotentiallySold'] = 0;
@@ -136,8 +136,8 @@ class AroRequestLines extends AbstractClass {
 
     private function calculate_netmargin($purchasetype, $data = array(), $newdata = array(), $parms = array()) {
         $parmsfornetmargin['YearDays'] = 365;
+        $netmargin = (($newdata['grossMarginAtRiskRatio'] - ((($data['quantity'] * $newdata['affBuyingPrice'] * $parms['localBankInterestRate']) / $parmsfornetmargin['YearDays']) * $parms['localPeriodOfInterest'])) * $data['exchangeRateToUSD']);
         if($parms['warehousingPeriod'] != 0 && $parms['warehousingRate'] != 0 && $parms['totalQty'] != 0) {
-            $netmargin = (($newdata['grossMarginAtRiskRatio'] - ((($data['quantity'] * $newdata['affBuyingPrice'] * $parms['localBankInterestRate']) / $parmsfornetmargin['YearDays']) * $parms['localPeriodOfInterest'])) * $data['exchangeRateToUSD']);
             $netmargin -= ((($parms['warehousingTotalLoad'] * $data['quantity']) / $parms['totalQty']) * ($data['daysInStock'] / $parms['warehousingPeriod']) * $parms['warehousingRate']);
         }
         if($purchasetype->isPurchasedByEndUser == 1) {
