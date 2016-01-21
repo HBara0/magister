@@ -456,13 +456,18 @@ else {
                     $extrafilters[AffiliatedEntities]['eid'] = array(0);
                 }
                 $affiliatedents = AffiliatedEntities::get_data($extrafilters[AffiliatedEntities], array('returnarray' => true));
-                $eids = array_map(
-                        function($e) {
-                    return $e->eid;
-                }, $affiliatedents);
-                $eidsdup = $eids;
-                $eids = array_combine($eidsdup, $eidsdup);
-                $ents = array_intersect_key($ents, $eids);
+                if(is_array($affiliatedents)) {
+                    $eids = array_map(
+                            function($e) {
+                        return $e->eid;
+                    }, $affiliatedents);
+                    $eidsdup = $eids;
+                    $eids = array_combine($eidsdup, $eidsdup);
+                    $ents = array_intersect_key($ents, $eids);
+                }
+                else {
+                    unset($ents);
+                }
             }
             if(is_array($ents)) {
                 $repids = get_repids($ents);
