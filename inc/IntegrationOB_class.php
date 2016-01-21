@@ -555,7 +555,7 @@ class IntegrationOB extends Integration {
                     $inputs[$transaction_data['m_transaction_id']]['supplier'] = $supplier->get();
                 }
                 else {
-                    $inputs[$transaction_data['m_transaction_id']]['supplier'] = 'unspecified';
+                    $inputs[$transaction_data['m_transaction_id']]['supplier']['name'] = 'unspecified';
                 }
 
                 $inputs[$transaction_data['m_transaction_id']]['transaction'] = $first_transaction->get();

@@ -64,15 +64,17 @@ if(!$core->input['action']) {
 
     /* Perform inline filtering - START */
     $filters_config = array(
-            'parse' => array('filters' => array('employee', 'date', 'fromDate', 'toDate', 'type'),
-                    'overwriteField' => array('employee' => parse_selectlist('filters[employee][]', 1, get_specificdata('users l', array('uid', 'displayName'), 'uid', 'displayName', 'displayName', 0, $uid_where), $core->input['filters']['employee'], 1, '', array('multiplesize' => 3)), 'type' => parse_selectlist('filters[type][]', 1, get_specificdata('leavetypes', array('ltid', 'title'), 'ltid', 'title', '', 0), $core->input['filters']['type'], 1, '', array('multiplesize' => 3))),
-                    'fieldsSequence' => array('employee' => 1, 'date' => 2, 'fromDate' => 3, 'toDate' => 4, 'type' => 5)
+            'parse' => array('filters' => array('employee', 'date', 'fromDate', 'toDate', 'type', 'workingDays'),
+                    'overwriteField' => array('employee' => parse_selectlist('filters[employee][]', 1, get_specificdata('users l', array('uid', 'displayName'), 'uid', 'displayName', 'displayName', 0, $uid_where), $core->input['filters']['employee'], 1, '', array('multiplesize' => 3)),
+                            'type' => parse_selectlist('filters[type][]', 1, get_specificdata('leavetypes', array('ltid', 'title'), 'ltid', 'title', '', 0), $core->input['filters']['type'], 1, '', array('multiplesize' => 3)),
+                            'workingDays' => '<input name="filters[workingDays]" type="number" style="width:100%"/>'),
+                    'fieldsSequence' => array('employee' => 1, 'date' => 2, 'fromDate' => 3, 'toDate' => 4, 'type' => 5, 'workingDays' => 6)
             ),
             'process' => array(
                     'filterKey' => 'lid',
                     'mainTable' => array(
                             'name' => 'leaves',
-                            'filters' => array('employee' => array('operatorType' => 'multiple', 'name' => 'uid'), 'date' => array('operatorType' => 'date', 'name' => 'requestTime'), 'fromDate' => array('operatorType' => 'date', 'name' => 'fromDate'), 'toDate', 'type' => array('operatorType' => 'multiple', 'name' => 'type')),
+                            'filters' => array('employee' => array('operatorType' => 'multiple', 'name' => 'uid'), 'date' => array('operatorType' => 'date', 'name' => 'requestTime'), 'fromDate' => array('operatorType' => 'date', 'name' => 'fromDate'), 'toDate', 'type' => array('operatorType' => 'multiple', 'name' => 'type'), 'workingDays' => array('name' => 'workingDays')),
                     )
             )
     );
@@ -125,7 +127,11 @@ if(!$core->input['action']) {
                         $url = 'index.php?module=travelmanager/plantrip&lid='.$leave['lid'];
                         $tmplan_link = "<a target='_blank' href='{$url}'><img src='{$core->settings[rootdir]}/images/icons/red_flag.gif' border='0' title='{$lang->tmplanneeded}' alt='{$lang->tmplanneeded}' /></a>";
                     }
+                    else {
+                        $tmplan_link = "<a target='_blank' href='".DOMAIN."/index.php?module=travelmanager/viewplan&referrer=plan&lid={$leave['lid']}&id={$tmplan->tmpid}' border='0' alt='{$lang->modifyleave}' /><img src='{$core->settings[rootdir]}/images/icons/report.gif' border='0' /></a>";
+                    }
                 }
+
                 $leave['type_output'] = $leavetype_details['title'];
                 if(!empty($leavetype_details['description'])) {
                     $leave['type_output'] .= ' ('.$leavetype_details['description'].')';
@@ -184,11 +190,6 @@ if(!$core->input['action']) {
                 $edit_link = "<a href='index.php?module=attendance/editleave&amp;lid={$leave[lid]}'><img src='{$core->settings[rootdir]}/images/icons/edit.gif' border='0' alt='{$lang->modifyleave}' /></a>";
                 $revoke_link = "<a href='#{$leave[lid]}' id='revokeleave_{$leave[lid]}_attendance/listleaves_icon'><img src='{$core->settings[rootdir]}/images/invalid.gif' border='0' alt='{$lang->revokeleave}' /></a>";
             }
-            $tmplan = TravelManagerPlan::get_plan(array('lid' => $leave['lid']));
-            if(is_object($tmplan)) {
-                $tm_link = "<a target='_blank' href='".DOMAIN."/index.php?module=travelmanager/viewplan&referrer=plan&lid={$leave['lid']}&id={$tmplan->tmpid}' border='0' alt='{$lang->modifyleave}' /><img src='{$core->settings[rootdir]}/images/icons/report.gif' border='0' /></a>";
-            }
-            unset($tmplan);
             eval("\$requestslist .= \"".$template->get('attendance_listleaves_leaverow')."\";");
         }
     }

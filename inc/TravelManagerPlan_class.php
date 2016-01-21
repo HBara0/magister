@@ -949,6 +949,12 @@ $("#anotheraff_otheraccomodations_'.$sequence.'_'.$otherhotel_checksum.'").hide(
         global $core, $lang;
         $message = $segment->parse_expensesummary();
         $approve_link = DOMAIN.'/index.php?module=travelmanager/viewplan&action=takeactionpage&pid='.$segment->tmpid.'&notify=user';
+        $leave = $segment->get_plan()->get_leave();
+        $employee = $leave->get_user()->get_displayname();
+        $message.='<span style="font-weight: bold; font-size: 14px;">'.$lang->employee.': '.$employee.'</span></br>
+                  <span style="font-weight: bold; font-size: 14px;">'.$lang->leavedetails.': '.$leave->get_displayname().'</span>'
+                .'<span style="font-weight: bold; font-size: 14px;">'.$lang->country.': '.$leave->get_country()->get_displayname().'</span>';
+
         $message.='<hr/><div><a  style="font: bold 11px Arial;
     text-decoration: none;
     background-color: #EEEEEE;

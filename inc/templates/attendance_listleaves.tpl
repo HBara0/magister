@@ -5,11 +5,11 @@
         <script language="javascript">
             $(function() {
                 $('#moderationtools').change(function() {
-                    if (sharedFunctions.checkSession() == false) {
+                    if(sharedFunctions.checkSession() == false) {
                         return;
                     }
 
-                    if ($(this).val().length > 0) {
+                    if($(this).val().length > 0) {
                         var formData = $("form[id='moderation_attendance/listleaves_Form']").serialize();
                         var url = "index.php?module=attendance/listleaves&action=do_moderation";
 
@@ -30,11 +30,12 @@
                 <table class="datatable">
                     <thead>
                         <tr>
-                            <th style="width:19%;">{$lang->employeename} <a href="{$sort_url}&amp;sortby=employeename&amp;order=ASC"><img src="images/sort_asc.gif" border="0" /></a><a href="{$sort_url}&amp;sortby=employeename&amp;order=DESC"><img src="images/sort_desc.gif" border="0" /></a></th>
-                            <th style="width:19%;">{$lang->daterequested} <a href="{$sort_url}&amp;sortby=daterequested&amp;order=ASC"><img src="images/sort_asc.gif" border="0" /></a><a href="{$sort_url}&amp;sortby=daterequested&amp;order=DESC"><img src="images/sort_desc.gif" border="0" /></a></th>
-                            <th style="width:19%;">{$lang->fromdate} <a href="{$sort_url}&amp;sortby=fromdate&amp;order=ASC"><img src="images/sort_asc.gif" border="0" /></a><a href="{$sort_url}&amp;sortby=fromdate&amp;order=DESC"><img src="images/sort_desc.gif" border="0" /></a></th>
-                            <th style="width:19%;">{$lang->todate} <a href="{$sort_url}&amp;sortby=till&amp;order=ASC"><img src="images/sort_asc.gif" border="0" /></a><a href="{$sort_url}&amp;sortby=till&amp;order=DESC"><img src="images/sort_desc.gif" border="0" /></a></th>
-                            <th style="width:19%;">{$lang->leavetype} <a href="{$sort_url}&amp;sortby=type&amp;order=ASC"><img src="images/sort_asc.gif" border="0" /></a><a href="{$sort_url}&amp;sortby=type&amp;order=DESC"><img src="images/sort_desc.gif" border="0" /></a></th>
+                            <th style="width:17%;">{$lang->employeename} <a href="{$sort_url}&amp;sortby=employeename&amp;or19der=ASC"><img src="images/sort_asc.gif" border="0" /></a><a href="{$sort_url}&amp;sortby=employeename&amp;order=DESC"><img src="images/sort_desc.gif" border="0" /></a></th>
+                            <th style="width:17%;">{$lang->daterequested} <a href="{$sort_url}&amp;sortby=daterequested&amp;order=ASC"><img src="images/sort_asc.gif" border="0" /></a><a href="{$sort_url}&amp;sortby=daterequested&amp;order=DESC"><img src="images/sort_desc.gif" border="0" /></a></th>
+                            <th style="width:17%;">{$lang->fromdate} <a href="{$sort_url}&amp;sortby=fromdate&amp;order=ASC"><img src="images/sort_asc.gif" border="0" /></a><a href="{$sort_url}&amp;sortby=fromdate&amp;order=DESC"><img src="images/sort_desc.gif" border="0" /></a></th>
+                            <th style="width:17%;">{$lang->todate} <a href="{$sort_url}&amp;sortby=till&amp;order=ASC"><img src="images/sort_asc.gif" border="0" /></a><a href="{$sort_url}&amp;sortby=till&amp;order=DESC"><img src="images/sort_desc.gif" border="0" /></a></th>
+                            <th style="width:17%;">{$lang->leavetype} <a href="{$sort_url}&amp;sortby=type&amp;order=ASC"><img src="images/sort_asc.gif" border="0" /></a><a href="{$sort_url}&amp;sortby=type&amp;order=DESC"><img src="images/sort_desc.gif" border="0" /></a></th>
+                            <th style="width:10%;">{$lang->workingdays} <a href="{$sort_url}&amp;sortby=workingDays&amp;order=ASC"><img src="images/sort_asc.gif" border="0" /></a><a href="{$sort_url}&amp;sortby=workingDays&amp;order=DESC"><img src="images/sort_desc.gif" border="0" /></a></th>
                             <th style="width:5%;">&nbsp;</th>
                         </tr>
                         {$filters_row}
