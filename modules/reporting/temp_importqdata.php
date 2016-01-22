@@ -367,7 +367,17 @@ else {
                                         unset($activity[$field]);
                                     }
                                 }
-                                $db->update_query('productsactivity', $activity, 'rid='.$rid.' AND pid='.$pid.$paupdate_querywhere);
+                                $extrawhereuid = '';
+                                if(is_array($uidsarray)) {
+                                    $extrawhereuid = ' AND uid NOT IN ('.implode(',', $uidsarray).')';
+                                }
+                                $usercheck = $db->fetch_assoc($db->query("SELECT * FROM productsactivity r WHERE rid=".$rid." AND pid=".$pid." {$extrawhereuid} SORT BY paid LIMIT 0,1"));
+                                if(is_array($usercheck)) {
+                                    foreach($usercheck as $line) {
+                                        $uidsarray[] = $line['uid'];
+                                        $db->update_query('productsactivity', $activity, 'uid = '.intval($line['uid']).' AND rid='.$rid.' AND pid='.$pid.$paupdate_querywhere);
+                                    }
+                                }
                             }
                         }
                         else {
