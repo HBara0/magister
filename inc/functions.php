@@ -2225,4 +2225,29 @@ function calculateDistance($lat1, $lon1, $lat2, $lon2, $unit) {
     }
 }
 
+function get_lastquarters($currenctq_data) {
+    switch($currenctq_data['quarter']) {
+        case '2':
+            $last_twoqs = array(1 => ($currenctq_data['year'] ), 4 => ($currenctq_data['year'] - 1));
+            return $last_twoqs;
+        case '1':
+            $last_twoqs = array(4 => ($currenctq_data['year'] - 1), 3 => ($currenctq_data['year'] - 1));
+            return $last_twoqs;
+        default :
+            $last_twoqs = array(( $currenctq_data['quarter'] - 1) => $currenctq_data['year'], ($currenctq_data['quarter'] - 2) => $currenctq_data['year']);
+            return $last_twoqs;
+    }
+}
+
+function get_lastquarter($currenctq_data) {
+    switch($currenctq_data['quarter']) {
+        case '1':
+            $last_q = array('quarter' => 4, 'year' => $currenctq_data['year'] - 1);
+            return $last_q;
+        default :
+            $last_q = array('quarter' => $currenctq_data['quarter'] - 1, 'year' => $currenctq_data['year']);
+            return $last_q;
+    }
+}
+
 ?>

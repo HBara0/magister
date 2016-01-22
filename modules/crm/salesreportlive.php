@@ -38,7 +38,7 @@ if(!$core->input['action']) {
 else {
     if($core->input['action'] == 'do_perform_salesreportlive') {
         require_once ROOT.INC_ROOT.'integration_config.php';
-
+        $unspecifiedprod_supp[0] = 0;
         if($core->input['type'] == 'endofmonth') {
             //   $core->input['affids'][] = $core->user['mainaffiliate'];
             $core->input['fromDate'] = date('Y-m-d', strtotime('first day of last month')); //date('Y-01-01', strtotime($query_date));
@@ -68,7 +68,11 @@ else {
         if(!empty($core->input['toDate'])) {
             $period['to'] = strtotime($core->input['toDate']);
         }
-
+        $from = date('Y-m-d 00:00:00', $period['from']);
+        $lmfrom = date_create($from.' first day of last month');
+        $lmonth_period['from'] = strtotime($lmfrom->date);
+        $lmto = date_create($from.' last day of last month');
+        $lmonth_period['to'] = strtotime($lmto->date);
         if(is_array($core->input['affids'])) {
             foreach($core->input['affids'] as $affid) {
                 $affiliate = new Affiliates($affid, false);
@@ -202,8 +206,9 @@ else {
                     }
 
                     $invoiceline->productname = $product->name;
-                    if(empty($invoiceline->suppliername) || strstr($invoice->bpartner_name, 'Orkila')) {
+                    if(empty($invoiceline->suppliername) || strstr($invoiceline->suppliername, 'Orkila') || strstr($invoiceline->bpartner_name, 'Orkila')) {
                         $invoiceline->suppliername = 'Unspecified';
+                        $unspecifiedprod_supp[] = $product->name;
                     }
 
                     $invoiceline->uom = $invoiceline->get_uom()->uomsymbol;
@@ -543,12 +548,32 @@ else {
                 $tabletypes[] = 'mainsummaytables';
                 if($reporttype == 'endofmonth') {
                     $tabletypes[] = 'ytdsummarytables';
+                    $tabletypes[] = 'lastmonthsummarytables';
                 }
 
                 if(is_array($required_tables)) {
+                    $from = date('Y-m-d 00:00:00', $period['from']);
+
                     foreach($tabletypes as $type) {
                         if($type == 'ytdsummarytables') {
-                            $ytddata = get_ytddata($core->input, $period, $orgs);
+                            $ytd_period = $period;
+                            $ytd_period['from'] = strtotime(date('Y-01-01 00:00:00', $period['from']));
+                            $ytddata = get_period_summarydata($core->input, $ytd_period, $orgs);
+                            if(is_array($ytddata['unspecifiedsupp'])) {
+                                $unspecifiedprod_supp = array_merge($unspecifiedprod_supp, $ytddata['unspecifiedsupp']);
+                            }
+                            unset($ytddata['unspecifiedsupp']);
+                        }
+                        if($type == 'lastmonthsummarytables') {
+                            $lmfrom = date_create($from.' first day of last month');
+                            $lmonth_period['from'] = strtotime($lmfrom->date);
+                            $lmto = date_create($from.' last day of last month');
+                            $lmonth_period['to'] = strtotime($lmto->date);
+                            $lastmonthdata = get_period_summarydata($core->input, $lmonth_period, $orgs);
+                            if(is_array($lastmonthdata['unspecifiedsupp'])) {
+                                $unspecifiedprod_supp = array_merge($unspecifiedprod_supp, $lastmonthdata['unspecifiedsupp']);
+                            }
+                            unset($lastmonthdata['unspecifiedsupp']);
                         }
                         foreach($required_tables as $tabledesc => $dimensions) {
                             $dimensionalreport = new DimentionalData();
@@ -556,6 +581,11 @@ else {
                                 unset($rawdata);
                                 $rawdata = $ytddata;
                                 $lang->{$tabledesc} = $lang->{$tabledesc}.' YTD';
+                            }
+                            elseif($type == 'lastmonthsummarytables') {
+                                unset($rawdata);
+                                $rawdata = $lastmonthdata;
+                                $lang->{$tabledesc} = $lang->{$tabledesc}.' Last Month';
                             }
                             else {
                                 $rawdata = $data;
@@ -690,9 +720,9 @@ else {
             }
             $mailer->set_to($recipients);
 
-//            $mailer->set_to('zaher.reda@orkila.com');
-//            print_r($mailer->debug_info());
-//            exit;
+            $mailer->set_to('zaher.reda@orkila.com');
+            print_r($mailer->debug_info());
+            exit;
             $mailer->send();
             if($mailer->get_status() === true) {
                 $sentreport = new ReportsSendLog();
@@ -702,6 +732,31 @@ else {
             }
             else {
                 error($lang->errorsendingemail);
+            }
+            $unspecifiedprod_supp = array_filter($unspecifiedprod_supp);
+            if(is_array($unspecifiedprod_supp)) {
+                $message = 'The Supplier of each of the following products is unspecified:<br/>';
+                foreach($unspecifiedprod_supp as $product) {
+                    $message.=$product.'<br/>';
+                }
+                $email_data = array(
+                        'from' => 'ocos@orkila.com',
+                        'to' => 'support@ocos.orkila.com',
+                        'subject' => "Products with Unspecified Suppliers",
+                        'message' => $message,
+                );
+
+                $mailer = new Mailer();
+                $mailer = $mailer->get_mailerobj();
+                $mailer->set_type();
+                $mailer->set_from(array('email' => $email_data['from']));
+                $mailer->set_subject($email_data['subject']);
+                $mailer->set_message($email_data['message']);
+                $mailer->set_to($email_data['to']);
+                $mailer->send();
+//                $x = $mailer->debug_info();
+//                print_R($x);
+//                exit;
             }
             unset($salesreport);
         }
@@ -731,7 +786,7 @@ else {
         output_xml('<status>true</status><message><![CDATA['.$previewpage.']]></message>');
     }
 }
-function get_ytddata($input_data, $period, $orgs) {
+function get_period_summarydata($input_data, $period, $orgs) {
     global $core, $integration, $intgdb;
     $permissions = $core->user_obj->get_businesspermissions();
     if(!empty($input_data['spid'])) {
@@ -743,7 +798,7 @@ function get_ytddata($input_data, $period, $orgs) {
     if(!empty($input_data['cid'])) {
         $query_where .= ' AND ime.localId IN ('.implode(',', $input_data['cid']).')';
     }
-    $filters = "c_invoice.ad_org_id IN ('".implode("','", $orgs)."') AND docstatus NOT IN ('VO', 'CL') AND (dateinvoiced BETWEEN '".date('Y-01-01 00:00:00', $period['from'])."' AND '".date('Y-m-d 00:00:00', $period['to'])."')";
+    $filters = "c_invoice.ad_org_id IN ('".implode("','", $orgs)."') AND docstatus NOT IN ('VO', 'CL') AND (dateinvoiced BETWEEN '".date('Y-m-d 00:00:00', $period['from'])."' AND '".date('Y-m-d 00:00:00', $period['to'])."')";
     if(count($permissions['uid']) == 1 && in_array($$input_data['uid'], $permissions['uid']) && isset($permissions['spid'])) {
         $intuser = $core->user_obj->get_integrationObUser();
         if(is_object($intuser)) {
@@ -845,8 +900,9 @@ function get_ytddata($input_data, $period, $orgs) {
                 }
 
                 $invoiceline->productname = $product->name;
-                if(empty($invoiceline->suppliername) || strstr($invoice->bpartner_name, 'Orkila')) {
+                if(empty($invoiceline->suppliername) || strstr($invoiceline->suppliername, 'Orkila') || strstr($invoiceline->bpartner_name, 'Orkila')) {
                     $invoiceline->suppliername = 'Unspecified';
+                    $data['unspecifiedsupp'][] = $product->name;
                 }
 
                 $invoiceline->uom = $invoiceline->get_uom()->uomsymbol;

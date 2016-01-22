@@ -42,15 +42,25 @@ if(!$core->input['action']) {
         $extra_where = ' AND (rid IN (SELECT rid FROM '.Tprefix.'reportcontributors WHERE uid ='.intval($core->input['uid']).') OR spid IN (SELECT eid FROM '.Tprefix.'suppliersaudits where uid ='.intval($core->input['uid']).'))';
     }
     $fields = array('daysfromqstart', 'daysfromreportcreation', 'daystoimportfromqstart', 'daystoimportfromcreation');
+    $lastq = get_lastquarter(currentquarter_info());
 
     if(is_array($affiliates)) {
         $aff_count = 0;
         foreach($affiliates as $affiliate) {
-            $query = $db->query("SELECT * FROM ".Tprefix."reports WHERE affid = ".$affiliate->affid." AND quarter = ".$report_data['quarter']." AND year = ".$report_data['year'].$extra_where);
+            $query = $db->query("SELECT * FROM ".Tprefix."reports WHERE affid = ".$affiliate->affid." AND (quarter = ".$report_data['quarter']." OR quarter = ".$lastq['quarter'].") AND (year = ".$report_data['year']." OR year = ".$lastq['year'].")".$extra_where);
             $numrows = $db->num_rows($query);
             if($numrows > 0) {
-                $unfinished_reports = 0;
+                $unfinished_reports = $lastqunfinished_reports = 0;
+                $actual_numrows = $lastq_reports = 0;
                 while($report = $db->fetch_assoc($query)) {
+                    //only calculate for current quarter
+                    if($report['quarter'] == $report_data['quarter']) {
+                        $actual_numrows++;
+                    }
+                    /* only calculate for current quarter-END */
+                    else {
+                        $lastq_reports++;
+                    }
                     $quarterstart = strtotime($report_data['year'].'-'.$core->settings['q'.($report_data['quarter'] + 1).'start']);
                     if($report['status'] == 1) {
                         if($report['finishDate'] != 0) {
@@ -59,15 +69,21 @@ if(!$core->input['action']) {
                         if($report['finishDate'] != 0 && $report['initDate'] != 0) {
                             $report['daysfromreportcreation'] = max(0, floor(($report['finishDate'] - $report['initDate']) / (60 * 60 * 24)));
                         }
-                        $icon_locked = '';
-                        if($report['isLocked'] == 1) {
-                            $icon_locked = '_locked';
+                        //only calculate for current quarter
+                        if($report['quarter'] == $report_data['quarter']) {
+                            $icon_locked = '';
+                            if($report['isLocked'] == 1) {
+                                $icon_locked = '_locked';
+                            }
+                            $icon[$report['rid']] = "<a href='index.php?module=reporting/preview&referrer=list&amp;affid={$report[affid]}&amp;spid={$report[spid]}&amp;quarter={$report[quarter]}&amp;year={$report[year]}'><img src='images/icons/report{$icon_locked}.gif' alt='{$report[status]}' border='0' title='prevew report'/></a>";
                         }
-                        $icon[$report['rid']] = "<a href='index.php?module=reporting/preview&referrer=list&amp;affid={$report[affid]}&amp;spid={$report[spid]}&amp;quarter={$report[quarter]}&amp;year={$report[year]}'><img src='images/icons/report{$icon_locked}.gif' alt='{$report[status]}' border='0' title='prevew report'/></a>";
                     }
-                    else {
+                    else if($report['quarter'] == $report_data['quarter']) {
                         $report['status_output'] = 'not finished yet';
                         $unfinished_reports++;
+                    }
+                    else {
+                        $lastqunfinished_reports++;
                     }
                     if($report['dataIsImported'] == 1) {
                         if($report['dataImportedOn'] != 0) {
@@ -78,20 +94,34 @@ if(!$core->input['action']) {
                         }
                     }
 
-                    foreach($fields as $field) {
-                        $totalperaff[$field] += $report[$field];
-                    }
-                    $supplier = new Entities($report['spid']);
-                    $report['supplier'] = $supplier->get_displayname();
 
-                    $report_obj = new Reporting(array('rid' => $report['rid']));
-                    $audits = $report_obj->get_report_supplier_audits();
-                    if(is_array($audits)) {
-                        foreach($audits as $audit) {
-                            $reportaudits[] = $audit->parse_qrperformance_link($report_data['year'], $report_data['quarter'], '');
+                    /* only calculate for current quarter-START */
+                    if($report['quarter'] == $report_data['quarter']) {
+                        foreach($fields as $field) {
+                            $totalperaff[$field] += $report[$field];
                         }
-                        $reportaudits_str = implode(', ', $reportaudits);
                     }
+                    /* only calculate for current quarter-END */
+                    else {
+                        foreach($fields as $field) {
+                            $lastqtotalperaff[$field] += $report[$field];
+                        }
+                    }
+                    /* only calculate for current quarter-START */
+                    if($report['quarter'] == $report_data['quarter']) {
+                        $supplier = new Entities($report['spid']);
+                        $report['supplier'] = $supplier->get_displayname();
+
+                        $report_obj = new Reporting(array('rid' => $report['rid']));
+                        $audits = $report_obj->get_report_supplier_audits();
+                        if(is_array($audits)) {
+                            foreach($audits as $audit) {
+                                $reportaudits[] = $audit->parse_qrperformance_link($report_data['year'], $report_data['quarter'], '');
+                            }
+                            $reportaudits_str = implode(', ', $reportaudits);
+                        }
+                    }
+                    /* only calculate for current quarter-END */
                     $marketreports = MarketReport::get_data(array('rid' => $report['rid']), array('returnarray' => true));
                     if(is_array($marketreports)) {
                         $mkrwithrating = 0;
@@ -124,34 +154,57 @@ if(!$core->input['action']) {
                             else {
                                 $marketreport['segmenttitle'] = $lang->unspecified;
                             }
-                            eval("\$mkr_rating .= \"".$template->get('reporting_mkr_rating')."\";");
+                            /* only calculate for current quarter-START */
+                            if($report['quarter'] == $report_data['quarter']) {
+                                eval("\$mkr_rating .= \"".$template->get('reporting_mkr_rating')."\";");
+                            }
+                            /* only calculate for current quarter-END */
                             unset($ratingval, $reportauthor_obj, $reportauthors, $authors, $rating_status);
                         }
-                        $mkr_rating .= '</td></tr>';
+                        /* only calculate for current quarter-START */
+                        if($report['quarter'] == $report_data['quarter']) {
+                            $mkr_rating .= '</td></tr>';
+                        }
+                        /* only calculate for current quarter-END */
                     }
-
-                    $totalrating['affiliate'] += $totalrating['supplier'];
-                    $totals['affmkrwithrating'][$affiliate->affid] += $mkrwithrating;
-
-                    $avgrating['supplier'] = 0;
-                    if($mkrwithrating != 0) {
-                        $avgrating['supplier'] = $totalrating['supplier'] / $mkrwithrating;
+                    /* only calculate for current quarter-START */
+                    if($report['quarter'] == $report_data['quarter']) {
+                        $totalrating['affiliate'] += $totalrating['supplier'];
+                        $totals['affmkrwithrating'][$affiliate->affid] += $mkrwithrating;
+                        $avgrating['supplier'] = 0;
+                        if($mkrwithrating != 0) {
+                            $avgrating['supplier'] = $totalrating['supplier'] / $mkrwithrating;
+                        }
+                        eval("\$supplier_reportperformance .= \"".$template->get('reporting_supplier_reportperformance')."\";");
+                        unset($mkr_rating, $avgrating['supplier'], $totalrating['supplier'], $reportaudits, $mkrwithrating);
                     }
-                    eval("\$supplier_reportperformance .= \"".$template->get('reporting_supplier_reportperformance')."\";");
-                    unset($mkr_rating, $avgrating['supplier'], $totalrating['supplier'], $reportaudits, $mkrwithrating);
+                    /* only calculate for current quarter-END */
+                    else {
+                        $lastqtotalrating['affiliate'] += $totalrating['supplier'];
+                        $lastqtotals['affmkrwithrating'][$affiliate->affid] += $lastqmkrwithrating;
+                        $lastqavgrating['supplier'] = 0;
+                        if($lastqmkrwithrating != 0) {
+                            $lastqavgrating['supplier'] = $lastqtotalrating['supplier'] / $lastqmkrwithrating;
+                        }
+                        unset($mkr_rating, $lastqavgrating['supplier'], $lastqtotalrating['supplier'], $reportaudits, $lastqmkrwithrating);
+                    }
                 }
                 foreach($fields as $field) {
                     $mkrreports_count = $numrows;
                     if($field == 'daysfromqstart' || $field == 'daysfromreportcreation') {
-                        $mkrreports_count = $numrows - $unfinished_reports;
+                        $mkrreports_count = $actual_numrows - $unfinished_reports;
+                        $lastqmkrreports_count = $lastq_reports - $lastqunfinished_reports;
                     }
                     if($mkrreports_count != 0) {
                         $avgperaff[$field][$affiliate->get_displayname()] = ceil($totalperaff[$field] / $mkrreports_count);
                     }
+                    if($lastqmkrreports_count != 0) {
+                        $lastqavgperaff[$field][$affiliate->get_displayname()] = ceil($lastqtotalperaff[$field] / $lastqmkrreports_count);
+                    }
                 }
                 unset($totalperaff);
-                $totals['allmkrwithrating'] += $totals['affmkrwithrating'][$affiliate->affid];
 
+                $totals['allmkrwithrating'] += $totals['affmkrwithrating'][$affiliate->affid];
                 $totalrating['allaffiliates'] += $totalrating['affiliate'];
                 $avgmkrrating[$affiliate->get_displayname()] = 0;
                 if(!empty($totals['affmkrwithrating'][$affiliate->affid])) {
@@ -164,9 +217,16 @@ if(!$core->input['action']) {
                     $all_aff_total[$field] += $avgperaff[$field][$affiliate->get_displayname()];
                 }
                 $aff_count++;
+
+                $lastqtotals['allmkrwithrating'] += $lastqtotals['affmkrwithrating'][$affiliate->affid];
+                $lasttotalrating['allaffiliates'] += $lasttotalrating['affiliate'];
+                $lastavgmkrrating[$affiliate->get_displayname()] = 0;
+                if(!empty($lasttotals['affmkrwithrating'][$affiliate->affid])) {
+                    $lastavgmkrrating[$affiliate->get_displayname()] = number_format($lasttotalrating['affiliate'] / $lasttotals['affmkrwithrating'][$affiliate->affid], 2);
+                }
                 unset($avgrating, $totalrating['affiliate']);
+                unset($supplier_reportperformance, $supplier);
             }
-            unset($supplier_reportperformance, $supplier);
         }
         if($aff_count != 0) {
             $avgrating['allaffiliates'] = 0;
@@ -180,7 +240,15 @@ if(!$core->input['action']) {
         }
         if(is_array($avgmkrrating)) {
             if(!(count(array_unique($avgmkrrating)) === 1 && end($avgmkrrating) === '0.00')) {
-                $mkrrating_barchart = new Charts(array('x' => array_keys($avgmkrrating), 'y' => array_values($avgmkrrating)), 'bar', array('yaxisname' => 'MKR Rating', 'xaxisname' => $lang->affiliate, 'title' => $lang->barchartrating, 'scale' => 'SCALE_START0', 'nosort' => true, 'width' => 800, 'height' => 300, 'noLegend' => true, 'labelrotationangle' => 90));
+                foreach($avgmkrrating as $key => $val) {
+                    if(isset($lastavgmkrrating[$key]) && !empty($lastavgmkrrating[$key])) {
+                        $avgmkrrating_yaxis [] = array($val, $lastavgmkrrating[$key]);
+                    }
+                    else {
+                        $avgmkrrating_yaxis[] = $val;
+                    }
+                }
+                $mkrrating_barchart = new Charts(array('x' => array_keys($avgmkrrating), 'y' => $avgmkrrating_yaxis), 'bar', array('yaxisname' => 'MKR Rating', 'xaxisname' => $lang->affiliate, 'title' => $lang->barchartrating, 'scale' => 'SCALE_START0', 'nosort' => true, 'width' => 800, 'height' => 300, 'noLegend' => true, 'labelrotationangle' => 90));
                 $mkrratingbarchart = $mkrrating_barchart->get_chart();
             }
         }
@@ -189,8 +257,17 @@ if(!$core->input['action']) {
             if(is_array($avgperaff[$chart])) {
                 $avgperaff[$chart] = array_filter($avgperaff[$chart]);
                 if(!empty($avgperaff[$chart])) {
-                    $daystocompletion_bchart[$chart] = new Charts(array('x' => array_keys($avgperaff[$chart]), 'y' => array_values($avgperaff[$chart])), 'bar', array('yaxisname' => $lang->$chart, 'xaxisname' => $lang->affiliates, 'title' => $lang->$chart, 'scale' => 'SCALE_START0', 'nosort' => true, 'width' => 800, 'height' => 300, 'noLegend' => true, 'labelrotationangle' => 90));
+                    foreach($avgperaff[$chart] as $key => $val) {
+                        if(is_array($lastqavgperaff) && isset($lastqavgperaff[$chart][$key]) && !empty($lastqavgperaff[$chart][$key])) {
+                            $avgperaff_yaxis [] = array($val, $lastqavgperaff[$chart][$key]);
+                        }
+                        else {
+                            $avgperaff_yaxis[] = $val;
+                        }
+                    }
+                    $daystocompletion_bchart[$chart] = new Charts(array('x' => array_keys($avgperaff[$chart]), 'y' => $avgperaff_yaxis), 'bar', array('yaxisname' => $lang->$chart, 'xaxisname' => $lang->affiliates, 'title' => $lang->$chart, 'scale' => 'SCALE_START0', 'nosort' => true, 'width' => 800, 'height' => 300, 'noLegend' => true, 'labelrotationangle' => 90));
                     $daystocompletion_bchart[$chart.'chart'] = $daystocompletion_bchart[$chart]->get_chart();
+                    unset($avgperaff_yaxis);
                 }
             }
         }
