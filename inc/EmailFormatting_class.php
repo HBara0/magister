@@ -22,6 +22,10 @@ class EmailFormatting {
         global $template, $lang, $core;
         switch($type) {
             default :
+                $path = $core->settings['rootdir'].'/images/ocos_logo.jpg';
+                $type = pathinfo($path, PATHINFO_EXTENSION);
+                $data = file_get_contents($path);
+                $base64 = 'data:image/'.$type.';base64,'.base64_encode($data);
                 eval("\$outputmessage = \"".$template->get('emailfomatting_default')."\";");
                 break;
         }

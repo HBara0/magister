@@ -2,7 +2,7 @@
 <table style="width:100%;height:120px;text-align:center">
     <tr>
         <td style="width: 25%">
-            <img style="float:left;" src="{$core->settings['rootdir']}/images/ocos_logo.jpg"></img>
+            <img style="float:left;" src="{$base64}"></img>
         </td>
         <td colspan="2" style="width: 50%">
             <h1 style="alignment-adjust: central;color: #91b64f;font-weight: 100;"><img src="" style="">{$messagedata[title]}</h1>

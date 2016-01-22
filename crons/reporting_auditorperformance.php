@@ -12,6 +12,8 @@ require '../inc/init.php';
 $lang = new Language('english', 'user');
 $lang->load('global');
 $lang->load('reporting_meta');
+$score_params = array('totalmultiply' => 3, 'late' => 1, 'complete' => 3, 'totalreps_count' => 3, 'countofreps_add' => 3);
+$lang->auditorscoreexplanation = $lang->sprint($lang->auditorscoreexplanation, $score_params['totalmultiply'], $score_params['complete'], $score_params['late'], $score_params['countofreps_add'], $score_params['totalreps_count']);
 $data = ReportingQr::auditor_ratings();
 $quarter = currentquarter_info(true);
 if($quarter['quarter'] == 1) {
@@ -21,9 +23,6 @@ if($quarter['quarter'] == 1) {
 else {
     $quarter['quarter'] --;
 }
-$emailform = new EmailFormatting(array('title' => 'randomtitle', 'message' => 'qdiqwhdqwdqwdqd<br>qwdqwdqqwdQWdqwdqw</br>qwdqwdqwdqwdqwdqdwd'));
-print($emailform->get_message());
-exit;
 if(is_array($data)) {
     foreach($data as $uid => $coordata) {
         $totalreports = 0;
@@ -120,40 +119,38 @@ if(is_array($data)) {
             $totalundone = $unflate;
         }
         if($finlate > 0) {
+            $score = $finlate;
             $auditorstatus_fin = $finlate;
-            $totalundone += $finlate;
+            $totalundone += $finlate * $score_params['late'];
         }
-        if($totalundone > 0) {
-            if($totalreports == $totalundone) {
-                $avgscore = 0;
-            }
-            else {
-                $avgscore = round(5 - (($totalundone * 5 ) / $totalreports), 1);
-            }
-        }
-        else {
-            $avgscore = 5;
+        $totaldone = $totalreports - $totalundone;
+        $score+=$totaldone * $score_params['complete'];
+        $score+=floor($totalreports / $score_params['totalreps_count']) * $score_params['countofreps_add'];
+        $maxscore = $totalreports * $score_params['totalmultiply'];
+        $avgscore = round(($score * 10 / $maxscore), 1);
+        if($avgscore > 10) {
+            $avgscore = 10;
         }
         $avg_color = 'green';
-        if($avgscore < 3) {
+        if($avgscore < 5) {
             $avg_color = '#F04122';
         }
         $outputmessage_res.= '<table style="border-collapse: collapse;border-spacing: 0; " width="75%" align="center" ><thead ><tr style="border:1px solid black;"><th style="height:30px;color: white;background-color:'.$avg_color
                 .';text-align:left" width="60%">'.$coord_obj->get_displayname().'</th><th style="color: white;background-color: '.$avg_color
                 .';"><span style=" font-size:25%;  vertical-align: baseline; border-radius: .20em; white-space: nowrap;font-weight: 700;padding: .2em .4em '
                 .'.3em;height:15px;font-size: 15px;color:'.$avg_color.'; background-color: #f8ffcc;text-align: center">'.$avgscore
-                .'</span> / 5</th></tr></thead>';
+                .'</span> / 10</th></tr></thead>';
         $outputmessage_res.='<tr style="border:1px solid black;"><td>Unfinalized And Late</td><td style="border:1px solid black;">'.$auditorstatus_un
                 .'</td></tr><tr style="border:1px solid black;"><td>Sent Late </td><td style="border:1px solid black;">'.$auditorstatus_fin.'</td></tr><tr style="border:1px solid black;border-bottom: 2px double black;"><td>Sent On Time</td><td style="border:1px solid black;"> '.($totalreports - $auditorstatus_un - $auditorstatus_fin).' </td></tr><tr style="border:1px solid black;border-bottom: 2px double black"><td> '.$lang->totalreports.'</td><td style="border:1px solid black;"> '.$totalreports.' </td></tr>';
         $outputmessage_tot.= '<table style="border-collapse: collapse;border-spacing: 0; " width="75%" align="center" ><thead ><tr style="border:1px solid black;"><th style="height:30px;color: white;background-color:'.$avg_color
                 .';text-align:left" width="60%">'.$coord_obj->get_displayname().'</th><th style="color: white;background-color: '.$avg_color
                 .';"><span style=" font-size:25%;  vertical-align: baseline; border-radius: .20em; white-space: nowrap;font-weight: 700;padding: .2em .4em '
                 .'.3em;height:15px;font-size: 15px;color:'.$avg_color.'; background-color: #f8ffcc;text-align: center">'.$avgscore
-                .'</span> / 5</th></tr></thead>';
+                .'</span> / 10</th></tr></thead>';
         $outputmessage_tot.='<tr style="border:1px solid black;"><td>Unfinalized And Late</td><td style="border:1px solid black;">'.$auditorstatus_un
                 .'</td></tr><tr style="border:1px solid black;"><td>Sent Late </td><td style="border:1px solid black;">'.$auditorstatus_fin.'</td></tr><tr style="border:1px solid black;border-bottom: 2px double black;"><td>Sent On Time</td><td style="border:1px solid black;"> '.($totalreports - $auditorstatus_un - $auditorstatus_fin).' </td></tr><tr style="border:1px solid black;border-bottom: 2px double black;"><td> '.$lang->totalreports.'</td><td style="border:1px solid black;"> '.$totalreports.' </td></tr>';
         $outputmessage_tot.=$listitems.$supplieroutput.'</table><hr>';
-        unset($supplieroutput, $avg_color, $avgscore, $totalundone);
+        unset($supplieroutput, $avg_color, $avgscore, $totalundone, $score, $maxscore, $totaldone);
     }
 }
 $outputmessage = '<div style="width:100%;text-align:center"><h1 style="color: #91b64f;font-weight: 100;">Quarterly Report Auditors Performance Report : Q'.$quarter['quarter'].'/'.$quarter['year'].'</h1></div><br />';
