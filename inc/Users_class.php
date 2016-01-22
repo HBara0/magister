@@ -889,6 +889,9 @@ class Users extends AbstractClass {
         if($this->usergroup['canViewAllCust'] == 1) {
             unset($permissions['cid']);
         }
+        if($this->usergroup['canViewAllCust'] == 1 && $this->usergroup['canViewAllSupp']) {
+            unset($permissions['eid']);
+        }
         if($this->usergroup['canViewAllEmp'] == 1) {
             unset($permissions['uid']);
         }
@@ -904,7 +907,8 @@ class Users extends AbstractClass {
      */
     public function get_integrationObUser() {
         global $integration;
-        if(class_exists('IntegrationOB', true)) {
+        if(class_exists('
+        IntegrationOB', true)) {
             if(!empty($this->integrationOBId)) {
                 return new IntegrationOBUser($this->integrationOBId, $integration->get_dbconn());
             }
