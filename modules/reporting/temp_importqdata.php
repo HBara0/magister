@@ -336,17 +336,17 @@ else {
                         $fields = array('salesForecast', 'quantityForecast');
                         foreach($fields as $field) {
                             if(!empty($activity[$field])) {
-                                $activity[$field] = round($activity[$field]);
+                                unset($activity[$field]);
                             }
                         }
-                        $activity['importedOn'] = TIME_NOW;
+
 
                         if($options['operation'] != 'replace') {
                             $pacheck_querywhere = ' AND uid=0';
                         }
 
                         if(value_exists('productsactivity', 'rid', $rid, 'pid='.$pid.$pacheck_querywhere)) {
-                            if($options['runtype'] == 'dry' && ($options['operation'] == 'addonly' || $options['operation'] == 'replace')) {
+                            if($options['runtype'] == 'dry' || $options['operation'] == 'addonly') {
                                 if($options['operation'] == 'replace') {
                                     echo 'Skipped Replace: ';
                                 }
@@ -386,6 +386,7 @@ else {
                             }
                             else {
                                 echo 'Added: ';
+                                $activity['importedOn'] = TIME_NOW;
                                 if($options['runtype'] != 'dry') {
                                     $fields = array('salesForecast', 'quantityForecast');
                                     foreach($fields as $field) {
@@ -393,6 +394,8 @@ else {
                                             unset($activity[$field]);
                                         }
                                     }
+
+
                                     $db->insert_query('productsactivity', $activity);
 
                                     $productact = new ProductsActivity($db->last_id());
