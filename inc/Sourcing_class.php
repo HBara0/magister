@@ -112,7 +112,9 @@ class Sourcing {
         else {
             unset($this->supplier['fax']);
         }
-
+        if(!isset($this->supplier['isActive']) || empty($this->supplier['isActive'])) {
+            $this->supplier['isActive'] = 0;
+        }
         if($options['operationtype'] == 'update') {
             $this->supplier['dateModified'] = TIME_NOW;
             $this->supplier['modifiedBy'] = $core->user['uid'];

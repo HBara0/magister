@@ -31,7 +31,9 @@ if(!$core->input['action']) {
         $supplier['activityareas'] = $potential_supplier->get_supplier_activity_area();
         $supplier['chemicalsubstances'] = $potential_supplier->get_chemicalsubstances();
         $supplier['genericproducts'] = $potential_supplier->get_genericproducts();
-
+        if($supplier['details']['isActive']) {
+            $cheked_isactive = 'checked="checked"';
+        }
         $checkboxes_index = array('isBlacklisted');
         foreach($checkboxes_index as $key) {
             if($supplier['details'][$key] == 1) {
