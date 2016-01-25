@@ -251,9 +251,9 @@ $lang['notviewedinlasttwoq'] = 'Not Viewed In Last Two Quarters';
 $lang['auditorscoreexplanation'] = 'The Following Scores Are Calculated Based On These Criterias :<br></br>
 1- Max Score Is The Total Number Of Reports Multiplied By {1}. </br></br>
 2- Each Report Sent On Time Adds {2} To The Total Score. </br></br>
-3- Each Report Send Late Adds {3} To The Total Score. </br></br>
+3- Each Report Sent Late Adds {3} To The Total Score. </br></br>
 4- Each Report Still Not Sent Or Unfinalized Will Not Add Any Points To The Score. </br></br>
 5- An Extra {4} Points Will Be Added For Each {5} Reports The Auditor Is Responsible For, Regardless Of Their Status. <br></br>
-6- Total Score Is Averaged To 10 Afterwards.
+6- Total Score Is Averaged To {6} Afterwards.
 <hr />';
 ?>

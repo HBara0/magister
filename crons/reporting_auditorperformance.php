@@ -12,8 +12,8 @@ require '../inc/init.php';
 $lang = new Language('english', 'user');
 $lang->load('global');
 $lang->load('reporting_meta');
-$score_params = array('totalmultiply' => 3, 'late' => 1, 'complete' => 3, 'totalreps_count' => 3, 'countofreps_add' => 3);
-$lang->auditorscoreexplanation = $lang->sprint($lang->auditorscoreexplanation, $score_params['totalmultiply'], $score_params['complete'], $score_params['late'], $score_params['countofreps_add'], $score_params['totalreps_count']);
+$score_params = array('averagescore' => 10, 'totalmultiply' => 3, 'late' => 1, 'complete' => 3, 'totalreps_count' => 3, 'countofreps_add' => 3);
+$lang->auditorscoreexplanation = $lang->sprint($lang->auditorscoreexplanation, $score_params['totalmultiply'], $score_params['complete'], $score_params['late'], $score_params['countofreps_add'], $score_params['totalreps_count'], $score_params['averagescore']);
 $data = ReportingQr::auditor_ratings();
 $quarter = currentquarter_info(true);
 if($quarter['quarter'] == 1) {
@@ -127,9 +127,9 @@ if(is_array($data)) {
         $score+=$totaldone * $score_params['complete'];
         $score+=floor($totalreports / $score_params['totalreps_count']) * $score_params['countofreps_add'];
         $maxscore = $totalreports * $score_params['totalmultiply'];
-        $avgscore = round(($score * 10 / $maxscore), 1);
-        if($avgscore > 10) {
-            $avgscore = 10;
+        $avgscore = round(($score * $score_params['averagescore'] / $maxscore), 1);
+        if($avgscore > $score_params['averagescore']) {
+            $avgscore = $score_params['averagescore'];
         }
         $avg_color = 'green';
         if($avgscore < 5) {
