@@ -18,13 +18,13 @@ if($_REQUEST['authkey'] == 'kia5ravb$op09dj4a!xhegalhj') {
 
     $recipients_query = $db->query("SELECT * FROM ".Tprefix."reporting_qrrecipients rqr
 									 WHERE rqr.reportIdentifier IN (SELECT r.identifier FROM reports r WHERE r.year={$quarter[year]} AND r.quarter={$quarter[quarter]} AND r.status=1)
-									AND (sentOn+(".($offset * 24 * 60 * 60).") BETWEEN ".strtotime('today')." AND ".strtotime('tomorrow -1 second').")
-									AND NOT EXISTS (SELECT rqv.rqrrid FROM ".Tprefix."reporting_qrrecipients_views rqv WHERE rqv.rqrrid=rqr.rqrrid)
-									AND rpid IS NOT NULL");
+									AND (sentOn+(".($offset * 24 * 60 * 60).") < ".strtotime('today').")
+                                                                        AND NOT EXISTS (SELECT rqv.rqrrid FROM ".Tprefix."reporting_qrrecipients_views rqv WHERE rqv.rqrrid = rqr.rqrrid)
+                                                                        AND rpid IS NOT NULL");
 
     if($db->num_rows($recipients_query) > 0) {
         while($view = $db->fetch_assoc($recipients_query)) {
-            $rid = $db->fetch_field($db->query("SELECT rid FROM ".Tprefix."reports WHERE identifier='".$db->escape_string($view['reportIdentifier'])."'"), 'rid');
+            $rid = $db->fetch_field($db->query("SELECT rid FROM ".Tprefix."reports WHERE identifier = '".$db->escape_string($view['reportIdentifier'])."'"), 'rid');
 
             $report = new ReportingQr(array('rid' => $rid));
             $reportdata = $report->get();

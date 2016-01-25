@@ -82,6 +82,9 @@ if(!$core->input['action']) {
             }
             $session_identifier = md5(uniqid(microtime()));
             $newreport = new ReportingQr(array('year' => $core->input['year'], 'spid' => $report_param['spid'], 'affid' => $report_param['affid'], 'quarter' => $core->input['quarter']));
+            if(!is_object($newreport) || empty($newreport->rid)) {
+                error($lang->reportnotfound, $core->settings['rootdir']);
+            }
             $report = $newreport->get();
             $auditor = $newreport->user_isaudit();
             $session->set_phpsession(array('reportmeta_'.$session_identifier => serialize($report)));
