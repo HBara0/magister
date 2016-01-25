@@ -176,4 +176,8 @@ $lang['veryhighopp'] = 'Very High Opportunity';
 $lang['verylowopp'] = 'Very Low Opporunity';
 $lang['website'] = 'Website';
 $lang['workspace'] = 'Workspace';
+$lang['isactive'] = 'Is Active';
+$lang['moderatintools'] = 'Moderation Tools';
+$lang['activate'] = 'Activate';
+$lang['disable'] = 'Disable';
 ?>

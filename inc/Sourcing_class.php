@@ -391,7 +391,7 @@ class Sourcing {
         }
         /* if no permission person should only see suppliers who work in the same segements he/she is working in - END */
 
-        $suppliers_query = $db->query("SELECT ss.ssid, ss.companyName, ss.companyNameAbbr, ss.type, ss.isBlacklisted, ss.businessPotential
+        $suppliers_query = $db->query("SELECT ss.ssid, ss.companyName, ss.companyNameAbbr, ss.type, ss.isBlacklisted, ss.businessPotential,ss.isActive
 											FROM ".Tprefix."sourcing_suppliers ss
 											{$join_employeessegments}
 											{$filter_where}
