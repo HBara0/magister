@@ -972,6 +972,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                 eval("\$segment_transpdetails .= \"".$template->get('travelmanager_viewplan_transpsegments')."\";");
                 $flight_details = $fare = '';
                 unset($class, $warnings['transpclass'], $transpclass, $segtranspoutput);
+                unset($avgflightfare_output);
             }
         }
 
