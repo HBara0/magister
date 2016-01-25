@@ -509,7 +509,18 @@ class ReportingQr Extends Reporting {
                             }
                         }
                         else {
-                            unset($forecast_corrections[$productactivity['pid']][$validation_key]);
+                            $notempty = 0;
+                            foreach($validation_items as $validation_field) {
+                                if(!empty($forecast_corrections[$productactivity['pid']][$validation_field])) {
+                                    $notempty = 1;
+                                }
+                            }
+                            if($notempty == 1) {
+                                unset($forecast_corrections[$productactivity['pid']][$validation_key]);
+                            }
+                            else {
+                                unset($forecast_corrections[$productactivity['pid']]);
+                            }
                         }
                         unset($lessernumbers);
                     }

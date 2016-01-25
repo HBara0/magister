@@ -336,17 +336,17 @@ else {
                         $fields = array('salesForecast', 'quantityForecast');
                         foreach($fields as $field) {
                             if(!empty($activity[$field])) {
-                                $activity[$field] = round($activity[$field]);
+                                unset($activity[$field]);
                             }
                         }
-                        $activity['importedOn'] = TIME_NOW;
+
 
                         if($options['operation'] != 'replace') {
                             $pacheck_querywhere = ' AND uid=0';
                         }
 
                         if(value_exists('productsactivity', 'rid', $rid, 'pid='.$pid.$pacheck_querywhere)) {
-                            if($options['runtype'] == 'dry' && ($options['operation'] == 'addonly' || $options['operation'] == 'replace')) {
+                            if($options['runtype'] == 'dry' || $options['operation'] == 'addonly') {
                                 if($options['operation'] == 'replace') {
                                     echo 'Skipped Replace: ';
                                 }
@@ -367,7 +367,17 @@ else {
                                         unset($activity[$field]);
                                     }
                                 }
-                                $db->update_query('productsactivity', $activity, 'rid='.$rid.' AND pid='.$pid.$paupdate_querywhere);
+                                $extrawhereuid = '';
+                                if(is_array($uidsarray)) {
+                                    $extrawhereuid = ' AND uid NOT IN ('.implode(',', $uidsarray).')';
+                                }
+                                $usercheck = $db->fetch_assoc($db->query("SELECT * FROM productsactivity r WHERE rid=".$rid." AND pid=".$pid." {$extrawhereuid} SORT BY paid LIMIT 0,1"));
+                                if(is_array($usercheck)) {
+                                    foreach($usercheck as $line) {
+                                        $uidsarray[] = $line['uid'];
+                                        $db->update_query('productsactivity', $activity, 'uid = '.intval($line['uid']).' AND rid='.$rid.' AND pid='.$pid.$paupdate_querywhere);
+                                    }
+                                }
                             }
                         }
                         else {
@@ -376,6 +386,7 @@ else {
                             }
                             else {
                                 echo 'Added: ';
+                                $activity['importedOn'] = TIME_NOW;
                                 if($options['runtype'] != 'dry') {
                                     $fields = array('salesForecast', 'quantityForecast');
                                     foreach($fields as $field) {
@@ -383,6 +394,8 @@ else {
                                             unset($activity[$field]);
                                         }
                                     }
+
+
                                     $db->insert_query('productsactivity', $activity);
 
                                     $productact = new ProductsActivity($db->last_id());
