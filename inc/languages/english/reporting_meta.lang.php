@@ -248,6 +248,8 @@ $lang['warningnegativeandzeronumbers'] = 'Warning! Some Quarter Numbers Are Nega
 $lang['overview'] = 'Overview';
 $lang['filledby'] = 'Filled By';
 $lang['notviewedinlasttwoq'] = 'Not Viewed In Last Two Quarters';
+
+
 $lang['auditorscoreexplanation'] = 'The Following Scores Are Calculated Based On These Criterias :<br></br>
 1- Max Score Is The Total Number Of Reports Multiplied By {1}. </br></br>
 2- Each Report Sent On Time Adds {2} To The Total Score. </br></br>
@@ -256,4 +258,6 @@ $lang['auditorscoreexplanation'] = 'The Following Scores Are Calculated Based On
 5- An Extra {4} Points Will Be Added For Each {5} Reports The Auditor Is Responsible For, Regardless Of Their Status. <br></br>
 6- Total Score Is Averaged To {6} Afterwards.
 <hr />';
+
+$lang['reportnotfound'] = 'Report not found';
 ?>

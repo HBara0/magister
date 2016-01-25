@@ -137,4 +137,6 @@ $lang['successfullydeleted'] = 'Successfully Deleted';
 $lang['representativeisused'] = 'Representative Already Used';
 $lang['addrepresentative'] = 'Add Representative';
 $lang['readmore'] = 'Read More';
+$lang['sentqreports'] = 'Sent Quarterly Reports';
+$lang['report'] = 'Report';
 ?>
