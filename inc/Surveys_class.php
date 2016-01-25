@@ -315,8 +315,7 @@ class Surveys {
                                     foreach($question['choices'] as $key => $choice) {
                                         if(is_array($choice)) {
                                             if(empty($choice['choice'])) {
-                                                $this->status = 6;
-                                                return false;
+                                                unset($question['choices'][$key]);
                                             }
                                         }
                                     }
