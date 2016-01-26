@@ -1119,8 +1119,10 @@ class Surveys {
                     }
                 }
             }
-            $questions[$question['stsid']]['section_title'] = $question['section_title'];
             $questions[$question['stsid']]['section_description'] = $question['section_description'];
+            $questions[$question['stsid']]['section_title'] = $question['section_title'];
+            $questions[$question['stsid']]['section_id'] = $question['section_id'];
+            $questions[$question['stsid']]['section_inputChecksum'] = $question['section_inputChecksum'];
             $questions[$question['stsid']]['questions'][$question['stqid']] = $question;
         }
 
