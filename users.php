@@ -189,7 +189,7 @@ if($core->input['action']) {
         echo $headerinc;
         ?>
         <script language="javascript" type="text/javascript">
-            $(function() {
+            $(function () {
                 window.top.$("#upload_Result").html("<?php echo $upload->parse_status($upload->get_status());?>");
             });
         </script>
@@ -336,8 +336,8 @@ if($core->input['action']) {
                 $helplinks['how-to-generate-signature'] = $helpvideo->parse_link();
             }
 
-            $timezones = DateTimeZone::listIdentifiers();
-            $timezoneslist = parse_selectlist('timeZone', 10, array_combine($timezones, $timezones), $core->user['timeZone']);
+//            $timezones = DateTimeZone::listIdentifiers();
+//            $timezoneslist = parse_selectlist('timeZone', 10, array_combine($timezones, $timezones), $core->user['timeZone']);
 
             eval("\$editprofilepage = \"".$template->get('editprofile')."\";");
             output_page($editprofilepage);
@@ -806,6 +806,10 @@ if($core->input['action']) {
         echo $loginbox;
     }
     elseif($core->input['action'] == 'downloadvcard') {
+        $user = new Users($core->input['uid']);
+        if($user->gid == 7) {
+            exit;
+        }
         $user_data = vCard::get_userdata($core->input['uid']);
         if(is_array($user_data) && !is_empty($user_data)) {
             $vcard = new vCard($user_data);
