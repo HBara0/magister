@@ -216,7 +216,7 @@ class Inlinefilters {
                             $filters[$filter] = parse_selectlist('filters['.$filter.'][]', $tabindex, $currencies, $core->input['filters'][$filter], 1, '', array('multiplesize' => 3, 'blankstart' => true));
                             break;
                         default:
-                            $filters[$filter] = '<input type="text" width="100%" name="filters['.$filter.']" tabindex="'.$tabindex.'" value="'.$core->input['filters'][$filter].'" id="filers_'.$filter.'" title="'.$this->config['parse']['filterTitles'][$filter].'">';
+                            $filters[$filter] = '<input type="text" width="100%" name="filters['.$filter.']" tabindex="'.$tabindex.'" value="'.$core->input['filters'][$filter].'" id="filters_'.$filter.'" title="'.$this->config['parse']['filterTitles'][$filter].'">';
                             break;
                     }
                 }

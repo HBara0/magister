@@ -36,6 +36,19 @@ if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject) || $ignore_su
         $request_key = $db->escape_string($subject[1]);
     }
     $leave = $db->fetch_assoc($db->query("SELECT l.*, u.firstName, u.lastName, email FROM ".Tprefix."leaves l LEFT JOIN ".Tprefix."users u ON (u.uid=l.uid) WHERE l.requestKey='{$request_key}'"));
+    if(empty($leave['lid'])) {
+        $lang->apporvinganonexistingleave = $lang->sprint($lang->apporvinganonexistingleavesubject, $core->user['displayName']);
+        $email_data = array(
+                'from_email' => 'attendance@ocos.orkila.com',
+                'from' => 'Orkila Attendance System',
+                'to' => $data['from'],
+                'subject' => $lang->apporvinganonexistingleavesubject,
+                'message' => $lang->apporvinganonexistingleave
+        );
+        $mail = new Mailer($email_data, 'php');
+        error($lang->leavedoestnoexist, 'index.php?module=attendance/listleaves');
+        exit;
+    }
     $employee = new Users($leave['uid']);
     $leave_obj = new Leaves(array('lid' => $leave['lid']), false);
 
@@ -122,7 +135,6 @@ if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject) || $ignore_su
                         }
                     }
                     // eval("\$leave_details = \"".$template->get('travelmanager_viewlpan_leavedtls')."\";");
-                    $leave_details = '<br/><a target="_blank" href="'.DOMAIN.'/index.php?module=attendance/viewleave&id='.$leave_obj->lid.'">'.$lang->viewleave.'</a>';
                     eval("\$travelmanager_viewplan = \"".$template->get('travelmanager_viewlpanemail')."\";");
 
                     //$leave = $leave_obj->get();

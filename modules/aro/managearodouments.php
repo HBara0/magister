@@ -134,23 +134,44 @@ if(!($core->input['action'])) {
     if(isset($core->input['id'])) {
 
         $aroorderrequest = AroRequests::get_data(array('aorid' => $core->input['id']), array('simple' => false));
-        if(isset($aroorderrequest->aroBusinessManager) && !empty($aroorderrequest->aroBusinessManager)) {
-            $aro_bm = Users::get_data(array('uid' => $aroorderrequest->aroBusinessManager));
-            if(is_object($aro_bm)) {
-                $aroorderrequest->aroBusinessManager_output = $aro_bm->get_displayname();
-            }
-        }
-        if($aroorderrequest->isApproved == 1) {
-            $arostatus = '<h2>APPROVED </h2>';
-        }
+
+
         if(isset($core->input['referrer']) && $core->input['referrer'] == 'toapprove') {
             $aroapproval = AroRequestsApprovals::get_data(array('aorid' => intval($core->input['id']), 'uid' => $core->user['uid']));
             $approve_btn[$core->user['uid']] = '<input type="button" class="button" id="approvearo" value="'.$lang->approve.'"/>'
                     .'<input type="hidden" id="approvearo_id" value="'.$aroorderrequest->aorid.'"/>';
         }
         if(is_object($aroorderrequest)) {
+
+            if(isset($aroorderrequest->aroBusinessManager) && !empty($aroorderrequest->aroBusinessManager)) {
+                $aro_bm = Users::get_data(array('uid' => $aroorderrequest->aroBusinessManager));
+                if(is_object($aro_bm)) {
+                    $aroorderrequest->aroBusinessManager_output = $aro_bm->get_displayname();
+                }
+            }
+
+            if($aroorderrequest->isApproved == 1) {
+                $arostatus = '<h2>APPROVED </h2>';
+
+                if($aroorderrequest->POSent == 1) {
+                    $postatus = '<h2 style="width:150px;text-align:center">'.$lang->posent.'<img src="'.$core->settings[rootdir].'/images/valid.gif"/></h2>';
+                }
+                else {
+                    $postatus = '<h2 style="width:150px;text-align:center;color:red">'.$lang->ponotsent.'<img src="'.$core->settings[rootdir].'/images/invalid.gif"/></h2>';
+                    if($core->user['uid'] == $aroorderrequest->createdBy) {
+                        $postatus = '<input type="button" class="button" id="po_sent" value="'.$lang->markposent.'" />';
+                    }
+                }
+            }
+            if($aroorderrequest->isRejected == 1) {
+                $rejected_watrermark = "<img src='".$core->settings[rootdir]."/images/rejected.png' style='width:200px;margin-left:100px;display:inline-block'/>";
+            }
+
             if(!$aroorderrequest->getif_approvedonce($aroorderrequest->aorid) && $aroorderrequest->createdBy == $core->user['uid']) {
                 $deletebutton = "<a class='button' href='#{$aroorderrequest->aorid}' id='deletearodocument_{$aroorderrequest->aorid}_aro/managearodouments_loadpopupbyid' style='vertical-align:top;'>{$lang->delete}</a>";
+            }
+            if(isset($core->input['referrer']) && $core->input['referrer'] == 'toapprove') {
+                $deletebutton = "";
             }
             if($aroorderrequest->isFinalized == 1) {
                 $checked['aroisfinalized'] = 'checked="checked"';
@@ -184,7 +205,13 @@ if(!($core->input['action'])) {
                     $customer = new Customers($customeroder['cid']);
                     $payment_term = parse_selectlist('customeroder['.$rowid.'][ptid]', 4, $payment_terms, $customeroder['ptid'], '', '', array('blankstart' => 1, 'id' => "paymentermdays_".$rowid, 'required' => 'required'));
                     $customeroder['customerName'] = $customer->get_displayname();
-                    eval("\$aro_managedocuments_ordercustomers_rows .= \"".$template->get('aro_managedocuments_ordercustomers_rows')."\";");
+                    if(isset($core->input['referrer']) && $core->input['referrer'] == 'toapprove') {
+                        $customeroder['paymentTerm'] = PaymentTerms::get_data(array('ptid' => $customeroder['ptid']))->get_displayname();
+                        eval("\$aro_managedocuments_ordercustomers_rows .= \"".$template->get('aro_managedocuments_ordercustomers_rows_preview')."\";");
+                    }
+                    else {
+                        eval("\$aro_managedocuments_ordercustomers_rows .= \"".$template->get('aro_managedocuments_ordercustomers_rows')."\";");
+                    }
                     $rowid++;
                 }
                 $clrowid = $rowid - 1;
@@ -198,10 +225,24 @@ if(!($core->input['action'])) {
                     $customeroder['inputChecksum'] = generate_checksum('ucl');
                 }
                 $altpayment_term = parse_selectlist('customeroder['.$rowid.'][ptid]', 4, $payment_terms, $unspecifiedcust['ptid'], '', '', array('blankstart' => 1, 'id' => "paymentermdays_".$rowid));
-                eval("\$unspecified_customer_row = \"".$template->get('aro_unspecifiedcustomer_row')."\";");
+                if(isset($core->input['referrer']) && $core->input['referrer'] == 'toapprove') {
+                    $altpayment_term = '';
+                    if(isset($unspecifiedcust) && !empty($unspecifiedcust)) {
+                        $altpayment_term_obj = PaymentTerms::get_data(array('ptid' => $unspecifiedcust['ptid']));
+                        if(is_object($altpayment_term_obj)) {
+                            $altpayment_term = $altpayment_term_obj->get_displayname();
+                            unset($altpayment_term_obj);
+                        }
+                        $unspecified_customer_row = '  <tr class="altrow2"><td>'.$lang->unspecifiedcustomers.'</td><td>'.$altpayment_term.'</td>
+                                        <td>'.$customeroder[paymentTermDesc].'</td><td>'.$customeroder[paymenttermbasedate_output].'</td></tr>';
+                    }
+                }
+                else {
+                    eval("\$unspecified_customer_row = \"".$template->get('aro_unspecifiedcustomer_row')."\";");
+                }
                 $rowid = $clrowid;
                 if($rowid == 1 && (isset($core->input['referrer']) && $core->input['referrer'] == 'toapprove')) {
-                    $arocustomer_output = '<td style="font-weight: bold;width:16%;border-left:4px solid #F2F2F2;">'.$lang->customer.'</td><td>'.$customer->get_displayname().'</td>';
+                    $arocustomer_output = '<td style="font-weight: bold;width:16%;" class="border-right">'.$lang->customer.'</td><td class="border-right">'.$customer->get_displayname().'</td>';
                 }
 
                 // If only unspecified customer row exist, parse default customer order row
@@ -232,14 +273,22 @@ if(!($core->input['action'])) {
             $netmarginparms = AroNetMarginParameters::get_data(array('aorid' => $core->input['id']));
             if(is_object($netmarginparms)) {
                 $netmarginparms_uomlist = parse_selectlist('parmsfornetmargin[uom]', '', $warehouseuoms, $netmarginparms->uom, '', '', array('id' => "parmsfornetmargin_uom", 'blankstart' => 1, 'width' => '100px'));
+                $warehouse_uom_obj = Uom::get_data(array('uomid' => $netmarginparms->uom));
+                if(is_object($warehouse_uom_obj)) {
+                    $warehouse_uom_output = $warehouse_uom_obj->get_displayname();
+                }
                 $warehouse = Warehouses::get_data(array('wid' => $netmarginparms->warehouse));
                 $warehouse_list = '<select '.$disabled['warehousing'].'><option value='.$netmarginparms->warehouse.' selected>'.$warehouse->name.'</option>'
                         .'<option value="0"></option></select>';
+                $warehouse_output = $warehouse->name;
                 $netmarginparms_warehousingRate = '<option value = "'.$netmarginparms->warehousingRate.'">'.$netmarginparms->warehousingRate.'</option>';
                 $netmarginparms_warehousingRateUsd = '<option value = "'.$netmarginparms->warehousingRateUsd.'">'.$netmarginparms->warehousingRateUsd.'</option>';
+                $netmarginparms_warehousingRate_output = $netmarginparms->warehousingRate;
+                $netmarginparms_warehousingRateUsd_output = $netmarginparms->warehousingRateUsd;
             }
             //*********Parameters Influencing Net Margin Calculation -End ********//
             //********** ARO Product Lines -Start **************//
+            $riskratioamount = 0;
             $plrowid = 0;
             $productlines = AroRequestLines::get_data(array('aorid' => $aroorderrequest->aorid), array('returnarray' => true, 'order' => array('by' => 'inputChecksum', 'sort' => 'ASC')));
             if(is_array($productlines)) {
@@ -268,12 +317,19 @@ if(!($core->input['action'])) {
                     $display_addmoreproductlines = "";
                     if(isset($core->input['referrer']) && $core->input['referrer'] == 'toapprove') {
                         $display_addmoreproductlines = "style=display:none;";
+                        if(empty($plaltrow)) {
+                            $plaltrow = 'altrow';
+                        }
+                        else {
+                            $plaltrow = "";
+                        }
                         eval("\$aroproductlines_rows .= \"".$template->get('aro_productlines_row_preview')."\";");
                     }
                     else {
                         eval("\$aroproductlines_rows .= \"".$template->get('aro_productlines_row')."\";");
                     }
                     unset($disabled_fields);
+                    $riskratioamount +=$productline['riskRatioAmount'];
                 }
             }
             else {
@@ -304,7 +360,12 @@ if(!($core->input['action'])) {
                     }
                     $packing = new Packaging($actualpurchase->packing);
                     $actualpurchase->packingTitle = $packing->get_displayname();
-                    eval("\$actualpurchase_rows .= \"".$template->get('aro_actualpurchase_row')."\";");
+                    if(isset($core->input['referrer']) && $core->input['referrer'] == 'toapprove') {
+                        eval("\$actualpurchase_rows .= \"".$template->get('aro_actualpurchase_row_preview')."\";");
+                    }
+                    else {
+                        eval("\$actualpurchase_rows .= \"".$template->get('aro_actualpurchase_row')."\";");
+                    }
                 }
             }
             //*********Aro Actual Purchase-End *********//
@@ -327,20 +388,32 @@ if(!($core->input['action'])) {
                     }
                     $packing = new Packaging($currentstock->packing);
                     $currentstock->packingTitle = $packing->get_displayname();
-                    eval("\$currentstock_rows .= \"".$template->get('aro_currentstock_row')."\";");
+                    if(isset($core->input['referrer']) && $core->input['referrer'] == 'toapprove') {
+                        eval("\$currentstock_rows .= \"".$template->get('aro_currentstock_row_preview')."\";");
+                    }
+                    else {
+                        eval("\$currentstock_rows .= \"".$template->get('aro_currentstock_row')."\";");
+                    }
                 }
             }
             //*********Current Stock -End *********//
             //*********Total Funds Engaged -Start *********//
             $totalfunds = AroRequestsFundsEngaged::get_data(array('aorid' => $aroorderrequest->aorid));
+            $numfmt = new NumberFormatter($lang->settings['locale'], NumberFormatter::CURRENCY);
+            $totalfunds_fiels = array('orderShpInvOverdue', 'orderShpInvNotDue', 'ordersAppAwaitingShp', 'odersWaitingApproval', 'totalFunds');
+            if(is_object($totalfunds)) {
+                foreach($totalfunds_fiels as $totalfunds_field) {
+                    $totalfunds->$totalfunds_field = $numfmt->formatCurrency(($totalfunds->$totalfunds_field), "USD");
+                }
+            }
 
-            //*********Total Funds Engaged -End   *********//
+//*********Total Funds Engaged -End   *********//
             //*********Aro Audit Trail -Start *********//
             if($aroorderrequest->createdOn != 0) {
-                $aroorderrequest->createdOn_output = date($core->settings['dateformat'], $aroorderrequest->createdOn);
+                $aroorderrequest->createdOn_output = date($core->settings['dateformat'].' '.$core->settings['timeformat'], $aroorderrequest->createdOn);
             }
             if($aroorderrequest->modifiedOn != 0) {
-                $aroorderrequest->modifiedOn_output = date($core->settings['dateformat'], $aroorderrequest->modifiedOn);
+                $aroorderrequest->modifiedOn_output = date($core->settings['dateformat'].' '.$core->settings['timeformat'], $aroorderrequest->modifiedOn);
             }
             $createdby_username = new Users($aroorderrequest->createdBy);
             if(!empty($aroorderrequest->modifiedBy)) {
@@ -418,8 +491,13 @@ if(!($core->input['action'])) {
                         $partiesinfo[$field.'_formatted'] = date($core->settings['dateformat'], $aropartiesinfo_obj->$field);
                     }
                 }
-                $partiesinfo['diffbtwpaymentdates'] = date_diff(date_create($partiesinfo['vendorEstDateOfPayment_output']), date_create($partiesinfo['intermedEstDateOfPayment_output']));
-                $partiesinfo['diffbtwpaymentdates'] = $partiesinfo['diffbtwpaymentdates']->format("%r%a");
+                if($purchasetype->isPurchasedByEndUser == 1) {
+                    $previewdisplay['promiseofpayment'] = 'display:none';
+                }
+                if(!is_empty($partiesinfo['vendorEstDateOfPayment_output'], $partiesinfo['intermedEstDateOfPayment_output'])) {
+                    $partiesinfo['diffbtwpaymentdates'] = date_diff(date_create($partiesinfo['vendorEstDateOfPayment_output']), date_create($partiesinfo['intermedEstDateOfPayment_output']));
+                    $partiesinfo['diffbtwpaymentdates'] = $partiesinfo['diffbtwpaymentdates']->format("%r%a");
+                }
                 $fees = array('freight', 'bankFees', 'insurance', 'otherFees', 'legalization', 'courier');
                 foreach($fees as $fee) {
                     $partiesinfo['totalintermedfees'] +=$aropartiesinfo_obj->$fee;
@@ -441,12 +519,71 @@ if(!($core->input['action'])) {
                 $incoterms_list[$party] = parse_selectlist('partiesinfo['.$party.'Incoterms]', 4, $incoterms, $selected_incoterms[$party], '', '', array('blankstart' => 1, 'id' => 'partiesinfo_'.$party.'_incoterms', 'required' => $partiesinfo['required_intermedpolicy'], 'width' => '100%', 'class' => $config_class, $isdisabled => $isdisabled));
                 $isdisabled = '';
             }
+
             $countryofshipment_list = parse_selectlist('partiesinfo[shipmentCountry]', '', $countries, $shipmentcountry, '', '', array('blankstart' => 1, 'width' => '150px'));
             $countryoforigin_list = parse_selectlist('partiesinfo[originCountry]', '', $countries, $origincountry, '', '', array('blankstart' => 1, 'width' => '150px'));
 
-            eval("\$interm_vendor = \"".$template->get('aro_partiesinfo_intermediary_vendor')."\";");
-            eval("\$partiesinfo_shipmentparameters = \"".$template->get('aro_partiesinfo_shipmentparameters')."\";");
-            eval("\$partiesinfo_fees = \"".$template->get('aro_partiesinfo_fees')."\";");
+            if(isset($core->input['referrer']) && $core->input['referrer'] == 'toapprove') {
+                $shipmentcountry_obj = Countries::get_data(array('coid' => $shipmentcountry));
+                if(is_object($shipmentcountry_obj)) {
+                    $shipmentcountry_output = $shipmentcountry_obj->get_displayname();
+                }
+                $origincountry_obj = Countries::get_data(array('coid' => $origincountry));
+                if(is_object($origincountry_obj)) {
+                    $origincountry_output = $origincountry_obj->get_displayname();
+                }
+                foreach($parties as $party) {
+                    $aff[$party.'_obj'] = Affiliates::get_affiliates(array('affid' => $aff[$party]));
+                    if(is_object($aff[$party.'_obj'])) {
+                        $aff[$party.'_output'] = $aff[$party.'_obj']->get_displayname();
+                    }
+                    $paymentterm[$party.'_obj'] = PaymentTerms::get_data(array('ptid' => $paymentterm[$party]));
+                    if(is_object($paymentterm[$party.'_obj'])) {
+                        $paymentterms[$party.'_output'] = $paymentterm[$party.'_obj']->get_displayname();
+                    }
+                    $selected_incoterms[$party.'_obj'] = Incoterms::get_data(array('iid' => $selected_incoterms[$party]));
+                    if(is_object($selected_incoterms[$party.'_obj'])) {
+                        $incoterms[$party.'_output'] = $selected_incoterms[$party.'_obj']->get_displayname();
+                    }
+                }
+
+                if($aropartiesinfo_obj->isConsolidation == 1) {
+                    $consolidation_warehouses_display = '';
+                    $consolidation_warehouses_obj = Warehouses::get_data(array('wid' => $aropartiesinfo_obj->consolidationWarehouse));
+                    $consolidation_warehouses_output = '-';
+                    if(is_object($consolidation_warehouses_obj)) {
+                        $consolidation_warehouses_output = $consolidation_warehouses_obj->get_displayname();
+                    }
+                }
+                $purchaser['fromaff'] = $purchaser['fromvendor'] = '-';
+                $aff_obj = new Affiliates($aroorderrequest->affid);
+
+                if($purchasetype->needsIntermediary == 0) {
+                    $purchaser['fromvendor'] = $aff_obj->get_displayname();
+                    $purchaser['fromaff'] = '';
+                }
+                else {
+                    if(!empty($aff['intermed_output'])) {
+                        $purchaser['fromvendor'] = $aff['intermed_output'];
+                    }
+                    if($purchasetype->isPurchasedByEndUser == 1) {
+                        if(isset($arocustomer_output) && !empty($arocustomer_output) && is_object($customer)) {
+                            $purchaser['fromaff'] = $customer->get_displayname();
+                        }
+                    }
+                    else {
+                        $purchaser['fromaff'] = $aff_obj->get_displayname();
+                    }
+                }
+                eval("\$interm_vendor = \"".$template->get('aro_partiesinfo_intermediary_vendor_preview')."\";");
+                eval("\$partiesinfo_shipmentparameters = \"".$template->get('aro_partiesinfo_shipmentparameters_preview')."\";");
+                eval("\$partiesinfo_fees = \"".$template->get('aro_partiesinfo_fees_preview')."\";");
+            }
+            else {
+                eval("\$interm_vendor = \"".$template->get('aro_partiesinfo_intermediary_vendor')."\";");
+                eval("\$partiesinfo_shipmentparameters = \"".$template->get('aro_partiesinfo_shipmentparameters')."\";");
+                eval("\$partiesinfo_fees = \"".$template->get('aro_partiesinfo_fees')."\";");
+            }
             //*********Aro Parties Information-End *********//
             $aroapprovalchain = AroRequestsApprovals::get_data(array('aorid' => $aroorderrequest->aorid), array('returnarray' => true, 'simple' => false, 'order' => array('by' => 'sequence', 'sort' => 'ASC')));
             if(is_array($aroapprovalchain)) {
@@ -495,9 +632,14 @@ if(!($core->input['action'])) {
                             break;
                     }
                     $dateofapproval = '-';
-                    $user = new Users($approver->uid);
-                    if(is_object($user)) {
-                        $username = $user->get_displayname();
+                    if($approver->uid == 0) {
+                        $username = '-';
+                    }
+                    else {
+                        $user = new Users($approver->uid);
+                        if(is_object($user)) {
+                            $username = $user->get_displayname();
+                        }
                     }
                     if($approver->emailRecievedDate != 0) {
                         $dateofapprovalemail = gmdate("H:i:s", ($approver->emailRecievedDate)).'<br/>';
@@ -520,10 +662,30 @@ if(!($core->input['action'])) {
                             }
                         }
                     }
+                    elseif($aroorderrequest->isRejected == 1) {
+                        if($approver->uid == $aroorderrequest->rejectedBy) {
+                            if($aroorderrequest->rejectedOn != 0) {
+                                $rejected['style'] = 'background-color:#f9d0d0;';
+                                $rejectedOn = gmdate("H:i:s", ($aroorderrequest->rejectedOn)).'<br/>';
+                                $rejectedOn .=date($core->settings['dateformat'], $aroorderrequest->rejectedOn);
+                            }
+                        }
+                    }
                     else {
                         if($approver->uid == $core->user['uid']) {
-                            $approve = '<input type="button" class="button" id="approvearo" value="'.$lang->approve.'"/>'
-                                    .'<input type="hidden" id="approvearo_id" value="'.$aroorderrequest->aorid.'"/>';
+                            $approvalobj = $aroorderrequest->get_nextapprover();
+                            if(is_object($approvalobj)) {
+                                if($approvalobj->uid == $core->user['uid']) {
+                                    $approve = '<input type="button" id="approvearo" value="'.$lang->approve.'" class="btn btn-success"/>'//
+                                            .'<input type="hidden" id="approvearo_id" value="'.$aroorderrequest->aorid.'"/>'.
+                                            '<a  class="btn btn-danger" id="rejectarodocument_'.$aroorderrequest->aorid.'_aro/managearodouments_loadpopupbyid" style="margin-left:5px;vertical-align:top;padding-top:5px;"/>'.$lang->reject.'</a>';
+                                }
+                                else {
+                                    if($approver->firstEmailRecievedDate != 0) {
+                                        $icons['reintializedapprovalprocess'] = '<span class="glyphicon glyphicon-exclamation-sign alert-danger" data-toggle="tooltip" title="Approval Process was reintialized!" ></span>';
+                                    }
+                                }
+                            }
                         }
                     }
                     eval("\$apprs .= \"".$template->get('aro_approvalchain_approver')."\";");
@@ -542,6 +704,7 @@ if(!($core->input['action'])) {
             /* Conversation message --START */
             $takeactionpage_conversation = $aroorderrequest->parse_messages(array('uid' => $core->user['uid']));
             /* Conversation  message --END */
+
             eval("\$takeactionpage = \"".$template->get('aro_managearodocuments_takeaction')."\";");
             $takeactionpage = '<a class="header" href="#"><h2>'.$lang->aromessages.'</h2></a><div style="margin-top:10px;">'.$takeactionpage.'</div>';
 
@@ -575,7 +738,7 @@ if(!($core->input['action'])) {
                         $thirdparty = $localaff->get_displayname();
                         $ordersummarydisplay['thirdcolumn_display'] = "style='font-weight:bold';";
                         if(isset($core->input['referrer']) && $core->input['referrer'] == 'toapprove') {
-                            $ordersummarydisplay[thirdcolumn_display] = "style='font-weight:bold';";
+                            $ordersummarydisplay[thirdcolumn_display] = 'style="font-weight:bold;width:15%"';
                         }
                     }
                 }
@@ -584,25 +747,42 @@ if(!($core->input['action'])) {
                 }
 
                 $aroordersummary->netmarginIntermed_afterdeduction = $aroordersummary->netmarginIntermed - $aroordersummary->invoiceValueThirdParty;
+                if(!empty($aroordersummary->invoiceValueUsdLocal)) {
+                    $aroordersummary->marginPercThirdParty = round(($aroordersummary->invoiceValueThirdParty / $aroordersummary->invoiceValueUsdLocal) * 100, 2);
+                }
+                if(isset($aroordersummary->netmarginIntermed_afterdeduction) && !empty($aroordersummary->netmarginIntermed_afterdeduction)) {
+                    if(!empty($aroordersummary->invoiceValueUsdLocal)) {
+                        $aroordersummary->netmarginIntermedPerc = round(($aroordersummary->netmarginIntermed_afterdeduction / $aroordersummary->invoiceValueUsdLocal) * 100, 2);
+                    }
+                }
+                $aroordersummary->riskRatioAmount = $riskratioamount;
             }
             $arodocument_title = $aroorderrequest->orderReference.' '.$localaff->get_displayname();
-            $arodocument_header = '<h2>'.$aroorderrequest->orderReference.' / '.$localaff->get_displayname().' / '.$purchaseype->get_displayname().'</h2>';
+            $arodocument_header = '<h2 style="display:inline-block;">'.$aroorderrequest->orderReference.' / '.$localaff->get_displayname().' / '.$purchaseype->get_displayname().'</h2>';
         }
         else {
             redirect($_SERVER['HTTP_REFERER'], 2, $lang->nomatchfound);
         }
     }
 
-    eval("\$aro_productlines = \"".$template->get('aro_fillproductlines')."\";");
     if(isset($core->input['referrer']) && $core->input['referrer'] == 'toapprove') {
+        $bold = "font-weight:bold;";
+        $datatable = "datatable";
         eval("\$aro_managedocuments_orderident= \"".$template->get('aro_orderidentification_preview')."\";");
+        eval("\$aro_ordercustomers= \"".$template->get('aro_managedocuments_ordercustomers_preview')."\";");
+        eval("\$totalfunds = \"".$template->get('aro_totalfunds_preview')."\";");
+        eval("\$aro_netmarginparms= \"".$template->get('aro_netmarginparameters_preview')."\";");
+        eval("\$partiesinformation = \"".$template->get('aro_partiesinformation_preview')."\";");
     }
     else {
+        $colspan['qtypotentiallysold'] = 'colspan="2"';
         eval("\$aro_managedocuments_orderident= \"".$template->get('aro_managedocuments_orderidentification')."\";");
+        eval("\$aro_ordercustomers= \"".$template->get('aro_managedocuments_ordercustomers')."\";");
+        eval("\$totalfunds = \"".$template->get('aro_totalfunds')."\";");
+        eval("\$aro_netmarginparms= \"".$template->get('aro_netmarginparameters')."\";");
+        eval("\$partiesinformation = \"".$template->get('aro_partiesinformation')."\";");
     }
-    eval("\$aro_ordercustomers= \"".$template->get('aro_managedocuments_ordercustomers')."\";");
-    eval("\$partiesinformation = \"".$template->get('aro_partiesinformation')."\";");
-    eval("\$aro_netmarginparms= \"".$template->get('aro_netmarginparameters')."\";");
+    eval("\$aro_productlines = \"".$template->get('aro_fillproductlines')."\";");
     eval("\$actualpurchase = \"".$template->get('aro_actualpurchase')."\";");
     eval("\$currentstock = \"".$template->get('aro_currentstock')."\";");
 
@@ -610,14 +790,16 @@ if(!($core->input['action'])) {
         if(is_object($aroordersummary)) {
             $formatter = new NumberFormatter($lang->settings['locale'], NumberFormatter::DECIMAL);
             $perc_formatter = new NumberFormatter($lang->settings['locale'], NumberFormatter::PERCENT);
-            $ordersummary_fields = array('netmarginIntermed_afterdeduction', 'invoiceValueIntermed', 'invoiceValueLocal', 'invoiceValueUsdIntermed', 'invoiceValueUsdLocal', 'interestValue', 'interestValueUsd', 'totalIntermedFees', 'totalIntermedFeesUsd', 'unitFee', 'netmarginIntermed', 'netmarginLocal', 'invoiceValueThirdParty', 'globalNetmargin'); // 'netmarginIntermedPerc', 'netmarginLocalPerc');
+            $ordersummary_fields = array('netmarginIntermed_afterdeduction', 'invoiceValueIntermed', 'invoiceValueLocal', 'invoiceValueUsdIntermed', 'invoiceValueUsdLocal', 'interestValue', 'interestValueUsd', 'totalIntermedFees', 'totalIntermedFeesUsd', 'unitFee', 'netmarginIntermed', 'netmarginLocal', 'invoiceValueThirdParty', 'globalNetmargin', 'totalQuantityUom'); // 'netmarginIntermedPerc', 'netmarginLocalPerc');
             foreach($ordersummary_fields as $field) {
-//                if($field == 'netmarginIntermedPerc' || $field == 'netmarginLocalPerc') {
-//                    $aroordersummary->$field = $perc_formatter->format($aroordersummary->$field);
-////                }
-//                else {
-                $aroordersummary->$field = $formatter->format($aroordersummary->$field);
-                //  }
+                switch($field) {
+                    case 'totalQuantityUom':
+                        $aroordersummary->$field = $formatter->format(explode('/', $aroordersummary->$field)[0]).'/'.explode('/', $aroordersummary->$field)[1];
+                        break;
+                    default:
+                        $aroordersummary->$field = $formatter->format($aroordersummary->$field);
+                        break;
+                }
             }
         }
         eval("\$orderummary = \"".$template->get('aro_ordersummary_preview')."\";");
@@ -626,9 +808,13 @@ if(!($core->input['action'])) {
         eval("\$orderummary = \"".$template->get('aro_ordersummary')."\";");
     }
     unset($firstparty, $secondparty, $thirdparty);
-    eval("\$totalfunds = \"".$template->get('aro_totalfunds')."\";");
     eval("\$approvalchain= \"".$template->get('aro_approvalchain')."\";");
-    eval("\$aro_managedocuments= \"".$template->get('aro_managedocuments')."\";");
+    if(isset($core->input['referrer']) && $core->input['referrer'] == 'toapprove') {
+        eval("\$aro_managedocuments= \"".$template->get('aro_managedocuments_preview')."\";");
+    }
+    else {
+        eval("\$aro_managedocuments= \"".$template->get('aro_managedocuments')."\";");
+    }
     output_page($aro_managedocuments);
 }
 else {
@@ -676,7 +862,8 @@ else {
         unset($core->input['module'], $core->input['action']);
         $orderident_obj = new AroRequests();
         /* get arodocument of the affid and pruchase type */
-        $documentseq_obj = AroDocumentsSequenceConf::get_data(array('affid' => $core->input['affid'], 'ptid' => $core->input['orderType']), array('simple' => false, 'operators' => array('affid' => 'in', 'ptid' => 'in')));
+        $filter = 'affid = '.intval($core->input['affid']).' AND ptid = '.intval($core->input['orderType']).' AND ('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
+        $documentseq_obj = AroDocumentsSequenceConf::get_data($filter, array('simple' => false, 'operators' => array('affid' => 'in', 'ptid' => 'in')));
         if(is_object($documentseq_obj)) {
             $nextsequence_number = $documentseq_obj->get_nextaro_identification();
             $core->input['nextnumid']['nextnum'] = $nextsequence_number;
@@ -689,10 +876,14 @@ else {
                 output_xml('<status>true</status><message>'.$lang->successfullysaved.'</message>');
                 break;
             case 2:
-                output_xml('<status>false</status><message>'.$lang->fillrequiredfields.'</message>');
+                $error_output = $errorhandler->get_errors_inline();
+                output_xml('<status>false</status><message>'.$lang->fillrequiredfields.'<![CDATA[<br/>'.$error_output.']]></message>');
                 break;
             case 3:
                 output_xml('<status>false</status><message>'.$lang->productlineerror.$orderident_obj->get_errorid().'</message>');
+                break;
+            case 4:
+                output_xml('<status>false</status><message>In case of Customer Reinvoicing, there cannot be several customers and unspecified customers.</message>');
                 break;
         }
     }
@@ -1188,12 +1379,16 @@ else {
                 $invoicevalue_thirdparty = ($core->input['commFromIntermed'] / 100) * $core->input['localinvoicevalue_usd']; //$invoicevalueintermed;
                 $invoicevalue_thirdparty_usd = $invoicevalue_thirdparty; //* $core->input['exchangeRateToUSD'];
                 $haveThirdParty = 1;
+                $intermedmarginafterreduction = $intermedmargin - $invoicevalue_thirdparty_usd;
+                if($localinvoicevalue_usd != 0) {
+                    $intermedmargin_perc = ($intermedmarginafterreduction / $localinvoicevalue_usd) * 100;
+                    $thirdpartymargin_perc = ($invoicevalue_thirdparty_usd / $localinvoicevalue_usd) * 100;
+                }
             }
         }
         if(($core->input['sellingpriceqty_product'] * $core->input['exchangeRateToUSD']) != 0) {
             $globalmarginperc = (($localnetmargin + $intermedmargin) / ($core->input['sellingpriceqty_product'] * $core->input['exchangeRateToUSD'])) * 100;
         }
-        $intermedmarginafterreduction = $intermedmargin - $invoicevalue_thirdparty_usd;
         $data = array(
                 'ordersummary_col1_title' => $firstpart_title,
                 'ordersummary_col2_title' => $secondparty_title,
@@ -1224,6 +1419,7 @@ else {
                 'haveThirdParty' => $haveThirdParty,
                 'ordersummary_netmargin_intermedafterdeduction' => round($intermedmarginafterreduction, 2),
                 'ordersummary_globalnetmarginPerc' => round($globalmarginperc, 2),
+                'ordersummary_marginperc_thirdparty' => round($thirdpartymargin_perc, 2)
         );
         echo json_encode($data);
     }
@@ -1310,9 +1506,15 @@ else {
                             break;
                     }
                     //   if($key != 'businessManager') {
-                    $user = new Users($val);
-                    if(is_object($user)) {
-                        $username = $user->get_displayname();
+                    if($val == 0) {
+                        $username = '-';
+                    }
+                    else {
+                        $user = new Users($val);
+
+                        if(is_object($user)) {
+                            $username = $user->get_displayname();
+                        }
                     }
                     ///  }
 //                    else {
@@ -1360,9 +1562,11 @@ else {
     }
     if($core->input['action'] == 'viewonly') {
         $aroorderrequest = AroRequests::get_data(array('aorid' => $core->input['id']), array('simple' => false));
-        if($aroorderrequest->isApproved == 1 || $core->user['uid'] != $aroorderrequest->createdBy) {
-            $viewonly = array('disable' => 1);
-            output(json_encode($viewonly));
+        if($core->user['uid'] != 362) {
+            if($aroorderrequest->isApproved == 1 || $core->user['uid'] != $aroorderrequest->createdBy) {
+                $viewonly = array('disable' => 1);
+                output(json_encode($viewonly));
+            }
         }
     }
     if($core->input['action'] == 'approvearo') {
@@ -1521,5 +1725,41 @@ else {
     elseif($core->input['action'] == 'get_deletearodocument') {
         eval("\$deletearocodbox = \"".$template->get('popup_deletearodocument')."\";");
         output($deletearocodbox);
+    }
+    elseif($core->input['action'] == 'get_rejectarodocument') {
+        eval("\$rejectarobox = \"".$template->get('popup_rejectarodocument')."\";");
+        output($rejectarobox);
+    }
+    elseif($core->input['action'] == 'perform_rejectarodocument') {
+        $aro = new AroRequests($db->escape_string($core->input['toreject']));
+        if(empty($core->input['rejectionmessage']['message'])) {
+            output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
+            exit;
+        }
+        $aro = $aro->reject_aro($core->input);
+        switch($aro->get_errorcode()) {
+            case 0:
+                output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
+                break;
+            case 1:
+            case 2:
+                output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
+                break;
+            case 3:
+                output_xml("<status>false</status><message>{$lang->entryexists}</message>");
+                break;
+            case 4:
+                output_xml("<status>false</status><message>{$lang->errorsaving}</message>"); // ERROR rejecting
+                break;
+            case 5:
+                output_xml("<status>false</status><message>{$lang->successfullysaved} - {$lang->errorsendingemail}</message>");
+                break;
+        }
+    }
+    elseif($core->input['action'] == 'markpoassent') {
+        $aro_obj = new AroRequests($db->escape_string($core->input['id']));
+        if(is_object($aro_obj)) {
+            $aro_obj->mark_sentpo();
+        }
     }
 }

@@ -160,7 +160,7 @@ else {
 
         $integration->set_organisations(array($orgid));
         $integration->set_sync_interval($report_period);
-        $inputs = $integration->get_fifoinputs(array($orgid), array('hasqty' => true));
+        // $inputs = $integration->get_fifoinputsalternative(array($orgid), array('hasqty' => true));
         if(!empty($inputs)) {
             $fxrates['usd'] = $currency_obj->get_latest_fxrate($affiliate['currency']);
 

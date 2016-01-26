@@ -467,7 +467,7 @@ class Charts {
             while(false !== ($file = readdir($dir))) {
                 $file_info = pathinfo($this->path.'/'.$file);
                 if($file != '.' && $file != '..' && $file_info['extension'] == 'png') {
-                    if(TIME_NOW - filemtime($this->path.$file) > (60 * 60)) {
+                    if(TIME_NOW - filemtime($this->path.'/'.$file) > (60 * 60)) {
                         @unlink($this->path.$file);
                     }
                 }

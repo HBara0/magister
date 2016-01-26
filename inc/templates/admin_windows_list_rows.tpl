@@ -3,11 +3,7 @@
     </td>
     <td>{$window['title']}
     </td>
-    <td>{$reflist['type']}
-    </td>
-    <td>{$reflist['description']}
-    </td>
-    <td>{$reflist['comment']}
+    <td>{$window['type']}
     </td>
     <td><img src="{$is_active}"/>
     </td>

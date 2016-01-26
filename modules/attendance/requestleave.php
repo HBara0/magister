@@ -416,6 +416,10 @@ else {
 
             /* Create leave expenses - START */
             $leave_obj = new Leaves(array('lid' => $lid), false);
+            //        return count_workingdays($this->data['uid'], $this->data['fromDate'], $this->data['toDate'], $this->get_leavetype(false)->isWholeDay);
+
+            $leave_data['workingDays'] = $leave_obj->count_workingdays();
+            $query = $db->update_query('leaves', $leave_data, "lid='{$lid}'");
             if($core->usergroup['canUseTravelManager'] == 0) {
                 $leave_obj->create_expenses($expenses_data);
             }

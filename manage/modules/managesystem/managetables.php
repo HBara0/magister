@@ -20,8 +20,8 @@ $lang->load('tables_meta');
 $lang->load('global');
 
 if($core->usergroup['admin_canManageSystemDef'] == 0) {
-    //  error($lang->sectionnopermission);
-    //exit;
+    error($lang->sectionnopermission);
+    exit;
 }
 
 if(!$core->input['action']) {
@@ -100,9 +100,6 @@ if(!$core->input['action']) {
                             switch($table_field['Key']) {
                                 case('PRI'):
                                     $primary_check = 'checked="checked"';
-                                    $required_check = 'checked="checked"';
-                                    $unique_check = 'checked="checked"';
-                                    $simple_check = 'checked="checked"';
                                     break;
                                 case('UNI'):
                                     $unique_check = 'checked="checked"';

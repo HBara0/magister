@@ -15,13 +15,13 @@ if($core->usergroup['facilitymgmt_canManageFacilities'] == 0) {
     error($lang->sectionnopermission);
 }
 if(!isset($core->input['action'])) {
-    $affiliates = Affiliates::get_affiliates(array('affid' => $core->user['mainaffiliate']), array('returnarray' => true));
+    $affiliates = Affiliates::get_affiliates(array('affid' => $core->user['affiliates']), array('returnarray' => true));
     $factypes = FacilityMgmtFactypes::get_data(array('isActive' => 1), array('returnarray' => true));
     $roomtypesids = FacilityMgmtFactypes::get_roomtypesids();
     $mainlocationids = FacilityMgmtFactypes::get_maintypesids();
     if(!isset($core->input['id'])) {
-        $facilities = FacilityMgmtFacilities::get_data(array('type' => $roomtypesids, 'affid' => $core->user['mainaffiliate'], 'isActive' => 1), array('operators' => array('type' => 'NOT IN'), 'returnarray' => true));
-        $affiliate_list = parse_selectlist('facility[affid]', 1, $affiliates, $core->user['mainaffilaite'], '', '', array('width' => '150px', 'blankstart' => true));
+        $facilities = FacilityMgmtFacilities::get_data(array('type' => $roomtypesids, 'isActive' => 1), array('operators' => array('type' => 'NOT IN'), 'returnarray' => true));
+        $affiliate_list = parse_selectlist('facility[affid]', 1, $affiliates, $core->user['affiliates'], '', '', array('width' => '150px', 'blankstart' => true));
         $factypes_list = parse_selectlist('facility[type]', 1, $factypes, '', '', '', array('id' => 'typelist', 'optionids' => array('when' => $mainlocationids, 'id' => 'isMain'), 'width' => '150px', 'blankstart' => true));
         // If type isMainLocation it cannot have a parent.
         $facilities_list = parse_selectlist('facility[parent]', 1, $facilities, '', '', '', array('width' => '150px', 'blankstart' => true));

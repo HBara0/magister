@@ -66,10 +66,11 @@ class Surveys {
         unset($data['action'], $data['module']);
 
         /*  Sanitize inputs - START */
+        $data['surveyHeader'] = $core->sanitize_inputs($data['surveyHeader'], array('method' => 'striponly', 'removetags' => false));
         $data['subject'] = $core->sanitize_inputs($data['subject'], array('removetags' => true));
         $data['description'] = $core->sanitize_inputs($data['description'], array('method' => 'striponly', 'removetags' => true, 'allowable_tags' => '<blockquote><b><strong><em><ul><ol><li><p><br><strike><del><pre><dl><dt><dd><sup><sub><i><img><cite><small>'));
         $data['customInvitationSubject'] = $core->sanitize_inputs($data['customInvitationSubject'], array('removetags' => true));
-        //$data['customInvitationBody'] = $core->sanitize_inputs($data['customInvitationBody'], array('method' => 'striponly', 'removetags' => true, 'allowable_tags' => '<blockquote><b><strong><em><ul><ol><li><p><br><strike><del><pre><dl><dt><dd><sup><sub><i><img><cite><small>'));
+//$data['customInvitationBody'] = $core->sanitize_inputs($data['customInvitationBody'], array('method' => 'striponly', 'removetags' => true, 'allowable_tags' => '<blockquote><b><strong><em><ul><ol><li><p><br><strike><del><pre><dl><dt><dd><sup><sub><i><img><cite><small>'));
         /*  Sanitize inputs - END */
 
         $this->survey = $data;
@@ -254,18 +255,18 @@ class Surveys {
                 continue;
             }
 
-            if(empty($section['title'])) {
+            if(empty($section['inputChecksum'])) {
                 $this->status = 1;
                 return false;
             }
 
             /* Check if same section title has been used in the same template */
-            if($cache->incache('sectiontitles', $section['title'])) {
+            if($cache->incache('sectionchecksums', $section['inputChecksum'])) {
                 $this->status = 4;
                 return false;
             }
             else {
-                $cache->add('sectiontitles', $section['title'], $key);
+                $cache->add('sectionchecksums', $section['inputChecksum'], $key);
                 foreach($section['questions'] as $stqid => $question) {
                     if(count($section['questions']) == 1) {
                         if(empty($question['question'])) {
@@ -314,8 +315,7 @@ class Surveys {
                                     foreach($question['choices'] as $key => $choice) {
                                         if(is_array($choice)) {
                                             if(empty($choice['choice'])) {
-                                                $this->status = 6;
-                                                return false;
+                                                unset($question['choices'][$key]);
                                             }
                                         }
                                     }
@@ -348,12 +348,17 @@ class Surveys {
                 $newsurveys_section = array(
                         'stid' => $stid,
                         'title' => $core->sanitize_inputs(trim($section['title'])),
+                        'inputChecksum' => $core->sanitize_inputs(trim($section['inputChecksum'])),
                         'description' => $core->sanitize_inputs(trim($section['description'])));
                 $section_query = $db->insert_query('surveys_templates_sections', $newsurveys_section);
                 if($section_query) {
                     $stsid = $db->last_id();
                     foreach($section['questions'] as $key => $question) {
                         $hasmultiplevalues = 0;
+                        if(empty($question['question'])) {
+                            continue;
+                        }
+                        $type_obj = new SurveysQuestionTypes($question['type']);
                         if($type_obj->isMatrix == 1) {
                             $temp_choicevalues = $question['choices'];
                             $question['choices'] = $question['matrixchoices'];
@@ -388,12 +393,18 @@ class Surveys {
                                     if(!empty($choice['choice'])) {
                                         $choice['stqid'] = $stqid;
                                         $choice['hasMultipleValues'] = $hasmultiplevalues;
+                                        if(empty($choice['choice'])) {
+                                            continue;
+                                        }
                                         $query_choice = $db->insert_query('surveys_templates_questions_choices', $choice);
                                         if($query_choice) {
                                             $stqcid = $db->last_id();
                                             if($choice['hasMultipleValues'] == 1) {
                                                 if(is_array($choice_values)) {
                                                     foreach($choice_values as $key => $choicevalue) {
+                                                        if(empty($choicevalue['choice'])) {
+                                                            continue;
+                                                        }
                                                         $choicevalue['stqcid'] = $stqcid;
                                                         $choicevalue['hasMultipleValues'] == 1;
                                                         $query_choice = $db->insert_query('surveys_templates_questionschoices_choices', $choicevalue);
@@ -551,7 +562,7 @@ class Surveys {
             $query = $db->query("SELECT DISTINCT(sr.identifier), time, si.invitee AS respondant,si.passed,si.score,si.total
 					FROM ".Tprefix."surveys s
 					JOIN ".Tprefix."surveys_responses sr ON (sr.sid=s.sid)
-					JOIN ".Tprefix."surveys_invitations si ON (si.invitee=sr.invitee)
+					JOIN ".Tprefix."surveys_invitations si ON (si.identifier=sr.invitee)
 					WHERE s.identifier='".$db->escape_string($identifier)."'
 					ORDER BY {$sort_query}");
         }
@@ -604,7 +615,7 @@ class Surveys {
             $identifier = $identifier;
         }
 
-        $query = $db->query("SELECT s.identifier AS survey_identifier, stq.sequence, s.subject, stqc.*, sr.*, stq.question, sqt.hasChoices, sqt.hasMultiAnswers, sqt.isQuantitative
+        $query = $db->query("SELECT s.identifier AS survey_identifier, stq.sequence, s.subject, stqc.*, sr.*, stq.question, sqt.hasChoices, sqt.hasMultiAnswers, sqt.isQuantitative, sqt.isMatrix
 						FROM ".Tprefix."surveys_responses sr
 						JOIN ".Tprefix."surveys s ON (s.sid=sr.sid)
 						JOIN ".Tprefix."surveys_templates_questions stq ON (stq.stqid=sr.stqid)
@@ -622,6 +633,13 @@ class Surveys {
             }
             $responses_stats[$responses_stat['stqid']]['choices']['value'][$responses_stat['stqcid']] = $responses_stat['value'];
             $responses_stats[$responses_stat['stqid']]['choices']['stats'][$responses_stat['stqcid']] ++;
+            if($responses_stat['isMatrix'] == 1 && !empty($responses_stat['responseValue'])) {
+                $survey_question_choiceschoice = new SurveysTplQChoiceChoices($responses_stat['responseValue']);
+                if(is_object($survey_question_choiceschoice)) {
+                    $responses_stats[$responses_stat['stqid']]['choices']['choicesvalues'][$responses_stat['stqcid']]['values'] [$responses_stat['responseValue']] ++;
+                    $responses_stats[$responses_stat['stqid']]['choices']['choicesvalues'][$responses_stat['stqcid']]['choice'] [$responses_stat['responseValue']] = $survey_question_choiceschoice->get_displayname();
+                }
+            }
         }
         /* Get choices that were not selected */
         if($ignore_zero == false) {
@@ -636,6 +654,23 @@ class Surveys {
                             }
                             $responses_stats[$other_choices['stqid']]['choices']['value'][$other_choices['stqcid']] = $other_choices['value'];
                             $responses_stats[$other_choices['stqid']]['choices']['stats'][$other_choices['stqcid']] = 0;
+                            if(isset($data['choices']['choicesvalues']) && is_array($data['choices']['choicesvalues'])) {
+                                $query3 = $db->query("SELECT * FROM ".Tprefix."surveys_templates_questionschoices_choices WHERE stqcid={$other_choices[stqcid]}");
+                                while($matrixchoicesvalue = $db->fetch_assoc($query3)) {
+                                    $responses_stats[$other_choices['stqid']]['choices']['choicesvalues'][$other_choices['stqcid']]['values'][$matrixchoicesvalue['stqccid']] = 0;
+                                    $responses_stats[$other_choices['stqid']]['choices']['choicesvalues'][$other_choices['stqcid']]['choice'][$matrixchoicesvalue['stqccid']] = $matrixchoicesvalue['choice'];
+                                }
+                            }
+                        }
+                        else if(isset($data['choices']['choicesvalues']) && is_array($data['choices']['choicesvalues'])) {
+                            $query3 = $db->query("SELECT * FROM ".Tprefix."surveys_templates_questionschoices_choices WHERE stqcid={$other_choices[stqcid]}");
+                            while($matrixchoicesvalue = $db->fetch_assoc($query3)) {
+                                if(isset($responses_stats[$other_choices['stqid']]['choices']['choicesvalues'][$other_choices['stqcid']]['values'][$matrixchoicesvalue['stqccid']])) {
+                                    continue;
+                                }
+                                $responses_stats[$other_choices['stqid']]['choices']['choicesvalues'][$other_choices['stqcid']]['values'][$matrixchoicesvalue['stqccid']] = 0;
+                                $responses_stats[$other_choices['stqid']]['choices']['choicesvalues'][$other_choices['stqcid']]['choice'][$matrixchoicesvalue['stqccid']] = $matrixchoicesvalue['choice'];
+                            }
                         }
                     }
                 }
@@ -656,34 +691,35 @@ class Surveys {
         if($this->validate_answers($answers['actual'])) {
             $identifier = substr(md5(uniqid(microtime())), 1, 10);
             foreach($answers['actual'] as $id => $value) {
-                $total++;
-                if(questiontypes)
-                    if(is_array($value)) {
-                        foreach($value as $vid => $val) {
-                            if(isset($answers['options'][$id]['isMatrix']) && $answers['options'][$id]['isMatrix'] == 1) {
-                                $selectedoption = explode("_", $val);
-                                $val = $selectedoption[0];
-                                $responseval = $selectedoption[1];
-                            }
-
-                            $answer = 0;
-                            $questionchoice = new SurveysTplQChoices(intval($val));
-                            if($questionchoice->isAnswer == 1) {
-                                $answer = 1;
-                                $corrects++;
-                            }
-                            $this->save_single_response(array('id' => $id, 'value' => $val, 'responseValue' => $responseval, 'comments' => $answers['comments'][$id][$vid], 'identifier' => $identifier, 'isCorrect' => $answer));
+                $totalres++;
+//                if(questiontypes)
+                if(is_array($value)) {
+                    foreach($value as $vid => $val) {
+                        if(isset($answers['options'][$id]['isMatrix']) && $answers['options'][$id]['isMatrix'] == 1) {
+                            $selectedoption = explode("_", $val);
+                            $val = $selectedoption[0];
+                            $responseval = $selectedoption[1];
                         }
-                    }
-                    else {
+
                         $answer = 0;
-                        $questionchoice = new SurveysTplQChoices(intval($value));
+                        $questionchoice = new SurveysTplQChoices(intval($val));
                         if($questionchoice->isAnswer == 1) {
                             $answer = 1;
                             $corrects++;
                         }
-                        $this->save_single_response(array('id' => $id, 'value' => $val, 'comments' => $answers['comments'][$id][$vid], 'identifier' => $identifier, 'isCorrect' => $answer));
+                        $this->save_single_response(array('id' => $id, 'value' => $val, 'responseValue' => $responseval, 'comments' => $answers['comments'][$id], 'identifier' => $identifier, 'isCorrect' => $answer));
+                        unset($selectedoption, $responseval);
                     }
+                }
+                else {
+                    $answer = 0;
+                    $questionchoice = new SurveysTplQChoices(intval($value));
+                    if($questionchoice->isAnswer == 1) {
+                        $answer = 1;
+                        $corrects++;
+                    }
+                    $this->save_single_response(array('id' => $id, 'value' => $value, 'comments' => $answers['comments'][$id], 'identifier' => $identifier, 'isCorrect' => $answer));
+                }
             }
             /* Set contribution as done */
             $pass = 0;
@@ -1078,16 +1114,15 @@ class Surveys {
                     if($choice['hasMultipleValues'] == 1) {
                         $query3 = $db->query("SELECT * FROM ".Tprefix."surveys_templates_questionschoices_choices WHERE stqcid={$choice[stqcid]} ORDER BY stqcid ASC");
                         while($choicevalue = $db->fetch_assoc($query3)) {
-                            $question['choicevalues'][$choicevalue['stqccid']] = $choicevalue['choice'];
+                            $question['choicevalues'][$choicevalue['stqcid']][$choicevalue['stqccid']] = $choicevalue['choice'];
                         }
                     }
                 }
             }
-            if(is_array($question['choicevalues'])) {
-                $question['choicevalues'] = array_unique($question['choicevalues']);
-            }
-            $questions[$question['stsid']]['section_title'] = $question['section_title'];
             $questions[$question['stsid']]['section_description'] = $question['section_description'];
+            $questions[$question['stsid']]['section_title'] = $question['section_title'];
+            $questions[$question['stsid']]['section_id'] = $question['section_id'];
+            $questions[$question['stsid']]['section_inputChecksum'] = $question['section_inputChecksum'];
             $questions[$question['stsid']]['questions'][$question['stqid']] = $question;
         }
 
@@ -1095,8 +1130,12 @@ class Surveys {
     }
 
     public function parse_question(array $question, $secondary = false, array $response = array(), $isquiz = 0) {
+        global $core;
         $question_output_requiredattr = '';
         $rowclass = '';
+        if(!empty($response)) {
+            $disabled = ' disbaled="disabled"';
+        }
         if($question['isRequired'] == 1) {
             $question_output_required = '<span class="red_text">*</span>';
             $question_output_requiredattr = ' required="required"';
@@ -1242,30 +1281,62 @@ class Surveys {
                 }
                 break;
             case 'matrix':
-                $question_output .= '<div style="margin: 5px 20px; 5px; 20px;"><table>';
-                $question_output .= '<tr><th><input type="hidden" name="answer[options]['.$question['stqid'].'][isMatrix]" value="1"/></th>';
-                foreach($question['choicevalues'] as $choicevalue) {
-                    $question_output .= '<th>'.$choicevalue.'</th>';
+                unset($checked);
+                $question_output .= '<div style="margin: 5px 20px; 5px; 20px;"><table class="datatable">';
+                $question_output .= '<tr><th style="width:40%;"><input type="hidden" name="answer[options]['.$question['stqid'].'][isMatrix]" value="1"/></th>';
+                foreach($question['choicevalues'] as $choicevalues) {
+                    if(is_array($choicevalues)) {
+                        foreach($choicevalues as $choicevalue) {
+                            $question_output .= '<th style="text-align:left; width:'.((100 - 40) / count($choicevalues)).'%;">'.$choicevalue.'</th>';
+                        }
+                    }
+                    break;
                 }
                 $question_output .='</tr>';
+                if(is_array($response)) {
+                    $matriceq_responses = SurveysResponses::get_data(array('stqid' => $response['stqid'], 'identifier' => $response['identifier']), array('returnarray' => true));
+                    if(is_array($matriceq_responses)) {
+                        foreach($matriceq_responses as $singleresponse) {
+                            $checked[$singleresponse->response][$singleresponse->responseValue] = true;
+                        }
+                    }
+                }
+
                 foreach($question['choices'] as $choicekey => $choice) {
                     $question_output .='<tr><th>'.$choice.'</th>';
-                    foreach($question['choicevalues'] as $valuekey => $choicevalue) {
-                        $question_output .='<td><input type="radio" name="answer[actual]['.$question['stqid'].']['.$choicekey.']" value="'.$choicekey.'_'.$valuekey.'" '.$question_output_requiredattr.'/></td>';
+                    if(is_array($question['choicevalues'][$choicekey])) {
+                        foreach($question['choicevalues'][$choicekey] as $valuekey => $value) {
+                            if($checked[$choicekey][$valuekey]) {
+                                $question_output .='<td style="text-align:left;"><img src="'.$core->settings['rootdir'].'/images/icons/completed.png" alt="checked"></td>';
+                            }
+                            else {
+                                $question_output .='<td style = "text-align:left;"><input '.$disabled.' type = "radio" name = "answer[actual]['.$question['stqid'].']['.$choicekey.']" value = "'.$choicekey.'_'.$valuekey.'" '.$question_output_requiredattr.' /></td>';
+                            }
+                        }
                     }
                     $question_output .='</tr>';
                 }
-                $question_output .='</table>';
+                $question_output .='</table></div>';
                 break;
             default: return false;
         }
 
         if($question['hasCommentsField'] == 1) {
             if(!empty($response)) {
-                if(empty($response['comments'])) {
+                if(is_array($response)) {
+                    foreach($response as $sresponse) {
+                        if(!is_array($sresponse)) {
+                            continue;
+                        }
+                        $response = $sresponse;
+                        break;
+                    }
+                }
+
+                if(!isset($response['comments']) || empty($response['comments'])) {
                     $response['comments'] = '-';
                 }
-                $question_output .= '<div style="margin: 5px 20px; 5px; 20px;">'.$question['commentsFieldTitle'].': '.$response['comments'].'</div>';
+                $question_output .= '<div style = "margin: 5px 20px; 5px; 20px;">'.$question['commentsFieldTitle'].': '.$response['comments'].'</div>';
             }
             else {
                 $question_output .= $this->parse_question(array('stqid' => $question['stqid'], 'question' => $question['commentsFieldTitle'], 'fieldType' => $question['commentsFieldType'], 'fieldSize' => $question['commentsFieldSize']), true);
@@ -1284,7 +1355,7 @@ class Surveys {
             $sid = $this->survey['sid'];
         }
 
-        if(value_exists('surveys_responses', 'sid', $sid, 'invitee='.$core->user['uid'])) {
+        if(value_exists('surveys_responses', 'sid', $sid, 'invitee = '.$core->user['uid'])) {
             return true;
         }
     }
@@ -1304,7 +1375,7 @@ class Surveys {
     public function get_shared_users() {
         global $db;
 
-        $query = $db->query('SELECT uid FROM '.Tprefix.'surveys_sharedwith WHERE sid='.intval($this->survey['sid'].''));
+        $query = $db->query('SELECT uid FROM '.Tprefix.'surveys_sharedwith WHERE sid = '.intval($this->survey['sid'].''));
         if($db->num_rows($query)) {
             while($user = $db->fetch_assoc($query)) {
                 $uids[] = $user['uid'];
@@ -1330,14 +1401,14 @@ class Surveys {
                     $existing_users = array_keys($existing_users);
                     $users_toremove = array_diff($existing_users, $survey_data);
                     if(!empty($users_toremove)) {
-                        $db->delete_query('surveys_sharedwith', 'uid IN ('.$db->escape_string(implode(',', $users_toremove)).') AND sid='.$this->survey['sid']);
+                        $db->delete_query('surveys_sharedwith', 'uid IN ('.$db->escape_string(implode(', ', $users_toremove)).') AND sid = '.$this->survey['sid']);
                     }
                 }
                 $survey_shares['sid'] = $this->survey['sid'];
                 $survey_shares['createdBy'] = $core->user['uid'];
                 $survey_shares['createdOn'] = TIME_NOW;
                 $survey_shares['uid'] = $core->sanitize_inputs($val);
-                if(!value_exists('surveys_sharedwith', 'uid', $val, ' sid='.$this->survey['sid'])) {
+                if(!value_exists('surveys_sharedwith', 'uid', $val, ' sid = '.$this->survey['sid'])) {
                     $query = $db->insert_query('surveys_sharedwith', $survey_shares);
                     if(!$query) {
                         return false;
@@ -1359,7 +1430,7 @@ class Surveys {
         $share_user = $user_obj->get();
 
         $lang->load('messages');
-        $surveylink = '<a href="'.DOMAIN.'/index.php?module=surveys/viewresults&amp;referrer=sharedlist&amp;identifier='.$this->survey['identifier'].'">'.$this->survey['subject'].'</a>';
+        $surveylink = '<a href = "'.DOMAIN.'/index.php?module=surveys/viewresults&amp;referrer=sharedlist&amp;identifier='.$this->survey['identifier'].'">'.$this->survey['subject'].'</a>';
         $mailer = new Mailer();
         $mailer = $mailer->get_mailerobj();
         $mailer->set_subject($this->survey['subject'].' Results');

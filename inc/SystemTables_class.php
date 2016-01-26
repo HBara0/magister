@@ -79,9 +79,9 @@ class SystemTables extends AbstractClass {
 //check if file already exists and notify the user
         $path = $core->settings['rootdir'].'/inc/'.$this->className.'_class.php';
         $path = 'C:\www\development\ocos\inc\\'.$this->className.'_class.php  ';
-//        if(file_exists($path) && $class_overwrite != 1) {
-//            return false;
-//        }
+        if(file_exists($path) && $overwrite != 1) {
+            return false;
+        }
         $column_objs = SystemTablesColumns::get_data(array('stid' => $this->stid), array('returnarray' => true));
         if(!is_array($column_objs) || empty($column_objs)) {
             return false;
@@ -96,7 +96,12 @@ class SystemTables extends AbstractClass {
             if($column_obj->isDisplayName == 1) {
                 $display = $column_obj->columnDbName;
             }
-
+            if($column_obj->isRequired == 1) {
+                $required[] = $column_obj->columnDbName;
+            }
+            if($column_obj->isSimple == 1) {
+                $simple[] = $column_obj->columnDbName;
+            }
             /* check if we want the definition */
             if($view_functions == 1 || $overwrite == 1) {
                 if(isset($column_obj->relatedTo) && $column_obj->relatedTo != 0) {
@@ -124,11 +129,18 @@ class SystemTables extends AbstractClass {
                 $column_names[] = $column_obj->columnDbName;
             }
         }
-        if(!empty($primarykey)) {
+        if(is_array($primarykey) && !empty($primarykey)) {
             $primary_key = implode(',', $primarykey);
         }
-        if(!empty($uniques)) {
+        if(is_array($uniques) && !empty($uniques)) {
             $unique_attrs = implode(',', $uniques);
+        }
+        if(is_array($required) && !empty($required)) {
+            $required_attrs = implode(',', $required);
+        }
+        $simple_attrs = '*';
+        if(is_array($simple) && !empty($simple)) {
+            $simple_attrs = implode(',', $simple);
         }
         /* check if we want the definition */
         if($view_definition == 1 || $overwrite == 1) {
@@ -137,20 +149,20 @@ class SystemTables extends AbstractClass {
                 foreach($column_names as $column_name) {
                     switch($column_name) {
                         case('createdOn'):
-                            $parse_cols_create.= "\t'$column_name' => TIME_NOW,\n";
+                            $create_extrafields.="\t\$table_array['$column_name']= TIME_NOW;\n";
                             break;
                         case('createdBy'):
-                            $parse_cols_create.= "\t'$column_name' => \$core->user['id'],\n";
+                            $create_extrafields.="\t\$table_array['$column_name']= \$core->user['id'];\n";
                             break;
                         case('modifiedBy'):
-                            $parse_cols_update.="\t\$update_array['$column_name']= \$core->user['id'];\n";
+                            $modify_extrafields.="\t\$table_array['$column_name']= \$core->user['id'];\n";
                             break;
-                        case('createdOn'):
-                            $parse_cols_update.="\t\$update_array['$column_name']=\TIME_NOW;\n";
+                        case('modifiedOn'):
+                            $modify_extrafields.="\t\$table_array['$column_name']= TIME_NOW;\n";
                             break;
                         default:
-                            $parse_cols_create.= "\t'$column_name' => \$data['$column_name'],\n";
-                            $parse_cols_update.="\t\$update_array['$column_name']=\$data['$column_name'];\n";
+                            $parsedfields.= $seperator."'$column_name'";
+                            $seperator = ', ';
                             break;
                     }
                 }
@@ -164,10 +176,11 @@ class $this->className extends AbstractClass {
         protected \$errorcode = 0;
         const PRIMARY_KEY = '$primary_key';
         const TABLE_NAME = '$this->tableName';
-        const SIMPLEQ_ATTRS = '*';
+        const SIMPLEQ_ATTRS = '$simple_attrs';
         const UNIQUE_ATTRS = '$unique_attrs';
         const CLASSNAME = __CLASS__;
         const DISPLAY_NAME = '$display';
+        const REQUIRED_ATTRS = '$required_attrs';
 
                     /*-------Definiton-END--------*/
 EOD;
@@ -183,23 +196,43 @@ public function __construct(\$id = '', \$simple = true) {
 
 public function create(array \$data) {
         global \$db,\$core;
-        \$table_array = array(
- $parse_cols_create
-                );
+        \$fields=array($parsedfields);
+         if(is_array(\$fields)){
+            foreach(\$fields as \$field){
+                if(!is_null(\$data[\$field])){
+                    \$table_array[\$field]=\$data[\$field];
+                }
+            }
+        }
+        \$this->errorcode=3;
+        if(is_array(\$table_array)){
+    $create_extrafields
         \$query = \$db->insert_query(self::TABLE_NAME, \$table_array);
-        if(\$query) {
+            if(\$query) {
+            \$this->errorcode=0;
             \$this->data[self::PRIMARY_KEY] = \$db->last_id();
+            }
         }
         return \$this;
     }
 
 protected function update(array \$data) {
         global \$db;
-        if(is_array(\$data)) {
-$parse_cols_update
-                    }
-       \$db->update_query(self::TABLE_NAME, \$update_array, self::PRIMARY_KEY.'='.intval(\$this->data[self::PRIMARY_KEY]));
-        return \$this;
+        \$fields=array($parsedfields);
+         if(is_array(\$fields)){
+            foreach(\$fields as \$field){
+                if(!is_null(\$data[\$field])){
+                    \$table_array[\$field]=\$data[\$field];
+                }
+            }
+        }
+        \$this->errorcode=3;
+        if(is_array(\$table_array)){
+             $modify_extrafields
+              \$db->update_query(self::TABLE_NAME, \$table_array, self::PRIMARY_KEY.'='.intval(\$this->data[self::PRIMARY_KEY]));
+                     \$this->errorcode=0;
+              }
+           return \$this;
         }
 
 /*-------FUNCTIONS-END--------*/

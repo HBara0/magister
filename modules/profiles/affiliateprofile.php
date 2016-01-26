@@ -46,10 +46,17 @@ if(!$core->input['action']) {
     else {
         unset($profile['phone2']);
     }
-
-    $management_query = $db->query("SELECT uid, CONCAT(firstName, ' ', lastName) AS generalManager FROM ".Tprefix."users WHERE uid IN ({$profile['supervisor']},{$profile['generalManager']},{$profile['hrManager']})");
-    while($management = $db->fetch_array($management_query)) {
-        $managers[$management['uid']] = $management['generalManager'];
+    $management_fields = array('supervisor', 'generalManager', 'hrManager');
+    foreach($management_fields as $managefield) {
+        if(!empty($profile[$managefield])) {
+            $manage_uids[] = $profile[$managefield];
+        }
+    }
+    if(is_array($manage_uids)) {
+        $management_query = $db->query("SELECT uid, CONCAT(firstName, ' ', lastName) AS generalManager FROM ".Tprefix."users WHERE uid IN ({$profile['supervisor']},{$profile['generalManager']},{$profile['hrManager']})");
+        while($management = $db->fetch_array($management_query)) {
+            $managers[$management['uid']] = $management['generalManager'];
+        }
     }
 
     if($profile['generalManager'] == 0) {

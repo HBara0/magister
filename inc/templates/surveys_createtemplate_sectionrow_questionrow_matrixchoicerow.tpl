@@ -2,8 +2,7 @@
     <td style="{$showanswer}" id="answer_{$section_rowid}_{$question_rowid}_{$matrixchoicesrowid_rowid}">
         <input type="checkbox" value="1" {$choice_selected} name="section[{$section_rowid}][questions][{$question_rowid}][matrixchoices][{$matrixchoicesrowid_rowid}][isAnswer]"></td>
     <td style="width:150px">
-        <input type="text"  name="section[{$section_rowid}][questions][{$question_rowid}][matrixchoices][{$matrixchoicesrowid_rowid}][choice]" size="75"/>
-        <input type="hidden" name="section[{$section_rowid}][questions][{$question_rowid}][matrixchoices][{$matrixchoicesrowid_rowid}][hasMultipleValues]" value="1"></td>
+        <input type="text"  name="section[{$section_rowid}][questions][{$question_rowid}][matrixchoices][{$matrixchoicesrowid_rowid}][choice]" value="{$section[$section_rowid][questions][$question_rowid][matrixchoices][$matrixchoicesrowid_rowid][choice]}" size="75"/>
 
-</td>
+    </td>
 </tr>

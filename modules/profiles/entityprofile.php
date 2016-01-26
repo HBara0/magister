@@ -303,14 +303,13 @@ if(!$core->input['action']) {
             $sentreports_query = $db->query("SELECT * FROM ".Tprefix."reports WHERE isSent=1 AND spid='{$eid}' ORDER BY year DESC");
             while($ready_report = $db->fetch_assoc($sentreports_query)) {
                 $ready_affids[] = $ready_report['affid'];
-
                 $ready_reports_link[$ready_report['affid']] = $core->settings['rootdir'].'/index.php?module=reporting/preview&referrer=direct&identifier='.base64_encode(serialize(array('year' => $current_report_details['year'], 'quarter' => $current_report_details['quarter'], 'spid' => $current_report_details['eid'], 'affid' => $ready_affids)));
-
-                $sent_reports .= '<a href="'.$ready_reports_link[$ready_report['affid']].'">sent reports Q'.$ready_report['quarter'].' </a><br />';
+                $sentreportslist .= '<tr><td style="width:50%;"><a href="'.$ready_reports_link[$ready_report['affid']].'">sent reports Q'.$ready_report['quarter'].' </a></td><td>'.$ready_report['year'].'</td></tr>';
             }
+            eval("\$sent_reports .= \"".$template->get('profiles_entityprofile_sentreports')."\";");
 
             if(!empty($sent_reports)) {
-                $entityprofile_private .= '<tr><td  valign="top" style="padding:10px;"><span class="subtitle">'.$lang->lastfiles.'</span><br />'.$sent_reports.'</td><td valign="top" style="padding:10px;">&nbsp;</td></tr>';
+                $entityprofile_private .= '<tr><td  valign="top" style="padding:10px;"><span class="subtitle">'.$lang->sentqreports.'</span><br />'.$sent_reports.'</td><td valign="top" style="padding:10px;">&nbsp;</td></tr>';
             }
             /* Get sent reports - End */
         }

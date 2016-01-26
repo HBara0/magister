@@ -29,13 +29,14 @@ class AroRequests extends AbstractClass {
     }
 
     public function create(array $data) {
-        global $db, $core, $log;
+        global $db, $core, $log, $lang, $errorhandler;
 
         $required_fields = array('affid', 'orderType', 'currency', 'orderReference');
         foreach($required_fields as $field) {
             $data[$field] = $core->sanitize_inputs($data[$field], array('removetags' => true, 'allowable_tags' => '<blockquote><b><strong><em><ul><ol><li><p><br><strike><del><pre><dl><dt><dd><sup><sub><i><cite><small>'));
             if(is_empty($data[$field])) {
                 $this->errorcode = 2;
+                $errorhandler->record('Required fields', $lang->$field);
                 return $this->errorcode;
             }
         }
@@ -127,7 +128,8 @@ class AroRequests extends AbstractClass {
     }
 
     private function set_documentsequencenumber($doc_sequencedata) {
-        $documentseq_obj = AroDocumentsSequenceConf::get_data(array('affid' => $doc_sequencedata['affid'], 'ptid' => $doc_sequencedata['orderType']), array('returnarray' => false, 'simple' => false, 'operators' => array('affid' => 'in', 'ptid' => 'in')));
+        $filter = 'affid = '.$doc_sequencedata['affid'].' AND ptid = '.$doc_sequencedata['orderType'].' AND ('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
+        $documentseq_obj = AroDocumentsSequenceConf::get_data($filter, array('returnarray' => false, 'simple' => false));
         if(is_object($documentseq_obj)) {
             $nextNumber = $doc_sequencedata['nextnumid']['nextnum'];
             $documentseq_obj->set(array('nextNumber' => $nextNumber));
@@ -136,12 +138,13 @@ class AroRequests extends AbstractClass {
     }
 
     protected function update(array $data) {
-        global $db, $core, $log;
+        global $db, $core, $log, $errorhandler, $lang;
         $required_fields = array('affid', 'orderType', 'currency', 'orderReference');
         foreach($required_fields as $field) {
             $data[$field] = $core->sanitize_inputs($data[$field], array('removetags' => true, 'allowable_tags' => '<blockquote><b><strong><em><ul><ol><li><p><br><strike><del><pre><dl><dt><dd><sup><sub><i><cite><small>'));
             if(is_empty($data[$field])) {
                 $this->errorcode = 2;
+                $errorhandler->record('Required fields', $lang->$field);
                 return $this->errorcode;
             }
         }
@@ -461,6 +464,12 @@ class AroRequests extends AbstractClass {
                         break;
                     case 'cfo':
                         $approvers['cfo'] = $affiliate->get_cfo()->uid;
+                        if(isset($intermed) && !empty($intermed)) {
+                            $intermedaff = Affiliates::get_affiliates(array('affid' => $intermed));
+                            if(is_object($intermedaff)) {
+                                $approvers['cfo'] = $intermedaff->get_cfo()->uid;
+                            }
+                        }
                         break;
                     case 'coo':
                         $approvers['coo'] = $affiliate->get_coo()->uid;
@@ -503,10 +512,23 @@ class AroRequests extends AbstractClass {
                         break;
                 }
             }
-            /* Make list of approvers unique */
+
+            /* Make list of approvers unique ,keeping higher position of duplicates */
             if(is_array($approvers)) {
-                $approvers = array_unique($approvers);
+                foreach($approvers as $position => $uid) {
+                    $approvers_positions[$uid] = $position;
+                }
+                unset($position, $uid);
+                foreach($approvers as $position => $approver) {
+                    if(!in_array($position, $approvers_positions)) {
+                        unset($approvers[$position]);
+                    }
+                }
             }
+
+//            if(is_array($approvers)) {
+//                $approvers = array_unique($approvers);
+//            }
             /* Remove the user himself from the approval chain */
             //    unset($approvers[array_search($core->user['uid'], $approvers)]);
             return $approvers;
@@ -581,6 +603,14 @@ class AroRequests extends AbstractClass {
         }
     }
 
+    private function check_infromcommercials() {
+        $filter = 'affid ='.$this->affid.' AND purchaseType = '.$this->orderType.' AND ('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
+        $aroapprovalchain_policies = AroApprovalChainPolicies::get_data($filter);
+        if(is_object($aroapprovalchain_policies)) {
+            return $aroapprovalchain_policies->informGlobalCommercials;
+        }
+    }
+
     private function get_segoordinators() {
         $arorequestlines = AroRequestLines::get_data(array('aorid' => $this->data['aorid']), array('returnarray' => true));
         if(is_array($arorequestlines)) {
@@ -626,7 +656,6 @@ class AroRequests extends AbstractClass {
         $currency_obj = Currencies::get_data(array('numCode' => $this->currency));
         $data['currency'] = $currency_obj->name;
         $data['purchasetype_output'] = $purchasteype_obj->get_displayname();
-        $data['affiliate_output'] = $aroaffiliate_obj->get_displayname();
 
         $partiesinfo_obj = AroRequestsPartiesInformation::get_data(array('aorid' => $this->aorid));
         if(is_object($partiesinfo_obj)) {
@@ -651,15 +680,23 @@ class AroRequests extends AbstractClass {
             }
         }
 
+
+        $data['affiliate_output'] = $aroaffiliate_obj->get_displayname();
+        if($purchasteype_obj->needsIntermediary == 1) {
+            if(is_object($intermed_aff)) {
+                $data['affiliate_output'] = $intermed_aff->get_displayname();
+            }
+        }
+
         $formatter = new NumberFormatter($lang->settings['locale'], NumberFormatter::DECIMAL);
         $perc_formatter = new NumberFormatter($lang->settings['locale'], NumberFormatter::PERCENT);
 
         $productlines = AroRequestLines::get_data(array('aorid' => $this->aorid), array('returnarray' => true));
         if(is_array($productlines)) {
-            $data['products_output'] .='<tr class="thead"><td style="width:40%">'.$lang->product.'</td><td style="width:30%">'.$lang->supplier.'</td><td style="width:30%">'.$lang->purchasepricefromsupplier.'</td></tr>';
+            $data['products_output'] .='<tr style="background-color:#92D050;font-weight:bold"><td style="width:40%">'.$lang->product.'</td><td style="width:30%">'.$lang->supplier.'</td><td style="width:30%">'.$lang->purchasepricefromsupplier.'</td></tr>';
             foreach($productlines as $productline) {
                 $product_obj = Products::get_data(array('pid' => $productline->pid));
-                $data['products_output'] .='<tr><td>'.$product_obj->get_displayname().'</td><td>'.$data['vendor_output'].'</td><td>'.$formatter->format($productline->intialPrice).'</td></tr>';
+                $data['products_output'] .='<tr><td style="background-color:#D0F6AA;">'.$product_obj->get_displayname().'</td><td style="background-color:#D0F6AA;">'.$data['vendor_output'].'</td><td style="background-color:#D0F6AA;">'.$formatter->format($productline->intialPrice).'</td></tr>';
                 $reference['qtybysellingprice'] += $productline->quantity * $productline->sellingPrice;
             }
         }
@@ -674,6 +711,7 @@ class AroRequests extends AbstractClass {
                     $data[$field] = $formatter->format($ordersummary->$field);
                 }
             }
+            $data['totalQuantityUom'] = $ordersummary->totalQuantityUom;
         }
         $data['invoiceValueAffiliate'] = $data['invoiceValueCustomer'] = "-";
         if($purchasteype_obj->isPurchasedByEndUser == 1) {
@@ -726,6 +764,9 @@ class AroRequests extends AbstractClass {
         $mailer->send();
         if($mailer->get_status() === true) {
             $data = array('emailRecievedDate' => TIME_NOW);
+            if($firstapprover->firstEmailRecievedDate == 0) {
+                $data['firstEmailRecievedDate'] = TIME_NOW;
+            }
             $db->update_query('aro_requests_approvals', $data, 'araid='.$firstapprover->araid);
 
 
@@ -820,6 +861,9 @@ class AroRequests extends AbstractClass {
             $mailer->send();
             if($mailer->get_status() === true) {
                 $data = array('emailRecievedDate' => TIME_NOW);
+                if($approval->firstEmailRecievedDate == 0) {
+                    $data['firstEmailRecievedDate'] = TIME_NOW;
+                }
                 $db->update_query('aro_requests_approvals', $data, 'araid='.$approval->araid);
             }
         }
@@ -901,7 +945,12 @@ class AroRequests extends AbstractClass {
                 $globalPurchaseMgr = new Users($affiliate->globalPurchaseManager);
                 $mailinglist[$globalPurchaseMgr->uid] = $globalPurchaseMgr->get_email();
             }
-
+            if($this->check_infromcommercials() == 1) {
+                $intermediary_obj = $this->get_intermediaryaff();
+                if(is_object($intermediary_obj)) {
+                    $mailinglist[] = $intermediary_obj->commercialEmail;
+                }
+            }
             $createdby = new Users($this->createdBy);
             $mailinglist[$this->createdBy] = $createdby->get_email();
 
@@ -912,6 +961,8 @@ class AroRequests extends AbstractClass {
                 }
             }
             $mailinglist = array_unique($mailinglist);
+            $mailinglist = array_filter($mailinglist);
+
             $aro_link = $core->settings['rootdir']."/index.php?module=aro/managearodouments&id=".$this->data[self::PRIMARY_KEY];
 
             $email_data = array(
@@ -947,6 +998,12 @@ class AroRequests extends AbstractClass {
             $globalPurchaseMgr = new Users($affiliate->globalPurchaseManager);
             $inform[$globalPurchaseMgr->uid] = $globalPurchaseMgr->get_email();
         }
+        if($this->check_infromcommercials() == 1) {
+            $intermediary_obj = $this->get_intermediaryaff();
+            if(is_object($intermediary_obj)) {
+                $mailinglist[] = $intermediary_obj->commercialEmail;
+            }
+        }
         $informmoreusers = $this->check_informmoreusers();
         if(is_array($informmoreusers)) {
             foreach($informmoreusers as $useremail) {
@@ -960,7 +1017,7 @@ class AroRequests extends AbstractClass {
         global $template, $core;
         $takeactionpage_conversation = null;
 
-        $initialmsgs = AroRequestsMessages::get_data('aorid='.$this->data[self::PRIMARY_KEY].' AND inReplyTo=0', array('simple' => false, 'returnarray' => true));
+        $initialmsgs = AroRequestsMessages::get_data('aorid='.$this->data[self::PRIMARY_KEY].' AND inReplyToMsgId=0', array('simple' => false, 'returnarray' => true));
         if(!is_array($initialmsgs)) {
             return false;
         }
@@ -1126,6 +1183,54 @@ class AroRequests extends AbstractClass {
                 }
             }
             return $aroids;
+        }
+        return false;
+    }
+
+    public function reject_aro() {
+        global $db, $core;
+        //  if($this->can_apporve($core->user))
+        $query = $db->update_query('aro_requests', array('isRejected' => 1, 'rejectedBy' => $core->user['uid'], 'rejectedOn' => TIME_NOW), ''.self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
+        if($query) {
+            $arorequestmessage_obj = new AroRequestsMessages();
+            $core->input['rejectionmessage']['message'] = 'REJECTED: '.$core->input['rejectionmessage']['message'];
+            $arorequestmessage_obj = $arorequestmessage_obj->create_message($core->input['rejectionmessage'], $this->data['aorid'], array('source' => 'emaillink'));
+            switch($arorequestmessage_obj->get_errorcode()) {
+                case 0:
+                    $arorequestmessage_obj = $arorequestmessage_obj->send_message(array('msgtype' => 'rejection', 'rejectedBy' => $core->user['uid']));
+                    $this->errorcode = $arorequestmessage_obj->get_errorcode();
+                    break;
+                default:
+                    $this->errorcode = $arorequestmessage_obj->get_errorcode();
+                    break;
+            }
+            return $this;
+        }
+        else {
+            $this->errorcode = 4;
+            return $this;
+        }
+    }
+
+    public function mark_sentpo() {
+        global $db;
+        $query = $db->update_query('aro_requests', array('POSent' => 1), ''.self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
+    }
+
+    public function get_intermediaryaff() {
+        $purchasteype_obj = PurchaseTypes::get_data(array('ptid' => $this->orderType));
+        if($purchasteype_obj->needsIntermediary == 1) {
+            $partiesinfo_obj = AroRequestsPartiesInformation::get_data(array(self::PRIMARY_KEY => $this->data[self::PRIMARY_KEY]));
+            if(is_object($partiesinfo_obj) && !empty($partiesinfo_obj->intermedAff)) {
+                return Affiliates::get_affiliates(array('affid' => $partiesinfo_obj->intermedAff), array('simple' => false));
+            }
+        }
+        return false;
+    }
+
+    public function get_businessmanager() {
+        if(!is_empty($this->data['aroBusinessManager'])) {
+            return new Users(intval($this->data['aroBusinessManager']));
         }
         return false;
     }

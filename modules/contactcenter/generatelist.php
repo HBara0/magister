@@ -439,6 +439,7 @@ else {
         if(isset($extrafilters)) {
             if(is_array($permissions['eid'])) {
                 if(isset($extrafilters[Entities]['eid'])) {
+                    $filtered = 1;
                     $extrafilters[Entities]['eid'] = array_intersect($extrafilters[Entities]['eid'], $permissions['eid']);
                 }
                 else {
@@ -447,6 +448,7 @@ else {
             }
             $ents = Entities::get_data($extrafilters[Entities], array('returnarray' => true, 'operators' => array('contractExpiryDate' => $extrafilters['operators']['contractExpiryDate'])));
             if(isset($extrafilters[AffiliatedEntities]) && !empty($extrafilters[AffiliatedEntities])) {
+                $filtered = 1;
                 if(is_array($ents)) {
                     $extrafilters[AffiliatedEntities]['eid'] = array_keys($ents);
                 }
@@ -454,13 +456,18 @@ else {
                     $extrafilters[AffiliatedEntities]['eid'] = array(0);
                 }
                 $affiliatedents = AffiliatedEntities::get_data($extrafilters[AffiliatedEntities], array('returnarray' => true));
-                $eids = array_map(
-                        function($e) {
-                    return $e->eid;
-                }, $affiliatedents);
-                $eidsdup = $eids;
-                $eids = array_combine($eidsdup, $eidsdup);
-                $ents = array_intersect_key($ents, $eids);
+                if(is_array($affiliatedents)) {
+                    $eids = array_map(
+                            function($e) {
+                        return $e->eid;
+                    }, $affiliatedents);
+                    $eidsdup = $eids;
+                    $eids = array_combine($eidsdup, $eidsdup);
+                    $ents = array_intersect_key($ents, $eids);
+                }
+                else {
+                    unset($ents);
+                }
             }
             if(is_array($ents)) {
                 $repids = get_repids($ents);
@@ -521,7 +528,7 @@ else {
                         if($assignedrep->rpid == 0) {
                             continue;
                         }
-                        $entities[] = $assignedrep->get_entity();
+                        $entities[$assignedrep->eid] = $assignedrep->get_entity();
                         $entitienames[] = $assignedrep->get_entity()->get_displayname();
                     }
                 }
@@ -671,9 +678,7 @@ else {
                                 }
                                 if(is_array($entities)) {
                                     $affnames = array();
-                                    foreach($entities as $entity) {
-                                        $affiliatedents = AffiliatedEntities::get_data(array('eid' => $entity->eid), array('returnarray' => true));
-                                    }
+                                    $affiliatedents = AffiliatedEntities::get_data(array('eid' => array_keys($entities)), array('returnarray' => true));
                                     if(is_array($affiliatedents)) {
                                         foreach($affiliatedents as $affiliatedent) {
                                             $affnames[] = $affiliatedent->get_affiliate()->get_displayname();

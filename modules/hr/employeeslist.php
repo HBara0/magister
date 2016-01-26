@@ -180,7 +180,7 @@ else {
 
         $query = $db->query("SELECT u.uid, CONCAT(firstName, ' ', lastName) as fullname
 						FROM ".Tprefix."users u JOIN ".Tprefix."affiliatedemployees a ON (a.uid=u.uid)
-						WHERE a.affid={$main_affiliate} AND isMain=1 AND u.gid!=7
+						WHERE a.affid={$main_affiliate} AND isMain=1 
 						ORDER BY fullname ASC");
         while($user = $db->fetch_array($query)) {
             $users[$user['uid']] = $user['fullname'];

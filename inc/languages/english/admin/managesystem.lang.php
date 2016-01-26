@@ -29,4 +29,5 @@ $lang['save'] = 'Save';
 $lang['table'] = 'Table';
 $lang['fillrequiredfields'] = 'Fill Required Fields';
 $lang['successfullysaved'] = 'Successfully Saved';
+$lang['addwindow'] = 'Add Window';
 ?>

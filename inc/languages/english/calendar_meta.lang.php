@@ -91,4 +91,5 @@ $lang['eventcancelledsubject'] = '{1} Event Has Been Cancelled';
 $lang['eventcancelledmessage'] = '{1} Event From {2} To {3} Has Been Cancelled';
 $lang['unspecifieddates'] = 'Unspecified From or To Dates';
 $lang['featureevents'] = 'Feature Event';
+$lang['planyourtripforevent'] = 'You Can Plan Your Trip From Today On OCOS By Clicking On The Link';
 ?>

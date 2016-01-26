@@ -157,110 +157,129 @@ $lang['minimizemaximize'] = 'Minimize/Maximize';
 $lang['makesuretochooseandclick'] = 'Please Choose One Way or Round-trip';
 $lang['maxnight'] = 'Maximum Nights';
 
-$lang['hotelpolicy'] = '<b>Hotels: </b>When hotel stays are required, care should be taken to control costs. Whenever possible, the employee
-must stay in one of Orkila’s approved hotels (list is available on OCOS), which are hotels close to Orkila’s or
-our partners’ offices. Exceptions can be made in such cases where preferred hotels are far from the desired
-location of meetings or fully booked. Exceptions, when needed, should be approved via the OCOS travel
-planning process.<br/>
+$lang['hotelpolicy'] = '<b>Hotels & Temporary Housing </b><br/>
+<b>Hotels:</b> When hotel stays are required, care should be taken to control costs. Whenever possible, the employee must stay
+in one of Orkila’s approved hotels (list is available on OCOS), which are hotels close to Orkila’s or our partners’ offices.
+Exceptions can be made in such cases where preferred hotels are far from the desired location of meetings or fully booked.
+Exceptions, when needed, should be approved via the OCOS travel planning process.<br/>
 Another option is to rent an apartment on AirBnb (www.airbnb.com). This could be the preferred option if
 you are travelling as a group.<br/><br/>
 Whenever possible, hotel rooms should be booked with breakfast included to minimise costs.<br/><br/>
 Additional room costs resulting from family or other non-business companions are not reimbursable. When
 traveling early to a location or staying beyond the needs of a project for personal reasons, extra hotel nights
 beyond those required cannot be expensed.<br/><br/>
-A receipted, itemized statement furnished by the hotel is required for all hotel expenses. Summary statements
-provided by credit card companies will not be accepted as backup for hotel reimbursement.
-Moreover, hotel charges must be segregated by type of expenditure: accommodation (including applicable
-taxes), meal charges, etc. The detailed hotel receipt is required for reimbursement of hotel expenses.
+A receipted, itemized statement furnished by the hotel is required for all hotel expenses. Summary statements provided by credit card companies will not be accepted as backup for hotel reimbursement. <br/>
+Moreover, hotel charges must be segregated by type of expenditure: accommodation (including applicable taxes), meal
+charges, etc. The detailed hotel receipt is required for reimbursement of hotel expenses.
 <br/><br/>
-<b>Temporary Housing:</b> Overseas employees on projects of longer duration assignments (>6 weeks) should
-proactively discuss with their manager the option of renting an apartment in lieu of utilizing hotels';
+<b>Temporary Housing:</b> Overseas employees on projects of longer duration assignments (>6 weeks) should proactively
+discuss with their manager the option of renting an apartment in lieu of utilizing hotels.';
 
 
 $lang['transppolicy'] = '<b>Air Travel & Train Transportation</b><br/>
-You are required to book your tickets as soon as possible, i.e. as soon as the meeting is confirmed. If it is long
-in advance and the meeting date might be changed, then you are advised to book exchangeable tickets.
-Per this Orkila policy, commercial flights are to be booked in coach class. Search engines such as
-www.kayak.com or Google Flight are recommended in order to find the cheapest option, as search results
-will include “low cost” companies.<br/>
-In addition, airfare costs in excess of the lowest available airfare are not allowable except when such
-accommodations would:<br/>
+You are required to book your tickets as soon as possible, i.e. as soon as the meeting is confirmed. If it is long in advance and the meeting date might be changed, then you are advised to book exchangeable tickets.<br/>
+Per this Orkila policy, commercial flights are to be booked in coach class. Search engines such as www.kayak.com or Google Flight are recommended in order to find the cheapest option, as search results will include “low cost” companies.<br/>
+In addition, airfare costs in excess of the lowest available airfare are not allowable except when such accommodations would: <br/>
 - Require travel at unreasonable hours<br/>
 - Result in excessive duration of travel<br/>
-To reiterate, no employee may travel in business class. Exceptions can be made, but a business case must be
-made. In the event that a business case exists for an exception, this should be addressed with the COO
-(Christophe Sacy) and CFO (Audrey Sacy) via the OCOS leaves discussions or by email prior to the booking
-of travel.<br/>
-Early Departure or Late Return: Employees may elect to fly to a work location prior to the date required or
-remain in the location longer for personal reasons provided that the resulting airfare is no higher than the
-airfare for the dates implied by project needs. This also assumes that no disruption is made to the employee’s
-work. Additional costs incurred for early departure or late return are not reimbursable.<br/><br/>
+To reiterate, no employee may travel in business class. Exceptions can be made, but a business case must be made. In the
+event that a business case exists for an exception, this should be addressed with the COO (Christophe Sacy) and CFO
+(Audrey Sacy) via the OCOS leaves discussions or by email prior to the booking of travel.<br/>
+Early Departure or Late Return: Employees may elect to fly to a work location prior to the date required or remain in the
+location longer for personal reasons provided that the resulting airfare is no higher than the airfare for the dates implied by project needs.
+This also assumes that no disruption is made to the employee’s work. Additional costs incurred for early departure or late return are not reimbursable.<br/>
+It is strongly discouraged to have senior employees of the same department together on the same aircraft or on extended automobile trips.<br/><br/>
 <b>Car Rentals, Taxis and Public Transportation</b><br/>
-Public Transportation: When traveling to a city with good public transportation, this should be the main
-transportation used and taxis will not be permitted.<br/>
-Car Rentals: When an individual is in a location for an extended period of time (greater than a week), rental
-cars should be the primary means of travel. Any employee using a car for extended periods of time should
-explore the option of a long-term rental agreement to reduce costs (eg. www.autoeurope.com).<br/>
-Taxis: Taxis should only be used if they are shown to be more cost effective than both public transportation
-and rental cars (eg. less than parking fees would be if the rented car was used and parked; or if more than 3
-employees sharing a taxi would be cheaper than other means of transportation).<br/>
-At no time should personal mileage be expensed when a rental car is also charged. Fuel consumption related
-to business travels may be expensed, however fuel associated with personal travel outside the needs of
-business activities should not be expensed and will not be reimbursed.<br/>';
+Public Transportation: When traveling to a city with good public transportation, this should be the main transportation
+used and taxis will not be permitted.<br/>
+Car Rentals: When an individual is in a location for an extended period of time (greater than a week), rental cars should
+be the primary means of travel. Any employee using a car for extended periods of time should explore the option of a
+long-term rental agreement to reduce costs (eg. www.autoeurope.com).<br/>
+Taxis: Taxis should only be used if they are shown to be more cost effective than both public transportation and rental
+cars (eg. less than parking fees would be if the rented car was used and parked; or if more than 3 employees sharing
+a taxi would be cheaper than other means of transportation).<br/>
+At no time should personal mileage be expensed when a rental car is also charged. Fuel consumption related to business
+travels may be expensed, however fuel associated with personal travel outside the needs of business activities should not be expensed and will not be reimbursed.<br/>';
 
 $lang['foodpolicies'] = '<b>Meals</b><br/>
     <ul>
-<li>Meals with Orkilians only:<br/> The meal allowance should not exceed $50 per full travel day for three meals. Tips
-are not reimbursable. All meals require an itemized receipt.<br/>
-If fewer than three meals per day are subject to allowance, amounts should not exceed the maximum
-reimbursement for the total of the eligible meals that day:<br/>
+<li>Meals with Orkilians only:<br/> The meal allowance should not exceed $50 per full travel day for three meals. Tips are tolerated up to 8% of the bill value. All meals require an itemized receipt.<br/>
+If fewer than three meals per day are subject to allowance, amounts should not exceed the maximum reimbursement for
+the total of the eligible meals that day:<br/>
 - Breakfast: $10<br/>
 - Lunch: $15<br/>
 - Dinner: $25<br/>
-For example, if a traveler book a room with breakfast included, then the eligible amount for lunch and dinner
-would total $40.<br/>
-Individuals may spend in excess of the meal limit if they choose, however they should only request
-reimbursement for the meal limit.<br/>
+For example, if a traveler books a room with breakfast included, then the eligible amount for lunch and dinner would total $40.<br/>
+Individuals may spend in excess of the meal limit if they choose, however they should only request reimbursement for the meal limit.<br/>
 Alcoholic beverages and mini-bar charges are not permitted and will not be reimbursed.<br/>
-The above-mentioned prices are valid for most of the countries people are travelling to. City exceptions might be added to
-this document at a later stage after Finance Committee approval.<br/>
+The above-mentioned prices are valid for most of the countries people are travelling to. City exceptions might be added to this document at a later stage after Finance Committee approval.<br/>
 Exceptions:<br/>
-• Luanda, Angola > Above limits +50%<br/>
+• Luanda, Angola > Above mentioned limits +50%<br/>
 • South Africa > Breakfast: ZAR100 - Lunch: ZAR150 - Dinner: ZAR250<br/></li>
 <li>Meals with clients or business partners:<br/>
 In the specific case where an employee is to invite clients or business partners for a meal, then limits and rules
 are lifted while remaining reasonable and appropriate. If requested by our guests, an alcoholic beverage
 might accompany the meal. Please refer to the Reporting Expenses section for more details.<br/></li>
 <li>Group meals:<br/>
-Group meals require that the most senior person pays and all participants are identified on the expense form.
-Seniority is measured in terms of relation to the employee’s management position or start date with the
-company (if of equal level).<br/></li>
+Group meals require that the most senior person pays and all participants are identified on the expense form. Seniority is measured in terms of relation to the employee’s management position or start date with the company (if of equal level).<br/></li>
 <li>Formal team events:<br/>
-Formal team events may be subject to different limits, but require the approval of the event manager prior to
-the event. Events must be business related and cannot be extravagant.</li></ul>';
+Formal team events may be subject to different limits, but require the approval of the event manager prior to the event. Events must be business related and cannot be extravagant.</li></ul>';
 
 $lang['addexpensespolicies'] = '<b>Mobile Phones</b><br/>
-Employees who travel frequently may be issued a company cell phone through a preferred supplier. Any
-phone or SIM card purchased by Orkila is the property of the Firm. Management discretion should be used
-when monthly charges exceed approved plans.<br/>
-All company mobile devices should have access to wireless networks; free applications such as Avaya or
-Skype should be used in priority. If the employee uses an Iphone, Facetime or Whatsapp should be used to
-avoid international calls charges. When abroad, land lines should be used for local calls whenever feasible to
-reduce mobile phone charges. If staying more than 2 days in a specific country, the purchase of a local
-prepaid SIM card should be the preferred option.<br/>
+Employees who travel frequently may be issued a company cell phone through a preferred supplier. Any phone or SIM
+card purchased by Orkila is the property of the Firm. Management discretion should be used when monthly charges
+exceed approved plans. <br/>
+All company mobile devices should have access to wireless networks; free applications such as Avaya or Skype should
+be used in priority. If the employee uses an Iphone, Facetime or Whatsapp should be used to avoid international calls
+charges. When abroad, land lines should be used for local calls whenever feasible to reduce mobile phone charges. If
+staying more than 2 days in a specific country, the purchase of a local prepaid SIM card should be the preferred option.<br/>
 Personal international calls made from a hotel phone will not be reimbursed.<br/><br/>
 <b>Internet connectivity</b><br/>
-Depending on your country of residence, we might offer corporate phone lines with unlimited roaming
-services. If roaming services are not included in the data plan, then roaming should be disabled before
-travelling to avoid excessive roaming charges.<br/>
-If the employee does not have a corporate cell phone with included unlimited roaming access, internet
-connectivity in hotel, airports, and other public places will be reimbursed. Employees should be mindful of
-security issues surrounding wireless connectivity. Please email the IT Service Desk at it.support@orkila.com
-for more information.<br/><br/>
+Depending on your country of residence, we might offer corporate phone lines with unlimited roaming services. If
+roaming services are not included in the data plan, then roaming should be disabled before travelling to avoid excessive
+roaming charges.<br/>
+If the employee does not have a corporate cell phone with included unlimited roaming access, internet connectivity in
+hotel, airports, and other public places will be reimbursed. Employees should be mindful of security issues surrounding
+wireless connectivity. Please email the IT Service Desk at it.support@orkila.com for more information.<br/><br/>
 <b>Hotel Laundry and Dry Cleaning</b><br/>
-Laundry charges will not be reimbursed, except in the two following scenarios: when an individual is
-traveling for an extended period of time (greater than a week) or if a business trip is prolonged while already
-traveling, then one laundry charge will be allowed.<br/>';
+Laundry charges will not be reimbursed, except in the two following scenarios:  when an individual is traveling for an extended period of time (greater than a week) or if a business trip is prolonged while already traveling, then one laundry charge will be allowed.<br/><br/>
+<b>Other reimbursable expenses</b>
+The following are considered to be reimbursable when traveling on business:<br/>
+- Business visa or vaccination required for work-related travels<br/>
+- Parking and tolls<br/>
+- Shipping of Orkila materials not carried by the traveler<br/>
+- Business expense such as copying and fax<br/>
+- Currency conversion fees<br/>
+- Tips are tolerated up to 8% of the bill value<br/>
+<b>What will NOT be reimbursed</b><br/>
+- Food in excess of daily allowance<br/>
+- Alcohol <br/>
+- Mini-bar charges<br/>
+- Hotel Gym or Spa charges<br/>
+- Health club services, e.g., massages, manicures, personal trainers<br/>
+- In-room charges for movies<br/>
+- Laundry (please see details above regarding exceptions)<br/>
+- Excessive entertainment costs<br/>
+- Personal entertainment <br/>
+- Sightseeing tours<br/>
+- Museums & cinemas <br/>
+- Newspapers & magazines<br/>
+- Flight insurance<br/>
+- Personal services (barber, shoe shines, etc.)<br/>
+- Personal purchases (suitcase, etc.)<br/>
+- Repair to personal cars<br/>
+- Loss of personal property<br/>
+- Traffic violation & parking fines<br/>
+- Travel expenses or meals incurred by spouses or partners of employees, traveling with the employee for personal reasons<br/>
+- Taxis or other transportation to and from personal events<br/>
+- Commuting expense between your home and the office<br/>
+- Airline club memberships<br/>
+- Fees or dues for airline VIP clubs and hotel loyalty or frequent-stayer programs <br/>
+- Upgrades<br/>
+- Cost of business clothing<br/>
+- Hands-free devices, i.e. Bluetooth headsets.<br/>
+This list is not all-inclusive and there may be additional or similar non-reimbursable expenses, which are not listed. Please contact the CFO or your local finance team if you have questions. '
+;
 
 
 $lang['hotelpricewarning'] = 'Average hotel price exceeded by more than 10%';
@@ -314,4 +333,5 @@ $lang['segmentoverview'] = 'Segment Overview';
 $lang['purposes'] = 'Purposes';
 $lang['internal'] = 'Internal';
 $lang['external'] = 'External';
+$lang['commentapprovereject'] = 'Approve/Comment on Leave';
 ?>

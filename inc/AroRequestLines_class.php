@@ -82,7 +82,7 @@ class AroRequestLines extends AbstractClass {
         /* Get Aro request order type - End */
 
         if(isset($data['quantity']) && !empty($data['quantity'])) {
-            if((isset($data['qtyPotentiallySold']) && !empty($data['qtyPotentiallySold'])) || ($data['qtyPotentiallySold'] == 0)) {
+            if($data['quantity'] != 0 && ((isset($data['qtyPotentiallySold']) && !empty($data['qtyPotentiallySold'])) || ($data['qtyPotentiallySold'] == 0))) {
                 $new_data['qtyPotentiallySoldPerc'] = round(($data['qtyPotentiallySold'] / $data['quantity']) * 100, 3);
             }
         }
@@ -110,6 +110,7 @@ class AroRequestLines extends AbstractClass {
                 $new_data['grossMarginAtRiskRatio'] = 0;
             }
         }
+        //  $new_data['riskRatioAmount'] = round(($new_data['costPriceAtRiskRatio'] * $data['quantity']), 2);
         if($purchasetype->isPurchasedByEndUser == 1) {
             $new_data['daysInStock'] = 0;
             $new_data['qtyPotentiallySold'] = 0;
@@ -135,8 +136,8 @@ class AroRequestLines extends AbstractClass {
 
     private function calculate_netmargin($purchasetype, $data = array(), $newdata = array(), $parms = array()) {
         $parmsfornetmargin['YearDays'] = 365;
+        $netmargin = (($newdata['grossMarginAtRiskRatio'] - ((($data['quantity'] * $newdata['affBuyingPrice'] * $parms['localBankInterestRate']) / $parmsfornetmargin['YearDays']) * $parms['localPeriodOfInterest'])) * $data['exchangeRateToUSD']);
         if($parms['warehousingPeriod'] != 0 && $parms['warehousingRate'] != 0 && $parms['totalQty'] != 0) {
-            $netmargin = (($newdata['grossMarginAtRiskRatio'] - ((($data['quantity'] * $newdata['affBuyingPrice'] * $parms['localBankInterestRate']) / $parmsfornetmargin['YearDays']) * $parms['localPeriodOfInterest'])) * $data['exchangeRateToUSD']);
             $netmargin -= ((($parms['warehousingTotalLoad'] * $data['quantity']) / $parms['totalQty']) * ($data['daysInStock'] / $parms['warehousingPeriod']) * $parms['warehousingRate']);
         }
         if($purchasetype->isPurchasedByEndUser == 1) {
@@ -162,6 +163,7 @@ class AroRequestLines extends AbstractClass {
     }
 
     public function validate_requiredfields(array $data = array()) {
+        global $errorhandler, $lang;
         if(empty($data)) {
             $data = $this->data;
         }
@@ -169,6 +171,7 @@ class AroRequestLines extends AbstractClass {
             $required_fields = array('pid', 'quantity');
             foreach($required_fields as $field) {
                 if(empty($data[$field]) && $data[$field] != '0') {
+                    $errorhandler->record('Required fields', $lang->$field);
                     $this->errorcode = 2;
                     return;
                 }

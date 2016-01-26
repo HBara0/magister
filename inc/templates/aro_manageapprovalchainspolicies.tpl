@@ -12,7 +12,10 @@
                         $("div[id^='user_" + id[1] + "']").effect("highlight", {color: "#D6EAAC"}, 1500).find("input").first().focus().val("");
                     }
                 });
-
+                $(document).on('click', "img[id^='deletesection_']", function() {
+                    var id = $(this).attr('id').split("_");
+                    $('tr[id="' + id[1] + '"]').remove();
+                });
             });
         </script>
     </head>
@@ -61,6 +64,11 @@
                             <input name="chainpolicy[informGlobalPurchaseMgr]" id="chainpolicy_informGlobalPurchaseMgr" type="checkbox" value="1" {$checked[informGlobalPurchaseMgr]}> {$lang->inform} {$lang->globalpurchasemgr}
                         </td>
                     </tr>
+                    <tr>
+                        <td colspan="2">
+                            <input name="chainpolicy[informGlobalCommercials]" id="chainpolicy_informGlobalCommercials" type="checkbox" value="1" {$checked[informGlobalCommercials]}> {$lang->inform} {$lang->intermediarycommercials}
+                        </td>
+                    </tr>
                     <tr><td style="vertical-align:top">{$lang->selectemployee}</td>
                         <td style="vertical-align: top;">{$chainpolicy[informInternalUsers_output]}</td>
                     </tr>
@@ -107,7 +115,7 @@
                         </td>
                     </tr>
                 </table>
-                <input type="submit" id="perform_aro/manageapprovalchainspolicies_Button" value="Save" class="button"/>
+                <input type="submit" id="perform_aro/manageapprovalchainspolicies_Button" value="Save" class="button" style="{$display[save]}"/>
             </form>
             <div id="perform_aro/manageapprovalchainspolicies_Results"></div>
         </td>

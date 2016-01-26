@@ -49,12 +49,13 @@ class AroOrderCustomers extends AbstractClass {
     }
 
     public function create(array $data) {
-        global $db, $core, $log;
+        global $db, $core, $errorhandler, $log;
         if(!$this->validate_requiredfields($data)) {
             $required_fields = array('cid');
             foreach($required_fields as $field) {
                 $data[$field] = $core->sanitize_inputs($data[$field], array('removetags' => true, 'allowable_tags' => '<blockquote><b><strong><em><ul><ol><li><p><br><strike><del><pre><dl><dt><dd><sup><sub><i><cite><small>'));
                 if(is_empty($data[$field]) && $data[$field] != 0) {
+                    $errorhandler->record('Required fields', $field);
                     $this->errorcode = 2;
                     return false;
                 }
@@ -93,10 +94,12 @@ class AroOrderCustomers extends AbstractClass {
     }
 
     protected function validate_requiredfields(array $data = array()) {
+        global $errorhandler, $lang;
         if(is_array($data)) {
             $required_fields = array('cid', 'ptid');
             foreach($required_fields as $field) {
                 if(empty($data[$field]) && $data[$field] != '0') {
+                    $errorhandler->record('Required fields', $lang->$field);
                     $this->errorcode = 2;
                     return true;
                 }

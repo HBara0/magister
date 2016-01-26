@@ -7,8 +7,6 @@
 $lang['choices'] = 'Choices';
 $lang['choicesseperator'] = 'Choices Separator';
 $lang['choices_tip'] = 'You can add multiple choices each on new line. To assign value for the choice, separate it with semi-column (;), ex: choice1;value1';
-$lang['commentsfieldsize'] = 'Comments Field Size';
-$lang['commentsfieldsize_tip'] = 'Character number of the comments field';
 $lang['commentsfieldtitle'] = 'Comments Field Title';
 $lang['commentsfieldtitle_tip'] = 'Title for the comments field';
 $lang['duplicationquestionname'] = 'Two or more questions in this template use the same name';
@@ -30,4 +28,9 @@ $lang['surveytemplateexists'] = 'A template with the same name already exsits';
 $lang['surveytemplatetitle'] = 'Title';
 $lang['validationcriterion'] = 'Validation Criterion';
 $lang['validationtype'] = 'Validation Type';
+$lang['createbasedonanother'] = 'Create based on another template';
+$lang['loadquestins'] = 'Load questions';
+$lang['sectiontemplatealreadyused'] = 'Section Template Already Used';
+$lang['commentsfieldrownumber'] = 'Comments Field Row Number';
+$lang['commentsfieldsize_tip'] = 'The Number Of Rows That Will Determine The Size Of The Comments Field';
 ?>

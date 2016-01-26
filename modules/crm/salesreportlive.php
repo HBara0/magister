@@ -38,18 +38,19 @@ if(!$core->input['action']) {
 else {
     if($core->input['action'] == 'do_perform_salesreportlive') {
         require_once ROOT.INC_ROOT.'integration_config.php';
-
+        $unspecifiedprod_supp[0] = 0;
         if($core->input['type'] == 'endofmonth') {
-            $core->input['affids'][] = $core->user['mainaffiliate'];
-            //            $query_date = '2015-01-04';
+            //   $core->input['affids'][] = $core->user['mainaffiliate'];
             $core->input['fromDate'] = date('Y-m-d', strtotime('first day of last month')); //date('Y-01-01', strtotime($query_date));
             $core->input['toDate'] = date('Y-m-d', strtotime('last day of last month')); // date('Y-01-31', strtotime($query_date));
+            $reporttype = $core->input['type'];
             $core->input['type'] = 'analytic';
+            $core->input['reportCurrency'] = 840;
         }
+
         if(empty($core->input['affids'])) {
             output_xml('<status></status><message>No Affiliate selected</message>');
         }
-
         if(is_empty($core->input['fromDate'])) {
             output_xml('<status></status><message>Please specify the From date</message>');
         }
@@ -67,7 +68,11 @@ else {
         if(!empty($core->input['toDate'])) {
             $period['to'] = strtotime($core->input['toDate']);
         }
-
+        $from = date('Y-m-d 00:00:00', $period['from']);
+        $lmfrom = date_create($from.' first day of last month');
+        $lmonth_period['from'] = strtotime($lmfrom->date);
+        $lmto = date_create($from.' last day of last month');
+        $lmonth_period['to'] = strtotime($lmto->date);
         if(is_array($core->input['affids'])) {
             foreach($core->input['affids'] as $affid) {
                 $affiliate = new Affiliates($affid, false);
@@ -100,12 +105,12 @@ else {
         }
 
         $filters = "c_invoice.ad_org_id IN ('".implode("','", $orgs)."') AND docstatus NOT IN ('VO', 'CL') AND (dateinvoiced BETWEEN '".date('Y-m-d 00:00:00', $period['from'])."' AND '".date('Y-m-d 00:00:00', $period['to'])."')";
-        if(count($permissions['uid']) == 1 && in_array($core->user['uid'], $permissions['uid']) && isset($permissions['spid'])) {
-            $intuser = $core->user_obj->get_integrationObUser();
-            if(is_object($intuser)) {
-                $filters .= ' AND (salesrep_id=\''.$intuser->get_id().'\' OR salesrep_id IS NULL)';
-            }
-        }
+//        if(count($permissions['uid']) == 1 && in_array($core->user['uid'], $permissions['uid']) && isset($permissions['spid'])) {
+//            $intuser = $core->user_obj->get_integrationObUser();
+//            if(is_object($intuser)) {
+//                $filters .= ' AND (salesrep_id=\''.$intuser->get_id().'\' OR salesrep_id IS NULL)';
+//            }
+//        }
 
         if(isset($core->input['reportCurrency']) && !empty($core->input['reportCurrency'])) {
             $currency_obj = Currencies::get_data(array('numCode' => $core->input['reportCurrency']));
@@ -129,6 +134,10 @@ else {
                 $invoice->month = date('M, Y', $invoice->dateinvoiceduts);
                 $invoice->currency = $invoice->get_currency()->iso_code;
                 $invoice->usdfxrate = $core->input['fxrate'];
+
+                if($invoice->currency == 'GHC') {
+                    $invoice->currency = 'GHS';
+                }
                 if(empty($core->input['fxrate'])) {
                     $usdcurrency_obj = new Currencies('USD');
                     $invoice->usdfxrate = $usdcurrency_obj->get_fxrate_bytype($core->input['fxtype'], $invoice->currency, array('from' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 01:00'), 'to' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 24:00'), 'year' => date('Y', $invoice->dateinvoiceduts), 'month' => date('m', $invoice->dateinvoiceduts)), array('precision' => 4));
@@ -140,15 +149,26 @@ else {
                     $invoice->localfxrate = 1;
                 }
                 if(empty($invoice->localfxrate)) {
-                    output_xml('<status>true</status><message>No local exchange rate<br/> From '.$invoice->currency.' to '.$currency_obj->alphaCode.' in the invoice period '.date('Y-m-d', $invoice->dateinvoiceduts).' </message>');
-                    exit;
-                    $invoice->localfxrate = 0;
+                    $core->input['fxtype'] = "ylast";
+
+                    $invoice->localfxrate = $currency_obj->get_fxrate_bytype($core->input['fxtype'], $invoice->currency, array('from' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 01:00'), 'to' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 24:00'), 'year' => date('Y', $invoice->dateinvoiceduts), 'month' => date('m', $invoice->dateinvoiceduts)), array('precision' => 4), $currency_obj->alphaCode);
+                    if(empty($invoice->localfxrate)) {
+                        output_xml('<status>true</status><message>No local exchange rate<br/> From '.$invoice->currency.' to '.$currency_obj->alphaCode.' in the invoice period '.date('Y-m-d', $invoice->dateinvoiceduts).' </message>');
+                        exit;
+                        $invoice->localfxrate = 0;
+                    }
                 }
 
                 if(empty($invoice->usdfxrate)) {
-                    output_xml('<status>true</status><message>no usd exchange rate '.$invoice->currency.'</message>');
-                    exit;
-                    $invoice->usdfxrate = 0;
+                    $core->input['fxtype'] = "ylast";
+
+                    $usdcurrency_obj = new Currencies('USD');
+                    $invoice->usdfxrate = $usdcurrency_obj->get_fxrate_bytype($core->input['fxtype'], $invoice->currency, array('from' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 01:00'), 'to' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 24:00'), 'year' => date('Y', $invoice->dateinvoiceduts), 'month' => date('m', $invoice->dateinvoiceduts)), array('precision' => 4));
+                    if(empty($invoice->usdfxrate)) {
+                        output_xml('<status>true</status><message>no usd exchange rate '.$invoice->currency.' in the invoice period '.date('Y-m-d', $invoice->dateinvoiceduts).' </message>');
+                        exit;
+                        $invoice->usdfxrate = 0;
+                    }
                 }
                 if(!is_array($invoicelines)) {
                     continue;
@@ -186,8 +206,9 @@ else {
                     }
 
                     $invoiceline->productname = $product->name;
-                    if(empty($invoiceline->suppliername) || strstr($invoice->bpartner_name, 'Orkila')) {
+                    if(empty($invoiceline->suppliername) || strstr($invoiceline->suppliername, 'Orkila') || strstr($invoiceline->bpartner_name, 'Orkila')) {
                         $invoiceline->suppliername = 'Unspecified';
+                        $unspecifiedprod_supp[] = $product->name;
                     }
 
                     $invoiceline->uom = $invoiceline->get_uom()->uomsymbol;
@@ -309,7 +330,11 @@ else {
                     }
                 }
             }
-            $salesreport_header = '<h1>'.$lang->salesreport.'<small><br />'.$lang->{$core->input['type']}.'</small><br />Values are in Thousands <small>Local Currency (K '.$currency_obj->alphaCode.')</small></h1>';
+            $salesreport_header = '<h1>'.$lang->salesreport.'<small><br />'.$lang->{$core->input['type']}.'</small><br />Values are in Thousands';
+            if($reporttype != 'endofmonth') {
+                $salesreport_header .= '<small>Local Currency';
+            }
+            $salesreport_header .= '(K '.$currency_obj->alphaCode.')</small></h1>';
             $salesreport_header .= '<p><em>The report might have issues in the cost information. If so please report them to the ERP Team.</em></p><br/>';
 
 
@@ -324,7 +349,11 @@ else {
                 $required_fields = array('qtyinvoiced', 'priceactual', 'linenetamt', 'purchaseprice', 'costlocal', 'grossmargin', 'grossmarginperc', 'netmargin', 'marginperc');
 
                 if($core->input['type'] == 'analytic') {
-                    $current_year = date('Y', TIME_NOW);
+                    $current_year = date('Y', $period['to']);
+
+                    if(date('m') == '01' && $reporttype == 'endofmonth') {
+                        $current_year = date('Y') - 1;
+                    }
                     $required_tables = array('segmentsummary' => array('segment'), 'salesrepsummary' => array('salesrep', 'segment'), 'suppliersummary' => array('suppliername'), 'customerssummary' => array('customername', 'segment'));
 
                     $yearsummary_filter = "EXISTS (SELECT c_invoice_id FROM c_invoice WHERE c_invoice.c_invoice_id=c_invoiceline.c_invoice_id AND issotrx='Y' AND ad_org_id IN ('".implode("','", $orgs)."') AND docstatus NOT IN ('VO', 'CL') AND (dateinvoiced BETWEEN '".date('Y-m-d 00:00:00', strtotime((date('Y', TIME_NOW) - 2).'-01-01'))."' AND '".date('Y-m-d 00:00:00', $period['to'])."'))";
@@ -334,7 +363,7 @@ else {
                     $mdata = $invoicelines->get_data_byyearmonth($yearsummary_filter, array('reportcurrency' => $currency_obj->alphaCode, 'fxtype' => $core->input['fxtype']));
 
                     if(isset($core->input['generatecharts']) && $core->input['generatecharts'] == 1) {
-                        $classifications = $invoicelines->get_classification($mdata['dataperday'], $period, array('reporttype' => 'endofmonth'));
+                        $classifications = $invoicelines->get_classification($mdata['dataperday'], $period, array('reporttype' => $reporttype));
                     }
 
                     $monthdata = $mdata['salerep'];
@@ -397,7 +426,7 @@ else {
                         }
 
                         if(is_array($classifications) && (isset($core->input['generatecharts']) && $core->input['generatecharts'] == 1)) {
-                            $classifications_output = $invoicelines->parse_classificaton_tables($classifications);
+                            $classifications_output = $invoicelines->parse_classificaton_tables($classifications, array('reporttype' => $reporttype));
                         }
 //                    $invoicelinesdata = new IntegrationOBInvoiceLine(null, $integration->get_dbconn());
 //                    $yearsumrawtotals = $invoicelinesdata->get_aggreateddata_byyearmonth(null, $yearsummary_filter." AND c_invoice.issotrx='Y'");
@@ -516,22 +545,54 @@ else {
                 }
 
 
-                $tabletypes = array('mainsummaytables', 'ytdsummarytables');
+                $tabletypes[] = 'mainsummaytables';
+                if($reporttype == 'endofmonth') {
+                    $tabletypes[] = 'ytdsummarytables';
+                    $tabletypes[] = 'lastmonthsummarytables';
+                }
 
                 if(is_array($required_tables)) {
+                    $from = date('Y-m-d 00:00:00', $period['from']);
+
                     foreach($tabletypes as $type) {
                         if($type == 'ytdsummarytables') {
-                            unset($rawdata);
-                            $ytddata = get_ytddata($core->input, $period, $orgs);
+                            $ytd_period = $period;
+                            $ytd_period['from'] = strtotime(date('Y-01-01 00:00:00', $period['from']));
+                            $ytddata = get_period_summarydata($core->input, $ytd_period, $orgs);
+                            if(is_array($ytddata['unspecifiedsupp'])) {
+                                $unspecifiedprod_supp = array_merge($unspecifiedprod_supp, $ytddata['unspecifiedsupp']);
+                            }
+                            unset($ytddata['unspecifiedsupp']);
+                        }
+                        if($type == 'lastmonthsummarytables') {
+                            $lmfrom = date_create($from.' first day of last month');
+                            $lmonth_period['from'] = strtotime($lmfrom->date);
+                            $lmto = date_create($from.' last day of last month');
+                            $lmonth_period['to'] = strtotime($lmto->date);
+                            $lastmonthdata = get_period_summarydata($core->input, $lmonth_period, $orgs);
+                            if(is_array($lastmonthdata['unspecifiedsupp'])) {
+                                $unspecifiedprod_supp = array_merge($unspecifiedprod_supp, $lastmonthdata['unspecifiedsupp']);
+                            }
+                            unset($lastmonthdata['unspecifiedsupp']);
                         }
                         foreach($required_tables as $tabledesc => $dimensions) {
-                            $rawdata = $data;
                             $dimensionalreport = new DimentionalData();
                             if($type == 'ytdsummarytables') {
+                                unset($rawdata);
                                 $rawdata = $ytddata;
                                 $lang->{$tabledesc} = $lang->{$tabledesc}.' YTD';
                             }
-
+                            elseif($type == 'lastmonthsummarytables') {
+                                unset($rawdata);
+                                $rawdata = $lastmonthdata;
+                                $lang->{$tabledesc} = $lang->{$tabledesc}.' Last Month';
+                            }
+                            else {
+                                $rawdata = $data;
+                            }
+                            if(!is_array($rawdata)) {
+                                continue;
+                            }
                             $dimensionalreport->set_dimensions(array_combine(range(1, count($dimensions)), array_values($dimensions)));
                             $dimensionalreport->set_requiredfields($required_fields);
                             $dimensionalreport->set_data($rawdata);
@@ -552,6 +613,8 @@ else {
                             $chart_data = $dimensionalreport->get_data();
                             //$chart = new Charts(array('x' => array($previous_year => $previous_year, $current_year => $current_year), 'y' => $barchart_quantities_values), 'bar');
                         }
+                        $cache->flush('totals');
+                        unset($dimensionalreport);
                     }
                 }
             }
@@ -630,7 +693,12 @@ else {
             $mailer = $mailer->get_mailerobj();
             $mailer->set_required_contenttypes(array('html'));
             $mailer->set_from(array('name' => 'OCOS Mailer', 'email' => $core->settings['maileremail']));
-            $mailer->set_subject('Sales Report '.$affiliate->name.' '.$core->input['fromDate'].' - '.$core->input['toDate']);
+            if($reporttype == 'endofmonth') {
+                $mailer->set_subject('Sales Report '.$affiliate->name.' '.date('F', strtotime($core->input['fromDate'])).' - '.date('y', strtotime($core->input['fromDate'])));
+            }
+            else {
+                $mailer->set_subject('Sales Report '.$affiliate->name.' '.$core->input['fromDate'].' - '.$core->input['toDate']);
+            }
             $mailer->set_message($salesreport);
 
             $finManager = $affiliate->get_financialemanager();
@@ -652,9 +720,9 @@ else {
             }
             $mailer->set_to($recipients);
 
-//            $mailer->set_to('zaher.reda@orkila.com');
-//            print_r($mailer->debug_info());
-//            exit;
+            $mailer->set_to('zaher.reda@orkila.com');
+            print_r($mailer->debug_info());
+            exit;
             $mailer->send();
             if($mailer->get_status() === true) {
                 $sentreport = new ReportsSendLog();
@@ -665,9 +733,34 @@ else {
             else {
                 error($lang->errorsendingemail);
             }
+            $unspecifiedprod_supp = array_filter($unspecifiedprod_supp);
+            if(is_array($unspecifiedprod_supp)) {
+                $message = 'The Supplier of each of the following products is unspecified:<br/>';
+                foreach($unspecifiedprod_supp as $product) {
+                    $message.=$product.'<br/>';
+                }
+                $email_data = array(
+                        'from' => 'ocos@orkila.com',
+                        'to' => 'support@ocos.orkila.com',
+                        'subject' => "Products with Unspecified Suppliers",
+                        'message' => $message,
+                );
+
+                $mailer = new Mailer();
+                $mailer = $mailer->get_mailerobj();
+                $mailer->set_type();
+                $mailer->set_from(array('email' => $email_data['from']));
+                $mailer->set_subject($email_data['subject']);
+                $mailer->set_message($email_data['message']);
+                $mailer->set_to($email_data['to']);
+                $mailer->send();
+//                $x = $mailer->debug_info();
+//                print_R($x);
+//                exit;
+            }
             unset($salesreport);
         }
-        else if($core->input['type'] == 'endofmonth') {
+        else {
             if(!is_array($core->input['affids']) || count($core->input['affids']) == 1) {
                 $finManager = $affiliate->get_financialemanager();
                 if(!is_object($finManager)) {
@@ -688,27 +781,24 @@ else {
                     $salesreport .= '<a href="index.php?reporttype=email&amp;'.http_build_query($core->input).'"><button class="button">Send by email</button></a>';
                 }
             }
-            eval("\$previewpage = \"".$template->get('crm_previewsalesreport')."\";");
-            output_xml('<status>true</status><message><![CDATA['.$previewpage.']]></message>');
         }
+        eval("\$previewpage = \"".$template->get('crm_previewsalesreport')."\";");
+        output_xml('<status>true</status><message><![CDATA['.$previewpage.']]></message>');
     }
 }
-function get_ytddata($input_data, $period, $orgs) {
+function get_period_summarydata($input_data, $period, $orgs) {
     global $core, $integration, $intgdb;
     $permissions = $core->user_obj->get_businesspermissions();
     if(!empty($input_data['spid'])) {
         $orderline_query_where = ' AND ime.localId IN ('.implode(',', $input_data['spid']).')';
     }
-
     if(!empty($input_data['pid'])) {
         $orderline_query_where .= ' AND imp.localId IN ('.implode(',', $input_data['pid']).')';
     }
-
     if(!empty($input_data['cid'])) {
         $query_where .= ' AND ime.localId IN ('.implode(',', $input_data['cid']).')';
     }
-
-    $filters = "c_invoice.ad_org_id IN ('".implode("','", $orgs)."') AND docstatus NOT IN ('VO', 'CL') AND (dateinvoiced BETWEEN '".date('Y-01-01 00:00:00', $period['from'])."' AND '".date('Y-m-d 00:00:00', $period['to'])."')";
+    $filters = "c_invoice.ad_org_id IN ('".implode("','", $orgs)."') AND docstatus NOT IN ('VO', 'CL') AND (dateinvoiced BETWEEN '".date('Y-m-d 00:00:00', $period['from'])."' AND '".date('Y-m-d 00:00:00', $period['to'])."')";
     if(count($permissions['uid']) == 1 && in_array($$input_data['uid'], $permissions['uid']) && isset($permissions['spid'])) {
         $intuser = $core->user_obj->get_integrationObUser();
         if(is_object($intuser)) {
@@ -716,11 +806,12 @@ function get_ytddata($input_data, $period, $orgs) {
         }
     }
 
+    $affiliate = new Affiliates($input_data['affids'], false);
+    $currency_obj = $affiliate->get_currency();
+
     if(isset($input_data['reportCurrency']) && !empty($input_data['reportCurrency'])) {
         $currency_obj = Currencies::get_data(array('numCode' => $input_data['reportCurrency']));
     }
-    //$integration = new IntegrationOB($intgconfig['openbravo']['database'], $intgconfig['openbravo']['entmodel']['client']);
-    //$intgdb = $integration->get_dbconn();
     $invoices = $integration->get_saleinvoices($filters);
     $cols = array('month', 'week', 'documentno', 'salesrep', 'customername', 'suppliername', 'productname', 'segment', 'uom', 'qtyinvoiced', 'priceactual', 'linenetamt', 'purchaseprice', 'unitcostlocal', 'costlocal', 'costusd', 'grossmargin', 'grossmarginusd', 'grossmarginperc', 'netmargin', 'netmarginusd', 'marginperc');
     if(is_array($invoices)) {
@@ -738,6 +829,9 @@ function get_ytddata($input_data, $period, $orgs) {
             $invoice->month = date('M, Y', $invoice->dateinvoiceduts);
             $invoice->currency = $invoice->get_currency()->iso_code;
             $invoice->usdfxrate = $input_data['fxrate'];
+            if($invoice->currency == 'GHC') {
+                $invoice->currency = 'GHS';
+            }
             if(empty($input_data['fxrate'])) {
                 $usdcurrency_obj = new Currencies('USD');
                 $invoice->usdfxrate = $usdcurrency_obj->get_fxrate_bytype($input_data['fxtype'], $invoice->currency, array('from' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 01:00'), 'to' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 24:00'), 'year' => date('Y', $invoice->dateinvoiceduts), 'month' => date('m', $invoice->dateinvoiceduts)), array('precision' => 4));
@@ -748,16 +842,27 @@ function get_ytddata($input_data, $period, $orgs) {
             else {
                 $invoice->localfxrate = 1;
             }
+
             if(empty($invoice->localfxrate)) {
-                output_xml('<status>true</status><message>No local exchange rate<br/> From '.$invoice->currency.' to '.$currency_obj->alphaCode.' in the invoice period '.date('Y-m-d', $invoice->dateinvoiceduts).' </message>');
-                exit;
-                $invoice->localfxrate = 0;
+                $core->input['fxtype'] = "ylast";
+
+                $invoice->localfxrate = $currency_obj->get_fxrate_bytype($core->input['fxtype'], $invoice->currency, array('from' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 01:00'), 'to' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 24:00'), 'year' => date('Y', $invoice->dateinvoiceduts), 'month' => date('m', $invoice->dateinvoiceduts)), array('precision' => 4), $currency_obj->alphaCode);
+                if(empty($invoice->localfxrate)) {
+                    output_xml('<status>true</status><message>No local exchange rate<br/> From '.$invoice->currency.' to '.$currency_obj->alphaCode.' in the invoice period '.date('Y-m-d', $invoice->dateinvoiceduts).' </message>');
+                    exit;
+                    $invoice->localfxrate = 0;
+                }
             }
 
             if(empty($invoice->usdfxrate)) {
-                output_xml('<status>true</status><message>no usd exchange rate '.$invoice->currency.'</message>');
-                exit;
-                $invoice->usdfxrate = 0;
+                $input_data['fxtype'] = "ylast";
+                $usdcurrency_obj = new Currencies('USD');
+                $invoice->usdfxrate = $usdcurrency_obj->get_fxrate_bytype($input_data['fxtype'], $invoice->currency, array('from' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 01:00'), 'to' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 24:00'), 'year' => date('Y', $invoice->dateinvoiceduts), 'month' => date('m', $invoice->dateinvoiceduts)), array('precision' => 4));
+                if(empty($invoice->usdfxrate)) {
+                    output_xml('<status>true</status><message>no usd exchange rate '.$invoice->currency.' in the invoice period '.date('Y-m-d', $invoice->dateinvoiceduts).' </message>');
+                    exit;
+                    $invoice->usdfxrate = 0;
+                }
             }
             if(!is_array($invoicelines)) {
                 continue;
@@ -795,22 +900,14 @@ function get_ytddata($input_data, $period, $orgs) {
                 }
 
                 $invoiceline->productname = $product->name;
-                if(empty($invoiceline->suppliername) || strstr($invoice->bpartner_name, 'Orkila')) {
+                if(empty($invoiceline->suppliername) || strstr($invoiceline->suppliername, 'Orkila') || strstr($invoiceline->bpartner_name, 'Orkila')) {
                     $invoiceline->suppliername = 'Unspecified';
+                    $data['unspecifiedsupp'][] = $product->name;
                 }
 
                 $invoiceline->uom = $invoiceline->get_uom()->uomsymbol;
                 $invoiceline->costlocal = $invoiceline->get_cost();
 
-//                if($currency_obj->alphaCode != $invoice->currency) {
-//                    if(!empty($invoice->localfxrate)) {
-//                        $invoiceline->costlocal = $invoiceline->costlocal / $invoice->localfxrate;
-//                    }
-//                    else {
-//                        unset($invoiceline);
-//                        continue;
-//                    }
-//                }
                 if($invoiceline->qtyinvoiced < 0) {
                     $invoiceline->costlocal = 0 - $invoiceline->costlocal;
                 }
@@ -919,7 +1016,6 @@ function get_ytddata($input_data, $period, $orgs) {
             }
         }
     }
-
     return $data;
 }
 

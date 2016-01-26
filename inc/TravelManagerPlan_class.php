@@ -507,6 +507,9 @@ class TravelManagerPlan {
         }
         foreach($segmentplan_objs as $segmentid => $segmentobj) {
             $sequence = $segmentobj->sequence;
+            if($sequence == 1) {
+                $segmentobj->fromDate = $this->get_leave()->fromDate;
+            }
             $delete_tabicon = '<span class="ui-icon ui-icon-close" id="deleteseg_'.$segmentid.'"role="presentation" title="Close">Remove Tab</span>';
 
             if($sequence == 1) {
@@ -568,10 +571,22 @@ class TravelManagerPlan {
                         elseif($affient_obj->get_type() == 'entity') {
                             $entityid = $affient_obj->primaryId;
                             $afent_checksum = $affient_obj->inputChecksum;
-                            $entityname = $affient_obj->get_entity()->get_displayname();
+                            $entity = $affient_obj->get_entity();
+                            $entityname = $entity->get_displayname();
+                            $entitysegments = $entity->get_segment_names();
+                            $segmententitysgments = TravelManagerPlanSegmentEntitySegments::get_column('psid', array(TravelManagerPlanAffient::PRIMARY_KEY => $affient_obj->{TravelManagerPlanAffient::PRIMARY_KEY}));
+                            if(is_array($entitysegments)) {
+                                foreach($entitysegments as $psid => $title) {
+                                    $selected = '';
+                                    if(is_array($segmententitysgments) && in_array($psid, $segmententitysgments)) {
+                                        $selected = 'selected="selected"';
+                                    }
+                                    $segmentsoptions .= "<option {$selected} value='{$psid}'>{$title}</option>";
+                                }
+                            }
                             eval("\$entities .= \"".$template->get('travelmanager_plantrip_createsegment_entities')."\";");
                             $entrowid++;
-                            unset($entityid, $entityname, $afent_checksum);
+                            unset($entityid, $segmentsoptions, $entityname, $afent_checksum);
                         }
                         elseif($affient_obj->get_type() == 'event') {
                             $ltpurpose = 'event';
@@ -683,7 +698,7 @@ class TravelManagerPlan {
                 $otherapprovedhotels = TravelManagerHotels::get_data('country='.$counrty_obj->coid.' AND city != '.$city_obj->ciid.' AND isApproved=1', array('returnarray' => true));
             }
             $leavedays = abs($segmentobj->toDate - $segmentobj->fromDate);
-            $leavedays = floor($leavedays / (60 * 60 * 24));
+            $leavedays = floor($leavedays / (60 * 60 * 24)) + 1;
             $hotelssegments_output .= $segmentobj->parse_hotels($sequence, $approvedhotels, $leavedays);
             if(is_array($otherapprovedhotels)) {
                 $hotelssegments_output.='<br /><a nohref="nohref" style="cursor:pointer;" id="countryhotels_'.$sequence.'_check"><div style="display:inline-block"><button type="button" class="button">Lookup Hotels In The Same Country</button></div></a>';
@@ -728,7 +743,7 @@ $("#anotheraff_otheraccomodations_'.$sequence.'_'.$otherhotel_checksum.'").hide(
             $currencies = array_filter(array_unique($val_currencies));
             $currencies_list = parse_selectlist('segment['.$sequence.'][tmhid]['.$otherhotel_checksum.'][currency]', '3', $currencies, '840', '', '', array('id' => 'currency_'.$sequence.'_'.$otherhotel_checksum.'_list'));
             $leavedays = abs($segmentobj->toDate - $segmentobj->fromDate);
-            $leavedays = floor($leavedays / (60 * 60 * 24));
+            $leavedays = floor($leavedays / (60 * 60 * 24)) + 1;
             eval("\$otherhotels_output = \"".$template->get('travelmanager_plantrip_segment_otherhotels')."\";");
             /* parse expenses --START */
             $segexpenses_ojbs = $segmentobj->get_expenses(array('simple' => false, 'returnarray' => true, 'order' => array('by' => 'tmeid', 'sort' => 'ASC')));
@@ -934,6 +949,12 @@ $("#anotheraff_otheraccomodations_'.$sequence.'_'.$otherhotel_checksum.'").hide(
         global $core, $lang;
         $message = $segment->parse_expensesummary();
         $approve_link = DOMAIN.'/index.php?module=travelmanager/viewplan&action=takeactionpage&pid='.$segment->tmpid.'&notify=user';
+        $leave = $segment->get_plan()->get_leave();
+        $employee = $leave->get_user()->get_displayname();
+        $message.='<span style="font-weight: bold; font-size: 14px;">'.$lang->employee.': '.$employee.'</span></br>
+                  <span style="font-weight: bold; font-size: 14px;">'.$lang->leavedetails.': '.$leave->get_displayname().'</span>'
+                .'<span style="font-weight: bold; font-size: 14px;">'.$lang->country.': '.$leave->get_country()->get_displayname().'</span>';
+
         $message.='<hr/><div><a  style="font: bold 11px Arial;
     text-decoration: none;
     background-color: #EEEEEE;

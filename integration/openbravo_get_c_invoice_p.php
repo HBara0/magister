@@ -1,4 +1,5 @@
 <?php
+exit;
 require '../inc/init.php';
 
 $period['from'] = '30 minutes ago';
@@ -12,8 +13,8 @@ $connection = pg_connect("host=localhost port=5432 dbname=openbrav_main user=ope
 
 /* Sync Products - START */
 //echo 'Product<br />';
-$query = pg_query("SELECT * 
-					FROM m_product 
+$query = pg_query("SELECT *
+					FROM m_product
 					WHERE ad_client_id='C08F137534222BD001345B7B2E8F182D'
 					AND (updated BETWEEN '".date('Y-m-d 00:00:00', strtotime($period['from']))."' AND '".date('Y-m-d 00:00:00', strtotime($period['to']))."')");
 $newdata = array();
@@ -35,8 +36,8 @@ while($product = pg_fetch_assoc($query)) {
 
 /* Sync Suppliers/Customers - START */
 //echo 'Vendors<br />';
-$query = pg_query("SELECT * 
-					FROM c_bpartner 
+$query = pg_query("SELECT *
+					FROM c_bpartner
 					WHERE ad_client_id='C08F137534222BD001345B7B2E8F182D' AND (iscustomer='Y' OR isvendor='Y')
 					AND (updated BETWEEN '".date('Y-m-d 00:00:00', strtotime($period['from']))."' AND '".date('Y-m-d 00:00:00', strtotime($period['to']))."')");
 $newdata = array();
@@ -65,7 +66,7 @@ $purchase_type = 'order';
 
 if($purchase_type == 'order') {
     $query = pg_query("SELECT o.c_order_id AS documentid, o.ad_org_id, o.dateordered AS documentdate, bp.name AS bpname, bp.c_bpartner_id, c.iso_code AS currency
-					FROM c_order o JOIN c_bpartner bp ON (bp.c_bpartner_id=o.c_bpartner_id) 
+					FROM c_order o JOIN c_bpartner bp ON (bp.c_bpartner_id=o.c_bpartner_id)
 					JOIN c_currency c ON (c.c_currency_id=o.c_currency_id)
 					WHERE o.ad_org_id='C08F137534222BD001345BAA60661B97' AND issotrx='N' AND docstatus = 'CO' AND ((dateordered BETWEEN '".date('Y-m-d 00:00:00', strtotime($period['from']))."' AND '".date('Y-m-d 00:00:00', strtotime($period['to']))."') OR (o.updated BETWEEN '".date('Y-m-d 00:00:00', strtotime($period['from']))."' AND '".date('Y-m-d 00:00:00', strtotime($period['to']))."'))");
 }
@@ -79,8 +80,8 @@ else {
 while($document = pg_fetch_assoc($query)) {
     if($purchase_type == 'order') {
         $documentline_query = pg_query("SELECT ol.*, c_orderline_id AS documentlineid, ol.qtyordered AS quantity, p.name AS productname, u.x12de355 AS uom
-							FROM c_orderline ol JOIN m_product p ON (p.m_product_id=ol.m_product_id) 
-							JOIN c_uom u ON (u.c_uom_id=p.c_uom_id) 
+							FROM c_orderline ol JOIN m_product p ON (p.m_product_id=ol.m_product_id)
+							JOIN c_uom u ON (u.c_uom_id=p.c_uom_id)
 							WHERE c_order_id='{$document[documentid]}'");
     }
     else {

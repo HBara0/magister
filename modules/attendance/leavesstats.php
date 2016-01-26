@@ -102,6 +102,7 @@ if(!$core->input['action']) {
 
     $number_stats = $db->num_rows($query);
     if($number_stats > 0) {
+        date_default_timezone_set('UTC');
         while($stats = $db->fetch_assoc($query)) {
             $row_class = alt_row($row_class);
             $stats['periodStart_output'] = date($core->settings['dateformat'], $stats['periodStart']);

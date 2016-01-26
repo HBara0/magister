@@ -30,6 +30,12 @@
                         <div style="display: table-cell; padding:5px;">{$product_list}</div>
                     </div>
                     <div style="display:table-row;">
+                        <div style="display: table-cell;">{$lang->isactive}</div>
+                        <div style="display: table-cell; padding:5px;">
+                            <input type="checkbox" name="supplier[isActive]" {$cheked_isactive} value="1">
+                        </div>
+                    </div>
+                    <div style="display:table-row;">
                         <div style="display: table-cell;">{$lang->country}</div>
                         <div style="display: table-cell; padding:5px;">{$countries_list}</div>
                     </div>

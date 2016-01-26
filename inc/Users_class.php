@@ -889,6 +889,9 @@ class Users extends AbstractClass {
         if($this->usergroup['canViewAllCust'] == 1) {
             unset($permissions['cid']);
         }
+        if($this->usergroup['canViewAllCust'] == 1 && $this->usergroup['canViewAllSupp']) {
+            unset($permissions['eid']);
+        }
         if($this->usergroup['canViewAllEmp'] == 1) {
             unset($permissions['uid']);
         }
@@ -904,7 +907,8 @@ class Users extends AbstractClass {
      */
     public function get_integrationObUser() {
         global $integration;
-        if(class_exists('IntegrationOB', true)) {
+        if(class_exists('
+        IntegrationOB', true)) {
             if(!empty($this->integrationOBId)) {
                 return new IntegrationOBUser($this->integrationOBId, $integration->get_dbconn());
             }
@@ -983,6 +987,32 @@ class Users extends AbstractClass {
             $users = array_unique(array_merge($users, $additional_reportingto));
         }
         return $users;
+    }
+
+    public function generate_apikey() {
+        return md5($this->data['uid'].$this->data['username'].$this->data['salt']);
+    }
+
+    public function save_apikey() {
+        global $db;
+        $key = $this->generate_apikey();
+        if($key) {
+            $db->update_query(self::TABLE_NAME, array('apiKey' => $key), self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
+        }
+    }
+
+    public function parse_qrperformance_link($year, $quarter, $attributes_param = array('target' => '_blank'), $options = array()) {
+        if(is_array($attributes_param)) {
+            foreach($attributes_param as $attr => $val) {
+                $attributes .= $attr.'="'.$val.'"';
+            }
+        }
+
+        if(!isset($options['outputvar'])) {
+            $options['outputvar'] = 'displayName';
+        }
+
+        return '<a href="index.php?module=reporting/performance&year='.$year.'&quarter='.$quarter.'&uid='.$this->data[self::PRIMARY_KEY].'&excludecharts=1" '.$attributes.'>'.$this->data[$options['outputvar']].'</a>';
     }
 
 }

@@ -21,7 +21,7 @@ class Events extends AbstractClass {
     const TABLE_NAME = 'calendar_events';
     const DISPLAY_NAME = 'title';
     const CLASSNAME = __CLASS__;
-    const SIMPLEQ_ATTRS = 'ceid, title, description,fromDate,toDate,place,publishOnWebsite,isCreatedFromCMS';
+    const SIMPLEQ_ATTRS = 'ceid, title, description,fromDate,toDate,place,publishOnWebsite,isCreatedFromCMS,isPublic';
     const UNIQUE_ATTRS = 'alias';
 
     public function __construct($id = '', $simple = false, $options = array()) {
@@ -77,7 +77,7 @@ class Events extends AbstractClass {
                 if($upload_obj->get_status() != 4) {
                     ?>
                     <script language="javascript" type="text/javascript">
-                        $(function() {
+                        $(function () {
                             top.$("#upload_Result").html("<span class='red_text'><?php echo $upload_obj->parse_status($upload_obj->get_status());?></span>");
                         });
                     </script>
@@ -229,7 +229,7 @@ class Events extends AbstractClass {
     }
 
     public function email_invitees() {
-        global $core;
+        global $core, $lang;
         if($core->input['event']['isPublic'] == 1 && $core->usergroup['calendar_canAddPublicEvents'] == 1) {
             if(isset($core->input['event']['restrictto'])) {
                 if(is_array($core->input['event']['restrictto'])) {
@@ -250,7 +250,8 @@ class Events extends AbstractClass {
                         $ical_obj->set_status();
                         $ical_obj->set_transparency();
                         $ical_obj->set_icalattendees($notification_mails);
-                        $ical_obj->set_description($this->description);
+                        $ical_obj->set_description($this->description.$lang->planyourtripforevent);
+                        $ical_obj->set_url($core->settings['rootdir'].'/index.php?module=attendance/requestleave');
                         $ical_obj->endical();
 
                         $mailer = new Mailer();

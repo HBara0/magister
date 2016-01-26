@@ -388,6 +388,7 @@ hr.fc-divider {
     border-style: solid;
     border-width: 1px;
     padding: 0;
+    cursor:pointer;
     vertical-align: top;
 }
 

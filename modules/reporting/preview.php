@@ -82,6 +82,9 @@ if(!$core->input['action']) {
             }
             $session_identifier = md5(uniqid(microtime()));
             $newreport = new ReportingQr(array('year' => $core->input['year'], 'spid' => $report_param['spid'], 'affid' => $report_param['affid'], 'quarter' => $core->input['quarter']));
+            if(!is_object($newreport) || empty($newreport->rid)) {
+                error($lang->reportnotfound, $core->settings['rootdir']);
+            }
             $report = $newreport->get();
             $auditor = $newreport->user_isaudit();
             $session->set_phpsession(array('reportmeta_'.$session_identifier => serialize($report)));
@@ -594,7 +597,7 @@ if(!$core->input['action']) {
         /* Parse MOM Specific Follow Up Actions - START */
         $quarter_start = strtotime($report['year'].'-'.$core->settings['q'.$report['quarter'].'start']);
         $quarter_end = strtotime($report['year'].'-'.$core->settings['q'.$report['quarter'].'end']);
-        $momactions_where = '(date BETWEEN '.$quarter_start.' AND '.$quarter_end.') AND momid=(select momid from meetings_minsofmeeting where mtid IN '
+        $momactions_where = '(date BETWEEN '.$quarter_start.' AND '.$quarter_end.') AND momid IN (select momid from meetings_minsofmeeting where mtid IN '
                 .'(select mtid from meetings_associations where idAttr="spid" AND id='.$report['spid'].'))';
         $momactions = MeetingsMOMActions::get_data(array('filter' => $momactions_where), array('returnarray' => true, 'operators' => array('filter' => CUSTOMSQLSECURE)));
         if(is_array($momactions)) {

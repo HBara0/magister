@@ -66,34 +66,47 @@ class TravelManagerHotels extends AbstractClass {
             $hotel['city'] = $newhotel->get_city()->get_displayname();
             $hotel['country'] = $newhotel->get_country()->get_displayname();
             if($newhotel->isContracted == 1) {
-                $hotel['iscontracted'] = '<img src="'.$core->settings['rootdir'].'\images\icons\completed.png" alt="Yes">';
+                $path = $core->settings['rootdir'].'\images\icons\completed.png';
+                $alt = 'Yes';
             }
             else {
-                $hotel['iscontracted'] = '<img src="'.$core->settings['rootdir'].'\images\invalid.gif" alt="No">';
+                $path = $core->settings['rootdir'].'\images\invalid.gif';
+                $alt = 'No';
             }
+            $type = pathinfo($path, PATHINFO_EXTENSION);
+            $data = file_get_contents($path);
+            $base64 = 'data:image/'.$type.';base64,'.base64_encode($data);
+            $hotel['iscontracted'] = '<img src="'.$base64.'" alt="'.$alt.'"></>';
             //getting hotels in the same country details
-            $hotelsinsamecountry = TravelManagerHotels::get_data(array('country' => $newhotel), array('returnarray' => true, 'simple' => false));
+            $hotelsinsamecountry = TravelManagerHotels::get_data(array('country' => $newhotel->country), array('returnarray' => true, 'simple' => false));
             if(is_array($hotelsinsamecountry)) {
                 foreach($hotelsinsamecountry as $hotelincountry) {
                     $otherhotel = $hotelincountry->get();
                     if($newhotel->isApproved == 1) {
-                        $otherhotel['isapproved'] = '<img src="'.$core->settings['rootdir'].'\images\valid.gif" alt="Yes">';
+                        $path = $core->settings['rootdir'].'\images\icons\completed.png';
+                        $alt = 'Yes';
                     }
                     else {
-                        $otherhotel['isapproved'] = '<img src="'.$core->settings['rootdir'].'\images\invalid.gif" alt="No">';
+                        $path = $core->settings['rootdir'].'\images\invalid.gif';
+                        $alt = 'No';
                     }
+                    $type = pathinfo($path, PATHINFO_EXTENSION);
+                    $data = file_get_contents($path);
+                    $base64 = 'data:image/'.$type.';base64,'.base64_encode($data);
+                    $otherhotel['isapproved'] = '<img src="'.$base64.'" alt="'.$alt.'">';
                     if(empty($otherhotel['avgPrice'])) {
                         $otherhotel['avgPrice'] = '-';
                     }
+                    $otherhotel['city'] = $hotelincountry->get_city()->get_displayname();
                     eval("\$hotelsinsamecountrysection .= \"".$template->get('approvehotel_email_hotelsinsamecountry')."\";");
-                    unset($otherhotel);
+                    unset($otherhotel, $otherhotel['avgPrice']);
                 }
             }
 
             $to[] = 'audrey.sacy@orkila.com';
             $to[] = 'pamela.carnaby@orkila.com';
 
-            $affiliates = Affiliates::get_affiliates(array('country' => $newhotel->get_country()->coid), array('returnarray' => true));
+            $affiliates = Affiliates::get_affiliates(array('country' => $newhotel->country), array('returnarray' => true));
             if(is_array($affiliates)) {
                 foreach($affiliates as $affiliate_obj) {
                     $gm = Users::get_data(array('uid' => $affiliate_obj->generalManager), array('simple' => false));

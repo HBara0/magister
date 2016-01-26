@@ -1,13 +1,13 @@
 <?php
 /*
  * Copyright © 2013 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * [Provide Short Descption Here]
  * $id: landecosts_migration.php
  * Created:        @zaher.reda    Jun 10, 2013 | 3:52:15 PM
  * Last Update:    @zaher.reda    Jun 10, 2013 | 3:52:15 PM
  */
-
+exit;
 require '../inc/init.php';
 
 define('AUTHCODE', 'X1iIMm7pG06ip6o95HEa');
@@ -31,14 +31,14 @@ if($core->input['authCode'] == AUTHCODE) {
     );
 
     $lc_bp = array(
-            'C08F137534222BD001345BAA60661B97' => '54FC4616619F45398A26B9B9BBAA2B9F'//OTI Tunisie		
+            'C08F137534222BD001345BAA60661B97' => '54FC4616619F45398A26B9B9BBAA2B9F'//OTI Tunisie
     );
 
     $current_affiliate = 'C08F137534222BD001345BAA60661B97';
     $fromdb = new PostgreSQLConnection('openbrav_production', 'localhost', 'openbrav_appuser', '8w8;MFRy4g^3');
     $todb = new PostgreSQLConnection('openbrav_tests', 'localhost', 'openbrav_appuser', '8w8;MFRy4g^3');
 
-    $inout_query = $fromdb->query("SELECT * 
+    $inout_query = $fromdb->query("SELECT *
 							FROM m_inout
 							WHERE EM_LC_ReadyCosting='Y' AND docstatus NOT IN ('VO', 'CL') AND ad_org_id='".$current_affiliate."'");
     while($order = $fromdb->fetch_assoc($inout_query)) {
@@ -47,11 +47,11 @@ if($core->input['authCode'] == AUTHCODE) {
         $inoutlines_landedcosts = array();
         $inout_landedcosts_ids = array();
         $inout_lineno = 10;
-        $inoutline_query = $fromdb->query("SELECT * 
+        $inoutline_query = $fromdb->query("SELECT *
 							FROM m_inoutline
 							WHERE m_inout_id='".$order['m_inout_id']."'");
         while($orderline = $fromdb->fetch_assoc($inoutline_query)) {
-            $query = $fromdb->query("SELECT * 
+            $query = $fromdb->query("SELECT *
 							FROM lc_inoutcosts ioc
 							JOIN lc_costtypes ct ON (ct.lc_costtypes_id=ioc.lc_costtypes_id)
 							WHERE m_inoutline_id='".$orderline['m_inoutline_id']."'");

@@ -1,10 +1,10 @@
 <?php
 $module['name'] = 'facilitymgmt';
 $module['title'] = $lang->facilitymgmt;
-$module['homepage'] = 'list';
+$module['homepage'] = 'facilitiesschedule';
 $module['globalpermission'] = 'canUseFacM';
-$module['menu'] = array('file' => array('managefacility', 'list', 'typeslist', 'managefacilitytype'),
-        'title' => array('managefacility', 'list', 'facilitytypelist', 'facilitytypesmgmt'),
-        'permission' => array('facilitymgmt_canManageFacilities', 'facilitymgmt_canManageFacilities', 'facilitymgmt_canManageFacilities', 'facilitymgmt_canManageFacilities')
+$module['menu'] = array('file' => array('managefacility', 'list', 'typeslist', 'managefacilitytype', 'facilitiesschedule'),
+        'title' => array('managefacility', 'facilitieslist', 'facilitytypelist', 'facilitytypesmgmt', 'facilitiesschedule'),
+        'permission' => array('facilitymgmt_canManageFacilities', 'facilitymgmt_canManageFacilities', 'facilitymgmt_canManageFacilities', 'facilitymgmt_canManageFacilities', 'canUseFacM')
 );
 ?>

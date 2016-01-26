@@ -37,4 +37,14 @@ class SurveysTplQChoices extends AbstractClass {
 
     }
 
+    public function delete() {
+        $sectionquestionschoiceschoices = SurveysTplQChoiceChoices::get_data(array(self::PRIMARY_KEY => $this->data[self::PRIMARY_KEY]), array('returnarray' => true));
+        if(is_array($sectionquestionschoiceschoices)) {
+            foreach($sectionquestionschoiceschoices as $choice) {
+                $choice->delete();
+            }
+        }
+        parent::delete();
+    }
+
 }

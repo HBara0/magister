@@ -157,4 +157,5 @@ $lang['manageaff'] = 'Manage Affiliate';
 $lang['addmenuitem'] = 'Add Menu Item';
 $lang['none'] = 'None';
 $lang['homepage'] = 'Homepage';
+$lang['planyourtripforevent'] = 'You Can Plan Your Trip From Today On OCOS By Clicking On The Link';
 ?>

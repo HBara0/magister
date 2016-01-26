@@ -7,7 +7,15 @@
  * Last Update:    @tony.assaad    Feb 19, 2015 | 9:59:17 AM
  */
 $(function() {
+    $('td').each(function() {
+        var pattern = /^[ 0-9-,.%]*$/;
+        if($(this).html().match(pattern)) {
+            if($(this).html().indexOf('-') === 0) {
+                $(this).css("color", "red");
+            }
 
+        }
+    });
 
     $("body").append("<div id='modal-loading2'>Please wait untill the calculation is done. <span  style='display:block; width:100px; height:75%; margin:15px auto 0 auto;'><img  src='./images/loader.gif'/></span></div>");
     $("#modal-loading2").dialog({height: 150, modal: true, closeOnEscape: false, title: 'Loading...', resizable: false, minHeight: 0, autoOpen: false, position: 'center',
@@ -53,6 +61,7 @@ $(function() {
                         var json = eval("(" + returnedData + ");");
                         if(json['disable'] === 1) {
                             $("form[id='perform_aro/managearodouments_Form'] :input:not([id^='approve_aro'])").attr("disabled", true);
+                            $("button").attr("disabled", true);
                         }
                     }
                 }
@@ -63,6 +72,13 @@ $(function() {
     $(document).on("click", "input[id='approvearo']", function() {
         var url = window.location.href;
         sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=approvearo&id=' + $("input[id='approvearo_id']").val(), function() {
+            window.location.href = url;
+        });
+    });
+    /*-----------------------------------------------------------*/
+    $(document).on("click", "input[id='po_sent']", function() {
+        var url = window.location.href;
+        sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=markpoassent&id=' + $("input[name='aorid']").val(), function() {
             window.location.href = url;
         });
     });
@@ -192,7 +208,18 @@ $(function() {
                     else {
                         $("input[id='parmsfornetmargin_" + warehousing_fields[i] + "']").removeAttr("readonly");
                         $("input[id='parmsfornetmargin_" + warehousing_fields[i] + "'],select[id ='parmsfornetmargin_" + warehousing_fields[i] + "']").removeAttr("disabled");
+
                     }
+                }
+                if($("input[id='parmsfornetmargin_warehousing_disabled']").val() == 0) {
+                    $("input[id='partiesinfo_intermed_ptAcceptableMargin']").val('');
+                    $("input[id='partiesinfo_intermed_ptAcceptableMargin']").attr("readonly", "true");
+                    $("input[id='pickDate_intermed_promiseofpayment']").val('');
+                    $("input[id='pickDate_intermed_promiseofpayment']").attr("readonly", "true");
+                }
+                else {
+                    $("input[id='partiesinfo_intermed_ptAcceptableMargin']").removeAttr("readonly");
+                    $("input[id='pickDate_intermed_promiseofpayment']").removeAttr("readonly");
                 }
             });
         }
@@ -215,6 +242,8 @@ $(function() {
 //        var triggercomm = setTimeout(function() {
 //            $("input[id$='_intialPrice']").trigger("change");
 //        }, 2000);
+
+        $("input[id='user_0_id_output']").trigger("change");
     });
     //------------------------------------------------------------------------------------//
     //-----------------Get Exchang Rate  -------------------------------------------------//
@@ -460,7 +489,11 @@ $(function() {
             $("select[id='partiesinfo_intermed_paymentterm']").trigger("change");
             clearTimeout(actualpurchaselines_tr);
             actualpurchaselines_tr = setTimeout(function() {
-                addactualpurchaselines(id[1]);
+                addactualpurchaselines(id[1], function() {
+                    if($("#modal-loading2").dialog("isOpen")) {
+                        $("#modal-loading2").dialog("close");
+                    }
+                });
             }, 2000);
         });
     });
@@ -552,9 +585,9 @@ $(function() {
 //Trigger(s): 20A - 20B
     $(document).on("change", "#partiesinfo_totalfees,input[id='partiesinfo_totaldiscount'],select[id^='productline_'][id$='_uom'],input[id^='productline_'][id$='_quantity'],input[id^='productline_'][id$='_intialPrice']", function() {
         var field_id = $(this).attr('id').split('_');
-        if(field_id[2] == 'intialPrice') {
-            $("#modal-loading2").dialog("open");
-        }
+//        if(field_id[2] == 'intialPrice') {
+//            $("#modal-loading2").dialog("open");
+//        }
         if($(this).attr('id') != 'partiesinfo_totalfees') {
             var totalamount = totalcommision = intialprice = totalqty = 0;
             $("tbody[id^='productline_']").find($("select[id$='_uom']")).each(function() {
@@ -574,7 +607,7 @@ $(function() {
                 if(field_id[2] == 'intialPrice') {
                     var trigger = setTimeout(function() {
                         $('#productline_' + field_id[1] + '_grossMarginAtRiskRatio').trigger('change');
-                        $("#modal-loading2").dialog("close");
+//                        $("#modal-loading2").dialog("close");
                     }, 500);
                 }
             });
@@ -650,9 +683,6 @@ $(function() {
 
     $(document).on("change", "input[id^='productline_'][id$='_quantity'],input[id^='productline_'][id$='_qtyPotentiallySold'],input[id^='productline_'][id$='_costPrice'],input[id$='_sellingPrice']", function() {
         var id = $(this).attr('id').split("_");
-        if(id[2] == 'sellingPrice') {
-            $("#modal-loading2").dialog("open");
-        }
         if(id[2] == 'costPrice') {
             $("input[id='productline_" + id[1] + "_sellingPrice']").attr("disabled", "true");
             var tr = setTimeout(function() {
@@ -717,6 +747,9 @@ $(function() {
             //   opendialog();
 
             if(json["productline_" + id[1] + '_grossMarginAtRiskRatio']) {
+                if(id[2] == 'sellingPrice') {
+                    $("#modal-loading2").dialog("open");
+                }
                 $('#productline_' + id[1] + '_grossMarginAtRiskRatio').trigger('change');
             }
             //$("input[id$='_netMargin']").trigger("change");
@@ -935,7 +968,6 @@ function addactualpurchaselines(id) {
     $("tbody[id^='productline_']").find($("input[id^='productline_" + id + "'],select[id^='productline_" + id + "']")).each(function() {
         var field = $(this).attr('id').split('_');
         if(field[2] == 'netMargin' || field[2] == 'netMarginPerc' || field[2] == 'grossMarginAtRiskRatio' || field[2] == 'totalBuyingValue' || field[2] == 'psid') {
-
             return true;
         }
         if($(this).val() == null) {
@@ -997,7 +1029,9 @@ function addactualpurchaselines(id) {
                 if($("input[id^='currentstock_" + id + "_inputChecksum']").length) {
                     sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populatecurrentstockrow&rowid=' + id + '&fields=' + fields, function(json) {
                         $("input[id^='pickDate_sale_" + id + "']").trigger('change');
-                        $("#modal-loading2").dialog("close");
+                        if($("#modal-loading2").dialog("isOpen")) {
+                            $("#modal-loading2").dialog("close");
+                        }
                     });
                 }
             });
@@ -1012,7 +1046,9 @@ function addactualpurchaselines(id) {
                     sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populateactualpurchaserow&rowid=' + id + '&fields=' + fields);
                     sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populatecurrentstockrow&rowid=' + id + '&fields=' + fields, function(json) {
                         $("input[id^='pickDate_sale_" + id + "']").trigger('change');
-                        $("#modal-loading2").dialog("close");
+                        if($("#modal-loading2").dialog("isOpen")) {
+                            $("#modal-loading2").dialog("close");
+                        }
                     });
                     //$("input[id^='productline_" + id + "_isTriggered']").val(1);
 

@@ -84,10 +84,12 @@ if(!$core->input['action']) {
         }
     }
 
-
     $users_where = 'gid != 7';
     if($core->usergroup['canViewAllEmp'] == 0 && is_array($permissions['uid'])) {
-        $users_where .= ' AND uid IN ('.implode(',', $permissions['uid']).')';
+        if(!empty($users_where)) {
+            $users_where .=' AND';
+        }
+        $users_where .= ' uid IN ('.implode(',', $permissions['uid']).')';
     }
     $bmanagers = get_specificdata('users', array('uid', 'displayName'), 'uid', 'displayName', array('by' => 'displayName', 'sort' => 'ASC'), 0, $users_where);
     if(is_array($bmanagers)) {

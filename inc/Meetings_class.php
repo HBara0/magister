@@ -54,7 +54,7 @@ class Meetings {
             }
 
             if(value_exists('meetings', 'title', $this->meeting['title'], ' createdBy='.$core->user['uid'].'')) { // Add date filter
-                $this->errorcode = 4;
+                $this->errorcode = 5;
                 return false;
             }
 
@@ -66,10 +66,6 @@ class Meetings {
                     $this->meeting['toDate'] = strtotime($this->meeting['alttoDate'].' '.$this->meeting['toTime']);
                 }
             }
-            if($meeting_data['fromDate'] > $meeting_data['toDate']) {
-                $this->errorcode = 3;
-                return false;
-            }
 
             if(is_empty($this->meeting['title'], $this->meeting['fromDate'], $this->meeting['toDate'], $this->meeting['fromTime'], $this->meeting['toTime'])) {
                 $this->errorcode = 1;
@@ -80,7 +76,10 @@ class Meetings {
                 $this->errorcode = 2;
                 return false;
             }
-
+            if($this->meeting['fromDate'] > $this->meeting['toDate']) {
+                $this->errorcode = 3;
+                return false;
+            }
             /* Check if meeting intersects with another for the same user - START */
             /* Check if meeting intersects with another for the same user - END */
 
@@ -308,10 +307,7 @@ class Meetings {
             $this->errorcode = 3;
             return false;
         }
-        if($meeting_data['fromDate'] > $meeting_data['toDate']) {
-            $this->errorcode = 3;
-            return false;
-        }
+
         if(is_empty($meeting_data['title'], $meeting_data['fromDate'], $meeting_data['toDate'], $meeting_data['fromTime'], $meeting_data['toTime'])) {
             $this->errorcode = 1;
             return false;

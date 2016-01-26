@@ -19,7 +19,7 @@ $lang['setmof'] = 'Set Minutes Of Meetings';
 $lang['meetingintersect'] = 'Meeting Intersect with another meeting';
 $lang['meetingdesc'] = 'Minutes Of Meetings';
 $lang['followup'] = 'Follow up';
-$lang['invaliddate'] = 'From Date might be less or equal to Date';
+$lang['invaliddate'] = 'From Date Might Be Surpassing To Date';
 $lang['attendees'] = 'Attendees';
 $lang['view'] = 'View Meeting';
 $lang['sharewith'] = 'Share With';
@@ -61,4 +61,5 @@ $lang['facility'] = 'Facilities';
 $lang['specifygenerallocation'] = 'Or Specify General Location';
 $lang['viewschedule'] = 'View Schedule';
 $lang['employees'] = 'Employees';
+$lang['meetingwithsamenamexists'] = 'Meeting With The Same Name Already Exists';
 ?>

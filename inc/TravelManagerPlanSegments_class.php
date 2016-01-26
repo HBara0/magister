@@ -134,6 +134,9 @@ class TravelManagerPlanSegments extends AbstractClass {
         if(is_array($segmentdata['assign'])) {
             $externalpurpose_assignees = 0;
             foreach($segmentdata['assign'] as $type => $assigndata) {
+                if($type == 'segments') {
+                    continue;
+                }
                 if(is_array($assigndata)) {
                     if($type == 'affid') {
                         $assigned['type'] = 'affiliate';
@@ -153,7 +156,16 @@ class TravelManagerPlanSegments extends AbstractClass {
                         $assigned['inputChecksum'] = $key;
                         $assign_obj = new TravelManagerPlanAffient();
                         $assign_obj->set($assigned);
-                        $assign_obj->save();
+                        $assign_obj = $assign_obj->save();
+                        if(is_object($assign_obj) && is_array($segmentdata['assign']['segments']) && (isset($segmentdata['assign']['segments'][$key]) && !empty($segmentdata['assign']['segments'][$key]) && is_array($segmentdata['assign']['segments'][$key]) )) {
+                            $assignedseg[TravelManagerPlanAffient::PRIMARY_KEY] = $assign_obj->{TravelManagerPlanAffient::PRIMARY_KEY};
+                            foreach($segmentdata['assign']['segments'][$key] as $psid) {
+                                $assignedseg['psid'] = intval($psid);
+                                $assignedseg_obj = new TravelManagerPlanSegmentEntitySegments();
+                                $assignedseg_obj->set($assignedseg);
+                                $assignedseg_obj->save();
+                            }
+                        }
                         if($assigned['type'] == 'event' || $assigned['type'] == 'entity') {
                             $externalpurpose_assignees++;
                         }
@@ -439,6 +451,9 @@ class TravelManagerPlanSegments extends AbstractClass {
         if(is_array($segmentdata['assign'])) {
             $externalpurpose_assignees = 0;
             foreach($segmentdata['assign'] as $type => $assigndata) {
+                if($type == 'segments') {
+                    continue;
+                }
                 if(is_array($assigndata)) {
                     if($type == 'affid') {
                         $assigned['type'] = 'affiliate';
@@ -458,7 +473,17 @@ class TravelManagerPlanSegments extends AbstractClass {
                         $assigned['inputChecksum'] = $key;
                         $assign_obj = new TravelManagerPlanAffient();
                         $assign_obj->set($assigned);
-                        $assign_obj->save();
+                        $assign_obj = $assign_obj->save();
+                        if(is_object($assign_obj) && is_array($segmentdata['assign']['segments']) && (isset($segmentdata['assign']['segments'][$key]) && !empty($segmentdata['assign']['segments'][$key]) && is_array($segmentdata['assign']['segments'][$key]) )) {
+                            $assignedseg[TravelManagerPlanAffient::PRIMARY_KEY] = $assign_obj->{TravelManagerPlanAffient::PRIMARY_KEY};
+
+                            foreach($segmentdata['assign']['segments'][$key] as $psid) {
+                                $assignedseg['psid'] = intval($psid);
+                                $assignedseg_obj = new TravelManagerPlanSegmentEntitySegments();
+                                $assignedseg_obj->set($assignedseg);
+                                $assignedseg_obj->save();
+                            }
+                        }
                         if($assigned['type'] == 'event' || $assigned['type'] == 'entity') {
                             $externalpurpose_assignees++;
                         }
@@ -819,7 +844,7 @@ class TravelManagerPlanSegments extends AbstractClass {
         if(is_array($segment_affient)) {
             $eventype = LeaveTypesPurposes::get_data(array('name' => 'eventfair'), array('returnarray' => false));
             foreach($segment_affient as $seg_affient) {
-                $affients[$seg_affient->type][] = $seg_affient->primaryId;
+                $affients[$seg_affient->type][$seg_affient->{TravelManagerPlanAffient::PRIMARY_KEY}] = $seg_affient->primaryId;
             }
         }
 
@@ -852,9 +877,22 @@ class TravelManagerPlanSegments extends AbstractClass {
                     else {
                         if(is_array($affients['entity'])) {
                             $segment_overview .='<br><div style="display:inline-block"><em><small>';
-                            foreach($affients['entity'] as $key) {
-                                $entity = new Entities($key);
-                                $segment_overview .='&nbsp'.$entity->get_displayname().'&nbsp,';
+                            foreach($affients['entity'] as $key => $primary) {
+                                $segmententitysgments = TravelManagerPlanSegmentEntitySegments::get_column('psid', array(TravelManagerPlanAffient::PRIMARY_KEY => $key));
+                                if(is_array($segmententitysgments)) {
+                                    $selectedsegments = '(';
+                                    foreach($segmententitysgments as $psid) {
+                                        $segment = new ProductsSegments(intval($psid));
+                                        if(is_object($segment)) {
+                                            $selectedsegments .= $seperator.$segment->get_displayname();
+                                            $seperator = ',&nbsp';
+                                        }
+                                    }
+                                    $selectedsegments .= ')';
+                                    unset($seperator);
+                                }
+                                $entity = new Entities($primary);
+                                $segment_overview .='&nbsp'.$entity->get_displayname().$selectedsegments.'&nbsp,';
                             }
                             $segment_overview .='</small></em></div>';
                         }
@@ -888,7 +926,22 @@ class TravelManagerPlanSegments extends AbstractClass {
                 if($fromcurr != $tocurr) {
                     $fare .='<br/><small>'.$numfmt->formatCurrency($transportation->fare, $fromcurr->alphaCode).'</small>';
                 }
-
+                // Show averages of same flight -START
+                if($transportation->get_transpcategory()->isAerial == 1) {
+                    $avgof = array('10', '5');
+                    foreach($avgof as $flightsnum) {
+                        $avg = $transportation->get_averagaeflightfare(array('segid' => $this->data[self::PRIMARY_KEY], 'originCity' => $this->data['originCity'], 'destinationCity' => $this->data['destinationCity']), $flightsnum);
+                        $avgflightfare[$avg['numofflights']] = 'Avg Last '.$avg['numofflights'].' '.$numfmt->formatCurrency($avg['avgprice'], $fromcurr->alphaCode);
+                    }
+                    if(is_array($avgflightfare)) {
+                        foreach($avgflightfare as $avgof => $avgflightfare) {
+                            if(!empty($avgflightfare_output)) {
+                                $avgflightfare_output .=' | ';
+                            }
+                            $avgflightfare_output .=$avgflightfare;
+                        }
+                    }
+                }
                 if($transportation->isRoundTrip) {
                     $transportation->isRoundTrip_output = $lang->roundtrip;
                 }
@@ -919,6 +972,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                 eval("\$segment_transpdetails .= \"".$template->get('travelmanager_viewplan_transpsegments')."\";");
                 $flight_details = $fare = '';
                 unset($class, $warnings['transpclass'], $transpclass, $segtranspoutput);
+                unset($avgflightfare_output);
             }
         }
 

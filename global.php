@@ -17,7 +17,7 @@ if(!$dir) {
 require $dir.'/inc/init.php';
 set_headers();
 
-define('SYSTEMVERSION', '24.0.0');
+define('SYSTEMVERSION', '25.0.0');
 
 if(strpos(strtolower($_SERVER['PHP_SELF']), ADMIN_DIR) !== false) {
     define('IN_AREA', 'admin');
@@ -38,7 +38,6 @@ if(!empty($core->user['language'])) {
     date_default_timezone_set($core->user['language']);
 }
 eval("\$headerinc = \"".$template->get('headerinc')."\";");
-
 if($session->uid > 0) {
     /* Check if passwors has expired */
     if(IN_AREA != 'admin') {

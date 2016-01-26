@@ -1,13 +1,20 @@
 <tr id="section_{$section_rowid}">
     <td style="border-bottom:2px solid #CCC; margin-bottom: 5px;">
+    <td style="display: block;border:1px solid #FCEFA1; padding:15px;margin-top:10px;border-bottom:2px solid #CCC; margin-bottom: 5px;">
+        <div><img id='deletesection_{$section_rowid}' src="{$core->settings['rootdir']}/images/invalid.gif" style='cursor:pointer;float:right'>
+        </div><br>
+        <div style="float:right" id="sectiondeleteresult_{$section_rowid}"></div>
         <table>
             <tr>
-                <td style="padding:5px 5px 10px 5px;"><strong>{$lang->sectiontitle}</strong></td><td>
-                    <input name="section[{$section_rowid}][title]" type="text" size="50" required="required">
+                <td style="padding:5px 5px 10px 5px;"><strong>{$lang->sectiontitle}</strong></td>
+                <td>
+                    <input name="section[{$section_rowid}][stsid]" id="sectionid_{$section_rowid}" type="hidden" value="{$section[section_id]}">
+                    <input name="section[{$section_rowid}][inputChecksum]" id="sectionchecksum_{$section_rowid}" type="hidden" value="{$section[section_inputChecksum]}">
+                    <input name="section[{$section_rowid}][title]" type="text" size="50" value="{$section[section_title]}">
                 </td>
             </tr> <tr>
                 <td style="padding:5px 5px 10px 5px;"><strong>{$lang->sectiondesciption}</strong></td><td>
-                    <textarea cols="50" name="section[{$section_rowid}][description]" ></textarea>
+                    <textarea cols="50" name="section[{$section_rowid}][description]" >{$section[section_description]}</textarea>
                 </td>
             </tr>
         </table>

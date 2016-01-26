@@ -33,17 +33,30 @@ $lang['description'] = 'Description';
 $lang['factypenameexist'] = "A facility type with the same name already exists";
 $lang['reservationcreation_subject'] = '{1} reserved {2} in {3}';
 $lang['reservationcreation_message'] = 'Facility: {1}<br /> '
-        .'From {2}<br />'
-        .'To {3}<br />'
-        .'Reserved By: {4} <br/>'
-        .'Purpose: {5}';
+        .'From : {2}<br />'
+        .'To : {3}<br />'
+        .'Reserved By: {4} <br/>{5}';
 $lang['reservationdeletion_subject'] = 'Reservation of {1} by {2} in {3} has been cancelled';
 $lang['reservationdeletion_message'] = 'Reservation Cancelled'
         .'<br />Facility: {1}<br /> '
-        .'From {2}<br />'
-        .'To {3}<br />'
-        .'Reserved By: {4} <br/>'
-        .'Purpose: {5}';
+        .'From : {2}<br />'
+        .'To : {3}<br />'
+        .'Reserved By: {4} <br/>{5}';
 
 $lang['facilities'] = 'Facilities';
+$lang['facilitieslist'] = 'Facilities List';
+$lang['facilitiesschedule'] = 'Facilities Schedule';
+$lang['facility'] = 'Facility';
+
+$lang['from'] = 'From';
+$lang['to'] = 'To';
+$lang['purpose'] = 'Purpose';
+$lang['status'] = 'Status';
+$lang['reservationupdate_subject'] = 'Reservation Change of {1} by {2} in {3}';
+$lang['reservationupdate_message'] = 'Reservation Altered To'
+        .'<br />Facility: {1}<br /> '
+        .'From : {2}<br />'
+        .'To : {3}<br />'
+        .'Reserved By: {4} <br/>{5}';
+$lang['reservedby'] = 'Reserved By';
 ?>

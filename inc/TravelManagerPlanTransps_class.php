@@ -142,5 +142,39 @@ class TravelManagerPlanTransps extends AbstractClass {
         return new TravelManagerPlanTranspClass($this->data['class']);
     }
 
+    public function get_averagaeflightfare($data, $avgof) {
+        $segments = TravelManagerPlanSegments::get_data(array('originCity' => $data['originCity'], 'destinationCity' => $data['destinationCity']), array('returnarray' => true, 'order' => array('sort' => 'DESC', 'by' => 'fromDate'), 'limit' => array('offset' => 0, 'row_count' => $avgof)));
+        $segments_ids = array_keys($segments);
+        if(($key = array_search($data['segid'], $segments_ids)) !== false) {
+            unset($segments_ids[$key]); // unset current segment flight data
+        }
+
+        // $where = ' tmpsid IN (SELECT tmpsid FROM travelmanager_plan_segments WHERE originCity='.$data['originCity'].' AND destinationCity='.$data['destinationCity'].' ORDER BY fromDate DESC LIMIT 0,'.$avgof.')';
+        if(is_array($segments_ids) && !empty($segments_ids)) {
+            $flights = TravelManagerPlanTransps::get_data(array('tmpsid' => $segments_ids, 'tmtcid' => 1), array('operators' => array('tmpsid' => 'CUSTOMSQL'), 'returnarray' => true));
+            if(is_array($flights)) {
+                foreach($flights as $flight) {
+                    if($flight->currency != 840) {
+                        $tocurr = new Currencies(840);
+                        $fare = $flight->get_convertedamount($tocurr);
+                        if($flight->fare != 0 && $fare == 0) {
+                            $fromcurr = new Currencies($flight->currency);
+                            $tocurr->save_fx_rate_fromsource('http://rate-exchange.appspot.com/currency?from='.$fromcurr->alphaCode.'&to='.$tocurr->alphaCode.'', $fromcurr->numCode, $tocurr->numCode);
+                            $fare = $flight->get_convertedamount($fromcurr);
+                        }
+                        $flight->fare = $fare;
+                    }
+                    $flights_fare += $flight->fare;
+                }
+            }
+            if(count($flights) < $avgof) {
+                $avgof = count($flights);
+            }
+        }
+        $data['avgprice'] = $flights_fare / $avgof;
+        $data['numofflights'] = $avgof;
+        return $data;
+    }
+
 }
 ?>
