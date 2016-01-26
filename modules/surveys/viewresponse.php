@@ -18,11 +18,20 @@ if(!$core->input['action']) {
     if(!empty($core->input['identifier'])) {
         $survey = new Surveys();
 
+//        $sharedsurvey = SurveyShares::get_data(array('sid' => $survey_details['sid'], 'uid' => $core->user['uid']));
+//        if(!is_object($sharedsurvey)) {
+//            redirect('index.php?module=surveys/list');
+//        }
+//        else {
+//            $survey['sharedwithstatus'] = true;
+//        }
+
         $responses = $survey->get_single_responses($core->input['identifier']);
         if(!$responses) {
             redirect('index.php?module=surveys/list');
         }
         $survey_details = $survey->get_survey();
+
         $associations = $survey->get_associations();
         if(is_array($associations)) {
             $associations_list = $lang->surveysassociations.':<ul><li>'.implode('</li><li>', $associations).'</li></ul>';

@@ -1,11 +1,12 @@
 <?php
+exit;
 require '../inc/init.php';
 $current_date = getdate(TIME_NOW);
 
 $connection = pg_connect("host=localhost port=5432 dbname=openbrav_main user=openbrav_appuser password=8w8;MFRy4g^3");
 
 $query = pg_query("SELECT o.c_order_id, o.dateordered, bp.name AS bpname, bp.c_bpartner_id AS bpid, bp.value AS bpname_abv, c.iso_code AS currency, o.salesrep_id, u.name AS salesrep, pt.netdays AS paymenttermsdays
-					FROM c_order o JOIN c_bpartner bp ON (bp.c_bpartner_id=o.c_bpartner_id) 
+					FROM c_order o JOIN c_bpartner bp ON (bp.c_bpartner_id=o.c_bpartner_id)
 					JOIN c_currency c ON (c.c_currency_id=o.c_currency_id)
 					JOIN ad_user u ON (u.ad_user_id=o.salesrep_id)
 					JOIN c_paymentterm pt ON (o.c_paymentterm_id=pt.c_paymentterm_id)
@@ -26,11 +27,11 @@ $sales_table .= '</tr>';
 
 while($order = pg_fetch_assoc($query)) {
     $orderline_query = pg_query("SELECT ol.*, p.name AS productname, pc.value AS productcategory, ct.cost, bp.name AS supplier
-								FROM c_orderline ol JOIN m_product p ON (p.m_product_id=ol.m_product_id) 
-								JOIN m_product_category pc ON (p.m_product_category_id=pc.m_product_category_id) 
+								FROM c_orderline ol JOIN m_product p ON (p.m_product_id=ol.m_product_id)
+								JOIN m_product_category pc ON (p.m_product_category_id=pc.m_product_category_id)
 								LEFT JOIN m_costing ct ON (ct.m_product_id=p.m_product_id)
 								LEFT JOIN m_product_po ppo ON (p.m_product_id=ppo.m_product_id)
-								LEFT JOIN c_bpartner bp ON (bp.c_bpartner_id=ppo.c_bpartner_id) 
+								LEFT JOIN c_bpartner bp ON (bp.c_bpartner_id=ppo.c_bpartner_id)
 								WHERE c_order_id='{$order[c_order_id]}' AND ('".date('Y-m-d H:i:s', time())."' BETWEEN ct.datefrom AND ct.dateto) AND ol.m_product_id NOT IN ('".implode('\',\'', $exclude['products'])."')");
     while($orderline = pg_fetch_assoc($orderline_query)) {
         $fxrate = 0.5; //0.649;
@@ -63,7 +64,7 @@ while($order = pg_fetch_assoc($query)) {
         $total_details['salesrep']['amounts'][$order['salesrep_id']][$order['month_num']] += $orderline['linenetamt'];
         $total_details['salesrep']['numorders'][$order['salesrep_id']][$order['month_num']] ++;
         $total_details['salesrep']['grossmargin'][$order['salesrep_id']][$order['month_num']] += $orderline['grossmargin'];
-        //		$bm_details['grossmargin'][$order['salesrep_id']][$order['month_num']] += $orderline['grossmargin']; 
+        //		$bm_details['grossmargin'][$order['salesrep_id']][$order['month_num']] += $orderline['grossmargin'];
 
         /* Set BM Data - END */
 

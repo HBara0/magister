@@ -509,18 +509,7 @@ class ReportingQr Extends Reporting {
                             }
                         }
                         else {
-                            $notempty = 0;
-                            foreach($validation_items as $validation_field) {
-                                if(!empty($forecast_corrections[$productactivity['pid']][$validation_field])) {
-                                    $notempty = 1;
-                                }
-                            }
-                            if($notempty == 1) {
-                                unset($forecast_corrections[$productactivity['pid']][$validation_key]);
-                            }
-                            else {
-                                unset($forecast_corrections[$productactivity['pid']]);
-                            }
+                            unset($forecast_corrections[$productactivity['pid']][$validation_key]);
                         }
                         unset($lessernumbers);
                     }
@@ -546,6 +535,14 @@ class ReportingQr Extends Reporting {
                                 $forecast_corrections[$productactivity['pid']][$validation_key] = round($actual_forecast, 5);
                             }
                         }
+                    }
+                }
+            }
+
+            if(is_array($forecast_corrections)) {
+                foreach($forecast_corrections as $pid => $correction) {
+                    if(!isset($correction['turnOver']) && !isset($correction['quantity'])) {
+                        unset($forecast_corrections[$pid]);
                     }
                 }
             }

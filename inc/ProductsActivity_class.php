@@ -29,7 +29,7 @@ class ProductsActivity extends AbstractClass {
     }
 
     protected function create(array $data) {
-        global $db;
+        global $db, $core;
         if(empty($data['pid']) || !isset($data['pid'])) {
             $this->errorcode = 1;
             return;
@@ -38,10 +38,14 @@ class ProductsActivity extends AbstractClass {
             $this->errorcode = 1;
             return;
         }
-        if(empty($data['uid']) || !isset($data['uid'])) {
+        if($data['uid'] == 0) {
+            $data['uid'] = $core->user['uid'];
+        }
+        if((empty($data['uid']) && $data['uid'] != 0) || !isset($data['uid'])) {
             $this->errorcode = 1;
             return;
         }
+
 
         $query = $db->insert_query(self::TABLE_NAME, $data);
         return $this;
@@ -58,7 +62,7 @@ class ProductsActivity extends AbstractClass {
                 $this->errorcode = 1;
                 return;
             }
-            if(empty($data['uid']) || !isset($data['uid'])) {
+            if((empty($data['uid']) && $data['uid'] != 0) || !isset($data['uid'])) {
                 $this->errorcode = 1;
                 return;
             }

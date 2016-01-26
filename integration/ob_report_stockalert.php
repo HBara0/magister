@@ -1,14 +1,14 @@
 <?php
 /*
  * Copyright © 2014 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * [Provide Short Descption Here]
  * $id: ob_report_stockalert.php
  * Created:        @zaher.reda    Feb 24, 2014 | 12:21:03 AM
  * Last Update:    @zaher.reda    Feb 24, 2014 | 12:21:03 AM
  */
 
-
+exit;
 require '../inc/init.php';
 
 define('AUTHCODE', 'X1iIMm7pG06ip6o95HEa');
