@@ -21,6 +21,7 @@
 </form>
 <hr />
 <div class='subtitle hidden-print'>{$lang->conversation}</div>
+<div style="display:block;">{$takeactionpage_conversation}</div>
 <form name="add_aro/managearodouments_Form" id="add_aro/managearodouments_Form" action="#" method="post">
     <input type="hidden" name="action" value="perform_sendmessage" />
     <input type="hidden" value="" id="inReplyToMsgId" name="arorequestmessage[inReplyToMsgId]"/>
@@ -39,5 +40,4 @@
             <input type='button' id="add_aro/managearodouments_Button" value="&#x21b6; {$lang->reply}" class='button' /></div>
         <div id="add_aro/managearodouments_Results"></div>
     </div>
-    <div style="display:block;">{$takeactionpage_conversation}</div>
 </form>
