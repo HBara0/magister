@@ -42,7 +42,7 @@ class Uploader {
     public function process_file() {
         if($this->array_of_files == 0) {
             foreach($this->raw_file[$this->fieldname] as $key => $val) {
-                $this->file[$this->fieldname][$key] = $val;
+                $this->file[$this->fieldname][$key][0] = $val;
             }
 
             if($this->file[$this->fieldname]['error'][0] != UPLOAD_ERR_OK) {
