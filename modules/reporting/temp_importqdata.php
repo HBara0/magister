@@ -34,6 +34,7 @@ else {
             exit;
         }
 
+        $paidsarray = array();
         $currency_obj = new Currencies('USD');
 
         $affid = intval($core->input['affid']);
@@ -367,16 +368,25 @@ else {
                                         unset($activity[$field]);
                                     }
                                 }
-                                $extrawhereuid = '';
-                                if(is_array($uidsarray)) {
-                                    $extrawhereuid = ' AND uid NOT IN ('.implode(',', $uidsarray).')';
-                                }
-                                $usercheck = $db->fetch_assoc($db->query("SELECT * FROM productsactivity r WHERE rid=".$rid." AND pid=".$pid." {$extrawhereuid} SORT BY paid LIMIT 0,1"));
-                                if(is_array($usercheck)) {
-                                    foreach($usercheck as $line) {
-                                        $uidsarray[] = $line['uid'];
-                                        $db->update_query('productsactivity', $activity, 'uid = '.intval($line['uid']).' AND rid='.$rid.' AND pid='.$pid.$paupdate_querywhere);
+
+                                $actualfields = array('quantity', 'soldQty', 'turnOver');
+                                foreach($actualfields as $field) {
+                                    if(!isset($activity[$field])) {
+                                        $activity[$field] = 0;
                                     }
+                                }
+                                $extrawherepaid = '';
+                                if(is_array($paidsarray[$rid][$pid]) && !empty($paidsarray[$rid][$pid])) {
+                                    $extrawherepaid = ' AND paid NOT IN ('.implode(',', $paidsarray[$rid][$pid]).')';
+                                }
+                                $usercheck = $db->fetch_assoc($db->query("SELECT * FROM productsactivity r WHERE rid=".$rid." AND pid=".$pid." {$extrawherepaid} ORDER BY paid ASC LIMIT 0,1"));
+                                if(is_array($usercheck)) {
+                                    //foreach($usercheck as $line) {
+                                    $paidsarray[$rid][$pid][] = $usercheck['paid'];
+
+                                    $paupdate_querywhere = ' AND paid='.$usercheck['paid'];
+                                    $db->update_query('productsactivity', $activity, 'rid='.$rid.' AND pid='.$pid.$paupdate_querywhere);
+                                    // }
                                 }
                             }
                         }
