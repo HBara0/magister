@@ -1,13 +1,13 @@
 <?php
 /*
  * Copyright © 2013 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * Stock Aging Report from OB
  * $id: ob_report_stockaging.php
  * Created:        @zaher.reda    Sep 2, 2013 | 1:04:11 PM
  * Last Update:    @zaher.reda    Sep 2, 2013 | 1:04:11 PM
  */
-
+exit;
 require '../inc/init.php';
 
 define('AUTHCODE', 'X1iIMm7pG06ip6o95HEa');
@@ -22,7 +22,7 @@ if($core->input['authCode'] == AUTHCODE) {
             '0B366EFAE0524FDAA97A1322A57373BB' => 22, //Orkila East Africa
             'DA0CE0FED12C4424AA9B51D492AE96D2' => 11, //Orkila Nigeria
             'F2347759780B43B1A743BEE40BA213AD' => 23, //Orkila Ghana
-            'BD9DC2F7883B4E11A90B02A9A47991DC' => 1, //Orkila Lebanon			
+            'BD9DC2F7883B4E11A90B02A9A47991DC' => 1, //Orkila Lebanon
             '933EC892369245E485E922731D46FCB1' => 20, //Orkila Senegal
             '51FB1280AB104EFCBBB982D50B3B7693' => 21, //Orkila CI
             '7AD08388D369403A9DF4B8240E3AD7FF' => 27 //Orkila International
