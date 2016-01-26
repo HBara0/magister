@@ -63,9 +63,6 @@ if(is_array($reminders)) {
             $mailer->set_message($email_data['message']);
             $mailer->set_to($email_data['to']);
             $mailer->send();
-            //  $x = $mailer->debug_info();
-            //  print_R($x);
-            // exit;
         }
     }
 }

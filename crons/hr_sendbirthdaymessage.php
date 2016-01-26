@@ -37,10 +37,7 @@ if($db->num_rows($query) > 0) {
         $mailer->set_subject($emaildata['subject']);
         $mailer->set_message($emaildata['message']);
         $mailer->set_to($emaildata['to']);
-        // $x=$mailer->debug_info();  print_R($x); exit;
         $mailer->send();
-//        if($mailer->get_status() === true) {
-//        }
     }
 
     $core->input['action'] = 'autosendbirthdaymessage';
