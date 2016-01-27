@@ -28,30 +28,37 @@ if(!$core->input['action']) {
         $chainpolicyobj = new AroApprovalChainPolicies($core->input['id'], false);
         $chainpolicy = $chainpolicyobj->get();
         /* parse approvers */
-        $audittrailfields = array('createdOn', 'createdBy', 'modifiedOn', 'modifiedBy');
-        foreach($audittrailfields as $field) {
-            if(!empty($chainpolicy[$field])) {
-                switch($field) {
-                    case 'createdOn':
-                    case 'modifiedOn':
-                        $chainpolicy[$field.'_output'] = date($core->settings['dateformat'], $chainpolicy[$field]);
-                        break;
-                    default:
-                        $user = new Users($chainpolicy[$field]);
-                        if(is_object($user)) {
-                            $chainpolicy[$field.'_output'] = $user->get_displayname();
-                        }
-                        break;
+        if(!isset($core->input['referrer']) || (isset($core->input['referrer']) && $core->input['referrer'] != 'clone')) {
+            $audittrailfields = array('createdOn', 'createdBy', 'modifiedOn', 'modifiedBy');
+            foreach($audittrailfields as $field) {
+                if(!empty($chainpolicy[$field])) {
+                    switch($field) {
+                        case 'createdOn':
+                        case 'modifiedOn':
+                            $chainpolicy[$field.'_output'] = date($core->settings['dateformat'], $chainpolicy[$field]);
+                            break;
+                        default:
+                            $user = new Users($chainpolicy[$field]);
+                            if(is_object($user)) {
+                                $chainpolicy[$field.'_output'] = $user->get_displayname();
+                            }
+                            break;
+                    }
+                    $field_strtolower = strtolower($field);
+                    $audittrail .= '<tr><td>'.$lang->$field_strtolower.'</td><td>'.$chainpolicy[$field.'_output'].'</td></tr>';
                 }
-                $field_strtolower = strtolower($field);
-                $audittrail .= '<tr><td>'.$lang->$field_strtolower.'</td><td>'.$chainpolicy[$field.'_output'].'</td></tr>';
             }
-        }
-        $chainpolicy[effectiveTo_output] = date($core->settings['dateformat'], $chainpolicy['effectiveTo']);
-        $chainpolicy[effectiveFrom_output] = date($core->settings['dateformat'], $chainpolicy['effectiveFrom']);
+            $chainpolicy['effectiveTo_output'] = date($core->settings['dateformat'], $chainpolicy['effectiveTo']);
+            $chainpolicy['effectiveFrom_output'] = date($core->settings['dateformat'], $chainpolicy['effectiveFrom']);
 
-        $chainpolicy['effectiveFrom_formatted'] = date('d-m-Y', $chainpolicy['effectiveFrom']);
-        $chainpolicy['effectiveTo_formatted'] = date('d-m-Y', $chainpolicy['effectiveTo']);
+            $chainpolicy['effectiveFrom_formatted'] = date('d-m-Y', $chainpolicy['effectiveFrom']);
+            $chainpolicy['effectiveTo_formatted'] = date('d-m-Y', $chainpolicy['effectiveTo']);
+        }
+        else {
+            $display['clone'] = 'display:none';
+            unset($chainpolicy['aapcid']);
+        }
+
         if($chainpolicy['informCoordinators'] == 1) {
             $checked['informCoordinators'] = 'checked="checked"';
         }
@@ -89,8 +96,11 @@ if(!$core->input['action']) {
             }
         }
 
-        if(TIME_NOW > $chainpolicy['effectiveTo']) {
-            $display['save'] = 'display:none';
+        if(!isset($core->input['referrer']) || (isset($core->input['referrer']) && $core->input['referrer'] != 'clone')) {
+
+            if(TIME_NOW > $chainpolicy['effectiveTo']) {
+                $display['save'] = 'display:none';
+            }
         }
     }
     if(is_array($inaffiliates)) {
@@ -183,7 +193,8 @@ else if($core->input['action'] == 'do_perform_manageapprovalchainspolicies') {
     switch($aroapproval_policy->get_errorcode()) {
         case 0:
         case 1:
-            output_xml('<status>true</status><message>'.$lang->successfullysaved.'</message>');
+            $url = 'index.php?module=aro/manageapprovalchainspolicies&id='.$aroapproval_policy->aapcid;
+            output_xml("<status>true</status><message>Successfully<![CDATA[<script>goToURL('$url');</script>]]></message>");
             break;
         case 2:
             output_xml('<status>false</status><message>'.$lang->fillrequiredfields.'</message>');

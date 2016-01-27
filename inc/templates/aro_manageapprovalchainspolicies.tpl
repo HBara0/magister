@@ -116,6 +116,8 @@
                     </tr>
                 </table>
                 <input type="submit" id="perform_aro/manageapprovalchainspolicies_Button" value="Save" class="button" style="{$display[save]}"/>
+                <a class="button" href="{$core->settings['rootdir']}/index.php?module=aro/manageapprovalchainspolicies&id={$chainpolicy[aapcid]}&referrer=clone" value="Clone" target='_blank' style="{$display['clone']};padding-top:5px;color:white">
+                    Clone</a>
             </form>
             <div id="perform_aro/manageapprovalchainspolicies_Results"></div>
         </td>
