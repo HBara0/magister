@@ -8,3 +8,10 @@ inc/init.php
 inc/integration_config.php
 .htaccess
 /uploads/*
+/images/charts/*.png
+/images/entitieslogos/*.png
+/images/entitieslogos/*.jpg
+/images/entitieslogos/*.gif
+/images/entitieslogos/*.bmp
+/images/profilepictures/*.jpg
+/images/profilepictures/*.bmp
