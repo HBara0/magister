@@ -515,7 +515,7 @@ class Surveys {
 						JOIN ".Tprefix."surveys s ON (s.sid=sr.sid)
 						JOIN ".Tprefix."surveys_templates_questions stq ON (stq.stqid=sr.stqid)
 						JOIN ".Tprefix."surveys_questiontypes sqt ON (stq.type=sqt.sqtid)
-						WHERE sr.identifier='".$db->escape_string($identifier)."'  AND (sr.invitee={$core->user[uid]} OR {$core->user[uid]} = s.createdBy)
+						WHERE sr.identifier='".$db->escape_string($identifier)."'  AND (sr.invitee={$core->user[uid]} OR {$core->user[uid]} = s.createdBy OR EXISTS (SELECT * FROM ".Tprefix."surveys_sharedwith sharedwith WHERE sharedwith.sid = s.sid AND sharedwith.uid = {$core->user[uid]}))
 						ORDER BY stqid ASC");
 
         if($db->num_rows($query) > 0) {
