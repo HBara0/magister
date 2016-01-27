@@ -582,7 +582,6 @@ else {
                 $message_todate_format = $core->settings['timeformat'];
                 $subject_todate_format = '';
             }
-
             /* Generate Leaves Balances - START */
             if($leavetype_details['noBalance'] == 0) {
                 $stat = new LeavesStats();
@@ -646,8 +645,10 @@ else {
                           $leavestats['daysTaken'],
                           ($leavestats['canTake'] - $leavestats['daysTaken']),
                           ($leavestats['canTake'] - $leavestats['daysTaken']) - $leave['workingdays']); */
-
-                        $lang->requestleavemessage_stats = $lang->sprint($lang->requestleavemessage_stats, ($leavestats ['canTake'] - $leavestats ['daysTaken']) + $leavestats ['additionalDays'], (($leavestats ['canTake'] - $leavestats['daysTaken'] ) + $leavestats['additionalDays']) - $leave['workingdays']);
+                        $currentbalance = $leavestats['entitledFor'].'</td><td>'.($leavestats ['canTake'] - $leavestats ['daysTaken']) + $leavestats ['additionalDays'];
+                        $afterbalance = $currentbalance.'</td><td>'.(($leavestats ['canTake'] - $leavestats['daysTaken'] ) + $leavestats['additionalDays']) - $leave['workingdays'];
+                        $lang->requestleavemessage_stats = '<strong>'.$lang->leavesstats.':</strong><br></br><table>
+                            <thead><tr><th>'.$lang->entitledfor.' </th><th>'.$lang->currentbalance.' </th><th>'.$lang->finalbalance.$lang->afterapproval.' </th></tr></thead><tbody><tr><td>'.$afterbalance.'</td></tr></tbody></table>';
                     }
                     else {
 
