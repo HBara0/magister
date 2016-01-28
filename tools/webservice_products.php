@@ -10,7 +10,7 @@
 require '../inc/init.php';
 require ROOT.INC_ROOT.'integration_config.php';
 ini_set('max_execution_time', 0);
-$url = 'http://174.142.192.135:8080/openbravo_test/org.openbravo.service.json.jsonrest/Product&_startRow=1&_endRow=5';
+$url = 'http://184.107.151.42:8080/openbravo_test/org.openbravo.service.json.jsonrest/Product?_startRow=1&_endRow=5';
 
 $alldata = get_curldata($url);
 $data = $alldata->response->data;
@@ -50,8 +50,8 @@ if(is_array($data)) {
             }
         }
         else {
-            $supplierurl = 'http://174.142.192.135:8080/openbravo_test/org.openbravo.service.json.jsonrest/MaterialMgmtMaterialTransaction?_where=movementQuantity > 0 AND product=\''.$product->id.'\' AND movementType=\'V+\'&_startRow=1&_endRow=5';
-//                $supplierurl = 'http://174.142.192.135:8080/openbravo_test/org.openbravo.service.json.jsonrest/MaterialMgmtMaterialTransaction?_where=movementType=\'C-\'&_startRow=1&_endRow=5';
+            $supplierurl = 'http://184.107.151.42:8080/openbravo_test/org.openbravo.service.json.jsonrest/MaterialMgmtMaterialTransaction?where=movementQuantity > 0 AND product=\''.$product->id.'\' AND movementType=\'V+\'&_startRow=1&_endRow=5';
+//                $supplierurl = 'http://184.107.151.42:8080/openbravo_test/org.openbravo.service.json.jsonrest/MaterialMgmtMaterialTransaction?where=movementType=\'C-\'?_startRow=1?_endRow=5';
             $supdata = get_curldata($supplierurl);
             $sups = $supdata->response->data;
             if(is_array($sups)) {
