@@ -34,7 +34,7 @@ class AroPolicies extends AbstractClass {
             $data['createdBy'] = $core->user['uid'];
             $query = $db->insert_query(self::TABLE_NAME, $data);
             if($query) {
-                $id = $db->last_id();
+                $this->data[self::PRIMARY_KEY] = $id = $db->last_id();
                 $log->record('aro_policies', $id);
             }
         }
