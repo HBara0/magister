@@ -28,6 +28,7 @@
                     <li><span id="entities/manageentitiesfiles"><a href='index.php?module=entities/manageentitiesfiles'>{$lang->managefiles}</a></span></li>
                     <li><span id="entities/managebrands"><a href='index.php?module=entities/managebrands'>{$lang->managebrands}</a></span></li>
                     <li><span id="entities/paymenttermslist"><a href='index.php?module=entities/paymenttermslist'>{$lang->managepaymentterms}</a></span></li>
+                    <li><span id="entities/addmissingrates"><a href='index.php?module=entities/addmissingrates'>{$lang->addmissingfxrates}</a></span></li>
 
                 </ul>
             </div>

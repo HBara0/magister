@@ -90,7 +90,7 @@ foreach($users as $key => $val) {
             'subject' => 'Some monthly reports have not been finalized yet',
             'message' => $email_message
     );
-    $email_data['cc'] = 'zaher.reda@orkila.com'; //$email_data['cc'] = 'mohamed.hosny@orkila.com.eg';
+    $email_data['cc'] = 'ayman.khoury@orkila.com'; //$email_data['cc'] = 'mohamed.hosny@orkila.com.eg';
     echo $email_message.'<hr />';
     //$mail = new Mailer($email_data, 'php');
 }

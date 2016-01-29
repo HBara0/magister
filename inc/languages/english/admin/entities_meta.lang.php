@@ -106,4 +106,12 @@ $lang['createpaymentterms'] = 'Create Payment terms';
 $lang['titleerror'] = 'Title is already used';
 $lang['classificationclass'] = 'Classification Class';
 $lang['join'] = 'Join';
+$lang['submit'] = 'Submit';
+$lang['fromdate'] = 'From Date';
+$lang['todate'] = 'To Date';
+$lang['sourcecurrencies'] = 'Source Currencies';
+$lang['tocurrencies'] = 'To Currencies';
+$lang['fillallfields'] = 'Fill All Fields';
+$lang['success'] = 'Success';
+$lang['erroroccured'] = 'Error Occured';
 ?>

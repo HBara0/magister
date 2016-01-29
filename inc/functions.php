@@ -2250,4 +2250,18 @@ function get_lastquarter($currenctq_data) {
     }
 }
 
+function get_quarter_extremities($quarter, $year) {
+    switch($quarter) {
+        case 1:
+            return array('start' => strtotime('01-Jan-'.$year), 'end' => strtotime('31-Mars-'.$year));
+        case 2:
+            return array('start' => strtotime('01-Apr-'.$year), 'end' => strtotime('30-Jun-'.$year));
+        case 3 :
+            return array('start' => strtotime('01-Jul-'.$year), 'end' => strtotime('30-Spet-'.$year));
+        case 4:
+            return array('start' => strtotime('01-Oct-'.$year), 'end' => strtotime('31-Dec-'.$year));
+    }
+    return false;
+}
+
 ?>

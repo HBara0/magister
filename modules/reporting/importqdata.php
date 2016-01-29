@@ -284,8 +284,6 @@ else {
                     if(!isset($newpurchase[$report['rid']][$uid][$sale['localpid']])) {
                         $newpurchase[$report['rid']][$uid][$sale['localpid']] = array(
                                 'pid' => $sale['localpid'],
-                                'quantity' => 0,
-                                'turnOver' => 0,
                                 'rid' => $report['rid'],
                                 'uid' => $uid,
                                 'soldQty' => $sale['quantity']

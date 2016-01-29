@@ -7,7 +7,7 @@
             <h2>{$lang->template}</h2>
         </div>
         {$surveytemplates_list}
-        <input type='button' id='test' value='{$lang->loadquestins}' class='button'/>
+        <input type='button' id='test' value='{$lang->loadquestions}' class='button'/>
 
     </form>
 </div>

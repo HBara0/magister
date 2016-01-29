@@ -47,8 +47,9 @@ if(!$core->input['action']) {
 
     /* Perform inline filtering - START */
     $filters_config = array(
-            'parse' => array('filters' => array('companyName', 'type', 'segment', 'country', 'opportunity', 'chemicalsubstance', 'genericproduct'),
-                    'overwriteField' => array('opportunity' => parse_selectlist('filters[opportunity][]', 5, array_combine($opportunity_scale, $opportunity_scale), $core->input['filters']['opportunity'], 1),
+            'parse' => array('filters' => array('companyName', 'type', 'segment', 'country', 'opportunity', 'isActive', 'chemicalsubstance', 'genericproduct'),
+                    'overwriteField' => array('isActive' => parse_selectlist('filters[isActive]', 2, array('1' => 'Yes', '0' => 'No'), $core->input['filters']['isActive']),
+                            'opportunity' => parse_selectlist('filters[opportunity][]', 5, array_combine($opportunity_scale, $opportunity_scale), $core->input['filters']['opportunity'], 1),
                             'type' => parse_selectlist('filters[type]', 2, array('' => '', 'b' => $lang->both, 't' => $lang->trader, 'p' => $lang->producer), $core->input['filters']['type']),
                     )
             /* get the busieness potential and parse them in select list to pass to the filter array */
@@ -57,7 +58,7 @@ if(!$core->input['action']) {
                     'filterKey' => 'ssid',
                     'mainTable' => array(
                             'name' => 'sourcing_suppliers',
-                            'filters' => array('companyName' => 'companyName', 'type' => 'type', 'opportunity' => array('operatorType' => 'multiple', 'name' => 'businessPotential')),
+                            'filters' => array('companyName' => 'companyName', 'type' => 'type', 'opportunity' => array('operatorType' => 'multiple', 'name' => 'businessPotential'), 'isActive' => 'isActive'),
                     ),
                     'secTables' => array(
                             'sourcing_suppliers_productsegments' => array(
@@ -123,11 +124,15 @@ if(!$core->input['action']) {
                 continue;
             }
 
-            $edit_link = '';
+            $edit_link = $checkbox = '';
             if($core->usergroup['sourcing_canManageEntries'] == 1) {
                 $edit_link = '<a href="'.DOMAIN.'/index.php?module=sourcing/managesupplier&amp;type=edit&amp;id='.$potential_supplier['supplier']['ssid'].'"><img src="./images/icons/edit.gif" border="0"/></a>';
+                $checkbox = ' <input type="checkbox" name="suppliercheck[]" value="'.$potential_supplier['supplier']['ssid'].'">';
             }
-
+            $potential_supplier['isactive_output'] = '<span class="glyphicon glyphicon-ok" style="color:green"></span>';
+            if($potential_supplier['supplier']['isActive'] != 1) {
+                $potential_supplier['isactive_output'] = '<span class="glyphicon glyphicon-remove" style="color:red"></span>';
+            }
             /* Parse segements column - START */
             $potential_supplier['segments_output'] = '';
             if(is_array($potential_supplier['segments'])) {
@@ -210,7 +215,18 @@ if(!$core->input['action']) {
             $productsegment_applications .= '<option value='.$application->psaid.'>'.$application->get_displayname().' - '.$application->get_segment()->title.'</option>';
         }
     }
+    if($core->usergroup['sourcing_canManageEntries'] == 1) {
+        $moderationtools = "<tr><td colspan='3'>";
+        $moderationtools .= "<div id='moderation_sourcing/listpotentialsupplier_Results'></div>&nbsp;";
 
+        $moderationtools .= "</td><td style='text-align: right;' colspan='4'><strong>{$lang->moderatintools}:</strong> <select name='moderationtool' id='moderationtools'>";
+        $moderationtools .= "<option value='' selected>&nbsp;</option>";
+
+        $moderationtools .= "<option value='activate'>{$lang->activate}</option>";
+        $moderationtools .= "<option value='disable'>{$lang->disable}</option>";
+
+        $moderationtools .= "</select></td></tr>";
+    }
     $core->settings['itemsperlist'] = 100;
     eval("\$listpotentialsupplier = \"".$template->get('sourcing_listpotentialsuppliers')."\";");
     output_page($listpotentialsupplier);
@@ -236,6 +252,20 @@ else {
                 output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
                 break;
         }
+    }
+    elseif($core->input['action'] == 'do_moderation') {
+        if(isset($core->input['suppliercheck']) && !empty($core->input['suppliercheck']) && is_array($core->input['suppliercheck'])) {
+            switch($core->input['moderationtool']) {
+                case 'activate':
+                    $update_status = $db->update_query('sourcing_suppliers', array('isActive' => 1), "ssid IN (".implode(',', $core->input['suppliercheck']).")");
+                    break;
+                case 'disable':
+                    $update_status = $db->update_query('sourcing_suppliers', array('isActive' => 0), "ssid IN (".implode(',', $core->input['suppliercheck']).")");
+                    break;
+            }
+        }
+        output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
+        exit;
     }
 }
 ?>

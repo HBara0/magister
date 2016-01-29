@@ -1,4 +1,3 @@
-
 <table style="width:100%;height:120px;text-align:center">
     <tr>
         <td style="width: 25%">

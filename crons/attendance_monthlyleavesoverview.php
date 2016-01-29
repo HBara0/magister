@@ -16,8 +16,15 @@ $lang->load('global');
 $lang->load('attendance_meta');
 
 if(!$core->input['action']) {
-    $startdate = mktime(0, 0, 0, 1, 1, date('Y', TIME_NOW));
-    $enddate = mktime(23, 59, 59, 12, 31, date('Y', TIME_NOW));
+    if(date('n', TIME_NOW) == 1) {
+        $reportyear = date('Y', TIME_NOW) - 1;
+    }
+    else {
+        $reportyear = date('Y', TIME_NOW);
+    }
+
+    $startdate = mktime(0, 0, 0, 1, 1, $reportyear);
+    $enddate = mktime(23, 59, 59, 12, 31, $reportyear);
     $lang->thismonth = 'This Month';
     $lang->thisweek = 'This Week';
     $lang->lastmonth = 'Last Month';

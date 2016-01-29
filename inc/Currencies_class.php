@@ -574,5 +574,126 @@ class Currencies extends AbstractClass {
         }
     }
 
+    /**
+     *
+     * @param type $from timestamp
+     * @param type $to  timestamp
+     * @param type $fromcurrencies array (currency ids)
+     * @param type $tocurrencies array(currency ids)
+     * @return boolean or returns array of missing rates by date
+     */
+    public function get_missingfxrates($from, $to, $fromcurrencies, $tocurrencies) {
+        global $db, $log;
+        $cache = new Cache();
+        if($from > $to) {
+            return false;
+        }
+        $to_datetimeobject = new DateTime();
+        $to_datetimeobject->setTimestamp($to);
+        $from_datetimeobject = new DateTime();
+        $from_datetimeobject->setTimestamp($from);
+        if(is_array($fromcurrencies) && is_array($tocurrencies)) {
+            if(is_object($to_datetimeobject) && is_object($from_datetimeobject)) {
+                while($from_datetimeobject->format('Y-m-d') != $to_datetimeobject->format('Y-m-d')) {
+                    $from_datetimeobject->add(new DateInterval('P1D'));
+                    $insert_data['date'] = $from_datetimeobject->getTimestamp();
+                    foreach($fromcurrencies as $fromcurrency) {
+                        $beginOfDay = strtotime("midnight", $insert_data['date']);
+                        $endOfDay = strtotime("tomorrow", $beginOfDay) - 1;
+                        $existingfxrate = CurrenciesFxRate::get_column('currency', 'currency IN ('.implode(',', $tocurrencies).') AND date BETWEEN '.$beginOfDay.' AND '.$endOfDay);
+                        if(is_array($existingfxrate)) {
+                            $exchcurrency = array_diff($existingfxrate, $tocurrencies);
+                        }
+                        else {
+                            $exchcurrency = $tocurrencies;
+                        }
+                        $missingrates = self::get_historical_fxrates($from_datetimeobject, $exchcurrency, $fromcurrency);
+                        if(is_array($missingrates)) {
+                            $insert_data['baseCurrency'] = $fromcurrency;
+                            if(is_array($missingrates['quotes'])) {
+                                foreach($missingrates['quotes'] as $rawcurrency => $rate) {
+                                    $actual_currency = substr($rawcurrency, 3);
+                                    if(!empty($actual_currency)) {
+                                        if(!$cache->iscached('currency', $actual_currency)) {
+                                            $currency_obj = new Currencies($actual_currency);
+                                            if(is_object($currency_obj) && !empty($currency_obj->numCode)) {
+                                                $cache->add('currency', $currency_obj->numCode, $actual_currency);
+                                            }
+                                            else {
+                                                continue;
+                                            }
+                                        }
+                                        $insert_data['currency'] = $cache->get_cachedval('currency', $actual_currency);
+                                        $insert_data['rate'] = $rate;
+                                        if(CurrenciesFxRate::validate_requiredfields($inserdata)) {
+                                            $query = $db->insert_query(CurrenciesFxRate::TABLE_NAME, $insert_data);
+                                            if($query) {
+                                                $log->record(CurrenciesFxRate::TABLE_NAME.'historicalapi', $db->last_id());
+                                            }
+                                            unset($insert_data['rate'], $insert_data['currency']);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     *
+     * @param type $date
+     * @param type $tocurrencies
+     * @param type $sourcecurrency
+     * @return boolean
+     */
+    public function get_historical_fxrates($date, $tocurrencies, $sourcecurrency = '840') {
+        if(is_array($tocurrencies)) {
+            foreach($tocurrencies as $currency_id) {
+                $currency_obj = new Currencies($currency_id);
+                if(is_object($currency_obj) && !empty($currency_obj->numCode)) {
+                    $findcurrencies_names[] = $currency_obj->alphaCode;
+                }
+            }
+        }
+        if(is_array($findcurrencies_names)) {
+            if(is_object($date)) {
+                $date = $date->format('Y-m-d');
+            }
+            elseif(is_numeric($date)) {
+                $date = date('Y-m-d', $date);
+            }
+            $findcurrencies_names = implode(',', $findcurrencies_names);
+            $sourcecurrency_obj = new Currencies($sourcecurrency);
+            if(!is_object($sourcecurrency_obj)) {
+                return false;
+            }
+            $sourcecurrency = $sourcecurrency_obj->alphaCode;
+// Initialize CURL:
+            $access_key = 'cc64c9d2fc1eb255343e8d271e59149f';
+            $endpoint = 'historical';
+            $findcurrencies_names = '&currencies ='.$findcurrencies_names;
+            $cdf = 'http://apilayer.net/api/'.$endpoint.'?access_key='.$access_key.'&date='.$date.'&source='.$sourcecurrency.$findcurrencies_names;
+            $ch = curl_init('http://apilayer.net/api/'.$endpoint.'?access_key='.$access_key.'&date='.$date.'&source='.$sourcecurrency.$findcurrencies_names);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+// Store the data:
+            $json = curl_exec($ch);
+            curl_close($ch);
+
+// Decode JSON response:
+            $results = json_decode($json, true);
+            if(isset($results['success']) && $results['success'] == true) {
+                return $results;
+            }
+        }
+
+        return false;
+    }
+
 }
 ?>

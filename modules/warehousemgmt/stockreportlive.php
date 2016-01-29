@@ -1132,7 +1132,7 @@ else {
         }
         $affiliates_addrecpt = array(
                 19 => array(398, 356),
-                22 => array(248, 246, 287, 270, 356, 63),
+                22 => array(248, 246, 270, 356, 63, 379, 378),
                 23 => array('zadok.oppong-boahene', 'courage.dzandu', 416, 321, 'tarek.chalhoub', 63, 356),
                 1 => array(356), //12, 333, 182, 43,
                 21 => array(63, 158, 'patrice.mossan', 'marcelle.nklo', 'abel.laho', 'boulongo.diata', 356, 'kenan.amjeh'),

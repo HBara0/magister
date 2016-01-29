@@ -112,7 +112,9 @@ class Sourcing {
         else {
             unset($this->supplier['fax']);
         }
-
+        if(!isset($this->supplier['isActive']) || empty($this->supplier['isActive'])) {
+            $this->supplier['isActive'] = 0;
+        }
         if($options['operationtype'] == 'update') {
             $this->supplier['dateModified'] = TIME_NOW;
             $this->supplier['modifiedBy'] = $core->user['uid'];
@@ -391,7 +393,7 @@ class Sourcing {
         }
         /* if no permission person should only see suppliers who work in the same segements he/she is working in - END */
 
-        $suppliers_query = $db->query("SELECT ss.ssid, ss.companyName, ss.companyNameAbbr, ss.type, ss.isBlacklisted, ss.businessPotential
+        $suppliers_query = $db->query("SELECT ss.ssid, ss.companyName, ss.companyNameAbbr, ss.type, ss.isBlacklisted, ss.businessPotential,ss.isActive
 											FROM ".Tprefix."sourcing_suppliers ss
 											{$join_employeessegments}
 											{$filter_where}

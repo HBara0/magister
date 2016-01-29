@@ -137,12 +137,12 @@ eval("\$topmanagementreport=\"".$template->get('topmanagementreport')."\";");
 output($topmanagementreport);
 
 $email_data = array(
-        'to' => 'rasha.aboushakra@orkila.com',
+            'to' => 'christophe.sacy@orkila.com',
         'from_email' => $core->settings['adminemail'],
         'from' => 'OCOS Mailer',
         'subject' => 'Top Management Report',
         'message' => $topmanagementreport
 );
-//$mail = new Mailer($email_data, 'php');
-//}
+    $mail = new Mailer($email_data, 'php');
+}
 

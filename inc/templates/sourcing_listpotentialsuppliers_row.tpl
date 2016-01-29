@@ -5,5 +5,6 @@
 <td>{$potential_supplier[segments_output]}</td>
 <td>{$potential_supplier[activityarea_output]}</td>
 <td id="{$potential_supplier[ssid]}">{$rating_section}</td>
-<td>{$edit_link}</td>
+<td>{$potential_supplier[isactive_output]}</td>
+<td>{$edit_link}{$checkbox}</td>
 </tr>
