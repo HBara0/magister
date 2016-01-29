@@ -11,7 +11,11 @@ $(function() {
         var pattern = /^[ 0-9-,.%]*$/;
         if($(this).html().match(pattern)) {
             if($(this).html().indexOf('-') === 0) {
-                $(this).css("color", "red");
+                if($(this).attr('id')) {
+                    $(this).css("color", "green");
+                } else {
+                    $(this).css("color", "red");
+                }
             }
 
         }
