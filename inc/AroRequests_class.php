@@ -1161,13 +1161,15 @@ class AroRequests extends AbstractClass {
 
     public function get_timelapsed() {
         $request = self::get_data(array('isFinalized' => 1, 'aorid' => $this->data[self::PRIMARY_KEY]));
-        $hourselapsed = floor((TIME_NOW - $request->finalizedOn) / (60 * 60 )); //in term of hours
-        if($hourselapsed > 24) {
-            $dayselapsed = floor((TIME_NOW - $request->finalizedOn) / (60 * 60 * 24 )); //in term of days
-            return $dayselapsed.'days';
-        }
-        else {
-            return $hourselapsed.' hours';
+        if($request->finalizedOn != 0) {
+            $hourselapsed = floor((TIME_NOW - $request->finalizedOn) / (60 * 60 )); //in term of hours
+            if($hourselapsed > 24) {
+                $dayselapsed = floor((TIME_NOW - $request->finalizedOn) / (60 * 60 * 24 )); //in term of days
+                return $dayselapsed.'days';
+            }
+            else {
+                return $hourselapsed.' hours';
+            }
         }
     }
 

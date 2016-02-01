@@ -114,7 +114,7 @@ class AroRequestsMessages extends AbstractClass {
         $lang->load('aro_meta');
         $mailer = new Mailer();
         $mailer = $mailer->get_mailerobj();
-        $mailer->set_from(array('name' => $core->user['displayName'], 'email' => 'approve_arorequest@ocos.orkila.com')); //$core->settings['maileremail']));
+        $mailer->set_from(array('name' => $core->user['displayName'], 'email' => $core->settings['maileremail']));
 
         $arorequest = AroRequests::get_data(array('aorid' => $this->data['aorid']), array('simple' => false));
 
@@ -197,14 +197,16 @@ class AroRequestsMessages extends AbstractClass {
                 return false;
                 break;
             case 'limited':
-                $aro_request_obj = new AroRequests($this->data['aorid']);
-                $sender_approval_seq = $aro_request_obj->get_approval_byappover($this->data['uid'])->get()['sequence'];
-                $user_approval_seq = $aro_request_obj->get_approval_byappover($check_user)->get()['sequence'];
-                if($sender_approval_seq >= $user_approval_seq) {
-                    //  if($sender_approval_seq <= $user_approval_seq) {
-                    return true;
-                }
-                return false;
+                return true;
+
+//                $aro_request_obj = new AroRequests($this->data['aorid']);
+//                $sender_approval_seq = $aro_request_obj->get_approval_byappover($this->data['uid'])->get()['sequence'];
+//                $user_approval_seq = $aro_request_obj->get_approval_byappover($check_user)->get()['sequence'];
+//                if($sender_approval_seq >= $user_approval_seq) {
+//                    //  if($sender_approval_seq <= $user_approval_seq) {
+//                    return true;
+//                }
+//                return false;
                 break;
         }
     }

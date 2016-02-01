@@ -93,7 +93,10 @@
 
                     <tr>
                         <td colspan="3" align="left" style="{$display[save]}">
-                            <input type="submit" value="{$lang->savecaps}" id="perform_aro/managepolicies_Button" class="button"/> <input type="reset" value="{$lang->reset}" class="button"/>
+                            <input type="submit" value="{$lang->savecaps}" id="perform_aro/managepolicies_Button" class="button"/>
+                            <input type="reset" value="{$lang->reset}" class="button"/>
+                            <a class="button" href="{$core->settings['rootdir']}/index.php?module=aro/managepolicies&id={$aropolicy[apid]}&referrer=clone" value="Clone" target='_blank' style="{$display['clone']};padding-top:5px;color:white">
+                                Clone</a>
                             <div id="perform_aro/managepolicies_Results"></div>
                         </td>
                     </tr>

@@ -77,7 +77,7 @@ class Events extends AbstractClass {
                 if($upload_obj->get_status() != 4) {
                     ?>
                     <script language="javascript" type="text/javascript">
-                        $(function () {
+                        $(function() {
                             top.$("#upload_Result").html("<span class='red_text'><?php echo $upload_obj->parse_status($upload_obj->get_status());?></span>");
                         });
                     </script>
@@ -281,6 +281,32 @@ class Events extends AbstractClass {
                 }
             }
         }
+    }
+
+    public function parse_dates() {
+        global $core;
+        $this->fromDate_obj = new DateTime();
+        $this->fromDate_obj->setTimestamp($this->fromDate);
+
+        $this->toDate_obj = new DateTime();
+        $this->toDate_obj->setTimestamp($this->toDate);
+
+        if($this->fromDate_obj->format('Y-m-d') === $this->toDate_obj->format('Y-m-d')) {
+            $this->fromDate_output = $this->fromDate_obj->format($core->settings['dateformat']);
+        }
+        elseif($this->fromDate_obj->format('Y-m') === $this->toDate_obj->format('Y-m')) {
+            $this->fromDate_output = $this->fromDate_obj->format('M d - ');
+            $this->toDate_output = $this->toDate_obj->format('d, Y');
+        }
+        elseif($this->fromDate_obj->format('Y') === $this->toDate_obj->format('Y')) {
+            $this->fromDate_output = $this->fromDate_obj->format('M d - ');
+            $this->toDate_output = $this->toDate_obj->format($core->settings['dateformat']);
+        }
+        else {
+            $this->fromDate_output = $this->fromDate_obj->format($core->settings['dateformat'].' - ');
+            $this->toDate_output = $this->toDate_obj->format($core->settings['dateformat']);
+        }
+        $this->month = $this->fromDate_obj->format('F');
     }
 
 }
