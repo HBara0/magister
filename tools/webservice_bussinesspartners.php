@@ -10,8 +10,12 @@
 require '../inc/init.php';
 require ROOT.INC_ROOT.'integration_config.php';
 ini_set('max_execution_time', 0);
-$url = 'http://184.107.151.42:8080/openbravo_test/org.openbravo.service.json.jsonrest/BusinessPartner?where=active=1&_startRow=1&_endRow=10';
-
+if($core->inputp['referrer'] == 'complete') {
+    $url = 'http://184.107.151.42:8080/openbravo_test/org.openbravo.service.json.jsonrest/BusinessPartner?where=active=1&_startRow=1&_endRow=10';
+}
+else {
+    $url = 'http://184.107.151.42:8080/openbravo_test/org.openbravo.service.json.jsonrest/BusinessPartner?where=active=1 AND creationDate >'.date('Y-m-d 00:00:00', TIME_NOW - (24 * 60 * 60)).'&_startRow=1&_endRow=10';
+}
 $alldata = get_curldata($url);
 $data = $alldata->response->data;
 $identifier = '$_identifier';
