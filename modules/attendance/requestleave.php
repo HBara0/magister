@@ -646,9 +646,9 @@ else {
                           ($leavestats['canTake'] - $leavestats['daysTaken']),
                           ($leavestats['canTake'] - $leavestats['daysTaken']) - $leave['workingdays']); */
                         $currentbalance = $leavestats['entitledFor'].'</td><td>'.($leavestats ['canTake'] - $leavestats ['daysTaken']) + $leavestats ['additionalDays'];
-                        $afterbalance = $currentbalance.'</td><td>'.(($leavestats ['canTake'] - $leavestats['daysTaken'] ) + $leavestats['additionalDays']) - $leave['workingdays'];
+                        $afterbalance = (($leavestats ['canTake'] - $leavestats['daysTaken'] ) + $leavestats['additionalDays']) - $leave['workingdays'];
                         $lang->requestleavemessage_stats = '<strong>'.$lang->leavesstats.':</strong><br></br><table>
-                            <thead><tr><th>'.$lang->entitledfor.' </th><th>'.$lang->currentbalance.' </th><th>'.$lang->finalbalance.$lang->afterapproval.' </th></tr></thead><tbody><tr><td>'.$afterbalance.'</td></tr></tbody></table>';
+                            <thead><tr style="background-color:#EAEAEA"> <th style="border: 1px solid black;">'.$lang->entitledfor.'&nbsp</th><th style="border: 1px solid black;">'.$lang->cantake.'</th><th style="border: 1px solid black;">'.$lang->currentbalance.'&nbsp</th><th style="border: 1px solid black;">'.$lang->finalbalance.' '.$lang->afterapproval.'&nbsp</th></tr></thead><tbody><tr  align="center"><td style="border: 1px solid black;">'.$leavestats['entitledFor'].'</td><td style="border: 1px solid black;">'.$leavestats['canTake'].'</td><td style="border: 1px solid black;">'.$currentbalance.'</td><td style="border: 1px solid black;">'.$afterbalance.'</td></tr></tbody></table>';
                     }
                     else {
 
@@ -712,7 +712,6 @@ else {
                 $lang->leavenotificationsubject = $lang->sprint($lang->leavenotificationsubject, $leave_user['firstName'].' '.$leave_user['lastName'], $lang->leavenotificationmessage_typedetails, $tooktaking, date($core->settings['dateformat'], $core->input['fromDate']), date($subject_todate_format, $core->input['toDate']));
                 $lang->leavenotificationmessage = $lang->sprint($lang->leavenotificationmessage, $leave_user['firstName'].' '.$leave_user['lastName'], $lang->leavenotificationmessage_typedetails, date($core->settings['dateformat'].' '.$core->settings['timeformat'], $core->input['fromDate']), date($message_todate_format, $core->input['toDate']), $lang->leavenotificationmessage_days, $tooktaking, $contact_details, $contactperson_details);
             }
-
             if($approve_immediately == false) {
                 $email_data = array(
                         'from_email' => 'approve_leaverequest@ocos.orkila.com',
@@ -721,6 +720,8 @@ else {
                         'subject' => $lang->requestleavesubject,
                         'message' => $lang->requestleavemessage
                 );
+                output_xml("<status>true</status><message><![CDATA[{$email_data['message']}]]></message>");
+                exit;
             }
             else {
                 $to_inform = unserialize($core->input['affToInform']);

@@ -100,4 +100,5 @@ $lang['apporvinganonexistingleave'] = 'Dear {1},<br />
 You Just tried to approve a deleted or revoked leave.
 <br />
 Regards';
+$lang['currentbalance'] = 'Current Balance';
 ?>
