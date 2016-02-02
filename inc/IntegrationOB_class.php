@@ -2657,6 +2657,10 @@ class IntegrationOBBPartner extends IntegrationAbstractClass {
         return $this->data;
     }
 
+    public function get_bplocation() {
+        return IntegrationOBBusinessPartnerLocation::get_data("c_bpartner_id='".$this->data['c_bpartner_id']."'");
+    }
+
 }
 
 class IntegrationOBAttributeSetInstance {
