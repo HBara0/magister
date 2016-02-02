@@ -28,6 +28,17 @@
           <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
           <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
         <![endif]-->
+
+
+
+        <link rel="shortcut icon" href="../images/favicon.ico" />
+
+        <link href='../css/jqueryuitheme/jquery-ui-current.custom.min.css' rel='stylesheet' type='text/css' />
+        <link href="../css/bootstrap.min.css" rel="stylesheet">
+        <link href='../css/jquery.qtip.min.css' rel='stylesheet' type='text/css' />
+        <link href="../css/token-input.css" rel="stylesheet" type="text/css" />
+        <link href="../css/styles.min.css" rel="stylesheet" type="text/css" />
+
         <style>
             html, body {
                 height: 100%;
@@ -35,7 +46,7 @@
             .mini-submenu{
                 display:none;
                 background-color: #B6CF8C;
-                padding: 9px;
+                padding: 12px;
                 /*position: relative;*/
                 width: 4px;
                 height:100%;
@@ -53,24 +64,114 @@
                 width:4px;
                 background-color:#B6CF8C;
             }
+            .rotate {
+                /* Safari */
+                -webkit-transform: rotate(-90deg);
 
+                /* Firefox */
+                -moz-transform: rotate(-90deg);
+
+                /* IE */
+                -ms-transform: rotate(-90deg);
+
+                /* Opera */
+                -o-transform: rotate(-90deg);
+
+                /* Internet Explorer */
+                filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
+            }
             .mini-submenu .icon-bar {
                 background-color: #000;
             }
             #slide-submenu{
-                background: #B6CF8C;
+                background:#92d050;;
                 display: inline-block;
                 padding: 0 8px;
                 border-radius: 4px;
                 cursor: pointer;
             }
             .list-group-item.active, .list-group-item.active:focus, .list-group-item.active:hover{
-                background: #B6CF8C !important;
+                background: #92d050; !important;
+            }
+            .scrollable-menu {
+                height: auto;
+                max-height: 200px;
+                overflow-x: hidden;
+            }
+            .navbar-default {
+                background-color: #54b84e;
+                border-color: #378e3e;
+            }
+            .navbar-default .navbar-brand {
+                color: #ecf0f1;
+            }
+            .navbar-default .navbar-brand:hover,
+            .navbar-default .navbar-brand:focus {
+                color: #f7f7f7;
+            }
+            .navbar-default .navbar-text {
+                color: #ecf0f1;
+            }
+            .navbar-default .navbar-nav > li > a {
+                color: #ecf0f1;
+            }
+            .navbar-default .navbar-nav > li > a:hover,
+            .navbar-default .navbar-nav > li > a:focus {
+                color: #f7f7f7;
+            }
+            .navbar-default .navbar-nav > .active > a,
+            .navbar-default .navbar-nav > .active > a:hover,
+            .navbar-default .navbar-nav > .active > a:focus {
+                color: #f7f7f7;
+                background-color: #378e3e;
+            }
+            .navbar-default .navbar-nav > .open > a,
+            .navbar-default .navbar-nav > .open > a:hover,
+            .navbar-default .navbar-nav > .open > a:focus {
+                color: #f7f7f7;
+                background-color: #378e3e;
+            }
+            .navbar-default .navbar-toggle {
+                border-color: #378e3e;
+            }
+            .navbar-default .navbar-toggle:hover,
+            .navbar-default .navbar-toggle:focus {
+                background-color: #378e3e;
+            }
+            .navbar-default .navbar-toggle .icon-bar {
+                background-color: #ecf0f1;
+            }
+            .navbar-default .navbar-collapse,
+            .navbar-default .navbar-form {
+                border-color: #ecf0f1;
+            }
+            .navbar-default .navbar-link {
+                color: #ecf0f1;
+            }
+            .navbar-default .navbar-link:hover {
+                color: #f7f7f7;
+            }
+
+            @media (max-width: 767px) {
+                .navbar-default .navbar-nav .open .dropdown-menu > li > a {
+                    color: #ecf0f1;
+                }
+                .navbar-default .navbar-nav .open .dropdown-menu > li > a:hover,
+                .navbar-default .navbar-nav .open .dropdown-menu > li > a:focus {
+                    color: #f7f7f7;
+                }
+                .navbar-default .navbar-nav .open .dropdown-menu > .active > a,
+                .navbar-default .navbar-nav .open .dropdown-menu > .active > a:hover,
+                .navbar-default .navbar-nav .open .dropdown-menu > .active > a:focus {
+                    color: #f7f7f7;
+                    background-color: #378e3e;
+                }
             }
         </style>
         <script src="http://127.0.0.1/ocos/js/jquery-current.min.js" type="text/javascript"></script>
         <script type="text/javascript" >
             $(function() {
+                $('#tooltip').tooltip();
                 $('#slide-submenu').on('click', function() {
                     $(this).closest('.list-group').fadeOut('slide', function() {
                         $('.mini-submenu').fadeIn();
@@ -88,110 +189,389 @@
     </head>
 
     <body>
+        <header>
+            <!-- Fixed navbar -->
+            <nav class="navbar navbar-default navbar-fixed-top">
+                <div class="container">
+                    <div class="navbar-header">
+                        <a class="navbar-brand" href="#">OCOS Logo</a>
+                    </div>
+                    <div id="navbar" class="navbar-collapse collapse">
+                        <ul class="nav navbar-nav">
+                            <li><a href="#">Home</a></li>
 
-        <!-- Fixed navbar -->
-        <nav class="navbar navbar-default navbar-fixed-top">
-            <div class="container">
-                <div class="navbar-header">
-                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-                        <span class="sr-only">Toggle navigation</span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                    </button>
-                    <a class="navbar-brand" href="#">OCOS Logo</a>
+                            <li class="dropdown">
+                                <a href="#" class="dropdown-toggle scrollable-menu " data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-th-large"></span> Switch Module <span class="caret"></span></a>
+                                <ul class="dropdown-menu">
+                                    <li class="dropdown-header">Frequent Modules</li>
+                                    <li><a href="#">Attendance</a></li>
+                                    <li><a href="#">Budgets</a></li>
+                                    <li><a href="#">Reports</a></li>
+                                    <li role="separator" class="divider"></li>
+                                    <li class="dropdown-header">Other Modules</li>
+                                    <li><a href="#">ARO</a></li>
+                                    <li><a href="#">CRM</a></li>
+                                    <li><a href="#">Facility Management</a></li>
+                                    <li><a href="#">Warehouse Management</a></li>
+
+                                </ul>
+                            </li>
+                        </ul>
+                        <ul class="nav navbar-nav navbar-right">
+                            <li id="tooltip" data-toggle="tooltip" data-placement="left" title="Favorite Pages">
+                                <span  style=" font-size:20px; margin-top:15px;" class="glyphicon glyphicon-star-empty" ></span>
+                            </li>
+
+
+                            <li>        <div style="position: relative"><img src="../images/icons/plane-icon1.png" class="img-responsive" alt="Generic placeholder thumbnail" style="margin: 10px;" height="30" width="30">
+
+                                </div></li>
+                            <li>        <div style="position: relative"><img src="../images/icons/reports-icon.png" class="img-responsive" alt="Generic placeholder thumbnail" style="margin: 10px;" height="30" width="30">
+
+                                </div></li>
+                            <li>        <div style="position: relative"><img src="../images/icons/crm-icon.png" class="img-responsive" alt="Generic placeholder thumbnail" style="margin: 10px;" height="30" width="30">
+
+                                </div></li>
+                            <li><a href="../navbar/"></a></li>
+                            <li><a href="../navbar/"></a></li>
+                            <li><a href="../navbar/"></a></li>
+                            <li><a href="../navbar/"></a></li>
+                            <li><a href="../navbar-static-top/"><span class="glyphicon glyphicon-alert"></span> Updates <span class="badge">42</span></a></li>
+                            <li class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-user"></span> Zaher Reda <span class="sr-only">(current)</span> <span class="caret"></span></a>
+                                <ul class="dropdown-menu">
+                                    <li ><a href="#">Edit Profile</a></li>
+                                    <li><a href="#">Admin CP</a></li>
+                                    <li  class="divider" role="separator"></li>
+                                    <li><a href="#">Log Out</a></li>
+
+                                </ul>
+                            </li>
+                        </ul>
+                    </div><!--/.nav-collapse -->
                 </div>
-                <div id="navbar" class="navbar-collapse collapse">
-                    <ul class="nav navbar-nav">
-                        <li class="active"><a href="#">Dashboard</a></li>
-
-
-                        <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-th-large"></span> Switch Module <span class="caret"></span></a>
-                            <ul class="dropdown-menu">
-                                <li class="dropdown-header">Attendance</li>
-                                <li><a href="#">Request Leave</a></li>
-                                <li><a href="#">List of Leaves</a></li>
-                                <li role="separator" class="divider"></li>
-                                <li class="dropdown-header">Other Modules</li>
-                                <li><a href="#">ARO</a></li>
-                                <li><a href="#">CRM</a></li>
-                                <li><a href="#">Facility Management</a></li>
-                                <li><a href="#">Warehouse Management</a></li>
-
-                            </ul>
-                        </li>
-                    </ul>
-                    <ul class="nav navbar-nav navbar-right">
-                        <li>
-                            <span style="color: #E7E7E7; font-size:20px; margin-top:10px;" class="glyphicon glyphicon-heart"></span>
-                        </li>
-
-
-                        <li>        <div style="position: relative"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAHd3dwAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" class="img-responsive" alt="Generic placeholder thumbnail" style="margin: 10px;" height="30" width="30">
-
-                            </div></li>
-                        <li>        <div style="position: relative"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAHd3dwAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" class="img-responsive" alt="Generic placeholder thumbnail" style="margin: 10px;" height="30" width="30">
-
-                            </div></li>
-                        <li>        <div style="position: relative"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAHd3dwAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" class="img-responsive" alt="Generic placeholder thumbnail" style="margin: 10px;" height="30" width="30">
-
-                            </div></li>
-                        <li><a href="../navbar/"></a></li>
-                        <li><a href="../navbar/"></a></li>
-                        <li><a href="../navbar/"></a></li>
-                        <li><a href="../navbar/"></a></li>
-                        <li><a href="../navbar-static-top/"><span class="glyphicon glyphicon-alert"></span> Updates <span class="badge">42</span></a></li>
-                        <li class="active"><a href="./"><span class="glyphicon glyphicon-user"></span> Zaher Reda <span class="sr-only">(current)</span> <span class="caret"></span></a></li>
-                    </ul>
-                </div><!--/.nav-collapse -->
-            </div>
-        </nav>
-
-        <div class="container" style="height:100%">
-
+            </nav>
+        </header>
+        <div class="container" style="height:100%; padding-top: 70px">
             <!-- Main component for a primary marketing message or call to action -->
-            <div class="jumbotron">
-                <h1>Navbar example</h1>
-                <p>This example is a quick exercise to illustrate how the default, static and fixed to top navbar work. It includes the responsive CSS and HTML, so it also adapts to your viewport and device.</p>
-                <p>To see the difference between static and fixed top navbars, just scroll.</p>
-                <p>
-                    <a class="btn btn-lg btn-primary" href="../../components/#navbar" role="button">View navbar docs »</a>
-                </p>
-            </div>
-            <div style="position:absolute;height:100%;top: 50px; right: 0px;">
-                <div class="mini-submenu">
-                    <span>-</span>
-                </div>
-                <div class="list-group">
-                    <span href="#" class="list-group-item active">
-                        Submenu
-                        <span class="pull-right" id="slide-submenu" style="background-color: #fff">
+            <div>
+                <h1>Suppliers List</h1>
+                <table class="table table-striped" style="width: 100%">
+                    <thead>
+                        <tr class="header">
+                            <th>
+                                Supplier Name
+                            </th>
+                            <th>
+                                Assigned Affiliates
+                            </th>
+                            <th>
+                                Segments
+                            </th>
+                            <th>
+                                Country Of Origin
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                Adisseo
+                            </td>
+                            <td>
+                                Orkila International, Orkila Lebanon ...
+                            </td>
+                            <td>
+                                Animal Nutrition
+                            </td>
+                            <td>
+                                France
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Aditya Birla Thailand Ltd. - Epoxy Division
+                            </td>
+                            <td>Orkila Dubai, Orkila Algeria ...</td>
+                            <td> Paint And Coating</td>
+                            <td>Thailand</td>
+                        </tr>
+                        <tr>
+                            <td>AB Enzymes</td>
+                            <td>Branch Orkila Free Zone Alexandria, ...</td>
+                            <td>Food</td>
+                            <td>Germany</td>
+                        </tr>
+                        <tr>
+                            <td>AB Enzymes</td>
+                            <td>Branch Orkila Free Zone Alexandria, ...</td>
+                            <td>Food</td>
+                            <td>Germany</td>
+                        </tr>
+                        <tr>
+                            <td>AB Enzymes</td>
+                            <td>Branch Orkila Free Zone Alexandria, ...</td>
+                            <td>Food</td>
+                            <td>Germany</td>
+                        </tr>
+                        <tr>
+                            <td>AB Enzymes</td>
+                            <td>Branch Orkila Free Zone Alexandria, ...</td>
+                            <td>Food</td>
+                            <td>Germany</td>
+                        </tr>
+                        <tr>
+                            <td>AB Enzymes</td>
+                            <td>Branch Orkila Free Zone Alexandria, ...</td>
+                            <td>Food</td>
+                            <td>Germany</td>
+                        </tr>
+                        <tr>
+                            <td>AB Enzymes</td>
+                            <td>Branch Orkila Free Zone Alexandria, ...</td>
+                            <td>Food</td>
+                            <td>Germany</td>
+                        </tr>
+                        <tr>
+                            <td>AB Enzymes</td>
+                            <td>Branch Orkila Free Zone Alexandria, ...</td>
+                            <td>Food</td>
+                            <td>Germany</td>
+                        </tr>
+                        <tr>
+                            <td>AB Enzymes</td>
+                            <td>Branch Orkila Free Zone Alexandria, ...</td>
+                            <td>Food</td>
+                            <td>Germany</td>
+                        </tr>
+                        <tr>
+                            <td>AB Enzymes</td>
+                            <td>Branch Orkila Free Zone Alexandria, ...</td>
+                            <td>Food</td>
+                            <td>Germany</td>
+                        </tr>
+                        <tr>
+                            <td>AB Enzymes</td>
+                            <td>Branch Orkila Free Zone Alexandria, ...</td>
+                            <td>Food</td>
+                            <td>Germany</td>
+                        </tr>
+                        <tr>
+                            <td>AB Enzymes</td>
+                            <td>Branch Orkila Free Zone Alexandria, ...</td>
+                            <td>Food</td>
+                            <td>Germany</td>
+                        </tr>
+                        <tr>
+                            <td>AB Enzymes</td>
+                            <td>Branch Orkila Free Zone Alexandria, ...</td>
+                            <td>Food</td>
+                            <td>Germany</td>
+                        </tr>
+                        <tr>
+                            <td>AB Enzymes</td>
+                            <td>Branch Orkila Free Zone Alexandria, ...</td>
+                            <td>Food</td>
+                            <td>Germany</td>
+                        </tr>
+                        <tr>
+                            <td>AB Enzymes</td>
+                            <td>Branch Orkila Free Zone Alexandria, ...</td>
+                            <td>Food</td>
+                            <td>Germany</td>
+                        </tr>
+                        <tr>
+                            <td>AB Enzymes</td>
+                            <td>Branch Orkila Free Zone Alexandria, ...</td>
+                            <td>Food</td>
+                            <td>Germany</td>
+                        </tr>
+                        <tr>
+                            <td>AB Enzymes</td>
+                            <td>Branch Orkila Free Zone Alexandria, ...</td>
+                            <td>Food</td>
+                            <td>Germany</td>
+                        </tr>
+                        <tr>
+                            <td>AB Enzymes</td>
+                            <td>Branch Orkila Free Zone Alexandria, ...</td>
+                            <td>Food</td>
+                            <td>Germany</td>
+                        </tr>
+                        <tr>
+                            <td>AB Enzymes</td>
+                            <td>Branch Orkila Free Zone Alexandria, ...</td>
+                            <td>Food</td>
+                            <td>Germany</td>
+                        </tr>
+                        <tr>
+                            <td>AB Enzymes</td>
+                            <td>Branch Orkila Free Zone Alexandria, ...</td>
+                            <td>Food</td>
+                            <td>Germany</td>
+                        </tr>
+                        <tr>
+                            <td>AB Enzymes</td>
+                            <td>Branch Orkila Free Zone Alexandria, ...</td>
+                            <td>Food</td>
+                            <td>Germany</td>
+                        </tr>
+                        <tr>
+                            <td>AB Enzymes</td>
+                            <td>Branch Orkila Free Zone Alexandria, ...</td>
+                            <td>Food</td>
+                            <td>Germany</td>
+                        </tr>
+                        <tr>
+                            <td>AB Enzymes</td>
+                            <td>Branch Orkila Free Zone Alexandria, ...</td>
+                            <td>Food</td>
+                            <td>Germany</td>
+                        </tr>
 
-                            <i class="fa fa-times" style="color:#B6CF8C;"></i>
-                        </span>
-                    </span>
-                    <a href="#" class="list-group-item">
-                        <i class="fa fa-comment-o"></i> Lorem ipsum
-                    </a>
-                    <a href="#" class="list-group-item">
-                        <i class="fa fa-search"></i> Lorem ipsum
-                    </a>
-                    <a href="#" class="list-group-item">
-                        <i class="fa fa-user"></i> Lorem ipsum
-                    </a>
-                    <a href="#" class="list-group-item">
-                        <i class="fa fa-folder-open-o"></i> Lorem ipsum <span class="badge">14</span>
-                    </a>
-                    <a href="#" class="list-group-item">
-                        <i class="fa fa-bar-chart-o"></i> Lorem ipsumr <span class="badge">14</span>
-                    </a>
-                    <a href="#" class="list-group-item">
-                        <i class="fa fa-envelope"></i> Lorem ipsum
-                    </a>
-                </div>
+                        <tr>
+                            <td>AB Enzymes</td>
+                            <td>Branch Orkila Free Zone Alexandria, ...</td>
+                            <td>Food</td>
+                            <td>Germany</td>
+                        </tr>
+                        <tr>
+                            <td>AB Enzymes</td>
+                            <td>Branch Orkila Free Zone Alexandria, ...</td>
+                            <td>Food</td>
+                            <td>Germany</td>
+                        </tr>
+                        <tr>
+                            <td>AB Enzymes</td>
+                            <td>Branch Orkila Free Zone Alexandria, ...</td>
+                            <td>Food</td>
+                            <td>Germany</td>
+                        </tr>
+                        <tr>
+                            <td>AB Enzymes</td>
+                            <td>Branch Orkila Free Zone Alexandria, ...</td>
+                            <td>Food</td>
+                            <td>Germany</td>
+                        </tr>
+                        <tr>
+                            <td>AB Enzymes</td>
+                            <td>Branch Orkila Free Zone Alexandria, ...</td>
+                            <td>Food</td>
+                            <td>Germany</td>
+                        </tr>
+                        <tr>
+                            <td>AB Enzymes</td>
+                            <td>Branch Orkila Free Zone Alexandria, ...</td>
+                            <td>Food</td>
+                            <td>Germany</td>
+                        </tr>
+                        <tr>
+                            <td>AB Enzymes</td>
+                            <td>Branch Orkila Free Zone Alexandria, ...</td>
+                            <td>Food</td>
+                            <td>Germany</td>
+                        </tr>
+                        <tr>
+                            <td>AB Enzymes</td>
+                            <td>Branch Orkila Free Zone Alexandria, ...</td>
+                            <td>Food</td>
+                            <td>Germany</td>
+                        </tr>
+                        <tr>
+                            <td>AB Enzymes</td>
+                            <td>Branch Orkila Free Zone Alexandria, ...</td>
+                            <td>Food</td>
+                            <td>Germany</td>
+                        </tr>
+                        <tr>
+                            <td>AB Enzymes</td>
+                            <td>Branch Orkila Free Zone Alexandria, ...</td>
+                            <td>Food</td>
+                            <td>Germany</td>
+                        </tr>
+
+                        <tr>
+                            <td>AB Enzymes</td>
+                            <td>Branch Orkila Free Zone Alexandria, ...</td>
+                            <td>Food</td>
+                            <td>Germany</td>
+                        </tr>
+                        <tr>
+                            <td>AB Enzymes</td>
+                            <td>Branch Orkila Free Zone Alexandria, ...</td>
+                            <td>Food</td>
+                            <td>Germany</td>
+                        </tr>
+                        <tr>
+                            <td>AB Enzymes</td>
+                            <td>Branch Orkila Free Zone Alexandria, ...</td>
+                            <td>Food</td>
+                            <td>Germany</td>
+                        </tr>
+                        <tr>
+                            <td>AB Enzymes</td>
+                            <td>Branch Orkila Free Zone Alexandria, ...</td>
+                            <td>Food</td>
+                            <td>Germany</td>
+                        </tr>
+                        <tr>
+                            <td>AB Enzymes</td>
+                            <td>Branch Orkila Free Zone Alexandria, ...</td>
+                            <td>Food</td>
+                            <td>Germany</td>
+                        </tr>
+                        <tr>
+                            <td>AB Enzymes</td>
+                            <td>Branch Orkila Free Zone Alexandria, ...</td>
+                            <td>Food</td>
+                            <td>Germany</td>
+                        </tr>
+                        <tr>
+                            <td>AB Enzymes</td>
+                            <td>Branch Orkila Free Zone Alexandria, ...</td>
+                            <td>Food</td>
+                            <td>Germany</td>
+                        </tr>
+                        <tr>
+                            <td>AB Enzymes</td>
+                            <td>Branch Orkila Free Zone Alexandria, ...</td>
+                            <td>Food</td>
+                            <td>Germany</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
+
+        <div style="position:fixed;height:100%;top: 50px; right: 0px;">
+            <div class="mini-submenu" style="">
+                <span class="glyphicon glyphicon-th-list"></span>
+            </div>
+            <div class="list-group">
+                <span  class="list-group-item active">
+                    Pages List
+                    <span class="pull-right" id="slide-submenu" style="background-color: #fff">
+                        <i class="fa fa-times" style="color:#B6CF8C;"></i>
+                    </span>
+                </span>
+                <a href="#" class="list-group-item">
+                    <i class="fa fa-comment-o"></i> Customers List
+                </a>
+                <a href="#" class="list-group-item">
+                    <i class="fa fa-search"></i> Affiliates List
+                </a>
+                <a href="#" class="list-group-item">
+                    <i class="fa fa-user"></i> Suppliers List
+                </a>
+                <a href="#" class="list-group-item">
+                    <i class="fa fa-folder-open-o"></i> Segments List
+                </a>
+                <a href="#" class="list-group-item">
+                    <i class="fa fa-bar-chart-o"></i> Reports List&nbsp;<span class="badge">14</span>
+                </a>
+            </div>
+        </div>
+
         <!-- /container -->
 
 
