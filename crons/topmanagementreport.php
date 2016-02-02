@@ -14,6 +14,7 @@ $lang = new Language('english');
 $lang->load('topmanagementreport');
 $affiliates = Affiliates::get_affiliates(array('name' => "name LIKE '%orkila%'", 'isActive' => 1), array('simple' => false, 'returnarray' => true, 'operators' => array('name' => CUSTOMSQLSECURE)));
 
+
 if(is_array($affiliates)) {
 //Affiliates Employees Count
     $table['employeespercountry'] = '<table style="width:50%;"><tr style="background-color:#92D050;"><th style="width:20%">'.$lang->affiliate.'</th><th style="width:20%">'.$lang->employees.'</th><th style="width:12%">'.$lang->employeescount.'</th><th style="width:12%">'.$lang->employeescountlastyear.'</th></tr>';
@@ -25,14 +26,20 @@ if(is_array($affiliates)) {
             $emp_count = 0;
             foreach($affiliated_employees as $affiliated_employee) {
                 $uids[] = $affiliated_employee->uid;
-                if($emp_count < 5) {
-                    $user = Users::get_data(array('uid' => $affiliated_employee->uid));
-                    if(is_object($user)) {
-                        $employees[$affiliate->affid] .= $user->get_displayname().'<br/>';
-                        $emp_count ++;
-                    }
+            }
+
+            $management_fields = array('supervisor', 'generalManager', 'hrManager', 'finManager');
+            foreach($management_fields as $management_field) {
+                $management_ids[] = $affiliate->$management_field;
+            }
+            $management_ids = array_unique($management_ids);
+            foreach($management_ids as $management_id) {
+                $user = Users::get_data(array('uid' => $management_id));
+                if(is_object($user)) {
+                    $employees[$affiliate->affid] .= $user->get_displayname().'<br/>';
                 }
             }
+            unset($management_ids);
             $employees[$affiliate->affid] .='<small><a href="'.DOMAIN.'/users.php?action=userslist&amp;filters[allenabledaffiliates][]='.$affiliate->affid.'" target="_blank">See all employees</a></small>';
             $query = $db->query("SELECT * FROM ".Tprefix."userhrinformation WHERE uid IN (".implode(',', $uids).") AND (leaveDate > ".strtotime('01-01-'.(date('Y') - 1))." OR leaveDate=0) AND joinDate  <".strtotime('01-01-'.date('Y').''));
             $employees_count_lastyear[$affiliate->affid] = $employees_count_lastyear[$affiliate->country] = $db->num_rows($query);
@@ -86,24 +93,31 @@ if(is_array($segments)) {
 require_once ROOT.INC_ROOT.'integration_config.php';
 $period['from'] = TIME_NOW;
 $integration = new IntegrationOB($intgconfig['openbravo']['database'], $intgconfig['openbravo']['entmodel']['client']);
-//docstatus NOT IN ('VO', 'CL') AND
 $filters = "(dateinvoiced BETWEEN '".date('Y-01-01 00:00:00', $period['from'])."' AND '".date('Y-12-30 00:00:00', $period['from'])."')";
 $invoices = $integration->get_saleinvoices($filters);
 
 if(is_array($invoices)) {
     foreach($invoices as $invoice) {
+        $customer_obj = $invoice->get_customer();
+        if(is_object($customer_obj)) {
+            $location = $customer_obj->get_bplocation();
+            if(is_object($location)) {
+                $country = $location->get_location()->get_country();
+                if(is_object($country)) {
+                    $countries[$country->c_country_id] = $country->name;
+                }
+            }
+        }
         $orgs[] = $invoice->ad_org_id;
     }
-    if(is_array($orgs)) {
-        $affs = Affiliates::get_affiliates(array('integrationOBOrgId' => $orgs), array('operators' => array('integrationOBOrgId' => 'IN'), 'returnarray' => true));
-        if(is_array($affs)) {
-            $table['activesalesorgs'] = '<table style="width:50%;"><tr style="background-color:#92D050;"><th style="width:20%">'.$lang->affwithactivesales.'</th></tr>';
+    if(is_array($countries)) {
+        $table['activesalesorgs'] = '<table style="width:50%;"><tr style="background-color:#92D050;"><th style="width:20%" colspan="2">'.$lang->countrieswithactivesales.'</th></tr>';
 
-            foreach($affs as $aff) {
-                $table['activesalesorgs'].='<tr><td>'.$aff->parse_link().'</td></tr>';
-            }
-            $table['activesalesorgs'].='</table>';
+        foreach($countries as $country) {
+            $table['activesalesorgs'].='<tr><td  colspan="2">'.$country.'</td></tr>';
         }
+        $table['activesalesorgs'].='<tr style="background-color:#92D050;"><td>'.$lang->total.'</td><td>'.count($countries).'</td></tr>';
+        $table['activesalesorgs'].='</table>';
     }
 }
 
@@ -137,12 +151,12 @@ eval("\$topmanagementreport=\"".$template->get('topmanagementreport')."\";");
 output($topmanagementreport);
 
 $email_data = array(
-            'to' => 'christophe.sacy@orkila.com',
+        'to' => 'christophe.sacy@orkila.com',
         'from_email' => $core->settings['adminemail'],
         'from' => 'OCOS Mailer',
         'subject' => 'Top Management Report',
         'message' => $topmanagementreport
 );
-    $mail = new Mailer($email_data, 'php');
-}
+$mail = new Mailer($email_data, 'php');
+
 

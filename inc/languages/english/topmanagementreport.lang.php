@@ -23,6 +23,6 @@ $lang['employeesperaff'] = 'Employees per Affiliate';
 $lang['affemployeesmap'] = 'Affiliates Employees Map';
 $lang['total'] = 'Total';
 $lang['nbofcountries'] = ' Number of Countries with an Orkila Company';
-$lang['affwithactivesales'] = 'Affiliate with Active Sales';
+$lang['countrieswithactivesales'] = 'Countries with Active Sales';
 $lang['exhibition'] = 'Exhibitions';
 $lang['seminar'] = 'Seminars';
