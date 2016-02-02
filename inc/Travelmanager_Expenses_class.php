@@ -21,15 +21,14 @@ class Travelmanager_Expenses extends AbstractClass {
     const TABLE_NAME = 'travelmanager_expenses';
     const DISPLAY_NAME = '';
     const CLASSNAME = __CLASS__;
-    const SIMPLEQ_ATTRS = 'tmeid,tmetid,tmpsid,expectedAmt,currency,description';
+    const SIMPLEQ_ATTRS = 'tmeid,tmetid,tmpsid,expectedAmt,currency,description,comments';
 
     public function __construct($id = '', $simple = true) {
         parent::__construct($id, $simple);
     }
 
     protected function create(array $data) {
-
-        global $db, $core;
+        global $db, $core, $errorhandler;
         if(is_array($data)) {
             if($data['paidBy'] != 'anotheraff') {
                 unset($data['paidById']);
@@ -69,7 +68,7 @@ class Travelmanager_Expenses extends AbstractClass {
     }
 
     protected function update(array $data) {
-        global $db, $core;
+        global $db, $core, $errorhandler;
         if(is_array($data)) {
             if(empty($data['currency'])) {
                 $this->errorcode = 2;
@@ -78,6 +77,7 @@ class Travelmanager_Expenses extends AbstractClass {
             $expensestdata['expectedAmt'] = $data['expectedAmt'];
             $expensestdata['currency'] = $data['currency'];
             $expensestdata['description'] = $data['description'];
+            $expensestdata['comments'] = $data['comments'];
             $expensestdata['tmetid'] = $data['tmetid'];
             $expensestdata['paidBy'] = $data['paidBy'];
             if($expensestdata['paidBy'] == 'anotheraff') {

@@ -329,6 +329,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                 $expensestdata['currency'] = $expense['currency'];
                 $expensestdata['actualAmt'] = $expense['actualAmt'];
                 $expensestdata['description'] = $expense['description'];
+                $expensestdata['comments'] = $expense['comments'];
                 $expensestdata['paidBy'] = $expense['paidBy'];
                 $expensestdata['paidById'] = $expense['paidById'];
                 $expenses_obj = new Travelmanager_Expenses();
@@ -681,6 +682,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                 $expensestdata['currency'] = $expense['currency'];
                 $expensestdata['actualAmt'] = $expense['actualAmt'];
                 $expensestdata['description'] = $expense['description'];
+                $expensestdata['comments'] = $expense['comments'];
                 $expensestdata['paidBy'] = $expense['paidBy'];
                 $expensestdata['paidById'] = $expense['paidById'];
                 $expenses_obj = new Travelmanager_Expenses();

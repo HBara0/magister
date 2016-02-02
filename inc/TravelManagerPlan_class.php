@@ -773,6 +773,9 @@ $("#anotheraff_otheraccomodations_'.$sequence.'_'.$otherhotel_checksum.'").hide(
                     if(!empty($expenses->description) && $expenses->tmetid == '4') {
                         $expensestype[$segmentid][$rowid]['otherdesc'] = $expenses->description;
                     }
+                    if(!empty($expenses->comments) && $expenses->tmetid == '4') {
+                        $expensestype[$segmentid][$rowid]['comments'] = $expenses->comments;
+                    }
                     $segments_expenses_output .= $expenses->get_types()->parse_expensesfield($expensesoptions, $sequence, $rowid, $expensestype, array('destcity' => $destcity_obj), $segmentid);
                 }
             }
