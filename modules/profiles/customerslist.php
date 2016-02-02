@@ -147,6 +147,8 @@ if(!$core->input['action']) {
     else {
         $customers_list .= '<tr><td colspan="4">'.$lang->na.'</td></tr>';
     }
+    $onclickactin = "$('#tabletoexport').tableExport({type:'excel',escape:'false'});";
+    $toolgenerate = '<div align="right" title="'.$lang->generate.'" style="float:right;padding:10px;width:10px;"><a onClick ="'.$onclickactin.'"><img src="./images/icons/xls.gif"/>'.$lang->generateexcel.'</a></div>';
 
     eval("\$listpage = \"".$template->get('profiles_customerslist')."\";");
     output_page($listpage);
