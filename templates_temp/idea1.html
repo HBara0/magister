@@ -6,8 +6,9 @@
         <meta name="description" content="">
         <meta name="author" content="">
         <link rel="icon" href="http://127.0.0.1/ocos/favicon.ico">
+        <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
 
-        <title>Fixed Top Navbar Example for Bootstrap</title>
+        <title>OCOS</title>
 
         <!-- Bootstrap core CSS -->
         <link href="http://127.0.0.1/ocos/css/bootstrap.min.css" rel="stylesheet">
@@ -27,6 +28,63 @@
           <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
           <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
         <![endif]-->
+        <style>
+            html, body {
+                height: 100%;
+            }
+            .mini-submenu{
+                display:none;
+                background-color: #B6CF8C;
+                padding: 9px;
+                /*position: relative;*/
+                width: 4px;
+                height:100%;
+            }
+
+            .mini-submenu:hover{
+                cursor: pointer;
+            }
+
+            .mini-submenu .icon-bar {
+                border:none;
+                display: block;
+                float:right;
+                height:100%;
+                width:4px;
+                background-color:#B6CF8C;
+            }
+
+            .mini-submenu .icon-bar {
+                background-color: #000;
+            }
+            #slide-submenu{
+                background: #B6CF8C;
+                display: inline-block;
+                padding: 0 8px;
+                border-radius: 4px;
+                cursor: pointer;
+            }
+            .list-group-item.active, .list-group-item.active:focus, .list-group-item.active:hover{
+                background: #B6CF8C !important;
+            }
+        </style>
+        <script src="http://127.0.0.1/ocos/js/jquery-current.min.js" type="text/javascript"></script>
+        <script type="text/javascript" >
+            $(function() {
+                $('#slide-submenu').on('click', function() {
+                    $(this).closest('.list-group').fadeOut('slide', function() {
+                        $('.mini-submenu').fadeIn();
+                    });
+
+                });
+
+                $('.mini-submenu').on('click', function() {
+                    $(this).next('.list-group').toggle('slide');
+                    $('.mini-submenu').hide();
+                })
+            })
+        </script>
+
     </head>
 
     <body>
@@ -90,7 +148,7 @@
             </div>
         </nav>
 
-        <div class="container">
+        <div class="container" style="height:100%">
 
             <!-- Main component for a primary marketing message or call to action -->
             <div class="jumbotron">
@@ -101,8 +159,40 @@
                     <a class="btn btn-lg btn-primary" href="../../components/#navbar" role="button">View navbar docs »</a>
                 </p>
             </div>
+            <div style="position:absolute;height:100%;top: 50px; right: 0px;">
+                <div class="mini-submenu">
+                    <span>-</span>
+                </div>
+                <div class="list-group">
+                    <span href="#" class="list-group-item active">
+                        Submenu
+                        <span class="pull-right" id="slide-submenu" style="background-color: #fff">
 
-        </div> <!-- /container -->
+                            <i class="fa fa-times" style="color:#B6CF8C;"></i>
+                        </span>
+                    </span>
+                    <a href="#" class="list-group-item">
+                        <i class="fa fa-comment-o"></i> Lorem ipsum
+                    </a>
+                    <a href="#" class="list-group-item">
+                        <i class="fa fa-search"></i> Lorem ipsum
+                    </a>
+                    <a href="#" class="list-group-item">
+                        <i class="fa fa-user"></i> Lorem ipsum
+                    </a>
+                    <a href="#" class="list-group-item">
+                        <i class="fa fa-folder-open-o"></i> Lorem ipsum <span class="badge">14</span>
+                    </a>
+                    <a href="#" class="list-group-item">
+                        <i class="fa fa-bar-chart-o"></i> Lorem ipsumr <span class="badge">14</span>
+                    </a>
+                    <a href="#" class="list-group-item">
+                        <i class="fa fa-envelope"></i> Lorem ipsum
+                    </a>
+                </div>
+            </div>
+        </div>
+        <!-- /container -->
 
 
         <!-- Bootstrap core JavaScript
