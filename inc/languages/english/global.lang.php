@@ -164,4 +164,7 @@ $lang['forthismeeting'] = 'For This Meeting';
 $lang['succesfullysaved'] = 'Successfully Saved';
 $lang['selectfulldate'] = 'Select A Full Date And Time';
 $lang['close'] = 'Close';
+$lang['submit'] = 'Submit';
+$lang['users'] = 'Users';
+$lang['success'] = 'Success';
 ?>

@@ -187,4 +187,6 @@ $lang['tmplanneeded'] = 'Leave Is Missing A Travel Manager Plan. Please Create A
 $lang['leavedoestnoexist'] = 'Leave Does Not Exit Anymore, It May Have Been Revoked';
 $lang['workingdays'] = 'Working Days';
 $lang['afterapproval'] = 'After Approval';
+$lang['newstatus'] = 'New Status';
+$lang['tohourr'] = 'To Hour';
 ?>
