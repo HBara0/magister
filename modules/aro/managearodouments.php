@@ -299,7 +299,13 @@ if(!($core->input['action'])) {
                     $packaging_list = parse_selectlist('productline['.$plrowid.'][packing]', '', $packaging, $productline['packing'], '', '', array('id' => "productline_".$plrowid."_packing", 'blankstart' => 1));
                     $uom_list = parse_selectlist('productline['.$plrowid.'][uom]', '', $uom, $productline['uom'], '', '', array('id' => "productline_".$plrowid."_uom", 'blankstart' => 1, 'width' => '70px'));
                     $product = new Products($productline['pid']);
-                    $prodseg_obj = $product->get_segment();
+                    if(isset($productline['psid'])) {
+                        $prodseg_obj = ProductsSegments::get_data(array('psid' => $productline['psid']));
+                        $prodseg_obj = $prodseg_obj->get();
+                    }
+                    else {
+                        $prodseg_obj = $product->get_segment();
+                    }
                     $productline['seg_output'] = $prodseg_obj['title'];
                     $packaging_obj = Packaging::get_data(array('packid' => $productline['packing']));
                     if(is_object($packaging_obj)) {
@@ -497,6 +503,7 @@ if(!($core->input['action'])) {
                 if(!is_empty($partiesinfo['vendorEstDateOfPayment_output'], $partiesinfo['intermedEstDateOfPayment_output'])) {
                     $partiesinfo['diffbtwpaymentdates'] = date_diff(date_create($partiesinfo['vendorEstDateOfPayment_output']), date_create($partiesinfo['intermedEstDateOfPayment_output']));
                     $partiesinfo['diffbtwpaymentdates'] = $partiesinfo['diffbtwpaymentdates']->format("%r%a");
+                    $partiesinfo['diffbtwpaymentdates'] = 0 - $partiesinfo['diffbtwpaymentdates'];
                 }
                 $fees = array('freight', 'bankFees', 'insurance', 'otherFees', 'legalization', 'courier');
                 foreach($fees as $fee) {
@@ -1158,7 +1165,7 @@ else {
                 $data['intermedPeriodOfInterest'] = date_diff(date_create($partiesinfo['vendorEstDateOfPayment_output']), date_create($partiesinfo['promiseOfPayment_output']));
             }
             $data['intermedPeriodOfInterest'] = $data['intermedPeriodOfInterest']->format("%r%a");
-            $data['diffbetweendates'] = $data['intermedPeriodOfInterest']; // difference between payment days
+            $data['diffbetweendates'] = 0 - $data['intermedPeriodOfInterest']; // difference between payment days
             if($data['intermedPeriodOfInterest'] < 0) {
                 $data['intermedPeriodOfInterest'] = 0;
             }
