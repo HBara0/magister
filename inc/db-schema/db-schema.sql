@@ -4976,7 +4976,7 @@ CREATE TABLE `travelmanager_expenses` (
   `tmetid` int(10) NOT NULL,
   `expectedAmt` float NOT NULL,
   `actualAmt` float NOT NULL,
-  `currency` varchar(4) COLLATE utf8_unicode_ci NOT NULL,
+  `currency` int(4) NOT NULL,
   `usdFxrate` float NOT NULL,
   `description` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
   `createdBy` int(10) NOT NULL,
@@ -4985,8 +4985,9 @@ CREATE TABLE `travelmanager_expenses` (
   `paidBy` varchar(180) COLLATE utf8_unicode_ci NOT NULL,
   `modifiedBy` int(10) NOT NULL,
   `modifiedOn` bigint(30) NOT NULL,
+  `comments` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
   PRIMARY KEY (`tmeid`)
-) ENGINE=MyISAM AUTO_INCREMENT=10 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=17 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `travelmanager_expenses_types`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
