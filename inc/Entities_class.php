@@ -1086,9 +1086,8 @@ class Entities extends AbstractClass {
     public function get_representatives() {
         $entitiesreps = EntitiesRepresentatives::get_data(array('eid' => $this->data['eid']), array('returnarray' => true));
         if(is_array($entitiesreps) && !empty($entitiesreps)) {
-            $reps = [];
-            foreach($entitiesreps as $entrep) {
-                $reps = array_filter(array_merger($reps, $entrep->get_representative()));
+            foreach($entitiesreps as $entitiesrep) {
+                $reps[] = $entitiesrep->get_representative();
             }
             return $reps;
         }
