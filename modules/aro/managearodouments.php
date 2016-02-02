@@ -135,7 +135,16 @@ if(!($core->input['action'])) {
 
         $aroorderrequest = AroRequests::get_data(array('aorid' => $core->input['id']), array('simple' => false));
 
-
+        $country = Countries::get_data(array('coid' => $orderid['coid']));
+        if(is_object($country)) {
+            if(isset($core->input['referrer']) && $core->input['referrer'] == 'toapprove') {
+                $customer_output = '<td class="border_right" style="font-weight: bold;width:16%;">'.$lang->country.'</td>
+                <td class="border_right" style="width:16%">'.$country->get_displayname().'</td>';
+            }
+            else {
+                $aroorderrequest->country = $country->get_displayname();
+            }
+        }
         if(isset($core->input['referrer']) && $core->input['referrer'] == 'toapprove') {
             $aroapproval = AroRequestsApprovals::get_data(array('aorid' => intval($core->input['id']), 'uid' => $core->user['uid']));
             $approve_btn[$core->user['uid']] = '<input type="button" class="button" id="approvearo" value="'.$lang->approve.'"/>'
@@ -845,7 +854,14 @@ else {
             $arorequest_obj = AroRequests::get_data(array('inputChecksum' => $core->input['inputChecksum']));
             if(!is_object($arorequest_obj)) {
                 $filter['filter']['time'] = '('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
-                $documentseq_obj = AroDocumentsSequenceConf::get_data(array('time' => $filter['filter']['time'], 'affid' => $core->input['affid'], 'ptid' => $core->input['ptid']), array('simple' => false, 'operators' => array('affid' => 'in', 'ptid' => 'in', 'time' => 'CUSTOMSQLSECURE')));
+                $filters['time'] = $filter['filter']['time'];
+                $filters['affid'] = $core->input['affid'];
+                $filters['ptid'] = $core->input['ptid'];
+                $filters['coid'] = 0;
+                if(isset($core->input['coid']) && !empty($core->input['coid'])) {
+                    $filters['coid'] = $core->input['coid'];
+                }
+                $documentseq_obj = AroDocumentsSequenceConf::get_data($filters, array('simple' => false, 'operators' => array('affid' => 'in', 'ptid' => 'in', 'time' => 'CUSTOMSQLSECURE')));
                 if(is_object($documentseq_obj)) {
                     /* create the array to be encoded each dimension of the array represent the html element in the form */
                     $orderreference = array('cpurchasetype' => $core->input['ptid'], 'orderreference' => $documentseq_obj->prefix.'-'.$documentseq_obj->nextNumber.'-'.$documentseq_obj->suffix);
@@ -1062,7 +1078,13 @@ else {
         );
         unset($core->input['action'], $core->input['module']);
         if($core->input['affid'] != ' ' && !empty($core->input['affid']) && !empty($core->input['ptid']) && $core->input['ptid'] != ' ') {
-            $filter = 'affid = '.$core->input['affid'].' AND purchaseType = '.$core->input['ptid'].' AND isActive = 1 AND ('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
+            $filter = 'affid= '.$core->input['affid'].' AND purchaseType= '.$core->input['ptid'].' AND isActive= 1 AND ('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
+            $filters['coid'] = 0;
+            if(isset($core->input['coid']) && !empty($core->input['coid'])) {
+                $filters['coid'] = $core->input['coid'];
+            }
+            $filter .= ' AND coid='.$filters['coid'];
+
             $localaffpolicy = AroPolicies::get_data($filter);
             if(!is_object($localaffpolicy)) {
                 output($lang->nopolicy);
@@ -1090,7 +1112,6 @@ else {
                 output($lang->nointermedpolicy);
                 exit;
             }
-
             $intermedpolicy_data = array('parmsfornetmargin_intermedBankInterestRate' => $intermedpolicy->yearlyInterestRate,
                     'partiesinfo_commission' => $intermedpolicy->commissionCharged,
                     'partiesinfo_defaultcommission' => $intermedpolicy->commissionCharged);
@@ -1433,6 +1454,13 @@ else {
     if($core->input['action'] == 'popultedefaultaffpolicy') {
         if($core->input['affid'] != ' ' && !empty($core->input['affid']) && !empty($core->input['ptid']) && $core->input['ptid'] != ' ') {
             $filter = 'affid = '.$core->input['affid'].' AND purchaseType = '.$core->input['ptid'].' AND isActive = 1 AND ('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
+
+            $filters['coid'] = 0;
+            if(isset($core->input['coid']) && !empty($core->input['coid'])) {
+                $filters['coid'] = $core->input['coid'];
+            }
+            $filter .= ' AND coid='.$filters['coid'];
+
             $affpolicy = AroPolicies::get_data($filter);
             if(!is_object($affpolicy)) {
                 output($lang->nopolicy);
@@ -1468,6 +1496,10 @@ else {
             $data['intermedAff'] = $core->input['intermedAff'];
             if(isset($core->input['aroBusinessManager']) && !empty($core->input['aroBusinessManager'])) {
                 $data['aroBusinessManager'] = $core->input['aroBusinessManager'];
+            }
+            $data['coid'] = 0;
+            if(isset($core->input['coid']) && !empty($core->input['coid'])) {
+                $data['coid'] = $core->input['coid'];
             }
             $arorequest = new AroRequests();
             $arorequest->set($data);

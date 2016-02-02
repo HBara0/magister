@@ -17,7 +17,7 @@
                 <td class="border_right">{$partiesinfo[intermedEstDateOfPayment_formatted]}</td>
                 <td class="border_right">{$partiesinfo[vendorEstDateOfPayment_formatted]} </td>
                 <td class="border_right" colspan="2" style="padding-left:10px;font-weight:bold"> {$lang->diffbetweenpaymentdays}</td>
-                <td class="border_right" id='cashcycle' style='color:red'>{$partiesinfo[diffbtwpaymentdates]} </td>
+                <td class="border_right" id='cashcycle' style='color:green'>{$partiesinfo[diffbtwpaymentdates]} </td>
             </tr>
             <tr class="altrow" style="{$previewdisplay[promiseofpayment]}">
                 <td class="border_right" colspan="2">{$lang->acceptablepaymentterm}</td>

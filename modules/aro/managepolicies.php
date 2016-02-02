@@ -45,6 +45,10 @@ if(!$core->input['action']) {
             if($aropolicy['isActive'] == 1) {
                 $checked['isActive'] = 'checked="checked"';
             }
+            $country_obj = Countries::get_data(array('coid' => $aropolicy['coid']));
+            if(is_object($country_obj)) {
+                $aropolicy['country'] = $country_obj->get_displayname();
+            }
             $affiliates_list = parse_selectlist('aropolicy[affid]', '', $affiliates, $aropolicy['affid'], 0, '', array('id' => 'aropolicy_affid', 'width' => '150px'));
             $intermediary_list = parse_selectlist('aropolicy[defaultIntermed]', '', $intermed_affiliates, $aropolicy['defaultIntermed'], 0, '', array('id' => 'aropolicy_defaultIntermed', 'width' => '150px', 'blankstart' => true));
             $purchasetypes_list = parse_selectlist('aropolicy[purchaseType]', '', $purchasetypes, $aropolicy['purchaseType'], 0, '', array('id' => 'aropolicy_purchaseType', 'width' => '150px'));
@@ -109,6 +113,9 @@ else if($core->input['action'] == 'do_perform_managepolicies') {
     if($core->input['aropolicy']['effectiveFrom'] > $core->input['aropolicy']['effectiveTo']) {
         output_xml('<status>false</status><message>'.$lang->errordate.'</message>');
         exit;
+    }
+    if(!isset($core->input['aropolicy']['coid']) || empty($core->input['aropolicy']['coid'])) {
+        $core->input['aropolicy']['coid'] = 0;
     }
     $aropolicy->set($core->input['aropolicy']);
     $aropolicy = $aropolicy->save();

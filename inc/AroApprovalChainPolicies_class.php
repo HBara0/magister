@@ -20,7 +20,7 @@ class AroApprovalChainPolicies extends AbstractClass {
     const PRIMARY_KEY = 'aapcid';
     const TABLE_NAME = 'aro_approvalchain_policies';
     const DISPLAY_NAME = '';
-    const UNIQUE_ATTRS = 'affid,purchaseType,effectiveFrom,effectiveTo';
+    const UNIQUE_ATTRS = 'affid,coid,purchaseType,effectiveFrom,effectiveTo';
     const SIMPLEQ_ATTRS = '*';
     const CLASSNAME = __CLASS__;
 
@@ -51,6 +51,7 @@ class AroApprovalChainPolicies extends AbstractClass {
                 }
             }
             $policies_array = array('affid' => $data['affid'],
+                    'coid' => $data['coid'],
                     'effectiveFrom' => $data['effectiveFrom'],
                     'effectiveTo' => $data['effectiveTo'],
                     'approvalChain' => @serialize($data['approverchain']),
@@ -100,6 +101,7 @@ class AroApprovalChainPolicies extends AbstractClass {
                     }
                 }
                 $policies_array = array('affid' => $data['affid'],
+                        'coid' => $data['coid'],
                         'effectiveFrom' => $data['effectiveFrom'],
                         'effectiveTo' => $data['effectiveTo'],
                         'approvalChain' => @serialize($data['approverchain']),
@@ -152,7 +154,7 @@ class AroApprovalChainPolicies extends AbstractClass {
     }
 
     public function co_exist($extra_where = '') {
-        $where = 'purchaseType='.$this->data['purchaseType'].' AND affid='.$this->data['affid'].' AND ('
+        $where = 'purchaseType='.$this->data['purchaseType'].' AND affid='.$this->data['affid'].' AND coid='.$this->data['coid'].' AND ('
                 .'((effectiveFrom BETWEEN '.$this->data['effectiveFrom'].' AND '.$this->data['effectiveTo'].') OR (effectiveTo BETWEEN '.$this->data['effectiveFrom'].' AND '.$this->data['effectiveTo'].'))'
                 .' OR '.
                 '(('.$this->data['effectiveFrom'].' BETWEEN effectiveFrom AND effectiveTo) AND ('.$this->data['effectiveTo'].' BETWEEN effectiveFrom AND effectiveTo))'

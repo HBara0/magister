@@ -22,12 +22,13 @@ class AroDocumentsSequenceConf extends AbstractClass {
     const DISPLAY_NAME = '';
     const SIMPLEQ_ATTRS = 'adsid,affid,ptid,effectiveFrom,effectiveTo';
     const CLASSNAME = __CLASS__;
-    const UNIQUE_ATTRS = 'affid,ptid,effectiveFrom,effectiveTo';
+    const UNIQUE_ATTRS = 'affid,coid,ptid,effectiveFrom,effectiveTo';
 
     protected function update(array $data) {
         global $db, $core, $log;
         if(!$this->validate_requiredfields($data)) {
             $documentsequence_array = array('affid' => $data['affid'],
+                    'coid' => $data['coid'],
                     'effectiveFrom' => $data['effectiveFrom'],
                     'effectiveTo' => $data['effectiveTo'],
                     'prefix' => $data['prefix'],
@@ -56,6 +57,7 @@ class AroDocumentsSequenceConf extends AbstractClass {
         global $db, $core, $log;
         if(!$this->validate_requiredfields($data)) {
             $documentsequence_array = array('affid' => $data['affid'],
+                    'coid' => $data['coid'],
                     'effectiveFrom' => $data['effectiveFrom'],
                     'effectiveTo' => $data['effectiveTo'],
                     'prefix' => $data['prefix'],
@@ -81,7 +83,10 @@ class AroDocumentsSequenceConf extends AbstractClass {
             $confdata = $this->data;
         }
         if(!$this->validate_requiredfields($confdata)) {
-            $where = "affid=".$confdata['affid']." AND ptid=".$confdata['ptid']." AND ((effectiveFrom BETWEEN ".$confdata['effectiveFrom']." AND ".$confdata['effectiveTo']." ) OR (effectiveTo BETWEEN ".$confdata['effectiveFrom']." AND ".$confdata['effectiveTo'].")"
+            if(!isset($confdata['coid']) || empty($confdata['coid'])) {
+                $confdata['coid'] = 0;
+            }
+            $where = "affid=".$confdata['affid']." AND ptid=".$confdata['ptid']." AND coid=".$confdata['coid']." AND ((effectiveFrom BETWEEN ".$confdata['effectiveFrom']." AND ".$confdata['effectiveTo']." ) OR (effectiveTo BETWEEN ".$confdata['effectiveFrom']." AND ".$confdata['effectiveTo'].")"
                     ."OR (effectiveFrom < ".$confdata['effectiveFrom']." AND effectiveTo > ".$confdata['effectiveTo']."))";
             $docsequenceconf = self::get_data($where);
             if($docsequenceconf->adsid == $confdata['adsid']) {
