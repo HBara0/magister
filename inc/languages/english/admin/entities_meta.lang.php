@@ -114,4 +114,5 @@ $lang['tocurrencies'] = 'To Currencies';
 $lang['fillallfields'] = 'Fill All Fields';
 $lang['success'] = 'Success';
 $lang['erroroccured'] = 'Error Occured';
+$lang['segment'] = 'Segment';
 ?>
