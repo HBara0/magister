@@ -58,7 +58,10 @@ if(!$core->input['action']) {
             $display['clone'] = 'display:none';
             unset($chainpolicy['aapcid']);
         }
-
+        $country_obj = Countries::get_data(array('coid' => $chainpolicy['coid']));
+        if(is_object($country_obj)) {
+            $chainpolicy['country'] = $country_obj->get_displayname();
+        }
         if($chainpolicy['informCoordinators'] == 1) {
             $checked['informCoordinators'] = 'checked="checked"';
         }

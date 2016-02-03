@@ -278,4 +278,6 @@ $lang['peopletobeinformed'] = 'People to be informed';
 $lang['publicaromsg'] = 'Make it avilable to all approvers';
 $lang['intermediarycommercials'] = 'Intermediary Commercials';
 $lang['businessmanager'] = 'Business Manager';
+$lang['country'] = 'Country';
+$lang['countrypolicy'] = 'only required for sales in countries without an affiliate';
 ?>

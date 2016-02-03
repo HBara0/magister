@@ -49,7 +49,15 @@ if(!$core->input['action']) {
     $userfilter = new Inlinefilters($filters_user_config);
     $filters_user_row = $userfilter->prase_filtersrows(array('hidebutton' => true, 'tags' => 'table', 'display' => $filters_userrow_display));
     $filters_reprow_display = 'show';
-
+    if($filter == 'usersegments' && is_array($permissions['psid'])) {
+        $psegments_query = $db->query("SELECT ps.psid, title FROM ".Tprefix."productsegments ps WHERE ps.psid IN (".implode(',', array_filter($permissions['psid'], 'is_numeric')).")");
+        while($productline = $db->fetch_assoc($psegments_query)) {
+            $productlines[$productline['psid']] = $productline['title'];
+        }
+    }
+    else {
+        $productlines = get_specificdata('productsegments', array('psid', 'title'), 'psid', 'title', '');
+    }
     $entitytype = array('s' => $lang->supplier, 'c' => $lang->customer, 'pc' => $lang->potentialcustomer, 'ps' => $lang->potentialsupplier);
     $suppliertype = array('t' => $lang->trader, 'p' => $lang->producer);
     $filters_rep_config = array(
@@ -61,6 +69,7 @@ if(!$core->input['action']) {
                             'companytype' => parse_selectlist('extrafilters[companytype][]', 0, $entitytype, $core->input['extrafilters']['companytype'], '1', '', array('multiplesize' => 3, 'blankstart' => true)),
                             'suppliertype' => parse_selectlist('extrafilters[suppliertype][]', 0, $suppliertype, $core->input['extrafilters']['suppliertype'], '1', '', array('multiplesize' => 3, 'blankstart' => true)),
                             'assignedaff' => parse_selectlist('extrafilters[assignedaff][]', 0, Affiliates::get_affiliates('isActive=1'), $core->input['extrafilters']['assignedaff'], '1', '', array('multiplesize' => 3, 'blankstart' => true)),
+                            'usersegments' => parse_selectlist('extrafilters[usersegments][]', 0, $productlines, $core->input['extrafilters']['assignedaff'], '1', '', array('multiplesize' => 3, 'blankstart' => true)),
                     )
             ),
             'process' => array(
@@ -72,9 +81,6 @@ if(!$core->input['action']) {
                     'secTables' => array(
                             'entitiesrepresentatives' => array(
                                     'filters' => array('userpermentities' => array('operatorType' => 'equal', 'name' => 'eid')),
-                            ),
-                            'representativessegments' => array(
-                                    'filters' => array('usersegments' => array('operatorType' => 'multiple', 'name' => 'psid')),
                             ),
                     )
             )
@@ -281,10 +287,6 @@ else {
                                         'filters' => array('userpermentities' => array('operatorType' => 'equal', 'name' => 'eid')),
                                         'extraWhere' => $extrawhere['eid']
                                 ),
-                                'representativessegments' => array(
-                                        'filters' => array('usersegments' => array('operatorType' => 'multiple', 'name' => 'psid')),
-                                // 'extraWhere' => $extrawhere['psid']
-                                ),
                         )
                 )
         );
@@ -296,6 +298,21 @@ else {
             $repids = array();
             foreach($core->input['extrafilters'] as $filter => $val) {
                 switch($filter) {
+                    case 'usersegments':
+                        $val = array_filter($val);
+                        if(!is_array($val) || empty($val)) {
+                            break;
+                        }
+                        $entitysegments = EntitiesSegments::get_column('eid', array('psid' => $val), array('returnarray' => true));
+                        if(is_array($entitysegments)) {
+                            if(is_array($extrafilters[Entities]['eid'])) {
+                                $extrafilters[Entities]['eid'] = array_intersect($extrafilters[Entities]['eid'], $entitysegments);
+                            }
+                            else {
+                                $extrafilters[Entities]['eid'] = $entitysegments;
+                            }
+                        }
+                        break;
                     case 'assignedaff':
                         $val = array_filter($val);
                         if(!is_array($val) || empty($val)) {
@@ -510,7 +527,7 @@ else {
             output_xml("<status>false</status><message>{$lang->noresultsfound}</message>");
             exit;
         }
-        $representatives = Representatives::get_data($filter_repwhere, array('returnarray' => true, 'simple' => false, 'order' => array('by' => 'name', 'sort' => 'ASC')));
+        $representatives = Representatives::get_data($filter_repwhere.' AND rpid != 0', array('returnarray' => true, 'simple' => false, 'order' => array('by' => 'name', 'sort' => 'ASC')));
         if(is_array($representatives)) {
             $first_timerep == 0;
             $result_title = $lang->representativesresults;
@@ -660,16 +677,27 @@ else {
                                     $results_head .= '<th>'.$lang->segments.'</th>';
                                 }
                                 $segments = array();
-                                $repssegs = RepresentativesSegments::get_data(array('rpid' => $representative->rpid), array('returnarray' => true));
-                                if(is_array($repssegs)) {
-                                    foreach($repssegs as $repsseg) {
-                                        $segments[] = $repsseg->get_segment()->get_displayname();
+                                if(is_array($entities) && !empty($entities)) {
+                                    $entsegments = array();
+                                    foreach($entities as $entity) {
+                                        $entitysegments = $entity->get_segments();
+                                        if(is_array($entitysegments) && !empty(array_filter($entitysegments))) {
+                                            $entsegments = array_merge($entsegments, array_filter($entitysegments));
+                                        }
+                                        unset($entitysegments);
                                     }
-                                    $results_body.='<td>'.implode(', ', $segments).'</td>';
+                                    if(is_array($entsegments) && !empty($entsegments)) {
+                                        $entsegments = array_unique($entsegments);
+                                        $segments = array_map(
+                                                function($e) {
+                                            return $e->get_displayname();
+                                        }, $entsegments);
+                                        $results_body.='<td>'.implode(', ', $segments).'</td>';
+                                        $segments = '';
+                                        break;
+                                    }
                                 }
-                                else {
-                                    $results_body.='<td>-</td>';
-                                }
+                                $results_body.='<td>-</td>';
                                 $segments = '';
                                 break;
                             case 'assignedaff':

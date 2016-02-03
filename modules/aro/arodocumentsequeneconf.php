@@ -44,6 +44,10 @@ if(!($core->input['action'])) {
                 $audittrail .= '<tr><td>'.$lang->$field_strtolower.'</td><td>'.$documentsequence[$field.'_output'].'</td></tr>';
             }
         }
+        $country_obj = Countries::get_data(array('coid' => $documentsequence['coid']));
+        if(is_object($country_obj)) {
+            $documentsequence['country'] = $country_obj->get_displayname();
+        }
 
         if(TIME_NOW > $documentsequence['effectiveTo']) {
             $display['save'] = 'display:none';

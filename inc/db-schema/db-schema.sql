@@ -307,39 +307,43 @@ DROP TABLE IF EXISTS `aro_approvalchain_policies`;
 CREATE TABLE `aro_approvalchain_policies` (
   `aapcid` int(10) NOT NULL AUTO_INCREMENT,
   `affid` int(10) NOT NULL,
+  `coid` int(10) NOT NULL,
   `purchaseType` int(10) NOT NULL,
   `effectiveFrom` bigint(30) NOT NULL,
   `effectiveTo` bigint(30) NOT NULL,
-  `approvalChain` text CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `approvalChain` text COLLATE utf8_unicode_ci NOT NULL,
   `informCoordinators` tinyint(1) NOT NULL,
   `informGlobalCFO` tinyint(1) NOT NULL,
+  `informGlobalPurchaseMgr` tinyint(1) NOT NULL,
+  `informInternalUsers` text COLLATE utf8_unicode_ci NOT NULL,
+  `informExternalUsers` text COLLATE utf8_unicode_ci NOT NULL,
   `createdBy` int(10) NOT NULL,
   `createdOn` bigint(30) NOT NULL,
   `modifiedOn` bigint(30) NOT NULL,
   `modifiedBy` int(10) NOT NULL,
   `informGlobalCommercials` tinyint(1) NOT NULL,
   PRIMARY KEY (`aapcid`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=94 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `aro_documentsequences`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `aro_documentsequences` (
   `adsid` int(10) NOT NULL AUTO_INCREMENT,
-  `affid` smallint(10) NOT NULL,
+  `affid` int(10) NOT NULL,
+  `coid` int(10) NOT NULL,
   `ptid` int(10) NOT NULL,
   `effectiveFrom` bigint(30) NOT NULL,
   `effectiveTo` bigint(30) NOT NULL,
-  `prefix` varchar(30) COLLATE utf8_unicode_ci NOT NULL,
+  `prefix` varchar(30) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
   `incrementBy` smallint(100) NOT NULL,
   `nextNumber` smallint(100) NOT NULL,
-  `suffix` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+  `suffix` varchar(50) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
   `createdOn` bigint(30) NOT NULL,
   `createdBy` int(10) NOT NULL,
   `modifiedBy` int(10) NOT NULL,
   `modifiedOn` bigint(30) NOT NULL,
   PRIMARY KEY (`adsid`)
-) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `aro_netmargin_parameters`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -407,7 +411,7 @@ CREATE TABLE `aro_ordersummary` (
   `totalCommission` float NOT NULL,
   `interestValue` float NOT NULL,
   PRIMARY KEY (`aorsid`)
-) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=8 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `aro_policies`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -415,6 +419,7 @@ DROP TABLE IF EXISTS `aro_policies`;
 CREATE TABLE `aro_policies` (
   `apid` int(11) NOT NULL AUTO_INCREMENT,
   `affid` smallint(6) NOT NULL,
+  `coid` int(10) NOT NULL,
   `purchaseType` int(11) NOT NULL,
   `effectiveFrom` bigint(30) NOT NULL,
   `effectiveTo` bigint(30) NOT NULL,
@@ -422,22 +427,21 @@ CREATE TABLE `aro_policies` (
   `yearlyInterestRate` decimal(10,0) NOT NULL,
   `commissionCharged` decimal(10,0) NOT NULL,
   `riskRatioDiffCurrCP` decimal(10,0) NOT NULL,
-  `riskRatioMonthlyIncreaseDiffCurrCN` decimal(10,0) NOT NULL,
+  `riskRatioIncreaseDiffCurrCN` decimal(10,0) NOT NULL,
+  `riskRatioDays` int(11) NOT NULL,
   `riskRatioSameCurrCN` decimal(10,0) NOT NULL,
-  `riskRatioIncreaseDiffCurrCN` float DEFAULT NULL,
-  `riskRatioDays` float DEFAULT NULL,
-  `defaultIntermed` smallint(5) NOT NULL,
-  `defaultPaymentTerm` int(10) NOT NULL,
-  `defaultAcceptableMargin` float NOT NULL,
-  `defaultCurrency` int(3) NOT NULL,
-  `defaultIncoterms` int(5) NOT NULL,
   `isActive` tinyint(1) NOT NULL,
   `createdOn` bigint(30) NOT NULL,
   `createdBy` int(10) NOT NULL,
   `modifiedOn` bigint(30) NOT NULL,
   `modifiedBy` int(10) NOT NULL,
+  `defaultIntermed` int(10) NOT NULL,
+  `defaultIncoterms` int(10) NOT NULL,
+  `defaultPaymentTerm` int(10) NOT NULL,
+  `defaultAcceptableMargin` float NOT NULL,
+  `defaultCurrency` int(3) NOT NULL,
   PRIMARY KEY (`apid`)
-) ENGINE=MyISAM AUTO_INCREMENT=9 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=24 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `aro_requests`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -446,28 +450,30 @@ CREATE TABLE `aro_requests` (
   `aorid` int(10) NOT NULL AUTO_INCREMENT,
   `inputChecksum` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
   `affid` int(10) NOT NULL,
+  `coid` int(10) NOT NULL,
   `orderType` int(10) NOT NULL,
   `orderReference` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
   `inspectionType` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
   `currency` int(10) NOT NULL,
   `exchangeRateToUSD` float NOT NULL,
   `referenceNumber` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
-  `avgLocalInvoiceDueDate` bigint(30) NOT NULL,
-  `revision` int(2) NOT NULL DEFAULT '0',
-  `isApproved` tinyint(1) NOT NULL DEFAULT '0',
-  `isFinalized` tinyint(1) NOT NULL DEFAULT '0',
   `createdOn` bigint(30) NOT NULL,
   `createdBy` int(10) NOT NULL,
   `modifiedOn` bigint(30) NOT NULL,
   `modifiedBy` int(10) NOT NULL,
-  `POSent` tinyint(1) NOT NULL DEFAULT '0',
+  `revision` int(2) NOT NULL DEFAULT '0',
+  `isApproved` tinyint(1) NOT NULL,
+  `avgLocalInvoiceDueDate` bigint(30) NOT NULL,
+  `aroBusinessManager` int(10) NOT NULL,
+  `isFinalized` tinyint(1) NOT NULL,
+  `finalizedOn` bigint(30) NOT NULL,
   `isRejected` tinyint(1) NOT NULL DEFAULT '0',
   `rejectedBy` int(10) NOT NULL,
   `rejectedOn` bigint(30) NOT NULL,
+  `POSent` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`aorid`),
   UNIQUE KEY `aoiid` (`aorid`),
   FULLTEXT KEY `orderReference` (`orderReference`)
-) ENGINE=MyISAM AUTO_INCREMENT=9 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `aro_requests_approvals`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
