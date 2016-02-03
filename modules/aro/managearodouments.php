@@ -1584,14 +1584,10 @@ else {
         $currentstock = $core->input;
         $packing = new Packaging($currentstock['packing']);
         $currentstock['packingTitle'] = $packing->get_displayname();
-        $fields = array('productName', 'pid', 'packing', 'packingTitle', 'inputChecksum'); // 'quantity', 'stockValue', 'expiryDate');
+        $fields = array('productName', 'pid', 'packing', 'packingTitle', 'inputChecksum');
         foreach($fields as $field) {
             $currentstock_data['currentstock_'.$rowid.'_'.$field] = $currentstock[$field];
         }
-        //   $currentstock_data['pickDate_currentstock_'.$rowid] = '';
-        //  $currentstock_data['pickDate_currentsale_'.$rowid] = '';
-        //  $currentstock_data['altpickDate_currentstock_'.$rowid] = '';
-        //  $currentstock_data['altpickDate_currentsale_'.$rowid.''] = '';
         echo json_encode($currentstock_data);
     }
     if($core->input['action'] == 'ajaxaddmore_currentstockrow') {
@@ -1602,7 +1598,8 @@ else {
     if($core->input['action'] == 'viewonly') {
         $aroorderrequest = AroRequests::get_data(array('aorid' => $core->input['id']), array('simple' => false));
         if($core->user['uid'] != 362) {
-            if($aroorderrequest->isApproved == 1 || $core->user['uid'] != $aroorderrequest->createdBy) {
+            //Only creator of the ARO can modify it
+            if($core->user['uid'] != $aroorderrequest->createdBy) {
                 $viewonly = array('disable' => 1);
                 output(json_encode($viewonly));
             }
@@ -1618,11 +1615,12 @@ else {
                 if($approve) {
                     $arorequest->inform_nextapprover();
 
-                    //Inform created By
+                    //Inform Initiator of the ARO
                     $aroaffiliate_obj = new Affiliates($arorequest->affid);
                     $purchasteype_obj = PurchaseTypes::get_data(array('ptid' => $arorequest->orderType));
                     $createdby_obj = Users::get_data(array('uid' => $arorequest->createdBy));
                     $to[] = $createdby_obj->email;
+                    // Inform ARO BM
                     if(isset($arorequest->aroBusinessManager) && !empty($arorequest->aroBusinessManager)) {
                         $bm = Users::get_data(array('uid' => $arorequest->aroBusinessManager));
                         if(is_object($bm)) {
@@ -1706,9 +1704,6 @@ else {
     }
     else if($core->input['action'] == 'InolveIntermediary') {
         $purchasetype = new PurchaseTypes($core->input['ptid']);
-
-//$needsIntermed = array('needsIntermed' => $purchasetype->needsIntermediary);
-//echo json_encode($needsIntermed);
         output($purchasetype->needsIntermediary);
     }
     else if($core->input['action'] == 'updatecommission') {
