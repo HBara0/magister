@@ -84,14 +84,16 @@
                 background-color: #000;
             }
             #slide-submenu{
-                background:#92d050;;
+                background:#B6CF8C;;
                 display: inline-block;
                 padding: 0 8px;
                 border-radius: 4px;
                 cursor: pointer;
+
             }
             .list-group-item.active, .list-group-item.active:focus, .list-group-item.active:hover{
-                background: #92d050; !important;
+                background: #B6CF8C !important;
+                border-color: #B6CF8C;
             }
             .scrollable-menu {
                 height: auto;
@@ -99,8 +101,8 @@
                 overflow-x: hidden;
             }
             .navbar-default {
-                background-color: #54b84e;
-                border-color: #378e3e;
+                background-color: #9BBD61;
+                border-color: #9BBD61;
             }
             .navbar-default .navbar-brand {
                 color: #ecf0f1;
@@ -123,20 +125,20 @@
             .navbar-default .navbar-nav > .active > a:hover,
             .navbar-default .navbar-nav > .active > a:focus {
                 color: #f7f7f7;
-                background-color: #378e3e;
+                background-color: #9BBD61;
             }
             .navbar-default .navbar-nav > .open > a,
             .navbar-default .navbar-nav > .open > a:hover,
             .navbar-default .navbar-nav > .open > a:focus {
                 color: #f7f7f7;
-                background-color: #378e3e;
+                background-color: #9BBD61;
             }
             .navbar-default .navbar-toggle {
-                border-color: #378e3e;
+                border-color: #9BBD61;
             }
             .navbar-default .navbar-toggle:hover,
             .navbar-default .navbar-toggle:focus {
-                background-color: #378e3e;
+                background-color: #9BBD61;
             }
             .navbar-default .navbar-toggle .icon-bar {
                 background-color: #ecf0f1;
@@ -164,16 +166,16 @@
                 .navbar-default .navbar-nav .open .dropdown-menu > .active > a:hover,
                 .navbar-default .navbar-nav .open .dropdown-menu > .active > a:focus {
                     color: #f7f7f7;
-                    background-color: #378e3e;
+                    background-color: #9BBD61;
                 }
             }
         </style>
         <script src="../js/jquery-current.min.js" type="text/javascript"></script>
         <script type="text/javascript" >
             $(function () {
-                $('#tooltip').tooltip();
+                $('#tooltip,#tooltip2').tooltip();
                 $('#slide-submenu').on('click', function () {
-                    $(this).closest('.list-group').fadeOut('slide', function () {
+                    $(this).closest('.list-group').toggle('slide', function () {
                         $('.mini-submenu').fadeIn();
                     });
 
@@ -543,14 +545,14 @@
             </div>
         </div>
 
-        <div style="position:fixed;height:100%;top: 50px; right: 0px;">
-            <div class="mini-submenu" style="">
-                <span class="glyphicon glyphicon-th-list" style="color:#FFF;"></span>
+        <div style="position:fixed;height:100%;top: 50px; right: 0px;" >
+            <div class="mini-submenu" style=" width: 30px;">
+                <span class="glyphicon glyphicon-th-list" style="color:#FFF;"  id="tooltip2" data-toggle="tooltip" data-placement="left" title="Switch to another Page"></span>
             </div>
             <div class="list-group">
                 <span  class="list-group-item active">
-                    Pages List
-                    <span class="pull-right" id="slide-submenu" style="background-color: #fff">
+                    Profiles
+                    <span class="pull-right" id="slide-submenu" style="background-color: #fff;">
                         <i class="fa fa-times" style="color:#B6CF8C;"></i>
                     </span>
                 </span>
