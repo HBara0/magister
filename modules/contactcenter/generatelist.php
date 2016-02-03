@@ -681,7 +681,10 @@ else {
                                     $entsegments = array();
                                     foreach($entities as $entity) {
                                         $entitysegments = $entity->get_segments();
-                                        if(is_array($entitysegments) && !empty(array_filter($entitysegments))) {
+                                        if(is_array($entitysegments)) {
+                                            $entitysegments = array_filter($entitysegments);
+                                        }
+                                        if(is_array($entitysegments) && !empty($entitysegments)) {
                                             $entsegments = array_merge($entsegments, array_filter($entitysegments));
                                         }
                                         unset($entitysegments);

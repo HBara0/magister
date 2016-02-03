@@ -55,7 +55,7 @@ class EntitiesSegments extends AbstractClass {
     }
 
     public function get_segment() {
-        return new ProductsSegments($this->data[Entities::PRIMARY_KEY]);
+        return new ProductsSegments($this->data[ProductsSegments::PRIMARY_KEY]);
     }
 
 }
