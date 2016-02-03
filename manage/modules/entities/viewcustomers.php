@@ -26,9 +26,10 @@ if(!$core->input['action']) {
 
     /* Perform inline filtering - START */
     $filters_config = array(
-            'parse' => array('filters' => array('id', 'customers', 'affiliate', 'coid'),
+            'parse' => array('filters' => array('id', 'customers', 'affiliate', 'coid', 'segment', 'tools'),
                     'overwriteField' => array(
                             'id' => '',
+                            'tools' => '',
                     )
             ),
             'process' => array(
@@ -41,6 +42,9 @@ if(!$core->input['action']) {
                             'affiliatedentities' => array(
                                     'filters' => array('affiliate' => array('operatorType' => 'multiple', 'name' => 'affid'))
                             ),
+                            'entitiessegments' => array(
+                                    'filters' => array('segment' => array('operatorType' => 'multiple', 'name' => 'psid'))
+                            )
                     )
             )
     );
@@ -72,7 +76,8 @@ if(!$core->input['action']) {
     if($db->num_rows($query) > 0) {
         while($customer = $db->fetch_array($query)) {
             $class = alt_row($class);
-
+            $segments_counter = 0;
+            $segments = $hidden_segments = $show_segments = '';
             $query2 = $db->query("SELECT ae.*, a.name FROM ".Tprefix."affiliatedentities ae LEFT JOIN ".Tprefix."affiliates a ON (a.affid=ae.affid) WHERE ae.eid='$customer[eid]' ORDER BY a.name ASC");
             $comma = $affiliates = $mergedelete_icon = '';
             while($affiliate = $db->fetch_array($query2)) {
@@ -83,14 +88,32 @@ if(!$core->input['action']) {
             //if($core->usergroup['canDeleteCutomers'] == 1) {
             $mergedelete_icon = '<a href="#" id="mergeanddeleteentities_'.$customer['eid'].'_entities/viewcustomers_loadpopupbyid"><img src="'.$core->settings['rootdir'].'/images/invalid.gif" border="0" /></a>';
             //}
+            $query3 = $db->query("SELECT title,es.psid FROM ".Tprefix."productsegments p JOIN  ".Tprefix."entitiessegments es  ON (es.psid=p.psid) WHERE es.eid='$customer[eid]'");
+            while($segment = $db->fetch_assoc($query3)) {
+                if(++$segments_counter > 2) {
+                    $hidden_segments .= "<li>{$segment[title]}{$seg_filter_icon}</li>";
+                }
+                elseif($segments_counter == 2) {
+                    $show_segments .= "<li>{$segment[title]}{$seg_filter_icon}";
+                }
+                else {
+                    $show_segments .= "<li>{$segment[title]}{$seg_filter_icon}</li>";
+                }
 
-            $entities_list .= '<tr class="'.$class.'"><td>'.$customer['eid'].'</td><td>'.$customer['companyName'].'</td><td>'.$affiliates.'</td><td>'.$customer['country'].'</td>';
+                if($segments_counter > 2) {
+                    $segments = '<ul style="list-style:none; padding:2px;margin-top:0px;">'.$show_segments.", <a href='#segment' id='showmore_segments_{$customer[eid]}' title='".$lang->showmore."'>...</a></li> <span style='display:none;' id='segments_{$customer[eid]}'>{$hidden_segments}</span></ul>";
+                }
+                else {
+                    $segments = '<ul style="list-style:none; padding:2px;margin-top:0px;">'.$show_segments.'</ul>';
+                }
+            }
+            $entities_list .= '<tr class="'.$class.'"><td>'.$customer['eid'].'</td><td>'.$customer['companyName'].'</td><td>'.$affiliates.'</td><td>'.$customer['country'].'</td><td>'.$segments.'</td>';
             $entities_list .= '<td><a href="index.php?module=entities/edit&amp;eid='.$customer['eid'].'"><img src="'.$core->settings['rootdir'].'/images/edit.gif" alt="'.$lang->edit.'" border="0" /></a></td><td>'.$mergedelete_icon.'</td></tr>';
             //  $entities_list .= "<td style='text-align: right;'>{$approve_icon}<a href='index.php?module=entities/edit&amp;eid={$supplier[eid]}'><img src='{$core->settings[rootdir]}/images/edit.gif' alt='{$lang->edit}' border='0' /></a>";
             //  $entities_list .= "<a href='#' id='mergeanddeleteentities_{$supplier[eid]}_entities/viewsuppliers_loadpopupbyid'><img src='{$core->settings[rootdir]}/images/invalid.gif' border='0' /></td></tr>";
         }
         $multipages = new Multipages("entities", $core->settings['itemsperlist'], "type='c'");
-        $entities_list .= "<tr><td colspan='4'>".$multipages->parse_multipages()."</td><td style='text-align: right;'><a href='".$_SERVER['REQUEST_URI']."&amp;action=exportexcel'><img src='../images/xls.gif' alt='{$lang->exportexcel}' border='0' /></a></td></tr>";
+        $entities_list .= "<tr><td colspan='5'>".$multipages->parse_multipages()."</td><td style='text-align: right;'><a href='".$_SERVER['REQUEST_URI']."&amp;action=exportexcel'><img src='../images/xls.gif' alt='{$lang->exportexcel}' border='0' /></a></td></tr>";
     }
     else {
         $entities_list = "<tr><td colspan='5' style='text-align: center;'>{$lang->nocustomersavailable}</td></tr>";
