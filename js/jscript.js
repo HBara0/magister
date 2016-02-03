@@ -2,6 +2,31 @@ $(function() {
     /*
      Check the browswer support before anything else
      */
+
+
+    //applyin the DATATABLES plugin on classes-START
+    function initialize_datatables() {
+        $(".datatable_basic").each(function(i, obj) {
+            if($(obj).hasClass('datatable_basic')) {
+                var table = $(obj).DataTable(
+                        {
+                            stateSave: true,
+                            "pagingType": "full_numbers",
+                        });
+            }
+            $(obj).find('tbody').each(function(i, obj2) {
+                $(obj2).on('mouseenter', 'td', function() {
+                    var colIdx = table.cell(this).index().column;
+                    $(table.cells().nodes()).removeClass('highlight');
+                    $(table.column(colIdx).nodes()).addClass('highlight');
+                });
+            });
+
+        });
+    }
+    initialize_datatables();
+    //applyin the DATATABLES plugin on classes-END
+
     if(jQuery.support.leadingWhitespace == false) {
         $('head').append('<link rel="stylesheet" href="' + rootdir + 'css/jqueryuitheme/jquery-ui-current.custom.min.css" type="text/css" />');
         $("body").append("<div id='browserversionerror' title='Browser version is too old'>Please upgrade your browser to a newer version.</div>");
@@ -263,7 +288,6 @@ $(function() {
                         }
                         else {
                             filtersQuery += "&" + attrs[i] + "=" + $("input[id='" + attrs[i] + "']").val();
-
                         }
                     }
                 }
@@ -500,7 +524,6 @@ $(function() {
         }
         sharedFunctions.requestAjax("post", url, formData, formid + "Results", formid + "Results");
     });
-
     $(document).on("click", "a[id^='showmore_'][href^='#']", function() {
         var id = $(this).attr("id").split("_");
         $("#" + id[1] + "_" + id[2]).toggle();
@@ -803,7 +826,6 @@ $(function() {
     $(document).on("click", "img[id^='ajaxaddmore_']", function() {
         sharedFunctions.ajaxAddMore($(this));
     });
-
     window.sharedFunctions = function() {
         function ajaxAddMore(object, callback) {
             if(sharedFunctions.checkSession() == false) {

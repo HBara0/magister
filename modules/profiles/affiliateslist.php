@@ -134,8 +134,8 @@ if(!$core->input['action']) {
                 $affiliates_list .= "<tr class='{$class}'><td valign='top'><a href='index.php?module=profiles/affiliateprofile&affid={$affiliate[affid]}'>{$affiliate[name]}</td><td valign='top'>{$countries_list}</td><td valign='top'>{$gm}</td><td valign='top'>{$supervisor}</td>";
             }
 
-            $multipages = new Multipages('affiliates ', $core->settings['itemsperlist'], $multipage_where);
-            $affiliates_list .= '<tr><td colspan="4">'.$multipages->parse_multipages().'</td></tr>';
+//            $multipages = new Multipages('affiliates ', $core->settings['itemsperlist'], $multipage_where);
+//            $affiliates_list .= '<tr><td colspan="4">'.$multipages->parse_multipages().'</td></tr>';
         }
         else {
             $affiliates_list .= '<tr><td colspan="4">'.$lang->no.'</td></tr>';
