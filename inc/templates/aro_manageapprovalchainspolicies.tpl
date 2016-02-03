@@ -31,6 +31,15 @@
                     <tr><td>{$lang->affiliate} </td>
                         <td> {$affiliate_list}</td>
                     </tr>
+                    <tr>
+                        <td>{$lang->country}<span style="font-weight:bold"> ({$lang->countrypolicy})</span></td>
+                        <td>
+                            <input id="countries_1_autocomplete" autocomplete="off" type="text" value="{$chainpolicy[country]}" style="width:150px;">
+                            <input id="countries_1_id" name="chainpolicy[coid]"  value="{$chainpolicy[coid]}" type="hidden">
+                            <div id="searchQuickResults_1" class="searchQuickResults" style="display: none;"></div>
+
+                        </td>
+                    </tr>
                     <tr ><td>{$lang->effromdate} </td>
                         <td><input type="text" id="pickDate_from"  autocomplete="off" tabindex="2" value="{$chainpolicy[effectiveFrom_output]}" required="required"/>
                             <input type="hidden" name="chainpolicy[effectiveFrom]" id="altpickDate_from" value="{$chainpolicy[effectiveFrom_formatted]}"/></td>

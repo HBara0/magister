@@ -40,7 +40,7 @@ class AroRequests extends AbstractClass {
                 return $this->errorcode;
             }
         }
-        $orderrequest_fields = array('affid', 'orderType', 'orderReference', 'inspectionType', 'currency', 'exchangeRateToUSD', 'ReferenceNumber', 'aroBusinessManager', 'isFinalized', 'inputChecksum');
+        $orderrequest_fields = array('affid', 'orderType', 'orderReference', 'inspectionType', 'currency', 'exchangeRateToUSD', 'ReferenceNumber', 'aroBusinessManager', 'isFinalized', 'inputChecksum', 'coid');
         foreach($orderrequest_fields as $orderrequest_field) {
             $orderrequest_array[$orderrequest_field] = $data[$orderrequest_field];
         }
@@ -148,7 +148,7 @@ class AroRequests extends AbstractClass {
                 return $this->errorcode;
             }
         }
-        $orderrequest_fields = array('affid', 'orderType', 'orderReference', 'inspectionType', 'currency', 'exchangeRateToUSD', 'ReferenceNumber', 'aroBusinessManager', 'isFinalized');
+        $orderrequest_fields = array('affid', 'orderType', 'orderReference', 'inspectionType', 'currency', 'exchangeRateToUSD', 'ReferenceNumber', 'aroBusinessManager', 'isFinalized', 'coid');
         foreach($orderrequest_fields as $orderrequest_field) {
             $orderrequest_array[$orderrequest_field] = $data[$orderrequest_field];
         }
@@ -411,7 +411,7 @@ class AroRequests extends AbstractClass {
 
     public function generate_approvalchain($pickedapprovers = null, $options = null, $intermed = null) {
         global $core;
-        $filter = 'affid ='.$this->affid.' AND purchaseType = '.$this->orderType.' AND ('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
+        $filter = 'affid ='.$this->affid.' AND purchaseType = '.$this->orderType.' AND coid='.$this->coid.' AND ('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
         $aroapprovalchain_policies = AroApprovalChainPolicies::get_data($filter);
         if(is_object($aroapprovalchain_policies)) {
             $approvalchain = unserialize($aroapprovalchain_policies->approvalChain);
