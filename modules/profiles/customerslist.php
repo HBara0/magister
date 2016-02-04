@@ -141,8 +141,8 @@ if(!$core->input['action']) {
             $customers_list .= '</td></tr>';
         }
 
-        $multipages = new Multipages('entities e JOIN '.Tprefix.'affiliatedentities a ON (e.eid=a.eid) JOIN '.Tprefix.'affiliatedemployees ae ON (a.affid=ae.affid)', $core->settings['itemsperlist'], $multipage_where);
-        $customers_list .= '<tr><td colspan="4">'.$multipages->parse_multipages().'</td></tr>';
+//        $multipages = new Multipages('entities e JOIN '.Tprefix.'affiliatedentities a ON (e.eid=a.eid) JOIN '.Tprefix.'affiliatedemployees ae ON (a.affid=ae.affid)', $core->settings['itemsperlist'], $multipage_where);
+//        $customers_list .= '<tr><td colspan="4">'.$multipages->parse_multipages().'</td></tr>';
     }
     else {
         $customers_list .= '<tr><td colspan="4">'.$lang->na.'</td></tr>';
