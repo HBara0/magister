@@ -99,7 +99,7 @@ $(function() {
                     $(table.column(colIdx).nodes()).addClass('highlight');
                 });
             });
-            $(obj).parent().prepend('<div style="float:left"><img  title="Clear Filters" src="' + rootdir + '/images/icons/clearfilters.png" style="cursor:pointer;" id="datatables_cleafilters">&nbsp;&nbsp</div>');
+            $(obj).before('&nbsp;&nbsp;<img  title="Clear Filters" src="' + rootdir + '/images/icons/clearfilters.png" style="cursor:pointer;" id="datatables_cleafilters">');
         });
     }
     initialize_datatables();
