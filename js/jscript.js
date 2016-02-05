@@ -99,10 +99,21 @@ $(function() {
                     $(table.column(colIdx).nodes()).addClass('highlight');
                 });
             });
-
+            $(obj).parent().prepend('<div style="float:left"><img  title="Clear Filters" src="' + rootdir + '/images/icons/clearfilters.png" style="cursor:pointer;" id="datatables_cleafilters">&nbsp;&nbsp</div>');
         });
     }
     initialize_datatables();
+    $(document).on("click", 'img[id="datatables_cleafilters"]', function() {
+        var clearfilters = function(obj) {
+            var table = $(obj).DataTable();
+            table.search('')
+                    .columns().search('')
+                    .draw();
+        };
+        var table = $(this).next('table:first');
+        clearfilters(table);
+    });
+
     //applyin the DATATABLES plugin on classes-END
 
     if(jQuery.support.leadingWhitespace == false) {
