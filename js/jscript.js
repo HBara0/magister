@@ -7,12 +7,90 @@ $(function() {
     //applyin the DATATABLES plugin on classes-START
     function initialize_datatables() {
         $(".datatable_basic").each(function(i, obj) {
+            //basic grid type
             if($(obj).hasClass('datatable_basic')) {
+                //check if data attribute of totals columns exists and not empty, then fill the values
+                if($(obj).attr('data-totalcolumns')) {
+                    var totalcolumns = $(obj).attr('data-totalcolumns');
+                }
+                // Setup - add a text input to each footer cell
+                $(obj).find('tfoot').each(function(i, tfoot) {
+                    $(tfoot).find('th').each(function(i, th) {
+                        var title = $(th).text();
+                        $(th).html('<input type="text" placeholder="Search ' + title + '" />');
+                    });
+                });
+
+                // Remove the formatting to get integer data for summation
+                var intVal = function(i) {
+                    return typeof i === 'string' ?
+                            i.replace(/[\$,]/g, '') * 1 :
+                            typeof i === 'number' ?
+                            i : 0;
+                };
                 var table = $(obj).DataTable(
                         {
                             stateSave: true,
                             "pagingType": "full_numbers",
+                            "footerCallback": function(row, data, start, end, display) {
+                                var api = this.api(), data;
+                                if(typeof totalcolumns == 'undefined') {
+                                    return;
+                                }
+                                var columns = totalcolumns.split(',');
+                                if(!($.isArray(columns))) {
+                                    return;
+                                }
+                                $.each(columns, function(i, col) {
+                                    if(!($.isNumeric(intVal(col)))) {
+                                        return true;
+                                    }
+                                    // Total over all pages
+                                    total = api
+                                            .column(col)
+                                            .data()
+                                            .reduce(function(a, b) {
+                                                return intVal(a) + intVal(b);
+                                            }, 0);
+
+                                    // Total over this page
+                                    pageTotal = api
+                                            .column(col, {page: 'current'})
+                                            .data()
+                                            .reduce(function(a, b) {
+                                                return intVal(a) + intVal(b);
+                                            }, 0);
+
+                                    // Update footer
+                                    //if variables are not numeric skip and leave normal filters
+                                    if(!($.isNumeric(pageTotal)) || !($.isNumeric(total))) {
+                                        return;
+                                    }
+                                    else {
+                                        $(api.column(col).footer()).html(
+                                                pageTotal.toFixed(2) + ' <br>(Total: ' + total.toFixed(2) + ')'
+                                                );
+                                    }
+                                });
+
+
+
+
+
+
+                            }
                         });
+                table.columns().every(function() {
+                    var that = this;
+
+                    $('input', this.footer()).on('keyup change', function() {
+                        if(that.search() !== this.value) {
+                            that
+                                    .search(this.value)
+                                    .draw();
+                        }
+                    });
+                });
             }
             $(obj).find('tbody').each(function(i, obj2) {
                 $(obj2).on('mouseenter', 'td', function() {
@@ -160,7 +238,7 @@ $(function() {
             }
         });
     }
-//    $("input[id^='pickDate']").datepicker({maxDate: "+1d"});
+    //    $("input[id^='pickDate']").datepicker({maxDate: "+1d"});
 //    $(this).datepicker("option", "maxDate", "+1d ");
 
     $("input[id^='pickDate']").each(function() {
@@ -195,8 +273,7 @@ $(function() {
                     $("#" + secid + "").datepicker("option", "minDate", selectedDate);
                 }});
             $("#ui-datepicker-div").css("z-index", $(this).parents(".ui-dialog").css("z-index") + 1);
-        }
-        else {
+        } else {
             initalisedatepicker(this);
         }
     })
@@ -314,7 +391,6 @@ $(function() {
 
                     $("input[id^='" + id[0] + "']" + inputselection_extra + "[id$='_id']").each(function() {
                         if($(this).val().length > 0) {
-
                             exclude += comma + $(this).val();
                             if(++count != 1) {
                                 comma = ",";
@@ -445,8 +521,7 @@ $(function() {
         }
         else
         {
-            $.post(rootdir + "search.php?type=quick&for=" + id[0] + "&exclude=" + exclude + filtersQuery,
-                    {value: "" + inputValue + ""},
+            $.post(rootdir + "search.php?type=quick&for=" + id[0] + "&exclude=" + exclude + filtersQuery, {value: "" + inputValue + ""},
             function(returnedData) {
                 if(returnedData.length > 0) {
                     $(resultsIn).html(returnedData);
@@ -532,7 +607,7 @@ $(function() {
         sharedFunctions.addmoreRows($(this));
     });
     $(document).on("keyup", "input[id='email'],input[accept='email']", validateEmailInline);
-//$("input[id='email'],input[accept='email']").change(validateEmailInline);
+    //$("input[id='email'],input[accept='email']").change(validateEmailInline);
 
     function validateEmailInline() {
         //var action = $("form:has(input[id='email'])").attr("id").substring(0, ($("form:has(input[id='email'])").attr("id").length - 5));
@@ -566,7 +641,7 @@ $(function() {
     });
     $(document).on("keydown", "input[accept='numeric']", function(e) {
         if(e.keyCode > 31 && (e.keyCode < 48 || (e.keyCode > 57 && (e.keyCode < 96 || e.keyCode > 105) && e.keyCode != 190 && e.keyCode != 110 && e.keyCode != 16 && e.keyCode != 17 && e.keyCode != 59))) {
-//$(this).val($(this).val().substring(0, ($(this).val().length - 1)));
+            //$(this).val($(this).val().substring(0, ($(this).val().length - 1)));
             e.preventDefault();
             return false
         }
@@ -590,8 +665,7 @@ $(function() {
         if(sharedFunctions.checkSession() == false) {
             return;
         }
-        $.post("index.php?module=reporting/createreports&action=get_reports",
-                {quarter: $("#quarter").val(), year: $("#year").val()},
+        $.post("index.php?module=reporting/createreports&action=get_reports", {quarter: $("#quarter").val(), year: $("#year").val()},
         function(returnedData) {
             $("select[id='reports']").empty();
             $("select[id='reports']").html(returnedData);
@@ -626,11 +700,11 @@ $(function() {
 
     $(document).on('click', "a[id$='_loadpopupbyid'],a[id^='mergeanddelete_'][id$='_icon'],a[id^='revokeleave_'][id$='_icon'],a[id^='approveleave_'][id$='_icon']", function() {
         var id = $(this).attr("id").split("_");
-//        var rel = $(this).prop("rel");
-//        var underscore = '_';
+        //        var rel = $(this).prop("rel");
+        //        var underscore = '_';
 //        if(rel != '' || rel != null) {
 //            id[1] = rel;
-//        }
+        //        }
 
         if(typeof $(this).attr("data-template") != 'undefined') {
             id[0] = $(this).attr("data-template");
@@ -711,7 +785,6 @@ $(function() {
         if(id === undefined) {
             id = '';
         }
-
         //$("#popupBox").hide("fast");
 
         //$(".contentContainer").append("<div id='popupBox'></div>");
@@ -769,8 +842,7 @@ $(function() {
                     }
                 });
                 /* Make the parent dialog overflow as visible to completely display the  customer inline search results */
-                $(".ui-dialog,div[id^='popup_']").css("overflow", "visible");
-                //$("#popupBox").html(returnedData).show("slow");
+                $(".ui-dialog,div[id^='popup_']").css("overflow", "visible");                 //$("#popupBox").html(returnedData).show("slow");
                 //$("#popupBox").draggable();
                 //	$("input[id$='_QSearch']").keyup(QSearch);
                 //$("input[id='email']").keyup(validateEmailInline);
@@ -864,17 +936,14 @@ $(function() {
                     //               }
                     //            });
                     //            $("#modal-loading").attr('style', 'opacity:1; z-index:1000;height:100px;width:1000px');
-                    //       } else {
-                    $("body").append("<div id='modal-loading'></div>");
+                    //       } else {                     $("body").append("<div id='modal-loading'></div>");
                     $("#modal-loading").dialog({height: 0, modal: true, closeOnEscape: false, title: 'Loading...', resizable: false, minHeight: 0});
                     //  }
-
                 },
                 complete: function() {
                     //+msecond
                     $("#modal-loading").dialog("close").remove();
-                },
-                success: function(returnedData) {
+                }, success: function(returnedData) {
                     $('#' + uniquename + '_tbody').append(returnedData);
                     if($("#numrows_" + uniquename).length != 0) {
                         $("#numrows_" + uniquename).val(num_rows + 1);
@@ -905,8 +974,7 @@ $(function() {
 
             var image_name = 'loading-bar.gif';
             $.ajax({type: methodParam,
-                url: urlParam,
-                data: dataParam,
+                url: urlParam, data: dataParam,
                 beforeSend: function() {
                     $("div[id='" + loadingId + "'],span[id='" + loadingId + "']").html("<img style='padding: 5px;' src='" + imagespath + "/" + image_name + "'' alt='" + loading_text + "' border='0' />");
                 },
@@ -916,7 +984,6 @@ $(function() {
                     }
                 },
                 success: function(returnedData) {
-
                     if(datatype == 'xml') {
                         if($(returnedData).find('status').text() == 'true') {
                             var spanClass = 'green_text';
@@ -984,8 +1051,7 @@ $(function() {
             $("#" + id[1] + "_tbody > tr:last").clone(true).removeAttr('id').attr('id', increment).appendTo("#" + id[1] + "_tbody");
             /*if(!$.browser.msie) {
              $("#"+ id[1] +"_tbody > tr[id='" + increment + "']").find("input[name],select[name],div[name],textarea[name],img").each(function() {
-             $(this).attr("name", $(this).attr("name").replace(last, increment.toString()));
-             });
+             $(this).attr("name", $(this).attr("name").replace(last, increment.toString()));              });
              }*/
             var needed_attributes = ["id", "name"];
             $("#" + id[1] + "_tbody > div").scrollTop();
@@ -1017,7 +1083,6 @@ $(function() {
                     if($(this).attr("type") != 'checkbox' && $(this).attr("type") != 'radio') {
                         $(this).val("");
                     }
-
                     if($(this).attr("type") == 'checkbox') {
                         $(this).removeAttr('checked')
                     }
@@ -1074,7 +1139,6 @@ $(function() {
                         if(!returnedData) {
                             //   $("#orderreference").val(''); //hardcoded temp
                         }
-
                         if(typeof returnedData !== typeof undefined && returnedData !== '') {
                             json = eval("(" + returnedData + ");"); /* convert the json to object */
                             var form = document.forms[formname];
@@ -1091,8 +1155,7 @@ $(function() {
             });
         }
         return {
-            "requestAjax": requestAjax,
-            "checkSession": checkSession,
+            "requestAjax": requestAjax, "checkSession": checkSession,
             "addmoreRows": addmoreRows,
             "sharedPopUp": sharedPopUp,
             "populateForm": populateForm,
@@ -1118,8 +1181,7 @@ $(function() {
         stop: function(event, ui) {
             $("#dimensionto li").css('background', '#92d050');
             $('#dimensions').val($("#dimensionto").sortable('toArray'));
-        }
-    });
+        }});
     $(document).on('change', "[data-reqparent^='children-']", function() {
         var children = $(this).attr('data-reqparent').split('-');
         if(children.length > 1) {
