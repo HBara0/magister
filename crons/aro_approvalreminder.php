@@ -44,7 +44,7 @@ if(is_array($reminders)) {
                 $approve_link = '<a href="'.$approve_link.'">Aro Request ['.$arorequest->orderReference.'] '.$aroaffiliate_obj->get_displayname().' '.$purchasteype_obj->get_displayname().'</a>';
                 $message .= $approve_link;
                 if(!empty($nextapproval->emailRecievedDate)) {
-                    $message .= " recieved on ".date($core->settings['dateformat'], $nextapproval->emailRecievedDate);
+                    $message .= " received on ".date($core->settings['dateformat'], $nextapproval->emailRecievedDate);
                 }
                 $message .= '<br/>';
             }
