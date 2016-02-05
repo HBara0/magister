@@ -46,7 +46,7 @@ if(is_array($affiliates)) {
             $employees_count[$affiliate->affid] = $employees_count[$affiliate->country] = count($affiliated_employees);
             unset($uids);
         }
-        $table['employeespercountry'] .='<tr style="background-color: #F2FAED;"><td>'.$affiliate->get_displayname().'</td><td style="padding:10px;">'.$employees[$affiliate->affid].'</td><td style="align:right;">'.$employees_count[$affiliate->affid].'</td><td>'.$employees_count_lastyear[$affiliate->affid].'</td></tr>';
+        $table['employeespercountry'] .='<tr style="background-color: #F2FAED;"><td>'.$affiliate->get_displayname().'</td><td style="padding:10px;">'.$employees[$affiliate->affid].'</td><td style="text-align:center;">'.$employees_count[$affiliate->affid].'</td><td style="text-align:center;">'.$employees_count_lastyear[$affiliate->affid].'</td></tr>';
 
         $country = new Countries($affiliate->country);
         $mapdata[$country->get_displayname()]+= $employees_count[$affiliate->country];
@@ -70,9 +70,9 @@ if(is_array($maplegend)) {
     $percformatter = new NumberFormatter('EN_en', NumberFormatter::PERCENT);
     $table['maplegend'] = '<table><tr style="background-color:#92D050;"><th>'.$lang->affiliate.'</th><th>'.$lang->employeescount.'</th><th>%</th></tr>';
     foreach($maplegend as $key => $value) {
-        $table['maplegend'] .='<tr style="background-color: #F2FAED;"><td>'.$key.'</td><td>'.$value.'</td><td>'.$percformatter->format($value / $total).'</td></tr>';
+        $table['maplegend'] .='<tr style="background-color: #F2FAED;"><td>'.$key.'</td><td style="text-align:center;">'.$value.'</td><td style="text-align:center;">'.$percformatter->format($value / $total).'</td></tr>';
     }
-    $table['maplegend'] .= '<tr style="background-color:#92D050;"><td>'.$lang->total.'</td><td>'.$total.'</td><td>'.$percformatter->format($total / $total).'</td></tr></table>';
+    $table['maplegend'] .= '<tr style="background-color:#92D050;"><td>'.$lang->total.'</td><td style="text-align:center;">'.$total.'</td><td style="text-align:center;">'.$percformatter->format($total / $total).'</td></tr></table>';
 }
 
 // Employees per Segment
@@ -82,11 +82,11 @@ if(is_array($employeessegment)) {
         $segmentemployees[$employee_segment->psid][] = $employee_segment;
     }
 }
-$segments = ProductsSegments::get_data(array('isActive' => 1), array('returnarray' => true));
+$segments = ProductsSegments::get_data(array('isActive' => 1), array('returnarray' => true, 'order' => array('by' => 'title', 'SORT' => 'ASC')));
 if(is_array($segments)) {
     $table['employeespersegment'] = '<table width="50%"><tr style="background-color:#92D050;"><th style="width:40%">'.$lang->segment.'</th><th style="width:20%">'.$lang->employeescount.'</th></tr>';
     foreach($segments as $segment) {
-        $table['employeespersegment'] .='<tr style="background-color: #F2FAED;"><td>'.$segment->title.'</td><td style="align:center">'.count($segmentemployees[$segment->psid]).'</td></tr>';
+        $table['employeespersegment'] .='<tr style="background-color: #F2FAED;"><td>'.$segment->title.'</td><td style="text-align:center">'.count($segmentemployees[$segment->psid]).'</td></tr>';
     }
     $table['employeespersegment'] .='</table>';
 }
