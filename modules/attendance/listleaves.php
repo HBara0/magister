@@ -19,7 +19,7 @@ if(!$core->input['action']) {
         $is_supervisor = true;
     }
 
-    $sort_query = 'requestTime DESC, username ASC';
+    $sort_query = 'fromDate DESC, username ASC';
     if(isset($core->input['sortby'], $core->input['order'])) {
         $sort_query = $core->input['sortby'].' '.$core->input['order'];
     }
