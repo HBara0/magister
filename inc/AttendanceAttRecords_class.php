@@ -34,7 +34,23 @@ class AttendanceAttRecords extends AbstractClass {
     }
 
     protected function create(array $data) {
+        global $db, $core;
+        if(!$this->validate_requiredfields($data)) {
+            $this->errorcode = 1;
+            return $this;
+        }
+        $fields = array('aarid', 'uid', 'operation', 'time', 'lastupdateTime', 'lastupdateOperation');
+        foreach($fields as $field) {
+            $tablearray[$field] = $data[$field];
+        }
 
+        $tablearray['createdOn'] = TIME_NOW;
+        $tablearray['createdBy'] = $core->user['uid'];
+        $insert = $db->insert_query(self::TABLE_NAME, $tablearray);
+        if($insert) {
+            $this->data[self::PRIMARY_KEY] = $db->last_id();
+        }
+        return $this;
     }
 
     public function update(array $data) {

@@ -121,20 +121,29 @@
                     </tr>
                     <tr>
                         <td colspan="2">
-                            <div style="width:100% ;height: 200px; overflow:auto; display:inline-block; vertical-align:top;" >
-                                <table class="datatable" width="100%">
-                                    <thead>
-                                        <tr>
-                                            <th width="1%"><input type="checkbox" id="customerfilter_checkall"></th>
-                                            <th width="40%"></th>
-                                            <th><input class="inlinefilterfield" type="text" style="width: 95%;"/></th>
-                                            <th><input class="inlinefilterfield" type="text" style="width: 95%;"/></th>
-                                            <td></td>
-                                        </tr>
-                                    </thead>
+                            <table class="datatable_basic table table-bordered row-border hover order-column" cellspacing="0" width="100%">
+                                <thead>
+                                    <tr>
+                                        <th><input type="checkbox" id="customerfilter_checkall"></th>
+                                        <th>{$lang->customername}</th>
+                                        <th>{$lang->affiliate}</th>
+                                        <th>{$lang->segment}</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tfoot>
+                                    <tr>
+                                        <th><input type="checkbox" id="customerfilter_checkall"></th>
+                                        <th>{$lang->customername}</th>
+                                        <th>{$lang->affiliate}</th>
+                                        <th>{$lang->segment}</th>
+                                        <th></th>
+                                    </tr>
+                                </tfoot>
+                                <tbody>
                                     {$customer_list}
-                                </table>
-                            </div>
+                                </tbody>
+                            </table>
                         </td>
                     </tr>
                     <tr>
