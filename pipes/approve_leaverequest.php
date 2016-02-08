@@ -115,10 +115,10 @@ if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject) || $ignore_su
                                     if(is_object($isselectedhotel)) {
                                         continue;
                                     }
-                                    $path = "./images/invalid.gif";
+                                    $path = "{$core->settings['rootdir']}/images/invalid.gif";
                                     $iscontractedicon = '<img src="data:image/png;base64,'.base64_encode(file_get_contents($path)).'" alt="'.$lang->no.'"/>';
                                     if($hotel->isContracted == 1) {
-                                        $path = "./images/valid.gif";
+                                        $path = "{$core->settings['rootdir']}/images/valid.gif";
                                         $iscontractedicon = '<img src="data:image/png;base64,'.base64_encode(file_get_contents($path)).'" alt="'.$lang->yes.'"/>';
                                     }
                                     /* parse ratings */
