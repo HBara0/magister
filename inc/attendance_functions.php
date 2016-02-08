@@ -1635,6 +1635,18 @@ function reinitialize_balance($user, $type, $prevbalance = null) {
             }
         }
     }
+
+    //check if a leave stat exists for current year
+    $startofcurrentyear = mktime(0, 0, 0, 1, 1, date('Y'));
+    $existingstat_foryear = LeavesStats::get_data('uid = '.$user->get_id().' AND ltid='.$type.' AND periodStart > '.$startofcurrentyear, array('returnarray' => true));
+    //if no stats existing then calculate the new stat for the year based upon a dummy leave
+    if(!is_array($existingstat_foryear)) {
+        $from = strtotime((date('Y')).'-01-01 08:00:00');
+        $to = strtotime((date('Y')).'-01-01 17:00:00');
+        $data = array('uid' => $user->get_id(), 'fromDate' => $from, 'toDate' => $to, 'skipWorkingDays' => true, 'type' => $type);
+        $stat = new LeavesStats();
+        $stat->generate_periodbased($data);
+    }
 }
 
 ?>
