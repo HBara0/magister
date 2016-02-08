@@ -60,7 +60,7 @@
                     </tr>
                     <tr>
                         <td colspan="2">
-                            <input name="chainpolicy[informCoordinators]" id="chainpolicy_informCoordinators" type="checkbox" value="1" {$checked[informCoordinators]}> {$lang->inform} {$lang->coordinators}
+                            <input name="chainpolicy[informCoordinators]" id="chainpolicy_informCoordinators" type="checkbox" value="1" checked="checked" disabled="disabled"> {$lang->inform} {$lang->coordinators}
                         </td>
                     </tr>
                     <tr>

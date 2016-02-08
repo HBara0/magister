@@ -57,7 +57,7 @@ class AroApprovalChainPolicies extends AbstractClass {
                     'approvalChain' => @serialize($data['approverchain']),
                     'createdBy' => $core->user['uid'],
                     'purchaseType' => $data['purchaseType'],
-                    'informCoordinators' => $data['informCoordinators'],
+//                    'informCoordinators' => $data['informCoordinators'],
                     'informGlobalCFO' => $data['informGlobalCFO'],
                     'informGlobalPurchaseMgr' => $data['informGlobalPurchaseMgr'],
                     'informExternalUsers' => base64_encode($data['informExternalUsers']),
@@ -65,6 +65,7 @@ class AroApprovalChainPolicies extends AbstractClass {
                     'informGlobalCommercials' => $data['informGlobalCommercials'],
                     'createdOn' => TIME_NOW,
             );
+            $policies_array['informCoordinators'] = 1;
             $query = $db->insert_query(self::TABLE_NAME, $policies_array);
             if($query) {
                 $this->data[self::PRIMARY_KEY] = $db->last_id();
@@ -107,7 +108,7 @@ class AroApprovalChainPolicies extends AbstractClass {
                         'approvalChain' => @serialize($data['approverchain']),
                         'modifiedBy' => $core->user['uid'],
                         'purchaseType' => $data['purchaseType'],
-                        'informCoordinators' => $data['informCoordinators'],
+//                        'informCoordinators' => $data['informCoordinators'],
                         'informGlobalCFO' => $data['informGlobalCFO'],
                         'informGlobalPurchaseMgr' => $data['informGlobalPurchaseMgr'],
                         'informGlobalCommercials' => $data['informGlobalCommercials'],
@@ -116,6 +117,7 @@ class AroApprovalChainPolicies extends AbstractClass {
                         'modifiedOn' => TIME_NOW,
                 );
                 unset($data['approvalChain']);
+                $policies_array['informCoordinators'] = 1;
                 $existing_chain = new AroApprovalChainPolicies($this->data[self::PRIMARY_KEY]);
                 if(is_object($existing_chain)) {
                     if(strcmp($existing_chain->approvalChain, $policies_array['approvalChain']) != 0) {
