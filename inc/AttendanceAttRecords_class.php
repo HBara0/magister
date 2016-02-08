@@ -22,7 +22,7 @@ class AttendanceAttRecords extends AbstractClass {
     const DISPLAY_NAME = '';
     const SIMPLEQ_ATTRS = '*';
     const CLASSNAME = __CLASS__;
-    const UNIQUE_ATTRS = null;
+    const UNIQUE_ATTRS = 'uid,time,operation';
     const REQUIRED_ATTRS = 'uid,time,operation';
 
     public function __construct($id = '', $simple = true) {
