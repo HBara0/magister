@@ -66,11 +66,11 @@ class TravelManagerHotels extends AbstractClass {
             $hotel['city'] = $newhotel->get_city()->get_displayname();
             $hotel['country'] = $newhotel->get_country()->get_displayname();
             if($newhotel->isContracted == 1) {
-                $path = $core->settings['rootdir'].'\images\icons\completed.png';
+                $path = $core->settings['rootdir'].'/images/icons/completed.png';
                 $alt = 'Yes';
             }
             else {
-                $path = $core->settings['rootdir'].'\images\invalid.gif';
+                $path = $core->settings['rootdir'].'/images/invalid.gif';
                 $alt = 'No';
             }
             $type = pathinfo($path, PATHINFO_EXTENSION);
@@ -81,13 +81,19 @@ class TravelManagerHotels extends AbstractClass {
             $hotelsinsamecountry = TravelManagerHotels::get_data(array('country' => $newhotel->country), array('returnarray' => true, 'simple' => false));
             if(is_array($hotelsinsamecountry)) {
                 foreach($hotelsinsamecountry as $hotelincountry) {
+                    /**
+                     * Skip the same hotel
+                     */
+                    if($newhotel->get_id() == $hotelincountry->get_id()) {
+                        continue;
+                    }
                     $otherhotel = $hotelincountry->get();
                     if($newhotel->isApproved == 1) {
-                        $path = $core->settings['rootdir'].'\images\icons\completed.png';
+                        $path = $core->settings['rootdir'].'/images/icons/completed.png';
                         $alt = 'Yes';
                     }
                     else {
-                        $path = $core->settings['rootdir'].'\images\invalid.gif';
+                        $path = $core->settings['rootdir'].'/images/invalid.gif';
                         $alt = 'No';
                     }
                     $type = pathinfo($path, PATHINFO_EXTENSION);
