@@ -116,10 +116,14 @@ if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject) || $ignore_su
                                         continue;
                                     }
                                     $path = "{$core->settings['rootdir']}/images/invalid.gif";
-                                    $iscontractedicon = '<img src="data:image/png;base64,'.base64_encode(file_get_contents($path)).'" alt="'.$lang->no.'"/>';
+                                    if(file_exists($path)) {
+                                        $iscontractedicon = '<img src="data:image/png;base64,'.base64_encode(file_get_contents($path)).'" alt="'.$lang->no.'"/>';
+                                    }
                                     if($hotel->isContracted == 1) {
                                         $path = "{$core->settings['rootdir']}/images/valid.gif";
-                                        $iscontractedicon = '<img src="data:image/png;base64,'.base64_encode(file_get_contents($path)).'" alt="'.$lang->yes.'"/>';
+                                        if(file_exists($path)) {
+                                            $iscontractedicon = '<img src="data:image/png;base64,'.base64_encode(file_get_contents($path)).'" alt="'.$lang->yes.'"/>';
+                                        }
                                     }
                                     /* parse ratings */
                                     eval("\$otherapprovedhotels .= \"".$template->get('travelmanager_approvedhotel_row')."\";");
