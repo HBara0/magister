@@ -280,4 +280,9 @@ $lang['intermediarycommercials'] = 'Intermediary Commercials';
 $lang['businessmanager'] = 'Business Manager';
 $lang['country'] = 'Country';
 $lang['countrypolicy'] = 'only required for sales in countries without an affiliate';
+$lang['lastorder'] = 'Last Order';
+$lang['avglast5orders'] = 'Avg. Last 5 Orders';
+$lang['avglast10orders'] = 'Avg. Last 10 Orders';
+$lang['creditdays'] = 'Credit Days';
+$lang['comparisonstudy'] = 'Comparison  Study';
 ?>

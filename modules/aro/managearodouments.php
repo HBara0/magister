@@ -345,6 +345,8 @@ if(!($core->input['action'])) {
                     }
                     unset($disabled_fields);
                     $riskratioamount +=$productline['riskRatioAmount'];
+
+                    $comparison_products[$productline['pid']] = $db->fetch_field($db->query('SELECT foreignId FROM integration_mediation_products WHERE foreignSystem=3 AND localId="'.$productline['pid'].'"'), 'foreignId');
                 }
             }
             else {
@@ -789,6 +791,98 @@ if(!($core->input['action'])) {
         eval("\$totalfunds = \"".$template->get('aro_totalfunds_preview')."\";");
         eval("\$aro_netmarginparms= \"".$template->get('aro_netmarginparameters_preview')."\";");
         eval("\$partiesinformation = \"".$template->get('aro_partiesinformation_preview')."\";");
+
+
+//        $invoices = IntegrationOBInvoice::get_data($filters);
+//        if(is_array($invoices)) {
+//            foreach($invoices as $invoice) {
+//                $invoicesid[] = $invoice->c_invoice_id;
+//            }
+//        }
+//        $comparison_products = array_filter($comparison_products);
+//        $where = "c_invoice_id ='".$invoice->c_invoice_id."' AND m_product_id IN ('".implode("','", $comparison_products)."') ";
+
+
+
+        /**
+         * ARO COmparison Summary
+         */
+        require_once ROOT.INC_ROOT.'integration_config.php';
+        $integration = new IntegrationOB($intgconfig['openbravo']['database'], $intgconfig['openbravo']['entmodel']['client']);
+        $filters = "c_invoice.ad_org_id='".$aff_obj->integrationOBOrgId."' AND docstatus NOT IN ('VO', 'CL')";
+        if($purchasetype->isPurchasedByEndUser == 1) {
+            if(is_object($customer)) {
+                $foreignid = $db->fetch_field($db->query('SELECT foreignId FROM integration_mediation_entities WHERE foreignSystem=3 AND localId="'.$customer->cid.'"'), 'foreignId');
+            }
+            $filters .=" AND c_bpartner_id='".$foreignid."'";
+        }
+
+        //Shown only to COO, Financial manager and country supervisor
+        $canviewcomparison[] = $aff_obj->get_regionalsupervisor()->uid;
+        $canviewcomparison[] = $aff_obj->get_coo()->uid;
+        $canviewcomparison[] = 1; //$aff_obj->get_financialemanager()->uid;
+        if(is_object($intermedaffiliate)) {
+            $canviewcomparison[] = $intermedaffiliate->get_financialemanager()->uid;
+        }
+        $canviewcomparison = array_filter($canviewcomparison);
+        if(in_array($core->user['uid'], $canviewcomparison)) {
+            $intgdb = $integration->get_dbconn();
+            $invoicelines = new IntegrationOBInvoiceLine(null);
+            foreach($comparison_products as $pid => $product) {
+                $product_obj = Products::get_data(array('pid' => $pid));
+                //GET SALES INVOICES SUMMARY FOR SELLING PRICE AVERAGES
+                $data = $invoicelines->get_salesinvoicesummary($product, $filters);
+                if(is_array($data)) {
+                    $i = 0;
+                    foreach($data as $invoiceline) {
+                        if($i == 0) {
+                            $lastorder['sellingprice'] = $invoiceline['priceactual'];
+                            $lastorder['netdays'] = $invoiceline['netdays'];
+                        }
+                        if($i < 5) {
+                            $lastfiveorders['sellingprice'] += $invoiceline['priceactual'];
+                            $lastfiveorders['netdays'] += $invoiceline['netdays'];
+                        }
+                        $lasttenorders['sellingprice'] += $invoiceline['priceactual'];
+                        $lasttenorders['netdays'] += $invoiceline['netdays'];
+                    }
+                    $lastfiveorders['avgsellingprice'] = $lastfiveorders['sellingprice'] / 5;
+                    $lastfiveorders['avgnetdays'] = $lastfiveorders['netdays'] / 5;
+                    $lasttenorders['avgsellingprice'] = $lasttenorders['sellingprice'] / 10;
+                    $lasttenorders['avgnetdays'] = $lasttenorders['netdays'] / 10;
+                    $output .= '<tr><td>'.$lang->sellingprice.'</td><td>'.$product_obj->get_displayname().'</td><td>'.$lastorder['sellingprice'].'</td><td>'.$lastfiveorders['avgsellingprice'].'</td><td>'.$lasttenorders['avgsellingprice'].'</td></tr>';
+                    $output .= '<tr><td>'.$lang->creditdays.'</td><td>'.$product_obj->get_displayname().'</td><td>'.$lastorder['netdays'].'</td><td>'.$lastfiveorders['avgnetdays'].'</td><td>'.$lasttenorders['avgnetdays'].'</td></tr>';
+                }
+                unset($lasttenorders, $lastfiveorders, $lastorder);
+
+
+                //GET PURCHASE ORDER SUMMARY FOR PURCHASE PRICE AVERAGES   (on-going development)
+//                $orderlines = new IntegrationOBOrderLine(null);
+//                $pofilter = "c_order.ad_org_id='".$aff_obj->integrationOBOrgId."' AND issotrx='N' AND docstatus = 'CO'";
+//                $foreignid = $db->fetch_field($db->query('SELECT foreignId FROM integration_mediation_entities WHERE foreignSystem=3 AND localId="'.$vendor->e.'"'), 'foreignId');
+//                if(!empty($foreignid)) {
+//                    $pofilter .=" AND c_bpartner_id='".$foreignid."'";
+//                }
+//                $pofilter .=" AND m_product_id ='".$foreignpid."'";
+//                $purchasedata = $orderlines->get_purchaseorders_summary($product, $pofilter);
+//                if(is_array($purchasedata)) {
+//                    $i = 0;
+//                    foreach($purchasedata as $purchase) {
+//                        if($i == 0) {
+//                            $lastorder['purchaseprice'] = $invoiceline['priceactual'];
+//                        }
+//                        if($i < 5) {
+//                            $lastfiveorders['purchaseprice'] += $invoiceline['priceactual'];
+//                        }
+//                        $lasttenorders['purchaseprice'] += $invoiceline['priceactual'];
+//                    }
+//                    $lastfiveorders['avgpurchaseprice'] = $lastfiveorders['purchaseprice'] / 5;
+//                    $lasttenorders['avgpurchaseprice'] = $lasttenorders['purchaseprice'] / 10;
+//                    $output .= '<tr><td>'.$lang->purchaseprice.'</td><td>'.$product_obj->get_displayname().'</td><td>'.$lastorder['purchaseprice'].'</td><td>'.$lastfiveorders['avgpurchaseprice'].'</td><td>'.$lasttenorders['avgpurchaseprice'].'</td></tr>';
+//                }
+                eval("\$comparisonstudy= \"".$template->get('aro_comparisonstudy')."\";");
+            }
+        }
     }
     else {
         $colspan['qtypotentiallysold'] = 'colspan="2"';

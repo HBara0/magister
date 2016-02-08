@@ -29,6 +29,7 @@
                     {$aro_productlines}
                     {$actualpurchase}
                     {$currentstock}
+                    {$comparisonstudy}
                     {$aro_audittrail}
                     {$orderummary}
                     {$totalfunds}
