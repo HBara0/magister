@@ -24,7 +24,7 @@ if(!$core->input['action']) {
 
     $surveycategories = get_specificdata('surveys_categories', array('scid', 'title'), 'scid', 'title', 'title');
     $surveycategories_list = parse_selectlist('category', 5, $surveycategories, $survey['category']);
-    $surveystemplates = SurveysTemplates::get_data('isPublic=1 OR createdBy='.$core->user['uid'], array('order' => array('by' => array('isQuiz', 'title'), 'sort' => array('sort' => array('isQuiz' => 'DESC', 'title' => 'ASC'))), 'returnarray' => true));
+    $surveystemplates = SurveysTemplates::get_data('isActive = 1 AND (isPublic=1 OR createdBy='.$core->user['uid'].')', array('order' => array('by' => array('isQuiz', 'title'), 'sort' => array('sort' => array('isQuiz' => 'DESC', 'title' => 'ASC'))), 'returnarray' => true));
     if(is_array($surveystemplates)) {
         $onchange = '$("a[id=previewtemplate_link]").attr("href","index.php?module=surveys/preview&stid=" + $("select[id=stid]").val());';
         $surveytemplates_list = parse_selectlist('stid', 5, $surveystemplates, $survey['stid'], '', $onchange, array('id' => 'stid'));

@@ -27,6 +27,7 @@ class SurveysTemplates extends AbstractClass {
                 'forceAnonymousFilling' => $data['forceAnonymousFilling'],
                 'createdBy' => $core->user['id'],
                 'dateCreated' => $data['dateCreated'],
+                'isActive' => $data['isActive'],
         );
         $query = $db->insert_query(self::TABLE_NAME, $table_array);
         if($query) {
@@ -43,6 +44,7 @@ class SurveysTemplates extends AbstractClass {
             $update_array['isPublic'] = $data['isPublic'];
             $update_array['forceAnonymousFilling'] = $data['forceAnonymousFilling'];
             $update_array['dateCreated'] = $data['dateCreated'];
+            $update_array['isActive'] = $data['isActive'];
         }
         $db->update_query(self::TABLE_NAME, $update_array, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
         return $this;
