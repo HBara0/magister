@@ -20,11 +20,11 @@
                 </td>
 
             </tr>
-            <tr><td>   <div style="display:inline-block;padding:5px;width:15%;">{$lang->address}*</div></td><td><div style="display:inline-block;padding:5px;width:20%;"><input tabindex="100" name="otherhotel[addressLine1]" type="textarea" required="required">{$selectedhotel[$segid][$approved_hotels[tmhid]][address]}</div>
+            <tr><td>   <div style="display:inline-block;padding:5px;width:15%;"><strong>{$lang->address}*</strong></div></td><td><div style="display:inline-block;padding:5px;width:20%;"><input tabindex="100" name="otherhotel[addressLine1]" type="textarea" required="required">{$selectedhotel[$segid][$approved_hotels[tmhid]][address]}</div>
                 </td></tr>
             <tr>
                 <td>
-                    <div style="display:inline-block;padding:5px;width:15%;">{$lang->phone}*</div>
+                    <div style="display:inline-block;padding:5px;width:15%;"><strong>{$lang->phone}*</strong></div>
                 </td>
                 <td>
                     {$countriescodes_list}
