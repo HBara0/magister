@@ -9,6 +9,7 @@
         {$menu}
         <td class="contentContainer">
             <h1>{$lang->attendancerecords}</h1>
+            <div style="float:right">{$addattendancelink}</div>
             <form action="#" method="post" id="perform_attendance/attendancerecords_Form" name="perform_attendance/attendancerecords_Form" style="margin-bottom: 0px;">
                 <table class="datatable" width="100%">
                     <thead>
@@ -29,5 +30,6 @@
         </td>
     </tr>
     {$footer}
+    {$addattendancerecord}
 </body>
 </html>

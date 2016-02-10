@@ -189,4 +189,5 @@ $lang['workingdays'] = 'Working Days';
 $lang['afterapproval'] = 'After Approval';
 $lang['newstatus'] = 'New Status';
 $lang['tohourr'] = 'To Hour';
+$lang['addattendancercords'] = 'Add Attendace Records';
 ?>

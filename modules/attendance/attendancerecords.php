@@ -47,6 +47,12 @@ if(!$core->input['action']) {
 
     /* Perform inline filtering - START */
     $userobjs = Users::get_data(array('uid' => $users), array('operators' => array('uid' => 'IN')));
+    if(is_array($core->user['hraffids']) && is_array($userobjs)) {
+        $typeslist = parse_selectlist('record[operation]', 4, array('check-in' => $lang->checkin, 'check-out' => $lang->checkout), $record->operation);
+        $usernamelist = parse_selectlist('record[uid]', 1, $userobjs, '');
+        $addattendancelink = '<div style="float: right;"><a href="#popup_addattendancerecord" id="showpopup_addattendancerecord" class="showpopup"><button type="button">'.$lang->addattendancercords.'</button></a></div>';
+        eval("\$addattendancerecord .= \"".$template->get('popup_addattendancerecord')."\";");
+    }
     $filters_config = array(
             'parse' => array('filters' => array('uid', 'time', 'operation'),
                     'overwriteField' => array('uid' => parse_selectlist('filters[uid][]', 1, $userobjs, $core->input['filters']['uid'], 1, '', array('blankstart' => true, 'width' => 250, 'multiplesize' => 3)),
@@ -141,6 +147,24 @@ else {
         $record['time'] = strtotime($core->input['time']['date'].' '.$core->input['time']['time']);
         $record_obj = new AttendanceAttRecords($record['aarid']);
         $record_obj = $record_obj->update($record);
+        switch($record_obj->get_errorcode()) {
+            case 0:
+                output_xml('<status>true</status><message>'.$lang->successfullysaved.'</message>');
+                break;
+            case 2:
+                output_xml('<status>false</status><message>'.$lang->fillrequiredfields.'</message>');
+                break;
+            default:
+                output_xml('<status>false</status><message>'.$lang->errorsaving.'</message>');
+                break;
+        }
+    }
+    else if($core->input['action'] == 'do_addattendancerecord') {
+        $record = $core->input['record'];
+        $record['time'] = strtotime($core->input['time']['date'].' '.$core->input['time']['time']);
+        $record_obj = new AttendanceAttRecords();
+        $record_obj->set($record);
+        $record_obj = $record_obj->save();
         switch($record_obj->get_errorcode()) {
             case 0:
                 output_xml('<status>true</status><message>'.$lang->successfullysaved.'</message>');

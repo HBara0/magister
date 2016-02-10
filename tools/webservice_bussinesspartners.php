@@ -10,7 +10,7 @@
 require '../inc/init.php';
 require ROOT.INC_ROOT.'integration_config.php';
 ini_set('max_execution_time', 0);
-if($core->inputp['referrer'] == 'complete') {
+if($core->input['referrer'] == 'complete') {
     $url = 'http://184.107.151.42:8080/openbravo_test/org.openbravo.service.json.jsonrest/BusinessPartner?where=active=1&_startRow=1&_endRow=10';
 }
 else {
