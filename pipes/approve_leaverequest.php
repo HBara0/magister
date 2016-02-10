@@ -171,14 +171,14 @@ if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject) || $ignore_su
                 /* Parse expense information for message - END */
 
                 $lang->requestleavesubject = $lang->sprint($lang->requestleavesubject, $leave['firstName'].' '.$leave['lastName'], strtolower($leave['type_details']['title']), $request_key);
-                $lang->requestleavemessagesupervisor = $lang->sprint($lang->requestleavemessagesupervisor, $leave['firstName'].' '.$leave['lastName'], strtolower($leave['type_details']['title']).$leave['details_crumb'], date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave['fromDate']), date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave['toDate']), $leave['reason'], $user['employeename'], $approve_link, $travelmanager_viewplan);
+                $lang->requestleavemessagesupervisor = $lang->sprint($lang->requestleavemessagesupervisor, $leave['firstName'].' '.$leave['lastName'], strtolower($leave['type_details']['title']).$leave['details_crumb'], date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave['fromDate']), date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave['toDate']), $leave['reason'], $user['employeename'], $approve_link);
 
                 $email_data = array(
                         'from_email' => 'approve_leaverequest@ocos.orkila.com',
                         'from' => 'Orkila Attendance System',
                         'to' => $approver['email'],
                         'subject' => $lang->requestleavesubject,
-                        'message' => $lang->requestleavemessagesupervisor
+                        'message' => $lang->requestleavemessagesupervisor.$travelmanager_viewplan
                 );
                 $mail = new Mailer($email_data, 'php');
                 if($mail->get_status() === true) {
