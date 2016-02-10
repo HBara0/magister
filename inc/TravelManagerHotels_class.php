@@ -56,6 +56,8 @@ class TravelManagerHotels extends AbstractClass {
             return $this;
         }
         $data['alias'] = generate_alias($data['name']);
+        $data['createdBy'] = $core->user['uid'];
+        $data['createdOn'] = TIME_NOW;
         $db->insert_query(self::TABLE_NAME, $data);
         $this->data[self::PRIMARY_KEY] = $db->last_id();
         $this->errorcode = 0;
@@ -121,7 +123,7 @@ class TravelManagerHotels extends AbstractClass {
                     }
                 }
             }
-
+            $createdby = $core->user['displayName'];
             eval("\$emailmessage = \"".$template->get('approvehotel_email')."\";");
             $mailer = new Mailer();
             $mailer = $mailer->get_mailerobj();
