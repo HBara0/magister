@@ -1938,7 +1938,7 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                         $topclassification_summary .='<div>Top '.$label.' '.$lang->$classificationtype.' : <span style="font-weight:bold;">'.$topofthemonth_obj_name.'</span></div><br/>';
 
 
-                        $output .='<div style="width:100%;"><h2>'.$lang->chart.' <small>(K Table Amounts )</small> </h2>';
+                        $output .='<div style="width:100%;">'; //<h2>'.$lang->chart.' <small>(K Table Amounts )</small> </h2>';
                         $chart = $this->parse_classificaton_charts($classificationdata[$tableindex], $tableindex);
                         if(!empty($chart)) {
                             $output .= '<img src="data:image/png;base64,'.base64_encode(file_get_contents($this->parse_classificaton_charts($classificationdata[$tableindex], $tableindex))).'" />';
