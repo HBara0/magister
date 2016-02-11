@@ -204,7 +204,7 @@ else {
                     }
                 }
                 $output .= '<h1>'.$config['info']['title'].'</h1>';
-                $output .= '<table id="'.strtolower(preg_replace('/\s+/', '', $config['info']['title'])).'" width="100%" cellspacing="0" cellpadding="5" style="border: 1px solid #CCC; font-size: 10px;" border="0" id="tabletoexport_main">';
+                $output .= '<table id="tableexport_'.strtolower(preg_replace('/\s+/', '', $config['info']['title'])).'" width="100%" cellspacing="0" cellpadding="5" style="border: 1px solid #CCC; font-size: 10px;" border="0">';
                 $output .= '<thead><tr>';
                 foreach($config['output_fields'] as $field => $field_configs) {
                     if(in_array($field, $configs_budgetreport['aging']['maintable_hiddencols'])) {
@@ -489,8 +489,8 @@ else {
                 $output .= '</tr>';
                 /* Output main table totals row - END */
                 $output .= '</tbody></table>';
-                $tableid = '#'.strtolower(preg_replace('/\s+/', '', $config['info']['title']));
-                $onclickaction[$tableid] = "$($tableid).tableExport({type:'excel',escape:'false'});";
+                $tableid = strtolower(preg_replace('/\s+/', '', $config['info']['title']));
+                $onclickaction[$tableid] = "$('#tableexport_{$tableid}').tableExport({type:'excel',escape:'false'});";
                 $output .= '<div align="right" title="'.$lang->generate.'" style="float:right;padding:10px;width:10px;"><a onClick ="'.$onclickaction[$tableid].'"><img src="./images/icons/xls.gif"/>'.$lang->generateexcel.'</a></div>';
 
 
@@ -1049,8 +1049,8 @@ else {
                     }
                     $stockpermonthofsale_output .= '</table>';
                 }
-                $onclickaction['stockevolution'] = "$('#stockevolution').tableExport({type:'excel',escape:'false'});";
-                $stockevolution_output .= '<div align="right" title="'.$lang->generate.'" style="float:right;padding:10px;width:10px;"><a onClick ="'.$onclickaction['stockevolution'].'"><img src="./images/icons/xls.gif"/>'.$lang->generateexcel.'</a></div>';
+                $onclickaction['stockpermonthofsales'] = "$('#stockpermonthofsales').tableExport({type:'excel',escape:'false'});";
+                $stockevolution_output .= '<div align="right" title="'.$lang->generate.'" style="float:right;padding:10px;width:10px;"><a onClick ="'.$onclickaction['stockpermonthofsales'].'"><img src="./images/icons/xls.gif"/>'.$lang->generateexcel.'</a></div>';
             }
             /* Parse Stock Per month of sales (for budget presentation) - END */
 

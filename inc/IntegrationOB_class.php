@@ -1562,6 +1562,9 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
 
                 if(!empty($options['reportcurrency'])) {
                     $reportcurrency = new Currencies($options['reportcurrency']);
+                    if($currency->iso_code == 'GHC') {
+                        $currency->iso_code = 'GHS';
+                    }
                     $fxrate = $reportcurrency->get_fxrate_bytype($options['fxtype'], $currency->iso_code, array('from' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 01:00'), 'to' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 24:00'), 'year' => date('Y', $invoice->dateinvoiceduts), 'month' => date('m', $invoice->dateinvoiceduts)), array('precision' => 4));
                     if(empty($fxrate)) {
                         $options['fxtype'] = "ylast";
@@ -1938,7 +1941,7 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                         $topclassification_summary .='<div>Top '.$label.' '.$lang->$classificationtype.' : <span style="font-weight:bold;">'.$topofthemonth_obj_name.'</span></div><br/>';
 
 
-                        $output .='<div style="width:100%;"><h2>'.$lang->chart.' <small>(K Table Amounts )</small> </h2>';
+                        $output .='<div style="width:100%;">'; //<h2>'.$lang->chart.' <small>(K Table Amounts )</small> </h2>';
                         $chart = $this->parse_classificaton_charts($classificationdata[$tableindex], $tableindex);
                         if(!empty($chart)) {
                             $output .= '<img src="data:image/png;base64,'.base64_encode(file_get_contents($this->parse_classificaton_charts($classificationdata[$tableindex], $tableindex))).'" />';
