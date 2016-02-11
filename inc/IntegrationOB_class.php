@@ -1562,6 +1562,9 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
 
                 if(!empty($options['reportcurrency'])) {
                     $reportcurrency = new Currencies($options['reportcurrency']);
+                    if($currency->iso_code == 'GHC') {
+                        $currency->iso_code = 'GHS';
+                    }
                     $fxrate = $reportcurrency->get_fxrate_bytype($options['fxtype'], $currency->iso_code, array('from' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 01:00'), 'to' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 24:00'), 'year' => date('Y', $invoice->dateinvoiceduts), 'month' => date('m', $invoice->dateinvoiceduts)), array('precision' => 4));
                     if(empty($fxrate)) {
                         $options['fxtype'] = "ylast";
