@@ -157,7 +157,7 @@
                     var from = new Date($("input[id='pickDate_from_" + id[1] + "']").val());
                     var to = new Date($("input[id='pickDate_to_" + id[1] + "']").val());
                     var timeDiff = Math.abs(to.getTime() - from.getTime());
-                    var numnights = Math.ceil(timeDiff / (1000 * 3600 * 24));
+                    var numnights = Math.ceil(timeDiff / (1000 * 3600 * 24)) + 1;
                     var expensetype = $("select[id='segment_expensestype_" + id[1] + "_" + id[2] + "']").val();
                     sharedFunctions.requestAjax("post", "index.php?module=travelmanager/plantrip&action=validatefandbexpenses", "&amount=" + $("input[id='expenses" + "_" + id[1] + "_" + id[2] + "_expamount']").val() + "&numnights=" + numnights + "&currency=" + $("select[id='currency" + "_" + id[1] + "_" + id[2] + "_list']").val() + "&expensetype=" + expensetype, "fandb_warning_" + id[1] + "_" + id[2], "fandb_warning_" + id[1] + "_" + id[2], true);
                 });
