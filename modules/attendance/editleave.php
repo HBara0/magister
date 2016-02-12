@@ -340,7 +340,7 @@ else {
                         }
                     }
                     if(is_array($changed_fields)) {
-                        $imploded_fields = implode(',', $changed_fields);
+//                        $imploded_fields = implode(',', $changed_fields);
                         foreach($changed_fields as $field) {
                             $imploded_fields.=$lang->$field.', ';
                         }

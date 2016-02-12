@@ -147,7 +147,12 @@ class TravelManagerAirlines {
                         $flight['pricing'] = round($flight['saleTotal'], 2);
                     }
                     else {
-                        $flight['pricing'] = round($flight['saleTotal'] / $fxrates[$currency['alphaCode']]['rate'], 2);
+                        if(!empty($fxrates[$currency['alphaCode']]['rate'])) {
+                            $flight['pricing'] = round($flight['saleTotal'] / $fxrates[$currency['alphaCode']]['rate'], 2);
+                        }
+                        else {
+                            $flight['pricing'] = 'Unkown Exchange Rate ';
+                        }
                     }
                     //  $flight['flightdetails'] = base64_encode(serialize($flight['flightnumber'].$flight['flightid']));
 
