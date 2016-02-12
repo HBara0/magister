@@ -181,5 +181,17 @@ class Representatives extends AbstractClass {
         }
     }
 
+    public function get_contactinfo() {
+        if(!empty($this->data['email'])) {
+            return $this->data['email'];
+        }
+        else if(!empty($this->data['phone'])) {
+            return $this->data['phone'];
+        }
+        else {
+            return false;
+        }
+    }
+
 }
 ?>
