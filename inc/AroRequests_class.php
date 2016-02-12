@@ -1165,7 +1165,7 @@ class AroRequests extends AbstractClass {
             $hourselapsed = floor((TIME_NOW - $request->finalizedOn) / (60 * 60 )); //in term of hours
             if($hourselapsed > 24) {
                 $dayselapsed = floor((TIME_NOW - $request->finalizedOn) / (60 * 60 * 24 )); //in term of days
-                return $dayselapsed.'days';
+                return $dayselapsed.' days';
             }
             else {
                 return $hourselapsed.' hours';
