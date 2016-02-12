@@ -24,14 +24,6 @@
         <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
         <script src="../../assets/js/ie-emulation-modes-warning.js"></script>
 
-        <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-        <!--[if lt IE 9]>
-          <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
-          <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-        <![endif]-->
-
-
-
         <link rel="shortcut icon" href="../images/favicon.ico" />
 
         <link href='../css/jqueryuitheme/jquery-ui-current.custom.min.css' rel='stylesheet' type='text/css' />
@@ -45,7 +37,6 @@
                 height: 100%;
             }
             .mini-submenu{
-                display:none;
                 background-color: #B6CF8C;
                 padding: 12px;
                 /*position: relative;*/
@@ -96,10 +87,8 @@
             .list-group{
                 height: 100% !important;
                 border:1px solid #B6CF8C;
-                z-index:10;
-            }
-            .list-group-item{
-                margin-left:29px;
+                background-color:#FFF;
+                vertical-align: top;
             }
             .list-group-item.active, .list-group-item.active:focus, .list-group-item.active:hover{
                 background: #B6CF8C !important;
@@ -185,86 +174,88 @@
         <script type="text/javascript" >
             $(function() {
                 $('#tooltip,#tooltip2').tooltip();
-                $('#slide-submenu').on('click', function() {
-                    $(this).closest('.list-group').toggle(function() {
-                        $('.mini-submenu').toggle();
-                    });
-
-                });
-
+                $('.list-group').toggle();
                 $('.mini-submenu').on('click', function() {
-                    $(this).next('.list-group').toggle();
-                    $('.mini-submenu').hide();
+                    $(this).next('.list-group').animate({width: 'toggle'}, 350);
+                    if($("span[id='tooltip2']").hasClass("glyphicon-chevron-left")) {
+                        $("span[id='tooltip2']").removeClass("glyphicon-chevron-left").addClass("glyphicon-chevron-right");
+
+                    } else {
+                        $("span[id='tooltip2']").removeClass("glyphicon-chevron-right").addClass("glyphicon-chevron-left");
+                    }
                 })
+
             })
+
+            //glyphicon-chevron-left
         </script>
 
     </head>
 
     <body>
-        <header>
-            <!-- Fixed navbar -->
-            <nav class="navbar navbar-default navbar-fixed-top">
-                <div class="container">
-                    <div class="navbar-header">
-                        <a class="navbar-brand" href="#">OCOS Logo</a>
-                    </div>
-                    <div id="navbar" class="navbar-collapse collapse">
-                        <ul class="nav navbar-nav">
-                            <li><a href="#">Home</a></li>
-
-                            <li class="dropdown">
-                                <a href="#" class="dropdown-toggle scrollable-menu " data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-th-large"></span> Switch Module <span class="caret"></span></a>
-                                <ul class="dropdown-menu">
-                                    <li class="dropdown-header">Frequent Modules</li>
-                                    <li><a href="#">Attendance</a></li>
-                                    <li><a href="#">Budgets</a></li>
-                                    <li><a href="#">Reports</a></li>
-                                    <li role="separator" class="divider"></li>
-                                    <li class="dropdown-header">Other Modules</li>
-                                    <li><a href="#">ARO</a></li>
-                                    <li><a href="#">CRM</a></li>
-                                    <li><a href="#">Facility Management</a></li>
-                                    <li><a href="#">Warehouse Management</a></li>
-
-                                </ul>
-                            </li>
-                        </ul>
-                        <ul class="nav navbar-nav navbar-right">
-                            <li id="tooltip" data-toggle="tooltip" data-placement="left" title="Favorite Pages">
-                                <span  style=" font-size:25px; margin-top:15px; color:#CCC;" class="glyphicon glyphicon-star" ></span>
-                            </li>
-
-
-                            <li>        <div style="position: relative"><img src="../images/icons/plane-icon1.png" class="img-responsive" alt="Generic placeholder thumbnail" style="margin: 10px;" height="30" width="30">
-
-                                </div></li>
-                            <li>        <div style="position: relative"><img src="../images/icons/reports-icon.png" class="img-responsive" alt="Generic placeholder thumbnail" style="margin: 10px;" height="30" width="30">
-
-                                </div></li>
-                            <li>        <div style="position: relative"><img src="../images/icons/crm-icon.png" class="img-responsive" alt="Generic placeholder thumbnail" style="margin: 10px;" height="30" width="30">
-
-                                </div></li>
-                            <li><a href="../navbar/"></a></li>
-                            <li><a href="../navbar/"></a></li>
-                            <li><a href="../navbar/"></a></li>
-                            <li><a href="../navbar/"></a></li>
-                            <li><a href="../navbar-static-top/"><span class="glyphicon glyphicon-alert"></span> Updates <span class="badge">42</span></a></li>
-                            <li class="dropdown">
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-user"></span> Zaher Reda <span class="sr-only">(current)</span> <span class="caret"></span></a>
-                                <ul class="dropdown-menu">
-                                    <li ><a href="#">Edit Profile</a></li>
-                                    <li><a href="#">Admin CP</a></li>
-                                    <li  class="divider" role="separator"></li>
-                                    <li><a href="#">Log Out</a></li>
-
-                                </ul>
-                            </li>
-                        </ul>
-                    </div><!--/.nav-collapse -->
+        <!-- Fixed navbar -->
+        <nav class="navbar navbar-default navbar-fixed-top hidden-print">
+            <div class="container">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="#">OCOS Logo</a>
                 </div>
-            </nav>
-        </header>
+                <div id="navbar" class="navbar-collapse collapse">
+                    <ul class="nav navbar-nav">
+                        <li><a href="#">Home</a></li>
+
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle scrollable-menu " data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-th-large"></span> Switch Module <span class="caret"></span></a>
+                            <ul class="dropdown-menu">
+                                <li class="dropdown-header">Frequent Modules</li>
+                                <li><a href="#">Attendance</a></li>
+                                <li><a href="#">Budgets</a></li>
+                                <li><a href="#">Reports</a></li>
+                                <li role="separator" class="divider"></li>
+                                <li class="dropdown-header">Other Modules</li>
+                                <li><a href="#">ARO</a></li>
+                                <li><a href="#">CRM</a></li>
+                                <li><a href="#">Facility Management</a></li>
+                                <li><a href="#">Warehouse Management</a></li>
+
+                            </ul>
+                        </li>
+                    </ul>
+                    <ul class="nav navbar-nav navbar-right">
+                        <li id="tooltip" data-toggle="tooltip" data-placement="left" title="Favorite Pages" class="hidden-xs">
+                            <span  style=" font-size:20px; margin-top:15px;" class="glyphicon glyphicon-star-empty" ></span>
+                        </li>
+
+
+                        <li class="hidden-xs">        <div style="position: relative"><img src="../images/icons/plane-icon1.png" class="img-responsive" alt="Generic placeholder thumbnail" style="margin: 10px;" height="30" width="30">
+
+                            </div></li>
+                        <li class="hidden-xs">        <div style="position: relative"><img src="../images/icons/reports-icon.png" class="img-responsive" alt="Generic placeholder thumbnail" style="margin: 10px;" height="30" width="30">
+
+                            </div></li>
+                        <li class="hidden-xs" style="margin-right:50px;">        <div style="position: relative"><img src="../images/icons/crm-icon.png" class="img-responsive" alt="Generic placeholder thumbnail" style="margin: 10px;" height="30" width="30">
+
+                            </div></li>
+                        <li><a href="../navbar-static-top/"><span class="glyphicon glyphicon-alert"></span> Updates <span class="badge">42</span></a></li>
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-user"></span> Zaher Reda <span class="sr-only">(current)</span> <span class="caret"></span></a>
+                            <ul class="dropdown-menu">
+                                <li ><a href="#">Edit Profile</a></li>
+                                <li><a href="#">Admin CP</a></li>
+                                <li  class="divider" role="separator"></li>
+                                <li><a href="#">Log Out</a></li>
+
+                            </ul>
+                        </li>
+                    </ul>
+                </div><!--/.nav-collapse -->
+            </div>
+        </nav>
         <div class="container" style="height:100%; padding-top: 70px">
             <!-- Main component for a primary marketing message or call to action -->
             <div>
@@ -556,14 +547,11 @@
             </div>
         </div>
 
-        <div style="position:fixed;height:100%;top: 50px; right: 0px;" >
-            <div class="mini-submenu" style=" width: 30px;">
-                <span class="glyphicon glyphicon-th-list" style="color:#FFF;"  id="tooltip2" data-toggle="tooltip" data-placement="left" title="Switch to another Page"></span>
+        <div style="position:fixed;height:100%;top: 50px; right: 0px;" class="hidden-print">
+            <div class="mini-submenu" style=" width: 30px;display: inline-block">
+                <span class="glyphicon glyphicon-chevron-left" style="color:#FFF;"  id="tooltip2" data-toggle="tooltip" data-placement="bottom" title="Switch to another Page"></span>
             </div>
-            <div class="list-group">
-                <span class="pull-right" id="slide-submenu">
-                    <span class="glyphicon glyphicon-th-list" style="color:#FFF;padding-top:12px;"></span>
-                </span>
+            <div class="list-group" style="display: inline-block;margin-left:-5px;">
                 <span  class="list-group-item active">
                     Profiles
                 </span>
