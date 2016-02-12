@@ -208,10 +208,24 @@ else {
 
                     $invoiceline->uom = $invoiceline->get_uom()->uomsymbol;
                     $invoiceline->costlocal = $invoiceline->get_cost();
-                    // if($core->user['uid'] == 362) {
                     $costcurrency = $invoiceline->get_transaction()->get_currency();
-                    $currency_obj->alphaCode != $costcurrency->iso_code;
-                    $invoiceline->costlocal /= $invoice->localfxrate;
+                    if(!empty($invoiceline->costlocal)) {
+                        if($currency_obj->alphaCode != $costcurrency->iso_code) {
+                            if($costcurrency->iso_code == 'GHC') {
+                                $costcurrency->iso_code = 'GHS';
+                            }
+                            $invoice->localcostfxrate = $currency_obj->get_fxrate_bytype($core->input['fxtype'], $costcurrency->iso_code, array('from' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 01:00'), 'to' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 24:00'), 'year' => date('Y', $invoice->dateinvoiceduts), 'month' => date('m', $invoice->dateinvoiceduts)), array('precision' => 4), $currency_obj->alphaCode);
+                            if(empty($invoice->localcostfxrate)) {
+                                $invoice->localcostfxrate = $currency_obj->get_fxrate_bytype('ylast', $costcurrency->iso_code, array('from' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 01:00'), 'to' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 24:00'), 'year' => date('Y', $invoice->dateinvoiceduts), 'month' => date('m', $invoice->dateinvoiceduts)), array('precision' => 4), $currency_obj->alphaCode);
+                                if(empty($invoice->localcostfxrate)) {
+                                    output_xml('<status>true</status><message>No local exchange rate<br/> From '.$costcurrency->iso_code.' to '.$currency_obj->alphaCode.' in the invoice period '.date('Y-m-d', $invoice->dateinvoiceduts).' </message>');
+                                    exit;
+                                    $invoice->localcostfxrate = 0;
+                                }
+                            }
+                            $invoiceline->costlocal /= $invoice->localcostfxrate;
+                        }
+                    }
                     // }
 //                    if($currency_obj->alphaCode != $invoice->currency) {
 //                        if(!empty($invoice->localfxrate)) {
@@ -380,50 +394,51 @@ else {
                             $salesreport .= '<th style="font-size:14px; font-weight: bold; background-color: #F1F1F1;">'.$y.'</th>';
                         }
                         $salesreport .= '</tr>';
-                        foreach($monthdata['linenetamt'] as $salerepid => $salerepdata) {
-                            $currentyeardata = $salerepdata[$current_year];
-                            $salesreport .= '<tr style="background-color:#D0F6AA;">';
-                            $salesrep = new IntegrationOBUser($salerepid, $integration->get_dbconn());
-                            if(empty($salesrep->name) || $salesrep->name == 'System') {
-                                $salesrep->name = 'Not Specified';
-                                continue;
-                            }
-                            $salesreport .= '<td style="'.$css_styles['table-datacell'].'">'.$salesrep->name.'</td>';
+                        if(is_array($monthdata['linenetamt'])) {
+                            foreach($monthdata['linenetamt'] as $salerepid => $salerepdata) {
+                                $currentyeardata = $salerepdata[$current_year];
+                                $salesreport .= '<tr style="background-color:#D0F6AA;">';
+                                $salesrep = new IntegrationOBUser($salerepid, $integration->get_dbconn());
+                                if(empty($salesrep->name) || $salesrep->name == 'System') {
+                                    $salesrep->name = 'Not Specified';
+                                    continue;
+                                }
+                                $salesreport .= '<td style="'.$css_styles['table-datacell'].'">'.$salesrep->name.'</td>';
 
-                            for($i = 1; $i <= 12; $i++) {
-                                if(!isset($currentyeardata[$i])) {
-                                    $currentyeardata[$i] = 0;
+                                for($i = 1; $i <= 12; $i++) {
+                                    if(!isset($currentyeardata[$i])) {
+                                        $currentyeardata[$i] = 0;
+                                    }
+                                    $numfmt = new NumberFormatter($lang->settings['locale'], NumberFormatter::DECIMAL);
+                                    if($currentyeardata[$i] / 1000 > 10) {
+                                        $numfmt->setPattern("#,##0");
+                                    }
+                                    else {
+                                        $numfmt->setPattern("#0.##");
+                                    }
+                                    $salesreport .= '<td style="'.$css_styles['table-datacell'].'">'.$numfmt->format($currentyeardata[$i] / 1000).'</td>'; //$formatter->format($currentyeardata[$i] / 1000)
                                 }
-                                $numfmt = new NumberFormatter($lang->settings['locale'], NumberFormatter::DECIMAL);
-                                if($currentyeardata[$i] / 1000 > 10) {
-                                    $numfmt->setPattern("#,##0");
+                                $styleindex = 3;
+                                for($y = $current_year; $y >= ($current_year - 1); $y--) {
+                                    if(!is_array($salerepdata[$y])) {
+                                        $salerepdata[$y][] = 0;
+                                    }
+                                    for($m = 1; $m <= 12; $m++) {
+                                        $salerepdata[$y][$m] = $salerepdata[$y][$m] / 1000;
+                                        $yearsummarytotals[$y][$m] += $salerepdata[$y][$m];
+                                    }
+                                    $salesreport .= '<td style="'.$css_styles['table-datacell'].' '.$css_styles['altrow'.$styleindex].'">'.number_format(array_sum($salerepdata[$y])).'</td>'; //$formatter->format(array_sum($salerepdata[$y]))
+                                    $styleindex--;
                                 }
-                                else {
-                                    $numfmt->setPattern("#0.##");
-                                }
-                                $salesreport .= '<td style="'.$css_styles['table-datacell'].'">'.$numfmt->format($currentyeardata[$i] / 1000).'</td>'; //$formatter->format($currentyeardata[$i] / 1000)
-                            }
-                            $styleindex = 3;
-                            for($y = $current_year; $y >= ($current_year - 1); $y--) {
-                                if(!is_array($salerepdata[$y])) {
-                                    $salerepdata[$y][] = 0;
-                                }
-                                for($m = 1; $m <= 12; $m++) {
-                                    $salerepdata[$y][$m] = $salerepdata[$y][$m] / 1000;
-                                    $yearsummarytotals[$y][$m] += $salerepdata[$y][$m];
-                                }
-                                $salesreport .= '<td style="'.$css_styles['table-datacell'].' '.$css_styles['altrow'.$styleindex].'">'.number_format(array_sum($salerepdata[$y])).'</td>'; //$formatter->format(array_sum($salerepdata[$y]))
-                                $styleindex--;
-                            }
-                            $salesreport .= '</tr>';
+                                $salesreport .= '</tr>';
 //                            if(empty($rowstyle)) {
 //                                $rowstyle = $css_styles['altrow'];
 //                            }
 //                            else {
 //                                $rowstyle = '';
 //                            }
+                            }
                         }
-
                         if(is_array($classifications) && (isset($core->input['generatecharts']) && $core->input['generatecharts'] == 1)) {
                             $classifications_output = $invoicelines->parse_classificaton_tables($classifications, array('reporttype' => $reporttype));
                         }
@@ -467,72 +482,73 @@ else {
                         $salesreport .= '<th style="font-size:14px; font-weight: bold; background-color: #F1F1F1; text-align: center;">'.$current_year.' objective</th>';
                         $salesreport .= '<th style="font-size:14px; font-weight: bold; background-color: #F1F1F1; text-align: center;">YTD / '.$current_year.' objective</th>';
                         $salesreport .= '</tr>';
-                        foreach($monthdata['linenetamt'] as $salerepid => $salerepdata) {
-                            for($y = $current_year; $y >= ($current_year - 1); $y--) {
-                                if(!is_array($salerepdata[$y])) {
-                                    $salerepdata[$y][] = 0;
-                                }
-
-                                foreach($salerepdata[$y] as $key => $val) {
-                                    if(!empty($val)) {
-                                        $salerepdata[$y][$key] = $val / 1000;
+                        if(is_array($monthdata['linenetamt'])) {
+                            foreach($monthdata['linenetamt'] as $salerepid => $salerepdata) {
+                                for($y = $current_year; $y >= ($current_year - 1); $y--) {
+                                    if(!is_array($salerepdata[$y])) {
+                                        $salerepdata[$y][] = 0;
                                     }
-                                }
-                            }
 
-                            $salesrep = new IntegrationOBUser($salerepid, $integration->get_dbconn());
-                            if(empty($salesrep->name) || $salesrep->name == 'System') {
-                                continue;
-                            }
-                            $salerep_user = Users::get_data_byattr('displayName', $salesrep->name);
-                            $salesreport .= '<tr style="'.$rowstyle.'">';
-                            $salesreport .= '<td>'.$salesrep->name.'</td>';
-                            $numfmt = new NumberFormatter($lang->settings['locale'], NumberFormatter::DECIMAL);
-                            if(array_sum($salerepdata[$current_year]) > 10) {
-                                $numfmt->setPattern("#,##0");
-                            }
-                            else {
-                                $numfmt->setPattern("#0.##");
-                            }
-                            $salesreport .= '<td style="text-align: right;">'.$numfmt->format(array_sum($salerepdata[$current_year])).'</td>'; //$formatter->format
-
-                            $percentages['prevyear']['linenetamt'] = 0.10;
-                            if(array_sum($salerepdata[$current_year - 1]) != 0) {
-                                $percentages['prevyear']['linenetamt'] = (array_sum($salerepdata[$current_year]) / array_sum($salerepdata[$current_year - 1]));
-                            }
-                            $salesreport .= '<th style="text-align: right;">'.$percformatter->format($percentages['prevyear']['linenetamt']).'</th>';
-
-                            /* Get budget */
-                            if(is_object($salerep_user)) {
-                                $budgetlines = BudgetLines::get_data(array('businessMgr' => $salerep_user->uid, 'bid' => '(SELECT bid FROM budgeting_budgets WHERE year='.$current_year.' AND affid IN ('.implode(',', $core->input['affids']).'))'), array('returnarray' => true, 'operators' => array('bid' => 'IN')));
-                                $percentages['budget']['amt'] = 0.10;
-                                if(is_array($budgetlines)) {
-                                    foreach($budgetlines as $budgetline) {
-                                        $budget_totals['qty'] += $budgetline->quantity;
-                                        $budget_totals['amt'] += $budgetline->get_convertedamount($currency_obj) / 1000;
-                                    }
-                                    if(!empty($budget_totals['amt'])) {
-                                        $percentages['budget']['amt'] = (array_sum($salerepdata[$current_year]) / $budget_totals['amt']);
+                                    foreach($salerepdata[$y] as $key => $val) {
+                                        if(!empty($val)) {
+                                            $salerepdata[$y][$key] = $val / 1000;
+                                        }
                                     }
                                 }
 
-                                $salesreport .= '<th style="text-align: right;">'.number_format($budget_totals['amt']).'</th>'; //$formatter->format
-                                $salesreport .= '<th style="text-align: right;">'.$percformatter->format($percentages['budget']['amt']).'</th>';
+                                $salesrep = new IntegrationOBUser($salerepid, $integration->get_dbconn());
+                                if(empty($salesrep->name) || $salesrep->name == 'System') {
+                                    continue;
+                                }
+                                $salerep_user = Users::get_data_byattr('displayName', $salesrep->name);
+                                $salesreport .= '<tr style="'.$rowstyle.'">';
+                                $salesreport .= '<td>'.$salesrep->name.'</td>';
+                                $numfmt = new NumberFormatter($lang->settings['locale'], NumberFormatter::DECIMAL);
+                                if(array_sum($salerepdata[$current_year]) > 10) {
+                                    $numfmt->setPattern("#,##0");
+                                }
+                                else {
+                                    $numfmt->setPattern("#0.##");
+                                }
+                                $salesreport .= '<td style="text-align: right;">'.$numfmt->format(array_sum($salerepdata[$current_year])).'</td>'; //$formatter->format
+
+                                $percentages['prevyear']['linenetamt'] = 0.10;
+                                if(array_sum($salerepdata[$current_year - 1]) != 0) {
+                                    $percentages['prevyear']['linenetamt'] = (array_sum($salerepdata[$current_year]) / array_sum($salerepdata[$current_year - 1]));
+                                }
+                                $salesreport .= '<th style="text-align: right;">'.$percformatter->format($percentages['prevyear']['linenetamt']).'</th>';
+
+                                /* Get budget */
+                                if(is_object($salerep_user)) {
+                                    $budgetlines = BudgetLines::get_data(array('businessMgr' => $salerep_user->uid, 'bid' => '(SELECT bid FROM budgeting_budgets WHERE year='.$current_year.' AND affid IN ('.implode(',', $core->input['affids']).'))'), array('returnarray' => true, 'operators' => array('bid' => 'IN')));
+                                    $percentages['budget']['amt'] = 0.10;
+                                    if(is_array($budgetlines)) {
+                                        foreach($budgetlines as $budgetline) {
+                                            $budget_totals['qty'] += $budgetline->quantity;
+                                            $budget_totals['amt'] += $budgetline->get_convertedamount($currency_obj) / 1000;
+                                        }
+                                        if(!empty($budget_totals['amt'])) {
+                                            $percentages['budget']['amt'] = (array_sum($salerepdata[$current_year]) / $budget_totals['amt']);
+                                        }
+                                    }
+
+                                    $salesreport .= '<th style="text-align: right;">'.number_format($budget_totals['amt']).'</th>'; //$formatter->format
+                                    $salesreport .= '<th style="text-align: right;">'.$percformatter->format($percentages['budget']['amt']).'</th>';
+                                }
+                                else {
+                                    $salesreport .= '<th style="text-align: right;">-</th>';
+                                    $salesreport .= '<th style="text-align: right;">-</th>';
+                                }
+                                $salesreport .= '</tr>';
+                                if(empty($rowstyle)) {
+                                    $rowstyle = $css_styles['altrow'];
+                                }
+                                else {
+                                    $rowstyle = '';
+                                }
+                                unset($budget_totals, $percentages);
                             }
-                            else {
-                                $salesreport .= '<th style="text-align: right;">-</th>';
-                                $salesreport .= '<th style="text-align: right;">-</th>';
-                            }
-                            $salesreport .= '</tr>';
-                            if(empty($rowstyle)) {
-                                $rowstyle = $css_styles['altrow'];
-                            }
-                            else {
-                                $rowstyle = '';
-                            }
-                            unset($budget_totals, $percentages);
                         }
-
                         $salesreport .= '</table>';
                         /* YTD Comparison - END */
 
@@ -855,11 +871,25 @@ function get_ytddata($input_data, $period, $orgs) {
 
                 $invoiceline->uom = $invoiceline->get_uom()->uomsymbol;
                 $invoiceline->costlocal = $invoiceline->get_cost();
-                //    if($core->user['uid'] == 362) {
                 $costcurrency = $invoiceline->get_transaction()->get_currency();
-                $currency_obj->alphaCode != $costcurrency->iso_code;
-                $invoiceline->costlocal /= $invoice->localfxrate;
-                //}
+
+                if(!empty($invoiceline->costlocal)) {
+                    if($currency_obj->alphaCode != $costcurrency->iso_code) {
+                        if($costcurrency->iso_code == 'GHC') {
+                            $costcurrency->iso_code = 'GHS';
+                        }
+                        $invoice->localcostfxrate = $currency_obj->get_fxrate_bytype($core->input['fxtype'], $costcurrency->iso_code, array('from' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 01:00'), 'to' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 24:00'), 'year' => date('Y', $invoice->dateinvoiceduts), 'month' => date('m', $invoice->dateinvoiceduts)), array('precision' => 4), $currency_obj->alphaCode);
+                        if(empty($invoice->localcostfxrate)) {
+                            $invoice->localcostfxrate = $currency_obj->get_fxrate_bytype('ylast', $costcurrency->iso_code, array('from' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 01:00'), 'to' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 24:00'), 'year' => date('Y', $invoice->dateinvoiceduts), 'month' => date('m', $invoice->dateinvoiceduts)), array('precision' => 4), $currency_obj->alphaCode);
+                            if(empty($invoice->localcostfxrate)) {
+                                output_xml('<status>true</status><message>No local exchange rate<br/> From '.$costcurrency->iso_code.' to '.$currency_obj->alphaCode.' in the invoice period '.date('Y-m-d', $invoice->dateinvoiceduts).' </message>');
+                                exit;
+                                $invoice->localcostfxrate = 0;
+                            }
+                        }
+                        $invoiceline->costlocal /= $invoice->localcostfxrate;
+                    }
+                }
                 if($invoiceline->qtyinvoiced < 0) {
                     $invoiceline->costlocal = 0 - $invoiceline->costlocal;
                 }

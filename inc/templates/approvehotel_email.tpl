@@ -35,6 +35,9 @@
                 <td>{$lang->distancefromoffice}</td><td>{$hotel[distance]}</td>
             </tr>
             <tr>
+                <td>{$lang->createdby}</td><td>{$createdby}</td>
+            </tr>
+            <tr>
                 <td><a style="font: bold 11px Arial;
                        text-decoration: none;
                        background-color: #EEEEEE;
