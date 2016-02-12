@@ -22,16 +22,23 @@ if(!$core->input['action']) {
     $purchasetypes = PurchaseTypes::get_data('', array('returnarray' => true));
 
     $filters_config = array(
-            'parse' => array('filters' => array('affid', 'effectiveFrom', 'effectiveTo', 'purchaseType'),
-                    'overwriteField' => array('purchaseType' => parse_selectlist('filters[purchaseType]', '', $purchasetypes, $core->input['filters']['purchaseType'], '', '', array('placeholder' => 'select purchase type')), 'isActive' => parse_selectlist('filters[isActive]', '', array('' => '', '0' => 'Not active', '1' => 'Active'), $core->input['filters']['isActive']),
+            'parse' => array('filters' => array('affid', 'coid', 'effectiveFrom', 'effectiveTo', 'purchaseType'),
+                    'overwriteField' => array('purchaseType' => parse_selectlist('filters[purchaseType]', '', $purchasetypes, $core->input['filters']['purchaseType'], '', '', array('placeholder' => 'select purchase type')),
+                            'isActive' => parse_selectlist('filters[isActive]', '', array('' => '', '0' => 'Not active', '1' => 'Active'), $core->input['filters']['isActive']),
+                            'coid' => '<input id="countries_1_autocomplete" name="filters[country]" autocomplete="off" type="text" style="width:150px;" value="'.$core->input['filters']['country'].'">
+                            <input id="countries_1_id" name="filters[coid]"  type="hidden">'
                     ),
-                    'fieldsSequence' => array('affid' => 1, 'effectiveFrom' => 2, 'effectiveTo' => 3, 'purchaseType' => 4)
+                    'fieldsSequence' => array('affid' => 1, 'coid' => 2, 'effectiveFrom' => 3, 'effectiveTo' => 4, 'purchaseType' => 5)
             ),
             'process' => array(
                     'filterKey' => 'aapcid',
                     'mainTable' => array(
                             'name' => 'aro_approvalchain_policies',
-                            'filters' => array('affid' => array('operatorType' => 'multiple', 'name' => 'affid'), 'effectiveFrom' => array('operatorType' => 'date', 'name' => 'effectiveFrom'), 'effectiveTo' => array('operatorType' => 'date', 'name' => 'effectiveTo'), 'purchaseType' => array('operatorType' => 'equal', 'name' => 'purchaseType')),
+                            'filters' => array('affid' => array('operatorType' => 'multiple', 'name' => 'affid'),
+                                    'coid' => array('operatorType' => 'equal', 'name' => 'coid'),
+                                    'effectiveFrom' => array('operatorType' => 'date', 'name' => 'effectiveFrom'),
+                                    'effectiveTo' => array('operatorType' => 'date', 'name' => 'effectiveTo'),
+                                    'purchaseType' => array('operatorType' => 'equal', 'name' => 'purchaseType')),
                     ),
     ));
     $filter = new Inlinefilters($filters_config);
@@ -77,7 +84,11 @@ if(!$core->input['action']) {
             $approvers->effectiveFrom = date($core->settings['dateformat'], $approvers->effectiveFrom);
             $affobj = new Affiliates($approvers->affid);
             $purchasetype_obj = new PurchaseTypes($approvers->purchaseType);
-
+            $country_obj = Countries::get_data(array('coid' => $approvers->coid));
+            $country_output = '-';
+            if(is_object($country_obj)) {
+                $country_output = $country_obj->get_displayname();
+            }
             $row_tools = '<a href="index.php?module=aro/manageapprovalchainspolicies&id='.$approvers->aapcid.'" title="'.$lang->edit.'"><img src=./images/icons/edit.gif border=0 alt='.$lang->edit.'/></a>';
             $row_tools .= ' <a href="#'.$approvers->aapcid.'" id="deletepolicy_'.$approvers->aapcid.'_aro/approvalchainspolicieslist_loadpopupbyid" rel="delete_'.$approvers->aapcid.'" title="'.$lang->delete.'"><img src="./images/invalid.gif" alt="'.$lang->delete.'" border="0"></a>';
 

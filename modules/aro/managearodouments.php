@@ -1780,7 +1780,7 @@ else {
                         output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
                         break;
                     case 5:
-                        output_xml("<status>false</status><message>{$lang->successfullysaved} - {$lang->errorsendingemail}".$arorequestmessage_obj->get_errorcode()."</message>");
+                        output_xml("<status>false</status><message>{$lang->successfullysaved} - {$lang->errorsendingemail}</message>");
                         break;
                 }
                 break;

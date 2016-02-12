@@ -20,7 +20,7 @@ class AroDocumentsSequenceConf extends AbstractClass {
     const PRIMARY_KEY = 'adsid';
     const TABLE_NAME = 'aro_documentsequences';
     const DISPLAY_NAME = '';
-    const SIMPLEQ_ATTRS = 'adsid,affid,ptid,effectiveFrom,effectiveTo';
+    const SIMPLEQ_ATTRS = 'adsid,affid,coid,ptid,effectiveFrom,effectiveTo';
     const CLASSNAME = __CLASS__;
     const UNIQUE_ATTRS = 'affid,coid,ptid,effectiveFrom,effectiveTo';
 
