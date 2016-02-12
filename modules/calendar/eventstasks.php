@@ -168,6 +168,13 @@ else {
         if(is_array($event_users_objs)) {
             foreach($event_users_objs as $event_users_obj) {
                 $event_users = $event_users_obj->get();
+                if(!empty($events_details['spid'])) {
+                    $supplier = new Entities(intval($events_details['spid']));
+                    if(is_object($supplier)) {
+                        $supplier_output = $lang->supplier.': '.$supplier->get_displayname();
+                    }
+                }
+                $description = $events_details['description'].'<br>'.$supplier_output.$lang->planyourtripforevent;
                 /* iCal event to the users */
                 $ical_obj = new iCalendar(array('identifier' => $events_details['identifier'], 'uidtimestamp' => $events_details['createdOn']));  /* pass identifer to outlook to avoid creation of multiple file with the same date */
                 $ical_obj->set_datestart($events_details['fromDate']);
@@ -177,7 +184,7 @@ else {
                 $ical_obj->set_categories('Event');
                 $ical_obj->set_organizer();
                 $ical_obj->set_icalattendees($event_users['uid']);
-                $ical_obj->set_description($events_details['description'].$lang->planyourtripforevent);
+                $ical_obj->set_description($description);
                 $ical_obj->set_url($core->settings['rootdir'].'/index.php?module=attendance/requestleave');
                 $ical_obj->endical();
 
