@@ -281,17 +281,26 @@ else {
                     if(file_exists($motherpath)) {
                         $zipname = $motherpath.'/../extractentities'.uniqid().'.zip';
                         $zip = Zip($motherpath, $zipname);
-                        $download = new Download();
-                        $download->set_real_path($motherpath);
-                        $download->stream_file();
+                        $link = '<a target="_blank" href="'.$core->settings['rootdir'].'/manage/index.php?module=entities/extractentities&action=download&dasource='.base64_encode($zipname).'>Cick Here To Download</a>';
+                        output_xml("<status>true</status><message>{$lang->success}<![CDATA[<br/>{$link}]]></message>");
                     }
-                    output_xml("<status>true</status><message>{$lang->pleasewaitfordownload}</message>");
                     break;
             }
         }
         else {
             output_xml("<status>false</status><message>{$lang->nomatchfound}</message>");
             exit;
+        }
+    }
+    else if($core->input['action'] == 'download') {
+        $file = base64_decode($core->input['dasource']);
+        if(file_exists($file)) {
+            $download = new Download();
+            $download->set_real_path($file);
+            $download->stream_file();
+        }
+        else {
+            redirect(DOMAIN);
         }
     }
 }
