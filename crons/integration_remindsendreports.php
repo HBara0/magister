@@ -100,7 +100,11 @@ if($_REQUEST['authkey'] == 'kia5ravbXop09dj4a!xhegalhj') {
 
             if(is_array($recpients)) {
                 foreach($senders as $sender) {
-                    $recpients[] = Users::get_data(array('uid' => $sender))->email;
+                    $sender_obj = Users::get_data(array('uid' => $sender));
+                    if($sender_obj->gid == 7) {
+                        continue;
+                    }
+                    $recpients[] = $sender_obj->email;
                 }
             }
             $recpients = array_unique($recpients);
