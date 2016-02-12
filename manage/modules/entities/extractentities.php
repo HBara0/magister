@@ -139,13 +139,15 @@ else {
                                             $representatives = $entity_obj->get_representatives();
                                             if(is_array($representatives)) {
                                                 foreach($representatives as $representative) {
-                                                    $rep_field.='-'.$representative->get_displayname().',&nbsp;'.$representative->get_contactinfo().'  ';
+                                                    $rep_field['names'].= $representative->get_displayname().',  ';
+                                                    $rep_field['emails'].=$representative->get_contactinfo().', ';
                                                 }
                                             }
                                             else {
-                                                $rep_field = '-';
+                                                $rep_field['names'] = '-';
                                             }
                                             eval("\$entityrows.=\"".$template->get("admin_entities_extractentities_affiliate_segment_entityrow")."\";");
+                                            unset($rep_field);
                                         }
                                     }
                                 }
@@ -170,10 +172,13 @@ else {
                     break;
                 case 'export':
                     //if export, create the main file that will include all the affiliate files
-                    if(!file_exists(dirname(__FILE__).'\..\..\..\exctractentities')) {
-                        mkdir(dirname(__FILE__).'\..\..\..\exctractentities');
+                    $export_path = $_SERVER['DOCUMENT_ROOT'].'/tmp/exctractentities';
+
+                    if(!file_exists($export_path)) {
+                        mkdir($export_path);
                     }
-                    $motherpath = dirname(__FILE__).'\..\..\..\exctractentities\\exctractentities_'.TIME_NOW;
+
+                    $motherpath = $export_path.'/exctractentities_'.uniqid();
                     mkdir($motherpath);
                     foreach($results as $affid => $segmentedres) {
                         if(is_array($segmentedres)) {
@@ -209,16 +214,17 @@ else {
                                             //get all representatives for the company and parse them in a single TD
                                             $representatives = $entity_obj->get_representatives();
                                             if(is_array($representatives)) {
-                                                $rep_field = '<td>';
+
                                                 foreach($representatives as $representative) {
-                                                    $rep_field.='-'.$representative->get_displayname().',&nbsp;'.$representative->get_contactinfo().'  ';
+                                                    $rep_field['names'].= $representative->get_displayname().',  ';
+                                                    $rep_field['emails'].= $representative->get_contactinfo().', ';
                                                 }
-                                                $rep_field.='</td>';
                                             }
                                             else {
-                                                $rep_field = '<td>-</td>';
+                                                $rep_field['names'] = '-';
                                             }
                                             eval("\$entityrows.=\"".$template->get("admin_entities_extractentities_affiliate_segment_entityrow")."\";");
+                                            unset($rep_field);
                                         }
                                     }
                                 }
@@ -265,17 +271,19 @@ else {
             </head>
             <body>'.$result.'</body></html>';
                             //write and create the file
-                            $path = $sub_path.'\\'.$segment_output.'.xls';
+                            $path = $sub_path.'/'.$segment_output.'.xls';
                             $handle = fopen($path, 'w') or die('Cannot open file: '.$allpaths);
                             $writefile = file_put_contents($path, $page);
                         }
                     }
+
+
                     if(file_exists($motherpath)) {
-//                        $zipname = $motherpath.'\..\extractentities.zip';
-//                        $zip = Zip($motherpath, $zipname);
+                        $zipname = $motherpath.'/../extractentities'.uniqid().'.zip';
+                        $zip = Zip($motherpath, $zipname);
                         $download = new Download();
                         $download->set_real_path($motherpath);
-                        $download->stream_file(true);
+                        $download->stream_file();
                     }
                     output_xml("<status>true</status><message>{$lang->pleasewaitfordownload}</message>");
                     break;

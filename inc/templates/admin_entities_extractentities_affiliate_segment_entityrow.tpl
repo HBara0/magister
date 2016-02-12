@@ -2,7 +2,8 @@
     <td> {$entity[companyName]}</td>
     <td> {$entity[companyType_output]}</td>
     <td> {$entity[companyCountry_output]}</td>
-    <td> {$rep_field}</td>
+    <td> {$rep_field[names]}</td>
+    <td> {$rep_field[emails]}</td>
     <td> {$entity[addressLine1]}</td>
     <td> {$entity[phone1]}</td>
     <td> {$entity[phone2]}</td>

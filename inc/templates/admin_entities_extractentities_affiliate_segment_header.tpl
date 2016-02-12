@@ -4,6 +4,7 @@
         <th>{$lang->companytype}</th>
         <th>{$lang->country}</th>
         <th>{$lang->representatives}</th>
+        <th>{$lang->email}</th>
         <th>{$lang->addressLine1}</th>
         <th>{$lang->phone1}</th>
         <th>{$lang->phone2}</th>
