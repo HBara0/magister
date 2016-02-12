@@ -368,7 +368,9 @@ class Mailer_oophp extends Mailer_functions {
         }
 
         @ini_set('sendmail_from', $this->mail_data['from_email']);
-        $this->mail_data['header'] .= $this->mail_data['type_header'];
+        if(!strstr($this->mail_data['header'], 'Content-type:')) {
+            $this->mail_data['header'] .= $this->mail_data['type_header'];
+        }
 
         if(isset($this->mail_data['attachments']) && !empty($this->mail_data['attachments'])) {
             $this->mail_data['message'] = "--".$this->boundaries[1]."\n".$this->mail_data['message'];
