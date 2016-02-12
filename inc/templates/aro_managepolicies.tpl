@@ -23,7 +23,16 @@
                 <table width="100%" border="0" cellpadding="0" cellspacing="0" class="datatable" >
                     <tr>
                         <td>{$lang->affiliate}</td><td colspan="2">{$affiliates_list}
-                            <input type="hidden" value="$aropolicy[apid]" name="aropolicy[apid]" </td>
+                            <input type="hidden" value="{$aropolicy[apid]}" name="aropolicy[apid]" </td>
+                    </tr>
+                    <tr>
+                        <td>{$lang->country}</td>
+                        <td>
+                            <input id="countries_1_autocomplete" autocomplete="off" type="text" value="{$aropolicy[country]}" style="width:150px;">
+                            <input id="countries_1_id" name="aropolicy[coid]"  value="{$aropolicy[coid]}" type="hidden">
+                            <div id="searchQuickResults_1" class="searchQuickResults" style="display: none;"></div>
+
+                        </td>
                     </tr>
                     <tr>
                         <td>{$lang->orderpurchasetype}</td><td colspan="2">{$purchasetypes_list}</td>
@@ -93,7 +102,10 @@
 
                     <tr>
                         <td colspan="3" align="left" style="{$display[save]}">
-                            <input type="submit" value="{$lang->savecaps}" id="perform_aro/managepolicies_Button" class="button"/> <input type="reset" value="{$lang->reset}" class="button"/>
+                            <input type="submit" value="{$lang->savecaps}" id="perform_aro/managepolicies_Button" class="button"/>
+                            <input type="reset" value="{$lang->reset}" class="button"/>
+                            <a class="button" href="{$core->settings['rootdir']}/index.php?module=aro/managepolicies&id={$aropolicy[apid]}&referrer=clone" value="Clone" target='_blank' style="{$display['clone']};padding-top:5px;color:white">
+                                Clone</a>
                             <div id="perform_aro/managepolicies_Results"></div>
                         </td>
                     </tr>

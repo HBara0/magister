@@ -14,6 +14,13 @@
                 </td>
                 <td>{$lang->orderpurchasetype}</td>
                 <td>{$purchasetypelist}</td>
+                <td>{$lang->country}</td>
+                <td>
+                    <input id="countries_1_autocomplete" autocomplete="off" type="text" value="{$aroorderrequest->country}" style="width:150px;">
+                    <input id="countries_1_id" name="coid"  value="{$aroorderrequest->coid}" type="hidden">
+                    <div id="searchQuickResults_1" class="searchQuickResults" style="display: none;"></div>
+
+                </td>
                 <td>{$lang->buyingcurr}</td>
                 <td>{$currencies_list}</td>
                 {$refreshbutton}

@@ -79,7 +79,8 @@ End date: {4}<br />
 Reason: {5}<br />
 Approved by: {6}<br />
 <br />
-To approve simply reply to the request message, or click <a href=\'{7}\'>here</a> to approve or discuss it.';
+To approve simply reply to the request message, or click <a href=\'{7}\'>here</a> to approve or discuss it.
+<br />';
 $lang['requestleavemessage_stats'] = '<strong>Leaves Stats:</strong><br />
 <br />
 Current final balance is <strong>{1}</strong> days. It will become <strong>{2}</strong> after approving this leave. ';
@@ -100,4 +101,5 @@ $lang['apporvinganonexistingleave'] = 'Dear {1},<br />
 You Just tried to approve a deleted or revoked leave.
 <br />
 Regards';
+$lang['currentbalance'] = 'Current Balance';
 ?>

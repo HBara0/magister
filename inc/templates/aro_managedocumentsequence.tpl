@@ -34,6 +34,15 @@
                     <tr><td>{$lang->affiliate} </td>
                         <td> {$affiliate_list}</td>
                     </tr>
+                    <tr>
+                        <td>{$lang->country}</td>
+                        <td>
+                            <input id="countries_1_autocomplete" autocomplete="off" type="text" value="{$documentsequence[country]}" style="width:150px;">
+                            <input id="countries_1_id" name="documentsequence[coid]"  value="{$documentsequence[coid]}" type="hidden">
+                            <div id="searchQuickResults_1" class="searchQuickResults" style="display: none;"></div>
+
+                        </td>
+                    </tr>
                     <tr><td>{$lang->purchasetype}  </td>
                         <td>{$purchasetypelist} </td>
                     </tr>

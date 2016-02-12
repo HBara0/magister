@@ -12,8 +12,8 @@ $(function() {
         if($(this).html().match(pattern)) {
             if($(this).html().indexOf('-') === 0) {
                 $(this).css("color", "red");
-            }
 
+            }
         }
     });
 
@@ -86,7 +86,7 @@ $(function() {
      On change of affid Or purchase type document number, Affiliate policy , approval chain, default aff policy
      On change of affid only Get warehouses
      On Change of purchase type only (check which fields to disable))*/
-    $(document).on("change", "select[id$='purchasetype'],select[id$='affid']", function() {
+    $(document).on("change", "select[id$='purchasetype'],select[id$='affid'],input[id='countries_1_autocomplete']", function() {
         if(sharedFunctions.checkSession() == false) {
             return;
         }
@@ -95,8 +95,9 @@ $(function() {
         $(this).data('purchasetype', $('select[id=purchasetype]').val());
         var ptid = $(this).data('purchasetype');
         var inputChecksum = $("input[id='inputChecksum']").val();
-        sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populatedocnum&affid= ' + affid + '&ptid= ' + ptid + '&inputChecksum=' + inputChecksum);
-        sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populateaffpolicy&affid= ' + affid + '&ptid= ' + ptid);
+        var coid = $("input[id$='countries_1_id']").val();
+        sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populatedocnum&affid= ' + affid + '&ptid= ' + ptid + '&inputChecksum=' + inputChecksum + '&coid=' + coid);
+        sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populateaffpolicy&affid= ' + affid + '&ptid= ' + ptid + '&coid=' + coid);
         var aroBusinessManager = '';
         if(typeof $("input[id='user_0_id']").val() != "undefined") {
             aroBusinessManager = $("input[id='user_0_id']").val();
@@ -104,7 +105,7 @@ $(function() {
         var intermedAff = $("select[id='partiesinfo_intermed_aff']").val();
         $.ajax({type: 'post',
             url: rootdir + "index.php?module=aro/managearodouments&action=generateapprovalchain",
-            data: "affid=" + affid + "&ptid=" + ptid + "&aroBusinessManager=" + aroBusinessManager + "&intermedAff=" + intermedAff,
+            data: "affid=" + affid + "&ptid=" + ptid + "&aroBusinessManager=" + aroBusinessManager + "&intermedAff=" + intermedAff + '&coid=' + coid,
             beforeSend: function() {
             },
             complete: function() {
@@ -114,7 +115,7 @@ $(function() {
                 $('#aro_approvalcain').html(returnedData);
             }
         });
-        $.getJSON(rootdir + 'index.php?module=aro/managearodouments&action=popultedefaultaffpolicy&affid= ' + affid + '&ptid= ' + ptid, function(data) {
+        $.getJSON(rootdir + 'index.php?module=aro/managearodouments&action=popultedefaultaffpolicy&affid= ' + affid + '&ptid= ' + ptid + '&coid=' + coid, function(data) {
             var jsonStr = JSON.stringify(data);
             obj = JSON.parse(jsonStr);
             if((typeof obj === "object") && (obj !== null)) {
@@ -911,13 +912,15 @@ $(function() {
         var bmid = $("input[id='user_0_id']").val();
         if(typeof bmid != 'undefined' && bmid.length > 0) {
             var aroBusinessManager = $("input[id='user_0_id']").val();
+            var coid = $("input[id$='countries_1_id']").val();
+
             if(aroBusinessManager.length > 0) {
                 var ptid = $("select[id='purchasetype']").val();
                 var affid = $("select[id='affid']").val();
                 var intermedAff = $("select[id='partiesinfo_intermed_aff']").val();
                 $.ajax({type: 'post',
                     url: rootdir + "index.php?module=aro/managearodouments&action=generateapprovalchain",
-                    data: "affid=" + affid + "&ptid=" + ptid + "&aroBusinessManager=" + aroBusinessManager + '&intermedAff=' + intermedAff,
+                    data: "affid=" + affid + "&ptid=" + ptid + "&aroBusinessManager=" + aroBusinessManager + '&intermedAff=' + intermedAff + '&coid=' + coid,
                     beforeSend: function() {
                     },
                     complete: function() {

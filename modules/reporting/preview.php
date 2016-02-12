@@ -1016,7 +1016,9 @@ else {
             else {
                 $query = $db->insert_query('reporting_report_summary', $summary_report);
                 if($query) {
-                    $db->update_query('reports', array('summary' => $db->last_id()), 'rid IN ('.$db->escape_string(implode(',', $reportsids)).')');
+                    if(is_array($reportsids)) {
+                        $db->update_query('reports', array('summary' => $db->last_id()), 'rid IN ('.$db->escape_string(implode(',', $reportsids)).')');
+                    }
                 }
             }
             redirect($_SERVER['HTTP_REFERER']);

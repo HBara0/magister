@@ -19,7 +19,7 @@ if(!$core->input['action']) {
         $is_supervisor = true;
     }
 
-    $sort_query = 'requestTime DESC, username ASC';
+    $sort_query = 'fromDate DESC, username ASC';
     if(isset($core->input['sortby'], $core->input['order'])) {
         $sort_query = $core->input['sortby'].' '.$core->input['order'];
     }
@@ -210,9 +210,8 @@ if(!$core->input['action']) {
 }
 else {
     if($core->input['action'] == 'perform_revokeleave') {
-        $lid = intval($core->input['torevoke']);
+        $lid = intval(base64_decode($core->input['torevoke']));
         $user_obj = new Users($core->user['uid']);
-
         $leave_obj = new Leaves($lid, false);
         $leave = $leave_obj->get();
         $leave_type = $leave_obj->get_leavetype(false)->get();

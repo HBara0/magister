@@ -334,4 +334,5 @@ $lang['purposes'] = 'Purposes';
 $lang['internal'] = 'Internal';
 $lang['external'] = 'External';
 $lang['commentapprovereject'] = 'Approve/Comment on Leave';
+$lang['comments'] = 'Comments';
 ?>

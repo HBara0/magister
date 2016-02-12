@@ -56,6 +56,8 @@ class TravelManagerHotels extends AbstractClass {
             return $this;
         }
         $data['alias'] = generate_alias($data['name']);
+        $data['createdBy'] = $core->user['uid'];
+        $data['createdOn'] = TIME_NOW;
         $db->insert_query(self::TABLE_NAME, $data);
         $this->data[self::PRIMARY_KEY] = $db->last_id();
         $this->errorcode = 0;
@@ -66,11 +68,11 @@ class TravelManagerHotels extends AbstractClass {
             $hotel['city'] = $newhotel->get_city()->get_displayname();
             $hotel['country'] = $newhotel->get_country()->get_displayname();
             if($newhotel->isContracted == 1) {
-                $path = $core->settings['rootdir'].'\images\icons\completed.png';
+                $path = $core->settings['rootdir'].'/images/icons/completed.png';
                 $alt = 'Yes';
             }
             else {
-                $path = $core->settings['rootdir'].'\images\invalid.gif';
+                $path = $core->settings['rootdir'].'/images/invalid.gif';
                 $alt = 'No';
             }
             $type = pathinfo($path, PATHINFO_EXTENSION);
@@ -81,13 +83,19 @@ class TravelManagerHotels extends AbstractClass {
             $hotelsinsamecountry = TravelManagerHotels::get_data(array('country' => $newhotel->country), array('returnarray' => true, 'simple' => false));
             if(is_array($hotelsinsamecountry)) {
                 foreach($hotelsinsamecountry as $hotelincountry) {
+                    /**
+                     * Skip the same hotel
+                     */
+                    if($newhotel->get_id() == $hotelincountry->get_id()) {
+                        continue;
+                    }
                     $otherhotel = $hotelincountry->get();
                     if($newhotel->isApproved == 1) {
-                        $path = $core->settings['rootdir'].'\images\icons\completed.png';
+                        $path = $core->settings['rootdir'].'/images/icons/completed.png';
                         $alt = 'Yes';
                     }
                     else {
-                        $path = $core->settings['rootdir'].'\images\invalid.gif';
+                        $path = $core->settings['rootdir'].'/images/invalid.gif';
                         $alt = 'No';
                     }
                     $type = pathinfo($path, PATHINFO_EXTENSION);
@@ -115,7 +123,7 @@ class TravelManagerHotels extends AbstractClass {
                     }
                 }
             }
-
+            $createdby = $core->user['displayName'];
             eval("\$emailmessage = \"".$template->get('approvehotel_email')."\";");
             $mailer = new Mailer();
             $mailer = $mailer->get_mailerobj();

@@ -186,4 +186,8 @@ $lang['listaddleavedays'] = 'List Additional Leave Days';
 $lang['tmplanneeded'] = 'Leave Is Missing A Travel Manager Plan. Please Create A Plan by Clicking On This Link';
 $lang['leavedoestnoexist'] = 'Leave Does Not Exit Anymore, It May Have Been Revoked';
 $lang['workingdays'] = 'Working Days';
+$lang['afterapproval'] = 'After Approval';
+$lang['newstatus'] = 'New Status';
+$lang['tohourr'] = 'To Hour';
+$lang['addattendancercords'] = 'Add Attendace Records';
 ?>

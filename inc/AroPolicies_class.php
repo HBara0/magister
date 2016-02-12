@@ -17,7 +17,7 @@ class AroPolicies extends AbstractClass {
     const DISPLAY_NAME = '';
     const SIMPLEQ_ATTRS = '*';
     const CLASSNAME = __CLASS__;
-    const UNIQUE_ATTRS = 'affid,purchaseType,effectiveFrom,effectiveTo';
+    const UNIQUE_ATTRS = 'affid,coid,purchaseType,effectiveFrom,effectiveTo';
 
     public function __construct($id = '', $simple = true) {
         parent::__construct($id, $simple);
@@ -34,7 +34,7 @@ class AroPolicies extends AbstractClass {
             $data['createdBy'] = $core->user['uid'];
             $query = $db->insert_query(self::TABLE_NAME, $data);
             if($query) {
-                $id = $db->last_id();
+                $this->data[self::PRIMARY_KEY] = $id = $db->last_id();
                 $log->record('aro_policies', $id);
             }
         }
@@ -79,7 +79,7 @@ class AroPolicies extends AbstractClass {
     }
 
     public function co_exist($extra_where = '') {
-        $where = 'purchaseType='.$this->data['purchaseType'].' AND affid='.$this->data['affid'].' AND ('
+        $where = 'purchaseType='.$this->data['purchaseType'].' AND affid='.$this->data['affid'].' AND coid='.$this->data['coid'].' AND ('
                 .'((effectiveFrom BETWEEN '.$this->data['effectiveFrom'].' AND '.$this->data['effectiveTo'].') OR (effectiveTo BETWEEN '.$this->data['effectiveFrom'].' AND '.$this->data['effectiveTo'].'))'
                 .' OR '.
                 '(('.$this->data['effectiveFrom'].' BETWEEN effectiveFrom AND effectiveTo) AND ('.$this->data['effectiveTo'].' BETWEEN effectiveFrom AND effectiveTo))'

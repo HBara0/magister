@@ -9,20 +9,21 @@
         {$menu}
         <td class="contentContainer">
             <h1>{$lang->supplierslist}</h1>
-            <form method='post' action='$_SERVER[REQUEST_URI]'>
-                <table class="datatable" width="100%">
-                    <thead>
-                        <tr>
-                            <th style="width:30%;">{$lang->companyname} <a href="{$sort_url}&amp;sortby=entityname&amp;order=ASC"><img src="./images/sort_asc.gif" border="0" alt="{$lang->sortasc}"/></a><a href="{$sort_url}&amp;sortby=entityname&amp;order=DESC"><img src="./images/sort_desc.gif" border="0"  alt="{$lang->sortdesc}"/></a></th>
-                            <th style="width:35%;">{$lang->affiliate}</th>
-                            <th style="width:35%;">{$lang->segment}</th>
-                        </tr>
-                        {$filters_row}
-                    </thead>
-                </table>
-            </form>
-            <table class="datatable" width="100%">
-                <thead><tr class="dummytrow"><th style="width:30%;"></th><th style="width:35%;"></th><th style="width:35%;"></th></tr></thead>
+            <table class="datatable_basic table table-bordered row-border hover order-column" cellspacing="0" width="100%">
+                <thead>
+                    <tr>
+                        <th style="width:30%;">{$lang->companyname}</th>
+                        <th style="width:35%;">{$lang->affiliate}</th>
+                        <th style="width:35%;">{$lang->segment}</th>
+                    </tr>
+                </thead>
+                <tfoot
+                    <tr>
+                        <th style="width:30%;">{$lang->companyname}</th>
+                        <th style="width:35%;">{$lang->affiliate}</th>
+                        <th style="width:35%;">{$lang->segment}</th>
+                    </tr>
+                </tfoot>
                 <tbody>
                     {$suppliers_list}
                 </tbody>

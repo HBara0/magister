@@ -106,6 +106,7 @@ if(!$core->input['action']) {
 
             // $descity_obj = $leave_obj->get_destinationcity($false);
             $destcounrty_obj = $descity_obj->get_country();
+            $coid = $destcounrty_obj->coid;
             $destcity = $descity_obj->get();
             $destcity['country'] = $destcounrty_obj->get()['name'];
             $transp_requirements['drivemode'] = 'transit';
@@ -122,7 +123,7 @@ if(!$core->input['action']) {
             $leavedays = floor($leavedays / (60 * 60 * 24)) + 1;
             $hotelssegments_output = $segmentobj->parse_hotels($sequence, $approvedhotels, $leavedays);
             if(is_object($destcounrty_obj)) {
-                $otherapprovedhotels = TravelManagerHotels::get_data('country='.$destcounrty_obj->coid.' AND city != '.$descity_obj->ciid.' AND isApproved=1', array('returnarray' => true));
+                $otherapprovedhotels = TravelManagerHotels::get_data('country='.$coid.' AND city != '.$destcity['ciid'].' AND isApproved=1', array('returnarray' => true));
             }
             if(is_array($otherapprovedhotels)) {
                 $hotelssegments_output.='<br /><a nohref="nohref" style="cursor:pointer;" id="countryhotels_'.$sequence.'_check"><div style="display:inline-block"><h4>Lookup Hotels in the same country <img src="'.$core->settings['rootdir'].'/images/right_arrow.gif" alt="Other Approved Hotels"></h4></div></a>';

@@ -37,5 +37,6 @@ $lang['producer'] = "Producer";
 $lang['clicktoshowfield'] = "Click to Show Field";
 $lang['noresultsfound'] = "No Results Found";
 $lang['exporttoexcel'] = 'Export to Excel';
+$lang['companyname'] = "Company Name";
 
 

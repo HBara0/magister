@@ -135,7 +135,16 @@ if(!($core->input['action'])) {
 
         $aroorderrequest = AroRequests::get_data(array('aorid' => $core->input['id']), array('simple' => false));
 
-
+        $country = Countries::get_data(array('coid' => $orderid['coid']));
+        if(is_object($country)) {
+            if(isset($core->input['referrer']) && $core->input['referrer'] == 'toapprove') {
+                $customer_output = '<td class="border_right" style="font-weight: bold;width:16%;">'.$lang->country.'</td>
+                <td class="border_right" style="width:16%">'.$country->get_displayname().'</td>';
+            }
+            else {
+                $aroorderrequest->country = $country->get_displayname();
+            }
+        }
         if(isset($core->input['referrer']) && $core->input['referrer'] == 'toapprove') {
             $aroapproval = AroRequestsApprovals::get_data(array('aorid' => intval($core->input['id']), 'uid' => $core->user['uid']));
             $approve_btn[$core->user['uid']] = '<input type="button" class="button" id="approvearo" value="'.$lang->approve.'"/>'
@@ -299,7 +308,13 @@ if(!($core->input['action'])) {
                     $packaging_list = parse_selectlist('productline['.$plrowid.'][packing]', '', $packaging, $productline['packing'], '', '', array('id' => "productline_".$plrowid."_packing", 'blankstart' => 1));
                     $uom_list = parse_selectlist('productline['.$plrowid.'][uom]', '', $uom, $productline['uom'], '', '', array('id' => "productline_".$plrowid."_uom", 'blankstart' => 1, 'width' => '70px'));
                     $product = new Products($productline['pid']);
-                    $prodseg_obj = $product->get_segment();
+                    if(isset($productline['psid'])) {
+                        $prodseg_obj = ProductsSegments::get_data(array('psid' => $productline['psid']));
+                        $prodseg_obj = $prodseg_obj->get();
+                    }
+                    else {
+                        $prodseg_obj = $product->get_segment();
+                    }
                     $productline['seg_output'] = $prodseg_obj['title'];
                     $packaging_obj = Packaging::get_data(array('packid' => $productline['packing']));
                     if(is_object($packaging_obj)) {
@@ -330,6 +345,8 @@ if(!($core->input['action'])) {
                     }
                     unset($disabled_fields);
                     $riskratioamount +=$productline['riskRatioAmount'];
+
+                    $comparison_products[$productline['pid']] = $db->fetch_field($db->query('SELECT foreignId FROM integration_mediation_products WHERE foreignSystem=3 AND localId="'.$productline['pid'].'"'), 'foreignId');
                 }
             }
             else {
@@ -497,6 +514,7 @@ if(!($core->input['action'])) {
                 if(!is_empty($partiesinfo['vendorEstDateOfPayment_output'], $partiesinfo['intermedEstDateOfPayment_output'])) {
                     $partiesinfo['diffbtwpaymentdates'] = date_diff(date_create($partiesinfo['vendorEstDateOfPayment_output']), date_create($partiesinfo['intermedEstDateOfPayment_output']));
                     $partiesinfo['diffbtwpaymentdates'] = $partiesinfo['diffbtwpaymentdates']->format("%r%a");
+                    $partiesinfo['diffbtwpaymentdates'] = 0 - $partiesinfo['diffbtwpaymentdates'];
                 }
                 $fees = array('freight', 'bankFees', 'insurance', 'otherFees', 'legalization', 'courier');
                 foreach($fees as $fee) {
@@ -773,6 +791,98 @@ if(!($core->input['action'])) {
         eval("\$totalfunds = \"".$template->get('aro_totalfunds_preview')."\";");
         eval("\$aro_netmarginparms= \"".$template->get('aro_netmarginparameters_preview')."\";");
         eval("\$partiesinformation = \"".$template->get('aro_partiesinformation_preview')."\";");
+
+
+//        $invoices = IntegrationOBInvoice::get_data($filters);
+//        if(is_array($invoices)) {
+//            foreach($invoices as $invoice) {
+//                $invoicesid[] = $invoice->c_invoice_id;
+//            }
+//        }
+//        $comparison_products = array_filter($comparison_products);
+//        $where = "c_invoice_id ='".$invoice->c_invoice_id."' AND m_product_id IN ('".implode("','", $comparison_products)."') ";
+
+
+
+        /**
+         * ARO COmparison Summary
+         */
+        require_once ROOT.INC_ROOT.'integration_config.php';
+        $integration = new IntegrationOB($intgconfig['openbravo']['database'], $intgconfig['openbravo']['entmodel']['client']);
+        $filters = "c_invoice.ad_org_id='".$aff_obj->integrationOBOrgId."' AND docstatus NOT IN ('VO', 'CL')";
+        if($purchasetype->isPurchasedByEndUser == 1) {
+            if(is_object($customer)) {
+                $foreignid = $db->fetch_field($db->query('SELECT foreignId FROM integration_mediation_entities WHERE foreignSystem=3 AND localId="'.$customer->cid.'"'), 'foreignId');
+            }
+            $filters .=" AND c_bpartner_id='".$foreignid."'";
+        }
+
+        //Shown only to COO, Financial manager and country supervisor
+        $canviewcomparison[] = $aff_obj->get_regionalsupervisor()->uid;
+        $canviewcomparison[] = $aff_obj->get_coo()->uid;
+        $canviewcomparison[] = 1; //$aff_obj->get_financialemanager()->uid;
+        if(is_object($intermedaffiliate)) {
+            $canviewcomparison[] = $intermedaffiliate->get_financialemanager()->uid;
+        }
+        $canviewcomparison = array_filter($canviewcomparison);
+        if(in_array($core->user['uid'], $canviewcomparison)) {
+            $intgdb = $integration->get_dbconn();
+            $invoicelines = new IntegrationOBInvoiceLine(null);
+            foreach($comparison_products as $pid => $product) {
+                $product_obj = Products::get_data(array('pid' => $pid));
+                //GET SALES INVOICES SUMMARY FOR SELLING PRICE AVERAGES
+                $data = $invoicelines->get_salesinvoicesummary($product, $filters);
+                if(is_array($data)) {
+                    $i = 0;
+                    foreach($data as $invoiceline) {
+                        if($i == 0) {
+                            $lastorder['sellingprice'] = $invoiceline['priceactual'];
+                            $lastorder['netdays'] = $invoiceline['netdays'];
+                        }
+                        if($i < 5) {
+                            $lastfiveorders['sellingprice'] += $invoiceline['priceactual'];
+                            $lastfiveorders['netdays'] += $invoiceline['netdays'];
+                        }
+                        $lasttenorders['sellingprice'] += $invoiceline['priceactual'];
+                        $lasttenorders['netdays'] += $invoiceline['netdays'];
+                    }
+                    $lastfiveorders['avgsellingprice'] = $lastfiveorders['sellingprice'] / 5;
+                    $lastfiveorders['avgnetdays'] = $lastfiveorders['netdays'] / 5;
+                    $lasttenorders['avgsellingprice'] = $lasttenorders['sellingprice'] / 10;
+                    $lasttenorders['avgnetdays'] = $lasttenorders['netdays'] / 10;
+                    $output .= '<tr><td>'.$lang->sellingprice.'</td><td>'.$product_obj->get_displayname().'</td><td>'.$lastorder['sellingprice'].'</td><td>'.$lastfiveorders['avgsellingprice'].'</td><td>'.$lasttenorders['avgsellingprice'].'</td></tr>';
+                    $output .= '<tr><td>'.$lang->creditdays.'</td><td>'.$product_obj->get_displayname().'</td><td>'.$lastorder['netdays'].'</td><td>'.$lastfiveorders['avgnetdays'].'</td><td>'.$lasttenorders['avgnetdays'].'</td></tr>';
+                }
+                unset($lasttenorders, $lastfiveorders, $lastorder);
+
+
+                //GET PURCHASE ORDER SUMMARY FOR PURCHASE PRICE AVERAGES   (on-going development)
+//                $orderlines = new IntegrationOBOrderLine(null);
+//                $pofilter = "c_order.ad_org_id='".$aff_obj->integrationOBOrgId."' AND issotrx='N' AND docstatus = 'CO'";
+//                $foreignid = $db->fetch_field($db->query('SELECT foreignId FROM integration_mediation_entities WHERE foreignSystem=3 AND localId="'.$vendor->e.'"'), 'foreignId');
+//                if(!empty($foreignid)) {
+//                    $pofilter .=" AND c_bpartner_id='".$foreignid."'";
+//                }
+//                $pofilter .=" AND m_product_id ='".$foreignpid."'";
+//                $purchasedata = $orderlines->get_purchaseorders_summary($product, $pofilter);
+//                if(is_array($purchasedata)) {
+//                    $i = 0;
+//                    foreach($purchasedata as $purchase) {
+//                        if($i == 0) {
+//                            $lastorder['purchaseprice'] = $invoiceline['priceactual'];
+//                        }
+//                        if($i < 5) {
+//                            $lastfiveorders['purchaseprice'] += $invoiceline['priceactual'];
+//                        }
+//                        $lasttenorders['purchaseprice'] += $invoiceline['priceactual'];
+//                    }
+//                    $lastfiveorders['avgpurchaseprice'] = $lastfiveorders['purchaseprice'] / 5;
+//                    $lasttenorders['avgpurchaseprice'] = $lasttenorders['purchaseprice'] / 10;
+//                    $output .= '<tr><td>'.$lang->purchaseprice.'</td><td>'.$product_obj->get_displayname().'</td><td>'.$lastorder['purchaseprice'].'</td><td>'.$lastfiveorders['avgpurchaseprice'].'</td><td>'.$lasttenorders['avgpurchaseprice'].'</td></tr>';
+//                }
+                eval("\$comparisonstudy= \"".$template->get('aro_comparisonstudy')."\";");
+            }
+        }
     }
     else {
         $colspan['qtypotentiallysold'] = 'colspan="2"';
@@ -838,7 +948,14 @@ else {
             $arorequest_obj = AroRequests::get_data(array('inputChecksum' => $core->input['inputChecksum']));
             if(!is_object($arorequest_obj)) {
                 $filter['filter']['time'] = '('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
-                $documentseq_obj = AroDocumentsSequenceConf::get_data(array('time' => $filter['filter']['time'], 'affid' => $core->input['affid'], 'ptid' => $core->input['ptid']), array('simple' => false, 'operators' => array('affid' => 'in', 'ptid' => 'in', 'time' => 'CUSTOMSQLSECURE')));
+                $filters['time'] = $filter['filter']['time'];
+                $filters['affid'] = $core->input['affid'];
+                $filters['ptid'] = $core->input['ptid'];
+                $filters['coid'] = 0;
+                if(isset($core->input['coid']) && !empty($core->input['coid'])) {
+                    $filters['coid'] = $core->input['coid'];
+                }
+                $documentseq_obj = AroDocumentsSequenceConf::get_data($filters, array('simple' => false, 'operators' => array('affid' => 'in', 'ptid' => 'in', 'time' => 'CUSTOMSQLSECURE')));
                 if(is_object($documentseq_obj)) {
                     /* create the array to be encoded each dimension of the array represent the html element in the form */
                     $orderreference = array('cpurchasetype' => $core->input['ptid'], 'orderreference' => $documentseq_obj->prefix.'-'.$documentseq_obj->nextNumber.'-'.$documentseq_obj->suffix);
@@ -1055,7 +1172,13 @@ else {
         );
         unset($core->input['action'], $core->input['module']);
         if($core->input['affid'] != ' ' && !empty($core->input['affid']) && !empty($core->input['ptid']) && $core->input['ptid'] != ' ') {
-            $filter = 'affid = '.$core->input['affid'].' AND purchaseType = '.$core->input['ptid'].' AND isActive = 1 AND ('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
+            $filter = 'affid= '.$core->input['affid'].' AND purchaseType= '.$core->input['ptid'].' AND isActive= 1 AND ('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
+            $filters['coid'] = 0;
+            if(isset($core->input['coid']) && !empty($core->input['coid'])) {
+                $filters['coid'] = $core->input['coid'];
+            }
+            $filter .= ' AND coid='.$filters['coid'];
+
             $localaffpolicy = AroPolicies::get_data($filter);
             if(!is_object($localaffpolicy)) {
                 output($lang->nopolicy);
@@ -1083,7 +1206,6 @@ else {
                 output($lang->nointermedpolicy);
                 exit;
             }
-
             $intermedpolicy_data = array('parmsfornetmargin_intermedBankInterestRate' => $intermedpolicy->yearlyInterestRate,
                     'partiesinfo_commission' => $intermedpolicy->commissionCharged,
                     'partiesinfo_defaultcommission' => $intermedpolicy->commissionCharged);
@@ -1158,7 +1280,7 @@ else {
                 $data['intermedPeriodOfInterest'] = date_diff(date_create($partiesinfo['vendorEstDateOfPayment_output']), date_create($partiesinfo['promiseOfPayment_output']));
             }
             $data['intermedPeriodOfInterest'] = $data['intermedPeriodOfInterest']->format("%r%a");
-            $data['diffbetweendates'] = $data['intermedPeriodOfInterest']; // difference between payment days
+            $data['diffbetweendates'] = 0 - $data['intermedPeriodOfInterest']; // difference between payment days
             if($data['intermedPeriodOfInterest'] < 0) {
                 $data['intermedPeriodOfInterest'] = 0;
             }
@@ -1426,6 +1548,13 @@ else {
     if($core->input['action'] == 'popultedefaultaffpolicy') {
         if($core->input['affid'] != ' ' && !empty($core->input['affid']) && !empty($core->input['ptid']) && $core->input['ptid'] != ' ') {
             $filter = 'affid = '.$core->input['affid'].' AND purchaseType = '.$core->input['ptid'].' AND isActive = 1 AND ('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
+
+            $filters['coid'] = 0;
+            if(isset($core->input['coid']) && !empty($core->input['coid'])) {
+                $filters['coid'] = $core->input['coid'];
+            }
+            $filter .= ' AND coid='.$filters['coid'];
+
             $affpolicy = AroPolicies::get_data($filter);
             if(!is_object($affpolicy)) {
                 output($lang->nopolicy);
@@ -1461,6 +1590,10 @@ else {
             $data['intermedAff'] = $core->input['intermedAff'];
             if(isset($core->input['aroBusinessManager']) && !empty($core->input['aroBusinessManager'])) {
                 $data['aroBusinessManager'] = $core->input['aroBusinessManager'];
+            }
+            $data['coid'] = 0;
+            if(isset($core->input['coid']) && !empty($core->input['coid'])) {
+                $data['coid'] = $core->input['coid'];
             }
             $arorequest = new AroRequests();
             $arorequest->set($data);
@@ -1545,14 +1678,10 @@ else {
         $currentstock = $core->input;
         $packing = new Packaging($currentstock['packing']);
         $currentstock['packingTitle'] = $packing->get_displayname();
-        $fields = array('productName', 'pid', 'packing', 'packingTitle', 'inputChecksum'); // 'quantity', 'stockValue', 'expiryDate');
+        $fields = array('productName', 'pid', 'packing', 'packingTitle', 'inputChecksum');
         foreach($fields as $field) {
             $currentstock_data['currentstock_'.$rowid.'_'.$field] = $currentstock[$field];
         }
-        //   $currentstock_data['pickDate_currentstock_'.$rowid] = '';
-        //  $currentstock_data['pickDate_currentsale_'.$rowid] = '';
-        //  $currentstock_data['altpickDate_currentstock_'.$rowid] = '';
-        //  $currentstock_data['altpickDate_currentsale_'.$rowid.''] = '';
         echo json_encode($currentstock_data);
     }
     if($core->input['action'] == 'ajaxaddmore_currentstockrow') {
@@ -1563,7 +1692,8 @@ else {
     if($core->input['action'] == 'viewonly') {
         $aroorderrequest = AroRequests::get_data(array('aorid' => $core->input['id']), array('simple' => false));
         if($core->user['uid'] != 362) {
-            if($aroorderrequest->isApproved == 1 || $core->user['uid'] != $aroorderrequest->createdBy) {
+            //Only creator of the ARO can modify it
+            if($core->user['uid'] != $aroorderrequest->createdBy) {
                 $viewonly = array('disable' => 1);
                 output(json_encode($viewonly));
             }
@@ -1579,11 +1709,12 @@ else {
                 if($approve) {
                     $arorequest->inform_nextapprover();
 
-                    //Inform created By
+                    //Inform Initiator of the ARO
                     $aroaffiliate_obj = new Affiliates($arorequest->affid);
                     $purchasteype_obj = PurchaseTypes::get_data(array('ptid' => $arorequest->orderType));
                     $createdby_obj = Users::get_data(array('uid' => $arorequest->createdBy));
                     $to[] = $createdby_obj->email;
+                    // Inform ARO BM
                     if(isset($arorequest->aroBusinessManager) && !empty($arorequest->aroBusinessManager)) {
                         $bm = Users::get_data(array('uid' => $arorequest->aroBusinessManager));
                         if(is_object($bm)) {
@@ -1667,9 +1798,6 @@ else {
     }
     else if($core->input['action'] == 'InolveIntermediary') {
         $purchasetype = new PurchaseTypes($core->input['ptid']);
-
-//$needsIntermed = array('needsIntermed' => $purchasetype->needsIntermediary);
-//echo json_encode($needsIntermed);
         output($purchasetype->needsIntermediary);
     }
     else if($core->input['action'] == 'updatecommission') {

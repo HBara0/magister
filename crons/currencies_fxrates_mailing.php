@@ -9,7 +9,8 @@ if($_REQUEST['authkey'] == 'asfasdkjj!h4k23jh4k2_3h4k23jh') {
     $affiliates_currencies = array();
     $from = strtotime('first day of last month');
     $to = strtotime('last day of last month');
-
+    $current_dates = currentquarter_info(true);
+    $lastavgs_fields = array();
     $fxrates['EUR']['latest'] = $currency_obj->get_lastmonth_fxrate('EUR', array('year' => date('Y', TIME_NOW), 'month' => date('m', TIME_NOW)));
     $fxrates['EUR']['average'] = $currency_obj->get_average_fxrate('EUR', array('from' => $from, 'to' => $to));
 
@@ -47,7 +48,7 @@ if($_REQUEST['authkey'] == 'asfasdkjj!h4k23jh4k2_3h4k23jh') {
         }
     }
 
-    // get affiliates currencies
+// get affiliates currencies
     $affiliatecurrenciesquery = $db->query('SELECT affid, cur.alphaCode, cur.name
 				FROM '.Tprefix.'countries c
 				INNER JOIN '.Tprefix.'currencies cur ON (c.mainCurrency = cur.numCode)
@@ -61,12 +62,26 @@ if($_REQUEST['authkey'] == 'asfasdkjj!h4k23jh4k2_3h4k23jh') {
         if(!isset($fxrates[$country_currency['alphaCode']]['average'])) {
             $fxrates[$country_currency['alphaCode']]['average'] = $currency_obj->get_average_fxrate($country_currency['alphaCode'], array('from' => $from, 'to' => $to));
         }
+        $current_quarter = $current_dates['quarter'] - 1;
+        while($current_quarter > 0) {
+            if(!isset($fxrates[$country_currency['alphaCode']]['pastavgs'][$current_quarter.'/'.date('Y')]) || empty($fxrates[$country_currency['alphaCode']]['pastavgs'][$current_quarter.'/'.date('Y')])) {
+                $quarter_extremities = get_quarter_extremities($current_quarter, date('Y'));
+                $fxrates[$country_currency['alphaCode']]['pastavgs'][$current_quarter.'/'.date('Y')] = $currency_obj->get_average_fxrate($country_currency['alphaCode'], array('from' => $quarter_extremities['start'], 'to' => $quarter_extremities['end']));
+                $lastavgs_fields[$country_currency['alphaCode']][$current_quarter] = 'Q'.$current_quarter.'/'.date('Y');
+            }
+            $current_quarter--;
+        }
+        if(!isset($fxrates[$country_currency['alphaCode']]['pastavgs'][date('Y') - 1]) || empty($fxrates[$country_currency['alphaCode']]['pastavgs'][date('Y') - 1])) {
+            $fxrates[$country_currency['alphaCode']]['pastavgs'][date('Y') - 1] = $currency_obj->get_average_fxrate($country_currency['alphaCode'], array('from' => strtotime('01-Jan-'.(date('Y') - 1)), 'to' => strtotime('31-Dec-'.(date('Y') - 1))));
+            $lastavgs_fields[$country_currency['alphaCode']][4] = date('Y') - 1;
+        }
+        if(!isset($fxrates[$country_currency['alphaCode']]['pastavgs'][date('Y') - 2]) || empty($fxrates[$country_currency['alphaCode']]['pastavgs'][date('Y') - 2])) {
+            $fxrates[$country_currency['alphaCode']]['pastavgs'][date('Y') - 2] = $currency_obj->get_average_fxrate($country_currency['alphaCode'], array('from' => strtotime('01-Jan-'.(date('Y') - 2)), 'to' => strtotime('31-Dec-'.(date('Y') - 2))));
+            $lastavgs_fields[$country_currency['alphaCode']][5] = date('Y') - 2;
+        }
     }
 
     foreach($finmanagers as $uid => $user) {
-        $email_data['to'] = $user['email'];
-        $email_data['message'] = '<pre style="font-size: 13px">Dear '.$user['name'].",\n\n";
-        $email_data['message'] .= "Please find below the average USD exchange rates for the past month.\n\n<strong><u>Please use the last rate for all your monthly reports</u></strong>\r\n\r\n";
         foreach($user['affiliates'] as $affid => $name) {
             if(isset($affiliates_currencies[$affid])) {
                 foreach($affiliates_currencies[$affid] as $code => $cname) {
@@ -74,15 +89,46 @@ if($_REQUEST['authkey'] == 'asfasdkjj!h4k23jh4k2_3h4k23jh') {
                 }
             }
         }
-        if(!array_key_exists('EUR', $user['currencies'])) {
-            $email_data['message'] .= '[EUR] Avg: '.formatit($fxrates['EUR']['average']).' ('.trim(formatit(1 / $fxrates['EUR']['average'])).') <span style="color: red; font-weight:bold;">Last: '.trim(formatit($fxrates['EUR']['latest'])).' ('.trim(formatit(1 / $fxrates['EUR']['latest'])).")</span>\n";
+        if(!array_key_exists('EUR', $user['currencies']) && !empty($fxrates['EUR']['average']) && !empty($fxrates['EUR']['latest'])) {
+            $euroline .= '<tr><td style="border: 1px solid black;">EUR</td><td style="border: 1px solid black;">'.formatit($fxrates['EUR']['average']).' </td><td style="border: 1px solid black;">'.trim(formatit(1 / $fxrates['EUR']['average'])).'</td> <td style="border: 1px solid black;">'.trim(formatit($fxrates['EUR']['latest'])).' </td><td style="border: 1px solid black;">'.trim(formatit(1 / $fxrates['EUR']['latest']))."</td>";
+            if(is_array($lastavgs_fields['EUR'])) {
+                foreach($lastavgs_fields['EUR'] as $key => $lastavgtitle) {
+                    if(!empty($fxrates['EUR']['pastavgs'][$lastavgtitle])) {
+                        $euroline .='<td style="border: 1px solid black;">'.$fxrates['EUR']['pastavgs'][$lastavgtitle].'</td>';
+                    }
+                    else {
+                        $euroline .='<td style="border: 1px solid black;">N/A</td>';
+                    }
+                    if(!isset($firstimeheader[$lastavgtitle])) {
+                        $lasavgsheaders .= '<th style="border: 1px solid black;">AVG '.$lastavgtitle.'</th>';
+                        $firstimeheader[$lastavgtitle] = 1;
+                    }
+                }
+            }
+            $euroline .='</tr>';
         }
         foreach($user['currencies'] as $alphacode => $rates) {
+            if(is_array($rates['pastavgs']) && is_array($lastavgs_fields[$alphacode])) {
+                ksort($lastavgs_fields[$alphacode]);
+                foreach($lastavgs_fields[$alphacode] as $key => $lastavgtitle) {
+                    if(!empty($rates['pastavgs'][$lastavgtitle])) {
+                        $lastavgs[$lastavgtitle] = $rates['pastavgs'][$lastavgtitle];
+                    }
+                    else {
+                        $lastavgs[$lastavgtitle] = 'N/A';
+                    }
+                    if(!isset($firstimeheader[$lastavgtitle])) {
+                        $lasavgsheaders .= '<th style="border: 1px solid black;">AVG '.$lastavgtitle.'</th>';
+                        $firstimeheader[$lastavgtitle] = 1;
+                    }
+                }
+            }
+
             if(empty($rates['average']) && !empty($rates['latest'])) {
                 $rates['average'] = $rates['latest'];
             }
             if(!empty($rates['average']) && !empty($rates['latest'])) {
-                $email_data['message'] .= '['.$alphacode.'] Avg: '.formatit($rates['average']).' ('.trim(formatit(1 / $rates['average'])).') <span style="color: red; font-weight:bold;">Last: '.trim(formatit($rates['latest']))." (".trim(formatit(1 / $rates['latest'])).")</span>\n";
+                $actualdata .= '<tr><td style="border: 1px solid black;">'.$alphacode.'</td><td style="border: 1px solid black;">'.formatit($rates['average']).'</td><td style="border: 1px solid black;">'.trim(formatit(1 / $rates['average'])).'</td> <td style="border: 1px solid black;">'.trim(formatit($rates['latest'])).'</td><td style="border: 1px solid black;">'.trim(formatit(1 / $rates['latest'])).'</td>';
             }
             else {
                 if(empty($rates['average'])) {
@@ -93,11 +139,23 @@ if($_REQUEST['authkey'] == 'asfasdkjj!h4k23jh4k2_3h4k23jh') {
                         $rates['latest'] = $rates['average'];
                     }
                 }
-                $email_data['message'] .= '['.$alphacode.'] Avg: '.formatit($rates['average']).' ('.trim(formatit(1 / $rates['average'])).') <span style="color: red; font-weight:bold;">Last: '.trim(formatit($rates['latest']))." (".trim(formatit(1 / $rates['latest'])).")</span> \n";
+                $actualdata .= '<tr><td style="border: 1px solid black;">'.$alphacode.'</td><td style="border: 1px solid black;">'.formatit($rates['average']).'</td><td style="border: 1px solid black;">'.trim(formatit(1 / $rates['average'])).'</td><td style="border: 1px solid black;">'.trim(formatit($rates['latest'])).' </td><td style="border: 1px solid black;">'.trim(formatit(1 / $rates['latest'])).')</td>';
             }
+            if(is_array($lastavgs)) {
+                foreach($lastavgs as $curcode => $number) {
+                    $actualdata .='<td style="border: 1px solid black;">'.$number.'</td>';
+                }
+            }
+            $actualdata .='</tr>';
+            unset($lastavgs);
         }
-
+        $email_data['to'] = $user['email'];
+        $email_data['message'] = '<pre style="font-size: 13px">Dear '.$user['name'].",<br>";
+        $email_data['message'] .= "Please find below the average USD exchange rates for the past month.<br><br><strong><u>Please use the last rate for all your monthly reports</u></strong><br><br>";
+        $email_data['message'] .= '<table style="border-collapse:collapse; border-spacing: 2px 2px;"><thead><tr style="background-color:#EAEAEA"><th style="border: 1px solid black;">Currency</th><th style="border: 1px solid black;"> AVG To</th><th style="border: 1px solid black;">AVG From</th><th style="border: 1px solid black;">LAST To</th><th style="border: 1px solid black;">LAST From</th>'.$lasavgsheaders.'</tr></thead><tbody>';
+        $email_data['message'] .=$euroline.$actualdata.'</tbody></table><br>';
         $email_data['message'] .= "\nBest Regards,\n</pre>";
+        print($email_data['message']);
         $mail = new Mailer($email_data, 'php');
         if($mail->get_status() == true) {
             $log->record($user['name'], 'success');
@@ -105,9 +163,7 @@ if($_REQUEST['authkey'] == 'asfasdkjj!h4k23jh4k2_3h4k23jh') {
         else {
             $log->record($user['name'], 'failed');
         }
+        unset($actualdata, $lasavgsheaders, $euroline);
     }
-}
-else {
-    die('Unauthorized Access');
 }
 ?>
