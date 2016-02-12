@@ -15,7 +15,7 @@
 
 
         <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-        <link href="http://127.0.0.1/ocos/css/ie10-viewport-bug-workaround.css" rel="stylesheet">
+        <link href="../css/ie10-viewport-bug-workaround.css" rel="stylesheet">
 
         <!-- Custom styles for this template -->
         <link href="navbar-fixed-top.css" rel="stylesheet">
@@ -85,14 +85,13 @@
                 background-color: #000;
             }
             #slide-submenu{
-                //  background:#92d050;;
+                background:#B6CF8C;;
                 display: inline-block;
                 padding: 0 8px;
                 border-radius: 4px;
                 cursor: pointer;
                 height:100%;
                 float: left !important;
-                background-color:#B6CF8C;
             }
             .list-group{
                 height: 100% !important;
@@ -103,7 +102,8 @@
                 margin-left:29px;
             }
             .list-group-item.active, .list-group-item.active:focus, .list-group-item.active:hover{
-                background: #B6CF8C; !important;
+                background: #B6CF8C !important;
+                border-color: #B6CF8C;
             }
             .scrollable-menu {
                 height: 100% !important;
@@ -112,8 +112,8 @@
                 overflow-x: hidden;
             }
             .navbar-default {
-                background-color: #54b84e;
-                border-color: #378e3e;
+                background-color: #9BBD61;
+                border-color: #9BBD61;
             }
             .navbar-default .navbar-brand {
                 color: #ecf0f1;
@@ -136,20 +136,20 @@
             .navbar-default .navbar-nav > .active > a:hover,
             .navbar-default .navbar-nav > .active > a:focus {
                 color: #f7f7f7;
-                background-color: #378e3e;
+                background-color: #9BBD61;
             }
             .navbar-default .navbar-nav > .open > a,
             .navbar-default .navbar-nav > .open > a:hover,
             .navbar-default .navbar-nav > .open > a:focus {
                 color: #f7f7f7;
-                background-color: #378e3e;
+                background-color: #9BBD61;
             }
             .navbar-default .navbar-toggle {
-                border-color: #378e3e;
+                border-color: #9BBD61;
             }
             .navbar-default .navbar-toggle:hover,
             .navbar-default .navbar-toggle:focus {
-                background-color: #378e3e;
+                background-color: #9BBD61;
             }
             .navbar-default .navbar-toggle .icon-bar {
                 background-color: #ecf0f1;
@@ -177,22 +177,22 @@
                 .navbar-default .navbar-nav .open .dropdown-menu > .active > a:hover,
                 .navbar-default .navbar-nav .open .dropdown-menu > .active > a:focus {
                     color: #f7f7f7;
-                    background-color: #378e3e;
+                    background-color: #9BBD61;
                 }
             }
         </style>
-        <script src="http://127.0.0.1/ocos/js/jquery-current.min.js" type="text/javascript"></script>
+        <script src="../js/jquery-current.min.js" type="text/javascript"></script>
         <script type="text/javascript" >
-            $(function() {
-                $('#tooltip').tooltip();
-                $('#slide-submenu').on('click', function() {
+            $(function () {
+                $('#tooltip,#tooltip2').tooltip();
+                $('#slide-submenu').on('click', function () {
                     $(this).closest('.list-group').toggle(function() {
                         $('.mini-submenu').toggle();
                     });
 
                 });
 
-                $('.mini-submenu').on('click', function() {
+                $('.mini-submenu').on('click', function () {
                     $(this).next('.list-group').toggle();
                     $('.mini-submenu').hide();
                 })
@@ -232,7 +232,7 @@
                         </ul>
                         <ul class="nav navbar-nav navbar-right">
                             <li id="tooltip" data-toggle="tooltip" data-placement="left" title="Favorite Pages">
-                                <span  style=" font-size:20px; margin-top:15px;" class="glyphicon glyphicon-star-empty" ></span>
+                                <span  style=" font-size:25px; margin-top:15px; color:#CCC;" class="glyphicon glyphicon-star" ></span>
                             </li>
 
 
@@ -556,16 +556,16 @@
             </div>
         </div>
 
-        <div style="position:fixed;height:100%;top: 50px; right: 0px;">
-            <div class="mini-submenu" style="">
-                <span class="glyphicon glyphicon-th-list"></span>
+        <div style="position:fixed;height:100%;top: 50px; right: 0px;" >
+            <div class="mini-submenu" style=" width: 30px;">
+                <span class="glyphicon glyphicon-th-list" style="color:#FFF;"  id="tooltip2" data-toggle="tooltip" data-placement="left" title="Switch to another Page"></span>
             </div>
             <div class="list-group">
                 <span class="pull-right" id="slide-submenu">
                     <span class="glyphicon glyphicon-th-list"></span>
                 </span>
                 <span  class="list-group-item active">
-                    Pages List
+                    Profiles
                 </span>
                 <a href="#" class="list-group-item">
                     <i class="fa fa-comment-o"></i> Customers List
@@ -593,9 +593,9 @@
         <!-- Placed at the end of the document so the pages load faster -->
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
         <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>
-        <script src="http://127.0.0.1/ocos/js/bootstrap.min.js"></script>
+        <script src="../js/bootstrap.min.js"></script>
         <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-        <script src="http://127.0.0.1/ocos/js/ie10-viewport-bug-workaround.js"></script>
+        <script src="../js/ie10-viewport-bug-workaround.js"></script>
 
 
     </body></html>
