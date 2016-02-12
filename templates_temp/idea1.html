@@ -11,7 +11,8 @@
         <title>OCOS</title>
 
         <!-- Bootstrap core CSS -->
-        <link href="http://127.0.0.1/ocos/css/bootstrap.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" integrity="sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==" crossorigin="anonymous">
+
 
         <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
         <link href="http://127.0.0.1/ocos/css/ie10-viewport-bug-workaround.css" rel="stylesheet">
@@ -84,18 +85,30 @@
                 background-color: #000;
             }
             #slide-submenu{
-                background:#92d050;;
+                //  background:#92d050;;
                 display: inline-block;
                 padding: 0 8px;
                 border-radius: 4px;
                 cursor: pointer;
+                height:100%;
+                float: left !important;
+                background-color:#B6CF8C;
+            }
+            .list-group{
+                height: 100% !important;
+                background-color: rgb(247, 250, 253);
+                border:1px solid #ddd;
+            }
+            .list-group-item{
+                margin-left:29px;
             }
             .list-group-item.active, .list-group-item.active:focus, .list-group-item.active:hover{
-                background: #92d050; !important;
+                background: #B6CF8C; !important;
             }
             .scrollable-menu {
-                height: auto;
-                max-height: 200px;
+                height: 100% !important;
+                // height: auto;
+                // max-height: 200px;
                 overflow-x: hidden;
             }
             .navbar-default {
@@ -173,14 +186,14 @@
             $(function() {
                 $('#tooltip').tooltip();
                 $('#slide-submenu').on('click', function() {
-                    $(this).closest('.list-group').fadeOut('slide', function() {
-                        $('.mini-submenu').fadeIn();
+                    $(this).closest('.list-group').toggle(function() {
+                        $('.mini-submenu').toggle();
                     });
 
                 });
 
                 $('.mini-submenu').on('click', function() {
-                    $(this).next('.list-group').toggle('slide');
+                    $(this).next('.list-group').toggle();
                     $('.mini-submenu').hide();
                 })
             })
@@ -548,11 +561,11 @@
                 <span class="glyphicon glyphicon-th-list"></span>
             </div>
             <div class="list-group">
+                <span class="pull-right" id="slide-submenu">
+                    <span class="glyphicon glyphicon-th-list"></span>
+                </span>
                 <span  class="list-group-item active">
                     Pages List
-                    <span class="pull-right" id="slide-submenu" style="background-color: #fff">
-                        <i class="fa fa-times" style="color:#B6CF8C;"></i>
-                    </span>
                 </span>
                 <a href="#" class="list-group-item">
                     <i class="fa fa-comment-o"></i> Customers List
