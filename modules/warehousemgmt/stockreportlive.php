@@ -33,7 +33,7 @@ else {
         $report_period = array('from' => '2005-01-01');
         $report_period['to'] = 'tomorrow -1 second';
         if(!empty($core->input['asOf'])) {
-            $report_period['to'] = $core->input['asOf'];
+            $report_period['to'] = $core->input['asOf'].' 23:59:59';
         }
         $date_info = getdate_custom(strtotime($report_period['to']));
         /* In-line CSS styles in form of array in order to be compatible with email message */
