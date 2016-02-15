@@ -4,8 +4,8 @@ require '../inc/init.php';
 $lid_cache = array();
 
 $query = $db->query("SELECT l.*, l.uid AS requester, la.lid, la.uid as approver, Concat(u.firstName, ' ', u.lastName) AS employeename
-					FROM ".Tprefix."leavesapproval la JOIN ".Tprefix."leaves l ON (l.lid=la.lid) JOIN ".Tprefix."users u ON (l.uid=u.uid) 
-					WHERE la.isApproved=0 ORDER BY la.sequence ASC");
+					FROM ".Tprefix."leavesapproval la JOIN ".Tprefix."leaves l ON (l.lid=la.lid) JOIN ".Tprefix."users u ON (l.uid=u.uid)
+					WHERE la.isApproved=0 AND lid NOT IN (SELECT tmp.lid FROM ".Tprefix."travelmanager_plan tmp WHERE isFinalized = 0) ORDER BY la.sequence ASC");
 
 while($leave = $db->fetch_assoc($query)) {
     if(in_array($leave['lid'], $lid_cache)) {
