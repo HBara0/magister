@@ -1146,5 +1146,18 @@ class Entities extends AbstractClass {
         return false;
     }
 
+    public function get_assigned_affiliates() {
+        $affiliatedentities = AffiliatedEntities::get_data(array('eid' => $this->data['eid']), array('returnarray' => true));
+        if(is_array($affiliatedentities)) {
+            foreach($affiliatedentities as $affent) {
+                $entities[$affent->affid] = $affent->get_affiliate();
+            }
+        }
+        if(is_array($entities)) {
+            return $entities;
+        }
+        return false;
+    }
+
 }
 ?>
