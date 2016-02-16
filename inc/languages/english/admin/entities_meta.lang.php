@@ -129,4 +129,5 @@ $lang['phone2'] = 'Phone 2';
 $lang['mainEmail'] = 'Main Email';
 $lang['website'] = 'Website';
 $lang['pleasewaitfordownload'] = 'Please Wait For Download';
+$lang['repnamenotallowed'] = 'Representative Name Not Allowed';
 ?>

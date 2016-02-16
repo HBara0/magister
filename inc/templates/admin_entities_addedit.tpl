@@ -81,7 +81,7 @@
                         <td><input type="text" id="city" name="city" value="{$entity[city]}" /></td>
                     </tr>
                     <tr>
-                        <td>{$lang->address}</td>
+                        <td><strong>{$lang->address}*</strong></td>
                         <td><input type="text" id="addressLine1" name="addressLine1" value="{$entity[addressLine1]}" /><br /><input type="text" id="addressLine2" name="addressLine2" value="{$entity[addressLine2]}" /></td>
                     </tr>
                     <tr>
@@ -91,7 +91,7 @@
                         <td>{$lang->postcode}</td><td><input type="text" id="postCode" name="postCode" value="{$entity[postCode]}" accept="numeric" /></td>
                     </tr>
                     <tr>
-                        <td>{$lang->telephone}</td>
+                        <td><strong>{$lang->telephone}*</strong></td>
                         <td><input type="text" id="telephone_intcode" name="telephone_intcode" size="3" maxlength="3" value="{$entity[phone1][intcode]}" accept="numeric" /> <input type="text" id="phone_areacode" name="telephone_areacode" size='4' maxlength="4" value="{$entity[phone1][areacode]}" accept="numeric" /> <input type="text" id="telephone_number" name="telephone_number" value="{$entity[phone1][number]}" accept="numeric" /><br />
                             <input type="text" id="telephone2_intcode" name="telephone2_intcode" size="3" maxlength="3" value="{$entity[phone2][intcode]}" accept="numeric" /> <input type="text" id="phone2_areacode" name="telephone2_areacode" size='4' maxlength="4" value="{$entity[phone2][areacode]}" accept="numeric"  /> <input type="text" id="telephone2_number" name="telephone2_number" value="{$entity[phone2][number]}" accept="numeric" />
                         </td>
@@ -107,7 +107,7 @@
                         <td><input type="text" id="poBox" name="poBox" value="{$entity[poBox]}" accept="numeric" /></td>
                     </tr>
                     <tr>
-                        <td>{$lang->email}</td>
+                        <td><strong>{$lang->email}*</strong></td>
                         <td><input type="text" id="email" name="mainEmail" value="{$entity[mainEmail]}" /> <span id="email_Validation"></span></td>
                     </tr>
                     <tr>
