@@ -119,6 +119,9 @@ class AroRequests extends AbstractClass {
 
             $data['approvalchain']['aroBusinessManager'] = $orderrequest_array['aroBusinessManager'];
             $this->create_approvalchain(null, $data['approvalchain']);
+            if($this->errorcode != 0) {
+                return $this->errorcode;
+            }
             //$sendemail_to['approvers'] = $this->generate_approvalchain();
             if($data['isFinalized'] == 1) {
                 $this->send_approvalemail();
@@ -223,7 +226,6 @@ class AroRequests extends AbstractClass {
             $data['ordersummary']['aorid'] = $this->data[self::PRIMARY_KEY];
             $ordesummary_obj->set($data['ordersummary']);
             $ordesummary_obj->save();
-
             $data['approvalchain']['aroBusinessManager'] = $orderrequest_array['aroBusinessManager'];
             $this->create_approvalchain(null, $data['approvalchain']);
             $approvers_objs = $this->get_approvers();
@@ -232,6 +234,9 @@ class AroRequests extends AbstractClass {
 //                    $approvers[] = $approver->uid;
 //                }
 //            }
+            if($this->errorcode != 0) {
+                return $this->errorcode;
+            }
             if($data['isFinalized'] == 1) {
                 $this->send_approvalemail();
             }
@@ -537,7 +542,7 @@ class AroRequests extends AbstractClass {
     }
 
     public function create_approvalchain($approvers = null, $options = null) {
-        global $core;
+        global $core, $errorhandler, $lang;
         if(empty($approvers)) {
             $approvers = $this->generate_approvalchain($options, $options['aroBusinessManager'], $this->partiesinfo['intermedAff']);
         }
@@ -559,10 +564,21 @@ class AroRequests extends AbstractClass {
                 $approval_obj = AroRequestsApprovals::get_data(array('aorid' => $this->data[self::PRIMARY_KEY], 'position' => $position));
                 if(is_object($approval_obj)) {
                     $approver->araid = $approval_obj->araid;
+                    if(empty($val)) {
+                        $this->errorcode = 5;
+                        $errorhandler->record($lang->requiredfields.' for ', $lang->$position);
+                        return false;
+                    }
                     $approver->update(array('aorid' => $this->data[self::PRIMARY_KEY], 'uid' => $val, 'isApproved' => $approve_status, 'timeApproved' => $timeapproved, 'sequence' => $sequence, 'position' => $position, 'emailRecievedDate' => ''));
                 }
                 else {
-                    $approver->save();
+                    $approver_entry = $approver->save();
+                    if($approver_entry->errorcode != 0) {
+                        $this->errorcode = $approver_entry->errorcode;
+                        if($this->errorcode != 0) {
+                            return false;
+                        }
+                    }
                 }
                 $sequence++;
             }
@@ -575,6 +591,9 @@ class AroRequests extends AbstractClass {
                     }
                 }
             }
+        }
+        else {
+            $this->errorcode = 5;
         }
         return true;
     }

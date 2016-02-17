@@ -285,4 +285,15 @@ $lang['avglast5orders'] = 'Avg. Last 5 Orders';
 $lang['avglast10orders'] = 'Avg. Last 10 Orders';
 $lang['creditdays'] = 'Credit Days';
 $lang['comparisonstudy'] = 'Comparison  Study';
+$lang['lolm'] = 'Local Logistics Manager';
+$lang['lfinancialManager'] = 'Local Finance Manager';
+$lang['generalManager'] = 'General Manager';
+$lang['gfinancialManager'] = 'Global Finance Manager';
+$lang['cfo'] = 'Global CFO';
+$lang['coo'] = 'Global COO';
+$lang['regionalSupervisor'] = 'Regional supervisor';
+$lang['globalPurchaseManager'] = 'Global purchase manager';
+$lang['user'] = 'User';
+$lang['reportsTo'] = 'Reports To';
+$lang['commercialManager'] = 'Commercial Manager';
 ?>

@@ -1002,6 +1002,10 @@ else {
             case 4:
                 output_xml('<status>false</status><message>In case of Customer Reinvoicing, there cannot be several customers and unspecified customers.</message>');
                 break;
+            case 5:
+                $error_output = $errorhandler->get_errors_inline();
+                output_xml('<status>false</status><message>Error in Approval Chain. <![CDATA[<br/>'.$error_output.']]></message>');
+                break;
         }
     }
     if($core->input['action'] == 'getestimatedate') {
