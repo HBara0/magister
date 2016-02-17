@@ -166,14 +166,15 @@ class TravelManagerPlanTransps extends AbstractClass {
                     }
                     $flights_fare += $flight->fare;
                 }
-            }
-            if(count($flights) < $avgof) {
-                $avgof = count($flights);
+                if(count($flights) < $avgof) {
+                    $avgof = count($flights);
+                }
+                $data['avgprice'] = $flights_fare / $avgof;
+                $data['numofflights'] = $avgof;
+                return $data;
             }
         }
-        $data['avgprice'] = $flights_fare / $avgof;
-        $data['numofflights'] = $avgof;
-        return $data;
+        return false;
     }
 
 }

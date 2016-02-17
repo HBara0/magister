@@ -933,7 +933,9 @@ class TravelManagerPlanSegments extends AbstractClass {
                     $avgof = array('10', '5');
                     foreach($avgof as $flightsnum) {
                         $avg = $transportation->get_averagaeflightfare(array('segid' => $this->data[self::PRIMARY_KEY], 'originCity' => $this->data['originCity'], 'destinationCity' => $this->data['destinationCity']), $flightsnum);
-                        $avgflightfare[$avg['numofflights']] = 'Avg OF Last '.$avg['numofflights'].' Flight(s) : '.$numfmt->formatCurrency($avg['avgprice'], $fromcurr->alphaCode);
+                        if($avg) {
+                            $avgflightfare[$avg['numofflights']] = 'Avg OF Last '.$avg['numofflights'].' Flight(s) : '.$numfmt->formatCurrency($avg['avgprice'], "USD");
+                        }
                     }
                     if(is_array($avgflightfare)) {
                         foreach($avgflightfare as $avgof => $avgflightfare) {
