@@ -2037,6 +2037,7 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
 
     public function get_totallines($where) {
         global $core;
+        $TIME_NOW = '1450443496';
         $sql = "SELECT SUM(totallines) AS totallines, ad_org_id, c_currency_id, date_part('month', dateinvoiced) AS month, date_part('year', dateinvoiced) AS year FROM c_invoice "
                 ."WHERE issotrx='Y' AND docstatus='CO' AND (dateinvoiced BETWEEN '".date('Y-m-d 00:00:00', strtotime((date('Y', $TIME_NOW)).'-01-01'))."'"
                 ." AND '".date('Y-m-d 23:59:59', strtotime((date('Y', $TIME_NOW)).'-12-31'))."' ".$where.") GROUP BY ad_org_id, c_currency_id, year, month";
@@ -2211,8 +2212,12 @@ class IntegrationOBOrderLine extends IntegrationAbstractClass {
     }
 
     public function get_purchaseorders_summary($product, $filter) {
+        $filters .=" AND m_product_id ='".$foreignpid."'";
+
         $query = $this->f_db->query("SELECT * FROM c_order o JOIN c_orderline ol ON (ol.c_order_id=o.c_order_id) WHERE
-							".$filter." ORDER by documentdate DESC LIMIT 10");
+							".$filter." AND issotrx='N' ORDER by o.dateordered DESC LIMIT 10");
+
+
 
         while($orderline = $this->f_db->fetch_assoc($query)) {
             $purchasedata[] = $orderline;
