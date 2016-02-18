@@ -420,7 +420,9 @@ if(!($core->input['action'])) {
             $totalfunds_fiels = array('orderShpInvOverdue', 'orderShpInvNotDue', 'ordersAppAwaitingShp', 'odersWaitingApproval', 'totalFunds');
             if(is_object($totalfunds)) {
                 foreach($totalfunds_fiels as $totalfunds_field) {
-                    $totalfunds->$totalfunds_field = $numfmt->formatCurrency(($totalfunds->$totalfunds_field), "USD");
+                    if(isset($core->input['referrer']) && $core->input['referrer'] == 'toapprove') {
+                        $totalfunds->$totalfunds_field = $numfmt->formatCurrency(($totalfunds->$totalfunds_field), "USD");
+                    }
                 }
             }
 
