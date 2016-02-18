@@ -3,15 +3,15 @@
         <title>{$core->settings[systemtitle]} | {$lang->facilitymgmt}</title>
         {$headerinc}
         <script>
-            $(function () {
-                $(document).on('change', 'select[id="typelist"]', function () {
+            $(function() {
+                $(document).on('change', 'select[id="typelist"]', function() {
                     if($(this).children(":selected").attr("id") == 'isMain') {
-                        $('td[id="within"]').each(function (i, obj) {
+                        $('td[id="within"]').each(function(i, obj) {
                             $(obj).hide();
                         });
                     }
                     else {
-                        $('td[id="within"]').each(function (i, obj) {
+                        $('td[id="within"]').each(function(i, obj) {
                             $(obj).show();
                         });
                     }
@@ -20,10 +20,8 @@
         </script>
     </head>
     <body>
-    <tr>
-        {$header}
-        {$menu}
-        <td class="contentContainer" colspan="2">
+        {$header2}
+        <div class="container" style="padding-top: 70px">
             <h1>{$lang->facilitymgmt}</h1>
             <form name="perform_facilitymgmt/managefacility_Form" id="perform_facilitymgmt/managefacility_Form"  action="#" method="post">
                 <input type="hidden" id="" name="facility[fmfid]" value="{$facility[fmfid]}">
@@ -73,8 +71,8 @@
                 <input type="submit" id="perform_facilitymgmt/managefacility_Button" value="Save" class="button"/>
             </form>
             <div id="perform_facilitymgmt/managefacility_Results"></div>
-        </td>
-    </tr>
-    {$footer}
-</body>
+        </div>
+        {$footer2}
+        {$rightsidemenu}
+    </body>
 </html>

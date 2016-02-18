@@ -129,7 +129,6 @@
                         $(obj).fullCalendar('refetchEvents')
                     }, 60000);
                 }
-
             });
 
         </script>
@@ -142,16 +141,16 @@
         </style>
     </head>
     <body>
-        {$header}
-    <tr>
-        {$menu}
-        <td class="contentContainer">
+        {$header2}
+
+
+        <div class="container" style="padding-top:70px">
             <div style="display:none">
                 <a  id="updatemktintldtls_{$mibdid}_{$core->input['module']}_loadpopupbyid" rel="mktdetail_{$mibdid}"><img src="{$core->settings[rootdir]}/images/icons/update.png"/></a>
             </div>
             <div id='calendar'></div>
-        </td>
-    </tr>
-    {$footer}
-</body>
+        </div>
+        {$footer2}
+        {$rightsidemenu}
+    </body>
 </html>

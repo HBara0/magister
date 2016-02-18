@@ -74,7 +74,13 @@ if($session->uid > 0) {
     }
 
     eval("\$header = \"".$template->get('header')."\";");
+    eval("\$header2 = \"".$template->get('navbar')."\";");
     eval("\$footer = \"".$template->get('footer')."\";");
+    eval("\$footer2 = \"".$template->get('footer2')."\";");
+
+    eval("\$rightsidemenu = \"".$template->get('rightside_menu')."\";");
+
+
     if($core->user['lastVisit'] == 0) {
         eval("\$footer .= \"".$template->get('global_quickintrovideo')."\";");
     }

@@ -46,14 +46,13 @@
         </script>
     </head>
     <body>
-        {$header}
-    <tr>
-        {$menu}
-        <td class="contentContainer">
+        {$header2}
+        <div class="container" style="height:100%; padding-top: 70px">
+
             <h1>{$lang->salesdashboard} <small>({$dashbboard_currency})</small></h1>
             <div id="dbTarget"></div>
-        </td>
-    </tr>
-    {$footer}
-</body>
+        </div>
+        {$footer2}
+        {$rightsidemenu}
+    </body>
 </html>

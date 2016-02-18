@@ -19,12 +19,12 @@
                 });
             });
         </script>
+
     </head>
     <body>
-        {$header}
-    <tr>
-        {$menu}
-        <td class="contentContainer">
+        {$header2}
+
+        <div class="container" style="padding-top: 70px">
             <h1>{$lang->generatesalesreport}</h1>
             <div style="margin-left: 5px;">
                 <form name="perform_crm/salesreport_Form" id="perform_crm/salesreportlive_Form" method="post" class="hidden-print">
@@ -75,8 +75,8 @@
                     <div id="perform_crm/salesreportlive_Results"></div>
                 </div>
             </div>
-        </td>
-    </tr>
-    {$footer}
-</body>
+        </div>
+        {$footer2}
+        {$rightsidemenu}
+    </body>
 </html>
