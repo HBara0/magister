@@ -13,8 +13,10 @@
  * @param  String		$template 	String to be striped
  * @return String	 				Striped template
  */
-function output_page($template) {
-    global $core, $lang, $timer;
+function output_page($page, $options) {// default tpl, options to enforce a customised tpl
+    global $core, $lang, $timer, $template;
+    //eval the container template into $template
+    eval("\$template= \"".$template->get('defaulttpl')."\";");
 
     $template = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n".$template;
     $template = str_replace("<html", "<html xmlns=\"http://www.w3.org/1999/xhtml\"", $template);

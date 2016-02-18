@@ -66,7 +66,7 @@ if(!isset($core->input['action'])) {
             }
         }
         eval("\$facilitieslist= \"".$template->get('facilitymgmt_facilitylist')."\";");
-        output_page($facilitieslist);
+        output_page(array('content' => $facilitieslist, 'title' => $lang->facilities));
     }
 }
 else {
