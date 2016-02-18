@@ -1,0 +1,141 @@
+@charset "CP850";
+/*
+Copyright © 2016 Orkila International Offshore, All Rights Reserved
+
+[Provide Short Descption Here]
+$id: navigationstyle.scss
+Created:        @rasha.aboushakra    Feb 18, 2016 | 8:37:18 AM
+Last Update:    @rasha.aboushakra    Feb 18, 2016 | 8:37:18 AM
+*/
+/*
+    Created on : Feb 18, 2016, 8:37:18 AM
+    Author     : rasha.aboushakra
+*/
+html, body {
+  height: 100%;
+  color: #404041 !important;
+  background-color: #FFF; }
+
+.mini-submenu {
+  background-color: #B6CF8C;
+  /*position: relative;*/
+  width: 4px;
+  height: 100%; }
+
+.mini-submenu:hover {
+  cursor: pointer; }
+
+.mini-submenu .icon-bar {
+  border: none;
+  display: block;
+  float: right;
+  height: 100%;
+  width: 4px;
+  background-color: #B6CF8C; }
+
+.rotate {
+  /* Safari */
+  -webkit-transform: rotate(-90deg);
+  /* Firefox */
+  -moz-transform: rotate(-90deg);
+  /* IE */
+  -ms-transform: rotate(-90deg);
+  /* Opera */
+  -o-transform: rotate(-90deg);
+  /* Internet Explorer */
+  filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3); }
+
+.mini-submenu .icon-bar {
+  background-color: #000; }
+
+.list-group {
+  height: 100% !important;
+  border: 1px solid #B6CF8C;
+  background-color: #f9f9f9;
+  vertical-align: top; }
+
+.list-group-item {
+  background: #f9f9f9; }
+
+.list-group-item.active, .list-group-item.active:focus, .list-group-item.active:hover {
+  background: #B6CF8C !important;
+  border-color: #B6CF8C; }
+
+.scrollable-menu {
+  height: 100% !important; }
+
+.navbar-default {
+  border-color: #9BBD61;
+  color: #9BBD61; }
+
+.navbar-default .navbar-brand {
+  color: #9BBD61; }
+
+.navbar-default .navbar-brand:hover,
+.navbar-default .navbar-brand:focus {
+  color: #9BBD61; }
+
+.navbar-default .navbar-text {
+  color: #9BBD61; }
+
+.navbar-default .navbar-nav > li > a {
+  color: #9BBD61; }
+
+.navbar-default .navbar-nav > li > a:hover,
+.navbar-default .navbar-nav > li > a:focus {
+  color: #9BBD61; }
+
+.navbar-default .navbar-nav > .active > a,
+.navbar-default .navbar-nav > .active > a:hover,
+.navbar-default .navbar-nav > .active > a:focus {
+  color: #9BBD61;
+  background-color: #9BBD61; }
+
+.navbar-default .navbar-nav > .open > a,
+.navbar-default .navbar-nav > .open > a:hover,
+.navbar-default .navbar-nav > .open > a:focus {
+  color: #FFF;
+  background-color: #9BBD61; }
+
+.navbar-default .navbar-toggle {
+  border-color: #9BBD61; }
+
+.navbar-default .navbar-toggle:hover,
+.navbar-default .navbar-toggle:focus {
+  background-color: #9BBD61; }
+
+.navbar-default .navbar-toggle .icon-bar {
+  background-color: #ecf0f1; }
+
+.navbar-default .navbar-collapse,
+.navbar-default .navbar-form {
+  border-color: #ecf0f1; }
+
+.navbar-default .navbar-link {
+  color: #ecf0f1; }
+
+.navbar-default .navbar-link:hover {
+  color: #f7f7f7; }
+
+@media (max-width: 767px) {
+  .navbar-default .navbar-nav .open .dropdown-menu > li > a {
+    color: #ecf0f1; }
+
+  .navbar-default .navbar-nav .open .dropdown-menu > li > a:hover,
+  .navbar-default .navbar-nav .open .dropdown-menu > li > a:focus {
+    color: #f7f7f7; }
+
+  .navbar-default .navbar-nav .open .dropdown-menu > .active > a,
+  .navbar-default .navbar-nav .open .dropdown-menu > .active > a:hover,
+  .navbar-default .navbar-nav .open .dropdown-menu > .active > a:focus {
+    color: #f7f7f7;
+    background-color: #9BBD61; } }
+.container {
+  min-height: 100%;
+  height: auto !important;
+  height: 100%;
+  width: 100%;
+  padding-right: 50px;
+  padding-left: 20px; }
+
+/*# sourceMappingURL=navigationstyle.css.map */
