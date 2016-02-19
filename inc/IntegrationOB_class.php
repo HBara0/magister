@@ -2211,11 +2211,12 @@ class IntegrationOBOrderLine extends IntegrationAbstractClass {
         }
     }
 
-    public function get_purchaseorders_summary($foreignpid, $filter) {
+    public function get_purchaseorders_summary($foreignpid, $filter, $incoterms) {
         $filters = " m_product_id ='".$foreignpid."' ".$filter;
 
-        $query = $this->f_db->query("SELECT * FROM c_order o JOIN c_orderline ol ON (ol.c_order_id=o.c_order_id) WHERE
-							".$filters." AND issotrx='N' ORDER by o.dateordered DESC LIMIT 10");
+        $query = $this->f_db->query("SELECT * FROM c_order o JOIN c_orderline ol ON (ol.c_order_id=o.c_order_id)
+            JOIN c_incoterms i ON(i.c_incoterms_id=o.c_incoterms_id)  WHERE i.name='".$incoterms."' AND
+                ".$filters." AND issotrx = 'N' ORDER by o.dateordered DESC LIMIT 10");
 
 
 
@@ -2249,8 +2250,8 @@ class IntegrationOBCostingAlgorithm {
 
     private function read($id) {
         $this->algorithm = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
-						FROM m_costing_algorithm
-						WHERE m_costing_algorithm_id='".$this->f_db->escape_string($id)."'"));
+        FROM m_costing_algorithm
+        WHERE m_costing_algorithm_id = '".$this->f_db->escape_string($id)."'"));
     }
 
     public function get_id() {
@@ -2294,8 +2295,8 @@ class IntegrationOBInputStack {
 
     private function read($id) {
         $this->inputstack = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
-						FROM obwfa_input_stack
-						WHERE obwfa_input_stack_id='".$this->f_db->escape_string($id)."'"));
+        FROM obwfa_input_stack
+        WHERE obwfa_input_stack_id = '".$this->f_db->escape_string($id)."'"));
     }
 
     public function get_daysinstock($relativeto = 'now') {
@@ -2350,8 +2351,8 @@ class IntegrationOBInputStack {
         }
 
         $query = $this->f_db->query("SELECT *
-						FROM obwfa_output_stack
-						WHERE obwfa_input_stack_id='".$this->inputstack['obwfa_input_stack_id']."'".$query_where);
+        FROM obwfa_output_stack
+        WHERE obwfa_input_stack_id = '".$this->inputstack['obwfa_input_stack_id']."'".$query_where);
 
         if($this->f_db->num_rows($query) > 0) {
             while($output = $this->f_db->fetch_assoc($query)) {
@@ -2396,8 +2397,8 @@ class IntegrationOBOutputStack {
 
     private function read($id) {
         $this->outputstack = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
-						FROM obwfa_output_stack
-						WHERE obwfa_output_stack_id='".$this->f_db->escape_string($id)."'"));
+        FROM obwfa_output_stack
+        WHERE obwfa_output_stack_id = '".$this->f_db->escape_string($id)."'"));
     }
 
     public function get_transcation() {
@@ -2469,8 +2470,8 @@ class IntegrationOBLandedCosts {
 
     private function read($id) {
         $this->currency = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
-						FROM m_landedcosts
-						WHERE m_landedcosts_id='".$this->f_db->escape_string($id)."'"));
+        FROM m_landedcosts
+        WHERE m_landedcosts_id = '".$this->f_db->escape_string($id)."'"));
     }
 
     public function get_id() {
@@ -2505,8 +2506,8 @@ class IntegrationOBProduct extends IntegrationAbstractClass {
 
     private function read($id) {
         $this->data = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
-						FROM m_product
-						WHERE m_product_id='".$this->f_db->escape_string($id)."'"));
+        FROM m_product
+        WHERE m_product_id = '".$this->f_db->escape_string($id)."'"));
     }
 
     public function get_category() {
@@ -2570,8 +2571,8 @@ class IntegrationOBProductCategory {
 
     private function read($id) {
         $this->productcategory = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
-						FROM m_product_category
-						WHERE m_product_category_id='".$this->f_db->escape_string($id)."'"));
+        FROM m_product_category
+        WHERE m_product_category_id = '".$this->f_db->escape_string($id)."'"));
     }
 
     public function get_id() {
@@ -2616,8 +2617,8 @@ class IntegrationOBLocator extends IntegrationAbstractClass {
 
     private function read($id) {
         $this->data = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
-						FROM m_locator
-						WHERE m_locator_id='".$this->f_db->escape_string($id)."'"));
+        FROM m_locator
+        WHERE m_locator_id = '".$this->f_db->escape_string($id)."'"));
     }
 
     public function get_warehouse() {
@@ -2655,8 +2656,8 @@ class IntegrationOBWarehouse extends IntegrationAbstractClass {
 
     private function read($id) {
         $this->data = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
-						FROM m_warehouse
-						WHERE m_warehouse_id='".$this->f_db->escape_string($id)."'"));
+        FROM m_warehouse
+        WHERE m_warehouse_id = '".$this->f_db->escape_string($id)."'"));
     }
 
     public function get_id() {
@@ -2688,8 +2689,8 @@ class IntegrationOBBPartner extends IntegrationAbstractClass {
 
     private function read($id) {
         $this->data = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
-						FROM c_bpartner
-						WHERE c_bpartner_id='".$this->f_db->escape_string($id)."'"));
+        FROM c_bpartner
+        WHERE c_bpartner_id = '".$this->f_db->escape_string($id)."'"));
     }
 
     public function get_id() {
@@ -2712,7 +2713,7 @@ class IntegrationOBBPartner extends IntegrationAbstractClass {
     }
 
     public function get_bplocation() {
-        return IntegrationOBBusinessPartnerLocation::get_data("c_bpartner_id='".$this->data['c_bpartner_id']."'");
+        return IntegrationOBBusinessPartnerLocation::get_data("c_bpartner_id = '".$this->data['c_bpartner_id']."'");
     }
 
 }
@@ -2733,8 +2734,8 @@ class IntegrationOBAttributeSetInstance {
 
     private function read($id) {
         $this->setinstance = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
-						FROM m_attributesetinstance
-						WHERE m_attributesetinstance_id='".$this->f_db->escape_string($id)."'"));
+        FROM m_attributesetinstance
+        WHERE m_attributesetinstance_id = '".$this->f_db->escape_string($id)."'"));
     }
 
     public function get_daystoexpire() {
@@ -2768,8 +2769,8 @@ class IntegrationOBAttributeSetInstance {
             }
         }
         $query = $this->f_db->query("SELECT m_attributeinstance_id
-						FROM m_attributeinstance
-						WHERE m_attributesetinstance_id='".$this->setinstance['m_attributesetinstance_id']."'".$extra_where);
+        FROM m_attributeinstance
+        WHERE m_ attributesetinstance_id = '".$this->setinstance['m_attribu tesetinstance_id']."'".$extra_where);
         if($this->f_db->num_rows($query) > 0) {
             while($instance = $this->f_db->fetch_assoc($query)) {
                 $instances[$instance['m_attributeinstance_id']] = new IntegrationOBAttributeInstance($instance['m_attributeinstance_id'], $this->f_db);
@@ -2805,8 +2806,8 @@ class IntegrationOBAttributeInstance {
 
     private function read($id) {
         $this->instance = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
-						FROM m_attributeinstance
-						WHERE m_attributeinstance_id='".$this->f_db->escape_string($id)."'"));
+        FROM m_attributeinstance
+        WHERE m_attributeinstance_id = '".$this->f_db->escape_string($id)."'"));
     }
 
     public function get_attribute() {
@@ -2846,8 +2847,8 @@ class IntegrationOBAttribute {
 
     private function read($id) {
         $this->attribute = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
-						FROM m_attribute
-						WHERE m_attribute_id='".$this->f_db->escape_string($id)."'"));
+        FROM m_attribute
+        WHERE m_attribute_id = '".$this->f_db->escape_string($id)."'"));
     }
 
     public function get_id() {
@@ -2876,8 +2877,8 @@ class IntegrationOBAttributeValue {
 
     private function read($id) {
         $this->attributevalue = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
-						FROM m_attributevalue
-						WHERE m_attributevalue_id='".$this->f_db->escape_string($id)."'"));
+        FROM m_attributevalue
+        WHERE m_attributevalue_id = '".$this->f_db->escape_string($id)."'"));
     }
 
     public function get_id() {
@@ -2915,8 +2916,8 @@ class IntegrationOBUom extends IntegrationAbstractClass {
 
     private function read($id) {
         $this->data = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
-						FROM c_uom
-						WHERE c_uom_id='".$this->f_db->escape_string($id)."'"));
+        FROM c_uom
+        WHERE c_uom_id = '".$this->f_db->escape_string($id)."'"));
     }
 
     public function get_id() {
@@ -2952,8 +2953,8 @@ class IntegrationCostingRule {
 
     private function read($id) {
         $this->rule = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
-						FROM m_costing_rule
-						WHERE m_costing_rule_id='".$this->f_db->escape_string($id)."'"));
+        FROM m_costing_rule
+        WHERE m_costing_rule_id = '".$this->f_db->escape_string($id)."'"));
     }
 
     public function get_costingalgorithm() {
@@ -2986,8 +2987,8 @@ class IntegrationCostingAlgorithm {
 
     private function read($id) {
         $this->algorithm = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
-						FROM m_costing_algorithm
-						WHERE m_costing_algorithm_id='".$this->f_db->escape_string($id)."'"));
+        FROM m_costing_algorithm
+        WHERE m_costing_algorithm_id = '".$this->f_db->escape_string($id)."'"));
     }
 
     public function get_id() {
@@ -3015,8 +3016,8 @@ class IntegrationOBUser extends IntegrationAbstractClass {
 
     private function read($id) {
         $this->data = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
-						FROM ".self::TABLE_NAME."
-						WHERE ".self::PRIMARY_KEY."='".$this->f_db->escape_string($id)."'"));
+        FROM ".self::TABLE_NAME."
+        WHERE ".self::PRIMARY_KEY." = '".$this->f_db->escape_string($id)."'"));
     }
 
     public function get_id() {
@@ -3055,8 +3056,8 @@ class IntegrationOBPaymentTerm extends IntegrationAbstractClass {
 
     private function read($id) {
         $this->data = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
-						FROM ".self::TABLE_NAME."
-						WHERE ".self::PRIMARY_KEY."='".$this->f_db->escape_string($id)."'"));
+        FROM ".self::TABLE_NAME."
+        WHERE ".self::PRIMARY_KEY." = '".$this->f_db->escape_string($id)."'"));
     }
 
     public function get_id() {
@@ -3106,7 +3107,7 @@ class IntegrationOBFinPaymentSchedule extends IntegrationAbstractClass {
     }
 
     public function get_plandetails() {
-        return IntegrationOBFinPaymentScheduleDetail::get_data("fin_payment_schedule_invoice='".$this->data[self::PRIMARY_KEY]."' OR fin_payment_schedule_order='".$this->data[self::PRIMARY_KEY]."'", array('returnarray' => true));
+        return IntegrationOBFinPaymentScheduleDetail::get_data("fin_payment_schedule_invoice = '".$this->data[self::PRIMARY_KEY]."' OR fin_payment_schedule_order = '".$this->data[self::PRIMARY_KEY]."'", array('returnarray' => true));
     }
 
 }
@@ -3337,7 +3338,8 @@ class IntegrationOBValidCombination extends IntegrationAbstractClass {
     const CLASSNAME = __CLASS__;
 
     public function __construct($id, $f_db = NULL) {
-        parent::__construct($id, $f_db);
+        parent::__construct($id, $f_db
+        );
     }
 
 }
