@@ -812,14 +812,15 @@ if(!($core->input['action'])) {
         require_once ROOT.INC_ROOT.'integration_config.php';
         $integration = new IntegrationOB($intgconfig['openbravo']['database'], $intgconfig['openbravo']['entmodel']['client']);
         $salesinvoice_filters = "c_invoice.ad_org_id='".$aff_obj->integrationOBOrgId."' AND docstatus NOT IN ('VO', 'CL')";
-        $purchaseorder_filters = "o.ad_org_id='".$aff_obj->integrationOBOrgId."' ";
+        $purchaseorderperaff_filters = "AND o.ad_org_id='".$aff_obj->integrationOBOrgId."' ";
 
         if($purchasetype->isPurchasedByEndUser == 1) {
             if(is_object($customer)) {
                 $foreignid = $db->fetch_field($db->query('SELECT foreignId FROM integration_mediation_entities WHERE foreignSystem=3 AND localId="'.$customer->cid.'"'), 'foreignId');
             }
             $salesinvoice_filters .=" AND c_bpartner_id = '".$foreignid."'";
-            $purchaseorder_filters.=" AND c_bpartner_id = '".$foreignid."'";
+            $purchaseorderperaff_filters .=" AND c_bpartner_id = '".$foreignid."'";
+            $purchaseorder_filters = " AND c_bpartner_id = '".$foreignid."'";
         }
 
         //Shown only to COO, Financial manager and country supervisor
@@ -846,7 +847,8 @@ if(!($core->input['action'])) {
                 $product_obj = Products::get_data(array('pid' => $pid));
                 //GET SALES INVOICES SUMMARY FOR SELLING PRICE AVERAGES
                 $data = $invoicelines->get_salesinvoicesummary($product, $salesinvoice_filters);
-                $purchasedata = $orderlines->get_purchaseorders_summary($product, $purchaseorder_filters);
+                $purchases_data['aff'] = $orderlines->get_purchaseorders_summary($product, $purchaseorderperaff_filters);
+                $purchases_data['allaff'] = $orderlines->get_purchaseorders_summary($product, $purchaseorder_filters);
 
                 if(is_array($data)) {
                     $i = 0;
@@ -870,22 +872,33 @@ if(!($core->input['action'])) {
                     $output .= '<tr class='.$cs_altrow.'><td>'.$lang->sellingprice.'</td><td>'.$product_obj->get_displayname().'</td><td>'.$lastorder['sellingprice'].'</td><td>'.$lastfiveorders['avgsellingprice'].'</td><td>'.$lasttenorders['avgsellingprice'].'</td></tr>';
                     $output .= '<tr class='.$cs_altrow.'><td>'.$lang->creditdays.'</td><td>'.$product_obj->get_displayname().'</td><td>'.$lastorder['netdays'].'</td><td>'.$lastfiveorders['avgnetdays'].'</td><td>'.$lasttenorders['avgnetdays'].'</td></tr>';
                 }
-
-                if(is_array($purchasedata)) {
-                    $z = 0;
-                    foreach($purchasedata as $purchaseline) {
-                        if($z == 0) {
-                            $lastorder['purchaseprice'] = $purchaseline['priceactual'];
-                        }
-                        if($z < 5) {
-                            $lastfiveorders['purchaseprice'] += $purchaseline['priceactual'];
-                        }
-                        $lasttenorders['purchaseprice'] += $purchaseline['priceactual'];
-                        $z++;
+                foreach($purchases_data as $key => $purchasedata) {
+                    switch($key) {
+                        case 'aff':
+                            $label = $aff_obj->get_displayname();
+                            break;
+                        case 'allaff':
+                            $label = 'All Affiliates';
+                            break;
+                        default:
+                            break;
                     }
-                    $lastfiveorders['avgpurchaseprice'] = $lastfiveorders['purchaseprice'] / 5;
-                    $lasttenorders['avgpurchaseprice'] = $lasttenorders['purchaseprice'] / 10;
-                    $output .= ''<tr class = '.$cs_altrow.'><td>'.$lang->sellingprice.'</td><td>'.$product_obj->get_displayname().'</td><td>'.$lastorder['purchaseprice'].'</td><td>'.$lastfiveorders['avgpurchaseprice'].'</td><td>'.$lasttenorders['avgpurchaseprice'].'</td></tr>';
+                    if(is_array($purchasedata)) {
+                        $z = 0;
+                        foreach($purchasedata as $purchaseline) {
+                            if($z == 0) {
+                                $lastorder['purchaseprice'] = $purchaseline['priceactual'];
+                            }
+                            if($z < 5) {
+                                $lastfiveorders['purchaseprice'] += $purchaseline['priceactual'];
+                            }
+                            $lasttenorders['purchaseprice'] += $purchaseline['priceactual'];
+                            $z++;
+                        }
+                        $lastfiveorders['avgpurchaseprice'] = $lastfiveorders['purchaseprice'] / 5;
+                        $lasttenorders['avgpurchaseprice'] = $lasttenorders['purchaseprice'] / 10;
+                        $output .= '<tr class="'.$cs_altrow.'"><td>'.$lang->sellingprice.'/ '.$label.'</td><td>'.$product_obj->get_displayname().'</td><td>'.$lastorder['purchaseprice'].'</td><td>'.$lastfiveorders['avgpurchaseprice'].'</td><td>'.$lasttenorders['avgpurchaseprice'].'</td></tr>';
+                    }
                 }
                 unset($lasttenorders, $lastfiveorders, $lastorder);
 
@@ -1063,7 +1076,7 @@ else {
         //get average of payment terms
         if(is_array($paymentermdays)) {
             foreach($paymentermdays as $paymenterm) {
-                 $paymentermobjs = new PaymentTerms($paymenterm, false);
+                $paymentermobjs = new PaymentTerms($paymenterm, false);
                 $intervalspayment_terms[] = $paymentermobjs->overduePaymentDays; //get days
                 $intervalspayment_terms = array_unique($intervalspayment_terms);
                 if(!empty($intervalspayment_terms)) {
@@ -1077,7 +1090,7 @@ else {
         if(is_array($salesdates)) {
             if(!is_empty(array_filter($salesdates))) {
                 foreach($salesdates as $salesdate) {
-                     if(!empty($salesdate) || $salesdate != '-') {
+                    if(!empty($salesdate) || $salesdate != '-') {
                         $salesdateobjs[] = strtotime($salesdate);
                         $intervalsales_dates = array_unique($salesdateobjs);
                         if(!empty($intervalsales_dates)) {
@@ -1099,10 +1112,10 @@ else {
         if(is_array($ptbasedates)) {
             if(!is_empty(array_filter($ptbasedates))) {
                 foreach($ptbasedates as $ptbasedate) {
-                     $avgptdates[] = strtotime($ptbasedate) + $avgpaymentterms * (86400);
+                    $avgptdates[] = strtotime($ptbasedate) + $avgpaymentterms * (86400);
                 }
                 foreach($salesdates as $salesdate) {
-                     if(!empty($salesdate)) {
+                    if(!empty($salesdate)) {
                         $avgptdates[] = strtotime($salesdate) + $avgpaymentterms * (86400);
                     }
                 }
@@ -1151,14 +1164,14 @@ else {
         unset($core->input['action'], $core->input['module'], $core->input['rowid']);
         $parmsfornetmargin = array('localPeriodOfInterest', 'localBankInterestRate', 'warehousingPeriod', 'warehousingTotalLoad', 'warehousingRate', 'intermedBankInterestRate', 'intermedPeriodOfInterest', 'commission', 'totalDiscount', 'totalQty', 'localRiskRatio', 'unitfees');
         foreach($parmsfornetmargin as $parm) {
-             $core->input['parmsfornetmargin'][$parm] = $core->input[$parm];
+            $core->input['parmsfornetmargin'][$parm] = $core->input[$parm];
         }
         //$core->inut['parmsfornetmargin']['unitfees'] = $unitfee;
         $data = $core->input;
         $productline_data = $productline_obj->calculate_values($data);
         unset($productline_data['affBuyingPrice'], $productline_data['totalBuyingValue']);
         foreach($productline_data as $key => $value) {
-             if($key == 'qtyPotentiallySoldPerc') {
+            if($key == 'qtyPotentiallySoldPerc') {
                 $productline['productline_'.$rowid.'_'.$key] = $value;
                 continue;
             }
@@ -1193,7 +1206,7 @@ else {
             exit;
         }
         foreach($netmarginparms_data as $key => $value) {
-              if(!is_empty($value)) {
+            if(!is_empty($value)) {
                 $parmsfornetmargin['parmsfornetmargin_'.$key] = $value;
             }
         }
@@ -1265,7 +1278,7 @@ else {
         $actualpurchase['packingTitle'] = $packing->get_displayname();
         $fields = array('productName', 'pid', 'quantity', 'packing', 'packingTitle', 'totalValue', 'shelfLife', 'inputChecksum', 'daysInStock');
         foreach($fields as $field) {
-             $actualpurchase_data['actualpurchase_'.$rowid.'_'.$field] = $actualpurchase[$field];
+            $actualpurchase_data['actualpurchase_'.$rowid.'_'.$field] = $actualpurchase[$field];
         }
 
         if((isset($actualpurchase['estDateOfStockEntry_output']) && !empty($actualpurchase['estDateOfStockEntry_output'])) && (isset($actualpurchase['estDateOfSale_output']) && !empty($actualpurchase['estDateOfSale_output']))) {
@@ -1284,7 +1297,7 @@ else {
         $rowid = $core->input['rowid'];
         $fields = array('transitTime', 'clearanceTime');
         foreach($fields as $field) {
-             if(isset($core->input[$field]) && !empty($core->input[$field])) {
+            if(isset($core->input[$field]) && !empty($core->input[$field])) {
                 $data[$field] = $core->input[$field];
             }
         }
@@ -1305,7 +1318,7 @@ else {
 
             $fields = array('vendorEstDateOfPayment', 'intermedEstDateOfPayment', 'promiseOfPayment');
             foreach($fields as $field) {
-                 $partiesinfo[$field.'_output'] = $partiesinfo[$field.'_formatted'] = '';
+                $partiesinfo[$field.'_output'] = $partiesinfo[$field.'_formatted'] = '';
                 if($partiesinfo[$field] != 0 && !empty($partiesinfo[$field])) {
                     $partiesinfo[$field.'_output'] = date('d-m-Y', $partiesinfo[$field]);
                     $partiesinfo[$field.'_formatted'] = date($core->settings['dateformat'], $partiesinfo[$field]);
@@ -1386,7 +1399,7 @@ else {
 
         $i = 0;
         foreach($qtyperunit as $qty) {
-             if(empty($qty)) {
+            if(empty($qty)) {
                 continue;
             }
             $i++;
@@ -1400,7 +1413,7 @@ else {
         }
         $i = 0;
         foreach($feeperunit as $fee) {
-             if(empty($fee)) {
+            if(empty($fee)) {
                 continue;
             }
             $i++;
@@ -1412,7 +1425,7 @@ else {
             $avgfee[$i] = $fee[1];
         }
 
-        for($j = 1; $j <= $i;  $j++) { // /Calculate unit fee
+        for($j = 1; $j <= $i; $j++) { // /Calculate unit fee
             if($avgqty[$j] != 0) {
                 $unitfee +=$avgfee[$j] / $avgqty[$j];  //(total Fee per unit /total qty per unit)
             }
@@ -1439,7 +1452,7 @@ else {
 
         $i = 0;
         foreach($qtyperunit as $qty) {
-             if(empty($qty)) {
+            if(empty($qty)) {
                 continue;
             }
             $i++;
@@ -1453,7 +1466,7 @@ else {
         }
         $i = 0;
         foreach($feeperunit as $fee) {
-             if(empty($fee)) {
+            if(empty($fee)) {
                 continue;
             }
             $i++;
@@ -1465,7 +1478,7 @@ else {
             $avgfee[$i] = $fee[1];
         }
 
-        for($j = 1; $j <= $i;  $j++) { // /Calculate unit fee
+        for($j = 1; $j <= $i; $j++) { // /Calculate unit fee
             if($avgqty[$j] != 0) {
                 $unitfee +=$avgfee[$j] / $avgqty[$j];  //(total Fee per unit /total qty per unit)
             }
@@ -1601,7 +1614,7 @@ else {
 
             $purchasetype = PurchaseTypes::get_data(array('ptid' => $core->input['ptid']));
             $defaultintermedfields = array('defaultIntermed', 'defaultIncoterms', 'defaultPaymentTerm');
-            foreach($defaultintermedfields as $defaulti ntermedfields) {
+            foreach($defaultintermedfields as $defaultintermedfields) {
                 if(empty($affpolicy->$defaultintermedfields)) {
                     $affpolicy->$defaultintermedfields = 0;
                 }
@@ -1637,8 +1650,8 @@ else {
             $arorequest->set($data);
             $aroapprovalchain = $arorequest->generate_approvalchain(null, array('aroBusinessManager' => $data['aroBusinessManager']), $data['intermedAff']);
             if(is_array($aroapprovalchain)) {
-                foreach($aroapprovalchain as $key => $ val) {
-                     switch($key) {
+                foreach($aroapprovalchain as $key => $val) {
+                    switch($key) {
                         case 'businessManager':
                             $position = 'Local Business Manager';
                             break;
@@ -1718,7 +1731,7 @@ else {
         $currentstock['packingTitle'] = $packing->get_displayname();
         $fields = array('productName', 'pid', 'packing', 'packingTitle', 'inputChecksum');
         foreach($fields as $field) {
-             $currentstock_data['currentstock_'.$rowid.'_'.$field] = $currentstock[$field];
+            $currentstock_data['currentstock_'.$rowid.'_'.$field] = $currentstock[$field];
         }
         echo json_encode($currentstock_data);
     }

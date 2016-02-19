@@ -2211,11 +2211,11 @@ class IntegrationOBOrderLine extends IntegrationAbstractClass {
         }
     }
 
-    public function get_purchaseorders_summary($product, $filter) {
-        $filters .=" AND m_product_id ='".$foreignpid."'";
+    public function get_purchaseorders_summary($foreignpid, $filter) {
+        $filters = " m_product_id ='".$foreignpid."' ".$filter;
 
         $query = $this->f_db->query("SELECT * FROM c_order o JOIN c_orderline ol ON (ol.c_order_id=o.c_order_id) WHERE
-							".$filter." AND issotrx='N' ORDER by o.dateordered DESC LIMIT 10");
+							".$filters." AND issotrx='N' ORDER by o.dateordered DESC LIMIT 10");
 
 
 
