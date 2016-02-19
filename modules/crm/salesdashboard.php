@@ -26,7 +26,7 @@ if(!$core->input['action']) {
     eval("\$drilldown = \"".$template->get('crm_salesdashboard_drilldown')."\";");
     eval("\$combinedsalesbudget = \"".$template->get('crm_salesdashboard_salesvsbudget')."\";");
     eval("\$generatepage = \"".$template->get('crm_salesdashboard')."\";");
-    output_page($generatepage);
+    output_page(array('content' => $generatepage, 'title' => $lang->slesdashboard));
 }
 else {
     require_once ROOT.INC_ROOT.'integration_init.php';

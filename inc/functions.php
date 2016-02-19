@@ -13,8 +13,8 @@
  * @param  String		$template 	String to be striped
  * @return String	 				Striped template
  */
-function output_page($page, $options) {// default tpl, options to enforce a customised tpl
-    global $core, $lang, $timer, $template;
+function output_page($page, $options = null) {// default tpl, options to enforce a customised tpl
+    global $core, $lang, $timer, $template, $header, $footer, $headerinc, $rightsidemenu;
     //eval the container template into $template
     eval("\$template= \"".$template->get('defaulttpl')."\";");
 

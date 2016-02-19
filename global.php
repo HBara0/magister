@@ -73,9 +73,8 @@ if($session->uid > 0) {
         $lang->lastvisit = $lang->sprint($lang->lastvisit, date($core->settings['dateformat'], $core->user['lastVisit']), date($core->settings['timeformat'], $core->user['lastVisit'])).' UTC';
     }
 
-    eval("\$header = \"".$template->get('header')."\";");
-    //eval("\$header2 = \"".$template->get('navbar')."\";");
-    eval("\$footer = \"".$template->get('footer')."\";");
+    eval("\$header = \"".$template->get('navbar')."\";"); //header
+    eval("\$footer = \"".$template->get('footer2')."\";");
     //eval("\$footer2 = \"".$template->get('footer2')."\";");
 
     eval("\$rightsidemenu = \"".$template->get('rightside_menu')."\";");

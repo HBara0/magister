@@ -31,7 +31,7 @@ if(!isset($core->input['action'])) {
 //    }
 //    $reserved_data = json_encode($reserved_data);
     eval("\$facilitiestree= \"".$template->get('facilitymgmt_facilitiesschedule')."\";");
-    output_page($facilitiestree);
+    output_page(array('content' => $facilitiestree, 'title' => 'Schedule'));
 }
 else {
     if($core->input['action'] == 'get_creatreservation') {
