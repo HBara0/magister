@@ -49,6 +49,10 @@ class HelpTourItems extends AbstractClass {
                     $text = $lang->$langVar;
                 }
                 if(!empty($text)) {
+                    $item->ignoreId = false;
+                    if($item->ignoreid == 1) {
+                        $item->ignoreId = true;
+                    }
                     $touritems[$item->itemId] = array('ignoreId' => $item->ignoreId, 'options' => $item->options, 'text' => $text);
                 }
             }

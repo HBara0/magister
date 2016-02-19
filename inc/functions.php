@@ -16,6 +16,12 @@
 function output_page($page, $options = null) {// default tpl, options to enforce a customised tpl
     global $core, $lang, $timer, $template, $header, $footer, $headerinc, $rightsidemenu;
     //eval the container template into $template
+    if(is_array($options)) {
+        $additionalheaderinc = $options['additionalheaderinc'];
+    }
+
+    ${$options['helptourref'].'_helptour'} = get_helptour('newlayout');
+
     eval("\$template= \"".$template->get('defaulttpl')."\";");
 
     $template = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n".$template;
@@ -2264,6 +2270,19 @@ function get_quarter_extremities($quarter, $year) {
             return array('start' => strtotime('01-Oct-'.$year), 'end' => strtotime('31-Dec-'.$year));
     }
     return false;
+}
+
+function get_helptour($reference) {
+    global $lang;
+    $helptour = new HelpTour();
+    $helptour->set_id($reference.'_helptour');
+    $helptour->set_cookiename($reference.'_helptour');
+    $helptouritems_obj = new HelpTourItems();
+    $touritems = $helptouritems_obj->get_helptouritems($reference);
+    if(is_array($touritems)) {
+        $helptour->set_items($touritems);
+        return $helptour->parse();
+    }
 }
 
 ?>
