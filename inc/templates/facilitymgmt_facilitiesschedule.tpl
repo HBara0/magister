@@ -3,10 +3,6 @@
 </div>
 <div id='calendar'></div>
 
-<link href='{$core->settings[rootdir]}/css/fullcalendar.min.css' rel='stylesheet' />
-<script src='{$core->settings[rootdir]}/js/moment.min.js'></script>
-<script src="{$core->settings[rootdir]}/js/fullcalendar.min.js" type="text/javascript"></script>
-
 <script>
     $(document).ready(function() {
         //   var reservations ={$reserved_data};
@@ -133,11 +129,3 @@
     });
 
 </script>
-<style>
-    #calendar {
-        max-width: 900px;
-        margin: 0 auto;
-    }
-
-</style>
-

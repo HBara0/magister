@@ -56,7 +56,6 @@ if(!isset($core->input['action'])) {
     }
 
     eval("\$managefacility= \"".$template->get('facilitymgmt_managefacility')."\";");
-    exit;
     output_page(array('content' => $managefacility, 'title' => $lang->facilitymgmt));
 }
 else if($core->input['action'] == 'do_perform_managefacility') {
