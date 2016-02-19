@@ -155,7 +155,7 @@ class Entities extends AbstractClass {
             unset($this->data['coveredcountry']);
 
             //check if no address, phone or email for the company has been set
-            if((empty($this->data['addressline1']) || empty($this->data['addressline2']) || (empty($this->data['phone1']) && empty($this->data['phone2']) && (empty($this->data['mainEmail']))))) {
+            if(empty($this->data['addressline1']) && empty($this->data['addressline2']) && empty($this->data['phone1']) && empty($this->data['phone2']) && empty($this->data['mainEmail'])) {
                 output_xml("<status>false</status><message>{$lang->fillrequiredfields}</message>");
                 $this->status = false;
                 exit;
@@ -484,7 +484,7 @@ class Entities extends AbstractClass {
                 unset($this->data['repTelephone']);
             }
         }
-        if(empty($this->data['repName']) && empty($this->data['repTelephone'])) {
+        if(empty($this->data['repEmail']) && empty($this->data['repTelephone'])) {
             output_xml("<status>false</status><message>{$lang->fillrequiredfields}</message>");
             exit;
         }
