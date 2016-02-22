@@ -8,13 +8,14 @@ $(function() {
     function initialize_datatables() {
         $(".datatable_basic").each(function(i, obj) {
             //basic grid type
+            var maintable = obj;
             if($(obj).hasClass('datatable_basic')) {
                 //check if data attribute of totals columns exists and not empty, then fill the values
                 if($(obj).attr('data-totalcolumns')) {
                     var totalcolumns = $(obj).attr('data-totalcolumns');
                 }
                 // Setup - add a text input to each footer cell
-                $(obj).find('tfoot').each(function(i, tfoot) {
+                $(maintable).find('thead:nth-child(2)').each(function(i, tfoot) {
                     $(tfoot).find('th').each(function(i, th) {
                         var title = $(th).text();
                         $(th).html('<input type="text" placeholder="Search ' + title + '" />');
@@ -82,8 +83,7 @@ $(function() {
                         });
                 table.columns().every(function() {
                     var that = this;
-
-                    $('input', this.footer()).on('keyup change', function() {
+                    $('input', $(maintable).find('thead:nth-child(2)').find('th').eq(this.index())).on('keyup change', function() {
                         if(that.search() !== this.value) {
                             that
                                     .search(this.value)
