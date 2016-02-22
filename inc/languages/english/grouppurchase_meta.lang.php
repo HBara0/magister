@@ -15,6 +15,7 @@ $lang['informconcernedparties'] = 'Inform Concerned Parties';
 $lang['price'] = 'Price';
 $lang['priceperaffiliate'] = 'Price per Affiliate';
 $lang['priceproduct'] = 'Price Product';
+$lang['pricing'] = 'Price Product';
 $lang['quantitiesforecast'] = 'Quantities Forecast';
 $lang['remarks'] = 'Remarks';
 $lang['saletype'] = 'Sale type';
