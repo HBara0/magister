@@ -33,7 +33,7 @@ else {
         $report_period = array('from' => '2005-01-01');
         $report_period['to'] = 'tomorrow -1 second';
         if(!empty($core->input['asOf'])) {
-            $report_period['to'] = $core->input['asOf'];
+            $report_period['to'] = $core->input['asOf'].' 23:59:59';
         }
         $date_info = getdate_custom(strtotime($report_period['to']));
         /* In-line CSS styles in form of array in order to be compatible with email message */
@@ -160,7 +160,7 @@ else {
 
         $integration->set_organisations(array($orgid));
         $integration->set_sync_interval($report_period);
-        // $inputs = $integration->get_fifoinputsalternative(array($orgid), array('hasqty' => true));
+        $inputs = $integration->get_fifoinputsalternative(array($orgid), array('hasqty' => true));
         if(!empty($inputs)) {
             $fxrates['usd'] = $currency_obj->get_latest_fxrate($affiliate['currency']);
 
@@ -204,8 +204,8 @@ else {
                     }
                 }
                 $output .= '<h1>'.$config['info']['title'].'</h1>';
-                $output .= '<table id="'.strtolower(preg_replace('/\s+/', '', $config['info']['title'])).'" width="100%" cellspacing="0" cellpadding="5" style="border: 1px solid #CCC; font-size: 10px;" border="0" >';
-                $output .= '<tr>';
+                $output .= '<table id="tableexport_'.strtolower(preg_replace('/\s+/', '', $config['info']['title'])).'" width="100%" cellspacing="0" cellpadding="5" style="border: 1px solid #CCC; font-size: 10px;" border="0">';
+                $output .= '<thead><tr>';
                 foreach($config['output_fields'] as $field => $field_configs) {
                     if(in_array($field, $configs_budgetreport['aging']['maintable_hiddencols'])) {
                         if($core->input['referrer'] == 'generate_budgetpresntation' && strtolower(preg_replace('/\s+/', '', $config['info']['title'])) == 'stockaging') {
@@ -219,7 +219,7 @@ else {
                         $output .= '<th style="background: #91b64f;">'.$field_configs.'</th>';
                     }
                 }
-                $output .= '</tr>';
+                $output .= '</tr></thead><tbody>';
 
                 reset($config['output_fields']);
                 if(is_array($inputs)) {
@@ -488,7 +488,12 @@ else {
                 }
                 $output .= '</tr>';
                 /* Output main table totals row - END */
-                $output .= '</table>';
+                $output .= '</tbody></table>';
+                $tableid = strtolower(preg_replace('/\s+/', '', $config['info']['title']));
+                $onclickaction[$tableid] = "$('#tableexport_{$tableid}').tableExport({type:'excel',escape:'false'});";
+                $output .= '<div align="right" title="'.$lang->generate.'" style="float:right;padding:10px;width:10px;"><a onClick ="'.$onclickaction[$tableid].'"><img src="./images/icons/xls.gif"/>'.$lang->generateexcel.'</a></div>';
+
+
 
                 if($core->input['referrer'] != 'generate_budgetpresntation') {
                     /* Parse Summaries - Start */
@@ -496,13 +501,13 @@ else {
                         foreach($summaries as $category => $category_data) {
                             $totals = array();
                             $summaries_ouput .= '<h1>'.$config['output_fields'][$category]['title'].' Summary</h1>';
-                            $summaries_ouput .= '<table width="100%" cellspacing="0" cellpadding="5" style="border: 1px solid #CCC; font-size: 10px;" border="0">';
-                            $summaries_ouput .= '<tr><th style="background: #91b64f;">'.$config['output_fields'][$category]['title'].'</th>';
+                            $summaries_ouput .= '<table width="100%" cellspacing="0" cellpadding="5" style="border: 1px solid #CCC; font-size: 10px;" border="0" id="tabletoexport_'.$category.'">';
+                            $summaries_ouput .= '<thead><tr><th style="background: #91b64f;">'.$config['output_fields'][$category]['title'].'</th>';
                             foreach($config['summary_reqinfo'] as $reqinfo) {
                                 $summaries_ouput .= '<th style="background: #91b64f;">'.$config['output_fields'][$reqinfo]['title'].'</th>';
                             }
                             unset($out_field_title);
-                            $summaries_ouput .= '</tr>';
+                            $summaries_ouput .= '</tr></thead><tbody>';
 
                             ${$config['summary_order_attr']} = array();
                             foreach($category_data as $cat_data_key => $cat_data_row) {
@@ -570,7 +575,9 @@ else {
                             }
                             $summaries_ouput .= '</tr>';
                             /* Output summary table totals row - END */
-                            $summaries_ouput .= '</table>';
+                            $summaries_ouput .= '</tbody></table>';
+                            $onclickaction[$category] = "$('#tabletoexport_{$category}').tableExport({type:'excel',escape:'false'});";
+                            $summaries_ouput .= '<div align="right" title="'.$lang->generate.'" style="float:right;padding:10px;width:10px;"><a onClick ="'.$onclickaction[$category].'"><img src="./images/icons/xls.gif"/>'.$lang->generateexcel.'</a></div>';
                         }
                         $summaries = array();
                     }
@@ -585,8 +592,9 @@ else {
                     $configs['summary']['output_fields'] = $configs_budgetreport['summary']['output_fields'];
                 }
                 $totals = null;
-                $alerts .= '<div style="font-weight: bold; color: red; font-size:18pt;">The following products have expired or are expiring soon!</div><br /><table id="expiredstock" width="100%" cellspacing="0" cellpadding="5" style="border: 1px solid #CCC; font-size: 10px;" border="0">';
-                $alerts .= '<tr>';
+                $alerts .= '<div style="font-weight: bold; color: red; font-size:18pt;">The following products have expired or are expiring soon!</div><br />'
+                        .'<table id="expiredstock" width="100%" cellspacing="0" cellpadding="5" style="border: 1px solid #CCC; font-size: 10px;" border="0">';
+                $alerts .= '<thead><tr>';
                 foreach($configs['summary']['output_fields'] as $field => $field_configs) {
                     if(is_array($field_configs)) {
                         $alerts .= '<th style="background: #91b64f;">'.$field_configs['title'].'</th>';
@@ -595,7 +603,7 @@ else {
                         $alerts .= '<th style="background: #91b64f;">'.$field_configs.'</th>';
                     }
                 }
-                $alerts .= '</tr>';
+                $alerts .= '</tr></thead><tbody>';
 
                 $order_attr = 'remaining_cost';
                 ${$order_attr} = array();
@@ -704,7 +712,10 @@ else {
                 if "Other" product segment, please specify in comments</td></tr>';
                 }
                 /* Output expired table totals row - END */
-                $alerts .= '</table>';
+                $alerts .= '</tbody></table>';
+
+                $onclickaction['expiredstock'] = "$('#expiredstock').tableExport({type:'excel',escape:'false'});";
+                $alerts .= '<div align="right" title="'.$lang->generate.'" style="float:right;padding:10px;width:10px;"><a onClick ="'.$onclickaction['expiredstock'].'"><img src="./images/icons/xls.gif"/>'.$lang->generateexcel.'</a></div>';
             }
             unset($expired_entries);
             /* Parse Expired Products Table - END */
@@ -716,7 +727,7 @@ else {
                     array_slice($expiringin60days, 0, 15);
                     $totals = null;
                     $alerts .= '<table id="stockexpiringin60" width="100%" cellspacing="0" cellpadding="5" style="border: 1px solid #CCC; font-size: 10px;" border="0">';
-                    $alerts .='<tr><td colspan="12">Top 15 Products expiring within the next 60 days (sorted by amount in USD)</td></tr>';
+                    $alerts .='<thead><tr><td colspan="12">Top 15 Products expiring within the next 60 days (sorted by amount in USD)</td></tr>';
 
                     $alerts .= '<tr>';
                     foreach($configs_budgetreport['summary']['output_fields'] as $field => $field_configs) {
@@ -727,7 +738,7 @@ else {
                             $alerts .= '<th style="background: #91b64f;">'.$field_configs.'</th>';
                         }
                     }
-                    $alerts .= '</tr>';
+                    $alerts .= '</tr></thead><tbody>';
 
                     $order_attr = 'remaining_cost';
                     ${$order_attr} = array();
@@ -811,7 +822,9 @@ else {
                     }
 
                     $alerts .='<tr><td colspan="12">If "Other" product segment, please specify in comments.</td></tr>';
-                    $alerts .= '</table>';
+                    $alerts .= '</tbody></table>';
+                    $onclickaction['stockexpiringin60'] = "$('#stockexpiringin60').tableExport({type:'excel',escape:'false'});";
+                    $alerts .= '<div align="right" title="'.$lang->generate.'" style="float:right;padding:10px;width:10px;"><a onClick ="'.$onclickaction['stockexpiringin60'].'"><img src="./images/icons/xls.gif"/>'.$lang->generateexcel.'</a></div>';
                 }
                 unset($expiringin60days);
                 //   }
@@ -827,7 +840,7 @@ else {
                     array_multisort(${$order_attr}, SORT_DESC, $oldstock_entries);
                     $oldstock_entries = array_slice($oldstock_entries, 0, 10, true);
                     $alerts .= '<table id="oldstocknotexpired" width="100%" cellspacing="0" cellpadding="5" style="border: 1px solid #CCC; font-size: 10px;" border="0">';
-                    $alerts .= '<tr><td colspan="12">Top 10 Oldest Products that are not yet expired (sorted by amount in USD)</td></tr>';
+                    $alerts .= '<thead><tr><td colspan="12">Top 10 Oldest Products that are not yet expired (sorted by amount in USD)</td></tr>';
                     $alerts .= '<tr>';
                     foreach($configs_budgetreport['summary']['output_fields'] as $field => $field_configs) {
                         if(is_array($field_configs)) {
@@ -837,7 +850,7 @@ else {
                             $alerts .= '<th style="background: #91b64f;">'.$field_configs.'</th>';
                         }
                     }
-                    $alerts .= '</tr>';
+                    $alerts .= '</tr></thead><tbody>';
 
                     $order_attr = 'remaining_cost';
                     ${$order_attr} = array();
@@ -922,7 +935,9 @@ else {
                         }
                         $alerts .= '</tr>';
                     }
-                    $alerts .= '</table>';
+                    $alerts .= '</tbody></table>';
+                    $onclickaction['oldstocknotexpired'] = "$('#oldstocknotexpired').tableExport({type:'excel',escape:'false'});";
+                    $alerts .= '<div align="right" title="'.$lang->generate.'" style="float:right;padding:10px;width:10px;"><a onClick ="'.$onclickaction['oldstocknotexpired'].'"><img src="./images/icons/xls.gif"/>'.$lang->generateexcel.'</a></div>';
                 }
             }
             /////////////////////////////////////////////////////////////////////////
@@ -932,14 +947,14 @@ else {
             $aging_scale_config = array(0, 90, 180, 360);
             $stockevolution_output = '<h1>Stock Evolution</h1>';
             $stockevolution_output .= '<table id="stockevolution" width="100%" cellspacing="0" cellpadding="5" style="border: 1px solid #CCC; font-size: 10px;" border="0">';
-            $stockevolution_output .= '<tr><th style="background: #91b64f;">Month</td>';
+            $stockevolution_output .= '<thead><tr><th style="background: #91b64f;">Month</td>';
             if(!isset($core->input['referrer']) || $core->input['referrer'] != 'generate_budgetpresntation') {
                 $stockevolution_output .='<th style="background: #91b64f;">Value K.USD</td>';
             }
             foreach($aging_scale as $key => $age) {
                 $stockevolution_output .= '<th style="background: #91b64f;">'.$age.'</td>';
             }
-            $stockevolution_output .= '</tr>';
+            $stockevolution_output .= '</tr></thead><tbody>';
             $first_transaction = $integration->get_firsttransaction(array($orgid));
             if(TIME_NOW - strtotime($first_transaction->get()['trxprocessdate']) > (60 * 60 * 24 * 365 )) {
                 $date_from = strtotime((date('Y', TIME_NOW) - 1 ).'-01-31');
@@ -1003,11 +1018,16 @@ else {
                 }
             }
             /* Parse Stock Evolution Total (for budget presentation) - END */
-            $stockevolution_output .= '</table>';
+            $stockevolution_output .= '</tbody></table>';
+
+            $onclickaction['stockevolution'] = "$('#stockevolution').tableExport({type:'excel',escape:'false'});";
+            $stockevolution_output .= '<div align="right" title="'.$lang->generate.'" style="float:right;padding:10px;width:10px;"><a onClick ="'.$onclickaction['stockevolution'].'"><img src="./images/icons/xls.gif"/>'.$lang->generateexcel.'</a></div>';
+
+
             /* Parse Stock Per month of sales (for budget presentation) - START */
             if($core->input['referrer'] == 'generate_budgetpresntation') {
                 if(is_array($stockpermonthofsale_data)) {
-                    $stockpermonthofsale_output = '<table id="stockpermonthofsales">';
+                    $stockpermonthofsale_output = '<table id="stockpermonthofsales"><thead>';
                     foreach($stockpermonthofsale_data as $stockpermonthofsale_key => $stockpermonthofsale_row) {
                         if(is_array($stockpermonthofsale_row)) {
                             switch($stockpermonthofsale_key) {
@@ -1020,6 +1040,7 @@ else {
                                 default:
                                     break;
                             }
+                            $stockpermonthofsale_output .= '</thead>';
                             foreach($stockpermonthofsale_row as $stockpermonthofsale_col) {
                                 $stockpermonthofsale_output .='<td>'.$stockpermonthofsale_col.'</td>';
                             }
@@ -1028,6 +1049,8 @@ else {
                     }
                     $stockpermonthofsale_output .= '</table>';
                 }
+                $onclickaction['stockpermonthofsales'] = "$('#stockpermonthofsales').tableExport({type:'excel',escape:'false'});";
+                $stockevolution_output .= '<div align="right" title="'.$lang->generate.'" style="float:right;padding:10px;width:10px;"><a onClick ="'.$onclickaction['stockpermonthofsales'].'"><img src="./images/icons/xls.gif"/>'.$lang->generateexcel.'</a></div>';
             }
             /* Parse Stock Per month of sales (for budget presentation) - END */
 
@@ -1109,7 +1132,7 @@ else {
         }
         $affiliates_addrecpt = array(
                 19 => array(398, 356),
-                22 => array(248, 246, 287, 270, 356, 63),
+                22 => array(248, 246, 270, 356, 63, 379, 378),
                 23 => array('zadok.oppong-boahene', 'courage.dzandu', 416, 321, 'tarek.chalhoub', 63, 356),
                 1 => array(356), //12, 333, 182, 43,
                 21 => array(63, 158, 'patrice.mossan', 'marcelle.nklo', 'abel.laho', 'boulongo.diata', 356, 'kenan.amjeh'),

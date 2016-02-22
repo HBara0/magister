@@ -4,7 +4,7 @@
             <tr><td style="font-weight: bold;width:40%;background-color:#92D050;">{$lang->orderpurchasetype}</td><td style="background-color: #F1F1F1;">{$data[purchasetype_output]}</td></tr>
            <!-- <tr><td style="font-weight: bold;width:40%">{$lang->destinationcountry}</td><td></td></tr>-->
             <tr><td style="font-weight: bold;width:40%;background-color:#92D050;">{$lang->purchasingcompany}</td><td style="background-color: #F1F1F1;">{$data[affiliate_output]}</td></tr>
-            <tr><td style="font-weight: bold;width:40%;background-color:#92D050;">{$lang->intermediary}{$lang->affiliate} (if Any)</td><td style="background-color: #F1F1F1;">{$data[intermed_aff_output]}</td></tr>
+            <tr><td style="font-weight: bold;width:40%;background-color:#92D050;">{$lang->intermediary} {$lang->affiliate} (if Any)</td><td style="background-color: #F1F1F1;">{$data[intermed_aff_output]}</td></tr>
             <tr><td style="font-weight: bold;width:40%;background-color:#92D050;">{$lang->purchasecurrency}</td><td style="background-color: #F1F1F1;">{$data[currency]}</td></tr>
         </table>
     </div>

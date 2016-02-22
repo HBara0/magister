@@ -153,6 +153,13 @@ class Entities extends AbstractClass {
             }
             $coveredcountries = $this->data['coveredcountry'];
             unset($this->data['coveredcountry']);
+
+            //check if no address, phone or email for the company has been set
+            if(empty($this->data['addressline1']) && empty($this->data['addressline2']) && empty($this->data['phone1']) && empty($this->data['phone2']) && empty($this->data['mainEmail'])) {
+                output_xml("<status>false</status><message>{$lang->fillrequiredfields}</message>");
+                $this->status = false;
+                exit;
+            }
             $query = $db->insert_query(self::TABLE_NAME, $this->data);
             if($query) {
                 $this->data['eid'] = $this->eid = $db->last_id();
@@ -449,7 +456,7 @@ class Entities extends AbstractClass {
     private function create_representative() {
         global $core, $db, $lang;
 
-        if(!isset($this->data['repName'], $this->data['repEmail']) || (empty($this->data['repName']) || empty($this->data['repEmail']))) {
+        if(!isset($this->data['repName']) || (empty($this->data['repName']) )) {
             output_xml("<status>false</status><message>{$lang->fillrequiredfields}</message>");
             exit;
         }
@@ -460,14 +467,15 @@ class Entities extends AbstractClass {
             exit;
         }
 
-        if($core->validate_email($this->data['repEmail'])) {
-            $core->input['repEmail'] = $core->sanitize_email($this->data['repEmail']);
+        if(isset($this->data['repEmail'])) {
+            if(!$core->validate_email($this->data['repEmail'])) {
+                $core->input['repEmail'] = $core->sanitize_email($this->data['repEmail']);
+            }
+            else {
+                output_xml("<status>false</status><message>{$lang->invalidentityemail}</message>");
+                exit;
+            }
         }
-        else {
-            output_xml("<status>false</status><message>{$lang->invalidentityemail}</message>");
-            exit;
-        }
-
         if(isset($this->data['repTelephone']) && !empty($this->data['repTelephone'])) {
             if(!is_empty($this->data['repTelephone']['intcode'], $this->data['repTelephone']['areacode'], $this->data['repTelephone']['number'])) {
                 $this->data['repTelephone'] = implode('-', $this->data['repTelephone']);
@@ -476,7 +484,14 @@ class Entities extends AbstractClass {
                 unset($this->data['repTelephone']);
             }
         }
-
+        if(empty($this->data['repEmail']) && empty($this->data['repTelephone'])) {
+            output_xml("<status>false</status><message>{$lang->fillrequiredfields}</message>");
+            exit;
+        }
+        if(strpos(strtolower($this->data['repName']), 'n/a') || strpos(strtolower($this->data['repName']), 'not available')) {
+            output_xml("<status>false</status><message>{$lang->repnamenotallowed}</message>");
+            exit;
+        }
         $query = $db->insert_query('representatives', array('name' => ucwords(strtolower($this->data['repName'])), 'email' => $this->data['repEmail'], 'phone' => $this->data['repTelephone'], 'isSupportive' => $this->data['isSupportive']));
         if($query) {
             $rpid = $db->last_id();
@@ -489,7 +504,7 @@ class Entities extends AbstractClass {
             }
 
             if(isset($this->data['repPosition']) && !empty($this->data['repPosition'])) {
-                $db->insert_query(RepresentativePositions::TABLE_NAME, array('rpid' => $rpid, 'posid' => $this->data['repPosition']));
+                $db->insert_query(RepresentativePositions:: TABLE_NAME, array('rpid' => $rpid, 'posid' => $this->data['repPosition']));
             }
             $this->status = true;
         }
@@ -574,6 +589,7 @@ class Entities extends AbstractClass {
             $main_affiliate = $db->fetch_field($db->query("SELECT affid FROM ".Tprefix."affiliatedemployees WHERE isMain='1' AND uid='".$core->user['uid']."'"), 'affid');
             $db->insert_query('assignedemployees', array('eid' => $this->eid, 'uid' => $core->user['uid'], 'affid' => $main_affiliate));
         }
+
         /* if(empty($employees)) {
           $db->insert_query('assignedemployees', array('eid'=> $this->eid, 'uid'=> $core->user['uid']));
           }
@@ -1086,9 +1102,8 @@ class Entities extends AbstractClass {
     public function get_representatives() {
         $entitiesreps = EntitiesRepresentatives::get_data(array('eid' => $this->data['eid']), array('returnarray' => true));
         if(is_array($entitiesreps) && !empty($entitiesreps)) {
-            $reps = [];
-            foreach($entitiesreps as $entrep) {
-                $reps = array_filter(array_merger($reps, $entrep->get_representative()));
+            foreach($entitiesreps as $entitiesrep) {
+                $reps[] = $entitiesrep->get_representative();
             }
             return $reps;
         }
@@ -1143,6 +1158,19 @@ class Entities extends AbstractClass {
         $assignedemps = AssignedEmployees::get_data(array('uid' => $uid, 'eid' => $this->data['eid'], 'isValidator' => true), array('returnarray' => true));
         if(is_array($assignedemps)) {
             return true;
+        }
+        return false;
+    }
+
+    public function get_assigned_affiliates() {
+        $affiliatedentities = AffiliatedEntities::get_data(array('eid' => $this->data['eid']), array('returnarray' => true));
+        if(is_array($affiliatedentities)) {
+            foreach($affiliatedentities as $affent) {
+                $entities[$affent->affid] = $affent->get_affiliate();
+            }
+        }
+        if(is_array($entities)) {
+            return $entities;
         }
         return false;
     }

@@ -114,7 +114,7 @@ class AroRequestsMessages extends AbstractClass {
         $lang->load('aro_meta');
         $mailer = new Mailer();
         $mailer = $mailer->get_mailerobj();
-        $mailer->set_from(array('name' => $core->user['displayName'], 'email' => 'approve_arorequest@ocos.orkila.com')); //$core->settings['maileremail']));
+        $mailer->set_from(array('name' => $core->user['displayName'], 'email' => $core->settings['maileremail']));
 
         $arorequest = AroRequests::get_data(array('aorid' => $this->data['aorid']), array('simple' => false));
 
@@ -142,10 +142,14 @@ class AroRequestsMessages extends AbstractClass {
                     $message = 'Aro Request ['.$arorequest->orderReference.']/'.$aroaffiliate_obj->get_displayname().'/'.$purchasteype_obj->get_displayname().' was rejected by '.$rejectedby.
                             '<br/>'.$message;
                 }
-                else {
-                    $message .= '<a href="'.$view_link.'">'.$lang->clicktoviewaro.'</a><br/>'.$this->data['message'].' | <a href="'.$reply_links.'">&#x21b6; '.$lang->reply.'</a><br/>';
-                }
+                //message will be already parsed do removing the duplication of this message
+//                else {
+//                    $message .= '<a href="'.$view_link.'">'.$lang->clicktoviewaro.'</a><br/>'.$this->data['message'].' | <a href="'.$reply_links.'">&#x21b6; '.$lang->reply.'</a><br/>';
+//                }
                 if(!empty($message)) {
+                    $emailformatter = new EmailFormatting();
+                    $emailformatter->set_message(array('title' => $lang->aroconversation, 'message' => $message));
+                    $message = $emailformatter->get_message();
                     $mailer->set_message('__ARO NOTIFICATION__<br/>'.$message);
                     $mailer->set_to($emailreceiver);
 //                    $x = $mailer->debug_info();
@@ -197,14 +201,16 @@ class AroRequestsMessages extends AbstractClass {
                 return false;
                 break;
             case 'limited':
-                $aro_request_obj = new AroRequests($this->data['aorid']);
-                $sender_approval_seq = $aro_request_obj->get_approval_byappover($this->data['uid'])->get()['sequence'];
-                $user_approval_seq = $aro_request_obj->get_approval_byappover($check_user)->get()['sequence'];
-                if($sender_approval_seq >= $user_approval_seq) {
-                    //  if($sender_approval_seq <= $user_approval_seq) {
-                    return true;
-                }
-                return false;
+                return true;
+
+//                $aro_request_obj = new AroRequests($this->data['aorid']);
+//                $sender_approval_seq = $aro_request_obj->get_approval_byappover($this->data['uid'])->get()['sequence'];
+//                $user_approval_seq = $aro_request_obj->get_approval_byappover($check_user)->get()['sequence'];
+//                if($sender_approval_seq >= $user_approval_seq) {
+//                    //  if($sender_approval_seq <= $user_approval_seq) {
+//                    return true;
+//                }
+//                return false;
                 break;
         }
     }

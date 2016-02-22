@@ -373,7 +373,9 @@ else {
 
         if(is_array($visitdetails['comments'])) {
             foreach($visitdetails['comments'] as $key => $val) {
-                $visitdetails['comments'][$key] = array_merge($visitdetails['comments'][$key], $competition['comments'][$key]);
+                if(is_array($competition['comments'][$key])) {
+                    $visitdetails['comments'][$key] = array_merge($visitdetails['comments'][$key], $competition['comments'][$key]);
+                }
             }
         }
 

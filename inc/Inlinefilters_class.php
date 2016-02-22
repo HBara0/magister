@@ -215,6 +215,9 @@ class Inlinefilters {
                             $currencies = get_specificdata('currencies', array('numCode', 'alphaCode'), 'numCode', 'alphaCode', '', 0);
                             $filters[$filter] = parse_selectlist('filters['.$filter.'][]', $tabindex, $currencies, $core->input['filters'][$filter], 1, '', array('multiplesize' => 3, 'blankstart' => true));
                             break;
+                        case 'representative':
+                            $filters[$filter] = "<input type='text' id='representative_1_autocomplete' autocomplete='off' size='40px'/><input type='hidden' id='representative_1_id' name='filters[{$filter}]'/>";
+                            break;
                         default:
                             $filters[$filter] = '<input type="text" width="100%" name="filters['.$filter.']" tabindex="'.$tabindex.'" value="'.$core->input['filters'][$filter].'" id="filters_'.$filter.'" title="'.$this->config['parse']['filterTitles'][$filter].'">';
                             break;

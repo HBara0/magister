@@ -141,12 +141,14 @@ if(!$core->input['action']) {
             $customers_list .= '</td></tr>';
         }
 
-        $multipages = new Multipages('entities e JOIN '.Tprefix.'affiliatedentities a ON (e.eid=a.eid) JOIN '.Tprefix.'affiliatedemployees ae ON (a.affid=ae.affid)', $core->settings['itemsperlist'], $multipage_where);
-        $customers_list .= '<tr><td colspan="4">'.$multipages->parse_multipages().'</td></tr>';
+//        $multipages = new Multipages('entities e JOIN '.Tprefix.'affiliatedentities a ON (e.eid=a.eid) JOIN '.Tprefix.'affiliatedemployees ae ON (a.affid=ae.affid)', $core->settings['itemsperlist'], $multipage_where);
+//        $customers_list .= '<tr><td colspan="4">'.$multipages->parse_multipages().'</td></tr>';
     }
     else {
         $customers_list .= '<tr><td colspan="4">'.$lang->na.'</td></tr>';
     }
+    $onclickactin = "$('#tabletoexport').tableExport({type:'excel',escape:'false'});";
+    $toolgenerate = '<div align="right" title="'.$lang->generate.'" style="float:right;padding:10px;width:10px;"><a onClick ="'.$onclickactin.'"><img src="./images/icons/xls.gif"/>'.$lang->generateexcel.'</a></div>';
 
     eval("\$listpage = \"".$template->get('profiles_customerslist')."\";");
     output_page($listpage);

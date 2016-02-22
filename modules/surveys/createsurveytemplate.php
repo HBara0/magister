@@ -26,6 +26,7 @@ if(!$core->input['action']) {
     $sequence = 1;
     if(isset($core->input['bstid']) && !empty($core->input['bstid'])) {
         $stid = $core->input['bstid'];
+        $activate_questionsordering = '$("tbody[id^=\'questions\'][id$=\'_tbody\']").sortable({placeholder: "ui-state-highlight", forcePlaceholderSize: true, delay: 300, opacity: 0.5, containment: "parent", handle: \'.questions-sort-icon\'});';
         $template_obj = SurveysTemplates::get_data(array('stid' => $stid));
         $title = $template_obj->title;
         $survey_template = $template_obj->get();
@@ -332,7 +333,7 @@ else {
         echo $matrixchoices;
     }
     elseif($core->input['action'] == 'get_createbasedonanother') {
-        $surveystemplates = SurveysTemplates::get_data('isPublic=1 OR createdBy='.$core->user['uid'], array('order' => array('by' => array('isQuiz', 'title'), 'sort' => array('sort' => array('isQuiz' => 'DESC', 'title' => 'ASC'))), 'returnarray' => true));
+        $surveystemplates = SurveysTemplates::get_data('isActive = 1 AND (isPublic=1 OR createdBy='.$core->user['uid'].')', array('order' => array('by' => array('isQuiz', 'title'), 'sort' => array('sort' => array('isQuiz' => 'DESC', 'title' => 'ASC'))), 'returnarray' => true));
         if(is_array($surveystemplates)) {
             $surveytemplates_list = parse_selectlist('stid', 5, $surveystemplates, $survey['stid'], '', $onchange, array('id' => 'stid'));
         }

@@ -2,9 +2,11 @@
     <head>
         <title>{$core->settings[systemtitle]} | {$lang->generatesalesreport}</title>
         {$headerinc}
+        <script type="text/javascript" src="{$core->settings[rootdir]}/js/tableExport.min.js"></script>
+        <script type="text/javascript" src="{$core->settings[rootdir]}/js/jquery.base64.min.js"></script>
         <script type="text/javascript">
-            $(function () {
-                $(document).on('change', "select[id='type']", function () {
+            $(function() {
+                $(document).on('change', "select[id='type']", function() {
                     $("div[id^='salesreport_endofmonth']").show();
 
                     var id = $(this).attr("id")

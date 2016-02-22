@@ -477,7 +477,7 @@ class IntegrationOB extends Integration {
                 if(!empty($supplier)) {
                     $inputs[$transcation['obwfa_input_stack_id']]['supplier'] = $supplier->get();
                 }
-                //If movement type=return from customer, replace buisness partner by local product
+//If movement type=return from customer, replace buisness partner by local product
                 if($stack->get_transcation()->movementtype == 'C+') {
                     $localproduct = $stack->get_transcation()->get_firsttransaction()->get_product_local();
                     if(is_object($localproduct)) {
@@ -619,7 +619,7 @@ class IntegrationOB extends Integration {
                             $stock['value'][$transcation['m_product_id']] -= $output['cost'];
                             $stock['qty'][$transcation['m_product_id']] -= $output['qty'];
 
-                            //$age = $stack_obj->get_daysinstock($output['trxdate']);
+//$age = $stack_obj->get_daysinstock($output['trxdate']);
                             $age = $stack_obj->get_daysinstock($date);
                             $this->classify_data_byage($age, $aging_scale, $stock['aging']['value'], 0 - $output['cost']);
                         }
@@ -910,7 +910,7 @@ class IntegrationOBTransaction extends IntegrationAbstractClass {
             return new self($id, $this->f_db);
         }
         else {
-            // to do
+// to do
             return new self(null, $this->f_db);
         }
         return false;
@@ -1273,71 +1273,80 @@ class IntegrationOBInOut {
 
 }
 
-class IntegrationOBInvoice {
-    private $invoice;
-    private $f_db;
+class IntegrationOBInvoice extends IntegrationAbstractClass {
+    protected $data;
+    protected $f_db;
+
+    const PRIMARY_KEY = 'c_invoice_id';
+    const TABLE_NAME = 'c_invoice';
+    const DISPLAY_NAME = '';
+    const CLASSNAME = __CLASS__;
 
     public function __construct($id, $f_db = NULL) {
-        if(!empty($f_db)) {
-            $this->f_db = $f_db;
-        }
-        else {
-
-        }
-
-        if(empty($id)) {
-            return false;
-        }
-
-        $this->read($id);
+        parent::__construct($id, $f_db);
     }
 
-    private function read($id) {
-        $this->invoice = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
-						FROM c_invoice
-						WHERE c_invoice_id='".$this->f_db->escape_string($id)."'"));
-    }
+//    public function __construct($id, $f_db = NULL) {
+//        if(!empty($f_db)) {
+//            $this->f_db = $f_db;
+//        }
+//        else {
+//
+//        }
+//
+//        if(empty($id)) {
+//            return false;
+//        }
+//
+//        $this->read($id);
+//    }
+//
+//    private function read($id) {
+//        $this->invoice = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
+//						FROM c_invoice
+//						WHERE c_invoice_id='".$this->f_db->escape_string($id)."'"));
+//    }
 
     public function get_currency($currency = '') {
         if(!empty($currency)) {
             return new IntegrationOBCurrency($currency, $this->f_db);
         }
         else {
-            return new IntegrationOBCurrency($this->invoice['c_currency_id'], $this->f_db);
+            return new IntegrationOBCurrency($this->data['c_currency_id'], $this->f_db);
         }
     }
 
     public function get_id() {
-        return $this->invoice['c_invoice_id'];
+        return $this->data['c_invoice_id'];
     }
 
     public function get_salesrep() {
-        return new IntegrationOBUser($this->invoice['salesrep_id'], $this->f_db);
+        return new IntegrationOBUser($this->data['salesrep_id'], $this->f_db);
     }
 
     public function get_customer() {
-        return new IntegrationOBBPartner($this->invoice['c_bpartner_id'], $this->f_db);
+        return new IntegrationOBBPartner($this->data['c_bpartner_id'], $this->f_db);
     }
 
     public function get_saleorder() {
-        return new IntegrationOBOrder($this->invoice['c_order_id'], $this->f_db);
+        return new IntegrationOBOrder($this->data['c_order_id'], $this->f_db);
     }
 
     public function get_paymentterm() {
-        return new IntegrationOBPaymentTerm($this->invoice['c_paymentterm_id'], $this->f_db);
+        return new IntegrationOBPaymentTerm($this->data['c_paymentterm_id'], $this->f_db);
     }
 
     public function get_organisation() {
-        return new IntegrationOBOrg($this->invoice['ad_org_id'], $this->f_db);
+        return new IntegrationOBOrg($this->data['ad_org_id'], $this->f_db);
     }
 
     public function get_invoicelines() {
         $lines = new IntegrationOBInvoiceLine(null, $this->f_db);
-        return $lines->get_invoicelines('c_invoice_id=\''.$this->invoice['c_invoice_id'].'\'');
+        return $lines->get_invoicelines('c_invoice_id=\''.$this->data['c_invoice_id'].'\'');
     }
 
     public function is_saletrx() {
-        if($this->invoice['issotrx'] == 'Y') {
+        if($this->data['issotrx'] == 'Y') {
             return true;
         }
         return false;
@@ -1381,18 +1390,18 @@ class IntegrationOBInvoice {
     }
 
     public function get_paymentplan() {
-        return IntegrationOBFinPaymentSchedule::get_data("c_invoice_id='".$this->invoice['c_invoice_id']."'");
+        return IntegrationOBFinPaymentSchedule::get_data("c_invoice_id='".$this->data['c_invoice_id']."'");
     }
 
     public function __get($name) {
-        if(isset($this->invoice[$name])) {
-            return $this->invoice[$name];
+        if(isset($this->data[$name])) {
+            return $this->data[$name];
         }
         return false;
     }
 
     public function get() {
-        return $this->invoice;
+        return $this->data;
     }
 
 }
@@ -1451,7 +1460,7 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
 
     public function get_cost($referer = null) {
         global $core;
-        //$transaction = $this->get_transaction();
+//$transaction = $this->get_transaction();
 //        if(is_array($transaction)) {
 //            $cost = 0;
 //            foreach($transaction as $trx) {
@@ -1474,15 +1483,15 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
         }
         $transaction = new IntegrationOBTransaction(null, $this->f_db);
         if(is_array($inoutline)) {
-            //$transactions = array();
+//$transactions = array();
             foreach($inoutline as $iol) {
                 if($iol->get_inout()->docstatus == 'CO') {
                     return $transaction->get_transaction_byattr('m_inoutline_id', $iol->m_inoutline_id);
                 }
-                //$transactions[] = $transaction->get_transaction_byattr('m_inoutline_id', $iol->m_inoutline_id);
+//$transactions[] = $transaction->get_transaction_byattr('m_inoutline_id', $iol->m_inoutline_id);
             }
             return null;
-            //return $transactions;
+//return $transactions;
         }
         return $transaction->get_transaction_byattr('m_inoutline_id', $inoutline->m_inoutline_id);
     }
@@ -1502,7 +1511,7 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
     }
 
     public function get_data_byyearmonth($filters = '', $options = array()) {
-        //$rawdata = $this->get_aggreateddata_byyearmonth('salesrep_id, c_currency_id', $filters);
+//$rawdata = $this->get_aggreateddata_byyearmonth('salesrep_id, c_currency_id', $filters);
         $lines = IntegrationOBInvoiceLine::get_data($filters); // array('order' => array('sort' => 'DESC', 'by' => 'qtyinvoiced')));
         if(is_array($lines)) {
             foreach($lines as $line) {
@@ -1553,6 +1562,9 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
 
                 if(!empty($options['reportcurrency'])) {
                     $reportcurrency = new Currencies($options['reportcurrency']);
+                    if($currency->iso_code == 'GHC') {
+                        $currency->iso_code = 'GHS';
+                    }
                     $fxrate = $reportcurrency->get_fxrate_bytype($options['fxtype'], $currency->iso_code, array('from' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 01:00'), 'to' => strtotime(date('Y-m-d', $invoice->dateinvoiceduts).' 24:00'), 'year' => date('Y', $invoice->dateinvoiceduts), 'month' => date('m', $invoice->dateinvoiceduts)), array('precision' => 4));
                     if(empty($fxrate)) {
                         $options['fxtype'] = "ylast";
@@ -1560,8 +1572,8 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                     }
                     if(!empty($fxrate)) {
                         $data['salerep']['linenetamt'][$invoice->salesrep_id][$invoice->dateparts['year']][$invoice->dateparts['mon']] += $line->linenetamt / $fxrate;
-                        //   $data['products']['linenetamt'][$line->m_product_name][$invoice->dateparts['year']][$invoice->dateparts['mon']] += $line->linenetamt / $fxrate;
-                        //   $data['suppliers']['linenetamt'][$invoice->bpartner_name][$invoice->dateparts['year']][$invoice->dateparts['mon']] += $line->linenetamt / $fxrate;
+//   $data['products']['linenetamt'][$line->m_product_name][$invoice->dateparts['year']][$invoice->dateparts['mon']] += $line->linenetamt / $fxrate;
+//   $data['suppliers']['linenetamt'][$invoice->bpartner_name][$invoice->dateparts['year']][$invoice->dateparts['mon']] += $line->linenetamt / $fxrate;
                         $dataperday['salerep']['linenetamt'][$invoice->salesrep_id][$invoice->dateparts['year']][$invoice->dateparts['mon']][$invoice->dateparts['mday']] += $line->linenetamt / $fxrate;
                         $dataperday['products']['linenetamt'][$line->m_product_name][$invoice->dateparts['year']][$invoice->dateparts['mon']][$invoice->dateparts['mday']] += $line->linenetamt / $fxrate;
                         $dataperday['suppliers']['linenetamt'][$invoice->bpartner_name][$invoice->dateparts['year']][$invoice->dateparts['mon']][$invoice->dateparts['mday']] += $line->linenetamt / $fxrate;
@@ -1585,9 +1597,9 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
         $tableindexes = array('salerep', 'products', 'suppliers');
         $classificationtypes = array('bymonth', 'byytd', 'byquarter');
         $TIME_NOW = TIME_NOW;
-        // if($core->user['uid'] == 362) {
-        // $TIME_NOW = '1451460679';
-        // }
+// if($core->user['uid'] == 362) {
+// $TIME_NOW = '1451460679';
+// }
         $current_year = date('Y', $TIME_NOW);
         $x = date('m');
         if(date('m') == '01' && $options['reporttype'] == 'endofmonth') {
@@ -1621,9 +1633,9 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                                     $ytdclassification_data[$id] +=0;
                                 }
                             }
-                            //Change variable names from months to ytd
+//Change variable names from months to ytd
                             $classification[$tableindex]['byytd'][$tableindex][$id]['currentmonthdata'] = $classification[$tableindex]['byytd'][$tableindex][$id]['currentdata'];
-                            //Get Last year total data to be compared with current year data
+//Get Last year total data to be compared with current year data
                             $lastyeardata = $salerepdata[($current_year - 1)];
                             if(is_array($lastyeardata)) {
                                 foreach($lastyeardata as $lydata_array) {
@@ -1704,7 +1716,7 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                     unset($periodclassification);
                 }
             }
-            //  }
+//  }
             if($options['reporttype'] == 'endofmonth') {
                 $classification[$tableindex]['byytd'][$tableindex] = $this->get_ytdsales($data, $period, $tableindex);
             }
@@ -1727,9 +1739,9 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
     public function get_ytdsales($data, $period, $tableindex) {
         global $core;
         $TIME_NOW = TIME_NOW;
-        //if($core->user['uid'] == 362) {
-        // $TIME_NOW = '1451460679';
-        // }
+//if($core->user['uid'] == 362) {
+// $TIME_NOW = '1451460679';
+// }
         $classificationtypes = array('byytd');
         $current_year = date('Y', $TIME_NOW);
         if(date('m') == '01') {
@@ -1750,9 +1762,9 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                             $ytdclassification_data[$id] +=0;
                         }
                     }
-                    //Change variable names from months to ytd
+//Change variable names from months to ytd
                     $classification[$tableindex]['byytd'][$tableindex][$id]['currentmonthdata'] = $classification[$tableindex]['byytd'][$tableindex][$id]['currentdata'];
-                    //Get Last year total data to be compared with current year data
+//Get Last year total data to be compared with current year data
                     $lastyeardata = $salerepdata[($current_year - 1)];
                     if(is_array($lastyeardata)) {
                         $to = getdate($period['to']);
@@ -1781,7 +1793,7 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
             }
         }
 
-        ///Sort Data descending to classify top supp/products or BM //
+///Sort Data descending to classify top supp/products or BM //
         if(isset($ytdclassification_data) && isset($classification[$tableindex]['byytd'][$tableindex])) {
             array_multisort($ytdclassification_data, SORT_DESC, $classification[$tableindex]['byytd'][$tableindex]);
         }
@@ -1794,7 +1806,7 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
     public function parse_classificaton_tables($classification, $options = array()) {
         global $lang, $core;
         $TIME_NOW = TIME_NOW;
-        //$TIME_NOW = '1451460679';
+//$TIME_NOW = '1451460679';
         if(date('m') == '01' && $options['reporttype'] == 'endofmonth') {
             $TIME_NOW = strtotime('last day of last month');
         }
@@ -1855,7 +1867,7 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                         if(is_array($classificationdata[$tableindex])) {
                             reset($classificationdata[$tableindex]);
                             $topofthemonthid = key($classificationdata[$tableindex]);
-                            // }
+// }
                             $rank = 1;
                             foreach($classificationdata[$tableindex] as $id => $cdata) {
                                 if(is_array($cdata)) {
@@ -1929,7 +1941,7 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                         $topclassification_summary .='<div>Top '.$label.' '.$lang->$classificationtype.' : <span style="font-weight:bold;">'.$topofthemonth_obj_name.'</span></div><br/>';
 
 
-                        $output .='<div style="width:100%;"><h2>'.$lang->chart.' <small>(K Table Amounts )</small> </h2>';
+                        $output .='<div style="width:100%;">'; //<h2>'.$lang->chart.' <small>(K Table Amounts )</small> </h2>';
                         $chart = $this->parse_classificaton_charts($classificationdata[$tableindex], $tableindex);
                         if(!empty($chart)) {
                             $output .= '<img src="data:image/png;base64,'.base64_encode(file_get_contents($this->parse_classificaton_charts($classificationdata[$tableindex], $tableindex))).'" />';
@@ -1948,7 +1960,7 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
     public function parse_classificaton_charts($data, $type) {
         global $lang, $core;
         $TIME_NOW = TIME_NOW;
-        //$TIME_NOW = '1451460679';
+//$TIME_NOW = '1451460679';
         if(date('m') == '01' && $options['reporttype'] == 'endofmonth') {
             $TIME_NOW = strtotime('last day of last month');
         }
@@ -2055,6 +2067,27 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
         return false;
     }
 
+    /**
+     * TO BE USED IN ARO COMPARISSION STUDY
+     * @param type $foreignpid : product id on ope bravo
+     * @param string $filters : filters including affid and customer id
+     * @return typeReturn // summary of up to last 10 sales invoies (selling price, creit days)
+     */
+    public function get_salesinvoicesummary($foreignpid, $filters) {
+        $filters .=" AND m_product_id ='".$foreignpid."'";
+        $sql = "SELECT * FROM c_invoiceline JOIN c_invoice  ON (c_invoice.c_invoice_id=c_invoiceline.c_invoice_id)
+                JOIN c_paymentterm pt ON (c_invoice.c_paymentterm_id=pt.c_paymentterm_id)
+                WHERE ".$filters." order by dateinvoiced DESC LIMIT 10";
+
+        $query = $this->f_db->query($sql);
+        if($this->f_db->num_rows($query) > 0) {
+            while($invoiceline = $this->f_db->fetch_assoc($query)) {
+                $data[] = $invoiceline;
+            }
+        }
+        return $data;
+    }
+
 }
 
 class IntegrationOBOrder extends IntegrationAbstractClass {
@@ -2066,21 +2099,21 @@ class IntegrationOBOrder extends IntegrationAbstractClass {
     const DISPLAY_NAME = '';
     const CLASSNAME = __CLASS__;
 
-    public function __construct($id, $f_db = NULL) {
-        if(!empty($f_db)) {
-            $this->f_db = $f_db;
-        }
-        else {
-//Open connections
-        }
-        $this->read($id);
-    }
-
-    private function read($id) {
-        $this->data = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
-						FROM c_order
-						WHERE c_order_id='".$this->f_db->escape_string($id)."'"));
-    }
+//    public function __construct($id, $f_db = NULL) {
+//        if(!empty($f_db)) {
+//            $this->f_db = $f_db;
+//        }
+//        else {
+////Open connections
+//        }
+//        $this->read($id);
+//    }
+//
+//    private function read($id) {
+//        $this->data = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
+//						FROM c_order
+//						WHERE c_order_id='".$this->f_db->escape_string($id)."'"));
+//    }
 
     public function get_paymentplan() {
         return IntegrationOBFinPaymentSchedule::get_data("c_order_id='".$this->invoice['c_order_id']."'");
@@ -2121,19 +2154,19 @@ class IntegrationOBOrderLine extends IntegrationAbstractClass {
     const DISPLAY_NAME = '';
     const CLASSNAME = __CLASS__;
 
-//    public function __construct($id, $f_db = NULL) {
-//        parent::__construct($id, $f_db);
-//    }
-
     public function __construct($id, $f_db = NULL) {
-        if(!empty($f_db)) {
-            $this->f_db = $f_db;
-        }
-        else {
-//Open connections
-        }
-        $this->read($id);
+        parent::__construct($id, $f_db);
     }
+
+//    public function __construct($id, $f_db = NULL) {
+//        if(!empty($f_db)) {
+//            $this->f_db = $f_db;
+//        }
+//        else {
+////Open connections
+//        }
+//        $this->read($id);
+//    }
 
     private function read($id) {
         $this->data = $this->f_db->fetch_assoc($this->f_db->query("SELECT *
@@ -2175,6 +2208,22 @@ class IntegrationOBOrderLine extends IntegrationAbstractClass {
         else {
             return false;
         }
+    }
+
+    public function get_purchaseorders_summary($product, $filter) {
+        $query = $this->f_db->query("SELECT * FROM c_order o JOIN c_orderline ol ON (ol.c_order_id=o.c_order_id) WHERE
+							".$filter." ORDER by documentdate DESC LIMIT 10");
+
+        while($orderline = $this->f_db->fetch_assoc($query)) {
+            $purchasedata[] = $orderline;
+
+            // $po[$documentline['m_product_id']][$document['bpid']][$document['ad_org_id']][] = $documentline['PriceActual'];
+            //  $documentline['uom']
+            //  $document['currency'],
+            //  $document['paymenttermsdays'],
+            //  'purchaseType' => 'SKI'
+        }
+        return $purchasedata;
     }
 
 }
@@ -2655,6 +2704,10 @@ class IntegrationOBBPartner extends IntegrationAbstractClass {
 
     public function get() {
         return $this->data;
+    }
+
+    public function get_bplocation() {
+        return IntegrationOBBusinessPartnerLocation::get_data("c_bpartner_id='".$this->data['c_bpartner_id']."'");
     }
 
 }

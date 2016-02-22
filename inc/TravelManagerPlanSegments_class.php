@@ -329,6 +329,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                 $expensestdata['currency'] = $expense['currency'];
                 $expensestdata['actualAmt'] = $expense['actualAmt'];
                 $expensestdata['description'] = $expense['description'];
+                $expensestdata['comments'] = $expense['comments'];
                 $expensestdata['paidBy'] = $expense['paidBy'];
                 $expensestdata['paidById'] = $expense['paidById'];
                 $expenses_obj = new Travelmanager_Expenses();
@@ -412,7 +413,7 @@ class TravelManagerPlanSegments extends AbstractClass {
             $this->errorcode = 2;
             return $this;
         }
-        $valid_fields = array('fromDate', 'toDate', 'originCity', 'destinationCity', 'reason', 'isNoneBusiness', 'noAccomodation', 'eid', 'affid');
+        $valid_fields = array('fromDate', 'toDate', 'originCity', 'destinationCity', 'reason', 'isNoneBusiness', 'noAccomodation', 'eid', 'affid', 'apiFlightdata');
         /* Consider using array intersection */
         foreach($valid_fields as $attr) {
             $segmentnewdata[$attr] = $segmentdata[$attr];
@@ -681,6 +682,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                 $expensestdata['currency'] = $expense['currency'];
                 $expensestdata['actualAmt'] = $expense['actualAmt'];
                 $expensestdata['description'] = $expense['description'];
+                $expensestdata['comments'] = $expense['comments'];
                 $expensestdata['paidBy'] = $expense['paidBy'];
                 $expensestdata['paidById'] = $expense['paidById'];
                 $expenses_obj = new Travelmanager_Expenses();
@@ -931,7 +933,9 @@ class TravelManagerPlanSegments extends AbstractClass {
                     $avgof = array('10', '5');
                     foreach($avgof as $flightsnum) {
                         $avg = $transportation->get_averagaeflightfare(array('segid' => $this->data[self::PRIMARY_KEY], 'originCity' => $this->data['originCity'], 'destinationCity' => $this->data['destinationCity']), $flightsnum);
-                        $avgflightfare[$avg['numofflights']] = 'Avg Last '.$avg['numofflights'].' '.$numfmt->formatCurrency($avg['avgprice'], $fromcurr->alphaCode);
+                        if($avg) {
+                            $avgflightfare[$avg['numofflights']] = 'Avg OF Last '.$avg['numofflights'].' Flight(s) : '.$numfmt->formatCurrency($avg['avgprice'], "USD");
+                        }
                     }
                     if(is_array($avgflightfare)) {
                         foreach($avgflightfare as $avgof => $avgflightfare) {
@@ -1103,7 +1107,7 @@ class TravelManagerPlanSegments extends AbstractClass {
 				ORDER BY date DESC LIMIT 0, 1)END)";
         $additional_expenses = $db->query("SELECT tmetid,sum(expectedAmt*{$fxrate_query['expenses']}) AS expectedAmt,description FROM ".Tprefix."travelmanager_expenses tme WHERE tmpsid IN (SELECT tmpsid FROM travelmanager_plan_segments WHERE tmpid =".intval($this->tmpid).") GROUP by tmetid");
         if($db->num_rows($additional_expenses) > 0) {
-            $additional_expenses_details = '<div style="display:block;padding:5px 0px 5px 0px;width:15%;" class="subtitle">'.$lang->addexp.'</div>';
+//            $additional_expenses_details = '<div style="display:block;padding:5px 0px 5px 0px;width:15%;" class="subtitle">'.$lang->addexp.'</div>';
             while($additionalexp = $db->fetch_assoc($additional_expenses)) {
                 $additionalexp_type = new TravelManager_Expenses_Types($additionalexp['tmetid']);
 
@@ -1121,8 +1125,8 @@ class TravelManagerPlanSegments extends AbstractClass {
                 $additional_expenses_details .= $warnings['foodandbeverage'].'</div>';
                 $expenses['additional'] += $additionalexp['expectedAmt'];
             }
-            $additional_expenses_details .='<div style="display:block;padding:5px 0px 5px 0px;">';
-            $additional_expenses_details .='<div style="display:inline-block;width:85%;">'.$lang->additionalexpensestotal.'</div><div style="width:10%; display:inline-block;text-align:right;font-weight:bold;">  '.$numfmt->formatCurrency(round($expenses['additional']), "USD").'</div></div>';
+//            $additional_expenses_details .='<div style="display:block;padding:5px 0px 5px 0px;">';
+//            $additional_expenses_details .='<div style="display:inline-block;width:85%;">'.$lang->additionalexpensestotal.'</div><div style="width:10%; display:inline-block;text-align:right;font-weight:bold;">  '.$numfmt->formatCurrency(round($expenses['additional']), "USD").'</div></div>';
             $expenses_total += $expenses['additional'];
         }
 
@@ -1143,13 +1147,15 @@ class TravelManagerPlanSegments extends AbstractClass {
                 $total_fin_amount +=$amount;
             }
         }
-        if($total_fin_amount != 0) {
-            $amount_payedinadv.='<div style="border-bottom: 1px;border-bottom-style: solid;border-bottom-color: greenyellow">';
-            $amount_payedinadv.='<div style = "width:85%;display:inline-block;">'.$lang->amountneededinadvance.'</div>';
-            $amount_payedinadv .= '<div style = "width:10%;display:inline-block;text-align:right;">'.$numfmt->formatCurrency(round($total_fin_amount), "USD").'</div>';
-            $amount_payedinadv.='</div>';
-//            $expenses_total+=$total_fin_amount;
+        if(!isset($total_fin_amount) || empty($total_fin_amount)) {
+            $total_fin_amount = 0;
         }
+        $amount_payedinadv.='<div style="border-bottom: 1px;border-bottom-style: solid;border-bottom-color: greenyellow">';
+        $amount_payedinadv.='<div style = "width:85%;display:inline-block;">'.$lang->amountneededinadvance.'</div>';
+        $amount_payedinadv .= '<div style = "width:10%;display:inline-block;text-align:right;">'.$numfmt->formatCurrency(round($total_fin_amount), "USD").'</div>';
+        $amount_payedinadv.='</div>';
+//            $expenses_total+=$total_fin_amount;
+
         $expenses_total = $numfmt->formatCurrency(round($expenses_total), "USD");
 // $expenses_total = round($expenses_total, 2);
         eval("\$segment_expenses  = \"".$template->get('travelmanager_viewplan_expenses')."\";");

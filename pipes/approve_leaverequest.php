@@ -51,6 +51,7 @@ if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject) || $ignore_su
     }
     $employee = new Users($leave['uid']);
     $leave_obj = new Leaves(array('lid' => $leave['lid']), false);
+    $travelmanager_plan = TravelManagerPlan::get_plan(array('lid' => $leave['lid']), array('returnarray' => false));
 
     $query = $db->query("SELECT DISTINCT(u.uid), Concat(firstName, ' ', lastName) AS employeename FROM ".Tprefix."users u LEFT JOIN ".Tprefix."usersemails ue ON (ue.uid=u.uid) WHERE u.email='".$db->escape_string($data['from'])."' OR ue.email='".$db->escape_string($data['from'])."'");
     if($db->num_rows($query) > 0) {
@@ -73,7 +74,6 @@ if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject) || $ignore_su
 
                 //$approve_link = DOMAIN.'/index.php?module=attendance/listleaves&action=perform_approveleave&toapprove='.base64_encode($core->input['requestKey']).'&referrer=email';
                 $approve_link = DOMAIN.'/index.php?module=attendance/listleaves&action=takeactionpage&requestKey='.base64_encode($core->input['requestKey']).'&id='.base64_encode($leave['lid']);
-                $travelmanager_plan = TravelManagerPlan::get_plan(array('lid' => $leave['lid']), array('returnarray' => false));
 
                 if(is_object($travelmanager_plan)) {
                     $planid = $travelmanager_plan->tmpid;
@@ -115,11 +115,15 @@ if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject) || $ignore_su
                                     if(is_object($isselectedhotel)) {
                                         continue;
                                     }
-                                    $path = "./images/invalid.gif";
-                                    $iscontractedicon = '<img src="data:image/png;base64,'.base64_encode(file_get_contents($path)).'" alt="'.$lang->no.'"/>';
+                                    $path = "{$core->settings['rootdir']}/images/invalid.gif";
+                                    if(file_exists($path)) {
+                                        $iscontractedicon = '<img src="data:image/png;base64,'.base64_encode(file_get_contents($path)).'" alt="'.$lang->no.'"/>';
+                                    }
                                     if($hotel->isContracted == 1) {
-                                        $path = "./images/valid.gif";
-                                        $iscontractedicon = '<img src="data:image/png;base64,'.base64_encode(file_get_contents($path)).'" alt="'.$lang->yes.'"/>';
+                                        $path = "{$core->settings['rootdir']}/images/valid.gif";
+                                        if(file_exists($path)) {
+                                            $iscontractedicon = '<img src="data:image/png;base64,'.base64_encode(file_get_contents($path)).'" alt="'.$lang->yes.'"/>';
+                                        }
                                     }
                                     /* parse ratings */
                                     eval("\$otherapprovedhotels .= \"".$template->get('travelmanager_approvedhotel_row')."\";");
@@ -167,14 +171,14 @@ if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject) || $ignore_su
                 /* Parse expense information for message - END */
 
                 $lang->requestleavesubject = $lang->sprint($lang->requestleavesubject, $leave['firstName'].' '.$leave['lastName'], strtolower($leave['type_details']['title']), $request_key);
-                $lang->requestleavemessagesupervisor = $lang->sprint($lang->requestleavemessagesupervisor, $leave['firstName'].' '.$leave['lastName'], strtolower($leave['type_details']['title']).$leave['details_crumb'], date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave['fromDate']), date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave['toDate']), $leave['reason'], $user['employeename'], $approve_link, $travelmanager_viewplan);
+                $lang->requestleavemessagesupervisor = $lang->sprint($lang->requestleavemessagesupervisor, $leave['firstName'].' '.$leave['lastName'], strtolower($leave['type_details']['title']).$leave['details_crumb'], date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave['fromDate']), date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave['toDate']), $leave['reason'], $user['employeename'], $approve_link);
 
                 $email_data = array(
                         'from_email' => 'approve_leaverequest@ocos.orkila.com',
                         'from' => 'Orkila Attendance System',
                         'to' => $approver['email'],
                         'subject' => $lang->requestleavesubject,
-                        'message' => $lang->requestleavemessagesupervisor
+                        'message' => $lang->requestleavemessagesupervisor.$travelmanager_viewplan
                 );
                 $mail = new Mailer($email_data, 'php');
                 if($mail->get_status() === true) {
@@ -287,9 +291,14 @@ if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject) || $ignore_su
                     if(empty($lang->leavenotificationmessage_typedetails)) {
                         $lang->leavenotificationmessage_typedetails = strtolower($leave['type_details']['title']);
                     }
-
-                    $lang->leavenotificationsubject = $lang->sprint($lang->leavenotificationsubject, $leave['firstName'].' '.$leave['lastName'], $lang->leavenotificationmessage_typedetails, $tooktaking, date($core->settings['dateformat'], $leave['fromDate']), date($subject_todate_format, $leave['toDate']));
-                    $lang->leavenotificationmessage = $lang->sprint($lang->leavenotificationmessage, $leave['firstName'].' '.$leave['lastName'], $lang->leavenotificationmessage_typedetails, date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave['fromDate']), date($message_todate_format, $leave['toDate']), $lang->leavenotificationmessage_days, $tooktaking, $contact_details, $contactperson_details);
+                    if(is_object($travelmanager_plan) && !empty($leave['destinationCity'])) {
+                        $destinationcity = new Cities(intval($leave['destinationCity']));
+                        if(is_object($destinationcity)) {
+                            $destinationcity_output = ' to '.$destinationcity->get_displayname();
+                        }
+                    }
+                    $lang->leavenotificationsubject = $lang->sprint($lang->leavenotificationsubject, $leave['firstName'].' '.$leave['lastName'], $lang->leavenotificationmessage_typedetails, $tooktaking, date($core->settings['dateformat'], $leave['fromDate']), date($subject_todate_format, $leave['toDate']).$destinationcity_output);
+                    $lang->leavenotificationmessage = $lang->sprint($lang->leavenotificationmessage, $leave['firstName'].' '.$leave['lastName'], $lang->leavenotificationmessage_typedetails, date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave['fromDate']), date($message_todate_format, $leave['toDate']), $lang->leavenotificationmessage_days.$destinationcity_output, $tooktaking, $contact_details, $contactperson_details);
                     $main_affiliate = $employee->get_mainaffiliate();
                     if(is_object($main_affiliate) && !empty($main_affiliate->cpAccount) && $leave_obj->createAutoResp = 1) {
                         $leave_obj->create_autoresponder();

@@ -116,6 +116,9 @@ else {
             case 2:
                 output_xml("<status>false</status><message>{$lang->fillrequiredfields}</message>");
                 exit;
+            case 3:
+                output_xml("<status>false</status><message>{$lang->invalidemailaddress}</message>");
+                exit;
         }
     }
 }

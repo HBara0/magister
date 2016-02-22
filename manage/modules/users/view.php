@@ -93,15 +93,15 @@ if(!$core->input['action']) {
             else {
                 $lastvisit = $lang->never;
             }
-            $userslist .= "<tr class='{$class}'>";
+            $userslist .= "<tr>";
             $userslist .= "<td>{$user[uid]}</td><td><a href='../users.php?action=profile&uid={$user[uid]}' target='_blank'>{$user[username]}</a></td><td>{$user[email]}&nbsp;</td><td>{$user[grouptitle]}</td><td>{$useraffiliates}&nbsp;</td><td>{$lastvisit}&nbsp;</td>";
-            $userslist .= "<td><a href='index.php?module=users/edit&amp;uid={$user[uid]}'><img src='{$core->settings[rootdir]}/images/edit.gif' alt='{$lang->edit}' border='0' /></a></td><tr>";
+            $userslist .= "<td><a href='index.php?module=users/edit&amp;uid={$user[uid]}'><img src='{$core->settings[rootdir]}/images/edit.gif' alt='{$lang->edit}' border='0' /></a></td></tr>";
         }
-        $multipages = new Multipages("users", $core->settings['itemsperlist']);
-        $userslist .= "<tr><td colspan='7'>".$multipages->parse_multipages()."</td></tr>";
+//        $multipages = new Multipages("users", $core->settings['itemsperlist']);
+//        $userslist .= "<tr><td colspan='7'>".$multipages->parse_multipages()."</td></tr>";
     }
     else {
-        $userslist = "<tr><td colspan='5'>{$lang->nousers}</td></tr>";
+        $userslist = "<tr><td colspan='7'>{$lang->nousers}</td></tr>";
     }
 
     eval("\$viewpage = \"".$template->get("admin_users_view")."\";");

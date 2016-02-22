@@ -120,9 +120,14 @@ if(!$core->input['action']) {
                             $textcolor = 'green';
                         }
                         $passedcolumns = '<td><span style="color:'.$textcolor.'">'.$qresult.'</span></td>';
-                        $passedcolumns .= '<td>'.$response['score'].'/'.$response['total'].'</td>';
+                        $passedcolumns .= '<td>'.$response['score'].'/'.$response['total'].' in '.gmdate('H:i:s', ($response['timeDone'] - $response['startTime'])).'</td>';
                     }
-
+                    if(isset($response[uid])) {
+                        $respondant_details = "<a href='users.php?action=profile&uid={$response[uid]}' target='_blank'>{$response[respondant]}</a>";
+                    }
+                    else {
+                        $respondant_details = $response[respondant];
+                    }
                     eval("\$responses_rows .= \"".$template->get('surveys_results_responses_row')."\";");
                 }
                 eval("\$responses = \"".$template->get('surveys_results_responses')."\";");

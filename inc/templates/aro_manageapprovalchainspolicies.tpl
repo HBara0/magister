@@ -31,6 +31,15 @@
                     <tr><td>{$lang->affiliate} </td>
                         <td> {$affiliate_list}</td>
                     </tr>
+                    <tr>
+                        <td>{$lang->country}<span style="font-weight:bold"> ({$lang->countrypolicy})</span></td>
+                        <td>
+                            <input id="countries_1_autocomplete" autocomplete="off" type="text" value="{$chainpolicy[country]}" style="width:150px;">
+                            <input id="countries_1_id" name="chainpolicy[coid]"  value="{$chainpolicy[coid]}" type="hidden">
+                            <div id="searchQuickResults_1" class="searchQuickResults" style="display: none;"></div>
+
+                        </td>
+                    </tr>
                     <tr ><td>{$lang->effromdate} </td>
                         <td><input type="text" id="pickDate_from"  autocomplete="off" tabindex="2" value="{$chainpolicy[effectiveFrom_output]}" required="required"/>
                             <input type="hidden" name="chainpolicy[effectiveFrom]" id="altpickDate_from" value="{$chainpolicy[effectiveFrom_formatted]}"/></td>
@@ -51,7 +60,7 @@
                     </tr>
                     <tr>
                         <td colspan="2">
-                            <input name="chainpolicy[informCoordinators]" id="chainpolicy_informCoordinators" type="checkbox" value="1" {$checked[informCoordinators]}> {$lang->inform} {$lang->coordinators}
+                            <input name="chainpolicy[informCoordinators]" id="chainpolicy_informCoordinators" type="checkbox" value="1" checked="checked" disabled="disabled"> {$lang->inform} {$lang->coordinators}
                         </td>
                     </tr>
                     <tr>
@@ -116,6 +125,8 @@
                     </tr>
                 </table>
                 <input type="submit" id="perform_aro/manageapprovalchainspolicies_Button" value="Save" class="button" style="{$display[save]}"/>
+                <a class="button" href="{$core->settings['rootdir']}/index.php?module=aro/manageapprovalchainspolicies&id={$chainpolicy[aapcid]}&referrer=clone" value="Clone" target='_blank' style="{$display['clone']};padding-top:5px;color:white">
+                    Clone</a>
             </form>
             <div id="perform_aro/manageapprovalchainspolicies_Results"></div>
         </td>

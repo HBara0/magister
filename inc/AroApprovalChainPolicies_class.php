@@ -20,7 +20,7 @@ class AroApprovalChainPolicies extends AbstractClass {
     const PRIMARY_KEY = 'aapcid';
     const TABLE_NAME = 'aro_approvalchain_policies';
     const DISPLAY_NAME = '';
-    const UNIQUE_ATTRS = 'affid,purchaseType,effectiveFrom,effectiveTo';
+    const UNIQUE_ATTRS = 'affid,coid,purchaseType,effectiveFrom,effectiveTo';
     const SIMPLEQ_ATTRS = '*';
     const CLASSNAME = __CLASS__;
 
@@ -51,12 +51,13 @@ class AroApprovalChainPolicies extends AbstractClass {
                 }
             }
             $policies_array = array('affid' => $data['affid'],
+                    'coid' => $data['coid'],
                     'effectiveFrom' => $data['effectiveFrom'],
                     'effectiveTo' => $data['effectiveTo'],
                     'approvalChain' => @serialize($data['approverchain']),
                     'createdBy' => $core->user['uid'],
                     'purchaseType' => $data['purchaseType'],
-                    'informCoordinators' => $data['informCoordinators'],
+//                    'informCoordinators' => $data['informCoordinators'],
                     'informGlobalCFO' => $data['informGlobalCFO'],
                     'informGlobalPurchaseMgr' => $data['informGlobalPurchaseMgr'],
                     'informExternalUsers' => base64_encode($data['informExternalUsers']),
@@ -64,6 +65,7 @@ class AroApprovalChainPolicies extends AbstractClass {
                     'informGlobalCommercials' => $data['informGlobalCommercials'],
                     'createdOn' => TIME_NOW,
             );
+            $policies_array['informCoordinators'] = 1;
             $query = $db->insert_query(self::TABLE_NAME, $policies_array);
             if($query) {
                 $this->data[self::PRIMARY_KEY] = $db->last_id();
@@ -100,12 +102,13 @@ class AroApprovalChainPolicies extends AbstractClass {
                     }
                 }
                 $policies_array = array('affid' => $data['affid'],
+                        'coid' => $data['coid'],
                         'effectiveFrom' => $data['effectiveFrom'],
                         'effectiveTo' => $data['effectiveTo'],
                         'approvalChain' => @serialize($data['approverchain']),
                         'modifiedBy' => $core->user['uid'],
                         'purchaseType' => $data['purchaseType'],
-                        'informCoordinators' => $data['informCoordinators'],
+//                        'informCoordinators' => $data['informCoordinators'],
                         'informGlobalCFO' => $data['informGlobalCFO'],
                         'informGlobalPurchaseMgr' => $data['informGlobalPurchaseMgr'],
                         'informGlobalCommercials' => $data['informGlobalCommercials'],
@@ -114,6 +117,7 @@ class AroApprovalChainPolicies extends AbstractClass {
                         'modifiedOn' => TIME_NOW,
                 );
                 unset($data['approvalChain']);
+                $policies_array['informCoordinators'] = 1;
                 $existing_chain = new AroApprovalChainPolicies($this->data[self::PRIMARY_KEY]);
                 if(is_object($existing_chain)) {
                     if(strcmp($existing_chain->approvalChain, $policies_array['approvalChain']) != 0) {
@@ -152,7 +156,7 @@ class AroApprovalChainPolicies extends AbstractClass {
     }
 
     public function co_exist($extra_where = '') {
-        $where = 'purchaseType='.$this->data['purchaseType'].' AND affid='.$this->data['affid'].' AND ('
+        $where = 'purchaseType='.$this->data['purchaseType'].' AND affid='.$this->data['affid'].' AND coid='.$this->data['coid'].' AND ('
                 .'((effectiveFrom BETWEEN '.$this->data['effectiveFrom'].' AND '.$this->data['effectiveTo'].') OR (effectiveTo BETWEEN '.$this->data['effectiveFrom'].' AND '.$this->data['effectiveTo'].'))'
                 .' OR '.
                 '(('.$this->data['effectiveFrom'].' BETWEEN effectiveFrom AND effectiveTo) AND ('.$this->data['effectiveTo'].' BETWEEN effectiveFrom AND effectiveTo))'

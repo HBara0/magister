@@ -13,9 +13,9 @@
     <td ><div style="width:50px">{$brandendprod_link}</div></td>
     <td ><div style="width:150px">{$marketintel[endprod]}</div></td>
     <td ><div style="width:150px">{$marketintel[characteristic]}</div></td>
-    <td ><div style="width:150px">{$marketintel[potqty]}</div></td>
-    <td ><div style="width:150px">{$marketintel[marketshare]}</div></td>
-    <td ><div style="width:150px">{$marketintel[price]}</div></td>
+    <td >{$marketintel[potqty]}</td>
+    <td >{$marketintel[marketshare]}</td>
+    <td >{$marketintel[price]}</td>
     <td ><div style="width:150px">{$marketintel[date]}</div></td>
     <td ><div style="width:150px"></div>
         <a style="cursor: pointer;" title="$lang->update" id="updatemktintldtls_{$mibdid}_{$core->input['module']}_loadpopupbyid" rel="mktdetail_{$mibdid}"><img src="{$core->settings[rootdir]}/images/icons/update.png"/></a>

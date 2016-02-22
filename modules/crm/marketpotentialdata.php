@@ -64,9 +64,7 @@ if(!$core->input['action']) {
         $multipage_where .= ' AND '.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
     }
 
-    $filters_row = $filter->prase_filtersrows(array('tags' => 'table', 'display' => $filters_row_display));
-
-
+//    $filters_row = $filter->prase_filtersrows(array('tags' => 'table', 'display' => $filters_row_display));
     //if(!empty($filter_where)) {
     $marketintel_objs = MarketIntelligence::get_marketdata_dal($filter_where, array('returnarray' => true, 'simple' => false, 'order' => $sort_query));
     // }

@@ -56,7 +56,12 @@
         </div>
         <h2>{$lang->employeesperaff}</h2>
         {$table[employeespercountry]}
-
+        <br/>
+        {$table[activesalesorgs]}
+        <br/>
+        {$table[exhibition]}
+        <br/>
+        {$table[seminar]}
     </body>
     {$footer}
 </html>

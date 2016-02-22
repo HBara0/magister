@@ -9,13 +9,19 @@
         {$menu}
         <td class="contentContainer">
             <h1>{$lang->segmentslist}</h1>
-            <table class="datatable" style="display:{$datatable_display};">
+            <table class="datatable_basic table table-bordered row-border hover order-column" cellspacing="0" width="100%">
                 <thead>
                     <tr>
-                        <th style="width:50%;">{$lang->segment}
-                        <th style="width:50%;">{$lang->coordinators}</th>
+                        <th>{$lang->segment}
+                        <th>{$lang->coordinators}</th>
                     </tr>
                 </thead>
+                <tfoot>
+                    <tr>
+                        <th>{$lang->segment}
+                        <th>{$lang->coordinators}</th>
+                    </tr>
+                </tfoot>
                 <tbody>
                     {$segments_rows}
                 </tbody>

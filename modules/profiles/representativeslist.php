@@ -47,7 +47,7 @@ if(!$core->input['action']) {
     $filter_where = null;
     if(is_array($filter_where_values)) {
         $filters_row_display = 'show';
-        $filter_where = ' AND '.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
+        $filter_where = $filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
         $multipage_where .= ' AND '.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
     }
 
@@ -62,8 +62,8 @@ if(!$core->input['action']) {
             $permissionsfilter = 'rpid IN ('.implode(',', array_unique($entityrepresentatives)).') ';
         }
     }
-    if(empty($permissionsfilter)) {
-        error($lang->noentitiesassigned);
+    if(!empty($permissionsfilter)) {
+        $filter_where.=' AND '.$filter_where;
     }
     $representatives = Representatives::get_data($permissionsfilter.$filter_where, array('returnarray' => true, 'order' => $sort_query));
     if(is_array($representatives)) {

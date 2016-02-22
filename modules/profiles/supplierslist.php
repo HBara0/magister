@@ -125,8 +125,8 @@ if(!$core->input['action']) {
             $suppliers_list .= "<tr class='{$class}'><td valign='top'><a href='index.php?module=profiles/entityprofile&amp;eid={$supplier[eid]}'>{$supplier[companyName]}</td><td valign='top'>{$affiliates}</td><td valign='top'>{$segments}</td>";
         }
 
-        $multipages = new Multipages('entities', $core->settings['itemsperlist'], $multipage_where);
-        $suppliers_list .= '<tr><td colspan="3">'.$multipages->parse_multipages().'</td></tr>';
+//        $multipages = new Multipages('entities', $core->settings['itemsperlist'], $multipage_where);
+//        $suppliers_list .= '<tr><td colspan="3">'.$multipages->parse_multipages().'</td></tr>';
     }
     else {
         $suppliers_list = '<tr><td colspan="3">'.$lang->no.'</td></tr>';
