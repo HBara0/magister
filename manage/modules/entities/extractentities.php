@@ -215,17 +215,29 @@ else {
                                             //get all representatives for the company and parse them in a single TD
                                             $representatives = $entity_obj->get_representatives();
                                             if(is_array($representatives)) {
-
                                                 foreach($representatives as $representative) {
-                                                    $rep_field['names'].= $representative->get_displayname().',  ';
-                                                    $rep_field['emails'].= $representative->get_contactinfo().', ';
+                                                    $rep_field['name'] = $representative->get_displayname();
+                                                    $rep_field['email'] = $representative->email;
+                                                    if(empty($representative->email)) {
+                                                        $rep_field['email'] = ' - ';
+                                                    }
+                                                    $rep_field['phone'] = $representative->phone;
+                                                    if(empty($representative->phone)) {
+                                                        $rep_field['phone'] = ' - ';
+                                                    }
+                                                    $rep_field['isactive_output'] = 'no';
+                                                    if($rep_field['isactive_output']) {
+                                                        $rep_field['isactive_output'] = 'yes';
+                                                    }
+                                                    eval("\$entityrows.=\"".$template->get("admin_entities_extractentities_affiliate_segment_entityrow")."\";");
+                                                    unset($rep_field);
                                                 }
                                             }
                                             else {
-                                                $rep_field['names'] = '-';
+                                                $rep_field['names'] = $rep_field['phone'] = $rep_field['email'] = $rep_field['isactive_output'] = '-';
+                                                eval("\$entityrows.=\"".$template->get("admin_entities_extractentities_affiliate_segment_entityrow")."\";");
+                                                unset($rep_field);
                                             }
-                                            eval("\$entityrows.=\"".$template->get("admin_entities_extractentities_affiliate_segment_entityrow")."\";");
-                                            unset($rep_field);
                                         }
                                     }
                                 }
