@@ -175,15 +175,10 @@ if(!$core->input['action']) {
         }
 
         if($core->usergroup['canLockUnlockReports'] == 1) {
-            $buttons_row = "<tr><td colspan='4'><div id='moderation_crm/listvisitreports_Results'></div>&nbsp;</td><td style='text-align: right;' colspan='2'><select id='moderationtools' name='moderationtools'><option>&nbsp;</option><option value='lockunlock'>{$lang->lockunlock}</option></select></td></tr>";
+            $buttons_row = "<tr><td colspan='6'><div id='moderation_crm/listvisitreports_Results'></div>&nbsp;</td><td style='text-align: right;' colspan='2'><select id='moderationtools' name='moderationtools'><option>&nbsp;</option><option value='lockunlock'>{$lang->lockunlock}</option></select></td></tr>";
         }
-
-        if(!empty($vrid_cache)) {
-            $multipages = new Multipages('visitreports', $core->settings['itemsperlist'], 'vrid IN ('.implode(', ', $vrid_cache).')');
-            $reportslist .= "<tr><td colspan='4'>".$multipages->parse_multipages()."&nbsp;</td><td style='text-align: right;' colspan='2'>&nbsp;</td></tr>"; //<a href='".$_SERVER['REQUEST_URI']."&amp;action=exportexcel'><img src='images/icons/xls.gif' alt='{$lang->exportexcel}' border='0' /></a></td></tr>";
-        }
-        else {
-            $reportslist = "<tr><td colspan='7' align='center'>{$lang->novisitreportsavailable}</td></tr>";
+        if(empty($vrid_cache)) {
+            $reportslist = "<tr><td colspan='8' align='center'>{$lang->novisitreportsavailable}</td></tr>";
         }
     }
     else {

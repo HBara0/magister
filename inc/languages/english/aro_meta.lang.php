@@ -285,4 +285,5 @@ $lang['avglast5orders'] = 'Avg. Last 5 Orders';
 $lang['avglast10orders'] = 'Avg. Last 10 Orders';
 $lang['creditdays'] = 'Credit Days';
 $lang['comparisonstudy'] = 'Comparison  Study';
+$lang['aroconversation'] = 'Aro Conversation';
 ?>

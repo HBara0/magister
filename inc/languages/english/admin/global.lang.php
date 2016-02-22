@@ -123,4 +123,6 @@ $lang['managereferencelist'] = 'Manage Reference List';
 $lang['addmissingfxrates'] = 'Add Missing Fx Rates';
 $lang['customername'] = 'Customer Name';
 $lang['segment'] = 'Segment';
+$lang['name'] = 'Name';
+$lang['isactive'] = 'Is Active';
 ?>

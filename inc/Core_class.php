@@ -58,7 +58,7 @@ class Core {
     }
 
     /**
-     * Filters the input based on user permissions
+     * Filters the input based on user permissions and
      * @return type
      */
     public function filter_permissions() {
@@ -68,13 +68,26 @@ class Core {
         /**
          * Default list of permission elements with their possible synonyms
          */
-        $permissions_elements = array('affid' => array('affid', 'affids', 'affiliates'), 'eid' => array('eids', 'eid', 'entities'), 'spid' => array('spid', 'spids', 'suppliers'), 'cid' => array('cids', 'cid', 'customers'), 'psid' => array('psid', 'psids', 'segments'), 'uid' => array('uid', 'uids', 'users'));
+        $permissions_elements = array('affid' => array('affid', 'affids', 'affiliates'), 'eid' => array('eids', 'eid', 'entities'), 'spid' => array('spid', 'spids', 'suppliers'), 'cid' => array('cids', 'cid', 'customers'), 'psid' => array('psid', 'psids', 'segments', 'segment'), 'uid' => array('uid', 'uids', 'users'));
 
         /**
          * Retrieve the business permissions and loop over elements
          */
+        //if there is an array with these names, check their permissions as well
+        $additional_checks = array('filters', 'extrafilters');
+        foreach($additional_checks as $arrayname) {
+            if(isset($this->input[$arrayname]) && is_array($this->input[$arrayname])) {
+                $extrachecks[] = $arrayname;
+            }
+        }
         $permissions = $this->user_obj->get_businesspermissions();
         foreach($permissions_elements as $element => $synonyms) {
+            /**
+             * If no permission is specified, then user can see all
+             */
+            if(!isset($permissions[$element])) {
+                continue;
+            }
             foreach($synonyms as $synonym) {
                 /**
                  * If user is submiting data matching any of the permissions elements, cross check it with the permissions
@@ -84,14 +97,20 @@ class Core {
                     /**
                      * If no permission is specified, then user can see all
                      */
-                    if(!isset($permissions[$element])) {
-                        continue;
-                    }
                     $this->input[$synonym] = array_intersect($this->input[$synonym], $permissions[$element]);
                     $this->input[$synonym] = array_filter($this->input[$synonym]);
                 }
-                else {
-                    $this->input[$element] = $permissions[$element];
+//                else {
+//                    $this->input[$element] = $permissions[$element];
+//                }
+                //check if there is any filter in the form and filter permissions based on them
+                if(is_array($extrachecks)) {
+                    foreach($extrachecks as $extrarray) {
+                        if(isset($this->input[$extrarray][$synonym]) && is_array($this->input[$extrarray][$synonym])) {
+                            $this->input[$extrarray][$synonym] = array_intersect($this->input[$extrarray][$synonym], $permissions[$element]);
+                            $this->input[$extrarray][$synonym] = array_filter($this->input[$extrarray][$synonym]);
+                        }
+                    }
                 }
             }
         }

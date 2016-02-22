@@ -18,7 +18,7 @@ class EmailFormatting {
         }
     }
 
-    private function set_message($messagedata, $type) {
+    public function set_message(array $messagedata, $type = '') {
         global $template, $lang, $core;
         switch($type) {
             default :

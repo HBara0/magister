@@ -10,7 +10,7 @@
                 <td width="40%"><strong>{$lang->representativename}</strong></td><td><input type='text' required="required" id='repName' name='repName' tabindex="1"/></td>
             </tr>
             <tr>
-                <td><strong>{$lang->email}</strong></td><td><input type='email' required="required" id='repEmail' name='repEmail' tabindex="2" placeholder="name@example.com" /></td>
+                <td><strong>{$lang->email}</strong></td><td><input type='email' id='repEmail' name='repEmail' tabindex="2" placeholder="name@example.com" /></td>
             </tr>
             <tr>
                 <td width="40%">{$lang->position}</td>
@@ -22,7 +22,7 @@
                 </td>
             </tr>
             <tr>
-                <td>{$lang->telephone}</td><td>{$countries_phonecodes}<input name="repTelephone[areacode]" accept="numeric" type="text" size="4" /><input type='text' accept="numeric" id='repTelephone_number' name='repTelephone[number]' tabindex="2"/></td>
+                <td><strong>{$lang->telephone}</strong></td><td>{$countries_phonecodes}<input name="repTelephone[areacode]" accept="numeric" type="text" size="4" /><input type='text' accept="numeric" id='repTelephone_number' name='repTelephone[number]' tabindex="2"/></td>
             </tr>
             {$entity_field_row}
             <td colspan="2" align="left">

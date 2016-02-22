@@ -331,6 +331,10 @@ else {
                     unset($core->input['deletetm']);
                     $tmplan->delete();
                     $deleted_tm = 1;
+                    $url = 'index.php?module=travelmanager/plantrip&lid=';
+                    header('Content-type: text/xhml+javascript');
+                    output_xml('<status>true</status><message>'.$lang->redirecttotmplantrip.'<![CDATA[<script>goToURL(\''.$url.$db->escape_string($lid).'\');</script>]]></message>');
+                    exit;
                 }
                 else {
                     $fields = array('destinationCity', 'fromDate', 'sourceCity', 'toDate', 'type');
@@ -477,12 +481,7 @@ else {
 //									  FROM ".Tprefix."affiliates
 //									  WHERE affid=(SELECT affid FROM affiliatedemployees WHERE uid='".$db->escape_string($leave_user['uid'])."' AND isMain='1')"));
 //			}
-            if($deleted_tm == 1 && $leavetype_details['isBusiness'] == 1) {
-                $url = 'index.php?module=travelmanager/plantrip&lid=';
-                header('Content-type: text/xhml+javascript');
-                output_xml('<status>true</status><message>'.$lang->redirecttotmplantrip.'<![CDATA[<script>goToURL(\''.$url.$db->escape_string($lid).'\');</script>]]></message>');
-                exit;
-            }
+
             if($approve_immediately == true) {
                 $query = $db->query("SELECT la.uid, u.email FROM ".Tprefix."leavesapproval la JOIN ".Tprefix."users u ON (u.uid=la.uid) WHERE lid='{$lid}' ORDER BY sequence ASC");
                 if($db->num_rows($query) > 1) {
@@ -516,12 +515,6 @@ else {
                     }
                     $db->insert_query('leavesapproval', array('lid' => $lid, 'uid' => $val, 'isApproved' => $approve_status, 'timeApproved' => $timeapproved, 'sequence' => $sequence));
                 }
-            }
-            if($deleted_tm == 1 && $leavetype_details['isBusiness'] == 1) {
-                $url = 'index.php?module=travelmanager/plantrip&lid=';
-                header('Content-type: text/xhml+javascript');
-                output_xml('<status>true</status><message>'.$lang->redirecttotmplantrip.'<![CDATA[<script>goToURL(\''.$url.$db->escape_string($lid).'\');</script>]]></message>');
-                exit;
             }
             /* if(is_array($toapprove_select) && !empty($toapprove_select)) {
               $approvers = $db->fetch_assoc($db->query("SELECT ".implode(', ', $toapprove_select)."

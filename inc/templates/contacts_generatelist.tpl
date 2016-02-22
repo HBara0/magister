@@ -23,22 +23,18 @@
                 }
                 );
                 $(document).on('change', 'input[id^="button"]', function() {
-                    if($('#button_user').is(':checked')) {
-                        $('#div_user').find('input').removeAttr('disabled');
-                        $('#div_user').find('select').removeAttr('disabled');
-                    }
-                    else {
-                        $('#div_user').find('input').prop('disabled', 'disabled');
-                        $('#div_user').find('select').prop('disabled', 'disabled');
-                    }
-                    if($('#button_rep').is(':checked')) {
-                        $('#div_rep').find('input').removeAttr('disabled');
-                        $('#div_rep').find('select').removeAttr('disabled');
-                    }
-                    else {
-                        $('#div_rep').find('input').prop('disabled', 'disabled');
-                        $('#div_rep').find('select').prop('disabled', 'disabled');
-                    }
+                    $('input[data-filterbutton]').each(function(i, obj) {
+                        var id = 'div_' + $(obj).attr('data-filterbutton')
+                        if($(obj).is(':checked')) {
+                            $('#' + id).find('input').removeAttr('disabled');
+                            $('#' + id).find('select').removeAttr('disabled');
+
+                        }
+                        else {
+                            $('#' + id).find('input').prop('disabled', 'disabled');
+                            $('#' + id).find('select').prop('disabled', 'disabled');
+                        }
+                    });
                 });
             });
         </script>
@@ -51,9 +47,9 @@
             <h1>{$lang->generatecontactlist}</h1>
             <form name="perform_contactcenter/generatelist_Form" id="perform_contactcenter/generatelist_Form" action="#" method="post">
                 <div id="accordion">
-                    <h3><input id="button_user" name="action" value="user"  type="radio" {$userchecked}>{$lang->employee}</h3>
+                    <h3><input id="button_user" data-filterbutton="user" name="action" value="user"  type="radio" {$userchecked}>{$lang->employee}</h3>
                     <div id="div_user">
-                        <table  width="100%" border="0" cellspacing="0" cellpadding="2">
+                        <table  width="100%" border="0" cellspacing="0" cellpadding="2" style="border-collapse: collapse; ">
                             <thead>
                                 <tr>
                                     <th width="250px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->name}</th>
@@ -69,7 +65,7 @@
                                 <tr>
                                     {$filters_user_row}
                                 </tr>
-                                <tr>
+                                <tr style="background-color: #D9EDF7;border: 2px #080808 solid">
                                     <td width="250px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->clicktoshowfield}</td>
                                     <td width="250px" class=" border_right" rowspan="2" valign="top" align="center"><input type="checkbox" name="user[]" value="position"></td>
                                     <td width="250px" class=" border_right" rowspan="2" valign="top" align="center"><input type="checkbox" name="user[]" value="entities"></td>
@@ -82,7 +78,7 @@
                             </tbody>
                         </table>
                     </div>
-                    <h3><input id="button_rep" name="action" value="rep" type="radio" {$repchecked}>{$lang->representatives}</h3>
+                    <h3><input id="button_rep" data-filterbutton="rep" name="action" value="rep" type="radio" {$repchecked}>{$lang->representatives}</h3>
                     <div id="div_rep">
                         <table width="100%" border="0" cellspacing="0" cellpadding="2">
                             <thead>
@@ -102,7 +98,7 @@
                                 <tr>
                                     {$filters_repr_row}
                                 </tr>
-                                <tr>
+                                <tr style="background-color: #D9EDF7;border: 2px #080808 solid">
                                     <td width="250px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->clicktoshowfield}</td>
                                     <td width="250px" class=" border_right" rowspan="2" valign="top" align="center"></td>
                                     <td width="250px" class=" border_right" rowspan="2" valign="top" align="center"><input type="checkbox" name="representative[]" value="companytype"></td>
@@ -112,6 +108,38 @@
                                     <td width="250px" class=" border_right" rowspan="2" valign="top" align="center"><input type="checkbox" name="representative[]" value="requiresQr"></td>
                                     <td width="250px" class=" border_right" rowspan="2" valign="top" align="center"><input type="checkbox" name="representative[]" value="hasContract"></td>
                                     <td width="250px" class=" border_right" rowspan="2" valign="top" align="center"><input type="checkbox" name="representative[]" value="coid"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <h3><input id="button_company" data-filterbutton="company" name="action" value="company" type="radio" {$companychecked}>{$lang->company}</h3>
+                    <div id="div_company">
+                        <table width="100%" border="0" cellspacing="0" cellpadding="2">
+                            <thead>
+                                <tr>
+                                    <th width="250px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->companyname}</th>
+                                    <th width="250px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->companytype}</th>
+                                    <th width="250px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->suppliertype}</th>
+                                    <th width="250px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->country}</th>
+                                    <th width="250px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->segments}</th>
+                                    <th width="250px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->assignedaffiliate}</th>
+                                    <th width="250px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->representatives}</th>
+                                    <th width="250px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->requiresqr}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    {$filters_company_row}
+                                </tr>
+                                <tr style="background-color: #D9EDF7;border: 2px #080808 solid">
+                                    <td width="250px" class=" border_right" rowspan="2" valign="top" align="center">{$lang->clicktoshowfield}</td>
+                                    <td width="250px" class=" border_right" rowspan="2" valign="top" align="center"><input type="checkbox" name="company[]" value="companytype"></td>
+                                    <td width="250px" class=" border_right" rowspan="2" valign="top" align="center"><input type="checkbox" name="company[]" value="suppliertype"></td>
+                                    <td width="250px" class=" border_right" rowspan="2" valign="top" align="center"><input type="checkbox" name="company[]" value="coid"></td>
+                                    <td width="250px" class=" border_right" rowspan="2" valign="top" align="center"><input type="checkbox" name="company[]" value="segment"></td>
+                                    <td width="250px" class=" border_right" rowspan="2" valign="top" align="center"><input type="checkbox" name="company[]" value="assignedaff"></td>
+                                    <td width="250px" class=" border_right" rowspan="2" valign="top" align="center"><input type="checkbox" name="company[]" value="representative"></td>
+                                    <td width="250px" class=" border_right" rowspan="2" valign="top" align="center"><input type="checkbox" name="company[]" value="requiresQr"></td>
                                 </tr>
                             </tbody>
                         </table>

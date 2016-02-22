@@ -71,7 +71,15 @@ End date: {4} {5} <br />
 Reason: {6}<br />
 {7}<br />
 <br />
-To approve simply reply to this message, or click <a href=\'{8}\'>here</a> to approve it or discuss it.';
+To approve simply reply to this message, or <a  style="font: bold 11px Arial;
+    text-decoration: none;
+    background-color: #EEEEEE;
+    color: #333333;
+    padding: 2px 6px 2px 6px;
+    border-top: 1px solid #CCCCCC;
+    border-right: 1px solid #333333;
+    border-bottom: 1px solid #333333;
+    border-left: 1px solid #CCCCCC;" href=\'{8}\'> click here</a> to approve it or discuss it.';
 $lang['requestleavemessagesupervisor'] = '{1} requested a leave as follows:<br />
 Type: {2}<br />
 Start date: {3}<br />
