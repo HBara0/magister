@@ -97,7 +97,7 @@ else {
                 }
             }
             if($unspecified_seg == 1) {
-                $entities = Entities::get_data($type.' AND NOT EXISTS (SELECT eid FROM affiliatedentities) AND eid NOT EXISTS (SELECT eid FROM entitiessegments)', array('returnarray' => true, 'operators' => array('filter' => 'CUSTOMSQLSECURE')));
+                $entities = Entities::get_data($type.' AND NOT EXISTS (SELECT eid FROM affiliatedentities) AND NOT EXISTS (SELECT eid FROM entitiessegments)', array('returnarray' => true, 'operators' => array('filter' => 'CUSTOMSQLSECURE')));
                 if(is_array($entities)) {
                     $results['unspecified']['unspecified'] = $entities;
                 }
@@ -178,6 +178,7 @@ else {
                         mkdir($export_path);
                     }
 
+                    @rmdir($export_path.'/*');
                     $motherpath = $export_path.'/exctractentities_'.uniqid();
                     mkdir($motherpath);
                     foreach($results as $affid => $segmentedres) {
@@ -228,21 +229,20 @@ else {
                                         }
                                     }
                                 }
-                            }
-                            if(is_object($segment)) {
-                                $segment_output = $segment->alias;
-                            }
-                            else if($segment == 'Unspecified') {
-                                $segment_output = $segment;
-                            }
-                            else {
-                                continue;
-                            }
-                            //parsing the excel file
-                            $tbody = '<tbody>'.$entityrows.'</tbody>';
-                            eval("\$thead = \"".$template->get("admin_entities_extractentities_affiliate_segment_header")."\";");
-                            $result = '<table>'.$thead.$tbody.'</table>';
-                            $page = '<html xmlns:v = "urn:schemas-microsoft-com:vml" xmlns:o = "urn:schemas-microsoft-com:office:office" xmlns:x = "urn:schemas-microsoft-com:office:excel"
+                                if(is_object($segment)) {
+                                    $segment_output = $segment->alias;
+                                }
+                                else if($segment == 'Unspecified') {
+                                    $segment_output = $segment;
+                                }
+                                else {
+                                    continue;
+                                }
+                                //parsing the excel file
+                                $tbody = '<tbody>'.$entityrows.'</tbody>';
+                                eval("\$thead = \"".$template->get("admin_entities_extractentities_affiliate_segment_header")."\";");
+                                $result = '<table>'.$thead.$tbody.'</table>';
+                                $page = '<html xmlns:v = "urn:schemas-microsoft-com:vml" xmlns:o = "urn:schemas-microsoft-com:office:office" xmlns:x = "urn:schemas-microsoft-com:office:excel"
             xmlns = "http://www.w3.org/TR/REC-html40">
             <head>
             <meta http-equiv = Content-Type content = "text/html; charset=windows-1252">
@@ -270,10 +270,12 @@ else {
             </xml><![endif] -->
             </head>
             <body>'.$result.'</body></html>';
-                            //write and create the file
-                            $path = $sub_path.'/'.$segment_output.'.xls';
-                            $handle = fopen($path, 'w') or die('Cannot open file: '.$allpaths);
-                            $writefile = file_put_contents($path, $page);
+                                //write and create the file
+                                $path = $sub_path.'/'.$segment_output.'.xls';
+                                $handle = fopen($path, 'w') or die('Cannot open file: '.$allpaths);
+                                $writefile = file_put_contents($path, $page);
+                                unset($result, $entityrows);
+                            }
                         }
                     }
 
@@ -281,8 +283,9 @@ else {
                     if(file_exists($motherpath)) {
                         $zipname = $motherpath.'/../extractentities'.uniqid().'.zip';
                         $zip = Zip($motherpath, $zipname);
-                        $link = '<a target="_blank" href="'.$core->settings['rootdir'].'/manage/index.php?module=entities/extractentities&action=download&dasource='.base64_encode($zipname).'>Cick Here To Download</a>';
-                        output_xml("<status>true</status><message>{$lang->success}<![CDATA[<br/>{$link}]]></message>");
+
+                        $link = '<a target="_blank" href="'.$core->settings['rootdir'].'/manage/index.php?module=entities/extractentities&action=download&dasource='.base64_encode($zipname).'">Cick Here To Download</a>';
+                        output_xml("<status>true</status><message>{$lang->success}! <![CDATA[<br />{$link}]]></message>");
                     }
                     break;
             }
@@ -297,7 +300,7 @@ else {
         if(file_exists($file)) {
             $download = new Download();
             $download->set_real_path($file);
-            $download->stream_file();
+            $download->stream_file(true);
         }
         else {
             redirect(DOMAIN);
