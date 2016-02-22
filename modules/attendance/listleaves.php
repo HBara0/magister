@@ -210,7 +210,7 @@ if(!$core->input['action']) {
 }
 else {
     if($core->input['action'] == 'perform_revokeleave') {
-        $lid = intval(base64_decode($core->input['torevoke']));
+        $lid = intval($core->input['torevoke']);
         $user_obj = new Users($core->user['uid']);
         $leave_obj = new Leaves($lid, false);
         $leave = $leave_obj->get();
@@ -261,6 +261,7 @@ else {
         if($leave_obj->createAutoResp == 1) {
             $leave_obj->delete_autoresponder();
         }
+
         $query = $db->delete_query('leaves', 'lid='.$lid);
         if($query && $db->affected_rows() > 0) {
             //Reset Leave Balance - Start
