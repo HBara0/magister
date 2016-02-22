@@ -1,4 +1,2 @@
-<div class="container">
-    {$page[content]}
-    {$page_ouptput}
-</div>
+{$page[content]}
+{$page_ouptput}

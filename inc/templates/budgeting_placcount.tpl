@@ -47,17 +47,15 @@
     });
 
 </script>
-<div class="container">
-    <h1>{$lang->profitandlossaccount}<br /><small>{$affiliate->name} - {$budget_data['year']}</small></h1>
-        {$output_currency}
-    <form name="perform_budgeting/profitlossaccount_Form" id="perform_budgeting/profitlossaccount_Form"  action="#" method="post">
-        <input type="hidden" id="identifier" name="identifier" value="{$sessionidentifier}">
-        <table class="datatable" style="width:100%;table-layout:fixed;">
-            {$budgeting_header}
-            {$output}
-        </table>
-        <hr />
-        <input type="{$type}" id="perform_budgeting/profitlossaccount_Button" value="Save" class="button"/>
-    </form>
-    <div id="perform_budgeting/profitlossaccount_Results"></div>
-</div>
+<h1>{$lang->profitandlossaccount}<br /><small>{$affiliate->name} - {$budget_data['year']}</small></h1>
+    {$output_currency}
+<form name="perform_budgeting/profitlossaccount_Form" id="perform_budgeting/profitlossaccount_Form"  action="#" method="post">
+    <input type="hidden" id="identifier" name="identifier" value="{$sessionidentifier}">
+    <table class="datatable" style="width:100%;table-layout:fixed;">
+        {$budgeting_header}
+        {$output}
+    </table>
+    <hr />
+    <input type="{$type}" id="perform_budgeting/profitlossaccount_Button" value="Save" class="button"/>
+</form>
+<div id="perform_budgeting/profitlossaccount_Results"></div>

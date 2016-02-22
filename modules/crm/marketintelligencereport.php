@@ -137,7 +137,7 @@ if(!$core->input['action']) {
         $dimension_item.='<li class = "ui-state-default" id = '.$dimensionid.' title = "Click and Hold to move the '.$dimension.'">'.$dimension.'</li>';
     }
     eval("\$mireport_options = \"".$template->get('crm_marketintelligence_report_options')."\";");
-    output($mireport_options);
+    output_page($mireport_options);
 }
 
 //'get_report

@@ -61,10 +61,10 @@
                             //returnedData = returnedData.slice( 5 );
                             //alert(jQuery.trim(returnedData));
                             alert(returnedData);
-                                    //alert(console.log(returnedData));
-                                    //returnedData = '2';
-                                    $("#" + contentIn).val(returnedData);
-                            }
+                            //alert(console.log(returnedData));
+                            //returnedData = '2';
+                            $("#" + contentIn).val(returnedData);
+                    }
                     });
             }
             //	var id = $(this).attr("id");
@@ -81,41 +81,39 @@
     });
     });
 </script>
-<div class="container">
-    <h1>{$lang->affiliateorder}</h1>
-    <form id="add_grouppurchase/affiliateorder_Form" name="add_grouppurchase/affiliateorder_Form" action="#" method="post">
-        <table cellpadding="0" cellspacing="0" width="100%">
-            <thead>
-                <tr>
-                    <th width="30%">{$lang->affiliates}</th>
-                    <th width="30%">{$lang->product}</th>
-                    <th width="10%">{$lang->price}</th>
-                    <th width="10%">{$lang->quantity}</th>
-                    <th width="10%">{$lang->currentstock}</th>
-                    <th width="10%">{$lang->total}</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td width="30%">{$affiliates_list}</td>
-                    <td>{$products_list}<span id="productslist_Loading"></span></td>
-                    <td><input type="text" id="price_output" name="price_output"  value="{$price}" size="5"/><span id="price_Loading"></span>
-                        <input type="text" id="price" name="price" size="5" value="{$price}"/>
-                        <input type='checkbox' name='change' id='change' value="1"{$checkedboxes[change]}>{$lang->changeprice}<input type="text" id="main_price" name="main_price"  size="5" disabled= "disabled" value="{$price}" /></td>
-                    <td><input type="text" id="quantity" name="quantity" size="5" accept="numeric"/></td>
-                    <td><input type="text" id="currentStock" name="currentStock" size="5" accept="numeric"/></td>
-                    <td><input type="text" id="total" name="total"  size="5" /><span id="total_Loading"></span></td>
-                </tr>
-                <tr>
-                    <th width="30%">{$lang->remarks}</th>
-                    <td colspan="5"><textarea cols="30" rows="5" id="remark" name="remark" ></textarea></td>
-                </tr>
-            </tbody>
+<h1>{$lang->affiliateorder}</h1>
+<form id="add_grouppurchase/affiliateorder_Form" name="add_grouppurchase/affiliateorder_Form" action="#" method="post">
+    <table cellpadding="0" cellspacing="0" width="100%">
+        <thead>
             <tr>
-                <td colspan="6"><input type="button" id="add_grouppurchase/affiliateorder_Button" value="{$lang->order}" /><input type="reset" value="{$lang->reset}" />
-                    <div id="add_grouppurchase/affiliateorder_Results"></div>
-                </td>
+                <th width="30%">{$lang->affiliates}</th>
+                <th width="30%">{$lang->product}</th>
+                <th width="10%">{$lang->price}</th>
+                <th width="10%">{$lang->quantity}</th>
+                <th width="10%">{$lang->currentstock}</th>
+                <th width="10%">{$lang->total}</th>
             </tr>
-        </table>
-    </form>
-</div>
+        </thead>
+        <tbody>
+            <tr>
+                <td width="30%">{$affiliates_list}</td>
+                <td>{$products_list}<span id="productslist_Loading"></span></td>
+                <td><input type="text" id="price_output" name="price_output"  value="{$price}" size="5"/><span id="price_Loading"></span>
+                    <input type="text" id="price" name="price" size="5" value="{$price}"/>
+                    <input type='checkbox' name='change' id='change' value="1"{$checkedboxes[change]}>{$lang->changeprice}<input type="text" id="main_price" name="main_price"  size="5" disabled= "disabled" value="{$price}" /></td>
+                <td><input type="text" id="quantity" name="quantity" size="5" accept="numeric"/></td>
+                <td><input type="text" id="currentStock" name="currentStock" size="5" accept="numeric"/></td>
+                <td><input type="text" id="total" name="total"  size="5" /><span id="total_Loading"></span></td>
+            </tr>
+            <tr>
+                <th width="30%">{$lang->remarks}</th>
+                <td colspan="5"><textarea cols="30" rows="5" id="remark" name="remark" ></textarea></td>
+            </tr>
+        </tbody>
+        <tr>
+            <td colspan="6"><input type="button" id="add_grouppurchase/affiliateorder_Button" value="{$lang->order}" /><input type="reset" value="{$lang->reset}" />
+                <div id="add_grouppurchase/affiliateorder_Results"></div>
+            </td>
+        </tr>
+    </table>
+</form>

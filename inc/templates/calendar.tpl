@@ -21,15 +21,13 @@
 
     });
 </script>
-<div class="container">
-    <div style="width:10%; float:right; text-align:right;"><button onclick="goToURL('index.php?module=calendar/tasksboard')">{$lang->tasksboard}</button> <a href="index.php?module=calendar/preferences"><img src="./images/icons/options.gif" border='0' alt="{$lang->calendarpreferences}"/></a></div>
-    <table width="100%" cellspacing="0" cellpadding="0" class="calendar">
-        <tr>
-            <td colspan="2"><a href="index.php?module=calendar/home{$prevlink_querystring}"><h3 style="margin-bottom: 1px;"> &laquo;</h1></a></td>
-            <td colspan="4" align="center"><h3 style="margin-bottom: 0px;">{$calendar_title}</h1></td>
-            <td colspan="3" style="text-align:right;"><a href="index.php?module=calendar/home{$nextlink_querystring}"><h3 style="margin-bottom: 1px;"> &raquo;</h1></a></td>
-        </tr>
-        {$calendar}
-    </table>
-    {$addeventtask_popup}
-</div>
+<div style="width:10%; float:right; text-align:right;"><button onclick="goToURL('index.php?module=calendar/tasksboard')">{$lang->tasksboard}</button> <a href="index.php?module=calendar/preferences"><img src="./images/icons/options.gif" border='0' alt="{$lang->calendarpreferences}"/></a></div>
+<table width="100%" cellspacing="0" cellpadding="0" class="calendar">
+    <tr>
+        <td colspan="2"><a href="index.php?module=calendar/home{$prevlink_querystring}"><h3 style="margin-bottom: 1px;"> &laquo;</h1></a></td>
+        <td colspan="4" align="center"><h3 style="margin-bottom: 0px;">{$calendar_title}</h1></td>
+        <td colspan="3" style="text-align:right;"><a href="index.php?module=calendar/home{$nextlink_querystring}"><h3 style="margin-bottom: 1px;"> &raquo;</h1></a></td>
+    </tr>
+    {$calendar}
+</table>
+{$addeventtask_popup}
