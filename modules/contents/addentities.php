@@ -21,12 +21,14 @@ $lang->load('contents_addentities');
 if(!$core->input['action']) {
     if(isset($core->input['type'])) {
         if($core->input['type'] == 'supplier') {
+            $pagetitle = 'addsuppliers';
             $selected_type = 's';
         }
         elseif($core->input['type'] == 'competitorsupplier') {
             $selected_type = 'cs';
         }
         else {
+            $pagetitle = 'addcustomers';
             $selected_type = 'c';
             $createreports_disabled = ' disabled';
         }
@@ -82,7 +84,7 @@ if(!$core->input['action']) {
     $fax_intcode_list = parse_selectlist('fax_intcode', $tabindex, $countriescodes, $selected_options, '', '', array('id' => 'fax_intcode', 'width' => '125px'));
     $fax2_intcode_list = parse_selectlist('fax2_intcode', $tabindex, $countriescodes, $selected_options, '', '', array('id' => 'fax2_intcode', 'width' => '125px'));
     eval("\$addpage = \"".$template->get('contents_entities_add')."\";");
-    output_page($addpage);
+    output_page($addpage, array('pagetitle' => $pagetitle));
 }
 else {
     if($core->input['action'] == 'do_perform_addentities') {

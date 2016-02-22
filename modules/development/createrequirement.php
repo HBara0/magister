@@ -41,7 +41,7 @@ if(!$core->input['action']) {
     }
 
     eval("\$createrequirment = \"".$template->get('development_createrequirement')."\";");
-    output($createrequirment);
+    output_page($createrequirment);
 }
 else {
     if($core->input['action'] == 'do_add') {
