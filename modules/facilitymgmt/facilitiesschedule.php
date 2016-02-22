@@ -40,7 +40,7 @@ if(!isset($core->input['action'])) {
                                     margin: 0 auto;
                                 }
                             </style>";
-    output_page(array('content' => $facilitiestree, 'title' => 'Schedule'), array('additionalheaderinc' => $additionalheader));
+    output_page($facilitiestree, array('additionalheaderinc' => $additionalheader));
 }
 else {
     if($core->input['action'] == 'get_creatreservation') {

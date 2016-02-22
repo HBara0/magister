@@ -1,6 +1,6 @@
 <html>
     <head>
-        <title>{$core->settings[systemtitle]} | {$page[title]}</title>
+        <title>{$core->settings[systemtitle]} | {$pagetitle}</title>
         {$headerinc}
         {$additionalheaderinc}
     </head>
@@ -8,7 +8,7 @@
         {$header}
         {$rightsidemenu}
         <div class="container" id="workspace">
-            {$page[content]}
+            {$pagecontent}
         </div>
         {$footer}
 

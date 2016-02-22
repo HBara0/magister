@@ -13,15 +13,17 @@
  * @param  String		$template 	String to be striped
  * @return String	 				Striped template
  */
-function output_page($page, $options = null) {// default tpl, options to enforce a customised tpl
-    global $core, $lang, $timer, $template, $header, $footer, $headerinc, $rightsidemenu;
-    //eval the container template into $template
-    if(is_array($options)) {
-        $additionalheaderinc = $options['additionalheaderinc'];
+function output_page($pagecontent, $options = null) {// default tpl, options to enforce a customised tpl
+    global $core, $lang, $timer, $template, $header, $footer, $headerinc, $rightsidemenu, $additionalheaderinc;
+
+    $pagetitle = '';
+    if(!empty($core->input['module'])) {
+        $files = explode("/", $core->input['module']);
+        if(is_array($files) && !empty($files[1])) {
+            $pagetitle = $lang->$files[1];
+        }
     }
-
     ${$options['helptourref'].'_helptour'} = get_helptour('newlayout');
-
     eval("\$template= \"".$template->get('defaulttpl')."\";");
 
     $template = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n".$template;

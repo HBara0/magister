@@ -70,7 +70,7 @@ if(!isset($core->input['action'])) {
         }
     }
     eval("\$facilitieslist= \"".$template->get('facilitymgmt_facilitytypeslist')."\";");
-    output_page(array('content' => $facilitieslist, 'title' => $lang->facilitytypelist));
+    output_page($facilitieslist);
 }
 //else {
 //    if($core->input['action'] == 'deletefacility') {

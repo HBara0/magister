@@ -926,9 +926,9 @@ if(!($core->input['action'])) {
         eval("\$aro_managedocuments= \"".$template->get('aro_managedocuments')."\";");
     }
 
-    $additionalheader = '<script src="'.$core->settings[rootdir].'/js/jquery.populate.min.js" type="text/javascript"></script>
+    $additionalheaderinc = '<script src="'.$core->settings[rootdir].'/js/jquery.populate.min.js" type="text/javascript"></script>
         <script src="'.$core->settings[rootdir].'/js/aro_managedocuments.min.js" type="text/javascript"></script>';
-    output_page(array('content' => $aro_managedocuments, 'title' => $lang->aro.' '.$arodocument_title), array('additionalheaderinc' => $additionalheader));
+    output_page($aro_managedocuments);
 }
 else {
     if($core->input['action'] == 'getexchangerate') {

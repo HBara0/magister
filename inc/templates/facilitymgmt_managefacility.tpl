@@ -1,4 +1,4 @@
-<h1>{$lang->facilitymgmt}</h1>
+<h1>{$lang->managefacility}</h1>
 <form name="perform_facilitymgmt/managefacility_Form" id="perform_facilitymgmt/managefacility_Form"  action="#" method="post">
     <input type="hidden" id="" name="facility[fmfid]" value="{$facility[fmfid]}">
     <table class="datatable" width="100%" border="0" cellspacing="0" cellpadding="2">
