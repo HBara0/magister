@@ -77,12 +77,12 @@ if(!$core->input['action']) {
     $criteriaandstars .= '</div></div>';
 // $criteriaandstars .='<input type="hidden" name="marketreport['.$segment[psid].'][rating]" id="segmentrating_'.$segment['psid'].'" value="'.$ratingval.'">';
     $currencies = Currencies::get_data();
-    $currency_list = parse_selectlist('hotel[currency]', '', $currencies, $hotel_obj->currency);
-    $contractedchekbox = '<input type="checkbox" name="hotel[isContracted]" value="1" '.$check_contract.'">';
+    $currency_list = parse_selectlist('hotel[currency]', '', $currencies, $hotel_obj->currency, '', '', array('id' => 'currency', 'class' => 'form-control'));
+    $contractedchekbox = '<input id="iscontracted" class="form-control" type="checkbox" name="hotel[isContracted]" value="1" '.$check_contract.'">';
     if($core->usergroup['travelmanager_canApproveHotels'] == 0) {
         $disableapprove = 'disabled="disabled"';
     }
-    $approvcheckbox = '<input type="checkbox" name="hotel[isApproved]" value="1" '.$check_approve.' '.$disableapprove.'">';
+    $approvcheckbox = '<input class="form-control" type="checkbox" id="isapproved" name="hotel[isApproved]" value="1" '.$check_approve.' '.$disableapprove.'">';
     $country = new Countries(1);
     $countriescodes = $country->get_phonecodes();
     $countriescodes_list = parse_selectlist('hotel[telephone_intcode]', $tabindex, $countriescodes, $telephone_intcode, '', '', array('id' => 'telephone_intcode'));
