@@ -10,6 +10,8 @@ $(function() {
             //basic grid type
             var maintable = obj;
             if($(obj).hasClass('datatable_basic')) {
+                //create a second thead right after the firse one
+                $(maintable).find('thead:first-child').after($(maintable).find('thead:first-child').clone());
                 //check if data attribute of totals columns exists and not empty, then fill the values
                 if($(obj).attr('data-totalcolumns')) {
                     var totalcolumns = $(obj).attr('data-totalcolumns');
@@ -18,7 +20,10 @@ $(function() {
                 $(maintable).find('thead:nth-child(2)').each(function(i, tfoot) {
                     $(tfoot).find('th').each(function(i, th) {
                         var title = $(th).text();
-                        $(th).html('<input type="text" placeholder="Search ' + title + '" />');
+                        if(title.trim().length != 0) {
+                            $(th).html('<input type="text" placeholder="Search ' + title + '" />');
+                        }
+
                     });
                 });
 
@@ -81,6 +86,9 @@ $(function() {
 
                             }
                         });
+
+
+                //apply filters on the second thead
                 table.columns().every(function() {
                     var that = this;
                     $('input', $(maintable).find('thead:nth-child(2)').find('th').eq(this.index())).on('keyup change', function() {
