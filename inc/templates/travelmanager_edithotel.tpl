@@ -60,7 +60,7 @@
             </div>
             <div class="form-group ">
                 <label for="website">{$lang->website}</label><input id="website" class="form-control"  type="text" name='hotel[website]' value="{$hotel['website']}">
-                <label for="mainEmail">{$lang->mainEmail}</label><input id="mainEmail" class="form-control"  type="email" name='hotel[mainEmail]' value="{$hotel['mainEmail']}">
+                <label for="mainEmail">{$lang->mainemail}</label><input id="mainEmail" class="form-control"  type="email" name='hotel[mainEmail]' value="{$hotel['mainEmail']}">
             </div>
             <div class="form-group ">
                 <label for="fax">{$lang->fax}</label><input id="fax" class="form-control"  type="text" name='hotel[fax]' value="{$hotel['fax']}">
