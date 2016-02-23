@@ -6,7 +6,8 @@
     <body>
         {$header}
     <tr>
-        <td class="menuContainer" align="right"><span style="margin-right:10px;"><a href="{$_SERVER[HTTP_REFERER]}">&laquo; Go back</a></span></td>
+        <td class="menuContainer" align="right">
+            <span style="margin-right:10px;"><a href="{$_SERVER[HTTP_REFERER]}">&laquo; Go back</a></span></td>
         <td class="contentContainer">
             <h1>{$lang->edityouraccount}</h1>
             {$notification_message}

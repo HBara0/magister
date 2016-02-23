@@ -12,9 +12,10 @@ define("DIRECT_ACCESS", 1);
 require_once "../global.php";
 
 if($core->usergroup['canAdminCP'] == 1) {
-    eval("\$header = \"".$template->get("header")."\";");
-    eval("\$footer = \"".$template->get("footer")."\";");
-    eval("\$menu = \"".$template->get("admin_mainmenu")."\";");
+    eval("\$header = \"".$template->get("navbar")."\";");
+    eval("\$footer = \"".$template->get("footer2")."\";");
+    // eval("\$menu = \"".$template->get("admin_mainmenu")."\";");
+    eval("\$rightsidemenu = \"".$template->get('rightside_menu')."\";");
 
     $modules_dir = ROOT."/".ADMIN_DIR."/modules";
 
