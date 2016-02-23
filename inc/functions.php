@@ -17,7 +17,10 @@ function output_page($pagecontent, $options = null) {// default tpl, options to 
     global $core, $lang, $timer, $template, $header, $footer, $headerinc, $rightsidemenu, $additionalheaderinc;
 
     $pagetitle = '';
-    if(!empty($core->input['module'])) {
+    if(isset($options['pagetitle']) && !empty($options['pagetitle'])) {
+        $pagetitle = $lang->$options['pagetitle'];
+    }
+    else if(!empty($core->input['module'])) {
         $files = explode("/", $core->input['module']);
         if(is_array($files) && !empty($files[1])) {
             $pagetitle = $lang->$files[1];
