@@ -1,8 +1,5 @@
-<div style="position:fixed;height:100%;top: 50px; right: 0px;z-index:1;" class="hidden-print">
-    <div class="mini-submenu" style=" width: 30px;display: inline-block">
-        <span class="glyphicon glyphicon-chevron-left" style="color:#E9E9E9;padding:10px;"  id="switch_pages" data-toggle="tooltip" data-placement="bottom" title="Switch to another Page"></span>
-    </div>
-    <div class="list-group" style="display: inline-block;margin-left:-5px;">
+<div style="position:fixed;height:100%;top: 50px;z-index:1;" class="hidden-print">
+    <div class="list-group" style="display: inline-block;">
         <span  class="list-group-item active">
             Facility Management
         </span>
@@ -22,17 +19,20 @@
             <i class="fa fa-bar-chart-o"></i> Facilities Schedule
         </a>
     </div>
+    <div class="mini-submenu" style=" width: 30px;display: inline-block;margin-left: -5px;">
+        <span class="glyphicon glyphicon-chevron-right" style="color:#E9E9E9;padding:10px;"  id="switch_pages" data-toggle="tooltip" data-placement="bottom" title="Switch to another Page"></span>
+    </div>
 </div>
 <script>
     $(function() {
         $('#switch_pages').tooltip();
         $('.list-group').toggle();
         $('.mini-submenu').on('click', function() {
-            $(this).next('.list-group').animate({width: 'toggle'}, 350);
-            if($("span[id='switch_pages']").hasClass("glyphicon-chevron-left")) {
-                $("span[id='switch_pages']").removeClass("glyphicon-chevron-left").addClass("glyphicon-chevron-right");
-            } else {
+            $(this).prev('.list-group').animate({width: 'toggle'}, 350);
+            if($("span[id='switch_pages']").hasClass("glyphicon-chevron-right")) {
                 $("span[id='switch_pages']").removeClass("glyphicon-chevron-right").addClass("glyphicon-chevron-left");
+            } else {
+                $("span[id='switch_pages']").removeClass("glyphicon-chevron-left").addClass("glyphicon-chevron-right");
             }
         })
     });

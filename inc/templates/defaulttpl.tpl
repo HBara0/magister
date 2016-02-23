@@ -7,12 +7,11 @@
     <body>
         {$header}
         {$rightsidemenu}
-        <div class="container" id="workspace">
+        <div class="container" id="workspace" style="padding-left:50px;">
             {$pagecontent}
         </div>
         {$footer}
 
         {$newlayout_helptour}
     </body>
-
 </html>
