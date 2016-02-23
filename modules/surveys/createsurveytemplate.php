@@ -337,7 +337,7 @@ else {
             $surveytemplates_list = parse_selectlist('stid', 5, $surveystemplates, $survey['stid'], '', $onchange, array('id' => 'stid'));
         }
         eval("\$createbasedonanothertpl = \"".$template->get('popup_createbasedonanothertpl')."\";");
-        output_page($createbasedonanothertpl);
+        output($createbasedonanothertpl);
     }
     elseif($core->input['action'] == 'createbasedonanother') {
         $stid = $core->input['stid'];

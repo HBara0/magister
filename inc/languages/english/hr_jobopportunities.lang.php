@@ -8,7 +8,7 @@
  * Last Update:    @rasha.aboushakra    Nov 3, 2015 | 8:50:29 AM
  */
 
-$lang['managejobopportunities'] = 'Manage Job Opportunities';
+$lang['managejobopportunity'] = 'Manage Job Opportunities';
 $lang['offerdetails'] = 'Offer Details';
 $lang['reference'] = 'Reference ';
 $lang['affiliate'] = 'Affiliate';
