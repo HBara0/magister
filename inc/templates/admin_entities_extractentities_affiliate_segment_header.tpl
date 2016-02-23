@@ -1,5 +1,6 @@
 <thead>
     <tr>
+        <th>{$lang->representatives} {$lang->id}</th>
         <th>{$lang->representativename}</th>
         <th>{$lang->representatives} {$lang->email}</th>
         <th>{$lang->representatives} {$lang->telephone}</th>

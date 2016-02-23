@@ -1,4 +1,5 @@
 <tr>
+    <td> {$rep_field[rpid]}</td>
     <td> {$rep_field[name]}</td>
     <td> {$rep_field[email]}</td>
     <td> {$rep_field[phone]}</td>
