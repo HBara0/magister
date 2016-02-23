@@ -225,6 +225,7 @@ else {
                                                     if(empty($representative->phone)) {
                                                         $rep_field['phone'] = ' - ';
                                                     }
+                                                    $rep_field['rpid'] = $representative->rpid;
                                                     $rep_field['isactive_output'] = 'no';
                                                     if($rep_field['isactive_output']) {
                                                         $rep_field['isactive_output'] = 'yes';
