@@ -164,7 +164,7 @@ if(!$core->input['action']) {
     }
 
     eval("\$listpage = \"".$template->get('reporting_reportslist')."\";");
-    output_page($listpage);
+    output_page($listpage, array('pagetitle' => 'listreports'));
 }
 else {
     if($core->input['action'] == 'get_status') {
