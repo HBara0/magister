@@ -950,13 +950,14 @@ $("#anotheraff_otheraccomodations_'.$sequence.'_'.$otherhotel_checksum.'").hide(
 
     public function email_finance($segment, $subject) {
         global $core, $lang;
-        $message = $segment->parse_expensesummary();
         $approve_link = DOMAIN.'/index.php?module=travelmanager/viewplan&action=takeactionpage&pid='.$segment->tmpid.'&notify=user';
         $leave = $segment->get_plan()->get_leave();
         $employee = $leave->get_user()->get_displayname();
         $message.='<span style="font-weight: bold; font-size: 14px;">'.$lang->employee.': '.$employee.'</span></br>
-                  <span style="font-weight: bold; font-size: 14px;">'.$lang->leavedetails.': '.$leave->get_displayname().'</span>'
-                .'<span style="font-weight: bold; font-size: 14px;">'.$lang->country.': '.$leave->get_country()->get_displayname().'</span>';
+                  <span style="font-weight: bold; font-size: 14px;">'.$lang->leavedetails.': '.$leave->get_displayname().'</span><br/>'
+                .'<span style="font-weight: bold; font-size: 14px;">'.$lang->country.': '.$leave->get_country()->get_displayname().'</span><br/>';
+
+        $message .= $segment->parse_expensesummary();
 
         $message.='<hr/><div><a  style="font: bold 11px Arial;
     text-decoration: none;
@@ -967,6 +968,7 @@ $("#anotheraff_otheraccomodations_'.$sequence.'_'.$otherhotel_checksum.'").hide(
     border-right: 1px solid #333333;
     border-bottom: 1px solid #333333;
     border-left: 1px solid #CCCCCC;" href="'.$approve_link.'" target="_blank">'.$lang->notifyamountisready.'</a></div>';
+
         $affiliate = $this->get_user()->get_mainaffiliate();
         if(is_object($affiliate) && !empty($affiliate->financeEmail)) {
             $financeemail = $affiliate->financeEmail;
