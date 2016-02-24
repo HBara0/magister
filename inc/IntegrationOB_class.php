@@ -2037,7 +2037,7 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
 
     public function get_totallines($where) {
         global $core;
-        $TIME_NOW = '1450443496';
+        $TIME_NOW = TIME_NOW;
         $sql = "SELECT SUM(totallines) AS totallines, ad_org_id, c_currency_id, date_part('month', dateinvoiced) AS month, date_part('year', dateinvoiced) AS year FROM c_invoice "
                 ."WHERE issotrx='Y' AND docstatus='CO' AND (dateinvoiced BETWEEN '".date('Y-m-d 00:00:00', strtotime((date('Y', $TIME_NOW)).'-01-01'))."'"
                 ." AND '".date('Y-m-d 23:59:59', strtotime((date('Y', $TIME_NOW)).'-12-31'))."' ".$where.") GROUP BY ad_org_id, c_currency_id, year, month";
@@ -2070,9 +2070,9 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
 
     /**
      * TO BE USED IN ARO COMPARISSION STUDY
-     * @param type $foreignpid : product id on ope bravo
+     * @param type $foreignpid : product id on open bravo
      * @param string $filters : filters including affid and customer id
-     * @return typeReturn // summary of up to last 10 sales invoies (selling price, creit days)
+     * @return typeReturn // summary of up to last 10 sales invoies (selling price, credit days)
      */
     public function get_salesinvoicesummary($foreignpid, $filters) {
         $filters .=" AND m_product_id ='".$foreignpid."'";
@@ -2083,6 +2083,28 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
         $query = $this->f_db->query($sql);
         if($this->f_db->num_rows($query) > 0) {
             while($invoiceline = $this->f_db->fetch_assoc($query)) {
+                $invoiceline['dateinvoiceduts'] = strtotime($invoiceline['dateinvoiced']);
+                // Usd conversion
+                $invoiceline['currency'] = new IntegrationOBCurrency($invoiceline['c_currency_id'], $this->f_db);
+                if($invoiceline['currency']->iso_code !== 'USD') {
+                    if($invoiceline['currency'] == 'GHC') {
+                        $invoiceline['currency'] = 'GHS';
+                    }
+                    $usdcurrency_obj = new Currencies('USD');
+                    $invoiceline['usdfxrate'] = $usdcurrency_obj->get_fxrate_bytype('mavg', $invoiceline['currency'], array('from' => strtotime(date('Y-m-d', $invoiceline['dateinvoiceduts']).' 01:00'), 'to' => strtotime(date('Y-m-d', $invoiceline['dateinvoiceduts']).' 24:00'), 'year' => date('Y', $invoiceline['dateinvoiceduts']), 'month' => date('m', $invoiceline['dateinvoiceduts'])), array('precision' => 4));
+                    if(empty($invoiceline['usdfxrate'])) {
+                        $invoiceline['usdfxrate'] = $usdcurrency_obj->get_fxrate_bytype('ylast', $invoiceline['currency'], array('from' => strtotime(date('Y-m-d', $invoiceline['dateinvoiceduts']).' 01:00'), 'to' => strtotime(date('Y-m-d', $invoiceline['dateinvoiceduts']).' 24:00'), 'year' => date('Y', $invoiceline['dateinvoiceduts']), 'month' => date('m', $invoiceline['dateinvoiceduts'])), array('precision' => 4));
+                        if(empty($invoiceline['usdfxrate'])) {
+                            $invoiceline['usdfxrate'] = 0;
+                        }
+                    }
+                }
+                else {
+                    $invoiceline['usdfxrate'] = 1;
+                }
+                if(!empty($invoiceline['usdfxrate'])) {
+                    $invoiceline['priceactual'] /=$invoiceline['usdfxrate'];
+                }
                 $data[] = $invoiceline;
             }
         }
@@ -2211,6 +2233,13 @@ class IntegrationOBOrderLine extends IntegrationAbstractClass {
         }
     }
 
+    /**
+     * TO BE USED IN ARO COMPARISSION STUDY
+     * @param type $foreignpid : product id on open bravo
+     * @param string $filters : filters including affid and customer id
+     * @param string $incoterms : supplier incoterms
+     * @return typeReturn // summary of up to last 10 orders
+     */
     public function get_purchaseorders_summary($foreignpid, $filter, $incoterms) {
         $filters = " m_product_id ='".$foreignpid."' ".$filter;
 
@@ -2221,13 +2250,32 @@ class IntegrationOBOrderLine extends IntegrationAbstractClass {
 
 
         while($orderline = $this->f_db->fetch_assoc($query)) {
-            $purchasedata[] = $orderline;
 
-            // $po[$documentline['m_product_id']][$document['bpid']][$document['ad_org_id']][] = $documentline['PriceActual'];
-            //  $documentline['uom']
-            //  $document['currency'],
-            //  $document['paymenttermsdays'],
-            //  'purchaseType' => 'SKI'
+            $orderline['dateordereduts'] = strtotime($orderline['dateordered']);
+
+            $orderline['currency'] = new IntegrationOBCurrency($orderline['c_currency_id'], $this->f_db);
+            if($orderline['currency']->iso_code !== 'USD') {
+                if($orderline['currency'] == 'GHC') {
+                    $orderline['currency'] = 'GHS';
+                }
+                $usdcurrency_obj = new Currencies('USD');
+                $orderline['usdfxrate'] = $usdcurrency_obj->get_fxrate_bytype('mavg', $orderline['currency'], array('from' => strtotime(date('Y-m-d', $orderline['dateordereduts']).' 01:00'), 'to' => strtotime(date('Y-m-d', $orderline['dateordereduts']).' 24:00'), 'year' => date('Y', $orderline['dateordereduts']), 'month' => date('m', $orderline['dateordereduts'])), array('precision' => 4));
+                if(empty($orderline['usdfxrate'])) {
+                    $orderline['usdfxrate'] = $usdcurrency_obj->get_fxrate_bytype('ylast', $orderline['currency'], array('from' => strtotime(date('Y-m-d', $orderline['dateordereduts']).' 01:00'), 'to' => strtotime(date('Y-m-d', $orderline['dateordereduts']).' 24:00'), 'year' => date('Y', $orderline['dateordereduts']), 'month' => date('m', $orderline['dateordereduts'])), array('precision' => 4));
+                    if(empty($orderline['usdfxrate'])) {
+                        $orderline['usdfxrate'] = 0;
+                    }
+                }
+            }
+            else {
+                $orderline['usdfxrate'] = 1;
+            }
+            //  $orderline['priceactual'] = '-';
+            if(!empty($orderline['usdfxrate'])) {
+                $orderline['priceactual'] /=$orderline['usdfxrate'];
+            }
+
+            $purchasedata[] = $orderline;
         }
         return $purchasedata;
     }
@@ -3338,8 +3386,7 @@ class IntegrationOBValidCombination extends IntegrationAbstractClass {
     const CLASSNAME = __CLASS__;
 
     public function __construct($id, $f_db = NULL) {
-        parent::__construct($id, $f_db
-        );
+        parent::__construct($id, $f_db);
     }
 
 }
