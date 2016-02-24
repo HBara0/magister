@@ -803,12 +803,12 @@ if(!($core->input['action'])) {
             }
 
             //Shown only to COO, Financial manager and country supervisor
-            $canviewcomparison[] = $aff_obj->get_regionalsupervisor()->uid;
-            $canviewcomparison[] = $aff_obj->get_coo()->uid;
-            $canviewcomparison[] = 1; //$aff_obj->get_financialemanager()->uid;
-            if(is_object($intermedaffiliate)) {
-                $canviewcomparison[] = $intermedaffiliate->get_financialemanager()->uid;
-            }
+            // $canviewcomparison[] = $aff_obj->get_regionalsupervisor()->uid;
+            // $canviewcomparison[] = $aff_obj->get_coo()->uid;
+            $canviewcomparison[] = 362; //$aff_obj->get_financialemanager()->uid;
+//            if(is_object($intermedaffiliate)) {
+//                $canviewcomparison[] = $intermedaffiliate->get_financialemanager()->uid;
+//            }
             $canviewcomparison = array_filter($canviewcomparison);
             if(in_array($core->user['uid'], $canviewcomparison)) {
                 $intgdb = $integration->get_dbconn();
@@ -883,32 +883,6 @@ if(!($core->input['action'])) {
                         }
                     }
                     unset($lasttenorders, $lastfiveorders, $lastorder);
-
-
-                    //GET PURCHASE ORDER SUMMARY FOR PURCHASE PRICE AVERAGES   (on-going development)
-//                $orderlines = new IntegrationOBOrderLine(null);
-//                $pofilter = "c_order.ad_org_id = '  ".$aff_obj->integrationOBOrgId."' AND issotrx = 'N' AND docstatus = 'CO'";
-//                $foreignid = $db->fetch_field($db->query('SELECT foreignId FROM integration_mediation_entities WHERE foreignSystem = 3 AND localId = "'.$vendor->e.'"'), 'foreignId');
-//                if(!empty($foreignid)) {
-//                    $pofilter .=" AND c_bpartner_id = '".$foreignid."'";
-//                }
-//                $pofilter .=" AND m_product_id = '".$foreignpid."'";
-//                $purchasedata = $orderlines->get_purchaseorders_summary($product, $pofilter);
-//                if(is_array($purchasedata)) {
-//                    $i = 0;
-//                    foreach($purchasedata as $purchase) {
-//                        if($i == 0) {
-//                            $lastorder['purchaseprice'] = $invoiceline['priceactual'];
-//                        }
-//                        if($i < 5) {
-//                            $lastfiveorders['purchaseprice'] += $invoiceline['priceactual'];
-//                        }
-//                        $lasttenorders['purchaseprice'] += $invoiceline['priceactual'];
-//                    }
-//                    $lastfiveorders['avgpurchaseprice'] = $lastfiveorders['purchaseprice'] / 5;
-//                    $lasttenorders['avgpurchaseprice'] = $lasttenorders['purchaseprice'] / 10;
-//                    $output .= '<tr><td>'.$lang->purchaseprice.'</td><td>'.$product_obj->get_displayname().'</td><td>'.$lastorder['purchaseprice'].'</td><td>'.$lastfiveorders['avgpurchaseprice'].'</td><td>'.$lasttenorders['avgpurchaseprice'].'</td></tr>';
-//                }
                     eval("\$comparisonstudy = \"".$template->get('aro_comparisonstudy')."\";");
                 }
             }
@@ -923,14 +897,6 @@ if(!($core->input['action'])) {
         eval("\$totalfunds = \"".$template->get('aro_totalfunds_preview')."\";");
         eval("\$aro_netmarginparms= \"".$template->get('aro_netmarginparameters_preview')."\";");
         eval("\$partiesinformation = \"".$template->get('aro_partiesinformation_preview')."\";");
-//        $invoices = IntegrationOBInvoice::get_data($filters);
-//        if(is_array($invoices)) {
-//            foreach($invoices as $invoice) {
-//                $invoicesid[] = $invoice->c_invoice_id;
-//            }
-//        }
-//        $comparison_products = array_filter($comparison_products);
-//        $where = "c_invoice_id ='".$invoice->c_invoice_id."' AND m_product_id IN ('".implode("','", $comparison_products)."') ";
     }
     else {
         $colspan['qtypotentiallysold'] = 'colspan = "2"';
@@ -946,8 +912,8 @@ if(!($core->input['action'])) {
 
     if(isset($core->input['referrer']) && $core->input['referrer'] == 'toapprove') {
         if(is_object($aroordersummary)) {
-            $formatter = new NumberFormatter($lang->settings['locale '], NumberFormatter::DECIMAL);
-            $perc_formatter = new NumberFormatter($lang->settings['locale '], NumberFormatter::PERCENT);
+            $formatter = new NumberFormatter($lang->settings['locale'], NumberFormatter::DECIMAL);
+            $perc_formatter = new NumberFormatter($lang->settings['locale'], NumberFormatter::PERCENT);
             $ordersummary_fields = array('netmarginIntermed_afterdeduction', 'invoiceValueIntermed', 'invoiceValueLocal', 'invoiceValueUsdIntermed', 'invoiceValueUsdLocal', 'interestValue', 'interestValueUsd', 'totalIntermedFees', 'totalIntermedFeesUsd', 'unitFee', 'netmarginIntermed', 'netmarginLocal', 'invoiceValueThirdParty', 'globalNetmargin', 'totalQuantityUom'); // 'netmarginIntermedPerc', 'netmarginLocalPerc');
             foreach($ordersummary_fields as $field) {
                 switch($field) {
@@ -1019,7 +985,7 @@ else {
         $rowid = intval($core->input['value']) + 1;
         $customeroder['inputChecksum'] = generate_checksum('cl');
         $payment_terms = PaymentTerms::get_data('', array('returnarray' => ture));
-        $payment_term = parse_selectlist('customeroder[ '.$rowid.'] [ ptid]  ', 4, $payment_terms, '', '', ' ', array('blankstart' => 1, 'id' => "paymentermdays_".$rowid));
+        $payment_term = parse_selectlist('customeroder['.$rowid.'][ptid]', 4, $payment_terms, '', '', '', array('blankstart' => 1, 'id' => "paymentermdays_".$rowid));
         eval("\$aro_managedocuments_ordercustomers_rows = \"".$template->get('aro_managedocuments_ordercustomers_rows')."\";");
         output($aro_managedocuments_ordercustomers_rows);
     }
@@ -1027,7 +993,7 @@ else {
         unset($core->input['module'], $core->input['action']);
         $orderident_obj = new AroRequests();
         /* get arodocument of the affid and pruchase type */
-        $filter = 'affid = '.intval($core->input['affid']).' AND ptid = '.intval($core->input['orderType']).' AND('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
+        $filter = 'affid = '.intval($core->input['affid']).' AND ptid = '.intval($core->input['orderType']).' AND ('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
         $documentseq_obj = AroDocumentsSequenceConf::get_data($filter, array('simple' => false, 'operators' => array('affid' => 'in', 'ptid' => 'in')));
         if(is_object($documentseq_obj)) {
             $nextsequence_number = $documentseq_obj->get_nextaro_identification();
@@ -1042,7 +1008,7 @@ else {
                 break;
             case 2:
                 $error_output = $errorhandler->get_errors_inline();
-                output_xml('<status>false</status><message>'.$lang->fillrequiredfields.'<![  CDATA[  < br/>'.$error_output.']]></message>');
+                output_xml('<status>false</status><message>'.$lang->fillrequiredfields.'<![CDATA[<br/>'.$error_output.']]></message>');
                 break;
             case 3:
                 output_xml('<status>false</status><message>'.$lang->productlineerror.$orderident_obj->get_errorid().'</message>');
@@ -1065,13 +1031,13 @@ else {
         }
 
         if(is_array($core->input[paymentermdays])) {
-            $paymentermdays = explode(', ', $core->input[paymentermdays][0]);
+            $paymentermdays = explode(',', $core->input[paymentermdays][0]);
         }
         if(is_array($core->input[salesdates])) {
-            $salesdates = explode(', ', $core->input[salesdates][0]);
+            $salesdates = explode(',', $core->input[salesdates][0]);
         }
         if(is_array($core->input[ptbasedates])) {
-            $ptbasedates = explode(', ', $core->input[ptbasedates][0]);
+            $ptbasedates = explode(',', $core->input[ptbasedates][0]);
         }
 
         //get average of payment terms
@@ -1133,12 +1099,12 @@ else {
         $productline['inputChecksum'] = generate_checksum('pl');
         $packaging = Packaging::get_data('name IS NOT NULL');
         $segments = ProductsSegments::get_segments('');
-        $segments_selectlist = parse_selectlist('productline[ '.$plrowid.'][ psid]', '', $segments, '', null, null, array('id' => "productline_".$plrowid."_psid", 'placeholder' => 'Overwrite Segment', 'width' => '100%'));
-        $packaging_list = parse_selectlist('productline[ '.$plrowid.'] [ packing]', ' ', $packaging, '', '', '', array('id' => "productline_".$plrowid."_packing", 'blankstart' => 1));
+        $segments_selectlist = parse_selectlist('productline['.$plrowid.'][psid]', '', $segments, '', null, null, array('id' => "productline_".$plrowid."_psid", 'placeholder' => 'Overwrite Segment', 'width' => '100%'));
+        $packaging_list = parse_selectlist('productline['.$plrowid.'][packing]', '', $packaging, '', '', '', array('id' => "productline_".$plrowid."_packing", 'blankstart' => 1));
         $where = "isWeight=1 OR isVolume=1";
         $uom = Uom::get_data($where);
         $kg = Uom::get_data(array('name' => 'Kilogram'));
-        $uom_list = parse_selectlist('productline['.$plrowid.'][        uom]', '', $uom, $kg->uomid, ' ', '', array('id' => "productline_".$plrowid."_uom", 'blankstart' => 1, 'width' => '70px'));
+        $uom_list = parse_selectlist('productline['.$plrowid.'][uom]', '', $uom, $kg->uomid, '', '', array('id' => "productline_".$plrowid."_uom", 'blankstart' => 1, 'width' => '70px'));
         eval("\$aroproductlines_rows = \"".$template->get('aro_productlines_row')."\";");
         output($aroproductlines_rows);
     }
@@ -1215,21 +1181,21 @@ else {
     }
     if($core->input['action'] == 'getwarehouses') {
         $warehouse_objs = Warehouses::get_data(array('affid' => $core->input['affid'], 'isActive' => 1), array('returnarray' => true));
-        $warehouse_list = parse_selectlist('parmsfornetmargin[ warehouse]', 1, $warehouse_objs, '', '', '', array('id' => 'parmsfornetmargin_warehouse ', ' blankstart ' => 1, ' width' => '100%'));
+        $warehouse_list = parse_selectlist('parmsfornetmargin[warehouse]', 1, $warehouse_objs, '', '', '', array('id' => 'parmsfornetmargin_warehouse ', ' blankstart' => 1, 'width' => '100%'));
         output(($warehouse_list));
     }
     if($core->input['action'] == 'populateaffpolicy') {
         $aropolicy_data = array('parmsfornetmargin_localBankInterestRate' => '',
-                'parmsfornetmargin_localRiskRatio ' => ''
+                'parmsfornetmargin_localRiskRatio' => ''
         );
         unset($core->input[' action'], $core->input['module']);
-        if($core->input[' affid'] != ' ' && !empty($core->input['affid']) && !empty($core->input['ptid']) && $core->input['ptid'] != ' ') {
-            $filter = 'affid = '.$core->input['affid'].' AND purchaseType = '.$core->input['ptid'].' AND isActive = 1 AND('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
+        if($core->input[' affid'] != '' && !empty($core->input['affid']) && !empty($core->input['ptid']) && $core->input['ptid'] != '') {
+            $filter = 'affid = '.$core->input['affid'].' AND purchaseType = '.$core->input['ptid'].' AND isActive = 1 AND ('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
             $filters['coid'] = 0;
             if(isset($core->input['coid']) && !empty($core->input['coid'])) {
                 $filters['coid'] = $core->input['coid'];
             }
-            $filter .= ' AND coid = '.$filters['coid'];
+            $filter .= ' AND coid='.$filters['coid'];
 
             $localaffpolicy = AroPolicies::get_data($filter);
             if(!is_object($localaffpolicy)) {
@@ -1251,8 +1217,8 @@ else {
     }
     if($core->input['action'] == 'populateintermedaffpolicy') {
         $intermedpolicy_data = array('parmsfornetmargin_intermedBankInterestRate' => '');
-        if($core->input ['intermedAff'] != ' ' && !empty($core->input['intermedAff']) && !empty($core->input['ptid']) && $core->input['ptid'] != ' ') {
-            $intermedpolicy_filter = 'affid = '.$core->input['intermedAff'].' AND purchaseType = '.$core->input['ptid'].' AND isActive = 1 AND('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
+        if($core->input ['intermedAff'] != '' && !empty($core->input['intermedAff']) && !empty($core->input['ptid']) && $core->input['ptid'] != '') {
+            $intermedpolicy_filter = 'affid = '.$core->input['intermedAff'].' AND purchaseType = '.$core->input['ptid'].' AND isActive = 1 AND ('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
             $intermedpolicy = AroPolicies::get_data($intermedpolicy_filter);
             if(!is_object($intermedpolicy)) {
                 output($lang->nointermedpolicy);
@@ -1426,7 +1392,7 @@ else {
             $avgfee[$i] = $fee[1];
         }
 
-        for($j = 1; $j <= $i; $j++) { // /Calculate unit fee
+        for($j = 1; $j <= $i; $j++) { ///Calculate unit fee
             if($avgqty[$j] != 0) {
                 $unitfee +=$avgfee[$j] / $avgqty[$j];  //(total Fee per unit /total qty per unit)
             }
@@ -1479,7 +1445,7 @@ else {
             $avgfee[$i] = $fee[1];
         }
 
-        for($j = 1; $j <= $i; $j++) { // /Calculate unit fee
+        for($j = 1; $j <= $i; $j++) { ///Calculate unit fee
             if($avgqty[$j] != 0) {
                 $unitfee +=$avgfee[$j] / $avgqty[$j];  //(total Fee per unit /total qty per unit)
             }
@@ -1598,8 +1564,8 @@ else {
         echo json_encode($data);
     }
     if($core->input['action'] == 'popultedefaultaffpolicy') {
-        if($core->input['affid'] != ' ' && !empty($core->input['affid']) && !empty($core->input['ptid']) && $core->input['ptid'] != ' ') {
-            $filter = 'affid = '.$core->input['affid'].' AND purchaseType = '.$core->input['ptid'].' AND isActive = 1 AND('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
+        if($core->input['affid'] != '' && !empty($core->input['affid']) && !empty($core->input['ptid']) && $core->input['ptid'] != '') {
+            $filter = 'affid = '.$core->input['affid'].' AND purchaseType = '.$core->input['ptid'].' AND isActive = 1 AND ('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
 
             $filters['coid'] = 0;
             if(isset($core->input['coid']) && !empty($core->input['coid'])) {
@@ -1780,7 +1746,7 @@ else {
                                 'subject' => "ARO [".$arorequest->orderReference."] Approval Status",
                                 'message' => "Aro Request [".$arorequest->orderReference."] ".$aroaffiliate_obj->get_displayname()." ".$purchasteype_obj->get_displayname()." was approved by ".$user->get_displayname()
                         );
-                        $viewarolink = '<a href = "'.$core->settings['rootdir'].'/index.php?module=aro/managearodouments&id='.$arorequest->aorid.'">Click here to view the ARO</a>';
+                        $viewarolink = '<a href="'.$core->settings['rootdir'].'/index.php?module=aro/managearodouments&id='.$arorequest->aorid.'">Click here to view the ARO</a>';
                         $mailer = new Mailer();
                         $mailer = $mailer->get_mailerobj();
                         $mailer->set_type();
@@ -1937,7 +1903,7 @@ else {
         }
     }
     elseif($core->input['action'] == 'markpoassent') {
-        $aro_obj = new AroRequests($db->escape_string($core->input['id          ']));
+        $aro_obj = new AroRequests($db->escape_string($core->input['id']));
         if(is_object($aro_obj)) {
             $aro_obj->mark_sentpo();
         }
