@@ -296,4 +296,8 @@ $lang['globalPurchaseManager'] = 'Global purchase manager';
 $lang['user'] = 'User';
 $lang['reportsTo'] = 'Reports To';
 $lang['commercialManager'] = 'Commercial Manager';
+$lang['paymentTermDesc'] = 'Payment Term Description';
+$lang['warning'] = 'Warning';
+$lang['ptdescwarning'] = 'For 0 Days the description can not be cash in advance.';
+$lang['fundsengagedevolution'] = 'Total Funds Engaged evolution';
 ?>

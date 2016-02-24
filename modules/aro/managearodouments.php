@@ -424,6 +424,39 @@ if(!($core->input['action'])) {
                         $totalfunds->$totalfunds_field = $numfmt->formatCurrency(($totalfunds->$totalfunds_field), "USD");
                     }
                 }
+
+                /**
+                 * Total Funds Engaged evolution
+                 * -displayed only on preview
+                 * - Add columns with the amount after this order, then amount at the beginning of last month, then 3 months ago, then 6 months ago and then a year ago to see the evolution.
+
+                  Show a trend line at the end.
+                 */
+                if(isset($core->input['referrer']) && $core->input['referrer'] == 'toapprove') {
+                    $periods = array('lastmonth', '-3 months', '-6 months', '-9 months', '-12 months');
+                    foreach($periods as $period) {
+                        switch($period) {
+                            case 'lastmonth':
+                                $uptodate = strtotime('first day of last month');
+                                break;
+                            default:
+                                $uptodate = strtotime('first day of '.date('Y-m-d 00:00:00', strtotime($period, TIME_NOW)));
+                                break;
+                        }
+                        $amount[$period] = $totalfunds->get_amount($uptodate, $aroorderrequest->affid);
+                        foreach($totalfunds_fiels as $totalfunds_field) {
+                            $fundsengaged_evolution_row[$totalfunds_field] .= '<td class="border_right">'.$numfmt->formatCurrency(($amount[$period][$totalfunds_field]), "USD").'</td>';
+                            $trend[$totalfunds_field][$period] = $amount[$period][$totalfunds_field];
+                        }
+                    }
+                    foreach($totalfunds_fiels as $totalfunds_field) {
+                        $fundsengaged_evolution_row[$totalfunds_field].='<td class="border_right"><span class="inlinesparkline" >'.implode(',', $trend[$totalfunds_field]).'</span>'
+                                .'<br/><br/><span class="inlinebar" >'.implode(',', $trend[$totalfunds_field]).'</span></td>';
+                    }
+                }
+                /*                 * ,
+                 * Total Funds Engaged evolution ~ END
+                 */
             }
 
 //*********Total Funds Engaged -End   *********//
