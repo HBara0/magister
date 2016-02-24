@@ -107,8 +107,8 @@ if(!$core->input['action']) {
                 $rowclass = "trowtools yellowbackground";
             }
             if($documentrequest->isRejected == 1) {
-                $style = 'style="color:red;"';
-                $rowclass = "";
+                $style = 'style="color:red;background-color:#FFF"';
+                //$rowclass = "";
                 $icons['rejected'] = '<span class="glyphicon glyphicon-ban-circle"></span> ';
             }
             if($documentrequest->isFinalized == 1) {
