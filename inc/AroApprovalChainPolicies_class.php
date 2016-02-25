@@ -156,6 +156,9 @@ class AroApprovalChainPolicies extends AbstractClass {
     }
 
     public function co_exist($extra_where = '') {
+        if(empty($this->data['coid'])) {
+            $this->data['coid'] = 0;
+        }
         $where = 'purchaseType='.$this->data['purchaseType'].' AND affid='.$this->data['affid'].' AND coid='.$this->data['coid'].' AND ('
                 .'((effectiveFrom BETWEEN '.$this->data['effectiveFrom'].' AND '.$this->data['effectiveTo'].') OR (effectiveTo BETWEEN '.$this->data['effectiveFrom'].' AND '.$this->data['effectiveTo'].'))'
                 .' OR '.
