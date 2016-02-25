@@ -10,19 +10,31 @@
         <td class="contentContainer">
             <h1>{$lang->hotelslist}</h1>
             <form name="perform_travelmanager/hotelslist_Form" id="perform_travelmanager/hotelslist_Form" action="#" method="post">
-                <table class="datatable" width="100%">
+                <table class="datatable_basic  table table-bordered row-border hover order-column" data-skipfilter="true" cellspacing="0" width="100%">
                     <thead>
                         <tr>
-                            <th style="width:25%;">{$lang->name} </th>
-                            <th style="width:20%;">{$lang->city}</th>
-                            <th style="width:20%;">{$lang->country}</th>
-                            <th style="width:15%;">{$lang->isapproved}</th>
-                            <th style="width:20%;">{$lang->avgprice}</th>
-                        </tr>
-                        <tr>
-                            {$filters_row}
+                            <th >{$lang->name} </th>
+                            <th >{$lang->city}</th>
+                            <th >{$lang->country}</th>
+                            <th >{$lang->isapproved}</th>
+                            <th >{$lang->avgprice}</th>
+                            <th ></th>
+
                         </tr>
                     </thead>
+                    <thead>
+                        <tr>{$filters_row}</tr>
+                    </thead>
+                    <tfoot>
+                        <tr>
+                            <th >{$lang->name} </th>
+                            <th >{$lang->city}</th>
+                            <th >{$lang->country}</th>
+                            <th >{$lang->isapproved}</th>
+                            <th >{$lang->avgprice}</th>
+                            <th ></th>
+                        </tr>
+                    </tfoot>
                     <tbody>
                         {$hotel_rows}
                     </tbody>
