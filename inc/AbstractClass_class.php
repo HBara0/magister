@@ -255,4 +255,57 @@ Abstract class AbstractClass {
         return true;
     }
 
+    /**
+     *
+     * function will check if current object has a conversation based on its id, and table name (and if any additional configs are feeded)
+     *
+     * if alternative ID is set, the search will only run it and disregard any other filter
+     *
+     * @param type $configs
+     * @return boolean
+     */
+    public function get_conversation($configs = '') {
+        $filters = array('recordId' => $this->data[$this::PRIMARY_KEY], 'tableName' => $this::TABLE_NAME);
+        if(is_array($configs)) {
+            if(isset($configs['module']) && !empty($configs['module'])) {
+                $filters['module'] = $configs['module'];
+            }
+            if(isset($configs['alternativeId']) && !empty($configs['alternativeId'])) {
+                $filters = array('alternativeId' => 'alternativeId');
+            }
+        }
+        $conversation_obj = SystemConversations::get_data(array($filters), array('returnarray' => false));
+        if($conversation_obj) {
+            return $conversation_obj;
+        }
+        return false;
+    }
+
+    /**
+     * function will fill minimum required info to create a conversation in an array , later on serialized AND THEN encoded.
+     *
+     * if conversation id is send through configs array then only that id will be passed
+     * @global type $core
+     * @param type $configs
+     * @return type
+     */
+    public function get_conversation_url($configs = array()) {
+        global $core;
+        if(isset($configs['scid']) && !empty($configs['scid'])) {
+            $waddings = '&scid='.intval($configs['scid']);
+        }
+        else {
+            $stuffings = array('recordId' => $this->data[$this::PRIMARY_KEY], 'tableName' => $this::TABLE_NAME, 'title' => $this->get_displayname());
+            if(isset($core->input['module']) && !empty($core->input['module'])) {
+                if(strpos($core->input['module'], '/')) {
+                    $stuffings['module'] = substr($core->input['module'], 0, strpos($core->input['module'], '/'));
+                }
+            }
+            $waddings = '&d$@1á='.base64_encode(serialize($stuffings));
+        }
+        $url = $core->settings['rootdir'].'/index.php?module=portal/conversation'.$waddings;
+
+        return $url;
+    }
+
 }
