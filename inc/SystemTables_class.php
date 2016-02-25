@@ -227,7 +227,7 @@ public function create(array \$data) {
     }
 
 protected function update(array \$data) {
-        global \$db;
+        global \$db,\$core;
         \$fields=array($parsedfields);
          if(is_array(\$fields)){
             foreach(\$fields as \$field){
