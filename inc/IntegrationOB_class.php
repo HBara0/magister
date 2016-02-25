@@ -522,7 +522,13 @@ class IntegrationOB extends Integration {
 
         if($this->f_db->num_rows($query) > 0) {
             while($transcation = $this->f_db->fetch_assoc($query)) {
-                $filter = " m_attributesetinstance_id='".$transcation['m_attributesetinstance_id']."' AND m_product_id='".$transcation['m_product_id']."' ORDER BY movementdate ASC LIMIT 1";
+                $filter = " m_attributesetinstance_id='".$transcation['m_attributesetinstance_id']."' AND m_product_id='".$transcation['m_product_id']."' ORDER BY
+                            case
+                               when movementtype = 'M+' then 1
+                               when movementtype = 'V+' then 2
+                               when movementtype = 'I+' then 3
+                               else 4
+                            end,movementdate ASC LIMIT 1";
                 $first_transaction = IntegrationOBTransaction::get_data($filter);
                 if(!is_object($first_transaction)) {
                     continue;
@@ -2818,7 +2824,7 @@ class IntegrationOBAttributeSetInstance {
         }
         $query = $this->f_db->query("SELECT m_attributeinstance_id
         FROM m_attributeinstance
-        WHERE m_ attributesetinstance_id = '".$this->setinstance['m_attribu tesetinstance_id']."'".$extra_where);
+        WHERE m_attributesetinstance_id = '".$this->setinstance['m_attributesetinstance_id']."'".$extra_where);
         if($this->f_db->num_rows($query) > 0) {
             while($instance = $this->f_db->fetch_assoc($query)) {
                 $instances[$instance['m_attributeinstance_id']] = new IntegrationOBAttributeInstance($instance['m_attributeinstance_id'], $this->f_db);
