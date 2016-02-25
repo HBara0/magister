@@ -6,6 +6,13 @@ $(function() {
 
     //applyin the DATATABLES plugin on classes-START
     function initialize_datatables() {
+        // Remove the formatting to get integer data for summation
+        var intVal = function(i) {
+            return typeof i === 'string' ?
+                    i.replace(/[\$,]/g, '') * 1 :
+                    typeof i === 'number' ?
+                    i : 0;
+        };
         $(".datatable_basic").each(function(i, obj) {
             //basic grid type
             var maintable = obj;
@@ -27,7 +34,52 @@ $(function() {
                             }
                         });
                     });
+                    var table = $(obj).DataTable(
+                            {
+                                stateSave: true,
+                                "pagingType": "full_numbers",
+                                "footerCallback": function(row, data, start, end, display) {
+                                    var api = this.api(), data;
+                                    if(typeof totalcolumns == 'undefined') {
+                                        return;
+                                    }
+                                    var columns = totalcolumns.split(',');
+                                    if(!($.isArray(columns))) {
+                                        return;
+                                    }
+                                    $.each(columns, function(i, col) {
+                                        if(!($.isNumeric(intVal(col)))) {
+                                            return true;
+                                        }
+                                        // Total over all pages
+                                        total = api
+                                                .column(col)
+                                                .data()
+                                                .reduce(function(a, b) {
+                                                    return intVal(a) + intVal(b);
+                                                }, 0);
 
+                                        // Total over this page
+                                        pageTotal = api
+                                                .column(col, {page: 'current'})
+                                                .data()
+                                                .reduce(function(a, b) {
+                                                    return intVal(a) + intVal(b);
+                                                }, 0);
+
+                                        // Update footer
+                                        //if variables are not numeric skip and leave normal filters
+                                        if(!($.isNumeric(pageTotal)) || !($.isNumeric(total))) {
+                                            return;
+                                        }
+                                        else {
+                                            $(api.column(col).footer()).html(
+                                                    pageTotal.toFixed(2) + ' <br>(Total: ' + total.toFixed(2) + ')'
+                                                    );
+                                        }
+                                    });
+                                }
+                            });
                     //apply filters on the second thead
                     table.columns().every(function() {
                         var that = this;
@@ -40,65 +92,8 @@ $(function() {
                         });
                     });
                 }
-                // Remove the formatting to get integer data for summation
-                var intVal = function(i) {
-                    return typeof i === 'string' ?
-                            i.replace(/[\$,]/g, '') * 1 :
-                            typeof i === 'number' ?
-                            i : 0;
-                };
-                var table = $(obj).DataTable(
-                        {
-                            stateSave: true,
-                            "pagingType": "full_numbers",
-                            "footerCallback": function(row, data, start, end, display) {
-                                var api = this.api(), data;
-                                if(typeof totalcolumns == 'undefined') {
-                                    return;
-                                }
-                                var columns = totalcolumns.split(',');
-                                if(!($.isArray(columns))) {
-                                    return;
-                                }
-                                $.each(columns, function(i, col) {
-                                    if(!($.isNumeric(intVal(col)))) {
-                                        return true;
-                                    }
-                                    // Total over all pages
-                                    total = api
-                                            .column(col)
-                                            .data()
-                                            .reduce(function(a, b) {
-                                                return intVal(a) + intVal(b);
-                                            }, 0);
-
-                                    // Total over this page
-                                    pageTotal = api
-                                            .column(col, {page: 'current'})
-                                            .data()
-                                            .reduce(function(a, b) {
-                                                return intVal(a) + intVal(b);
-                                            }, 0);
-
-                                    // Update footer
-                                    //if variables are not numeric skip and leave normal filters
-                                    if(!($.isNumeric(pageTotal)) || !($.isNumeric(total))) {
-                                        return;
-                                    }
-                                    else {
-                                        $(api.column(col).footer()).html(
-                                                pageTotal.toFixed(2) + ' <br>(Total: ' + total.toFixed(2) + ')'
-                                                );
-                                    }
-                                });
 
 
-
-
-
-
-                            }
-                        });
 
 
             }
