@@ -30,8 +30,14 @@ else {
         if(empty($core->input['affid'])) {
             redirect('index.php?module=warehousemgmt/stockreportlive');
         }
+
         $report_period = array('from' => '2005-01-01');
         $report_period['to'] = 'tomorrow -1 second';
+
+        /* Predefined values for End of month stock report */
+        if($core->input['type'] == 'endofmonth') {
+            $core->input['asOf'] = date('Y-m-d', strtotime('last day of last month'));
+        }
         if(!empty($core->input['asOf'])) {
             $report_period['to'] = $core->input['asOf'].' 23:59:59';
         }
@@ -1122,7 +1128,8 @@ else {
             $message .= '</body></html>';
 
             $message = '<html><head><title>Stock Report</title></head><body>';
-            $message .= '<h1>Stock Summary Report - '.$affiliate['name'].' - Week '.$date_info['week'].'/'.$date_info['year'].' ( '.$affiliate['currency'].' | USD FX Rate:'.$fxrates['usd'].')<br /><small style="color:red;">New Feature: Check the new Expiry Aging table, and its summaries</small></h1>';
+            $message .= '<h1>Stock Summary Report - '.$affiliate['name'].' - Week '.$date_info['week'].'/'.$date_info['year'].' ( '.$affiliate['currency'].' | USD FX Rate:'.$fxrates['usd'].')<br />'
+                    .'<small style="color:red;">New Feature: Check the new Expiry Aging table, and its summaries</small></h1>';
             $message .= $stockevolution_output.$alerts.$summaries_ouput.$output.$fxratesoverview_output;
             unset($stockevolution_output, $alerts, $summaries_ouput, $output, $fxratesoverview_output);
         }
