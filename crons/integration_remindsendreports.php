@@ -29,7 +29,10 @@ if($_REQUEST['authkey'] == 'kia5ravbXop09dj4a!xhegalhj') {
             7 => array(434),
             16 => array(392),
             29 => array(160),
-            12 => array(47, 33)
+            12 => array(47, 33),
+            28 => array(82),
+            5 => array(82),
+            31 => array(82),
     );
 
     $time = new DateTime();
