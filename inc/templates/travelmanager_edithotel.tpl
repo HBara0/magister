@@ -78,6 +78,7 @@
             <input type='submit' style="cursor: pointer" class='button' value="{$lang->savecaps}" id='perform_travelmanager/edithotel_Button'>
         </form>
         <div id="perform_travelmanager/edithotel_Results"></div>
+        {$conversaion_part}
     </td>
 </tr>
 {$footer}

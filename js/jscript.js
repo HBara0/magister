@@ -16,14 +16,13 @@ $(function() {
         $(".datatable_basic").each(function(i, obj) {
             //basic grid type
             var maintable = obj;
-            if($(obj).hasClass('datatable_basic')) {
-
+            if($(maintable).hasClass('datatable_basic')) {
                 //check if data attribute of totals columns exists and not empty, then fill the values
-                if($(obj).attr('data-totalcolumns')) {
-                    var totalcolumns = $(obj).attr('data-totalcolumns');
+                if($(maintable).attr('data-totalcolumns')) {
+                    var totalcolumns = $(maintable).attr('data-totalcolumns');
                 }
                 //create a second thead right after the firse one
-                if($(maintable).attr('data-totalcolumns') && $(maintable).attr('data-totalcolumns') != true) {
+                if($(maintable).attr('data-skipfilter') !== 'true') {
                     $(maintable).find('thead:first-child').after($(maintable).find('thead:first-child').clone());
                     // Setup - add a text input to each footer cell
                     $(maintable).find('thead:nth-child(2)').each(function(i, tfoot) {
@@ -34,77 +33,90 @@ $(function() {
                             }
                         });
                     });
-                    var table = $(obj).DataTable(
-                            {
-                                stateSave: true,
-                                "pagingType": "full_numbers",
-                                "footerCallback": function(row, data, start, end, display) {
-                                    var api = this.api(), data;
-                                    if(typeof totalcolumns == 'undefined') {
-                                        return;
-                                    }
-                                    var columns = totalcolumns.split(',');
-                                    if(!($.isArray(columns))) {
-                                        return;
-                                    }
-                                    $.each(columns, function(i, col) {
-                                        if(!($.isNumeric(intVal(col)))) {
-                                            return true;
-                                        }
-                                        // Total over all pages
-                                        total = api
-                                                .column(col)
-                                                .data()
-                                                .reduce(function(a, b) {
-                                                    return intVal(a) + intVal(b);
-                                                }, 0);
-
-                                        // Total over this page
-                                        pageTotal = api
-                                                .column(col, {page: 'current'})
-                                                .data()
-                                                .reduce(function(a, b) {
-                                                    return intVal(a) + intVal(b);
-                                                }, 0);
-
-                                        // Update footer
-                                        //if variables are not numeric skip and leave normal filters
-                                        if(!($.isNumeric(pageTotal)) || !($.isNumeric(total))) {
-                                            return;
-                                        }
-                                        else {
-                                            $(api.column(col).footer()).html(
-                                                    pageTotal.toFixed(2) + ' <br>(Total: ' + total.toFixed(2) + ')'
-                                                    );
+                }
+                var table = $(maintable).DataTable(
+                        {
+                            stateSave: true,
+                            "pagingType": "full_numbers",
+                            "initComplete": function() {
+                                if($(maintable).attr('data-checkonclick') === 'true') {
+                                    var api = this.api();
+                                    api.$('td').click(function(e) {
+                                        var chk = $(this).closest("tr").find("input:checkbox").get(0);
+                                        if(e.target != chk)
+                                        {
+                                            chk.checked = !chk.checked;
                                         }
                                     });
                                 }
-                            });
-                    //apply filters on the second thead
-                    table.columns().every(function() {
-                        var that = this;
-                        $('input', $(maintable).find('thead:nth-child(2)').find('th').eq(this.index())).on('keyup change', function() {
-                            if(that.search() !== this.value) {
-                                that
-                                        .search(this.value)
-                                        .draw();
+                            },
+                            "footerCallback": function(row, data, start, end, display) {
+                                var api = this.api(), data;
+                                if(typeof totalcolumns == 'undefined') {
+                                    return;
+                                }
+                                var columns = totalcolumns.split(',');
+                                if(!($.isArray(columns))) {
+                                    return;
+                                }
+                                $.each(columns, function(i, col) {
+                                    if(!($.isNumeric(intVal(col)))) {
+                                        return true;
+                                    }
+                                    // Total over all pages
+                                    total = api
+                                            .column(col)
+                                            .data()
+                                            .reduce(function(a, b) {
+                                                return intVal(a) + intVal(b);
+                                            }, 0);
+
+                                    // Total over this page
+                                    pageTotal = api
+                                            .column(col, {page: 'current'})
+                                            .data()
+                                            .reduce(function(a, b) {
+                                                return intVal(a) + intVal(b);
+                                            }, 0);
+
+                                    // Update footer
+                                    //if variables are not numeric skip and leave normal filters
+                                    if(!($.isNumeric(pageTotal)) || !($.isNumeric(total))) {
+                                        return;
+                                    }
+                                    else {
+                                        $(api.column(col).footer()).html(
+                                                pageTotal.toFixed(2) + ' <br>(Total: ' + total.toFixed(2) + ')'
+                                                );
+                                    }
+                                });
                             }
                         });
+                //apply filters on the second thead
+                table.columns().every(function() {
+                    var that = this;
+                    $('input', $(maintable).find('thead:nth-child(2)').find('th').eq(this.index())).on('keyup change', function() {
+                        if(that.search() !== this.value) {
+                            that
+                                    .search(this.value)
+                                    .draw();
+                        }
                     });
-                }
-
-
-
-
-            }
-            $(obj).find('tbody').each(function(i, obj2) {
-                $(obj2).on('mouseenter', 'td', function() {
-                    var colIdx = table.cell(this).index().column;
-                    $(table.cells().nodes()).removeClass('highlight');
-                    $(table.column(colIdx).nodes()).addClass('highlight');
                 });
-            });
-            $(obj).before('&nbsp;&nbsp;<img  title="Clear Filters" src="' + rootdir + '/images/icons/clearfilters.png" style="cursor:pointer;" id="datatables_cleafilters">');
+
+
+
+
+                $(maintable).find('tbody').each(function(i, obj2) {
+                    $(obj2).on('mouseenter', 'td', function() {
+                        var colIdx = table.cell(this).index().column;
+                        $(table.cells().nodes()).removeClass('highlight');
+                        $(table.column(colIdx).nodes()).addClass('highlight');
+                    });
+                });
+                $(maintable).before('&nbsp;&nbsp;<img  title="Clear Filters" src="' + rootdir + '/images/icons/clearfilters.png" style="cursor:pointer;" id="datatables_cleafilters">');
+            }
+
         });
     }
     initialize_datatables();

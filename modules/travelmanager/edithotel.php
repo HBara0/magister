@@ -49,6 +49,20 @@ if(!$core->input['action']) {
                     $telephone_number = $phone_parts[2];
                 }
             }
+
+            //Conversation Section -Start
+            //getting conversation info
+            $conversation_obj = $hotel_obj->get_conversation();
+            //if there is a conversation for this current entry then parse it accordingly
+            if($conversation_obj) {
+                $conversaion_part = $conversation_obj->parse_conversation();
+            }
+            //if no conversation is found then show a button linking the user to the page where he will create a conversation and chose its participants
+            else {
+                $conv_url = $hotel_obj->get_conversation_url();
+                $conversaion_part = '<hr><div><a target="_blank" href="'.$conv_url.'"><button type="button" class="btn btn-success">'.$lang->startconversation.'</button></a></div>';
+            }
+            //Conversation Section -END
         }
     }
     $ratingval = 0;
