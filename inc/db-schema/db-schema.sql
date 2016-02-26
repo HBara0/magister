@@ -3801,58 +3801,21 @@ DROP TABLE IF EXISTS `productsegments`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `productsegments` (
   `psid` smallint(5) unsigned NOT NULL AUTO_INCREMENT,
+  `title` varchar(220) NOT NULL,
   `alias` varchar(100) NOT NULL,
-  `title` varchar(220) NOT NULL,
-  `titleSoundex` varchar(100) NOT NULL,
   `titleAbbr` varchar(20) DEFAULT NULL,
   `description` text,
-  `shortDescription` varchar(300) DEFAULT NULL,
-  `category` tinyint(10) NOT NULL,
-  `publishOnWebsite` tinyint(1) NOT NULL DEFAULT '0',
-  `smallBanner` varchar(100) DEFAULT NULL,
-  `mediumBanner` varchar(100) DEFAULT NULL,
-  `largeBanner` varchar(100) DEFAULT NULL,
-  `slogan` varchar(100) DEFAULT NULL,
-  `brandingColor` varchar(7) DEFAULT NULL,
-  `displaySequence` int(3) DEFAULT NULL,
-  `isActive` tinyint(1) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`psid`),
-  KEY `category` (`category`),
-  FULLTEXT KEY `title` (`title`,`description`)
-) ENGINE=MyISAM AUTO_INCREMENT=31 DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-DROP TABLE IF EXISTS `productsegments2`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `productsegments2` (
-  `psid` smallint(5) unsigned NOT NULL AUTO_INCREMENT,
-  `title` varchar(220) NOT NULL,
-  `titleAbbr` varchar(20) DEFAULT NULL,
-  `description` text,
-  `category` tinyint(10) NOT NULL,
-  `publishOnWebsite` tinyint(1) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`psid`),
-  KEY `category` (`category`),
-  FULLTEXT KEY `title` (`title`,`description`)
-) ENGINE=MyISAM AUTO_INCREMENT=26 DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-DROP TABLE IF EXISTS `productsegments3`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `productsegments3` (
-  `psid` smallint(5) unsigned NOT NULL AUTO_INCREMENT,
-  `alias` varchar(100) NOT NULL,
-  `title` varchar(220) NOT NULL,
-  `titleAbbr` varchar(20) DEFAULT NULL,
-  `description` text,
-  `shortDescription` varchar(300) NOT NULL,
   `category` tinyint(10) NOT NULL,
   `publishOnWebsite` tinyint(1) NOT NULL,
-  `smallBanner` varchar(100) NOT NULL,
-  `mediumBanner` varchar(100) NOT NULL,
   `largeBanner` varchar(100) NOT NULL,
+  `mediumBanner` varchar(100) NOT NULL,
+  `smallBanner` varchar(100) NOT NULL,
   `slogan` varchar(100) NOT NULL,
   `brandingColor` varchar(30) NOT NULL,
+  `shortDescription` varchar(300) NOT NULL,
+  `displaySequence` int(3) NOT NULL,
+  `isActive` tinyint(1) NOT NULL DEFAULT '0',
+  `integrationOBId` varchar(32) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
   PRIMARY KEY (`psid`),
   KEY `category` (`category`),
   FULLTEXT KEY `title` (`title`,`description`)
