@@ -512,13 +512,36 @@ class IntegrationOB extends Integration {
     }
 
     public function get_fifoinputsalternative(array $organisations, array $options) {
-
-        $query = $this->f_db->query("SELECT m_attributesetinstance_id, m_product_id,SUM(movementqty) AS remainingQty FROM m_transaction
-									WHERE ad_org_id IN ('".implode('\',\'', $organisations)."')
-									AND movementdate BETWEEN '".date('Y-m-d 00:00:00', strtotime($this->period['from']))."' AND '".date('Y-m-d 00:00:00', strtotime($this->period['to']))."'{$query_extrawhere}
-                                                                        GROUP BY m_attributesetinstance_id,m_product_id HAVING SUM(movementqty) > 0
+        global $core;
+        $bm = Users::get_data(array('uid' => $core->user['uid'], array('simple' => false)));
+        $permissions = $bm->get_businesspermissions();
+//        $permissions['psid'][] = 25;
+//        $permissions['psid'][] = 2;
+//        $permissions['psid'][] = 1;
+        /**
+         * If report type is BM stock report filter query by BM segments
+         */
+        if(is_array($permissions['psid'])) {
+            foreach($permissions['psid'] as $psid) {
+                $prodseg_obj = ProductsSegments::get_data(array('psid' => $psid), array('simple' => false));
+                $bm_segments[] = $prodseg_obj->get_segment_integrationOBId();
+            }
+        }
+        if(is_array($bm_segments)) {
+            $bm_extra_join = " JOIN m_product p ON (t.m_product_id=p.m_product_id) ";
+            $bm_extra_where = " AND  p.m_product_category_id IN ('".implode('\',\'', $bm_segments)."')";
+        }
+        /**
+         * B report filters -END
+         */
+        $query = $this->f_db->query("SELECT t.m_attributesetinstance_id, t.m_product_id,SUM(t.movementqty) AS remainingQty
+                                                                        FROM m_transaction t ".$bm_extra_join."
+									WHERE
+                                                                        t.ad_org_id IN ('".implode('\',\'', $organisations)."')
+									AND t.movementdate BETWEEN '".date('Y-m-d 00:00:00', strtotime($this->period['from']))."' AND '".date('Y-m-d 00:00:00', strtotime($this->period['to']))."'{$query_extrawhere}
+                                                                        ".$bm_extra_where."
+                                                                        GROUP BY t.m_attributesetinstance_id,t.m_product_id HAVING SUM(t.movementqty) > 0
                                                                     ");
-
 
         if($this->f_db->num_rows($query) > 0) {
             while($transcation = $this->f_db->fetch_assoc($query)) {
@@ -533,7 +556,6 @@ class IntegrationOB extends Integration {
                 if(!is_object($first_transaction)) {
                     continue;
                 }
-
                 $transaction_data = $first_transaction->get();
                 $movement_qty_query = $this->f_db->query("SELECT SUM(movementqty) AS soldqty FROM m_transaction
 									WHERE m_attributesetinstance_id='".$transcation['m_attributesetinstance_id']."' AND m_product_id='".$transcation['m_product_id']."'
