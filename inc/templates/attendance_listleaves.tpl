@@ -18,6 +18,8 @@
                 });
             });
         </script>
+        <script type="text/javascript" src="{$core->settings[rootdir]}/js/tableExport.min.js"></script>
+        <script type="text/javascript" src="{$core->settings[rootdir]}/js/jquery.base64.min.js"></script>
     </head>
 
     <body>
@@ -42,12 +44,14 @@
                     </thead>
                 </table>
                 <form action="#" method="post" id="moderation_attendance/listleaves_Form" name="moderation_attendance/listleaves_Form" style="margin-bottom: 0px;">
-                    <table class="datatable">
+                    <table class="datatable" id="results_table">
                         <thead><tr class="dummytrow"><th style="width:19%;"></th><th style="width:19%;"></th><th style="width:19%;"></th><th style="width:19%;"></th><th style="width:19%;"></th><th colspan="2" style="width:5%;"></th></tr></thead>
                         <tbody>
                             {$requestslist}
                         </tbody>
                     </table>
+                    <a style="float:right" title="{$lang->exporttoexcel}" onClick ="$('#results_table').tableExport({type:'excel',escape:'false'});"><img src="./images/icons/xls.gif"/></a>
+
                 </form>
                 <div style="width:40%; float:left; margin-top:0px;" class="smalltext"><form method='post' action='$_SERVER[REQUEST_URI]'>{$lang->perlist}: <input type='text' size='4' id='perpage_field' name='perpage' value='{$core->settings[itemsperlist]}' class="smalltext"/></form></div>
         </td>
