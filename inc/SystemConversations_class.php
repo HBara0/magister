@@ -75,7 +75,7 @@ class SystemConversations extends AbstractClass {
      * @param type $message
      * @return \SystemConversations
      */
-    public function initiate_conversation($data = array(), $message = array(), $participants = array()) {
+    public function manage_conversation($data = array(), $message = array(), $participants = array()) {
         global $errorhandler, $lang;
         if(!is_array($message) || empty($message)) {
             $this->errorcode = 2;
@@ -88,7 +88,9 @@ class SystemConversations extends AbstractClass {
             $message[$result::PRIMARY_KEY] = $result->data[$result::PRIMARY_KEY];
             //save recipients
             if(is_array($participants)) {
+                $chosen_participants = array();
                 foreach($participants as $participant) {
+                    $chosen_participants[$participant] = $participant;
                     $conversationrecipient_obj = new SystemConvesationsParticipants();
                     $conversationrecipient_obj->set(array('uid' => $participant, 'scid' => $result->data[$result::PRIMARY_KEY]));
                     $conversationrecipient_obj = $conversationrecipient_obj->save();
@@ -97,17 +99,29 @@ class SystemConversations extends AbstractClass {
                         break;
                     }
                 }
+                //delete particiapnts who have been unchanged
+                if(is_array($chosen_participants)) {
+                    $removed_participants = SystemConvesationsParticipants::get_data('scid = '.intval($result->data[$result::PRIMARY_KEY]).' AND uid NOT IN ('.implode(',', $chosen_participants).')', array('returnarray' => true));
+                    if(is_array($removed_participants)) {
+                        foreach($removed_participants as $removed_participant) {
+                            $removed_participant->delete();
+                        }
+                    }
+                }
             }
             else {
                 $errorhandler->record('requiredfields', $lang->participants);
                 $result->errorcode = 3;
             }
             if($result->get_errorcode() == 0) {
-                //save and send message
-                $conversationmessage_obj = new SystemConversationsMessages();
-                $conversationmessage_obj = $conversationmessage_obj->create_message($message, $result->data[self::PRIMARY_KEY]);
-                if($conversationmessage_obj->get_errorcode() != 0) {
-                    $result->errorcode = $conversationmessage_obj->get_errorcode();
+                //check if message has been set
+                if(is_array($message && !empty($message['message']))) {
+                    //save and send message
+                    $conversationmessage_obj = new SystemConversationsMessages();
+                    $conversationmessage_obj = $conversationmessage_obj->create_message($message, $result->data[self::PRIMARY_KEY]);
+                    if($conversationmessage_obj->get_errorcode() != 0) {
+                        $result->errorcode = $conversationmessage_obj->get_errorcode();
+                    }
                 }
             }
         }
@@ -279,16 +293,19 @@ class SystemConversations extends AbstractClass {
     }
 
     /**
-     * responsibl for parsing the whole conversation
+     * responsible for parsing the whole conversation
      * @param type $configs
      * @return type string
      */
     public function parse_conversation($configs = array()) {
         global $lang;
-        $conv_url = $this->get_conversation_url(array('scid' => $this->data[self::PRIMARY_KEY]));
+        if(!isset($configs['existingconv']) || $configs['existingconv'] != true) {
+            $conv_url = $this->get_conversation_url(array('scid' => $this->data[self::PRIMARY_KEY]));
+            $goto_button = '<hr><div><a target="_blank" href="'.$conv_url.'"><button type="button" class="btn btn-success">'.$lang->goto.' '.$lang->conversation.'</button></a></div>';
+        }
         $conversation_output = '<hr><h3>'.$this->get_displayname().' '.$lang->conversation.'</h3>';
-        $conversation_output.=$this->parse_messages();
-        $conversation_output .= '<hr><div><a target="_blank" href="'.$conv_url.'"><button type="button" class="btn btn-success">'.$lang->goto.' '.$lang->conversation.'</button></a></div>';
+        $conversation_output.=$this->parse_messages($configs);
+        $conversation_output .= $goto_button;
         return $conversation_output;
     }
 

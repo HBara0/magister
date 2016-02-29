@@ -47,4 +47,5 @@ $lang['position'] = 'Position';
 $lang['reply'] = 'Reply';
 $lang['writeyourmsghere'] = 'Write your message here';
 $lang['emptymessage'] = 'Empty Message';
+$lang['converstaion'] = 'Converstaion';
 ?>

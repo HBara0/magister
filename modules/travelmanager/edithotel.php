@@ -31,7 +31,7 @@ if(!$core->input['action']) {
     if(!empty($core->input['id'])) {
         $id = $db->escape_string($core->input['id']);
         $hotel_obj = new TravelManagerHotels($id, false);
-        if(is_object($hotel_obj)) {
+        if(is_object($hotel_obj) && !empty($hotel_obj->tmhid)) {
             $hotel = $hotel_obj->get();
             $cityname = $hotel_obj->get_city()->get_displayname();
             $countryname = $hotel_obj->get_country()->get_displayname();
@@ -52,16 +52,7 @@ if(!$core->input['action']) {
 
             //Conversation Section -Start
             //getting conversation info
-            $conversation_obj = $hotel_obj->get_conversation();
-            //if there is a conversation for this current entry then parse it accordingly
-            if($conversation_obj) {
-                $conversaion_part = $conversation_obj->parse_conversation();
-            }
-            //if no conversation is found then show a button linking the user to the page where he will create a conversation and chose its participants
-            else {
-                $conv_url = $hotel_obj->get_conversation_url();
-                $conversaion_part = '<hr><div><a target="_blank" href="'.$conv_url.'"><button type="button" class="btn btn-success">'.$lang->startconversation.'</button></a></div>';
-            }
+            $conversaion_part = $hotel_obj->parse_conversation_byobj();
             //Conversation Section -END
         }
     }

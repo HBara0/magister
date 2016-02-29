@@ -8,6 +8,7 @@
     <tr>
         {$menu}
         <td class="contentContainer">
+            <h1>{$lang->converstaion}</h1>
             {$pagecontent}
         </td>
     </tr>

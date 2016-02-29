@@ -274,7 +274,10 @@ Abstract class AbstractClass {
                 $filters = array('alternativeId' => 'alternativeId');
             }
         }
-        $conversation_obj = SystemConversations::get_data(array($filters), array('returnarray' => false));
+        if(empty($filters['alternativeId']) && empty($filters['recordId'])) {
+            return false;
+        }
+        $conversation_obj = SystemConversations::get_data($filters, array('returnarray' => false));
         if($conversation_obj) {
             return $conversation_obj;
         }
@@ -306,6 +309,30 @@ Abstract class AbstractClass {
         $url = $core->settings['rootdir'].'/index.php?module=portal/conversation'.$waddings;
 
         return $url;
+    }
+
+    /**
+     * parse the conversation div for the related object
+     * @param type $object
+     */
+    public function parse_conversation_byobj($object = '') {
+        global $lang;
+        //if no object has been fed, set it to current instance
+        if(empty($object)) {
+            $object = $this;
+        }
+        //getting conversation info
+        $conversation_obj = $object->get_conversation();
+        //if there is a conversation for this current entry then parse it accordingly
+        if($conversation_obj) {
+            $conversaion_part = $conversation_obj->parse_conversation();
+        }
+        //if no conversation is found then show a button linking the user to the page where he will create a conversation and chose its participants
+        else {
+            $conv_url = $object->get_conversation_url();
+            $conversaion_part = '<hr><div><a target="_blank" href="'.$conv_url.'"><button type="button" class="btn btn-success">'.$lang->startconversation.'</button></a></div>';
+        }
+        return $conversaion_part;
     }
 
 }
