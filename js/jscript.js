@@ -6,33 +6,50 @@ $(function() {
 
     //applyin the DATATABLES plugin on classes-START
     function initialize_datatables() {
+        // Remove the formatting to get integer data for summation
+        var intVal = function(i) {
+            return typeof i === 'string' ?
+                    i.replace(/[\$,]/g, '') * 1 :
+                    typeof i === 'number' ?
+                    i : 0;
+        };
         $(".datatable_basic").each(function(i, obj) {
             //basic grid type
             var maintable = obj;
-            if($(obj).hasClass('datatable_basic')) {
+            if($(maintable).hasClass('datatable_basic')) {
                 //check if data attribute of totals columns exists and not empty, then fill the values
-                if($(obj).attr('data-totalcolumns')) {
-                    var totalcolumns = $(obj).attr('data-totalcolumns');
+                if($(maintable).attr('data-totalcolumns')) {
+                    var totalcolumns = $(maintable).attr('data-totalcolumns');
                 }
-                // Setup - add a text input to each footer cell
-                $(maintable).find('thead:nth-child(2)').each(function(i, tfoot) {
-                    $(tfoot).find('th').each(function(i, th) {
-                        var title = $(th).text();
-                        $(th).html('<input type="text" placeholder="Search ' + title + '" />');
+                //create a second thead right after the firse one
+                if($(maintable).attr('data-skipfilter') !== 'true') {
+                    $(maintable).find('thead:first-child').after($(maintable).find('thead:first-child').clone());
+                    // Setup - add a text input to each footer cell
+                    $(maintable).find('thead:nth-child(2)').each(function(i, tfoot) {
+                        $(tfoot).find('th').each(function(i, th) {
+                            var title = $(th).text();
+                            if(title.trim().length != 0) {
+                                $(th).html('<input type="text" placeholder="Search ' + title + '" />');
+                            }
+                        });
                     });
-                });
-
-                // Remove the formatting to get integer data for summation
-                var intVal = function(i) {
-                    return typeof i === 'string' ?
-                            i.replace(/[\$,]/g, '') * 1 :
-                            typeof i === 'number' ?
-                            i : 0;
-                };
-                var table = $(obj).DataTable(
+                }
+                var table = $(maintable).DataTable(
                         {
                             stateSave: true,
                             "pagingType": "full_numbers",
+                            "initComplete": function() {
+                                if($(maintable).attr('data-checkonclick') === 'true') {
+                                    var api = this.api();
+                                    api.$('td').click(function(e) {
+                                        var chk = $(this).closest("tr").find("input:checkbox").get(0);
+                                        if(e.target != chk)
+                                        {
+                                            chk.checked = !chk.checked;
+                                        }
+                                    });
+                                }
+                            },
                             "footerCallback": function(row, data, start, end, display) {
                                 var api = this.api(), data;
                                 if(typeof totalcolumns == 'undefined') {
@@ -73,14 +90,9 @@ $(function() {
                                                 );
                                     }
                                 });
-
-
-
-
-
-
                             }
                         });
+                //apply filters on the second thead
                 table.columns().every(function() {
                     var that = this;
                     $('input', $(maintable).find('thead:nth-child(2)').find('th').eq(this.index())).on('keyup change', function() {
@@ -91,15 +103,20 @@ $(function() {
                         }
                     });
                 });
-            }
-            $(obj).find('tbody').each(function(i, obj2) {
-                $(obj2).on('mouseenter', 'td', function() {
-                    var colIdx = table.cell(this).index().column;
-                    $(table.cells().nodes()).removeClass('highlight');
-                    $(table.column(colIdx).nodes()).addClass('highlight');
+
+
+
+
+                $(maintable).find('tbody').each(function(i, obj2) {
+                    $(obj2).on('mouseenter', 'td', function() {
+                        var colIdx = table.cell(this).index().column;
+                        $(table.cells().nodes()).removeClass('highlight');
+                        $(table.column(colIdx).nodes()).addClass('highlight');
+                    });
                 });
-            });
-            $(obj).before('&nbsp;&nbsp;<img  title="Clear Filters" src="' + rootdir + '/images/icons/clearfilters.png" style="cursor:pointer;" id="datatables_cleafilters">');
+                $(maintable).before('&nbsp;&nbsp;<img  title="Clear Filters" src="' + rootdir + '/images/icons/clearfilters.png" style="cursor:pointer;" id="datatables_cleafilters">');
+            }
+
         });
     }
     initialize_datatables();
