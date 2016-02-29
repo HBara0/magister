@@ -147,6 +147,10 @@ class SystemConversationsMessages extends AbstractClass {
             //get conversation recipients
             $recipients = $conversation_obj->get_recipients();
             if(is_array($recipients)) {
+                //remove current user from recipients
+                if(isset($recipients[$core->user['uid']])) {
+                    unset($recipients[$core->user['uid']]);
+                }
                 //send email for all recipients
                 $this->send_message($recipients, $conversation_obj);
             }

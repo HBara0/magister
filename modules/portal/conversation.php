@@ -37,7 +37,7 @@ if(!$core->input['action']) {
     //parse users
     //get already assigned participants, then parse them first
     if(is_array($involved_participants)) {
-        $users = Users::get_data('gid != 7 AND uid NOT IN ('.implode(',', $involved_participants).')', array('returnarray' => true, 'order' => 'displayName'));
+        $users = Users::get_data('gid != 7 AND uid NOT IN ('.implode(',', $involved_participants).') AND user !='.$core->user['uid'], array('returnarray' => true, 'order' => 'displayName'));
         $involved_participants_objs = array_map(
                 function($e) {
             return new Users(intval($e));

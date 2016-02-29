@@ -89,6 +89,8 @@ class SystemConversations extends AbstractClass {
             //save recipients
             if(is_array($participants)) {
                 $chosen_participants = array();
+                //add current to the participants
+                $participants[] = $core->user['uid'];
                 foreach($participants as $participant) {
                     $chosen_participants[$participant] = $participant;
                     $conversationrecipient_obj = new SystemConvesationsParticipants();
@@ -115,7 +117,7 @@ class SystemConversations extends AbstractClass {
             }
             if($result->get_errorcode() == 0) {
                 //check if message has been set
-                if(is_array($message && !empty($message['message']))) {
+                if(is_array($message) && !empty($message['message'])) {
                     //save and send message
                     $conversationmessage_obj = new SystemConversationsMessages();
                     $conversationmessage_obj = $conversationmessage_obj->create_message($message, $result->data[self::PRIMARY_KEY]);
