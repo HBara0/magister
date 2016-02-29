@@ -181,5 +181,9 @@ class ProductsSegments extends AbstractClass {
         return new SegmentCategories($this->data['category']);
     }
 
+    public function get_segment_integrationOBId() {
+        return $this->integrationOBId;
+    }
+
 }
 ?>

@@ -810,8 +810,16 @@ class TravelManagerPlanSegments extends AbstractClass {
         global $core;
         switch($paidby) {
             case 'myaffiliate':
-                $object = new Affiliates($core->user['mainaffiliate']);
-//$paidby = $affiliate->name;
+                $leaverequester = $this->get_plan()->get_leave()->get_requester('false');
+                if(is_object($leaverequester)) {
+                    $mainaff_obj = $leaverequester->get_mainaffiliate();
+                }
+                if(is_object($mainaff_obj)) {
+                    $object = $mainaff_obj;
+                }
+                else {
+                    $object = "User's Main Affiliate";
+                }
                 break;
             case 'anotheraff':
                 $object = new Affiliates($paidbyid);
