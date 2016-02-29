@@ -1,0 +1,2 @@
+
+@charset "utf-8";input[type='text'],textarea,select{border:solid 1px #999}input[type='text'].focus,textarea.focus,select.focus{border-color:#000!important}input[type='text'].invalid,textarea.invalid,select.invalid{border-color:red}input[type='text'].inactive,textarea.inactive,select.inactive,option.inactive{color:#999;font-style:italic}input[type='text'].required,textarea.required{background:url(required-input.png) right 5px no-repeat}
