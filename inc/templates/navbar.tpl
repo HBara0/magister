@@ -11,7 +11,7 @@
         </div>
         <div id="navbar" class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
-                <li><a href="#" style='font-size:18px;'>Home</a></li>
+                <li><a href="{$core->settings[rootdir]}" style='font-size:18px;'>Home</a></li>
 
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle scrollable-menu " data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" id="switch_modules"><span class="glyphicon glyphicon-th-large"></span> Main Menu <span class="caret"></span></a>

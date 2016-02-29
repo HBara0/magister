@@ -832,7 +832,7 @@ $(function() {
                 $("#modal-loading").dialog("close").remove();
             },
             success: function(returnedData) {
-                $(".contentContainer").append(returnedData);
+                $(".container").append(returnedData);
                 initialize_texteditors();
                 $("div[id^='popup_']").dialog({
                     bgiframe: true,
