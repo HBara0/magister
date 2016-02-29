@@ -49,18 +49,19 @@
                        border-left: 1px solid #CCCCCC;" href="{$newhotel->get_editlink()}&referrer=approve"><button>{$lang->approve}</button></a></td>
             </tr>
         </table>
+        <hr>
         <div><h3>{$lang->hotelsinsamecountry}</h3></div>
         <table style="width:75%;">
             <thead>
-            <th style="width:30%;">{$lang->name}</th>
-            <th style="width:15%;">{$lang->city} </th>
-            <th style="width:15%;">{$lang->phone} </th>
-            <th style="width:15%;">{$lang->website} </th>
-            <th style="width:10%;">{$lang->isapproved} </th>
-            <th style="width:15%;">{$lang->averagepriceinusd}</th>
+            <th style="width:30%;text-align: center">{$lang->name}</th>
+            <th style="width:15%;text-align: center">{$lang->city} </th>
+            <th style="width:10%;text-align: center">{$lang->isapproved} </th>
+            <th style="width:15%;text-align: center">{$lang->averagepriceinusd}</th>
         </thead>
         <tbody>
-            {$hotelsinsamecountrysection}
+            <tr><th colspan="4" style="text-align: center;background-color: #D9D9C2">{$lang->createdhotel}</th></tr>
+                    {$newlycreatedhotel_tow}
+                    {$hotelsinsamecountrysection}
         </tbody>
     </table>
 </body>

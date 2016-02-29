@@ -18,24 +18,41 @@ class AroRequestsApprovals extends AbstractClass {
     const SIMPLEQ_ATTRS = '*';
     const CLASSNAME = __CLASS__;
     const UNIQUE_ATTRS = 'aorid,uid';
+    const REQUIRED_ATTRS = 'aorid,position,uid,sequence';
 
     public function __construct($id = '', $simple = true) {
         parent::__construct($id, $simple);
     }
 
     protected function create(array $data) {
-        global $db, $log;
-        $query = $db->insert_query(self::TABLE_NAME, $data);
-        if($query) {
-            $log->record(self::TABLE_NAME, $this->data[self::PRIMARY_KEY]);
+        global $db, $log, $errorhandler, $lang;
+        if($this->validate_requiredfields($data)) {
+            $query = $db->insert_query(self::TABLE_NAME, $data);
+            if($query) {
+                $log->record(self::TABLE_NAME, $this->data[self::PRIMARY_KEY]);
+            }
+        }
+        else {
+            $this->errorcode = 5;
+            $errorhandler->record($lang->requiredfields.' for ', $lang->$data['position']);
+            return $this;
         }
     }
 
     protected function update(array $data) {
-        global $db, $log;
-        $query = $db->update_query(self::TABLE_NAME, $data, self::PRIMARY_KEY.' = '.intval($this->data[self::PRIMARY_KEY]));
-        if($query) {
-            $log->record(self::TABLE_NAME, $this->data[self::PRIMARY_KEY]);
+        global $db, $log, $errorhandler, $lang;
+        if($this->validate_requiredfields($data)) {
+
+            $query = $db->update_query(self::TABLE_NAME, $data, self::PRIMARY_KEY.' = '.intval($this->data[self::PRIMARY_KEY]));
+            if($query) {
+                $log->record(self::TABLE_NAME, $this->data[self::PRIMARY_KEY]);
+            }
+        }
+        else {
+            $this->errorcode = 5;
+            $errorhandler->record($lang->requiredfields.' for ', $lang->$data['position']);
+
+            return $this;
         }
     }
 

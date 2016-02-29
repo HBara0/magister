@@ -121,7 +121,7 @@ if(!$core->input['action']) {
                     $leavetype_details['title'] = $lang->{$leavetype_details['name']};
                 }
                 $tmplan_link = '';
-                if($leavetype_details['isBusiness'] == 1 && $core->usergroup['canUseTravelManager'] == 1) {
+                if($leavetype_details['requiresItinerary'] == 1 && $core->usergroup['canUseTravelManager'] == 1) {
                     $tmplan = TravelManagerPlan::get_plan(array('lid' => $leave['lid']), array('returnarray' => false));
                     if(!is_object($tmplan)) {
                         $url = 'index.php?module=travelmanager/plantrip&lid='.$leave['lid'];
@@ -393,7 +393,7 @@ else {
             /* Conversation  message --END */
             $tmplan = TravelManagerPlan::get_plan(array('lid' => $leave_obj->get_id()));
             if(is_object($tmplan)) {
-                $preview_iteneraryframe = '<div id="container" style="width:100%;  margin: 0px auto;display:block;"><iframe style="width:100%;height:700px" src="'.DOMAIN.'/index.php?module=travelmanager/viewplan&referrer=plan&lid='.$lid.'&id='.$tmplan->tmpid.'&preview=1"></iframe></div>';
+                $preview_iteneraryframe = '<div id="container" style="width:100%;  margin: 0px auto;display:block;"><iframe style="width:100%;height:500px" src="'.DOMAIN.'/index.php?module=travelmanager/viewplan&referrer=plan&lid='.$lid.'&id='.$tmplan->tmpid.'&preview=1"></iframe></div>';
             }
             eval("\$takeactionpage = \"".$template->get('attendance_listleaves_takeaction')."\";");
             output_page($takeactionpage);

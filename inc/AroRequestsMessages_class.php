@@ -62,7 +62,7 @@ class AroRequestsMessages extends AbstractClass {
             $this->errorcode = 2;
             return $this;
         }
-        if(value_exists('aro_requests_messages', 'message', $this->data['message'], ' uid='.$core->user['uid'].'')) { // Add date filter
+        if(value_exists('aro_requests_messages', 'message', $this->data['message'], ' uid='.$core->user['uid'].' AND aorid='.$aorid)) { // Add date filter
             $this->errorcode = 3;
             return $this;
         }

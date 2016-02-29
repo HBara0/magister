@@ -600,6 +600,9 @@ else {
             case 2:
                 output_xml("<status>false</status><message>Error Saving</message>");
                 exit;
+            case 3:
+                output_xml("<status>false</status><message>Wrong Website</message>");
+                exit;
         }
     }
     elseif($core->input ['action'] == 'deletesegment') {

@@ -344,6 +344,12 @@ $(function() {
             $("input[id='pickDate_intermed_estdateofpayment']").removeAttr("disabled");
         }
         var vendorPaymentTerm = $("select[id ='partiesinfo_vendor_paymentterm']").val();
+        if($("select[id ='partiesinfo_vendor_paymentterm'] option:selected").text() === '0 Days'
+                || $("select[id ='partiesinfo_intermed_paymentterm'] option:selected").text() === '0 Days') {
+            $("div[id='paymenttermdesc_warning']").show();
+        } else {
+            $("div[id='paymenttermdesc_warning']").hide();
+        }
         var ptid = $('select[id=purchasetype]').val();
         var est_local_pay = $("input[id='avgeliduedate']").val();
         var attributes = '&intermedPaymentTerm=' + intermedPaymentTerm + '&vendorPaymentTerm=' + vendorPaymentTerm + '&estDateOfShipment=' + estDateOfShipment + '&ptAcceptableMargin=' + ptAcceptableMargin + '&ptid=' + ptid + '&est_local_pay=' + est_local_pay;

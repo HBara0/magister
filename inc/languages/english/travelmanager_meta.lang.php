@@ -177,17 +177,19 @@ discuss with their manager the option of renting an apartment in lieu of utilizi
 
 
 $lang['transppolicy'] = '<b>Air Travel & Train Transportation</b><br/>
-You are required to book your tickets as soon as possible, i.e. as soon as the meeting is confirmed. If it is long in advance and the meeting date might be changed, then you are advised to book exchangeable tickets.<br/>
-Per this Orkila policy, commercial flights are to be booked in coach class. Search engines such as www.kayak.com or Google Flight are recommended in order to find the cheapest option, as search results will include “low cost” companies.<br/>
+You are required to book your tickets as soon as possible, i.e. as soon as the meeting is confirmed. If it is long
+in advance and the meeting date might be changed, then you are advised to book exchangeable tickets.<br/>
+Per this Orkila policy, commercial flights are to be booked in coach class. Search engines such as www.kayak.com or Google Flight are recommended in order to find the cheapest option, as search results
+will include “low cost” companies.<br/>
 In addition, airfare costs in excess of the lowest available airfare are not allowable except when such accommodations would: <br/>
 - Require travel at unreasonable hours<br/>
 - Result in excessive duration of travel<br/>
-To reiterate, no employee may travel in business class. Exceptions can be made, but a business case must be made. In the
-event that a business case exists for an exception, this should be addressed with the COO (Christophe Sacy) and CFO
-(Audrey Sacy) via the OCOS leaves discussions or by email prior to the booking of travel.<br/>
-Early Departure or Late Return: Employees may elect to fly to a work location prior to the date required or remain in the
-location longer for personal reasons provided that the resulting airfare is no higher than the airfare for the dates implied by project needs.
-This also assumes that no disruption is made to the employee’s work. Additional costs incurred for early departure or late return are not reimbursable.<br/>
+To reiterate, no employee may travel in business class. Exceptions can be made, but a business case must be made. In the event that a business case exists for an exception, this should be addressed with the COO
+(Christophe Sacy) and CFO (Audrey Sacy) via the OCOS leaves discussions or by email prior to the booking of travel.<br/>
+Early Departure or Late Return: Employees may elect to fly to a work location prior to the date required or
+remain in the location longer for personal reasons provided that the resulting airfare is no higher than the
+airfare for the dates implied by project needs. This also assumes that no disruption is made to the employee’s
+work. Additional costs incurred for early departure or late return are not reimbursable.<br/>
 It is strongly discouraged to have senior employees of the same department together on the same aircraft or on extended automobile trips.<br/><br/>
 <b>Car Rentals, Taxis and Public Transportation</b><br/>
 Public Transportation: When traveling to a city with good public transportation, this should be the main transportation
@@ -335,4 +337,6 @@ $lang['internal'] = 'Internal';
 $lang['external'] = 'External';
 $lang['commentapprovereject'] = 'Approve/Comment on Leave';
 $lang['comments'] = 'Comments';
+$lang['createdhotel'] = 'Created Hotel';
+$lang['employee'] = 'Employee';
 ?>

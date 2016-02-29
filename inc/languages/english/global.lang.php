@@ -168,4 +168,8 @@ $lang['submit'] = 'Submit';
 $lang['users'] = 'Users';
 $lang['success'] = 'Success';
 $lang['time'] = 'Time';
+$lang['startconversation'] = 'Start Conversation';
+$lang['search'] = 'Search';
+$lang['conversation'] = 'Conversation';
+$lang['goto'] = 'Go To';
 ?>

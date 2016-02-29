@@ -3308,7 +3308,7 @@ CREATE TABLE `logs` (
   `data` text NOT NULL,
   PRIMARY KEY (`lid`),
   KEY `uid` (`uid`)
-) ENGINE=MyISAM AUTO_INCREMENT=77923 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=77947 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `logs_userpages`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -3320,7 +3320,7 @@ CREATE TABLE `logs_userpages` (
   `module` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
   `time` bigint(30) NOT NULL,
   PRIMARY KEY (`lupid`)
-) ENGINE=MyISAM AUTO_INCREMENT=12 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=36 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `marketintelligence_basicdata`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -4734,6 +4734,59 @@ CREATE TABLE `surveys_templates_sections` (
   PRIMARY KEY (`stsid`),
   KEY `stid` (`stid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=46 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `system_conversations`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `system_conversations` (
+  `scid` int(10) NOT NULL AUTO_INCREMENT,
+  `title` varchar(250) COLLATE utf8_unicode_ci NOT NULL,
+  `alias` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
+  `module` varchar(75) COLLATE utf8_unicode_ci NOT NULL,
+  `tableName` varchar(75) COLLATE utf8_unicode_ci NOT NULL,
+  `recordId` int(10) NOT NULL,
+  `alternativeId` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
+  `lastReplyTime` bigint(30) NOT NULL,
+  `lastReplyUid` int(10) NOT NULL,
+  `createdBy` int(10) NOT NULL,
+  `createdOn` bigint(30) NOT NULL,
+  `modifiedBy` int(10) NOT NULL,
+  `modifiedOn` bigint(30) NOT NULL,
+  `scmtid` int(10) NOT NULL,
+  PRIMARY KEY (`scid`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `system_conversations_messages`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `system_conversations_messages` (
+  `scmid` int(10) NOT NULL AUTO_INCREMENT,
+  `scid` int(10) NOT NULL,
+  `message` text COLLATE utf8_unicode_ci NOT NULL,
+  `uid` int(10) NOT NULL,
+  `replyTo` int(10) NOT NULL,
+  `replyToEmail` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
+  `type` int(2) NOT NULL,
+  `createdOn` bigint(30) NOT NULL,
+  `createdBy` int(10) NOT NULL,
+  `modifiedOn` bigint(30) NOT NULL,
+  `modifiedBy` int(10) NOT NULL,
+  PRIMARY KEY (`scmid`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `system_conversations_participants`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `system_conversations_participants` (
+  `scpid` int(10) NOT NULL AUTO_INCREMENT,
+  `scid` int(10) NOT NULL,
+  `uid` int(10) NOT NULL,
+  `createdOn` bigint(30) NOT NULL,
+  `createdBy` int(10) NOT NULL,
+  `modifiedOn` bigint(30) NOT NULL,
+  `modifiedBy` int(10) NOT NULL,
+  PRIMARY KEY (`scpid`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `system_foreigntables`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;

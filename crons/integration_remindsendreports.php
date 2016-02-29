@@ -22,13 +22,17 @@ if($_REQUEST['authkey'] == 'kia5ravbXop09dj4a!xhegalhj') {
             23 => array(416, 448),
             1 => array(434, 356),
             21 => array(158, 63),
-//            27 => array(67),
+            27 => array(67),
             20 => array('fatimatou.diallo'),
             11 => array(111),
             2 => array('amal.dababneh', 34),
-//            7 => array(434),
+            7 => array(434),
             16 => array(392),
-            29 => array(160)
+            29 => array(160),
+            12 => array(47, 33),
+            28 => array(82, 29),
+            5 => array(82, 29),
+            31 => array(82, 29),
     );
 
     $time = new DateTime();

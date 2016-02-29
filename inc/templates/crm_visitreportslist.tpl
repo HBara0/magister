@@ -47,18 +47,6 @@
                             <th>&nbsp;</th>
                         </tr>
                     </thead>
-                    <thead>
-                        <tr>
-                            <th>&nbsp;</th>
-                            <th>{$lang->customername} </th>
-                            <th>{$lang->prepareby}</th>
-                            <th>{$lang->calltype}</th>
-                            <th>{$lang->dateofvisit}</th>
-                            <th {$displaydraft}>{$lang->isdraft}</th>
-                            <th>&nbsp;</th>
-                            <th>&nbsp;</th>
-                        </tr>
-                    </thead>
                     <tfoot>
                         <tr>
                             <th>&nbsp;</th>

@@ -152,13 +152,23 @@ class SystemTables extends AbstractClass {
                             $create_extrafields.="\t\$table_array['$column_name']= TIME_NOW;\n";
                             break;
                         case('createdBy'):
-                            $create_extrafields.="\t\$table_array['$column_name']= \$core->user['id'];\n";
+                            $create_extrafields.="\t\$table_array['$column_name']= \$core->user['uid'];\n";
                             break;
                         case('modifiedBy'):
-                            $modify_extrafields.="\t\$table_array['$column_name']= \$core->user['id'];\n";
+                            $modify_extrafields.="\t\$table_array['$column_name']= \$core->user['uid'];\n";
                             break;
                         case('modifiedOn'):
                             $modify_extrafields.="\t\$table_array['$column_name']= TIME_NOW;\n";
+                            break;
+                        case('alias'):
+                            if(in_array('title', $column_names)) {
+                                $modify_extrafields.="\t\$table_array['$column_name']= generate_alias(\$table_array['title']);\n";
+                                $create_extrafields.="\t\$table_array['$column_name']= generate_alias(\$table_array['title']);\n";
+                            }
+                            else {
+                                $parsedfields.= $seperator."'$column_name'";
+                                $seperator = ', ';
+                            }
                             break;
                         default:
                             $parsedfields.= $seperator."'$column_name'";
@@ -217,7 +227,7 @@ public function create(array \$data) {
     }
 
 protected function update(array \$data) {
-        global \$db;
+        global \$db,\$core;
         \$fields=array($parsedfields);
          if(is_array(\$fields)){
             foreach(\$fields as \$field){

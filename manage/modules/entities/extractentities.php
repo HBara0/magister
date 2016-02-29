@@ -225,6 +225,7 @@ else {
                                                     if(empty($representative->phone)) {
                                                         $rep_field['phone'] = ' - ';
                                                     }
+                                                    $rep_field['rpid'] = $representative->rpid;
                                                     $rep_field['isactive_output'] = 'no';
                                                     if($rep_field['isactive_output']) {
                                                         $rep_field['isactive_output'] = 'yes';
@@ -234,7 +235,7 @@ else {
                                                 }
                                             }
                                             else {
-                                                $rep_field['names'] = $rep_field['phone'] = $rep_field['email'] = $rep_field['isactive_output'] = '-';
+                                                $rep_field['names'] = $rep_field['phone'] = $rep_field['email'] = $rep_field['isactive_output'] = $rep_field['rpid'] = '-';
                                                 eval("\$entityrows.=\"".$template->get("admin_entities_extractentities_affiliate_segment_entityrow")."\";");
                                                 unset($rep_field);
                                             }

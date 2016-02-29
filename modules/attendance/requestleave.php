@@ -567,7 +567,7 @@ else {
             /**
              * If leave should be planning through TM, trasfer user to there
              */
-            if($leavetype_details['isBusiness'] == 1 && $core->usergroup['canUseTravelManager'] == 1) {
+            if($leavetype_details['requiresItinerary'] == 1 && $core->usergroup['canUseTravelManager'] == 1) {
                 $url = 'index.php?module=travelmanager/plantrip&lid=';
                 header('Content-type: text/xhml+javascript');
                 output_xml('<status>true</status><message>'.$lang->redirecttotmplantrip.'<![CDATA[<script>goToURL(\''.$url.$db->escape_string($lid).'\');</script>]]></message>');
@@ -720,8 +720,6 @@ else {
                         'subject' => $lang->requestleavesubject,
                         'message' => $lang->requestleavemessage
                 );
-                output_xml("<status>true</status><message><![CDATA[{$email_data['message']}]]></message>");
-                exit;
             }
             else {
                 $to_inform = unserialize($core->input['affToInform']);

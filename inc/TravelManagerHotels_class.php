@@ -79,9 +79,23 @@ class TravelManagerHotels extends AbstractClass {
             $data = file_get_contents($path);
             $base64 = 'data:image/'.$type.';base64,'.base64_encode($data);
             $hotel['iscontracted'] = '<img src="'.$base64.'" alt="'.$alt.'"></>';
+            //parse newly created hotel in bottom table
+            $otherhotel = $hotel;
+            if($newhotel->isApproved == 1) {
+                $otherhotel['isapproved'] = 'Yes';
+            }
+            else {
+                $otherhotel['isapproved'] = 'No';
+            }
+            if(empty($otherhotel['avgPrice'])) {
+                $otherhotel['avgPrice'] = '-';
+            }
+            $otherhotel['city'] = $newhotel->get_city()->get_displayname();
+            eval("\$newlycreatedhotel_tow = \"".$template->get('approvehotel_email_hotelsinsamecountry')."\";");
             //getting hotels in the same country details
-            $hotelsinsamecountry = TravelManagerHotels::get_data(array('country' => $newhotel->country), array('returnarray' => true, 'simple' => false));
+            $hotelsinsamecountry = TravelManagerHotels::get_data(array('country' => $newhotel->country), array('returnarray' => true, 'order' => 'isApproved', 'simple' => false));
             if(is_array($hotelsinsamecountry)) {
+                $hotelsinsamecountrysection = '<tr><th colspan="4" style="text-align: center;background-color: #D9D9C2">'.$lang->hotelsinsamecountry.'</th></tr>';
                 foreach($hotelsinsamecountry as $hotelincountry) {
                     /**
                      * Skip the same hotel
@@ -91,17 +105,11 @@ class TravelManagerHotels extends AbstractClass {
                     }
                     $otherhotel = $hotelincountry->get();
                     if($newhotel->isApproved == 1) {
-                        $path = $core->settings['rootdir'].'/images/icons/completed.png';
-                        $alt = 'Yes';
+                        $otherhotel['isapproved'] = 'Yes';
                     }
                     else {
-                        $path = $core->settings['rootdir'].'/images/invalid.gif';
-                        $alt = 'No';
+                        $otherhotel['isapproved'] = 'No';
                     }
-                    $type = pathinfo($path, PATHINFO_EXTENSION);
-                    $data = file_get_contents($path);
-                    $base64 = 'data:image/'.$type.';base64,'.base64_encode($data);
-                    $otherhotel['isapproved'] = '<img src="'.$base64.'" alt="'.$alt.'">';
                     if(empty($otherhotel['avgPrice'])) {
                         $otherhotel['avgPrice'] = '-';
                     }
