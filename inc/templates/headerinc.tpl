@@ -16,12 +16,6 @@
 <link href="{$core->settings[rootdir]}/css/token-input.css" rel="stylesheet" type="text/css" />
 <link href="{$core->settings[rootdir]}/css/styles.min.css" rel="stylesheet" type="text/css" />
 
-
-<script src="{$core->settings[rootdir]}/Datatables/datatables.min.js" type = "text/javascript" ></script>
-<link href='{$core->settings[rootdir]}/Datatables/datatables.min.css' rel='stylesheet' type='text/css' />
-<link href='{$core->settings[rootdir]}/css/dataTables.bootstrap.min.css' rel='stylesheet' type='text/css' />
-<script src="{$core->settings[rootdir]}/Datatables/dataTables.bootstrap.min.js" type = "text/javascript" ></script>
-
 <script type="text/javascript">
     var loading_text = "{$lang->loading}";
     var imagespath = "{$core->settings[rootdir]}/images/";

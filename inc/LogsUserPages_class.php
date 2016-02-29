@@ -107,7 +107,13 @@ class LogsUserPages extends AbstractClass {
      */
     protected function clear_logs() {
         global $db, $core;
-        $sql = 'DELETE FROM '.Tprefix.self::TABLE_NAME.' WHERE uid = '.$this->data['uid'].' AND time < '.strtotime($core->settings['clearlogperiod']);
+        /**
+         * Avoid dead-end by setting default rotation days in case setting is missing
+         */
+        if(empty($core->settings['clearlogperiod'])) {
+            $core->settings['clearlogperiod'] = 30;
+        }
+        $sql = 'DELETE FROM '.Tprefix.self::TABLE_NAME.' WHERE uid = '.$this->data['uid'].' AND time < '.strtotime('-'.$core->settings['clearlogperiod'].' days');
         $query = $db->query($sql);
         if($query) {
             return true;
