@@ -52,7 +52,7 @@ class TravelManagerHotels extends AbstractClass {
         }
         $regex_web = '#((https?://|www\.)([-\w\.]+)+(:\d+)?(/([\w/_\.]*(\?\S+)?)?)?)#';
         if(!empty($data['website']) && !preg_match($regex_web, $data['website'])) {
-            $this->errorcode = 2;
+            $this->errorcode = 3;
             return $this;
         }
         $data['alias'] = generate_alias($data['name']);

@@ -941,7 +941,9 @@ class TravelManagerPlanSegments extends AbstractClass {
                     $avgof = array('10', '5');
                     foreach($avgof as $flightsnum) {
                         $avg = $transportation->get_averagaeflightfare(array('segid' => $this->data[self::PRIMARY_KEY], 'originCity' => $this->data['originCity'], 'destinationCity' => $this->data['destinationCity']), $flightsnum);
-                        $avgflightfare[$avg['numofflights']] = 'Avg OF Last '.$avg['numofflights'].' Flight(s) : '.$numfmt->formatCurrency($avg['avgprice'], $fromcurr->alphaCode);
+                        if($avg) {
+                            $avgflightfare[$avg['numofflights']] = 'Avg OF Last '.$avg['numofflights'].' Flight(s) : '.$numfmt->formatCurrency($avg['avgprice'], "USD");
+                        }
                     }
                     if(is_array($avgflightfare)) {
                         foreach($avgflightfare as $avgof => $avgflightfare) {
@@ -1153,13 +1155,15 @@ class TravelManagerPlanSegments extends AbstractClass {
                 $total_fin_amount +=$amount;
             }
         }
-        if($total_fin_amount != 0) {
-            $amount_payedinadv.='<div style="border-bottom: 1px;border-bottom-style: solid;border-bottom-color: greenyellow">';
-            $amount_payedinadv.='<div style = "width:85%;display:inline-block;">'.$lang->amountneededinadvance.'</div>';
-            $amount_payedinadv .= '<div style = "width:10%;display:inline-block;text-align:right;">'.$numfmt->formatCurrency(round($total_fin_amount), "USD").'</div>';
-            $amount_payedinadv.='</div>';
-//            $expenses_total+=$total_fin_amount;
+        if(!isset($total_fin_amount) || empty($total_fin_amount)) {
+            $total_fin_amount = 0;
         }
+        $amount_payedinadv.='<div style="border-bottom: 1px;border-bottom-style: solid;border-bottom-color: greenyellow">';
+        $amount_payedinadv.='<div style = "width:85%;display:inline-block;">'.$lang->amountneededinadvance.'</div>';
+        $amount_payedinadv .= '<div style = "width:10%;display:inline-block;text-align:right;">'.$numfmt->formatCurrency(round($total_fin_amount), "USD").'</div>';
+        $amount_payedinadv.='</div>';
+//            $expenses_total+=$total_fin_amount;
+
         $expenses_total = $numfmt->formatCurrency(round($expenses_total), "USD");
 // $expenses_total = round($expenses_total, 2);
         eval("\$segment_expenses  = \"".$template->get('travelmanager_viewplan_expenses')."\";");

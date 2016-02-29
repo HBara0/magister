@@ -1040,7 +1040,7 @@ class AroRequests extends AbstractClass {
             $message['message_date'] = date($core->settings['dateformat'], $message['createdOn']);
 
             if(isset($options['viewmode']) && ($options['viewmode'] == 'textonly')) {
-                $takeactionpage_conversation .= '<span style="font-weight: bold;"> '.$message['user']['displayName'].'</span> <span style="font-size: 9px;">'.date($core->settings['dateformat'].' '.$core->settings['timeformat'], $message['createdOn']).'</span>:';
+                $takeactionpage_conversation .= '<hr><span style="font-weight: bold;"> '.$message['user']['displayName'].'</span> <span style="font-size: 9px;">'.date($core->settings['dateformat'].' '.$core->settings['timeformat'], $message['createdOn']).'</span>:';
                 $takeactionpage_conversation .= '<div>'.$message['message'].'</div><br />';
             }
             else {

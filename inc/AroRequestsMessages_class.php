@@ -142,10 +142,14 @@ class AroRequestsMessages extends AbstractClass {
                     $message = 'Aro Request ['.$arorequest->orderReference.']/'.$aroaffiliate_obj->get_displayname().'/'.$purchasteype_obj->get_displayname().' was rejected by '.$rejectedby.
                             '<br/>'.$message;
                 }
-                else {
-                    $message .= '<a href="'.$view_link.'">'.$lang->clicktoviewaro.'</a><br/>'.$this->data['message'].' | <a href="'.$reply_links.'">&#x21b6; '.$lang->reply.'</a><br/>';
-                }
+                //message will be already parsed do removing the duplication of this message
+//                else {
+//                    $message .= '<a href="'.$view_link.'">'.$lang->clicktoviewaro.'</a><br/>'.$this->data['message'].' | <a href="'.$reply_links.'">&#x21b6; '.$lang->reply.'</a><br/>';
+//                }
                 if(!empty($message)) {
+                    $emailformatter = new EmailFormatting();
+                    $emailformatter->set_message(array('title' => $lang->aroconversation, 'message' => $message));
+                    $message = $emailformatter->get_message();
                     $mailer->set_message('__ARO NOTIFICATION__<br/>'.$message);
                     $mailer->set_to($emailreceiver);
 //                    $x = $mailer->debug_info();

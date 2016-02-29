@@ -164,31 +164,33 @@ if(!$core->input['action']) {
     );
 
     $customers = get_specificdata('entities', $entity_attributes, 'eid', 'companyName', $entity_order, 0, "type='c'");
-    foreach($customers as $cid => $value) {
-        $rowclass = alt_row($rowclass);
-        $aff_customers_query = $db->query("SELECT ae.*, a.name FROM ".Tprefix."affiliatedentities ae JOIN ".Tprefix."affiliates a ON (a.affid=ae.affid) WHERE ae.eid='{$cid}' ORDER BY a.name ASC");
-        $comma = '';
-        while($affiliatecustomers = $db->fetch_array($aff_customers_query)) {
-            $affiliatedcustomers[$cid] .= $comma.$affiliatecustomers['name'];
-            $comma = ', ';
-        }
-
-        $segments_customers_query = $db->query("SELECT ps.*, es.* FROM ".Tprefix." entitiessegments es JOIN ".Tprefix."productsegments ps ON (ps.psid=es.psid) WHERE es.eid='{$cid}' ORDER BY ps.title ASC");
-        $comma = '';
-        while($customerssegment = $db->fetch_array($segments_customers_query)) {
-            $customerssegments[$cid] .= $comma.$customerssegment['title'];
-            $comma = ', ';
-        }
-
-        $checked = '';
-        if(is_array($assignedcustomers)) {
-            if(in_array($cid, $assignedcustomers)) {
-                $rowclass = 'greenbackground';
-                $checked = ' checked="checked"';
+    if(is_array($customers)) {
+        foreach($customers as $cid => $value) {
+            $rowclass = alt_row($rowclass);
+            $aff_customers_query = $db->query("SELECT ae.*, a.name FROM ".Tprefix."affiliatedentities ae JOIN ".Tprefix."affiliates a ON (a.affid=ae.affid) WHERE ae.eid='{$cid}' ORDER BY a.name ASC");
+            $comma = '';
+            while($affiliatecustomers = $db->fetch_array($aff_customers_query)) {
+                $affiliatedcustomers[$cid] .= $comma.$affiliatecustomers['name'];
+                $comma = ', ';
             }
-        }
 
-        eval("\$customer_list .= \"".$template->get('admin_users_addedit_customerrow')."\";");
+            $segments_customers_query = $db->query("SELECT ps.*, es.* FROM ".Tprefix." entitiessegments es JOIN ".Tprefix."productsegments ps ON (ps.psid=es.psid) WHERE es.eid='{$cid}' ORDER BY ps.title ASC");
+            $comma = '';
+            while($customerssegment = $db->fetch_array($segments_customers_query)) {
+                $customerssegments[$cid] .= $comma.$customerssegment['title'];
+                $comma = ', ';
+            }
+
+            $checked = '';
+            if(is_array($assignedcustomers)) {
+                if(in_array($cid, $assignedcustomers)) {
+                    $rowclass = 'greenbackground';
+                    $checked = ' checked="checked"';
+                }
+            }
+
+            eval("\$customer_list .= \"".$template->get('admin_users_addedit_customerrow')."\";");
+        }
     }
     /* Parse Customers Section - END */
     $telephone[1] = explode('-', $user['phone1']);

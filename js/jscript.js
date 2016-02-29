@@ -1,120 +1,7 @@
-$(function() {
+$(function () {
     /*
      Check the browswer support before anything else
      */
-
-
-    //applyin the DATATABLES plugin on classes-START
-    function initialize_datatables() {
-        $(".datatable_basic").each(function(i, obj) {
-            //basic grid type
-            if($(obj).hasClass('datatable_basic')) {
-                //check if data attribute of totals columns exists and not empty, then fill the values
-                if($(obj).attr('data-totalcolumns')) {
-                    var totalcolumns = $(obj).attr('data-totalcolumns');
-                }
-                // Setup - add a text input to each footer cell
-                $(obj).find('tfoot').each(function(i, tfoot) {
-                    $(tfoot).find('th').each(function(i, th) {
-                        var title = $(th).text();
-                        $(th).html('<input type="text" placeholder="Search ' + title + '" />');
-                    });
-                });
-
-                // Remove the formatting to get integer data for summation
-                var intVal = function(i) {
-                    return typeof i === 'string' ?
-                            i.replace(/[\$,]/g, '') * 1 :
-                            typeof i === 'number' ?
-                            i : 0;
-                };
-                var table = $(obj).DataTable(
-                        {
-                            stateSave: true,
-                            "pagingType": "full_numbers",
-                            "footerCallback": function(row, data, start, end, display) {
-                                var api = this.api(), data;
-                                if(typeof totalcolumns == 'undefined') {
-                                    return;
-                                }
-                                var columns = totalcolumns.split(',');
-                                if(!($.isArray(columns))) {
-                                    return;
-                                }
-                                $.each(columns, function(i, col) {
-                                    if(!($.isNumeric(intVal(col)))) {
-                                        return true;
-                                    }
-                                    // Total over all pages
-                                    total = api
-                                            .column(col)
-                                            .data()
-                                            .reduce(function(a, b) {
-                                                return intVal(a) + intVal(b);
-                                            }, 0);
-
-                                    // Total over this page
-                                    pageTotal = api
-                                            .column(col, {page: 'current'})
-                                            .data()
-                                            .reduce(function(a, b) {
-                                                return intVal(a) + intVal(b);
-                                            }, 0);
-
-                                    // Update footer
-                                    //if variables are not numeric skip and leave normal filters
-                                    if(!($.isNumeric(pageTotal)) || !($.isNumeric(total))) {
-                                        return;
-                                    }
-                                    else {
-                                        $(api.column(col).footer()).html(
-                                                pageTotal.toFixed(2) + ' <br>(Total: ' + total.toFixed(2) + ')'
-                                                );
-                                    }
-                                });
-
-
-
-
-
-
-                            }
-                        });
-                table.columns().every(function() {
-                    var that = this;
-
-                    $('input', this.footer()).on('keyup change', function() {
-                        if(that.search() !== this.value) {
-                            that
-                                    .search(this.value)
-                                    .draw();
-                        }
-                    });
-                });
-            }
-            $(obj).find('tbody').each(function(i, obj2) {
-                $(obj2).on('mouseenter', 'td', function() {
-                    var colIdx = table.cell(this).index().column;
-                    $(table.cells().nodes()).removeClass('highlight');
-                    $(table.column(colIdx).nodes()).addClass('highlight');
-                });
-            });
-            $(obj).before('&nbsp;&nbsp;<img  title="Clear Filters" src="' + rootdir + '/images/icons/clearfilters.png" style="cursor:pointer;" id="datatables_cleafilters">');
-        });
-    }
-    initialize_datatables();
-    $(document).on("click", 'img[id="datatables_cleafilters"]', function() {
-        var clearfilters = function(obj) {
-            var table = $(obj).DataTable();
-            table.search('')
-                    .columns().search('')
-                    .draw();
-        };
-        var table = $(this).next('table:first');
-        clearfilters(table);
-    });
-
-    //applyin the DATATABLES plugin on classes-END
 
     if(jQuery.support.leadingWhitespace == false) {
         $('head').append('<link rel="stylesheet" href="' + rootdir + 'css/jqueryuitheme/jquery-ui-current.custom.min.css" type="text/css" />');
@@ -131,54 +18,54 @@ $(function() {
         });
     }
 
-    $("input:checkbox[id$='_checkall']").click(function() {
+    $("input:checkbox[id$='_checkall']").click(function () {
         var id = $(this).attr('id').split("_");
         $('input:checkbox[id^="' + id[0] + '"]:visible').not(this).prop('checked', this.checked);
     });
-    $('tr[class*="trowtools"]').hover(function() {
+    $('tr[class*="trowtools"]').hover(function () {
         $(this).toggleClass('altrow2').children('td [id$="_tools"]').find('div').toggle();
     });
     $(document).on("click", "#login_Button", login);
-    $("#login_Form input").bind('keypress', function(e) {
+    $("#login_Form input").bind('keypress', function (e) {
         if(e.keyCode == 13) {
             login();
         }
     });
-    $("#currentmodule_name").hover(function() {
+    $("#currentmodule_name").hover(function () {
         $(this).toggleClass("currentmodule_name_hover");
     });
-    $("#currentmodule_name").click(function() {
+    $("#currentmodule_name").click(function () {
         $(".moduleslist_container").fadeToggle('fast');
     });
-    $("#mainmenu > li").hover(function() {
+    $("#mainmenu > li").hover(function () {
         $(this).not(":has(ul)").addClass("mainmenuitem_hover");
         if($(this).find("div").css("display") == "none") {
             $(this).addClass("mainmenuitem_hover");
         }
         else if($(this).find("div").css("display") != "none") {
-            $(this).find("div > ul > li").hover(function() {
+            $(this).find("div > ul > li").hover(function () {
                 $(this).toggleClass("submenuitem_hover");
             });
         }
     },
-            function() {
+            function () {
                 $(this).removeClass("mainmenuitem_hover");
             });
-    $("#mainmenu > li[class='expandable']").find("span:first").click(function() {
+    $("#mainmenu > li[class='expandable']").find("span:first").click(function () {
         $(this).parent().removeClass("mainmenuitem_hover");
         $("#" + $(this).attr("id") + "_children_container").slideToggle();
     });
-    $("#mainmenu > li[class!='expandable']").not(":has(div)").find("span").click(function() {
+    $("#mainmenu > li[class!='expandable']").not(":has(div)").find("span").click(function () {
         window.location = "index.php?module=" + $(this).attr("id");
     });
-    $("#mainmenu > li > div > ul > li").find("span").click(function() {
+    $("#mainmenu > li > div > ul > li").find("span").click(function () {
         window.location = "index.php?module=" + $(this).attr("id");
     });
     if($(window).height() < 765) {
         $("#sidedesignImage").height($(window).height());
     }
     function destroy_texteditors(parent) {
-        parent.find(".txteditadv,.inlinetxteditadv,.basictxteditadv").each(function() {
+        parent.find(".txteditadv,.inlinetxteditadv,.basictxteditadv").each(function () {
             var id = $(this).attr('id');
             try {
                 if(CKEDITOR.instances[id]) {
@@ -193,7 +80,7 @@ $(function() {
     initialize_texteditors();
     function initialize_texteditors() {
         if($(".inlinetxteditadv,.txteditadv,.basictxteditadv,.htmltextedit").length > 0) {
-            $(".inlinetxteditadv,.txteditadv,.basictxteditadv,.htmltextedit").each(function() {
+            $(".inlinetxteditadv,.txteditadv,.basictxteditadv,.htmltextedit").each(function () {
                 var id = $(this).attr('id');
                 try {
                     if(CKEDITOR.instances[id]) {
@@ -239,7 +126,7 @@ $(function() {
     }
 
     if($(".tablefilters_row_toggle").length > 0) {
-        $(window).on('keydown', function(e) {
+        $(window).on('keydown', function (e) {
             if((e.which == 102 || e.which == 70) && e.ctrlKey) {
                 e.preventDefault();
                 $('#tablefilters, .tablefilters_row').toggle();
@@ -252,7 +139,7 @@ $(function() {
     //    $("input[id^='pickDate']").datepicker({maxDate: "+1d"});
 //    $(this).datepicker("option", "maxDate", "+1d ");
 
-    $("input[id^='pickDate']").each(function() {
+    $("input[id^='pickDate']").each(function () {
         if(/^pickDate_/.test($(this).attr("id")) && /_to$/.test($(this).attr("id"))) {
             var id = $(this).attr("id").split('_');
             var secid = '';
@@ -263,7 +150,7 @@ $(function() {
                 secid = id[0] + '_from';
             }
             $(this).datepicker({altField: "#alt" + $(this).attr('id'), altFormat: 'dd-mm-yy', dateFormat: 'MM dd, yy', showWeek: true, firstDay: 1, changeMonth: true, changeYear: true, showAnim: 'slideDown',
-                onSelect: function(selectedDate) {
+                onSelect: function (selectedDate) {
                     $("#" + $(this).attr("id") + "").trigger('change');
                     $("#" + secid + "").datepicker("option", "maxDate", selectedDate);
                 }});
@@ -279,7 +166,7 @@ $(function() {
                 secid = id[0] + '_to';
             }
             $(this).datepicker({altField: "#alt" + $(this).attr('id'), altFormat: 'dd-mm-yy', dateFormat: 'MM dd, yy', showWeek: true, firstDay: 1, changeMonth: true, changeYear: true, showAnim: 'slideDown',
-                onSelect: function(selectedDate) {
+                onSelect: function (selectedDate) {
                     $("#" + $(this).attr("id") + "").trigger('change');
                     $("#" + secid + "").datepicker("option", "minDate", selectedDate);
                 }});
@@ -294,14 +181,14 @@ $(function() {
         $("#ui-datepicker-div").css("z-index", $(object).parents(".ui-dialog").css("z-index") + 1);
     }
 
-    $(document).on("keyup", "input[class*='inlinefilterfield']", function() {
+    $(document).on("keyup", "input[class*='inlinefilterfield']", function () {
         var parentContainer = $(this).closest('table');
-        setTimeout(function() {
+        setTimeout(function () {
             var totals = [];
-            parentContainer.children('tbody').find('tr').each(function() {
+            parentContainer.children('tbody').find('tr').each(function () {
                 var toggle = 'show';
                 $(this).show();
-                $(this).find('td').each(function() {
+                $(this).find('td').each(function () {
                     var filterfield = parentContainer.children('thead').find('th:nth-child(' + ($(this).index() + 1) + ') > input[class*="inlinefilterfield"]');
                     if(filterfield.length == 0) {
                         return;
@@ -322,8 +209,8 @@ $(function() {
                     $(this).hide();
                 }
             });
-            parentContainer.children('tbody').find('tr:visible').each(function() {
-                $(this).find('td').each(function() {
+            parentContainer.children('tbody').find('tr:visible').each(function () {
+                $(this).find('td').each(function () {
                     var coltext = $(this).text().replace(/,/g, '');
                     if(!isNaN(coltext) && coltext.length != 0) {
                         if(isNaN(totals[$(this).index() + 1])) {
@@ -333,8 +220,8 @@ $(function() {
                     }
                 });
             });
-            parentContainer.children('tfoot').find('tr').each(function() {
-                $(this).find('td.coltotal,td.colavg').each(function() {
+            parentContainer.children('tfoot').find('tr').each(function () {
+                $(this).find('td.coltotal,td.colavg').each(function () {
                     if(typeof totals[$(this).index() + 1] == 'undefined') {
                         return;
                     }
@@ -346,14 +233,14 @@ $(function() {
             });
         }, 300);
     });
-    $(document).on("click", "input[id^='pickDate']", function() {
+    $(document).on("click", "input[id^='pickDate']", function () {
         if(!$(this).hasClass('hasDatepicker')) {
             initalisedatepicker(this);
             $(this).focus();
         }
     });
     var accache = {};
-    $(document).on("keyup", "input[id$='_autocomplete']", function() {
+    $(document).on("keyup", "input[id$='_autocomplete']", function () {
         if(sharedFunctions.checkSession() == false) {
             return;
         }
@@ -367,7 +254,7 @@ $(function() {
         var filtersQuery = "";
         if($(this).attr('data-autocompletefilters')) {
             var attrs = $(this).attr('data-autocompletefilters').split(',');
-            $.each(attrs, function(i) {
+            $.each(attrs, function (i) {
                 attrs[i] = $.trim(attrs[i]);
                 if($("input[id='" + attrs[i] + "']").length > 0) {
                     if($("input[id='" + attrs[i] + "']").val() != '') {
@@ -382,7 +269,7 @@ $(function() {
             });
         }
         $(this).autocomplete({
-            source: function(request, response) {
+            source: function (request, response) {
                 var term = request.term;
                 if(id[id.length - 2] == 'cache') {
                     if(term in accache) {
@@ -400,7 +287,7 @@ $(function() {
                         inputselection_extra = "[id*='" + id[2] + "']";
                     }
 
-                    $("input[id^='" + id[0] + "']" + inputselection_extra + "[id$='_id']").each(function() {
+                    $("input[id^='" + id[0] + "']" + inputselection_extra + "[id$='_id']").each(function () {
                         if($(this).val().length > 0) {
                             exclude += comma + $(this).val();
                             if(++count != 1) {
@@ -426,7 +313,7 @@ $(function() {
 
                 $.getJSON(rootdir + "search.php?type=quick&returnType=json&for=" + id[0] + "&exclude=" + exclude + filtersQuery, {
                     value: term
-                }, function(data, status, xhr) {
+                }, function (data, status, xhr) {
                     if(id[id.length - 2] == 'cache') {
                         accache[ term ] = data;
                     }
@@ -434,7 +321,7 @@ $(function() {
                 });
             },
             minLength: 2,
-            select: function(event, ui) {
+            select: function (event, ui) {
                 $(valueIn).val(ui.item.id);
                 if($(valueIn + "_output").length > 0) {
                     $(valueIn + "_output").val(ui.item.id);
@@ -442,7 +329,7 @@ $(function() {
                     $(valueIn + "_output").trigger('change');
                 }
             }
-        }).data('uiAutocomplete')._renderItem = function(ul, item) {
+        }).data('uiAutocomplete')._renderItem = function (ul, item) {
             if(typeof item.desc != 'undefined') {
                 if(typeof item.style != 'undefined') {
                     return $("<li " + item.style + ">").append("<a>" + item.value + "<br><small>" + item.desc + "</small></a>").appendTo(ul);
@@ -494,7 +381,7 @@ $(function() {
                 inputselection_extra = "[id*='" + id[2] + "']";
             }
 
-            $("input[id^='" + id[0] + "']" + inputselection_extra + "[id$='_id']").each(function() {
+            $("input[id^='" + id[0] + "']" + inputselection_extra + "[id$='_id']").each(function () {
                 if($(this).val().length > 0) {
                     exclude += comma + $(this).val();
                     if(++count != 1) {
@@ -533,11 +420,11 @@ $(function() {
         else
         {
             $.post(rootdir + "search.php?type=quick&for=" + id[0] + "&exclude=" + exclude + filtersQuery, {value: "" + inputValue + ""},
-            function(returnedData) {
+            function (returnedData) {
                 if(returnedData.length > 0) {
                     $(resultsIn).html(returnedData);
                     $(resultsIn).slideDown();
-                    $("#searchResultsList > li").click(function() {
+                    $("#searchResultsList > li").click(function () {
                         searchInput.val($(this).text());
                         $(valueIn).val($(this).attr("id"));
                         $(valueIn + "_output").val($(this).attr("id")).trigger('change');
@@ -549,7 +436,7 @@ $(function() {
                      popUp(id[1], id[0] + "_" + id[2]);
                      });*/
 
-                    $(document).not("input[id='" + id[0] + "_" + id[1] + "_QSearch']").click(function() {
+                    $(document).not("input[id='" + id[0] + "_" + id[1] + "_QSearch']").click(function () {
                         $(resultsIn).slideUp().empty();
                     });
                 }
@@ -558,7 +445,7 @@ $(function() {
         inputValue = "";
     }
 
-    $(document).on("change", "input.ajaxcheckbox", function() {
+    $(document).on("change", "input.ajaxcheckbox", function () {
         if(sharedFunctions.checkSession() == false) {
             return;
         }
@@ -570,7 +457,7 @@ $(function() {
 
         sharedFunctions.requestAjax("post", "index.php?module=" + id[id.length - 2], 'action=' + id[0] + '&value=' + $(this).val() + '&id=' + id[1], $(this).attr("id") + '_Result', $(this).attr("id") + '_Result');
     });
-    $(document).on("click", "input[type='submit'][id$='_Button']", function() {
+    $(document).on("click", "input[type='submit'][id$='_Button']", function () {
         var id = $(this).attr("id").split("_");
         var formid = '';
         for(var i in CKEDITOR.instances) {
@@ -580,11 +467,11 @@ $(function() {
             formid += id[i] + "_";
         }
 
-        $("form[id='" + formid + "Form']:not([action]),form[id='" + formid + "Form'][action='#']").submit(function(e) {
+        $("form[id='" + formid + "Form']:not([action]),form[id='" + formid + "Form'][action='#']").submit(function (e) {
             e.preventDefault();
         });
     });
-    $(document).on("click", "input[id^='perform_'][id$='_Button'],input[id^='add_'][id$='_Button'],input[id^='change_'][id$='_Button']", function() {
+    $(document).on("click", "input[id^='perform_'][id$='_Button'],input[id^='add_'][id$='_Button'],input[id^='change_'][id$='_Button']", function () {
         if(sharedFunctions.checkSession() == false) {
             return;
         }
@@ -610,11 +497,11 @@ $(function() {
         }
         sharedFunctions.requestAjax("post", url, formData, formid + "Results", formid + "Results");
     });
-    $(document).on("click", "a[id^='showmore_'][href^='#']", function() {
+    $(document).on("click", "a[id^='showmore_'][href^='#']", function () {
         var id = $(this).attr("id").split("_");
         $("#" + id[1] + "_" + id[2]).toggle();
     });
-    $(document).on("click", "img[id^='addmore_']", function() {
+    $(document).on("click", "img[id^='addmore_']", function () {
         sharedFunctions.addmoreRows($(this));
     });
     $(document).on("keyup", "input[id='email'],input[accept='email']", validateEmailInline);
@@ -644,13 +531,13 @@ $(function() {
         }
     }
 
-    $("input[type='button'][id$='_swap']").click(function() {
+    $("input[type='button'][id$='_swap']").click(function () {
         var id = $(this).attr("id").split("_");
         if($("#" + id[0] + "_last").val().length > 0) {
             $("#" + id[0]).val($("#" + id[0] + "_last").val());
         }
     });
-    $(document).on("keydown", "input[accept='numeric']", function(e) {
+    $(document).on("keydown", "input[accept='numeric']", function (e) {
         if(e.keyCode > 31 && (e.keyCode < 48 || (e.keyCode > 57 && (e.keyCode < 96 || e.keyCode > 105) && e.keyCode != 190 && e.keyCode != 110 && e.keyCode != 16 && e.keyCode != 17 && e.keyCode != 59))) {
             //$(this).val($(this).val().substring(0, ($(this).val().length - 1)));
             e.preventDefault();
@@ -658,26 +545,26 @@ $(function() {
         }
         return true
     });
-    $(document).on('click', "a[id='resetpassword']", function() {
+    $(document).on('click', "a[id='resetpassword']", function () {
         $("#logincontent").hide();
         $("#resetpasswordcontent").show();
     });
-    $("#resetpassword_Button").click(function() {
+    $("#resetpassword_Button").click(function () {
         sharedFunctions.requestAjax("post", "users.php?action=reset_password", "email=" + $("input[id='email']").val(), "resetpassword_Results", "resetpassword_Results");
     });
-    $("#changepassword_Button").click(function() {
+    $("#changepassword_Button").click(function () {
         sharedFunctions.requestAjax("post", "users.php?action=do_changepassword", $("form[id='changepassword_Form']").serialize(), "changepassword_Results", "changepassword_Results");
     });
-    $("#modifyprofile_Button").click(function() {
+    $("#modifyprofile_Button").click(function () {
         var formData = $("form[id='modifyprofile_Form']").serialize();
         sharedFunctions.requestAjax("post", "users.php?action=do_modifyprofile", formData, "modifyprofile_Results", "modifyprofile_Results");
     });
-    $("input[id='getReports']").click(function() {
+    $("input[id='getReports']").click(function () {
         if(sharedFunctions.checkSession() == false) {
             return;
         }
         $.post("index.php?module=reporting/createreports&action=get_reports", {quarter: $("#quarter").val(), year: $("#year").val()},
-        function(returnedData) {
+        function (returnedData) {
             $("select[id='reports']").empty();
             $("select[id='reports']").html(returnedData);
         }
@@ -691,7 +578,7 @@ $(function() {
     function login() {
         $.post(rootdir + "users.php?action=do_login",
                 {username: $("#username").val(), password: $("#password").val(), token: $("#logintoken").val()},
-        function(returnedData) {
+        function (returnedData) {
             if($("status", returnedData).text() == 'true') {
                 var spanClass = 'green_text';
             } else {
@@ -709,7 +596,7 @@ $(function() {
                 );
     }
 
-    $(document).on('click', "a[id$='_loadpopupbyid'],a[id^='mergeanddelete_'][id$='_icon'],a[id^='revokeleave_'][id$='_icon'],a[id^='approveleave_'][id$='_icon']", function() {
+    $(document).on('click', "a[id$='_loadpopupbyid'],a[id^='mergeanddelete_'][id$='_icon'],a[id^='revokeleave_'][id$='_icon'],a[id^='approveleave_'][id$='_icon']", function () {
         var id = $(this).attr("id").split("_");
         //        var rel = $(this).prop("rel");
         //        var underscore = '_';
@@ -729,7 +616,7 @@ $(function() {
         }
         popUp(id[2], id[0], id[1], $(this));
     });
-    $(".showpopup,input[id^='showpopup_']").on("click", function() {
+    $(".showpopup,input[id^='showpopup_']").on("click", function () {
         var id = $(this).attr("id").split("_");
         $('#popup_' + id[1]).dialog('open');
         /* Make the parent dialog overflow as visible to completely display the  customer inline search results */
@@ -744,8 +631,8 @@ $(function() {
             width: 600,
             minWidth: 600,
             maxWidth: 800,
-            close: function() {
-                $(this).find("form").each(function() {
+            close: function () {
+                $(this).find("form").each(function () {
                     this.reset();
                 });
                 $(this).find("span[id$='_Validation']").empty();
@@ -758,7 +645,7 @@ $(function() {
         $("div[id^='tabs_']").tabs();
     }
 
-    $(document).on("click", "a[id^='addnew_']", function() {
+    $(document).on("click", "a[id^='addnew_']", function () {
         var id = $(this).attr("id").split("_");
         popUp(id[1], id[0] + "_" + id[2]);
     });
@@ -823,15 +710,15 @@ $(function() {
         $.ajax({type: 'post',
             url: file + "?module=" + module + "&action=get_" + template,
             data: "id=" + id + data_params,
-            beforeSend: function() {
+            beforeSend: function () {
                 $("body").append("<div id='modal-loading'><span  style='display:block; width:100px; height: 100%; margin: 0 auto;'><img  src='./images/loader.gif'/></span></div>");
                 $("#modal-loading").dialog({height: 150, modal: true, closeOnEscape: false, title: 'Loading...', resizable: false, minHeight: 0,
                 });
             },
-            complete: function() {
+            complete: function () {
                 $("#modal-loading").dialog("close").remove();
             },
-            success: function(returnedData) {
+            success: function (returnedData) {
                 $(".contentContainer").append(returnedData);
                 initialize_texteditors();
                 $("div[id^='popup_']").dialog({
@@ -842,9 +729,9 @@ $(function() {
                     minWidth: 600,
                     maxWidth: 800,
                     zIndex: 1000,
-                    close: function() {
+                    close: function () {
                         destroy_texteditors($(this));
-                        $(this).find("form").each(function() {
+                        $(this).find("form").each(function () {
                             this.reset();
                         });
                         $(this).find("span[id$='_Validation']").empty();
@@ -878,7 +765,7 @@ $(function() {
 
                  sharedFunctions.requestAjax("post", url, formData, formid + "Results", formid + "Results");
                  });	*/
-                $("input[id='hide_popupBox']").click(function() {
+                $("input[id='hide_popupBox']").click(function () {
                     $("#popupBox").hide("fast");
                 });
             }
@@ -890,7 +777,7 @@ $(function() {
         //);
     }
 
-    $("a[href='#'][id^='approve_']").click(function() {
+    $("a[href='#'][id^='approve_']").click(function () {
         if(sharedFunctions.checkSession() == false) {
             return;
         }
@@ -898,7 +785,7 @@ $(function() {
         var data = "&action=do_" + details[0] + "&attribute=" + details[2] + "&newvalue=" + details[3] + "&id=" + details[4];
         sharedFunctions.requestAjax("post", "index.php?module=" + details[1], data, $(this).attr("id"), $(this).attr("id"));
     });
-    $("input[class='inlineCheck']").blur(function() {
+    $("input[class='inlineCheck']").blur(function () {
         if($(this).val().length != 0) {
             var parentId = $(this).parents("form").attr("id").split("_");
             var results = $(this).attr("id") + "_inlineCheckResult";
@@ -906,10 +793,10 @@ $(function() {
             sharedFunctions.requestAjax("post", "index.php?module=" + parentId[1], data, results, results);
         }
     });
-    $(document).on("click", "img[id^='ajaxaddmore_']", function() {
+    $(document).on("click", "img[id^='ajaxaddmore_']", function () {
         sharedFunctions.ajaxAddMore($(this));
     });
-    window.sharedFunctions = function() {
+    window.sharedFunctions = function () {
         function ajaxAddMore(object, callback) {
             if(sharedFunctions.checkSession() == false) {
                 return;
@@ -938,7 +825,7 @@ $(function() {
             $.ajax({type: 'post',
                 url: url,
                 data: "value=" + num_rows + "&id=" + id[id.length - 1] + "&" + object.parent().find($('input[id^=ajaxaddmoredata_]')).serialize(),
-                beforeSend: function() {
+                beforeSend: function () {
                     //        if(id[1] == 'aro/managearodouments') {
                     //           $("body").append("<div id='modal-loading'>Please wait untill the calculation is done.</div>");
                     //            $("#modal-loading").dialog({height: 0, modal: true, closeOnEscape: false, title: 'Loading...', resizable: false, minHeight: 0,
@@ -951,10 +838,10 @@ $(function() {
                     $("#modal-loading").dialog({height: 0, modal: true, closeOnEscape: false, title: 'Loading...', resizable: false, minHeight: 0});
                     //  }
                 },
-                complete: function() {
+                complete: function () {
                     //+msecond
                     $("#modal-loading").dialog("close").remove();
-                }, success: function(returnedData) {
+                }, success: function (returnedData) {
                     $('#' + uniquename + '_tbody').append(returnedData);
                     if($("#numrows_" + uniquename).length != 0) {
                         $("#numrows_" + uniquename).val(num_rows + 1);
@@ -986,15 +873,15 @@ $(function() {
             var image_name = 'loading-bar.gif';
             $.ajax({type: methodParam,
                 url: urlParam, data: dataParam,
-                beforeSend: function() {
+                beforeSend: function () {
                     $("div[id='" + loadingId + "'],span[id='" + loadingId + "']").html("<img style='padding: 5px;' src='" + imagespath + "/" + image_name + "'' alt='" + loading_text + "' border='0' />");
                 },
-                complete: function() {
+                complete: function () {
                     if(loadingId != contentId) {
                         $("#" + loadingId).empty();
                     }
                 },
-                success: function(returnedData) {
+                success: function (returnedData) {
                     if(datatype == 'xml') {
                         if($(returnedData).find('status').text() == 'true') {
                             var spanClass = 'green_text';
@@ -1066,10 +953,10 @@ $(function() {
              }*/
             var needed_attributes = ["id", "name"];
             $("#" + id[1] + "_tbody > div").scrollTop();
-            $.each(needed_attributes, function(key, val) {
+            $.each(needed_attributes, function (key, val) {
                 //$("#"+ id[1] +"_tbody > tr[id='" + increment + "']").find("input,select,div[id],span,textarea[name],img[id],tbody").each(function() {
 
-                $("#" + id[1] + "_tbody > tr[id='" + increment + "']").find("tr[" + val + "],input[" + val + "],select[" + val + "],div[" + val + "],span[" + val + "],textarea[" + val + "],img[" + val + "],tbody[" + val + "]").each(function() {
+                $("#" + id[1] + "_tbody > tr[id='" + increment + "']").find("tr[" + val + "],input[" + val + "],select[" + val + "],div[" + val + "],span[" + val + "],textarea[" + val + "],img[" + val + "],tbody[" + val + "]").each(function () {
                     if($(this).attr(val).length == 0) {
                         return true;
                     }
@@ -1112,7 +999,7 @@ $(function() {
                 $("#" + id[1] + "_tbody > tr:last").find("td:first").html($("#" + id[1] + "_tbody tr:last").find("td:first").html().replace(last, increment.toString()));
             }
             if(id[1] == 'productsactivity') {
-                $("#" + id[1] + "_tbody > tr[id='" + increment + "']").find("input").each(function() {
+                $("#" + id[1] + "_tbody > tr[id='" + increment + "']").find("input").each(function () {
                     if($(this).attr("readonly") !== typeof undefined) {
                         if($(this).attr("readonly") == 'readonly') {
                             $(this).attr('readonly', false);
@@ -1142,10 +1029,10 @@ $(function() {
                 url: querystring,
                 //  data: $(this).serialize() + "&" + $.param(data),
 
-                complete: function() {
+                complete: function () {
                     $("#modal-loading").dialog("close").remove();
                 },
-                success: function(returnedData) {
+                success: function (returnedData) {
                     try {
                         if(!returnedData) {
                             //   $("#orderreference").val(''); //hardcoded temp
@@ -1179,21 +1066,21 @@ $(function() {
         cursor: "wait",
         tolerance: "intersect", //overlaps the item being moved to the other item by 50%.
         placeholder: "ui-state-highlight",
-        over: function() {
+        over: function () {
             $('.sortable-placeholder').hide();
         },
         dropOnEmpty: true, //Prevent all items in a list from being dropped into a separate, empty list
-        start: function() {        /*  return back the Color of the  element to its origin Upon remove of the item */
+        start: function () {        /*  return back the Color of the  element to its origin Upon remove of the item */
             $("#dimensionto li").animate({
                 opacity: 2.35,
                 backgroundColor: "#cccccc",
             });
         },
-        stop: function(event, ui) {
+        stop: function (event, ui) {
             $("#dimensionto li").css('background', '#92d050');
             $('#dimensions').val($("#dimensionto").sortable('toArray'));
         }});
-    $(document).on('change', "[data-reqparent^='children-']", function() {
+    $(document).on('change', "[data-reqparent^='children-']", function () {
         var children = $(this).attr('data-reqparent').split('-');
         if(children.length > 1) {
             if($(this).attr('type') == 'checkbox') {
@@ -1223,7 +1110,7 @@ $(function() {
         }
     });
     // Toggle filter options when generating dimensional report
-    $("a[id='filterby']").click(function() {
+    $("a[id='filterby']").click(function () {
         $("table #filter_options").toggle();
     });
 //}

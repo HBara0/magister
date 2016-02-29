@@ -210,13 +210,16 @@ if(!$core->input['action']) {
 }
 else {
     if($core->input['action'] == 'perform_revokeleave') {
-        $lid = intval(base64_decode($core->input['torevoke']));
+        $lid = intval($core->input['torevoke']);
         $user_obj = new Users($core->user['uid']);
         $leave_obj = new Leaves($lid, false);
         $leave = $leave_obj->get();
         $leave_type = $leave_obj->get_leavetype(false)->get();
         $leave_user = $leave_obj->get_requester()->get();
-        $reports_to = $leave_obj->get_requester()->get_reportsto()->get()['uid'];
+        $reportsto_obj = $leave_obj->get_requester()->get_reportsto();
+        if(is_object($reportsto_obj)) {
+            $reports_to = $reportsto_obj->uid;
+        }
         if(!$core->usergroup['attenance_canApproveAllLeaves'] == 1 && (($core->usergroup['hr_canHrAllAffiliates'] != 1 && $reports_to != $core->user['uid'] && $leave_user['uid'] != $core->user['uid']) && !TIME_NOW < ($leave['toDate'] + (60 * 60 * 24 * $core->settings['attendance_caneditleaveafter'])) && !(TIME_NOW > $leave['toDate']))) {
             output_xml("<status>false</status><message>{$lang->errorrevoking}</message>");
             exit;
@@ -261,6 +264,7 @@ else {
         if($leave_obj->createAutoResp == 1) {
             $leave_obj->delete_autoresponder();
         }
+
         $query = $db->delete_query('leaves', 'lid='.$lid);
         if($query && $db->affected_rows() > 0) {
             //Reset Leave Balance - Start

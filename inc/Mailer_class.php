@@ -190,7 +190,8 @@ class Mailer_oophp extends Mailer_functions {
     public function set_from($sender) {
         if(is_array($sender)) {
             $this->mail_data['from_email'] = $sender['email'];
-            $this->mail_data['from'] = $sender['name'];
+            $this->mail_data['from'] = preg_replace("/[^A-Za-z0-9 ]/", '', $sender['name']);
+            ;
         }
         else {
             $this->mail_data['from_email'] = $sender;
