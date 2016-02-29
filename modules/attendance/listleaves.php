@@ -121,7 +121,7 @@ if(!$core->input['action']) {
                     $leavetype_details['title'] = $lang->{$leavetype_details['name']};
                 }
                 $tmplan_link = '';
-                if($leavetype_details['isBusiness'] == 1 && $core->usergroup['canUseTravelManager'] == 1) {
+                if($leavetype_details['requiresItinerary'] == 1 && $core->usergroup['canUseTravelManager'] == 1) {
                     $tmplan = TravelManagerPlan::get_plan(array('lid' => $leave['lid']), array('returnarray' => false));
                     if(!is_object($tmplan)) {
                         $url = 'index.php?module=travelmanager/plantrip&lid='.$leave['lid'];
