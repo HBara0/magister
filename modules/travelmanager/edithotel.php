@@ -49,11 +49,6 @@ if(!$core->input['action']) {
                     $telephone_number = $phone_parts[2];
                 }
             }
-
-            //Conversation Section -Start
-            //getting conversation info
-            $conversaion_part = $hotel_obj->parse_conversation_byobj();
-            //Conversation Section -END
         }
     }
     $ratingval = 0;
