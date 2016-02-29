@@ -41,9 +41,19 @@ class AroRequestsFundsEngaged extends AbstractClass {
         }
     }
 
-    public function get_amount($upto, $affid) {
+    /**
+     *
+     * @global type $db
+     * @param type $upto start date of the required period
+     * @param type $affid
+     * @param type $options array defining extra join tables whether aro customers tables or partes info table 4
+     *                      + extra filters for customer or vendor ids
+     * @return type  funds array at that specified period
+     */
+    public function get_fundsamount($upto, $affid, $options = array()) {
         global $db;
-        $query = $db->query('SELECT * FROM aro_requests_fundsengaged f JOIN aro_requests r ON (f.aorid=r.aorid)WHERE affid='.$affid.' AND createdOn < '.$upto.' order by createdOn desc limit 0,1');
+
+        $query = $db->query('SELECT * FROM aro_requests_fundsengaged f JOIN aro_requests r ON (f.aorid=r.aorid) '.$options['join'].' WHERE affid='.$affid.' AND createdOn < '.$upto.' '.$options['filter'].' order by createdOn desc limit 0,1');
         if($db->num_rows($query) > 0) {
             while($funds = $db->fetch_assoc($query)) {
                 return $funds;

@@ -12,7 +12,7 @@
             </tr>
         </thead>
         <tbody class="datatable" style="width:70%">
-            <tr><td></td><td></td>
+            <tr><td></td> <td class="border_right">After this Order</td>
                 <td class="border_right">Begining of last month</td>
                 <td class="border_right">3 months ago</td>
                 <td class="border_right">6 months ago</td>

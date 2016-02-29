@@ -252,6 +252,7 @@ if(!($core->input['action'])) {
                 $rowid = $clrowid;
                 if($rowid == 1 && (isset($core->input['referrer']) && $core->input['referrer'] == 'toapprove')) {
                     $arocustomer_output = '<td style="font-weight: bold;width:16%;" class="border-right">'.$lang->customer.'</td><td class="border-right">'.$customer->get_displayname().'</td>';
+                    $RIC_customer_obj = $customer;
                 }
 
                 // If only unspecified customer row exist, parse default customer order row
@@ -414,52 +415,6 @@ if(!($core->input['action'])) {
                 }
             }
             //*********Current Stock -End *********//
-            //*********Total Funds Engaged -Start *********//
-            $totalfunds = AroRequestsFundsEngaged::get_data(array('aorid' => $aroorderrequest->aorid));
-            $numfmt = new NumberFormatter($lang->settings['locale'], NumberFormatter::CURRENCY);
-            $totalfunds_fiels = array('orderShpInvOverdue', 'orderShpInvNotDue', 'ordersAppAwaitingShp', 'odersWaitingApproval', 'totalFunds');
-            if(is_object($totalfunds)) {
-                foreach($totalfunds_fiels as $totalfunds_field) {
-                    if(isset($core->input['referrer']) && $core->input['referrer'] == 'toapprove') {
-                        $totalfunds->$totalfunds_field = $numfmt->formatCurrency(($totalfunds->$totalfunds_field), "USD");
-                    }
-                }
-
-                /**
-                 * Total Funds Engaged evolution
-                 * -displayed only on preview
-                 * - Add columns with the amount after this order, then amount at the beginning of last month, then 3 months ago, then 6 months ago and then a year ago to see the evolution.
-
-                  Show a trend line at the end.
-                 */
-                if(isset($core->input['referrer']) && $core->input['referrer'] == 'toapprove') {
-                    $periods = array('lastmonth', '-3 months', '-6 months', '-9 months', '-12 months');
-                    foreach($periods as $period) {
-                        switch($period) {
-                            case 'lastmonth':
-                                $uptodate = strtotime('first day of last month');
-                                break;
-                            default:
-                                $uptodate = strtotime('first day of '.date('Y-m-d 00:00:00', strtotime($period, TIME_NOW)));
-                                break;
-                        }
-                        $amount[$period] = $totalfunds->get_amount($uptodate, $aroorderrequest->affid);
-                        foreach($totalfunds_fiels as $totalfunds_field) {
-                            $fundsengaged_evolution_row[$totalfunds_field] .= '<td class="border_right">'.$numfmt->formatCurrency(($amount[$period][$totalfunds_field]), "USD").'</td>';
-                            $trend[$totalfunds_field][$period] = $amount[$period][$totalfunds_field];
-                        }
-                    }
-                    foreach($totalfunds_fiels as $totalfunds_field) {
-                        $fundsengaged_evolution_row[$totalfunds_field].='<td class="border_right"><span class="inlinesparkline" >'.implode(',', $trend[$totalfunds_field]).'</span>'
-                                .'<br/><br/><span class="inlinebar" >'.implode(',', $trend[$totalfunds_field]).'</span></td>';
-                    }
-                }
-                /*                 * ,
-                 * Total Funds Engaged evolution ~ END
-                 */
-            }
-
-//*********Total Funds Engaged -End   *********//
             //*********Aro Audit Trail -Start *********//
             if($aroorderrequest->createdOn != 0) {
                 $aroorderrequest->createdOn_output = date($core->settings['dateformat'].' '.$core->settings['timeformat'], $aroorderrequest->createdOn);
@@ -638,6 +593,66 @@ if(!($core->input['action'])) {
                 eval("\$partiesinfo_fees = \"".$template->get('aro_partiesinfo_fees')."\";");
             }
             //*********Aro Parties Information-End *********//
+            //*********Total Funds Engaged -Start *********//
+            $totalfunds = AroRequestsFundsEngaged::get_data(array('aorid' => $aroorderrequest->aorid));
+            $numfmt = new NumberFormatter($lang->settings['locale'], NumberFormatter::CURRENCY);
+            $totalfunds_fiels = array('orderShpInvOverdue', 'orderShpInvNotDue', 'ordersAppAwaitingShp', 'odersWaitingApproval', 'totalFunds');
+            if(is_object($totalfunds)) {
+                foreach($totalfunds_fiels as $totalfunds_field) {
+                    if(isset($core->input['referrer']) && $core->input['referrer'] == 'toapprove') {
+                        $totalfunds->$totalfunds_field = $numfmt->formatCurrency(($totalfunds->$totalfunds_field), "USD");
+                    }
+                }
+
+                /**
+                 * Total Funds Engaged evolution
+                 * -displayed only on preview
+                 * - Add columns with the amount after this order, then amount at the beginning of last month, then 3 months ago, then 6 months ago and then a year ago to see the evolution.
+
+                  Show a trend line at the end.
+                 */
+                if(isset($core->input['referrer']) && $core->input['referrer'] == 'toapprove') {
+
+                    // show funds amounts after this order,at the beginning of last month, 3 months ago,
+                    // 6 months ago and then a year ago
+                    $periods = array('lastmonth', '-3 months', '-6 months', '-9 months', '-12 months');
+                    foreach($periods as $period) {
+                        switch($period) {
+                            case 'lastmonth':
+                                $uptodate = strtotime('first day of last month');
+                                break;
+                            default:
+                                $uptodate = strtotime('first day of '.date('Y-m-d 00:00:00', strtotime($period, TIME_NOW)));
+                                break;
+                        }
+
+                        //** Additional filters per purchase type * */
+                        if(is_object($aropartiesinfo_obj)) {
+                            $extrajoin = 'JOIN aro_requests_partiesinformation p ON (f.aorid=r.aorid)';
+                            $extrafilter = ' AND p.vendorEid='.$aropartiesinfo_obj->vendorEid.' AND p.vendorAff='.$aropartiesinfo_obj->vendorAff.'';
+                        }
+                        if($purchasetype->isPurchasedByEndUser == 1) {
+                            if(is_object($RIC_customer_obj)) {
+                                $extrajoin = 'JOIN aro_order_customers c ON (f.aorid=c.aorid)';
+                                $extrafilter = ' AND c.cid='.$customer->eid;
+                            }
+                        }
+                        $amount[$period] = $totalfunds->get_fundsamount($uptodate, $aroorderrequest->affid, array('join' => $extrajoin, 'filter' => $extrafilter));
+                        foreach($totalfunds_fiels as $totalfunds_field) {
+                            $fundsengaged_evolution_row[$totalfunds_field] .= '<td class="border_right">'.$numfmt->formatCurrency(($amount[$period][$totalfunds_field]), "USD").'</td>';
+                            $trend[$totalfunds_field][$period] = $amount[$period][$totalfunds_field];
+                        }
+                    }
+                    foreach($totalfunds_fiels as $totalfunds_field) {
+                        $fundsengaged_evolution_row[$totalfunds_field].='<td class="border_right"><span class="inlinebar" sparkBarColor="green" >'.implode(',', $trend[$totalfunds_field]).'</span></td>';
+                    }
+                }
+                /*                 * ,
+                 * Total Funds Engaged evolution ~ END
+                 */
+            }
+
+            //*********Total Funds Engaged -End   *********//
             $aroapprovalchain = AroRequestsApprovals::get_data(array('aorid' => $aroorderrequest->aorid), array('returnarray' => true, 'simple' => false, 'order' => array('by' => 'sequence', 'sort' => 'ASC')));
             if(is_array($aroapprovalchain)) {
 
@@ -827,7 +842,7 @@ if(!($core->input['action'])) {
             $purchaseorderperaff_filters = "AND o.ad_org_id='".$aff_obj->integrationOBOrgId."' ";
 
             if($purchasetype->isPurchasedByEndUser == 1) {
-                if(is_object($customer)) {
+                if(is_object($RIC_customer_obj)) {
                     $foreignid = $db->fetch_field($db->query('SELECT foreignId FROM integration_mediation_entities WHERE foreignSystem=3 AND localId="'.$customer->cid.'"'), 'foreignId');
                 }
                 $salesinvoice_filters .=" AND c_bpartner_id = '".$foreignid."'";
@@ -836,12 +851,12 @@ if(!($core->input['action'])) {
             }
 
             //Shown only to COO, Financial manager and country supervisor
-            // $canviewcomparison[] = $aff_obj->get_regionalsupervisor()->uid;
-            // $canviewcomparison[] = $aff_obj->get_coo()->uid;
-            $canviewcomparison[] = 362; //$aff_obj->get_financialemanager()->uid;
-//            if(is_object($intermedaffiliate)) {
-//                $canviewcomparison[] = $intermedaffiliate->get_financialemanager()->uid;
-//            }
+            $canviewcomparison[] = $aff_obj->get_regionalsupervisor()->uid;
+            $canviewcomparison[] = $aff_obj->get_coo()->uid;
+            $canviewcomparison[] = $aff_obj->get_financialemanager()->uid; // 362;
+            if(is_object($intermedaffiliate)) {
+                $canviewcomparison[] = $intermedaffiliate->get_financialemanager()->uid;
+            }
             $canviewcomparison = array_filter($canviewcomparison);
             if(in_array($core->user['uid'], $canviewcomparison)) {
                 $intgdb = $integration->get_dbconn();
