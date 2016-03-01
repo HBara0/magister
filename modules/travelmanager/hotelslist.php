@@ -70,7 +70,16 @@ if(!$core->input['action']) {
                     $hotel_avgprice = $hotel->avgPrice.' - '.$currency->get_displayname();
                 }
             }
+            //add tools icons depending on user permissions
+//            $tool_items = ' <li><a target="_blank" href="'.$core->settings['rootdir'].'/index.php?module=travelmanager/viewhotel&id='.$hotel->tmhid.'"><span class="glyphicon glyphicon-eye-open"></span>&nbsp'.$lang->viewhotel.'</a></li>';
+            if($core->usergroup['travelmanager_canApproveHotels'] == 1) {
+                $tool_items .= '<li><a target="_blank" href="'.$core->settings['rootdir'].'/index.php?module=travelmanager/edithotel&id='.$hotel->tmhid.'"><span class="glyphicon glyphicon-pencil"></span>&nbsp'.$lang->edithotel.'</a></li>';
+//                $tool_items .= '<li role="separator" class="divider"></li><li class="greenbackground"><a><span class="glyphicon glyphicon-ok"></span>&nbsp'.$lang->approve.'</a></li>';
+            }
+            eval("\$tools = \"".$template->get('tools_buttonselectlist')."\";");
+
             eval("\$hotel_rows .= \"".$template->get('travelmanager_hotelslist_rows')."\";");
+            unset($tool_items);
         }
     }
     eval("\$travelmanager_hotelslist .= \"".$template->get('travelmanager_hotelslist')."\";");

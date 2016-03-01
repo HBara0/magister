@@ -339,4 +339,5 @@ $lang['commentapprovereject'] = 'Approve/Comment on Leave';
 $lang['comments'] = 'Comments';
 $lang['createdhotel'] = 'Created Hotel';
 $lang['employee'] = 'Employee';
+$lang['viewhotel'] = 'View Hotel';
 ?>
