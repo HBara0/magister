@@ -2119,9 +2119,9 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                         $invoiceline['currency']->iso_code = 'GHS';
                     }
                     $usdcurrency_obj = new Currencies('USD');
-                    $invoiceline['usdfxrate'] = $usdcurrency_obj->get_fxrate_bytype('mavg', $invoiceline['currency'], array('from' => strtotime(date('Y-m-d', $invoiceline['dateinvoiceduts']).' 01:00'), 'to' => strtotime(date('Y-m-d', $invoiceline['dateinvoiceduts']).' 24:00'), 'year' => date('Y', $invoiceline['dateinvoiceduts']), 'month' => date('m', $invoiceline['dateinvoiceduts'])), array('precision' => 4));
+                    $invoiceline['usdfxrate'] = $usdcurrency_obj->get_fxrate_bytype('mavg', $invoiceline['currency']->iso_code, array('from' => strtotime(date('Y-m-d', $invoiceline['dateinvoiceduts']).' 01:00'), 'to' => strtotime(date('Y-m-d', $invoiceline['dateinvoiceduts']).' 24:00'), 'year' => date('Y', $invoiceline['dateinvoiceduts']), 'month' => date('m', $invoiceline['dateinvoiceduts'])), array('precision' => 4));
                     if(empty($invoiceline['usdfxrate'])) {
-                        $invoiceline['usdfxrate'] = $usdcurrency_obj->get_fxrate_bytype('ylast', $invoiceline['currency'], array('from' => strtotime(date('Y-m-d', $invoiceline['dateinvoiceduts']).' 01:00'), 'to' => strtotime(date('Y-m-d', $invoiceline['dateinvoiceduts']).' 24:00'), 'year' => date('Y', $invoiceline['dateinvoiceduts']), 'month' => date('m', $invoiceline['dateinvoiceduts'])), array('precision' => 4));
+                        $invoiceline['usdfxrate'] = $usdcurrency_obj->get_fxrate_bytype('ylast', $invoiceline['currency']->iso_code, array('from' => strtotime(date('Y-m-d', $invoiceline['dateinvoiceduts']).' 01:00'), 'to' => strtotime(date('Y-m-d', $invoiceline['dateinvoiceduts']).' 24:00'), 'year' => date('Y', $invoiceline['dateinvoiceduts']), 'month' => date('m', $invoiceline['dateinvoiceduts'])), array('precision' => 4));
                         if(empty($invoiceline['usdfxrate'])) {
                             $invoiceline['usdfxrate'] = 0;
                         }
@@ -2283,13 +2283,13 @@ class IntegrationOBOrderLine extends IntegrationAbstractClass {
 
             $orderline['currency'] = new IntegrationOBCurrency($orderline['c_currency_id'], $this->f_db);
             if($orderline['currency']->iso_code !== 'USD') {
-                if($orderline['currency'] == 'GHC') {
-                    $orderline['currency'] = 'GHS';
+                if($orderline['currency']->iso_code == 'GHC') {
+                    $orderline['currency']->iso_code = 'GHS';
                 }
                 $usdcurrency_obj = new Currencies('USD');
-                $orderline['usdfxrate'] = $usdcurrency_obj->get_fxrate_bytype('mavg', $orderline['currency'], array('from' => strtotime(date('Y-m-d', $orderline['dateordereduts']).' 01:00'), 'to' => strtotime(date('Y-m-d', $orderline['dateordereduts']).' 24:00'), 'year' => date('Y', $orderline['dateordereduts']), 'month' => date('m', $orderline['dateordereduts'])), array('precision' => 4));
+                $orderline['usdfxrate'] = $usdcurrency_obj->get_fxrate_bytype('mavg', $orderline['currency']->iso_code, array('from' => strtotime(date('Y-m-d', $orderline['dateordereduts']).' 01:00'), 'to' => strtotime(date('Y-m-d', $orderline['dateordereduts']).' 24:00'), 'year' => date('Y', $orderline['dateordereduts']), 'month' => date('m', $orderline['dateordereduts'])), array('precision' => 4));
                 if(empty($orderline['usdfxrate'])) {
-                    $orderline['usdfxrate'] = $usdcurrency_obj->get_fxrate_bytype('ylast', $orderline['currency'], array('from' => strtotime(date('Y-m-d', $orderline['dateordereduts']).' 01:00'), 'to' => strtotime(date('Y-m-d', $orderline['dateordereduts']).' 24:00'), 'year' => date('Y', $orderline['dateordereduts']), 'month' => date('m', $orderline['dateordereduts'])), array('precision' => 4));
+                    $orderline['usdfxrate'] = $usdcurrency_obj->get_fxrate_bytype('ylast', $orderline['currency']->iso_code, array('from' => strtotime(date('Y-m-d', $orderline['dateordereduts']).' 01:00'), 'to' => strtotime(date('Y-m-d', $orderline['dateordereduts']).' 24:00'), 'year' => date('Y', $orderline['dateordereduts']), 'month' => date('m', $orderline['dateordereduts'])), array('precision' => 4));
                     if(empty($orderline['usdfxrate'])) {
                         $orderline['usdfxrate'] = 0;
                     }

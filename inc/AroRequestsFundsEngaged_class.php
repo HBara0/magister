@@ -53,7 +53,7 @@ class AroRequestsFundsEngaged extends AbstractClass {
     public function get_fundsamount($upto, $affid, $options = array()) {
         global $db;
 
-        $query = $db->query('SELECT * FROM aro_requests_fundsengaged f JOIN aro_requests r ON (f.aorid=r.aorid) '.$options['join'].' WHERE affid='.$affid.' AND createdOn < '.$upto.' '.$options['filter'].' order by createdOn desc limit 0,1');
+        $query = $db->query('SELECT * FROM aro_requests_fundsengaged f JOIN aro_requests r ON (f.aorid=r.aorid) '.$options['join'].' WHERE affid='.$affid.' AND r.createdOn < '.$upto.' '.$options['filter'].' order by r.createdOn desc limit 0,1');
         if($db->num_rows($query) > 0) {
             while($funds = $db->fetch_assoc($query)) {
                 return $funds;
