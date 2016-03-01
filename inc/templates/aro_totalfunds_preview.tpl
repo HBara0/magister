@@ -6,13 +6,13 @@
             <tr>
                 <td colspan="8">
                     <div class="ui-state-highlight ui-corner-all hidden-print" style="padding-left: 5px; margin-bottom:10px; text-align:center; font-weight:bold;">
-                        All Amounts are in USD
+                        All Amounts are in K USD
                     </div>
                 </td>
             </tr>
         </thead>
         <tbody class="datatable" style="width:70%">
-            <tr><td></td> <td class="border_right">After this Order</td>
+            <tr style="background-color: #92d050;"><td></td> <td class="border_right">After this Order</td>
                 <td class="border_right">Begining of last month</td>
                 <td class="border_right">3 months ago</td>
                 <td class="border_right">6 months ago</td>
@@ -40,8 +40,8 @@
                 <td class="border_right" style="text-align: right">{$totalfunds->odersWaitingApproval}</td>
                 {$fundsengaged_evolution_row[odersWaitingApproval]}
             </tr>
-            <tr class="altrow">
-                <td style="font-weight:bold;" class="border_righ">{$lang->totalfundseng}</td>
+            <tr style="background-color: #92d050;">
+                <td class="border_righ">{$lang->totalfundseng}</td>
                 <td class="border_right" style="text-align: right">{$totalfunds->totalFunds}</td>
                 {$fundsengaged_evolution_row[totalFunds]}
             </tr>

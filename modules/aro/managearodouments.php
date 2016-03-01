@@ -639,8 +639,8 @@ if(!($core->input['action'])) {
                         }
                         $amount[$period] = $totalfunds->get_fundsamount($uptodate, $aroorderrequest->affid, array('join' => $extrajoin, 'filter' => $extrafilter));
                         foreach($totalfunds_fiels as $totalfunds_field) {
-                            $fundsengaged_evolution_row[$totalfunds_field] .= '<td class="border_right">'.$numfmt->formatCurrency(($amount[$period][$totalfunds_field]), "USD").'</td>';
-                            $trend[$totalfunds_field][$period] = $amount[$period][$totalfunds_field];
+                            $fundsengaged_evolution_row[$totalfunds_field] .= '<td class="border_right" style="text-align:right;">'.$numfmt->formatCurrency(round(($amount[$period][$totalfunds_field]) / 1000), "USD").'</td>';
+                            $trend[$totalfunds_field][$period] = round($amount[$period][$totalfunds_field] / 1000);
                         }
                     }
                     foreach($totalfunds_fiels as $totalfunds_field) {
@@ -749,7 +749,7 @@ if(!($core->input['action'])) {
                                             '<a  class="btn btn-danger" id="rejectarodocument_'.$aroorderrequest->aorid.'_aro/managearodouments_loadpopupbyid" style="margin-left:5px;vertical-align:top;padding-top:5px;"/>'.$lang->reject.'</a>';
                                 }
                                 else {
-                                    if($approver->firstEmailRecievedDate != 0) {
+                                    if($approver->firstEmailRecievedDate != 0) {  //glyphicon glyphicon-alert
                                         $icons['reintializedapprovalprocess'] = '<span class="glyphicon glyphicon-exclamation-sign alert-danger" data-toggle="tooltip" title="Approval Process was reintialized!" ></span>';
                                     }
                                 }
@@ -845,15 +845,18 @@ if(!($core->input['action'])) {
                 if(is_object($RIC_customer_obj)) {
                     $foreignid = $db->fetch_field($db->query('SELECT foreignId FROM integration_mediation_entities WHERE foreignSystem=3 AND localId="'.$customer->cid.'"'), 'foreignId');
                 }
-                $salesinvoice_filters .=" AND c_bpartner_id = '".$foreignid."'";
-                $purchaseorderperaff_filters .=" AND c_bpartner_id = '".$foreignid."'";
-                $purchaseorder_filters = " AND c_bpartner_id = '".$foreignid."'";
+                if(!empty($foreignid)) {
+                    $salesinvoice_filters .=" AND c_invoice.c_bpartner_id = '".$foreignid."'";
+                    $purchaseorderperaff_filters .=" AND o.c_bpartner_id = '".$foreignid."'";
+                    $purchaseorder_filters = " AND o.c_bpartner_id = '".$foreignid."'";
+                }
             }
 
             //Shown only to COO, Financial manager and country supervisor
             $canviewcomparison[] = $aff_obj->get_regionalsupervisor()->uid;
             $canviewcomparison[] = $aff_obj->get_coo()->uid;
-            $canviewcomparison[] = $aff_obj->get_financialemanager()->uid; // 362;
+            $canviewcomparison[] = $aff_obj->get_financialemanager()->uid;
+            $canviewcomparison[] = 362;
             if(is_object($intermedaffiliate)) {
                 $canviewcomparison[] = $intermedaffiliate->get_financialemanager()->uid;
             }
@@ -864,74 +867,77 @@ if(!($core->input['action'])) {
 
                 $orderlines = new IntegrationOBOrderLine(null); // purchase price
                 $cs_altrow = 'altrow';
-                foreach($comparison_products as $pid => $product) {
-                    if(empty($cs_altrow)) {
-                        $cs_altrow = 'altrow';
-                    }
-                    else {
-                        $cs_altrow = '';
-                    }
-                    $product_obj = Products::get_data(array('pid' => $pid));
-                    //GET SALES INVOICES SUMMARY FOR SELLING PRICE AVERAGES
-                    $data = $invoicelines->get_salesinvoicesummary($product, $salesinvoice_filters);
-                    $vendorincoterm_obj = new Incoterms($selected_incoterms['vendor']);
+                if(is_array($comparison_products)) {
+                    $comparison_products = array_filter($comparison_products);
+                    foreach($comparison_products as $pid => $product) {
+                        if(empty($cs_altrow)) {
+                            $cs_altrow = 'altrow';
+                        }
+                        else {
+                            $cs_altrow = '';
+                        }
+                        $product_obj = Products::get_data(array('pid' => $pid));
+                        //GET SALES INVOICES SUMMARY FOR SELLING PRICE AVERAGES
+                        $data = $invoicelines->get_salesinvoicesummary($product, $salesinvoice_filters);
+                        $vendorincoterm_obj = new Incoterms($selected_incoterms['vendor']);
 
-                    $purchases_data['aff'] = $orderlines->get_purchaseorders_summary($product, $purchaseorderperaff_filters, $vendorincoterm_obj->titleAbbr);
-                    $purchases_data['allaff'] = $orderlines->get_purchaseorders_summary($product, $purchaseorder_filters, $vendorincoterm_obj->titleAbbr);
-                    if(is_array($data)) {
-                        $i = 0;
-                        foreach($data as $invoiceline) {
-                            if($i == 0) {
-                                $lastorder['sellingprice'] = $invoiceline['priceactual'];
-                                $lastorder['netdays'] = $invoiceline['netdays'];
-                            }
-                            if($i < 5) {
-                                $lastfiveorders['sellingprice'] += $invoiceline['priceactual'];
-                                $lastfiveorders['netdays'] += $invoiceline['netdays'];
-                            }
-                            $lasttenorders['sellingprice'] += $invoiceline['priceactual'];
-                            $lasttenorders['netdays'] += $invoiceline['netdays'];
-                            $i++;
-                        }
-                        $lastfiveorders['avgsellingprice'] = $lastfiveorders['sellingprice'] / 5;
-                        $lastfiveorders['avgnetdays'] = $lastfiveorders['netdays'] / 5;
-                        $lasttenorders['avgsellingprice'] = $lasttenorders['sellingprice'] / 10;
-                        $lasttenorders['avgnetdays'] = $lasttenorders['netdays'] / 10;
-                        $output .= '<tr class='.$cs_altrow.'><td>'.$lang->sellingprice.'</td><td>'.$product_obj->get_displayname().'</td><td>'.$lastorder['sellingprice'].'</td><td>'.$lastfiveorders['avgsellingprice'].'</td><td>'.$lasttenorders['avgsellingprice'].'</td></tr>';
-                        $output .= '<tr class='.$cs_altrow.'><td>'.$lang->creditdays.'</td><td>'.$product_obj->get_displayname().'</td><td>'.$lastorder['netdays'].'</td><td>'.$lastfiveorders['avgnetdays'].'</td><td>'.$lasttenorders['avgnetdays'].'</td></tr>';
-                    }
-                    if(is_array($purchases_data)) {
-                        foreach($purchases_data as $key => $purchasedata) {
-                            switch($key) {
-                                case 'aff':
-                                    $label = $aff_obj->get_displayname();
-                                    break;
-                                case 'allaff':
-                                    $label = 'All Affiliates';
-                                    break;
-                                default:
-                                    break;
-                            }
-                            if(is_array($purchasedata)) {
-                                $z = 0;
-                                foreach($purchasedata as $purchaseline) {
-                                    if($z == 0) {
-                                        $lastorder['purchaseprice'] = $purchaseline['priceactual'];
-                                    }
-                                    if($z < 5) {
-                                        $lastfiveorders['purchaseprice'] += $purchaseline['priceactual'];
-                                    }
-                                    $lasttenorders['purchaseprice'] += $purchaseline['priceactual'];
-                                    $z++;
+                        $purchases_data['aff'] = $orderlines->get_purchaseorders_summary($product, $purchaseorderperaff_filters, $vendorincoterm_obj->titleAbbr);
+                        $purchases_data['allaff'] = $orderlines->get_purchaseorders_summary($product, $purchaseorder_filters, $vendorincoterm_obj->titleAbbr);
+                        if(is_array($data)) {
+                            $i = 0;
+                            foreach($data as $invoiceline) {
+                                if($i == 0) {
+                                    $lastorder['sellingprice'] = $invoiceline['priceactual'];
+                                    $lastorder['netdays'] = $invoiceline['netdays'];
                                 }
-                                $lastfiveorders['avgpurchaseprice'] = $lastfiveorders['purchaseprice'] / 5;
-                                $lasttenorders['avgpurchaseprice'] = $lasttenorders['purchaseprice'] / 10;
-                                $output .= '<tr class="'.$cs_altrow.'"><td>'.$lang->sellingprice.'/ '.$label.'</td><td>'.$product_obj->get_displayname().'</td><td>'.$lastorder['purchaseprice'].'</td><td>'.$lastfiveorders['avgpurchaseprice'].'</td><td>'.$lasttenorders['avgpurchaseprice'].'</td></tr>';
+                                if($i < 5) {
+                                    $lastfiveorders['sellingprice'] += $invoiceline['priceactual'];
+                                    $lastfiveorders['netdays'] += $invoiceline['netdays'];
+                                }
+                                $lasttenorders['sellingprice'] += $invoiceline['priceactual'];
+                                $lasttenorders['netdays'] += $invoiceline['netdays'];
+                                $i++;
+                            }
+                            $lastfiveorders['avgsellingprice'] = $lastfiveorders['sellingprice'] / 5;
+                            $lastfiveorders['avgnetdays'] = $lastfiveorders['netdays'] / 5;
+                            $lasttenorders['avgsellingprice'] = $lasttenorders['sellingprice'] / 10;
+                            $lasttenorders['avgnetdays'] = $lasttenorders['netdays'] / 10;
+                            $output .= '<tr class='.$cs_altrow.'><td>'.$lang->sellingprice.'</td><td>'.$product_obj->get_displayname().'</td><td>'.$lastorder['sellingprice'].'</td><td>'.$lastfiveorders['avgsellingprice'].'</td><td>'.$lasttenorders['avgsellingprice'].'</td></tr>';
+                            $output .= '<tr class='.$cs_altrow.'><td>'.$lang->creditdays.'</td><td>'.$product_obj->get_displayname().'</td><td>'.$lastorder['netdays'].'</td><td>'.$lastfiveorders['avgnetdays'].'</td><td>'.$lasttenorders['avgnetdays'].'</td></tr>';
+                        }
+                        if(is_array($purchases_data)) {
+                            foreach($purchases_data as $key => $purchasedata) {
+                                switch($key) {
+                                    case 'aff':
+                                        $label = $aff_obj->get_displayname();
+                                        break;
+                                    case 'allaff':
+                                        $label = 'All Affiliates';
+                                        break;
+                                    default:
+                                        break;
+                                }
+                                if(is_array($purchasedata)) {
+                                    $z = 0;
+                                    foreach($purchasedata as $purchaseline) {
+                                        if($z == 0) {
+                                            $lastorder['purchaseprice'] = $purchaseline['priceactual'];
+                                        }
+                                        if($z < 5) {
+                                            $lastfiveorders['purchaseprice'] += $purchaseline['priceactual'];
+                                        }
+                                        $lasttenorders['purchaseprice'] += $purchaseline['priceactual'];
+                                        $z++;
+                                    }
+                                    $lastfiveorders['avgpurchaseprice'] = $lastfiveorders['purchaseprice'] / 5;
+                                    $lasttenorders['avgpurchaseprice'] = $lasttenorders['purchaseprice'] / 10;
+                                    $output .= '<tr class="'.$cs_altrow.'"><td>'.$lang->sellingprice.'/ '.$label.'</td><td>'.$product_obj->get_displayname().'</td><td>'.$lastorder['purchaseprice'].'</td><td>'.$lastfiveorders['avgpurchaseprice'].'</td><td>'.$lasttenorders['avgpurchaseprice'].'</td></tr>';
+                                }
                             }
                         }
+                        unset($lasttenorders, $lastfiveorders, $lastorder);
+                        eval("\$comparisonstudy = \"".$template->get('aro_comparisonstudy')."\";");
                     }
-                    unset($lasttenorders, $lastfiveorders, $lastorder);
-                    eval("\$comparisonstudy = \"".$template->get('aro_comparisonstudy')."\";");
                 }
             }
         }
@@ -1769,6 +1775,7 @@ else {
         if(is_object($arorequest)) {
             $aroapproval = AroRequestsApprovals::get_data(array('aorid' => $arorequest->aorid, 'uid' => $core->user['uid']));
             if($aroapproval->isApproved == 0) {
+                $timesapproved = $aroapproval->timesApproved + 1;
                 $user = new Users($core->user['uid']);
                 $approve = $arorequest->approve($user);
                 if($approve) {
