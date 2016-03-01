@@ -1614,38 +1614,37 @@ else {
     if($core->input['action'] == 'popultedefaultaffpolicy') {
         if($core->input['affid'] != '' && !empty($core->input['affid']) && !empty($core->input['ptid']) && $core->input['ptid'] != '') {
             $filter = 'affid = '.$core->input['affid'].' AND purchaseType = '.$core->input['ptid'].' AND isActive = 1 AND ('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
+        }
+        $filters['coid'] = 0;
+        if(isset($core->input['coid']) && !empty($core->input['coid'])) {
+            $filters['coid'] = $core->input['coid'];
+        }
+        $filter .= ' AND coid = '.$filters['coid'];
 
-            $filters['coid'] = 0;
-            if(isset($core->input['coid']) && !empty($core->input['coid'])) {
-                $filters['coid'] = $core->input['coid'];
+        $affpolicy = AroPolicies::get_data($filter);
+        if(!is_object($affpolicy)) {
+            output($lang->nopolicy);
+            exit;
+        }
+
+        $purchasetype = PurchaseTypes::get_data(array('ptid' => $core->input['ptid']));
+        $defaultintermedfields = array('defaultIntermed', 'defaultIncoterms', 'defaultPaymentTerm');
+        foreach($defaultintermedfields as $defaultintermedfields) {
+            if(empty($affpolicy->$defaultintermedfields)) {
+                $affpolicy->$defaultintermedfields = 0;
             }
-            $filter .= ' AND coid = '.$filters['coid'];
-
-            $affpolicy = AroPolicies::get_data($filter);
-            if(!is_object($affpolicy)) {
-                output($lang->nopolicy);
-                exit;
-            }
-
-            $purchasetype = PurchaseTypes::get_data(array('ptid' => $core->input['ptid']));
-            $defaultintermedfields = array('defaultIntermed', 'defaultIncoterms', 'defaultPaymentTerm');
-            foreach($defaultintermedfields as $defaultintermedfields) {
-                if(empty($affpolicy->$defaultintermedfields)) {
+            if(is_object($purchasetype)) {
+                if($purchasetype->needsIntermediary == 0) {
                     $affpolicy->$defaultintermedfields = 0;
                 }
-                if(is_object($purchasetype)) {
-                    if($purchasetype->needsIntermediary == 0) {
-                        $affpolicy->$defaultintermedfields = 0;
-                    }
-                }
             }
-
-            $defaultaffpolicy = array('currencies' => $affpolicy->defaultCurrency,
-                    'partiesinfo_intermed_aff' => $affpolicy->defaultIntermed,
-                    'partiesinfo_intermed_incoterms' => $affpolicy->defaultIncoterms,
-                    'partiesinfo_intermed_paymentterm' => $affpolicy->defaultPaymentTerm
-            );
         }
+
+        $defaultaffpolicy = array('currencies' => $affpolicy->defaultCurrency,
+                'partiesinfo_intermed_aff' => $affpolicy->defaultIntermed,
+                'partiesinfo_intermed_incoterms' => $affpolicy->defaultIncoterms,
+                'partiesinfo_intermed_paymentterm' => $affpolicy->defaultPaymentTerm
+        );
         echo json_encode($defaultaffpolicy);
     }
     if($core->input['action'] == 'generateapprovalchain') {
