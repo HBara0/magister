@@ -468,7 +468,7 @@ class Entities extends AbstractClass {
         }
 
         if(isset($this->data['repEmail'])) {
-            if(!$core->validate_email($this->data['repEmail'])) {
+            if($core->validate_email($this->data['repEmail'])) {
                 $core->input['repEmail'] = $core->sanitize_email($this->data['repEmail']);
             }
             else {
