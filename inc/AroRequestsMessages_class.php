@@ -143,9 +143,9 @@ class AroRequestsMessages extends AbstractClass {
                             '<br/>'.$message;
                 }
                 //message will be already parsed do removing the duplication of this message
-//                else {
-//                    $message .= '<a href="'.$view_link.'">'.$lang->clicktoviewaro.'</a><br/>'.$this->data['message'].' | <a href="'.$reply_links.'">&#x21b6; '.$lang->reply.'</a><br/>';
-//                }
+                else {
+                    $message .= '<a href="'.$view_link.'">'.$lang->clicktoviewaro.'</a>| <a href="'.$reply_links.'">&#x21b6; '.$lang->reply.'</a><br/>';
+                }
                 if(!empty($message)) {
                     $emailformatter = new EmailFormatting();
                     $emailformatter->set_message(array('title' => $lang->aroconversation, 'message' => $message));
