@@ -2115,8 +2115,8 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
                 // Usd conversion
                 $invoiceline['currency'] = new IntegrationOBCurrency($invoiceline['c_currency_id'], $this->f_db);
                 if($invoiceline['currency']->iso_code !== 'USD') {
-                    if($invoiceline['currency'] == 'GHC') {
-                        $invoiceline['currency'] = 'GHS';
+                    if($invoiceline['currency']->iso_code == 'GHC') {
+                        $invoiceline['currency']->iso_code = 'GHS';
                     }
                     $usdcurrency_obj = new Currencies('USD');
                     $invoiceline['usdfxrate'] = $usdcurrency_obj->get_fxrate_bytype('mavg', $invoiceline['currency'], array('from' => strtotime(date('Y-m-d', $invoiceline['dateinvoiceduts']).' 01:00'), 'to' => strtotime(date('Y-m-d', $invoiceline['dateinvoiceduts']).' 24:00'), 'year' => date('Y', $invoiceline['dateinvoiceduts']), 'month' => date('m', $invoiceline['dateinvoiceduts'])), array('precision' => 4));
