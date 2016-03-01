@@ -329,8 +329,10 @@ function count_workingdays($uid, $check_dates_start, $check_dates_end, $is_whole
             $date_being_checked = $check_dates_start;
         }
 
-        if(in_array(date('N', $date_being_checked), $workdays)) {
-            $count_working_days++;
+        if(is_array($workdays)) {
+            if(in_array(date('N', $date_being_checked), $workdays)) {
+                $count_working_days++;
+            }
         }
 
         $date_being_checked = $date_being_checked + (60 * 60 * 24);
