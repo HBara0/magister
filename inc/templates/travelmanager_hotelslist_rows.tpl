@@ -4,5 +4,5 @@
     <td >{$hotel_country}</td>
     <td >{$hotel_approved}</td>
     <td >{$hotel_avgprice}</td>
-    <td ></td>
+    <td >{$tools}</td>
 </tr>
