@@ -1264,12 +1264,15 @@ function parse_attendance_reports($core, $headerinc = '', $header = '', $menu = 
                                     else {
                                         /* LOG DATA */
                                         $attendance['date_output'] = date('d', $attendance['date']);
-                                        $total_workshit = (mktime($current_worshift['offDutyHour'], $current_worshift['offDutyMinutes'], 0, $curdate['mon'], $curdate['mday'], $curdate['year'])) - (mktime($current_worshift['onDutyHour'], $current_worshift['onDutyMinutes'], 0, $curdate['mon'], $curdate['mday'], $curdate['year']));
+                                        $total_workshift = (mktime($current_worshift['offDutyHour'], $current_worshift['offDutyMinutes'], 0, $curdate['mon'], $curdate['mday'], $curdate['year'])) - (mktime($current_worshift['onDutyHour'], $current_worshift['onDutyMinutes'], 0, $curdate['mon'], $curdate['mday'], $curdate['year']));
                                         $attendance['hoursday'] = ($attendance['timeOut']) - ( $attendance['timeIn']);
                                         $attendance['arrival'] = $attendance['timeIn'] - (mktime($current_worshift['onDutyHour'], $current_worshift['onDutyMinutes'], 0, $curdate['mon'], $curdate['mday'], $curdate['year']));
                                         $attendance['departure'] = $attendance['timeOut'] - (mktime($current_worshift['offDutyHour'], $current_worshift['offDutyMinutes'], 0, $curdate['mon'], $curdate['mday'], $curdate['year']));
                                         $attendance['deviation'] = $attendance['departure'] - $attendance['arrival'];
-                                        $workperc = ($attendance['hoursday'] / $total_workshit) * 100;
+                                        $workperc = 0;
+                                        if($total_workshift != 0) {
+                                            $workperc = ($attendance['hoursday'] / $total_workshift) * 100;
+                                        }
 
                                         if($attendance['arrival'] < 0) {
                                             $extra = '<';
