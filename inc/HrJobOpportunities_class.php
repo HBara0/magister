@@ -208,4 +208,24 @@ class HrJobOpportunities extends AbstractClass {
         return $this;
     }
 
+    /**
+     * get all applicants that are still active for current job opportunity
+     * @return boolean
+     */
+    public function get_active_applicants() {
+        $applicants = HrJobApplicants::get_data(array('joid' => $this->data[self::PRIMARY_KEY], 'isActive' => 1), array('returnarray' => true));
+        if(is_array($applicants)) {
+            return $applicants;
+        }
+        return false;
+    }
+
+    /**
+     * returns affiliate obj of current vacancy
+     * @return \Affiliates
+     */
+    public function get_affiliate() {
+        return new Affiliates(intval($this->data[Affiliates::PRIMARY_KEY]));
+    }
+
 }
