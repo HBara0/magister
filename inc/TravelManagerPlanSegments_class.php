@@ -229,7 +229,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                             else {
                                 $field = $lang->flightrainnumber;
                             }
-                            $this->errorcode = 9;
+                            $this->errorcode = 2;
                             $errorhandler->record('Required fields', $field.' in Segment '.$segmentdata['sequence']);
                             return $this;
                         }
@@ -295,7 +295,7 @@ class TravelManagerPlanSegments extends AbstractClass {
 //                    }
 
                     if($hotel['numNights'] > $segdays) {
-                        $this->errorcode = 9;
+                        $this->errorcode = 10;
                         $hotel = new TravelManagerHotels($hotel['tmhid']);
                         $errorhandler->record($lang->numnightsexceeded.'<br/>', $hotel->name);
                         return $this;
@@ -561,7 +561,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                         else {
                             $field = $lang->flightrainnumber;
                         }
-                        $this->errorcode = 9;
+                        $this->errorcode = 2;
                         $errorhandler->record('Required fields', $field.' in Segment '.$segmentdata['sequence']);
                         return $this;
                     }
@@ -636,7 +636,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                         }
                         if($hotel['numNights'] > $leavedays) {
                             $hotel = new TravelManagerHotels($hotel['tmhid']);
-                            $this->errorcode = 9;
+                            $this->errorcode = 10;
                             $errorhandler->record($lang->numnightsexceeded.'<br/>', $hotel->name.' in Segment '.$segmentdata['sequence']);
                             return $this;
                         }
