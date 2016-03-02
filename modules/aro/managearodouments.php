@@ -1073,7 +1073,7 @@ else {
                 break;
             case 5:
                 $error_output = $errorhandler->get_errors_inline();
-                output_xml('<status>false</status><message>Error in Approval Chain. <![CDATA[<br/>'.$error_output.']]> < /message> ');
+                output_xml('<status>false</status><message>Error in Approval Chain. <![CDATA[<br/>'.$error_output.']]></message>');
                 break;
         }
     }
