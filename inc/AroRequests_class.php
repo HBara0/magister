@@ -809,10 +809,10 @@ class AroRequests extends AbstractClass {
         }
     }
 
-    public function approve($user) {
+    public function approve($user, $timesapproved) {
         global $db;
         if($this->can_apporve($user)) {
-            $query = $db->update_query('aro_requests_approvals', array('isApproved' => 1, 'timeApproved' => TIME_NOW), ''.self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]).' AND uid='.$user->uid);
+            $query = $db->update_query('aro_requests_approvals', array('isApproved' => 1, 'timeApproved' => TIME_NOW, 'timesApproved' => $timesapproved), ''.self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]).' AND uid='.$user->uid);
             if($query) {
                 return true;
             }

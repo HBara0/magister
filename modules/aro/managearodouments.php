@@ -743,15 +743,16 @@ if(!($core->input['action'])) {
                         if($approver->uid == $core->user['uid']) {
                             $approvalobj = $aroorderrequest->get_nextapprover();
                             if(is_object($approvalobj)) {
+                                if($approver->firstEmailRecievedDate != 0) {  //glyphicon glyphicon-alert
+                                    if($timesapproved_output->timesApproved != 0) {
+                                        $timesapproved_output = 'Times Approved:'.$approvalobj->timesApproved;
+                                    }
+                                    $icons['reintializedapprovalprocess'] = '<span class="glyphicon glyphicon-exclamation-sign alert-danger" data-toggle="tooltip" title="Approval Process was reintialized!<br/>'.$timesapproved_output.'" ></span>';
+                                }
                                 if($approvalobj->uid == $core->user['uid']) {
                                     $approve = '<input type="button" id="approvearo" value="'.$lang->approve.'" class="btn btn-success"/>'//
                                             .'<input type="hidden" id="approvearo_id" value="'.$aroorderrequest->aorid.'"/>'.
                                             '<a  class="btn btn-danger" id="rejectarodocument_'.$aroorderrequest->aorid.'_aro/managearodouments_loadpopupbyid" style="margin-left:5px;vertical-align:top;padding-top:5px;"/>'.$lang->reject.'</a>';
-                                }
-                                else {
-                                    if($approver->firstEmailRecievedDate != 0) {  //glyphicon glyphicon-alert
-                                        $icons['reintializedapprovalprocess'] = '<span class="glyphicon glyphicon-exclamation-sign alert-danger" data-toggle="tooltip" title="Approval Process was reintialized!" ></span>';
-                                    }
                                 }
                             }
                         }
@@ -1773,11 +1774,11 @@ else {
     if($core->input['action'] == 'approvearo') {
         $arorequest = AroRequests::get_data(array('aorid' => intval($core->input['id'])));
         if(is_object($arorequest)) {
-            $aroapproval = AroRequestsApprovals::get_data(array('aorid' => $arorequest->aorid, 'uid' => $core->user['uid']));
+            $aroapproval = AroRequestsApprovals::get_data(array('aorid' => $arorequest->aorid, 'uid' => $core->user['uid']), array('simple' => false));
             if($aroapproval->isApproved == 0) {
                 $timesapproved = $aroapproval->timesApproved + 1;
                 $user = new Users($core->user['uid']);
-                $approve = $arorequest->approve($user);
+                $approve = $arorequest->approve($user, $timesapproved);
                 if($approve) {
                     $arorequest->inform_nextapprover();
 

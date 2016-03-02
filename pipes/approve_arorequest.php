@@ -30,7 +30,11 @@ if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject)) {
         }
     }
     else {
-        $approve = $arorequest->approve($user);
+        $aproval = AroRequestsApprovals::get_data(array('aorid' => $arorequest->aorid, 'uid' => $user->uid), array('simple' => false));
+        if(is_object($aproval)) {
+            $timesapproved = $aproval->timesApproved + 1;
+        }
+        $approve = $arorequest->approve($user, $timesapproved);
         if($approve) {
             $arorequest->inform_nextapprover();
         }

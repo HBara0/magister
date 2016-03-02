@@ -247,4 +247,11 @@ class TravelManagerHotels extends AbstractClass {
         }
     }
 
+    public function get_currency() {
+        if(!empty($this->data['currency'])) {
+            return new Currencies(intval($this->data['currency']));
+        }
+        return false;
+    }
+
 }
