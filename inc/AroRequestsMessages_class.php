@@ -147,10 +147,10 @@ class AroRequestsMessages extends AbstractClass {
                     // $message .= '<a href="'.$view_link.'">'.$lang->clicktoviewaro.'</a>| <a href="'.$reply_links.'">&#x21b6; '.$lang->reply.'</a><br/>';
                 }
                 if(!empty($message)) {
-                    $emailformatter = new EmailFormatting();
-                    $emailformatter->set_message(array('title' => $lang->aroconversation, 'message' => $message, 'viewpage' => $reply_links, 'replylink' => $reply_links));
-                    $message = $emailformatter->get_message();
-                    $mailer->set_message('__ARO NOTIFICATION__<br/>'.$message);
+                    $emailformatter = new EmailFormatting('standard');
+                    $emailformatter->set_title($lang->aroconversation)->set_message($message);
+                    $emailformatter->add_link('&#x21b6; '.$lang->reply, $reply_links);
+                    $mailer->set_message('__ARO NOTIFICATION__<br/>'.$emailformatter->get_message());
                     $mailer->set_to($emailreceiver);
                     $mailer->send();
                 }

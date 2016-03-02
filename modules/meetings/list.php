@@ -87,7 +87,7 @@ else {
             exit;
         }
         $meeting_objarray = $meeting_obj->get();
-        if(empty($meeting_objarray->meeting['mtid'])) {
+        if(empty($meeting_objarray['mtid'])) {
             exit;
         }
         $shared_users = $meeting_obj->get_shared_users();

@@ -542,11 +542,18 @@ class Meetings {
         $share_user = $user_obj->get();
 
         $lang->load('messages');
-        $meetinglink = '<a href="'.DOMAIN.'/index.php?module=meetings/viewmeeting&amp;referrer=list&amp;mtid='.$this->meeting['mtid'].'">'.$this->meeting['title'].'</a>';
+        $meetingurl = DOMAIN.'/index.php?module=meetings/viewmeeting&amp;referrer=list&amp;mtid='.$this->meeting['mtid'];
+        $subject = $lang->sprint($lang->meetings_sharemeeting_subject, $this->meeting['title']);
+        $message = $lang->sprint($lang->meetings_sharemeeting_message, $share_user['displayName'], $this->meeting['title']);
+
+        $emailformatter = new EmailFormatting('standard');
+        $emailformatter->set_title($subject)->set_message($message);
+        $emailformatter->add_link($lang->view, $meetingurl);
+
         $mailer = new Mailer();
         $mailer = $mailer->get_mailerobj();
-        $mailer->set_subject($lang->sprint($lang->meetings_sharemeeting_subject, $this->meeting['title']));
-        $mailer->set_message($lang->sprint($lang->meetings_sharemeeting_message, $share_user['displayName'], $meetinglink));
+        $mailer->set_subject($subject);
+        $mailer->set_message($emailformatter->get_message());
         $mailer->set_from(array('name' => $core->user['displayName'], 'email' => $core->user['email']));
         $mailer->set_to($share_user['email']);
         $mailer->send();

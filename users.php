@@ -93,15 +93,16 @@ if($core->input['action']) {
 
             $lang->resetemailmessage = $lang->sprint($lang->resetemailmessage, $new_details['firstName'], $new_details['password'], $core->settings['adminemail']);
 
-            $email_data = array(
-                    'to' => $email,
-                    'from_email' => $core->settings['adminemail'],
-                    'from' => 'OCOS Mailer',
-                    'subject' => $lang->yournewpassword,
-                    'message' => $lang->resetemailmessage
-            );
-            $mail = new Mailer($email_data, 'php');
-            if($mail->get_status() === true) {
+            $mailer = new Mailer();
+            $mailer = $mailer->get_mailerobj();
+            $mailer->set_layouttype('standard');
+            $mailer->set_from(array('name' => 'OCOS Mailer', 'email' => $core->settings['adminemail']));
+            $mailer->set_subject($lang->yournewpassword);
+            $mailer->set_message($lang->resetemailmessage);
+            $mailer->set_to($email);
+            $mailer->send();
+
+            if($mailer->get_status() === true) {
                 $modify = new ModifyAccount($new_details);
                 output_xml("<status>true</status><message>{$lang->emailsentcontainpassword}</message>");
             }
