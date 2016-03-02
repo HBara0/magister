@@ -1236,16 +1236,16 @@ else {
     }
     if($core->input['action'] == 'getwarehouses') {
         $warehouse_objs = Warehouses::get_data(array('affid' => $core->input['affid'], 'isActive' => 1), array('returnarray' => true));
-        $warehouse_list = parse_selectlist('parmsfornetmargin[warehouse]', 1, $warehouse_objs, '', '', '', array('id' => 'parmsfornetmargin_warehouse ', ' blankstart' => 1, 'width' => '100%'));
+        $warehouse_list = parse_selectlist('parmsfornetmargin[warehouse]', 1, $warehouse_objs, '', '', '', array('id' => 'parmsfornetmargin_warehouse', 'blankstart' => 1, 'width' => '100%'));
         output(($warehouse_list));
     }
     if($core->input['action'] == 'populateaffpolicy') {
         $aropolicy_data = array('parmsfornetmargin_localBankInterestRate' => '',
                 'parmsfornetmargin_localRiskRatio' => ''
         );
-        unset($core->input[' action'], $core->input['module']);
-        if($core->input[' affid'] != '' && !empty($core->input['affid']) && !empty($core->input['ptid']) && $core->input['ptid'] != '') {
-            $filter = 'affid = '.$core->input['affid'].' AND purchaseType = '.$core->input['ptid'].' AND isActive = 1 AND ('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
+        unset($core->input['action'], $core->input['module']);
+        if($core->input['affid'] != '' && !empty($core->input['affid']) && !empty($core->input['ptid']) && $core->input['ptid'] != '') {
+            $filter = 'affid='.$core->input['affid'].' AND purchaseType='.$core->input['ptid'].' AND isActive=1 AND ('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
             $filters['coid'] = 0;
             if(isset($core->input['coid']) && !empty($core->input['coid'])) {
                 $filters['coid'] = $core->input['coid'];
@@ -1273,7 +1273,7 @@ else {
     if($core->input['action'] == 'populateintermedaffpolicy') {
         $intermedpolicy_data = array('parmsfornetmargin_intermedBankInterestRate' => '');
         if($core->input ['intermedAff'] != '' && !empty($core->input['intermedAff']) && !empty($core->input['ptid']) && $core->input['ptid'] != '') {
-            $intermedpolicy_filter = 'affid = '.$core->input['intermedAff'].' AND purchaseType = '.$core->input['ptid'].' AND isActive = 1 AND ('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
+            $intermedpolicy_filter = 'affid='.$core->input['intermedAff'].' AND purchaseType='.$core->input['ptid'].' AND isActive = 1 AND ('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
             $intermedpolicy = AroPolicies::get_data($intermedpolicy_filter);
             if(!is_object($intermedpolicy)) {
                 output($lang->nointermedpolicy);
@@ -1620,7 +1620,7 @@ else {
     }
     if($core->input['action'] == 'popultedefaultaffpolicy') {
         if($core->input['affid'] != '' && !empty($core->input['affid']) && !empty($core->input['ptid']) && $core->input['ptid'] != '') {
-            $filter = 'affid = '.$core->input['affid'].' AND purchaseType = '.$core->input['ptid'].' AND isActive = 1 AND ('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
+            $filter = 'affid='.$core->input['affid'].' AND purchaseType='.$core->input['ptid'].' AND isActive=1 AND ('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
         }
         $filters['coid'] = 0;
         if(isset($core->input['coid']) && !empty($core->input['coid'])) {
@@ -1801,7 +1801,7 @@ else {
                                 'subject' => "ARO [".$arorequest->orderReference."] Approval Status",
                                 'message' => "Aro Request [".$arorequest->orderReference."] ".$aroaffiliate_obj->get_displayname()." ".$purchasteype_obj->get_displayname()." was approved by ".$user->get_displayname()
                         );
-                        $viewarolink = '<a href="'.$core->settings['rootdir'].'/index.php?module=aro/managearodouments&id='.$arorequest->aorid.'">Click here to view the ARO</a>';
+                        $viewarolink = '<a href = "'.$core->settings['rootdir'].'/index.php?module=aro/managearodouments&id='.$arorequest->aorid.'">Click here to view the ARO</a>';
                         $mailer = new Mailer();
                         $mailer = $mailer->get_mailerobj();
                         $mailer->set_type();
