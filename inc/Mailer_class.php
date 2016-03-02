@@ -316,6 +316,10 @@ class Mailer_oophp extends Mailer_functions {
 
     public function set_subject($subject) {
         $this->mail_data['subject'] = wordwrap(htmlspecialchars_decode($subject), 70);
+
+        if(is_object($this->emailformatter)) {
+            $this->emailformatter->set_title($this->mail_data['subject']);
+        }
     }
 
     public function set_message($message) {
@@ -340,6 +344,11 @@ class Mailer_oophp extends Mailer_functions {
         else {
             $this->mail_data['message'] = $this->fix_endofline($message);
         }
+
+        if(is_object($this->emailformatter)) {
+            $this->emailformatter->set_message($this->mail_data['message']);
+            $this->mail_data['message'] = $this->emailformatter->get_message();
+        }
     }
 
     private function parse_message_part($message, $type, $config = array()) {
@@ -360,6 +369,10 @@ class Mailer_oophp extends Mailer_functions {
 
     public function set_required_contenttypes(array $requiredcontenttypes = array('plain', 'html')) {
         $this->configs['requiredcontenttypes'] = $requiredcontenttypes;
+    }
+
+    public function set_layouttype($type) {
+        $this->emailformatter = new EmailFormatting($type);
     }
 
     public function send() {
