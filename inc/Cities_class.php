@@ -97,16 +97,17 @@ class Cities extends AbstractClass {
         global $lang, $core;
         $descity_reviewobjs = $this->get_reviews();
         if(is_array($descity_reviewobjs)) {
-            $cityprofile_output = '<div> <strong>'.$lang->cityreview.'</strong></div>';
+            $cityprofile_output = '<div class="col-xs-12 col-sm-6 col-md-6 col-lg-6"><div> <strong>'.$this->get_displayname().' '.$lang->cityreview.'</strong></div>';
             foreach($descity_reviewobjs as $city_reviewsobj) {
                 $destcityreview['review'] = $city_reviewsobj->get()[review];
                 $destcityreview['user'] = $city_reviewsobj->get_createdBy()->get();
                 $destcityreview['reviewdby'] = $destcityreview['user']['displayName'];
-                $cityprofile_output .='<div style="display:block;padding:8px;">
+                $cityprofile_output .=' <div style="display:block;padding:8px;">
                 <div>'.$destcityreview['review'].'</div>
                     <div class="smalltext"><a href="'.$core->settings['rootdir'].'/users.php?action=profile&uid='.$destcityreview['user']['uid'].'"  target="_blank">'.$destcityreview['reviewdby'].'</a></div>
                         </div>';
             }
+            $cityprofile_output .=' </div>';
         }
         return $cityprofile_output;
     }
@@ -115,13 +116,13 @@ class Cities extends AbstractClass {
         global $lang, $core;
         $city_briefingsobj = $this->get_latestbriefing();
         if(is_object($city_briefingsobj)) {
-            $citybriefings_output = ' <div><strong>'.$lang->citybrfg.'</strong></div>';
+            $citybriefings_output = '<div class="col-xs-12 col-sm-6 col-md-6 col-lg-6"> <div><strong>'.$this->get_displayname().' '.$lang->citybrfg.'</strong></div>';
             $destcitybriefing['briefing'] = $city_briefingsobj->get()['briefing'];
             $destcitybriefing['user'] = $city_briefingsobj->get_createdBy()->get();
             $destcitybriefing['briefedby'] = $destcitybriefing['user']['displayName'];
-            $citybriefings_output = '<div style="display:block;padding:8px;">
+            $citybriefings_output .= '<div style="display:block;padding:8px;">
          <div>'.$destcitybriefing['briefing'].'</div>
-         <div class="smalltext"><a href="'.$core->settings['rootdir'].'/users.php?action=profile&uid='.$destcitybriefing['user']['uid'].'" target="_blank">'.$destcitybriefing['briefedby'].'</a></div></div>';
+         <div class="smalltext"><a href="'.$core->settings['rootdir'].'/users.php?action=profile&uid='.$destcitybriefing['user']['uid'].'" target="_blank">'.$destcitybriefing['briefedby'].'</a></div></div></div>';
         }
 
         return $citybriefings_output;
