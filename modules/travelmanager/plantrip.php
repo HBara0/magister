@@ -528,6 +528,10 @@ else {
                     }
                     output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
                     break;
+                case 10:
+                    $error_output = $errorhandler->get_errors_inline();
+                    output_xml("<status>false</status><message>{$lang->numnightsexceeded}<![CDATA[<br/>{$error_output}]]></message>");
+                    exit;
             }
         }
     }

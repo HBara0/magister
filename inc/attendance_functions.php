@@ -329,8 +329,10 @@ function count_workingdays($uid, $check_dates_start, $check_dates_end, $is_whole
             $date_being_checked = $check_dates_start;
         }
 
-        if(in_array(date('N', $date_being_checked), $workdays)) {
-            $count_working_days++;
+        if(is_array($workdays)) {
+            if(in_array(date('N', $date_being_checked), $workdays)) {
+                $count_working_days++;
+            }
         }
 
         $date_being_checked = $date_being_checked + (60 * 60 * 24);
@@ -1264,12 +1266,15 @@ function parse_attendance_reports($core, $headerinc = '', $header = '', $menu = 
                                     else {
                                         /* LOG DATA */
                                         $attendance['date_output'] = date('d', $attendance['date']);
-                                        $total_workshit = (mktime($current_worshift['offDutyHour'], $current_worshift['offDutyMinutes'], 0, $curdate['mon'], $curdate['mday'], $curdate['year'])) - (mktime($current_worshift['onDutyHour'], $current_worshift['onDutyMinutes'], 0, $curdate['mon'], $curdate['mday'], $curdate['year']));
+                                        $total_workshift = (mktime($current_worshift['offDutyHour'], $current_worshift['offDutyMinutes'], 0, $curdate['mon'], $curdate['mday'], $curdate['year'])) - (mktime($current_worshift['onDutyHour'], $current_worshift['onDutyMinutes'], 0, $curdate['mon'], $curdate['mday'], $curdate['year']));
                                         $attendance['hoursday'] = ($attendance['timeOut']) - ( $attendance['timeIn']);
                                         $attendance['arrival'] = $attendance['timeIn'] - (mktime($current_worshift['onDutyHour'], $current_worshift['onDutyMinutes'], 0, $curdate['mon'], $curdate['mday'], $curdate['year']));
                                         $attendance['departure'] = $attendance['timeOut'] - (mktime($current_worshift['offDutyHour'], $current_worshift['offDutyMinutes'], 0, $curdate['mon'], $curdate['mday'], $curdate['year']));
                                         $attendance['deviation'] = $attendance['departure'] - $attendance['arrival'];
-                                        $workperc = ($attendance['hoursday'] / $total_workshit) * 100;
+                                        $workperc = 0;
+                                        if($total_workshift != 0) {
+                                            $workperc = ($attendance['hoursday'] / $total_workshift) * 100;
+                                        }
 
                                         if($attendance['arrival'] < 0) {
                                             $extra = '<';
@@ -1577,7 +1582,7 @@ function reinitialize_balance($user, $type, $prevbalance = null) {
     if(empty($hr_info['joinDate'])) {
         return;
     }
-
+    $joindate_year = date('Y', $hr_info['joinDate']);
     $leaves_objs = Leaves::get_data('uid='.$user->uid.' AND (type='.intval($type).' OR type IN (SELECT ltid FROM leavetypes WHERE countWith='.intval($type).'))', array('order' => array('by' => 'fromDate', 'sort' => 'ASC'), 'returnarray' => true));
     if(is_array($leaves_objs)) {
         foreach($leaves_objs as $leave) {
@@ -1598,6 +1603,7 @@ function reinitialize_balance($user, $type, $prevbalance = null) {
         }
     }
     if(is_array($leaves)) {
+        $existing_years = array();
         $db->update_query(AttendanceAddDays::TABLE_NAME, array('isCounted' => 0), 'uid='.$user->get_id());
         $prevbalanceset = false;
         foreach($leaves as $leave) {
@@ -1620,6 +1626,8 @@ function reinitialize_balance($user, $type, $prevbalance = null) {
                             $existing_stat->set(array('remainPrevYear' => $remainprevyear, 'canTake' => $existing_stat->canTake + $remainprevyear));
                             $existing_stat->save();
                             unset($remainprevyear);
+                            //get year of the newly calculated leave stat period
+                            $existing_years[] = date('Y', $leave['fromDate']);
                         }
                         $prevbalanceset = true;
                     }
@@ -1635,17 +1643,19 @@ function reinitialize_balance($user, $type, $prevbalance = null) {
             }
         }
     }
-
-    //check if a leave stat exists for current year
-    $startofcurrentyear = mktime(0, 0, 0, 1, 1, date('Y'));
-    $existingstat_foryear = LeavesStats::get_data('uid = '.$user->get_id().' AND ltid='.$type.' AND periodStart > '.$startofcurrentyear, array('returnarray' => true));
-    //if no stats existing then calculate the new stat for the year based upon a dummy leave
-    if(!is_array($existingstat_foryear)) {
-        $from = strtotime((date('Y')).'-01-01 08:00:00');
-        $to = strtotime((date('Y')).'-01-01 17:00:00');
+    //go through all years from user join date till this one
+    while($joindate_year <= date('Y')) {
+        //if leave stat already created for this year skip
+        if(is_array($existing_years) && in_array($joindate_year, $existing_years)) {
+            continue;
+        }
+        //calculate leavestat
+        $from = strtotime($joindate_year.'-01-01 08:00:00');
+        $to = strtotime($joindate_year.'-01-01 17:00:00');
         $data = array('uid' => $user->get_id(), 'fromDate' => $from, 'toDate' => $to, 'skipWorkingDays' => true, 'type' => $type);
         $stat = new LeavesStats();
         $stat->generate_periodbased($data);
+        $joindate_year++;
     }
 }
 
