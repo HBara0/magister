@@ -15,6 +15,7 @@ if($core->usergroup['canAdminCP'] == 1) {
     eval("\$header = \"".$template->get("navbar")."\";");
     eval("\$footer = \"".$template->get("footer2")."\";");
     // eval("\$menu = \"".$template->get("admin_mainmenu")."\";");
+    $run_module = 'admincp';
     eval("\$rightsidemenu = \"".$template->get('rightside_menu')."\";");
 
     $modules_dir = ROOT."/".ADMIN_DIR."/modules";

@@ -1,4 +1,4 @@
-<span style="margin-right:10px;"><a href="{$_SERVER[HTTP_REFERER]}">&laquo; {$lang->goback}</a></span></td>
+<span style="margin-right:10px;"><a href="{$_SERVER[HTTP_REFERER]}">&laquo; {$lang->goback}</a></span>
 <table width="100%" border="0" cellspacing="0" cellpadding="0">
     <tr>
         <td colspan="2"><h1>{$profile[firstName]}, {$profile[middleName]} {$profile[lastName]}  ({$profile[displayName]})</h1></td>

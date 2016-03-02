@@ -15,18 +15,14 @@
 
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle scrollable-menu " data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" id="switch_modules"><span class="glyphicon glyphicon-th-large"></span> Main Menu <span class="caret"></span></a>
-                    <ul class="dropdown-menu">
+                    <ul class="dropdown-menu" style="max-height: 250px;overflow: auto">
                         <li class="dropdown-header">Frequently Used</li>
                         <li><a href="#">Attendance</a></li>
                         <li><a href="#">Budgets</a></li>
                         <li><a href="#">Reports</a></li>
                         <li role="separator" class="divider"></li>
                         <li class="dropdown-header">Others</li>
-                        <li><a href="#">ARO</a></li>
-                        <li><a href="#">CRM</a></li>
-                        <li><a href="#">Facility Management</a></li>
-                        <li><a href="#">Warehouse Management</a></li>
-
+                            {$modules_list}
                     </ul>
                 </li>
             </ul>
@@ -49,10 +45,10 @@
                 <li class="dropdown" id="userprofile_menu">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-user"></span> {$core->user[displayName]}<span class="sr-only">(current)</span> <span class="caret"></span></a>
                     <ul class="dropdown-menu">
-                        <li ><a href="#">Edit Profile</a></li>
-                        <li><a href="#">Admin CP</a></li>
+                        <li ><a href="{$settings[rootdir]}/users.php?action=profile&amp;do=edit">{$lang->edityouraccount}</a></li>
+                        <li>{$admincplink}</li>
                         <li  class="divider" role="separator"></li>
-                        <li><a href="#">Log Out</a></li>
+                        <li><a href='{$settings[rootdir]}/users.php?action=do_logout'>{$lang->logout}</a></li>
 
                     </ul>
                 </li>

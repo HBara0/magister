@@ -164,7 +164,7 @@ $(function() {
             function() {
                 $(this).removeClass("mainmenuitem_hover");
             });
-    $("#mainmenu > li[class='expandable']").find("span:first").click(function() {
+    $("#mainmenu > li[class^='expandable']").find("span:first").click(function() {
         $(this).parent().removeClass("mainmenuitem_hover");
         $("#" + $(this).attr("id") + "_children_container").slideToggle();
     });
