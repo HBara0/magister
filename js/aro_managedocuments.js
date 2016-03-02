@@ -96,8 +96,8 @@ $(function() {
         var ptid = $(this).data('purchasetype');
         var inputChecksum = $("input[id='inputChecksum']").val();
         var coid = $("input[id$='countries_1_id']").val();
-        sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populatedocnum&affid= ' + affid + '&ptid= ' + ptid + '&inputChecksum=' + inputChecksum + '&coid=' + coid);
-        sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populateaffpolicy&affid= ' + affid + '&ptid= ' + ptid + '&coid=' + coid);
+        sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populatedocnum&affid=' + affid + '&ptid=' + ptid + '&inputChecksum=' + inputChecksum + '&coid=' + coid);
+        sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populateaffpolicy&affid=' + affid + '&ptid=' + ptid + '&coid=' + coid);
         var aroBusinessManager = '';
         if(typeof $("input[id='user_0_id']").val() != "undefined") {
             aroBusinessManager = $("input[id='user_0_id']").val();
@@ -239,7 +239,7 @@ $(function() {
         var intermedAff = $("select[id='partiesinfo_intermed_aff']").val();
         var estimatedImtermedPayment = $("input[id='pickDate_intermed_estdateofpayment']").val();
         var estimatedManufacturerPayment = $("input[id='pickDate_vendor_estdateofpayment']").val();
-        sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populateintermedaffpolicy&ptid= ' + ptid + '&intermedAff=' + intermedAff + '&estimatedImtermedPayment=' + estimatedImtermedPayment + '&estimatedManufacturerPayment=' + estimatedManufacturerPayment);
+        sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populateintermedaffpolicy&ptid=' + ptid + '&intermedAff=' + intermedAff + '&estimatedImtermedPayment=' + estimatedImtermedPayment + '&estimatedManufacturerPayment=' + estimatedManufacturerPayment);
 //        var triggercomm = setTimeout(function() {
 //            $("input[id$='_intialPrice']").trigger("change");
 //        }, 2000);
@@ -270,7 +270,7 @@ $(function() {
         var warehouse = $(this).val();
         var ptid = $("#purchasetype").val();
         if(warehouse !== '' && warehouse !== typeof undefined) {
-            $.getJSON(rootdir + 'index.php?module=aro/managearodouments&action=populatewarehousepolicy&warehouse= ' + warehouse + '&ptid=' + ptid, function(data) {
+            $.getJSON(rootdir + 'index.php?module=aro/managearodouments&action=populatewarehousepolicy&warehouse=' + warehouse + '&ptid=' + ptid, function(data) {
                 var jsonStr = JSON.stringify(data);
                 obj = JSON.parse(jsonStr);
                 jQuery.each(obj, function(i, val) {

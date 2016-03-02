@@ -845,15 +845,18 @@ if(!($core->input['action'])) {
                 if(is_object($RIC_customer_obj)) {
                     $foreignid = $db->fetch_field($db->query('SELECT foreignId FROM integration_mediation_entities WHERE foreignSystem=3 AND localId="'.$customer->cid.'"'), 'foreignId');
                 }
-                $salesinvoice_filters .=" AND c_bpartner_id = '".$foreignid."'";
-                $purchaseorderperaff_filters .=" AND c_bpartner_id = '".$foreignid."'";
-                $purchaseorder_filters = " AND c_bpartner_id = '".$foreignid."'";
+                if(!empty($foreignid)) {
+                    $salesinvoice_filters .=" AND c_invoice.c_bpartner_id = '".$foreignid."'";
+                    $purchaseorderperaff_filters .=" AND o.c_bpartner_id = '".$foreignid."'";
+                    $purchaseorder_filters = " AND o.c_bpartner_id = '".$foreignid."'";
+                }
             }
 
             //Shown only to COO, Financial manager and country supervisor
             $canviewcomparison[] = $aff_obj->get_regionalsupervisor()->uid;
             $canviewcomparison[] = $aff_obj->get_coo()->uid;
-            $canviewcomparison[] = $aff_obj->get_financialemanager()->uid; // 362;
+            $canviewcomparison[] = $aff_obj->get_financialemanager()->uid;
+            $canviewcomparison[] = 362;
             if(is_object($intermedaffiliate)) {
                 $canviewcomparison[] = $intermedaffiliate->get_financialemanager()->uid;
             }
@@ -864,74 +867,77 @@ if(!($core->input['action'])) {
 
                 $orderlines = new IntegrationOBOrderLine(null); // purchase price
                 $cs_altrow = 'altrow';
-                foreach($comparison_products as $pid => $product) {
-                    if(empty($cs_altrow)) {
-                        $cs_altrow = 'altrow';
-                    }
-                    else {
-                        $cs_altrow = '';
-                    }
-                    $product_obj = Products::get_data(array('pid' => $pid));
-                    //GET SALES INVOICES SUMMARY FOR SELLING PRICE AVERAGES
-                    $data = $invoicelines->get_salesinvoicesummary($product, $salesinvoice_filters);
-                    $vendorincoterm_obj = new Incoterms($selected_incoterms['vendor']);
+                if(is_array($comparison_products)) {
+                    $comparison_products = array_filter($comparison_products);
+                    foreach($comparison_products as $pid => $product) {
+                        if(empty($cs_altrow)) {
+                            $cs_altrow = 'altrow';
+                        }
+                        else {
+                            $cs_altrow = '';
+                        }
+                        $product_obj = Products::get_data(array('pid' => $pid));
+                        //GET SALES INVOICES SUMMARY FOR SELLING PRICE AVERAGES
+                        $data = $invoicelines->get_salesinvoicesummary($product, $salesinvoice_filters);
+                        $vendorincoterm_obj = new Incoterms($selected_incoterms['vendor']);
 
-                    $purchases_data['aff'] = $orderlines->get_purchaseorders_summary($product, $purchaseorderperaff_filters, $vendorincoterm_obj->titleAbbr);
-                    $purchases_data['allaff'] = $orderlines->get_purchaseorders_summary($product, $purchaseorder_filters, $vendorincoterm_obj->titleAbbr);
-                    if(is_array($data)) {
-                        $i = 0;
-                        foreach($data as $invoiceline) {
-                            if($i == 0) {
-                                $lastorder['sellingprice'] = $invoiceline['priceactual'];
-                                $lastorder['netdays'] = $invoiceline['netdays'];
-                            }
-                            if($i < 5) {
-                                $lastfiveorders['sellingprice'] += $invoiceline['priceactual'];
-                                $lastfiveorders['netdays'] += $invoiceline['netdays'];
-                            }
-                            $lasttenorders['sellingprice'] += $invoiceline['priceactual'];
-                            $lasttenorders['netdays'] += $invoiceline['netdays'];
-                            $i++;
-                        }
-                        $lastfiveorders['avgsellingprice'] = $lastfiveorders['sellingprice'] / 5;
-                        $lastfiveorders['avgnetdays'] = $lastfiveorders['netdays'] / 5;
-                        $lasttenorders['avgsellingprice'] = $lasttenorders['sellingprice'] / 10;
-                        $lasttenorders['avgnetdays'] = $lasttenorders['netdays'] / 10;
-                        $output .= '<tr class='.$cs_altrow.'><td>'.$lang->sellingprice.'</td><td>'.$product_obj->get_displayname().'</td><td>'.$lastorder['sellingprice'].'</td><td>'.$lastfiveorders['avgsellingprice'].'</td><td>'.$lasttenorders['avgsellingprice'].'</td></tr>';
-                        $output .= '<tr class='.$cs_altrow.'><td>'.$lang->creditdays.'</td><td>'.$product_obj->get_displayname().'</td><td>'.$lastorder['netdays'].'</td><td>'.$lastfiveorders['avgnetdays'].'</td><td>'.$lasttenorders['avgnetdays'].'</td></tr>';
-                    }
-                    if(is_array($purchases_data)) {
-                        foreach($purchases_data as $key => $purchasedata) {
-                            switch($key) {
-                                case 'aff':
-                                    $label = $aff_obj->get_displayname();
-                                    break;
-                                case 'allaff':
-                                    $label = 'All Affiliates';
-                                    break;
-                                default:
-                                    break;
-                            }
-                            if(is_array($purchasedata)) {
-                                $z = 0;
-                                foreach($purchasedata as $purchaseline) {
-                                    if($z == 0) {
-                                        $lastorder['purchaseprice'] = $purchaseline['priceactual'];
-                                    }
-                                    if($z < 5) {
-                                        $lastfiveorders['purchaseprice'] += $purchaseline['priceactual'];
-                                    }
-                                    $lasttenorders['purchaseprice'] += $purchaseline['priceactual'];
-                                    $z++;
+                        $purchases_data['aff'] = $orderlines->get_purchaseorders_summary($product, $purchaseorderperaff_filters, $vendorincoterm_obj->titleAbbr);
+                        $purchases_data['allaff'] = $orderlines->get_purchaseorders_summary($product, $purchaseorder_filters, $vendorincoterm_obj->titleAbbr);
+                        if(is_array($data)) {
+                            $i = 0;
+                            foreach($data as $invoiceline) {
+                                if($i == 0) {
+                                    $lastorder['sellingprice'] = $invoiceline['priceactual'];
+                                    $lastorder['netdays'] = $invoiceline['netdays'];
                                 }
-                                $lastfiveorders['avgpurchaseprice'] = $lastfiveorders['purchaseprice'] / 5;
-                                $lasttenorders['avgpurchaseprice'] = $lasttenorders['purchaseprice'] / 10;
-                                $output .= '<tr class="'.$cs_altrow.'"><td>'.$lang->sellingprice.'/ '.$label.'</td><td>'.$product_obj->get_displayname().'</td><td>'.$lastorder['purchaseprice'].'</td><td>'.$lastfiveorders['avgpurchaseprice'].'</td><td>'.$lasttenorders['avgpurchaseprice'].'</td></tr>';
+                                if($i < 5) {
+                                    $lastfiveorders['sellingprice'] += $invoiceline['priceactual'];
+                                    $lastfiveorders['netdays'] += $invoiceline['netdays'];
+                                }
+                                $lasttenorders['sellingprice'] += $invoiceline['priceactual'];
+                                $lasttenorders['netdays'] += $invoiceline['netdays'];
+                                $i++;
+                            }
+                            $lastfiveorders['avgsellingprice'] = $lastfiveorders['sellingprice'] / 5;
+                            $lastfiveorders['avgnetdays'] = $lastfiveorders['netdays'] / 5;
+                            $lasttenorders['avgsellingprice'] = $lasttenorders['sellingprice'] / 10;
+                            $lasttenorders['avgnetdays'] = $lasttenorders['netdays'] / 10;
+                            $output .= '<tr class='.$cs_altrow.'><td>'.$lang->sellingprice.'</td><td>'.$product_obj->get_displayname().'</td><td>'.$lastorder['sellingprice'].'</td><td>'.$lastfiveorders['avgsellingprice'].'</td><td>'.$lasttenorders['avgsellingprice'].'</td></tr>';
+                            $output .= '<tr class='.$cs_altrow.'><td>'.$lang->creditdays.'</td><td>'.$product_obj->get_displayname().'</td><td>'.$lastorder['netdays'].'</td><td>'.$lastfiveorders['avgnetdays'].'</td><td>'.$lasttenorders['avgnetdays'].'</td></tr>';
+                        }
+                        if(is_array($purchases_data)) {
+                            foreach($purchases_data as $key => $purchasedata) {
+                                switch($key) {
+                                    case 'aff':
+                                        $label = $aff_obj->get_displayname();
+                                        break;
+                                    case 'allaff':
+                                        $label = 'All Affiliates';
+                                        break;
+                                    default:
+                                        break;
+                                }
+                                if(is_array($purchasedata)) {
+                                    $z = 0;
+                                    foreach($purchasedata as $purchaseline) {
+                                        if($z == 0) {
+                                            $lastorder['purchaseprice'] = $purchaseline['priceactual'];
+                                        }
+                                        if($z < 5) {
+                                            $lastfiveorders['purchaseprice'] += $purchaseline['priceactual'];
+                                        }
+                                        $lasttenorders['purchaseprice'] += $purchaseline['priceactual'];
+                                        $z++;
+                                    }
+                                    $lastfiveorders['avgpurchaseprice'] = $lastfiveorders['purchaseprice'] / 5;
+                                    $lasttenorders['avgpurchaseprice'] = $lasttenorders['purchaseprice'] / 10;
+                                    $output .= '<tr class="'.$cs_altrow.'"><td>'.$lang->sellingprice.'/ '.$label.'</td><td>'.$product_obj->get_displayname().'</td><td>'.$lastorder['purchaseprice'].'</td><td>'.$lastfiveorders['avgpurchaseprice'].'</td><td>'.$lasttenorders['avgpurchaseprice'].'</td></tr>';
+                                }
                             }
                         }
+                        unset($lasttenorders, $lastfiveorders, $lastorder);
+                        eval("\$comparisonstudy = \"".$template->get('aro_comparisonstudy')."\";");
                     }
-                    unset($lasttenorders, $lastfiveorders, $lastorder);
-                    eval("\$comparisonstudy = \"".$template->get('aro_comparisonstudy')."\";");
                 }
             }
         }
@@ -1229,16 +1235,16 @@ else {
     }
     if($core->input['action'] == 'getwarehouses') {
         $warehouse_objs = Warehouses::get_data(array('affid' => $core->input['affid'], 'isActive' => 1), array('returnarray' => true));
-        $warehouse_list = parse_selectlist('parmsfornetmargin[warehouse]', 1, $warehouse_objs, '', '', '', array('id' => 'parmsfornetmargin_warehouse ', ' blankstart' => 1, 'width' => '100%'));
+        $warehouse_list = parse_selectlist('parmsfornetmargin[warehouse]', 1, $warehouse_objs, '', '', '', array('id' => 'parmsfornetmargin_warehouse', 'blankstart' => 1, 'width' => '100%'));
         output(($warehouse_list));
     }
     if($core->input['action'] == 'populateaffpolicy') {
         $aropolicy_data = array('parmsfornetmargin_localBankInterestRate' => '',
                 'parmsfornetmargin_localRiskRatio' => ''
         );
-        unset($core->input[' action'], $core->input['module']);
-        if($core->input[' affid'] != '' && !empty($core->input['affid']) && !empty($core->input['ptid']) && $core->input['ptid'] != '') {
-            $filter = 'affid = '.$core->input['affid'].' AND purchaseType = '.$core->input['ptid'].' AND isActive = 1 AND ('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
+        unset($core->input['action'], $core->input['module']);
+        if($core->input['affid'] != '' && !empty($core->input['affid']) && !empty($core->input['ptid']) && $core->input['ptid'] != '') {
+            $filter = 'affid='.$core->input['affid'].' AND purchaseType='.$core->input['ptid'].' AND isActive=1 AND ('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
             $filters['coid'] = 0;
             if(isset($core->input['coid']) && !empty($core->input['coid'])) {
                 $filters['coid'] = $core->input['coid'];
@@ -1266,7 +1272,7 @@ else {
     if($core->input['action'] == 'populateintermedaffpolicy') {
         $intermedpolicy_data = array('parmsfornetmargin_intermedBankInterestRate' => '');
         if($core->input ['intermedAff'] != '' && !empty($core->input['intermedAff']) && !empty($core->input['ptid']) && $core->input['ptid'] != '') {
-            $intermedpolicy_filter = 'affid = '.$core->input['intermedAff'].' AND purchaseType = '.$core->input['ptid'].' AND isActive = 1 AND ('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
+            $intermedpolicy_filter = 'affid='.$core->input['intermedAff'].' AND purchaseType='.$core->input['ptid'].' AND isActive = 1 AND ('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
             $intermedpolicy = AroPolicies::get_data($intermedpolicy_filter);
             if(!is_object($intermedpolicy)) {
                 output($lang->nointermedpolicy);
@@ -1613,7 +1619,7 @@ else {
     }
     if($core->input['action'] == 'popultedefaultaffpolicy') {
         if($core->input['affid'] != '' && !empty($core->input['affid']) && !empty($core->input['ptid']) && $core->input['ptid'] != '') {
-            $filter = 'affid = '.$core->input['affid'].' AND purchaseType = '.$core->input['ptid'].' AND isActive = 1 AND ('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
+            $filter = 'affid='.$core->input['affid'].' AND purchaseType='.$core->input['ptid'].' AND isActive=1 AND ('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
         }
         $filters['coid'] = 0;
         if(isset($core->input['coid']) && !empty($core->input['coid'])) {
@@ -1793,7 +1799,7 @@ else {
                                 'subject' => "ARO [".$arorequest->orderReference."] Approval Status",
                                 'message' => "Aro Request [".$arorequest->orderReference."] ".$aroaffiliate_obj->get_displayname()." ".$purchasteype_obj->get_displayname()." was approved by ".$user->get_displayname()
                         );
-                        $viewarolink = '<a href="'.$core->settings['rootdir'].'/index.php?module=aro/managearodouments&id='.$arorequest->aorid.'">Click here to view the ARO</a>';
+                        $viewarolink = '<a href = "'.$core->settings['rootdir'].'/index.php?module=aro/managearodouments&id='.$arorequest->aorid.'">Click here to view the ARO</a>';
                         $mailer = new Mailer();
                         $mailer = $mailer->get_mailerobj();
                         $mailer->set_type();
