@@ -3,6 +3,7 @@
     <p>
     <table>
         <thead>
+            {$extraheader_row}
             <tr style="vertical-align: top;{$bold}">
                 <td class="border_right" rowspan="2" valign="top" align="center" style="width:150px;">{$lang->product}</td>
                 <td class="border_right" rowspan="2" valign="top" align="center" style="width:100px;">{$lang->packaging}</td>
@@ -11,6 +12,7 @@
                 <td class="border_right" rowspan="2" valign="top" align="center" style="width:150px;">{$lang->dateofstockentry}</td>
                 <td class="border_right" rowspan="2" valign="top" align="center" style="width:100px;">{$lang->expirydate}</td>
                 <td class="border_right" rowspan="2" valign="top" align="center" style="width:150px;">{$lang->estdateofsale} </td>
+                {$extraheader_fields}
         </thead>
 
         <tbody id="currentstockrow_{$csrowid}_tbody" style="width:100%;" class="{$datatable}">

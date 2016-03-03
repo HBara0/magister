@@ -10,7 +10,7 @@
                     $("div[id^='salesreport_endofmonth']").show();
 
                     var id = $(this).attr("id")
-                    var value = $(this).attr("value")
+                    var value = $(this).val();
                     $("div[id$=_reporttype]").not([id ^= '" + $(this).val() + "']).hide();
                     $("div[id^='" + value + "']").show(1000);
                     if(value == 'endofmonth') {

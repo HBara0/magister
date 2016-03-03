@@ -513,26 +513,25 @@ class IntegrationOB extends Integration {
 
     public function get_fifoinputsalternative(array $organisations, array $options) {
         global $core;
-        $bm = Users::get_data(array('uid' => $core->user['uid'], array('simple' => false)));
-        $permissions = $bm->get_businesspermissions();
-//        $permissions['psid'][] = 25;
-//        $permissions['psid'][] = 2;
-//        $permissions['psid'][] = 1;
-        /**
-         * If report type is BM stock report filter query by BM segments
-         */
-        if(is_array($permissions['psid'])) {
-            foreach($permissions['psid'] as $psid) {
-                $prodseg_obj = ProductsSegments::get_data(array('psid' => $psid), array('simple' => false));
-                $bm_segments[] = $prodseg_obj->get_segment_integrationOBId();
+        if(isset($options['bm']) && !empty($options['bm'])) {
+            /**
+             * If report type is BM stock report filter query by BM segments
+             */
+            $bm = Users::get_data(array('uid' => $options['bm'], array('simple' => false)));
+            $permissions = $bm->get_businesspermissions();
+            if(is_array($permissions['psid'])) {
+                foreach($permissions['psid'] as $psid) {
+                    $prodseg_obj = ProductsSegments::get_data(array('psid' => $psid), array('simple' => false));
+                    $bm_segments[] = $prodseg_obj->get_segment_integrationOBId();
+                }
+            }
+            if(is_array($bm_segments)) {
+                $bm_extra_join = " JOIN m_product p ON (t.m_product_id=p.m_product_id) ";
+                $bm_extra_where = " AND  p.m_product_category_id IN ('".implode('\',\'', $bm_segments)."')";
             }
         }
-        if(is_array($bm_segments)) {
-            $bm_extra_join = " JOIN m_product p ON (t.m_product_id=p.m_product_id) ";
-            $bm_extra_where = " AND  p.m_product_category_id IN ('".implode('\',\'', $bm_segments)."')";
-        }
         /**
-         * B report filters -END
+         * BM report filters -END
          */
         $query = $this->f_db->query("SELECT t.m_attributesetinstance_id, t.m_product_id,SUM(t.movementqty) AS remainingQty
                                                                         FROM m_transaction t ".$bm_extra_join."

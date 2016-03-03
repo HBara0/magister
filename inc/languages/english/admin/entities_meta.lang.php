@@ -130,4 +130,13 @@ $lang['mainEmail'] = 'Main Email';
 $lang['website'] = 'Website';
 $lang['pleasewaitfordownload'] = 'Please Wait For Download';
 $lang['repnamenotallowed'] = 'Representative Name Not Allowed';
+$lang['ourrepresentatives'] = 'Our Representatives';
+$lang['contactperson'] = 'Contact Person';
+$lang['ispotential'] = 'Is Potential';
+$lang['building'] = 'Building';
+$lang['floor'] = 'Floor';
+$lang['postalcode'] = 'Postal Code';
+$lang['pobox'] = 'PO Box';
+$lang['phoneextension'] = 'Phone Extension';
+$lang['position'] = 'Position';
 ?>

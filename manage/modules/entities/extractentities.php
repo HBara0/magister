@@ -212,6 +212,25 @@ else {
                                             if(is_object($entirty_country)) {
                                                 $entity['companyCountry_output'] = $entirty_country->get_displayname();
                                             }
+                                            //get company city
+                                            $entity_city = $entity_obj->get_city();
+                                            if(is_object($entity_city)) {
+                                                $entity['companyCity_output'] = $entity_city->get_displayname();
+                                            }
+                                            //get assigned employees
+                                            $assignedemoployees_obj = $entity_obj->get_assignedusers();
+                                            if(is_array($assignedemoployees_obj)) {
+                                                $assignedemployees_array = array();
+                                                foreach($assignedemoployees_obj as $assigned_obj) {
+                                                    $assignedemployees_array[] = $assigned_obj->get_displayname();
+                                                }
+                                                $entity['asssignedemployees_output'] = implode(';', $assignedemployees_array);
+                                            }
+                                            //get if company is active
+                                            $entity['isactive_output'] = 'n';
+                                            if($entity['isActive'] == 1) {
+                                                $entity['isactive_output'] = 'y';
+                                            }
                                             //get all representatives for the company and parse them in a single TD
                                             $representatives = $entity_obj->get_representatives();
                                             if(is_array($representatives)) {
@@ -226,9 +245,9 @@ else {
                                                         $rep_field['phone'] = ' - ';
                                                     }
                                                     $rep_field['rpid'] = $representative->rpid;
-                                                    $rep_field['isactive_output'] = 'no';
-                                                    if($rep_field['isactive_output']) {
-                                                        $rep_field['isactive_output'] = 'yes';
+                                                    $rep_field['isactive_output'] = 'n';
+                                                    if($rep_field['isActive'] == 1) {
+                                                        $rep_field['isactive_output'] = 'y';
                                                     }
                                                     eval("\$entityrows.=\"".$template->get("admin_entities_extractentities_affiliate_segment_entityrow")."\";");
                                                     unset($rep_field);
@@ -240,6 +259,7 @@ else {
                                                 unset($rep_field);
                                             }
                                         }
+                                        unset($entity);
                                     }
                                 }
                                 if(is_object($segment)) {
