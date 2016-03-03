@@ -305,16 +305,17 @@ if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject) || $ignore_su
                 if(is_object($main_affiliate) && !empty($main_affiliate->cpAccount) && $leave_obj->createAutoResp = 1) {
                     $leave_obj->create_autoresponder();
                 }
-                $email_data = array(
-                        'from_email' => 'attendance@ocos.orkila.com',
-                        'from' => 'Orkila Attendance System',
-                        'to' => $mailinglists,
-                        'subject' => $lang->leavenotificationsubject,
-                        'message' => $lang->leavenotificationmessage
-                );
 
-                $mail = new Mailer($email_data, 'php');
-                if($mail->get_status() == true) {
+                $mailer = new Mailer();
+                $mailer = $mailer->get_mailerobj();
+                $mailer->set_layouttype('standard');
+                $mailer->set_from(array('name' => 'Orkila Attendance System', 'email' => 'attendance@ocos.orkila.com'));
+                $mailer->set_subject($lang->leavenotificationsubject);
+                $mailer->set_message($lang->leavenotificationmessage);
+                $mailer->set_to($mailinglists);
+                $mailer->send();
+
+                if($mailer->get_status() == true) {
                     $travelmanager_plan = TravelManagerPlan::get_plan(array('lid' => $leave['lid']), array('returnarray' => false));
                     if(is_object($travelmanager_plan)) {
                         $planid = $travelmanager_plan->tmpid;

@@ -10,31 +10,63 @@
 require '../inc/init.php';
 
 ini_set('max_execution_time', 0);
-$rates = CurrenciesFxRate::get_data(array('baseCurrency' => 840, 'currency' => 978), array('returnarray' => 'true'));
-$fixedusdrate = 1507.5;
+$currency['from']['ocos'] = 840;
+$currency['from']['ob'] = 100;
+
+$currency['to']['ocos'] = 978;
+$currency['to']['ob'] = 102;
+$startingdate = '2015-04-17';
+
+echo "Started...<br />";
+$rates = CurrenciesFxRate::get_data(array('baseCurrency' => $currency['from']['ocos'], 'currency' => $currency['to']['ocos']), array('returnarray' => 'true'));
+echo "Getting Rates...<br />";
+//$fixedusdrate = 1507.5;
 foreach($rates as $rate) {
-    if($rate->date < 1429228800) {
+    if($rate->date < strtotime($startingdate)) {
         continue;
     }
-    $url = 'http://dev-server.orkilalb.local:8080/Openbravo-online-2015-12-29/org.openbravo.service.json.jsonrest/CurrencyConversionRate';
-
-    $conv['opposite'] = 1 / $rate->rate;
-    $conv['newrate'] = $conv['opposite'] * $fixedusdrate;
-
+    $url = 'http://openbravo.orkila.com:8080/openbravo/org.openbravo.service.json.jsonrest/CurrencyConversionRate';
+    // $url = 'http://dev-server.orkilalb.local:8080/openbravo-repo/org.openbravo.service.json.jsonrest/CurrencyConversionRate';
+    if(isset($fixedusdrate) && $fixedusdrate > 0) {
+        $conv['opposite'] = 1 / $rate->rate;
+        $conv['newrate'] = $conv['opposite'] * $fixedusdrate;
+    }
+    else {
+        $conv['newrate'] = $rate->rate;
+    }
     $data['data'] = array(
             "entityName" => "CurrencyConversionRate",
             "active" => true,
-            "currency" => array("id" => "102"),
-            "toCurrency" => array("id" => "342"),
+            "currency" => array("id" => "".$currency['from']['ob'].""),
+            "toCurrency" => array("id" => "".$currency['to']['ob'].""),
             "validFromDate" => date('Y-m-d 00:00:00', $rate->date),
             "validToDate" => date('Y-m-d 00:00:00', $rate->date),
             "conversionRateType" => "S",
-            "multipleRateBy" => $conv[newrate],
-            "divideRateBy" => 1 / $conv[newrate]
+            "multipleRateBy" => $conv[newrate] * 1,
+            "divideRateBy" => 1 / $conv[newrate],
+            "oBCRCCreateOpposite" => false
     );
 
     $request = json_encode($data);
     echo get_curldata($url, $request);
+    echo '<hr />';
+
+    $data['data'] = array(
+            "entityName" => "CurrencyConversionRate",
+            "active" => true,
+            "toCurrency" => array("id" => "".$currency['from']['ob'].""),
+            "currency" => array("id" => "".$currency['to']['ob'].""),
+            "validFromDate" => date('Y-m-d 00:00:00', $rate->date),
+            "validToDate" => date('Y-m-d 00:00:00', $rate->date),
+            "conversionRateType" => "S",
+            "divideRateBy" => $conv[newrate] * 1,
+            "multipleRateBy" => 1 / $conv[newrate],
+            "oBCRCCreateOpposite" => false
+    );
+
+    $request = json_encode($data);
+    echo get_curldata($url, $request);
+    echo '<hr />';
 }
 function get_curldata($url, $request) {
     $header = array("Content-Type: application/json");
@@ -53,6 +85,7 @@ function get_curldata($url, $request) {
 
     curl_setopt($ch, CURLOPT_USERPWD, "Openbravo:openbravo");
     $result = curl_exec($ch);
+    echo 'Finished';
     curl_close($ch);
     return $result;
 }

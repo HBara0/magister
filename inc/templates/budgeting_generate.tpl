@@ -5,14 +5,14 @@
 
 
         <script type="text/javascript">
-            $(function () {
-                $(document).on('change', 'input[name=fxrate]', function () {
-                    $('#fxrateinput').slideToggle('fast', function () {
+            $(function() {
+                $(document).on('change', 'input[name=fxrate]', function() {
+                    $('#fxrateinput').slideToggle('fast', function() {
                     });
                 });
-                $(document).on('change', "select[id='budget[reporttype]']", function () {
+                $(document).on('change', "select[id='budget[reporttype]']", function() {
                     var id = $(this).attr("id")
-                    var value = $(this).attr("value")
+                    var value = $(this).val();
                     //  if($(this).not($("div[id^='" + $(this).val() + "']"))) {
 
                     $("div[id$=_reporttype]").not([id ^= '" + $(this).val() + "']).hide();

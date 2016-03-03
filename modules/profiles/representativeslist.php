@@ -62,7 +62,7 @@ if(!$core->input['action']) {
             $permissionsfilter = 'rpid IN ('.implode(',', array_unique($entityrepresentatives)).') ';
         }
     }
-    if(!empty($permissionsfilter)) {
+    if(!is_empty($permissionsfilter, $filter_where)) {
         $filter_where.=' AND '.$filter_where;
     }
     $representatives = Representatives::get_data($permissionsfilter.$filter_where, array('returnarray' => true, 'order' => $sort_query));

@@ -50,7 +50,7 @@ else {
 //output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
             ?>
             <script language="javascript" type="text/javascript">
-                $(function() {
+                $(function () {
                     top.$("#upload_Result").html("<span class='red_text'><?php echo $lang->fillallrequiredfields;?></span>");
                 });
             </script>
@@ -526,15 +526,14 @@ else {
                     }
                 }
                 if(!empty($to)) {
-                    $notification = array(
-                            'to' => $to,
-                            'from_email' => $core->settings['maileremail'],
-                            'from' => 'OCOS Mailer',
-                            'subject' => $lang->sprint($lang->newnotemessage_subject, $task_details['subject']),
-                            'message' => $lang->sprint($lang->newnotemessage_body, $core->user['displayName'], $db->escape_string($core->input['note']), date($core->settings['dateformat'].' '.$core->settings['timeformat'], TIME_NOW))
-                    );
-
-                    $mail = new Mailer($notification, 'php');
+                    $mailer = new Mailer();
+                    $mailer = $mailer->get_mailerobj();
+                    $mailer->set_layouttype('standard');
+                    $mailer->set_from(array('name' => $core->user['displayName'], 'email' => $core->settings['maileremail']));
+                    $mailer->set_subject($lang->sprint($lang->newnotemessage_subject, $task_details['subject']));
+                    $mailer->set_message($lang->sprint($lang->newnotemessage_body, $core->user['displayName'], $db->escape_string($core->input['note']), date($core->settings['dateformat'].' '.$core->settings['timeformat'], TIME_NOW)));
+                    $mailer->set_to($to);
+                    $mailer->send();
                 }
                 header('Content-type: text/xml+javascript');
                 output_xml("<status>true</status><message>{$lang->successfullysaved}<![CDATA[<script>$('#note').val(''); $('#calendar_task_notes').prepend('<div id=\'note_1\' style=\'padding: 5px 0px 5px 10px;\' class=\'altrow2\'>".$db->escape_string($core->input['note']).". <span class=\'smalltext\' style=\'font-style:italic;\'>".date($core->settings['dateformat'], TIME_NOW)." by <a href=\'users.php?action=profile&uid=".$core->user['uid']."\' target=\'_blank\'>".$core->user['displayName']."</a></span></div>');</script>]]></message>");

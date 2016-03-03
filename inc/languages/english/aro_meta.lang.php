@@ -301,4 +301,9 @@ $lang['paymentTermDesc'] = 'Payment Term Description';
 $lang['warning'] = 'Warning';
 $lang['ptdescwarning'] = 'For 0 Days the description can not be cash in advance.';
 $lang['fundsengagedevolution'] = 'Total Funds Engaged evolution';
+$lang['monthlyavgsales'] = 'Monthly Average Sales';
+$lang['last12months'] = 'Last 12 Months';
+$lang['last3months'] = 'Last 3 Months';
+$lang['next3months'] = 'Next 3 Months of Previous Year';
+$lang['avgremainingdaysofstock'] = 'Average remaining days of stock';
 ?>

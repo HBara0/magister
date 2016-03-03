@@ -222,8 +222,10 @@ else {
     }
     elseif($core->input['action'] == 'do_createmeeting') {
         $core->input['meeting']['attachments'] = $_FILES;
+        unset($core->input['meeting']['attendees']['uid']['matids']);
         if(!empty($core->input['meeting']['attendees']['uid']['ids'])) {
-            $ids_array = explode(', ', $core->input['meeting']['attendees']['uid']['ids']);
+            $ids_array = explode(',', $core->input['meeting']['attendees']['uid']['ids']);
+            unset($core->input['meeting']['attendees']['uid']['ids']);
             if(is_array($ids_array)) {
                 $key = 1;
                 foreach($ids_array as $id) {
@@ -233,7 +235,8 @@ else {
             }
         }
         if(!empty($core->input['meeting']['attendees']['rpid']['ids'])) {
-            $ids_array = explode(', ', $core->input['meeting']['attendees']['rpid']['ids']);
+            $ids_array = explode(',', $core->input['meeting']['attendees']['rpid']['ids']);
+            unset($core->input['meeting']['attendees']['rpid']['ids']);
             if(is_array($ids_array)) {
                 $key = 1;
                 foreach($ids_array as $id) {
@@ -428,7 +431,7 @@ else {
     }
     ?>
     <script language="javascript" type="text/javascript">
-        $(function() {
+        $(function () {
             top.$("#upload_Result").html("<span class='<?php echo $output_class;?>'><?php echo $output_message;?></span>");
         });
     </script>

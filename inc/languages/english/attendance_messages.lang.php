@@ -87,7 +87,15 @@ End date: {4}<br />
 Reason: {5}<br />
 Approved by: {6}<br />
 <br />
-To approve simply reply to the request message, or click <a href=\'{7}\'>here</a> to approve or discuss it.
+To approve simply reply to the request message,  <a  style="font: bold 11px Arial;
+    text-decoration: none;
+    background-color: #EEEEEE;
+    color: #333333;
+    padding: 2px 6px 2px 6px;
+    border-top: 1px solid #CCCCCC;
+    border-right: 1px solid #333333;
+    border-bottom: 1px solid #333333;
+    border-left: 1px solid #CCCCCC;" href=\'{7}\'>or click here</a> to approve or discuss it.
 <br />';
 $lang['requestleavemessage_stats'] = '<strong>Leaves Stats:</strong><br />
 <br />

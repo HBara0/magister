@@ -439,14 +439,11 @@ else {
         /* Parse city reviews content */
         if(is_object($city_obj)) {
             $cityprofile_output = $city_obj->parse_cityreviews();
-            output($cityprofile_output);
 
             $citybriefings_output = $city_obj->parse_citybriefing();
         }
-        else {
-            $citybriefings_output = $lang->na;
-        }
-        output($citybriefings_output);
+
+        output($cityprofile_output.$citybriefings_output);
     }
     elseif($core->input ['action'] == 'parsedetailstransp') {
         $catid = $db->escape_string($core->input['catid']);

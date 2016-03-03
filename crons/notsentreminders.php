@@ -83,10 +83,22 @@ if($time_now >= $quarter_start && $time_now <= $quarter_end) {
                     'message' => $email_message
             );
 
-            if($val['email'] != $core->settings['sendreportsto']) {
-                $email_data['cc'][] = $core->settings['sendreportsto'];
-            }
+
             $mail = new Mailer($email_data, 'php');
+
+            $mailer = new Mailer();
+            $mailer = $mailer->get_mailerobj();
+            $mailer->set_layouttype('standard');
+            $mailer->set_from(array('name' => 'OCOS Mailer', 'email' => $core->settings['maileremail']));
+            $mailer->set_subject('Some reports have not been sent yet');
+            $mailer->set_message($email_message);
+            $mailer->set_to($val['email']);
+
+            if($val['email'] != $core->settings['sendreportsto']) {
+                $mailer->set_cc($core->settings['sendreportsto']);
+            }
+
+            $mailer->send();
         }
         $core->input['action'] = 'autosendreportsnotsentreminders';
         $log->record(count($audits));

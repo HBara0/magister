@@ -1149,23 +1149,41 @@ else {
                 2 => array('amal.dababneh', 34),
                 7 => array(434)
         );
-
         $recipients[] = $affiliateobj->get_generalmanager()->email;
         $recipients[] = $affiliateobj->get_supervisor()->email;
         $recipients[] = $core->user_obj->email;
-
-        if(isset($affiliates_addrecpt[$affiliate['affid']])) {
-            foreach($affiliates_addrecpt[$affiliate['affid']] as $uid) {
-                if(!is_numeric($uid)) {
-                    $adduser = Users::get_user_byattr('username', $uid);
+        if($core->input['type'] == 'bmstockreport') {
+            /*
+             * BM Stock report recipients
+             * BM, LM, CM, GM, Coordinator, Supervisor and COO.
+             */
+            $recipients[] = $affiliateobj->get_logisticsmanager()->email;
+            $recipients[] = $affiliateobj->get_commercialManager()->email;
+            $recipients[] = $affiliateobj->get_coo()->email;
+            //!!! Reminder: Check passing bm_segments array and bm email
+            foreach($bm_segments as $psid => $bmsegment) {
+                $segment_objs = new ProductsSegments($psid);
+                $segment_coordobjs = $segment_objs->get_coordinators();
+                if(is_array($segment_coordobjs)) {
+                    foreach($segment_coordobjs as $coord) {
+                        $recipients[] = $coord->get_coordinator()->email;
+                    }
                 }
-                else {
-                    $adduser = new Users($uid);
-                }
-                $recipients[] = $adduser->get()['email'];
             }
         }
-
+        else {
+            if(isset($affiliates_addrecpt[$affiliate['affid']])) {
+                foreach($affiliates_addrecpt[$affiliate['affid']] as $uid) {
+                    if(!is_numeric($uid)) {
+                        $adduser = Users::get_user_byattr('username', $uid);
+                    }
+                    else {
+                        $adduser = new Users($uid);
+                    }
+                    $recipients[] = $adduser->get()['email'];
+                }
+            }
+        }
         array_unique($recipients);
         if($core->input['reporttype'] == 'email') {
             $mailer = new Mailer();

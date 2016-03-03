@@ -1,5 +1,14 @@
 <div>
     <table>
+        <tr class="ui-state-highlight ui-corner-all">
+            <td colspan="4">
+                <div class="row" style="vertical-align: top;" id="segment_city_{$sequence}">
+                    <div id="segment_city_loader_{$sequence}"></div>
+                    {$citybriefings_output}
+                    {$cityprofile_output}
+                </div>
+            </td>
+        </tr>
         <tr>  <td>{$lang->origincity}*</td>
             <td><input type="text"  disabled="disabled" autocomplete="false" tabindex="1"  id="cities_{$sequence}_cache_autocomplete"    value="{$segment[$sequence][origincity][name]}" required="required"/>
                 <input type='hidden' id='cities_{$sequence}_cache_id'   name="segment[{$sequence}][originCity]" value="{$segment[$sequence][origincity][ciid]}"/>
@@ -12,7 +21,8 @@
                 <input type='hidden' id='destinationcity_{$sequence}_cache_id_output' name="segment[{$sequence}][destinationCity]" value="{$segment[$sequence][destinationcity][ciid]}" disabled/>
 
             </td>
-            <td rowspan="2"> <p id="pickDateto_warning_{$sequence}" style="vertical-align: top;color:red;width:175px;margin-left:10px;"></p></td>
+            <td rowspan="2"> <p id="pickDateto_warning_{$sequence}" style="vertical-align: top;color:red;width:175px;margin-left:10px;"></p>
+            </td>
         </tr>
         <tr>
             <td width="18%">{$lang->fromdate}*</td>
@@ -80,10 +90,6 @@
         {$plansegmentscontent_output}
     </div>
 </div>
-<div style="vertical-align: top;" id="segment_city_{$sequence}">
-    <div id="segment_city_loader_{$sequence}"></div>
-    {$cityprofile_output}
-    {$citybriefings_output}
-</div>
+
 {$seg2helptour}
 
