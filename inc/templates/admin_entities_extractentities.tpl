@@ -57,12 +57,13 @@
                 <div class="form-group">
                     <label for="extractype">{$lang->extractype}</label>
                     <div class="radio" id="extractype">
+                        <!--     <label>
+                               <input name="extract" value="generate"  type="radio" >{$lang->generate}
+                           </label>
+                           &nbsp;
+                        -->
                         <label>
-                            <input name="extract" value="generate"  type="radio" checked="checked">{$lang->generate}
-                        </label>
-                        &nbsp;
-                        <label>
-                            <input name="extract" value="export" type="radio">{$lang->export}
+                            <input name="extract" value="export" type="radio" checked="checked">{$lang->export}
                         </label>
                     </div>
                 </div>

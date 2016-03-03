@@ -672,8 +672,20 @@ class Entities extends AbstractClass {
         }
     }
 
+    /**
+     *
+     * @return \Countries
+     */
     public function get_country() {
         return new Countries($this->data['country']);
+    }
+
+    /**
+     *
+     * @return \Cities
+     */
+    public function get_city() {
+        return new Cities($this->data['country']);
     }
 
     public function __get($name) {
