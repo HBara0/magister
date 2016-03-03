@@ -270,7 +270,6 @@ else {
         $repfilter = new Inlinefilters($filters_rep_config);
         $filter_whererep_values = $repfilter->process_multi_filters();
         $filter_userwhere = null;
-
         if(is_array($core->input['extrafilters'])) {
             $repids = array();
             foreach($core->input['extrafilters'] as $filter => $val) {
@@ -431,6 +430,9 @@ else {
             }
         }
         if(isset($extrafilters)) {
+            if(isset($extrafilters[Entities]['eid'])) {
+                $filtered = 1;
+            }
             if(is_array($permissions['eid'])) {
                 if(isset($extrafilters[Entities]['eid'])) {
                     $filtered = 1;
@@ -438,6 +440,12 @@ else {
                 }
                 else {
                     $extrafilters[Entities]['eid'] = $permissions['eid'];
+                }
+            }
+            if(is_array($extrafilters[Entities])) {
+                $extrafilters[Entities] = array_filter($extrafilters[Entities]);
+                if(empty($extrafilters[Entities])) {
+                    unset($extrafilters[Entities]);
                 }
             }
             $ents = Entities::get_data($extrafilters[Entities], array('returnarray' => true, 'operators' => array('contractExpiryDate' => $extrafilters['operators']['contractExpiryDate'])));
@@ -504,7 +512,13 @@ else {
             output_xml("<status>false</status><message>{$lang->noresultsfound}</message>");
             exit;
         }
-        $representatives = Representatives::get_data($filter_repwhere.' AND rpid != 0', array('returnarray' => true, 'simple' => false, 'order' => array('by' => 'name', 'sort' => 'ASC')));
+        if(!empty($filter_repwhere)) {
+            $filter_repwhere.=' AND rpid != 0';
+        }
+        else {
+            $filter_repwhere = 'rpid != 0';
+        }
+        $representatives = Representatives::get_data($filter_repwhere, array('returnarray' => true, 'simple' => false, 'order' => array('by' => 'name', 'sort' => 'ASC')));
         if(is_array($representatives)) {
             $first_timerep = 0;
             $result_title = $lang->representativesresults;
