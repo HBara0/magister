@@ -6,4 +6,5 @@
     <td class="border_right">{$currentstock->dateOfStockEntry_output}</td>
     <td class="border_right">{$currentstock->expiryDate_output} </td>
     <td class="border_right">{$currentstock->estDateOfSale_output}</td>
+    {$extrafields}
 </tr>

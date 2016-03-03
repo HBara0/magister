@@ -75,4 +75,66 @@ class AroRequestsCurStkSupervision extends AbstractClass {
         }
     }
 
+    /**
+     * ARO Lead time analysis
+     * -add a line at the end of the stock list:
+      Monthly average sales of each product. (last 12 months, last 3 months, next 3 months of previous year)
+      Then divide the remaining stock by those and give 3 average remaining days of stock.
+      In red if the product will arrive in the warehouse after those 3 numbers, in green if the remaining days of stock when the product will enter the warehouse will be below 90 days, and in red also if above 90 days.
+     * @global type $db
+     * @param string $filters
+     * @return string
+     */
+    public function get_monthlyaveragesales($filters) {
+        global $db, $lang;
+
+        require_once ROOT.INC_ROOT.'integration_config.php';
+        $integration = new IntegrationOB($intgconfig['openbravo']['database'], $intgconfig['openbravo']['entmodel']['client']);
+
+        $formatter = new NumberFormatter($lang->settings['locale'], NumberFormatter::DECIMAL);
+
+
+        $foreignId = $db->fetch_field($db->query('SELECT foreignId FROM integration_mediation_products WHERE foreignSystem=3 AND localId="'.$this->pid.'"'), 'foreignId');
+        if(!empty($foreignId)) {
+            if(!empty($filters)) {
+                $intgdb = $integration->get_dbconn();
+                $invoicelines_obj = new IntegrationOBInvoiceLine(null, $intgdb);
+                $periods = array('12' => '-12 months', '3' => '-3 months', '+3' => '+3 months');
+                foreach($periods as $numberofmonths => $period) {
+                    $periodrange['to'] = TIME_NOW;
+                    switch($period) {
+                        case '+3 months':
+                            $key = 3;
+                            $periodrange['from'] = strtotime('-1 years', TIME_NOW);
+                            $periodrange['to'] = strtotime('first day of '.date('Y-m-d 00:00:00', strtotime($period, $periodrange['from'])));
+                            break;
+                        default:
+                            $periodrange['from'] = strtotime('first day of '.date('Y-m-d 00:00:00', strtotime($period, TIME_NOW)));
+                            break;
+                    }
+                    $filters = " (dateinvoiced BETWEEN '".date('Y-m-d 00:00:00', $periodrange['fromdate'])."' AND '".date('Y-m-d 00:00:00', $periodrange['to'])."')";
+                    $invoicelines = $invoicelines_obj->get_salesinvoicesummary($foreignId, $filters);
+                    if(is_array($invoicelines)) {
+                        foreach($invoicelines as $invoiceline) {
+                            $data['salesqty'][$period] += $invoiceline['qtyinvoiced'];
+                            // $data['salesamt'][$period] += $invoiceline['linenetamt'];
+                        }
+                        $data['avgsalesqty'][$period] +=$data['salesqty'][$period] / $numberofmonths;
+                        // $data['avgsalesamt'][$period] +=$data['salesamt'][$period] / $numberofmonths;
+                        if($data['avgsalesqty'][$period] != 0) {
+                            $data['daysofstock'][$period] = $this->quantity / $data['avgsalesqty'][$period];
+                        }
+                        $output .='<td class="border_right">'.$formatter->format($data['avgsalesqty'][$period]).'</td>';
+                    }
+                }
+            }
+            if(is_array($data['daysofstock'])) {
+                foreach($data['daysofstock'] as $daysofstock) {
+                    $output .='<td class="border_right">'.$formatter->format($daysofstock).'</td>';
+                }
+            }
+            return $output;
+        }
+    }
+
 }
