@@ -5,11 +5,11 @@
 
 
         <script type="text/javascript">
-            $(function () {
-                $(document).on('change', "select[id='forecast[reporttype]']", function () {
+            $(function() {
+                $(document).on('change', "select[id='forecast[reporttype]']", function() {
                     var id = $(this).attr("id")
-                    var value = $(this).attr("value")
-                    $("div[id$=_reporttype]").not([id ^= '" + $(this).val() + "']).hide();
+                    var value = $(this).val();
+                    $("div[id$=_reporttype]").not([id ^= '"+$(this).val()+"']).hide();
                     $("div[id^='" + value + "']").show(1000);
                 });
             });
