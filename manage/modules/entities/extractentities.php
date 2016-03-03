@@ -224,7 +224,7 @@ else {
                                                 foreach($assignedemoployees_obj as $assigned_obj) {
                                                     $assignedemployees_array[] = $assigned_obj->get_displayname();
                                                 }
-                                                $entity['asssignedemployees_output'] = implode(',', $assignedemployees_array);
+                                                $entity['asssignedemployees_output'] = implode(';', $assignedemployees_array);
                                             }
                                             //get if company is active
                                             $entity['isactive_output'] = 'n';
