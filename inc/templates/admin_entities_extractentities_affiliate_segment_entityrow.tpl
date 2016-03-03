@@ -1,17 +1,32 @@
 <tr>
+    <td> {$entity[eid]}</td>
+    <td> {$entity[companyName]}</td>
+    <td> {$entity[companyNameShort]}</td>
+    <td> {$entity[companyNameAbbr]}</td>
+    <td> </td>
+    <td> {$entity[presence]}</td>
+    <td> {$entity[companyCountry_output]}</td>
+    <td> {$entity[companyCity_output]}</td>
+    <td> {$entity[addressLine1]}</td>
+    <td> {$entity[building]}</td>
+    <td> {$entity[floor]}</td>
+    <td> {$entity[postCode]}</td>
+    <td> {$entity[poBox]}</td>
+    <td> {$entity[mainEmail]}</td>
+    <td> {$entity[phone1]}</td>
+    <td> {$entity[phone2]}</td>
+    <td> {$entity[fax1]}</td>
+    <td> {$entity[website]}</td>
+    <td> {$entity[asssignedemployees_output]}</td>
+    <td> {$entity[isactive_output]}</td>
     <td> {$rep_field[rpid]}</td>
     <td> {$rep_field[name]}</td>
     <td> {$rep_field[email]}</td>
     <td> {$rep_field[phone]}</td>
+    <td> </td>
+    <td> </td>
     <td> {$rep_field[isactive_output]}</td>
-    <td> {$entity[companyName]}</td>
+    <td> {$psid}</td>
+    <td> {$affid}</td>
     <td> {$entity[companyType_output]}</td>
-    <td> {$entity[companyCountry_output]}</td>
-    <td> {$entity[addressLine1]}</td>
-    <td> {$entity[phone1]}</td>
-    <td> {$entity[phone2]}</td>
-    <td> {$entity[fax1]}</td>
-    <td> {$entity[fax2]}</td>
-    <td> {$entity[mainEmail]}</td>
-    <td> {$entity[website]}</td>
 </tr>
