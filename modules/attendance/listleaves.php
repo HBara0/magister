@@ -116,7 +116,7 @@ if(!$core->input['action']) {
             $leave['requestKey_encoded'] = base64_encode($leave['requestKey']);
 
             if(!isset($type_cache[$leave['type']])) {
-                $leavetype_details = $db->fetch_assoc($db->query("SELECT name, title, description,isBusiness FROM ".Tprefix."leavetypes WHERE ltid='".$db->escape_string($leave['type'])."'"));
+                $leavetype_details = $db->fetch_assoc($db->query("SELECT name, title, description,isBusiness,requiresItinerary FROM ".Tprefix."leavetypes WHERE ltid='".$db->escape_string($leave['type'])."'"));
                 if(!empty($lang->{$leavetype_details['name']})) {
                     $leavetype_details['title'] = $lang->{$leavetype_details['name']};
                 }
