@@ -82,18 +82,48 @@ class SystemDashboard extends AbstractClass {
      * get all active widgets assigned to current instance of dashboard
      * @return boolean or array of system widgets
      */
-    public function get_active_widgets() {
+    public function get_active_widgets($configs = array()) {
         $assigned_widgets = SystemAssignedWidgets::get_data(array(self::PRIMARY_KEY => $this->data[self::PRIMARY_KEY]), array('returnarray' => true, 'order' => 'sequence'));
         if(is_array($assigned_widgets)) {
             //check if widget is set as active before returning it
             $active_widgets = array_map(
                     function($object) {
-                if($object->isActive == 1) {
-                    return $object;
+                $widget_instanceobj = $object->get_widgetinstance();
+                if(is_object($widget_instanceobj) && $widget_instanceobj->isActive == 1) {
+                    return $widget_instanceobj;
                 }
             }, $assigned_widgets);
             if(is_array($active_widgets)) {
                 return $active_widgets;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * responsible for parsing this instance of dashboard containing all active widgets
+     * @global type $core
+     * @return boolean
+     * @return string
+     */
+    public function parse_dashboard() {
+        global $core;
+        //get assigned widgets of the dashboard
+        $activewidgets = $this->get_active_widgets();
+        if(is_array($activewidgets)) {
+            $widgets_output = array();
+            foreach($activewidgets as $widgetinstance) {
+                if(empty($widgetinstance->{SystemWidgetInstances::PRIMARY_KEY})) {
+                    continue;
+                }
+                //parse single widget instance and concatenate it to the overall output array
+                $single_instance_output = $widgetinstance->parse_widgetinstance();
+                if($single_instance_output) {
+                    $widgets_output[] = $single_instance_output;
+                }
+            }
+            if(is_array($widgets_output)) {
+                return implode(' ', $widgets_output);
             }
         }
         return false;

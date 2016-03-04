@@ -168,4 +168,5 @@ $lang['submit'] = 'Submit';
 $lang['users'] = 'Users';
 $lang['success'] = 'Success';
 $lang['time'] = 'Time';
+$lang['missingfile'] = 'Missing File';
 ?>

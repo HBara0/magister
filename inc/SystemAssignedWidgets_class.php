@@ -8,10 +8,10 @@ class SystemAssignedWidgets extends AbstractClass {
     const PRIMARY_KEY = 'sawid';
     const TABLE_NAME = 'system_assignedwidgets';
     const SIMPLEQ_ATTRS = '*';
-    const UNIQUE_ATTRS = 'sdid,swgid';
+    const UNIQUE_ATTRS = 'sdid,swgiid';
     const CLASSNAME = __CLASS__;
     const DISPLAY_NAME = '';
-    const REQUIRED_ATTRS = 'sdid,swgid';
+    const REQUIRED_ATTRS = 'sdid,swgiid';
 
     /* -------Definiton-END-------- */
     /* -------FUNCTIONS-START-------- */
@@ -21,7 +21,7 @@ class SystemAssignedWidgets extends AbstractClass {
 
     public function create(array $data) {
         global $db, $core;
-        $fields = array('sdid', 'swgid');
+        $fields = array('sdid', 'swgiid', 'sequence');
         if(is_array($fields)) {
             foreach($fields as $field) {
                 if(!is_null($data[$field])) {
@@ -41,16 +41,16 @@ class SystemAssignedWidgets extends AbstractClass {
                 $this->errorcode = 0;
                 $this->data[self::PRIMARY_KEY] = $db->last_id();
             }
-            else {
-                $this->errorcode = 3;
-            }
+        }
+        else {
+            $this->errorcode = 3;
         }
         return $this;
     }
 
     protected function update(array $data) {
         global $db;
-        $fields = array('sdid', 'swgid');
+        $fields = array('sdid', 'swgiid', 'sequence');
         if(is_array($fields)) {
             foreach($fields as $field) {
                 if(!is_null($data[$field])) {
@@ -58,7 +58,6 @@ class SystemAssignedWidgets extends AbstractClass {
                 }
             }
         }
-
         if(is_array($table_array)) {
             if(!$this->validate_requiredfields($table_array)) {
                 $this->errorcode = 3;
@@ -80,15 +79,15 @@ class SystemAssignedWidgets extends AbstractClass {
      * @return \SystemDashboard
      */
     public function get_dashboard() {
-        return new SystemDashboard($this->data[SystemDashboard::PRIMARY_KEY]);
+        return new SystemDashboard($this->data['sdid']);
     }
 
     /**
      *
-     * @return \SystemWidget
+     * @return \SystemWidgetInstances
      */
-    public function get_widget() {
-        return new SystemWidget($this->data[SystemWidget::PRIMARY_KEY]);
+    public function get_widgetinstance() {
+        return new SystemWidgetInstances($this->data['swgiid']);
     }
 
     /* -------GETTER FUNCTIONS-END-------- */
