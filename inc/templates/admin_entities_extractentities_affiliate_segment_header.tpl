@@ -1,10 +1,11 @@
 <thead>
     <tr>
+        <th>{$lang->companytype}</th>
         <th>{$lang->id}</th>
         <th>{$lang->companyname}</th>
         <th>{$lang->companyshortname}</th>
         <th>{$lang->abbreviation}</th>
-        <th>{$lang->ispotential}</th>
+        <th>{$lang->potential}</th>
         <th>{$lang->presence}</th>
         <th>{$lang->country}</th>
         <th>{$lang->city}</th>
@@ -29,6 +30,5 @@
         <th>{$lang->contactperson} {$lang->isactive}</th>
         <th>psid</th>
         <th>affid</th>
-        <th>{$lang->companytype}</th>
     </tr>
 </thead>
