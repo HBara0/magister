@@ -544,7 +544,8 @@ class IntegrationOB extends Integration {
 
         if($this->f_db->num_rows($query) > 0) {
             while($transcation = $this->f_db->fetch_assoc($query)) {
-                $filter = " m_attributesetinstance_id='".$transcation['m_attributesetinstance_id']."' AND m_product_id='".$transcation['m_product_id']."' ORDER BY
+                $filter = " m_attributesetinstance_id='".$transcation['m_attributesetinstance_id']."' AND m_product_id='".$transcation['m_product_id']."'
+                    AND ad_org_id IN ('".implode('\',\'', $organisations)."') ORDER BY
                             case
                                when movementtype = 'M+' then 1
                                when movementtype = 'V+' then 2
