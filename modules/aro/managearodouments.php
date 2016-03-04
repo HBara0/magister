@@ -411,25 +411,25 @@ if(!($core->input['action'])) {
                         /**
                          * Lead time analysis
                          */
-                        $aff_obj = new Affiliates($aroorderrequest->affid);
-
-                        $salessummary_filters = "c_invoice.ad_org_id='".$aff_obj->integrationOBOrgId."' AND docstatus NOT IN ('VO', 'CL')";
-                        if($purchasetype->isPurchasedByEndUser == 1) {
-                            if(is_object($RIC_customer_obj)) {
-                                $foreignid = $db->fetch_field($db->query('SELECT foreignId FROM integration_mediation_entities WHERE foreignSystem=3 AND localId="'.$RIC_customer_obj->cid.'"'), 'foreignId');
-                            }
-                            if(!empty($foreignid)) {
-                                $salessummary_filters .=" AND c_invoice.c_bpartner_id = '".$foreignid."'";
-                            }
-                        }
-                        $extrafields = $currentstock->get_monthlyaveragesales($salessummary_filters);
-                        $headerfields = array('last12months', 'last3months', 'next3months', 'last12months', 'last3months', 'next3months');
-                        $extraheader_row = '<tr><td colspan="7"></td><td colspan="3" class="thead border_right" style="text-align:center;">'.$lang->monthlyavgsales.'</td>'
-                                .'<td colspan="3" class="thead" style="text-align:center">'.$lang->avgremainingdaysofstock.'</td></tr>';
-
-                        foreach($headerfields as $headerfield) {
-                            $extraheader_fields .='<td class="border_right" rowspan="2" valign="top" align="center" style="width:150px;">'.$lang->$headerfield.'</td>';
-                        }
+//                        $aff_obj = new Affiliates($aroorderrequest->affid);
+//
+//                        $salessummary_filters = "c_invoice.ad_org_id='".$aff_obj->integrationOBOrgId."' AND docstatus NOT IN ('VO', 'CL')";
+//                        if($purchasetype->isPurchasedByEndUser == 1) {
+//                            if(is_object($RIC_customer_obj)) {
+//                                $foreignid = $db->fetch_field($db->query('SELECT foreignId FROM integration_mediation_entities WHERE foreignSystem=3 AND localId="'.$RIC_customer_obj->cid.'"'), 'foreignId');
+//                            }
+//                            if(!empty($foreignid)) {
+//                                $salessummary_filters .=" AND c_invoice.c_bpartner_id = '".$foreignid."'";
+//                            }
+//                        }
+//                        $extrafields = $currentstock->get_monthlyaveragesales($salessummary_filters);
+//                        $headerfields = array('last12months', 'last3months', 'next3months', 'last12months', 'last3months', 'next3months');
+//                        $extraheader_row = '<tr><td colspan="7"></td><td colspan="3" class="thead border_right" style="text-align:center;">'.$lang->monthlyavgsales.'</td>'
+//                                .'<td colspan="3" class="thead" style="text-align:center">'.$lang->avgremainingdaysofstock.'</td></tr>';
+//
+//                        foreach($headerfields as $headerfield) {
+//                            $extraheader_fields .='<td class="border_right" rowspan="2" valign="top" align="center" style="width:150px;">'.$lang->$headerfield.'</td>';
+//                        }
 
                         eval("\$currentstock_rows .= \"".$template->get('aro_currentstock_row_preview')."\";");
                     }
@@ -862,8 +862,8 @@ if(!($core->input['action'])) {
             /**
              * ARO COmparison Summary
              */
-//            require_once ROOT.INC_ROOT.'integration_config.php';
-//            $integration = new IntegrationOB($intgconfig['openbravo']['database'], $intgconfig['openbravo']['entmodel']['client']);
+            require_once ROOT.INC_ROOT.'integration_config.php';
+            $integration = new IntegrationOB($intgconfig['openbravo']['database'], $intgconfig['openbravo']['entmodel']['client']);
 
             $salesinvoice_filters = "c_invoice.ad_org_id='".$aff_obj->integrationOBOrgId."' AND docstatus NOT IN ('VO', 'CL')";
             $purchaseorderperaff_filters = "AND o.ad_org_id='".$aff_obj->integrationOBOrgId."' ";
@@ -994,7 +994,8 @@ if(!($core->input['action'])) {
     if(isset($core->input['referrer']) && $core->input['referrer'] == 'toapprove') {
         if(is_object($aroordersummary)) {
             $formatter = new NumberFormatter($lang->settings['locale'], NumberFormatter::DECIMAL);
-            $perc_formatter = new NumberFormatter($lang->settings['locale'], NumberFormatter::PERCENT);
+            $formatter->setAttribute(NumberFormatter::MAX_FRACTION_DIGITS, 0);
+            $formatter2 = new NumberFormatter($lang->settings['locale'], NumberFormatter::DECIMAL);
             $ordersummary_fields = array('netmarginIntermed_afterdeduction', 'invoiceValueIntermed', 'invoiceValueLocal', 'invoiceValueUsdIntermed', 'invoiceValueUsdLocal', 'interestValue', 'interestValueUsd', 'totalIntermedFees', 'totalIntermedFeesUsd', 'unitFee', 'netmarginIntermed', 'netmarginLocal', 'invoiceValueThirdParty', 'globalNetmargin', 'totalQuantityUom'); // 'netmarginIntermedPerc', 'netmarginLocalPerc');
             foreach($ordersummary_fields as $field) {
                 switch($field) {
@@ -1002,7 +1003,12 @@ if(!($core->input['action'])) {
                         $aroordersummary->$field = $formatter->format(explode('/', $aroordersummary->$field)[0]).'/'.explode('/', $aroordersummary->$field)[1];
                         break;
                     default:
-                        $aroordersummary->$field = $formatter->format($aroordersummary->$field);
+                        if($aroordersummary->$field < 1) {
+                            $aroordersummary->$field = $formatter2->format($aroordersummary->$field);
+                        }
+                        else {
+                            $aroordersummary->$field = $formatter->format($aroordersummary->$field);
+                        }
                         break;
                 }
             }

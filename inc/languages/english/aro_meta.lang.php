@@ -306,4 +306,5 @@ $lang['last12months'] = 'Last 12 Months';
 $lang['last3months'] = 'Last 3 Months';
 $lang['next3months'] = 'Next 3 Months of Previous Year';
 $lang['avgremainingdaysofstock'] = 'Average remaining days of stock';
+$lang['riskratioamount'] = 'Risk Ratio Amount';
 ?>
