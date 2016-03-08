@@ -108,8 +108,8 @@ if(!$core->input['action']) {
                 if($report['isLocked'] == 1) {
                     $icon_locked = '_locked';
                 }
-                $tool_items = "<li><a href='index.php?module=reporting/preview&referrer=list&amp;affid={$report[affid]}&amp;spid={$report[spid]}&amp;quarter={$report[quarter]}&amp;year={$report[year]}'><img src='images/icons/report{$icon_locked}.gif'  border='0'/>&nbsp;{$lang->preview}</a></li>";
             }
+            $tool_items = "<li><a target='_blank' href='index.php?module=reporting/preview&referrer=list&amp;affid={$report[affid]}&amp;spid={$report[spid]}&amp;quarter={$report[quarter]}&amp;year={$report[year]}'><img src='images/icons/report{$icon_locked}.gif'  border='0'/>&nbsp;{$lang->preview}</a></li>";
 
             //add delete tool icon depending on user permissions
             if($core->usergroup['canAdminCP'] == 1 && $report['isSent'] != 1) {
