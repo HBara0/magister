@@ -153,7 +153,6 @@ $lang['requiredfields'] = 'Required Fields';
 $lang['title'] = "Title";
 $lang['contactcenter'] = "Contact Center";
 $lang['facilitymgmt'] = 'Facility Management';
-$lang['successfullydeleted'] = 'Successfully Deleted';
 $lang['aro'] = 'Aro';
 $lang['capacity'] = "Capacity";
 $lang['reservedby'] = "Reserved By";
@@ -172,4 +171,5 @@ $lang['startconversation'] = 'Start Conversation';
 $lang['search'] = 'Search';
 $lang['conversation'] = 'Conversation';
 $lang['goto'] = 'Go To';
+$lang['errordeleting'] = 'An Error Occured While Deleting';
 ?>

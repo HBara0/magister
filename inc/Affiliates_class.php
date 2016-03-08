@@ -346,5 +346,47 @@ class Affiliates {
         return false;
     }
 
+    /*
+     * Get Affiliated employees assigned as sales reps.
+     */
+    public function get_bms($options = array('allusers' => false)) {
+        global $db;
+
+        if(is_array($options)) {
+            if(isset($options['ismain']) && $options['ismain'] === 1) {
+                $query_where_add = ' AND isMain=1';
+            }
+        }
+        /* On purpose outside the is_array */
+        if(!isset($options['allusers']) || $options['allusers'] === false) {
+            $query_where_add .= ' AND u.gid !=7';
+        }
+
+        if(!empty($options['customfilter'])) {
+            $query_where_add .= ' AND  '.$options['customfilter'];
+        }
+        $sql = "SELECT DISTINCT(u.uid)
+					FROM ".Tprefix."users u
+					JOIN ".Tprefix."affiliatedemployees a ON (a.uid=u.uid)
+                                        JOIN ".Tprefix."users_usergroups ug ON (ug.uid=u.uid)
+                                        JOIN ".Tprefix."usergroups g ON (g.gid=ug.gid)
+					WHERE a.affid={$this->affiliate['affid']} AND isSalesRep=1".$query_where_add."
+					ORDER BY displayName ASC";
+        $query = $db->query($sql);
+        while($user = $db->fetch_assoc($query)) {
+            $users = new Users($user['uid']);
+            if($options['displaynameonly']) {
+                $users_affiliates[$user['uid']] = $users->get()['displayName'];
+            }
+            elseif($options['returnobjects'] == true) {
+                $users_affiliates[$user['uid']] = $users;
+            }
+            else {
+                $users_affiliates[$user['uid']] = $users->get();
+            }
+        }
+        return $users_affiliates;
+    }
+
 }
 ?>

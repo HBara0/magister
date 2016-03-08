@@ -517,10 +517,13 @@ class IntegrationOB extends Integration {
             /**
              * If report type is BM stock report filter query by BM segments
              */
-            $bm = Users::get_data(array('uid' => $options['bm'], array('simple' => false)));
+            $bm = $options['bm'];
             $permissions = $bm->get_businesspermissions();
             if(is_array($permissions['psid'])) {
                 foreach($permissions['psid'] as $psid) {
+                    if($psid == 0) {
+                        continue;
+                    }
                     $prodseg_obj = ProductsSegments::get_data(array('psid' => $psid), array('simple' => false));
                     $bm_segments[] = $prodseg_obj->get_segment_integrationOBId();
                 }
@@ -544,7 +547,8 @@ class IntegrationOB extends Integration {
 
         if($this->f_db->num_rows($query) > 0) {
             while($transcation = $this->f_db->fetch_assoc($query)) {
-                $filter = " m_attributesetinstance_id='".$transcation['m_attributesetinstance_id']."' AND m_product_id='".$transcation['m_product_id']."' ORDER BY
+                $filter = " m_attributesetinstance_id='".$transcation['m_attributesetinstance_id']."' AND m_product_id='".$transcation['m_product_id']."'
+                    AND ad_org_id IN ('".implode('\',\'', $organisations)."') ORDER BY
                             case
                                when movementtype = 'M+' then 1
                                when movementtype = 'V+' then 2

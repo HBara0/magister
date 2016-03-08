@@ -1,4 +1,5 @@
 <tr>
+    <td> {$entity[companyType_output]}</td>
     <td> {$entity[eid]}</td>
     <td> {$entity[companyName]}</td>
     <td> {$entity[companyNameShort]}</td>
@@ -23,10 +24,9 @@
     <td> {$rep_field[name]}</td>
     <td> {$rep_field[email]}</td>
     <td> {$rep_field[phone]}</td>
-    <td> </td>
-    <td> </td>
+    <td> {$rep_field[phoneExtension]}</td>
+    <td> {$rep_field[position]}</td>
     <td> {$rep_field[isactive_output]}</td>
     <td> {$psid}</td>
     <td> {$affid}</td>
-    <td> {$entity[companyType_output]}</td>
 </tr>
