@@ -765,15 +765,15 @@ if(!($core->input['action'])) {
                         }
                     }
                     else {
+                        if($approver->firstEmailRecievedDate != 0 || $aroorderrequest->revision > 0) {  //glyphicon glyphicon-alert
+                            if($approver->timesApproved != 0) {
+                                $timesapproved_output = 'Times Approved:'.$approver->timesApproved;
+                            }
+                            $icons['reintializedapprovalprocess'] = '<span class="glyphicon glyphicon-exclamation-sign alert-danger" data-toggle="tooltip" title="Approval Process was reintialized!<br/>'.$timesapproved_output.'" ></span>';
+                        }
                         if($approver->uid == $core->user['uid']) {
                             $approvalobj = $aroorderrequest->get_nextapprover();
                             if(is_object($approvalobj)) {
-                                if($approver->firstEmailRecievedDate != 0) {  //glyphicon glyphicon-alert
-                                    if($timesapproved_output->timesApproved != 0) {
-                                        $timesapproved_output = 'Times Approved:'.$approvalobj->timesApproved;
-                                    }
-                                    $icons['reintializedapprovalprocess'] = '<span class="glyphicon glyphicon-exclamation-sign alert-danger" data-toggle="tooltip" title="Approval Process was reintialized!<br/>'.$timesapproved_output.'" ></span>';
-                                }
                                 if($approvalobj->uid == $core->user['uid']) {
                                     $approve = '<input type="button" id="approvearo" value="'.$lang->approve.'" class="btn btn-success"/>'//
                                             .'<input type="hidden" id="approvearo_id" value="'.$aroorderrequest->aorid.'"/>'.
@@ -783,7 +783,7 @@ if(!($core->input['action'])) {
                         }
                     }
                     eval("\$apprs .= \"".$template->get('aro_approvalchain_approver')."\";");
-                    unset($class, $approve, $hourdiff_output, $hourdiff, $dateofapprovalemail, $dateofapproval);
+                    unset($class, $approve, $hourdiff_output, $hourdiff, $dateofapprovalemail, $dateofapproval, $timesapproved_output, $icons['reintializedapprovalprocess']);
                 }
             }
 

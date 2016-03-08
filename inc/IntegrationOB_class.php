@@ -517,10 +517,13 @@ class IntegrationOB extends Integration {
             /**
              * If report type is BM stock report filter query by BM segments
              */
-            $bm = Users::get_data(array('uid' => $options['bm'], array('simple' => false)));
+            $bm = $options['bm'];
             $permissions = $bm->get_businesspermissions();
             if(is_array($permissions['psid'])) {
                 foreach($permissions['psid'] as $psid) {
+                    if($psid == 0) {
+                        continue;
+                    }
                     $prodseg_obj = ProductsSegments::get_data(array('psid' => $psid), array('simple' => false));
                     $bm_segments[] = $prodseg_obj->get_segment_integrationOBId();
                 }
