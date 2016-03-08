@@ -108,9 +108,16 @@ if(!$core->input['action']) {
                 if($report['isLocked'] == 1) {
                     $icon_locked = '_locked';
                 }
-                $icon[$report['rid']] = "<a href='index.php?module=reporting/preview&referrer=list&amp;affid={$report[affid]}&amp;spid={$report[spid]}&amp;quarter={$report[quarter]}&amp;year={$report[year]}'><img src='images/icons/report{$icon_locked}.gif' alt='{$report[status]}' border='0'/></a>";
+                $tool_items = "<li><a href='index.php?module=reporting/preview&referrer=list&amp;affid={$report[affid]}&amp;spid={$report[spid]}&amp;quarter={$report[quarter]}&amp;year={$report[year]}'><img src='images/icons/report{$icon_locked}.gif'  border='0'/>&nbsp;{$lang->preview}</a></li>";
             }
 
+            //add delete tool icon depending on user permissions
+            if($core->usergroup['canAdminCP'] == 1 && $report['isSent'] != 1) {
+                $tool_items .= '<li><a target="_blank" id="deleteqrreport_'.$report['rid'].'_'.$core->input['module'].'_loadpopupbyid"><span class="glyphicon glyphicon-remove " style="color:red"></span>&nbsp;'.$lang->deletereport.'</a></li>';
+            }
+            if(!empty($tool_items)) {
+                eval("\$rep_tools = \"".$template->get('tools_buttonselectlist')."\";");
+            }
             $report['status'] = parse_status($report['status'], $report['isLocked']);
             $report['statusdetails'] = parse_statusdetails(array('prActivityAvailable' => $report['prActivityAvailable'], 'keyCustAvailable' => $report['keyCustAvailable'], 'mktReportAvailable' => $report['mktReportAvailable']));
 
@@ -129,6 +136,7 @@ if(!$core->input['action']) {
                 }
             }
             eval("\$reportslist .= \"".$template->get('reporting_reportslist_reportrow')."\";");
+            unset($rep_tools, $tool_items);
         }
 
         $multipages = new Multipages('reports r', $core->settings['itemsperlist'], $extra_where['multipage']);
@@ -320,6 +328,36 @@ else {
             }
             $excelfile = new Excel('array', $reports);
         }
+    }
+    elseif($core->input['action'] == 'get_deleteqrreport') {
+        $id = $db->escape_string($core->input['id']);
+        eval("\$deleteqrreport= \"".$template->get('popup_report_deleteqrreport')."\";");
+        echo $deleteqrreport;
+    }
+    elseif($core->input['action'] == 'perform_deleteqr') {
+        $deleteqr = $core->input['delete'];
+        if(is_empty($deleteqr['uid'], $deleteqr['reference'])) {
+            output_xml("<status>false</status><message>{$lang->fillrequiredfields}</message>");
+            exit;
+        }
+        $report_obj = new ReportingQReports(intval($deleteqr['rid']));
+        if($report_obj->isSent == 1) {
+            output_xml("<status>false</status><message>{$lang->cannotdeletesentreport}</message>");
+            exit;
+        }
+        if(is_object($report_obj) && !empty($report_obj->rid)) {
+            $status = $report_obj->delete_qr($deleteqr);
+            if($status) {
+                output_xml("<status>true</status><message>{$lang->successfullydeleted}</message>");
+                exit;
+            }
+        }
+        if($report_obj->get_errorcode() == 3) {
+            output_xml("<status>false</status><message>{$lang->fillrequiredfields}</message>");
+            exit;
+        }
+        output_xml("<status>false</status><message>{$lang->errorwhiledeleting}</message>");
+        exit;
     }
 }
 function parse_status($status, $lock = 0) {
