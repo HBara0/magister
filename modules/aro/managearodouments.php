@@ -1223,7 +1223,7 @@ else {
         //$core->inut['parmsfornetmargin']['unitfees'] = $unitfee;
         $data = $core->input;
         $productline_data = $productline_obj->calculate_values($data);
-        unset($productline_data['affBuyingPrice'], $productline_data['totalBuyingValue']);
+        unset($productline_data['affBuyingPrice'], $productline_data['totalBuyingValue'], $productline_data['riskRatioAmount']);
         foreach($productline_data as $key => $value) {
             if($key == 'qtyPotentiallySoldPerc') {
                 $productline['productline_'.$rowid.'_'.$key] = $value;
