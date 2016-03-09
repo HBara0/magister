@@ -1,7 +1,7 @@
 <?php
 /*
  * Copyright © 2013 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * PostgreSQL Connection Class
  * $id: PostgreSQLConnection_class.php
  * Created:        @zaher.reda    Feb 18, 2013 | 12:11:30 PM
@@ -38,7 +38,7 @@ class PostgreSQLConnection {
         return $query;
     }
 
-    public function insert_query($table, $data) {
+    public function insert_query($table, $data, $options = '') {
         if(is_array($data)) {
             $query_data = $this->prepare_insertstatement_data($data, $options);
 
@@ -49,12 +49,18 @@ class PostgreSQLConnection {
         }
     }
 
-    private function prepare_insertstatement_data(array $data) {
+    private function prepare_insertstatement_data(array $data, $options = null) {
         $comma = '';
         if(!empty($data)) {
             foreach($data as $key => $val) {
                 $statement['index'] .= $comma.$key;
-                $statement['value'] .= $comma."'".$this->escape_string($val)."'";
+
+                if($options['isfunction'][$key] == true) {
+                    $statement['value'] .= $comma.$this->escape_string($val);
+                }
+                else {
+                    $statement['value'] .= $comma."'".$this->escape_string($val)."'";
+                }
                 $comma = ', ';
             }
             return $statement;

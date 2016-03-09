@@ -388,5 +388,25 @@ class Affiliates {
         return $users_affiliates;
     }
 
+    public function manage_affiliatemanagement($data) {
+        global $db, $core;
+        $management_positions = array('generalManager', 'supervisor', 'hrManager', 'finManager', 'coo', 'regionalSupervisor', 'globalPurchaseManager', 'cfo', 'logisticsManager', 'commercialManager', 'globalFinManager');
+        foreach($management_positions as $management_position) {
+            $affiliate['prevmanagement'][$management_position] = $this->$management_position;
+            $affiliate['newmanagement'][$management_position] = $data[$management_position];
+        }
+        $affiliate['prevmanagement']['uptoDate'] = TIME_NOW;
+        $affiliate['newmanagement']['mgmtAsOf'] = $affiliate['newmanagement']['modifiedOn'] = TIME_NOW;
+        $affiliate['newmanagement']['modifiedBy'] = $core->user['uid'];
+        $query = $db->insert_query('affiliatemanagementlog', $affiliate['prevmanagement']);
+        if($query) {
+            $update_query = $db->update_query('affiliates', $affiliate['newmanagement'], 'affid = '.$this->affid);
+            if($update_query) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }
 ?>

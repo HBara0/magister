@@ -85,7 +85,7 @@ class AroRequestsCurStkSupervision extends AbstractClass {
      * @param string $filters
      * @return string
      */
-    public function get_monthlyaveragesales($filters) {
+    public function get_monthlyaveragesales($filters, $stockentrydate) {
         global $db, $lang;
 
         require_once ROOT.INC_ROOT.'integration_config.php';
@@ -101,15 +101,16 @@ class AroRequestsCurStkSupervision extends AbstractClass {
                 $invoicelines_obj = new IntegrationOBInvoiceLine(null, $intgdb);
                 $periods = array('12' => '-12 months', '3' => '-3 months', '+3' => '+3 months');
                 foreach($periods as $numberofmonths => $period) {
-                    $periodrange['to'] = TIME_NOW;
+                    $periodrange['basedate'] = TIME_NOW;
+                    $periodrange['to'] = $periodrange['basedate'];
                     switch($period) {
                         case '+3 months':
                             $key = 3;
-                            $periodrange['from'] = strtotime('-1 years', TIME_NOW);
-                            $periodrange['to'] = strtotime('first day of '.date('Y-m-d 00:00:00', strtotime($period, $periodrange['from'])));
+                            $periodrange['from'] = strtotime('-1 years', $periodrange['basedate']);
+                            $periodrange['to'] = strtotime($period, $periodrange['from']);
                             break;
                         default:
-                            $periodrange['from'] = strtotime('first day of '.date('Y-m-d 00:00:00', strtotime($period, TIME_NOW)));
+                            $periodrange['from'] = strtotime($period, $periodrange['basedate']);
                             break;
                     }
                     $filters = " (dateinvoiced BETWEEN '".date('Y-m-d 00:00:00', $periodrange['fromdate'])."' AND '".date('Y-m-d 00:00:00', $periodrange['to'])."')";
@@ -122,15 +123,28 @@ class AroRequestsCurStkSupervision extends AbstractClass {
                         $data['avgsalesqty'][$period] +=$data['salesqty'][$period] / $numberofmonths;
                         // $data['avgsalesamt'][$period] +=$data['salesamt'][$period] / $numberofmonths;
                         if($data['avgsalesqty'][$period] != 0) {
-                            $data['daysofstock'][$period] = $this->quantity / $data['avgsalesqty'][$period];
+                            $data['daysofstock'][$period] = ($this->quantity / $data['avgsalesqty'][$period]) * 30;
                         }
                         $output .='<td class="border_right">'.$formatter->format($data['avgsalesqty'][$period]).'</td>';
                     }
                 }
             }
             if(is_array($data['daysofstock'])) {
+                if(!empty($stockentrydate)) {
+                    $datediff = $periodrange['basedate'] - $stockentrydate;
+                    $diff = abs(floor($datediff / (60 * 60 * 24)));
+                }
                 foreach($data['daysofstock'] as $daysofstock) {
-                    $output .='<td class="border_right">'.$formatter->format($daysofstock).'</td>';
+                    if($diff > $daysofstock) {
+                        $style['color'] = 'color:red';
+                    }
+                    else if($diff > 90) {
+                        $style['color'] = 'color:red';
+                    }
+                    else {
+                        $style['color'] = 'color:green';
+                    }
+                    $output .='<td class="border_right" style='.$style['color'].'>'.$formatter->format($daysofstock).'</td>';
                 }
             }
             return $output;
