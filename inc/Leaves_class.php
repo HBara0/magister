@@ -264,6 +264,7 @@ class Leaves extends AbstractClass {
                 }
             }
             /* Make list of approvers unique */
+            $approvers = array_filter($approvers);
             $approvers = array_unique($approvers);
 
             /* Remove the user himself from the approval chain */
