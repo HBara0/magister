@@ -3458,4 +3458,42 @@ class IntegrationOBValidCombination extends IntegrationAbstractClass {
     }
 
 }
+
+class IntegrationOBBPAuxAccounts extends IntegrationAbstractClass {
+    protected $data;
+    protected $f_db;
+
+    const PRIMARY_KEY = 'ork_bpauxaccounts_id';
+    const TABLE_NAME = 'ork_bpauxaccounts';
+    const DISPLAY_NAME = '';
+    const CLASSNAME = __CLASS__;
+
+    public function __construct($id, $f_db = NULL) {
+        parent::__construct($id, $f_db);
+    }
+
+}
+
+class IntegrationOBAcctSchema extends IntegrationAbstractClass {
+    protected $data;
+    protected $f_db;
+
+    const PRIMARY_KEY = 'c_acctschema_id';
+    const TABLE_NAME = 'c_acctschema';
+    const DISPLAY_NAME = '';
+    const CLASSNAME = __CLASS__;
+
+    public function __construct($id, $f_db = NULL) {
+        parent::__construct($id, $f_db);
+    }
+
+    public function get_organisation() {
+        return new IntegrationOBOrg($this->data['ad_org_id'], $this->f_db);
+    }
+
+    public function get_currency() {
+        return new IntegrationOBCurrency($this->data['c_currency_id'], $this->f_db);
+    }
+
+}
 ?>

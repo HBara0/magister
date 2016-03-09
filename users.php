@@ -184,13 +184,23 @@ if($core->input['action']) {
         $upload->set_upload_path($core->settings['profilepicdir']);
         $upload->process_file();
         $filename = $upload->get_filename();
+        if(!empty($fielname)) {
+            ?>
+            <script language="javascript" type="text/javascript">
+                $(function() {
+                    window.top.$("#upload_Result").html("<?php echo ('no file found')?>");
+                });
+            </script>
+            <?php
+        }
+
         $upload->resize();
         $query = $db->update_query('users', array('profilePicture' => $filename), 'uid='.intval($core->input['uid']));
         eval("\$headerinc = \"".$template->get('headerinc')."\";");
         echo $headerinc;
         ?>
         <script language="javascript" type="text/javascript">
-            $(function () {
+            $(function() {
                 window.top.$("#upload_Result").html("<?php echo $upload->parse_status($upload->get_status());?>");
             });
         </script>
