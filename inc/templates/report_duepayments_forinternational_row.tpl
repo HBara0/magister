@@ -1,4 +1,4 @@
-<tr>
+<tr style="text-align: center;">
     <td>{$line[duedate]}{$symbol}</td>
     <td>{$line[company]}</td>
     <td>{$line[amount]} {$symbol}</td>

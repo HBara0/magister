@@ -1,5 +1,5 @@
-<tr>
-    <td>{$businesspartner}{$symbol}</td>
+<tr style="text-align: center;">
+    <td>{$suppliertotal}{$symbol}</td>
     <td>{$amount} {$symbol}</td>
     <td>{$currency}</td>
     <td>{$usdamount}</td>

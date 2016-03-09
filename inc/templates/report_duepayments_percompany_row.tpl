@@ -1,4 +1,4 @@
-<tr>
+<tr style="text-align: center;">
     <td>{$companytotal}{$symbol}</td>
     <td>{$businesspartner}</td>
     <td>{$amount} {$symbol}</td>
