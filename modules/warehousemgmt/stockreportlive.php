@@ -1153,16 +1153,19 @@ else {
         }
         if($core->input['referrer'] != 'bmstockreport') {
             $affiliates_addrecpt = array(
-                    19 => array(398, 356),
+                    19 => array(398, 356, 457, 367),
                     22 => array(248, 246, 270, 356, 63, 379, 378),
-                    23 => array('zadok.oppong-boahene', 'courage.dzandu', 416, 321, 'tarek.chalhoub', 63, 356),
-                    1 => array(356), //12, 333, 182, 43,
-                    21 => array(63, 158, 'patrice.mossan', 'marcelle.nklo', 'abel.laho', 'boulongo.diata', 356, 'kenan.amjeh'),
-                    27 => array(12, 333, 68, 67, 356), //342,30
-                    20 => array('michel.mbengue', 'samba.kandji', 'ansou.dabo', 'fatimatou.diallo', 356),
-                    11 => array(323, 108, 186, 335, 184, 111, 109, 280, 326, 295, 289, 187, 112, 113, 312, 107, 356, 63),
-                    2 => array('amal.dababneh', 34),
-                    7 => array(434)
+                    23 => array('zadok.oppong-boahene', 'courage.dzandu', 416, 321, 'tarek.chalhoub', 63, 356, 464, 457, 367),
+                    1 => array(356, 457, 367), //12, 333, 182, 43,
+                    21 => array(63, 158, 'patrice.mossan', 'marcelle.nklo', 'abel.laho', 'boulongo.diata', 356, 'kenan.amjeh', 457, 367),
+                    27 => array(12, 333, 68, 67, 356, 457, 367), //342,30
+                    20 => array('michel.mbengue', 'samba.kandji', 'ansou.dabo', 'fatimatou.diallo', 356, 457, 367),
+                    11 => array(323, 108, 186, 335, 184, 111, 109, 280, 326, 295, 289, 187, 112, 113, 312, 107, 356, 63, 457, 367),
+                    2 => array('amal.dababneh', 34, 457, 367),
+                    7 => array(434, 457, 367),
+                    22 => array(457, 367),
+                    16 => array(457, 367),
+                    29 => array(457, 367),
             );
             $recipients[] = $affiliateobj->get_generalmanager()->email;
             $recipients[] = $affiliateobj->get_supervisor()->email;

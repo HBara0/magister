@@ -208,8 +208,8 @@ else {
 
                     $invoiceline->uom = $invoiceline->get_uom()->uomsymbol;
                     $invoiceline->costlocal = $invoiceline->get_cost();
-                    $costcurrency = $invoiceline->get_transaction()->get_currency();
                     if(!empty($invoiceline->costlocal)) {
+                        $costcurrency = $invoiceline->get_transaction()->get_currency();
                         if($currency_obj->alphaCode != $costcurrency->iso_code) {
                             if($costcurrency->iso_code == 'GHC') {
                                 $costcurrency->iso_code = 'GHS';
@@ -695,6 +695,22 @@ else {
             if(!is_object($finManager)) {
                 $finManager = $affiliate->get_globalfinancialemanager();
             }
+
+            $affiliates_addrecpt = array(
+                    7 => array(457, 367),
+                    22 => array(457, 367),
+                    23 => array(457, 367),
+                    1 => array(457, 367),
+                    21 => array(457, 367),
+                    27 => array(457, 367),
+                    16 => array(457, 367),
+                    20 => array(457, 367),
+                    2 => array(457, 367),
+                    19 => array(457, 367),
+                    29 => array(457, 367),
+                    11 => array(457, 367),
+            );
+
             $recipients = array(
                     $affiliate->get_generalmanager()->email,
                     $affiliate->get_supervisor()->email,
@@ -704,6 +720,18 @@ else {
                     $core->user_obj->email,
                     Users::get_data(array('uid' => 3))->email/* Always include User 3 */
             );
+
+            if(isset($affiliates_addrecpt[$affiliate->affid])) {
+                foreach($affiliates_addrecpt[$affiliate->affid] as $uid) {
+                    if(!is_numeric($uid)) {
+                        $adduser = Users::get_user_byattr('username', $uid);
+                    }
+                    else {
+                        $adduser = new Users($uid);
+                    }
+                    $recipients[] = $adduser->get()['email'];
+                }
+            }
             $recipients = array_filter($recipients);
             if(is_array($recipients)) {
                 $recipients = array_unique($recipients);
@@ -871,9 +899,9 @@ function get_ytddata($input_data, $period, $orgs) {
 
                 $invoiceline->uom = $invoiceline->get_uom()->uomsymbol;
                 $invoiceline->costlocal = $invoiceline->get_cost();
-                $costcurrency = $invoiceline->get_transaction()->get_currency();
 
                 if(!empty($invoiceline->costlocal)) {
+                    $costcurrency = $invoiceline->get_transaction()->get_currency();
                     if($currency_obj->alphaCode != $costcurrency->iso_code) {
                         if($costcurrency->iso_code == 'GHC') {
                             $costcurrency->iso_code = 'GHS';
