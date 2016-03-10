@@ -17,4 +17,5 @@ $lang['persupplier'] = 'Due Payments Per Supplier';
 $lang['toorkilainternational'] = 'Due Payments To Orkila International';
 $lang['monthssubtotal'] = 'Months Subtotals';
 $lang['month'] = 'Month';
+$lang['total'] = 'Total';
 ?>

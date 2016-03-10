@@ -3280,6 +3280,9 @@ class IntegrationOBFinPaymentSchedule extends IntegrationAbstractClass {
                 $currency_obj = $cache->get_cachedval('currency', $paymentschedule_obj->c_currency_id);
                 if(is_object($currency_obj)) {
                     $fxrate = $maincurrency_object->get_latest_fxrate($currency_obj->iso_code);
+                    if($currency_obj->iso_code == 'GHC' && !$fxrate) {
+                        $fxrate = $maincurrency_object->get_latest_fxrate('GHS');
+                    }
                 }
                 if(!$fxrate) {
                     $fxrate = -1;
@@ -3479,12 +3482,12 @@ class IntegrationOBFinPaymentSchedule extends IntegrationAbstractClass {
         //parse total lines
         if(is_array($totals)) {
             if($totals['purchase'] > 0) {
-                $detailedtable_rows .='<tr style="text-align: right; padding: 5px; border-bottom: 1px dashed #CCCCCC;"><th colspan="2">'.$lang->total.'</th><th colspan="4"><strong>'.number_format($totals['purchase'], 0, '.', ',').'</strong></th></tr>';
-                $percompany_rows .='<tr style="text-align: right; padding: 5px; border-bottom: 1px dashed #CCCCCC;"><th colspan="2">'.$lang->total.'</th><th colspan="6"><strong>'.number_format($totals['purchase'], 0, '.', ',').'</strong></th></tr>';
-                $persupplier_rows .='<tr style="text-align: right; padding: 5px; border-bottom: 1px dashed #CCCCCC;"><th colspan="2">'.$lang->total.'</th><th colspan="5"><strong>'.number_format($totals['purchase'], 0, '.', ',').'</strong></th></tr>';
+                $detailedtable_rows .='<tr style=" padding: 5px; border-bottom: 1px dashed #CCCCCC;background-color:#D6EAAC"><th style="text-align: center;" colspan="2">'.$lang->total.'</th><th style="text-align: left;" colspan="4"><strong>'.number_format($totals['purchase'], 0, '.', ',').'</strong></th></tr>';
+                $percompany_rows .='<tr style=" padding: 5px; border-bottom: 1px dashed #CCCCCC;background-color:#D6EAAC"><th style="text-align: center;" colspan="2">'.$lang->total.'</th><th style="text-align: left;" colspan="6"><strong>'.number_format($totals['purchase'], 0, '.', ',').'</strong></th></tr>';
+                $persupplier_rows .='<tr style=" padding: 5px; border-bottom: 1px dashed #CCCCCC;background-color:#D6EAAC"><th style="text-align: center;" colspan="2">'.$lang->total.'</th><th style="text-align: left;" colspan="5"><strong>'.number_format($totals['purchase'], 0, '.', ',').'</strong></th></tr>';
             }
             if($totals['sales'] > 0) {
-                $forinternational_rows .='<tr style="text-align: right; padding: 5px; border-bottom: 1px dashed #CCCCCC;"><th colspan="2">'.$lang->total.'</th><th colspan="3"><strong>'.number_format($totals['sales'], 0, '.', ',').'</strong></th></tr>';
+                $forinternational_rows .='<tr style=" padding: 5px; border-bottom: 1px dashed #CCCCCC;"><th style="text-align: center;" colspan="2">'.$lang->total.'</th><th style="text-align: left;" colspan="3"><strong>'.number_format($totals['sales'], 0, '.', ',').'</strong></th></tr>';
             }
         }
 
