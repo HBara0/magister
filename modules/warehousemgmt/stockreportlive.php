@@ -1143,7 +1143,7 @@ else {
 
             $message = '<html><head><title>Stock Report</title></head><body>';
             $message .= '<h1>Stock Summary Report - '.$affiliate['name'].' - Week '.$date_info['week'].'/'.$date_info['year'].' ( '.$affiliate['currency'].' | USD FX Rate:'.$fxrates['usd'].')<br />'
-                    .'<small style = "color:red;">New Feature: Check the new Expiry Aging table, and its summaries</small></h1>';
+                    .'</h1>';
             $message .= $stockevolution_output.$alerts.$summaries_ouput.$output.$fxratesoverview_output;
             unset($stockevolution_output, $alerts, $summaries_ouput, $output, $fxratesoverview_output);
         }
