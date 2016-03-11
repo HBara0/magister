@@ -1015,5 +1015,33 @@ class Users extends AbstractClass {
         return '<a href="index.php?module=reporting/performance&year='.$year.'&quarter='.$quarter.'&uid='.$this->data[self::PRIMARY_KEY].'&excludecharts=1" '.$attributes.'>'.$this->data[$options['outputvar']].'</a>';
     }
 
+    /**
+     * get default currency of user by assigned affiliates countries
+     * @global type $core
+     * @global type $db
+     * @return boolean
+     */
+    public function get_default_currencies($type = '') {
+        global $core, $db;
+        $affiliates_currencies = array(840 => 840, 978 => 978, 826 => 826);
+        $whereaffid = 'IN('.implode(',', $core->user['affiliates']).')';
+        if($type == 'main') {
+            $whereaffid = ' = '.intval($core->user['mainaffiliate']);
+        }
+
+        $affiliatecurrenciesquery = $db->query('SELECT cur.numCode as curid
+											FROM '.Tprefix.'countries c
+											JOIN '.Tprefix.'currencies cur ON (c.mainCurrency=cur.numCode)
+											WHERE affid '.$whereaffid.'
+											ORDER BY cur.alphaCode');
+        while($country_currency = $db->fetch_assoc($affiliatecurrenciesquery)) {
+            $affiliates_currencies[$country_currency['curid']] = $country_currency['curid'];
+        }
+        if($affiliates_currencies && is_array($affiliates_currencies)) {
+            return $affiliates_currencies;
+        }
+        return false;
+    }
+
 }
 ?>

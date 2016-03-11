@@ -11,7 +11,7 @@ class SystemDashboard extends AbstractClass {
     const UNIQUE_ATTRS = 'alias,uid';
     const CLASSNAME = __CLASS__;
     const DISPLAY_NAME = 'title';
-    const REQUIRED_ATTRS = '';
+    const REQUIRED_ATTRS = 'title,inputChecksum,uid';
 
     /* -------Definiton-END-------- */
     /* -------FUNCTIONS-START-------- */
@@ -21,7 +21,7 @@ class SystemDashboard extends AbstractClass {
 
     public function create(array $data) {
         global $db, $core;
-        $fields = array('title', 'alias', 'uid', 'isActive', 'columnCount', 'moduleName', 'moduleId');
+        $fields = array('title', 'alias', 'uid', 'isActive', 'columnCount', 'moduleName', 'moduleId', 'inputChecksum');
         if(is_array($fields)) {
             foreach($fields as $field) {
                 if(!is_null($data[$field])) {
@@ -52,7 +52,7 @@ class SystemDashboard extends AbstractClass {
 
     protected function update(array $data) {
         global $db;
-        $fields = array('title', 'alias', 'uid', 'isActive', 'columnCount', 'moduleName', 'moduleId');
+        $fields = array('title', 'alias', 'uid', 'isActive', 'columnCount', 'moduleName', 'moduleId', 'inputChecksum');
         if(is_array($fields)) {
             foreach($fields as $field) {
                 if(!is_null($data[$field])) {
@@ -82,7 +82,7 @@ class SystemDashboard extends AbstractClass {
      * get all active widgets assigned to current instance of dashboard
      * @return boolean or array of system widgets
      */
-    public function get_active_widgets($configs = array()) {
+    public function get_assigned_widgets($configs = array()) {
         $assigned_widgets = SystemAssignedWidgets::get_data(array(self::PRIMARY_KEY => $this->data[self::PRIMARY_KEY]), array('returnarray' => true, 'order' => 'sequence'));
         if(is_array($assigned_widgets)) {
             //check if widget is set as active before returning it
@@ -109,7 +109,7 @@ class SystemDashboard extends AbstractClass {
     public function parse_dashboard() {
         global $core;
         //get assigned widgets of the dashboard
-        $activewidgets = $this->get_active_widgets();
+        $activewidgets = $this->get_assigned_widgets();
         if(is_array($activewidgets)) {
             $widgets_output = array();
             foreach($activewidgets as $widgetinstance) {

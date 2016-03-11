@@ -229,7 +229,7 @@ class Meetings {
         }
 
         //if(!isset($attendees)) {
-        $attendees['uid'][] = array(array('idAttr' => 'uid', 'mtid' => $this->meeting['mtid'], 'id' => $core->user['uid']));
+        $attendees['uid'][] = array('idAttr' => 'uid', 'mtid' => $this->meeting['mtid'], 'id' => $core->user['uid']);
         //}
 
         if(!empty($attendees)) {

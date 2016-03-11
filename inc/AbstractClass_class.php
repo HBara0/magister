@@ -238,15 +238,19 @@ Abstract class AbstractClass {
     }
 
     protected function validate_requiredfields($data) {
-        global $errorhandler;
+        global $errorhandler, $lang;
         $required_fields = static::REQUIRED_ATTRS;
         if(!empty($required_fields)) {
             $required_fields = explode(',', $required_fields);
             if(is_array($required_fields) && is_array($data)) {
                 foreach($required_fields as $field) {
                     if(!isset($data[$field]) || empty($data[$field])) {
-                        $errorhandler->record('requiredfields', $field);
-                        return false;
+                        if(!empty($lang->$field)) {
+                            $errorhandler->record('requiredfields', $lang->$field);
+                        }
+                        else {
+                            $errorhandler->record('requiredfields', $field);
+                        }return false;
                     }
                 }
                 return true;

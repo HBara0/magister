@@ -1,4 +1,10 @@
 <?php
+
+/**
+ * serializedConfig is a serialized multidimensional array with the following format :
+ * array('required'=>array(),array())
+ * It needs to be multi dimensonal since there is a check on the required fields when parsing and saving
+ */
 /* -------Definiton-START-------- */
 
 class SystemWidgets extends AbstractClass {
@@ -21,7 +27,7 @@ class SystemWidgets extends AbstractClass {
 
     public function create(array $data) {
         global $db, $core;
-        $fields = array('swdgid', 'moduleId', 'moduleName', 'title', 'alias', 'isActive', 'isTable', 'isForm', 'isChart', 'availableConfig', 'className');
+        $fields = array('swdgid', 'moduleId', 'moduleName', 'title', 'alias', 'isActive', 'isTable', 'isForm', 'isChart', 'serializedConfig', 'className');
         if(is_array($fields)) {
             foreach($fields as $field) {
                 if(!is_null($data[$field])) {
@@ -51,7 +57,7 @@ class SystemWidgets extends AbstractClass {
 
     protected function update(array $data) {
         global $db;
-        $fields = array('swdgid', 'moduleId', 'moduleName', 'title', 'alias', 'isActive', 'isTable', 'isForm', 'isChart', 'availableConfig', 'className');
+        $fields = array('swdgid', 'moduleId', 'moduleName', 'title', 'alias', 'isActive', 'isTable', 'isForm', 'isChart', 'serializedConfig', 'className');
         if(is_array($fields)) {
             foreach($fields as $field) {
                 if(!is_null($data[$field])) {
@@ -87,7 +93,7 @@ class SystemWidgets extends AbstractClass {
         $gadget_object = $this->get_gadgetobject();
         if($gadget_object) {
             if(is_object($gadget_object)) {
-                return $gadget_object->parse();
+                return $gadget_object->parse($instancedata);
             }
         }
         return false;
@@ -129,6 +135,53 @@ class SystemWidgets extends AbstractClass {
             return $gadgetinstance_obj = new $gadget_class();
         }
         return false;
+    }
+
+    /**
+     *
+     * @param type $config
+     * @return type
+     */
+    public function get_active_widgets($config = '') {
+        $active_widgets = self::get_data(array('isActive' => 1), array('returnarray' => true));
+        return $active_widgets;
+    }
+
+    /**
+     * Parse select list of active widget types
+     * @global type $lang
+     * @global type $template
+     * @param type $config
+     * @return boolean
+     */
+    public function parse_active_widgets($config = '') {
+        global $lang, $template;
+        $active_widgets = self::get_active_widgets();
+        if(!$active_widgets) {
+            return false;
+        }
+        foreach($active_widgets as $widget_obj) {
+            $widget_options.='<li><a id="select_'.$widget_obj->{self::PRIMARY_KEY}.'_widgettype" href="#">'.$widget_obj->get_displayname().'</a></li>';
+        }
+        eval("\$widgetselectlist = \"".$template->get('system_parseactivewidgets')."\";");
+        return $widgetselectlist;
+    }
+
+    /**
+     *
+     * @global type $template
+     * @param array $dashboard
+     * @param type $config
+     * @return type
+     */
+    public function parse_widgetselect_form(array $dashboard, $config = '') {
+        global $template, $lang;
+        //load dashboad lang file
+        $lang->load('dashboard');
+        $widget_list = self::parse_active_widgets($config);
+
+        eval("\$widgetselectform= \"".$template->get('system_parse_widgetselectform')."\";");
+        return $widgetselectform;
     }
 
 }
