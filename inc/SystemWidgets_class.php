@@ -132,7 +132,7 @@ class SystemWidgets extends AbstractClass {
         }
         $gadget_class = $this->get_gadgetclass();
         if($gadget_class) {
-            return $gadgetinstance_obj = new $gadget_class();
+            return new $gadget_class();
         }
         return false;
     }

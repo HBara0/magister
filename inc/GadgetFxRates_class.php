@@ -61,7 +61,7 @@ class GadgetFxRates extends SystemGadget {
      * @return string
      */
     public function parse_rates_list($currency_arrays, $tocurrency_id = 840) {
-        global $lang;
+        global $lang, $core;
         $currencysrates_list = '<ul>';
         $tocurrency_obj = new Currencies($tocurrency_id);
         $tocurrency_output = $lang->basecurrency.' '.$tocurrency_obj->get_displayname().'<br>';
