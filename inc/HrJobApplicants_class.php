@@ -40,4 +40,12 @@ class HrJobApplicants extends AbstractClass {
 
     }
 
+    /**
+     *
+     * @return string
+     */
+    public function get_displayname() {
+        return $this->data['firstName'].' '.$this->data['lastName'];
+    }
+
 }

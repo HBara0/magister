@@ -30,10 +30,16 @@ else {
         if(empty($core->input['affid'])) {
             redirect('index.php?module=warehousemgmt/stockreportlive');
         }
+
         $report_period = array('from' => '2005-01-01');
         $report_period['to'] = 'tomorrow -1 second';
+
+        /* Predefined values for End of month stock report */
+        if($core->input['type'] == 'endofmonth') {
+            $core->input['asOf'] = date('Y-m-d', strtotime('last day of last month'));
+        }
         if(!empty($core->input['asOf'])) {
-            $report_period['to'] = $core->input['asOf'];
+            $report_period['to'] = $core->input['asOf'].' 23:59:59';
         }
         $date_info = getdate_custom(strtotime($report_period['to']));
         /* In-line CSS styles in form of array in order to be compatible with email message */
@@ -160,7 +166,13 @@ else {
 
         $integration->set_organisations(array($orgid));
         $integration->set_sync_interval($report_period);
-        $inputs = $integration->get_fifoinputsalternative(array($orgid), array('hasqty' => true));
+        if($core->input['referrer'] == 'bmstockreport') {
+            if(isset($core->input['bm']) && !empty($core->input['bm'])) {
+                $options['bm'] = $core->input['bm'];
+            }
+        }
+        $options['hasqty'] = true;
+        $inputs = $integration->get_fifoinputsalternative(array($orgid), $options);
         if(!empty($inputs)) {
             $fxrates['usd'] = $currency_obj->get_latest_fxrate($affiliate['currency']);
 
@@ -1058,13 +1070,17 @@ else {
                 foreach($aging_scale as $key => $age) {
                     $stockevolution_chart_linecolors[$age] = $configs['aging']['output_fields']['range'.$key.'cost']['chartlinecolor'];
                 }
-
-                $stockevolution_chart = new Charts(array('x' => $chart_data['x'], 'y' => $chart_data['y']), 'line', array('path' => './tmp/charts/', 'labelrotationangle' => 90, 'height' => 400, 'width' => 900, 'yaxisname' => 'K. USD', 'graphareay2margin' => 50, 'scale' => SCALE_START0, 'seriesweight' => 2, 'nosort' => true, 'linescolors' => $stockevolution_chart_linecolors));
-                if($core->input['reporttype'] == 'email') {
-                    $stockevolution_output = '<img src="cid:stockevolutionchart" />'.$stockevolution_output;
+                if($core->input['referrer'] == 'bmstockreport') {
+                    $stockevolution_chart = new Charts(array('x' => $chart_data['x'], 'y' => $chart_data['y']), 'line', array('path' => ROOT.'/tmp/charts/', 'labelrotationangle' => 90, 'height' => 400, 'width' => 900, 'yaxisname' => 'K. USD', 'graphareay2margin' => 50, 'scale' => SCALE_START0, 'seriesweight' => 2, 'nosort' => true, 'linescolors' => $stockevolution_chart_linecolors));
                 }
                 else {
-                    $stockevolution_output = '<img src="data:image/png;base64,'.base64_encode(file_get_contents($stockevolution_chart->get_chart())).'" />'.$stockevolution_output;
+                    $stockevolution_chart = new Charts(array('x' => $chart_data['x'], 'y' => $chart_data['y']), 'line', array('path' => $extra_path.'./tmp/charts/', 'labelrotationangle' => 90, 'height' => 400, 'width' => 900, 'yaxisname' => 'K. USD', 'graphareay2margin' => 50, 'scale' => SCALE_START0, 'seriesweight' => 2, 'nosort' => true, 'linescolors' => $stockevolution_chart_linecolors));
+                }
+                if($core->input['reporttype'] == 'email') {
+                    $stockevolution_output = '<img src = "cid:stockevolutionchart" />'.$stockevolution_output;
+                }
+                else {
+                    $stockevolution_output = '<img src = "data:image/png;base64,'.base64_encode(file_get_contents($stockevolution_chart->get_chart())).'" />'.$stockevolution_output;
                 }
 
                 /* Parse FX Rates Chart - START */
@@ -1076,14 +1092,18 @@ else {
                 $overyears_rates = $overyears_rates + $currency_rates_year;
                 $index1 = 8;
                 $index2 = count($overyears_rates) - 1;
-                $fxrates_linechart = new Charts(array('x' => array_keys($overyears_rates), 'y' => array('1 USD' => $overyears_rates)), 'line', array('xaxisname' => 'Months ('.$date_info['year'].')', 'yaxisname' => 'USD Rate', 'yaxisunit' => '', 'treshholddata' => array('firstindex' => $index1, 'secondindex' => $index2), 'hasthreshold' => 1, 'width' => 700, 'height' => 200, 'scale' => SCALE_START0, 'path' => './tmp/charts/', 'writelabel' => true));
-
-                $fxratesoverview_output = '<h1>FX Rates Evolution</h1>';
-                if($core->input['reporttype'] == 'email') {
-                    $fxratesoverview_output .= '<img src="cid:fxratesoverview" />';
+                if($core->input['referrer'] == 'bmstockreport') {
+                    $fxrates_linechart = new Charts(array('x' => array_keys($overyears_rates), 'y' => array('1 USD' => $overyears_rates)), 'line', array('xaxisname' => 'Months ('.$date_info['year'].')', 'yaxisname' => 'USD Rate', 'yaxisunit' => '', 'treshholddata' => array('firstindex' => $index1, 'secondindex' => $index2), 'hasthreshold' => 1, 'width' => 700, 'height' => 200, 'scale' => SCALE_START0, 'path' => ROOT.'/tmp/charts/', 'writelabel' => true));
                 }
                 else {
-                    $fxratesoverview_output .= '<img src="data:image/png;base64,'.base64_encode(file_get_contents($fxrates_linechart->get_chart())).'" />';
+                    $fxrates_linechart = new Charts(array('x' => array_keys($overyears_rates), 'y' => array('1 USD' => $overyears_rates)), 'line', array('xaxisname' => 'Months ('.$date_info['year'].')', 'yaxisname' => 'USD Rate', 'yaxisunit' => '', 'treshholddata' => array('firstindex' => $index1, 'secondindex' => $index2), 'hasthreshold' => 1, 'width' => 700, 'height' => 200, 'scale' => SCALE_START0, 'path' => './tmp/charts/', 'writelabel' => true));
+                }
+                $fxratesoverview_output = '<h1>FX Rates Evolution</h1>';
+                if($core->input['reporttype'] == 'email') {
+                    $fxratesoverview_output .= '<img src = "cid:fxratesoverview" />';
+                }
+                else {
+                    $fxratesoverview_output .= '<img src = "data:image/png;base64,'.base64_encode(file_get_contents($fxrates_linechart->get_chart())).'" />';
                 }
             }
             /* Parse FX Rates Chart - END */
@@ -1092,15 +1112,15 @@ else {
 
 //		$summarytables_headers = '';
 //		for($month = 1; $month <= 12; $month++) {
-//			$summarytables_headers .= '<th style="background: #91b64f;">'.$month.'</th>';
+//			$summarytables_headers .= '<th style = "background: #91b64f;">'.$month.'</th>';
 //		}
 //
 //		if(is_array($totals)) {
 //			foreach($totals as $category) {
-//				$output .= '<table width="100%" cellspacing="0" cellpadding="5" style="border: 1px solid #CCC; font-size: 10px;" border="0">';
-//				$output .= '<th style="background: #91b64f;">Category</th>';
+//				$output .= '<table width = "100%" cellspacing = "0" cellpadding = "5" style = "border: 1px solid #CCC; font-size: 10px;" border = "0">';
+//				$output .= '<th style = "background: #91b64f;">Category</th>';
 //				$output .= $summarytables_headers;
-//				$output .= '<th style="background: #91b64f;">Total</th>';
+//				$output .= '<th style = "background: #91b64f;">Total</th>';
 //
 //				foreach($category as $rowkey => $row) {
 //					$output .= '<tr>';
@@ -1122,7 +1142,8 @@ else {
             $message .= '</body></html>';
 
             $message = '<html><head><title>Stock Report</title></head><body>';
-            $message .= '<h1>Stock Summary Report - '.$affiliate['name'].' - Week '.$date_info['week'].'/'.$date_info['year'].' ( '.$affiliate['currency'].' | USD FX Rate:'.$fxrates['usd'].')<br /><small style="color:red;">New Feature: Check the new Expiry Aging table, and its summaries</small></h1>';
+            $message .= '<h1>Stock Summary Report - '.$affiliate['name'].' - Week '.$date_info['week'].'/'.$date_info['year'].' ( '.$affiliate['currency'].' | USD FX Rate:'.$fxrates['usd'].')<br />'
+                    .'<small style = "color:red;">New Feature: Check the new Expiry Aging table, and its summaries</small></h1>';
             $message .= $stockevolution_output.$alerts.$summaries_ouput.$output.$fxratesoverview_output;
             unset($stockevolution_output, $alerts, $summaries_ouput, $output, $fxratesoverview_output);
         }
@@ -1130,36 +1151,40 @@ else {
             $message = '<html><head><title>Stock Report</title></head><body>';
             $message .= '<h1>'.$lang->nomatchfound.'</h1>';
         }
-        $affiliates_addrecpt = array(
-                19 => array(398, 356),
-                22 => array(248, 246, 270, 356, 63, 379, 378),
-                23 => array('zadok.oppong-boahene', 'courage.dzandu', 416, 321, 'tarek.chalhoub', 63, 356),
-                1 => array(356), //12, 333, 182, 43,
-                21 => array(63, 158, 'patrice.mossan', 'marcelle.nklo', 'abel.laho', 'boulongo.diata', 356, 'kenan.amjeh'),
-                27 => array(12, 333, 68, 67, 356), //342,30
-                20 => array('michel.mbengue', 'samba.kandji', 'ansou.dabo', 'fatimatou.diallo', 356),
-                11 => array(323, 108, 186, 335, 184, 111, 109, 280, 326, 295, 289, 187, 112, 113, 312, 107, 356, 63),
-                2 => array('amal.dababneh', 34),
-                7 => array(434)
-        );
+        if($core->input['referrer'] != 'bmstockreport') {
+            $affiliates_addrecpt = array(
+                    19 => array(398, 356, 457, 367),
+                    22 => array(248, 246, 270, 356, 63, 379, 378),
+                    23 => array('zadok.oppong-boahene', 'courage.dzandu', 416, 321, 'tarek.chalhoub', 63, 356, 464, 457, 367),
+                    1 => array(356, 457, 367), //12, 333, 182, 43,
+                    21 => array(63, 158, 'patrice.mossan', 'marcelle.nklo', 'abel.laho', 'boulongo.diata', 356, 'kenan.amjeh', 457, 367),
+                    27 => array(12, 333, 68, 67, 356, 457, 367), //342,30
+                    20 => array('michel.mbengue', 'samba.kandji', 'ansou.dabo', 'fatimatou.diallo', 356, 457, 367),
+                    11 => array(323, 108, 186, 335, 184, 111, 109, 280, 326, 295, 289, 187, 112, 113, 312, 107, 356, 63, 457, 367),
+                    2 => array('amal.dababneh', 34, 457, 367),
+                    7 => array(434, 457, 367),
+                    22 => array(457, 367),
+                    16 => array(457, 367),
+                    29 => array(457, 367),
+            );
+            $recipients[] = $affiliateobj->get_generalmanager()->email;
+            $recipients[] = $affiliateobj->get_supervisor()->email;
+            $recipients[] = $core->user_obj->email;
 
-        $recipients[] = $affiliateobj->get_generalmanager()->email;
-        $recipients[] = $affiliateobj->get_supervisor()->email;
-        $recipients[] = $core->user_obj->email;
-
-        if(isset($affiliates_addrecpt[$affiliate['affid']])) {
-            foreach($affiliates_addrecpt[$affiliate['affid']] as $uid) {
-                if(!is_numeric($uid)) {
-                    $adduser = Users::get_user_byattr('username', $uid);
+            if(isset($affiliates_addrecpt[$affiliate['affid']])) {
+                foreach($affiliates_addrecpt[$affiliate['affid']] as $uid) {
+                    if(!is_numeric($uid)) {
+                        $adduser = Users::get_user_byattr('username', $uid);
+                    }
+                    else {
+                        $adduser = new Users($uid);
+                    }
+                    $recipients[] = $adduser->get()['email'];
                 }
-                else {
-                    $adduser = new Users($uid);
-                }
-                $recipients[] = $adduser->get()['email'];
             }
-        }
 
-        array_unique($recipients);
+            array_unique($recipients);
+        }
         if($core->input['reporttype'] == 'email') {
             $mailer = new Mailer();
             $mailer = $mailer->get_mailerobj();
@@ -1201,13 +1226,14 @@ else {
 //                    $affiliateobj->get_supervisor()->displayName,
 //                    $affiliateobj->get_financialemanager()->displayName,
 //                    $core->user_obj->displayName);
-
-            if(is_array($recipients)) {
-                $recipients = array_filter($recipients);
-                $stockreportpage['content'] .= '<hr /><div class="ui-state-highlight ui-corner-all" style="padding-left: 5px; margin-bottom:10px;"><p>This report will be sent to <ul><li>'.implode('</li><li>', $recipients).'</li></ul></p></div>';
-                $stockreportpage['content'] .= '<a href="index.php?reporttype=email&amp;'.http_build_query($core->input).'"><button class="button">Send by email</button></a>';
+            if($core->input['referrer'] != 'bmstockreport') {
+                if(is_array($recipients)) {
+                    $recipients = array_filter($recipients);
+                    $stockreportpage['content'] .= '<hr /><div class = "ui-state-highlight ui-corner-all" style = "padding-left: 5px; margin-bottom:10px;"><p>This report will be sent to <ul><li>'.implode('</li><li>', $recipients).'</li></ul></p></div>';
+                    $stockreportpage['content'] .= '<a href = "index.php?reporttype=email&amp;'.http_build_query($core->input).'"><button class = "button">Send by email</button></a>';
+                }
             }
-            if($core->input['referrer'] != 'generate_budgetpresntation') {
+            if($core->input['referrer'] != 'generate_budgetpresntation' || $core->input['referrer'] != 'bmstockreport') {
                 $page['content'] = $stockreportpage['content'].'<br/>'.$stockpermonthofsale_output;
                 eval("\$report = \"".$template->get('general_container')."\";");
                 output_page($report);

@@ -81,6 +81,13 @@ $lang['errorsaving'] = 'Error ocured while saving';
 $lang['wrongpublishoptions'] = 'Wrong Publish Options';
 $lang['unspecify'] = 'Unspecify';
 
+$lang['applicantfullname'] = 'Applicant Full Name';
+$lang['email'] = 'Email';
+$lang['phone'] = 'Phone';
+$lang['submissiondate'] = 'Submission Date';
+$lang['vacancy'] = 'Vacancy';
+
+
 
 
 

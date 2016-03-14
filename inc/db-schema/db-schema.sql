@@ -144,6 +144,9 @@ CREATE TABLE `affiliates3` (
   `alias` varchar(110) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
   `name` varchar(220) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
   `legalName` varchar(220) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+CREATE TABLE `affiliatemanagementlog` (
+  `amlid` smallint(5) unsigned NOT NULL AUTO_INCREMENT,
+  `affid` smallint(5) unsigned NOT NULL,
   `generalManager` int(10) unsigned NOT NULL,
   `supervisor` int(10) unsigned NOT NULL,
   `hrManager` int(10) unsigned NOT NULL,
@@ -153,84 +156,17 @@ CREATE TABLE `affiliates3` (
   `globalPurchaseManager` int(10) DEFAULT NULL,
   `cfo` int(10) DEFAULT NULL,
   `logisticsManager` int(10) DEFAULT NULL,
-  `vacanciesEmail` varchar(220) DEFAULT NULL,
-  `mailingList` varchar(200) NOT NULL,
-  `altMailingList` varchar(200) NOT NULL,
-  `description` text,
-  `country` int(10) unsigned NOT NULL,
-  `city` varchar(100) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
-  `postCode` varchar(10) DEFAULT NULL,
-  `addressLine1` varchar(200) DEFAULT NULL,
-  `addressLine2` varchar(100) DEFAULT NULL,
-  `floor` tinyint(3) DEFAULT NULL,
-  `geoLocation` point DEFAULT NULL,
-  `phone1` varchar(20) DEFAULT NULL,
-  `phone2` varchar(20) DEFAULT NULL,
-  `fax` varchar(20) DEFAULT NULL,
-  `poBox` int(10) DEFAULT NULL,
-  `mainEmail` varchar(220) NOT NULL,
-  `website` varchar(220) DEFAULT NULL,
-  `qrAlwaysCopy` text NOT NULL,
-  `vrAlwaysNotify` text,
-  `defaultWorkshift` smallint(10) NOT NULL,
-  `integrationOBOrgId` varchar(32) DEFAULT NULL,
-  `defaultLang` varchar(50) NOT NULL DEFAULT 'english',
-  `mainCurrency` int(3) DEFAULT NULL,
-  `publishOnWebsite` tinyint(1) NOT NULL DEFAULT '0',
-  `isIntReinvoiceAffiliate` tinyint(1) NOT NULL DEFAULT '0',
-  `chartSpec` varchar(250) DEFAULT NULL,
-  `isActive` tinyint(1) NOT NULL DEFAULT '1',
-  `chartColor` varchar(6) NOT NULL,
-  PRIMARY KEY (`affid`),
-  KEY `name` (`name`),
-  KEY `generalManager` (`generalManager`,`supervisor`,`hrManager`),
-  KEY `country` (`country`),
-  KEY `defaultWorkshift` (`defaultWorkshift`),
-  KEY `geoLocation` (`geoLocation`(25)),
-  KEY `finManager` (`finManager`),
-  FULLTEXT KEY `name_2` (`name`)
-) ENGINE=MyISAM AUTO_INCREMENT=30 DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-DROP TABLE IF EXISTS `affiliates_accountingtree`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `affiliates_accountingtree` (
-  `affid` smallint(5) NOT NULL,
-  `acckey` varchar(15) CHARACTER SET latin1 NOT NULL,
-  `name` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
-  `type` varchar(10) CHARACTER SET latin1 NOT NULL,
-  `sign` varchar(1) CHARACTER SET latin1 NOT NULL,
-  `document` varchar(2) CHARACTER SET latin1 NOT NULL,
-  `summary` varchar(3) CHARACTER SET latin1 NOT NULL,
-  `default` varchar(200) CHARACTER SET latin1 NOT NULL,
-  `parent` int(15) NOT NULL,
-  `level` varchar(1) CHARACTER SET latin1 NOT NULL,
-  `operands` varchar(10) CHARACTER SET latin1 NOT NULL,
-  PRIMARY KEY (`affid`,`acckey`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-DROP TABLE IF EXISTS `affiliates_commissiondist`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `affiliates_commissiondist` (
-  `acdid` int(10) NOT NULL AUTO_INCREMENT,
-  `affid` smallint(5) NOT NULL,
-  `stid` smallint(10) NOT NULL,
-  `spid` int(10) NOT NULL,
-  `percentage` float NOT NULL DEFAULT '0',
-  `invoicingAffid` smallint(5) NOT NULL DEFAULT '0',
-  `effectiveFrom` bigint(30) NOT NULL,
-  `effectiveTo` bigint(30) NOT NULL,
-  `createdBy` int(10) NOT NULL,
-  `createdOn` bigint(30) NOT NULL,
-  PRIMARY KEY (`acdid`),
-  KEY `affid` (`affid`,`stid`,`spid`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+  `commercialManager` int(10) NOT NULL,
+  `globalFinManager` int(10) NOT NULL,
+  `uptoDate` bigint(30) NOT NULL,
+  PRIMARY KEY (`amlid`)
+) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `affiliates_temp`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `affiliates_temp` (
+CREATE TABLE `affiliates` (
   `affid` smallint(5) unsigned NOT NULL AUTO_INCREMENT,
   `alias` varchar(110) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
   `name` varchar(220) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
@@ -271,7 +207,14 @@ CREATE TABLE `affiliates_temp` (
   `isIntReinvoiceAffiliate` tinyint(1) NOT NULL DEFAULT '0',
   `chartSpec` varchar(250) DEFAULT NULL,
   `isActive` tinyint(1) NOT NULL DEFAULT '1',
-  `brandingColor` varchar(6) NOT NULL,
+  `chartColor` varchar(6) NOT NULL,
+  `brandingColor` varchar(150) NOT NULL,
+  `commercialManager` int(10) NOT NULL,
+  `globalFinManager` int(10) NOT NULL,
+  `commercialEmail` varchar(220) DEFAULT NULL,
+  `mgmtAsOf` bigint(30) NOT NULL,
+  `modifiedOn` bigint(30) NOT NULL,
+  `modifiedBy` int(10) NOT NULL,
   PRIMARY KEY (`affid`),
   KEY `name` (`name`),
   KEY `generalManager` (`generalManager`,`supervisor`,`hrManager`),
@@ -311,39 +254,37 @@ CREATE TABLE `aro_approvalchain_policies` (
   `purchaseType` int(10) NOT NULL,
   `effectiveFrom` bigint(30) NOT NULL,
   `effectiveTo` bigint(30) NOT NULL,
-  `approvalChain` text COLLATE utf8_unicode_ci NOT NULL,
+  `approvalChain` text CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
   `informCoordinators` tinyint(1) NOT NULL,
   `informGlobalCFO` tinyint(1) NOT NULL,
-  `informGlobalPurchaseMgr` tinyint(1) NOT NULL,
-  `informInternalUsers` text COLLATE utf8_unicode_ci NOT NULL,
-  `informExternalUsers` text COLLATE utf8_unicode_ci NOT NULL,
   `createdBy` int(10) NOT NULL,
   `createdOn` bigint(30) NOT NULL,
   `modifiedOn` bigint(30) NOT NULL,
   `modifiedBy` int(10) NOT NULL,
   `informGlobalCommercials` tinyint(1) NOT NULL,
   PRIMARY KEY (`aapcid`)
-) ENGINE=MyISAM AUTO_INCREMENT=94 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `aro_documentsequences`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `aro_documentsequences` (
   `adsid` int(10) NOT NULL AUTO_INCREMENT,
-  `affid` int(10) NOT NULL,
+  `affid` smallint(10) NOT NULL,
   `coid` int(10) NOT NULL,
   `ptid` int(10) NOT NULL,
   `effectiveFrom` bigint(30) NOT NULL,
   `effectiveTo` bigint(30) NOT NULL,
-  `prefix` varchar(30) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `prefix` varchar(30) COLLATE utf8_unicode_ci NOT NULL,
   `incrementBy` smallint(100) NOT NULL,
   `nextNumber` smallint(100) NOT NULL,
-  `suffix` varchar(50) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `suffix` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
   `createdOn` bigint(30) NOT NULL,
   `createdBy` int(10) NOT NULL,
   `modifiedBy` int(10) NOT NULL,
   `modifiedOn` bigint(30) NOT NULL,
   PRIMARY KEY (`adsid`)
+) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `aro_netmargin_parameters`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -411,7 +352,7 @@ CREATE TABLE `aro_ordersummary` (
   `totalCommission` float NOT NULL,
   `interestValue` float NOT NULL,
   PRIMARY KEY (`aorsid`)
-) ENGINE=MyISAM AUTO_INCREMENT=8 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `aro_policies`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -427,21 +368,22 @@ CREATE TABLE `aro_policies` (
   `yearlyInterestRate` decimal(10,0) NOT NULL,
   `commissionCharged` decimal(10,0) NOT NULL,
   `riskRatioDiffCurrCP` decimal(10,0) NOT NULL,
-  `riskRatioIncreaseDiffCurrCN` decimal(10,0) NOT NULL,
-  `riskRatioDays` int(11) NOT NULL,
+  `riskRatioMonthlyIncreaseDiffCurrCN` decimal(10,0) NOT NULL,
   `riskRatioSameCurrCN` decimal(10,0) NOT NULL,
+  `riskRatioIncreaseDiffCurrCN` float DEFAULT NULL,
+  `riskRatioDays` float DEFAULT NULL,
+  `defaultIntermed` smallint(5) NOT NULL,
+  `defaultPaymentTerm` int(10) NOT NULL,
+  `defaultAcceptableMargin` float NOT NULL,
+  `defaultCurrency` int(3) NOT NULL,
+  `defaultIncoterms` int(5) NOT NULL,
   `isActive` tinyint(1) NOT NULL,
   `createdOn` bigint(30) NOT NULL,
   `createdBy` int(10) NOT NULL,
   `modifiedOn` bigint(30) NOT NULL,
   `modifiedBy` int(10) NOT NULL,
-  `defaultIntermed` int(10) NOT NULL,
-  `defaultIncoterms` int(10) NOT NULL,
-  `defaultPaymentTerm` int(10) NOT NULL,
-  `defaultAcceptableMargin` float NOT NULL,
-  `defaultCurrency` int(3) NOT NULL,
   PRIMARY KEY (`apid`)
-) ENGINE=MyISAM AUTO_INCREMENT=24 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=9 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `aro_requests`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -457,39 +399,39 @@ CREATE TABLE `aro_requests` (
   `currency` int(10) NOT NULL,
   `exchangeRateToUSD` float NOT NULL,
   `referenceNumber` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+  `avgLocalInvoiceDueDate` bigint(30) NOT NULL,
+  `revision` int(2) NOT NULL DEFAULT '0',
+  `isApproved` tinyint(1) NOT NULL DEFAULT '0',
+  `isFinalized` tinyint(1) NOT NULL DEFAULT '0',
   `createdOn` bigint(30) NOT NULL,
   `createdBy` int(10) NOT NULL,
   `modifiedOn` bigint(30) NOT NULL,
   `modifiedBy` int(10) NOT NULL,
-  `revision` int(2) NOT NULL DEFAULT '0',
-  `isApproved` tinyint(1) NOT NULL,
-  `avgLocalInvoiceDueDate` bigint(30) NOT NULL,
-  `aroBusinessManager` int(10) NOT NULL,
-  `isFinalized` tinyint(1) NOT NULL,
-  `finalizedOn` bigint(30) NOT NULL,
+  `POSent` tinyint(1) NOT NULL DEFAULT '0',
   `isRejected` tinyint(1) NOT NULL DEFAULT '0',
   `rejectedBy` int(10) NOT NULL,
   `rejectedOn` bigint(30) NOT NULL,
-  `POSent` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`aorid`),
   UNIQUE KEY `aoiid` (`aorid`),
   FULLTEXT KEY `orderReference` (`orderReference`)
+) ENGINE=MyISAM AUTO_INCREMENT=9 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `aro_requests_approvals`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `aro_requests_approvals` (
   `araid` int(10) NOT NULL AUTO_INCREMENT,
-  `arid` int(10) NOT NULL,
   `aorid` int(10) NOT NULL,
   `uid` int(10) NOT NULL,
   `isApproved` tinyint(1) NOT NULL,
   `timeApproved` bigint(30) NOT NULL,
-  `sequence` tinyint(1) NOT NULL,
-  `emailRecievedDate` bigint(30) DEFAULT NULL,
+  `sequence` int(10) NOT NULL,
+  `position` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `emailRecievedDate` bigint(30) NOT NULL,
   `firstEmailRecievedDate` bigint(30) NOT NULL,
+  `timesApproved` int(11) NOT NULL,
   PRIMARY KEY (`araid`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=28 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `aro_requests_curstksupervision`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -515,11 +457,11 @@ DROP TABLE IF EXISTS `aro_requests_fundsengaged`;
 CREATE TABLE `aro_requests_fundsengaged` (
   `arfeid` int(10) NOT NULL AUTO_INCREMENT,
   `aorid` int(10) NOT NULL,
-  `orderShpInvOverdue` double NOT NULL,
-  `orderShpInvNotDue` double NOT NULL,
-  `ordersAppAwaitingShp` double NOT NULL,
-  `odersWaitingApproval` double NOT NULL,
-  `totalFunds` float NOT NULL,
+  `orderShpInvOverdue` float NOT NULL,
+  `orderShpInvNotDue` float NOT NULL,
+  `ordersAppAwaitingShp` float NOT NULL,
+  `odersWaitingApproval` float NOT NULL,
+  `totalfunds` float NOT NULL,
   PRIMARY KEY (`arfeid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -752,8 +694,10 @@ CREATE TABLE `attendance_attrecords` (
   `uid` int(10) NOT NULL,
   `time` bigint(30) NOT NULL,
   `operation` varchar(10) COLLATE utf8_unicode_ci NOT NULL,
+  `createdOn` bigint(30) DEFAULT NULL,
+  `createdBy` int(10) DEFAULT NULL,
   PRIMARY KEY (`aarid`)
-) ENGINE=MyISAM AUTO_INCREMENT=17881 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=18088 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `attendance_leaveexptypes`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -828,7 +772,7 @@ CREATE TABLE `basic_ingredients` (
   `title` varchar(120) NOT NULL,
   `description` varchar(200) DEFAULT NULL,
   PRIMARY KEY (`biid`)
-) ENGINE=MyISAM AUTO_INCREMENT=48 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=118 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `budgeting_accountstrees`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -1635,7 +1579,7 @@ CREATE TABLE `chemfunctionchemcials` (
   `modifiedBy` int(10) NOT NULL,
   `modifiedOn` bigint(30) NOT NULL,
   PRIMARY KEY (`cfcid`,`safid`,`csid`)
-) ENGINE=MyISAM AUTO_INCREMENT=34232 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=34251 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `chemfunctionproducts`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -1680,7 +1624,7 @@ CREATE TABLE `chemicalsubstances` (
   PRIMARY KEY (`csid`),
   FULLTEXT KEY `casNum` (`casNum`,`name`,`synonyms`),
   FULLTEXT KEY `name` (`name`,`synonyms`)
-) ENGINE=MyISAM AUTO_INCREMENT=34480 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=34499 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `chemicalsubstances_import`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -1995,7 +1939,7 @@ CREATE TABLE `currencies_fxrates` (
   `date` bigint(30) NOT NULL,
   PRIMARY KEY (`cfxid`),
   KEY `baseCurrency` (`baseCurrency`,`currency`)
-) ENGINE=MyISAM AUTO_INCREMENT=86894 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=114000 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `development_bugs`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -2028,7 +1972,7 @@ CREATE TABLE `development_bugs` (
   `modifiedBy` int(11) NOT NULL,
   PRIMARY KEY (`dbid`),
   KEY `assignedTo` (`assignedTo`)
-) ENGINE=MyISAM AUTO_INCREMENT=453 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=456 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `development_requirements`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -2255,9 +2199,10 @@ CREATE TABLE `entities` (
   `createdOn` bigint(30) NOT NULL,
   `modifiedBy` int(10) DEFAULT NULL,
   `modifiedOn` bigint(30) DEFAULT NULL,
+  `isSynced` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`eid`),
   KEY `createBy` (`createdBy`,`modifiedBy`)
-) ENGINE=MyISAM AUTO_INCREMENT=5914 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=5918 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `entities3`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -2422,7 +2367,7 @@ CREATE TABLE `entitiesbrands` (
   `modifiedOn` bigint(30) NOT NULL,
   PRIMARY KEY (`ebid`),
   KEY `spid` (`eid`,`createdBy`,`modifiedBy`)
-) ENGINE=MyISAM AUTO_INCREMENT=52 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=58 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `entitiesbrandsproducts`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -2431,7 +2376,7 @@ CREATE TABLE `entitiesbrandsproducts` (
   `ebpid` int(10) NOT NULL AUTO_INCREMENT,
   `ebid` int(10) NOT NULL,
   `eptid` int(10) NOT NULL,
-  `pcvid` int(5) NOT NULL DEFAULT '0',
+  `pcvid` int(5) DEFAULT '0',
   `description` varchar(250) COLLATE utf8_unicode_ci DEFAULT NULL,
   `createdBy` int(10) NOT NULL,
   `createdOn` bigint(30) NOT NULL,
@@ -2932,25 +2877,46 @@ CREATE TABLE `integration_mediation_products` (
 ) ENGINE=MyISAM AUTO_INCREMENT=11110 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `integration_mediation_products2`;
+DROP TABLE IF EXISTS `integration_mediation_purchaseinvoicelines`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `integration_mediation_products2` (
-  `impid` int(20) NOT NULL AUTO_INCREMENT,
-  `localId` int(10) NOT NULL DEFAULT '0',
-  `foreignSystem` tinyint(1) NOT NULL DEFAULT '1',
+CREATE TABLE `integration_mediation_purchaseinvoicelines` (
+  `impilid` int(10) NOT NULL AUTO_INCREMENT,
   `foreignId` varchar(32) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
-  `foreignName` varchar(220) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
-  `foreignNameAbbr` varchar(40) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
-  `foreignSupplier` varchar(32) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `foreignOrderId` varchar(32) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `pid` varchar(32) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `spid` varchar(32) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
   `affid` int(10) NOT NULL,
-  `localDate` bigint(30) DEFAULT NULL,
-  `foreignDate` bigint(30) DEFAULT NULL,
-  `type` tinyint(1) DEFAULT NULL,
-  `addedBy` varchar(200) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
-  PRIMARY KEY (`impid`,`localId`,`foreignSystem`,`foreignId`),
-  UNIQUE KEY `foreignId` (`foreignId`,`foreignNameAbbr`,`affid`),
-  KEY `affid` (`affid`)
-) ENGINE=MyISAM AUTO_INCREMENT=112 DEFAULT CHARSET=latin1;
+  `price` float NOT NULL,
+  `producerPrice` float DEFAULT NULL,
+  `quantity` float NOT NULL,
+  `quantityUnit` varchar(10) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`impilid`),
+  KEY `pid` (`pid`,`spid`),
+  KEY `foreignOrderId` (`foreignOrderId`),
+  KEY `foreignId` (`foreignId`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `integration_mediation_purchaseinvoices`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `integration_mediation_purchaseinvoices` (
+  `impiid` int(10) NOT NULL AUTO_INCREMENT,
+  `foreignSystem` tinyint(1) NOT NULL,
+  `foreignId` varchar(32) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `docNum` varchar(30) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `date` bigint(30) NOT NULL,
+  `spid` varchar(32) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `affid` int(10) NOT NULL,
+  `currency` varchar(4) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `usdFxrate` float DEFAULT NULL,
+  `paymentTerms` int(3) DEFAULT NULL,
+  `purchaseType` varchar(5) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `foreignOrderId` varchar(32) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`impiid`),
+  KEY `cid` (`spid`,`affid`),
+  KEY `foreignId` (`foreignId`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `integration_mediation_purchaseorderlines`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -2963,14 +2929,14 @@ CREATE TABLE `integration_mediation_purchaseorderlines` (
   `spid` varchar(32) COLLATE utf8_unicode_ci NOT NULL,
   `affid` int(10) NOT NULL,
   `price` float NOT NULL,
+  `producerPrice` float DEFAULT NULL,
   `quantity` float NOT NULL,
   `quantityUnit` varchar(10) COLLATE utf8_unicode_ci NOT NULL,
-  `psid` int(10) DEFAULT NULL,
-  `salesRep` varchar(220) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `salesRepLocalId` int(10) NOT NULL DEFAULT '0',
   PRIMARY KEY (`impolid`),
-  KEY `pid` (`pid`,`spid`)
-) ENGINE=MyISAM AUTO_INCREMENT=2580687 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+  KEY `pid` (`pid`,`spid`),
+  KEY `foreignOrderId` (`foreignOrderId`),
+  KEY `foreignId` (`foreignId`)
+) ENGINE=MyISAM AUTO_INCREMENT=17810368 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `integration_mediation_purchaseorders`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -2987,9 +2953,58 @@ CREATE TABLE `integration_mediation_purchaseorders` (
   `usdFxrate` float DEFAULT NULL,
   `paymentTerms` int(3) DEFAULT NULL,
   `purchaseType` varchar(5) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `foreignInvoiceId` varchar(32) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
   PRIMARY KEY (`impoid`),
-  KEY `cid` (`spid`,`affid`)
-) ENGINE=MyISAM AUTO_INCREMENT=6234 DEFAULT CHARSET=latin1;
+  KEY `cid` (`spid`,`affid`),
+  KEY `foreignId` (`foreignId`)
+) ENGINE=MyISAM AUTO_INCREMENT=14646 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `integration_mediation_salesinvoicelines`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `integration_mediation_salesinvoicelines` (
+  `imsilid` int(10) NOT NULL AUTO_INCREMENT,
+  `foreignId` varchar(32) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `foreignOrderId` varchar(32) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `pid` varchar(32) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `spid` varchar(32) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `affid` int(10) NOT NULL,
+  `price` float NOT NULL,
+  `quantity` float NOT NULL,
+  `quantityUnit` varchar(10) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `cost` float NOT NULL,
+  `costCurrency` varchar(4) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `purchasePrice` float NOT NULL,
+  `purPriceCurrency` varchar(4) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`imsilid`),
+  KEY `pid` (`pid`,`spid`),
+  KEY `foreignOrderId` (`foreignOrderId`),
+  KEY `foreignId` (`foreignId`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `integration_mediation_salesinvoices`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `integration_mediation_salesinvoices` (
+  `imsiid` int(10) NOT NULL AUTO_INCREMENT,
+  `foreignSystem` tinyint(1) NOT NULL,
+  `foreignId` varchar(32) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `docNum` varchar(30) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `date` bigint(30) NOT NULL,
+  `cid` varchar(32) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `affid` int(10) NOT NULL,
+  `currency` varchar(4) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `usdFxrate` float DEFAULT NULL,
+  `paymentTerms` int(3) DEFAULT NULL,
+  `salesRep` varchar(220) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `salesRepLocalId` int(10) NOT NULL,
+  `saleType` varchar(5) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `foreignOrderId` varchar(32) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`imsiid`),
+  KEY `cid` (`cid`,`affid`,`salesRep`),
+  KEY `salesRepLocalId` (`salesRepLocalId`),
+  KEY `foreignId` (`foreignId`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `integration_mediation_salesorderlines`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -3012,30 +3027,7 @@ CREATE TABLE `integration_mediation_salesorderlines` (
   KEY `pid` (`pid`,`spid`),
   KEY `foreignOrderId` (`foreignOrderId`),
   KEY `foreignId` (`foreignId`)
-) ENGINE=MyISAM AUTO_INCREMENT=360 DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-DROP TABLE IF EXISTS `integration_mediation_salesorderlines_20150926`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `integration_mediation_salesorderlines_20150926` (
-  `imsolid` int(10) NOT NULL AUTO_INCREMENT,
-  `foreignId` varchar(32) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
-  `foreignOrderId` varchar(32) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
-  `pid` varchar(32) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
-  `spid` varchar(32) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
-  `affid` int(10) NOT NULL,
-  `price` float NOT NULL,
-  `quantity` float NOT NULL,
-  `quantityUnit` varchar(10) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
-  `cost` float NOT NULL,
-  `costCurrency` varchar(4) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
-  `purchasePrice` float NOT NULL,
-  `purPriceCurrency` varchar(4) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
-  PRIMARY KEY (`imsolid`),
-  KEY `pid` (`pid`,`spid`),
-  KEY `foreignOrderId` (`foreignOrderId`),
-  KEY `foreignId` (`foreignId`)
-) ENGINE=MyISAM AUTO_INCREMENT=10890433 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=40595560 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `integration_mediation_salesorders`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -3054,32 +3046,12 @@ CREATE TABLE `integration_mediation_salesorders` (
   `salesRep` varchar(220) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
   `salesRepLocalId` int(10) NOT NULL,
   `saleType` varchar(5) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `foreignInvoiceId` varchar(32) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
   PRIMARY KEY (`imsoid`),
   KEY `cid` (`cid`,`affid`,`salesRep`),
-  KEY `salesRepLocalId` (`salesRepLocalId`)
-) ENGINE=MyISAM AUTO_INCREMENT=300 DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-DROP TABLE IF EXISTS `integration_mediation_salesorders_20150926`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `integration_mediation_salesorders_20150926` (
-  `imsoid` int(10) NOT NULL AUTO_INCREMENT,
-  `foreignSystem` tinyint(1) NOT NULL,
-  `foreignId` varchar(32) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
-  `docNum` varchar(30) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
-  `date` bigint(30) NOT NULL,
-  `cid` varchar(32) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
-  `affid` int(10) NOT NULL,
-  `currency` varchar(4) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
-  `usdFxrate` float DEFAULT NULL,
-  `paymentTerms` int(3) DEFAULT NULL,
-  `salesRep` varchar(220) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
-  `salesRepLocalId` int(10) NOT NULL,
-  `saleType` varchar(5) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
-  PRIMARY KEY (`imsoid`),
-  KEY `cid` (`cid`,`affid`,`salesRep`),
-  KEY `salesRepLocalId` (`salesRepLocalId`)
-) ENGINE=MyISAM AUTO_INCREMENT=20950 DEFAULT CHARSET=latin1;
+  KEY `salesRepLocalId` (`salesRepLocalId`),
+  KEY `foreignId` (`foreignId`)
+) ENGINE=MyISAM AUTO_INCREMENT=37377 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `integration_mediation_stockpurchases`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -3139,6 +3111,7 @@ CREATE TABLE `leaves` (
   `requestKey` varchar(100) NOT NULL,
   `fromDate` bigint(30) NOT NULL,
   `toDate` bigint(30) NOT NULL,
+  `workingDays` float NOT NULL,
   `numWorkingDays` float NOT NULL DEFAULT '0',
   `type` smallint(5) NOT NULL,
   `reason` text CHARACTER SET utf8 COLLATE utf8_unicode_ci,
@@ -3306,7 +3279,19 @@ CREATE TABLE `logs` (
   `data` text NOT NULL,
   PRIMARY KEY (`lid`),
   KEY `uid` (`uid`)
-) ENGINE=MyISAM AUTO_INCREMENT=77907 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=77947 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `logs_userpages`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `logs_userpages` (
+  `lupid` int(10) NOT NULL AUTO_INCREMENT,
+  `uid` int(10) NOT NULL,
+  `page` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+  `module` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+  `time` bigint(30) NOT NULL,
+  PRIMARY KEY (`lupid`)
+) ENGINE=MyISAM AUTO_INCREMENT=36 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `marketintelligence_basicdata`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -3474,7 +3459,7 @@ CREATE TABLE `meetings` (
   `hasMoM` tinyint(1) NOT NULL,
   `isPublic` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`mtid`)
-) ENGINE=MyISAM AUTO_INCREMENT=28 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=29 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `meetings_associations`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -3519,7 +3504,7 @@ CREATE TABLE `meetings_attendees` (
   UNIQUE KEY `matid` (`matid`),
   KEY `matid_2` (`matid`),
   KEY `matid_3` (`matid`)
-) ENGINE=MyISAM AUTO_INCREMENT=74 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=75 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `meetings_minsofmeeting`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -4192,7 +4177,7 @@ CREATE TABLE `settings` (
   `optionscode` text NOT NULL,
   `value` text NOT NULL,
   PRIMARY KEY (`sid`)
-) ENGINE=MyISAM AUTO_INCREMENT=38 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=39 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `sourcing_chemicalrequests`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -4654,6 +4639,7 @@ CREATE TABLE `surveys_templates` (
   `dateCreated` bigint(30) NOT NULL,
   `isQuiz` tinyint(1) NOT NULL,
   `total` float DEFAULT NULL,
+  `isActive` tinyint(1) NOT NULL,
   PRIMARY KEY (`stid`),
   KEY `createdBy` (`createdBy`)
 ) ENGINE=MyISAM AUTO_INCREMENT=14 DEFAULT CHARSET=latin1;
@@ -4719,6 +4705,59 @@ CREATE TABLE `surveys_templates_sections` (
   PRIMARY KEY (`stsid`),
   KEY `stid` (`stid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=46 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `system_conversations`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `system_conversations` (
+  `scid` int(10) NOT NULL AUTO_INCREMENT,
+  `title` varchar(250) COLLATE utf8_unicode_ci NOT NULL,
+  `alias` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
+  `module` varchar(75) COLLATE utf8_unicode_ci NOT NULL,
+  `tableName` varchar(75) COLLATE utf8_unicode_ci NOT NULL,
+  `recordId` int(10) NOT NULL,
+  `alternativeId` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
+  `lastReplyTime` bigint(30) NOT NULL,
+  `lastReplyUid` int(10) NOT NULL,
+  `createdBy` int(10) NOT NULL,
+  `createdOn` bigint(30) NOT NULL,
+  `modifiedBy` int(10) NOT NULL,
+  `modifiedOn` bigint(30) NOT NULL,
+  `scmtid` int(10) NOT NULL,
+  PRIMARY KEY (`scid`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `system_conversations_messages`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `system_conversations_messages` (
+  `scmid` int(10) NOT NULL AUTO_INCREMENT,
+  `scid` int(10) NOT NULL,
+  `message` text COLLATE utf8_unicode_ci NOT NULL,
+  `uid` int(10) NOT NULL,
+  `replyTo` int(10) NOT NULL,
+  `replyToEmail` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
+  `type` int(2) NOT NULL,
+  `createdOn` bigint(30) NOT NULL,
+  `createdBy` int(10) NOT NULL,
+  `modifiedOn` bigint(30) NOT NULL,
+  `modifiedBy` int(10) NOT NULL,
+  PRIMARY KEY (`scmid`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `system_conversations_participants`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `system_conversations_participants` (
+  `scpid` int(10) NOT NULL AUTO_INCREMENT,
+  `scid` int(10) NOT NULL,
+  `uid` int(10) NOT NULL,
+  `createdOn` bigint(30) NOT NULL,
+  `createdBy` int(10) NOT NULL,
+  `modifiedOn` bigint(30) NOT NULL,
+  `modifiedBy` int(10) NOT NULL,
+  PRIMARY KEY (`scpid`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `system_foreigntables`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -4982,7 +5021,7 @@ CREATE TABLE `travelmanager_expenses` (
   `tmetid` int(10) NOT NULL,
   `expectedAmt` float NOT NULL,
   `actualAmt` float NOT NULL,
-  `currency` int(4) NOT NULL,
+  `currency` varchar(4) COLLATE utf8_unicode_ci NOT NULL,
   `usdFxrate` float NOT NULL,
   `description` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
   `createdBy` int(10) NOT NULL,
@@ -4993,7 +5032,7 @@ CREATE TABLE `travelmanager_expenses` (
   `modifiedOn` bigint(30) NOT NULL,
   `comments` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
   PRIMARY KEY (`tmeid`)
-) ENGINE=MyISAM AUTO_INCREMENT=17 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=10 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `travelmanager_expenses_types`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -5047,6 +5086,8 @@ CREATE TABLE `travelmanager_hotels` (
   `avgPrice` decimal(10,0) DEFAULT NULL,
   `currency` int(30) DEFAULT NULL,
   `avgPriceNotes` text COLLATE utf8_unicode_ci,
+  `createdBy` int(10) NOT NULL,
+  `createdOn` bigint(30) NOT NULL,
   PRIMARY KEY (`tmhid`),
   KEY `country` (`country`,`city`)
 ) ENGINE=MyISAM AUTO_INCREMENT=152 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;

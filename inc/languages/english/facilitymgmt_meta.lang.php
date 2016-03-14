@@ -59,4 +59,5 @@ $lang['reservationupdate_message'] = 'Reservation Altered To'
         .'To : {3}<br />'
         .'Reserved By: {4} <br/>{5}';
 $lang['reservedby'] = 'Reserved By';
+$lang['reservedfrommeetings'] = 'Meeting*(Reserved From Meetings)';
 ?>

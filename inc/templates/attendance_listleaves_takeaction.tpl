@@ -3,8 +3,8 @@
         <title>{$core->settings[systemtitle]}</title>
         {$headerinc}
         <script>
-            $(function () {
-                $('img[id^="replyto_"]').bind('click', function () {
+            $(function() {
+                $('img[id^="replyto_"]').bind('click', function() {
                     var id = $(this).attr("id").split("_");
                     $("#inreplyto").val(id[1]);
                     var permission = id[2];
@@ -16,6 +16,7 @@
     </head>
     <body style="color:#ffffff;">
         <div align="center">
+            {$preview_iteneraryframe}
             <table width="100%" border="0" cellpadding="0" cellspacing="0" id="errorbox">
                 <tr>
                     <td class="content" style="color:#333333;">
@@ -62,7 +63,7 @@
                 </tr>
                 <tr><td class="footer">&nbsp;</td></tr>
             </table>
-            {$preview_iteneraryframe}
+
         </div>
     </body>
 </html>

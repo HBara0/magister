@@ -17,7 +17,8 @@ if(!$dir) {
 require $dir.'/inc/init.php';
 set_headers();
 
-define('SYSTEMVERSION', '25.0.2');
+define('SYSTEMVERSION', '25.2.2');
+
 
 if(strpos(strtolower($_SERVER['PHP_SELF']), ADMIN_DIR) !== false) {
     define('IN_AREA', 'admin');

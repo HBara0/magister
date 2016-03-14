@@ -43,7 +43,12 @@ if($core->usergroup[$module['globalpermission']] == 1) {
     if($current_module[1] === false) {
         $current_module[1] = $module['homepage'];
     }
-
+    $log_array = array('uid' => $core->user['uid'], 'page' => $current_module[1], 'module' => $current_module[0], 'time' => TIME_NOW);
+    if(empty($log_array['module'])) {
+        $log_array['module'] = $log_array['page'];
+    }
+    $pagelog = new LogsUserPages();
+    $pagelog->record_log($log_array);
     $action_file = $current_module[1].'.php';
 
     $menu_items = parse_menuitems($run_module);

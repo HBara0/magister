@@ -93,15 +93,16 @@ if($core->input['action']) {
 
             $lang->resetemailmessage = $lang->sprint($lang->resetemailmessage, $new_details['firstName'], $new_details['password'], $core->settings['adminemail']);
 
-            $email_data = array(
-                    'to' => $email,
-                    'from_email' => $core->settings['adminemail'],
-                    'from' => 'OCOS Mailer',
-                    'subject' => $lang->yournewpassword,
-                    'message' => $lang->resetemailmessage
-            );
-            $mail = new Mailer($email_data, 'php');
-            if($mail->get_status() === true) {
+            $mailer = new Mailer();
+            $mailer = $mailer->get_mailerobj();
+            $mailer->set_layouttype('standard');
+            $mailer->set_from(array('name' => 'OCOS Mailer', 'email' => $core->settings['adminemail']));
+            $mailer->set_subject($lang->yournewpassword);
+            $mailer->set_message($lang->resetemailmessage);
+            $mailer->set_to($email);
+            $mailer->send();
+
+            if($mailer->get_status() === true) {
                 $modify = new ModifyAccount($new_details);
                 output_xml("<status>true</status><message>{$lang->emailsentcontainpassword}</message>");
             }
@@ -183,13 +184,23 @@ if($core->input['action']) {
         $upload->set_upload_path($core->settings['profilepicdir']);
         $upload->process_file();
         $filename = $upload->get_filename();
+        if(!empty($fielname)) {
+            ?>
+            <script language="javascript" type="text/javascript">
+                $(function() {
+                    window.top.$("#upload_Result").html("<?php echo ('no file found')?>");
+                });
+            </script>
+            <?php
+        }
+
         $upload->resize();
         $query = $db->update_query('users', array('profilePicture' => $filename), 'uid='.intval($core->input['uid']));
         eval("\$headerinc = \"".$template->get('headerinc')."\";");
         echo $headerinc;
         ?>
         <script language="javascript" type="text/javascript">
-            $(function () {
+            $(function() {
                 window.top.$("#upload_Result").html("<?php echo $upload->parse_status($upload->get_status());?>");
             });
         </script>

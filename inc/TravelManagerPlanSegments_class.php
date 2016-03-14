@@ -128,7 +128,7 @@ class TravelManagerPlanSegments extends AbstractClass {
             }
         }
         else {
-            $this->errorcode = 9;
+            $this->errorcode = 2;
             $errorhandler->record('Required fields', 'Purposes'.' in Segment '.$segmentdata['sequence']);
         }
         if(is_array($segmentdata['assign'])) {
@@ -175,9 +175,8 @@ class TravelManagerPlanSegments extends AbstractClass {
         }
 
         if($externalpurpose_assignees < $saved_seg_purposes['external']) {
-            $this->errorcode = 2;
+            $this->errorcode = 9;
             $errorhandler->record('Required Fields', 'External Purposes partner in Segment '.$segmentdata['sequence']);
-            return $this;
         }
         if(isset($segmentdata['tmtcid'])) {
             $transptdata['tmpsid'] = $this->data[self::PRIMARY_KEY];
@@ -229,7 +228,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                             else {
                                 $field = $lang->flightrainnumber;
                             }
-                            $this->errorcode = 9;
+                            $this->errorcode = 2;
                             $errorhandler->record('Required fields', $field.' in Segment '.$segmentdata['sequence']);
                             return $this;
                         }
@@ -295,7 +294,7 @@ class TravelManagerPlanSegments extends AbstractClass {
 //                    }
 
                     if($hotel['numNights'] > $segdays) {
-                        $this->errorcode = 9;
+                        $this->errorcode = 10;
                         $hotel = new TravelManagerHotels($hotel['tmhid']);
                         $errorhandler->record($lang->numnightsexceeded.'<br/>', $hotel->name);
                         return $this;
@@ -413,7 +412,7 @@ class TravelManagerPlanSegments extends AbstractClass {
             $this->errorcode = 2;
             return $this;
         }
-        $valid_fields = array('fromDate', 'toDate', 'originCity', 'destinationCity', 'reason', 'isNoneBusiness', 'noAccomodation', 'eid', 'affid');
+        $valid_fields = array('fromDate', 'toDate', 'originCity', 'destinationCity', 'reason', 'isNoneBusiness', 'noAccomodation', 'eid', 'affid', 'apiFlightdata');
         /* Consider using array intersection */
         foreach($valid_fields as $attr) {
             $segmentnewdata[$attr] = $segmentdata[$attr];
@@ -445,7 +444,7 @@ class TravelManagerPlanSegments extends AbstractClass {
         }
         else {
             if($segmentdata['savesection']['section1'] == 1) {
-                $this->errorcode = 9;
+                $this->errorcode = 2;
                 $errorhandler->record('Required fields', 'Purposes'.' in Segment '.$segmentdata['sequence']);
             }
         }
@@ -494,9 +493,8 @@ class TravelManagerPlanSegments extends AbstractClass {
         }
 
         if($externalpurpose_assignees < $saved_seg_purposes['external']) {
-            $this->errorcode = 2;
-            $errorhandler->record('Required Fields', 'External Purposes partner in Segment '.$segmentdata['sequence']);
-            return $this;
+            $this->errorcode = 9;
+            $errorhandler->record('Check Fields', 'External Purposes partner in Segment '.$segmentdata['sequence']);
         }
 
 // unset($segmentdata['savesection']);
@@ -561,7 +559,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                         else {
                             $field = $lang->flightrainnumber;
                         }
-                        $this->errorcode = 9;
+                        $this->errorcode = 2;
                         $errorhandler->record('Required fields', $field.' in Segment '.$segmentdata['sequence']);
                         return $this;
                     }
@@ -636,7 +634,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                         }
                         if($hotel['numNights'] > $leavedays) {
                             $hotel = new TravelManagerHotels($hotel['tmhid']);
-                            $this->errorcode = 9;
+                            $this->errorcode = 10;
                             $errorhandler->record($lang->numnightsexceeded.'<br/>', $hotel->name.' in Segment '.$segmentdata['sequence']);
                             return $this;
                         }
@@ -810,8 +808,16 @@ class TravelManagerPlanSegments extends AbstractClass {
         global $core;
         switch($paidby) {
             case 'myaffiliate':
-                $object = new Affiliates($core->user['mainaffiliate']);
-//$paidby = $affiliate->name;
+                $leaverequester = $this->get_plan()->get_leave()->get_requester('false');
+                if(is_object($leaverequester)) {
+                    $mainaff_obj = $leaverequester->get_mainaffiliate();
+                }
+                if(is_object($mainaff_obj)) {
+                    $object = $mainaff_obj;
+                }
+                else {
+                    $object = "User's Main Affiliate";
+                }
                 break;
             case 'anotheraff':
                 $object = new Affiliates($paidbyid);
@@ -933,7 +939,9 @@ class TravelManagerPlanSegments extends AbstractClass {
                     $avgof = array('10', '5');
                     foreach($avgof as $flightsnum) {
                         $avg = $transportation->get_averagaeflightfare(array('segid' => $this->data[self::PRIMARY_KEY], 'originCity' => $this->data['originCity'], 'destinationCity' => $this->data['destinationCity']), $flightsnum);
-                        $avgflightfare[$avg['numofflights']] = 'Avg Last '.$avg['numofflights'].' '.$numfmt->formatCurrency($avg['avgprice'], $fromcurr->alphaCode);
+                        if($avg) {
+                            $avgflightfare[$avg['numofflights']] = 'Avg OF Last '.$avg['numofflights'].' Flight(s) : '.$numfmt->formatCurrency($avg['avgprice'], "USD");
+                        }
                     }
                     if(is_array($avgflightfare)) {
                         foreach($avgflightfare as $avgof => $avgflightfare) {
@@ -1105,7 +1113,7 @@ class TravelManagerPlanSegments extends AbstractClass {
 				ORDER BY date DESC LIMIT 0, 1)END)";
         $additional_expenses = $db->query("SELECT tmetid,sum(expectedAmt*{$fxrate_query['expenses']}) AS expectedAmt,description FROM ".Tprefix."travelmanager_expenses tme WHERE tmpsid IN (SELECT tmpsid FROM travelmanager_plan_segments WHERE tmpid =".intval($this->tmpid).") GROUP by tmetid");
         if($db->num_rows($additional_expenses) > 0) {
-            $additional_expenses_details = '<div style="display:block;padding:5px 0px 5px 0px;width:15%;" class="subtitle">'.$lang->addexp.'</div>';
+//            $additional_expenses_details = '<div style="display:block;padding:5px 0px 5px 0px;width:15%;" class="subtitle">'.$lang->addexp.'</div>';
             while($additionalexp = $db->fetch_assoc($additional_expenses)) {
                 $additionalexp_type = new TravelManager_Expenses_Types($additionalexp['tmetid']);
 
@@ -1123,8 +1131,8 @@ class TravelManagerPlanSegments extends AbstractClass {
                 $additional_expenses_details .= $warnings['foodandbeverage'].'</div>';
                 $expenses['additional'] += $additionalexp['expectedAmt'];
             }
-            $additional_expenses_details .='<div style="display:block;padding:5px 0px 5px 0px;">';
-            $additional_expenses_details .='<div style="display:inline-block;width:85%;">'.$lang->additionalexpensestotal.'</div><div style="width:10%; display:inline-block;text-align:right;font-weight:bold;">  '.$numfmt->formatCurrency(round($expenses['additional']), "USD").'</div></div>';
+//            $additional_expenses_details .='<div style="display:block;padding:5px 0px 5px 0px;">';
+//            $additional_expenses_details .='<div style="display:inline-block;width:85%;">'.$lang->additionalexpensestotal.'</div><div style="width:10%; display:inline-block;text-align:right;font-weight:bold;">  '.$numfmt->formatCurrency(round($expenses['additional']), "USD").'</div></div>';
             $expenses_total += $expenses['additional'];
         }
 
@@ -1145,13 +1153,15 @@ class TravelManagerPlanSegments extends AbstractClass {
                 $total_fin_amount +=$amount;
             }
         }
-        if($total_fin_amount != 0) {
-            $amount_payedinadv.='<div style="border-bottom: 1px;border-bottom-style: solid;border-bottom-color: greenyellow">';
-            $amount_payedinadv.='<div style = "width:85%;display:inline-block;">'.$lang->amountneededinadvance.'</div>';
-            $amount_payedinadv .= '<div style = "width:10%;display:inline-block;text-align:right;">'.$numfmt->formatCurrency(round($total_fin_amount), "USD").'</div>';
-            $amount_payedinadv.='</div>';
-//            $expenses_total+=$total_fin_amount;
+        if(!isset($total_fin_amount) || empty($total_fin_amount)) {
+            $total_fin_amount = 0;
         }
+        $amount_payedinadv.='<div style="border-bottom: 1px;border-bottom-style: solid;border-bottom-color: greenyellow">';
+        $amount_payedinadv.='<div style = "width:85%;display:inline-block;">'.$lang->amountneededinadvance.'</div>';
+        $amount_payedinadv .= '<div style = "width:10%;display:inline-block;text-align:right;">'.$numfmt->formatCurrency(round($total_fin_amount), "USD").'</div>';
+        $amount_payedinadv.='</div>';
+//            $expenses_total+=$total_fin_amount;
+
         $expenses_total = $numfmt->formatCurrency(round($expenses_total), "USD");
 // $expenses_total = round($expenses_total, 2);
         eval("\$segment_expenses  = \"".$template->get('travelmanager_viewplan_expenses')."\";");

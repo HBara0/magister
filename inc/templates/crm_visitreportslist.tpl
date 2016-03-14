@@ -23,18 +23,31 @@
 </script>
 <h1>{$lang->listofvisitreports}</h1>
 <form action="#" method="post" id="moderation_crm/listvisitreports_Form" name="moderation_crm/listvisitreports_Form" style="margin-bottom: 0px;">
-    <table class="datatable">
+                <table class="datatable_basic table table-bordered row-border hover order-column" cellspacing="0" width="100%">
         <thead>
             <tr>
                 <th>&nbsp;</th>
-                <th>{$lang->customername} <a href="{$sort_url}&amp;sortby=customername&amp;order=ASC"><img src="images/sort_asc.gif" border="0" /></a><a href="{$sort_url}&amp;sortby=customername&amp;order=DESC"><img src="images/sort_desc.gif" border="0" /></a></th>
-                <th>{$lang->prepareby} <a href="{$sort_url}&amp;sortby=employeename&amp;order=ASC"><img src="images/sort_asc.gif" border="0" /></a><a href="{$sort_url}&amp;sortby=employeename&amp;order=DESC"><img src="images/sort_desc.gif" border="0" /></a></th>
-                <th>{$lang->calltype} <a href="{$sort_url}&amp;sortby=type&amp;order=ASC"><img src="images/sort_asc.gif" border="0" /></a><a href="{$sort_url}&amp;sortby=type&amp;order=DESC"><img src="images/sort_desc.gif" border="0" /></a></th>
-                <th>{$lang->dateofvisit} <a href="{$sort_url}&amp;sortby=date&amp;order=ASC"><img src="images/sort_asc.gif" border="0" /></a><a href="{$sort_url}&amp;sortby=date&amp;order=DESC"><img src="images/sort_desc.gif" border="0" /></a></th>
+                            <th>{$lang->customername} </th>
+                            <th>{$lang->prepareby}</th>
+                            <th>{$lang->calltype}</th>
+                            <th>{$lang->dateofvisit}</th>
                 <th {$displaydraft}>{$lang->isdraft}</th>
                 <th>&nbsp;</th>
+                            <th>&nbsp;</th>
             </tr>
         </thead>
+                    <tfoot>
+                        <tr>
+                            <th>&nbsp;</th>
+                            <th>{$lang->customername}</th>
+                            <th>{$lang->prepareby}</th>
+                            <th>{$lang->calltype}</th>
+                            <th>{$lang->dateofvisit}</th>
+                            <th {$displaydraft}>{$lang->isdraft}</th>
+                            <th>&nbsp;</th>
+                            <th>&nbsp;</th>
+                        </tr>
+                    </tfoot>
         <tbody>
             {$reportslist}
         </tbody>

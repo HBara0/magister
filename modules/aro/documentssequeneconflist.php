@@ -21,15 +21,18 @@ if(!$core->input['action']) {
     $purchasetypes = PurchaseTypes::get_data('', array('returnarray' => true));
 
     $filters_config = array(
-            'parse' => array('filters' => array('affid', 'ptid', 'effectiveFrom', 'effectiveTo'),
-                    'overwriteField' => array('ptid' => parse_selectlist('filters[ptid]', '', $purchasetypes, $core->input['filters']['ptid'], '', '', array('placeholder' => 'select purchase type'))),
-                    'fieldsSequence' => array('affid' => 1, 'ptid' => 2, 'effectiveFrom' => 3, 'effectiveTo' => 4)
+            'parse' => array('filters' => array('affid', 'coid', 'ptid', 'effectiveFrom', 'effectiveTo'),
+                    'overwriteField' => array('ptid' => parse_selectlist('filters[ptid]', '', $purchasetypes, $core->input['filters']['ptid'], '', '', array('placeholder' => 'select purchase type')),
+                            'coid' => '<input id="countries_1_autocomplete" name="filters[country]" autocomplete="off" type="text" style="width:150px;" value="'.$core->input['filters']['country'].'">
+                            <input id="countries_1_id" name="filters[coid]"  type="hidden">'
+                    ),
+                    'fieldsSequence' => array('affid' => 1, 'coid' => 2, 'ptid' => 3, 'effectiveFrom' => 4, 'effectiveTo' => 5)
             ),
             'process' => array(
                     'filterKey' => 'adsid',
                     'mainTable' => array(
                             'name' => 'aro_documentsequences',
-                            'filters' => array('affid' => array('operatorType' => 'multiple', 'name' => 'affid'), 'ptid' => array('operatorType' => 'equal', 'name' => 'ptid'), 'effectiveFrom' => array('operatorType' => 'date', 'name' => 'effectiveFrom'), 'effectiveTo' => array('operatorType' => 'date', 'name' => 'effectiveTo')),
+                            'filters' => array('affid' => array('operatorType' => 'multiple', 'name' => 'affid'), 'coid' => array('operatorType' => 'equal', 'name' => 'coid'), 'ptid' => array('operatorType' => 'equal', 'name' => 'ptid'), 'effectiveFrom' => array('operatorType' => 'date', 'name' => 'effectiveFrom'), 'effectiveTo' => array('operatorType' => 'date', 'name' => 'effectiveTo')),
                     ),
     ));
     $filter = new Inlinefilters($filters_config);
@@ -70,7 +73,7 @@ if(!$core->input['action']) {
     }
     $arodocumentsseqconf = AroDocumentsSequenceConf::get_data(array('affid' => array_keys($affiliates)), $dal_config);
     if(!empty($filter_where)) {
-        $arodocumentsseqconf = AroDocumentsSequenceConf::get_data($filter_where, array('returnarray' => true));
+        $arodocumentsseqconf = AroDocumentsSequenceConf::get_data($filter_where, array('returnarray' => true, 'simple' => false));
     }
 
     if(is_array($arodocumentsseqconf)) {
@@ -86,6 +89,11 @@ if(!$core->input['action']) {
             $purchasetype = new PurchaseTypes($arodocumentconf->ptid);
             $arodocumentconf->affid = $affiliate->get_displayname();
             $arodocumentconf->ptid = $purchasetype->get_displayname();
+            $country_obj = Countries::get_data(array('coid' => $arodocumentconf->coid));
+            $country_output = '-';
+            if(is_object($country_obj)) {
+                $country_output = $country_obj->get_displayname();
+            }
             eval("\$documentsequenceconf_rows .= \"".$template->get('aro_documentssequenceconf_row')."\";");
             $row_tools = $rowclass = '';
         }

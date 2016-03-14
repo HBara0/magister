@@ -260,4 +260,9 @@ $lang['auditorscoreexplanation'] = 'The Following Scores Are Calculated Based On
 <hr />';
 
 $lang['reportnotfound'] = 'Report not found';
+$lang['deletereport'] = 'Delete Report';
+$lang['requestedby'] = 'Requested By';
+$lang['reference'] = 'Reference';
+$lang['referenceexplanation'] = 'Ticket ID or Email Subject';
+$lang['cannotdeletesentreport'] = 'Cannot Delete Sent Report';
 ?>

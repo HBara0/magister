@@ -57,6 +57,7 @@ if(is_array($reminders)) {
 
             $mailer = new Mailer();
             $mailer = $mailer->get_mailerobj();
+            $mailer->set_layouttype('standard');
             $mailer->set_type();
             $mailer->set_from(array('name' => 'ARO Approval Reminder', 'email' => $email_data['from']));
             $mailer->set_subject($email_data['subject']);

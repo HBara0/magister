@@ -50,7 +50,7 @@ else {
 //output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
             ?>
             <script language="javascript" type="text/javascript">
-                $(function() {
+                $(function () {
                     top.$("#upload_Result").html("<span class='red_text'><?php echo $lang->fillallrequiredfields;?></span>");
                 });
             </script>
@@ -168,6 +168,13 @@ else {
         if(is_array($event_users_objs)) {
             foreach($event_users_objs as $event_users_obj) {
                 $event_users = $event_users_obj->get();
+                if(!empty($events_details['spid'])) {
+                    $supplier = new Entities(intval($events_details['spid']));
+                    if(is_object($supplier)) {
+                        $supplier_output = $lang->supplier.': '.$supplier->get_displayname();
+                    }
+                }
+                $description = $events_details['description'].'<br>'.$supplier_output.$lang->planyourtripforevent;
                 /* iCal event to the users */
                 $ical_obj = new iCalendar(array('identifier' => $events_details['identifier'], 'uidtimestamp' => $events_details['createdOn']));  /* pass identifer to outlook to avoid creation of multiple file with the same date */
                 $ical_obj->set_datestart($events_details['fromDate']);
@@ -177,7 +184,7 @@ else {
                 $ical_obj->set_categories('Event');
                 $ical_obj->set_organizer();
                 $ical_obj->set_icalattendees($event_users['uid']);
-                $ical_obj->set_description($events_details['description'].$lang->planyourtripforevent);
+                $ical_obj->set_description($description);
                 $ical_obj->set_url($core->settings['rootdir'].'/index.php?module=attendance/requestleave');
                 $ical_obj->endical();
 
@@ -519,15 +526,14 @@ else {
                     }
                 }
                 if(!empty($to)) {
-                    $notification = array(
-                            'to' => $to,
-                            'from_email' => $core->settings['maileremail'],
-                            'from' => 'OCOS Mailer',
-                            'subject' => $lang->sprint($lang->newnotemessage_subject, $task_details['subject']),
-                            'message' => $lang->sprint($lang->newnotemessage_body, $core->user['displayName'], $db->escape_string($core->input['note']), date($core->settings['dateformat'].' '.$core->settings['timeformat'], TIME_NOW))
-                    );
-
-                    $mail = new Mailer($notification, 'php');
+                    $mailer = new Mailer();
+                    $mailer = $mailer->get_mailerobj();
+                    $mailer->set_layouttype('standard');
+                    $mailer->set_from(array('name' => $core->user['displayName'], 'email' => $core->settings['maileremail']));
+                    $mailer->set_subject($lang->sprint($lang->newnotemessage_subject, $task_details['subject']));
+                    $mailer->set_message($lang->sprint($lang->newnotemessage_body, $core->user['displayName'], $db->escape_string($core->input['note']), date($core->settings['dateformat'].' '.$core->settings['timeformat'], TIME_NOW)));
+                    $mailer->set_to($to);
+                    $mailer->send();
                 }
                 header('Content-type: text/xml+javascript');
                 output_xml("<status>true</status><message>{$lang->successfullysaved}<![CDATA[<script>$('#note').val(''); $('#calendar_task_notes').prepend('<div id=\'note_1\' style=\'padding: 5px 0px 5px 10px;\' class=\'altrow2\'>".$db->escape_string($core->input['note']).". <span class=\'smalltext\' style=\'font-style:italic;\'>".date($core->settings['dateformat'], TIME_NOW)." by <a href=\'users.php?action=profile&uid=".$core->user['uid']."\' target=\'_blank\'>".$core->user['displayName']."</a></span></div>');</script>]]></message>");

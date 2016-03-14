@@ -39,4 +39,6 @@ $lang['noresultsfound'] = "No Results Found";
 $lang['exporttoexcel'] = 'Export to Excel';
 $lang['companyname'] = "Company Name";
 $lang['generatelist'] = 'Generate List';
+$lang['companiesresults'] = "Companies Results";
+$lang['company'] = "Company";
 

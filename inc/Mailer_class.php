@@ -190,7 +190,8 @@ class Mailer_oophp extends Mailer_functions {
     public function set_from($sender) {
         if(is_array($sender)) {
             $this->mail_data['from_email'] = $sender['email'];
-            $this->mail_data['from'] = $sender['name'];
+            $this->mail_data['from'] = preg_replace("/[^A-Za-z0-9 ]/", '', $sender['name']);
+            ;
         }
         else {
             $this->mail_data['from_email'] = $sender;
@@ -315,6 +316,10 @@ class Mailer_oophp extends Mailer_functions {
 
     public function set_subject($subject) {
         $this->mail_data['subject'] = wordwrap(htmlspecialchars_decode($subject), 70);
+
+        if(is_object($this->emailformatter)) {
+            $this->emailformatter->set_title($this->mail_data['subject']);
+        }
     }
 
     public function set_message($message) {
@@ -339,6 +344,11 @@ class Mailer_oophp extends Mailer_functions {
         else {
             $this->mail_data['message'] = $this->fix_endofline($message);
         }
+
+        if(is_object($this->emailformatter)) {
+            $this->emailformatter->set_message($this->mail_data['message']);
+            $this->mail_data['message'] = $this->emailformatter->get_message();
+        }
     }
 
     private function parse_message_part($message, $type, $config = array()) {
@@ -361,6 +371,10 @@ class Mailer_oophp extends Mailer_functions {
         $this->configs['requiredcontenttypes'] = $requiredcontenttypes;
     }
 
+    public function set_layouttype($type) {
+        $this->emailformatter = new EmailFormatting($type);
+    }
+
     public function send() {
         if(!$this->validate_data($this->mail_data)) {
             output_xml('<status>false</status><message>Security violation detected</message>');
@@ -368,7 +382,9 @@ class Mailer_oophp extends Mailer_functions {
         }
 
         @ini_set('sendmail_from', $this->mail_data['from_email']);
-        $this->mail_data['header'] .= $this->mail_data['type_header'];
+        if(!strstr($this->mail_data['header'], 'Content-type:')) {
+            $this->mail_data['header'] .= $this->mail_data['type_header'];
+        }
 
         if(isset($this->mail_data['attachments']) && !empty($this->mail_data['attachments'])) {
             $this->mail_data['message'] = "--".$this->boundaries[1]."\n".$this->mail_data['message'];

@@ -119,6 +119,9 @@ class AroRequests extends AbstractClass {
 
             $data['approvalchain']['aroBusinessManager'] = $orderrequest_array['aroBusinessManager'];
             $this->create_approvalchain(null, $data['approvalchain']);
+            if($this->errorcode != 0) {
+                return $this->errorcode;
+            }
             //$sendemail_to['approvers'] = $this->generate_approvalchain();
             if($data['isFinalized'] == 1) {
                 $this->send_approvalemail();
@@ -155,6 +158,7 @@ class AroRequests extends AbstractClass {
         $orderrequest_array['finalizedOn'] = 0;
         if($orderrequest_array['isFinalized'] == 1) {
             $orderrequest_array['finalizedOn'] = TIME_NOW;
+            $orderrequest_array['isApproved'] = 0;
         }
         $orderrequest_array['avgLocalInvoiceDueDate'] = strtotime($data['avgeliduedate']);
         $orderrequest_array['modifiedBy'] = $core->user['uid'];
@@ -232,6 +236,9 @@ class AroRequests extends AbstractClass {
 //                    $approvers[] = $approver->uid;
 //                }
 //            }
+            if($this->errorcode != 0) {
+                return $this->errorcode;
+            }
             if($data['isFinalized'] == 1) {
                 $this->send_approvalemail();
             }
@@ -411,7 +418,8 @@ class AroRequests extends AbstractClass {
 
     public function generate_approvalchain($pickedapprovers = null, $options = null, $intermed = null) {
         global $core;
-        $filter = 'affid ='.$this->affid.' AND purchaseType = '.$this->orderType.' AND coid='.$this->coid.' AND ('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
+        //AND coid='.$this->coid.'
+        $filter = 'affid ='.$this->affid.' AND purchaseType = '.$this->orderType.' AND ('.TIME_NOW.' BETWEEN effectiveFrom AND effectiveTo)';
         $aroapprovalchain_policies = AroApprovalChainPolicies::get_data($filter);
         if(is_object($aroapprovalchain_policies)) {
             $approvalchain = unserialize($aroapprovalchain_policies->approvalChain);
@@ -537,7 +545,7 @@ class AroRequests extends AbstractClass {
     }
 
     public function create_approvalchain($approvers = null, $options = null) {
-        global $core;
+        global $core, $errorhandler, $lang;
         if(empty($approvers)) {
             $approvers = $this->generate_approvalchain($options, $options['aroBusinessManager'], $this->partiesinfo['intermedAff']);
         }
@@ -559,10 +567,26 @@ class AroRequests extends AbstractClass {
                 $approval_obj = AroRequestsApprovals::get_data(array('aorid' => $this->data[self::PRIMARY_KEY], 'position' => $position));
                 if(is_object($approval_obj)) {
                     $approver->araid = $approval_obj->araid;
+                    if(empty($val) || $val == NULL) {
+                        $this->errorcode = 5;
+                        $errorhandler->record($lang->requiredfields.' for ', $lang->$position);
+                        return false;
+                    }
                     $approver->update(array('aorid' => $this->data[self::PRIMARY_KEY], 'uid' => $val, 'isApproved' => $approve_status, 'timeApproved' => $timeapproved, 'sequence' => $sequence, 'position' => $position, 'emailRecievedDate' => ''));
                 }
                 else {
+                    if(empty($approver->uid)) {
+                        $this->errorcode = 5;
+                        $errorhandler->record($lang->requiredfields.' for ', $lang->$position);
+                        return false;
+                    }
                     $approver->save();
+                    if($approver_entry->errorcode != 0) {
+                        $this->errorcode = $approver_entry->errorcode;
+                        if($this->errorcode != 0) {
+                            return false;
+                        }
+                    }
                 }
                 $sequence++;
             }
@@ -575,6 +599,9 @@ class AroRequests extends AbstractClass {
                     }
                 }
             }
+        }
+        else {
+            $this->errorcode = 5;
         }
         return true;
     }
@@ -807,10 +834,10 @@ class AroRequests extends AbstractClass {
         }
     }
 
-    public function approve($user) {
+    public function approve($user, $timesapproved) {
         global $db;
         if($this->can_apporve($user)) {
-            $query = $db->update_query('aro_requests_approvals', array('isApproved' => 1, 'timeApproved' => TIME_NOW), ''.self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]).' AND uid='.$user->uid);
+            $query = $db->update_query('aro_requests_approvals', array('isApproved' => 1, 'timeApproved' => TIME_NOW, 'timesApproved' => $timesapproved), ''.self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]).' AND uid='.$user->uid);
             if($query) {
                 return true;
             }
@@ -1038,7 +1065,7 @@ class AroRequests extends AbstractClass {
             $message['message_date'] = date($core->settings['dateformat'], $message['createdOn']);
 
             if(isset($options['viewmode']) && ($options['viewmode'] == 'textonly')) {
-                $takeactionpage_conversation .= '<span style="font-weight: bold;"> '.$message['user']['displayName'].'</span> <span style="font-size: 9px;">'.date($core->settings['dateformat'].' '.$core->settings['timeformat'], $message['createdOn']).'</span>:';
+                $takeactionpage_conversation .= '<hr><span style="font-weight: bold;"> '.$message['user']['displayName'].'</span> <span style="font-size: 9px;">'.date($core->settings['dateformat'].' '.$core->settings['timeformat'], $message['createdOn']).'</span>:';
                 $takeactionpage_conversation .= '<div>'.$message['message'].'</div><br />';
             }
             else {
@@ -1128,10 +1155,10 @@ class AroRequests extends AbstractClass {
         global $db;
         $todelete = $this->data[AroRequests::PRIMARY_KEY];
         $attributes = array(AroRequests::PRIMARY_KEY);
-        if($this->data['isFinalized'] == 1 || $this->data['revision'] > 0) {
-            $this->errorcode = 1;
-            return $this;
-        }
+//        if($this->data['isFinalized'] == 1 || $this->data['revision'] > 0) {
+//            $this->errorcode = 1;
+//            return $this;
+//        }
         foreach($attributes as $attribute) {
             $tables = $db->get_tables_havingcolumn($attribute, 'TABLE_NAME !="'.AroRequests::TABLE_NAME.'"');
             if(is_array($tables)) {
@@ -1140,10 +1167,10 @@ class AroRequests extends AbstractClass {
                     if($db->num_rows($query) > 0) {
                         if($table == AroRequestsApprovals::TABLE_NAME) {
                             $approve_status = $this->getif_approvedonce(intval($todelete));
-                            if($approve_status) {
-                                $this->errorcode = 1;
-                                return $this;
-                            }
+//                            if($approve_status) {
+//                                $this->errorcode = 1;
+//                                return $this;
+//                            }
                         }
                         $deletequery = $db->query("DELETE FROM ".$table." WHERE ".AroRequests::PRIMARY_KEY." = ".$todelete);
                     }
@@ -1165,7 +1192,7 @@ class AroRequests extends AbstractClass {
             $hourselapsed = floor((TIME_NOW - $request->finalizedOn) / (60 * 60 )); //in term of hours
             if($hourselapsed > 24) {
                 $dayselapsed = floor((TIME_NOW - $request->finalizedOn) / (60 * 60 * 24 )); //in term of days
-                return $dayselapsed.' days';
+                return $dayselapsed.'days';
             }
             else {
                 return $hourselapsed.' hours';

@@ -23,7 +23,7 @@ class HrJobOpportunities extends AbstractClass {
     const SIMPLEQ_ATTRS = '*';
     const CLASSNAME = __CLASS__;
     const REQUIRED_ATTRS = 'affid,employmentType,title,workLocation,responsibilities,shortDesc,unpublishOn,publishOn';
-    const UNIQUE_ATTRS = 'affid,title,reference';
+    const UNIQUE_ATTRS = 'affid,alias,reference';
 
     public function __construct($id = '', $simple = true) {
         parent::__construct($id, $simple);
@@ -43,7 +43,7 @@ class HrJobOpportunities extends AbstractClass {
         }
         $data['createdOn'] = TIME_NOW;
         $data['createdBy'] = $core->user['uid'];
-
+        $data['alias'] = generate_alias($data['title']);
         /* ---SANITIZE INPUTS---START */
         $sanitize_fields = array('reference', 'title', 'shortDesc', 'responsibilities', 'minQualifications', 'prefQualifications');
         foreach($sanitize_fields as $val) {
@@ -135,6 +135,7 @@ class HrJobOpportunities extends AbstractClass {
         }
         $data['modifiedOn'] = TIME_NOW;
         $data['modifiedBy'] = $core->user['uid'];
+        $data['alias'] = generate_alias($data['title']);
 
         /* ---SANITIZE INPUTS---START */
         $sanitize_fields = array('reference', 'title', 'shortDesc', 'responsibilities', 'minQualifications', 'prefQualifications');
@@ -205,6 +206,26 @@ class HrJobOpportunities extends AbstractClass {
             }
         }
         return $this;
+    }
+
+    /**
+     * get all applicants that are still active for current job opportunity
+     * @return boolean
+     */
+    public function get_active_applicants() {
+        $applicants = HrJobApplicants::get_data(array('joid' => $this->data[self::PRIMARY_KEY], 'isActive' => 1), array('returnarray' => true));
+        if(is_array($applicants)) {
+            return $applicants;
+        }
+        return false;
+    }
+
+    /**
+     * returns affiliate obj of current vacancy
+     * @return \Affiliates
+     */
+    public function get_affiliate() {
+        return new Affiliates(intval($this->data[Affiliates::PRIMARY_KEY]));
     }
 
 }

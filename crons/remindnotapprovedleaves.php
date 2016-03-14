@@ -4,8 +4,8 @@ require '../inc/init.php';
 $lid_cache = array();
 
 $query = $db->query("SELECT l.*, l.uid AS requester, la.lid, la.uid as approver, Concat(u.firstName, ' ', u.lastName) AS employeename
-					FROM ".Tprefix."leavesapproval la JOIN ".Tprefix."leaves l ON (l.lid=la.lid) JOIN ".Tprefix."users u ON (l.uid=u.uid) 
-					WHERE la.isApproved=0 ORDER BY la.sequence ASC");
+					FROM ".Tprefix."leavesapproval la JOIN ".Tprefix."leaves l ON (l.lid=la.lid) JOIN ".Tprefix."users u ON (l.uid=u.uid)
+					WHERE la.isApproved=0 AND l.lid NOT IN (SELECT tmp.lid FROM ".Tprefix."travelmanager_plan tmp WHERE isFinalized = 0) ORDER BY la.sequence ASC");
 
 while($leave = $db->fetch_assoc($query)) {
     if(in_array($leave['lid'], $lid_cache)) {
@@ -47,16 +47,14 @@ if(is_array($waiting_approval)) {
         $email_message = "<strong>Hello {$approver_info[firstName]} {$approver_info[lastName]}</strong> <br /> No action has been taken yet regarding the following leave requests:<br />";
         $email_message .= implode(' ', $message);
 
-        $email_data = array(
-                'to' => $approver_info['email'],
-                'from_email' => $core->settings['adminemail'],
-                'from' => 'OCOS Mailer',
-                'subject' => 'Some leave requests are still pending',
-                'message' => $email_message
-        );
-
-        //echo $email_message.'<hr />';
-        $mail = new Mailer($email_data, 'php');
+        $mailer = new Mailer();
+        $mailer = $mailer->get_mailerobj();
+        $mailer->set_layouttype('standard');
+        $mailer->set_from(array('name' => 'OCOS Mailer', 'email' => $core->settings['maileremail']));
+        $mailer->set_subject('Some leave requests are still pending');
+        $mailer->set_message($email_message);
+        $mailer->set_to($approver_info['email']);
+        $mailer->send();
 
         $message = array();
         $log->record($approver_info['uid']);
