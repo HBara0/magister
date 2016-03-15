@@ -1,4 +1,5 @@
-<table width="100%" class="datatable">
-    <h1>{$lang->duepaymentsreport}</h2>
-        {$tables}
-</table>
+<div class="jumbotron">
+    <h1>{$lang->duepaymentsreport}</h1>
+    <p>{$report_description}</p>
+</div>
+{$tables}

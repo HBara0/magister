@@ -3205,15 +3205,21 @@ class IntegrationOBFinPaymentSchedule extends IntegrationAbstractClass {
     }
 
     public function paymentschedule_report($configs = array(), $integration) {
-        global $lang, $template;
-
-        $payment_schedules = self::get_paymentschedules();
-        if(!is_array($payment_schedules)) {
-            return false;
-        }
+        global $lang, $template, $core;
+        //get OB business group id types
+        $ob_bp_group_ids = array('customer' => 'C08F137534222BD001345D52062931C6', 'supplier' => 'C08F137534222BD001345D525D3331CC');
+        $ob_bp_group_filter_byid = "'C08F137534222BD001345D52062931C6','C08F137534222BD001345D525D3331CC'";
         //get orkila international ob org ID
         $ork_int = new Entities(27);
         $int_oborgid = $ork_int->integrationOBOrgId;
+        if($int_oborgid) {
+            $additional_where_orkint = " OR SELECT C_Invoice_ID FROM c_invoice WHERE issotrx= 'Y' AND ad_org_id =\'{$int_oborgid}\'";
+        }
+        $filters = "Outstandingamt > 0 AND duedate < '".date('Y-m-d 00:00:00')."' AND (C_Invoice_ID IN (SELECT C_Invoice_ID FROM c_invoice WHERE C_BPartner_ID IN (SELECT C_BPartner_ID FROM C_BPartner WHERE C_BP_Group_ID IN ({$ob_bp_group_filter_byid}))  {$additional_where_orkint})) ORDER BY Outstandingamt DESC";
+        $payment_schedules = self::get_paymentschedules($filters);
+        if(!is_array($payment_schedules)) {
+            return false;
+        }
 
         $maincurrency_object = new Currencies('USD');
         $cache = new Cache();
@@ -3279,15 +3285,22 @@ class IntegrationOBFinPaymentSchedule extends IntegrationAbstractClass {
             if(!$cache->iscached('fxrate', $paymentschedule_obj->c_currency_id)) {
                 $currency_obj = $cache->get_cachedval('currency', $paymentschedule_obj->c_currency_id);
                 if(is_object($currency_obj)) {
-                    $fxrate = $maincurrency_object->get_latest_fxrate($currency_obj->iso_code);
-                    if($currency_obj->iso_code == 'GHC' && !$fxrate) {
-                        $fxrate = $maincurrency_object->get_latest_fxrate('GHS');
+                    $fxrate = $maincurrency_object->get_latest_fxrate($currency_obj->iso_code, array('incDate' => 1));
+                    if($currency_obj->iso_code == 'GHC' && (!$fxrate || !is_array($fxrate) || !$fxrate['rate'])) {
+                        $fxrate = $maincurrency_object->get_latest_fxrate('GHS', array('incDate' => 1));
                     }
                 }
-                if(!$fxrate) {
-                    $fxrate = -1;
+                if($fxrate == 1) {
+                    $fxrate = array('rate' => 1, 'date' => TIME_NOW);
                 }
-                $cache->add('fxrate', $fxrate, $paymentschedule_obj->c_currency_id);
+                if(!$fxrate || !is_array($fxrate) || !$fxrate['rate']) {
+                    $cache->add('fxrate', -1, $paymentschedule_obj->c_currency_id);
+                    $cache->add('fxratefullinfo', 'Not Found', $paymentschedule_obj->c_currency_id);
+                }
+                else {
+                    $cache->add('fxrate', $fxrate['rate'], $paymentschedule_obj->c_currency_id);
+                    $cache->add('fxratefullinfo', $fxrate, $paymentschedule_obj->c_currency_id);
+                }
             }
             $fxrate = $cache->get_cachedval('fxrate', $paymentschedule_obj->c_currency_id);
             $flag = 0;
@@ -3496,20 +3509,43 @@ class IntegrationOBFinPaymentSchedule extends IntegrationAbstractClass {
             $detailedtable_header = "<tr><th>{$lang->duedate}</th><th>{$lang->company}</th><th>{$lang->supplier}</th><th>{$lang->amount}</th><th>{$lang->currency}</th><th>{$lang->amountinusd}</th></tr>";
             $detailed_table = '<hr><h1>'.$lang->detailedtable.'</h1><hr><table><thead>'.$detailedtable_header.'</thead><tbody>'.$detailedtable_rows.'</tbody></table>';
             $tables.=$detailed_table;
+            $detailedtable_description = $lang->detailedtable_description;
         }
         if(!empty($percompany_rows)) {
             $percompany_table = '<hr><h1>'.$lang->percompany.'</h1><hr><table><thead>'.$percompany_header.'</thead><tbody>'.$percompany_rows.'</tbody></table>';
             $tables.=$percompany_table;
+            $percompany_description = $lang->percompany_description;
         }
         if(!empty($persupplier_rows)) {
             $persupplier_table = '<hr><h1>'.$lang->persupplier.'</h1><hr><table><thead>'.$persupplier_header.'</thead><tbody>'.$persupplier_rows.'</tbody></table>';
             $tables.=$persupplier_table;
+            $persupplier_description = $lang->persupplier_description;
         }
         if(!empty($forinternational_rows)) {
             $forinternational_header = "<tr><th>{$lang->duedate}</th><th>{$lang->company}</th><th>{$lang->amount}</th><th>{$lang->currency}</th><th>{$lang->amountinusd}</th></tr>";
             $forinternational_table = '<hr><h1>'.$lang->toorkilainternational.'</h1><hr><table><thead>'.$forinternational_header.'</thead><tbody>'.$forinternational_rows.'</tbody></table>';
             $tables.=$forinternational_table;
+            $forinternational_description = $lang->forinternational_description;
         }
+        //parse report explanation and currency fx rates table
+        if(is_array($cache->fxratefullinfo)) {
+            foreach($cache->fxratefullinfo as $curid => $info) {
+                $currency_obj = new IntegrationOBCurrency($curid, $integration->get_dbconn());
+                if(is_object($currency_obj)) {
+                    if(!is_array($info)) {
+                        $currencylog_lines.='<tr><td>'.$currency_obj->iso_code.'</td><td>'.$info.'</td><td></td></tr>';
+                    }
+                    else {
+                        $currencylog_lines.='<tr><td>'.$currency_obj->iso_code.'</td><td>'.$info['rate'].'</td><td>'.date($core->settings['dateformat'], $info['date']).'</td></tr>';
+                    }
+                }
+            }
+            if(!empty($currencylog_lines)) {
+                $currencylog_table = "<hr><br><h2>{$lang->currencyfxrates}</h2><hr><table><thead><tr><th>{$lang->currency}</th><th>{$lang->rate}</th><th>{$lang->date}</th></tr></thead><tbody>{$currencylog_lines}</tbody></table>";
+            }
+        }
+        $report_description = $lang->globalcoopaymentduereport_description;
+        $report_description.=$detailedtable_description.$percompany_description.$persupplier_description.$forinternational_description.$currencylog_table;
         eval("\$report = \"".$template->get('report_duepayments')."\";");
         return $report;
     }
