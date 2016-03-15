@@ -689,6 +689,7 @@ else {
                 19 => array(457, 367),
                 29 => array(457, 367),
                 11 => array(457, 367),
+                12 => array(444, 370),
         );
 
         if($core->input['reporttype'] == 'email') {
