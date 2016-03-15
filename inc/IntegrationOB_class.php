@@ -149,7 +149,7 @@ class IntegrationOB extends Integration {
 						ORDER by dateordered ASC");
         }
         elseif($doc_type == 'invoice') {
-            $query = $this->f_db->query("SELECT i.ad_org_id, i.c_invoice_id AS doc_id, i.dateinvoiced AS doc_date, i.documentno, bp.name AS bpname, bp.c_bpartner_id AS bpid, bp.value AS bpname_abv, c.iso_code AS currency, i.salesrep_id, u.username, u.name AS salesrep, pt.netdays AS paymenttermsdays
+            $query = $this->f_db->query("SELECT i.ad_org_id, i.c_invoice_id AS doc_id, i.dateinvoiced AS doc_date, i.documentno, bp.name AS bpname, bp.c_bpartner_id AS bpid, bp.value AS bpname_abv, c.iso_code AS currency, i.salesrep_id, u.username, u.name AS salesrep, pt.netdays AS paymenttermsdays, i.c_order_id As foreignOrderId
 					FROM c_invoice i
 					JOIN c_bpartner bp ON (bp.c_bpartner_id=i.c_bpartner_id)
 					JOIN c_currency c ON (c.c_currency_id=i.c_currency_id)
@@ -161,6 +161,10 @@ class IntegrationOB extends Integration {
 
         $document_newdata = array();
         while($document = $this->f_db->fetch_assoc($query)) {
+            if($doc_type == 'order') {
+                //get linked invoice id, Null if there's no invoice
+                $document['foreignOrderId'] = $db->fetch_assoc($db->query('SELECT c_invoice_id FROM '.Tprefix.'c_invoice WHERE c_order_id='.$document['doc_id']));
+            }
             $document_newdata = array(
                     'foreignSystem' => $this->foreign_system,
                     'foreignId' => $document['doc_id'],
@@ -170,21 +174,32 @@ class IntegrationOB extends Integration {
                     'affid' => $this->affiliates_index[$document['ad_org_id']],
                     'currency' => $document['currency'],
                     'paymentTerms' => $document['paymenttermsdays'],
-                    'salesRep' => $document['salesrep']
+                    'salesRep' => $document['salesrep'],
+                    'foreignOrderId' => $document['foreignOrderId']
             );
 
             $document_newdata['salesRepLocalId'] = $db->fetch_field($db->query("SELECT uid FROM ".Tprefix."users WHERE displayName='".$db->escape_string($document['salesrep'])."' OR username='".$db->escape_string($document['username'])."'"), 'uid');
 
-            if(value_exists('integration_mediation_salesorders', 'foreignId', $document['doc_id'])) {
-                $query2 = $db->update_query('integration_mediation_salesorders', $document_newdata, 'foreignId="'.$document['doc_id'].'"');
+
+            $table['main'] = 'integration_mediation_salesinvoices';
+            $table['lines'] = 'integration_mediation_salesinvoicelines';
+            $foreignid = 'foreignInvoiceId';
+            if($doc_type == 'order') {
+                $foreignid = 'foreignOrderId';
+                $table['main'] = 'integration_mediation_salesorders';
+                $table['lines'] = 'integration_mediation_salesorderlines';
+            }
+
+            if(value_exists($table['main'], 'foreignId', $document['doc_id'])) {
+                $query2 = $db->update_query($table['main'], $document_newdata, 'foreignId="'.$document['doc_id'].'"');
             }
             else {
-                $query2 = $db->insert_query('integration_mediation_salesorders', $document_newdata);
+                $query2 = $db->insert_query($table['main'], $document_newdata);
             }
 
             if($query2) {
-                if(value_exists('integration_mediation_salesorderlines', 'foreignOrderId', $document['doc_id'])) {
-                    $db->delete_query('integration_mediation_salesorderlines', 'foreignOrderId="'.$document['doc_id'].'"');
+                if(value_exists($table['lines'], $foreignid, $document['doc_id'])) {
+                    $db->delete_query($table['lines'], $foreignid.'="'.$document['doc_id'].'"');
                 }
 
                 if($doc_type == 'order') {
@@ -214,7 +229,7 @@ class IntegrationOB extends Integration {
                     }
                     $documentline_newdata = array(
                             'foreignId' => $documentline['docline_id'],
-                            'foreignOrderId' => $document['doc_id'],
+                            $foreignid => $document['doc_id'],
                             'pid' => $documentline['m_product_id'],
                             'affid' => $this->affiliates_index[$document['ad_org_id']],
                             'price' => $documentline['priceactual'],
@@ -226,7 +241,7 @@ class IntegrationOB extends Integration {
                             'purPriceCurrency' => $purchaseprice_data['currency']
                     );
 
-                    $db->insert_query('integration_mediation_salesorderlines', $documentline_newdata);
+                    $db->insert_query($table['lines'], $documentline_newdata);
                 }
             }
         }
@@ -239,9 +254,17 @@ class IntegrationOB extends Integration {
         global $db, $log;
 
         if($doc_type == 'order') {
+            $foreignid = 'foreignOrderId';
+            $table['main'] = 'integration_mediation_salesorders';
+            $table['lines'] = 'integration_mediation_salesorderlines';
             return false;
         }
         elseif($doc_type == 'invoice') {
+            $foreignid = 'foreignInvoiceId';
+            $table['main'] = 'integration_mediation_salesinvoices';
+            $table['lines'] = 'integration_mediation_salesinvoicelines';
+
+
             $query = $this->f_db->query("SELECT i.c_invoice_id AS doc_id
 					FROM c_invoice i
 					WHERE i.ad_org_id IN ('".implode('\',\'', $organisations)."') AND docstatus IN ('VO', 'CL') AND issotrx='Y' AND (dateinvoiced BETWEEN '".date('Y-m-d 00:00:00', strtotime($this->period['from']))."' AND '".date('Y-m-d 00:00:00', strtotime($this->period['to']))."')
@@ -249,10 +272,10 @@ class IntegrationOB extends Integration {
         }
 
         while($document = $this->f_db->fetch_assoc($query)) {
-            if(value_exists('integration_mediation_salesorders', 'foreignId', $document['doc_id'])) {
-                $db->delete_query('integration_mediation_salesorders', 'foreignId="'.$document['doc_id'].'"');
-                if(value_exists('integration_mediation_salesorderlines', 'foreignOrderId', $document['doc_id'])) {
-                    $db->delete_query('integration_mediation_salesorderlines', 'foreignOrderId="'.$document['doc_id'].'"');
+            if(value_exists($table['main'], 'foreignId', $document['doc_id'])) {
+                $db->delete_query($table['main'], 'foreignId="'.$document['doc_id'].'"');
+                if(value_exists($table['lines'], $foreignid, $document['doc_id'])) {
+                    $db->delete_query($table['lines'], $foreignid.'="'.$document['doc_id'].'"');
                 }
             }
         }
@@ -277,7 +300,7 @@ class IntegrationOB extends Integration {
 							WHERE o.ad_org_id IN ('".implode('\',\'', $organisations)."') AND issotrx='N' AND docstatus = 'CO' AND ((dateordered BETWEEN '".date('Y-m-d 00:00:00', strtotime($this->period['from']))."' AND '".date('Y-m-d 00:00:00', strtotime($this->period['to']))."') OR (o.updated BETWEEN '".date('Y-m-d 00:00:00', strtotime($this->period['from']))."' AND '".date('Y-m-d 00:00:00', strtotime($this->period['to']))."'))");
         }
         else {
-            $query = $this->f_db->query("SELECT i.c_invoice_id AS documentid, i.ad_org_id, i.documentno, bp.name AS bpname, bp.c_bpartner_id AS bpid, c.iso_code AS currency, dateinvoiced AS documentdate, pt.netdays AS paymenttermsdays
+            $query = $this->f_db->query("SELECT i.c_invoice_id AS documentid, i.ad_org_id, i.documentno, bp.name AS bpname, bp.c_bpartner_id AS bpid, c.iso_code AS currency, dateinvoiced AS documentdate, pt.netdays AS paymenttermsdays,.i.c_order_id As foreignOrderId
 							FROM c_invoice i JOIN c_bpartner bp ON (bp.c_bpartner_id=i.c_bpartner_id)
 							JOIN c_currency c ON (c.c_currency_id=i.c_currency_id)
 							JOIN c_paymentterm pt ON (i.c_paymentterm_id=pt.c_paymentterm_id)
@@ -285,7 +308,15 @@ class IntegrationOB extends Integration {
         }
 
         $document_newdata = array(0);
+        $purchasetype = 'SKI';
         while($document = $this->f_db->fetch_assoc($query)) {
+            if($doc_type == 'order') {
+                //get linked invoice id, Null if there's no invoice
+                $document['foreignOrderId'] = $db->fetch_assoc($db->query('SELECT c_invoice_id FROM '.Tprefix.'c_invoice WHERE c_order_id='.$document['documentid']));
+                if($document['foreignOrderId'] == NULL) {
+                    $purchasetype = 'DI';
+                }
+            }
             $document_newdata = array(
                     'foreignSystem' => $this->foreign_system,
                     'foreignId' => $document['documentid'],
@@ -295,7 +326,8 @@ class IntegrationOB extends Integration {
                     'affid' => $this->affiliates_index[$document['ad_org_id']],
                     'currency' => $document['currency'],
                     'paymentTerms' => $document['paymenttermsdays'],
-                    'purchaseType' => 'SKI'
+                    'purchaseType' => $purchasetype,
+                    'foreignOrderId' => $document['foreignOrderId']
             );
 
             /* Get currencies FX from own system - START */
@@ -305,16 +337,25 @@ class IntegrationOB extends Integration {
             }
             /* Get currencies FX from own system - END */
 
-            if(value_exists('integration_mediation_purchaseorders', 'foreignId', $document['documentid'])) {
-                $query2 = $db->update_query('integration_mediation_purchaseorders', $document_newdata, 'foreignId="'.$document['documentid'].'"');
+
+            $table['main'] = 'integration_mediation_purchaseinvoices';
+            $table['lines'] = 'integration_mediation_purchaseinvoicelines';
+            $foreignid = 'foreignInvoiceId';
+            if($doc_type == 'order') {
+                $foreignid = 'foreignOrderId';
+                $table['main'] = 'integration_mediation_purchaseorders';
+                $table['lines'] = 'integration_mediation_purchaseorderlines';
+            }
+            if(value_exists($table['main'], 'foreignId', $document['documentid'])) {
+                $query2 = $db->update_query($table['main'], $document_newdata, 'foreignId="'.$document['documentid'].'"');
             }
             else {
-                $query2 = $db->insert_query('integration_mediation_purchaseorders', $document_newdata);
+                $query2 = $db->insert_query($table['main'], $document_newdata);
             }
 
             if($query2) {
-                if(value_exists('integration_mediation_purchaseorderlines', 'foreignOrderId', $document['documentid'])) {
-                    $db->delete_query('integration_mediation_purchaseorderlines', 'foreignOrderId="'.$document['documentid'].'"');
+                if(value_exists($table['lines'], $foreignid, $document['documentid'])) {
+                    $db->delete_query($table['lines'], $foreignid.'="'.$document['documentid'].'"');
                 }
 
                 if($doc_type == 'order') {
@@ -334,7 +375,7 @@ class IntegrationOB extends Integration {
                 while($documentline = $this->f_db->fetch_assoc($documentline_query)) {
                     $documentline_newdata = array(
                             'foreignId' => $documentline['documentlineid'],
-                            'foreignOrderId' => $document['documentid'],
+                            $foreignid => $document['documentid'],
                             'pid' => $documentline['m_product_id'],
                             'spid' => $document['bpid'],
                             'affid' => $this->affiliates_index[$document['ad_org_id']],
@@ -344,7 +385,7 @@ class IntegrationOB extends Integration {
                             'quantityUnit' => $documentline['uom']
                     );
 
-                    $db->insert_query('integration_mediation_purchaseorderlines', $documentline_newdata);
+                    $db->insert_query($table['lines'], $documentline_newdata);
                 }
             }
         }
@@ -356,19 +397,26 @@ class IntegrationOB extends Integration {
         global $db, $log;
 
         if($doc_type == 'order') {
+            $foreignid = 'foreignOrderId';
+            $table['main'] = 'integration_mediation_purchaseorders';
+            $table['lines'] = 'integration_mediation_purchaseorderlines';
             return false;
         }
         else {
+            $foreignid = 'foreignInvoiceId';
+            $table['main'] = 'integration_mediation_purchaseinvoices';
+            $table['lines'] = 'integration_mediation_purchaseinvoicelines';
+
             $query = $this->f_db->query("SELECT i.c_invoice_id as documentid
 							FROM c_invoice i
 							WHERE  i.ad_org_id IN ('".implode('\',\'', $organisations)."') AND docstatus IN ('VO', 'CL') AND issotrx='N' AND (dateinvoiced BETWEEN '".date('Y-m-d 00:00:00', strtotime($this->period['from']))."' AND '".date('Y-m-d 00:00:00', strtotime($this->period['to']))."')");
         }
 
         while($document = $this->f_db->fetch_assoc($query)) {
-            if(value_exists('integration_mediation_purchaseorders', 'foreignId', $document['documentid'])) {
-                $db->delete_query('integration_mediation_purchaseorders', 'foreignId="'.$document['documentid'].'"');
-                if(value_exists('integration_mediation_purchaseorderlines', 'foreignOrderId', $document['documentid'])) {
-                    $db->delete_query('integration_mediation_purchaseorderlines', 'foreignOrderId="'.$document['documentid'].'"');
+            if(value_exists($table['main'], 'foreignId', $document['documentid'])) {
+                $db->delete_query($table['main'], 'foreignId="'.$document['documentid'].'"');
+                if(value_exists($table['lines'], $foreignid, $document['documentid'])) {
+                    $db->delete_query($table['lines'], $foreignid.'="'.$document['documentid'].'"');
                 }
             }
         }
