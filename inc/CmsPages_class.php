@@ -103,17 +103,17 @@ class CmsPages extends Cms {
 
                 /* Inform audits about the change, and request approval - START */
                 if($core->usergroup['crm_canPublishNews'] == 0) {
-                    if(!is_array($this->settings['websiteaudits'])) {
-                        $this->settings['websiteaudits'] = explode(';', $this->settings['websiteaudits']);
+                    if(!is_array($core->settings['websiteaudits'])) {
+                        $core->settings['websiteaudits'] = explode(';', $core->settings['websiteaudits']);
                     }
 
                     $email_data = array(
-                            'to' => $this->settings['websiteaudits'],
+                            'to' => $core->settings['websiteaudits'],
                             'from_email' => $core->settings['maileremail'],
                             'from' => 'OCOS Mailer'
                     );
-                    if(!isset($this->settings['websiteaudits']) || empty($this->settings['websiteaudits'])) {
-                        $email_data['to'] = $this->settings['adminemail'];
+                    if(!isset($core->settings['websiteaudits']) || empty($core->settings['websiteaudits'])) {
+                        $email_data['to'] = $core->settings['adminemail'];
                     }
                     if(strlen($this->prevversion['title']) == 0) {
                         $titlelength = 1;
