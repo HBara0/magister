@@ -40,4 +40,18 @@ $lang['width'] = "Width";
 $lang['height'] = "Height";
 $lang['cssclassname'] = "CSS Class Name";
 $lang['colorhex'] = "Color Hex";
+
+$lang['generalmanager'] = 'General Manager';
+$lang['supervisor'] = 'Supervisor';
+$lang['hrmanager'] = 'HR Manager';
+$lang['finmanager'] = 'Finance Manager';
+$lang['coo'] = 'COO';
+$lang['regionalsupervisor'] = 'Regional Supervisor';
+$lang['globalpurchasemanager'] = 'Global Purchase Manager';
+$lang['cfo'] = 'cfo';
+$lang['logisticsmanager'] = 'Logistics Manager';
+$lang['commercialmanager'] = 'Commercial Manager';
+$lang['globalfinmanager'] = 'Global Financial Manager';
+$lang['commercialemail'] = 'Commercial Email';
+$lang['errorupdatingaffiliate'] = "An error occured while Updating the affiliate management data";
 ?>

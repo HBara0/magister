@@ -210,12 +210,12 @@ else {
                                             $entity['companyType_output'] = $entity_obj->get_type();
                                             $entirty_country = $entity_obj->get_country();
                                             if(is_object($entirty_country)) {
-                                                $entity['companyCountry_output'] = $entirty_country->get_displayname();
+                                                $entity['companyCountry_output'] = $entirty_country->acronym;
                                             }
                                             //get company city
                                             $entity_city = $entity_obj->get_city();
                                             if(is_object($entity_city)) {
-                                                $entity['companyCity_output'] = $entity_city->get_displayname();
+                                                $entity['companyCity_output'] = $entity_city->unlocode;
                                             }
                                             //get assigned employees
                                             $assignedemoployees_obj = $entity_obj->get_assignedusers();
