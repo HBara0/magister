@@ -5,11 +5,11 @@
         <script language="javascript">
             $(function() {
                 $('#moderationtools').change(function() {
-                    if (sharedFunctions.checkSession() == false) {
+                    if(sharedFunctions.checkSession() == false) {
                         return;
                     }
 
-                    if ($(this).val().length > 0) {
+                    if($(this).val().length > 0) {
                         var formData = $("form[id='moderation_reporting/list_Form']").serialize();
                         var url = "index.php?module=reporting/list&action=do_moderation";
 
@@ -37,7 +37,7 @@
         <td class="contentContainer">
             <h1>{$lang->listofreports}</h1>
             <form action="#" method="post" id="moderation_reporting/list_Form" name="moderation_reporting/list_Form" style="margin-bottom: 0px;">
-                <table class="datatable">
+                <table class="datatable_basic table table-bordered row-border hover order-column" data-checkonclick=true cellspacing="0" width="100%">
                     <thead>
                         <tr>
                             <th>&nbsp;</th>
@@ -46,11 +46,23 @@
                             <th>{$lang->quarter} <a href="{$sort_url}&amp;sortby=quarter&amp;order=ASC"><img src="images/sort_asc.gif" border="0" /></a><a href="{$sort_url}&amp;sortby=quarter&amp;order=DESC"><img src="images/sort_desc.gif" border="0" /></a></th>
                             <th>{$lang->year} <a href="{$sort_url}&amp;sortby=year&amp;order=ASC"><img src="images/sort_asc.gif" border="0" /></a><a href="{$sort_url}&amp;sortby=year&amp;order=DESC"><img src="images/sort_desc.gif" border="0" /></a></th>
                             <th>{$lang->status} <a href="{$sort_url}&amp;sortby=status&amp;order=ASC"><img src="images/sort_asc.gif" border="0" /></a><a href="{$sort_url}&amp;sortby=status&amp;order=DESC"><img src="images/sort_desc.gif" border="0" /></a></th>
+                            <th>&nbsp;</th>
                         </tr>
-                        {$filters_row}
                     </thead>
+
+                    <tfoot>
+                        <tr>
+                            <th>&nbsp;</th>
+                            <th>{$lang->affiliate} <a href="{$sort_url}&amp;sortby=affiliatename&amp;order=ASC"><img src="images/sort_asc.gif" border="0" /></a><a href="{$sort_url}&amp;sortby=affiliatename&amp;order=DESC"><img src="images/sort_desc.gif" border="0" /></a></th>
+                            <th>{$lang->supplier} <a href="{$sort_url}&amp;sortby=suppliername&amp;order=ASC"><img src="images/sort_asc.gif" border="0" /></a><a href="{$sort_url}&amp;sortby=suppliername&amp;order=DESC"><img src="images/sort_desc.gif" border="0" /></a></th>
+                            <th>{$lang->quarter} <a href="{$sort_url}&amp;sortby=quarter&amp;order=ASC"><img src="images/sort_asc.gif" border="0" /></a><a href="{$sort_url}&amp;sortby=quarter&amp;order=DESC"><img src="images/sort_desc.gif" border="0" /></a></th>
+                            <th>{$lang->year} <a href="{$sort_url}&amp;sortby=year&amp;order=ASC"><img src="images/sort_asc.gif" border="0" /></a><a href="{$sort_url}&amp;sortby=year&amp;order=DESC"><img src="images/sort_desc.gif" border="0" /></a></th>
+                            <th>{$lang->status} <a href="{$sort_url}&amp;sortby=status&amp;order=ASC"><img src="images/sort_asc.gif" border="0" /></a><a href="{$sort_url}&amp;sortby=status&amp;order=DESC"><img src="images/sort_desc.gif" border="0" /></a></th>
+                            <th>&nbsp;</th>
+                        </tr>
+                    </tfoot>
                     <tbody>
-                        {$reportslist}    
+                        {$reportslist}
                     </tbody>
                     <tfoot>
                         {$moderationtools}
