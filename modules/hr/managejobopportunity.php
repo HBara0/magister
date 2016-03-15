@@ -179,7 +179,8 @@ if(!$core->input['action']) {
     $currencies_list = parse_selectlist('jobopportunity[salaryCurrency]', 11, $currencies, $mainaffiliate['curr'], 0, '');
 
 
-    $time_zones = parse_selectlist('jobopportunity[publishingTimeZone]', '', DateTimeZone::listIdentifiers(), $jobopportunity['publishingTimeZone'], '', '', array('width' => '200px', 'blankstart' => true)); /* call the listidentifier from Object DateTimeZone */
+    $time_zones = DateTimeZone::listIdentifiers();
+    $time_zones = parse_selectlist('jobopportunity[publishingTimeZone]', '', array_combine($time_zones, $time_zones), $jobopportunity['publishingTimeZone'], '', '', array('width' => '200px', 'blankstart' => true)); /* call the listidentifier from Object DateTimeZone */
 
 
     // $industries = get_specificdata('hr_industries', array('hriid', 'title'), 'hriid', 'title', array('by' => 'title', 'sort' => 'ASC'));
