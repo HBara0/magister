@@ -968,6 +968,75 @@ class Users extends AbstractClass {
         return false;
     }
 
+    /**
+     * this function only differs from its sister by the end output array which has another layer, the affid
+     * @global type $core
+     * @return boolean
+     */
+    public function get_hruserpermissions_byaffid() {
+        global $core;
+        $uids = array();
+        if($core->usergroup['hr_canHrAllAffiliates'] == 0) {
+            if(is_array($core->user['hraffids']) && !empty($core->user['hraffids'])) {
+                $affids = $core->user['hraffids'];
+            }
+        }
+        else {
+            $affids = Affiliates::get_column('affid', array('isActive' => 1));
+        }
+        if(is_array($affids)) {
+            foreach($affids as $affid) {
+                $uids[$affid] = array();
+                $userdsids = AffiliatedEmployees::get_column('uid', array('affid' => $affid, 'isMain' => 1), array('returnarray' => true));
+                if(is_array($userdsids)) {
+                    $uids[$affid] = array_unique(array_merge($uids[$affid], $userdsids));
+                }
+            }
+        }
+
+
+        $affiliate_fields = array('cfo', 'coo', 'generalManager', 'supervisor', 'regionalSupervisor');
+        foreach($affiliate_fields as $field) {
+            $affiliates = Affiliates::get_affiliates(array($field => $this->uid), array('returnarray' => true));
+            if(is_array($affiliates)) {
+                foreach($affiliates as $affiliate) {
+                    $userdsids = AffiliatedEmployees::get_column('uid', array('affid' => $affiliate->affid, 'isMain' => 1), array('returnarray' => true));
+                    if(is_array($userdsids)) {
+                        if(is_array($uids[$affiliate->affid])) {
+                            $uids[$affiliate->affid] = array_unique(array_merge($uids[$affiliate->affid], $userdsids));
+                        }
+                        else {
+                            $uids[$affiliate->affid] = $userdsids;
+                        }
+                    }
+                }
+            }
+        }
+        $reportingtothis = $this->get_reportingto_objs();
+        if(is_array($reportingtothis)) {
+            foreach($reportingtothis as $user_obj) {
+                $affid = $user_obj->get_mainaffiliate()->affid;
+                if(is_array($uids[$affid])) {
+                    array_push($uids[$affid], $user_obj->uid);
+                }
+                else {
+                    $uids[$affid][] = $userdsids;
+                }
+            }
+        }
+        if(is_array($uids)) {
+            foreach($uids as $affid => $userids) {
+                if(!is_array($userids)) {
+                    unset($uids[$affid]);
+                    continue;
+                }
+                $uids[$affid] = array_unique($uids[$affid]);
+            }
+            return $uids;
+        }
+        return false;
+    }
+
     public function get_reportingto_objs() {
         $reportingto = Users::get_data(array('reportsTo' => $this->data['uid']), array('returnarray' => true));
         if(is_array($reportingto)) {

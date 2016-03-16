@@ -9,29 +9,29 @@
         {$menu}
         <td class="contentContainer">
             <div style="width:40%; display:inline-block;"><h1>{$lang->listjobsapplicants}</h1></div>
-            <table class="datatable_basic table table-bordered row-border hover order-column" cellspacing="0" width="100%">
+            <table class="datatable_basic table table-bordered row-border hover order-column" data-checkonclick=true cellspacing="0" width="100%">
                 <thead>
                     <tr>
-                        <th ></th>
-                        <th >{$lang->applicantfullname}</th>
-                        <th >{$lang->email}</th>
-                        <th >{$lang->phone}</th>
-                        <th >{$lang->submissiondate}</th>
-                        <th >{$lang->vacancy}</th>
-                        <th >{$lang->vacancy} {$lang->affiliate}</th>
-                        <th ></th>
+                        <th>&nbsp;</th>
+                        <th>{$lang->applicantfullname}</th>
+                        <th>{$lang->email}</th>
+                        <th>{$lang->phone}</th>
+                        <th>{$lang->submissiondate}</th>
+                        <th>{$lang->vacancy}</th>
+                        <th>{$lang->vacancy} {$lang->affiliate}</th>
+                        <th>&nbsp;</th>
                     </tr>
                 </thead>
                 <tfoot>
                     <tr>
-                        <th ></th>
-                        <th >{$lang->applicantfullname}</th>
-                        <th >{$lang->email}</th>
-                        <th >{$lang->phone}</th>
-                        <th >{$lang->submissiondate}</th>
-                        <th >{$lang->vacancy}</th>
-                        <th >{$lang->vacancy} {$lang->affiliate}</th>
-                        <th ></th>
+                        <th>&nbsp;</th>
+                        <th>{$lang->applicantfullname}</th>
+                        <th>{$lang->email}</th>
+                        <th>{$lang->phone}</th>
+                        <th>{$lang->submissiondate}</th>
+                        <th>{$lang->vacancy}</th>
+                        <th>{$lang->vacancy} {$lang->affiliate}</th>
+                        <th>&nbsp;</th>
                     </tr>
                 </tfoot>
                 <tbody>

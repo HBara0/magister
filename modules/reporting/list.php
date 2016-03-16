@@ -36,36 +36,34 @@ if(!$core->input['action']) {
 
     $year_scale = range(date('Y'), 2009);
     array_unshift($year_scale, ''); // Creates array years use the first array(range from 2004 to current year) as the keys and the second as the values
-    $filters_config = array(
-            'parse' => array('filters' => array('checkbox', 'affid', 'suppliername', 'quarter', 'year', 'status'),
-                    'overwriteField' => array('checkbox' => '', 'quarter' => parse_selectlist('filters[quarter]', '3', $quarter_scale, $core->input['filters']['quarter']), 'year' => parse_selectlist('filters[year]', '4', array_combine($year_scale, $year_scale), $core->input['filters']['year']), 'status' => parse_selectlist('filters[status]', '5', array(1 => $lang->finalized, 0 => $lang->notfinished), $core->input['filters']['status'], '', '', array('blankstart' => true)))
-            ),
-            'process' => array(
-                    'filterKey' => 'rid',
-                    'mainTable' => array(
-                            'name' => 'reports',
-                            'filters' => array('affid' => array('operatorType' => 'multiple', 'name' => 'affid'), 'quarter' => 'quarter', 'year' => 'year', 'status' => 'status'),
-                    ),
-                    'secTables' => array(
-                            'entities' => array(
-                                    'filters' => array('suppliername' => 'companyName'),
-                                    'keyAttr' => 'eid',
-                                    'joinKeyAttr' => 'spid',
-                                    'joinWith' => 'reports',
-                                    'extraSelect' => 'companyName'
-                            )
-                    )
-            )
-    );
-    $filter = new Inlinefilters($filters_config);
-    $filter_where_values = $filter->process_multi_filters();
-
-    if(is_array($filter_where_values)) {
-        $filter_where = ' AND r.'.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
-        $multipage_where .= $filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
-    }
-
-    $filters_row = $filter->prase_filtersrows(array('tags' => 'table'));
+//    $filters_config = array(
+//            'parse' => array('filters' => array('checkbox', 'affid', 'suppliername', 'quarter', 'year', 'status'),
+//                    'overwriteField' => array('checkbox' => '', 'quarter' => parse_selectlist('filters[quarter]', '3', $quarter_scale, $core->input['filters']['quarter']), 'year' => parse_selectlist('filters[year]', '4', array_combine($year_scale, $year_scale), $core->input['filters']['year']), 'status' => parse_selectlist('filters[status]', '5', array(1 => $lang->finalized, 0 => $lang->notfinished), $core->input['filters']['status'], '', '', array('blankstart' => true)))
+//            ),
+//            'process' => array(
+//                    'filterKey' => 'rid',
+//                    'mainTable' => array(
+//                            'name' => 'reports',
+//                            'filters' => array('affid' => array('operatorType' => 'multiple', 'name' => 'affid'), 'quarter' => 'quarter', 'year' => 'year', 'status' => 'status'),
+//                    ),
+//                    'secTables' => array(
+//                            'entities' => array(
+//                                    'filters' => array('suppliername' => 'companyName'),
+//                                    'keyAttr' => 'eid',
+//                                    'joinKeyAttr' => 'spid',
+//                                    'joinWith' => 'reports',
+//                                    'extraSelect' => 'companyName'
+//                            )
+//                    )
+//            )
+//    );
+//    $filter = new Inlinefilters($filters_config);
+//    $filter_where_values = $filter->process_multi_filters();
+//    if(is_array($filter_where_values)) {
+//        $filter_where = ' AND r.'.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
+//        $multipage_where .= $filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
+//    }
+//    $filters_row = $filter->prase_filtersrows(array('tags' => 'table'));
     /* Perform inline filtering - END */
 
     if(isset($core->input['perpage']) && !empty($core->input['perpage'])) {
@@ -139,13 +137,11 @@ if(!$core->input['action']) {
             unset($rep_tools, $tool_items);
         }
 
-        $multipages = new Multipages('reports r', $core->settings['itemsperlist'], $extra_where['multipage']);
 
         if($core->usergroup['canReadStats'] == 1) {
             $stats_link = "<a href='index.php?module=reporting/stats'><img src='images/icons/stats.gif' alt='{$lang->reportsstats}' border='0'></a>";
         }
 
-        $reportslist .= "<tr><td colspan='5'>".$multipages->parse_multipages()."&nbsp;</td><td style='text-align: right;' colspan='2'><a href='".$_SERVER['REQUEST_URI']."&amp;action=exportexcel'><img src='images/icons/xls.gif' alt='{$lang->exportexcel}' border='0' /></a>&nbsp;{$stats_link}</td></tr>";
         if($core->usergroup['canLockUnlockReports'] == 1 || $core->usergroup['reporting_canApproveReports'] == 1) {
             $moderationtools = "<tr><td colspan='3'>";
             $moderationtools .= "<div id='moderation_reporting/list_Results'></div>&nbsp;";
@@ -168,9 +164,8 @@ if(!$core->input['action']) {
         }
     }
     else {
-        $reportslist = '<tr><td colspan="6" align="center">'.$lang->noreportsavailable.'</td></tr>';
+        $reportslist = '<tr><td colspan="7" align="center">'.$lang->noreportsavailable.'</td></tr>';
     }
-
     eval("\$listpage = \"".$template->get('reporting_reportslist')."\";");
     output_page($listpage);
 }

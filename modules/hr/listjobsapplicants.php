@@ -39,6 +39,7 @@ if(!$core->input['action']) {
                 $vacancy['affiliate'] = $vacancy_obj->get_affiliate()->get_displayname();
                 foreach($job_applicants as $job_applicant_obj) {
                     $job_applicant = $job_applicant_obj->get();
+                    $checkbox = '<input type="checkbox" value="'.$job_applicant['jaid'].'">';
                     $job_applicant['displayname'] = $job_applicant_obj->get_displayname();
                     $job_applicant['submissiondate'] = date($core->settings['dateformat'], $job_applicant['createdOn']);
 //                    if($jobapplicant['isFlagged'] == 1) {
@@ -46,7 +47,7 @@ if(!$core->input['action']) {
 //                    }
                     //$td = '<td id="flagg"></td>';
                     eval("\$hr_listjobsapplicants_rows.= \"".$template->get('hr_listjobsapplicants_rows')."\";");
-                    unset($job_applicant);
+                    unset($job_applicant, $checkbox);
                 }
             }
         }
