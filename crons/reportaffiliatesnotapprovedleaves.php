@@ -28,7 +28,7 @@ if($db->num_rows($query2) > 0) {
             continue;
         }
         $query4 = $db->query("SELECT l.*, l.uid AS requester, Concat(u.firstName, ' ', u.lastName) AS employeename
-				FROM ".Tprefix."leaves l JOIN ".Tprefix."users u ON (l.uid=u.uid) 
+				FROM ".Tprefix."leaves l JOIN ".Tprefix."users u ON (l.uid=u.uid)
 				WHERE l.lid IN (".implode(',', $approved_lids).") ORDER BY l.fromDate ASC");
         if($db->num_rows($query3) == 0) {
             continue;
@@ -69,7 +69,7 @@ if($db->num_rows($query2) > 0) {
 
         $email_data = array(
                 'to' => 'chris@sacy.net',
-                'from_email' => $core->settings['adminemail'],
+                'from_email' => $core->settings['maileremail'],
                 'from' => 'OCOS Mailer',
                 'subject' => 'Expected leaves in your affiliates',
                 'message' => $email_message

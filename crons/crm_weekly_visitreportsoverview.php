@@ -102,7 +102,7 @@ if(is_array($reports)) {
             $message_output .= 'Please find below the visit reports of <strong>'.$report['employeename'].'</strong><ul>'.$message_user_reports.'</body></html>';
 
             $email_data = array(
-                    'from_email' => $core->settings['adminemail'],
+                    'from_email' => $core->settings['maileremail'],
                     'from' => 'OCOS Mailer',
                     'subject' => 'Visit Reports Overview - Week '.$current_date['week'].'/'.$current_date['year'],
                     'message' => $message_output
