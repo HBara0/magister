@@ -25,12 +25,11 @@ class GadgetFxRates extends SystemGadget {
     }
 
     /**
-     * parse gadget widget
+     *
      * @param array $instancedata
      * @return string
      */
     public function parse(array $instancedata) {
-        global $core, $template;
         if(empty($instancedata['serializedConfig'])) {
             return 'Error Parsing : missing configs';
         }
@@ -46,11 +45,7 @@ class GadgetFxRates extends SystemGadget {
         if(!is_array($currency_arrays)) {
             return 'Error Parsing : missing currencies';
         }
-        $currencysrates_list = $this->parse_rates_list($currency_arrays);
-        $header = $instancedata[SystemWidgetInstances::DISPLAY_NAME];
-        $body = $currencysrates_list;
-        eval("\$widget = \"".$template->get('system_dashboard_defaultwidget')."\";");
-        return $widget;
+        return $this->parse_rates_list($currency_arrays);
     }
 
     /**

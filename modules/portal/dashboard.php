@@ -16,7 +16,6 @@ if(!$core->input['action']) {
     $dashboard = $dash_obj->get();
     $widgets = SystemWidgets::parse_widgetselect_form($dashboard);
     $widgets = $dash_obj->parse_dashboard();
-
     output_page($widgets);
 }
 else {

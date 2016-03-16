@@ -90,6 +90,7 @@ class SystemWidgets extends AbstractClass {
      * @return string
      */
     public function parse_widget($instancedata) {
+        global $template, $lang;
         $gadget_object = $this->get_gadgetobject();
         if($gadget_object) {
             if(is_object($gadget_object)) {
@@ -117,7 +118,6 @@ class SystemWidgets extends AbstractClass {
             $errorhandler->record($lang->missingfile, $gadget_class);
             return false;
         }
-
         return $gadget_class;
     }
 

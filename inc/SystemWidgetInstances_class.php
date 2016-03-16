@@ -97,13 +97,17 @@ class SystemWidgetInstances extends AbstractClass {
 
     /**
      * links widgetinstance with widget and parses the later, else if no widgetinstance is found returns false
+     * @global type $template
      * @return boolean
-     * @return string
      */
     public function parse_widgetinstance() {
+        global $template;
         $widget = $this->get_widget();
         if(is_object($widget) && !empty($widget->{SystemWidgets::PRIMARY_KEY})) {
-            return $widget->parse_widget($this->data);
+            $header = $this->{SystemWidgetInstances::DISPLAY_NAME};
+            $body = $widget->parse_widget($this->data);
+            eval("\$widget = \"".$template->get('system_dashboard_defaultwidget')."\";");
+            return $widget;
         }
         return false;
     }
