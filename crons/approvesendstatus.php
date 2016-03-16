@@ -4,13 +4,13 @@ require '../inc/init.php';
 $users = array();
 
 $quarter = currentquarter_info();
-$query = $db->query("SELECT r.*, aff.name AS affiliatename, s.companyName AS suppliername 
+$query = $db->query("SELECT r.*, aff.name AS affiliatename, s.companyName AS suppliername
 					FROM ".Tprefix."reports r, ".Tprefix."affiliates aff, ".Tprefix."entities s
 					WHERE r.spid=s.eid AND r.affid=aff.affid AND year='{$quarter[year]}' AND quarter = '{$quarter[quarter]}' AND status=1 AND isSent=0");
 
 $audits = array();
 while($report = $db->fetch_array($query)) {
-    $query2 = $db->query("SELECT u.uid, u.firstName, u.lastName, u.email 
+    $query2 = $db->query("SELECT u.uid, u.firstName, u.lastName, u.email
 						  FROM ".Tprefix."users u LEFT JOIN ".Tprefix."assignedemployees ae ON (u.uid=ae.uid)
 						  WHERE (u.gid='5' OR u.gid='1') and ae.isValidator='1' AND ae.eid='{$report[spid]}'");
 
@@ -51,7 +51,7 @@ if($time_now >= $quarter_start && $time_now <= $quarter_end) {
 
             $email_data = array(
                     'to' => $val['email'],
-                    'from_email' => $core->settings['adminemail'],
+                    'from_email' => $core->settings['maileremail'],
                     'from' => 'OCOS Mailer',
                     'subject' => 'Some reports have not been sent yet',
                     'message' => $email_message

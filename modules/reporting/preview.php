@@ -754,10 +754,12 @@ if(!$core->input['action']) {
                     }
                     /* Generate Chart */
                     if($aggregate_type == 'segments') {
+                        asort($report_years);
                         $progressionbox_chart = new Charts(array('x' => $report_years, 'y' => $report_charts_data[$aggregate_type][$category]['actual']['y']), 'stackedbar', array('seriesnames' => array(1 => $item['name'])));
                         $reporting_report_newtotaloverviewbox_chart = '<img src="'.$progressionbox_chart->get_chart().'" />';
                     }
                     if($aggregate_type == 'affiliates') {
+                        asort($report_years);
                         $progressionbox_chart = new Charts(array('x' => $report_years, 'y' => $report_affiliate_charts_data[$aggregate_type][$category]['actual']['y']), 'linebar', array('seriesnames' => array(1 => $item['name'])));
                         $reporting_report_newtotaloverviewbox_chart = '<img src="'.$progressionbox_chart->get_chart().'" />';
                     }

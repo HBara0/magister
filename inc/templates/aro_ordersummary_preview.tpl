@@ -83,15 +83,21 @@
                 <td {$ordersummarydisplay[thirdcolumn_display]}> <div style="text-align: right;">{$aroordersummary->marginPercThirdParty}%</div></td>
             </tr>
             <tr style="font-weight: bold;background-color: #D0F6AA">
+                <td class="altrow">{$lang->riskratioamount}</td>
+                <td style="text-align:center" colspan="2">{$aroordersummary->riskRatioAmount}</td>
+                <td {$ordersummarydisplay[thirdcolumn_display]}></td>
+
+            </tr>
+            <tr style="font-weight: bold;background-color: #D0F6AA">
                 <td class="altrow">{$lang->total} {$lang->globalnetmargin}
                     <a href="#" class="hidden-print" title="{$lang->globalnetmargindef}"><img src="./images/icons/question.gif"/></a></td>
-                <td style="text-align:center" colspan="2">{$aroordersummary->globalNetmargin} ({$aroordersummary->riskRatioAmount})</td>
-                <td {$ordersummarydisplay[thirdcolumn_display]}</td>
+                <td style="text-align:center" colspan="2">{$aroordersummary->globalNetmargin}</td>
+                <td {$ordersummarydisplay[thirdcolumn_display]}></td>
             </tr>
             <tr style="font-weight: bold;background-color: #D0F6AA">
                 <td class="altrow">{$lang->total} {$lang->globalnetmarginperc} %</td>
                 <td style="text-align:center;" colspan="2">{$aroordersummary->globalNetmarginPerc}%</td>
-                <td {$ordersummarydisplay[thirdcolumn_display]}</td>
+                <td {$ordersummarydisplay[thirdcolumn_display]}></td>
             </tr>
         </tbody>
         <tfoot style="display:none;" id="ordersummary_tfoot" class="altrow2"  name="seemoredetails" class="hidden-print">

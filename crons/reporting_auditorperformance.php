@@ -162,7 +162,7 @@ $outputmessage = '<html>
 </head><body>'.$outputmessage.'</body></html>';
 $email_data = array(
         'to' => 'christophe.sacy@orkila.com ',
-        'from_email' => $core->settings['adminemail'],
+        'from_email' => $core->settings['maileremail'],
         'from' => 'OCOS Mailer',
         'subject' => 'Quarterly Report Auditors Performance Report : Q'.$quarter['quarter'].'/'.$quarter['year'],
         'message' => $outputmessage

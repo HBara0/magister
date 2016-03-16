@@ -43,9 +43,9 @@ class HrJobOpportunities extends AbstractClass {
         }
         $data['createdOn'] = TIME_NOW;
         $data['createdBy'] = $core->user['uid'];
-        $data['alias'] = generate_alias($data['title']);
+        $data['alias'] = strtolower($data['reference'].'-'.generate_alias($data['title']).'-'.$data['affid']);
         /* ---SANITIZE INPUTS---START */
-        $sanitize_fields = array('reference', 'title', 'shortDesc', 'responsibilities', 'minQualifications', 'prefQualifications');
+        $sanitize_fields = array('reference', 'title', /* 'shortDesc', 'responsibilities', 'minQualifications', 'prefQualifications' */);
         foreach($sanitize_fields as $val) {
             $data[$val] = $core->sanitize_inputs($data[$val], array('removetags' => true));
         }
@@ -135,10 +135,10 @@ class HrJobOpportunities extends AbstractClass {
         }
         $data['modifiedOn'] = TIME_NOW;
         $data['modifiedBy'] = $core->user['uid'];
-        $data['alias'] = generate_alias($data['title']);
+        $data['alias'] = strtolower($data['reference'].'-'.generate_alias($data['title']).'-'.$data['affid']);
 
         /* ---SANITIZE INPUTS---START */
-        $sanitize_fields = array('reference', 'title', 'shortDesc', 'responsibilities', 'minQualifications', 'prefQualifications');
+        $sanitize_fields = array('reference', 'title', /* 'shortDesc', 'responsibilities', 'minQualifications', 'prefQualifications' */);
         foreach($sanitize_fields as $val) {
             $data[$val] = $core->sanitize_inputs($data[$val], array('removetags' => true));
         }

@@ -50,7 +50,9 @@ class Entities extends AbstractClass {
             $this->status = false;
             exit;
         }
-        if(!$this->entity_exists($this->data['companyName'])) {
+
+        $this->data['alias'] = generate_alias($this->data['companyName']);
+        if(!$this->entity_exists($this->data['alias'])) {
             if(empty($this->data['affid'])) {
                 output_xml("<status>false</status><message>{$lang->specifyanaffiliate}</message>");
                 $this->status = false;
@@ -160,6 +162,7 @@ class Entities extends AbstractClass {
                 $this->status = false;
                 exit;
             }
+
             $query = $db->insert_query(self::TABLE_NAME, $this->data);
             if($query) {
                 $this->data['eid'] = $this->eid = $db->last_id();
@@ -659,10 +662,10 @@ class Entities extends AbstractClass {
         global $db;
 
         if(function_exists('value_exists')) {
-            return value_exists('entities', 'companyName', $name);
+            return value_exists('entities', 'alias', $name);
         }
         else {
-            $query = $db->query("SELECT companyName FROM ".Tprefix."entities WHERE companyName='".$db->escape_string($name)."'");
+            $query = $db->query("SELECT companyName FROM ".Tprefix."entities WHERE alias='".$db->escape_string($name)."'");
             if($db->num_rows($query) > 0) {
                 return true;
             }

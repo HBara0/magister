@@ -5,5 +5,5 @@
     <td>{$report[quarter]} {$filters[quarter][$report[quarter]]}</td>
     <td>{$report[year]} {$filters[year][$report[year]]}</td>
     <td><a href="#status_{$report[rid]}" id="status_{$report[rid]}" rel="{$report[rid]}">{$report[status]}</a></td>
-    <td>{$icon[$report[rid]]}&nbsp;</td>
+    <td>{$rep_tools}</td>
 </tr>

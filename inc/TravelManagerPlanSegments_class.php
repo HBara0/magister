@@ -128,7 +128,7 @@ class TravelManagerPlanSegments extends AbstractClass {
             }
         }
         else {
-            $this->errorcode = 9;
+            $this->errorcode = 2;
             $errorhandler->record('Required fields', 'Purposes'.' in Segment '.$segmentdata['sequence']);
         }
         if(is_array($segmentdata['assign'])) {
@@ -175,9 +175,8 @@ class TravelManagerPlanSegments extends AbstractClass {
         }
 
         if($externalpurpose_assignees < $saved_seg_purposes['external']) {
-            $this->errorcode = 2;
+            $this->errorcode = 9;
             $errorhandler->record('Required Fields', 'External Purposes partner in Segment '.$segmentdata['sequence']);
-            return $this;
         }
         if(isset($segmentdata['tmtcid'])) {
             $transptdata['tmpsid'] = $this->data[self::PRIMARY_KEY];
@@ -445,7 +444,7 @@ class TravelManagerPlanSegments extends AbstractClass {
         }
         else {
             if($segmentdata['savesection']['section1'] == 1) {
-                $this->errorcode = 9;
+                $this->errorcode = 2;
                 $errorhandler->record('Required fields', 'Purposes'.' in Segment '.$segmentdata['sequence']);
             }
         }
@@ -494,9 +493,8 @@ class TravelManagerPlanSegments extends AbstractClass {
         }
 
         if($externalpurpose_assignees < $saved_seg_purposes['external']) {
-            $this->errorcode = 2;
-            $errorhandler->record('Required Fields', 'External Purposes partner in Segment '.$segmentdata['sequence']);
-            return $this;
+            $this->errorcode = 9;
+            $errorhandler->record('Check Fields', 'External Purposes partner in Segment '.$segmentdata['sequence']);
         }
 
 // unset($segmentdata['savesection']);

@@ -149,7 +149,7 @@ class IntegrationOB extends Integration {
 						ORDER by dateordered ASC");
         }
         elseif($doc_type == 'invoice') {
-            $query = $this->f_db->query("SELECT i.ad_org_id, i.c_invoice_id AS doc_id, i.dateinvoiced AS doc_date, i.documentno, bp.name AS bpname, bp.c_bpartner_id AS bpid, bp.value AS bpname_abv, c.iso_code AS currency, i.salesrep_id, u.username, u.name AS salesrep, pt.netdays AS paymenttermsdays
+            $query = $this->f_db->query("SELECT i.ad_org_id, i.c_invoice_id AS doc_id, i.dateinvoiced AS doc_date, i.documentno, bp.name AS bpname, bp.c_bpartner_id AS bpid, bp.value AS bpname_abv, c.iso_code AS currency, i.salesrep_id, u.username, u.name AS salesrep, pt.netdays AS paymenttermsdays, i.c_order_id As foreignOrderId
 					FROM c_invoice i
 					JOIN c_bpartner bp ON (bp.c_bpartner_id=i.c_bpartner_id)
 					JOIN c_currency c ON (c.c_currency_id=i.c_currency_id)
@@ -161,6 +161,10 @@ class IntegrationOB extends Integration {
 
         $document_newdata = array();
         while($document = $this->f_db->fetch_assoc($query)) {
+            if($doc_type == 'order') {
+                //get linked invoice id, Null if there's no invoice
+                $document['foreignOrderId'] = $db->fetch_assoc($db->query('SELECT c_invoice_id FROM '.Tprefix.'c_invoice WHERE c_order_id='.$document['doc_id']));
+            }
             $document_newdata = array(
                     'foreignSystem' => $this->foreign_system,
                     'foreignId' => $document['doc_id'],
@@ -170,21 +174,30 @@ class IntegrationOB extends Integration {
                     'affid' => $this->affiliates_index[$document['ad_org_id']],
                     'currency' => $document['currency'],
                     'paymentTerms' => $document['paymenttermsdays'],
-                    'salesRep' => $document['salesrep']
+                    'salesRep' => $document['salesrep'],
+                    'foreignOrderId' => $document['foreignOrderId']
             );
 
             $document_newdata['salesRepLocalId'] = $db->fetch_field($db->query("SELECT uid FROM ".Tprefix."users WHERE displayName='".$db->escape_string($document['salesrep'])."' OR username='".$db->escape_string($document['username'])."'"), 'uid');
 
-            if(value_exists('integration_mediation_salesorders', 'foreignId', $document['doc_id'])) {
-                $query2 = $db->update_query('integration_mediation_salesorders', $document_newdata, 'foreignId="'.$document['doc_id'].'"');
+
+            $table['main'] = 'integration_mediation_salesinvoices';
+            $table['lines'] = 'integration_mediation_salesinvoicelines';
+            if($doc_type == 'order') {
+                $table['main'] = 'integration_mediation_salesorders';
+                $table['lines'] = 'integration_mediation_salesorderlines';
+            }
+
+            if(value_exists($table['main'], 'foreignId', $document['doc_id'])) {
+                $query2 = $db->update_query($table['main'], $document_newdata, 'foreignId="'.$document['doc_id'].'"');
             }
             else {
-                $query2 = $db->insert_query('integration_mediation_salesorders', $document_newdata);
+                $query2 = $db->insert_query($table['main'], $document_newdata);
             }
 
             if($query2) {
-                if(value_exists('integration_mediation_salesorderlines', 'foreignOrderId', $document['doc_id'])) {
-                    $db->delete_query('integration_mediation_salesorderlines', 'foreignOrderId="'.$document['doc_id'].'"');
+                if(value_exists($table['lines'], 'foreignOrderId', $document['doc_id'])) {
+                    $db->delete_query($table['lines'], 'foreignOrderId="'.$document['doc_id'].'"');
                 }
 
                 if($doc_type == 'order') {
@@ -226,7 +239,7 @@ class IntegrationOB extends Integration {
                             'purPriceCurrency' => $purchaseprice_data['currency']
                     );
 
-                    $db->insert_query('integration_mediation_salesorderlines', $documentline_newdata);
+                    $db->insert_query($table['lines'], $documentline_newdata);
                 }
             }
         }
@@ -239,9 +252,16 @@ class IntegrationOB extends Integration {
         global $db, $log;
 
         if($doc_type == 'order') {
+            $table['main'] = 'integration_mediation_salesorders';
+            $table['lines'] = 'integration_mediation_salesorderlines';
             return false;
         }
         elseif($doc_type == 'invoice') {
+
+            $table['main'] = 'integration_mediation_salesinvoices';
+            $table['lines'] = 'integration_mediation_salesinvoicelines';
+
+
             $query = $this->f_db->query("SELECT i.c_invoice_id AS doc_id
 					FROM c_invoice i
 					WHERE i.ad_org_id IN ('".implode('\',\'', $organisations)."') AND docstatus IN ('VO', 'CL') AND issotrx='Y' AND (dateinvoiced BETWEEN '".date('Y-m-d 00:00:00', strtotime($this->period['from']))."' AND '".date('Y-m-d 00:00:00', strtotime($this->period['to']))."')
@@ -249,10 +269,10 @@ class IntegrationOB extends Integration {
         }
 
         while($document = $this->f_db->fetch_assoc($query)) {
-            if(value_exists('integration_mediation_salesorders', 'foreignId', $document['doc_id'])) {
-                $db->delete_query('integration_mediation_salesorders', 'foreignId="'.$document['doc_id'].'"');
-                if(value_exists('integration_mediation_salesorderlines', 'foreignOrderId', $document['doc_id'])) {
-                    $db->delete_query('integration_mediation_salesorderlines', 'foreignOrderId="'.$document['doc_id'].'"');
+            if(value_exists($table['main'], 'foreignId', $document['doc_id'])) {
+                $db->delete_query($table['main'], 'foreignId="'.$document['doc_id'].'"');
+                if(value_exists($table['lines'], 'foreignOrderId', $document['doc_id'])) {
+                    $db->delete_query($table['lines'], 'foreignOrderId="'.$document['doc_id'].'"');
                 }
             }
         }
@@ -277,7 +297,7 @@ class IntegrationOB extends Integration {
 							WHERE o.ad_org_id IN ('".implode('\',\'', $organisations)."') AND issotrx='N' AND docstatus = 'CO' AND ((dateordered BETWEEN '".date('Y-m-d 00:00:00', strtotime($this->period['from']))."' AND '".date('Y-m-d 00:00:00', strtotime($this->period['to']))."') OR (o.updated BETWEEN '".date('Y-m-d 00:00:00', strtotime($this->period['from']))."' AND '".date('Y-m-d 00:00:00', strtotime($this->period['to']))."'))");
         }
         else {
-            $query = $this->f_db->query("SELECT i.c_invoice_id AS documentid, i.ad_org_id, i.documentno, bp.name AS bpname, bp.c_bpartner_id AS bpid, c.iso_code AS currency, dateinvoiced AS documentdate, pt.netdays AS paymenttermsdays
+            $query = $this->f_db->query("SELECT i.c_invoice_id AS documentid, i.ad_org_id, i.documentno, bp.name AS bpname, bp.c_bpartner_id AS bpid, c.iso_code AS currency, dateinvoiced AS documentdate, pt.netdays AS paymenttermsdays,.i.c_order_id As foreignOrderId
 							FROM c_invoice i JOIN c_bpartner bp ON (bp.c_bpartner_id=i.c_bpartner_id)
 							JOIN c_currency c ON (c.c_currency_id=i.c_currency_id)
 							JOIN c_paymentterm pt ON (i.c_paymentterm_id=pt.c_paymentterm_id)
@@ -286,6 +306,10 @@ class IntegrationOB extends Integration {
 
         $document_newdata = array(0);
         while($document = $this->f_db->fetch_assoc($query)) {
+            if($doc_type == 'order') {
+                //get linked invoice id, Null if there's no invoice
+                $document['foreignOrderId'] = $db->fetch_assoc($db->query('SELECT c_invoice_id FROM '.Tprefix.'c_invoice WHERE c_order_id='.$document['documentid']));
+            }
             $document_newdata = array(
                     'foreignSystem' => $this->foreign_system,
                     'foreignId' => $document['documentid'],
@@ -295,7 +319,8 @@ class IntegrationOB extends Integration {
                     'affid' => $this->affiliates_index[$document['ad_org_id']],
                     'currency' => $document['currency'],
                     'paymentTerms' => $document['paymenttermsdays'],
-                    'purchaseType' => 'SKI'
+                    'purchaseType' => 'SKI',
+                    'foreignOrderId' => $document['foreignOrderId']
             );
 
             /* Get currencies FX from own system - START */
@@ -305,16 +330,23 @@ class IntegrationOB extends Integration {
             }
             /* Get currencies FX from own system - END */
 
-            if(value_exists('integration_mediation_purchaseorders', 'foreignId', $document['documentid'])) {
-                $query2 = $db->update_query('integration_mediation_purchaseorders', $document_newdata, 'foreignId="'.$document['documentid'].'"');
+
+            $table['main'] = 'integration_mediation_purchaseinvoices';
+            $table['lines'] = 'integration_mediation_purchaseinvoicelines';
+            if($doc_type == 'order') {
+                $table['main'] = 'integration_mediation_purchaseorders';
+                $table['lines'] = 'integration_mediation_purchaseorderlines';
+            }
+            if(value_exists($table['main'], 'foreignId', $document['documentid'])) {
+                $query2 = $db->update_query($table['main'], $document_newdata, 'foreignId="'.$document['documentid'].'"');
             }
             else {
-                $query2 = $db->insert_query('integration_mediation_purchaseorders', $document_newdata);
+                $query2 = $db->insert_query($table['main'], $document_newdata);
             }
 
             if($query2) {
-                if(value_exists('integration_mediation_purchaseorderlines', 'foreignOrderId', $document['documentid'])) {
-                    $db->delete_query('integration_mediation_purchaseorderlines', 'foreignOrderId="'.$document['documentid'].'"');
+                if(value_exists($table['lines'], 'foreignOrderId', $document['documentid'])) {
+                    $db->delete_query($table['lines'], 'foreignOrderId="'.$document['documentid'].'"');
                 }
 
                 if($doc_type == 'order') {
@@ -344,7 +376,7 @@ class IntegrationOB extends Integration {
                             'quantityUnit' => $documentline['uom']
                     );
 
-                    $db->insert_query('integration_mediation_purchaseorderlines', $documentline_newdata);
+                    $db->insert_query($table['lines'], $documentline_newdata);
                 }
             }
         }
@@ -356,19 +388,24 @@ class IntegrationOB extends Integration {
         global $db, $log;
 
         if($doc_type == 'order') {
+            $table['main'] = 'integration_mediation_purchaseorders';
+            $table['lines'] = 'integration_mediation_purchaseorderlines';
             return false;
         }
         else {
+            $table['main'] = 'integration_mediation_purchaseinvoices';
+            $table['lines'] = 'integration_mediation_purchaseinvoicelines';
+
             $query = $this->f_db->query("SELECT i.c_invoice_id as documentid
 							FROM c_invoice i
 							WHERE  i.ad_org_id IN ('".implode('\',\'', $organisations)."') AND docstatus IN ('VO', 'CL') AND issotrx='N' AND (dateinvoiced BETWEEN '".date('Y-m-d 00:00:00', strtotime($this->period['from']))."' AND '".date('Y-m-d 00:00:00', strtotime($this->period['to']))."')");
         }
 
         while($document = $this->f_db->fetch_assoc($query)) {
-            if(value_exists('integration_mediation_purchaseorders', 'foreignId', $document['documentid'])) {
-                $db->delete_query('integration_mediation_purchaseorders', 'foreignId="'.$document['documentid'].'"');
-                if(value_exists('integration_mediation_purchaseorderlines', 'foreignOrderId', $document['documentid'])) {
-                    $db->delete_query('integration_mediation_purchaseorderlines', 'foreignOrderId="'.$document['documentid'].'"');
+            if(value_exists($table['main'], 'foreignId', $document['documentid'])) {
+                $db->delete_query($table['main'], 'foreignId="'.$document['documentid'].'"');
+                if(value_exists($table['lines'], 'foreignOrderId', $document['documentid'])) {
+                    $db->delete_query($table['lines'], 'foreignOrderId="'.$document['documentid'].'"');
                 }
             }
         }
@@ -517,10 +554,13 @@ class IntegrationOB extends Integration {
             /**
              * If report type is BM stock report filter query by BM segments
              */
-            $bm = Users::get_data(array('uid' => $options['bm'], array('simple' => false)));
+            $bm = $options['bm'];
             $permissions = $bm->get_businesspermissions();
             if(is_array($permissions['psid'])) {
                 foreach($permissions['psid'] as $psid) {
+                    if($psid == 0) {
+                        continue;
+                    }
                     $prodseg_obj = ProductsSegments::get_data(array('psid' => $psid), array('simple' => false));
                     $bm_segments[] = $prodseg_obj->get_segment_integrationOBId();
                 }
@@ -544,7 +584,8 @@ class IntegrationOB extends Integration {
 
         if($this->f_db->num_rows($query) > 0) {
             while($transcation = $this->f_db->fetch_assoc($query)) {
-                $filter = " m_attributesetinstance_id='".$transcation['m_attributesetinstance_id']."' AND m_product_id='".$transcation['m_product_id']."' ORDER BY
+                $filter = " m_attributesetinstance_id='".$transcation['m_attributesetinstance_id']."' AND m_product_id='".$transcation['m_product_id']."'
+                    AND ad_org_id IN ('".implode('\',\'', $organisations)."') ORDER BY
                             case
                                when movementtype = 'M+' then 1
                                when movementtype = 'V+' then 2
@@ -3185,6 +3226,367 @@ class IntegrationOBFinPaymentSchedule extends IntegrationAbstractClass {
         return IntegrationOBFinPaymentScheduleDetail::get_data("fin_payment_schedule_invoice = '".$this->data[self::PRIMARY_KEY]."' OR fin_payment_schedule_order = '".$this->data[self::PRIMARY_KEY]."'", array('returnarray' => true));
     }
 
+    /**
+     *
+     * @return boolean or array of schedules
+     */
+    public function get_paymentschedules($filters = '') {
+        if(empty($filters)) {
+            $filters = "Outstandingamt > 0 AND duedate < '".date('Y-m-d 00:00:00')."' ORDER BY Outstandingamt DESC";
+        }
+        $payment_schedules = self::get_data($filters, array('returnarray' => true));
+        if(is_array($payment_schedules)) {
+            return $payment_schedules;
+        }
+        return false;
+    }
+
+    public function paymentschedule_report($configs = array(), $integration) {
+        global $lang, $template, $core;
+        //get OB business group id types
+        $ob_bp_group_ids = array('customer' => 'C08F137534222BD001345D52062931C6', 'supplier' => 'C08F137534222BD001345D525D3331CC');
+        $ob_bp_group_filter_byid = "'C08F137534222BD001345D52062931C6','C08F137534222BD001345D525D3331CC'";
+        //get orkila international ob org ID
+        $ork_int = new Entities(27);
+        $int_oborgid = $ork_int->integrationOBOrgId;
+        if($int_oborgid) {
+            $additional_where_orkint = " OR SELECT C_Invoice_ID FROM c_invoice WHERE issotrx= 'Y' AND ad_org_id =\'{$int_oborgid}\'";
+        }
+        $filters = "Outstandingamt > 0 AND duedate < '".date('Y-m-d 00:00:00')."' AND (C_Invoice_ID IN (SELECT C_Invoice_ID FROM c_invoice WHERE C_BPartner_ID IN (SELECT C_BPartner_ID FROM C_BPartner WHERE C_BP_Group_ID IN ({$ob_bp_group_filter_byid}))  {$additional_where_orkint})) ORDER BY Outstandingamt DESC";
+        $payment_schedules = self::get_paymentschedules($filters);
+        if(!is_array($payment_schedules)) {
+            return false;
+        }
+
+        $maincurrency_object = new Currencies('USD');
+        $cache = new Cache();
+        //get dates of the last three monnths start
+        $past_month = array();
+        $past_month['m-1'] = strtotime('-30 days');
+        $past_month['m-2'] = strtotime('-60 days');
+        $past_month['m-3'] = strtotime('-90 days');
+        //explanation of each array and its related table - START
+        //$table_array = array($detailedtable_rows, $percompany_rows, $persupplier_rows, $forinternational_rows);
+        //totals array
+        $totals = array();
+        //table showing payments due to suppliers in general, having a sub total line per month and a total at the end
+        $detailed_table = array();
+        $detailedtable_rows = '';
+        //table showing payments due to suppliers per company
+        $per_company = array();
+        $percompany_rows = '';
+        //table showing payments per supplier
+        $per_supplier = array();
+        $persupplier_rows = '';
+        //table showing payments to Orkila Iternation from customers and other affilaites
+        $for_international = array();
+        $forinternational_rows = '';
+        //totals array that will hold the totals depending on the type
+        $totals = array();
+        //explanation of each array and its related table - END
+        foreach($payment_schedules as $paymentschedule_obj) {
+            //get invoice to check if this is a sale invoice or not ,this is done to check
+            //if the payment is from an affiliate to a supplier or a customer to an affiliate
+            $invoice_obj = new IntegrationOBInvoice($paymentschedule_obj->c_invoice_id, $integration->get_dbconn());
+            if(!is_object($invoice_obj)) {
+                continue;
+            }
+            //if schedule is not for an invoice we should skip else proceed
+            if(!isset($paymentschedule_obj->c_invoice_id) || empty($paymentschedule_obj->c_invoice_id)) {
+                continue;
+            }
+            //if invoice is not sales and does not involve orkila internation as the selling party then skip
+            if($invoice_obj->issotrx == 'Y' && !$invoice_obj->ad_org_id == $ork_int->integrationOBOrgId) {
+                continue;
+            }
+            //cache all info-START
+            //currency
+            if(!$cache->iscached('currency', $paymentschedule_obj->c_currency_id)) {
+                $cache->add('currency', new IntegrationOBCurrency($paymentschedule_obj->c_currency_id, $integration->get_dbconn()), $paymentschedule_obj->c_currency_id);
+            }
+
+            //company
+            if(!$cache->iscached('company', $paymentschedule_obj->ad_org_id)) {
+                $cache->add('company', new IntegrationOBOrg($paymentschedule_obj->ad_org_id, $integration->get_dbconn()), $paymentschedule_obj->ad_org_id);
+            }
+            //supplier
+            if(!$cache->iscached('supplier', $invoice_obj->c_bpartner_id)) {
+                $cache->add('supplier', new IntegrationOBBPartner($invoice_obj->c_bpartner_id, $integration->get_dbconn()), $invoice_obj->c_bpartner_id);
+            }
+            //cache all info-END
+            //get common used info once
+            $company_obj = $cache->get_cachedval('company', $paymentschedule_obj->ad_org_id);
+            $businesspartner_obj = $cache->get_cachedval('supplier', $invoice_obj->c_bpartner_id);
+            $currency_obj = $cache->get_cachedval('currency', $paymentschedule_obj->c_currency_id);
+            //fx rate
+            if(!$cache->iscached('fxrate', $paymentschedule_obj->c_currency_id)) {
+                $currency_obj = $cache->get_cachedval('currency', $paymentschedule_obj->c_currency_id);
+                if(is_object($currency_obj)) {
+                    $fxrate = $maincurrency_object->get_latest_fxrate($currency_obj->iso_code, array('incDate' => 1));
+                    if($currency_obj->iso_code == 'GHC' && (!$fxrate || !is_array($fxrate) || !$fxrate['rate'])) {
+                        $fxrate = $maincurrency_object->get_latest_fxrate('GHS', array('incDate' => 1));
+                    }
+                }
+                if($fxrate == 1) {
+                    $fxrate = array('rate' => 1, 'date' => TIME_NOW);
+                }
+                if(!$fxrate || !is_array($fxrate) || !$fxrate['rate']) {
+                    $cache->add('fxrate', -1, $paymentschedule_obj->c_currency_id);
+                    $cache->add('fxratefullinfo', 'Not Found', $paymentschedule_obj->c_currency_id);
+                }
+                else {
+                    $cache->add('fxrate', $fxrate['rate'], $paymentschedule_obj->c_currency_id);
+                    $cache->add('fxratefullinfo', $fxrate, $paymentschedule_obj->c_currency_id);
+                }
+            }
+            $fxrate = $cache->get_cachedval('fxrate', $paymentschedule_obj->c_currency_id);
+            $flag = 0;
+            //if there is no fx rate for this currency then fill the flag variable, this
+            if(empty($fxrate)) {
+                $flag = 1;
+                $fxrate = 1;
+            }
+            $dudate_time = strtotime($paymentschedule_obj->duedate);
+            $usdamount = number_format($paymentschedule_obj->outstandingamt / $fxrate, 0, '.', ',');
+            $normalamount = number_format($paymentschedule_obj->outstandingamt, 0, '.', ',');
+            //if invoice is not sales and involved orkila international
+            if($invoice_obj->issotrx == 'Y') {
+                $for_international['lines'][] = array('flag' => $flag, 'duedate' => $dudate_time, 'company' => $company_obj->get_displayname(), 'amount' => $normalamount, 'currency' => $currency_obj->iso_code, 'amount_usd' => $usdamount);
+                $year_month = date('Y/m', $dudate_time);
+                if($flag != 1) {
+                    $for_international['permonth'][$year_month] += $paymentschedule_obj->outstandingamt / $fxrate;
+                    $totals['sales']+=$paymentschedule_obj->outstandingamt / $fxrate;
+                }
+            }
+            //else it is a purchase invoice, meaning one of our companies is due for payment
+            else {
+                //detailed table info-START
+                $detailed_table['lines'][] = array('flag' => $flag, 'duedate' => date('Y-m-d', $dudate_time), 'company' => $company_obj->get_displayname(), 'supplier' => $businesspartner_obj->get_displayname(), 'amount' => $normalamount, 'currency' => $currency_obj->iso_code, 'amount_usd' => $usdamount);
+                //generating monthly subtotals lines info
+                $year_month = date('Y/m', $dudate_time);
+                $detailed_table['permonth'][$year_month] += $paymentschedule_obj->outstandingamt / $fxrate;
+                //detailed table info-END
+                //per company info-START
+                $per_company[$company_obj->ad_org_id][$invoice_obj->c_bpartner_id][$paymentschedule_obj->c_currency_id]['amount'] += $paymentschedule_obj->outstandingamt;
+                //total by company
+                $totals['company'][$company_obj->ad_org_id]+=$paymentschedule_obj->outstandingamt / $fxrate;
+                //per company info-END
+                //per supplier info-START
+                $per_supplier[$invoice_obj->c_bpartner_id][$paymentschedule_obj->c_currency_id]['amount'] += $paymentschedule_obj->outstandingamt;
+                //total by supplier
+                if($flag != 1) {
+                    $totals['supplier'][$invoice_obj->c_bpartner_id]+=$paymentschedule_obj->outstandingamt / $fxrate;
+                }   //per supplier info-END
+                //
+                //info by due date time used for both comapny and supplier tables-START
+                //check if the due date to see is before one month
+                if($dudate_time < $past_month['m-1']) {
+                    if($dudate_time < $past_month['m-3']) {
+                        $per_company[$company_obj->ad_org_id][$invoice_obj->c_bpartner_id][$paymentschedule_obj->c_currency_id]['months'][3]+=$paymentschedule_obj->outstandingamt / $fxrate;
+                        $per_supplier[$invoice_obj->c_bpartner_id][$paymentschedule_obj->c_currency_id]['months'][3] += $paymentschedule_obj->outstandingamt / $fxrate;
+                    }
+                    if($dudate_time < $past_month['m-2']) {
+                        $per_company[$company_obj->ad_org_id][$invoice_obj->c_bpartner_id][$paymentschedule_obj->c_currency_id]['months'][2]+=$paymentschedule_obj->outstandingamt / $fxrate;
+                        $per_supplier[$invoice_obj->c_bpartner_id][$paymentschedule_obj->c_currency_id]['months'][2] += $paymentschedule_obj->outstandingamt / $fxrate;
+                    }
+                    $per_company[$company_obj->ad_org_id][$invoice_obj->c_bpartner_id][$paymentschedule_obj->c_currency_id]['months'][1]+=$paymentschedule_obj->outstandingamt / $fxrate;
+                    $per_supplier[$invoice_obj->c_bpartner_id][$paymentschedule_obj->c_currency_id]['months'][1] += $paymentschedule_obj->outstandingamt / $fxrate;
+                }
+                //info by due date time used for both comapny and supplier tables-END
+                if($flag != 1) {
+                    $totals['purchase']+=$paymentschedule_obj->outstandingamt / $fxrate;
+                }
+            }
+        }
+
+        //go through data arrays and start parsing tables
+        //parse detailed table-START
+        if(is_array($detailed_table)) {
+            //parse lines first
+            if(is_array($detailed_table['lines'])) {
+                array_multisort_bycolumn($detailed_table['lines'], 'duedate');
+                foreach($detailed_table['lines'] as $line) {
+                    $symbol = '';
+                    if($line['flag'] == 1) {
+                        $symbol = '(!)';
+                    }
+                    eval("\$detailedtable_rows .= \"".$template->get('report_duepayments_detailedtable_row')."\";");
+                }
+            }
+            //parse months subtotal lines
+            if(is_array($detailed_table['permonth'])) {
+                $detailedtable_rows .='<tr style="text-align: center; padding: 5px;background-color:#D6EAAC"><th colspan="8"><strong>'.$lang->monthssubtotal.'</strong></th></tr>';
+                ksort($detailed_table['permonth']);
+                $detailedtable_rows .='<tr style="padding: 5px;border-bottom: black solid thick"><th colspan="3" style="text-align:center">'.$lang->month.'</th><th colspan="3" style="text-align:left">'.$lang->amountinusd.'</th></tr>';
+                foreach($detailed_table['permonth'] as $title => $number) {
+                    $detailedtable_rows .='<tr style="padding: 5px;"><th colspan="3" style="text-align:center">'.$title.'</th><th colspan="3" style="text-align:left">'.number_format($number, 0, '.', ',').'</th></tr>';
+                }
+            }
+        }
+        //parse detailed table-END
+        //parse per company table-START
+        if(is_array($per_company)) {
+            foreach($per_company as $companyid => $suppliers) {
+                $company_obj = $cache->get_cachedval('company', $companyid);
+                $company = $company_obj->get_displayname();
+                $percompany_rows.='<tr><td colspan="8" style="text-align: left; padding: 5px; border-bottom: 1px dashed #CCCCCC;background-color:#D6EAAC"><strong>'.$company.'</strong></td></tr>';
+                eval("\$percompany_rows .= \"".$template->get('report_duepayments_percompany_header')."\";");
+                $companytotal = number_format($totals['company'][$companyid], 0, '.', ',');
+                if(is_array($suppliers)) {
+                    foreach($suppliers as $supplierid => $currencies) {
+                        $businesspartner_obj = $cache->get_cachedval('supplier', $supplierid);
+                        $businesspartner = $businesspartner_obj->get_displayname();
+                        if(is_array($currencies)) {
+                            $company_pastmonths = array(1 => '-', 2 => '-', 3 => '-');
+                            foreach($currencies as $currencyid => $types) {
+                                $currency_obj = $cache->get_cachedval('currency', $currencyid);
+                                $currency = $currency_obj->iso_code;
+                                $fxrate = $cache->get_cachedval('fxrate', $currencyid);
+                                $symbol = '';
+                                if($fxrate == -1) {
+                                    $symbol = '(!)';
+                                }
+                                if(is_array($types)) {
+                                    foreach($types as $type => $data) {
+                                        if($type == 'amount') {
+                                            $amount = number_format($data, 0, '.', ',');
+                                            $usdamount = number_format($data / $fxrate, 0, '.', ',');
+                                        }
+                                        elseif($type == 'months') {
+                                            if(is_array($data)) {
+                                                foreach($data as $pastmonth => $number) {
+                                                    $company_pastmonths[$pastmonth] = number_format($number, 0, '.', ',');
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                eval("\$percompany_rows .= \"".$template->get('report_duepayments_percompany_row')."\";");
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        //parse per company  table-END
+        // //parse per supplier table-START
+        if(is_array($per_supplier)) {
+            foreach($per_supplier as $supplierid => $currencies) {
+                $businesspartner_obj = $cache->get_cachedval('supplier', $supplierid);
+                $businesspartner = $businesspartner_obj->get_displayname();
+                $persupplier_rows.='<tr><td colspan="7" style="text-align: left; padding: 5px; border-bottom: 1px dashed #CCCCCC;background-color:#D6EAAC"><strong>'.$businesspartner.'</strong></td></tr>';
+                eval("\$persupplier_rows .= \"".$template->get('report_duepayments_persupplier_header')."\";");
+                $suppliertotal = number_format($totals['supplier'][$supplierid], 0, '.', ',');
+                if(is_array($currencies)) {
+                    $company_pastmonths = array(1 => '-', 2 => '-', 3 => '-');
+                    foreach($currencies as $currencyid => $types) {
+                        $currency_obj = $cache->get_cachedval('currency', $currencyid);
+                        $currency = $currency_obj->iso_code;
+                        $fxrate = $cache->get_cachedval('fxrate', $currencyid);
+                        $symbol = '';
+                        if($fxrate == -1) {
+                            $symbol = '(!)';
+                        }
+                        if(is_array($types)) {
+                            foreach($types as $type => $data) {
+                                if($type == 'amount') {
+                                    $amount = number_format($data, 0, '.', ',');
+                                    $usdamount = number_format($data / $fxrate, 0, '.', ',');
+                                }
+                                elseif($type == 'months') {
+                                    if(is_array($data)) {
+                                        foreach($data as $pastmonth => $number) {
+                                            $company_pastmonths[$pastmonth] = number_format($number, 0, '.', ',');
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        eval("\$persupplier_rows .= \"".$template->get('report_duepayments_persupplier_row')."\";");
+                    }
+                }
+            }
+        }
+        //parse per supplier  table-END
+        //parse international sales due table-START
+        if(is_array($for_international)) {
+            //parse lines first
+            if(is_array($for_international['lines'])) {
+                foreach($for_international['lines'] as $line) {
+                    $symbol = '';
+                    if($line['flag'] == 1) {
+                        $symbol = '(!)';
+                    }
+                    eval("\$forinternational_rows .= \"".$template->get('report_duepayments_forinternational_row')."\";");
+                }
+            }
+            //parse months subtotal lines
+            if(is_array($for_international['permonth'])) {
+                ksort($for_international['permonth']);
+                foreach($for_international['permonth'] as $title => $number) {
+                    $forinternational_rows .='<tr style="text-align: right; padding: 5px;"><th colspan="2">'.$title.'</th><th colspan="3">'.$number.'</th></tr>';
+                }
+            }
+        }
+        //parse international sales due table-END
+        //parse total lines
+        if(is_array($totals)) {
+            if($totals['purchase'] > 0) {
+                $detailedtable_rows .='<tr style=" padding: 5px; border-bottom: 1px dashed #CCCCCC;background-color:#D6EAAC"><th style="text-align: center;" colspan="3">'.$lang->total.'</th><th style="text-align: left;" colspan="3"><strong>'.number_format($totals['purchase'], 0, '.', ',').'</strong></th></tr>';
+                $percompany_rows .='<tr style=" padding: 5px; border-bottom: 1px dashed #CCCCCC;background-color:#D6EAAC"><th style="text-align: center;" colspan="2">'.$lang->total.'</th><th style="text-align: left;" colspan="6"><strong>'.number_format($totals['purchase'], 0, '.', ',').'</strong></th></tr>';
+                $persupplier_rows .='<tr style=" padding: 5px; border-bottom: 1px dashed #CCCCCC;background-color:#D6EAAC"><th style="text-align: center;" colspan="3">'.$lang->total.'</th><th style="text-align: left;" colspan="4"><strong>'.number_format($totals['purchase'], 0, '.', ',').'</strong></th></tr>';
+            }
+            if($totals['sales'] > 0) {
+                $forinternational_rows .='<tr style=" padding: 5px; border-bottom: 1px dashed #CCCCCC;"><th style="text-align: center;" colspan="2">'.$lang->total.'</th><th style="text-align: left;" colspan="3"><strong>'.number_format($totals['sales'], 0, '.', ',').'</strong></th></tr>';
+            }
+        }
+
+        //pare overall report
+        if(!empty($detailedtable_rows)) {
+            $detailedtable_header = "<tr><th>{$lang->duedate}</th><th>{$lang->company}</th><th>{$lang->supplier}</th><th>{$lang->amount}</th><th>{$lang->currency}</th><th>{$lang->amountinusd}</th></tr>";
+            $detailed_table = '<hr><div class="panel panel-default"><div class="panel-heading"><h1>'.$lang->detailedtable.'</h1></div><div class="panel-body"><table class="datatable"><thead>'.$detailedtable_header.'</thead><tbody>'.$detailedtable_rows.'</tbody></table></div></div>';
+            $tables.=$detailed_table;
+            $detailedtable_description = $lang->detailedtable_description;
+        }
+        if(!empty($percompany_rows)) {
+            $percompany_table = '<hr><div class="panel panel-default"><div class="panel-heading"><h1>'.$lang->percompany.'</h1></div><div class="panel-body"><table class="datatable"><thead>'.$percompany_header.'</thead><tbody>'.$percompany_rows.'</tbody></table></div></div>';
+            $tables.=$percompany_table;
+            $percompany_description = $lang->percompany_description;
+        }
+        if(!empty($persupplier_rows)) {
+            $persupplier_table = '<hr><div class="panel panel-default"><div class="panel-heading"><h1>'.$lang->persupplier.'</h1></div><div class="panel-body"><table class="datatable"><thead>'.$persupplier_header.'</thead><tbody>'.$persupplier_rows.'</tbody></table></div></div>';
+            $tables.=$persupplier_table;
+            $persupplier_description = $lang->persupplier_description;
+        }
+        if(!empty($forinternational_rows)) {
+            $forinternational_header = "<tr><th>{$lang->duedate}</th><th>{$lang->company}</th><th>{$lang->amount}</th><th>{$lang->currency}</th><th>{$lang->amountinusd}</th></tr>";
+            $forinternational_table = '<hr><div class="panel panel-default"><div class="panel-heading"><h1>'.$lang->toorkilainternational.'</h1></div><div class="panel-body"><hr><table class="datatable"><thead>'.$forinternational_header.'</thead><tbody>'.$forinternational_rows.'</tbody></table></div></div>';
+            $tables.=$forinternational_table;
+            $forinternational_description = $lang->forinternational_description;
+        }
+        //parse report explanation and currency fx rates table
+        if(is_array($cache->fxratefullinfo)) {
+            foreach($cache->fxratefullinfo as $curid => $info) {
+                $currency_obj = new IntegrationOBCurrency($curid, $integration->get_dbconn());
+                if(is_object($currency_obj)) {
+                    if(!is_array($info)) {
+                        $currencylog_lines.='<tr><td>'.$currency_obj->iso_code.'</td><td>'.$info.'</td><td></td></tr>';
+                    }
+                    else {
+                        $currencylog_lines.='<tr><td>'.$currency_obj->iso_code.'</td><td>'.$info['rate'].'</td><td>'.date($core->settings['dateformat'], $info['date']).'</td></tr>';
+                    }
+                }
+            }
+            if(!empty($currencylog_lines)) {
+                $currencylog_table = "<hr><br><h2>{$lang->currencyfxrates}</h2><hr><table class='datatable'><thead><tr><th>{$lang->currency}</th><th>{$lang->rate}</th><th>{$lang->date}</th></tr></thead><tbody>{$currencylog_lines}</tbody></table>";
+            }
+        }
+        $report_description = $lang->globalcoopaymentduereport_description;
+        $report_description.=$detailedtable_description.$percompany_description.$persupplier_description.$forinternational_description.$currencylog_table;
+        eval("\$report = \"".$template->get('report_duepayments')."\";");
+        return $report;
+    }
+
 }
 
 class IntegrationOBFinPaymentScheduleDetail extends IntegrationAbstractClass {
@@ -3273,7 +3675,7 @@ class IntegrationOBOrg extends IntegrationAbstractClass {
 
     const PRIMARY_KEY = 'ad_org_id';
     const TABLE_NAME = 'ad_org';
-    const DISPLAY_NAME = '';
+    const DISPLAY_NAME = 'name';
     const CLASSNAME = __CLASS__;
 
     public function __construct($id, $f_db = NULL) {
@@ -3409,11 +3811,50 @@ class IntegrationOBValidCombination extends IntegrationAbstractClass {
 
     const PRIMARY_KEY = 'c_validcombination_id';
     const TABLE_NAME = 'c_validcombination';
+    const DISPLAY_NAME = '
+                 ';
+    const CLASSNAME = __CLASS__;
+
+    public function __construct($id, $f_db = NULL) {
+        parent::__construct($id, $f_db);
+    }
+
+}
+
+class IntegrationOBBPAuxAccounts extends IntegrationAbstractClass {
+    protected $data;
+    protected $f_db;
+
+    const PRIMARY_KEY = 'ork_bpauxaccounts_id';
+    const TABLE_NAME = 'ork_bpauxaccounts';
     const DISPLAY_NAME = '';
     const CLASSNAME = __CLASS__;
 
     public function __construct($id, $f_db = NULL) {
         parent::__construct($id, $f_db);
+    }
+
+}
+
+class IntegrationOBAcctSchema extends IntegrationAbstractClass {
+    protected $data;
+    protected $f_db;
+
+    const PRIMARY_KEY = 'c_acctschema_id';
+    const TABLE_NAME = 'c_acctschema';
+    const DISPLAY_NAME = '';
+    const CLASSNAME = __CLASS__;
+
+    public function __construct($id, $f_db = NULL) {
+        parent::__construct($id, $f_db);
+    }
+
+    public function get_organisation() {
+        return new IntegrationOBOrg($this->data['ad_org_id'], $this->f_db);
+    }
+
+    public function get_currency() {
+        return new IntegrationOBCurrency($this->data['c_currency_id'], $this->f_db);
     }
 
 }

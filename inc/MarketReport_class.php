@@ -61,4 +61,30 @@ class MarketReport extends AbstractClass {
     }
 
     /* -------FUNCTIONS-END-------- */
+    //
+    public function delete() {
+        global $db;
+        //classes in which we should look for the report id and deleted resulting objects
+        $class_names = array(ReportContributors::CLASSNAME);
+
+        //go through each class and delete records having this rid
+        foreach($class_names as $class) {
+            $existingrecords_objs = $class::get_data(array(self::PRIMARY_KEY => $this->data[self::PRIMARY_KEY]), array('returnarray' => true));
+            if(is_array($existingrecords_objs)) {
+                foreach($existingrecords_objs as $existingrecords_obj) {
+                    $delete_res = $existingrecords_obj->delete();
+                    if(!$delete_res) {
+                        return false;
+                    }
+                }
+            }
+        }
+
+        $query = $db->delete_query(static::TABLE_NAME, static::PRIMARY_KEY.'='.intval($this->data[static::PRIMARY_KEY]));
+        if($query) {
+            return true;
+        }
+        return false;
+    }
+
 }

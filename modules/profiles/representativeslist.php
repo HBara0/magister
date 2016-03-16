@@ -63,7 +63,7 @@ if(!$core->input['action']) {
         }
     }
     if(!is_empty($permissionsfilter, $filter_where)) {
-        $filter_where.=' AND '.$filter_where;
+        $filter_where = ' AND '.$filter_where;
     }
     $representatives = Representatives::get_data($permissionsfilter.$filter_where, array('returnarray' => true, 'order' => $sort_query));
     if(is_array($representatives)) {

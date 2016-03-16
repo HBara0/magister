@@ -1,5 +1,5 @@
 <tr>
-    <td></td>
+    <td>{$checkbox}</td>
     <td>{$job_applicant['displayname']}</td>
     <td>{$job_applicant['email']}</td>
     <td>{$job_applicant['phone']}</td>

@@ -36,36 +36,34 @@ if(!$core->input['action']) {
 
     $year_scale = range(date('Y'), 2009);
     array_unshift($year_scale, ''); // Creates array years use the first array(range from 2004 to current year) as the keys and the second as the values
-    $filters_config = array(
-            'parse' => array('filters' => array('checkbox', 'affid', 'suppliername', 'quarter', 'year', 'status'),
-                    'overwriteField' => array('checkbox' => '', 'quarter' => parse_selectlist('filters[quarter]', '3', $quarter_scale, $core->input['filters']['quarter']), 'year' => parse_selectlist('filters[year]', '4', array_combine($year_scale, $year_scale), $core->input['filters']['year']), 'status' => parse_selectlist('filters[status]', '5', array(1 => $lang->finalized, 0 => $lang->notfinished), $core->input['filters']['status'], '', '', array('blankstart' => true)))
-            ),
-            'process' => array(
-                    'filterKey' => 'rid',
-                    'mainTable' => array(
-                            'name' => 'reports',
-                            'filters' => array('affid' => array('operatorType' => 'multiple', 'name' => 'affid'), 'quarter' => 'quarter', 'year' => 'year', 'status' => 'status'),
-                    ),
-                    'secTables' => array(
-                            'entities' => array(
-                                    'filters' => array('suppliername' => 'companyName'),
-                                    'keyAttr' => 'eid',
-                                    'joinKeyAttr' => 'spid',
-                                    'joinWith' => 'reports',
-                                    'extraSelect' => 'companyName'
-                            )
-                    )
-            )
-    );
-    $filter = new Inlinefilters($filters_config);
-    $filter_where_values = $filter->process_multi_filters();
-
-    if(is_array($filter_where_values)) {
-        $filter_where = ' AND r.'.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
-        $multipage_where .= $filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
-    }
-
-    $filters_row = $filter->prase_filtersrows(array('tags' => 'table'));
+//    $filters_config = array(
+//            'parse' => array('filters' => array('checkbox', 'affid', 'suppliername', 'quarter', 'year', 'status'),
+//                    'overwriteField' => array('checkbox' => '', 'quarter' => parse_selectlist('filters[quarter]', '3', $quarter_scale, $core->input['filters']['quarter']), 'year' => parse_selectlist('filters[year]', '4', array_combine($year_scale, $year_scale), $core->input['filters']['year']), 'status' => parse_selectlist('filters[status]', '5', array(1 => $lang->finalized, 0 => $lang->notfinished), $core->input['filters']['status'], '', '', array('blankstart' => true)))
+//            ),
+//            'process' => array(
+//                    'filterKey' => 'rid',
+//                    'mainTable' => array(
+//                            'name' => 'reports',
+//                            'filters' => array('affid' => array('operatorType' => 'multiple', 'name' => 'affid'), 'quarter' => 'quarter', 'year' => 'year', 'status' => 'status'),
+//                    ),
+//                    'secTables' => array(
+//                            'entities' => array(
+//                                    'filters' => array('suppliername' => 'companyName'),
+//                                    'keyAttr' => 'eid',
+//                                    'joinKeyAttr' => 'spid',
+//                                    'joinWith' => 'reports',
+//                                    'extraSelect' => 'companyName'
+//                            )
+//                    )
+//            )
+//    );
+//    $filter = new Inlinefilters($filters_config);
+//    $filter_where_values = $filter->process_multi_filters();
+//    if(is_array($filter_where_values)) {
+//        $filter_where = ' AND r.'.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
+//        $multipage_where .= $filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
+//    }
+//    $filters_row = $filter->prase_filtersrows(array('tags' => 'table'));
     /* Perform inline filtering - END */
 
     if(isset($core->input['perpage']) && !empty($core->input['perpage'])) {
@@ -108,9 +106,16 @@ if(!$core->input['action']) {
                 if($report['isLocked'] == 1) {
                     $icon_locked = '_locked';
                 }
-                $icon[$report['rid']] = "<a href='index.php?module=reporting/preview&referrer=list&amp;affid={$report[affid]}&amp;spid={$report[spid]}&amp;quarter={$report[quarter]}&amp;year={$report[year]}'><img src='images/icons/report{$icon_locked}.gif' alt='{$report[status]}' border='0'/></a>";
             }
+            $tool_items = "<li><a target='_blank' href='index.php?module=reporting/preview&referrer=list&amp;affid={$report[affid]}&amp;spid={$report[spid]}&amp;quarter={$report[quarter]}&amp;year={$report[year]}'><img src='images/icons/report{$icon_locked}.gif'  border='0'/>&nbsp;{$lang->preview}</a></li>";
 
+            //add delete tool icon depending on user permissions
+            if($core->usergroup['canAdminCP'] == 1 && $report['isSent'] != 1) {
+                $tool_items .= '<li><a target="_blank" id="deleteqrreport_'.$report['rid'].'_'.$core->input['module'].'_loadpopupbyid"><span class="glyphicon glyphicon-remove " style="color:red"></span>&nbsp;'.$lang->deletereport.'</a></li>';
+            }
+            if(!empty($tool_items)) {
+                eval("\$rep_tools = \"".$template->get('tools_buttonselectlist')."\";");
+            }
             $report['status'] = parse_status($report['status'], $report['isLocked']);
             $report['statusdetails'] = parse_statusdetails(array('prActivityAvailable' => $report['prActivityAvailable'], 'keyCustAvailable' => $report['keyCustAvailable'], 'mktReportAvailable' => $report['mktReportAvailable']));
 
@@ -129,15 +134,14 @@ if(!$core->input['action']) {
                 }
             }
             eval("\$reportslist .= \"".$template->get('reporting_reportslist_reportrow')."\";");
+            unset($rep_tools, $tool_items);
         }
 
-        $multipages = new Multipages('reports r', $core->settings['itemsperlist'], $extra_where['multipage']);
 
         if($core->usergroup['canReadStats'] == 1) {
             $stats_link = "<a href='index.php?module=reporting/stats'><img src='images/icons/stats.gif' alt='{$lang->reportsstats}' border='0'></a>";
         }
 
-        $reportslist .= "<tr><td colspan='5'>".$multipages->parse_multipages()."&nbsp;</td><td style='text-align: right;' colspan='2'><a href='".$_SERVER['REQUEST_URI']."&amp;action=exportexcel'><img src='images/icons/xls.gif' alt='{$lang->exportexcel}' border='0' /></a>&nbsp;{$stats_link}</td></tr>";
         if($core->usergroup['canLockUnlockReports'] == 1 || $core->usergroup['reporting_canApproveReports'] == 1) {
             $moderationtools = "<tr><td colspan='3'>";
             $moderationtools .= "<div id='moderation_reporting/list_Results'></div>&nbsp;";
@@ -160,9 +164,8 @@ if(!$core->input['action']) {
         }
     }
     else {
-        $reportslist = '<tr><td colspan="6" align="center">'.$lang->noreportsavailable.'</td></tr>';
+        $reportslist = '<tr><td colspan="7" align="center">'.$lang->noreportsavailable.'</td></tr>';
     }
-
     eval("\$listpage = \"".$template->get('reporting_reportslist')."\";");
     output_page($listpage);
 }
@@ -320,6 +323,36 @@ else {
             }
             $excelfile = new Excel('array', $reports);
         }
+    }
+    elseif($core->input['action'] == 'get_deleteqrreport') {
+        $id = $db->escape_string($core->input['id']);
+        eval("\$deleteqrreport= \"".$template->get('popup_report_deleteqrreport')."\";");
+        echo $deleteqrreport;
+    }
+    elseif($core->input['action'] == 'perform_deleteqr') {
+        $deleteqr = $core->input['delete'];
+        if(is_empty($deleteqr['uid'], $deleteqr['reference'])) {
+            output_xml("<status>false</status><message>{$lang->fillrequiredfields}</message>");
+            exit;
+        }
+        $report_obj = new ReportingQReports(intval($deleteqr['rid']));
+        if($report_obj->isSent == 1) {
+            output_xml("<status>false</status><message>{$lang->cannotdeletesentreport}</message>");
+            exit;
+        }
+        if(is_object($report_obj) && !empty($report_obj->rid)) {
+            $status = $report_obj->delete_qr($deleteqr);
+            if($status) {
+                output_xml("<status>true</status><message>{$lang->successfullydeleted}</message>");
+                exit;
+            }
+        }
+        if($report_obj->get_errorcode() == 3) {
+            output_xml("<status>false</status><message>{$lang->fillrequiredfields}</message>");
+            exit;
+        }
+        output_xml("<status>false</status><message>{$lang->errorwhiledeleting}</message>");
+        exit;
     }
 }
 function parse_status($status, $lock = 0) {

@@ -96,7 +96,7 @@ if($core->input['action']) {
             $mailer = new Mailer();
             $mailer = $mailer->get_mailerobj();
             $mailer->set_layouttype('standard');
-            $mailer->set_from(array('name' => 'OCOS Mailer', 'email' => $core->settings['adminemail']));
+            $mailer->set_from(array('name' => 'OCOS Mailer', 'email' => $core->settings['maileremail']));
             $mailer->set_subject($lang->yournewpassword);
             $mailer->set_message($lang->resetemailmessage);
             $mailer->set_to($email);
@@ -184,6 +184,16 @@ if($core->input['action']) {
         $upload->set_upload_path($core->settings['profilepicdir']);
         $upload->process_file();
         $filename = $upload->get_filename();
+        if(!empty($fielname)) {
+            ?>
+            <script language="javascript" type="text/javascript">
+                $(function () {
+                    window.top.$("#upload_Result").html("<?php echo ('no file found')?>");
+                });
+            </script>
+            <?php
+        }
+
         $upload->resize();
         $query = $db->update_query('users', array('profilePicture' => $filename), 'uid='.intval($core->input['uid']));
         eval("\$headerinc = \"".$template->get('headerinc')."\";");

@@ -108,7 +108,7 @@ foreach($users as $uid) {
 
         if(!empty($approved_lids)) {
             $query = $db->query("SELECT l.*, l.uid AS requester, Concat(u.firstName, ' ', u.lastName) AS employeename
-					FROM ".Tprefix."leaves l JOIN ".Tprefix."users u ON (l.uid=u.uid) 
+					FROM ".Tprefix."leaves l JOIN ".Tprefix."users u ON (l.uid=u.uid)
 					WHERE l.lid IN (".implode(',', $approved_lids).")  AND l.type NOT IN (".implode(', ', $excluded_leavetypes).") ORDER BY l.fromDate ASC");
 
             if($db->num_rows($query) > 0) {
@@ -146,7 +146,7 @@ foreach($users as $uid) {
 
     /* GET HOLIDAYS - START */
     if($calendar_preferences['excludeHolidays'] == 0) {
-        $holidays_query = $db->query("SELECT aff.name AS affiliatename, h.*, c.acronym AS country 
+        $holidays_query = $db->query("SELECT aff.name AS affiliatename, h.*, c.acronym AS country
 									FROM ".Tprefix."holidays h JOIN ".Tprefix."affiliates aff ON (aff.affid=h.affid) LEFT JOIN countries c ON (aff.country=c.coid)
 									WHERE (year=0 OR year={$current_date[year]}) AND (month={$current_date[mon]} OR month=({$current_date[mon]}+1))"); // AND h.affid IN (".implode(',',$affiliates['affid']).")
         while($holiday = $db->fetch_assoc($holidays_query)) {
@@ -194,7 +194,7 @@ foreach($users as $uid) {
     $message .= '</body></html>';
 
     $email_data = array(
-            'from_email' => $core->settings['adminemail'],
+            'from_email' => $core->settings['maileremail'],
             'from' => 'OCOS Mailer',
             'subject' => 'Expected leaves and holidays in your affiliates',
             'message' => $message

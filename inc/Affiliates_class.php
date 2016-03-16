@@ -346,5 +346,67 @@ class Affiliates {
         return false;
     }
 
+    /*
+     * Get Affiliated employees assigned as sales reps.
+     */
+    public function get_bms($options = array('allusers' => false)) {
+        global $db;
+
+        if(is_array($options)) {
+            if(isset($options['ismain']) && $options['ismain'] === 1) {
+                $query_where_add = ' AND isMain=1';
+            }
+        }
+        /* On purpose outside the is_array */
+        if(!isset($options['allusers']) || $options['allusers'] === false) {
+            $query_where_add .= ' AND u.gid !=7';
+        }
+
+        if(!empty($options['customfilter'])) {
+            $query_where_add .= ' AND  '.$options['customfilter'];
+        }
+        $sql = "SELECT DISTINCT(u.uid)
+					FROM ".Tprefix."users u
+					JOIN ".Tprefix."affiliatedemployees a ON (a.uid=u.uid)
+                                        JOIN ".Tprefix."users_usergroups ug ON (ug.uid=u.uid)
+                                        JOIN ".Tprefix."usergroups g ON (g.gid=ug.gid)
+					WHERE a.affid={$this->affiliate['affid']} AND isSalesRep=1".$query_where_add."
+					ORDER BY displayName ASC";
+        $query = $db->query($sql);
+        while($user = $db->fetch_assoc($query)) {
+            $users = new Users($user['uid']);
+            if($options['displaynameonly']) {
+                $users_affiliates[$user['uid']] = $users->get()['displayName'];
+            }
+            elseif($options['returnobjects'] == true) {
+                $users_affiliates[$user['uid']] = $users;
+            }
+            else {
+                $users_affiliates[$user['uid']] = $users->get();
+            }
+        }
+        return $users_affiliates;
+    }
+
+    public function manage_affiliatemanagement($data) {
+        global $db, $core;
+        $management_positions = array('generalManager', 'supervisor', 'hrManager', 'finManager', 'coo', 'regionalSupervisor', 'globalPurchaseManager', 'cfo', 'logisticsManager', 'commercialManager', 'globalFinManager');
+        foreach($management_positions as $management_position) {
+            $affiliate['prevmanagement'][$management_position] = $this->$management_position;
+            $affiliate['newmanagement'][$management_position] = $data[$management_position];
+        }
+        $affiliate['prevmanagement']['uptoDate'] = TIME_NOW;
+        $affiliate['newmanagement']['mgmtAsOf'] = $affiliate['newmanagement']['modifiedOn'] = TIME_NOW;
+        $affiliate['newmanagement']['modifiedBy'] = $core->user['uid'];
+        $query = $db->insert_query('affiliatemanagementlog', $affiliate['prevmanagement']);
+        if($query) {
+            $update_query = $db->update_query('affiliates', $affiliate['newmanagement'], 'affid = '.$this->affid);
+            if($update_query) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }
 ?>

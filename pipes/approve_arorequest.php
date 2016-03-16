@@ -30,18 +30,18 @@ if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject)) {
         }
     }
     else {
-        $aproval = AroRequestsApprovals::get_data(array('aorid' => $arorequest->aorid, 'uid' => $user->uid), array('simple' => false));
-        if(is_object($aproval)) {
-            $timesapproved = $aproval->timesApproved + 1;
-        }
-        $approve = $arorequest->approve($user, $timesapproved);
-        if($approve) {
-            $arorequest->inform_nextapprover();
-        }
-        if($arorequest->is_approved()) {
-            $arorequest->update_arorequeststatus();
-            $arorequest->notifyapprove();
-        }
+//        $aproval = AroRequestsApprovals::get_data(array('aorid' => $arorequest->aorid, 'uid' => $user->uid), array('simple' => false));
+//        if(is_object($aproval)) {
+//            $timesapproved = $aproval->timesApproved + 1;
+//        }
+//        $approve = $arorequest->approve($user, $timesapproved);
+//        if($approve) {
+//            $arorequest->inform_nextapprover();
+//        }
+//        if($arorequest->is_approved()) {
+//            $arorequest->update_arorequeststatus();
+//            $arorequest->notifyapprove();
+//        }
     }
 }
 ?>
