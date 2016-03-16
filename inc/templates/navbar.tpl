@@ -7,7 +7,7 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="#">OCOS Logo</a>
+            <a class="navbar-brand" href="#"><img src="{$core->settings[rootdir]}/images/logo.png" alt="OCOS" border="0" class="systemlogo"></a>
         </div>
         <div id="navbar" class="navbar-collapse collapse">
             <ul class="nav navbar-nav">

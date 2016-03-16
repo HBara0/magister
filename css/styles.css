@@ -1,6 +1,6 @@
 @charset "UTF-8";
 /*
-Copyright ┬® 2014 Orkila International Offshore, All Rights Reserved
+Copyright ┬⌐ 2014 Orkila International Offshore, All Rights Reserved
 
 [Provide Short Descption Here]
 $id: _constants.scss
@@ -61,11 +61,11 @@ a, a:visited {
   text-decoration: none;
   color: #acacac; }
 
-.ocosLogo {
-  height: 100px;
+.systemlogo {
   vertical-align: top;
   text-align: center;
-  padding: 0px; }
+  padding: 0px;
+  margin-top: -12px; }
 
 .sideDesign {
   display: none;
@@ -685,5 +685,3 @@ tfoot .coltotal, tfoot .colavg {
 .li-redbullet {
   border-left: 4px solid red;
   pointer-events: none; }
-
-/*# sourceMappingURL=styles.css.map */
