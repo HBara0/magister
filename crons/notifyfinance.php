@@ -25,7 +25,7 @@ if(is_array($affiliates)) {
                 }
                 $email_data = array(
                         'to' => $finman->email,
-                        'from_email' => $core->settings['adminemail'],
+                        'from_email' => $core->settings['maileremail'],
                         'from' => 'OCOS Mailer',
                         'subject' => 'URGENT : Update budgeting FX rates',
                         'message' => $email_message

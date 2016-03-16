@@ -96,7 +96,7 @@ if($core->input['action']) {
             $mailer = new Mailer();
             $mailer = $mailer->get_mailerobj();
             $mailer->set_layouttype('standard');
-            $mailer->set_from(array('name' => 'OCOS Mailer', 'email' => $core->settings['adminemail']));
+            $mailer->set_from(array('name' => 'OCOS Mailer', 'email' => $core->settings['maileremail']));
             $mailer->set_subject($lang->yournewpassword);
             $mailer->set_message($lang->resetemailmessage);
             $mailer->set_to($email);
@@ -187,7 +187,7 @@ if($core->input['action']) {
         if(!empty($fielname)) {
             ?>
             <script language="javascript" type="text/javascript">
-                $(function() {
+                $(function () {
                     window.top.$("#upload_Result").html("<?php echo ('no file found')?>");
                 });
             </script>
@@ -200,7 +200,7 @@ if($core->input['action']) {
         echo $headerinc;
         ?>
         <script language="javascript" type="text/javascript">
-            $(function() {
+            $(function () {
                 window.top.$("#upload_Result").html("<?php echo $upload->parse_status($upload->get_status());?>");
             });
         </script>

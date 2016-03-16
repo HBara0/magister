@@ -105,7 +105,7 @@ if($is_thedate == true) {
 
         $email_data = array(
                 'to' => $val['email'],
-                'from_email' => $core->settings['adminemail'],
+                'from_email' => $core->settings['maileremail'],
                 'from' => 'OCOS Mailer',
                 'subject' => 'Some reports have not been finalized yet',
                 'message' => $email_message
@@ -200,7 +200,7 @@ function check_if_isthedate() {
 
   $email_data = array(
   'to'		 =>  "zaher.reda@orkila.com", //$core->settings['sendreportsto'],
-  'from_email'  => $core->settings['adminemail'],
+  'from_email'  => $core->settings['maileremail'],
   'from'	   => 'OCOS Mailer',
   'subject'	=> 'List of Q'.$quarter[quarter].' '.$quarter[year].' unfinalized reports',
   'message'   => $email_message

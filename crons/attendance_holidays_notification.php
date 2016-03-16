@@ -63,7 +63,7 @@ while($affiliate = $db->fetch_assoc($query)) {
 foreach($holidays as $affid => $holidayslist) {
     $email_data = array(
             'to' => $mailinglists[$affid]['email'],
-            'from_email' => $core->settings['adminemail'],
+            'from_email' => $core->settings['maileremail'],
             'from' => 'OCOS Mailer',
             'subject' => 'Upcoming holidays'
     );

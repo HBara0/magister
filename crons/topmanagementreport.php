@@ -152,7 +152,7 @@ output($topmanagementreport);
 
 $email_data = array(
         'to' => 'christophe.sacy@orkila.com',
-        'from_email' => $core->settings['adminemail'],
+        'from_email' => $core->settings['maileremail'],
         'from' => 'OCOS Mailer',
         'subject' => 'Top Management Report',
         'message' => $topmanagementreport
