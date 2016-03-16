@@ -113,7 +113,7 @@ class LogsUserPages extends AbstractClass {
         if(empty($core->settings['clearlogperiod'])) {
             $core->settings['clearlogperiod'] = 30;
         }
-        $sql = 'DELETE FROM '.Tprefix.self::TABLE_NAME.' WHERE uid = '.$this->data['uid'].' AND time < '.strtotime('-'.$core->settings['clearlogperiod']);
+        $sql = 'DELETE FROM '.Tprefix.self::TABLE_NAME.' WHERE uid = '.$this->data['uid'].' AND time < '.strtotime('-'.$core->settings['clearlogperiod'].' days');
         $query = $db->query($sql);
         if($query) {
             return true;
