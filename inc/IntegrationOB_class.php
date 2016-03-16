@@ -3495,9 +3495,9 @@ class IntegrationOBFinPaymentSchedule extends IntegrationAbstractClass {
         //parse total lines
         if(is_array($totals)) {
             if($totals['purchase'] > 0) {
-                $detailedtable_rows .='<tr style=" padding: 5px; border-bottom: 1px dashed #CCCCCC;background-color:#D6EAAC"><th style="text-align: center;" colspan="2">'.$lang->total.'</th><th style="text-align: left;" colspan="4"><strong>'.number_format($totals['purchase'], 0, '.', ',').'</strong></th></tr>';
+                $detailedtable_rows .='<tr style=" padding: 5px; border-bottom: 1px dashed #CCCCCC;background-color:#D6EAAC"><th style="text-align: center;" colspan="3">'.$lang->total.'</th><th style="text-align: left;" colspan="3"><strong>'.number_format($totals['purchase'], 0, '.', ',').'</strong></th></tr>';
                 $percompany_rows .='<tr style=" padding: 5px; border-bottom: 1px dashed #CCCCCC;background-color:#D6EAAC"><th style="text-align: center;" colspan="2">'.$lang->total.'</th><th style="text-align: left;" colspan="6"><strong>'.number_format($totals['purchase'], 0, '.', ',').'</strong></th></tr>';
-                $persupplier_rows .='<tr style=" padding: 5px; border-bottom: 1px dashed #CCCCCC;background-color:#D6EAAC"><th style="text-align: center;" colspan="2">'.$lang->total.'</th><th style="text-align: left;" colspan="5"><strong>'.number_format($totals['purchase'], 0, '.', ',').'</strong></th></tr>';
+                $persupplier_rows .='<tr style=" padding: 5px; border-bottom: 1px dashed #CCCCCC;background-color:#D6EAAC"><th style="text-align: center;" colspan="3">'.$lang->total.'</th><th style="text-align: left;" colspan="4"><strong>'.number_format($totals['purchase'], 0, '.', ',').'</strong></th></tr>';
             }
             if($totals['sales'] > 0) {
                 $forinternational_rows .='<tr style=" padding: 5px; border-bottom: 1px dashed #CCCCCC;"><th style="text-align: center;" colspan="2">'.$lang->total.'</th><th style="text-align: left;" colspan="3"><strong>'.number_format($totals['sales'], 0, '.', ',').'</strong></th></tr>';
@@ -3507,23 +3507,23 @@ class IntegrationOBFinPaymentSchedule extends IntegrationAbstractClass {
         //pare overall report
         if(!empty($detailedtable_rows)) {
             $detailedtable_header = "<tr><th>{$lang->duedate}</th><th>{$lang->company}</th><th>{$lang->supplier}</th><th>{$lang->amount}</th><th>{$lang->currency}</th><th>{$lang->amountinusd}</th></tr>";
-            $detailed_table = '<hr><h1>'.$lang->detailedtable.'</h1><hr><table><thead>'.$detailedtable_header.'</thead><tbody>'.$detailedtable_rows.'</tbody></table>';
+            $detailed_table = '<hr><div class="panel panel-default"><div class="panel-heading"><h1>'.$lang->detailedtable.'</h1></div><div class="panel-body"><table class="datatable"><thead>'.$detailedtable_header.'</thead><tbody>'.$detailedtable_rows.'</tbody></table></div></div>';
             $tables.=$detailed_table;
             $detailedtable_description = $lang->detailedtable_description;
         }
         if(!empty($percompany_rows)) {
-            $percompany_table = '<hr><h1>'.$lang->percompany.'</h1><hr><table><thead>'.$percompany_header.'</thead><tbody>'.$percompany_rows.'</tbody></table>';
+            $percompany_table = '<hr><div class="panel panel-default"><div class="panel-heading"><h1>'.$lang->percompany.'</h1></div><div class="panel-body"><table class="datatable"><thead>'.$percompany_header.'</thead><tbody>'.$percompany_rows.'</tbody></table></div></div>';
             $tables.=$percompany_table;
             $percompany_description = $lang->percompany_description;
         }
         if(!empty($persupplier_rows)) {
-            $persupplier_table = '<hr><h1>'.$lang->persupplier.'</h1><hr><table><thead>'.$persupplier_header.'</thead><tbody>'.$persupplier_rows.'</tbody></table>';
+            $persupplier_table = '<hr><div class="panel panel-default"><div class="panel-heading"><h1>'.$lang->persupplier.'</h1></div><div class="panel-body"><table class="datatable"><thead>'.$persupplier_header.'</thead><tbody>'.$persupplier_rows.'</tbody></table></div></div>';
             $tables.=$persupplier_table;
             $persupplier_description = $lang->persupplier_description;
         }
         if(!empty($forinternational_rows)) {
             $forinternational_header = "<tr><th>{$lang->duedate}</th><th>{$lang->company}</th><th>{$lang->amount}</th><th>{$lang->currency}</th><th>{$lang->amountinusd}</th></tr>";
-            $forinternational_table = '<hr><h1>'.$lang->toorkilainternational.'</h1><hr><table><thead>'.$forinternational_header.'</thead><tbody>'.$forinternational_rows.'</tbody></table>';
+            $forinternational_table = '<hr><div class="panel panel-default"><div class="panel-heading"><h1>'.$lang->toorkilainternational.'</h1></div><div class="panel-body"><hr><table class="datatable"><thead>'.$forinternational_header.'</thead><tbody>'.$forinternational_rows.'</tbody></table></div></div>';
             $tables.=$forinternational_table;
             $forinternational_description = $lang->forinternational_description;
         }
@@ -3541,7 +3541,7 @@ class IntegrationOBFinPaymentSchedule extends IntegrationAbstractClass {
                 }
             }
             if(!empty($currencylog_lines)) {
-                $currencylog_table = "<hr><br><h2>{$lang->currencyfxrates}</h2><hr><table><thead><tr><th>{$lang->currency}</th><th>{$lang->rate}</th><th>{$lang->date}</th></tr></thead><tbody>{$currencylog_lines}</tbody></table>";
+                $currencylog_table = "<hr><br><h2>{$lang->currencyfxrates}</h2><hr><table class='datatable'><thead><tr><th>{$lang->currency}</th><th>{$lang->rate}</th><th>{$lang->date}</th></tr></thead><tbody>{$currencylog_lines}</tbody></table>";
             }
         }
         $report_description = $lang->globalcoopaymentduereport_description;
