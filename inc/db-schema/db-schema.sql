@@ -36,6 +36,7 @@ CREATE TABLE `affiliatedentities` (
   KEY `affid` (`affid`,`eid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=17936 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
+/*!40101 SET character_set_client = utf8 */;
 DROP TABLE IF EXISTS `affiliates`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -2151,6 +2152,7 @@ DROP TABLE IF EXISTS `entities`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `entities` (
   `eid` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `alias` varchar(200) NOT NULL,
   `companyName` varchar(250) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
   `companyNameShort` varchar(20) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
   `companyNameAbbr` varchar(10) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
@@ -2159,13 +2161,13 @@ CREATE TABLE `entities` (
   `presence` varchar(10) NOT NULL,
   `country` int(10) unsigned NOT NULL,
   `city` varchar(100) NOT NULL,
-  `addressLine1` varchar(200) NOT NULL,
+  `addressLine1` varchar(200) DEFAULT NULL,
   `addressLine2` varchar(150) DEFAULT NULL,
   `building` varchar(100) NOT NULL,
   `floor` int(2) DEFAULT NULL,
   `geoLocation` point DEFAULT NULL,
   `postCode` int(6) DEFAULT NULL,
-  `poBox` varchar(10) DEFAULT NULL,
+  `poBox` varchar(30) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
   `mainEmail` varchar(220) DEFAULT NULL,
   `website` varchar(220) DEFAULT NULL,
   `phone1` varchar(20) NOT NULL,

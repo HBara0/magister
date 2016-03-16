@@ -1,4 +1,4 @@
-#!/usr/local/bin/php -q
+#!/usr/bin/php -q
 <?php
 ini_set('memory_limit', '-1');
 $dir = dirname(dirname(__FILE__)).'/';

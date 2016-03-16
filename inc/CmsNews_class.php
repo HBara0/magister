@@ -117,21 +117,21 @@ class CmsNews extends Cms {
 
                 /* Inform audits about the change, and request approval - START */
                 if($core->usergroup['cms_canPublishNews'] == 0) {
-                    if(!is_array($this->settings['websiteaudits'])) {
-                        $this->settings['websiteaudits'] = explode(';', $this->settings['websiteaudits']);
+                    if(!is_array($core->settings['websiteaudits'])) {
+                        $core->settings['websiteaudits'] = explode(';', $core->settings['websiteaudits']);
                     }
 
-                    $news_approvers = unserialize($this->settings['websiteaudits']['value']);
+                    // $news_approvers = unserialize($this->settings['websiteaudits']['value']);
                     if(is_array($news_approvers)) {
-                        foreach($news_approvers as $approver) {
-                            $user_object = new Users($approver);
-                            $email_data['to'][] = $user_object->email;
-                        }
+//                        foreach($news_approvers as $approver) {
+//                            $user_object = new Users($approver);
+//                            $email_data['to'][] = $user_object->email;
+//                        }
                         $mailer = new Mailer();
                         $mailer = $mailer->get_mailerobj();
                         $mailer->set_type();
                         $mailer->set_from(array('name' => 'OCOS Mailer', 'email' => $core->settings['maileremail']));
-                        $mailer->set_to($email_data['to']);
+                        $mailer->set_to($core->settings['websiteaudits']);
 
 
                         if($options['operationtype'] == 'updateversion') {
