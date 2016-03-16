@@ -1214,6 +1214,7 @@ function parse_moduleslist($current_module, $modules_dir = 'modules', $is_select
 
     $path = ROOT.$modules_dir;
     $list = '';
+
     if(is_dir($path)) {
         $files = scandir($path);
         foreach($files as $file) {
@@ -1237,7 +1238,7 @@ function parse_moduleslist($current_module, $modules_dir = 'modules', $is_select
                                 if(file_exists('images/modules-icons/'.$module['name'].'.png')) {
                                     $moduleicon = $module['name'];
                                 }
-                                $list .= '<li><a href="index.php?module='.$module['name'].'/'.$module['homepage'].'"><img src="images/modules-icons/'.$moduleicon.'.png" /> '.$module['title'].'</a></li>';
+                                $list .= '<li><a href="index.php?module='.$module['name'].'/'.$module['homepage'].'"><img src="images/modules-icons/'.$moduleicon.'.png" alt="'.$module['name'].'"/> '.$module['title'].'</a></li>';
                             }
                         }
                         else {
