@@ -1233,7 +1233,11 @@ function parse_moduleslist($current_module, $modules_dir = 'modules', $is_select
                     else {
                         if($current_module != $module['name']) {
                             if($core->usergroup[$module['globalpermission']] == 1) {
-                                $list .= '<li><a href="index.php?module='.$module['name'].'/'.$module['homepage'].'">'.$module['title'].'</a></li>';
+                                $moduleicon = 'default';
+                                if(file_exists('images/modules-icons/'.$module['name'].'.png')) {
+                                    $moduleicon = $module['name'];
+                                }
+                                $list .= '<li><a href="index.php?module='.$module['name'].'/'.$module['homepage'].'"><img src="images/modules-icons/'.$moduleicon.'.png" /> '.$module['title'].'</a></li>';
                             }
                         }
                         else {
