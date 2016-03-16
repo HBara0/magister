@@ -685,3 +685,9 @@ tfoot .coltotal, tfoot .colavg {
 .li-redbullet {
   border-left: 4px solid red;
   pointer-events: none; }
+
+.frequentmodules_img {
+  margin-left: 5px;
+  margin-right: 5px;
+  margin-top: 10px;
+  background-color: #9bbd61; }
