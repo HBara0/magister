@@ -19,7 +19,7 @@ if(is_array($waiting_approval)) {
     foreach($waiting_approval as $key => $pending_users) {
         $approver_info = $db->fetch_assoc($db->query("SELECT uid, firstName, lastName, email FROM ".Tprefix."users WHERE uid='{$key}'"));
         if(empty($approver_info) || !is_array($approver_info)) {
-            $approver_info['email'] = $core->settings['maileremail'];
+            $approver_info['email'] = $core->settings['adminemail'];
         }
 
         foreach($pending_users as $k => $pending_lids) {
