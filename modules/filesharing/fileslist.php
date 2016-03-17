@@ -99,11 +99,20 @@ if(!$core->input['action']) {
 
         $files_list .= '<tr class="'.$rowclass.'"><td><img src="./images/icons/folder.gif" alt="'.$lang->folder.'" border="0" /></td><td><a href="index.php?module=filesharing/fileslist'.$url_fcid.'&amp;ffid='.$folder['ffid'].$url_view.'">'.$folder['name'].'</a><td>'.$description.'</td><td style="text-align:center;" colspan="3">&mdash;</td><td style="text-align:right;">'.$foldermail_icon.'</td></tr>';
     }
-
-    $query = $db->query("SELECT *, c.title as category, f.title as filetitle, fv.*
+    if(isset($core->input['fid']) && !empty($core->input['fid'])) {
+        if(!empty($file_query_where)) {
+            unset($file_query_where);
+        }
+        $file_extra_where = ' AND f.fid='.$core->input['fid'].' ';
+    }
+    else {
+        $versions_extra_where = ' AND fv.timeLine=(SELECT timeLine FROM fileversions fv2 WHERE fv2.fid=f.fid ORDER BY timeLine DESC LIMIT 0,1)';
+    }
+    $query = $db->query("SELECT *, c.title as category, f.title as filetitle,f.alias as filealias, fv.*
 						FROM ".Tprefix."files f JOIN ".Tprefix."fileversions fv ON (f.fid=fv.fid)
 						JOIN ".Tprefix."filescategories c ON (c.fcid=f.category)
-						WHERE f.isShared = 1 AND f.ffid = {$ffid}{$filter_where}{$file_query_where}
+						WHERE f.isShared = 1".$file_extra_where.$versions_extra_where."
+                                                AND f.ffid = {$ffid}{$filter_where}{$file_query_where}
 						ORDER BY {$sort_query}
 						LIMIT {$limit_start}, {$core->settings[itemsperlist]}");
 
@@ -138,29 +147,48 @@ if(!$core->input['action']) {
 
                 $file['date_output'] = date($core->settings['dateformat'], $file['timeLine']);
 
-                if($core->user['uid'] == $file['uid']) {
-                    $delete_icon = '<a href="#" id="deletefilebox_'.$file['fid'].'_filesharing/fileslist_loadpopupbyid"><img src="images/invalid.gif"  alt="'.$lang->deletefile.'" border="0"></a>';
-                }
-
                 if($core->user['uid'] == $file['uid'] || $core->usergroup['filesharing_canSendAllFiles'] == 1) {
-                    $mail_icon = '<a href="#" id="sharebymail_'.$file['fvid'].'_filesharing/fileslist_loadpopupbyid"><img src="images/icons/send.gif"  alt="'.$lang->sharebyemail.'" border="0"></a>';
+                    $tools = '<a href="#" id="sharebymail_'.$file['fvid'].'_filesharing/fileslist_loadpopupbyid"><img src="images/icons/send.gif"  alt="'.$lang->sharebyemail.'" border="0"></a>';
+                }
+                if($core->user['uid'] == $file['uid']) {
+                    $delete_icon = '<a href="#" id="deletefilebox_'.$file['fid'].'_filesharing/fileslist_loadpopupbyid"><img src="images/invalid.gif"  alt="'.$lang->deletefile.'" border="0">&nbsp'.$lang->deletefile.'</a>';
+                    $edit_icon = '<a href="index.php?module=filesharing/uploadfile&fid='.$file['fid'].'" title="'.$lang->edit.'"><img src="./images/icons/edit.gif" border=0 alt="'.$lang->edit.'"/>&nbsp'.$lang->edit.'</a>';
+                    $view_versions = '<a href="index.php?module=filesharing/fileslist&ffid='.$file['ffid'].'&fid='.$file['fid'].'&referrer=viewversion" title="'.$lang->viewfileversions.'"><span class="glyphicon glyphicon-eye-open">'.$lang->viewfileversions.'</span></a>';
+                    $mail_icon = '<a href="#" id="sharebymail_'.$file['fvid'].'_filesharing/fileslist_loadpopupbyid"><img src="images/icons/send.gif"  alt="'.$lang->sharebyemail.'" border="0">&nbsp'.$lang->sharebyemail.'</a>';
+
+                    $tools = '<div class="btn-group" style="display:inline-block;">
+                             <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="min-width:40px;">
+                                    <span class=" glyphicon glyphicon-cog"></span> <span class="caret"></span>
+                             </button>
+                                <ul class="dropdown-menu">
+                                    <li>'.$edit_icon.'</li>
+                                    <li>'.$delete_icon.'</li>
+                                    <li>'.$view_versions.'</li>
+                                    <li>'.$mail_icon.'</li>
+                                </ul>
+                             </div>';
                 }
 
+                if(isset($core->input['fid']) && !empty($core->input['fid'])) {
+                    unset($tools);
+                }
                 $file['size'] = format_size($file['size']);
                 if(file_exists('./images/filetypes/'.$file['type'].'.gif')) {
-                    $type_icon = '<img src="./images/filetypes/'.$file['type'].'.gif" alt="'.$file['type'].'" border="0" />';
+                    $type_icon = '<img src = "./images/filetypes/'.$file['type'].'.gif" alt = "'.$file['type'].'" border = "0" />';
                 }
                 else {
-                    $type_icon = '<img src="./images/filetypes/txt.gif" alt="'.$lang->unknowntype.'" border="0" />';
+                    $type_icon = '<img src = "./images/filetypes/txt.gif" alt = "'.$lang->unknowntype.'" border = "0" />';
                 }
 
                 if(strlen($file['description']) > 40) {
-                    $description = '<a href="#description" id="showmore_description_'.$file['fid'].'">'.substr($file['description'], 0, 40).'</a><span style="display:none;" id="description_'.$file['fid'].'">'.substr($file['description'], 40).'</span>';
+                    $description = '<a href = "#description" id = "showmore_description_'.$file['fid'].'">'.substr($file['description'], 0, 40).'</a><span style = "display:none;" id = "description_'.$file['fid'].'">'.substr($file['description'], 40).'</span>';
                 }
                 else {
                     $description = $file['description'];
                 }
-
+                if(isset($core->input['referrer']) && $core->input['referrer'] == 'viewversion') {
+                    $url_fileversion = '&amp;fvid='.$file['fvid'];
+                }
                 eval("\$files_list .= \"".$template->get('filesharing_fileslist_filerow')."\";");
             }
         }
@@ -169,24 +197,24 @@ if(!$core->input['action']) {
             echo '</td></tr>';
         }
 
-        $multipages = new Multipages('files f JOIN '.Tprefix.'fileversions fv ON (f.fid=fv.fid) JOIN '.Tprefix.'filescategories c ON (c.fcid=f.category)', $core->settings['itemsperlist'], $multipage_where);
-        $files_list .= '<tr><td colspan="8">'.$multipages->parse_multipages().'</td></tr>';
+        $multipages = new Multipages('files f JOIN '.Tprefix.'fileversions fv ON (f.fid = fv.fid) JOIN '.Tprefix.'filescategories c ON (c.fcid = f.category)', $core->settings['itemsperlist'], $multipage_where);
+        $files_list .= '<tr><td colspan = "8">'.$multipages->parse_multipages().'</td></tr>';
     }
     else {
-        $files_list .= '<tr><td colspan="8" style="text-align:center;">'.$lang->nomatchfound.'</td></tr>';
+        $files_list .= '<tr><td colspan = "8" style = "text-align:center;">'.$lang->nomatchfound.'</td></tr>';
     }
 
     if($core->input['view'] == 'thumbnails') {
         $change_view_icon = 'list_view.gif';
-        $change_view_url = preg_replace("/&view=[A-Za-z]+/i", '&view=list', $sort_url);
+        $change_view_url = preg_replace("/&view=[A-Za-z]+/i", '&view = list', $sort_url);
     }
     else {
         $change_view_icon = 'thumbnail_view.gif';
         if(isset($core->input['view'])) {
-            $change_view_url = preg_replace("/&view=[A-Za-z]+/i", '&view=thumbnails', $sort_url);
+            $change_view_url = preg_replace("/&view=[A-Za-z]+/i", '&view = thumbnails', $sort_url);
         }
         else {
-            $change_view_url = $sort_url.'&view=thumbnails';
+            $change_view_url = $sort_url.'&view = thumbnails';
         }
     }
 
@@ -195,20 +223,33 @@ if(!$core->input['action']) {
 }
 else {
     if($core->input['action'] == 'download') {
-        if(!isset($core->input['fid']) || empty($core->input['fid'])) {
+        if(!isset($core->input['alias']) || empty($core->input['alias'])) {
             redirect($_SERVER['HTTP_REFERER']);
         }
+        $file = Files::get_data(array('alias' => $core->input['alias']));
 
         $fids = get_specificdata('files_viewrestriction', 'fid', 'fid', 'fid', '', 0, "uid={$core->user[uid]}");
         if(is_array($fids)) {
-            if(in_array($core->input['fid'], $fids)) {
+            if(in_array($file->fid, $fids)) {
                 redirect($_SERVER['HTTP_REFERER']);
             }
         }
+
+        if(isset($core->input['fvid'])) {
+            $fvid = $core->input['fvid'];
+        }
+        else {
+            $query = $db->query("SELECT * FROM fileversions WHERE fid=".$file->fid." ORDER BY timeLine DESC LIMIT 0,1");
+            if($db->num_rows($query) > 0) {
+                while($fileversion = $db->fetch_assoc($query)) {
+                    $fvid = $fileversion['fvid'];
+                }
+            }
+        }
         $path = ROOT.'/uploads/sharedfiles';
-        $download = new Download('fileversions', 'name', array('fid' => $core->input['fid']), $path);
+        $download = new Download('fileversions', 'name', array('fvid' => $fvid), $path);
         $download->stream_file();
-        $log->record($core->input['fid']);
+        $log->record($file->fid);
     }
     elseif($core->input['action'] == 'thumbnail') {
         if(!isset($core->input['file']) || empty($core->input['file'])) {
@@ -259,7 +300,9 @@ else {
     }
     elseif($core->input['action'] == 'get_sharefolderbymail') {
         $fid = $db->escape_string($core->input['id']);
-        $creator = $db->fetch_field($db->query("SELECT uid as creator FROM ".Tprefix."filesfolder WHERE ffid='{$fid}'"), 'creator');
+        $creator = $db->fetch_field($db->query("SELECT uid as creator FROM ".Tprefix."filesfolder WHERE ffid=' {
+                        $fid
+                    }'"), 'creator');
         if($core->user['uid'] == $creator || $core->usergroup['filesharing_canSendAllFiles'] == 1) {
             $lang->load('messages');
 
@@ -271,8 +314,10 @@ else {
             $affiliates = get_specificdata('affiliates', array('affid', 'name'), 'affid', 'name', array('by' => 'name', 'sort' => 'ASC'));
             $affiliates_list = parse_selectlist("affids[]", 1, $affiliates, '', 1);
 
-            $folder = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."filesfolder WHERE ffid='{$fid}'"));
-            $folder_path = $core->settings['rootdir'].'/index.php?module=filesharing/fileslist&ffid='.$fid;
+            $folder = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."filesfolder WHERE ffid=' {
+                        $fid
+                    }'"));
+            $folder_path = $core->settings['rootdir'].'/index.php?module = filesharing/fileslist&ffid = '.$fid;
 
             $lang->filesharing_sharesubject = $lang->sprint($lang->filesharing_sharesubject, $folder['name']);
             $lang->filesharing_sharefoldermessage = $lang->sprint($lang->filesharing_sharefoldermessage, $folder['name'], $folder['description']);
@@ -333,7 +378,7 @@ else {
               }
              */
 
-            $mails = get_specificdata('affiliates', array('affid', 'mailingList'), 'affid', 'mailingList', '', 0, 'mailingList != "" AND affid IN('.implode(',', $core->input['affids']).')');
+            $mails = get_specificdata('affiliates', array('affid', 'mailingList'), 'affid', 'mailingList', '', 0, 'mailingList != "" AND affid IN('.implode(', ', $core->input['affids']).')');
             $core->input['message'] = str_replace("\n", '<br />', $core->input['message']);
 
             $email_data = array(
@@ -368,23 +413,31 @@ else {
         }
         /* else
           {
-          error($lang->sectionnopermission, 'index.php?module=filesharing/fileslist');
+          error($lang->sectionnopermission, 'index.php?module = filesharing/fileslist');
           } */
     }
     elseif($core->input['action'] == 'do_deletefile') {
         $fid = $db->escape_string($core->input['fid']);
         //THERE MiGHT BE SEVERAL VERSIONS
-        $creator = $db->fetch_field($db->query("SELECT fv.uid as creator FROM ".Tprefix."files f JOIN ".Tprefix."fileversions fv ON (f.fid=fv.fid) WHERE f.fid='{$fid}'"), 'creator');
+        $creator = $db->fetch_field($db->query("SELECT fv.uid as creator FROM ".Tprefix."files f JOIN ".Tprefix."fileversions fv ON (f.fid=fv.fid) WHERE f.fid=' {
+                        $fid
+                    }'"), 'creator');
         if($core->user['uid'] == $creator || $core->usergroup['filesharing_canDeleteAllFiles'] == 1) {
-            $query = $db->delete_query('files', "fid='{$fid}'");
+            $query = $db->delete_query('files', "fid=' {
+                        $fid
+                    }'");
 
             if($query) {
                 $log->record($fid);
 
-                $versions = $db->query("SELECT fvid, name FROM fileversions WHERE fid='{$fid}'");
+                $versions = $db->query("SELECT fvid, name FROM fileversions WHERE fid=' {
+                        $fid
+                    }'");
                 while($version = $db->fetch_assoc($versions)) {
                     $filepath = '';
-                    $db->delete_query('fileversions', "fvid='{$version[fvid]}'");
+                    $db->delete_query('fileversions', "fvid=' {
+                        $version[fvid]
+                    }'");
                     $filepath = './uploads/sharedfiles/'.$version['name'];
 
                     unlink($filepath);
@@ -395,7 +448,9 @@ else {
                   } */
 
                 //if(value_exists('files_viewrestriction', 'fid', $fid)) {
-                $restriction_query = $db->delete_query('files_viewrestriction', "fid='{$fid}'");
+                $restriction_query = $db->delete_query('files_viewrestriction', "fid=' {
+                        $fid
+                    }'");
                 if(!$restriction_query) {
                     $error['restriction'] = true; //'error in deleting restriction for'.$fid;
                 }
@@ -409,7 +464,7 @@ else {
         }
         /* else
           {
-          error($lang->sectionnopermission, 'index.php?module=filesharing/fileslist');
+          error($lang->sectionnopermission, 'index.php?module = filesharing/fileslist');
           } */
     }
     elseif($core->input['action'] == 'createfolder') {
@@ -507,6 +562,10 @@ else {
         else {
             output_xml("<status>false</status><message>{$lang->errorsaving}</message>");
         }
+    }
+    elseif($core->input['action'] == '') {
+        $url = 'index.php?module=filesharing/filelist&ffid='.$core->input['ffid'].'&fid='.$core->input['fid'].'&referrer=viewversion';
+        output_xml("<status>true</status><message>Successfully<![CDATA[<script>goToURL('$url');</script>]]></message>");
     }
 }
 ?>
