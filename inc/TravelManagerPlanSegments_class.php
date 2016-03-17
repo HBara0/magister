@@ -260,7 +260,7 @@ class TravelManagerPlanSegments extends AbstractClass {
         if($segmentdata['noAccomodation'] == 0) {
             if(isset($segmentdata['tmhid'])) {
                 $segdays = abs($segmentdata['toDate'] - $segmentdata['fromDate']);
-                $segdays = floor($segdays / (60 * 60 * 24));
+                $segdays = ceil($segdays / (60 * 60 * 24)) + 1;
                 $found = 0;
                 foreach($segmentdata['tmhid'] as $checksum => $hotel) {
 // if(!isset($hotel['tmhid']) || empty($hotel['tmhid'])) {
@@ -293,7 +293,7 @@ class TravelManagerPlanSegments extends AbstractClass {
 //                        $errorhandler->record('Required fields', 'Accomodations'.' in Segment '.$segmentdata['sequence']);
 //                    }
 
-                    if($hotel['numNights'] > $segdays + 1) {
+                    if($hotel['numNights'] > $segdays) {
                         $this->errorcode = 10;
                         $hotel = new TravelManagerHotels($hotel['tmhid']);
                         $errorhandler->record($lang->numnightsexceeded.'<br/>', $hotel->name);
@@ -610,7 +610,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                 if(is_array($segment_hotels['tmhid'])) {
                     $found = 0;
                     $leavedays = abs($segmentdata['toDate'] - $segmentdata['fromDate']);
-                    $leavedays = floor($leavedays / (60 * 60 * 24));
+                    $leavedays = ceil($leavedays / (60 * 60 * 24)) + 1;
 
                     $validate_fields = array('priceNight', 'numNights', 'currency');
                     foreach($segment_hotels['tmhid'] as $checksum => $hotel) {
@@ -632,7 +632,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                                 return $this;
                             }
                         }
-                        if($hotel['numNights'] > $leavedays + 1) {
+                        if($hotel['numNights'] > $leavedays) {
                             $hotel = new TravelManagerHotels($hotel['tmhid']);
                             $this->errorcode = 10;
                             $errorhandler->record($lang->numnightsexceeded.'<br/>', $hotel->name.' in Segment '.$segmentdata['sequence']);
@@ -1267,7 +1267,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                 $currencies_list = parse_selectlist('segment['.$sequence.'][tmhid]['.$checksum.'][currency]', '3', $val_currencies, $rescurrency_id, '', '', array('id' => 'currency_'.$sequence.'_'.$checksum.'_list'));
 
 //      $leavedays = abs($this->toDate - $this->fromDate);
-//     $leavedays = floor($leavedays / (60 * 60 * 24));
+//     $leavedays = ceil($leavedays / (60 * 60 * 24));
                 $cityname = $hotel->get_city()->get_displayname();
                 eval("\$hotelssegments_output  .= \"".$template->get('travelmanager_plantrip_segment_hotels')."\";");
                 $review_tools = $hotelchecked = $cityname = $paidby_details = $currencies_list = $currencies = $selected_hotel = $checkbox_hotel = '';
