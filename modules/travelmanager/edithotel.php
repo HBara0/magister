@@ -45,8 +45,7 @@ if(!$core->input['action']) {
                 $phone_parts = explode('-', $hotel_obj->phone);
                 if(is_array($phone_parts)) {
                     $telephone_intcode = $phone_parts[0];
-                    $telephone_areacode = $phone_parts[1];
-                    $telephone_number = $phone_parts[2];
+                    $telephone_number = $phone_parts[1];
                 }
             }
         }
@@ -85,7 +84,7 @@ if(!$core->input['action']) {
     $approvcheckbox = '<input class="form-control" type="checkbox" id="isapproved" name="hotel[isApproved]" value="1" '.$check_approve.' '.$disableapprove.'">';
     $country = new Countries(1);
     $countriescodes = $country->get_phonecodes();
-    $countriescodes_list = parse_selectlist('hotel[telephone_intcode]', $tabindex, $countriescodes, $telephone_intcode, '', '', array('id' => 'telephone_intcode'));
+    $countriescodes_list = parse_selectlist('hotel[telephone_intcode]', $tabindex, $countriescodes, $telephone_intcode, '', '', array('id' => 'telephone_intcode', 'class' => 'form-control'));
     eval("\$edithotel = \"".$template->get('travelmanager_edithotel')."\";");
     output_page($edithotel);
 }
