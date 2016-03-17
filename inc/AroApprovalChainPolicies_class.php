@@ -120,12 +120,12 @@ class AroApprovalChainPolicies extends AbstractClass {
                 $policies_array['informCoordinators'] = 1;
                 $existing_chain = new AroApprovalChainPolicies($this->data[self::PRIMARY_KEY]);
                 if(is_object($existing_chain)) {
-                    if(strcmp($existing_chain->approvalChain, $policies_array['approvalChain']) != 0) {
-                        if($this->is_policyused($this)) {
-                            $this->errorcode = 4;
-                            return $this;
-                        }
-                    }
+//                    if(strcmp($existing_chain->approvalChain, $policies_array['approvalChain']) != 0) {
+//                        if($this->is_policyused($this)) {
+//                            $this->errorcode = 4;
+//                            return $this;
+//                        }
+//                    }
                 }
                 $query = $db->update_query(self::TABLE_NAME, $policies_array, ''.self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
                 if($query) {
