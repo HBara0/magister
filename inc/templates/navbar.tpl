@@ -7,19 +7,19 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="#">OCOS Logo</a>
+            <a class="navbar-brand" href="{$core->settings[rootdir]}"><img src="{$core->settings[rootdir]}/images/logo.png" alt="OCOS" border="0" class="systemlogo"></a>
         </div>
         <div id="navbar" class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
-                <li><a href="{$core->settings[rootdir]}" style='font-size:18px;'>Home</a></li>
+                <li><a href="{$core->settings[rootdir]}" style='font-size:18px;'><span class="glyphicon glyphicon-home" title="Home"></span> <span class="hidden-sm hidden-md hidden-sm hidden-lg">Home</span></a></li>
 
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle scrollable-menu " data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" id="switch_modules"><span class="glyphicon glyphicon-th-large"></span> Main Menu <span class="caret"></span></a>
-                    <ul class="dropdown-menu" style="max-height: 250px;overflow: auto">
+                    <ul class="dropdown-menu" style="max-height: 250px;overflow: auto" id="modulemenu">
+                        <li class="dropdown-header"><input placeholder="Find Modules" type='text' class="form-control" onkeyup="$('#modulemenu > li.searchable:not(:contains(' + $(this).val() + '))').hide();
+                                $('#modulemenu > li.searchable:contains(' + $(this).val() + ')').show();"></li>
                         <li class="dropdown-header">Frequently Used</li>
-                        <li><a href="#">Attendance</a></li>
-                        <li><a href="#">Budgets</a></li>
-                        <li><a href="#">Reports</a></li>
+                            {$modules_list_freqmdls}
                         <li role="separator" class="divider"></li>
                         <li class="dropdown-header">Others</li>
                             {$modules_list}
@@ -28,20 +28,10 @@
             </ul>
             <ul class="nav navbar-nav navbar-right">
                 <li id="tooltip" data-toggle="tooltip" data-placement="left" title="Frequently Used" class="hidden-xs">
-                    <span  style=" font-size:20px; margin-top:15px;" class="glyphicon glyphicon-star-empty" id="frequentlyused_icons"></span>
+                    <span  style="font-size:20px; margin-top:15px;" class="glyphicon glyphicon-star-empty" id="frequentlyused_icons"></span>
                 </li>
-
-
-                <li class="hidden-xs">        <div style="position: relative"><img src="{$core->settings[rootdir]}/images/icons/plane-icon1.png" class="img-responsive" alt="Generic placeholder thumbnail" style="margin: 10px;" height="30" width="30">
-
-                    </div></li>
-                <li class="hidden-xs">        <div style="position: relative"><img src="{$core->settings[rootdir]}/images/icons/reports-icon.png" class="img-responsive" alt="Generic placeholder thumbnail" style="margin: 10px;" height="30" width="30">
-
-                    </div></li>
-                <li class="hidden-xs" style="margin-right:50px;">        <div style="position: relative"><img src="{$core->settings[rootdir]}/images/icons/crm-icon.png" class="img-responsive" alt="Generic placeholder thumbnail" style="margin: 10px;" height="30" width="30">
-
-                    </div></li>
-                <li id='updates'><a href="../navbar-static-top/"><span class="glyphicon glyphicon-alert"></span> Updates <span class="badge">42</span></a></li>
+                {$navbar_freqmdls}
+                <li id='updates' style='margin-left: 10px;'><a href="../navbar-static-top/"><span class="glyphicon glyphicon-alert"></span> Updates <span class="badge">42</span></a></li>
                 <li class="dropdown" id="userprofile_menu">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-user"></span> {$core->user[displayName]}<span class="sr-only">(current)</span> <span class="caret"></span></a>
                     <ul class="dropdown-menu">

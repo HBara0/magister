@@ -1214,6 +1214,7 @@ function parse_moduleslist($current_module, $modules_dir = 'modules', $is_select
 
     $path = ROOT.$modules_dir;
     $list = '';
+
     if(is_dir($path)) {
         $files = scandir($path);
         foreach($files as $file) {
@@ -1233,7 +1234,11 @@ function parse_moduleslist($current_module, $modules_dir = 'modules', $is_select
                     else {
                         if($current_module != $module['name']) {
                             if($core->usergroup[$module['globalpermission']] == 1) {
-                                $list .= '<li><a href="index.php?module='.$module['name'].'/'.$module['homepage'].'">'.$module['title'].'</a></li>';
+                                $moduleicon = 'default';
+                                if(file_exists('images/modules-icons/'.$module['name'].'.png')) {
+                                    $moduleicon = $module['name'];
+                                }
+                                $list .= '<li class="searchable"><a href="index.php?module='.$module['name'].'/'.$module['homepage'].'"><img src="images/modules-icons/'.$moduleicon.'.png" alt="'.$module['name'].'"/> '.$module['title'].'</a></li>';
                             }
                         }
                         else {

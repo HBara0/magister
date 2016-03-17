@@ -59,11 +59,11 @@ a, a:visited {
     }
 }
 
-.ocosLogo {
-    height: 100px;
+.systemlogo {
     vertical-align: top;
     text-align: center;
     padding: 0px;
+    margin-top: -12px;
 }
 
 .sideDesign {
@@ -771,6 +771,13 @@ tfoot .coltotal, tfoot .colavg {
 .li-redbullet {
     border-left: 4px solid red;
     pointer-events:none;
+}
+
+.frequentmodules_img {
+    margin-left:5px;
+    margin-right:5px; 
+    margin-top: 10px;
+    background-color: #9bbd61;
 }
 .jqstooltip{
     width:50px;
