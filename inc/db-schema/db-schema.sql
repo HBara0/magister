@@ -2613,6 +2613,7 @@ DROP TABLE IF EXISTS `files`;
 CREATE TABLE `files` (
   `fid` int(10) NOT NULL AUTO_INCREMENT,
   `title` varchar(220) NOT NULL,
+  `alias` varchar(220) NOT NULL,
   `category` tinyint(1) unsigned NOT NULL,
   `ffid` int(10) NOT NULL DEFAULT '0',
   `description` text NOT NULL,
@@ -2621,7 +2622,7 @@ CREATE TABLE `files` (
   `isShared` smallint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`fid`),
   KEY `ffid` (`ffid`)
-) ENGINE=MyISAM AUTO_INCREMENT=892 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=8 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `files_viewrestriction`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
