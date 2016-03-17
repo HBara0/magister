@@ -447,11 +447,11 @@ class TravelManagerPlan {
     /* segment toDate  between fromDate an toDate of  leave */
     public function isdate_exceededleave($plandata, $segmentdata) {
         $this->leave_datediff = abs($plandata ['todate'] - $plandata['fromdate']);
-        $this->leave_days = floor($this->leave_datediff / (60 * 60 * 24 ));
+        $this->leave_days = ceil($this->leave_datediff / (60 * 60 * 24 ));
 
         if(!empty($segmentdata['fromDate']) && !empty($segmentdata['toDate'])) {
             $this->segment_datediff = abs($segmentdata ['toDate'] - $segmentdata['fromDate']);
-            $this->segment_days = floor($this->segment_datediff / (60 * 60 * 24));
+            $this->segment_days = ceil($this->segment_datediff / (60 * 60 * 24));
         }
 
         /* no save if segment days greater than leave  dates interval */
@@ -698,7 +698,7 @@ class TravelManagerPlan {
                 $otherapprovedhotels = TravelManagerHotels::get_data('country='.$counrty_obj->coid.' AND city != '.$city_obj->ciid.' AND isApproved=1', array('returnarray' => true));
             }
             $leavedays = abs($segmentobj->toDate - $segmentobj->fromDate);
-            $leavedays = floor($leavedays / (60 * 60 * 24)) + 1;
+            $leavedays = ceil($leavedays / (60 * 60 * 24)) + 1;
             $hotelssegments_output .= $segmentobj->parse_hotels($sequence, $approvedhotels, $leavedays);
             if(is_array($otherapprovedhotels)) {
                 $hotelssegments_output.='<br /><a nohref="nohref" style="cursor:pointer;" id="countryhotels_'.$sequence.'_check"><div style="display:inline-block"><button type="button" class="button">Lookup Hotels In The Same Country</button></div></a>';
@@ -743,7 +743,7 @@ $("#anotheraff_otheraccomodations_'.$sequence.'_'.$otherhotel_checksum.'").hide(
             $currencies = array_filter(array_unique($val_currencies));
             $currencies_list = parse_selectlist('segment['.$sequence.'][tmhid]['.$otherhotel_checksum.'][currency]', '3', $currencies, '840', '', '', array('id' => 'currency_'.$sequence.'_'.$otherhotel_checksum.'_list'));
             $leavedays = abs($segmentobj->toDate - $segmentobj->fromDate);
-            $leavedays = floor($leavedays / (60 * 60 * 24)) + 1;
+            $leavedays = ceil($leavedays / (60 * 60 * 24)) + 1;
             eval("\$otherhotels_output = \"".$template->get('travelmanager_plantrip_segment_otherhotels')."\";");
             /* parse expenses --START */
             $segexpenses_ojbs = $segmentobj->get_expenses(array('simple' => false, 'returnarray' => true, 'order' => array('by' => 'tmeid', 'sort' => 'ASC')));
