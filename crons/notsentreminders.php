@@ -77,7 +77,7 @@ if($time_now >= $quarter_start && $time_now <= $quarter_end) {
 
             $email_data = array(
                     'to' => $val['email'],
-                    'from_email' => $core->settings['adminemail'],
+                    'from_email' => $core->settings['maileremail'],
                     'from' => 'OCOS Mailer',
                     'subject' => 'Some reports have not been sent yet',
                     'message' => $email_message

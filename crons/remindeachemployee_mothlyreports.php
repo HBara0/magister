@@ -85,7 +85,7 @@ foreach($users as $key => $val) {
 
     $email_data = array(
             'to' => $val['email'],
-            'from_email' => $core->settings['adminemail'],
+            'from_email' => $core->settings['maileremail'],
             'from' => 'OCOS Mailer',
             'subject' => 'Some monthly reports have not been finalized yet',
             'message' => $email_message

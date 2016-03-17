@@ -1424,33 +1424,14 @@ function parse_attendance_reports($core, $headerinc = '', $header = '', $menu = 
                 $output.=$html;
             }
         }
+        $hideheader = 'style="display:none"';
         eval("\$generatepage = \"".$template->get('attendance_generatedlog')."\";");
     }
     else if($core->input['referrer'] == 'report') {
         eval("\$generatepage = \"".$template->get('attendance_report')."\";");
     }
     if($core->input['output'] == 'email') {
-        $message = "
-          <h1>{$lang->attendancelog}
-                <small><br />{$lang->fromdate} {$report[fromdate_output]} {$lang->todate} {$report[todate_output]}</small>
-            </h1>
-            <span> < : {$lang->arrivearly} | > : {$lang->leavelater} | <> : {$lang->earlyandlate} | H: {$lang->holiday} | W/E : {$lang->weekend} | L : {$lang->leave} | UL : {$lang->unpaidleave}</span>
-            </hr>
-            <div>
-                {$output}
-            </div>";
-        $email_data = array(
-                'from_email' => $core->settings['maileremail'],
-                'from' => 'OCOS Mailer',
-                'subject' => 'Monthly Attendance Log',
-                'message' => $message,
-                'to' => $core->input['emailto'],
-        );
-
-        $mail = new Mailer($email_data, 'php');
-        if($mail->get_status() === true) {
-            $log->record($lang->monthlyattendancelog, $email_data['to']);
-        }
+        return $generatepage;
     }
     else {
         output_page($generatepage);

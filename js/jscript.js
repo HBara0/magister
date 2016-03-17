@@ -3,6 +3,136 @@ $(function() {
      Check the browswer support before anything else
      */
 
+
+    //applyin the DATATABLES plugin on classes-START
+    function initialize_datatables() {
+        // Remove the formatting to get integer data for summation
+        var intVal = function(i) {
+            return typeof i === 'string' ?
+                    i.replace(/[\$,]/g, '') * 1 :
+                    typeof i === 'number' ?
+                    i : 0;
+        };
+        $(".datatable_basic").each(function(i, obj) {
+            //basic grid type
+            var maintable = obj;
+            if($(maintable).hasClass('datatable_basic')) {
+                //check if data attribute of totals columns exists and not empty, then fill the values
+                if($(maintable).attr('data-totalcolumns')) {
+                    var totalcolumns = $(maintable).attr('data-totalcolumns');
+                }
+                //create a second thead right after the firse one
+                if($(maintable).attr('data-skipfilter') !== 'true') {
+                    $(maintable).find('thead:first-child').after($(maintable).find('thead:first-child').clone());
+                    // Setup - add a text input to each footer cell
+                    $(maintable).find('thead:nth-child(2)').each(function(i, tfoot) {
+                        $(tfoot).find('th').each(function(i, th) {
+                            var title = $(th).text();
+                            if(title.trim().length != 0) {
+                                $(th).html('<input type="text" placeholder="Search ' + title + '" />');
+                            }
+                        });
+                    });
+                }
+                var table = $(maintable).DataTable(
+                        {
+                            stateSave: true,
+                            "pagingType": "full_numbers",
+                            "initComplete": function() {
+                                if($(maintable).attr('data-checkonclick') === 'true') {
+                                    var api = this.api();
+                                    api.$('td').click(function(e) {
+                                        var chk = $(this).closest("tr").find("input:checkbox").get(0);
+                                        if(e.target != chk)
+                                        {
+                                            chk.checked = !chk.checked;
+                                        }
+                                    });
+                                }
+                            },
+                            "footerCallback": function(row, data, start, end, display) {
+                                var api = this.api(), data;
+                                if(typeof totalcolumns == 'undefined') {
+                                    return;
+                                }
+                                var columns = totalcolumns.split(',');
+                                if(!($.isArray(columns))) {
+                                    return;
+                                }
+                                $.each(columns, function(i, col) {
+                                    if(!($.isNumeric(intVal(col)))) {
+                                        return true;
+                                    }
+                                    // Total over all pages
+                                    total = api
+                                            .column(col)
+                                            .data()
+                                            .reduce(function(a, b) {
+                                                return intVal(a) + intVal(b);
+                                            }, 0);
+
+                                    // Total over this page
+                                    pageTotal = api
+                                            .column(col, {page: 'current'})
+                                            .data()
+                                            .reduce(function(a, b) {
+                                                return intVal(a) + intVal(b);
+                                            }, 0);
+
+                                    // Update footer
+                                    //if variables are not numeric skip and leave normal filters
+                                    if(!($.isNumeric(pageTotal)) || !($.isNumeric(total))) {
+                                        return;
+                                    }
+                                    else {
+                                        $(api.column(col).footer()).html(
+                                                pageTotal.toFixed(2) + ' <br>(Total: ' + total.toFixed(2) + ')'
+                                                );
+                                    }
+                                });
+                            }
+                        });
+                //apply filters on the second thead
+                table.columns().every(function() {
+                    var that = this;
+                    $('input', $(maintable).find('thead:nth-child(2)').find('th').eq(this.index())).on('keyup change', function() {
+                        if(that.search() !== this.value) {
+                            that
+                                    .search(this.value)
+                                    .draw();
+                        }
+                    });
+                });
+
+
+
+
+                $(maintable).find('tbody').each(function(i, obj2) {
+                    $(obj2).on('mouseenter', 'td', function() {
+                        var colIdx = table.cell(this).index().column;
+                        $(table.cells().nodes()).removeClass('highlight');
+                        $(table.column(colIdx).nodes()).addClass('highlight');
+                    });
+                });
+                $(maintable).before('&nbsp;&nbsp;<img  title="Clear Filters" src="' + rootdir + '/images/icons/clearfilters.png" style="cursor:pointer;" id="datatables_cleafilters">');
+            }
+
+        });
+    }
+    initialize_datatables();
+    $(document).on("click", 'img[id="datatables_cleafilters"]', function() {
+        var clearfilters = function(obj) {
+            var table = $(obj).DataTable();
+            table.search('')
+                    .columns().search('')
+                    .draw();
+        };
+        var table = $(this).next('table:first');
+        clearfilters(table);
+    });
+
+    //applyin the DATATABLES plugin on classes-END
+
     if(jQuery.support.leadingWhitespace == false) {
         $('head').append('<link rel="stylesheet" href="' + rootdir + 'css/jqueryuitheme/jquery-ui-current.custom.min.css" type="text/css" />');
         $("body").append("<div id='browserversionerror' title='Browser version is too old'>Please upgrade your browser to a newer version.</div>");

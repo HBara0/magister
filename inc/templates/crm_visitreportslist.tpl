@@ -34,7 +34,7 @@
         <td class="contentContainer">
             <h1>{$lang->listofvisitreports}</h1>
             <form action="#" method="post" id="moderation_crm/listvisitreports_Form" name="moderation_crm/listvisitreports_Form" style="margin-bottom: 0px;">
-                <table class="datatable_basic table table-bordered row-border hover order-column" cellspacing="0" width="100%">
+                <table class="datatable_basic table table-bordered row-border hover order-column" data-checkonclick=true cellspacing="0" width="100%">
                     <thead>
                         <tr>
                             <th>&nbsp;</th>

@@ -30,7 +30,7 @@ if($db->num_rows($query2) > 0) {
 
         if(!empty($approved_lids)) {
             $query4 = $db->query("SELECT l.*, l.uid AS requester, Concat(u.firstName, ' ', u.lastName) AS employeename
-					FROM ".Tprefix."leaves l JOIN ".Tprefix."users u ON (l.uid=u.uid) 
+					FROM ".Tprefix."leaves l JOIN ".Tprefix."users u ON (l.uid=u.uid)
 					WHERE l.lid IN (".implode(',', $approved_lids).") ORDER BY l.fromDate ASC");
             if($db->num_rows($query4) > 0) {
                 $message .= '<br /><strong>'.$affiliate['name'].'</strong>';
@@ -69,7 +69,7 @@ if($db->num_rows($query2) > 0) {
         /* Get Holidays */
         $time_details = getdate(TIME_NOW);
         $query = $db->query("SELECT *
-							FROM ".Tprefix."holidays 
+							FROM ".Tprefix."holidays
 							WHERE affid='{$affiliate[affid]}' AND day='{$time_details[mday]}' AND month='{$time_details[mon]}' AND (year=0 OR year='{$time_details[year]}')");
         if($db->num_rows($query) > 0) {
             if(empty($approved_lids)) {
@@ -91,7 +91,7 @@ if($db->num_rows($query2) > 0) {
         $email_data = array(
                 'to' => 'christophe.sacy@orkila.com',
                 'cc' => array('nicole.sacy@orkila.com'),
-                'from_email' => $core->settings['adminemail'],
+                'from_email' => $core->settings['maileremail'],
                 'from' => 'OCOS Mailer',
                 'subject' => 'Expected leaves in your affiliates',
                 'message' => $email_message

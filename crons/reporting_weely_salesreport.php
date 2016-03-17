@@ -11,8 +11,8 @@ $currency_obj = new Currencies('USD');
 $affids = array(19);
 
 $query = $db->query("SELECT imso.foreignId AS order_id, date, docNum, foreignName AS bpname, cid AS bpid, ime.foreignNameAbbr AS bpname_abv, currency, salesRepLocalId AS salesrep_id, salesRep AS salesrep, imso.paymentTerms AS paymenttermsdays
-					FROM integration_mediation_salesorders imso 
-					JOIN integration_mediation_entities ime ON (ime.foreignId=imso.cid) 
+					FROM integration_mediation_salesorders imso
+					JOIN integration_mediation_entities ime ON (ime.foreignId=imso.cid)
 					WHERE imso.affid IN (".implode(',', $affids).") AND (date BETWEEN ".$period['from']." AND ".$period['to'].")
 					ORDER by date DESC");
 if($db->num_rows($query) > 0) {
@@ -36,12 +36,12 @@ if($db->num_rows($query) > 0) {
         }
 
         $orderline_query = $db->query("SELECT imol.*, imol.foreignId AS orderline_id, imp.foreignName AS productname, cost, ime.foreignName AS supplier, ps.titleAbbr AS productcategory
-									FROM integration_mediation_salesorderlines imol 
+									FROM integration_mediation_salesorderlines imol
 									JOIN integration_mediation_products imp ON (imp.foreignId=imol.pid)
 									LEFT JOIN products p ON (imp.localId=p.pid)
 									LEFT JOIN genericproducts gp ON (p.gpid=gp.gpid)
 									LEFT JOIN productsegments ps ON (ps.psid=gp.psid)
-									LEFT JOIN integration_mediation_entities ime ON (ime.foreignId =imol.spid) 
+									LEFT JOIN integration_mediation_entities ime ON (ime.foreignId =imol.spid)
 									WHERE foreignOrderId='{$order[order_id]}'");
         $quantity_accuml = 0;
         while($orderline = $db->fetch_assoc($orderline_query)) {
@@ -94,7 +94,7 @@ if($db->num_rows($query) > 0) {
             $total_details['salesrep']['numorders'][$order['salesrep_id']][$order['month_num']] ++;
             $total_details['salesrep']['grossmargin'][$order['salesrep_id']][$order['month_num']] += $orderline['grossmargin'];
             $total_details['salesrep']['netmargin'][$order['salesrep_id']][$order['month_num']] += $orderline['netmargin'];
-            //		$bm_details['grossmargin'][$order['salesrep_id']][$order['month_num']] += $orderline['grossmargin']; 
+            //		$bm_details['grossmargin'][$order['salesrep_id']][$order['month_num']] += $orderline['grossmargin'];
 
             /* Set BM Data - END */
 
@@ -227,7 +227,7 @@ if($db->num_rows($query) > 0) {
     $email_data = array(
             'to' => 'christophe.sacy@orkila.com',
             'cc' => 'jalel.elghoul@orkila.tn',
-            'from_email' => $core->settings['adminemail'],
+            'from_email' => $core->settings['maileremail'],
             'from' => 'OCOS Mailer',
             'subject' => 'Week '.date('W', TIME_NOW).' '.$current_date['year'].' sales report',
             'message' => '<h1>Sales '.$current_date['month'].' '.$current_date['year'].' in Orkila Tunisie</h1><br />'.$message
@@ -246,7 +246,7 @@ if($db->num_rows($query) > 0) {
     $message = '<html><head></head><body style="font-size:12px; font-family: Tahoma; color: #333333;">'.$yearoverview.'</body>';
     $email_data = array(
             'to' => 'christophe.sacy@orkila.com',
-            'from_email' => $core->settings['adminemail'],
+            'from_email' => $core->settings['maileremail'],
             'from' => 'OCOS Mailer',
             'subject' => 'Week '.date('W', TIME_NOW).' '.$current_date['year'].' sales classifications',
             'message' => '<h2>Sales Year '.$current_date['year'].' Overview in Orkila Tunisie</h2>'.$message
