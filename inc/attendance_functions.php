@@ -1176,6 +1176,7 @@ function parse_attendance_reports($core, $headerinc = '', $header = '', $menu = 
 //$attendance_report = $attendance_report_user_month[$year];
             eval("\$attendance_report .= \"".$template->get('attendance_report_user')."\";");
             $attendance_report_user_month = '';
+            unset($data);
         }
         elseif($core->input['referrer'] == 'log') {
             while($currentdate <= $to) {
