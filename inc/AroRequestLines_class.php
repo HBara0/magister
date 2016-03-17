@@ -110,7 +110,7 @@ class AroRequestLines extends AbstractClass {
                 $new_data['grossMarginAtRiskRatio'] = 0;
             }
         }
-        $new_data['riskRatioAmount'] = round(($new_data['costPriceAtRiskRatio'] * $data['quantity']), 2);
+        $new_data['riskRatioAmount'] = round((($new_data['costPriceAtRiskRatio'] - $new_data['costPrice']) * $data['quantity']), 2);
         if($purchasetype->isPurchasedByEndUser == 1) {
             $new_data['daysInStock'] = 0;
             $new_data['qtyPotentiallySold'] = 0;

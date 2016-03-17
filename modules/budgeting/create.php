@@ -36,7 +36,7 @@ if(!$core->input['action']) {
             $supplier_where = " eid IN ({$insupplier}) AND";
         }
         if(empty($supplier_where)) {
-            $supplier_where = " eid = 0 ";
+            $supplier_where = " eid =0 AND";
         }
     }
     else {

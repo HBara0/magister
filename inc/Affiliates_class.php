@@ -354,7 +354,7 @@ class Affiliates {
 
         if(is_array($options)) {
             if(isset($options['ismain']) && $options['ismain'] === 1) {
-                $query_where_add = ' AND isMain=1';
+                $query_where_add = ' AND ug.isMain=1';
             }
         }
         /* On purpose outside the is_array */
@@ -395,6 +395,7 @@ class Affiliates {
             $affiliate['prevmanagement'][$management_position] = $this->$management_position;
             $affiliate['newmanagement'][$management_position] = $data[$management_position];
         }
+        $affiliate['affid'] = $this->affid;
         $affiliate['prevmanagement']['uptoDate'] = TIME_NOW;
         $affiliate['newmanagement']['mgmtAsOf'] = $affiliate['newmanagement']['modifiedOn'] = TIME_NOW;
         $affiliate['newmanagement']['modifiedBy'] = $core->user['uid'];
