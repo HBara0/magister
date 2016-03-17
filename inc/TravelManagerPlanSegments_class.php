@@ -293,7 +293,7 @@ class TravelManagerPlanSegments extends AbstractClass {
 //                        $errorhandler->record('Required fields', 'Accomodations'.' in Segment '.$segmentdata['sequence']);
 //                    }
 
-                    if($hotel['numNights'] > $segdays) {
+                    if($hotel['numNights'] > $segdays + 1) {
                         $this->errorcode = 10;
                         $hotel = new TravelManagerHotels($hotel['tmhid']);
                         $errorhandler->record($lang->numnightsexceeded.'<br/>', $hotel->name);
@@ -632,7 +632,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                                 return $this;
                             }
                         }
-                        if($hotel['numNights'] > $leavedays) {
+                        if($hotel['numNights'] > $leavedays + 1) {
                             $hotel = new TravelManagerHotels($hotel['tmhid']);
                             $this->errorcode = 10;
                             $errorhandler->record($lang->numnightsexceeded.'<br/>', $hotel->name.' in Segment '.$segmentdata['sequence']);
