@@ -172,21 +172,21 @@ else {
                     break;
                 case 'export':
                     //if export, create the main file that will include all the affiliate files
-//                    $export_path = $_SERVER['DOCUMENT_ROOT'].'/tmp/exctractentities';
-//
-//                    if(!file_exists($export_path)) {
-//                        mkdir($export_path);
-//                    }
-//
-//                    @rmdir($export_path.'/*');
-//                    $motherpath = $export_path.'/exctractentities_'.uniqid();
-//                    mkdir($motherpath);
+                    $export_path = $_SERVER['DOCUMENT_ROOT'].'/tmp/exctractentities';
+
+                    if(!file_exists($export_path)) {
+                        mkdir($export_path);
+                    }
+
+                    @rmdir($export_path.'/*');
+                    $motherpath = $export_path.'/exctractentities_'.uniqid();
+                    mkdir($motherpath);
                     foreach($results as $affid => $segmentedres) {
                         if(is_array($segmentedres)) {
                             $affiliate = new Affiliates($affid);
                             //create a sub-folder for affiliate
-//                            $sub_path = $motherpath.'/'.$affiliate->alias;
-//                            mkdir($sub_path);
+                            $sub_path = $motherpath.'/'.$affiliate->alias;
+                            mkdir($sub_path);
                             //go through all entities and parse the information as requested
                             foreach($segmentedres as $psid => $entities) {
                                 if(is_numeric($psid)) {
@@ -201,11 +201,7 @@ else {
                                             $entity = $entity_obj->get();
                                             //check fields if empty, if so then put a dash
                                             $fields_tofetch = array('fax1', 'fax2', 'phone1', 'phone2', 'addressLine1', 'mainEmail', 'website');
-                                            foreach($fields_tofetch as $field) {
-                                                if(empty($entity[$field])) {
-                                                    $entity[$field] = '';
-                                                }
-                                            }
+
                                             //get company type output
                                             $entity['companyType_output'] = $entity_obj->get_type();
                                             $entirty_country = $entity_obj->get_country();
