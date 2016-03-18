@@ -1,6 +1,6 @@
 <tr>
     <!--<td> {$entity[companyType_output]}</td>-->
-    <td> {$entity[eid]}</td>
+    <td style="background-color: red"> {$entity[eid]}</td>
     <td> {$entity[companyName]}</td>
     <td> </td>
     <td> </td>
@@ -20,13 +20,13 @@
     <td> {$entity[phone2]}</td>
     <td> {$entity[fax1]}</td>
     <td> {$entity[website]}</td>
-    <td> {$rep_field[rpid]}</td>
+    <td style="background-color: red"> {$rep_field[rpid]}</td>
     <td> {$rep_field[name]}</td>
     <td> </td>
     <td> {$rep_field[email]}</td>
     <td> {$rep_field[phone]}</td>
     <td> {$rep_field[phoneExtension]}</td>
     <td> {$rep_field[position]}</td>
-    <td> {$psid}</td>
-    <td> {$affid}</td>
+    <td style="background-color: red"> {$psid}</td>
+    <td style="background-color: red"> {$affid}</td>
 </tr>

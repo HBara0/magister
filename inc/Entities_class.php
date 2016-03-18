@@ -693,7 +693,7 @@ class Entities extends AbstractClass {
                 return new Cities(intval($this->data['city']));
             }
             else {
-                $city = Cities::get_data(array('name' => intval($this->data['city'])));
+                $city = Cities::get_data(array('name' => $this->data['city']));
                 if(is_object($city)) {
                     return $city;
                 }

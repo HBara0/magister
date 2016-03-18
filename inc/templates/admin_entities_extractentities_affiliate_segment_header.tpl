@@ -1,7 +1,7 @@
 <thead>
     <tr>
         <!--<th>{$lang->companytype}</th>-->
-        <th>{$lang->id}</th>
+        <th style="background-color: red">{$lang->id}</th>
         <th>{$lang->companyname}</th>
         <th>Remove Company ?</th>
         <th>Potential Client ?</th>
@@ -21,14 +21,14 @@
         <th>{$lang->phone2}</th>
         <th>{$lang->fax1}</th>
         <th>{$lang->website}</th>
-        <th>{$lang->contactperson} id</th>
+        <th style="background-color: red">{$lang->contactperson} id</th>
         <th>{$lang->contactperson} {$lang->name}</th>
         <th>Remove Contact Person ?</th>
         <th>{$lang->contactperson} {$lang->email}</th>
         <th>{$lang->contactperson} {$lang->telephone}</th>
         <th>{$lang->contactperson} {$lang->phoneextension}</th>
         <th>{$lang->contactperson} Job Title</th>
-        <th>psid</th>
-        <th>affid</th>
+        <th style="background-color: red">psid</th>
+        <th style="background-color: red">affid</th>
     </tr>
 </thead>
