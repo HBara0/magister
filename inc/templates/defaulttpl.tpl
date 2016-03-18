@@ -7,7 +7,7 @@
     <body>
         {$header}
         {$rightsidemenu}
-        <div class="container" id="workspace" style="padding-left:50px;">
+        <div class="container workspace_container" id="workspace" style="padding-left:50px;">
             {$pagecontent}
         </div>
         {$footer}

@@ -10,7 +10,7 @@
 
 class GadgetTimezones extends SystemGadget {
     protected $data = array();
-    protected $widget_id = '3';
+    protected $widget_id = '2';
 
     public function __construct() {
         parent::__construct();
@@ -48,7 +48,7 @@ class GadgetTimezones extends SystemGadget {
      */
     public function parse_timezones_list($timezones = '') {
         global $lang, $core;
-        if(!is_array($timezones)) {
+        if(!is_array($timezones) || is_empty($timezones)) {
             $timezones = array('UTC', 'Africa/Casablanca', 'Africa/Dakar', 'Africa/Abidjan', 'Europe/Paris', 'Africa/Lagos', 'Africa/Algiers', 'Africa/Tunis', 'Africa/Cairo', 'Asia/Beirut', 'Asia/Amman', 'Africa/Nairobi', 'Asia/Riyadh', 'Asia/Tehran', 'Asia/Dubai', 'Asia/Hong_Kong');
         }
         $gmttime = gmmktime(gmdate('H'), gmdate('i'), gmdate('s'), gmdate('n'), gmdate('d'), gmdate('Y'));

@@ -1,19 +1,13 @@
-
 <?php
 /*
  * Copyright Â© 2016 Orkila International Offshore, All Rights Reserved
  *
  * [Provide Short Descption Here]
- * $id: gadget_class.php
+ * $id: SystemGadget.php
  * Created:        @zaher.reda    Feb 11, 2016 | 10:35:55 PM
  * Last Update:    @zaher.reda    Feb 11, 2016 | 10:35:55 PM
  */
 
-/**
- * Description of gadget_class
- *
- * @author zaher.reda
- */
 Abstract class SystemGadget extends AbstractClass {
     protected $data = array();
     protected $widget_id = '';
@@ -103,15 +97,15 @@ Abstract class SystemGadget extends AbstractClass {
                     $sectiontitle = $lang->$type;
                 }
                 $inputs.='<div class="panel panel-default">';
-                $inputs.='<div class="panel-heading"><h4>'.$sectiontitle.'</h4></div>';
+                $inputs.='<div class="panel-heading"><h4>'.trim($sectiontitle).'</h4></div>';
                 $inputs.='<div class="panel-body">';
                 foreach($type_settings as $key => $setting) {
                     //if there is a selected field for this setting then parse it
                     if(isset($setting) && !is_empty($setting)) {
-                        $inputs.=$this->parse_single_setting($type, $key, $type, $setting);
+                        $inputs.=$this->parse_single_setting($type, $key, $setting);
                     }
                     else {
-                        $inputs.=$this->parse_single_setting($type, $key, $type);
+                        $inputs.=$this->parse_single_setting($type, $key);
                     }
                 }
                 $inputs.='</div></div>';
@@ -140,12 +134,12 @@ Abstract class SystemGadget extends AbstractClass {
         if($core->input['module']) {
             $module = $core->input['module'];
         }
-        $inputchecksum = generate_checksum('wid');
+        $inputchecksum = generate_checksum();
         $widgetname = $this->get_displayname();
         //parse fields of the existing widget (if any)
         if(!is_null($existingwidget) && is_array($existingwidget)) {
             if(!empty($existingwidget[SystemWidgetInstances::PRIMARY_KEY])) {
-                $widgetinstance_id = '<input type="hidden" value="'.$existingwidget[SystemWidgetInstances::PRIMARY_KEY].' name="'.SystemWidgetInstances::PRIMARY_KEY.'">';
+                $widgetinstance_id = $existingwidget[SystemWidgetInstances::PRIMARY_KEY];
                 $widgetinstance_obj = new SystemWidgetInstances($existingwidget[SystemWidgetInstances::PRIMARY_KEY]);
                 if(is_object($widgetinstance_obj)) {
                     $widgetname = $widgetinstance_obj->get_displayname();
@@ -174,22 +168,26 @@ Abstract class SystemGadget extends AbstractClass {
      * @param type $existingvalue
      * @return type
      */
-    public function parse_single_setting($level, $type, $required, $existingvalue = NULL) {
+    public function parse_single_setting($level, $type, $existingvalue = NULL) {
         global $lang, $core, $template;
-        if($required == 'required') {
+        if($level == 'required') {
             $symbol = '*';
-            $required_field = 'required="required"';
+            $required_field = 'required = "required"';
         }
         switch($type) {
             case 'currency':
                 //if no currency has been set then get default currency of the user
-                if(!is_array($existingvalue) || empty($existingvalue)) {
+                if(!($existingvalue) || empty($existingvalue)) {
                     $existingvalue = $core->user_obj->get_default_currencies('main');
+                }
+                else {
+                    $existingvalue = $this->fix_settingsarray($existingvalue);
                 }
                 if(is_array($existingvalue)) {
                     foreach($existingvalue as $curid) {
                         $selectedcur_obj = new Currencies($curid);
-                        $existingdata.='{id: '.$curid.', value:\''.$selectedcur_obj->get_displayname().' '.$selectedcur_obj->name.'\'},';
+                        $existingdata.=' {
+                    id: '.$curid.', value:\''.$selectedcur_obj->get_displayname().' '.$selectedcur_obj->name.'\'},';
                     }
                 }
 
@@ -202,6 +200,14 @@ Abstract class SystemGadget extends AbstractClass {
                 break;
         }
         return $field;
+    }
+
+    /**
+     *
+     * @param type $existingvalue
+     */
+    protected function fix_settingsarray($existingvalue = '') {
+
     }
 
 }

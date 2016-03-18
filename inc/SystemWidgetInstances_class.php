@@ -98,14 +98,17 @@ class SystemWidgetInstances extends AbstractClass {
     /**
      * links widgetinstance with widget and parses the later, else if no widgetinstance is found returns false
      * @global type $template
+     * @global type $lang
+     * @param type $dashid
      * @return boolean
      */
-    public function parse_widgetinstance() {
-        global $template;
+    public function parse_widgetinstance($dashid = '') {
+        global $template, $lang;
         $widget = $this->get_widget();
         if(is_object($widget) && !empty($widget->{SystemWidgets::PRIMARY_KEY})) {
-            $header = $this->{SystemWidgetInstances::DISPLAY_NAME};
+            $header = $this->data[SystemWidgetInstances::DISPLAY_NAME];
             $body = $widget->parse_widget($this->data);
+            $instance_checksum = $this->data['inputChecksum'];
             eval("\$widget = \"".$template->get('system_dashboard_defaultwidget')."\";");
             return $widget;
         }
@@ -125,7 +128,9 @@ class SystemWidgetInstances extends AbstractClass {
             return $this;
         }
         //arrange input variables to fit with the DB
-        $input['serializedConfig'] = serialize($input['settings']);
+        if(!empty($input['settings'])) {
+            $input['serializedConfig'] = serialize($input['settings']);
+        }
         $this->set($input);
         $this->save();
         if($this->get_errorcode() != 0) {

@@ -114,7 +114,7 @@ class SystemWidgets extends AbstractClass {
             return false;
         }
         $gadget_class = $this->data['className'];
-        if(!file_exists($gadget_class) && !class_exists($gadget_class)) {
+        if(!file_exists(ROOT.INC_ROOT.$gadget_class.'_class.php') && !class_exists($gadget_class)) {
             $errorhandler->record($lang->missingfile, $gadget_class);
             return false;
         }
@@ -132,15 +132,16 @@ class SystemWidgets extends AbstractClass {
         }
         $gadget_class = $this->get_gadgetclass();
         if($gadget_class) {
-            return new $gadget_class();
+            $gadget_obj = new $gadget_class();
+            return $gadget_obj;
         }
         return false;
     }
 
     /**
      *
-     * @param type $config
-     * @return type
+     * @param array $config
+     * @return array
      */
     public function get_active_widgets($config = '') {
         $active_widgets = self::get_data(array('isActive' => 1), array('returnarray' => true));

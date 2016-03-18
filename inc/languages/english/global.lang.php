@@ -169,4 +169,9 @@ $lang['users'] = 'Users';
 $lang['success'] = 'Success';
 $lang['time'] = 'Time';
 $lang['missingfile'] = 'Missing File';
+$lang['createdashboard'] = 'Create Dashboard';
+$lang['columncount'] = 'Column Count';
+$lang['managedashboard'] = 'Manage Dashboard';
+$lang['edit'] = 'Edit';
+$lang['dashboard'] = 'Dashboard';
 ?>

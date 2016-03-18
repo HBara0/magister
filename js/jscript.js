@@ -814,15 +814,20 @@ $(function() {
             file = rootdir + id;
         }
         var data_params = '';
+        var additionaldata = '';
         if(!jQuery.isEmptyObject(element)) {
             if(typeof element.attr("data-params") != 'undefined') {
                 data_params = '&params=' + element.attr("data-params");
             }
+            if(typeof element.attr("data-additionaldata") != 'undefined') {
+                additionaldata = '&' + element.attr("data-additionaldata");
+            }
         }
+
         /*change ajax call*/
         $.ajax({type: 'post',
             url: file + "?module=" + module + "&action=get_" + template,
-            data: "id=" + id + data_params,
+            data: "id=" + id + additionaldata + data_params,
             beforeSend: function() {
                 $("body").append("<div id='modal-loading'><span  style='display:block; width:100px; height: 100%; margin: 0 auto;'><img  src='./images/loader.gif'/></span></div>");
                 $("#modal-loading").dialog({height: 150, modal: true, closeOnEscape: false, title: 'Loading...', resizable: false, minHeight: 0,
@@ -832,7 +837,7 @@ $(function() {
                 $("#modal-loading").dialog("close").remove();
             },
             success: function(returnedData) {
-                $(".container").append(returnedData);
+                $(".workspace_container").append(returnedData);
                 initialize_texteditors();
                 $("div[id^='popup_']").dialog({
                     bgiframe: true,

@@ -10,7 +10,7 @@
 
 class GadgetFxRates extends SystemGadget {
     protected $data = array();
-    protected $widget_id = '2';
+    protected $widget_id = '1';
 
     public function __construct() {
         parent::__construct();
@@ -74,6 +74,20 @@ class GadgetFxRates extends SystemGadget {
         }
         $currencysrates_list .='</ul>';
         return $tocurrency_output.$currencysrates_list;
+    }
+
+    /**
+     * get string of currency ids seperated by comma and return them in an array
+     * @param type $existingcurrencies
+     * @return boolean on failure
+     * @return array of currency ids
+     */
+    public function fix_settingsarray($existingcurrencies) {
+        $curids = explode(',', $existingcurrencies);
+        if(is_array($curids)) {
+            return $curids;
+        }
+        return false;
     }
 
 }
