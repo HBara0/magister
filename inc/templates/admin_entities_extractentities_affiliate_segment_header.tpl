@@ -4,7 +4,7 @@
         <th>{$lang->id}</th>
         <th>{$lang->companyname}</th>
         <th>Remove Company ?</th>
-        <th>Portential Client ?</th>
+        <th>Potential Client ?</th>
         <th>{$lang->companyshortname}</th>
         <th>{$lang->abbreviation}</th>
         <th>Orkila Representatives</th>

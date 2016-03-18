@@ -1581,18 +1581,26 @@ function reinitialize_balance($user, $type, $prevbalance = null) {
         }
     }
     //go through all years from user join date till this one
-    while($joindate_year <= date('Y')) {
+    $iterative_year = $joindate_year;
+    while($iterative_year <= date('Y')) {
+        //if year is exactly +1 from join date, create a dummy leave before the end of that year
+        if($iterative_year == ( $joindate_year + 1)) {
+            $from = strtotime($iterative_year.'-12-30 08:00:00');
+            $to = strtotime($iterative_year.'-12-30 17:00:00');
+            $data = array('uid' => $user->get_id(), 'fromDate' => $from, 'toDate' => $to, 'skipWorkingDays' => true, 'type' => $type);
+            $leaves[$iterative_year.'enforced'][] = $data;
+        }
         //if leave stat already created for this year skip
-        if(is_array($existing_years) && in_array($joindate_year, $existing_years)) {
-            $joindate_year++;
+        if(is_array($existing_years) && in_array($iterative_year, $existing_years)) {
+            $iterative_year++;
             continue;
         }
         //calculate leavestat
-        $from = strtotime($joindate_year.'-01-01 08:00:00');
-        $to = strtotime($joindate_year.'-01-01 17:00:00');
+        $from = strtotime($iterative_year.'-01-01 08:00:00');
+        $to = strtotime($iterative_year.'-01-01 17:00:00');
         $data = array('uid' => $user->get_id(), 'fromDate' => $from, 'toDate' => $to, 'skipWorkingDays' => true, 'type' => $type);
-        $leaves[$joindate_year][] = $data;
-        $joindate_year++;
+        $leaves[$iterative_year][] = $data;
+        $iterative_year++;
     }
 
 
