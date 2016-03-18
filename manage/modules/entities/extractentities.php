@@ -200,8 +200,12 @@ else {
                                         if(is_object($entity_obj)) {
                                             $entity = $entity_obj->get();
                                             //check fields if empty, if so then put a dash
-                                            $fields_tofetch = array('fax1', 'fax2', 'phone1', 'phone2', 'addressLine1', 'mainEmail', 'website');
-
+                                            $fields_tofetch = array('fax1', 'fax2', 'phone1', 'phone2', 'addressLine1', 'mainEmail', 'website', 'poBox', 'postCode', 'floor');
+                                            foreach($fields_tofetch as $field) {
+                                                if(empty($entity[$field])) {
+                                                    $entity[$field] = '';
+                                                }
+                                            }
                                             //get company type output
                                             $entity['companyType_output'] = $entity_obj->get_type();
                                             $entirty_country = $entity_obj->get_country();
@@ -230,20 +234,26 @@ else {
                                             //get all representatives for the company and parse them in a single TD
                                             $representatives = $entity_obj->get_representatives();
                                             if(is_array($representatives)) {
+                                                $restricted_repids = array('na', 'n/a', 'none', 'no', 'naa', 'Do jhgn', 'NON', 'N-A', 'N/a');
                                                 foreach($representatives as $representative) {
                                                     $rep_field['name'] = $representative->get_displayname();
-                                                    $rep_field['email'] = $representative->email;
-                                                    if(empty($representative->email)) {
-                                                        $rep_field['email'] = '';
+                                                    if(in_array($rep_field['name'], $restricted_repids)) {
+                                                        $rep_field = array();
                                                     }
-                                                    $rep_field['phone'] = $representative->phone;
-                                                    if(empty($representative->phone)) {
-                                                        $rep_field['phone'] = '';
-                                                    }
-                                                    $rep_field['rpid'] = $representative->rpid;
-                                                    $rep_field['isactive_output'] = 'n';
-                                                    if($rep_field['isActive'] == 1) {
-                                                        $rep_field['isactive_output'] = 'y';
+                                                    else {
+                                                        $rep_field['email'] = $representative->email;
+                                                        if(empty($representative->email)) {
+                                                            $rep_field['email'] = '';
+                                                        }
+                                                        $rep_field['phone'] = $representative->phone;
+                                                        if(empty($representative->phone)) {
+                                                            $rep_field['phone'] = '';
+                                                        }
+                                                        $rep_field['rpid'] = $representative->rpid;
+                                                        $rep_field['isactive_output'] = 'n';
+                                                        if($rep_field['isActive'] == 1) {
+                                                            $rep_field['isactive_output'] = 'y';
+                                                        }
                                                     }
                                                     eval("\$entityrows.=\"".$template->get("admin_entities_extractentities_affiliate_segment_entityrow")."\";");
                                                     unset($rep_field);
