@@ -55,8 +55,7 @@
              <div class="form-group ">
                 <label>{$lang->phone}</label>
                 {$countriescodes_list}
-                <input type="text" tabindex="100" id="telephone_areacode" name="hotel[telephone_areacode]" size='4' maxlength="4" accept="numeric" value="{$telephone_areacode}"/>
-                <input type="text" tabindex="100" id="telephone_number" name="hotel[telephone_number]" accept="numeric" value="{$telephone_number}"/>
+                <input class="form-control"  type="text" tabindex="100" id="telephone_number" name="hotel[telephone_number]" accept="numeric" value="{$telephone_number}"/>
             </div>
             <div class="form-group ">
                 <label for="website">{$lang->website}</label><input id="website" class="form-control"  type="text" name='hotel[website]' value="{$hotel['website']}">
