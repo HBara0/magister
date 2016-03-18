@@ -15,12 +15,14 @@
                 <table>
                     <tr>
                         <td>{$lang->selectfile}</td>
-                        <td colspan="3"><input type="file" id="uploadfile[]" name="uploadfile[]" multiple="true" required="required" ></td>
+                        <td colspan="3"><input type="file" id="uploadfile[]" name="uploadfile[]" multiple="true" required="required" >
+
+                            <input type="hidden" name="fid" value="{$core->input['fid']}"/></td>
 
                     </tr>
                     <tr>
                         <td>{$lang->title}</td>
-                        <td colspan="3"><input name='title' id='title' type="text" maxlength="220" autocomplete='off' required="required"/></td>
+                        <td colspan="3"><input name='title' id='title' type="text" maxlength="220" autocomplete='off' required="required" value="{$file_title}" {$readonly['filetitle']}/></td>
                     </tr>
                     <tr>
                         <td>{$lang->category}</td>
@@ -62,7 +64,7 @@
                 <tr>
                     <td>{$lang->parentfolder}</td><td>{$folders_list}</td>
                 </tr>
-                <tr> 
+                <tr>
                     <td>{$lang->description}</td>
                     <td><textarea name="description" id="description" cols="30" rows="10" ></textarea></td>
                 </tr>

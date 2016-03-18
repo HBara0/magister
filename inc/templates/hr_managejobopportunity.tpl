@@ -3,6 +3,22 @@
         <title>{$core->settings[systemtitle]} | {$lang->managejobopportunities}</title>
         {$headerinc}
         <script>
+            $(document).ready(function() {
+                $("input[id='joindate_1_immediately']").change(function() {
+                    if($("input[id='joindate_1_immediately']").is(':checked')) {
+                        var today = new Date();
+                        var dd = today.getDate();
+                        var mm = today.getMonth() + 1;
+                        var yyyy = today.getFullYear
+                        today = dd + '-' + mm + '-' + yyyy;
+                        $('#pickDate_1_from').datepicker("setDate", new Date(today));
+                        $('#pickDate_1_from').attr("disabled", true);
+                    } else {
+                        $('#pickDate_1_from').datepicker("setDate", '');
+                        $('#pickDate_1_from').attr("disabled", false);
+                    }
+                });
+            });
         </script>
     </head>
     <body>
@@ -75,6 +91,7 @@
                     <tr>
                         <td>{$lang->approximatejoindate}</td>
                         <td>
+                            <input type="checkbox" value="1" id="joindate_1_immediately"/>&nbsp;<label>{$lang->immediately}</label><span>&nbsp;Or &nbsp;</span>
                             <input type="text" id="pickDate_1_from" autocomplete="off" value="{$jobopportunity[approxJoinDate_output]}" style="width:200px;"/>
                             <input type="hidden" name="jobopportunity[approxJoinDate]" id="altpickDate_1_from" value="{$jobopportunity[approxJoinDate]}" />
                         </td>

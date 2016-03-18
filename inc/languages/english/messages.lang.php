@@ -174,4 +174,5 @@ $lang['yournewpassword'] = 'Your New OCOS Account Password';
 $lang['yes'] = 'Yes';
 $lang['no'] = 'No';
 $lang['viewleave'] = 'Click here to view leave';
+$lang['checktravelpolicy'] = 'Prior to your trip, please make sure to review Orkila Group’s international travel policy on the following link ';
 ?>

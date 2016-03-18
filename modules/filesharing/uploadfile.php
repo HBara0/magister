@@ -2,7 +2,7 @@
 /*
  * Orkila Central Online System (OCOS)
  * Copyright © 2009 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * Upload a Shared File
  * $module: filesharing
  * $id: uploadfile.php
@@ -55,6 +55,13 @@ if(!$core->input['action']) {
     $employees_preventaccess_list = parse_selectlist('uid[]', 1, $employees, '', 1);
     $employees_preventread_list = parse_selectlist('read[]', 1, $employees, '', 1);
     $employees_preventwrite_list = parse_selectlist('write[]', 1, $employees, '', 1);
+    if(isset($core->input['fid']) && !empty($core->input['fid'])) {
+        $file_obj = Files::get_data(array('fid' => $core->input['fid']));
+        if(is_object($file_obj)) {
+            $file_title = $file_obj->title;
+            $readonly['filetitle'] = 'readonly="readonly"';
+        }
+    }
 
     eval("\$uploadfiles_page = \"".$template->get('filesharing_uploadfile')."\";");
     output_page($uploadfiles_page);
@@ -68,7 +75,7 @@ elseif($core->input['action'] == 'do_uploadfile') {
             $(function() {
                 window.top.$("#upload_Result").html("<?php echo $lang->fillallrequiredfields;?>");
             });
-        </script>   
+        </script>
         <?php
         exit;
     }
@@ -101,17 +108,18 @@ elseif($core->input['action'] == 'do_uploadfile') {
             $original_name = explode('.', $val['originalname']);
             $filetitle = $original_name[0];
         }
-        if(value_exists('files', 'title', $filetitle)) {
-            ?>
-            <script language="javascript" type="text/javascript">
-                $(function() {
-                    window.top.$("#upload_Result").html("<?php echo $lang->filetitleexists;?>");
-                });
-            </script>   
-            <?php
-            exit;
+        if(!isset($core->input['fid']) || empty($core->input['fid'])) {
+            if(value_exists('files', 'title', $filetitle)) {
+                ?>
+                <script language="javascript" type="text/javascript">
+                    $(function() {
+                        window.top.$("#upload_Result").html("<?php echo $lang->filetitleexists;?>");
+                    });
+                </script>
+                <?php
+                exit;
+            }
         }
-
         if($multiple_files == true) {
             $filetitle = $core->input['title'].' ('.$file_number.')';
             $file_number++;
@@ -119,9 +127,10 @@ elseif($core->input['action'] == 'do_uploadfile') {
         else {
             $filetitle = $core->input['title'];
         }
-
+        $alias = generate_alias($filetitle).'_'.$core->input['category'].'_'.$core->input['folder'];
         $newfile = array(
                 'title' => $filetitle,
+                'alias' => $alias,
                 'category' => $core->input['category'],
                 'description' => $core->input['description'],
                 'ffid' => $core->input['folder'],
@@ -129,11 +138,21 @@ elseif($core->input['action'] == 'do_uploadfile') {
                 'referenceId' => 0,
                 'isShared' => 1
         );
-
-        $query = $db->insert_query('files', $newfile);
+        if(isset($core->input['fid']) && !empty($core->input['fid'])) {
+            $query = $db->update_query('files', $newfile, 'fid='.intval($core->input['fid']));
+            $operation = 'update';
+        }
+        else {
+            $query = $db->insert_query('files', $newfile);
+            $operation = 'insert';
+        }
         if($query) {
-            $fid = $db->last_id();
-
+            if($operation == 'insert') {
+                $fid = $db->last_id();
+            }
+            else {
+                $fid = intval($core->input['fid']);
+            }
             $newfileversion = array(
                     'fid' => $fid,
                     'name' => $val['name'],
@@ -175,7 +194,7 @@ elseif($core->input['action'] == 'do_uploadfile') {
         $(function() {
             window.top.$("#upload_Result").html("<?php echo $upload->parse_status($upload->get_status());?>");
         });
-    </script>   
+    </script>
     <?php
 }
 function get_folderslist() {
