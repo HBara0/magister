@@ -75,13 +75,13 @@ else {
         foreach($filters['affid'] as $affid) {
             //loop through all the chosen segments
             foreach($segments as $segment) {
-                $entities = Entities::get_data($type.' AND eid IN (SELECT eid FROM affiliatedentities WHERE affid = '.$affid.') AND eid IN (SELECT eid FROM entitiessegments WHERE psid = '.$segment->psid.')', array('returnarray' => true, 'operators' => array('filter' => 'CUSTOMSQLSECURE')));
+                $entities = Entities::get_data($type.' AND eid IN (SELECT eid FROM affiliatedentities WHERE affid = '.$affid.') AND eid IN (SELECT eid FROM entitiessegments WHERE psid = '.$segment->psid.')', array('returnarray' => true, 'simple' => false, 'operators' => array('filter' => 'CUSTOMSQLSECURE')));
                 if(is_array($entities)) {
                     $results[$affid][$segment->psid] = $entities;
                 }
                 //if unspecified segments was chosen, check if current affiliate contains unspecified segment entities
                 if($unspecified_seg == 1) {
-                    $entities = Entities::get_data($type.' AND NOT EXISTS (SELECT eid FROM affiliatedentities WHERE affid = '.$affid.') AND eid NOT IN (SELECT eid FROM entitiessegments)', array('returnarray' => true, 'operators' => array('filter' => 'CUSTOMSQLSECURE')));
+                    $entities = Entities::get_data($type.' AND NOT EXISTS (SELECT eid FROM affiliatedentities WHERE affid = '.$affid.') AND eid NOT IN (SELECT eid FROM entitiessegments)', array('returnarray' => true, 'simple' => false, 'operators' => array('filter' => 'CUSTOMSQLSECURE')));
                     if(is_array($entities)) {
                         $results[$affid]['unspecified'] = $entities;
                     }
@@ -126,7 +126,7 @@ else {
                                             $fields_tofetch = array('fax1', 'fax2', 'phone1', 'phone2', 'addressLine1', 'mainEmail', 'website');
                                             foreach($fields_tofetch as $field) {
                                                 if(empty($entity[$field])) {
-                                                    $entity[$field] = '-';
+                                                    $entity[$field] = '';
                                                 }
                                             }
                                             //get company type output
@@ -144,7 +144,7 @@ else {
                                                 }
                                             }
                                             else {
-                                                $rep_field['names'] = '-';
+                                                $rep_field['names'] = '';
                                             }
                                             eval("\$entityrows.=\"".$template->get("admin_entities_extractentities_affiliate_segment_entityrow")."\";");
                                             unset($rep_field);
@@ -172,21 +172,21 @@ else {
                     break;
                 case 'export':
                     //if export, create the main file that will include all the affiliate files
-                    $export_path = $_SERVER['DOCUMENT_ROOT'].'/tmp/exctractentities';
-
-                    if(!file_exists($export_path)) {
-                        mkdir($export_path);
-                    }
-
-                    @rmdir($export_path.'/*');
-                    $motherpath = $export_path.'/exctractentities_'.uniqid();
-                    mkdir($motherpath);
+//                    $export_path = $_SERVER['DOCUMENT_ROOT'].'/tmp/exctractentities';
+//
+//                    if(!file_exists($export_path)) {
+//                        mkdir($export_path);
+//                    }
+//
+//                    @rmdir($export_path.'/*');
+//                    $motherpath = $export_path.'/exctractentities_'.uniqid();
+//                    mkdir($motherpath);
                     foreach($results as $affid => $segmentedres) {
                         if(is_array($segmentedres)) {
                             $affiliate = new Affiliates($affid);
                             //create a sub-folder for affiliate
-                            $sub_path = $motherpath.'/'.$affiliate->alias;
-                            mkdir($sub_path);
+//                            $sub_path = $motherpath.'/'.$affiliate->alias;
+//                            mkdir($sub_path);
                             //go through all entities and parse the information as requested
                             foreach($segmentedres as $psid => $entities) {
                                 if(is_numeric($psid)) {
@@ -203,7 +203,7 @@ else {
                                             $fields_tofetch = array('fax1', 'fax2', 'phone1', 'phone2', 'addressLine1', 'mainEmail', 'website');
                                             foreach($fields_tofetch as $field) {
                                                 if(empty($entity[$field])) {
-                                                    $entity[$field] = '-';
+                                                    $entity[$field] = '';
                                                 }
                                             }
                                             //get company type output
@@ -238,11 +238,11 @@ else {
                                                     $rep_field['name'] = $representative->get_displayname();
                                                     $rep_field['email'] = $representative->email;
                                                     if(empty($representative->email)) {
-                                                        $rep_field['email'] = ' - ';
+                                                        $rep_field['email'] = '';
                                                     }
                                                     $rep_field['phone'] = $representative->phone;
                                                     if(empty($representative->phone)) {
-                                                        $rep_field['phone'] = ' - ';
+                                                        $rep_field['phone'] = '';
                                                     }
                                                     $rep_field['rpid'] = $representative->rpid;
                                                     $rep_field['isactive_output'] = 'n';
@@ -254,7 +254,7 @@ else {
                                                 }
                                             }
                                             else {
-                                                $rep_field['names'] = $rep_field['phone'] = $rep_field['email'] = $rep_field['isactive_output'] = $rep_field['rpid'] = '-';
+                                                $rep_field['names'] = $rep_field['phone'] = $rep_field['email'] = $rep_field['isactive_output'] = $rep_field['rpid'] = '';
                                                 eval("\$entityrows.=\"".$template->get("admin_entities_extractentities_affiliate_segment_entityrow")."\";");
                                                 unset($rep_field);
                                             }
