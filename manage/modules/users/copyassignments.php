@@ -20,14 +20,15 @@ if($core->usergroup['canManageUsers'] == 0) {
 if(!$core->input['action']) {
     $fromusers = Users::get_users(null, array('order' => 'displayName'));
     $tousers = Users::get_users('gid !=7', array('order' => 'displayName'));
-    $fromuser_selectlist = parse_selectlist('fromUser', 2, $fromusers, '');
-    $touser_selectlist = parse_selectlist('toUser', 2, $tousers, '');
+    $fromuser_selectlist = parse_selectlist('fromUser', 2, $fromusers, '', '', '', array('class' => 'form-control', 'id' => 'fromUser'));
+    $touser_selectlist = parse_selectlist('toUser', 2, $tousers, '', '', '', array('class' => 'form-control', 'id' => 'toUser'));
+    $user_selectlist = parse_selectlist('user', 2, $tousers, '', '', '', array('class' => 'form-control', 'id' => 'user'));
 
     $segments = ProductsSegments::get_segments();
-    $segments_selectlist = parse_selectlist('segments[]', 3, $segments, '', 1);
+    $segments_selectlist = parse_selectlist('segments[]', 3, $segments, '', 1, '', array('class' => 'form-control'));
 
     $affiliates = Affiliates::get_affiliates();
-    $affiliate_selectlist = parse_selectlist('affid', 4, $affiliates, '');
+    $affiliate_selectlist = parse_selectlist('affid', 4, $affiliates, '', '', '', array('class' => 'form-control'));
     eval("\$page = \"".$template->get('admin_users_copyassignments')."\";");
     output_page($page);
 }
@@ -38,7 +39,20 @@ else {
             output_xml("<status>false</status><message>{$lang->fillrequiredfields}</message>");
             exit;
         }
-        $sql = "SELECT DISTINCT(ae.eid), e.companyName
+        if(isset($core->input['user']) && !empty($core->input['user'])) {
+            $param['toUser'] = $param['user'];
+
+
+            $sql = "SELECT DISTINCT(ae.eid), e.companyName
+	FROM ".Tprefix."assignedemployees ae
+	JOIN entities e ON (e.eid=ae.eid)
+	JOIN affiliatedentities afe ON (afe.eid=e.eid)
+	WHERE ae.eid IN (SELECT es.eid FROM ".Tprefix."entitiessegments es WHERE es.psid IN (".implode(', ', $param['segments'])."))
+	AND ae.eid NOT IN (SELECT ae2.eid FROM ".Tprefix."assignedemployees ae2 WHERE ae2.affid=".intval($param['affid'])." AND ae2.uid=".$db->escape_string($param['toUser']).")
+	AND afe.affid=".intval($param['affid'])." AND e.type IN ('".implode('\',\'', $param['types'])."') ORDER BY type ASC, companyName ASC";
+        }
+        else {
+            $sql = "SELECT DISTINCT(ae.eid), e.companyName
 	FROM ".Tprefix."assignedemployees ae
 	JOIN entities e ON (e.eid=ae.eid)
 	JOIN affiliatedentities afe ON (afe.eid=e.eid)
@@ -46,6 +60,7 @@ else {
 	AND ae.eid IN (SELECT es.eid FROM ".Tprefix."entitiessegments es WHERE es.psid IN (".implode(', ', $param['segments'])."))
 	AND ae.eid NOT IN (SELECT ae2.eid FROM ".Tprefix."assignedemployees ae2 WHERE ae2.affid=".intval($param['affid'])." AND ae2.uid=".$db->escape_string($param['toUser']).")
 	AND afe.affid=".intval($param['affid'])." AND e.type IN ('".implode('\',\'', $param['types'])."') ORDER BY type ASC, companyName ASC";
+        }
         $query = $db->query($sql);
         if($db->num_rows($query) > 0) {
             while($entity = $db->fetch_assoc($query)) {
