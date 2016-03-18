@@ -1214,7 +1214,6 @@ function parse_moduleslist($current_module, $modules_dir = 'modules', $is_select
 
     $path = ROOT.$modules_dir;
     $list = '';
-
     if(is_dir($path)) {
         $files = scandir($path);
         foreach($files as $file) {
@@ -1238,7 +1237,11 @@ function parse_moduleslist($current_module, $modules_dir = 'modules', $is_select
                                 if(file_exists('images/modules-icons/'.$module['name'].'.png')) {
                                     $moduleicon = $module['name'];
                                 }
-                                $list .= '<li class="searchable"><a href="index.php?module='.$module['name'].'/'.$module['homepage'].'"><img src="images/modules-icons/'.$moduleicon.'.png" alt="'.$module['name'].'"/> '.$module['title'].'</a></li>';
+                                $list .= '<li class="searchable"><a href="index.php?module='.$module['name'].'/'.$module['homepage'].'">';
+                                if($modules_dir != ADMIN_DIR."/modules") {
+                                    $list .= '<img src="images/modules-icons/'.$moduleicon.'.png" alt="'.$module['name'].'"/> ';
+                                }
+                                $list .=$module['title'].'</a></li>';
                             }
                         }
                         else {
@@ -1267,51 +1270,51 @@ function parse_moduleslist($current_module, $modules_dir = 'modules', $is_select
 function parse_menuitems($module_name, $modules_dir = 'modules') {
     global $core, $lang, $module;
 
-    if(IN_AREA == 'user') {
-        if(!empty($module_name)) {
-            if(!isset($module)) {
-                require ROOT.$modules_dir.'/'.$module_name.'.php';
-            }
-            if($core->usergroup[$module['globalpermission']] == 1) {
-                if(is_array($module['menu'])) {
-                    $menu = $module['menu'];
+    //if(IN_AREA == 'user') {
+    if(!empty($module_name)) {
+        if(!isset($module)) {
+            require ROOT.$modules_dir.'/'.$module_name.'.php';
+        }
+        if($core->usergroup[$module['globalpermission']] == 1) {
+            if(is_array($module['menu'])) {
+                $menu = $module['menu'];
 
-                    $array_indexes = array_keys($menu['file']);
+                $array_indexes = array_keys($menu['file']);
 
-                    while($item = current($menu['file'])) {
-                        $key = key($menu['file']);
-                        if(is_array($item)) {
-                            $current_index = array_search($key, $array_indexes, true);
+                while($item = current($menu['file'])) {
+                    $key = key($menu['file']);
+                    if(is_array($item)) {
+                        $current_index = array_search($key, $array_indexes, true);
 
-                            $array2_indexes = array_keys($menu['title']);
-                            $array2_key = $array2_indexes[$current_index];
+                        $array2_indexes = array_keys($menu['title']);
+                        $array2_key = $array2_indexes[$current_index];
 
-                            $array3_indexes = array_keys($menu['permission']);
-                            $array3_key = $array3_indexes[$current_index];
+                        $array3_indexes = array_keys($menu['permission']);
+                        $array3_key = $array3_indexes[$current_index];
 
-                            if($core->usergroup[$menu['permission'][$array3_key][0]] == 1) {
-                                $items .= '<li class="expandable list-group-item"><span id="'.$key.'">'.$lang->$array2_indexes[$current_index].'</span>';
-                                $items .= '<div id="'.$key.'_children_container" style="display: none;">';
-                                $items .= '<ul id="'.$key.'_children" style="padding-left:0px;">';
-                                foreach($item as $k => $v) {
-                                    if($core->usergroup[$menu['permission'][$array3_key][($k + 1)]] == 1) {
-                                        $items .= "<li class='list-group-item'><span id='{$module_name}/{$v}'><a href='index.php?module={$module_name}/{$v}'>{$lang->$menu[title][$array2_key][$k]}</a></span></li>\n";
-                                    }
+                        if($core->usergroup[$menu['permission'][$array3_key][0]] == 1) {
+                            $items .= '<li class="expandable list-group-item"><span id="'.$key.'">'.$lang->$array2_indexes[$current_index].'</span>';
+                            $items .= '<div id="'.$key.'_children_container" style="display: none;">';
+                            $items .= '<ul id="'.$key.'_children" style="padding-left:0px;">';
+                            foreach($item as $k => $v) {
+                                if($core->usergroup[$menu['permission'][$array3_key][($k + 1)]] == 1) {
+                                    $items .= "<li class='list-group-item'><span id='{$module_name}/{$v}'><a href='index.php?module={$module_name}/{$v}'>{$lang->$menu[title][$array2_key][$k]}</a></span></li>\n";
                                 }
-                                $items .= '</ul></div></li>';
                             }
+                            $items .= '</ul></div></li>';
                         }
-                        else {
-                            if($core->usergroup[$menu['permission'][$key]] == 1) {
-                                $items .= "<li class='list-group-item'><span id='{$module_name}/{$item}'><a href='index.php?module={$module_name}/{$item}'>{$lang->$menu[title][$key]}</a></span></li>\n";
-                            }
-                        }
-                        next($menu['file']);
                     }
+                    else {
+                        if($core->usergroup[$menu['permission'][$key]] == 1) {
+                            $items .= "<li class='list-group-item'><span id='{$module_name}/{$item}'><a href='index.php?module={$module_name}/{$item}'>{$lang->$menu[title][$key]}</a></span></li>\n";
+                        }
+                    }
+                    next($menu['file']);
                 }
             }
         }
     }
+    // }
     return $items;
 }
 

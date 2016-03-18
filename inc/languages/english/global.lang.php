@@ -167,9 +167,11 @@ $lang['submit'] = 'Submit';
 $lang['users'] = 'Users';
 $lang['success'] = 'Success';
 $lang['time'] = 'Time';
-$lang['startconversation'] = 'Start Conversation';
+$lang['entities'] = 'Entities';
 $lang['search'] = 'Search';
 $lang['conversation'] = 'Conversation';
 $lang['goto'] = 'Go To';
 $lang['errordeleting'] = 'An Error Occured While Deleting';
+$lang['startconversation'] = 'Start Conversation';
+$lang['managesystem'] = 'managesystem'
 ?>

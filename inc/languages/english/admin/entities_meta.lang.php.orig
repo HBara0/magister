@@ -115,8 +115,7 @@ $lang['fillallfields'] = 'Fill All Fields';
 $lang['success'] = 'Success';
 $lang['erroroccured'] = 'Error Occured';
 $lang['segment'] = 'Segment';
-$lang['entities'] = 'Entities';
-$lang['addmissingrates'] = 'Add Missing Rates';
+<<<<<<< Updated upstream
 $lang['extractentities'] = 'Extract Entities';
 $lang['extractype'] = 'Extract Type';
 $lang['export'] = 'Export';
@@ -141,13 +140,8 @@ $lang['postalcode'] = 'Postal Code';
 $lang['pobox'] = 'PO Box';
 $lang['phoneextension'] = 'Phone Extension';
 $lang['position'] = 'Position';
-$lang['add'] = 'Add Entity';
-$lang['addmissingrates'] = 'Add Missing rates';
-$lang['edit'] = 'Edit';
-$lang['managebrandendproducts'] = 'Manage Branded End-Products';
-$lang['managebrands'] = 'Mange Brands';
-$lang['manageentitiesfiles'] = 'Manage Entities files';
-$lang['paymenttermslist'] = 'Payment-terms List';
-$lang['viewcustomers'] = 'View Customers';
-$lang['viewsuppliers'] = 'View Suppliers';
+=======
+$lang['entities'] = 'Entities';
+$lang['addmissingrates'] = 'Add Missing Rates'
+>>>>>>> Stashed changes
 ?>

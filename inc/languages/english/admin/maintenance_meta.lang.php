@@ -31,4 +31,6 @@ $lang['ipaddress'] = "IP Address";
 $lang['information'] = "Information";
 $lang['datetime'] = "Date / Time";
 $lang['module'] = "Module";
+
+$lang['logs'] = "Read logs";
 ?>
