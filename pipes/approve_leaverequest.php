@@ -56,7 +56,7 @@ if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject) || $ignore_su
     $query = $db->query("SELECT DISTINCT(u.uid), Concat(firstName, ' ', lastName) AS employeename FROM ".Tprefix."users u LEFT JOIN ".Tprefix."usersemails ue ON (ue.uid=u.uid) WHERE u.email='".$db->escape_string($data['from'])."' OR ue.email='".$db->escape_string($data['from'])."'");
     if($db->num_rows($query) > 0) {
         $user = $db->fetch_assoc($query);
-        //$user = $db->fetch_assoc($query);
+//$user = $db->fetch_assoc($query);
         $db->update_query('leavesapproval', array('isApproved' => 1, 'timeApproved' => TIME_NOW), "lid='{$leave[lid]}' AND uid=".$user['uid']." AND isApproved='0'");
 //        if($db->affected_rows() > 0) {
         $query3 = $db->query("SELECT l.uid, u.email
@@ -72,13 +72,13 @@ if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject) || $ignore_su
                 $leave['details_crumb'] = ' - '.implode(' ', $leave['details_crumb']);
             }
 
-            //$approve_link = DOMAIN.'/index.php?module=attendance/listleaves&action=perform_approveleave&toapprove='.base64_encode($core->input['requestKey']).'&referrer=email';
+//$approve_link = DOMAIN.'/index.php?module=attendance/listleaves&action=perform_approveleave&toapprove='.base64_encode($core->input['requestKey']).'&referrer=email';
             $approve_link = DOMAIN.'/index.php?module=attendance/listleaves&action=takeactionpage&requestKey='.base64_encode($core->input['requestKey']).'&id='.base64_encode($leave['lid']);
 
             if(is_object($travelmanager_plan)) {
                 $planid = $travelmanager_plan->tmpid;
                 $approve_link = DOMAIN.'/index.php?module=attendance/listleaves&action=takeactionpage&requestKey='.base64_encode($leave_obj->requestKey).'&id='.base64_encode($leave_obj->lid).'&tmpid='.$travelmanager_plan->tmpid;
-                //$leave = $travelmanager_plan->get_leave();
+//$leave = $travelmanager_plan->get_leave();
                 $leave_type = $leave_obj->get_type();
                 $employee = $leave_obj->get_user(); //->get_displayname();
                 $leave_purpose = $leave_segment = $lang->na;
@@ -138,13 +138,13 @@ if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject) || $ignore_su
                         unset($transportaionsegment_fields, $transportaion_fields_title);
                     }
                 }
-                // eval("\$leave_details = \"".$template->get('travelmanager_viewlpan_leavedtls')."\";");
+// eval("\$leave_details = \"".$template->get('travelmanager_viewlpan_leavedtls')."\";");
                 eval("\$travelmanager_viewplan = \"".$template->get('travelmanager_viewlpanemail')."\";");
 
-                //$leave = $leave_obj->get();
-                //$leave['firstName'] = $employee->firstName;
-                //$leave['lastName'] = $employee->lastName;
-                //$leave['type_details'] = parse_type($leave_type->ltid);
+//$leave = $leave_obj->get();
+//$leave['firstName'] = $employee->firstName;
+//$leave['lastName'] = $employee->lastName;
+//$leave['type_details'] = parse_type($leave_type->ltid);
             }
 
             /* Parse expense information for message - START */
@@ -196,6 +196,12 @@ if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject) || $ignore_su
             $modifyleave_link = 'https://ocos.orkila.com/index.php?module=attendance/editleave&lid='.$leave['lid'];
             $lang->leaveapprovedmessage = $lang->sprint($lang->leaveapprovedmessage, $leave['firstName'].' '.$leave['lastName'], strtolower($leave['type_details']['title']), date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave['fromDate']), date($core->settings['dateformat'].' '.$core->settings['timeformat'], $leave['toDate']), $modifyleave_link);
 
+            if($leave['type_details']['isBuisness'] == 1) {
+                $alias = 'test-3_1_2';
+                $link = $core->settings['rootdir'].'/index.php?module=filesharing/fileslist&action=download&alias='.$alias;
+                $lang->leaveapprovedmessage .='<br/>'.$lang->checktravelpolicy.'<br/><a href="'.$link.'" target="_blank">Orkila Travel Policy</a>';
+            }
+
             $email_data = array(
                     'from_email' => 'attendance@ocos.orkila.com',
                     'from' => 'Orkila Attendance System',
@@ -217,7 +223,7 @@ if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject) || $ignore_su
                     $mailinglists_attr = 'mailingList';
                 }
                 $mailinglists = get_specificdata('affiliates', array('affid', $mailinglists_attr), 'affid', $mailinglists_attr, '', 0, 'affid IN ('.implode(', ', $to_inform).')');
-                //$mailingList = $db->fetch_field($db->query("SELECT aff.mailingList FROM ".Tprefix."affiliates aff LEFT JOIN ".Tprefix."affiliatedemployees ae ON (ae.affid=aff.affid) WHERE ae.isMain='1' AND ae.uid='{$leave[uid]}'"), 'mailingList');
+//$mailingList = $db->fetch_field($db->query("SELECT aff.mailingList FROM ".Tprefix."affiliates aff LEFT JOIN ".Tprefix."affiliatedemployees ae ON (ae.affid=aff.affid) WHERE ae.isMain='1' AND ae.uid='{$leave[uid]}'"), 'mailingList');
             }
 
             if(is_array($mailinglists) || !empty($mailinglists)) {
@@ -319,7 +325,7 @@ if(preg_match("/\[([a-zA-Z0-9]+)\]$/", $data['subject'], $subject) || $ignore_su
                     $travelmanager_plan = TravelManagerPlan::get_plan(array('lid' => $leave['lid']), array('returnarray' => false));
                     if(is_object($travelmanager_plan)) {
                         $planid = $travelmanager_plan->tmpid;
-                        // $leave = $travelmanager_plan->get_leave();
+// $leave = $travelmanager_plan->get_leave();
                         $employee = $leave_obj->get_user()->get_displayname();
                         $segment_objs = TravelManagerPlanSegments::get_segments(array('tmpid' => $planid), array('order' => 'sequence', 'simple' => false, 'returnarray' => true));
                         if(is_array($segment_objs)) {

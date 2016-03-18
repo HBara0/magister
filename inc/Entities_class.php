@@ -12,7 +12,7 @@ class Entities extends AbstractClass {
     const CLASSNAME = __CLASS__;
     const UNIQUE_ATTRS = '';
 
-    public function __construct($data, $action = '', $simple = true) {
+    public function __construct($data, $action = '', $simple = false) {
         if(is_array($data)) {
             $this->data = $data;
             switch($action) {
@@ -684,11 +684,22 @@ class Entities extends AbstractClass {
     }
 
     /**
-     *
+     * If value is numeric instantiate a city object and return it else search if its name matches the city name then return that city object
      * @return \Cities
      */
     public function get_city() {
-        return new Cities($this->data['country']);
+        if(!empty($this->data['city'])) {
+            if(is_numeric($this->data['city'])) {
+                return new Cities(intval($this->data['city']));
+            }
+            else {
+                $city = Cities::get_data(array('name' => intval($this->data['city'])));
+                if(is_object($city)) {
+                    return $city;
+                }
+            }
+        }
+        return;
     }
 
     public function __get($name) {

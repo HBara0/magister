@@ -33,4 +33,8 @@ $lang['filesuccessfullyshared'] = "File successfully shared";
 
 $lang['filetitleexists'] = "The title you have chosen is already in use";
 $lang['suredeletefile'] = "Are you sure you want to delete";
+$lang['deletefile'] = 'Delete File';
+$lang['edit'] = 'Edit File';
+$lang['viewfileversions'] = 'View Versions';
+$lang['sharebyemail'] = 'Share File';
 ?>
