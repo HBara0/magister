@@ -288,7 +288,7 @@ if(!($core->input['action'])) {
                     $warehouse_uom_output = $warehouse_uom_obj->get_displayname();
                 }
                 $warehouse = Warehouses::get_data(array('wid' => $netmarginparms->warehouse));
-                $warehouse_list = '<select '.$disabled['warehousing'].'><option value='.$netmarginparms->warehouse.' selected>'.$warehouse->name.'</option>'
+                $warehouse_list = '<select '.$disabled['warehousing'].' id="parmsfornetmargin_warehouse"><option value='.$netmarginparms->warehouse.' selected>'.$warehouse->name.'</option>'
                         .'<option value="0"></option></select>';
                 $warehouse_output = $warehouse->name;
                 $netmarginparms_warehousingRate = '<option value = "'.$netmarginparms->warehousingRate.'">'.$netmarginparms->warehousingRate.'</option>';

@@ -25,7 +25,8 @@
                 <td class="border_right" ><input type="number" min="0" name="parmsfornetmargin[localPeriodOfInterest]" id="parmsfornetmargin_localPeriodOfInterest" value="{$netmarginparms->localPeriodOfInterest}" style="width:150px;" readonly class="automaticallyfilled-noneditable"/></td>
                 <td class="border_right" ><input type="number" min="0" name="parmsfornetmargin[intermedPeriodOfInterest]" id="parmsfornetmargin_intermedPeriodOfInterest" value="{$netmarginparms->intermedPeriodOfInterest}" style="width:150px;" readonly class="automaticallyfilled-noneditable"/></td>
                 <td class="border_right" valign="top">{$lang->rate}</td>
-                <td>{$netmarginparms_warehousingRate}</td>
+                <td>
+                    <select name="parmsfornetmargin[warehousingRate]" id="parmsfornetmargin_warehousingRate" style="width:150px;" {$disabled[warehousing]} class="automaticallyfilled-noneditable">{$netmarginparms_warehousingRate}</select></td>
                 <td valign="top">{$lang->period}</td>
                 <td> <input type="text" name="parmsfornetmargin[warehousingPeriod]" id="parmsfornetmargin_warehousingPeriod" value="{$netmarginparms->warehousingPeriod}" style="width:150px;" {$readonly[warehousing]} class="automaticallyfilled-noneditable" {$disabled[warehousing]}/>
                 </td>
