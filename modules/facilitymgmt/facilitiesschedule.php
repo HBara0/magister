@@ -170,7 +170,11 @@ else {
                     $show_status = '';
                 }
                 $show_purpose = 'style="display:none"';
-                if(!empty($reserve->purpose)) {
+                if($reserve->mtid) {
+                    $reservation['purpose_output'] = $lang->reservedfrommeetings;
+                    $show_purpose = '';
+                }
+                elseif(!empty($reserve->purpose)) {
                     $reservepurpose = FacilityManagementReservePurpose::get_data(array('alias' => $reserve->purpose));
                     $reservation['purpose_output'] = $reservepurpose->get_displayname();
                     $show_purpose = '';

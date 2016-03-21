@@ -116,12 +116,12 @@ if(!$core->input['action']) {
             $leave['requestKey_encoded'] = base64_encode($leave['requestKey']);
 
             if(!isset($type_cache[$leave['type']])) {
-                $leavetype_details = $db->fetch_assoc($db->query("SELECT name, title, description,isBusiness FROM ".Tprefix."leavetypes WHERE ltid='".$db->escape_string($leave['type'])."'"));
+                $leavetype_details = $db->fetch_assoc($db->query("SELECT name, title, description,isBusiness,requiresItinerary FROM ".Tprefix."leavetypes WHERE ltid='".$db->escape_string($leave['type'])."'"));
                 if(!empty($lang->{$leavetype_details['name']})) {
                     $leavetype_details['title'] = $lang->{$leavetype_details['name']};
                 }
                 $tmplan_link = '';
-                if($leavetype_details['isBusiness'] == 1 && $core->usergroup['canUseTravelManager'] == 1) {
+                if($leavetype_details['requiresItinerary'] == 1 && $core->usergroup['canUseTravelManager'] == 1) {
                     $tmplan = TravelManagerPlan::get_plan(array('lid' => $leave['lid']), array('returnarray' => false));
                     if(!is_object($tmplan)) {
                         $url = 'index.php?module=travelmanager/plantrip&lid='.$leave['lid'];
@@ -210,13 +210,16 @@ if(!$core->input['action']) {
 }
 else {
     if($core->input['action'] == 'perform_revokeleave') {
-        $lid = intval(base64_decode($core->input['torevoke']));
+        $lid = intval($core->input['torevoke']);
         $user_obj = new Users($core->user['uid']);
         $leave_obj = new Leaves($lid, false);
         $leave = $leave_obj->get();
         $leave_type = $leave_obj->get_leavetype(false)->get();
         $leave_user = $leave_obj->get_requester()->get();
-        $reports_to = $leave_obj->get_requester()->get_reportsto()->get()['uid'];
+        $reportsto_obj = $leave_obj->get_requester()->get_reportsto();
+        if(is_object($reportsto_obj)) {
+            $reports_to = $reportsto_obj->uid;
+        }
         if(!$core->usergroup['attenance_canApproveAllLeaves'] == 1 && (($core->usergroup['hr_canHrAllAffiliates'] != 1 && $reports_to != $core->user['uid'] && $leave_user['uid'] != $core->user['uid']) && !TIME_NOW < ($leave['toDate'] + (60 * 60 * 24 * $core->settings['attendance_caneditleaveafter'])) && !(TIME_NOW > $leave['toDate']))) {
             output_xml("<status>false</status><message>{$lang->errorrevoking}</message>");
             exit;
@@ -261,6 +264,7 @@ else {
         if($leave_obj->createAutoResp == 1) {
             $leave_obj->delete_autoresponder();
         }
+
         $query = $db->delete_query('leaves', 'lid='.$lid);
         if($query && $db->affected_rows() > 0) {
             //Reset Leave Balance - Start
@@ -389,7 +393,7 @@ else {
             /* Conversation  message --END */
             $tmplan = TravelManagerPlan::get_plan(array('lid' => $leave_obj->get_id()));
             if(is_object($tmplan)) {
-                $preview_iteneraryframe = '<div id="container" style="width:100%;  margin: 0px auto;display:block;"><iframe style="width:100%;height:700px" src="'.DOMAIN.'/index.php?module=travelmanager/viewplan&referrer=plan&lid='.$lid.'&id='.$tmplan->tmpid.'&preview=1"></iframe></div>';
+                $preview_iteneraryframe = '<div id="container" style="width:100%;  margin: 0px auto;display:block;"><iframe style="width:100%;height:500px" src="'.DOMAIN.'/index.php?module=travelmanager/viewplan&referrer=plan&lid='.$lid.'&id='.$tmplan->tmpid.'&preview=1"></iframe></div>';
             }
             eval("\$takeactionpage = \"".$template->get('attendance_listleaves_takeaction')."\";");
             output_page($takeactionpage);

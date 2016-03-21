@@ -567,7 +567,7 @@ else {
             /**
              * If leave should be planning through TM, trasfer user to there
              */
-            if($leavetype_details['isBusiness'] == 1 && $core->usergroup['canUseTravelManager'] == 1) {
+            if($leavetype_details['requiresItinerary'] == 1 && $core->usergroup['canUseTravelManager'] == 1) {
                 $url = 'index.php?module=travelmanager/plantrip&lid=';
                 header('Content-type: text/xhml+javascript');
                 output_xml('<status>true</status><message>'.$lang->redirecttotmplantrip.'<![CDATA[<script>goToURL(\''.$url.$db->escape_string($lid).'\');</script>]]></message>');
@@ -648,7 +648,7 @@ else {
                         $currentbalance = $leavestats['entitledFor'].'</td><td>'.($leavestats ['canTake'] - $leavestats ['daysTaken']) + $leavestats ['additionalDays'];
                         $afterbalance = (($leavestats ['canTake'] - $leavestats['daysTaken'] ) + $leavestats['additionalDays']) - $leave['workingdays'];
                         $lang->requestleavemessage_stats = '<strong>'.$lang->leavesstats.':</strong><br></br><table>
-                            <thead><tr style="background-color:#EAEAEA"> <th style="border: 1px solid black;">'.$lang->entitledfor.'&nbsp</th><th style="border: 1px solid black;">'.$lang->cantake.'</th><th style="border: 1px solid black;">'.$lang->currentbalance.'&nbsp</th><th style="border: 1px solid black;">'.$lang->finalbalance.' '.$lang->afterapproval.'&nbsp</th></tr></thead><tbody><tr  align="center"><td style="border: 1px solid black;">'.$leavestats['entitledFor'].'</td><td style="border: 1px solid black;">'.$leavestats['canTake'].'</td><td style="border: 1px solid black;">'.$currentbalance.'</td><td style="border: 1px solid black;">'.$afterbalance.'</td></tr></tbody></table>';
+                            <thead><tr style="background-color:#EAEAEA"> <th style="border: 1px solid black;">'.$lang->entitledfor.'&nbsp;</th><th style="border: 1px solid black;">'.$lang->cantake.'</th><th style="border: 1px solid black;">'.$lang->currentbalance.'&nbsp;</th><th style="border: 1px solid black;">'.$lang->finalbalance.' '.$lang->afterapproval.'&nbsp;</th></tr></thead><tbody><tr  align="center"><td style="border: 1px solid black;">'.$leavestats['entitledFor'].'</td><td style="border: 1px solid black;">'.$leavestats['canTake'].'</td><td style="border: 1px solid black;">'.$currentbalance.'</td><td style="border: 1px solid black;">'.$afterbalance.'</td></tr></tbody></table>';
                     }
                     else {
 
@@ -720,8 +720,6 @@ else {
                         'subject' => $lang->requestleavesubject,
                         'message' => $lang->requestleavemessage
                 );
-                output_xml("<status>true</status><message><![CDATA[{$email_data['message']}]]></message>");
-                exit;
             }
             else {
                 $to_inform = unserialize($core->input['affToInform']);

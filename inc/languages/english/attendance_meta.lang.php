@@ -191,4 +191,5 @@ $lang['newstatus'] = 'New Status';
 $lang['tohourr'] = 'To Hour';
 $lang['addattendancercords'] = 'Add Attendace Records';
 $lang['reinitializebalances'] = 'Reinitialize Balances';
+$lang['employee'] = 'Employee';
 ?>

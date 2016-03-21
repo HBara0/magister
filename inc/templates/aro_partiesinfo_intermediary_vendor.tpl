@@ -35,6 +35,9 @@
                     <tr class="altrow2"><td>{$lang->paymenttermsdesc}</td>
                         <td><input type="text"  name="partiesinfo[intermedPaymentTermDesc]" id="partiesinfo_intermed_PaymentTermDesc" value="{$aropartiesinfo_obj->intermedPaymentTermDesc}" placeholder="Ex: days from B/L" {$partiesinfo[required_intermedpolicy]} style="width:150px;" {$is_disabled}/></td>
                         <td><input type="text"  name="partiesinfo[vendorPaymentTermDesc]" id="partiesinfo_vendor_PaymentTermDesc" value="{$aropartiesinfo_obj->vendorPaymentTermDesc}" required='required' style="width:150px;" placeholder="Ex: days from B/L"/></td>
+                        <td style="background-color:#FFF"><div class="alert alert-warning" id="paymenttermdesc_warning" style="padding:5px;margin-bottom:0px;display:none;">
+                                <strong>{$lang->warning} </strong>{$lang->ptdescwarning}
+                            </div></td>
                     </tr>
                     <tr><td>{$lang->paymentterms} {$lang->throughbank}</td>
                         <td><input type="checkbox" name="partiesinfo[intermedPTIsThroughBank]" value="1" {$checked[intermedPTIsThroughBank]}/></td>

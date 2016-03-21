@@ -62,7 +62,7 @@ class AroRequestsMessages extends AbstractClass {
             $this->errorcode = 2;
             return $this;
         }
-        if(value_exists('aro_requests_messages', 'message', $this->data['message'], ' uid='.$core->user['uid'].'')) { // Add date filter
+        if(value_exists('aro_requests_messages', 'message', $this->data['message'], ' uid='.$core->user['uid'].' AND aorid='.$aorid)) { // Add date filter
             $this->errorcode = 3;
             return $this;
         }
@@ -142,15 +142,16 @@ class AroRequestsMessages extends AbstractClass {
                     $message = 'Aro Request ['.$arorequest->orderReference.']/'.$aroaffiliate_obj->get_displayname().'/'.$purchasteype_obj->get_displayname().' was rejected by '.$rejectedby.
                             '<br/>'.$message;
                 }
+                //message will be already parsed do removing the duplication of this message
                 else {
-                    $message .= '<a href="'.$view_link.'">'.$lang->clicktoviewaro.'</a><br/>'.$this->data['message'].' | <a href="'.$reply_links.'">&#x21b6; '.$lang->reply.'</a><br/>';
+                    // $message .= '<a href="'.$view_link.'">'.$lang->clicktoviewaro.'</a>| <a href="'.$reply_links.'">&#x21b6; '.$lang->reply.'</a><br/>';
                 }
                 if(!empty($message)) {
-                    $mailer->set_message('__ARO NOTIFICATION__<br/>'.$message);
+                    $emailformatter = new EmailFormatting('standard');
+                    $emailformatter->set_title($lang->aroconversation)->set_message($message);
+                    $emailformatter->add_link('&#x21b6; '.$lang->reply, $reply_links);
+                    $mailer->set_message('__ARO NOTIFICATION__<br/>'.$emailformatter->get_message());
                     $mailer->set_to($emailreceiver);
-//                    $x = $mailer->debug_info();
-//                    print_R($x);
-//                    exit;
                     $mailer->send();
                 }
                 $message = '';

@@ -95,4 +95,14 @@ $lang['listsegmentcategoriess'] = 'List Of Segment Categories';
 $lang['addasegmentcat'] = 'Add Segment Category';
 $lang['managesegmentcat'] = 'Manage Segment Category';
 $lang['includeinwebcarousel'] = 'Include In Website Carousel';
+
+
+$lang['add'] = 'Add a Product';
+$lang['characteristicslist'] = 'Characteristics List';
+$lang['chemicals'] = 'Chemical Substances';
+$lang['generics'] = 'Generic Products';
+$lang['segmentcategory'] = 'Segment Categories';
+$lang['segments'] = 'Segments';
+$lang['types'] = 'Types';
+$lang['view'] = 'View Products';
 ?>

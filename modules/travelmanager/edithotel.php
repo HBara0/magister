@@ -31,7 +31,7 @@ if(!$core->input['action']) {
     if(!empty($core->input['id'])) {
         $id = $db->escape_string($core->input['id']);
         $hotel_obj = new TravelManagerHotels($id, false);
-        if(is_object($hotel_obj)) {
+        if(is_object($hotel_obj) && !empty($hotel_obj->tmhid)) {
             $hotel = $hotel_obj->get();
             $cityname = $hotel_obj->get_city()->get_displayname();
             $countryname = $hotel_obj->get_country()->get_displayname();
@@ -77,12 +77,12 @@ if(!$core->input['action']) {
     $criteriaandstars .= '</div></div>';
 // $criteriaandstars .='<input type="hidden" name="marketreport['.$segment[psid].'][rating]" id="segmentrating_'.$segment['psid'].'" value="'.$ratingval.'">';
     $currencies = Currencies::get_data();
-    $currency_list = parse_selectlist('hotel[currency]', '', $currencies, $hotel_obj->currency);
-    $contractedchekbox = '<input type="checkbox" name="hotel[isContracted]" value="1" '.$check_contract.'">';
+    $currency_list = parse_selectlist('hotel[currency]', '', $currencies, $hotel_obj->currency, '', '', array('id' => 'currency', 'class' => 'form-control'));
+    $contractedchekbox = '<input id="iscontracted" class="form-control" type="checkbox" name="hotel[isContracted]" value="1" '.$check_contract.'">';
     if($core->usergroup['travelmanager_canApproveHotels'] == 0) {
         $disableapprove = 'disabled="disabled"';
     }
-    $approvcheckbox = '<input type="checkbox" name="hotel[isApproved]" value="1" '.$check_approve.' '.$disableapprove.'">';
+    $approvcheckbox = '<input class="form-control" type="checkbox" id="isapproved" name="hotel[isApproved]" value="1" '.$check_approve.' '.$disableapprove.'">';
     $country = new Countries(1);
     $countriescodes = $country->get_phonecodes();
     $countriescodes_list = parse_selectlist('hotel[telephone_intcode]', $tabindex, $countriescodes, $telephone_intcode, '', '', array('id' => 'telephone_intcode'));
@@ -115,6 +115,9 @@ else {
                 exit;
             case 2:
                 output_xml("<status>false</status><message>{$lang->fillrequiredfields}</message>");
+                exit;
+            case 3:
+                output_xml("<status>false</status><message>{$lang->invalidemailaddress}</message>");
                 exit;
         }
     }

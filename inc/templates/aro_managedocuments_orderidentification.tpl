@@ -14,7 +14,10 @@
                 </td>
                 <td>{$lang->orderpurchasetype}</td>
                 <td>{$purchasetypelist}</td>
-                <td>{$lang->country}</td>
+                <td>
+                    {$lang->country}
+                    <a href="#" title="{$lang->countrypolicy}"><img src="./images/icons/question.gif" ></a>
+                </td>
                 <td>
                     <input id="countries_1_autocomplete" autocomplete="off" type="text" value="{$aroorderrequest->country}" style="width:150px;">
                     <input id="countries_1_id" name="coid"  value="{$aroorderrequest->coid}" type="hidden">

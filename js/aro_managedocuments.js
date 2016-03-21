@@ -16,7 +16,9 @@ $(function() {
             }
         }
     });
-
+    $('.automaticallyfilled-noneditable').each(function(i, obj) {
+        $(obj).prop('readonly', true);
+    });
     $("body").append("<div id='modal-loading2'>Please wait untill the calculation is done. <span  style='display:block; width:100px; height:75%; margin:15px auto 0 auto;'><img  src='./images/loader.gif'/></span></div>");
     $("#modal-loading2").dialog({height: 150, modal: true, closeOnEscape: false, title: 'Loading...', resizable: false, minHeight: 0, autoOpen: false, position: 'center',
         open: function(event, ui) {
@@ -96,8 +98,8 @@ $(function() {
         var ptid = $(this).data('purchasetype');
         var inputChecksum = $("input[id='inputChecksum']").val();
         var coid = $("input[id$='countries_1_id']").val();
-        sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populatedocnum&affid= ' + affid + '&ptid= ' + ptid + '&inputChecksum=' + inputChecksum + '&coid=' + coid);
-        sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populateaffpolicy&affid= ' + affid + '&ptid= ' + ptid + '&coid=' + coid);
+        sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populatedocnum&affid=' + affid + '&ptid=' + ptid + '&inputChecksum=' + inputChecksum + '&coid=' + coid);
+        sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populateaffpolicy&affid=' + affid + '&ptid=' + ptid + '&coid=' + coid);
         var aroBusinessManager = '';
         if(typeof $("input[id='user_0_id']").val() != "undefined") {
             aroBusinessManager = $("input[id='user_0_id']").val();
@@ -239,7 +241,7 @@ $(function() {
         var intermedAff = $("select[id='partiesinfo_intermed_aff']").val();
         var estimatedImtermedPayment = $("input[id='pickDate_intermed_estdateofpayment']").val();
         var estimatedManufacturerPayment = $("input[id='pickDate_vendor_estdateofpayment']").val();
-        sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populateintermedaffpolicy&ptid= ' + ptid + '&intermedAff=' + intermedAff + '&estimatedImtermedPayment=' + estimatedImtermedPayment + '&estimatedManufacturerPayment=' + estimatedManufacturerPayment);
+        sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populateintermedaffpolicy&ptid=' + ptid + '&intermedAff=' + intermedAff + '&estimatedImtermedPayment=' + estimatedImtermedPayment + '&estimatedManufacturerPayment=' + estimatedManufacturerPayment);
 //        var triggercomm = setTimeout(function() {
 //            $("input[id$='_intialPrice']").trigger("change");
 //        }, 2000);
@@ -270,7 +272,7 @@ $(function() {
         var warehouse = $(this).val();
         var ptid = $("#purchasetype").val();
         if(warehouse !== '' && warehouse !== typeof undefined) {
-            $.getJSON(rootdir + 'index.php?module=aro/managearodouments&action=populatewarehousepolicy&warehouse= ' + warehouse + '&ptid=' + ptid, function(data) {
+            $.getJSON(rootdir + 'index.php?module=aro/managearodouments&action=populatewarehousepolicy&warehouse=' + warehouse + '&ptid=' + ptid, function(data) {
                 var jsonStr = JSON.stringify(data);
                 obj = JSON.parse(jsonStr);
                 jQuery.each(obj, function(i, val) {
@@ -344,6 +346,12 @@ $(function() {
             $("input[id='pickDate_intermed_estdateofpayment']").removeAttr("disabled");
         }
         var vendorPaymentTerm = $("select[id ='partiesinfo_vendor_paymentterm']").val();
+        if($("select[id ='partiesinfo_vendor_paymentterm'] option:selected").text() === '0 Days'
+                || $("select[id ='partiesinfo_intermed_paymentterm'] option:selected").text() === '0 Days') {
+            $("div[id='paymenttermdesc_warning']").show();
+        } else {
+            $("div[id='paymenttermdesc_warning']").hide();
+        }
         var ptid = $('select[id=purchasetype]').val();
         var est_local_pay = $("input[id='avgeliduedate']").val();
         var attributes = '&intermedPaymentTerm=' + intermedPaymentTerm + '&vendorPaymentTerm=' + vendorPaymentTerm + '&estDateOfShipment=' + estDateOfShipment + '&ptAcceptableMargin=' + ptAcceptableMargin + '&ptid=' + ptid + '&est_local_pay=' + est_local_pay;

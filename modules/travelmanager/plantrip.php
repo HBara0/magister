@@ -439,14 +439,11 @@ else {
         /* Parse city reviews content */
         if(is_object($city_obj)) {
             $cityprofile_output = $city_obj->parse_cityreviews();
-            output($cityprofile_output);
 
             $citybriefings_output = $city_obj->parse_citybriefing();
         }
-        else {
-            $citybriefings_output = $lang->na;
-        }
-        output($citybriefings_output);
+
+        output($cityprofile_output.$citybriefings_output);
     }
     elseif($core->input ['action'] == 'parsedetailstransp') {
         $catid = $db->escape_string($core->input['catid']);
@@ -471,6 +468,10 @@ else {
             }
             switch($travelplan->get_errorcode()) {
                 case 0:
+                case 9:
+                    if($travelplan->get_errorcode() == 9) {
+                        $error_output = $errorhandler->get_errors_inline();
+                    }
                     if(isset($core->input['finalizeplan']) && $core->input['finalizeplan'] == 1) {
                         $url = 'index.php?module=travelmanager/viewplan&referrer=plantrip&id=';
                         header('Content-type: text/xml+javascript');
@@ -490,7 +491,7 @@ else {
                                 }
                             }
                         }
-                        output_xml("<status>true</status><message>{$lang->successfullysaved}<![CDATA[{$shownextsection}]]></message>");
+                        output_xml("<status>true</status><message>{$lang->successfullysaved}<![CDATA[<br>{$error_output}{$shownextsection}]]></message>");
                         exit;
                     }
                     output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
@@ -524,11 +525,10 @@ else {
                     }
                     output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
                     break;
-
-                case 9:
+                case 10:
                     $error_output = $errorhandler->get_errors_inline();
-                    output_xml("<status>false</status><message><![CDATA[{$error_output}]]></message>");
-                    break;
+                    output_xml("<status>false</status><message>{$lang->numnightsexceeded}<![CDATA[<br/>{$error_output}]]></message>");
+                    exit;
             }
         }
     }
@@ -600,6 +600,9 @@ else {
                 exit;
             case 2:
                 output_xml("<status>false</status><message>Error Saving</message>");
+                exit;
+            case 3:
+                output_xml("<status>false</status><message>Wrong Website</message>");
                 exit;
         }
     }

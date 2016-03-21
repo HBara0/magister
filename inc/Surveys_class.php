@@ -559,7 +559,7 @@ class Surveys {
         }
 
         if($this->survey['isExternal'] == 1) {
-            $query = $db->query("SELECT DISTINCT(sr.identifier), time, si.invitee AS respondant,si.passed,si.score,si.total
+            $query = $db->query("SELECT DISTINCT(sr.identifier), time, si.invitee AS respondant,si.passed,si.score,si.total,timeDone,startTime
 					FROM ".Tprefix."surveys s
 					JOIN ".Tprefix."surveys_responses sr ON (sr.sid=s.sid)
 					JOIN ".Tprefix."surveys_invitations si ON (si.identifier=sr.invitee)
@@ -928,6 +928,9 @@ class Surveys {
                 $surveylink = 'http://www.orkila.com/surveys/'.$this->survey['identifier'].'/'.$invitee['identifier'];
             }
 
+            if(empty($this->survey['customInvitation'])) {
+                $this->survey['customInvitation'] = $this->survey['customInvitationBody'];
+            }
             if(isset($this->survey['customInvitation']) && !empty($this->survey['customInvitation'])) {
                 $invitations_email['message'] = $this->survey['customInvitationBody'];
 

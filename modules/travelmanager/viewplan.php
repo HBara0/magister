@@ -143,11 +143,10 @@ else {
                         }
 
                         $path = "./images/invalid.gif";
-                        $iscontractedicon = '<img src="data:image/png;base64,'.base64_encode(file_get_contents($path)).'" alt="'.$lang->no.'"/>';
-
+                        $iscontractedicon = 'No';
                         if($hotel->isContracted == 1) {
                             $path = "./images/valid.gif";
-                            $iscontractedicon = '<img src="data:image/png;base64,'.base64_encode(file_get_contents($path)).'" alt="'.$lang->yes.'"/>';
+                            $iscontractedicon = 'Yes';
                         }
                         /* parse ratings */
                         eval("\$otherapprovedhotels .= \"".$template->get('travelmanager_approvedhotel_row')."\";");

@@ -324,7 +324,7 @@
             </div>
         </div>
     </form>
-    <div style="display:inline-block; margin-top:5px;">
+    <div style="display:inline-block; margin-top:5px;" id="results_{$communication_id}_{$contact_history[identifier]}_sourcing/supplierprofile_Results">
         <div style="display:inline-block;" id="perform_{$communication_id}_{$contact_history[identifier]}_sourcing/supplierprofile_Results"></div>
     </div>
 </div>

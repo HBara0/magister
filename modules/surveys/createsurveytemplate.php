@@ -26,6 +26,7 @@ if(!$core->input['action']) {
     $sequence = 1;
     if(isset($core->input['bstid']) && !empty($core->input['bstid'])) {
         $stid = $core->input['bstid'];
+        $activate_questionsordering = '$("tbody[id^=\'questions\'][id$=\'_tbody\']").sortable({placeholder: "ui-state-highlight", forcePlaceholderSize: true, delay: 300, opacity: 0.5, containment: "parent", handle: \'.questions-sort-icon\'});';
         $template_obj = SurveysTemplates::get_data(array('stid' => $stid));
         $title = $template_obj->title;
         $survey_template = $template_obj->get();

@@ -21,15 +21,18 @@ if(!$core->input['action']) {
     $purchasetypes = PurchaseTypes::get_data('', array('returnarray' => true));
 
     $filters_config = array(
-            'parse' => array('filters' => array('affid', 'purchaseType', 'effectiveFrom', 'effectiveTo', 'isActive'),
-                    'overwriteField' => array('purchaseType' => parse_selectlist('filters[purchaseType]', '', $purchasetypes, $core->input['filters']['purchaseType'], '', '', array('placeholder' => 'select purchase type')), 'isActive' => parse_selectlist('filters[isActive]', '', array('' => '', '0' => 'Not active', '1' => 'Active'), $core->input['filters']['isActive'])),
-                    'fieldsSequence' => array('affid' => 1, 'purchaseType' => 2, 'effectiveFrom' => 3, 'effectiveTo' => 4, 'isActive' => 5)
+            'parse' => array('filters' => array('affid', 'coid', 'purchaseType', 'effectiveFrom', 'effectiveTo', 'isActive'),
+                    'overwriteField' => array('purchaseType' => parse_selectlist('filters[purchaseType]', '', $purchasetypes, $core->input['filters']['purchaseType'], '', '', array('placeholder' => 'select purchase type')),
+                            'coid' => '<input id="countries_1_autocomplete" name="filters[country]" autocomplete="off" type="text" style="width:150px;" value="'.$core->input['filters']['country'].'">
+                            <input id="countries_1_id" name="filters[coid]"  type="hidden">'
+                            , 'isActive' => parse_selectlist('filters[isActive]', '', array('' => '', '0' => 'Not active', '1' => 'Active'), $core->input['filters']['isActive'])),
+                    'fieldsSequence' => array('affid' => 1, 'coid' => 2, 'purchaseType' => 3, 'effectiveFrom' => 4, 'effectiveTo' => 5, 'isActive' => 6)
             ),
             'process' => array(
                     'filterKey' => 'apid',
                     'mainTable' => array(
                             'name' => 'aro_policies',
-                            'filters' => array('affid' => array('operatorType' => 'multiple', 'name' => 'affid'), 'purchaseType' => array('operatorType' => 'equal', 'name' => 'purchaseType'), 'effectiveFrom' => array('operatorType' => 'date', 'name' => 'effectiveFrom'), 'effectiveTo' => array('operatorType' => 'date', 'name' => 'effectiveTo'), 'isActive' => array('operatorType' => 'equal', 'name' => 'isActive')),
+                            'filters' => array('affid' => array('operatorType' => 'multiple', 'name' => 'affid'), 'coid' => array('operatorType' => 'equal', 'name' => 'coid'), 'purchaseType' => array('operatorType' => 'equal', 'name' => 'purchaseType'), 'effectiveFrom' => array('operatorType' => 'date', 'name' => 'effectiveFrom'), 'effectiveTo' => array('operatorType' => 'date', 'name' => 'effectiveTo'), 'isActive' => array('operatorType' => 'equal', 'name' => 'isActive')),
                     ),
     ));
     $filter = new Inlinefilters($filters_config);
@@ -88,6 +91,11 @@ if(!$core->input['action']) {
             $policy->isactveicon = '<img src="./images/false.gif" />';
             if($policy->isActive == 1) {
                 $policy->isactveicon = '<img src="./images/true.gif" />';
+            }
+            $country_obj = Countries::get_data(array('coid' => $policy->coid));
+            $country_output = '-';
+            if(is_object($country_obj)) {
+                $country_output = $country_obj->get_displayname();
             }
             $rowclass = alt_row($rowclass);
             eval("\$aropolicies_rows .= \"".$template->get('aro_policieslist_row')."\";");

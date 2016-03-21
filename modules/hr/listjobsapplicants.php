@@ -2,10 +2,10 @@
 /*
  * Orkila Central Online System (OCOS)
  * Copyright © 2009 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * List Job Applicants
  * $module: hr
- * $id: listjob.php	
+ * $id: listjob.php
  * Created By: 		@tony.assaad		September 24, 2012 | 5:30 PM
  * Last Update: 	@tony.assaad		September 24, 2012 | 2:13 PM
  */
@@ -15,36 +15,44 @@ if(!defined('DIRECT_ACCESS')) {
     die('Direct initialization of this file is not allowed.');
 }
 
-if($core->usergroup['hr_canCreateJobOpport'] == 10) {
+if($core->usergroup['hr_canCreateJobOpport'] == 0) {
     error($lang->sectionnopermission);
     exit;
 }
+$lang->load('hr_jobopportunities');
 
 if(!$core->input['action']) {
-    $vacancy_id = $db->escape_string($core->input['id']);
-    if(!$core->input['action']) {
-        $sort_url = sort_url();
-        $vacancy = new HrVancancies();
-        $job_applicant = $vacancy->get_jobapplicants($vacancy_id);
-        if(is_array($job_applicant)) {
-            foreach($job_applicant as $key => $jobapplicant) {
-                $rowclass = alt_row($rowclass);
-                if($jobapplicant['isFlagged'] == 1) {
-                    $jobapplicant['flagicon'] = '<img  id="'.$jobapplicant['hrvaid'].'" src="././images/icons/red_flag.gif" border="0"/>';
+    //filter by hr permission on affiliate
+
+    if($core->usergroup['hr_canHrAllAffiliates'] == 0) {
+        $filters = array('affid' => $core->user['hraffids']);
+    }
+    //get vacancies sorted by affiliate
+    $vacancies_byaffid = HrJobOpportunities::get_data($filters, array('returnarray' => true, 'order' => 'affid'));
+    if(is_array($vacancies_byaffid)) {
+        foreach($vacancies_byaffid as $vacancy_obj) {
+            //get applicants for each vacancy
+            $job_applicants = $vacancy_obj->get_active_applicants();
+            if(is_array($job_applicants)) {
+                $vacancy = $vacancy_obj->get();
+                $vacancy['displayname'] = $vacancy_obj->title;
+                $vacancy['affiliate'] = $vacancy_obj->get_affiliate()->get_displayname();
+                foreach($job_applicants as $job_applicant_obj) {
+                    $job_applicant = $job_applicant_obj->get();
+                    $job_applicant['displayname'] = $job_applicant_obj->get_displayname();
+                    $job_applicant['submissiondate'] = date($core->settings['dateformat'], $job_applicant['createdOn']);
+//                    if($jobapplicant['isFlagged'] == 1) {
+//                        $jobapplicant['flagicon'] = '<img  id="'.$jobapplicant['hrvaid'].'" src="././images/icons/red_flag.gif" border="0"/>';
+//                    }
+                    //$td = '<td id="flagg"></td>';
+                    eval("\$hr_listjobsapplicants_rows.= \"".$template->get('hr_listjobsapplicants_rows')."\";");
+                    unset($job_applicant);
                 }
-                //$td = '<td id="flagg"></td>';
-
-                $jobapplicant['dateCreated_output'] = date($core->settings['dateformat'], $jobapplicant['dateSubmitted']);
-                eval("\$hr_listjobsapplicants_rows.= \"".$template->get('hr_listjobsapplicants_rows')."\";");
             }
-
-            $multipage_where .= $db->escape_string($attributes_filter_options['prefixes'][$core->input['filterby']].$core->input['filterby']).$filter_value;
-            $multipages = new Multipages('hr_vacancies_applicants hrvapp', $core->settings['itemsperlist'], $multipage_where);
-            $hr_listjobsapplicants_rows .= "<tr><td colspan='6'>".$multipages->parse_multipages()."</td></tr>";
         }
-        else {
-            $hr_listjobsapplicants_rows .= '<tr><td colspan="5">'.$lang->na.'</td></tr>';
-        }
+    }
+    if(empty($hr_listjobsapplicants_rows)) {
+        $hr_listjobsapplicants_rows = '<tr><td colspan="8" style="text-align:center">'.$lang->na.'</td></tr>';
     }
     eval("\$jobslist = \"".$template->get('hr_listjobsapplicants')."\";");
     output_page($jobslist);
