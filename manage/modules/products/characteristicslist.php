@@ -133,6 +133,6 @@ else {
             eval("\$valchar_output = \"".$template->get('admin_characteristics_values_rows')."\";");
         }
         eval("\$popup_addchar = \"".$template->get('popup_createproductcharcteristic')."\";");
-        echo ($popup_addchar);
+        output($popup_addchar);
     }
 }

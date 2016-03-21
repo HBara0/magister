@@ -105,7 +105,7 @@ else {
         $entitybrand_obj = new EntitiesBrands($ebid);
         $entitybrand = $entitybrand_obj->get();
         eval("\$deletebrand = \"".$template->get('popup_deletebrand')."\";");
-        echo $deletebrand;
+        output($deletebrand);
     }
     elseif($core->input['action'] == 'perform_delete') {
         $ebid = $db->escape_string($core->input['todelete']);

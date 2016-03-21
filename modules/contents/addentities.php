@@ -224,7 +224,7 @@ else {
         $positions_selectlist = parse_selectlist('repPosition', '', $positions, '', '', '', array('blankstart' => true, 'width' => '150px'));
 
         eval("\$addrepresentativebox = \"".$template->get('popup_addrepresentative')."\";");
-        output_page($addrepresentativebox);
+        output($addrepresentativebox);
     }
     elseif($core->input['action'] == 'getentitiestobeassigned') {
         $display['enttobeassigned'] = 'display:block;';

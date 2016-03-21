@@ -5,7 +5,7 @@
 
  * Lists daily attendance
  * $module: attendance
- * Created		@najwa.kassem 		June 2, 2010 
+ * Created		@najwa.kassem 		June 2, 2010
  * Last Update: 	@zaher.reda 		October 10, 2010 | 02:59 PM
  */
 
@@ -186,7 +186,7 @@ else {
         }
 
         eval("\$editbox = \"".$template->get('popup_attendance_list_edit')."\";");
-        echo $editbox;
+        output($editbox);
     }
     elseif($core->input['action'] == 'do_editattendance') {
         foreach($core->input['aid'] as $key => $val) {
