@@ -192,6 +192,7 @@ Abstract class SystemGadget extends AbstractClass {
                 }
 
                 $tokenfields = 'currencies';
+                $tokenidentifier = '_'.TIME_NOW;
                 eval("\$prodinput = \"".$template->get('jquery_tokeninput')."\";");
                 eval("\$field = \"".$template->get('system_dashboard_gadgets_currency')."\";");
                 break;

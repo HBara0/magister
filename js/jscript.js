@@ -716,7 +716,9 @@ $(function() {
 //        if(rel != '' || rel != null) {
 //            id[1] = rel;
         //        }
-
+        if($('div[id="popup_managewidgets"]')) {
+            $('div[id="popup_managewidgets"]').remove();
+        }
         if(typeof $(this).attr("data-template") != 'undefined') {
             id[0] = $(this).attr("data-template");
         }
