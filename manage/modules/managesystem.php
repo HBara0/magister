@@ -9,7 +9,7 @@
  */
 $module['name'] = 'managesystem';
 $module['title'] = $lang->managesystem;
-$module['homepage'] = 'canAdminCP';
+$module['homepage'] = 'managereferencelist';
 $module['globalpermission'] = 'admin_canManageSystemDef';
 $module['menu'] = array('file' => array('managereferencelist', 'managetables', 'managewindows', 'referencelists', 'tableslist', 'windowslist'),
         'title' => array('managereferencelist', 'managetables', 'managewindows', 'referencelists', 'tableslist', 'windowslist'),
