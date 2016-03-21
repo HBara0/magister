@@ -69,7 +69,7 @@
            <div class="form-group ">
                 <label for="avgPrice">{$lang->averageprice}</label><input id="avgPrice" class="form-control"  type="number" name='hotel[avgPrice]' value="{$hotel['avgPrice']}">
                 <label for="currency">{$lang->currency}</label>{$currency_list}
-                <label for="distance">{$lang->distancefromoffice}</label><input id="distance" class="form-control"  type="email" name='hotel[distance]' value="{$hotel['distance']}">
+                <label for="distance">{$lang->distancefromoffice}</label><input id="distance" class="form-control"  type="text" name='hotel[distance]' value="{$hotel['distance']}">
             </div>
               <div class="form-group ">
                 <label for="mgmtReview">{$lang->mgmtreview}</label><textarea id="mgmtReview" class="form-control" name='hotel[mgmtReview]'>{$hotel['mgmtReview']}</textarea>
