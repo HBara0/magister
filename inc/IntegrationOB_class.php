@@ -312,7 +312,7 @@ class IntegrationOB extends Integration {
         while($document = $this->f_db->fetch_assoc($query)) {
             if($doc_type == 'order') {
                 //get linked invoice id, Null if there's no invoice
-                $document['foreignOrderId'] = $db->fetch_assoc($db->query('SELECT c_invoice_id FROM '.Tprefix.'c_invoice WHERE c_order_id='.$document['documentid']));
+                $document['foreignOrderId'] = $this->f_db->fetch_assoc($db->query('SELECT c_invoice_id FROM '.Tprefix.'c_invoice WHERE c_order_id='.$document['documentid']));
                 if($document['foreignOrderId'] == NULL) {
                     $purchasetype = 'DI';
                 }
