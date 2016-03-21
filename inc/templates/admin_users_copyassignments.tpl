@@ -12,7 +12,7 @@
                             $(this).children().attr('disabled', 'disabled');
                         });
                         $("div[id='assign_user_based']").find("div[class='col-xs-12 col-sm-10 col-md-10']").each(function() {
-                            $(this).children().attr('disabled', '');
+                            $(this).children().removeAttr('disabled');
                         });
                         $("div[id='assign_aff_based']").hide();
                         //select default entity type and assignment type
@@ -25,7 +25,7 @@
                             $(this).children().attr('disabled', 'disabled');
                         });
                         $("div[id='assign_aff_based']").find("div[class='col-xs-12 col-sm-10 col-md-10']").each(function() {
-                            $(this).children().attr('disabled', '');
+                            $(this).children().removeAttr('disabled');
                         });
                         $("div[id='assign_user_based']").hide();
                         $("div[id='assign_aff_based']").effect("highlight", {color: "#D6EAAC"}, 1500).show();
