@@ -87,18 +87,21 @@ if(!$core->input['action']) {
             }
         }
 
+        $count = 0;
         if(!empty($chainpolicy['informInternalUsers'])) {
             $informmore['internalusers'] = unserialize(base64_decode($chainpolicy['informInternalUsers']));
             if(is_array($informmore['internalusers'])) {
                 foreach($informmore['internalusers'] as $userid) {
                     if($userid != 0) {
                         $user = new Users($userid);
-                        $chainpolicy['informInternalUsers_output'] .= $user->get_displayname().'<br/>';
+                        $chainpolicy['informInternalUsers_output'] .= $user->get_displayname().'<br/>'
+                                .'<input type="hidden" id="user_'.$count.'_informed_id" name="chainpolicy[informInternalUsers][]" value="'.$user->uid.'" />';
+                        $count++;
                     }
                 }
             }
         }
-
+        $inform_rowid = $count;
         if(!isset($core->input['referrer']) || (isset($core->input['referrer']) && $core->input['referrer'] != 'clone')) {
 
             if(TIME_NOW > $chainpolicy['effectiveTo']) {
