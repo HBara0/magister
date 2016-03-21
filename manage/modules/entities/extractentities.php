@@ -44,6 +44,7 @@ if(!$core->input['action']) {
 }
 else {
     if($core->input['action'] == 'do_perform_extractentities') {
+        ini_set('memory_limit', -1);
         $filters = $core->input['filters'];
         //check if any of the filters is empty
         if(!is_array($filters) || (!isset($filters['type']) || empty($filters['type'])) || (!isset($filters['affid']) || empty($filters['affid']))) {
@@ -276,6 +277,14 @@ else {
                                 }
                                 else {
                                     continue;
+                                }
+                                if(!empty($entityrows)) {
+                                    $iterator = 1;
+                                    while($iterator < 50) {
+                                        $entity = $rep_field = array();
+                                        eval("\$entityrows.=\"".$template->get("admin_entities_extractentities_affiliate_segment_entityrow")."\";");
+                                        $iterator++;
+                                    }
                                 }
                                 //parsing the excel file
                                 $tbody = '<tbody>'.$entityrows.'</tbody>';
