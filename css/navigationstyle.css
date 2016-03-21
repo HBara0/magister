@@ -1,4 +1,4 @@
-@charset "CP850";
+@charset "IBM437";
 /*
 Copyright © 2016 Orkila International Offshore, All Rights Reserved
 
@@ -98,17 +98,6 @@ html, body {
   color: #FFF;
   background-color: #9BBD61; }
 
-.navbar-default .navbar-toggle {
-  border-color: #9BBD61;
-  background-color: #9BBD61; }
-
-.navbar-default .navbar-toggle:hover,
-.navbar-default .navbar-toggle:focus {
-  background-color: #9BBD61; }
-
-.navbar-default .navbar-toggle .icon-bar {
-  background-color: #ecf0f1; }
-
 .navbar-default .navbar-collapse,
 .navbar-default .navbar-form {
   border-color: #ecf0f1; }
@@ -120,13 +109,6 @@ html, body {
   color: #f7f7f7; }
 
 @media (max-width: 767px) {
-  .navbar-default .navbar-nav .open .dropdown-menu > li > a {
-    color: #ecf0f1; }
-
-  .navbar-default .navbar-nav .open .dropdown-menu > li > a:hover,
-  .navbar-default .navbar-nav .open .dropdown-menu > li > a:focus {
-    color: #f7f7f7; }
-
   .navbar-default .navbar-nav .open .dropdown-menu > .active > a,
   .navbar-default .navbar-nav .open .dropdown-menu > .active > a:hover,
   .navbar-default .navbar-nav .open .dropdown-menu > .active > a:focus {
@@ -139,5 +121,3 @@ html, body {
   width: 100%;
   padding-right: 50px;
   padding-left: 20px; }
-
-/*# sourceMappingURL=navigationstyle.css.map */

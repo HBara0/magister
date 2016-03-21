@@ -332,7 +332,7 @@ td {
   height: 20px;
   vertical-align: middle !important; }
 
-input.button, .button, button {
+input.button, .button, button:not(.navbar-toggle) {
   -webkit-border-radius: 4px;
   -moz-border-radius: 4px;
   -ms-border-radius: 4px;

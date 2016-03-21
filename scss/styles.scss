@@ -389,7 +389,7 @@ td { padding: 2px; }
     vertical-align: middle !important;
 }
 
-input.button,.button, button {
+input.button,.button, button:not(.navbar-toggle) {
     @include border-radius(4px);
     background: $color_green;
     text-indent:0;
@@ -775,7 +775,7 @@ tfoot .coltotal, tfoot .colavg {
 
 .frequentmodules_img {
     margin-left:5px;
-    margin-right:5px; 
+    margin-right:5px;
     margin-top: 10px;
     background-color: #9bbd61;
 }
