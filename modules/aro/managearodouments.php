@@ -1972,7 +1972,8 @@ else {
         $aro = $aro->reject_aro($core->input);
         switch($aro->get_errorcode()) {
             case 0:
-                output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
+                $url = 'index.php?module=aro/managearodouments&id='.$aro->aorid;
+                output_xml("<status>true</status><message>{$lang->successfullysaved}<![CDATA[<script>goToURL('$url');</script>]]></message>");
                 break;
             case 1:
             case 2:
