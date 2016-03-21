@@ -280,8 +280,8 @@ else {
                                 }
                                 if(!empty($entityrows)) {
                                     $iterator = 1;
+                                    $entity = $rep_field = array();
                                     while($iterator < 50) {
-                                        $entity = $rep_field = array();
                                         eval("\$entityrows.=\"".$template->get("admin_entities_extractentities_affiliate_segment_entityrow")."\";");
                                         $iterator++;
                                     }
