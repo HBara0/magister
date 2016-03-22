@@ -392,7 +392,6 @@ else {
             if($core->input['sendingobject'] == 'file') {
                 $email_data['attachments'] = array($core->input['attachment']);
             }
-
             $mail = new Mailer($email_data, 'php');
 
             if($mail->get_status() === true) {
@@ -562,10 +561,6 @@ else {
         else {
             output_xml("<status>false</status><message>{$lang->errorsaving}</message>");
         }
-    }
-    elseif($core->input['action'] == '') {
-        $url = 'index.php?module=filesharing/filelist&ffid='.$core->input['ffid'].'&fid='.$core->input['fid'].'&referrer=viewversion';
-        output_xml("<status>true</status><message>Successfully<![CDATA[<script>goToURL('$url');</script>]]></message>");
     }
 }
 ?>

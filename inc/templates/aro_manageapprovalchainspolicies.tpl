@@ -84,8 +84,8 @@
                     <tr>
                         <td style="vertical-align:top"></td>
                         <td style="vertical-align: top;padding-left:10px;">
-                            <input type='text' id='user_0_informed_autocomplete' value="{$chainpolicy[username]}"/>
-                            <input type='hidden' id='user_0_informed_id' name='chainpolicy[informInternalUsers][]' value="{$user->uid}" />
+                            <input type='text' id='user_{$count}_informed_autocomplete' value="{$chainpolicy[username]}"/>
+                            <input type='hidden' id='user_{$count}_informed_id' name='chainpolicy[informInternalUsers][]' value="{$user->uid}" />
                         </td>
                     </tr>
                     <tr>

@@ -31,11 +31,21 @@ class Files extends AbstractClass {
     }
 
     public function save(array $data = array()) {
-
+        global $db, $log;
+        $query = $db->insert_query(self::TABLE_NAME, $policies_array);
+        if($query) {
+            $this->data[self::PRIMARY_KEY] = $db->last_id();
+            $log->record(self::TABLE_NAME, $this->data[self::PRIMARY_KEY]);
+            $this->errorcode = 0;
+        }
     }
 
     protected function update(array $data) {
-
+        global $db, $log;
+        $query = $db->update_query(self::TABLE_NAME, $data_array, self::PRIMARY_KEY.' = '.intval($this->data[self::PRIMARY_KEY]));
+        if($query) {
+            $log->record(self::TABLE_NAME, $this->data[self::PRIMARY_KEY]);
+        }
     }
 
     public function get_displayname() {

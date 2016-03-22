@@ -342,4 +342,6 @@ $lang['employee'] = 'Employee';
 $lang['viewhotel'] = 'View Hotel';
 $lang['createhotel'] = 'Create Hotel';
 $lang['managehotel'] = 'Manage Hotel';
+$lang['createdby'] = 'Created By';
+$lang['approvedby'] = 'Approved By';
 ?>

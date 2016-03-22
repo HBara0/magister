@@ -17,8 +17,10 @@
                             <th >{$lang->name} </th>
                             <th >{$lang->city}</th>
                             <th >{$lang->country}</th>
-                            <th >{$lang->isapproved}</th>
+                            <th >{$lang->phone}</th>
+                            <th >{$lang->address}</th>
                             <th >{$lang->avgprice}</th>
+                            <th >{$lang->isapproved}</th>
                             <th ></th>
 
                         </tr>
@@ -31,8 +33,10 @@
                             <th >{$lang->name} </th>
                             <th >{$lang->city}</th>
                             <th >{$lang->country}</th>
-                            <th >{$lang->isapproved}</th>
+                            <th >{$lang->phone}</th>
+                            <th >{$lang->address}</th>
                             <th >{$lang->avgprice}</th>
+                            <th >{$lang->isapproved}</th>
                             <th ></th>
                         </tr>
                     </tfoot>
