@@ -243,7 +243,7 @@ else {
                                                     }
                                                     else {
                                                         $rep_field['email'] = $representative->email;
-                                                        if(empty($representative->email)) {
+                                                        if(empty($representative->email) || (strtolower(substr($representative->email, 0, 3) == 'na@'))) {
                                                             $rep_field['email'] = '';
                                                         }
                                                         $rep_field['phone'] = $representative->phone;
