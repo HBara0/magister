@@ -36,7 +36,7 @@ class TravelManagerHotels extends AbstractClass {
     public function create(array $data) {
         global $db, $template, $core, $lang;
 
-        if(is_empty($data['name'], $data['city'], $data['telephone_intcode'], $data['telephone_number'], $data['addressLine1'])) {//$data['telephone_areacode'],
+        if(is_empty($data['name'], $data['city'], $data['telephone_intcode'], $data['telephone_number'], $data['addressLine1'], $data['avgPrice'])) {//$data['telephone_areacode'],
             $this->errorcode = 1;
             return false;
         }
@@ -154,7 +154,7 @@ class TravelManagerHotels extends AbstractClass {
 
     protected function update(array $data) {
         global $db;
-        if((is_empty($data['name'], $data['city'], $data['addressLine1'])) || (is_empty($data['telephone_intcode'], $data['telephone_number']) && empty($data['phone']))) {// $data['telephone_areacode'],
+        if((is_empty($data['name'], $data['city'], $data['addressLine1'], $data['avgPrice'])) || (is_empty($data['telephone_intcode'], $data['telephone_number']) && empty($data['phone']))) {// $data['telephone_areacode'],
             $this->errorcode = 2;
             return false;
         }
