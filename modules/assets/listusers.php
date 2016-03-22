@@ -1,7 +1,7 @@
 <?php
 /*
  * Copyright © 2013 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * List userd assigned to assets
  * $id: listuser.php
  * Created:        @tony.assaad    Jul 4, 2013 | 12:06:47 PM
@@ -108,7 +108,7 @@ if(!$core->input['action']) {
 else {
     if($core->input['action'] == 'get_deleteuser') {
         eval("\$deleteassignee = \"".$template->get('popup_assets_listuserdelete')."\";");
-        echo $deleteassignee;
+        output($deleteassignee);
     }
     elseif($core->input['action'] == 'perform_delete') {
         $auid = $db->escape_string($core->input['todelete']);
@@ -154,7 +154,7 @@ else {
         $actiontype = 'edit';
 
         eval("\$editassignee = \"".$template->get('popup_assets_listuseredit')."\";");
-        echo $editassignee;
+        ouput($editassignee);
     }
 }
 ?>

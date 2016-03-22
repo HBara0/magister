@@ -173,7 +173,7 @@ else {
 //        $segment['title'] = $segment_obj->title;
 //        $segment['psid'] = $segment_obj->psid;
         eval("\$addsegment = \"".$template->get('popup_admin_product_addsegment')."\";");
-        output_page($addsegment);
+        output($addsegment);
     }
     elseif($core->input['action'] == 'ajaxaddmore_coordrows') {
         echo(334);
