@@ -32,6 +32,18 @@ if(!$core->input['action']) {
         if(!empty($hotel['currency'])) {
             $hotel['currency_output'] = $hotel_obj->get_currency()->get_displayname();
         }
+        if(!empty($hotel['createdBy'])) {
+            $createdby_obj = Users::get_data(array('uid' => $hotel['createdBy']));
+            if(is_object($createdby_obj)) {
+                $hotel['createdBy_output'] = $createdby_obj->get_displayname();
+            }
+        }
+        if(!empty($hotel['approvedBy'])) {
+            $approvedby_obj = Users::get_data(array('uid' => $hotel['approvedBy']));
+            if(is_object($approvedby_obj)) {
+                $hotel['approvedBy_output'] = $approvedby_obj->get_displayname();
+            }
+        }
     }
     eval("\$viewhotel = \"".$template->get('travelmanager_viewhotel')."\";");
     output_page($viewhotel);

@@ -223,8 +223,9 @@ class TravelManagerHotels extends AbstractClass {
     }
 
     public function approve_hotel() {
-        global $db;
+        global $db, $core;
         $approve['isApproved'] = '1';
+        $approve['approvedBy'] = $core->user['uid'];
         $query = $db->update_query(self::TABLE_NAME, $approve, 'tmhid ='.$this->tmhid);
         if($query) {
             return true;

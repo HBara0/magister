@@ -340,4 +340,6 @@ $lang['comments'] = 'Comments';
 $lang['createdhotel'] = 'Created Hotel';
 $lang['employee'] = 'Employee';
 $lang['viewhotel'] = 'View Hotel';
+$lang['createdby'] = 'Created By';
+$lang['approvedby'] = 'Approved By';
 ?>
