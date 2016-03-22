@@ -57,7 +57,7 @@ class GadgetFxRates extends SystemGadget {
      */
     public function parse_rates_list($currency_arrays, $tocurrency_id = 840) {
         global $lang, $core;
-        $currencysrates_list = '<ul>';
+        $currencysrates_list = '<ul class="list-group">';
         $tocurrency_obj = new Currencies($tocurrency_id);
         $tocurrency_output = $lang->basecurrency.' '.$tocurrency_obj->get_displayname().'<br>';
         foreach($currency_arrays as $curid) {
@@ -68,7 +68,7 @@ class GadgetFxRates extends SystemGadget {
         if(is_array($fxrates)) {
             foreach($fxrates as $alpha => $fxrate) {
                 if(is_array($fxrate)) {
-                    $currencysrates_list .= '<li><span title="'.round(1 / $fxrate['rate'], 4).'">'.$fxrate['rate'].' '.$alpha.'</span> <span class="smalltext" style="color:#CCC;">'.date($core->settings['dateformat'], $fxrate['date']).'</span></li>';
+                    $currencysrates_list .= '<li class="list-group-item"><span title="'.round(1 / $fxrate['rate'], 4).'">'.$fxrate['rate'].' '.$alpha.'</span> <span class="smalltext" style="color:#CCC;">'.date($core->settings['dateformat'], $fxrate['date']).'</span></li>';
                 }
             }
         }

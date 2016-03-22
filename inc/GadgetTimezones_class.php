@@ -52,7 +52,7 @@ class GadgetTimezones extends SystemGadget {
             $timezones = array('UTC', 'Africa/Casablanca', 'Africa/Dakar', 'Africa/Abidjan', 'Europe/Paris', 'Africa/Lagos', 'Africa/Algiers', 'Africa/Tunis', 'Africa/Cairo', 'Asia/Beirut', 'Asia/Amman', 'Africa/Nairobi', 'Asia/Riyadh', 'Asia/Tehran', 'Asia/Dubai', 'Asia/Hong_Kong');
         }
         $gmttime = gmmktime(gmdate('H'), gmdate('i'), gmdate('s'), gmdate('n'), gmdate('d'), gmdate('Y'));
-        $timezones_list.='<ul>';
+        $timezones_list.='<ul class="list-group">';
         foreach($timezones as $timezone) {
             $timezone_obj = new DateTimeZone($timezone);
             $time_obj = new DateTime('now', $timezone_obj);
@@ -60,7 +60,7 @@ class GadgetTimezones extends SystemGadget {
             if(empty($timezone_city[1])) {
                 $timezone_city[1] = $timezone_city[0];
             }
-            $timezones_list .= '<li>'.$lang->sprint($lang->timecity, date('H:i', $gmttime + $timezone_obj->getOffset($time_obj)), ucwords($timezone_city[1])).'</li>';
+            $timezones_list .= '<li class="list-group-item">'.$lang->sprint($lang->timecity, date('H:i', $gmttime + $timezone_obj->getOffset($time_obj)), ucwords($timezone_city[1])).'</li>';
         }
         $timezones_list.='</ul>';
         return $timezones_list;
