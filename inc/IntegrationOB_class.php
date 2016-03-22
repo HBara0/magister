@@ -163,7 +163,7 @@ class IntegrationOB extends Integration {
         while($document = $this->f_db->fetch_assoc($query)) {
             if($doc_type == 'order') {
                 //get linked invoice id, Null if there's no invoice
-                $document['foreignOrderId'] = $db->fetch_assoc($db->query('SELECT c_invoice_id FROM '.Tprefix.'c_invoice WHERE c_order_id='.$document['doc_id']));
+                $document['foreignInvoiceId'] = $db->fetch_assoc($db->query('SELECT c_invoice_id FROM '.Tprefix.'c_invoice WHERE c_order_id='.$document['doc_id']));
             }
             $document_newdata = array(
                     'foreignSystem' => $this->foreign_system,
@@ -177,6 +177,7 @@ class IntegrationOB extends Integration {
                     'salesRep' => $document['salesrep'],
                     'foreignOrderId' => $document['foreignOrderId']
             );
+
 
             $document_newdata['salesRepLocalId'] = $db->fetch_field($db->query("SELECT uid FROM ".Tprefix."users WHERE displayName='".$db->escape_string($document['salesrep'])."' OR username='".$db->escape_string($document['username'])."'"), 'uid');
 
@@ -229,7 +230,6 @@ class IntegrationOB extends Integration {
                     }
                     $documentline_newdata = array(
                             'foreignId' => $documentline['docline_id'],
-                            $foreignid => $document['doc_id'],
                             'pid' => $documentline['m_product_id'],
                             'affid' => $this->affiliates_index[$document['ad_org_id']],
                             'price' => $documentline['priceactual'],
@@ -240,6 +240,13 @@ class IntegrationOB extends Integration {
                             'purchasePrice' => $purchaseprice_data['price'],
                             'purPriceCurrency' => $purchaseprice_data['currency']
                     );
+
+                    if($doc_type == 'order') {
+                        $documentline_newdata['foreignOrderId'] = $document['doc_id'];
+                    }
+                    else {
+                        $documentline_newdata['foreignInvoiceId'] = $document['doc_id'];
+                    }
 
                     $db->insert_query($table['lines'], $documentline_newdata);
                 }
@@ -312,8 +319,8 @@ class IntegrationOB extends Integration {
         while($document = $this->f_db->fetch_assoc($query)) {
             if($doc_type == 'order') {
                 //get linked invoice id, Null if there's no invoice
-                $document['foreignOrderId'] = $this->f_db->fetch_assoc($db->query('SELECT c_invoice_id FROM '.Tprefix.'c_invoice WHERE c_order_id='.$document['documentid']));
-                if($document['foreignOrderId'] == NULL) {
+                $document['foreignInvoiceId'] = $this->f_db->fetch_assoc($db->query('SELECT c_invoice_id FROM '.Tprefix.'c_invoice WHERE c_order_id='.$document['documentid']));
+                if($document['foreignInvoiceId'] == NULL) {
                     $purchasetype = 'DI';
                 }
             }
@@ -327,9 +334,13 @@ class IntegrationOB extends Integration {
                     'currency' => $document['currency'],
                     'paymentTerms' => $document['paymenttermsdays'],
                     'purchaseType' => $purchasetype,
-                    'foreignOrderId' => $document['foreignOrderId']
             );
-
+            if($doc_type == 'order') {
+                $document_newdata['foreignInvoiceId'] = $document['foreignInvoiceId'];
+            }
+            else {
+                $document_newdata['foreignOrderId'] = $document['foreignOrderId'];
+            }
             /* Get currencies FX from own system - START */
             $document_newdata['usdFxrate'] = $currency_obj->get_average_fxrate($document['currency'], array('from' => strtotime(date('Y-m-d', $newdata['date']).' 01:00'), 'to' => strtotime(date('Y-m-d', $newdata['date']).' 24:00')));
             if(empty($newdata['usdFxrate'])) {
@@ -375,7 +386,6 @@ class IntegrationOB extends Integration {
                 while($documentline = $this->f_db->fetch_assoc($documentline_query)) {
                     $documentline_newdata = array(
                             'foreignId' => $documentline['documentlineid'],
-                            $foreignid => $document['documentid'],
                             'pid' => $documentline['m_product_id'],
                             'spid' => $document['bpid'],
                             'affid' => $this->affiliates_index[$document['ad_org_id']],
@@ -384,6 +394,12 @@ class IntegrationOB extends Integration {
                             'quantity' => $documentline['quantity'],
                             'quantityUnit' => $documentline['uom']
                     );
+                    if($doc_type == 'order') {
+                        $documentline_newdata['foreignOrderId'] = $document['documentid'];
+                    }
+                    else {
+                        $documentline_newdata['foreignInvoiceId'] = $document['documentid'];
+                    }
 
                     $db->insert_query($table['lines'], $documentline_newdata);
                 }
