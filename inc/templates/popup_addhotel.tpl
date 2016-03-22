@@ -34,7 +34,7 @@
                 </td>
             </tr>
             <tr>
-                <td>{$lang->averagepriceinusd}</td>
+                <td><strong>{$lang->averagepriceinusd}*</strong></td>
                 <td><input tabindex="100" type="number" name="otherhotel[avgPrice]"><input type="hidden" name="otherhotel[currency]" value="840"></td>
             </tr>
             <tr>

@@ -32,8 +32,8 @@
                     </div>
                 </div>
                 <div class="form-group form-inline">
-                    <label for="hotelname">{$lang->hotelname}</label><input class="form-control" type="text"id="hotelname" name="hotel[name]" value="{$hotel['name']}">
-                    <label for="cities_1_autocomplete">{$lang->city}</label>
+                    <label for="hotelname">{$lang->hotelname} *</label><input class="form-control" type="text"id="hotelname" name="hotel[name]" value="{$hotel['name']}">
+                    <label for="cities_1_autocomplete">{$lang->city} *</label>
                     <input  class="form-control" type="text" id="cities_1_autocomplete" autocomplete="false" tabindex="1" value="{$cityname}" required="required"/>
                     <input type='hidden' id='cities_1_id'  name="hotel[city]" value="{$hotel['city']}"/>
                     <input type='hidden' id='cities_1_id_output' name="hotel[city]" value="{$hotel['city']}" disabled/>
@@ -45,15 +45,15 @@
                 </div>
             </div>
             <div class="form-group ">
-                <label for="addressline1">{$lang->addressline1}</label><textarea id="addressline1" class="form-control" name='hotel[addressLine1]'>{$hotel['addressLine1']}</textarea>
+                <label for="addressline1">{$lang->addressline1} *</label><textarea id="addressline1" class="form-control" name='hotel[addressLine1]'>{$hotel['addressLine1']}</textarea>
                 <label for="addressline2">{$lang->addressline2}</label><textarea id="addressline2" class="form-control" name='hotel[addressLine2]'>{$hotel['addressLine2']}</textarea>
             </div>
             <div class="form-group ">
                 <label for="postcode">{$lang->postcode}</label><input id="postcode" class="form-control"  type="text" name='hotel[postCode]' value="{$hotel['postCode']}">
                 <label for="pobox">{$lang->pobox}</label><input id="pobox" class="form-control"  type="text" name='hotel[poBox]' value="{$hotel['poBox']}">
             </div>
-             <div class="form-group ">
-                <label>{$lang->phone}</label>
+            <div class="form-group ">
+                <label>{$lang->phone} *</label>
                 {$countriescodes_list}
                 <input class="form-control"  type="text" tabindex="100" id="telephone_number" name="hotel[telephone_number]" accept="numeric" value="{$telephone_number}"/>
             </div>
@@ -66,12 +66,12 @@
                 <label for="contactPerson">{$lang->contactperson}</label><input id="contactPerson" class="form-control"  type="text" name='hotel[contactPerson]' value="{$hotel['contactPerson']}">
                 <label for="contactEmail">{$lang->contactemail}</label><input id="contactEmail" class="form-control"  type="email" name='hotel[contactEmail]' value="{$hotel['contactEmail']}">
             </div>
-           <div class="form-group ">
-                <label for="avgPrice">{$lang->averageprice}</label><input id="avgPrice" class="form-control"  type="number" name='hotel[avgPrice]' value="{$hotel['avgPrice']}">
+            <div class="form-group ">
+                <label for="avgPrice">{$lang->averageprice} *</label><input id="avgPrice" class="form-control"  type="number" name='hotel[avgPrice]' value="{$hotel['avgPrice']}">
                 <label for="currency">{$lang->currency}</label>{$currency_list}
                 <label for="distance">{$lang->distancefromoffice}</label><input id="distance" class="form-control"  type="text" name='hotel[distance]' value="{$hotel['distance']}">
             </div>
-              <div class="form-group ">
+            <div class="form-group ">
                 <label for="mgmtReview">{$lang->mgmtreview}</label><textarea id="mgmtReview" class="form-control" name='hotel[mgmtReview]'>{$hotel['mgmtReview']}</textarea>
             </div>
             <input type='submit' style="cursor: pointer" class='button' value="{$lang->savecaps}" id='perform_travelmanager/edithotel_Button'>
