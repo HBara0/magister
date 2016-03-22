@@ -109,7 +109,7 @@ Your {2}{3} between {4} and {5} was revoked.<br />
 Regards';
 $lang['revokeleavenotificationsubject'] = '{1} revoked their {2}{3}';
 $lang['revokeleavenotificationsubjectuser'] = 'Your {1}{2} was revoked';
-$lang['tmplanfinancenotification'] = 'Request From {1} For An Amount Needed In Advance';
+$lang['tmplanfinancenotification'] = '{1} requested cash in advance';
 $lang['ocosquestion'] = 'OCOS Question';
 $lang['apporvinganonexistingleavesubject'] = 'You just approved a non existing leave';
 $lang['apporvinganonexistingleave'] = 'Dear {1},<br />
