@@ -91,7 +91,7 @@
                     <tr>
                         <td>{$lang->approximatejoindate}</td>
                         <td>
-                            <input type="checkbox" value="1" id="joindate_1_immediately"/>&nbsp;<label>{$lang->immediately}</label><span>&nbsp;Or &nbsp;</span>
+                            <input type="checkbox" value="1" id="joindate_1_immediately" name="jobopportunity[joinDateImmediate]" {$checked[joinDateImmediate]}/>&nbsp;<label>{$lang->immediately}</label><span>&nbsp;Or &nbsp;</span>
                             <input type="text" id="pickDate_1_from" autocomplete="off" value="{$jobopportunity[approxJoinDate_output]}" style="width:200px;"/>
                             <input type="hidden" name="jobopportunity[approxJoinDate]" id="altpickDate_1_from" value="{$jobopportunity[approxJoinDate]}" />
                         </td>

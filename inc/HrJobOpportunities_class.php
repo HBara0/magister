@@ -41,6 +41,9 @@ class HrJobOpportunities extends AbstractClass {
                 $data[$date] = strtotime($data[$date]);
             }
         }
+        if(!isset($data['joinDateImmediate']) || empty($data['joinDateImmediate'])) {
+            $data['joinDateImmediate'] = 0;
+        }
         $data['createdOn'] = TIME_NOW;
         $data['createdBy'] = $core->user['uid'];
         $data['alias'] = strtolower($data['reference'].'-'.generate_alias($data['title']).'-'.$data['affid']);
@@ -132,6 +135,9 @@ class HrJobOpportunities extends AbstractClass {
             if(isset($data[$date]) && !empty($data[$date]) && !is_numeric($data[$date])) {
                 $data[$date] = strtotime($data[$date]);
             }
+        }
+        if(!isset($data['joinDateImmediate']) || empty($data['joinDateImmediate'])) {
+            $data['joinDateImmediate'] = 0;
         }
         $data['modifiedOn'] = TIME_NOW;
         $data['modifiedBy'] = $core->user['uid'];

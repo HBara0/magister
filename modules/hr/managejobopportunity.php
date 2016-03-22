@@ -29,6 +29,10 @@ if(!$core->input['action']) {
                 $jobopportunity[$date.'_output'] = date($core->settings['dateformat'], $jobopportunity[$date]);
             }
         }
+
+        if($jobopportunity_obj->joinDateImmediate == 1) {
+            $checked['joinDateImmediate'] = 'checked="checked"';
+        }
     }
     $question_rowid = 0;
 
