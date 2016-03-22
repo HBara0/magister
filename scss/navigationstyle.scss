@@ -64,11 +64,23 @@ html, body {
 }
 .list-group-item{
     background: #f9f9f9;
+    color:#acacac;
 
 }
 .list-group-item.active, .list-group-item.active:focus, .list-group-item.active:hover{
     background: #B6CF8C !important;
     border-color: #B6CF8C;
+}
+.list-group-subitem {
+    border-bottom: none !important;
+    border-top: 1px solid #ddd;
+    border-left:none !important;
+    border-right:none !important;
+
+}
+.list-group-firstsubitem {
+    border: none !important;
+
 }
 .scrollable-menu {
     height: 100% !important;

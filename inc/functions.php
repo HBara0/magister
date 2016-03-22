@@ -1293,12 +1293,16 @@ function parse_menuitems($module_name, $modules_dir = 'modules') {
                         $array3_key = $array3_indexes[$current_index];
 
                         if($core->usergroup[$menu['permission'][$array3_key][0]] == 1) {
-                            $items .= '<li class="expandable list-group-item"><span id="'.$key.'">'.$lang->$array2_indexes[$current_index].'</span>';
+                            $items .= '<li class="expandable list-group-item"><span id="'.$key.'" style="cursor: pointer;">'.$lang->$array2_indexes[$current_index].'<span class="caret" style="float:right;margin-top:7px;margin-right:2px;"></span></span>';
                             $items .= '<div id="'.$key.'_children_container" style="display: none;">';
                             $items .= '<ul id="'.$key.'_children" style="padding-left:0px;">';
                             foreach($item as $k => $v) {
+                                $additional_class = 'list-group-subitem';
+                                if($k == 0) {
+                                    $additional_class = 'list-group-firstsubitem';
+                                }
                                 if($core->usergroup[$menu['permission'][$array3_key][($k + 1)]] == 1) {
-                                    $items .= "<li class='list-group-item'><span id='{$module_name}/{$v}'><a href='index.php?module={$module_name}/{$v}'>{$lang->$menu[title][$array2_key][$k]}</a></span></li>\n";
+                                    $items .= "<li class='list-group-item ".$additional_class."'><span id='{$module_name}/{$v}'><a href='index.php?module={$module_name}/{$v}'>{$lang->$menu[title][$array2_key][$k]}</a></span></li>\n";
                                 }
                             }
                             $items .= '</ul></div></li>';
