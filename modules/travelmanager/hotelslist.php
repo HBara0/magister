@@ -49,7 +49,9 @@ if(!$core->input['action']) {
 
     $filters_row = $filter->prase_filtersrows(array('tags' => 'table'));
 //end parsing filters
-
+    if($core->usergroup['travelmanager_canApproveHotels'] == 0) {
+        $hidecreate = 'display:none;';
+    }
     $hotels = TravelManagerHotels::get_data($filter_where, array('operators' => $filters_opts, 'returnarray' => true, 'order' => array('sort' => array('isApproved' => 'DESC'), 'by' => array('name', 'avgPrice', 'isApproved'))));
     if(is_array($hotels)) {
         foreach($hotels as $hotel) {

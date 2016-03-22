@@ -10,6 +10,7 @@
         <td class="contentContainer">
             <h1>{$lang->hotelslist}</h1>
             <form name="perform_travelmanager/hotelslist_Form" id="perform_travelmanager/hotelslist_Form" action="#" method="post">
+                <div style="float: right;{$hidecreate}"><a href="{$core->settings['rootdir']}/index.php?module=travelmanager/edithotel" target="_blank" class="btn btn-success"><label style="color: white"><strong>{$lang->createhotel}</strong></label></a></div>
                 <table class="datatable_basic  table table-bordered row-border hover order-column" data-skipfilter="true" cellspacing="0" width="100%">
                     <thead>
                         <tr>
