@@ -60,11 +60,13 @@ else {
         if(is_object($widget_obj) && !empty($widget_obj->className)) {
             $classname = $widget_obj->className;
         }
-        $gadget_obj = new $classname();
-        if(is_object($gadget_obj)) {
-            $basicids = array(SystemDashboard::PRIMARY_KEY => $dash_id, SystemWidgets::PRIMARY_KEY => $widget_id);
-            output($gadget_obj->parse_form($basicids, $widgetinstance_data));
-            exit;
+        if($classname && is_string($classname)) {
+            $gadget_obj = new $classname();
+            if(is_object($gadget_obj)) {
+                $basicids = array(SystemDashboard::PRIMARY_KEY => $dash_id, SystemWidgets::PRIMARY_KEY => $widget_id);
+                output($gadget_obj->parse_form($basicids, $widgetinstance_data));
+                exit;
+            }
         }
         output('Error');
     }

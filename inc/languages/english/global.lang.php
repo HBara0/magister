@@ -174,4 +174,6 @@ $lang['columncount'] = 'Column Count';
 $lang['managedashboard'] = 'Manage Dashboard';
 $lang['edit'] = 'Edit';
 $lang['dashboard'] = 'Dashboard';
+$lang['leavestatusfor'] = 'Leave Status For';
+$lang['noleavestats'] = 'No Leave Stats';
 ?>
