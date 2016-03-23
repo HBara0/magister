@@ -733,7 +733,9 @@ $(function () {
 //        if(rel != '' || rel != null) {
 //            id[1] = rel;
         //        }
-
+        if($('div[id="popup_managewidgets"]')) {
+            $('div[id="popup_managewidgets"]').remove();
+        }
         if(typeof $(this).attr("data-template") != 'undefined') {
             id[0] = $(this).attr("data-template");
         }
@@ -831,15 +833,20 @@ $(function () {
             file = rootdir + id;
         }
         var data_params = '';
+        var additionaldata = '';
         if(!jQuery.isEmptyObject(element)) {
             if(typeof element.attr("data-params") != 'undefined') {
                 data_params = '&params=' + element.attr("data-params");
             }
+            if(typeof element.attr("data-additionaldata") != 'undefined') {
+                additionaldata = '&' + element.attr("data-additionaldata");
+            }
         }
+
         /*change ajax call*/
         $.ajax({type: 'post',
             url: file + "?module=" + module + "&action=get_" + template,
-            data: "id=" + id + data_params,
+            data: "id=" + id + additionaldata + data_params,
             beforeSend: function () {
                 $("body").append("<div id='modal-loading'><span  style='display:block; width:100px; height: 100%; margin: 0 auto;'><img  src='./images/loader.gif'/></span></div>");
                 $("#modal-loading").dialog({height: 150, modal: true, closeOnEscape: false, title: 'Loading...', resizable: false, minHeight: 0,
@@ -849,7 +856,7 @@ $(function () {
                 $("#modal-loading").dialog("close").remove();
             },
             success: function (returnedData) {
-                $(".container").append(returnedData);
+                $(".workspace_container").append(returnedData);
                 initialize_texteditors();
                 $("div[id^='popup_']").dialog({
                     bgiframe: true,
@@ -1245,7 +1252,33 @@ $(function () {
     });
 //}
 
+    $("a[id^='select_'][id$='_widgettype']").click(function() {
+        var id = $(this).attr("id").split("_");
+        if(!id[1]) {
+            alert('Error In Widget Type');
+            return;
+        }
+        var wid = id[1];
+        if(sharedFunctions.checkSession() == false) {
+            alert('Error In Widget Type');
+            return;
+        }
+        var dashid = '';
+        if($("input[id='dasboard_id']").val()) {
+            dashid = $("input[id='dasboard_id']").val();
+        }
+        var inputChecksum = '';
+        if($("input[id='dasboard_inputChecksum']").val()) {
+            inputChecksum = $("input[id='dasboard_inputChecksum']").val();
+        }
+        if(dashid == '' && inputChecksum == '') {
+            alert('Error In Widget Type');
+            return;
+        }
+        var url = "index.php?module=portal/dashboard&action=populate_widgetsettings";
+        sharedFunctions.requestAjax("post", url, "&wid=" + wid + "&inputChecksum=" + inputChecksum + "&dashid=" + dashid, "widgetsettings_result", "widgetsettings_result", 'html');
 
+    });
 });
 function validateEmail(email) {
     return email.match(/^[a-zA-Z0-9&*+\-_.{}~^\?=\/]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9.-]+$/);
