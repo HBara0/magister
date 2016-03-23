@@ -54,4 +54,6 @@ $lang['commercialmanager'] = 'Commercial Manager';
 $lang['globalfinmanager'] = 'Global Financial Manager';
 $lang['commercialemail'] = 'Commercial Email';
 $lang['errorupdatingaffiliate'] = "An error occured while Updating the affiliate management data";
+$lang['affiliatemanagement'] = 'Affiliate Management';
+$lang['editaffiliate'] = 'Edit Affiliate';
 ?>

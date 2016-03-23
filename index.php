@@ -36,7 +36,7 @@ if(file_exists(INC_ROOT.$run_module.'_functions.php')) {
     require_once INC_ROOT.$run_module.'_functions.php';
 }
 
-$modules_list = parse_moduleslist($run_module);
+//$modules_list = parse_moduleslist($run_module);
 
 require $core->sanitize_path($modules_dir.'/'.$run_module.'.php');
 if($core->usergroup[$module['globalpermission']] == 1) {
@@ -44,15 +44,18 @@ if($core->usergroup[$module['globalpermission']] == 1) {
         $current_module[1] = $module['homepage'];
     }
     $log_array = array('uid' => $core->user['uid'], 'page' => $current_module[1], 'module' => $current_module[0], 'time' => TIME_NOW);
+    $log_array = array('uid' => $core->user['uid'], 'page' => $current_module[1], 'module' => $current_module[0], 'time' => TIME_NOW);
     if(empty($log_array['module'])) {
         $log_array['module'] = $log_array['page'];
     }
     $pagelog = new LogsUserPages();
     $pagelog->record_log($log_array);
+
     $action_file = $current_module[1].'.php';
 
     $menu_items = parse_menuitems($run_module);
-    eval("\$menu = \"".$template->get('mainmenu')."\";");
+    //  eval("\$menu = \"".$template->get('mainmenu')."\";");
+    eval("\$rightsidemenu = \"".$template->get('rightside_menu')."\";");
 
     /* Get Module Help Section - Start */
     //$help_document  = $db->fetch_assoc($db->query("SELECT hdid FROM ".Tprefix."helpdocuments WHERE module='{$run_module}' AND relatesTo LIKE '%:\"{$current_module[1]}\";%' LIMIT 0, 1"));

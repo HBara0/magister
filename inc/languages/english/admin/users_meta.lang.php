@@ -14,4 +14,7 @@ $lang['never'] = "Never";
 
 $lang['profilesuccessfullyupdated'] = "Profile was successfully updated";
 $lang['errorupdatingprofile'] = "An error occurred while updating the profile";
+$lang['add'] = "Add a User";
+$lang['edit'] = "Edit a User";
+$lang['view'] = 'View User';
 ?>

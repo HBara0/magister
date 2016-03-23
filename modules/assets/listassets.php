@@ -1,7 +1,7 @@
 <?php
 /*
  * Copyright © 2013 Orkila International Offshore, All Rights Reserved
- * 
+ *
  * List available assets
  * $id: 'listassets.php
  * Created:        @tony.assaad    Jun 25, 2013 | 2:56:12 PM
@@ -101,7 +101,7 @@ elseif($core->input['action'] == 'get_deleteasset') {
     $asset = $asset->get();
 
     eval("\$deleteasset = \"".$template->get('popup_assets_listassetsdelete')."\";");
-    echo $deleteasset;
+    output($deleteasset);
 }
 elseif($core->input['action'] == 'get_editasset') {
     $asid = $db->escape_string($core->input['id']);
@@ -125,7 +125,7 @@ elseif($core->input['action'] == 'get_editasset') {
 
     $actiontype = 'edit';
     eval("\$editasset = \"".$template->get('popup_assets_listassetsedit')."\";");
-    echo $editasset;
+    output($editasset);
 }
 elseif($core->input['action'] == 'perform_delete') {
     $asid = $db->escape_string($core->input['todelete']);

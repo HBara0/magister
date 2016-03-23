@@ -181,7 +181,7 @@ $(function () {
             function () {
                 $(this).removeClass("mainmenuitem_hover");
             });
-    $("#mainmenu > li[class='expandable']").find("span:first").click(function () {
+    $("#mainmenu > li[class^='expandable']").find("span:first").click(function() {
         $(this).parent().removeClass("mainmenuitem_hover");
         $("#" + $(this).attr("id") + "_children_container").slideToggle();
     });
@@ -849,7 +849,7 @@ $(function () {
                 $("#modal-loading").dialog("close").remove();
             },
             success: function (returnedData) {
-                $(".contentContainer").append(returnedData);
+                $(".container").append(returnedData);
                 initialize_texteditors();
                 $("div[id^='popup_']").dialog({
                     bgiframe: true,

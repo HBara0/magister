@@ -31,7 +31,7 @@ if(!isset($core->input['action'])) {
             $facilities_list = '<tr><td colspan="3">'.$lang->na.'</td></tr>';
         }
         eval("\$facilitiestree= \"".$template->get('facilitymgmt_facilitytree')."\";");
-        output_page($facilitiestree);
+        output_page(array('content' => $facilitiestree, 'title' => $lang->facilities));
     }
     else {
         $facilities = FacilityMgmtFacilities::get_data('name IS NOT NULL', array('returnarray' => true));
@@ -65,8 +65,8 @@ if(!isset($core->input['action'])) {
                 unset($facility_data);
             }
         }
-        eval("\$facilitieslist= \"".$template->get('facilitymgmt_facilitylist')."\";");
-        output_page($facilitieslist);
+        eval("\$facilitytypelist= \"".$template->get('facilitymgmt_facilitylist')."\";");
+        output_page($facilitytypelist);
     }
 }
 else {

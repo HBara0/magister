@@ -33,7 +33,7 @@ if(!$core->input['action']) {
     }
 
     eval("\$generatepage = \"".$template->get('crm_generatesalesreport_live')."\";");
-    output_page($generatepage);
+    output_page($generatepage, array('pagetitle' => 'generatesalesreport'));
 }
 else {
     if($core->input['action'] == 'do_perform_salesreportlive') {

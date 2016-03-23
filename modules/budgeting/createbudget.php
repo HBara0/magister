@@ -62,6 +62,7 @@ if(!$core->input['action']) {
     $budget_currencylist = parse_selectlist('budget[currency]', 1, array(), $affiliate_currency, '', '', array('id' => 'currency'));
 
     eval("\$budgetcreate = \"".$template->get('budgeting_createbudget')."\";");
+    $additionalheaderinc = '<script src="{$core->settings[rootdir]}/js/fillreport.js" type="text/javascript"></script>';
     output_page($budgetcreate);
 }
 else {

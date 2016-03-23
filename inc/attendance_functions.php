@@ -684,7 +684,7 @@ function parse_attendance_reports($core, $headerinc = '', $header = '', $menu = 
     $cache = new Cache;
     if(!$core->input['output'] == 'email') {
         if(is_empty($core->input['fromDate'], $core->input['uid'])) {
-            error($lang->invalidtodate, 'index.php?module=attendance/generatereport', false);
+            error($lang->invalidtodate, 'index.php?module=attendance/attendancereport', false);
         }
 
         if(empty($core->input['toDate'])) {
@@ -697,7 +697,7 @@ function parse_attendance_reports($core, $headerinc = '', $header = '', $menu = 
         $todate = $todate_object->getTimestamp();
 
         if($fromdate > $todate) {
-            error($lang->invalidtodate, 'index.php?module=attendance/generatereport', false);
+            error($lang->invalidtodate, 'index.php?module=attendance/attendancereport', false);
         }
 
         if($fromdate > TIME_NOW) {
