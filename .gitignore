@@ -15,3 +15,4 @@ inc/integration_config.php
 /images/entitieslogos/*.bmp
 /images/profilepictures/*.jpg
 /images/profilepictures/*.bmp
+crons/directq_hb.php
