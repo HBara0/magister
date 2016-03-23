@@ -782,7 +782,7 @@ $(function () {
         popUp(id[1], id[0] + "_" + id[2]);
     });
 
-    $('input[title],a[title],div[title],span[title]').tooltip({placement: 'auto', container: 'body', html: true});
+    $('input[title],a[title],div[title],span[title]').tooltip({placement: 'auto', html: true});
     function popUp(module, template, id, element) {
         if(element === undefined) {
             element = '';
