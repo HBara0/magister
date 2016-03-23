@@ -34,6 +34,9 @@ else {
                 if(!empty($widget_input['swgiid'])) {
                     eval("\$extrajs = \"".$template->get('dashboard_general_loadwidgetinstance_jsscript')."\";");
                 }
+                else {
+                    $extrajs = '<script>$(function(){location.reload();});</script>';
+                }
                 output_xml("<status>true</status><message>{$lang->successfullysaved}<![CDATA[{$extrajs}]]></message>");
                 exit;
             case 3:
