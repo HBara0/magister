@@ -59,6 +59,7 @@ if(!$core->input['action']) {
     $budget_currencylist = parse_selectlist('yef[currency]', 1, array(), $affiliate_currency, '', '', array('id' => 'currency'));
 
     eval("\$yefcreate = \"".$template->get('budgeting_createyefbudget')."\";");
+    $additionalheaderinc = '<script src="{$core->settings[rootdir]}/js/fillreport.js" type="text/javascript"></script>';
     output_page($yefcreate);
 }
 else {

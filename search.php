@@ -443,6 +443,14 @@ if($core->input['type'] == 'quick') {
             }
             $extra_where .= ' isActive = 1 AND approved = 1'.$permisisonents;
         }
+        elseif($core->input['for'] == 'currencies') {
+            $table = Currencies::TABLE_NAME;
+            $attributes = array('alphaCode', 'name');
+            $key_attribute = Currencies::PRIMARY_KEY;
+
+            $select_attributes = array('alphaCode', 'name');
+            $order = array('by' => 'name', 'sort' => 'ASC');
+        }
 //        if(isset($core->input['exclude']) && !empty($core->input['exclude'])) {
 //            if(is_array($core->input['exclude'])) {
 //                $core->input['exclude'] = array_map(intval, $core->input['exclude']);

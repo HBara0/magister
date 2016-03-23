@@ -1,6 +1,7 @@
 <?php
 $lang['sharedfileslist'] = "List Of Shared Files";
 $lang['shareafile'] = "Share a File";
+$lang['uploadfile'] = "Share a File";
 $lang['selectfile'] = "Select a File";
 $lang['fileslist'] = "Files List";
 $lang['title'] = "Title";

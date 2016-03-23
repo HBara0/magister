@@ -1,1 +1,1 @@
-| <a href='{$settings[rootdir]}/{$config[admindir]}/' />Admin CP</a>
+<a href='{$settings[rootdir]}/{$config[admindir]}/' />Admin CP</a>

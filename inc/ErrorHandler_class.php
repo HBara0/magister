@@ -178,15 +178,18 @@ class ErrorHandler {
 
         foreach($data as $type => $content) {
             if(empty($lang->$type)) {
-                $lang->$type = $type;
+                $type_ourput = $type;
+            }
+            else {
+                $type_ourput = $lang->$type;
             }
             if($is_recursive == false) {
-                $output .= '<strong>'.$lang->$type.'</strong><ol>';
+                $output .= '<strong>'.$type_ourput.'</strong><ol>';
             }
 
             if(is_array($content)) {
                 if($is_recursive == true) {
-                    $output .= '<strong>'.$lang->$type.'</strong><ol>';
+                    $output .= '<strong>'.$type_ourput.'</strong><ol>';
                 }
                 $output .= $this->parse_errors_inline($content, true);
 

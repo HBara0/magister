@@ -35,7 +35,7 @@ $lang['invitationsubject'] = 'Subject';
 $lang['invitee'] = 'Invitee';
 $lang['inviteesnumber_tip'] = 'Specified number will be used to randomly select x number of invitees out of the checked.';
 $lang['isanswer'] = 'Is Answer';
-$lang['listsurveys'] = 'List Surveys';
+$lang['list'] = 'List Surveys';
 $lang['maxchars'] = 'Max of {1} characters';
 $lang['minchars'] = 'Min of {1} characters';
 $lang['modifysurvey'] = 'Modify Survey';
@@ -90,4 +90,7 @@ $lang['wrongemailformat'] = 'Wrong Email Format';
 $lang['rows'] = 'Rows';
 $lang['customizeinvitationemail'] = 'Customize Invitation E-mail';
 $lang['surveyheaderurl'] = 'Survey Header URL';
+$lang['createsurveytemplate'] = 'Create Survey Template';
+$lang['managesurveys'] = 'Manage Surveys';
+$lang['viewresults'] = 'View Results';
 ?>

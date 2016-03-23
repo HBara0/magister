@@ -692,6 +692,7 @@ if(!$core->input['action']) {
         }
         /* Parse MOM Specific Follow Up Actions - end */
         eval("\$marketreportpage .= \"".$template->get('reporting_fillreports_marketreport')."\";");
+        $pagetitle = $lang->reportdetails.' - Q'.$core->input[quarter].' '.$core->input[year].' / '.$core->input[supplier].' - '.$core->input[affiliate];
         eval("\$fillreportpage = \"".$template->get('reporting_fillreports_tabs')."\";");
     }
     elseif($core->input['stage'] == 'keycustomers') {
@@ -815,7 +816,7 @@ if(!$core->input['action']) {
         if($db->num_rows($query) == 0) {
             $affiliates_list = $lang->noreportsavailable;
             eval("\$fillreportpage = \"".$template->get('reporting_fillreports_init')."\";");
-            output_page($fillreportpage);
+            output($fillreportpage, array('exclude' => true));
             exit;
         }
         while($affiliate = $db->fetch_array($query)) {
@@ -1378,7 +1379,7 @@ else {
         $generics_list = parse_selectlist('gpid', 3, $generics, '');
 
         eval("\$addproductbox = \"".$template->get('popup_addproduct')."\";");
-        output_page($addproductbox);
+        output($addproductbox);
     }
     elseif($core->input['action'] == 'save_report') {
         $identifier = $db->escape_string($core->input['identifier']);
