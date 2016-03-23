@@ -164,7 +164,7 @@ class IntegrationOB extends Integration {
         while($document = $this->f_db->fetch_assoc($query)) {
             if($doc_type == 'order') {
                 //get linked invoice id, Null if there's no invoice
-                $document['foreignInvoiceId'] = $db->fetch_assoc($db->query('SELECT c_invoice_id FROM '.Tprefix.'c_invoice WHERE c_order_id='.$document['doc_id']));
+                $document['foreignInvoiceId'] = $this->f_db->fetch_assoc($this->f_db->query('SELECT c_invoice_id FROM '.Tprefix.'c_invoice WHERE c_order_id='.$document['doc_id']));
             }
             $document_newdata = array(
                     'foreignSystem' => $this->foreign_system,
@@ -308,7 +308,7 @@ class IntegrationOB extends Integration {
 							WHERE o.ad_org_id IN ('".implode('\',\'', $organisations)."') AND issotrx='N' AND em_ork_isreidi='Y' AND docstatus = 'CO' AND ((dateordered BETWEEN '".date('Y-m-d 00:00:00', strtotime($this->period['from']))."' AND '".date('Y-m-d 00:00:00', strtotime($this->period['to']))."') OR (o.updated BETWEEN '".date('Y-m-d 00:00:00', strtotime($this->period['from']))."' AND '".date('Y-m-d 00:00:00', strtotime($this->period['to']))."'))");
         }
         else {
-            $query = $this->f_db->query("SELECT i.c_invoice_id AS documentid, i.ad_org_id, i.documentno, bp.name AS bpname, bp.c_bpartner_id AS bpid, c.iso_code AS currency, dateinvoiced AS documentdate, pt.netdays AS paymenttermsdays,.i.c_order_id As foreignOrderId
+            $query = $this->f_db->query("SELECT i.c_invoice_id AS documentid, i.ad_org_id, i.documentno, bp.name AS bpname, bp.c_bpartner_id AS bpid, c.iso_code AS currency, dateinvoiced AS documentdate, pt.netdays AS paymenttermsdays,i.c_order_id As foreignOrderId
 							FROM c_invoice i JOIN c_bpartner bp ON (bp.c_bpartner_id=i.c_bpartner_id)
 							JOIN c_currency c ON (c.c_currency_id=i.c_currency_id)
 							JOIN c_paymentterm pt ON (i.c_paymentterm_id=pt.c_paymentterm_id)
@@ -320,7 +320,7 @@ class IntegrationOB extends Integration {
         while($document = $this->f_db->fetch_assoc($query)) {
             if($doc_type == 'order') {
                 //get linked invoice id, Null if there's no invoice
-                $document['foreignInvoiceId'] = $this->f_db->fetch_assoc($db->query('SELECT c_invoice_id FROM '.Tprefix.'c_invoice WHERE c_order_id='.$document['documentid']));
+                $document['foreignInvoiceId'] = $this->f_db->fetch_assoc($this->f_db->query('SELECT c_invoice_id FROM '.Tprefix.'c_invoice WHERE c_order_id='.$document['documentid']));
                 if($document['foreignInvoiceId'] == NULL) {
                     $purchasetype = 'DI';
                 }
