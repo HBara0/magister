@@ -12,9 +12,9 @@ if(!defined('DIRECT_ACCESS')) {
     die('Direct initialization of this file is not allowed.');
 }
 
-if($core->usergroup['meetings_canCreateMeeting'] == 0) {
-    error($lang->sectionnopermission);
-}
+//if($core->usergroup['meetings_canCreateMeeting'] == 0) {
+//    error($lang->sectionnopermission);
+//}
 
 if(!$core->input['action']) {
     if(isset($core->input['mtid']) && !empty($core->input['mtid'])) {

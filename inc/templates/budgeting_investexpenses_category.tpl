@@ -1,5 +1,3 @@
-
-
 <tr><td colspan="7" class="subtitle">{$category->title}</td></tr>
     {$budgeting_investexpenses_item}
 <tr>

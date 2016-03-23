@@ -42,7 +42,7 @@ if(!isset($core->input['action'])) {
         $facilitytype['title'] = $facilitytype_obj->get_displayname();
     }
     eval("\$managefacility= \"".$template->get('facilitymgmt_managefacilitytypes')."\";");
-    output($managefacility);
+    output_page($managefacility);
 }
 else if($core->input['action'] == 'do_perform_managefacilitytype') {
     $facilitytype = new FacilityMgmtFactypes();

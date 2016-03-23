@@ -1,25 +1,11 @@
-<html>
-    <head>
-        <title>{$core->settings[systemtitle]} | {$profile[companyName]}</title>
-        {$headerinc}
-        <style type="text/css">
-            span.listitem:hover { border-bottom: #CCCCCC solid thin; }
-        </style>
-    </head>
-    <body>
-        {$header}
+<style type="text/css">
+    span.listitem:hover { border-bottom: #CCCCCC solid thin; }
+</style>
+<h1>{$lang->purchasereporttitle}</h1>
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
     <tr>
-        {$menu}
-        <td class="contentContainer">
-            <h1>{$lang->purchasereporttitle}</h1>
-            <table width="100%" border="0" cellspacing="0" cellpadding="0">
-                <tr>
-                    <td>
-                        {$content}
-                    </td>
-                </tr>
-            </table>
-        </td></tr>
-        {$footer}
-</body>
-</html>
+        <td>
+            {$content}
+        </td>
+    </tr>
+</table>

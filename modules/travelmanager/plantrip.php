@@ -26,7 +26,7 @@ if(!$core->input['action']) {
         }
         $plantrip = $plan_obj->parse_existingsegments();
 
-        output($plantrip);
+        output_page($plantrip);
     }
     //$tools_addnewtab = '<a id="createtab" class="showpopup" href="#" title="'.$lang->addsegment.'"><img border="0" alt="Create New Tab" src="images/addnew.png"></img> </a>';
     else {

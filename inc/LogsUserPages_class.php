@@ -121,4 +121,20 @@ class LogsUserPages extends AbstractClass {
         return false;
     }
 
+    public function get_frequentitems($type = 'module', $limit = 3) {
+        global $db, $core;
+        /**
+         * Query to be changed when DAL support functions in SELECT
+         */
+        $sql = $db->query('SELECT *, COUNT(*) as timeAccessed FROM '.self::TABLE_NAME.' WHERE uid='.$core->user_obj->get_id().' GROUP BY module ORDER BY timeAccessed DESC LIMIT 0, '.intval($limit));
+        $items = array();
+        if($db->num_rows($sql) > 1) {
+            while($item = $db->fetch_assoc($sql)) {
+                $items[$item['module']] = $item;
+            }
+        }
+
+        return $items;
+    }
+
 }

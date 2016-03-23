@@ -14,6 +14,7 @@
 <link href="{$core->settings[rootdir]}/css/bootstrap.min.css" rel="stylesheet">
 <link href='{$core->settings[rootdir]}/css/jquery.qtip.min.css' rel='stylesheet' type='text/css' />
 <link href="{$core->settings[rootdir]}/css/token-input.css" rel="stylesheet" type="text/css" />
+
 <link href="{$core->settings[rootdir]}/css/styles.min.css" rel="stylesheet" type="text/css" />
 
 <script src="{$core->settings[rootdir]}/inc/libraries/Datatables/datatables.min.js" type = "text/javascript" ></script>

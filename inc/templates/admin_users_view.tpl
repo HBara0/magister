@@ -1,43 +1,28 @@
-<html>
-    <head>
-        <title>{$core->settings[systemtitle]} | {$lang->manageusers}</title>
-        {$headerinc}
-    </head>
-    <body>
-        {$header}
-    <tr>
-        {$menu}
-        <td class="contentContainer">
-            <h1>{$lang->manageusers}</h1>
-            <table class="datatable_basic table table-bordered row-border hover order-column" cellspacing="0" width="100%">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>{$lang->username}</th>
-                        <th>{$lang->email}</th>
-                        <th>{$lang->usergroup}</th>
-                        <th>{$lang->affiliates}</th>
-                        <th>{$lang->lastvisit}</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tfoot>
-                    <tr>
-                        <th>#</th>
-                        <th>{$lang->username}</th>
-                        <th>{$lang->email}</th>
-                        <th>{$lang->usergroup}</th>
-                        <th>{$lang->affiliates}</th>
-                        <th>{$lang->lastvisit}</th>
-                        <th></th>
-                    </tr>
-                </tfoot>
-                <tbody>
-                    {$userslist}
-                </tbody>
-            </table>
-        </td>
-    </tr>
-    {$footer}
-</body>
-</html>
+<h1>{$lang->manageusers}</h1>
+<table class="datatable_basic table table-bordered row-border hover order-column" cellspacing="0" width="100%">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>{$lang->username}</th>
+            <th>{$lang->email}</th>
+            <th>{$lang->usergroup}</th>
+            <th>{$lang->affiliates}</th>
+            <th>{$lang->lastvisit}</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tfoot>
+        <tr>
+            <th>#</th>
+            <th>{$lang->username}</th>
+            <th>{$lang->email}</th>
+            <th>{$lang->usergroup}</th>
+            <th>{$lang->affiliates}</th>
+            <th>{$lang->lastvisit}</th>
+            <th></th>
+        </tr>
+    </tfoot>
+    <tbody>
+        {$userslist}
+    </tbody>
+</table>

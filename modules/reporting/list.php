@@ -167,7 +167,7 @@ if(!$core->input['action']) {
         $reportslist = '<tr><td colspan="7" align="center">'.$lang->noreportsavailable.'</td></tr>';
     }
     eval("\$listpage = \"".$template->get('reporting_reportslist')."\";");
-    output_page($listpage);
+    output_page($listpage, array('pagetitle' => 'listreports'));
 }
 else {
     if($core->input['action'] == 'get_status') {
