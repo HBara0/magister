@@ -243,7 +243,7 @@ else {
                                                     }
                                                     else {
                                                         $rep_field['email'] = $representative->email;
-                                                        if(empty($representative->email)) {
+                                                        if(empty($representative->email) || (strtolower(substr($representative->email, 0, 3) == 'na@'))) {
                                                             $rep_field['email'] = '';
                                                         }
                                                         $rep_field['phone'] = $representative->phone;
@@ -319,7 +319,7 @@ else {
             </head>
             <body>'.$result.'</body></html>';
                                 //write and create the file
-                                $path = $sub_path.'/'.$segment_output.'.xls';
+                                $path = $sub_path.'/'.$segment_output.'_'.$affiliate->alias.'.xls';
                                 $handle = fopen($path, 'w') or die('Cannot open file: '.$allpaths);
                                 $writefile = file_put_contents($path, $page);
                                 unset($result, $entityrows);

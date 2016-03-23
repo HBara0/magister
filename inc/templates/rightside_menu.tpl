@@ -1,5 +1,5 @@
 <div style="position:fixed;height:100%;top: 50px;z-index:1;" class="hidden-print">
-    <div class="list-group" style="display: inline-block;width:200px;">
+    <div id="leftside_menu" class="list-group" style="display: inline-block;width:200px;">
         <span  class="list-group-item active">
             <strong>{$lang->$run_module}</strong>
         </span>
@@ -12,10 +12,10 @@
     </div>
 </div>
 <script>
-    $(function () {
+    $(function() {
         $('#switch_pages').tooltip();
-        $('.list-group').toggle();
-        $('.mini-submenu').on('click', function () {
+        $('#leftside_menu').hide();
+        $('.mini-submenu').on('click', function() {
             $(this).prev('.list-group').animate({width: 'toggle'}, 350);
             if($("span[id='switch_pages']").hasClass("glyphicon-chevron-right")) {
                 $("span[id='switch_pages']").removeClass("glyphicon-chevron-right").addClass("glyphicon-chevron-left");
