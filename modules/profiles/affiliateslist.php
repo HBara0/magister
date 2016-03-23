@@ -111,7 +111,7 @@ if(!$core->input['action']) {
                 }
                 else {
                     if(!in_array($affiliate['generalManager'], $gm_filters_cache)) {
-                        $gm = "<a href='./users.php?action=profile&uid={$affiliate['generalManager']}' target='_blank'>".$managers[$affiliate['generalManager']]."</a><a href='index.php?module=profiles/affiliateslist&filterby=generalManager&filtervalue={$affiliate[generalManager]}'> <img src='./images/icons/search.gif' border='0' alt='{$lang->filterby}'/></a>";
+                        // $gm = "<a href='./users.php?action=profile&uid={$affiliate['generalManager']}' target='_blank'>".$managers[$affiliate['generalManager']]."</a><a href='index.php?module=profiles/affiliateslist&filterby=generalManager&filtervalue={$affiliate[generalManager]}'> <img src='./images/icons/search.gif' border='0' alt='{$lang->filterby}'/></a>";
                         $gm_filters_cache[] = $affiliate['generalManager'];
                     }
                     else {
@@ -124,7 +124,7 @@ if(!$core->input['action']) {
                 }
                 else {
                     if(!in_array($affiliate['supervisor'], $supervisor_filters_cache)) {
-                        $supervisor = "<a href='./users.php?action=profile&uid={$affiliate['supervisor']}' target='_blank'>".$managers[$affiliate['supervisor']]."</a><a href='index.php?module=profiles/affiliateslist&filterby=supervisor&filtervalue={$affiliate[supervisor]}'> <img src='./images/icons/search.gif' border='0' alt='{$lang->filterby}'/></a>";
+                        //  $supervisor = "<a href='./users.php?action=profile&uid={$affiliate['supervisor']}' target='_blank'>".$managers[$affiliate['supervisor']]."</a><a href='index.php?module=profiles/affiliateslist&filterby=supervisor&filtervalue={$affiliate[supervisor]}'> <img src='./images/icons/search.gif' border='0' alt='{$lang->filterby}'/></a>";
                         $supervisor_filters_cache[] = $affiliate['supervisor'];
                     }
                     else {
