@@ -202,10 +202,15 @@ class SystemDashboard extends AbstractClass {
      * @return type
      */
     public function parse_dashboardpage() {
-        global $core, $template, $lang;
+        global $core, $template, $lang, $current_module;
         if(!empty($core->input['module'])) {
             $module_info = explode('/', $core->input['module']);
         }
+
+        if(empty($module_info[0])) {
+            $module_info = $current_module;
+        }
+
         if(is_array($module_info)) {
             $dashboard_obj = SystemDashboard::get_data(array('uid' => $core->user['uid'], 'pageName' => $module_info[1], 'moduleName' => $module_info[0]), array('returnarray' => false));
         }

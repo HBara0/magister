@@ -27,6 +27,7 @@ else {
             $run_module = 'portal';
         }
     }
+    $current_module[0] = $run_module;
     $current_module[1] = false;
 }
 
@@ -43,7 +44,6 @@ if($core->usergroup[$module['globalpermission']] == 1) {
     if($current_module[1] === false) {
         $current_module[1] = $module['homepage'];
     }
-    $log_array = array('uid' => $core->user['uid'], 'page' => $current_module[1], 'module' => $current_module[0], 'time' => TIME_NOW);
     $log_array = array('uid' => $core->user['uid'], 'page' => $current_module[1], 'module' => $current_module[0], 'time' => TIME_NOW);
     if(empty($log_array['module'])) {
         $log_array['module'] = $log_array['page'];
