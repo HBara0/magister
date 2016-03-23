@@ -222,7 +222,7 @@ td { padding: 2px; }
 
 .mainmenuitem_hover {
     color: #696969 !important;
-    background-color: $color_green;
+    background-color: #ECECEC !important;
 }
 
 .mainmenuitem_hover a {
@@ -389,7 +389,7 @@ td { padding: 2px; }
     vertical-align: middle !important;
 }
 
-input.button,.button, button:not(.navbar-toggle) {
+.button {
     @include border-radius(4px);
     background: $color_green;
     text-indent:0;
@@ -408,7 +408,7 @@ input[type="submit"].main {
     min-width: 160px;
 }
 
-input.button:hover {
+.button:hover {
     background-color: #8cb82b;
 }
 
@@ -782,4 +782,9 @@ tfoot .coltotal, tfoot .colavg {
 .jqstooltip{
     width:50px;
     height:25px!important;
+}
+
+.ui-dialog-titlebar-close {
+    background-color: #CCC !important;
+    color: #FFF;
 }

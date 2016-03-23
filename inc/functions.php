@@ -27,6 +27,10 @@ function output_page($pagecontent, $options = null) {// default tpl, options to 
         }
     }
     ${$options['helptourref'].'_helptour'} = get_helptour('newlayout');
+
+    if(!empty($options['additionalheaderinc'])) {
+        $headerinc .= $options['additionalheaderinc'];
+    }
     eval("\$template= \"".$template->get('defaulttpl')."\";");
 
     $template = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n".$template;
@@ -1254,13 +1258,12 @@ function parse_moduleslist($current_module, $modules_dir = 'modules', $is_select
     }
 
     if(!empty($list)) {
-        return $list;
-//        if($is_selectlist === true) {
-//            return '<select name="defaultModule" id="defaultModule"><option value="">&nbsp;<option>'.$list.'</select>';
-//        }
-//        else {
-//            return '<div id="currentmodule_name"><span class="subtitle">'.$current_module_title.'</span> <br /><div class="moduleslist_container">'.$list.'</div></div>';
-//        }
+        if($is_selectlist === true) {
+            return '<select name="defaultModule" id="defaultModule"><option value="">&nbsp;<option>'.$list.'</select>';
+        }
+        else {
+            return $list;
+        }
     }
     else {
         return false;

@@ -31,7 +31,7 @@ if(!isset($core->input['action'])) {
 //    }
 //    $reserved_data = json_encode($reserved_data);
     eval("\$facilitiestree= \"".$template->get('facilitymgmt_facilitiesschedule')."\";");
-    $additionalheader = "<link href='".$core->settings[rootdir]."/css/fullcalendar.min.css' rel='stylesheet' />
+    $additionalheaderinc = "<link href='".$core->settings[rootdir]."/css/fullcalendar.min.css' rel='stylesheet' />
                             <script src='".$core->settings[rootdir]."/js/moment.min.js'></script>
                             <script src='".$core->settings[rootdir]."/js/fullcalendar.min.js' type='text/javascript'></script>
                             <style>
