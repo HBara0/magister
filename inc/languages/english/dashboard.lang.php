@@ -19,4 +19,5 @@ $lang['managewidgets'] = 'Manage Widgets';
 $lang['required'] = 'Required';
 $lang['configs'] = 'Configuration';
 $lang['basecurrency'] = 'Base Currency';
+$lang['addwidget'] = 'Add Widget';
 ?>

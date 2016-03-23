@@ -13,8 +13,25 @@
  * @param  String		$template 	String to be striped
  * @return String	 				Striped template
  */
-function output_page($template) {
-    global $core, $lang, $timer;
+function output_page($pagecontent, $options = null) {// default tpl, options to enforce a customised tpl
+    global $core, $lang, $timer, $template, $header, $footer, $headerinc, $rightsidemenu, $additionalheaderinc;
+
+    $pagetitle = '';
+    if(isset($options['pagetitle']) && !empty($options['pagetitle'])) {
+        $pagetitle = $lang->$options['pagetitle'];
+    }
+    else if(!empty($core->input['module'])) {
+        $files = explode("/", $core->input['module']);
+        if(is_array($files) && !empty($files[1])) {
+            $pagetitle = $lang->$files[1];
+        }
+    }
+    ${$options['helptourref'].'_helptour'} = get_helptour('newlayout');
+
+    if(!empty($options['additionalheaderinc'])) {
+        $headerinc .= $options['additionalheaderinc'];
+    }
+    eval("\$template= \"".$template->get('defaulttpl')."\";");
 
     $template = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n".$template;
     $template = str_replace("<html", "<html xmlns=\"http://www.w3.org/1999/xhtml\"", $template);
@@ -1220,7 +1237,15 @@ function parse_moduleslist($current_module, $modules_dir = 'modules', $is_select
                     else {
                         if($current_module != $module['name']) {
                             if($core->usergroup[$module['globalpermission']] == 1) {
-                                $list .= '<div><a href="index.php?module='.$module['name'].'/'.$module['homepage'].'">'.$module['title'].'</a></div>';
+                                $moduleicon = 'default';
+                                if(file_exists('images/modules-icons/'.$module['name'].'.png')) {
+                                    $moduleicon = $module['name'];
+                                }
+                                $list .= '<li class="searchable"><a href="index.php?module='.$module['name'].'/'.$module['homepage'].'">';
+                                if($modules_dir != ADMIN_DIR."/modules") {
+                                    $list .= '<img src="images/modules-icons/'.$moduleicon.'.png" alt="'.$module['name'].'"/> ';
+                                }
+                                $list .=$module['title'].'</a></li>';
                             }
                         }
                         else {
@@ -1237,7 +1262,7 @@ function parse_moduleslist($current_module, $modules_dir = 'modules', $is_select
             return '<select name="defaultModule" id="defaultModule"><option value="">&nbsp;<option>'.$list.'</select>';
         }
         else {
-            return '<div id="currentmodule_name"><span class="subtitle">'.$current_module_title.'</span> <br /><div class="moduleslist_container">'.$list.'</div></div>';
+            return $list;
         }
     }
     else {
@@ -1248,51 +1273,55 @@ function parse_moduleslist($current_module, $modules_dir = 'modules', $is_select
 function parse_menuitems($module_name, $modules_dir = 'modules') {
     global $core, $lang, $module;
 
-    if(IN_AREA == 'user') {
-        if(!empty($module_name)) {
-            if(!isset($module)) {
-                require ROOT.$modules_dir.'/'.$module_name.'.php';
-            }
-            if($core->usergroup[$module['globalpermission']] == 1) {
-                if(is_array($module['menu'])) {
-                    $menu = $module['menu'];
+    //if(IN_AREA == 'user') {
+    if(!empty($module_name)) {
+        if(!isset($module)) {
+            require ROOT.$modules_dir.'/'.$module_name.'.php';
+        }
+        if($core->usergroup[$module['globalpermission']] == 1) {
+            if(is_array($module['menu'])) {
+                $menu = $module['menu'];
 
-                    $array_indexes = array_keys($menu['file']);
+                $array_indexes = array_keys($menu['file']);
 
-                    while($item = current($menu['file'])) {
-                        $key = key($menu['file']);
-                        if(is_array($item)) {
-                            $current_index = array_search($key, $array_indexes, true);
+                while($item = current($menu['file'])) {
+                    $key = key($menu['file']);
+                    if(is_array($item)) {
+                        $current_index = array_search($key, $array_indexes, true);
 
-                            $array2_indexes = array_keys($menu['title']);
-                            $array2_key = $array2_indexes[$current_index];
+                        $array2_indexes = array_keys($menu['title']);
+                        $array2_key = $array2_indexes[$current_index];
 
-                            $array3_indexes = array_keys($menu['permission']);
-                            $array3_key = $array3_indexes[$current_index];
+                        $array3_indexes = array_keys($menu['permission']);
+                        $array3_key = $array3_indexes[$current_index];
 
-                            if($core->usergroup[$menu['permission'][$array3_key][0]] == 1) {
-                                $items .= '<li class="expandable"><span id="'.$key.'">'.$lang->$array2_indexes[$current_index].'</span>';
-                                $items .= '<div id="'.$key.'_children_container" style="display: none;">';
-                                $items .= '<ul id="'.$key.'_children">';
-                                foreach($item as $k => $v) {
-                                    if($core->usergroup[$menu['permission'][$array3_key][($k + 1)]] == 1) {
-                                        $items .= "<li><span id='{$module_name}/{$v}'><a href='index.php?module={$module_name}/{$v}'>{$lang->$menu[title][$array2_key][$k]}</a></span></li>\n";
-                                    }
+                        if($core->usergroup[$menu['permission'][$array3_key][0]] == 1) {
+                            $items .= '<li class="expandable list-group-item"><span id="'.$key.'" style="cursor: pointer;">'.$lang->$array2_indexes[$current_index].'<span class="caret" style="float:right;margin-top:7px;margin-right:2px;"></span></span>';
+                            $items .= '<div id="'.$key.'_children_container" style="display: none;">';
+                            $items .= '<ul id="'.$key.'_children" style="padding-left:0px;">';
+                            foreach($item as $k => $v) {
+                                $additional_class = 'list-group-subitem';
+                                if($k == 0) {
+                                    $additional_class = 'list-group-firstsubitem';
                                 }
-                                $items .= '</ul></div></li>';
+                                if($core->usergroup[$menu['permission'][$array3_key][($k + 1)]] == 1) {
+                                    $items .= "<li class='list-group-item ".$additional_class."'><span id='{$module_name}/{$v}'><a href='index.php?module={$module_name}/{$v}'>{$lang->$menu[title][$array2_key][$k]}</a></span></li>\n";
+                                }
                             }
+                            $items .= '</ul></div></li>';
                         }
-                        else {
-                            if($core->usergroup[$menu['permission'][$key]] == 1) {
-                                $items .= "<li><span id='{$module_name}/{$item}'><a href='index.php?module={$module_name}/{$item}'>{$lang->$menu[title][$key]}</a></span></li>\n";
-                            }
-                        }
-                        next($menu['file']);
                     }
+                    else {
+                        if($core->usergroup[$menu['permission'][$key]] == 1) {
+                            $items .= "<li class='list-group-item'><span id='{$module_name}/{$item}'><a href='index.php?module={$module_name}/{$item}'>{$lang->$menu[title][$key]}</a></span></li>\n";
+                        }
+                    }
+                    next($menu['file']);
                 }
             }
         }
     }
+    // }
     return $items;
 }
 
@@ -2186,7 +2215,6 @@ function generate_checksum($prefix = '') {
  */
 function generate_alias($string) {
     global $core;
-    $string = str_replace('-', '--', trim($string));
     $string = str_replace(' ', '-', trim($string));
     $string = $core->sanitize_inputs($string, array('removetags' => true));
     $string = preg_replace('/[\@\!\&\(\)$%\^\*\+\#\/\\,.;:=]+/i', '', $string);
@@ -2263,6 +2291,19 @@ function get_quarter_extremities($quarter, $year) {
             return array('start' => strtotime('01-Oct-'.$year), 'end' => strtotime('31-Dec-'.$year));
     }
     return false;
+}
+
+function get_helptour($reference) {
+    global $lang;
+    $helptour = new HelpTour();
+    $helptour->set_id($reference.'_helptour');
+    $helptour->set_cookiename($reference.'_helptour');
+    $helptouritems_obj = new HelpTourItems();
+    $touritems = $helptouritems_obj->get_helptouritems($reference);
+    if(is_array($touritems)) {
+        $helptour->set_items($touritems);
+        return $helptour->parse();
+    }
 }
 
 ?>

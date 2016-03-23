@@ -1,4 +1,4 @@
-@charset "CP850";
+@charset "IBM437";
 /*
 Copyright © 2016 Orkila International Offshore, All Rights Reserved
 
@@ -15,7 +15,7 @@ html, body {
   height: 100%;
   color: #404041 !important;
   background-color: #FFF;
-  padding-top: 50px; }
+  padding-top: 30px; }
 
 .mini-submenu {
   background-color: #B6CF8C;
@@ -77,7 +77,8 @@ html, body {
 
 .navbar-default {
   border-color: #9BBD61;
-  color: #9BBD61; }
+  color: #9BBD61;
+  border-bottom-color: #D3D3D3; }
 
 .navbar-default .navbar-brand {
   color: #9BBD61; }
@@ -131,5 +132,3 @@ html, body {
   width: 100%;
   padding-right: 50px;
   padding-left: 20px; }
-
-/*# sourceMappingURL=navigationstyle.css.map */
