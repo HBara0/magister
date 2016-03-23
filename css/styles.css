@@ -280,12 +280,14 @@ td {
   color: #333333; }
 
 .portalbox_calendar {
-  background: repeat-x top left url(../images/calendar-background.png) scroll #aecd78;
-  color: #FFFFFF;
-  font-size: 14px;
-  border-top: 0px solid #FFFFFF;
+  color: #91b64f !important;
+  font-size: 25px;
+  border: none;
   text-align: center;
-  padding-top: 8px; }
+  padding-top: 8px;
+  width: 100%; }
+  .portalbox_calendar a {
+    font-size: 65px; }
 
 #loginbox, #errorbox {
   margin: 10px;
@@ -699,3 +701,10 @@ tfoot .coltotal, tfoot .colavg {
 .ui-dialog-titlebar-close {
   background-color: #CCC !important;
   color: #FFF; }
+
+.pagination > .active > a, .pagination > .active > a:focus, .pagination > .active > a:hover, .pagination > .active > span, .pagination > .active > span:focus, .pagination > .active > span:hover {
+  background-color: #91b64f;
+  border-color: #91b64f; }
+
+.pagination > li > a, .pagination > li > span {
+  color: #91b64f; }
