@@ -2,7 +2,7 @@
     <div class="panel-heading"><strong>{$header}</strong>
         <div style="float: right" class="hidden-xs">
             <a href="#none" style="cursor: pointer;" data-additionaldata="dashid={$dashid}" id="editinstance_{$instance_checksum}_portal/dashboard_loadpopupbyid"><span class="glyphicon glyphicon-pencil"></span></a>&nbsp
-            <a href="#none" style="cursor: pointer;" id="deleteinstance_{$instance_checksum}_portal/dashboard_loadpopupbyid"><span class="glyphicon glyphicon-remove"></span></a>&nbsp
+            <a href="#none" style="cursor: pointer;display:none" id="deleteinstance_{$instance_checksum}_portal/dashboard_loadpopupbyid"><span class="glyphicon glyphicon-remove"></span></a>&nbsp
             <div style='float:right; cursor: move;' class="ui-state-default">
                 <span class="widgets-sort-icon ui-icon ui-icon-arrowthick-2-n-s"></span>
             </div>
