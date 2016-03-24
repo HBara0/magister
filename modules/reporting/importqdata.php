@@ -70,7 +70,16 @@ else {
 						WHERE imso.foreignSystem={$options[foreignSystem]} "
                     ." AND imso.affid={$affid} "
                     ." AND (imso.date BETWEEN ".strtotime($options['fromDate'])." AND ".strtotime($options['toDate']).")"
-                    ." AND foreignInvoiceId IS NULL AND isinvoiced='N'");
+                    ." AND foreignInvoiceId IS NULL");
+
+            $x = "SELECT DISTINCT(imso.foreignId), imso.*, ims.localId AS localspid, ims.foreignName AS foreignSupplierName
+						FROM ".Tprefix."integration_mediation_purchaseorders imso
+						LEFT JOIN ".Tprefix."integration_mediation_entities ims ON (imso.spid=ims.foreignId)
+						WHERE imso.foreignSystem={$options[foreignSystem]} "
+                    ." AND imso.affid={$affid} "
+                    ." AND (imso.date BETWEEN ".strtotime($options['fromDate'])." AND ".strtotime($options['toDate']).")"
+                    ." AND foreignInvoiceId IS NULL";
+
 
             $document_types = array('invoice' => 'integration_mediation_purchaseinvoicelines', 'order' => 'integration_mediation_purchaseorderlines');
             foreach($document_types as $document_type => $db_table) {
@@ -97,10 +106,10 @@ else {
                             while($purchaseorderline = $db->fetch_assoc($pol_query)) {
                                 if(is_empty($purchaseorderline['localspid'], $purchaseorderline['localpid'])) {
                                     if(empty($purchaseorderline['productname'])) {
-                                        $errors['productnotexist'][] = $purchaseorderline['foreignpid'].' - '.$purchaseorder['foreignSupplierName'];
+                                        $errors['productnotexist'][] = $purchaseorderline['foreignpid'].' - '.$purchase[$document_type]['foreignSupplierName'];
                                     }
                                     else {
-                                        $errors['productnotmatched'][] = $purchaseorderline['productname'].' - '.$purchaseorder['foreignSupplierName'];
+                                        $errors['productnotmatched'][] = $purchaseorderline['productname'].' - '.$purchase[$document_type]['foreignSupplierName'];
                                         $matchstrings[] = $sale['productname'];
                                     }
                                     continue;
@@ -108,7 +117,7 @@ else {
 
                                 $temporary_purchasetype = '';
                                 /* GET Quarter Information - START */
-                                $quarter_info = quarter_info($purchaseorder['date']);
+                                $quarter_info = quarter_info($purchase[$document_type]['date']);
                                 /* GET Quarter Information - END */
 
                                 if($quarter_info['quarter'] != $options['quarter']) {
@@ -156,15 +165,15 @@ else {
                                         $newpurchase[$report['rid']][$uid][$purchaseorderline['localpid']]['quantity'] += $purchaseorderline['quantity'];
                                     }
 
-                                    if(strtoupper($purchaseorder['currency']) != 'USD') {
-                                        if(empty($purchaseorder['usdFxrate'])) {
-                                            $purchaseorderline['usdFxrate'] = $currency_obj->get_average_fxrate($purchaseorder['currency'], array('from' => strtotime(date('Y-m-d', $purchaseorder['date']).' 01:00'), 'to' => strtotime(date('Y-m-d', $purchaseorder['date']).' 24:00')));
+                                    if(strtoupper($purchase[$document_type]['currency']) != 'USD') {
+                                        if(empty($purchase[$document_type]['usdFxrate'])) {
+                                            $purchaseorderline['usdFxrate'] = $currency_obj->get_average_fxrate($purchase[$document_type]['currency'], array('from' => strtotime(date('Y-m-d', $purchase[$document_type]['date']).' 01:00'), 'to' => strtotime(date('Y-m-d', $purchase[$document_type]['date']).' 24:00')));
                                             if(empty($purchaseorderline['usdFxrate'])) {
-                                                $purchaseorderline['usdFxrate'] = $currency_obj->get_average_fxrate($purchaseorder['currency'], array('from' => strtotime($options['fromDate']), 'to' => strtotime($options['endDate'])));
+                                                $purchaseorderline['usdFxrate'] = $currency_obj->get_average_fxrate($purchase[$document_type]['currency'], array('from' => strtotime($options['fromDate']), 'to' => strtotime($options['endDate'])));
                                             }
                                         }
                                         else {
-                                            $purchaseorderline['usdFxrate'] = 1 / $purchaseorder['usdFxrate'];
+                                            $purchaseorderline['usdFxrate'] = 1 / $purchase[$document_type]['usdFxrate'];
                                         }
 
                                         $newpurchase[$report['rid']][$uid][$purchaseorderline['localpid']]['turnOver'] += (($purchaseorderline['amount'] / $purchaseorderline['usdFxrate']) / $options['turnoverdivision']);
@@ -175,10 +184,10 @@ else {
                                         $newpurchase[$report['rid']][$uid][$purchaseorderline['localpid']]['turnOver'] += ($purchaseorderline['amount'] / $options['turnoverdivision']);
                                     }
 
-                                    if(in_array(strtolower($purchaseorder['purchaseType']), array('ski', 'rei'))) {
+                                    if(in_array(strtolower($purchase[$document_type]['purchaseType']), array('ski', 'rei'))) {
                                         $temporary_purchasetype = 'distribution';
                                     }
-                                    elseif(in_array(strtolower($purchaseorder['purchaseType']), array('di'))) {
+                                    elseif(in_array(strtolower($purchase[$document_type]['purchaseType']), array('di'))) {
                                         $temporary_purchasetype = 'indent';
                                     }
 
@@ -195,7 +204,7 @@ else {
 
                                     $soldqty_queries['order'] = $db->query("SELECT quantity, quantityUnit
 								FROM ".Tprefix."integration_mediation_salesorderlines
-								WHERE pid='".$purchaseorderline['foreignpid']."' AND foreignOrderId IN (SELECT foreignId FROM ".Tprefix."integration_mediation_salesorders WHERE foreignInvoiceId IS NULL AND isinvoiced='N' AND foreignSystem={$options[foreignSystem]} AND affid={$affid} AND salesRepLocalId=".intval($uid)." AND (date BETWEEN ".strtotime($options['fromDate'])." AND ".strtotime($options['toDate'])."))");
+								WHERE pid='".$purchaseorderline['foreignpid']."' AND foreignOrderId IN (SELECT foreignId FROM ".Tprefix."integration_mediation_salesorders WHERE foreignInvoiceId IS NULL AND foreignSystem={$options[foreignSystem]} AND affid={$affid} AND salesRepLocalId=".intval($uid)." AND (date BETWEEN ".strtotime($options['fromDate'])." AND ".strtotime($options['toDate'])."))");
                                     foreach($soldqty_queries as $soldqty_query) {
                                         if($db->num_rows($soldqty_query) > 0) {
                                             $newpurchase[$report['rid']][$uid][$purchaseorderline['localpid']]['soldQty'] = 0;
@@ -211,11 +220,11 @@ else {
                                     }
                                 }
                                 else {
-                                    if(!isset($purchaseorder['foreignName']) || empty($purchaseorder['foreignName'])) {
-                                        $purchaseorder['foreignName'] = $db->fetch_field($db->query("SELECT companyName FROM entities WHERE eid={$purchaseorderline[localspid]}"), 'companyName');
+                                    if(!isset($purchase[$document_type]['foreignName']) || empty($purchase[$document_type]['foreignName'])) {
+                                        $purchase[$document_type]['foreignName'] = $db->fetch_field($db->query("SELECT companyName FROM entities WHERE eid={$purchaseorderline[localspid]}"), 'companyName');
                                     }
 
-                                    $errors['reportnotfound'][] = 'Q'.$quarter_info['quarter'].'/'.$quarter_info['year'].' '.$affid.'-'.$purchaseorder['foreignName'];
+                                    $errors['reportnotfound'][] = 'Q'.$quarter_info['quarter'].'/'.$quarter_info['year'].' '.$affid.'-'.$purchase[$document_type]['foreignName'];
                                 }
                             }
                         }
@@ -248,7 +257,8 @@ else {
                 default:
                     break;
             }
-            $query = $db->query('SELECT imsol.pid AS foreignpid, imsol.foreignId FROM '.Tprefix.$integrationtable.' imsol WHERE NOT EXISTS (SELECT imp.foreignId FROM '.Tprefix.'integration_mediation_products imp WHERE imsol.pid=imp.foreignId AND imp.foreignSystem='.$options['foreignSystem'].' AND (imp.affid='.$affid.' OR imp.affid=0)) AND imsol.affid='.$affid.' AND imsol.foreignInvoiceId IN (SELECT imso.'.$foreignid.' FROM '.Tprefix.$integration_main_table.' imso WHERE imso.foreignSystem='.$options['foreignSystem'].' AND imso.affid='.$affid.' AND (imso.date BETWEEN '.strtotime($options['fromDate']).' AND '.strtotime($options['toDate']).'))');
+
+            $query = $db->query('SELECT imsol.pid AS foreignpid, imsol.foreignId FROM '.Tprefix.$integrationtable.' imsol WHERE NOT EXISTS (SELECT imp.foreignId FROM '.Tprefix.'integration_mediation_products imp WHERE imsol.pid=imp.foreignId AND imp.foreignSystem='.$options['foreignSystem'].' AND (imp.affid='.$affid.' OR imp.affid=0)) AND imsol.affid='.$affid.' AND imsol.'.$foreignid.' IN (SELECT imso.foreignId FROM '.Tprefix.$integration_main_table.' imso WHERE imso.foreignSystem='.$options['foreignSystem'].' AND imso.affid='.$affid.' AND (imso.date BETWEEN '.strtotime($options['fromDate']).' AND '.strtotime($options['toDate']).'))');
             if($db->num_rows($query) > 0) {
                 while($missing = $db->fetch_assoc($query)) {
                     $errors['productnotexist'][] = $missing['foreignpid'].' | '.$missing['foreignId'];
@@ -282,18 +292,19 @@ else {
             switch($document_type) {
                 case 'invoice':
                     $main_table = 'integration_mediation_salesinvoices';
-                    $extra_where = " AND imsol.foreignInvoiceId IN (SELECT foreignId FROM ".Tprefix.$main_table." WHERE foreignSystem = {$options[foreignSystem]} AND (affid = {$affid} ".$coveredcountryextraselect.") AND (date BETWEEN ".strtotime($options['fromDate'])." AND ".strtotime($options['toDate']).")";
-
+                    $extra_where = " AND imsol.foreignInvoiceId IN (SELECT foreignId FROM ".Tprefix.$main_table." WHERE foreignSystem = {$options[foreignSystem]} AND (affid = {$affid} ".$coveredcountryextraselect.") AND (date BETWEEN ".strtotime($options['fromDate'])." AND ".strtotime($options['toDate'])."))";
+                    $foreignid = 'foreignInvoiceId';
                     break;
                 case 'order':
                     $main_table = 'integration_mediation_salesorders';
-                    $extra_where = " AND imsol.foreignOrderId IN (SELECT foreignId FROM ".Tprefix.$main_table." WHERE foreignSystem = {$options[foreignSystem]} AND (affid = {$affid} ".$coveredcountryextraselect.") AND (date BETWEEN ".strtotime($options['fromDate'])." AND ".strtotime($options['toDate']).") AND foreignInvoiceId IS NULL AND isinvoiced='N' )";
+                    $extra_where = " AND imsol.foreignOrderId IN (SELECT foreignId FROM ".Tprefix.$main_table." WHERE foreignSystem = {$options[foreignSystem]} AND (affid = {$affid} ".$coveredcountryextraselect.") AND (date BETWEEN ".strtotime($options['fromDate'])." AND ".strtotime($options['toDate']).") AND foreignInvoiceId IS NULL )";
+                    $foreignid = 'foreignOrderId';
 
                     break;
                 default:
                     break;
             }
-            $query[$document_type] = $db->query("SELECT DISTINCT(imsol.foreignId), quantity, quantityUnit, imp.localId AS localpid, p.spid AS localspid, imsol.pid AS foreignpid, imp.foreignName AS productname, ims.foreignName AS foreignSupplierName, foreignOrderId
+            $query_statement[$document_type] = $db->query("SELECT DISTINCT(imsol.foreignId), quantity, quantityUnit, imp.localId AS localpid, p.spid AS localspid, imsol.pid AS foreignpid, imp.foreignName AS productname, ims.foreignName AS foreignSupplierName, ".$foreignid."
         FROM ".Tprefix.$db_table." imsol
         LEFT JOIN ".Tprefix."integration_mediation_products imp ON (imsol.pid = imp.foreignId)
         LEFT JOIN ".Tprefix."integration_mediation_entities ims ON (imp.foreignSupplier = ims.foreignId)
@@ -304,8 +315,8 @@ else {
             /* GET Quarter Information - START */
             $quarter_info = quarter_info(strtotime($options['fromDate']));
             /* GET Quarter Information - END */
-            if($db->num_rows($query[$document_type]) > 0) {
-                while($sale = $db->fetch_assoc($query[$document_type])) {
+            if($db->num_rows($query_statement[$document_type]) > 0) {
+                while($sale = $db->fetch_assoc($query_statement[$document_type])) {
                     if(is_empty($sale['localspid'], $sale['localpid'])) {
                         if(empty($sale['productname'])) {
                             $errors['productnotexist'][] = $sale['foreignpid'].' - '.$sale['foreignSupplierName'];

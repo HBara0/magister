@@ -164,7 +164,7 @@ class IntegrationOB extends Integration {
         while($document = $this->f_db->fetch_assoc($query)) {
             if($doc_type == 'order') {
                 //get linked invoice id, Null if there's no invoice
-                $document['foreignInvoiceId'] = $this->f_db->fetch_assoc($this->f_db->query('SELECT c_invoice_id FROM '.Tprefix.'c_invoice WHERE c_order_id='.$document['doc_id']));
+                $document['foreignInvoiceId'] = $this->f_db->fetch_assoc($this->f_db->query("SELECT c_invoice_id FROM ".Tprefix."c_invoice WHERE c_order_id='".$document['doc_id']."'"));
             }
             $document_newdata = array(
                     'foreignSystem' => $this->foreign_system,
@@ -176,10 +176,14 @@ class IntegrationOB extends Integration {
                     'currency' => $document['currency'],
                     'paymentTerms' => $document['paymenttermsdays'],
                     'salesRep' => $document['salesrep'],
-                    'foreignOrderId' => $document['foreignOrderId']
             );
 
-
+            if($doc_type == 'order') {
+                $document_newdata['foreignInvoiceId'] = $document['foreignInvoiceId']['c_invoice_id'];
+            }
+            else {
+                $document_newdata['foreignOrderId'] = $document['foreignorderid'];
+            }
             $document_newdata['salesRepLocalId'] = $db->fetch_field($db->query("SELECT uid FROM ".Tprefix."users WHERE displayName='".$db->escape_string($document['salesrep'])."' OR username='".$db->escape_string($document['username'])."'"), 'uid');
 
 
@@ -316,12 +320,13 @@ class IntegrationOB extends Integration {
         }
 
         $document_newdata = array(0);
-        $purchasetype = 'SKI';
         while($document = $this->f_db->fetch_assoc($query)) {
+            $purchasetype = 'SKI';
+
             if($doc_type == 'order') {
                 //get linked invoice id, Null if there's no invoice
-                $document['foreignInvoiceId'] = $this->f_db->fetch_assoc($this->f_db->query('SELECT c_invoice_id FROM '.Tprefix.'c_invoice WHERE c_order_id='.$document['documentid']));
-                if($document['foreignInvoiceId'] == NULL) {
+                $document['foreignInvoiceId'] = $this->f_db->fetch_assoc($this->f_db->query("SELECT c_invoice_id FROM ".Tprefix."c_invoice WHERE c_order_id='".$document['documentid']."'"));
+                if($document['foreignInvoiceId'] == false) {
                     $purchasetype = 'DI';
                 }
             }
@@ -337,10 +342,10 @@ class IntegrationOB extends Integration {
                     'purchaseType' => $purchasetype,
             );
             if($doc_type == 'order') {
-                $document_newdata['foreignInvoiceId'] = $document['foreignInvoiceId'];
+                $document_newdata['foreignInvoiceId'] = $document['foreignInvoiceId']['c_invoice_id'];
             }
             else {
-                $document_newdata['foreignOrderId'] = $document['foreignOrderId'];
+                $document_newdata['foreignOrderId'] = $document['foreignorderid'];
             }
             /* Get currencies FX from own system - START */
             $document_newdata['usdFxrate'] = $currency_obj->get_average_fxrate($document['currency'], array('from' => strtotime(date('Y-m-d', $newdata['date']).' 01:00'), 'to' => strtotime(date('Y-m-d', $newdata['date']).' 24:00')));
