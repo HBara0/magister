@@ -181,7 +181,7 @@ $(function () {
             function () {
                 $(this).removeClass("mainmenuitem_hover");
             });
-    $("#mainmenu > li[class^='expandable']").find("span:first").click(function() {
+    $("#mainmenu > li[class^='expandable']").find("span:first").click(function () {
         $(this).parent().removeClass("mainmenuitem_hover");
         $("#" + $(this).attr("id") + "_children_container").slideToggle();
     });
@@ -781,7 +781,8 @@ $(function () {
         var id = $(this).attr("id").split("_");
         popUp(id[1], id[0] + "_" + id[2]);
     });
-    $('input[title],a[title],div[title],span[title]').qtip({style: {classes: 'ui-tooltip-green ui-tooltip-shadow'}, show: {event: 'focus mouseenter', solo: true}, hide: 'unfocus mouseleave', position: {viewport: $(window)}});
+
+    $('input[title],a[title],div[title],span[title]').tooltip({placement: 'auto', html: true});
     function popUp(module, template, id, element) {
         if(element === undefined) {
             element = '';
@@ -1252,7 +1253,7 @@ $(function () {
     });
 //}
 
-    $("a[id^='select_'][id$='_widgettype']").click(function() {
+    $("a[id^='select_'][id$='_widgettype']").click(function () {
         var id = $(this).attr("id").split("_");
         if(!id[1]) {
             alert('Error In Widget Type');

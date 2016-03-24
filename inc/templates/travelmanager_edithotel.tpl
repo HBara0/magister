@@ -1,6 +1,6 @@
 <html>
     <head>
-        <title>{$core->settings[systemtitle]} | {$lang->edithotel}</title>
+        <title>{$core->settings[systemtitle]} | {$lang->managehotel}</title>
         {$headerinc}
         <script src="{$core->settings[rootdir]}/js/jquery.rateit.min.js" type="text/javascript"></script>
         <link href="{$core->settings[rootdir]}/css/rateit.min.css" rel="stylesheet" type="text/css">
@@ -16,7 +16,7 @@
     <tr>
         {$menu}
         <td class="contentContainer" colspan="2">
-            <h1>{$lang->edithotel}</h1>
+            <h1>{$lang->managehotel}</h1>
             {$approve}
             <form name="perform_travelmanager/edithotel_Form" id="perform_travelmanager/edithotel_Form" action="#" method="post">
                 <input type="hidden" name="hotel[tmhid]" value='{$hotel['tmhid']}'>

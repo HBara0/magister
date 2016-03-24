@@ -136,7 +136,7 @@ if(!$core->input['action']) {
             //$query2 = $db->query("SELECT * FROM ".Tprefix."visitreports_reportsuppliers WHERE vrid='$visitreport[vrid]' AND ");
             if(is_array($permissions['spid'])) {// if($core->usergroup['canViewAllSupp'] == 0) {
                 // if(is_array($core->user['suppliers']['eid'])) {
-                if($visitreport['hasSupplier'] == 1 && !value_exists('visitreports_reportsuppliers', 'vrid', $visitreport['vrid'], 'spid IN ('.implode(', ', $permissions['spid']).')')) {//$core->user['suppliers']['eid']
+                if(($visitreport['hasSupplier'] == 1 && !value_exists('visitreports_reportsuppliers', 'vrid', $visitreport['vrid'], 'spid IN ('.implode(', ', $permissions['spid']).')')) && $visitreport['uid'] != $core->user['uid']) {//$core->user['suppliers']['eid']
                     continue;
                 }
                 //   }
