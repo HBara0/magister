@@ -31,7 +31,16 @@ if(!isset($core->input['action'])) {
 //    }
 //    $reserved_data = json_encode($reserved_data);
     eval("\$facilitiestree= \"".$template->get('facilitymgmt_facilitiesschedule')."\";");
-    output_page($facilitiestree);
+    $additionalheaderinc = "<link href='".$core->settings[rootdir]."/css/fullcalendar.min.css' rel='stylesheet' />
+                            <script src='".$core->settings[rootdir]."/js/moment.min.js'></script>
+                            <script src='".$core->settings[rootdir]."/js/fullcalendar.min.js' type='text/javascript'></script>
+                            <style>
+                                #calendar {
+                                    max-width: 900px;
+                                    margin: 0 auto;
+                                }
+                            </style>";
+    output_page($facilitiestree, array('additionalheaderinc' => $additionalheader));
 }
 else {
     if($core->input['action'] == 'get_creatreservation') {

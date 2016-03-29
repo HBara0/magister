@@ -2613,6 +2613,7 @@ DROP TABLE IF EXISTS `files`;
 CREATE TABLE `files` (
   `fid` int(10) NOT NULL AUTO_INCREMENT,
   `title` varchar(220) NOT NULL,
+  `alias` varchar(220) NOT NULL,
   `category` tinyint(1) unsigned NOT NULL,
   `ffid` int(10) NOT NULL DEFAULT '0',
   `description` text NOT NULL,
@@ -2621,7 +2622,7 @@ CREATE TABLE `files` (
   `isShared` smallint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`fid`),
   KEY `ffid` (`ffid`)
-) ENGINE=MyISAM AUTO_INCREMENT=892 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=8 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `files_viewrestriction`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -4925,6 +4926,343 @@ CREATE TABLE `surveys_templates_sections` (
   PRIMARY KEY (`stsid`),
   KEY `stid` (`stid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=46 DEFAULT CHARSET=latin1;
+DROP TABLE IF EXISTS `system_assignedwidgets`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `system_assignedwidgets` (
+  `sawid` int(10) NOT NULL AUTO_INCREMENT,
+  `sdid` int(10) NOT NULL,
+  `swgiid` int(10) NOT NULL,
+  `createdOn` bigint(30) NOT NULL,
+  `createdBy` int(10) NOT NULL,
+  `sequence` int(2) NOT NULL,
+  PRIMARY KEY (`sawid`)
+) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `system_conversationmethods`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `system_conversationmethods` (
+  `scmtid` int(10) NOT NULL AUTO_INCREMENT,
+  `module` varchar(75) COLLATE utf8_unicode_ci NOT NULL,
+  `class` varchar(75) COLLATE utf8_unicode_ci NOT NULL,
+  `method` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
+  `createdOn` bigint(30) NOT NULL,
+  `createdBy` int(10) NOT NULL,
+  `modifiedOn` bigint(30) NOT NULL,
+  `modifiedBy` int(10) NOT NULL,
+  PRIMARY KEY (`scmtid`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+<<<<<<< Updated upstream
+=======
+DROP TABLE IF EXISTS `system_conversations`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `system_conversations` (
+  `scid` int(10) NOT NULL AUTO_INCREMENT,
+  `title` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
+  `alias` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
+  `module` varchar(75) COLLATE utf8_unicode_ci NOT NULL,
+  `tableName` varchar(75) COLLATE utf8_unicode_ci NOT NULL,
+  `recordId` int(10) NOT NULL,
+  `alternativeId` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
+  `lastReplyTime` bigint(30) NOT NULL,
+  `lastReplyUid` int(10) NOT NULL,
+  `createdBy` int(10) NOT NULL,
+  `createdOn` bigint(30) NOT NULL,
+  `modifiedBy` int(10) NOT NULL,
+  `modifiedOn` bigint(30) NOT NULL,
+  `scmtid` int(10) NOT NULL,
+  `inputChecksum` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`scid`)
+) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `system_conversations_messages`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `system_conversations_messages` (
+  `scmid` int(10) NOT NULL AUTO_INCREMENT,
+  `scid` int(10) NOT NULL,
+  `message` text COLLATE utf8_unicode_ci NOT NULL,
+  `uid` int(10) NOT NULL,
+  `replyTo` int(10) NOT NULL,
+  `replyToEmail` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
+  `type` int(2) NOT NULL,
+  `createdOn` bigint(30) NOT NULL,
+  `createdBy` int(10) NOT NULL,
+  `modifiedOn` bigint(30) NOT NULL,
+  `modifiedBy` int(10) NOT NULL,
+  `inputChecksum` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`scmid`)
+) ENGINE=MyISAM AUTO_INCREMENT=13 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `system_conversations_participants`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `system_conversations_participants` (
+  `scpid` int(10) NOT NULL AUTO_INCREMENT,
+  `scid` int(10) NOT NULL,
+  `uid` int(10) NOT NULL,
+  `createdOn` bigint(30) NOT NULL,
+  `createdBy` int(10) NOT NULL,
+  `modifiedOn` bigint(30) NOT NULL,
+  `modifiedBy` int(10) NOT NULL,
+  PRIMARY KEY (`scpid`)
+) ENGINE=MyISAM AUTO_INCREMENT=14 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `system_dashboard`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `system_dashboard` (
+  `sdid` int(10) NOT NULL AUTO_INCREMENT,
+  `title` varchar(75) COLLATE utf8_unicode_ci NOT NULL,
+  `alias` varchar(75) COLLATE utf8_unicode_ci NOT NULL,
+  `inputChecksum` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
+  `uid` int(10) NOT NULL,
+  `isActive` tinyint(1) NOT NULL DEFAULT '1',
+  `columnCount` tinyint(1) NOT NULL,
+  `moduleName` varchar(75) COLLATE utf8_unicode_ci NOT NULL,
+  `pageName` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
+  `createdBy` int(10) NOT NULL,
+  `createdOn` bigint(30) NOT NULL,
+  `modifiedBy` int(10) NOT NULL,
+<<<<<<< Updated upstream
+  PRIMARY KEY (`scpid`)
+) ENGINE=MyISAM AUTO_INCREMENT=14 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `system_dashboard`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `system_dashboard` (
+  `sdid` int(10) NOT NULL AUTO_INCREMENT,
+  `title` varchar(75) COLLATE utf8_unicode_ci NOT NULL,
+  `alias` varchar(75) COLLATE utf8_unicode_ci NOT NULL,
+  `inputChecksum` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
+  `uid` int(10) NOT NULL,
+  `isActive` tinyint(1) NOT NULL DEFAULT '1',
+  `columnCount` tinyint(1) NOT NULL,
+  `moduleName` varchar(75) COLLATE utf8_unicode_ci NOT NULL,
+  `pageName` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
+  `createdBy` int(10) NOT NULL,
+  `createdOn` bigint(30) NOT NULL,
+  `modifiedBy` int(10) NOT NULL,
+=======
+>>>>>>> Stashed changes
+  `modifiedOn` bigint(30) NOT NULL,
+  `moduleId` int(10) NOT NULL,
+  PRIMARY KEY (`sdid`)
+) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+>>>>>>> Stashed changes
+DROP TABLE IF EXISTS `system_foreigntables`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `system_foreigntables` (
+  `stid` smallint(5) NOT NULL AUTO_INCREMENT,
+  `tableName` varchar(100) NOT NULL,
+  `className` varchar(100) NOT NULL,
+  `nbOfColumns` smallint(3) NOT NULL,
+  PRIMARY KEY (`stid`),
+  UNIQUE KEY `tableName` (`tableName`)
+) ENGINE=MyISAM AUTO_INCREMENT=39 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `system_foreigntables_columns`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `system_foreigntables_columns` (
+  `stcid` int(10) NOT NULL AUTO_INCREMENT,
+  `relatedTo` int(10) NOT NULL,
+  `columnDbName` varchar(50) NOT NULL,
+  `columnSystemName` varchar(50) NOT NULL,
+  `columnTitle` varchar(75) NOT NULL,
+  `stid` int(5) NOT NULL,
+  `columnDefault` varchar(20) NOT NULL,
+  `isNull` int(1) NOT NULL,
+  `dataType` varchar(50) NOT NULL,
+  `length` int(5) NOT NULL,
+  `extra` varchar(30) NOT NULL,
+  `isPrimaryKey` tinyint(1) NOT NULL DEFAULT '0',
+  `isRequired` tinyint(1) NOT NULL DEFAULT '0',
+  `isUnique` tinyint(1) DEFAULT '0',
+  `isSimple` tinyint(1) NOT NULL,
+  `isDisplayName` tinyint(1) NOT NULL,
+  `localColumnId` int(10) NOT NULL,
+  PRIMARY KEY (`stcid`)
+) ENGINE=MyISAM AUTO_INCREMENT=471 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `system_languages`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `system_languages` (
+  `slid` tinyint(10) NOT NULL AUTO_INCREMENT,
+  `fileName` varchar(10) CHARACTER SET latin1 NOT NULL,
+  `name` varchar(20) CHARACTER SET latin1 NOT NULL,
+  `version` float NOT NULL,
+  `rtl` tinyint(1) NOT NULL,
+  `htmllang` varchar(3) CHARACTER SET latin1 NOT NULL,
+  `charset` varchar(10) CHARACTER SET latin1 NOT NULL,
+  `author` int(10) NOT NULL,
+  PRIMARY KEY (`slid`),
+  KEY `author` (`author`)
+) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `system_languages_varvalues`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `system_languages_varvalues` (
+  `slvvid` int(10) NOT NULL AUTO_INCREMENT,
+  `lang` tinyint(10) NOT NULL,
+  `variable` int(10) NOT NULL,
+  `value` text COLLATE utf8_unicode_ci NOT NULL,
+  `timeCreated` bigint(30) NOT NULL,
+  `createdBy` int(10) NOT NULL,
+  `timeModified` bigint(30) NOT NULL,
+  `modifiedBy` int(10) NOT NULL,
+  PRIMARY KEY (`slvvid`),
+  KEY `modifiedBy` (`modifiedBy`),
+  KEY `createdBy` (`createdBy`)
+) ENGINE=MyISAM AUTO_INCREMENT=3202 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `system_langvariables`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `system_langvariables` (
+  `slvid` int(10) NOT NULL AUTO_INCREMENT,
+  `name` varchar(200) CHARACTER SET latin1 NOT NULL,
+  `fileName` varchar(150) CHARACTER SET latin1 NOT NULL,
+  `isFrontEnd` tinyint(1) NOT NULL DEFAULT '1',
+  PRIMARY KEY (`slvid`)
+) ENGINE=MyISAM AUTO_INCREMENT=1625 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `system_referencelists`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `system_referencelists` (
+  `srlid` int(5) NOT NULL AUTO_INCREMENT,
+  `name` varchar(75) NOT NULL,
+  `referenceType` varchar(20) NOT NULL,
+  `selectorType` varchar(40) NOT NULL,
+  PRIMARY KEY (`srlid`)
+) ENGINE=MyISAM AUTO_INCREMENT=15 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `system_referencelists_lines`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `system_referencelists_lines` (
+  `srllid` int(5) NOT NULL AUTO_INCREMENT,
+  `inputChecksum` varchar(150) NOT NULL,
+  `srlid` int(5) NOT NULL,
+  `type` varchar(30) NOT NULL,
+  `name` varchar(50) NOT NULL,
+  `title` varchar(50) NOT NULL,
+  `value` varchar(50) NOT NULL,
+  `sequence` int(3) NOT NULL,
+  `description` varchar(150) NOT NULL,
+  `isActive` tinyint(1) NOT NULL,
+  `tableName` varchar(75) NOT NULL,
+  `keyColumn` int(10) NOT NULL,
+  `displayedColumn` int(10) NOT NULL,
+  `whereClause` varchar(200) NOT NULL,
+  PRIMARY KEY (`srllid`)
+) ENGINE=MyISAM AUTO_INCREMENT=33 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `system_tables`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `system_tables` (
+  `stid` smallint(5) NOT NULL AUTO_INCREMENT,
+  `tableName` varchar(100) NOT NULL,
+  `className` varchar(100) NOT NULL,
+  `nbOfColumns` smallint(3) NOT NULL,
+  `system` int(11) NOT NULL,
+  `localTableId` int(10) NOT NULL,
+  PRIMARY KEY (`stid`),
+  UNIQUE KEY `tableName` (`tableName`)
+) ENGINE=MyISAM AUTO_INCREMENT=17 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `system_tables_columns`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `system_tables_columns` (
+  `stcid` int(10) NOT NULL AUTO_INCREMENT,
+  `relatedTo` int(10) NOT NULL,
+  `columnDbName` varchar(50) NOT NULL,
+  `columnSystemName` varchar(50) NOT NULL,
+  `columnTitle` varchar(75) NOT NULL,
+  `stid` int(5) NOT NULL,
+  `columnDefault` varchar(20) NOT NULL,
+  `isNull` int(1) NOT NULL,
+  `dataType` varchar(50) NOT NULL,
+  `length` int(5) NOT NULL,
+  `extra` varchar(30) NOT NULL,
+  `isPrimaryKey` tinyint(1) NOT NULL DEFAULT '0',
+  `isRequired` tinyint(1) NOT NULL DEFAULT '0',
+  `isUnique` tinyint(1) DEFAULT '0',
+  `isSimple` tinyint(1) NOT NULL,
+  `isDisplayName` tinyint(1) NOT NULL,
+  PRIMARY KEY (`stcid`)
+) ENGINE=MyISAM AUTO_INCREMENT=149 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `system_translations`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `system_translations` (
+  `tid` int(10) NOT NULL AUTO_INCREMENT,
+  `tableName` varchar(75) NOT NULL,
+  `field` varchar(75) NOT NULL,
+  `language` varchar(2) NOT NULL,
+  `tableKey` int(10) NOT NULL,
+  `text` text NOT NULL,
+  PRIMARY KEY (`tid`)
+) ENGINE=MyISAM AUTO_INCREMENT=38 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+=======
+=======
+>>>>>>> Stashed changes
+DROP TABLE IF EXISTS `system_widgetinstances`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `system_widgetinstances` (
+  `swgiid` int(10) NOT NULL AUTO_INCREMENT,
+  `title` varchar(75) COLLATE utf8_unicode_ci NOT NULL,
+  `alias` varchar(80) COLLATE utf8_unicode_ci NOT NULL,
+  `inputChecksum` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
+  `uid` int(10) NOT NULL,
+  `serializedConfig` text COLLATE utf8_unicode_ci NOT NULL,
+  `type` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+  `isActive` tinyint(1) NOT NULL DEFAULT '1',
+  `createdBy` int(10) NOT NULL,
+  `createdOn` bigint(30) NOT NULL,
+  `modifiedBy` int(10) NOT NULL,
+  `modifiedOn` bigint(30) NOT NULL,
+  `swdgid` int(10) NOT NULL,
+  PRIMARY KEY (`swgiid`)
+) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `system_widgets`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `system_widgets` (
+  `swdgid` int(10) NOT NULL AUTO_INCREMENT,
+  `moduleId` int(10) NOT NULL,
+  `moduleName` varchar(75) COLLATE utf8_unicode_ci NOT NULL,
+  `title` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `alias` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `isActive` tinyint(1) NOT NULL,
+  `isTable` tinyint(1) NOT NULL,
+  `isForm` tinyint(1) NOT NULL,
+  `isChart` tinyint(1) NOT NULL,
+  `createdOn` bigint(30) NOT NULL,
+  `createdBy` int(10) NOT NULL,
+  `modifiedOn` bigint(30) NOT NULL,
+  `modifiedBy` int(10) NOT NULL,
+  `serializedConfig` text COLLATE utf8_unicode_ci NOT NULL,
+  `className` varchar(75) COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`swdgid`)
+) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `system_conversations`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;

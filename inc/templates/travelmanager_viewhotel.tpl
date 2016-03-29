@@ -50,6 +50,10 @@
             <div class="row bkgcolor_greygradient">
                 <div class="col-xs-12 col-sm-12 col-md-12  col-lg-12 "> <label >{$lang->mgmtreview}</label> : {$hotel['mgmtReview']}</div>
             </div>
+            <div class="row bkgcolor_greygradient">
+                <div class="col-xs-12 col-sm-6 col-md-6  col-lg-6 "> <label >{$lang->createdby}</label> : {$hotel['createdBy_output']}</div>
+                <div class="col-xs-12 col-sm-6  col-md-6  col-lg-6 "> <label >{$lang->approvedby}</label> : {$hotel['approvedBy_output']}</div>
+            </div>
         </td>
     </tr>
     {$footer}

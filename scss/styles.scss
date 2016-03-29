@@ -59,11 +59,11 @@ a, a:visited {
     }
 }
 
-.ocosLogo {
-    height: 100px;
+.systemlogo {
     vertical-align: top;
     text-align: center;
     padding: 0px;
+    margin-top: -12px;
 }
 
 .sideDesign {
@@ -222,7 +222,7 @@ td { padding: 2px; }
 
 .mainmenuitem_hover {
     color: #696969 !important;
-    background-color: $color_green;
+    background-color: #ECECEC !important;
 }
 
 .mainmenuitem_hover a {
@@ -330,12 +330,16 @@ td { padding: 2px; }
 }
 
 .portalbox_calendar {
-    background: repeat-x top left url(../images/calendar-background.png) scroll #aecd78;
-    color:#FFFFFF;
-    font-size:14px;
-    border-top: 0px solid #FFFFFF;
+    color:$color_green !important;
+    font-size:25px;
+    border: none;
     text-align:center;
     padding-top: 8px;
+    width: 100%;
+
+    a {
+        font-size: 65px;
+    }
 }
 
 #loginbox, #errorbox {
@@ -389,7 +393,7 @@ td { padding: 2px; }
     vertical-align: middle !important;
 }
 
-input.button,.button, button {
+.button {
     @include border-radius(4px);
     background: $color_green;
     text-indent:0;
@@ -408,7 +412,7 @@ input[type="submit"].main {
     min-width: 160px;
 }
 
-input.button:hover {
+.button:hover {
     background-color: #8cb82b;
 }
 
@@ -772,7 +776,28 @@ tfoot .coltotal, tfoot .colavg {
     border-left: 4px solid red;
     pointer-events:none;
 }
+
+.frequentmodules_img {
+    margin-left:5px;
+    margin-right:5px;
+    margin-top: 10px;
+    background-color: #9bbd61;
+}
 .jqstooltip{
     width:50px;
     height:25px!important;
+}
+
+.ui-dialog-titlebar-close {
+    background-color: #CCC !important;
+    color: #FFF;
+}
+
+.pagination > .active > a, .pagination > .active > a:focus, .pagination > .active > a:hover, .pagination > .active > span, .pagination > .active > span:focus, .pagination > .active > span:hover {
+    background-color: $color_green;
+    border-color: $color_green;
+}
+
+.pagination > li > a, .pagination > li > span {
+    color: $color_green;
 }

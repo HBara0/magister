@@ -7,7 +7,7 @@
  * Created:        @zaher.reda    Dec 24, 2014 | 11:33:41 AM
  * Last Update:    @zaher.reda    Dec 24, 2014 | 11:33:41 AM
  */
-$lang['createentityloc'] = 'Create Entity Locations';
+$lang['createlocations'] = 'Create Entity Locations';
 $lang['entitylocations'] = 'Entity Locations';
 $lang['locationtype'] = 'Location Type';
 $lang['plant'] = 'Plant';
@@ -18,6 +18,7 @@ $lang['entity'] = 'Entity';
 
 $lang['warehouse'] = 'Warehouse';
 $lang['managewarehouse'] = 'Manage Warehouse';
+$lang['createwarehouses'] = 'Manage Warehouse';
 $lang['name'] = 'Name';
 $lang['city'] = 'City';
 $lang['postcode'] = 'Post code';
@@ -29,7 +30,7 @@ $lang['geolocation'] = 'Geographic Location';
 $lang['longlattidue'] = 'Longitude Latitude [space in between]';
 $lang['isactive'] = 'Is Active';
 $lang['editwarehouse'] = 'Edit Warehouse';
-$lang['warehouseslist'] = 'Warehouses List';
+$lang['listwarehouses'] = 'Warehouses List';
 $lang['save'] = 'Save';
 $lang['confirmdeletewarehouse'] = 'Are you sure you want to delete this warehouse?';
 $lang['deletewarehouse'] = 'Delete Warehouse';

@@ -114,7 +114,7 @@ elseif($core->input['action'] == 'edit_endproduct') {
 elseif($core->input['action'] == 'get_deleteendproducttype') {
     $id = $core->input['id'];
     eval("\$deleteendprodtype = \"".$template->get('popup_deleteendproducttype')."\";");
-    output_page($deleteendprodtype);
+    output($deleteendprodtype);
 }
 elseif($core->input['action'] == 'delete_endproducttype') {
     $endprod_obj = new EndProducTypes($core->input['todelete']);
@@ -132,7 +132,7 @@ elseif($core->input['action'] == 'get_cloneendproducttype') {
     $eptid = $core->input['id'];
 
     eval("\$cloneendprodtype = \"".$template->get('popup_cloneendproducttype')."\";");
-    output_page($cloneendprodtype);
+    output($cloneendprodtype);
 }
 elseif($core->input['action'] == 'clone_endproducttype') {
     $endproducttype_obj = new EndProducTypes();

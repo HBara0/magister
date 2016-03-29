@@ -14,9 +14,11 @@ if(!defined('DIRECT_ACCESS')) {
 
 if(!$core->input['action']) {
     $filters_config = array(
-            'parse' => array('filters' => array('name', 'city', 'country', 'isApproved', 'avgPrice'),
+            'parse' => array('filters' => array('name', 'city', 'country', 'phone', 'address', 'avgPrice', 'isApproved'),
                     'overwriteField' => array('avgPrice' => '<input class="inlinefilterfield" type="text" style="width: 95%" placeholder="'.$lang->avgprice.'"/>',
-                            'isApproved' => parse_selectlist('filters[isApproved]', 2, array('' => '', '1' => $lang->isapproved, '0' => $lang->notapproved), $core->input['filters']['isApproved']),
+                            'isApproved' => parse_selectlist('filters[isApproved]', 2, array('' => '', '1' => $lang->yes, '0' => $lang->no), $core->input['filters']['isApproved']),
+                            'phone' => '<input class="inlinefilterfield" type="text" style="width: 95%" placeholder="'.$lang->phone.'"/>',
+                            'address' => '<input class="inlinefilterfield" type="text" style="width: 95%" placeholder="'.$lang->address.'"/>'
                     )
             ),
             'process' => array(
@@ -49,8 +51,11 @@ if(!$core->input['action']) {
 
     $filters_row = $filter->prase_filtersrows(array('tags' => 'table'));
 //end parsing filters
-
-    $hotels = TravelManagerHotels::get_data($filter_where, array('operators' => $filters_opts, 'returnarray' => true, 'order' => array('sort' => array('isApproved' => 'DESC'), 'by' => array('name', 'avgPrice', 'isApproved'))));
+    if($core->usergroup['travelmanager_canApproveHotels'] == 0) {
+   
+        $hidecreate = 'display:none;';
+    }
+ $hotels = TravelManagerHotels::get_data($filter_where, array('operators' => $filters_opts, 'returnarray' => true, 'simple' => false, 'order' => array('sort' => array('isApproved' => 'DESC'), 'by' => array('name', 'avgPrice', 'isApproved'))));
     if(is_array($hotels)) {
         foreach($hotels as $hotel) {
             $hotel_link = $hotel->get_displayname();
@@ -69,6 +74,14 @@ if(!$core->input['action']) {
                 if(is_object($currency)) {
                     $hotel_avgprice = $hotel->avgPrice.' - '.$currency->get_displayname();
                 }
+            }
+            $hotel_address = '-';
+            if(!empty($hotel->addressLine1) || !empty($hotel->addressLine2)) {
+                $hotel_address = $hotel->addressLine1.'<br/>'.$hotel->addressLine2;
+            }
+            $hotel_phone = '-';
+            if(!empty($hotel->phone)) {
+                $hotel_phone = $hotel->phone;
             }
             //add tools icons depending on user permissions
             $tool_items = ' <li><a target="_blank" href="'.$core->settings['rootdir'].'/index.php?module=travelmanager/viewhotel&id='.$hotel->tmhid.'"><span class="glyphicon glyphicon-eye-open"></span>&nbsp'.$lang->viewhotel.'</a></li>';

@@ -113,12 +113,28 @@ class LogsUserPages extends AbstractClass {
         if(empty($core->settings['clearlogperiod'])) {
             $core->settings['clearlogperiod'] = 30;
         }
-        $sql = 'DELETE FROM '.Tprefix.self::TABLE_NAME.' WHERE uid = '.$this->data['uid'].' AND time < '.strtotime('-'.$core->settings['clearlogperiod']);
+        $sql = 'DELETE FROM '.Tprefix.self::TABLE_NAME.' WHERE uid = '.$this->data['uid'].' AND time < '.strtotime('-'.$core->settings['clearlogperiod'].' days');
         $query = $db->query($sql);
         if($query) {
             return true;
         }
         return false;
+    }
+
+    public function get_frequentitems($type = 'module', $limit = 3) {
+        global $db, $core;
+        /**
+         * Query to be changed when DAL support functions in SELECT
+         */
+        $sql = $db->query('SELECT *, COUNT(*) as timeAccessed FROM '.self::TABLE_NAME.' WHERE uid='.$core->user_obj->get_id().' GROUP BY module ORDER BY timeAccessed DESC LIMIT 0, '.intval($limit));
+        $items = array();
+        if($db->num_rows($sql) > 1) {
+            while($item = $db->fetch_assoc($sql)) {
+                $items[$item['module']] = $item;
+            }
+        }
+
+        return $items;
     }
 
 }

@@ -42,7 +42,7 @@ if(!$core->input['action']) {
 else {
     if($core->input['action'] == 'do_generatereport') {
         if(is_empty($core->input['fromDate'], $core->input['uid'])) {
-            error($lang->invalidtodate, 'index.php?module=attendance/generatereport', false);
+            error($lang->invalidtodate, 'index.php?module=attendance/attendancereport', false);
         }
 
         if(empty($core->input['toDate'])) {
@@ -60,7 +60,7 @@ else {
         $todate = $todate_object->getTimestamp();
 
         if($fromdate > $todate) {
-            error($lang->invalidtodate, 'index.php?module=attendance/generatereport', false);
+            error($lang->invalidtodate, 'index.php?module=attendance/attendancereport', false);
         }
 
         if($fromdate > TIME_NOW) {

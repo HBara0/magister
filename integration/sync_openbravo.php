@@ -46,14 +46,14 @@ if($core->input['authCode'] == AUTHCODE) {
 
     $integration->sync_products(array('0A36650996654AD2BA6B26CBC8BA7347'));
     $integration->sync_businesspartners();
-    //foreach($sync_documents as $orgid => $document) {
-    $integration->sync_purchases(array($orgid), array('products' => array('0A36650996654AD2BA6B26CBC8BA7347')), 'invoice');
-    $integration->sync_sales(array($orgid), array('products' => array('0A36650996654AD2BA6B26CBC8BA7347')), 'invoice');
+    foreach($sync_documents as $orgid => $document) {
+        $integration->sync_purchases(array($orgid), array('products' => array('0A36650996654AD2BA6B26CBC8BA7347')), 'invoice');
+        $integration->sync_sales(array($orgid), array('products' => array('0A36650996654AD2BA6B26CBC8BA7347')), 'invoice');
 
-    $integration->sync_purchases(array($orgid), array('products' => array('0A36650996654AD2BA6B26CBC8BA7347')), 'order');
-    $integration->sync_sales(array($orgid), array('products' => array('0A36650996654AD2BA6B26CBC8BA7347')), 'order');
-    //    sleep(10);
-    // }
+        $integration->sync_purchases(array($orgid), array('products' => array('0A36650996654AD2BA6B26CBC8BA7347')), 'order');
+        $integration->sync_sales(array($orgid), array('products' => array('0A36650996654AD2BA6B26CBC8BA7347')), 'order');
+        sleep(10);
+    }
 
     $integration->close_dbconn();
     echo 'Done';

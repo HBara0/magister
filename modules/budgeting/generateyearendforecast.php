@@ -110,6 +110,8 @@ if(!$core->input['action']) {
     }
 
     eval("\$budgetgenerate = \"".$template->get('budgeting_generateyef')."\";");
+    $additionalheaderinc = '  <script type="text/javascript" src="{$core->settings[rootdir]}/js/tableExport.min.js"></script>
+        <script type="text/javascript" src="{$core->settings[rootdir]}/js/jquery.base64.min.js"></script>';
     output_page($budgetgenerate);
 }
 else {

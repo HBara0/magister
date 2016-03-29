@@ -99,4 +99,5 @@ $lang['workshiftmanagement'] = 'Workshift Management';
 $lang['year'] = 'Year';
 $lang['managejobopportunities'] = 'Manage Job Opportunities';
 $lang['listjobopportunities'] = 'List Job Opportunities';
+$lang['immediately'] = 'Immediately';
 ?>

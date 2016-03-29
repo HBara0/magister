@@ -83,7 +83,7 @@
                 <td {$ordersummarydisplay[thirdcolumn_display]}> <div style="text-align: right;">{$aroordersummary->marginPercThirdParty}%</div></td>
             </tr>
             <tr style="font-weight: bold;background-color: #D0F6AA">
-                <td class="altrow">{$lang->riskratioamount}</td>
+                <td class="altrow">{$lang->riskratioamount} ({$arorequest[currency]})</td>
                 <td style="text-align:center" colspan="2">{$aroordersummary->riskRatioAmount}</td>
                 <td {$ordersummarydisplay[thirdcolumn_display]}></td>
 

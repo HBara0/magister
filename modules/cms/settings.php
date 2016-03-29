@@ -43,7 +43,7 @@ if(!$core->input['action']) {
     }
 
     eval("\$settingspage = \"".$template->get('cms_sitesettings')."\";");
-    output_page($settingspage);
+    output_page($settingspage, array('pagetitle' => 'cmssettings'));
 }
 else {
     if($core->input['action'] == 'do_change_settings') {

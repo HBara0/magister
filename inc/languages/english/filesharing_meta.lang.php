@@ -1,6 +1,7 @@
 <?php
 $lang['sharedfileslist'] = "List Of Shared Files";
 $lang['shareafile'] = "Share a File";
+$lang['uploadfile'] = "Share a File";
 $lang['selectfile'] = "Select a File";
 $lang['fileslist'] = "Files List";
 $lang['title'] = "Title";
@@ -33,4 +34,8 @@ $lang['filesuccessfullyshared'] = "File successfully shared";
 
 $lang['filetitleexists'] = "The title you have chosen is already in use";
 $lang['suredeletefile'] = "Are you sure you want to delete";
+$lang['deletefile'] = 'Delete File';
+$lang['edit'] = 'Edit File';
+$lang['viewfileversions'] = 'View Versions';
+$lang['sharebyemail'] = 'Share File';
 ?>

@@ -1,1 +1,1 @@
-| <a href='{$settings[rootdir]}/index.php' />{$lang->main}</a>
+<a href='{$settings[rootdir]}/index.php' />{$lang->main}</a>

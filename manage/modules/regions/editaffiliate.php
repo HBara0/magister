@@ -4,7 +4,7 @@
  * Copyright © 2009 Orkila International Offshore, All Rights Reserved
  * Manage Affiliates
  * $module: admin/regions
- * $id: editaffiliate.php	
+ * $id: editaffiliate.php
  * Created: 	@najwa.kassem   Feb 8, 2011 | 10:10 AM
  * Last Update: @najwa.kassem   May 18, 2011 | 10:10 AM
  */
@@ -83,7 +83,7 @@ else {
                         $policies_rowid++;
                     }
                     eval("\$editaffiliate = \"".$template->get('popup_regions_editaffiliate')."\";");
-                    output_page($editaffiliate);
+                    output($editaffiliate);
                 }
             }
         }
@@ -94,7 +94,7 @@ else {
             eval("\$promyears .= \"".$template->get('admin_regions_addeditaffiliate_leavespolicies_promotion')."\";");
             $policies_rowid++;
             eval("\$editaffiliate = \"".$template->get('popup_regions_editaffiliate')."\";");
-            output_page($editaffiliate);
+            output($editaffiliate);
         }
     }
     elseif($core->input['action'] == 'do_perform_editaffiliate') {
@@ -187,13 +187,13 @@ else {
     elseif($core->input['action'] == 'get_deleteleavepolicy') {
         $id = $db->escape_string($core->input['id']); //No need to escape string, this is just an output, it will be escapted in the actual processing later
         eval("\$deletepolicy = \"".$template->get('popup_regions_editaffiliate_deletepolicy')."\";");
-        output_page($deletepolicy);
+        output($deletepolicy);
     }
     elseif($core->input['action'] == 'do_deletepolicy') {
         $alpid = $db->escape_string($core->input['alpid']);
         $query = $db->delete_query("affiliatesleavespolicies", "alpid='{$alpid}'");
         if($query) {
-            $log->record($alpid); //Change what is being recorded  
+            $log->record($alpid); //Change what is being recorded
             output_xml("<status>true</status><message>{$lang->policydeleted}</message>");
         }
         else {

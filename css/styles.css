@@ -1,6 +1,6 @@
 @charset "UTF-8";
 /*
-Copyright ┬® 2014 Orkila International Offshore, All Rights Reserved
+Copyright ┬⌐ 2014 Orkila International Offshore, All Rights Reserved
 
 [Provide Short Descption Here]
 $id: _constants.scss
@@ -61,11 +61,11 @@ a, a:visited {
   text-decoration: none;
   color: #acacac; }
 
-.ocosLogo {
-  height: 100px;
+.systemlogo {
   vertical-align: top;
   text-align: center;
-  padding: 0px; }
+  padding: 0px;
+  margin-top: -12px; }
 
 .sideDesign {
   display: none;
@@ -187,7 +187,7 @@ td {
 
 .mainmenuitem_hover {
   color: #696969 !important;
-  background-color: #91b64f; }
+  background-color: #ECECEC !important; }
 
 .mainmenuitem_hover a {
   color: #696969 !important; }
@@ -280,12 +280,14 @@ td {
   color: #333333; }
 
 .portalbox_calendar {
-  background: repeat-x top left url(../images/calendar-background.png) scroll #aecd78;
-  color: #FFFFFF;
-  font-size: 14px;
-  border-top: 0px solid #FFFFFF;
+  color: #91b64f !important;
+  font-size: 25px;
+  border: none;
   text-align: center;
-  padding-top: 8px; }
+  padding-top: 8px;
+  width: 100%; }
+  .portalbox_calendar a {
+    font-size: 65px; }
 
 #loginbox, #errorbox {
   margin: 10px;
@@ -332,7 +334,7 @@ td {
   height: 20px;
   vertical-align: middle !important; }
 
-input.button, .button, button {
+.button {
   -webkit-border-radius: 4px;
   -moz-border-radius: 4px;
   -ms-border-radius: 4px;
@@ -353,7 +355,7 @@ input.button, .button, button {
 input[type="submit"].main {
   min-width: 160px; }
 
-input.button:hover {
+.button:hover {
   background-color: #8cb82b; }
 
 #currentmodule_name {
@@ -686,28 +688,23 @@ tfoot .coltotal, tfoot .colavg {
   border-left: 4px solid red;
   pointer-events: none; }
 
-/*# sourceMappingURL=styles.css.map */
+.frequentmodules_img {
+  margin-left: 5px;
+  margin-right: 5px;
+  margin-top: 10px;
+  background-color: #9bbd61; }
 
 .jqstooltip {
-    width: 50px;
-    height: 25px !important; }
+  width: 50px;
+  height: 25px !important; }
 
+.ui-dialog-titlebar-close {
+  background-color: #CCC !important;
+  color: #FFF; }
 
-.bkgcolor_greygradient {
-    /* IE9 SVG, needs conditional override of 'filter' to 'none' */
-    background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2Y3ZjdmNyIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiNmZmZmZmYiIHN0b3Atb3BhY2l0eT0iMCIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
-    background: -moz-linear-gradient(top, #f7f7f7 0%, rgba(255, 255, 255, 0) 100%);
-    /* FF3.6+ */
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #f7f7f7), color-stop(100%, rgba(255, 255, 255, 0)));
-    /* Chrome,Safari4+ */
-    background: -webkit-linear-gradient(top, #f7f7f7 0%, rgba(255, 255, 255, 0) 100%);
-    /* Chrome10+,Safari5.1+ */
-    background: -o-linear-gradient(top, #f7f7f7 0%, rgba(255, 255, 255, 0) 100%);
-    /* Opera 11.10+ */
-    background: -ms-linear-gradient(top, #f7f7f7 0%, rgba(255, 255, 255, 0) 100%);
-    /* IE10+ */
-    background: linear-gradient(to bottom, #f7f7f7 0%, rgba(255, 255, 255, 0) 100%);
-    /* W3C */
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#f7f7f7', endColorstr='#00ffffff',GradientType=0 );
-    /* IE6-8 */ }
-/*# sourceMappingURL=styles.css.map */
+.pagination > .active > a, .pagination > .active > a:focus, .pagination > .active > a:hover, .pagination > .active > span, .pagination > .active > span:focus, .pagination > .active > span:hover {
+  background-color: #91b64f;
+  border-color: #91b64f; }
+
+.pagination > li > a, .pagination > li > span {
+  color: #91b64f; }

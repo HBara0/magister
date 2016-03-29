@@ -18,7 +18,7 @@ Corresponding date: {3}<br />
 <br />
 Justification: {4}<br />
 <br />
-{4}';
+{4}{5}';
 $lang['additionadaysapprovedsubject'] = 'Your request for additional days has been approved';
 $lang['autorespondermessage'] = 'I am not available from {1} to {2}.';
 $lang['autorespondermessagecontact'] = 'Please contact {1} ({2}) for urgent issues.';
@@ -109,7 +109,7 @@ Your {2}{3} between {4} and {5} was revoked.<br />
 Regards';
 $lang['revokeleavenotificationsubject'] = '{1} revoked their {2}{3}';
 $lang['revokeleavenotificationsubjectuser'] = 'Your {1}{2} was revoked';
-$lang['tmplanfinancenotification'] = 'Request From {1} For An Amount Needed In Advance';
+$lang['tmplanfinancenotification'] = '{1} requested cash in advance';
 $lang['ocosquestion'] = 'OCOS Question';
 $lang['apporvinganonexistingleavesubject'] = 'You just approved a non existing leave';
 $lang['apporvinganonexistingleave'] = 'Dear {1},<br />
@@ -118,4 +118,5 @@ You Just tried to approve a deleted or revoked leave.
 <br />
 Regards';
 $lang['currentbalance'] = 'Current Balance';
+$lang['checktravelpolicy'] = 'Prior to your trip, please make sure to review Orkila Group\'s international travel policy on the following link: ';
 ?>

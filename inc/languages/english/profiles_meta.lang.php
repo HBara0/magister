@@ -139,4 +139,7 @@ $lang['addrepresentative'] = 'Add Representative';
 $lang['readmore'] = 'Read More';
 $lang['sentqreports'] = 'Sent Quarterly Reports';
 $lang['report'] = 'Report';
+$lang['entityprofile'] = 'Entity Profile';
+$lang['affiliateprofile'] = 'Affiliate Profile';
+$lang['segmentprofile'] = 'Segment Profile';
 ?>

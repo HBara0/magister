@@ -1,7 +1,7 @@
 <?php
 $module['name'] = 'portal';
 $module['title'] = 'Portal';
-$module['homepage'] = 'portal';
+$module['homepage'] = 'dashboard';
 $module['globalpermission'] = 'canAccessSystem';
 $module['menu'] = '';
 ?>

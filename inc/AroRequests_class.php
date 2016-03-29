@@ -118,6 +118,7 @@ class AroRequests extends AbstractClass {
             }
 
             $data['approvalchain']['aroBusinessManager'] = $orderrequest_array['aroBusinessManager'];
+            $data['approvalchain']['intermedAff'] = $data['partiesinfo']['intermedAff'];
             $this->create_approvalchain(null, $data['approvalchain']);
             if($this->errorcode != 0) {
                 return $this->errorcode;
@@ -229,6 +230,7 @@ class AroRequests extends AbstractClass {
             $ordesummary_obj->save();
 
             $data['approvalchain']['aroBusinessManager'] = $orderrequest_array['aroBusinessManager'];
+            $data['approvalchain']['intermedAff'] = $data['partiesinfo']['intermedAff'];
             $this->create_approvalchain(null, $data['approvalchain']);
             $approvers_objs = $this->get_approvers();
 //            if(is_array($approvers_objs)) {
@@ -547,7 +549,7 @@ class AroRequests extends AbstractClass {
     public function create_approvalchain($approvers = null, $options = null) {
         global $core, $errorhandler, $lang;
         if(empty($approvers)) {
-            $approvers = $this->generate_approvalchain($options, $options['aroBusinessManager'], $this->partiesinfo['intermedAff']);
+            $approvers = $this->generate_approvalchain($options, $options['aroBusinessManager'], $options['intermedAff']);
         }
         //  $approve_immediately = $this->should_approveimmediately();
         $sequence = 1;

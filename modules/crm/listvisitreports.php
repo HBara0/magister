@@ -89,14 +89,22 @@ if(!$core->input['action']) {
     }
     /* Perform inline filtering - START */
     $filters_config = array(
-            'parse' => array('filters' => array('checkbox', 'customer', 'employee', 'type', 'date'),
-                    'overwriteField' => array('checkbox' => '')
+            'parse' => array('filters' => array('checkbox', 'customername', 'employee', 'type', 'date', 'isdraft', 'tools'),
+                    'overwriteField' => array('checkbox' => '', 'isdraft' => '', 'tools' => '')
             ),
             'process' => array(
                     'filterKey' => 'vrid',
                     'mainTable' => array(
                             'name' => 'visitreports',
-                            'filters' => array('customer' => 'cid', 'employee' => 'uid', 'date', 'type')
+                            'filters' => array('cid' => 'cid', 'uid' => array('operatorType' => 'multiple', 'name' => 'uid'), 'date', 'type')
+                    ),
+                    'secTables' => array(
+                            'users' => array(
+                                    'filters' => array('employee' => array('name' => 'users.displayName')), 'tablename' => 'visitreports', 'keyAttr' => 'uid', 'joinKeyAttr' => 'uid', 'joinWith' => 'users'
+                            ),
+                            'entities' => array(
+                                    'filters' => array('customername' => array('name' => 'entities.companyName')), 'tablename' => 'visitreports', 'keyAttr' => 'cid', 'joinKeyAttr' => 'eid', 'joinWith' => 'entities'
+                            ),
                     )
             )
     );
@@ -104,11 +112,15 @@ if(!$core->input['action']) {
     $filter = new Inlinefilters($filters_config);
     $filter_where_values = $filter->process_multi_filters();
     $filters_row_display = 'hide';
-    if(is_array($filter_where_values)) {
-        $filters_row_display = 'show';
-        $filter_where = ' AND '.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
-        $multipage_filter_where = ' AND '.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
+    if(is_array($filter_where_values) && !empty($filter_where_values)) {
+        $filter_where_values = array_filter($filter_where_values);
+        if(is_array($filter_where_values) && !empty($filter_where_values)) {
+            $filters_row_display = 'show';
+            $filter_where = ' AND '.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
+            $multipage_filter_where = ' AND '.$filters_config['process']['filterKey'].' IN ('.implode(',', $filter_where_values).')';
+        }
     }
+
     $filters_row = $filter->prase_filtersrows(array('tags' => 'table', 'display' => $filters_row_display));
     /* Perform inline filtering - END */
 
@@ -124,7 +136,7 @@ if(!$core->input['action']) {
             //$query2 = $db->query("SELECT * FROM ".Tprefix."visitreports_reportsuppliers WHERE vrid='$visitreport[vrid]' AND ");
             if(is_array($permissions['spid'])) {// if($core->usergroup['canViewAllSupp'] == 0) {
                 // if(is_array($core->user['suppliers']['eid'])) {
-                if($visitreport['hasSupplier'] == 1 && !value_exists('visitreports_reportsuppliers', 'vrid', $visitreport['vrid'], 'spid IN ('.implode(', ', $permissions['spid']).')')) {//$core->user['suppliers']['eid']
+                if(($visitreport['hasSupplier'] == 1 && !value_exists('visitreports_reportsuppliers', 'vrid', $visitreport['vrid'], 'spid IN ('.implode(', ', $permissions['spid']).')')) && $visitreport['uid'] != $core->user['uid']) {//$core->user['suppliers']['eid']
                     continue;
                 }
                 //   }

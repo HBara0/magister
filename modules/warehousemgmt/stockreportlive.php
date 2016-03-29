@@ -1070,17 +1070,21 @@ else {
                 foreach($aging_scale as $key => $age) {
                     $stockevolution_chart_linecolors[$age] = $configs['aging']['output_fields']['range'.$key.'cost']['chartlinecolor'];
                 }
-                if($core->input['referrer'] == 'bmstockreport') {
-                    $stockevolution_chart = new Charts(array('x' => $chart_data['x'], 'y' => $chart_data['y']), 'line', array('path' => ROOT.'/tmp/charts/', 'labelrotationangle' => 90, 'height' => 400, 'width' => 900, 'yaxisname' => 'K. USD', 'graphareay2margin' => 50, 'scale' => SCALE_START0, 'seriesweight' => 2, 'nosort' => true, 'linescolors' => $stockevolution_chart_linecolors));
-                }
-                else {
-                    $stockevolution_chart = new Charts(array('x' => $chart_data['x'], 'y' => $chart_data['y']), 'line', array('path' => $extra_path.'./tmp/charts/', 'labelrotationangle' => 90, 'height' => 400, 'width' => 900, 'yaxisname' => 'K. USD', 'graphareay2margin' => 50, 'scale' => SCALE_START0, 'seriesweight' => 2, 'nosort' => true, 'linescolors' => $stockevolution_chart_linecolors));
+                if(!empty($chart_data)) {
+                    if($core->input['referrer'] == 'bmstockreport') {
+                        $stockevolution_chart = new Charts(array('x' => $chart_data['x'], 'y' => $chart_data['y']), 'line', array('path' => ROOT.'/tmp/charts/', 'labelrotationangle' => 90, 'height' => 400, 'width' => 900, 'yaxisname' => 'K. USD', 'graphareay2margin' => 50, 'scale' => SCALE_START0, 'seriesweight' => 2, 'nosort' => true, 'linescolors' => $stockevolution_chart_linecolors));
+                    }
+                    else {
+                        $stockevolution_chart = new Charts(array('x' => $chart_data['x'], 'y' => $chart_data['y']), 'line', array('path' => $extra_path.'./tmp/charts/', 'labelrotationangle' => 90, 'height' => 400, 'width' => 900, 'yaxisname' => 'K. USD', 'graphareay2margin' => 50, 'scale' => SCALE_START0, 'seriesweight' => 2, 'nosort' => true, 'linescolors' => $stockevolution_chart_linecolors));
+                    }
                 }
                 if($core->input['reporttype'] == 'email') {
                     $stockevolution_output = '<img src = "cid:stockevolutionchart" />'.$stockevolution_output;
                 }
                 else {
-                    $stockevolution_output = '<img src = "data:image/png;base64,'.base64_encode(file_get_contents($stockevolution_chart->get_chart())).'" />'.$stockevolution_output;
+                    if(is_object($stockevolution_chart)) {
+                        $stockevolution_output = '<img src = "data:image/png;base64,'.base64_encode(file_get_contents($stockevolution_chart->get_chart())).'" />'.$stockevolution_output;
+                    }
                 }
 
                 /* Parse FX Rates Chart - START */
@@ -1143,7 +1147,7 @@ else {
 
             $message = '<html><head><title>Stock Report</title></head><body>';
             $message .= '<h1>Stock Summary Report - '.$affiliate['name'].' - Week '.$date_info['week'].'/'.$date_info['year'].' ( '.$affiliate['currency'].' | USD FX Rate:'.$fxrates['usd'].')<br />'
-                    .'<small style = "color:red;">New Feature: Check the new Expiry Aging table, and its summaries</small></h1>';
+                    .'</h1>';
             $message .= $stockevolution_output.$alerts.$summaries_ouput.$output.$fxratesoverview_output;
             unset($stockevolution_output, $alerts, $summaries_ouput, $output, $fxratesoverview_output);
         }
@@ -1154,7 +1158,7 @@ else {
         if($core->input['referrer'] != 'bmstockreport') {
             $affiliates_addrecpt = array(
                     19 => array(398, 356, 457, 367),
-                    22 => array(248, 246, 270, 356, 63, 379, 378),
+                    22 => array(248, 246, 270, 356, 379, 378, 457, 367),
                     23 => array('zadok.oppong-boahene', 'courage.dzandu', 416, 321, 'tarek.chalhoub', 63, 356, 464, 457, 367),
                     1 => array(356, 457, 367), //12, 333, 182, 43,
                     21 => array(63, 158, 'patrice.mossan', 'marcelle.nklo', 'abel.laho', 'boulongo.diata', 356, 'kenan.amjeh', 457, 367),
@@ -1163,9 +1167,9 @@ else {
                     11 => array(323, 108, 186, 335, 184, 111, 109, 280, 326, 295, 289, 187, 112, 113, 312, 107, 356, 63, 457, 367),
                     2 => array('amal.dababneh', 34, 457, 367),
                     7 => array(434, 457, 367),
-                    22 => array(457, 367),
                     16 => array(457, 367),
                     29 => array(457, 367),
+                    12 => array(33, 444, 370),
             );
             $recipients[] = $affiliateobj->get_generalmanager()->email;
             $recipients[] = $affiliateobj->get_supervisor()->email;
@@ -1209,7 +1213,7 @@ else {
 
             if($mailer->get_status() === true) {
                 $sentreport = new ReportsSendLog();
-                $sentreport->set(array('affid' => $affiliateobj->get_id(), 'report' => 'stockreport', 'date' => TIME_NOW, 'sentBy' => $core->user['uid'], 'sentTo' => ''))->save();
+                $sentreport->set(array('affid' => $affiliateobj->get_id(), 'report' => 'stockreport', 'date' => TIME_NOW, 'sentBy' => $core->user['uid'], 'sentTo' => '', 'readyForSending' => 1))->save();
 
                 unset($core->input['reporttype']);
                 redirect('index.php?'.http_build_query($core->input), 1, 'Success');
