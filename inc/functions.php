@@ -2306,4 +2306,49 @@ function get_helptour($reference) {
     }
 }
 
+/**
+ * Function can resize a png image and make background transparent
+ * @param type $file
+ * @param type $w
+ * @param type $h
+ * @param type $output_file
+ * @param type $crop
+ * @return type
+ */
+function resize_image_png($file, $w, $h, $output_file = '', $crop = FALSE) {
+    list($width, $height) = getimagesize($file);
+    $r = $width / $height;
+    if($crop) {
+        if($width > $height) {
+            $width = ceil($width - ($width * abs($r - $w / $h)));
+        }
+        else {
+            $height = ceil($height - ($height * abs($r - $w / $h)));
+        }
+        $newwidth = $w;
+        $newheight = $h;
+    }
+    else {
+        if($w / $h > $r) {
+            $newwidth = $h * $r;
+            $newheight = $h;
+        }
+        else {
+            $newheight = $w / $r;
+            $newwidth = $w;
+        }
+    }
+    $src = imagecreatefrompng($file);
+    $dst = imagecreatetruecolor($newwidth, $newheight);
+    imagesavealpha($dst, true);
+    $rgb = imagecolorallocatealpha($dst, 0, 0, 0, 127);
+    imagefill($dst, 0, 0, $rgb);
+    imagecopyresampled($dst, $src, 0, 0, 0, 0, $newwidth, $newheight, $width, $height);
+    if($output_file) {
+        imagepng($dst, $output_file);
+    }
+
+    return $dst;
+}
+
 ?>
