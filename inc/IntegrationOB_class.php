@@ -3204,18 +3204,27 @@ class IntegrationOBFinPaymentSchedule extends IntegrationAbstractClass {
         return false;
     }
 
+    /**
+     * get due payment schedule
+     * @global type $lang
+     * @global type $template
+     * @global type $core
+     * @param type $configs
+     * @param type $integration
+     * @return boolean
+     */
     public function paymentschedule_report($configs = array(), $integration) {
         global $lang, $template, $core;
         //get OB business group id types
-        $ob_bp_group_ids = array('customer' => 'C08F137534222BD001345D52062931C6', 'supplier' => 'C08F137534222BD001345D525D3331CC');
+        ini_set('max_execution_time', 300);
         $ob_bp_group_filter_byid = "'C08F137534222BD001345D52062931C6','C08F137534222BD001345D525D3331CC'";
         //get orkila international ob org ID
-        $ork_int = new Entities(27);
+        $ork_int = new Affiliates(27, false);
         $int_oborgid = $ork_int->integrationOBOrgId;
         if($int_oborgid) {
-            $additional_where_orkint = " OR SELECT C_Invoice_ID FROM c_invoice WHERE issotrx= 'Y' AND ad_org_id =\'{$int_oborgid}\'";
+            $additional_where_orkint = " OR C_Invoice_ID IN (SELECT C_Invoice_ID FROM c_invoice WHERE issotrx= 'Y' AND ad_org_id ='{$int_oborgid}')";
         }
-        $filters = "Outstandingamt > 0 AND duedate < '".date('Y-m-d 00:00:00')."' AND (C_Invoice_ID IN (SELECT C_Invoice_ID FROM c_invoice WHERE C_BPartner_ID IN (SELECT C_BPartner_ID FROM C_BPartner WHERE C_BP_Group_ID IN ({$ob_bp_group_filter_byid}))  {$additional_where_orkint})) ORDER BY Outstandingamt DESC";
+        $filters = "Outstandingamt > 0 AND duedate < '".date('Y-m-d 00:00:00')."' AND (C_Invoice_ID IN (SELECT C_Invoice_ID FROM c_invoice WHERE C_BPartner_ID IN (SELECT C_BPartner_ID FROM C_BPartner WHERE C_BP_Group_ID IN ({$ob_bp_group_filter_byid})))  {$additional_where_orkint}) ORDER BY Outstandingamt DESC";
         $payment_schedules = self::get_paymentschedules($filters);
         if(!is_array($payment_schedules)) {
             return false;
@@ -3314,9 +3323,12 @@ class IntegrationOBFinPaymentSchedule extends IntegrationAbstractClass {
             $normalamount = number_format($paymentschedule_obj->outstandingamt, 0, '.', ',');
             //if invoice is not sales and involved orkila international
             if($invoice_obj->issotrx == 'Y') {
-                $for_international['lines'][] = array('flag' => $flag, 'duedate' => $dudate_time, 'company' => $company_obj->get_displayname(), 'amount' => $normalamount, 'currency' => $currency_obj->iso_code, 'amount_usd' => $usdamount);
+                if($paymentschedule_obj->ad_org_id == $int_oborgid) {
+                    continue;
+                }
+                $for_international['lines'][] = array('flag' => $flag, 'duedate' => date('Y-m-d', $dudate_time), 'company' => $company_obj->get_displayname(), 'amount' => $normalamount, 'currency' => $currency_obj->iso_code, 'amount_usd' => $usdamount);
                 $year_month = date('Y/m', $dudate_time);
-                if($flag != 1) {
+                if($flag != 1 && $paymentschedule_obj->outstandingamt != 0) {
                     $for_international['permonth'][$year_month] += $paymentschedule_obj->outstandingamt / $fxrate;
                     $totals['sales']+=$paymentschedule_obj->outstandingamt / $fxrate;
                 }
