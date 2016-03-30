@@ -300,7 +300,7 @@ if(!($core->input['action'])) {
             //********** ARO Product Lines -Start **************//
             $riskratioamount = 0;
             $plrowid = 0;
-            $productlines = AroRequestLines::get_data(array('aorid' => $aroorderrequest->aorid), array('returnarray' => true, 'order' => array('by' => 'inputChecksum', 'sort' => 'ASC')));
+            $productlines = AroRequestLines::get_data(array('aorid' => $aroorderrequest->aorid), array('returnarray' => true, 'order' => array('by' => 'arlid', 'sort' => 'ASC')));
             if(is_array($productlines)) {
                 foreach($productlines as $line) {
                     $plrowid++;
@@ -360,7 +360,7 @@ if(!($core->input['action'])) {
             }
             //********** ARO Product Lines **************//
             //*********Aro Actual Purchase -Start *********//
-            $aroreqlinesupervision = AroRequestLinesSupervision::get_data(array('aorid' => $aroorderrequest->aorid), array('returnarray' => true, 'order' => array('by' => 'inputChecksum', 'sort' => 'ASC')));
+            $aroreqlinesupervision = AroRequestLinesSupervision::get_data(array('aorid' => $aroorderrequest->aorid), array('returnarray' => true, 'order' => array('by' => 'arlsid', 'sort' => 'ASC')));
 
             $aprowid = 0;
             if(is_array($aroreqlinesupervision)) {
@@ -388,7 +388,7 @@ if(!($core->input['action'])) {
             }
             //*********Aro Actual Purchase-End *********//
             //********Current Stock -Start *********//
-            $arocurrentstockrows = AroRequestsCurStkSupervision::get_data(array('aorid' => $aroorderrequest->aorid), array('returnarray' => true, 'order' => array('by' => 'inputChecksum', 'sort' => 'ASC')));
+            $arocurrentstockrows = AroRequestsCurStkSupervision::get_data(array('aorid' => $aroorderrequest->aorid), array('returnarray' => true, 'order' => array('by' => 'arcssid', 'sort' => 'ASC')));
             $csrowid = 0;
             if(is_array($arocurrentstockrows)) {
                 foreach($arocurrentstockrows as $currentstock) {

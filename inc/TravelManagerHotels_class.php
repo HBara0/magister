@@ -95,7 +95,7 @@ class TravelManagerHotels extends AbstractClass {
             //getting hotels in the same country details
             $hotelsinsamecountry = TravelManagerHotels::get_data(array('country' => $newhotel->country), array('returnarray' => true, 'order' => 'isApproved', 'simple' => false));
             if(is_array($hotelsinsamecountry)) {
-                $hotelsinsamecountrysection = '<tr><th colspan="4" style="text-align: center;background-color: #D9D9C2">'.$lang->hotelsinsamecountry.'</th></tr>';
+                $display['hotelsinsamecountry'] = 'display:"block;"';
                 foreach($hotelsinsamecountry as $hotelincountry) {
                     /**
                      * Skip the same hotel
@@ -141,12 +141,14 @@ class TravelManagerHotels extends AbstractClass {
             $mailer->set_subject('New Hotel to Approve');
             $mailer->set_message($emailmessage);
             $mailer->send();
-//            if($mailer->get_status() === true) {
-//                $this->errorcode = 0;
-//            }
-//            else {
-//                $this->errorcode = 1;
-//            }
+//            print_R($emailmessage);
+//            exit;
+            if($mailer->get_status() === true) {
+                $this->errorcode = 0;
+            }
+            else {
+                $this->errorcode = 1;
+            }
             $this->errorcode = 0;
         }
         return $this;

@@ -359,17 +359,20 @@ else {
             if($leave_obj->createAutoResp == 1 && !isset($core->input['createAutoResp'])) {
                 $leave_obj->delete_autoresponder();
             }
-            $core->input['workingDays'] = $leave_obj->count_workingdays();
         }
         //check if leave has a TM plan end
         $query = $db->update_query('leaves', $core->input, "lid='{$lid}'");
         /* Update leave expenses - START */
-        $leave_obj = new Leaves(array('lid' => $lid), false);
+        //   $leave_obj = new Leaves(array('lid' => $lid), false);
         if($core->usergroup['canUseTravelManager'] == 0 && is_array($expenses_data) && !empty($expenses_data)) {
             $leave_obj->update_leaveexpenses($expenses_data);
         }
         /* Update leave expenses - END */
         if($query) {
+            $leave_obj = new Leaves($lid, false);
+            $update_array['workingDays'] = $leave_obj->count_workingdays();
+            $query = $db->update_query('leaves', $update_array, "lid='{$lid}'");
+
             if($db->affected_rows() == 0) {
                 output_xml("<status>false</status><message>{$lang->leavenochangemade}</message>");
                 exit;
