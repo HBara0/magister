@@ -3224,7 +3224,7 @@ class IntegrationOBFinPaymentSchedule extends IntegrationAbstractClass {
         if($int_oborgid) {
             $additional_where_orkint = " OR C_Invoice_ID IN (SELECT C_Invoice_ID FROM c_invoice WHERE issotrx= 'Y' AND ad_org_id ='{$int_oborgid}')";
         }
-        $filters = "Outstandingamt > 0 AND duedate < '".date('Y-m-d 00:00:00')."' AND (C_Invoice_ID IN (SELECT C_Invoice_ID FROM c_invoice WHERE C_BPartner_ID IN (SELECT C_BPartner_ID FROM C_BPartner WHERE C_BP_Group_ID IN ({$ob_bp_group_filter_byid})))  {$additional_where_orkint}) ORDER BY Outstandingamt DESC";
+        $filters = "Outstandingamt > 0 AND duedate < '".date('Y-m-d 00:00:00')."' AND (C_Invoice_ID IN (SELECT C_Invoice_ID FROM c_invoice WHERE issotrx= 'N' AND C_BPartner_ID IN (SELECT C_BPartner_ID FROM C_BPartner WHERE C_BP_Group_ID IN ({$ob_bp_group_filter_byid})))  {$additional_where_orkint}) ORDER BY Outstandingamt DESC";
         $payment_schedules = self::get_paymentschedules($filters);
         if(!is_array($payment_schedules)) {
             return false;
@@ -3324,13 +3324,12 @@ class IntegrationOBFinPaymentSchedule extends IntegrationAbstractClass {
             //if invoice is not sales and involved orkila international
             if($invoice_obj->issotrx == 'Y') {
                 if($paymentschedule_obj->ad_org_id == $int_oborgid) {
-                    continue;
-                }
-                $for_international['lines'][] = array('flag' => $flag, 'duedate' => date('Y-m-d', $dudate_time), 'company' => $company_obj->get_displayname(), 'amount' => $normalamount, 'currency' => $currency_obj->iso_code, 'amount_usd' => $usdamount);
-                $year_month = date('Y/m', $dudate_time);
-                if($flag != 1 && $paymentschedule_obj->outstandingamt != 0) {
-                    $for_international['permonth'][$year_month] += $paymentschedule_obj->outstandingamt / $fxrate;
-                    $totals['sales']+=$paymentschedule_obj->outstandingamt / $fxrate;
+                    $for_international['lines'][] = array('flag' => $flag, 'duedate' => date('Y-m-d', $dudate_time), 'company' => $businesspartner_obj->get_displayname(), 'amount' => $normalamount, 'currency' => $currency_obj->iso_code, 'amount_usd' => $usdamount);
+                    $year_month = date('Y/m', $dudate_time);
+                    if($flag != 1 && $paymentschedule_obj->outstandingamt != 0) {
+                        $for_international['permonth'][$year_month] += $paymentschedule_obj->outstandingamt / $fxrate;
+                        $totals['sales']+=$paymentschedule_obj->outstandingamt / $fxrate;
+                    }
                 }
             }
             //else it is a purchase invoice, meaning one of our companies is due for payment
@@ -3404,7 +3403,7 @@ class IntegrationOBFinPaymentSchedule extends IntegrationAbstractClass {
             foreach($per_company as $companyid => $suppliers) {
                 $company_obj = $cache->get_cachedval('company', $companyid);
                 $company = $company_obj->get_displayname();
-                $percompany_rows.='<tr><td colspan="8" style="text-align: left; padding: 5px; border-bottom: 1px dashed #CCCCCC;background-color:#D6EAAC"><strong>'.$company.'</strong></td></tr>';
+                $percompany_rows.='<tr><td colspan="8" style="text-align: right; padding: 5px; border-bottom: 1px dashed #CCCCCC;background-color:#D6EAAC"><strong>'.$company.'</strong></td></tr>';
                 eval("\$percompany_rows .= \"".$template->get('report_duepayments_percompany_header')."\";");
                 $companytotal = number_format($totals['company'][$companyid], 0, '.', ',');
                 if(is_array($suppliers)) {
@@ -3449,7 +3448,7 @@ class IntegrationOBFinPaymentSchedule extends IntegrationAbstractClass {
             foreach($per_supplier as $supplierid => $currencies) {
                 $businesspartner_obj = $cache->get_cachedval('supplier', $supplierid);
                 $businesspartner = $businesspartner_obj->get_displayname();
-                $persupplier_rows.='<tr><td colspan="7" style="text-align: left; padding: 5px; border-bottom: 1px dashed #CCCCCC;background-color:#D6EAAC"><strong>'.$businesspartner.'</strong></td></tr>';
+                $persupplier_rows.='<tr><td colspan="7" style="text-align: right; padding: 5px; border-bottom: 1px dashed #CCCCCC;background-color:#D6EAAC"><strong>'.$businesspartner.'</strong></td></tr>';
                 eval("\$persupplier_rows .= \"".$template->get('report_duepayments_persupplier_header')."\";");
                 $suppliertotal = number_format($totals['supplier'][$supplierid], 0, '.', ',');
                 if(is_array($currencies)) {
@@ -3499,7 +3498,7 @@ class IntegrationOBFinPaymentSchedule extends IntegrationAbstractClass {
             if(is_array($for_international['permonth'])) {
                 ksort($for_international['permonth']);
                 foreach($for_international['permonth'] as $title => $number) {
-                    $forinternational_rows .='<tr style="text-align: right; padding: 5px;"><th colspan="2">'.$title.'</th><th colspan="3">'.$number.'</th></tr>';
+                    $forinternational_rows .='<tr style=" padding: 5px;"><th style="text-align:center" colspan="2">'.$title.'</th><th colspan="3" style="text-align: left">'.number_format($number, 0, '.', ',').'</th></tr>';
                 }
             }
         }
@@ -3518,7 +3517,7 @@ class IntegrationOBFinPaymentSchedule extends IntegrationAbstractClass {
 
         //pare overall report
         if(!empty($detailedtable_rows)) {
-            $detailedtable_header = "<tr><th>{$lang->duedate}</th><th>{$lang->company}</th><th>{$lang->supplier}</th><th>{$lang->amount}</th><th>{$lang->currency}</th><th>{$lang->amountinusd}</th></tr>";
+            $detailedtable_header = "<tr><th>{$lang->duedate}</th><th>{$lang->company}</th><th>{$lang->supplier}</th><th style='text-align:right'>{$lang->amount}</th><th>{$lang->currency}</th><th style='text-align:right'>{$lang->amountinusd}</th></tr>";
             $detailed_table = '<hr><div class="panel panel-default"><div class="panel-heading"><h1>'.$lang->detailedtable.'</h1></div><div class="panel-body"><table class="datatable"><thead>'.$detailedtable_header.'</thead><tbody>'.$detailedtable_rows.'</tbody></table></div></div>';
             $tables.=$detailed_table;
             $detailedtable_description = $lang->detailedtable_description;
@@ -3534,7 +3533,7 @@ class IntegrationOBFinPaymentSchedule extends IntegrationAbstractClass {
             $persupplier_description = $lang->persupplier_description;
         }
         if(!empty($forinternational_rows)) {
-            $forinternational_header = "<tr><th>{$lang->duedate}</th><th>{$lang->company}</th><th>{$lang->amount}</th><th>{$lang->currency}</th><th>{$lang->amountinusd}</th></tr>";
+            $forinternational_header = "<tr><th>{$lang->duedate}</th><th>{$lang->company}</th><th style='text-align:right'>{$lang->amount}</th><th>{$lang->currency}</th><th style='text-align:right'>{$lang->amountinusd}</th></tr>";
             $forinternational_table = '<hr><div class="panel panel-default"><div class="panel-heading"><h1>'.$lang->toorkilainternational.'</h1></div><div class="panel-body"><hr><table class="datatable"><thead>'.$forinternational_header.'</thead><tbody>'.$forinternational_rows.'</tbody></table></div></div>';
             $tables.=$forinternational_table;
             $forinternational_description = $lang->forinternational_description;
