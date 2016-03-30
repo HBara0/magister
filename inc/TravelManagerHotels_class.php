@@ -257,4 +257,28 @@ class TravelManagerHotels extends AbstractClass {
         return false;
     }
 
+    /**
+     * Feed the function two hotel ids, and replace all occurences where hotel to be replaced shows up by the new hotel
+     * @global type $db
+     * @param type $replaced
+     * @param type $replace_by
+     * @return boolean
+     */
+    public function replace_hotel($replaced, $replace_by) {
+        global $db;
+        if($replace_by) {
+            //replace existing accomodations hotel ids from old to new one
+            $existing_accomodations = TravelManagerPlanaccomodations::get_data(array('tmhid' => intval($replaced)), array('returnarray' => true));
+            if(is_array($existing_accomodations)) {
+                $db->update_query(TravelManagerPlanaccomodations::TABLE_NAME, array('tmhid' => intval($replace_by)), 'tmhid='.intval($replaced));
+            }
+            //replace existing accomodations REVIEWS hotel ids from old to new one
+            $existing_accomodations_revs = TravelManagerAccomodationsReview::get_data(array('tmhid' => intval($replaced)), array('returnarray' => true));
+            if(is_array($existing_accomodations_revs)) {
+                $db->update_query(TravelManagerAccomodationsReview::TABLE_NAME, array('tmhid' => intval($replace_by)), 'tmhid='.intval($replaced));
+            }
+        }
+        return true;
+    }
+
 }
