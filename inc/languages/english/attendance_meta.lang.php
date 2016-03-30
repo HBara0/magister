@@ -192,4 +192,6 @@ $lang['tohourr'] = 'To Hour';
 $lang['addattendancercords'] = 'Add Attendace Records';
 $lang['reinitializebalances'] = 'Reinitialize Balances';
 $lang['employee'] = 'Employee';
+$lang['attendancerecords'] = 'Attendance Records';
+$lang['attendancelog'] = 'Attendance Log'
 ?>

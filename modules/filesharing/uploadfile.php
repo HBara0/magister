@@ -246,16 +246,17 @@ function get_subfolders($subfolders, $depth = '') {
 
 function get_folderstruture($folders, $parent = 0) {
     global $db;
+    if(is_array($folders)) {
+        foreach($folders as $ffid => $folder) {
+            if($folder['parent'] == $parent) {
+                $folders_structure[$folder['ffid']]['id'] = $folder['ffid'];
+                $folders_structure[$folder['ffid']]['name'] = $folder['name'];
 
-    foreach($folders as $ffid => $folder) {
-        if($folder['parent'] == $parent) {
-            $folders_structure[$folder['ffid']]['id'] = $folder['ffid'];
-            $folders_structure[$folder['ffid']]['name'] = $folder['name'];
-
-            $subfolders = get_folderstruture($folders, $folder['ffid']);
-            if(!empty($subfolders)) {
-                $folders_structure[$folder['ffid']]['sub'] = $subfolders;
-                unset($subfolders);
+                $subfolders = get_folderstruture($folders, $folder['ffid']);
+                if(!empty($subfolders)) {
+                    $folders_structure[$folder['ffid']]['sub'] = $subfolders;
+                    unset($subfolders);
+                }
             }
         }
     }

@@ -182,4 +182,6 @@ $lang['errordeleting'] = 'An Error Occured While Deleting';
 $lang['startconversation'] = 'Start Conversation';
 $lang['managesystem'] = 'managesystem';
 $lang['noleavestats'] = 'No Leave Stats';
+$lang['warehousemgmt'] = 'Warehouse Management';
+$lang['employeeslist'] = 'Employees list';
 ?>

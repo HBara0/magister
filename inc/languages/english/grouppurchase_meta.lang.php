@@ -33,5 +33,6 @@ Years:<br/>
 Kindly access OCOS the soonest possible and verify/update the data.';
 $lang['check'] = 'Check';
 $lang['update'] = 'Update';
-$lang['gpreminder'] = 'Update Group Purchase Forcast Reminder'
+$lang['gpreminder'] = 'Update Group Purchase Forcast Reminder';
+$lang['priceslist'] = 'Prices List';
 ?>
