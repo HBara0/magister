@@ -31,8 +31,13 @@ if(!$core->input['action']) {
         }
     }
     if($core->usergroup['canViewAllSupp'] == 0) {
-        $insuppliers = implode(',', $core->user['suppliers']['eid']);
-        $suppliers_extra_where .= '  AND eid IN ('.$insuppliers.') ';
+        if(is_array($core->user['suppliers']['eid'])) {
+            $insuppliers = implode(',', $core->user['suppliers']['eid']);
+            $suppliers_extra_where .= '  AND eid IN ('.$insuppliers.') ';
+        }
+        else {
+            $suppliers_extra_where .= '  AND eid = 0 ';
+        }
     }
 
     $additional_where = getquery_entities_viewpermissions();
