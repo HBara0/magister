@@ -933,11 +933,5 @@ function generate_report($input_data) {
         $message = '<html><head><title>Stock Report</title></head><body>';
         $message .= '<h1> No Match Found</h1>';
     }
-
-    $stockreportpage['content'] = $message;
-
-    $report = $stockreportpage['content'];
-    return $report;
-
-    unset($message);
+    return $message;
 }
