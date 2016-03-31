@@ -59,7 +59,9 @@ if(!$core->input['action']) {
     //produt block end
     //supplier block start
     if($core->usergroup['canViewAllSupp'] == 0) {
-        $spid_allowed = array_intersect($objectids['spid'], $core->user['suppliers']['eid']);
+        if(is_array($core->user['suppliers']['eid'])) {
+            $spid_allowed = array_intersect($objectids['spid'], $core->user['suppliers']['eid']);
+        }
     }
     else {
         $spid_allowed = $objectids['spid'];
