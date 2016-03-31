@@ -388,7 +388,7 @@ else {
                         $salesreport .= '<tr style="background-color:#92D050;"><th colspan=15>Monthly Overview by BM</th></tr>';
                         $salesreport .= '<tr><th style="font-size:14px; font-weight: bold; background-color: #F1F1F1;">Sales Rep</th>';
                         for($i = 1; $i <= 12; $i++) {
-                            $salesreport .= '<th style="font-size:14px; font-weight: bold; background-color: #F1F1F1;">'.DateTime::createFromFormat('m', $i)->format('M').'</th>';
+                            $salesreport .= '<th style="font-size:14px; font-weight: bold; background-color: #F1F1F1;">'.DateTime::createFromFormat('!m', $i)->format('M').'</th>';
                         }
                         for($y = $current_year; $y >= ($current_year - 1); $y--) {
                             $salesreport .= '<th style="font-size:14px; font-weight: bold; background-color: #F1F1F1;">'.$y.'</th>';
