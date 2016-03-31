@@ -14,6 +14,9 @@ if(!defined('DIRECT_ACCESS')) {
 }
 
 if(!$core->input['action']) {
+    if(!isset($core->input['id']) || empty($core->input['id'])) {
+        redirect('index.php?module=travelmanager/listplans');
+    }
     $planid = intval($core->input['id']);
     $plan_object = TravelManagerPlan::get_plan(array('tmpid' => $planid, 'isFinalized' => 1));
 
@@ -34,7 +37,7 @@ if(!$core->input['action']) {
         $finalize_button = '<input type="submit" disabled="disabled" class="button" value=" '.$lang->finalize.'" id="perform_travelmanager/viewplan_Button">';
     }
 
-    if(!is_object($plan_object)) {
+    if(!is_object($plan_object) || empty($plan_object->tmpid)) {
         redirect('index.php?module=travelmanager/listplans');
     }
 
