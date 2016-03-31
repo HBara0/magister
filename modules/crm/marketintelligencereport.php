@@ -33,8 +33,13 @@ if(!$core->input['action']) {
 
     // Here we get  suppliers that the user is assigned to or work with an affiliate that he can audit
     if($core->usergroup['canViewAllSupp'] == 0) {
-        $insupplier = implode(',', $core->user['suppliers']['eid']);
-        $supplier_where = " eid IN ({$insupplier})";
+        if(is_array($core->user['suppliers']['eid'])) {
+            $insupplier = implode(',', $core->user['suppliers']['eid']);
+            $supplier_where = " eid IN ({$insupplier})";
+        }
+        else {
+            $supplier_where = " eid = 0";
+        }
     }
     else {
         $supplier_where = " type='s'";
