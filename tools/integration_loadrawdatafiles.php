@@ -17,21 +17,21 @@ if($core->input['authCode'] == AUTHCODE) {
         case 'purchases':
             $filename = 'Integration - Purchases.csv';
             $tables = array(
-                    'integration_mediation_purchaseorders' => array('pk' => 'impoid', 'identifier' => 'foreignId', 'attrAlias' => array('orderId' => 'foreignId'), 'dateAttrs' => array('date')),
-                    'integration_mediation_purchaseorderlines' => array('pk' => 'impolid', 'identifier' => 'foreignId', 'attrAlias' => array('orderLineId' => 'foreignId', 'orderId' => 'foreignOrderId')));
+                    'integration_mediation_purchaseinvoices' => array('pk' => 'impiid', 'identifier' => 'foreignId', 'attrAlias' => array('orderId' => 'foreignId'), 'dateAttrs' => array('date')),
+                    'integration_mediation_purchaseinvoicelines' => array('pk' => 'impilid', 'identifier' => 'foreignId', 'attrAlias' => array('orderLineId' => 'foreignId', 'orderId' => 'foreignInvoiceId')));
             $required_fields = array(
-                    'integration_mediation_purchaseorderlines' => array('foreignId', 'foreignOrderId', 'pid', 'price', 'quantity', 'quantityUnit'),
-                    'integration_mediation_purchaseorders' => array('foreignId', 'date', 'spid'));
+                    'integration_mediation_purchaseinvoicelines' => array('foreignId', 'foreignInvoiceId', 'pid', 'price', 'quantity', 'quantityUnit'),
+                    'integration_mediation_purchaseinvoices' => array('foreignId', 'date', 'spid'));
             break;
         case 'sales':
             $filename = 'Integration - Sales.csv';
 
             $tables = array(
-                    'integration_mediation_salesorders' => array('pk' => 'imsoid', 'identifier' => 'foreignId', 'attrAlias' => array('invoiceId' => 'foreignId'), 'dateAttrs' => array('date')),
-                    'integration_mediation_salesorderlines' => array('pk' => 'imsolid', 'identifier' => 'foreignId', 'attrAlias' => array('invoiceLineId' => 'foreignId', 'invoiceId' => 'foreignOrderId')));
+                    'integration_mediation_salesinvoices' => array('pk' => 'imsiid', 'identifier' => 'foreignId', 'attrAlias' => array('invoiceId' => 'foreignId'), 'dateAttrs' => array('date')),
+                    'integration_mediation_salesinvoicelines' => array('pk' => 'imsilid', 'identifier' => 'foreignId', 'attrAlias' => array('invoiceLineId' => 'foreignId', 'invoiceId' => 'foreignInvoiceId')));
             $required_fields = array(
-                    'integration_mediation_salesorderlines' => array('foreignId', 'foreignOrderId', 'pid', 'price', 'quantity'),
-                    'integration_mediation_salesorders' => array('foreignId', 'date', 'spid'));
+                    'integration_mediation_salesinvoicelines' => array('foreignId', 'foreignInvoiceId', 'pid', 'price', 'quantity'),
+                    'integration_mediation_salesinvoices' => array('foreignId', 'date', 'spid'));
             break;
         case 'entities':
             $filename = 'Integration - Business Partners.csv';
