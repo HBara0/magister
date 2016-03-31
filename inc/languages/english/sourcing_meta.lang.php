@@ -180,4 +180,5 @@ $lang['isactive'] = 'Is Active';
 $lang['moderatintools'] = 'Moderation Tools';
 $lang['activate'] = 'Activate';
 $lang['disable'] = 'Disable';
+$lang['activeincountry'] = 'Active In Countries';
 ?>
