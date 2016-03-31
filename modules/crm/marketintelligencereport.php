@@ -160,7 +160,7 @@ if($core->input['action'] == 'do_perform_marketintelligencereport') {
     $mireportdata['dimension'] = array_filter($mireportdata['dimension']);
 
     /* to create array using existing values (using array_values()) and range() to create a new range from 1 to the size of the  dimension array */
-    $mireportdata['dimension'] = array_combine(range(1, count($mireportdata['dimension'])), array_values($mireportdata['dimension']));
+    $mireportdata['dimension'] = array_combine(range(0, count($mireportdata['dimension'])), array_values($mireportdata['dimension']));
 
     $marketdata_indexes = array('potential', 'mktSharePerc', 'mktShareQty', 'turnover');
     /* get Market intellgence baisc Data  --START */
