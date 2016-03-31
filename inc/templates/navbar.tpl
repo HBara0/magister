@@ -17,8 +17,8 @@
                     <a href="#" class="dropdown-toggle scrollable-menu " data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" id="switch_modules"><span class="glyphicon glyphicon-th-large"></span> Main Menu <span class="caret"></span></a>
                     <ul class="dropdown-menu" style="max-height: 250px;overflow: auto" id="modulemenu">
                         <li class="dropdown-header" {$display['frequentlyused']}>
-                            <input placeholder="Find..." type='text' class="form-control" onkeyup="$('#modulemenu > li.searchable:not(:contains(' + $(this).val() + '))').hide();
-                                    $('#modulemenu > li.searchable:contains(' + $(this).val() + ')').show();"></li>
+                            <input placeholder="Find..." type='text' class="form-control" onkeyup="$('#modulemenu > li.searchable:not(:contains(' + (ucwords($(this).val())) + '))').hide();
+                                    $('#modulemenu > li.searchable:contains(' + (ucwords($(this).val())) + ')').show();"></li>
                         <li class="dropdown-header" {$display['frequentlyused']}>Frequently Used</li>
                             {$modules_list_freqmdls}
                         <li role="separator" class="divider" {$display['frequentlyused']}></li>

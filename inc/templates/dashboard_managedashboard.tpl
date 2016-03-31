@@ -7,7 +7,7 @@
             <label for="dashboardtitle_{$dashboard[sdid]}">{$lang->title}</label>
             <input type="text" id="dashboardtitle_{$dashboard[sdid]}" class="form-control" value="{$dashboard[title]}" name="dashboard[title]">
         </div>
-        <div class="form-group">
+        <div style="display:none" class="form-group">
             <label id="columncount_{$dashboard[sdid]}">{$lang->columncount}</label>
             <input type="number" id="columncount_{$dashboard[sdid]}" min="1" max="3" value="{$dashboard[columnCount]}" name="dashboard[columnCount]">
         </div>
