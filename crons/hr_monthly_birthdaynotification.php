@@ -52,17 +52,17 @@ if($db->num_rows($users_query) > 0) {
         foreach($hr_affid[$affuid] as $affid => $recepient_details) {
             if(is_array($birthday_affid[$affid]) && !empty($birthday_affid[$affid])) {
                 $affiliate_obj = Affiliates::get_affiliates(array('affid' => $affid));
-                $body_message .='<tr style="background-color:#92D050;width:100%;"><td colspan="3" style="width:100%;">'.$affiliate_obj->get_displayname().'</td></tr>';
+                $body_message_content .='<tr style="background-color:#92D050;width:100%;"><td colspan="3" style="width:100%;">'.$affiliate_obj->get_displayname().'</td></tr>';
                 foreach($birthday_affid[$affid] as $uid => $user) {
-                    $body_message .= '<tr style="background-color:#F1F1F1;width:100%;"><td style="width:35%">'.$user['employeeName'].'</td><td style="width:35%">'.date('l jS', mktime(0, 0, 0, $current_date['mon'], $user['birthDay'], $current_date['year'])).' ('.($current_date['year'] - $user['birthYear']).' years old)</td><td style="width:30%;"><a href="mailto:'.$user['email'].'?subject=Happy birthday!&body=Dear '.$user['employeeName'].', <br /> I would like to wish you a happy birthday."> '.$user['email'].'</a></td></tr>';
+                    $body_message_content .= '<tr style="background-color:#F1F1F1;width:100%;"><td style="width:35%">'.$user['employeeName'].'</td><td style="width:35%">'.date('l jS', mktime(0, 0, 0, $current_date['mon'], $user['birthDay'], $current_date['year'])).' ('.($current_date['year'] - $user['birthYear']).' years old)</td><td style="width:30%;"><a href="mailto:'.$user['email'].'?subject=Happy birthday!&body=Dear '.$user['employeeName'].', <br /> I would like to wish you a happy birthday."> '.$user['email'].'</a></td></tr>';
                 }
             }
         }
-        $body_message .='</table>';
-        if(empty($body_message)) {
+        if(empty($body_message_content)) {
             continue;
         }
-
+        $body_message .=$body_message_content.'</table>';
+        unset($body_message_content);
         /* build the email_data array to pass the argument to the mail object */
         $email_data = array(
                 'to' => $recepient_details['email'],
