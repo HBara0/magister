@@ -287,9 +287,12 @@ if(!($core->input['action'])) {
                 if(is_object($warehouse_uom_obj)) {
                     $warehouse_uom_output = $warehouse_uom_obj->get_displayname();
                 }
-                $warehouse = Warehouses::get_data(array('wid' => $netmarginparms->warehouse));
-                $warehouse_list = '<select '.$disabled['warehousing'].' id="parmsfornetmargin_warehouse"><option value='.$netmarginparms->warehouse.' selected>'.$warehouse->name.'</option>'
-                        .'<option value="0"></option></select>';
+
+                $warehouse_objs = Warehouses::get_data(array('affid' => $aroorderrequest->affid, 'isActive' => 1), array('returnarray' => true));
+                $warehouse_list = parse_selectlist('parmsfornetmargin[warehouse]', 1, $warehouse_objs, $netmarginparms->warehouse, '', '', array('id' => 'parmsfornetmargin_warehouse', 'blankstart' => 1, 'width' => '100%', 'disabled' => $disabled['warehousing']));
+//                $warehouse = Warehouses::get_data(array('wid' => $netmarginparms->warehouse));
+//                $warehouse_list = '<select '.$disabled['warehousing'].' id="parmsfornetmargin_warehouse"><option value='.$netmarginparms->warehouse.' selected>'.$warehouse->name.'</option>'
+//                        .'<option value="0"></option></select>';
                 $warehouse_output = $warehouse->name;
                 $netmarginparms_warehousingRate = '<option value = "'.$netmarginparms->warehousingRate.'">'.$netmarginparms->warehousingRate.'</option>';
                 $netmarginparms_warehousingRateUsd = '<option value = "'.$netmarginparms->warehousingRateUsd.'">'.$netmarginparms->warehousingRateUsd.'</option>';
