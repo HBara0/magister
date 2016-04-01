@@ -12,6 +12,9 @@ class GadgetFxRates extends SystemGadget {
     protected $data = array();
     protected $widget_id = '1';
 
+    const CLASSNAME = __CLASS__;
+    const widget_id = 1;
+
     public function __construct() {
         parent::__construct();
     }
@@ -87,6 +90,25 @@ class GadgetFxRates extends SystemGadget {
         if(is_array($curids)) {
             return $curids;
         }
+        return false;
+    }
+
+    /**
+     * Default fx rate default saving
+     * @param type $classname
+     * @param type $uid
+     * @param type $sequence
+     * @return boolean
+     */
+    public function create_defaultwidget($classname, $uid, $sequence = '') {
+        global $db;
+        $configs = 'a:1:{s:8:"required";a:1:{s:8:"currency";s:15:"840,978,826,952";}}';
+        $widgetinstance_data = array('title' => $classname, 'alias' => generate_alias($classname), 'serializedConfig' => $configs, 'inputChecksum' => generate_checksum(), 'uid' => intval($uid), 'isActive' => 1, 'createdOn' => TIME_NOW, 'swdgid' => $classname::widget_id);
+        $query = $db->insert_query(SystemWidgetInstances::TABLE_NAME, $widgetinstance_data);
+        if($query) {
+            return $db->last_id();
+        }
+
         return false;
     }
 

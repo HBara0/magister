@@ -36,7 +36,7 @@ class SystemWidgetInstances extends AbstractClass {
             }
         }
         if(is_array($table_array)) {
-            $table_array['createdBy'] = $core->user['id'];
+            $table_array['createdBy'] = $core->user['uid'];
             $table_array['createdOn'] = TIME_NOW;
             if(empty($table_array['uid'])) {
                 $table_array['uid'] = $core->user['uid'];
@@ -68,7 +68,7 @@ class SystemWidgetInstances extends AbstractClass {
             }
         }
         if(is_array($table_array)) {
-            $table_array['modifiedBy'] = $core->user['id'];
+            $table_array['modifiedBy'] = $core->user['uid'];
             $table_array['modifiedOn'] = TIME_NOW;
             if(empty($table_array['uid'])) {
                 $table_array['uid'] = $core->user['uid'];

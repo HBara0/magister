@@ -10,7 +10,10 @@
 
 class GadgetTimezones extends SystemGadget {
     protected $data = array();
-    protected $widget_id = '2';
+    public $widget_id = '2';
+
+    const CLASSNAME = __CLASS__;
+    const widget_id = 2;
 
     public function __construct() {
         parent::__construct();

@@ -38,7 +38,8 @@ class SystemWidgets extends AbstractClass {
         $this->errorcode = 3;
         if(is_array($table_array)) {
             $table_array['createdOn'] = TIME_NOW;
-            $table_array['createdBy'] = $core->user['id'];
+            $table_array['createdBy'] = $core->user['uid'];
+            $table_array['alias'] = generate_alias($table_array['title']);
             if(!$this->validate_requiredfields($table_array)) {
                 $this->errorcode = 3;
                 return $this;
@@ -67,7 +68,8 @@ class SystemWidgets extends AbstractClass {
         }
         if(is_array($table_array)) {
             $table_array['modifiedOn'] = TIME_NOW;
-            $table_array['modifiedBy'] = $core->user['id'];
+            $table_array['modifiedBy'] = $core->user['uid'];
+            $table_array['alias'] = generate_alias($table_array['title']);
             if(!$this->validate_requiredfields($table_array)) {
                 $this->errorcode = 3;
                 return $this;
