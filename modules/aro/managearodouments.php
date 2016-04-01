@@ -101,7 +101,6 @@ if(!($core->input['action'])) {
         $netmarginparms_uomlist = parse_selectlist('parmsfornetmargin[uom]', '', $warehouseuoms, '', '', '', array('id' => "parmsfornetmargin_uom", 'blankstart' => 1, 'width' => '100px'));
 
         //Parties Information
-        // $checked['priceIncludesComm'] = 'checked="checked"';
         $parties = array('intermed', 'vendor');
         foreach($parties as $party) {
             $config_class = '';
@@ -483,9 +482,9 @@ if(!($core->input['action'])) {
                 if($aropartiesinfo_obj->vendorPTIsThroughBank == 1) {
                     $checked['vendorPTIsThroughBank'] = 'checked="checked"';
                 }
-//                if($aropartiesinfo_obj->priceIncludesComm == 1) {
-//                    $checked['priceIncludesComm'] = 'checked="checked"';
-//                }
+                if($aropartiesinfo_obj->priceDontIncludeComm == 1) {
+                    $checked['priceDontIncludeComm'] = 'checked="checked"';
+                }
                 $consolidation_warehouses_display = 'style="display:none;"';
                 if($aropartiesinfo_obj->isConsolidation == 1) {
                     $checked['isConsolidation'] = 'checked="checked"';
@@ -1917,13 +1916,13 @@ else {
         if(is_object($purcasetype) && $purcasetype->needsIntermediary == 1) {
             $totalcomm = $core->input['totalcommision'];
             $comm = $core->input['defaultcomm'];
-            //if($core->input['priceIncludesComm'] == 1) {
-            if($core->input['totalcommision'] < 250) {
-                if(!empty($core->input['totalamount']) && $core->input['totalamount'] != 0) {
-                    $comm = (250 * 100 ) / $core->input['totalamount'];
+            if($core->input['priceDontIncludeComm'] == 0) {
+                if($core->input['totalcommision'] < 250) {
+                    if(!empty($core->input['totalamount']) && $core->input['totalamount'] != 0) {
+                        $comm = (250 * 100 ) / $core->input['totalamount'];
+                    }
                 }
             }
-            // }
         }
         if(isset($core->input['totalDiscount']) && !empty($core->input['totalDiscount'])) {
             $comm = $core->input['defaultcomm'] - $core->input['totalDiscount'];

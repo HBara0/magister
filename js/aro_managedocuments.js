@@ -575,7 +575,7 @@ $(function() {
                 $("input[id='pickDate_intermed_" + fields[i] + "']").attr("disabled", "true");
                 $("input[id='altpickDate_intermed_" + fields[i] + "']").attr("value", "");
             }
-            $("input[id='partiesinfo_commission']").attr("value", "");
+            $("input[id='partiesinfo_commission']").val("");
             $("input[id='supplier_1_autocomplete']").attr("disabled", "true");
             $("td[id='vendor_affiliate']").css("display", "block");
         }
@@ -611,7 +611,13 @@ $(function() {
             totalcommision = totalamount * (comm / 100)
             var ptid = $("select[id='purchasetype']").val();
             var totaldiscount = parseFloat($('input[id=partiesinfo_totaldiscount]').val());
-            var attributes = '&totalamount=' + totalamount + '&totalcommision=' + totalcommision + '&defaultcomm=' + comm + '&ptid=' + ptid + '&totalDiscount=' + totaldiscount;
+
+            if($('input[id=partiesinfo_priceDontIncludeComm]').is(":checked")) {
+                var priceDontIncludeComm = $('input[id=partiesinfo_priceDontIncludeComm]').val();
+            } else {
+                var priceDontIncludeComm = 0;
+            }
+            var attributes = '&totalamount=' + totalamount + '&totalcommision=' + totalcommision + '&defaultcomm=' + comm + '&ptid=' + ptid + '&totalDiscount=' + totaldiscount + '&priceDontIncludeComm=' + priceDontIncludeComm;
             sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=updatecommission' + attributes, function() {
                 if(field_id[2] == 'intialPrice') {
                     var trigger = setTimeout(function() {
