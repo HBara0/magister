@@ -219,7 +219,7 @@ class SystemDashboard extends AbstractClass {
         }
         else {
             $dashboard_checksum = generate_checksum();
-            $add_dashboard_button = '<a style="cursor: pointer;" id="showdashboard_'.$dashboard_checksum.'_portal/dashboard_loadpopupbyid" rel="showdashboard'.$dashboard_checksum.'" ><button>'.$lang->createdashboard.'</button></a>';
+            $add_dashboard_button = '<a style="cursor: pointer;" id="showdashboard_'.$dashboard_checksum.'_portal/dashboard_loadpopupbyid" rel="showdashboard'.$dashboard_checksum.'" ><button class="btn btn-success">'.$lang->createdashboard.'</button></a>';
             eval("\$page = \"".$template->get('dashboard_general')."\";");
         }
         return $page;
@@ -240,6 +240,28 @@ class SystemDashboard extends AbstractClass {
         }
         eval("\$widgets_grid = \"".$template->get('dashboard_widgetsgrid')."\";");
         return $widgets_grid;
+    }
+
+    public function createdefaultdashboard_home($userids = array()) {
+        global $db;
+        $dashboard_array = array('title' => 'Welcome To OCOS', 'alias' => 'welcome-to-ocos', 'inputChecksum' => generate_checksum(), 'isActive' => 1, 'columnCount' => 2, 'moduleName' => 'portal', 'pageName' => 'dashboard', 'createdBy' => -1, 'createdOn' => TIME_NOW);
+        foreach($userids as $uid) {
+            $dashboard_array['uid'] = intval($uid);
+            $createdash_query = $db->insert_query(self::TABLE_NAME, $dashboard_array);
+            if(!$createdash_query) {
+                continue;
+            }
+            $dashid = $db->last_id();
+            $assignedinstances_array = array(1 => GadgetTimezones::CLASSNAME, 2 => GadgetCalendarToday::CLASSNAME, 3 => GadgetLeaveBalance::CLASSNAME, 4 => GadgetFxRates::CLASSNAME, 5 => GadgetPendLvsYrApproval::CLASSNAME);
+            foreach($assignedinstances_array as $sequence => $classname) {
+                $created_instance = $classname::create_defaultwidget($classname, $uid, $sequence);
+                if($created_instance) {
+                    $assigned_instance_data = array(self::PRIMARY_KEY => intval($dashid), 'swgiid' => intval($created_instance), 'createdOn' => TIME_NOW, 'createdBy' => -1, 'sequence' => intval($sequence));
+                    $creatassigendinstance_query = $db->insert_query(SystemAssignedWidgets::TABLE_NAME, $assigned_instance_data);
+                }
+            }
+        }
+        return true;
     }
 
 }

@@ -25,7 +25,7 @@ class SurveysTemplates extends AbstractClass {
                 'category' => $data['category'],
                 'isPublic' => $data['isPublic'],
                 'forceAnonymousFilling' => $data['forceAnonymousFilling'],
-                'createdBy' => $core->user['id'],
+                'createdBy' => $core->user['uid'],
                 'dateCreated' => $data['dateCreated'],
                 'isActive' => $data['isActive'],
         );

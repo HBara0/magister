@@ -10,7 +10,10 @@
 
 class GadgetCalendarToday extends SystemGadget {
     protected $data = array();
-    protected $widget_id = '5';
+    protected $widget_id = '4';
+
+    const CLASSNAME = __CLASS__;
+    const widget_id = 4;
 
     public function __construct() {
         parent::__construct();

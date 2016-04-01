@@ -12,6 +12,7 @@ Abstract class SystemGadget extends AbstractClass {
     protected $data = array();
     protected $widget_id = '';
 
+    const CLASSNAME = __CLASS__;
     const DISPLAY_NAME = 'title';
 
     public function __construct() {
@@ -209,6 +210,25 @@ Abstract class SystemGadget extends AbstractClass {
      */
     protected function fix_settingsarray($existingvalue = '') {
 
+    }
+
+    /**
+     *
+     * @global type $db
+     * @param type $classname
+     * @param type $uid
+     * @param type $sequence
+     * @return boolean
+     */
+    public function create_defaultwidget($classname, $uid, $sequence = '') {
+        global $db;
+        $widgetinstance_data = array('title' => $classname, 'alias' => generate_alias($classname), 'inputChecksum' => generate_checksum(), 'uid' => intval($uid), 'isActive' => 1, 'createdOn' => TIME_NOW, 'swdgid' => $classname::widget_id);
+        $query = $db->insert_query(SystemWidgetInstances::TABLE_NAME, $widgetinstance_data);
+        if($query) {
+            return $db->last_id();
+        }
+
+        return false;
     }
 
 }

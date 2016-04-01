@@ -12,6 +12,9 @@ class GadgetLeaveBalance extends SystemGadget {
     protected $data = array();
     protected $widget_id = '3';
 
+    const CLASSNAME = __CLASS__;
+    const widget_id = 3;
+
     public function __construct() {
         parent::__construct();
     }
