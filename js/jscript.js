@@ -156,7 +156,7 @@ $(function() {
         $(this).toggleClass('altrow2').children('td [id$="_tools"]').find('div').toggle();
     });
     $(document).on("click", "#login_Button", login);
-    $("#login_Form input").bind('keypress', function(e) {
+    $("#logincontent input").bind('keypress', function(e) {
         if(e.keyCode == 13) {
             login();
         }

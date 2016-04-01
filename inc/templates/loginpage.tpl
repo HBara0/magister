@@ -56,7 +56,7 @@
                 <input type="text" id="username" name='username' class="form-control" placeholder="{$lang->username}" required autofocus>
                 <label for="inputPassword" class="sr-only">{$lang->password}</label>
                 <input type="password" id="password" name="password" class="form-control" placeholder="{$lang->password}" required>
-                <input class="btn btn-lg btn-success btn-block" type="submit" id='login_Button' value="{$lang->login}"/>
+                <input class="btn btn-lg btn-success btn-block" type="button" id='login_Button' value="{$lang->login}"/>
                 <input type="hidden" value="{$lastpage}" name="referer" id="referer" />
                 <div style="text-align:right;">
 
