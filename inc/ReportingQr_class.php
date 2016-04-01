@@ -519,7 +519,12 @@ class ReportingQr Extends Reporting {
                         $actual_forecast = $productactivity[$validation_item];
                         if($validation_key == 'sales') {
                             if(isset($productactivity['fxrate']) && $productactivity['fxrate'] != 1) {
-                                $actual_forecast = round($productactivity[$validation_item] / $productactivity['fxrate'], 4);
+                                if($productdata['fxrate'] == 0) {
+                                    $actual_forecast = -$productactivity[$validation_item];
+                                }
+                                else {
+                                    $actual_forecast = round($productactivity[$validation_item] / $productactivity['fxrate'], 4);
+                                }
                             }
                         }
                         if($productactivity[$validation_key.'Forecast'] < round($actual_forecast, 4) || ($this->report['quarter'] == 4 && round($productactivity[$validation_key.'Forecast'], 4) > round($actual_forecast, 4))) {
@@ -570,10 +575,15 @@ class ReportingQr Extends Reporting {
             foreach($data as $productdata) {
 //$currencies = $this->get_currency_Byrate(array('fxrate' => $productdata['fxrate']));
                 if(!empty($productdata['pid']) && isset($productdata['pid'])) {
-                    if($productdata['fxrate'] != 1 && isset($productdata['fxrate'])) {
+                    if(isset($productdata['fxrate']) && $productdata['fxrate'] != 1) {
                         $productdata['turnOverOc'] = $productdata['turnOver'];
-                        $productdata['turnOver'] = round($productdata['turnOver'] / $productdata['fxrate'], 5);
-                        $productdata['originalCurrency'] = $currencies[$productdata['fxrate']];
+                        if($productdata['fxrate'] == 0) {
+                            continue;
+                        }
+                        else {
+                            $productdata['turnOver'] = round($productdata['turnOver'] / $productdata['fxrate'], 5);
+                            $productdata['originalCurrency'] = $currencies[$productdata['fxrate']];
+                        }
                     }
 
                     if(value_exists('productsactivity', 'pid', $productdata['pid'], ' rid='.$this->report['rid'])) {

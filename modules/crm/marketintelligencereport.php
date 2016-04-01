@@ -33,8 +33,13 @@ if(!$core->input['action']) {
 
     // Here we get  suppliers that the user is assigned to or work with an affiliate that he can audit
     if($core->usergroup['canViewAllSupp'] == 0) {
-        $insupplier = implode(',', $core->user['suppliers']['eid']);
-        $supplier_where = " eid IN ({$insupplier})";
+        if(is_array($core->user['suppliers']['eid'])) {
+            $insupplier = implode(',', $core->user['suppliers']['eid']);
+            $supplier_where = " eid IN ({$insupplier})";
+        }
+        else {
+            $supplier_where = " eid = 0";
+        }
     }
     else {
         $supplier_where = " type='s'";
@@ -155,7 +160,7 @@ if($core->input['action'] == 'do_perform_marketintelligencereport') {
     $mireportdata['dimension'] = array_filter($mireportdata['dimension']);
 
     /* to create array using existing values (using array_values()) and range() to create a new range from 1 to the size of the  dimension array */
-    $mireportdata['dimension'] = array_combine(range(1, count($mireportdata['dimension'])), array_values($mireportdata['dimension']));
+    $mireportdata['dimension'] = array_combine(range(0, count($mireportdata['dimension'])), array_values($mireportdata['dimension']));
 
     $marketdata_indexes = array('potential', 'mktSharePerc', 'mktShareQty', 'turnover');
     /* get Market intellgence baisc Data  --START */
