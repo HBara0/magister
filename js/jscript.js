@@ -153,7 +153,7 @@ $(function() {
         $('input:checkbox[id^="' + id[0] + '"]:visible').not(this).prop('checked', this.checked);
     });
     $('tr[class*="trowtools"]').hover(function() {
-        $(this).toggleClass('altrow2').children('td [id$="_tools"]').find('div').toggle();
+        $(this).toggleClass('altrow2').children('td[id$="_tools"]').find('div').toggle();
     });
     $(document).on("click", "#login_Button", login);
     $("#logincontent input").bind('keypress', function(e) {

@@ -102,6 +102,10 @@ class AroRequestsPartiesInformation extends AbstractClass {
                 $partiesinfo_data['promiseOfPayment'] = $dates['promiseOfPayment'];
                 $partiesinfo_data['commFromIntermed'] = $data['commFromIntermed'];
             }
+            $partiesinfo_data['priceDontIncludeComm'] = 0;
+            if(isset($data['priceDontIncludeComm']) && !empty($data['priceDontIncludeComm'])) {
+                $partiesinfo_data['priceDontIncludeComm'] = $data['priceDontIncludeComm'];
+            }
         }
         return $partiesinfo_data;
     }

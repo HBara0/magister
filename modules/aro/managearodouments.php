@@ -101,7 +101,6 @@ if(!($core->input['action'])) {
         $netmarginparms_uomlist = parse_selectlist('parmsfornetmargin[uom]', '', $warehouseuoms, '', '', '', array('id' => "parmsfornetmargin_uom", 'blankstart' => 1, 'width' => '100px'));
 
         //Parties Information
-        // $checked['priceIncludesComm'] = 'checked="checked"';
         $parties = array('intermed', 'vendor');
         foreach($parties as $party) {
             $config_class = '';
@@ -287,9 +286,12 @@ if(!($core->input['action'])) {
                 if(is_object($warehouse_uom_obj)) {
                     $warehouse_uom_output = $warehouse_uom_obj->get_displayname();
                 }
-                $warehouse = Warehouses::get_data(array('wid' => $netmarginparms->warehouse));
-                $warehouse_list = '<select '.$disabled['warehousing'].' id="parmsfornetmargin_warehouse"><option value='.$netmarginparms->warehouse.' selected>'.$warehouse->name.'</option>'
-                        .'<option value="0"></option></select>';
+
+                $warehouse_objs = Warehouses::get_data(array('affid' => $aroorderrequest->affid, 'isActive' => 1), array('returnarray' => true));
+                $warehouse_list = parse_selectlist('parmsfornetmargin[warehouse]', 1, $warehouse_objs, $netmarginparms->warehouse, '', '', array('id' => 'parmsfornetmargin_warehouse', 'blankstart' => 1, 'width' => '100%', 'disabled' => $disabled['warehousing']));
+//                $warehouse = Warehouses::get_data(array('wid' => $netmarginparms->warehouse));
+//                $warehouse_list = '<select '.$disabled['warehousing'].' id="parmsfornetmargin_warehouse"><option value='.$netmarginparms->warehouse.' selected>'.$warehouse->name.'</option>'
+//                        .'<option value="0"></option></select>';
                 $warehouse_output = $warehouse->name;
                 $netmarginparms_warehousingRate = '<option value = "'.$netmarginparms->warehousingRate.'">'.$netmarginparms->warehousingRate.'</option>';
                 $netmarginparms_warehousingRateUsd = '<option value = "'.$netmarginparms->warehousingRateUsd.'">'.$netmarginparms->warehousingRateUsd.'</option>';
@@ -480,9 +482,9 @@ if(!($core->input['action'])) {
                 if($aropartiesinfo_obj->vendorPTIsThroughBank == 1) {
                     $checked['vendorPTIsThroughBank'] = 'checked="checked"';
                 }
-//                if($aropartiesinfo_obj->priceIncludesComm == 1) {
-//                    $checked['priceIncludesComm'] = 'checked="checked"';
-//                }
+                if($aropartiesinfo_obj->priceDontIncludeComm == 1) {
+                    $checked['priceDontIncludeComm'] = 'checked="checked"';
+                }
                 $consolidation_warehouses_display = 'style="display:none;"';
                 if($aropartiesinfo_obj->isConsolidation == 1) {
                     $checked['isConsolidation'] = 'checked="checked"';
@@ -1914,13 +1916,13 @@ else {
         if(is_object($purcasetype) && $purcasetype->needsIntermediary == 1) {
             $totalcomm = $core->input['totalcommision'];
             $comm = $core->input['defaultcomm'];
-            //if($core->input['priceIncludesComm'] == 1) {
-            if($core->input['totalcommision'] < 250) {
-                if(!empty($core->input['totalamount']) && $core->input['totalamount'] != 0) {
-                    $comm = (250 * 100 ) / $core->input['totalamount'];
+            if($core->input['priceDontIncludeComm'] == 0) {
+                if($core->input['totalcommision'] < 250) {
+                    if(!empty($core->input['totalamount']) && $core->input['totalamount'] != 0) {
+                        $comm = (250 * 100 ) / $core->input['totalamount'];
+                    }
                 }
             }
-            // }
         }
         if(isset($core->input['totalDiscount']) && !empty($core->input['totalDiscount'])) {
             $comm = $core->input['defaultcomm'] - $core->input['totalDiscount'];

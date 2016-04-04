@@ -45,11 +45,11 @@
                     </tr>
                     <tr><td>{$lang->commission} <small>{$lang->commisionlimit}</small></td>
                         <td><input type="number" step="any" name="partiesinfo[commission]" id="partiesinfo_commission" value="{$aropartiesinfo_obj->commission}" class="automaticallyfilled-editable"/>%
-                            <input type="hidden"  id="partiesinfo_defaultcommission"/></td>
+                            <input type="hidden"  id="partiesinfo_defaultcommission" value="{$aropartiesinfo_obj->commission}"/></td>
                     </tr>
-                    <tr><td> Price includes commission</td>
+                    <tr><td> Commission Not included in Price</td>
                         <td>
-                            <input type="checkbox" name="partiesinfo[priceIncludesComm]" value="1" {$checked[priceIncludesComm]}/>
+                            <input type="checkbox" name="partiesinfo[priceDontIncludeComm]" id="partiesinfo_priceDontIncludeComm" value="1" {$checked[priceDontIncludeComm]}/>
                         </td>
                     </tr>
                     <tr class="altrow2">
