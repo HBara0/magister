@@ -13,7 +13,6 @@ class GadgetFxRates extends SystemGadget {
     protected $widget_id = '1';
 
     const CLASSNAME = __CLASS__;
-    const widget_id = 1;
 
     public function __construct() {
         parent::__construct();
@@ -103,12 +102,14 @@ class GadgetFxRates extends SystemGadget {
     public function create_defaultwidget($classname, $uid, $sequence = '') {
         global $db;
         $configs = 'a:1:{s:8:"required";a:1:{s:8:"currency";s:15:"840,978,826,952";}}';
-        $widgetinstance_data = array('title' => $classname, 'alias' => generate_alias($classname), 'serializedConfig' => $configs, 'inputChecksum' => generate_checksum(), 'uid' => intval($uid), 'isActive' => 1, 'createdOn' => TIME_NOW, 'swdgid' => $classname::widget_id);
-        $query = $db->insert_query(SystemWidgetInstances::TABLE_NAME, $widgetinstance_data);
-        if($query) {
-            return $db->last_id();
+        $widget_obj = SystemWidgets::get_data(array('className' => $classname));
+        if(is_object($widget_obj)) {
+            $widgetinstance_data = array('title' => $widget_obj->title, 'alias' => $widget_obj->alias, 'serializedConfig' => $configs, 'inputChecksum' => generate_checksum(), 'uid' => intval($uid), 'isActive' => 1, 'createdOn' => TIME_NOW, 'swdgid' => $widget_obj->swdgid);
+            $query = $db->insert_query(SystemWidgetInstances::TABLE_NAME, $widgetinstance_data);
+            if($query) {
+                return $db->last_id();
+            }
         }
-
         return false;
     }
 

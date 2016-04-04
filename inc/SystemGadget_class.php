@@ -222,13 +222,16 @@ Abstract class SystemGadget extends AbstractClass {
      */
     public function create_defaultwidget($classname, $uid, $sequence = '') {
         global $db;
-        $widgetinstance_data = array('title' => $classname, 'alias' => generate_alias($classname), 'inputChecksum' => generate_checksum(), 'uid' => intval($uid), 'isActive' => 1, 'createdOn' => TIME_NOW, 'swdgid' => $classname::widget_id);
-        $query = $db->insert_query(SystemWidgetInstances::TABLE_NAME, $widgetinstance_data);
-        if($query) {
-            return $db->last_id();
-        }
+        $widget_obj = SystemWidgets::get_data(array('className' => $classname));
+        if(is_object($widget_obj)) {
+            $widgetinstance_data = array('title' => $widget_obj->title, 'alias' => $widget_obj->alias, 'inputChecksum' => generate_checksum(), 'uid' => intval($uid), 'isActive' => 1, 'createdOn' => TIME_NOW, 'swdgid' => $widget_obj->swdgid);
+            $query = $db->insert_query(SystemWidgetInstances::TABLE_NAME, $widgetinstance_data);
+            if($query) {
+                return $db->last_id();
+            }
 
-        return false;
+            return false;
+        }
     }
 
 }
