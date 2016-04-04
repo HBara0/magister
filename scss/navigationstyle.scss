@@ -67,6 +67,10 @@ html, body {
         background: #B6CF8C !important;
         border-color: #B6CF8C;
     }
+    .list-group-subitem.active, .list-group-subitem.active:focus, .list-group-subitem.active:hover{
+        background: #B6CF8C !important;
+        border-color: #B6CF8C;
+    }
     .list-group-subitem {
         border-bottom: none !important;
         border-top: 1px solid #ddd;
@@ -123,13 +127,13 @@ html, body {
     color: #FFF;
     background-color: #9BBD61;
 }
-#switch_modules {
+/*#switch_modules {
     font-size:14px;
     color:#708090 ;
 }
 #switch_modules span{
     color:#9bbd61 ;
-}
+}*/
 .navbar-default .navbar-toggle {
     // border-color: #9BBD61;
     // background-color:#9BBD61;

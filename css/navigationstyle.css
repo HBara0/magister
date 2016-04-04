@@ -57,6 +57,9 @@ html, body {
 #leftside_menu_container .list-group-item.active, #leftside_menu_container .list-group-item.active:focus, #leftside_menu_container .list-group-item.active:hover {
   background: #B6CF8C !important;
   border-color: #B6CF8C; }
+#leftside_menu_container .list-group-subitem.active, #leftside_menu_container .list-group-subitem.active:focus, #leftside_menu_container .list-group-subitem.active:hover {
+  background: #B6CF8C !important;
+  border-color: #B6CF8C; }
 #leftside_menu_container .list-group-subitem {
   border-bottom: none !important;
   border-top: 1px solid #ddd;
@@ -103,13 +106,13 @@ html, body {
   color: #FFF;
   background-color: #9BBD61; }
 
-#switch_modules {
-  font-size: 14px;
-  color: slategray; }
-
-#switch_modules span {
-  color: #9bbd61; }
-
+/*#switch_modules {
+    font-size:14px;
+    color:#708090 ;
+}
+#switch_modules span{
+    color:#9bbd61 ;
+}*/
 .navbar-default .navbar-collapse,
 .navbar-default .navbar-form {
   border-color: #ecf0f1; }
