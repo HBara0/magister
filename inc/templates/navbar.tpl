@@ -14,7 +14,7 @@
                 <li><a href="{$core->settings[rootdir]}" style='font-size:18px;'><span class="glyphicon glyphicon-home" title="Home"></span> <span class="hidden-sm hidden-md hidden-sm hidden-lg">Home</span></a></li>
 
                 <li class="dropdown">
-                    <a href="#" class="dropdown-toggle scrollable-menu " data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" id="switch_modules"><span class="glyphicon glyphicon-th-large"></span> Main Menu <span class="caret"></span></a>
+                    <a href="#" class="dropdown-toggle scrollable-menu" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" id="switch_modules" style="font-size:14px;"><span class="glyphicon glyphicon-th-large"></span> Main Menu <span class="caret"></span></a>
                     <ul class="dropdown-menu" style="max-height: 250px;overflow: auto" id="modulemenu">
                         <li class="dropdown-header" {$display['frequentlyused']}>
                             <input placeholder="Find..." type='text' class="form-control" onkeyup="$('#modulemenu > li.searchable:not(:contains(' + (ucwords($(this).val())) + '))').hide();
@@ -31,13 +31,14 @@
                 </li>
             </ul>
             <ul class="nav navbar-nav navbar-right">
-                <li id="tooltip" data-toggle="tooltip" data-placement="left" title="Frequently Used" class="hidden-xs">
-                    <span  style="font-size:20px; margin-top:15px;" class="glyphicon glyphicon-star-empty" id="frequentlyused_icons"></span>
-                </li>
+                <!--   <li id="tooltip" data-toggle="tooltip" data-placement="left" title="Frequently Used" class="hidden-xs">
+                       <span  style="font-size:20px; margin-top:15px;" class="glyphicon glyphicon-star-empty" id="frequentlyused_icons"></span>
+                   </li>
+                -->
                 {$navbar_freqmdls}
                 <!--  <li id='updates' style='margin-left: 10px;'><a href="../navbar-static-top/"><span class="glyphicon glyphicon-alert"></span> Updates <span class="badge">42</span></a></li>-->
                 <li class="dropdown" id="userprofile_menu">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-user"></span> {$core->user[displayName]}<span class="sr-only">(current)</span> <span class="caret"></span></a>
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" style="font-size:14px;"><span class="glyphicon glyphicon-user"></span> {$core->user[displayName]}<span class="sr-only">(current)</span> <span class="caret"></span></a>
                     <ul class="dropdown-menu">
                         <li ><a href="{$settings[rootdir]}/users.php?action=profile&amp;do=edit">{$lang->edityouraccount}</a></li>
                         <li>{$admincplink}{$mainpageslink}</li>

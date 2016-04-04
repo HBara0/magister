@@ -67,6 +67,10 @@ html, body {
         background: #B6CF8C !important;
         border-color: #B6CF8C;
     }
+    .list-group-subitem.active, .list-group-subitem.active:focus, .list-group-subitem.active:hover{
+        background: #B6CF8C !important;
+        border-color: #B6CF8C;
+    }
     .list-group-subitem {
         border-bottom: none !important;
         border-top: 1px solid #ddd;
@@ -104,9 +108,6 @@ html, body {
 .navbar-default .navbar-brand:focus {
     color: #9BBD61;
 }
-.navbar-default .navbar-text {
-    color: #9BBD61;
-}
 .navbar-default .navbar-nav > li > a {
     color: #9BBD61;
 }
@@ -126,6 +127,13 @@ html, body {
     color: #FFF;
     background-color: #9BBD61;
 }
+/*#switch_modules {
+    font-size:14px;
+    color:#708090 ;
+}
+#switch_modules span{
+    color:#9bbd61 ;
+}*/
 .navbar-default .navbar-toggle {
     // border-color: #9BBD61;
     // background-color:#9BBD61;
@@ -144,7 +152,6 @@ html, body {
 .navbar-default .navbar-link:hover {
     color: #f7f7f7;
 }
-
 @media (max-width: 767px) {
     .navbar-default .navbar-nav .open .dropdown-menu > li > a {
         // color: #ecf0f1;

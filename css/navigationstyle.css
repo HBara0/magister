@@ -1,4 +1,4 @@
-@charset "IBM437";
+@charset "CP850";
 /*
 Copyright © 2016 Orkila International Offshore, All Rights Reserved
 
@@ -57,6 +57,9 @@ html, body {
 #leftside_menu_container .list-group-item.active, #leftside_menu_container .list-group-item.active:focus, #leftside_menu_container .list-group-item.active:hover {
   background: #B6CF8C !important;
   border-color: #B6CF8C; }
+#leftside_menu_container .list-group-subitem.active, #leftside_menu_container .list-group-subitem.active:focus, #leftside_menu_container .list-group-subitem.active:hover {
+  background: #B6CF8C !important;
+  border-color: #B6CF8C; }
 #leftside_menu_container .list-group-subitem {
   border-bottom: none !important;
   border-top: 1px solid #ddd;
@@ -84,9 +87,6 @@ html, body {
 .navbar-default .navbar-brand:focus {
   color: #9BBD61; }
 
-.navbar-default .navbar-text {
-  color: #9BBD61; }
-
 .navbar-default .navbar-nav > li > a {
   color: #9BBD61; }
 
@@ -106,6 +106,13 @@ html, body {
   color: #FFF;
   background-color: #9BBD61; }
 
+/*#switch_modules {
+    font-size:14px;
+    color:#708090 ;
+}
+#switch_modules span{
+    color:#9bbd61 ;
+}*/
 .navbar-default .navbar-collapse,
 .navbar-default .navbar-form {
   border-color: #ecf0f1; }
@@ -129,3 +136,5 @@ html, body {
   width: 100%;
   padding-right: 50px;
   padding-left: 20px; }
+
+/*# sourceMappingURL=navigationstyle.css.map */
