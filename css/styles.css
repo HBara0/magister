@@ -1,6 +1,6 @@
 @charset "UTF-8";
 /*
-Copyright ┬⌐ 2014 Orkila International Offshore, All Rights Reserved
+Copyright ┬® 2014 Orkila International Offshore, All Rights Reserved
 
 [Provide Short Descption Here]
 $id: _constants.scss
@@ -708,3 +708,12 @@ tfoot .coltotal, tfoot .colavg {
 
 .pagination > li > a, .pagination > li > span {
   color: #91b64f; }
+
+.widget-header {
+  background-color: #b6cf8c !important;
+  color: #FFF !important; }
+
+h1 {
+  font-size: 30px !important; }
+
+/*# sourceMappingURL=styles.css.map */
