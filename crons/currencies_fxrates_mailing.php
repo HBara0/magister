@@ -47,7 +47,14 @@ if($_REQUEST['authkey'] == 'asfasdkjj!h4k23jh4k2_3h4k23jh') {
             $finmanagers[$finmanager['uid']]['affiliates'][$finmanager['affid']] = $finmanager['name'];
         }
     }
-
+    //additional recipients are entered manually in here
+    //add george daccache for Elie Zamrouds email
+    if(isset($finmanagers[367]) && !empty($finmanagers[367])) {
+        $george_obj = new Users(457);
+        $finmanagers[457] = $finmanagers[367];
+        $finmanagers[457]['email'] = $george_obj->email;
+        $finmanagers[457]['name'] = $george_obj->get_displayname();
+    }
 // get affiliates currencies
     $affiliatecurrenciesquery = $db->query('SELECT affid, cur.alphaCode, cur.name
 				FROM '.Tprefix.'countries c
