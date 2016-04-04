@@ -14,7 +14,7 @@
                 <li><a href="{$core->settings[rootdir]}" style='font-size:18px;'><span class="glyphicon glyphicon-home" title="Home"></span> <span class="hidden-sm hidden-md hidden-sm hidden-lg">Home</span></a></li>
 
                 <li class="dropdown">
-                    <a href="#" class="dropdown-toggle scrollable-menu" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" id="switch_modules" style="font-size:14px;color: #708090;"><span class="glyphicon glyphicon-th-large"></span> Main Menu <span class="caret"></span></a>
+                    <a href="#" class="dropdown-toggle scrollable-menu" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" id="switch_modules" style="font-size:14px;"><span class="glyphicon glyphicon-th-large"></span> Main Menu <span class="caret"></span></a>
                     <ul class="dropdown-menu" style="max-height: 250px;overflow: auto" id="modulemenu">
                         <li class="dropdown-header" {$display['frequentlyused']}>
                             <input placeholder="Find..." type='text' class="form-control" onkeyup="$('#modulemenu > li.searchable:not(:contains(' + (ucwords($(this).val())) + '))').hide();
