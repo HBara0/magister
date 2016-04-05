@@ -869,6 +869,8 @@ $(function() {
         var totalqty = 0;
         var totalfee = 0;
         var refernece = 0; //quantity*initialprice
+
+        var i = 0;
         $("tbody[id^='productline_']").find($("select[id$='_uom']")).each(function() {
             var id = $(this).attr('id').split('_');
             totalqty = parseFloat($("input[id='productline_" + id[1] + "_quantity']").val());
@@ -877,16 +879,16 @@ $(function() {
             if(!isNaN(totalqty)) {
                 totalquantity[$(this).val()] = parseFloat(totalquantity[$(this).val()] || 0) + totalqty;
             }
+            i++;
         });
-        var i = 0;
+        var j = 0;
         var feeperunit = qtyperunit = '';
         var qty = {};
         var totalfees2 = {};
         $.each(totalquantity, function(key, value) {
             qtyperunit += key + ":" + value.toFixed(3);
             qtyperunit += "_";
-            qty[i] = value;
-            i++;
+            qty[j] = value;
         });
         var qtyperc = 0;
         $("tbody[id^='productline_']").find($("select[id$='_uom']")).each(function() {
