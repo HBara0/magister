@@ -173,7 +173,7 @@ class AttendanceAddDays Extends Attendance {
     border-top: 1px solid #CCCCCC;
     border-right: 1px solid #333333;
     border-bottom: 1px solid #333333;
-    border-left: 1px solid #CCCCCC;" href="'.$core->settings['rootdir'].'ocos/index.php?module=attendance/listaddleavedays" target="_blank">Approve</a></br>')
+    border-left: 1px solid #CCCCCC;" href="'.$core->settings['rootdir'].'ocos/index.php?module=attendance/listaddleavedays" target="_blank">Approve</a></br>'.$lang->replytoemailtoaprove)
                 );
 
                 $mail = new Mailer($email_data, 'php');
