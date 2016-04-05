@@ -3,10 +3,25 @@ $(function() {
      Check the browswer support before anything else
      */
 
-
-    //applyin the DATATABLES plugin on classes-START
+//search functionality of modules list
+    $('#modulemenu_search').keyup(function() {
+        var searchval = $(this).val();
+        if(searchval) {
+            $('#modulemenu > li.searchable').each(function(i, obj) {
+                if($(obj).attr('data-modulename')) {
+                    if($(obj).attr('data-modulename').indexOf(searchval.toLowerCase()) >= 0) {
+                        $(obj).show();
+                    }
+                    else {
+                        $(obj).hide();
+                    }
+                }
+            });
+        }
+    });
+//applyin the DATATABLES plugin on classes-START
     function initialize_datatables() {
-        // Remove the formatting to get integer data for summation
+// Remove the formatting to get integer data for summation
         var intVal = function(i) {
             return typeof i === 'string' ?
                     i.replace(/[\$,]/g, '') * 1 :
@@ -14,14 +29,14 @@ $(function() {
                     i : 0;
         };
         $(".datatable_basic").each(function(i, obj) {
-            //basic grid type
+//basic grid type
             var maintable = obj;
             if($(maintable).hasClass('datatable_basic')) {
-                //check if data attribute of totals columns exists and not empty, then fill the values
+//check if data attribute of totals columns exists and not empty, then fill the values
                 if($(maintable).attr('data-totalcolumns')) {
                     var totalcolumns = $(maintable).attr('data-totalcolumns');
                 }
-                //create a second thead right after the firse one
+//create a second thead right after the firse one
                 if($(maintable).attr('data-skipfilter') !== 'true') {
                     $(maintable).find('thead:first-child').after($(maintable).find('thead:first-child').clone());
                     // Setup - add a text input to each footer cell
@@ -70,7 +85,6 @@ $(function() {
                                             .reduce(function(a, b) {
                                                 return intVal(a) + intVal(b);
                                             }, 0);
-
                                     // Total over this page
                                     pageTotal = api
                                             .column(col, {page: 'current'})
@@ -78,7 +92,6 @@ $(function() {
                                             .reduce(function(a, b) {
                                                 return intVal(a) + intVal(b);
                                             }, 0);
-
                                     // Update footer
                                     //if variables are not numeric skip and leave normal filters
                                     if(!($.isNumeric(pageTotal)) || !($.isNumeric(total))) {
@@ -103,10 +116,6 @@ $(function() {
                         }
                     });
                 });
-
-
-
-
                 $(maintable).find('tbody').each(function(i, obj2) {
                     $(obj2).on('mouseenter', 'td', function() {
                         var colIdx = table.cell(this).index().column;
@@ -130,8 +139,7 @@ $(function() {
         var table = $(this).closest('.dataTables_wrapper').find('table:first');
         clearfilters(table);
     });
-
-    //applyin the DATATABLES plugin on classes-END
+//applyin the DATATABLES plugin on classes-END
 
     if(jQuery.support.leadingWhitespace == false) {
         $('head').append('<link rel="stylesheet" href="' + rootdir + 'css/jqueryuitheme/jquery-ui-current.custom.min.css" type="text/css" />');
@@ -266,7 +274,7 @@ $(function() {
             }
         });
     }
-    //    $("input[id^='pickDate']").datepicker({maxDate: "+1d"});
+//    $("input[id^='pickDate']").datepicker({maxDate: "+1d"});
 //    $(this).datepicker("option", "maxDate", "+1d ");
 
     $("input[id^='pickDate']").each(function() {
@@ -635,7 +643,7 @@ $(function() {
         sharedFunctions.addmoreRows($(this));
     });
     $(document).on("keyup", "input[id='email'],input[accept='email']", validateEmailInline);
-    //$("input[id='email'],input[accept='email']").change(validateEmailInline);
+//$("input[id='email'],input[accept='email']").change(validateEmailInline);
 
     function validateEmailInline() {
         //var action = $("form:has(input[id='email'])").attr("id").substring(0, ($("form:has(input[id='email'])").attr("id").length - 5));
@@ -669,7 +677,7 @@ $(function() {
     });
     $(document).on("keydown", "input[accept='numeric']", function(e) {
         if(e.keyCode > 31 && (e.keyCode < 48 || (e.keyCode > 57 && (e.keyCode < 96 || e.keyCode > 105) && e.keyCode != 190 && e.keyCode != 110 && e.keyCode != 16 && e.keyCode != 17 && e.keyCode != 59))) {
-            //$(this).val($(this).val().substring(0, ($(this).val().length - 1)));
+//$(this).val($(this).val().substring(0, ($(this).val().length - 1)));
             e.preventDefault();
             return false
         }
@@ -781,7 +789,6 @@ $(function() {
         var id = $(this).attr("id").split("_");
         popUp(id[1], id[0] + "_" + id[2]);
     });
-
     $('input[title],a[title],div[title],span[title]').tooltip({placement: 'auto', html: true});
     function popUp(module, template, id, element) {
         if(element === undefined) {
@@ -878,7 +885,7 @@ $(function() {
                     }
                 });
                 /* Make the parent dialog overflow as visible to completely display the  customer inline search results */
-                $(".ui-dialog,div[id^='popup_']").css("overflow", "visible");                 //$("#popupBox").html(returnedData).show("slow");
+                $(".ui-dialog,div[id^='popup_']").css("overflow", "visible"); //$("#popupBox").html(returnedData).show("slow");
                 //$("#popupBox").draggable();
                 //	$("input[id$='_QSearch']").keyup(QSearch);
                 //$("input[id='email']").keyup(validateEmailInline);
@@ -1247,7 +1254,7 @@ $(function() {
             }
         }
     });
-    // Toggle filter options when generating dimensional report
+// Toggle filter options when generating dimensional report
     $("a[id='filterby']").click(function() {
         $("table #filter_options").toggle();
     });
@@ -1278,7 +1285,6 @@ $(function() {
         }
         var url = "index.php?module=portal/dashboard&action=populate_widgetsettings";
         sharedFunctions.requestAjax("post", url, "&wid=" + wid + "&inputChecksum=" + inputChecksum + "&dashid=" + dashid, "widgetsettings_result", "widgetsettings_result", 'html');
-
     });
 });
 function validateEmail(email) {
