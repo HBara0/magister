@@ -4,6 +4,8 @@
         $(document).on("click", ".showpopup[id^='createeventtask_']", function() {
             var id = $(this).attr("id").split("_");
             $("#popup_createeventtask input[id^='altpickDate_']").val(id[1]);
+            $("#popup_createeventtask").parent().css("z-index", "2000");
+            $("#popup_createeventtask").parent().css("padding-top", "5px");
             $('#popup_createeventtask').dialog('open');
         });
 
