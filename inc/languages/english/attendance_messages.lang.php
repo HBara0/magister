@@ -119,4 +119,5 @@ You Just tried to approve a deleted or revoked leave.
 Regards';
 $lang['currentbalance'] = 'Current Balance';
 $lang['checktravelpolicy'] = 'Prior to your trip, please make sure to review Orkila Group\'s international travel policy on the following link: ';
+$lang['replytoemailtoaprove'] = ' Or Reply To This Email To Aprove';
 ?>

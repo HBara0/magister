@@ -1241,7 +1241,7 @@ function parse_moduleslist($current_module, $modules_dir = 'modules', $is_select
                                 if(file_exists('images/modules-icons/'.$module['name'].'.png')) {
                                     $moduleicon = $module['name'];
                                 }
-                                $list .= '<li class="searchable"><a href="index.php?module='.$module['name'].'/'.$module['homepage'].'">';
+                                $list .= '<li class="searchable" data-modulename="'.$module['name'].'"><a href="index.php?module='.$module['name'].'/'.$module['homepage'].'">';
                                 if($modules_dir != ADMIN_DIR."/modules") {
                                     $list .= '<img src="images/modules-icons/'.$moduleicon.'.png" alt="'.$module['name'].'"/>';
                                 }

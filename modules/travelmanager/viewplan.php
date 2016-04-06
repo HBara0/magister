@@ -37,7 +37,7 @@ if(!$core->input['action']) {
         $finalize_button = '<input type="submit" disabled="disabled" class="button" value=" '.$lang->finalize.'" id="perform_travelmanager/viewplan_Button">';
     }
 
-    if(!is_object($plan_object) || empty($plan_object->tmpid)) {
+    if(!is_object($plan_object) || !$plan_object->tmpid) {
         redirect('index.php?module=travelmanager/listplans');
     }
 

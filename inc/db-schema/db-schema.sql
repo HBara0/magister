@@ -2000,6 +2000,23 @@ CREATE TABLE `countries` (
   KEY `affid` (`affid`),
   KEY `capitalCity` (`capitalCity`)
 ) ENGINE=MyISAM AUTO_INCREMENT=244 DEFAULT CHARSET=utf8;
+DROP TABLE IF EXISTS `csl_entities`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `csl_entities` (
+  `csleid` int(10) NOT NULL AUTO_INCREMENT,
+  `alias` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `title` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `cslid` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `startDate` bigint(30) NOT NULL,
+  `endDate` bigint(30) NOT NULL,
+  `source` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `remarks` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
+  `eid` int(10) NOT NULL,
+  `importedOn` bigint(30) NOT NULL,
+  `modifiedOn` bigint(30) NOT NULL,
+  PRIMARY KEY (`csleid`)
+) ENGINE=MyISAM AUTO_INCREMENT=7430 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `currencies`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;

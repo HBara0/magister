@@ -1118,7 +1118,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                 $additionalexp_type = new TravelManager_Expenses_Types($additionalexp['tmetid']);
 
                 if(is_object($additionalexp_type) && $additionalexp_type->title == 'Food & Beverage') {
-                    $data['numnights'] = abs($this->data['toDate'] - $this->data['fromDate']) / 60 / 60 / 24;
+                    $data['numnights'] = (abs($this->data['toDate'] - $this->data['fromDate']) / 60 / 60 / 24) + 1;
                     $data['amount'] = $additionalexp['expectedAmt'];
                     $data['currency'] = $additionalexp['currency'];
                     $tmexpenses = new Travelmanager_Expenses();

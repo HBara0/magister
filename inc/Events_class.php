@@ -229,7 +229,7 @@ class Events extends AbstractClass {
     }
 
     public function email_invitees() {
-        global $core, $lang;
+        global $core, $lang, $log;
         if($core->input['event']['isPublic'] == 1 && $core->usergroup['calendar_canAddPublicEvents'] == 1) {
             if(isset($core->input['event']['restrictto'])) {
                 if(is_array($core->input['event']['restrictto'])) {
