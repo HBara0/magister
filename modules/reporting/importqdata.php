@@ -72,14 +72,6 @@ else {
                     ." AND (imso.date BETWEEN ".strtotime($options['fromDate'])." AND ".strtotime($options['toDate']).")"
                     ." AND foreignInvoiceId IS NULL");
 
-            $x = "SELECT DISTINCT(imso.foreignId), imso.*, ims.localId AS localspid, ims.foreignName AS foreignSupplierName
-						FROM ".Tprefix."integration_mediation_purchaseorders imso
-						LEFT JOIN ".Tprefix."integration_mediation_entities ims ON (imso.spid=ims.foreignId)
-						WHERE imso.foreignSystem={$options[foreignSystem]} "
-                    ." AND imso.affid={$affid} "
-                    ." AND (imso.date BETWEEN ".strtotime($options['fromDate'])." AND ".strtotime($options['toDate']).")"
-                    ." AND foreignInvoiceId IS NULL";
-
 
             $document_types = array('invoice' => 'integration_mediation_purchaseinvoicelines', 'order' => 'integration_mediation_purchaseorderlines');
             foreach($document_types as $document_type => $db_table) {
@@ -432,30 +424,35 @@ else {
                         if($options['operation'] != 'replace') {
                             $pacheck_querywhere = ' AND uid=0';
                         }
+                        if($options['operation'] == 'addonly') {
+                            $pacheck_querywhere = ' AND uid='.$uid;
+                        }
 
                         if(value_exists('productsactivity', 'rid', $rid, 'pid='.$pid.$pacheck_querywhere)) {
-                            if($options['runtype'] == 'dry' && ($options['operation'] == 'addonly' || $options['operation'] == 'replace')) {
-                                if($options['operation'] == 'replace') {
-                                    echo 'Skipped Replace: ';
-                                }
-                                else {
-                                    echo 'Skipped Update: ';
-                                }
-                            }
-                            else {
-                                if($options['operation'] == 'replace') {
-                                    echo 'Replaced: ';
-                                }
-                                else {
-                                    echo 'Updated: ';
-                                    $paupdate_querywhere = ' AND uid=0';
-                                }
-                                foreach($fields as $field) {
-                                    if(!empty($activity[$field])) {
-                                        $activity[$field] = round($activity[$field]);
+                            if($options['operation'] != 'addonly') {
+                                if($options['runtype'] == 'dry' && ($options['operation'] == 'addonly' || $options['operation'] == 'replace')) {
+                                    if($options['operation'] == 'replace') {
+                                        echo 'Skipped Replace: ';
+                                    }
+                                    else {
+                                        echo 'Skipped Update: ';
                                     }
                                 }
-                                $db->update_query('productsactivity', $activity, 'rid='.$rid.' AND pid='.$pid.$paupdate_querywhere);
+                                else {
+                                    if($options['operation'] == 'replace') {
+                                        echo 'Replaced: ';
+                                    }
+                                    else {
+                                        echo 'Updated: ';
+                                        $paupdate_querywhere = ' AND uid=0';
+                                    }
+                                    foreach($fields as $field) {
+                                        if(!empty($activity[$field])) {
+                                            $activity[$field] = round($activity[$field]);
+                                        }
+                                    }
+                                    $db->update_query('productsactivity', $activity, 'rid='.$rid.' AND pid='.$pid.$paupdate_querywhere);
+                                }
                             }
                         }
                         else {
