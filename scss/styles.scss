@@ -722,6 +722,10 @@ tr.dummytrow td, tr.dummytrow th {
 }
 
 /* Overwrite JoyRide2 Style */
+.joyride-tip-guide {
+    z-index:2000 !important;
+}
+
 .joyride-tip-guide .joyride-next-tip {
     background: $color_green !important;
     border:1px solid #83c41a !important;
