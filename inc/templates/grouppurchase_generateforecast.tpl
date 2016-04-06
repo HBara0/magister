@@ -2,11 +2,12 @@
     $(function() {
         $(document).on('change', "select[id='forecast[reporttype]']", function() {
             var id = $(this).attr("id")
-            var value = $(this).attr("value")
+            var value = $(this).val();
             $("div[id$=_reporttype]").not([id ^= '" + $(this).val() + "']).hide();
             $("div[id^='" + value + "']").show(1000);
         });
     });
+
 </script>  <h1>{$lang->generateforecast}</h1>
 <form name="perform_grouppurchase/generate_Form" id="perform_grouppurchase/generate_Form" method="post" action="index.php?module=grouppurchase/previewforecast">
     <input type="hidden" name="identifier" value="{$core->input[identifier]}"/>

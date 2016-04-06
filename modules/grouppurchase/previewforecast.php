@@ -39,7 +39,8 @@ if(!($core->input['action'])) {
         }
         $groupurchase['monthead'] .= '<tr class = "thead"><th style = "vertical-align:central; padding:2px;  border-bottom: dashed 1px #CCCCCC;" align = "center" class = "border_left">'.$lang->product.'</th>';
         $groupurchase['monthead'] .='<th style = "vertical-align:central; padding:2px;border-bottom: dashed 1px #CCCCCC;" align = "center" class = "border_left">'.$lang->saletype.'</th>';
-        $groupurchase['monthead'] .= '<th class = "border_left">'.implode('</th><th class = "border_left"> ', $groupurchase_monthname).'</th></tr>';
+        $groupurchase['monthead'] .= '<th class = "border_left">'.implode('</th><th class = "border_left"> ', $groupurchase_monthname).'</th>';
+        $groupurchase['monthead'] .='<td>Submitted By</td><td>Submitted On</td></tr>';
         $groupurchase['summonth'] = 'SUM('.implode('), SUM(', $groupurchase_months).')';
 
         $numfmt = new NumberFormatter($lang->settings['locale'], NumberFormatter::DECIMAL);
@@ -60,6 +61,23 @@ if(!($core->input['action'])) {
                         if(is_object($saletypename)) {
                             $saletypename = $salestype->get_displayname();
                         }
+                        /* Show Forecast audit trail _ Start */
+                        $audittrail['date'] = $audittrail['user'] = ' - ';
+                        $uid = $grouppurchasline->createdBy;
+                        $date = $grouppurchasline->createdOn;
+                        if(isset($grouppurchasline->modifiedBy) && !empty($grouppurchasline->modifiedBy)) {
+                            $uid = $grouppurchasline->modifiedBy;
+                            $date = $grouppurchasline->modifiedOn;
+                        }
+                        $user = Users::get_data(array('uid' => $uid));
+                        if(is_object($user)) {
+                            $audittrail['user'] = $user->get_displayname();
+                        }
+                        if(!empty($date)) {
+                            $audittrail['date'] = date($core->settings['dateformat'], $date);
+                        }
+                        /* Show Forecast audit trail _ END */
+
                         eval("\$grouppurchase_report_rows .= \"".$template->get('grouppurchase_report_rows')."\";");
                         unset($group_purchase['monthval']);
                     }
