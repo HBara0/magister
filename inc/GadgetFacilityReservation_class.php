@@ -15,10 +15,10 @@
  */
 class GadgetFacilityReservation extends SystemGadget {
     protected $data = array();
-    protected $widget_id = '5';
+    protected $widget_id = '7';
 
     const CLASSNAME = __CLASS__;
-    const widget_id = 5;
+    const widget_id = 7;
 
     public function __construct() {
         parent::__construct();
