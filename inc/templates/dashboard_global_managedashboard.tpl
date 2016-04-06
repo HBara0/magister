@@ -1,5 +1,5 @@
 <script type="text/javascript">
-    $("a[id^='select_'][id$='_widgettype']").click(function () {
+    $("a[id^='select_'][id$='_widgettype']").click(function() {
         var id = $(this).attr("id").split("_");
         if(!id[1]) {
             alert('Error In Widget Type');
@@ -27,6 +27,6 @@
     });
 </script>
 {$widget_list}
-<h2>{$dashboard_title}</h2>
+<h2 id="dashboard_header">{$dashboard_title}</h2>
 <br><hr>
 {$dashboard_output}
