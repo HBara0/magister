@@ -13,6 +13,7 @@ class GadgetPendLvsYrApproval extends SystemGadget {
     protected $widget_id = '5';
 
     const CLASSNAME = __CLASS__;
+    const widget_id = 5;
 
     public function __construct() {
         parent::__construct();
@@ -38,6 +39,12 @@ class GadgetPendLvsYrApproval extends SystemGadget {
         if(is_array($leavesapprovals)) {
             $output = '<ul class="list-group">';
             foreach($leavesapprovals as $leaveapproval) {
+                if($leaveapproval->sequence != 1) {
+                    $leaves_prevapprovals = AttLeavesApproval::get_data(array('lid' => $leaveapproval->lid, 'sequence' => $leaveapproval->sequence - 1, 'isApproved' => 0), array('returnarray' => true));
+                    if(is_array($leaves_prevapprovals)) {
+                        continue;
+                    }
+                }
                 $leave = $leaveapproval->get_leave();
                 if(date($core->settings['dateformat'], $leave->fromDate) != date($core->settings['dateformat'], $leave->toDate)) {
                     $todate_format = $core->settings['dateformat'].' '.$core->settings['timeformat'];
