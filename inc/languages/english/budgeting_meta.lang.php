@@ -317,4 +317,5 @@ $lang['budgetconversionrates'] = 'Budget Conversion Rates';
 $lang['commercialbudget'] = 'Commercial Budget';
 $lang['operation'] = 'Operation';
 $lang['ratealreadyexists'] = 'Rate Already Exists';
+$lang['fillfinancialbudget'] = 'Fill Financial Budget';
 ?>

@@ -18,7 +18,6 @@ class GadgetFacilityReservation extends SystemGadget {
     protected $widget_id = '7';
 
     const CLASSNAME = __CLASS__;
-    const widget_id = 7;
 
     public function __construct() {
         parent::__construct();
