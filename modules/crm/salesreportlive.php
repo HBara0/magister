@@ -359,7 +359,7 @@ else {
                 $formats = array('marginperc' => array('style' => NumberFormatter::PERCENT_SYMBOL),
                         'grossmarginperc' => array('style' => NumberFormatter::PERCENT_SYMBOL),
                 );
-                $required_fields = array('qtyinvoiced', 'priceactual', 'linenetamt', 'purchaseprice', 'costlocal', 'grossmargin', 'grossmarginperc', 'netmargin', 'marginperc');
+                $required_fields = array('qtyinvoiced', 'linenetamt', 'grossmargin', 'grossmarginperc', 'netmargin', 'marginperc');
 
                 if($core->input['type'] == 'analytic') {
                     $current_year = date('Y', $period['to']);
