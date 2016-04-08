@@ -150,4 +150,5 @@ $lang['manageentitiesfiles'] = 'Manage Entities files';
 $lang['paymenttermslist'] = 'Payment-terms List';
 $lang['viewcustomers'] = 'View Customers';
 $lang['viewsuppliers'] = 'View Suppliers';
+$lang['issupportive'] = 'Is Supportive';
 ?>
