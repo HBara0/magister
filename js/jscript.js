@@ -830,7 +830,7 @@ $(function() {
         }
         //$("#popupBox").hide("fast");
 
-        //$(".contentContainer").append("<div id='popupBox'></div>");
+        //$(".workspace_container").append("<div id='popupBox'></div>");
         //if(jQuery.browser.msie) {
         //	$("#popupBox").css("top", ($(document).height()/2) + ($("#messageBox").offset().top/2));
         //$("#popupBox").css("position", "absolute");
