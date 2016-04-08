@@ -244,7 +244,7 @@ class SystemDashboard extends AbstractClass {
 
     public function createdefaultdashboard_home($userids = array()) {
         global $db;
-        $dashboard_array = array('title' => 'Welcome To OCOS', 'alias' => 'welcome-to-ocos', 'inputChecksum' => generate_checksum(), 'isActive' => 1, 'columnCount' => 2, 'moduleName' => 'portal', 'pageName' => 'dashboard', 'createdBy' => -1, 'createdOn' => TIME_NOW);
+        $dashboard_array = array('title' => 'Welcome to OCOS', 'alias' => 'welcome-to-ocos', 'inputChecksum' => generate_checksum(), 'isActive' => 1, 'columnCount' => 2, 'moduleName' => 'portal', 'pageName' => 'dashboard', 'createdBy' => -1, 'createdOn' => TIME_NOW);
         foreach($userids as $uid) {
             $dashboard_array['uid'] = intval($uid);
             $createdash_query = $db->insert_query(self::TABLE_NAME, $dashboard_array);
