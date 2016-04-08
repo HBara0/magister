@@ -55,7 +55,7 @@ class GadgetLeaveBalance extends SystemGadget {
         if(is_array($instancedata) && !empty($instancedata['swgiid'])) {
             $divid = 'gauge'.$instancedata['swgiid'];
         }
-        $current_leavestat = LeavesStats::get_data("uid={$core->user['uid']} ORDER BY periodStart DESC LIMIT 0,1");
+        $current_leavestat = LeavesStats::get_data("uid={$core->user['uid']} AND ltid=1 ORDER BY periodStart DESC LIMIT 0,1");
         if(is_object($current_leavestat)) {
             $leavestat = $current_leavestat->get();
             $leavestat['minimum'] = 0;
