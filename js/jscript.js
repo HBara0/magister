@@ -18,6 +18,11 @@ $(function() {
                 }
             });
         }
+        else {
+            $('#modulemenu > li.searchable').each(function(i, obj) {
+                $(obj).show();
+            });
+        }
     });
 //applyin the DATATABLES plugin on classes-START
     function initialize_datatables() {
