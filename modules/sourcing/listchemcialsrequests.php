@@ -68,7 +68,7 @@ else {
         else {
             eval("\$sourcingfeedback = \"".$template->get('popup_sourcing_feedback')."\";");
         }
-        output_page($sourcingfeedback);
+        output($sourcingfeedback);
         /* header('Content-type: text/html+javascript');
           '$("#popup_feedback").bind("clickoutside",function(){
           $("#popup_feedback").dialog("close");
