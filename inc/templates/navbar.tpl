@@ -11,7 +11,7 @@
         </div>
         <div id="navbar" class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
-                <li><a href="{$core->settings[rootdir]}" style='font-size:18px;'><span class="glyphicon glyphicon-home" title="Home"></span> <span class="hidden-sm hidden-md hidden-sm hidden-lg">Home</span></a></li>
+                <li><a href="{$core->settings[rootdir]}" style='font-size:18px;'><span id="home" class="glyphicon glyphicon-home" title="Home"></span> <span class="hidden-sm hidden-md hidden-sm hidden-lg">Home</span></a></li>
 
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle scrollable-menu" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" style="font-size:14px;"><span class="glyphicon glyphicon-th-large" id="switch_modules"></span> Main Menu <span class="caret"></span></a>
@@ -29,7 +29,7 @@
                     </ul>
                 </li>
             </ul>
-            <ul class="nav navbar-nav navbar-right">
+            <ul class="nav navbar-nav navbar-right" id="freqmdl">
                 <!--   <li id="tooltip" data-toggle="tooltip" data-placement="left" title="Frequently Used" class="hidden-xs">
                        <span  style="font-size:20px; margin-top:15px;" class="glyphicon glyphicon-star-empty" id="frequentlyused_icons"></span>
                    </li>

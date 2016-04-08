@@ -18,7 +18,7 @@ class GadgetLeavesCounts extends SystemGadget {
     protected $widget_id = '8';
 
     const CLASSNAME = __CLASS__;
-    const widget_id = 6;
+    const widget_id = 8;
 
     public function __construct() {
         parent::__construct();

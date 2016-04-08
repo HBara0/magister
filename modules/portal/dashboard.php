@@ -18,7 +18,7 @@ if(!$core->input['action']) {
 //    output_page($output);
 //    exit;
     $dashboard = SystemDashboard::parse_dashboardpage();
-    output_page($dashboard);
+    output_page($dashboard, array('helptourref' => 'newlayout'));
 }
 else {
     if($core->input['action'] == 'managewidgets') {
