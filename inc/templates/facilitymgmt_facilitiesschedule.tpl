@@ -49,7 +49,7 @@
                             $("#modal-loading").dialog("close").remove();
                         },
                         success: function(returnedData) {
-                            $(".contentContainer").append(returnedData);
+                            $(".workspace_container").append(returnedData);
                             $("div[id^='popup_']").dialog({
                                 bgiframe: true,
                                 closeOnEscape: true,
@@ -93,7 +93,7 @@
                             $("#modal-loading").dialog("close").remove();
                         },
                         success: function(returnedData) {
-                            $(".contentContainer").append(returnedData);
+                            $(".workspace_container").append(returnedData);
                             $("div[id^='popup_']").dialog({
                                 bgiframe: true,
                                 closeOnEscape: true,

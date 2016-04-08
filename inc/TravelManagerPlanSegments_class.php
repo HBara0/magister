@@ -1038,7 +1038,7 @@ class TravelManagerPlanSegments extends AbstractClass {
 
                 $warnings['foodandbeverage'] = '';
                 if(is_object($additionalexp_type) && $additionalexp_type->title == 'Food & Beverage') {
-                    $data['numnights'] = abs($this->data['toDate'] - $this->data['fromDate']) / 60 / 60 / 24;
+                    $data['numnights'] = (abs($this->data['toDate'] - $this->data['fromDate']) / 60 / 60 / 24) + 1;
                     $data['amount'] = $additionalexp->expectedAmt;
                     $data['currency'] = $additionalexp->currency;
                     $tmexpenses = new Travelmanager_Expenses();
@@ -1059,6 +1059,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                 $additional_expenses_details .= '<div style = "width:25%;display:inline-block;font-size:14px;font-weight:bold;text-align:right;vertical-align:top;">'.$numfmt->formatCurrency($expectedAmt, "USD").$expectedAmtinbasecurr.'<br/><small style="font-weight:normal;">[paid by: '.$paidby.' ] </small> </div>';
                 $additional_expenses_details .='<div>'.$warnings['foodandbeverage'].'</div>';
                 $additional_expenses_details .= '</div>';
+                unset($warnings['foodandbeverage']);
             }
         }
         $finances = TravelManagerPlanFinance::get_data(array('tmpsid' => $this->tmpsid), array('simple' => false, 'returnarray' => true));

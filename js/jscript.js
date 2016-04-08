@@ -18,6 +18,11 @@ $(function() {
                 }
             });
         }
+        else {
+            $('#modulemenu > li.searchable').each(function(i, obj) {
+                $(obj).show();
+            });
+        }
     });
 //applyin the DATATABLES plugin on classes-START
     function initialize_datatables() {
@@ -825,7 +830,7 @@ $(function() {
         }
         //$("#popupBox").hide("fast");
 
-        //$(".contentContainer").append("<div id='popupBox'></div>");
+        //$(".workspace_container").append("<div id='popupBox'></div>");
         //if(jQuery.browser.msie) {
         //	$("#popupBox").css("top", ($(document).height()/2) + ($("#messageBox").offset().top/2));
         //$("#popupBox").css("position", "absolute");

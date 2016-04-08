@@ -252,7 +252,7 @@ class SystemDashboard extends AbstractClass {
                 continue;
             }
             $dashid = $db->last_id();
-            $assignedinstances_array = array(1 => GadgetTimezones::CLASSNAME, 2 => GadgetCalendarToday::CLASSNAME, 3 => GadgetLeaveBalance::CLASSNAME, 4 => GadgetLeavesCounts::CLASSNAME, 5 => GadgetPendLvsYrApproval::CLASSNAME, 6 => GadgetFxRates::CLASSNAME, 7 => GadgetFacilityReservation::CLASSNAME);
+            $assignedinstances_array = array(1 => GadgetTimezones::CLASSNAME, 2 => GadgetLeaveBalance::CLASSNAME, 3 => GadgetLeavesCounts::CLASSNAME, 4 => GadgetCalendarToday::CLASSNAME, 5 => GadgetFacilityReservation::CLASSNAME, 6 => GadgetFxRates::CLASSNAME, 7 => GadgetPendLvsYrApproval::CLASSNAME);
             foreach($assignedinstances_array as $sequence => $classname) {
                 $created_instance = $classname::create_defaultwidget($classname, $uid, $sequence);
                 if($created_instance) {

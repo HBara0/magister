@@ -1,6 +1,6 @@
 <?php
-$module['name'] = 'portal';
-$module['title'] = 'Portal';
+$module['name'] = 'home';
+$module['title'] = 'Home';
 $module['homepage'] = 'dashboard';
 $module['globalpermission'] = 'canAccessSystem';
 $module['menu'] = '';

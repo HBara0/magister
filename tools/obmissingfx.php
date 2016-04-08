@@ -8,21 +8,21 @@
  * Last Update:    @zaher.reda    Feb 16, 2016 | 4:13:15 PM
  */
 require '../inc/init.php';
-
+date_default_timezone_set('Asia/Beirut');
 ini_set('max_execution_time', 0);
-$currency['from']['ocos'] = 840;
-$currency['from']['ob'] = 100;
+$currency['from']['ocos'] = 978;
+$currency['from']['ob'] = 102;
 
-$currency['to']['ocos'] = 978;
-$currency['to']['ob'] = 102;
-$startingdate = '2015-04-17';
-
+$currency['to']['ocos'] = 936;
+$currency['to']['ob'] = 170;
+$startingdate = '2013-10-01';
+$enddate = '2014-12-31';
 echo "Started...<br />";
 $rates = CurrenciesFxRate::get_data(array('baseCurrency' => $currency['from']['ocos'], 'currency' => $currency['to']['ocos']), array('returnarray' => 'true'));
 echo "Getting Rates...<br />";
 //$fixedusdrate = 1507.5;
 foreach($rates as $rate) {
-    if($rate->date < strtotime($startingdate)) {
+    if($rate->date < strtotime($startingdate) || $rate->date > strtotime($enddate)) {
         continue;
     }
     $url = 'http://openbravo.orkila.com:8080/openbravo/org.openbravo.service.json.jsonrest/CurrencyConversionRate';
@@ -83,7 +83,7 @@ function get_curldata($url, $request) {
                 .NET CLR 1.0.3705;
                 .NET CLR 1.1.4322)');
 
-    curl_setopt($ch, CURLOPT_USERPWD, "Openbravo:openbravo");
+    curl_setopt($ch, CURLOPT_USERPWD, "anto.khederlarian:@ntraork1245");
     $result = curl_exec($ch);
     echo 'Finished';
     curl_close($ch);
