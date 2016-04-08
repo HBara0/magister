@@ -26,6 +26,7 @@ function output_page($pagecontent, $options = null) {// default tpl, options to 
             $pagetitle = $lang->$files[1];
         }
     }
+    $options['helptourref'] = 'newlayout';
     ${$options['helptourref'].'_helptour'} = get_helptour('newlayout');
 
     if(!empty($options['additionalheaderinc'])) {

@@ -1,4 +1,4 @@
-<h1>{$lang->listsurveys}</h1>
+<h1>{$lang->list}</h1>
 <table width="100%" class="datatable">
     <thead>
         <tr>
