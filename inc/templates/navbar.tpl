@@ -36,8 +36,8 @@
                 -->
                 {$navbar_freqmdls}
                 <!--  <li id='updates' style='margin-left: 10px;'><a href="../navbar-static-top/"><span class="glyphicon glyphicon-alert"></span> Updates <span class="badge">42</span></a></li>-->
-                <li class="dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" style="font-size:14px;"><span class="glyphicon glyphicon-user" id="userprofile_menu"></span> {$core->user[displayName]}<span class="sr-only">(current)</span> <span class="caret"></span></a>
+                <li class="dropdown" id="userprofile_menu">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" style="font-size:14px;"><span class="glyphicon glyphicon-user"></span> {$core->user[displayName]}<span class="sr-only">(current)</span> <span class="caret"></span></a>
                     <ul class="dropdown-menu">
                         <li ><a href="{$settings[rootdir]}/users.php?action=profile&amp;do=edit">{$lang->edityouraccount}</a></li>
                         <li>{$admincplink}{$mainpageslink}</li>

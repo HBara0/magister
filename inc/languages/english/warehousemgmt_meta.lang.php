@@ -187,5 +187,6 @@ $lang['cadocdelvdate'] = 'Documents Delivery Date To CA';
 $lang['delvorderreldate'] = 'Deliever Order release Date';
 $lang['ca'] = 'Clearing Agent (CA)';
 $lang['valuedstockreport'] = 'Valued Stock Report';
-$lang['endofmonth'] = 'End of Month'
+$lang['endofmonth'] = 'End of Month';
+$lang['clearancestatus'] = 'Clearance Status'
 ?>

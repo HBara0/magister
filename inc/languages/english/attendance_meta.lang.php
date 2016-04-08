@@ -231,5 +231,7 @@ $lang['addattendancercords'] = 'Add Attendace Records';
 $lang['reinitializebalances'] = 'Reinitialize Balances';
 $lang['employee'] = 'Employee';
 $lang['attendancerecords'] = 'Attendance Records';
-$lang['attendancelog'] = 'Attendance Log'
+$lang['attendancelog'] = 'Attendance Log';
+$lang['listleaves'] = 'List Leaves';
+$lang['balancesvalidations'] = 'Validate Balances';
 ?>
