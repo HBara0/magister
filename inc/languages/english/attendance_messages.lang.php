@@ -18,7 +18,7 @@ Corresponding date: {3}<br />
 <br />
 Justification: {4}<br />
 <br />
-{4}{5}';
+{4}';
 $lang['additionadaysapprovedsubject'] = 'Your request for additional days has been approved';
 $lang['autorespondermessage'] = 'I am not available from {1} to {2}.';
 $lang['autorespondermessagecontact'] = 'Please contact {1} ({2}) for urgent issues.';
