@@ -17,7 +17,7 @@ if(!$dir) {
 require $dir.'/inc/init.php';
 set_headers();
 
-define('SYSTEMVERSION', 'RC-26.0.1');
+define('SYSTEMVERSION', '26.0.0');
 
 
 if(strpos(strtolower($_SERVER['PHP_SELF']), ADMIN_DIR) !== false) {
