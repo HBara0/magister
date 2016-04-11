@@ -1,4 +1,4 @@
-<div id="popup_createbrand" title="{$lang->createbrand}">
+<div id="popup_createbrand" title="{$lang->createbrand}" style="z-index: 2000">
     <form action="#" method="post" id="add_{$module}/{$modulefile}_Form" name="add_{$module}/{$modulefile}_Form">
         <input type="hidden" name="action" value="do_addbrand" />
         <div>

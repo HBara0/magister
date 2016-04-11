@@ -1,4 +1,4 @@
-<div id="popup_profilesmarketdata" title="{$lang->addmarketdata}">
+<div id="popup_profilesmarketdata" title="{$lang->addmarketdata}" style="z-index: 2000">
     <form name="perform_{$module}/{$modulefile}_Form" id="perform_{$module}/{$modulefile}_Form">
         <input type="hidden" name="action" value="{$action}"/>
         <input type="hidden" name="{$elementname}" value="{$elemtentid}"/>

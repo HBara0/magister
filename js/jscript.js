@@ -891,7 +891,7 @@ $(function() {
                 });
                 /* Make the parent dialog overflow as visible to completely display the  customer inline search results */
                 $(".ui-dialog,div[id^='popup_']").css("overflow", "visible");
-                $("div[id^='popup_']").css("z-index", "2000");   //$("#popupBox").html(returnedData).show("slow");
+                $(".ui-dialog").css("z-index", "2000");   //$("#popupBox").html(returnedData).show("slow");
                 //$("#popupBox").draggable();
                 //	$("input[id$='_QSearch']").keyup(QSearch);
                 //$("input[id='email']").keyup(validateEmailInline);
