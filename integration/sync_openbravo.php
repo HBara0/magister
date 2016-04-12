@@ -23,8 +23,8 @@ $affiliates_index = array(
         '51FB1280AB104EFCBBB982D50B3B7693' => 21, //Orkila CI
         '7AD08388D369403A9DF4B8240E3AD7FF' => 27, //Orkila International
         'ED9F0447A2484096B8B0FFF4EC389100' => 2, //Orkila Jordan
-        '8E2582F6D85A41D2A9906A9D1EED6262' => 2, //Orkila Iran
-        '301ACDBEC89D4CAAA92B60FC6FA22D89' => 2//Orkila Cyprus
+        '8E2582F6D85A41D2A9906A9D1EED6262' => 12, //Orkila Iran
+        '301ACDBEC89D4CAAA92B60FC6FA22D89' => 7//Orkila Cyprus
 );
 
 //$sync_documents = array(
@@ -52,7 +52,7 @@ $sync_documents = array(
         '8E2582F6D85A41D2A9906A9D1EED6262', //Orkila Iran
         '301ACDBEC89D4CAAA92B60FC6FA22D89', //Orkila Cyprus
 );
-$integration = new IntegrationOB($intgconfig['openbravo']['database'], $intgconfig['openbravo']['entmodel']['client'], $affiliates_index, 3, array('from' => '2015-01-01'));
+$integration = new IntegrationOB($intgconfig['openbravo']['database'], $intgconfig['openbravo']['entmodel']['client'], $affiliates_index, 3, array('from' => '2016-01-01'));
 
 $status = $integration->get_status();
 if(!empty($status)) {
