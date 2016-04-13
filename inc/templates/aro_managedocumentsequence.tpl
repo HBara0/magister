@@ -15,7 +15,7 @@
         });
     });
 </script>
-<h1>{$lang->managedoumentsequence}</h1>
+<h1>{$lang->arodocumentsequeneconf}</h1>
 <div>{$lang->documnetconfigurationdesc}</div><br/>
 
 <form name="perform_aro/arodocumentsequeneconf_Form" id="perform_aro/arodocumentsequeneconf_Form"  action="#" method="post">
