@@ -766,6 +766,7 @@ $(function() {
         $('#popup_' + id[1]).dialog('open');
         /* Make the parent dialog overflow as visible to completely display the  customer inline search results */
         $(".ui-dialog, #popup_" + id[1]).css("overflow", "visible");
+        $(".ui-dialog, #popup_" + id[1]).css("z-index", 2000);
     });
     if($("div[id^='popup_']").length > 0) {
         $("div[id^='popup_']").dialog({

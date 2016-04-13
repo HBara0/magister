@@ -1084,7 +1084,7 @@ class TravelManagerPlanSegments extends AbstractClass {
 
     public function parse_expensesummary() {
         global $template, $db, $lang;
-
+        $plan_obj = $this->get_plan();
         $numfmt = new NumberFormatter($lang->settings['locale'], NumberFormatter::CURRENCY);
         $fxrate_query['transp'] = "(CASE WHEN tmpt.currency =840 THEN 1 ELSE (SELECT rate FROM currencies_fxrates WHERE baseCurrency=tmpt.currency AND currency=840 ORDER BY date DESC LIMIT 0, 1)END)";
         $query = $db->query("SELECT tmpltid, tmtcid, sum(fare*{$fxrate_query['transp']}) AS fare FROM ".Tprefix."travelmanager_plan_transps tmpt WHERE tmpsid IN (SELECT tmpsid FROM travelmanager_plan_segments WHERE tmpid =".intval($this->tmpid).") GROUP By tmtcid");
@@ -1119,7 +1119,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                 $additionalexp_type = new TravelManager_Expenses_Types($additionalexp['tmetid']);
 
                 if(is_object($additionalexp_type) && $additionalexp_type->title == 'Food & Beverage') {
-                    $data['numnights'] = (abs($this->data['toDate'] - $this->data['fromDate']) / 60 / 60 / 24) + 1;
+                    $data['numnights'] = (abs($plan_obj->toDate - $plan_obj->fromDate) / 60 / 60 / 24) + 1;
                     $data['amount'] = $additionalexp['expectedAmt'];
                     $data['currency'] = $additionalexp['currency'];
                     $tmexpenses = new Travelmanager_Expenses();
@@ -1131,6 +1131,7 @@ class TravelManagerPlanSegments extends AbstractClass {
                 $additional_expenses_details .= '<div style = "width:10%;display:inline-block;text-align:right;">'.$numfmt->formatCurrency(round($additionalexp['expectedAmt'], 2), "USD").'</div>';
                 $additional_expenses_details .= $warnings['foodandbeverage'].'</div>';
                 $expenses['additional'] += $additionalexp['expectedAmt'];
+                unset($warnings['foodandbeverage']);
             }
 //            $additional_expenses_details .='<div style="display:block;padding:5px 0px 5px 0px;">';
 //            $additional_expenses_details .='<div style="display:inline-block;width:85%;">'.$lang->additionalexpensestotal.'</div><div style="width:10%; display:inline-block;text-align:right;font-weight:bold;">  '.$numfmt->formatCurrency(round($expenses['additional']), "USD").'</div></div>';
