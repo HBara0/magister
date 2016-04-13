@@ -56,11 +56,6 @@
                 <td style="text-align: right;">{$aroordersummary->totalIntermedFeesUsd}</td>
                 <td></td> <td {$ordersummarydisplay[thirdcolumn_display]}></td>
             </tr>
-            <tr style="background-color: #D0F6AA">
-                <td class="altrow">{$lang->unitfee}</td>
-                <td style="text-align: right;">{$aroordersummary->unitFee}</td>
-                <td></td> <td {$ordersummarydisplay[thirdcolumn_display]}></td>
-            </tr>
 
             <tr style="font-weight: bold;background-color: #D0F6AA">
                 <td class="altrow">{$lang->total} {$lang->netmargin}<a class="hidden-print" href="#" title="{$lang->totalnetmargindef}"><img src="./images/icons/question.gif"/></a></td>

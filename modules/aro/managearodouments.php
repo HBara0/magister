@@ -455,6 +455,9 @@ if(!($core->input['action'])) {
             }
             $aroorderrequest->createdBy_output = $createdby_username->parse_link($attributes_param = array('target' => "_blank"));
             $aroorderrequest->revision_output = $aroorderrequest->revision;
+            if($aroorderrequest->revision > 0) {
+                $revisiedaro_output = ' <div class="panel panel-warning" style="width:15%;padding:5px;"><strong>'.$lang->timesmodified.'</strong>: '.$aroorderrequest->revision_output.'</div>';
+            }
             eval("\$aro_managedocuments_audittrail_rows .= \"".$template->get('aro_managedocuments_audittrail_rows')."\";");
             eval("\$aro_audittrail= \"".$template->get('aro_managedocuments_audittrail')."\";");
 
@@ -1221,11 +1224,10 @@ else {
         $productline_obj = new AroRequestLines();
         $rowid = $core->input['rowid'];
         unset($core->input['action'], $core->input['module'], $core->input['rowid']);
-        $parmsfornetmargin = array('localPeriodOfInterest', 'localBankInterestRate', 'warehousingPeriod', 'warehousingTotalLoad', 'warehousingRate', 'intermedBankInterestRate', 'intermedPeriodOfInterest', 'commission', 'totalDiscount', 'totalQty', 'localRiskRatio', 'unitfees');
+        $parmsfornetmargin = array('localPeriodOfInterest', 'localBankInterestRate', 'warehousingPeriod', 'warehousingTotalLoad', 'warehousingRate', 'intermedBankInterestRate', 'intermedPeriodOfInterest', 'commission', 'totalDiscount', 'totalQty', 'localRiskRatio');
         foreach($parmsfornetmargin as $parm) {
             $core->input['parmsfornetmargin'][$parm] = $core->input[$parm];
         }
-        //$core->inut['parmsfornetmargin']['unitfees'] = $unitfee;
         $data = $core->input;
         $productline_data = $productline_obj->calculate_values($data);
         unset($productline_data['affBuyingPrice'], $productline_data['totalBuyingValue'], $productline_data['riskRatioAmount']);
@@ -1450,51 +1452,51 @@ else {
         output(json_encode($partiesinfo_data));
     }
 
-    if($core->input['action'] == 'updateunitfee') {
-        $qtyperunit = $core->input['qtyperunit'];
-        $feeperunit = $core->input['feeperunit'];
-        $qtyperunit = split('_', $qtyperunit);
-        $feeperunit = split('_', $feeperunit);
-
-        $i = 0;
-        foreach($qtyperunit as $qty) {
-            if(empty($qty)) {
-                continue;
-            }
-            $i++;
-            $qty = split(':', $qty);
-            $uom = new Uom($qty[0]);
-            $qtyperunit_array[$i] = $qty[1]."/".$uom->get_displayname();
-            $avgqty[$i] = $qty[1];
-        }
-        if(is_array($qtyperunit_array)) {
-            $quantityperuom = implode("\n", $qtyperunit_array);
-        }
-        $i = 0;
-        foreach($feeperunit as $fee) {
-            if(empty($fee)) {
-                continue;
-            }
-            $i++;
-            $fee = split(':', $fee);
-            $uom = new Uom($fee[0]);
-            $feeperunit_array[$i] = $fee[1]."/".$uom->get_displayname();
-            $feeperunit_usdarray[$i] = ($fee [1] * $core->input['exchangeRateToUSD'])."/".$uom->get_displayname();
-            $total_intermedfees +=$fee[1];
-            $avgfee[$i] = $fee[1];
-        }
-
-        for($j = 1; $j <= $i; $j++) { ///Calculate unit fee
-            if($avgqty[$j] != 0) {
-                $unitfee +=$avgfee[$j] / $avgqty[$j];  //(total Fee per unit /total qty per unit)
-            }
-        }
-        if($i != 0) {
-            $unitfee = $unitfee / $i; // unit fee=avg. of unit fees = $unitfee/(number of units)
-        }
-        $data = array('ordersummary_unitfee' => round($unitfee, 2));
-        output(json_encode($data));
-    }
+//    if($core->input['action'] == 'updateunitfee') {
+//        $qtyperunit = $core->input['qtyperunit'];
+//        $feeperunit = $core->input['feeperunit'];
+//        $qtyperunit = split('_', $qtyperunit);
+//        $feeperunit = split('_', $feeperunit);
+//
+//        $i = 0;
+//        foreach($qtyperunit as $qty) {
+//            if(empty($qty)) {
+//                continue;
+//            }
+//            $i++;
+//            $qty = split(':', $qty);
+//            $uom = new Uom($qty[0]);
+//            $qtyperunit_array[$i] = $qty[1]."/".$uom->get_displayname();
+//            $avgqty[$i] = $qty[1];
+//        }
+//        if(is_array($qtyperunit_array)) {
+//            $quantityperuom = implode("\n", $qtyperunit_array);
+//        }
+//        $i = 0;
+//        foreach($feeperunit as $fee) {
+//            if(empty($fee)) {
+//                continue;
+//            }
+//            $i++;
+//            $fee = split(':', $fee);
+//            $uom = new Uom($fee[0]);
+//            $feeperunit_array[$i] = $fee[1]."/".$uom->get_displayname();
+//            $feeperunit_usdarray[$i] = ($fee [1] * $core->input['exchangeRateToUSD'])."/".$uom->get_displayname();
+//            $total_intermedfees +=$fee[1];
+//            $avgfee[$i] = $fee[1];
+//        }
+//
+//        for($j = 1; $j <= $i; $j++) { ///Calculate unit fee
+//            if($avgqty[$j] != 0) {
+//                $unitfee +=$avgfee[$j] / $avgqty[$j];  //(total Fee per unit /total qty per unit)
+//            }
+//        }
+//        if($i != 0) {
+//            $unitfee = $unitfee / $i; // unit fee=avg. of unit fees = $unitfee/(number of units)
+//        }
+//        $data = array('ordersummary_unitfee' => round($unitfee, 2));
+//        output(json_encode($data));
+//    }
     if($core->input['action'] == 'populateordersummary') {
         $intermedaffiliate = Affiliates::get_affiliates(array('affid' => $core->input['intermedAff']));
         $affiliate = new Affiliates($core->input['aff']);
@@ -1537,14 +1539,14 @@ else {
             $avgfee[$i] = $fee[1];
         }
 
-        for($j = 1; $j <= $i; $j++) { ///Calculate unit fee
-            if($avgqty[$j] != 0) {
-                $unitfee +=$avgfee[$j] / $avgqty[$j];  //(total Fee per unit /total qty per unit)
-            }
-        }
-        if($i != 0) {
-            $unitfee = $unitfee / $i; // unit fee=avg. of unit fees = $unitfee/(number of units)
-        }
+//        for($j = 1; $j <= $i; $j++) { ///Calculate unit fee
+//            if($avgqty[$j] != 0) {
+//                $unitfee +=$avgfee[$j] / $avgqty[$j];  //(total Fee per unit /total qty per unit)
+//            }
+//        }
+//        if($i != 0) {
+//            $unitfee = $unitfee / $i; // unit fee=avg. of unit fees = $unitfee/(number of units)
+//        }
         if(is_array($feeperunit_array)) {
             $feeperunit_array = implode("\n", $feeperunit_array);
         }
