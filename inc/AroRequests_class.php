@@ -242,7 +242,7 @@ class AroRequests extends AbstractClass {
                 return $this->errorcode;
             }
             if($data['isFinalized'] == 1) {
-                $this->send_approvalemail();
+                $this->send_approvalemail(array('revision' => $orderrequest_array['revision']));
             }
             ////////////////////////////////////////////
         }
@@ -760,7 +760,7 @@ class AroRequests extends AbstractClass {
         return $email;
     }
 
-    public function send_approvalemail() {
+    public function send_approvalemail($options = array()) {
         global $core, $db;
         $firstapprover = $this->get_firstapprover();
         if(!is_object($firstapprover) && empty($firstapprover)) {
@@ -771,7 +771,11 @@ class AroRequests extends AbstractClass {
         $purchasteype_obj = PurchaseTypes::get_data(array('ptid' => $this->orderType));
 
         $approve_link = '<a href="'.$core->settings['rootdir']."/index.php?module=aro/managearodouments&referrer=toapprove&requestKey=".base64_encode($this->data['identifier'])."&id=".$this->data[self::PRIMARY_KEY].' "> View and Approve ARO </a>';
+        if(isset($options['revision']) && $options['revision'] > 0) {
+            $aroapprovalemail_subject = "Revised ";
+        }
         $aroapprovalemail_subject = "Aro Request ".$aroaffiliate_obj->get_displayname()." [".$this->orderReference."] Needs Approval!";
+
         $email_data = array(
                 'from' => 'ocos@orkila.com',
                 'to' => $to,

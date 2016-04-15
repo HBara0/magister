@@ -669,7 +669,7 @@ $(function() {
             var id = $(this).attr('id').split('_');
             attrs = '&intialPrice=' + $("input[id='productline_" + id[1] + "_intialPrice']").val() + '&quantity=' + $("input[id='productline_" + id[1] + "_quantity']").val();
             attrs += "&commission=" + $('input[id=partiesinfo_commission]').val();
-            attrs += '&unitfees=' + $("input[id='ordersummary_unitfee']").val();
+            attrs += '&unitfees=' + (parseFloat($("input[id='productline_" + id[1] + "_fees']").val()) / parseFloat($("input[id='productline_" + id[1] + "_quantity']").val()));
             attrs += '&rowid=' + id[1] + '&ptid=' + $('select[id=purchasetype]').val();
             sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populateaffbuyingprice' + attrs, function() {
                 //// !!!!!!!! NEED TO Modify this into a funtion and apply wherever it is used//
@@ -752,9 +752,9 @@ $(function() {
 //        }
 //        fees = ((qtyperc / 100) * totalfees).toFixed(3);
 
-        var unitfees = $("input[id='ordersummary_unitfee']").val();
+        //var unitfees = $("input[id='ordersummary_unitfee']").val();
         var totalQtyPerUom = totalqtyperuom[$("select[id$='" + id[1] + "_uom']").val()];
-        parmsfornetmargin += "&totalQty=" + totalQtyPerUom + "&localRiskRatio=" + $("input[id='parmsfornetmargin_localRiskRatio']").val() + '&unitfees=' + unitfees;
+        parmsfornetmargin += "&totalQty=" + totalQtyPerUom + "&localRiskRatio=" + $("input[id='parmsfornetmargin_localRiskRatio']").val();// '&unitfees=' + unitfees;
         parmsfornetmargin += "&totalDiscount=" + $("input[id='partiesinfo_totaldiscount']").val();
         sharedFunctions.populateForm('perform_aro/managearodouments_Form', rootdir + 'index.php?module=aro/managearodouments&action=populateproductlinefields&rowid=' + id[1] + fields + '&parmsfornetmargin=' + parmsfornetmargin, function(json) {
             //   $("input[id='unitfee_btn']").trigger("change");
@@ -864,7 +864,11 @@ $(function() {
     });
 //---------------------------------------
     $(document).on("click", "input[id='unitfee_btn']", function() {
-        var totalfeespaidbyintermed = $('input[id=partiesinfo_totalfees]').val();
+        //var totalfeespaidbyintermed = $('input[id=partiesinfo_totalfees]').val();
+        var totalfeespaidbyintermed = $('input[id=partiesinfo_totalintermedfees]').val();
+        var interestrate = $('input[id=parmsfornetmargin_interestvalue]').val();
+
+        //parmsfornetmargin_interestvalue
         var totalquantity = {};
         var totalqty = 0;
         var totalfee = 0;
@@ -882,23 +886,33 @@ $(function() {
             i++;
         });
         var j = 0;
-        var feeperunit = qtyperunit = '';
+        var feeperunit = qtyperunit = sum_totalqty = '';
         var qty = {};
         var totalfees2 = {};
         $.each(totalquantity, function(key, value) {
             qtyperunit += key + ":" + value.toFixed(3);
             qtyperunit += "_";
             qty[j] = value;
+            sum_totalqty += value;
+
         });
+
         var qtyperc = 0;
         $("tbody[id^='productline_']").find($("select[id$='_uom']")).each(function() {
             var id = $(this).attr('id').split('_');
-            qtyperc = ((parseFloat($("input[id='productline_" + id[1] + "_quantity']").val()) * parseFloat($("input[id='productline_" + id[1] + "_intialPrice']").val())) / refernece) * 100;
+            qtyperc = (parseFloat($("input[id='productline_" + id[1] + "_quantity']").val()) / sum_totalqty) * 100;
+            qtyexcludinginterest_perc = ((parseFloat($("input[id='productline_" + id[1] + "_quantity']").val()) * parseFloat($("input[id='productline_" + id[1] + "_intialPrice']").val())) / refernece) * 100;
             if(i === 1)// if only one product line
             {
                 qtyperc = (parseFloat($("input[id='productline_" + id[1] + "_quantity']").val()) / parseFloat(qty[0])) * 100;
+                qtyexcludinginterest_perc = ((parseFloat($("input[id='productline_" + id[1] + "_quantity']").val()) * parseFloat($("input[id='productline_" + id[1] + "_intialPrice']").val())) / refernece) * 100;
+
             }
             totalfee = ((qtyperc / 100) * totalfeespaidbyintermed).toFixed(3);
+            totalfee_frominterest = ((qtyexcludinginterest_perc / 100) * interestrate).toFixed(3);
+            if(!isNaN(totalfee_frominterest)) {
+                totalfee = parseFloat(totalfee) + parseFloat(totalfee_frominterest);
+            }
             if(!isNaN(totalfee) && $(this).val() != 0) {
                 totalfees2[$(this).val()] = parseFloat(totalfees2[$(this).val()] || 0) + parseFloat(totalfee);
             }
@@ -1029,7 +1043,7 @@ function addactualpurchaselines(id) {
 
         attrs = '&intialPrice=' + $("input[id='productline_" + id + "_intialPrice']").val() + '&quantity=' + $("input[id='productline_" + id + "_quantity']").val();
         attrs += "&commission=" + $('input[id=partiesinfo_commission]').val();
-        attrs += '&unitfees=' + $("input[id='ordersummary_unitfee']").val();
+        attrs += '&unitfees=' + (parseFloat($("input[id='productline_" + id + "_fees']").val()) / parseFloat($("input[id='productline_" + id + "_quantity']").val()));
         attrs += '&rowid=' + id + '&ptid=' + $('select[id=purchasetype]').val();
 
         if(operation == 'update') {

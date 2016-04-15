@@ -56,7 +56,7 @@ if(!$core->input['action']) {
         $dimension_item .= '<li class="ui-state-default" id='.$dimensionid.' title="Click and Hold to move the '.$dimension.'">'.$dimension.'</li>';
     }
     eval("\$expencesreport_options = \"".$template->get('attendance_expencesreport_options')."\";");
-    output($expencesreport_options);
+    output_page($expencesreport_options);
 }
 else {
     if($core->input['action'] == 'preview') {
@@ -91,7 +91,7 @@ else {
         }
 
         eval("\$expencesreport_output = \"".$template->get('attendance_expencesreport_output')."\";");
-        output($expencesreport_output);
+        output_page($expencesreport_output);
     }
 }
 ?>

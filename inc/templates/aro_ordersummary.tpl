@@ -60,11 +60,8 @@
                 <td>{$lang->feespaidbyintermed}</td>
                 <td>
                     <input id="ordersummary_totalintermedfees_usd" name="ordersummary[totalIntermedFeesUsd]" readonly="readonly" value="{$aroordersummary->totalIntermedFeesUsd}"/>
-            </tr>
 
-            <tr>
-                <td>{$lang->unitfee}</td>
-                <td><input type="text" id="ordersummary_unitfee" name="ordersummary[unitFee]" value="{$aroordersummary->unitFee}" readonly="readonly"/></td>
+                    <input type="hidden" id="ordersummary_unitfee" name="ordersummary[unitFee]" value="{$aroordersummary->unitFee}" readonly="readonly"/></td>
             </tr>
 
             <tr style="font-weight:bold">

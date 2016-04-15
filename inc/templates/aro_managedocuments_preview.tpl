@@ -5,6 +5,7 @@
 <div style="display:inline-block;width:30%">
     {$postatus}
 </div>
+{$revisiedaro_output}
 <div class="accordion">
     <form name="perform_aro/managearodouments_Form" id="perform_aro/managearodouments_Form"  action="#" method="post">
         {$aro_managedocuments_orderident}

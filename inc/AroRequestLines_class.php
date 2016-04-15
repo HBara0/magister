@@ -88,7 +88,10 @@ class AroRequestLines extends AbstractClass {
         }
 
         if(is_object($purchasetype)) {
-            $affbuyingprice_data = array('intialPrice' => $data['intialPrice'], 'commission' => $data['commission'], 'unitfees' => $parmsfornetmargin['unitfees'], 'commission' => $parmsfornetmargin['commission'], 'isPurchasedByEndUser' => $purchasetype->isPurchasedByEndUser);
+            if(isset($data['quantity']) && !empty($data['quantity'])) {
+                $unitfee = $data['fees'] / $data['quantity'];
+            }
+            $affbuyingprice_data = array('intialPrice' => $data['intialPrice'], 'commission' => $data['commission'], 'unitfees' => $unitfee, 'commission' => $parmsfornetmargin['commission'], 'isPurchasedByEndUser' => $purchasetype->isPurchasedByEndUser);
             $new_data['affBuyingPrice'] = $this->calculate_affbuyingprice($affbuyingprice_data);
             //  $data['affBuyingPrice'] = round((($data['intialPrice'] + $parmsfornetmargin['unitfees']) + ($data['intialPrice'] * $parmsfornetmargin['commission'])), 2);
             $new_data['totalBuyingValue'] = $this->calculate_totalbuyingvalue(array('affBuyingPrice' => $new_data['affBuyingPrice'], 'quantity' => $data['quantity'], 'intialPrice' => $data['intialPrice'], 'isPurchasedByEndUser' => $purchasetype->isPurchasedByEndUser));

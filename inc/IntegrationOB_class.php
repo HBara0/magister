@@ -2083,7 +2083,7 @@ class IntegrationOBInvoiceLine extends IntegrationAbstractClass {
             foreach($data_ids as $id) {
                 if($classname == 'IntegrationOBUser') {
                     $object = new $classname($id);
-                    if(!is_object($object) || empty($object->name)) {
+                    if(!is_object($object) || empty($object->name) || ($object->name == 'System')) {
                         $yaxixdata[] = 'unspecified';
                     }
                     else {
