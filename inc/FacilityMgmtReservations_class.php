@@ -136,7 +136,8 @@ class FacilityMgmtReservations extends AbstractClass {
                     'message' => $email_message,
                     'to' => $email_to,
             );
-            $mail = new Mailer($email_data, 'php');
+            //remove reservations notificatins as per the request of chris (ID 13579)
+//            $mail = new Mailer($email_data, 'php');
         }
     }
 
