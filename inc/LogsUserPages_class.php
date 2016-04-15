@@ -126,7 +126,7 @@ class LogsUserPages extends AbstractClass {
         /**
          * Query to be changed when DAL support functions in SELECT
          */
-        $sql = $db->query('SELECT *, COUNT(*) as timeAccessed FROM '.self::TABLE_NAME.' WHERE uid='.$core->user_obj->get_id().' GROUP BY module ORDER BY timeAccessed DESC LIMIT 0, '.intval($limit));
+        $sql = $db->query('SELECT *, COUNT(*) as timeAccessed FROM '.self::TABLE_NAME.' WHERE uid='.$core->user_obj->get_id().' AND !(module ="portal" AND page="dashboard") GROUP BY module ORDER BY timeAccessed DESC LIMIT 0, '.intval($limit));
         $items = array();
         if($db->num_rows($sql) > 1) {
             while($item = $db->fetch_assoc($sql)) {
