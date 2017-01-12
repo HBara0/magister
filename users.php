@@ -867,7 +867,7 @@ if($core->input['action']) {
 
         /* Get Help Video */
         $helpvideo = HelpVideos::get_data(array('alias' => 'how-to-reset-password'));
-        $helplink = $helpvideo->parse_link();
+//        $helplink = $helpvideo->parse_link();
 
         eval("\$loginpage = \"".$template->get('loginpage')."\";");
         output_page($loginpage);

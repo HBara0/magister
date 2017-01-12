@@ -33,7 +33,6 @@ $lang['contactadministrator'] = 'Contact Administrator';
 $lang['contactcenter'] = 'Contact Center';
 $lang['contents'] = 'Contents';
 $lang['coordinators'] = 'Coordinators';
-$lang['copyright'] = 'Copyright © Orkila Holding';
 $lang['create'] = 'Create';
 $lang['createdby'] = 'Created By';
 $lang['createdon'] = 'Created On';

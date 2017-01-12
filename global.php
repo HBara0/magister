@@ -74,27 +74,13 @@ if($session->uid > 0) {
         $lang->lastvisit = $lang->sprint($lang->lastvisit, date($core->settings['dateformat'], $core->user['lastVisit']), date($core->settings['timeformat'], $core->user['lastVisit'])).' UTC';
     }
 
-    /** Parse Frequent Modules */
-    $frequentmodules = LogsUserPages::get_frequentitems();
-    if(is_array($frequentmodules)) {
-        foreach($frequentmodules as $frequentmodule) {
-            $moduleicon = 'default';
-            if(file_exists('images/modules-icons/'.$frequentmodule['module'].'.png')) {
-                $moduleicon = $frequentmodule['module'];
-            }
-
-            $modules_list_freqmdls .= '<li><a href="index.php?module='.$frequentmodule['module'].'/'.$frequentmodule['page'].'">'.$lang->{$frequentmodule['module']}.'</a></li>';
-            eval("\$navbar_freqmdls .= \"".$template->get('navbar_freqmdl')."\";");
-        }
-        unset($moduleicon);
-    }
     $modules_list = parse_moduleslist($run_module);
     eval("\$header = \"".$template->get('navbar')."\";");
     eval("\$footer = \"".$template->get('footer2')."\";");
 
-    if($core->user['lastVisit'] == 0) {
-        eval("\$footer .= \"".$template->get('global_quickintrovideo')."\";");
-    }
+//    if($core->user['lastVisit'] == 0) {
+//        eval("\$footer .= \"".$template->get('global_quickintrovideo')."\";");
+//    }
 }
 else {
     if(strpos(strtolower($_SERVER['PHP_SELF']), 'users.php') === false) {

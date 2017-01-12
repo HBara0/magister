@@ -123,9 +123,9 @@ class ModifyAccount extends Accounts {
         if(!isset($data['mobile2IsPrivate'])) {
             $data['mobile2IsPrivate'] = 0;
         }
-        if(!isset($data['birthdayIsPrivate'])) {
-            $data['birthdayIsPrivate'] = 0;
-        }
+//        if(!isset($data['birthdayIsPrivate'])) {
+//            $data['birthdayIsPrivate'] = 0;
+//        }
         $secondary_data = array(
                 //'mainaffid' => 'main_affiliate',
                 'affiliates' => 'affiliates',

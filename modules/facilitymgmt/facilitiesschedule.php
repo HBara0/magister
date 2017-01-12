@@ -44,11 +44,11 @@ if(!isset($core->input['action'])) {
 }
 else {
     if($core->input['action'] == 'get_creatreservation') {
-        $statuses = FacilityManagementReserveType::get_data(null, array('returnarray' => true));
+//        $statuses = FacilityManagementReserveType::get_data(null, array('returnarray' => true));
         if(is_array($statuses)) {
             $statuslist = parse_selectlist('reserve[status]', '1', $statuses, 2, '', '', array('id' => 'status'));
         }
-        $purposes = FacilityManagementReservePurpose::get_data(null, array('returnarray' => true));
+//        $purposes = FacilityManagementReservePurpose::get_data(null, array('returnarray' => true));
         if(is_array($purposes)) {
             foreach($purposes as $purpose) {
                 if($purpose->fmrt == 0) {

@@ -1,18 +1,4 @@
 <?php
-/*
- * Orkila Central Online System (OCOS)
- * Copyright © 2009 Orkila International Offshore, All Rights Reserved
- *
- * Functions file
- * $id: functions.php
- * Created: 	@zaher.reda		Mar 16, 2009 | 09:48 AM
- * Last Update: @zaher.reda 	May 20, 2012 | 09:29 AM
- */
-/**
- * Stripslases for a given template and then returns it
- * @param  String		$template 	String to be striped
- * @return String	 				Striped template
- */
 function output_page($pagecontent, $options = null) {// default tpl, options to enforce a customised tpl
     global $core, $lang, $timer, $template, $header, $footer, $headerinc, $rightsidemenu, $additionalheaderinc;
 
@@ -27,7 +13,7 @@ function output_page($pagecontent, $options = null) {// default tpl, options to 
         }
     }
     $options['helptourref'] = 'newlayout';
-    ${$options['helptourref'].'_helptour'} = get_helptour('newlayout');
+//    ${$options['helptourref'].'_helptour'} = get_helptour('newlayout');
 
     if(!empty($options['additionalheaderinc'])) {
         $headerinc .= $options['additionalheaderinc'];
@@ -673,9 +659,6 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
             }
             $db->free_result($query2);
         }
-    }
-    if($options['source'] == 'addentity') {
-        return $results;
     }
     if(is_array($results)) {
         foreach($results as $key => $val) {
