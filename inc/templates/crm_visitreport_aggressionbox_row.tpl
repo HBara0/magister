@@ -1,1 +1,0 @@
-<tr id='{$i}' class='{$class}'><td>{$competitorName}</td><td>{$productName}</td><td>{$aggressionLevel}</td><td>{$recentPrice}</td><td>{$ourRecentPrice}</td><td>{$supplyStatus}</td><td>{$availabilityIssues}</td></tr>

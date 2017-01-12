@@ -1,1 +1,0 @@
-<div class="timeline_column" style="width:4%;"><span id="updatemktintldtls_icon">{$updatemktintldtls_icon}</span><a style="cursor: pointer;" title="{$lang->viewmrktbox}" id="mktintldetails_{$data[mibdid]}_{$core->input[module]}_loadpopupbyid" rel="mktdetail_{$data[mibdid]}"><img src="{$core->settings[rootdir]}/images/icons/search.gif"/></a></div>
