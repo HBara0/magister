@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Orkila Central Online System (OCOS)
  * Copyright © 2009 Orkila International Offshore, All Rights Reserved
@@ -10,6 +11,7 @@
  */
 
 class Users extends AbstractClass {
+
     protected $data = array();
     protected $errorcode = 0;
     protected $usergroup = array();
@@ -22,11 +24,10 @@ class Users extends AbstractClass {
 
     public function __construct($id = '', $simple = true) {
         global $core;
-        if(empty($id)) {
+        if (empty($id)) {
             $this->data = $core->user;
             $this->data['uid'] = intval($this->data['uid']);
-        }
-        else {
+        } else {
             parent::__construct($id, $simple);
         }
     }
@@ -34,19 +35,19 @@ class Users extends AbstractClass {
     private function read_user($uid = '', $simple = true) {
         global $db;
 
-        if(empty($uid)) {
+        if (empty($uid)) {
             $uid = $this->data['uid'];
         }
 
         $query_select = 'uid, username, reportsTo, firstName, middleName, lastName, displayName, displayName AS name, email';
-        if($simple == false) {
+        if ($simple == false) {
             $query_select = '*';
         }
 
-        $this->data = $db->fetch_assoc($db->query("SELECT ".$query_select."
-												FROM ".Tprefix."users
-												WHERE uid='".intval($uid)."'"));
-        if(is_array($this->data) && !empty($this->data)) {
+        $this->data = $db->fetch_assoc($db->query("SELECT " . $query_select . "
+												FROM " . Tprefix . "users
+												WHERE uid='" . intval($uid) . "'"));
+        if (is_array($this->data) && !empty($this->data)) {
             return true;
         }
         $this->status = 2;
@@ -55,42 +56,23 @@ class Users extends AbstractClass {
 
     private function read_mainaffiliate() {
         global $db;
-        $this->data['mainaffiliate'] = $db->fetch_field($db->query("SELECT affid FROM ".Tprefix."affiliatedemployees WHERE uid='{$this->data['uid']}' AND isMain=1"), 'affid');
+        $this->data['mainaffiliate'] = $db->fetch_field($db->query("SELECT affid FROM " . Tprefix . "affiliatedemployees WHERE uid='{$this->data['uid']}' AND isMain=1"), 'affid');
     }
 
     public function read_usergroupsperm($mainonly = false, $replacecore = false) {
         global $db, $core;
 
-        if($mainonly == true) {
+        if ($mainonly == true) {
             $query_extrawhere = ' AND isMain=1';
         }
-
-        $query = $db->query('SELECT *
-                            FROM '.Tprefix.'users_usergroups uug
-                            JOIN '.Tprefix.'usergroups ug ON (ug.gid=uug.gid)
-                            WHERE uid='.$this->data['uid'].$query_extrawhere.'
-                            ORDER BY isMain DESC');
-        while($usergroup = $db->fetch_assoc($query)) {
-            if($usergroup['isMain'] != 1) {
-                unset($usergroup['title'], $usergroup['gid'], $usergroup['defaultModule']);
-            }
-            else {
-                if($replacecore == true) {
-                    $core->usergroup = $usergroup;
-                    $core->user['gid'] = $usergroup['gid'];
-                }
-            }
-
-            foreach($usergroup as $permission => $value) {
-                if($replacecore == true) {
-                    if($core->usergroup[$permission] == 0 && $value == 1) {
-                        $core->usergroup[$permission] = 1;
-                    }
-                }
-                if($this->usergroup[$permission] == 0 && $value == 1) {
-                    $this->usergroup[$permission] = 1;
-                }
-            }
+        $usergroup_obj = new UserGroups($core->user_obj->gid, false);
+        if (!is_object($usergroup_obj) || !$usergroup_obj->get_id()) {
+            error($lang->sectionnopermission);
+        }
+        $core->user['gid'] = $usergroup_obj->get_id();
+        $usergroup = $usergroup_obj->get();
+        foreach ($usergroup as $permission => $value) {
+            $core->usergroup[$permission] = $value;
         }
     }
 
@@ -98,20 +80,18 @@ class Users extends AbstractClass {
         global $db;
 
         $query = $db->query('SELECT uug.gid, uug.isMain, ug.title
-					FROM '.Tprefix.'users_usergroups uug
-					JOIN '.Tprefix.'usergroups ug ON (ug.gid=uug.gid)
-					WHERE uid='.$this->data['uid'].'
+					FROM ' . Tprefix . 'users_usergroups uug
+					JOIN ' . Tprefix . 'usergroups ug ON (ug.gid=uug.gid)
+					WHERE uid=' . $this->data['uid'] . '
 					ORDER BY isMain DESC');
-        while($usergroup = $db->fetch_assoc($query)) {
-            if($config['classified'] == true) {
-                if($usergroup['isMain'] == 1) {
+        while ($usergroup = $db->fetch_assoc($query)) {
+            if ($config['classified'] == true) {
+                if ($usergroup['isMain'] == 1) {
                     $usergroups['main'] = $usergroup;
-                }
-                else {
+                } else {
                     $usergroups['additional'][$usergroup['gid']] = $usergroup;
                 }
-            }
-            else {
+            } else {
                 $usergroups[$usergroup['gid']] = $usergroup;
             }
         }
@@ -120,8 +100,9 @@ class Users extends AbstractClass {
     }
 
     /* Backward compatibility */
+
     public static function get_userbyemail($email) {
-        if(!is_object($this)) {
+        if (!is_object($this)) {
             return Users::get_user_byemail($email);
         }
         return $this->get_user_byemail($email);
@@ -131,19 +112,18 @@ class Users extends AbstractClass {
         global $db, $core;
 
         $email = $core->sanitize_email($email);
-        if(!$core->validate_email($email)) {
+        if (!$core->validate_email($email)) {
             return false;
         }
 
         $query = $db->query("SELECT DISTINCT(u.uid)
-							FROM ".Tprefix."users u
-							LEFT JOIN ".Tprefix."usersemails ue ON (ue.uid=u.uid)
-							WHERE u.email='".$db->escape_string($email)."' OR ue.email='".$db->escape_string($email)."'");
-        if($db->num_rows($query) > 0) {
+							FROM " . Tprefix . "users u
+							LEFT JOIN " . Tprefix . "usersemails ue ON (ue.uid=u.uid)
+							WHERE u.email='" . $db->escape_string($email) . "' OR ue.email='" . $db->escape_string($email) . "'");
+        if ($db->num_rows($query) > 0) {
             $uid = $db->fetch_field($query, 'uid');
             return new Users($uid);
-        }
-        else {
+        } else {
             return false;
         }
     }
@@ -151,9 +131,9 @@ class Users extends AbstractClass {
     public static function get_user_byattr($attr, $value) {
         global $db;
 
-        if(!is_empty($value, $attr)) {
-            $id = $db->fetch_field($db->query('SELECT uid FROM '.Tprefix.'users WHERE '.$db->escape_string($attr).'="'.$db->escape_string($value).'"'), 'uid');
-            if(!empty($id)) {
+        if (!is_empty($value, $attr)) {
+            $id = $db->fetch_field($db->query('SELECT uid FROM ' . Tprefix . 'users WHERE ' . $db->escape_string($attr) . '="' . $db->escape_string($value) . '"'), 'uid');
+            if (!empty($id)) {
                 return new Users($id);
             }
         }
@@ -161,7 +141,7 @@ class Users extends AbstractClass {
     }
 
     public function get_reportsto() {
-        if(empty($this->data['reportsTo'])) {
+        if (empty($this->data['reportsTo'])) {
             return false;
         }
         return new Users($this->data['reportsTo']);
@@ -169,9 +149,9 @@ class Users extends AbstractClass {
 
     public function get_reportingto() {
         global $db;
-        $reportsquery = $db->query("SELECT DISTINCT(uid), reportsTo, username, firstName, middleName, lastName, displayName FROM ".Tprefix."users
+        $reportsquery = $db->query("SELECT DISTINCT(uid), reportsTo, username, firstName, middleName, lastName, displayName FROM " . Tprefix . "users
 			 WHERE reportsTo={$this->data[uid]}");
-        while($reporting = $db->fetch_assoc($reportsquery)) {
+        while ($reporting = $db->fetch_assoc($reportsquery)) {
             $this->data['reportingTo'][] = $reporting;
         }
         return $this->data['reportingTo'];
@@ -179,28 +159,26 @@ class Users extends AbstractClass {
 
     public function get_additionaldays_byuser() {
         global $db;
-        return $this->data['additionaldays'] = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."attendance_additionalleaves WHERE uid={$this->data[uid]}"));
+        return $this->data['additionaldays'] = $db->fetch_assoc($db->query("SELECT * FROM " . Tprefix . "attendance_additionalleaves WHERE uid={$this->data[uid]}"));
     }
 
     public function can_hr($options = '') {
         global $db, $core, $user;
-        if(!empty($options) && ($options == 'inaffiliate')) {
-            if(is_array($core->user['hraffids'])) {
-                $affiliate_where = 'AND affe.affid IN ('.implode(',', $core->user['hraffids']).')';
-            }
-            else {
+        if (!empty($options) && ($options == 'inaffiliate')) {
+            if (is_array($core->user['hraffids'])) {
+                $affiliate_where = 'AND affe.affid IN (' . implode(',', $core->user['hraffids']) . ')';
+            } else {
                 return false;
             }
         }
 
         $hrquery = $db->query("SELECT canHR
-						FROM ".Tprefix."users u
-						JOIN ".Tprefix."affiliatedemployees affe ON(u.uid=affe.uid)
+						FROM " . Tprefix . "users u
+						JOIN " . Tprefix . "affiliatedemployees affe ON(u.uid=affe.uid)
 						WHERE affe.canHr=1 {$affiliate_where} AND affe.uid={$this->data[uid]}");
-        if($db->num_rows($hrquery) > 0) {
+        if ($db->num_rows($hrquery) > 0) {
             return true;
-        }
-        else {
+        } else {
             return false;
         }
     }
@@ -226,9 +204,9 @@ class Users extends AbstractClass {
     public function get_positions() {
         global $db, $lang;
 
-        $query = $db->query("SELECT name, title FROM ".Tprefix."positions p JOIN ".Tprefix."userspositions up ON (up.posid=p.posid) WHERE uid={$this->data[uid]}");
-        while($position = $db->fetch_assoc($query)) {
-            if(!isset($lang->{$position['name']})) {
+        $query = $db->query("SELECT name, title FROM " . Tprefix . "positions p JOIN " . Tprefix . "userspositions up ON (up.posid=p.posid) WHERE uid={$this->data[uid]}");
+        while ($position = $db->fetch_assoc($query)) {
+            if (!isset($lang->{$position['name']})) {
                 $lang->{$position['name']} = $position['title'];
             }
             $this->data['positions'][] = $lang->{$position['name']};
@@ -239,9 +217,9 @@ class Users extends AbstractClass {
     public function get_auditedaffiliates() {
         global $db;
 
-        $query = $db->query('SELECT * FROM '.Tprefix.'affiliatedemployees WHERE uid='.$this->data['uid'].' AND canAudit=1');
-        if($db->num_rows($query) > 0) {
-            while($affiliate = $db->fetch_assoc($query)) {
+        $query = $db->query('SELECT * FROM ' . Tprefix . 'affiliatedemployees WHERE uid=' . $this->data['uid'] . ' AND canAudit=1');
+        if ($db->num_rows($query) > 0) {
+            while ($affiliate = $db->fetch_assoc($query)) {
                 $affiliates[$affiliate['affid']] = new Affiliates($affiliate['affid']);
             }
             return $affiliates;
@@ -251,11 +229,11 @@ class Users extends AbstractClass {
 
     public function get_leaves() {
         global $db;
-        $query = $db->query("SELECT l.lid,l.uid FROM ".Tprefix."leaves l
-							JOIN ".Tprefix."leavetypes lt ON(lt.ltid=l.type)
-							JOIN ".Tprefix."leavesapproval lap ON(l.lid=lap.lid) WHERE lap.isApproved=1
+        $query = $db->query("SELECT l.lid,l.uid FROM " . Tprefix . "leaves l
+							JOIN " . Tprefix . "leavetypes lt ON(lt.ltid=l.type)
+							JOIN " . Tprefix . "leavesapproval lap ON(l.lid=lap.lid) WHERE lap.isApproved=1
 							AND lt.isBusiness=1 AND l.uid={$this->data[uid]}");
-        while($leaves = $db->fetch_assoc($query)) {
+        while ($leaves = $db->fetch_assoc($query)) {
             $leav_obj = new Leaves(array('lid' => $leaves['lid']), false);
             $user_leaves[$leaves['lid']] = $leav_obj->get_leavetype()->get();
             $this->data['leaves'] = $user_leaves;
@@ -265,15 +243,14 @@ class Users extends AbstractClass {
 
     public function get_mainaffiliate() {
         global $cache;
-        if(!isset($this->data['mainaffiliate']) || empty($this->data['mainaffiliate'])) {
+        if (!isset($this->data['mainaffiliate']) || empty($this->data['mainaffiliate'])) {
             $this->read_mainaffiliate();
         }
 
-        if(!$cache->iscached('affiliate', $this->data['mainaffiliate'])) {
+        if (!$cache->iscached('affiliate', $this->data['mainaffiliate'])) {
             $affiliate = new Affiliates($this->data['mainaffiliate'], FALSE);
             $cache->add('affiliate', $affiliate, $affiliate->get_id());
-        }
-        else {
+        } else {
             $affiliate = $cache->get_cachedval('affiliate', $this->data['mainaffiliate']);
         }
 
@@ -285,12 +262,13 @@ class Users extends AbstractClass {
      *  There is no need for the join being made
      * Should return false if nothing
      */
+
     public function get_segments() {
         global $db;
 
-        $query = $db->query("SELECT psid FROM employeessegments WHERE uid=".$this->data['uid']);
-        if($db->num_rows($query) > 0) {
-            while($segment = $db->fetch_assoc($query)) {
+        $query = $db->query("SELECT psid FROM employeessegments WHERE uid=" . $this->data['uid']);
+        if ($db->num_rows($query) > 0) {
+            while ($segment = $db->fetch_assoc($query)) {
                 $segments[$segment['psid']] = new ProductsSegments($segment['psid']);
             }
             return $segments;
@@ -303,14 +281,15 @@ class Users extends AbstractClass {
      * Should be renamed to get_coordinatedsegments
      * Should return false if nothing
      */
+
     public function get_coordinatesegments() {
         global $db;
 
-        $segment_query = $db->query("SELECT psc.pscid,ps.psid,ps.title FROM  ".Tprefix."productsegmentcoordinators psc
-									JOIN ".Tprefix."users u on u.uid=psc.uid
-									JOIN ".Tprefix."productsegments ps ON (ps.psid=psc.psid) WHERE u.uid=".$this->data['uid']);
-        if($db->num_rows($segment_query) > 0) {
-            while($segmentcoord = $db->fetch_assoc($segment_query)) {
+        $segment_query = $db->query("SELECT psc.pscid,ps.psid,ps.title FROM  " . Tprefix . "productsegmentcoordinators psc
+									JOIN " . Tprefix . "users u on u.uid=psc.uid
+									JOIN " . Tprefix . "productsegments ps ON (ps.psid=psc.psid) WHERE u.uid=" . $this->data['uid']);
+        if ($db->num_rows($segment_query) > 0) {
+            while ($segmentcoord = $db->fetch_assoc($segment_query)) {
                 $segmentcoords[$segmentcoord['pscid']] = $segmentcoord;
             }
             return $segmentcoords;
@@ -320,14 +299,14 @@ class Users extends AbstractClass {
     public function get_hrinfo($simple = true) {
         global $db;
         $query_select = '*';
-        if($simple == true) {
+        if ($simple == true) {
             $query_select = 'employeeNum, joinDate, jobDescription, firstJobDate';
         }
 
-        $this->data['hrinfo'] = $db->fetch_assoc($db->query("SELECT ".$query_select."
-										FROM ".Tprefix."userhrinformation
-										WHERE uid='".$this->data['uid']."'"));
-        if(is_array($this->data['hrinfo']) && !empty($this->data['hrinfo'])) {
+        $this->data['hrinfo'] = $db->fetch_assoc($db->query("SELECT " . $query_select . "
+										FROM " . Tprefix . "userhrinformation
+										WHERE uid='" . $this->data['uid'] . "'"));
+        if (is_array($this->data['hrinfo']) && !empty($this->data['hrinfo'])) {
             return $this->data['hrinfo'];
         }
         return false;
@@ -341,40 +320,40 @@ class Users extends AbstractClass {
         $this->data['mainaffiliate_details'] = $mainaffiliate->get();
         $this->data['mainaffiliate_details']['countryname'] = $mainaffiliate->get_country()->get()['name'];
 
-        if(!empty($this->data['mainaffiliate_details']['addressLine1'])) {
-            $info['address'] .= $this->data['mainaffiliate_details']['addressLine1'].', ';
+        if (!empty($this->data['mainaffiliate_details']['addressLine1'])) {
+            $info['address'] .= $this->data['mainaffiliate_details']['addressLine1'] . ', ';
         }
 
-        if(!empty($this->data['mainaffiliate_details']['addressLine2'])) {
-            $info['address'] .= $this->data['mainaffiliate_details']['addressLine2'].', ';
+        if (!empty($this->data['mainaffiliate_details']['addressLine2'])) {
+            $info['address'] .= $this->data['mainaffiliate_details']['addressLine2'] . ', ';
         }
 
-        if(!empty($affiliate['postCode'])) {
-            $info['address'] .= $this->data['mainaffiliate_details']['postCode'].'  ';
+        if (!empty($affiliate['postCode'])) {
+            $info['address'] .= $this->data['mainaffiliate_details']['postCode'] . '  ';
         }
 
-        if(!empty($this->data['mainaffiliate_details']['city'])) {
-            $info['address'] .= $mainaffiliate->get_city()->get()['name'].' - '; //ucfirst($this->user['mainaffiliate_details']['city']).' - ';
+        if (!empty($this->data['mainaffiliate_details']['city'])) {
+            $info['address'] .= $mainaffiliate->get_city()->get()['name'] . ' - '; //ucfirst($this->user['mainaffiliate_details']['city']).' - ';
         }
 
         $info['address'] .= ucfirst($this->data['mainaffiliate_details']['countryname']);
-        $info['tel'] = '+'.$this->data['mainaffiliate_details']['phone1'];
+        $info['tel'] = '+' . $this->data['mainaffiliate_details']['phone1'];
         $info['ext'] = $this->data['internalExtension'];
-        $info['fax'] = '+'.$this->data['mainaffiliate_details']['fax'];
+        $info['fax'] = '+' . $this->data['mainaffiliate_details']['fax'];
         $info['website'] = 'www.orkila.com';
         //$info['bbpin'] = $this->user['bbPin'];
         $info['email'] = $this->data['email'];
         $info['skype'] = $this->data['skype'];
 
-        if($this->data['mobileIsPrivate'] == 0 && !empty($this->data['mobile'])) {
-            $info['mob'] = '+'.$this->data['mobile'];
+        if ($this->data['mobileIsPrivate'] == 0 && !empty($this->data['mobile'])) {
+            $info['mob'] = '+' . $this->data['mobile'];
         }
 
-        if($this->data['mobile2IsPrivate'] == 0 && !empty($this->data['mobile2'])) {
-            if(!empty($info['mob'])) {
+        if ($this->data['mobile2IsPrivate'] == 0 && !empty($this->data['mobile2'])) {
+            if (!empty($info['mob'])) {
                 $info['mob'] .= '/';
             }
-            $info['mob'] .= '+'.$this->data['mobile2'];
+            $info['mob'] .= '+' . $this->data['mobile2'];
         }
 
         $info['mob'] = str_replace('-', ' ', $info['mob']);
@@ -384,31 +363,31 @@ class Users extends AbstractClass {
         $required_values = array(1 => array('address'), 3 => array('tel', 'ext', 'fax'), 4 => array('mob', 'bbpin'), 5 => array('email', 'skype'), 6 => array('website'));
         $hidden_titles = array('address');
 
-        foreach($required_values as $content) {
+        foreach ($required_values as $content) {
             $last_filled = false;
-            foreach($content as $type) {
-                if(!empty($info[$type])) {
+            foreach ($content as $type) {
+                if (!empty($info[$type])) {
                     $last_filled = true;
-                    if(!isset($lang->{$type})) {
+                    if (!isset($lang->{$type})) {
                         $lang->{$type} = ucfirst($type);
                     }
 
-                    if($seperate_lengend == false) {
-                        if(!in_array($type, $hidden_titles)) {
-                            $details['values'] .= $lang->{$type}.': ';
+                    if ($seperate_lengend == false) {
+                        if (!in_array($type, $hidden_titles)) {
+                            $details['values'] .= $lang->{$type} . ': ';
                         }
                     }
 
-                    $details['values'] .= $info[$type].'   ';
+                    $details['values'] .= $info[$type] . '   ';
 
-                    $details['titles'] .= $lang->{$type}.":\n";
-                    if(strpos($this->data['mainaffiliate_details'][$type], "\n") || strpos($this->data[$type], "\n")) {
+                    $details['titles'] .= $lang->{$type} . ":\n";
+                    if (strpos($this->data['mainaffiliate_details'][$type], "\n") || strpos($this->data[$type], "\n")) {
                         $details['titles'] .= "\n";
                     }
                 }
             }
 
-            if($last_filled == true) {
+            if ($last_filled == true) {
                 $details['titles'] .= "\n";
                 $details['values'] .= "\n";
             }
@@ -423,34 +402,33 @@ class Users extends AbstractClass {
         $fonts['arial']['bold'] = './inc/fonts/arialbd.ttf';
         $fonts['arial']['bolditalic'] = './inc/fonts/arialbi.ttf';
 
-        if($is_compact == false) {
+        if ($is_compact == false) {
             $details = $this->prepare_sign_info();
             /* Check if addresses text is wider than specified width, and resize accordingly */
             $details['values_bbox'] = imagettfbbox(8.5, 0, $fonts['arial']['regular'], $details['values']);
-            if($details['values_bbox'][4] > $width) {
+            if ($details['values_bbox'][4] > $width) {
                 $width = $details['values_bbox'][4];
             }
 
             /* Check if banners are to be added */
-            $banners_dir_path = './images/signaturebanners/'.$this->get_mainaffiliate()->get()['affid'].'/';
-            if(file_exists($banners_dir_path)) {
+            $banners_dir_path = './images/signaturebanners/' . $this->get_mainaffiliate()->get()['affid'] . '/';
+            if (file_exists($banners_dir_path)) {
                 $banners_dir = opendir($core->sanitize_path($banners_dir_path));
-                while(false !== ($file = readdir($banners_dir))) {
-                    $bannerfile_info = pathinfo($banners_dir_path.$file);
-                    if($file != '.' && $file != '..' && in_array($bannerfile_info['extension'], array('jpg', 'png'))) {
-                        list($bannerwidth, $bannerheight) = getimagesize($banners_dir_path.$file);
+                while (false !== ($file = readdir($banners_dir))) {
+                    $bannerfile_info = pathinfo($banners_dir_path . $file);
+                    if ($file != '.' && $file != '..' && in_array($bannerfile_info['extension'], array('jpg', 'png'))) {
+                        list($bannerwidth, $bannerheight) = getimagesize($banners_dir_path . $file);
                         $height += $bannerheight;
                         $total_bannersheight += $bannerheight;
-                        if($width < $bannerwidth) {
+                        if ($width < $bannerwidth) {
                             $width += ($bannerwidth - $width);
                         }
                     }
                 }
             }
-        }
-        else {
+        } else {
             $details['values_bbox'] = imagettfbbox(11, 0, $fonts['arial']['bold'], $this->data['displayName']);
-            if(($details['values_bbox'][4] + 65) > $width) {
+            if (($details['values_bbox'][4] + 65) > $width) {
                 $width = $details['values_bbox'][4] + 65;
             }
 
@@ -470,11 +448,10 @@ class Users extends AbstractClass {
         imagefill($im, 0, 0, $colors['white']);
 
         /* Parse Logo - Start */
-        if($is_compact == false) {
+        if ($is_compact == false) {
             $logo = imagecreatefrompng('./images/signlogo.png');
             imagecopy($im, $logo, 1, 18, 0, 0, 98, 71);
-        }
-        else {
+        } else {
             $logo = imagecreatefrompng('./images/signlogo_min.png');
             imagecopy($im, $logo, 1, 4, 0, 0, 49, 36);
         }
@@ -486,41 +463,39 @@ class Users extends AbstractClass {
         $this->data['displayName'][count($this->data['displayName']) - 1] = strtoupper($this->data['displayName'][count($this->data['displayName']) - 1]);
         $this->data['displayName'] = implode(' ', $this->data['displayName']);
 
-        if($is_compact == false) {
+        if ($is_compact == false) {
             imagefttext($im, 11, 0, 1, 16, $colors['green'], $fonts['arial']['bold'], $this->data['displayName']);
             $this->get_positions();
             imagefttext($im, 9, 0, 1, 98, $colors['salmon'], $fonts['arial']['bolditalic'], implode(', ', $this->data['positions']));
             imagefttext($im, 8.5, 0, 1, 130, $colors['gray'], $fonts['arial']['regular'], $details['values'], array('linespacing' => 1.1));
 
-            if(empty($this->data['legalAffid'])) {
+            if (empty($this->data['legalAffid'])) {
                 $this->data['legalAffid'] = $this->data['mainaffiliate_details']['legalName'];
             }
             imagefttext($im, 10, 0, 1, 115, $colors['green'], $fonts['arial']['regular'], $this->data['legalAffid']);
-        }
-        else {
+        } else {
             imagefttext($im, 10, 0, 49 + 8, 36 / 1.8, $colors['green'], $fonts['arial']['bold'], $this->data['displayName']);
-            if(!empty($this->data['internalExtension'])) {
-                $this->data['internalExtension'] = ' ext: '.$this->data['internalExtension'];
-            }
-            else {
+            if (!empty($this->data['internalExtension'])) {
+                $this->data['internalExtension'] = ' ext: ' . $this->data['internalExtension'];
+            } else {
                 $this->data['internalExtension'] = '';
             }
 
             $this->data['mainaffiliate_details']['phone1'] = str_replace('-', ' ', $this->data['mainaffiliate_details']['phone1']);
-            imagefttext($im, 8, 0, 49 + 8, (36 / 1.8) + 13, $colors['salmon'], $fonts['arial']['regular'], '+'.$this->data['mainaffiliate_details']['phone1'].$this->data['internalExtension']);
+            imagefttext($im, 8, 0, 49 + 8, (36 / 1.8) + 13, $colors['salmon'], $fonts['arial']['regular'], '+' . $this->data['mainaffiliate_details']['phone1'] . $this->data['internalExtension']);
         }
 
         /* Check if banners exist & add them */
-        if($is_compact == false) {
-            $banners_dir_path = './images/signaturebanners/'.$this->get_mainaffiliate()->get()['affid'].'/';
-            if(file_exists($banners_dir_path)) {
+        if ($is_compact == false) {
+            $banners_dir_path = './images/signaturebanners/' . $this->get_mainaffiliate()->get()['affid'] . '/';
+            if (file_exists($banners_dir_path)) {
                 $banners_dir = opendir($core->sanitize_path($banners_dir_path));
                 $prevbannerheight = 0;
-                while(false !== ($file = readdir($banners_dir))) {
-                    $langfile_info = pathinfo($banners_dir_path.$file);
-                    if($file != '.' && $file != '..' && in_array($langfile_info['extension'], array('jpg', 'png'))) {
-                        list($bannerwidth, $bannerheight) = getimagesize($banners_dir_path.$file);
-                        $banner = imagecreatefromjpeg(ROOT.$banners_dir_path.$file);
+                while (false !== ($file = readdir($banners_dir))) {
+                    $langfile_info = pathinfo($banners_dir_path . $file);
+                    if ($file != '.' && $file != '..' && in_array($langfile_info['extension'], array('jpg', 'png'))) {
+                        list($bannerwidth, $bannerheight) = getimagesize($banners_dir_path . $file);
+                        $banner = imagecreatefromjpeg(ROOT . $banners_dir_path . $file);
                         imagecopy($im, $banner, 1, $height - $total_bannersheight + $prevbannerheight, 0, 0, $bannerwidth, $bannerheight);
                         $prevbannerheight = $bannerheight;
                     }
@@ -529,14 +504,13 @@ class Users extends AbstractClass {
             }
         }
 
-        if($saved == true) {
-            $image = './tmp/'.substr(md5(uniqid(microtime())), 1, 5).'.png';
+        if ($saved == true) {
+            $image = './tmp/' . substr(md5(uniqid(microtime())), 1, 5) . '.png';
             imagepng($im, $image, 9, PNG_NO_FILTER);
             touch($image);
             imagedestroy($im);
             return $image;
-        }
-        else {
+        } else {
             header('Content-Type: image/png');
             imagepng($im, NULL, 9, PNG_NO_FILTER);
             imagedestroy($im);
@@ -544,32 +518,31 @@ class Users extends AbstractClass {
     }
 
     public function generate_text_sign($is_compact = false) {
-        $signature = str_repeat('_', 35).'<br />';
+        $signature = str_repeat('_', 35) . '<br />';
         $this->data['displayName'] = explode(' ', $this->data['displayName']);
         $this->data['displayName'][count($this->data['displayName']) - 1] = strtoupper($this->data['displayName'][count($this->data['displayName']) - 1]);
         $this->data['displayName'] = implode(' ', $this->data['displayName']);
-        $signature .= $this->data['displayName'].'<br />';
+        $signature .= $this->data['displayName'] . '<br />';
 
-        if($is_compact == false) {
+        if ($is_compact == false) {
             $signature .= '<br />';
             $details = $this->prepare_sign_info();
 
-            if(!isset($this->data['positions'])) {
+            if (!isset($this->data['positions'])) {
                 $this->get_positions();
             }
 
-            if(empty($this->data['legalAffid'])) {
+            if (empty($this->data['legalAffid'])) {
                 $this->data['legalAffid'] = $this->data['mainaffiliate_details']['legalName'];
             }
-            $signature .= implode(', ', $this->data['positions'])."<br />";
-            $signature .= $this->data['legalAffid']."<br />";
+            $signature .= implode(', ', $this->data['positions']) . "<br />";
+            $signature .= $this->data['legalAffid'] . "<br />";
             $signature .= preg_replace("/\n/i", '<br />', $details['values']);
-        }
-        else {
-            if(!isset($this->data['mainaffiliate_details'])) {
+        } else {
+            if (!isset($this->data['mainaffiliate_details'])) {
                 $this->data['mainaffiliate_details'] = $this->get_mainaffiliate()->get();
             }
-            $signature .= '+'.$this->data['mainaffiliate_details']['phone1'].$this->data['internalExtension'];
+            $signature .= '+' . $this->data['mainaffiliate_details']['phone1'] . $this->data['internalExtension'];
         }
         return $signature;
     }
@@ -586,9 +559,9 @@ class Users extends AbstractClass {
     public static function get_activeusers() {
         global $db;
 
-        $allusers_query = $db->query("SELECT uid ".Tprefix."FROM users WHERE gid!=7 ORDER BY displayName ASC");
-        if($db->num_rows($allusers_query) > 0) {
-            while($user = $db->fetch_assoc($allusers_query)) {
+        $allusers_query = $db->query("SELECT uid " . Tprefix . "FROM users WHERE gid!=7 ORDER BY displayName ASC");
+        if ($db->num_rows($allusers_query) > 0) {
+            while ($user = $db->fetch_assoc($allusers_query)) {
                 $users[$user['uid']] = new Users($user['uid']);
             }
             return $users;
@@ -605,22 +578,22 @@ class Users extends AbstractClass {
     }
 
     public function parse_link($attributes_param = array('target' => '_blank'), $options = array()) {
-        if(is_array($attributes_param)) {
-            foreach($attributes_param as $attr => $val) {
-                $attributes .= $attr.'="'.$val.'"';
+        if (is_array($attributes_param)) {
+            foreach ($attributes_param as $attr => $val) {
+                $attributes .= $attr . '="' . $val . '"';
             }
         }
 
-        if(!isset($options['outputvar'])) {
+        if (!isset($options['outputvar'])) {
             $options['outputvar'] = 'displayName';
         }
 
-        return '<a href="users.php?action=profile&amp;uid='.$this->data['uid'].'" '.$attributes.'>'.$this->data[$options['outputvar']].'</a>';
+        return '<a href="users.php?action=profile&amp;uid=' . $this->data['uid'] . '" ' . $attributes . '>' . $this->data[$options['outputvar']] . '</a>';
     }
 
     public function get_link() {
         global $core;
-        return $core->settings['rootdir'].'/users.php?action=profile&amp;uid='.$this->data['uid'];
+        return $core->settings['rootdir'] . '/users.php?action=profile&amp;uid=' . $this->data['uid'];
     }
 
     protected function create(array $data) {
@@ -639,9 +612,9 @@ class Users extends AbstractClass {
         global $db;
         $query_select = '*';
         $joindate = $db->fetch_assoc($db->query("SELECT joinDate
-										FROM ".Tprefix."userhrinformation
-										WHERE uid='".$this->data['uid']."'"));
-        if(is_array($joindate) && !empty($joindate)) {
+										FROM " . Tprefix . "userhrinformation
+										WHERE uid='" . $this->data['uid'] . "'"));
+        if (is_array($joindate) && !empty($joindate)) {
             return $joindate['joinDate'];
         }
         return false;
@@ -668,39 +641,37 @@ class Users extends AbstractClass {
          * Empty arrays are left on purpose
          */
         $permissions = array('spid' => array(), 'cid' => array(), 'eid' => array(), 'psid' => array(), 'pid' => array(), 'uid' => array($this->uid), 'affid' => array($this->get_mainaffiliate()->get_id()));
-        if(is_array($affemployees)) {
-            foreach($affemployees as $affemployee) {
+        if (is_array($affemployees)) {
+            foreach ($affemployees as $affemployee) {
                 $affiliate = $affemployee->get_affiliate();
-                if($affemployee->canAudit == 1) {
+                if ($affemployee->canAudit == 1) {
                     $affentities = AffiliatedEntities::get_data(array('affid' => $affiliate->get_id()), array('returnarray' => true));
-                    if(is_array($affentities)) {
-                        foreach($affentities as $affentity) {
+                    if (is_array($affentities)) {
+                        foreach ($affentities as $affentity) {
                             $entity = $affentity->get_entity();
                             $cache->add('entity', $entity, $entity->get_id());
 
                             $permissions['eid'][] = $entity->get_id();
-                            if($entity->is_supplier()) {
+                            if ($entity->is_supplier()) {
                                 $permissions['spid'][] = $entity->get_id();
                                 $products = Products::get_data(array('spid' => $entity->get_id()), array('returnarray' => true));
                                 $cache->add('entityproducts', $products, $entity->get_id());
-                                if(is_array($entity)) {
+                                if (is_array($entity)) {
                                     $permissions['pid'] = array_keys($products);
                                 }
-                            }
-                            else {
+                            } else {
                                 $permissions['cid'][] = $entity->get_id();
                             }
                         }
                     }
 
                     $affiliateemployees = AssignedEmployees::get_data(array('affid' => $affiliate->get_id()), array('returnarray' => true));
-                    if(is_array($affiliateemployees)) {
-                        foreach($affiliateemployees as $affiliateemployee) {
-                            if(!$cache->iscached('user', $affiliateemployee->{Users::PRIMARY_KEY})) {
+                    if (is_array($affiliateemployees)) {
+                        foreach ($affiliateemployees as $affiliateemployee) {
+                            if (!$cache->iscached('user', $affiliateemployee->{Users::PRIMARY_KEY})) {
                                 $employee = $affiliateemployee->get_user();
                                 $cache->add('user', $employee, $employee->get_id());
-                            }
-                            else {
+                            } else {
                                 $employee = $cache->get_cachedval('user', $affiliateemployee->{Users::PRIMARY_KEY});
                             }
 
@@ -713,41 +684,39 @@ class Users extends AbstractClass {
                 $permissions['affid'][] = $affiliate->get_id();
             }
         }
-        if(is_array($supplieraudits)) {
-            foreach($supplieraudits as $audit) {
-                if(!$cache->iscached('entity', $audit->{Entities::PRIMARY_KEY})) {
+        if (is_array($supplieraudits)) {
+            foreach ($supplieraudits as $audit) {
+                if (!$cache->iscached('entity', $audit->{Entities::PRIMARY_KEY})) {
                     $entity = $audit->get_entity();
-                }
-                else {
+                } else {
                     $entity = $cache->get_cachedval('entity', $audit->{Entities::PRIMARY_KEY});
                 }
 
                 $permissions['eid'][] = $entity->get_id();
                 $permissions['spid'][] = $entity->get_id();
 
-                if(!$cache->iscached('entity', $audit->{Entities::PRIMARY_KEY})) {
+                if (!$cache->iscached('entity', $audit->{Entities::PRIMARY_KEY})) {
                     $products = Products::get_data(array('spid' => $entity->get_id()), array('returnarray' => true));
                     $cache->add('entityproducts', $products, $entity->get_id());
-                }
-                else {
+                } else {
                     $products = $cache->get_cachedval('entityproducts', $audit->{Entities::PRIMARY_KEY});
                 }
 
-                if(is_array($products)) {
+                if (is_array($products)) {
                     $permissions['pid'] = array_merge($permissions['pid'], array_keys($products));
                 }
             }
         }
 
-        if(is_array($segmentscoord)) {
-            foreach($segmentscoord as $segmentcoord) {
+        if (is_array($segmentscoord)) {
+            foreach ($segmentscoord as $segmentcoord) {
                 $segment = $segmentcoord->get_segment();
                 $permissions['psid'][] = $segment->get_id();
 
                 $generics = GenericProducts::get_data(array('psid' => $segment->get_id()), array('returnarray' => true));
-                if(is_array($generics)) {
+                if (is_array($generics)) {
                     $products = Products::get_data(array('gpid' => array_keys($generics)), array('returnarray' => true));
-                    if(is_array($products)) {
+                    if (is_array($products)) {
                         $permissions['pid'] = array_merge($permissions['pid'], array_keys($products));
                     }
                 }
@@ -755,34 +724,33 @@ class Users extends AbstractClass {
                  * Get products using applications
                  */
                 $applications = SegmentApplications::get_data(array('psid' => $segment->get_id()), array('returnarray' => true));
-                if(!is_array($applications)) {
+                if (!is_array($applications)) {
                     continue;
                 }
-                foreach($applications as $application) {
+                foreach ($applications as $application) {
                     $cache->add('application', $application, $application->get_id());
 
                     $segappfuncs = $application->get_segappfunctionsobjs();
-                    if(!is_array($segappfuncs)) {
+                    if (!is_array($segappfuncs)) {
                         continue;
                     }
                     $chemfunprods = ChemFunctionProducts::get_data(array('safid' => array_keys($segappfuncs)), array('returnarray' => true));
-                    if(!is_array($chemfunprods)) {
+                    if (!is_array($chemfunprods)) {
                         continue;
                     }
-                    foreach($chemfunprods as $chemfunprod) {
+                    foreach ($chemfunprods as $chemfunprod) {
                         $permissions['pid'][] = $chemfunprod->{Products::PRIMARY_KEY};
                     }
                 }
                 //}
 
                 $employeesegments = EmployeeSegments::get_data(array('psid' => $segment->get_id()), array('returnarray' => true));
-                if(is_array($employeesegments)) {
-                    foreach($employeesegments as $employeesegment) {
-                        if(!$cache->iscached('user', $employeesegment->{Users::PRIMARY_KEY})) {
+                if (is_array($employeesegments)) {
+                    foreach ($employeesegments as $employeesegment) {
+                        if (!$cache->iscached('user', $employeesegment->{Users::PRIMARY_KEY})) {
                             $employee = $employeesegment->get_user();
                             $cache->add('user', $employee, $employee->get_id());
-                        }
-                        else {
+                        } else {
                             $employee = $cache->get_cachedval('user', $employeesegment->{Users::PRIMARY_KEY});
                         }
 
@@ -794,20 +762,18 @@ class Users extends AbstractClass {
                 unset($employeesegments);
 
                 $entitiesegments = EntitiesSegments::get_data(array('psid' => $segment->get_id()), array('returnarray' => true));
-                if(is_array($entitiesegments)) {
-                    foreach($entitiesegments as $entitysegment) {
-                        if(!$cache->iscached('entity', $entitysegment->{Entities::PRIMARY_KEY})) {
+                if (is_array($entitiesegments)) {
+                    foreach ($entitiesegments as $entitysegment) {
+                        if (!$cache->iscached('entity', $entitysegment->{Entities::PRIMARY_KEY})) {
                             $entity = $entitysegment->get_entity();
                             $cache->add('entity', $entity, $entity->get_id());
-                        }
-                        else {
+                        } else {
                             $entity = $cache->get_cachedval('entity', $entitysegment->{Entities::PRIMARY_KEY});
                         }
                         $permissions['eid'][] = $entity->get_id();
-                        if($entity->is_supplier()) {
+                        if ($entity->is_supplier()) {
                             $permissions['spid'][] = $entity->get_id();
-                        }
-                        else {
+                        } else {
                             $permissions['cid'][] = $entity->get_id();
                         }
                     }
@@ -817,50 +783,48 @@ class Users extends AbstractClass {
         /**
          * Getting all assigned segments for user
          */
-        if(is_array($assignedsegments)) {
-            foreach($assignedsegments as $usersegment) {
+        if (is_array($assignedsegments)) {
+            foreach ($assignedsegments as $usersegment) {
                 $permissions['psid'][] = $usersegment->psid;
             }
         }
 
-        if(is_array($assignedemployees)) {
-            foreach($assignedemployees as $assignedemployee) {
-                if(is_array($permissions['eid'])) {
-                    if(in_array($assignedemployee->{Entities::PRIMARY_KEY}, $permissions['eid'])) {
+        if (is_array($assignedemployees)) {
+            foreach ($assignedemployees as $assignedemployee) {
+                if (is_array($permissions['eid'])) {
+                    if (in_array($assignedemployee->{Entities::PRIMARY_KEY}, $permissions['eid'])) {
                         continue;
                     }
                 }
-                if(!$cache->iscached('entity', $assignedemployee->{Entities::PRIMARY_KEY})) {
+                if (!$cache->iscached('entity', $assignedemployee->{Entities::PRIMARY_KEY})) {
                     $entity = $assignedemployee->get_entity();
                     $cache->add('entity', $entity, $entity->get_id());
-                }
-                else {
+                } else {
                     $entity = $cache->get_cachedval('entity', $assignedemployee->{Entities::PRIMARY_KEY});
                 }
                 $permissions['eid'][] = $entity->get_id();
-                if($entity->is_supplier()) {
+                if ($entity->is_supplier()) {
                     $permissions['spid'][] = $entity->get_id();
-                }
-                else {
+                } else {
                     $permissions['cid'][] = $entity->get_id();
                 }
             }
         }
 
         /* Set users who report to the user */
-        if(is_array($reportingusers)) {
+        if (is_array($reportingusers)) {
             $permissions['uid'] = array_merge($permissions['uid'], array_keys($reportingusers));
         }
         /* Get all disabled users assignment to their replacement */
-        if(is_array($permissions['eid']) && !empty($permissions['eid'])) {
-            $additional_disabledusers = AssignedEmployees::get_column('uid', 'affid='.$this->get_mainaffiliate()->get_id().' AND uid IN (SELECT uid FROM '.Tprefix.'users WHERE gid = 7) AND eid IN ('.implode(',', array_filter($permissions['eid'], 'is_numeric')).')', array('returnarray' => true));
-            if(is_array($additional_disabledusers) && !empty($additional_disabledusers)) {
+        if (is_array($permissions['eid']) && !empty($permissions['eid'])) {
+            $additional_disabledusers = AssignedEmployees::get_column('uid', 'affid=' . $this->get_mainaffiliate()->get_id() . ' AND uid IN (SELECT uid FROM ' . Tprefix . 'users WHERE gid = 7) AND eid IN (' . implode(',', array_filter($permissions['eid'], 'is_numeric')) . ')', array('returnarray' => true));
+            if (is_array($additional_disabledusers) && !empty($additional_disabledusers)) {
                 $permissions['uid'] = array_merge($permissions['uid'], $additional_disabledusers);
             }
         }
         /* Unique the values */
-        foreach($permissions as $type => $values) {
-            if(is_array($values)) {
+        foreach ($permissions as $type => $values) {
+            if (is_array($values)) {
                 $values = array_filter($values);
                 $permissions[$type] = array_unique($values);
             }
@@ -870,8 +834,8 @@ class Users extends AbstractClass {
          * If a permission has no value then it means the user has not been assigned to any
          * system therefore, zero out the value to avoid it being consider as having all permissions
          */
-        foreach($permissions as $key => $perm) {
-            if(empty($permissions[$key])) {
+        foreach ($permissions as $key => $perm) {
+            if (empty($permissions[$key])) {
                 $permissions[$key] = array(0);
             }
         }
@@ -879,20 +843,20 @@ class Users extends AbstractClass {
         /**
          * If user has global permission, remove the permissions values
          */
-        if($this->usergroup['canViewAllAff'] == 1) {
+        if ($this->usergroup['canViewAllAff'] == 1) {
             unset($permissions['affid']);
         }
 
-        if($this->usergroup['canViewAllSupp'] == 1) {
+        if ($this->usergroup['canViewAllSupp'] == 1) {
             unset($permissions['spid'], $permissions['psid']);
         }
-        if($this->usergroup['canViewAllCust'] == 1) {
+        if ($this->usergroup['canViewAllCust'] == 1) {
             unset($permissions['cid']);
         }
-        if($this->usergroup['canViewAllCust'] == 1 && $this->usergroup['canViewAllSupp']) {
+        if ($this->usergroup['canViewAllCust'] == 1 && $this->usergroup['canViewAllSupp']) {
             unset($permissions['eid'], $permissions['psid']);
         }
-        if($this->usergroup['canViewAllEmp'] == 1) {
+        if ($this->usergroup['canViewAllEmp'] == 1) {
             unset($permissions['uid']);
         }
 
@@ -907,21 +871,20 @@ class Users extends AbstractClass {
      */
     public function get_integrationObUser() {
         global $integration;
-        if(class_exists('
+        if (class_exists('
         IntegrationOB', true)) {
-            if(!empty($this->integrationOBId)) {
+            if (!empty($this->integrationOBId)) {
                 return new IntegrationOBUser($this->integrationOBId, $integration->get_dbconn());
             }
 
             /**
              * Attempt to get by display name
              */
-            $intuser = IntegrationOBUser::get_data('name=\''.$this->displayName.'\' OR (firstname=\''.$this->firstName.'\' AND lastname=\''.$this->lastName.'\')');
-            if(is_object($intuser)) {
+            $intuser = IntegrationOBUser::get_data('name=\'' . $this->displayName . '\' OR (firstname=\'' . $this->firstName . '\' AND lastname=\'' . $this->lastName . '\')');
+            if (is_object($intuser)) {
                 return $intuser;
-            }
-            else {
-                if(is_array($intuser)) {
+            } else {
+                if (is_array($intuser)) {
                     return current($intuser);
                 }
             }
@@ -933,36 +896,35 @@ class Users extends AbstractClass {
     public function get_hruserpermissions() {
         global $core;
         $uids = array();
-        if($core->usergroup['hr_canHrAllAffiliates'] == 0) {
-            if(is_array($core->user['hraffids']) && !empty($core->user['hraffids'])) {
-                foreach($core->user['hraffids'] as $affid) {
+        if ($core->usergroup['hr_canHrAllAffiliates'] == 0) {
+            if (is_array($core->user['hraffids']) && !empty($core->user['hraffids'])) {
+                foreach ($core->user['hraffids'] as $affid) {
                     $userdsids = AffiliatedEmployees::get_column('uid', array('affid' => $affid, 'isMain' => 1), array('returnarray' => true));
-                    if(is_array($userdsids)) {
+                    if (is_array($userdsids)) {
                         $uids = array_unique(array_merge($uids, $userdsids));
                     }
                 }
             }
-        }
-        else {
+        } else {
             $uids = AffiliatedEmployees::get_column('uid', array('isMain' => 1), array('returnarray' => true));
         }
         $affiliate_fields = array('cfo', 'coo', 'generalManager', 'supervisor', 'regionalSupervisor');
-        foreach($affiliate_fields as $field) {
+        foreach ($affiliate_fields as $field) {
             $affiliates = Affiliates::get_affiliates(array($field => $this->uid), array('returnarray' => true));
-            if(is_array($affiliates)) {
-                foreach($affiliates as $affiliate) {
+            if (is_array($affiliates)) {
+                foreach ($affiliates as $affiliate) {
                     $userdsids = AffiliatedEmployees::get_column('uid', array('affid' => $affiliate->affid, 'isMain' => 1), array('returnarray' => true));
-                    if(is_array($userdsids)) {
+                    if (is_array($userdsids)) {
                         $uids = array_unique(array_merge($uids, $userdsids));
                     }
                 }
             }
         }
         $reportingtothis = $this->get_allreportingtothis();
-        if(is_array($reportingtothis)) {
+        if (is_array($reportingtothis)) {
             $uids = array_merge($uids, $reportingtothis);
         }
-        if(is_array($uids)) {
+        if (is_array($uids)) {
             return array_unique($uids);
         }
         return false;
@@ -976,19 +938,18 @@ class Users extends AbstractClass {
     public function get_hruserpermissions_byaffid() {
         global $core;
         $uids = array();
-        if($core->usergroup['hr_canHrAllAffiliates'] == 0) {
-            if(is_array($core->user['hraffids']) && !empty($core->user['hraffids'])) {
+        if ($core->usergroup['hr_canHrAllAffiliates'] == 0) {
+            if (is_array($core->user['hraffids']) && !empty($core->user['hraffids'])) {
                 $affids = $core->user['hraffids'];
             }
-        }
-        else {
+        } else {
             $affids = Affiliates::get_column('affid', array('isActive' => 1));
         }
-        if(is_array($affids)) {
-            foreach($affids as $affid) {
+        if (is_array($affids)) {
+            foreach ($affids as $affid) {
                 $uids[$affid] = array();
                 $userdsids = AffiliatedEmployees::get_column('uid', array('affid' => $affid, 'isMain' => 1), array('returnarray' => true));
-                if(is_array($userdsids)) {
+                if (is_array($userdsids)) {
                     $uids[$affid] = array_unique(array_merge($uids[$affid], $userdsids));
                 }
             }
@@ -996,16 +957,15 @@ class Users extends AbstractClass {
 
 
         $affiliate_fields = array('cfo', 'coo', 'generalManager', 'supervisor', 'regionalSupervisor');
-        foreach($affiliate_fields as $field) {
+        foreach ($affiliate_fields as $field) {
             $affiliates = Affiliates::get_affiliates(array($field => $this->uid), array('returnarray' => true));
-            if(is_array($affiliates)) {
-                foreach($affiliates as $affiliate) {
+            if (is_array($affiliates)) {
+                foreach ($affiliates as $affiliate) {
                     $userdsids = AffiliatedEmployees::get_column('uid', array('affid' => $affiliate->affid, 'isMain' => 1), array('returnarray' => true));
-                    if(is_array($userdsids)) {
-                        if(is_array($uids[$affiliate->affid])) {
+                    if (is_array($userdsids)) {
+                        if (is_array($uids[$affiliate->affid])) {
                             $uids[$affiliate->affid] = array_unique(array_merge($uids[$affiliate->affid], $userdsids));
-                        }
-                        else {
+                        } else {
                             $uids[$affiliate->affid] = $userdsids;
                         }
                     }
@@ -1013,20 +973,19 @@ class Users extends AbstractClass {
             }
         }
         $reportingtothis = $this->get_reportingto_objs();
-        if(is_array($reportingtothis)) {
-            foreach($reportingtothis as $user_obj) {
+        if (is_array($reportingtothis)) {
+            foreach ($reportingtothis as $user_obj) {
                 $affid = $user_obj->get_mainaffiliate()->affid;
-                if(is_array($uids[$affid])) {
+                if (is_array($uids[$affid])) {
                     array_push($uids[$affid], $user_obj->uid);
-                }
-                else {
+                } else {
                     $uids[$affid][] = $userdsids;
                 }
             }
         }
-        if(is_array($uids)) {
-            foreach($uids as $affid => $userids) {
-                if(!is_array($userids)) {
+        if (is_array($uids)) {
+            foreach ($uids as $affid => $userids) {
+                if (!is_array($userids)) {
                     unset($uids[$affid]);
                     continue;
                 }
@@ -1039,7 +998,7 @@ class Users extends AbstractClass {
 
     public function get_reportingto_objs() {
         $reportingto = Users::get_data(array('reportsTo' => $this->data['uid']), array('returnarray' => true));
-        if(is_array($reportingto)) {
+        if (is_array($reportingto)) {
             return $reportingto;
         }
         return $this;
@@ -1048,10 +1007,10 @@ class Users extends AbstractClass {
     public function get_allreportingtothis() {
         $users = array();
         $current_reportsto = $this->get_reportingto_objs();
-        if(!is_array($current_reportsto)) {
+        if (!is_array($current_reportsto)) {
             return array($current_reportsto->uid);
         }
-        foreach($current_reportsto as $reportstouser) {
+        foreach ($current_reportsto as $reportstouser) {
             $additional_reportingto = $reportstouser->get_allreportingtothis();
             $users = array_unique(array_merge($users, $additional_reportingto));
         }
@@ -1059,29 +1018,29 @@ class Users extends AbstractClass {
     }
 
     public function generate_apikey() {
-        return md5($this->data['uid'].$this->data['username'].$this->data['salt']);
+        return md5($this->data['uid'] . $this->data['username'] . $this->data['salt']);
     }
 
     public function save_apikey() {
         global $db;
         $key = $this->generate_apikey();
-        if($key) {
-            $db->update_query(self::TABLE_NAME, array('apiKey' => $key), self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
+        if ($key) {
+            $db->update_query(self::TABLE_NAME, array('apiKey' => $key), self::PRIMARY_KEY . '=' . intval($this->data[self::PRIMARY_KEY]));
         }
     }
 
     public function parse_qrperformance_link($year, $quarter, $attributes_param = array('target' => '_blank'), $options = array()) {
-        if(is_array($attributes_param)) {
-            foreach($attributes_param as $attr => $val) {
-                $attributes .= $attr.'="'.$val.'"';
+        if (is_array($attributes_param)) {
+            foreach ($attributes_param as $attr => $val) {
+                $attributes .= $attr . '="' . $val . '"';
             }
         }
 
-        if(!isset($options['outputvar'])) {
+        if (!isset($options['outputvar'])) {
             $options['outputvar'] = 'displayName';
         }
 
-        return '<a href="index.php?module=reporting/performance&year='.$year.'&quarter='.$quarter.'&uid='.$this->data[self::PRIMARY_KEY].'&excludecharts=1" '.$attributes.'>'.$this->data[$options['outputvar']].'</a>';
+        return '<a href="index.php?module=reporting/performance&year=' . $year . '&quarter=' . $quarter . '&uid=' . $this->data[self::PRIMARY_KEY] . '&excludecharts=1" ' . $attributes . '>' . $this->data[$options['outputvar']] . '</a>';
     }
 
     /**
@@ -1093,24 +1052,25 @@ class Users extends AbstractClass {
     public function get_default_currencies($type = '') {
         global $core, $db;
         $affiliates_currencies = array(840 => 840, 978 => 978, 826 => 826);
-        $whereaffid = 'IN('.implode(',', $core->user['affiliates']).')';
-        if($type == 'main') {
-            $whereaffid = ' = '.intval($core->user['mainaffiliate']);
+        $whereaffid = 'IN(' . implode(',', $core->user['affiliates']) . ')';
+        if ($type == 'main') {
+            $whereaffid = ' = ' . intval($core->user['mainaffiliate']);
         }
 
         $affiliatecurrenciesquery = $db->query('SELECT cur.numCode as curid
-											FROM '.Tprefix.'countries c
-											JOIN '.Tprefix.'currencies cur ON (c.mainCurrency=cur.numCode)
-											WHERE affid '.$whereaffid.'
+											FROM ' . Tprefix . 'countries c
+											JOIN ' . Tprefix . 'currencies cur ON (c.mainCurrency=cur.numCode)
+											WHERE affid ' . $whereaffid . '
 											ORDER BY cur.alphaCode');
-        while($country_currency = $db->fetch_assoc($affiliatecurrenciesquery)) {
+        while ($country_currency = $db->fetch_assoc($affiliatecurrenciesquery)) {
             $affiliates_currencies[$country_currency['curid']] = $country_currency['curid'];
         }
-        if($affiliates_currencies && is_array($affiliates_currencies)) {
+        if ($affiliates_currencies && is_array($affiliates_currencies)) {
             return $affiliates_currencies;
         }
         return false;
     }
 
 }
+
 ?>

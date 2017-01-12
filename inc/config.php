@@ -15,7 +15,7 @@
 $config['database']['hostname'] = 'localhost';
 $config['database']['username'] = 'root';
 $config['database']['password'] = '';
-$config['database']['database'] = 'ocos';
+$config['database']['database'] = 'magister';
 $config['database']['prefix'] = '';
 $config['database']['encoding'] = 'utf8';
 ?>
