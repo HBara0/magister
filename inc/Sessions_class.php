@@ -1,12 +1,5 @@
 <?php
-/*
- * Orkila Central Online System (OCOS)
- * Copyright © 2009 Orkila International Offshore, All Rights Reserved
- *
- * Sessions Class
- * $id: Sessions_class.php
- * Last Update: @zaher.reda 	August 30, 2012 | 12:27 PM
- */
+
 
 class Sessions {
     public $sid, $uid, $ipaddress;
@@ -82,9 +75,6 @@ class Sessions {
                   } */
                 $core->user += get_user_business_assignments($this->uid); //parse_userentities_data($this->uid);
 
-                if(!isset($core->user['mainaffiliate'])) {
-                    $core->user['mainaffiliate'] = $core->user_obj->get_mainaffiliate()->get()['affid'];
-                }
             }
         }
     }
