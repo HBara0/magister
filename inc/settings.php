@@ -21,7 +21,6 @@ $settings['loginattempts'] = "5";
 $settings['maintenancemessage'] = "The system is undergoing maintenance. Thank you for your patience";
 $settings['onmaintenance'] = "0";
 $settings['passwordArchiveRetention'] = "10";
-$settings['passwordExpiresAfter'] = "45";
 $settings['profilepicdir'] = "images/profilepictures/";
 $settings['q1end'] = "03-31";
 $settings['q1start'] = "01-01";

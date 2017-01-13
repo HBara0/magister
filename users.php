@@ -44,27 +44,32 @@ if ($core->input['action']) {
                 $db->update_query('users', array('failedLoginAttempts' => 0), "uid='{$user_details[uid]}'");
 
                 output_xml("<status>true</status><message>{$lang->loginsuccess}</message>");
-            } else {
+            }
+            else {
                 $db->update_query('users', array('failedLoginAttempts' => $validation->get_real_failed_attempts() + 1, 'lastAttemptTime' => TIME_NOW), "uid='{$user_details[uid]}'");
                 if ($validation->get_real_failed_attempts() >= 3) {
                     $lang->tryresetpassword = '<![CDATA[<br />' . $lang->tryresetpassword . ']]>';
-                } else {
+                }
+                else {
                     $lang->tryresetpassword = '';
                 }
                 $log->record($core->input['username'], 0);
                 output_xml("<status>false</status><message>{$lang->invalidlogin}{$lang->tryresetpassword}</message>");
             }
-        } else {
+        }
+        else {
             if ($validation->get_error_message()) {
                 $fail_message = $validation->get_error_message();
-            } else {
+            }
+            else {
                 $login_after = round($core->settings['failedlogintime'] - ((TIME_NOW - $user_details['lastAttemptTime']) / 60), 0);
                 $fail_message = $lang->sprint($lang->reachedmaxattempts, $login_after);
             }
 
             output_xml("<status>false</status><message>{$fail_message}</message>");
         }
-    } elseif ($core->input['action'] == 'do_logout') {
+    }
+    elseif ($core->input['action'] == 'do_logout') {
         $uid = $core->user['uid'];
 
         $db->update_query('users', array('lastVisit' => TIME_NOW), "uid='$uid'");
@@ -76,7 +81,8 @@ if ($core->input['action']) {
         create_cookie('loginKey', '', (TIME_NOW - 3600));
 
         redirect('users.php?action=login');
-    } elseif ($core->input['action'] == 'reset_password') {
+    }
+    elseif ($core->input['action'] == 'reset_password') {
         $lang->load('messages');
         $email = $db->escape_string(trim($core->input['email']));
 
@@ -99,13 +105,16 @@ if ($core->input['action']) {
             if ($mailer->get_status() === true) {
                 $modify = new ModifyAccount($new_details);
                 output_xml("<status>true</status><message>{$lang->emailsentcontainpassword}</message>");
-            } else {
+            }
+            else {
                 output_xml("<status>false</status><message>{$lang->errorsendingemail}</message>");
             }
-        } else {
+        }
+        else {
             output_xml("<status>false</status><message>{$lang->accountemailnotfound}</message>");
         }
-    } elseif ($core->input['action'] == 'do_changepassword') {
+    }
+    elseif ($core->input['action'] == 'do_changepassword') {
         $lang->load('profile');
 
         if (empty($core->input['oldpassword']) || empty($core->input['newpassword']) || empty($core->input['newpassword2'])) {
@@ -128,21 +137,22 @@ if ($core->input['action']) {
 
             $modify = new ModifyAccount($newdata);
             if ($modify->get_status() === true) {
-                $modify->archive_password($core->input['oldpassword'], $newdata['uid']);
                 output_xml("<status>true</status><message>{$lang->passwordsuccessfullychanged}</message>");
                 $log->record($core->input['uid']);
             }
-        } else {
+        }
+        else {
             output_xml("<status>false</status><message>{$lang->passwordnomatch}</message>");
         }
-    } elseif ($core->input['action'] == 'do_modifyprofile') {
+    }
+    elseif ($core->input['action'] == 'do_modifyprofile') {
         if ($session->uid == 0) {
             redirect('users.php?action=login');
         }
 
         $lang->load('profile');
 
-        if (is_empty($core->input['email'], $core->input['firstName'], $core->input['lastName'], $core->input['skype'])) {
+        if (is_empty($core->input['email'], $core->input['firstName'], $core->input['lastName'])) {
             output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
             exit;
         }
@@ -154,10 +164,12 @@ if ($core->input['action']) {
         if ($modify->get_status() === true) {
             output_xml("<status>true</status><message>{$lang->profilesuccessfullyupdated}</message>");
             log_action($core->input['uid']);
-        } else {
+        }
+        else {
             output_xml("<status>false</status><message>{$lang->errorupdatingprofile}</message>");
         }
-    } elseif ($core->input['action'] == 'do_changeprofilepic') {
+    }
+    elseif ($core->input['action'] == 'do_changeprofilepic') {
         if ($session->uid == 0) {
             redirect('users.php?action=login');
         }
@@ -197,7 +209,8 @@ if ($core->input['action']) {
                 unlink('./' . $core->settings['profilepicdir'] . '/' . $old_profilepicture);
             }
         }
-    } elseif ($core->input['action'] == 'downloadsignature') {
+    }
+    elseif ($core->input['action'] == 'downloadsignature') {
         if ($session->uid == 0) {
             redirect('users.php?action=login');
         }
@@ -261,7 +274,8 @@ if ($core->input['action']) {
         $download = new Download();
         $download->set_real_path($filepath . $filename);
         $download->stream_file(true);
-    } elseif ($core->input['action'] == 'generatesignature' || $core->input['action'] == 'generatesignaturemin') {
+    }
+    elseif ($core->input['action'] == 'generatesignature' || $core->input['action'] == 'generatesignaturemin') {
         if ($session->uid == 0) {
             redirect('users.php?action=login');
         }
@@ -269,10 +283,12 @@ if ($core->input['action']) {
         $user = new Users();
         if ($core->input['action'] == 'generatesignaturemin') {
             $user->generate_image_sign(false, 180, 40, true);
-        } else {
+        }
+        else {
             $user->generate_image_sign(false);
         }
-    } elseif ($core->input['action'] == 'profile') {
+    }
+    elseif ($core->input['action'] == 'profile') {
         $lang->load('profile');
 
         if ($core->input['do'] == 'edit') {
@@ -280,67 +296,27 @@ if ($core->input['action']) {
                 redirect('users.php?action=login');
             }
 
-            $phones_index = array('mobile', 'mobile2', 'telephone', 'telephone2');
-            foreach ($phones_index as $val) {
-                $phone[$val] = explode('-', $core->user[$val]);
-
-                $phones[$val]['intcode'] = $phone[$val][0];
-                $phones[$val]['areacode'] = $phone[$val][1];
-                $phones[$val]['number'] = $phone[$val][2];
-            }
-
-            $checkboxes_index = array('mobileIsPrivate', 'mobile2IsPrivate', 'newFilesNotification', 'birthdayIsPrivate');
-            foreach ($checkboxes_index as $key) {
-                if ($core->user[$key] == 1) {
-                    $checkedboxes[$key] = ' checked="checked"';
-                }
-            }
 
             $moduleslist = parse_moduleslist($core->user['defaultModule'], 'modules', true);
-            $languageslist = parse_selectlist('language', '', $lang->get_languages(), $core->user['language']);
 
-            if (empty($core->user['profilePicture'])) {
-                if (isset($core->user['gender'])) {
-                    if ($core->user['gender'] == 1) {
-                        $core->user['profilePicture'] = 'no_photo_female.gif';
-                    } else {
-                        $core->user['profilePicture'] = 'no_photo_male.gif';
-                    }
-                } else {
-                    $core->user['profilePicture'] = 'no_photo_male.gif';
-                }
-            }
 
             $user = new Users();
-            $signature['text'] = $user->generate_text_sign();
-            $signature['text'] = preg_replace("/\n/i", '<br />', $signature['text']) . '</p>';
-
-            if (isset($core->input['messagecode']) && $core->input['messagecode'] == 1) {
-                $notification_message = '<div class="ui-state-highlight ui-corner-all" style="padding: 5px; margin-bottom:10px; font-weight: bold;">' . $lang->passwordhasexpired . '</div>';
-            }
 
             $profile['uid'] = $core->user['uid'];
 
-            eval("\$editprofilepage_profilepicform = \"" . $template->get('popup_changeprofilepic') . "\";");
-            /* Get Help Video */
-            $helpvideo = HelpVideos::get_data(array('alias' => 'how-to-generate-signature'));
-            if (is_object($helpvideo)) {
-                $helplinks['how-to-generate-signature'] = $helpvideo->parse_link();
-            }
-
-//            $timezones = DateTimeZone::listIdentifiers();
-//            $timezoneslist = parse_selectlist('timeZone', 10, array_combine($timezones, $timezones), $core->user['timeZone']);
 
             eval("\$editprofilepage = \"" . $template->get('editprofile') . "\";");
             output_page($editprofilepage);
-        } else {
+        }
+        else {
             if ($session->uid == 0) {
                 redirect('users.php?action=login&referer=' . base64_encode(DOMAIN . '/users.php?' . $_SERVER['QUERY_STRING']));
             }
 
             if (!$core->input['uid']) {
                 $uid = $core->user['uid'];
-            } else {
+            }
+            else {
                 $uid = $db->escape_string($core->input['uid']);
             }
 
@@ -380,7 +356,8 @@ if ($core->input['action']) {
             while ($affiliate = $db->fetch_array($query2)) {
                 if (++$affiliates_counter > 2) {
                     $hidden_affiliates .= $break . $affiliate['name'];
-                } else {
+                }
+                else {
                     $useraffiliates .= $break . $affiliate['name'];
                 }
                 $break = '<br />';
@@ -388,7 +365,8 @@ if ($core->input['action']) {
 
             if ($affiliates_counter > 2) {
                 $profile['affiliatesList'] = $useraffiliates . ", <a href='#affiliates' id='showmore_affiliates_{$profile[uid]}' class='smalltext'>{$lang->readmore}</a> <span style='display:none;' id='affiliates_{$profile[uid]}'>{$hidden_affiliates}</span>";
-            } else {
+            }
+            else {
                 $profile['affiliatesList'] = $useraffiliates;
             }
 
@@ -399,7 +377,8 @@ if ($core->input['action']) {
                     $profile['segments'][] = $segment['title'];
                 }
                 $profile['segmentsList'] = implode('<br />', $profile['segments']);
-            } else {
+            }
+            else {
                 $profile['segmentsList'] = $lang->na;
             }
             /* Prepared segements list */
@@ -419,7 +398,8 @@ if ($core->input['action']) {
                 if ($entity['type'] == 'c') {
                     if (++$customers_counter > 2) {
                         $hidden_customers .= $cbreak . $entity_obj->parse_link();
-                    } else {
+                    }
+                    else {
                         $usercustomers .= $cbreak . $entity_obj->parse_link();
                     }
                     $cbreak = '<br />';
@@ -427,10 +407,12 @@ if ($core->input['action']) {
                     if ($customers_counter > 2) {
                         $profile['customersList'] = $usercustomers . ", <a href='#customers' id='showmore_customers_{$profile[uid]}' class='smalltext'>{$lang->readmore}</a> <span style='display:none;' id='customers_{$profile[uid]}'>{$hidden_customers}</span>";
                     }
-                } else {
+                }
+                else {
                     if (++$suppliers_counter > 2) {
                         $hidden_suppliers .= $sbreak . $entity_obj->parse_link();
-                    } else {
+                    }
+                    else {
                         $usersuppliers .= $sbreak . $entity_obj->parse_link();
                     }
                     $sbreak = '<br />';
@@ -484,11 +466,13 @@ if ($core->input['action']) {
                 $profile['mobile2_output'] = '+';
                 if (!empty($profile['mobile_output'])) {
                     $profile['mobile2_output'] = '/+';
-                } else {
+                }
+                else {
                     $profile['mobile_output'] = ' ';
                 }
                 $profile['mobile2_output'] .= $profile['mobile2'];
-            } else {
+            }
+            else {
                 if (empty($profile['mobile_output'])) {
                     $profile['mobile_output'] = '-';
                 }
@@ -507,10 +491,12 @@ if ($core->input['action']) {
                 if (isset($profile['gender'])) {
                     if ($profile['gender'] == 1) {
                         $profile['profilePicture'] = 'no_photo_female.gif';
-                    } else {
+                    }
+                    else {
                         $profile['profilePicture'] = 'no_photo_male.gif';
                     }
-                } else {
+                }
+                else {
                     $profile['profilePicture'] = 'no_photo_male.gif';
                 }
             }
@@ -518,7 +504,8 @@ if ($core->input['action']) {
                 eval("\$profile_profilepicform = \"" . $template->get('popup_changeprofilepic') . "\";");
 
                 $profile['picture'] = '<a id="showpopup_changeprofilepic" class="showpopup"><img id="profilePicture" src="' . $core->settings[rootdir] . '/' . $core->settings[profilepicdir] . '/' . $profile[profilePicture] . '" alt="' . $profile['username'] . '" border="0" style="cursor:pointer;"/></a>';
-            } else {
+            }
+            else {
                 $profile['picture'] = '<img id="profilePicture" src="' . $core->settings[rootdir] . '/' . $core->settings[profilepicdir] . '/' . $profile[profilePicture] . '" alt="' . $profile['username'] . '" border="0" />';
             }
             $profile['country'] = $db->fetch_field($db->query("SELECT name FROM " . Tprefix . "countries WHERE coid='{$profile[country]}'"), 'name');
@@ -546,12 +533,14 @@ if ($core->input['action']) {
                         $leave['type_output'] = $leave['title'];
                         if (date($core->settings['dateformat'], $leave['fromDate']) == date($core->settings['dateformat'], $leave['toDate'])) {
                             $leave_dates = date($core->settings['dateformat'] . ' ' . $core->settings['timeformat'], $leave['fromDate']) . '/' . date($core->settings['timeformat'], $leave['toDate']);
-                        } else {
+                        }
+                        else {
                             $leave_dates = date($core->settings['dateformat'] . ' ' . $core->settings['timeformat'], $leave['fromDate']) . '/' . date($core->settings['dateformat'] . ' ' . $core->settings['timeformat'], $leave['toDate']);
                         }
                         $leaves .= '<li>' . $leave_dates . ': ' . $leave['type_output'] . '</li>';
                     }
-                } else {
+                }
+                else {
                     $leaves = '<li>' . $lang->na . '</li>';
                 }
 
@@ -562,13 +551,15 @@ if ($core->input['action']) {
                     while ($log_entry = $db->fetch_array($query)) {
                         $logs .= '<li>' . $log->explain($log_entry) . '</li>';
                     }
-                } else {
+                }
+                else {
                     $logs = '<li>' . $lang->na . '</li>';
                 }
 
                 if (!empty($profile['lastVisit'])) {
                     $profile['lastVisit'] = date($core->settings['dateformat'] . ' ' . $core->settings['timeformat'], $profile['lastVisit']);
-                } else {
+                }
+                else {
                     $profile['lastVisit'] = $lang->na;
                 }
 
@@ -585,7 +576,8 @@ if ($core->input['action']) {
                         while ($due_report = $db->fetch_array($query)) {
                             $due_reports_list .= "<li>Q{$due_report[quarter]} {$due_report[year]} - {$due_report[companyName]} / {$due_report[affiliate_name]}</li>";
                         }
-                    } else {
+                    }
+                    else {
                         $due_reports_list = '<li>' . $lang->na . '</li>';
                     }
 
@@ -598,7 +590,8 @@ if ($core->input['action']) {
                         while ($last_report = $db->fetch_array($query)) {
                             $last_reports_list .= "<li>Q{$last_report[quarter]} {$last_report[year]} - {$last_report[companyName]} / {$last_report[affiliate_name]}</li>";
                         }
-                    } else {
+                    }
+                    else {
                         $last_reports_list = '<li>' . $lang->na . '</li>';
                     }
 
@@ -607,7 +600,8 @@ if ($core->input['action']) {
                     $countall_current_quarterly = $db->fetch_field($db->query("SELECT count(*) as countall FROM " . Tprefix . "reports r WHERE type='q' AND year='{$quarter[year]}' AND quarter='{$quarter[quarter]}'{$additional_where[extra]}"), 'countall');
                     if ($countall_current_quarterly > 0) {
                         $countall_current_quarterly_unfinalized = $db->fetch_field($db->query("SELECT count(*) as countall FROM " . Tprefix . "reports r WHERE type='q' AND year='{$quarter[year]}' AND quarter='{$quarter[quarter]}' AND status='0'{$additional_where[extra]}"), 'countall');
-                    } else {
+                    }
+                    else {
                         $countall_current_quarterly_unfinalized = 0;
                     }
                 }
@@ -624,7 +618,8 @@ if ($core->input['action']) {
             eval("\$profilepage = \"" . $template->get('userprofile') . "\";");
             output_page($profilepage);
         }
-    } elseif ($core->input['action'] == 'userslist') {
+    }
+    elseif ($core->input['action'] == 'userslist') {
         if ($session->uid == 0) {
             redirect('users.php?action=login');
         }
@@ -655,7 +650,8 @@ if ($core->input['action']) {
             eval("\$userslistmosaic = \"" . $template->get('userslist_mosaic') . "\";");
             output_page($userslistmosaic);
             /*  Users mosaic view - END */
-        } else {
+        }
+        else {
             $change_view_icon = 'thumbnail_view.gif';
             $change_view_url = 'users.php?action=userslist&view=thumbnails';
 
@@ -739,7 +735,8 @@ if ($core->input['action']) {
 
                         if (++$positions_counter > 2) {
                             $hidden_positions .= $break . $position['title'];
-                        } else {
+                        }
+                        else {
                             $userpositions .= $break . $position['title'];
                         }
                         $break = '<br />';
@@ -761,17 +758,20 @@ if ($core->input['action']) {
 
                 $multipages = new Multipages('users u JOIN ' . Tprefix . 'affiliatedemployees ae ON (u.uid=ae.uid) JOIN ' . Tprefix . 'affiliates aff ON (aff.affid=ae.affid)', $core->settings['itemsperlist'], $multipage_where, 'u.uid');
                 $usersrows .= "<tr><td colspan='6'>" . $multipages->parse_multipages() . "</td></tr>";
-            } else {
+            }
+            else {
                 $usersrows = "<tr><td colspan='6' style='text-align:center;'>" . $lang->nomatchfound . "</td></tr>";
             }
 
             eval("\$userslist = \"" . $template->get('userslist') . "\";");
             output_page($userslist);
         }
-    } elseif ($core->input['action'] == 'get_popup_loginbox') {
+    }
+    elseif ($core->input['action'] == 'get_popup_loginbox') {
         eval("\$loginbox = \"" . $template->get('popup_loginbox') . "\";");
         echo $loginbox;
-    } elseif ($core->input['action'] == 'downloadvcard') {
+    }
+    elseif ($core->input['action'] == 'downloadvcard') {
         $user = new Users($core->input['uid']);
         if ($user->gid == 7) {
             exit;
@@ -783,7 +783,8 @@ if ($core->input['action']) {
                 $vcard->download();
             }
         }
-    } elseif ($core->input['action'] == 'downloadallempvcard') {
+    }
+    elseif ($core->input['action'] == 'downloadallempvcard') {
         $users = Users::get_users(array('gid' => 7), array('operators' => array('gid' => 'NOT IN'), 'returnarray' => true));
         if (is_array($users)) {
             $vcard_cont = '';
@@ -804,7 +805,8 @@ if ($core->input['action']) {
                 }
             }
         }
-    } else {
+    }
+    else {
         $session->name_phpsession(COOKIE_PREFIX . 'login');
         $session->start_phpsession();
         $session->regenerate_id_phpsession(true);
@@ -813,7 +815,8 @@ if ($core->input['action']) {
 
         if (isset($core->input['referer']) && !empty($core->input['referer'])) {
             $lastpage = base64_decode($db->escape_string($core->input['referer']));
-        } else {
+        }
+        else {
             $lastpage = DOMAIN;
         }
 
