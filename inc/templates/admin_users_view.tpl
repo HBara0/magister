@@ -3,10 +3,8 @@
     <thead>
         <tr>
             <th>#</th>
-            <th>{$lang->username}</th>
             <th>{$lang->email}</th>
             <th>{$lang->usergroup}</th>
-            <th>{$lang->affiliates}</th>
             <th>{$lang->lastvisit}</th>
             <th></th>
         </tr>
@@ -14,10 +12,8 @@
     <tfoot>
         <tr>
             <th>#</th>
-            <th>{$lang->username}</th>
             <th>{$lang->email}</th>
             <th>{$lang->usergroup}</th>
-            <th>{$lang->affiliates}</th>
             <th>{$lang->lastvisit}</th>
             <th></th>
         </tr>

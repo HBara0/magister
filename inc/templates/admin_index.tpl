@@ -3,13 +3,6 @@
 <strong>{$lang->systemoverview}</strong>
 <ul>
     <li>{$lang->usersstats}</li>
-    <li>{$lang->entitiesstats}
-        <ul>
-            <li>{$lang->suppliersstats}</li>
-            <li>{$lang->customersstats}</li>
-        </ul>
-    </li>
-    <li>{$lang->productsstats}</li>
 </ul>
 <br />
 <hr />

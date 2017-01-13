@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright © 2016 Orkila International Offshore, All Rights Reserved
  *
@@ -11,9 +12,9 @@
 $module['name'] = 'users';
 $module['title'] = $lang->users;
 $module['homepage'] = 'add';
-$module['globalpermission'] = 'canManageUsers';
-$module['menu'] = array('file' => array('add', 'copyassignments', 'edit', 'view'),
-        'title' => array('add', 'copyassignments', 'edit', 'view'),
-        'permission' => array('canAddUsers', 'canManageUsers', 'canManageUsers', 'canManageUsers')
+$module['globalpermission'] = 'canAdminCP';
+$module['menu'] = array('file' => array('add', 'edit', 'view'),
+    'title' => array('add', 'edit', 'view'),
+    'permission' => array('canAdminCP', 'canAdminCP', 'canAdminCP')
 );
 ?>
