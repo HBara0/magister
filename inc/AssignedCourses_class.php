@@ -1,22 +1,22 @@
 <?php
 
 /**
- * Description of Events
+ * Description of AssignedCourses
  *
  * @author H.B
  */
-class Events extends AbstractClass {
+class AssignedCourses extends AbstractClass {
 
     protected $data = array();
     protected $errorcode = 0;
 
-    const PRIMARY_KEY = 'eid';
-    const TABLE_NAME = 'events';
-    const DISPLAY_NAME = 'title';
+    const PRIMARY_KEY = 'acid';
+    const TABLE_NAME = 'assignedcourses';
+    const DISPLAY_NAME = '';
     const SIMPLEQ_ATTRS = '*';
     const CLASSNAME = __CLASS__;
-    const REQUIRED_ATTRS = 'title,fromDate,toDate';
-    const UNIQUE_ATTRS = 'alias,fromDate,toDate';
+    const REQUIRED_ATTRS = 'cid,uid';
+    const UNIQUE_ATTRS = 'cid,uid';
 
     public function __construct($id = '', $simple = true) {
         parent::__construct($id, $simple);
@@ -30,10 +30,6 @@ class Events extends AbstractClass {
         }
         $data['createdOn'] = TIME_NOW;
         $data['createdBy'] = $core->user['uid'];
-        $data['alias'] = generate_alias($data['title']);
-        if (!$data['inputChecksum']) {
-            $data['inputChecksum'] = generate_checksum();
-        }
         if (is_array($data)) {
             $query = $db->insert_query(self::TABLE_NAME, $data);
         }
@@ -49,8 +45,6 @@ class Events extends AbstractClass {
 
         $data['modifiedOn'] = TIME_NOW;
         $data['modifiedBy'] = $core->user['uid'];
-        $data['alias'] = generate_alias($data['title']);
-
         if (is_array($data)) {
             $db->update_query(self::TABLE_NAME, $data, self::PRIMARY_KEY . '=' . intval($this->data[self::PRIMARY_KEY]));
             $log->record(self::TABLE_NAME, $this->data[self::PRIMARY_KEY]);
@@ -59,11 +53,25 @@ class Events extends AbstractClass {
     }
 
     /**
-     *
-     * @return \Users|boolean
+     * 
+     * @return \Users
      */
     public function get_createdBy() {
         return new Users(intval($this->data['createdBy']));
+    }
+
+    public function get_displayname() {
+        if (intval($this->data['did'])) {
+            $deadline_obj = new Deadlines(intval($this->data['did']));
+            return $deadline_obj->get_displayname();
+        }
+
+        if (intval($this->data['eid'])) {
+            $event_obj = new Events(intval($this->data['eid']));
+            return $event_obj->get_displayname();
+        }
+
+        return 'N/A';
     }
 
 }

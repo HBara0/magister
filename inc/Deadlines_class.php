@@ -1,22 +1,22 @@
 <?php
 
 /**
- * Description of Events
+ * Description of Deadlines
  *
  * @author H.B
  */
-class Events extends AbstractClass {
+class Deadlines extends AbstractClass {
 
     protected $data = array();
     protected $errorcode = 0;
 
-    const PRIMARY_KEY = 'eid';
-    const TABLE_NAME = 'events';
+    const PRIMARY_KEY = 'did';
+    const TABLE_NAME = 'deadlines';
     const DISPLAY_NAME = 'title';
     const SIMPLEQ_ATTRS = '*';
     const CLASSNAME = __CLASS__;
-    const REQUIRED_ATTRS = 'title,fromDate,toDate';
-    const UNIQUE_ATTRS = 'alias,fromDate,toDate';
+    const REQUIRED_ATTRS = 'time,title';
+    const UNIQUE_ATTRS = 'time,title,uid,cid';
 
     public function __construct($id = '', $simple = true) {
         parent::__construct($id, $simple);
@@ -30,10 +30,6 @@ class Events extends AbstractClass {
         }
         $data['createdOn'] = TIME_NOW;
         $data['createdBy'] = $core->user['uid'];
-        $data['alias'] = generate_alias($data['title']);
-        if (!$data['inputChecksum']) {
-            $data['inputChecksum'] = generate_checksum();
-        }
         if (is_array($data)) {
             $query = $db->insert_query(self::TABLE_NAME, $data);
         }
@@ -49,7 +45,6 @@ class Events extends AbstractClass {
 
         $data['modifiedOn'] = TIME_NOW;
         $data['modifiedBy'] = $core->user['uid'];
-        $data['alias'] = generate_alias($data['title']);
 
         if (is_array($data)) {
             $db->update_query(self::TABLE_NAME, $data, self::PRIMARY_KEY . '=' . intval($this->data[self::PRIMARY_KEY]));
@@ -60,10 +55,28 @@ class Events extends AbstractClass {
 
     /**
      *
-     * @return \Users|boolean
+     * @return \Courses|boolean
      */
-    public function get_createdBy() {
-        return new Users(intval($this->data['createdBy']));
+    public function get_course() {
+        if (!$this->data['cid']) {
+            return false;
+        }
+        return new Courses(intval($this->data['cid']));
+    }
+
+    /**
+     *
+     * @return boolean|\Users
+     */
+    public function get_user() {
+        if (!$this->data['uid']) {
+            return false;
+        }
+        return new Users(intval($this->data['uid']));
+    }
+
+    public function get_displayname() {
+        return $this->data['code'] . ' - ' . parent::get_displayname();
     }
 
 }

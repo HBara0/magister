@@ -1,6 +1,5 @@
 <?php
 
-
 if (!defined('DIRECT_ACCESS')) {
     die('Direct initialization of this file is not allowed.');
 }
@@ -9,7 +8,7 @@ if ($core->usergroup['canAccessSystem'] == 0) {
 }
 if (!isset($core->input['action'])) {
 
-    eval("\$facilitiestree= \"" . $template->get('facilitymgmt_facilitiesschedule') . "\";");
+    eval("\$calendar= \"" . $template->get('main_calendar') . "\";");
     $additionalheaderinc = "<link href='" . $core->settings[rootdir] . "/css/fullcalendar.min.css' rel='stylesheet' />
                             <script src='" . $core->settings[rootdir] . "/js/moment.min.js'></script>
                             <script src='" . $core->settings[rootdir] . "/js/fullcalendar.min.js' type='text/javascript'></script>
@@ -19,7 +18,7 @@ if (!isset($core->input['action'])) {
                                     margin: 0 auto;
                                 }
                             </style>";
-    output_page($facilitiestree, array('additionalheaderinc' => $additionalheader));
+    output_page($calendar, array('additionalheaderinc' => $additionalheader));
 } else {
     if ($core->input['action'] == 'get_creatreservation') {
 //        $statuses = FacilityManagementReserveType::get_data(null, array('returnarray' => true));
@@ -54,17 +53,15 @@ if (!isset($core->input['action'])) {
         eval("\$reserve = \"" . $template->get('popup_reservefacility') . "\";");
         output($reserve);
     } else if ($core->input['action'] == 'fetchevents') {
-        $reservations = FacilityMgmtReservations::get_data(array(), array('returnarray' => true, 'simple' => false));
-        if (is_array($reservations)) {
-            foreach ($reservations as $reservation) {
-                $facilitiy = $reservation->get_facility();
-                if ($facilitiy->isActive != 1) {
-                    continue;
-                }
-                $user_reserving = $reservation->get_reservedBy()->get_displayname();
-                $reserved_data[] = array('id' => $reservation->{FacilityMgmtReservations::PRIMARY_KEY}, 'title' => $facilitiy->name . ' ' . $lang->reservedby . ' ' . $user_reserving, 'start' => date(DATE_ATOM, $reservation->fromDate), 'end' => date(DATE_ATOM, $reservation->toDate), 'color' => $facilitiy->idColor);
+        //get calendarassignments
+        $assignment_objs = CalendarAssignments::get_data(array('uid' => $core->user['uid'], 'isActive' => 1), array('returnarray' => true, 'simple' => false));
+        if (is_array($assignment_objs)) {
+            foreach ($assignment_objs as $assignment_obj) {
+                $reserved_data[] = array('id' => $assignment_obj->get_id(), 'title' => $assignment_obj->get_displayname(), 'start' => date(DATE_ATOM, $assignment_obj->fromDate), 'end' => date(DATE_ATOM, $reservation->toDate), 'color' => $assignment_obj->get_color());
             }
         }
+        //get course lectures
+
         echo(json_encode($reserved_data));
     } else if ($core->input['action'] == 'perform_createreservation') {
         if (is_empty($core->input['reserve']['fromDate'], $core->input['reserve']['toDate'], $core->input['reserve']['fmfid'], $core->input['reserve']['fromTime'], $core->input['reserve']['toTime'])) {

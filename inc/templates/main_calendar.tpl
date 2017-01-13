@@ -1,15 +1,7 @@
-<div style="display:none">
-    <a  id="updatemktintldtls_{$mibdid}_{$core->input['module']}_loadpopupbyid" rel="mktdetail_{$mibdid}"><img src="{$core->settings[rootdir]}/images/icons/update.png"/></a>
-</div>
 <div id='calendar'></div>
 
 <script>
     $(document).ready(function() {
-        //   var reservations ={$reserved_data};
-        //    var reservedData = [];
-        //    for(var data in reservations) {
-        //        reservedData.push(reservations[data]);
-        //   }
         iniCalendar($('#calendar'));
 
         function iniCalendar(obj) {
@@ -24,7 +16,7 @@
                 // events: reservedData
                 events: {
                     type: 'POST',
-                    url: '{$core->settings['rootdir']}/index.php?module=facilitymgmt/facilitiesschedule&action=fetchevents',
+                    url: '{$core->settings['rootdir']}/index.php?module=portal/calendar&action=fetchevents',
                     error: function() {
                         $('#script-warning').show();
                     }
@@ -37,7 +29,7 @@
 
                     $.ajax({
                         type: 'post',
-                        url: rootdir + "?module=facilitymgmt/facilitiesschedule&action=get_creatreservation",
+                        url: rootdir + "?module=portal/calendar&action=get_creatreservation",
                         data: "date=" + date.format(),
                         beforeSend: function() {
                             $("body").append("<div id='modal-loading'><span  style='display:block; width:100px; height: 100%; margin: 0 auto;'><img  src='./images/loader.gif'/></span></div>");
@@ -81,7 +73,7 @@
 
                     $.ajax({
                         type: 'post',
-                        url: rootdir + "?module=facilitymgmt/facilitiesschedule&action=get_editreservation",
+                        url: rootdir + "?module=portal/calendar=get_editreservation",
                         data: "id=" + event.id,
                         beforeSend: function() {
                             $("body").append("<div id='modal-loading'><span  style='display:block; width:100px; height: 100%; margin: 0 auto;'><img  src='./images/loader.gif'/></span></div>");

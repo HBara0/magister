@@ -1,22 +1,22 @@
 <?php
 
 /**
- * Description of Events
+ * Description of Recommendations
  *
  * @author H.B
  */
-class Events extends AbstractClass {
+class Recommendations extends AbstractClass {
 
     protected $data = array();
     protected $errorcode = 0;
 
-    const PRIMARY_KEY = 'eid';
-    const TABLE_NAME = 'events';
+    const PRIMARY_KEY = 'rid';
+    const TABLE_NAME = 'recommendations';
     const DISPLAY_NAME = 'title';
     const SIMPLEQ_ATTRS = '*';
     const CLASSNAME = __CLASS__;
-    const REQUIRED_ATTRS = 'title,fromDate,toDate';
-    const UNIQUE_ATTRS = 'alias,fromDate,toDate';
+    const REQUIRED_ATTRS = 'title,city,category';
+    const UNIQUE_ATTRS = 'alias,city,category';
 
     public function __construct($id = '', $simple = true) {
         parent::__construct($id, $simple);
@@ -46,11 +46,9 @@ class Events extends AbstractClass {
             $this->errorcode = 1;
             return $this;
         }
-
         $data['modifiedOn'] = TIME_NOW;
         $data['modifiedBy'] = $core->user['uid'];
         $data['alias'] = generate_alias($data['title']);
-
         if (is_array($data)) {
             $db->update_query(self::TABLE_NAME, $data, self::PRIMARY_KEY . '=' . intval($this->data[self::PRIMARY_KEY]));
             $log->record(self::TABLE_NAME, $this->data[self::PRIMARY_KEY]);
