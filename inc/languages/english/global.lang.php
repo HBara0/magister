@@ -144,4 +144,5 @@ $lang['errordeleting'] = 'An Error Occured While Deleting';
 $lang['from'] = 'From';
 $lang['to'] = 'To';
 $lang['courses'] = 'Courses';
+$lang['timetable'] = 'Timetable';
 ?>

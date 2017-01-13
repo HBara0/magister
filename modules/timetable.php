@@ -1,10 +1,11 @@
 <?php
-$module['name'] = 'filesharing';
-$module['title'] = $lang->filesharing;
-$module['homepage'] = 'fileslist';
-$module['globalpermission'] = 'canUseFileSharing';
-$module['menu'] = array('file' => array('fileslist', 'uploadfile'),
-        'title' => array('fileslist', 'uploadfile'),
-        'permission' => array('canUseFileSharing', 'canUseFileSharing')
+
+$module['name'] = 'timetable';
+$module['title'] = $lang->timetable;
+$module['homepage'] = 'timetable';
+$module['globalpermission'] = 'canAccessSystem';
+$module['menu'] = array('file' => array('timetable'),
+    'title' => array('timetable'),
+    'permission' => array('canAccessSystem')
 );
 ?>
