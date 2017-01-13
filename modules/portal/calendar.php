@@ -22,53 +22,24 @@ if (!isset($core->input['action'])) {
 }
 else {
     if ($core->input['action'] == 'get_creatreservation') {
-//        $statuses = FacilityManagementReserveType::get_data(null, array('returnarray' => true));
-        if (is_array($statuses)) {
-            $statuslist = parse_selectlist('reserve[status]', '1', $statuses, 2, '', '', array('id' => 'status'));
-        }
-//        $purposes = FacilityManagementReservePurpose::get_data(null, array('returnarray' => true));
-        if (is_array($purposes)) {
-            foreach ($purposes as $purpose) {
-                if ($purpose->fmrt == 0) {
-                    $purposeoptions .= '<option value="' . $purpose->alias . '" >' . $purpose->get_displayname() . '</option>';
-                }
-                else if ($purpose->fmrt == 2) {
-                    $purposeoptions .= '<option data-purpose="purpose_' . $purpose->fmrt . '" value="' . $purpose->alias . '" >' . $purpose->get_displayname() . '</option>';
-                }
-                else {
-                    $purposeoptions .= '<option data-purpose="purpose_' . $purpose->fmrt . '" value="' . $purpose->alias . '" style="display:none">' . $purpose->get_displayname() . '</option>';
-                }
-            }
-        }
+
         $date = strtotime($core->input['date']);
-        $reservation['fromDate'] = $date;
-        $reservation['fromTime_output'] = trim(preg_replace('/(AM|PM)/', '', date('H:i', $date)));
-        $reservation['fromDate_output'] = date($core->settings['dateformat'], $date);
-        $reservation['toDate'] = $date + 1;
-        $reservation['toTime_output'] = trim(preg_replace('/(AM|PM)/', '', date('H:i', $date + 1)));
-        $reservation['toDate_output'] = date($core->settings['dateformat'], $date + 1);
-        $facinputname = 'reserve[fmfid]';
-        $facilityid = '';
-        $facilityname = '';
-        $display_infobox = 'style="display:none"';
-        $extra_inputids = ',pickDate_from,pickDate_to,altpickTime_to,altpickTime_from';
-        eval("\$facilityreserve = \"" . $template->get('facility_reserveautocomplete') . "\";");
-        eval("\$reserve = \"" . $template->get('popup_reservefacility') . "\";");
-        output($reserve);
+        eval("\$calendarpopup = \"" . $template->get('popup_createcalendarassignment') . "\";");
+        output($calendarpopup);
     }
     else if ($core->input['action'] == 'fetchevents') {
         //get calendarassignments
         $assignment_objs = CalendarAssignments::get_data(array('uid' => $core->user['uid'], 'isActive' => 1), array('returnarray' => true, 'simple' => false));
         if (is_array($assignment_objs)) {
             foreach ($assignment_objs as $assignment_obj) {
-                $reserved_data[] = array('id' => $assignment_obj->get_id(), 'title' => $assignment_obj->get_displayname(), 'start' => date(DATE_ATOM, $assignment_obj->fromDate), 'end' => date(DATE_ATOM, $reservation->toDate), 'color' => $assignment_obj->get_color());
+                $reserved_data[] = array('id' => $assignment_obj->get_id(), 'type' => $assignment_obj->get_type(), 'title' => $assignment_obj->get_displayname(), 'start' => date(DATE_ATOM, $assignment_obj->fromDate), 'end' => date(DATE_ATOM, $reservation->toDate), 'color' => $assignment_obj->get_color());
             }
         }
         //get deadlines
         $deadline_objs = Deadlines::get_data(array('uid' => $core->user['uid'], 'isActive' => 1), array('returnarray' => true, 'simple' => false));
         if (is_array($deadline_objs)) {
             foreach ($deadline_objs as $deadline_obj) {
-                $reserved_data[] = array('id' => $deadline_obj->get_id(), 'test' => 'test', 'title' => $deadline_obj->get_displayname(), 'start' => date(DATE_ATOM, $deadline_obj->get_fromdate()), 'end' => date(DATE_ATOM, $deadline_obj->get_todate()), 'color' => $deadline_obj->get_color());
+                $reserved_data[] = array('id' => $deadline_obj->get_id(), 'type' => 'deadline', 'title' => $deadline_obj->get_displayname(), 'start' => date(DATE_ATOM, $deadline_obj->get_fromdate()), 'end' => date(DATE_ATOM, $deadline_obj->get_todate()), 'color' => $deadline_obj->get_color());
             }
         }
         //get course lectures
@@ -83,10 +54,16 @@ else {
                 $lecture_objs = $course_obj->get_lectures();
                 if (is_array($lecture_objs)) {
                     foreach ($lecture_objs as $lecture_obj) {
-                        $reserved_data[] = array('id' => $lecture_obj->get_id(), 'test' => 'test', 'title' => $lecture_obj->get_displayname(), 'start' => date(DATE_ATOM, $lecture_obj->get_fromdate()), 'end' => date(DATE_ATOM, $lecture_obj->get_todate()), 'color' => $lecture_obj->get_color());
+                        $reserved_data[] = array('id' => $lecture_obj->get_id(), 'type' => 'lecture', 'title' => $lecture_obj->get_displayname(), 'start' => date(DATE_ATOM, $lecture_obj->get_fromdate()), 'end' => date(DATE_ATOM, $lecture_obj->get_todate()), 'color' => $lecture_obj->get_color());
                     }
                 }
                 //get deadlines
+                $deadline_objs = $course_obj->get_deadlines();
+                if (is_array($deadline_objs)) {
+                    foreach ($deadline_objs as $deadline_obj) {
+                        $reserved_data[] = array('id' => $deadline_obj->get_id(), 'type' => 'deadline', 'title' => $deadline_obj->get_displayname(), 'start' => date(DATE_ATOM, $deadline_obj->get_fromdate()), 'end' => date(DATE_ATOM, $deadline_obj->get_todate()), 'color' => $deadline_obj->get_color());
+                    }
+                }
             }
         }
         echo(json_encode($reserved_data));

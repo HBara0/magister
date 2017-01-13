@@ -17,8 +17,9 @@
         }
         );
     </script>
+    
     <div {$display_form}>
-        <form id="perform_facilitymgmt/facilitiesschedule_Form" name="perform_facilitymgmt/facilitiesschedule_Form" action="#" method="post">
+        <form id="perform_portal/calendar_Form" name="perform_portal/calendar_Form" action="#" method="post">
             <input type="hidden" name="action" value="perform_createreservation" />
             <input type="hidden" name="reserve[fmrid]" value="{$id}" />
 
@@ -60,37 +61,8 @@
                 </tr>
 
             </table>
-            <div align="center"><input type='button' id='perform_facilitymgmt/facilitiesschedule_Button' value='{$lang->savecaps}' class='button'/></div>
+            <div align="center"><input type='button' id='perform_portal/calendar_Button' value='{$lang->savecaps}' class='button'/></div>
         </form>
-        <div id="perform_facilitymgmt/facilitiesschedule_Results"></div>
-    </div>
-    <div {$display_infobox}>
-        <table class="datatable">
-            <tr>
-                <td>{$lang->facility}:</td>
-                <td>{$facilityname}</td>
-            </tr>
-            <tr>
-                <td>{$lang->from}:</td>
-                <td>{$reservation['fromDate_output']}</td>
-            </tr>
-            <tr>
-                <td>{$lang->to}:</td>
-                <td>{$reservation['toDate_output']}</td>
-            </tr>
-            <tr>
-                <td>{$lang->reservedby}:</td>
-                <td>{$reservedby}</td>
-            </tr>
-            <tr {$show_status}>
-                <td>{$lang->status}:</td>
-                <td>{$reservation['status_output']}</td>
-            </tr>
-            <tr {$show_purpose}>
-                <td>{$lang->purpose}:</td>
-                <td>{$reservation['purpose_output']}</td>
-            </tr>
-
-        </table>
+        <div id="perform_portal/calendar_Results"></div>
     </div>
 </div>

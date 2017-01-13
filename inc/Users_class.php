@@ -19,7 +19,7 @@ class Users extends AbstractClass {
     const PRIMARY_KEY = 'uid';
     const TABLE_NAME = 'users';
     const DISPLAY_NAME = 'displayName';
-    const SIMPLEQ_ATTRS = 'uid, username, reportsTo, firstName, middleName, lastName, displayName, displayName AS name, email,gid';
+    const SIMPLEQ_ATTRS = 'uid, username, firstName, middleName, lastName, displayName, displayName AS name, email,gid';
     const CLASSNAME = __CLASS__;
 
     public function __construct($id = '', $simple = true) {
@@ -27,7 +27,8 @@ class Users extends AbstractClass {
         if (empty($id)) {
             $this->data = $core->user;
             $this->data['uid'] = intval($this->data['uid']);
-        } else {
+        }
+        else {
             parent::__construct($id, $simple);
         }
     }
@@ -88,10 +89,12 @@ class Users extends AbstractClass {
             if ($config['classified'] == true) {
                 if ($usergroup['isMain'] == 1) {
                     $usergroups['main'] = $usergroup;
-                } else {
+                }
+                else {
                     $usergroups['additional'][$usergroup['gid']] = $usergroup;
                 }
-            } else {
+            }
+            else {
                 $usergroups[$usergroup['gid']] = $usergroup;
             }
         }
@@ -123,7 +126,8 @@ class Users extends AbstractClass {
         if ($db->num_rows($query) > 0) {
             $uid = $db->fetch_field($query, 'uid');
             return new Users($uid);
-        } else {
+        }
+        else {
             return false;
         }
     }
@@ -167,7 +171,8 @@ class Users extends AbstractClass {
         if (!empty($options) && ($options == 'inaffiliate')) {
             if (is_array($core->user['hraffids'])) {
                 $affiliate_where = 'AND affe.affid IN (' . implode(',', $core->user['hraffids']) . ')';
-            } else {
+            }
+            else {
                 return false;
             }
         }
@@ -178,7 +183,8 @@ class Users extends AbstractClass {
 						WHERE affe.canHr=1 {$affiliate_where} AND affe.uid={$this->data[uid]}");
         if ($db->num_rows($hrquery) > 0) {
             return true;
-        } else {
+        }
+        else {
             return false;
         }
     }
@@ -250,7 +256,8 @@ class Users extends AbstractClass {
         if (!$cache->iscached('affiliate', $this->data['mainaffiliate'])) {
             $affiliate = new Affiliates($this->data['mainaffiliate'], FALSE);
             $cache->add('affiliate', $affiliate, $affiliate->get_id());
-        } else {
+        }
+        else {
             $affiliate = $cache->get_cachedval('affiliate', $this->data['mainaffiliate']);
         }
 
@@ -426,7 +433,8 @@ class Users extends AbstractClass {
                     }
                 }
             }
-        } else {
+        }
+        else {
             $details['values_bbox'] = imagettfbbox(11, 0, $fonts['arial']['bold'], $this->data['displayName']);
             if (($details['values_bbox'][4] + 65) > $width) {
                 $width = $details['values_bbox'][4] + 65;
@@ -451,7 +459,8 @@ class Users extends AbstractClass {
         if ($is_compact == false) {
             $logo = imagecreatefrompng('./images/signlogo.png');
             imagecopy($im, $logo, 1, 18, 0, 0, 98, 71);
-        } else {
+        }
+        else {
             $logo = imagecreatefrompng('./images/signlogo_min.png');
             imagecopy($im, $logo, 1, 4, 0, 0, 49, 36);
         }
@@ -473,11 +482,13 @@ class Users extends AbstractClass {
                 $this->data['legalAffid'] = $this->data['mainaffiliate_details']['legalName'];
             }
             imagefttext($im, 10, 0, 1, 115, $colors['green'], $fonts['arial']['regular'], $this->data['legalAffid']);
-        } else {
+        }
+        else {
             imagefttext($im, 10, 0, 49 + 8, 36 / 1.8, $colors['green'], $fonts['arial']['bold'], $this->data['displayName']);
             if (!empty($this->data['internalExtension'])) {
                 $this->data['internalExtension'] = ' ext: ' . $this->data['internalExtension'];
-            } else {
+            }
+            else {
                 $this->data['internalExtension'] = '';
             }
 
@@ -510,7 +521,8 @@ class Users extends AbstractClass {
             touch($image);
             imagedestroy($im);
             return $image;
-        } else {
+        }
+        else {
             header('Content-Type: image/png');
             imagepng($im, NULL, 9, PNG_NO_FILTER);
             imagedestroy($im);
@@ -538,7 +550,8 @@ class Users extends AbstractClass {
             $signature .= implode(', ', $this->data['positions']) . "<br />";
             $signature .= $this->data['legalAffid'] . "<br />";
             $signature .= preg_replace("/\n/i", '<br />', $details['values']);
-        } else {
+        }
+        else {
             if (!isset($this->data['mainaffiliate_details'])) {
                 $this->data['mainaffiliate_details'] = $this->get_mainaffiliate()->get();
             }
@@ -597,15 +610,15 @@ class Users extends AbstractClass {
     }
 
     protected function create(array $data) {
-
+        
     }
 
     protected function update(array $data) {
-
+        
     }
 
     public function save(array $data = array()) {
-
+        
     }
 
     public function get_joindate() {
@@ -659,7 +672,8 @@ class Users extends AbstractClass {
                                 if (is_array($entity)) {
                                     $permissions['pid'] = array_keys($products);
                                 }
-                            } else {
+                            }
+                            else {
                                 $permissions['cid'][] = $entity->get_id();
                             }
                         }
@@ -671,7 +685,8 @@ class Users extends AbstractClass {
                             if (!$cache->iscached('user', $affiliateemployee->{Users::PRIMARY_KEY})) {
                                 $employee = $affiliateemployee->get_user();
                                 $cache->add('user', $employee, $employee->get_id());
-                            } else {
+                            }
+                            else {
                                 $employee = $cache->get_cachedval('user', $affiliateemployee->{Users::PRIMARY_KEY});
                             }
 
@@ -688,7 +703,8 @@ class Users extends AbstractClass {
             foreach ($supplieraudits as $audit) {
                 if (!$cache->iscached('entity', $audit->{Entities::PRIMARY_KEY})) {
                     $entity = $audit->get_entity();
-                } else {
+                }
+                else {
                     $entity = $cache->get_cachedval('entity', $audit->{Entities::PRIMARY_KEY});
                 }
 
@@ -698,7 +714,8 @@ class Users extends AbstractClass {
                 if (!$cache->iscached('entity', $audit->{Entities::PRIMARY_KEY})) {
                     $products = Products::get_data(array('spid' => $entity->get_id()), array('returnarray' => true));
                     $cache->add('entityproducts', $products, $entity->get_id());
-                } else {
+                }
+                else {
                     $products = $cache->get_cachedval('entityproducts', $audit->{Entities::PRIMARY_KEY});
                 }
 
@@ -750,7 +767,8 @@ class Users extends AbstractClass {
                         if (!$cache->iscached('user', $employeesegment->{Users::PRIMARY_KEY})) {
                             $employee = $employeesegment->get_user();
                             $cache->add('user', $employee, $employee->get_id());
-                        } else {
+                        }
+                        else {
                             $employee = $cache->get_cachedval('user', $employeesegment->{Users::PRIMARY_KEY});
                         }
 
@@ -767,13 +785,15 @@ class Users extends AbstractClass {
                         if (!$cache->iscached('entity', $entitysegment->{Entities::PRIMARY_KEY})) {
                             $entity = $entitysegment->get_entity();
                             $cache->add('entity', $entity, $entity->get_id());
-                        } else {
+                        }
+                        else {
                             $entity = $cache->get_cachedval('entity', $entitysegment->{Entities::PRIMARY_KEY});
                         }
                         $permissions['eid'][] = $entity->get_id();
                         if ($entity->is_supplier()) {
                             $permissions['spid'][] = $entity->get_id();
-                        } else {
+                        }
+                        else {
                             $permissions['cid'][] = $entity->get_id();
                         }
                     }
@@ -799,13 +819,15 @@ class Users extends AbstractClass {
                 if (!$cache->iscached('entity', $assignedemployee->{Entities::PRIMARY_KEY})) {
                     $entity = $assignedemployee->get_entity();
                     $cache->add('entity', $entity, $entity->get_id());
-                } else {
+                }
+                else {
                     $entity = $cache->get_cachedval('entity', $assignedemployee->{Entities::PRIMARY_KEY});
                 }
                 $permissions['eid'][] = $entity->get_id();
                 if ($entity->is_supplier()) {
                     $permissions['spid'][] = $entity->get_id();
-                } else {
+                }
+                else {
                     $permissions['cid'][] = $entity->get_id();
                 }
             }
@@ -883,7 +905,8 @@ class Users extends AbstractClass {
             $intuser = IntegrationOBUser::get_data('name=\'' . $this->displayName . '\' OR (firstname=\'' . $this->firstName . '\' AND lastname=\'' . $this->lastName . '\')');
             if (is_object($intuser)) {
                 return $intuser;
-            } else {
+            }
+            else {
                 if (is_array($intuser)) {
                     return current($intuser);
                 }
@@ -905,7 +928,8 @@ class Users extends AbstractClass {
                     }
                 }
             }
-        } else {
+        }
+        else {
             $uids = AffiliatedEmployees::get_column('uid', array('isMain' => 1), array('returnarray' => true));
         }
         $affiliate_fields = array('cfo', 'coo', 'generalManager', 'supervisor', 'regionalSupervisor');
@@ -942,7 +966,8 @@ class Users extends AbstractClass {
             if (is_array($core->user['hraffids']) && !empty($core->user['hraffids'])) {
                 $affids = $core->user['hraffids'];
             }
-        } else {
+        }
+        else {
             $affids = Affiliates::get_column('affid', array('isActive' => 1));
         }
         if (is_array($affids)) {
@@ -965,7 +990,8 @@ class Users extends AbstractClass {
                     if (is_array($userdsids)) {
                         if (is_array($uids[$affiliate->affid])) {
                             $uids[$affiliate->affid] = array_unique(array_merge($uids[$affiliate->affid], $userdsids));
-                        } else {
+                        }
+                        else {
                             $uids[$affiliate->affid] = $userdsids;
                         }
                     }
@@ -978,7 +1004,8 @@ class Users extends AbstractClass {
                 $affid = $user_obj->get_mainaffiliate()->affid;
                 if (is_array($uids[$affid])) {
                     array_push($uids[$affid], $user_obj->uid);
-                } else {
+                }
+                else {
                     $uids[$affid][] = $userdsids;
                 }
             }

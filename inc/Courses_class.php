@@ -92,4 +92,17 @@ class Courses extends AbstractClass {
         return false;
     }
 
+    /**
+     *
+     * @param type $uid
+     * @return boolean
+     */
+    public function is_subscribed($uid) {
+        $assignedcourses = AssignedCourses::get_data(array('uid' => $uid, 'cid' => $this->get_id()), array('returnarray' => true));
+        if (is_array($assignedcourses)) {
+            return true;
+        }
+        return false;
+    }
+
 }
