@@ -111,19 +111,4 @@ class CalendarAssignments extends AbstractClass {
         return new Events(intval($this->data['eid']));
     }
 
-    /**
-     * get the shown color on calendar based on the calendarassignment type
-     * @return boolean|string
-     */
-    public function get_color() {
-        switch ($this->get_type()) {
-            case 'deadline':
-                return '#ea0404';
-            case 'event':
-                return '#1704ea';
-            default:
-                return false;
-        }
-    }
-
 }

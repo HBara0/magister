@@ -68,4 +68,28 @@ class Courses extends AbstractClass {
         return $this->data['code'] . ' - ' . parent::get_displayname();
     }
 
+    /**
+     * Get assigned lectures to course
+     * @return boolean/Lectures array
+     */
+    public function get_lectures() {
+        $lectures_objs = Lectures::get_data(array('isActive' => 1, 'cid' => $this->get_id()), array('returnarray' => true, 'simple' => false));
+        if (is_array($lectures_objs)) {
+            return $lectures_objs;
+        }
+        return false;
+    }
+
+    /**
+     * Get assigned deadlines to course
+     * @return boolean/Deadlines array
+     */
+    public function get_deadlines() {
+        $deadlines_objs = Deadlines::get_data(array('isActive' => 1, 'cid' => $this->get_id()), array('returnarray' => true, 'simple' => false));
+        if (is_array($deadlines_objs)) {
+            return $deadlines_objs;
+        }
+        return false;
+    }
+
 }

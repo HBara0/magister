@@ -73,8 +73,8 @@
 
                     $.ajax({
                         type: 'post',
-                        url: rootdir + "?module=portal/calendar=get_editreservation",
-                        data: "id=" + event.id,
+                        url:'{$core->settings['rootdir']}/index.php?module=portal/calendar&action=get_editevent',
+                        data: "id=" + event.id+"&test="+event.test,
                         beforeSend: function() {
                             $("body").append("<div id='modal-loading'><span  style='display:block; width:100px; height: 100%; margin: 0 auto;'><img  src='./images/loader.gif'/></span></div>");
                             $("#modal-loading").dialog({
@@ -116,7 +116,7 @@
             });
             setInterval(function() {
                 $(obj).fullCalendar('refetchEvents')
-            }, 60000);
+            }, 150000);
         }
     });
 

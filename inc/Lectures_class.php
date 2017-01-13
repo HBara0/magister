@@ -131,4 +131,21 @@ class Lectures extends AbstractClass {
         return true;
     }
 
+    public function get_fromdate() {
+        return $this->data['fromTime'];
+    }
+
+    /**
+     *
+     * @global type $core
+     * @return type
+     */
+    public function get_todate() {
+        global $core;
+        if ($this->data['toDate']) {
+            return $this->data['toDate'];
+        }
+        return $this->data['fromDate'] + $core->settings['lecturelength'];
+    }
+
 }

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright © 2014 Orkila International Offshore, All Rights Reserved
  *
@@ -14,6 +15,7 @@
  * @author zaher.reda
  */
 Abstract class AbstractClass {
+
     protected $data = array();
     protected $errorcode = 0;
 
@@ -26,7 +28,7 @@ Abstract class AbstractClass {
     const REQUIRED_ATTRS = '';
 
     public function __construct($id = '', $simple = true) {
-        if(isset($id) && !empty($id)) {
+        if (isset($id) && !empty($id)) {
             $this->read($id, $simple);
         }
     }
@@ -35,10 +37,10 @@ Abstract class AbstractClass {
         global $db;
 
         $query_select = '*';
-        if($simple == true) {
+        if ($simple == true) {
             $query_select = static::SIMPLEQ_ATTRS;
         }
-        $this->data = $db->fetch_assoc($db->query('SELECT '.$query_select.' FROM '.Tprefix.static::TABLE_NAME.' WHERE '.static::PRIMARY_KEY.'='.intval($id)));
+        $this->data = $db->fetch_assoc($db->query('SELECT ' . $query_select . ' FROM ' . Tprefix . static::TABLE_NAME . ' WHERE ' . static::PRIMARY_KEY . '=' . intval($id)));
     }
 
     /**
@@ -49,32 +51,32 @@ Abstract class AbstractClass {
      */
     public function save(array $data = array()) {
         global $log;
-        if(empty($data)) {
+        if (empty($data)) {
             $data = $this->data;
         }
 
         $log->record($this->data[static::PRIMARY_KEY], $data['inputChecksum']);
 
-        if(isset($this->data[static::PRIMARY_KEY]) && !empty($this->data[static::PRIMARY_KEY])) {
+        if (isset($this->data[static::PRIMARY_KEY]) && !empty($this->data[static::PRIMARY_KEY])) {
             return $this->update($data);
         }
-        if(empty($data[static::PRIMARY_KEY])) {
+        if (empty($data[static::PRIMARY_KEY])) {
             unset($data[static::PRIMARY_KEY]);
         }
 
-        if(isset($data['inputChecksum']) && !empty($data['inputChecksum'])) {
+        if (isset($data['inputChecksum']) && !empty($data['inputChecksum'])) {
             $object = self::get_data(array('inputChecksum' => $data['inputChecksum']));
-            if(is_object($object)) {
+            if (is_object($object)) {
                 return $object->update($data);
             }
         }
         $unique_attr = static::UNIQUE_ATTRS;
-        if(!empty($unique_attr)) {
+        if (!empty($unique_attr)) {
             $unique_attrs = explode(',', static::UNIQUE_ATTRS);
-            if(is_array($unique_attrs)) {
-                foreach($unique_attrs as $attr) {
+            if (is_array($unique_attrs)) {
+                foreach ($unique_attrs as $attr) {
                     $attr = trim($attr);
-                    if(empty($data[$attr]) && $data[$attr] != 0) {
+                    if (empty($data[$attr]) && $data[$attr] != 0) {
                         $checks = null;
                         break;
                     }
@@ -82,14 +84,14 @@ Abstract class AbstractClass {
                 }
             }
         }
-        if(is_array($checks)) {
+        if (is_array($checks)) {
             $object = self::get_data($checks);
-            if(is_object($object)) {
+            if (is_object($object)) {
                 return $object->update($data);
             }
 
-            if(is_array($object)) {
-                foreach($object as $obj) {
+            if (is_array($object)) {
+                foreach ($object as $obj) {
                     $obj->delete();
                 }
             }
@@ -106,7 +108,7 @@ Abstract class AbstractClass {
      */
     protected function create(array $data) {
         global $db;
-        if(!$this->validate_data($data)) {
+        if (!$this->validate_data($data)) {
             return false;
         }
         $db->insert_query(static::TABLE_NAME, $data);
@@ -115,6 +117,7 @@ Abstract class AbstractClass {
     }
 
     abstract protected function update(array $data);
+
     /**
      * Function to validate data before creating or modifying.
      * This function have to be overriden in the class where it is required.
@@ -128,16 +131,16 @@ Abstract class AbstractClass {
 
     public function delete() {
         global $db;
-        if(empty($this->data[static::PRIMARY_KEY]) && empty($this->data['inputChecksum'])) {
+        if (empty($this->data[static::PRIMARY_KEY]) && empty($this->data['inputChecksum'])) {
             return false;
         }
-        elseif(empty($this->data[static::PRIMARY_KEY]) && !empty($this->data['inputChecksum'])) {
-            $query = $db->delete_query(static::TABLE_NAME, 'inputChecksum="'.$db->escape_string($this->data['inputChecksum']).'"');
+        elseif (empty($this->data[static::PRIMARY_KEY]) && !empty($this->data['inputChecksum'])) {
+            $query = $db->delete_query(static::TABLE_NAME, 'inputChecksum="' . $db->escape_string($this->data['inputChecksum']) . '"');
         }
         else {
-            $query = $db->delete_query(static::TABLE_NAME, static::PRIMARY_KEY.'='.intval($this->data[static::PRIMARY_KEY]));
+            $query = $db->delete_query(static::TABLE_NAME, static::PRIMARY_KEY . '=' . intval($this->data[static::PRIMARY_KEY]));
         }
-        if($query) {
+        if ($query) {
             return true;
         }
         return false;
@@ -163,7 +166,7 @@ Abstract class AbstractClass {
     }
 
     public function set(array $data) {
-        foreach($data as $name => $value) {
+        foreach ($data as $name => $value) {
             $this->data[$name] = $value;
         }
         return $this;
@@ -181,7 +184,7 @@ Abstract class AbstractClass {
      * @return string|boolean $this->data The value of that specific index.
      */
     public function __get($name) {
-        if(isset($this->data[$name])) {
+        if (isset($this->data[$name])) {
             return $this->data[$name];
         }
         return false;
@@ -219,33 +222,33 @@ Abstract class AbstractClass {
     }
 
     public function __toString() {
-        if(is_null($this->data[static::DISPLAY_NAME])) {
+        if (is_null($this->data[static::DISPLAY_NAME])) {
             return '';
         }
         return $this->get_displayname();
     }
 
     function __sleep() {
-
+        
     }
 
     function __wakeup() {
-
+        
     }
 
     function __destruct() {
-
+        
     }
 
     protected function validate_requiredfields($data) {
         global $errorhandler, $lang;
         $required_fields = static::REQUIRED_ATTRS;
-        if(!empty($required_fields)) {
+        if (!empty($required_fields)) {
             $required_fields = explode(',', $required_fields);
-            if(is_array($required_fields) && is_array($data)) {
-                foreach($required_fields as $field) {
-                    if(!isset($data[$field]) || empty($data[$field])) {
-                        if(!empty($lang->$field)) {
+            if (is_array($required_fields) && is_array($data)) {
+                foreach ($required_fields as $field) {
+                    if (!isset($data[$field]) || empty($data[$field])) {
+                        if (!empty($lang->$field)) {
                             $errorhandler->record('requiredfields', $lang->$field);
                         }
                         else {
@@ -257,6 +260,21 @@ Abstract class AbstractClass {
             }
         }
         return true;
+    }
+
+    /**
+     * Return color assigned for this object
+     * @global type $core
+     * @return String
+     */
+    public function get_color() {
+        global $core;
+        $colorvariable = static::TABLE_NAME . 'color';
+        $color = $core->settings[$colorvariable];
+        if (!$color) {
+            return false;
+        }
+        return $color;
     }
 
 }

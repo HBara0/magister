@@ -75,8 +75,41 @@ class Deadlines extends AbstractClass {
         return new Users(intval($this->data['uid']));
     }
 
+    /**
+     *
+     * @global type $core
+     * @return string
+     */
     public function get_displayname() {
-        return $this->data['code'] . ' - ' . parent::get_displayname();
+        global $core;
+        $time_output = date($core->settings['dateformat'] . ' ' . $core->settings['timeformat'], $this->data['time']);
+        $displayname = $time_output;
+        if ($this->data['title']) {
+            $displayname = $this->data['title'] . ' ' . $time_output;
+        }
+        elseif ($this->data['cid']) {
+            $course_obj = $this->get_course();
+            if (is_object($course_obj)) {
+                $displayname = "Deadline: " . $course_obj->get_displayname() . ' ' . $time_output;
+            }
+        }
+        return $displayname;
+    }
+
+    /**
+     *
+     * @return timestamp
+     */
+    public function get_todate() {
+        return ($this->data['time'] + 10);
+    }
+
+    /**
+     *
+     * @return timestamp
+     */
+    public function get_fromdate() {
+        return $this->data['time'];
     }
 
 }

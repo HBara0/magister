@@ -53,6 +53,17 @@ class AssignedCourses extends AbstractClass {
     }
 
     /**
+     *
+     * @return \Courses|boolean
+     */
+    public function get_course() {
+        if (!$this->data['cid']) {
+            return false;
+        }
+        return new Courses(intval($this->data['cid']));
+    }
+
+    /**
      * 
      * @return \Users
      */

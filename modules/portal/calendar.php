@@ -19,7 +19,8 @@ if (!isset($core->input['action'])) {
                                 }
                             </style>";
     output_page($calendar, array('additionalheaderinc' => $additionalheader));
-} else {
+}
+else {
     if ($core->input['action'] == 'get_creatreservation') {
 //        $statuses = FacilityManagementReserveType::get_data(null, array('returnarray' => true));
         if (is_array($statuses)) {
@@ -30,9 +31,11 @@ if (!isset($core->input['action'])) {
             foreach ($purposes as $purpose) {
                 if ($purpose->fmrt == 0) {
                     $purposeoptions .= '<option value="' . $purpose->alias . '" >' . $purpose->get_displayname() . '</option>';
-                } else if ($purpose->fmrt == 2) {
+                }
+                else if ($purpose->fmrt == 2) {
                     $purposeoptions .= '<option data-purpose="purpose_' . $purpose->fmrt . '" value="' . $purpose->alias . '" >' . $purpose->get_displayname() . '</option>';
-                } else {
+                }
+                else {
                     $purposeoptions .= '<option data-purpose="purpose_' . $purpose->fmrt . '" value="' . $purpose->alias . '" style="display:none">' . $purpose->get_displayname() . '</option>';
                 }
             }
@@ -52,7 +55,8 @@ if (!isset($core->input['action'])) {
         eval("\$facilityreserve = \"" . $template->get('facility_reserveautocomplete') . "\";");
         eval("\$reserve = \"" . $template->get('popup_reservefacility') . "\";");
         output($reserve);
-    } else if ($core->input['action'] == 'fetchevents') {
+    }
+    else if ($core->input['action'] == 'fetchevents') {
         //get calendarassignments
         $assignment_objs = CalendarAssignments::get_data(array('uid' => $core->user['uid'], 'isActive' => 1), array('returnarray' => true, 'simple' => false));
         if (is_array($assignment_objs)) {
@@ -60,10 +64,34 @@ if (!isset($core->input['action'])) {
                 $reserved_data[] = array('id' => $assignment_obj->get_id(), 'title' => $assignment_obj->get_displayname(), 'start' => date(DATE_ATOM, $assignment_obj->fromDate), 'end' => date(DATE_ATOM, $reservation->toDate), 'color' => $assignment_obj->get_color());
             }
         }
+        //get deadlines
+        $deadline_objs = Deadlines::get_data(array('uid' => $core->user['uid'], 'isActive' => 1), array('returnarray' => true, 'simple' => false));
+        if (is_array($deadline_objs)) {
+            foreach ($deadline_objs as $deadline_obj) {
+                $reserved_data[] = array('id' => $deadline_obj->get_id(), 'test' => 'test', 'title' => $deadline_obj->get_displayname(), 'start' => date(DATE_ATOM, $deadline_obj->get_fromdate()), 'end' => date(DATE_ATOM, $deadline_obj->get_todate()), 'color' => $deadline_obj->get_color());
+            }
+        }
         //get course lectures
-
+        $assignedcourses = AssignedCourses::get_data(array('uid' => $core->user['uid'], 'isActive' => 1), array('returnarray' => true, 'simple' => false));
+        if (is_array($assignedcourses)) {
+            foreach ($assignedcourses as $assignedcourse) {
+                $course_obj = $assignedcourse->get_course();
+                if (!is_object($course_obj)) {
+                    continue;
+                }
+                //get lectures
+                $lecture_objs = $course_obj->get_lectures();
+                if (is_array($lecture_objs)) {
+                    foreach ($lecture_objs as $lecture_obj) {
+                        $reserved_data[] = array('id' => $lecture_obj->get_id(), 'test' => 'test', 'title' => $lecture_obj->get_displayname(), 'start' => date(DATE_ATOM, $lecture_obj->get_fromdate()), 'end' => date(DATE_ATOM, $lecture_obj->get_todate()), 'color' => $lecture_obj->get_color());
+                    }
+                }
+                //get deadlines
+            }
+        }
         echo(json_encode($reserved_data));
-    } else if ($core->input['action'] == 'perform_createreservation') {
+    }
+    else if ($core->input['action'] == 'perform_createreservation') {
         if (is_empty($core->input['reserve']['fromDate'], $core->input['reserve']['toDate'], $core->input['reserve']['fmfid'], $core->input['reserve']['fromTime'], $core->input['reserve']['toTime'])) {
             output_xml('<status>false</status><message>' . $lang->fillrequiredfields . '</message>');
             exit;
@@ -85,7 +113,8 @@ if (!isset($core->input['action'])) {
                 output_xml('<status>false</status><message>' . $lang->errorsaving . '</message>');
                 break;
         }
-    } else if ($core->input['action'] == 'get_editreservation') {
+    }
+    else if ($core->input['action'] == 'get_editevent') {
         if (!isset($core->input['id'])) {
             return false;
         }
@@ -110,9 +139,11 @@ if (!isset($core->input['action'])) {
                         }
                         if ($purpose->fmrt == 0) {
                             $purposeoptions .= '<option ' . $selected . ' value="' . $purpose->alias . '" >' . $purpose->get_displayname() . '</option>';
-                        } else if ($purpose->fmrt == 2) {
+                        }
+                        else if ($purpose->fmrt == 2) {
                             $purposeoptions .= '<option ' . $selected . ' data-purpose="purpose_' . $purpose->fmrt . '" value="' . $purpose->alias . '" >' . $purpose->get_displayname() . '</option>';
-                        } else {
+                        }
+                        else {
                             $purposeoptions .= '<option ' . $selected . ' data-purpose="purpose_' . $purpose->fmrt . '" value="' . $purpose->alias . '" style="display:none">' . $purpose->get_displayname() . '</option>';
                         }
                         $selected = '';
@@ -127,7 +158,8 @@ if (!isset($core->input['action'])) {
                 $facinputname = 'reserve[fmfid]';
                 $extra_inputids = ',pickDate_from,pickDate_to,altpickTime_to,altpickTime_from';
                 eval("\$facilityreserve = \"" . $template->get('facility_reserveautocomplete') . "\";");
-            } else {
+            }
+            else {
                 $reservation['fromDate_output'] = date($core->settings['dateformat'], $reserve->fromDate) . ' , ' . trim(preg_replace('/(AM|PM)/', '', date('H:i', $reserve->fromDate)));
                 $reservation['toDate_output'] = date($core->settings['dateformat'], $reserve->toDate) . ' , ' . trim(preg_replace('/(AM|PM)/', '', date('H:i', $reserve->toDate)));
                 $show_status = 'style="display:none"';
@@ -140,7 +172,8 @@ if (!isset($core->input['action'])) {
                 if ($reserve->mtid) {
                     $reservation['purpose_output'] = $lang->reservedfrommeetings;
                     $show_purpose = '';
-                } elseif (!empty($reserve->purpose)) {
+                }
+                elseif (!empty($reserve->purpose)) {
                     $reservepurpose = FacilityManagementReservePurpose::get_data(array('alias' => $reserve->purpose));
                     $reservation['purpose_output'] = $reservepurpose->get_displayname();
                     $show_purpose = '';
