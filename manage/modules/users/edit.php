@@ -40,7 +40,7 @@ if (!$core->input['action']) {
     if ($core->user['gid'] != 1) {
         unset($usergroups[1]);
     }
-    $usergroups_list = parse_selectlist('maingid', 5, $usergroups, $user_usergroups['main']['gid']);
+    $usergroups_list = parse_selectlist('gid', 5, $usergroups, $user_usergroups['main']['gid']);
 
     $actiontype = 'edit';
     $pagetitle = $user['username'];
