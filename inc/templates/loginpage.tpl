@@ -52,30 +52,30 @@
         <div class="container">
             <form class="form-signin" id="logincontent">
                 <h2 class="form-signin-heading">{$lang->pleaselogin}</h2>
-                <label for="inputEmail" class="sr-only">{$lang->username}</label>
+                <label for="inputEmail" class="sr-only">ESIEE Email</label>
                 <input type="text" id="username" name='username' class="form-control" placeholder="{$lang->username}" required autofocus>
                 <label for="inputPassword" class="sr-only">{$lang->password}</label>
                 <input type="password" id="password" name="password" class="form-control" placeholder="{$lang->password}" required>
                 <input class="btn btn-lg btn-success btn-block" type="button" id='login_Button' value="{$lang->login}"/>
                 <input type="hidden" value="{$lastpage}" name="referer" id="referer" />
-                <div style="text-align:right;">
+                {* <div style="text-align:right;">
 
-                    <a href="#" id="resetpassword">{$lang->forgotyourpassword}</a>
+                <a href="#" id="resetpassword">{$lang->forgotyourpassword}</a>
 
-                </div>
+                </div>*}
                 <div id='login_Results' class="alert alert-info" style="display: none;" role="alert"></div>
             </form>
 
-            <form class="form-signin" id="resetpasswordcontent" style="display:none; position: relative;">
-                <h2 class="form-signin-heading">{$lang->resetpassword}</h2>
-                <label for="inputEmail" class="sr-only">{$lang->emailtosendpassword}</label>
-                <input type="text" id="email" name='email' class="form-control" placeholder="{$lang->emailtosendpassword}" required autofocus>
+            {* <form class="form-signin" id="resetpasswordcontent" style="display:none; position: relative;">
+            <h2 class="form-signin-heading">{$lang->resetpassword}</h2>
+            <label for="inputEmail" class="sr-only">{$lang->emailtosendpassword}</label>
+            <input type="text" id="email" name='email' class="form-control" placeholder="{$lang->emailtosendpassword}" required autofocus>
 
-                <input class="btn btn-lg btn-success btn-block" type="button" id='resetpassword_Button' value="{$lang->reset}"/>
-                <input type="hidden" value="{$token}" name="token" id="resetpasswordtoken" />
-                <div id='resetpassword_Results' class="alert alert-info" style="display: none;"role="alert"></div>
-                <div style='position: absolute; top:1px; right: 1px;'>{$helplink}</div>
-            </form>
+            <input class="btn btn-lg btn-success btn-block" type="button" id='resetpassword_Button' value="{$lang->reset}"/>
+            <input type="hidden" value="{$token}" name="token" id="resetpasswordtoken" />
+            <div id='resetpassword_Results' class="alert alert-info" style="display: none;"role="alert"></div>
+            <div style='position: absolute; top:1px; right: 1px;'>{$helplink}</div>
+            </form>*}
 
         </div> <!-- /container -->
     </body>
