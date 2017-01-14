@@ -27,8 +27,7 @@ if (strpos(strtolower($_SERVER['PHP_SELF']), ADMIN_DIR) !== false) {
 else {
     define('IN_AREA', 'user');
 }
-
-$lang = new Language('english');
+$lang = new Language('english', IN_AREA);
 $charset = $lang->settings['charset'];
 $htmllang = $lang->settings['htmllang'];
 $db->set_charset($lang->settings['charset_db']);
