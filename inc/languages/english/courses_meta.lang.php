@@ -12,4 +12,8 @@ $lang['googledrivefolderlink'] = 'Google Drive Folder Link';
 $lang['cratecourse'] = 'Create Course';
 $lang['students'] = 'Students';
 $lang['subscribe'] = 'Subscribe';
+$lang['viewcourse'] = 'View Course';
+$lang['coursedescription'] = 'Course Description';
+$lang['lectures'] = 'Lectures';
+$lang['location'] = 'Location';
 ?>

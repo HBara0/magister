@@ -1,0 +1,23 @@
+<table class="datatable_basic table table-bordered row-border hover order-column" data-checkonclick=true cellspacing="0" width="100%">
+    <thead>
+        <tr>
+            <th>&nbsp;</th>
+            <th>{$lang->from}</th>
+            <th>{$lang->to}</th>
+            <th>{$lang->title}</th>
+            <th>{$lang->location}</th>
+        </tr>
+    </thead>
+    <tfoot>
+        <tr>
+            <th>&nbsp;</th>
+            <th>{$lang->from}</th>
+            <th>{$lang->to}</th>
+            <th>{$lang->title}</th>
+            <th>{$lang->location}</th>
+        </tr>
+    </tfoot>
+    <tbody>
+        {$lecutre_rows}
+    </tbody>
+</table>

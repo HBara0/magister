@@ -149,7 +149,81 @@ class Courses extends AbstractClass {
 
     public function get_link() {
         global $core;
-        return $core->settings['rootdir'] . '/index.php?module=courses/courseprofile&amp;pid=' . $this->data[self::PRIMARY_KEY];
+        return $core->settings['rootdir'] . '/index.php?module=courses/courseprofile&amp;id=' . $this->data[self::PRIMARY_KEY];
+    }
+
+    /**
+     * check if current user can manage course
+     * @global type $core
+     * @return boolean
+     */
+    public function canManageCourse() {
+        global $core;
+        if ($core->usergroup['canManageAllCourses']) {
+            return true;
+        }
+        elseif ($this->data['teacherId'] == $core->user['uid']) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     *
+     * @global type $core
+     * @return type
+     */
+    public function get_editlink() {
+        global $core;
+        return $core->settings['rootdir'] . '/index.php?module=courses/managecourse&amp;id=' . $this->data[self::PRIMARY_KEY];
+    }
+
+    public function get_teacheroutput() {
+        $teacher_obj = $this->get_teacher();
+        if (!is_object($teacher_obj)) {
+            return;
+        }
+        return $teacher_obj->get_displayname();
+    }
+
+    public function get_lectureoutput() {
+        global $template, $lang, $core;
+        $course_lectures = $this->get_lectures();
+        if (!is_array($course_lectures)) {
+            return;
+        }
+        foreach ($course_lectures as $lecture_obj) {
+            $fromtime = $lecture_obj->get_fromdate();
+            $totime = $lecture_obj->get_todate();
+
+            $fromdate = date($core->settings['dateformat'] . ' ' . $core->settings[timeformat], $fromtime);
+            $todate = date($core->settings['dateformat'] . ' ' . $core->settings[timeformat], $totime);
+
+            $title_output = 'N/A';
+            if ($lecture_obj->title) {
+                $title_output = $lecture_obj->title;
+            }
+            $location_output = 'N/A';
+            if ($lecture_obj->location) {
+                $location_output = $lecture_obj->location;
+            }
+
+            //parse tools depending on user permission
+            if ($this->canManageCourse()) {
+//            $tool_items = ' <li><a target="_blank" href="' . $course_obj->get_link() . '"><span class="glyphicon glyphicon-eye-open"></span>&nbsp' . $lang->viewcourse . '</a></li>';
+//            if ($course_obj->canManageCourse()) {
+//                $tool_items .= ' <li><a target="_blank" href="' . $course_obj->get_editlink() . '"><span class="glyphicon glyphicon-pencil"></span>&nbsp' . $lang->managecourse . '</a></li>';
+//            }
+            }
+            eval("\$tools = \"" . $template->get('tools_buttonselectlist') . "\";");
+
+            eval("\$lecutre_rows.= \"" . $template->get('lecturesection_table_row') . "\";");
+            unset($tools);
+        }
+        eval("\$lecutre_section_table= \"" . $template->get('lecturesection_table') . "\";");
+
+        eval("\$lecutre_section= \"" . $template->get('courses_courseprofile_lecturesection') . "\";");
+        return $lecutre_section;
     }
 
 }

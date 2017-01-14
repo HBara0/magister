@@ -4,7 +4,10 @@ function output_page($pagecontent, $options = null) {// default tpl, options to 
     global $core, $lang, $timer, $template, $header, $footer, $headerinc, $rightsidemenu, $additionalheaderinc;
 
     $pagetitle = '';
-    if (isset($options['pagetitle']) && !empty($options['pagetitle'])) {
+    if (isset($options['pagetitledirect']) && !empty($options['pagetitledirect'])) {
+        $pagetitle = $options['pagetitledirect'];
+    }
+    elseif (isset($options['pagetitle']) && !empty($options['pagetitle'])) {
         $pagetitle = $lang->$options['pagetitle'];
     }
     else if (!empty($core->input['module'])) {
