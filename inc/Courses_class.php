@@ -207,18 +207,46 @@ class Courses extends AbstractClass {
             if ($lecture_obj->location) {
                 $location_output = $lecture_obj->location;
             }
-
+            $type_output = $lang->lecture;
             //parse tools depending on user permission
             if ($this->canManageCourse()) {
 //            $tool_items = ' <li><a target="_blank" href="' . $course_obj->get_link() . '"><span class="glyphicon glyphicon-eye-open"></span>&nbsp' . $lang->viewcourse . '</a></li>';
 //            if ($course_obj->canManageCourse()) {
 //                $tool_items .= ' <li><a target="_blank" href="' . $course_obj->get_editlink() . '"><span class="glyphicon glyphicon-pencil"></span>&nbsp' . $lang->managecourse . '</a></li>';
 //            }
+                eval("\$tools = \"" . $template->get('tools_buttonselectlist') . "\";");
             }
-            eval("\$tools = \"" . $template->get('tools_buttonselectlist') . "\";");
 
             eval("\$lecutre_rows.= \"" . $template->get('lecturesection_table_row') . "\";");
             unset($tools);
+        }
+
+        //parse deadlines
+        $deadline_objs = Deadlines::get_data(array('cid' => $this->get_id(), 'isActive' => 1), array('returnarray' => true));
+        if (is_array($deadline_objs)) {
+            foreach ($deadline_objs as $deadline_obj) {
+                if ($this->canManageCourse()) {
+                    eval("\$tools = \"" . $template->get('tools_buttonselectlist') . "\";");
+                }
+                $fromtime = $deadline_obj->get_fromdate();
+                $totime = $deadline_obj->get_todate();
+
+                $fromdate = date($core->settings['dateformat'] . ' ' . $core->settings[timeformat], $fromtime);
+                $todate = date($core->settings['dateformat'] . ' ' . $core->settings[timeformat], $totime);
+
+                $title_output = 'N/A';
+                if ($deadline_obj->title) {
+                    $title_output = $deadline_obj->title;
+                }
+                $location_output = 'N/A';
+                if ($deadline_obj->location) {
+                    $location_output = $deadline_obj->location;
+                }
+                $type_output = $lang->deadline;
+
+                eval("\$lecutre_rows.= \"" . $template->get('lecturesection_table_row') . "\";");
+                unset($tools);
+            }
         }
         eval("\$lecutre_section_table= \"" . $template->get('lecturesection_table') . "\";");
 

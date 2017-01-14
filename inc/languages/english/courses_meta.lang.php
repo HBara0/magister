@@ -16,4 +16,11 @@ $lang['viewcourse'] = 'View Course';
 $lang['coursedescription'] = 'Course Description';
 $lang['lectures'] = 'Lectures';
 $lang['location'] = 'Location';
+$lang['removecourse'] = 'Remove Course';
+$lang['addcourse'] = 'Add Course';
+$lang['lecture'] = 'Lecture';
+$lang['type'] = 'Type';
+$lang['deadline'] = 'Deadline';
+$lang['lectureanddeadlines'] = 'Lectures & Deadlines';
+$lang['coursefiles'] = 'Course Files';
 ?>

@@ -6,6 +6,7 @@
             <th>{$lang->to}</th>
             <th>{$lang->title}</th>
             <th>{$lang->location}</th>
+            <th>{$lang->type}</th>
         </tr>
     </thead>
     <tfoot>
@@ -15,6 +16,7 @@
             <th>{$lang->to}</th>
             <th>{$lang->title}</th>
             <th>{$lang->location}</th>
+            <th>{$lang->type}</th>
         </tr>
     </tfoot>
     <tbody>
