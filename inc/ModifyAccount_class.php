@@ -85,6 +85,11 @@ class ModifyAccount extends Accounts {
                 exit;
             }
         }
+        $data['username'] = $data['email'];
+        if (Accounts::username_exists($data['username'])) {
+            output_xml("<status>false</status><message>{$lang->usernameexists}</message>");
+            exit;
+        }
         if ($data['firstName'] && $data['lastName']) {
             $data['displayName'] = $data['firstName'] . ' ' . $data['lastName'];
         }
