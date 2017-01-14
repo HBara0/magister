@@ -32,8 +32,7 @@ if (!$core->input['action']) {
     if ($core->user['gid'] != 1) {
         unset($usergroups[1]);
     }
-    $usergroups_list = parse_selectlist('maingid', 5, $usergroups, 3);
-    $addusergroups_list = parse_selectlist('addgids[]', 5, $usergroups, '', 1);
+    $usergroups_list = parse_selectlist('gid', 5, $usergroups, 3);
 
 
     $actiontype = 'add';
@@ -52,6 +51,8 @@ else {
             $log->record($core->input['username']);
             unset($core->input['module'], $core->input['action'], $core->input['password2']);
             $account = new CreateAccount($core->input);
+            output_xml("<status>true</status><message>Success</message>");
+            exit;
         }
         else {
             output_xml("<status>false</status><message>{$lang->passwordsnomatch}</message>");

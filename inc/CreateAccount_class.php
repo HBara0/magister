@@ -45,6 +45,7 @@ class CreateAccount extends Accounts {
             }
             $data['firstName'] = ucfirst($data['firstName']);
             $data['lastName'] = ucfirst($data['lastName']);
+            $data['displayName'] = $data['firstName'] . ' ' . $data['lastName'];
             $data['dateAdded'] = time();
 
 
@@ -53,6 +54,7 @@ class CreateAccount extends Accounts {
         }
         else {
             output_xml("<status>false</status><message>{$lang->usernameexists}</message>");
+            exit;
         }
     }
 
