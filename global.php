@@ -28,7 +28,7 @@ else {
     define('IN_AREA', 'user');
 }
 
-$lang = new Language($core->user['language'], IN_AREA);
+$lang = new Language('english');
 $charset = $lang->settings['charset'];
 $htmllang = $lang->settings['htmllang'];
 $db->set_charset($lang->settings['charset_db']);

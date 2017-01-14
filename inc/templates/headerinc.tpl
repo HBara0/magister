@@ -6,6 +6,9 @@
 <script src="{$core->settings[rootdir]}/js/bootstrap.min.js"></script>
 <script src="{$core->settings[rootdir]}/js/jquery.cookie.min.js" type="text/javascript"></script>
 <script src="{$core->settings[rootdir]}/js/ckeditor/ckeditor.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js"></script>
+
 <script src="{$core->settings[rootdir]}/js/jscript.min.js" type="text/javascript"></script>
 <script src="{$core->settings[rootdir]}/js/jquery.tokeninput.js" type = "text/javascript" ></script>
 

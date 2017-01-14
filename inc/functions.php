@@ -1,29 +1,30 @@
 <?php
+
 function output_page($pagecontent, $options = null) {// default tpl, options to enforce a customised tpl
     global $core, $lang, $timer, $template, $header, $footer, $headerinc, $rightsidemenu, $additionalheaderinc;
 
     $pagetitle = '';
-    if(isset($options['pagetitle']) && !empty($options['pagetitle'])) {
+    if (isset($options['pagetitle']) && !empty($options['pagetitle'])) {
         $pagetitle = $lang->$options['pagetitle'];
     }
-    else if(!empty($core->input['module'])) {
+    else if (!empty($core->input['module'])) {
         $files = explode("/", $core->input['module']);
-        if(is_array($files) && !empty($files[1])) {
+        if (is_array($files) && !empty($files[1])) {
             $pagetitle = $lang->$files[1];
         }
     }
     $options['helptourref'] = 'newlayout';
 //    ${$options['helptourref'].'_helptour'} = get_helptour('newlayout');
 
-    if(!empty($options['additionalheaderinc'])) {
+    if (!empty($options['additionalheaderinc'])) {
         $headerinc .= $options['additionalheaderinc'];
     }
-    eval("\$template= \"".$template->get('defaulttpl')."\";");
+    eval("\$template= \"" . $template->get('defaulttpl') . "\";");
 
-    $template = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n".$template;
+    $template = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n" . $template;
     $template = str_replace("<html", "<html xmlns=\"http://www.w3.org/1999/xhtml\"", $template);
 
-    if($lang->settings['rtl'] == 1) {
+    if ($lang->settings['rtl'] == 1) {
         $template = str_replace("<html", "<html dir=\"rtl\"", $template);
     }
 
@@ -31,14 +32,14 @@ function output_page($pagecontent, $options = null) {// default tpl, options to 
 
     $timer->stop();
 
-    $debug = 'Version '.SYSTEMVERSION.'<br />';
-    if($core->usergroup['canPerformMaintenance'] == 1) {
-        $debug .= 'Generated in '.$timer->get().' seconds';
+    $debug = 'Version ' . SYSTEMVERSION . '<br />';
+    if ($core->usergroup['canPerformMaintenance'] == 1) {
+        $debug .= 'Generated in ' . $timer->get() . ' seconds';
     }
     $template = str_replace("<debug>", $debug, $template);
 
-    if($core->settings['enablecompression'] == 1) {
-        if(version_compare(PHP_VERSION, '4.2.0', '>=')) {
+    if ($core->settings['enablecompression'] == 1) {
+        if (version_compare(PHP_VERSION, '4.2.0', '>=')) {
             $template = gzip_compression($template, $core->settings['gziplevel']);
         }
         else {
@@ -52,8 +53,8 @@ function output_page($pagecontent, $options = null) {// default tpl, options to 
 
 function output($output) {
     global $core;
-    if($core->settings['enablecompression'] == 1) {
-        if(version_compare(PHP_VERSION, '4.2.0', '>=')) {
+    if ($core->settings['enablecompression'] == 1) {
+        if (version_compare(PHP_VERSION, '4.2.0', '>=')) {
             $output = gzip_compression($output, $core->settings['gziplevel']);
         }
         else {
@@ -70,31 +71,31 @@ function output($output) {
  * @return String					Compressed content
  */
 function gzip_compression($contents, $level = 1) {
-    if(function_exists('gzcompress') && function_exists('crc32') && !headers_sent() && !(ini_get('output_buffering') && strpos(' '.ini_get('output_handler'), 'ob_gzhandler'))) {
+    if (function_exists('gzcompress') && function_exists('crc32') && !headers_sent() && !(ini_get('output_buffering') && strpos(' ' . ini_get('output_handler'), 'ob_gzhandler'))) {
         $httpaccept_encoding = '';
 
-        if(isset($_SERVER['HTTP_ACCEPT_ENCODING'])) {
+        if (isset($_SERVER['HTTP_ACCEPT_ENCODING'])) {
             $httpaccept_encoding = $_SERVER['HTTP_ACCEPT_ENCODING'];
         }
 
-        if(strpos(' '.$httpaccept_encoding, 'x-gzip')) {
+        if (strpos(' ' . $httpaccept_encoding, 'x-gzip')) {
             $encoding = 'x-gzip';
         }
 
-        if(strpos(" ".$httpaccept_encoding, 'gzip')) {
+        if (strpos(" " . $httpaccept_encoding, 'gzip')) {
             $encoding = 'gzip';
         }
 
-        if(strpos(' '.$httpaccept_encoding, 'deflate')) {
+        if (strpos(' ' . $httpaccept_encoding, 'deflate')) {
             $encoding = 'deflate';
         }
 
-        if(isset($encoding)) {
+        if (isset($encoding)) {
             header("Content-Encoding: {$encoding}");
-            if(function_exists('gzdeflate')) {
+            if (function_exists('gzdeflate')) {
                 $contents = gzdeflate($contents, $level);
             }
-            elseif(function_exists('gzencode')) {
+            elseif (function_exists('gzencode')) {
                 $contents = gzencode($contents, $level);
             }
             else {
@@ -121,8 +122,8 @@ function output_xml($xml) {
     ob_clean();
 
     header('Content-type: text/xml');
-    echo '<?xml version="1.0" encoding="'.$lang->settings['charset'].'"?>';
-    echo '<xml>'.$xml.'</xml>';
+    echo '<?xml version="1.0" encoding="' . $lang->settings['charset'] . '"?>';
+    echo '<xml>' . $xml . '</xml>';
 }
 
 /**
@@ -130,7 +131,7 @@ function output_xml($xml) {
  */
 function set_headers() {
     header("Expires: Sat, 1 Jan 2000 01:00:00 GMT");
-    header("Last-Modified: ".gmdate("D, d M Y H:i:s")." GMT");
+    header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
     header("Cache-Control: no-cache, must-revalidate");
     header("Pragma: no-cache");
 }
@@ -144,7 +145,7 @@ function random_string($length) {
     $keys = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
     $max = strlen($keys) - 1;
 
-    for($i = 0; $i < $length; $i++) {
+    for ($i = 0; $i < $length; $i++) {
         $rand = rand(0, $max);
         $rand_key[] = $keys{$rand};
     }
@@ -159,21 +160,21 @@ function random_string($length) {
  * @return  String 				The IP Address
  */
 function userip() {
-    if(isset($_SERVER['HTTP_X_FORWARDED_FOR'])) { //Let's catch the proxy behind the nat router.
-        if(preg_match_all("#[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}#s", $_SERVER['HTTP_X_FORWARDED_FOR'], $addr)) {
-            foreach($addr[0] as $key => $value) {
-                if(!preg_match("#^(10|172\.16|192\.168)\.#", $value)) {
+    if (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) { //Let's catch the proxy behind the nat router.
+        if (preg_match_all("#[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}#s", $_SERVER['HTTP_X_FORWARDED_FOR'], $addr)) {
+            foreach ($addr[0] as $key => $value) {
+                if (!preg_match("#^(10|172\.16|192\.168)\.#", $value)) {
                     $ip = $value;
                     break;
                 }
             }
         }
     }
-    if(!$ip || $ip == '') {
-        if($_SERVER['REMOTE_ADDR']) {
-            if(preg_match_all("#[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}#s", $_SERVER['REMOTE_ADDR'], $addr)) {
-                foreach($addr[0] as $key => $value) {
-                    if(!preg_match("#^(10|172\.16|192\.168)\.#", $value)) {
+    if (!$ip || $ip == '') {
+        if ($_SERVER['REMOTE_ADDR']) {
+            if (preg_match_all("#[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}#s", $_SERVER['REMOTE_ADDR'], $addr)) {
+                foreach ($addr[0] as $key => $value) {
+                    if (!preg_match("#^(10|172\.16|192\.168)\.#", $value)) {
                         $ip = $value;
                         break;
                     }
@@ -181,9 +182,9 @@ function userip() {
             }
         }
         else {
-            if(preg_match_all("#[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}#s", $_SERVER['HTTP_CLIENT_IP'], $addr)) {
-                foreach($addr[0] as $key => $value) {
-                    if(!preg_match("#^(10|172\.16|192\.168)\.#", $value)) {
+            if (preg_match_all("#[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}#s", $_SERVER['HTTP_CLIENT_IP'], $addr)) {
+                foreach ($addr[0] as $key => $value) {
+                    if (!preg_match("#^(10|172\.16|192\.168)\.#", $value)) {
                         $ip = $value;
                         break;
                     }
@@ -203,13 +204,13 @@ function redirect($url, $delay = 0, $redirect_message = '') {
     global $core, $lang, $template, $headerinc;
     $url = str_replace("&amp;", "&", $url);
     $url = str_replace("#", "&#", $url);
-    if(!empty($redirect_message)) {
-        eval("\$redirectpage = \"".$template->get('redirect')."\";");
+    if (!empty($redirect_message)) {
+        eval("\$redirectpage = \"" . $template->get('redirect') . "\";");
         output_page($redirectpage);
         exit;
     }
     else {
-        if($delay > 0) {
+        if ($delay > 0) {
             header("Refresh: $delay; url=$url");
         }
         else {
@@ -225,11 +226,11 @@ function redirect($url, $delay = 0, $redirect_message = '') {
  * @return	Boolean						Either valid or not
  */
 function isvalid_email($email) {
-    if(strpos($email, ' ') !== false) {
+    if (strpos($email, ' ') !== false) {
         return false;
     }
 
-    if(function_exists('filter_var')) {
+    if (function_exists('filter_var')) {
         return filter_var($email, FILTER_VALIDATE_EMAIL);
     }
     else {
@@ -242,7 +243,7 @@ function isvalid_email($email) {
  * @param 	String 		$text	The string to format
  */
 function chtmlspecialchars(&$text) {
-    if(!is_array($text)) {
+    if (!is_array($text)) {
         $text = preg_replace("#&(?!\#[0-9]+;)#si", "&amp;", $text);
         $text = str_replace("<", "&lt;", $text);
         $text = str_replace(">", "&gt;", $text);
@@ -256,7 +257,7 @@ function chtmlspecialchars(&$text) {
  * @return  String		$text		Parse text
  */
 function parse_ocode(&$text) {
-    if(!is_array($text)) {
+    if (!is_array($text)) {
         $text = preg_replace("#\[b\](.*?)\[/b\]#si", "<span style='font-weight: bold;'>$1</span>", $text);
         $text = preg_replace("#\[i\](.*?)\[/i\]#si", "<span style='font-style: italic;'>$1</span>", $text);
         $text = preg_replace("#\[u\](.*?)\[/u\]#si", "<span style='text-decoration: underline;'>$1</span>", $text);
@@ -264,7 +265,7 @@ function parse_ocode(&$text) {
 }
 
 function fix_newline(&$text) {
-    if(!is_array($text)) {
+    if (!is_array($text)) {
         $text = preg_replace("/\\n/i", '<br />', $text);
     }
 }
@@ -278,13 +279,13 @@ function error($message, $redirect_url = '', $noexit = false) {
     global $core, $template, $lang, $config, $settings, $headerinc;
 
     $error_message = $message;
-    if(!empty($redirect_url)) {
-        $redirect = '<meta http-equiv="refresh" content="3;URL='.$redirect_url.'" />';
+    if (!empty($redirect_url)) {
+        $redirect = '<meta http-equiv="refresh" content="3;URL=' . $redirect_url . '" />';
     }
-    eval("\$errorpage = \"".$template->get('errorpage')."\";");
+    eval("\$errorpage = \"" . $template->get('errorpage') . "\";");
     output_page($errorpage);
 
-    if($noexit == false) {
+    if ($noexit == false) {
         exit;
     }
 }
@@ -298,11 +299,11 @@ function error($message, $redirect_url = '', $noexit = false) {
 function create_cookie($name, $value, $duration = '', $secure = false, $httponly = false) {
     global $core;
 
-    if(!is_array($value)) {
-        if(empty($duration)) {
+    if (!is_array($value)) {
+        if (empty($duration)) {
             $duration = (time() + (60 * $core->settings['idletime']));
         }
-        setcookie(COOKIE_PREFIX.$name, urlencode($value), $duration, COOKIE_PATH, COOKIE_DOMAIN, $secure, $httponly);
+        setcookie(COOKIE_PREFIX . $name, urlencode($value), $duration, COOKIE_PATH, COOKIE_DOMAIN, $secure, $httponly);
     }
 }
 
@@ -310,26 +311,26 @@ function create_cookie($name, $value, $duration = '', $secure = false, $httponly
  * Parse input fields of various types
  */
 function parse_textfield($name, $id, $type, $value = '', $options = array(), $config = array()) {
-    if(empty($id)) {
+    if (empty($id)) {
         return false;
     }
 
-    if(!empty($options)) {
-        foreach($options as $key => $val) {
-            $attributes.= $key.'="'.$val.'"';
+    if (!empty($options)) {
+        foreach ($options as $key => $val) {
+            $attributes.= $key . '="' . $val . '"';
         }
     }
 
     $accepted_types = array('text', 'tel', 'number', 'search', 'url', 'email', 'datetime', 'date', 'month', 'week', 'time', 'checkbox', 'image', 'file');
-    if(!array($accepted_types, $type)) {
+    if (!array($accepted_types, $type)) {
         $type = 'text';
     }
 
-    if(isset($config['id'])) {
+    if (isset($config['id'])) {
         $id = $config['id'];
     }
 
-    $text = '<input type="'.$type.'" name="'.$name.'" value="'.$value.'" id="'.$id.'"'.$attributes.'>';
+    $text = '<input type="' . $type . '" name="' . $name . '" value="' . $value . '" id="' . $id . '"' . $attributes . '>';
     return $text;
 }
 
@@ -345,100 +346,200 @@ function parse_textfield($name, $id, $type, $value = '', $options = array(), $co
  * @return string
  */
 function parse_selectlist($name, $tabindex, $options, $selected_options, $multiple_list = 0, $onchange_actions = '', $config = array()) {
-    if(!is_array($options)) {
+    if (!is_array($options)) {
         return;
     }
-    if($multiple_list == 1) {
-        if(!isset($config['multiplesize']) || empty($config['multiplesize'])) {
+    if ($multiple_list == 1) {
+        if (!isset($config['multiplesize']) || empty($config['multiplesize'])) {
             $config['multiplesize'] = 5;
         }
 
         $config['size'] = $config['multiplesize'];
-        $multiple = ' multiple="multiple" SIZE="'.$config['multiplesize'].'"';
+        $multiple = ' multiple="multiple" SIZE="' . $config['multiplesize'] . '"';
     }
 
-    if(is_array($selected_options)) {
+    if (is_array($selected_options)) {
         $multiple_selected = true;
     }
-    if(!empty($onchange_actions)) {
-        $onchange_actions = ' onchange=\''.$onchange_actions.'\'';
+    if (!empty($onchange_actions)) {
+        $onchange_actions = ' onchange=\'' . $onchange_actions . '\'';
     }
 
     $id = $name;
-    if(isset($config['id'])) {
+    if (isset($config['id'])) {
         $id = $config['id'];
     }
     $disabled = '';
-    if(isset($config['disabled'])) {
-        $disabled = '  disabled="'.$config['disabled'].'" ';
+    if (isset($config['disabled'])) {
+        $disabled = '  disabled="' . $config['disabled'] . '" ';
     }
-    if(isset($config['required']) && ($config['required'] == true || $config['required'] == 'required')) {
+    if (isset($config['required']) && ($config['required'] == true || $config['required'] == 'required')) {
         $required = ' required = "required"';
     }
 
-    if(!isset($config['size']) && $multiple_list != 1) {
+    if (!isset($config['size']) && $multiple_list != 1) {
         $config['size'] = 1;
     }
 
-    if(isset($config['width'])) {
-        $list_style = 'width: '.$config['width'].';';
+    if (isset($config['width'])) {
+        $list_style = 'width: ' . $config['width'] . ';';
     }
-    if(isset($config['data_attribute'])) {
-        $datattr = $config['data_attribute'].';';
+    if (isset($config['data_attribute'])) {
+        $datattr = $config['data_attribute'] . ';';
     }
-
-    if(isset($config['class'])) {
-        $list_class = ' class="'.$config['class'].'" ';
+    if (isset($config['class'])) {
+        $list_class = ' class="' . $config['class'] . '" ';
     }
+    $list .= '<select style="' . $list_style . '" id="' . $id . '" name="' . $name . '" ' . $disabled . ' size="' . $config['size'] . '" tabindex="' . $tabindex . '"' . $required . $multiple . $onchange_actions . $datattr . $list_class . '>';
 
-    $list .= '<select style="'.$list_style.'" id="'.$id.'" name="'.$name.'" '.$disabled.' size="'.$config['size'].'" tabindex="'.$tabindex.'"'.$required.$multiple.$onchange_actions.$datattr.$list_class.'>';
-
-    if($config['blankstart'] == true && empty($config['placeholder'])) {
+    if ($config['blankstart'] == true && empty($config['placeholder'])) {
         $list .= '<option></option>';
     }
 
-    if(!empty($config['placeholder'])) {
-        if(empty($selected_options)) {
+    if (!empty($config['placeholder'])) {
+        if (empty($selected_options)) {
             $placeholder_selected = ' selected';
         }
-        $list .= '<option disabled value="0"'.$placeholder_selected.'>'.$config['placeholder'].'</option>';
+        $list .= '<option disabled value="0"' . $placeholder_selected . '>' . $config['placeholder'] . '</option>';
         unset($placeholder_selected);
     }
-    foreach($options as $key => $val) {
-        if(is_object($val)) {
-            if(method_exists($val, 'get_id')) {
+    foreach ($options as $key => $val) {
+        if (is_object($val)) {
+            if (method_exists($val, 'get_id')) {
                 $key = $val->get_id();
             }
             $val = $val->get_displayname();
         }
 
-        if($multiple_selected == true) {
+        if ($multiple_selected == true) {
             $selected_options = array_filter($selected_options, 'strlen');
-            if(in_array($key, $selected_options)) {
+            if (in_array($key, $selected_options)) {
                 $attributes = ' selected="selected"';
                 $selected = true;
             }
         }
         else {
-            if($selected_options == $key && $selected_options != null) {
+            if ($selected_options == $key && $selected_options != null) {
                 $attributes = ' selected="selected"';
                 $selected = true;
             }
         }
-        if(isset($config['disabledNonSelectedItems']) && $config['disabledNonSelectedItems'] == 1 && $selected != true) {
+        if (isset($config['disabledNonSelectedItems']) && $config['disabledNonSelectedItems'] == 1 && $selected != true) {
             $attributes .= ' disabled="disabled"';
         }
-        elseif(isset($config['disabledItems'][$key]) && $selected != true) {
+        elseif (isset($config['disabledItems'][$key]) && $selected != true) {
             $attributes .= ' disabled="disabled"';
         }
-        if(isset($config['optionids']) && is_array($config['optionids'])) {
-            if(is_array($config['optionids']['when'])) {
-                if(array_key_exists($key, $config['optionids']['when'])) {
-                    $attributes.=' id='.$config['optionids']['id'];
+        if (isset($config['optionids']) && is_array($config['optionids'])) {
+            if (is_array($config['optionids']['when'])) {
+                if (array_key_exists($key, $config['optionids']['when'])) {
+                    $attributes.=' id=' . $config['optionids']['id'];
                 }
             }
         }
-        $list .= '<option value="'.$key.'"'.$attributes.'>'.$val.'</option>';
+        $list .= '<option value="' . $key . '"' . $attributes . '>' . $val . '</option>';
+        $attributes = $selected = '';
+    }
+    $list .= '</select>';
+
+    return $list;
+}
+
+function parse_selectlist2($name, $tabindex, $options, $selected_options, $multiple_list = 0, $onchange_actions = '', $config = array()) {
+    if (!is_array($options)) {
+        return;
+    }
+    if ($multiple_list == 1) {
+        if (!isset($config['multiplesize']) || empty($config['multiplesize'])) {
+            $config['multiplesize'] = 5;
+        }
+
+        $config['size'] = $config['multiplesize'];
+        $multiple = ' multiple="multiple" SIZE="' . $config['multiplesize'] . '"';
+    }
+
+    if (is_array($selected_options)) {
+        $multiple_selected = true;
+    }
+    if (!empty($onchange_actions)) {
+        $onchange_actions = ' onchange=\'' . $onchange_actions . '\'';
+    }
+
+    $id = $name;
+    if (isset($config['id'])) {
+        $id = $config['id'];
+    }
+    $disabled = '';
+    if (isset($config['disabled'])) {
+        $disabled = '  disabled="' . $config['disabled'] . '" ';
+    }
+    if (isset($config['required']) && ($config['required'] == true || $config['required'] == 'required')) {
+        $required = ' required = "required"';
+    }
+
+    if (!isset($config['size']) && $multiple_list != 1) {
+        $config['size'] = 1;
+    }
+
+    if (isset($config['width'])) {
+        $list_style = 'width: ' . $config['width'] . ';';
+    }
+    if (isset($config['data_attribute'])) {
+        $datattr = $config['data_attribute'] . ';';
+    }
+    $list_class = ' class="select2_basic ';
+    if (isset($config['class'])) {
+        $list_class .= ' ' . $config['class'] . '';
+    }
+    $list_class .= '"';
+    $list .= '<select style="' . $list_style . '" id="' . $id . '" name="' . $name . '" ' . $disabled . ' size="' . $config['size'] . '" tabindex="' . $tabindex . '"' . $required . $multiple . $onchange_actions . $datattr . $list_class . '>';
+
+    if ($config['blankstart'] == true && empty($config['placeholder'])) {
+        $list .= '<option>  ---- </option>';
+    }
+
+    if (!empty($config['placeholder'])) {
+        if (empty($selected_options)) {
+            $placeholder_selected = ' selected';
+        }
+        $list .= '<option disabled value="0"' . $placeholder_selected . '>' . $config['placeholder'] . '</option>';
+        unset($placeholder_selected);
+    }
+    foreach ($options as $key => $val) {
+        if (is_object($val)) {
+            if (method_exists($val, 'get_id')) {
+                $key = $val->get_id();
+            }
+            $val = $val->get_displayname();
+        }
+
+        if ($multiple_selected == true) {
+            $selected_options = array_filter($selected_options, 'strlen');
+            if (in_array($key, $selected_options)) {
+                $attributes = ' selected="selected"';
+                $selected = true;
+            }
+        }
+        else {
+            if ($selected_options == $key && $selected_options != null) {
+                $attributes = ' selected="selected"';
+                $selected = true;
+            }
+        }
+        if (isset($config['disabledNonSelectedItems']) && $config['disabledNonSelectedItems'] == 1 && $selected != true) {
+            $attributes .= ' disabled="disabled"';
+        }
+        elseif (isset($config['disabledItems'][$key]) && $selected != true) {
+            $attributes .= ' disabled="disabled"';
+        }
+        if (isset($config['optionids']) && is_array($config['optionids'])) {
+            if (is_array($config['optionids']['when'])) {
+                if (array_key_exists($key, $config['optionids']['when'])) {
+                    $attributes.=' id=' . $config['optionids']['id'];
+                }
+            }
+        }
+        $list .= '<option value="' . $key . '"' . $attributes . '>' . $val . '</option>';
         $attributes = $selected = '';
     }
     $list .= '</select>';
@@ -449,7 +550,7 @@ function parse_selectlist($name, $tabindex, $options, $selected_options, $multip
 function parse_yesno($name, $tabindex, $checked_option = 0) {
     global $lang;
 
-    if($checked_option == '1') {
+    if ($checked_option == '1') {
         $yes_checked = ' checked="checked"';
     }
     else {
@@ -462,22 +563,22 @@ function parse_yesno($name, $tabindex, $checked_option = 0) {
 }
 
 function parse_radiobutton($name, $items, $checked_option = '', $display_title = true, $seperator = '', $config = array()) {
-    if(is_array($items)) {
-        foreach($items as $key => $val) {
+    if (is_array($items)) {
+        foreach ($items as $key => $val) {
             $checked = '';
-            if($display_title === false) {
+            if ($display_title === false) {
                 $val = '';
             }
 
-            if($key == $checked_option) {
+            if ($key == $checked_option) {
                 $checked = ' checked="checked"';
             }
 
-            if($config['required']) {
+            if ($config['required']) {
                 $required = ' required = "required"';
             }
 
-            $radio .= '<input type="radio" name="'.$name.'" value="'.$key.'" id="'.$name.'_'.$key.'"'.$checked.$required.'/> '.$val.$seperator;
+            $radio .= '<input type="radio" name="' . $name . '" value="' . $key . '" id="' . $name . '_' . $key . '"' . $checked . $required . '/> ' . $val . $seperator;
         }
         return $radio;
     }
@@ -486,31 +587,31 @@ function parse_radiobutton($name, $items, $checked_option = '', $display_title =
 }
 
 function parse_checkboxes($name, $items, $selected_options = array(), $display_title = true, $title = '', $seperator = '', $ide = '', $tabindex = '') {
-    if(is_array($items)) {
-        if(!empty($tabindex)) {
-            $tabindex = 'tabindex='.$tabindex;
+    if (is_array($items)) {
+        if (!empty($tabindex)) {
+            $tabindex = 'tabindex=' . $tabindex;
         }
-        if(!empty($ide)) {
+        if (!empty($ide)) {
             $ids = $ide;
         }
-        foreach($items as $key => $val) {
+        foreach ($items as $key => $val) {
             $checked = '';
-            if($display_title === false) {
+            if ($display_title === false) {
                 $val = '';
             }
 
-            if(is_array($selected_options)) {
-                if(in_array($key, $selected_options)) {
+            if (is_array($selected_options)) {
+                if (in_array($key, $selected_options)) {
                     $checked = ' checked="checked"';
                 }
             }
-            if(isset($ids) && !empty($ids)) {
+            if (isset($ids) && !empty($ids)) {
                 $id = $ids;
             }
             else {
-                $id = $name.'_'.$key;
+                $id = $name . '_' . $key;
             }
-            $checkbox .= '<input name="'.$name.'['.$key.']" id="'.$id.'" type="checkbox" '.$tabindex.' title="'.$title.'" value="'.$key.'"'.$checked.'/>'.$val.$seperator;
+            $checkbox .= '<input name="' . $name . '[' . $key . ']" id="' . $id . '" type="checkbox" ' . $tabindex . ' title="' . $title . '" value="' . $key . '"' . $checked . '/>' . $val . $seperator;
         }
         return $checkbox;
     }
@@ -520,12 +621,12 @@ function parse_checkboxes($name, $items, $selected_options = array(), $display_t
 function value_exists($table, $attribute, $value, $extra_where = '') {
     global $db;
 
-    if(!empty($extra_where)) {
-        $extra_where = ' AND '.$extra_where;
+    if (!empty($extra_where)) {
+        $extra_where = ' AND ' . $extra_where;
     }
     $attribute = $db->escape_string($attribute);
-    $query = $db->query("SELECT {$attribute} FROM ".Tprefix."{$table} WHERE {$attribute}='".$db->escape_string($value)."'{$extra_where}");
-    if($db->num_rows($query) > 0) {
+    $query = $db->query("SELECT {$attribute} FROM " . Tprefix . "{$table} WHERE {$attribute}='" . $db->escape_string($value) . "'{$extra_where}");
+    if ($db->num_rows($query) > 0) {
         return true;
     }
     else {
@@ -535,9 +636,9 @@ function value_exists($table, $attribute, $value, $extra_where = '') {
 
 function get_specificdata($table, $attributes, $key_attribute, $value_attribute, $order, $blankstart = 0, $where = '') {
     global $db;
-    if(is_array($attributes)) {
-        foreach($attributes as $key => $val) {
-            $attributes_string .= $comma.$val;
+    if (is_array($attributes)) {
+        foreach ($attributes as $key => $val) {
+            $attributes_string .= $comma . $val;
             $comma = ', ';
         }
     }
@@ -545,31 +646,31 @@ function get_specificdata($table, $attributes, $key_attribute, $value_attribute,
         $attributes_string = $attributes;
     }
 
-    if(is_array($order)) {
-        if(!isset($order['sort']) || empty($order['sort'])) {
+    if (is_array($order)) {
+        if (!isset($order['sort']) || empty($order['sort'])) {
             $order['sort'] = 'ASC';
         }
-        $order = 'ORDER BY '.$order['by'].' '.$order['sort'];
+        $order = 'ORDER BY ' . $order['by'] . ' ' . $order['sort'];
     }
     else {
-        if(!empty($order)) {
-            $order = 'ORDER BY '.$order.' ASC';
+        if (!empty($order)) {
+            $order = 'ORDER BY ' . $order . ' ASC';
         }
     }
 
-    if(!empty($where)) {
-        $where = 'WHERE '.$where.' ';
+    if (!empty($where)) {
+        $where = 'WHERE ' . $where . ' ';
     }
 
-    $query = $db->query("SELECT {$attributes_string} FROM ".Tprefix."{$table} {$where}{$order}");
+    $query = $db->query("SELECT {$attributes_string} FROM " . Tprefix . "{$table} {$where}{$order}");
 
-    if($db->num_rows($query) > 0) {
-        if($blankstart == 1) {
+    if ($db->num_rows($query) > 0) {
+        if ($blankstart == 1) {
             $data[0] = '';
         }
 
-        while($result = $db->fetch_array($query)) {
-            if($key_attribute == '0') {
+        while ($result = $db->fetch_array($query)) {
+            if ($key_attribute == '0') {
                 $result[$key_attribute] = 0;
             }
             $data[$result[$key_attribute]] = $result[$value_attribute];
@@ -585,51 +686,51 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
     global $db, $lang;
 
     $value = $db->escape_string($value);
-    if(is_array($select_attributes)) {
-        foreach($select_attributes as $key => $val) {
-            $select_attributes_string .= $comma.$val;
+    if (is_array($select_attributes)) {
+        foreach ($select_attributes as $key => $val) {
+            $select_attributes_string .= $comma . $val;
             $comma = ', ';
         }
-        $select_attributes_string .= ', '.$key_attribute;
+        $select_attributes_string .= ', ' . $key_attribute;
     }
     else {
         return false;
     }
 
-    if(is_array($attributes)) {
-        foreach($attributes as $key => $val) {
-            $where_string .= $andor.' '.$val.' LIKE "%'.$value.'%"';
-            if($options['disableSoundex'] != 1) {
+    if (is_array($attributes)) {
+        foreach ($attributes as $key => $val) {
+            $where_string .= $andor . ' ' . $val . ' LIKE "%' . $value . '%"';
+            if ($options['disableSoundex'] != 1) {
                 $soundex_where_string .= "{$andor}SOUNDEX({$val}) = SOUNDEX('$value')";
             }
-            $andor = ' '.$andor_param.' ';
+            $andor = ' ' . $andor_param . ' ';
         }
     }
     else {
         return false;
     }
 
-    if(is_array($options['order'])) {
-        $order = ' '.$db->escape_string('ORDER BY '.$options['order']['by'].' '.$options['order']['sort']);
+    if (is_array($options['order'])) {
+        $order = ' ' . $db->escape_string('ORDER BY ' . $options['order']['by'] . ' ' . $options['order']['sort']);
     }
     $extra_where_string = '';
-    if(!empty($options['extra_where'])) {
-        $extra_where_string = ' AND '.$options['extra_where'];
+    if (!empty($options['extra_where'])) {
+        $extra_where_string = ' AND ' . $options['extra_where'];
     }
-    $query = $db->query("SELECT {$select_attributes_string} FROM ".Tprefix."{$table} WHERE ({$where_string}){$extra_where_string} {$order}");
+    $query = $db->query("SELECT {$select_attributes_string} FROM " . Tprefix . "{$table} WHERE ({$where_string}){$extra_where_string} {$order}");
 
     $clean_key_attribute = $key_attribute;
-    if(strstr($key_attribute, '.')) {
+    if (strstr($key_attribute, '.')) {
         $key_attribute_parts = explode('.', $key_attribute);
         $clean_key_attribute = $key_attribute_parts[1];
     }
 
-    if($db->num_rows($query) > 0) {
+    if ($db->num_rows($query) > 0) {
 //$results_list .= "<ul id='searchResultsList'>";
-        while($result = $db->fetch_assoc($query)) {
+        while ($result = $db->fetch_assoc($query)) {
             $space = '';
-            foreach($select_attributes as $key => $val) {
-                $output .= $space.$result[$val];
+            foreach ($select_attributes as $key => $val) {
+                $output .= $space . $result[$val];
                 $space = ' - ';
                 $foundkeys[] = $result[$clean_key_attribute];
             }
@@ -641,17 +742,17 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
         $space = '';
     }
 
-    if($options['disableSoundex'] != 1) {
-        if(is_array($foundkeys)) {
+    if ($options['disableSoundex'] != 1) {
+        if (is_array($foundkeys)) {
             $notkeys = implode(',', $foundkeys);
-            $notin = ' AND '.$key_attribute.' NOT IN ('.$notkeys.') ';
+            $notin = ' AND ' . $key_attribute . ' NOT IN (' . $notkeys . ') ';
         }
 
-        $query2 = $db->query("SELECT {$select_attributes_string} FROM ".Tprefix."{$table} WHERE ({$soundex_where_string}){$notin}{$extra_where_string}{$order}");
-        if($db->num_rows($query2) > 0) {
-            while($result2 = $db->fetch_assoc($query2)) {
-                foreach($select_attributes as $key => $val) {
-                    $output .= $space.$result2[$val];
+        $query2 = $db->query("SELECT {$select_attributes_string} FROM " . Tprefix . "{$table} WHERE ({$soundex_where_string}){$notin}{$extra_where_string}{$order}");
+        if ($db->num_rows($query2) > 0) {
+            while ($result2 = $db->fetch_assoc($query2)) {
+                foreach ($select_attributes as $key => $val) {
+                    $output .= $space . $result2[$val];
                     $space = ' ';
                 }
                 $results[$result2[$key_attribute]] = $output;
@@ -660,14 +761,14 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
             $db->free_result($query2);
         }
     }
-    if(is_array($results)) {
-        foreach($results as $key => $val) {
-            if($options['returnType'] == 'json' || $options['returnType'] == 'jsontoken') {
-                $results_list['"'.$key.'"']['id'] = $key;
-                $results_list['"'.$key.'"']['value'] = preg_replace('/[^\da-z]/i', ' ', $val);
+    if (is_array($results)) {
+        foreach ($results as $key => $val) {
+            if ($options['returnType'] == 'json' || $options['returnType'] == 'jsontoken') {
+                $results_list['"' . $key . '"']['id'] = $key;
+                $results_list['"' . $key . '"']['value'] = preg_replace('/[^\da-z]/i', ' ', $val);
             }
-            if($options['returnType'] != 'jsontoken' && isset($options['descinfo']) && !empty($options['descinfo'])) {
-                switch($options['descinfo']) {
+            if ($options['returnType'] != 'jsontoken' && isset($options['descinfo']) && !empty($options['descinfo'])) {
+                switch ($options['descinfo']) {
                     case 'citycountry':
 //                        $hotelsobj = TravelManagerHotels::get_data('tmhid='.$key);
 //                        if(is_object($hotelsobj)) {
@@ -677,63 +778,63 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
 //                            $city = new Cities($key);
 //                        }
                         $city = new Cities($key);
-                        if($options['returnType'] == 'json') {
-                            $results_list['"'.$key.'"']['id'] = $city->ciid;
-                            $results_list['"'.$key.'"']['desc'] = $city->name.' - '.$city->get_country()->name;
+                        if ($options['returnType'] == 'json') {
+                            $results_list['"' . $key . '"']['id'] = $city->ciid;
+                            $results_list['"' . $key . '"']['desc'] = $city->name . ' - ' . $city->get_country()->name;
                         }
                         else {
-                            $details = '<br /><span class="smalltext">'.$city->name.' - '.$city->get_country()->name.'</span>';
-                            $results_list .= '<li id="'.$city->ciid.'">'.$val.$details.'</li>';
+                            $details = '<br /><span class="smalltext">' . $city->name . ' - ' . $city->get_country()->name . '</span>';
+                            $results_list .= '<li id="' . $city->ciid . '">' . $val . $details . '</li>';
                         }
                         unset($details);
                         break;
                     case 'hotelcitycountry':
-                        $hotelsobj = TravelManagerHotels::get_data('tmhid='.$key);
+                        $hotelsobj = TravelManagerHotels::get_data('tmhid=' . $key);
                         $city = new Cities($hotelsobj->city);
-                        if($options['returnType'] == 'json') {
-                            $results_list['"'.$key.'"']['id'] = $key;
-                            $results_list['"'.$key.'"']['desc'] = $city->name.' - '.$city->get_country()->name;
+                        if ($options['returnType'] == 'json') {
+                            $results_list['"' . $key . '"']['id'] = $key;
+                            $results_list['"' . $key . '"']['desc'] = $city->name . ' - ' . $city->get_country()->name;
                         }
                         else {
-                            $details = '<br /><span class="smalltext">'.$city->get_country()->name.'</span>';
-                            $results_list .= '<li id="'.$key.'">'.$val.$details.'</li>';
+                            $details = '<br /><span class="smalltext">' . $city->get_country()->name . '</span>';
+                            $results_list .= '<li id="' . $key . '">' . $val . $details . '</li>';
                         }
                         unset($details);
                         break;
                     case 'productsegment':
                         $product = new Products($key);
                         $chemfuncprod_objs = $product->get_chemfunctionproducts();
-                        if(is_array($chemfuncprod_objs)) {
-                            foreach($chemfuncprod_objs as $chemfuncprod_obj) {
+                        if (is_array($chemfuncprod_objs)) {
+                            foreach ($chemfuncprod_objs as $chemfuncprod_obj) {
                                 $application_obj = $chemfuncprod_obj->get_segapplicationfunction();
-                                if($options['returnType'] == 'json') {
-                                    $results_list['"'.$key.'"']['id'] = $chemfuncprod_obj->cfpid;
-                                    $results_list['"'.$key.'"']['desc'] = $chemfuncprod_obj->get_chemicalfunction()->title.' - '.$application_obj->get_application()->title.' - '.$application_obj->get_segment()->title;
+                                if ($options['returnType'] == 'json') {
+                                    $results_list['"' . $key . '"']['id'] = $chemfuncprod_obj->cfpid;
+                                    $results_list['"' . $key . '"']['desc'] = $chemfuncprod_obj->get_chemicalfunction()->title . ' - ' . $application_obj->get_application()->title . ' - ' . $application_obj->get_segment()->title;
                                 }
                                 else {
-                                    $details = '<br /><span class="smalltext">'.$chemfuncprod_obj->get_chemicalfunction()->title.' - '.$application_obj->get_application()->title.' - '.$application_obj->get_segment()->title.'</span>';
-                                    $results_list .= '<li id="'.$chemfuncprod_obj->cfpid.'">'.$val.$details.'</li>';
+                                    $details = '<br /><span class="smalltext">' . $chemfuncprod_obj->get_chemicalfunction()->title . ' - ' . $application_obj->get_application()->title . ' - ' . $application_obj->get_segment()->title . '</span>';
+                                    $results_list .= '<li id="' . $chemfuncprod_obj->cfpid . '">' . $val . $details . '</li>';
                                 }
                             }
                         }
                         else { /* get Defaultfunction of the product */
                             $chemfuncprod_objs = $product->get_defaultchemfunction();
-                            if(is_array($chemfuncprod_objs)) {
-                                foreach($chemfuncprod_objs as $chemfuncprod_obj) {
+                            if (is_array($chemfuncprod_objs)) {
+                                foreach ($chemfuncprod_objs as $chemfuncprod_obj) {
                                     $application_obj = $chemfuncprod_obj->get_segapplicationfunction();
-                                    if($options['returnType'] == 'json') {
-                                        $results_list['"'.$key.'"']['id'] = $chemfuncprod_obj->cfpid;
-                                        $results_list['"'.$key.'"']['desc'] = $chemfuncprod_obj->get_chemicalfunction()->title.' - '.$application_obj->get_application()->title.' - '.$application_obj->get_segment()->title;
+                                    if ($options['returnType'] == 'json') {
+                                        $results_list['"' . $key . '"']['id'] = $chemfuncprod_obj->cfpid;
+                                        $results_list['"' . $key . '"']['desc'] = $chemfuncprod_obj->get_chemicalfunction()->title . ' - ' . $application_obj->get_application()->title . ' - ' . $application_obj->get_segment()->title;
                                     }
                                     else {
-                                        $details = '<br/><span class="smalltext">'.$chemfuncprod_obj->get_chemicalfunction()->title.' - '.$application_obj->get_application()->title.' - '.$application_obj->get_segment()->title.'</span>';
-                                        $results_list .= '<li id="'.$chemfuncprod_obj->cfpid.'">'.$val.$details.'</li>';
+                                        $details = '<br/><span class="smalltext">' . $chemfuncprod_obj->get_chemicalfunction()->title . ' - ' . $application_obj->get_application()->title . ' - ' . $application_obj->get_segment()->title . '</span>';
+                                        $results_list .= '<li id="' . $chemfuncprod_obj->cfpid . '">' . $val . $details . '</li>';
                                     }
                                 }
                             }
                             else {
-                                if($options['returnType'] == 'json') {
-                                    unset($results_list['"'.$key.'"']);
+                                if ($options['returnType'] == 'json') {
+                                    unset($results_list['"' . $key . '"']);
                                 }
                             }
                         }
@@ -742,146 +843,146 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                     case 'genericsegment':
                         $product = new Products($key);
                         $generic = $product->get_genericproduct();
-                        if(is_object($generic)) {
-                            if($options['returnType'] == 'json') {
-                                $results_list['"'.$key.'"']['desc'] = $generic->get_segment()->title;
+                        if (is_object($generic)) {
+                            if ($options['returnType'] == 'json') {
+                                $results_list['"' . $key . '"']['desc'] = $generic->get_segment()->title;
                             }
                             else {
-                                $details = '<br/><span class="smalltext">'.$generic->get_segment()->title.'</span>';
-                                $results_list .= '<li id="'.$key.'">'.$val.$details.'</li>';
+                                $details = '<br/><span class="smalltext">' . $generic->get_segment()->title . '</span>';
+                                $results_list .= '<li id="' . $key . '">' . $val . $details . '</li>';
                             }
                         }
                         else {
-                            if($options['returnType'] == 'json') {
-                                unset($results_list['"'.$key.'"']);
+                            if ($options['returnType'] == 'json') {
+                                unset($results_list['"' . $key . '"']);
                             }
                         }
                         break;
                     case 'checmicalfunction':
-                        $chemfunchem_objs = ChemFunctionChemicals::get_data('csid='.$key, array('returnarray' => 1));
-                        if(is_array($chemfunchem_objs)) {
-                            unset($results_list['"'.$key.'"']);
+                        $chemfunchem_objs = ChemFunctionChemicals::get_data('csid=' . $key, array('returnarray' => 1));
+                        if (is_array($chemfunchem_objs)) {
+                            unset($results_list['"' . $key . '"']);
 
-                            foreach($chemfunchem_objs as $chemfunchem_obj) {
+                            foreach ($chemfunchem_objs as $chemfunchem_obj) {
                                 $application_obj = $chemfunchem_obj->get_segapplicationfunction();
 
-                                if($options['returnType'] == 'json') {
-                                    $results_list['"'.$chemfunchem_obj->cfcid.'"']['value'] = $val;
-                                    $results_list['"'.$chemfunchem_obj->cfcid.'"']['id'] = $chemfunchem_obj->cfcid;
-                                    if(!empty($application_obj->get_application()->title)) {
-                                        $results_list['"'.$chemfunchem_obj->cfcid.'"']['desc'] = $chemfunchem_obj->get_chemicalfunction()->title.' - '.$application_obj->get_application()->title.' - '.$application_obj->get_segment()->title;
+                                if ($options['returnType'] == 'json') {
+                                    $results_list['"' . $chemfunchem_obj->cfcid . '"']['value'] = $val;
+                                    $results_list['"' . $chemfunchem_obj->cfcid . '"']['id'] = $chemfunchem_obj->cfcid;
+                                    if (!empty($application_obj->get_application()->title)) {
+                                        $results_list['"' . $chemfunchem_obj->cfcid . '"']['desc'] = $chemfunchem_obj->get_chemicalfunction()->title . ' - ' . $application_obj->get_application()->title . ' - ' . $application_obj->get_segment()->title;
                                     }
                                 }
                                 else {
-                                    if(!empty($application_obj->get_application()->title)) {
-                                        $details = '<br /><span class="smalltext">'.$chemfunchem_obj->get_chemicalfunction()->title.' - '.$application_obj->get_application()->title.' - '.$application_obj->get_segment()->title.'</span>';
+                                    if (!empty($application_obj->get_application()->title)) {
+                                        $details = '<br /><span class="smalltext">' . $chemfunchem_obj->get_chemicalfunction()->title . ' - ' . $application_obj->get_application()->title . ' - ' . $application_obj->get_segment()->title . '</span>';
                                     }
-                                    $results_list .= '<li id="'.$chemfunchem_obj->cfcid.'">'.$val.$details.'</li>';
+                                    $results_list .= '<li id="' . $chemfunchem_obj->cfcid . '">' . $val . $details . '</li>';
                                 }
                             }
                         }
                         else {
-                            if($options['returnType'] == 'json') {
-                                unset($results_list['"'.$key.'"']);
+                            if ($options['returnType'] == 'json') {
+                                unset($results_list['"' . $key . '"']);
                             }
                         }
                         break;
                     case 'entbrandsproducts':
-                        $entbrandproducts = EntBrandsProducts::get_data('ebid='.$key, array('returnarray' => 1));
-                        if(is_array($entbrandproducts)) {
-                            unset($results_list['"'.$key.'"']);
-                            foreach($entbrandproducts as $entbrandproduct) {
+                        $entbrandproducts = EntBrandsProducts::get_data('ebid=' . $key, array('returnarray' => 1));
+                        if (is_array($entbrandproducts)) {
+                            unset($results_list['"' . $key . '"']);
+                            foreach ($entbrandproducts as $entbrandproduct) {
                                 $endprod = $entbrandproduct->get_endproduct();
                                 $characteristic = $entbrandproduct->get_charactersticvalue();
                                 $characteristic_output = $characteristic->get_id();
-                                if(!empty($characteristic_output)) {
-                                    $characteristic_output = ' ('.$characteristic->get_displayname().')';
+                                if (!empty($characteristic_output)) {
+                                    $characteristic_output = ' (' . $characteristic->get_displayname() . ')';
                                 }
-                                if(is_object($endprod)) {
+                                if (is_object($endprod)) {
                                     $details = $endprod->title;
                                     $first_parent = $endprod->get_parent();
-                                    if(is_object($first_parent)) {
+                                    if (is_object($first_parent)) {
                                         $details = $first_parent->get_displayname();
                                         $secondpar_obj = $first_parent->get_parent();
-                                        if(is_object($secondpar_obj)) {
-                                            $details = $secondpar_obj->get_displayname().' < '.$details;
+                                        if (is_object($secondpar_obj)) {
+                                            $details = $secondpar_obj->get_displayname() . ' < ' . $details;
                                             $third_par = $secondpar_obj->get_parent();
-                                            if(is_object($third_par)) {
+                                            if (is_object($third_par)) {
                                                 $originalpar_obj = $third_par->get_mother();
-                                                if(is_object($originalpar_obj)) {
-                                                    $details = $originalpar_obj->get_displayname().'< ... < '.$details;
+                                                if (is_object($originalpar_obj)) {
+                                                    $details = $originalpar_obj->get_displayname() . '< ... < ' . $details;
                                                 }
                                             }
                                         }
                                     }
-                                    if($options['returnType'] == 'json') {
-                                        $results_list['"'.$entbrandproduct->get_id().'"']['value'] = $val.$characteristic_output;
-                                        $results_list['"'.$entbrandproduct->get_id().'"']['id'] = $entbrandproduct->get_id();
-                                        $results_list['"'.$entbrandproduct->get_id().'"']['desc'] = $details;
+                                    if ($options['returnType'] == 'json') {
+                                        $results_list['"' . $entbrandproduct->get_id() . '"']['value'] = $val . $characteristic_output;
+                                        $results_list['"' . $entbrandproduct->get_id() . '"']['id'] = $entbrandproduct->get_id();
+                                        $results_list['"' . $entbrandproduct->get_id() . '"']['desc'] = $details;
                                     }
                                     else {
-                                        $details = '<br /><span class="smalltext">'.$entbrandproduct->get_endproduct()->title.$characteristic_output.'</span>';
-                                        $results_list .= '<li id="'.$entbrandproduct->get_id().'">'.$val.$details.'</li>';
+                                        $details = '<br /><span class="smalltext">' . $entbrandproduct->get_endproduct()->title . $characteristic_output . '</span>';
+                                        $results_list .= '<li id="' . $entbrandproduct->get_id() . '">' . $val . $details . '</li>';
                                     }
                                 }
                                 else {
-                                    if($options['returnType'] == 'json') {
-                                        $results_list['"'.$entbrandproduct->get_id().'"']['value'] = $val.$characteristic_output;
-                                        $results_list['"'.$entbrandproduct->get_id().'"']['id'] = $entbrandproduct->get_id();
+                                    if ($options['returnType'] == 'json') {
+                                        $results_list['"' . $entbrandproduct->get_id() . '"']['value'] = $val . $characteristic_output;
+                                        $results_list['"' . $entbrandproduct->get_id() . '"']['id'] = $entbrandproduct->get_id();
                                     }
                                     else {
-                                        $results_list .= '<li id="'.$entbrandproduct->get_id().'">'.$val.$characteristic_output.'</li>';
+                                        $results_list .= '<li id="' . $entbrandproduct->get_id() . '">' . $val . $characteristic_output . '</li>';
                                     }
                                 }
                             }
                         }
                         else {
-                            if($options['returnType'] == 'json') {
-                                unset($results_list['"'.$key.'"']);
+                            if ($options['returnType'] == 'json') {
+                                unset($results_list['"' . $key . '"']);
                             }
                         }
                         break;
                     case 'endproducttypes':
                         $current_obj = new EndProducTypes($key);
 
-                        if(is_object($current_obj)) {
+                        if (is_object($current_obj)) {
                             $first_parent = $current_obj->get_parent();
-                            if(is_object($first_parent)) {
+                            if (is_object($first_parent)) {
                                 $details = $first_parent->get_displayname();
                                 $secondpar_obj = $first_parent->get_parent();
-                                if(is_object($secondpar_obj)) {
-                                    $details = $secondpar_obj->get_displayname().' < '.$details;
+                                if (is_object($secondpar_obj)) {
+                                    $details = $secondpar_obj->get_displayname() . ' < ' . $details;
                                     $third_par = $secondpar_obj->get_parent();
-                                    if(is_object($third_par)) {
+                                    if (is_object($third_par)) {
                                         $originalpar_obj = $third_par->get_mother();
-                                        if(is_object($originalpar_obj)) {
-                                            $details = $originalpar_obj->get_displayname().'< ... < '.$details;
+                                        if (is_object($originalpar_obj)) {
+                                            $details = $originalpar_obj->get_displayname() . '< ... < ' . $details;
                                         }
                                     }
                                 }
-                                if($options['returnType'] == 'json') {
-                                    $results_list['"'.$current_obj->eptid.'"']['value'] = $val;
-                                    $results_list['"'.$current_obj->eptid.'"']['id'] = $current_obj->eptid;
-                                    $results_list['"'.$current_obj->eptid.'"']['desc'] = $details;
+                                if ($options['returnType'] == 'json') {
+                                    $results_list['"' . $current_obj->eptid . '"']['value'] = $val;
+                                    $results_list['"' . $current_obj->eptid . '"']['id'] = $current_obj->eptid;
+                                    $results_list['"' . $current_obj->eptid . '"']['desc'] = $details;
                                 }
                                 else {
-                                    $details = '<br /><span class="smalltext">'.$details.'</span>';
-                                    $results_list .= '<li id="'.$current_obj->eptid.'">'.$val.$details.'</li>';
+                                    $details = '<br /><span class="smalltext">' . $details . '</span>';
+                                    $results_list .= '<li id="' . $current_obj->eptid . '">' . $val . $details . '</li>';
                                 }
                             }
                             else {
-                                if($options['returnType'] == 'json') {
-                                    $results_list['"'.$current_obj->eptid.'"']['value'] = $val;
-                                    $results_list['"'.$current_obj->eptid.'"']['id'] = $current_obj->eptid;
+                                if ($options['returnType'] == 'json') {
+                                    $results_list['"' . $current_obj->eptid . '"']['value'] = $val;
+                                    $results_list['"' . $current_obj->eptid . '"']['id'] = $current_obj->eptid;
                                 }
                                 else {
-                                    $results_list .= '<li id="'.$current_obj->eptid.'">'.$val.'</li>';
+                                    $results_list .= '<li id="' . $current_obj->eptid . '">' . $val . '</li>';
                                 }
                             }
                         }
                         else {
-                            if($options['returnType'] == 'json') {
-                                unset($results_list['"'.$key.'"']);
+                            if ($options['returnType'] == 'json') {
+                                unset($results_list['"' . $key . '"']);
                             }
                         }
                         unset($details);
@@ -889,35 +990,35 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                         break;
                     case 'endproducttype':
                         $current_obj = new EndProducTypes($key);
-                        if(is_object($current_obj)) {
+                        if (is_object($current_obj)) {
                             $first_parent = $current_obj->get_parent();
-                            if(is_object($first_parent)) {
+                            if (is_object($first_parent)) {
                                 $details = $first_parent->get_displayname();
                                 $secondpar_obj = $first_parent->get_parent();
-                                if(is_object($secondpar_obj)) {
-                                    $details.='-->'.$secondpar_obj->get_displayname();
+                                if (is_object($secondpar_obj)) {
+                                    $details.='-->' . $secondpar_obj->get_displayname();
                                     $third_par = $secondpar_obj->get_parent();
-                                    if(is_object($third_par)) {
+                                    if (is_object($third_par)) {
                                         $originalpar_obj = $third_par->get_mother();
-                                        if(is_object($originalpar_obj)) {
-                                            $details.='->.....->'.$originalpar_obj->get_displayname();
+                                        if (is_object($originalpar_obj)) {
+                                            $details.='->.....->' . $originalpar_obj->get_displayname();
                                         }
                                     }
                                 }
-                                if($options['returnType'] == 'json') {
-                                    $results_list['"'.$current_obj->eptid.'"']['value'] = $val;
-                                    $results_list['"'.$current_obj->eptid.'"']['id'] = $current_obj->eptid;
-                                    $results_list['"'.$current_obj->eptid.'"']['desc'] = $details;
+                                if ($options['returnType'] == 'json') {
+                                    $results_list['"' . $current_obj->eptid . '"']['value'] = $val;
+                                    $results_list['"' . $current_obj->eptid . '"']['id'] = $current_obj->eptid;
+                                    $results_list['"' . $current_obj->eptid . '"']['desc'] = $details;
                                 }
                                 else {
-                                    $details = '<br /><span class="smalltext">'.$details.'</span>';
-                                    $results_list .= '<li id="'.$current_obj->eptid.'">'.$val.$details.'</li>';
+                                    $details = '<br /><span class="smalltext">' . $details . '</span>';
+                                    $results_list .= '<li id="' . $current_obj->eptid . '">' . $val . $details . '</li>';
                                 }
                             }
                         }
                         else {
-                            if($options['returnType'] == 'json') {
-                                unset($results_list['"'.$key.'"']);
+                            if ($options['returnType'] == 'json') {
+                                unset($results_list['"' . $key . '"']);
                             }
                         }
                         unset($details);
@@ -926,44 +1027,44 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                     case 'brands':
                         $brand_obj = new EntitiesBrands($key);
                         $customer_obj = $brand_obj->get_entity();
-                        if(is_object($customer_obj)) {
-                            if($options['returnType'] == 'json') {
-                                $results_list['"'.$key.'"']['value'] = $val;
-                                $results_list['"'.$key.'"']['id'] = $brand_obj->ebid;
-                                $results_list['"'.$key.'"']['desc'] = $customer_obj->get_displayname();
+                        if (is_object($customer_obj)) {
+                            if ($options['returnType'] == 'json') {
+                                $results_list['"' . $key . '"']['value'] = $val;
+                                $results_list['"' . $key . '"']['id'] = $brand_obj->ebid;
+                                $results_list['"' . $key . '"']['desc'] = $customer_obj->get_displayname();
                             }
                             else {
-                                $details = '<br /><span class="smalltext">'.$customer_obj->get_displayname().'</span>';
-                                $results_list .= '<li id="'.$key.'">'.$val.$details.'</li>';
+                                $details = '<br /><span class="smalltext">' . $customer_obj->get_displayname() . '</span>';
+                                $results_list .= '<li id="' . $key . '">' . $val . $details . '</li>';
                             }
                         }
                         else {
-                            if($options['returnType'] == 'json') {
-                                unset($results_list['"'.$key.'"']);
+                            if ($options['returnType'] == 'json') {
+                                unset($results_list['"' . $key . '"']);
                             }
                         }
                         unset($details);
                         break;
                     case 'country':
                         $entity = new Entities($key);
-                        if(!empty($entity->country)) {
-                            if($options['returnType'] == 'json' || $options['returnType'] == 'jsontoken') {
-                                $results_list['"'.$key.'"']['desc'] = $entity->get_country()->name;
+                        if (!empty($entity->country)) {
+                            if ($options['returnType'] == 'json' || $options['returnType'] == 'jsontoken') {
+                                $results_list['"' . $key . '"']['desc'] = $entity->get_country()->name;
                             }
                             else {
-                                $details = '<br /><span class="smalltext">'.$entity->get_country()->name.'</span>';
-                                $results_list .= '<li id="'.$key.'">'.$val.$details.'</li>';
+                                $details = '<br /><span class="smalltext">' . $entity->get_country()->name . '</span>';
+                                $results_list .= '<li id="' . $key . '">' . $val . $details . '</li>';
                             }
                         }
                         else {
-                            if($options['returnType'] != 'json') {
-                                $results_list .= '<li id="'.$key.'">'.$val.'</li>';
+                            if ($options['returnType'] != 'json') {
+                                $results_list .= '<li id="' . $key . '">' . $val . '</li>';
                             }
                         }
                         break;
                     default:
-                        if($options['returnType'] != 'json') {
-                            $results_list .= '<li id="'.$key.'">'.$val.'</li>';
+                        if ($options['returnType'] != 'json') {
+                            $results_list .= '<li id="' . $key . '">' . $val . '</li>';
                         }
                         break;
                     case 'basicfacilities':
@@ -971,48 +1072,48 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                         $facility = new FacilityMgmtFacilities($key);
                         $motherfacility = $facility->get_mother();
                         $details = '';
-                        if(is_object($motherfacility) && !empty($motherfacility->fmfid) && $motherfacility->fmfid != $facility->fmfid) {
+                        if (is_object($motherfacility) && !empty($motherfacility->fmfid) && $motherfacility->fmfid != $facility->fmfid) {
                             $details .= $motherfacility->get_displayname();
                         }
-                        if(!empty($facility->capacity)) {
-                            $details .=' -'.$lang->capacity.': '.$facility->capacity;
+                        if (!empty($facility->capacity)) {
+                            $details .=' -' . $lang->capacity . ': ' . $facility->capacity;
                         }
                         $category = $lang->otheravailable;
-                        if(isset($options['extrainput']) && !is_empty($options['extrainput'])) {
-                            $query = $db->query("SELECT affid, name, phone1, X(geoLocation) AS longitude, Y(geoLocation) AS latitude FROM ".Tprefix."affiliates WHERE asText(geoLocation) IS NOT NULL AND affid= ".intval($facility->affid));
-                            while($affiliate = $db->fetch_assoc($query)) {
+                        if (isset($options['extrainput']) && !is_empty($options['extrainput'])) {
+                            $query = $db->query("SELECT affid, name, phone1, X(geoLocation) AS longitude, Y(geoLocation) AS latitude FROM " . Tprefix . "affiliates WHERE asText(geoLocation) IS NOT NULL AND affid= " . intval($facility->affid));
+                            while ($affiliate = $db->fetch_assoc($query)) {
                                 $affiliatelong = $affiliate['longitude'];
                                 $affiliatelat = $affiliate['latitude'];
                             }
                             $distance = calculateDistance($options['extrainput']['userlong'], $options['extrainput']['userlat'], $affiliatelat, $affiliatelong, 'K');
-                            if(!empty($distance)) {
-                                $desc_distance = ' '.$distance.' KM';
-                                if($distance <= 10) {
+                            if (!empty($distance)) {
+                                $desc_distance = ' ' . $distance . ' KM';
+                                if ($distance <= 10) {
                                     $category = $lang->capsnearby;
                                 }
                             }
                         }
-                        if(is_object($facility) && !empty($facility->fmfid)) {
-                            if($options['returnType'] == 'json') {
-                                if(!empty($desc_distance)) {
-                                    $results_list['"'.$key.'"']['value'] = $results_list['"'.$key.'"']['value'].$desc_distance;
+                        if (is_object($facility) && !empty($facility->fmfid)) {
+                            if ($options['returnType'] == 'json') {
+                                if (!empty($desc_distance)) {
+                                    $results_list['"' . $key . '"']['value'] = $results_list['"' . $key . '"']['value'] . $desc_distance;
                                 }
-                                if($category == $lang->capsnearby) {
-                                    $results_list['"'.$key.'"']['style'] = 'style="background-color:#A5FFA5;"';
+                                if ($category == $lang->capsnearby) {
+                                    $results_list['"' . $key . '"']['style'] = 'style="background-color:#A5FFA5;"';
                                 }
-                                $results_list[$category]['"'.$key.'"'] = $results_list['"'.$key.'"'];
-                                $results_list[$category]['"'.$key.'"']['desc'] = $details;
+                                $results_list[$category]['"' . $key . '"'] = $results_list['"' . $key . '"'];
+                                $results_list[$category]['"' . $key . '"']['desc'] = $details;
 
-                                unset($results_list['"'.$key.'"']);
+                                unset($results_list['"' . $key . '"']);
                             }
                             else {
-                                $details = '<br/><span class="smalltext">'.$details.'</span>';
-                                $results_list .= '<li id="'.$key.'">'.$val.$details.'</li>';
+                                $details = '<br/><span class="smalltext">' . $details . '</span>';
+                                $results_list .= '<li id="' . $key . '">' . $val . $details . '</li>';
                             }
                         }
                         else {
-                            if($options['returnType'] == 'json') {
-                                unset($results_list['"'.$key.'"']);
+                            if ($options['returnType'] == 'json') {
+                                unset($results_list['"' . $key . '"']);
                             }
                         }
                         break;
@@ -1020,114 +1121,114 @@ function quick_search($table, $attributes, $value, $select_attributes, $key_attr
                         unset($category, $isreserved, $details, $distance, $desc_distance, $affiliategeoloc, $meetingres);
                         $facility = new FacilityMgmtFacilities($key);
                         $motherfacility = $facility->get_mother();
-                        if(is_object($motherfacility) && !empty($motherfacility->fmfid) && $motherfacility->fmfid != $facility->fmfid) {
+                        if (is_object($motherfacility) && !empty($motherfacility->fmfid) && $motherfacility->fmfid != $facility->fmfid) {
                             $details = $motherfacility->get_displayname();
                         }
-                        if(is_object($facility) && !empty($facility->fmfid)) {
+                        if (is_object($facility) && !empty($facility->fmfid)) {
                             $category = $lang->otheravailable;
-                            if(isset($options['extrainput']) && !is_empty($options['extrainput'])) {
+                            if (isset($options['extrainput']) && !is_empty($options['extrainput'])) {
                                 $from = $options['extrainput']['from'];
                                 $to = $options['extrainput']['to'];
                                 $isreserved = $facility->is_reserved($from, $to);
-                                if(is_object($isreserved)) {
+                                if (is_object($isreserved)) {
                                     $category = $lang->capsreserved;
                                     $reservedby = $isreserved->get_reservedBy()->get_displayname();
-                                    $details.=' '.$lang->reservedby.' : '.$reservedby;
-                                    if($isreserved->mtid == $options['extrainput']['mtid']) {
+                                    $details.=' ' . $lang->reservedby . ' : ' . $reservedby;
+                                    if ($isreserved->mtid == $options['extrainput']['mtid']) {
                                         $meetingres = 1;
                                     }
                                 }
                                 else {
-                                    if(!empty($facility->capacity)) {
-                                        $details .= ' - '.$lang->capacity.': '.$facility->capacity;
+                                    if (!empty($facility->capacity)) {
+                                        $details .= ' - ' . $lang->capacity . ': ' . $facility->capacity;
                                     }
-                                    $query = $db->query("SELECT affid, name, phone1, X(geoLocation) AS longitude, Y(geoLocation) AS latitude FROM ".Tprefix."affiliates WHERE asText(geoLocation) IS NOT NULL AND affid= ".intval($facility->affid));
-                                    while($affiliate = $db->fetch_assoc($query)) {
+                                    $query = $db->query("SELECT affid, name, phone1, X(geoLocation) AS longitude, Y(geoLocation) AS latitude FROM " . Tprefix . "affiliates WHERE asText(geoLocation) IS NOT NULL AND affid= " . intval($facility->affid));
+                                    while ($affiliate = $db->fetch_assoc($query)) {
                                         $affiliategeoloc['lon'] = $affiliate['longitude'];
                                         $affiliategeoloc['lat'] = $affiliate['latitude'];
                                     }
                                     $distance = calculateDistance($options['extrainput']['userlong'], $options['extrainput']['userlat'], $affiliategeoloc['lat'], $affiliategeoloc['lon'], 'K');
-                                    if(!empty($distance)) {
-                                        $desc_distance = ' ('.number_format($distance, 2).' KM)';
-                                        if($distance <= 10) {
+                                    if (!empty($distance)) {
+                                        $desc_distance = ' (' . number_format($distance, 2) . ' KM)';
+                                        if ($distance <= 10) {
                                             $category = $lang->capsnearby;
                                         }
                                     }
                                 }
                             }
 
-                            if($options['returnType'] == 'json') {
-                                $results_list['"'.$key.'"']['desc'] = $details;
-                                $results_list['"'.$key.'"']['style'] = 'class="li-greenbullet"';
-                                if(is_object($isreserved)) {
-                                    $results_list['"'.$key.'"']['style'] = 'class="li-redbullet"';
+                            if ($options['returnType'] == 'json') {
+                                $results_list['"' . $key . '"']['desc'] = $details;
+                                $results_list['"' . $key . '"']['style'] = 'class="li-greenbullet"';
+                                if (is_object($isreserved)) {
+                                    $results_list['"' . $key . '"']['style'] = 'class="li-redbullet"';
                                 }
-                                if(!empty($desc_distance)) {
-                                    $results_list['"'.$key.'"']['value'] = $additionavalue.$results_list['"'.$key.'"']['value'].$desc_distance;
+                                if (!empty($desc_distance)) {
+                                    $results_list['"' . $key . '"']['value'] = $additionavalue . $results_list['"' . $key . '"']['value'] . $desc_distance;
                                 }
-                                elseif($meetingres == 1) {
-                                    $results_list['"'.$key.'"']['value'] = $additionavalue.$results_list['"'.$key.'"']['value'].'('.$lang->forthismeeting.')';
+                                elseif ($meetingres == 1) {
+                                    $results_list['"' . $key . '"']['value'] = $additionavalue . $results_list['"' . $key . '"']['value'] . '(' . $lang->forthismeeting . ')';
                                 }
-                                $results_list[$category]['"'.$key.'"']['distance'] = $desc_distance;
-                                $results_list[$category]['"'.$key.'"'] = $results_list['"'.$key.'"'];
-                                unset($additionavalue, $results_list['"'.$key.'"']);
+                                $results_list[$category]['"' . $key . '"']['distance'] = $desc_distance;
+                                $results_list[$category]['"' . $key . '"'] = $results_list['"' . $key . '"'];
+                                unset($additionavalue, $results_list['"' . $key . '"']);
                             }
                             else {
-                                $details = '<br/><span class="smalltext">'.$details.'</span>';
-                                $results_list .= '<li '.$style.' id="'.$key.'">'.$val.$details.'</li>';
+                                $details = '<br/><span class="smalltext">' . $details . '</span>';
+                                $results_list .= '<li ' . $style . ' id="' . $key . '">' . $val . $details . '</li>';
                             }
                         }
                         else {
-                            if($options['returnType'] == 'json') {
-                                unset($results_list['"'.$key.'"']);
+                            if ($options['returnType'] == 'json') {
+                                unset($results_list['"' . $key . '"']);
                             }
                         }
                         break;
                 }
-                if(isset($results_list['"'.$key.'"']['desc']) && !empty($results_list['"'.$key.'"']['desc'])) {
-                    $results_list['"'.$key.'"']['desc'] = preg_replace('/[^\da-z]/i', ' ', $results_list['"'.$key.'"']['desc']);
+                if (isset($results_list['"' . $key . '"']['desc']) && !empty($results_list['"' . $key . '"']['desc'])) {
+                    $results_list['"' . $key . '"']['desc'] = preg_replace('/[^\da-z]/i', ' ', $results_list['"' . $key . '"']['desc']);
                 }
-                if(isset($results_list['"'.$key.'"']['value']) && !empty($results_list['"'.$key.'"']['value'])) {
-                    $results_list['"'.$key.'"']['value'] = preg_replace('/[^\da-z]/i', ' ', $results_list['"'.$key.'"']['value']);
+                if (isset($results_list['"' . $key . '"']['value']) && !empty($results_list['"' . $key . '"']['value'])) {
+                    $results_list['"' . $key . '"']['value'] = preg_replace('/[^\da-z]/i', ' ', $results_list['"' . $key . '"']['value']);
                 }
             }
             else {
-                if($options['returnType'] != 'json' && $options['returnType'] != 'jsontoken') {
-                    $results_list .= '<li id = "'.$key.'">'.$val.'</li>';
+                if ($options['returnType'] != 'json' && $options['returnType'] != 'jsontoken') {
+                    $results_list .= '<li id = "' . $key . '">' . $val . '</li>';
                 }
             }
         }
     }
 
-    if(!is_array($results) || empty($results_list)) {
-        if($options['returnType'] != 'json') {
-            $results_list = '<span class="red_text">'.$lang->nomatchfound.'</span>';
+    if (!is_array($results) || empty($results_list)) {
+        if ($options['returnType'] != 'json') {
+            $results_list = '<span class="red_text">' . $lang->nomatchfound . '</span>';
         }
         else {
             $results_list[0]['value'] = $lang->nomatchfound;
         }
     }
     else {
-        if($options['returnType'] == 'json' && ($options['descinfo'] == 'basicfacilities' || $options['descinfo'] == 'reservationfacilities')) {
+        if ($options['returnType'] == 'json' && ($options['descinfo'] == 'basicfacilities' || $options['descinfo'] == 'reservationfacilities')) {
             ksort($results_list);
-            foreach($results_list as $category => $results) {
-                $new_resultlist ['"'.$category.'"']['style'] = 'style="text-align:center;pointer-events:none;background-color:#eaf2ea;"';
-                $new_resultlist ['"'.$category.'"']['id'] = $category;
-                $new_resultlist ['"'.$category.'"']['desc'] = "";
-                $new_resultlist ['"'.$category.'"']['value'] = $category;
+            foreach ($results_list as $category => $results) {
+                $new_resultlist ['"' . $category . '"']['style'] = 'style="text-align:center;pointer-events:none;background-color:#eaf2ea;"';
+                $new_resultlist ['"' . $category . '"']['id'] = $category;
+                $new_resultlist ['"' . $category . '"']['desc'] = "";
+                $new_resultlist ['"' . $category . '"']['value'] = $category;
                 $new_resultlist = array_merge_recursive($new_resultlist, $results);
             }
             $results_list = $new_resultlist;
         }
     }
-    if($options['outputjsonformat'] == 'tokens') {
+    if ($options['outputjsonformat'] == 'tokens') {
         $results_list = json_encode(array_values($results_list));
     }
-    else if($options['returnType'] == 'json') {
+    else if ($options['returnType'] == 'json') {
         $results_list = json_encode($results_list);
     }
     else {
-        $results_list = '<ul id = "searchResultsList">'.$results_list.'</ul>';
+        $results_list = '<ul id = "searchResultsList">' . $results_list . '</ul>';
     }
 
     return $results_list;
@@ -1138,21 +1239,21 @@ function log_action() {
 
     $data = func_get_args();
 
-    if(count($data) == 1 && is_array($data[0])) {
+    if (count($data) == 1 && is_array($data[0])) {
         $data = $data[0];
     }
 
-    if(!is_array($data)) {
+    if (!is_array($data)) {
         $data = array($data);
     }
 
     $log_entry = array(
-            'uid' => $core->user['uid'],
-            'ipaddress' => $db->escape_string(userip()),
-            'date' => TIME_NOW,
-            'module' => $db->escape_string($core->input['module']),
-            'action' => $db->escape_string($core->input['action']),
-            'data' => $db->escape_string(@serialize($data))
+        'uid' => $core->user['uid'],
+        'ipaddress' => $db->escape_string(userip()),
+        'date' => TIME_NOW,
+        'module' => $db->escape_string($core->input['module']),
+        'action' => $db->escape_string($core->input['action']),
+        'data' => $db->escape_string(@serialize($data))
     );
 
     $db->insert_query('logs', $log_entry);
@@ -1161,7 +1262,7 @@ function log_action() {
 function record_contribution($rid, $isdone = 0) {
     global $db, $core;
 
-    if($db->fetch_field($db->query("SELECT COUNT(*) AS contributed FROM ".Tprefix."reportcontributors WHERE rid='{$rid}' AND uid='{$core->user[uid]}'"), 'contributed') == 0) {
+    if ($db->fetch_field($db->query("SELECT COUNT(*) AS contributed FROM " . Tprefix . "reportcontributors WHERE rid='{$rid}' AND uid='{$core->user[uid]}'"), 'contributed') == 0) {
         $db->insert_query('reportcontributors', array('rid' => $rid, 'uid' => $core->user['uid'], 'isDone' => $isdone, 'timeDone' => TIME_NOW));
     }
     else {
@@ -1179,14 +1280,14 @@ function currentquarter_info($real = false) {
     $time_now = TIME_NOW;
     $current_year = date('Y', $time_now);
 
-    for($i = 1; $i <= 4; $i++) {
-        $quarter_start = strtotime($current_year.'-'.$core->settings['q'.$i.'start']);
-        $quarter_end = strtotime($current_year.'-'.$core->settings['q'.$i.'end']);
-        if($time_now >= $quarter_start && $time_now <= $quarter_end) {
+    for ($i = 1; $i <= 4; $i++) {
+        $quarter_start = strtotime($current_year . '-' . $core->settings['q' . $i . 'start']);
+        $quarter_end = strtotime($current_year . '-' . $core->settings['q' . $i . 'end']);
+        if ($time_now >= $quarter_start && $time_now <= $quarter_end) {
             $current_quarter = $i;
-            if($real === false) {
+            if ($real === false) {
                 $current_quarter = $i - 1;
-                if($current_quarter == 0) {
+                if ($current_quarter == 0) {
                     $current_quarter = 4;
                     $current_year -= 1;
                 }
@@ -1200,36 +1301,36 @@ function currentquarter_info($real = false) {
 function parse_moduleslist($current_module, $modules_dir = 'modules', $is_selectlist = false) {
     global $core, $lang;
 
-    $path = ROOT.$modules_dir;
+    $path = ROOT . $modules_dir;
     $list = '';
-    if(is_dir($path)) {
+    if (is_dir($path)) {
         $files = scandir($path);
-        foreach($files as $file) {
-            if($file != '.' && $file != '..') {
-                $file_info = pathinfo($path.'/'.$file);
-                if($file_info['extension'] == 'php') {
-                    require $path.'/'.$file;
-                    if($is_selectlist === true) {
-                        if($core->usergroup[$module['globalpermission']] == 1) {
+        foreach ($files as $file) {
+            if ($file != '.' && $file != '..') {
+                $file_info = pathinfo($path . '/' . $file);
+                if ($file_info['extension'] == 'php') {
+                    require $path . '/' . $file;
+                    if ($is_selectlist === true) {
+                        if ($core->usergroup[$module['globalpermission']] == 1) {
                             $selected = '';
-                            if($current_module == $module['name']) {
+                            if ($current_module == $module['name']) {
                                 $selected = ' selected';
                             }
-                            $list .= '<option value="'.$module['name'].'"'.$selected.'>'.$module['title'].'</option>';
+                            $list .= '<option value="' . $module['name'] . '"' . $selected . '>' . $module['title'] . '</option>';
                         }
                     }
                     else {
-                        if($current_module != $module['name']) {
-                            if($core->usergroup[$module['globalpermission']] == 1) {
+                        if ($current_module != $module['name']) {
+                            if ($core->usergroup[$module['globalpermission']] == 1) {
                                 $moduleicon = 'default';
-                                if(file_exists('images/modules-icons/'.$module['name'].'.png')) {
+                                if (file_exists('images/modules-icons/' . $module['name'] . '.png')) {
                                     $moduleicon = $module['name'];
                                 }
-                                $list .= '<li class="searchable" data-modulename="'.$module['name'].'"><a href="index.php?module='.$module['name'].'/'.$module['homepage'].'">';
-                                if($modules_dir != ADMIN_DIR."/modules") {
-                                    $list .= '<img src="images/modules-icons/'.$moduleicon.'.png" alt="'.$module['name'].'"/>';
+                                $list .= '<li class="searchable" data-modulename="' . $module['name'] . '"><a href="index.php?module=' . $module['name'] . '/' . $module['homepage'] . '">';
+                                if ($modules_dir != ADMIN_DIR . "/modules") {
+                                    $list .= '<img src="images/modules-icons/' . $moduleicon . '.png" alt="' . $module['name'] . '"/>';
                                 }
-                                $list .=$module['title'].'</a></li>';
+                                $list .=$module['title'] . '</a></li>';
                             }
                         }
                         else {
@@ -1241,9 +1342,9 @@ function parse_moduleslist($current_module, $modules_dir = 'modules', $is_select
         }
     }
 
-    if(!empty($list)) {
-        if($is_selectlist === true) {
-            return '<select name="defaultModule" id="defaultModule"><option value="">&nbsp;<option>'.$list.'</select>';
+    if (!empty($list)) {
+        if ($is_selectlist === true) {
+            return '<select name="defaultModule" id="defaultModule"><option value="">&nbsp;<option>' . $list . '</select>';
         }
         else {
             return $list;
@@ -1258,19 +1359,19 @@ function parse_menuitems($module_name, $modules_dir = 'modules') {
     global $core, $lang, $module;
 
     //if(IN_AREA == 'user') {
-    if(!empty($module_name)) {
-        if(!isset($module)) {
-            require ROOT.$modules_dir.'/'.$module_name.'.php';
+    if (!empty($module_name)) {
+        if (!isset($module)) {
+            require ROOT . $modules_dir . '/' . $module_name . '.php';
         }
-        if($core->usergroup[$module['globalpermission']] == 1) {
-            if(is_array($module['menu'])) {
+        if ($core->usergroup[$module['globalpermission']] == 1) {
+            if (is_array($module['menu'])) {
                 $menu = $module['menu'];
 
                 $array_indexes = array_keys($menu['file']);
 
-                while($item = current($menu['file'])) {
+                while ($item = current($menu['file'])) {
                     $key = key($menu['file']);
-                    if(is_array($item)) {
+                    if (is_array($item)) {
                         $current_index = array_search($key, $array_indexes, true);
 
                         $array2_indexes = array_keys($menu['title']);
@@ -1279,24 +1380,24 @@ function parse_menuitems($module_name, $modules_dir = 'modules') {
                         $array3_indexes = array_keys($menu['permission']);
                         $array3_key = $array3_indexes[$current_index];
 
-                        if($core->usergroup[$menu['permission'][$array3_key][0]] == 1) {
-                            $items .= '<li class="expandable list-group-item"><span id="'.$key.'" style="cursor: pointer;">'.$lang->$array2_indexes[$current_index].'<span class="caret" style="float:right;margin-top:7px;margin-right:2px;"></span></span>';
-                            $items .= '<div id="'.$key.'_children_container" style="display: none;">';
-                            $items .= '<ul id="'.$key.'_children" style="padding-left:0px;">';
-                            foreach($item as $k => $v) {
+                        if ($core->usergroup[$menu['permission'][$array3_key][0]] == 1) {
+                            $items .= '<li class="expandable list-group-item"><span id="' . $key . '" style="cursor: pointer;">' . $lang->$array2_indexes[$current_index] . '<span class="caret" style="float:right;margin-top:7px;margin-right:2px;"></span></span>';
+                            $items .= '<div id="' . $key . '_children_container" style="display: none;">';
+                            $items .= '<ul id="' . $key . '_children" style="padding-left:0px;">';
+                            foreach ($item as $k => $v) {
                                 $additional_class = 'list-group-subitem';
-                                if($k == 0) {
+                                if ($k == 0) {
                                     $additional_class = 'list-group-firstsubitem';
                                 }
-                                if($core->usergroup[$menu['permission'][$array3_key][($k + 1)]] == 1) {
-                                    $items .= "<li class='list-group-item ".$additional_class."'><span id='{$module_name}/{$v}'><a href='index.php?module={$module_name}/{$v}'>{$lang->$menu[title][$array2_key][$k]}</a></span></li>\n";
+                                if ($core->usergroup[$menu['permission'][$array3_key][($k + 1)]] == 1) {
+                                    $items .= "<li class='list-group-item " . $additional_class . "'><span id='{$module_name}/{$v}'><a href='index.php?module={$module_name}/{$v}'>{$lang->$menu[title][$array2_key][$k]}</a></span></li>\n";
                                 }
                             }
                             $items .= '</ul></div></li>';
                         }
                     }
                     else {
-                        if($core->usergroup[$menu['permission'][$key]] == 1) {
+                        if ($core->usergroup[$menu['permission'][$key]] == 1) {
                             $items .= "<li class='list-group-item'><span id='{$module_name}/{$item}'><a href='index.php?module={$module_name}/{$item}'>{$lang->$menu[title][$key]}</a></span></li>\n";
                         }
                     }
@@ -1314,23 +1415,23 @@ function parse_menuitems($module_name, $modules_dir = 'modules') {
  */
 function get_user_business_assignments($uid) {
     global $db, $core;
-    if(empty($uid)) {
+    if (empty($uid)) {
         exit;
     }
 
     $uid = $db->escape_string($uid);
-    if($uid == $core->user['uid']) {
+    if ($uid == $core->user['uid']) {
         $usergroup = $core->usergroup;
     }
     else {
-        $usergroup = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."usergroups WHERE gid=(SELECT gid FROM ".Tprefix."users_usergroups WHERE isMain=1 AND uid={$uid})"));
+        $usergroup = $db->fetch_assoc($db->query("SELECT * FROM " . Tprefix . "usergroups WHERE gid=(SELECT gid FROM " . Tprefix . "users_usergroups WHERE isMain=1 AND uid={$uid})"));
     }
 
     $data = array();
     /* Get which suppliers user is editing - START */
-    $auditing = $db->query("SELECT eid FROM ".Tprefix."suppliersaudits WHERE uid='{$uid}'");
-    if($db->num_rows($auditing) > 0) {
-        while($auditfor = $db->fetch_assoc($auditing)) {
+    $auditing = $db->query("SELECT eid FROM " . Tprefix . "suppliersaudits WHERE uid='{$uid}'");
+    if ($db->num_rows($auditing) > 0) {
+        while ($auditfor = $db->fetch_assoc($auditing)) {
             $data['auditfor'][] = $auditfor['eid'];
         }
     }
@@ -1340,25 +1441,25 @@ function get_user_business_assignments($uid) {
     /* Get which suppliers user is editing - END */
 
     /* GET users affiliates - START */
-    $affiliates_query = $db->query("SELECT affid, isMain, canHR, canAudit FROM ".Tprefix."affiliatedemployees WHERE uid='{$uid}'");
-    if($db->num_rows($affiliates_query) > 0) {
-        while($affiliate = $db->fetch_assoc($affiliates_query)) {
+    $affiliates_query = $db->query("SELECT affid, isMain, canHR, canAudit FROM " . Tprefix . "affiliatedemployees WHERE uid='{$uid}'");
+    if ($db->num_rows($affiliates_query) > 0) {
+        while ($affiliate = $db->fetch_assoc($affiliates_query)) {
             $affiliates[$affiliate['affid']] = $affiliate['affid'];
-            if($affiliate['isMain'] == 1) {
+            if ($affiliate['isMain'] == 1) {
                 $data['mainaffiliate'] = $affiliate['affid'];
             }
 
-            if($affiliate['canHR'] == 1) {
+            if ($affiliate['canHR'] == 1) {
                 $data['hraffids'][$affiliate['affid']] = $affiliate['affid'];
             }
 
-            if($affiliate['canAudit'] == 1) {
+            if ($affiliate['canAudit'] == 1) {
                 $data['auditedaffids'][$affiliate['affid']] = $affiliate['affid'];
             }
         }
     }
     else {
-        if(!is_array($affiliates)) {
+        if (!is_array($affiliates)) {
             $affiliates = array(0);
         }
     }
@@ -1366,14 +1467,14 @@ function get_user_business_assignments($uid) {
     /* Get users affiliates - END */
 
     /* Get user affiliated entities - START */
-    if(is_array($data['auditfor']) && !empty($data['auditfor'])) {
-        foreach($data['auditfor'] as $key => $val) {
+    if (is_array($data['auditfor']) && !empty($data['auditfor'])) {
+        foreach ($data['auditfor'] as $key => $val) {
             $audited_affiliates = array();
             $data['suppliers']['eid'][$val] = $val;
             $audited_affiliates = get_specificdata('affiliatedentities', 'affid', 'affid', 'affid', '', 0, "eid='{$val}'");
             $data['auditedaffiliates'][$val] = $audited_affiliates; //Temporary to maintain backward compatibilty
-            if(is_array($audited_affiliates)) {
-                foreach($audited_affiliates as $affid) {
+            if (is_array($audited_affiliates)) {
+                foreach ($audited_affiliates as $affid) {
                     $data['suppliers']['affid'][$val][$affid] = $affid;
                     $data['affiliates'][$affid] = $affid;
                 }
@@ -1381,37 +1482,37 @@ function get_user_business_assignments($uid) {
         }
     }
 
-    $audited_affiliates_query = $db->query("SELECT ae.eid, ae.affid, e.type FROM ".Tprefix."affiliatedentities ae LEFT JOIN ".Tprefix."entities e ON (e.eid=ae.eid) WHERE affid IN (SELECT affid FROM ".Tprefix."affiliatedemployees WHERE uid={$uid} AND canAudit=1)");
-    if($db->num_rows($audited_affiliates_query) > 0) {
-        while($audited_affiliate = $db->fetch_assoc($audited_affiliates_query)) {
-            if($audited_affiliate['type'] == 's') {
+    $audited_affiliates_query = $db->query("SELECT ae.eid, ae.affid, e.type FROM " . Tprefix . "affiliatedentities ae LEFT JOIN " . Tprefix . "entities e ON (e.eid=ae.eid) WHERE affid IN (SELECT affid FROM " . Tprefix . "affiliatedemployees WHERE uid={$uid} AND canAudit=1)");
+    if ($db->num_rows($audited_affiliates_query) > 0) {
+        while ($audited_affiliate = $db->fetch_assoc($audited_affiliates_query)) {
+            if ($audited_affiliate['type'] == 's') {
                 $data['suppliers']['eid'][$audited_affiliate['eid']] = $audited_affiliate['eid'];
                 $data['suppliers']['affid'][$audited_affiliate['eid']][$audited_affiliate['affid']] = $audited_affiliate['affid'];
             }
-            elseif($audited_affiliate['type'] == 'c') {
+            elseif ($audited_affiliate['type'] == 'c') {
                 $data['customers'][$audited_affiliate['eid']] = $audited_affiliate['eid'];
             }
         }
     }
 
-    $entities = $db->query("SELECT ae.eid, ae.affid, e.type FROM ".Tprefix."assignedemployees ae LEFT JOIN ".Tprefix."entities e ON (e.eid=ae.eid) WHERE ae.uid='{$uid}'");
-    if($db->num_rows($entities) > 0) {
-        while($entity = $db->fetch_assoc($entities)) {
-            if($entity['type'] == 's') {
+    $entities = $db->query("SELECT ae.eid, ae.affid, e.type FROM " . Tprefix . "assignedemployees ae LEFT JOIN " . Tprefix . "entities e ON (e.eid=ae.eid) WHERE ae.uid='{$uid}'");
+    if ($db->num_rows($entities) > 0) {
+        while ($entity = $db->fetch_assoc($entities)) {
+            if ($entity['type'] == 's') {
                 $data['suppliers']['eid'][$entity['eid']] = $entity['eid'];
                 $data['suppliers']['affid'][$entity['eid']][$entity['affid']] = $entity['affid'];
             }
-            elseif($entity['type'] == 'c') {
+            elseif ($entity['type'] == 'c') {
                 $data['customers'][$entity['eid']] = $entity['eid'];
             }
         }
     }
 
-    if(!isset($data['customers'])) {
+    if (!isset($data['customers'])) {
         $data['customers'] = array(0);
     }
 
-    if(!isset($data['suppliers'])) {
+    if (!isset($data['suppliers'])) {
         $data['suppliers'] = array(0);
     }
     /* Get user affiliated entities - END */
@@ -1432,9 +1533,9 @@ function getquery_business_assignments() {
     global $core, $db;
     $arguments = func_get_args();
 
-    if(!empty($arguments[2])) {
+    if (!empty($arguments[2])) {
         $user = get_user_business_assignments($arguments[2]);
-        $usergroup = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."usergroups WHERE gid=(SELECT gid FROM ".Tprefix."users_usergroups WHERE isMain=1 AND uid={$arguments[2]})"));
+        $usergroup = $db->fetch_assoc($db->query("SELECT * FROM " . Tprefix . "usergroups WHERE gid=(SELECT gid FROM " . Tprefix . "users_usergroups WHERE isMain=1 AND uid={$arguments[2]})"));
     }
     else {
         $user = $core->user;
@@ -1442,55 +1543,55 @@ function getquery_business_assignments() {
     }
 
     $auditfor = array();
-    if(isset($user['auditfor'])) {
+    if (isset($user['auditfor'])) {
         $auditfor = $user['auditfor'];
     }
 
     $and = ' AND ';
-    if($arguments[3] == 1) {
+    if ($arguments[3] == 1) {
         $and = '';
     }
 
     $attribute_prefix = 'r.';
-    if(!empty($arguments[4])) {
-        $attribute_prefix = $db->escape_string($arguments[4]).'.';
+    if (!empty($arguments[4])) {
+        $attribute_prefix = $db->escape_string($arguments[4]) . '.';
     }
     $where = array();
-    if($arguments[0] == 'suppliersbyaffid' || $arguments[0] == 'affiliatebyspid') {
+    if ($arguments[0] == 'suppliersbyaffid' || $arguments[0] == 'affiliatebyspid') {
         $query_attribute = '';
-        if($arguments[0] == 'suppliersbyaffid') {
-            if($usergroup['canViewAllSupp'] == 0) {
-                foreach($user['suppliers']['eid'] as $key => $val) {
-                    if(in_array($arguments[1], $user['suppliers']['affid'][$val])) {
+        if ($arguments[0] == 'suppliersbyaffid') {
+            if ($usergroup['canViewAllSupp'] == 0) {
+                foreach ($user['suppliers']['eid'] as $key => $val) {
+                    if (in_array($arguments[1], $user['suppliers']['affid'][$val])) {
                         $found_ids[] = $val;
                     }
                 }
-                $query_attribute = $attribute_prefix.'spid';
+                $query_attribute = $attribute_prefix . 'spid';
             }
         }
         else {
-            if($usergroup['canViewAllAff'] == 0) {
+            if ($usergroup['canViewAllAff'] == 0) {
                 $found_ids = $user['suppliers']['affid'][$arguments[1]];
 
-                $query_attribute = $attribute_prefix.'affid';
+                $query_attribute = $attribute_prefix . 'affid';
             }
         }
 
-        if(!empty($query_attribute)) {
-            $where['extra'] = $and.'('.$query_attribute.' IN ('.implode(',', $found_ids).'))';
+        if (!empty($query_attribute)) {
+            $where['extra'] = $and . '(' . $query_attribute . ' IN (' . implode(',', $found_ids) . '))';
         }
     }
     else {
-        if($usergroup['canViewAllSupp'] == 0) {
-            $where['extra'] = $and.'(';
-            foreach($user['suppliers']['eid'] as $val) {
+        if ($usergroup['canViewAllSupp'] == 0) {
+            $where['extra'] = $and . '(';
+            foreach ($user['suppliers']['eid'] as $val) {
                 $inaffiliates_query = '';
-                if($usergroup['canViewAllAff'] == 0) {
-                    $inaffiliates_query = ' AND '.$attribute_prefix.'affid IN ('.implode(',', $user['suppliers']['affid'][$val]).')';
+                if ($usergroup['canViewAllAff'] == 0) {
+                    $inaffiliates_query = ' AND ' . $attribute_prefix . 'affid IN (' . implode(',', $user['suppliers']['affid'][$val]) . ')';
                 }
 
-                $where['extra'] .= $query_or.'('.$attribute_prefix.'spid='.$val.$inaffiliates_query.')';
-                $where['multipage'] .= $query_or.'(spid='.$val.$inaffiliates_query.')';
+                $where['extra'] .= $query_or . '(' . $attribute_prefix . 'spid=' . $val . $inaffiliates_query . ')';
+                $where['multipage'] .= $query_or . '(spid=' . $val . $inaffiliates_query . ')';
                 $where['byspid'][$val] = $inaffiliates_query;
 
                 $query_or = ' OR ';
@@ -1498,11 +1599,11 @@ function getquery_business_assignments() {
             $where['extra'] .= ')';
         }
 
-        if($usergroup['canViewAllSupp'] == 1 && $usergroup['canViewAllAff'] == 0) {
+        if ($usergroup['canViewAllSupp'] == 1 && $usergroup['canViewAllAff'] == 0) {
             $inaffiliates = implode(',', $user['affiliates']);
 
-            $where['extra'] = ' AND '.$attribute_prefix.'affid IN ('.$inaffiliates.') '; //AND.
-            $where['multipage'] = 'affid IN ('.$inaffiliates.')';
+            $where['extra'] = ' AND ' . $attribute_prefix . 'affid IN (' . $inaffiliates . ') '; //AND.
+            $where['multipage'] = 'affid IN (' . $inaffiliates . ')';
         }
     }
     return $where;
@@ -1510,22 +1611,22 @@ function getquery_business_assignments() {
 
 function parse_userentities_data($uid) {
     global $db, $core;
-    if(empty($uid)) {
+    if (empty($uid)) {
         exit;
     }
 
     $uid = $db->escape_string($uid);
-    if($uid == $core->user['uid']) {
+    if ($uid == $core->user['uid']) {
         $usergroup = $core->usergroup;
     }
     else {
-        $usergroup = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."usergroups WHERE gid=(SELECT gid FROM ".Tprefix."users_usergroups WHERE isMain=1 AND uid={$uid})"));
+        $usergroup = $db->fetch_assoc($db->query("SELECT * FROM " . Tprefix . "usergroups WHERE gid=(SELECT gid FROM " . Tprefix . "users_usergroups WHERE isMain=1 AND uid={$uid})"));
     }
 
     $data = array();
-    $auditing = $db->query("SELECT eid FROM ".Tprefix."suppliersaudits WHERE uid='{$uid}'");
-    if($db->num_rows($auditing) > 0) {
-        while($auditfor = $db->fetch_assoc($auditing)) {
+    $auditing = $db->query("SELECT eid FROM " . Tprefix . "suppliersaudits WHERE uid='{$uid}'");
+    if ($db->num_rows($auditing) > 0) {
+        while ($auditfor = $db->fetch_assoc($auditing)) {
             $data['auditfor'][] = $auditfor['eid'];
         }
     }
@@ -1533,63 +1634,63 @@ function parse_userentities_data($uid) {
         $data['auditfor'] = array();
     }
 
-    if($usergroup['canViewAllAff'] == 0) {
+    if ($usergroup['canViewAllAff'] == 0) {
 //$affiliates = get_specificdata('affiliatedemployees', 'affid', 'affid', 'affid', '', 0, "uid='{$uid}'");
-        $affiliates_query = $db->query("SELECT affid, isMain, canAudit FROM ".Tprefix."affiliatedemployees WHERE uid='{$uid}'");
-        if($db->num_rows($affiliates_query) > 0) {
-            while($affiliate = $db->fetch_assoc($affiliates_query)) {
+        $affiliates_query = $db->query("SELECT affid, isMain, canAudit FROM " . Tprefix . "affiliatedemployees WHERE uid='{$uid}'");
+        if ($db->num_rows($affiliates_query) > 0) {
+            while ($affiliate = $db->fetch_assoc($affiliates_query)) {
                 $affiliates[$affiliate['affid']] = $affiliate['affid'];
-                if($affiliate['isMain'] == 1) {
+                if ($affiliate['isMain'] == 1) {
                     $data['mainaffiliate'] = $affiliate['affid'];
                 }
             }
         }
         else {
-            if(!is_array($affiliates)) {
+            if (!is_array($affiliates)) {
                 $suppliers = array(0);
             }
         }
         $data['affiliates'] = $affiliates;
 
-        if(is_array($data['auditfor']) && !empty($data['auditfor'])) {
-            foreach($data['auditfor'] as $key => $val) {
+        if (is_array($data['auditfor']) && !empty($data['auditfor'])) {
+            foreach ($data['auditfor'] as $key => $val) {
                 $data['auditedaffiliates'][$val] = get_specificdata('affiliatedentities', 'affid', 'affid', 'affid', '', 0, "eid='{$val}'");
             }
         }
     }
 
-    if($usergroup['canViewAllCust'] == 0 || $usergroup['canViewAllSupp'] == 0) {
-        $entities = $db->query("SELECT ae.eid, ae.affid, e.type FROM ".Tprefix."assignedemployees ae LEFT JOIN ".Tprefix."entities e ON (e.eid=ae.eid) WHERE ae.uid='{$uid}'");
-        if($db->num_rows($entities) > 0) {
-            while($entity = $db->fetch_assoc($entities)) {
-                if($entity['type'] == 's') {
+    if ($usergroup['canViewAllCust'] == 0 || $usergroup['canViewAllSupp'] == 0) {
+        $entities = $db->query("SELECT ae.eid, ae.affid, e.type FROM " . Tprefix . "assignedemployees ae LEFT JOIN " . Tprefix . "entities e ON (e.eid=ae.eid) WHERE ae.uid='{$uid}'");
+        if ($db->num_rows($entities) > 0) {
+            while ($entity = $db->fetch_assoc($entities)) {
+                if ($entity['type'] == 's') {
                     $data['suppliers']['eid'][$entity['eid']] = $entity['eid'];
                     $data['suppliers']['affid'][$entity['eid']][$entity['affid']] = $entity['affid'];
                 }
-                elseif($entity['type'] == 'c') {
+                elseif ($entity['type'] == 'c') {
                     $data['customers'][$entity['eid']] = $entity['eid'];
                 }
             }
         }
 
-        $audited_affiliates_query = $db->query("SELECT ae.eid, ae.affid, e.type FROM ".Tprefix."affiliatedentities ae LEFT JOIN ".Tprefix."entities e ON (e.eid=ae.eid) WHERE affid IN (SELECT affid FROM ".Tprefix."affiliatedemployees WHERE uid={$uid} AND canAudit=1)");
-        if($db->num_rows($audited_affiliates_query) > 0) {
-            while($audited_affiliate = $db->fetch_assoc($audited_affiliates_query)) {
-                if($entity['type'] == 's') {
+        $audited_affiliates_query = $db->query("SELECT ae.eid, ae.affid, e.type FROM " . Tprefix . "affiliatedentities ae LEFT JOIN " . Tprefix . "entities e ON (e.eid=ae.eid) WHERE affid IN (SELECT affid FROM " . Tprefix . "affiliatedemployees WHERE uid={$uid} AND canAudit=1)");
+        if ($db->num_rows($audited_affiliates_query) > 0) {
+            while ($audited_affiliate = $db->fetch_assoc($audited_affiliates_query)) {
+                if ($entity['type'] == 's') {
                     $data['suppliers']['eid'][$audited_affiliate['eid']] = $audited_affiliate['eid'];
                     $data['suppliers']['affid'][$audited_affiliate['eid']][$audited_affiliate['affid']] = $audited_affiliate['affid'];
                 }
-                elseif($entity['type'] == 'c') {
+                elseif ($entity['type'] == 'c') {
                     $data['customers'][$audited_affiliate['eid']] = $audited_affiliate['eid'];
                 }
             }
         }
 
-        if(!isset($data['customers'])) {
+        if (!isset($data['customers'])) {
             $data['customers'] = array(0);
         }
 
-        if(!isset($data['suppliers'])) {
+        if (!isset($data['suppliers'])) {
             $data['suppliers'] = array(0);
         }
     }
@@ -1610,9 +1711,9 @@ function getquery_entities_viewpermissions() {
     global $core, $db;
     $arguments = func_get_args();
 
-    if(!empty($arguments[2])) {
+    if (!empty($arguments[2])) {
         $user = parse_userentities_data($arguments[2]);
-        $usergroup = $db->fetch_assoc($db->query("SELECT * FROM ".Tprefix."usergroups WHERE gid=(SELECT gid FROM ".Tprefix."users_usergroups WHERE isMain=1 AND uid={$arguments[2]})"));
+        $usergroup = $db->fetch_assoc($db->query("SELECT * FROM " . Tprefix . "usergroups WHERE gid=(SELECT gid FROM " . Tprefix . "users_usergroups WHERE isMain=1 AND uid={$arguments[2]})"));
     }
     else {
         $user = $core->user;
@@ -1620,92 +1721,92 @@ function getquery_entities_viewpermissions() {
     }
 
     $auditfor = array();
-    if(isset($user['auditfor'])) {
+    if (isset($user['auditfor'])) {
         $auditfor = $user['auditfor'];
     }
 
     $and = ' AND ';
-    if($arguments[3] == 1) {
+    if ($arguments[3] == 1) {
         $and = '';
     }
 
     $attribute_prefix = 'r.';
-    if(!empty($arguments[4])) {
-        $attribute_prefix = $db->escape_string($arguments[4]).'.';
+    if (!empty($arguments[4])) {
+        $attribute_prefix = $db->escape_string($arguments[4]) . '.';
     }
     $where = array();
 
-    if(is_array($arguments) && $arguments[0] == 'suppliersbyaffid' || $arguments[0] == 'affiliatebyspid') {
+    if (is_array($arguments) && $arguments[0] == 'suppliersbyaffid' || $arguments[0] == 'affiliatebyspid') {
         $query_attribute = '';
-        if($arguments[0] == 'suppliersbyaffid') {
-            if($usergroup['canViewAllSupp'] == 0) {
-                if(is_array($user['suppliers']['eid'])) {
-                    foreach($user['suppliers']['eid'] as $key => $val) {
-                        if(in_array($val, $auditfor)) {
-                            if(in_array($arguments[1], $user['auditedaffiliates'][$val])) {
+        if ($arguments[0] == 'suppliersbyaffid') {
+            if ($usergroup['canViewAllSupp'] == 0) {
+                if (is_array($user['suppliers']['eid'])) {
+                    foreach ($user['suppliers']['eid'] as $key => $val) {
+                        if (in_array($val, $auditfor)) {
+                            if (in_array($arguments[1], $user['auditedaffiliates'][$val])) {
                                 $found_ids[] = $val;
                             }
                         }
                         else {
-                            if(in_array($arguments[1], $user['suppliers']['affid'][$val])) {
+                            if (in_array($arguments[1], $user['suppliers']['affid'][$val])) {
                                 $found_ids[] = $val;
                             }
                         }
                     }
-                    if(!empty($arguments[5])) {
+                    if (!empty($arguments[5])) {
                         $query_attribute = $arguments[5];
                     }
                     else {
                         $query_attribute = 'spid';
                     }
-                    $query_attribute = $attribute_prefix.$query_attribute;
+                    $query_attribute = $attribute_prefix . $query_attribute;
                 }
             }
         }
         else {
-            if($usergroup['canViewAllAff'] == 0) {
-                if(in_array($arguments[1], $auditfor)) {
+            if ($usergroup['canViewAllAff'] == 0) {
+                if (in_array($arguments[1], $auditfor)) {
                     $found_ids = $user['auditedaffiliates'][$arguments[1]];
                 }
                 else {
                     $found_ids = $user['suppliers']['affid'][$arguments[1]];
                 }
-                $query_attribute = $attribute_prefix.'affid';
+                $query_attribute = $attribute_prefix . 'affid';
             }
         }
 
-        if(!empty($found_ids)) {
-            if(!empty($query_attribute)) {
-                $where['extra'] = $and.'('.$query_attribute.' IN ('.implode(',', $found_ids).'))';
+        if (!empty($found_ids)) {
+            if (!empty($query_attribute)) {
+                $where['extra'] = $and . '(' . $query_attribute . ' IN (' . implode(',', $found_ids) . '))';
             }
         }
         else {
-            if($usergroup['canViewAllAff'] == 0 && $usergroup['canViewAllSupp'] == 0 && !empty($query_attribute)) {
-                $where['extra'] = $and.$query_attribute.' IN (0)';
+            if ($usergroup['canViewAllAff'] == 0 && $usergroup['canViewAllSupp'] == 0 && !empty($query_attribute)) {
+                $where['extra'] = $and . $query_attribute . ' IN (0)';
             }
         }
     }
     else {
-        if($usergroup['canViewAllSupp'] == 0) {
-            if(is_array($user['suppliers']['eid'])) {
-                $where['extra'] = $and.'(';
-                foreach($user['suppliers']['eid'] as $val) {
-                    if(in_array($val, $auditfor)) {
+        if ($usergroup['canViewAllSupp'] == 0) {
+            if (is_array($user['suppliers']['eid'])) {
+                $where['extra'] = $and . '(';
+                foreach ($user['suppliers']['eid'] as $val) {
+                    if (in_array($val, $auditfor)) {
                         $inaffiliates_query = '';
-                        if($usergroup['canViewAllAff'] == 0) {
-                            if(is_array($user['auditedaffiliates'][$val])) {
-                                $inaffiliates_query = ' AND '.$attribute_prefix.'affid IN ('.implode(',', $user['auditedaffiliates'][$val]).')';
+                        if ($usergroup['canViewAllAff'] == 0) {
+                            if (is_array($user['auditedaffiliates'][$val])) {
+                                $inaffiliates_query = ' AND ' . $attribute_prefix . 'affid IN (' . implode(',', $user['auditedaffiliates'][$val]) . ')';
                             }
                         }
                     }
                     else {
                         $inaffiliates_query = '';
-                        if($usergroup['canViewAllAff'] == 0) {
-                            $inaffiliates_query = ' AND '.$attribute_prefix.'affid IN ('.implode(',', $user['suppliers']['affid'][$val]).')';
+                        if ($usergroup['canViewAllAff'] == 0) {
+                            $inaffiliates_query = ' AND ' . $attribute_prefix . 'affid IN (' . implode(',', $user['suppliers']['affid'][$val]) . ')';
                         }
                     }
-                    $where['extra'] .= $query_or.'('.$attribute_prefix.'spid='.$val.$inaffiliates_query.')';
-                    $where['multipage'] .= $query_or.'(spid='.$val.$inaffiliates_query.')';
+                    $where['extra'] .= $query_or . '(' . $attribute_prefix . 'spid=' . $val . $inaffiliates_query . ')';
+                    $where['multipage'] .= $query_or . '(spid=' . $val . $inaffiliates_query . ')';
                     $where['byspid'][$val] = $inaffiliates_query;
 
                     $query_or = ' OR ';
@@ -1714,11 +1815,11 @@ function getquery_entities_viewpermissions() {
             }
         }
 
-        if($usergroup['canViewAllSupp'] == 1 && $usergroup['canViewAllAff'] == 0) {
+        if ($usergroup['canViewAllSupp'] == 1 && $usergroup['canViewAllAff'] == 0) {
             $inaffiliates = implode(',', $user['affiliates']);
 
-            $where['extra'] = ' AND '.$attribute_prefix.'affid IN ('.$inaffiliates.') '; //AND.
-            $where['multipage'] = 'affid IN ('.$inaffiliates.')';
+            $where['extra'] = ' AND ' . $attribute_prefix . 'affid IN (' . $inaffiliates . ') '; //AND.
+            $where['multipage'] = 'affid IN (' . $inaffiliates . ')';
         }
     }
     return $where;
@@ -1751,17 +1852,18 @@ function getquery_entities_viewpermissions() {
   }
   return $count_off_days;
   } */
+
 /**
  * Gives a different class for alternative rows
  * @param  String		$class			Current class
  * @return String		$class			The alternative row other class
  */
 function alt_row($class) {
-    if(empty($class)) {
+    if (empty($class)) {
         return 'trow';
     }
 
-    if($class == 'trow') {
+    if ($class == 'trow') {
         return 'altrow';
     }
     else {
@@ -1776,7 +1878,7 @@ function alt_row($class) {
 function sort_url() {
     $sort_url = $_SERVER['REQUEST_URI'];
 
-    if(preg_match("/\&sortby=[a-z.]+/i", $sort_url)) {
+    if (preg_match("/\&sortby=[a-z.]+/i", $sort_url)) {
         $sort_url = preg_replace("/\&sortby=[a-z.]+/i", '', $sort_url);
         $sort_url = preg_replace("/\&order=[a-z.]+/i", '', $sort_url);
     }
@@ -1786,8 +1888,8 @@ function sort_url() {
 
 function is_empty() {
     $arguments = func_get_args();
-    foreach($arguments as $key => $val) {
-        if(empty($val)) {
+    foreach ($arguments as $key => $val) {
+        if (empty($val)) {
             return true;
         }
     }
@@ -1795,10 +1897,10 @@ function is_empty() {
 }
 
 function array_sum_recursive($array) {
-    if(is_array($array)) {
+    if (is_array($array)) {
         $total = 0;
-        foreach($array as $val) {
-            if(is_array($val)) {
+        foreach ($array as $val) {
+            if (is_array($val)) {
                 $total += array_sum_recursive($val);
             }
             else {
@@ -1818,19 +1920,19 @@ function get_day_name($day_number, $type = 'names') {
 }
 
 function format_size($size) {
-    if($size < 1024) {
-        return $size.'B';
+    if ($size < 1024) {
+        return $size . 'B';
     }
-    elseif($size > 1024 && $size < 1048576) {
+    elseif ($size > 1024 && $size < 1048576) {
         return sprintf('%.0fkB', ($size / 1024));
     }
-    elseif($size >= 1048576) {
+    elseif ($size >= 1048576) {
         return sprintf('%.2fMB', ($size / 1048576));
     }
 }
 
 function getdate_custom($timestamp) {
-    if(empty($timestamp)) {
+    if (empty($timestamp)) {
         $timestamp = TIME_NOW;
     }
 //    if($timestamp == 1441058400) {
@@ -1846,7 +1948,7 @@ function getdate_custom($timestamp) {
 function generate_random_color($lum = 0.97, $hue = 0.58, $sat = 0.6) {
     $color_dims = array('r', 'g', 'b');
 
-    foreach($color_dims as $c) {
+    foreach ($color_dims as $c) {
         $colors['dec'][$c] = $colors['int'][$c] = mt_rand(0, 255);
         $effect = $lum * $hue * $sat;
         $colors['dec'][$c] = round(min(max(0, $colors['dec'][$c] + ($colors['int'][$c] * $effect)), 255));
@@ -1854,7 +1956,7 @@ function generate_random_color($lum = 0.97, $hue = 0.58, $sat = 0.6) {
     }
 
     $color = implode('', $colors['hex']);
-    if(strlen($color) < 6 || ((($colors['dec']['r'] * 299) + ($colors['dec']['g'] * 587) + ($colors['dec']['b'] * 114)) / 1000) > 250) {
+    if (strlen($color) < 6 || ((($colors['dec']['r'] * 299) + ($colors['dec']['g'] * 587) + ($colors['dec']['b'] * 114)) / 1000) > 250) {
         $color = generate_random_color($lum, $hue, $sat);
     }
     return $color;
@@ -1864,22 +1966,22 @@ function parse_date($format, $date, $daytime = 0) {
     $delimiter = substr($format, 1, 1);
     $format_parts = explode($delimiter, $format);
     $date_parts = explode($delimiter, $date);
-    if(count($date_parts) != 3) {
+    if (count($date_parts) != 3) {
         return $date;
     }
 
-    foreach($format_parts as $key => $value) {
+    foreach ($format_parts as $key => $value) {
         $date_parts[$value] = $date_parts[$key];
         unset($date_parts[$key]);
     }
-    if($daytime == 0) {
+    if ($daytime == 0) {
         $timestamp = mktime(0, 0, 0, $date_parts['m'], $date_parts['d'], $date_parts['Y']);
     }
     else {
         $timestamp = mktime(23, 59, 59, $date_parts['m'], $date_parts['d'], $date_parts['Y']);
     }
 
-    if(date($format, $timestamp) == $date) {
+    if (date($format, $timestamp) == $date) {
         return $timestamp;
     }
     else {
@@ -1889,15 +1991,15 @@ function parse_date($format, $date, $daytime = 0) {
 
 function get_curent_page_URL() {
     $pageURL = 'http';
-    if($_SERVER["HTTPS"] == "on") {
+    if ($_SERVER["HTTPS"] == "on") {
         $pageURL .= "s";
     }
     $pageURL .= "://";
-    if($_SERVER["SERVER_PORT"] != "80") {
-        $pageURL .= $_SERVER["SERVER_NAME"].":".$_SERVER["SERVER_PORT"].$_SERVER["REQUEST_URI"];
+    if ($_SERVER["SERVER_PORT"] != "80") {
+        $pageURL .= $_SERVER["SERVER_NAME"] . ":" . $_SERVER["SERVER_PORT"] . $_SERVER["REQUEST_URI"];
     }
     else {
-        $pageURL .= $_SERVER["SERVER_NAME"].$_SERVER["REQUEST_URI"];
+        $pageURL .= $_SERVER["SERVER_NAME"] . $_SERVER["REQUEST_URI"];
     }
     return $pageURL;
 }
@@ -1908,20 +2010,20 @@ function get_name_from_id($id, $tablename, $idcolumn, $namecolumn, $returnidifre
     global $db;
     try {
         $name = $idtonamecache[$tablename][$idcolumn][$namecolumn][$id];
-        if(isset($name)) {
+        if (isset($name)) {
             return $name;
         }
     }
-    catch(Exception $e) {
-        $msg = 'Exception '.$e->getMessage();
+    catch (Exception $e) {
+        $msg = 'Exception ' . $e->getMessage();
     }
-    $name = $db->fetch_field($db->query('SELECT '.$namecolumn.' FROM '.Tprefix.$tablename.' WHERE '.$idcolumn.'="'.$db->escape_string($id).'"'), $namecolumn);
+    $name = $db->fetch_field($db->query('SELECT ' . $namecolumn . ' FROM ' . Tprefix . $tablename . ' WHERE ' . $idcolumn . '="' . $db->escape_string($id) . '"'), $namecolumn);
     $idtonamecache[$tablename][$idcolumn][$namecolumn][$id] = $name;
-    if(isset($name)) {
+    if (isset($name)) {
         return $name;
     }
     else {
-        if($returnidifresolvefails) {
+        if ($returnidifresolvefails) {
             return $id;
         }
         else {
@@ -1932,10 +2034,10 @@ function get_name_from_id($id, $tablename, $idcolumn, $namecolumn, $returnidifre
 
 function getAffiliateList($idsonly = false) {
     global $core, $db;
-    if($core->usergroup['canViewAllAff'] == 0) {
+    if ($core->usergroup['canViewAllAff'] == 0) {
         $tmpaffiliates = $core->user['affiliates'];
-        foreach($tmpaffiliates as $value) {
-            if($idsonly) {
+        foreach ($tmpaffiliates as $value) {
+            if ($idsonly) {
                 $affiliates[$value] = $value;
             }
             else {
@@ -1944,10 +2046,10 @@ function getAffiliateList($idsonly = false) {
         }
     }
     else {
-        $affiliates_query = $db->query('SELECT affid,name from '.Tprefix.'affiliates');
-        if($db->num_rows($affiliates_query) > 0) {
-            while($affiliate = $db->fetch_assoc($affiliates_query)) {
-                if($idsonly) {
+        $affiliates_query = $db->query('SELECT affid,name from ' . Tprefix . 'affiliates');
+        if ($db->num_rows($affiliates_query) > 0) {
+            while ($affiliate = $db->fetch_assoc($affiliates_query)) {
+                if ($idsonly) {
                     $affiliates[$affiliate['affid']] = $affiliate['affid'];
                 }
                 else {
@@ -1963,13 +2065,13 @@ function getAffiliateList($idsonly = false) {
 function encapsulate_in_fieldset($html, $legend = "+", $boolStartClosed = false) {
 //log_performance(__METHOD__);
 
-    $id = md5(rand(9, 99999).time());
+    $id = md5(rand(9, 99999) . time());
 
     $start_js_val = 1;
     $fsstate = "open";
     $content_style = "";
 
-    if($boolStartClosed) {
+    if ($boolStartClosed) {
         $start_js_val = 0;
         $fsstate = "closed";
         $content_style = "display: none;";
@@ -2033,7 +2135,7 @@ function encapsulate_in_fieldset($html, $legend = "+", $boolStartClosed = false)
 }
 
 function formatit($number) {
-    if(isset($number)) {
+    if (isset($number)) {
         return str_pad(round(number_format($number, 6, '.', ''), 6), 11, ' ', STR_PAD_LEFT);
     }
     else {
@@ -2044,10 +2146,10 @@ function formatit($number) {
 function array_merge_recursive_replace() {
     $arrays = func_get_args();
     $base = array_shift($arrays);
-    foreach($arrays as $array) {
+    foreach ($arrays as $array) {
         reset($base);
-        while(list($key, $value) = @each($array)) { //return the current key and  value pair from an array
-            if(is_array($value) && @is_array($base[$key])) {
+        while (list($key, $value) = @each($array)) { //return the current key and  value pair from an array
+            if (is_array($value) && @is_array($base[$key])) {
                 $base[$key] = array_merge_recursive_replace($base[$key], $value);
             }
             else {
@@ -2059,7 +2161,7 @@ function array_merge_recursive_replace() {
 }
 
 function get_object_bytype($dim, $id, $simple = true) {
-    switch($dim) {
+    switch ($dim) {
         case 'affid':
         case 'useraffid':
             return new Affiliates($id);
@@ -2109,7 +2211,7 @@ function get_object_bytype($dim, $id, $simple = true) {
 }
 
 function get_classname_bytable($table) {
-    switch($table) {
+    switch ($table) {
         case 'entities':
             return Entities::CLASSNAME;
             break;
@@ -2154,8 +2256,8 @@ function get_classname_bytable($table) {
 }
 
 function fix_url($url) {
-    if(!preg_match("~^(?:f|ht)tps?://~i", $url)) {
-        $url = "http://".$url;
+    if (!preg_match("~^(?:f|ht)tps?://~i", $url)) {
+        $url = "http://" . $url;
     }
     return $url;
 }
@@ -2168,10 +2270,10 @@ function fix_url($url) {
  */
 function array_multisort_bycolumn(&$data, $order_attr, $sort = SORT_DESC) {
     ${$order_attr} = array();
-    if(!is_array($data)) {
+    if (!is_array($data)) {
         return;
     }
-    foreach($data as $data_key => $data_row) {
+    foreach ($data as $data_key => $data_row) {
         ${$order_attr}[$data_key] = $data_row->{$order_attr};
     }
     array_multisort(${$order_attr}, $sort, $data);
@@ -2185,10 +2287,10 @@ function array_multisort_bycolumn(&$data, $order_attr, $sort = SORT_DESC) {
 function generate_checksum($prefix = '') {
     $identifier = substr(md5(uniqid(microtime())), 1, 10);
 
-    if(!empty($prefix)) {
-        $prefix = $prefix.'_';
+    if (!empty($prefix)) {
+        $prefix = $prefix . '_';
     }
-    return $prefix.$identifier;
+    return $prefix . $identifier;
 }
 
 /**
@@ -2208,7 +2310,7 @@ function generate_alias($string) {
 
 function is_nearby($maxdistance, $lat1, $lon1, $lat2, $lon2, $unit) {
     $distance = calculateDistance($lat1, $lon1, $lat2, $lon2, $unit);
-    if($distance > $maxdistance) {
+    if ($distance > $maxdistance) {
         return false;
     }
     return true;
@@ -2227,10 +2329,10 @@ function calculateDistance($lat1, $lon1, $lat2, $lon2, $unit) {
     $miles = $dist * 60 * 1.1515;
     $unit = strtoupper($unit);
 
-    if($unit == "K") {
+    if ($unit == "K") {
         return ($miles * 1.609344);
     }
-    else if($unit == "N") {
+    else if ($unit == "N") {
         return ($miles * 0.8684);
     }
     else {
@@ -2239,7 +2341,7 @@ function calculateDistance($lat1, $lon1, $lat2, $lon2, $unit) {
 }
 
 function get_lastquarters($currenctq_data) {
-    switch($currenctq_data['quarter']) {
+    switch ($currenctq_data['quarter']) {
         case '2':
             $last_twoqs = array(1 => ($currenctq_data['year'] ), 4 => ($currenctq_data['year'] - 1));
             return $last_twoqs;
@@ -2253,7 +2355,7 @@ function get_lastquarters($currenctq_data) {
 }
 
 function get_lastquarter($currenctq_data) {
-    switch($currenctq_data['quarter']) {
+    switch ($currenctq_data['quarter']) {
         case '1':
             $last_q = array('quarter' => 4, 'year' => $currenctq_data['year'] - 1);
             return $last_q;
@@ -2264,15 +2366,15 @@ function get_lastquarter($currenctq_data) {
 }
 
 function get_quarter_extremities($quarter, $year) {
-    switch($quarter) {
+    switch ($quarter) {
         case 1:
-            return array('start' => strtotime('01-Jan-'.$year), 'end' => strtotime('31-Mars-'.$year));
+            return array('start' => strtotime('01-Jan-' . $year), 'end' => strtotime('31-Mars-' . $year));
         case 2:
-            return array('start' => strtotime('01-Apr-'.$year), 'end' => strtotime('30-Jun-'.$year));
+            return array('start' => strtotime('01-Apr-' . $year), 'end' => strtotime('30-Jun-' . $year));
         case 3 :
-            return array('start' => strtotime('01-Jul-'.$year), 'end' => strtotime('30-Spet-'.$year));
+            return array('start' => strtotime('01-Jul-' . $year), 'end' => strtotime('30-Spet-' . $year));
         case 4:
-            return array('start' => strtotime('01-Oct-'.$year), 'end' => strtotime('31-Dec-'.$year));
+            return array('start' => strtotime('01-Oct-' . $year), 'end' => strtotime('31-Dec-' . $year));
     }
     return false;
 }
@@ -2280,11 +2382,11 @@ function get_quarter_extremities($quarter, $year) {
 function get_helptour($reference) {
     global $lang;
     $helptour = new HelpTour();
-    $helptour->set_id($reference.'_helptour');
-    $helptour->set_cookiename($reference.'_helptour');
+    $helptour->set_id($reference . '_helptour');
+    $helptour->set_cookiename($reference . '_helptour');
     $helptouritems_obj = new HelpTourItems();
     $touritems = $helptouritems_obj->get_helptouritems($reference);
-    if(is_array($touritems)) {
+    if (is_array($touritems)) {
         $helptour->set_items($touritems);
         return $helptour->parse();
     }
@@ -2302,8 +2404,8 @@ function get_helptour($reference) {
 function resize_image_png($file, $w, $h, $output_file = '', $crop = FALSE) {
     list($width, $height) = getimagesize($file);
     $r = $width / $height;
-    if($crop) {
-        if($width > $height) {
+    if ($crop) {
+        if ($width > $height) {
             $width = ceil($width - ($width * abs($r - $w / $h)));
         }
         else {
@@ -2313,7 +2415,7 @@ function resize_image_png($file, $w, $h, $output_file = '', $crop = FALSE) {
         $newheight = $h;
     }
     else {
-        if($w / $h > $r) {
+        if ($w / $h > $r) {
             $newwidth = $h * $r;
             $newheight = $h;
         }
@@ -2328,7 +2430,7 @@ function resize_image_png($file, $w, $h, $output_file = '', $crop = FALSE) {
     $rgb = imagecolorallocatealpha($dst, 0, 0, 0, 127);
     imagefill($dst, 0, 0, $rgb);
     imagecopyresampled($dst, $src, 0, 0, 0, 0, $newwidth, $newheight, $width, $height);
-    if($output_file) {
+    if ($output_file) {
         imagepng($dst, $output_file);
     }
 
