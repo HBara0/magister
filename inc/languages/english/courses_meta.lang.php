@@ -10,5 +10,6 @@ $lang['coursetitle'] = 'Course Title';
 $lang['coursecode'] = 'Course Code';
 $lang['googledrivefolderlink'] = 'Google Drive Folder Link';
 $lang['cratecourse'] = 'Create Course';
-$lang['teacher'] = 'Teacher';
+$lang['students'] = 'Students';
+$lang['subscribe'] = 'Subscribe';
 ?>

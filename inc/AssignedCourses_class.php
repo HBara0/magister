@@ -64,6 +64,17 @@ class AssignedCourses extends AbstractClass {
     }
 
     /**
+     *
+     * @return \Users|boolean
+     */
+    public function get_student() {
+        if (!$this->data['uid']) {
+            return false;
+        }
+        return new Users(intval($this->data['uid']));
+    }
+
+    /**
      * 
      * @return \Users
      */
@@ -83,6 +94,25 @@ class AssignedCourses extends AbstractClass {
         }
 
         return 'N/A';
+    }
+
+    public function removeassignment($courseid) {
+        $assignedcourse_objs = AssignedCourses::get_data(array('cid' => intval($courseid)), array('returnarray' => true));
+        if (!is_array($assignedcourse_objs)) {
+            return true;
+        }
+        foreach ($assignedcourse_objs as $assignedcourse_obj) {
+            $assignedcourse_obj->deactivate();
+        }
+        return true;
+    }
+
+    public function deactivate() {
+        $currentdata = $this->get();
+        $currentdata['isActive'] = 0;
+        $newobject = new AssignedCourses();
+        $newobject->set($currentdata);
+        $newobject->save();
     }
 
 }
