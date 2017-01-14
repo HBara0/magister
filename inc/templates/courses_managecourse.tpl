@@ -38,8 +38,6 @@
         </div>
 
     </div>
-
-    {$studentsubscription_section}
     <input type="submit" value="{$lang->savecaps}" id="perform_courses/managecourse_Button" class="button"/>
     <div id="perform_courses/managecourse_Results"></div>
 

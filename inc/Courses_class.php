@@ -31,24 +31,8 @@ class Courses extends AbstractClass {
         $data['createdOn'] = TIME_NOW;
         $data['createdBy'] = $core->user['uid'];
         $data['alias'] = generate_alias($data['title']);
-        $subscriptions = $data['assignstudent'];
-        unset($data['assignstudent']);
         if (is_array($data)) {
             $query = $db->insert_query(self::TABLE_NAME, $data);
-            $this->{static::PRIMARY_KEY} = $db->last_id();
-
-            if ($query) {
-                if (is_array($subscriptions)) {
-                    $assigncourse['cid'] = $this->get_id();
-                    $assigncourse['isActive'] = 1;
-                    foreach ($subscriptions as $uid) {
-                        $assigncourse['uid'] = intval($uid);
-                        $assignecourse_obj = new AssignedCourses();
-                        $assignecourse_obj->set($assigncourse);
-                        $assignecourse_obj->save();
-                    }
-                }
-            }
         }
         return $this;
     }
@@ -62,25 +46,10 @@ class Courses extends AbstractClass {
 
         $data['modifiedOn'] = TIME_NOW;
         $data['modifiedBy'] = $core->user['uid'];
-        $subscriptions = $data['assignstudent'];
-        unset($data['assignstudent']);
+
         if (is_array($data)) {
-            $query = $db->update_query(self::TABLE_NAME, $data, self::PRIMARY_KEY . '=' . intval($this->data[self::PRIMARY_KEY]));
+            $db->update_query(self::TABLE_NAME, $data, self::PRIMARY_KEY . '=' . intval($this->data[self::PRIMARY_KEY]));
             $log->record(self::TABLE_NAME, $this->data[self::PRIMARY_KEY]);
-            if ($query) {
-                //set all former assignments to disavtive
-                $previousassignement = AssignedCourses::removeassignment($this->get_id());
-                if (is_array($subscriptions)) {
-                    $assigncourse['cid'] = $this->get_id();
-                    $assigncourse['isActive'] = 1;
-                    foreach ($subscriptions as $uid) {
-                        $assigncourse['uid'] = intval($uid);
-                        $assignecourse_obj = new AssignedCourses();
-                        $assignecourse_obj->set($assigncourse);
-                        $assignecourse_obj->save();
-                    }
-                }
-            }
         }
         return $this;
     }
