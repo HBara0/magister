@@ -1,5 +1,6 @@
 <?php
-$module['name'] = 'home';
+
+$module['name'] = 'portal';
 $module['title'] = 'Home';
 $module['homepage'] = 'calendar';
 $module['globalpermission'] = 'canAccessSystem';
