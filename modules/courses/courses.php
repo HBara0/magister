@@ -8,22 +8,26 @@ if ($core->usergroup['canAccessSystem'] == 0) {
 }
 if (!isset($core->input['action'])) {
 
-    //get active courses list
+    //show create course button depending on user permission
+    if ($core->usergroup['can_CreateCourse'] == 0) {
+        $hide_createcoursebutton = ' style="display:none"';
+    }
+//get active courses list
     $courses_objs = Courses::get_data(array('isActive' => 1), array('returnarray' => true, 'simple' => false));
     if (is_array($courses_objs)) {
         foreach ($courses_objs as $course_obj) {
             $courses_list .= '<tr>';
             $courses_list .= '<td>' . $course_obj->code . '</td>';
-            $courses_list .= '<td>' . $course_obj->title . '</td>';
+            $courses_list .= '<td>' . $course_obj->parse_link() . '</td>';
             $teacher_obj = $course_obj->get_teacher();
             if (is_object($teacher_obj)) {
-                $courses_list .= '<td>' . $teacher_obj->get_displayname . '</td>';
+                $courses_list .= '<td>' . $course_obj->get_teacher()->get_displayname() . '</td>';
             }
             else {
                 $courses_list .= '<td>N/A</td>';
             }
             if ($course_obj->description) {
-                $courses_list .= '<td>' . $course_obj->description . '/td>';
+                $courses_list .= '<td>' . $course_obj->description . '</td>';
             }
             else {
                 $courses_list .= '<td>N/A</td>';

@@ -16,7 +16,7 @@ class Courses extends AbstractClass {
     const SIMPLEQ_ATTRS = '*';
     const CLASSNAME = __CLASS__;
     const REQUIRED_ATTRS = 'code,title';
-    const UNIQUE_ATTRS = 'title,code';
+    const UNIQUE_ATTRS = 'alias,code';
 
     public function __construct($id = '', $simple = true) {
         parent::__construct($id, $simple);
@@ -30,6 +30,7 @@ class Courses extends AbstractClass {
         }
         $data['createdOn'] = TIME_NOW;
         $data['createdBy'] = $core->user['uid'];
+        $data['alias'] = generate_alias($data['title']);
         if (is_array($data)) {
             $query = $db->insert_query(self::TABLE_NAME, $data);
         }
@@ -103,6 +104,21 @@ class Courses extends AbstractClass {
             return true;
         }
         return false;
+    }
+
+    public function parse_link($attributes_param = array('target' => '_blank')) {
+
+        if (is_array($attributes_param)) {
+            foreach ($attributes_param as $attr => $val) {
+                $attributes .= $attr . '="' . $val . '"';
+            }
+        }
+        return '<a href="' . $this->get_link() . '" ' . $attributes . '>' . $this->get_displayname() . '</a>';
+    }
+
+    public function get_link() {
+        global $core;
+        return $core->settings['rootdir'] . '/index.php?module=courses/courseprofile&amp;pid=' . $this->data[self::PRIMARY_KEY];
     }
 
 }

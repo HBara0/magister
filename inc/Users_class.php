@@ -227,6 +227,23 @@ class Users extends AbstractClass {
         return $usergroup;
     }
 
+    /**
+     * Get all users that are allowed to teach a course
+     * @return boolean/array of User objs11
+     */
+    public function get_teachers() {
+        //get all usergroups that are allowed to teach
+        $teachusergroup_objs = UserGroups::get_column('gid', array('canManageLecture' => 1), array('returnarray' => true));
+        if (!is_array($teachusergroup_objs)) {
+            return false;
+        }
+        $teachuser_objs = Users::get_data("gid !=5 AND gid IN (" . implode(',', $teachusergroup_objs) . ")", array('returnarray' => true));
+        if (!is_array($teachuser_objs)) {
+            return false;
+        }
+        return $teachuser_objs;
+    }
+
 }
 
 ?>

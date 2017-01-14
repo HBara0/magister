@@ -1,18 +1,9 @@
 <?php
 
-/*
- * Copyright © 2014 Orkila International Offshore, All Rights Reserved
- *
- * Abstract class skeleton
- * $id: AbstractClass.php
- * Created:        @zaher.reda    Jul 30, 2014 | 5:10:17 PM
- * Last Update:    @zaher.reda    Jul 30, 2014 | 5:10:17 PM
- */
-
 /**
  * The global abstract class that
  *
- * @author zaher.reda
+ * 
  */
 Abstract class AbstractClass {
 

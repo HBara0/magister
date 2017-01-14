@@ -146,4 +146,5 @@ $lang['to'] = 'To';
 $lang['courses'] = 'Courses';
 $lang['timetable'] = 'Timetable';
 $lang['usernameexists'] = "Specified username already exists";
+$lang['isActive'] = 'Is Active';
 ?>
