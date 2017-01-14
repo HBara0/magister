@@ -15,12 +15,37 @@ if (!$core->input['action']) {
         $teacherid = $course['teacherId'];
         $hide_createcoursebutton = '';
         $isActive = $course['isActive'];
+
+        //get all subscribed students
+        $subscribedstudent_objs = AssignedCourses::get_data(array('isActive' => 1, 'cid' => $core->input['id']), array('returnarray' => true));
+        if (is_array($subscribedstudent_objs)) {
+            foreach ($subscribedstudent_objs as $subscribedstudent_obj) {
+                $subscribedstudents_ids[] = $subscribedstudent_obj->uid;
+            }
+        }
     }
     $isactive_list = parse_selectlist2('course[isActive]', 1, array('1' => 'Yes', '0' => 'No'), $isActive);
     $teacher_objs = Users::get_teachers();
     if (is_array($teacher_objs)) {
         $teacher_list = parse_selectlist2('course[teacherId]', 1, $teacher_objs, $teacherid, '', '', array('id' => 'teacher', 'blankstart' => true));
     }
+    //parse student subscription section
+    $student_objs = Users::get_students();
+    if (is_array($student_objs)) {
+        foreach ($student_objs as $student_obj) {
+            if (!$student_obj->isActive()) {
+                continue;
+            }
+            if (is_array($subscribedstudents_ids) && in_array($student_obj->get_id(), $subscribedstudents_ids)) {
+                $check_assign = 'checked';
+            }
+            $studentid = $student_obj->get_id();
+            $studentoutput = $student_obj->get_displayname();
+            eval("\$studentsection_lines.= \"" . $template->get('courses_managecourse_studentsubscription_line') . "\";");
+        }
+        eval("\$studentsubscription_section= \"" . $template->get('courses_managecourse_studentsubscription') . "\";");
+    }
+
     eval("\$managejcourse= \"" . $template->get('courses_managecourse') . "\";");
     output_page($managejcourse);
 }
