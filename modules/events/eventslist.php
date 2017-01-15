@@ -18,12 +18,7 @@ if (!isset($core->input['action'])) {
             $from_output = date($core->settings['dateformat'] . ' ' . $core->settings['timeformate'], $fromtime);
             $to_output = date($core->settings['dateformat'] . ' ' . $core->settings['timeformate'], $totime);
             if ($events_obj->description) {
-                if (strlen($events_obj->description) > 150) {
-                    $description = substr($events_obj->description, 0, 150) . '...';
-                }
-                else {
-                    $description = $events_obj->description;
-                }
+                $description = $events_obj->description;
             }
             else {
                 $description = 'N/A';
