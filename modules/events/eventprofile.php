@@ -11,24 +11,25 @@ if (!isset($core->input['action'])) {
     if (!isset($core->input['id']) || empty($core->input['id'])) {
         redirect(DOMAIN . '/index.php?module=courses/courses');
     }
-    $course_obj = new Courses(intval($core->input['id']));
-    $course = $course_obj->get();
-    $id = $course_obj->get_id();
-    $hide_managecoursebutton = ' style="display:none"';
-    $teacheroutput = $course_obj->get_teacheroutput();
+    $event_obj = new Events(intval($core->input['id']));
+    $event = $event_obj->get();
+    $id = $event_obj->get_id();
+    $hide_manageeventbutton = ' style="display:none"';
     //show manage course button depending on user permission
-    if ($course_obj->canManageCourse()) {
-        $editlink = $course_obj->get_editlink();
-        $hide_managecoursebutton = '';
+    if ($event_obj->canManageEvent()) {
+        $editlink = $event_obj->get_editlink();
+        $hide_manageeventbutton = '';
     }
-    $course_displayname = $course_obj->get_displayname();
+    $event_displayname = $event_obj->get_displayname();
 
-    if (!$course['description']) {
-        $hide_coursedescription = 'style="display:none"';
+    //parse date range output0
+    $daterangeoutput = $event_obj->parse_daterangeoutput();
+    if (!$event['description']) {
+        $hide_eventdescription = 'style="display:none"';
     }
     //parse course take/remove button
     if ($core->usergroup['canTakeLessons'] == 1) {
-        if ($course_obj->is_subscribed($core->user['uid'])) {
+        if ($event_obj->is_subscribed($core->user['uid'])) {
             $addorremovecourse_button = '<div id="subscribedive_' . $id . '" ><button type="button" class="btn btn-danger" id="subscribebutton_' . $id . '_remove"><span class="glyphicon glyphicon-minus"></span>' . $lang->removecourse . '</button>';
         }
         else {
@@ -36,14 +37,8 @@ if (!isset($core->input['action'])) {
         }
     }
 
-    //parse course lectures based on user permission
-    $lecture_section = $course_obj->get_lectureoutput();
-    //parse folder link
-    if ($course_obj->folderUrl) {
-        $course_folder = '<button type="button" class="btn btn-warning"  onclick="window.open(\'' . $course_obj->folderUrl . '\', \'_blank\')">' . $lang->coursefiles . '</button>';
-    }
-    eval("\$page= \"" . $template->get('courses_courseprofile') . "\";");
-    output_page($page, array('pagetitledirect' => $course_displayname));
+    eval("\$page= \"" . $template->get('events_eventprofile') . "\";");
+    output_page($page, array('pagetitledirect' => $event_displayname));
 }
 else {
     if ($core->input['action'] == 'course_subscribe') {

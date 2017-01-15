@@ -178,20 +178,42 @@ class Events extends AbstractClass {
         return false;
     }
 
-    public function get_fromdateoutput() {
-        return date('d-m-Y', $this->get_fromdate());
+    public function get_fromdateoutput($format = 'd-m-Y') {
+        return date($format, $this->get_fromdate());
     }
 
-    public function get_todateoutput() {
-        return date('d-m-Y', $this->get_todate());
+    public function get_fromtimeoutput($format = 'h:i A') {
+        return date($format, $this->get_fromdate());
     }
 
-    public function get_totimeoutput() {
-        return date('h:i A', $this->get_todate());
+    public function get_todateoutput($format = 'd-m-Y') {
+        return date($format, $this->get_todate());
     }
 
-    public function get_fromtimeoutput() {
-        return date('h:i A', $this->get_fromdate());
+    public function get_totimeoutput($format = 'h:i A') {
+        return date($format, $this->get_todate());
+    }
+
+    /**
+     *
+     * @return string
+     */
+    public function parse_daterangeoutput() {
+        $fromdate = $this->get_fromdateoutput('D, j M Y') . ' ' . $this->get_fromtimeoutput();
+        $fromdate_class = 'success';
+        if ($this->data['fromDate'] < TIME_NOW) {
+            $fromdate_class = 'danger';
+        }
+        $fromdate = '<span class="label label-' . $fromdate_class . '">' . $fromdate . '</span>';
+
+        $todate = $this->get_todateoutput('D, j M Y') . '  ' . $this->get_totimeoutput();
+        $todate_class = 'success';
+        if ($this->data['toDate'] < TIME_NOW) {
+            $todate_class = 'danger';
+        }
+        $todate = '<span class="label label-' . $todate_class . '">' . $todate . '</span>';
+
+        return $fromdate . ' TO ' . $todate;
     }
 
 }
