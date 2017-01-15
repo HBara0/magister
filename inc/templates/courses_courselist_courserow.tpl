@@ -5,4 +5,5 @@
     <td>{$teachername}</td>
     <td>{$description}</td>
     <td {$subscribe_cell}>{$subscribed}</td>
+    <td>{$totalstudents}</td>
 </tr>

@@ -254,4 +254,16 @@ class Courses extends AbstractClass {
         return $lecutre_section;
     }
 
+    /**
+     * return thetotal number of active students
+     * @return int
+     */
+    public function get_totalstudents() {
+        $assignedstudents = AssignedCourses::get_data(array('isActive' => 1, 'cid' => $this->get_id()), array('returnarray' => true));
+        if (is_array($assignedstudents)) {
+            return count($assignedstudents);
+        }
+        return 0;
+    }
+
 }

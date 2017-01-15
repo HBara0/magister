@@ -16,6 +16,7 @@
             <th>{$lang->teacher}</th>
             <th>{$lang->description}</th>
             <th>{$lang->subscribed}</th>
+            <th>{$lang->totalstudents}</th>
         </tr>
     </thead>
     <tfoot>
@@ -26,6 +27,8 @@
             <th>{$lang->teacher}</th>
             <th>{$lang->description}</th>
             <th>{$lang->subscribed}</th>
+            <th>{$lang->totalstudents}</th>
+
         </tr>
     </tfoot>
     <tbody>

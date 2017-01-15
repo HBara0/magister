@@ -26,7 +26,12 @@ if (!isset($core->input['action'])) {
                 $teachername = 'N/A';
             }
             if ($course_obj->description) {
-                $description = $course_obj->description;
+                if (strlen($course_obj->description) > 150) {
+                    $description = substr($course_obj->description, 0, 150) . '...';
+                }
+                else {
+                    $description = $course_obj->description;
+                }
             }
             else {
                 $description = 'N/A';
@@ -44,6 +49,7 @@ if (!isset($core->input['action'])) {
             if ($course_obj->canManageCourse()) {
                 $tool_items .= ' <li><a target="_blank" href="' . $course_obj->get_editlink() . '"><span class="glyphicon glyphicon-pencil"></span>&nbsp' . $lang->managecourse . '</a></li>';
             }
+            $totalstudents = $course_obj->get_totalstudents();
             eval("\$tools = \"" . $template->get('tools_buttonselectlist') . "\";");
             eval("\$courses_list .= \"" . $template->get('courses_courselist_courserow') . "\";");
             unset($tool_items, $subscribe_cell);

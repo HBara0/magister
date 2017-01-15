@@ -36,6 +36,7 @@ if (!$core->input['action']) {
             if (!$student_obj->isActive()) {
                 continue;
             }
+            $check_assign = '';
             if (is_array($subscribedstudents_ids) && in_array($student_obj->get_id(), $subscribedstudents_ids)) {
                 $check_assign = 'checked';
             }
