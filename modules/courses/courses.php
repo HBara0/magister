@@ -26,7 +26,12 @@ if (!isset($core->input['action'])) {
                 $teachername = 'N/A';
             }
             if ($course_obj->description) {
-                $description = $course_obj->description;
+                if (strlen($course_obj->description) > 150) {
+                    $description = substr($course_obj->description, 0, 150) . '...';
+                }
+                else {
+                    $description = $course_obj->description;
+                }
             }
             else {
                 $description = 'N/A';
