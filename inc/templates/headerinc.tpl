@@ -10,8 +10,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js"></script>
 
 <script src="{$core->settings[rootdir]}/js/jscript.min.js" type="text/javascript"></script>
-<script src="{$core->settings[rootdir]}/js/jquery.tokeninput.js" type = "text/javascript" ></script>
-
 
 
 <link href='{$core->settings[rootdir]}/css/jqueryuitheme/jquery-ui-current.custom.min.css' rel='stylesheet' type='text/css' />

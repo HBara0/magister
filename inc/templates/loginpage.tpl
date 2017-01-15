@@ -58,24 +58,8 @@
                 <input type="password" id="password" name="password" class="form-control" placeholder="{$lang->password}" required>
                 <input class="btn btn-lg btn-success btn-block" type="button" id='login_Button' value="{$lang->login}"/>
                 <input type="hidden" value="{$lastpage}" name="referer" id="referer" />
-                {* <div style="text-align:right;">
-
-                <a href="#" id="resetpassword">{$lang->forgotyourpassword}</a>
-
-                </div>*}
                 <div id='login_Results' class="alert alert-info" style="display: none;" role="alert"></div>
             </form>
-
-            {* <form class="form-signin" id="resetpasswordcontent" style="display:none; position: relative;">
-            <h2 class="form-signin-heading">{$lang->resetpassword}</h2>
-            <label for="inputEmail" class="sr-only">{$lang->emailtosendpassword}</label>
-            <input type="text" id="email" name='email' class="form-control" placeholder="{$lang->emailtosendpassword}" required autofocus>
-
-            <input class="btn btn-lg btn-success btn-block" type="button" id='resetpassword_Button' value="{$lang->reset}"/>
-            <input type="hidden" value="{$token}" name="token" id="resetpasswordtoken" />
-            <div id='resetpassword_Results' class="alert alert-info" style="display: none;"role="alert"></div>
-            <div style='position: absolute; top:1px; right: 1px;'>{$helplink}</div>
-            </form>*}
 
         </div> <!-- /container -->
     </body>

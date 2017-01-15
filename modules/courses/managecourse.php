@@ -62,18 +62,6 @@ elseif ($core->input['action'] == 'do_perform_managecourse') {
         case 1:
             output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
             break;
-        case 2:
-            output_xml("<status>false</status><message>{$lang->jobexists}</message>");
-            break;
-        case 3:
-            output_xml("<status>false</status><message>{$lang->errorsaving}</message>");
-            break;
-        case 4:
-            output_xml("<status>false</status><message>{$lang->jobexistsameaff}</message>");
-            break;
-        case 5:
-            output_xml("<status>false</status><message>{$lang->wrongpublishoptions}</message>");
-            break;
         default:
             output_xml("<status>false</status><message>{$lang->errorsaving}</message>");
             break;

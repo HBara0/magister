@@ -111,4 +111,8 @@ class CalendarAssignments extends AbstractClass {
         return new Events(intval($this->data['eid']));
     }
 
+    public function get_user() {
+        return new Users(intval($this->data['uid']));
+    }
+
 }
