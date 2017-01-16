@@ -9,6 +9,7 @@ if (!$core->input['action']) {
     if ($core->usergroup['can_CreateCourse'] == 0) {
         $hide_createcoursebutton = ' style="display:none"';
     }
+    $course_obj = new Courses();
     if (isset($core->input['id']) && !empty($core->input['id'])) {
         $course_obj = new Courses(intval($core->input['id']));
         $course = $course_obj->get();
@@ -46,6 +47,9 @@ if (!$core->input['action']) {
         }
         eval("\$studentsubscription_section= \"" . $template->get('courses_managecourse_studentsubscription') . "\";");
     }
+
+    //parse lecture and deadline section
+    $lecture_section = $course_obj->get_lectureoutput();
 
     eval("\$managejcourse= \"" . $template->get('courses_managecourse') . "\";");
     output_page($managejcourse);

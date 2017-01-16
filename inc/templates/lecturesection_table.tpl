@@ -11,12 +11,9 @@
     </thead>
     <tfoot>
         <tr>
-            <th>&nbsp;</th>
-            <th>{$lang->from}</th>
-            <th>{$lang->to}</th>
-            <th>{$lang->title}</th>
-            <th>{$lang->location}</th>
-            <th>{$lang->type}</th>
+            <th colspan="3">&nbsp;</th>
+            <th colspan="3">&nbsp;</th>
+
         </tr>
     </tfoot>
     <tbody>

@@ -6,18 +6,16 @@
   \******************************** */
 
 $settings['adminemail'] = "hussein.barakat@edu.esiee.fr";
-$settings['attendance_caneditleaveafter'] = "1";
 $settings['bugnotificationcontacts'] = "hussein.barakat@edu.esiee.fr";
 $settings['clearlogperiod'] = "30";
 $settings['dateformat'] = "M d, Y";
 $settings['enablecompression'] = "1";
-$settings['entitylogodir'] = "uploads/entitieslogos/";
 $settings['exportdirectory'] = "exports/";
-$settings['failedlogintime'] = "10";
+//$settings['failedlogintime'] = "10";
 $settings['gziplevel'] = "4";
 $settings['idletime'] = "10080";
 $settings['itemsperlist'] = "1000";
-$settings['loginattempts'] = "5";
+//$settings['loginattempts'] = "5";
 $settings['maintenancemessage'] = "The system is undergoing maintenance. Thank you for your patience";
 $settings['onmaintenance'] = "0";
 $settings['passwordArchiveRetention'] = "10";
@@ -32,7 +30,6 @@ $settings['q4end'] = "12-31";
 $settings['q4start'] = "10-01";
 $settings['qraddrecipients'] = "";
 $settings['reportdeadline'] = "15";
-$settings['saletypes'] = "distribution;indent;both";
 $settings['sendreportsonapprove'] = "0";
 $settings['systemtitle'] = "Magister";
 $settings['timeformat'] = "h:i A";

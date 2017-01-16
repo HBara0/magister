@@ -64,4 +64,44 @@ class Recommendations extends AbstractClass {
         return new Users(intval($this->data['createdBy']));
     }
 
+    /**
+     *
+     * @global type $lang
+     * @return type
+     */
+    public function parse_categories() {
+        global $lang;
+        $categories_list = array('food' => $lang->food, 'accomodation' => $lang->accomodation, 'entertainment' => $lang->entertainment, 'monument' => $lang->monument);
+        return parse_selectlist2('recommendation[category]', 1, $categories_list, $this->data['category']);
+    }
+
+    /**
+     *
+     * @return type
+     */
+    public function parse_rating() {
+        $counter = 1;
+        $ratings = array();
+        while ($counter < 6) {
+            $ratings[$counter] = $counter;
+            $counter++;
+        }
+        return parse_selectlist2('recommendation[rating]', 1, $ratings, $this->data['rating']);
+    }
+
+    public function get_city() {
+        if (!intval($this->data['city'])) {
+            return false;
+        }
+        return new Cities(intval($this->data['city']));
+    }
+
+    public function get_cityoutput() {
+        $city_obj = $this->get_city();
+        if (!is_object($city_obj)) {
+            return;
+        }
+        return $city_obj->get_displayname();
+    }
+
 }
