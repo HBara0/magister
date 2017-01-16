@@ -47,12 +47,12 @@ if ($core->input['action']) {
             }
             else {
                 $db->update_query('users', array('failedLoginAttempts' => $validation->get_real_failed_attempts() + 1, 'lastAttemptTime' => TIME_NOW), "uid='{$user_details[uid]}'");
-                if ($validation->get_real_failed_attempts() >= 3) {
-                    $lang->tryresetpassword = '<![CDATA[<br />' . $lang->tryresetpassword . ']]>';
-                }
-                else {
-                    $lang->tryresetpassword = '';
-                }
+//                if ($validation->get_real_failed_attempts() >= 3) {
+//                    $lang->tryresetpassword = '<![CDATA[<br />' . $lang->tryresetpassword . ']]>';
+//                }
+//                else {
+//                    $lang->tryresetpassword = '';
+//                }
                 $log->record($core->input['username'], 0);
                 output_xml("<status>false</status><message>{$lang->invalidlogin}{$lang->tryresetpassword}</message>");
             }

@@ -7,8 +7,8 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="{$core->settings[rootdir]}"><img src="{$core->settings[rootdir]}/images/logo.png" alt="OCOS" border="0" class="systemlogo"></a>
-        </div>
+            <a class="navbar-brand" href="{$core->settings[rootdir]}"><h2>Magister</h2></a>
+        </div><!--<img src="{$core->settings[rootdir]}/images/magisterlogo.png" alt="Magister" border="0" class="systemlogo">-->
         <div id="navbar" class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
                 <li><a href="{$core->settings[rootdir]}" style='font-size:18px;'><span id="home" class="glyphicon glyphicon-home" title="Home"></span> <span class="hidden-sm hidden-md hidden-sm hidden-lg">Home</span></a></li>

@@ -53,7 +53,7 @@
             <form class="form-signin" id="logincontent">
                 <h2 class="form-signin-heading">{$lang->pleaselogin}</h2>
                 <label for="inputEmail" class="sr-only">ESIEE Email</label>
-                <input type="text" id="username" name='username' class="form-control" placeholder="{$lang->username}" required autofocus>
+                <input type="text" id="username" name='username' class="form-control" placeholder="ESIEE Email" required autofocus>
                 <label for="inputPassword" class="sr-only">{$lang->password}</label>
                 <input type="password" id="password" name="password" class="form-control" placeholder="{$lang->password}" required>
                 <input class="btn btn-lg btn-success btn-block" type="button" id='login_Button' value="{$lang->login}"/>

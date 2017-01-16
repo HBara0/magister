@@ -49,15 +49,7 @@ class ModifyAccount extends Accounts {
         $uid = $db->escape_string($data['uid']);
 
 
-        if (array_key_exists('username', $data)) {
-            $username = $db->fetch_field($db->query("SELECT username FROM " . Tprefix . "users WHERE uid='{$uid}'"), 'username');
-            if ($username != $data['username']) {
-                if (parent::username_exists($data['username'])) {
-                    output_xml("<status>false</status><message>{$lang->usernameexists}</message>");
-                    exit;
-                }
-            }
-        }
+
 
         if (array_key_exists('password', $data)) {
             if (!empty($data['password'])) {
@@ -85,7 +77,15 @@ class ModifyAccount extends Accounts {
                 exit;
             }
         }
-        $data['username'] = $data['email'];
+        if (array_key_exists('email', $data)) {
+            $username = $db->fetch_field($db->query("SELECT username FROM " . Tprefix . "users WHERE uid='{$uid}'"), 'username');
+            if ($username != $data['username']) {
+                if (parent::username_exists($data['username'])) {
+                    output_xml("<status>false</status><message>{$lang->usernameexists}</message>");
+                    exit;
+                }
+            }
+        }
         if (Accounts::username_exists($data['username'])) {
             output_xml("<status>false</status><message>{$lang->usernameexists}</message>");
             exit;
