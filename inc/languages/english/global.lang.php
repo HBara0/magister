@@ -148,5 +148,7 @@ $lang['timetable'] = 'Timetable';
 $lang['usernameexists'] = "Specified username already exists";
 $lang['isActive'] = 'Is Active';
 $lang['events'] = 'Events';
-$lang['Travel'] = 'Travel';
+$lang['travel'] = 'Travel';
+$lang['description'] = 'Description';
+$lang['title'] = 'Title';
 ?>

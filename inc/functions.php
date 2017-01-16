@@ -16,7 +16,7 @@ function output_page($pagecontent, $options = null) {// default tpl, options to 
             $pagetitle = $lang->$files[1];
         }
     }
-    $options['helptourref'] = 'newlayout';
+//    $options['helptourref'] = 'newlayout';
 //    ${$options['helptourref'].'_helptour'} = get_helptour('newlayout');
 
     if (!empty($options['additionalheaderinc'])) {
@@ -498,7 +498,7 @@ function parse_selectlist2($name, $tabindex, $options, $selected_options, $multi
     $list .= '<select style="' . $list_style . '" id="' . $id . '" name="' . $name . '" ' . $disabled . ' size="' . $config['size'] . '" tabindex="' . $tabindex . '"' . $required . $multiple . $onchange_actions . $datattr . $list_class . '>';
 
     if ($config['blankstart'] == true && empty($config['placeholder'])) {
-        $list .= '<option>  ---- </option>';
+        $list .= '<option value="">  ---- </option>';
     }
 
     if (!empty($config['placeholder'])) {

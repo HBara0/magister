@@ -86,9 +86,13 @@ class Recommendations extends AbstractClass {
             $ratings[$counter] = $counter;
             $counter++;
         }
-        return parse_selectlist2('recommendation[rating]', 1, $ratings, $this->data['rating']);
+        return parse_selectlist2('recommendation[rating]', 1, $ratings, $this->data['rating'], '', '', array('blankstart' => true));
     }
 
+    /**
+     *
+     * @return boolean|\Cities
+     */
     public function get_city() {
         if (!intval($this->data['city'])) {
             return false;
@@ -96,12 +100,92 @@ class Recommendations extends AbstractClass {
         return new Cities(intval($this->data['city']));
     }
 
+    /**
+     * Get name of city
+     * @return type
+     */
     public function get_cityoutput() {
         $city_obj = $this->get_city();
         if (!is_object($city_obj)) {
             return;
         }
         return $city_obj->get_displayname();
+    }
+
+    /**
+     *
+     * @global type $core
+     * @return boolean
+     */
+    public function canManageRecommendation() {
+        global $core;
+        if ($core->usergroup['canManageAllRecommendations']) {
+            return true;
+        }
+        if ($core->user['uid'] == $this->data['createdBy']) {
+            return true;
+        }
+        return false;
+    }
+
+    public function parse_link($attributes_param = array('target' => '_blank')) {
+
+        if (is_array($attributes_param)) {
+            foreach ($attributes_param as $attr => $val) {
+                $attributes .= $attr . '="' . $val . '"';
+            }
+        }
+        return '<a href="' . $this->get_link() . '" ' . $attributes . '>' . $this->get_displayname() . '</a>';
+    }
+
+    public function get_link() {
+        global $core;
+        return $core->settings['rootdir'] . '/index.php?module=travel/recommendationprofile&amp;id=' . $this->data[self::PRIMARY_KEY];
+    }
+
+    /**
+     *
+     * @global type $core
+     * @return type
+     */
+    public function get_editlink() {
+        global $core;
+        return $core->settings['rootdir'] . '/index.php?module=travel/managerecommendation&amp;id=' . $this->data[self::PRIMARY_KEY];
+    }
+
+    /**
+     *
+     * @global type $lang
+     * @return type
+     */
+    public function get_categoryutput() {
+        global $lang;
+        if (!$this->data['category']) {
+            return;
+        }
+        $category = $this->data['category'];
+        if ($lang->$category) {
+            return $lang->$category;
+        }
+        return $category;
+    }
+
+    /**
+     *
+     * @return string
+     */
+    public function get_ratingoutput() {
+        if (!intval($this->data['rating'])) {
+            return 'N/A';
+        }
+        $counter = 1;
+        $ratingoutput = '';
+        $startouput = '<span style="color:green" class="glyphicon glyphicon-star"></span>';
+        while ($counter <= intval($this->data['rating'])) {
+            $ratingoutput.=$startouput;
+            $counter++;
+        }
+        return $ratingoutput;
     }
 
 }
