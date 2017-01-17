@@ -2,7 +2,7 @@
 
 $module['name'] = 'travel';
 $module['title'] = $lang->travel;
-$module['homepage'] = 'recommendationlist';
+$module['homepage'] = 'recommendationslist';
 $module['globalpermission'] = 'canAccessSystem';
 $module['menu'] = array('file' => array('recommendationlist',),
     'title' => array('recommendationlist',),

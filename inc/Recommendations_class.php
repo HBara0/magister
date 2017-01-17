@@ -188,4 +188,12 @@ class Recommendations extends AbstractClass {
         return $ratingoutput;
     }
 
+    /**
+     *
+     * @return type
+     */
+    public function get_compositeDisplayname() {
+        return $this->get_displayname() . ' - ' . $this->get_cityoutput() . ' - ' . $this->get_categoryutput();
+    }
+
 }
