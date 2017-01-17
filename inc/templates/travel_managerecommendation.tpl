@@ -1,6 +1,6 @@
 <div class="row">
     <div class="col-md-9 col-lg-9 col-sm-12">
-        <h1>{$lang->managecourse}</h1>
+        <h1>{$lang->managerecommendation}</h1>
     </div>
 </div>
 <form  action="#" method="post" id="perform_travel/managerecommendation_Form" name="perform_travel/managerecommendation_Form">

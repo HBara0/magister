@@ -31,7 +31,7 @@ if (!isset($core->input['action'])) {
 
 
 
-    eval("\$page= \"" . $template->get('recommendation_recommendationprofile') . "\";");
+    eval("\$page= \"" . $template->get('travel_recommendationprofile') . "\";");
     output_page($page, array('pagetitledirect' => $recommendation_displayname));
 }
 else {

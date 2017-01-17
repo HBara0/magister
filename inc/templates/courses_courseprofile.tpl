@@ -7,7 +7,8 @@
                 url: "{$core->settings['rootdir']}/index.php?module=courses/courseprofile&id=1&action=course_" + id[2],
                 data: "id=" + id[1],
                 beforeSend: function() {
-                    $("#subscribedive_" + id[1]).html("<img src='{$core->settings[rootdir]}/images/preloader.gif'>");
+                    loadgif($("#subscribedive_" + id[1]));
+
                 },
                 success: function(returnedData) {
                     $("#subscribedive_" + id[1]).html(returnedData);

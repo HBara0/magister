@@ -11,7 +11,7 @@
         </div>
     </div>
 </div>
-</div>
+<hr><br><br>
 <div class="panel panel-success" {$hide_recommendatinodescription}>
     <div class="panel-heading">{$lang->description}</div>
     <div class="panel-body">

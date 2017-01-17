@@ -64,7 +64,7 @@ $(function() {
                                     var api = this.api();
                                     api.$('td').click(function(e) {
                                         var chk = $(this).closest("tr").find("input:checkbox").get(0);
-                                        if (e.target != chk)
+                                        if (e.target != chk && typeof chk != 'undefined')
                                         {
                                             chk.checked = !chk.checked;
                                         }
@@ -1341,4 +1341,10 @@ function intialize_select2() {
                     width: '100%'
                 })
     });
+}
+
+function loadgif(obj) {
+    var loading_gifs = ["<img src='" + rootdir + "/images/picanyan.gif'>", "<img src='" + rootdir + "/images/preloader.gif'>", "<img src='" + rootdir + "/images/pie.gif'>", "<img src='" + rootdir + "/images/pacman.gif'>"];
+    var randomgif = loading_gifs[Math.floor(Math.random() * loading_gifs.length)];
+    obj.html(randomgif);
 }

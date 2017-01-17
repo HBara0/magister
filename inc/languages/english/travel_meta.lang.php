@@ -12,5 +12,5 @@ $lang['city'] = 'City';
 $lang['travelrecommendations'] = 'Travel Recommendations';
 $lang['createrecommendation'] = 'Create Recommendation';
 $lang['managerecommendation'] = 'Manage Recommendation';
-
+$lang['viewrecommendation'] = 'View Recommendation';
 
