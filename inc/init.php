@@ -1,31 +1,22 @@
 <?php
-/*
- * Orkila Central Online System (OCOS)
- * Copyright � 2009 Orkila International Offshore, All Rights Reserved
- *
- * Initialtions file
- * $id: init.php
- * Created: 	@zaher.reda		Feb 04, 2009 | 10:00 AM
- * Last Update: @zaher.reda 	July 31, 2009 | 3:39 PM
- */
 
 /*
  *
  * WARNING! any change here can affect other parts of the website
  *
  */
-if(strpos(strtolower($_SERVER['PHP_SELF']), 'init.php') !== false) {
+if (strpos(strtolower($_SERVER['PHP_SELF']), 'init.php') !== false) {
     die('Not allowed.');
 }
-if(!defined('ROOT')) {
-    define('ROOT', dirname(dirname(__FILE__)).'/');
+if (!defined('ROOT')) {
+    define('ROOT', dirname(dirname(__FILE__)) . '/');
 }
 
 define('INC_ROOT', 'inc/');
 
 error_reporting(E_ALL & ~E_NOTICE);
 
-require_once ROOT.INC_ROOT.'config.php';
+require_once ROOT . INC_ROOT . 'config.php';
 /*
  * Vital definitions
  * Tprefix			The DB table prefix. Directly loaded from inc/config.php
@@ -50,18 +41,19 @@ $settings['rootdir'] = DOMAIN;
 
 $settings['rootdir'] = DOMAIN;
 $settings['cookie_prefix'] = COOKIE_PREFIX;
+
 function __autoload($className) {
-    require_once ROOT.INC_ROOT.$className.'_class.php';
+    require_once ROOT . INC_ROOT . $className . '_class.php';
 }
 
-require_once ROOT.INC_ROOT.'functions.php';
+require_once ROOT . INC_ROOT . 'functions.php';
 
 $errorhandler = new ErrorHandler();
 $timer = new Timer();
 $core = new Core();
 
-if(file_exists(ROOT.INC_ROOT.'settings.php')) {
-    require_once ROOT.INC_ROOT.'settings.php';
+if (file_exists(ROOT . INC_ROOT . 'settings.php')) {
+    require_once ROOT . INC_ROOT . 'settings.php';
 }
 
 /* if(!file_exists(ROOT.INC_ROOT."settings.php") || !$settings)

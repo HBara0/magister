@@ -1,21 +1,13 @@
 <?php
-/*
- * Orkila Central Online System (OCOS)
- * Copyright © 2009 Orkila International Offshore, All Rights Reserved
- * 
- * Pipes Class
- * $id: Log_class.php
- * Created:		@zaher.reda		June 01, 2010 | 10:53 AM
- * Last Update: @zaher.reda		June 01, 2010 | 10:53 AM
- */
 
 class Pipe {
+
     var $content = '';
     var $maildata = array();
 
     public function __construct() {
         $data = fopen("php://stdin", "r");
-        while(!feof($data)) {
+        while (!feof($data)) {
             $this->content .= fread($data, 4096);
         }
         fclose($data);
@@ -28,31 +20,31 @@ class Pipe {
         $lines = explode("\n", $this->content);
 
         $is_headerline = true;
-        foreach($lines as $var) {
-            if($is_headerline == true) {
-                if(preg_match("/^From: (.*)/", $var, $matches)) {
+        foreach ($lines as $var) {
+            if ($is_headerline == true) {
+                if (preg_match("/^From: (.*)/", $var, $matches)) {
                     preg_match("/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9._-]+)/", $matches[1], $email);
                     $this->maildata['from'] = $core->validate_email($core->sanitize_email($email[1]));
                 }
 
-                if(preg_match("/^To: (.*)/", $var, $matches)) {
+                if (preg_match("/^To: (.*)/", $var, $matches)) {
                     preg_match("/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9._-]+)/", $matches[1], $email);
                     $this->maildata['to'] = $core->validate_email($core->sanitize_email($email[1]));
                 }
 
-                if(preg_match("/^Subject: (.*)/", $var, $matches)) {
+                if (preg_match("/^Subject: (.*)/", $var, $matches)) {
                     $this->maildata['subject'] = $matches[1];
                 }
 
-                if(preg_match("/^Content-Transfer-Encoding: (.*)/", $var, $matches)) {
+                if (preg_match("/^Content-Transfer-Encoding: (.*)/", $var, $matches)) {
                     $this->maildata['encoding'] = trim($matches[1]);
                 }
             }
             else {
-                $this->maildata['message'] .= $var.'\n';
+                $this->maildata['message'] .= $var . '\n';
             }
 
-            if(trim($var) == '') {
+            if (trim($var) == '') {
                 $is_headerline = false;
             }
         }
@@ -61,7 +53,7 @@ class Pipe {
     }
 
     private function decode_message() {
-        switch(strtolower($this->maildata['encoding'])) {
+        switch (strtolower($this->maildata['encoding'])) {
             case 'base64': $this->maildata['message'] = base64_decode($this->maildata['message']);
                 break;
             default: break;
@@ -73,4 +65,5 @@ class Pipe {
     }
 
 }
+
 ?>

@@ -1,15 +1,5 @@
 <?php
 
-/*
- * Orkila Central Online System (OCOS)
- * Copyright © 2009 Orkila International Offshore, All Rights Reserved
- *
- * Global file
- * $id: global.php
- * Created: 	@zaher.reda		Mar 11, 2009 | 01:00 AM
- * Last Update: @zaher.reda 	August 1, 2012 | 03:17 PM
- */
-
 $dir = dirname(__FILE__);
 if (!$dir) {
     $dir = '.';

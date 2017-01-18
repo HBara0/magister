@@ -51,8 +51,8 @@ if (!$core->input['action']) {
     //parse lecture and deadline section
     $lecture_section = $course_obj->get_lectureoutput();
 
-    eval("\$managejcourse= \"" . $template->get('courses_managecourse') . "\";");
-    output_page($managejcourse);
+    eval("\$managecourse= \"" . $template->get('courses_managecourse') . "\";");
+    output_page($managecourse);
 }
 elseif ($core->input['action'] == 'do_perform_managecourse') {
     $course_obj = new Courses();

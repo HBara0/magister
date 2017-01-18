@@ -1,15 +1,7 @@
 <?php
-/*
- * Orkila Central Online System (OCOS)
- * Copyright © 2009 Orkila International Offshore, All Rights Reserved
- *
- * MySQLi Connection Class
- * $id: MySQLiConnection_class.php
- * Created:		@zaher.reda 	November 25, 2012 | 09:30 PM
- * Last Update: @zaher.reda 	November 26, 2012 | 08:44 AM
- */
 
 class MySQLiConnection {
+
     protected $link;
     private $db_encoding = 'utf8';
     private $db = array();
@@ -36,7 +28,7 @@ class MySQLiConnection {
     public function query($query_string) {
         $query = @mysqli_query($this->link, $query_string);
 
-        if($this->error_number()) {
+        if ($this->error_number()) {
             $this->mysqlerror($query_string);
         }
         return $query;
@@ -45,7 +37,7 @@ class MySQLiConnection {
     public function multi_query() {
         $query = @mysqli_multi_query($this->link, $query_string);
 
-        if($this->error_number()) {
+        if ($this->error_number()) {
             $this->mysqlerror($query_string);
         }
         return $query;
@@ -53,9 +45,9 @@ class MySQLiConnection {
 
     public function insert_query($table, $data, $options = '') {
         $comma = $index_string = $data_string = $keyphrase = '';
-        if(is_array($data)) {
+        if (is_array($data)) {
             $query_data = $this->prepare_insertstatement_data($data, $options);
-            return $this->query('INSERT INTO '.$this->db['prefix'].$table.' ('.$query_data['index'].') VALUES ('.$query_data['value'].')');
+            return $this->query('INSERT INTO ' . $this->db['prefix'] . $table . ' (' . $query_data['index'] . ') VALUES (' . $query_data['value'] . ')');
         }
         else {
             return false;
@@ -63,13 +55,13 @@ class MySQLiConnection {
     }
 
     public function multi_insert_query($table, array $data, $options = '') {
-        if(is_array($data)) {
-            foreach($data as $entry => $entry_data) {
+        if (is_array($data)) {
+            foreach ($data as $entry => $entry_data) {
                 $query_data = $this->prepare_insertstatement_data($entry_data, $options);
-                $query_values .= $comma.'('.$query_data['value'].')';
+                $query_values .= $comma . '(' . $query_data['value'] . ')';
                 $comma = ', ';
             }
-            return $this->query('INSERT INTO '.$this->db['prefix'].$table.' ('.$query_data['index'].') VALUES '.$query_values);
+            return $this->query('INSERT INTO ' . $this->db['prefix'] . $table . ' (' . $query_data['index'] . ') VALUES ' . $query_values);
         }
         else {
             return false;
@@ -78,23 +70,23 @@ class MySQLiConnection {
 
     private function prepare_insertstatement_data(array $data, $options = '') {
         $comma = $keyphrase = '';
-        if(!empty($data)) {
-            foreach($data as $key => $val) {
-                $statement['index'] .= $comma.$key;
-                if(!empty($options['encrypt']) && is_array($options['encrypt']) && in_array($key, $options['encrypt'])) {
-                    if(array_key_exists($key.'Key', $data)) {
-                        $keyphrase = $data[$key.'Key'];
+        if (!empty($data)) {
+            foreach ($data as $key => $val) {
+                $statement['index'] .= $comma . $key;
+                if (!empty($options['encrypt']) && is_array($options['encrypt']) && in_array($key, $options['encrypt'])) {
+                    if (array_key_exists($key . 'Key', $data)) {
+                        $keyphrase = $data[$key . 'Key'];
                     }
                     else {
                         $keyphrase = $key; //or later set a default key setting
                     }
-                    $statement['value'] .= $comma."AES_ENCRYPT('{$val}', '{$keyphrase}')";
+                    $statement['value'] .= $comma . "AES_ENCRYPT('{$val}', '{$keyphrase}')";
                 }
-                elseif(!empty($options['geoLocation']) && is_array($options['geoLocation']) && in_array($key, $options['geoLocation'])) {
-                    $statement['value'] .= $comma.'geomFromText("POINT('.$this->escape_string($val).')")';
+                elseif (!empty($options['geoLocation']) && is_array($options['geoLocation']) && in_array($key, $options['geoLocation'])) {
+                    $statement['value'] .= $comma . 'geomFromText("POINT(' . $this->escape_string($val) . ')")';
                 }
                 else {
-                    $statement['value'] .= $comma."'".$this->escape_string($val)."'";
+                    $statement['value'] .= $comma . "'" . $this->escape_string($val) . "'";
                 }
                 $comma = ', ';
             }
@@ -106,30 +98,30 @@ class MySQLiConnection {
 
     public function update_query($table, $data, $where = '', $options = '') {
         $comma = $query_string = '';
-        if(is_array($data)) {
-            foreach($data as $key => $val) {
-                if(is_null($val)) {
+        if (is_array($data)) {
+            foreach ($data as $key => $val) {
+                if (is_null($val)) {
                     continue;
                 }
-                if(!empty($options['encrypt']) && is_array($options['encrypt']) && in_array($key, $options['encrypt'])) {
-                    if(array_key_exists($key.'Key', $data)) {
-                        $keyphrase = $data[$key.'Key'];
+                if (!empty($options['encrypt']) && is_array($options['encrypt']) && in_array($key, $options['encrypt'])) {
+                    if (array_key_exists($key . 'Key', $data)) {
+                        $keyphrase = $data[$key . 'Key'];
                     }
                     else {
                         $keyphrase = $key; //or later set a default key setting
                     }
-                    $query_string .= $comma."{$key}=AES_ENCRYPT('{$val}', '{$keyphrase}')";
+                    $query_string .= $comma . "{$key}=AES_ENCRYPT('{$val}', '{$keyphrase}')";
                 }
-                elseif(!empty($options['geoLocation']) && is_array($options['geoLocation']) && in_array($key, $options['geoLocation'])) {
-                    $statement['value'] .= $comma.$key.'=geomFromText("POINT('.$this->escape_string($val).')")';
+                elseif (!empty($options['geoLocation']) && is_array($options['geoLocation']) && in_array($key, $options['geoLocation'])) {
+                    $statement['value'] .= $comma . $key . '=geomFromText("POINT(' . $this->escape_string($val) . ')")';
                 }
                 else {
-                    $query_string .= "{$comma}{$key}='".$this->escape_string($val)."'";
+                    $query_string .= "{$comma}{$key}='" . $this->escape_string($val) . "'";
                 }
                 $comma = ', ';
             }
-            if(!empty($where)) {
-                $where = ' WHERE '.$where;
+            if (!empty($where)) {
+                $where = ' WHERE ' . $where;
             }
 
             return $this->query("UPDATE {$this->db['prefix']}{$table} SET {$query_string}{$where}");
@@ -141,8 +133,8 @@ class MySQLiConnection {
 
     public function delete_query($table, $where = '') {
         $where_query = '';
-        if(!empty($where)) {
-            $where_query = ' WHERE '.$where;
+        if (!empty($where)) {
+            $where_query = ' WHERE ' . $where;
         }
 
         return $this->query("DELETE FROM {$this->db['prefix']}{$table}{$where_query}");
@@ -157,7 +149,7 @@ class MySQLiConnection {
     }
 
     public function fetch_field($query, $field, $row = false) {
-        if($row === false) {
+        if ($row === false) {
             $fetch = $this->fetch_array($query);
         }
         else {
@@ -192,10 +184,10 @@ class MySQLiConnection {
     }
 
     public function escape_string($string) {
-        if(function_exists('mysqli_real_escape_string') && $this->link) {
+        if (function_exists('mysqli_real_escape_string') && $this->link) {
             return mysqli_real_escape_string($this->link, $string);
         }
-        elseif(function_exists('mysqli_escape_string')) {
+        elseif (function_exists('mysqli_escape_string')) {
             return mysqli_escape_string($this->link, $string);
         }
         else {
@@ -204,7 +196,7 @@ class MySQLiConnection {
     }
 
     protected function error_number() {
-        if($this->link) {
+        if ($this->link) {
             return mysqli_errno($this->link);
         }
         else {
@@ -213,7 +205,7 @@ class MySQLiConnection {
     }
 
     protected function error() {
-        if($this->link) {
+        if ($this->link) {
             return mysqli_error($this->link);
         }
         else {
@@ -222,7 +214,7 @@ class MySQLiConnection {
     }
 
     public function set_charset($charset = '') {
-        if(empty($charset)) {
+        if (empty($charset)) {
             $charset = $this->db_encoding;
         }
 
@@ -232,14 +224,14 @@ class MySQLiConnection {
     protected function mysqlerror($string = '') {
         global $errorhandler;
 
-        if(!is_object($errorhandler)) {
+        if (!is_object($errorhandler)) {
             $errorhandler = new errorHandler();
         }
 
         $error = array(
-                'error_no' => $this->error_number(),
-                'error' => $this->error(),
-                'query' => $string
+            'error_no' => $this->error_number(),
+            'error' => $this->error(),
+            'query' => $string
         );
         $errorhandler->trigger($error, '', SQL_ERROR);
         /* echo 'MySQL Error:'.$this->error_number();
@@ -264,23 +256,23 @@ class MySQLiConnection {
 
     public function show_fields_from($table, $type = MYSQLI_BOTH) {
         $query = $this->query("SHOW FIELDS FROM {$this->db['prefix']}{$table}");
-        while($field = $this->fetch_array($query, $type)) {
+        while ($field = $this->fetch_array($query, $type)) {
             $field_info[] = $field;
         }
         return $field_info;
     }
 
     public function get_tables_havingcolumn($column, $filter = '') {
-        if(!empty($filter)) {
-            $filter = ' AND '.$filter;
+        if (!empty($filter)) {
+            $filter = ' AND ' . $filter;
         }
         $query = $this->query('SELECT DISTINCT TABLE_NAME
                         FROM INFORMATION_SCHEMA.COLUMNS
-                        WHERE COLUMN_NAME IN ("'.$this->escape_string($column).'")
-                        AND TABLE_SCHEMA="'.$this->db['db'].'"'.$filter);
+                        WHERE COLUMN_NAME IN ("' . $this->escape_string($column) . '")
+                        AND TABLE_SCHEMA="' . $this->db['db'] . '"' . $filter);
 
-        if($this->num_rows($query) > 0) {
-            while($table = $this->fetch_array($query)) {
+        if ($this->num_rows($query) > 0) {
+            while ($table = $this->fetch_array($query)) {
                 $tables[] = $table['TABLE_NAME'];
             }
             return $tables;
@@ -293,14 +285,14 @@ class MySQLiConnection {
     }
 
     public function table_status($table = '') {
-        if(!empty($table)) {
-            $query = $this->query("SHOW TABLE STATUS LIKE '".$this->db['prefix'].$table."'");
+        if (!empty($table)) {
+            $query = $this->query("SHOW TABLE STATUS LIKE '" . $this->db['prefix'] . $table . "'");
         }
         else {
             $query = $this->query("SHOW TABLE STATUS");
         }
         $total = 0;
-        while($table = $this->fetch_array($query)) {
+        while ($table = $this->fetch_array($query)) {
             $total += $table['Data_length'] + $table['Index_length'];
         }
         return $total;
@@ -312,8 +304,8 @@ class MySQLiConnection {
      * @return boolean
      */
     public function function_exists($functionname) {
-        $query = $this->query('SHOW FUNCTION STATUS WHERE name="'.$this->escape_string($functionname).'"');
-        if($this->num_rows($query) > 0) {
+        $query = $this->query('SHOW FUNCTION STATUS WHERE name="' . $this->escape_string($functionname) . '"');
+        if ($this->num_rows($query) > 0) {
             return true;
         }
         return false;
@@ -328,4 +320,5 @@ class MySQLiConnection {
     }
 
 }
+
 ?>

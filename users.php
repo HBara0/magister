@@ -1,13 +1,4 @@
 <?php
-/*
- * Orkila Central Online System (OCOS)
- * Copyright © 2009 Orkila International Offshore, All Rights Reserved
- *
- * User related actions
- * $id: users.php
- * Created: 	@zaher.reda
- * Last Update: @zaher.reda 	May 28, 2012 | 11:24 AM
- */
 define('PASSEXPIRE_EXCLUDE', 1);
 require_once './global.php';
 
@@ -96,7 +87,7 @@ if ($core->input['action']) {
             $mailer = new Mailer();
             $mailer = $mailer->get_mailerobj();
             $mailer->set_layouttype('standard');
-            $mailer->set_from(array('name' => 'OCOS Mailer', 'email' => $core->settings['maileremail']));
+            $mailer->set_from(array('name' => 'Magister Mailer', 'email' => $core->settings['maileremail']));
             $mailer->set_subject($lang->yournewpassword);
             $mailer->set_message($lang->resetemailmessage);
             $mailer->set_to($email);

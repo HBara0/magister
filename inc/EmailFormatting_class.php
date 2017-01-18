@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright © 2016 Orkila International Offshore, All Rights Reserved
  *
@@ -9,6 +10,7 @@
  */
 
 class EmailFormatting {
+
     private $message = array();
     private $data = array();
     private $type = '';
@@ -36,9 +38,9 @@ class EmailFormatting {
         global $template;
 
         $buttons = '';
-        if(is_array($this->data['links'])) {
-            foreach($this->data['links'] as $sequence => $link) {
-                eval("\$buttons .= \"".$template->get('emailfomatting_default_button')."\";");
+        if (is_array($this->data['links'])) {
+            foreach ($this->data['links'] as $sequence => $link) {
+                eval("\$buttons .= \"" . $template->get('emailfomatting_default_button') . "\";");
             }
         }
         return $buttons;
@@ -50,13 +52,13 @@ class EmailFormatting {
         $messagedata = $this->data;
 
         $buttons = $this->parse_links();
-        switch($this->type) {
+        switch ($this->type) {
             case 'standard':
-                $path = $core->settings['rootdir'].'/images/ocos_logo.jpg';
+                $path = '';
                 $type = pathinfo($path, PATHINFO_EXTENSION);
                 $data = file_get_contents($path);
-                $base64 = 'data:image/'.$type.';base64,'.base64_encode($data);
-                eval("\$outputmessage = \"".$template->get('emailfomatting_default')."\";");
+                $base64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
+                eval("\$outputmessage = \"" . $template->get('emailfomatting_default') . "\";");
                 break;
             default:
                 $outputmessage = $this->data['message'];
@@ -67,7 +69,7 @@ class EmailFormatting {
     }
 
     public function get_message() {
-        if($this->formatted == false) {
+        if ($this->formatted == false) {
             $this->format();
         }
         return $this->message;

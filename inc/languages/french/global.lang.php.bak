@@ -1,31 +1,31 @@
 <?php
-$lang['orkilaIS'] = "OCOS";
-$lang['logout'] = "Se Déconnecter";
+
+$lang['logout'] = "Se Dï¿½connecter";
 $lang['welcomeuser'] = "Bienvenue {1}!";
 $lang['edityouraccount'] = "Modifier votre Compte";
-$lang['lastvisit'] = "Votre dernière visite date du {1} à {2}";
-$lang['firstvisit'] = "C'est votre première visite";
+$lang['lastvisit'] = "Votre derniï¿½re visite date du {1} ï¿½ {2}";
+$lang['firstvisit'] = "C'est votre premiï¿½re visite";
 $lang['contactadministrator'] = "Contacter l'Administrateur";
 $lang['copyright'] = "Droit d'Auteur &copy; Orkila Holding";
 
 $lang['error'] = "Erreur";
-$lang['sectionnopermission'] = "Vous ne disposez pas des autorisations pour accéder à cette section";
-$lang['accountsuspended'] = "Désolé, vous ne pouvez pas accéder OCOS.";
+$lang['sectionnopermission'] = "Vous ne disposez pas des autorisations pour accï¿½der ï¿½ cette section";
+$lang['accountsuspended'] = "Dï¿½solï¿½, vous ne pouvez pas accï¿½der Magister.";
 
 $lang['home'] = "Accueil";
-$lang['nomatchfound'] = "Aucun résultat n'a été trouvé";
+$lang['nomatchfound'] = "Aucun rï¿½sultat n'a ï¿½tï¿½ trouvï¿½";
 $lang['fillallrequiredfields'] = "Veuillez remplir les champs obligatoires";
-$lang['fillrequiredfields'] = "Veillez à remplir tous les champs obligatoires"; //Temporary work around
+$lang['fillrequiredfields'] = "Veillez ï¿½ remplir tous les champs obligatoires"; //Temporary work around
 $lang['add'] = "Ajouter";
 $lang['nextcaps'] = "SUIVANT";
 $lang['savecaps'] = "SAUVEGARDER";
 $lang['prevcaps'] = "PRECEDENT";
-$lang['reset'] = "Rétablir";
+$lang['reset'] = "Rï¿½tablir";
 $lang['cancel'] = "Annuler";
 $lang['na'] = "N/A";
 
 $lang['next'] = "Suivanr";
-$lang['prev'] = "Précédent";
+$lang['prev'] = "Prï¿½cï¿½dent";
 $lang['yes'] = "Oui";
 $lang['no'] = "Non";
 $lang['perlist'] = "Par liste";
@@ -34,32 +34,32 @@ $lang['email'] = "Email";
 $lang['pleaselogin'] = "Connectez vous";
 $lang['username'] = "Nom d'utilisateur";
 $lang['password'] = "Mot de Passe";
-$lang['resetpassword'] = "Rétablir Mot de Passe";
-$lang['forgotyourpassword'] = "Mot de Passe oublié?";
-$lang['loginsuccess'] = "Identification réussie";
+$lang['resetpassword'] = "Rï¿½tablir Mot de Passe";
+$lang['forgotyourpassword'] = "Mot de Passe oubliï¿½?";
+$lang['loginsuccess'] = "Identification rï¿½ussie";
 $lang['invalidlogin'] = "Informations non valide";
-$lang['reachedmaxattempts'] = "Vous avez atteint le maximum de tentatives autorisées,
+$lang['reachedmaxattempts'] = "Vous avez atteint le maximum de tentatives autorisï¿½es,
 connectez vous dans {1} minutes.";
-$lang['sessionexpired'] = "Votre session a expiré, connectez vous à nouveau";
+$lang['sessionexpired'] = "Votre session a expirï¿½, connectez vous ï¿½ nouveau";
 $lang['login'] = "Se Connecter";
 $lang['emailtosendpassword'] = "Indiquez votre email pour recevoir votre nouveau mot de passe";
-$lang['emailsentcontainpassword'] = "Un message contenant votre nouveau mot de passe a été envoyé à votre adresse email";
+$lang['emailsentcontainpassword'] = "Un message contenant votre nouveau mot de passe a ï¿½tï¿½ envoyï¿½ ï¿½ votre adresse email";
 $lang['errorsendingemail'] = "Une erreur s'est produite au cours de l'envoi du mail";
-$lang['accountemailnotfound'] = "Aucun compte correspondant à cet e-mail a été trouvé";
+$lang['accountemailnotfound'] = "Aucun compte correspondant ï¿½ cet e-mail a ï¿½tï¿½ trouvï¿½";
 
 $lang['affiliate'] = "Filiale";
 $lang['supplier'] = "Fournisseur";
 $lang['product'] = "Produit";
 $lang['customer'] = "Client";
-$lang['employee'] = "Employé";
+$lang['employee'] = "Employï¿½";
 
 $lang['fillreport'] = "Remplir Rapport";
-$lang['generatereport'] = "Générer Rapport";
+$lang['generatereport'] = "Gï¿½nï¿½rer Rapport";
 $lang['listreports'] = "Liste des Rapports";
 $lang['addsuppliers'] = "Ajouter Fournisseurs";
 $lang['addcustomers'] = "Ajouter Clients";
 $lang['addproducts'] = "Ajouter Produits";
-$lang['createreports'] = "Créer Rapports";
+$lang['createreports'] = "Crï¿½er Rapports";
 
 $lang['reporting'] = "Rapport";
 $lang['contents'] = "Contenus";

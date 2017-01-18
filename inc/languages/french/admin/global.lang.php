@@ -1,5 +1,5 @@
 <?php
-$lang['orkilaIS'] = "OCOS";
+
 $lang['logout'] = "Logout";
 $lang['main'] = "Main";
 $lang['welcomeuser'] = "Welcome {1}!";

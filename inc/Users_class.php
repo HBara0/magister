@@ -1,15 +1,5 @@
 <?php
 
-/*
- * Orkila Central Online System (OCOS)
- * Copyright © 2009 Orkila International Offshore, All Rights Reserved
- *
- * Users Class
- * $id: Users_class.php
- * Created:		@zaher.reda		June 07, 2012 | 12:11 PM
- * Last Update: @zaher.reda		July 26, 2012 | 01:08 PM
- */
-
 class Users extends AbstractClass {
 
     protected $data = array();

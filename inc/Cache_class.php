@@ -1,15 +1,7 @@
 <?php
-/*
- * Orkila Central Online System (OCOS)
- * Copyright © 2009 Orkila International Offshore, All Rights Reserved
- *
- * Cache Class
- * $id: Cache_class.php
- * Created: 	@zaher.reda 	June 04, 2012 | 12:16 AM
- * Last Update: @zaher.reda 	June 04, 2012 | 12:16 AM
- */
 
 class Cache {
+
     public $data = array();
 
     public function __construct() {
@@ -17,8 +9,8 @@ class Cache {
     }
 
     public function add($reference, $content, $index = '', $appendto = '') {
-        if($index == '') {
-            if(!empty($appendto)) {
+        if ($index == '') {
+            if (!empty($appendto)) {
                 $this->data{$appendto}[$reference][] = $content;
             }
             else {
@@ -26,7 +18,7 @@ class Cache {
             }
         }
         else {
-            if(!empty($appendto)) {
+            if (!empty($appendto)) {
                 $this->data{$appendto}[$reference][$index] = $content;
             }
             else {
@@ -36,23 +28,23 @@ class Cache {
     }
 
     public function read() {
-        if(is_array($this->data)) {
-            foreach($this->data as $key => $val) {
+        if (is_array($this->data)) {
+            foreach ($this->data as $key => $val) {
                 $this->{$key} = $val;
             }
         }
     }
 
     public function iscached($reference, $index) {
-        if(isset($this->data[$reference][$index])) {
+        if (isset($this->data[$reference][$index])) {
             return true;
         }
         return false;
     }
 
     public function incache($reference, $value) {
-        if(is_array($this->data[$reference])) {
-            if(in_array($value, $this->data[$reference])) {
+        if (is_array($this->data[$reference])) {
+            if (in_array($value, $this->data[$reference])) {
                 return true;
             }
         }
@@ -64,7 +56,7 @@ class Cache {
     }
 
     public function __get($attr) {
-        if(isset($this->data[$attr])) {
+        if (isset($this->data[$attr])) {
             return $this->data[$attr];
         }
         return false;
@@ -79,4 +71,5 @@ class Cache {
     }
 
 }
+
 ?>

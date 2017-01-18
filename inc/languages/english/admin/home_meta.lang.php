@@ -1,4 +1,5 @@
 <?php
+
 $lang['welcomeap'] = "Welcome to Administrator Panel";
 $lang['systemoverview'] = "System Overview";
 $lang['usersstats'] = "{1} users";
@@ -16,7 +17,6 @@ $lang['sharedfiles'] = "shared files";
 $lang['visitreport'] = "visitreports";
 $lang['qreport'] = "quarterly reports have been prepared";
 $lang['leaves'] = "Leaves stats";
-$lang['ocosusers'] = "OCOS users stats";
 
 $lang['numusersonline'] = "{1} User(s) Online";
 ?>

@@ -24,9 +24,7 @@
     <div class="form-group-lg">
         {$rating_list}
     </div>
-    <div class="form-group-lg">
-        {$isactive_list}
-    </div>
+
     <div class="form-group-lg">
         <label for="description">{$lang->description}</label>
         <div style="display:block;">
@@ -36,7 +34,9 @@
         </div>
     </div>
     <label>{$lang->isActive}</label>
-
+    <div class="form-group-lg">
+        {$isactive_list}
+    </div>
     <input type="submit" value="{$lang->savecaps}" id="perform_travel/managerecommendation_Button" class="button"/>
     <div id="perform_travel/managerecommendation_Results"></div>
 
