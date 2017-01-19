@@ -25,17 +25,7 @@ if (!isset($core->input['action'])) {
             else {
                 $teachername = 'N/A';
             }
-            if ($course_obj->description) {
-                if (strlen($course_obj->description) > 150) {
-                    $description = substr($course_obj->description, 0, 150) . '...';
-                }
-                else {
-                    $description = $course_obj->description;
-                }
-            }
-            else {
-                $description = 'N/A';
-            }
+
             if ($course_obj->is_subscribed($core->user['uid'])) {
                 $subscribe_cell = 'data-sort="1"';
                 $subscribed = '<span style="color:green;font-weight:bold">Yes <span class="glyphicon glyphicon-ok"></span></span>';

@@ -14,23 +14,10 @@
             <th>{$lang->code}</th>
             <th>{$lang->title}</th>
             <th>{$lang->teacher}</th>
-            <th>{$lang->description}</th>
             <th>{$lang->subscribed}</th>
             <th>{$lang->totalstudents}</th>
         </tr>
     </thead>
-    <tfoot>
-        <tr>
-            <th>&nbsp;</th>
-            <th>{$lang->code}</th>
-            <th>{$lang->title}</th>
-            <th>{$lang->teacher}</th>
-            <th>{$lang->description}</th>
-            <th>{$lang->subscribed}</th>
-            <th>{$lang->totalstudents}</th>
-
-        </tr>
-    </tfoot>
     <tbody>
         {$courses_list}
     </tbody>

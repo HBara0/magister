@@ -14,7 +14,6 @@
             <th>{$lang->title}</th>
             <th>{$lang->from}</th>
             <th>{$lang->to}</th>
-            <th>{$lang->description}</th>
             <th>{$lang->subscribed}</th>
             <th>{$lang->totalattendees}</th>
         </tr>
@@ -25,7 +24,6 @@
             <th>{$lang->title}</th>
             <th>{$lang->from}</th>
             <th>{$lang->to}</th>
-            <th>{$lang->description}</th>
             <th>{$lang->subscribed}</th>
             <th>{$lang->totalattendees}</th>
         </tr>
@@ -34,3 +32,11 @@
         {$courses_list}
     </tbody>
 </table>
+<div class="modal fade" id="event_modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" >
+        <div class="modal-content">
+            <div class="modal-body">
+            </div>
+        </div>
+    </div>
+</div>

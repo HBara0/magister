@@ -14,20 +14,9 @@
             <th>{$lang->title}</th>
             <th>{$lang->city}</th>
             <th>{$lang->category}</th>
-            <th>{$lang->description}</th>
             <th>{$lang->rating}</th>
         </tr>
     </thead>
-    <tfoot>
-        <tr>
-            <th>&nbsp;</th>
-            <th>{$lang->title}</th>
-            <th>{$lang->city}</th>
-            <th>{$lang->category}</th>
-            <th>{$lang->description}</th>
-            <th>{$lang->rating}</th>
-        </tr>
-    </tfoot>
     <tbody>
         {$recommendations_rows}
     </tbody>
