@@ -30,7 +30,7 @@ if (!isset($core->input['action'])) {
                 $description = 'N/A';
             }
 
-            $tool_items = ' <li><a id="openmodal_' . $recommendation_obj->get_id() . '" data-url="' . $core->settings['rootdir'] . '/index.php?module=travel/recommendationslist&action=loadrecommendation_popup&id=' . $recommendation_obj->get_id() . '"><span class="glyphicon glyphicon-eye-open"></span>&nbsp' . $lang->viewrecommendation . '</a></li>';
+            $tool_items = ' <li><a id="openmodal_' . $recommendation_obj->get_id() . '" data-targetdiv="recommendation_modal" data-url="' . $core->settings['rootdir'] . '/index.php?module=travel/recommendationslist&action=loadrecommendation_popup&id=' . $recommendation_obj->get_id() . '"><span class="glyphicon glyphicon-eye-open"></span>&nbsp' . $lang->viewrecommendation . '</a></li>';
             if ($recommendation_obj->canManageRecommendation()) {
                 $tool_items .= ' <li><a target="_blank" href="' . $recommendation_obj->get_editlink() . '"><span class="glyphicon glyphicon-pencil"></span>&nbsp' . $lang->managerecommendation . '</a></li>';
             }
@@ -45,15 +45,30 @@ if (!isset($core->input['action'])) {
 else {
     if ($core->input['action'] == 'loadrecommendation_popup') {
         if (!intval($core->input['id'])) {
-            echo('<span style="color:red">Error Loading Window</span>');
+            echo ('<span style="color:red">Error Loading Window</span>');
             exit;
         }
         $id = intval($core->input['id']);
         $recommendation_obj = new Recommendations($id);
         $recommendation = $recommendation_obj->get();
+        $url = $core->settings['rootdir'] . '/index.php?module=travel/recommendationslist&action=showpopup_createtravelevent&id=' . intval($id);
+        if ($recommendation > 0) {
+            $recommendation['ratingoutput'] = $recommendation_obj->get_ratingoutput();
+        }
+        $addbutton = '<button data-targetdiv="recommendation_modal" data-url="' . $url . '" type="button" class="btn btn-success" id="openmodal_' . $id . '"><span class="glyphicon glyphicon-plus"></span>' . $lang->createevent . '</button>';
         $recommendation['displayname'] = $recommendation_obj->get_displayname();
         $recommendation['additionaloutput'] = $recommendation_obj->get_cityoutput() . ' - ' . $recommendation_obj->get_categoryutput();
         eval("\$modal = \"" . $template->get('modal_travel_recommendation') . "\";");
-        echo($modal);
+        echo ($modal);
+    }
+    elseif ($core->input['action'] == 'showpopup_createtravelevent') {
+        $id = intval($core->input['id']);
+        $recommendation_obj = new Recommendations($id);
+        $recommendation = $recommendation_obj->get();
+        $recommendation['displayname'] = $recommendation_obj->get_displayname();
+        $recommendation['additionaloutput'] = $recommendation_obj->get_cityoutput() . ' - ' . $recommendation_obj->get_categoryutput();
+        $recommendation['description_output'] = $recommendation['additionaloutput'] . '<br><br>' . $recommendation['description'];
+        eval("\$modal = \"" . $template->get('modal_travel_createventfromrecommendation') . "\";");
+        echo ($modal);
     }
 }

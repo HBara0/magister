@@ -19,19 +19,18 @@
     });
 </script>
 <div class="row">
-    <div class="col-md-9 col-lg-9 col-sm-12">
+    <div class="col-md-8 col-lg-8 col-sm-12">
         <h1>{$course_displayname}</h1>
         <h3>{$teacheroutput}</h3>
     </div>
-    <div class="col-md-3 col-lg-3 col-sm-12" >
-        <div class="btn-group">
+    <div class="col-md-4 col-lg-4 col-sm-12" >
+        <div class="btn-group" role="group" >
             <button {$hide_managecoursebutton} type="button" class="btn btn-success" onclick="window.open('{$editlink}', '_blank')">{$lang->managecourse}
             </button>
             {$course_folder}
         </div>
         {$addorremovecourse_button}
     </div>
-</div>
 </div>
 
 <div class="panel panel-success" {$hide_coursedescription}>

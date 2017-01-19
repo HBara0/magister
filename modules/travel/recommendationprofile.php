@@ -13,7 +13,11 @@ if (!isset($core->input['action'])) {
     }
     $recommendation_obj = new Recommendations(intval($core->input['id']));
     $recommendation = $recommendation_obj->get();
-    $recommendation_displayname = $recommendation_obj->get_compositeDisplayname();
+    if ($recommendation > 0) {
+        $recommendation['ratingoutput'] = $recommendation_obj->get_ratingoutput();
+    }
+    $recommendation['displayname'] = $recommendation_obj->get_displayname();
+    $recommendation['additionaloutput'] = $recommendation_obj->get_cityoutput() . ' - ' . $recommendation_obj->get_categoryutput();
 
     $id = $recommendation_obj->get_id();
     $hide_managerecommendationbutton = ' style="display:none"';

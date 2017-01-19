@@ -2,7 +2,7 @@ $(function() {
     /*
      Check the browswer support before anything else
      */
-    intialize_select2();
+    initialize();
 
 //search functionality of modules list
     $('#modulemenu_search').keyup(function() {
@@ -24,6 +24,27 @@ $(function() {
                 $(obj).show();
             });
         }
+    });
+
+    /* Load bootstrap modal
+     *
+     */
+    $(document).on("click", "[id^='openmodal_']", function() {
+        var href = $(this).data('url');
+        var targetdiv = $(this).data('targetdiv');
+        $.ajax({
+            type: 'post',
+            url: href,
+            beforeSend: function() {
+                loadgif($("#" + targetdiv + "").find('.modal-body'));
+                $("#" + targetdiv + "").modal('show');
+            },
+            success: function(returnedData) {
+                $("#" + targetdiv).html(returnedData);
+                initialize();
+
+            }
+        })
     });
 //applyin the DATATABLES plugin on classes-START
     function initialize_datatables() {
@@ -221,7 +242,6 @@ $(function() {
             }
         });
     }
-    initialize_texteditors();
     function initialize_texteditors() {
         if ($(".inlinetxteditadv,.txteditadv,.basictxteditadv,.htmltextedit").length > 0) {
             $(".inlinetxteditadv,.txteditadv,.basictxteditadv,.htmltextedit").each(function() {
@@ -283,47 +303,7 @@ $(function() {
 //    $("input[id^='pickDate']").datepicker({maxDate: "+1d"});
 //    $(this).datepicker("option", "maxDate", "+1d ");
 
-    $("input[id^='pickDate']").each(function() {
-        if (/^pickDate_/.test($(this).attr("id")) && /_to$/.test($(this).attr("id"))) {
-            var id = $(this).attr("id").split('_');
-            var secid = '';
-            if (id.length > 2) {
-                secid = id[0] + '_' + id[1] + '_from';
-            }
-            else {
-                secid = id[0] + '_from';
-            }
-            $(this).datepicker({altField: "#alt" + $(this).attr('id'), altFormat: 'dd-mm-yy', dateFormat: 'MM dd, yy', showWeek: true, firstDay: 1, changeMonth: true, changeYear: true, showAnim: 'slideDown',
-                onSelect: function(selectedDate) {
-                    $("#" + $(this).attr("id") + "").trigger('change');
-                    $("#" + secid + "").datepicker("option", "maxDate", selectedDate);
-                }});
-            $("#ui-datepicker-div").css("z-index", $(this).parents(".ui-dialog").css("z-index") + 1);
-        }
-        else if (/^pickDate_/.test($(this).attr("id")) && /_from$/.test($(this).attr("id"))) {
-            var id = $(this).attr("id").split('_');
-            var secid = '';
-            if (id.length > 2) {
-                secid = id[0] + '_' + id[1] + '_to';
-            }
-            else {
-                secid = id[0] + '_to';
-            }
-            $(this).datepicker({altField: "#alt" + $(this).attr('id'), altFormat: 'dd-mm-yy', dateFormat: 'MM dd, yy', showWeek: true, firstDay: 1, changeMonth: true, changeYear: true, showAnim: 'slideDown',
-                onSelect: function(selectedDate) {
-                    $("#" + $(this).attr("id") + "").trigger('change');
-                    $("#" + secid + "").datepicker("option", "minDate", selectedDate);
-                }});
-            $("#ui-datepicker-div").css("z-index", $(this).parents(".ui-dialog").css("z-index") + 1);
-        } else {
-            initalisedatepicker(this);
-        }
-    })
 
-    function initalisedatepicker(object) {
-        $(object).datepicker({altField: "#alt" + $(object).attr('id'), altFormat: 'dd-mm-yy', dateFormat: 'MM dd, yy', showWeek: true, firstDay: 1, changeMonth: true, changeYear: true, showAnim: 'slideDown'});
-        $("#ui-datepicker-div").css("z-index", $(object).parents(".ui-dialog").css("z-index") + 1);
-    }
 
     $(document).on("keyup", "input[class*='inlinefilterfield']", function() {
         var parentContainer = $(this).closest('table');
@@ -1347,4 +1327,100 @@ function loadgif(obj) {
     var loading_gifs = ["<img src='" + rootdir + "/images/picanyan.gif'>", "<img src='" + rootdir + "/images/preloader.gif'>", "<img src='" + rootdir + "/images/pie.gif'>", "<img src='" + rootdir + "/images/pacman.gif'>"];
     var randomgif = loading_gifs[Math.floor(Math.random() * loading_gifs.length)];
     obj.html(randomgif);
+}
+function initialize_texteditors() {
+    if ($(".inlinetxteditadv,.txteditadv,.basictxteditadv,.htmltextedit").length > 0) {
+        $(".inlinetxteditadv,.txteditadv,.basictxteditadv,.htmltextedit").each(function() {
+            var id = $(this).attr('id');
+            try {
+                if (CKEDITOR.instances[id]) {
+                    CKEDITOR.instances[id].destroy();
+                }
+                if ($(this).hasClass('inlinetxteditadv')) {
+                    CKEDITOR.inline(id);
+                    CKEDITOR.instances[id].config.removePlugins = 'horizontalrule,pagebreak,table,tabletools,colorbutton,find,flash,font,forms,iframe,image,newpage,removeformat,smiley,specialchar,stylescombo,templates';
+                }
+                else {
+                    CKEDITOR.replace(id);
+                    if ($(this).hasClass('basictxteditadv')) {
+                        CKEDITOR.instances[id].config.removePlugins = 'horizontalrule,pagebreak,table,tabletools,colorbutton,find,flash,font,forms,iframe,image,newpage,removeformat,smiley,specialchar,stylescombo,templates';
+                    }
+                    else if ($(this).hasClass('htmltextedit')) {
+                        CKEDITOR.instances[id].config.removePlugins = 'horizontalrule,pagebreak,table,tabletools,colorbutton,find,flash,font,forms,iframe,image,newpage,removeformat,smiley,specialchar,stylescombo,templates';
+                        CKEDITOR.instances[id].config.startupMode = 'source';
+                    }
+                }
+            }
+            catch (e) {
+                alert(e);
+            }
+        });
+    }
+}
+function initializedatepickers() {
+    $("input[id^='pickDate']").each(function() {
+        if (/^pickDate_/.test($(this).attr("id")) && /_to$/.test($(this).attr("id"))) {
+            var id = $(this).attr("id").split('_');
+            var secid = '';
+            if (id.length > 2) {
+                secid = id[0] + '_' + id[1] + '_from';
+            }
+            else {
+                secid = id[0] + '_from';
+            }
+            $(this).datepicker({altField: "#alt" + $(this).attr('id'), altFormat: 'dd-mm-yy', dateFormat: 'MM dd, yy', showWeek: true, firstDay: 1, changeMonth: true, changeYear: true, showAnim: 'slideDown',
+                onSelect: function(selectedDate) {
+                    $("#" + $(this).attr("id") + "").trigger('change');
+                    $("#" + secid + "").datepicker("option", "maxDate", selectedDate);
+                }});
+            $("#ui-datepicker-div").css("z-index", $(this).parents(".ui-dialog").css("z-index") + 1);
+        }
+        else if (/^pickDate_/.test($(this).attr("id")) && /_from$/.test($(this).attr("id"))) {
+            var id = $(this).attr("id").split('_');
+            var secid = '';
+            if (id.length > 2) {
+                secid = id[0] + '_' + id[1] + '_to';
+            }
+            else {
+                secid = id[0] + '_to';
+            }
+            $(this).datepicker({altField: "#alt" + $(this).attr('id'), altFormat: 'dd-mm-yy', dateFormat: 'MM dd, yy', showWeek: true, firstDay: 1, changeMonth: true, changeYear: true, showAnim: 'slideDown',
+                onSelect: function(selectedDate) {
+                    $("#" + $(this).attr("id") + "").trigger('change');
+                    $("#" + secid + "").datepicker("option", "minDate", selectedDate);
+                }});
+            $("#ui-datepicker-div").css("z-index", $(this).parents(".ui-dialog").css("z-index") + 1);
+        } else {
+            initalisedatepicker(this);
+        }
+    })
+}
+function initalisedatepicker(object) {
+    $(object).datepicker({altField: "#alt" + $(object).attr('id'), altFormat: 'dd-mm-yy', dateFormat: 'MM dd, yy', showWeek: true, firstDay: 1, changeMonth: true, changeYear: true, showAnim: 'slideDown'});
+    $("#ui-datepicker-div").css("z-index", $(object).parents(".ui-dialog").css("z-index") + 1);
+}
+
+function initialize_bootstrap_datepickers() {
+    $('.datepicker').each(function(i, obj) {
+        $(obj).datepicker({
+            format: "dd-mm-yyyy",
+            todayBtn: true,
+            autoclose: true,
+            todayHighlight: true
+        });
+    });
+
+}
+function initialize_bootstrap_timepickers() {
+    $('.timepicker').each(function(i, obj) {
+        $(obj).timepicker();
+    });
+
+}
+
+function initialize() {
+    initialize_texteditors();
+    intialize_select2();
+    initialize_bootstrap_datepickers();
+    initialize_bootstrap_timepickers
 }

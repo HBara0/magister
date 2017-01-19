@@ -36,7 +36,6 @@
                 {$course[description]}
             </textarea>
         </div>
-
     </div>
 
     {$studentsubscription_section}

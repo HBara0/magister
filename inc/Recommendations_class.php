@@ -71,7 +71,7 @@ class Recommendations extends AbstractClass {
      */
     public function parse_categories() {
         global $lang;
-        $categories_list = array('food' => $lang->food, 'accomodation' => $lang->accomodation, 'entertainment' => $lang->entertainment, 'monument' => $lang->monument);
+        $categories_list = array('food' => $lang->food, 'accomodation' => $lang->accomodation, 'entertainment' => $lang->entertainment, 'landmark' => $lang->landmark);
         return parse_selectlist2('recommendation[category]', 1, $categories_list, $this->data['category']);
     }
 

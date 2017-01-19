@@ -216,4 +216,19 @@ class Events extends AbstractClass {
         return $fromdate . ' TO ' . $todate;
     }
 
+    /**
+     *
+     * @return boolean|\Recommendations
+     */
+    public function get_recommendation() {
+        if (!intval($this->data['rid'])) {
+            return false;
+        }
+        $recommednation_obj = new Recommendations(intval($this->data['rid']));
+        if (!is_object($recommednation_obj)) {
+            return false;
+        }
+        return $recommednation_obj;
+    }
+
 }

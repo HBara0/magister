@@ -1,21 +1,3 @@
-<script>
-    $(function() {
-        $(document).on("click", "a[id^='openmodal_']", function() {
-            var href = $(this).data('url');
-            $.ajax({
-                type: 'post',
-                url: href,
-                beforeSend: function() {
-                    loadgif($("#recommendation_modal").find('.modal-body'));
-                    $("#recommendation_modal").modal('show');
-                },
-                success: function(returnedData) {
-                    $("#recommendation_modal").find('.modal-body').html(returnedData);
-                }
-            })
-        });
-    });
-</script>
 <div class="row">
     <div class="col-md-9 col-lg-9 col-sm-12">
         <h1>{$lang->travelrecommendations}</h1>
@@ -50,12 +32,9 @@
         {$recommendations_rows}
     </tbody>
 </table>
-<div class="modal fade" id="recommendation_modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+<div class="modal fade" id="recommendation_modal" tabindex="-1" role="dialog">
     <div class="modal-dialog" >
         <div class="modal-content">
-            <div class="modal-header ">
-                <h4 class="modal-title" >{$lang->viewrecommendation}</h4>
-            </div>
             <div class="modal-body">
             </div>
         </div>

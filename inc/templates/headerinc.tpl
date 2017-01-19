@@ -8,8 +8,12 @@
 <script src="{$core->settings[rootdir]}/js/ckeditor/ckeditor.js"></script>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css" rel="stylesheet" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js"></script>
+<script src="{$core->settings[rootdir]}/js/bootstrap-datepicker.min.js" type = "text/javascript" ></script>
+<link href='{$core->settings[rootdir]}/css/bootstrap-datepicker.min.css' rel='stylesheet' type='text/css' />
+<script src="{$core->settings[rootdir]}/js/bootstrap-timepicker.min.js" type = "text/javascript" ></script>
+<link href='{$core->settings[rootdir]}/css/bootstrap-timepicker.min.css' rel='stylesheet' type='text/css' />
 
-<script src="{$core->settings[rootdir]}/js/jscript.min.js" type="text/javascript"></script>
+<script src="{$core->settings[rootdir]}/js/jscript.js" type="text/javascript"></script>
 
 
 <link href='{$core->settings[rootdir]}/css/jqueryuitheme/jquery-ui-current.custom.min.css' rel='stylesheet' type='text/css' />

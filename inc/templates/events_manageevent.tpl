@@ -1,19 +1,4 @@
-<script src="{$core->settings[rootdir]}/js/bootstrap-datepicker.min.js" type = "text/javascript" ></script>
-<link href='{$core->settings[rootdir]}/css/bootstrap-datepicker.min.css' rel='stylesheet' type='text/css' />
-<script src="{$core->settings[rootdir]}/js/bootstrap-timepicker.min.js" type = "text/javascript" ></script>
-<link href='{$core->settings[rootdir]}/css/bootstrap-timepicker.min.css' rel='stylesheet' type='text/css' />
 
-<script>
-    $(function() {
-        $('#datepicker').datepicker({
-            format: "dd-mm-yyyy",
-            todayBtn: true,
-            autoclose: true,
-            todayHighlight: true
-        });
-
-    });
-</script>
 <div class="row">
     <div class="col-md-9 col-lg-9 col-sm-12">
         <h1>{$lang->manageevent}</h1>
@@ -30,7 +15,7 @@
         <input required="required" name='event[title]' value='{$event[title]}' type="text" class="form-control" id="title" placeholder="{$lang->eventtitle}">
     </div>
     <label>{$lang->daterange}</label>
-    <div class="input-daterange input-group" id="datepicker">
+    <div class="input-daterange input-group datepicker">
         <input type="text" class="input-sm form-control" value="{$event[fromdateoutput]}" name="event[fromDate]" />
         <span class="input-group-addon">to</span>
         <input type="text" class="input-sm form-control" value="{$event[todateoutput]}" name="event[toDate]" />
@@ -39,7 +24,6 @@
         <input data-provide="timepicker" name="event[fromTime]" value="{$event[fromtimeoutput]}" type="text" class="form-control input-small">
         <span class="input-group-addon"><i class="glyphicon glyphicon-time"></i></span>
         <input data-provide="timepicker" name="event[toTime]" value="{$event[totimeoutput]}" type="text" class="form-control input-small">
-
     </div>
     <label>{$lang->isActive}</label>
     <div class="form-group-lg">
