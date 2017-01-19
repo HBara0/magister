@@ -12,4 +12,7 @@ $lang['eventtitle'] = 'Event Title';
 $lang['daterange'] = 'Date Range';
 $lang['eventdescription'] = 'Event Description';
 $lang['eventprofile'] = 'Event Profile';
+$lang['name'] = 'Name';
+$lang['subscribedOn'] = 'Subscribed On';
+$lang['attendees'] = 'Attendees';
 ?>

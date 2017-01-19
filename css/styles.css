@@ -709,3 +709,6 @@ h1 {
   font-size: 30px !important; }
 
 /*# sourceMappingURL=styles.css.map */
+.panel-body  {
+    word-break:break-all
+}

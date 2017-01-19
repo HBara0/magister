@@ -1,4 +1,4 @@
-<table class="datatable_basic table table-bordered row-border hover order-column" data-checkonclick=true cellspacing="0" width="100%">
+<table class="datatable_basic table table-bordered row-border hover order-column"  cellspacing="0" width="100%">
     <thead>
         <tr>
             <th>&nbsp;</th>

@@ -96,21 +96,29 @@ class Events extends AbstractClass {
     }
 
     public function parse_link($attributes_param = array('target' => '_blank')) {
-
         if (is_array($attributes_param)) {
             foreach ($attributes_param as $attr => $val) {
                 $attributes .= $attr . '="' . $val . '"';
             }
         }
-        return '<a href="' . $this->get_link() . '" ' . $attributes . '>' . $this->get_displayname() . '</a>';
+        return ' <button type="button" class="btn btn-primary" ' . $attributes . ' id="openmodal_' . $this->get_id() . '" data-targetdiv="events_modal" data-url="' . $this->get_link() . '">' . $this->get_displayname() . '</button>';
     }
 
     public function get_link() {
         global $core;
-        return $core->settings['rootdir'] . '/index.php?module=events/eventprofile&amp;id=' . $this->data[self::PRIMARY_KEY];
+        return $core->settings['rootdir'] . '/index.php?module=events/eventslist&action=loadevents_popup&id=' . $this->get_id();
     }
 
+    /**
+     *
+     * @param type $uid
+     * @return boolean
+     */
     public function is_subscribed($uid) {
+        if ($this->data['createdBy'] == $uid && $this->data['isPublic'] == 0) {
+            return true;
+        }
+
         $assignedevents = CalendarAssignments::get_data(array('uid' => intval($uid), 'eid' => $this->get_id(), 'isActive' => 1), array('returnarray' => true));
         if (is_array($assignedevents)) {
             return true;
@@ -132,14 +140,6 @@ class Events extends AbstractClass {
     public function get_editlink() {
         global $core;
         return $core->settings['rootdir'] . '/index.php?module=events/manageevent&amp;id=' . $this->data[self::PRIMARY_KEY];
-    }
-
-    public function get_totalstudents() {
-        $assignedstudents = CalendarAssignments::get_data(array('eid' => $this->get_id(), 'isActive' => 1), array('returnarray' => true));
-        if (is_array($assignedstudents)) {
-            return count($assignedstudents);
-        }
-        return 0;
     }
 
     public function is_past() {
@@ -199,20 +199,8 @@ class Events extends AbstractClass {
      * @return string
      */
     public function parse_daterangeoutput() {
-        $fromdate = $this->get_fromdateoutput('D, j M Y') . ' ' . $this->get_fromtimeoutput();
-        $fromdate_class = 'success';
-        if ($this->data['fromDate'] < TIME_NOW) {
-            $fromdate_class = 'danger';
-        }
-        $fromdate = '<span class="label label-' . $fromdate_class . '">' . $fromdate . '</span>';
-
-        $todate = $this->get_todateoutput('D, j M Y') . '  ' . $this->get_totimeoutput();
-        $todate_class = 'success';
-        if ($this->data['toDate'] < TIME_NOW) {
-            $todate_class = 'danger';
-        }
-        $todate = '<span class="label label-' . $todate_class . '">' . $todate . '</span>';
-
+        $fromdate = $this->parse_fromdate();
+        $todate = $this->parse_todate();
         return $fromdate . ' TO ' . $todate;
     }
 
@@ -229,6 +217,92 @@ class Events extends AbstractClass {
             return false;
         }
         return $recommednation_obj;
+    }
+
+    /**
+     *
+     * @return String
+     */
+    public function parse_fromdate() {
+        $fromdate = $this->get_fromdateoutput('D, j M Y') . ' ' . $this->get_fromtimeoutput();
+        $fromdate_class = 'success';
+        if ($this->data['fromDate'] < TIME_NOW) {
+            $fromdate_class = 'danger';
+        }
+        return '<span class="label label-' . $fromdate_class . '">' . $fromdate . '</span>';
+    }
+
+    /**
+     *
+     * @return String
+     */
+    public function parse_todate() {
+        $todate = $this->get_todateoutput('D, j M Y') . '  ' . $this->get_totimeoutput();
+        $todate_class = 'success';
+        if ($this->data['toDate'] < TIME_NOW) {
+            $todate_class = 'danger';
+        }
+        return '<span class="label label-' . $todate_class . '">' . $todate . '</span>';
+    }
+
+    /**
+     *
+     * @return boolean
+     */
+    public function get_calendarassignments() {
+        $assignedstudents = CalendarAssignments::get_data(array('eid' => $this->get_id(), 'isActive' => 1), array('returnarray' => true));
+        if (!is_array($assignedstudents)) {
+            return false;
+        }
+        return $assignedstudents;
+    }
+
+    /**
+     *
+     * @return \Users
+     */
+    public function get_attendees() {
+        //if event is public then get all assignemnts to this event
+        if ($this->data['isPublic'] == 1) {
+            $assignments = $this->get_calendarassignments();
+            if (!is_array($assignments)) {
+                return false;
+            }
+            foreach ($assignments as $assignment) {
+                $user_obj = $assignment->get_user();
+                $user_obj->assignmentCreatedOn = $assignment->createdOn;
+                $attendees[$assignment->uid] = $user_obj;
+            }
+            return $attendees;
+        }
+        //else it is private, then only the creator is linked to the event
+        else {
+            $user_obj = new Users(intval($this->data['createdBy']));
+            $user_obj->assignmentCreatedOn = $this->createdOn;
+            return array(intval($this->data['createdBy']) => $user_obj);
+        }
+    }
+
+    /**
+     *
+     * @global type $template
+     * @global type $lang
+     * @global type $core
+     * @return type
+     */
+    public function parse_attendeessection() {
+        global $template, $lang, $core;
+        $attendees_objs = $this->get_attendees();
+        if (!is_array($attendees_objs)) {
+            return;
+        }
+        foreach ($attendees_objs as $attendees_obj) {
+            $displayname = $attendees_obj->get_displayname();
+            $assignedon = date($core->settings['dateformat'], $attendees_obj->assignmentCreatedOn);
+            eval("\$attendees_rows.= \"" . $template->get('events_attendeeslist_row') . "\";");
+        }
+        eval("\$attendees_list= \"" . $template->get('events_attendeeslist') . "\";");
+        return $attendees_list;
     }
 
 }

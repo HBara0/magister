@@ -13,8 +13,11 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-md-12 col-lg-12 col-xs-12 ">
-                    <h4>{$daterangeoutput}</h4>
+                <div class="col-md-6 col-lg-6 col-xs-12 ">
+                    <h5> {$lang->from}: {$event['fromdate_output']}</h5>
+                </div>
+                <div class="col-md-6 col-lg-6 col-xs-12 ">
+                    <h5>   {$lang->to}:  {$event['todate_output']}</h5>
                 </div>
             </div>
             <div class="row">
@@ -22,6 +25,14 @@
                     <div class="panel-heading">{$lang->description}</div>
                     <div class="panel-body">
                         {$event[description]}
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class=" panel panel-success">
+                    <div class="panel-heading">{$lang->attendees}</div>
+                    <div class="panel-body">
+                        {$event[attendees_output]}
                     </div>
                 </div>
             </div>

@@ -7,7 +7,7 @@ if ($core->usergroup['canAccessSystem'] == 0) {
     error($lang->sectionnopermission);
 }
 if (!isset($core->input['action'])) {
-    $events_objs = Events::get_data(array('isActive =1 AND (isPublic =1 OR createdBy =' . $core->user['uid'] . ')'), array('returnarray' => true, 'order' => 'fromDate DESC'));
+    $events_objs = Events::get_data('isActive =1 AND (isPublic =1 OR createdBy =' . intval($core->user['uid']) . ')', array('returnarray' => true, 'order' => 'fromDate DESC'));
     if (is_array($events_objs)) {
         foreach ($events_objs as $events_obj) {
             $event = $events_obj->get();
@@ -25,13 +25,11 @@ if (!isset($core->input['action'])) {
                 $subscribe_cell = 'data-sort="0"';
                 $subscribed = '<span style="color:red;font-weight:bold"">No <span class="glyphicon glyphicon-remove"></span></span>';
             }
-            $url = $core->settings['rootdir'] . '/index.php?module=events/eventslist&action=loadevent_popup&id=' . $events_obj->get_id();
 
             $tool_items = ' <li><a id="openmodal_' . $events_obj->get_id() . '" data-targetdiv="event_modal" data-url="' . $url . '"><span class="glyphicon glyphicon-eye-open"></span>&nbsp' . $lang->viewrecommendation . '</a></li>';
             if ($events_obj->canManageEvent()) {
                 $tool_items .= ' <li><a target="_blank" href="' . $events_obj->get_editlink() . '"><span class="glyphicon glyphicon-pencil"></span>&nbsp' . $lang->manageevent . '</a></li>';
             }
-            $totalstudents = $events_obj->get_totalstudents();
             eval("\$tools = \"" . $template->get('tools_buttonselectlist') . "\";");
             eval("\$courses_list .= \"" . $template->get('events_eventslist_courserow') . "\";");
             unset($tool_items, $subscribe_cell);
@@ -41,7 +39,7 @@ if (!isset($core->input['action'])) {
     output_page($page);
 }
 else {
-    if ($core->input['action'] == 'loadevent_popup') {
+    if ($core->input['action'] == 'loadevents_popup') {
         if (!intval($core->input['id'])) {
             echo ('<span style="color:red">Error Loading Window</span>');
             exit;
@@ -49,8 +47,9 @@ else {
         $id = intval($core->input['id']);
         $event_obj = new Events($id);
         $event = $event_obj->get();
-        $daterangeoutput = $event_obj->parse_daterangeoutput();
-
+        $event['fromdate_output'] = $event_obj->parse_fromdate();
+        $event['todate_output'] = $event_obj->parse_todate();
+        $event['attendees_output'] = $event_obj->parse_attendeessection();
         $url = $core->settings['rootdir'] . '/index.php?module=travel/recommendationslist&action=showpopup_createtravelevent&id=' . intval($id);
 //        $addbutton = '<button data-targetdiv="recommendation_modal" data-url="' . $url . '" type="button" class="btn btn-success" id="openmodal_' . $id . '"><span class="glyphicon glyphicon-plus"></span>' . $lang->createevent . '</button>';
         eval("\$modal = \"" . $template->get('modal_event') . "\";");

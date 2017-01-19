@@ -7,32 +7,20 @@
         </button>
     </div>
 </div>
-<table class="datatable_basic table table-bordered row-border hover order-column" data-checkonclick=true cellspacing="0" width="100%">
+<table class="datatable_basic table table-bordered row-border hover order-column"  cellspacing="0" width="100%">
     <thead>
         <tr>
-            <th>&nbsp;</th>
             <th>{$lang->title}</th>
             <th>{$lang->from}</th>
             <th>{$lang->to}</th>
             <th>{$lang->subscribed}</th>
-            <th>{$lang->totalattendees}</th>
         </tr>
     </thead>
-    <tfoot>
-        <tr>
-            <th>&nbsp;</th>
-            <th>{$lang->title}</th>
-            <th>{$lang->from}</th>
-            <th>{$lang->to}</th>
-            <th>{$lang->subscribed}</th>
-            <th>{$lang->totalattendees}</th>
-        </tr>
-    </tfoot>
     <tbody>
         {$courses_list}
     </tbody>
 </table>
-<div class="modal fade" id="event_modal" tabindex="-1" role="dialog">
+<div class="modal fade" id="events_modal" tabindex="-1" role="dialog">
     <div class="modal-dialog" >
         <div class="modal-content">
             <div class="modal-body">

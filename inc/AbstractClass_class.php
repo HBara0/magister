@@ -229,7 +229,7 @@ Abstract class AbstractClass {
     }
 
     function __destruct() {
-        
+        unset($this);
     }
 
     protected function validate_requiredfields($data) {
