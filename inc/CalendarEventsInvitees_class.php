@@ -1,12 +1,4 @@
 <?php
-/*
- * Copyright © 2015 Orkila International Offshore, All Rights Reserved
- *
- * [Provide Short Descption Here]
- * $id: CalendarEventsInvitees.php
- * Created:        @zaher.reda    May 16, 2015 | 5:46:02 PM
- * Last Update:    @zaher.reda    May 16, 2015 | 5:46:02 PM
- */
 
 /**
  * Class for Calender Events Invitees
@@ -14,6 +6,7 @@
  * @author zaher.reda
  */
 class CalendarEventsInvitees extends AbstractClass {
+
     const PRIMARY_KEY = 'ceiid';
     const TABLE_NAME = 'calendar_events_invitees';
     const DISPLAY_NAME = '';
@@ -26,7 +19,7 @@ class CalendarEventsInvitees extends AbstractClass {
     }
 
     protected function update(array $data) {
-
+        
     }
 
     /**
@@ -55,13 +48,13 @@ class CalendarEventsInvitees extends AbstractClass {
         $user = $this->get_invitee();
         $event = $this->get_event();
         $email_subject = $lang->sprint($lang->eventcancelledsubject, $event->get_displayname());
-        $email_message = $lang->sprint($lang->eventcancelledmessage, $event->get_displayname(), date($core->settings['dateformat'].' '.$core->settings['timeformat'], $core->input['fromDate']), date($core->settings['dateformat'].' '.$core->settings['timeformat'], $event->fromDate), date($core->settings['dateformat'].' '.$core->settings['timeformat'], $event->toDate));
+        $email_message = $lang->sprint($lang->eventcancelledmessage, $event->get_displayname(), date($core->settings['dateformat'] . ' ' . $core->settings['timeformat'], $core->input['fromDate']), date($core->settings['dateformat'] . ' ' . $core->settings['timeformat'], $event->fromDate), date($core->settings['dateformat'] . ' ' . $core->settings['timeformat'], $event->toDate));
         $email_data = array(
-                'from_email' => $core->settings['maileremail'],
-                'from' => 'Orkila Mailer',
-                'to' => $user->email,
-                'subject' => $email_subject,
-                'message' => $email_message,
+            'from_email' => $core->settings['maileremail'],
+            'from' => 'Magister Mailer',
+            'to' => $user->email,
+            'subject' => $email_subject,
+            'message' => $email_message,
         );
         $mail = new Mailer($email_data, 'php');
         $delete = $this->delete();
@@ -69,4 +62,5 @@ class CalendarEventsInvitees extends AbstractClass {
     }
 
 }
+
 ?>

@@ -1,14 +1,5 @@
 <?php
 
-/*
- * Copyright © 2016 Orkila International Offshore, All Rights Reserved
- *
- * [Provide Short Descption Here]
- * $id: EmailFormatting_class.php
- * Created:        @hussein.barakat    21-Jan-2016 | 16:03:19
- * Last Update:    @hussein.barakat    21-Jan-2016 | 16:03:19
- */
-
 class EmailFormatting {
 
     private $message = array();

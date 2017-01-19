@@ -1,14 +1,7 @@
 <?php
-/*
- * Copyright © 2013 Orkila International Offshore, All Rights Reserved
- *
- * Countries Class
- * $id: Countries_class.php
- * Created:        @zaher.reda    Mar 8, 2013 | 4:56:25 PM
- * Last Update:    @zaher.reda    Mar 8, 2013 | 4:56:25 PM
- */
 
 class Countries extends AbstractClass {
+
     protected $data = array();
     protected $errorcode = 0;
 
@@ -33,7 +26,7 @@ class Countries extends AbstractClass {
      * @return \Currencies Country main currency
      */
     public function get_maincurrency() {
-        if(empty($this->data['mainCurrency'])) {
+        if (empty($this->data['mainCurrency'])) {
             return null;
         }
         return new Currencies($this->data['mainCurrency']);
@@ -59,7 +52,7 @@ class Countries extends AbstractClass {
      * @return \Cities|boolean Capital city of the country
      */
     public function get_capitalcity() {
-        if(!is_empty($this->data['capitalCity'])) {
+        if (!is_empty($this->data['capitalCity'])) {
             return new Cities($this->data['capitalCity']);
         }
         return false;
@@ -83,9 +76,9 @@ class Countries extends AbstractClass {
     public static function get_country_byname($name) {
         global $db;
 
-        if(!empty($name)) {
-            $id = $db->fetch_field($db->query('SELECT coid FROM '.Tprefix.'countries WHERE name="'.$db->escape_string($name).'"'), 'coid');
-            if(!empty($id)) {
+        if (!empty($name)) {
+            $id = $db->fetch_field($db->query('SELECT coid FROM ' . Tprefix . 'countries WHERE name="' . $db->escape_string($name) . '"'), 'coid');
+            if (!empty($id)) {
                 return new Countries($id);
             }
         }
@@ -107,14 +100,14 @@ class Countries extends AbstractClass {
     protected function update(array $data) {
         global $db;
 
-        $db->update_query(self::TABLE_NAME, $data, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
+        $db->update_query(self::TABLE_NAME, $data, self::PRIMARY_KEY . '=' . intval($this->data[self::PRIMARY_KEY]));
     }
 
     public function get_phonecodes() {
         $countries = self::get_countries('name IS NOT NUll', array('order' => array('by' => Countries::DISPLAY_NAME, 'sort' => 'ASC')));
-        if(is_array($countries)) {
-            foreach($countries as $country) {
-                $phonecodes[$country->phoneCode] = $country->get_displayname().' (+'.$country->phoneCode.')';
+        if (is_array($countries)) {
+            foreach ($countries as $country) {
+                $phonecodes[$country->phoneCode] = $country->get_displayname() . ' (+' . $country->phoneCode . ')';
             }
         }
         return $phonecodes;
@@ -131,4 +124,5 @@ class Countries extends AbstractClass {
     }
 
 }
+
 ?>

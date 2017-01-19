@@ -6,7 +6,6 @@ $lang['welcomeuser'] = "Welcome {1}!";
 $lang['edityouraccount'] = "Edit your Account";
 $lang['lastvisit'] = "Your last visit was on {1} at {2}";
 $lang['contactadministrator'] = "Contact Administrator";
-$lang['copyright'] = "Copyright &copy; Orkila Holding";
 
 $lang['admincpnopermission'] = "You don't have permissions to access the Admin CP";
 $lang['sectionnopermission'] = "You don't have permissions to access this section";

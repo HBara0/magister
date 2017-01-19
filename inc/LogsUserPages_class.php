@@ -1,17 +1,7 @@
 <?php
-/*
- * Copyright © 2016 Orkila International Offshore, All Rights Reserved
- *
- * This class has been cread to mainly log in users activity by page and module and generate user activity
- * reports based on these logs
- *
- *
- * $id: LogsUserPages_class1.php
- * Created:        @hussein.barakat    16-Feb-2016 | 14:43:58
- * Last Update:    @hussein.barakat    16-Feb-2016 | 14:43:58
- */
 
 class LogsUserPages extends AbstractClass {
+
     protected $data = array();
     protected $errorcode = 0;
 
@@ -25,6 +15,7 @@ class LogsUserPages extends AbstractClass {
 
     /* -------Definiton-END-------- */
     /* -------FUNCTIONS-START-------- */
+
     public function __construct($id = '', $simple = true) {
         parent::__construct($id, $simple);
     }
@@ -32,17 +23,17 @@ class LogsUserPages extends AbstractClass {
     public function create(array $data) {
         global $db, $core;
         $fields = array('uid', 'page', 'module', 'time');
-        if(is_array($fields)) {
-            foreach($fields as $field) {
-                if(!is_null($data[$field])) {
+        if (is_array($fields)) {
+            foreach ($fields as $field) {
+                if (!is_null($data[$field])) {
                     $table_array[$field] = $data[$field];
                 }
             }
         }
         $this->errorcode = 3;
-        if(is_array($table_array)) {
+        if (is_array($table_array)) {
             $query = $db->insert_query(self::TABLE_NAME, $table_array);
-            if($query) {
+            if ($query) {
                 $this->errorcode = 0;
                 $this->data[self::PRIMARY_KEY] = $db->last_id();
             }
@@ -53,23 +44,24 @@ class LogsUserPages extends AbstractClass {
     protected function update(array $data) {
         global $db;
         $fields = array('uid', 'page', 'module', 'time');
-        if(is_array($fields)) {
-            foreach($fields as $field) {
-                if(!is_null($data[$field])) {
+        if (is_array($fields)) {
+            foreach ($fields as $field) {
+                if (!is_null($data[$field])) {
                     $table_array[$field] = $data[$field];
                 }
             }
         }
         $this->errorcode = 3;
-        if(is_array($table_array)) {
+        if (is_array($table_array)) {
 
-            $db->update_query(self::TABLE_NAME, $table_array, self::PRIMARY_KEY.'='.intval($this->data[self::PRIMARY_KEY]));
+            $db->update_query(self::TABLE_NAME, $table_array, self::PRIMARY_KEY . '=' . intval($this->data[self::PRIMARY_KEY]));
             $this->errorcode = 0;
         }
         return $this;
     }
 
     /* -------FUNCTIONS-END-------- */
+
     /**
      *
      * @return \Users which has his id logged in the object
@@ -85,11 +77,11 @@ class LogsUserPages extends AbstractClass {
      * @return boolean
      */
     public function record_log(array $data) {
-        if(is_array($data)) {
+        if (is_array($data)) {
             $data['time'] = TIME_NOW;
             $this->set($data);
             $this->save($data);
-            if(!$this->errorcode == 0) {
+            if (!$this->errorcode == 0) {
                 return false;
             }
             $this->clear_logs();
@@ -110,12 +102,12 @@ class LogsUserPages extends AbstractClass {
         /**
          * Avoid dead-end by setting default rotation days in case setting is missing
          */
-        if(empty($core->settings['clearlogperiod'])) {
+        if (empty($core->settings['clearlogperiod'])) {
             $core->settings['clearlogperiod'] = 30;
         }
-        $sql = 'DELETE FROM '.Tprefix.self::TABLE_NAME.' WHERE uid = '.$this->data['uid'].' AND time < '.strtotime('-'.$core->settings['clearlogperiod'].' days');
+        $sql = 'DELETE FROM ' . Tprefix . self::TABLE_NAME . ' WHERE uid = ' . $this->data['uid'] . ' AND time < ' . strtotime('-' . $core->settings['clearlogperiod'] . ' days');
         $query = $db->query($sql);
-        if($query) {
+        if ($query) {
             return true;
         }
         return false;
@@ -126,10 +118,10 @@ class LogsUserPages extends AbstractClass {
         /**
          * Query to be changed when DAL support functions in SELECT
          */
-        $sql = $db->query('SELECT *, COUNT(*) as timeAccessed FROM '.self::TABLE_NAME.' WHERE uid='.$core->user_obj->get_id().' AND !(module ="portal" AND page="dashboard") GROUP BY module ORDER BY timeAccessed DESC LIMIT 0, '.intval($limit));
+        $sql = $db->query('SELECT *, COUNT(*) as timeAccessed FROM ' . self::TABLE_NAME . ' WHERE uid=' . $core->user_obj->get_id() . ' AND !(module ="portal" AND page="dashboard") GROUP BY module ORDER BY timeAccessed DESC LIMIT 0, ' . intval($limit));
         $items = array();
-        if($db->num_rows($sql) > 1) {
-            while($item = $db->fetch_assoc($sql)) {
+        if ($db->num_rows($sql) > 1) {
+            while ($item = $db->fetch_assoc($sql)) {
                 $items[$item['module']] = $item;
             }
         }

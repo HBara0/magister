@@ -25,7 +25,6 @@ $lang['calendar'] = 'Calendrier';
 $lang['cancel'] = 'Annuler';
 $lang['contactadministrator'] = 'Contacter l\'Administrateur';
 $lang['contents'] = 'Contenus';
-$lang['copyright'] = 'Droit d\'Auteur © Orkila Holding';
 $lang['create'] = 'Créer';
 $lang['createdby'] = 'Created By';
 $lang['createdon'] = 'Created On';

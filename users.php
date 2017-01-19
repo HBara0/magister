@@ -206,7 +206,7 @@ if ($core->input['action']) {
             redirect('users.php?action=login');
         }
 
-        $signature['name'] = 'Orkila';
+        $signature['name'] = 'Magister';
 
         $identifier = substr(md5(uniqid(microtime())), 1, 5);
         $zip = new ZipArchive();
@@ -791,7 +791,7 @@ if ($core->input['action']) {
             if (!empty($vcard_cont)) {
                 $glob_vcard = new vCard($vcard_cont);
                 if (is_object($glob_vcard)) {
-                    $glob_vcard->set_vcardname('ORKILA Employees');
+                    $glob_vcard->set_vcardname('Magister Associate');
                     $glob_vcard->download();
                 }
             }

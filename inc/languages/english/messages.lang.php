@@ -128,19 +128,7 @@ Your {2} between {3} and {4} was revoked.<br />
 Regards';
 $lang['revokeleavenotificationsubject'] = '{1} revoked their {2}';
 $lang['revokeleavenotificationsubjectuser'] = 'Your {1} was revoked';
-$lang['sendbymaildefault'] = 'Dear all,<br />
-<br />
-Please find below access details to view the {1} report for Orkila Distribution and Agency activities in the Middle East and African Markets.<br />
-<br />
-Please feel free to provide us with your comments, in order to improve this communication for our mutual business interests.<br />
-<br />
-Access Details:<br />
-Link: {link}<br />
-Password: {password}<br />
-<br />
-<br />
-Best regards, Orkila';
-$lang['sendbymailsubject'] = 'ORKILA {1} Report - {2} - {3}';
+
 $lang['sourcing_notifyblacklist_message'] = 'Hello,<br />
 <br />
 Kindly note that potential supplier <strong>{1}</strong> has been blacklisted.';
@@ -175,5 +163,4 @@ $lang['yournewpassword'] = 'Your New Magister Account Password';
 $lang['yes'] = 'Yes';
 $lang['no'] = 'No';
 $lang['viewleave'] = 'Click here to view leave';
-$lang['checktravelpolicy'] = 'Prior to your trip, please make sure to review Orkila Group’s international travel policy on the following link ';
 ?>

@@ -1,15 +1,5 @@
 <?php
 
-/*
- * Orkila Central Online System (OCOS)
- * Copyright © 2009 Orkila International Offshore, All Rights Reserved
- * 
- * Add users
- * $module: admin/users
- * $id: add.php	
- * Created: 	@zaher.reda 		Februar, 2009
- * Last Update: @zaher.reda 		March 21, 2012 | 05:23 PM
- */
 if (!defined("DIRECT_ACCESS")) {
     die("Direct initialization of this file is not allowed.");
 }

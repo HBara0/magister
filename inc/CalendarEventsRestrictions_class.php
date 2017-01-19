@@ -1,12 +1,4 @@
 <?php
-/*
- * Copyright © 2015 Orkila International Offshore, All Rights Reserved
- *
- * [Provide Short Descption Here]
- * $id: CalendarEventsRestrictions_class.php
- * Created:        @zaher.reda    May 16, 2015 | 6:48:09 PM
- * Last Update:    @zaher.reda    May 16, 2015 | 6:48:09 PM
- */
 
 /**
  * Description of CalendarEventsRestrictions_class
@@ -14,6 +6,7 @@
  * @author zaher.reda
  */
 class CalendarEventsRestrictions extends AbstractClass {
+
     const PRIMARY_KEY = 'cerid';
     const TABLE_NAME = 'calendar_events_restrictions';
     const DISPLAY_NAME = '';
@@ -26,7 +19,7 @@ class CalendarEventsRestrictions extends AbstractClass {
     }
 
     protected function update(array $data) {
-
+        
     }
 
     /**
@@ -46,4 +39,5 @@ class CalendarEventsRestrictions extends AbstractClass {
     }
 
 }
+
 ?>

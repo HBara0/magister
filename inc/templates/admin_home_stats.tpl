@@ -20,7 +20,7 @@
 <br />
 <strong>{$lang->leaves} </strong><ul>{$stats[leaves]}</ul>
 <br />
-<strong>{$lang->ocosusers} </strong><ul>{$stats[ocosusers]}</ul>
+<strong>{$lang->magisterusers} </strong><ul>{$stats[magisterusers]}</ul>
 <br />
 <hr />
 <p class="subtitle">{$lang->numusersonline}</p>

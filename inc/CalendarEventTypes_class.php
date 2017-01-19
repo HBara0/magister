@@ -1,14 +1,7 @@
 <?php
-/*
- * Copyright © 2015 Orkila International Offshore, All Rights Reserved
- *
- * [Provide Short Descption Here]
- * $id: CalendarEventTypes_class.php
- * Created:        @rasha.aboushakra    Jan 27, 2015 | 12:47:33 PM
- * Last Update:    @rasha.aboushakra    Jan 27, 2015 | 12:47:33 PM
- */
 
 class CalendarEventTypes extends AbstractClass {
+
     protected $data = array();
 
     const PRIMARY_KEY = 'cetid';
@@ -22,15 +15,15 @@ class CalendarEventTypes extends AbstractClass {
     }
 
     protected function create(array $data) {
-
+        
     }
 
     public function save(array $data = array()) {
-
+        
     }
 
     protected function update(array $data) {
-
+        
     }
 
     public function get_displayname() {

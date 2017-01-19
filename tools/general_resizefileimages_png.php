@@ -1,14 +1,5 @@
 <?php
 
-/*
- * Copyright © 2016 Orkila International Offshore, All Rights Reserved
- *
- * [Provide Short Descption Here]
- * $id: general_resizefileimages.php
- * Created:        @hussein.barakat    30-Mar-2016 | 09:48:15
- * Last Update:    @hussein.barakat    30-Mar-2016 | 09:48:15
- */
-
 require '../inc/init.php';
 if ($_REQUEST['authkey'] == 'kia5ravb$op09dj4a!xhegalhj') {
     if (!empty($core->input['file'])) {

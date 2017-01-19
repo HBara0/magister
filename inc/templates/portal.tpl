@@ -43,7 +43,7 @@
 </div>-->
 
 <div style="width: 63%; float:left;">
-    <h1>{$lang->welcometoocos}</h1>
+    <h1>{$lang->welcometomagister}</h1>
     {$lang->mainmessage}
 
     <p>

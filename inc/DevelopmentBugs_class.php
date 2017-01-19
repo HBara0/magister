@@ -1,14 +1,5 @@
 <?php
 
-/*
- * Copyright © 2014 Orkila International Offshore, All Rights Reserved
- *
- * Development Bugs Class
- * $id: DevelopmentBugs_class.php
- * Created:        @zaher.reda    Jun 14, 2014 | 10:42:15 PM
- * Last Update:    @zaher.reda    Jun 14, 2014 | 10:42:15 PM
- */
-
 /**
  * Description of DevelopmentBugs_class
  *

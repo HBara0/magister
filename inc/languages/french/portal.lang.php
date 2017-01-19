@@ -16,12 +16,21 @@ $lang['generateqreports'] = 'Produire des rapports trimestriels';
 $lang['intotal'] = 'au total';
 $lang['lastfinalized'] = 'Derniers rapports finalisés';
 $lang['listqreports'] = 'Liste des rapports trimestriels';
-$lang['mainmessage'] = 'Bienvenu sur Orkila Central Online System. Merci de trouver votre chemin à travers ce portail.
-Vous êtes  en mesure de préparer vos rapports mensuels et trimestriels, faire une demande de congé et plus.';
+Vous êtes en mesure de préparer vos rapports mensuels et trimestriels, faire une demande de congé et plus.';
 $lang['systemnews'] = 'Magister nouvelles';
-$lang['timecity'] = '{1} {2} temps';
-$lang['timecity2'] = '{1} {2} temps';
-$lang['timegmt'] = '{1} UTC temps';
+$lang['timecity'] = ' {
+    1
+} {
+    2
+} temps';
+$lang['timecity2'] = ' {
+    1
+} {
+    2
+} temps';
+$lang['timegmt'] = ' {
+    1
+} UTC temps';
 $lang['unfinalized'] = 'non finalisé';
 $lang['usefulshortcuts'] = 'Userful shortcuts';
 $lang['weheretohelp'] = 'Nous sommes là pour vous aider';

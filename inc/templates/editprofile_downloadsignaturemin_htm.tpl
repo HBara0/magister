@@ -3,9 +3,7 @@
         <meta http-equiv=Content-Type content="text/html; charset=utf-8">
     </head>
     <body>
-        <div style="margin-bottom: 3px;">
-            <p><a href="http://www.orkila.com"><img src="{$signature[imagepath]}" alt="{$signature[alt]}" border="0"></a></p>
-        </div>
+
         <br />
     </body>
 </html>

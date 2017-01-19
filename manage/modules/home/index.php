@@ -1,14 +1,5 @@
 <?php
 
-/*
- * Orkila Central Online System (OCOS)
- * Copyright � 2009 Orkila International Offshore, All Rights Reserved
- * 
- * Admin CP homepage
- * $module: admin/home
- * $id: index.php	
- * Last Update: @zaher.reda 	Mar 25, 2009 | 11:35 AM
- */
 if (!$core->input['action']) {
     $lang->usersstats = $lang->sprint($lang->usersstats, $db->fetch_field($db->query("SELECT COUNT(*) as countusers FROM " . Tprefix . "users"), "countusers"));
 

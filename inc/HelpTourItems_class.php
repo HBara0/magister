@@ -1,12 +1,4 @@
 <?php
-/*
- * Copyright © 2015 Orkila International Offshore, All Rights Reserved
- *
- * [Provide Short Descption Here]
- * $id: HelpTourItems_class.php
- * Created:        @rasha.aboushakra    Oct 5, 2015 | 4:45:26 PM
- * Last Update:    @rasha.aboushakra    Oct 5, 2015 | 4:45:26 PM
- */
 
 /**
  * Description of HelpTourItems_class
@@ -14,6 +6,7 @@
  * @author rasha.aboushakra
  */
 class HelpTourItems extends AbstractClass {
+
     protected $data = array();
 
     const PRIMARY_KEY = 'htiid';
@@ -27,30 +20,30 @@ class HelpTourItems extends AbstractClass {
     }
 
     protected function create(array $data) {
-
+        
     }
 
     public function save(array $data = array()) {
-
+        
     }
 
     protected function update(array $data) {
-
+        
     }
 
     public function get_helptouritems($reference) {
         global $lang;
         $items = HelpTourItems::get_data(array('reference' => $reference), array('returnarray' => true, 'order' => array('by' => 'sequence', 'sort' => 'ASC')));
-        if(is_array($items)) {
-            foreach($items as $item) {
+        if (is_array($items)) {
+            foreach ($items as $item) {
                 $langVar = $item->langVar;
                 $text = $item->text;
-                if((isset($langVar) && !empty($langVar)) && !empty($lang->$langVar)) {
+                if ((isset($langVar) && !empty($langVar)) && !empty($lang->$langVar)) {
                     $text = $lang->$langVar;
                 }
-                if(!empty($text)) {
+                if (!empty($text)) {
                     $item->ignoreId = false;
-                    if($item->ignoreid == 1) {
+                    if ($item->ignoreid == 1) {
                         $item->ignoreId = true;
                     }
                     $touritems[$item->itemId] = array('ignoreId' => $item->ignoreId, 'options' => $item->options, 'text' => $text);

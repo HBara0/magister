@@ -170,7 +170,7 @@ class Excel {
 				 xmlns='urn:schemas-microsoft-com:office:office'>
 				  <Author>Magister</Author>
 				  <Created>" . date("Y-m-d", time()) . "</Created>
-				  <Company>ORKILA</Company>
+				  <Company>Magister</Company>
 			  </DocumentProperties>";
 
         print "<ExcelWorkbook

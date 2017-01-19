@@ -24,7 +24,7 @@ require_once ROOT . INC_ROOT . 'config.php';
  * DOMAIN			High domain where the files are located
  * COOKIE_DOMAIN 	.domainname.prefix
  * COOKIE_PATH		Path to the application
- * COOKIE_PREFIX	A prefix for the cookies. Needed when running multiple OCOS copies on the same server
+ * COOKIE_PREFIX	A prefix for the cookies. Needed when running multiple Magister copies on the same server
  */
 define('Tprefix', $table_prefix);
 define('DB_NAME', $database);

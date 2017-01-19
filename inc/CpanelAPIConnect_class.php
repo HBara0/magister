@@ -1,21 +1,14 @@
 <?php
-/*
- * Copyright © 2015 Orkila International Offshore, All Rights Reserved
- *
- * [Provide Short Descption Here]
- * $id: cpanelapi_class.php
- * Created:        @zaher.reda    Sep 10, 2015 | 6:25:18 PM
- * Last Update:    @zaher.reda    Sep 10, 2015 | 6:25:18 PM
- */
 
 /**
  * Description of cpanelapi_class
  *
  * @author zaher.reda
  */
-include_once ROOT.INC_ROOT.'xmlapi.php';
+include_once ROOT . INC_ROOT . 'xmlapi.php';
 
 class CpanelAPIConnect {
+
     private $user = 'root';
     private $hash = '2ce0ebf53c2e2041920bdec8319efbd5
 91c5c9d2cf255391a2fea2ef9b65b466
@@ -47,7 +40,7 @@ b48ee9cebaf31bc36467ae36b7be66e1
 e05c2960dc034d57af9c67eb20758604
 0c265beb848c25434a0a54411603570e
 2fc662b85f177c1fcf70b4b61f255b79';
-    private $server = 'server.orkila.com';
+    private $server = 'server.magister.com';
     private $xmlapid;
 
     public function __construct() {

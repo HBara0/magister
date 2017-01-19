@@ -123,7 +123,7 @@ class Mailer_oophp extends Mailer_functions {
         $this->boundaries['id'] = md5(uniqid(TIME_NOW));
         $this->boundaries[1] = 'b1_' . $this->boundaries['id'];
         $this->boundaries[2] = 'b2_' . $this->boundaries['id'];
-        $this->mail_data['header'] = "X-Mailer: Orkila Mailer\n";
+        $this->mail_data['header'] = "X-Mailer: Magister Mailer\n";
         $this->mail_data['header'] .= "MIME-version: 1.0\r\n";
         $this->set_type();
     }

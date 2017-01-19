@@ -1,14 +1,7 @@
 <?php
-/*
- * Copyright © 2015 Orkila International Offshore, All Rights Reserved
- *
- * [Provide Short Descption Here]
- * $id: UsersPositions_class.php
- * Created:        @rasha.aboushakra    Mar 11, 2015 | 3:38:38 PM
- * Last Update:    @rasha.aboushakra    Mar 11, 2015 | 3:38:38 PM
- */
 
 class UsersPositions extends AbstractClass {
+
     protected $data = array();
 
     const PRIMARY_KEY = 'upid';
@@ -22,15 +15,15 @@ class UsersPositions extends AbstractClass {
     }
 
     protected function create(array $data) {
-
+        
     }
 
     public function save(array $data = array()) {
-
+        
     }
 
     protected function update(array $data) {
-
+        
     }
 
 }

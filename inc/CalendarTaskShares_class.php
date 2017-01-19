@@ -1,12 +1,4 @@
 <?php
-/*
- * Copyright © 2014 Orkila International Offshore, All Rights Reserved
- *
- * [Provide Short Descption Here]
- * $id: CalendarTaskShare_class.php
- * Created:        @tony.assaad    Aug 20, 2014 | 10:55:49 AM
- * Last Update:    @tony.assaad    Aug 20, 2014 | 10:55:49 AM
- */
 
 /**
  * Description of CalendarTaskShare_class
@@ -14,6 +6,7 @@
  * @author tony.assaad
  */
 class CalendarTaskShares extends AbstractClass {
+
     protected $data = array();
     protected $errorcode = 0;
 
@@ -29,8 +22,8 @@ class CalendarTaskShares extends AbstractClass {
 
     protected function create(array $data) {
         global $db, $core;
-        if(is_array($data)) {
-            if(is_empty($data['ctid'])) {
+        if (is_array($data)) {
+            if (is_empty($data['ctid'])) {
                 return;
             }
             $task_data['ctid'] = $data['ctid'];
@@ -45,15 +38,15 @@ class CalendarTaskShares extends AbstractClass {
     }
 
     public function save(array $data = array()) {
-        if(empty($data)) {
+        if (empty($data)) {
             $data = $this->data;
         }
-        if(isset($this->data[self::PRIMARY_KEY]) && !empty($this->data[self::PRIMARY_KEY])) {
+        if (isset($this->data[self::PRIMARY_KEY]) && !empty($this->data[self::PRIMARY_KEY])) {
             $this->update($data);
         }
         else {
             $existing_share = CalendarTaskShares::get_data(array('uid' => $data['uid'], 'ctid' => $data['ctid']));
-            if(is_object($existing_share)) {
+            if (is_object($existing_share)) {
                 $this->update($data);
             }
             else {
@@ -65,7 +58,7 @@ class CalendarTaskShares extends AbstractClass {
     }
 
     protected function update(array $data) {
-
+        
     }
 
 //    protected function delete() {
@@ -87,8 +80,8 @@ class CalendarTaskShares extends AbstractClass {
 
     public function get_tasks_byuser($userid) {
         $tasks_ids = CalendarTaskShares::get_column('ctid', array('uid' => $userid), array('order' => array('sort' => array('DESC'), 'by' => array('createdOn')), 'returnarray' => true));
-        if(is_array($tasks_ids)) {
-            foreach($tasks_ids as $taskid) {
+        if (is_array($tasks_ids)) {
+            foreach ($tasks_ids as $taskid) {
                 $tasks[] = new Tasks($taskid);
             }
             return $tasks;

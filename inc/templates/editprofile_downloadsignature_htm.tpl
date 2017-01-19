@@ -3,9 +3,6 @@
         <meta http-equiv=Content-Type content="text/html; charset=utf-8">
     </head>
     <body>
-        <div style="margin-bottom: 3px;">
-            <p><a href="http://www.orkila.com"><img src="{$signature[imagepath]}" alt="{$signature[alt]}" border="0"></a></p>
-        </div>
         <div style="margin-bottom: 5px; font-size:10px; font-style:italic;">
             <span style="color:#91b64f;">{$lang->signaturefooter}</span><br />
             <span style="color:#999;">{$lang->signaturefooter_2}</span>

@@ -1,16 +1,5 @@
 @charset "CP850";
-/*
-Copyright © 2016 Orkila International Offshore, All Rights Reserved
 
-[Provide Short Descption Here]
-$id: navigationstyle.scss
-Created:        @rasha.aboushakra    Feb 18, 2016 | 8:37:18 AM
-Last Update:    @rasha.aboushakra    Feb 18, 2016 | 8:37:18 AM
-*/
-/*
-    Created on : Feb 18, 2016, 8:37:18 AM
-    Author     : rasha.aboushakra
-*/
 html, body {
     height: 100%;
     color: #404041 !important;

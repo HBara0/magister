@@ -1,12 +1,4 @@
 <?php
-/*
- * Copyright © 2014 Orkila International Offshore, All Rights Reserved
- *
- * [Provide Short Descption Here]
- * $id: Customers_class.php
- * Created:        @zaher.reda    Jun 11, 2014 | 11:21:38 AM
- * Last Update:    @zaher.reda    Jun 11, 2014 | 11:21:38 AM
- */
 
 /**
  * Description of Customers_class
@@ -14,6 +6,7 @@
  * @author zaher.reda
  */
 class Customers extends Entities {
+
     const PRIMARY_KEY = 'cid';
     const TABLE_NAME = 'entities';
     const DISPLAY_NAME = 'companyName';
@@ -30,7 +23,7 @@ class Customers extends Entities {
 
     public function get_customertype() {
 
-        switch($this->data['type']) {
+        switch ($this->data['type']) {
             case'c':
                 $this->type = 'c';
                 break;
@@ -42,7 +35,7 @@ class Customers extends Entities {
     }
 
     public function set(array $data) {
-        foreach($data as $name => $value) {
+        foreach ($data as $name => $value) {
             $this->data[$name] = $value;
         }
     }
@@ -52,7 +45,7 @@ class Customers extends Entities {
     }
 
     public function __get($name) {
-        if(isset($this->data[$name])) {
+        if (isset($this->data[$name])) {
             return $this->data[$name];
         }
         return false;
