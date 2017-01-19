@@ -71,7 +71,13 @@ class Recommendations extends AbstractClass {
      */
     public function parse_categories() {
         global $lang;
-        $categories_list = array('food' => $lang->food, 'accomodation' => $lang->accomodation, 'entertainment' => $lang->entertainment, 'landmark' => $lang->landmark);
+        $categories_objs = RecommendationsCategories::get_data(array('isActive' => 1), array('returnarray' => 1));
+        if (!is_array($categories_objs)) {
+            return false;
+        }
+        foreach ($categories_objs as $categories_obj) {
+            $categories_list[$categories_obj->get_id()] = $categories_obj->get_displayname();
+        }
         return parse_selectlist2('recommendation[category]', 1, $categories_list, $this->data['category']);
     }
 
@@ -163,11 +169,8 @@ class Recommendations extends AbstractClass {
         if (!$this->data['category']) {
             return;
         }
-        $category = $this->data['category'];
-        if ($lang->$category) {
-            return $lang->$category;
-        }
-        return $category;
+        $category_obj = new RecommendationsCategories(intval($this->data['category']));
+        return $category_obj->get_displayname();
     }
 
     /**
