@@ -30,13 +30,11 @@ if (!isset($core->input['action'])) {
                 $description = 'N/A';
             }
 
-            $tool_items = ' <li><a id="openmodal_' . $recommendation_obj->get_id() . '" data-targetdiv="recommendation_modal" data-url="' . $core->settings['rootdir'] . '/index.php?module=travel/recommendationslist&action=loadrecommendation_popup&id=' . $recommendation_obj->get_id() . '"><span class="glyphicon glyphicon-eye-open"></span>&nbsp' . $lang->viewrecommendation . '</a></li>';
             if ($recommendation_obj->canManageRecommendation()) {
-                $tool_items .= ' <li><a target="_blank" href="' . $recommendation_obj->get_editlink() . '"><span class="glyphicon glyphicon-pencil"></span>&nbsp' . $lang->managerecommendation . '</a></li>';
+                $editlink = '<button type="button" class="btn btn-warning" onclick="window.open(\'' . $recommendation_obj->get_editlink() . '\', \'_blank\')">' . $lang->manage . '</button>';
             }
-            eval("\$tools = \"" . $template->get('tools_buttonselectlist') . "\";");
             eval("\$recommendations_rows .= \"" . $template->get('travel_travel_recommendationslist_row') . "\";");
-            unset($tool_items, $subscribe_cell);
+            unset($subscribe_cell);
         }
     }
     eval("\$page= \"" . $template->get('travel_recommendationslist') . "\";");
@@ -55,7 +53,7 @@ else {
         if ($recommendation > 0) {
             $recommendation['ratingoutput'] = $recommendation_obj->get_ratingoutput();
         }
-        $addbutton = '<button data-targetdiv="recommendation_modal" data-url="' . $url . '" type="button" class="btn btn-success" id="openmodal_' . $id . '"><span class="glyphicon glyphicon-plus"></span>' . $lang->createevent . '</button>';
+        $addbutton = '<button data-targetdiv="recommendations_modal" data-url="' . $url . '" type="button" class="btn btn-success" id="openmodal_' . $id . '"><span class="glyphicon glyphicon-plus"></span>' . $lang->createevent . '</button>';
         $recommendation['displayname'] = $recommendation_obj->get_displayname();
         $recommendation['additionaloutput'] = $recommendation_obj->get_cityoutput() . ' - ' . $recommendation_obj->get_categoryutput();
         eval("\$modal = \"" . $template->get('modal_travel_recommendation') . "\";");

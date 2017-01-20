@@ -26,12 +26,11 @@ if (!isset($core->input['action'])) {
                 $subscribed = '<span style="color:red;font-weight:bold"">No <span class="glyphicon glyphicon-remove"></span></span>';
             }
 
-            $tool_items = ' <li><a id="openmodal_' . $events_obj->get_id() . '" data-targetdiv="event_modal" data-url="' . $url . '"><span class="glyphicon glyphicon-eye-open"></span>&nbsp' . $lang->viewrecommendation . '</a></li>';
             if ($events_obj->canManageEvent()) {
                 $tool_items .= ' <li><a target="_blank" href="' . $events_obj->get_editlink() . '"><span class="glyphicon glyphicon-pencil"></span>&nbsp' . $lang->manageevent . '</a></li>';
             }
             eval("\$tools = \"" . $template->get('tools_buttonselectlist') . "\";");
-            eval("\$courses_list .= \"" . $template->get('events_eventslist_courserow') . "\";");
+            eval("\$courses_list .= \"" . $template->get('events_eventslist_eventrow') . "\";");
             unset($tool_items, $subscribe_cell);
         }
     }

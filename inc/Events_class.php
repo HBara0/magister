@@ -95,15 +95,6 @@ class Events extends AbstractClass {
         return new Users(intval($this->data['createdBy']));
     }
 
-    public function parse_link($attributes_param = array('target' => '_blank')) {
-        if (is_array($attributes_param)) {
-            foreach ($attributes_param as $attr => $val) {
-                $attributes .= $attr . '="' . $val . '"';
-            }
-        }
-        return ' <button type="button" class="btn btn-primary" ' . $attributes . ' id="openmodal_' . $this->get_id() . '" data-targetdiv="events_modal" data-url="' . $this->get_link() . '">' . $this->get_displayname() . '</button>';
-    }
-
     public function get_link() {
         global $core;
         return $core->settings['rootdir'] . '/index.php?module=events/eventslist&action=loadevents_popup&id=' . $this->get_id();

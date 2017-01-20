@@ -1,11 +1,5 @@
 <div class="row">
-    <div class="col-md-9 col-lg-9 col-sm-12">
-        <h1>{$lang->managecourse}</h1>
-    </div>
-    <div class="col-md-3 col-lg-3 col-sm-12">
-        <button type="button" class="btn btn-success" onclick="window.open('{$core->settings['rootdir']}/index.php?module=courses/managecourse', '_blank')">{$lang->cratecourse}
-        </button>
-    </div>
+    <h1>{$lang->managecourse}</h1>
 </div>
 <form  action="#" method="post" id="perform_courses/managecourse_Form" name="perform_courses/managecourse_Form">
     <input type="hidden" name="course[cid]" value="{$course[cid]}">

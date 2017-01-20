@@ -10,7 +10,6 @@
 <table class="datatable_basic table table-bordered row-border hover order-column"  cellspacing="0" width="100%">
     <thead>
         <tr>
-            <th>&nbsp;</th>
             <th>{$lang->title}</th>
             <th>{$lang->city}</th>
             <th>{$lang->category}</th>
@@ -21,7 +20,7 @@
         {$recommendations_rows}
     </tbody>
 </table>
-<div class="modal fade" id="recommendation_modal" tabindex="-1" role="dialog">
+<div class="modal fade" id="recommendations_modal" tabindex="-1" role="dialog">
     <div class="modal-dialog" >
         <div class="modal-content">
             <div class="modal-body">

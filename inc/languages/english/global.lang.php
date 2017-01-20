@@ -152,4 +152,5 @@ $lang['travel'] = 'Travel';
 $lang['description'] = 'Description';
 $lang['title'] = 'Title';
 $lang['yourself'] = 'Yourself';
+$lang['manage'] = 'Manage';
 ?>

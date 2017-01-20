@@ -134,19 +134,9 @@ class Recommendations extends AbstractClass {
         return false;
     }
 
-    public function parse_link($attributes_param = array('target' => '_blank')) {
-
-        if (is_array($attributes_param)) {
-            foreach ($attributes_param as $attr => $val) {
-                $attributes .= $attr . '="' . $val . '"';
-            }
-        }
-        return '<a href="' . $this->get_link() . '" ' . $attributes . '>' . $this->get_displayname() . '</a>';
-    }
-
     public function get_link() {
         global $core;
-        return $core->settings['rootdir'] . '/index.php?module=travel/recommendationprofile&amp;id=' . $this->data[self::PRIMARY_KEY];
+        return $core->settings['rootdir'] . '/index.php?module=travel/recommendationslist&amp;action=loadrecommendation_popup&amp;id=' . $this->data[self::PRIMARY_KEY];
     }
 
     /**
@@ -156,7 +146,7 @@ class Recommendations extends AbstractClass {
      */
     public function get_editlink() {
         global $core;
-        return $core->settings['rootdir'] . '/index.php?module=travel/managerecommendation&amp;id=' . $this->data[self::PRIMARY_KEY];
+        return $core->settings['rootdir'] . '/index.php?module=travel/managerecommendation&id=' . $this->data[self::PRIMARY_KEY];
     }
 
     /**

@@ -11,7 +11,6 @@ $lang['category'] = 'Category';
 $lang['city'] = 'City';
 $lang['travelrecommendations'] = 'Travel Recommendations';
 $lang['createrecommendation'] = 'Create Recommendation';
-$lang['managerecommendation'] = 'Manage Recommendation';
 $lang['viewrecommendation'] = 'View Recommendation';
 $lang['createevent'] = 'Create Event';
 $lang['daterange'] = 'Date Range';

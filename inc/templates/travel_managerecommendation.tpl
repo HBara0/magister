@@ -4,7 +4,7 @@
     </div>
 </div>
 <form  action="#" method="post" id="perform_travel/managerecommendation_Form" name="perform_travel/managerecommendation_Form">
-    <input type="hidden" name="course[cid]" value="{$recommendation[rid]}">
+    <input type="hidden" name="recommendation[rid]" value="{$recommendation[rid]}">
     <div class="form-group-lg">
         <label for="title" style="font-weight: bold">{$lang->title}<span style="color:red"> *</span></label>
         <input required="required" name='recommendation[title]' value='{$recommendation[title]}' type="text" class="form-control" id="code" placeholder="{$lang->title}">
