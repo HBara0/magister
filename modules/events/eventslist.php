@@ -27,7 +27,7 @@ if (!isset($core->input['action'])) {
             }
 
             if ($events_obj->canManageEvent()) {
-                $tool_items .= ' <li><a target="_blank" href="' . $events_obj->get_editlink() . '"><span class="glyphicon glyphicon-pencil"></span>&nbsp' . $lang->manageevent . '</a></li>';
+                $managelink = '<button type="button" class="btn btn-warning" onclick="window.open(\'' . $events_obj->get_editlink() . '\', \'_blank\')">' . $lang->manage . '</button>';
             }
             eval("\$tools = \"" . $template->get('tools_buttonselectlist') . "\";");
             eval("\$courses_list .= \"" . $template->get('events_eventslist_eventrow') . "\";");
