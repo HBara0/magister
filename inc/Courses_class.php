@@ -137,19 +137,14 @@ class Courses extends AbstractClass {
         return false;
     }
 
-    public function parse_link($attributes_param = array('target' => '_blank')) {
-
-        if (is_array($attributes_param)) {
-            foreach ($attributes_param as $attr => $val) {
-                $attributes .= $attr . '="' . $val . '"';
-            }
-        }
-        return '<a href="' . $this->get_link() . '" ' . $attributes . '>' . $this->get_displayname() . '</a>';
-    }
-
+    /**
+     *
+     * @global type $core
+     * @return type
+     */
     public function get_link() {
         global $core;
-        return $core->settings['rootdir'] . '/index.php?module=courses/courseprofile&amp;id=' . $this->data[self::PRIMARY_KEY];
+        return $core->settings['rootdir'] . '/index.php?module=courses/courses&amp;action=loadcourses_popup&amp;id=' . $this->data[self::PRIMARY_KEY];
     }
 
     /**
@@ -186,6 +181,13 @@ class Courses extends AbstractClass {
         return $teacher_obj->get_displayname();
     }
 
+    /**
+     * Parse lecture panel section
+     * @global type $template
+     * @global type $lang
+     * @global type $core
+     * @return type
+     */
     public function get_lectureoutput() {
         global $template, $lang, $core;
         $course_lectures = $this->get_lectures();

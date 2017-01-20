@@ -7,11 +7,9 @@
         </button>
     </div>
 </div>
-<table class="datatable_basic table table-bordered row-border hover order-column"  cellspacing="0" width="100%">
+<table class="datatable_basic table table-bordered row-border order-column"  cellspacing="0" width="100%">
     <thead>
         <tr>
-            <th>&nbsp;</th>
-            <th>{$lang->code}</th>
             <th>{$lang->title}</th>
             <th>{$lang->teacher}</th>
             <th>{$lang->subscribed}</th>
@@ -22,3 +20,11 @@
         {$courses_list}
     </tbody>
 </table>
+<div class="modal fade" id="courses_modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" >
+        <div class="modal-content">
+            <div class="modal-body">
+            </div>
+        </div>
+    </div>
+</div>

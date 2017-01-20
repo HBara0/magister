@@ -7,7 +7,7 @@
         </button>
     </div>
 </div>
-<table class="datatable_basic table table-bordered row-border hover order-column"  cellspacing="0" width="100%">
+<table class="datatable_basic table table-bordered row-border  order-column"  cellspacing="0" width="100%">
     <thead>
         <tr>
             <th>{$lang->title}</th>
