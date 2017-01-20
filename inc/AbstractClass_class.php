@@ -269,4 +269,20 @@ Abstract class AbstractClass {
         return $color;
     }
 
+    /**
+     *
+     * @return boolean
+     */
+    public function do_deactivate() {
+        $thisdata = $this->get();
+        $thisdata['isActive'] = 0;
+        $newobj = new static();
+        $newobj->set($thisdata);
+        $newobj = $newobj->save();
+        if ($newobj->get_errorcode() == 0) {
+            return true;
+        }
+        return false;
+    }
+
 }

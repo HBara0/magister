@@ -15,4 +15,6 @@ $lang['eventprofile'] = 'Event Profile';
 $lang['name'] = 'Name';
 $lang['subscribedOn'] = 'Subscribed On';
 $lang['attendees'] = 'Attendees';
+$lang['removeevent'] = 'Remove Event';
+$lang['addevent'] = 'Add Event';
 ?>

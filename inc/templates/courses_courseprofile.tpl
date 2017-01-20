@@ -4,7 +4,7 @@
             var id = $(this).attr("id").split("_");
             $.ajax({
                 type: 'post',
-                url: "{$core->settings['rootdir']}/index.php?module=courses/courseprofile&id=1&action=course_" + id[2],
+                url: "{$core->settings['rootdir']}/index.php?module=courses/courseprofile&id=" + id[1] + "&action=course_" + id[2],
                 data: "id=" + id[1],
                 beforeSend: function() {
                     loadgif($("#subscribedive_" + id[1]));

@@ -1414,7 +1414,8 @@ function initialize_datatables() {
                     $(table.column(colIdx).nodes()).addClass('highlight');
                 });
             });
-            $('.dataTables_filter').append('&nbsp;&nbsp;<img  title="Clear Filters" src="' + rootdir + '/images/icons/clearfilters.png" style="cursor:pointer;" id="datatables_cleafilters">');
+            var tableid = $(maintable).attr('id');
+            $('#' + tableid + '_wrapper').find('.dataTables_filter').append('&nbsp;&nbsp;<img  title="Clear Filters" src="' + rootdir + '/images/icons/clearfilters.png" style="cursor:pointer;" id="datatables_cleafilters">');
         }
 
     });

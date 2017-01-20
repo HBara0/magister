@@ -28,13 +28,11 @@ if (!isset($core->input['action'])) {
         $hide_eventdescription = 'style="display:none"';
     }
     //parse course take/remove button
-    if ($core->usergroup['canTakeLessons'] == 1) {
-        if ($event_obj->is_subscribed($core->user['uid'])) {
-            $addorremovecourse_button = '<div id="subscribedive_' . $id . '" ><button type="button" class="btn btn-danger" id="subscribebutton_' . $id . '_remove"><span class="glyphicon glyphicon-minus"></span>' . $lang->removecourse . '</button>';
-        }
-        else {
-            $addorremovecourse_button = '<div id="subscribedive_' . $id . '"><button type="button" class="btn btn-primary" id="subscribebutton_' . $id . '_subscribe"><span class="glyphicon glyphicon-plus"></span>' . $lang->addcourse . '</button>';
-        }
+    if ($event_obj->is_subscribed($core->user['uid'])) {
+        $addorremovecourse_button = '<div id="subscribedive_' . $id . '" ><button type="button" class="btn btn-danger" id="subscribebutton_' . $id . '_remove"><span class="glyphicon glyphicon-minus"></span>' . $lang->removecourse . '</button>';
+    }
+    else {
+        $addorremovecourse_button = '<div id="subscribedive_' . $id . '"><button type="button" class="btn btn-primary" id="subscribebutton_' . $id . '_subscribe"><span class="glyphicon glyphicon-plus"></span>' . $lang->addcourse . '</button>';
     }
 
     eval("\$page= \"" . $template->get('events_eventprofile') . "\";");

@@ -50,9 +50,43 @@ else {
         $event['fromdate_output'] = $event_obj->parse_fromdate();
         $event['todate_output'] = $event_obj->parse_todate();
         $event['attendees_output'] = $event_obj->parse_attendeessection();
-        $url = $core->settings['rootdir'] . '/index.php?module=travel/recommendationslist&action=showpopup_createtravelevent&id=' . intval($id);
-//        $addbutton = '<button data-targetdiv="recommendation_modal" data-url="' . $url . '" type="button" class="btn btn-success" id="openmodal_' . $id . '"><span class="glyphicon glyphicon-plus"></span>' . $lang->createevent . '</button>';
+        if (!$event['attendees_output']) {
+            $hideattendees = 'style="display:none"';
+        }
+
+        //parse course take/remove button
+        $addorremovecourse_button = $event_obj->parse_addremove_button();
+
         eval("\$modal = \"" . $template->get('modal_event') . "\";");
         echo ($modal);
+    }
+    elseif ($core->input['action'] == 'events_subscribe') {
+        if (!$core->input['id']) {
+            echo('<span style="color:red">' . $lang->error . '</span>');
+            exit;
+        }
+        $id = intval($core->input['id']);
+        $event_obj = new Events($id);
+        $event_obj->do_assignuser();
+
+        //parse course take/remove button
+        $addorremovecourse_button = $event_obj->parse_addremove_button();
+
+        echo($addorremovecourse_button);
+        exit;
+    }
+    elseif ($core->input['action'] == 'events_remove') {
+        if (!$core->input['id']) {
+            echo('<span style="color:red">' . $lang->error . '</span>');
+            exit;
+        }
+        $id = intval($core->input['id']);
+        $event_obj = new Events($id);
+        $event_obj->do_removeuser();
+
+        //parse course take/remove button
+        $addorremovecourse_button = $event_obj->parse_addremove_button();
+        echo($addorremovecourse_button);
+        exit;
     }
 }

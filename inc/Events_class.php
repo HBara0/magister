@@ -64,14 +64,14 @@ class Events extends AbstractClass {
         if (!is_empty($data['fromTime'], $data['fromDate'])) {
             $data['fromDate'] = strtotime($data['fromDate'] . ' ' . $data['fromTime']);
         }
-        else {
+        if (empty($data['fromDate'])) {
             $this->errorcode = 2;
             return $this;
         }
         if (!is_empty($data['toTime'], $data['toDate'])) {
             $data['toDate'] = strtotime($data['toDate'] . ' ' . $data['toTime']);
         }
-        else {
+        if (empty($data['toDate'])) {
             $this->errorcode = 3;
             return $this;
         }
@@ -115,7 +115,7 @@ class Events extends AbstractClass {
      * @return boolean
      */
     public function is_subscribed($uid) {
-        if ($this->data['createdBy'] == $uid && $this->data['isPublic'] == 0) {
+        if ($this->data['createdBy'] == $uid && $this->data['isPublic'] == 0 && $this->data['isActive'] == 1) {
             return true;
         }
 
@@ -303,6 +303,71 @@ class Events extends AbstractClass {
         }
         eval("\$attendees_list= \"" . $template->get('events_attendeeslist') . "\";");
         return $attendees_list;
+    }
+
+    /**
+     *
+     * @global type $lang
+     * @return type
+     */
+    public function parse_addremove_button() {
+        global $lang, $core;
+        if ($this->is_subscribed($core->user['uid'])) {
+            return'<div id="subscribedive_' . $this->get_id() . '" ><button type="button" class="btn btn-danger" id="subscribebutton_' . $this->get_id() . '_remove"><span class="glyphicon glyphicon-minus"></span>' . $lang->removeevent . '</button>';
+        }
+        else {
+            return '<div id="subscribedive_' . $this->get_id() . '"><button type="button" class="btn btn-primary" id="subscribebutton_' . $this->get_id() . '_subscribe"><span class="glyphicon glyphicon-plus"></span>' . $lang->addevent . '</button>';
+        }
+    }
+
+    /**
+     * Assign user to event
+     * @global type $core
+     * @return boolean
+     */
+    public function do_assignuser($uid = '') {
+        global $core;
+        if (!$uid) {
+            $uid = $core->user['uid'];
+        }
+        $assignmentdata = array('uid' => intval($uid), 'eid' => $this->get_id(), 'isActive' => 1);
+        $assignment_obj = new CalendarAssignments();
+        $assignment_obj->set($assignmentdata);
+        $assignment_obj->save();
+        if ($assignment_obj->get_errorcode() == 0) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Remove user from current event assignments
+     * @param type $uid
+     * @return boolean
+     */
+    public function do_removeuser($uid = '') {
+        global $core;
+        if (!$uid) {
+            $uid = $core->user['uid'];
+        }
+        if ($this->data['createdBy'] == 1 && $this->data['isPublic'] == 0) {
+            $result = $this->do_deactivate();
+            return $result;
+        }
+        else {
+            //get previous assignments
+            $calendarassignments_objs = CalendarAssignments::get_data(array('uid' => intval($uid), 'eid' => $this->get_id(), 'isActive' => 1), array('returnarray' => true));
+            if (!is_array($calendarassignments_objs)) {
+                return true;
+            }
+            foreach ($calendarassignments_objs as $calendarassignments_obj) {
+                $result = $calendarassignments_obj->do_deactivate();
+                if ($result == false) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
 }
