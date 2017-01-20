@@ -1215,9 +1215,9 @@ function intialize_select2() {
 }
 
 function loadgif(obj) {
-    var loading_gifs = ["<img src='" + rootdir + "/images/picanyan.gif'>", "<img src='" + rootdir + "/images/preloader.gif'>", "<img src='" + rootdir + "/images/pie.gif'>", "<img src='" + rootdir + "/images/pacman.gif'>"];
+    var loading_gifs = ["preloader.gif", "pie.gif", "pacman.gif"];
     var randomgif = loading_gifs[Math.floor(Math.random() * loading_gifs.length)];
-    obj.html(randomgif);
+    obj.html("<img src='" + rootdir + "/images/" + randomgif + "'>");
 }
 function initialize_texteditors() {
     if ($(".inlinetxteditadv,.txteditadv,.basictxteditadv,.htmltextedit").length > 0) {
