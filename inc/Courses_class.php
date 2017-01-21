@@ -33,11 +33,18 @@ class Courses extends AbstractClass {
         $data['alias'] = generate_alias($data['title']);
         $subscriptions = $data['assignstudent'];
         unset($data['assignstudent']);
+
+        if (is_array($data['teacherId'])) {
+            $teachers = $data['teacherId'];
+        }
+        unset($data['teacherId']);
+
         if (is_array($data)) {
             $query = $db->insert_query(self::TABLE_NAME, $data);
             $this->{static::PRIMARY_KEY} = $db->last_id();
 
             if ($query) {
+                //add subscribptions
                 if (is_array($subscriptions)) {
                     $assigncourse['cid'] = $this->get_id();
                     $assigncourse['isActive'] = 1;
@@ -45,6 +52,17 @@ class Courses extends AbstractClass {
                         $assigncourse['uid'] = intval($uid);
                         $assignecourse_obj = new AssignedCourses();
                         $assignecourse_obj->set($assigncourse);
+                        $assignecourse_obj->save();
+                    }
+                }
+
+                //add teachers
+                if (is_array($teachers)) {
+                    $assigncourses_array = array('cid' => $this->get_id());
+                    foreach ($teachers as $teacherid) {
+                        $assigncourses_array['uid'] = intval($teacherid);
+                        $assignecourse_obj = new AssignTeacherCourses();
+                        $assignecourse_obj->set($assigncourses_array);
                         $assignecourse_obj->save();
                     }
                 }
@@ -64,6 +82,11 @@ class Courses extends AbstractClass {
         $data['modifiedBy'] = $core->user['uid'];
         $subscriptions = $data['assignstudent'];
         unset($data['assignstudent']);
+        if (is_array($data['teacherId'])) {
+            $teachers = $data['teacherId'];
+        }
+        unset($data['teacherId']);
+
         if (is_array($data)) {
             $query = $db->update_query(self::TABLE_NAME, $data, self::PRIMARY_KEY . '=' . intval($this->data[self::PRIMARY_KEY]));
             $log->record(self::TABLE_NAME, $this->data[self::PRIMARY_KEY]);
@@ -80,6 +103,18 @@ class Courses extends AbstractClass {
                         $assignecourse_obj->save();
                     }
                 }
+
+                $previousteacherassignment = AssignTeacherCourses::removeassignment($this->get_id());
+                //manage teachers
+                if (is_array($teachers)) {
+                    $assigncourses_array = array('cid' => $this->get_id());
+                    foreach ($teachers as $teacherid) {
+                        $assigncourses_array['uid'] = intval($teacherid);
+                        $assignecourse_obj = new AssignTeacherCourses();
+                        $assignecourse_obj->set($assigncourses_array);
+                        $assignecourse_obj->save();
+                    }
+                }
             }
         }
         return $this;
@@ -89,11 +124,16 @@ class Courses extends AbstractClass {
      * Return course teacher as users object or false if not exist
      * @return boolean|\Users
      */
-    public function get_teacher() {
-        if (!$this->data['teacherId']) {
+    public function get_teachers() {
+        $courseteachers_assignment = AssignTeacherCourses::get_data(array('cid' => $this->get_id()), array('returnarray' => TRUE));
+        if (!is_array($courseteachers_assignment)) {
             return false;
         }
-        return new Users(intval($this->data['teacherId']));
+        $teacherobj_arrays = array();
+        foreach ($courseteachers_assignment as $assign_teachercourse_obj) {
+            $teacherobj_arrays[] = $assign_teachercourse_obj->get_user();
+        }
+        return $teacherobj_arrays;
     }
 
     public function get_displayname() {
@@ -173,12 +213,20 @@ class Courses extends AbstractClass {
         return $core->settings['rootdir'] . '/index.php?module=courses/managecourse&amp;id=' . $this->data[self::PRIMARY_KEY];
     }
 
+    /**
+     *
+     * @return type
+     */
     public function get_teacheroutput() {
-        $teacher_obj = $this->get_teacher();
-        if (!is_object($teacher_obj)) {
+        $teachers_array = $this->get_teachers();
+        if (!is_array($teachers_array)) {
             return;
         }
-        return $teacher_obj->get_displayname();
+        $teachers_outputs = array();
+        foreach ($teachers_array as $teacher_obj) {
+            $teachers_outputs[] = $teacher_obj->get_displayname();
+        }
+        return implode(', ', $teachers_outputs);
     }
 
     /**

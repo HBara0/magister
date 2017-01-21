@@ -18,9 +18,9 @@ if (!isset($core->input['action'])) {
         foreach ($courses_objs as $course_obj) {
             $course = $course_obj->get();
             $course_link = $course_obj->parse_link();
-            $teacher_obj = $course_obj->get_teacher();
-            if (is_object($teacher_obj)) {
-                $teachername = $teacher_obj->get_displayname();
+            $teacher_objs = $course_obj->get_teachers();
+            if (is_array($teacher_objs)) {
+                $teachername = $course_obj->get_teacheroutput();
             }
             else {
                 $teachername = 'N/A';

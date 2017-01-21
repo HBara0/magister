@@ -263,7 +263,7 @@ class Users extends AbstractClass {
         if ($core->user['uid'] == $this->get_id()) {
             return $lang->yourself;
         }
-        parent::get_displayname();
+        return parent::get_displayname();
     }
 
 }

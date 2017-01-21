@@ -28,7 +28,7 @@ if (!$core->input['action']) {
     $isactive_list = parse_selectlist2('course[isActive]', 1, array('1' => 'Yes', '0' => 'No'), $isActive);
     $teacher_objs = Users::get_teachers();
     if (is_array($teacher_objs)) {
-        $teacher_list = parse_selectlist2('course[teacherId]', 1, $teacher_objs, $teacherid, '', '', array('id' => 'teacher', 'blankstart' => true));
+        $teacher_list = parse_selectlist2('course[teacherId][]', 1, $teacher_objs, $teacherid, 1, '', array('id' => 'teacher', 'blankstart' => true));
     }
     //parse student subscription section
     $student_objs = Users::get_students();

@@ -1,4 +1,11 @@
-<h1>{$lang->manageusers}</h1>
+<div class="row">
+    <div class="col-xs-12 col-lg-9 col-md-9">
+        <h1>{$lang->manageusers}</h1>
+    </div>
+    <div class="col-xs-12 col-lg-3 col-md-3">
+        {$createuser_button}
+    </div>
+</div>
 <table class="datatable_basic table table-bordered row-border hover order-column" cellspacing="0" width="100%">
     <thead>
         <tr>

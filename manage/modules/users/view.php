@@ -38,7 +38,7 @@ if (!$core->input['action']) {
     else {
         $userslist = "<tr><td colspan='5'>{$lang->nousers}</td></tr>";
     }
-
+    $createuser_button = '<button type="button" class="btn btn-primary" onclick="window.open(\'' . $core->settings['rootdir'] . '/manage/index.php?module=users/add\',\'_blank\')">' . $lang->createuser . '</button>';
     eval("\$viewpage = \"" . $template->get("admin_users_view") . "\";");
     output_page($viewpage);
 }

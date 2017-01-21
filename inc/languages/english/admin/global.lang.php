@@ -129,4 +129,5 @@ $lang['entities'] = 'Entities';
 $lang['users'] = 'Users';
 $lang['managesystems'] = 'Manage Systems';
 $lang['regions'] = 'Regions';
+$lang['createuser'] = 'Create User';
 ?>
