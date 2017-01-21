@@ -131,7 +131,7 @@ class Courses extends AbstractClass {
         }
         $teacherobj_arrays = array();
         foreach ($courseteachers_assignment as $assign_teachercourse_obj) {
-            $teacherobj_arrays[] = $assign_teachercourse_obj->get_user();
+            $teacherobj_arrays[$assign_teachercourse_obj->uid] = $assign_teachercourse_obj->get_user();
         }
         return $teacherobj_arrays;
     }
