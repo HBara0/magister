@@ -94,8 +94,18 @@ class ModifyAccount extends Accounts {
             $data['displayName'] = $data['firstName'] . ' ' . $data['lastName'];
         }
 
-
-
+        //adjust program assignments
+        $user_obj = new Users(intval($uid));
+        $user_obj->deactivate_assignedprograms();
+        if (is_array($data['program'])) {
+            foreach ($data['program'] as $progid) {
+                $assignprograms_array = array('isActive' => 1, 'uid' => intval($uid), 'progid' => intval($progid));
+                $assignprogram_obj = new AssignedPrograms();
+                $assignprogram_obj->set($assignprograms_array);
+                $assignprogram_obj->save();
+            }
+        }
+        unset($data['program']);
         $query = $db->update_query('users', $data, "uid='{$uid}'");
         if ($query) {
             $this->set_status(true);

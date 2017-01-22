@@ -24,6 +24,8 @@ if (!$core->input['action']) {
     }
     $usergroups_list = parse_selectlist('gid', 5, $usergroups, 3);
 
+    $activeprograms = Programs::get_data(array('isActive' => 1), array('returnarray' => true));
+    $programs_list = parse_selectlist2('program[]', 1, $activeprograms, '', 1);
 
     $actiontype = 'add';
     $pagetitle = $lang->adduser;

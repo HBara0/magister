@@ -102,17 +102,9 @@ class AssignedCourses extends AbstractClass {
             return true;
         }
         foreach ($assignedcourse_objs as $assignedcourse_obj) {
-            $assignedcourse_obj->deactivate();
+            $assignedcourse_obj->do_deactivate();
         }
         return true;
-    }
-
-    public function deactivate() {
-        $currentdata = $this->get();
-        $currentdata['isActive'] = 0;
-        $newobject = new AssignedCourses();
-        $newobject->set($currentdata);
-        $newobject->save();
     }
 
 }

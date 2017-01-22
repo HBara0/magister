@@ -47,10 +47,24 @@ class CreateAccount extends Accounts {
             $data['lastName'] = ucfirst($data['lastName']);
             $data['displayName'] = $data['firstName'] . ' ' . $data['lastName'];
             $data['dateAdded'] = time();
-
+            if (is_array($data['program'])) {
+                $programs_array = $data['program'];
+            }
+            unset($data['program']);
 
             $query = $db->insert_query('users', $data);
             $uid = $db->last_id();
+            //adjust program assignments
+            $user_obj = new Users(intval($uid));
+            $user_obj->deactivate_assignedprograms();
+            if (is_array($programs_array)) {
+                foreach ($programs_array as $progid) {
+                    $assignprograms_array = array('isActive' => 1, 'uid' => intval($uid), 'progid' => intval($progid));
+                    $assignprogram_obj = new AssignedPrograms();
+                    $assignprogram_obj->set($assignprograms_array);
+                    $assignprogram_obj->save();
+                }
+            }
         }
         else {
             output_xml("<status>false</status><message>{$lang->usernameexists}</message>");

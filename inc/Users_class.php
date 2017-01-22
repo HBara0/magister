@@ -266,6 +266,28 @@ class Users extends AbstractClass {
         return parent::get_displayname();
     }
 
+    /**
+     *
+     * @return boolean
+     */
+    public function get_assignedprograms() {
+        $assignedprograms_objs = AssignedPrograms::get_data(array('uid' => $this->get_id(), 'isActive' => 1), array('returnarray' => true));
+        if (!is_array($assignedprograms_objs)) {
+            return false;
+        }
+        return $assignedprograms_objs;
+    }
+
+    public function deactivate_assignedprograms() {
+        $assignedprograms_objs = $this->get_assignedprograms();
+        if (!is_array($assignedprograms_objs)) {
+            return true;
+        }
+        foreach ($assignedprograms_objs as $assignedprograms_obj) {
+            $assignedprograms_obj->do_deactivate();
+        }
+    }
+
 }
 
 ?>

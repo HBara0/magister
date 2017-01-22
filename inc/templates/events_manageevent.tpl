@@ -14,7 +14,7 @@
         <label for="title" style="font-weight: bold">{$lang->eventtitle}<span style="color:red"> *</span></label>
         <input required="required" name='event[title]' value='{$event[title]}' type="text" class="form-control" id="title" placeholder="{$lang->eventtitle}">
     </div>
-    <label>{$lang->daterange}</label>
+    <label>{$lang->daterange}<span style="color:red"> *</span></label>
     <div class="input-daterange input-group datepicker">
         <input type="text" class="input-sm form-control" value="{$event[fromdateoutput]}" name="event[fromDate]" />
         <span class="input-group-addon">to</span>

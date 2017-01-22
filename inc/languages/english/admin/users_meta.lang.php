@@ -1,4 +1,5 @@
 <?php
+
 $lang['password'] = "Password";
 $lang['fname'] = "First name";
 $lang['lname'] = "Last name";
@@ -17,4 +18,5 @@ $lang['errorupdatingprofile'] = "An error occurred while updating the profile";
 $lang['add'] = "Add a User";
 $lang['edit'] = "Edit a User";
 $lang['view'] = 'View User';
+$lang['program'] = "Program";
 ?>

@@ -23,12 +23,17 @@ if (!$core->input['action']) {
                 $subscribedstudents_ids[] = $subscribedstudent_obj->uid;
             }
         }
+        //get already assigned programs
+        $assignedprograms_objs = $course_obj->get_assignedprograms();
     }
     $isactive_list = parse_selectlist2('course[isActive]', 1, array('1' => 'Yes', '0' => 'No'), $isActive);
     $teacher_objs = Users::get_teachers();
     if (is_array($teacher_objs)) {
         $assignedteachers = $course_obj->get_teachers();
-        $teacher_list = parse_selectlist2('course[teacherId][]', 1, $teacher_objs, array_keys($assignedteachers), 1, '', array('id' => 'teacher', 'blankstart' => true));
+        if (is_array($assignedteachers)) {
+            $selectedteachers = array_keys($assignedteachers);
+        }
+        $teacher_list = parse_selectlist2('course[teacherId][]', 1, $teacher_objs, $selectedteachers, 1, '', array('id' => 'teacher', 'blankstart' => true));
     }
     //parse student subscription section
     $student_objs = Users::get_students();
@@ -47,6 +52,12 @@ if (!$core->input['action']) {
         }
         eval("\$studentsubscription_section= \"" . $template->get('courses_managecourse_studentsubscription') . "\";");
     }
+    //parse programs list
+    $activeprograms = Programs::get_data(array('isActive' => 1), array('returnarray' => true));
+    if (is_array($assignedprograms_objs)) {
+        $assignedprograms = array_keys($assignedprograms_objs);
+    }
+    $programs_list = parse_selectlist2('course[program][]', 1, $activeprograms, $assignedprograms, 1);
 
     //parse lecture and deadline section
     $lecture_section = $course_obj->get_lectureoutput();

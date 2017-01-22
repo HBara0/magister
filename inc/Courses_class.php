@@ -39,6 +39,11 @@ class Courses extends AbstractClass {
         }
         unset($data['teacherId']);
 
+        if (is_array($data['program'])) {
+            $programs = $data['program'];
+        }
+        unset($data['program']);
+
         if (is_array($data)) {
             $query = $db->insert_query(self::TABLE_NAME, $data);
             $this->{static::PRIMARY_KEY} = $db->last_id();
@@ -66,6 +71,16 @@ class Courses extends AbstractClass {
                         $assignecourse_obj->save();
                     }
                 }
+
+                //assign course to programs
+                if (is_array($programs)) {
+                    foreach ($programs as $progid) {
+                        $assignprograms_array = array('isActive' => 1, 'cid' => intval($this->get_id()), 'progid' => intval($progid));
+                        $assignprogram_obj = new AssignedProgramCourse();
+                        $assignprogram_obj->set($assignprograms_array);
+                        $assignprogram_obj->save();
+                    }
+                }
             }
         }
         return $this;
@@ -86,6 +101,11 @@ class Courses extends AbstractClass {
             $teachers = $data['teacherId'];
         }
         unset($data['teacherId']);
+
+        if (is_array($data['program'])) {
+            $programs = $data['program'];
+        }
+        unset($data['program']);
 
         if (is_array($data)) {
             $query = $db->update_query(self::TABLE_NAME, $data, self::PRIMARY_KEY . '=' . intval($this->data[self::PRIMARY_KEY]));
@@ -113,6 +133,17 @@ class Courses extends AbstractClass {
                         $assignecourse_obj = new AssignTeacherCourses();
                         $assignecourse_obj->set($assigncourses_array);
                         $assignecourse_obj->save();
+                    }
+                }
+
+                $this->deactivate_assignedprograms();
+                //assign course to programs
+                if (is_array($programs)) {
+                    foreach ($programs as $progid) {
+                        $assignprograms_array = array('isActive' => 1, 'cid' => intval($this->get_id()), 'progid' => intval($progid));
+                        $assignprogram_obj = new AssignedProgramCourse();
+                        $assignprogram_obj->set($assignprograms_array);
+                        $assignprogram_obj->save();
                     }
                 }
             }
@@ -239,36 +270,35 @@ class Courses extends AbstractClass {
     public function get_lectureoutput() {
         global $template, $lang, $core;
         $course_lectures = $this->get_lectures();
-        if (!is_array($course_lectures)) {
-            return;
-        }
-        foreach ($course_lectures as $lecture_obj) {
-            $fromtime = $lecture_obj->get_fromdate();
-            $totime = $lecture_obj->get_todate();
+        if (is_array($course_lectures)) {
+            foreach ($course_lectures as $lecture_obj) {
+                $fromtime = $lecture_obj->get_fromdate();
+                $totime = $lecture_obj->get_todate();
 
-            $fromdate = date($core->settings['dateformat'] . ' ' . $core->settings[timeformat], $fromtime);
-            $todate = date($core->settings['dateformat'] . ' ' . $core->settings[timeformat], $totime);
+                $fromdate = date($core->settings['dateformat'] . ' ' . $core->settings[timeformat], $fromtime);
+                $todate = date($core->settings['dateformat'] . ' ' . $core->settings[timeformat], $totime);
 
-            $title_output = 'N/A';
-            if ($lecture_obj->title) {
-                $title_output = $lecture_obj->title;
-            }
-            $location_output = 'N/A';
-            if ($lecture_obj->location) {
-                $location_output = $lecture_obj->location;
-            }
-            $type_output = $lang->lecture;
-            //parse tools depending on user permission
-            if ($this->canManageCourse()) {
+                $title_output = 'N/A';
+                if ($lecture_obj->title) {
+                    $title_output = $lecture_obj->title;
+                }
+                $location_output = 'N/A';
+                if ($lecture_obj->location) {
+                    $location_output = $lecture_obj->location;
+                }
+                $type_output = $lang->lecture;
+                //parse tools depending on user permission
+                if ($this->canManageCourse()) {
 //            $tool_items = ' <li><a target="_blank" href="' . $course_obj->get_link() . '"><span class="glyphicon glyphicon-eye-open"></span>&nbsp' . $lang->viewcourse . '</a></li>';
 //            if ($course_obj->canManageCourse()) {
 //                $tool_items .= ' <li><a target="_blank" href="' . $course_obj->get_editlink() . '"><span class="glyphicon glyphicon-pencil"></span>&nbsp' . $lang->managecourse . '</a></li>';
 //            }
-                eval("\$tools = \"" . $template->get('tools_buttonselectlist') . "\";");
-            }
+                    eval("\$tools = \"" . $template->get('tools_buttonselectlist') . "\";");
+                }
 
-            eval("\$lecutre_rows.= \"" . $template->get('lecturesection_table_row') . "\";");
-            unset($tools);
+                eval("\$lecutre_rows.= \"" . $template->get('lecturesection_table_row') . "\";");
+                unset($tools);
+            }
         }
 
         //parse deadlines
@@ -314,6 +344,28 @@ class Courses extends AbstractClass {
             return count($assignedstudents);
         }
         return 0;
+    }
+
+    /**
+     *
+     * @return boolean
+     */
+    public function get_assignedprograms() {
+        $assigneprogs = AssignedProgramCourse::get_data(array('isActive' => 1, 'cid' => $this->get_id()), array('returnarray' => 1));
+        if (!is_array($assigneprogs)) {
+            return false;
+        }
+        return $assigneprogs;
+    }
+
+    public function deactivate_assignedprograms() {
+        $assignedprograms_objs = $this->get_assignedprograms();
+        if (!is_array($assignedprograms_objs)) {
+            return true;
+        }
+        foreach ($assignedprograms_objs as $assignedprograms_obj) {
+            $assignedprograms_obj->do_deactivate();
+        }
     }
 
 }

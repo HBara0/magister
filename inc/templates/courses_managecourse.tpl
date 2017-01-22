@@ -15,6 +15,10 @@
     <div class="form-group-lg">
         {$teacher_list}
     </div>
+    <label>{$lang->program}</label>
+    <div class="form-group-lg">
+        {$programs_list}
+    </div>
     <div class="form-group-lg">
         <label for="googledrivefolderlink">{$lang->googledrivefolderlink}</label>
         <input name='course[folderUrl]' value='{$course[folderUrl]}' type="url" class="form-control" id="googledrivefolderlink" placeholder="{$lang->googledrivefolderlink}">
@@ -31,7 +35,7 @@
             </textarea>
         </div>
     </div>
-
+    {$lecture_section}
     {$studentsubscription_section}
     <input type="submit" value="{$lang->savecaps}" id="perform_courses/managecourse_Button" class="button"/>
     <div id="perform_courses/managecourse_Results"></div>

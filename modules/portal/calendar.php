@@ -21,10 +21,16 @@ if (!isset($core->input['action'])) {
     output_page($calendar, array('additionalheaderinc' => $additionalheader));
 }
 else {
-    if ($core->input['action'] == 'get_creatreservation') {
+    if ($core->input['action'] == 'get_createevent') {
 
-        $date = strtotime($core->input['date']);
-        eval("\$calendarpopup = \"" . $template->get('popup_createcalendarassignment') . "\";");
+        $start_time = ($core->input['start'] / 1000);
+        $end_time = ($core->input['end'] / 1000);
+        $event['fromdateoutput'] = date('d-m-Y', $start_time);
+        $event['todateoutput'] = date('d-m-Y', $end_time);
+        $event['fromtimeoutput'] = date('h:i A', $start_time);
+        $event['totimeoutput'] = date('h:i A', $end_time);
+
+        eval("\$calendarpopup = \"" . $template->get('modal_createevent') . "\";");
         output($calendarpopup);
     }
     else if ($core->input['action'] == 'fetchevents') {

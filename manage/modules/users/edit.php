@@ -32,6 +32,15 @@ if (!$core->input['action']) {
         unset($usergroups[1]);
     }
     $usergroups_list = parse_selectlist('gid', 5, $usergroups, $user_usergroups['main']['gid']);
+    //parse programs list
+    $activeprograms = Programs::get_data(array('isActive' => 1), array('returnarray' => true));
+    //get already assigned programs
+    $assignedprograms_objs = $userobj->get_assignedprograms();
+    if (is_array($assignedprograms_objs)) {
+        $assignedprograms = array_keys($assignedprograms_objs);
+    }
+    $programs_list = parse_selectlist2('program[]', 1, $activeprograms, $assignedprograms, 1);
+
 
     $actiontype = 'edit';
     $pagetitle = $user['username'];

@@ -23,6 +23,12 @@
             </td>
         </tr>
         <tr>
+            <td><strong>{$lang->program}</strong></td>
+            <td>
+                {$programs_list}
+            </td>
+        </tr>
+        <tr>
             <td><strong>{$lang->usergroup}</strong></td><td>{$usergroups_list}</td>
         </tr>
         <tr>
