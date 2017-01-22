@@ -21,7 +21,7 @@
     </tbody>
 </table>
 <div class="modal fade" id="recommendations_modal" tabindex="-1" role="dialog">
-    <div class="modal-dialog" >
+    <div class="modal-dialog modal-lg" >
         <div class="modal-content">
             <div class="modal-body">
             </div>
