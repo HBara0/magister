@@ -38,25 +38,3 @@ if (!isset($core->input['action'])) {
     eval("\$page= \"" . $template->get('travel_recommendationprofile') . "\";");
     output_page($page, array('pagetitledirect' => $recommendation_displayname));
 }
-else {
-    if ($core->input['action'] == 'course_subscribe') {
-        if (!$core->input['id']) {
-            echo('<span style="color:red">' . $lang->error . '</span>');
-            exit;
-        }
-        $id = intval($core->input['id']);
-        $course_obj = new Courses($id);
-        $assignedcourse_data = array('cid' => $id, 'uid' => $core->user['uid']);
-        $assignedcourse_obj = new AssignedCourses();
-        $assignedcourse_obj->set($assignedcourse_data);
-        $assignedcourse_obj->save();
-        if ($assignedcourse_obj->get_errorcode() == 0) {
-            $output = '<div id="subscribedive_' . $id . '"><button type="button" class="btn btn-danger" id="subscribebutton_' . $id . '_remove"><span class="glyphicon glyphicon-minus"></span>' . $lang->removecourse . '</button>';
-        }
-        else {
-            $output = '<div id="subscribedive_' . $id . '"><button type="button" class="btn btn-primary" id="subscribebutton_' . $id . '_subscribe"><span class="glyphicon glyphicon-plus"></span>' . $lang->addcourse . '</button>';
-        }
-        echo($output);
-        exit;
-    }
-}
