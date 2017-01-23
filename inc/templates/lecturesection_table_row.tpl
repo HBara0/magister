@@ -1,4 +1,4 @@
-<tr>
+<tr class="{$rowclass}">
     <td>{$tools}</td>
     <td data-order="{$fromtime}">{$fromdate}</td>
     <td data-order="{$totime}">{$todate}</td>

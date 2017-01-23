@@ -49,7 +49,7 @@ class Courses extends AbstractClass {
             $this->{static::PRIMARY_KEY} = $db->last_id();
 
             if ($query) {
-                //add subscribptions
+//add subscribptions
                 if (is_array($subscriptions)) {
                     $assigncourse['cid'] = $this->get_id();
                     $assigncourse['isActive'] = 1;
@@ -61,7 +61,7 @@ class Courses extends AbstractClass {
                     }
                 }
 
-                //add teachers
+//add teachers
                 if (is_array($teachers)) {
                     $assigncourses_array = array('cid' => $this->get_id());
                     foreach ($teachers as $teacherid) {
@@ -72,7 +72,7 @@ class Courses extends AbstractClass {
                     }
                 }
 
-                //assign course to programs
+//assign course to programs
                 if (is_array($programs)) {
                     foreach ($programs as $progid) {
                         $assignprograms_array = array('isActive' => 1, 'cid' => intval($this->get_id()), 'progid' => intval($progid));
@@ -111,7 +111,7 @@ class Courses extends AbstractClass {
             $query = $db->update_query(self::TABLE_NAME, $data, self::PRIMARY_KEY . '=' . intval($this->data[self::PRIMARY_KEY]));
             $log->record(self::TABLE_NAME, $this->data[self::PRIMARY_KEY]);
             if ($query) {
-                //set all former assignments to disavtive
+//set all former assignments to disavtive
                 $previousassignement = AssignedCourses::removeassignment($this->get_id());
                 if (is_array($subscriptions)) {
                     $assigncourse['cid'] = $this->get_id();
@@ -125,7 +125,7 @@ class Courses extends AbstractClass {
                 }
 
                 $previousteacherassignment = AssignTeacherCourses::removeassignment($this->get_id());
-                //manage teachers
+//manage teachers
                 if (is_array($teachers)) {
                     $assigncourses_array = array('cid' => $this->get_id());
                     foreach ($teachers as $teacherid) {
@@ -137,7 +137,7 @@ class Courses extends AbstractClass {
                 }
 
                 $this->deactivate_assignedprograms();
-                //assign course to programs
+//assign course to programs
                 if (is_array($programs)) {
                     foreach ($programs as $progid) {
                         $assignprograms_array = array('isActive' => 1, 'cid' => intval($this->get_id()), 'progid' => intval($progid));
@@ -269,15 +269,23 @@ class Courses extends AbstractClass {
      */
     public function get_lectureoutput() {
         global $template, $lang, $core;
+        $toolsclass = 'never';
+        $manage = false;
+        if ($this->canManageCourse()) {
+            $toolsclass = 'all';
+            $manage = true;
+            $createlecture_button = '<button type="button" class="btn btn-primary" id="openmodal_courses" data-targetdiv="courses_modal" data-url="' . $core->settings['rootdir'] . '/index.php?module=courses/courses&action=get_managelecturedeadlines&id=new&courseid=' . $this->get_id() . '">' . $lang->create . '</button>';
+        }
         $course_lectures = $this->get_lectures();
         if (is_array($course_lectures)) {
+            $rowclass = 'lecture_row';
             foreach ($course_lectures as $lecture_obj) {
                 $fromtime = $lecture_obj->get_fromdate();
                 $totime = $lecture_obj->get_todate();
 
                 $fromdate = date($core->settings['dateformat'] . ' ' . $core->settings[timeformat], $fromtime);
                 $todate = date($core->settings['dateformat'] . ' ' . $core->settings[timeformat], $totime);
-
+                $dateoutput = $fromdate . ' ' . $lang->to . ' ' . $todate;
                 $title_output = 'N/A';
                 if ($lecture_obj->title) {
                     $title_output = $lecture_obj->title;
@@ -288,31 +296,25 @@ class Courses extends AbstractClass {
                 }
                 $type_output = $lang->lecture;
                 //parse tools depending on user permission
-                if ($this->canManageCourse()) {
-//            $tool_items = ' <li><a target="_blank" href="' . $course_obj->get_link() . '"><span class="glyphicon glyphicon-eye-open"></span>&nbsp' . $lang->viewcourse . '</a></li>';
-//            if ($course_obj->canManageCourse()) {
-//                $tool_items .= ' <li><a target="_blank" href="' . $course_obj->get_editlink() . '"><span class="glyphicon glyphicon-pencil"></span>&nbsp' . $lang->managecourse . '</a></li>';
-//            }
-                    eval("\$tools = \"" . $template->get('tools_buttonselectlist') . "\";");
+                if ($manage) {
+                    $tools = '<button type="button" class="btn btn-warning" id="openmodal_courses" data-targetdiv="courses_modal" data-url="' . $core->settings['rootdir'] . '/index.php?module=courses/courses&action=get_managelecturedeadlines&type=lecture&id=' . $lecture_obj->get_id() . '&courseid=' . $this->get_id() . '">' . $lang->manage . '</button>';
                 }
-
                 eval("\$lecutre_rows.= \"" . $template->get('lecturesection_table_row') . "\";");
                 unset($tools);
             }
         }
 
-        //parse deadlines
+//parse deadlines
         $deadline_objs = Deadlines::get_data(array('cid' => $this->get_id(), 'isActive' => 1), array('returnarray' => true));
         if (is_array($deadline_objs)) {
+            $rowclass = 'deadline_row';
             foreach ($deadline_objs as $deadline_obj) {
-                if ($this->canManageCourse()) {
-                    eval("\$tools = \"" . $template->get('tools_buttonselectlist') . "\";");
-                }
                 $fromtime = $deadline_obj->get_fromdate();
                 $totime = $deadline_obj->get_todate();
 
                 $fromdate = date($core->settings['dateformat'] . ' ' . $core->settings[timeformat], $fromtime);
                 $todate = date($core->settings['dateformat'] . ' ' . $core->settings[timeformat], $totime);
+                $dateoutput = $fromdate;
 
                 $title_output = 'N/A';
                 if ($deadline_obj->title) {
@@ -324,6 +326,10 @@ class Courses extends AbstractClass {
                 }
                 $type_output = $lang->deadline;
 
+                //parse tools depending on user permission
+                if ($manage) {
+                    $tools = '<button type="button" class="btn btn-warning" id="openmodal_courses" data-targetdiv="courses_modal" data-url="' . $core->settings['rootdir'] . '/index.php?module=courses/courses&action=get_managelecturedeadlines&type=deadline&id=' . $deadline_obj->get_id() . '&courseid=' . $this->get_id() . '">' . $lang->manage . '</button>';
+                }
                 eval("\$lecutre_rows.= \"" . $template->get('lecturesection_table_row') . "\";");
                 unset($tools);
             }

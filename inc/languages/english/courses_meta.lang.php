@@ -24,4 +24,6 @@ $lang['lectureanddeadlines'] = 'Lectures & Deadlines';
 $lang['coursefiles'] = 'Course Files';
 $lang['totalstudents'] = 'Total Students';
 $lang['program'] = 'Program';
+$lang['date'] = 'Date';
+$lang['addlecturedeadline'] = 'Add Lecture & Deadline';
 ?>

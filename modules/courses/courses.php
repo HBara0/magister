@@ -122,8 +122,76 @@ else {
             }
         }
         $output = '<div id="subscribedive_' . $id . '"><button type="button" class="btn btn-primary" id="subscribebutton_' . $id . '_subscribe"><span class="glyphicon glyphicon-plus"></span>' . $lang->addcourse . '</button></div>';
-
         echo($output);
         exit;
+    }
+    elseif ($core->input['action'] == 'get_managelecturedeadlines') {
+        if ($core->input['id'] && $core->input['id'] != 'new') {
+            if ($core->input['type'] == 'lecture') {
+                $lecture_selected = 'selected';
+                $lecture_obj = new Lectures(intval($core->input['id']));
+                $event = $lecture_obj->get();
+                $event['fromdateoutput'] = $lecture_obj->get_fromdateoutput();
+                $event['todateoutput'] = $lecture_obj->get_todateoutput();
+                $event['fromtimeoutput'] = $lecture_obj->get_fromtimeoutput();
+                $event['totimeoutput'] = $lecture_obj->get_totimeoutput();
+            }
+            else if ($core->input['type'] == 'deadline') {
+                $deadline_selected = 'selected="selected"';
+                $deadline_obj = new Deadlines(intval($core->input['id']));
+                $event = $deadline_obj->get();
+                $event['fromdateoutput'] = $deadline_obj->get_fromdateoutput();
+                $event['fromtimeoutput'] = $deadline_obj->get_fromtimeoutput();
+            }
+        }
+        if (!$event['inputChecksum']) {
+            $event['inputChecksum'] = generate_checksum();
+        }
+        $cid = $core->input['courseid'];
+        $isactive_list = parse_selectlist2('event[isActive]', 1, array(1 => $lang->yes, 0 => $lang->no), $isactive);
+        eval("\$modal= \"" . $template->get('modal_courses_manage_lecturedeadline') . "\";");
+        echo ($modal);
+    }
+    elseif ($core->input['action'] == 'save_lecturedeadline') {
+        $eventdadta = $core->input['event'];
+        if (!is_empty($eventdadta['fromTime'], $eventdadta['fromDate'])) {
+            $eventdadta['fromTime'] = strtotime($eventdadta['fromDate'] . ' ' . $eventdadta['fromTime']);
+            unset($eventdadta['fromDate']);
+        }
+        else {
+            output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
+            exit;
+        }
+
+        if ($core->input['type'] == 'lecture') {
+            $managed_obj = new Lectures();
+            if (!is_empty($eventdadta['toTime'], $eventdadta['toDate'])) {
+                $eventdadta['toTime'] = strtotime($eventdadta['toDate'] . ' ' . $eventdadta['toTime']);
+                unset($eventdadta['toDate']);
+            }
+            else {
+                output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
+                exit;
+            }
+        }
+        elseif ($core->input['type'] == 'deadline') {
+            $managed_obj = new Deadlines();
+            $eventdadta['time'] = $eventdadta['fromTime'];
+            unset($eventdadta['fromTime'], $eventdadta['location']);
+        }
+        $managed_obj->set($eventdadta);
+        $managed_obj->save();
+
+        switch ($managed_obj->get_errorcode()) {
+            case 0:
+                output_xml("<status>true</status><message>{$lang->successfullysaved}</message>");
+                break;
+            case 1:
+                output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
+                break;
+            default:
+                output_xml("<status>false</status><message>{$lang->errorsaving}</message>");
+                break;
+        }
     }
 }
