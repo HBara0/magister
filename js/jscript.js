@@ -1419,6 +1419,13 @@ function initialize_datatables() {
         }
 
     });
+
+    $(".datatable_responsive").each(function(i, obj) {
+
+        $(obj).DataTable({
+            responsive: true
+        });
+    });
 }
 
 function initialize() {
