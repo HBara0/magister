@@ -25,6 +25,12 @@ if (!$core->input['action']) {
         }
         //get already assigned programs
         $assignedprograms_objs = $course_obj->get_assignedprograms();
+        if (is_array($assignedprograms_objs)) {
+            $assignedprog_array = array();
+            foreach ($assignedprograms_objs as $assignedprograms_obj) {
+                $assignedprog_array = $assignedprograms_obj->progid;
+            }
+        }
     }
     $isactive_list = parse_selectlist2('course[isActive]', 1, array('1' => 'Yes', '0' => 'No'), $isActive);
     $teacher_objs = Users::get_teachers();
@@ -54,10 +60,8 @@ if (!$core->input['action']) {
     }
     //parse programs list
     $activeprograms = Programs::get_data(array('isActive' => 1), array('returnarray' => true));
-    if (is_array($assignedprograms_objs)) {
-        $assignedprograms = array_keys($assignedprograms_objs);
-    }
-    $programs_list = parse_selectlist2('course[program][]', 1, $activeprograms, $assignedprograms, 1);
+
+    $programs_list = parse_selectlist2('course[program][]', 1, $activeprograms, $assignedprog_array, 1);
 
     //parse lecture and deadline section
     $lecture_section = $course_obj->get_lectureoutput();
