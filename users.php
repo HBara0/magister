@@ -30,8 +30,8 @@ if ($core->input['action']) {
             if ($validation->get_validation_result()) {
                 $user_data = $validation->get_userdetails();
 
-                create_cookie('uid', $user_data['uid'], (TIME_NOW + (60 * $core->settings['idletime'])));
-                create_cookie('loginKey', $user_data['loginKey'], (TIME_NOW + (60 * $core->settings['idletime'])));
+                create_cookie('uid', $user_data['uid']);
+                create_cookie('loginKey', $user_data['loginKey']);
                 $db->update_query('users', array('failedLoginAttempts' => 0), "uid='{$user_details[uid]}'");
 
                 output_xml("<status>true</status><message>{$lang->loginsuccess}</message>");

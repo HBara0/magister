@@ -303,9 +303,6 @@ function create_cookie($name, $value, $duration = '', $secure = false, $httponly
     global $core;
 
     if (!is_array($value)) {
-        if (empty($duration)) {
-            $duration = (time() + (60 * $core->settings['idletime']));
-        }
         setcookie(COOKIE_PREFIX . $name, urlencode($value), $duration, COOKIE_PATH, COOKIE_DOMAIN, $secure, $httponly);
     }
 }
