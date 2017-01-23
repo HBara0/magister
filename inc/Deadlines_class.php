@@ -112,4 +112,12 @@ class Deadlines extends AbstractClass {
         return $this->data['time'];
     }
 
+    public function get_fromdateoutput($format = 'd-m-Y') {
+        return date($format, $this->get_fromdate());
+    }
+
+    public function get_fromtimeoutput($format = 'h:i A') {
+        return date($format, $this->get_fromdate());
+    }
+
 }

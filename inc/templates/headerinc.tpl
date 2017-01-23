@@ -15,7 +15,7 @@
 <link href='{$core->settings[rootdir]}/css/bootstrap-timepicker.min.css' rel='stylesheet' type='text/css' />
 
 <script src="{$core->settings[rootdir]}/js/jscript.js" type="text/javascript"></script>
-
+<link href="{$core->settings[rootdir]}/css/datatables.min.css" rel="stylesheet" type="text/css" />
 <link href='{$core->settings[rootdir]}/css/jqueryuitheme/jquery-ui-current.custom.min.css' rel='stylesheet' type='text/css' />
 <link href="{$core->settings[rootdir]}/css/bootstrap.min.css" rel="stylesheet">
 <link href="{$core->settings[rootdir]}/css/token-input.css" rel="stylesheet" type="text/css" />

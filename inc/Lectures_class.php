@@ -149,4 +149,20 @@ class Lectures extends AbstractClass {
         return $this->data['fromTime'] + $core->settings['lecturelength'];
     }
 
+    public function get_fromdateoutput($format = 'd-m-Y') {
+        return date($format, $this->get_fromdate());
+    }
+
+    public function get_fromtimeoutput($format = 'h:i A') {
+        return date($format, $this->get_fromdate());
+    }
+
+    public function get_todateoutput($format = 'd-m-Y') {
+        return date($format, $this->get_todate());
+    }
+
+    public function get_totimeoutput($format = 'h:i A') {
+        return date($format, $this->get_todate());
+    }
+
 }
