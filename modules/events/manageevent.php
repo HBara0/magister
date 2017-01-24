@@ -25,6 +25,9 @@ if (!$core->input['action']) {
             eval("\$studentsubscription_section= \"" . $template->get('events_manageevent_subscription') . "\";");
         }
     }
+    else {
+        $event['inputChecksum'] = generate_checksum();
+    }
     $isactive_list = parse_selectlist2('event[isActive]', 1, array('1' => 'Yes', '0' => 'No'), $isActive);
 
 

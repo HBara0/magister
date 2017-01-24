@@ -15,8 +15,8 @@ class Events extends AbstractClass {
     const DISPLAY_NAME = 'title';
     const SIMPLEQ_ATTRS = '*';
     const CLASSNAME = __CLASS__;
-    const REQUIRED_ATTRS = 'title,fromDate,toDate';
-    const UNIQUE_ATTRS = 'alias,fromDate,toDate';
+    const REQUIRED_ATTRS = 'title,fromTime,toTime';
+    const UNIQUE_ATTRS = 'alias,fromTime,toTime';
 
     public function __construct($id = '', $simple = true) {
         parent::__construct($id, $simple);
@@ -31,20 +31,18 @@ class Events extends AbstractClass {
         $data['createdOn'] = TIME_NOW;
         $data['createdBy'] = $core->user['uid'];
         $data['alias'] = generate_alias($data['title']);
-        if (!is_int($data['fromDate'])) {
+        if (!is_int($data['fromTime'])) {
             if (!is_empty($data['fromTime'], $data['fromDate'])) {
-                $data['fromDate'] = strtotime($data['fromDate'] . ' ' . $data['fromTime']);
-                unset($data['fromTime']);
+                $data['fromTime'] = strtotime($data['fromDate'] . ' ' . $data['fromTime']);
             }
             else {
                 $this->errorcode = 2;
                 return $this;
             }
         }
-        if (!is_int($data['toDate'])) {
+        if (!is_int($data['toTime'])) {
             if (!is_empty($data['toTime'], $data['toDate'])) {
-                $data['toDate'] = strtotime($data['toDate'] . ' ' . $data['toTime']);
-                unset($data['toTime']);
+                $data['toTime'] = strtotime($data['toDate'] . ' ' . $data['toTime']);
             }
             else {
                 $this->errorcode = 3;
@@ -52,7 +50,7 @@ class Events extends AbstractClass {
             }
         }
 
-        unset($data['fromTime'], $data['toTime']);
+        unset($data['toDate'], $data['fromDate']);
         if (!$data['inputChecksum']) {
             $data['inputChecksum'] = generate_checksum();
         }
@@ -69,20 +67,21 @@ class Events extends AbstractClass {
             return $this;
         }
         if (!is_empty($data['fromTime'], $data['fromDate'])) {
-            $data['fromDate'] = strtotime($data['fromDate'] . ' ' . $data['fromTime']);
+            $data['fromTime'] = strtotime($data['fromDate'] . ' ' . $data['fromTime']);
         }
-        if (empty($data['fromDate'])) {
+        unset($data['fromDate']);
+        if (empty($data['fromTime'])) {
             $this->errorcode = 2;
             return $this;
         }
         if (!is_empty($data['toTime'], $data['toDate'])) {
-            $data['toDate'] = strtotime($data['toDate'] . ' ' . $data['toTime']);
+            $data['toTime'] = strtotime($data['toDate'] . ' ' . $data['toTime']);
         }
-        if (empty($data['toDate'])) {
+        if (empty($data['toTime'])) {
             $this->errorcode = 3;
             return $this;
         }
-        unset($data['fromTime'], $data['toTime']);
+        unset($data['toDate'], $data['fromDate']);
         $data['modifiedOn'] = TIME_NOW;
         $data['modifiedBy'] = $core->user['uid'];
         $data['alias'] = generate_alias($data['title']);
@@ -141,14 +140,14 @@ class Events extends AbstractClass {
     }
 
     public function is_past() {
-        if ($this->data['toDate'] > TIME_NOW) {
+        if ($this->data['toTime'] > TIME_NOW) {
             return true;
         }
         return false;
     }
 
     public function get_fromdate() {
-        return $this->data['fromDate'];
+        return $this->data['fromTime'];
     }
 
     /**
@@ -158,11 +157,11 @@ class Events extends AbstractClass {
      */
     public function get_todate() {
         global $core;
-        if ($this->data['toDate']) {
-            return $this->data['toDate'];
+        if ($this->data['toTime']) {
+            return $this->data['toTime'];
         }
 
-        return $this->data['fromDate'] + $core->settings['lecturelength'];
+        return $this->data['fromTime'] + $core->settings['lecturelength'];
     }
 
     public function get_subsribers() {
@@ -224,7 +223,7 @@ class Events extends AbstractClass {
     public function parse_fromdate() {
         $fromdate = $this->get_fromdateoutput('D, j M Y') . ' ' . $this->get_fromtimeoutput();
         $fromdate_class = 'success';
-        if ($this->data['fromDate'] < TIME_NOW) {
+        if ($this->data['fromTime'] < TIME_NOW) {
             $fromdate_class = 'danger';
         }
         return '<span class="label label-' . $fromdate_class . '">' . $fromdate . '</span>';
@@ -237,7 +236,7 @@ class Events extends AbstractClass {
     public function parse_todate() {
         $todate = $this->get_todateoutput('D, j M Y') . '  ' . $this->get_totimeoutput();
         $todate_class = 'success';
-        if ($this->data['toDate'] < TIME_NOW) {
+        if ($this->data['toTime'] < TIME_NOW) {
             $todate_class = 'danger';
         }
         return '<span class="label label-' . $todate_class . '">' . $todate . '</span>';

@@ -7,7 +7,7 @@ if ($core->usergroup['canAccessSystem'] == 0) {
     error($lang->sectionnopermission);
 }
 if (!isset($core->input['action'])) {
-    $events_objs = Events::get_data('isActive =1 AND (isPublic =1 OR createdBy =' . intval($core->user['uid']) . ')', array('returnarray' => true, 'order' => 'fromDate DESC'));
+    $events_objs = Events::get_data('isActive =1 AND (isPublic =1 OR createdBy =' . intval($core->user['uid']) . ')', array('returnarray' => true, 'order' => 'fromTime DESC'));
     if (is_array($events_objs)) {
         foreach ($events_objs as $events_obj) {
             $event = $events_obj->get();

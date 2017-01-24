@@ -4,12 +4,14 @@
         <h1>{$lang->manageevent}</h1>
     </div>
     <div class="col-md-3 col-lg-3 col-sm-12">
-        <button type="button" class="btn btn-success" onclick="window.open('{$core->settings['rootdir']}/index.php?module=event/manageevent', '_blank')">{$lang->crateevent}
+        <button type="button" class="btn btn-success" onclick="window.open('{$core->settings['rootdir']}/index.php?module=events/manageevent', '_blank')">{$lang->crateevent}
         </button>
     </div>
 </div>
 <form  action="#" method="post" id="perform_events/manageevent_Form" name="perform_events/manageevent_Form">
     <input type="hidden" name="event[eid]" value="{$event[eid]}">
+    <input type="hidden" name="event[inputChecksum]" value="{$event[inputChecksum]}">
+
     <div class="form-group-lg">
         <label for="title" style="font-weight: bold">{$lang->eventtitle}<span style="color:red"> *</span></label>
         <input required="required" name='event[title]' value='{$event[title]}' type="text" class="form-control" id="title" placeholder="{$lang->eventtitle}">
