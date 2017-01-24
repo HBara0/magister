@@ -42,7 +42,7 @@
                 <label>{$lang->daterange}<span style="color:red"> *</span></label>
                 <div class="input-daterange input-group datepicker">
                     <input type="text" class="input-sm form-control" value="{$event[fromdateoutput]}" name="event[fromDate]" />
-                    <span class="input-group-addon">to</span>
+                    <span  class="input-group-addon">to</span>
                     <input data-typeshow="lecture" type="text" class="input-sm form-control" value="{$event[todateoutput]}" name="event[toDate]" />
                 </div>
                 <div class="input-group bootstrap-timepicker timepicker">
@@ -68,7 +68,6 @@
             <div class="row">
                 <div class="col-lg-3 col-md-3 col-xs-12">
                     <div id="perform_courses/courses_Results"></div>
-
                 </div>
             </div>
             <div class="row">

@@ -30,6 +30,9 @@ class Deadlines extends AbstractClass {
         }
         $data['createdOn'] = TIME_NOW;
         $data['createdBy'] = $core->user['uid'];
+        if (!$data['cid']) {
+            $data['uid'] = $core->user['uid'];
+        }
         if (is_array($data)) {
             $query = $db->insert_query(self::TABLE_NAME, $data);
         }
@@ -45,7 +48,9 @@ class Deadlines extends AbstractClass {
 
         $data['modifiedOn'] = TIME_NOW;
         $data['modifiedBy'] = $core->user['uid'];
-
+        if (!$data['cid']) {
+            $data['uid'] = $core->user['uid'];
+        }
         if (is_array($data)) {
             $db->update_query(self::TABLE_NAME, $data, self::PRIMARY_KEY . '=' . intval($this->data[self::PRIMARY_KEY]));
             $log->record(self::TABLE_NAME, $this->data[self::PRIMARY_KEY]);

@@ -22,7 +22,7 @@ if (!isset($core->input['action'])) {
 }
 else {
     if ($core->input['action'] == 'get_createevent') {
-
+        $event['inputChecksum'] = generate_checksum();
         $start_time = ($core->input['start'] / 1000);
         $end_time = ($core->input['end'] / 1000);
         $event['fromdateoutput'] = date('d-m-Y', $start_time);
@@ -39,6 +39,13 @@ else {
         if (is_array($assignment_objs)) {
             foreach ($assignment_objs as $assignment_obj) {
                 $reserved_data[] = array('id' => $assignment_obj->get_id(), 'type' => $assignment_obj->get_type(), 'title' => $assignment_obj->get_displayname(), 'start' => date(DATE_ATOM, $assignment_obj->fromDate), 'end' => date(DATE_ATOM, $reservation->toDate), 'color' => $assignment_obj->get_color());
+            }
+        }
+        //get events that came from recommendations
+        $event_objs = Events::get_data("isActive=1 AND rid IS NOT NULL AND createdBy=" . $core->user['uid'], array('returnarray' => true, 'simple' => false));
+        if (is_array($event_objs)) {
+            foreach ($event_objs as $event_obj) {
+                $reserved_data[] = array('id' => $event_obj->get_id(), 'type' => 'recommendationevent', 'title' => $event_obj->get_displayname(), 'start' => date(DATE_ATOM, $event_obj->fromDate), 'end' => date(DATE_ATOM, $event_obj->toDate), 'color' => $event_obj->get_color());
             }
         }
         //get deadlines
@@ -81,9 +88,7 @@ else {
         }
         $core->input['reserve']['fromDate'] = strtotime($core->input['reserve']['fromDate'] . ' ' . $core->input['reserve']['fromTime']);
         $core->input['reserve']['toDate'] = strtotime($core->input['reserve']['toDate'] . ' ' . $core->input['reserve']['toTime']);
-        $reservation = new FacilityMgmtReservations();
-        $reservation->set($core->input['reserve']);
-        $reservation = $reservation->save();
+
         switch ($reservation->get_errorcode()) {
             case 0:
                 output_xml('<status>true</status><message>' . $lang->successfullysaved . '<![CDATA[<script>$("div[id^=\'popup_\']").dialog("close").remove(); $(\'#calendar\').fullCalendar("refetchEvents")</script>]]></message>');
@@ -166,5 +171,47 @@ else {
         }
         eval("\$reserve = \"" . $template->get('popup_reservefacility') . "\";");
         output($reserve);
+    }
+    else if ($core->input['action'] == 'do_perform_calendar') {
+        $eventdadta = $core->input['event'];
+
+        if ($core->input['type'] == 'event') {
+            $managed_obj = new Events();
+            if (!is_empty($eventdadta['toTime'], $eventdadta['toDate'])) {
+                $eventdadta['toDate'] = strtotime($eventdadta['toDate'] . ' ' . $eventdadta['toTime']);
+                unset($eventdadta['toTime']);
+            }
+            else {
+                output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
+                exit;
+            }
+
+            if (!is_empty($eventdadta['fromTime'], $eventdadta['fromDate'])) {
+                $eventdadta['fromDate'] = strtotime($eventdadta['fromDate'] . ' ' . $eventdadta['fromTime']);
+                unset($eventdadta['fromTime']);
+            }
+            else {
+                output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
+                exit;
+            }
+        }
+        elseif ($core->input['type'] == 'deadline') {
+            $managed_obj = new Deadlines();
+            $eventdadta['time'] = strtotime($eventdadta['fromDate'] . ' ' . $eventdadta['fromTime']);
+            unset($eventdadta['fromTime'], $eventdadta['fromDate']);
+        }
+        $managed_obj->set($eventdadta);
+        $managed_obj->save();
+        switch ($managed_obj->get_errorcode()) {
+            case 0:
+                output_xml("<status>true</status><message>{$lang->successfullysaved}<![CDATA[<script>$(function(){  $('#calendar_modal').modal('toggle');$('#calendar').fullCalendar( 'refetchEvents' ); });</script>]]></message>");
+                break;
+            case 1:
+                output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
+                break;
+            default:
+                output_xml("<status>false</status><message>{$lang->errorsaving}</message>");
+                break;
+        }
     }
 }

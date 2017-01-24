@@ -154,4 +154,7 @@ $lang['title'] = 'Title';
 $lang['yourself'] = 'Yourself';
 $lang['manage'] = 'Manage';
 $lang['daterange'] = 'Date Range';
+$lang['lecture'] = 'Lecture';
+$lang['type'] = 'Type';
+$lang['deadline'] = 'Deadline';
 ?>

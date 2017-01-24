@@ -38,5 +38,6 @@ $settings['weeklyplan_editdays'] = "30";
 $settings['deadlinescolor'] = "#ea0404";
 $settings['eventscolor'] = "#1704ea";
 $settings['lecturescolor'] = "#1704ea";
+$settings['recommendationscolor'] = "#109c13";
 $settings['lecturelength'] = "10800";
 ?>

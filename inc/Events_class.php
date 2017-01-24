@@ -31,20 +31,27 @@ class Events extends AbstractClass {
         $data['createdOn'] = TIME_NOW;
         $data['createdBy'] = $core->user['uid'];
         $data['alias'] = generate_alias($data['title']);
-        if (!is_empty($data['fromTime'], $data['fromDate'])) {
-            $data['fromDate'] = strtotime($data['fromDate'] . ' ' . $data['fromTime']);
+        if (!is_int($data['fromDate'])) {
+            if (!is_empty($data['fromTime'], $data['fromDate'])) {
+                $data['fromDate'] = strtotime($data['fromDate'] . ' ' . $data['fromTime']);
+                unset($data['fromTime']);
+            }
+            else {
+                $this->errorcode = 2;
+                return $this;
+            }
         }
-        else {
-            $this->errorcode = 2;
-            return $this;
+        if (!is_int($data['toDate'])) {
+            if (!is_empty($data['toTime'], $data['toDate'])) {
+                $data['toDate'] = strtotime($data['toDate'] . ' ' . $data['toTime']);
+                unset($data['toTime']);
+            }
+            else {
+                $this->errorcode = 3;
+                return $this;
+            }
         }
-        if (!is_empty($data['toTime'], $data['toDate'])) {
-            $data['toDate'] = strtotime($data['toDate'] . ' ' . $data['toTime']);
-        }
-        else {
-            $this->errorcode = 3;
-            return $this;
-        }
+
         unset($data['fromTime'], $data['toTime']);
         if (!$data['inputChecksum']) {
             $data['inputChecksum'] = generate_checksum();
@@ -359,6 +366,14 @@ class Events extends AbstractClass {
             }
         }
         return true;
+    }
+
+    public function get_color() {
+        global $core;
+        if ($this->data['rid']) {
+            return $core->settings['recommendationscolor'];
+        }
+        return parent::get_color();
     }
 
 }
