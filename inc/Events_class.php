@@ -54,8 +54,17 @@ class Events extends AbstractClass {
         if (!$data['inputChecksum']) {
             $data['inputChecksum'] = generate_checksum();
         }
+
         if (is_array($data)) {
             $query = $db->insert_query(self::TABLE_NAME, $data);
+            $this->{static::PRIMARY_KEY} = $db->last_id();
+            if ($query) {
+                //assign user to event
+                $assigndata = array('uid' => $core->user['uid'], 'eid' => $this->get_id());
+                $assignobj = new CalendarAssignments();
+                $assignobj->set($assigndata);
+                $assignobj->save();
+            }
         }
         return $this;
     }
@@ -85,9 +94,8 @@ class Events extends AbstractClass {
         $data['modifiedOn'] = TIME_NOW;
         $data['modifiedBy'] = $core->user['uid'];
         $data['alias'] = generate_alias($data['title']);
-
         if (is_array($data)) {
-            $db->update_query(self::TABLE_NAME, $data, self::PRIMARY_KEY . '=' . intval($this->data[self::PRIMARY_KEY]));
+            $query = $db->update_query(self::TABLE_NAME, $data, self::PRIMARY_KEY . '=' . intval($this->data[self::PRIMARY_KEY]));
             $log->record(self::TABLE_NAME, $this->data[self::PRIMARY_KEY]);
         }
         return $this;
@@ -112,10 +120,6 @@ class Events extends AbstractClass {
      * @return boolean
      */
     public function is_subscribed($uid) {
-        if ($this->data['createdBy'] == $uid && $this->data['isPublic'] == 0 && $this->data['isActive'] == 1) {
-            return true;
-        }
-
         $assignedevents = CalendarAssignments::get_data(array('uid' => intval($uid), 'eid' => $this->get_id(), 'isActive' => 1), array('returnarray' => true));
         if (is_array($assignedevents)) {
             return true;
@@ -146,7 +150,7 @@ class Events extends AbstractClass {
         return false;
     }
 
-    public function get_fromdate() {
+    public function get_fromtime() {
         return $this->data['fromTime'];
     }
 
@@ -155,7 +159,7 @@ class Events extends AbstractClass {
      * @global type $core
      * @return type
      */
-    public function get_todate() {
+    public function get_totime() {
         global $core;
         if ($this->data['toTime']) {
             return $this->data['toTime'];
@@ -176,19 +180,19 @@ class Events extends AbstractClass {
     }
 
     public function get_fromdateoutput($format = 'd-m-Y') {
-        return date($format, $this->get_fromdate());
+        return date($format, $this->get_fromtime());
     }
 
     public function get_fromtimeoutput($format = 'h:i A') {
-        return date($format, $this->get_fromdate());
+        return date($format, $this->get_fromtime());
     }
 
     public function get_todateoutput($format = 'd-m-Y') {
-        return date($format, $this->get_todate());
+        return date($format, $this->get_totime());
     }
 
     public function get_totimeoutput($format = 'h:i A') {
-        return date($format, $this->get_todate());
+        return date($format, $this->get_totime());
     }
 
     /**
@@ -259,25 +263,16 @@ class Events extends AbstractClass {
      * @return \Users
      */
     public function get_attendees() {
-        //if event is public then get all assignemnts to this event
-        if ($this->data['isPublic'] == 1) {
-            $assignments = $this->get_calendarassignments();
-            if (!is_array($assignments)) {
-                return false;
-            }
-            foreach ($assignments as $assignment) {
-                $user_obj = $assignment->get_user();
-                $user_obj->assignmentCreatedOn = $assignment->createdOn;
-                $attendees[$assignment->uid] = $user_obj;
-            }
-            return $attendees;
+        $assignments = $this->get_calendarassignments();
+        if (!is_array($assignments)) {
+            return false;
         }
-        //else it is private, then only the creator is linked to the event
-        else {
-            $user_obj = new Users(intval($this->data['createdBy']));
-            $user_obj->assignmentCreatedOn = $this->createdOn;
-            return array(intval($this->data['createdBy']) => $user_obj);
+        foreach ($assignments as $assignment) {
+            $user_obj = $assignment->get_user();
+            $user_obj->assignmentCreatedOn = $assignment->createdOn;
+            $attendees[$assignment->uid] = $user_obj;
         }
+        return $attendees;
     }
 
     /**
@@ -347,21 +342,15 @@ class Events extends AbstractClass {
         if (!$uid) {
             $uid = $core->user['uid'];
         }
-        if ($this->data['createdBy'] == 1 && $this->data['isPublic'] == 0) {
-            $result = $this->do_deactivate();
-            return $result;
+        //get previous assignments
+        $calendarassignments_objs = CalendarAssignments::get_data(array('uid' => intval($uid), 'eid' => $this->get_id(), 'isActive' => 1), array('returnarray' => true));
+        if (!is_array($calendarassignments_objs)) {
+            return true;
         }
-        else {
-            //get previous assignments
-            $calendarassignments_objs = CalendarAssignments::get_data(array('uid' => intval($uid), 'eid' => $this->get_id(), 'isActive' => 1), array('returnarray' => true));
-            if (!is_array($calendarassignments_objs)) {
-                return true;
-            }
-            foreach ($calendarassignments_objs as $calendarassignments_obj) {
-                $result = $calendarassignments_obj->do_deactivate();
-                if ($result == false) {
-                    return false;
-                }
+        foreach ($calendarassignments_objs as $calendarassignments_obj) {
+            $result = $calendarassignments_obj->do_deactivate();
+            if ($result == false) {
+                return false;
             }
         }
         return true;
@@ -373,6 +362,28 @@ class Events extends AbstractClass {
             return $core->settings['recommendationscolor'];
         }
         return parent::get_color();
+    }
+
+    /**
+     *
+     * @global type $core
+     * @return type
+     */
+    public function parse_popup() {
+        global $lang, $core, $template;
+        $event = $this->get();
+        $event['fromdate_output'] = $this->parse_fromdate();
+        $event['todate_output'] = $this->parse_todate();
+        $event['attendees_output'] = $this->parse_attendeessection();
+        if (!$event['attendees_output']) {
+            $hideattendees = 'style="display:none"';
+        }
+
+        //parse course take/remove button
+        $addorremovecourse_button = $this->parse_addremove_button();
+
+        eval("\$modal = \"" . $template->get('modal_event') . "\";");
+        return $modal;
     }
 
 }

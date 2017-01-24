@@ -8,7 +8,6 @@
                 <input type="hidden" name="event[rid]" value="{$recommendation[rid]}">
                 <input type="hidden" name="event[isPublic]" value="0">
                 <input type="hidden" name="event[type]" value="2">
-
                 <div class="form-group-sm">
                     <label for="title" style="font-weight: bold">{$lang->title}<span style="color:red"> *</span></label>
                     <input required="required" name='event[title]' value='{$recommendation[displayname]}' type="text" class="form-control" id="title" placeholder="{$lang->title}">

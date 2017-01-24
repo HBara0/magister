@@ -131,7 +131,7 @@ class Lectures extends AbstractClass {
         return true;
     }
 
-    public function get_fromdate() {
+    public function get_fromtime() {
         return $this->data['fromTime'];
     }
 
@@ -140,7 +140,7 @@ class Lectures extends AbstractClass {
      * @global type $core
      * @return type
      */
-    public function get_todate() {
+    public function get_totime() {
         global $core;
         if ($this->data['toTime']) {
             return $this->data['toTime'];
@@ -150,19 +150,19 @@ class Lectures extends AbstractClass {
     }
 
     public function get_fromdateoutput($format = 'd-m-Y') {
-        return date($format, $this->get_fromdate());
+        return date($format, $this->get_fromtime());
     }
 
     public function get_fromtimeoutput($format = 'h:i A') {
-        return date($format, $this->get_fromdate());
+        return date($format, $this->get_fromtime());
     }
 
     public function get_todateoutput($format = 'd-m-Y') {
-        return date($format, $this->get_todate());
+        return date($format, $this->get_totime());
     }
 
     public function get_totimeoutput($format = 'h:i A') {
-        return date($format, $this->get_todate());
+        return date($format, $this->get_totime());
     }
 
 }

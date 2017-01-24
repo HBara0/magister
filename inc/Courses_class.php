@@ -280,8 +280,8 @@ class Courses extends AbstractClass {
         if (is_array($course_lectures)) {
             $rowclass = 'lecture_row';
             foreach ($course_lectures as $lecture_obj) {
-                $fromtime = $lecture_obj->get_fromdate();
-                $totime = $lecture_obj->get_todate();
+                $fromtime = $lecture_obj->get_fromtime();
+                $totime = $lecture_obj->get_totime();
 
                 $fromdate = date($core->settings['dateformat'] . ' ' . $core->settings[timeformat], $fromtime);
                 $todate = date($core->settings['dateformat'] . ' ' . $core->settings[timeformat], $totime);
@@ -309,8 +309,8 @@ class Courses extends AbstractClass {
         if (is_array($deadline_objs)) {
             $rowclass = 'deadline_row';
             foreach ($deadline_objs as $deadline_obj) {
-                $fromtime = $deadline_obj->get_fromdate();
-                $totime = $deadline_obj->get_todate();
+                $fromtime = $deadline_obj->get_fromtime();
+                $totime = $deadline_obj->get_totime();
 
                 $fromdate = date($core->settings['dateformat'] . ' ' . $core->settings[timeformat], $fromtime);
                 $todate = date($core->settings['dateformat'] . ' ' . $core->settings[timeformat], $totime);

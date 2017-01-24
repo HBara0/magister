@@ -29,30 +29,18 @@ else {
         $event['todateoutput'] = date('d-m-Y', $end_time);
         $event['fromtimeoutput'] = date('h:i A', $start_time);
         $event['totimeoutput'] = date('h:i A', $end_time);
-
+        $ispublic_list = parse_selectlist2('event[isPublic]', 1, array(1 => $lang->yes, 0 => $lang->no), '');
         eval("\$calendarpopup = \"" . $template->get('modal_createevent') . "\";");
         output($calendarpopup);
     }
     else if ($core->input['action'] == 'fetchevents') {
-        //get calendarassignments
-        $assignment_objs = CalendarAssignments::get_data(array('uid' => $core->user['uid'], 'isActive' => 1), array('returnarray' => true, 'simple' => false));
-        if (is_array($assignment_objs)) {
-            foreach ($assignment_objs as $assignment_obj) {
-                $reserved_data[] = array('id' => $assignment_obj->get_id(), 'type' => $assignment_obj->get_type(), 'title' => $assignment_obj->get_displayname(), 'start' => date(DATE_ATOM, $assignment_obj->fromTime), 'end' => date(DATE_ATOM, $reservation->toTime), 'color' => $assignment_obj->get_color());
-            }
-        }
-        //get events that came from recommendations
-        $event_objs = Events::get_data("isActive=1 AND rid IS NOT NULL AND createdBy=" . $core->user['uid'], array('returnarray' => true, 'simple' => false));
-        if (is_array($event_objs)) {
-            foreach ($event_objs as $event_obj) {
-                $reserved_data[] = array('id' => $event_obj->get_id(), 'type' => 'recommendationevent', 'title' => $event_obj->get_displayname(), 'start' => date(DATE_ATOM, $event_obj->fromTime), 'end' => date(DATE_ATOM, $event_obj->toTime), 'color' => $event_obj->get_color());
-            }
-        }
+
         //get deadlines
         $deadline_objs = Deadlines::get_data(array('uid' => $core->user['uid'], 'isActive' => 1), array('returnarray' => true, 'simple' => false));
         if (is_array($deadline_objs)) {
             foreach ($deadline_objs as $deadline_obj) {
-                $reserved_data[] = array('id' => $deadline_obj->get_id(), 'type' => 'deadline', 'title' => $deadline_obj->get_displayname(), 'start' => date(DATE_ATOM, $deadline_obj->get_fromdate()), 'end' => date(DATE_ATOM, $deadline_obj->get_todate()), 'color' => $deadline_obj->get_color());
+                $existingdeadlines_ids[] = $deadline_obj->get_id();
+                $reserved_data[] = array('id' => $deadline_obj->get_id(), 'type' => 'deadline', 'title' => $deadline_obj->get_displayname(), 'start' => date(DATE_ATOM, $deadline_obj->get_fromtime()), 'end' => date(DATE_ATOM, $deadline_obj->get_totime()), 'color' => $deadline_obj->get_color());
             }
         }
         //get course lectures
@@ -67,16 +55,28 @@ else {
                 $lecture_objs = $course_obj->get_lectures();
                 if (is_array($lecture_objs)) {
                     foreach ($lecture_objs as $lecture_obj) {
-                        $reserved_data[] = array('id' => $lecture_obj->get_id(), 'type' => 'lecture', 'title' => $lecture_obj->get_displayname(), 'start' => date(DATE_ATOM, $lecture_obj->get_fromdate()), 'end' => date(DATE_ATOM, $lecture_obj->get_todate()), 'color' => $lecture_obj->get_color());
+                        $reserved_data[] = array('id' => $lecture_obj->get_id(), 'type' => 'lecture', 'title' => $lecture_obj->get_displayname(), 'start' => date(DATE_ATOM, $lecture_obj->get_fromtime()), 'end' => date(DATE_ATOM, $lecture_obj->get_totime()), 'color' => $lecture_obj->get_color());
                     }
                 }
                 //get deadlines
                 $deadline_objs = $course_obj->get_deadlines();
                 if (is_array($deadline_objs)) {
                     foreach ($deadline_objs as $deadline_obj) {
-                        $reserved_data[] = array('id' => $deadline_obj->get_id(), 'type' => 'deadline', 'title' => $deadline_obj->get_displayname(), 'start' => date(DATE_ATOM, $deadline_obj->get_fromdate()), 'end' => date(DATE_ATOM, $deadline_obj->get_todate()), 'color' => $deadline_obj->get_color());
+                        $reserved_data[] = array('id' => $deadline_obj->get_id(), 'type' => 'deadline', 'title' => $deadline_obj->get_displayname(), 'start' => date(DATE_ATOM, $deadline_obj->get_fromtime()), 'end' => date(DATE_ATOM, $deadline_obj->get_totime()), 'color' => $deadline_obj->get_color());
                     }
                 }
+            }
+        }
+
+        //get calendarassignments
+        $assignment_objs = CalendarAssignments::get_data(array('uid' => $core->user['uid'], 'isActive' => 1), array('returnarray' => true, 'simple' => false));
+        if (is_array($assignment_objs)) {
+            foreach ($assignment_objs as $assignment_obj) {
+                //skip existing events and deadlines
+//                if (($assignment_obj->get_type() == 'deadline' && is_array($existingdeadlines_ids) && in_array($assignment_obj->get_id(), $existingdeadlines_ids))) {
+//                    continue;
+//                }
+                $reserved_data[] = array('id' => $assignment_obj->get_assignedid(), 'type' => 'assigned' . $assignment_obj->get_type(), 'title' => $assignment_obj->get_displayname(), 'start' => date(DATE_ATOM, $assignment_obj->get_fromtime()), 'end' => date(DATE_ATOM, $assignment_obj->get_totime()), 'color' => $assignment_obj->get_color());
             }
         }
         echo(json_encode($reserved_data));
@@ -127,6 +127,7 @@ else {
                 break;
             default:
                 output_xml("<status>false</status><message>{$lang->errorsaving}</message>");
+
                 break;
         }
     }
@@ -144,6 +145,14 @@ function get_editpopup_output($id, $type) {
         case 'lecture':
             $lecture_obj = new Lectures(intval($id));
             return $lecture_obj->parse_popup();
+        case 'assignedevent':
+            $event_obj = new Events(intval($id));
+
+            return $event_obj->parse_popup();
+        case 'assigneddeadline':
+            $deadline_obj = new Deadlines(intval($id));
+            return $deadline_obj->parse_popup();
+
         default:
             return false;
     }

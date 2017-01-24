@@ -66,17 +66,19 @@
                     <span class="input-group-addon"><i class="glyphicon glyphicon-time"></i></span>
                     <input data-typeshow="event" data-provide="timepicker" name="event[toTime]" value="{$event[totimeoutput]}" type="text" class="form-control input-small">
                 </div>
+                <div class="form-group-sm">
+                    <label for="description">{$lang->description}</label>
+                    <div style="display:block;">
+                        <textarea name="event[description]" cols="100" rows="6" id='description' class="basictxteditadv">
+                            {$event[description_output]}
+                        </textarea>
+                    </div>
+                </div>
+                <div class="form-group-lg">
+                    <label>{$lang->public}</label>
+                    {$ispublic_list}
+                </div>
             </form>
-        </div>
-        <div class="form-group-sm">
-            <label for="description">{$lang->description}</label>
-            <div style="display:block;">
-                <textarea name="event[description]" cols="100" rows="6" id='description' class="basictxteditadv">
-                    {$event[description_output]}
-                </textarea>
-            </div>
-        </div>
-        <div class="modal-footer">
             <div class="row">
                 <div class="col-lg-3 col-md-3 col-xs-12">
                     <div id="perform_portal/calendar_Results"></div>

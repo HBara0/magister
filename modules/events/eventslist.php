@@ -12,8 +12,8 @@ if (!isset($core->input['action'])) {
         foreach ($events_objs as $events_obj) {
             $event = $events_obj->get();
             $event_link = $events_obj->parse_link();
-            $fromtime = $events_obj->get_fromdate();
-            $totime = $events_obj->get_todate();
+            $fromtime = $events_obj->get_fromtime();
+            $totime = $events_obj->get_totime();
 
             $from_output = date($core->settings['dateformat'] . ' ' . $core->settings['timeformate'], $fromtime);
             $to_output = date($core->settings['dateformat'] . ' ' . $core->settings['timeformate'], $totime);
@@ -45,19 +45,7 @@ else {
         }
         $id = intval($core->input['id']);
         $event_obj = new Events($id);
-        $event = $event_obj->get();
-        $event['fromdate_output'] = $event_obj->parse_fromdate();
-        $event['todate_output'] = $event_obj->parse_todate();
-        $event['attendees_output'] = $event_obj->parse_attendeessection();
-        if (!$event['attendees_output']) {
-            $hideattendees = 'style="display:none"';
-        }
-
-        //parse course take/remove button
-        $addorremovecourse_button = $event_obj->parse_addremove_button();
-
-        eval("\$modal = \"" . $template->get('modal_event') . "\";");
-        echo ($modal);
+        echo ($event_obj->parse_popup());
     }
     elseif ($core->input['action'] == 'events_subscribe') {
         if (!$core->input['id']) {

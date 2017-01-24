@@ -105,7 +105,7 @@ class Deadlines extends AbstractClass {
      *
      * @return timestamp
      */
-    public function get_todate() {
+    public function get_totime() {
         return ($this->data['time'] + 10);
     }
 
@@ -113,16 +113,16 @@ class Deadlines extends AbstractClass {
      *
      * @return timestamp
      */
-    public function get_fromdate() {
+    public function get_fromtime() {
         return $this->data['time'];
     }
 
     public function get_fromdateoutput($format = 'd-m-Y') {
-        return date($format, $this->get_fromdate());
+        return date($format, $this->get_fromtime());
     }
 
     public function get_fromtimeoutput($format = 'h:i A') {
-        return date($format, $this->get_fromdate());
+        return date($format, $this->get_fromtime());
     }
 
 }

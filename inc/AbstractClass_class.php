@@ -31,7 +31,6 @@ Abstract class AbstractClass {
         if ($simple == true) {
             $query_select = static::SIMPLEQ_ATTRS;
         }
-        $c = 'SELECT ' . $query_select . ' FROM ' . Tprefix . static::TABLE_NAME . ' WHERE ' . static::PRIMARY_KEY . '=' . intval($id);
         $this->data = $db->fetch_assoc($db->query('SELECT ' . $query_select . ' FROM ' . Tprefix . static::TABLE_NAME . ' WHERE ' . static::PRIMARY_KEY . '=' . intval($id)));
     }
 

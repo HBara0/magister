@@ -115,4 +115,38 @@ class CalendarAssignments extends AbstractClass {
         return new Users(intval($this->data['uid']));
     }
 
+    public function get_totime() {
+        $assignedevent_obj = $this->get_assigned_object();
+        return $assignedevent_obj->get_totime();
+    }
+
+    public function get_fromtime() {
+        $assignedevent_obj = $this->get_assigned_object();
+        return $assignedevent_obj->get_fromtime();
+    }
+
+    /**
+     * get the assigned obj id
+     * @return boolean/int
+     */
+    public function get_assignedid() {
+        if (intval($this->data['did'])) {
+            return intval($this->data['did']);
+        }
+        else if (intval($this->data['eid'])) {
+            return intval($this->data['eid']);
+        }
+
+        return false;
+    }
+
+    public function get_assigned_object() {
+        if (intval($this->data['did'])) {
+            return new Deadlines(intval($this->data['did']));
+        }
+        else if (intval($this->data['eid'])) {
+            return new Events(intval($this->data['eid']));
+        }
+    }
+
 }
