@@ -1421,7 +1421,9 @@ function initialize_datatables() {
     });
 
     $(".datatable_responsive").each(function(i, obj) {
-
+        if ($.fn.DataTable.isDataTable(obj)) {
+            return;
+        }
         $(obj).DataTable({
             responsive: true
         });

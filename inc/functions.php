@@ -2072,4 +2072,14 @@ function resize_image_png($file, $w, $h, $output_file = '', $crop = FALSE) {
     return $dst;
 }
 
+function parse_compared_date($time) {
+    global $core;
+    $todate = date($core->settings['dateformat'] . ' ' . $core->settings['timeformat'], $time);
+    $todate_class = 'success';
+    if ($time < TIME_NOW) {
+        $todate_class = 'danger';
+    }
+    return '<span class="label label-' . $todate_class . '">' . $todate . '</span>';
+}
+
 ?>

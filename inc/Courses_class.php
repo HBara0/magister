@@ -271,67 +271,69 @@ class Courses extends AbstractClass {
         global $template, $lang, $core;
         $toolsclass = 'never';
         $manage = false;
-        if ($this->canManageCourse()) {
-            $toolsclass = 'all';
-            $manage = true;
-            $createlecture_button = '<button type="button" class="btn btn-primary" id="openmodal_courses" data-targetdiv="courses_modal" data-url="' . $core->settings['rootdir'] . '/index.php?module=courses/courses&action=get_managelecturedeadlines&id=new&courseid=' . $this->get_id() . '">' . $lang->create . '</button>';
-        }
-        $course_lectures = $this->get_lectures();
-        if (is_array($course_lectures)) {
-            $rowclass = 'lecture_row';
-            foreach ($course_lectures as $lecture_obj) {
-                $fromtime = $lecture_obj->get_fromtime();
-                $totime = $lecture_obj->get_totime();
-
-                $fromdate = date($core->settings['dateformat'] . ' ' . $core->settings[timeformat], $fromtime);
-                $todate = date($core->settings['dateformat'] . ' ' . $core->settings[timeformat], $totime);
-                $dateoutput = $fromdate . ' ' . $lang->to . ' ' . $todate;
-                $title_output = 'N/A';
-                if ($lecture_obj->title) {
-                    $title_output = $lecture_obj->title;
-                }
-                $location_output = 'N/A';
-                if ($lecture_obj->location) {
-                    $location_output = $lecture_obj->location;
-                }
-                $type_output = $lang->lecture;
-                //parse tools depending on user permission
-                if ($manage) {
-                    $tools = '<button type="button" class="btn btn-warning" id="openmodal_courses" data-targetdiv="courses_modal" data-url="' . $core->settings['rootdir'] . '/index.php?module=courses/courses&action=get_managelecturedeadlines&type=lecture&id=' . $lecture_obj->get_id() . '&courseid=' . $this->get_id() . '">' . $lang->manage . '</button>';
-                }
-                eval("\$lecutre_rows.= \"" . $template->get('lecturesection_table_row') . "\";");
-                unset($tools);
+        if ($this->get_id()) {
+            if ($this->canManageCourse()) {
+                $toolsclass = 'all';
+                $manage = true;
+                $createlecture_button = '<button type="button" class="btn btn-primary" id="openmodal_courses" data-targetdiv="courses_modal" data-url="' . $core->settings['rootdir'] . '/index.php?module=courses/courses&action=get_managelecturedeadlines&id=new&courseid=' . $this->get_id() . '">' . $lang->create . '</button>';
             }
-        }
+            $course_lectures = $this->get_lectures();
+            if (is_array($course_lectures)) {
+                $rowclass = 'lecture_row';
+                foreach ($course_lectures as $lecture_obj) {
+                    $fromtime = $lecture_obj->get_fromtime();
+                    $totime = $lecture_obj->get_totime();
+
+                    $fromdate = date($core->settings['dateformat'] . ' ' . $core->settings[timeformat], $fromtime);
+                    $todate = date($core->settings['dateformat'] . ' ' . $core->settings[timeformat], $totime);
+                    $dateoutput = $fromdate . ' ' . $lang->to . ' ' . $todate;
+                    $title_output = 'N/A';
+                    if ($lecture_obj->title) {
+                        $title_output = $lecture_obj->title;
+                    }
+                    $location_output = 'N/A';
+                    if ($lecture_obj->location) {
+                        $location_output = $lecture_obj->location;
+                    }
+                    $type_output = $lang->lecture;
+                    //parse tools depending on user permission
+                    if ($manage) {
+                        $tools = '<button type="button" class="btn btn-warning" id="openmodal_courses" data-targetdiv="courses_modal" data-url="' . $core->settings['rootdir'] . '/index.php?module=courses/courses&action=get_managelecturedeadlines&type=lecture&id=' . $lecture_obj->get_id() . '&courseid=' . $this->get_id() . '">' . $lang->manage . '</button>';
+                    }
+                    eval("\$lecutre_rows.= \"" . $template->get('lecturesection_table_row') . "\";");
+                    unset($tools);
+                }
+            }
 
 //parse deadlines
-        $deadline_objs = Deadlines::get_data(array('cid' => $this->get_id(), 'isActive' => 1), array('returnarray' => true));
-        if (is_array($deadline_objs)) {
-            $rowclass = 'deadline_row';
-            foreach ($deadline_objs as $deadline_obj) {
-                $fromtime = $deadline_obj->get_fromtime();
-                $totime = $deadline_obj->get_totime();
+            $deadline_objs = Deadlines::get_data(array('cid' => $this->get_id(), 'isActive' => 1), array('returnarray' => true));
+            if (is_array($deadline_objs)) {
+                $rowclass = 'deadline_row';
+                foreach ($deadline_objs as $deadline_obj) {
+                    $fromtime = $deadline_obj->get_fromtime();
+                    $totime = $deadline_obj->get_totime();
 
-                $fromdate = date($core->settings['dateformat'] . ' ' . $core->settings[timeformat], $fromtime);
-                $todate = date($core->settings['dateformat'] . ' ' . $core->settings[timeformat], $totime);
-                $dateoutput = $fromdate;
+                    $fromdate = date($core->settings['dateformat'] . ' ' . $core->settings[timeformat], $fromtime);
+                    $todate = date($core->settings['dateformat'] . ' ' . $core->settings[timeformat], $totime);
+                    $dateoutput = $fromdate;
 
-                $title_output = 'N/A';
-                if ($deadline_obj->title) {
-                    $title_output = $deadline_obj->title;
-                }
-                $location_output = 'N/A';
-                if ($deadline_obj->location) {
-                    $location_output = $deadline_obj->location;
-                }
-                $type_output = $lang->deadline;
+                    $title_output = 'N/A';
+                    if ($deadline_obj->title) {
+                        $title_output = $deadline_obj->title;
+                    }
+                    $location_output = 'N/A';
+                    if ($deadline_obj->location) {
+                        $location_output = $deadline_obj->location;
+                    }
+                    $type_output = $lang->deadline;
 
-                //parse tools depending on user permission
-                if ($manage) {
-                    $tools = '<button type="button" class="btn btn-warning" id="openmodal_courses" data-targetdiv="courses_modal" data-url="' . $core->settings['rootdir'] . '/index.php?module=courses/courses&action=get_managelecturedeadlines&type=deadline&id=' . $deadline_obj->get_id() . '&courseid=' . $this->get_id() . '">' . $lang->manage . '</button>';
+                    //parse tools depending on user permission
+                    if ($manage) {
+                        $tools = '<button type="button" class="btn btn-warning" id="openmodal_courses" data-targetdiv="courses_modal" data-url="' . $core->settings['rootdir'] . '/index.php?module=courses/courses&action=get_managelecturedeadlines&type=deadline&id=' . $deadline_obj->get_id() . '&courseid=' . $this->get_id() . '">' . $lang->manage . '</button>';
+                    }
+                    eval("\$lecutre_rows.= \"" . $template->get('lecturesection_table_row') . "\";");
+                    unset($tools);
                 }
-                eval("\$lecutre_rows.= \"" . $template->get('lecturesection_table_row') . "\";");
-                unset($tools);
             }
         }
         eval("\$lecutre_section_table= \"" . $template->get('lecturesection_table') . "\";");

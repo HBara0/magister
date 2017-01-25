@@ -41,3 +41,11 @@
     <div id="perform_courses/managecourse_Results"></div>
 
 </form>
+<div class="modal fade" id="courses_modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" >
+        <div class="modal-content">
+            <div class="modal-body">
+            </div>
+        </div>
+    </div>
+</div>

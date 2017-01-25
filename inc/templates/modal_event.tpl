@@ -29,6 +29,7 @@
                     <h1>{$event[title]}</h1>
                 </div>
                 <div class="col-md-3 col-lg-3 col-xs-12 ">
+                    <h1>{$manageevent_button}</h1>
                     <h1>{$addorremovecourse_button}</h1>
                 </div>
             </div>
@@ -40,7 +41,7 @@
                     <h5>   {$lang->to}:  {$event['todate_output']}</h5>
                 </div>
             </div>
-            <div class="row" >
+            <div class="row" {$display_description}>
                 <div class=" panel panel-success">
                     <div class="panel-heading">{$lang->description}</div>
                     <div class="panel-body">

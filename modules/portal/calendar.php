@@ -34,15 +34,6 @@ else {
         output($calendarpopup);
     }
     else if ($core->input['action'] == 'fetchevents') {
-
-        //get deadlines
-        $deadline_objs = Deadlines::get_data(array('uid' => $core->user['uid'], 'isActive' => 1), array('returnarray' => true, 'simple' => false));
-        if (is_array($deadline_objs)) {
-            foreach ($deadline_objs as $deadline_obj) {
-                $existingdeadlines_ids[] = $deadline_obj->get_id();
-                $reserved_data[] = array('id' => $deadline_obj->get_id(), 'type' => 'deadline', 'title' => $deadline_obj->get_displayname(), 'start' => date(DATE_ATOM, $deadline_obj->get_fromtime()), 'end' => date(DATE_ATOM, $deadline_obj->get_totime()), 'color' => $deadline_obj->get_color());
-            }
-        }
         //get course lectures
         $assignedcourses = AssignedCourses::get_data(array('uid' => $core->user['uid'], 'isActive' => 1), array('returnarray' => true, 'simple' => false));
         if (is_array($assignedcourses)) {
@@ -72,11 +63,7 @@ else {
         $assignment_objs = CalendarAssignments::get_data(array('uid' => $core->user['uid'], 'isActive' => 1), array('returnarray' => true, 'simple' => false));
         if (is_array($assignment_objs)) {
             foreach ($assignment_objs as $assignment_obj) {
-                //skip existing events and deadlines
-//                if (($assignment_obj->get_type() == 'deadline' && is_array($existingdeadlines_ids) && in_array($assignment_obj->get_id(), $existingdeadlines_ids))) {
-//                    continue;
-//                }
-                $reserved_data[] = array('id' => $assignment_obj->get_assignedid(), 'type' => 'assigned' . $assignment_obj->get_type(), 'title' => $assignment_obj->get_displayname(), 'start' => date(DATE_ATOM, $assignment_obj->get_fromtime()), 'end' => date(DATE_ATOM, $assignment_obj->get_totime()), 'color' => $assignment_obj->get_color());
+                $reserved_data[] = array('id' => $assignment_obj->get_assignedid(), 'type' => $assignment_obj->get_type(), 'title' => $assignment_obj->get_displayname(), 'start' => date(DATE_ATOM, $assignment_obj->get_fromtime()), 'end' => date(DATE_ATOM, $assignment_obj->get_totime()), 'color' => $assignment_obj->get_color());
             }
         }
         echo(json_encode($reserved_data));
@@ -85,7 +72,7 @@ else {
         if (!isset($core->input['id'])) {
             return false;
         }
-        $output = get_editpopup_output($core->input['id'], $core->input['type']);
+        $output = get_editpopup_output($core->input['id'], $core->input['type'], 'calendar_modal');
         output($output);
     }
     else if ($core->input['action'] == 'do_perform_calendar') {
@@ -131,30 +118,59 @@ else {
                 break;
         }
     }
+    elseif ($core->input['action'] == 'loadpopup_managedeadline') {
+        if (!$core->input['id']) {
+            echo('<span style="color:red">' . $lang->error . '</span>');
+            exit;
+        }
+        $deadline_obj = new Deadlines(intval($core->input['id']));
+        $deadline = $deadline_obj->get();
+        if (!$deadline['inputChecksum']) {
+            $deadline['inputChecksum'] = generate_checksum();
+        }
+        $deadline['fromdateoutput'] = date('d-m-Y', $deadline_obj->time);
+        $deadline['fromtimeoutput'] = date('h:i A', $deadline_obj->time);
+        $course_obj = $deadline_obj->get_course();
+        if (is_object($course_obj)) {
+            $course_output = $course_obj->get_displayname();
+        }
+        $isactivelist = parse_selectlist2('deadline[isActive]', 1, array(1 => $lang->yes, 0 => $lang->no), $deadline['isActive']);
+        eval("\$modal= \"" . $template->get('modal_managedeadline') . "\";");
+        echo ($modal);
+    }
+    elseif ($core->input['action'] == 'do_perform_managedeadline') {
+        $deadline_data = $core->input['deadline'];
+        $deadline_obj = new Deadlines();
+        $deadline_obj->set($deadline_data);
+        $deadline_obj->save();
+        switch ($deadline_obj->get_errorcode()) {
+            case 0:
+                output_xml("<status>true</status><message>{$lang->successfullysaved}<![CDATA[<script>$(function(){  $('#calendar_modal').modal('toggle');$('#calendar').fullCalendar( 'refetchEvents' ); });</script>]]></message>");
+                break;
+            case 1:
+                output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
+                break;
+            default:
+                output_xml("<status>false</status><message>{$lang->errorsaving}</message>");
+                break;
+        }
+    }
 }
 
-function get_editpopup_output($id, $type) {
+function get_editpopup_output($id, $type, $div) {
     switch ($type) {
         case 'recommendationevent':
         case 'event':
             $event_obj = new Events(intval($id));
-            return $event_obj->parse_popup();
+            break;
         case 'deadline':
-            $deadline_obj = new Deadlines(intval($id));
-            return $deadline_obj->parse_popup();
+            $event_obj = new Deadlines(intval($id));
+            break;
         case 'lecture':
-            $lecture_obj = new Lectures(intval($id));
-            return $lecture_obj->parse_popup();
-        case 'assignedevent':
-            $event_obj = new Events(intval($id));
-
-            return $event_obj->parse_popup();
-        case 'assigneddeadline':
-            $deadline_obj = new Deadlines(intval($id));
-            return $deadline_obj->parse_popup();
-
+            $event_obj = new Lectures(intval($id));
+            break;
         default:
             return false;
     }
-    eval("\$reserve = \"" . $template->get('popup_reservefacility') . "\";");
+    return $event_obj->parse_popup($div);
 }

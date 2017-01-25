@@ -312,6 +312,14 @@ class Events extends AbstractClass {
         }
     }
 
+    public function parse_manage_button() {
+        global $lang;
+        if (!$this->canManageEvent()) {
+            return;
+        }
+        return '<button type="button" class="btn btn-success" onclick="window.open(\'' . $this->get_editlink() . '\', \'_blank\')">' . $lang->manage . '</button>';
+    }
+
     /**
      * Assign user to event
      * @global type $core
@@ -369,7 +377,7 @@ class Events extends AbstractClass {
      * @global type $core
      * @return type
      */
-    public function parse_popup() {
+    public function parse_popup($div) {
         global $lang, $core, $template;
         $event = $this->get();
         $event['fromdate_output'] = $this->parse_fromdate();
@@ -379,8 +387,12 @@ class Events extends AbstractClass {
             $hideattendees = 'style="display:none"';
         }
 
+        if (!$event['description']) {
+            $display_description = 'style="display:none"';
+        }
         //parse course take/remove button
         $addorremovecourse_button = $this->parse_addremove_button();
+        $manageevent_button = $this->parse_manage_button();
 
         eval("\$modal = \"" . $template->get('modal_event') . "\";");
         return $modal;

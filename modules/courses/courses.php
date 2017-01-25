@@ -126,8 +126,11 @@ else {
         exit;
     }
     elseif ($core->input['action'] == 'get_managelecturedeadlines') {
+        $title = $lang->addlecturedeadline;
         if ($core->input['id'] && $core->input['id'] != 'new') {
+            $hidetype = 'style="display:none"';
             if ($core->input['type'] == 'lecture') {
+                $title = $lang->managelecture;
                 $lecture_selected = 'selected';
                 $lecture_obj = new Lectures(intval($core->input['id']));
                 $event = $lecture_obj->get();
@@ -137,6 +140,7 @@ else {
                 $event['totimeoutput'] = $lecture_obj->get_totimeoutput();
             }
             else if ($core->input['type'] == 'deadline') {
+                $title = $lang->managedeadline;
                 $deadline_selected = 'selected="selected"';
                 $deadline_obj = new Deadlines(intval($core->input['id']));
                 $event = $deadline_obj->get();

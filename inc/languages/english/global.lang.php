@@ -175,4 +175,7 @@ $lang['attendees'] = 'Attendees';
 $lang['removeevent'] = 'Remove Event';
 $lang['addevent'] = 'Add Event';
 $lang['public'] = 'Public';
+$lang['deadlineprofile'] = 'Deadline Profile';
+$lang['managedeadline'] = 'Manage Deadline';
+$lang['managelecture'] = 'Manage Lecture';
 ?>

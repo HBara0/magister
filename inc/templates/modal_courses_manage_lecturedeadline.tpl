@@ -24,7 +24,7 @@
     <div class="modal-content">
         <div class="modal-header ">
             <div class="row">
-                <h4 class="modal-title" >{$lang->addlecturedeadline}</h4>
+                <h4 class="modal-title" >{$title}</h4>
             </div>
         </div>
         <div class="modal-body">
@@ -32,8 +32,8 @@
                 <input type="hidden" name="action" value="save_lecturedeadline">
                 <input type="hidden" name="event[cid]" value="{$cid}">
                 <input type="hidden" name="event[inputChecksum]" value="{$event[inputChecksum]}">
-                <label>{$lang->type}</label>
-                <div class="form-group-lg">
+                <div class="form-group-lg" {$hidetype}>
+                    <label>{$lang->type}</label>
                     <select name="type" class="select2_basic" id="type_select">
                         <option {$lecture_selected} value="lecture">{$lang->lecture}</option>
                         <option {$deadline_selected}value="deadline">{$lang->deadline}</option>
