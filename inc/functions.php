@@ -951,7 +951,7 @@ function parse_moduleslist($current_module, $modules_dir = 'modules', $is_select
                             if ($current_module == $module['name']) {
                                 $selected = ' selected';
                             }
-                            $list .= '<option value="' . $module['name'] . '"' . $selected . '>' . $module['title'] . '</option>';
+                            $list .= '<option value="' . $module['name'] . '"' . $selected . '><h2>' . $module['title'] . '</h2></option>';
                         }
                     }
                     else {
@@ -965,7 +965,7 @@ function parse_moduleslist($current_module, $modules_dir = 'modules', $is_select
 //                                if ($modules_dir != ADMIN_DIR . "/modules") {
 //                                    $list .= '<img src="images/modules-icons/' . $moduleicon . '.png" alt="' . $module['name'] . '"/>';
 //                                }
-                                $list .=$module['title'] . '</a></li>';
+                                $list .='<b>' . $module['title'] . '</b></a></li>';
                             }
                         }
                         else {
