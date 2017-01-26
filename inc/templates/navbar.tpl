@@ -13,14 +13,8 @@
             <ul class="nav navbar-nav">
                 <li><a href="{$core->settings[rootdir]}" style='font-size:18px;'><span id="home" class="glyphicon glyphicon-home" title="Home"></span> <span class="hidden-sm hidden-md hidden-sm hidden-lg">Home</span></a></li>
 
-                <li class="dropdown">
-                    <a href="#" class="dropdown-toggle scrollable-menu" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" style="font-size:14px;"><span class="glyphicon glyphicon-th-large" id="switch_modules"></span> Main Menu <span class="caret"></span></a>
-                    <ul class="dropdown-menu" style="max-height: 250px;overflow: auto" id="modulemenu">
-                        <li class="dropdown-header" {$display['frequentlyused']}>
-                            <input placeholder="Find..." type='text' class="form-control" id="modulemenu_search"></li>
-                            {$modules_list}
-                    </ul>
-                </li>
+                {$modules_list}
+
             </ul>
             <ul class="nav navbar-nav navbar-right" id="freqmdl">
                 <!--   <li id="tooltip" data-toggle="tooltip" data-placement="left" title="Frequently Used" class="hidden-xs">
