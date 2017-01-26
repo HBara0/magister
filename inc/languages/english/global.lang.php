@@ -178,4 +178,5 @@ $lang['public'] = 'Public';
 $lang['deadlineprofile'] = 'Deadline Profile';
 $lang['managedeadline'] = 'Manage Deadline';
 $lang['managelecture'] = 'Manage Lecture';
+$lang['lectureprofile'] = 'Lecture Profile';
 ?>

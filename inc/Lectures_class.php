@@ -26,15 +26,19 @@ class Lectures extends AbstractClass {
         global $db, $log, $core, $errorhandler, $lang;
         //session time
         $sessiontime = 1800;
+        if (!$data['toTime']) {
+            $data['toTime'] = strtotime($data['toDate'] . ' ' . $data['toTime']);
+            unset($data['toDate']);
+        }
+        $data['fromTime'] = strtotime($data['fromDate'] . ' ' . $data['fromTime']);
+        unset($data['fromDate']);
+        $data['toTime'] = $data['fromTime'] + $sessiontime;
+        $data['createdOn'] = TIME_NOW;
+        $data['createdBy'] = $core->user['uid'];
         if (!$this->validate_requiredfields($data)) {
             $this->errorcode = 1;
             return $this;
         }
-        if (!$data['toTime']) {
-            $data['toTime'] = $data['fromTime'] + $sessiontime;
-        }
-        $data['createdOn'] = TIME_NOW;
-        $data['createdBy'] = $core->user['uid'];
         if (is_array($data)) {
             $query = $db->insert_query(self::TABLE_NAME, $data);
         }
@@ -43,15 +47,19 @@ class Lectures extends AbstractClass {
 
     protected function update(array $data) {
         global $db, $log, $core, $errorhandler, $lang;
-        if (!$this->validate_requiredfields($data)) {
-            $this->errorcode = 1;
-            return $this;
-        }
 
+        $data['toTime'] = strtotime($data['toDate'] . ' ' . $data['toTime']);
+        unset($data['toDate']);
+        $data['fromTime'] = strtotime($data['fromDate'] . ' ' . $data['fromTime']);
+        unset($data['fromDate']);
         $data['modifiedOn'] = TIME_NOW;
         $data['modifiedBy'] = $core->user['uid'];
         if (!$data['toTime']) {
             $data['toTime'] = $data['fromTime'] + $sessiontime;
+        }
+        if (!$this->validate_requiredfields($data)) {
+            $this->errorcode = 1;
+            return $this;
         }
         if (is_array($data)) {
             $db->update_query(self::TABLE_NAME, $data, self::PRIMARY_KEY . '=' . intval($this->data[self::PRIMARY_KEY]));
@@ -163,6 +171,73 @@ class Lectures extends AbstractClass {
 
     public function get_totimeoutput($format = 'h:i A') {
         return date($format, $this->get_totime());
+    }
+
+    /**
+     *
+     * @global type $lang
+     * @global type $core
+     * @global type $template
+     * @return type
+     */
+    public function parse_popup($div) {
+        global $lang, $core, $template;
+        $lecture = $this->get();
+        $lecture['fromtime_output'] = parse_compared_date($this->data['fromTime']);
+        $lecture['totime_output'] = parse_compared_date($this->data['toTime']);
+
+        $course_obj = $this->get_course();
+        if (is_object($course_obj)) {
+            $course_output = $course_obj->get_displayname();
+        }
+        //parse course take/remove button
+        $manageevent_button = $this->parse_manage_button($div);
+
+        eval("\$modal = \"" . $template->get('modal_lecture') . "\";");
+        return $modal;
+    }
+
+    /**
+     *
+     * @global type $core
+     * @return type
+     */
+    public function get_editlink() {
+        global $core;
+        return $core->settings['rootdir'] . '/index.php?module=portal/calendar&action=loadpopup_managelecture&amp;id=' . $this->data[self::PRIMARY_KEY];
+    }
+
+    /**
+     *
+     * @global type $lang
+     * @param type $div
+     * @return type
+     */
+    public function parse_manage_button($div) {
+        global $lang;
+        if (!$this->canManageLecture()) {
+            return;
+        }
+        return ' <button type="button" class="btn btn-primary"  id="openmodal_' . $this->get_id() . '" data-targetdiv="' . $div . '" data-url="' . $this->get_editlink() . '">' . $lang->manage . '</button>';
+    }
+
+    /**
+     *
+     * @global type $core
+     * @return boolean
+     */
+    public function canManageLecture() {
+        global $core;
+        $course_obj = $this->get_course();
+        if (is_object($course_obj)) {
+            return $course_obj->canManageCourse();
+        }
+        elseif ($this->data['createdBy'] == $core->user['uid']) {
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 
 }

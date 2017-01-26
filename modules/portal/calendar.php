@@ -155,6 +155,46 @@ else {
                 break;
         }
     }
+    elseif ($core->input['action'] == 'loadpopup_managelecture') {
+        if (!$core->input['id']) {
+            echo('<span style="color:red">' . $lang->error . '</span>');
+            exit;
+        }
+        $lecture_obj = new Lectures(intval($core->input['id']));
+        $lecture = $lecture_obj->get();
+        if (!$lecture['inputChecksum']) {
+            $lecture['inputChecksum'] = generate_checksum();
+        }
+        $lecture['fromdateoutput'] = date('d-m-Y', $lecture_obj->fromTime);
+        $lecture['fromtimeoutput'] = date('h:i A', $lecture_obj->fromTime);
+        $lecture['todateoutput'] = date('d-m-Y', $lecture_obj->toTime);
+        $lecture['totimeoutput'] = date('h:i A', $lecture_obj->toTime);
+        $course_obj = $lecture_obj->get_course();
+        if (is_object($course_obj)) {
+            $course_output = $course_obj->get_displayname();
+            $teacher_output = $course_obj->get_teacheroutput();
+        }
+        $isactivelist = parse_selectlist2('lecture[isActive]', 1, array(1 => $lang->yes, 0 => $lang->no), $lecture['isActive']);
+        eval("\$modal= \"" . $template->get('modal_managelecture') . "\";");
+        echo ($modal);
+    }
+    elseif ($core->input['action'] == 'do_perform_managelecture') {
+        $lecture_data = $core->input['lecture'];
+        $lecture_obj = new Lectures();
+        $lecture_obj->set($lecture_data);
+        $lecture_obj->save();
+        switch ($lecture_obj->get_errorcode()) {
+            case 0:
+                output_xml("<status>true</status><message>{$lang->successfullysaved}<![CDATA[<script>$(function(){  $('#calendar_modal').modal('toggle');$('#calendar').fullCalendar( 'refetchEvents' ); });</script>]]></message>");
+                break;
+            case 1:
+                output_xml("<status>false</status><message>{$lang->fillallrequiredfields}</message>");
+                break;
+            default:
+                output_xml("<status>false</status><message>{$lang->errorsaving}</message>");
+                break;
+        }
+    }
 }
 
 function get_editpopup_output($id, $type, $div) {
