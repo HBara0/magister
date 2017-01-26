@@ -149,4 +149,9 @@ class CalendarAssignments extends AbstractClass {
         }
     }
 
+    public function get_color() {
+        $assigned_obj = $this->get_assigned_object();
+        return $assigned_obj->get_color();
+    }
+
 }

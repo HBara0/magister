@@ -35,9 +35,9 @@ $settings['systemtitle'] = "Magister";
 $settings['timeformat'] = "h:i A";
 $settings['weeklyplan_deletehours'] = "2880";
 $settings['weeklyplan_editdays'] = "30";
-$settings['deadlinescolor'] = "#ea0404";
-$settings['eventscolor'] = "#1704ea";
-$settings['lecturescolor'] = "#1704ea";
-$settings['recommendationscolor'] = "#109c13";
+$settings['deadlinescolor'] = "#F30021";
+$settings['eventscolor'] = "#068BBE";
+$settings['lecturescolor'] = "#49B41B";
+$settings['recommendationscolor'] = "#FF7400";
 $settings['lecturelength'] = "10800";
 ?>
