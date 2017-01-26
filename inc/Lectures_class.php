@@ -30,8 +30,10 @@ class Lectures extends AbstractClass {
             $data['toTime'] = strtotime($data['toDate'] . ' ' . $data['toTime']);
             unset($data['toDate']);
         }
-        $data['fromTime'] = strtotime($data['fromDate'] . ' ' . $data['fromTime']);
-        unset($data['fromDate']);
+        if (!$data['fromTime']) {
+            $data['fromTime'] = strtotime($data['fromDate'] . ' ' . $data['fromTime']);
+            unset($data['fromDate']);
+        }
         $data['toTime'] = $data['fromTime'] + $sessiontime;
         $data['createdOn'] = TIME_NOW;
         $data['createdBy'] = $core->user['uid'];
@@ -47,11 +49,16 @@ class Lectures extends AbstractClass {
 
     protected function update(array $data) {
         global $db, $log, $core, $errorhandler, $lang;
+        if (!$data['toTime']) {
+            $data['toTime'] = strtotime($data['toDate'] . ' ' . $data['toTime']);
+            unset($data['toDate']);
+        }
 
-        $data['toTime'] = strtotime($data['toDate'] . ' ' . $data['toTime']);
-        unset($data['toDate']);
-        $data['fromTime'] = strtotime($data['fromDate'] . ' ' . $data['fromTime']);
-        unset($data['fromDate']);
+        if (!$data['fromTime']) {
+            $data['fromTime'] = strtotime($data['fromDate'] . ' ' . $data['fromTime']);
+            unset($data['fromDate']);
+        }
+
         $data['modifiedOn'] = TIME_NOW;
         $data['modifiedBy'] = $core->user['uid'];
         if (!$data['toTime']) {

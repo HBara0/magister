@@ -180,6 +180,10 @@ else {
     }
     elseif ($core->input['action'] == 'do_perform_managelecture') {
         $lecture_data = $core->input['lecture'];
+        $lecture_data['toTime'] = strtotime($lecture_data['toDate'] . ' ' . $lecture_data['toTime']);
+        unset($lecture_data['toDate']);
+        $lecture_data['fromTime'] = strtotime($lecture_data['fromDate'] . ' ' . $lecture_data['fromTime']);
+        unset($lecture_data['fromDate']);
         $lecture_obj = new Lectures();
         $lecture_obj->set($lecture_data);
         $lecture_obj->save();
