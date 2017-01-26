@@ -1342,7 +1342,6 @@ function initialize_datatables() {
             }
             var table = $(maintable).DataTable(
                     {
-                        stateSave: true,
                         "pagingType": "full_numbers",
                         "initComplete": function() {
                             if ($(maintable).attr('data-checkonclick') === 'true') {
