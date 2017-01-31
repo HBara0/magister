@@ -1,6 +1,10 @@
 /nbproject/private/
+inc/config.php
+inc/settings.php
+inc/init.php
 Thumbs.db
 /tmp/
+inc/init.php
 inc/integration_config.php
 .htaccess
 /uploads/*
