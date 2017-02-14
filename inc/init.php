@@ -15,7 +15,6 @@ if (!defined('ROOT')) {
 define('INC_ROOT', 'inc/');
 
 error_reporting(E_ALL & ~E_NOTICE);
-
 require_once ROOT . INC_ROOT . 'config.php';
 /*
  * Vital definitions
@@ -37,7 +36,6 @@ define("TEMPLATES_SYSTEM", 'FILE');
 define("TIME_NOW", time());
 
 $config['admindir'] = ADMIN_DIR;
-$settings['rootdir'] = DOMAIN;
 
 $settings['rootdir'] = DOMAIN;
 $settings['cookie_prefix'] = COOKIE_PREFIX;

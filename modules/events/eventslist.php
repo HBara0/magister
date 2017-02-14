@@ -45,7 +45,7 @@ else {
         }
         $id = intval($core->input['id']);
         $event_obj = new Events($id);
-        echo ($event_obj->parse_popup());
+        echo ($event_obj->parse_popup('events_modal'));
     }
     elseif ($core->input['action'] == 'events_subscribe') {
         if (!$core->input['id']) {
